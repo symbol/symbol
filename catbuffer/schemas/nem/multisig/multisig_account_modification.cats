@@ -69,11 +69,11 @@ struct NonVerifiableMultisigAccountModificationTransactionV1
 	inline MultisigAccountModificationTransactionV1Body
 
 # binary layout for a multisig account modification transaction (V2, latest)
-struct MultisigAccountModificationTransaction
+struct MultisigAccountModificationTransactionV2
 	inline Transaction
 	inline MultisigAccountModificationTransactionV2Body
 
 # binary layout for a non-verifiable multisig account modification transaction (V2, latest)
-struct NonVerifiableMultisigAccountModificationTransaction
+struct NonVerifiableMultisigAccountModificationTransactionV2
 	inline NonVerifiableTransaction
 	inline MultisigAccountModificationTransactionV2Body

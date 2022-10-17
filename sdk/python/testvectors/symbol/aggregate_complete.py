@@ -2,19 +2,19 @@ from binascii import unhexlify
 
 aggregate_recipes = {
 	# comment: two transfers
-	'schema_name': 'AggregateCompleteTransaction',
+	'schema_name': 'AggregateCompleteTransactionV1',
 	'descriptors': [
 		{
-			'aggregate': {'type': 'aggregate_complete_transaction'},
+			'aggregate': {'type': 'aggregate_complete_transaction_v1'},
 			'embedded': [
 				{
-					'type': 'transfer_transaction',
+					'type': 'transfer_transaction_v1',
 					'recipient_address': 'TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ',
 					'mosaics': [],
 					'message': 'Hello 👋'
 				},
 				{
-					'type': 'transfer_transaction',
+					'type': 'transfer_transaction_v1',
 					'recipient_address': 'TCIFSMQZAX3IDPHUP2RTXP26N6BJRNKEBBKP33I',
 					'mosaics': [
 						{'mosaic_id': 0x000056CE00002B67, 'amount': 0x0000000000000064},

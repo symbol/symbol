@@ -5,14 +5,14 @@ export default () => {
 
 	return [
 		{
-			type: 'address_alias_transaction',
+			type: 'address_alias_transaction_v1',
 			namespaceId: sampleNamespaceId,
 			address: sampleAddress,
 			aliasAction: 'link'
 		},
 
 		{
-			type: 'mosaic_alias_transaction',
+			type: 'mosaic_alias_transaction_v1',
 			namespaceId: sampleNamespaceId,
 			mosaicId: sampleMosaicId,
 			aliasAction: 'link'

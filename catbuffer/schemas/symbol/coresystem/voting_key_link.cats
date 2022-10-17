@@ -14,7 +14,7 @@ inline struct VotingKeyLinkTransactionBody
 	# Account link action.
 	link_action = LinkAction
 
-# Link an account with a BLS public key required for finalization voting.
+# Link an account with a public key required for finalization voting (V1, latest).
 #
 # This transaction is required for node operators wanting to vote for
 # [finalization](/concepts/block.html#finalization).
@@ -27,15 +27,15 @@ inline struct VotingKeyLinkTransactionBody
 #
 # See more details in
 # [the manual node setup guide](/guides/network/running-a-symbol-node-manually.html#manual-voting-key-renewal).
-struct VotingKeyLinkTransaction
+struct VotingKeyLinkTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, VOTING_KEY_LINK)
 
 	inline Transaction
 	inline VotingKeyLinkTransactionBody
 
-# Embedded version of VotingKeyLinkTransaction.
-struct EmbeddedVotingKeyLinkTransaction
+# Embedded version of VotingKeyLinkTransaction (V1, latest).
+struct EmbeddedVotingKeyLinkTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, VOTING_KEY_LINK)
 

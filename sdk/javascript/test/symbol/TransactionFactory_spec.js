@@ -59,7 +59,7 @@ describe('transaction factory (Symbol)', () => {
 
 			// Act:
 			const transaction = testDescriptor.createTransaction(factory)({
-				type: 'hash_lock_transaction',
+				type: 'hash_lock_transaction_v1',
 				signerPublicKey: 'signerName',
 				hash: 'not really',
 				duration: 'fake duration',
@@ -89,7 +89,7 @@ describe('transaction factory (Symbol)', () => {
 
 			// Act:
 			const transaction = testDescriptor.createTransaction(factory)({
-				type: 'account_address_restriction_transaction',
+				type: 'account_address_restriction_transaction_v1',
 				signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
 				restrictionAdditions: [
 					new Address('AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA'),
@@ -109,7 +109,7 @@ describe('transaction factory (Symbol)', () => {
 		// region sorting
 
 		const createUnorderedDescriptor = () => ({
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
 			mosaics: [
 				{
@@ -159,7 +159,7 @@ describe('transaction factory (Symbol)', () => {
 
 			// Act:
 			const transaction = testDescriptor.createTransaction(factory)({
-				type: 'namespace_registration_transaction',
+				type: 'namespace_registration_transaction_v1',
 				signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
 				registrationType: 'root',
 				duration: 123n,
@@ -177,7 +177,7 @@ describe('transaction factory (Symbol)', () => {
 
 			// Act:
 			const transaction = testDescriptor.createTransaction(factory)({
-				type: 'namespace_registration_transaction',
+				type: 'namespace_registration_transaction_v1',
 				signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
 				registrationType: 'child',
 				parentId: generateNamespaceId('roger'),
@@ -195,7 +195,7 @@ describe('transaction factory (Symbol)', () => {
 
 			// Act:
 			const transaction = testDescriptor.createTransaction(factory)({
-				type: 'mosaic_definition_transaction',
+				type: 'mosaic_definition_transaction_v1',
 				signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
 				nonce: 123
 			});

@@ -19,21 +19,21 @@ inline struct AccountMetadataTransactionBody
 	# \note When there is an existing value, the new value is the byte-wise XOR of the previous value and this array.
 	value = array(uint8, value_size)
 
-# Associate a key-value state ([metadata](/concepts/metadata.html)) to an **account**.
+# Associate a key-value state ([metadata](/concepts/metadata.html)) to an **account** (V1, latest).
 #
 # \note This transaction must **always** be wrapped in an AggregateTransaction so that a cosignature from
 # `target_address` can be provided. Without this cosignature the transaction is invalid.
 #
 # Compare to MosaicMetadataTransaction and NamespaceMetadataTransaction.
-struct AccountMetadataTransaction
+struct AccountMetadataTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_METADATA)
 
 	inline Transaction
 	inline AccountMetadataTransactionBody
 
-# Embedded version of AccountMetadataTransaction.
-struct EmbeddedAccountMetadataTransaction
+# Embedded version of AccountMetadataTransaction (V1, latest).
+struct EmbeddedAccountMetadataTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_METADATA)
 

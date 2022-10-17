@@ -8,20 +8,20 @@ def descriptor_factory():
 
 	templates = [
 		{
-			'type': 'account_metadata_transaction',
+			'type': 'account_metadata_transaction_v1',
 			'target_address': sample_address,
 			'scoped_metadata_key': 0xC0FFE
 		},
 
 		{
-			'type': 'mosaic_metadata_transaction',
+			'type': 'mosaic_metadata_transaction_v1',
 			'target_mosaic_id': sample_mosaic_id,
 			'target_address': sample_address,
 			'scoped_metadata_key': 0xFACADE
 		},
 
 		{
-			'type': 'namespace_metadata_transaction',
+			'type': 'namespace_metadata_transaction_v1',
 			'target_namespace_id': sample_namespace_id,
 			'target_address': sample_address,
 			'scoped_metadata_key': 0xC1CADA

@@ -36,22 +36,22 @@ inline struct MultisigAccountModificationTransactionBody
 	# to the minimum removal value.
 	address_deletions = array(UnresolvedAddress, address_deletions_count)
 
-# Create or modify a [multi-signature](/concepts/multisig-account.html) account.
+# Create or modify a [multi-signature](/concepts/multisig-account.html) account (V1, latest).
 #
 # This transaction allows you to:
 # - Transform a regular account into a multisig account.
 # - Change the configurable properties of a multisig account.
 # - Add or delete cosignatories from a multisig account
 #   (removing all cosignatories turns a multisig account into a regular account again).
-struct MultisigAccountModificationTransaction
+struct MultisigAccountModificationTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_ACCOUNT_MODIFICATION)
 
 	inline Transaction
 	inline MultisigAccountModificationTransactionBody
 
-# Embedded version of MultisigAccountModificationTransaction.
-struct EmbeddedMultisigAccountModificationTransaction
+# Embedded version of MultisigAccountModificationTransaction (V1, latest).
+struct EmbeddedMultisigAccountModificationTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_ACCOUNT_MODIFICATION)
 

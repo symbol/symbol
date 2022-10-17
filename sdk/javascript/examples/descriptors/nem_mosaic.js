@@ -19,7 +19,7 @@ export default () => {
 	return [
 		// without properties
 		{
-			type: 'mosaic_definition_transaction',
+			type: 'mosaic_definition_transaction_v1',
 			rentalFeeSink: 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
 			rentalFee: 50000n * 1000000n,
 
@@ -35,7 +35,7 @@ export default () => {
 
 		// with properties
 		{
-			type: 'mosaic_definition_transaction',
+			type: 'mosaic_definition_transaction_v1',
 			rentalFeeSink: 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
 			rentalFee: 50000n * 1000000n,
 
@@ -55,7 +55,7 @@ export default () => {
 
 		// with levy
 		{
-			type: 'mosaic_definition_transaction',
+			type: 'mosaic_definition_transaction_v1',
 			rentalFeeSink: 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
 			rentalFee: 50000n * 1000000n,
 
@@ -76,7 +76,7 @@ export default () => {
 
 		// supply change
 		{
-			type: 'mosaic_supply_change_transaction',
+			type: 'mosaic_supply_change_transaction_v1',
 			mosaicId: { namespaceId: { name: textEncoder.encode('genes') }, name: textEncoder.encode('memes') },
 			action: 'increase',
 			delta: 321_000n

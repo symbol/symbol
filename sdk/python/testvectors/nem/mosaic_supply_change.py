@@ -1,9 +1,9 @@
 recipes = {
-	'schema_name': 'MosaicSupplyChangeTransaction',
+	'schema_name': 'MosaicSupplyChangeTransactionV1',
 	'descriptors': [
 		# comment: increase
 		{
-			'type': 'mosaic_supply_change_transaction',
+			'type': 'mosaic_supply_change_transaction_v1',
 			'mosaic_id': {
 				'namespace_id': {'name': b'banksters'},
 				'name': b'bailout'
@@ -13,7 +13,7 @@ recipes = {
 		},
 		# comment: decrease
 		{
-			'type': 'mosaic_supply_change_transaction',
+			'type': 'mosaic_supply_change_transaction_v1',
 			'mosaic_id': {
 				'namespace_id': {'name': b'banksters'},
 				'name': b'bailout',

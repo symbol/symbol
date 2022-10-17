@@ -29,8 +29,8 @@ struct SizePrefixedCosignature
 	# cosignature
 	cosignature = Cosignature
 
-# binary layout for a multisig transaction
-struct MultisigTransaction
+# binary layout for a multisig transaction (V1, latest)
+struct MultisigTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_TRANSACTION)
 

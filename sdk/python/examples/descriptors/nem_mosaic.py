@@ -19,7 +19,7 @@ def descriptor_factory():
 	return [
 		# without properties
 		{
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'rental_fee_sink': 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
 			'rental_fee': 50000 * 1000000,
 
@@ -35,7 +35,7 @@ def descriptor_factory():
 
 		# with properties
 		{
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'rental_fee_sink': 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
 			'rental_fee': 50000 * 1000000,
 
@@ -55,7 +55,7 @@ def descriptor_factory():
 
 		# with levy
 		{
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'rental_fee_sink': 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
 			'rental_fee': 50000 * 1000000,
 
@@ -76,7 +76,7 @@ def descriptor_factory():
 
 		# supply change
 		{
-			'type': 'mosaic_supply_change_transaction',
+			'type': 'mosaic_supply_change_transaction_v1',
 			'mosaic_id': {'namespace_id': {'name': 'genes'.encode('utf8')}, 'name': 'memes'.encode('utf8')},
 			'action': 'increase',
 			'delta': 321_000

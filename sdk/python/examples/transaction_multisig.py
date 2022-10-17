@@ -38,7 +38,7 @@ class MultisigAccountModificationSample:
 	def create_aggregate_transaction(self):
 		embedded_transactions = [
 			self.facade.transaction_factory.create_embedded({
-				'type': 'multisig_account_modification_transaction',
+				'type': 'multisig_account_modification_transaction_v1',
 				'signer_public_key': self.multisig_key_pair.public_key,
 				'min_approval_delta': 1,
 				'min_removal_delta': 1,
@@ -47,7 +47,7 @@ class MultisigAccountModificationSample:
 		]
 
 		return self.facade.transaction_factory.create({
-			'type': 'aggregate_complete_transaction',
+			'type': 'aggregate_complete_transaction_v1',
 			'signer_public_key': self.multisig_key_pair.public_key,
 			'fee': 625,
 			'deadline': 12345,

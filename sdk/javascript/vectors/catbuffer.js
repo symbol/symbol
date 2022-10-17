@@ -65,7 +65,7 @@ describe('catbuffer vectors', () => {
 		if (bigIntPropertyNames.some(name => key.includes(name)))
 			return false;
 
-		if ('delta' === key && 'mosaic_supply_change_transaction' === type)
+		if ('delta' === key && 'mosaic_supply_change_transaction_v1' === type)
 			return false;
 
 		return 0xFFFFFFFFn >= value;
@@ -81,7 +81,7 @@ describe('catbuffer vectors', () => {
 			} else if (Array.isArray(value)) {
 				value = value.map(valueItem => {
 					if ('bigint' === typeof (valueItem))
-						return 'account_mosaic_restriction_transaction' === source.type ? valueItem : Number(valueItem);
+						return 'account_mosaic_restriction_transaction_v1' === source.type ? valueItem : Number(valueItem);
 
 					if ('object' === typeof (valueItem))
 						return jsify(valueItem);
@@ -106,7 +106,7 @@ describe('catbuffer vectors', () => {
 		const fixupDescriptorCommon = (descriptor, module) => {
 			Object.getOwnPropertyNames(descriptor).forEach(key => {
 				// skip false positive due to ABC123 value that should be treated as plain string
-				if ('value' === key && 'namespace_metadata_transaction' === descriptor.type)
+				if ('value' === key && 'namespace_metadata_transaction_v1' === descriptor.type)
 					return;
 
 				const value = descriptor[key];

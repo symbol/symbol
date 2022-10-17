@@ -32,7 +32,7 @@ class SymbolTransactionFactoryTest(AbstractBasicTransactionFactoryExSignatureTes
 
 		# Act:
 		transaction = self.create_transaction(factory)({
-			'type': 'hash_lock_transaction',
+			'type': 'hash_lock_transaction_v1',
 			'signer_public_key': 'signer_name',
 			'hash': 'not really',
 			'duration': 'fake duration',
@@ -60,7 +60,7 @@ class SymbolTransactionFactoryTest(AbstractBasicTransactionFactoryExSignatureTes
 
 		# Act:
 		transaction = self.create_transaction(factory)({
-			'type': 'account_address_restriction_transaction',
+			'type': 'account_address_restriction_transaction_v1',
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'restriction_additions': [
 				Address('AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA'),
@@ -80,7 +80,7 @@ class SymbolTransactionFactoryTest(AbstractBasicTransactionFactoryExSignatureTes
 	@staticmethod
 	def _create_unordered_descriptor():
 		return {
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'mosaics': [
 				{
@@ -129,7 +129,7 @@ class SymbolTransactionFactoryTest(AbstractBasicTransactionFactoryExSignatureTes
 
 		# Act:
 		transaction = self.create_transaction(factory)({
-			'type': 'namespace_registration_transaction',
+			'type': 'namespace_registration_transaction_v1',
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'registration_type': 'root',
 			'duration': 123,
@@ -146,7 +146,7 @@ class SymbolTransactionFactoryTest(AbstractBasicTransactionFactoryExSignatureTes
 
 		# Act:
 		transaction = self.create_transaction(factory)({
-			'type': 'namespace_registration_transaction',
+			'type': 'namespace_registration_transaction_v1',
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'registration_type': 'child',
 			'parent_id': generate_namespace_id('roger'),
@@ -163,7 +163,7 @@ class SymbolTransactionFactoryTest(AbstractBasicTransactionFactoryExSignatureTes
 
 		# Act:
 		transaction = self.create_transaction(factory)({
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'nonce': 123
 		})

@@ -25,7 +25,7 @@ class SymbolFacadeTest(unittest.TestCase):
 	@staticmethod
 	def _create_real_transfer(facade):
 		return facade.transaction_factory.create({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': 'TEST',
 			'fee': 1000000,
 			'deadline': 41998024783,
@@ -38,14 +38,14 @@ class SymbolFacadeTest(unittest.TestCase):
 	@staticmethod
 	def _create_real_aggregate(facade):
 		aggregate = facade.transaction_factory.create({
-			'type': 'aggregate_complete_transaction',
+			'type': 'aggregate_complete_transaction_v1',
 			'signer_public_key': 'TEST',
 			'fee': 2000000,
 			'deadline': 42238390163,
 			'transactions_hash': '71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'
 		})
 		transfer = facade.transaction_factory.create_embedded({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': 'TEST',
 			'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
 			'mosaics': [
@@ -59,7 +59,7 @@ class SymbolFacadeTest(unittest.TestCase):
 	def _create_real_embedded_transactions(facade):
 		return list(map(facade.transaction_factory.create_embedded, [
 			{
-				'type': 'transfer_transaction',
+				'type': 'transfer_transaction_v1',
 				'signer_public_key': 'TEST',
 				'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
 				'mosaics': [
@@ -67,7 +67,7 @@ class SymbolFacadeTest(unittest.TestCase):
 				]
 			},
 			{
-				'type': 'secret_proof_transaction',
+				'type': 'secret_proof_transaction_v1',
 				'signer_public_key': 'TEST',
 				'recipient_address': 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y',
 				'secret': 'BE254D2744329BBE20F9CF6DA61043B4CEF8C2BC000000000000000000000000',
@@ -75,7 +75,7 @@ class SymbolFacadeTest(unittest.TestCase):
 				'proof': '41FB'
 			},
 			{
-				'type': 'address_alias_transaction',
+				'type': 'address_alias_transaction_v1',
 				'signer_public_key': 'TEST',
 				'namespace_id': 0xA95F1F8A96159516,
 				'address': 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y',
@@ -86,14 +86,14 @@ class SymbolFacadeTest(unittest.TestCase):
 	@staticmethod
 	def _create_real_aggregate_swap(facade):
 		return facade.transaction_factory.create({
-			'type': 'aggregate_complete_transaction',
+			'type': 'aggregate_complete_transaction_v1',
 			'signer_public_key': '4C94E8B0A1DAB8573BCB6632E676F742E0D320FC8102F20FB7FB13BCAE9A9F60',
 			'fee': 36000,
 			'deadline': 26443750218,
 			'transactions_hash': '641CB7E431F1D44094A43E1CE8265E6BD1DF1C3B0B64797CDDAA0A375FCD3C08',
 			'transactions': [
 				facade.transaction_factory.create_embedded({
-					'type': 'transfer_transaction',
+					'type': 'transfer_transaction_v1',
 					'signer_public_key': '29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3',
 					'recipient_address': 'TBEZ3VKFBMKQSW7APBVL5NWNBEU7RR466PRRTDQ',
 					'mosaics': [
@@ -101,7 +101,7 @@ class SymbolFacadeTest(unittest.TestCase):
 					]
 				}),
 				facade.transaction_factory.create_embedded({
-					'type': 'transfer_transaction',
+					'type': 'transfer_transaction_v1',
 					'signer_public_key': '4C94E8B0A1DAB8573BCB6632E676F742E0D320FC8102F20FB7FB13BCAE9A9F60',
 					'recipient_address': 'TDFR3Q3H5W4OPOSHALVDY3RF4ZQNH44LIUIHYTQ',
 					'mosaics': [
@@ -149,7 +149,7 @@ class SymbolFacadeTest(unittest.TestCase):
 		# Act:
 		facade = SymbolFacade('testnet')
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': bytes(PublicKey.SIZE)
 		})
 
@@ -171,7 +171,7 @@ class SymbolFacadeTest(unittest.TestCase):
 		# Act:
 		facade = SymbolFacade(network)
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': bytes(PublicKey.SIZE)
 		})
 
@@ -186,7 +186,7 @@ class SymbolFacadeTest(unittest.TestCase):
 		# Act:
 		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': 'TEST',
 			'recipient_address': 'SYMBOL'
 		})

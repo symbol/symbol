@@ -21,16 +21,16 @@ inline struct AccountOperationRestrictionTransactionBody
 	# Array of transaction types being rtemoved from the restricted list.
 	restriction_deletions = array(TransactionType, restriction_deletions_count)
 
-# Allow or block outgoing transactions depending on their transaction type.
-struct AccountOperationRestrictionTransaction
+# Allow or block outgoing transactions depending on their transaction type (V1, latest).
+struct AccountOperationRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_OPERATION_RESTRICTION)
 
 	inline Transaction
 	inline AccountOperationRestrictionTransactionBody
 
-# Embedded version of AccountOperationRestrictionTransaction.
-struct EmbeddedAccountOperationRestrictionTransaction
+# Embedded version of AccountOperationRestrictionTransaction (V1, latest).
+struct EmbeddedAccountOperationRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_OPERATION_RESTRICTION)
 

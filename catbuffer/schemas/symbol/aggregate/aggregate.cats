@@ -29,17 +29,17 @@ inline struct AggregateTransactionBody
 	# Fills up remaining body space after transactions.
 	cosignatures = array(Cosignature, __FILL__)
 
-# Send transactions in batches to different accounts.
+# Send transactions in batches to different accounts (V1, latest).
 #
 # Use this transaction when all required signatures are available when the transaction is created.
-struct AggregateCompleteTransaction
+struct AggregateCompleteTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, AGGREGATE_COMPLETE)
 
 	inline Transaction
 	inline AggregateTransactionBody
 
-# Propose an arrangement of transactions between different accounts.
+# Propose an arrangement of transactions between different accounts (V1, latest).
 #
 # Use this transaction when not all required signatures are available when the transaction is created.
 #
@@ -47,7 +47,7 @@ struct AggregateCompleteTransaction
 #
 # To prevent spam attacks, before trying to announce this transaction a HashLockTransaction must be
 # successfully announced and confirmed.
-struct AggregateBondedTransaction
+struct AggregateBondedTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, AGGREGATE_BONDED)
 

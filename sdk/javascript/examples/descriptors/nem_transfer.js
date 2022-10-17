@@ -5,14 +5,14 @@ export default () => {
 	return [
 		// mosaics but no message
 		{
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v2',
 			recipientAddress: sampleAddress,
 			amount: 12345_000000n
 		},
 
 		// message but no mosaics
 		{
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v2',
 			recipientAddress: sampleAddress,
 			message: {
 				messageType: 'plain',
@@ -22,7 +22,7 @@ export default () => {
 
 		// mosaics and message
 		{
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v2',
 			recipientAddress: sampleAddress,
 			amount: 12345_000000n,
 			message: {
@@ -33,7 +33,7 @@ export default () => {
 
 		// mosaic bags
 		{
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v2',
 			recipientAddress: sampleAddress,
 			amount: 1_000000n,
 			message: {

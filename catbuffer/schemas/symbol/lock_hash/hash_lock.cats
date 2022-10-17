@@ -13,7 +13,7 @@ inline struct HashLockTransactionBody
 	# Hash of the AggregateBondedTransaction to be confirmed before unlocking the mosaics.
 	hash = Hash256
 
-# Lock a deposit needed to announce an AggregateBondedTransaction.
+# Lock a deposit needed to announce an AggregateBondedTransaction (V1, latest).
 #
 # An AggregateBondedTransaction consumes network resources as it is stored in every node's partial cache while
 # it waits to be fully signed. To avoid spam attacks a HashLockTransaction must be announced and confirmed
@@ -28,7 +28,7 @@ inline struct HashLockTransactionBody
 # \note It is not necessary to sign the aggregate and its HashLockTransaction with the same account.
 # For example, if Bob wants to announce an aggregate and does not have enough funds to announce a HashLockTransaction,
 # he can ask Alice to announce the lock transaction for him by sharing the signed AggregateTransaction hash.
-struct HashLockTransaction
+struct HashLockTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, HASH_LOCK)
 
@@ -36,7 +36,7 @@ struct HashLockTransaction
 	inline HashLockTransactionBody
 
 # Embedded version of HashLockTransaction.
-struct EmbeddedHashLockTransaction
+struct EmbeddedHashLockTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, HASH_LOCK)
 

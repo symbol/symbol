@@ -21,16 +21,16 @@ inline struct AccountAddressRestrictionTransactionBody
 	# Array of account addresses being removed from the restricted list.
 	restriction_deletions = array(UnresolvedAddress, restriction_deletions_count)
 
-# Allow or block incoming and outgoing transactions for a given a set of addresses.
-struct AccountAddressRestrictionTransaction
+# Allow or block incoming and outgoing transactions for a given a set of addresses (V1, latest).
+struct AccountAddressRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_ADDRESS_RESTRICTION)
 
 	inline Transaction
 	inline AccountAddressRestrictionTransactionBody
 
-# Embedded version of AccountAddressRestrictionTransaction.
-struct EmbeddedAccountAddressRestrictionTransaction
+# Embedded version of AccountAddressRestrictionTransaction (V1, latest).
+struct EmbeddedAccountAddressRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_ADDRESS_RESTRICTION)
 

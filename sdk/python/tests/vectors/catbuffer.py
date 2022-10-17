@@ -52,7 +52,7 @@ def fixup_descriptor_common(descriptor, module):
 
 	for key, value in descriptor.items():
 		# skip false positive due to ABC123 value that should be treated as plain string
-		if 'value' == key and 'namespace_metadata_transaction' == descriptor.get('type'):
+		if 'value' == key and 'namespace_metadata_transaction_v1' == descriptor.get('type'):
 			continue
 
 		if isinstance(value, str) and hex_string_pattern.match(value):

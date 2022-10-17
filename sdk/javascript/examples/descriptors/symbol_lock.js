@@ -8,14 +8,14 @@ export default () => {
 	return [
 		// note: only network currency can be used as a mosaic in hash lock
 		{
-			type: 'hash_lock_transaction',
+			type: 'hash_lock_transaction_v1',
 			mosaic: { mosaicId: sampleMosaicId, amount: 123_000000n },
 			duration: 123n,
 			hash: symbolSdk.Hash256.zero()
 		},
 
 		{
-			type: 'secret_lock_transaction',
+			type: 'secret_lock_transaction_v1',
 			mosaic: { mosaicId: sampleMosaicId, amount: 123_000000n },
 			duration: 123n,
 			recipientAddress: sampleAddress,
@@ -24,7 +24,7 @@ export default () => {
 		},
 
 		{
-			type: 'secret_proof_transaction',
+			type: 'secret_proof_transaction_v1',
 			recipientAddress: sampleAddress,
 			secret,
 			hashAlgorithm: 'hash_160',

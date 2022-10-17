@@ -1,9 +1,9 @@
 recipes = {
-	'schema_name': 'MosaicDefinitionTransaction',
+	'schema_name': 'MosaicDefinitionTransactionV1',
 	'descriptors': [
 		# comment: without supply
 		{
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'mosaic_definition': {
 				'owner_public_key': '875BD953CB8EC0BDEAA01552E390B5E59DEAAD44D81BD7DEAF0C332F99AEECE8',
 				'id': {
@@ -23,7 +23,7 @@ recipes = {
 		},
 		# comment: non-zero supply
 		{
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'mosaic_definition': {
 				'owner_public_key': 'F53B19CB1CAB394E22E3DDFA6D9B42DA87F37EB517EFA214433071E5619F898D',
 				'id': {
@@ -43,7 +43,7 @@ recipes = {
 		},
 		# comment: supplyMutable
 		{
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'mosaic_definition': {
 				'owner_public_key': '69AF8763FEECEF35E0AEF44A202EFAC4936532C202784CF85CBCD16BFC45F119',
 				'id': {
@@ -63,7 +63,7 @@ recipes = {
 		},
 		# comment: absolute levy
 		{
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'mosaic_definition': {
 				'owner_public_key': 'B5B93DDE2D05D21D0A14E6F60DB33E983B88A99FB203916D408AF5749A396960',
 				'id': {
@@ -93,7 +93,7 @@ recipes = {
 		},
 		# comment: percentile-based levy
 		{
-			'type': 'mosaic_definition_transaction',
+			'type': 'mosaic_definition_transaction_v1',
 			'mosaic_definition': {
 				'owner_public_key': 'D7F44870D24E7626DB24591452A2F7ECF6650B0D41D3BCB4FB4BA11B063B80AC',
 				'id': {

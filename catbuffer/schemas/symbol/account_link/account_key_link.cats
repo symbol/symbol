@@ -8,18 +8,18 @@ inline struct AccountKeyLinkTransactionBody
 	# Account link action.
 	link_action = LinkAction
 
-# This transaction is required for all accounts wanting to activate remote or delegated harvesting.
+# This transaction is required for all accounts wanting to activate remote or delegated harvesting (V1, latest).
 #
 # Announce an AccountKeyLinkTransaction to delegate the account importance score to a proxy account.
-struct AccountKeyLinkTransaction
+struct AccountKeyLinkTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_KEY_LINK)
 
 	inline Transaction
 	inline AccountKeyLinkTransactionBody
 
-# Embedded version of AccountKeyLinkTransaction.
-struct EmbeddedAccountKeyLinkTransaction
+# Embedded version of AccountKeyLinkTransaction (V1, latest).
+struct EmbeddedAccountKeyLinkTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_KEY_LINK)
 

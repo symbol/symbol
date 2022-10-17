@@ -3,19 +3,19 @@ def descriptor_factory():
 
 	return [
 		{
-			'type': 'account_key_link_transaction',
+			'type': 'account_key_link_transaction_v1',
 			'linked_public_key': sample_public_key,
 			'link_action': 'link'
 		},
 
 		{
-			'type': 'node_key_link_transaction',
+			'type': 'node_key_link_transaction_v1',
 			'linked_public_key': sample_public_key,
 			'link_action': 'link'
 		},
 
 		{
-			'type': 'voting_key_link_transaction',
+			'type': 'voting_key_link_transaction_v1',
 			'linked_public_key': sample_public_key,
 			'link_action': 'link',
 			'start_epoch': 10,
@@ -23,7 +23,7 @@ def descriptor_factory():
 		},
 
 		{
-			'type': 'vrf_key_link_transaction',
+			'type': 'vrf_key_link_transaction_v1',
 			'linked_public_key': sample_public_key,
 			'link_action': 'link'
 		}

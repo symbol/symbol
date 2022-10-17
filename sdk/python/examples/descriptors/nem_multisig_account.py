@@ -2,7 +2,7 @@ def descriptor_factory():
 	return [
 		# V2 add
 		{
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v2',
 			'min_approval_delta': 1,
 			'modifications': [
 				{

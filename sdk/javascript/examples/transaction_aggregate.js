@@ -29,7 +29,7 @@ import { fileURLToPath } from 'url';
 		return filenames.map(filename => {
 			const message = readContents(path.join(resourcesDirectory, filename));
 			const embeddedTransaction = facade.transactionFactory.createEmbedded({
-				type: 'transfer_transaction',
+				type: 'transfer_transaction_v1',
 				signerPublicKey: publicKey,
 				recipientAddress,
 				// note: additional 0 byte at the beginning is added for compatibility with explorer
@@ -53,7 +53,7 @@ import { fileURLToPath } from 'url';
 	const merkleHash = facade.constructor.hashEmbeddedTransactions(embeddedTransactions);
 
 	const aggregateTransaction = facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction',
+		type: 'aggregate_complete_transaction_v1',
 		signerPublicKey: keyPair.publicKey,
 		fee: 0n,
 		deadline: 1n,

@@ -5,14 +5,14 @@ def descriptor_factory():
 
 	return [
 		{
-			'type': 'address_alias_transaction',
+			'type': 'address_alias_transaction_v1',
 			'namespace_id': sample_namespace_id,
 			'address': sample_address,
 			'alias_action': 'link'
 		},
 
 		{
-			'type': 'mosaic_alias_transaction',
+			'type': 'mosaic_alias_transaction_v1',
 			'namespace_id': sample_namespace_id,
 			'mosaic_id': sample_mosaic_id,
 			'alias_action': 'link'

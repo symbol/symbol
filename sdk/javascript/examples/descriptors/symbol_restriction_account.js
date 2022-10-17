@@ -5,7 +5,7 @@ export default () => {
 	return [
 		// allow incoming transactions only from address below
 		{
-			type: 'account_address_restriction_transaction',
+			type: 'account_address_restriction_transaction_v1',
 			restrictionFlags: 'address',
 			restrictionAdditions: [sampleAddress]
 		},
@@ -14,20 +14,20 @@ export default () => {
 		// note: block and allow restrictions are mutually exclusive, documentation
 		// https://docs.symbol.dev/concepts/account-restriction.html#account-restriction
 		{
-			type: 'account_address_restriction_transaction',
+			type: 'account_address_restriction_transaction_v1',
 			restrictionFlags: 'address outgoing block',
 			restrictionAdditions: [sampleAddress]
 		},
 
 		{
-			type: 'account_mosaic_restriction_transaction',
+			type: 'account_mosaic_restriction_transaction_v1',
 			restrictionFlags: 'mosaic_id',
 			restrictionAdditions: [sampleMosaicId]
 		},
 
 		// allow only specific transaction types
 		{
-			type: 'account_operation_restriction_transaction',
+			type: 'account_operation_restriction_transaction_v1',
 			restrictionFlags: 'outgoing',
 			restrictionAdditions: [
 				'transfer',

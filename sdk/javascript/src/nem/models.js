@@ -665,7 +665,7 @@ export class LinkAction {
 	}
 }
 
-export class AccountKeyLinkTransaction {
+export class AccountKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_KEY_LINK;
@@ -683,8 +683,8 @@ export class AccountKeyLinkTransaction {
 	};
 
 	constructor() {
-		this._type = AccountKeyLinkTransaction.TRANSACTION_TYPE;
-		this._version = AccountKeyLinkTransaction.TRANSACTION_VERSION;
+		this._type = AccountKeyLinkTransactionV1.TRANSACTION_TYPE;
+		this._version = AccountKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -840,7 +840,7 @@ export class AccountKeyLinkTransaction {
 		const remotePublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(remotePublicKey.size);
 
-		const instance = new AccountKeyLinkTransaction();
+		const instance = new AccountKeyLinkTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -890,7 +890,7 @@ export class AccountKeyLinkTransaction {
 	}
 }
 
-export class NonVerifiableAccountKeyLinkTransaction {
+export class NonVerifiableAccountKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_KEY_LINK;
@@ -907,8 +907,8 @@ export class NonVerifiableAccountKeyLinkTransaction {
 	};
 
 	constructor() {
-		this._type = NonVerifiableAccountKeyLinkTransaction.TRANSACTION_TYPE;
-		this._version = NonVerifiableAccountKeyLinkTransaction.TRANSACTION_VERSION;
+		this._type = NonVerifiableAccountKeyLinkTransactionV1.TRANSACTION_TYPE;
+		this._version = NonVerifiableAccountKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -1046,7 +1046,7 @@ export class NonVerifiableAccountKeyLinkTransaction {
 		const remotePublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(remotePublicKey.size);
 
-		const instance = new NonVerifiableAccountKeyLinkTransaction();
+		const instance = new NonVerifiableAccountKeyLinkTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -1791,7 +1791,7 @@ export class MosaicDefinition {
 	}
 }
 
-export class MosaicDefinitionTransaction {
+export class MosaicDefinitionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_DEFINITION;
@@ -1810,8 +1810,8 @@ export class MosaicDefinitionTransaction {
 	};
 
 	constructor() {
-		this._type = MosaicDefinitionTransaction.TRANSACTION_TYPE;
-		this._version = MosaicDefinitionTransaction.TRANSACTION_VERSION;
+		this._type = MosaicDefinitionTransactionV1.TRANSACTION_TYPE;
+		this._version = MosaicDefinitionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -1984,7 +1984,7 @@ export class MosaicDefinitionTransaction {
 		const rentalFee = Amount.deserialize(view.buffer);
 		view.shiftRight(rentalFee.size);
 
-		const instance = new MosaicDefinitionTransaction();
+		const instance = new MosaicDefinitionTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -2038,7 +2038,7 @@ export class MosaicDefinitionTransaction {
 	}
 }
 
-export class NonVerifiableMosaicDefinitionTransaction {
+export class NonVerifiableMosaicDefinitionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_DEFINITION;
@@ -2056,8 +2056,8 @@ export class NonVerifiableMosaicDefinitionTransaction {
 	};
 
 	constructor() {
-		this._type = NonVerifiableMosaicDefinitionTransaction.TRANSACTION_TYPE;
-		this._version = NonVerifiableMosaicDefinitionTransaction.TRANSACTION_VERSION;
+		this._type = NonVerifiableMosaicDefinitionTransactionV1.TRANSACTION_TYPE;
+		this._version = NonVerifiableMosaicDefinitionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -2212,7 +2212,7 @@ export class NonVerifiableMosaicDefinitionTransaction {
 		const rentalFee = Amount.deserialize(view.buffer);
 		view.shiftRight(rentalFee.size);
 
-		const instance = new NonVerifiableMosaicDefinitionTransaction();
+		const instance = new NonVerifiableMosaicDefinitionTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -2313,7 +2313,7 @@ export class MosaicSupplyChangeAction {
 	}
 }
 
-export class MosaicSupplyChangeTransaction {
+export class MosaicSupplyChangeTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_CHANGE;
@@ -2332,8 +2332,8 @@ export class MosaicSupplyChangeTransaction {
 	};
 
 	constructor() {
-		this._type = MosaicSupplyChangeTransaction.TRANSACTION_TYPE;
-		this._version = MosaicSupplyChangeTransaction.TRANSACTION_VERSION;
+		this._type = MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE;
+		this._version = MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -2500,7 +2500,7 @@ export class MosaicSupplyChangeTransaction {
 		const delta = Amount.deserialize(view.buffer);
 		view.shiftRight(delta.size);
 
-		const instance = new MosaicSupplyChangeTransaction();
+		const instance = new MosaicSupplyChangeTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -2553,7 +2553,7 @@ export class MosaicSupplyChangeTransaction {
 	}
 }
 
-export class NonVerifiableMosaicSupplyChangeTransaction {
+export class NonVerifiableMosaicSupplyChangeTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_CHANGE;
@@ -2571,8 +2571,8 @@ export class NonVerifiableMosaicSupplyChangeTransaction {
 	};
 
 	constructor() {
-		this._type = NonVerifiableMosaicSupplyChangeTransaction.TRANSACTION_TYPE;
-		this._version = NonVerifiableMosaicSupplyChangeTransaction.TRANSACTION_VERSION;
+		this._type = NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE;
+		this._version = NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -2721,7 +2721,7 @@ export class NonVerifiableMosaicSupplyChangeTransaction {
 		const delta = Amount.deserialize(view.buffer);
 		view.shiftRight(delta.size);
 
-		const instance = new NonVerifiableMosaicSupplyChangeTransaction();
+		const instance = new NonVerifiableMosaicSupplyChangeTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -3354,7 +3354,7 @@ export class NonVerifiableMultisigAccountModificationTransactionV1 {
 	}
 }
 
-export class MultisigAccountModificationTransaction {
+export class MultisigAccountModificationTransactionV2 {
 	static TRANSACTION_VERSION = 2;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -3371,8 +3371,8 @@ export class MultisigAccountModificationTransaction {
 	};
 
 	constructor() {
-		this._type = MultisigAccountModificationTransaction.TRANSACTION_TYPE;
-		this._version = MultisigAccountModificationTransaction.TRANSACTION_VERSION;
+		this._type = MultisigAccountModificationTransactionV2.TRANSACTION_TYPE;
+		this._version = MultisigAccountModificationTransactionV2.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -3535,7 +3535,7 @@ export class MultisigAccountModificationTransaction {
 		const minApprovalDelta = converter.bytesToIntUnaligned(view.buffer, 4, true);
 		view.shiftRight(4);
 
-		const instance = new MultisigAccountModificationTransaction();
+		const instance = new MultisigAccountModificationTransactionV2();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -3586,7 +3586,7 @@ export class MultisigAccountModificationTransaction {
 	}
 }
 
-export class NonVerifiableMultisigAccountModificationTransaction {
+export class NonVerifiableMultisigAccountModificationTransactionV2 {
 	static TRANSACTION_VERSION = 2;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -3602,8 +3602,8 @@ export class NonVerifiableMultisigAccountModificationTransaction {
 	};
 
 	constructor() {
-		this._type = NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_TYPE;
-		this._version = NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_VERSION;
+		this._type = NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_TYPE;
+		this._version = NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -3748,7 +3748,7 @@ export class NonVerifiableMultisigAccountModificationTransaction {
 		const minApprovalDelta = converter.bytesToIntUnaligned(view.buffer, 4, true);
 		view.shiftRight(4);
 
-		const instance = new NonVerifiableMultisigAccountModificationTransaction();
+		const instance = new NonVerifiableMultisigAccountModificationTransactionV2();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -4090,7 +4090,7 @@ export class SizePrefixedCosignature {
 	}
 }
 
-export class MultisigTransaction {
+export class MultisigTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_TRANSACTION;
@@ -4108,8 +4108,8 @@ export class MultisigTransaction {
 	};
 
 	constructor() {
-		this._type = MultisigTransaction.TRANSACTION_TYPE;
-		this._version = MultisigTransaction.TRANSACTION_VERSION;
+		this._type = MultisigTransactionV1.TRANSACTION_TYPE;
+		this._version = MultisigTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -4267,7 +4267,7 @@ export class MultisigTransaction {
 		const cosignatures = arrayHelpers.readArrayCount(view.buffer, SizePrefixedCosignature, cosignaturesCount);
 		view.shiftRight(arrayHelpers.size(cosignatures));
 
-		const instance = new MultisigTransaction();
+		const instance = new MultisigTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -4318,7 +4318,7 @@ export class MultisigTransaction {
 	}
 }
 
-export class NamespaceRegistrationTransaction {
+export class NamespaceRegistrationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_REGISTRATION;
@@ -4338,8 +4338,8 @@ export class NamespaceRegistrationTransaction {
 	};
 
 	constructor() {
-		this._type = NamespaceRegistrationTransaction.TRANSACTION_TYPE;
-		this._version = NamespaceRegistrationTransaction.TRANSACTION_VERSION;
+		this._type = NamespaceRegistrationTransactionV1.TRANSACTION_TYPE;
+		this._version = NamespaceRegistrationTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -4530,7 +4530,7 @@ export class NamespaceRegistrationTransaction {
 			view.shiftRight(parentNameSize);
 		}
 
-		const instance = new NamespaceRegistrationTransaction();
+		const instance = new NamespaceRegistrationTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -4592,7 +4592,7 @@ export class NamespaceRegistrationTransaction {
 	}
 }
 
-export class NonVerifiableNamespaceRegistrationTransaction {
+export class NonVerifiableNamespaceRegistrationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_REGISTRATION;
@@ -4611,8 +4611,8 @@ export class NonVerifiableNamespaceRegistrationTransaction {
 	};
 
 	constructor() {
-		this._type = NonVerifiableNamespaceRegistrationTransaction.TRANSACTION_TYPE;
-		this._version = NonVerifiableNamespaceRegistrationTransaction.TRANSACTION_VERSION;
+		this._type = NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_TYPE;
+		this._version = NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -4785,7 +4785,7 @@ export class NonVerifiableNamespaceRegistrationTransaction {
 			view.shiftRight(parentNameSize);
 		}
 
-		const instance = new NonVerifiableNamespaceRegistrationTransaction();
+		const instance = new NonVerifiableNamespaceRegistrationTransactionV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -5461,7 +5461,7 @@ export class NonVerifiableTransferTransactionV1 {
 	}
 }
 
-export class TransferTransaction {
+export class TransferTransactionV2 {
 	static TRANSACTION_VERSION = 2;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -5481,8 +5481,8 @@ export class TransferTransaction {
 	};
 
 	constructor() {
-		this._type = TransferTransaction.TRANSACTION_TYPE;
-		this._version = TransferTransaction.TRANSACTION_VERSION;
+		this._type = TransferTransactionV2.TRANSACTION_TYPE;
+		this._version = TransferTransactionV2.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -5679,7 +5679,7 @@ export class TransferTransaction {
 		const mosaics = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMosaic, mosaicsCount);
 		view.shiftRight(arrayHelpers.size(mosaics));
 
-		const instance = new TransferTransaction();
+		const instance = new TransferTransactionV2();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -5741,7 +5741,7 @@ export class TransferTransaction {
 	}
 }
 
-export class NonVerifiableTransferTransaction {
+export class NonVerifiableTransferTransactionV2 {
 	static TRANSACTION_VERSION = 2;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -5760,8 +5760,8 @@ export class NonVerifiableTransferTransaction {
 	};
 
 	constructor() {
-		this._type = NonVerifiableTransferTransaction.TRANSACTION_TYPE;
-		this._version = NonVerifiableTransferTransaction.TRANSACTION_VERSION;
+		this._type = NonVerifiableTransferTransactionV2.TRANSACTION_TYPE;
+		this._version = NonVerifiableTransferTransactionV2.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -5940,7 +5940,7 @@ export class NonVerifiableTransferTransaction {
 		const mosaics = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMosaic, mosaicsCount);
 		view.shiftRight(arrayHelpers.size(mosaics));
 
-		const instance = new NonVerifiableTransferTransaction();
+		const instance = new NonVerifiableTransferTransactionV2();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -6011,16 +6011,16 @@ export class TransactionFactory {
 		const view = new BufferView(payload);
 		const parent = Transaction.deserialize(view.buffer);
 		const mapping = new Map([
-			[TransactionFactory.toKey([AccountKeyLinkTransaction.TRANSACTION_TYPE.value, AccountKeyLinkTransaction.TRANSACTION_VERSION]), AccountKeyLinkTransaction],
-			[TransactionFactory.toKey([MosaicDefinitionTransaction.TRANSACTION_TYPE.value, MosaicDefinitionTransaction.TRANSACTION_VERSION]), MosaicDefinitionTransaction],
-			[TransactionFactory.toKey([MosaicSupplyChangeTransaction.TRANSACTION_TYPE.value, MosaicSupplyChangeTransaction.TRANSACTION_VERSION]), MosaicSupplyChangeTransaction],
+			[TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, AccountKeyLinkTransactionV1.TRANSACTION_VERSION]), AccountKeyLinkTransactionV1],
+			[TransactionFactory.toKey([MosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, MosaicDefinitionTransactionV1.TRANSACTION_VERSION]), MosaicDefinitionTransactionV1],
+			[TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), MosaicSupplyChangeTransactionV1],
 			[TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV1],
-			[TransactionFactory.toKey([MultisigAccountModificationTransaction.TRANSACTION_TYPE.value, MultisigAccountModificationTransaction.TRANSACTION_VERSION]), MultisigAccountModificationTransaction],
+			[TransactionFactory.toKey([MultisigAccountModificationTransactionV2.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV2.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV2],
 			[TransactionFactory.toKey([Cosignature.TRANSACTION_TYPE.value, Cosignature.TRANSACTION_VERSION]), Cosignature],
-			[TransactionFactory.toKey([MultisigTransaction.TRANSACTION_TYPE.value, MultisigTransaction.TRANSACTION_VERSION]), MultisigTransaction],
-			[TransactionFactory.toKey([NamespaceRegistrationTransaction.TRANSACTION_TYPE.value, NamespaceRegistrationTransaction.TRANSACTION_VERSION]), NamespaceRegistrationTransaction],
+			[TransactionFactory.toKey([MultisigTransactionV1.TRANSACTION_TYPE.value, MultisigTransactionV1.TRANSACTION_VERSION]), MultisigTransactionV1],
+			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NamespaceRegistrationTransactionV1],
 			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value, TransferTransactionV1.TRANSACTION_VERSION]), TransferTransactionV1],
-			[TransactionFactory.toKey([TransferTransaction.TRANSACTION_TYPE.value, TransferTransaction.TRANSACTION_VERSION]), TransferTransaction]
+			[TransactionFactory.toKey([TransferTransactionV2.TRANSACTION_TYPE.value, TransferTransactionV2.TRANSACTION_VERSION]), TransferTransactionV2]
 		]);
 		const discriminator = TransactionFactory.toKey([parent.type.value, parent.version]);
 		const factory_class = mapping.get(discriminator);
@@ -6029,16 +6029,16 @@ export class TransactionFactory {
 
 	static createByName(entityName) {
 		const mapping = {
-			account_key_link_transaction: AccountKeyLinkTransaction,
-			mosaic_definition_transaction: MosaicDefinitionTransaction,
-			mosaic_supply_change_transaction: MosaicSupplyChangeTransaction,
+			account_key_link_transaction_v1: AccountKeyLinkTransactionV1,
+			mosaic_definition_transaction_v1: MosaicDefinitionTransactionV1,
+			mosaic_supply_change_transaction_v1: MosaicSupplyChangeTransactionV1,
 			multisig_account_modification_transaction_v1: MultisigAccountModificationTransactionV1,
-			multisig_account_modification_transaction: MultisigAccountModificationTransaction,
+			multisig_account_modification_transaction_v2: MultisigAccountModificationTransactionV2,
 			cosignature: Cosignature,
-			multisig_transaction: MultisigTransaction,
-			namespace_registration_transaction: NamespaceRegistrationTransaction,
+			multisig_transaction_v1: MultisigTransactionV1,
+			namespace_registration_transaction_v1: NamespaceRegistrationTransactionV1,
 			transfer_transaction_v1: TransferTransactionV1,
-			transfer_transaction: TransferTransaction
+			transfer_transaction_v2: TransferTransactionV2
 		};
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
@@ -6061,14 +6061,14 @@ export class NonVerifiableTransactionFactory {
 		const view = new BufferView(payload);
 		const parent = NonVerifiableTransaction.deserialize(view.buffer);
 		const mapping = new Map([
-			[NonVerifiableTransactionFactory.toKey([NonVerifiableAccountKeyLinkTransaction.TRANSACTION_TYPE.value, NonVerifiableAccountKeyLinkTransaction.TRANSACTION_VERSION]), NonVerifiableAccountKeyLinkTransaction],
-			[NonVerifiableTransactionFactory.toKey([NonVerifiableMosaicDefinitionTransaction.TRANSACTION_TYPE.value, NonVerifiableMosaicDefinitionTransaction.TRANSACTION_VERSION]), NonVerifiableMosaicDefinitionTransaction],
-			[NonVerifiableTransactionFactory.toKey([NonVerifiableMosaicSupplyChangeTransaction.TRANSACTION_TYPE.value, NonVerifiableMosaicSupplyChangeTransaction.TRANSACTION_VERSION]), NonVerifiableMosaicSupplyChangeTransaction],
+			[NonVerifiableTransactionFactory.toKey([NonVerifiableAccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, NonVerifiableAccountKeyLinkTransactionV1.TRANSACTION_VERSION]), NonVerifiableAccountKeyLinkTransactionV1],
+			[NonVerifiableTransactionFactory.toKey([NonVerifiableMosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, NonVerifiableMosaicDefinitionTransactionV1.TRANSACTION_VERSION]), NonVerifiableMosaicDefinitionTransactionV1],
+			[NonVerifiableTransactionFactory.toKey([NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), NonVerifiableMosaicSupplyChangeTransactionV1],
 			[NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), NonVerifiableMultisigAccountModificationTransactionV1],
-			[NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_TYPE.value, NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_VERSION]), NonVerifiableMultisigAccountModificationTransaction],
-			[NonVerifiableTransactionFactory.toKey([NonVerifiableNamespaceRegistrationTransaction.TRANSACTION_TYPE.value, NonVerifiableNamespaceRegistrationTransaction.TRANSACTION_VERSION]), NonVerifiableNamespaceRegistrationTransaction],
+			[NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_TYPE.value, NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_VERSION]), NonVerifiableMultisigAccountModificationTransactionV2],
+			[NonVerifiableTransactionFactory.toKey([NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NonVerifiableNamespaceRegistrationTransactionV1],
 			[NonVerifiableTransactionFactory.toKey([NonVerifiableTransferTransactionV1.TRANSACTION_TYPE.value, NonVerifiableTransferTransactionV1.TRANSACTION_VERSION]), NonVerifiableTransferTransactionV1],
-			[NonVerifiableTransactionFactory.toKey([NonVerifiableTransferTransaction.TRANSACTION_TYPE.value, NonVerifiableTransferTransaction.TRANSACTION_VERSION]), NonVerifiableTransferTransaction]
+			[NonVerifiableTransactionFactory.toKey([NonVerifiableTransferTransactionV2.TRANSACTION_TYPE.value, NonVerifiableTransferTransactionV2.TRANSACTION_VERSION]), NonVerifiableTransferTransactionV2]
 		]);
 		const discriminator = NonVerifiableTransactionFactory.toKey([parent.type.value, parent.version]);
 		const factory_class = mapping.get(discriminator);
@@ -6077,14 +6077,14 @@ export class NonVerifiableTransactionFactory {
 
 	static createByName(entityName) {
 		const mapping = {
-			non_verifiable_account_key_link_transaction: NonVerifiableAccountKeyLinkTransaction,
-			non_verifiable_mosaic_definition_transaction: NonVerifiableMosaicDefinitionTransaction,
-			non_verifiable_mosaic_supply_change_transaction: NonVerifiableMosaicSupplyChangeTransaction,
+			non_verifiable_account_key_link_transaction_v1: NonVerifiableAccountKeyLinkTransactionV1,
+			non_verifiable_mosaic_definition_transaction_v1: NonVerifiableMosaicDefinitionTransactionV1,
+			non_verifiable_mosaic_supply_change_transaction_v1: NonVerifiableMosaicSupplyChangeTransactionV1,
 			non_verifiable_multisig_account_modification_transaction_v1: NonVerifiableMultisigAccountModificationTransactionV1,
-			non_verifiable_multisig_account_modification_transaction: NonVerifiableMultisigAccountModificationTransaction,
-			non_verifiable_namespace_registration_transaction: NonVerifiableNamespaceRegistrationTransaction,
+			non_verifiable_multisig_account_modification_transaction_v2: NonVerifiableMultisigAccountModificationTransactionV2,
+			non_verifiable_namespace_registration_transaction_v1: NonVerifiableNamespaceRegistrationTransactionV1,
 			non_verifiable_transfer_transaction_v1: NonVerifiableTransferTransactionV1,
-			non_verifiable_transfer_transaction: NonVerifiableTransferTransaction
+			non_verifiable_transfer_transaction_v2: NonVerifiableTransferTransactionV2
 		};
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))

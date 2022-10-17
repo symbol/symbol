@@ -2,10 +2,10 @@ SAMPLE_ADDRESS = 'TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ'
 
 
 recipes = {
-	'schema_name': 'MosaicMetadataTransaction',
+	'schema_name': 'MosaicMetadataTransactionV1',
 	'descriptors': [
 		{
-			'type': 'mosaic_metadata_transaction',
+			'type': 'mosaic_metadata_transaction_v1',
 			'target_address': SAMPLE_ADDRESS,
 			'scoped_metadata_key': 0xA,
 			'target_mosaic_id': 0x00000000000003E8,
@@ -13,7 +13,7 @@ recipes = {
 			'value': b'123ABC'
 		},
 		{
-			'type': 'mosaic_metadata_transaction',
+			'type': 'mosaic_metadata_transaction_v1',
 			'target_address': SAMPLE_ADDRESS,
 			'scoped_metadata_key': 0xA,
 			'target_mosaic_id': 0x00000000000003E8,

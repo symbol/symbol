@@ -26,12 +26,12 @@ inline struct MosaicSupplyChangeTransactionBody
 	# change amount
 	delta = Amount
 
-# binary layout for a mosaic supply change transaction
-struct MosaicSupplyChangeTransaction
+# binary layout for a mosaic supply change transaction (V1, latest)
+struct MosaicSupplyChangeTransactionV1
 	inline Transaction
 	inline MosaicSupplyChangeTransactionBody
 
-# binary layout for a non-verifiable mosaic supply change transaction
-struct NonVerifiableMosaicSupplyChangeTransaction
+# binary layout for a non-verifiable mosaic supply change transaction (V1, latest)
+struct NonVerifiableMosaicSupplyChangeTransactionV1
 	inline NonVerifiableTransaction
 	inline MosaicSupplyChangeTransactionBody

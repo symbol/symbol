@@ -21,7 +21,7 @@ def add_embedded_transfers(facade, public_key):
 	for filepath in sorted(resources_directory.glob('part*.txt')):
 		message = read_contents(filepath)
 		embedded_transaction = facade.transaction_factory.create_embedded({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': public_key,
 			'recipient_address': recipient_address,
 			# note: additional 0 byte at the beginning is added for compatibility with explorer
@@ -48,7 +48,7 @@ def main():
 	merkle_hash = facade.hash_embedded_transactions(embedded_transactions)
 
 	aggregate_transaction = facade.transaction_factory.create({
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v1',
 		'signer_public_key': key_pair.public_key,
 		'fee': 0,
 		'deadline': 1,

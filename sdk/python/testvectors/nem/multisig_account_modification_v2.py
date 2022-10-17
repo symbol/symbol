@@ -1,15 +1,15 @@
 recipes = {
-	'schema_name': 'MultisigAccountModificationTransaction',
+	'schema_name': 'MultisigAccountModificationTransactionV2',
 	'descriptors': [
 		# comment: v2, no-op, increase min-approval
 		{
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v2',
 			'modifications': [],
 			'min_approval_delta': 0x2
 		},
 		# comment: v2, add, decrease min-approval
 		{
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v2',
 			'modifications': [
 				{
 					'modification': {
@@ -23,7 +23,7 @@ recipes = {
 		},
 		# comment: v2, add, add, del, increase min-approval
 		{
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v2',
 			'modifications': [
 				{
 					'modification': {
@@ -49,7 +49,7 @@ recipes = {
 		# comment: v2, add, add, del, increase min-approval (out of order)
 		# sorting by (modification_type, ripemd_keccak_256(cosignatory_public_key))
 		{
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v2',
 			'modifications': [
 				{
 					'modification': {

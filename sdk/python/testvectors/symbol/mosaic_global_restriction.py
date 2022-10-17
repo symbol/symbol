@@ -1,8 +1,8 @@
 recipes = {
-	'schema_name': 'MosaicGlobalRestrictionTransaction',
+	'schema_name': 'MosaicGlobalRestrictionTransactionV1',
 	'descriptors': [
 		{
-			'type': 'mosaic_global_restriction_transaction',
+			'type': 'mosaic_global_restriction_transaction_v1',
 			'mosaic_id': 0x1A05987643477C07,
 			'reference_mosaic_id': 0x6AF25E2B25258026,
 			'restriction_key': 0x1,
@@ -13,7 +13,7 @@ recipes = {
 
 		},
 		{
-			'type': 'mosaic_global_restriction_transaction',
+			'type': 'mosaic_global_restriction_transaction_v1',
 			'mosaic_id': 0x5623C1654EEE3F51,
 			'reference_mosaic_id': 0x0000000000000000,
 			'restriction_key': 0x115C,

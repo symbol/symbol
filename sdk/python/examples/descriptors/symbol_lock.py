@@ -11,14 +11,14 @@ def descriptor_factory():
 	return [
 		# note: only network currency can be used as a mosaic in hash lock
 		{
-			'type': 'hash_lock_transaction',
+			'type': 'hash_lock_transaction_v1',
 			'mosaic': {'mosaic_id': sample_mosaic_id, 'amount': 123_000000},
 			'duration': 123,
 			'hash': Hash256.zero()
 		},
 
 		{
-			'type': 'secret_lock_transaction',
+			'type': 'secret_lock_transaction_v1',
 			'mosaic': {'mosaic_id': sample_mosaic_id, 'amount': 123_000000},
 			'duration': 123,
 			'recipient_address': sample_address,
@@ -27,7 +27,7 @@ def descriptor_factory():
 		},
 
 		{
-			'type': 'secret_proof_transaction',
+			'type': 'secret_proof_transaction_v1',
 			'recipient_address': sample_address,
 			'secret': secret,
 			'hash_algorithm': 'hash_160',

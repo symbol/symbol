@@ -24,16 +24,16 @@ inline struct TransferTransactionBody
 	# attached message
 	message = array(uint8, message_size)
 
-# Send mosaics and messages between two accounts.
-struct TransferTransaction
+# Send mosaics and messages between two accounts (V1, latest).
+struct TransferTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, TRANSFER)
 
 	inline Transaction
 	inline TransferTransactionBody
 
-# Embedded version of TransferTransaction.
-struct EmbeddedTransferTransaction
+# Embedded version of TransferTransaction (V1, latest).
+struct EmbeddedTransferTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, TRANSFER)
 

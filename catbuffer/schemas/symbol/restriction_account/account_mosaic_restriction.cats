@@ -21,16 +21,16 @@ inline struct AccountMosaicRestrictionTransactionBody
 	# Array of mosaics being removed from the restricted list.
 	restriction_deletions = array(UnresolvedMosaicId, restriction_deletions_count)
 
-# Allow or block incoming transactions containing a given set of mosaics.
-struct AccountMosaicRestrictionTransaction
+# Allow or block incoming transactions containing a given set of mosaics (V1, latest).
+struct AccountMosaicRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_MOSAIC_RESTRICTION)
 
 	inline Transaction
 	inline AccountMosaicRestrictionTransactionBody
 
-# Embedded version of AccountMosaicRestrictionTransaction.
-struct EmbeddedAccountMosaicRestrictionTransaction
+# Embedded version of AccountMosaicRestrictionTransaction (V1, latest).
+struct EmbeddedAccountMosaicRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_MOSAIC_RESTRICTION)
 

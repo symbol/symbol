@@ -1,8 +1,8 @@
 recipes = {
-	'schema_name': 'MosaicAddressRestrictionTransaction',
+	'schema_name': 'MosaicAddressRestrictionTransactionV1',
 	'descriptors': [
 		{
-			'type': 'mosaic_address_restriction_transaction',
+			'type': 'mosaic_address_restriction_transaction_v1',
 			'mosaic_id': 0x0000000000000001,
 			'restriction_key': 0x1234567890ABCAEF,
 			'previous_restriction_value': 0x9,

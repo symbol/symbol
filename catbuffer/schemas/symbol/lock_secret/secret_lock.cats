@@ -18,7 +18,7 @@ inline struct SecretLockTransactionBody
 	# Algorithm used to hash the proof.
 	hash_algorithm = LockHashAlgorithm
 
-# Start a token swap between different chains.
+# Start a token swap between different chains (V1, latest).
 #
 # Use a SecretLockTransaction to transfer mosaics between two accounts.
 # The mosaics sent remain locked until a valid SecretProofTransaction unlocks them.
@@ -26,15 +26,15 @@ inline struct SecretLockTransactionBody
 # The default expiration date is **365 days** after announcement (See the `maxSecretLockDuration` network property).
 # If the lock expires before a valid SecretProofTransaction is announced the locked
 # amount goes back to the initiator of the SecretLockTransaction.
-struct SecretLockTransaction
+struct SecretLockTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, SECRET_LOCK)
 
 	inline Transaction
 	inline SecretLockTransactionBody
 
-# Embedded version of SecretLockTransaction.
-struct EmbeddedSecretLockTransaction
+# Embedded version of SecretLockTransaction (V1, latest).
+struct EmbeddedSecretLockTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, SECRET_LOCK)
 

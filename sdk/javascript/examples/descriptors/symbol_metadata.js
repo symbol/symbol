@@ -8,20 +8,20 @@ export default () => {
 
 	const templates = [
 		{
-			type: 'account_metadata_transaction',
+			type: 'account_metadata_transaction_v1',
 			targetAddress: sampleAddress,
 			scopedMetadataKey: 0xC0FFEn
 		},
 
 		{
-			type: 'mosaic_metadata_transaction',
+			type: 'mosaic_metadata_transaction_v1',
 			targetMosaicId: sampleMosaicId,
 			targetAddress: sampleAddress,
 			scopedMetadataKey: 0xFACADEn
 		},
 
 		{
-			type: 'namespace_metadata_transaction',
+			type: 'namespace_metadata_transaction_v1',
 			targetNamespaceId: sampleNamespaceId,
 			targetAddress: sampleAddress,
 			scopedMetadataKey: 0xC1CADAn

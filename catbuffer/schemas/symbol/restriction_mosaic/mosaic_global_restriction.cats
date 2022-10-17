@@ -27,16 +27,16 @@ inline struct MosaicGlobalRestrictionTransactionBody
 	# New restriction type.
 	new_restriction_type = MosaicRestrictionType
 
-# Set global rules to transfer a restrictable mosaic.
-struct MosaicGlobalRestrictionTransaction
+# Set global rules to transfer a restrictable mosaic (V1, latest).
+struct MosaicGlobalRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_GLOBAL_RESTRICTION)
 
 	inline Transaction
 	inline MosaicGlobalRestrictionTransactionBody
 
-# Embedded version of MosaicGlobalRestrictionTransaction.
-struct EmbeddedMosaicGlobalRestrictionTransaction
+# Embedded version of MosaicGlobalRestrictionTransaction (V1, latest).
+struct EmbeddedMosaicGlobalRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_GLOBAL_RESTRICTION)
 

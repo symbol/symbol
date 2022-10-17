@@ -3,19 +3,19 @@ export default () => {
 
 	return [
 		{
-			type: 'account_key_link_transaction',
+			type: 'account_key_link_transaction_v1',
 			linkedPublicKey: samplePublicKey,
 			linkAction: 'link'
 		},
 
 		{
-			type: 'node_key_link_transaction',
+			type: 'node_key_link_transaction_v1',
 			linkedPublicKey: samplePublicKey,
 			linkAction: 'link'
 		},
 
 		{
-			type: 'voting_key_link_transaction',
+			type: 'voting_key_link_transaction_v1',
 			linkedPublicKey: samplePublicKey,
 			linkAction: 'link',
 			startEpoch: 10,
@@ -23,7 +23,7 @@ export default () => {
 		},
 
 		{
-			type: 'vrf_key_link_transaction',
+			type: 'vrf_key_link_transaction_v1',
 			linkedPublicKey: samplePublicKey,
 			linkAction: 'link'
 		}

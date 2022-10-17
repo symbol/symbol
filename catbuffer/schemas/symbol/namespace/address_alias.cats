@@ -12,20 +12,19 @@ inline struct AddressAliasTransactionBody
 	# Alias action.
 	alias_action = AliasAction
 
-# Attach or detach a [namespace](/concepts/namespace.html)
-# (alias) to an account address..
+# Attach or detach a [namespace](/concepts/namespace.html) (alias) to an account address (V1, latest).
 #
 # A namespace can be assigned to any account present in the network (this is, an account
 # which has received at least one transaction).
-struct AddressAliasTransaction
+struct AddressAliasTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ADDRESS_ALIAS)
 
 	inline Transaction
 	inline AddressAliasTransactionBody
 
-# Embedded version of AddressAliasTransaction.
-struct EmbeddedAddressAliasTransaction
+# Embedded version of AddressAliasTransaction (V1, latest).
+struct EmbeddedAddressAliasTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ADDRESS_ALIAS)
 

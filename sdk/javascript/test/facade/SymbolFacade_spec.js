@@ -12,7 +12,7 @@ describe('Symbol Facade', () => {
 	// region real transactions
 
 	const createRealTransfer = facade => facade.transactionFactory.create({
-		type: 'transfer_transaction',
+		type: 'transfer_transaction_v1',
 		signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
 		fee: 1000000n,
 		deadline: 41998024783n,
@@ -24,14 +24,14 @@ describe('Symbol Facade', () => {
 
 	const createRealAggregate = facade => {
 		const aggregate = facade.transactionFactory.create({
-			type: 'aggregate_complete_transaction',
+			type: 'aggregate_complete_transaction_v1',
 			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
 			fee: 2000000n,
 			deadline: 42238390163n,
 			transactionsHash: '71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'
 		});
 		const transfer = facade.transactionFactory.createEmbedded({
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
 			recipientAddress: 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
 			mosaics: [
@@ -44,7 +44,7 @@ describe('Symbol Facade', () => {
 
 	const createRealEmbeddedTransactions = facade => [
 		{
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
 			recipientAddress: 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
 			mosaics: [
@@ -52,7 +52,7 @@ describe('Symbol Facade', () => {
 			]
 		},
 		{
-			type: 'secret_proof_transaction',
+			type: 'secret_proof_transaction_v1',
 			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
 			recipientAddress: 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y',
 			secret: 'BE254D2744329BBE20F9CF6DA61043B4CEF8C2BC000000000000000000000000',
@@ -60,7 +60,7 @@ describe('Symbol Facade', () => {
 			proof: '41FB'
 		},
 		{
-			type: 'address_alias_transaction',
+			type: 'address_alias_transaction_v1',
 			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
 			namespaceId: 0xA95F1F8A96159516n,
 			address: 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y',
@@ -69,14 +69,14 @@ describe('Symbol Facade', () => {
 	].map(descriptor => facade.transactionFactory.createEmbedded(descriptor));
 
 	const createRealAggregateSwap = facade => facade.transactionFactory.create({
-		type: 'aggregate_complete_transaction',
+		type: 'aggregate_complete_transaction_v1',
 		signerPublicKey: '4C94E8B0A1DAB8573BCB6632E676F742E0D320FC8102F20FB7FB13BCAE9A9F60',
 		fee: 36000n,
 		deadline: 26443750218n,
 		transactionsHash: '641CB7E431F1D44094A43E1CE8265E6BD1DF1C3B0B64797CDDAA0A375FCD3C08',
 		transactions: [
 			facade.transactionFactory.createEmbedded({
-				type: 'transfer_transaction',
+				type: 'transfer_transaction_v1',
 				signerPublicKey: '29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3',
 				recipientAddress: 'TBEZ3VKFBMKQSW7APBVL5NWNBEU7RR466PRRTDQ',
 				mosaics: [
@@ -84,7 +84,7 @@ describe('Symbol Facade', () => {
 				]
 			}),
 			facade.transactionFactory.createEmbedded({
-				type: 'transfer_transaction',
+				type: 'transfer_transaction_v1',
 				signerPublicKey: '4C94E8B0A1DAB8573BCB6632E676F742E0D320FC8102F20FB7FB13BCAE9A9F60',
 				recipientAddress: 'TDFR3Q3H5W4OPOSHALVDY3RF4ZQNH44LIUIHYTQ',
 				mosaics: [
@@ -135,7 +135,7 @@ describe('Symbol Facade', () => {
 		// Act:
 		const facade = new SymbolFacade('testnet');
 		const transaction = facade.transactionFactory.create({
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			signerPublicKey: new Uint32Array(PublicKey.SIZE)
 		});
 
@@ -160,7 +160,7 @@ describe('Symbol Facade', () => {
 		// Act:
 		const facade = new SymbolFacade(network);
 		const transaction = facade.transactionFactory.create({
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			signerPublicKey: new Uint32Array(PublicKey.SIZE)
 		});
 

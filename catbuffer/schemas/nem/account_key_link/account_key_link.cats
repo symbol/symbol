@@ -21,12 +21,12 @@ inline struct AccountKeyLinkTransactionBody
 	# [size] remote account public key size
 	remote_public_key = inline SizePrefixedPublicKey
 
-# binary layout for an account key link transaction
-struct AccountKeyLinkTransaction
+# binary layout for an account key link transaction (V1, latest)
+struct AccountKeyLinkTransactionV1
 	inline Transaction
 	inline AccountKeyLinkTransactionBody
 
-# binary layout for a non-verifiable account key link transaction
-struct NonVerifiableAccountKeyLinkTransaction
+# binary layout for a non-verifiable account key link transaction (V1, latest)
+struct NonVerifiableAccountKeyLinkTransactionV1
 	inline NonVerifiableTransaction
 	inline AccountKeyLinkTransactionBody

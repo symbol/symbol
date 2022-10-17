@@ -4,7 +4,7 @@ export default () => {
 
 	return [
 		{
-			type: 'mosaic_global_restriction_transaction',
+			type: 'mosaic_global_restriction_transaction_v1',
 			mosaicId: sampleMosaicId,
 			referenceMosaicId: 0n,
 			restrictionKey: 0x0A0D474E5089n,
@@ -15,7 +15,7 @@ export default () => {
 		},
 
 		{
-			type: 'mosaic_address_restriction_transaction',
+			type: 'mosaic_address_restriction_transaction_v1',
 			mosaicId: sampleMosaicId,
 			restrictionKey: 0x0A0D474E5089n,
 			previousRestrictionValue: 0n,

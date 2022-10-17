@@ -40,7 +40,7 @@ import symbolSdk from '../src/index.js';
 		createAggregateTransaction() {
 			const embeddedTransactions = [
 				this.facade.transactionFactory.createEmbedded({
-					type: 'multisig_account_modification_transaction',
+					type: 'multisig_account_modification_transaction_v1',
 					signerPublicKey: this.multisigkeyPair.publicKey,
 					minApprovalDelta: 1,
 					minRemovalDelta: 1,
@@ -49,7 +49,7 @@ import symbolSdk from '../src/index.js';
 			];
 
 			return this.facade.transactionFactory.create({
-				type: 'aggregate_complete_transaction',
+				type: 'aggregate_complete_transaction_v1',
 				signerPublicKey: this.multisigkeyPair.publicKey,
 				fee: 625n,
 				deadline: 12345n,

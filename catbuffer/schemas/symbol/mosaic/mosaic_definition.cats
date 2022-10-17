@@ -20,16 +20,16 @@ inline struct MosaicDefinitionTransactionBody
 	# Mosaic divisibility.
 	divisibility = uint8
 
-# Create a new  [mosaic](/concepts/mosaic.html).
-struct MosaicDefinitionTransaction
+# Create a new  [mosaic](/concepts/mosaic.html) (V1, latest).
+struct MosaicDefinitionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_DEFINITION)
 
 	inline Transaction
 	inline MosaicDefinitionTransactionBody
 
-# Embedded version of MosaicDefinitionTransaction.
-struct EmbeddedMosaicDefinitionTransaction
+# Embedded version of MosaicDefinitionTransaction (V1, latest).
+struct EmbeddedMosaicDefinitionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_DEFINITION)
 

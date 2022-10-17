@@ -1,7 +1,7 @@
 export default () => ([
 	// V2 add
 	{
-		type: 'multisig_account_modification_transaction',
+		type: 'multisig_account_modification_transaction_v2',
 		minApprovalDelta: 1,
 		modifications: [
 			{

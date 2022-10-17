@@ -5,7 +5,7 @@ export default () => {
 	return [
 		// mosaics but no message
 		{
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			recipientAddress: sampleAddress,
 			mosaics: [
 				{ mosaicId: sampleMosaicId, amount: 12345_000000n }
@@ -14,14 +14,14 @@ export default () => {
 
 		// message but no mosaics
 		{
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			recipientAddress: sampleAddress,
 			message: 'Wayne Gretzky'
 		},
 
 		// mosaics and message
 		{
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			recipientAddress: sampleAddress,
 			mosaics: [
 				{ mosaicId: sampleMosaicId, amount: 12345_000000n }

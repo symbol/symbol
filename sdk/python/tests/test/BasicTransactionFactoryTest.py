@@ -17,6 +17,10 @@ class AbstractBasicTransactionFactoryExSignatureTest:
 		pass
 
 	@staticmethod
+	def transaction_type_name():
+		return 'transfer_transaction_v1'
+
+	@staticmethod
 	def create_transaction(factory):
 		return factory.create
 
@@ -32,7 +36,7 @@ class BasicTransactionFactoryExSignatureTest(AbstractBasicTransactionFactoryExSi
 
 		# Act:
 		transaction = self.create_transaction(factory)({
-			'type': 'transfer_transaction',
+			'type': self.transaction_type_name(),
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY
 		})
 
@@ -47,7 +51,7 @@ class BasicTransactionFactoryExSignatureTest(AbstractBasicTransactionFactoryExSi
 		# Act + Assert:
 		with self.assertRaises(ValueError):
 			self.create_transaction(factory)({
-				'type': 'xtransfer_transaction',
+				'type': f'x{self.transaction_type_name()}',
 				'signer_public_key': TEST_SIGNER_PUBLIC_KEY
 			})
 
@@ -63,7 +67,7 @@ class BasicTransactionFactoryTest(BasicTransactionFactoryExSignatureTest):
 		# Arrange:
 		factory = self.create_factory()
 		transaction = self.create_transaction(factory)({
-			'type': 'transfer_transaction',
+			'type': self.transaction_type_name(),
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY
 		})
 		signature = TestUtils.random_byte_array(Signature)

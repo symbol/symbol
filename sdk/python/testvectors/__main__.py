@@ -42,14 +42,14 @@ def clone_descriptor(descriptor):
 
 
 class SymbolHelper:
-	AGGREGATE_SCHEMA_NAME = 'AggregateBondedTransaction'
+	AGGREGATE_SCHEMA_NAME = 'AggregateBondedTransactionV1'
 	Signature = sc.Signature
 
 	def __init__(self, network_name):
 		self.facade = SymbolFacade(network_name)
 
 	def set_common_fields(self, descriptor, test_name):
-		descriptor['signer_public_key'] = sha3.sha3_256(test_name.encode('utf8')).hexdigest()
+		descriptor['signer_public_key'] = sha3.sha3_256(test_name.encode('utf8')).hexdigest().upper()
 		descriptor['signature'] = self.Signature(sha3.sha3_512(test_name.encode('utf8')).hexdigest())
 		descriptor['fee'] = 0xFEEFEEFEEFEEFEE0
 		descriptor['deadline'] = 0x71E71E71E71E71E0
@@ -61,7 +61,7 @@ class SymbolHelper:
 
 	def create_aggregate_from_single(self, test_name, single_descriptor):
 		return self.create_aggregate(test_name, {
-			'aggregate': {'type': 'aggregate_bonded_transaction'},
+			'aggregate': {'type': 'aggregate_bonded_transaction_v1'},
 			'embedded': [single_descriptor]
 		})
 
@@ -102,14 +102,14 @@ class SymbolHelper:
 
 
 class NemHelper:
-	AGGREGATE_SCHEMA_NAME = 'MultisigTransaction'
+	AGGREGATE_SCHEMA_NAME = 'MultisigTransactionV1'
 	Signature = nc.Signature
 
 	def __init__(self, network_name):
 		self.facade = NemFacade(network_name)
 
 	def set_common_fields(self, descriptor, test_name):
-		descriptor['signer_public_key'] = sha3.sha3_256(test_name.encode('utf8')).hexdigest()
+		descriptor['signer_public_key'] = sha3.sha3_256(test_name.encode('utf8')).hexdigest().upper()
 		descriptor['signature'] = self.Signature(sha3.sha3_512(test_name.encode('utf8')).hexdigest())
 		descriptor['fee'] = 0xFEEFEEFEEFEEFEE0
 		descriptor['timestamp'] = 0x71E71E70
@@ -121,7 +121,7 @@ class NemHelper:
 
 	def create_aggregate_from_single(self, test_name, single_descriptor):
 		return self.create_aggregate(test_name, {
-			'aggregate': {'type': 'multisig_transaction'},
+			'aggregate': {'type': 'multisig_transaction_v1'},
 			'embedded': single_descriptor
 		})
 

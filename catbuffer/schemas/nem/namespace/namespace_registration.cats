@@ -24,12 +24,12 @@ inline struct NamespaceRegistrationTransactionBody
 	# parent namespace name
 	parent_name = array(int8, parent_name_size) if 0xFFFFFFFF not equals parent_name_size
 
-# binary layout for a namespace registration transaction
-struct NamespaceRegistrationTransaction
+# binary layout for a namespace registration transaction (V1, latest)
+struct NamespaceRegistrationTransactionV1
 	inline Transaction
 	inline NamespaceRegistrationTransactionBody
 
-# binary layout for a non-verifiable namespace registration transaction
-struct NonVerifiableNamespaceRegistrationTransaction
+# binary layout for a non-verifiable namespace registration transaction (V1, latest)
+struct NonVerifiableNamespaceRegistrationTransactionV1
 	inline NonVerifiableTransaction
 	inline NamespaceRegistrationTransactionBody

@@ -5,7 +5,7 @@ def descriptor_factory():
 	return [
 		# mosaics but no message
 		{
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'recipient_address': sample_address,
 			'mosaics': [
 				{'mosaic_id': sample_mosaic_id, 'amount': 12345_000000}
@@ -14,14 +14,14 @@ def descriptor_factory():
 
 		# message but no mosaics
 		{
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'recipient_address': sample_address,
 			'message': 'Wayne Gretzky'
 		},
 
 		# mosaics and message
 		{
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'recipient_address': sample_address,
 			'mosaics': [
 				{'mosaic_id': sample_mosaic_id, 'amount': 12345_000000}

@@ -12,19 +12,19 @@ inline struct MosaicAliasTransactionBody
 	# Alias action.
 	alias_action = AliasAction
 
-# Attach or detach a [namespace](/concepts/namespace.html) to a Mosaic.
+# Attach or detach a [namespace](/concepts/namespace.html) to a Mosaic.(V1, latest)
 #
 # Setting an alias to a mosaic is only possible if the account announcing this transaction
 # has also created the namespace and the mosaic involved.
-struct MosaicAliasTransaction
+struct MosaicAliasTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ALIAS)
 
 	inline Transaction
 	inline MosaicAliasTransactionBody
 
-# Embedded version of MosaicAliasTransaction
-struct EmbeddedMosaicAliasTransaction
+# Embedded version of MosaicAliasTransaction (V1, latest).
+struct EmbeddedMosaicAliasTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ALIAS)
 

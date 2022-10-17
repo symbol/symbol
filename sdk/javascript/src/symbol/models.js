@@ -1034,7 +1034,7 @@ export class EmbeddedTransaction {
 	}
 }
 
-export class AccountKeyLinkTransaction {
+export class AccountKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_KEY_LINK;
@@ -1053,9 +1053,9 @@ export class AccountKeyLinkTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = AccountKeyLinkTransaction.TRANSACTION_VERSION;
+		this._version = AccountKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = AccountKeyLinkTransaction.TRANSACTION_TYPE;
+		this._type = AccountKeyLinkTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._linkedPublicKey = new PublicKey();
@@ -1188,7 +1188,7 @@ export class AccountKeyLinkTransaction {
 		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
-		const instance = new AccountKeyLinkTransaction();
+		const instance = new AccountKeyLinkTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -1234,7 +1234,7 @@ export class AccountKeyLinkTransaction {
 	}
 }
 
-export class EmbeddedAccountKeyLinkTransaction {
+export class EmbeddedAccountKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_KEY_LINK;
@@ -1249,9 +1249,9 @@ export class EmbeddedAccountKeyLinkTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedAccountKeyLinkTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedAccountKeyLinkTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE;
 		this._linkedPublicKey = new PublicKey();
 		this._linkAction = LinkAction.UNLINK;
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
@@ -1349,7 +1349,7 @@ export class EmbeddedAccountKeyLinkTransaction {
 		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
-		const instance = new EmbeddedAccountKeyLinkTransaction();
+		const instance = new EmbeddedAccountKeyLinkTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -1386,7 +1386,7 @@ export class EmbeddedAccountKeyLinkTransaction {
 	}
 }
 
-export class NodeKeyLinkTransaction {
+export class NodeKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NODE_KEY_LINK;
@@ -1405,9 +1405,9 @@ export class NodeKeyLinkTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = NodeKeyLinkTransaction.TRANSACTION_VERSION;
+		this._version = NodeKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = NodeKeyLinkTransaction.TRANSACTION_TYPE;
+		this._type = NodeKeyLinkTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._linkedPublicKey = new PublicKey();
@@ -1540,7 +1540,7 @@ export class NodeKeyLinkTransaction {
 		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
-		const instance = new NodeKeyLinkTransaction();
+		const instance = new NodeKeyLinkTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -1586,7 +1586,7 @@ export class NodeKeyLinkTransaction {
 	}
 }
 
-export class EmbeddedNodeKeyLinkTransaction {
+export class EmbeddedNodeKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NODE_KEY_LINK;
@@ -1601,9 +1601,9 @@ export class EmbeddedNodeKeyLinkTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedNodeKeyLinkTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedNodeKeyLinkTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE;
 		this._linkedPublicKey = new PublicKey();
 		this._linkAction = LinkAction.UNLINK;
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
@@ -1701,7 +1701,7 @@ export class EmbeddedNodeKeyLinkTransaction {
 		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
-		const instance = new EmbeddedNodeKeyLinkTransaction();
+		const instance = new EmbeddedNodeKeyLinkTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -1916,7 +1916,7 @@ export class DetachedCosignature {
 	}
 }
 
-export class AggregateCompleteTransaction {
+export class AggregateCompleteTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.AGGREGATE_COMPLETE;
@@ -1936,9 +1936,9 @@ export class AggregateCompleteTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = AggregateCompleteTransaction.TRANSACTION_VERSION;
+		this._version = AggregateCompleteTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = AggregateCompleteTransaction.TRANSACTION_TYPE;
+		this._type = AggregateCompleteTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._transactionsHash = new Hash256();
@@ -2092,7 +2092,7 @@ export class AggregateCompleteTransaction {
 		const cosignatures = arrayHelpers.readArray(view.buffer, Cosignature);
 		view.shiftRight(arrayHelpers.size(cosignatures));
 
-		const instance = new AggregateCompleteTransaction();
+		const instance = new AggregateCompleteTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -2143,7 +2143,7 @@ export class AggregateCompleteTransaction {
 	}
 }
 
-export class AggregateBondedTransaction {
+export class AggregateBondedTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.AGGREGATE_BONDED;
@@ -2163,9 +2163,9 @@ export class AggregateBondedTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = AggregateBondedTransaction.TRANSACTION_VERSION;
+		this._version = AggregateBondedTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = AggregateBondedTransaction.TRANSACTION_TYPE;
+		this._type = AggregateBondedTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._transactionsHash = new Hash256();
@@ -2319,7 +2319,7 @@ export class AggregateBondedTransaction {
 		const cosignatures = arrayHelpers.readArray(view.buffer, Cosignature);
 		view.shiftRight(arrayHelpers.size(cosignatures));
 
-		const instance = new AggregateBondedTransaction();
+		const instance = new AggregateBondedTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -2370,7 +2370,7 @@ export class AggregateBondedTransaction {
 	}
 }
 
-export class VotingKeyLinkTransaction {
+export class VotingKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.VOTING_KEY_LINK;
@@ -2391,9 +2391,9 @@ export class VotingKeyLinkTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = VotingKeyLinkTransaction.TRANSACTION_VERSION;
+		this._version = VotingKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = VotingKeyLinkTransaction.TRANSACTION_TYPE;
+		this._type = VotingKeyLinkTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._linkedPublicKey = new VotingPublicKey();
@@ -2550,7 +2550,7 @@ export class VotingKeyLinkTransaction {
 		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
-		const instance = new VotingKeyLinkTransaction();
+		const instance = new VotingKeyLinkTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -2602,7 +2602,7 @@ export class VotingKeyLinkTransaction {
 	}
 }
 
-export class EmbeddedVotingKeyLinkTransaction {
+export class EmbeddedVotingKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.VOTING_KEY_LINK;
@@ -2619,9 +2619,9 @@ export class EmbeddedVotingKeyLinkTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedVotingKeyLinkTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedVotingKeyLinkTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE;
 		this._linkedPublicKey = new VotingPublicKey();
 		this._startEpoch = new FinalizationEpoch();
 		this._endEpoch = new FinalizationEpoch();
@@ -2743,7 +2743,7 @@ export class EmbeddedVotingKeyLinkTransaction {
 		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
-		const instance = new EmbeddedVotingKeyLinkTransaction();
+		const instance = new EmbeddedVotingKeyLinkTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -2786,7 +2786,7 @@ export class EmbeddedVotingKeyLinkTransaction {
 	}
 }
 
-export class VrfKeyLinkTransaction {
+export class VrfKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.VRF_KEY_LINK;
@@ -2805,9 +2805,9 @@ export class VrfKeyLinkTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = VrfKeyLinkTransaction.TRANSACTION_VERSION;
+		this._version = VrfKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = VrfKeyLinkTransaction.TRANSACTION_TYPE;
+		this._type = VrfKeyLinkTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._linkedPublicKey = new PublicKey();
@@ -2940,7 +2940,7 @@ export class VrfKeyLinkTransaction {
 		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
-		const instance = new VrfKeyLinkTransaction();
+		const instance = new VrfKeyLinkTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -2986,7 +2986,7 @@ export class VrfKeyLinkTransaction {
 	}
 }
 
-export class EmbeddedVrfKeyLinkTransaction {
+export class EmbeddedVrfKeyLinkTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.VRF_KEY_LINK;
@@ -3001,9 +3001,9 @@ export class EmbeddedVrfKeyLinkTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedVrfKeyLinkTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedVrfKeyLinkTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE;
 		this._linkedPublicKey = new PublicKey();
 		this._linkAction = LinkAction.UNLINK;
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
@@ -3101,7 +3101,7 @@ export class EmbeddedVrfKeyLinkTransaction {
 		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
-		const instance = new EmbeddedVrfKeyLinkTransaction();
+		const instance = new EmbeddedVrfKeyLinkTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -3138,7 +3138,7 @@ export class EmbeddedVrfKeyLinkTransaction {
 	}
 }
 
-export class HashLockTransaction {
+export class HashLockTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.HASH_LOCK;
@@ -3158,9 +3158,9 @@ export class HashLockTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = HashLockTransaction.TRANSACTION_VERSION;
+		this._version = HashLockTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = HashLockTransaction.TRANSACTION_TYPE;
+		this._type = HashLockTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._mosaic = new UnresolvedMosaic();
@@ -3306,7 +3306,7 @@ export class HashLockTransaction {
 		const hash = Hash256.deserialize(view.buffer);
 		view.shiftRight(hash.size);
 
-		const instance = new HashLockTransaction();
+		const instance = new HashLockTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -3355,7 +3355,7 @@ export class HashLockTransaction {
 	}
 }
 
-export class EmbeddedHashLockTransaction {
+export class EmbeddedHashLockTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.HASH_LOCK;
@@ -3371,9 +3371,9 @@ export class EmbeddedHashLockTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedHashLockTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedHashLockTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedHashLockTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedHashLockTransactionV1.TRANSACTION_TYPE;
 		this._mosaic = new UnresolvedMosaic();
 		this._duration = new BlockDuration();
 		this._hash = new Hash256();
@@ -3484,7 +3484,7 @@ export class EmbeddedHashLockTransaction {
 		const hash = Hash256.deserialize(view.buffer);
 		view.shiftRight(hash.size);
 
-		const instance = new EmbeddedHashLockTransaction();
+		const instance = new EmbeddedHashLockTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -3577,7 +3577,7 @@ export class LockHashAlgorithm {
 	}
 }
 
-export class SecretLockTransaction {
+export class SecretLockTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.SECRET_LOCK;
@@ -3599,9 +3599,9 @@ export class SecretLockTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = SecretLockTransaction.TRANSACTION_VERSION;
+		this._version = SecretLockTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = SecretLockTransaction.TRANSACTION_TYPE;
+		this._type = SecretLockTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._recipientAddress = new UnresolvedAddress();
@@ -3771,7 +3771,7 @@ export class SecretLockTransaction {
 		const hashAlgorithm = LockHashAlgorithm.deserializeAligned(view.buffer);
 		view.shiftRight(hashAlgorithm.size);
 
-		const instance = new SecretLockTransaction();
+		const instance = new SecretLockTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -3826,7 +3826,7 @@ export class SecretLockTransaction {
 	}
 }
 
-export class EmbeddedSecretLockTransaction {
+export class EmbeddedSecretLockTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.SECRET_LOCK;
@@ -3844,9 +3844,9 @@ export class EmbeddedSecretLockTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedSecretLockTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedSecretLockTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedSecretLockTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE;
 		this._recipientAddress = new UnresolvedAddress();
 		this._secret = new Hash256();
 		this._mosaic = new UnresolvedMosaic();
@@ -3981,7 +3981,7 @@ export class EmbeddedSecretLockTransaction {
 		const hashAlgorithm = LockHashAlgorithm.deserializeAligned(view.buffer);
 		view.shiftRight(hashAlgorithm.size);
 
-		const instance = new EmbeddedSecretLockTransaction();
+		const instance = new EmbeddedSecretLockTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -4027,7 +4027,7 @@ export class EmbeddedSecretLockTransaction {
 	}
 }
 
-export class SecretProofTransaction {
+export class SecretProofTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.SECRET_PROOF;
@@ -4048,9 +4048,9 @@ export class SecretProofTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = SecretProofTransaction.TRANSACTION_VERSION;
+		this._version = SecretProofTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = SecretProofTransaction.TRANSACTION_TYPE;
+		this._type = SecretProofTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._recipientAddress = new UnresolvedAddress();
@@ -4210,7 +4210,7 @@ export class SecretProofTransaction {
 		const proof = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, proofSize);
 		view.shiftRight(proofSize);
 
-		const instance = new SecretProofTransaction();
+		const instance = new SecretProofTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -4263,7 +4263,7 @@ export class SecretProofTransaction {
 	}
 }
 
-export class EmbeddedSecretProofTransaction {
+export class EmbeddedSecretProofTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.SECRET_PROOF;
@@ -4280,9 +4280,9 @@ export class EmbeddedSecretProofTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedSecretProofTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedSecretProofTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedSecretProofTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE;
 		this._recipientAddress = new UnresolvedAddress();
 		this._secret = new Hash256();
 		this._hashAlgorithm = LockHashAlgorithm.SHA3_256;
@@ -4407,7 +4407,7 @@ export class EmbeddedSecretProofTransaction {
 		const proof = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, proofSize);
 		view.shiftRight(proofSize);
 
-		const instance = new EmbeddedSecretProofTransaction();
+		const instance = new EmbeddedSecretProofTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -4451,7 +4451,7 @@ export class EmbeddedSecretProofTransaction {
 	}
 }
 
-export class AccountMetadataTransaction {
+export class AccountMetadataTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_METADATA;
@@ -4470,9 +4470,9 @@ export class AccountMetadataTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = AccountMetadataTransaction.TRANSACTION_VERSION;
+		this._version = AccountMetadataTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = AccountMetadataTransaction.TRANSACTION_TYPE;
+		this._type = AccountMetadataTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._targetAddress = new UnresolvedAddress();
@@ -4632,7 +4632,7 @@ export class AccountMetadataTransaction {
 		const value = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, valueSize);
 		view.shiftRight(valueSize);
 
-		const instance = new AccountMetadataTransaction();
+		const instance = new AccountMetadataTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -4685,7 +4685,7 @@ export class AccountMetadataTransaction {
 	}
 }
 
-export class EmbeddedAccountMetadataTransaction {
+export class EmbeddedAccountMetadataTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_METADATA;
@@ -4700,9 +4700,9 @@ export class EmbeddedAccountMetadataTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedAccountMetadataTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedAccountMetadataTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedAccountMetadataTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE;
 		this._targetAddress = new UnresolvedAddress();
 		this._scopedMetadataKey = 0n;
 		this._valueSizeDelta = 0;
@@ -4827,7 +4827,7 @@ export class EmbeddedAccountMetadataTransaction {
 		const value = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, valueSize);
 		view.shiftRight(valueSize);
 
-		const instance = new EmbeddedAccountMetadataTransaction();
+		const instance = new EmbeddedAccountMetadataTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -4871,7 +4871,7 @@ export class EmbeddedAccountMetadataTransaction {
 	}
 }
 
-export class MosaicMetadataTransaction {
+export class MosaicMetadataTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_METADATA;
@@ -4891,9 +4891,9 @@ export class MosaicMetadataTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = MosaicMetadataTransaction.TRANSACTION_VERSION;
+		this._version = MosaicMetadataTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = MosaicMetadataTransaction.TRANSACTION_TYPE;
+		this._type = MosaicMetadataTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._targetAddress = new UnresolvedAddress();
@@ -5065,7 +5065,7 @@ export class MosaicMetadataTransaction {
 		const value = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, valueSize);
 		view.shiftRight(valueSize);
 
-		const instance = new MosaicMetadataTransaction();
+		const instance = new MosaicMetadataTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -5121,7 +5121,7 @@ export class MosaicMetadataTransaction {
 	}
 }
 
-export class EmbeddedMosaicMetadataTransaction {
+export class EmbeddedMosaicMetadataTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_METADATA;
@@ -5137,9 +5137,9 @@ export class EmbeddedMosaicMetadataTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedMosaicMetadataTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedMosaicMetadataTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedMosaicMetadataTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE;
 		this._targetAddress = new UnresolvedAddress();
 		this._scopedMetadataKey = 0n;
 		this._targetMosaicId = new UnresolvedMosaicId();
@@ -5276,7 +5276,7 @@ export class EmbeddedMosaicMetadataTransaction {
 		const value = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, valueSize);
 		view.shiftRight(valueSize);
 
-		const instance = new EmbeddedMosaicMetadataTransaction();
+		const instance = new EmbeddedMosaicMetadataTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -5447,7 +5447,7 @@ export class AliasAction {
 	}
 }
 
-export class NamespaceMetadataTransaction {
+export class NamespaceMetadataTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_METADATA;
@@ -5467,9 +5467,9 @@ export class NamespaceMetadataTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = NamespaceMetadataTransaction.TRANSACTION_VERSION;
+		this._version = NamespaceMetadataTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = NamespaceMetadataTransaction.TRANSACTION_TYPE;
+		this._type = NamespaceMetadataTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._targetAddress = new UnresolvedAddress();
@@ -5641,7 +5641,7 @@ export class NamespaceMetadataTransaction {
 		const value = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, valueSize);
 		view.shiftRight(valueSize);
 
-		const instance = new NamespaceMetadataTransaction();
+		const instance = new NamespaceMetadataTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -5697,7 +5697,7 @@ export class NamespaceMetadataTransaction {
 	}
 }
 
-export class EmbeddedNamespaceMetadataTransaction {
+export class EmbeddedNamespaceMetadataTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_METADATA;
@@ -5713,9 +5713,9 @@ export class EmbeddedNamespaceMetadataTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedNamespaceMetadataTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedNamespaceMetadataTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE;
 		this._targetAddress = new UnresolvedAddress();
 		this._scopedMetadataKey = 0n;
 		this._targetNamespaceId = new NamespaceId();
@@ -5852,7 +5852,7 @@ export class EmbeddedNamespaceMetadataTransaction {
 		const value = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, valueSize);
 		view.shiftRight(valueSize);
 
-		const instance = new EmbeddedNamespaceMetadataTransaction();
+		const instance = new EmbeddedNamespaceMetadataTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -6027,7 +6027,7 @@ export class MosaicSupplyChangeAction {
 	}
 }
 
-export class MosaicDefinitionTransaction {
+export class MosaicDefinitionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_DEFINITION;
@@ -6048,9 +6048,9 @@ export class MosaicDefinitionTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = MosaicDefinitionTransaction.TRANSACTION_VERSION;
+		this._version = MosaicDefinitionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = MosaicDefinitionTransaction.TRANSACTION_TYPE;
+		this._type = MosaicDefinitionTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._id = new MosaicId();
@@ -6219,7 +6219,7 @@ export class MosaicDefinitionTransaction {
 		const divisibility = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
 
-		const instance = new MosaicDefinitionTransaction();
+		const instance = new MosaicDefinitionTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -6274,7 +6274,7 @@ export class MosaicDefinitionTransaction {
 	}
 }
 
-export class EmbeddedMosaicDefinitionTransaction {
+export class EmbeddedMosaicDefinitionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_DEFINITION;
@@ -6291,9 +6291,9 @@ export class EmbeddedMosaicDefinitionTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedMosaicDefinitionTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedMosaicDefinitionTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE;
 		this._id = new MosaicId();
 		this._duration = new BlockDuration();
 		this._nonce = new MosaicNonce();
@@ -6427,7 +6427,7 @@ export class EmbeddedMosaicDefinitionTransaction {
 		const divisibility = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
 
-		const instance = new EmbeddedMosaicDefinitionTransaction();
+		const instance = new EmbeddedMosaicDefinitionTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -6473,7 +6473,7 @@ export class EmbeddedMosaicDefinitionTransaction {
 	}
 }
 
-export class MosaicSupplyChangeTransaction {
+export class MosaicSupplyChangeTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_CHANGE;
@@ -6493,9 +6493,9 @@ export class MosaicSupplyChangeTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = MosaicSupplyChangeTransaction.TRANSACTION_VERSION;
+		this._version = MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = MosaicSupplyChangeTransaction.TRANSACTION_TYPE;
+		this._type = MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._mosaicId = new UnresolvedMosaicId();
@@ -6640,7 +6640,7 @@ export class MosaicSupplyChangeTransaction {
 		const action = MosaicSupplyChangeAction.deserializeAligned(view.buffer);
 		view.shiftRight(action.size);
 
-		const instance = new MosaicSupplyChangeTransaction();
+		const instance = new MosaicSupplyChangeTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -6689,7 +6689,7 @@ export class MosaicSupplyChangeTransaction {
 	}
 }
 
-export class EmbeddedMosaicSupplyChangeTransaction {
+export class EmbeddedMosaicSupplyChangeTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_CHANGE;
@@ -6705,9 +6705,9 @@ export class EmbeddedMosaicSupplyChangeTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedMosaicSupplyChangeTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedMosaicSupplyChangeTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE;
 		this._mosaicId = new UnresolvedMosaicId();
 		this._delta = new Amount();
 		this._action = MosaicSupplyChangeAction.DECREASE;
@@ -6817,7 +6817,7 @@ export class EmbeddedMosaicSupplyChangeTransaction {
 		const action = MosaicSupplyChangeAction.deserializeAligned(view.buffer);
 		view.shiftRight(action.size);
 
-		const instance = new EmbeddedMosaicSupplyChangeTransaction();
+		const instance = new EmbeddedMosaicSupplyChangeTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -6857,7 +6857,7 @@ export class EmbeddedMosaicSupplyChangeTransaction {
 	}
 }
 
-export class MosaicSupplyRevocationTransaction {
+export class MosaicSupplyRevocationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_REVOCATION;
@@ -6876,9 +6876,9 @@ export class MosaicSupplyRevocationTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = MosaicSupplyRevocationTransaction.TRANSACTION_VERSION;
+		this._version = MosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = MosaicSupplyRevocationTransaction.TRANSACTION_TYPE;
+		this._type = MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._sourceAddress = new UnresolvedAddress();
@@ -7012,7 +7012,7 @@ export class MosaicSupplyRevocationTransaction {
 		const mosaic = UnresolvedMosaic.deserialize(view.buffer);
 		view.shiftRight(mosaic.size);
 
-		const instance = new MosaicSupplyRevocationTransaction();
+		const instance = new MosaicSupplyRevocationTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -7058,7 +7058,7 @@ export class MosaicSupplyRevocationTransaction {
 	}
 }
 
-export class EmbeddedMosaicSupplyRevocationTransaction {
+export class EmbeddedMosaicSupplyRevocationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_REVOCATION;
@@ -7073,9 +7073,9 @@ export class EmbeddedMosaicSupplyRevocationTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedMosaicSupplyRevocationTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedMosaicSupplyRevocationTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE;
 		this._sourceAddress = new UnresolvedAddress();
 		this._mosaic = new UnresolvedMosaic();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
@@ -7174,7 +7174,7 @@ export class EmbeddedMosaicSupplyRevocationTransaction {
 		const mosaic = UnresolvedMosaic.deserialize(view.buffer);
 		view.shiftRight(mosaic.size);
 
-		const instance = new EmbeddedMosaicSupplyRevocationTransaction();
+		const instance = new EmbeddedMosaicSupplyRevocationTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -7211,7 +7211,7 @@ export class EmbeddedMosaicSupplyRevocationTransaction {
 	}
 }
 
-export class MultisigAccountModificationTransaction {
+export class MultisigAccountModificationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -7230,9 +7230,9 @@ export class MultisigAccountModificationTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = MultisigAccountModificationTransaction.TRANSACTION_VERSION;
+		this._version = MultisigAccountModificationTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = MultisigAccountModificationTransaction.TRANSACTION_TYPE;
+		this._type = MultisigAccountModificationTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._minRemovalDelta = 0;
@@ -7401,7 +7401,7 @@ export class MultisigAccountModificationTransaction {
 		const addressDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, addressDeletionsCount);
 		view.shiftRight(arrayHelpers.size(addressDeletions));
 
-		const instance = new MultisigAccountModificationTransaction();
+		const instance = new MultisigAccountModificationTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -7456,7 +7456,7 @@ export class MultisigAccountModificationTransaction {
 	}
 }
 
-export class EmbeddedMultisigAccountModificationTransaction {
+export class EmbeddedMultisigAccountModificationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -7471,9 +7471,9 @@ export class EmbeddedMultisigAccountModificationTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedMultisigAccountModificationTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedMultisigAccountModificationTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE;
 		this._minRemovalDelta = 0;
 		this._minApprovalDelta = 0;
 		this._addressAdditions = [];
@@ -7607,7 +7607,7 @@ export class EmbeddedMultisigAccountModificationTransaction {
 		const addressDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, addressDeletionsCount);
 		view.shiftRight(arrayHelpers.size(addressDeletions));
 
-		const instance = new EmbeddedMultisigAccountModificationTransaction();
+		const instance = new EmbeddedMultisigAccountModificationTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -7653,7 +7653,7 @@ export class EmbeddedMultisigAccountModificationTransaction {
 	}
 }
 
-export class AddressAliasTransaction {
+export class AddressAliasTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ADDRESS_ALIAS;
@@ -7673,9 +7673,9 @@ export class AddressAliasTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = AddressAliasTransaction.TRANSACTION_VERSION;
+		this._version = AddressAliasTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = AddressAliasTransaction.TRANSACTION_TYPE;
+		this._type = AddressAliasTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._namespaceId = new NamespaceId();
@@ -7820,7 +7820,7 @@ export class AddressAliasTransaction {
 		const aliasAction = AliasAction.deserializeAligned(view.buffer);
 		view.shiftRight(aliasAction.size);
 
-		const instance = new AddressAliasTransaction();
+		const instance = new AddressAliasTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -7869,7 +7869,7 @@ export class AddressAliasTransaction {
 	}
 }
 
-export class EmbeddedAddressAliasTransaction {
+export class EmbeddedAddressAliasTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ADDRESS_ALIAS;
@@ -7885,9 +7885,9 @@ export class EmbeddedAddressAliasTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedAddressAliasTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedAddressAliasTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedAddressAliasTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE;
 		this._namespaceId = new NamespaceId();
 		this._address = new Address();
 		this._aliasAction = AliasAction.UNLINK;
@@ -7997,7 +7997,7 @@ export class EmbeddedAddressAliasTransaction {
 		const aliasAction = AliasAction.deserializeAligned(view.buffer);
 		view.shiftRight(aliasAction.size);
 
-		const instance = new EmbeddedAddressAliasTransaction();
+		const instance = new EmbeddedAddressAliasTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -8037,7 +8037,7 @@ export class EmbeddedAddressAliasTransaction {
 	}
 }
 
-export class MosaicAliasTransaction {
+export class MosaicAliasTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_ALIAS;
@@ -8057,9 +8057,9 @@ export class MosaicAliasTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = MosaicAliasTransaction.TRANSACTION_VERSION;
+		this._version = MosaicAliasTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = MosaicAliasTransaction.TRANSACTION_TYPE;
+		this._type = MosaicAliasTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._namespaceId = new NamespaceId();
@@ -8204,7 +8204,7 @@ export class MosaicAliasTransaction {
 		const aliasAction = AliasAction.deserializeAligned(view.buffer);
 		view.shiftRight(aliasAction.size);
 
-		const instance = new MosaicAliasTransaction();
+		const instance = new MosaicAliasTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -8253,7 +8253,7 @@ export class MosaicAliasTransaction {
 	}
 }
 
-export class EmbeddedMosaicAliasTransaction {
+export class EmbeddedMosaicAliasTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_ALIAS;
@@ -8269,9 +8269,9 @@ export class EmbeddedMosaicAliasTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedMosaicAliasTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedMosaicAliasTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedMosaicAliasTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE;
 		this._namespaceId = new NamespaceId();
 		this._mosaicId = new MosaicId();
 		this._aliasAction = AliasAction.UNLINK;
@@ -8381,7 +8381,7 @@ export class EmbeddedMosaicAliasTransaction {
 		const aliasAction = AliasAction.deserializeAligned(view.buffer);
 		view.shiftRight(aliasAction.size);
 
-		const instance = new EmbeddedMosaicAliasTransaction();
+		const instance = new EmbeddedMosaicAliasTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -8421,7 +8421,7 @@ export class EmbeddedMosaicAliasTransaction {
 	}
 }
 
-export class NamespaceRegistrationTransaction {
+export class NamespaceRegistrationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_REGISTRATION;
@@ -8443,9 +8443,9 @@ export class NamespaceRegistrationTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = NamespaceRegistrationTransaction.TRANSACTION_VERSION;
+		this._version = NamespaceRegistrationTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = NamespaceRegistrationTransaction.TRANSACTION_TYPE;
+		this._type = NamespaceRegistrationTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._duration = new BlockDuration();
@@ -8630,7 +8630,7 @@ export class NamespaceRegistrationTransaction {
 		const name = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, nameSize);
 		view.shiftRight(nameSize);
 
-		const instance = new NamespaceRegistrationTransaction();
+		const instance = new NamespaceRegistrationTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -8694,7 +8694,7 @@ export class NamespaceRegistrationTransaction {
 	}
 }
 
-export class EmbeddedNamespaceRegistrationTransaction {
+export class EmbeddedNamespaceRegistrationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_REGISTRATION;
@@ -8712,9 +8712,9 @@ export class EmbeddedNamespaceRegistrationTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedNamespaceRegistrationTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedNamespaceRegistrationTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE;
 		this._duration = new BlockDuration();
 		this._parentId = null;
 		this._id = new NamespaceId();
@@ -8864,7 +8864,7 @@ export class EmbeddedNamespaceRegistrationTransaction {
 		const name = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, nameSize);
 		view.shiftRight(nameSize);
 
-		const instance = new EmbeddedNamespaceRegistrationTransaction();
+		const instance = new EmbeddedNamespaceRegistrationTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -8974,7 +8974,7 @@ export class AccountRestrictionFlags {
 	}
 }
 
-export class AccountAddressRestrictionTransaction {
+export class AccountAddressRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_ADDRESS_RESTRICTION;
@@ -8994,9 +8994,9 @@ export class AccountAddressRestrictionTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = AccountAddressRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = AccountAddressRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = AccountAddressRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._restrictionFlags = AccountRestrictionFlags.ADDRESS;
@@ -9153,7 +9153,7 @@ export class AccountAddressRestrictionTransaction {
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, restrictionDeletionsCount);
 		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
-		const instance = new AccountAddressRestrictionTransaction();
+		const instance = new AccountAddressRestrictionTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -9205,7 +9205,7 @@ export class AccountAddressRestrictionTransaction {
 	}
 }
 
-export class EmbeddedAccountAddressRestrictionTransaction {
+export class EmbeddedAccountAddressRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_ADDRESS_RESTRICTION;
@@ -9221,9 +9221,9 @@ export class EmbeddedAccountAddressRestrictionTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedAccountAddressRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedAccountAddressRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._restrictionFlags = AccountRestrictionFlags.ADDRESS;
 		this._restrictionAdditions = [];
 		this._restrictionDeletions = [];
@@ -9345,7 +9345,7 @@ export class EmbeddedAccountAddressRestrictionTransaction {
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, restrictionDeletionsCount);
 		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
-		const instance = new EmbeddedAccountAddressRestrictionTransaction();
+		const instance = new EmbeddedAccountAddressRestrictionTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -9388,7 +9388,7 @@ export class EmbeddedAccountAddressRestrictionTransaction {
 	}
 }
 
-export class AccountMosaicRestrictionTransaction {
+export class AccountMosaicRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_MOSAIC_RESTRICTION;
@@ -9408,9 +9408,9 @@ export class AccountMosaicRestrictionTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = AccountMosaicRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = AccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = AccountMosaicRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._restrictionFlags = AccountRestrictionFlags.ADDRESS;
@@ -9567,7 +9567,7 @@ export class AccountMosaicRestrictionTransaction {
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaicId, restrictionDeletionsCount);
 		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
-		const instance = new AccountMosaicRestrictionTransaction();
+		const instance = new AccountMosaicRestrictionTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -9619,7 +9619,7 @@ export class AccountMosaicRestrictionTransaction {
 	}
 }
 
-export class EmbeddedAccountMosaicRestrictionTransaction {
+export class EmbeddedAccountMosaicRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_MOSAIC_RESTRICTION;
@@ -9635,9 +9635,9 @@ export class EmbeddedAccountMosaicRestrictionTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedAccountMosaicRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedAccountMosaicRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._restrictionFlags = AccountRestrictionFlags.ADDRESS;
 		this._restrictionAdditions = [];
 		this._restrictionDeletions = [];
@@ -9759,7 +9759,7 @@ export class EmbeddedAccountMosaicRestrictionTransaction {
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaicId, restrictionDeletionsCount);
 		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
-		const instance = new EmbeddedAccountMosaicRestrictionTransaction();
+		const instance = new EmbeddedAccountMosaicRestrictionTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -9802,7 +9802,7 @@ export class EmbeddedAccountMosaicRestrictionTransaction {
 	}
 }
 
-export class AccountOperationRestrictionTransaction {
+export class AccountOperationRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_OPERATION_RESTRICTION;
@@ -9822,9 +9822,9 @@ export class AccountOperationRestrictionTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = AccountOperationRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = AccountOperationRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = AccountOperationRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._restrictionFlags = AccountRestrictionFlags.ADDRESS;
@@ -9981,7 +9981,7 @@ export class AccountOperationRestrictionTransaction {
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, TransactionType, restrictionDeletionsCount);
 		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
-		const instance = new AccountOperationRestrictionTransaction();
+		const instance = new AccountOperationRestrictionTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -10033,7 +10033,7 @@ export class AccountOperationRestrictionTransaction {
 	}
 }
 
-export class EmbeddedAccountOperationRestrictionTransaction {
+export class EmbeddedAccountOperationRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_OPERATION_RESTRICTION;
@@ -10049,9 +10049,9 @@ export class EmbeddedAccountOperationRestrictionTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedAccountOperationRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedAccountOperationRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._restrictionFlags = AccountRestrictionFlags.ADDRESS;
 		this._restrictionAdditions = [];
 		this._restrictionDeletions = [];
@@ -10173,7 +10173,7 @@ export class EmbeddedAccountOperationRestrictionTransaction {
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, TransactionType, restrictionDeletionsCount);
 		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
-		const instance = new EmbeddedAccountOperationRestrictionTransaction();
+		const instance = new EmbeddedAccountOperationRestrictionTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -10216,7 +10216,7 @@ export class EmbeddedAccountOperationRestrictionTransaction {
 	}
 }
 
-export class MosaicAddressRestrictionTransaction {
+export class MosaicAddressRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_ADDRESS_RESTRICTION;
@@ -10235,9 +10235,9 @@ export class MosaicAddressRestrictionTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = MosaicAddressRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = MosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = MosaicAddressRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._mosaicId = new UnresolvedMosaicId();
@@ -10406,7 +10406,7 @@ export class MosaicAddressRestrictionTransaction {
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
 
-		const instance = new MosaicAddressRestrictionTransaction();
+		const instance = new MosaicAddressRestrictionTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -10461,7 +10461,7 @@ export class MosaicAddressRestrictionTransaction {
 	}
 }
 
-export class EmbeddedMosaicAddressRestrictionTransaction {
+export class EmbeddedMosaicAddressRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_ADDRESS_RESTRICTION;
@@ -10476,9 +10476,9 @@ export class EmbeddedMosaicAddressRestrictionTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedMosaicAddressRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedMosaicAddressRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._mosaicId = new UnresolvedMosaicId();
 		this._restrictionKey = 0n;
 		this._previousRestrictionValue = 0n;
@@ -10612,7 +10612,7 @@ export class EmbeddedMosaicAddressRestrictionTransaction {
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
 
-		const instance = new EmbeddedMosaicAddressRestrictionTransaction();
+		const instance = new EmbeddedMosaicAddressRestrictionTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -10741,7 +10741,7 @@ export class MosaicRestrictionType {
 	}
 }
 
-export class MosaicGlobalRestrictionTransaction {
+export class MosaicGlobalRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_GLOBAL_RESTRICTION;
@@ -10762,9 +10762,9 @@ export class MosaicGlobalRestrictionTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = MosaicGlobalRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = MosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = MosaicGlobalRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._mosaicId = new UnresolvedMosaicId();
@@ -10957,7 +10957,7 @@ export class MosaicGlobalRestrictionTransaction {
 		const newRestrictionType = MosaicRestrictionType.deserializeAligned(view.buffer);
 		view.shiftRight(newRestrictionType.size);
 
-		const instance = new MosaicGlobalRestrictionTransaction();
+		const instance = new MosaicGlobalRestrictionTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -11018,7 +11018,7 @@ export class MosaicGlobalRestrictionTransaction {
 	}
 }
 
-export class EmbeddedMosaicGlobalRestrictionTransaction {
+export class EmbeddedMosaicGlobalRestrictionTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_GLOBAL_RESTRICTION;
@@ -11035,9 +11035,9 @@ export class EmbeddedMosaicGlobalRestrictionTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedMosaicGlobalRestrictionTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedMosaicGlobalRestrictionTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE;
 		this._mosaicId = new UnresolvedMosaicId();
 		this._referenceMosaicId = new UnresolvedMosaicId();
 		this._restrictionKey = 0n;
@@ -11195,7 +11195,7 @@ export class EmbeddedMosaicGlobalRestrictionTransaction {
 		const newRestrictionType = MosaicRestrictionType.deserializeAligned(view.buffer);
 		view.shiftRight(newRestrictionType.size);
 
-		const instance = new EmbeddedMosaicGlobalRestrictionTransaction();
+		const instance = new EmbeddedMosaicGlobalRestrictionTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -11247,7 +11247,7 @@ export class EmbeddedMosaicGlobalRestrictionTransaction {
 	}
 }
 
-export class TransferTransaction {
+export class TransferTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -11267,9 +11267,9 @@ export class TransferTransaction {
 	constructor() {
 		this._signature = new Signature();
 		this._signerPublicKey = new PublicKey();
-		this._version = TransferTransaction.TRANSACTION_VERSION;
+		this._version = TransferTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = TransferTransaction.TRANSACTION_TYPE;
+		this._type = TransferTransactionV1.TRANSACTION_TYPE;
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._recipientAddress = new UnresolvedAddress();
@@ -11436,7 +11436,7 @@ export class TransferTransaction {
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
 
-		const instance = new TransferTransaction();
+		const instance = new TransferTransactionV1();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -11489,7 +11489,7 @@ export class TransferTransaction {
 	}
 }
 
-export class EmbeddedTransferTransaction {
+export class EmbeddedTransferTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -11505,9 +11505,9 @@ export class EmbeddedTransferTransaction {
 
 	constructor() {
 		this._signerPublicKey = new PublicKey();
-		this._version = EmbeddedTransferTransaction.TRANSACTION_VERSION;
+		this._version = EmbeddedTransferTransactionV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
-		this._type = EmbeddedTransferTransaction.TRANSACTION_TYPE;
+		this._type = EmbeddedTransferTransactionV1.TRANSACTION_TYPE;
 		this._recipientAddress = new UnresolvedAddress();
 		this._mosaics = [];
 		this._message = new Uint8Array();
@@ -11639,7 +11639,7 @@ export class EmbeddedTransferTransaction {
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
 
-		const instance = new EmbeddedTransferTransaction();
+		const instance = new EmbeddedTransferTransactionV1();
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
 		instance._network = network;
@@ -11696,31 +11696,31 @@ export class TransactionFactory {
 		const view = new BufferView(payload);
 		const parent = Transaction.deserialize(view.buffer);
 		const mapping = new Map([
-			[TransactionFactory.toKey([AccountKeyLinkTransaction.TRANSACTION_TYPE.value]), AccountKeyLinkTransaction],
-			[TransactionFactory.toKey([NodeKeyLinkTransaction.TRANSACTION_TYPE.value]), NodeKeyLinkTransaction],
-			[TransactionFactory.toKey([AggregateCompleteTransaction.TRANSACTION_TYPE.value]), AggregateCompleteTransaction],
-			[TransactionFactory.toKey([AggregateBondedTransaction.TRANSACTION_TYPE.value]), AggregateBondedTransaction],
-			[TransactionFactory.toKey([VotingKeyLinkTransaction.TRANSACTION_TYPE.value]), VotingKeyLinkTransaction],
-			[TransactionFactory.toKey([VrfKeyLinkTransaction.TRANSACTION_TYPE.value]), VrfKeyLinkTransaction],
-			[TransactionFactory.toKey([HashLockTransaction.TRANSACTION_TYPE.value]), HashLockTransaction],
-			[TransactionFactory.toKey([SecretLockTransaction.TRANSACTION_TYPE.value]), SecretLockTransaction],
-			[TransactionFactory.toKey([SecretProofTransaction.TRANSACTION_TYPE.value]), SecretProofTransaction],
-			[TransactionFactory.toKey([AccountMetadataTransaction.TRANSACTION_TYPE.value]), AccountMetadataTransaction],
-			[TransactionFactory.toKey([MosaicMetadataTransaction.TRANSACTION_TYPE.value]), MosaicMetadataTransaction],
-			[TransactionFactory.toKey([NamespaceMetadataTransaction.TRANSACTION_TYPE.value]), NamespaceMetadataTransaction],
-			[TransactionFactory.toKey([MosaicDefinitionTransaction.TRANSACTION_TYPE.value]), MosaicDefinitionTransaction],
-			[TransactionFactory.toKey([MosaicSupplyChangeTransaction.TRANSACTION_TYPE.value]), MosaicSupplyChangeTransaction],
-			[TransactionFactory.toKey([MosaicSupplyRevocationTransaction.TRANSACTION_TYPE.value]), MosaicSupplyRevocationTransaction],
-			[TransactionFactory.toKey([MultisigAccountModificationTransaction.TRANSACTION_TYPE.value]), MultisigAccountModificationTransaction],
-			[TransactionFactory.toKey([AddressAliasTransaction.TRANSACTION_TYPE.value]), AddressAliasTransaction],
-			[TransactionFactory.toKey([MosaicAliasTransaction.TRANSACTION_TYPE.value]), MosaicAliasTransaction],
-			[TransactionFactory.toKey([NamespaceRegistrationTransaction.TRANSACTION_TYPE.value]), NamespaceRegistrationTransaction],
-			[TransactionFactory.toKey([AccountAddressRestrictionTransaction.TRANSACTION_TYPE.value]), AccountAddressRestrictionTransaction],
-			[TransactionFactory.toKey([AccountMosaicRestrictionTransaction.TRANSACTION_TYPE.value]), AccountMosaicRestrictionTransaction],
-			[TransactionFactory.toKey([AccountOperationRestrictionTransaction.TRANSACTION_TYPE.value]), AccountOperationRestrictionTransaction],
-			[TransactionFactory.toKey([MosaicAddressRestrictionTransaction.TRANSACTION_TYPE.value]), MosaicAddressRestrictionTransaction],
-			[TransactionFactory.toKey([MosaicGlobalRestrictionTransaction.TRANSACTION_TYPE.value]), MosaicGlobalRestrictionTransaction],
-			[TransactionFactory.toKey([TransferTransaction.TRANSACTION_TYPE.value]), TransferTransaction]
+			[TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value]), AccountKeyLinkTransactionV1],
+			[TransactionFactory.toKey([NodeKeyLinkTransactionV1.TRANSACTION_TYPE.value]), NodeKeyLinkTransactionV1],
+			[TransactionFactory.toKey([AggregateCompleteTransactionV1.TRANSACTION_TYPE.value]), AggregateCompleteTransactionV1],
+			[TransactionFactory.toKey([AggregateBondedTransactionV1.TRANSACTION_TYPE.value]), AggregateBondedTransactionV1],
+			[TransactionFactory.toKey([VotingKeyLinkTransactionV1.TRANSACTION_TYPE.value]), VotingKeyLinkTransactionV1],
+			[TransactionFactory.toKey([VrfKeyLinkTransactionV1.TRANSACTION_TYPE.value]), VrfKeyLinkTransactionV1],
+			[TransactionFactory.toKey([HashLockTransactionV1.TRANSACTION_TYPE.value]), HashLockTransactionV1],
+			[TransactionFactory.toKey([SecretLockTransactionV1.TRANSACTION_TYPE.value]), SecretLockTransactionV1],
+			[TransactionFactory.toKey([SecretProofTransactionV1.TRANSACTION_TYPE.value]), SecretProofTransactionV1],
+			[TransactionFactory.toKey([AccountMetadataTransactionV1.TRANSACTION_TYPE.value]), AccountMetadataTransactionV1],
+			[TransactionFactory.toKey([MosaicMetadataTransactionV1.TRANSACTION_TYPE.value]), MosaicMetadataTransactionV1],
+			[TransactionFactory.toKey([NamespaceMetadataTransactionV1.TRANSACTION_TYPE.value]), NamespaceMetadataTransactionV1],
+			[TransactionFactory.toKey([MosaicDefinitionTransactionV1.TRANSACTION_TYPE.value]), MosaicDefinitionTransactionV1],
+			[TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value]), MosaicSupplyChangeTransactionV1],
+			[TransactionFactory.toKey([MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value]), MosaicSupplyRevocationTransactionV1],
+			[TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value]), MultisigAccountModificationTransactionV1],
+			[TransactionFactory.toKey([AddressAliasTransactionV1.TRANSACTION_TYPE.value]), AddressAliasTransactionV1],
+			[TransactionFactory.toKey([MosaicAliasTransactionV1.TRANSACTION_TYPE.value]), MosaicAliasTransactionV1],
+			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value]), NamespaceRegistrationTransactionV1],
+			[TransactionFactory.toKey([AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountAddressRestrictionTransactionV1],
+			[TransactionFactory.toKey([AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountMosaicRestrictionTransactionV1],
+			[TransactionFactory.toKey([AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountOperationRestrictionTransactionV1],
+			[TransactionFactory.toKey([MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), MosaicAddressRestrictionTransactionV1],
+			[TransactionFactory.toKey([MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value]), MosaicGlobalRestrictionTransactionV1],
+			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value]), TransferTransactionV1]
 		]);
 		const discriminator = TransactionFactory.toKey([parent.type.value]);
 		const factory_class = mapping.get(discriminator);
@@ -11729,31 +11729,31 @@ export class TransactionFactory {
 
 	static createByName(entityName) {
 		const mapping = {
-			account_key_link_transaction: AccountKeyLinkTransaction,
-			node_key_link_transaction: NodeKeyLinkTransaction,
-			aggregate_complete_transaction: AggregateCompleteTransaction,
-			aggregate_bonded_transaction: AggregateBondedTransaction,
-			voting_key_link_transaction: VotingKeyLinkTransaction,
-			vrf_key_link_transaction: VrfKeyLinkTransaction,
-			hash_lock_transaction: HashLockTransaction,
-			secret_lock_transaction: SecretLockTransaction,
-			secret_proof_transaction: SecretProofTransaction,
-			account_metadata_transaction: AccountMetadataTransaction,
-			mosaic_metadata_transaction: MosaicMetadataTransaction,
-			namespace_metadata_transaction: NamespaceMetadataTransaction,
-			mosaic_definition_transaction: MosaicDefinitionTransaction,
-			mosaic_supply_change_transaction: MosaicSupplyChangeTransaction,
-			mosaic_supply_revocation_transaction: MosaicSupplyRevocationTransaction,
-			multisig_account_modification_transaction: MultisigAccountModificationTransaction,
-			address_alias_transaction: AddressAliasTransaction,
-			mosaic_alias_transaction: MosaicAliasTransaction,
-			namespace_registration_transaction: NamespaceRegistrationTransaction,
-			account_address_restriction_transaction: AccountAddressRestrictionTransaction,
-			account_mosaic_restriction_transaction: AccountMosaicRestrictionTransaction,
-			account_operation_restriction_transaction: AccountOperationRestrictionTransaction,
-			mosaic_address_restriction_transaction: MosaicAddressRestrictionTransaction,
-			mosaic_global_restriction_transaction: MosaicGlobalRestrictionTransaction,
-			transfer_transaction: TransferTransaction
+			account_key_link_transaction_v1: AccountKeyLinkTransactionV1,
+			node_key_link_transaction_v1: NodeKeyLinkTransactionV1,
+			aggregate_complete_transaction_v1: AggregateCompleteTransactionV1,
+			aggregate_bonded_transaction_v1: AggregateBondedTransactionV1,
+			voting_key_link_transaction_v1: VotingKeyLinkTransactionV1,
+			vrf_key_link_transaction_v1: VrfKeyLinkTransactionV1,
+			hash_lock_transaction_v1: HashLockTransactionV1,
+			secret_lock_transaction_v1: SecretLockTransactionV1,
+			secret_proof_transaction_v1: SecretProofTransactionV1,
+			account_metadata_transaction_v1: AccountMetadataTransactionV1,
+			mosaic_metadata_transaction_v1: MosaicMetadataTransactionV1,
+			namespace_metadata_transaction_v1: NamespaceMetadataTransactionV1,
+			mosaic_definition_transaction_v1: MosaicDefinitionTransactionV1,
+			mosaic_supply_change_transaction_v1: MosaicSupplyChangeTransactionV1,
+			mosaic_supply_revocation_transaction_v1: MosaicSupplyRevocationTransactionV1,
+			multisig_account_modification_transaction_v1: MultisigAccountModificationTransactionV1,
+			address_alias_transaction_v1: AddressAliasTransactionV1,
+			mosaic_alias_transaction_v1: MosaicAliasTransactionV1,
+			namespace_registration_transaction_v1: NamespaceRegistrationTransactionV1,
+			account_address_restriction_transaction_v1: AccountAddressRestrictionTransactionV1,
+			account_mosaic_restriction_transaction_v1: AccountMosaicRestrictionTransactionV1,
+			account_operation_restriction_transaction_v1: AccountOperationRestrictionTransactionV1,
+			mosaic_address_restriction_transaction_v1: MosaicAddressRestrictionTransactionV1,
+			mosaic_global_restriction_transaction_v1: MosaicGlobalRestrictionTransactionV1,
+			transfer_transaction_v1: TransferTransactionV1
 		};
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
@@ -11776,29 +11776,29 @@ export class EmbeddedTransactionFactory {
 		const view = new BufferView(payload);
 		const parent = EmbeddedTransaction.deserialize(view.buffer);
 		const mapping = new Map([
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountKeyLinkTransaction.TRANSACTION_TYPE.value]), EmbeddedAccountKeyLinkTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNodeKeyLinkTransaction.TRANSACTION_TYPE.value]), EmbeddedNodeKeyLinkTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedVotingKeyLinkTransaction.TRANSACTION_TYPE.value]), EmbeddedVotingKeyLinkTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedVrfKeyLinkTransaction.TRANSACTION_TYPE.value]), EmbeddedVrfKeyLinkTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedHashLockTransaction.TRANSACTION_TYPE.value]), EmbeddedHashLockTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedSecretLockTransaction.TRANSACTION_TYPE.value]), EmbeddedSecretLockTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedSecretProofTransaction.TRANSACTION_TYPE.value]), EmbeddedSecretProofTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMetadataTransaction.TRANSACTION_TYPE.value]), EmbeddedAccountMetadataTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicMetadataTransaction.TRANSACTION_TYPE.value]), EmbeddedMosaicMetadataTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceMetadataTransaction.TRANSACTION_TYPE.value]), EmbeddedNamespaceMetadataTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicDefinitionTransaction.TRANSACTION_TYPE.value]), EmbeddedMosaicDefinitionTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyChangeTransaction.TRANSACTION_TYPE.value]), EmbeddedMosaicSupplyChangeTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyRevocationTransaction.TRANSACTION_TYPE.value]), EmbeddedMosaicSupplyRevocationTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMultisigAccountModificationTransaction.TRANSACTION_TYPE.value]), EmbeddedMultisigAccountModificationTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAddressAliasTransaction.TRANSACTION_TYPE.value]), EmbeddedAddressAliasTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAliasTransaction.TRANSACTION_TYPE.value]), EmbeddedMosaicAliasTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceRegistrationTransaction.TRANSACTION_TYPE.value]), EmbeddedNamespaceRegistrationTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountAddressRestrictionTransaction.TRANSACTION_TYPE.value]), EmbeddedAccountAddressRestrictionTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMosaicRestrictionTransaction.TRANSACTION_TYPE.value]), EmbeddedAccountMosaicRestrictionTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountOperationRestrictionTransaction.TRANSACTION_TYPE.value]), EmbeddedAccountOperationRestrictionTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAddressRestrictionTransaction.TRANSACTION_TYPE.value]), EmbeddedMosaicAddressRestrictionTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicGlobalRestrictionTransaction.TRANSACTION_TYPE.value]), EmbeddedMosaicGlobalRestrictionTransaction],
-			[EmbeddedTransactionFactory.toKey([EmbeddedTransferTransaction.TRANSACTION_TYPE.value]), EmbeddedTransferTransaction]
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNodeKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedVotingKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedVrfKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedHashLockTransactionV1.TRANSACTION_TYPE.value]), EmbeddedHashLockTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE.value]), EmbeddedSecretLockTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE.value]), EmbeddedSecretProofTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNamespaceMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicDefinitionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicSupplyChangeTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicSupplyRevocationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMultisigAccountModificationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAddressAliasTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicAliasTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNamespaceRegistrationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountAddressRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountMosaicRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountOperationRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicAddressRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicGlobalRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedTransferTransactionV1.TRANSACTION_TYPE.value]), EmbeddedTransferTransactionV1]
 		]);
 		const discriminator = EmbeddedTransactionFactory.toKey([parent.type.value]);
 		const factory_class = mapping.get(discriminator);
@@ -11807,29 +11807,29 @@ export class EmbeddedTransactionFactory {
 
 	static createByName(entityName) {
 		const mapping = {
-			account_key_link_transaction: EmbeddedAccountKeyLinkTransaction,
-			node_key_link_transaction: EmbeddedNodeKeyLinkTransaction,
-			voting_key_link_transaction: EmbeddedVotingKeyLinkTransaction,
-			vrf_key_link_transaction: EmbeddedVrfKeyLinkTransaction,
-			hash_lock_transaction: EmbeddedHashLockTransaction,
-			secret_lock_transaction: EmbeddedSecretLockTransaction,
-			secret_proof_transaction: EmbeddedSecretProofTransaction,
-			account_metadata_transaction: EmbeddedAccountMetadataTransaction,
-			mosaic_metadata_transaction: EmbeddedMosaicMetadataTransaction,
-			namespace_metadata_transaction: EmbeddedNamespaceMetadataTransaction,
-			mosaic_definition_transaction: EmbeddedMosaicDefinitionTransaction,
-			mosaic_supply_change_transaction: EmbeddedMosaicSupplyChangeTransaction,
-			mosaic_supply_revocation_transaction: EmbeddedMosaicSupplyRevocationTransaction,
-			multisig_account_modification_transaction: EmbeddedMultisigAccountModificationTransaction,
-			address_alias_transaction: EmbeddedAddressAliasTransaction,
-			mosaic_alias_transaction: EmbeddedMosaicAliasTransaction,
-			namespace_registration_transaction: EmbeddedNamespaceRegistrationTransaction,
-			account_address_restriction_transaction: EmbeddedAccountAddressRestrictionTransaction,
-			account_mosaic_restriction_transaction: EmbeddedAccountMosaicRestrictionTransaction,
-			account_operation_restriction_transaction: EmbeddedAccountOperationRestrictionTransaction,
-			mosaic_address_restriction_transaction: EmbeddedMosaicAddressRestrictionTransaction,
-			mosaic_global_restriction_transaction: EmbeddedMosaicGlobalRestrictionTransaction,
-			transfer_transaction: EmbeddedTransferTransaction
+			account_key_link_transaction_v1: EmbeddedAccountKeyLinkTransactionV1,
+			node_key_link_transaction_v1: EmbeddedNodeKeyLinkTransactionV1,
+			voting_key_link_transaction_v1: EmbeddedVotingKeyLinkTransactionV1,
+			vrf_key_link_transaction_v1: EmbeddedVrfKeyLinkTransactionV1,
+			hash_lock_transaction_v1: EmbeddedHashLockTransactionV1,
+			secret_lock_transaction_v1: EmbeddedSecretLockTransactionV1,
+			secret_proof_transaction_v1: EmbeddedSecretProofTransactionV1,
+			account_metadata_transaction_v1: EmbeddedAccountMetadataTransactionV1,
+			mosaic_metadata_transaction_v1: EmbeddedMosaicMetadataTransactionV1,
+			namespace_metadata_transaction_v1: EmbeddedNamespaceMetadataTransactionV1,
+			mosaic_definition_transaction_v1: EmbeddedMosaicDefinitionTransactionV1,
+			mosaic_supply_change_transaction_v1: EmbeddedMosaicSupplyChangeTransactionV1,
+			mosaic_supply_revocation_transaction_v1: EmbeddedMosaicSupplyRevocationTransactionV1,
+			multisig_account_modification_transaction_v1: EmbeddedMultisigAccountModificationTransactionV1,
+			address_alias_transaction_v1: EmbeddedAddressAliasTransactionV1,
+			mosaic_alias_transaction_v1: EmbeddedMosaicAliasTransactionV1,
+			namespace_registration_transaction_v1: EmbeddedNamespaceRegistrationTransactionV1,
+			account_address_restriction_transaction_v1: EmbeddedAccountAddressRestrictionTransactionV1,
+			account_mosaic_restriction_transaction_v1: EmbeddedAccountMosaicRestrictionTransactionV1,
+			account_operation_restriction_transaction_v1: EmbeddedAccountOperationRestrictionTransactionV1,
+			mosaic_address_restriction_transaction_v1: EmbeddedMosaicAddressRestrictionTransactionV1,
+			mosaic_global_restriction_transaction_v1: EmbeddedMosaicGlobalRestrictionTransactionV1,
+			transfer_transaction_v1: EmbeddedTransferTransactionV1
 		};
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))

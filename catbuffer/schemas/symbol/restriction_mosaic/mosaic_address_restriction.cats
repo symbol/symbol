@@ -19,16 +19,16 @@ inline struct MosaicAddressRestrictionTransactionBody
 	# Address being restricted.
 	target_address = UnresolvedAddress
 
-# Set address specific rules to transfer a restrictable mosaic.
-struct MosaicAddressRestrictionTransaction
+# Set address specific rules to transfer a restrictable mosaic (V1, latest).
+struct MosaicAddressRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ADDRESS_RESTRICTION)
 
 	inline Transaction
 	inline MosaicAddressRestrictionTransactionBody
 
-# Embedded version of MosaicAddressRestrictionTransaction.
-struct EmbeddedMosaicAddressRestrictionTransaction
+# Embedded version of MosaicAddressRestrictionTransaction (V1, latest).
+struct EmbeddedMosaicAddressRestrictionTransactionV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ADDRESS_RESTRICTION)
 

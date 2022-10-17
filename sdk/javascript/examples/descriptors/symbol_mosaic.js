@@ -7,7 +7,7 @@ export default () => {
 
 	return [
 		{
-			type: 'mosaic_definition_transaction',
+			type: 'mosaic_definition_transaction_v1',
 			duration: 1n,
 			nonce: 123,
 			flags: 'transferable restrictable',
@@ -15,7 +15,7 @@ export default () => {
 		},
 
 		{
-			type: 'mosaic_supply_change_transaction',
+			type: 'mosaic_supply_change_transaction_v1',
 			mosaicId: symbol.generateMosaicId(sampleAddress, 123),
 			delta: 1000n * 100n, // assuming divisibility = 2
 			action: 'increase'
