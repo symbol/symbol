@@ -42,7 +42,7 @@ def clone_descriptor(descriptor):
 
 
 class SymbolHelper:
-	AGGREGATE_SCHEMA_NAME = 'AggregateBondedTransactionV1'
+	AGGREGATE_SCHEMA_NAME = 'AggregateBondedTransactionV2'
 	Signature = sc.Signature
 
 	def __init__(self, network_name):
@@ -61,7 +61,7 @@ class SymbolHelper:
 
 	def create_aggregate_from_single(self, test_name, single_descriptor):
 		return self.create_aggregate(test_name, {
-			'aggregate': {'type': 'aggregate_bonded_transaction_v1'},
+			'aggregate': {'type': 'aggregate_bonded_transaction_v2'},
 			'embedded': [single_descriptor]
 		})
 

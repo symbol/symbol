@@ -48,7 +48,7 @@ def main():
 	merkle_hash = facade.hash_embedded_transactions(embedded_transactions)
 
 	aggregate_transaction = facade.transaction_factory.create({
-		'type': 'aggregate_complete_transaction_v1',
+		'type': 'aggregate_complete_transaction_v2',
 		'signer_public_key': key_pair.public_key,
 		'fee': 0,
 		'deadline': 1,

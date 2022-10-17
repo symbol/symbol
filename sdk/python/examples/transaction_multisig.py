@@ -47,7 +47,7 @@ class MultisigAccountModificationSample:
 		]
 
 		return self.facade.transaction_factory.create({
-			'type': 'aggregate_complete_transaction_v1',
+			'type': 'aggregate_complete_transaction_v2',
 			'signer_public_key': self.multisig_key_pair.public_key,
 			'fee': 625,
 			'deadline': 12345,

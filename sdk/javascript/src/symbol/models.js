@@ -2143,6 +2143,233 @@ export class AggregateCompleteTransactionV1 {
 	}
 }
 
+export class AggregateCompleteTransactionV2 {
+	static TRANSACTION_VERSION = 2;
+
+	static TRANSACTION_TYPE = TransactionType.AGGREGATE_COMPLETE;
+
+	static TYPE_HINTS = {
+		signature: 'pod:Signature',
+		signerPublicKey: 'pod:PublicKey',
+		network: 'enum:NetworkType',
+		type: 'enum:TransactionType',
+		fee: 'pod:Amount',
+		deadline: 'pod:Timestamp',
+		transactionsHash: 'pod:Hash256',
+		transactions: 'array[EmbeddedTransaction]',
+		cosignatures: 'array[Cosignature]'
+	};
+
+	constructor() {
+		this._signature = new Signature();
+		this._signerPublicKey = new PublicKey();
+		this._version = AggregateCompleteTransactionV2.TRANSACTION_VERSION;
+		this._network = NetworkType.MAINNET;
+		this._type = AggregateCompleteTransactionV2.TRANSACTION_TYPE;
+		this._fee = new Amount();
+		this._deadline = new Timestamp();
+		this._transactionsHash = new Hash256();
+		this._transactions = [];
+		this._cosignatures = [];
+		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
+		this._entityBodyReserved_1 = 0; // reserved field
+		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get signature() {
+		return this._signature;
+	}
+
+	set signature(value) {
+		this._signature = value;
+	}
+
+	get signerPublicKey() {
+		return this._signerPublicKey;
+	}
+
+	set signerPublicKey(value) {
+		this._signerPublicKey = value;
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get network() {
+		return this._network;
+	}
+
+	set network(value) {
+		this._network = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get fee() {
+		return this._fee;
+	}
+
+	set fee(value) {
+		this._fee = value;
+	}
+
+	get deadline() {
+		return this._deadline;
+	}
+
+	set deadline(value) {
+		this._deadline = value;
+	}
+
+	get transactionsHash() {
+		return this._transactionsHash;
+	}
+
+	set transactionsHash(value) {
+		this._transactionsHash = value;
+	}
+
+	get transactions() {
+		return this._transactions;
+	}
+
+	set transactions(value) {
+		this._transactions = value;
+	}
+
+	get cosignatures() {
+		return this._cosignatures;
+	}
+
+	set cosignatures(value) {
+		this._cosignatures = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		size += this.signature.size;
+		size += this.signerPublicKey.size;
+		size += 4;
+		size += 1;
+		size += this.network.size;
+		size += this.type.size;
+		size += this.fee.size;
+		size += this.deadline.size;
+		size += this.transactionsHash.size;
+		size += 4;
+		size += 4;
+		size += arrayHelpers.size(this.transactions, 8, false);
+		size += arrayHelpers.size(this.cosignatures);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const verifiableEntityHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== verifiableEntityHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${verifiableEntityHeaderReserved_1})`);
+		const signature = Signature.deserialize(view.buffer);
+		view.shiftRight(signature.size);
+		const signerPublicKey = PublicKey.deserialize(view.buffer);
+		view.shiftRight(signerPublicKey.size);
+		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== entityBodyReserved_1)
+			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
+		const version = converter.bytesToInt(view.buffer, 1, false);
+		view.shiftRight(1);
+		const network = NetworkType.deserializeAligned(view.buffer);
+		view.shiftRight(network.size);
+		const type = TransactionType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const fee = Amount.deserializeAligned(view.buffer);
+		view.shiftRight(fee.size);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
+		view.shiftRight(deadline.size);
+		const transactionsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(transactionsHash.size);
+		const payloadSize = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		const aggregateTransactionHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== aggregateTransactionHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${aggregateTransactionHeaderReserved_1})`);
+		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8, false);
+		view.shiftRight(payloadSize);
+		const cosignatures = arrayHelpers.readArray(view.buffer, Cosignature);
+		view.shiftRight(arrayHelpers.size(cosignatures));
+
+		const instance = new AggregateCompleteTransactionV2();
+		instance._signature = signature;
+		instance._signerPublicKey = signerPublicKey;
+		instance._version = version;
+		instance._network = network;
+		instance._type = type;
+		instance._fee = fee;
+		instance._deadline = deadline;
+		instance._transactionsHash = transactionsHash;
+		instance._transactions = transactions;
+		instance._cosignatures = cosignatures;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._verifiableEntityHeaderReserved_1, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 4, false));
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._type.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(this._transactionsHash.serialize());
+		buffer.write(converter.intToBytes(arrayHelpers.size(this.transactions, 8, false), 4, false)); // bound: payload_size
+		buffer.write(converter.intToBytes(this._aggregateTransactionHeaderReserved_1, 4, false));
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, false);
+		arrayHelpers.writeArray(buffer, this._cosignatures);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `signature: ${this._signature.toString()}, `;
+		result += `signerPublicKey: ${this._signerPublicKey.toString()}, `;
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `network: ${this._network.toString()}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `fee: ${this._fee.toString()}, `;
+		result += `deadline: ${this._deadline.toString()}, `;
+		result += `transactionsHash: ${this._transactionsHash.toString()}, `;
+		result += `transactions: [${this._transactions.map(e => e.toString()).join(',')}], `;
+		result += `cosignatures: [${this._cosignatures.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
 export class AggregateBondedTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
@@ -2320,6 +2547,233 @@ export class AggregateBondedTransactionV1 {
 		view.shiftRight(arrayHelpers.size(cosignatures));
 
 		const instance = new AggregateBondedTransactionV1();
+		instance._signature = signature;
+		instance._signerPublicKey = signerPublicKey;
+		instance._version = version;
+		instance._network = network;
+		instance._type = type;
+		instance._fee = fee;
+		instance._deadline = deadline;
+		instance._transactionsHash = transactionsHash;
+		instance._transactions = transactions;
+		instance._cosignatures = cosignatures;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._verifiableEntityHeaderReserved_1, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 4, false));
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._type.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(this._transactionsHash.serialize());
+		buffer.write(converter.intToBytes(arrayHelpers.size(this.transactions, 8, false), 4, false)); // bound: payload_size
+		buffer.write(converter.intToBytes(this._aggregateTransactionHeaderReserved_1, 4, false));
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, false);
+		arrayHelpers.writeArray(buffer, this._cosignatures);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `signature: ${this._signature.toString()}, `;
+		result += `signerPublicKey: ${this._signerPublicKey.toString()}, `;
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `network: ${this._network.toString()}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `fee: ${this._fee.toString()}, `;
+		result += `deadline: ${this._deadline.toString()}, `;
+		result += `transactionsHash: ${this._transactionsHash.toString()}, `;
+		result += `transactions: [${this._transactions.map(e => e.toString()).join(',')}], `;
+		result += `cosignatures: [${this._cosignatures.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
+export class AggregateBondedTransactionV2 {
+	static TRANSACTION_VERSION = 2;
+
+	static TRANSACTION_TYPE = TransactionType.AGGREGATE_BONDED;
+
+	static TYPE_HINTS = {
+		signature: 'pod:Signature',
+		signerPublicKey: 'pod:PublicKey',
+		network: 'enum:NetworkType',
+		type: 'enum:TransactionType',
+		fee: 'pod:Amount',
+		deadline: 'pod:Timestamp',
+		transactionsHash: 'pod:Hash256',
+		transactions: 'array[EmbeddedTransaction]',
+		cosignatures: 'array[Cosignature]'
+	};
+
+	constructor() {
+		this._signature = new Signature();
+		this._signerPublicKey = new PublicKey();
+		this._version = AggregateBondedTransactionV2.TRANSACTION_VERSION;
+		this._network = NetworkType.MAINNET;
+		this._type = AggregateBondedTransactionV2.TRANSACTION_TYPE;
+		this._fee = new Amount();
+		this._deadline = new Timestamp();
+		this._transactionsHash = new Hash256();
+		this._transactions = [];
+		this._cosignatures = [];
+		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
+		this._entityBodyReserved_1 = 0; // reserved field
+		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get signature() {
+		return this._signature;
+	}
+
+	set signature(value) {
+		this._signature = value;
+	}
+
+	get signerPublicKey() {
+		return this._signerPublicKey;
+	}
+
+	set signerPublicKey(value) {
+		this._signerPublicKey = value;
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get network() {
+		return this._network;
+	}
+
+	set network(value) {
+		this._network = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get fee() {
+		return this._fee;
+	}
+
+	set fee(value) {
+		this._fee = value;
+	}
+
+	get deadline() {
+		return this._deadline;
+	}
+
+	set deadline(value) {
+		this._deadline = value;
+	}
+
+	get transactionsHash() {
+		return this._transactionsHash;
+	}
+
+	set transactionsHash(value) {
+		this._transactionsHash = value;
+	}
+
+	get transactions() {
+		return this._transactions;
+	}
+
+	set transactions(value) {
+		this._transactions = value;
+	}
+
+	get cosignatures() {
+		return this._cosignatures;
+	}
+
+	set cosignatures(value) {
+		this._cosignatures = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		size += this.signature.size;
+		size += this.signerPublicKey.size;
+		size += 4;
+		size += 1;
+		size += this.network.size;
+		size += this.type.size;
+		size += this.fee.size;
+		size += this.deadline.size;
+		size += this.transactionsHash.size;
+		size += 4;
+		size += 4;
+		size += arrayHelpers.size(this.transactions, 8, false);
+		size += arrayHelpers.size(this.cosignatures);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const verifiableEntityHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== verifiableEntityHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${verifiableEntityHeaderReserved_1})`);
+		const signature = Signature.deserialize(view.buffer);
+		view.shiftRight(signature.size);
+		const signerPublicKey = PublicKey.deserialize(view.buffer);
+		view.shiftRight(signerPublicKey.size);
+		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== entityBodyReserved_1)
+			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
+		const version = converter.bytesToInt(view.buffer, 1, false);
+		view.shiftRight(1);
+		const network = NetworkType.deserializeAligned(view.buffer);
+		view.shiftRight(network.size);
+		const type = TransactionType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const fee = Amount.deserializeAligned(view.buffer);
+		view.shiftRight(fee.size);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
+		view.shiftRight(deadline.size);
+		const transactionsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(transactionsHash.size);
+		const payloadSize = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		const aggregateTransactionHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== aggregateTransactionHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${aggregateTransactionHeaderReserved_1})`);
+		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8, false);
+		view.shiftRight(payloadSize);
+		const cosignatures = arrayHelpers.readArray(view.buffer, Cosignature);
+		view.shiftRight(arrayHelpers.size(cosignatures));
+
+		const instance = new AggregateBondedTransactionV2();
 		instance._signature = signature;
 		instance._signerPublicKey = signerPublicKey;
 		instance._version = version;
@@ -11699,7 +12153,9 @@ export class TransactionFactory {
 			[TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value]), AccountKeyLinkTransactionV1],
 			[TransactionFactory.toKey([NodeKeyLinkTransactionV1.TRANSACTION_TYPE.value]), NodeKeyLinkTransactionV1],
 			[TransactionFactory.toKey([AggregateCompleteTransactionV1.TRANSACTION_TYPE.value]), AggregateCompleteTransactionV1],
+			[TransactionFactory.toKey([AggregateCompleteTransactionV2.TRANSACTION_TYPE.value]), AggregateCompleteTransactionV2],
 			[TransactionFactory.toKey([AggregateBondedTransactionV1.TRANSACTION_TYPE.value]), AggregateBondedTransactionV1],
+			[TransactionFactory.toKey([AggregateBondedTransactionV2.TRANSACTION_TYPE.value]), AggregateBondedTransactionV2],
 			[TransactionFactory.toKey([VotingKeyLinkTransactionV1.TRANSACTION_TYPE.value]), VotingKeyLinkTransactionV1],
 			[TransactionFactory.toKey([VrfKeyLinkTransactionV1.TRANSACTION_TYPE.value]), VrfKeyLinkTransactionV1],
 			[TransactionFactory.toKey([HashLockTransactionV1.TRANSACTION_TYPE.value]), HashLockTransactionV1],
@@ -11732,7 +12188,9 @@ export class TransactionFactory {
 			account_key_link_transaction_v1: AccountKeyLinkTransactionV1,
 			node_key_link_transaction_v1: NodeKeyLinkTransactionV1,
 			aggregate_complete_transaction_v1: AggregateCompleteTransactionV1,
+			aggregate_complete_transaction_v2: AggregateCompleteTransactionV2,
 			aggregate_bonded_transaction_v1: AggregateBondedTransactionV1,
+			aggregate_bonded_transaction_v2: AggregateBondedTransactionV2,
 			voting_key_link_transaction_v1: VotingKeyLinkTransactionV1,
 			vrf_key_link_transaction_v1: VrfKeyLinkTransactionV1,
 			hash_lock_transaction_v1: HashLockTransactionV1,

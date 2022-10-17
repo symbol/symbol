@@ -1883,6 +1883,226 @@ class AggregateCompleteTransactionV1:
 		return result
 
 
+class AggregateCompleteTransactionV2:
+	TRANSACTION_VERSION: int = 2
+	TRANSACTION_TYPE: TransactionType = TransactionType.AGGREGATE_COMPLETE
+	TYPE_HINTS = {
+		'signature': 'pod:Signature',
+		'signer_public_key': 'pod:PublicKey',
+		'network': 'enum:NetworkType',
+		'type_': 'enum:TransactionType',
+		'fee': 'pod:Amount',
+		'deadline': 'pod:Timestamp',
+		'transactions_hash': 'pod:Hash256',
+		'transactions': 'array[EmbeddedTransaction]',
+		'cosignatures': 'array[Cosignature]'
+	}
+
+	def __init__(self):
+		self._signature = Signature()
+		self._signer_public_key = PublicKey()
+		self._version = AggregateCompleteTransactionV2.TRANSACTION_VERSION
+		self._network = NetworkType.MAINNET
+		self._type_ = AggregateCompleteTransactionV2.TRANSACTION_TYPE
+		self._fee = Amount()
+		self._deadline = Timestamp()
+		self._transactions_hash = Hash256()
+		self._transactions = []
+		self._cosignatures = []
+		self._verifiable_entity_header_reserved_1 = 0  # reserved field
+		self._entity_body_reserved_1 = 0  # reserved field
+		self._aggregate_transaction_header_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
+
+	@property
+	def signature(self) -> Signature:
+		return self._signature
+
+	@property
+	def signer_public_key(self) -> PublicKey:
+		return self._signer_public_key
+
+	@property
+	def version(self) -> int:
+		return self._version
+
+	@property
+	def network(self) -> NetworkType:
+		return self._network
+
+	@property
+	def type_(self) -> TransactionType:
+		return self._type_
+
+	@property
+	def fee(self) -> Amount:
+		return self._fee
+
+	@property
+	def deadline(self) -> Timestamp:
+		return self._deadline
+
+	@property
+	def transactions_hash(self) -> Hash256:
+		return self._transactions_hash
+
+	@property
+	def transactions(self) -> List[EmbeddedTransaction]:
+		return self._transactions
+
+	@property
+	def cosignatures(self) -> List[Cosignature]:
+		return self._cosignatures
+
+	@signature.setter
+	def signature(self, value: Signature):
+		self._signature = value
+
+	@signer_public_key.setter
+	def signer_public_key(self, value: PublicKey):
+		self._signer_public_key = value
+
+	@version.setter
+	def version(self, value: int):
+		self._version = value
+
+	@network.setter
+	def network(self, value: NetworkType):
+		self._network = value
+
+	@type_.setter
+	def type_(self, value: TransactionType):
+		self._type_ = value
+
+	@fee.setter
+	def fee(self, value: Amount):
+		self._fee = value
+
+	@deadline.setter
+	def deadline(self, value: Timestamp):
+		self._deadline = value
+
+	@transactions_hash.setter
+	def transactions_hash(self, value: Hash256):
+		self._transactions_hash = value
+
+	@transactions.setter
+	def transactions(self, value: List[EmbeddedTransaction]):
+		self._transactions = value
+
+	@cosignatures.setter
+	def cosignatures(self, value: List[Cosignature]):
+		self._cosignatures = value
+
+	@property
+	def size(self) -> int:
+		size = 0
+		size += 4
+		size += 4
+		size += self.signature.size
+		size += self.signer_public_key.size
+		size += 4
+		size += 1
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.transactions_hash.size
+		size += 4
+		size += 4
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False)
+		size += ArrayHelpers.size(self.cosignatures)
+		return size
+
+	@classmethod
+	def deserialize(cls, payload: ByteString) -> AggregateCompleteTransactionV2:
+		buffer = memoryview(payload)
+		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		buffer = buffer[:size_ - 4]
+		del size_
+		verifiable_entity_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert verifiable_entity_header_reserved_1 == 0, f'Invalid value of reserved field ({verifiable_entity_header_reserved_1})'
+		signature = Signature.deserialize(buffer)
+		buffer = buffer[signature.size:]
+		signer_public_key = PublicKey.deserialize(buffer)
+		buffer = buffer[signer_public_key.size:]
+		entity_body_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
+		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
+		buffer = buffer[1:]
+		network = NetworkType.deserialize(buffer)
+		buffer = buffer[network.size:]
+		type_ = TransactionType.deserialize(buffer)
+		buffer = buffer[type_.size:]
+		fee = Amount.deserialize(buffer)
+		buffer = buffer[fee.size:]
+		deadline = Timestamp.deserialize(buffer)
+		buffer = buffer[deadline.size:]
+		transactions_hash = Hash256.deserialize(buffer)
+		buffer = buffer[transactions_hash.size:]
+		payload_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert aggregate_transaction_header_reserved_1 == 0, f'Invalid value of reserved field ({aggregate_transaction_header_reserved_1})'
+		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8, skip_last_element_padding=False)
+		buffer = buffer[payload_size:]
+		cosignatures = ArrayHelpers.read_array(buffer, Cosignature)
+		buffer = buffer[ArrayHelpers.size(cosignatures):]
+
+		instance = AggregateCompleteTransactionV2()
+		instance._signature = signature
+		instance._signer_public_key = signer_public_key
+		instance._version = version
+		instance._network = network
+		instance._type_ = type_
+		instance._fee = fee
+		instance._deadline = deadline
+		instance._transactions_hash = transactions_hash
+		instance._transactions = transactions
+		instance._cosignatures = cosignatures
+		return instance
+
+	def serialize(self) -> bytes:
+		buffer = bytes()
+		buffer += self.size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._signature.serialize()
+		buffer += self._signer_public_key.serialize()
+		buffer += self._entity_body_reserved_1.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
+		buffer += self._network.serialize()
+		buffer += self._type_.serialize()
+		buffer += self._fee.serialize()
+		buffer += self._deadline.serialize()
+		buffer += self._transactions_hash.serialize()
+		buffer += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False).to_bytes(4, byteorder='little', signed=False)  # payload_size
+		buffer += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=False)
+		buffer += ArrayHelpers.write_array(self._cosignatures)
+		return buffer
+
+	def __str__(self) -> str:
+		result = '('
+		result += f'signature: {self._signature.__str__()}, '
+		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
+		result += f'version: 0x{self._version:X}, '
+		result += f'network: {self._network.__str__()}, '
+		result += f'type_: {self._type_.__str__()}, '
+		result += f'fee: {self._fee.__str__()}, '
+		result += f'deadline: {self._deadline.__str__()}, '
+		result += f'transactions_hash: {self._transactions_hash.__str__()}, '
+		result += f'transactions: {list(map(str, self._transactions))}, '
+		result += f'cosignatures: {list(map(str, self._cosignatures))}, '
+		result += ')'
+		return result
+
+
 class AggregateBondedTransactionV1:
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.AGGREGATE_BONDED
@@ -2056,6 +2276,226 @@ class AggregateBondedTransactionV1:
 		buffer = buffer[ArrayHelpers.size(cosignatures):]
 
 		instance = AggregateBondedTransactionV1()
+		instance._signature = signature
+		instance._signer_public_key = signer_public_key
+		instance._version = version
+		instance._network = network
+		instance._type_ = type_
+		instance._fee = fee
+		instance._deadline = deadline
+		instance._transactions_hash = transactions_hash
+		instance._transactions = transactions
+		instance._cosignatures = cosignatures
+		return instance
+
+	def serialize(self) -> bytes:
+		buffer = bytes()
+		buffer += self.size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._signature.serialize()
+		buffer += self._signer_public_key.serialize()
+		buffer += self._entity_body_reserved_1.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
+		buffer += self._network.serialize()
+		buffer += self._type_.serialize()
+		buffer += self._fee.serialize()
+		buffer += self._deadline.serialize()
+		buffer += self._transactions_hash.serialize()
+		buffer += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False).to_bytes(4, byteorder='little', signed=False)  # payload_size
+		buffer += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=False)
+		buffer += ArrayHelpers.write_array(self._cosignatures)
+		return buffer
+
+	def __str__(self) -> str:
+		result = '('
+		result += f'signature: {self._signature.__str__()}, '
+		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
+		result += f'version: 0x{self._version:X}, '
+		result += f'network: {self._network.__str__()}, '
+		result += f'type_: {self._type_.__str__()}, '
+		result += f'fee: {self._fee.__str__()}, '
+		result += f'deadline: {self._deadline.__str__()}, '
+		result += f'transactions_hash: {self._transactions_hash.__str__()}, '
+		result += f'transactions: {list(map(str, self._transactions))}, '
+		result += f'cosignatures: {list(map(str, self._cosignatures))}, '
+		result += ')'
+		return result
+
+
+class AggregateBondedTransactionV2:
+	TRANSACTION_VERSION: int = 2
+	TRANSACTION_TYPE: TransactionType = TransactionType.AGGREGATE_BONDED
+	TYPE_HINTS = {
+		'signature': 'pod:Signature',
+		'signer_public_key': 'pod:PublicKey',
+		'network': 'enum:NetworkType',
+		'type_': 'enum:TransactionType',
+		'fee': 'pod:Amount',
+		'deadline': 'pod:Timestamp',
+		'transactions_hash': 'pod:Hash256',
+		'transactions': 'array[EmbeddedTransaction]',
+		'cosignatures': 'array[Cosignature]'
+	}
+
+	def __init__(self):
+		self._signature = Signature()
+		self._signer_public_key = PublicKey()
+		self._version = AggregateBondedTransactionV2.TRANSACTION_VERSION
+		self._network = NetworkType.MAINNET
+		self._type_ = AggregateBondedTransactionV2.TRANSACTION_TYPE
+		self._fee = Amount()
+		self._deadline = Timestamp()
+		self._transactions_hash = Hash256()
+		self._transactions = []
+		self._cosignatures = []
+		self._verifiable_entity_header_reserved_1 = 0  # reserved field
+		self._entity_body_reserved_1 = 0  # reserved field
+		self._aggregate_transaction_header_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
+
+	@property
+	def signature(self) -> Signature:
+		return self._signature
+
+	@property
+	def signer_public_key(self) -> PublicKey:
+		return self._signer_public_key
+
+	@property
+	def version(self) -> int:
+		return self._version
+
+	@property
+	def network(self) -> NetworkType:
+		return self._network
+
+	@property
+	def type_(self) -> TransactionType:
+		return self._type_
+
+	@property
+	def fee(self) -> Amount:
+		return self._fee
+
+	@property
+	def deadline(self) -> Timestamp:
+		return self._deadline
+
+	@property
+	def transactions_hash(self) -> Hash256:
+		return self._transactions_hash
+
+	@property
+	def transactions(self) -> List[EmbeddedTransaction]:
+		return self._transactions
+
+	@property
+	def cosignatures(self) -> List[Cosignature]:
+		return self._cosignatures
+
+	@signature.setter
+	def signature(self, value: Signature):
+		self._signature = value
+
+	@signer_public_key.setter
+	def signer_public_key(self, value: PublicKey):
+		self._signer_public_key = value
+
+	@version.setter
+	def version(self, value: int):
+		self._version = value
+
+	@network.setter
+	def network(self, value: NetworkType):
+		self._network = value
+
+	@type_.setter
+	def type_(self, value: TransactionType):
+		self._type_ = value
+
+	@fee.setter
+	def fee(self, value: Amount):
+		self._fee = value
+
+	@deadline.setter
+	def deadline(self, value: Timestamp):
+		self._deadline = value
+
+	@transactions_hash.setter
+	def transactions_hash(self, value: Hash256):
+		self._transactions_hash = value
+
+	@transactions.setter
+	def transactions(self, value: List[EmbeddedTransaction]):
+		self._transactions = value
+
+	@cosignatures.setter
+	def cosignatures(self, value: List[Cosignature]):
+		self._cosignatures = value
+
+	@property
+	def size(self) -> int:
+		size = 0
+		size += 4
+		size += 4
+		size += self.signature.size
+		size += self.signer_public_key.size
+		size += 4
+		size += 1
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.transactions_hash.size
+		size += 4
+		size += 4
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False)
+		size += ArrayHelpers.size(self.cosignatures)
+		return size
+
+	@classmethod
+	def deserialize(cls, payload: ByteString) -> AggregateBondedTransactionV2:
+		buffer = memoryview(payload)
+		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		buffer = buffer[:size_ - 4]
+		del size_
+		verifiable_entity_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert verifiable_entity_header_reserved_1 == 0, f'Invalid value of reserved field ({verifiable_entity_header_reserved_1})'
+		signature = Signature.deserialize(buffer)
+		buffer = buffer[signature.size:]
+		signer_public_key = PublicKey.deserialize(buffer)
+		buffer = buffer[signer_public_key.size:]
+		entity_body_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
+		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
+		buffer = buffer[1:]
+		network = NetworkType.deserialize(buffer)
+		buffer = buffer[network.size:]
+		type_ = TransactionType.deserialize(buffer)
+		buffer = buffer[type_.size:]
+		fee = Amount.deserialize(buffer)
+		buffer = buffer[fee.size:]
+		deadline = Timestamp.deserialize(buffer)
+		buffer = buffer[deadline.size:]
+		transactions_hash = Hash256.deserialize(buffer)
+		buffer = buffer[transactions_hash.size:]
+		payload_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert aggregate_transaction_header_reserved_1 == 0, f'Invalid value of reserved field ({aggregate_transaction_header_reserved_1})'
+		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8, skip_last_element_padding=False)
+		buffer = buffer[payload_size:]
+		cosignatures = ArrayHelpers.read_array(buffer, Cosignature)
+		buffer = buffer[ArrayHelpers.size(cosignatures):]
+
+		instance = AggregateBondedTransactionV2()
 		instance._signature = signature
 		instance._signer_public_key = signer_public_key
 		instance._version = version
@@ -10882,7 +11322,9 @@ class TransactionFactory:
 			(AccountKeyLinkTransactionV1.TRANSACTION_TYPE): AccountKeyLinkTransactionV1,
 			(NodeKeyLinkTransactionV1.TRANSACTION_TYPE): NodeKeyLinkTransactionV1,
 			(AggregateCompleteTransactionV1.TRANSACTION_TYPE): AggregateCompleteTransactionV1,
+			(AggregateCompleteTransactionV2.TRANSACTION_TYPE): AggregateCompleteTransactionV2,
 			(AggregateBondedTransactionV1.TRANSACTION_TYPE): AggregateBondedTransactionV1,
+			(AggregateBondedTransactionV2.TRANSACTION_TYPE): AggregateBondedTransactionV2,
 			(VotingKeyLinkTransactionV1.TRANSACTION_TYPE): VotingKeyLinkTransactionV1,
 			(VrfKeyLinkTransactionV1.TRANSACTION_TYPE): VrfKeyLinkTransactionV1,
 			(HashLockTransactionV1.TRANSACTION_TYPE): HashLockTransactionV1,
@@ -10915,7 +11357,9 @@ class TransactionFactory:
 			'account_key_link_transaction_v1': AccountKeyLinkTransactionV1,
 			'node_key_link_transaction_v1': NodeKeyLinkTransactionV1,
 			'aggregate_complete_transaction_v1': AggregateCompleteTransactionV1,
+			'aggregate_complete_transaction_v2': AggregateCompleteTransactionV2,
 			'aggregate_bonded_transaction_v1': AggregateBondedTransactionV1,
+			'aggregate_bonded_transaction_v2': AggregateBondedTransactionV2,
 			'voting_key_link_transaction_v1': VotingKeyLinkTransactionV1,
 			'vrf_key_link_transaction_v1': VrfKeyLinkTransactionV1,
 			'hash_lock_transaction_v1': HashLockTransactionV1,

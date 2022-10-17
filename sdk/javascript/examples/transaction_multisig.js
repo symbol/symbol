@@ -49,7 +49,7 @@ import symbolSdk from '../src/index.js';
 			];
 
 			return this.facade.transactionFactory.create({
-				type: 'aggregate_complete_transaction_v1',
+				type: 'aggregate_complete_transaction_v2',
 				signerPublicKey: this.multisigkeyPair.publicKey,
 				fee: 625n,
 				deadline: 12345n,
