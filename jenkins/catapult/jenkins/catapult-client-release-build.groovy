@@ -68,10 +68,9 @@ pipeline {
 						expression { isManualBuild() }
 					}
 					steps {
-						cleanWs()
 						dir('symbol-mono') {
-							git branch: "${resolveBranchName()}",
-								url: 'https://github.com/symbol/symbol.git'
+							sh "git checkout ${resolveBranchName()}"
+							sh "git reset --hard origin/${resolveBranchName()}"
 						}
 					}
 				}
