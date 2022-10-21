@@ -3,7 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.0.3.3] - 15-Mar-2021
+## [1.0.3.4] - 21-Oct-2022
+
+### Fixed
+ - (BREAKING FORK) register aggregate transaction hash validator and require aggregate version 2 after fork
+
+## [1.0.3.3] - 15-Mar-2022
 
 ### Changed
  - use openssl 1.1.1n
@@ -468,6 +473,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.3.4]: https://github.com/nemtech/catapult-server/compare/v1.0.3.3...v1.0.3.4
 [1.0.3.3]: https://github.com/nemtech/catapult-server/compare/v1.0.3.1...v1.0.3.3
 [1.0.3.1]: https://github.com/nemtech/catapult-server/compare/v1.0.3.0...v1.0.3.1
 [1.0.3.0]: https://github.com/nemtech/catapult-server/compare/v1.0.2.0...v1.0.3.0
