@@ -5,6 +5,7 @@ defaultCiPipeline {
 	packageId = 'client-rest'
 
 	publisher = 'docker'
+	dockerImageName = 'symbolplatform/symbol-rest'
 
 	codeCoverageTool = 'nyc'
 	minimumCodeCoverage = 90
