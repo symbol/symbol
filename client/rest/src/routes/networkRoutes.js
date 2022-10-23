@@ -21,6 +21,7 @@
 
 const catapult = require('../catapult-sdk/index');
 const errors = require('../server/errors');
+const { sha3_256 } = require('@noble/hashes/sha3');
 const ini = require('ini');
 
 const { uint64 } = catapult.utils;
@@ -55,11 +56,31 @@ module.exports = {
 
 		server.get('/network/properties', (req, res, next) => readAndParseNetworkPropertiesFile()
 			.then(propertiesObject => {
-				res.send({
+				const networkProperties = {
 					network: propertiesObject.network,
 					chain: propertiesObject.chain,
-					plugins: propertiesObject['plugin:catapult'].plugins
-				});
+					plugins: propertiesObject['plugin:catapult'].plugins,
+					forkHeights: propertiesObject.fork_heights
+				};
+
+				if (propertiesObject.treasury_reissuance_transaction_signatures) {
+					const signaturesMap = propertiesObject.treasury_reissuance_transaction_signatures;
+					networkProperties.treasuryReissuanceTransactionSignatures = Object.keys(signaturesMap)
+						.filter(key => signaturesMap[key])
+						.sort();
+				}
+
+				if (propertiesObject.corrupt_aggregate_transaction_hashes) {
+					const hashesMap = propertiesObject.corrupt_aggregate_transaction_hashes;
+					const binaryHashesMap = catapult.utils.convert.hexToUint8(Object.keys(hashesMap)
+						.map(key => key + hashesMap[key])
+						.sort()
+						.reduce((lhs, rhs) => lhs + rhs));
+					const hashedValue = sha3_256(binaryHashesMap);
+					networkProperties.corruptAggregateTransactionHashes = catapult.utils.convert.uint8ToHex(hashedValue);
+				}
+
+				res.send(networkProperties);
 				next();
 			}).catch(() => {
 				res.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));

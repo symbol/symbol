@@ -23,13 +23,8 @@ const { MockServer, test } = require('./utils/routeTestUtils');
 const nodeRoutes = require('../../src/routes/nodeRoutes');
 const errors = require('../../src/server/errors');
 const { expect } = require('chai');
-const fs = require('fs');
-const path = require('path');
 
-// ATM, both rest and rest sdk share the same version. In the future,
-// we will have an open api and sdk dependencies with their given versions.
-const restVersion = fs.readFileSync(path.resolve(__dirname, '../../version.txt'), 'UTF-8').trim();
-const sdkVersion = restVersion;
+const restVersion = '2.4.1';
 
 describe('node routes', () => {
 	describe('get', () => {
@@ -361,7 +356,6 @@ describe('node routes', () => {
 					payload: {
 						serverInfo: {
 							restVersion,
-							sdkVersion,
 							deployment: {
 								deploymentTool: 'symbol-bootstrap',
 								deploymentToolVersion: '1.0.2',

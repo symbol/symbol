@@ -31,12 +31,7 @@ const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;
 const { BinaryParser } = catapult.parser;
 
-// ATM, both rest and rest sdk share the same version. In the future,
-// we will have an open api and sdk dependencies with their given versions.
-const restVersion = fs
-	.readFileSync(path.resolve(__dirname, '../../version.txt'), 'UTF-8')
-	.trim();
-const sdkVersion = restVersion;
+const restVersion = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'UTF-8')).version;
 
 const buildResponse = (packet, codec, resultType) => {
 	const binaryParser = new BinaryParser();
@@ -138,7 +133,6 @@ module.exports = {
 				payload: {
 					serverInfo: {
 						restVersion,
-						sdkVersion,
 						deployment: {
 							deploymentTool: deployment && deployment.deploymentTool ? deployment.deploymentTool : 'N/A',
 							deploymentToolVersion: deployment && deployment.deploymentToolVersion

@@ -67,7 +67,7 @@ describe('network routes', () => {
 		});
 
 		describe('network properties', () => {
-			const assertCanRetrieveNetworkProperties = lines => {
+			const assertCanRetrieveNetworkProperties = (lines, additionalExpectedSections = {}) => {
 				// Arrange:
 				const tempNetworkFile = tmp.fileSync();
 				fs.writeFileSync(tempNetworkFile.name, lines.join('\n'));
@@ -83,30 +83,79 @@ describe('network routes', () => {
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						network: { identifier: 'testnet' },
 						chain: { enableVerifiableState: true },
-						plugins: { aggregate: { maxTransactionsPerAggregate: '1\'000' } }
+						plugins: { aggregate: { maxTransactionsPerAggregate: '1\'000' } },
+						forkHeights: {
+							bar: '987',
+							foo: '123'
+						},
+						...additionalExpectedSections
 					});
 				});
 			};
 
-			it('returns all whitelisted sections', () => assertCanRetrieveNetworkProperties([
+			const networkPropertiesLines = [
 				'[network]',
 				'identifier = testnet',
 				'[chain]',
 				'enableVerifiableState = true',
 				'[plugin:catapult.plugins.aggregate]',
-				'maxTransactionsPerAggregate = 1\'000'
-			]));
+				'maxTransactionsPerAggregate = 1\'000',
+				'[fork_heights]',
+				'foo = 123',
+				'bar = 987'
+			];
 
-			it('filters out other sections', () => assertCanRetrieveNetworkProperties([
-				'[network]',
-				'identifier = testnet',
-				'[chain]',
-				'enableVerifiableState = true',
-				'[private]',
-				'secretCode = 42',
-				'[plugin:catapult.plugins.aggregate]',
-				'maxTransactionsPerAggregate = 1\'000'
-			]));
+			it('exposes configuration from known sections', () => assertCanRetrieveNetworkProperties(networkPropertiesLines));
+
+			it('can parse treasury reissuance transaction signatures', () => assertCanRetrieveNetworkProperties(
+				[].concat(
+					networkPropertiesLines,
+					[
+						'[treasury_reissuance_transaction_signatures]',
+						'3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75'
+						+ '300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6 = true',
+						'401ECCE607FF9710A00B677A487D36B9B9B3B0DC6DF59DA0A2BD77603E80B82B'
+						+ 'D0A82FE949055C5BB7A00F83AF4FF1242965CBF62C9D083344FF294D157259B2 = false',
+						'395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0'
+						+ '302871ADD90DF04638DC617ACF2F5BB759C3DDC060E55A554477543210976C75 = true'
+					]
+				),
+				{
+					treasuryReissuanceTransactionSignatures: [ // sorted
+						'395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0'
+						+ '302871ADD90DF04638DC617ACF2F5BB759C3DDC060E55A554477543210976C75',
+						'3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75'
+						+ '300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6'
+					]
+				}
+			));
+
+			it('can parse corrupt aggregate transaction hashes', () => assertCanRetrieveNetworkProperties(
+				[].concat(
+					networkPropertiesLines,
+					[
+						'[corrupt_aggregate_transaction_hashes]',
+						'8F5D7161352C39A7F179917851E66A2A9ED7675DD568B91F8314ABCEA654F368'
+						+ ' = 18A842F09E7D9B23417EF83F27D341473DCAB1EECD653915C46DB7040590A25C',
+						'9628FEB5BA4BC3716EDE29D7417E653CD7ACC8352D59EF0E1A061E61EB6F0953'
+						+ ' = 52E56843BE40C9AC79DF2FBE15A11F9AA447076174E0D611C2010756D49D550E',
+						'654A14F8D65FD23D3E5DC16D3CC1CA0B1CBC5B856987B5379A30B99114188E16'
+						+ ' = 0EE76D5B0D09BAE81CC370CC6F231167041E20F93CE94D5C64D5813D1A541221'
+					]
+				),
+				{
+					corruptAggregateTransactionHashes: '6ECE1AF36B2F59BE0DEF1A1E0AD86C668FD826BD76783D052FC3DDD201593FD1' // hashed
+				}
+			));
+
+			it('hides configuration from other sections', () => assertCanRetrieveNetworkProperties([].concat(
+				networkPropertiesLines,
+				[
+					// following section is not explicitly allowed, so will not show up in output
+					'[private]',
+					'secretCode = 42'
+				]
+			)));
 
 			it('fails when file does not exist', () => {
 				// Arrange:
