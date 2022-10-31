@@ -135,11 +135,13 @@ class OptionsManager:
 
 	def mongo_c(self):
 		descriptor = self.OptionsDescriptor()
+		descriptor.options += ['-DOPENSSL_ROOT_DIR=/usr/catapult/deps']
 		descriptor.options += get_dependency_flags('mongodb_mongo-c-driver')
 		return self._cmake(descriptor)
 
 	def mongo_cxx(self):
 		descriptor = self.OptionsDescriptor()
+		descriptor.options += ['-DOPENSSL_ROOT_DIR=/usr/catapult/deps']
 		descriptor.options += get_dependency_flags('mongodb_mongo-cxx-driver')
 
 		if self.is_msvc:
@@ -413,15 +415,21 @@ class LinuxSystemGenerator:
 	def add_openssl(options, configure):
 		version = options.versions['openssl_openssl']
 		compiler = 'linux-x86_64-clang' if options.is_clang else 'linux-x86_64'
+		destination = ['--prefix=/usr/catapult/deps', '--openssldir=/usr/catapult/deps', '--libdir=/usr/catapult/deps']
 		print_line([
 			'RUN git clone https://github.com/openssl/openssl.git -b {VERSION}',
 			'cd openssl',
-			'{OPEN_SSL_OPTIONS} perl ./Configure {COMPILER} {OPEN_SSL_CONFIGURE} --prefix=/usr/local --openssldir=/usr/local',
+			'{OPEN_SSL_OPTIONS} perl ./Configure {COMPILER} {OPEN_SSL_CONFIGURE} {OPEN_SSL_DESTINATION}',
 			'make -j 8',
 			'make install',
 			'cd ..',
 			'rm -rf openssl'
-		], OPEN_SSL_OPTIONS=' '.join(options.openssl()), OPEN_SSL_CONFIGURE=' '.join(configure), VERSION=version, COMPILER=compiler)
+		],
+			OPEN_SSL_OPTIONS=' '.join(options.openssl()),
+			OPEN_SSL_CONFIGURE=' '.join(configure),
+			OPEN_SSL_DESTINATION=' '.join(destination),
+			VERSION=version,
+			COMPILER=compiler)
 
 	def generate_phase_deps(self):
 		print(f'FROM {self.options.layer_image_name("boost")}')

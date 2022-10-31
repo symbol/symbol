@@ -19,6 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/crypto/OpensslInit.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/version/version.h"
@@ -97,6 +98,9 @@ int main(int argc, char** argv) {
 
 	std::cout << "Initializing and Running Tests..." << std::endl;
 	::testing::InitGoogleTest(&argc, argv);
+
+	std::cout << "Initializing OpenSSL crypto functions" << std::endl;
+	auto pOpensslContext = catapult::crypto::SetupOpensslCryptoFunctions();
 
 #ifdef CATAPULT_DOCKER_TESTS
 	global_argc = argc;

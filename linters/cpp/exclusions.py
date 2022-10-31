@@ -105,7 +105,7 @@ CORE_FIRSTINCLUDES = {
 	'src/catapult/version/nix/what_version.cpp': 'catapult/version/version.h',
 
 	# tests
-	'tests/test/nodeps/TestMain.cpp': 'catapult/utils/ConfigurationValueParsers.h',
+	'tests/test/nodeps/TestMain.cpp': 'catapult/crypto/OpensslInit.h',
 
 	'tests/catapult/consumers/BatchSignatureConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
 	'tests/catapult/consumers/BlockchainCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
