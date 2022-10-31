@@ -142,8 +142,16 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
+			static int OpensslErrorGetReason(unsigned long errcode) {
+				if (ERR_SYSTEM_ERROR(errcode))
+					return errcode & ERR_SYSTEM_MASK;
+
+				return errcode & ERR_REASON_MASK;
+			}
+
 			static bool IsProtocolShutdown(const boost::system::error_code& ec) {
-				return boost::asio::error::get_ssl_category() == ec.category() && SSL_R_PROTOCOL_IS_SHUTDOWN == ERR_GET_REASON(ec.value());
+				return boost::asio::error::get_ssl_category() == ec.category()
+						&& SSL_R_PROTOCOL_IS_SHUTDOWN == OpensslErrorGetReason(static_cast<unsigned long>(ec.value()));
 			}
 
 		private:

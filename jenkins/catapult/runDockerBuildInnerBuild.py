@@ -88,6 +88,8 @@ class BuildManager(BasicBuildManager):
 		if self.use_conan:
 			settings.append(('USE_CONAN', 'ON'))
 		else:
+			settings.append(('OPENSSL_ROOT_DIR', '/usr/catapult/deps'))
+
 			if self.environment_manager.is_windows_platform():
 				settings.append((
 					'CMAKE_PREFIX_PATH',
@@ -95,10 +97,7 @@ class BuildManager(BasicBuildManager):
 				))
 
 		if self.sanitizers:
-			settings.extend([
-				('USE_SANITIZER', ','.join(self.sanitizers)),
-				('OPENSSL_ROOT_DIR', '/usr/local')
-			])
+			settings.append(('USE_SANITIZER', ','.join(self.sanitizers)))
 
 		if self.is_release:
 			settings.append(('CATAPULT_BUILD_RELEASE', 'ON'))
@@ -152,7 +151,9 @@ class BuildManager(BasicBuildManager):
 			for name in ['facebook', 'mongodb', 'openssl', 'zeromq']:
 				self.environment_manager.copy_glob_with_symlinks(f'c:/deps/{name}/bin', '*.dll', destination)
 
-			self.environment_manager.copy_tree_with_symlinks('c:/deps/openssl/lib/engines-1_1', Path(destination) / 'engines-1_1')
+			for name in ['engines-3', 'ossl-modules']:
+				self.environment_manager.copy_tree_with_symlinks(f'c:/deps/openssl/lib/{name}', Path(destination) / 'lib' / name)
+
 			return
 
 		for name in ['atomic', 'chrono', 'date_time', 'filesystem', 'log', 'log_setup', 'program_options', 'regex', 'thread']:
@@ -162,11 +163,13 @@ class BuildManager(BasicBuildManager):
 			system_bin_path = self.environment_manager.system_bin_path
 			self.environment_manager.copy_glob_with_symlinks(system_bin_path, f'lib{name}.so*', destination)
 
-		local_lib_path = self.environment_manager.local_lib_path
+		openssl_source_directory = Path('/usr/catapult/deps')
+		self.environment_manager.mkdirs(Path(destination), exist_ok=True)
 		for name in ['crypto', 'ssl']:
-			self.environment_manager.copy_glob_with_symlinks(local_lib_path, f'lib{name}*', destination)
+			self.environment_manager.copy_glob_with_symlinks(openssl_source_directory, f'lib{name}.so*', Path(destination))
 
-		self.environment_manager.copy_tree_with_symlinks(f'{local_lib_path}/engines-1.1', Path(destination) / 'engines-1.1')
+		for name in ['engines-3', 'ossl-modules']:
+			self.environment_manager.copy_tree_with_symlinks(openssl_source_directory / name, Path(destination) / name)
 
 	def copy_compiler_deps(self, destination):
 		if not self.compiler.deps:

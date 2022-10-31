@@ -1,9 +1,10 @@
 [requires]
 # release dependencies
 boost/1.80.0
+openssl/3.0.7
+
 cppzmq/4.8.1@nemtech/stable
 mongo-cxx-driver/3.6.7@nemtech/stable
-openssl/1.1.1q@nemtech/stable
 rocksdb/7.4.3@nemtech/stable
 
 # test dependencies
@@ -53,9 +54,14 @@ boost:without_timer = True
 boost:without_type_erasure = True
 boost:without_wave = True
 
+# release dependencies - openssl
+openssl:shared = True
+openssl:no_zlib = True
+openssl:no_legacy = False
+openssl:no_module = True
+
 # release dependencies - other
 mongo-cxx-driver:shared = True
-openssl:shared = True
 rocksdb:shared = True
 zeromq:shared = True
 

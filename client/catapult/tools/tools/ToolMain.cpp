@@ -22,6 +22,7 @@
 #include "ToolMain.h"
 #include "catapult/config/ConfigurationFileLoader.h"
 #include "catapult/config/LoggingConfiguration.h"
+#include "catapult/crypto/OpensslInit.h"
 #include "catapult/thread/ThreadInfo.h"
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/version/version.h"
@@ -194,7 +195,11 @@ namespace catapult { namespace tools {
 		auto pLoggingGuard = catapult::tools::SetupLogging(LoadLoggingConfiguration(options.LoggingConfigurationPath));
 		std::cout << std::endl;
 
-		// 5. run the tool
+		// 5. initialize OpenSSL
+		std::cout << "Initializing OpenSSL crypto functions" << std::endl;
+		auto pOpensslContext = crypto::SetupOpensslCryptoFunctions();
+
+		// 6. run the tool
 		return tool.run(options.ToolOptions);
 	}
 }}

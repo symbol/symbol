@@ -25,6 +25,7 @@
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/config/ValidateConfiguration.h"
+#include "catapult/crypto/OpensslInit.h"
 #include "catapult/crypto/OpensslMemory.h"
 #include "catapult/io/FileLock.h"
 #include "catapult/thread/ThreadInfo.h"
@@ -119,16 +120,18 @@ namespace catapult { namespace process {
 		thread::SetThreadName(host + " catapult");
 		version::WriteVersionInformation(std::cout);
 
+		// 1. setup OpenSSL
+		auto pOpensslContext = crypto::SetupOpensslCryptoFunctions();
 		crypto::SetupOpensslMemoryFunctions();
 
-		// 1. load and validate the configuration
+		// 2. load and validate the configuration
 		auto config = LoadConfiguration(argc, argv, host);
 		ValidateConfiguration(config);
 
-		// 2. initialize logging
+		// 3. initialize logging
 		auto pLoggingGuard = SetupLogging(host, config.Logging);
 
-		// 3. check instance
+		// 4. check instance
 		std::filesystem::path lockFilePath = config.User.DataDirectory;
 		lockFilePath /= host + ".lock";
 		io::FileLock instanceLock(lockFilePath.generic_string());
@@ -137,10 +140,10 @@ namespace catapult { namespace process {
 			return -3;
 		}
 
-		// 4. platform specific settings
+		// 5. platform specific settings
 		PlatformSettings();
 
-		// 5. run the server
+		// 6. run the server
 		Run(std::move(config), processOptions, createProcessHost);
 		return 0;
 	}
