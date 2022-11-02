@@ -11,7 +11,6 @@ from symbolchain import nc, sc
 from symbolchain.ByteArray import ByteArray
 from symbolchain.facade.NemFacade import NemFacade
 from symbolchain.facade.SymbolFacade import SymbolFacade
-
 from testvectors.BlockFactory import BlockFactory
 from testvectors.ReceiptFactory import ReceiptFactory
 
@@ -42,8 +41,6 @@ def clone_descriptor(descriptor):
 		cloned_descriptor[key] = value
 
 	return cloned_descriptor
-
-
 
 # endregion
 

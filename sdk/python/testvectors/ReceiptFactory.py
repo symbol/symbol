@@ -1,6 +1,6 @@
 from symbolchain import sc
-from symbolchain.symbol.Network import Address
 from symbolchain.RuleBasedTransactionFactory import RuleBasedTransactionFactory
+from symbolchain.symbol.Network import Address
 
 
 class ReceiptFactory:

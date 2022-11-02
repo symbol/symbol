@@ -3424,7 +3424,7 @@ class NonVerifiableMultisigAccountModificationTransactionV2:
 		return result
 
 
-class Cosignature:
+class CosignatureV1:
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_COSIGNATURE
 	TYPE_HINTS = {
@@ -3440,8 +3440,8 @@ class Cosignature:
 	}
 
 	def __init__(self):
-		self._type_ = Cosignature.TRANSACTION_TYPE
-		self._version = Cosignature.TRANSACTION_VERSION
+		self._type_ = CosignatureV1.TRANSACTION_TYPE
+		self._version = CosignatureV1.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -3562,7 +3562,7 @@ class Cosignature:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Cosignature:
+	def deserialize(cls, payload: ByteString) -> CosignatureV1:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -3603,7 +3603,7 @@ class Cosignature:
 		multisig_account_address = Address.deserialize(buffer)
 		buffer = buffer[multisig_account_address.size:]
 
-		instance = Cosignature()
+		instance = CosignatureV1()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -3652,23 +3652,23 @@ class Cosignature:
 		return result
 
 
-class SizePrefixedCosignature:
+class SizePrefixedCosignatureV1:
 	TYPE_HINTS = {
-		'cosignature': 'struct:Cosignature'
+		'cosignature': 'struct:CosignatureV1'
 	}
 
 	def __init__(self):
-		self._cosignature = Cosignature()
+		self._cosignature = CosignatureV1()
 
 	def sort(self) -> None:
 		self._cosignature.sort()
 
 	@property
-	def cosignature(self) -> Cosignature:
+	def cosignature(self) -> CosignatureV1:
 		return self._cosignature
 
 	@cosignature.setter
-	def cosignature(self, value: Cosignature):
+	def cosignature(self, value: CosignatureV1):
 		self._cosignature = value
 
 	@property
@@ -3679,15 +3679,15 @@ class SizePrefixedCosignature:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> SizePrefixedCosignature:
+	def deserialize(cls, payload: ByteString) -> SizePrefixedCosignatureV1:
 		buffer = memoryview(payload)
 		cosignature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
-		cosignature = Cosignature.deserialize(buffer[:cosignature_size])
+		cosignature = CosignatureV1.deserialize(buffer[:cosignature_size])
 		buffer = buffer[cosignature.size:]
 
-		instance = SizePrefixedCosignature()
+		instance = SizePrefixedCosignatureV1()
 		instance._cosignature = cosignature
 		return instance
 
@@ -3716,7 +3716,7 @@ class MultisigTransactionV1:
 		'fee': 'pod:Amount',
 		'deadline': 'pod:Timestamp',
 		'inner_transaction': 'struct:NonVerifiableTransaction',
-		'cosignatures': 'array[SizePrefixedCosignature]'
+		'cosignatures': 'array[SizePrefixedCosignatureV1]'
 	}
 
 	def __init__(self):
@@ -3774,7 +3774,7 @@ class MultisigTransactionV1:
 		return self._inner_transaction
 
 	@property
-	def cosignatures(self) -> List[SizePrefixedCosignature]:
+	def cosignatures(self) -> List[SizePrefixedCosignatureV1]:
 		return self._cosignatures
 
 	@type_.setter
@@ -3814,7 +3814,7 @@ class MultisigTransactionV1:
 		self._inner_transaction = value
 
 	@cosignatures.setter
-	def cosignatures(self, value: List[SizePrefixedCosignature]):
+	def cosignatures(self, value: List[SizePrefixedCosignatureV1]):
 		self._cosignatures = value
 
 	@property
@@ -3872,7 +3872,7 @@ class MultisigTransactionV1:
 		buffer = buffer[inner_transaction.size:]
 		cosignatures_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
-		cosignatures = ArrayHelpers.read_array_count(buffer, SizePrefixedCosignature, cosignatures_count)
+		cosignatures = ArrayHelpers.read_array_count(buffer, SizePrefixedCosignatureV1, cosignatures_count)
 		buffer = buffer[ArrayHelpers.size(cosignatures):]
 
 		instance = MultisigTransactionV1()
@@ -5500,7 +5500,7 @@ class TransactionFactory:
 			(MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE, MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION): MosaicSupplyChangeTransactionV1,
 			(MultisigAccountModificationTransactionV1.TRANSACTION_TYPE, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION): MultisigAccountModificationTransactionV1,
 			(MultisigAccountModificationTransactionV2.TRANSACTION_TYPE, MultisigAccountModificationTransactionV2.TRANSACTION_VERSION): MultisigAccountModificationTransactionV2,
-			(Cosignature.TRANSACTION_TYPE, Cosignature.TRANSACTION_VERSION): Cosignature,
+			(CosignatureV1.TRANSACTION_TYPE, CosignatureV1.TRANSACTION_VERSION): CosignatureV1,
 			(MultisigTransactionV1.TRANSACTION_TYPE, MultisigTransactionV1.TRANSACTION_VERSION): MultisigTransactionV1,
 			(NamespaceRegistrationTransactionV1.TRANSACTION_TYPE, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION): NamespaceRegistrationTransactionV1,
 			(TransferTransactionV1.TRANSACTION_TYPE, TransferTransactionV1.TRANSACTION_VERSION): TransferTransactionV1,
@@ -5518,7 +5518,7 @@ class TransactionFactory:
 			'mosaic_supply_change_transaction_v1': MosaicSupplyChangeTransactionV1,
 			'multisig_account_modification_transaction_v1': MultisigAccountModificationTransactionV1,
 			'multisig_account_modification_transaction_v2': MultisigAccountModificationTransactionV2,
-			'cosignature': Cosignature,
+			'cosignature_v1': CosignatureV1,
 			'multisig_transaction_v1': MultisigTransactionV1,
 			'namespace_registration_transaction_v1': NamespaceRegistrationTransactionV1,
 			'transfer_transaction_v1': TransferTransactionV1,

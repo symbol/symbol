@@ -82,11 +82,11 @@ class TypedArrayPrinter(Printer):
 	def load(self):
 		element_type = self.descriptor.field_type.element_type
 
-		if self.is_variable_size:
-			# use either type name or if it's an abstract type use a factory instead
-			if self.descriptor.extensions.is_contents_abstract:
-				element_type = f'{element_type}Factory'
+		# use either type name or if it's an abstract type use a factory instead
+		if self.descriptor.extensions.is_contents_abstract:
+			element_type = f'{element_type}Factory'
 
+		if self.is_variable_size:
 			buffer = f'buffer[:{self.descriptor.size}]'
 			if self.descriptor.field_type.is_expandable:
 				buffer = 'buffer'

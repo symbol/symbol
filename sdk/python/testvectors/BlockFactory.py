@@ -1,5 +1,4 @@
 from symbolchain import sc
-
 from symbolchain.ByteArray import ByteArray
 from symbolchain.CryptoTypes import Hash256, PublicKey
 from symbolchain.RuleBasedTransactionFactory import RuleBasedTransactionFactory
@@ -20,7 +19,7 @@ class ProofGamma(ByteArray):
 
 
 class ProofVerificationHash(ByteArray):
-	"""Represents a 128-bit proof verification hash."""
+	"""Represents a 128-bit vrf proof verification hash."""
 
 	SIZE = 16
 
@@ -38,7 +37,7 @@ class ProofScalar(ByteArray):
 	SIZE = 32
 
 	def __init__(self, proof_scalar):
-		"""Creates a vrf proof gamma from bytes or a hex string."""
+		"""Creates a vrf proof scalar from bytes or a hex string."""
 		super().__init__(self.SIZE, proof_scalar, ProofScalar)
 
 	def __repr__(self):
