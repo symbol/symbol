@@ -3795,7 +3795,7 @@ export class NonVerifiableMultisigAccountModificationTransactionV2 {
 	}
 }
 
-export class Cosignature {
+export class CosignatureV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_COSIGNATURE;
@@ -3813,8 +3813,8 @@ export class Cosignature {
 	};
 
 	constructor() {
-		this._type = Cosignature.TRANSACTION_TYPE;
-		this._version = Cosignature.TRANSACTION_VERSION;
+		this._type = CosignatureV1.TRANSACTION_TYPE;
+		this._version = CosignatureV1.TRANSACTION_VERSION;
 		this._network = NetworkType.MAINNET;
 		this._timestamp = new Timestamp();
 		this._signerPublicKey = new PublicKey();
@@ -3982,7 +3982,7 @@ export class Cosignature {
 		const multisigAccountAddress = Address.deserialize(view.buffer);
 		view.shiftRight(multisigAccountAddress.size);
 
-		const instance = new Cosignature();
+		const instance = new CosignatureV1();
 		instance._type = type;
 		instance._version = version;
 		instance._network = network;
@@ -4034,13 +4034,13 @@ export class Cosignature {
 	}
 }
 
-export class SizePrefixedCosignature {
+export class SizePrefixedCosignatureV1 {
 	static TYPE_HINTS = {
-		cosignature: 'struct:Cosignature'
+		cosignature: 'struct:CosignatureV1'
 	};
 
 	constructor() {
-		this._cosignature = new Cosignature();
+		this._cosignature = new CosignatureV1();
 	}
 
 	sort() {
@@ -4067,10 +4067,10 @@ export class SizePrefixedCosignature {
 		const cosignatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
-		const cosignature = Cosignature.deserialize(view.window(cosignatureSize));
+		const cosignature = CosignatureV1.deserialize(view.window(cosignatureSize));
 		view.shiftRight(cosignature.size);
 
-		const instance = new SizePrefixedCosignature();
+		const instance = new SizePrefixedCosignatureV1();
 		instance._cosignature = cosignature;
 		return instance;
 	}
@@ -4104,7 +4104,7 @@ export class MultisigTransactionV1 {
 		fee: 'pod:Amount',
 		deadline: 'pod:Timestamp',
 		innerTransaction: 'struct:NonVerifiableTransaction',
-		cosignatures: 'array[SizePrefixedCosignature]'
+		cosignatures: 'array[SizePrefixedCosignatureV1]'
 	};
 
 	constructor() {
@@ -4264,7 +4264,7 @@ export class MultisigTransactionV1 {
 		view.shiftRight(innerTransaction.size);
 		const cosignaturesCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const cosignatures = arrayHelpers.readArrayCount(view.buffer, SizePrefixedCosignature, cosignaturesCount);
+		const cosignatures = arrayHelpers.readArrayCount(view.buffer, SizePrefixedCosignatureV1, cosignaturesCount);
 		view.shiftRight(arrayHelpers.size(cosignatures));
 
 		const instance = new MultisigTransactionV1();
@@ -6016,7 +6016,7 @@ export class TransactionFactory {
 			[TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), MosaicSupplyChangeTransactionV1],
 			[TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV1],
 			[TransactionFactory.toKey([MultisigAccountModificationTransactionV2.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV2.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV2],
-			[TransactionFactory.toKey([Cosignature.TRANSACTION_TYPE.value, Cosignature.TRANSACTION_VERSION]), Cosignature],
+			[TransactionFactory.toKey([CosignatureV1.TRANSACTION_TYPE.value, CosignatureV1.TRANSACTION_VERSION]), CosignatureV1],
 			[TransactionFactory.toKey([MultisigTransactionV1.TRANSACTION_TYPE.value, MultisigTransactionV1.TRANSACTION_VERSION]), MultisigTransactionV1],
 			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NamespaceRegistrationTransactionV1],
 			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value, TransferTransactionV1.TRANSACTION_VERSION]), TransferTransactionV1],
@@ -6034,7 +6034,7 @@ export class TransactionFactory {
 			mosaic_supply_change_transaction_v1: MosaicSupplyChangeTransactionV1,
 			multisig_account_modification_transaction_v1: MultisigAccountModificationTransactionV1,
 			multisig_account_modification_transaction_v2: MultisigAccountModificationTransactionV2,
-			cosignature: Cosignature,
+			cosignature_v1: CosignatureV1,
 			multisig_transaction_v1: MultisigTransactionV1,
 			namespace_registration_transaction_v1: NamespaceRegistrationTransactionV1,
 			transfer_transaction_v1: TransferTransactionV1,

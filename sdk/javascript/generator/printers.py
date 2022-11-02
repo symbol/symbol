@@ -96,11 +96,11 @@ class TypedArrayPrinter(Printer):
 		del is_aligned
 		element_type = self.descriptor.field_type.element_type
 
-		if self.is_variable_size:
-			# use either type name or if it's an abstract type use a factory instead
-			if self.descriptor.extensions.is_contents_abstract:
-				element_type = f'{element_type}Factory'
+		# use either type name or if it's an abstract type use a factory instead
+		if self.descriptor.extensions.is_contents_abstract:
+			element_type = f'{element_type}Factory'
 
+		if self.is_variable_size:
 			buffer_view = None
 			if self.descriptor.field_type.is_expandable:
 				buffer_view = 'view.buffer'
