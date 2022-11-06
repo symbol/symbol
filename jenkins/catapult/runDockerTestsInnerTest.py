@@ -156,7 +156,11 @@ def main():
 	process_manager.list_dir(args.source_path)
 	process_manager.list_dir(output_path)
 
-	environment_manager.set_env_var('LD_LIBRARY_PATH', f'{output_path}/lib:{output_path}/deps')
+	if EnvironmentManager.is_windows_platform():
+		path = environment_manager.get_env_var('PATH')
+		environment_manager.set_env_var('PATH', f'{path};{output_path}/lib;{output_path}/deps')
+	else:
+		environment_manager.set_env_var('LD_LIBRARY_PATH', f'{output_path}/lib:{output_path}/deps')
 	logs_path = Path(args.out_dir) / 'logs'
 
 	failed_test_suites = []

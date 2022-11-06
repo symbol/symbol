@@ -112,7 +112,9 @@ def main():
 	environment_manager.chdir(script_path)
 
 	linter_runner = LinterRunner(process_manager, args.out_dir, args.dry_run)
-	run_shell_linters(linter_runner, find_files_with_extension(environment_manager, source_dir, '.sh'))
+	if not EnvironmentManager.is_windows_platform():
+		run_shell_linters(linter_runner, find_files_with_extension(environment_manager, source_dir, '.sh'))
+
 	run_python_linters(linter_runner, find_files_with_extension(environment_manager, source_dir, '.py'), str(script_path))
 
 

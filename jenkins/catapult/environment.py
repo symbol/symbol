@@ -29,6 +29,14 @@ class EnvironmentManager:
 
 		raise RuntimeError('unable to detect system bin path')
 
+	def get_env_var(self, key):
+		self._print_command('get_env_var', [key])
+
+		if self.dry_run:
+			return
+
+		return os.environ[key]
+
 	def set_env_var(self, key, value):
 		self._print_command('set_env_var', [key, value])
 

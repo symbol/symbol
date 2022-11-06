@@ -38,8 +38,8 @@ class BuildEnvironment:
 				self.environment_manager.set_env_var('HOME', '/conan')
 		else:
 			if self.environment_manager.is_windows_platform():
-				self.environment_manager.set_env_var('BOOST_ROOT', 'c:/deps/boost')
-				self.environment_manager.set_env_var('GTEST_ROOT', 'c:/deps/google')
+				self.environment_manager.set_env_var('BOOST_ROOT', 'c:/usr/catapult/deps/boost')
+				self.environment_manager.set_env_var('GTEST_ROOT', 'c:/usr/catapult/deps/google')
 			else:
 				self.environment_manager.set_env_var('BOOST_ROOT', '/mybuild')
 				self.environment_manager.set_env_var('GTEST_ROOT', '/usr/local')
@@ -88,13 +88,13 @@ class BuildManager(BasicBuildManager):
 		if self.use_conan:
 			settings.append(('USE_CONAN', 'ON'))
 		else:
-			settings.append(('OPENSSL_ROOT_DIR', '/usr/catapult/deps'))
-
 			if self.environment_manager.is_windows_platform():
 				settings.append((
 					'CMAKE_PREFIX_PATH',
-					';'.join(f'c:/deps/{package}' for package in ['boost', 'facebook', 'google', 'mongodb', 'openssl', 'zeromq'])
+					';'.join(f'c:/usr/catapult/deps/{package}' for package in ['boost', 'facebook', 'google', 'mongodb', 'openssl', 'zeromq'])
 				))
+			else:
+				settings.append(('OPENSSL_ROOT_DIR', '/usr/catapult/deps'))
 
 		if self.sanitizers:
 			settings.append(('USE_SANITIZER', ','.join(self.sanitizers)))
@@ -141,18 +141,17 @@ class BuildManager(BasicBuildManager):
 
 	def copy_dependencies(self, destination):
 		if self.use_conan:
-			if not self.environment_manager.is_windows_platform():
-				self.environment_manager.copy_tree_with_symlinks('./deps', destination)
+			self.environment_manager.copy_tree_with_symlinks('./deps', destination)
 			return
 
 		self.environment_manager.mkdirs(destination)
 		if self.environment_manager.is_windows_platform():
-			self.environment_manager.copy_glob_with_symlinks('c:/deps/boost/lib', '*.dll', destination)
+			self.environment_manager.copy_glob_with_symlinks('c:/usr/catapult/deps/boost/lib', '*.dll', destination)
 			for name in ['facebook', 'mongodb', 'openssl', 'zeromq']:
-				self.environment_manager.copy_glob_with_symlinks(f'c:/deps/{name}/bin', '*.dll', destination)
+				self.environment_manager.copy_glob_with_symlinks(f'c:/usr/catapult/deps/{name}/bin', '*.dll', destination)
 
 			for name in ['engines-3', 'ossl-modules']:
-				self.environment_manager.copy_tree_with_symlinks(f'c:/deps/openssl/lib/{name}', Path(destination) / 'lib' / name)
+				self.environment_manager.copy_tree_with_symlinks(f'c:/usr/catapult/deps/openssl/lib/{name}', Path(destination) / 'openssl/lib' / name)
 
 			return
 
@@ -184,10 +183,8 @@ class BuildManager(BasicBuildManager):
 		deps_output_path = Path(f'{output_path}/deps').resolve()
 		tests_output_path = Path(f'{output_path}/tests').resolve()
 
-		# copy deps into the tests folder for windows
-		dest_path = tests_output_path if EnvironmentManager.is_windows_platform() else deps_output_path
-		self.copy_dependencies(dest_path)
-		self.copy_compiler_deps(dest_path)
+		self.copy_dependencies(deps_output_path)
+		self.copy_compiler_deps(deps_output_path)
 
 		# copy tests
 		if not self.is_release:

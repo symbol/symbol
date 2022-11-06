@@ -72,9 +72,9 @@ gtest:build_gmock = False
 gtest:no_main = True
 
 [imports]
-# on windows, copy shared libraries into bin directory
-bin, *.dll -> ./bin
-lib, *.dll -> ./bin
+# on windows, copy shared libraries into deps directory
+bin, *.dll -> ./deps
+lib, *.dll -> ./deps
 
 # on macos, copy shared libraries into deps directory
 lib, *.dylib* -> ./deps

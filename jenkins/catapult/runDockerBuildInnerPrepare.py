@@ -24,7 +24,7 @@ def main():
 		for name in ['seed', 'scripts', 'resources']:
 			environment_manager.copy_tree_with_symlinks(DATA_VOLUME / name, USER_HOME / name)
 
-	bin_folder_names = ['bin'] if EnvironmentManager.is_windows_platform() else ['bin', 'deps', 'lib']
+	bin_folder_names = ['bin', 'deps', 'lib']
 	if is_dev_build:
 		bin_folder_names.append('tests')
 

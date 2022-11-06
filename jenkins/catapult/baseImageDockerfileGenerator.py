@@ -415,19 +415,19 @@ class LinuxSystemGenerator:
 	def add_openssl(options, configure):
 		version = options.versions['openssl_openssl']
 		compiler = 'linux-x86_64-clang' if options.is_clang else 'linux-x86_64'
-		destination = ['--prefix=/usr/catapult/deps', '--openssldir=/usr/catapult/deps', '--libdir=/usr/catapult/deps']
+		openssl_destinations = [f'--{key}=/usr/catapult/deps' for key in ('prefix', 'openssldir', 'libdir')]
 		print_line([
 			'RUN git clone https://github.com/openssl/openssl.git -b {VERSION}',
 			'cd openssl',
-			'{OPEN_SSL_OPTIONS} perl ./Configure {COMPILER} {OPEN_SSL_CONFIGURE} {OPEN_SSL_DESTINATION}',
+			'{OPENSSL_OPTIONS} perl ./Configure {COMPILER} {OPENSSL_CONFIGURE} {OPENSSL_DESTINATIONS}',
 			'make -j 8',
 			'make install',
 			'cd ..',
 			'rm -rf openssl'
 		],
-			OPEN_SSL_OPTIONS=' '.join(options.openssl()),
-			OPEN_SSL_CONFIGURE=' '.join(configure),
-			OPEN_SSL_DESTINATION=' '.join(destination),
+			OPENSSL_OPTIONS=' '.join(options.openssl()),
+			OPENSSL_CONFIGURE=' '.join(configure),
+			OPENSSL_DESTINATIONS=' '.join(openssl_destinations),
 			VERSION=version,
 			COMPILER=compiler)
 
@@ -474,7 +474,7 @@ class WindowsSystemGenerator:
 	def __init__(self, system, options):
 		self.system = system
 		self.options = options
-		self.deps_path = Path('c:/deps')
+		self.deps_path = Path('c:/usr/catapult/deps')
 
 	def generate_phase_os(self):
 		print_lines([
@@ -536,16 +536,20 @@ class WindowsSystemGenerator:
 
 	def add_openssl(self, package_options, configure):
 		version = self.options.versions['openssl_openssl']
-		prefix_path = self.deps_path / 'openssl'
+		openssl_destinations = [f'--{key}={self.deps_path / "openssl"}' for key in ('prefix', 'openssldir')]
 		print_msvc_line([
 			'git clone https://github.com/openssl/openssl.git -b {VERSION}',
 			'cd openssl',
-			'{OPEN_SSL_OPTIONS} perl ./Configure VC-WIN64A {OPEN_SSL_CONFIGURE} --prefix={PREFIX_PATH} --openssldir={PREFIX_PATH}',
+			'{OPENSSL_OPTIONS} perl ./Configure VC-WIN64A {OPENSSL_CONFIGURE} {OPENSSL_DESTINATIONS}',
 			'nmake',
 			'nmake install_sw install_ssldirs',
 			'cd ..',
 			'rmdir /q /s openssl'
-		], OPEN_SSL_OPTIONS=' '.join(package_options), OPEN_SSL_CONFIGURE=' '.join(configure), VERSION=version, PREFIX_PATH=prefix_path)
+		],
+			OPENSSL_OPTIONS=' '.join(package_options),
+			OPENSSL_CONFIGURE=' '.join(configure),
+			OPENSSL_DESTINATIONS=' '.join(openssl_destinations),
+			VERSION=version)
 
 	def generate_phase_deps(self):
 		print('# escape=`')
