@@ -14,8 +14,8 @@ def print_linter_status(name, return_code):
 	print(f'{name} {return_code_description}')
 
 
-def find_files_with_extension(environment_manager, extension):
-	return list(environment_manager.find_glob(Path('.').resolve(), '*' + extension, recursive=True))
+def find_files_with_extension(environment_manager, directory, extension):
+	return list(environment_manager.find_glob(directory, f'*{extension}', recursive=True))
 
 
 def run_cpp_linters(process_manager, dest_dir):
@@ -42,7 +42,7 @@ class LinterRunner:
 		self.output_filepath = Path(self.dest_dir) / f'{self.scope}.log'
 
 	def run(self, args):
-		linter_result = self.process_manager.dispatch_subprocess(args, handle_error=False, redirect_filename=self.output_filepath)
+		linter_result = self.process_manager.dispatch_subprocess(args, redirect_filename=self.output_filepath)
 		print_linter_status(self.scope, linter_result)
 
 	def fixup(self, modifier):
@@ -100,6 +100,8 @@ def main():
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	args = parser.parse_args()
 
+	source_dir = Path('.').resolve()
+
 	process_manager = ProcessManager(args.dry_run)
 	environment_manager = EnvironmentManager(args.dry_run)
 	environment_manager.set_env_var('HOME', '/tmp')
@@ -110,8 +112,8 @@ def main():
 	environment_manager.chdir(script_path)
 
 	linter_runner = LinterRunner(process_manager, args.out_dir, args.dry_run)
-	run_shell_linters(linter_runner, find_files_with_extension(environment_manager, '.sh'))
-	run_python_linters(linter_runner, find_files_with_extension(environment_manager, '.py'), str(script_path))
+	run_shell_linters(linter_runner, find_files_with_extension(environment_manager, source_dir, '.sh'))
+	run_python_linters(linter_runner, find_files_with_extension(environment_manager, source_dir, '.py'), str(script_path))
 
 
 if __name__ == '__main__':
