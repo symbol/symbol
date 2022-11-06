@@ -165,7 +165,17 @@ namespace catapult { namespace model {
 		// Arrange:
 		std::vector<uint8_t> buffer(sizeof(SizePrefixedEntity));
 		auto* pEntity = reinterpret_cast<VerifiableEntity*>(&buffer[0]);
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds" // VerifiableEntity[0] is partly outside array bounds
+#endif
+
 		pEntity->Size = sizeof(SizePrefixedEntity);
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 		// Act:
 		EXPECT_FALSE(IsSizeValid(*pEntity));
