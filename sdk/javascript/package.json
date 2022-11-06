@@ -37,7 +37,7 @@
     "url": "^0.11.0",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
-    "yargs": "^17.6.0"
+    "yargs": "^17.6.2"
   },
   "dependencies": {
     "@noble/hashes": "^1.1.3",
