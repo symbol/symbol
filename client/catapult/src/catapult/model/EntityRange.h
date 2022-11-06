@@ -392,6 +392,9 @@ namespace catapult { namespace model {
 
 		/// Creates an entity range around \a numElements fixed size elements pointed to by \a pData.
 		static Range CopyFixed(const uint8_t* pData, size_t numElements) {
+			if (0 == numElements)
+				return Range();
+
 			uint8_t* pRangeData;
 			auto range = PrepareFixed(numElements, &pRangeData);
 			utils::memcpy_cond(pRangeData, pData, range.totalSize());

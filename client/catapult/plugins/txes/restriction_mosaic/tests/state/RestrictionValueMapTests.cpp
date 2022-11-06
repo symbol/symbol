@@ -142,14 +142,17 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, CanRemoveValueNotInMap) {
 		// Arrange:
 		RestrictionValueMap<uint64_t> map;
+		map.set(111, 444);
+		map.set(321, 987);
 
 		// Act:
-		map.remove(111);
+		map.remove(222);
 
 		// Assert:
-		EXPECT_EQ(0u, map.size());
-		AssertCannotGetValue(map, 111);
-		EXPECT_EQ(std::set<uint64_t>(), map.keys());
+		EXPECT_EQ(2u, map.size());
+		AssertCanGetValue(map, 111, 444);
+		AssertCanGetValue(map, 321, 987);
+		EXPECT_EQ(std::set<uint64_t>({ 111, 321 }), map.keys());
 	}
 
 	TEST(TEST_CLASS, CanRemoveSingleValue) {

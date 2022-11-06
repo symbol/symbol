@@ -118,7 +118,17 @@ namespace catapult { namespace model {
 		// Arrange:
 		std::vector<uint8_t> buffer(sizeof(SizePrefixedEntity));
 		auto* pTransaction = reinterpret_cast<Transaction*>(&buffer[0]);
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds" // Transaction[0] is partly outside array bounds
+#endif
+
 		pTransaction->Size = sizeof(SizePrefixedEntity);
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 		// Act:
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
