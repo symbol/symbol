@@ -225,12 +225,12 @@ class SymbolFacadeTest(unittest.TestCase):
 	def test_can_hash_transaction(self):
 		self._assert_can_hash_transaction(
 			self._create_real_transfer,
-			Hash256('600D0CF8C95CDEEB1BC81EFEB9D50BB853F474AC2226E1BEB83E235716C8E16E'))
+			Hash256('86E006F0D400A781A15D0293DFC15897078351A2F7731D49A865A63C2010DE44'))
 
 	def test_can_hash_aggregate_transaction(self):
 		self._assert_can_hash_transaction(
 			self._create_real_aggregate,
-			Hash256('194578BACECBE33A18EE6D1BE02D61B1CC86F57D57C4D22F7783D27EB33FF225'))
+			Hash256('D074716D62F4CDF1CE219D7E0580DC2C030102E216ECE2037FA28A3BC5726BD0'))
 
 	def _assert_can_sign_transaction(self, transaction_factory, expected_signature):
 		# Arrange:
@@ -250,14 +250,14 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	def test_can_sign_transaction(self):
 		self._assert_can_sign_transaction(self._create_real_transfer, Signature(''.join([
-			'5BF0C9DC0D97FDE7FF6F99F1EFADF50DD77C1FA54CFC704FB23295C8F6908B6D',
-			'1F9BA1FB2DB267543805F14C83B7A9D4255D8AECC6046DDBE225115A6DF16002'
+			'24A3788AFD0223083D47ED14F17A2499A7939CD62C4B3288C40CF2736B13F404',
+			'8486680DD574C9F7DB56F453464058CB22349ACBFAECAE16A31EF0725FFF6104'
 		])))
 
 	def test_can_sign_aggregate_transaction(self):
 		self._assert_can_sign_transaction(self._create_real_aggregate, Signature(''.join([
-			'116BA7B83280BC1752440A5CFBF71612385DFDFA0363A5B220E20C0CA0C6307A',
-			'35C979BB120BAB85E58B1C880DDFB7A96A922D1A2828B5C6CC9556C27571190C'
+			'40C5C9F0BAF74E64877982C411D0D16665E18D463B66204081D846564FC6CAE1',
+			'3F1F75C688CBD2D34263DA166537A90B4F371C1B38DDF00414AB0F5D78C3CD0F'
 		])))
 
 	def _assert_can_verify_transaction(self, transaction_factory):
@@ -304,8 +304,8 @@ class SymbolFacadeTest(unittest.TestCase):
 		self.assertEqual(0, cosignature.version)
 		self.assertEqual(sc.PublicKey('29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3'), cosignature.signer_public_key)
 		self.assertEqual(
-			sc.Signature('623A3FE2B9795DB23508A39B4A9586495D6EA9481355B29EB5E9BE1776866956' + (
-				'2818B1AC52AFDD0BE192F19674931E4A6DB59D32E8610CBE3DEA8783CD9B4505'
+			sc.Signature('204BD2C4F86B66313E5C5F817FD650B108826D53EDEFC8BDFF936E4D6AA07E38' + (
+				'5F819CF0BF22D14D4AA2011AD07BC0FE6023E2CB48DC5D82A6A1FF1348FA3E0B'
 			)),
 			cosignature.signature)
 		return cosignature
@@ -324,7 +324,7 @@ class SymbolFacadeTest(unittest.TestCase):
 
 		# Assert: cosignature should be detached
 		self.assertEqual(136, cosignature.size)
-		self.assertEqual(sc.Hash256('E193D1AADA8982757DECADF1B5B347D49E3D211C5E6CDB64D50EACE185EDA674'), cosignature.parent_hash)
+		self.assertEqual(sc.Hash256('214DFF47469D462E1D9A03232C2582C7E44DE026A287F98529CC74DE9BD69641'), cosignature.parent_hash)
 
 	# endregion
 
