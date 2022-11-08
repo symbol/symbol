@@ -468,6 +468,19 @@ export class Mosaic {
 		return instance;
 	}
 
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const mosaicId = MosaicId.deserializeAligned(view.buffer);
+		view.shiftRight(mosaicId.size);
+		const amount = Amount.deserializeAligned(view.buffer);
+		view.shiftRight(amount.size);
+
+		const instance = new Mosaic();
+		instance._mosaicId = mosaicId;
+		instance._amount = amount;
+		return instance;
+	}
+
 	serialize() {
 		const buffer = new Writer(this.size);
 		buffer.write(this._mosaicId.serialize());
@@ -2864,6 +2877,22 @@ export class Receipt {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+
+		const instance = new Receipt();
+		instance._version = version;
+		instance._type = type;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		view.shrink(size - 4);
@@ -2959,6 +2988,28 @@ export class HarvestFeeReceipt {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new HarvestFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		view.shrink(size - 4);
@@ -3052,6 +3103,25 @@ export class InflationReceipt {
 	}
 
 	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+
+		const instance = new InflationReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
 		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3152,6 +3222,28 @@ export class LockHashCreatedFeeReceipt {
 	}
 
 	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashCreatedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
 		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3258,6 +3350,28 @@ export class LockHashCompletedFeeReceipt {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashCompletedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		view.shrink(size - 4);
@@ -3362,6 +3476,28 @@ export class LockHashExpiredFeeReceipt {
 	}
 
 	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashExpiredFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
 		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3468,6 +3604,28 @@ export class LockSecretCreatedFeeReceipt {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretCreatedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		view.shrink(size - 4);
@@ -3572,6 +3730,28 @@ export class LockSecretCompletedFeeReceipt {
 	}
 
 	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretCompletedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
 		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3678,6 +3858,28 @@ export class LockSecretExpiredFeeReceipt {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretExpiredFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		view.shrink(size - 4);
@@ -3770,6 +3972,25 @@ export class MosaicExpiredReceipt {
 	}
 
 	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = MosaicId.deserialize(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new MosaicExpiredReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
 		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3881,6 +4102,31 @@ export class MosaicRentalFeeReceipt {
 	}
 
 	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const senderAddress = Address.deserialize(view.buffer);
+		view.shiftRight(senderAddress.size);
+		const recipientAddress = Address.deserialize(view.buffer);
+		view.shiftRight(recipientAddress.size);
+
+		const instance = new MosaicRentalFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._senderAddress = senderAddress;
+		instance._recipientAddress = recipientAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
 		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -4104,6 +4350,25 @@ export class NamespaceExpiredReceipt {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = NamespaceId.deserialize(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new NamespaceExpiredReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		view.shrink(size - 4);
@@ -4191,6 +4456,25 @@ export class NamespaceDeletedReceipt {
 	}
 
 	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = NamespaceId.deserialize(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new NamespaceDeletedReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
 		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -4302,6 +4586,31 @@ export class NamespaceRentalFeeReceipt {
 	}
 
 	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const senderAddress = Address.deserialize(view.buffer);
+		view.shiftRight(senderAddress.size);
+		const recipientAddress = Address.deserialize(view.buffer);
+		view.shiftRight(recipientAddress.size);
+
+		const instance = new NamespaceRentalFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._senderAddress = senderAddress;
+		instance._recipientAddress = recipientAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
 		const view = new BufferView(payload);
 		const size = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);

@@ -1,5 +1,3 @@
-import ByteArray from '../src/ByteArray.js';
-import { Hash256, PublicKey } from '../src/CryptoTypes.js';
 import RuleBasedTransactionFactory from '../src/RuleBasedTransactionFactory.js';
 import { Address } from '../src/symbol/Network.js';
 import * as sc from '../src/symbol/models.js';
