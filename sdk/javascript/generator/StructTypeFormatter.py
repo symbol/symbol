@@ -274,7 +274,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return indent_if_conditional(condition, deserialize_field)
 
-	def get_deserialize_descriptor(self):
+	def get_deserialize_descriptor_impl(self, generate_aligned):
 		body = 'const view = new BufferView(payload);\n'
 
 		# special treatment for condition-guarded fields,
@@ -323,6 +323,12 @@ class StructFormatter(AbstractTypeFormatter):
 
 		body += 'return instance;'
 		return MethodDescriptor(body=body)
+
+	def get_deserialize_descriptor(self):
+		return self.get_deserialize_descriptor_impl(False)
+
+	def get_deserialize_aligned_descriptor(self):
+		return None
 
 	def generate_serialize_field(self, field):
 		condition = self.generate_condition(field, True)

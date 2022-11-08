@@ -403,6 +403,8 @@ class StructTests(unittest.TestCase):
 		self.assertEqual(kwargs.get('comparer', None), model.comparer)
 		self.assertEqual(kwargs.get('initializers', []), model.initializers)
 
+		self.assertEqual(False, model.requires_unaligned)
+
 	def _test_can_create_struct(self, comment, expected_comment_descriptor):
 		# Act:
 		model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])

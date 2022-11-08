@@ -325,7 +325,7 @@ class Attribute:
 
 # region Struct
 
-class Struct(Statement):
+class Struct(Statement):  # pylint: disable=too-many-instance-attributes
 	"""Defines a user defined data type."""
 
 	Initializer = namedtuple('Initializer', ['target_property_name', 'value'])
@@ -339,6 +339,8 @@ class Struct(Statement):
 
 		self.display_type = DisplayType.STRUCT
 		self.attributes = None
+
+		self.requires_unaligned = False
 
 		self._member_comment_start_regex = None
 

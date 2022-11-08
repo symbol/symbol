@@ -374,7 +374,7 @@ describe('catbuffer vectors', () => {
 		});
 
 		describe('Symbol', () => {
-			prepareTestCases('symbol', { excludes: ['other'] }).forEach(item => {
+			prepareTestCases('symbol').forEach(item => {
 				it(`can roundtrip ${item.test_name}`, () => {
 					assertRoundtrip(item, sc);
 				});
