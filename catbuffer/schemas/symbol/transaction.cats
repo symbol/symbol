@@ -5,7 +5,7 @@ import "transaction_type.cats"
 @size(size)
 @initializes(version, TRANSACTION_VERSION)
 @initializes(type, TRANSACTION_TYPE)
-@discriminator(type)
+@discriminator(type, version)
 @is_aligned
 abstract struct Transaction
 	inline SizePrefixedEntity
@@ -32,7 +32,7 @@ inline struct EmbeddedTransactionHeader
 @size(size)
 @initializes(version, TRANSACTION_VERSION)
 @initializes(type, TRANSACTION_TYPE)
-@discriminator(type)
+@discriminator(type, version)
 @is_aligned
 abstract struct EmbeddedTransaction
 	inline EmbeddedTransactionHeader

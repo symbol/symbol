@@ -14828,35 +14828,35 @@ class TransactionFactory:
 		buffer = bytes(payload)
 		parent = Transaction.deserialize(buffer)
 		mapping = {
-			(AccountKeyLinkTransactionV1.TRANSACTION_TYPE): AccountKeyLinkTransactionV1,
-			(NodeKeyLinkTransactionV1.TRANSACTION_TYPE): NodeKeyLinkTransactionV1,
-			(AggregateCompleteTransactionV1.TRANSACTION_TYPE): AggregateCompleteTransactionV1,
-			(AggregateCompleteTransactionV2.TRANSACTION_TYPE): AggregateCompleteTransactionV2,
-			(AggregateBondedTransactionV1.TRANSACTION_TYPE): AggregateBondedTransactionV1,
-			(AggregateBondedTransactionV2.TRANSACTION_TYPE): AggregateBondedTransactionV2,
-			(VotingKeyLinkTransactionV1.TRANSACTION_TYPE): VotingKeyLinkTransactionV1,
-			(VrfKeyLinkTransactionV1.TRANSACTION_TYPE): VrfKeyLinkTransactionV1,
-			(HashLockTransactionV1.TRANSACTION_TYPE): HashLockTransactionV1,
-			(SecretLockTransactionV1.TRANSACTION_TYPE): SecretLockTransactionV1,
-			(SecretProofTransactionV1.TRANSACTION_TYPE): SecretProofTransactionV1,
-			(AccountMetadataTransactionV1.TRANSACTION_TYPE): AccountMetadataTransactionV1,
-			(MosaicMetadataTransactionV1.TRANSACTION_TYPE): MosaicMetadataTransactionV1,
-			(NamespaceMetadataTransactionV1.TRANSACTION_TYPE): NamespaceMetadataTransactionV1,
-			(MosaicDefinitionTransactionV1.TRANSACTION_TYPE): MosaicDefinitionTransactionV1,
-			(MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE): MosaicSupplyChangeTransactionV1,
-			(MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE): MosaicSupplyRevocationTransactionV1,
-			(MultisigAccountModificationTransactionV1.TRANSACTION_TYPE): MultisigAccountModificationTransactionV1,
-			(AddressAliasTransactionV1.TRANSACTION_TYPE): AddressAliasTransactionV1,
-			(MosaicAliasTransactionV1.TRANSACTION_TYPE): MosaicAliasTransactionV1,
-			(NamespaceRegistrationTransactionV1.TRANSACTION_TYPE): NamespaceRegistrationTransactionV1,
-			(AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE): AccountAddressRestrictionTransactionV1,
-			(AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE): AccountMosaicRestrictionTransactionV1,
-			(AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE): AccountOperationRestrictionTransactionV1,
-			(MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE): MosaicAddressRestrictionTransactionV1,
-			(MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE): MosaicGlobalRestrictionTransactionV1,
-			(TransferTransactionV1.TRANSACTION_TYPE): TransferTransactionV1
+			(AccountKeyLinkTransactionV1.TRANSACTION_TYPE, AccountKeyLinkTransactionV1.TRANSACTION_VERSION): AccountKeyLinkTransactionV1,
+			(NodeKeyLinkTransactionV1.TRANSACTION_TYPE, NodeKeyLinkTransactionV1.TRANSACTION_VERSION): NodeKeyLinkTransactionV1,
+			(AggregateCompleteTransactionV1.TRANSACTION_TYPE, AggregateCompleteTransactionV1.TRANSACTION_VERSION): AggregateCompleteTransactionV1,
+			(AggregateCompleteTransactionV2.TRANSACTION_TYPE, AggregateCompleteTransactionV2.TRANSACTION_VERSION): AggregateCompleteTransactionV2,
+			(AggregateBondedTransactionV1.TRANSACTION_TYPE, AggregateBondedTransactionV1.TRANSACTION_VERSION): AggregateBondedTransactionV1,
+			(AggregateBondedTransactionV2.TRANSACTION_TYPE, AggregateBondedTransactionV2.TRANSACTION_VERSION): AggregateBondedTransactionV2,
+			(VotingKeyLinkTransactionV1.TRANSACTION_TYPE, VotingKeyLinkTransactionV1.TRANSACTION_VERSION): VotingKeyLinkTransactionV1,
+			(VrfKeyLinkTransactionV1.TRANSACTION_TYPE, VrfKeyLinkTransactionV1.TRANSACTION_VERSION): VrfKeyLinkTransactionV1,
+			(HashLockTransactionV1.TRANSACTION_TYPE, HashLockTransactionV1.TRANSACTION_VERSION): HashLockTransactionV1,
+			(SecretLockTransactionV1.TRANSACTION_TYPE, SecretLockTransactionV1.TRANSACTION_VERSION): SecretLockTransactionV1,
+			(SecretProofTransactionV1.TRANSACTION_TYPE, SecretProofTransactionV1.TRANSACTION_VERSION): SecretProofTransactionV1,
+			(AccountMetadataTransactionV1.TRANSACTION_TYPE, AccountMetadataTransactionV1.TRANSACTION_VERSION): AccountMetadataTransactionV1,
+			(MosaicMetadataTransactionV1.TRANSACTION_TYPE, MosaicMetadataTransactionV1.TRANSACTION_VERSION): MosaicMetadataTransactionV1,
+			(NamespaceMetadataTransactionV1.TRANSACTION_TYPE, NamespaceMetadataTransactionV1.TRANSACTION_VERSION): NamespaceMetadataTransactionV1,
+			(MosaicDefinitionTransactionV1.TRANSACTION_TYPE, MosaicDefinitionTransactionV1.TRANSACTION_VERSION): MosaicDefinitionTransactionV1,
+			(MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE, MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION): MosaicSupplyChangeTransactionV1,
+			(MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE, MosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION): MosaicSupplyRevocationTransactionV1,
+			(MultisigAccountModificationTransactionV1.TRANSACTION_TYPE, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION): MultisigAccountModificationTransactionV1,
+			(AddressAliasTransactionV1.TRANSACTION_TYPE, AddressAliasTransactionV1.TRANSACTION_VERSION): AddressAliasTransactionV1,
+			(MosaicAliasTransactionV1.TRANSACTION_TYPE, MosaicAliasTransactionV1.TRANSACTION_VERSION): MosaicAliasTransactionV1,
+			(NamespaceRegistrationTransactionV1.TRANSACTION_TYPE, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION): NamespaceRegistrationTransactionV1,
+			(AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE, AccountAddressRestrictionTransactionV1.TRANSACTION_VERSION): AccountAddressRestrictionTransactionV1,
+			(AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE, AccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION): AccountMosaicRestrictionTransactionV1,
+			(AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE, AccountOperationRestrictionTransactionV1.TRANSACTION_VERSION): AccountOperationRestrictionTransactionV1,
+			(MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE, MosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION): MosaicAddressRestrictionTransactionV1,
+			(MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE, MosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION): MosaicGlobalRestrictionTransactionV1,
+			(TransferTransactionV1.TRANSACTION_TYPE, TransferTransactionV1.TRANSACTION_VERSION): TransferTransactionV1
 		}
-		discriminator = (parent.type_)
+		discriminator = (parent.type_, parent.version)
 		factory_class = mapping[discriminator]
 		return factory_class.deserialize(buffer)
 
@@ -14904,31 +14904,31 @@ class EmbeddedTransactionFactory:
 		buffer = bytes(payload)
 		parent = EmbeddedTransaction.deserialize(buffer)
 		mapping = {
-			(EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE): EmbeddedAccountKeyLinkTransactionV1,
-			(EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE): EmbeddedNodeKeyLinkTransactionV1,
-			(EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE): EmbeddedVotingKeyLinkTransactionV1,
-			(EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE): EmbeddedVrfKeyLinkTransactionV1,
-			(EmbeddedHashLockTransactionV1.TRANSACTION_TYPE): EmbeddedHashLockTransactionV1,
-			(EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE): EmbeddedSecretLockTransactionV1,
-			(EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE): EmbeddedSecretProofTransactionV1,
-			(EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE): EmbeddedAccountMetadataTransactionV1,
-			(EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE): EmbeddedMosaicMetadataTransactionV1,
-			(EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE): EmbeddedNamespaceMetadataTransactionV1,
-			(EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE): EmbeddedMosaicDefinitionTransactionV1,
-			(EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE): EmbeddedMosaicSupplyChangeTransactionV1,
-			(EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE): EmbeddedMosaicSupplyRevocationTransactionV1,
-			(EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE): EmbeddedMultisigAccountModificationTransactionV1,
-			(EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE): EmbeddedAddressAliasTransactionV1,
-			(EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE): EmbeddedMosaicAliasTransactionV1,
-			(EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE): EmbeddedNamespaceRegistrationTransactionV1,
-			(EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE): EmbeddedAccountAddressRestrictionTransactionV1,
-			(EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE): EmbeddedAccountMosaicRestrictionTransactionV1,
-			(EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE): EmbeddedAccountOperationRestrictionTransactionV1,
-			(EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE): EmbeddedMosaicAddressRestrictionTransactionV1,
-			(EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE): EmbeddedMosaicGlobalRestrictionTransactionV1,
-			(EmbeddedTransferTransactionV1.TRANSACTION_TYPE): EmbeddedTransferTransactionV1
+			(EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE, EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_VERSION): EmbeddedAccountKeyLinkTransactionV1,
+			(EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE, EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_VERSION): EmbeddedNodeKeyLinkTransactionV1,
+			(EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE, EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_VERSION): EmbeddedVotingKeyLinkTransactionV1,
+			(EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE, EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_VERSION): EmbeddedVrfKeyLinkTransactionV1,
+			(EmbeddedHashLockTransactionV1.TRANSACTION_TYPE, EmbeddedHashLockTransactionV1.TRANSACTION_VERSION): EmbeddedHashLockTransactionV1,
+			(EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE, EmbeddedSecretLockTransactionV1.TRANSACTION_VERSION): EmbeddedSecretLockTransactionV1,
+			(EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE, EmbeddedSecretProofTransactionV1.TRANSACTION_VERSION): EmbeddedSecretProofTransactionV1,
+			(EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE, EmbeddedAccountMetadataTransactionV1.TRANSACTION_VERSION): EmbeddedAccountMetadataTransactionV1,
+			(EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE, EmbeddedMosaicMetadataTransactionV1.TRANSACTION_VERSION): EmbeddedMosaicMetadataTransactionV1,
+			(EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE, EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_VERSION): EmbeddedNamespaceMetadataTransactionV1,
+			(EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE, EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_VERSION): EmbeddedMosaicDefinitionTransactionV1,
+			(EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE, EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION): EmbeddedMosaicSupplyChangeTransactionV1,
+			(EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE, EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION): EmbeddedMosaicSupplyRevocationTransactionV1,
+			(EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE, EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_VERSION): EmbeddedMultisigAccountModificationTransactionV1,
+			(EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE, EmbeddedAddressAliasTransactionV1.TRANSACTION_VERSION): EmbeddedAddressAliasTransactionV1,
+			(EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE, EmbeddedMosaicAliasTransactionV1.TRANSACTION_VERSION): EmbeddedMosaicAliasTransactionV1,
+			(EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE, EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_VERSION): EmbeddedNamespaceRegistrationTransactionV1,
+			(EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE, EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_VERSION): EmbeddedAccountAddressRestrictionTransactionV1,
+			(EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE, EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION): EmbeddedAccountMosaicRestrictionTransactionV1,
+			(EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE, EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_VERSION): EmbeddedAccountOperationRestrictionTransactionV1,
+			(EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE, EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION): EmbeddedMosaicAddressRestrictionTransactionV1,
+			(EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE, EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION): EmbeddedMosaicGlobalRestrictionTransactionV1,
+			(EmbeddedTransferTransactionV1.TRANSACTION_TYPE, EmbeddedTransferTransactionV1.TRANSACTION_VERSION): EmbeddedTransferTransactionV1
 		}
-		discriminator = (parent.type_)
+		discriminator = (parent.type_, parent.version)
 		factory_class = mapping[discriminator]
 		return factory_class.deserialize(buffer)
 

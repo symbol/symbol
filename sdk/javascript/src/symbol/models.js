@@ -16166,35 +16166,35 @@ export class TransactionFactory {
 		const view = new BufferView(payload);
 		const parent = Transaction.deserialize(view.buffer);
 		const mapping = new Map([
-			[TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value]), AccountKeyLinkTransactionV1],
-			[TransactionFactory.toKey([NodeKeyLinkTransactionV1.TRANSACTION_TYPE.value]), NodeKeyLinkTransactionV1],
-			[TransactionFactory.toKey([AggregateCompleteTransactionV1.TRANSACTION_TYPE.value]), AggregateCompleteTransactionV1],
-			[TransactionFactory.toKey([AggregateCompleteTransactionV2.TRANSACTION_TYPE.value]), AggregateCompleteTransactionV2],
-			[TransactionFactory.toKey([AggregateBondedTransactionV1.TRANSACTION_TYPE.value]), AggregateBondedTransactionV1],
-			[TransactionFactory.toKey([AggregateBondedTransactionV2.TRANSACTION_TYPE.value]), AggregateBondedTransactionV2],
-			[TransactionFactory.toKey([VotingKeyLinkTransactionV1.TRANSACTION_TYPE.value]), VotingKeyLinkTransactionV1],
-			[TransactionFactory.toKey([VrfKeyLinkTransactionV1.TRANSACTION_TYPE.value]), VrfKeyLinkTransactionV1],
-			[TransactionFactory.toKey([HashLockTransactionV1.TRANSACTION_TYPE.value]), HashLockTransactionV1],
-			[TransactionFactory.toKey([SecretLockTransactionV1.TRANSACTION_TYPE.value]), SecretLockTransactionV1],
-			[TransactionFactory.toKey([SecretProofTransactionV1.TRANSACTION_TYPE.value]), SecretProofTransactionV1],
-			[TransactionFactory.toKey([AccountMetadataTransactionV1.TRANSACTION_TYPE.value]), AccountMetadataTransactionV1],
-			[TransactionFactory.toKey([MosaicMetadataTransactionV1.TRANSACTION_TYPE.value]), MosaicMetadataTransactionV1],
-			[TransactionFactory.toKey([NamespaceMetadataTransactionV1.TRANSACTION_TYPE.value]), NamespaceMetadataTransactionV1],
-			[TransactionFactory.toKey([MosaicDefinitionTransactionV1.TRANSACTION_TYPE.value]), MosaicDefinitionTransactionV1],
-			[TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value]), MosaicSupplyChangeTransactionV1],
-			[TransactionFactory.toKey([MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value]), MosaicSupplyRevocationTransactionV1],
-			[TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value]), MultisigAccountModificationTransactionV1],
-			[TransactionFactory.toKey([AddressAliasTransactionV1.TRANSACTION_TYPE.value]), AddressAliasTransactionV1],
-			[TransactionFactory.toKey([MosaicAliasTransactionV1.TRANSACTION_TYPE.value]), MosaicAliasTransactionV1],
-			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value]), NamespaceRegistrationTransactionV1],
-			[TransactionFactory.toKey([AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountAddressRestrictionTransactionV1],
-			[TransactionFactory.toKey([AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountMosaicRestrictionTransactionV1],
-			[TransactionFactory.toKey([AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountOperationRestrictionTransactionV1],
-			[TransactionFactory.toKey([MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), MosaicAddressRestrictionTransactionV1],
-			[TransactionFactory.toKey([MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value]), MosaicGlobalRestrictionTransactionV1],
-			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value]), TransferTransactionV1]
+			[TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, AccountKeyLinkTransactionV1.TRANSACTION_VERSION]), AccountKeyLinkTransactionV1],
+			[TransactionFactory.toKey([NodeKeyLinkTransactionV1.TRANSACTION_TYPE.value, NodeKeyLinkTransactionV1.TRANSACTION_VERSION]), NodeKeyLinkTransactionV1],
+			[TransactionFactory.toKey([AggregateCompleteTransactionV1.TRANSACTION_TYPE.value, AggregateCompleteTransactionV1.TRANSACTION_VERSION]), AggregateCompleteTransactionV1],
+			[TransactionFactory.toKey([AggregateCompleteTransactionV2.TRANSACTION_TYPE.value, AggregateCompleteTransactionV2.TRANSACTION_VERSION]), AggregateCompleteTransactionV2],
+			[TransactionFactory.toKey([AggregateBondedTransactionV1.TRANSACTION_TYPE.value, AggregateBondedTransactionV1.TRANSACTION_VERSION]), AggregateBondedTransactionV1],
+			[TransactionFactory.toKey([AggregateBondedTransactionV2.TRANSACTION_TYPE.value, AggregateBondedTransactionV2.TRANSACTION_VERSION]), AggregateBondedTransactionV2],
+			[TransactionFactory.toKey([VotingKeyLinkTransactionV1.TRANSACTION_TYPE.value, VotingKeyLinkTransactionV1.TRANSACTION_VERSION]), VotingKeyLinkTransactionV1],
+			[TransactionFactory.toKey([VrfKeyLinkTransactionV1.TRANSACTION_TYPE.value, VrfKeyLinkTransactionV1.TRANSACTION_VERSION]), VrfKeyLinkTransactionV1],
+			[TransactionFactory.toKey([HashLockTransactionV1.TRANSACTION_TYPE.value, HashLockTransactionV1.TRANSACTION_VERSION]), HashLockTransactionV1],
+			[TransactionFactory.toKey([SecretLockTransactionV1.TRANSACTION_TYPE.value, SecretLockTransactionV1.TRANSACTION_VERSION]), SecretLockTransactionV1],
+			[TransactionFactory.toKey([SecretProofTransactionV1.TRANSACTION_TYPE.value, SecretProofTransactionV1.TRANSACTION_VERSION]), SecretProofTransactionV1],
+			[TransactionFactory.toKey([AccountMetadataTransactionV1.TRANSACTION_TYPE.value, AccountMetadataTransactionV1.TRANSACTION_VERSION]), AccountMetadataTransactionV1],
+			[TransactionFactory.toKey([MosaicMetadataTransactionV1.TRANSACTION_TYPE.value, MosaicMetadataTransactionV1.TRANSACTION_VERSION]), MosaicMetadataTransactionV1],
+			[TransactionFactory.toKey([NamespaceMetadataTransactionV1.TRANSACTION_TYPE.value, NamespaceMetadataTransactionV1.TRANSACTION_VERSION]), NamespaceMetadataTransactionV1],
+			[TransactionFactory.toKey([MosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, MosaicDefinitionTransactionV1.TRANSACTION_VERSION]), MosaicDefinitionTransactionV1],
+			[TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), MosaicSupplyChangeTransactionV1],
+			[TransactionFactory.toKey([MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION]), MosaicSupplyRevocationTransactionV1],
+			[TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV1],
+			[TransactionFactory.toKey([AddressAliasTransactionV1.TRANSACTION_TYPE.value, AddressAliasTransactionV1.TRANSACTION_VERSION]), AddressAliasTransactionV1],
+			[TransactionFactory.toKey([MosaicAliasTransactionV1.TRANSACTION_TYPE.value, MosaicAliasTransactionV1.TRANSACTION_VERSION]), MosaicAliasTransactionV1],
+			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NamespaceRegistrationTransactionV1],
+			[TransactionFactory.toKey([AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountAddressRestrictionTransactionV1.TRANSACTION_VERSION]), AccountAddressRestrictionTransactionV1],
+			[TransactionFactory.toKey([AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION]), AccountMosaicRestrictionTransactionV1],
+			[TransactionFactory.toKey([AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountOperationRestrictionTransactionV1.TRANSACTION_VERSION]), AccountOperationRestrictionTransactionV1],
+			[TransactionFactory.toKey([MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, MosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION]), MosaicAddressRestrictionTransactionV1],
+			[TransactionFactory.toKey([MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value, MosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION]), MosaicGlobalRestrictionTransactionV1],
+			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value, TransferTransactionV1.TRANSACTION_VERSION]), TransferTransactionV1]
 		]);
-		const discriminator = TransactionFactory.toKey([parent.type.value]);
+		const discriminator = TransactionFactory.toKey([parent.type.value, parent.version]);
 		const factory_class = mapping.get(discriminator);
 		return factory_class.deserialize(view.buffer);
 	}
@@ -16250,31 +16250,31 @@ export class EmbeddedTransactionFactory {
 		const view = new BufferView(payload);
 		const parent = EmbeddedTransaction.deserialize(view.buffer);
 		const mapping = new Map([
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNodeKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedVotingKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedVrfKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedHashLockTransactionV1.TRANSACTION_TYPE.value]), EmbeddedHashLockTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE.value]), EmbeddedSecretLockTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE.value]), EmbeddedSecretProofTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNamespaceMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicDefinitionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicSupplyChangeTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicSupplyRevocationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMultisigAccountModificationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAddressAliasTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicAliasTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNamespaceRegistrationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountAddressRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountMosaicRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountOperationRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicAddressRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicGlobalRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedTransferTransactionV1.TRANSACTION_TYPE.value]), EmbeddedTransferTransactionV1]
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedNodeKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedVotingKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedVrfKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedHashLockTransactionV1.TRANSACTION_TYPE.value, EmbeddedHashLockTransactionV1.TRANSACTION_VERSION]), EmbeddedHashLockTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE.value, EmbeddedSecretLockTransactionV1.TRANSACTION_VERSION]), EmbeddedSecretLockTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE.value, EmbeddedSecretProofTransactionV1.TRANSACTION_VERSION]), EmbeddedSecretProofTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedNamespaceMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicDefinitionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicSupplyChangeTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicSupplyRevocationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), EmbeddedMultisigAccountModificationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE.value, EmbeddedAddressAliasTransactionV1.TRANSACTION_VERSION]), EmbeddedAddressAliasTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicAliasTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicAliasTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), EmbeddedNamespaceRegistrationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountAddressRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountMosaicRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountOperationRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicAddressRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicGlobalRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedTransferTransactionV1.TRANSACTION_TYPE.value, EmbeddedTransferTransactionV1.TRANSACTION_VERSION]), EmbeddedTransferTransactionV1]
 		]);
-		const discriminator = EmbeddedTransactionFactory.toKey([parent.type.value]);
+		const discriminator = EmbeddedTransactionFactory.toKey([parent.type.value, parent.version]);
 		const factory_class = mapping.get(discriminator);
 		return factory_class.deserialize(view.buffer);
 	}
