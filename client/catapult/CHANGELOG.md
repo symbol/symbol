@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3.5] - 09-Nov-2022
+
+### Changed
+- update to use openssl 3.0.7
+
 ## [1.0.3.4] - 21-Oct-2022
 
 ### Fixed
@@ -473,6 +478,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.3.5]: https://github.com/nemtech/catapult-server/compare/v1.0.3.4...v1.0.3.5
 [1.0.3.4]: https://github.com/nemtech/catapult-server/compare/v1.0.3.3...v1.0.3.4
 [1.0.3.3]: https://github.com/nemtech/catapult-server/compare/v1.0.3.1...v1.0.3.3
 [1.0.3.1]: https://github.com/nemtech/catapult-server/compare/v1.0.3.0...v1.0.3.1
