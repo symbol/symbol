@@ -12,13 +12,6 @@ void call(Closure body) {
 
 	pipeline {
 		parameters {
-			gitParameter branchFilter: 'origin/(.*)',
-				defaultValue: "${env.GIT_BRANCH}",
-				name: 'MANUAL_GIT_BRANCH',
-				type: 'PT_BRANCH',
-				selectedValue: 'TOP',
-				sortMode: 'ASCENDING',
-				useRepository: "${helper.resolveRepoName()}"
 			choice name: 'PLATFORM',
 				choices: params.platform ?: ['ubuntu'],
 				description: 'Run on specific platform'
@@ -93,12 +86,11 @@ void call(Closure body) {
 					}
 					stage('checkout') {
 						when {
-							expression { helper.isManualBuild(env.MANUAL_GIT_BRANCH) }
+							triggeredBy 'UserIdCause'
 						}
 						steps {
 							script {
-								sh "git checkout ${helper.resolveBranchName(env.MANUAL_GIT_BRANCH)}"
-								sh "git reset --hard origin/${helper.resolveBranchName(env.MANUAL_GIT_BRANCH)}"
+								sh "git reset --hard origin/${env.BRANCH_NAME}"
 								helper.runInitializeScriptIfPresent()
 							}
 						}
@@ -111,7 +103,9 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							verifyCommitMessage()
+							runStepRelativeToPackageRoot '.', {
+								verifyCommitMessage()
+							}
 						}
 					}
 					stage('setup lint') {
@@ -226,9 +220,7 @@ void call(Closure body) {
 					stage('publish RC') {
 						when {
 							allOf {
-								expression {
-									return helper.isManualBuild(env.MANUAL_GIT_BRANCH)
-								}
+								triggeredBy 'UserIdCause'
 								expression {
 									return shouldPublishImage(env.SHOULD_PUBLISH_IMAGE)
 								}
@@ -249,9 +241,7 @@ void call(Closure body) {
 						when {
 							allOf {
 								branch env.RELEASE_BRANCH
-								expression {
-									return helper.isManualBuild(env.MANUAL_GIT_BRANCH)
-								}
+								triggeredBy 'UserIdCause'
 								expression {
 									return shouldPublishImage(env.SHOULD_PUBLISH_IMAGE)
 								}
