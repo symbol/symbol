@@ -33,7 +33,7 @@ class EnvironmentManager:
 		self._print_command('get_env_var', [key])
 
 		if self.dry_run:
-			return
+			return f'env:{key}'
 
 		return os.environ[key]
 

@@ -132,6 +132,8 @@ def handle_core_file(process_manager, core_path, test_exe_filepath, base_output_
 
 
 def main():
+	# pylint: disable=too-many-locals
+
 	parser = argparse.ArgumentParser(description='catapult test runner')
 	parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
 	parser.add_argument('--exe-path', help='path to executables', required=True)
