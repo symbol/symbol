@@ -88,8 +88,8 @@ void triggerAllJobs(
 		String shouldPublishFailJobStatusName,
 		boolean shouldPublishFailJobStatusValue,
 		String manualGitBranchName) {
-	Map<String, String> siblingNameMap = siblingJobNames()
 	Map<String, String> displayNameJenkinsfileMap = jenkinsfileMap()
+	Map<String, String> siblingNameMap = siblingJobNames(displayNameJenkinsfileMap)
 	Map<String, Closure> buildJobs = [:]
 	final String platformName = 'PLATFORM'
 	String jobName = resolveJobName(siblingNameMap.keySet().toArray()[0], branchName)
@@ -118,13 +118,17 @@ void triggerAllJobs(
 	parallel buildJobs
 }
 
-Map<String, String> siblingJobNames() {
+Map<String, String> siblingJobNames(Map<String, String> displayNameJenkinsfileMap) {
 	Item project = Jenkins.get().getItemByFullName(currentBuild.fullProjectName)
 	List<Item> siblingItems = project.parent.items
 
 	Map<String, String> targets = [:]
 	for (Item item in siblingItems) {
-		if (org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject != item.getClass() || item.fullName == project.fullName) {
+		if (org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject != item.getClass()
+			|| item.fullName == project.fullName
+			// skip jobs that are not in the build configuration file for this branch
+			|| !displayNameJenkinsfileMap.containsKey(item.displayName)) {
+			echo "Skipping job - ${item.fullName}"
 			continue
 		}
 
