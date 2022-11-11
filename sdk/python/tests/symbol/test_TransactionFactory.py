@@ -219,9 +219,9 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, SymbolTransactionFacto
 
 			'MosaicFlags', 'AccountRestrictionFlags',
 
-			'AliasAction', 'LinkAction', 'LockHashAlgorithm',
+			'AliasAction', 'BlockType', 'LinkAction', 'LockHashAlgorithm',
 			'MosaicRestrictionType', 'MosaicSupplyChangeAction',
-			'NamespaceRegistrationType', 'NetworkType', 'TransactionType',
+			'NamespaceRegistrationType', 'NetworkType', 'ReceiptType', 'TransactionType',
 
 			'struct:UnresolvedMosaic',
 

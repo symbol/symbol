@@ -7,6 +7,10 @@ from pathlib import Path
 
 import pytest
 
+from symbolchain.facade.SymbolFacade import SymbolFacade
+from testvectors.BlockFactory import BlockFactory as SymbolBlockFactory
+from testvectors.ReceiptFactory import ReceiptFactory
+
 # region common test utils
 
 
@@ -91,15 +95,34 @@ def fixup_descriptor_symbol(descriptor, module, facade):
 	descriptor['signature'] = getattr(module, 'Signature')(descriptor['signature'])
 	fixup_descriptor_common(descriptor, module)
 
-	if 'transactions' in descriptor:
-		descriptor['transactions'] = [
-			facade.transaction_factory.create_embedded(child_descriptor) for child_descriptor in descriptor['transactions']
-		]
+	if 'transactions' not in descriptor:
+		return
 
-		if 'cosignatures' in descriptor:
-			descriptor['cosignatures'] = [
-				fixup_cosignature_symbol(cosignature_descriptor, module) for cosignature_descriptor in descriptor['cosignatures']
-			]
+	descriptor['transactions'] = [
+		facade.transaction_factory.create_embedded(child_descriptor) for child_descriptor in descriptor['transactions']
+	]
+
+	if 'cosignatures' not in descriptor:
+		return
+
+	descriptor['cosignatures'] = [
+		fixup_cosignature_symbol(cosignature_descriptor, module) for cosignature_descriptor in descriptor['cosignatures']
+	]
+
+
+def fixup_block_descriptor_symbol(descriptor, module, facade):
+	descriptor['signature'] = getattr(module, 'Signature')(descriptor['signature'])
+	fixup_descriptor_common(descriptor, module)
+
+	if 'transactions' not in descriptor:
+		return
+
+	block_transactions = []
+	for block_transaction_descriptor in descriptor['transactions']:
+		fixup_descriptor_symbol(block_transaction_descriptor, module, facade)
+		block_transactions.append(facade.transaction_factory.create(block_transaction_descriptor))
+
+	descriptor['transactions'] = block_transactions
 
 
 def is_key_in_formatted_string(transaction, key):
@@ -111,7 +134,6 @@ def is_key_in_formatted_string(transaction, key):
 
 def assert_create_from_descriptor(item, module, facade_name, fixup_descriptor):
 	# Arrange:
-	comment = item.get('comment', '')
 	payload_hex = item['payload']
 
 	facade_module = importlib.import_module(f'symbolchain.facade.{facade_name}')
@@ -126,8 +148,42 @@ def assert_create_from_descriptor(item, module, facade_name, fixup_descriptor):
 	transaction_buffer = transaction.serialize()
 
 	# Assert:
-	assert payload_hex == to_hex_string(transaction_buffer), comment
-	assert all(is_key_in_formatted_string(transaction, key) for key in descriptor.keys()), comment
+	assert payload_hex == to_hex_string(transaction_buffer)
+	assert all(is_key_in_formatted_string(transaction, key) for key in descriptor.keys())
+
+
+def create_symbol_descriptor(original_descriptor, fixup_descriptor):
+	facade = SymbolFacade('testnet')
+	descriptor = original_descriptor
+	fixup_descriptor(descriptor, importlib.import_module('symbolchain.sc'), facade)
+
+	return facade.network, descriptor
+
+
+def assert_create_symbol_block_from_descriptor(item, fixup_descriptor):  # pylint: disable=invalid-name
+	# Arrange:
+	network, descriptor = create_symbol_descriptor(item['descriptor'], fixup_descriptor)
+
+	# Act:
+	block = SymbolBlockFactory(network).create(descriptor)
+	block_buffer = block.serialize()
+
+	# Assert:
+	assert item['payload'] == to_hex_string(block_buffer)
+	assert all(is_key_in_formatted_string(block, key) for key in descriptor.keys())
+
+
+def assert_create_symbol_receipt_from_descriptor(item, fixup_descriptor):  # pylint: disable=invalid-name
+	# Arrange:
+	_, descriptor = create_symbol_descriptor(item['descriptor'], fixup_descriptor)
+
+	# Act:
+	receipt, descriptor = ReceiptFactory().create(descriptor)
+	receipt_buffer = receipt.serialize()
+
+	# Assert:
+	assert item['payload'] == to_hex_string(receipt_buffer)
+	assert all(is_key_in_formatted_string(receipt, key) for key in descriptor.keys())
 
 
 @pytest.mark.parametrize('item', prepare_test_cases('nem'), ids=generate_pretty_id)
@@ -135,9 +191,23 @@ def test_create_from_descriptor_nem(item):
 	assert_create_from_descriptor(item, importlib.import_module('symbolchain.nc'), 'NemFacade', fixup_descriptor_nem)
 
 
-@pytest.mark.parametrize('item', prepare_test_cases('symbol'), ids=generate_pretty_id)
+@pytest.mark.parametrize('item', prepare_test_cases('symbol', includes=['transactions']), ids=generate_pretty_id)
 def test_create_from_descriptor_symbol(item):  # pylint: disable=invalid-name
 	assert_create_from_descriptor(item, importlib.import_module('symbolchain.sc'), 'SymbolFacade', fixup_descriptor_symbol)
+
+
+@pytest.mark.parametrize('item', prepare_test_cases('symbol', includes=['blocks']), ids=generate_pretty_id)
+def test_create_blocks_from_descriptor_symbol(item):  # pylint: disable=invalid-name
+	assert_create_symbol_block_from_descriptor(item, fixup_block_descriptor_symbol)
+
+
+def no_fixup(_1, _2, _3):
+	pass
+
+
+@pytest.mark.parametrize('item', prepare_test_cases('symbol', includes=['receipts']), ids=generate_pretty_id)
+def test_create_receipts_from_descriptor_symbol(item):  # pylint: disable=invalid-name
+	assert_create_symbol_receipt_from_descriptor(item, no_fixup)
 
 # endregion
 
@@ -177,7 +247,6 @@ def test_create_from_constructor_symbol(item):  # pylint: disable=invalid-name
 def assert_roundtrip(item, module):
 	# Arrange:
 	schema_name = item['schema_name']
-	comment = item.get('comment', '')
 	payload_hex = item['payload']
 	payload = unhexlify(payload_hex)
 
@@ -188,11 +257,12 @@ def assert_roundtrip(item, module):
 	transaction_buffer = transaction.serialize()
 
 	# Assert:
-	assert payload_hex == to_hex_string(transaction_buffer), comment
-	assert len(transaction_buffer) == transaction.size, comment
+	assert payload_hex == to_hex_string(transaction_buffer)
+	assert len(transaction_buffer) == transaction.size
 
-	if schema_name.endswith('Transaction'):
-		assert_roundtrip({'schema_name': 'TransactionFactory', 'payload': payload_hex, 'comment': comment}, module)
+	# - additionally pass all transactions through TransactionFactory builder ([:-2] to ignore "v1", "v2" suffix)
+	if schema_name[:-2].endswith('Transaction'):
+		assert_roundtrip({'schema_name': 'TransactionFactory', 'payload': payload_hex}, module)
 
 
 @pytest.mark.parametrize('item', prepare_test_cases('nem'), ids=generate_pretty_id)

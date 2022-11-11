@@ -1,8 +1,10 @@
-aggregate_recipes = {
+SCHEMA_NAME = 'MultisigTransactionV1'
+
+transactions = [  # pylint: disable=duplicate-code
 	# comment: two transfers
-	'schema_name': 'MultisigTransactionV1',
-	'descriptors': [
-		{
+	{
+		'schema_name': SCHEMA_NAME,
+		'descriptor': {
 			'aggregate': {'type': 'multisig_transaction_v1'},
 			# comment: v2, encrypted, non-empty message, multiple mosaics
 			'embedded': {
@@ -30,5 +32,5 @@ aggregate_recipes = {
 			},
 			'num_cosignatures': 3
 		}
-	]
-}
+	}
+]

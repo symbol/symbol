@@ -143,13 +143,13 @@ class BuildFactoryMapTests(unittest.TestCase):
 
 # endregion
 
-# region extend_models
-
 class ExtendModelsTests(unittest.TestCase):
 	@staticmethod
 	def _printer_factory(type_model, name, is_pod):
 		pod_descriptor = 'pod' if is_pod else 'custom'
 		return f'{type_model.name} {name} ({pod_descriptor})'
+
+# region extend_models - field extensions
 
 	def _assert_field_extensions(self, field_extensions, name, printer_name, **kwargs):
 		self.assertEqual(name, field_extensions.type_model.name)
@@ -212,7 +212,11 @@ class ExtendModelsTests(unittest.TestCase):
 	def test_extends_array_type_field_with_bound_size(self):
 		# Arrange:
 		models = [
-			Alias(['Bar', FixedSizeInteger('uint16')]),
+			Struct([
+				None,
+				'Bar',
+				StructField('gamma', FixedSizeInteger('uint16'))
+			]),
 			Struct([
 				None,
 				'Foo',
@@ -247,5 +251,140 @@ class ExtendModelsTests(unittest.TestCase):
 		self._assert_field_extensions(models[1].fields[0].extensions, 'Bar', 'Bar beta (custom)', size_field_names=['beta_size'])
 		self._assert_field_extensions(models[1].fields[1].extensions, 'beta_size', 'beta_size beta_size (pod)', bound_field_name='beta')
 
+# endregion
+
+# region extend_models - requires unaligned
+
+	@staticmethod
+	def create_aligned_struct(name):
+		struct = Struct([None, name])
+		struct.attributes = [
+			Attribute(['is_aligned'])
+		]
+		return struct
+
+	@staticmethod
+	def create_struct_with_factory(name, factory_name, fields=None):
+		struct = Struct([None, name])
+		if fields:
+			struct.fields = fields
+		struct.factory_type = factory_name
+		return struct
+
+	def _assert_unaligned(self, models, models_unaligned):
+		for model in models:
+			self.assertEqual(model in models_unaligned, model.requires_unaligned)
+
+	def test_marks_struct_model_when_aligned_struct_used_in_non_aligned_struct(self):
+		# Arrange:
+		models = [
+			self.create_aligned_struct('Foo'),
+			Struct([None, 'Bar']),
+			Struct([
+				None,
+				'FooContainer',
+				StructField(['foo', Array(['Foo', 5])]),
+				StructField(['bar', Array(['Bar', 5])]),
+			])
+		]
+
+		# Act:
+		extend_models(models, self._printer_factory)
+
+		# Assert:
+		self._assert_unaligned(models, [models[0]])
+
+	def test_marks_derived_struct_models_when_aligned_struct_is_a_factory(self):
+		# Arrange:
+		models = [
+			self.create_struct_with_factory('Foox', 'FooBase'),
+			self.create_struct_with_factory('Fooy', 'FooBase'),
+			self.create_aligned_struct('FooBase'),
+			Struct([
+				None,
+				'FooContainer',
+				StructField(['foos', Array(['FooBase', 5])]),
+			])
+		]
+
+		# Act:
+		extend_models(models, self._printer_factory)
+
+		# Assert:
+		self._assert_unaligned(models, models[0:3])
+
+	def test_marks_struct_models_used_as_fields_in_derived_struct_models(self):
+		# Arrange:
+		models = [
+			self.create_aligned_struct('Alpha'),
+			self.create_aligned_struct('Beta'),
+			self.create_aligned_struct('Gamma'),
+			self.create_struct_with_factory('Foo', 'FooBase', [
+				StructField(['alpha', 'Alpha']),
+			]),
+			self.create_struct_with_factory('Bar', None, [
+				StructField(['gamma', 'Gamma']),
+			]),
+			self.create_aligned_struct('FooBase'),
+			Struct([
+				None,
+				'FooContainer',
+				StructField(['foos', Array(['FooBase', 5])]),
+			])
+		]
+
+		# Act:
+		extend_models(models, self._printer_factory)
+
+		# Assert: following structs are supposed to have unaligned attribute
+		#  - FooBase
+		#  - Foo - cause derived from FooBase and FooBase used inside array
+		#  - Alpha - cause used inside Foo
+		self._assert_unaligned(models, [models[0], models[3], models[5]])
+
+	def test_fails_when_field_in_derived_struct_model_is_array(self):
+		# Arrange:
+		models = [
+			self.create_aligned_struct('Gamma'),
+			self.create_struct_with_factory('Foo', 'FooBase', [
+				StructField(['gammas', Array(['Gamma', 5])]),
+			]),
+			self.create_aligned_struct('FooBase'),
+			Struct([
+				None,
+				'FooContainer',
+				StructField(['foos', Array(['FooBase', 5])]),
+			])
+		]
+
+		# Act:
+		with self.assertRaisesRegex(RuntimeError, r'^array field not handled in Foo.gammas$'):
+			extend_models(models, self._printer_factory)
+
+	def test_marking_is_recursive(self):
+		# Arrange:
+		models = [
+			self.create_aligned_struct('Alpha'),
+			self.create_struct_with_factory('Bar', 'BarBase', [
+				StructField(['alpha', 'Alpha']),
+			]),
+			self.create_aligned_struct('BarBase'),
+
+			self.create_struct_with_factory('Foo', 'FooBase', [
+				StructField(['bar', 'BarBase']),
+			]),
+			self.create_aligned_struct('FooBase'),
+			Struct([
+				None,
+				'FooContainer',
+				StructField(['foos', Array(['FooBase', 5])])
+			])
+		]
+
+		# Act:
+		extend_models(models, self._printer_factory)
+
+		# Assert: all models ex last should have marker
+		self._assert_unaligned(models, models[0:5])
 
 # endregion

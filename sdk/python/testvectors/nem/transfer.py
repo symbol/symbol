@@ -1,10 +1,61 @@
 from binascii import unhexlify
 
-recipes = {
-	'schema_name': 'TransferTransactionV2',
-	'descriptors': [
-		# comment: v2, plain, non-empty message, single mosaic
-		{
+transactions = [  # pylint: disable=duplicate-code
+	# comment: v1, no-message
+	{
+		'schema_name': 'TransferTransactionV1',
+		'descriptor': {
+			'type': 'transfer_transaction_v1',
+			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
+			'amount': 0x0000009858921E40,
+		}
+	},
+	# comment: v1, plain empty message
+	{
+		'schema_name': 'TransferTransactionV1',
+		'descriptor': {
+			'type': 'transfer_transaction_v1',
+			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
+			'amount': 0x0000009858921E40,
+			'message': {
+				'message_type': 'plain',
+				'message': '',
+			}
+		}
+	},
+	# comment: v1, plain non-empty message
+	{
+		'schema_name': 'TransferTransactionV1',
+		'descriptor': {
+			'type': 'transfer_transaction_v1',
+			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
+			'amount': 0x0000009858921E40,
+			'message': {
+				'message_type': 'plain',
+				'message': b'hi!'
+			}
+		}
+	},
+	# comment: v1, encrypted, non-empty message
+	{
+		'schema_name': 'TransferTransactionV1',
+		'descriptor': {
+			'type': 'transfer_transaction_v1',
+			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
+			'amount': 0x0000009858921E40,
+			'message': {
+				'message_type': 'encrypted',
+				'message': unhexlify(
+					'642E756F0DBF4BE90EFCAB7AB42F297ED64EDC83E05062F8E49F6CAC61FBBA9F'
+					'8D198B4B79A33096C58977C9134FAEE74307A6E55156BF6C2718E2B0D44BE050'),
+			}
+		}
+	},
+
+	# comment: v2, plain, non-empty message, single mosaic
+	{
+		'schema_name': 'TransferTransactionV2',
+		'descriptor': {
 			'type': 'transfer_transaction_v2',
 			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 			'amount': 0x00000000004C4B40,
@@ -20,9 +71,12 @@ recipes = {
 					}
 				}
 			]
-		},
-		# comment: v2, encrypted, non-empty message, single mosaic
-		{
+		}
+	},
+	# comment: v2, encrypted, non-empty message, single mosaic
+	{
+		'schema_name': 'TransferTransactionV2',
+		'descriptor': {
 			'type': 'transfer_transaction_v2',
 			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 			'amount': 0x00000000004C4B40,
@@ -40,9 +94,12 @@ recipes = {
 					}
 				}
 			]
-		},
-		# comment: v2, plain, non-empty message, multiple mosaics
-		{
+		}
+	},
+	# comment: v2, plain, non-empty message, multiple mosaics
+	{
+		'schema_name': 'TransferTransactionV2',
+		'descriptor': {
 			'type': 'transfer_transaction_v2',
 			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 			'amount': 0x00000000004C4B40,
@@ -70,9 +127,12 @@ recipes = {
 					}
 				}
 			]
-		},
-		# comment: v2, encrypted, non-empty message, multiple mosaics
-		{
+		}
+	},
+	# comment: v2, encrypted, non-empty message, multiple mosaics
+	{
+		'schema_name': 'TransferTransactionV2',
+		'descriptor': {
 			'type': 'transfer_transaction_v2',
 			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 			'amount': 0x00000000004C4B40,
@@ -103,5 +163,5 @@ recipes = {
 				}
 			]
 		}
-	]
-}
+	}
+]

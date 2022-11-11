@@ -468,6 +468,19 @@ export class Mosaic {
 		return instance;
 	}
 
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const mosaicId = MosaicId.deserializeAligned(view.buffer);
+		view.shiftRight(mosaicId.size);
+		const amount = Amount.deserializeAligned(view.buffer);
+		view.shiftRight(amount.size);
+
+		const instance = new Mosaic();
+		instance._mosaicId = mosaicId;
+		instance._amount = amount;
+		return instance;
+	}
+
 	serialize() {
 		const buffer = new Writer(this.size);
 		buffer.write(this._mosaicId.serialize());
@@ -1029,6 +1042,4133 @@ export class EmbeddedTransaction {
 		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
 		result += `network: ${this._network.toString()}, `;
 		result += `type: ${this._type.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class ProofGamma extends ByteArray {
+	static SIZE = 32;
+
+	constructor(proofGamma = new Uint8Array(32)) {
+		super(ProofGamma.SIZE, proofGamma);
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		return 32;
+	}
+
+	static deserialize(payload) {
+		const byteArray = payload;
+		return new ProofGamma(new Uint8Array(byteArray.buffer, byteArray.byteOffset, 32));
+	}
+
+	serialize() {
+		return this.bytes;
+	}
+}
+
+export class ProofVerificationHash extends ByteArray {
+	static SIZE = 16;
+
+	constructor(proofVerificationHash = new Uint8Array(16)) {
+		super(ProofVerificationHash.SIZE, proofVerificationHash);
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		return 16;
+	}
+
+	static deserialize(payload) {
+		const byteArray = payload;
+		return new ProofVerificationHash(new Uint8Array(byteArray.buffer, byteArray.byteOffset, 16));
+	}
+
+	serialize() {
+		return this.bytes;
+	}
+}
+
+export class ProofScalar extends ByteArray {
+	static SIZE = 32;
+
+	constructor(proofScalar = new Uint8Array(32)) {
+		super(ProofScalar.SIZE, proofScalar);
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		return 32;
+	}
+
+	static deserialize(payload) {
+		const byteArray = payload;
+		return new ProofScalar(new Uint8Array(byteArray.buffer, byteArray.byteOffset, 32));
+	}
+
+	serialize() {
+		return this.bytes;
+	}
+}
+
+export class BlockType {
+	static NEMESIS = new BlockType(32835);
+
+	static NORMAL = new BlockType(33091);
+
+	static IMPORTANCE = new BlockType(33347);
+
+	constructor(value) {
+		this.value = value;
+	}
+
+	static valueToKey(value) {
+		const values = [
+			32835, 33091, 33347
+		];
+		const keys = [
+			'NEMESIS', 'NORMAL', 'IMPORTANCE'
+		];
+
+		const index = values.indexOf(value);
+		if (-1 === index)
+			throw RangeError(`invalid enum value ${value}`);
+
+		return keys[index];
+	}
+
+	static fromValue(value) {
+		return BlockType[this.valueToKey(value)];
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		return 2;
+	}
+
+	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 2, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToInt(byteArray, 2, false));
+	}
+
+	serialize() {
+		return converter.intToBytes(this.value, 2, false);
+	}
+
+	toString() {
+		return `BlockType.${BlockType.valueToKey(this.value)}`;
+	}
+}
+
+export class VrfProof {
+	static TYPE_HINTS = {
+		gamma: 'pod:ProofGamma',
+		verificationHash: 'pod:ProofVerificationHash',
+		scalar: 'pod:ProofScalar'
+	};
+
+	constructor() {
+		this._gamma = new ProofGamma();
+		this._verificationHash = new ProofVerificationHash();
+		this._scalar = new ProofScalar();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get gamma() {
+		return this._gamma;
+	}
+
+	set gamma(value) {
+		this._gamma = value;
+	}
+
+	get verificationHash() {
+		return this._verificationHash;
+	}
+
+	set verificationHash(value) {
+		this._verificationHash = value;
+	}
+
+	get scalar() {
+		return this._scalar;
+	}
+
+	set scalar(value) {
+		this._scalar = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.gamma.size;
+		size += this.verificationHash.size;
+		size += this.scalar.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const gamma = ProofGamma.deserialize(view.buffer);
+		view.shiftRight(gamma.size);
+		const verificationHash = ProofVerificationHash.deserialize(view.buffer);
+		view.shiftRight(verificationHash.size);
+		const scalar = ProofScalar.deserialize(view.buffer);
+		view.shiftRight(scalar.size);
+
+		const instance = new VrfProof();
+		instance._gamma = gamma;
+		instance._verificationHash = verificationHash;
+		instance._scalar = scalar;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._gamma.serialize());
+		buffer.write(this._verificationHash.serialize());
+		buffer.write(this._scalar.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `gamma: ${this._gamma.toString()}, `;
+		result += `verificationHash: ${this._verificationHash.toString()}, `;
+		result += `scalar: ${this._scalar.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class Block {
+	static TYPE_HINTS = {
+		signature: 'pod:Signature',
+		signerPublicKey: 'pod:PublicKey',
+		network: 'enum:NetworkType',
+		type: 'enum:BlockType',
+		height: 'pod:Height',
+		timestamp: 'pod:Timestamp',
+		difficulty: 'pod:Difficulty',
+		generationHashProof: 'struct:VrfProof',
+		previousBlockHash: 'pod:Hash256',
+		transactionsHash: 'pod:Hash256',
+		receiptsHash: 'pod:Hash256',
+		stateHash: 'pod:Hash256',
+		beneficiaryAddress: 'pod:Address',
+		feeMultiplier: 'pod:BlockFeeMultiplier'
+	};
+
+	constructor() {
+		this._signature = new Signature();
+		this._signerPublicKey = new PublicKey();
+		this._version = 0;
+		this._network = NetworkType.MAINNET;
+		this._type = BlockType.NEMESIS;
+		this._height = new Height();
+		this._timestamp = new Timestamp();
+		this._difficulty = new Difficulty();
+		this._generationHashProof = new VrfProof();
+		this._previousBlockHash = new Hash256();
+		this._transactionsHash = new Hash256();
+		this._receiptsHash = new Hash256();
+		this._stateHash = new Hash256();
+		this._beneficiaryAddress = new Address();
+		this._feeMultiplier = new BlockFeeMultiplier();
+		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
+		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._generationHashProof.sort();
+	}
+
+	get signature() {
+		return this._signature;
+	}
+
+	set signature(value) {
+		this._signature = value;
+	}
+
+	get signerPublicKey() {
+		return this._signerPublicKey;
+	}
+
+	set signerPublicKey(value) {
+		this._signerPublicKey = value;
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get network() {
+		return this._network;
+	}
+
+	set network(value) {
+		this._network = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get height() {
+		return this._height;
+	}
+
+	set height(value) {
+		this._height = value;
+	}
+
+	get timestamp() {
+		return this._timestamp;
+	}
+
+	set timestamp(value) {
+		this._timestamp = value;
+	}
+
+	get difficulty() {
+		return this._difficulty;
+	}
+
+	set difficulty(value) {
+		this._difficulty = value;
+	}
+
+	get generationHashProof() {
+		return this._generationHashProof;
+	}
+
+	set generationHashProof(value) {
+		this._generationHashProof = value;
+	}
+
+	get previousBlockHash() {
+		return this._previousBlockHash;
+	}
+
+	set previousBlockHash(value) {
+		this._previousBlockHash = value;
+	}
+
+	get transactionsHash() {
+		return this._transactionsHash;
+	}
+
+	set transactionsHash(value) {
+		this._transactionsHash = value;
+	}
+
+	get receiptsHash() {
+		return this._receiptsHash;
+	}
+
+	set receiptsHash(value) {
+		this._receiptsHash = value;
+	}
+
+	get stateHash() {
+		return this._stateHash;
+	}
+
+	set stateHash(value) {
+		this._stateHash = value;
+	}
+
+	get beneficiaryAddress() {
+		return this._beneficiaryAddress;
+	}
+
+	set beneficiaryAddress(value) {
+		this._beneficiaryAddress = value;
+	}
+
+	get feeMultiplier() {
+		return this._feeMultiplier;
+	}
+
+	set feeMultiplier(value) {
+		this._feeMultiplier = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		size += this.signature.size;
+		size += this.signerPublicKey.size;
+		size += 4;
+		size += 1;
+		size += this.network.size;
+		size += this.type.size;
+		size += this.height.size;
+		size += this.timestamp.size;
+		size += this.difficulty.size;
+		size += this.generationHashProof.size;
+		size += this.previousBlockHash.size;
+		size += this.transactionsHash.size;
+		size += this.receiptsHash.size;
+		size += this.stateHash.size;
+		size += this.beneficiaryAddress.size;
+		size += this.feeMultiplier.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const verifiableEntityHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== verifiableEntityHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${verifiableEntityHeaderReserved_1})`);
+		const signature = Signature.deserialize(view.buffer);
+		view.shiftRight(signature.size);
+		const signerPublicKey = PublicKey.deserialize(view.buffer);
+		view.shiftRight(signerPublicKey.size);
+		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== entityBodyReserved_1)
+			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
+		const version = converter.bytesToInt(view.buffer, 1, false);
+		view.shiftRight(1);
+		const network = NetworkType.deserializeAligned(view.buffer);
+		view.shiftRight(network.size);
+		const type = BlockType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const height = Height.deserializeAligned(view.buffer);
+		view.shiftRight(height.size);
+		const timestamp = Timestamp.deserializeAligned(view.buffer);
+		view.shiftRight(timestamp.size);
+		const difficulty = Difficulty.deserializeAligned(view.buffer);
+		view.shiftRight(difficulty.size);
+		const generationHashProof = VrfProof.deserialize(view.buffer);
+		view.shiftRight(generationHashProof.size);
+		const previousBlockHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(previousBlockHash.size);
+		const transactionsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(transactionsHash.size);
+		const receiptsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(receiptsHash.size);
+		const stateHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(stateHash.size);
+		const beneficiaryAddress = Address.deserialize(view.buffer);
+		view.shiftRight(beneficiaryAddress.size);
+		const feeMultiplier = BlockFeeMultiplier.deserializeAligned(view.buffer);
+		view.shiftRight(feeMultiplier.size);
+
+		const instance = new Block();
+		instance._signature = signature;
+		instance._signerPublicKey = signerPublicKey;
+		instance._version = version;
+		instance._network = network;
+		instance._type = type;
+		instance._height = height;
+		instance._timestamp = timestamp;
+		instance._difficulty = difficulty;
+		instance._generationHashProof = generationHashProof;
+		instance._previousBlockHash = previousBlockHash;
+		instance._transactionsHash = transactionsHash;
+		instance._receiptsHash = receiptsHash;
+		instance._stateHash = stateHash;
+		instance._beneficiaryAddress = beneficiaryAddress;
+		instance._feeMultiplier = feeMultiplier;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._verifiableEntityHeaderReserved_1, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 4, false));
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._type.serialize());
+		buffer.write(this._height.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(this._difficulty.serialize());
+		buffer.write(this._generationHashProof.serialize());
+		buffer.write(this._previousBlockHash.serialize());
+		buffer.write(this._transactionsHash.serialize());
+		buffer.write(this._receiptsHash.serialize());
+		buffer.write(this._stateHash.serialize());
+		buffer.write(this._beneficiaryAddress.serialize());
+		buffer.write(this._feeMultiplier.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `signature: ${this._signature.toString()}, `;
+		result += `signerPublicKey: ${this._signerPublicKey.toString()}, `;
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `network: ${this._network.toString()}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `height: ${this._height.toString()}, `;
+		result += `timestamp: ${this._timestamp.toString()}, `;
+		result += `difficulty: ${this._difficulty.toString()}, `;
+		result += `generationHashProof: ${this._generationHashProof.toString()}, `;
+		result += `previousBlockHash: ${this._previousBlockHash.toString()}, `;
+		result += `transactionsHash: ${this._transactionsHash.toString()}, `;
+		result += `receiptsHash: ${this._receiptsHash.toString()}, `;
+		result += `stateHash: ${this._stateHash.toString()}, `;
+		result += `beneficiaryAddress: ${this._beneficiaryAddress.toString()}, `;
+		result += `feeMultiplier: ${this._feeMultiplier.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class NemesisBlockV1 {
+	static BLOCK_VERSION = 1;
+
+	static BLOCK_TYPE = BlockType.NEMESIS;
+
+	static TYPE_HINTS = {
+		signature: 'pod:Signature',
+		signerPublicKey: 'pod:PublicKey',
+		network: 'enum:NetworkType',
+		type: 'enum:BlockType',
+		height: 'pod:Height',
+		timestamp: 'pod:Timestamp',
+		difficulty: 'pod:Difficulty',
+		generationHashProof: 'struct:VrfProof',
+		previousBlockHash: 'pod:Hash256',
+		transactionsHash: 'pod:Hash256',
+		receiptsHash: 'pod:Hash256',
+		stateHash: 'pod:Hash256',
+		beneficiaryAddress: 'pod:Address',
+		feeMultiplier: 'pod:BlockFeeMultiplier',
+		totalVotingBalance: 'pod:Amount',
+		previousImportanceBlockHash: 'pod:Hash256',
+		transactions: 'array[Transaction]'
+	};
+
+	constructor() {
+		this._signature = new Signature();
+		this._signerPublicKey = new PublicKey();
+		this._version = NemesisBlockV1.BLOCK_VERSION;
+		this._network = NetworkType.MAINNET;
+		this._type = NemesisBlockV1.BLOCK_TYPE;
+		this._height = new Height();
+		this._timestamp = new Timestamp();
+		this._difficulty = new Difficulty();
+		this._generationHashProof = new VrfProof();
+		this._previousBlockHash = new Hash256();
+		this._transactionsHash = new Hash256();
+		this._receiptsHash = new Hash256();
+		this._stateHash = new Hash256();
+		this._beneficiaryAddress = new Address();
+		this._feeMultiplier = new BlockFeeMultiplier();
+		this._votingEligibleAccountsCount = 0;
+		this._harvestingEligibleAccountsCount = 0n;
+		this._totalVotingBalance = new Amount();
+		this._previousImportanceBlockHash = new Hash256();
+		this._transactions = [];
+		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
+		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._generationHashProof.sort();
+	}
+
+	get signature() {
+		return this._signature;
+	}
+
+	set signature(value) {
+		this._signature = value;
+	}
+
+	get signerPublicKey() {
+		return this._signerPublicKey;
+	}
+
+	set signerPublicKey(value) {
+		this._signerPublicKey = value;
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get network() {
+		return this._network;
+	}
+
+	set network(value) {
+		this._network = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get height() {
+		return this._height;
+	}
+
+	set height(value) {
+		this._height = value;
+	}
+
+	get timestamp() {
+		return this._timestamp;
+	}
+
+	set timestamp(value) {
+		this._timestamp = value;
+	}
+
+	get difficulty() {
+		return this._difficulty;
+	}
+
+	set difficulty(value) {
+		this._difficulty = value;
+	}
+
+	get generationHashProof() {
+		return this._generationHashProof;
+	}
+
+	set generationHashProof(value) {
+		this._generationHashProof = value;
+	}
+
+	get previousBlockHash() {
+		return this._previousBlockHash;
+	}
+
+	set previousBlockHash(value) {
+		this._previousBlockHash = value;
+	}
+
+	get transactionsHash() {
+		return this._transactionsHash;
+	}
+
+	set transactionsHash(value) {
+		this._transactionsHash = value;
+	}
+
+	get receiptsHash() {
+		return this._receiptsHash;
+	}
+
+	set receiptsHash(value) {
+		this._receiptsHash = value;
+	}
+
+	get stateHash() {
+		return this._stateHash;
+	}
+
+	set stateHash(value) {
+		this._stateHash = value;
+	}
+
+	get beneficiaryAddress() {
+		return this._beneficiaryAddress;
+	}
+
+	set beneficiaryAddress(value) {
+		this._beneficiaryAddress = value;
+	}
+
+	get feeMultiplier() {
+		return this._feeMultiplier;
+	}
+
+	set feeMultiplier(value) {
+		this._feeMultiplier = value;
+	}
+
+	get votingEligibleAccountsCount() {
+		return this._votingEligibleAccountsCount;
+	}
+
+	set votingEligibleAccountsCount(value) {
+		this._votingEligibleAccountsCount = value;
+	}
+
+	get harvestingEligibleAccountsCount() {
+		return this._harvestingEligibleAccountsCount;
+	}
+
+	set harvestingEligibleAccountsCount(value) {
+		this._harvestingEligibleAccountsCount = value;
+	}
+
+	get totalVotingBalance() {
+		return this._totalVotingBalance;
+	}
+
+	set totalVotingBalance(value) {
+		this._totalVotingBalance = value;
+	}
+
+	get previousImportanceBlockHash() {
+		return this._previousImportanceBlockHash;
+	}
+
+	set previousImportanceBlockHash(value) {
+		this._previousImportanceBlockHash = value;
+	}
+
+	get transactions() {
+		return this._transactions;
+	}
+
+	set transactions(value) {
+		this._transactions = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		size += this.signature.size;
+		size += this.signerPublicKey.size;
+		size += 4;
+		size += 1;
+		size += this.network.size;
+		size += this.type.size;
+		size += this.height.size;
+		size += this.timestamp.size;
+		size += this.difficulty.size;
+		size += this.generationHashProof.size;
+		size += this.previousBlockHash.size;
+		size += this.transactionsHash.size;
+		size += this.receiptsHash.size;
+		size += this.stateHash.size;
+		size += this.beneficiaryAddress.size;
+		size += this.feeMultiplier.size;
+		size += 4;
+		size += 8;
+		size += this.totalVotingBalance.size;
+		size += this.previousImportanceBlockHash.size;
+		size += arrayHelpers.size(this.transactions, 8, true);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const verifiableEntityHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== verifiableEntityHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${verifiableEntityHeaderReserved_1})`);
+		const signature = Signature.deserialize(view.buffer);
+		view.shiftRight(signature.size);
+		const signerPublicKey = PublicKey.deserialize(view.buffer);
+		view.shiftRight(signerPublicKey.size);
+		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== entityBodyReserved_1)
+			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
+		const version = converter.bytesToInt(view.buffer, 1, false);
+		view.shiftRight(1);
+		const network = NetworkType.deserializeAligned(view.buffer);
+		view.shiftRight(network.size);
+		const type = BlockType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const height = Height.deserializeAligned(view.buffer);
+		view.shiftRight(height.size);
+		const timestamp = Timestamp.deserializeAligned(view.buffer);
+		view.shiftRight(timestamp.size);
+		const difficulty = Difficulty.deserializeAligned(view.buffer);
+		view.shiftRight(difficulty.size);
+		const generationHashProof = VrfProof.deserialize(view.buffer);
+		view.shiftRight(generationHashProof.size);
+		const previousBlockHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(previousBlockHash.size);
+		const transactionsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(transactionsHash.size);
+		const receiptsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(receiptsHash.size);
+		const stateHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(stateHash.size);
+		const beneficiaryAddress = Address.deserialize(view.buffer);
+		view.shiftRight(beneficiaryAddress.size);
+		const feeMultiplier = BlockFeeMultiplier.deserializeAligned(view.buffer);
+		view.shiftRight(feeMultiplier.size);
+		const votingEligibleAccountsCount = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		const harvestingEligibleAccountsCount = converter.bytesToInt(view.buffer, 8, false);
+		view.shiftRight(8);
+		const totalVotingBalance = Amount.deserializeAligned(view.buffer);
+		view.shiftRight(totalVotingBalance.size);
+		const previousImportanceBlockHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(previousImportanceBlockHash.size);
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
+		view.shiftRight(arrayHelpers.size(transactions, 8, true));
+
+		const instance = new NemesisBlockV1();
+		instance._signature = signature;
+		instance._signerPublicKey = signerPublicKey;
+		instance._version = version;
+		instance._network = network;
+		instance._type = type;
+		instance._height = height;
+		instance._timestamp = timestamp;
+		instance._difficulty = difficulty;
+		instance._generationHashProof = generationHashProof;
+		instance._previousBlockHash = previousBlockHash;
+		instance._transactionsHash = transactionsHash;
+		instance._receiptsHash = receiptsHash;
+		instance._stateHash = stateHash;
+		instance._beneficiaryAddress = beneficiaryAddress;
+		instance._feeMultiplier = feeMultiplier;
+		instance._votingEligibleAccountsCount = votingEligibleAccountsCount;
+		instance._harvestingEligibleAccountsCount = harvestingEligibleAccountsCount;
+		instance._totalVotingBalance = totalVotingBalance;
+		instance._previousImportanceBlockHash = previousImportanceBlockHash;
+		instance._transactions = transactions;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._verifiableEntityHeaderReserved_1, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 4, false));
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._type.serialize());
+		buffer.write(this._height.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(this._difficulty.serialize());
+		buffer.write(this._generationHashProof.serialize());
+		buffer.write(this._previousBlockHash.serialize());
+		buffer.write(this._transactionsHash.serialize());
+		buffer.write(this._receiptsHash.serialize());
+		buffer.write(this._stateHash.serialize());
+		buffer.write(this._beneficiaryAddress.serialize());
+		buffer.write(this._feeMultiplier.serialize());
+		buffer.write(converter.intToBytes(this._votingEligibleAccountsCount, 4, false));
+		buffer.write(converter.intToBytes(this._harvestingEligibleAccountsCount, 8, false));
+		buffer.write(this._totalVotingBalance.serialize());
+		buffer.write(this._previousImportanceBlockHash.serialize());
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `signature: ${this._signature.toString()}, `;
+		result += `signerPublicKey: ${this._signerPublicKey.toString()}, `;
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `network: ${this._network.toString()}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `height: ${this._height.toString()}, `;
+		result += `timestamp: ${this._timestamp.toString()}, `;
+		result += `difficulty: ${this._difficulty.toString()}, `;
+		result += `generationHashProof: ${this._generationHashProof.toString()}, `;
+		result += `previousBlockHash: ${this._previousBlockHash.toString()}, `;
+		result += `transactionsHash: ${this._transactionsHash.toString()}, `;
+		result += `receiptsHash: ${this._receiptsHash.toString()}, `;
+		result += `stateHash: ${this._stateHash.toString()}, `;
+		result += `beneficiaryAddress: ${this._beneficiaryAddress.toString()}, `;
+		result += `feeMultiplier: ${this._feeMultiplier.toString()}, `;
+		result += `votingEligibleAccountsCount: ${'0x'.concat(this._votingEligibleAccountsCount.toString(16))}, `;
+		result += `harvestingEligibleAccountsCount: ${'0x'.concat(this._harvestingEligibleAccountsCount.toString(16))}, `;
+		result += `totalVotingBalance: ${this._totalVotingBalance.toString()}, `;
+		result += `previousImportanceBlockHash: ${this._previousImportanceBlockHash.toString()}, `;
+		result += `transactions: [${this._transactions.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
+export class NormalBlockV1 {
+	static BLOCK_VERSION = 1;
+
+	static BLOCK_TYPE = BlockType.NORMAL;
+
+	static TYPE_HINTS = {
+		signature: 'pod:Signature',
+		signerPublicKey: 'pod:PublicKey',
+		network: 'enum:NetworkType',
+		type: 'enum:BlockType',
+		height: 'pod:Height',
+		timestamp: 'pod:Timestamp',
+		difficulty: 'pod:Difficulty',
+		generationHashProof: 'struct:VrfProof',
+		previousBlockHash: 'pod:Hash256',
+		transactionsHash: 'pod:Hash256',
+		receiptsHash: 'pod:Hash256',
+		stateHash: 'pod:Hash256',
+		beneficiaryAddress: 'pod:Address',
+		feeMultiplier: 'pod:BlockFeeMultiplier',
+		transactions: 'array[Transaction]'
+	};
+
+	constructor() {
+		this._signature = new Signature();
+		this._signerPublicKey = new PublicKey();
+		this._version = NormalBlockV1.BLOCK_VERSION;
+		this._network = NetworkType.MAINNET;
+		this._type = NormalBlockV1.BLOCK_TYPE;
+		this._height = new Height();
+		this._timestamp = new Timestamp();
+		this._difficulty = new Difficulty();
+		this._generationHashProof = new VrfProof();
+		this._previousBlockHash = new Hash256();
+		this._transactionsHash = new Hash256();
+		this._receiptsHash = new Hash256();
+		this._stateHash = new Hash256();
+		this._beneficiaryAddress = new Address();
+		this._feeMultiplier = new BlockFeeMultiplier();
+		this._transactions = [];
+		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
+		this._entityBodyReserved_1 = 0; // reserved field
+		this._blockHeaderReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._generationHashProof.sort();
+	}
+
+	get signature() {
+		return this._signature;
+	}
+
+	set signature(value) {
+		this._signature = value;
+	}
+
+	get signerPublicKey() {
+		return this._signerPublicKey;
+	}
+
+	set signerPublicKey(value) {
+		this._signerPublicKey = value;
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get network() {
+		return this._network;
+	}
+
+	set network(value) {
+		this._network = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get height() {
+		return this._height;
+	}
+
+	set height(value) {
+		this._height = value;
+	}
+
+	get timestamp() {
+		return this._timestamp;
+	}
+
+	set timestamp(value) {
+		this._timestamp = value;
+	}
+
+	get difficulty() {
+		return this._difficulty;
+	}
+
+	set difficulty(value) {
+		this._difficulty = value;
+	}
+
+	get generationHashProof() {
+		return this._generationHashProof;
+	}
+
+	set generationHashProof(value) {
+		this._generationHashProof = value;
+	}
+
+	get previousBlockHash() {
+		return this._previousBlockHash;
+	}
+
+	set previousBlockHash(value) {
+		this._previousBlockHash = value;
+	}
+
+	get transactionsHash() {
+		return this._transactionsHash;
+	}
+
+	set transactionsHash(value) {
+		this._transactionsHash = value;
+	}
+
+	get receiptsHash() {
+		return this._receiptsHash;
+	}
+
+	set receiptsHash(value) {
+		this._receiptsHash = value;
+	}
+
+	get stateHash() {
+		return this._stateHash;
+	}
+
+	set stateHash(value) {
+		this._stateHash = value;
+	}
+
+	get beneficiaryAddress() {
+		return this._beneficiaryAddress;
+	}
+
+	set beneficiaryAddress(value) {
+		this._beneficiaryAddress = value;
+	}
+
+	get feeMultiplier() {
+		return this._feeMultiplier;
+	}
+
+	set feeMultiplier(value) {
+		this._feeMultiplier = value;
+	}
+
+	get transactions() {
+		return this._transactions;
+	}
+
+	set transactions(value) {
+		this._transactions = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		size += this.signature.size;
+		size += this.signerPublicKey.size;
+		size += 4;
+		size += 1;
+		size += this.network.size;
+		size += this.type.size;
+		size += this.height.size;
+		size += this.timestamp.size;
+		size += this.difficulty.size;
+		size += this.generationHashProof.size;
+		size += this.previousBlockHash.size;
+		size += this.transactionsHash.size;
+		size += this.receiptsHash.size;
+		size += this.stateHash.size;
+		size += this.beneficiaryAddress.size;
+		size += this.feeMultiplier.size;
+		size += 4;
+		size += arrayHelpers.size(this.transactions, 8, true);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const verifiableEntityHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== verifiableEntityHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${verifiableEntityHeaderReserved_1})`);
+		const signature = Signature.deserialize(view.buffer);
+		view.shiftRight(signature.size);
+		const signerPublicKey = PublicKey.deserialize(view.buffer);
+		view.shiftRight(signerPublicKey.size);
+		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== entityBodyReserved_1)
+			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
+		const version = converter.bytesToInt(view.buffer, 1, false);
+		view.shiftRight(1);
+		const network = NetworkType.deserializeAligned(view.buffer);
+		view.shiftRight(network.size);
+		const type = BlockType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const height = Height.deserializeAligned(view.buffer);
+		view.shiftRight(height.size);
+		const timestamp = Timestamp.deserializeAligned(view.buffer);
+		view.shiftRight(timestamp.size);
+		const difficulty = Difficulty.deserializeAligned(view.buffer);
+		view.shiftRight(difficulty.size);
+		const generationHashProof = VrfProof.deserialize(view.buffer);
+		view.shiftRight(generationHashProof.size);
+		const previousBlockHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(previousBlockHash.size);
+		const transactionsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(transactionsHash.size);
+		const receiptsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(receiptsHash.size);
+		const stateHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(stateHash.size);
+		const beneficiaryAddress = Address.deserialize(view.buffer);
+		view.shiftRight(beneficiaryAddress.size);
+		const feeMultiplier = BlockFeeMultiplier.deserializeAligned(view.buffer);
+		view.shiftRight(feeMultiplier.size);
+		const blockHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== blockHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${blockHeaderReserved_1})`);
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
+		view.shiftRight(arrayHelpers.size(transactions, 8, true));
+
+		const instance = new NormalBlockV1();
+		instance._signature = signature;
+		instance._signerPublicKey = signerPublicKey;
+		instance._version = version;
+		instance._network = network;
+		instance._type = type;
+		instance._height = height;
+		instance._timestamp = timestamp;
+		instance._difficulty = difficulty;
+		instance._generationHashProof = generationHashProof;
+		instance._previousBlockHash = previousBlockHash;
+		instance._transactionsHash = transactionsHash;
+		instance._receiptsHash = receiptsHash;
+		instance._stateHash = stateHash;
+		instance._beneficiaryAddress = beneficiaryAddress;
+		instance._feeMultiplier = feeMultiplier;
+		instance._transactions = transactions;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._verifiableEntityHeaderReserved_1, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 4, false));
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._type.serialize());
+		buffer.write(this._height.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(this._difficulty.serialize());
+		buffer.write(this._generationHashProof.serialize());
+		buffer.write(this._previousBlockHash.serialize());
+		buffer.write(this._transactionsHash.serialize());
+		buffer.write(this._receiptsHash.serialize());
+		buffer.write(this._stateHash.serialize());
+		buffer.write(this._beneficiaryAddress.serialize());
+		buffer.write(this._feeMultiplier.serialize());
+		buffer.write(converter.intToBytes(this._blockHeaderReserved_1, 4, false));
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `signature: ${this._signature.toString()}, `;
+		result += `signerPublicKey: ${this._signerPublicKey.toString()}, `;
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `network: ${this._network.toString()}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `height: ${this._height.toString()}, `;
+		result += `timestamp: ${this._timestamp.toString()}, `;
+		result += `difficulty: ${this._difficulty.toString()}, `;
+		result += `generationHashProof: ${this._generationHashProof.toString()}, `;
+		result += `previousBlockHash: ${this._previousBlockHash.toString()}, `;
+		result += `transactionsHash: ${this._transactionsHash.toString()}, `;
+		result += `receiptsHash: ${this._receiptsHash.toString()}, `;
+		result += `stateHash: ${this._stateHash.toString()}, `;
+		result += `beneficiaryAddress: ${this._beneficiaryAddress.toString()}, `;
+		result += `feeMultiplier: ${this._feeMultiplier.toString()}, `;
+		result += `transactions: [${this._transactions.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
+export class ImportanceBlockV1 {
+	static BLOCK_VERSION = 1;
+
+	static BLOCK_TYPE = BlockType.IMPORTANCE;
+
+	static TYPE_HINTS = {
+		signature: 'pod:Signature',
+		signerPublicKey: 'pod:PublicKey',
+		network: 'enum:NetworkType',
+		type: 'enum:BlockType',
+		height: 'pod:Height',
+		timestamp: 'pod:Timestamp',
+		difficulty: 'pod:Difficulty',
+		generationHashProof: 'struct:VrfProof',
+		previousBlockHash: 'pod:Hash256',
+		transactionsHash: 'pod:Hash256',
+		receiptsHash: 'pod:Hash256',
+		stateHash: 'pod:Hash256',
+		beneficiaryAddress: 'pod:Address',
+		feeMultiplier: 'pod:BlockFeeMultiplier',
+		totalVotingBalance: 'pod:Amount',
+		previousImportanceBlockHash: 'pod:Hash256',
+		transactions: 'array[Transaction]'
+	};
+
+	constructor() {
+		this._signature = new Signature();
+		this._signerPublicKey = new PublicKey();
+		this._version = ImportanceBlockV1.BLOCK_VERSION;
+		this._network = NetworkType.MAINNET;
+		this._type = ImportanceBlockV1.BLOCK_TYPE;
+		this._height = new Height();
+		this._timestamp = new Timestamp();
+		this._difficulty = new Difficulty();
+		this._generationHashProof = new VrfProof();
+		this._previousBlockHash = new Hash256();
+		this._transactionsHash = new Hash256();
+		this._receiptsHash = new Hash256();
+		this._stateHash = new Hash256();
+		this._beneficiaryAddress = new Address();
+		this._feeMultiplier = new BlockFeeMultiplier();
+		this._votingEligibleAccountsCount = 0;
+		this._harvestingEligibleAccountsCount = 0n;
+		this._totalVotingBalance = new Amount();
+		this._previousImportanceBlockHash = new Hash256();
+		this._transactions = [];
+		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
+		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._generationHashProof.sort();
+	}
+
+	get signature() {
+		return this._signature;
+	}
+
+	set signature(value) {
+		this._signature = value;
+	}
+
+	get signerPublicKey() {
+		return this._signerPublicKey;
+	}
+
+	set signerPublicKey(value) {
+		this._signerPublicKey = value;
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get network() {
+		return this._network;
+	}
+
+	set network(value) {
+		this._network = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get height() {
+		return this._height;
+	}
+
+	set height(value) {
+		this._height = value;
+	}
+
+	get timestamp() {
+		return this._timestamp;
+	}
+
+	set timestamp(value) {
+		this._timestamp = value;
+	}
+
+	get difficulty() {
+		return this._difficulty;
+	}
+
+	set difficulty(value) {
+		this._difficulty = value;
+	}
+
+	get generationHashProof() {
+		return this._generationHashProof;
+	}
+
+	set generationHashProof(value) {
+		this._generationHashProof = value;
+	}
+
+	get previousBlockHash() {
+		return this._previousBlockHash;
+	}
+
+	set previousBlockHash(value) {
+		this._previousBlockHash = value;
+	}
+
+	get transactionsHash() {
+		return this._transactionsHash;
+	}
+
+	set transactionsHash(value) {
+		this._transactionsHash = value;
+	}
+
+	get receiptsHash() {
+		return this._receiptsHash;
+	}
+
+	set receiptsHash(value) {
+		this._receiptsHash = value;
+	}
+
+	get stateHash() {
+		return this._stateHash;
+	}
+
+	set stateHash(value) {
+		this._stateHash = value;
+	}
+
+	get beneficiaryAddress() {
+		return this._beneficiaryAddress;
+	}
+
+	set beneficiaryAddress(value) {
+		this._beneficiaryAddress = value;
+	}
+
+	get feeMultiplier() {
+		return this._feeMultiplier;
+	}
+
+	set feeMultiplier(value) {
+		this._feeMultiplier = value;
+	}
+
+	get votingEligibleAccountsCount() {
+		return this._votingEligibleAccountsCount;
+	}
+
+	set votingEligibleAccountsCount(value) {
+		this._votingEligibleAccountsCount = value;
+	}
+
+	get harvestingEligibleAccountsCount() {
+		return this._harvestingEligibleAccountsCount;
+	}
+
+	set harvestingEligibleAccountsCount(value) {
+		this._harvestingEligibleAccountsCount = value;
+	}
+
+	get totalVotingBalance() {
+		return this._totalVotingBalance;
+	}
+
+	set totalVotingBalance(value) {
+		this._totalVotingBalance = value;
+	}
+
+	get previousImportanceBlockHash() {
+		return this._previousImportanceBlockHash;
+	}
+
+	set previousImportanceBlockHash(value) {
+		this._previousImportanceBlockHash = value;
+	}
+
+	get transactions() {
+		return this._transactions;
+	}
+
+	set transactions(value) {
+		this._transactions = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		size += this.signature.size;
+		size += this.signerPublicKey.size;
+		size += 4;
+		size += 1;
+		size += this.network.size;
+		size += this.type.size;
+		size += this.height.size;
+		size += this.timestamp.size;
+		size += this.difficulty.size;
+		size += this.generationHashProof.size;
+		size += this.previousBlockHash.size;
+		size += this.transactionsHash.size;
+		size += this.receiptsHash.size;
+		size += this.stateHash.size;
+		size += this.beneficiaryAddress.size;
+		size += this.feeMultiplier.size;
+		size += 4;
+		size += 8;
+		size += this.totalVotingBalance.size;
+		size += this.previousImportanceBlockHash.size;
+		size += arrayHelpers.size(this.transactions, 8, true);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const verifiableEntityHeaderReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== verifiableEntityHeaderReserved_1)
+			throw RangeError(`Invalid value of reserved field (${verifiableEntityHeaderReserved_1})`);
+		const signature = Signature.deserialize(view.buffer);
+		view.shiftRight(signature.size);
+		const signerPublicKey = PublicKey.deserialize(view.buffer);
+		view.shiftRight(signerPublicKey.size);
+		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (0 !== entityBodyReserved_1)
+			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
+		const version = converter.bytesToInt(view.buffer, 1, false);
+		view.shiftRight(1);
+		const network = NetworkType.deserializeAligned(view.buffer);
+		view.shiftRight(network.size);
+		const type = BlockType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const height = Height.deserializeAligned(view.buffer);
+		view.shiftRight(height.size);
+		const timestamp = Timestamp.deserializeAligned(view.buffer);
+		view.shiftRight(timestamp.size);
+		const difficulty = Difficulty.deserializeAligned(view.buffer);
+		view.shiftRight(difficulty.size);
+		const generationHashProof = VrfProof.deserialize(view.buffer);
+		view.shiftRight(generationHashProof.size);
+		const previousBlockHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(previousBlockHash.size);
+		const transactionsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(transactionsHash.size);
+		const receiptsHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(receiptsHash.size);
+		const stateHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(stateHash.size);
+		const beneficiaryAddress = Address.deserialize(view.buffer);
+		view.shiftRight(beneficiaryAddress.size);
+		const feeMultiplier = BlockFeeMultiplier.deserializeAligned(view.buffer);
+		view.shiftRight(feeMultiplier.size);
+		const votingEligibleAccountsCount = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		const harvestingEligibleAccountsCount = converter.bytesToInt(view.buffer, 8, false);
+		view.shiftRight(8);
+		const totalVotingBalance = Amount.deserializeAligned(view.buffer);
+		view.shiftRight(totalVotingBalance.size);
+		const previousImportanceBlockHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(previousImportanceBlockHash.size);
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
+		view.shiftRight(arrayHelpers.size(transactions, 8, true));
+
+		const instance = new ImportanceBlockV1();
+		instance._signature = signature;
+		instance._signerPublicKey = signerPublicKey;
+		instance._version = version;
+		instance._network = network;
+		instance._type = type;
+		instance._height = height;
+		instance._timestamp = timestamp;
+		instance._difficulty = difficulty;
+		instance._generationHashProof = generationHashProof;
+		instance._previousBlockHash = previousBlockHash;
+		instance._transactionsHash = transactionsHash;
+		instance._receiptsHash = receiptsHash;
+		instance._stateHash = stateHash;
+		instance._beneficiaryAddress = beneficiaryAddress;
+		instance._feeMultiplier = feeMultiplier;
+		instance._votingEligibleAccountsCount = votingEligibleAccountsCount;
+		instance._harvestingEligibleAccountsCount = harvestingEligibleAccountsCount;
+		instance._totalVotingBalance = totalVotingBalance;
+		instance._previousImportanceBlockHash = previousImportanceBlockHash;
+		instance._transactions = transactions;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._verifiableEntityHeaderReserved_1, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 4, false));
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._type.serialize());
+		buffer.write(this._height.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(this._difficulty.serialize());
+		buffer.write(this._generationHashProof.serialize());
+		buffer.write(this._previousBlockHash.serialize());
+		buffer.write(this._transactionsHash.serialize());
+		buffer.write(this._receiptsHash.serialize());
+		buffer.write(this._stateHash.serialize());
+		buffer.write(this._beneficiaryAddress.serialize());
+		buffer.write(this._feeMultiplier.serialize());
+		buffer.write(converter.intToBytes(this._votingEligibleAccountsCount, 4, false));
+		buffer.write(converter.intToBytes(this._harvestingEligibleAccountsCount, 8, false));
+		buffer.write(this._totalVotingBalance.serialize());
+		buffer.write(this._previousImportanceBlockHash.serialize());
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `signature: ${this._signature.toString()}, `;
+		result += `signerPublicKey: ${this._signerPublicKey.toString()}, `;
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `network: ${this._network.toString()}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `height: ${this._height.toString()}, `;
+		result += `timestamp: ${this._timestamp.toString()}, `;
+		result += `difficulty: ${this._difficulty.toString()}, `;
+		result += `generationHashProof: ${this._generationHashProof.toString()}, `;
+		result += `previousBlockHash: ${this._previousBlockHash.toString()}, `;
+		result += `transactionsHash: ${this._transactionsHash.toString()}, `;
+		result += `receiptsHash: ${this._receiptsHash.toString()}, `;
+		result += `stateHash: ${this._stateHash.toString()}, `;
+		result += `beneficiaryAddress: ${this._beneficiaryAddress.toString()}, `;
+		result += `feeMultiplier: ${this._feeMultiplier.toString()}, `;
+		result += `votingEligibleAccountsCount: ${'0x'.concat(this._votingEligibleAccountsCount.toString(16))}, `;
+		result += `harvestingEligibleAccountsCount: ${'0x'.concat(this._harvestingEligibleAccountsCount.toString(16))}, `;
+		result += `totalVotingBalance: ${this._totalVotingBalance.toString()}, `;
+		result += `previousImportanceBlockHash: ${this._previousImportanceBlockHash.toString()}, `;
+		result += `transactions: [${this._transactions.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
+export class FinalizationRound {
+	static TYPE_HINTS = {
+		epoch: 'pod:FinalizationEpoch',
+		point: 'pod:FinalizationPoint'
+	};
+
+	constructor() {
+		this._epoch = new FinalizationEpoch();
+		this._point = new FinalizationPoint();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get epoch() {
+		return this._epoch;
+	}
+
+	set epoch(value) {
+		this._epoch = value;
+	}
+
+	get point() {
+		return this._point;
+	}
+
+	set point(value) {
+		this._point = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.epoch.size;
+		size += this.point.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const epoch = FinalizationEpoch.deserialize(view.buffer);
+		view.shiftRight(epoch.size);
+		const point = FinalizationPoint.deserialize(view.buffer);
+		view.shiftRight(point.size);
+
+		const instance = new FinalizationRound();
+		instance._epoch = epoch;
+		instance._point = point;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._epoch.serialize());
+		buffer.write(this._point.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `epoch: ${this._epoch.toString()}, `;
+		result += `point: ${this._point.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class FinalizedBlockHeader {
+	static TYPE_HINTS = {
+		round: 'struct:FinalizationRound',
+		height: 'pod:Height',
+		hash: 'pod:Hash256'
+	};
+
+	constructor() {
+		this._round = new FinalizationRound();
+		this._height = new Height();
+		this._hash = new Hash256();
+	}
+
+	sort() {
+		this._round.sort();
+	}
+
+	get round() {
+		return this._round;
+	}
+
+	set round(value) {
+		this._round = value;
+	}
+
+	get height() {
+		return this._height;
+	}
+
+	set height(value) {
+		this._height = value;
+	}
+
+	get hash() {
+		return this._hash;
+	}
+
+	set hash(value) {
+		this._hash = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.round.size;
+		size += this.height.size;
+		size += this.hash.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const round = FinalizationRound.deserialize(view.buffer);
+		view.shiftRight(round.size);
+		const height = Height.deserialize(view.buffer);
+		view.shiftRight(height.size);
+		const hash = Hash256.deserialize(view.buffer);
+		view.shiftRight(hash.size);
+
+		const instance = new FinalizedBlockHeader();
+		instance._round = round;
+		instance._height = height;
+		instance._hash = hash;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._round.serialize());
+		buffer.write(this._height.serialize());
+		buffer.write(this._hash.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `round: ${this._round.toString()}, `;
+		result += `height: ${this._height.toString()}, `;
+		result += `hash: ${this._hash.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class ReceiptType {
+	static MOSAIC_RENTAL_FEE = new ReceiptType(4685);
+
+	static NAMESPACE_RENTAL_FEE = new ReceiptType(4942);
+
+	static HARVEST_FEE = new ReceiptType(8515);
+
+	static LOCK_HASH_COMPLETED = new ReceiptType(8776);
+
+	static LOCK_HASH_EXPIRED = new ReceiptType(9032);
+
+	static LOCK_SECRET_COMPLETED = new ReceiptType(8786);
+
+	static LOCK_SECRET_EXPIRED = new ReceiptType(9042);
+
+	static LOCK_HASH_CREATED = new ReceiptType(12616);
+
+	static LOCK_SECRET_CREATED = new ReceiptType(12626);
+
+	static MOSAIC_EXPIRED = new ReceiptType(16717);
+
+	static NAMESPACE_EXPIRED = new ReceiptType(16718);
+
+	static NAMESPACE_DELETED = new ReceiptType(16974);
+
+	static INFLATION = new ReceiptType(20803);
+
+	static TRANSACTION_GROUP = new ReceiptType(57667);
+
+	static ADDRESS_ALIAS_RESOLUTION = new ReceiptType(61763);
+
+	static MOSAIC_ALIAS_RESOLUTION = new ReceiptType(62019);
+
+	constructor(value) {
+		this.value = value;
+	}
+
+	static valueToKey(value) {
+		const values = [
+			4685, 4942, 8515, 8776, 9032, 8786, 9042, 12616, 12626, 16717, 16718, 16974, 20803, 57667, 61763, 62019
+		];
+		const keys = [
+			'MOSAIC_RENTAL_FEE', 'NAMESPACE_RENTAL_FEE', 'HARVEST_FEE', 'LOCK_HASH_COMPLETED', 'LOCK_HASH_EXPIRED', 'LOCK_SECRET_COMPLETED',
+			'LOCK_SECRET_EXPIRED', 'LOCK_HASH_CREATED', 'LOCK_SECRET_CREATED', 'MOSAIC_EXPIRED', 'NAMESPACE_EXPIRED', 'NAMESPACE_DELETED',
+			'INFLATION', 'TRANSACTION_GROUP', 'ADDRESS_ALIAS_RESOLUTION', 'MOSAIC_ALIAS_RESOLUTION'
+		];
+
+		const index = values.indexOf(value);
+		if (-1 === index)
+			throw RangeError(`invalid enum value ${value}`);
+
+		return keys[index];
+	}
+
+	static fromValue(value) {
+		return ReceiptType[this.valueToKey(value)];
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		return 2;
+	}
+
+	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 2, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToInt(byteArray, 2, false));
+	}
+
+	serialize() {
+		return converter.intToBytes(this.value, 2, false);
+	}
+
+	toString() {
+		return `ReceiptType.${ReceiptType.valueToKey(this.value)}`;
+	}
+}
+
+export class Receipt {
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = ReceiptType.MOSAIC_RENTAL_FEE;
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+
+		const instance = new Receipt();
+		instance._version = version;
+		instance._type = type;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+
+		const instance = new Receipt();
+		instance._version = version;
+		instance._type = type;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class HarvestFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.HARVEST_FEE;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		targetAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = HarvestFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._targetAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get targetAddress() {
+		return this._targetAddress;
+	}
+
+	set targetAddress(value) {
+		this._targetAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.targetAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new HarvestFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new HarvestFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._targetAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `targetAddress: ${this._targetAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class InflationReceipt {
+	static RECEIPT_TYPE = ReceiptType.INFLATION;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = InflationReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+
+		const instance = new InflationReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+
+		const instance = new InflationReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class LockHashCreatedFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.LOCK_HASH_CREATED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		targetAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = LockHashCreatedFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._targetAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get targetAddress() {
+		return this._targetAddress;
+	}
+
+	set targetAddress(value) {
+		this._targetAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.targetAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashCreatedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashCreatedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._targetAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `targetAddress: ${this._targetAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class LockHashCompletedFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.LOCK_HASH_COMPLETED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		targetAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = LockHashCompletedFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._targetAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get targetAddress() {
+		return this._targetAddress;
+	}
+
+	set targetAddress(value) {
+		this._targetAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.targetAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashCompletedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashCompletedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._targetAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `targetAddress: ${this._targetAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class LockHashExpiredFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.LOCK_HASH_EXPIRED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		targetAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = LockHashExpiredFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._targetAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get targetAddress() {
+		return this._targetAddress;
+	}
+
+	set targetAddress(value) {
+		this._targetAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.targetAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashExpiredFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockHashExpiredFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._targetAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `targetAddress: ${this._targetAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class LockSecretCreatedFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.LOCK_SECRET_CREATED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		targetAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = LockSecretCreatedFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._targetAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get targetAddress() {
+		return this._targetAddress;
+	}
+
+	set targetAddress(value) {
+		this._targetAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.targetAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretCreatedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretCreatedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._targetAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `targetAddress: ${this._targetAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class LockSecretCompletedFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.LOCK_SECRET_COMPLETED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		targetAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = LockSecretCompletedFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._targetAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get targetAddress() {
+		return this._targetAddress;
+	}
+
+	set targetAddress(value) {
+		this._targetAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.targetAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretCompletedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretCompletedFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._targetAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `targetAddress: ${this._targetAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class LockSecretExpiredFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.LOCK_SECRET_EXPIRED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		targetAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = LockSecretExpiredFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._targetAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get targetAddress() {
+		return this._targetAddress;
+	}
+
+	set targetAddress(value) {
+		this._targetAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.targetAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretExpiredFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const targetAddress = Address.deserialize(view.buffer);
+		view.shiftRight(targetAddress.size);
+
+		const instance = new LockSecretExpiredFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._targetAddress = targetAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._targetAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `targetAddress: ${this._targetAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class MosaicExpiredReceipt {
+	static RECEIPT_TYPE = ReceiptType.MOSAIC_EXPIRED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		artifactId: 'pod:MosaicId'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = MosaicExpiredReceipt.RECEIPT_TYPE;
+		this._artifactId = new MosaicId();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get artifactId() {
+		return this._artifactId;
+	}
+
+	set artifactId(value) {
+		this._artifactId = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.artifactId.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = MosaicId.deserialize(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new MosaicExpiredReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = MosaicId.deserializeAligned(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new MosaicExpiredReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._artifactId.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `artifactId: ${this._artifactId.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class MosaicRentalFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.MOSAIC_RENTAL_FEE;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		senderAddress: 'pod:Address',
+		recipientAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = MosaicRentalFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._senderAddress = new Address();
+		this._recipientAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get senderAddress() {
+		return this._senderAddress;
+	}
+
+	set senderAddress(value) {
+		this._senderAddress = value;
+	}
+
+	get recipientAddress() {
+		return this._recipientAddress;
+	}
+
+	set recipientAddress(value) {
+		this._recipientAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.senderAddress.size;
+		size += this.recipientAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const senderAddress = Address.deserialize(view.buffer);
+		view.shiftRight(senderAddress.size);
+		const recipientAddress = Address.deserialize(view.buffer);
+		view.shiftRight(recipientAddress.size);
+
+		const instance = new MosaicRentalFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._senderAddress = senderAddress;
+		instance._recipientAddress = recipientAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const senderAddress = Address.deserialize(view.buffer);
+		view.shiftRight(senderAddress.size);
+		const recipientAddress = Address.deserialize(view.buffer);
+		view.shiftRight(recipientAddress.size);
+
+		const instance = new MosaicRentalFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._senderAddress = senderAddress;
+		instance._recipientAddress = recipientAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._senderAddress.serialize());
+		buffer.write(this._recipientAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `senderAddress: ${this._senderAddress.toString()}, `;
+		result += `recipientAddress: ${this._recipientAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class NamespaceId extends BaseValue {
+	static SIZE = 8;
+
+	constructor(namespaceId = 0n) {
+		super(NamespaceId.SIZE, namespaceId);
+	}
+
+	static deserialize(payload) {
+		const byteArray = payload;
+		return new NamespaceId(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
+		return new NamespaceId(converter.bytesToInt(byteArray, 8, false));
+	}
+
+	serialize() {
+		return converter.intToBytes(this.value, 8, false);
+	}
+}
+
+export class NamespaceRegistrationType {
+	static ROOT = new NamespaceRegistrationType(0);
+
+	static CHILD = new NamespaceRegistrationType(1);
+
+	constructor(value) {
+		this.value = value;
+	}
+
+	static valueToKey(value) {
+		const values = [
+			0, 1
+		];
+		const keys = [
+			'ROOT', 'CHILD'
+		];
+
+		const index = values.indexOf(value);
+		if (-1 === index)
+			throw RangeError(`invalid enum value ${value}`);
+
+		return keys[index];
+	}
+
+	static fromValue(value) {
+		return NamespaceRegistrationType[this.valueToKey(value)];
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		return 1;
+	}
+
+	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
+	}
+
+	serialize() {
+		return converter.intToBytes(this.value, 1, false);
+	}
+
+	toString() {
+		return `NamespaceRegistrationType.${NamespaceRegistrationType.valueToKey(this.value)}`;
+	}
+}
+
+export class AliasAction {
+	static UNLINK = new AliasAction(0);
+
+	static LINK = new AliasAction(1);
+
+	constructor(value) {
+		this.value = value;
+	}
+
+	static valueToKey(value) {
+		const values = [
+			0, 1
+		];
+		const keys = [
+			'UNLINK', 'LINK'
+		];
+
+		const index = values.indexOf(value);
+		if (-1 === index)
+			throw RangeError(`invalid enum value ${value}`);
+
+		return keys[index];
+	}
+
+	static fromValue(value) {
+		return AliasAction[this.valueToKey(value)];
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		return 1;
+	}
+
+	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
+	}
+
+	serialize() {
+		return converter.intToBytes(this.value, 1, false);
+	}
+
+	toString() {
+		return `AliasAction.${AliasAction.valueToKey(this.value)}`;
+	}
+}
+
+export class NamespaceExpiredReceipt {
+	static RECEIPT_TYPE = ReceiptType.NAMESPACE_EXPIRED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		artifactId: 'pod:NamespaceId'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = NamespaceExpiredReceipt.RECEIPT_TYPE;
+		this._artifactId = new NamespaceId();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get artifactId() {
+		return this._artifactId;
+	}
+
+	set artifactId(value) {
+		this._artifactId = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.artifactId.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = NamespaceId.deserialize(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new NamespaceExpiredReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = NamespaceId.deserializeAligned(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new NamespaceExpiredReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._artifactId.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `artifactId: ${this._artifactId.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class NamespaceDeletedReceipt {
+	static RECEIPT_TYPE = ReceiptType.NAMESPACE_DELETED;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		artifactId: 'pod:NamespaceId'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = NamespaceDeletedReceipt.RECEIPT_TYPE;
+		this._artifactId = new NamespaceId();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get artifactId() {
+		return this._artifactId;
+	}
+
+	set artifactId(value) {
+		this._artifactId = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.artifactId.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = NamespaceId.deserialize(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new NamespaceDeletedReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const artifactId = NamespaceId.deserializeAligned(view.buffer);
+		view.shiftRight(artifactId.size);
+
+		const instance = new NamespaceDeletedReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._artifactId = artifactId;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._artifactId.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `artifactId: ${this._artifactId.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class NamespaceRentalFeeReceipt {
+	static RECEIPT_TYPE = ReceiptType.NAMESPACE_RENTAL_FEE;
+
+	static TYPE_HINTS = {
+		type: 'enum:ReceiptType',
+		mosaic: 'struct:Mosaic',
+		senderAddress: 'pod:Address',
+		recipientAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._version = 0;
+		this._type = NamespaceRentalFeeReceipt.RECEIPT_TYPE;
+		this._mosaic = new Mosaic();
+		this._senderAddress = new Address();
+		this._recipientAddress = new Address();
+	}
+
+	sort() {
+		this._mosaic.sort();
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get mosaic() {
+		return this._mosaic;
+	}
+
+	set mosaic(value) {
+		this._mosaic = value;
+	}
+
+	get senderAddress() {
+		return this._senderAddress;
+	}
+
+	set senderAddress(value) {
+		this._senderAddress = value;
+	}
+
+	get recipientAddress() {
+		return this._recipientAddress;
+	}
+
+	set recipientAddress(value) {
+		this._recipientAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 2;
+		size += this.type.size;
+		size += this.mosaic.size;
+		size += this.senderAddress.size;
+		size += this.recipientAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const senderAddress = Address.deserialize(view.buffer);
+		view.shiftRight(senderAddress.size);
+		const recipientAddress = Address.deserialize(view.buffer);
+		view.shiftRight(recipientAddress.size);
+
+		const instance = new NamespaceRentalFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._senderAddress = senderAddress;
+		instance._recipientAddress = recipientAddress;
+		return instance;
+	}
+
+	static deserializeAligned(payload) {
+		const view = new BufferView(payload);
+		const size = converter.bytesToInt(view.buffer, 4, false);
+		view.shiftRight(4);
+		view.shrink(size - 4);
+		const version = converter.bytesToInt(view.buffer, 2, false);
+		view.shiftRight(2);
+		const type = ReceiptType.deserializeAligned(view.buffer);
+		view.shiftRight(type.size);
+		const mosaic = Mosaic.deserialize(view.buffer);
+		view.shiftRight(mosaic.size);
+		const senderAddress = Address.deserialize(view.buffer);
+		view.shiftRight(senderAddress.size);
+		const recipientAddress = Address.deserialize(view.buffer);
+		view.shiftRight(recipientAddress.size);
+
+		const instance = new NamespaceRentalFeeReceipt();
+		instance._version = version;
+		instance._type = type;
+		instance._mosaic = mosaic;
+		instance._senderAddress = senderAddress;
+		instance._recipientAddress = recipientAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.size, 4, false));
+		buffer.write(converter.intToBytes(this._version, 2, false));
+		buffer.write(this._type.serialize());
+		buffer.write(this._mosaic.serialize());
+		buffer.write(this._senderAddress.serialize());
+		buffer.write(this._recipientAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `type: ${this._type.toString()}, `;
+		result += `mosaic: ${this._mosaic.toString()}, `;
+		result += `senderAddress: ${this._senderAddress.toString()}, `;
+		result += `recipientAddress: ${this._recipientAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class ReceiptSource {
+	static TYPE_HINTS = {
+	};
+
+	constructor() {
+		this._primaryId = 0;
+		this._secondaryId = 0;
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get primaryId() {
+		return this._primaryId;
+	}
+
+	set primaryId(value) {
+		this._primaryId = value;
+	}
+
+	get secondaryId() {
+		return this._secondaryId;
+	}
+
+	set secondaryId(value) {
+		this._secondaryId = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const primaryId = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const secondaryId = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+
+		const instance = new ReceiptSource();
+		instance._primaryId = primaryId;
+		instance._secondaryId = secondaryId;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this._primaryId, 4, false));
+		buffer.write(converter.intToBytes(this._secondaryId, 4, false));
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `primaryId: ${'0x'.concat(this._primaryId.toString(16))}, `;
+		result += `secondaryId: ${'0x'.concat(this._secondaryId.toString(16))}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class AddressResolutionEntry {
+	static TYPE_HINTS = {
+		source: 'struct:ReceiptSource',
+		resolvedValue: 'pod:Address'
+	};
+
+	constructor() {
+		this._source = new ReceiptSource();
+		this._resolvedValue = new Address();
+	}
+
+	sort() {
+		this._source.sort();
+	}
+
+	get source() {
+		return this._source;
+	}
+
+	set source(value) {
+		this._source = value;
+	}
+
+	get resolvedValue() {
+		return this._resolvedValue;
+	}
+
+	set resolvedValue(value) {
+		this._resolvedValue = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.source.size;
+		size += this.resolvedValue.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const source = ReceiptSource.deserialize(view.buffer);
+		view.shiftRight(source.size);
+		const resolvedValue = Address.deserialize(view.buffer);
+		view.shiftRight(resolvedValue.size);
+
+		const instance = new AddressResolutionEntry();
+		instance._source = source;
+		instance._resolvedValue = resolvedValue;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._source.serialize());
+		buffer.write(this._resolvedValue.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `source: ${this._source.toString()}, `;
+		result += `resolvedValue: ${this._resolvedValue.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class AddressResolutionStatement {
+	static TYPE_HINTS = {
+		unresolved: 'pod:UnresolvedAddress',
+		resolutionEntries: 'array[AddressResolutionEntry]'
+	};
+
+	constructor() {
+		this._unresolved = new UnresolvedAddress();
+		this._resolutionEntries = [];
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get unresolved() {
+		return this._unresolved;
+	}
+
+	set unresolved(value) {
+		this._unresolved = value;
+	}
+
+	get resolutionEntries() {
+		return this._resolutionEntries;
+	}
+
+	set resolutionEntries(value) {
+		this._resolutionEntries = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.unresolved.size;
+		size += 4;
+		size += arrayHelpers.size(this.resolutionEntries);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const unresolved = UnresolvedAddress.deserialize(view.buffer);
+		view.shiftRight(unresolved.size);
+		const resolutionEntriesCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const resolutionEntries = arrayHelpers.readArrayCount(view.buffer, AddressResolutionEntry, resolutionEntriesCount);
+		view.shiftRight(arrayHelpers.size(resolutionEntries));
+
+		const instance = new AddressResolutionStatement();
+		instance._unresolved = unresolved;
+		instance._resolutionEntries = resolutionEntries;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._unresolved.serialize());
+		buffer.write(converter.intToBytes(this._resolutionEntries.length, 4, false)); // bound: resolution_entries_count
+		arrayHelpers.writeArray(buffer, this._resolutionEntries);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `unresolved: ${this._unresolved.toString()}, `;
+		result += `resolutionEntries: [${this._resolutionEntries.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
+export class MosaicResolutionEntry {
+	static TYPE_HINTS = {
+		source: 'struct:ReceiptSource',
+		resolvedValue: 'pod:MosaicId'
+	};
+
+	constructor() {
+		this._source = new ReceiptSource();
+		this._resolvedValue = new MosaicId();
+	}
+
+	sort() {
+		this._source.sort();
+	}
+
+	get source() {
+		return this._source;
+	}
+
+	set source(value) {
+		this._source = value;
+	}
+
+	get resolvedValue() {
+		return this._resolvedValue;
+	}
+
+	set resolvedValue(value) {
+		this._resolvedValue = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.source.size;
+		size += this.resolvedValue.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const source = ReceiptSource.deserialize(view.buffer);
+		view.shiftRight(source.size);
+		const resolvedValue = MosaicId.deserialize(view.buffer);
+		view.shiftRight(resolvedValue.size);
+
+		const instance = new MosaicResolutionEntry();
+		instance._source = source;
+		instance._resolvedValue = resolvedValue;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._source.serialize());
+		buffer.write(this._resolvedValue.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `source: ${this._source.toString()}, `;
+		result += `resolvedValue: ${this._resolvedValue.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
+export class MosaicResolutionStatement {
+	static TYPE_HINTS = {
+		unresolved: 'pod:UnresolvedMosaicId',
+		resolutionEntries: 'array[MosaicResolutionEntry]'
+	};
+
+	constructor() {
+		this._unresolved = new UnresolvedMosaicId();
+		this._resolutionEntries = [];
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get unresolved() {
+		return this._unresolved;
+	}
+
+	set unresolved(value) {
+		this._unresolved = value;
+	}
+
+	get resolutionEntries() {
+		return this._resolutionEntries;
+	}
+
+	set resolutionEntries(value) {
+		this._resolutionEntries = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.unresolved.size;
+		size += 4;
+		size += arrayHelpers.size(this.resolutionEntries);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const unresolved = UnresolvedMosaicId.deserialize(view.buffer);
+		view.shiftRight(unresolved.size);
+		const resolutionEntriesCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const resolutionEntries = arrayHelpers.readArrayCount(view.buffer, MosaicResolutionEntry, resolutionEntriesCount);
+		view.shiftRight(arrayHelpers.size(resolutionEntries));
+
+		const instance = new MosaicResolutionStatement();
+		instance._unresolved = unresolved;
+		instance._resolutionEntries = resolutionEntries;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._unresolved.serialize());
+		buffer.write(converter.intToBytes(this._resolutionEntries.length, 4, false)); // bound: resolution_entries_count
+		arrayHelpers.writeArray(buffer, this._resolutionEntries);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `unresolved: ${this._unresolved.toString()}, `;
+		result += `resolutionEntries: [${this._resolutionEntries.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
+export class TransactionStatement {
+	static TYPE_HINTS = {
+		receipts: 'array[Receipt]'
+	};
+
+	constructor() {
+		this._primaryId = 0;
+		this._secondaryId = 0;
+		this._receipts = [];
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get primaryId() {
+		return this._primaryId;
+	}
+
+	set primaryId(value) {
+		this._primaryId = value;
+	}
+
+	get secondaryId() {
+		return this._secondaryId;
+	}
+
+	set secondaryId(value) {
+		this._secondaryId = value;
+	}
+
+	get receipts() {
+		return this._receipts;
+	}
+
+	set receipts(value) {
+		this._receipts = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		size += 4;
+		size += arrayHelpers.size(this.receipts);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const primaryId = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const secondaryId = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const receiptCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const receipts = arrayHelpers.readArrayCount(view.buffer, ReceiptFactory, receiptCount);
+		view.shiftRight(arrayHelpers.size(receipts));
+
+		const instance = new TransactionStatement();
+		instance._primaryId = primaryId;
+		instance._secondaryId = secondaryId;
+		instance._receipts = receipts;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this._primaryId, 4, false));
+		buffer.write(converter.intToBytes(this._secondaryId, 4, false));
+		buffer.write(converter.intToBytes(this._receipts.length, 4, false)); // bound: receipt_count
+		arrayHelpers.writeArray(buffer, this._receipts);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `primaryId: ${'0x'.concat(this._primaryId.toString(16))}, `;
+		result += `secondaryId: ${'0x'.concat(this._secondaryId.toString(16))}, `;
+		result += `receipts: [${this._receipts.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
+export class BlockStatement {
+	static TYPE_HINTS = {
+		transactionStatements: 'array[TransactionStatement]',
+		addressResolutionStatements: 'array[AddressResolutionStatement]',
+		mosaicResolutionStatements: 'array[MosaicResolutionStatement]'
+	};
+
+	constructor() {
+		this._transactionStatements = [];
+		this._addressResolutionStatements = [];
+		this._mosaicResolutionStatements = [];
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get transactionStatements() {
+		return this._transactionStatements;
+	}
+
+	set transactionStatements(value) {
+		this._transactionStatements = value;
+	}
+
+	get addressResolutionStatements() {
+		return this._addressResolutionStatements;
+	}
+
+	set addressResolutionStatements(value) {
+		this._addressResolutionStatements = value;
+	}
+
+	get mosaicResolutionStatements() {
+		return this._mosaicResolutionStatements;
+	}
+
+	set mosaicResolutionStatements(value) {
+		this._mosaicResolutionStatements = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += arrayHelpers.size(this.transactionStatements);
+		size += 4;
+		size += arrayHelpers.size(this.addressResolutionStatements);
+		size += 4;
+		size += arrayHelpers.size(this.mosaicResolutionStatements);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const transactionStatementCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const transactionStatements = arrayHelpers.readArrayCount(view.buffer, TransactionStatement, transactionStatementCount);
+		view.shiftRight(arrayHelpers.size(transactionStatements));
+		const addressResolutionStatementCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const addressResolutionStatements = arrayHelpers.readArrayCount(view.buffer, AddressResolutionStatement, addressResolutionStatementCount);
+		view.shiftRight(arrayHelpers.size(addressResolutionStatements));
+		const mosaicResolutionStatementCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const mosaicResolutionStatements = arrayHelpers.readArrayCount(view.buffer, MosaicResolutionStatement, mosaicResolutionStatementCount);
+		view.shiftRight(arrayHelpers.size(mosaicResolutionStatements));
+
+		const instance = new BlockStatement();
+		instance._transactionStatements = transactionStatements;
+		instance._addressResolutionStatements = addressResolutionStatements;
+		instance._mosaicResolutionStatements = mosaicResolutionStatements;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this._transactionStatements.length, 4, false)); // bound: transaction_statement_count
+		arrayHelpers.writeArray(buffer, this._transactionStatements);
+		buffer.write(converter.intToBytes(this._addressResolutionStatements.length, 4, false)); // bound: address_resolution_statement_count
+		arrayHelpers.writeArray(buffer, this._addressResolutionStatements);
+		buffer.write(converter.intToBytes(this._mosaicResolutionStatements.length, 4, false)); // bound: mosaic_resolution_statement_count
+		arrayHelpers.writeArray(buffer, this._mosaicResolutionStatements);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `transactionStatements: [${this._transactionStatements.map(e => e.toString()).join(',')}], `;
+		result += `addressResolutionStatements: [${this._addressResolutionStatements.map(e => e.toString()).join(',')}], `;
+		result += `mosaicResolutionStatements: [${this._mosaicResolutionStatements.map(e => e.toString()).join(',')}], `;
 		result += ')';
 		return result;
 	}
@@ -5774,130 +9914,6 @@ export class EmbeddedMosaicMetadataTransactionV1 {
 		result += `value: hex(${converter.uint8ToHex(this._value)}), `;
 		result += ')';
 		return result;
-	}
-}
-
-export class NamespaceId extends BaseValue {
-	static SIZE = 8;
-
-	constructor(namespaceId = 0n) {
-		super(NamespaceId.SIZE, namespaceId);
-	}
-
-	static deserialize(payload) {
-		const byteArray = payload;
-		return new NamespaceId(converter.bytesToIntUnaligned(byteArray, 8, false));
-	}
-
-	static deserializeAligned(payload) {
-		const byteArray = payload;
-		return new NamespaceId(converter.bytesToInt(byteArray, 8, false));
-	}
-
-	serialize() {
-		return converter.intToBytes(this.value, 8, false);
-	}
-}
-
-export class NamespaceRegistrationType {
-	static ROOT = new NamespaceRegistrationType(0);
-
-	static CHILD = new NamespaceRegistrationType(1);
-
-	constructor(value) {
-		this.value = value;
-	}
-
-	static valueToKey(value) {
-		const values = [
-			0, 1
-		];
-		const keys = [
-			'ROOT', 'CHILD'
-		];
-
-		const index = values.indexOf(value);
-		if (-1 === index)
-			throw RangeError(`invalid enum value ${value}`);
-
-		return keys[index];
-	}
-
-	static fromValue(value) {
-		return NamespaceRegistrationType[this.valueToKey(value)];
-	}
-
-	get size() { // eslint-disable-line class-methods-use-this
-		return 1;
-	}
-
-	static deserialize(payload) {
-		const byteArray = payload;
-		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
-	}
-
-	static deserializeAligned(payload) {
-		const byteArray = payload;
-		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
-	}
-
-	serialize() {
-		return converter.intToBytes(this.value, 1, false);
-	}
-
-	toString() {
-		return `NamespaceRegistrationType.${NamespaceRegistrationType.valueToKey(this.value)}`;
-	}
-}
-
-export class AliasAction {
-	static UNLINK = new AliasAction(0);
-
-	static LINK = new AliasAction(1);
-
-	constructor(value) {
-		this.value = value;
-	}
-
-	static valueToKey(value) {
-		const values = [
-			0, 1
-		];
-		const keys = [
-			'UNLINK', 'LINK'
-		];
-
-		const index = values.indexOf(value);
-		if (-1 === index)
-			throw RangeError(`invalid enum value ${value}`);
-
-		return keys[index];
-	}
-
-	static fromValue(value) {
-		return AliasAction[this.valueToKey(value)];
-	}
-
-	get size() { // eslint-disable-line class-methods-use-this
-		return 1;
-	}
-
-	static deserialize(payload) {
-		const byteArray = payload;
-		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
-	}
-
-	static deserializeAligned(payload) {
-		const byteArray = payload;
-		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
-	}
-
-	serialize() {
-		return converter.intToBytes(this.value, 1, false);
-	}
-
-	toString() {
-		return `AliasAction.${AliasAction.valueToKey(this.value)}`;
 	}
 }
 
@@ -12150,35 +16166,35 @@ export class TransactionFactory {
 		const view = new BufferView(payload);
 		const parent = Transaction.deserialize(view.buffer);
 		const mapping = new Map([
-			[TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value]), AccountKeyLinkTransactionV1],
-			[TransactionFactory.toKey([NodeKeyLinkTransactionV1.TRANSACTION_TYPE.value]), NodeKeyLinkTransactionV1],
-			[TransactionFactory.toKey([AggregateCompleteTransactionV1.TRANSACTION_TYPE.value]), AggregateCompleteTransactionV1],
-			[TransactionFactory.toKey([AggregateCompleteTransactionV2.TRANSACTION_TYPE.value]), AggregateCompleteTransactionV2],
-			[TransactionFactory.toKey([AggregateBondedTransactionV1.TRANSACTION_TYPE.value]), AggregateBondedTransactionV1],
-			[TransactionFactory.toKey([AggregateBondedTransactionV2.TRANSACTION_TYPE.value]), AggregateBondedTransactionV2],
-			[TransactionFactory.toKey([VotingKeyLinkTransactionV1.TRANSACTION_TYPE.value]), VotingKeyLinkTransactionV1],
-			[TransactionFactory.toKey([VrfKeyLinkTransactionV1.TRANSACTION_TYPE.value]), VrfKeyLinkTransactionV1],
-			[TransactionFactory.toKey([HashLockTransactionV1.TRANSACTION_TYPE.value]), HashLockTransactionV1],
-			[TransactionFactory.toKey([SecretLockTransactionV1.TRANSACTION_TYPE.value]), SecretLockTransactionV1],
-			[TransactionFactory.toKey([SecretProofTransactionV1.TRANSACTION_TYPE.value]), SecretProofTransactionV1],
-			[TransactionFactory.toKey([AccountMetadataTransactionV1.TRANSACTION_TYPE.value]), AccountMetadataTransactionV1],
-			[TransactionFactory.toKey([MosaicMetadataTransactionV1.TRANSACTION_TYPE.value]), MosaicMetadataTransactionV1],
-			[TransactionFactory.toKey([NamespaceMetadataTransactionV1.TRANSACTION_TYPE.value]), NamespaceMetadataTransactionV1],
-			[TransactionFactory.toKey([MosaicDefinitionTransactionV1.TRANSACTION_TYPE.value]), MosaicDefinitionTransactionV1],
-			[TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value]), MosaicSupplyChangeTransactionV1],
-			[TransactionFactory.toKey([MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value]), MosaicSupplyRevocationTransactionV1],
-			[TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value]), MultisigAccountModificationTransactionV1],
-			[TransactionFactory.toKey([AddressAliasTransactionV1.TRANSACTION_TYPE.value]), AddressAliasTransactionV1],
-			[TransactionFactory.toKey([MosaicAliasTransactionV1.TRANSACTION_TYPE.value]), MosaicAliasTransactionV1],
-			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value]), NamespaceRegistrationTransactionV1],
-			[TransactionFactory.toKey([AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountAddressRestrictionTransactionV1],
-			[TransactionFactory.toKey([AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountMosaicRestrictionTransactionV1],
-			[TransactionFactory.toKey([AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value]), AccountOperationRestrictionTransactionV1],
-			[TransactionFactory.toKey([MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), MosaicAddressRestrictionTransactionV1],
-			[TransactionFactory.toKey([MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value]), MosaicGlobalRestrictionTransactionV1],
-			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value]), TransferTransactionV1]
+			[TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, AccountKeyLinkTransactionV1.TRANSACTION_VERSION]), AccountKeyLinkTransactionV1],
+			[TransactionFactory.toKey([NodeKeyLinkTransactionV1.TRANSACTION_TYPE.value, NodeKeyLinkTransactionV1.TRANSACTION_VERSION]), NodeKeyLinkTransactionV1],
+			[TransactionFactory.toKey([AggregateCompleteTransactionV1.TRANSACTION_TYPE.value, AggregateCompleteTransactionV1.TRANSACTION_VERSION]), AggregateCompleteTransactionV1],
+			[TransactionFactory.toKey([AggregateCompleteTransactionV2.TRANSACTION_TYPE.value, AggregateCompleteTransactionV2.TRANSACTION_VERSION]), AggregateCompleteTransactionV2],
+			[TransactionFactory.toKey([AggregateBondedTransactionV1.TRANSACTION_TYPE.value, AggregateBondedTransactionV1.TRANSACTION_VERSION]), AggregateBondedTransactionV1],
+			[TransactionFactory.toKey([AggregateBondedTransactionV2.TRANSACTION_TYPE.value, AggregateBondedTransactionV2.TRANSACTION_VERSION]), AggregateBondedTransactionV2],
+			[TransactionFactory.toKey([VotingKeyLinkTransactionV1.TRANSACTION_TYPE.value, VotingKeyLinkTransactionV1.TRANSACTION_VERSION]), VotingKeyLinkTransactionV1],
+			[TransactionFactory.toKey([VrfKeyLinkTransactionV1.TRANSACTION_TYPE.value, VrfKeyLinkTransactionV1.TRANSACTION_VERSION]), VrfKeyLinkTransactionV1],
+			[TransactionFactory.toKey([HashLockTransactionV1.TRANSACTION_TYPE.value, HashLockTransactionV1.TRANSACTION_VERSION]), HashLockTransactionV1],
+			[TransactionFactory.toKey([SecretLockTransactionV1.TRANSACTION_TYPE.value, SecretLockTransactionV1.TRANSACTION_VERSION]), SecretLockTransactionV1],
+			[TransactionFactory.toKey([SecretProofTransactionV1.TRANSACTION_TYPE.value, SecretProofTransactionV1.TRANSACTION_VERSION]), SecretProofTransactionV1],
+			[TransactionFactory.toKey([AccountMetadataTransactionV1.TRANSACTION_TYPE.value, AccountMetadataTransactionV1.TRANSACTION_VERSION]), AccountMetadataTransactionV1],
+			[TransactionFactory.toKey([MosaicMetadataTransactionV1.TRANSACTION_TYPE.value, MosaicMetadataTransactionV1.TRANSACTION_VERSION]), MosaicMetadataTransactionV1],
+			[TransactionFactory.toKey([NamespaceMetadataTransactionV1.TRANSACTION_TYPE.value, NamespaceMetadataTransactionV1.TRANSACTION_VERSION]), NamespaceMetadataTransactionV1],
+			[TransactionFactory.toKey([MosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, MosaicDefinitionTransactionV1.TRANSACTION_VERSION]), MosaicDefinitionTransactionV1],
+			[TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), MosaicSupplyChangeTransactionV1],
+			[TransactionFactory.toKey([MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION]), MosaicSupplyRevocationTransactionV1],
+			[TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV1],
+			[TransactionFactory.toKey([AddressAliasTransactionV1.TRANSACTION_TYPE.value, AddressAliasTransactionV1.TRANSACTION_VERSION]), AddressAliasTransactionV1],
+			[TransactionFactory.toKey([MosaicAliasTransactionV1.TRANSACTION_TYPE.value, MosaicAliasTransactionV1.TRANSACTION_VERSION]), MosaicAliasTransactionV1],
+			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NamespaceRegistrationTransactionV1],
+			[TransactionFactory.toKey([AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountAddressRestrictionTransactionV1.TRANSACTION_VERSION]), AccountAddressRestrictionTransactionV1],
+			[TransactionFactory.toKey([AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION]), AccountMosaicRestrictionTransactionV1],
+			[TransactionFactory.toKey([AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountOperationRestrictionTransactionV1.TRANSACTION_VERSION]), AccountOperationRestrictionTransactionV1],
+			[TransactionFactory.toKey([MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, MosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION]), MosaicAddressRestrictionTransactionV1],
+			[TransactionFactory.toKey([MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value, MosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION]), MosaicGlobalRestrictionTransactionV1],
+			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value, TransferTransactionV1.TRANSACTION_VERSION]), TransferTransactionV1]
 		]);
-		const discriminator = TransactionFactory.toKey([parent.type.value]);
+		const discriminator = TransactionFactory.toKey([parent.type.value, parent.version]);
 		const factory_class = mapping.get(discriminator);
 		return factory_class.deserialize(view.buffer);
 	}
@@ -12234,31 +16250,31 @@ export class EmbeddedTransactionFactory {
 		const view = new BufferView(payload);
 		const parent = EmbeddedTransaction.deserialize(view.buffer);
 		const mapping = new Map([
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNodeKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedVotingKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE.value]), EmbeddedVrfKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedHashLockTransactionV1.TRANSACTION_TYPE.value]), EmbeddedHashLockTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE.value]), EmbeddedSecretLockTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE.value]), EmbeddedSecretProofTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNamespaceMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicDefinitionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicSupplyChangeTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicSupplyRevocationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMultisigAccountModificationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAddressAliasTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicAliasTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value]), EmbeddedNamespaceRegistrationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountAddressRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountMosaicRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedAccountOperationRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicAddressRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value]), EmbeddedMosaicGlobalRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedTransferTransactionV1.TRANSACTION_TYPE.value]), EmbeddedTransferTransactionV1]
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedNodeKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedVotingKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedVrfKeyLinkTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedHashLockTransactionV1.TRANSACTION_TYPE.value, EmbeddedHashLockTransactionV1.TRANSACTION_VERSION]), EmbeddedHashLockTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE.value, EmbeddedSecretLockTransactionV1.TRANSACTION_VERSION]), EmbeddedSecretLockTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE.value, EmbeddedSecretProofTransactionV1.TRANSACTION_VERSION]), EmbeddedSecretProofTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedNamespaceMetadataTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicDefinitionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicSupplyChangeTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicSupplyRevocationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), EmbeddedMultisigAccountModificationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE.value, EmbeddedAddressAliasTransactionV1.TRANSACTION_VERSION]), EmbeddedAddressAliasTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicAliasTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicAliasTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), EmbeddedNamespaceRegistrationTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountAddressRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountMosaicRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountOperationRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicAddressRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicGlobalRestrictionTransactionV1],
+			[EmbeddedTransactionFactory.toKey([EmbeddedTransferTransactionV1.TRANSACTION_TYPE.value, EmbeddedTransferTransactionV1.TRANSACTION_VERSION]), EmbeddedTransferTransactionV1]
 		]);
-		const discriminator = EmbeddedTransactionFactory.toKey([parent.type.value]);
+		const discriminator = EmbeddedTransactionFactory.toKey([parent.type.value, parent.version]);
 		const factory_class = mapping.get(discriminator);
 		return factory_class.deserialize(view.buffer);
 	}
@@ -12292,6 +16308,98 @@ export class EmbeddedTransactionFactory {
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
 			throw RangeError(`unknown EmbeddedTransaction type ${entityName}`);
+
+		return new mapping[entityName]();
+	}
+}
+
+export class BlockFactory {
+	static toKey(values) {
+		if (1 === values.length)
+			return values[0];
+
+		// assume each key is at most 32bits
+		return values.map(n => BigInt(n)).reduce((accumulator, value) => (accumulator << 32n) + value);
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const parent = Block.deserialize(view.buffer);
+		const mapping = new Map([
+			[BlockFactory.toKey([NemesisBlockV1.BLOCK_TYPE.value]), NemesisBlockV1],
+			[BlockFactory.toKey([NormalBlockV1.BLOCK_TYPE.value]), NormalBlockV1],
+			[BlockFactory.toKey([ImportanceBlockV1.BLOCK_TYPE.value]), ImportanceBlockV1]
+		]);
+		const discriminator = BlockFactory.toKey([parent.type.value]);
+		const factory_class = mapping.get(discriminator);
+		return factory_class.deserialize(view.buffer);
+	}
+
+	static createByName(entityName) {
+		const mapping = {
+			nemesis_block_v1: NemesisBlockV1,
+			normal_block_v1: NormalBlockV1,
+			importance_block_v1: ImportanceBlockV1
+		};
+
+		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
+			throw RangeError(`unknown Block type ${entityName}`);
+
+		return new mapping[entityName]();
+	}
+}
+
+export class ReceiptFactory {
+	static toKey(values) {
+		if (1 === values.length)
+			return values[0];
+
+		// assume each key is at most 32bits
+		return values.map(n => BigInt(n)).reduce((accumulator, value) => (accumulator << 32n) + value);
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const parent = Receipt.deserialize(view.buffer);
+		const mapping = new Map([
+			[ReceiptFactory.toKey([HarvestFeeReceipt.RECEIPT_TYPE.value]), HarvestFeeReceipt],
+			[ReceiptFactory.toKey([InflationReceipt.RECEIPT_TYPE.value]), InflationReceipt],
+			[ReceiptFactory.toKey([LockHashCreatedFeeReceipt.RECEIPT_TYPE.value]), LockHashCreatedFeeReceipt],
+			[ReceiptFactory.toKey([LockHashCompletedFeeReceipt.RECEIPT_TYPE.value]), LockHashCompletedFeeReceipt],
+			[ReceiptFactory.toKey([LockHashExpiredFeeReceipt.RECEIPT_TYPE.value]), LockHashExpiredFeeReceipt],
+			[ReceiptFactory.toKey([LockSecretCreatedFeeReceipt.RECEIPT_TYPE.value]), LockSecretCreatedFeeReceipt],
+			[ReceiptFactory.toKey([LockSecretCompletedFeeReceipt.RECEIPT_TYPE.value]), LockSecretCompletedFeeReceipt],
+			[ReceiptFactory.toKey([LockSecretExpiredFeeReceipt.RECEIPT_TYPE.value]), LockSecretExpiredFeeReceipt],
+			[ReceiptFactory.toKey([MosaicExpiredReceipt.RECEIPT_TYPE.value]), MosaicExpiredReceipt],
+			[ReceiptFactory.toKey([MosaicRentalFeeReceipt.RECEIPT_TYPE.value]), MosaicRentalFeeReceipt],
+			[ReceiptFactory.toKey([NamespaceExpiredReceipt.RECEIPT_TYPE.value]), NamespaceExpiredReceipt],
+			[ReceiptFactory.toKey([NamespaceDeletedReceipt.RECEIPT_TYPE.value]), NamespaceDeletedReceipt],
+			[ReceiptFactory.toKey([NamespaceRentalFeeReceipt.RECEIPT_TYPE.value]), NamespaceRentalFeeReceipt]
+		]);
+		const discriminator = ReceiptFactory.toKey([parent.type.value]);
+		const factory_class = mapping.get(discriminator);
+		return factory_class.deserialize(view.buffer);
+	}
+
+	static createByName(entityName) {
+		const mapping = {
+			harvest_fee_receipt: HarvestFeeReceipt,
+			inflation_receipt: InflationReceipt,
+			lock_hash_created_fee_receipt: LockHashCreatedFeeReceipt,
+			lock_hash_completed_fee_receipt: LockHashCompletedFeeReceipt,
+			lock_hash_expired_fee_receipt: LockHashExpiredFeeReceipt,
+			lock_secret_created_fee_receipt: LockSecretCreatedFeeReceipt,
+			lock_secret_completed_fee_receipt: LockSecretCompletedFeeReceipt,
+			lock_secret_expired_fee_receipt: LockSecretExpiredFeeReceipt,
+			mosaic_expired_receipt: MosaicExpiredReceipt,
+			mosaic_rental_fee_receipt: MosaicRentalFeeReceipt,
+			namespace_expired_receipt: NamespaceExpiredReceipt,
+			namespace_deleted_receipt: NamespaceDeletedReceipt,
+			namespace_rental_fee_receipt: NamespaceRentalFeeReceipt
+		};
+
+		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
+			throw RangeError(`unknown Receipt type ${entityName}`);
 
 		return new mapping[entityName]();
 	}

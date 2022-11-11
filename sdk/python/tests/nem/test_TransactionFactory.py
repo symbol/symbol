@@ -45,7 +45,7 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 			'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
 			'MultisigAccountModificationType', 'NetworkType', 'TransactionType',
 
-			'struct:Cosignature',
+			'struct:CosignatureV1',
 			'struct:Message',
 			'struct:Mosaic',
 			'struct:MosaicDefinition',
@@ -54,14 +54,14 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 			'struct:MosaicProperty',
 			'struct:MultisigAccountModification',
 			'struct:NamespaceId',
-			'struct:SizePrefixedCosignature',
+			'struct:SizePrefixedCosignatureV1',
 			'struct:SizePrefixedMosaic',
 			'struct:SizePrefixedMosaicProperty',
 			'struct:SizePrefixedMultisigAccountModification',
 
 			'Address', 'Hash256', 'PublicKey',
 
-			'array[SizePrefixedCosignature]',
+			'array[SizePrefixedCosignatureV1]',
 			'array[SizePrefixedMosaic]',
 			'array[SizePrefixedMosaicProperty]',
 			'array[SizePrefixedMultisigAccountModification]'

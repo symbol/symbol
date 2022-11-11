@@ -2,7 +2,7 @@ import "transaction.cats"
 
 # cosignature attached to an aggregate transaction
 @is_size_implicit
-struct Cosignature
+struct CosignatureV1
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_COSIGNATURE)
 
@@ -22,12 +22,12 @@ struct Cosignature
 	multisig_account_address = inline SizePrefixedAddress
 
 # cosignature attached to an aggregate transaction with prefixed size
-struct SizePrefixedCosignature
+struct SizePrefixedCosignatureV1
 	# cosignature size
 	cosignature_size = sizeof(uint32, cosignature)
 
 	# cosignature
-	cosignature = Cosignature
+	cosignature = CosignatureV1
 
 # binary layout for a multisig transaction (V1, latest)
 struct MultisigTransactionV1
@@ -46,4 +46,4 @@ struct MultisigTransactionV1
 	cosignatures_count = uint32
 
 	# cosignatures
-	cosignatures = array(SizePrefixedCosignature, cosignatures_count)
+	cosignatures = array(SizePrefixedCosignatureV1, cosignatures_count)

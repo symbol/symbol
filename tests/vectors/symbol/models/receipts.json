@@ -1,0 +1,160 @@
+[
+  {
+    "schema_name": "HarvestFeeReceipt",
+    "test_name": "HarvestFeeReceipt_receipts_1",
+    "payload": "300000000000432144B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB2",
+    "descriptor": {
+      "type": "harvest_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "target_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ"
+    }
+  },
+  {
+    "schema_name": "InflationReceipt",
+    "test_name": "InflationReceipt_receipts_2",
+    "payload": "180000000000435144B262C46CEABB85EFCDAB9078563412",
+    "descriptor": {
+      "type": "inflation_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      }
+    }
+  },
+  {
+    "schema_name": "LockHashCreatedFeeReceipt",
+    "test_name": "LockHashCreatedFeeReceipt_receipts_3",
+    "payload": "300000000000483144B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB2",
+    "descriptor": {
+      "type": "lock_hash_created_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "target_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ"
+    }
+  },
+  {
+    "schema_name": "LockHashCompletedFeeReceipt",
+    "test_name": "LockHashCompletedFeeReceipt_receipts_4",
+    "payload": "300000000000482244B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB2",
+    "descriptor": {
+      "type": "lock_hash_completed_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "target_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ"
+    }
+  },
+  {
+    "schema_name": "LockHashExpiredFeeReceipt",
+    "test_name": "LockHashExpiredFeeReceipt_receipts_5",
+    "payload": "300000000000482344B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB2",
+    "descriptor": {
+      "type": "lock_hash_expired_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "target_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ"
+    }
+  },
+  {
+    "schema_name": "LockSecretCreatedFeeReceipt",
+    "test_name": "LockSecretCreatedFeeReceipt_receipts_6",
+    "payload": "300000000000523144B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB2",
+    "descriptor": {
+      "type": "lock_secret_created_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "target_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ"
+    }
+  },
+  {
+    "schema_name": "LockSecretCompletedFeeReceipt",
+    "test_name": "LockSecretCompletedFeeReceipt_receipts_7",
+    "payload": "300000000000522244B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB2",
+    "descriptor": {
+      "type": "lock_secret_completed_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "target_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ"
+    }
+  },
+  {
+    "schema_name": "LockSecretExpiredFeeReceipt",
+    "test_name": "LockSecretExpiredFeeReceipt_receipts_8",
+    "payload": "300000000000522344B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB2",
+    "descriptor": {
+      "type": "lock_secret_expired_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "target_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ"
+    }
+  },
+  {
+    "schema_name": "MosaicExpiredReceipt",
+    "test_name": "MosaicExpiredReceipt_receipts_9",
+    "payload": "1000000000004D4144B262C46CEABB85",
+    "descriptor": {
+      "type": "mosaic_expired_receipt",
+      "artifact_id": 9636553580561478212
+    }
+  },
+  {
+    "schema_name": "MosaicRentalFeeReceipt",
+    "test_name": "MosaicRentalFeeReceipt_receipts_10",
+    "payload": "4800000000004D1244B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB298F409274B52FABBFBCF7E7DF7E20DE1D0C3F657FB8595C1",
+    "descriptor": {
+      "type": "mosaic_rental_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "sender_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ",
+      "recipient_address": "TD2ASJ2LKL5LX66PPZ67PYQN4HIMH5SX7OCZLQI"
+    }
+  },
+  {
+    "schema_name": "NamespaceExpiredReceipt",
+    "test_name": "NamespaceExpiredReceipt_receipts_11",
+    "payload": "1000000000004E41F6CFC5756D0AC4B6",
+    "descriptor": {
+      "type": "namespace_expired_receipt",
+      "artifact_id": 13169662675581784054
+    }
+  },
+  {
+    "schema_name": "NamespaceExpiredReceipt",
+    "test_name": "NamespaceExpiredReceipt_receipts_12",
+    "payload": "1000000000004E41F6CFC5756D0AC4B6",
+    "descriptor": {
+      "type": "namespace_expired_receipt",
+      "artifact_id": 13169662675581784054
+    }
+  },
+  {
+    "schema_name": "NamespaceRentalFeeReceipt",
+    "test_name": "NamespaceRentalFeeReceipt_receipts_13",
+    "payload": "4800000000004D1244B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB298F409274B52FABBFBCF7E7DF7E20DE1D0C3F657FB8595C1",
+    "descriptor": {
+      "type": "mosaic_rental_fee_receipt",
+      "mosaic": {
+        "mosaic_id": 9636553580561478212,
+        "amount": 1311768467294899695
+      },
+      "sender_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ",
+      "recipient_address": "TD2ASJ2LKL5LX66PPZ67PYQN4HIMH5SX7OCZLQI"
+    }
+  }
+]

@@ -89,7 +89,7 @@ abstract struct Block
 	inline BlockHeader
 
 # binary layout for a nemesis block header
-struct NemesisBlock
+struct NemesisBlockV1
 	BLOCK_VERSION = make_const(uint8, 1)
 	BLOCK_TYPE = make_const(BlockType, NEMESIS)
 
@@ -101,7 +101,7 @@ struct NemesisBlock
 	transactions = array(Transaction, __FILL__)
 
 # binary layout for a normal block header
-struct NormalBlock
+struct NormalBlockV1
 	BLOCK_VERSION = make_const(uint8, 1)
 	BLOCK_TYPE = make_const(BlockType, NORMAL)
 
@@ -115,7 +115,7 @@ struct NormalBlock
 	transactions = array(Transaction, __FILL__)
 
 # binary layout for an importance block header
-struct ImportanceBlock
+struct ImportanceBlockV1
 	BLOCK_VERSION = make_const(uint8, 1)
 	BLOCK_TYPE = make_const(BlockType, IMPORTANCE)
 

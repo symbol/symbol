@@ -1,3 +1,4 @@
+from enum import Enum
 from itertools import filterfalse
 
 from catparser.DisplayType import DisplayType
@@ -46,6 +47,12 @@ def filter_size_if_first(fields_iter):
 
 	for field in fields_iter:
 		yield field
+
+
+class DeserializerMode(Enum):
+	USE_DEFAULT = 1
+	USE_ALIGNED = 2
+	USE_UNALIGNED = 3
 
 
 class StructFormatter(AbstractTypeFormatter):
@@ -229,7 +236,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return MethodDescriptor(body=body)
 
-	def generate_deserialize_field(self, field, arg_buffer_name=None):
+	def generate_deserialize_field(self, field, deserializer_mode, arg_buffer_name=None):
 		# pylint: disable=too-many-locals
 
 		condition = self.generate_condition(field)
@@ -248,7 +255,11 @@ class StructFormatter(AbstractTypeFormatter):
 		if not use_custom_buffer_name:
 			buffer_load_name = 'view.buffer'
 
-		load = field.extensions.printer.load(buffer_load_name, self.struct.is_aligned)
+		use_aligned_deserializer = self.struct.is_aligned
+		if DeserializerMode.USE_DEFAULT != deserializer_mode:
+			use_aligned_deserializer = DeserializerMode.USE_ALIGNED == deserializer_mode
+
+		load = field.extensions.printer.load(buffer_load_name, use_aligned_deserializer)
 		const_field = 'const ' if not condition else ''
 		deserialize = f'{const_field}{field_name} = {load};\n'
 
@@ -274,7 +285,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return indent_if_conditional(condition, deserialize_field)
 
-	def get_deserialize_descriptor(self):
+	def get_deserialize_descriptor_impl(self, deserializer_mode):  # pylint: disable=too-many-locals
 		body = 'const view = new BufferView(payload);\n'
 
 		# special treatment for condition-guarded fields,
@@ -302,7 +313,7 @@ class StructFormatter(AbstractTypeFormatter):
 					queued_fields[condition_field_name].append({'field': field})
 					continue
 
-			deserialized_field = self.generate_deserialize_field(field)
+			deserialized_field = self.generate_deserialize_field(field, deserializer_mode)
 			body += deserialized_field
 			processed_fields.add(field.name)
 
@@ -310,6 +321,7 @@ class StructFormatter(AbstractTypeFormatter):
 			for conditioned in queued_fields.get(field.name, []):
 				body += self.generate_deserialize_field(
 					conditioned['field'],
+					deserializer_mode,
 					create_temporary_buffer_name(field.name),
 				)
 
@@ -323,6 +335,18 @@ class StructFormatter(AbstractTypeFormatter):
 
 		body += 'return instance;'
 		return MethodDescriptor(body=body)
+
+	def get_deserialize_descriptor(self):
+		if not self.struct.requires_unaligned:
+			return self.get_deserialize_descriptor_impl(DeserializerMode.USE_DEFAULT)
+
+		return self.get_deserialize_descriptor_impl(DeserializerMode.USE_UNALIGNED)
+
+	def get_deserialize_aligned_descriptor(self):
+		if not self.struct.requires_unaligned:
+			return None
+
+		return self.get_deserialize_descriptor_impl(DeserializerMode.USE_ALIGNED)
 
 	def generate_serialize_field(self, field):
 		condition = self.generate_condition(field, True)

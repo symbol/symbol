@@ -84,6 +84,12 @@ def _process_struct(struct_model, type_map, printer_factory):
 			element_type_model = type_map.get(field_model.field_type.element_type, None)
 			is_contents_abstract = DisplayType.STRUCT == element_type_model.display_type and element_type_model.is_abstract
 
+			# if the struct is unaligned but contains an aligned field,
+			# set a `requires_unaligned` flag to trigger generation of unaligned serializers
+			# for the field too
+			if not struct_model.is_aligned and element_type_model.is_aligned:
+				element_type_model.requires_unaligned = True
+
 			type_model = field_model
 		elif not type_model:
 			type_model = field_model
@@ -97,13 +103,76 @@ def _process_struct(struct_model, type_map, printer_factory):
 	_bind_size_fields(struct_model)
 
 
+class MarkedStructs:
+	def __init__(self):
+		self.already_marked = set()
+		self.tracked = None
+
+	def start(self):
+		self.tracked = set()
+
+	def add(self, value):
+		destination = self.tracked if self.tracked is not None else self.already_marked
+
+		# always check against already_marked set
+		if value not in self.already_marked:
+			destination.add(value)
+
+	def finalize(self):
+		self.already_marked.update(self.tracked)
+		result = self.tracked
+		self.tracked = None
+		return result
+
+	def __len__(self):
+		return len(self.already_marked)
+
+
+def _propagate_unaligned(struct_names, type_map):
+	marked_structs = MarkedStructs()
+
+	while True:
+		previous_length = len(marked_structs)
+
+		# mark derived objects
+		marked_structs.start()
+		for struct_name in struct_names:
+			struct_model = type_map[struct_name]
+			factory_type = type_map.get(struct_model.factory_type, None)
+			if factory_type and factory_type.requires_unaligned:
+				struct_model.requires_unaligned = True
+				marked_structs.add(struct_name)
+
+		newly_marked = marked_structs.finalize()
+
+		# go through newly marked structs and check if any field type needs to be marked:
+		for struct_name in newly_marked:
+			struct_model = type_map[struct_name]
+			for field_model in struct_model.fields:
+				if field_model.display_type.is_array:
+					raise RuntimeError(f'array field not handled in {struct_name}.{field_model.name}')
+
+				type_model = type_map.get(field_model.field_type, None)
+				if type_model and DisplayType.STRUCT == type_model.display_type:
+					type_model.requires_unaligned = True
+					marked_structs.add(type_model.name)
+
+		if previous_length == len(marked_structs):
+			break
+
+
 def extend_models(ast_models, printer_factory):
 	"""Adds extensions to all struct field models."""
 
 	type_map = {ast_model.name: ast_model for ast_model in ast_models}
+	struct_names = set()
 
 	for ast_model in ast_models:
 		if DisplayType.STRUCT == ast_model.display_type:
 			_process_struct(ast_model, type_map, printer_factory)
+			struct_names.add(ast_model.name)
+
+	# second pass, mark derived structs as also requiring unaligned
+	_propagate_unaligned(struct_names, type_map)
 
 # endregion

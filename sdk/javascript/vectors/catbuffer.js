@@ -1,3 +1,5 @@
+import SymbolBlockFactory from './BlockFactory.js';
+import ReceiptFactory from './ReceiptFactory.js';
 import NemFacade from '../src/facade/NemFacade.js';
 import SymbolFacade from '../src/facade/SymbolFacade.js';
 import * as nc from '../src/nem/models.js';
@@ -57,12 +59,12 @@ describe('catbuffer vectors', () => {
 		return camelCaseName;
 	};
 
-	const isNumeric = (key, value, type) => {
+	const isNumericNem = (key, value, type) => {
 		const bigIntPropertyNames = [
-			'amount', 'fee', 'mosaic_id', 'duration', 'scoped_metadata_key', 'namespace_id', 'restriction_key', 'restriction_value'
+			'amount', 'fee', 'rental_fee'
 		];
 
-		if (bigIntPropertyNames.some(name => key.includes(name)))
+		if (bigIntPropertyNames.some(name => key === name))
 			return false;
 
 		if ('delta' === key && 'mosaic_supply_change_transaction_v1' === type)
@@ -71,7 +73,26 @@ describe('catbuffer vectors', () => {
 		return 0xFFFFFFFFn >= value;
 	};
 
-	const jsify = source => {
+	const isNumericSymbol = (key, value, type) => {
+		const bigIntPropertyNames = [
+			'amount', 'fee', 'duration', 'scoped_metadata_key', 'restriction_key',
+			'new_restriction_value', 'previous_restriction_value',
+			'mosaic_id', 'reference_mosaic_id', 'target_mosaic_id',
+			'namespace_id', 'target_namespace_id',
+
+			'height', 'difficulty', 'timestamp', 'harvesting_eligible_accounts_count'
+		];
+
+		if (bigIntPropertyNames.some(name => key === name))
+			return false;
+
+		if ('delta' === key && 'mosaic_supply_change_transaction_v1' === type)
+			return false;
+
+		return 0xFFFFFFFFn >= value;
+	};
+
+	const jsifyImpl = isNumeric => source => {
 		const dest = {};
 		Object.getOwnPropertyNames(source).forEach(key => {
 			let value = source[key];
@@ -84,12 +105,12 @@ describe('catbuffer vectors', () => {
 						return 'account_mosaic_restriction_transaction_v1' === source.type ? valueItem : Number(valueItem);
 
 					if ('object' === typeof (valueItem))
-						return jsify(valueItem);
+						return jsifyImpl(isNumeric)(valueItem);
 
 					return valueItem;
 				});
 			} else if ('object' === typeof (value) && null !== value) {
-				value = jsify(value);
+				value = jsifyImpl(isNumeric)(value);
 			}
 
 			dest[makeCamelCase(key)] = value;
@@ -97,6 +118,10 @@ describe('catbuffer vectors', () => {
 
 		return dest;
 	};
+
+	const jsifySymbol = jsifyImpl(isNumericSymbol);
+
+	const jsifyNem = jsifyImpl(isNumericNem);
 
 	// endregion
 
@@ -129,13 +154,13 @@ describe('catbuffer vectors', () => {
 				if (descriptor.cosignatures) {
 					descriptor.cosignatures = descriptor.cosignatures.map(cosignatureDescriptor => {
 						const cosignature = facade.transactionFactory.create({
-							type: 'cosignature',
+							type: 'cosignature_v1',
 							...cosignatureDescriptor.cosignature
 						});
 						cosignature.signature = new module.Signature(cosignatureDescriptor.cosignature.signature);
 						cosignature.network = module.NetworkType.MAINNET; // TODO: fixup based on mismatch in vectors
 
-						const sizePrefixedCosignature = new module.SizePrefixedCosignature();
+						const sizePrefixedCosignature = new module.SizePrefixedCosignatureV1();
 						sizePrefixedCosignature.cosignature = cosignature;
 						return sizePrefixedCosignature;
 					});
@@ -163,6 +188,21 @@ describe('catbuffer vectors', () => {
 						.map(cosignatureDescriptor => fixupCosignatureSymbol(cosignatureDescriptor, module));
 				}
 			}
+
+			return descriptor;
+		};
+
+		const fixupBlockDescriptorSymbol = (descriptor, module, facade) => {
+			descriptor.signature = new module.Signature(descriptor.signature);
+			fixupDescriptorCommon(descriptor, module);
+
+			if (descriptor.transactions) {
+				descriptor.transactions = descriptor.transactions
+					.map(childDescriptor => fixupDescriptorSymbol(childDescriptor, module, facade));
+
+				descriptor.transactions = descriptor.transactions
+					.map(childDescriptor => facade.transactionFactory.create(childDescriptor));
+			}
 		};
 
 		const isKeyInFormattedString = (transaction, key) => {
@@ -172,11 +212,8 @@ describe('catbuffer vectors', () => {
 			return 'parentName' === key && null === transaction[key];
 		};
 
-		const assertCreateFromDescriptor = (item, module, FacadeClass, fixupDescriptor) => {
+		const assertCreateFromDescriptor = (item, module, FacadeClass, fixupDescriptor, jsify) => {
 			// Arrange:
-			const comment = item.comment || '';
-			const payloadHex = item.payload;
-
 			const facade = new FacadeClass('testnet');
 
 			const descriptor = jsify(item.descriptor);
@@ -187,23 +224,79 @@ describe('catbuffer vectors', () => {
 			const transactionBuffer = transaction.serialize();
 
 			// Assert:
-			expect(converter.uint8ToHex(transactionBuffer), comment).to.equal(payloadHex);
-			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(transaction, key), comment))
+			expect(converter.uint8ToHex(transactionBuffer)).to.equal(item.payload);
+			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(transaction, key)))
+				.to.equal(true);
+		};
+
+		const createSymbolDescriptor = (originalDescriptor, fixupDescriptor) => {
+			const facade = new SymbolFacade('testnet');
+
+			// - this will be dealing with symbol blocks only
+			const descriptor = jsifySymbol(originalDescriptor);
+			fixupDescriptor(descriptor, sc, facade);
+
+			return { network: facade.network, descriptor };
+		};
+
+		const assertCreateSymbolBlockFromDescriptor = (item, fixupDescriptor) => {
+			// Arrange:
+			const { network, descriptor } = createSymbolDescriptor(item.descriptor, fixupDescriptor);
+
+			// Act:
+			const blockFactory = new SymbolBlockFactory(network);
+			const block = blockFactory.create(descriptor);
+			const blockBuffer = block.serialize();
+
+			// Assert:
+			expect(converter.uint8ToHex(blockBuffer)).to.equal(item.payload);
+			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(block, key)))
+				.to.equal(true);
+		};
+
+		const assertCreateSymbolReceiptFromDescriptor = (item, fixupDescriptor) => {
+			// Arrange:
+			const { descriptor } = createSymbolDescriptor(item.descriptor, fixupDescriptor);
+
+			// Act:
+			const receiptFactory = new ReceiptFactory();
+			const receipt = receiptFactory.create(descriptor);
+			const receiptBuffer = receipt.serialize();
+
+			// Assert:
+			expect(converter.uint8ToHex(receiptBuffer)).to.equal(item.payload);
+			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(receipt, key)))
 				.to.equal(true);
 		};
 
 		describe('NEM', () => {
 			prepareTestCases('nem').forEach(item => {
 				it(`can create from descriptor ${item.test_name}`, () => {
-					assertCreateFromDescriptor(item, nc, NemFacade, fixupDescriptorNem);
+					assertCreateFromDescriptor(item, nc, NemFacade, fixupDescriptorNem, jsifyNem);
 				});
 			});
 		});
 
-		describe('Symbol', () => {
-			prepareTestCases('symbol').forEach(item => {
+		describe('Symbol (transactions)', () => {
+			prepareTestCases('symbol', { includes: ['transactions'] }).forEach(item => {
 				it(`can create from descriptor ${item.test_name}`, () => {
-					assertCreateFromDescriptor(item, sc, SymbolFacade, fixupDescriptorSymbol);
+					assertCreateFromDescriptor(item, sc, SymbolFacade, fixupDescriptorSymbol, jsifySymbol);
+				});
+			});
+		});
+
+		describe('Symbol (blocks)', () => {
+			prepareTestCases('symbol', { includes: ['blocks'] }).forEach(item => {
+				it(`can create from descriptor ${item.test_name}`, () => {
+					assertCreateSymbolBlockFromDescriptor(item, fixupBlockDescriptorSymbol);
+				});
+			});
+		});
+
+		describe('Symbol (receipts)', () => {
+			prepareTestCases('symbol', { includes: ['receipts'] }).forEach(item => {
+				it(`can create from descriptor ${item.test_name}`, () => {
+					assertCreateSymbolReceiptFromDescriptor(item, () => {});
 				});
 			});
 		});
@@ -255,7 +348,6 @@ describe('catbuffer vectors', () => {
 		const assertRoundtrip = (item, module) => {
 			// Arrange:
 			const schemaName = item.schema_name;
-			const comment = item.comment || '';
 			const payloadHex = item.payload;
 			const payload = converter.hexToUint8(payloadHex);
 
@@ -266,11 +358,11 @@ describe('catbuffer vectors', () => {
 			const transactionBuffer = transaction.serialize();
 
 			// Assert:
-			expect(converter.uint8ToHex(transactionBuffer), comment).to.equal(payloadHex);
-			expect(transaction.size, comment).to.equal(transactionBuffer.length);
+			expect(converter.uint8ToHex(transactionBuffer)).to.equal(payloadHex);
+			expect(transaction.size).to.equal(transactionBuffer.length);
 
 			if (schemaName.endsWith('Transaction'))
-				assertRoundtrip({ schema_name: 'TransactionFactory', payload: payloadHex, comment }, module);
+				assertRoundtrip({ schema_name: 'TransactionFactory', payload: payloadHex }, module);
 		};
 
 		describe('NEM', () => {
