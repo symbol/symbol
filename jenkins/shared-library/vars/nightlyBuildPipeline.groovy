@@ -128,8 +128,8 @@ Map<String, String> siblingJobNames(Map<String, String> displayNameJenkinsfileMa
 			|| item.fullName == project.fullName
 			// skip jobs that are not in the build configuration file for this branch
 			|| !displayNameJenkinsfileMap.containsKey(item.displayName)) {
-				echo "Skipping job - ${item.fullName}"
-				continue
+			echo "Skipping job - ${item.fullName}"
+			continue
 		}
 
 		targets.put(item.fullName, item.displayName)
