@@ -22,8 +22,8 @@
 #include "src/builders/TransferBuilder.h"
 #include "src/extensions/ConversionExtensions.h"
 #include "src/extensions/IdGenerator.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "catapult/crypto/Hashes.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include <map>
 
 namespace catapult { namespace builders {

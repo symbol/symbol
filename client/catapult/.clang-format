@@ -95,7 +95,7 @@ IncludeCategories:
     Priority:        20
     SortPriority:    0
   - Regex:           '^"sdk/tests'
-    Priority:        22
+    Priority:        52
     SortPriority:    0
   - Regex:           '^"src/[A-Za-z0-9_]*/'
     Priority:        21
