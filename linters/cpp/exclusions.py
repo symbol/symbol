@@ -119,7 +119,12 @@ CORE_FIRSTINCLUDES = {
 	'tests/catapult/utils/CountOfTests.cpp': 'catapult/types.h',
 	'tests/catapult/utils/MacroBasedEnumTests.cpp': 'catapult/utils/MacroBasedEnumIncludes.h',
 	'tests/catapult/utils/TraitsTests.cpp': 'catapult/utils/traits/Traits.h',
-	'tests/catapult/utils/StlTraitsTests.cpp': 'catapult/utils/traits/StlTraits.h'
+	'tests/catapult/utils/StlTraitsTests.cpp': 'catapult/utils/traits/StlTraits.h',
+
+	'tests/int/node/basic/LocalNodeBasicTests.cpp': 'tests/int/node/test/LocalNodeBasicTests.h',
+	'tests/int/node/basic/NemesisBlockLoaderIntegrityTests.cpp': 'catapult/extensions/NemesisBlockLoader.h',
+	'tests/int/stress/NemesisBlockLoaderIntegrityTests.cpp': 'catapult/extensions/NemesisBlockLoader.h',
+	'tests/int/stress/UtUpdaterIntegrityTests.cpp': 'catapult/chain/UtUpdater.h'
 }
 
 PLUGINS_FIRSTINCLUDES = {

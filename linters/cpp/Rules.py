@@ -76,9 +76,6 @@ class DefaultRules:
 	@staticmethod
 	def first_test_include_check(sorted_includes, path_elements):
 		full_path = '/'.join(path_elements)
-		if 'test' not in path_elements:
-			if any(subdir in path_elements for subdir in ['int', 'bench', 'stress']):
-				return sorted_includes[0].include
 
 		if path_elements[0] != 'tests':
 			return '<first_test_include_check called on non test path>' + full_path
@@ -88,6 +85,10 @@ class DefaultRules:
 			if include_path[0] == '<':
 				return include_path
 			return '"{}"'.format(include_path)
+
+		if 'test' not in path_elements:
+			if any(subdir in path_elements for subdir in ['int', 'bench', 'stress']):
+				return sorted_includes[0].include
 
 		if path_elements[-1].endswith('Tests.cpp'):
 			include_dir = '/'.join(path_elements[1:-1])
