@@ -93,7 +93,7 @@ CORE_FIRSTINCLUDES = {
 	'src/catapult/consumers/HashCalculatorConsumer.cpp': 'BlockConsumers.h',
 	'src/catapult/consumers/HashCheckConsumer.cpp': 'BlockConsumers.h',
 	'src/catapult/consumers/NewBlockConsumer.cpp': 'BlockConsumers.h',
-	'src/catapult/consumers/NewTransactionsConsumer.cpp': 'TransactionConsumers.h',
+	#'src/catapult/consumers/NewTransactionsConsumer.cpp': 'TransactionConsumers.h',
 	'src/catapult/consumers/StatelessValidationConsumer.cpp': 'BlockConsumers.h',
 
 	'src/catapult/ionet/IoEnums.cpp': 'ConnectResult.h',
