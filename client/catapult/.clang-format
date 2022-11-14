@@ -91,18 +91,21 @@ IncludeCategories:
     SortPriority:    0
 
 # sdk - should be used only in tests, this is based on current settings, but probably we should move sdk/ includes below catapult/ includes?
-  - Regex:           '^"sdk/'
+  - Regex:           '^"sdk/src'
     Priority:        20
+    SortPriority:    0
+  - Regex:           '^"sdk/tests'
+    Priority:        22
     SortPriority:    0
   - Regex:           '^"src/[A-Za-z0-9_]*/'
     Priority:        21
     SortPriority:    0
 # handle tools here, nested before non-nested
   - Regex:           '^"tools/[A-Za-z0-9_]*/'
-    Priority:        22
+    Priority:        23
     SortPriority:    0
   - Regex:           '^"tools/'
-    Priority:        23
+    Priority:        24
     SortPriority:    0
 
 # priority 30 is left for a later general rule
