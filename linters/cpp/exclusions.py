@@ -107,16 +107,6 @@ CORE_FIRSTINCLUDES = {
 	# tests
 	'tests/test/nodeps/TestMain.cpp': 'catapult/crypto/OpensslInit.h',
 
-	'tests/catapult/consumers/BatchSignatureConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/BlockchainCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/BlockchainSyncCleanupConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/BlockchainSyncConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/HashCalculatorConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/HashCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/NewBlockConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-	'tests/catapult/consumers/NewTransactionsConsumerTests.cpp': 'catapult/consumers/TransactionConsumers.h',
-	'tests/catapult/consumers/StatelessValidationConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-
 	'tests/catapult/deltaset/MapVirtualizedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
 	'tests/catapult/deltaset/OrderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
 	'tests/catapult/deltaset/ReverseOrderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
