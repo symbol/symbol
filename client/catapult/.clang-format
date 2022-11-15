@@ -85,6 +85,12 @@ IncludeCategories:
   - Regex:           '^"tools/ToolMain.h"'
     Priority:        1
     SortPriority:    0
+  - Regex:           '^"Observers.h"'
+    Priority:        2
+    SortPriority:    0
+  - Regex:           '^"Validators.h"'
+    Priority:        2
+    SortPriority:    0
 
   - Regex:           '^"[A-Za-z0-9_]*\.h"'
     Priority:        10

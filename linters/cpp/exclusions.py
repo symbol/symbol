@@ -129,20 +129,8 @@ CORE_FIRSTINCLUDES = {
 
 PLUGINS_FIRSTINCLUDES = {
 	# plugins
-	'plugins/coresystem/src/importance/PosImportanceCalculator.cpp': 'ImportanceCalculator.h',
-	'plugins/coresystem/src/importance/RestoreImportanceCalculator.cpp': 'ImportanceCalculator.h',
-	'plugins/coresystem/src/validators/KeyLinkActionValidator.cpp': 'KeyLinkValidators.h',
-	'plugins/coresystem/src/validators/VotingKeyLinkRangeValidator.cpp': 'KeyLinkValidators.h',
-
-	'plugins/coresystem/tests/importance/PosImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
-	'plugins/coresystem/tests/importance/RestoreImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
-	'plugins/coresystem/tests/validators/KeyLinkActionValidatorTests.cpp': 'src/validators/KeyLinkValidators.h',
-	'plugins/coresystem/tests/validators/VotingKeyLinkRangeValidatorTests.cpp': 'src/validators/KeyLinkValidators.h',
-
-	'plugins/txes/metadata/tests/model/MetadataTransactionTests.cpp': 'src/model/AccountMetadataTransaction.h',
-
-	'plugins/txes/restriction_account/tests/model/AccountRestrictionTransactionTests.cpp':
-		'src/model/AccountAddressRestrictionTransaction.h',
+	'plugins/txes/mosaic/src/validators/ActiveMosaicView.cpp': 'ActiveMosaicView.h',
+	'plugins/txes/restriction_account/src/validators/AccountRestrictionView.cpp': 'AccountRestrictionView.h',
 
 	# sdk
 	'sdk/tests/builders/AliasBuilderTests.cpp': 'src/builders/AddressAliasBuilder.h',
