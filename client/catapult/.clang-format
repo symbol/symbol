@@ -168,11 +168,17 @@ IncludeCategories:
     SortPriority:    0
 
 # cpp libs
-  - Regex:           '^<(boost|mongocxx|bsoncxx|rocksdb|benchmark)/[A-Za-z0-9_]*/'
+  - Regex:           '^<(boost|bsoncxx|rocksdb|benchmark)/[A-Za-z0-9_]*/'
     Priority:        80
     SortPriority:    0
-  - Regex:           '^<(boost|mongocxx|bsoncxx|rocksdb|benchmark)/'
+  - Regex:           '^<(boost|bsoncxx|rocksdb|benchmark)/'
     Priority:        81
+    SortPriority:    0
+  - Regex:           '^<mongocxx/[A-Za-z0-9_]*/'
+    Priority:        82
+    SortPriority:    0
+  - Regex:           '^<mongocxx/'
+    Priority:        83
     SortPriority:    0
 
 # cpp includes before c includes
