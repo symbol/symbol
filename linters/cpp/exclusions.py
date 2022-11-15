@@ -140,7 +140,6 @@ PLUGINS_FIRSTINCLUDES = {
 }
 
 TOOLS_FIRSTINCLUDES = {
-	'tools/health/main.cpp': 'ApiNodeHealthUtils.h'
 }
 
 EXTENSION_FIRSTINCLUDES = {
