@@ -267,9 +267,6 @@ class ExtensionRules:
 			plugin_name = path_elements[-1][5:-10]
 			return '"{}Mapper.h"'.format(plugin_name)
 
-		if 'filters' in path_elements and 'timesync' in path_elements:
-			return '"SynchronizationFilters.h"'
-
 		return '"{}.h"'.format(path_elements[-1][:-4])
 
 	@staticmethod
@@ -291,9 +288,6 @@ class ExtensionRules:
 
 		if path_elements[-1].startswith('Mongo') and path_elements[-1].endswith('PluginTests.cpp'):
 			return '"mongo/tests/test/MongoPluginTestUtils.h"'
-
-		if 'filters' in path_elements and 'timesync' in path_elements:
-			return '"timesync/src/filters/SynchronizationFilters.h"'
 
 		tests_id = path_elements.index('tests')
 		if 'int' in path_elements and path_elements.index('int') == tests_id + 1:

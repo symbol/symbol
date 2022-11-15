@@ -148,7 +148,17 @@ EXTENSION_FIRSTINCLUDES = {
 	'extensions/mongo/plugins/mosaic/src/MongoMosaicPlugin.cpp': 'MosaicDefinitionMapper.h',
 	'extensions/mongo/plugins/multisig/src/MongoMultisigPlugin.cpp': 'MultisigAccountModificationMapper.h',
 	'extensions/mongo/plugins/namespace/src/MongoNamespacePlugin.cpp': 'AddressAliasMapper.h',
-	'extensions/mongo/plugins/restriction_mosaic/src/MongoMosaicRestrictionPlugin.cpp': 'MosaicAddressRestrictionMapper.h'
+	'extensions/mongo/plugins/restriction_mosaic/src/MongoMosaicRestrictionPlugin.cpp': 'MosaicAddressRestrictionMapper.h',
+
+	'extensions/timesync/src/filters/ClampingFilter.cpp': 'SynchronizationFilters.h',
+	'extensions/timesync/src/filters/ResponseDelayDetectionFilter.cpp': 'SynchronizationFilters.h',
+	'extensions/timesync/src/filters/ReversedTimestampsFilter.cpp': 'SynchronizationFilters.h',
+
+	'extensions/timesync/tests/filters/ClampingFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h',
+	'extensions/timesync/tests/filters/ResponseDelayDetectionFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h',
+	'extensions/timesync/tests/filters/ReversedTimestampsFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h'
+
+
 }
 
 SKIP_FORWARDS = (

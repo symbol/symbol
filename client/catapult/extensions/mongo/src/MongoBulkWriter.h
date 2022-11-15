@@ -31,9 +31,9 @@
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
 #include <boost/asio/io_context.hpp>
+#include <bsoncxx/json.hpp>
 #include <mongocxx/config/version.hpp>
 #include <mongocxx/exception/bulk_write_exception.hpp>
-#include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/pool.hpp>
 #include <unordered_set>

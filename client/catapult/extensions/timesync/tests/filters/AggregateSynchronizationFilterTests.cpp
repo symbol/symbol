@@ -20,7 +20,6 @@
 **/
 
 #include "timesync/src/filters/AggregateSynchronizationFilter.h"
-#include "timesync/src/filters/SynchronizationFilters.h"
 #include "timesync/tests/test/TimeSynchronizationTestUtils.h"
 #include "tests/TestHarness.h"
 
