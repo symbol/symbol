@@ -213,8 +213,6 @@ EXTENSION_FIRSTINCLUDES = {
 	'extensions/timesync/tests/filters/ClampingFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h',
 	'extensions/timesync/tests/filters/ResponseDelayDetectionFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h',
 	'extensions/timesync/tests/filters/ReversedTimestampsFilterTests.cpp': 'timesync/src/filters/SynchronizationFilters.h'
-
-
 }
 
 SKIP_FORWARDS = (

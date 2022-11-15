@@ -116,7 +116,17 @@ def check_cpp_include(inc_a, inc_b):
 
 
 INCLUDE_PRIORITIES_1LVL = {
-	'"src': 100, '"mongo': 125, '"zeromq': 125, '"plugins': 150, '"catapult': 200, '"symbol': 200, '"tests': 500, '"test': 500
+	'"src': 100,
+	# note: 'finalization/' is not a proper prefix, it's a hack so that includes in FinalizationExtension.cpp,
+	# are properly sorted
+	'"finalization': 124,
+	'"mongo': 125,
+	'"zeromq': 125,
+	'"plugins': 150,
+	'"catapult': 200,
+	'"symbol': 200,
+	'"tests': 500,
+	'"test': 500
 }
 
 INCLUDE_PRIORITIES_2LVL = {'extended': -100, 'txes': -50}
