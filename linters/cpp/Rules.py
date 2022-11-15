@@ -168,11 +168,11 @@ class PluginRules:
 			if full_path in PLUGINS_FIRSTINCLUDES:
 				return '"{}"'.format(PLUGINS_FIRSTINCLUDES[full_path])
 
-			if 'validators' in path_elements:
-				return '"src/validators/Validators.h"'
+			# if 'validators' in path_elements:
+			# 	return '"src/validators/Validators.h"'
 
-			if 'observers' in path_elements:
-				return '"src/observers/Observers.h"'
+			# if 'observers' in path_elements:
+			# 	return '"src/observers/Observers.h"'
 
 			tests_id = path_elements.index('tests')
 			if 'int' in path_elements and path_elements.index('int') == tests_id + 1:
