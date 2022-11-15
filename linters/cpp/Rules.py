@@ -1,3 +1,4 @@
+from importlib.resources import path
 import re
 from enum import Enum
 
@@ -147,10 +148,15 @@ class PluginRules:
 
 	@staticmethod
 	def first_include_check(sorted_includes, path_elements):
-		del sorted_includes
+		filename_derived_header = '"{}.h"'.format(path_elements[-1][:-4])
+
 		full_path = '/'.join(path_elements)
 		if full_path in PLUGINS_FIRSTINCLUDES:
 			return '"{}"'.format(PLUGINS_FIRSTINCLUDES[full_path])
+
+		for sorted_include in sorted_includes:
+			if filename_derived_header == sorted_include.include:
+				return filename_derived_header
 
 		if 'validators' in path_elements:
 			return '"Validators.h"'
@@ -158,7 +164,29 @@ class PluginRules:
 		if 'observers' in path_elements:
 			return '"Observers.h"'
 
-		return '"{}.h"'.format(path_elements[-1][:-4])
+		return sorted_includes[0].include
+		# return '"{}.h"'.format(path_elements[-1][:-4])
+
+	@staticmethod
+	def _checked_o_or_v(path_elements):
+		for name in [
+				'coresystem',
+				'signature',
+				'account_link',
+				'aggregate',
+				'lock_hash',
+				'lock_secret',
+				'metadata',
+				'mosaic',
+				'multisig',
+				'namespace',
+				'restriction_account',
+				'restriction_mosaic',
+				'transfer']:
+			if name in path_elements:
+				return True
+
+		return False
 
 	@staticmethod
 	def first_test_include_check(sorted_includes, path_elements):
@@ -168,11 +196,11 @@ class PluginRules:
 			if full_path in PLUGINS_FIRSTINCLUDES:
 				return '"{}"'.format(PLUGINS_FIRSTINCLUDES[full_path])
 
-			# if 'validators' in path_elements:
-			# 	return '"src/validators/Validators.h"'
+			if 'validators' in path_elements and PluginRules._checked_o_or_v(path_elements):
+				return '"src/validators/Validators.h"'
 
-			# if 'observers' in path_elements:
-			# 	return '"src/observers/Observers.h"'
+			if 'observers' in path_elements and PluginRules._checked_o_or_v(path_elements):
+				return '"src/observers/Observers.h"'
 
 			tests_id = path_elements.index('tests')
 			if 'int' in path_elements and path_elements.index('int') == tests_id + 1:
