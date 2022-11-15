@@ -117,16 +117,19 @@ IncludeCategories:
 # priority 30 is left for a later general rule
 
 # MIND: both following rules have priorities that inject them into proper places
+  - Regex:           '^"mongo/tests/test/MongoPluginTestUtils.h"'
+    Priority:        41
+    SortPriority:    0
   - Regex:           '^"(plugins|mongo|sdk)/.*tests/'
     Priority:        61
     SortPriority:    0
   - Regex:           '^"(plugins|mongo)/'
-    Priority:        42
+    Priority:        43
     SortPriority:    0
 
 # "local" includes
   - Regex:           '^"[A-Za-z0-9_]*/src/'
-    Priority:        41
+    Priority:        42
     SortPriority:    0
 
 # nested before top-level
