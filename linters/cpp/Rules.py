@@ -165,28 +165,6 @@ class PluginRules:
 			return '"Observers.h"'
 
 		return sorted_includes[0].include
-		# return '"{}.h"'.format(path_elements[-1][:-4])
-
-	@staticmethod
-	def _checked_o_or_v(path_elements):
-		for name in [
-				'coresystem',
-				'signature',
-				'account_link',
-				'aggregate',
-				'lock_hash',
-				'lock_secret',
-				'metadata',
-				'mosaic',
-				'multisig',
-				'namespace',
-				'restriction_account',
-				'restriction_mosaic',
-				'transfer']:
-			if name in path_elements:
-				return True
-
-		return False
 
 	@staticmethod
 	def first_test_include_check(sorted_includes, path_elements):
@@ -196,10 +174,10 @@ class PluginRules:
 			if full_path in PLUGINS_FIRSTINCLUDES:
 				return '"{}"'.format(PLUGINS_FIRSTINCLUDES[full_path])
 
-			if 'validators' in path_elements and PluginRules._checked_o_or_v(path_elements):
+			if 'validators' in path_elements:
 				return '"src/validators/Validators.h"'
 
-			if 'observers' in path_elements and PluginRules._checked_o_or_v(path_elements):
+			if 'observers' in path_elements:
 				return '"src/observers/Observers.h"'
 
 			tests_id = path_elements.index('tests')
