@@ -43,3 +43,15 @@ void sendDiscordNotification(String title, String description, String url, Strin
 		discordSend description: description, footer: footer, link: url, result: result, title: title, webhookURL: "${env.WEB_HOOK_URL}"
 	}
 }
+
+void runStepAndRecordFailure(Closure body) {
+	try {
+		body()
+		// groovylint-disable-next-line CatchException
+	} catch (Exception exception) {
+		echo "Stage ${env.STAGE_NAME} failed with exception: ${exception}"
+		env.FAILURE_MESSAGE = exception.message ?: exception
+		env.FAILED_STAGE_NAME = env.STAGE_NAME
+		throw exception
+	}
+}

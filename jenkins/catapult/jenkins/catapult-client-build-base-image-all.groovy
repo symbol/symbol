@@ -3,7 +3,7 @@ pipeline {
 
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
-		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: true
+		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
 	}
 
 	options {
@@ -148,11 +148,23 @@ pipeline {
 			}
 		}
 		post {
+			success {
+				script {
+					if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
+						helper.sendDiscordNotification(
+							':confetti2: Catapult Client All Image Job Successfully completed',
+							'Not much to see here, all is good',
+							env.BUILD_URL,
+							currentBuild.currentResult
+						)
+					}
+				}
+			}
 			unsuccessful {
 				script {
-					if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
+					if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 						helper.sendDiscordNotification(
-							"Catapult Client All Image Job Failed for ${currentBuild.fullDisplayName}",
+							":confused_dog: Catapult Client All Image Job Failed for ${currentBuild.fullDisplayName}",
 							"At least an image job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
 							env.BUILD_URL,
 							currentBuild.currentResult
@@ -172,7 +184,7 @@ void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSys
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
-			value: "${!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()}"
+			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
 		)
 	]
 }
@@ -184,7 +196,7 @@ void dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
-			value: "${!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()}"
+			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
 		)
 	]
 }

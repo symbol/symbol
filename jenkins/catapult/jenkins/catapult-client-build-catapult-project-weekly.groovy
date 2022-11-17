@@ -3,7 +3,7 @@ pipeline {
 
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
-		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: true
+		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
 	}
 
 	options {
@@ -89,11 +89,23 @@ pipeline {
 			}
 		}
 		post {
+			success {
+				script {
+					if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
+						helper.sendDiscordNotification(
+								':dancingBlahaj: Catapult Client Weekly Job Successfully completed',
+								'All is good with the client',
+								env.BUILD_URL,
+								currentBuild.currentResult
+						)
+					}
+				}
+			}
 			unsuccessful {
 				script {
-					if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
+					if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 						helper.sendDiscordNotification(
-							"Catapult Weekly Job Failed for ${currentBuild.fullDisplayName}",
+							":shrekscream: Catapult Client Weekly Job Failed for ${currentBuild.fullDisplayName}",
 							"At least one job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
 							env.BUILD_URL,
 							currentBuild.currentResult
@@ -113,7 +125,7 @@ void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, S
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
-			value: "${!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()}"
+			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
 		)
 	]
 }
