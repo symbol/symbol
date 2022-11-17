@@ -96,10 +96,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							':tada: Catapult Client Daily Job Successfully completed',
-							'All is good with the client',
-							env.BUILD_URL,
-							currentBuild.currentResult
+						':tada: Catapult Client Daily Job Successfully completed',
+						'All is good with the client',
+						env.BUILD_URL,
+						currentBuild.currentResult
 					)
 				}
 			}

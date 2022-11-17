@@ -96,10 +96,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							':confetti_ball: Compiler Image All Job Successfully completed',
-							'Not much to see here, all is good',
-							env.BUILD_URL,
-							currentBuild.currentResult
+						':confetti_ball: Compiler Image All Job Successfully completed',
+						'Not much to see here, all is good',
+						env.BUILD_URL,
+						currentBuild.currentResult
 					)
 				}
 			}
