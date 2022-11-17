@@ -62,11 +62,13 @@ pipeline {
 		}
 		stage('print Dockerfile') {
 			steps {
-				helper.runStepAndRecordFailure {
-					sh '''
-						echo '*** Dockerfile ***'
-						cat Dockerfile
-					'''
+				script {
+					helper.runStepAndRecordFailure {
+						sh '''
+							echo '*** Dockerfile ***'
+							cat Dockerfile
+						'''
+					}
 				}
 			}
 		}
