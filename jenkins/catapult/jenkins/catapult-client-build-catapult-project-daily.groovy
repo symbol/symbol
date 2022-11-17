@@ -108,7 +108,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-						":shrekscream: Catapult Client Daily Job Failed for ${currentBuild.fullDisplayName}",
+						":scream_cat: Catapult Client Daily Job Failed for ${currentBuild.fullDisplayName}",
 						"At least one daily job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
 						env.BUILD_URL,
 						currentBuild.currentResult

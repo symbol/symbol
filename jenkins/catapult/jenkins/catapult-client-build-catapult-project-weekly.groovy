@@ -94,7 +94,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							':dancingBlahaj: Catapult Client Weekly Job Successfully completed',
+							':partying_face: Catapult Client Weekly Job Successfully completed',
 							'All is good with the client',
 							env.BUILD_URL,
 							currentBuild.currentResult
@@ -106,7 +106,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							":shrekscream: Catapult Client Weekly Job Failed for ${currentBuild.fullDisplayName}",
+							":face_with_monocle: Catapult Client Weekly Job Failed for ${currentBuild.fullDisplayName}",
 							"At least one job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
 							env.BUILD_URL,
 							currentBuild.currentResult

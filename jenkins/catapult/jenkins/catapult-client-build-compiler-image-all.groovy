@@ -96,7 +96,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							':confetti2: Compiler Image All Job Successfully completed',
+							':confetti_ball: Compiler Image All Job Successfully completed',
 							'Not much to see here, all is good',
 							env.BUILD_URL,
 							currentBuild.currentResult
@@ -108,7 +108,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-						":confused_dog: Compiler Image All Job Failed for ${currentBuild.fullDisplayName}",
+						":worried: Compiler Image All Job Failed for ${currentBuild.fullDisplayName}",
 						"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
 						env.BUILD_URL,
 						currentBuild.currentResult
