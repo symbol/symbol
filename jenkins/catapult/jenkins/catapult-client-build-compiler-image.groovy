@@ -7,6 +7,7 @@ pipeline {
 		choice name: 'OPERATING_SYSTEM',
 			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
+		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
 	agent {
@@ -29,17 +30,19 @@ pipeline {
 				stage('prepare variables') {
 					steps {
 						script {
-							destImageName = sh(
-								script: """
-									python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
-										--compiler-configuration jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
-										--operating-system ${OPERATING_SYSTEM} \
-										--versions ./jenkins/catapult/versions.properties \
-										--layer os \
-										--base-name-only
-								""",
-								returnStdout: true
-							).trim()
+							helper.runStepAndRecordFailure {
+								destImageName = sh(
+									script: """
+										python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
+											--compiler-configuration jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+											--operating-system ${OPERATING_SYSTEM} \
+											--versions ./jenkins/catapult/versions.properties \
+											--layer os \
+											--base-name-only
+									""",
+									returnStdout: true
+								).trim()
+							}
 						}
 					}
 				}
@@ -61,15 +64,32 @@ pipeline {
 		stage('build image') {
 			steps {
 				script {
-					String[] compilerParts = COMPILER_CONFIGURATION.split('-')
-					dir("jenkins/catapult/compilers/${OPERATING_SYSTEM}-${compilerParts[0]}")
-					{
-						String compilerVersion = readYaml(file: "../${COMPILER_CONFIGURATION}.yaml").version
-						String buildArg = "--build-arg COMPILER_VERSION=${compilerVersion} ."
-						docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-							docker.build(destImageName, buildArg).push()
+					helper.runStepAndRecordFailure {
+						String[] compilerParts = COMPILER_CONFIGURATION.split('-')
+						dir("jenkins/catapult/compilers/${OPERATING_SYSTEM}-${compilerParts[0]}")
+						{
+							String compilerVersion = readYaml(file: "../${COMPILER_CONFIGURATION}.yaml").version
+							String buildArg = "--build-arg COMPILER_VERSION=${compilerVersion} ."
+							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+								docker.build(destImageName, buildArg).push()
+							}
 						}
 					}
+				}
+			}
+		}
+	}
+	post {
+		unsuccessful {
+			script {
+				if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
+					helper.sendDiscordNotification(
+						"Compiler Image Job Failed for ${currentBuild.fullDisplayName}",
+						"Job with ${COMPILER_CONFIGURATION} on ${OPERATING_SYSTEM} has result of ${currentBuild.currentResult} in"
+						+ " stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
+						env.BUILD_URL,
+						currentBuild.currentResult
+					)
 				}
 			}
 		}
