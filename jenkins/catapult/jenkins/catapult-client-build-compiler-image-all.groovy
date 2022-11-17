@@ -15,7 +15,7 @@ pipeline {
 		// first of the month
 		cron('H 0 1 * *')
 	}
-	
+
 	stages {
 		stage('print env') {
 			steps {
@@ -111,7 +111,7 @@ void dispatchBuildCompilerImageJob(String compilerConfiguration, String operatin
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		booleanParam(
-			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', 
+			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()}"
 		)
 	]

@@ -112,7 +112,7 @@ void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, S
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		booleanParam(
-			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', 
+			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()}"
 		)
 	]

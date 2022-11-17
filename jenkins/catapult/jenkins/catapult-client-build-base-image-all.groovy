@@ -15,7 +15,7 @@ pipeline {
 		// second of the month
 		cron('H 0 2 * *')
 	}
-	
+
 	stages {
 		stage('print env') {
 			steps {
@@ -171,7 +171,7 @@ void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSys
 		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${shouldBuildConanLayer}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		booleanParam(
-			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', 
+			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()}"
 		)
 	]
@@ -183,7 +183,7 @@ void dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		booleanParam(
-			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', 
+			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()}"
 		)
 	]
