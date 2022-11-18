@@ -3,11 +3,17 @@ pipeline {
 
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
 	}
 
 	options {
 		ansiColor('css')
 		timestamps()
+	}
+
+	triggers {
+		// second of the month
+		cron('H 0 2 * *')
 	}
 
 	stages {
@@ -142,6 +148,32 @@ pipeline {
 			}
 		}
 	}
+	post {
+		success {
+			script {
+				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
+					helper.sendDiscordNotification(
+						':confetti_ball: Catapult Client All Image Job Successfully completed',
+						'Not much to see here, all is good',
+						env.BUILD_URL,
+						currentBuild.currentResult
+					)
+				}
+			}
+		}
+		unsuccessful {
+			script {
+				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
+					helper.sendDiscordNotification(
+						":confused: Catapult Client All Image Job Failed for ${currentBuild.fullDisplayName}",
+						"At least an image job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
+						env.BUILD_URL,
+						currentBuild.currentResult
+					)
+				}
+			}
+		}
+	}
 }
 
 void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
@@ -149,7 +181,11 @@ void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSys
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${shouldBuildConanLayer}"),
-		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		booleanParam(
+			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
+			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
+		)
 	]
 }
 
@@ -157,6 +193,10 @@ void dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
 	build job: 'Symbol/server-pipelines/catapult-client-prepare-base-image', parameters: [
 		string(name: 'IMAGE_TYPE', value: "${imageType}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
-		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		booleanParam(
+			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
+			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
+		)
 	]
 }

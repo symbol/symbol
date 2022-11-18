@@ -9,6 +9,7 @@ pipeline {
 			description: 'image type'
 
 		booleanParam name: 'SANITIZER_BUILD', description: 'true to build sanitizer', defaultValue: false
+		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
 	agent {
@@ -41,43 +42,67 @@ pipeline {
 		stage('prepare Dockerfile') {
 			steps {
 				script {
-					properties = readProperties(file: './jenkins/catapult/versions.properties')
-					version = properties[params.OPERATING_SYSTEM]
+					helper.runStepAndRecordFailure {
+						properties = readProperties(file: './jenkins/catapult/versions.properties')
+						version = properties[params.OPERATING_SYSTEM]
 
-					sanitizer = SANITIZER_BUILD.toBoolean() ? 'Sanitizer' : ''
-					filename = "${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
-					dockerfileTemplate = "./jenkins/catapult/templates/${filename}BaseImage.Dockerfile"
-					dockerfileContents = readFile(file: dockerfileTemplate)
-					baseImage = 'windows' == "${OPERATING_SYSTEM}"
-							? "mcr.microsoft.com/windows/servercore:ltsc${version}"
-							: "${params.OPERATING_SYSTEM}:${version}"
-					dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${baseImage}")
+						sanitizer = SANITIZER_BUILD.toBoolean() ? 'Sanitizer' : ''
+						filename = "${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
+						dockerfileTemplate = "./jenkins/catapult/templates/${filename}BaseImage.Dockerfile"
+						dockerfileContents = readFile(file: dockerfileTemplate)
+						baseImage = 'windows' == "${OPERATING_SYSTEM}"
+								? "mcr.microsoft.com/windows/servercore:ltsc${version}"
+								: "${params.OPERATING_SYSTEM}:${version}"
+						dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${baseImage}")
 
-					writeFile(file: 'Dockerfile', text: dockerfileContents)
+						writeFile(file: 'Dockerfile', text: dockerfileContents)
+					}
 				}
 			}
 		}
 		stage('print Dockerfile') {
 			steps {
-				sh '''
-					echo '*** Dockerfile ***'
-					cat Dockerfile
-				'''
+				script {
+					helper.runStepAndRecordFailure {
+						sh '''
+							echo '*** Dockerfile ***'
+							cat Dockerfile
+						'''
+					}
+				}
 			}
 		}
 
 		stage('build image') {
 			steps {
 				script {
-					dockerImageName = "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
-					if (SANITIZER_BUILD.toBoolean()) {
-						dockerImageName += '-sanitizer'
+					helper.runStepAndRecordFailure {
+						dockerImageName = "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
+						if (SANITIZER_BUILD.toBoolean()) {
+							dockerImageName += '-sanitizer'
+						}
+
+						echo "Docker image name: ${dockerImageName}"
+						dockerImage = docker.build(dockerImageName)
+						docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+							dockerImage.push()
+						}
 					}
-					echo "Docker image name: ${dockerImageName}"
-					dockerImage = docker.build(dockerImageName)
-					docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-						dockerImage.push()
-					}
+				}
+			}
+		}
+	}
+	post {
+		unsuccessful {
+			script {
+				if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
+					helper.sendDiscordNotification(
+						"Catapult Client Prepare Base Image Job Failed for ${currentBuild.fullDisplayName}",
+						"Job creating **${env.IMAGE_TYPE}** image on ${env.OPERATING_SYSTEM} has result of ${currentBuild.currentResult}"
+						+ " in stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
+						env.BUILD_URL,
+						currentBuild.currentResult
+					)
 				}
 			}
 		}

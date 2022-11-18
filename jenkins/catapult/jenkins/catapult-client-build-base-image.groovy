@@ -20,6 +20,7 @@ pipeline {
 			description: 'operating system'
 
 		booleanParam name: 'SHOULD_BUILD_CONAN_LAYER', description: 'true to build conan layer', defaultValue: false
+		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: true
 	}
 
 	agent {
@@ -34,6 +35,7 @@ pipeline {
 	options {
 		ansiColor('css')
 		timestamps()
+		timeout(time: 3, unit: 'HOURS')
 	}
 
 	stages {
@@ -112,22 +114,39 @@ pipeline {
 			}
 		}
 	}
+	post {
+		unsuccessful {
+			script {
+				if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
+					helper.sendDiscordNotification(
+						"Catapult Client Base Image Job Failed for ${currentBuild.fullDisplayName}",
+						"Job with ${COMPILER_CONFIGURATION} on ${OPERATING_SYSTEM} has result of ${currentBuild.currentResult} in"
+						+ " stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
+						env.BUILD_URL,
+						currentBuild.currentResult
+					)
+				}
+			}
+		}
+	}
 }
 
 void dockerBuildAndPushLayer(String layer, String baseImageDockerfileGeneratorCommand) {
-	docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-		destImageName = sh(
-			script: "${baseImageDockerfileGeneratorCommand} --layer ${layer} --name-only",
-			returnStdout: true
-		).trim()
+	helper.runStepAndRecordFailure {
+		docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+			destImageName = sh(
+				script: "${baseImageDockerfileGeneratorCommand} --layer ${layer} --name-only",
+				returnStdout: true
+			).trim()
 
-		sh """
-			${baseImageDockerfileGeneratorCommand} --layer ${layer} > Dockerfile
+			sh """
+				${baseImageDockerfileGeneratorCommand} --layer ${layer} > Dockerfile
 
-			echo "*** LAYER ${layer} => ${destImageName} ***"
-			cat Dockerfile
-		"""
+				echo "*** LAYER ${layer} => ${destImageName} ***"
+				cat Dockerfile
+			"""
 
-		docker.build("${destImageName}").push()
+			docker.build("${destImageName}").push()
+		}
 	}
 }

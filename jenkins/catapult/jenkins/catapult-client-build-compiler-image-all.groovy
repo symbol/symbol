@@ -1,5 +1,7 @@
 pipeline {
-	agent any
+	agent {
+		label 'ubuntu-agent'
+	}
 
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
@@ -9,6 +11,11 @@ pipeline {
 	options {
 		ansiColor('css')
 		timestamps()
+	}
+
+	triggers {
+		// first of the month
+		cron('H 0 1 * *')
 	}
 
 	stages {
@@ -21,68 +28,63 @@ pipeline {
 			}
 		}
 
-		stage('build servers') {
+		stage('build compiler images') {
 			parallel {
-				stage('gcc (metal) [debian]') {
+				stage('gcc prior') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-debian', 'tests-metal', 'debian')
+							dispatchBuildCompilerImageJob('gcc-prior', 'ubuntu')
+						}
+					}
+				}
+				stage('gcc latest') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('gcc-latest', 'ubuntu')
+						}
+					}
+				}
+				stage('gcc [debian]') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('gcc-debian', 'debian')
+						}
+					}
+				}
+				stage('gcc [fedora]') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('gcc-latest', 'fedora')
 						}
 					}
 				}
 
-				stage('gcc (westmere)') {
+				stage('clang prior') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-westmere', 'tests-metal', 'ubuntu')
+							dispatchBuildCompilerImageJob('clang-prior', 'ubuntu')
+						}
+					}
+				}
+				stage('clang latest') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('clang-latest', 'ubuntu')
 						}
 					}
 				}
 
-				stage('gcc (metal) [fedora]') {
+				stage('msvc latest') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-latest', 'tests-metal', 'fedora')
+							dispatchBuildCompilerImageJob('msvc-latest', 'windows')
 						}
 					}
 				}
-
-				stage('clang prior (metal)') {
+				stage('msvc prior') {
 					steps {
 						script {
-							dispatchBuildJob('clang-prior', 'tests-metal', 'ubuntu')
-						}
-					}
-				}
-
-				stage('clang prior (conan)') {
-					steps {
-						script {
-							dispatchBuildJob('clang-prior', 'tests-conan', 'ubuntu')
-						}
-					}
-				}
-
-				stage('gcc prior (metal)') {
-					steps {
-						script {
-							dispatchBuildJob('gcc-prior', 'tests-metal', 'ubuntu')
-						}
-					}
-				}
-
-				stage('gcc prior (conan)') {
-					steps {
-						script {
-							dispatchBuildJob('gcc-prior', 'tests-conan', 'ubuntu')
-						}
-					}
-				}
-
-				stage('msvc prior (metal)') {
-					steps {
-						script {
-							dispatchBuildJob('msvc-prior', 'tests-metal', 'windows')
+							dispatchBuildCompilerImageJob('msvc-prior', 'windows')
 						}
 					}
 				}
@@ -94,8 +96,8 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-						':partying_face: Catapult Client Weekly Job Successfully completed',
-						'All is good with the client',
+						':confetti_ball: Compiler Image All Job Successfully completed',
+						'Not much to see here, all is good',
 						env.BUILD_URL,
 						currentBuild.currentResult
 					)
@@ -106,8 +108,8 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-						":face_with_monocle: Catapult Client Weekly Job Failed for ${currentBuild.fullDisplayName}",
-						"At least one job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
+						":worried: Compiler Image All Job Failed for ${currentBuild.fullDisplayName}",
+						"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
 						env.BUILD_URL,
 						currentBuild.currentResult
 					)
@@ -117,10 +119,9 @@ pipeline {
 	}
 }
 
-void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem) {
-	build job: 'Symbol/server-pipelines/catapult-client-build-catapult-project', parameters: [
+void dispatchBuildCompilerImageJob(String compilerConfiguration, String operatingSystem) {
+	build job: 'Symbol/server-pipelines/catapult-client-build-compiler-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
-		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		booleanParam(

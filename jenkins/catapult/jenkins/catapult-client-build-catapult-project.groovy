@@ -32,6 +32,7 @@ pipeline {
 			description: 'output verbosity level'
 
 		booleanParam name: 'SHOULD_PUBLISH_BUILD_IMAGE', description: 'true to publish build image', defaultValue: false
+		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
 	agent {
@@ -46,6 +47,7 @@ pipeline {
 	options {
 		ansiColor('css')
 		timestamps()
+		timeout(time: 3, unit: 'HOURS')
 	}
 
 	stages {
@@ -54,13 +56,15 @@ pipeline {
 				stage('prepare variables') {
 					steps {
 						script {
-							fullyQualifiedUser = sh(
-								script: 'echo "$(id -u):$(id -g)"',
-								returnStdout: true
-							).trim()
+							helper.runStepAndRecordFailure {
+								fullyQualifiedUser = sh(
+									script: 'echo "$(id -u):$(id -g)"',
+									returnStdout: true
+								).trim()
 
-							buildImageLabel = TEST_IMAGE_LABEL?.trim() ? TEST_IMAGE_LABEL : resolveBuildImageLabel()
-							buildImageFullName = "symbolplatform/symbol-server-test:${buildImageLabel}"
+								buildImageLabel = TEST_IMAGE_LABEL?.trim() ? TEST_IMAGE_LABEL : resolveBuildImageLabel()
+								buildImageFullName = "symbolplatform/symbol-server-test:${buildImageLabel}"
+							}
 						}
 					}
 				}
@@ -91,11 +95,15 @@ pipeline {
 						expression { isManualBuild() }
 					}
 					steps {
-						cleanWs()
-						dir('catapult-src') {
-							sh 'git config -l'
-							git branch: "${resolveBranchName()}",
-									url: 'https://github.com/symbol/symbol.git'
+						script {
+							helper.runStepAndRecordFailure {
+								cleanWs()
+								dir('catapult-src') {
+									sh 'git config -l'
+									git branch: "${resolveBranchName()}",
+											url: 'https://github.com/symbol/symbol.git'
+								}
+							}
 						}
 					}
 				}
@@ -124,14 +132,16 @@ pipeline {
 				stage('pull dependency images') {
 					steps {
 						script {
-							baseImageNames = sh(
-								script: "${runDockerBuildCommand} --base-image-names-only",
-								returnStdout: true
-							).split('\n')
+							helper.runStepAndRecordFailure {
+								baseImageNames = sh(
+									script: "${runDockerBuildCommand} --base-image-names-only",
+									returnStdout: true
+								).split('\n')
 
-							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								for (baseImageName in baseImageNames) {
-									docker.image(baseImageName.trim()).pull()
+								docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+									for (baseImageName in baseImageNames) {
+										docker.image(baseImageName.trim()).pull()
+									}
 								}
 							}
 						}
@@ -139,20 +149,28 @@ pipeline {
 				}
 				stage('lint') {
 					steps {
-						sh """
-							python3 catapult-src/jenkins/catapult/runDockerTests.py \
-								--image registry.hub.docker.com/symbolplatform/symbol-server-test-base:${OPERATING_SYSTEM} \
-								--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
-								--user ${fullyQualifiedUser} \
-								--mode lint \
-								--source-path catapult-src \
-								--linter-path catapult-src/linters
-						"""
+						script {
+							helper.runStepAndRecordFailure {
+								sh """
+									python3 catapult-src/jenkins/catapult/runDockerTests.py \
+										--image registry.hub.docker.com/symbolplatform/symbol-server-test-base:${OPERATING_SYSTEM} \
+										--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+										--user ${fullyQualifiedUser} \
+										--mode lint \
+										--source-path catapult-src \
+										--linter-path catapult-src/linters
+								"""
+							}
+						}
 					}
 				}
 				stage('build') {
 					steps {
-						sh "${runDockerBuildCommand}"
+						script {
+							helper.runStepAndRecordFailure {
+								sh "${runDockerBuildCommand}"
+							}
+						}
 					}
 				}
 				stage('push built image') {
@@ -161,8 +179,10 @@ pipeline {
 					}
 					steps {
 						script {
-							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								docker.image(buildImageFullName).push()
+							helper.runStepAndRecordFailure {
+								docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+									docker.image(buildImageFullName).push()
+								}
 							}
 						}
 					}
@@ -190,8 +210,10 @@ pipeline {
 					}
 					steps {
 						script {
-							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								docker.image(buildImageFullName).pull()
+							helper.runStepAndRecordFailure {
+								docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+									docker.image(buildImageFullName).pull()
+								}
 							}
 						}
 					}
@@ -199,19 +221,21 @@ pipeline {
 				stage('run tests') {
 					steps {
 						script {
-							testImageName = isCustomTestImage()
-									? "registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}"
-									: "symbolplatform/symbol-server-test:${buildImageLabel}"
+							helper.runStepAndRecordFailure {
+								testImageName = isCustomTestImage()
+										? "registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}"
+										: "symbolplatform/symbol-server-test:${buildImageLabel}"
 
-							sh """
-								python3 catapult-src/jenkins/catapult/runDockerTests.py \
-									--image ${testImageName} \
-									--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
-									--user ${fullyQualifiedUser} \
-									--mode ${TEST_MODE} \
-									--verbosity ${TEST_VERBOSITY} \
-									--source-path catapult-src
-							"""
+								sh """
+									python3 catapult-src/jenkins/catapult/runDockerTests.py \
+										--image ${testImageName} \
+										--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+										--user ${fullyQualifiedUser} \
+										--mode ${TEST_MODE} \
+										--verbosity ${TEST_VERBOSITY} \
+										--source-path catapult-src
+								"""
+							}
 						}
 					}
 				}
@@ -221,25 +245,27 @@ pipeline {
 					}
 					steps {
 						script {
-							baseImageNames = sh(
-								script: "${runDockerBuildCommand} --base-image-names-only",
-								returnStdout: true
-							).split('\n')
+							helper.runStepAndRecordFailure {
+								baseImageNames = sh(
+									script: "${runDockerBuildCommand} --base-image-names-only",
+									returnStdout: true
+								).split('\n')
 
-							docker.image(baseImageNames[0]).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
-								sh '''
-									cd /catapult-src
-									lcov --directory client/catapult/_build --capture --output-file coverage_all.info
-									lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info
-									lcov --list client_coverage.info
-								'''
-
-								withCredentials([string(credentialsId: 'SYMBOL_CODECOV_ID', variable: 'CODECOV_TOKEN')]) {
+								docker.image(baseImageNames[0]).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
 									sh '''
-										curl -Os https://uploader.codecov.io/v0.1.20/linux/codecov
-										chmod +x codecov
-										./codecov --verbose --nonZero --rootDir . --flags client-catapult -X gcov --file client_coverage.info
+										cd /catapult-src
+										lcov --directory client/catapult/_build --capture --output-file coverage_all.info
+										lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info
+										lcov --list client_coverage.info
 									'''
+
+									withCredentials([string(credentialsId: 'SYMBOL_CODECOV_ID', variable: 'CODECOV_TOKEN')]) {
+										sh '''
+											curl -Os https://uploader.codecov.io/latest/linux/codecov
+											chmod +x codecov
+											./codecov --verbose --nonZero --rootDir . --flags client-catapult -X gcov --file client_coverage.info
+										'''
+									}
 								}
 							}
 						}
@@ -257,6 +283,19 @@ pipeline {
 			}
 			dir('mongo') {
 				deleteDir()
+			}
+		}
+		unsuccessful {
+			script {
+				if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
+					helper.sendDiscordNotification(
+						"Catapult Client Job Failed for ${currentBuild.fullDisplayName}",
+						"Job configuration ${COMPILER_CONFIGURATION} with ${BUILD_CONFIGURATION} on ${OPERATING_SYSTEM} has result of"
+						+ " ${currentBuild.currentResult} in stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
+						env.BUILD_URL,
+						currentBuild.currentResult
+					)
+				}
 			}
 		}
 	}
