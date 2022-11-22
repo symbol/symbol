@@ -1,6 +1,6 @@
 FROM {{BASE_IMAGE}}
 ENV DEBIAN_FRONTEND=noninteractive
-MAINTAINER Catapult Development Team
+LABEL maintainer="Catapult Development Team"
 RUN apt-get -y update && apt-get install -y \
 	bison \
 	gdb \
