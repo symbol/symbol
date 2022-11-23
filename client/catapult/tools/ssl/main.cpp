@@ -58,7 +58,8 @@ namespace catapult { namespace tools { namespace ssl {
 						" 4 - two-level certificate chain with same key,\n"
 						" 5 - three-level certificate chain,\n"
 						" 6 - expired node certificate,\n"
-						" 7 - expired CA certificate");
+						" 7 - expired CA certificate,\n"
+						" 8 - no peer certificate");
 				optionsBuilder(
 						"tempCertificateDirectory,t",
 						OptionsValue<std::string>(m_tempCertificateDirectory),

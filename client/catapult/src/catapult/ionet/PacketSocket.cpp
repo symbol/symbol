@@ -361,7 +361,7 @@ namespace catapult { namespace ionet {
 
 		namespace {
 			void ConfigureSslVerify(Socket& socket, Key& publicKey, const predicate<PacketSocketSslVerifyContext&>& verifyCallback) {
-				socket.set_verify_mode(boost::asio::ssl::verify_peer);
+				socket.set_verify_mode(boost::asio::ssl::verify_peer | boost::asio::ssl::verify_fail_if_no_peer_cert);
 				socket.set_verify_depth(1);
 				socket.set_verify_callback([&publicKey, verifyCallback](auto preverified, auto& asioVerifyContext) {
 					PacketSocketSslVerifyContext verifyContext(preverified, asioVerifyContext, publicKey);
