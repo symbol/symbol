@@ -51,6 +51,9 @@ namespace catapult { namespace tools { namespace ssl {
 		/// Expired CA certificate.
 		Expired_Ca_Certificate,
 
+		/// No peer certificate.
+		No_Peer_Certificate,
+
 		/// Sentinel value.
 		Max_Value
 	};

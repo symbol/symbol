@@ -42,8 +42,10 @@ namespace catapult { namespace tools { namespace ssl {
 				| boost::asio::ssl::context::no_tlsv1_1
 				| boost::asio::ssl::context::no_tlsv1_2);
 
-		m_pSslContext->use_certificate_chain_file(certificateDirectory + "/node.full.crt.pem");
-		m_pSslContext->use_private_key_file(certificateDirectory + "/node.key.pem", boost::asio::ssl::context::pem);
+		if (ScenarioId::No_Peer_Certificate != scenarioId) {
+			m_pSslContext->use_certificate_chain_file(certificateDirectory + "/node.full.crt.pem");
+			m_pSslContext->use_private_key_file(certificateDirectory + "/node.key.pem", boost::asio::ssl::context::pem);
+		}
 
 		// pick curve supported by server
 		std::array<int, 1> curves{ NID_X25519 };
