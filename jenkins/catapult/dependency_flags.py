@@ -38,7 +38,10 @@ DEPENDENCY_FLAGS = {
 WINDOWS_DEPENDENCY_FLAGS = {
 	'facebook_rocksdb': ['-DROCKSDB_INSTALL_ON_WINDOWS=ON'],
 
-	'google_googletest': ['-Dgtest_force_shared_crt=on']
+	'google_googletest': ['-Dgtest_force_shared_crt=on'],
+
+	'mongodb_mongo-c-driver': ['-DENABLE_EXTRA_ALIGNMENT=0'],
+	'mongodb_mongo-cxx-driver': ['-DENABLE_TESTS=OFF']
 }
 
 
