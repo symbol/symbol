@@ -123,11 +123,10 @@ class Builder:
 		self.process_manager.dispatch_subprocess(['nmake'])
 		self.process_manager.dispatch_subprocess(['nmake', 'install_sw', 'install_ssldirs'])
 
-
 	def build_openssl_unix(self):
-		compiler = 'linux-x86_64-clang' if self.is_clang else 'linux-x86_64'
+		compiler = 'linux-x86_64-clang' if self.is_clang else ''
 		openssl_destinations = [f'--{key}={self.target_directory / "openssl"}' for key in ('prefix', 'openssldir', 'libdir')]
-		self.process_manager.dispatch_subprocess(['perl', './Configure', compiler] +  openssl_destinations)
+		self.process_manager.dispatch_subprocess(['perl', './Configure', compiler] + openssl_destinations)
 		self.process_manager.dispatch_subprocess(['make'])
 		self.process_manager.dispatch_subprocess(['make', 'install_sw', 'install_ssldirs'])
 

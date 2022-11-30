@@ -124,9 +124,8 @@ namespace catapult {
 			endBrace = ">";
 			std::string toSearch = "> >";
 			auto pos = exceptionFqn.find(toSearch);
-			if (std::string::npos != pos) {
+			if (std::string::npos != pos)
 				exceptionFqn.replace(pos, toSearch.size(), ">>");
-			}
 #endif
 
 			std::vector<std::string> expectedDiagLines{
