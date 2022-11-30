@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 # setup benchmark
 message("--- locating bench dependencies ---")
-find_package(benchmark 1.7.0 EXACT REQUIRED)
+find_package(benchmark 1.7.1 EXACT REQUIRED)
 message("bench     ver: ${benchmark_VERSION}")
 
 # add benchmark dependencies

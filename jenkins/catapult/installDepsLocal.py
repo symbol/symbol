@@ -33,12 +33,13 @@ class Downloader:
 	def download_boost_windows(self):
 		version = self.versions['boost']
 		archive_name = f'boost_1_{version}_0'
-		zip_filename = f'{archive_name}.zip'
+		zip_filename = f'{archive_name}.7z'
 		zip_source_path = f'https://boostorg.jfrog.io/artifactory/main/release/1.{version}.0/source/{zip_filename}'
 
 		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'wget', zip_source_path, '-outfile', zip_filename])
-		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'Expand-Archive', '-Path', zip_filename])
-		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'Move-Item', rf'{archive_name}\{archive_name}', 'boost'])
+		self.process_manager.dispatch_subprocess(['powershell', '-Command', '7z', 'x', zip_filename])
+		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'dir'])
+		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'Move-Item', rf'{archive_name}', 'boost'])
 
 	def download_git_dependency(self, organization, project):
 		version = self.versions[f'{organization}_{project}']
@@ -92,7 +93,10 @@ class Builder:
 		if EnvironmentManager.is_windows_platform() and 'mongo-cxx-driver' == project:
 			# For build without a C++17 polyfill
 			# https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-__cplusplus/
-			cmake_options += ['-DCMAKE_CXX_FLAGS=\'/Zc:__cplusplus\'']
+			cmake_options += ['-DCMAKE_CXX_FLAGS="/Zc:__cplusplus"', f'-DCMAKE_PREFIX_PATH={self.target_directory / organization}']
+
+		if 'mongodb' == organization:
+			cmake_options += [f'-DOPENSSL_ROOT_DIR={self.target_directory / "openssl"}']
 
 		additional_cmake_options = get_dependency_flags(f'{organization}_{project}')
 		if additional_cmake_options:
@@ -104,6 +108,27 @@ class Builder:
 		else:
 			self.process_manager.dispatch_subprocess(['make', '-j', str(NUM_BUILD_CORES)])
 			self.process_manager.dispatch_subprocess(['make', 'install'])
+
+	def build_openssl(self):
+		self.environment_manager.chdir(self.target_directory / SOURCE_DIR_NAME / 'openssl')
+
+		if EnvironmentManager.is_windows_platform():
+			self.build_openssl_windows()
+		else:
+			self.build_openssl_unix()
+
+	def build_openssl_windows(self):
+		openssl_destinations = [f'--{key}={self.target_directory / "openssl"}' for key in ('prefix', 'openssldir')]
+		self.process_manager.dispatch_subprocess(['perl', './Configure', 'VC-WIN64A'] + openssl_destinations)
+		self.process_manager.dispatch_subprocess(['nmake'])
+		self.process_manager.dispatch_subprocess(['nmake', 'install_sw', 'install_ssldirs'])
+
+	def build_openssl_unix(self):
+		compiler = 'linux-x86_64-clang' if self.is_clang else ''
+		openssl_destinations = [f'--{key}={self.target_directory / "openssl"}' for key in ('prefix', 'openssldir', 'libdir')]
+		self.process_manager.dispatch_subprocess(['perl', './Configure', compiler] + openssl_destinations)
+		self.process_manager.dispatch_subprocess(['make'])
+		self.process_manager.dispatch_subprocess(['make', 'install_sw', 'install_ssldirs'])
 
 
 def main():
@@ -145,6 +170,7 @@ def main():
 		print('[x] downloading all dependencies')
 		downloader = Downloader(versions, process_manager)
 		downloader.download_boost()
+		downloader.download_git_dependency('openssl', 'openssl')
 
 		for repository in dependency_repositories:
 			downloader.download_git_dependency(repository[0], repository[1])
@@ -156,6 +182,7 @@ def main():
 			builder.use_clang()
 
 		builder.build_boost()
+		builder.build_openssl()
 
 		for repository in dependency_repositories:
 			builder.build_git_dependency(repository[0], repository[1])

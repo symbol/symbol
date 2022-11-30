@@ -117,9 +117,20 @@ namespace catapult {
 		template<typename TException, typename TTraits>
 		void AssertExceptionInformation(const TException& ex, const ExpectedDiagnostics<TTraits>& expected) {
 			// Arrange:
+			std::string endBrace = " >";
+			std::string exceptionFqn = std::string(TTraits::Exception_Fqn);
+
+#if 15 == __clang_major__
+			endBrace = ">";
+			std::string toSearch = "> >";
+			auto pos = exceptionFqn.find(toSearch);
+			if (std::string::npos != pos)
+				exceptionFqn.replace(pos, toSearch.size(), ">>");
+#endif
+
 			std::vector<std::string> expectedDiagLines{
 				"Throw in function " + ConvertToExceptionFunctionName(expected.FunctionName),
-				"Dynamic exception type: " STRUCTPREFIX "boost::wrapexcept<" + std::string(TTraits::Exception_Fqn) + " >",
+				"Dynamic exception type: " STRUCTPREFIX "boost::wrapexcept<" + exceptionFqn + endBrace,
 				"std::exception::what: " + expected.What
 			};
 

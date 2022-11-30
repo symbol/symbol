@@ -106,7 +106,6 @@ namespace catapult { namespace consumers {
 				auto isAlwaysVerifiable = m_alwaysVerifiableIndexes.cend() != m_alwaysVerifiableIndexes.find(m_entityInfos.size());
 				m_entityInfos.push_back(entityInfo);
 
-				auto i = 0u;
 				for (const auto& descriptor : m_descriptors) {
 					m_signatureInputs.push_back(SignatureInput());
 					auto& input = m_signatureInputs.back();
@@ -129,7 +128,6 @@ namespace catapult { namespace consumers {
 
 					const auto& signerPublicKey = input.Signer.publicKey();
 					sub.notify(model::SignatureNotification(signerPublicKey, input.Signature, input.Data, replayProtectionMode));
-					++i;
 				}
 			}
 
