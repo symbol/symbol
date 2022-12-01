@@ -263,7 +263,7 @@ pipeline {
 										sh '''
 											curl -Os https://uploader.codecov.io/latest/linux/codecov
 											chmod +x codecov
-											./codecov --verbose --nonZero --rootDir . --flags client-catapult -X gcov --file client_coverage.info
+											./codecov --verbose --nonZero --rootDir . --flags client-catapult --file client_coverage.info
 										'''
 									}
 								}
