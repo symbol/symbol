@@ -31,7 +31,7 @@
     "ini": "^3.0.1",
     "long": "^5.2.1",
     "mongodb": "^4.12.1",
-    "restify": "^9.0.0",
+    "restify": "^10.0.0",
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
     "sshpk": "^1.17.0",
