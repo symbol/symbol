@@ -14,9 +14,7 @@ class ProcessManager:
 		try:
 			return line_bin.decode('utf-8')
 		except UnicodeDecodeError as ex:
-			err = f'Failed to decode line: {line_bin}\n Exception: {str(ex)}\n'
-			print(err)
-			return err
+			return f'Failed to decode line: {line_bin}\n Exception: {str(ex)}\n'
 
 	def dispatch_subprocess(self, command_line, show_output=True, handle_error=True, redirect_filename=None):
 		self._print_command(command_line)
