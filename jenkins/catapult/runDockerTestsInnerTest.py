@@ -176,6 +176,9 @@ def main():
 			Path(args.exe_path) if EnvironmentManager.is_windows_platform() else Path(args.exe_path) / '..' / 'lib'
 		]
 
+		if EnvironmentManager.is_windows_platform():
+			test_args.append('--gtest_color=no')
+
 		if process_manager.dispatch_test_subprocess(test_args, args.verbosity):
 			for core_path in Path('.').glob('core*'):
 				handle_core_file(process_manager, core_path, test_exe_filepath, base_output_filepath)
