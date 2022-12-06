@@ -11,7 +11,7 @@ class ProcessManager:
 
 	@staticmethod
 	def _decode_line(line_bin):
-		return line_bin.rstrip().decode('utf-8', errors='ignore')
+		return line_bin.decode('utf-8', errors='ignore')
 
 	def dispatch_subprocess(self, command_line, show_output=True, handle_error=True, redirect_filename=None):
 		self._print_command(command_line)
