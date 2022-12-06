@@ -16,7 +16,7 @@ RUN apt-get install -y shellcheck \
 RUN pip install poetry
 
 # sdk dependencies
-RUN apt-get install -y zbar-tools
+RUN apt-get install -y zbar-tools libssl-dev
 
 # codecov uploader
 RUN curl -Os https://uploader.codecov.io/latest/linux/codecov \
