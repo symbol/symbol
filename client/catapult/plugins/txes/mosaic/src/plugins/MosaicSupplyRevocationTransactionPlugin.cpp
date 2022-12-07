@@ -40,13 +40,15 @@ namespace catapult { namespace plugins {
 				// consequently, MosaicSupplyRevocation transactions will be rejected until then because of Revokable flag requirement
 				sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.Mosaic.MosaicId, requiredMosaicFlags));
 
-				sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, { transaction.SourceAddress }));
+				sub.notify(AccountAddressNotification(transaction.SourceAddress)); // mark SourceAddress as affected by this transaction
 
 				sub.notify(BalanceTransferNotification(
 						transaction.SourceAddress,
 						context.SignerAddress,
 						transaction.Mosaic.MosaicId,
 						transaction.Mosaic.Amount));
+
+				// don't raise an AddressInteractionNotification because revocation should be allowed irrespective of restrictions
 			};
 		}
 	}

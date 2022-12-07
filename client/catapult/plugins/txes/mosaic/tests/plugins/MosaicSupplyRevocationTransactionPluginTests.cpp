@@ -65,7 +65,7 @@ namespace catapult { namespace plugins {
 			// Act + Assert:
 			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
 				MosaicRequiredNotification::Notification_Type,
-				AddressInteractionNotification::Notification_Type,
+				AccountAddressNotification::Notification_Type,
 				BalanceTransferNotification::Notification_Type
 			}, utils::ParseByteArray<Address>(Nemesis_Address));
 		}
@@ -98,10 +98,10 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.Mosaic.MosaicId, notification.MosaicId.unresolved());
 				EXPECT_EQ(utils::to_underlying_type(expectedPropertyFlagMask), notification.PropertyFlagMask);
 			});
-			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
-				EXPECT_EQ(transaction.Type, notification.TransactionType);
-				EXPECT_EQ(UnresolvedAddressSet{ transaction.SourceAddress }, notification.ParticipantsByAddress);
+			builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
+				EXPECT_FALSE(notification.Address.isResolved());
+
+				EXPECT_EQ(transaction.SourceAddress, notification.Address.unresolved());
 			});
 			builder.template addExpectation<BalanceTransferNotification>([&transaction](const auto& notification) {
 				EXPECT_FALSE(notification.Sender.isResolved());
