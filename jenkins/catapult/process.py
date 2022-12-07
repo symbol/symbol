@@ -9,10 +9,6 @@ class ProcessManager:
 	def __init__(self, dry_run=False):
 		self.dry_run = dry_run
 
-	@staticmethod
-	def _decode_line(line_bin):
-		return line_bin.decode('utf-8', errors='ignore')
-
 	def dispatch_subprocess(self, command_line, show_output=True, handle_error=True, redirect_filename=None):
 		self._print_command(command_line)
 
@@ -22,7 +18,7 @@ class ProcessManager:
 		with Popen(command_line, stdout=PIPE, stderr=STDOUT) as process:
 			process_lines = []
 			for line_bin in iter(process.stdout.readline, b''):
-				line = self._decode_line(line_bin)
+				line = line_bin.decode('utf-8')
 
 				if show_output:
 					sys.stdout.write(line)
@@ -56,7 +52,7 @@ class ProcessManager:
 			process_lines = []
 			is_filtered_output = 'max' != verbosity
 			for line_bin in iter(process.stdout.readline, b''):
-				line = self._decode_line(line_bin)
+				line = line_bin.decode('utf-8')
 				process_lines.append(line)
 
 				if is_filtered_output:
