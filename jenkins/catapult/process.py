@@ -53,7 +53,7 @@ class ProcessManager:
 			process_lines = []
 			is_filtered_output = 'max' != verbosity
 			for line_bin in iter(process.stdout.readline, b''):
-				line = line_bin.decode('utf-8', error=self.decode_error)
+				line = line_bin.decode('utf-8', self.decode_error)
 				process_lines.append(line)
 
 				if is_filtered_output:
