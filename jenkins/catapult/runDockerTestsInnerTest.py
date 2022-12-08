@@ -143,7 +143,7 @@ def main():
 	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
 	args = parser.parse_args()
 
-	process_manager = ProcessManager(args.dry_run)
+	process_manager = ProcessManager(args.dry_run, 'ignore') if EnvironmentManager.is_windows_platform() else ProcessManager(args.dry_run)
 	environment_manager = EnvironmentManager(args.dry_run)
 
 	compiler_configuration = load_compiler_configuration(args.compiler_configuration)
@@ -175,9 +175,6 @@ def main():
 			f'--gtest_output=xml:{base_output_filepath}.xml',
 			Path(args.exe_path) if EnvironmentManager.is_windows_platform() else Path(args.exe_path) / '..' / 'lib'
 		]
-
-		if EnvironmentManager.is_windows_platform():
-			test_args.append('--gtest_color=no')
 
 		if process_manager.dispatch_test_subprocess(test_args, args.verbosity):
 			for core_path in Path('.').glob('core*'):

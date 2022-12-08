@@ -6,8 +6,9 @@ MAX_LINE_LENGTH = 140
 
 
 class ProcessManager:
-	def __init__(self, dry_run=False):
+	def __init__(self, dry_run=False, decode_error='strict'):
 		self.dry_run = dry_run
+		self.decode_error = decode_error
 
 	def dispatch_subprocess(self, command_line, show_output=True, handle_error=True, redirect_filename=None):
 		self._print_command(command_line)
@@ -52,7 +53,7 @@ class ProcessManager:
 			process_lines = []
 			is_filtered_output = 'max' != verbosity
 			for line_bin in iter(process.stdout.readline, b''):
-				line = line_bin.decode('utf-8')
+				line = line_bin.decode('utf-8', error=self.decode_error)
 				process_lines.append(line)
 
 				if is_filtered_output:
