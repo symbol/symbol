@@ -19,7 +19,7 @@ class ProcessManager:
 		with Popen(command_line, stdout=PIPE, stderr=STDOUT) as process:
 			process_lines = []
 			for line_bin in iter(process.stdout.readline, b''):
-				line = line_bin.decode('utf-8')
+				line = line_bin.decode('utf-8', self.decode_error)
 
 				if show_output:
 					sys.stdout.write(line)
