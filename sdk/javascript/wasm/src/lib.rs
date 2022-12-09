@@ -8,11 +8,6 @@
 
 #![cfg_attr(not(test), forbid(unsafe_code))]
 
-// when the `wee_alloc` feature is enabled, use `wee_alloc` as the global allocator
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 extern crate curve25519_dalek;
 use curve25519_dalek::scalar::Scalar;
 use curve25519_dalek::edwards::{CompressedEdwardsY, EdwardsPoint};
