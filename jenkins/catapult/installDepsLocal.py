@@ -137,6 +137,7 @@ def main():
 	parser.add_argument('--versions', help='locked versions file', required=True)
 	parser.add_argument('--download', help='download all dependencies', action='store_true')
 	parser.add_argument('--build', help='build all dependencies', action='store_true')
+	parser.add_argument('--skip-openssl', help='skip openssl', action='store_true')
 	parser.add_argument('--use-clang', help='uses clang compiler instead of gcc', action='store_true')
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	parser.add_argument('--force', help='purges any existing files', action='store_true')
@@ -170,7 +171,8 @@ def main():
 		print('[x] downloading all dependencies')
 		downloader = Downloader(versions, process_manager)
 		downloader.download_boost()
-		downloader.download_git_dependency('openssl', 'openssl')
+		if not args.skip_openssl:
+			downloader.download_git_dependency('openssl', 'openssl')
 
 		for repository in dependency_repositories:
 			downloader.download_git_dependency(repository[0], repository[1])
@@ -182,7 +184,8 @@ def main():
 			builder.use_clang()
 
 		builder.build_boost()
-		builder.build_openssl()
+		if not args.skip_openssl:
+			builder.build_openssl()
 
 		for repository in dependency_repositories:
 			builder.build_git_dependency(repository[0], repository[1])
