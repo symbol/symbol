@@ -21,7 +21,6 @@
 
 const catapult = require('../catapult-sdk/index');
 const errors = require('../server/errors');
-const { sha3_256 } = require('@noble/hashes/sha3');
 const ini = require('ini');
 
 const { uint64 } = catapult.utils;
@@ -39,7 +38,26 @@ module.exports = {
 
 		const readAndParseNetworkPropertiesFile = () => fileLoader.readOnce(
 			services.config.apiNode.networkPropertyFilePath,
-			contents => ini.parse(contents)
+			contents => {
+				const propertiesObject = ini.parse(contents);
+				propertiesObject.parsed = {};
+
+				if (propertiesObject.treasury_reissuance_transaction_signatures) {
+					const signaturesMap = propertiesObject.treasury_reissuance_transaction_signatures;
+					propertiesObject.parsed.treasuryReissuanceTransactionSignatures = Object.keys(signaturesMap)
+						.filter(key => signaturesMap[key])
+						.sort();
+				}
+
+				if (propertiesObject.corrupt_aggregate_transaction_hashes) {
+					const hashesMap = propertiesObject.corrupt_aggregate_transaction_hashes;
+					propertiesObject.parsed.corruptAggregateTransactionHashes = Object.keys(hashesMap)
+						.map(key => `${key} = ${hashesMap[key]}`)
+						.sort();
+				}
+
+				return propertiesObject;
+			}
 		);
 
 		const readAndParseNodePropertiesFile = () => fileLoader.readNewer(
@@ -84,20 +102,13 @@ module.exports = {
 				};
 
 				if (propertiesObject.treasury_reissuance_transaction_signatures) {
-					const signaturesMap = propertiesObject.treasury_reissuance_transaction_signatures;
-					networkProperties.treasuryReissuanceTransactionSignatures = Object.keys(signaturesMap)
-						.filter(key => signaturesMap[key])
-						.sort();
+					const key = 'treasuryReissuanceTransactionSignatures';
+					networkProperties[key] = propertiesObject.parsed[key];
 				}
 
 				if (propertiesObject.corrupt_aggregate_transaction_hashes) {
-					const hashesMap = propertiesObject.corrupt_aggregate_transaction_hashes;
-					const binaryHashesMap = catapult.utils.convert.hexToUint8(Object.keys(hashesMap)
-						.map(key => key + hashesMap[key])
-						.sort()
-						.reduce((lhs, rhs) => lhs + rhs));
-					const hashedValue = sha3_256(binaryHashesMap);
-					networkProperties.corruptAggregateTransactionHashes = catapult.utils.convert.uint8ToHex(hashedValue);
+					const key = 'corruptAggregateTransactionHashes';
+					networkProperties[key] = propertiesObject.parsed[key];
 				}
 
 				res.send(networkProperties);
