@@ -1,4 +1,4 @@
 isort==5.10.1
 pycodestyle==2.10.0
-pylint==2.15.7
+pylint==2.15.8
 pylint-quotes==0.2.3
