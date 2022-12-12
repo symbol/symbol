@@ -1,4 +1,4 @@
-FROM postgres:14
+FROM postgres:15
 
 # install dependencies (install tzdata first to prevent 'geographic area' prompt)
 RUN apt-get update \
