@@ -11,12 +11,9 @@
 [sdk-javascript-package]: https://img.shields.io/npm/v/symbol-sdk
 [sdk-javascript-package-link]: https://www.npmjs.com/package/symbol-sdk
 
-
 This is minimal Javascript SDK for Symbol and NEM.
 The architecture and programming paradigm of this SDK are consistent with those for other languages.
 Old typescript SDK - [symbol-sdk v2.0.0](https://www.npmjs.com/package/symbol-sdk/v/2.0.0) - has been deprecated.
-
-Note, at this point NEM support should be considered **experimental**.
 
 ## SDK
 
