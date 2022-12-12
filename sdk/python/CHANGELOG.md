@@ -5,11 +5,38 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
-### Changed
- - NetworkTimestamp moved into Network for both nem and symbol submodules
- - to_datetime and from_datetime promoted from NetworkTimestamp to Network
+## [3.0.4] - 12-Dec-2022
 
-## [3.0.3] - 14-Mar-2002
+### Changed
+ - Network
+   - to_datetime and from_datetime promoted from NetworkTimestamp to Network
+   - NetworkTimestamp moved into Network
+   - Add epoch_time to network description
+ - MerkleHashBuilder.py renamed to Merkle.py
+ - Facade
+   - Can be created around Network instance or name
+ - Sign / verify canonical signature checks
+ - TransactionFactory supports auto sorting transaction properties
+ - Bip32.random for generating random mnemonic
+ - Support `repr` in ByteArray derived types
+ - ripemd fallback when it is not available in hashlib
+
+### Added
+ - is_valid_address_string to Network for checking validity of an unparsed address
+ - MessageEncoder for encrypting and decrypting messages
+   - AesCbcCipher (NEM only) and AesGcmCipher implementations
+   - SharedKey256 BaseArray derived type
+ - Facade
+   - SharedKey type
+   - bip32_path function for returning BIP32 compatible path
+   - (Symbol-only) cosign_transaction for cosigning Symbol transactions
+ - Symbol
+   - Functions for verifying Merkle proofs and Merkle patricia proofs
+   - Utility function metadata_update_value for simplifying update of metadata values
+ - Proper handling of catbuffer computed fields/properties
+ - (NEM-only) Automatic population for fields levy_size and message_envelope_size
+
+## [3.0.3] - 14-Mar-2022
 
 ### Changed
  - cosmetic changes in generated code
@@ -52,6 +79,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
+[3.0.4]: https://github.com/symbol/sdk-python/compare/v3.0.3...v3.0.4
 [3.0.3]: https://github.com/symbol/sdk-python/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/symbol/sdk-python/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/symbol/sdk-python/compare/v3.0.0...v3.0.1
