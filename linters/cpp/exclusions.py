@@ -159,14 +159,16 @@ PLUGINS_FIRSTINCLUDES = {
 	'plugins/txes/lock_hash/tests/observers/CompletedAggregateObserverTests.cpp': 'src/model/HashLockReceiptType.h',
 	'plugins/txes/lock_hash/tests/observers/ExpiredHashLockInfoObserverTests.cpp': 'src/model/HashLockReceiptType.h',
 	'plugins/txes/lock_hash/tests/observers/HashLockObserverTests.cpp': 'src/model/HashLockReceiptType.h',
-	'plugins/txes/lock_hash/tests/validators/HashLockCacheUniqueValidatorTests.cpp': 'plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h',
+	'plugins/txes/lock_hash/tests/validators/HashLockCacheUniqueValidatorTests.cpp':
+		'plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h',
 	'plugins/txes/lock_hash/tests/validators/HashLockDurationValidatorTests.cpp': 'src/state/HashLockInfo.h',
 
 	'plugins/txes/lock_secret/tests/observers/ExpiredSecretLockInfoObserverTests.cpp': 'src/model/SecretLockReceiptType.h',
 	'plugins/txes/lock_secret/tests/observers/ProofObserverTests.cpp': 'src/model/SecretLockReceiptType.h',
 	'plugins/txes/lock_secret/tests/observers/SecretLockObserverTests.cpp': 'src/model/SecretLockReceiptType.h',
 	'plugins/txes/lock_secret/tests/validators/ProofSecretValidatorTests.cpp': 'src/model/LockHashUtils.h',
-	'plugins/txes/lock_secret/tests/validators/SecretLockCacheUniqueValidatorTests.cpp': 'plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h',
+	'plugins/txes/lock_secret/tests/validators/SecretLockCacheUniqueValidatorTests.cpp':
+		'plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h',
 	'plugins/txes/lock_secret/tests/validators/SecretLockDurationValidatorTests.cpp': 'src/state/SecretLockInfo.h',
 
 	'plugins/txes/metadata/tests/model/MetadataTransactionTests.cpp': 'src/model/AccountMetadataTransaction.h',
@@ -175,19 +177,25 @@ PLUGINS_FIRSTINCLUDES = {
 	'plugins/txes/mosaic/tests/validators/MosaicAvailabilityValidatorTests.cpp': 'src/cache/MosaicCache.h',
 	'plugins/txes/mosaic/tests/validators/MosaicDurationValidatorTests.cpp': 'src/cache/MosaicCache.h',
 	'plugins/txes/mosaic/tests/validators/MosaicIdValidatorTests.cpp': 'src/model/MosaicIdGenerator.h',
-	'plugins/txes/multisig/tests/validators/MultisigAggregateEligibleCosignatoriesValidatorTests.cpp': 'src/plugins/MultisigAccountModificationTransactionPlugin.h',
-	'plugins/txes/multisig/tests/validators/MultisigAggregateSufficientCosignatoriesValidatorTests.cpp': 'src/plugins/MultisigAccountModificationTransactionPlugin.h',
+	'plugins/txes/multisig/tests/validators/MultisigAggregateEligibleCosignatoriesValidatorTests.cpp':
+		'src/plugins/MultisigAccountModificationTransactionPlugin.h',
+	'plugins/txes/multisig/tests/validators/MultisigAggregateSufficientCosignatoriesValidatorTests.cpp':
+		'src/plugins/MultisigAccountModificationTransactionPlugin.h',
 	'plugins/txes/multisig/tests/validators/MultisigInvalidCosignatoriesValidatorTests.cpp': 'src/cache/MultisigCache.h',
 	'plugins/txes/multisig/tests/validators/MultisigInvalidSettingsValidatorTests.cpp': 'src/cache/MultisigCache.h',
 	'plugins/txes/namespace/tests/validators/NamespaceAvailabilityValidatorTests.cpp': 'src/cache/NamespaceCache.h',
 	'plugins/txes/namespace/tests/validators/NamespaceDurationOverflowValidatorTests.cpp': 'src/model/NamespaceConstants.h',
 	'plugins/txes/namespace/tests/validators/NamespaceNameValidatorTests.cpp': 'src/model/NamespaceIdGenerator.h',
 	'plugins/txes/namespace/tests/validators/RootNamespaceMaxChildrenValidatorTests.cpp': 'src/cache/NamespaceCache.h',
-	'plugins/txes/restriction_account/tests/model/AccountRestrictionTransactionTests.cpp': 'src/model/AccountAddressRestrictionTransaction.h',
-	'plugins/txes/restriction_account/tests/validators/AccountOperationRestrictionNoSelfBlockingValidatorTests.cpp': 'src/model/AccountOperationRestrictionTransaction.h',
-	'plugins/txes/restriction_account/tests/validators/AccountRestrictionValueModificationValidatorTests.cpp': 'sdk/src/extensions/ConversionExtensions.h',
+	'plugins/txes/restriction_account/tests/model/AccountRestrictionTransactionTests.cpp':
+		'src/model/AccountAddressRestrictionTransaction.h',
+	'plugins/txes/restriction_account/tests/validators/AccountOperationRestrictionNoSelfBlockingValidatorTests.cpp':
+		'src/model/AccountOperationRestrictionTransaction.h',
+	'plugins/txes/restriction_account/tests/validators/AccountRestrictionValueModificationValidatorTests.cpp':
+		'sdk/src/extensions/ConversionExtensions.h',
 	'plugins/txes/restriction_account/tests/validators/AccountRestrictionViewTests.cpp': 'src/validators/AccountRestrictionView.h',
-	'plugins/txes/restriction_account/tests/validators/MaxAccountRestrictionValuesValidatorTests.cpp': 'sdk/src/extensions/ConversionExtensions.h',
+	'plugins/txes/restriction_account/tests/validators/MaxAccountRestrictionValuesValidatorTests.cpp':
+		'sdk/src/extensions/ConversionExtensions.h',
 
 	# sdk
 	'sdk/tests/builders/AliasBuilderTests.cpp': 'src/builders/AddressAliasBuilder.h',
