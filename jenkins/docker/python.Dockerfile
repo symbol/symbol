@@ -18,6 +18,12 @@ RUN pip install poetry
 # sdk dependencies
 RUN apt-get install -y zbar-tools libssl-dev
 
+# enable legacy providers in openssl(ripemd160)
+RUN sed -i '/^default = default_sect/a legacy = legacy_sect\n' /etc/ssl/openssl.cnf \
+	&& sed -i '/^\[default_sect\]/i [legacy_sect]\nactivate = 1\n' /etc/ssl/openssl.cnf \
+	&& sed -i 's/^# activate = 1/activate = 1/g' /etc/ssl/openssl.cnf \
+	&& cat /etc/ssl/openssl.cnf
+
 # codecov uploader
 RUN curl -Os https://uploader.codecov.io/latest/linux/codecov \
 	&& chmod +x codecov \
