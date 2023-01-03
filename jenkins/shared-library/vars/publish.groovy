@@ -30,7 +30,7 @@ void dockerPublisher(Map config, String phase) {
 	String version = readPackageVersion()
 	String imageVersionName = "${config.dockerImageName}:${version}"
 
-	Object imageName = docker.build(imageVersionName)
+	Object imageName = docker.build(imageVersionName, config.dockerBuildArgs ?: '.')
 	docker.withRegistry(dockerUrl, DOCKERHUB_CREDENTIALS_ID) {
 		logger.logInfo("Pushing docker image ${imageVersionName}")
 		imageName.push()
