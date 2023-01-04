@@ -72,7 +72,7 @@ void call(Closure body) {
 						image null == params.ciBuildDockerImage
 								? "symbolplatform/build-ci:${get_docker_tag(params.ciBuildDockerfile)}"
 								: "${params.ciBuildDockerImage}"
-						args null == params.dockerArgs ? "" : "${params.dockerArgs}"
+						args null == params.dockerArgs ? '' : "${params.dockerArgs}"
 
 						// using the same node and the same workspace mounted to the container
 						reuseNode true

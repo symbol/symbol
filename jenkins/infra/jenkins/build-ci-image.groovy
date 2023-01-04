@@ -49,7 +49,7 @@ pipeline {
 			steps {
 				script {
 					helper.runStepAndRecordFailure {
-						dir("jenkins/docker")
+						dir('jenkins/docker')
 						{
 							String buildArg = "-f ${CI_IMAGE}.Dockerfile ."
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
