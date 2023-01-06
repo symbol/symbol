@@ -26,8 +26,22 @@ void call(Map jobConfiguration) {
 				}
 			}
 
-			triggers {
-				cron(trigger)
+			logRotator {
+				// If specified, only up to this number of builds have their artifacts retained.
+				artifactNumToKeep(buildsToKeep)
+
+				// If specified, only up to this number of build records are kept.
+				numToKeep(buildsToKeep)
+			}
+
+			properties {
+				pipelineTriggers {
+					triggers {
+						cron {
+							spec(schedule)
+						}
+					}
+				}
 			}
 		}
 		""", additionalParameters: [
@@ -36,6 +50,7 @@ void call(Map jobConfiguration) {
 			credentialsId: jobConfiguration.credentialsId ? jobConfiguration.credentialsId.toString() : '',
 			jenkinsfilePath: jobConfiguration.jenkinsfilePath.toString(),
 			displayName: jobConfiguration.displayName.toString(),
-			trigger: jobConfiguration.trigger ? jobConfiguration.trigger.toString() : ''
+			schedule: jobConfiguration.cronTrigger ? jobConfiguration.cronTrigger.toString() : '',
+			buildsToKeep: jobConfiguration.buildsToKeep ?: 14
 	]
 }

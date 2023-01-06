@@ -118,7 +118,7 @@ pipeline {
 }
 
 void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem) {
-	build job: 'Symbol/server-pipelines/catapult-client-build-catapult-project', parameters: [
+	build job: 'catapult-client-build-catapult-project', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
