@@ -1474,7 +1474,7 @@ class MosaicDefinition:
 
 	@property
 	def levy_size_computed(self) -> int:
-		return 0 if not self.levy else self.levy.size + 4
+		return 0 if not self.levy else self.levy.size + 0
 
 	@owner_public_key.setter
 	def owner_public_key(self, value: PublicKey):
@@ -4592,7 +4592,7 @@ class TransferTransactionV1:
 
 	@property
 	def message_envelope_size_computed(self) -> int:
-		return 0 if not self.message else self.message.size + 4
+		return 0 if not self.message else self.message.size + 0
 
 	@type_.setter
 	def type_(self, value: TransactionType):
@@ -4831,7 +4831,7 @@ class NonVerifiableTransferTransactionV1:
 
 	@property
 	def message_envelope_size_computed(self) -> int:
-		return 0 if not self.message else self.message.size + 4
+		return 0 if not self.message else self.message.size + 0
 
 	@type_.setter
 	def type_(self, value: TransactionType):
@@ -5068,7 +5068,7 @@ class TransferTransactionV2:
 
 	@property
 	def message_envelope_size_computed(self) -> int:
-		return 0 if not self.message else self.message.size + 4
+		return 0 if not self.message else self.message.size + 0
 
 	@type_.setter
 	def type_(self, value: TransactionType):
@@ -5327,7 +5327,7 @@ class NonVerifiableTransferTransactionV2:
 
 	@property
 	def message_envelope_size_computed(self) -> int:
-		return 0 if not self.message else self.message.size + 4
+		return 0 if not self.message else self.message.size + 0
 
 	@type_.setter
 	def type_(self, value: TransactionType):
