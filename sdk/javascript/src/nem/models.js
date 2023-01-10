@@ -1702,7 +1702,7 @@ export class MosaicDefinition {
 	}
 
 	get levySizeComputed() {
-		return this.levy ? this.levy.size + 4 : 0;
+		return this.levy ? this.levy.size + 0 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -5094,7 +5094,7 @@ export class TransferTransactionV1 {
 	}
 
 	get messageEnvelopeSizeComputed() {
-		return this.message ? this.message.size + 4 : 0;
+		return this.message ? this.message.size + 0 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -5343,7 +5343,7 @@ export class NonVerifiableTransferTransactionV1 {
 	}
 
 	get messageEnvelopeSizeComputed() {
-		return this.message ? this.message.size + 4 : 0;
+		return this.message ? this.message.size + 0 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -5601,7 +5601,7 @@ export class TransferTransactionV2 {
 	}
 
 	get messageEnvelopeSizeComputed() {
-		return this.message ? this.message.size + 4 : 0;
+		return this.message ? this.message.size + 0 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -5870,7 +5870,7 @@ export class NonVerifiableTransferTransactionV2 {
 	}
 
 	get messageEnvelopeSizeComputed() {
-		return this.message ? this.message.size + 4 : 0;
+		return this.message ? this.message.size + 0 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this

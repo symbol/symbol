@@ -139,7 +139,7 @@ class NemFacadeTest(unittest.TestCase):
 		hash_value = NemFacade.hash_transaction(transaction)
 
 		# Assert:
-		self.assertEqual(Hash256('F2D6DA7F121787B8322EE3491B47027E2E1754E35CA1D20298E73067CF2AC08C'), hash_value)
+		self.assertEqual(Hash256('A7064DB890A4E7329AAB2AE7DCFA5EC76D7E374590C61EC85E03C698DF4EA79D'), hash_value)
 
 	def test_can_sign_transaction(self):
 		# Arrange:
@@ -154,8 +154,8 @@ class NemFacadeTest(unittest.TestCase):
 
 		# Assert:
 		expected_signature = Signature(''.join([
-			'D996CAB85AE6604053998837F0CC74ED23AA9BA3763E5A8619AB91AC786C4DC6'
-			'E3F7FB7DBE34E070468308A3A626E2A362939EF3F98CFE1B6BF817F6C968E20F'
+			'23A7B3433D16172E6C8659DB24233C5A8222C589098EA7A8FBBCB19691C67DB1'
+			'3FB2AB7BB215265A3E3D74D32683516B03785BFEB2A2DE6DAC09F5E34A793706'
 		]))
 		self.assertEqual(expected_signature, signature)
 

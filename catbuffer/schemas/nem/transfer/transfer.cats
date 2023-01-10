@@ -34,7 +34,7 @@ inline struct TransferTransactionBody
 	amount = Amount
 
 	# message envelope size
-	@sizeref(message, 4)
+	@sizeref(message, 0)
 	message_envelope_size = uint32
 
 	# optional message

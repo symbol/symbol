@@ -76,7 +76,7 @@ struct MosaicDefinition
 	properties = array(SizePrefixedMosaicProperty, properties_count)
 
 	# size of the serialized levy
-	@sizeref(levy, 4)
+	@sizeref(levy, 0)
 	levy_size = uint32
 
 	# optional levy that is applied to transfers of this mosaic
