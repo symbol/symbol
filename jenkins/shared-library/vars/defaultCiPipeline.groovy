@@ -68,10 +68,11 @@ void call(Closure body) {
 			}
 			stage('CI pipeline') {
 				agent {
-					dockerfile {
-						dir 'jenkins/docker'
-						filename "${params.ciBuildDockerfile}"
-						args params.dockerArgs == null ? '' : "${params.dockerArgs}"
+					docker {
+						image null == params.ciBuildDockerImage
+								? "symbolplatform/build-ci:${get_docker_tag(params.ciBuildDockerfile)}"
+								: "${params.ciBuildDockerImage}"
+						args null == params.dockerArgs ? '' : "${params.dockerArgs}"
 
 						// using the same node and the same workspace mounted to the container
 						reuseNode true
@@ -322,4 +323,10 @@ String resolvePath(String rootPath, String path) {
 
 Boolean shouldPublishImage(String shouldPublish) {
 	return shouldPublish == null ? false : shouldPublish.toBoolean()
+}
+
+String get_docker_tag(String dockerfile) {
+	String[] parts = dockerfile.split('\\.')
+	println("dockerfile: ${dockerfile} tag:${parts[0]}")
+	return parts[0]
 }
