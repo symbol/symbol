@@ -67,7 +67,7 @@ customBuilds:
   - name: Build Catapult Project
     jobName: /symbol/catapult-client/catapult-client-build-catapult-project
     scriptPath: jenkins/catapult/jenkins/catapult-client-build-catapult-project.groovy
-    logRotation: 7
+    targetDirectory: catapult-src
 
   - name: Build Catapult Project Daily Tests
     jobName: /symbol/catapult-client/catapult-client-build-catapult-project-daily
@@ -101,3 +101,4 @@ customBuilds:
   - name: Release Build
     jobName: /symbol/catapult-client/catapult-client-release-build
     scriptPath: jenkins/catapult/jenkins/catapult-client-release-build.groovy
+    targetDirectory: symbol-mono

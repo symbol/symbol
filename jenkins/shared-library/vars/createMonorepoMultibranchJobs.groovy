@@ -48,6 +48,7 @@ void generatePackageMultibranchJobs(Object buildConfiguration, Map jobConfigurat
 		jobConfiguration.packageIncludePaths = pathList.join('\n')
 		jobConfiguration.displayName = build.name
 		jobConfiguration.packageFolder = Paths.get(jobConfiguration.repositoryName.toString()).resolve(build.path).toString()
+		jobConfiguration.daysToKeep = build.logRotation
 		createMultibranchJob(jobConfiguration)
 	}
 }

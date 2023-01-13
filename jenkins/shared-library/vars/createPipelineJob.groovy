@@ -18,6 +18,11 @@ void call(Map jobConfiguration) {
 							extensions {
 								// Delete the contents of the workspace before building, ensuring a fully fresh workspace.
 								wipeWorkspace()
+
+								relativeTargetDirectory {
+									// Specify a local directory (relative to the workspace root) where the Git repository will be checked out.
+									relativeTargetDir(targetDirectory)
+								}
 							}
 						}
 					}
@@ -51,6 +56,7 @@ void call(Map jobConfiguration) {
 			jenkinsfilePath: jobConfiguration.jenkinsfilePath.toString(),
 			displayName: jobConfiguration.displayName.toString(),
 			schedule: jobConfiguration.cronTrigger ? jobConfiguration.cronTrigger.toString() : '',
-			buildsToKeep: jobConfiguration.buildsToKeep ?: 14
+			buildsToKeep: jobConfiguration.buildsToKeep ?: 14,
+			targetDirectory: jobConfiguration.targetDirectory ? jobConfiguration.targetDirectory.toString() : '',
 	]
 }
