@@ -1,10 +1,13 @@
 # escape=`
 
-FROM {{BASE_IMAGE}}
-LABEL maintainer="Catapult Development Team"
-SHELL ["cmd", "/S", "/C"]
+ARG FROM_IMAGE=mcr.microsoft.com/powershell:latest
 
-RUN powershell.exe -ExecutionPolicy RemoteSigned `
+FROM ${FROM_IMAGE}
+LABEL maintainer="Catapult Development Team"
+
+SHELL ["pwsh","-command"]
+
+RUN pwsh.exe -ExecutionPolicy RemoteSigned -Command `
 	(new-object net.webclient).DownloadFile('https://get.scoop.sh','c:\scoop.ps1'); `
 	$command='c:\scoop.ps1 -RunAsAdmin'; `
 	iex $command; `
@@ -12,5 +15,6 @@ RUN powershell.exe -ExecutionPolicy RemoteSigned `
 	scoop install python git shellcheck; `
 	python3 -m pip install --upgrade pip; `
 	python3 -m pip install --upgrade colorama cryptography gitpython ply pycodestyle pylint pylint-quotes PyYAML
-
-CMD ["powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
+	
+ENTRYPOINT ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'Continue'; $verbosePreference='Continue';"]
+CMD ["pwsh.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]

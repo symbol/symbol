@@ -1,5 +1,8 @@
-FROM {{BASE_IMAGE}}
-ENV DEBIAN_FRONTEND=noninteractive
+# image name required as ARG
+ARG FROM_IMAGE=''
+ARG DEBIAN_FRONTEND=noninteractive
+
+FROM ${FROM_IMAGE}
 MAINTAINER Catapult Development Team
 RUN dnf update --assumeyes && dnf install --assumeyes \
 	bison \

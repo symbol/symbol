@@ -65,14 +65,15 @@ class OptionsManager(BasicBuildManager):
 		return CONAN_ROOT / 'gcc'
 
 	def docker_run_settings(self):
-		if self.is_msvc:
-			return []
-
 		settings = [
-			('CC', self.compiler.c),
-			('CXX', self.compiler.cpp),
 			('CCACHE_DIR', '/ccache')
 		]
+
+		if not self.is_msvc:
+			settings.append(
+				('CC', self.compiler.c),
+				('CXX', self.compiler.cpp)
+			)
 
 		return [f'--env={key}={value}' for key, value in sorted(settings)]
 

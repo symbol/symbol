@@ -1,12 +1,12 @@
 # escape=`
 
-# Use the latest Windows Server Core 2022 image.
-ARG FROM_IMAGE=mcr.microsoft.com/windows/servercore:ltsc2022
+# Use the latest Windows Powershell image.
+ARG FROM_IMAGE=mcr.microsoft.com/powershell:latest
 FROM ${FROM_IMAGE}
 LABEL maintainer="Catapult Development Team"
 
-# Restore the default Windows shell for correct batch processing.
-SHELL ["cmd", "/S", "/C"]
+# use the latest powershell.
+SHELL ["pwsh.exe", "-Command"]
 
 RUN reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
 
@@ -29,7 +29,7 @@ RUN C:\Temp\vs_buildtools.exe `
 	|| IF "%ERRORLEVEL%"=="3010" EXIT 0
 
 # Install scoop and git(required to update scoop)
-RUN powershell.exe -ExecutionPolicy RemoteSigned `
+RUN pwsh.exe -ExecutionPolicy RemoteSigned `
 	(new-object net.webclient).DownloadFile('https://get.scoop.sh','c:\Temp\scoop.ps1'); `
 	$command='c:\Temp\scoop.ps1 -RunAsAdmin'; `
 	iex $command; `

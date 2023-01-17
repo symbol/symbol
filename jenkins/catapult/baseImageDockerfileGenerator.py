@@ -47,7 +47,7 @@ def format_multivalue_options(key, values):
 
 
 def print_powershell_lines(lines, separator='; `\n', **kwargs):
-	run_line = 'RUN powershell -Command $ErrorActionPreference = \'Stop\''
+	run_line = 'RUN pwsh -Command $ErrorActionPreference = \'Stop\''
 	print(separator.join([run_line] + lines).format(**kwargs))
 
 
@@ -327,7 +327,7 @@ class WindowsSystem:
 	@staticmethod
 	def add_base_os_packages():
 		scoop_packages = [
-			'sccache',
+			'ccache',
 			'git',
 			'python',
 			'cmake',
@@ -506,7 +506,7 @@ class WindowsSystemGenerator:
 		}
 
 		print_powershell_lines([
-			'wget {BOOST_URI}/{BOOST_ARCHIVE}.7z -outfile {BOOST_ARCHIVE}.7z',
+			'Invoke-WebRequest {BOOST_URI}/{BOOST_ARCHIVE}.7z -outfile {BOOST_ARCHIVE}.7z',
 			r'7z x .\{BOOST_ARCHIVE}.7z',
 			r'cd {BOOST_ARCHIVE}',
 			r'.\bootstrap.bat {BOOTSTRAP_OPTIONS} --prefix={PREFIX_PATH}',
