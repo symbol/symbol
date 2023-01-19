@@ -18,6 +18,11 @@ void call(Map jobConfiguration) {
 							extensions {
 								// Delete the contents of the workspace before building, ensuring a fully fresh workspace.
 								wipeWorkspace()
+
+								relativeTargetDirectory {
+									// Specify a local directory (relative to the workspace root) where the Git repository will be checked out.
+									relativeTargetDir(targetDirectory)
+								}
 							}
 						}
 					}
@@ -26,8 +31,22 @@ void call(Map jobConfiguration) {
 				}
 			}
 
-			triggers {
-				cron(trigger)
+			logRotator {
+				// If specified, only up to this number of builds have their artifacts retained.
+				artifactNumToKeep(buildsToKeep)
+
+				// If specified, only up to this number of build records are kept.
+				numToKeep(buildsToKeep)
+			}
+
+			properties {
+				pipelineTriggers {
+					triggers {
+						cron {
+							spec(schedule)
+						}
+					}
+				}
 			}
 		}
 		""", additionalParameters: [
@@ -36,6 +55,8 @@ void call(Map jobConfiguration) {
 			credentialsId: jobConfiguration.credentialsId ? jobConfiguration.credentialsId.toString() : '',
 			jenkinsfilePath: jobConfiguration.jenkinsfilePath.toString(),
 			displayName: jobConfiguration.displayName.toString(),
-			trigger: jobConfiguration.trigger ? jobConfiguration.trigger.toString() : ''
+			schedule: jobConfiguration.cronTrigger ? jobConfiguration.cronTrigger.toString() : '',
+			buildsToKeep: jobConfiguration.buildsToKeep ?: 14,
+			targetDirectory: jobConfiguration.targetDirectory ? jobConfiguration.targetDirectory.toString() : '',
 	]
 }

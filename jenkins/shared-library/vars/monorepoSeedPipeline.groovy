@@ -4,8 +4,6 @@ void call(Closure body) {
 	body.delegate = params
 	body()
 
-	final String nightlyJenkinsfile = '.github/jenkinsfile/nightlyBuild.groovy'
-
 	pipeline {
 		parameters {
 			gitParameter branchFilter: 'origin/(.*)',
@@ -58,31 +56,34 @@ void call(Closure body) {
 					}
 				}
 				stages {
-					stage('Multibranch job') {
+					stage('read build configuration') {
 						steps {
 							script {
 								buildConfiguration = yamlHelper.readYamlFromFile(helper.resolveBuildConfigurationFile())
+							}
+						}
+					}
+					stage('Multibranch job') {
+						when {
+							expression {
+								return null != buildConfiguration.builds
+							}
+						}
+						steps {
+							script {
 								createMonorepoMultibranchJobs(buildConfiguration, env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
 							}
 						}
 					}
-					stage('Nightly job') {
+					stage('Pipeline job') {
 						when {
 							expression {
-								return fileExists(nightlyJenkinsfile)
+								return null != buildConfiguration.customBuilds
 							}
 						}
 						steps {
 							script {
-								def (String ownerName, String repositoryName) = resolveOwnerAndProject(env.GIT_URL)
-								Map jobConfiguration = [:]
-								jobConfiguration.jobName = "${env.JENKINS_ROOT_FOLDER}/${repositoryName}/nightlyJob"
-								jobConfiguration.displayName = 'Nightly Job'
-								jobConfiguration.trigger = '@midnight'
-								jobConfiguration.ownerAndProject = "${ownerName}/${repositoryName}"
-								jobConfiguration.credentialsId = env.GITHUB_CREDENTIALS_ID
-								jobConfiguration.jenkinsfilePath = nightlyJenkinsfile
-								createPipelineJob(jobConfiguration)
+								createMonorepoPipelineJobs(buildConfiguration, env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
 							}
 						}
 					}
@@ -90,9 +91,4 @@ void call(Closure body) {
 			}
 		}
 	}
-}
-
-String resolveOwnerAndProject(String gitUrl) {
-	String[] tokens = gitUrl.tokenize('/')
-	return [tokens[2], tokens.last().split('\\.')[0]]
 }

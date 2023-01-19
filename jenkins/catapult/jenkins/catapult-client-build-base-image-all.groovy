@@ -177,7 +177,7 @@ pipeline {
 }
 
 void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
-	build job: 'Symbol/server-pipelines/catapult-client-build-base-image', parameters: [
+	build job: 'catapult-client-build-base-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${shouldBuildConanLayer}"),
@@ -190,7 +190,7 @@ void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSys
 }
 
 void dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
-	build job: 'Symbol/server-pipelines/catapult-client-prepare-base-image', parameters: [
+	build job: 'catapult-client-prepare-base-image', parameters: [
 		string(name: 'IMAGE_TYPE', value: "${imageType}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),

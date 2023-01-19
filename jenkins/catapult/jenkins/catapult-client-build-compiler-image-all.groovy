@@ -120,7 +120,7 @@ pipeline {
 }
 
 void dispatchBuildCompilerImageJob(String compilerConfiguration, String operatingSystem) {
-	build job: 'Symbol/server-pipelines/catapult-client-build-compiler-image', parameters: [
+	build job: 'catapult-client-build-compiler-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),

@@ -101,7 +101,7 @@ void call(Map jobConfiguration) {
 				}
 				orphanedItemStrategy {
 					discardOldItems {
-						daysToKeep(3)
+						daysToKeep(daysToKeep)
 					}
 				}
 				triggers {
@@ -120,6 +120,7 @@ void call(Map jobConfiguration) {
 			packageExcludePaths: jobConfiguration.packageExcludePaths.toString(),
 			credentialsId: jobConfiguration.credentialsId.toString(),
 			notificationContextLabel: "continuous-integration/jenkins/${jobConfiguration.packageFolder}",
-			displayName: jobConfiguration.displayName.toString()
+			displayName: jobConfiguration.displayName.toString(),
+			daysToKeep: jobConfiguration.daysToKeep ?: 14
 	]
 }

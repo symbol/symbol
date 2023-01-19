@@ -33,3 +33,72 @@ builds:
 
   - name: Linters
     path: linters
+
+customBuilds:
+  - name: Nightly Job
+    jobName: nightlyJob
+    scriptPath: .github/jenkinsfile/nightlyBuild.groovy
+    triggers:
+      - type: cron
+        schedule: '@midnight'
+
+  - name: Build CI Image
+    jobName: /infra/build-ci-image
+    scriptPath: jenkins/infra/jenkins/build-ci-image.groovy
+
+  - name: Build All CI Images
+    jobName: /infra/build-ci-image-all
+    scriptPath: jenkins/infra/jenkins/build-ci-image-all.groovy
+    triggers:
+      - type: cron
+        schedule: '@weekly'
+
+  - name: Build Base Image
+    jobName: /symbol/catapult-client/catapult-client-build-base-image
+    scriptPath: jenkins/catapult/jenkins/catapult-client-build-base-image.groovy
+
+  - name: Build Base Image All
+    jobName: /symbol/catapult-client/catapult-client-build-base-image-all
+    scriptPath: jenkins/catapult/jenkins/catapult-client-build-base-image-all.groovy
+    triggers:
+      - type: cron
+        schedule: H 0 2 * *
+
+  - name: Build Catapult Project
+    jobName: /symbol/catapult-client/catapult-client-build-catapult-project
+    scriptPath: jenkins/catapult/jenkins/catapult-client-build-catapult-project.groovy
+    targetDirectory: catapult-src
+
+  - name: Build Catapult Project Daily Tests
+    jobName: /symbol/catapult-client/catapult-client-build-catapult-project-daily
+    scriptPath: jenkins/catapult/jenkins/catapult-client-build-catapult-project-daily.groovy
+    triggers:
+      - type: cron
+        schedule: '@midnight'
+
+  - name: Build Catapult Project Weekly Tests
+    jobName: /symbol/catapult-client/catapult-client-build-catapult-project-weekly
+    scriptPath: jenkins/catapult/jenkins/catapult-client-build-catapult-project-weekly.groovy
+    triggers:
+      - type: cron
+        schedule: '@weekly'
+
+  - name: Build Compiler Image
+    jobName: /symbol/catapult-client/catapult-client-build-compiler-image
+    scriptPath: jenkins/catapult/jenkins/catapult-client-build-compiler-image.groovy
+
+  - name: Build Compiler Image All
+    jobName: /symbol/catapult-client/catapult-client-build-compiler-image-all
+    scriptPath: jenkins/catapult/jenkins/catapult-client-build-compiler-image-all.groovy
+    triggers:
+      - type: cron
+        schedule: H 0 1 * *
+
+  - name: Prepare Base Image
+    jobName: /symbol/catapult-client/catapult-client-prepare-base-image
+    scriptPath: jenkins/catapult/jenkins/catapult-client-prepare-base-image.groovy
+
+  - name: Release Build
+    jobName: /symbol/catapult-client/catapult-client-release-build
+    scriptPath: jenkins/catapult/jenkins/catapult-client-release-build.groovy
+    targetDirectory: symbol-mono
