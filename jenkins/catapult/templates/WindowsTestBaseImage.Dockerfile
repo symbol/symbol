@@ -16,5 +16,13 @@ RUN pwsh.exe -ExecutionPolicy RemoteSigned -Command `
 	python3 -m pip install --upgrade pip; `
 	python3 -m pip install --upgrade colorama cryptography gitpython ply pycodestyle pylint pylint-quotes PyYAML
 	
-ENTRYPOINT ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'Continue'; $verbosePreference='Continue';"]
+RUN "'ACP', 'OEMCP', 'MACCP' | Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CodePage' -Name { $_ } 65001"; `
+	Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CodePage'
+
+RUN Set-ItemProperty 'HKLM:\Software\Microsoft\Command Processor' -Name Autorun 'chcp 65001'; `
+	Get-ItemProperty -Path 'HKLM:\Software\Microsoft\Command Processor'
+
+RUN '$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.Utf8Encoding]::new()' + [Environment]::Newline + (Get-Content -Raw $PROFILE.AllUsersCurrentHost -ErrorAction SilentlyContinue) | Set-Content -Encoding utf8 $PROFILE.AllUsersCurrentHost
+	
+ENTRYPOINT ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'Continue'; $verbosePreference='Continue'; $OutputEncoding;"]
 CMD ["pwsh.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
