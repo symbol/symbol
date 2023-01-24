@@ -18,20 +18,11 @@ class ProcessManager:
 		with Popen(command_line, stdout=PIPE, stderr=STDOUT) as process:
 			process_lines = []
 			for line_bin in iter(process.stdout.readline, b''):
-				line = ''
-				try:
-					line = line_bin.decode('utf-8')
-				except UnicodeDecodeError as ex:
-					print(f'line decode failed for {line_bin}')
-					print(ex)
+				line = line_bin.decode('utf-8')
 
 				if show_output:
-					try:
-						sys.stdout.write(line)
-						sys.stdout.flush()
-					except UnicodeEncodeError as ex:
-						print(f'write failed for {line}')
-						print(ex)
+					sys.stdout.write(line)
+					sys.stdout.flush()
 
 				process_lines.append(line)
 
@@ -61,13 +52,7 @@ class ProcessManager:
 			process_lines = []
 			is_filtered_output = 'max' != verbosity
 			for line_bin in iter(process.stdout.readline, b''):
-				line = ''
-				try:
-					line = line_bin.decode('utf-8')
-				except UnicodeDecodeError as ex:
-					print(f'test line decode failed for {line_bin}')
-					print(ex)
-
+				line = line_bin.decode('utf-8')
 				process_lines.append(line)
 
 				if is_filtered_output:
@@ -77,12 +62,8 @@ class ProcessManager:
 					if 'suite' == verbosity and any(line.startswith(prefix) for prefix in ('[ RUN      ]', '[       OK ]')):
 						continue
 
-				try:
-					sys.stdout.write(line)
-					sys.stdout.flush()
-				except UnicodeEncodeError as ex:
-					print(f'write failed for {line}')
-					print(ex)
+				sys.stdout.write(line)
+				sys.stdout.flush()
 
 			process.wait()
 

@@ -5,9 +5,9 @@ ARG FROM_IMAGE=mcr.microsoft.com/powershell:latest
 FROM ${FROM_IMAGE}
 LABEL maintainer="Catapult Development Team"
 
-SHELL ["pwsh","-command"]
+SHELL ["pwsh","-command", "$ErrorActionPreference = 'Stop';"]
 
-RUN pwsh.exe -ExecutionPolicy RemoteSigned -Command `
+RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	(new-object net.webclient).DownloadFile('https://get.scoop.sh','c:\scoop.ps1'); `
 	$command='c:\scoop.ps1 -RunAsAdmin'; `
 	iex $command; `
@@ -22,7 +22,8 @@ RUN "'ACP', 'OEMCP', 'MACCP' | Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\
 RUN Set-ItemProperty 'HKLM:\Software\Microsoft\Command Processor' -Name Autorun 'chcp 65001'; `
 	Get-ItemProperty -Path 'HKLM:\Software\Microsoft\Command Processor'
 
-RUN '$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.Utf8Encoding]::new()' + [Environment]::Newline + (Get-Content -Raw $PROFILE.AllUsersCurrentHost -ErrorAction SilentlyContinue) | Set-Content -Encoding utf8 $PROFILE.AllUsersCurrentHost
+RUN '$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.Utf8Encoding]::new()' + [Environment]::Newline + `
+	(Get-Content -Raw $PROFILE.AllUsersCurrentHost -ErrorAction SilentlyContinue) | Set-Content -Encoding utf8 $PROFILE.AllUsersCurrentHost
 	
-ENTRYPOINT ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'Continue'; $verbosePreference='Continue'; $OutputEncoding;"]
+ENTRYPOINT ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'Continue'; $verbosePreference='Continue';"]
 CMD ["pwsh.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
