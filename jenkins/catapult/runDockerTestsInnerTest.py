@@ -173,7 +173,7 @@ def main():
 		test_args = [
 			test_exe_filepath,
 			f'--gtest_output=xml:{base_output_filepath}.xml',
-			Path(args.exe_path) / '..' / 'lib'
+			Path(args.exe_path) if EnvironmentManager.is_windows_platform() else Path(args.exe_path) / '..' / 'lib'
 		]
 
 		if process_manager.dispatch_test_subprocess(test_args, args.verbosity):
