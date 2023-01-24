@@ -73,10 +73,10 @@ class OptionsManager(BasicBuildManager):
 		]
 
 		if not self.is_msvc:
-			settings.append(
+			settings.extend([
 				('CC', self.compiler.c),
 				('CXX', self.compiler.cpp)
-			)
+			])
 
 		return [f'--env={key}={value}' for key, value in sorted(settings)]
 
