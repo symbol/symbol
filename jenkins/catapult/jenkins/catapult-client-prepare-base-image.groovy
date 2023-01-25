@@ -47,15 +47,22 @@ pipeline {
 						version = properties[params.OPERATING_SYSTEM]
 
 						sanitizer = SANITIZER_BUILD.toBoolean() ? 'Sanitizer' : ''
-						filename = "${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
-						dockerfileTemplate = "./jenkins/catapult/templates/${filename}BaseImage.Dockerfile"
-						dockerfileContents = readFile(file: dockerfileTemplate)
-						baseImage = 'windows' == "${OPERATING_SYSTEM}"
-								? "mcr.microsoft.com/windows/servercore:ltsc${version}"
+						baseImage = SANITIZER_BUILD.toBoolean()
+							? sh(script: """
+								python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
+									--compiler-configuration jenkins/catapult/configurations/clang-latest.yaml \
+									--operating-system ${OPERATING_SYSTEM} \
+									--versions ./jenkins/catapult/versions.properties \
+									--layer os \
+									--base-name-only
+							""",
+								returnStdout: true
+							).trim()
+							: 'windows' == "${OPERATING_SYSTEM}"
+								? 'mcr.microsoft.com/powershell:latest'
 								: "${params.OPERATING_SYSTEM}:${version}"
-						dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${baseImage}")
-
-						writeFile(file: 'Dockerfile', text: dockerfileContents)
+						filename = "${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
+						dockerfile = "./jenkins/catapult/templates/${filename}BaseImage.Dockerfile"
 					}
 				}
 			}
@@ -64,10 +71,10 @@ pipeline {
 			steps {
 				script {
 					helper.runStepAndRecordFailure {
-						sh '''
+						sh """
 							echo '*** Dockerfile ***'
-							cat Dockerfile
-						'''
+							cat ${dockerfile}
+						"""
 					}
 				}
 			}
@@ -83,7 +90,9 @@ pipeline {
 						}
 
 						echo "Docker image name: ${dockerImageName}"
-						dockerImage = docker.build(dockerImageName)
+						echo "Dockerfile name: ${dockerfile}"
+						echo "Base image name: ${baseImage}"
+						dockerImage = docker.build(dockerImageName, "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} .")
 						docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
 							dockerImage.push()
 						}

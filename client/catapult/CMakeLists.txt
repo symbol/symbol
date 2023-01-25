@@ -3,6 +3,9 @@ project(catapult_server)
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
 option(ENABLE_TESTS "Enable tests" ON)
 
+# ccache on windows requires real binary instead of the shims used by scoop to be in the path
+option(USE_CCACHE_ON_WINDOWS "Enable use ccache on Windows" OFF)
+
 include(CMakeGlobalSettings.cmake)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -41,7 +44,7 @@ message("boost    libs: ${Boost_LIBRARIES}")
 if(ENABLE_TESTS)
 	message("--- locating gtest dependencies ---")
 
-	find_package(GTest 1.12.1 EXACT REQUIRED)
+	find_package(GTest 1.13.0 EXACT REQUIRED)
 	message("GTest   found: ${GTest_FOUND}")
 	message("GTest     inc: ${GTEST_INCLUDE_DIRS}")
 	message("GTest     ver: ${GTest_VERSION}")

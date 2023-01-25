@@ -143,7 +143,7 @@ def main():
 	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
 	args = parser.parse_args()
 
-	process_manager = ProcessManager(args.dry_run, 'ignore') if EnvironmentManager.is_windows_platform() else ProcessManager(args.dry_run)
+	process_manager = ProcessManager(args.dry_run)
 	environment_manager = EnvironmentManager(args.dry_run)
 
 	compiler_configuration = load_compiler_configuration(args.compiler_configuration)

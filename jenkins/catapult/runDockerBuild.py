@@ -52,7 +52,10 @@ class OptionsManager(BasicBuildManager):
 		if self.enable_code_coverage:
 			return CCACHE_ROOT / 'cc'
 
-		return CCACHE_ROOT / ('release' if self.is_release else 'all')
+		if self.is_release:
+			return CCACHE_ROOT / 'release'
+
+		return CCACHE_ROOT / ('conan' if self.use_conan else 'all')
 
 	@property
 	def conan_path(self):
@@ -65,14 +68,15 @@ class OptionsManager(BasicBuildManager):
 		return CONAN_ROOT / 'gcc'
 
 	def docker_run_settings(self):
-		if self.is_msvc:
-			return []
-
 		settings = [
-			('CC', self.compiler.c),
-			('CXX', self.compiler.cpp),
 			('CCACHE_DIR', '/ccache')
 		]
+
+		if not self.is_msvc:
+			settings.extend([
+				('CC', self.compiler.c),
+				('CXX', self.compiler.cpp)
+			])
 
 		return [f'--env={key}={value}' for key, value in sorted(settings)]
 

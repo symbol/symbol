@@ -2,11 +2,23 @@
 enable_testing()
 
 ### enable ccache if available
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-	set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-	set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
+find_program(CCACHE_EXE ccache)
+if(CCACHE_EXE)
+# ccache on windows requires real binary instead of the shims used by scoop to be in the PATH
+	if (MSVC AND USE_CCACHE_ON_WINDOWS)
+		file(COPY_FILE ${CCACHE_EXE} ${CMAKE_BINARY_DIR}/cl.exe ONLY_IF_DIFFERENT)
+		set(CMAKE_VS_GLOBALS
+			"CLToolExe=cl.exe"
+			"CLToolPath=${CMAKE_BINARY_DIR}"
+			"TrackFileAccess=false"
+			"UseMultiToolTask=true"
+			"DebugInformationFormat=OldStyle"
+		)
+	else()
+		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+		set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+	endif(MSVC)
+endif(CCACHE_EXE)
 
 ### set general cmake settings
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -100,7 +112,13 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc /Zc:__cplusplus")
 	# in debug disable "potentially uninitialized local variable" (FP)
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /D_SCL_SECURE_NO_WARNINGS /wd4701")
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Zi")
+
+	if (CCACHE_EXE AND USE_CCACHE_ON_WINDOWS)
+		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Z7")
+	else()
+		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Zi")
+	endif()
+
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 
 	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG:FASTLINK")

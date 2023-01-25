@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 from pathlib import Path
 
 from BasicBuildManager import BasicBuildManager
@@ -18,10 +19,8 @@ class BuildEnvironment:
 	def prepare(self, enable_code_coverage, out_dir):
 		self._prepare_directory(enable_code_coverage, out_dir)
 		self._prepare_environment_variables()
-
-		if not self.environment_manager.is_windows_platform():
-			self.dispatch_subprocess(['ccache', '-M', '30G'])
-			self.dispatch_subprocess(['ccache', '-s'])
+		self.dispatch_subprocess(['ccache', '-M', '30G'])
+		self.dispatch_subprocess(['ccache', '-s'])
 
 	def _prepare_directory(self, enable_code_coverage, out_dir):
 		build_path = f'{out_dir}/_build' if enable_code_coverage else '/tmp/_build'
@@ -78,7 +77,9 @@ class BuildManager(BasicBuildManager):
 			('ENABLE_CODE_COVERAGE', 'ON' if self.enable_code_coverage else 'OFF')
 		]
 
-		if not self.environment_manager.is_windows_platform():
+		if self.environment_manager.is_windows_platform():
+			settings.append(('USE_CCACHE_ON_WINDOWS', 'ON'))
+		else:
 			# ARCHITECTURE_NAME is used to set `-march`, disable on windows
 			settings.append(('ARCHITECTURE_NAME', self.architecture))
 
@@ -121,14 +122,18 @@ class BuildManager(BasicBuildManager):
 
 	def build(self):
 		if self.environment_manager.is_windows_platform():
+			# copy the real ccache.exe since shim version is in the path
+			shutil.copy2('C:/Users/ContainerAdministrator/scoop/apps/ccache/current/ccache.exe', 'c:/tmp/_build/cl.exe')
 			self.dispatch_subprocess(['cmake', '--build', '.', '--target', 'publish'])
-			self.dispatch_subprocess(
-				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', '/m', 'ALL_BUILD.vcxproj'],
-				True,
-				False
-			)
-			self.dispatch_subprocess(
-				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', '/m', 'INSTALL.vcxproj'],
+			self.dispatch_subprocess([
+				'msbuild',
+				'/p:Configuration=RelWithDebInfo',
+				'/p:Platform=x64',
+				'/m',
+				'/p:UseMultiToolTask=true',
+				'INSTALL.vcxproj',
+				'/p:CLToolPath=c:/tmp/_build'
+			],
 				True,
 				False
 			)
@@ -138,6 +143,8 @@ class BuildManager(BasicBuildManager):
 			self.dispatch_subprocess(['ninja', 'publish'])
 			self.dispatch_subprocess(['ninja', '-j', cpu_count_str])
 			self.dispatch_subprocess(['ninja', 'install'])
+
+		self.dispatch_subprocess(['ccache', '--show-stats'])
 
 	def copy_dependencies(self, destination):
 		if self.use_conan:

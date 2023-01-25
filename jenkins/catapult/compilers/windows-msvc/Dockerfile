@@ -1,7 +1,7 @@
 # escape=`
 
-# Use the latest Windows Server Core 2022 image.
-ARG FROM_IMAGE=mcr.microsoft.com/windows/servercore:ltsc2022
+# Use the latest Windows Powershell image.
+ARG FROM_IMAGE=mcr.microsoft.com/powershell:latest
 FROM ${FROM_IMAGE}
 LABEL maintainer="Catapult Development Team"
 
@@ -29,7 +29,7 @@ RUN C:\Temp\vs_buildtools.exe `
 	|| IF "%ERRORLEVEL%"=="3010" EXIT 0
 
 # Install scoop and git(required to update scoop)
-RUN powershell.exe -ExecutionPolicy RemoteSigned `
+RUN pwsh.exe -ExecutionPolicy RemoteSigned -Command $ErrorActionPreference = 'Stop'; `
 	(new-object net.webclient).DownloadFile('https://get.scoop.sh','c:\Temp\scoop.ps1'); `
 	$command='c:\Temp\scoop.ps1 -RunAsAdmin'; `
 	iex $command; `
