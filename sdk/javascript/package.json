@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@noble/hashes": "^1.1.5",
-    "bitcore-mnemonic": "^8.25.40",
+    "bitcore-mnemonic": "^8.25.46",
     "ripemd160": "^2.0.2",
     "tweetnacl": "^1.0.3"
   }
