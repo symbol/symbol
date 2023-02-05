@@ -27,7 +27,7 @@
     "tmp": "^0.2.1"
   },
   "dependencies": {
-    "@noble/hashes": "^1.1.5",
+    "@noble/hashes": "^1.2.0",
     "ini": "^3.0.1",
     "long": "^5.2.1",
     "mongodb": "^4.13.0",
