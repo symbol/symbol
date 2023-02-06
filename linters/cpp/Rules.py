@@ -378,7 +378,7 @@ class ToolsRules:
 	def first_test_include_check(sorted_includes, path_elements):
 		del sorted_includes
 		del path_elements
-		raise Exception('first_test_include_check called for a tool')
+		raise RuntimeError('first_test_include_check called for a tool')
 
 
 RULE_ID_TO_CLASS_MAP = {

@@ -4,7 +4,7 @@
 #
 # pylint: disable=line-too-long, invalid-name, redefined-builtin
 # pylint: disable=too-many-lines, too-many-instance-attributes, too-many-locals, too-many-statements, too-many-public-methods
-# pylint: disable=duplicate-code
+# pylint: disable=duplicate-code, superfluous-parens
 
 from __future__ import annotations
 
@@ -14976,7 +14976,7 @@ class BlockFactory:
 			(NormalBlockV1.BLOCK_TYPE): NormalBlockV1,
 			(ImportanceBlockV1.BLOCK_TYPE): ImportanceBlockV1
 		}
-		discriminator = parent.type_
+		discriminator = (parent.type_)
 		factory_class = mapping[discriminator]
 		return factory_class.deserialize(buffer)
 
@@ -15014,7 +15014,7 @@ class ReceiptFactory:
 			(NamespaceDeletedReceipt.RECEIPT_TYPE): NamespaceDeletedReceipt,
 			(NamespaceRentalFeeReceipt.RECEIPT_TYPE): NamespaceRentalFeeReceipt
 		}
-		discriminator = parent.type_
+		discriminator = (parent.type_)
 		factory_class = mapping[discriminator]
 		return factory_class.deserialize(buffer)
 
