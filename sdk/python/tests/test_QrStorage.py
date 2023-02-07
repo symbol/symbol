@@ -2,8 +2,6 @@ import os
 import tempfile
 import unittest
 
-import qrcode
-
 from symbolchain.QrStorage import QrStorage
 
 from .test.TestUtils import TestUtils
