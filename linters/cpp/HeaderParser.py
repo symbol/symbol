@@ -124,6 +124,7 @@ class HeaderParser:
 					line = line.strip()
 					first_continuation = True
 				else:
+					tabs_count = 0
 					if first_continuation:
 						tabs_match = re.match(r'^\t+', line)
 						tabs_count = len(tabs_match.group(0)) if tabs_match else 0

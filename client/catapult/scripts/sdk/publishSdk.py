@@ -18,12 +18,12 @@ def find_subdirectories(directory):
 
 def require_existence(path):
 	if not os.path.exists(path):
-		raise Exception(f'{path} does not exist')
+		raise RuntimeError(f'{path} does not exist')
 
 
 def require_non_existence(path):
 	if os.path.exists(path):
-		raise Exception(f'{path} already exists')
+		raise RuntimeError(f'{path} already exists')
 
 
 def force_empty(directory):

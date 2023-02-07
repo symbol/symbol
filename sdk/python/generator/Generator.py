@@ -42,7 +42,7 @@ def generate_files(ast_models, output_directory: Path):
 #
 # pylint: disable=line-too-long, invalid-name, redefined-builtin
 # pylint: disable=too-many-lines, too-many-instance-attributes, too-many-locals, too-many-statements, too-many-public-methods
-# pylint: disable=duplicate-code
+# pylint: disable=duplicate-code, superfluous-parens
 
 from __future__ import annotations
 

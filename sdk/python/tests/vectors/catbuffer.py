@@ -19,7 +19,7 @@ def prepare_test_cases(network_name, includes=None, excludes=None):
 	schemas_path = Path(os.environ.get('SCHEMAS_PATH', '.')) / network_name / 'models'
 
 	if not schemas_path.exists():
-		raise Exception(f'could not find any cases because {schemas_path} does not exist')
+		raise RuntimeError(f'could not find any cases because {schemas_path} does not exist')
 
 	for filepath in schemas_path.glob('*.json'):
 		if includes and not any(include in filepath.name for include in includes):
@@ -34,7 +34,7 @@ def prepare_test_cases(network_name, includes=None, excludes=None):
 			cases += json.load(infile)
 
 	if not cases:
-		raise Exception(f'could not find any cases in {schemas_path}')
+		raise RuntimeError(f'could not find any cases in {schemas_path}')
 
 	return cases
 
