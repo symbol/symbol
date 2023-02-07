@@ -49,7 +49,7 @@ class QrStorageTest(unittest.TestCase):
 			buffer = TestUtils.randbytes(MAX_DATA_BYTES + 1)
 
 			# Act + Assert:
-			with self.assertRaises(qrcode.exceptions.DataOverflowError):
+			with self.assertRaises(ValueError):
 				storage.save('foo', buffer)
 
 	# endregion
