@@ -19,7 +19,7 @@
     "chai": "^4.3.7",
     "eslint": "^8.33.0",
     "eslint-config-airbnb": "^19.0.4",
-    "minimist": "^1.2.7",
+    "minimist": "^1.2.8",
     "mocha": "^10.2.0",
     "mocha-jenkins-reporter": "^0.4.8",
     "nyc": "^15.1.0",
