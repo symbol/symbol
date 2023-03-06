@@ -472,7 +472,7 @@ class LinuxSystemGenerator:
 		print_line([
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}',
-			'python3 -m pip install -U "conan>=1.33.0"'
+			'python3 -m pip install -U "conan<2.0"',
 		], APT_PACKAGES=' '.join(apt_packages))
 
 
@@ -593,7 +593,7 @@ class WindowsSystemGenerator:
 
 		print_powershell_lines([
 			'scoop update',
-			'python3 -m pip install -U conan',
+			'python3 -m pip install -U "conan<2.0"',
 			'echo "docker image build $BUILD_NUMBER"'
 		])
 
