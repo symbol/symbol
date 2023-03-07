@@ -176,6 +176,71 @@ class NemFacadeTest(unittest.TestCase):
 
 	# endregion
 
+	# region multisig
+
+	@staticmethod
+	def _create_real_multisig_transaction():
+		facade = NemFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+		factory = facade.transaction_factory
+
+		inner_transaction = factory.to_non_verifiable_transaction(NemFacadeTest._create_real_transfer())
+		transaction = facade.transaction_factory.create({
+			'type': 'multisig_transaction_v1',
+			'signer_public_key': 'TEST',
+			'fee': 0x123456,
+			'timestamp': 191205516,
+			'deadline': 191291916,
+
+			'inner_transaction': inner_transaction,
+		})
+		return transaction
+
+	def test_can_hash_multisig_transaction(self):
+		# Arrange:
+		transaction = self._create_real_multisig_transaction()
+
+		# Act:
+		hash_value = NemFacade.hash_transaction(transaction)
+
+		# Assert:
+		self.assertEqual(Hash256('B585BC092CDDDCBA535FD6C0DE38F26EB44E6BA638A0BA6DFAD4BAA7E7AAE1B8'), hash_value)
+
+	def test_can_sign_multisig_transaction(self):
+		# Arrange:
+		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+		transaction = self._create_real_multisig_transaction()
+
+		# Sanity:
+		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
+
+		# Act:
+		signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
+
+		# Assert:
+		print(signature)
+		expected_signature = Signature(''.join([
+			'E324CCA57275D9752A684E6A089733803423647B8DDF5C1627FC23218CC84287'
+			'EB7037AD4C6CB8CB37BBC9F5423FA73F431814A008400A756CFFE35F4533EB00'
+		]))
+		self.assertEqual(expected_signature, signature)
+
+	def test_can_verify_multisig_transaction(self):
+		# Arrange:
+		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+		transaction = self._create_real_multisig_transaction()
+
+		# Sanity:
+		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
+
+		# Act:
+		signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
+		is_verified = NemFacade.verify_transaction(transaction, signature)
+
+		# Assert:
+		self.assertTrue(is_verified)
+
+	# endregion
+
 	# region bip32_path
 
 	def test_can_construct_proper_bip32_mainnet_path(self):

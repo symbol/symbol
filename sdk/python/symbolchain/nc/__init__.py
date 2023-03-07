@@ -3923,6 +3923,183 @@ class MultisigTransactionV1:
 		return result
 
 
+class NonVerifiableMultisigTransactionV1:
+	TRANSACTION_VERSION: int = 1
+	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_TRANSACTION
+	TYPE_HINTS = {
+		'type_': 'enum:TransactionType',
+		'network': 'enum:NetworkType',
+		'timestamp': 'pod:Timestamp',
+		'signer_public_key': 'pod:PublicKey',
+		'fee': 'pod:Amount',
+		'deadline': 'pod:Timestamp',
+		'inner_transaction': 'struct:NonVerifiableTransaction'
+	}
+
+	def __init__(self):
+		self._type_ = NonVerifiableMultisigTransactionV1.TRANSACTION_TYPE
+		self._version = NonVerifiableMultisigTransactionV1.TRANSACTION_VERSION
+		self._network = NetworkType.MAINNET
+		self._timestamp = Timestamp()
+		self._signer_public_key = PublicKey()
+		self._fee = Amount()
+		self._deadline = Timestamp()
+		self._inner_transaction = NonVerifiableTransaction()
+		self._entity_body_reserved_1 = 0  # reserved field
+		self._signer_public_key_size = 32  # reserved field
+
+	def sort(self) -> None:
+		self._inner_transaction.sort()
+
+	@property
+	def type_(self) -> TransactionType:
+		return self._type_
+
+	@property
+	def version(self) -> int:
+		return self._version
+
+	@property
+	def network(self) -> NetworkType:
+		return self._network
+
+	@property
+	def timestamp(self) -> Timestamp:
+		return self._timestamp
+
+	@property
+	def signer_public_key(self) -> PublicKey:
+		return self._signer_public_key
+
+	@property
+	def fee(self) -> Amount:
+		return self._fee
+
+	@property
+	def deadline(self) -> Timestamp:
+		return self._deadline
+
+	@property
+	def inner_transaction(self) -> NonVerifiableTransaction:
+		return self._inner_transaction
+
+	@type_.setter
+	def type_(self, value: TransactionType):
+		self._type_ = value
+
+	@version.setter
+	def version(self, value: int):
+		self._version = value
+
+	@network.setter
+	def network(self, value: NetworkType):
+		self._network = value
+
+	@timestamp.setter
+	def timestamp(self, value: Timestamp):
+		self._timestamp = value
+
+	@signer_public_key.setter
+	def signer_public_key(self, value: PublicKey):
+		self._signer_public_key = value
+
+	@fee.setter
+	def fee(self, value: Amount):
+		self._fee = value
+
+	@deadline.setter
+	def deadline(self, value: Timestamp):
+		self._deadline = value
+
+	@inner_transaction.setter
+	def inner_transaction(self, value: NonVerifiableTransaction):
+		self._inner_transaction = value
+
+	@property
+	def size(self) -> int:
+		size = 0
+		size += self.type_.size
+		size += 1
+		size += 2
+		size += self.network.size
+		size += self.timestamp.size
+		size += 4
+		size += self.signer_public_key.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += 4
+		size += self.inner_transaction.size
+		return size
+
+	@classmethod
+	def deserialize(cls, payload: ByteString) -> NonVerifiableMultisigTransactionV1:
+		buffer = memoryview(payload)
+		type_ = TransactionType.deserialize(buffer)
+		buffer = buffer[type_.size:]
+		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
+		buffer = buffer[1:]
+		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
+		buffer = buffer[2:]
+		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
+		network = NetworkType.deserialize(buffer)
+		buffer = buffer[network.size:]
+		timestamp = Timestamp.deserialize(buffer)
+		buffer = buffer[timestamp.size:]
+		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
+		signer_public_key = PublicKey.deserialize(buffer)
+		buffer = buffer[signer_public_key.size:]
+		fee = Amount.deserialize(buffer)
+		buffer = buffer[fee.size:]
+		deadline = Timestamp.deserialize(buffer)
+		buffer = buffer[deadline.size:]
+		inner_transaction_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		# marking sizeof field
+		inner_transaction = NonVerifiableTransactionFactory.deserialize(buffer[:inner_transaction_size])
+		buffer = buffer[inner_transaction.size:]
+
+		instance = NonVerifiableMultisigTransactionV1()
+		instance._type_ = type_
+		instance._version = version
+		instance._network = network
+		instance._timestamp = timestamp
+		instance._signer_public_key = signer_public_key
+		instance._fee = fee
+		instance._deadline = deadline
+		instance._inner_transaction = inner_transaction
+		return instance
+
+	def serialize(self) -> bytes:
+		buffer = bytes()
+		buffer += self._type_.serialize()
+		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
+		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
+		buffer += self._network.serialize()
+		buffer += self._timestamp.serialize()
+		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._signer_public_key.serialize()
+		buffer += self._fee.serialize()
+		buffer += self._deadline.serialize()
+		buffer += self.inner_transaction.size.to_bytes(4, byteorder='little', signed=False)  # inner_transaction_size
+		buffer += self._inner_transaction.serialize()
+		return buffer
+
+	def __str__(self) -> str:
+		result = '('
+		result += f'type_: {self._type_.__str__()}, '
+		result += f'version: 0x{self._version:X}, '
+		result += f'network: {self._network.__str__()}, '
+		result += f'timestamp: {self._timestamp.__str__()}, '
+		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
+		result += f'fee: {self._fee.__str__()}, '
+		result += f'deadline: {self._deadline.__str__()}, '
+		result += f'inner_transaction: {self._inner_transaction.__str__()}, '
+		result += ')'
+		return result
+
+
 class NamespaceRegistrationTransactionV1:
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.NAMESPACE_REGISTRATION
@@ -5542,6 +5719,7 @@ class NonVerifiableTransactionFactory:
 			(NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE, NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION): NonVerifiableMosaicSupplyChangeTransactionV1,
 			(NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransactionV1,
 			(NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransactionV2,
+			(NonVerifiableMultisigTransactionV1.TRANSACTION_TYPE, NonVerifiableMultisigTransactionV1.TRANSACTION_VERSION): NonVerifiableMultisigTransactionV1,
 			(NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_TYPE, NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_VERSION): NonVerifiableNamespaceRegistrationTransactionV1,
 			(NonVerifiableTransferTransactionV1.TRANSACTION_TYPE, NonVerifiableTransferTransactionV1.TRANSACTION_VERSION): NonVerifiableTransferTransactionV1,
 			(NonVerifiableTransferTransactionV2.TRANSACTION_TYPE, NonVerifiableTransferTransactionV2.TRANSACTION_VERSION): NonVerifiableTransferTransactionV2
@@ -5558,6 +5736,7 @@ class NonVerifiableTransactionFactory:
 			'non_verifiable_mosaic_supply_change_transaction_v1': NonVerifiableMosaicSupplyChangeTransactionV1,
 			'non_verifiable_multisig_account_modification_transaction_v1': NonVerifiableMultisigAccountModificationTransactionV1,
 			'non_verifiable_multisig_account_modification_transaction_v2': NonVerifiableMultisigAccountModificationTransactionV2,
+			'non_verifiable_multisig_transaction_v1': NonVerifiableMultisigTransactionV1,
 			'non_verifiable_namespace_registration_transaction_v1': NonVerifiableNamespaceRegistrationTransactionV1,
 			'non_verifiable_transfer_transaction_v1': NonVerifiableTransferTransactionV1,
 			'non_verifiable_transfer_transaction_v2': NonVerifiableTransferTransactionV2
