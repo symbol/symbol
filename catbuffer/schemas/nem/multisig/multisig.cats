@@ -29,12 +29,10 @@ struct SizePrefixedCosignatureV1
 	# cosignature
 	cosignature = CosignatureV1
 
-# binary layout for a multisig transaction (V1, latest)
-struct MultisigTransactionV1
+# shared content between V1 verifiable and non-verifiable multisig transactions
+inline struct MultisigTransactionV1Body
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_TRANSACTION)
-
-	inline Transaction
 
 	# inner transaction size
 	inner_transaction_size = sizeof(uint32, inner_transaction)
@@ -42,8 +40,19 @@ struct MultisigTransactionV1
 	# inner transaction
 	inner_transaction = NonVerifiableTransaction
 
+# binary layout for a multisig transaction (V1, latest)
+struct MultisigTransactionV1
+	inline Transaction
+	inline MultisigTransactionV1Body
+
 	# number of attached cosignatures
 	cosignatures_count = uint32
 
 	# cosignatures
 	cosignatures = array(SizePrefixedCosignatureV1, cosignatures_count)
+
+# binary layout for a non-verifiable multisig transaction (V1, latest)
+struct NonVerifiableMultisigTransactionV1
+	inline NonVerifiableTransaction
+	inline MultisigTransactionV1Body
+
