@@ -14,7 +14,7 @@ RUN apt-get install -y wget gnupg \
 	&& apt-get install -y mongodb-org
 
 # nodejs
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
 	&& apt-get install -y nodejs
 
 # rest dependencies

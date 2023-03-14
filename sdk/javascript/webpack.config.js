@@ -1,7 +1,7 @@
 import WasmPackPlugin from '@wasm-tool/wasm-pack-plugin';
+import webpack from 'webpack';
 import path from 'path';
 import URL from 'url';
-import webpack from 'webpack';
 
 export default {
 	entry: './src/index.js',

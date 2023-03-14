@@ -1,3 +1,5 @@
+/* eslint import/no-unresolved: [2, { ignore: ['../../wasm'] }] */
+
 import {
 	crypto_sign_keypair, crypto_private_sign, crypto_private_verify, HashMode
 } from '../../wasm/pkg/symbol_crypto_wasm.js'; // eslint-disable-line import/no-relative-packages
