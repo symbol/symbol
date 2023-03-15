@@ -6,8 +6,8 @@ FROM ubuntu:${UBUNTU_VERSION} as builder
 ARG NODE_VERSION
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl \
-    && curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt-get install -y nodejs
+	&& curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+	&& apt-get install -y nodejs
 
 RUN apt-get install -y build-essential
 
@@ -20,8 +20,8 @@ FROM ubuntu:${UBUNTU_VERSION}
 ARG NODE_VERSION
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl \
-    && curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt-get install -y nodejs
+	&& curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+	&& apt-get install -y nodejs
 
 WORKDIR /app
 COPY --from=builder /app .
