@@ -1,11 +1,11 @@
 [requires]
 # release dependencies
 boost/1.80.0
-openssl/3.0.7
+openssl/3.0.8
 
 cppzmq/4.9.0@nemtech/stable
-mongo-cxx-driver/3.6.7@nemtech/stable
-rocksdb/7.7.3@nemtech/stable
+mongo-cxx-driver/3.7.1@nemtech/stable
+rocksdb/7.10.2@nemtech/stable
 
 # test dependencies
 benchmark/1.7.1@nemtech/stable
