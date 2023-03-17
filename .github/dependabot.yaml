@@ -32,6 +32,11 @@ updates:
     commit-message:
       prefix: '[dependency]'
 
+    # ignore mongodb major update due to #203
+    ignore:
+      - dependency-name: mongodb
+        update-types: [version-update:semver-major]
+
   - package-ecosystem: pip
     directory: /jenkins/catapult
     schedule:
