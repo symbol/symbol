@@ -30,7 +30,7 @@
     "@noble/hashes": "^1.2.0",
     "ini": "^3.0.1",
     "long": "^5.2.1",
-    "mongodb": "^4.13.0",
+    "mongodb": "^5.1.0",
     "restify": "^11.1.0",
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
