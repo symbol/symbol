@@ -26,6 +26,7 @@ const { convertToLong, buildOffsetCondition, uniqueLongList } = require('./dbUti
 const catapult = require('../catapult-sdk/index');
 const MultisigDb = require('../plugins/multisig/MultisigDb');
 const MongoDb = require('mongodb');
+const winston = require('winston');
 
 const { EntityType } = catapult.model;
 const { ObjectId } = MongoDb;
@@ -113,12 +114,13 @@ class CatapultDb {
 		this.sanitizer = createSanitizer();
 	}
 
-	connect(url, dbName, connectionPoolSize) {
-		return connector.connectToDatabase(url, dbName, connectionPoolSize || 10)
+	connect(url, dbName, connectionPoolSize, timeout) {
+		return connector.connectToDatabase(url, dbName, connectionPoolSize || 10, timeout)
 			.then(client => {
 				this.client = client;
 				this.database = client.db();
-			});
+			})
+			.then(() => this.isConnected());
 	}
 
 	close() {
@@ -130,6 +132,15 @@ class CatapultDb {
 			this.client = undefined;
 			this.database = undefined;
 		});
+	}
+
+	isConnected() {
+		return this.client.db().admin().ping()
+			.then(() => winston.verbose('Connection to mongodb is established.'))
+			.catch(err => {
+				winston.error(`failed to verify connection to mongodb: ${err}`);
+				return Promise.reject(err);
+			});
 	}
 
 	// endregion

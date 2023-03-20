@@ -60,14 +60,6 @@ module.exports = {
 				down: 'down'
 			});
 
-			// Check database status
-			const dbStatusPromise = new Promise((resolve, reject) => {
-				if (db.database.serverConfig.isConnected())
-					resolve();
-				else
-					reject();
-			});
-
 			// Check apiNode status
 			const packetBuffer = packetHeader.createBuffer(
 				PacketType.nodeDiscoveryPullPing,
@@ -79,7 +71,7 @@ module.exports = {
 					connection.pushPull(packetBuffer, services.config.apiNode.timeout))
 				.then(packet => parseNodeInfoPacket(packet));
 
-			return Promise.allSettled([dbStatusPromise, apiNodeStatusPromise]).then(results => {
+			return Promise.allSettled([db.isConnected(), apiNodeStatusPromise]).then(results => {
 				const statusCode = results.some(result => 'fulfilled' !== result.status) ? 503 : 200;
 				const checkResult = result => ('fulfilled' === result.status ? ServiceStatus.up : ServiceStatus.down);
 

@@ -98,7 +98,7 @@ const createServiceManager = () => {
 };
 
 const connectToDbWithRetry = (db, config) => catapult.utils.future.makeRetryable(
-	() => db.connect(config.url, config.name, config.connectionPoolSize),
+	() => db.connect(config.url, config.name, config.connectionPoolSize, config.connectionTimeout),
 	config.maxConnectionAttempts,
 	(i, err) => {
 		const waitTime = (2 ** (i - 1)) * config.baseRetryDelay;
