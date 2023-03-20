@@ -63,4 +63,4 @@ class NetworkTest(BasicNetworkTest, unittest.TestCase):
 		self._assert_network(Network.TESTNET, 'testnet', 0x98)
 		self.assertEqual(TESTNET_GENERATION_HASH_SEED, Network.TESTNET.generation_hash_seed)
 		self.assertEqual('milliseconds', Network.TESTNET.datetime_converter.time_units)
-		self.assertEqual('2021-11-25 14:00:47+00:00', str(Network.TESTNET.datetime_converter.epoch))
+		self.assertEqual('2022-10-31 21:07:47+00:00', str(Network.TESTNET.datetime_converter.epoch))

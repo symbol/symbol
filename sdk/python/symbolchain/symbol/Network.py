@@ -67,6 +67,6 @@ Network.MAINNET = Network(
 Network.TESTNET = Network(
 	'testnet',
 	0x98,
-	datetime.datetime(2021, 11, 25, 14, 0, 47, tzinfo=datetime.timezone.utc),
+	datetime.datetime(2022, 10, 31, 21, 7, 47, tzinfo=datetime.timezone.utc),
 	Hash256('49D6E1CE276A85B70EAFE52349AACCA389302E7A9754BCF1221E79494FC665A4'))
 Network.NETWORKS = [Network.MAINNET, Network.TESTNET]

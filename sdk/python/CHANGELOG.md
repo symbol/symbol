@@ -12,6 +12,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
    - to_datetime and from_datetime promoted from NetworkTimestamp to Network
    - NetworkTimestamp moved into Network
    - Add epoch_time to network description
+   - Adjust testnet epoch time to match sai network
  - MerkleHashBuilder.py renamed to Merkle.py
  - Facade
    - Can be created around Network instance or name
