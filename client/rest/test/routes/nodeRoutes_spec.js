@@ -72,11 +72,7 @@ describe('node routes', () => {
 			};
 
 			const createMockDb = status => ({
-				database: {
-					serverConfig: {
-						isConnected: () => status
-					}
-				}
+				isConnected: () => (true === status ? Promise.resolve() : Promise.reject(new Error('db is down')))
 			});
 
 			it('can check node health', () => {

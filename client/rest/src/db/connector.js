@@ -27,6 +27,7 @@ const connector = {
 		const connectionString = `${url}${dbName}`;
 		return MongoDb.MongoClient.connect(connectionString, {
 			minPoolSize: connectionPoolSize,
+			promoteLongs: false,
 			connectTimeoutMS: timeout,
 			serverSelectionTimeoutMS: timeout
 		})
