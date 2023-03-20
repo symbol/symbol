@@ -70,7 +70,7 @@ describe('Network (Symbol)', () => {
 
 		expect(Network.TESTNET.name).to.equal('testnet');
 		expect(Network.TESTNET.identifier).to.equal(0x98);
-		expect(Network.TESTNET.datetimeConverter.epoch.toUTCString()).to.equal('Thu, 25 Nov 2021 14:00:47 GMT');
+		expect(Network.TESTNET.datetimeConverter.epoch.toUTCString()).to.equal('Mon, 31 Oct 2022 21:07:47 GMT');
 		expect(Network.TESTNET.datetimeConverter.timeUnits).to.equal(1);
 		expect(Network.TESTNET.generationHashSeed).to.deep.equal(TESTNET_GENERATION_HASH_SEED);
 	});

@@ -94,7 +94,7 @@ Network.MAINNET = new Network(
 Network.TESTNET = new Network(
 	'testnet',
 	0x98,
-	new Date(Date.UTC(2021, 10, 25, 14, 0, 47)),
+	new Date(Date.UTC(2022, 9, 31, 21, 7, 47)),
 	new Hash256('49D6E1CE276A85B70EAFE52349AACCA389302E7A9754BCF1221E79494FC665A4')
 );
 Network.NETWORKS = [Network.MAINNET, Network.TESTNET];
