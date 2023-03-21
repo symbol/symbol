@@ -71,7 +71,9 @@ module.exports = {
 					connection.pushPull(packetBuffer, services.config.apiNode.timeout))
 				.then(packet => parseNodeInfoPacket(packet));
 
-			return Promise.allSettled([db.isConnected(), apiNodeStatusPromise]).then(results => {
+			const dbStatusPromise = db.client.db().admin().ping();
+
+			return Promise.allSettled([dbStatusPromise, apiNodeStatusPromise]).then(results => {
 				const statusCode = results.some(result => 'fulfilled' !== result.status) ? 503 : 200;
 				const checkResult = result => ('fulfilled' === result.status ? ServiceStatus.up : ServiceStatus.down);
 

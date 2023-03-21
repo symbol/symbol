@@ -119,8 +119,7 @@ class CatapultDb {
 			.then(client => {
 				this.client = client;
 				this.database = client.db();
-			})
-			.then(() => this.isConnected());
+			});
 	}
 
 	close() {
@@ -132,15 +131,6 @@ class CatapultDb {
 			this.client = undefined;
 			this.database = undefined;
 		});
-	}
-
-	isConnected() {
-		return this.client.db().admin().ping()
-			.then(() => winston.verbose('Connection to mongodb is established.'))
-			.catch(err => {
-				winston.error(`failed to verify connection to mongodb: ${err}`);
-				return Promise.reject(err);
-			});
 	}
 
 	// endregion
