@@ -924,11 +924,23 @@ describe('server (bootstrapper)', () => {
 				// Assert: notice that payload is already formatted
 				expect(payload, `blockTag: ${blockTag}`).to.deep.equal(createFormattedBlock(blockTag));
 			},
-			onAllMessages: zsocket => {
+			onAllMessages: (zsocket, sockets) => {
 				// close mq socket and server, otherwise subsequent tests would fail
+				sockets.forEach(socket => socket.close());
 				zsocket.close();
 				server.close();
-				done();
+
+				// wait for sockets to close
+				return new Promise(resolve => {
+					setTimeout(() => {
+						// Assert:
+						sockets.forEach(socket => {
+							expect(socket.readyState).to.equal(WebSocket.CLOSED);
+						});
+						resolve();
+						done();
+					}, 200);
+				});
 			}
 		});
 
@@ -964,10 +976,10 @@ describe('server (bootstrapper)', () => {
 					if (2 === ++counts.numAllConnectedHandlers)
 						createHandlers(server, done).onAllConnected(zsocket);
 				},
-				onAllMessages: zsocket => {
+				onAllMessages: (zsocket, sockets) => {
 					// - close the server only when messages from both websockets are received and processed
 					if (2 === ++counts.numAllMessagesHandlers)
-						createHandlers(server, done).onAllMessages(zsocket);
+						createHandlers(server, done).onAllMessages(zsocket, sockets);
 				}
 			};
 
@@ -1013,7 +1025,7 @@ describe('server (bootstrapper)', () => {
 							expect(socket.readyState).to.equal(WebSocket.OPEN);
 						});
 
-						defaultOnAllMessages(zsocket);
+						defaultOnAllMessages(zsocket, sockets);
 					}
 				})
 			);
