@@ -23,15 +23,16 @@ const MongoDb = require('mongodb');
 const winston = require('winston');
 
 const connector = {
-	connectToDatabase(url, dbName, connectionPoolSize) {
+	connectToDatabase(url, dbName, connectionPoolSize, timeout) {
 		const connectionString = `${url}${dbName}`;
 		return MongoDb.MongoClient.connect(connectionString, {
 			minPoolSize: connectionPoolSize,
 			promoteLongs: false,
-			useNewUrlParser: true
+			connectTimeoutMS: timeout,
+			serverSelectionTimeoutMS: timeout
 		})
 			.then(client => {
-				winston.verbose(`connected to mongo at ${connectionString}`);
+				winston.verbose(`connecting to mongo at ${connectionString}`);
 				return client;
 			});
 	}

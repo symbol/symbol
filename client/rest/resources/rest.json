@@ -40,7 +40,8 @@
     "pageSizeDefault": 20,
     "maxConnectionAttempts": 5,
     "baseRetryDelay": 500,
-    "connectionPoolSize": 10
+    "connectionPoolSize": 10,
+    "connectionTimeout": 500
   },
 
   "apiNode": {
