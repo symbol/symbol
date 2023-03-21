@@ -929,7 +929,18 @@ describe('server (bootstrapper)', () => {
 				sockets.forEach(socket => socket.close());
 				zsocket.close();
 				server.close();
-				done();
+
+				// wait for sockets to close
+				return new Promise(resolve => {
+					setTimeout(() => {
+						// Assert:
+						sockets.forEach(socket => {
+							expect(socket.readyState).to.equal(WebSocket.CLOSED);
+						});
+						resolve();
+						done();
+					}, 200);
+				});
 			}
 		});
 

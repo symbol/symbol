@@ -26,7 +26,6 @@ const { convertToLong, buildOffsetCondition, uniqueLongList } = require('./dbUti
 const catapult = require('../catapult-sdk/index');
 const MultisigDb = require('../plugins/multisig/MultisigDb');
 const MongoDb = require('mongodb');
-const winston = require('winston');
 
 const { EntityType } = catapult.model;
 const { ObjectId } = MongoDb;
