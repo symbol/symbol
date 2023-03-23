@@ -5,7 +5,7 @@ set -ex
 mongod --fork --logpath /data/mongod.log
 
 wait_period=10
-while ! /usr/bin/mongo --eval "printjson(db.version())" >/dev/null 2>&1; do
+while ! /usr/bin/mongosh --eval "printjson(db.version())" >/dev/null 2>&1; do
 	sleep 1
 	((--wait_period))
 	if [ "$wait_period" -le 1 ]; then
