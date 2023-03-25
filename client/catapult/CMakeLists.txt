@@ -54,7 +54,7 @@ endif()
 ### setup openssl
 message("--- locating openssl dependencies ---")
 
-find_package(OpenSSL 3.0.8 EXACT REQUIRED)
+find_package(OpenSSL 3.1.0 EXACT REQUIRED)
 message("OpenSSL   ver: ${OPENSSL_VERSION}")
 message("OpenSSL  root: ${OPENSSL_ROOT_DIR}")
 message("OpenSSL   inc: ${OPENSSL_INCLUDE_DIR}")
