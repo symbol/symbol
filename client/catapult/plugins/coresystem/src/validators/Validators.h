@@ -82,7 +82,7 @@ namespace catapult { namespace validators {
 	/// Validator that applies to all importance block notifications and validates that:
 	/// - notification values match calculated values (excluding PreviousImportanceBlockHash, which is validated separately)
 	/// - voting statistics are calculated more accurately for blocks at and after \a totalVotingBalanceCalculationFixForkHeight
-	/// - specifed voting set grouping (\a votingSetGrouping) is used to convert heights to epochs
+	/// - specified voting set grouping (\a votingSetGrouping) is used to convert heights to epochs
 	DECLARE_STATEFUL_VALIDATOR(ImportanceBlock, model::ImportanceBlockNotification)(
 			Height totalVotingBalanceCalculationFixForkHeight,
 			uint64_t votingSetGrouping);
