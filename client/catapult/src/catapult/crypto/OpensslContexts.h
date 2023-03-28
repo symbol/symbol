@@ -21,6 +21,7 @@
 
 #pragma once
 #include "catapult/exceptions.h"
+#include "catapult/functions.h"
 #include "catapult/preprocessor.h"
 
 struct MAY_ALIAS evp_cipher_ctx_st;
@@ -34,7 +35,7 @@ namespace catapult { namespace crypto {
 	class alignas(32) OpensslDigestContext {
 	private:
 		using context_type = evp_md_ctx_st;
-		using UniquePtr = std::unique_ptr<context_type, std::function<void(context_type *)>>;
+		using UniquePtr = std::unique_ptr<context_type, consumer<context_type*>>;
 
 	public:
 		/// Creates a new context.
@@ -66,7 +67,7 @@ namespace catapult { namespace crypto {
 	class alignas(32) OpensslCipherContext {
 	private:
 		using context_type = evp_cipher_ctx_st;
-		using UniquePtr = std::unique_ptr<context_type, std::function<void(context_type *)>>;
+		using UniquePtr = std::unique_ptr<context_type, consumer<context_type*>>;
 
 	public:
 		/// Creates a new context.
