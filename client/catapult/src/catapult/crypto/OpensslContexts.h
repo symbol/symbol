@@ -34,13 +34,11 @@ namespace catapult { namespace crypto {
 	class alignas(32) OpensslDigestContext {
 	private:
 		using context_type = evp_md_ctx_st;
+		using UniquePtr = std::unique_ptr<context_type, std::function<void(context_type *)>>;
 
 	public:
 		/// Creates a new context.
 		OpensslDigestContext();
-
-		/// Destroys the context.
-		~OpensslDigestContext();
 
 	public:
 		/// Dispatches an openssl digest call to \a func with \a args.
@@ -57,7 +55,7 @@ namespace catapult { namespace crypto {
 		void reset();
 
 	private:
-		uint8_t m_buffer[256];
+		UniquePtr m_buffer;
 	};
 
 	// endregion
@@ -68,13 +66,11 @@ namespace catapult { namespace crypto {
 	class alignas(32) OpensslCipherContext {
 	private:
 		using context_type = evp_cipher_ctx_st;
+		using UniquePtr = std::unique_ptr<context_type, std::function<void(context_type *)>>;
 
 	public:
 		/// Creates a new context.
 		OpensslCipherContext();
-
-		/// Destroys the context.
-		~OpensslCipherContext();
 
 	public:
 		/// Dispatches an openssl cipher call to \a func with \a args.
@@ -97,7 +93,7 @@ namespace catapult { namespace crypto {
 		void reset();
 
 	private:
-		uint8_t m_buffer[512];
+		UniquePtr m_buffer;
 	};
 
 	// endregion
