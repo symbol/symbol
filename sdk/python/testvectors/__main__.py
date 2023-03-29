@@ -190,7 +190,7 @@ class SymbolHelper:
 # region nem helper
 
 class NemHelper:
-	AGGREGATE_SCHEMA_NAME = 'MultisigTransactionV1'
+	AGGREGATE_SCHEMA_NAME = 'MultisigTransactionV2'
 	Signature = nc.Signature
 
 	def __init__(self, network_name):
@@ -240,7 +240,7 @@ class NemHelper:
 
 	def create_aggregate_from_single(self, test_name, single_descriptor):
 		return self.create_aggregate(test_name, {
-			'aggregate': {'type': 'multisig_transaction_v1'},
+			'aggregate': {'type': 'multisig_transaction_v2'},
 			'embedded': single_descriptor
 		})
 

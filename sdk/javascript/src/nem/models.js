@@ -4503,6 +4503,419 @@ export class NonVerifiableMultisigTransactionV1 {
 	}
 }
 
+export class MultisigTransactionV2 {
+	static TRANSACTION_VERSION = 2;
+
+	static TRANSACTION_TYPE = TransactionType.MULTISIG_TRANSACTION;
+
+	static TYPE_HINTS = {
+		type: 'enum:TransactionType',
+		network: 'enum:NetworkType',
+		timestamp: 'pod:Timestamp',
+		signerPublicKey: 'pod:PublicKey',
+		signature: 'pod:Signature',
+		fee: 'pod:Amount',
+		deadline: 'pod:Timestamp',
+		innerTransaction: 'struct:NonVerifiableTransaction',
+		cosignatures: 'array[SizePrefixedCosignatureV1]'
+	};
+
+	constructor() {
+		this._type = MultisigTransactionV2.TRANSACTION_TYPE;
+		this._version = MultisigTransactionV2.TRANSACTION_VERSION;
+		this._network = NetworkType.MAINNET;
+		this._timestamp = new Timestamp();
+		this._signerPublicKey = new PublicKey();
+		this._signature = new Signature();
+		this._fee = new Amount();
+		this._deadline = new Timestamp();
+		this._innerTransaction = new NonVerifiableTransaction();
+		this._cosignatures = [];
+		this._entityBodyReserved_1 = 0; // reserved field
+		this._signerPublicKeySize = 32; // reserved field
+		this._signatureSize = 64; // reserved field
+	}
+
+	sort() {
+		this._innerTransaction.sort();
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get network() {
+		return this._network;
+	}
+
+	set network(value) {
+		this._network = value;
+	}
+
+	get timestamp() {
+		return this._timestamp;
+	}
+
+	set timestamp(value) {
+		this._timestamp = value;
+	}
+
+	get signerPublicKey() {
+		return this._signerPublicKey;
+	}
+
+	set signerPublicKey(value) {
+		this._signerPublicKey = value;
+	}
+
+	get signature() {
+		return this._signature;
+	}
+
+	set signature(value) {
+		this._signature = value;
+	}
+
+	get fee() {
+		return this._fee;
+	}
+
+	set fee(value) {
+		this._fee = value;
+	}
+
+	get deadline() {
+		return this._deadline;
+	}
+
+	set deadline(value) {
+		this._deadline = value;
+	}
+
+	get innerTransaction() {
+		return this._innerTransaction;
+	}
+
+	set innerTransaction(value) {
+		this._innerTransaction = value;
+	}
+
+	get cosignatures() {
+		return this._cosignatures;
+	}
+
+	set cosignatures(value) {
+		this._cosignatures = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.type.size;
+		size += 1;
+		size += 2;
+		size += this.network.size;
+		size += this.timestamp.size;
+		size += 4;
+		size += this.signerPublicKey.size;
+		size += 4;
+		size += this.signature.size;
+		size += this.fee.size;
+		size += this.deadline.size;
+		size += 4;
+		size += this.innerTransaction.size;
+		size += 4;
+		size += arrayHelpers.size(this.cosignatures);
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const type = TransactionType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
+		view.shiftRight(1);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		if (0 !== entityBodyReserved_1)
+			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
+		const network = NetworkType.deserialize(view.buffer);
+		view.shiftRight(network.size);
+		const timestamp = Timestamp.deserialize(view.buffer);
+		view.shiftRight(timestamp.size);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (32 !== signerPublicKeySize)
+			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
+		const signerPublicKey = PublicKey.deserialize(view.buffer);
+		view.shiftRight(signerPublicKey.size);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (64 !== signatureSize)
+			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
+		const signature = Signature.deserialize(view.buffer);
+		view.shiftRight(signature.size);
+		const fee = Amount.deserialize(view.buffer);
+		view.shiftRight(fee.size);
+		const deadline = Timestamp.deserialize(view.buffer);
+		view.shiftRight(deadline.size);
+		const innerTransactionSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		// marking sizeof field
+		const innerTransaction = NonVerifiableTransactionFactory.deserialize(view.window(innerTransactionSize));
+		view.shiftRight(innerTransaction.size);
+		const cosignaturesCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		const cosignatures = arrayHelpers.readArrayCount(view.buffer, SizePrefixedCosignatureV1, cosignaturesCount);
+		view.shiftRight(arrayHelpers.size(cosignatures));
+
+		const instance = new MultisigTransactionV2();
+		instance._type = type;
+		instance._version = version;
+		instance._network = network;
+		instance._timestamp = timestamp;
+		instance._signerPublicKey = signerPublicKey;
+		instance._signature = signature;
+		instance._fee = fee;
+		instance._deadline = deadline;
+		instance._innerTransaction = innerTransaction;
+		instance._cosignatures = cosignatures;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this.innerTransaction.size, 4, false)); // bound: inner_transaction_size
+		buffer.write(this._innerTransaction.serialize());
+		buffer.write(converter.intToBytes(this._cosignatures.length, 4, false)); // bound: cosignatures_count
+		arrayHelpers.writeArray(buffer, this._cosignatures);
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `type: ${this._type.toString()}, `;
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `network: ${this._network.toString()}, `;
+		result += `timestamp: ${this._timestamp.toString()}, `;
+		result += `signerPublicKey: ${this._signerPublicKey.toString()}, `;
+		result += `signature: ${this._signature.toString()}, `;
+		result += `fee: ${this._fee.toString()}, `;
+		result += `deadline: ${this._deadline.toString()}, `;
+		result += `innerTransaction: ${this._innerTransaction.toString()}, `;
+		result += `cosignatures: [${this._cosignatures.map(e => e.toString()).join(',')}], `;
+		result += ')';
+		return result;
+	}
+}
+
+export class NonVerifiableMultisigTransactionV2 {
+	static TRANSACTION_VERSION = 2;
+
+	static TRANSACTION_TYPE = TransactionType.MULTISIG_TRANSACTION;
+
+	static TYPE_HINTS = {
+		type: 'enum:TransactionType',
+		network: 'enum:NetworkType',
+		timestamp: 'pod:Timestamp',
+		signerPublicKey: 'pod:PublicKey',
+		fee: 'pod:Amount',
+		deadline: 'pod:Timestamp',
+		innerTransaction: 'struct:NonVerifiableTransaction'
+	};
+
+	constructor() {
+		this._type = NonVerifiableMultisigTransactionV2.TRANSACTION_TYPE;
+		this._version = NonVerifiableMultisigTransactionV2.TRANSACTION_VERSION;
+		this._network = NetworkType.MAINNET;
+		this._timestamp = new Timestamp();
+		this._signerPublicKey = new PublicKey();
+		this._fee = new Amount();
+		this._deadline = new Timestamp();
+		this._innerTransaction = new NonVerifiableTransaction();
+		this._entityBodyReserved_1 = 0; // reserved field
+		this._signerPublicKeySize = 32; // reserved field
+	}
+
+	sort() {
+		this._innerTransaction.sort();
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	set type(value) {
+		this._type = value;
+	}
+
+	get version() {
+		return this._version;
+	}
+
+	set version(value) {
+		this._version = value;
+	}
+
+	get network() {
+		return this._network;
+	}
+
+	set network(value) {
+		this._network = value;
+	}
+
+	get timestamp() {
+		return this._timestamp;
+	}
+
+	set timestamp(value) {
+		this._timestamp = value;
+	}
+
+	get signerPublicKey() {
+		return this._signerPublicKey;
+	}
+
+	set signerPublicKey(value) {
+		this._signerPublicKey = value;
+	}
+
+	get fee() {
+		return this._fee;
+	}
+
+	set fee(value) {
+		this._fee = value;
+	}
+
+	get deadline() {
+		return this._deadline;
+	}
+
+	set deadline(value) {
+		this._deadline = value;
+	}
+
+	get innerTransaction() {
+		return this._innerTransaction;
+	}
+
+	set innerTransaction(value) {
+		this._innerTransaction = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += this.type.size;
+		size += 1;
+		size += 2;
+		size += this.network.size;
+		size += this.timestamp.size;
+		size += 4;
+		size += this.signerPublicKey.size;
+		size += this.fee.size;
+		size += this.deadline.size;
+		size += 4;
+		size += this.innerTransaction.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const type = TransactionType.deserialize(view.buffer);
+		view.shiftRight(type.size);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
+		view.shiftRight(1);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
+		view.shiftRight(2);
+		if (0 !== entityBodyReserved_1)
+			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
+		const network = NetworkType.deserialize(view.buffer);
+		view.shiftRight(network.size);
+		const timestamp = Timestamp.deserialize(view.buffer);
+		view.shiftRight(timestamp.size);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (32 !== signerPublicKeySize)
+			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
+		const signerPublicKey = PublicKey.deserialize(view.buffer);
+		view.shiftRight(signerPublicKey.size);
+		const fee = Amount.deserialize(view.buffer);
+		view.shiftRight(fee.size);
+		const deadline = Timestamp.deserialize(view.buffer);
+		view.shiftRight(deadline.size);
+		const innerTransactionSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		// marking sizeof field
+		const innerTransaction = NonVerifiableTransactionFactory.deserialize(view.window(innerTransactionSize));
+		view.shiftRight(innerTransaction.size);
+
+		const instance = new NonVerifiableMultisigTransactionV2();
+		instance._type = type;
+		instance._version = version;
+		instance._network = network;
+		instance._timestamp = timestamp;
+		instance._signerPublicKey = signerPublicKey;
+		instance._fee = fee;
+		instance._deadline = deadline;
+		instance._innerTransaction = innerTransaction;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this.innerTransaction.size, 4, false)); // bound: inner_transaction_size
+		buffer.write(this._innerTransaction.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `type: ${this._type.toString()}, `;
+		result += `version: ${'0x'.concat(this._version.toString(16))}, `;
+		result += `network: ${this._network.toString()}, `;
+		result += `timestamp: ${this._timestamp.toString()}, `;
+		result += `signerPublicKey: ${this._signerPublicKey.toString()}, `;
+		result += `fee: ${this._fee.toString()}, `;
+		result += `deadline: ${this._deadline.toString()}, `;
+		result += `innerTransaction: ${this._innerTransaction.toString()}, `;
+		result += ')';
+		return result;
+	}
+}
+
 export class NamespaceRegistrationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
@@ -6203,6 +6616,7 @@ export class TransactionFactory {
 			[TransactionFactory.toKey([MultisigAccountModificationTransactionV2.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV2.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV2],
 			[TransactionFactory.toKey([CosignatureV1.TRANSACTION_TYPE.value, CosignatureV1.TRANSACTION_VERSION]), CosignatureV1],
 			[TransactionFactory.toKey([MultisigTransactionV1.TRANSACTION_TYPE.value, MultisigTransactionV1.TRANSACTION_VERSION]), MultisigTransactionV1],
+			[TransactionFactory.toKey([MultisigTransactionV2.TRANSACTION_TYPE.value, MultisigTransactionV2.TRANSACTION_VERSION]), MultisigTransactionV2],
 			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NamespaceRegistrationTransactionV1],
 			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value, TransferTransactionV1.TRANSACTION_VERSION]), TransferTransactionV1],
 			[TransactionFactory.toKey([TransferTransactionV2.TRANSACTION_TYPE.value, TransferTransactionV2.TRANSACTION_VERSION]), TransferTransactionV2]
@@ -6221,6 +6635,7 @@ export class TransactionFactory {
 			multisig_account_modification_transaction_v2: MultisigAccountModificationTransactionV2,
 			cosignature_v1: CosignatureV1,
 			multisig_transaction_v1: MultisigTransactionV1,
+			multisig_transaction_v2: MultisigTransactionV2,
 			namespace_registration_transaction_v1: NamespaceRegistrationTransactionV1,
 			transfer_transaction_v1: TransferTransactionV1,
 			transfer_transaction_v2: TransferTransactionV2
@@ -6252,6 +6667,7 @@ export class NonVerifiableTransactionFactory {
 			[NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), NonVerifiableMultisigAccountModificationTransactionV1],
 			[NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_TYPE.value, NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_VERSION]), NonVerifiableMultisigAccountModificationTransactionV2],
 			[NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigTransactionV1.TRANSACTION_TYPE.value, NonVerifiableMultisigTransactionV1.TRANSACTION_VERSION]), NonVerifiableMultisigTransactionV1],
+			[NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigTransactionV2.TRANSACTION_TYPE.value, NonVerifiableMultisigTransactionV2.TRANSACTION_VERSION]), NonVerifiableMultisigTransactionV2],
 			[NonVerifiableTransactionFactory.toKey([NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NonVerifiableNamespaceRegistrationTransactionV1],
 			[NonVerifiableTransactionFactory.toKey([NonVerifiableTransferTransactionV1.TRANSACTION_TYPE.value, NonVerifiableTransferTransactionV1.TRANSACTION_VERSION]), NonVerifiableTransferTransactionV1],
 			[NonVerifiableTransactionFactory.toKey([NonVerifiableTransferTransactionV2.TRANSACTION_TYPE.value, NonVerifiableTransferTransactionV2.TRANSACTION_VERSION]), NonVerifiableTransferTransactionV2]
@@ -6269,6 +6685,7 @@ export class NonVerifiableTransactionFactory {
 			non_verifiable_multisig_account_modification_transaction_v1: NonVerifiableMultisigAccountModificationTransactionV1,
 			non_verifiable_multisig_account_modification_transaction_v2: NonVerifiableMultisigAccountModificationTransactionV2,
 			non_verifiable_multisig_transaction_v1: NonVerifiableMultisigTransactionV1,
+			non_verifiable_multisig_transaction_v2: NonVerifiableMultisigTransactionV2,
 			non_verifiable_namespace_registration_transaction_v1: NonVerifiableNamespaceRegistrationTransactionV1,
 			non_verifiable_transfer_transaction_v1: NonVerifiableTransferTransactionV1,
 			non_verifiable_transfer_transaction_v2: NonVerifiableTransferTransactionV2

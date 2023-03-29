@@ -29,9 +29,8 @@ struct SizePrefixedCosignatureV1
 	# cosignature
 	cosignature = CosignatureV1
 
-# shared content between V1 verifiable and non-verifiable multisig transactions
-inline struct MultisigTransactionV1Body
-	TRANSACTION_VERSION = make_const(uint8, 1)
+# shared content between all verifiable and non-verifiable multisig transactions
+inline struct MultisigTransactionBody
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_TRANSACTION)
 
 	# inner transaction size
@@ -40,10 +39,9 @@ inline struct MultisigTransactionV1Body
 	# inner transaction
 	inner_transaction = NonVerifiableTransaction
 
-# binary layout for a multisig transaction (V1, latest)
-struct MultisigTransactionV1
-	inline Transaction
-	inline MultisigTransactionV1Body
+# shared content between all verifiable multisig transactions
+inline struct MultisigTransactionVerifiableBody
+	inline MultisigTransactionBody
 
 	# number of attached cosignatures
 	cosignatures_count = uint32
@@ -51,8 +49,30 @@ struct MultisigTransactionV1
 	# cosignatures
 	cosignatures = array(SizePrefixedCosignatureV1, cosignatures_count)
 
-# binary layout for a non-verifiable multisig transaction (V1, latest)
-struct NonVerifiableMultisigTransactionV1
-	inline NonVerifiableTransaction
-	inline MultisigTransactionV1Body
+# binary layout for a multisig transaction (V1)
+struct MultisigTransactionV1
+	TRANSACTION_VERSION = make_const(uint8, 1)
 
+	inline Transaction
+	inline MultisigTransactionVerifiableBody
+
+# binary layout for a non-verifiable multisig transaction (V1)
+struct NonVerifiableMultisigTransactionV1
+	TRANSACTION_VERSION = make_const(uint8, 1)
+
+	inline NonVerifiableTransaction
+	inline MultisigTransactionBody
+
+# binary layout for a multisig transaction (V2, latest)
+struct MultisigTransactionV2
+	TRANSACTION_VERSION = make_const(uint8, 2)
+
+	inline Transaction
+	inline MultisigTransactionVerifiableBody
+
+# binary layout for a non-verifiable multisig transaction (V2, latest)
+struct NonVerifiableMultisigTransactionV2
+	TRANSACTION_VERSION = make_const(uint8, 2)
+
+	inline NonVerifiableTransaction
+	inline MultisigTransactionBody
