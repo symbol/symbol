@@ -37,11 +37,15 @@ namespace catapult { namespace crypto {
 	// region OpensslDigestContext
 
 	OpensslDigestContext::OpensslDigestContext() {
-		m_buffer = UniquePtr(EVP_MD_CTX_new(), [](context_type* p) { EVP_MD_CTX_free(p); });
+		std::memset(&m_buffer, 0, CountOf(m_buffer));
+	}
+
+	OpensslDigestContext::~OpensslDigestContext() {
+		reset();
 	}
 
 	OpensslDigestContext::context_type* OpensslDigestContext::get() {
-		return m_buffer.get();
+		return reinterpret_cast<context_type*>(m_buffer);
 	}
 
 	void OpensslDigestContext::reset() {
@@ -53,11 +57,16 @@ namespace catapult { namespace crypto {
 	// region OpensslCipherContext
 
 	OpensslCipherContext::OpensslCipherContext() {
-		m_buffer = UniquePtr(EVP_CIPHER_CTX_new(), [](context_type* p) { EVP_CIPHER_CTX_free(p); });
+		std::memset(&m_buffer, 0, CountOf(m_buffer));
+		reset();
+	}
+
+	OpensslCipherContext::~OpensslCipherContext() {
+		reset();
 	}
 
 	OpensslCipherContext::context_type* OpensslCipherContext::get() {
-		return m_buffer.get();
+		return reinterpret_cast<context_type*>(m_buffer);
 	}
 
 	void OpensslCipherContext::reset() {

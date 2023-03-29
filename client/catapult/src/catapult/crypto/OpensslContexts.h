@@ -21,7 +21,6 @@
 
 #pragma once
 #include "catapult/exceptions.h"
-#include "catapult/functions.h"
 #include "catapult/preprocessor.h"
 
 struct MAY_ALIAS evp_cipher_ctx_st;
@@ -35,11 +34,13 @@ namespace catapult { namespace crypto {
 	class alignas(32) OpensslDigestContext {
 	private:
 		using context_type = evp_md_ctx_st;
-		using UniquePtr = std::unique_ptr<context_type, consumer<context_type*>>;
 
 	public:
 		/// Creates a new context.
 		OpensslDigestContext();
+
+		/// Destroys the context.
+		~OpensslDigestContext();
 
 	public:
 		/// Dispatches an openssl digest call to \a func with \a args.
@@ -56,7 +57,7 @@ namespace catapult { namespace crypto {
 		void reset();
 
 	private:
-		UniquePtr m_buffer;
+		uint8_t m_buffer[256];
 	};
 
 	// endregion
@@ -67,11 +68,13 @@ namespace catapult { namespace crypto {
 	class alignas(32) OpensslCipherContext {
 	private:
 		using context_type = evp_cipher_ctx_st;
-		using UniquePtr = std::unique_ptr<context_type, consumer<context_type*>>;
 
 	public:
 		/// Creates a new context.
 		OpensslCipherContext();
+
+		/// Destroys the context.
+		~OpensslCipherContext();
 
 	public:
 		/// Dispatches an openssl cipher call to \a func with \a args.
@@ -94,7 +97,7 @@ namespace catapult { namespace crypto {
 		void reset();
 
 	private:
-		UniquePtr m_buffer;
+		uint8_t m_buffer[512];
 	};
 
 	// endregion
