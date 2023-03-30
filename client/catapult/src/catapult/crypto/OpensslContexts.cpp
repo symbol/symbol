@@ -58,6 +58,7 @@ namespace catapult { namespace crypto {
 
 	OpensslCipherContext::OpensslCipherContext() {
 		std::memset(&m_buffer, 0, CountOf(m_buffer));
+		reset();
 	}
 
 	OpensslCipherContext::~OpensslCipherContext() {

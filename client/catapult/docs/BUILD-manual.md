@@ -8,7 +8,7 @@ For Windows, [Build with CONAN](BUILD-conan.md) is strongly encouraged.
 
 - ``git``.
 - ``python`` 3.7+.
-- ``openssl`` 3.0.8+.
+- ``openssl`` 3.1.0+.
 - About 15 GB of free disk space.
 
 These instructions have been verified to work on Ubuntu 20.04 with 8 GB of RAM and 4 CPU cores.
