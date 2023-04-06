@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   db:
-    image: mongo:4.2-rc
+    image: mongo:6.0
     user: {{USER}}
     networks:
       test_net:
