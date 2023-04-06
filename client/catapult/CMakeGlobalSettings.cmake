@@ -17,7 +17,7 @@ if(CCACHE_EXE)
 	else()
 		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 		set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-	endif(MSVC)
+	endif()
 endif(CCACHE_EXE)
 
 ### set general cmake settings
