@@ -55,17 +55,38 @@ namespace catapult { namespace addressextraction {
 				model::AddressSet& addresses,
 				uint32_t primaryId,
 				const model::AddressResolutionStatement& resolutionStatement) {
+			auto shouldAddPreviousResolution = true;
 			for (auto i = 0u; i < resolutionStatement.size(); ++i) {
-				const auto& resolutionEntry = resolutionStatement.entryAt(i);
+				const auto& resolutionEntry = resolutionStatement.entryAt(resolutionStatement.size() - i - 1);
 
-				// resolution statements are ordered
+				// skip future resolutions (not yet effective)
 				if (primaryId < resolutionEntry.Source.PrimaryId)
-					break;
-
-				if (primaryId > resolutionEntry.Source.PrimaryId)
 					continue;
 
-				addresses.insert(resolutionEntry.ResolvedValue);
+				// add all new resolutions triggered by the current transaction
+				if (primaryId == resolutionEntry.Source.PrimaryId) {
+					addresses.insert(resolutionEntry.ResolvedValue);
+
+					// in the edge case of an aggregate (nonzero SecondaryId) containing steps 2-4 below,
+					// there is not enough information to determine whether or not 1 has occured:
+					//     1. old alias is used
+					//     2. alias is unlinked
+					//     3. new alias is linked
+					//     4. new alias is used
+					// in this ambiguous situation, include the old alias (potential false positive)
+
+					// for a non-aggregate transaction, a single unresolved address can never map multiple resolved addresses
+					if (!resolutionEntry.Source.SecondaryId)
+						shouldAddPreviousResolution = false;
+				}
+
+				// if there is an active resolution from a previous transaction, add it
+				if (primaryId > resolutionEntry.Source.PrimaryId) {
+					if (shouldAddPreviousResolution)
+						addresses.insert(resolutionEntry.ResolvedValue);
+
+					break;
+				}
 			}
 		}
 
