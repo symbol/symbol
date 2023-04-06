@@ -1,6 +1,6 @@
 {
   "name": "symbol-api-rest",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "description": "Symbol API REST",
   "main": "src/index.js",
   "scripts": {

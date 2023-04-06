@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.4.3] - 06-Apr-2023
+
+### Fixed
+
+- Mongodb driver 4.x, fix mongodb shown as down in /node/health
+- Reduced the Rest Gateway docker image size
+- Exclude protocol treasury from the circulating supply
+
+## [v2.4.2] - 26-Oct-2022
+
+### Fixed
+
+- Replace yarn with npm
+- Remove spammer and tools subpackages
+- Add nodeMetadata object to config that is served up over /node/metadata
+- Replace js-sha3 with noble
+- Cache parsed server configuration objects
+
 ## [v2.4.0] - 16-Nov-2021
 
 ### Fixed
