@@ -3,7 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.2.0] - CURRENT
+## [3.3.0] - 07-Apr-2023
+
+### Added
+- support for generating both aligned and unaligned (de)serializers for structs (Javascript optimization)
+- struct attribute: comparer
+- field attribute: sizeref
+
+### Changed
+- extend alignment attribute to specify last element padding
+
+## [3.2.0] - 18-Feb-2022
 
 ### Added
 - add 'is_bitwise' enum attribute to indicate than an enumeration contains flags and should support bitwise operations
@@ -82,7 +92,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
-[3.2.0]: https://github.com/symbol/symbol/compare/catbuffer/parser/v3.1.0...dev
+[3.3.0]: https://github.com/symbol/symbol/compare/catbuffer/parser/v3.2.0...catbuffer/parser/v3.3.0
+[3.2.0]: https://github.com/symbol/symbol/compare/catbuffer/parser/v3.1.0...catbuffer/parser/v3.2.0
 [3.1.0]: https://github.com/symbol/symbol/compare/catbuffer/parser/v3.0.2...catbuffer/parser/v3.1.0
 [3.0.2]: https://github.com/symbol/symbol/compare/catbuffer/parser/v1.0.0...catbuffer/parser/v3.0.2
 [1.0.0]: https://github.com/symbol/symbol/releases/tag/catbuffer/parser/v1.0.0
