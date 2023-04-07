@@ -5,7 +5,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
-## [3.0.4] - 12-Dec-2022
+## [3.0.4] - 07-Apr-2023
 
 ### Changed
  - Network
@@ -36,6 +36,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
    - Utility function metadata_update_value for simplifying update of metadata values
  - Proper handling of catbuffer computed fields/properties
  - (NEM-only) Automatic population for fields levy_size and message_envelope_size
+
+### Fixed
+ - (NEM-only) Add NonVerifiableMultisigTransactionV1 model required for signing 'multisig_transaction_v1'
 
 ## [3.0.3] - 14-Mar-2022
 
