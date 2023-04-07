@@ -11,6 +11,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 - Mongodb driver 4.x, fix mongodb shown as down in /node/health
 - Reduced the Rest Gateway docker image size
 - Exclude protocol treasury from the circulating supply
+- Report MongoDB database size in /node/storage
 
 ## [v2.4.2] - 26-Oct-2022
 

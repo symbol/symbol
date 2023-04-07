@@ -8,6 +8,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - require connections to always present certificate (`ssl::verify_fail_if_no_peer_cert` #463)
  - MosaicSupplyRevocation was not marking source address as affected by the transaction (#480)
+ - AddResolvedAddresses is not properly applying resolutions from previous transactions (#607)
+   - This requires a database resync for transactions created before this fix.
 
 ## [1.0.3.5] - 09-Nov-2022
 
