@@ -106,7 +106,8 @@ describe('model schema builder', () => {
 				'serverInfoData',
 				'deploymentData',
 				'stateTree',
-				'storageInfo'
+				'storageInfo',
+				'storageInfoDatabase'
 			]);
 		});
 
@@ -181,7 +182,8 @@ describe('model schema builder', () => {
 				'nodeHealth.status',
 				'nodeTime.communicationTimestamps',
 				'serverInfo.serverInfo',
-				'serverInfoData.deployment'
+				'serverInfoData.deployment',
+				'storageInfo.database'
 			]);
 		});
 
@@ -374,7 +376,12 @@ describe('model schema builder', () => {
 
 				'storageInfo.numBlocks',
 				'storageInfo.numTransactions',
-				'storageInfo.numAccounts'
+				'storageInfo.numAccounts',
+				'storageInfoDatabase.numIndexes',
+				'storageInfoDatabase.numObjects',
+				'storageInfoDatabase.dataSize',
+				'storageInfoDatabase.indexSize',
+				'storageInfoDatabase.storageSize'
 			]);
 		});
 

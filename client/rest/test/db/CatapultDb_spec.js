@@ -131,22 +131,32 @@ describe('catapult db', () => {
 	describe('storage info', () => {
 		it('can retrieve storage info', () => {
 			const Rounds = 2;
-
-			// Arrange:
 			return runDbTest(
 				{
 					block: test.db.createDbBlock(Default_Height),
 					transactions: test.db.createDbTransactions(Rounds, test.random.publicKey(), test.random.address())
 				},
 				db => db.storageInfo(),
-				storageInfo => expect(storageInfo).to.deep.equal({ numBlocks: 1, numTransactions: Rounds * 8, numAccounts: 0 })
+				storageInfo => {
+					expect(Object.keys(storageInfo).length).to.equal(4);
+					expect(storageInfo.numBlocks).to.equal(1);
+					expect(storageInfo.numTransactions).to.equal(Rounds * 8);
+					expect(storageInfo.numAccounts).to.equal(0);
+
+					expect(Object.keys(storageInfo.database).length).to.equal(5);
+					['numIndexes', 'numObjects', 'dataSize', 'indexSize', 'storageSize'].forEach(key => {
+						const value = storageInfo.database[key];
+						const message = `storage database property ${key}`;
+						expect(value, message).to.not.equal(undefined);
+						expect(value, message).to.not.equal(0);
+					});
+				}
 			);
 		});
 	});
 
 	describe('chain info', () => {
 		it('can retrieve chain info', () =>
-			// Assert:
 			runDbTest(
 				{ chainStatistic: test.db.createChainStatistic(1357, 2468, 3579) },
 				db => db.chainStatisticCurrent(),
