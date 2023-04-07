@@ -169,8 +169,24 @@ class CatapultDb {
 		const blockCountPromise = this.database.collection('blocks').estimatedDocumentCount();
 		const transactionCountPromise = this.database.collection('transactions').estimatedDocumentCount();
 		const accountCountPromise = this.database.collection('accounts').estimatedDocumentCount();
-		return Promise.all([blockCountPromise, transactionCountPromise, accountCountPromise])
-			.then(storageInfo => ({ numBlocks: storageInfo[0], numTransactions: storageInfo[1], numAccounts: storageInfo[2] }));
+		const dbStatsPromise = this.database.stats();
+
+		const formatDbStats = dbStats => ({
+			numIndexes: dbStats.indexes,
+			numObjects: dbStats.objects,
+
+			dataSize: dbStats.dataSize,
+			indexSize: dbStats.indexSize,
+			storageSize: dbStats.storageSize
+		});
+
+		return Promise.all([blockCountPromise, transactionCountPromise, accountCountPromise, dbStatsPromise])
+			.then(storageInfo => ({
+				numBlocks: storageInfo[0],
+				numTransactions: storageInfo[1],
+				numAccounts: storageInfo[2],
+				database: formatDbStats(storageInfo[3])
+			}));
 	}
 
 	chainStatisticCurrent() {
