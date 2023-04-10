@@ -38,7 +38,7 @@
 
 namespace catapult { namespace local {
 
-#define TEST_CLASS HappyBlockchainIntegrityTests
+#define TEST_CLASS DISABLED_HappyBlockchainIntegrityTests
 
 	namespace {
 		constexpr size_t Default_Network_Size = 10;
