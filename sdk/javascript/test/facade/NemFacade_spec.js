@@ -3,8 +3,8 @@ import {
 	Hash256, PrivateKey, PublicKey, Signature
 } from '../../src/CryptoTypes.js';
 import NemFacade from '../../src/facade/NemFacade.js';
-import TransactionFactory from '../../src/nem/TransactionFactory.js';
 import { Network } from '../../src/nem/Network.js';
+import TransactionFactory from '../../src/nem/TransactionFactory.js';
 import { expect } from 'chai';
 import crypto from 'crypto';
 
@@ -184,7 +184,7 @@ describe('NEM Facade', () => {
 			timestamp: 191205516,
 			deadline: 191291916,
 
-			innerTransaction,
+			innerTransaction
 		});
 		return transaction;
 	};
