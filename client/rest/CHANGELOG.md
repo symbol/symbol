@@ -12,6 +12,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 - Reduced the Rest Gateway docker image size
 - Exclude protocol treasury from the circulating supply
 - Report MongoDB database size in /node/storage
+- Report network inflation schedule in /network/inflation
+- Report inflation reward at height in /network/inflation/at/:height
 
 ## [v2.4.2] - 26-Oct-2022
 
