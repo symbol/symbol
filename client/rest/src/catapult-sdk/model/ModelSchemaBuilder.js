@@ -264,7 +264,17 @@ class ModelSchemaBuilder {
 			storageInfo: {
 				numBlocks: ModelType.int,
 				numTransactions: ModelType.int,
-				numAccounts: ModelType.int
+				numAccounts: ModelType.int,
+
+				database: { type: ModelType.object, schemaName: 'storageInfoDatabase' }
+			},
+			storageInfoDatabase: {
+				numIndexes: ModelType.int,
+				numObjects: ModelType.int,
+
+				dataSize: ModelType.int,
+				indexSize: ModelType.int,
+				storageSize: ModelType.int
 			}
 
 			// endregion

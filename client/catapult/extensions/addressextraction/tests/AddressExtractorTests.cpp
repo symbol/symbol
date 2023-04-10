@@ -317,8 +317,54 @@ namespace catapult { namespace addressextraction {
 				*blockElement.Transactions[1].OptionalExtractedAddresses);
 		EXPECT_EQ(ToAddressSet(seedAddresses, { 4, 5 }), *blockElement.Transactions[2].OptionalExtractedAddresses);
 		EXPECT_EQ(
-				ToAddressSet(seedAddresses, { 6, 7 }, seedResolvedAddresses, { 6 }),
+				// - seedResolvedAddresses[5] is included to cover ambiguous aggregate situation
+				ToAddressSet(seedAddresses, { 6, 7 }, seedResolvedAddresses, { 5, 6 }),
 				*blockElement.Transactions[3].OptionalExtractedAddresses);
+	}
+
+	namespace {
+		auto DeepCopy(const std::shared_ptr<const model::UnresolvedAddressSet>& pAddressSet) {
+			return std::make_shared<model::UnresolvedAddressSet>(model::UnresolvedAddressSet(*pAddressSet));
+		}
+	}
+
+	TEST(TEST_CLASS, ExtractAddsTransactionResolvedAddressesWhenBlockStatementIsPresentAndResolvedAddressesAreShared_BlockElement) {
+		// Arrange:
+		TestContext context;
+
+		// - create three transaction elements and associate same two addresses to each
+		model::Block block;
+		model::BlockElement blockElement(block);
+		auto seedAddresses = SeedTransactionsWithExtractedAddresses(blockElement, 3);
+		seedAddresses.resize(2);
+		blockElement.Transactions[1].OptionalExtractedAddresses = DeepCopy(blockElement.Transactions[0].OptionalExtractedAddresses);
+		blockElement.Transactions[2].OptionalExtractedAddresses = DeepCopy(blockElement.Transactions[0].OptionalExtractedAddresses);
+
+		// - add one address resolution statement
+		auto seedResolvedAddresses = test::GenerateRandomDataVector<Address>(2);
+		auto pBlockStatement = std::make_shared<model::BlockStatement>();
+		AddAddressResolutionStatement(*pBlockStatement, seedAddresses[1], {
+			{ { 1, 0 }, seedResolvedAddresses[0] },
+			{ { 3, 0 }, seedResolvedAddresses[1] }
+		});
+		blockElement.OptionalStatement = std::move(pBlockStatement);
+
+		// Act:
+		context.extractor().extract(blockElement);
+
+		// Assert:
+		EXPECT_EQ(0u, context.publisher().numPublishCalls());
+
+		// - all have all expected addresses
+		EXPECT_EQ(
+			ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 0 }),
+			*blockElement.Transactions[0].OptionalExtractedAddresses);
+		EXPECT_EQ(
+			ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 0 }),
+			*blockElement.Transactions[1].OptionalExtractedAddresses);
+		EXPECT_EQ(
+			ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 1 }),
+			*blockElement.Transactions[2].OptionalExtractedAddresses);
 	}
 
 	// endregion
