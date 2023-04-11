@@ -1,5 +1,5 @@
 import { Address } from './Network.js';
-import { generateNamespaceId, generateMosaicId } from './idGenerator.js';
+import { generateMosaicId, generateNamespaceId } from './idGenerator.js';
 import * as sc from './models.js';
 import { Hash256, PublicKey } from '../CryptoTypes.js';
 import RuleBasedTransactionFactory from '../RuleBasedTransactionFactory.js';

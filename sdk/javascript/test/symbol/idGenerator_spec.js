@@ -1,6 +1,6 @@
 import { Address } from '../../src/symbol/Network.js';
 import {
-	generateMosaicId, generateNamespaceId, generateMosaicAliasId, isValidNamespaceName, generateNamespacePath
+	generateMosaicAliasId, generateMosaicId, generateNamespaceId, generateNamespacePath, isValidNamespaceName
 } from '../../src/symbol/idGenerator.js';
 import { expect } from 'chai';
 import crypto from 'crypto';

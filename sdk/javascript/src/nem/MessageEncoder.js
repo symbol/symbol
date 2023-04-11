@@ -1,7 +1,7 @@
 import { deriveSharedKey, deriveSharedKeyDeprecated } from './SharedKey.js'; // eslint-disable-line import/no-deprecated
-import { MessageType, Message } from './models.js';
+import { Message, MessageType } from './models.js';
 import {
-	concatArrays, decodeAesGcm, encodeAesGcm, encodeAesCbc, decodeAesCbc
+	concatArrays, decodeAesCbc, decodeAesGcm, encodeAesCbc, encodeAesGcm
 } from '../impl/CipherHelpers.js';
 
 const filterExceptions = (statement, exceptions) => {

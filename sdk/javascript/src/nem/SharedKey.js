@@ -1,5 +1,5 @@
 import { SharedKey256 } from '../CryptoTypes.js';
-import { deriveSharedSecretFactory, deriveSharedKeyFactory } from '../SharedKey.js';
+import { deriveSharedKeyFactory, deriveSharedSecretFactory } from '../SharedKey.js';
 import { keccak_256, keccak_512 } from '@noble/hashes/sha3';
 
 const crypto_hash = (out, m, n) => {

@@ -1,4 +1,4 @@
-import { AesGcmCipher, AesCbcCipher } from '../Cipher.js';
+import { AesCbcCipher, AesGcmCipher } from '../Cipher.js';
 import crypto from 'crypto';
 
 const GCM_IV_SIZE = 12;
