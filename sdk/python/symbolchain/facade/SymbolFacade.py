@@ -1,4 +1,4 @@
-import sha3
+import hashlib
 
 from .. import sc
 from ..CryptoTypes import Hash256, PublicKey, Signature
@@ -60,7 +60,7 @@ class SymbolFacade:
 
 	def hash_transaction(self, transaction):
 		"""Hashes a Symbol transaction."""
-		hasher = sha3.sha3_256()
+		hasher = hashlib.sha3_256()
 		hasher.update(transaction.signature.bytes)
 		hasher.update(transaction.signer_public_key.bytes)
 		hasher.update(self.network.generation_hash_seed.bytes)
@@ -97,7 +97,7 @@ class SymbolFacade:
 		"""Hashes embedded transactions of an aggregate."""
 		hash_builder = MerkleHashBuilder()
 		for embedded_transaction in embedded_transactions:
-			hash_builder.update(Hash256(sha3.sha3_256(embedded_transaction.serialize()).digest()))
+			hash_builder.update(Hash256(hashlib.sha3_256(embedded_transaction.serialize()).digest()))
 
 		return hash_builder.final()
 

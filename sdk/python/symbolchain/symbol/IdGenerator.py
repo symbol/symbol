@@ -1,11 +1,11 @@
-import sha3
+import hashlib
 
 NAMESPACE_FLAG = 1 << 63
 
 
 def generate_mosaic_id(owner_address, nonce):
 	"""Generates a mosaic id from an owner address and a nonce."""
-	hasher = sha3.sha3_256()
+	hasher = hashlib.sha3_256()
 	hasher.update(nonce.to_bytes(4, 'little'))
 	hasher.update(owner_address.bytes)
 	digest = hasher.digest()
@@ -19,7 +19,7 @@ def generate_mosaic_id(owner_address, nonce):
 
 def generate_namespace_id(name, parent_namespace_id=0):
 	"""Generates a namespace id from a name and an optional parent namespace id."""
-	hasher = sha3.sha3_256()
+	hasher = hashlib.sha3_256()
 	hasher.update(parent_namespace_id.to_bytes(8, 'little'))
 	hasher.update(name.encode('utf8'))
 	digest = hasher.digest()
