@@ -26,8 +26,8 @@ from symbolchain.symbol.Metadata import metadata_update_value
 from symbolchain.symbol.Network import NetworkTimestamp  # TODO_: should we link this to Facade or Network to avoid direct import?
 from symbolchain.symbol.VotingKeysGenerator import VotingKeysGenerator
 
-SYMBOL_API_ENDPOINT = 'https://001-sai-dual.symboltest.net:3001'
-SYMBOL_WEBSOCKET_ENDPOINT = 'wss://001-sai-dual.symboltest.net:3001/ws'
+SYMBOL_API_ENDPOINT = 'https://reference.symboltest.net:3001'
+SYMBOL_WEBSOCKET_ENDPOINT = 'wss://reference.symboltest.net:3001/ws'
 SYMBOL_TOOLS_ENDPOINT = 'https://testnet.symbol.tools'
 SYMBOL_EXPLORER_TRANSACTION_URL_PATTERN = 'https://testnet.symbol.fyi/transactions/{}'
 
