@@ -113,16 +113,37 @@ const encodePath = (path, isLeaf) => {
 };
 
 /**
+ *  Node in a compact patricia tree.
+ */
+class TreeNode {
+	/**
+	 * Creates a tree node.
+	 * @param {PatriciaTreePath} path Node path.
+	 */
+	constructor(path) {
+		this.path = path;
+	}
+
+	/**
+	 * Gets hex representation of path.
+	 * @returns {str} Hex representation of path.
+	 */
+	get hexPath() {
+		return uint8ToHex(this.path.path).substring(0, this.path.size);
+	}
+}
+
+/**
  *  Leaf node in a compact patricia tree.
  */
-class LeafNode {
+class LeafNode extends TreeNode {
 	/**
 	 * Creates a leaf node.
 	 * @param {PatriciaTreePath} path Leaf path.
 	 * @param {Hash256} value Leaf value.
 	 */
 	constructor(path, value) {
-		this.path = path;
+		super(path);
 		this.value = value;
 	}
 
@@ -141,14 +162,14 @@ class LeafNode {
 /**
  *  Branch node in a compact patricia tree.
  */
-class BranchNode {
+class BranchNode extends TreeNode {
 	/**
 	 * Creates a branch node.
 	 * @param {PatriciaTreePath} path Branch path.
 	 * @param {array<Hash256>} links Branch links.
 	 */
 	constructor(path, links) {
-		this.path = path;
+		super(path);
 		this.links = links;
 	}
 
@@ -331,7 +352,7 @@ export const provePatriciaMerkle = (encodedKey, valueToTest, merklePath, stateHa
 		}
 
 		childHash = nodeHash;
-		actualPath = `${formattedLinkIndex}${uint8ToHex(node.path.path)}${actualPath}`;
+		actualPath = `${formattedLinkIndex}${node.hexPath}${actualPath}`;
 	}
 
 	if (isPositiveProof) {
