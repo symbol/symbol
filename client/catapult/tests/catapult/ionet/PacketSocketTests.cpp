@@ -66,7 +66,7 @@ namespace catapult { namespace ionet {
 					writeCode = code;
 				});
 
-				test::waitForReadCompleteOrLog(readComplete);
+				test::waitForReadComplete(readComplete);
 			});
 			auto pClientSocket = test::AddClientReadBufferTaskWithWait(pPool->ioContext(), receiveBuffer, readComplete);
 			pPool->join();
@@ -1214,7 +1214,7 @@ namespace catapult { namespace ionet {
 					CATAPULT_LOG(debug) << "write completed with code " << code;
 				});
 
-				test::waitForReadCompleteOrLog(readComplete);
+				test::waitForReadComplete(readComplete);
 			});
 
 			auto endpoint = test::CreateLocalHostNodeEndpoint();

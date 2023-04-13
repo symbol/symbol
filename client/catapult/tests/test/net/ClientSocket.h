@@ -82,7 +82,7 @@ namespace catapult { namespace test {
 	/// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket.
 	std::shared_ptr<ClientSocket> AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer);
 
-	/// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket.  Sets the readComplete to true when successful.
+	/// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket. Sets the \a readComplete to \c true.
 	std::shared_ptr<ClientSocket> AddClientReadBufferTaskWithWait(
 			boost::asio::io_context& ioContext,
 			ionet::ByteBuffer& receiveBuffer,

@@ -381,7 +381,7 @@ namespace catapult { namespace test {
 		};
 	}
 
-	void waitForReadCompleteOrLog(const std::atomic_bool& readComplete) {
+	void waitForReadComplete(const std::atomic_bool& readComplete) {
 #ifdef _WIN32
 		WAIT_FOR(readComplete);
 #else
@@ -409,7 +409,7 @@ namespace catapult { namespace test {
 				});
 			});
 
-			waitForReadCompleteOrLog(readComplete);
+			waitForReadComplete(readComplete);
 		});
 		auto pClientSocket = AddClientReadBufferTaskWithWait(pPool->ioContext(), receiveBuffer, readComplete);
 		pPool->join();
@@ -442,7 +442,7 @@ namespace catapult { namespace test {
 				payload2.Code = writeCode;
 			});
 
-			waitForReadCompleteOrLog(readComplete);
+			waitForReadComplete(readComplete);
 		});
 		auto pClientSocket = AddClientReadBufferTaskWithWait(pPool->ioContext(), receiveBuffer, readComplete);
 		pPool->join();

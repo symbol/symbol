@@ -307,7 +307,7 @@ namespace catapult { namespace test {
 			auto size = socketFuture.get()->read(receiveBuffer).get();
 			CATAPULT_LOG(debug) << "client read complete: " << size;
 			readCompleted = true;
-			});
+		});
 		return pClientSocket;
 	}
 
