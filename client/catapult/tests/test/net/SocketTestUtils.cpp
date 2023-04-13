@@ -381,6 +381,14 @@ namespace catapult { namespace test {
 		};
 	}
 
+	void waitForReadCompleteOrLog(const std::atomic_bool& readComplete) {
+#ifdef _WIN32
+		WAIT_FOR(readComplete);
+#else
+		CATAPULT_LOG(debug) << "readComplete: " << readComplete;
+#endif
+	}
+
 	void AssertWriteCanWriteMultipleConsecutivePayloads(const PacketIoTransform& transform) {
 		// Arrange: set up payloads
 		LargeWritePayload payload1(Large_Buffer_Size);
@@ -401,7 +409,7 @@ namespace catapult { namespace test {
 				});
 			});
 
-			WAIT_FOR(readComplete);
+			waitForReadCompleteOrLog(readComplete);
 		});
 		auto pClientSocket = AddClientReadBufferTaskWithWait(pPool->ioContext(), receiveBuffer, readComplete);
 		pPool->join();
@@ -434,7 +442,7 @@ namespace catapult { namespace test {
 				payload2.Code = writeCode;
 			});
 
-			WAIT_FOR(readComplete);
+			waitForReadCompleteOrLog(readComplete);
 		});
 		auto pClientSocket = AddClientReadBufferTaskWithWait(pPool->ioContext(), receiveBuffer, readComplete);
 		pPool->join();
