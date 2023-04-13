@@ -99,11 +99,24 @@ def _encode_path(path, is_leaf):
 	return bytes(buffer)
 
 
-class LeafNode:
+class TreeNode:
+	"""Node in a compact patricia tree."""
+
+	def __init__(self, path):
+		self.path = path
+
+	@property
+	def hex_path(self):
+		"""Gets hex representation of path."""
+
+		return hexlify(self.path.path).decode('utf8').upper()[:self.path.size]
+
+
+class LeafNode(TreeNode):
 	"""Leaf node in a compact patricia tree."""
 
 	def __init__(self, path, value):
-		self.path = path
+		super().__init__(path)
 		self.value = value
 
 	def calculate_hash(self):
@@ -115,11 +128,11 @@ class LeafNode:
 		return Hash256(hasher.digest())
 
 
-class BranchNode:
+class BranchNode(TreeNode):
 	"""Branch node in a compact patricia tree."""
 
 	def __init__(self, path, links):
-		self.path = path
+		super().__init__(path)
 		self.links = links
 
 	def calculate_hash(self):
@@ -236,7 +249,7 @@ def prove_patricia_merkle(encoded_key, value_to_test, merkle_path, state_hash, s
 			formatted_link_index = f'{node.links.index(child_hash):01X}'
 
 		child_hash = node_hash
-		actual_path = f'{formatted_link_index}{hexlify(node.path.path).decode("utf8").upper()}{actual_path}'
+		actual_path = f'{formatted_link_index}{node.hex_path}{actual_path}'
 
 	if is_positive_proof:
 		# for positive proof, expected and calculated paths must match exactly
