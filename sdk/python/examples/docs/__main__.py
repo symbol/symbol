@@ -2561,7 +2561,8 @@ async def create_multisig_account_modification_new_account_bonded(facade, signer
 	})
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate bonded, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len(cosignatory_addresses) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -3016,7 +3017,8 @@ async def read_websocket_transaction_bonded_flow(facade, signer_key_pair):
 	})
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate bonded, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len(cosignatory_addresses) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -3060,29 +3062,12 @@ async def read_websocket_transaction_bonded_flow(facade, signer_key_pair):
 				response_json = await response.json()
 				print(f'/transactions/partial: {response_json}')
 
-			# wait for the partial transaction to be cached by the network (this should be partialAdded)
-			response_json = json.loads(await websocket.recv())
-			print(f'received message with topic {response_json["topic"]} for transaction {response_json["data"]["meta"]["hash"]}')
-
-			# submit the (detached) cosignatures to the network
-			for cosignatory_key_pair in cosignatory_key_pairs:
-				cosignature = facade.cosign_transaction(cosignatory_key_pair, transaction, True)
-				cosignature_json_payload = json.dumps({
-					'version': str(cosignature.version),
-					'signerPublicKey': str(cosignature.signer_public_key),
-					'signature': str(cosignature.signature),
-					'parentHash': str(cosignature.parent_hash)
-				})
-				print(cosignature_json_payload)
-
-				# initiate a HTTP PUT request to a Symbol REST endpoint
-				async with session.put(f'{SYMBOL_API_ENDPOINT}/transactions/cosignature', json=json.loads(cosignature_json_payload)) as response:
-					response_json = await response.json()
-					print(f'/transactions/cosignature: {response_json}')
-
 		# read messages from the websocket as the transaction moves from partial to unconfirmed to confirmed
 		# notice that "added" messages contain the full transaction payload whereas "removed" messages only contain the hash
-		# expected progression is cosignature, cosignature, partialRemoved, unconfirmedAdded, unconfirmedRemoved, confirmedAdded
+		# expected progression is
+		# * partialAdded, cosignature, cosignature, cosignature, partialRemoved
+		# * unconfirmedAdded, unconfirmedRemoved
+		# * confirmedAdded
 		while True:
 			response_json = json.loads(await websocket.recv())
 			topic = response_json['topic']
@@ -3091,6 +3076,24 @@ async def read_websocket_transaction_bonded_flow(facade, signer_key_pair):
 				print(f'received cosignature for transaction {cosignature["parentHash"]} from {cosignature["signerPublicKey"]}')
 			else:
 				print(f'received message with topic {topic} for transaction {response_json["data"]["meta"]["hash"]}')
+
+			if topic.startswith('partialAdded'):
+				async with ClientSession(raise_for_status=True) as session:
+					# submit the (detached) cosignatures to the network
+					for cosignatory_key_pair in cosignatory_key_pairs:
+						cosignature = facade.cosign_transaction(cosignatory_key_pair, transaction, True)
+						cosignature_json_payload = json.dumps({
+							'version': str(cosignature.version),
+							'signerPublicKey': str(cosignature.signer_public_key),
+							'signature': str(cosignature.signature),
+							'parentHash': str(cosignature.parent_hash)
+						})
+						print(cosignature_json_payload)
+
+						# initiate a HTTP PUT request to a Symbol REST endpoint
+						async with session.put(f'{SYMBOL_API_ENDPOINT}/transactions/cosignature', json=json.loads(cosignature_json_payload)) as response:
+							response_json = await response.json()
+							print(f'/transactions/cosignature: {response_json}')
 
 			if topic.startswith('confirmedAdded'):
 				print('transaction confirmed')
