@@ -190,5 +190,8 @@ namespace catapult { namespace test {
 	/// Asserts that \a readCode indicates the socket was closed during read.
 	void AssertSocketClosedDuringRead(ionet::SocketOperationCode readCode);
 
+	/// Wait for read complete or log the \a readComplete value.
+	void waitForReadComplete(const std::atomic_bool& readComplete);
+
 	// endregion
 }}

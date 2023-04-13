@@ -56,16 +56,19 @@ namespace catapult { namespace ionet {
 			auto bufferSize = payload.header().Size;
 			ByteBuffer receiveBuffer(bufferSize);
 			SocketOperationCode writeCode;
+			std::atomic_bool readComplete(false);
 
 			// Act: "server" - writes a payload to the socket
 			//      "client" - reads a payload from the socket
 			auto pPool = test::CreateStartedIoThreadPool();
-			test::SpawnPacketServerWork(pPool->ioContext(), options, [&payload, &writeCode](const auto& pServerSocket) {
+			test::SpawnPacketServerWork(pPool->ioContext(), options, [&payload, &writeCode, &readComplete](const auto& pServerSocket) {
 				pServerSocket->write(payload, [&writeCode](auto code) {
 					writeCode = code;
 				});
+
+				test::waitForReadComplete(readComplete);
 			});
-			auto pClientSocket = test::AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
+			auto pClientSocket = test::AddClientReadBufferTaskWithWait(pPool->ioContext(), receiveBuffer, readComplete);
 			pPool->join();
 
 			// Assert: the write succeeded and all data was read from the socket
@@ -1201,24 +1204,28 @@ namespace catapult { namespace ionet {
 			// Arrange:
 			auto sendBuffer = test::GenerateRandomPacketBuffer(bufferSize);
 			auto pPool = test::CreateStartedIoThreadPool();
+			std::atomic_bool readComplete(false);
 
 			// Act: "server" - accepts a connection and writes a buffer
 			//      "client" - connects to the server and reads a buffer
 			SendBuffersResult result;
-			test::SpawnPacketServerWork(pPool->ioContext(), [&sendBuffer](const auto& pServerSocket) {
+			test::SpawnPacketServerWork(pPool->ioContext(), [&sendBuffer, &readComplete](const auto& pServerSocket) {
 				pServerSocket->write(test::BufferToPacketPayload(sendBuffer), [](auto code) {
 					CATAPULT_LOG(debug) << "write completed with code " << code;
 				});
+
+				test::waitForReadComplete(readComplete);
 			});
 
 			auto endpoint = test::CreateLocalHostNodeEndpoint();
 			auto options = test::CreatePacketSocketOptions();
 			options.MaxPacketDataSize = bufferSize - sizeof(PacketHeader) - adjustmentSize;
-			ionet::Connect(pPool->ioContext(), options, endpoint, [&result](auto, const auto& connectedSocketInfo) {
+			ionet::Connect(pPool->ioContext(), options, endpoint, [&result, &readComplete](auto, const auto& connectedSocketInfo) {
 				auto pClientSocket = connectedSocketInfo.socket();
-				pClientSocket->read([pClientSocket, &result](auto code, const auto* pPacket) {
+				pClientSocket->read([pClientSocket, &result, &readComplete](auto code, const auto* pPacket) {
 					CATAPULT_LOG(debug) << "read completed with code " << code;
 					FillResult(result, pClientSocket, code, pPacket);
+					readComplete = true;
 				});
 			});
 			pPool->join();

@@ -381,11 +381,20 @@ namespace catapult { namespace test {
 		};
 	}
 
+	void waitForReadComplete(const std::atomic_bool& readComplete) {
+#ifdef _WIN32
+		WAIT_FOR(readComplete);
+#else
+		CATAPULT_LOG(debug) << "readComplete: " << readComplete;
+#endif
+	}
+
 	void AssertWriteCanWriteMultipleConsecutivePayloads(const PacketIoTransform& transform) {
 		// Arrange: set up payloads
 		LargeWritePayload payload1(Large_Buffer_Size);
 		LargeWritePayload payload2(Large_Buffer_Size);
 		ionet::ByteBuffer receiveBuffer(2 * Large_Buffer_Size);
+		std::atomic_bool readComplete(false);
 
 		// Act: "server" - starts two chained async write operations
 		//      "client" - reads a payload from the socket
@@ -399,8 +408,10 @@ namespace catapult { namespace test {
 					payload2.Code = writeCode2;
 				});
 			});
+
+			waitForReadComplete(readComplete);
 		});
-		auto pClientSocket = AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
+		auto pClientSocket = AddClientReadBufferTaskWithWait(pPool->ioContext(), receiveBuffer, readComplete);
 		pPool->join();
 
 		// Assert: both writes should have succeeded and no data should have been interleaved
@@ -417,6 +428,7 @@ namespace catapult { namespace test {
 		LargeWritePayload payload1(Large_Buffer_Size);
 		LargeWritePayload payload2(Large_Buffer_Size);
 		ionet::ByteBuffer receiveBuffer(2 * Large_Buffer_Size);
+		std::atomic_bool readComplete(false);
 
 		// Act: "server" - starts two concurrent async write operations
 		//      "client" - reads a payload from the socket
@@ -429,8 +441,10 @@ namespace catapult { namespace test {
 			pIo->write(ionet::PacketPayload(payload2.pPacket), [&payload2](auto writeCode) {
 				payload2.Code = writeCode;
 			});
+
+			waitForReadComplete(readComplete);
 		});
-		auto pClientSocket = AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
+		auto pClientSocket = AddClientReadBufferTaskWithWait(pPool->ioContext(), receiveBuffer, readComplete);
 		pPool->join();
 
 		// Assert: both writes should have succeeded and no data should have been interleaved

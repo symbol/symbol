@@ -298,6 +298,19 @@ namespace catapult { namespace test {
 		return pClientSocket;
 	}
 
+	std::shared_ptr<ClientSocket> AddClientReadBufferTaskWithWait(
+			boost::asio::io_context& ioContext,
+			ionet::ByteBuffer& receiveBuffer,
+			std::atomic_bool& readCompleted) {
+		auto pClientSocket = CreateClientSocket(ioContext);
+		pClientSocket->connect().then([&receiveBuffer, &readCompleted](auto&& socketFuture) {
+			auto size = socketFuture.get()->read(receiveBuffer).get();
+			CATAPULT_LOG(debug) << "client read complete: " << size;
+			readCompleted = true;
+		});
+		return pClientSocket;
+	}
+
 	std::shared_ptr<ClientSocket> AddClientWriteBuffersTask(
 			boost::asio::io_context& ioContext,
 			const std::vector<ionet::ByteBuffer>& sendBuffers) {
