@@ -5,7 +5,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
-## [3.0.6] - 14-Apr-2023
+## [3.0.7] - 14-Apr-2023
 
 ### Changed
  - Network
@@ -83,7 +83,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
-[3.0.6]: https://github.com/symbol/sdk-python/compare/v3.0.3...v3.0.6
+[3.0.7]: https://github.com/symbol/sdk-python/compare/v3.0.3...v3.0.7
 [3.0.3]: https://github.com/symbol/sdk-python/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/symbol/sdk-python/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/symbol/sdk-python/compare/v3.0.0...v3.0.1
