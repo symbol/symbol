@@ -96,7 +96,7 @@ private key: 984D4E4EC6AB5C772876135D88DF40F13B7B5880324A6D7F19E16DB292F8C443
 ### Tutorial: Create an Account and Fund via Faucet
 
 ```python
-async def create_account_with_tokens_from_faucet(facade, amount=150, private_key=None):
+async def create_account_with_tokens_from_faucet(facade, amount=500, private_key=None):
 	# create a key pair that will be used to send transactions
 	# when the PrivateKey is known, pass the raw private key bytes or hex encoded string to the PrivateKey(...) constructor instead
 	key_pair = facade.KeyPair(PrivateKey.random()) if private_key is None else facade.KeyPair(private_key)
@@ -108,7 +108,7 @@ async def create_account_with_tokens_from_faucet(facade, amount=150, private_key
 		request = {
 			'recipient': str(address),
 			'amount': amount,
-			'selectedMosaics': ['3A8416DB2D53B6C8']  # XYM mosaic id on testnet
+			'selectedMosaics': ['72C0212E67A08BCE']  # XYM mosaic id on testnet
 		}
 		async with session.post(f'{SYMBOL_TOOLS_ENDPOINT}/claims', json=request) as response:
 			# wait for the (JSON) response
@@ -242,7 +242,7 @@ async def create_account_metadata_new(facade, signer_key_pair):
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'account_metadata_transaction',
+			'type': 'account_metadata_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			# the key consists of a tuple (signer, target_address, scoped_metadata_key)
@@ -260,7 +260,7 @@ async def create_account_metadata_new(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -318,7 +318,7 @@ async def create_account_metadata_modify(facade, signer_key_pair):
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'account_metadata_transaction',
+			'type': 'account_metadata_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			# the key consists of a tuple (signer, target_address, scoped_metadata_key),
@@ -335,7 +335,7 @@ async def create_account_metadata_modify(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -401,7 +401,7 @@ async def create_multisig_account_modification_new_account(facade, signer_key_pa
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			'min_approval_delta': 2,  # number of signatures required to make any transaction
@@ -415,13 +415,14 @@ async def create_multisig_account_modification_new_account(facade, signer_key_pa
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate complete, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len(cosignatory_key_pairs) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -476,7 +477,7 @@ async def create_multisig_account_modification_modify_account(facade, signer_key
 	embedded_transactions = [
 		# create a transfer from the multisig account to the primary cosignatory to cover the transaction fee
 		facade.transaction_factory.create_embedded({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			'recipient_address': cosignatory_addresses[0],
@@ -486,7 +487,7 @@ async def create_multisig_account_modification_modify_account(facade, signer_key
 		}),
 
 		facade.transaction_factory.create_embedded({
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,  # sender of modification transaction is multisig account
 
 			# don't change number of cosignature needed for transactions
@@ -503,13 +504,14 @@ async def create_multisig_account_modification_modify_account(facade, signer_key
 		'signer_public_key': cosignatory_key_pairs[0].public_key,  # signer of the aggregate is one of the two cosignatories
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate complete, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len([cosignatory_key_pairs[2], cosignatory_key_pairs[3]]) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(cosignatory_key_pairs[0], transaction)
@@ -653,7 +655,7 @@ async def create_namespace_registration_root(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'namespace_registration_transaction',
+		'type': 'namespace_registration_transaction_v1',
 		'registration_type': 'root',  # 'root' indicates a root namespace is being created
 		'duration': 86400,  # number of blocks the root namespace will be active; approximately 30 (86400 / 2880) days
 		'name': namespace_name  # name of the root namespace
@@ -706,7 +708,7 @@ async def create_namespace_registration_child(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'namespace_registration_transaction',
+		'type': 'namespace_registration_transaction_v1',
 		'registration_type': 'child',  # 'child' indicates a namespace will be attach to some existing root namespace
 		'parent_id': generate_namespace_id(root_namespace_name),  # this points to root namespace
 		'name': 'killed'  # name of the child namespace
@@ -765,7 +767,7 @@ async def create_namespace_metadata_new(facade, signer_key_pair):
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'namespace_metadata_transaction',
+			'type': 'namespace_metadata_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			# the key consists of a tuple (signer, target_address, target_namespace_id, scoped_metadata_key)
@@ -786,7 +788,7 @@ async def create_namespace_metadata_new(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -839,7 +841,7 @@ async def create_namespace_metadata_modify(facade, signer_key_pair):  # pylint: 
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'namespace_metadata_transaction',
+			'type': 'namespace_metadata_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			# the key consists of a tuple (signer, target_address, target_namespace_id, scoped_metadata_key)
@@ -857,7 +859,7 @@ async def create_namespace_metadata_modify(facade, signer_key_pair):  # pylint: 
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -930,7 +932,7 @@ async def create_mosaic_definition_new(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_definition_transaction',
+		'type': 'mosaic_definition_transaction_v1',
 		'duration': 0,  # number of blocks the mosaic will be active; 0 indicates it will never expire
 		'divisibility': 2,  # number of supported decimal places
 
@@ -992,7 +994,7 @@ async def create_mosaic_supply(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_supply_change_transaction',
+		'type': 'mosaic_supply_change_transaction_v1',
 		'mosaic_id': generate_mosaic_id(signer_address, 123),
 
 		# action can either be 'increase' or 'decrease',
@@ -1058,7 +1060,7 @@ async def create_global_mosaic_restriction_new(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_global_restriction_transaction',
+		'type': 'mosaic_global_restriction_transaction_v1',
 		'mosaic_id': generate_mosaic_id(signer_address, 123),
 
 		# restriction might use some other mosaic restriction rules, that mosaic doesn't even have to belong to current owner
@@ -1119,7 +1121,7 @@ async def create_address_mosaic_restriction_1(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_address_restriction_transaction',
+		'type': 'mosaic_address_restriction_transaction_v1',
 		'mosaic_id': generate_mosaic_id(signer_address, 123),
 
 		'restriction_key': 0xC0FFE,
@@ -1169,7 +1171,7 @@ async def create_address_mosaic_restriction_2(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_address_restriction_transaction',
+		'type': 'mosaic_address_restriction_transaction_v1',
 		'mosaic_id': generate_mosaic_id(signer_address, 123),
 
 		'restriction_key': 0xC0FFE,
@@ -1219,7 +1221,7 @@ async def create_address_mosaic_restriction_3(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_address_restriction_transaction',
+		'type': 'mosaic_address_restriction_transaction_v1',
 		'mosaic_id': generate_mosaic_id(signer_address, 123),
 
 		'restriction_key': 0xC0FFE,
@@ -1274,7 +1276,7 @@ async def create_global_mosaic_restriction_modify(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_global_restriction_transaction',
+		'type': 'mosaic_global_restriction_transaction_v1',
 		'mosaic_id': generate_mosaic_id(signer_address, 123),
 
 		'reference_mosaic_id': 0,
@@ -1347,7 +1349,7 @@ async def create_mosaic_metadata_new(facade, signer_key_pair):
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'mosaic_metadata_transaction',
+			'type': 'mosaic_metadata_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			# the key consists of a tuple (signer, target_address, target_mosaic_id, scoped_metadata_key)
@@ -1368,7 +1370,7 @@ async def create_mosaic_metadata_new(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -1423,7 +1425,7 @@ async def create_mosaic_metadata_cosigned_1(facade, signer_key_pair):
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'mosaic_metadata_transaction',
+			'type': 'mosaic_metadata_transaction_v1',
 			'signer_public_key': authority_key_pair.public_key,
 
 			# the key consists of a tuple (signer, target_address, target_mosaic_id, scoped_metadata_key)
@@ -1444,13 +1446,14 @@ async def create_mosaic_metadata_cosigned_1(facade, signer_key_pair):
 		'signer_public_key': authority_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate complete, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len([signer_key_pair]) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(authority_key_pair, transaction)
@@ -1506,7 +1509,7 @@ async def create_mosaic_metadata_cosigned_2(facade, signer_key_pair):
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'mosaic_metadata_transaction',
+			'type': 'mosaic_metadata_transaction_v1',
 			'signer_public_key': authority_key_pair.public_key,
 
 			# the key consists of a tuple (signer, target_address, target_mosaic_id, scoped_metadata_key)
@@ -1525,13 +1528,14 @@ async def create_mosaic_metadata_cosigned_2(facade, signer_key_pair):
 		'signer_public_key': authority_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate complete, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len([signer_key_pair]) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(authority_key_pair, transaction)
@@ -1621,7 +1625,7 @@ async def create_mosaic_atomic_swap(facade, signer_key_pair):
 	# there will be two transfers within an aggregate
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': partner_key_pair.public_key,
 
 			'recipient_address': facade.network.public_key_to_address(signer_key_pair.public_key),
@@ -1631,7 +1635,7 @@ async def create_mosaic_atomic_swap(facade, signer_key_pair):
 		}),
 
 		facade.transaction_factory.create_embedded({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			'recipient_address': facade.network.public_key_to_address(partner_key_pair.public_key),
@@ -1646,7 +1650,7 @@ async def create_mosaic_atomic_swap(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_complete_transaction',
+		'type': 'aggregate_complete_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
@@ -1654,7 +1658,8 @@ async def create_mosaic_atomic_swap(facade, signer_key_pair):
 	# Bob needs to cosign the transaction because the swap will only be confirmed if both the sender and the partner agree to it
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate complete, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len([partner_key_pair]) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -1780,7 +1785,7 @@ async def create_transfer_with_encrypted_message(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'transfer_transaction',
+		'type': 'transfer_transaction_v1',
 		'recipient_address': recipient_address,
 		'mosaics': [
 			{'mosaic_id': generate_mosaic_alias_id('symbol.xym'), 'amount': 7_000000},  # send 7 of XYM to recipient
@@ -1858,7 +1863,7 @@ async def create_harvesting_delegation_message(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'transfer_transaction',
+		'type': 'transfer_transaction_v1',
 		'recipient_address': facade.network.public_key_to_address(node_public_key),
 		'message': harvest_request_payload
 	})
@@ -1914,7 +1919,7 @@ async def create_hash_lock(facade, signer_key_pair, bonded_transaction_hash):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'hash_lock_transaction',
+		'type': 'hash_lock_transaction_v1',
 		'mosaic': {'mosaic_id': generate_mosaic_alias_id('symbol.xym'), 'amount': 10_000000},
 
 		'duration': 100,
@@ -1966,7 +1971,7 @@ async def create_multisig_account_modification_new_account_bonded(facade, signer
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			'min_approval_delta': 2,  # number of signatures required to make any transaction
@@ -1980,13 +1985,14 @@ async def create_multisig_account_modification_new_account_bonded(facade, signer
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_bonded_transaction',
+		'type': 'aggregate_bonded_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate bonded, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len(cosignatory_addresses) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -2063,8 +2069,9 @@ def create_voting_key_file(facade):
 
 	# store to file
 	# note: additional care should be taken to create file with proper permissions
-	with open('private_key_tree1.dat', 'wb') as output_file:
-		output_file.write(buffer)
+	with tempfile.TemporaryDirectory() as temp_directory:
+		with open(Path(temp_directory) / 'private_key_tree1.dat', 'wb') as output_file:
+			output_file.write(buffer)
 
 	# show voting key public key
 	print(f'voting key public key {voting_key_pair.public_key}')
@@ -2094,7 +2101,7 @@ async def create_account_key_link(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'account_key_link_transaction',
+		'type': 'account_key_link_transaction_v1',
 		'linked_public_key': remote_key_pair.public_key,
 		'link_action': 'link'
 	})
@@ -2145,7 +2152,7 @@ async def create_vrf_key_link(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'vrf_key_link_transaction',
+		'type': 'vrf_key_link_transaction_v1',
 		'linked_public_key': vrf_key_pair.public_key,
 		'link_action': 'link'
 	})
@@ -2198,7 +2205,7 @@ async def create_account_key_unlink(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'account_key_link_transaction',
+		'type': 'account_key_link_transaction_v1',
 		'linked_public_key': remote_key_pair.public_key,
 		'link_action': 'unlink'
 	})
@@ -2250,7 +2257,7 @@ async def create_vrf_key_unlink(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'vrf_key_link_transaction',
+		'type': 'vrf_key_link_transaction_v1',
 		'linked_public_key': vrf_key_pair.public_key,
 		'link_action': 'unlink'
 	})
@@ -2305,7 +2312,7 @@ async def create_voting_key_link(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'voting_key_link_transaction',
+		'type': 'voting_key_link_transaction_v1',
 		'linked_public_key': voting_public_key,
 		'start_epoch': 10,
 		'end_epoch': 150,
@@ -2360,7 +2367,7 @@ async def create_voting_key_unlink(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'voting_key_link_transaction',
+		'type': 'voting_key_link_transaction_v1',
 		'linked_public_key': voting_public_key,
 		'start_epoch': 10,
 		'end_epoch': 150,
@@ -2416,7 +2423,7 @@ async def create_node_key_link(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'node_key_link_transaction',
+		'type': 'node_key_link_transaction_v1',
 		'linked_public_key': node_public_key,
 		'link_action': 'link'
 	})
@@ -2468,7 +2475,7 @@ async def create_node_key_unlink(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'node_key_link_transaction',
+		'type': 'node_key_link_transaction_v1',
 		'linked_public_key': node_public_key,
 		'link_action': 'unlink'
 	})
@@ -2566,7 +2573,7 @@ async def prove_confirmed_transaction(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'transfer_transaction',
+		'type': 'transfer_transaction_v1',
 		'recipient_address': recipient_address,
 		'mosaics': [
 			{'mosaic_id': generate_mosaic_alias_id('symbol.xym'), 'amount': 1_000000},  # send 1 of XYM to recipient
@@ -2639,6 +2646,9 @@ async def prove_xym_mosaic_state(facade, _):  # pylint: disable=too-many-locals
 	network_currency_id = await get_network_currency()
 	network_currency_id_formatted = f'{network_currency_id:08X}'
 
+	# get the current network height
+	start_network_height = await get_network_height()
+
 	# look up the properties of the network currency mosaic
 	mosaic_properties_json = (await get_mosaic_properties(network_currency_id_formatted))['mosaic']
 	print(mosaic_properties_json)
@@ -2663,13 +2673,10 @@ async def prove_xym_mosaic_state(facade, _):  # pylint: disable=too-many-locals
 	mosaic_encoded_key = Hash256(sha3.sha3_256(writer.buffer).digest())
 	print(f'mosaic encoded key: {mosaic_encoded_key}')
 
-	# get the current network height
-	network_height = await get_network_height()
-
 	# create a connection to a node
 	async with ClientSession(raise_for_status=True) as session:
 		# initiate a HTTP GET request to a Symbol REST endpoint to get information about the last block
-		async with session.get(f'{SYMBOL_API_ENDPOINT}/blocks/{network_height}') as response:
+		async with session.get(f'{SYMBOL_API_ENDPOINT}/blocks/{start_network_height}') as response:
 			# extract the sub cache merkle roots and the stateHash
 			response_json = await response.json()
 			state_hash = Hash256(response_json['block']['stateHash'])
@@ -2691,6 +2698,13 @@ async def prove_xym_mosaic_state(facade, _):  # pylint: disable=too-many-locals
 				state_hash,
 				subcache_merkle_roots)
 			print(f'mosaic {network_currency_id_formatted} proof concluded with {proof_result}')
+
+	end_network_height = await get_network_height()
+
+	if start_network_height != end_network_height:
+		print('blockchain changed during test, result of PATH_MISMATCH is expected')
+	else:
+		print('blockchain did NOT change during test, result of VALID_POSITIVE is expected')
 ```
 
 ## XYM
@@ -2842,7 +2856,7 @@ Alice will swap 0.2 ETH with Bob for 7887 XYM.
 				'signer_public_key': signer_key_pair.public_key,
 				'deadline': network_time.timestamp,
 		
-				'type': 'secret_lock_transaction',
+				'type': 'secret_lock_transaction_v1',
 				'mosaic': {'mosaic_id': generate_mosaic_alias_id('symbol.xym'), 'amount': 7_000000},  # mosaic to transfer upon proof
 		
 				'duration': 111,  # number of blocks
@@ -2901,7 +2915,7 @@ Alice will swap 0.2 ETH with Bob for 7887 XYM.
 				'signer_public_key': signer_key_pair.public_key,
 				'deadline': network_time.timestamp,
 		
-				'type': 'secret_proof_transaction',
+				'type': 'secret_proof_transaction_v1',
 		
 				'recipient_address': recipient_address,
 				'secret': secret_hash,
@@ -3101,7 +3115,7 @@ async def read_websocket_transaction_bonded_flow(facade, signer_key_pair):
 
 	embedded_transactions = [
 		facade.transaction_factory.create_embedded({
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v1',
 			'signer_public_key': signer_key_pair.public_key,
 
 			'min_approval_delta': 2,  # number of signatures required to make any transaction
@@ -3115,13 +3129,14 @@ async def read_websocket_transaction_bonded_flow(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'aggregate_bonded_transaction',
+		'type': 'aggregate_bonded_transaction_v2',
 		'transactions_hash': facade.hash_embedded_transactions(embedded_transactions),
 		'transactions': embedded_transactions
 	})
 
 	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
-	transaction.fee = Amount(100 * transaction.size)
+	# when setting the fee for an aggregate bonded, include the size of cosignatures (added later) in the fee calculation
+	transaction.fee = Amount(100 * (transaction.size + len(cosignatory_addresses) * 104))
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(signer_key_pair, transaction)
@@ -3165,29 +3180,12 @@ async def read_websocket_transaction_bonded_flow(facade, signer_key_pair):
 				response_json = await response.json()
 				print(f'/transactions/partial: {response_json}')
 
-			# wait for the partial transaction to be cached by the network (this should be partialAdded)
-			response_json = json.loads(await websocket.recv())
-			print(f'received message with topic {response_json["topic"]} for transaction {response_json["data"]["meta"]["hash"]}')
-
-			# submit the (detached) cosignatures to the network
-			for cosignatory_key_pair in cosignatory_key_pairs:
-				cosignature = facade.cosign_transaction(cosignatory_key_pair, transaction, True)
-				cosignature_json_payload = json.dumps({
-					'version': str(cosignature.version),
-					'signerPublicKey': str(cosignature.signer_public_key),
-					'signature': str(cosignature.signature),
-					'parentHash': str(cosignature.parent_hash)
-				})
-				print(cosignature_json_payload)
-
-				# initiate a HTTP PUT request to a Symbol REST endpoint
-				async with session.put(f'{SYMBOL_API_ENDPOINT}/transactions/cosignature', json=json.loads(cosignature_json_payload)) as response:
-					response_json = await response.json()
-					print(f'/transactions/cosignature: {response_json}')
-
 		# read messages from the websocket as the transaction moves from partial to unconfirmed to confirmed
 		# notice that "added" messages contain the full transaction payload whereas "removed" messages only contain the hash
-		# expected progression is cosignature, cosignature, partialRemoved, unconfirmedAdded, unconfirmedRemoved, confirmedAdded
+		# expected progression is
+		# * partialAdded, cosignature, cosignature, cosignature, partialRemoved
+		# * unconfirmedAdded, unconfirmedRemoved
+		# * confirmedAdded
 		while True:
 			response_json = json.loads(await websocket.recv())
 			topic = response_json['topic']
@@ -3196,6 +3194,24 @@ async def read_websocket_transaction_bonded_flow(facade, signer_key_pair):
 				print(f'received cosignature for transaction {cosignature["parentHash"]} from {cosignature["signerPublicKey"]}')
 			else:
 				print(f'received message with topic {topic} for transaction {response_json["data"]["meta"]["hash"]}')
+
+			if topic.startswith('partialAdded'):
+				async with ClientSession(raise_for_status=True) as session:
+					# submit the (detached) cosignatures to the network
+					for cosignatory_key_pair in cosignatory_key_pairs:
+						cosignature = facade.cosign_transaction(cosignatory_key_pair, transaction, True)
+						cosignature_json_payload = json.dumps({
+							'version': str(cosignature.version),
+							'signerPublicKey': str(cosignature.signer_public_key),
+							'signature': str(cosignature.signature),
+							'parentHash': str(cosignature.parent_hash)
+						})
+						print(cosignature_json_payload)
+
+						# initiate a HTTP PUT request to a Symbol REST endpoint
+						async with session.put(f'{SYMBOL_API_ENDPOINT}/transactions/cosignature', json=json.loads(cosignature_json_payload)) as response:
+							response_json = await response.json()
+							print(f'/transactions/cosignature: {response_json}')
 
 			if topic.startswith('confirmedAdded'):
 				print('transaction confirmed')
@@ -3249,7 +3265,7 @@ async def read_websocket_transaction_error(facade, signer_key_pair):
 			'signer_public_key': signer_key_pair.public_key,
 			'deadline': network_time.timestamp,
 
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'recipient_address': recipient_address,
 			'mosaics': [
 				{'mosaic_id': generate_mosaic_alias_id('symbol.xym'), 'amount': 1000_000000}
@@ -3744,7 +3760,7 @@ async def create_mosaic_definition_modify(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_definition_transaction',
+		'type': 'mosaic_definition_transaction_v1',
 		'duration': 0,  # number of blocks the mosaic will be active; 0 indicates it will never expire (added to existing value: 0 + 0 = 0)
 		'divisibility': 0,  # number of supported decimal places (XOR'd against existing value: 2 ^ 0 = 2)
 
@@ -3806,7 +3822,7 @@ async def create_mosaic_revocation(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'mosaic_supply_revocation_transaction',
+		'type': 'mosaic_supply_revocation_transaction_v1',
 		'source_address': source_address,
 		'mosaic': {'mosaic_id': generate_mosaic_id(signer_address, 123), 'amount': 7_00}
 	})
@@ -3857,7 +3873,7 @@ async def create_mosaic_transfer(facade, signer_key_pair):
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
 
-		'type': 'transfer_transaction',
+		'type': 'transfer_transaction_v1',
 		'recipient_address': recipient_address,
 		'mosaics': [
 			{'mosaic_id': generate_mosaic_id(signer_address, 123), 'amount': 10_00}
