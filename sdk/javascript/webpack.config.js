@@ -3,17 +3,40 @@ import webpack from 'webpack';
 import path from 'path';
 import URL from 'url';
 
+const target = 'web';
+const buildDirectory = path.resolve(path.dirname(URL.fileURLToPath(import.meta.url)), '_build');
+const distDirectory = path.resolve(path.dirname(URL.fileURLToPath(import.meta.url)), 'dist');
+
 export default {
 	entry: './src/index.js',
 	mode: process.env.NODE_ENV || 'development',
+	target,
+	devtool: 'source-map',
+
 	output: {
-		path: path.resolve(path.dirname(URL.fileURLToPath(import.meta.url)), '_build'),
-		filename: 'bundle.js',
-		library: {
-			type: 'module'
-		}
+		path: distDirectory,
+		filename: `bundle.${target}.js`,
+		library: { type: 'module' }
 	},
 
+	// add plugins and resolvers for setting up node to browser mappings
+	plugins: [
+		new WasmPackPlugin({
+			crateDirectory: path.resolve(path.dirname(URL.fileURLToPath(import.meta.url)), 'wasm'),
+			target,
+			extraArgs: '--no-typescript',
+			outName: 'symbol_crypto_wasm',
+			outDir: `${buildDirectory}/wasm/${target}_webpack`
+		}),
+		new webpack.ProvidePlugin({
+			process: 'process/browser',
+			Buffer: ['buffer', 'Buffer']
+		}),
+		new webpack.NormalModuleReplacementPlugin(
+			/symbol-crypto-wasm-node/,
+			`../../_build/wasm/${target}_webpack/symbol_crypto_wasm.js`
+		)
+	],
 	resolve: {
 		extensions: ['.js'],
 		fallback: {
@@ -21,20 +44,6 @@ export default {
 			stream: 'stream-browserify'
 		}
 	},
-
-	plugins: [
-		new webpack.ProvidePlugin({
-			process: 'process/browser',
-			Buffer: ['buffer', 'Buffer']
-		}),
-		new WasmPackPlugin({
-			crateDirectory: path.resolve(path.dirname(URL.fileURLToPath(import.meta.url)), 'wasm'),
-			extraArgs: '--no-typescript',
-			outName: 'symbol_crypto_wasm',
-			outDir: path.resolve(path.dirname(URL.fileURLToPath(import.meta.url)), '_build')
-		}),
-		new webpack.NormalModuleReplacementPlugin(/..\/..\/wasm\/pkg\/symbol_crypto_wasm/, '../../_build/symbol_crypto_wasm.js')
-	],
 
 	experiments: {
 		asyncWebAssembly: true,
