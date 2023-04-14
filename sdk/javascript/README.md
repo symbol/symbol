@@ -73,15 +73,15 @@ const jsonPayload = facade.transactionFactory.constructor.attachSignature(transa
 
 Cheat sheet:
 
-| "old" name (used in docs) | descriptor name|
-|--- |--- |
-| ImportanceTransfer transaction | `account_key_link_transaction` |
-| MosaicDefinitionCreation transaction | `mosaic_definition_transaction` |
-| MosaicSupplyChange transaction | `mosaic_supply_change_transaction` |
+| "old" name (used in docs) | descriptor name                                |
+|--- |------------------------------------------------|
+| ImportanceTransfer transaction | `account_key_link_transaction_v1`              |
+| MosaicDefinitionCreation transaction | `mosaic_definition_transaction_v1`             |
+| MosaicSupplyChange transaction | `mosaic_supply_change_transaction_v1`          |
 | MultisigAggregateModification transaction | `multisig_account_modification_transaction_v1` |
-| MultisigAggregateModification transaction | `multisig_account_modification_transaction` |
-| MultisigSignature transaction or Cosignature transaction | `cosignature` |
-| Multisig transaction | `multisig_transaction` |
-| ProvisionNamespace transaction | `namespace_registration_transaction` |
-| Transfer transaction | `transfer_transaction_v1` |
-| Transfer transaction | `transfer_transaction` |
+| MultisigAggregateModification transaction | `multisig_account_modification_transaction_v2` |
+| MultisigSignature transaction or Cosignature transaction | `cosignature_v1`                               |
+| Multisig transaction | `multisig_transaction_v1`                      |
+| ProvisionNamespace transaction | `namespace_registration_transaction_v1`        |
+| Transfer transaction | `transfer_transaction_v1`                      |
+| Transfer transaction | `transfer_transaction_v2`                      |
