@@ -44,5 +44,6 @@
     "bitcore-mnemonic": "^10.0.2",
     "ripemd160": "^2.0.2",
     "tweetnacl": "^1.0.3"
-  }
+  },
+  "files": ["src/*", "wasm/pkg/*"]
 }
