@@ -38,7 +38,7 @@ const sdk = {
 		...NemKeyPair,
 		MessageEncoder: NemMessageEncoder,
 		...NemNetwork,
-		...NemTransactionFactory
+		NemTransactionFactory
 	},
 
 	symbol: {
@@ -47,7 +47,7 @@ const sdk = {
 		...SymbolKeyPair,
 		MessageEncoder: SymbolMessageEncoder,
 		...SymbolNetwork,
-		...SymbolTransactionFactory,
+		SymbolTransactionFactory,
 
 		...SymbolIdGenerator,
 		...SymbolMerkle,
