@@ -79,6 +79,86 @@ _Symbol_: PUT `/transactions`
 _NEM_: POST `/transaction/announce`
 
 
+## Usage Environments
+
+### Node
+
+Symbol-sdk is written node-first and published via npm, so simply install the package and import 'symbol-sdk':
+
+```sh
+npm install symbol-sdk
+```
+
+```js
+import symbolSdk from 'symbol-sdk';
+
+const privateKey = new symbolSdk.PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
+console.log(`Private Key: ${privateKey.toString()}`);
+
+const keyPair = new symbolSdk.symbol.KeyPair(privateKey);
+console.log(`Public Key: ${keyPair.publicKey.toString()}`);
+```
+
+### Browser
+
+Symbol-sdk is alternatively published as a bundled file, which can be imported directly for browser usage:
+
+```html
+<script type="module">
+	import symbolSdk from './node_modules/symbol-sdk/dist/bundle.web.js';
+
+	const privateKey = new symbolSdk.PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
+	console.log(`Private Key: ${privateKey.toString()}`);
+
+	const keyPair = new symbolSdk.symbol.KeyPair(privateKey);
+	console.log(`Public Key: ${keyPair.publicKey.toString()}`);
+</script>
+```
+
+### Web Application / External Bundler
+
+If you want to use symbol-sdk within a browser application and/or are using a bundler, additional configuration of the bundler is required.
+
+For Webpack, the following configuration needs to be added:
+```js
+export default {
+	// ...
+	plugins: [
+		// configure browser replacements for node process and Buffer libraries
+		new webpack.ProvidePlugin({
+			process: 'process/browser',
+			Buffer: ['buffer', 'Buffer']
+		}),
+		// use a browser-optimized wasm for Ed25519 crypto operrations
+		new webpack.NormalModuleReplacementPlugin(
+			/symbol-crypto-wasm-node/,
+			`../../../symbol-crypto-wasm-web/symbol_crypto_wasm.js`
+		)
+	],
+
+	// configure browser polyfills for node crypto, path and stream libraries
+	resolve: {
+		extensions: ['.js'],
+		fallback: {
+			crypto: 'crypto-browserify',
+			path: 'path-browserify',
+			stream: 'stream-browserify'
+		}
+	},
+
+	experiments: {
+		// enable async loading of wasm files
+		asyncWebAssembly: true,
+		topLevelAwait: true
+	}
+	// ...
+}
+
+```
+
+If everything is set up correctly, the same syntax as the Node example can be used.
+
+
 ## NEM Cheat Sheet
 
 In order to simplify the learning curve for NEM and Symbol usage, the SDK uses Symbol terminology for shared Symbol and NEM concepts.
