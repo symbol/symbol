@@ -5,7 +5,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
-## [3.0.7] - 14-Apr-2023
+## [3.0.7] - 27-Apr-2023
 
 ### Changed
  - Network
