@@ -5,7 +5,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
-## [3.0.6] - 14-Apr-2023
+## [3.0.7] - 27-Apr-2023
 
 ### Changed
  - Network
@@ -34,6 +34,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
    - Utility function metadataUpdateValue for simplifying update of metadata values
  - Proper handling of catbuffer computed fields/properties
  - (NEM-only) Automatic population for fields levySize and messageEnvelopeSize
+ - Wasm crypto packages for node and browser 
 
 ### Fixed
  - (NEM-only) Add NonVerifiableMultisigTransactionV1 model required for signing 'multisig_transaction_v1'
@@ -43,5 +44,5 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
-[3.0.6]: https://github.com/symbol/sdk-python/compare/v3.0.0...v3.0.6
+[3.0.7]: https://github.com/symbol/sdk-python/compare/v3.0.0...v3.0.7
 [3.0.0]: https://github.com/symbol/sdk-python/releases/tag/v3.0.0

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = 'symbol-sdk-python'
-version = '3.0.6'
+version = '3.0.7'
 description = 'Symbol SDK'
 authors = ['Symbol Contributors <contributors@symbol.dev>']
 maintainers = ['Symbol Contributors <contributors@symbol.dev>']
