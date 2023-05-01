@@ -177,7 +177,7 @@ class AstPostProcessorTests(unittest.TestCase):
 		self.assertEqual('Abstract1', type_descriptors[1].factory_type)
 
 		self.assertEqual(['counter', 'weight', 'height'], [field.name for field in type_descriptors[2].fields])  # Abstract2 was expanded
-		self.assertEqual('Abstract2', type_descriptors[2].factory_type)  # Abstract2 is prefered to Abstract1
+		self.assertEqual('Abstract2', type_descriptors[2].factory_type)  # Abstract2 is preferred to Abstract1
 
 	@staticmethod
 	def _create_type_descriptors_for_transitive_attributes_tests(include_b_attributes):
