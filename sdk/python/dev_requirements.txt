@@ -2,4 +2,4 @@ aiohttp==3.8.4
 jinja2-cli==0.8.2
 pytest>=6.2.5
 coverage>=6.3
-websockets==11.0.2
+websockets==11.0.3
