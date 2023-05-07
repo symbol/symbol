@@ -6,4 +6,4 @@ PyYAML==6.0
 pyzbar==0.1.9
 qrcode==7.4.2
 ripemd-hash==1.0.0
-safe-pysha3==1.0.3
+safe-pysha3==1.0.4
