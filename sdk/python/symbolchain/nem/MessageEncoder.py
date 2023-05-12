@@ -1,3 +1,5 @@
+import warnings
+
 import cryptography
 
 from symbolchain.CryptoTypes import PublicKey
@@ -12,6 +14,7 @@ class MessageEncoder:
 
 	def __init__(self, key_pair: KeyPair):
 		"""Creates message encoder around key pair."""
+
 		self.key_pair = key_pair
 
 	def try_decode(self, recipient_public_key, encoded_message: Message):
@@ -44,6 +47,12 @@ class MessageEncoder:
 
 	def encode_deprecated(self, recipient_public_key: PublicKey, message: bytes):
 		"""Encodes message to recipient using deprecated encryption and key derivation."""
+
+		warnings.warn(
+			'This function is only provided for compatability with older NEM messages.\n'
+			'Please use `encode` in any new code.',
+			category=DeprecationWarning,
+			stacklevel=2)
 
 		salt, initialization_vector, cipher_text = encode_aes_cbc(SharedKey, self.key_pair, recipient_public_key, message)
 

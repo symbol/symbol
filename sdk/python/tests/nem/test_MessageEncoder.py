@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 from symbolchain.CryptoTypes import PrivateKey, PublicKey
 from symbolchain.nc import Message, MessageType
@@ -14,14 +15,9 @@ def malform_message(encoded):
 	return encoded
 
 
-class MessageEncoderDeprecatedTests(BasicMessageEncoderTest, unittest.TestCase):
-	def get_basic_test_interface(self):
-		return MessageEncoderTestInterface(KeyPair, MessageEncoder, lambda encoder: encoder.encode_deprecated, malform_message)
-
-
 class MessageEncoderTests(BasicMessageEncoderTest, unittest.TestCase):
 	def get_basic_test_interface(self):
-		return MessageEncoderTestInterface(KeyPair, MessageEncoder, lambda encoder: encoder.encode, malform_message)
+		return MessageEncoderTestInterface(KeyPair, MessageEncoder, None, None, malform_message)
 
 	def test_decode_falls_back_to_input_when_cbc_block_size_is_invalid(self):
 		# Arrange:
@@ -48,3 +44,17 @@ class MessageEncoderTests(BasicMessageEncoderTest, unittest.TestCase):
 		# Act + Assert:
 		with self.assertRaises(RuntimeError):
 			encoder.try_decode(PublicKey(bytes(PublicKey.SIZE)), encoded_message)
+
+
+class MessageEncoderDeprecatedTests(BasicMessageEncoderTest, unittest.TestCase):
+	def get_basic_test_interface(self):
+		def encode_deprecated(encoder):
+			def encode(recipient_public_key, message):
+				with warnings.catch_warnings():
+					warnings.simplefilter('ignore')
+
+					return encoder.encode_deprecated(recipient_public_key, message)
+
+			return encode
+
+		return MessageEncoderTestInterface(KeyPair, MessageEncoder, encode_deprecated, None, malform_message)

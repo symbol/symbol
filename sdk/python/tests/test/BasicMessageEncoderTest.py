@@ -3,7 +3,17 @@ from collections import namedtuple
 
 from symbolchain.CryptoTypes import PrivateKey
 
-MessageEncoderTestInterface = namedtuple('MessageEncoderTestInterface', ['key_pair_class', 'encoder_class', 'encode', 'malform'])
+MessageEncoderTestInterface = namedtuple('MessageEncoderTestInterface', [
+	'key_pair_class', 'encoder_class', 'encode', 'try_decode', 'malform'
+])
+
+
+def _encode(interface, encoder):
+	return interface.encode(encoder) if interface.encode else encoder.encode
+
+
+def _try_decode(interface, decoder):
+	return interface.try_decode(decoder) if interface.try_decode else decoder.try_decode
 
 
 class MessageEncoderDecodeFailureTest:
@@ -14,12 +24,12 @@ class MessageEncoderDecodeFailureTest:
 		key_pair = interface.key_pair_class(PrivateKey.random())
 		recipient_public_key = interface.key_pair_class(PrivateKey.random()).public_key
 		encoder = interface.encoder_class(key_pair)
-		encoded = interface.encode(encoder)(recipient_public_key, message)
+		encoded = _encode(interface, encoder)(recipient_public_key, message)
 
 		encoded = interface.malform(encoded)
 
 		# Act:
-		result, decoded = encoder.try_decode(recipient_public_key, encoded)
+		result, decoded = _try_decode(interface, encoder)(recipient_public_key, encoded)
 
 		# Assert:
 		self.assertFalse(result)
@@ -45,10 +55,10 @@ class BasicMessageEncoderTest(MessageEncoderDecodeFailureTest):
 		key_pair = interface.key_pair_class(PrivateKey.random())
 		recipient_public_key = interface.key_pair_class(PrivateKey.random()).public_key
 		encoder = interface.encoder_class(key_pair)
-		encoded = interface.encode(encoder)(recipient_public_key, b'hello world')
+		encoded = _encode(interface, encoder)(recipient_public_key, b'hello world')
 
 		# Act:
-		result, decoded = encoder.try_decode(recipient_public_key, encoded)
+		result, decoded = _try_decode(interface, encoder)(recipient_public_key, encoded)
 
 		# Assert:
 		self.assertTrue(result)
@@ -60,11 +70,11 @@ class BasicMessageEncoderTest(MessageEncoderDecodeFailureTest):
 		key_pair = interface.key_pair_class(PrivateKey.random())
 		recipient_key_pair = interface.key_pair_class(PrivateKey.random())
 		encoder = interface.encoder_class(key_pair)
-		encoded = interface.encode(encoder)(recipient_key_pair.public_key, b'hello world')
+		encoded = _encode(interface, encoder)(recipient_key_pair.public_key, b'hello world')
 
 		# Act:
 		decoder = interface.encoder_class(recipient_key_pair)
-		result, decoded = decoder.try_decode(key_pair.public_key, encoded)
+		result, decoded = _try_decode(interface, decoder)(key_pair.public_key, encoded)
 
 		# Assert:
 		self.assertTrue(result)

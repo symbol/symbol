@@ -1,5 +1,5 @@
 import unittest
-from binascii import unhexlify
+import warnings
 
 from symbolchain.CryptoTypes import PrivateKey, PublicKey
 from symbolchain.symbol.KeyPair import KeyPair
@@ -8,32 +8,42 @@ from symbolchain.symbol.MessageEncoder import MessageEncoder
 from ..test.BasicMessageEncoderTest import BasicMessageEncoderTest, MessageEncoderDecodeFailureTest, MessageEncoderTestInterface
 
 
-def fake_delegation(encoder):
-	def fake_delegation_encoder(public_key, message):
-		encoded = encoder.encode(public_key, message)
-		return unhexlify('FE2A8061577301E2') + public_key.bytes + encoded[1:]
-
-	return fake_delegation_encoder
-
-
-class MessageEncoderFakeDelegationTests(MessageEncoderDecodeFailureTest, unittest.TestCase):
-	def get_basic_test_interface(self):
-		return MessageEncoderTestInterface(
-			KeyPair,
-			MessageEncoder,
-			fake_delegation,
-			lambda encoded: encoded[:-1] + bytes([encoded[-1] ^ 0xFF]))
+def malform_message(encoded_bytes):
+	return encoded_bytes[:-1] + bytes(encoded_bytes[-1] ^ 0xFF)
 
 
 class MessageEncoderTests(BasicMessageEncoderTest, unittest.TestCase):
 	def get_basic_test_interface(self):
-		return MessageEncoderTestInterface(
-			KeyPair,
-			MessageEncoder,
-			lambda encoder: encoder.encode,
-			lambda encoded: encoded[:-1] + bytes([encoded[-1] ^ 0xFF]))
+		return MessageEncoderTestInterface(KeyPair, MessageEncoder, None, None, malform_message)
 
-	# note: there's no sender decode test for persistent harvesting delegation, cause sender does not have ephemeral key pair
+	def test_decode_falls_back_to_input_when_message_has_unknown_type(self):
+		# Arrange:
+		encoder = MessageEncoder(KeyPair(PrivateKey.random()))
+
+		# Act:
+		result, message = encoder.try_decode(PublicKey(bytes(PublicKey.SIZE)), b'\2hello')
+
+		# Assert:
+		self.assertFalse(result)
+		self.assertEqual(b'\2hello', message)
+
+
+class MessageEncoderDelegationTests(MessageEncoderDecodeFailureTest, unittest.TestCase):
+	def get_basic_test_interface(self):
+		def encode_persistent_harvesting_delegation(encoder):   # pylint: disable=invalid-name
+			def encode(_1, _2):
+				# simulate a delegation message where node and ephemeral key pairs are used
+				# for these tests to work properly, the encoder key pair is used as the node key pair
+				remote_key_pair = KeyPair(PrivateKey('11223344556677889900AABBCCDDEEFF11223344556677889900AABBCCDDEEFF'))
+				vrf_key_pair = KeyPair(PrivateKey('11223344556677889900AABBCCDDEEFF11223344556677889900AABBCCDDEEFF'))
+				return encoder.encode_persistent_harvesting_delegation(encoder.key_pair.public_key, remote_key_pair, vrf_key_pair)
+
+			return encode
+
+		# notice that only failure tests are being run via this interface
+		return MessageEncoderTestInterface(KeyPair, MessageEncoder, encode_persistent_harvesting_delegation, None, malform_message)
+
+	# note: there's no sender decode test for persistent harvesting delegation, because sender does not have ephemeral key pair
 
 	def test_recipient_can_decode_encoded_persistent_harvesting_delegation(self):
 		# Arrange:
@@ -71,13 +81,40 @@ class MessageEncoderTests(BasicMessageEncoderTest, unittest.TestCase):
 		self.assertFalse(result)
 		self.assertEqual(encoded, decoded)
 
-	def test_decode_falls_back_to_input_when_message_has_unknown_type(self):
-		# Arrange:
-		encoder = MessageEncoder(KeyPair(PrivateKey.random()))
 
-		# Act:
-		result, message = encoder.try_decode(PublicKey(bytes(PublicKey.SIZE)), b'\2hello')
+class MessageEncoderDeprecatedTests(BasicMessageEncoderTest, unittest.TestCase):
+	@staticmethod
+	def try_decode_deprecated(decoder):
+		def try_decode(recipient_public_key, encoded_message):
+			with warnings.catch_warnings():
+				warnings.simplefilter('ignore')
 
-		# Assert:
-		self.assertFalse(result)
-		self.assertEqual(b'\2hello', message)
+				return decoder.try_decode_deprecated(recipient_public_key, encoded_message)
+
+		return try_decode
+
+	def get_basic_test_interface(self):
+		def encode_deprecated(encoder):
+			def encode(recipient_public_key, message):
+				with warnings.catch_warnings():
+					warnings.simplefilter('ignore')
+
+					return encoder.encode_deprecated(recipient_public_key, message)
+
+			return encode
+
+		return MessageEncoderTestInterface(KeyPair, MessageEncoder, encode_deprecated, self.try_decode_deprecated, malform_message)
+
+	def test_decode_deprecated_falls_back_to_decode_on_failure(self):
+		# Arrange: encode using non-deprecated function
+		key_pair = KeyPair(PrivateKey.random())
+		recipient_public_key = KeyPair(PrivateKey.random()).public_key
+		encoder = MessageEncoder(key_pair)
+		encoded = encoder.encode(recipient_public_key, b'hello world')
+
+		# Act: decode using deprecated function
+		result, decoded = self.try_decode_deprecated(encoder)(recipient_public_key, encoded)
+
+		# Assert: decode was successful
+		self.assertTrue(result)
+		self.assertEqual(b'hello world', decoded)
