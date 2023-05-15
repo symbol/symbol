@@ -3,6 +3,7 @@ import { deriveSharedKey } from './SharedKey.js';
 import { PrivateKey, PublicKey } from '../CryptoTypes.js';
 import { concatArrays, decodeAesGcm, encodeAesGcm } from '../impl/CipherHelpers.js';
 import { deepCompare } from '../utils/arrayHelpers.js';
+import { hexToUint8, isHexString, uint8ToHex } from '../utils/converter.js';
 
 const DELEGATION_MARKER = Uint8Array.from(Buffer.from('FE2A8061577301E2', 'hex'));
 
@@ -93,5 +94,40 @@ export default class MessageEncoder {
 		const { tag, initializationVector, cipherText } = encodeAesGcm(deriveSharedKey, ephemeralKeyPair, nodePublicKey, message);
 
 		return concatArrays(DELEGATION_MARKER, ephemeralKeyPair.publicKey.bytes, tag, initializationVector, cipherText);
+	}
+
+	/**
+	 * Tries to decode encoded wallet message, returns tuple:
+	 *  * true, message - if message has been decoded and decrypted
+	 *  * false, encodedMessage - otherwise
+	 * @deprecated This function is only provided for compatability with the original Symbol wallets.
+	 *             Please use `tryDecode` in any new code.
+	 * @param {PublicKey} recipientPublicKey Recipient's public key.
+	 * @param {Uint8Array} encodedMessage Encoded message
+	 * @returns {array} Tuple containing decoded status and message.
+	 */
+	tryDecodeDeprecated(recipientPublicKey, encodedMessage) {
+		const encodedHexString = new TextDecoder().decode(encodedMessage.subarray(1));
+		if (1 === encodedMessage[0] && isHexString(encodedHexString)) {
+			// wallet additionally hex encodes
+			return this.tryDecode(recipientPublicKey, new Uint8Array([1, ...hexToUint8(encodedHexString)]));
+		}
+
+		return this.tryDecode(recipientPublicKey, encodedMessage);
+	}
+
+	/**
+	 * Encodes message to recipient using (deprecated) wallet format.
+	 * @deprecated This function is only provided for compatability with the original Symbol wallets.
+	 *             Please use `encode` in any new code.
+	 * @param {PublicKey} recipientPublicKey Recipient public key.
+	 * @param {Uint8Array} message Message to encode.
+	 * @returns {Uint8Array} Encrypted and encoded message.
+	 */
+	encodeDeprecated(recipientPublicKey, message) {
+		// wallet additionally hex encodes
+		const encodedHexString = uint8ToHex(this.encode(recipientPublicKey, message).subarray(1));
+		const encodedHexStringBytes = new TextEncoder().encode(encodedHexString);
+		return new Uint8Array([1, ...encodedHexStringBytes]);
 	}
 }

@@ -64,7 +64,23 @@ export default class MessageEncoder {
 
 	/**
 	 * Encodes message to recipient using recommended format.
-	 * @deprecated
+	 * @param {PublicKey} recipientPublicKey Recipient public key.
+	 * @param {Uint8Array} message Message to encode.
+	 * @returns {Uint8Array} Encrypted and encoded message.
+	 */
+	encode(recipientPublicKey, message) {
+		const { tag, initializationVector, cipherText } = encodeAesGcm(deriveSharedKey, this.keyPair, recipientPublicKey, message);
+
+		const encodedMessage = new Message();
+		encodedMessage.messageType = MessageType.ENCRYPTED;
+		encodedMessage.message = concatArrays(tag, initializationVector, cipherText);
+		return encodedMessage;
+	}
+
+	/**
+	 * Encodes message to recipient using recommended format.
+	 * @deprecated This function is only provided for compatability with older NEM messages.
+	 *             Please use `encode` in any new code.
 	 * @param {PublicKey} recipientPublicKey Recipient public key.
 	 * @param {Uint8Array} message Message to encode.
 	 * @returns {Uint8Array} Encrypted and encoded message.
@@ -76,21 +92,6 @@ export default class MessageEncoder {
 		const encodedMessage = new Message();
 		encodedMessage.messageType = MessageType.ENCRYPTED;
 		encodedMessage.message = concatArrays(encoded.salt, encoded.initializationVector, encoded.cipherText);
-		return encodedMessage;
-	}
-
-	/**
-	 * Encodes message to recipient using recommended format.
-	 * @param {PublicKey} recipientPublicKey Recipient public key.
-	 * @param {Uint8Array} message Message to encode.
-	 * @returns {Uint8Array} Encrypted and encoded message.
-	 */
-	encode(recipientPublicKey, message) {
-		const { tag, initializationVector, cipherText } = encodeAesGcm(deriveSharedKey, this.keyPair, recipientPublicKey, message);
-
-		const encodedMessage = new Message();
-		encodedMessage.messageType = MessageType.ENCRYPTED;
-		encodedMessage.message = concatArrays(tag, initializationVector, cipherText);
 		return encodedMessage;
 	}
 }

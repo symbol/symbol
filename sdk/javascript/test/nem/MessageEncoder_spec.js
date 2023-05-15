@@ -9,7 +9,6 @@ describe('MessageEncoder (NEM)', () => {
 	runBasicMessageEncoderTests({
 		KeyPair,
 		MessageEncoder,
-		encodeAccessor: encoder => encoder.encode.bind(encoder),
 		malformEncoded: encoded => {
 			encoded.message[encoded.message.length - 20] ^= 0xFF;
 		}

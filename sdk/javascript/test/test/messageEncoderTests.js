@@ -1,6 +1,13 @@
 import { PrivateKey } from '../../src/CryptoTypes.js';
 import { expect } from 'chai';
 
+const encode = (testDescriptor, encoder) => (
+	testDescriptor.encodeAccessor ? testDescriptor.encodeAccessor(encoder) : encoder.encode.bind(encoder)
+);
+const tryDecode = (testDescriptor, decoder) => (
+	testDescriptor.tryDecodeAccessor ? testDescriptor.tryDecodeAccessor(decoder) : decoder.tryDecode.bind(decoder)
+);
+
 const runMessageEncoderDecodeSuccessTests = testDescriptor => {
 	const testSuffix = testDescriptor.name ? ` (${testDescriptor.name})` : '';
 
@@ -9,10 +16,10 @@ const runMessageEncoderDecodeSuccessTests = testDescriptor => {
 		const keyPair = new testDescriptor.KeyPair(PrivateKey.random());
 		const recipientPublicKey = new testDescriptor.KeyPair(PrivateKey.random()).publicKey;
 		const encoder = new testDescriptor.MessageEncoder(keyPair);
-		const encoded = testDescriptor.encodeAccessor(encoder)(recipientPublicKey, (new TextEncoder()).encode('hello world'));
+		const encoded = encode(testDescriptor, encoder)(recipientPublicKey, (new TextEncoder()).encode('hello world'));
 
 		// Act:
-		const [result, decoded] = encoder.tryDecode(recipientPublicKey, encoded);
+		const [result, decoded] = tryDecode(testDescriptor, encoder)(recipientPublicKey, encoded);
 
 		// Assert:
 		expect(result).to.equal(true);
@@ -24,11 +31,11 @@ const runMessageEncoderDecodeSuccessTests = testDescriptor => {
 		const keyPair = new testDescriptor.KeyPair(PrivateKey.random());
 		const recipientKeyPair = new testDescriptor.KeyPair(PrivateKey.random());
 		const encoder = new testDescriptor.MessageEncoder(keyPair);
-		const encoded = testDescriptor.encodeAccessor(encoder)(recipientKeyPair.publicKey, (new TextEncoder()).encode('hello world'));
+		const encoded = encode(testDescriptor, encoder)(recipientKeyPair.publicKey, (new TextEncoder()).encode('hello world'));
 
 		// Act:
 		const decoder = new testDescriptor.MessageEncoder(recipientKeyPair);
-		const [result, decoded] = decoder.tryDecode(keyPair.publicKey, encoded);
+		const [result, decoded] = tryDecode(testDescriptor, decoder)(keyPair.publicKey, encoded);
 
 		// Assert:
 		expect(result).to.equal(true);
@@ -44,12 +51,12 @@ export const runMessageEncoderDecodeFailureTests = testDescriptor => {
 		const keyPair = new testDescriptor.KeyPair(PrivateKey.random());
 		const recipientPublicKey = new testDescriptor.KeyPair(PrivateKey.random()).publicKey;
 		const encoder = new testDescriptor.MessageEncoder(keyPair);
-		const encoded = testDescriptor.encodeAccessor(encoder)(recipientPublicKey, (new TextEncoder()).encode(message));
+		const encoded = encode(testDescriptor, encoder)(recipientPublicKey, (new TextEncoder()).encode(message));
 
 		testDescriptor.malformEncoded(encoded);
 
 		// Act:
-		const [result, decoded] = encoder.tryDecode(recipientPublicKey, encoded);
+		const [result, decoded] = tryDecode(testDescriptor, encoder)(recipientPublicKey, encoded);
 
 		// Assert:
 		expect(result).to.equal(false);
