@@ -65,6 +65,9 @@ class SanitizerEnvironment:
 			'strict_string_checks': 'true',
 			'new_delete_type_mismatch': 'false',
 			'detect_leaks': 'true',
+
+			# disable alloc_dealloc_mismatch for address sanitizer until https://github.com/llvm/llvm-project/issues/52771 is fixed
+			'alloc_dealloc_mismatch': '0'
 		})
 
 
