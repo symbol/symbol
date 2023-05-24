@@ -88,8 +88,8 @@ if(ENABLE_FUZZ_BUILD)
 endif()
 
 if(USE_SANITIZER)
-	set(SANITIZER_BLACKLIST "${PROJECT_SOURCE_DIR}/sanitizer_blacklist.txt")
-	set(SANITIZATION_FLAGS "-fno-omit-frame-pointer -fsanitize-blacklist=${SANITIZER_BLACKLIST} -fsanitize=${USE_SANITIZER}")
+	set(SANITIZER_IGNORELIST "${PROJECT_SOURCE_DIR}/sanitizer_ignorelist.txt")
+	set(SANITIZATION_FLAGS "-fno-omit-frame-pointer -fsanitize-ignorelist=${SANITIZER_IGNORELIST} -fsanitize=${USE_SANITIZER}")
 
 	if(USE_SANITIZER MATCHES "undefined")
 		set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=implicit-conversion,nullability")
