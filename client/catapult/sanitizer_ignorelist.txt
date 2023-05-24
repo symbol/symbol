@@ -1,3 +1,6 @@
+# disable due to boost bug: https://github.com/boostorg/multiprecision/issues/556
+src:**/boost/multiprecision/cpp_int/import_export.hpp
+
 [function]
 # call to function through pointer to incorrect function type
 src:**/boost/asio/detail/scheduler_operation.hpp
