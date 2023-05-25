@@ -134,13 +134,14 @@ class OptionsManager:
 		return []
 
 	def mongo_c(self):
-		descriptor = self.OptionsDescriptor()
+		descriptor = self._enable_thread_san_descriptor()
 		descriptor.options += ['-DOPENSSL_ROOT_DIR=/usr/catapult/deps']
 		descriptor.options += get_dependency_flags('mongodb_mongo-c-driver')
+
 		return self._cmake(descriptor)
 
 	def mongo_cxx(self):
-		descriptor = self.OptionsDescriptor()
+		descriptor = self._enable_thread_san_descriptor()
 		descriptor.options += ['-DOPENSSL_ROOT_DIR=/usr/catapult/deps']
 		descriptor.options += get_dependency_flags('mongodb_mongo-cxx-driver')
 
@@ -152,7 +153,7 @@ class OptionsManager:
 		return self._cmake(descriptor)
 
 	def libzmq(self):
-		descriptor = self._zmq_descriptor()
+		descriptor = self._enable_thread_san_descriptor()
 		descriptor.options += get_dependency_flags('zeromq_libzmq')
 
 		if self.is_clang:
@@ -163,11 +164,11 @@ class OptionsManager:
 		return self._cmake(descriptor)
 
 	def cppzmq(self):
-		descriptor = self._zmq_descriptor()
+		descriptor = self._enable_thread_san_descriptor()
 		descriptor.options += get_dependency_flags('zeromq_cppzmq')
 		return self._cmake(descriptor)
 
-	def _zmq_descriptor(self):
+	def _enable_thread_san_descriptor(self):
 		descriptor = self.OptionsDescriptor()
 		if 'thread' in self.sanitizers:
 			descriptor.sanitizer = 'thread'
