@@ -172,6 +172,25 @@ class SymbolTransactionFactoryTest(AbstractBasicTransactionFactoryExSignatureTes
 		expected_id = generate_mosaic_id(factory.network.public_key_to_address(PublicKey(TEST_SIGNER_PUBLIC_KEY)), 123)
 		self.assertEqual(expected_id, transaction.id.value)
 
+	def test_can_mosaic_definition_flags(self):
+		# Arrange:
+		factory = self.create_factory()
+
+		# Act:
+		transaction = self.create_transaction(factory)({
+			'type': 'mosaic_definition_transaction_v1',
+			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
+			'nonce': 123,
+			'flags': 'supply_mutable restrictable transferable revokable'
+		})
+
+		# Assert:
+		self.assertEqual(type(transaction.flags), sc.MosaicFlags)
+		self.assertTrue(sc.MosaicFlags.SUPPLY_MUTABLE in transaction.flags)
+		self.assertTrue(sc.MosaicFlags.RESTRICTABLE in transaction.flags)
+		self.assertTrue(sc.MosaicFlags.TRANSFERABLE in transaction.flags)
+		self.assertTrue(sc.MosaicFlags.REVOKABLE in transaction.flags)
+
 	# endregion
 
 
