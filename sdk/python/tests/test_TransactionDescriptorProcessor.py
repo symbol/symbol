@@ -141,6 +141,42 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual(0, deadline)
 
+	def test_can_lookup_value_when_value_is_list(self):
+		# Arrange:
+		key = 'flags'
+		value = [1, 2, 3]
+		processor = self._create_processor({key: value})
+
+		# Act:
+		result = processor.lookup_value(key)
+
+		# Assert:
+		self.assertEqual(value, result)
+
+	def test_can_lookup_value_when_value_is_iterable_and_not_list(self):
+		# Arrange:
+		key = 'flags'
+		value = (4, 5, 6)
+		processor = self._create_processor({key: value})
+
+		# Act:
+		result = processor.lookup_value(key)
+
+		# Assert:
+		self.assertEqual(value, result)  # Confirming no change in non-list iterable
+
+	def test_can_lookup_value_when_value_is_not_iterable(self):
+		# Arrange:
+		key = 'flags'
+		value = 'supply_mutable restrictable transferable revokable'
+		processor = self._create_processor({key: value})
+
+		# Act:
+		result = processor.lookup_value(key)
+
+		# Assert:
+		self.assertEqual(value, result)  # Confirming no change for non-iterable value
+
 	# endregion
 
 	# region copy_to
