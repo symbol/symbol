@@ -3,7 +3,7 @@ ARG FROM_IMAGE=''
 ARG DEBIAN_FRONTEND=noninteractive
 
 FROM ${FROM_IMAGE}
-MAINTAINER Catapult Development Team
+LABEL maintainer="Catapult Development Team"
 RUN apt-get -y update && apt-get install -y \
 	bison \
 	gdb \
@@ -25,7 +25,7 @@ RUN apt-get -y update && apt-get install -y \
 	pip3 install -U colorama cryptography gitpython pycodestyle pylint pylint-quotes PyYAML && \
 	git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux.git && \
 	cd linux.git/tools/perf && \
-	make && \
+	NO_LIBTRACEEVENT=1 make && \
 	cp perf /usr/bin && \
 	cd ../../.. && \
 	rm -rf linux.git
