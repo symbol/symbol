@@ -17,7 +17,7 @@
   "devDependencies": {
     "axios": "^1.4.0",
     "chai": "^4.3.7",
-    "eslint": "^8.41.0",
+    "eslint": "^8.42.0",
     "eslint-config-airbnb": "^19.0.4",
     "minimist": "^1.2.8",
     "mocha": "^10.2.0",
@@ -27,7 +27,7 @@
     "tmp": "^0.2.1"
   },
   "dependencies": {
-    "@noble/hashes": "^1.3.0",
+    "@noble/hashes": "^1.3.1",
     "ini": "^4.1.1",
     "long": "^5.2.3",
     "mongodb": "^4.14.0",
@@ -35,7 +35,7 @@
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
     "sshpk": "^1.17.0",
-    "winston": "^3.8.2",
+    "winston": "^3.9.0",
     "ws": "^8.13.0",
     "zeromq": "^5.3.1"
   }
