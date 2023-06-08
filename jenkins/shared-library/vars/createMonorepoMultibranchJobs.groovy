@@ -94,9 +94,18 @@ void removeOldJobs(String jobFolder, List<String> currentJobList) {
 	for (Item item in jobs) {
 		println("Checking Item remove: ${item.name}, ${item.getClass()} ${item.fullName}")
 		if (org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject == item.getClass()
-				&& currentJobList.indexOf(item.fullName) == -1) {
+				&& currentJobList.indexOf(item.fullName) == -1
+				&& !isJobActive(item)) {
 			println("Removing old job: ${item.fullName}")
 			item.delete()
 		}
 	}
+}
+
+boolean isJobActive(Item job) {
+	if (!job.isBuildable()) {
+		return false
+	}
+
+	return job.allJobs.any { item -> item.isBuildable() }
 }
