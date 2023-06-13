@@ -185,8 +185,8 @@ class SymbolTransactionFactoryTest(AbstractBasicTransactionFactoryExSignatureTes
 		})
 
 		# Assert:
-		self.assertEqual(type(transaction.flags), sc.MosaicFlags)
-		self.assertEqual(transaction.flags.value, 15)
+		self.assertEqual(sc.MosaicFlags, type(transaction.flags))
+		self.assertEqual(15, transaction.flags.value)
 		self.assertTrue(sc.MosaicFlags.SUPPLY_MUTABLE in transaction.flags)
 		self.assertTrue(sc.MosaicFlags.RESTRICTABLE in transaction.flags)
 		self.assertTrue(sc.MosaicFlags.TRANSFERABLE in transaction.flags)
