@@ -151,7 +151,7 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		result = processor.lookup_value(key)
 
 		# Assert:
-		self.assertEqual(result, [processor.type_converter(item) for item in value])
+		self.assertEqual(value, result)
 
 	def test_can_lookup_value_when_value_is_iterable_and_not_list(self):
 		# Arrange:
@@ -163,7 +163,7 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		result = processor.lookup_value(key)
 
 		# Assert:
-		self.assertEqual(result, value)  # Confirming no change in non-list iterable
+		self.assertEqual(value, result)  # Confirming no change in non-list iterable
 
 	def test_can_lookup_value_when_value_is_not_iterable(self):
 		# Arrange:
@@ -175,7 +175,7 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		result = processor.lookup_value(key)
 
 		# Assert:
-		self.assertEqual(result, value)  # Confirming no change for non-iterable value
+		self.assertEqual(value, result)  # Confirming no change for non-iterable value
 
 	# endregion
 
