@@ -1,0 +1,2 @@
+compiler: ../compilers/clang-latest.yaml
+architecture: arm64

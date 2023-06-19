@@ -1,9 +1,12 @@
 pipeline {
-	agent any
-
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		choice name: 'ARCHITECTURE', choices: ['amd64', 'arm64'], description: 'Computer architecture'
 		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
+	}
+
+	agent {
+		label "${helper.resolveAgentName('ubuntu', env.ARCHITECTURE ?: 'amd64', 'small')}"
 	}
 
 	options {
@@ -17,6 +20,7 @@ pipeline {
 				echo """
 							env.GIT_BRANCH: ${env.GIT_BRANCH}
 						 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
+							  ARCHITECTURE: ${ARCHITECTURE}
 				"""
 			}
 		}
@@ -125,6 +129,7 @@ void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, S
 		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${params.ARCHITECTURE}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"

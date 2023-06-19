@@ -1,6 +1,6 @@
 pipeline {
 	agent {
-		label 'ubuntu-agent'
+		label 'ubuntu-small-agent'
 	}
 
 	parameters {
@@ -30,61 +30,105 @@ pipeline {
 
 		stage('build compiler images') {
 			parallel {
-				stage('gcc prior') {
+				stage('gcc prior - amd64') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('gcc-prior', 'ubuntu')
+							dispatchBuildCompilerImageJob('gcc-prior', 'ubuntu', 'amd64')
 						}
 					}
 				}
-				stage('gcc latest') {
+				stage('gcc latest - amd64') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('gcc-latest', 'ubuntu')
+							dispatchBuildCompilerImageJob('gcc-latest', 'ubuntu', 'amd64')
 						}
 					}
 				}
-				stage('gcc [debian]') {
+				stage('gcc [debian] - amd64') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('gcc-debian', 'debian')
+							dispatchBuildCompilerImageJob('gcc-debian', 'debian', 'amd64')
 						}
 					}
 				}
-				stage('gcc [fedora]') {
+				stage('gcc [fedora] - amd64') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('gcc-latest', 'fedora')
-						}
-					}
-				}
-
-				stage('clang prior') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('clang-prior', 'ubuntu')
-						}
-					}
-				}
-				stage('clang latest') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('clang-latest', 'ubuntu')
+							dispatchBuildCompilerImageJob('gcc-latest', 'fedora', 'amd64')
 						}
 					}
 				}
 
-				stage('msvc latest') {
+				stage('clang prior - amd64') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('msvc-latest', 'windows')
+							dispatchBuildCompilerImageJob('clang-prior', 'ubuntu', 'amd64')
 						}
 					}
 				}
-				stage('msvc prior') {
+				stage('clang latest - amd64') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('msvc-prior', 'windows')
+							dispatchBuildCompilerImageJob('clang-latest', 'ubuntu', 'amd64')
+						}
+					}
+				}
+
+				stage('msvc latest - amd64') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('msvc-latest', 'windows', 'amd64')
+						}
+					}
+				}
+				stage('msvc prior - amd64') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('msvc-prior', 'windows', 'amd64')
+						}
+					}
+				}
+
+				stage('gcc prior - arm64') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('gcc-prior', 'ubuntu', 'arm64')
+						}
+					}
+				}
+				stage('gcc latest - arm64') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('gcc-latest', 'ubuntu', 'arm64')
+						}
+					}
+				}
+				stage('gcc [debian] - arm64') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('gcc-debian', 'debian', 'arm64')
+						}
+					}
+				}
+				stage('gcc [fedora] - arm64') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('gcc-latest', 'fedora', 'arm64')
+						}
+					}
+				}
+
+				stage('clang prior - arm64') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('clang-prior', 'ubuntu', 'arm64')
+						}
+					}
+				}
+				stage('clang latest - arm64') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('clang-latest', 'ubuntu', 'arm64')
 						}
 					}
 				}
@@ -119,11 +163,12 @@ pipeline {
 	}
 }
 
-void dispatchBuildCompilerImageJob(String compilerConfiguration, String operatingSystem) {
+void dispatchBuildCompilerImageJob(String compilerConfiguration, String operatingSystem, String architecture) {
 	build job: 'catapult-client-build-compiler-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"

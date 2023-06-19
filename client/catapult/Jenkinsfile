@@ -1,5 +1,7 @@
 defaultCiPipeline {
-	platform = ['ubuntu-xlarge']
+	operatingSystem = ['ubuntu']
+	instanceSize = 'xlarge'
+
 	ciBuildDockerfile = 'cpp.Dockerfile'
 	dockerArgs = '--env=CC=gcc \
 		--env=CCACHE_DIR=/ccache \

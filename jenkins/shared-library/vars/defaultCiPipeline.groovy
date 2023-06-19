@@ -12,22 +12,29 @@ void call(Closure body) {
 
 	pipeline {
 		parameters {
-			choice name: 'PLATFORM',
-				choices: params.platform ?: ['ubuntu'],
-				description: 'Run on specific platform'
+			choice name: 'OPERATING_SYSTEM',
+				choices: params.operatingSystem ?: ['ubuntu'],
+				description: 'Operating System'
 			choice name: 'BUILD_CONFIGURATION',
 				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
 			choice name: 'TEST_MODE',
 				choices: ['code-coverage', 'test'],
 				description: 'test mode'
+			choice name: 'ARCHITECTURE',
+				choices: ['amd64', 'arm64'],
+				description: 'Computer architecture'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 			booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 		}
 
 		agent {
-			// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
-			label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
+			// ARCHITECTURE can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
+			label """${helper.resolveAgentName(
+					env.OPERATING_SYSTEM ?: "${params.operatingSystem[0]}",
+					env.ARCHITECTURE ?: 'amd64',
+					params.instanceSize ?: 'medium'
+			)}"""
 		}
 
 		options {
@@ -37,7 +44,7 @@ void call(Closure body) {
 		}
 
 		environment {
-			DOCKERHUB_CREDENTIALS_ID = 'docker-hub-token-symbolserverbot'
+			DOCKER_CREDENTIALS_ID = 'docker-hub-token-symbolserverbot'
 			NPM_CREDENTIALS_ID = 'NPM_TOKEN_ID'
 			PYTHON_CREDENTIALS_ID = 'PYPI_TOKEN_ID'
 			TEST_PYTHON_CREDENTIALS_ID = 'TEST_PYPI_TOKEN_ID'

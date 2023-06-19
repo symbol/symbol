@@ -1,3 +1,6 @@
+final String finalStageName = 'test'
+final String conanStageName = 'conan'
+
 pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
@@ -18,13 +21,16 @@ pipeline {
 		choice name: 'OPERATING_SYSTEM',
 			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
+		choice name: 'ARCHITECTURE',
+			choices: ['amd64', 'arm64'],
+			description: 'Computer architecture'
 
 		booleanParam name: 'SHOULD_BUILD_CONAN_LAYER', description: 'true to build conan layer', defaultValue: false
-		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: true
+		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
 	agent {
-		label "${helper.resolveAgentName("${OPERATING_SYSTEM}")}"
+		label "${helper.resolveAgentName("${OPERATING_SYSTEM}", "${ARCHITECTURE}", 'xlarge')}"
 	}
 
 	environment {
@@ -48,7 +54,7 @@ pipeline {
 
 							baseImageDockerfileGeneratorCommand = """
 								python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
-									--compiler-configuration jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+									--compiler-configuration jenkins/catapult/configurations/${ARCHITECTURE}/${COMPILER_CONFIGURATION}.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
 									--versions ./jenkins/catapult/versions.properties \
 							"""
@@ -64,6 +70,7 @@ pipeline {
 							COMPILER_CONFIGURATION: ${COMPILER_CONFIGURATION}
 								  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
 						  SHOULD_BUILD_CONAN_LAYER: ${SHOULD_BUILD_CONAN_LAYER}
+									  ARCHITECTURE: ${ARCHITECTURE}
 
 									 destImageName: ${destImageName}
 						"""
@@ -101,13 +108,38 @@ pipeline {
 						}
 					}
 				}
+				stage('build final image') {
+					steps {
+						script {
+							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
+								String multiArchImageName = resolveImageName(finalStageName, true)
+								String archImageName = resolveImageName(finalStageName, false)
+								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
+							}
+						}
+					}
+				}
 				stage('build conan') {
 					when {
 						expression { SHOULD_BUILD_CONAN_LAYER.toBoolean() }
 					}
 					steps {
 						script {
-							dockerBuildAndPushLayer('conan', "${baseImageDockerfileGeneratorCommand}")
+							dockerBuildAndPushLayer(conanStageName, "${baseImageDockerfileGeneratorCommand}")
+						}
+					}
+				}
+				stage('build conan final image') {
+					when {
+						expression { SHOULD_BUILD_CONAN_LAYER.toBoolean() }
+					}
+					steps {
+						script {
+							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
+								String multiArchImageName = resolveImageName(conanStageName, true)
+								String archImageName = resolveImageName(conanStageName, false)
+								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
+							}
 						}
 					}
 				}
@@ -131,22 +163,30 @@ pipeline {
 	}
 }
 
+String resolveImageName(String layer, boolean ignoreArchitecture) {
+	command = "${baseImageDockerfileGeneratorCommand} --layer ${layer} --name-only"
+	if (ignoreArchitecture) {
+		command += ' --ignore-architecture'
+	}
+
+	return sh(
+			script: command,
+			returnStdout: true
+	).trim()
+}
+
 void dockerBuildAndPushLayer(String layer, String baseImageDockerfileGeneratorCommand) {
 	helper.runStepAndRecordFailure {
-		docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-			destImageName = sh(
-				script: "${baseImageDockerfileGeneratorCommand} --layer ${layer} --name-only",
-				returnStdout: true
-			).trim()
-
-			sh """
+		destImageName = resolveImageName(layer, false)
+		sh """
 				${baseImageDockerfileGeneratorCommand} --layer ${layer} > Dockerfile
 
 				echo "*** LAYER ${layer} => ${destImageName} ***"
 				cat Dockerfile
 			"""
 
-			docker.build("${destImageName}").push()
+		dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
+			dockerHelper.dockerBuildAndPushImage(destImageName)
 		}
 	}
 }

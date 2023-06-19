@@ -26,19 +26,17 @@ void dockerPublisher(Map config, String phase) {
 		return
 	}
 
-	final String dockerUrl = 'https://registry.hub.docker.com'
-	String version = readPackageVersion()
-	String imageVersionName = "${config.dockerImageName}:${version}"
-
-	String args = config.dockerBuildArgs ?: '.'
-	args = '--network host ' + args
-	Object imageName = docker.build(imageVersionName,  args)
-	docker.withRegistry(dockerUrl, DOCKERHUB_CREDENTIALS_ID) {
-		logger.logInfo("Pushing docker image ${imageVersionName}")
-		imageName.push()
+	final String version = readPackageVersion()
+	final String imageVersionName = "${config.dockerImageName}:${version}"
+	final String archImageName = imageVersionName + "-${ARCHITECTURE}"
+	dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
+		dockerHelper.dockerBuildAndPushImage(archImageName, config.dockerBuildArgs ?: '.')
+		dockerHelper.updateDockerImage(imageVersionName, archImageName, "${ARCHITECTURE}")
 		if (isRelease(phase)) {
+			final String imageLatestName = "${config.dockerImageName}:latest"
+
 			logger.logInfo('Releasing the latest image')
-			imageName.push('latest')
+			dockerHelper.updateDockerImage(imageLatestName, archImageName, "${ARCHITECTURE}")
 		}
 	}
 }

@@ -28,120 +28,208 @@ pipeline {
 
 		stage('build base images') {
 			parallel {
-				stage('gcc prior') {
+				stage('gcc prior - amd64') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true, 'amd64')
 						}
 					}
 				}
-				stage('gcc latest') {
+				stage('gcc latest - amd64') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true, 'amd64')
 						}
 					}
 				}
-				stage('gcc 10 [debian]') {
+				stage('gcc 10 [debian] - amd64') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-debian', 'debian', false)
+							dispatchBuildBaseImageJob('gcc-debian', 'debian', false, 'amd64')
 						}
 					}
 				}
-				stage('gcc westmere') {
+				stage('gcc westmere - amd64') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-westmere', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-westmere', 'ubuntu', true, 'amd64')
 						}
 					}
 				}
-				stage('gcc [fedora]') {
+				stage('gcc [fedora] - amd64') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false)
-						}
-					}
-				}
-
-				stage('clang prior') {
-					steps {
-						script {
-							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true)
-						}
-					}
-				}
-				stage('clang latest') {
-					steps {
-						script {
-							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false, 'amd64')
 						}
 					}
 				}
 
-				stage('clang ausan') {
+				stage('clang prior - amd64') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-ausan', 'ubuntu', false)
+							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true, 'amd64')
 						}
 					}
 				}
-				stage('clang tsan') {
+				stage('clang latest - amd64') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-tsan', 'ubuntu', false)
-						}
-					}
-				}
-
-				stage('msvc latest') {
-					steps {
-						script {
-							dispatchBuildBaseImageJob('msvc-latest', 'windows', true)
-						}
-					}
-				}
-				stage('msvc prior') {
-					steps {
-						script {
-							dispatchBuildBaseImageJob('msvc-prior', 'windows', true)
+							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true, 'amd64')
 						}
 					}
 				}
 
-				stage('release base image') {
+				stage('clang ausan - amd64') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('release', 'ubuntu')
+							dispatchBuildBaseImageJob('clang-ausan', 'ubuntu', false, 'amd64')
+						}
+					}
+				}
+				stage('clang tsan - amd64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('clang-tsan', 'ubuntu', false, 'amd64')
 						}
 					}
 				}
 
-				stage('test base image') {
+				stage('msvc latest - amd64') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'ubuntu')
+							dispatchBuildBaseImageJob('msvc-latest', 'windows', true, 'amd64')
 						}
 					}
 				}
-				stage('test base image [debian]') {
+				stage('msvc prior - amd64') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'debian')
+							dispatchBuildBaseImageJob('msvc-prior', 'windows', true, 'amd64')
 						}
 					}
 				}
-				stage('test base image [fedora]') {
+
+				stage('release base image - amd64') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'fedora')
+							dispatchPrepareBaseImageJob('release', 'ubuntu', 'amd64')
 						}
 					}
 				}
-				stage('test base image [windows]') {
+
+				stage('test base image - amd64') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'windows')
+							dispatchPrepareBaseImageJob('test', 'ubuntu', 'amd64')
+						}
+					}
+				}
+				stage('test base image [debian] - amd64') {
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('test', 'debian', 'amd64')
+						}
+					}
+				}
+				stage('test base image [fedora] - amd64') {
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('test', 'fedora', 'amd64')
+						}
+					}
+				}
+				stage('test base image [windows] - amd64') {
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('test', 'windows', 'amd64')
+						}
+					}
+				}
+
+				stage('gcc prior - arm64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true, 'arm64')
+						}
+					}
+				}
+				stage('gcc latest - arm64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true, 'arm64')
+						}
+					}
+				}
+				stage('gcc 10 [debian] - arm64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('gcc-debian', 'debian', false, 'arm64')
+						}
+					}
+				}
+				stage('gcc [fedora] - arm64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false, 'arm64')
+						}
+					}
+				}
+
+				stage('clang prior - arm64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true, 'arm64')
+						}
+					}
+				}
+				stage('clang latest - arm64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true, 'arm64')
+						}
+					}
+				}
+
+				stage('clang ausan - arm64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('clang-ausan', 'ubuntu', false, 'arm64')
+						}
+					}
+				}
+				stage('clang tsan - arm64') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('clang-tsan', 'ubuntu', false, 'arm64')
+						}
+					}
+				}
+
+				stage('release base image - arm64') {
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('release', 'ubuntu', 'arm64')
+						}
+					}
+				}
+				stage('test base image - arm64') {
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('test', 'ubuntu', 'arm64')
+						}
+					}
+				}
+				stage('test base image [fedora] - arm64') {
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('test', 'fedora', 'arm64')
+						}
+					}
+				}
+				stage('test base image [debian] - arm64') {
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('test', 'debian', 'arm64')
 						}
 					}
 				}
@@ -176,12 +264,13 @@ pipeline {
 	}
 }
 
-void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
+void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer, String architecture) {
 	build job: 'catapult-client-build-base-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${shouldBuildConanLayer}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
@@ -189,11 +278,12 @@ void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSys
 	]
 }
 
-void dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
+void dispatchPrepareBaseImageJob(String imageType, String operatingSystem, String architecture) {
 	build job: 'catapult-client-prepare-base-image', parameters: [
 		string(name: 'IMAGE_TYPE', value: "${imageType}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"

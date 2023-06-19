@@ -7,7 +7,7 @@ from BasicBuildManager import BasicBuildManager
 from environment import EnvironmentManager
 from process import ProcessManager
 
-CONAN_NEMTECH_REMOTE = 'https://catapult.jfrog.io/artifactory/api/conan/symbol-conan'
+CONAN_NEMTECH_REMOTE = 'https://conan.symbol.dev/artifactory/api/conan/catapult'
 
 
 class BuildEnvironment:
@@ -80,8 +80,9 @@ class BuildManager(BasicBuildManager):
 		if self.environment_manager.is_windows_platform():
 			settings.append(('USE_CCACHE_ON_WINDOWS', 'ON'))
 		else:
-			# ARCHITECTURE_NAME is used to set `-march`, disable on windows
-			settings.append(('ARCHITECTURE_NAME', self.architecture))
+			if 'arm64' != self.architecture:
+				# ARCHITECTURE_NAME is used to set `-march`, disable on windows and arm
+				settings.append(('ARCHITECTURE_NAME', self.architecture))
 
 		if self.enable_diagnostics:
 			settings.append(('ENABLE_CATAPULT_DIAGNOSTICS', 'ON'))

@@ -30,13 +30,16 @@ pipeline {
 		choice name: 'TEST_VERBOSITY',
 			choices: ['suite', 'test', 'max'],
 			description: 'output verbosity level'
+		choice name: 'ARCHITECTURE',
+			choices: ['amd64', 'arm64'],
+			description: 'platform'
 
 		booleanParam name: 'SHOULD_PUBLISH_BUILD_IMAGE', description: 'true to publish build image', defaultValue: false
 		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
 	agent {
-		label "${helper.resolveAgentName("${OPERATING_SYSTEM}")}"
+		label "${helper.resolveAgentName("${OPERATING_SYSTEM}", "${ARCHITECTURE}", 'xlarge')}"
 	}
 
 	environment {
@@ -64,6 +67,9 @@ pipeline {
 
 								buildImageLabel = TEST_IMAGE_LABEL?.trim() ? TEST_IMAGE_LABEL : resolveBuildImageLabel()
 								buildImageFullName = "symbolplatform/symbol-server-test:${buildImageLabel}"
+
+								compilerConfiguratonFilePath = "catapult-src/jenkins/catapult/configurations/${ARCHITECTURE}/${COMPILER_CONFIGURATION}.yaml"
+								buildConfigurationFilePath = "catapult-src/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml"
 							}
 						}
 					}
@@ -76,7 +82,8 @@ pipeline {
 
 							COMPILER_CONFIGURATION: ${COMPILER_CONFIGURATION}
 							   BUILD_CONFIGURATION: ${BUILD_CONFIGURATION}
-								  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
+							      OPERATING_SYSTEM: ${OPERATING_SYSTEM}
+						  			  ARCHITECTURE: ${ARCHITECTURE}
 
 								  TEST_IMAGE_LABEL: ${TEST_IMAGE_LABEL}
 										 TEST_MODE: ${TEST_MODE}
@@ -119,8 +126,8 @@ pipeline {
 						script {
 							runDockerBuildCommand = """
 								python3 catapult-src/jenkins/catapult/runDockerBuild.py \
-									--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
-									--build-configuration catapult-src/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
+									--compiler-configuration ${compilerConfiguratonFilePath} \
+									--build-configuration ${buildConfigurationFilePath} \
 									--operating-system ${OPERATING_SYSTEM} \
 									--user ${fullyQualifiedUser} \
 									--destination-image-label ${buildImageLabel} \
@@ -154,7 +161,7 @@ pipeline {
 								sh """
 									python3 catapult-src/jenkins/catapult/runDockerTests.py \
 										--image registry.hub.docker.com/symbolplatform/symbol-server-test-base:${OPERATING_SYSTEM} \
-										--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+										--compiler-configuration ${compilerConfiguratonFilePath} \
 										--user ${fullyQualifiedUser} \
 										--mode lint \
 										--source-path catapult-src \
@@ -229,7 +236,7 @@ pipeline {
 								sh """
 									python3 catapult-src/jenkins/catapult/runDockerTests.py \
 										--image ${testImageName} \
-										--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+										--compiler-configuration ${compilerConfiguratonFilePath} \
 										--user ${fullyQualifiedUser} \
 										--mode ${TEST_MODE} \
 										--verbosity ${TEST_VERBOSITY} \

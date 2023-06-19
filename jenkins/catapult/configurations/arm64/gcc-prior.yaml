@@ -1,0 +1,2 @@
+compiler: ../compilers/gcc-prior.yaml
+architecture: arm64

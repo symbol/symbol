@@ -9,8 +9,12 @@ void call(String scriptFilepath) {
 	call(scriptFilepath, scriptFilepath, false)
 }
 
+void call(String scriptFilepath, boolean returnStdout, boolean returnStatus) {
+	call(scriptFilepath, scriptFilepath, returnStdout, returnStatus)
+}
+
 void call(String scriptFilepath, String label='', Boolean returnStdout, Boolean returnStatus=false, String encoding='') {
-	logger.logInfo("Running script ${scriptFilepath}")
+	logger.logInfo("Running script `${scriptFilepath}`")
 	if (isUnix()) {
 		sh label: label, script: scriptFilepath, encoding: encoding, returnStdout: returnStdout, returnStatus: returnStatus
 	}

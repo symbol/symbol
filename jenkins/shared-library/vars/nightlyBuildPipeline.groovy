@@ -17,6 +17,9 @@ void call(Closure body) {
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
 				useRepository: "${helper.resolveRepoName()}"
+			choice name: 'ARCHITECTURE',
+				choices: ['amd64', 'arm64'],
+				description: 'Computer architecture'
 			booleanParam name: shouldPublishFailJobStatusName, description: 'true to publish job status if failed', defaultValue: true
 			booleanParam name: 'WAIT_FOR_BUILDS', description: 'true to wait for trigger build to complete', defaultValue: true
 		}
@@ -91,7 +94,6 @@ void triggerAllJobs(
 	Map<String, String> displayNameJenkinsfileMap = jenkinsfileMap()
 	Map<String, String> siblingNameMap = siblingJobNames(displayNameJenkinsfileMap)
 	Map<String, Closure> buildJobs = [:]
-	final String platformName = 'PLATFORM'
 	String jobName = resolveJobName(siblingNameMap.keySet().toArray()[0], branchName)
 
 	siblingNameMap.each { siblingName ->
@@ -100,14 +102,14 @@ void triggerAllJobs(
 			stage("${displayName}") {
 				String fullJobName = siblingName.key + '/' + jobName
 
-				// Platform parameter can vary per project, get the last value
 				echo "job name - ${fullJobName}"
-				String platform = jobParameterValueFromJenkinsfile(displayNameJenkinsfileMap.get(displayName), platformName.toLowerCase())
+				String osValue = jobParameterValueFromJenkinsfile(displayNameJenkinsfileMap.get(displayName), 'operatingSystem')
 				build job: "${fullJobName}", parameters: [
 					gitParameter(name: manualGitBranchName, value: branchName),
-					string(name: platformName, value: platform ?: 'ubuntu'),
+					string(name: 'OPERATING_SYSTEM', value: osValue ?: 'ubuntu'),
 					string(name: 'BUILD_CONFIGURATION', value: 'release-private'),
 					string(name: 'TEST_MODE', value: 'code-coverage'),
+					string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
 					booleanParam(name: 'SHOULD_PUBLISH_IMAGE', value: false),
 					booleanParam(name: shouldPublishFailJobStatusName, value: shouldPublishFailJobStatusValue)],
 					wait: waitForDownStream
@@ -143,7 +145,7 @@ String jobParameterValueFromJenkinsfile(String jenkinsfilePath, String parameter
 		script: "sed -rn \'s/${parameterName} = (.*)\$/\\1/p\' ${jenkinsfilePath}/Jenkinsfile",
 		returnStdout: true
 	)
-	value = value.replaceAll("(\\[|\\]|')", '').trim()
+	value = value.replaceAll("(\\[|\\]|')", '').split(',')[0].trim()
 	echo "Found ${parameterName} = ${value}"
 	return value
 }

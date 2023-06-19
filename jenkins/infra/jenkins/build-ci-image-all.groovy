@@ -1,6 +1,6 @@
 pipeline {
 	agent {
-		label 'ubuntu-agent'
+		label 'ubuntu-small-agent'
 	}
 
 	parameters {
@@ -29,46 +29,88 @@ pipeline {
 
 		stage('build ci images') {
 			parallel {
-				stage('cpp') {
+				stage('cpp - amd64') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('cpp')
+							dispatchBuildCiImageJob('cpp', 'amd64')
 						}
 					}
 				}
-				stage('java') {
+				stage('java - amd64') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('java')
+							dispatchBuildCiImageJob('java', 'amd64')
 						}
 					}
 				}
-				stage('javascript') {
+				stage('javascript - amd64') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('javascript')
+							dispatchBuildCiImageJob('javascript', 'amd64')
 						}
 					}
 				}
-				stage('linter') {
+				stage('linter - amd64') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('linter')
+							dispatchBuildCiImageJob('linter', 'amd64')
 						}
 					}
 				}
-				stage('postgres') {
+				stage('postgres - amd64') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('postgres')
+							dispatchBuildCiImageJob('postgres', 'amd64')
+						}
+					}
+				}
+				stage('python - amd64') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('python', 'amd64')
 						}
 					}
 				}
 
-				stage('python') {
+				stage('cpp - arm64') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('python')
+							dispatchBuildCiImageJob('cpp', 'arm64')
+						}
+					}
+				}
+				stage('java - arm64') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('java', 'arm64')
+						}
+					}
+				}
+				stage('javascript - arm64') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('javascript', 'arm64')
+						}
+					}
+				}
+				stage('linter - arm64') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('linter', 'arm64')
+						}
+					}
+				}
+				stage('postgres - arm64') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('postgres', 'arm64')
+						}
+					}
+				}
+				stage('python - arm64') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('python', 'arm64')
 						}
 					}
 				}
@@ -103,10 +145,11 @@ pipeline {
 	}
 }
 
-void dispatchBuildCiImageJob(String ciImage) {
+void dispatchBuildCiImageJob(String ciImage, String architecture) {
 	build job: 'build-ci-image', parameters: [
-		string(name: 'CI_IMAGE', value: "${ciImage}"),
+		string(name: 'CI_IMAGE', value: ciImage),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: architecture),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"

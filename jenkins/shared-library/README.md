@@ -8,14 +8,17 @@ steps. Each package/repo can customize its behavior like which OS or where to pu
 
 ````
 defaultCiPipeline {
-	platform = ['ubuntu']
+	operatingSystem = ['ubuntu']
+	instanceSize = 'medium'
 	publisher = 'docker'
 	dockerImageName = 'symbolplatform/symbol-server-private'
 	gitHubId = 'Symbol-Github-app'
 }
 ````
 
-``platform`` - is an array of OS the package needs to build on.
+``operatingSystem`` - is an array of OS the project needs to build on. ``ubuntu`` is the default.
+
+``instanceSize`` - is the size of the instance to use for the build.  The options are ``small``, ``medium`` and ``xlarge``.  ``medium`` is the default.
 
 ``publisher`` - where to publish the artifacts.  The options are ``docker``, ``npm`` and ``pypi``.
 
