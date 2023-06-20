@@ -1,3 +1,4 @@
+// groovylint-disable-next-line MethodSize
 void call(Closure body) {
 	Map params = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST

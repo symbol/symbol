@@ -34,6 +34,10 @@ String resolveBuildConfigurationFile() {
 	return '.github/buildConfiguration.yaml'
 }
 
+String resolveAgentName(String os) {
+	return 'windows' == os ? 'windows-xlarge-agent' : 'ubuntu-xlarge-agent'
+}
+
 String resolveAgentName(String os, String architecture, String size) {
 	if ('macos' == os) {
 		return 'macos-agent'

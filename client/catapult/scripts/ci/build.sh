@@ -2,10 +2,11 @@
 
 set -ex
 
+architecture="$1"
 git_root_directory="$(git rev-parse --show-toplevel)"
 scripts_directory="${git_root_directory}/jenkins/catapult"
 build_configuration="${scripts_directory}/configurations/tests-conan.yaml"
-compiler_configuration="${scripts_directory}/configurations/gcc-latest.yaml"
+compiler_configuration="${scripts_directory}/configurations/${architecture}/gcc-latest.yaml"
 if [ -z "${JENKINS_HOME}" ]
 then
 	python3 "${scripts_directory}/runDockerBuild.py" \

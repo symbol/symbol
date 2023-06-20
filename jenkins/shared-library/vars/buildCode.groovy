@@ -1,3 +1,4 @@
 void call(String buildScriptFilename) {
-	runScript(buildScriptFilename)
+	String architecture = env.ARCHITECTURE ?: 'amd64'
+	runScript("${buildScriptFilename} ${architecture}")
 }
