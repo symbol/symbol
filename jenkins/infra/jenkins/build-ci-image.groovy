@@ -45,6 +45,16 @@ pipeline {
 				}
 			}
 		}
+		stage('checkout') {
+			when {
+				triggeredBy 'UserIdCause'
+			}
+			steps {
+				script {
+					sh "git reset --hard origin/${env.MANUAL_GIT_BRANCH}"
+				}
+			}
+		}
 		stage('build image') {
 			steps {
 				script {
