@@ -1,11 +1,12 @@
 pipeline {
-	agent {
-		label 'ubuntu-small-agent'
-	}
-
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		choice name: 'ARCHITECTURE', choices: ['amd64', 'arm64'], description: 'Computer architecture'
 		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
+	}
+
+	agent {
+		label "${helper.resolveAgentName('ubuntu', "${ARCHITECTURE}", 'small')}"
 	}
 
 	options {
@@ -14,121 +15,99 @@ pipeline {
 	}
 
 	triggers {
-		// first of the month
-		cron('H 0 1 * *')
+		// first and second of the month
+		cron('H 0 1,2 * *')
 	}
 
 	stages {
+		stage('override architecture') {
+			when {
+				triggeredBy 'TimerTrigger'
+			}
+			steps {
+				script {
+					// even days are amd64, odd days are arm64
+					ARCHITECTURE = helper.determineArchitecture()
+				}
+			}
+		}
 		stage('print env') {
 			steps {
 				echo """
 							env.GIT_BRANCH: ${env.GIT_BRANCH}
 						 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
+							  ARCHITECTURE: ${ARCHITECTURE}
 				"""
 			}
 		}
 
 		stage('build compiler images') {
 			parallel {
-				stage('gcc prior - amd64') {
+				stage('gcc prior') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('gcc-prior', 'ubuntu', 'amd64')
+							dispatchBuildCompilerImageJob('gcc-prior', 'ubuntu', "${ARCHITECTURE}")
 						}
 					}
 				}
-				stage('gcc latest - amd64') {
+				stage('gcc latest') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('gcc-latest', 'ubuntu', 'amd64')
+							dispatchBuildCompilerImageJob('gcc-latest', 'ubuntu', "${ARCHITECTURE}")
 						}
 					}
 				}
-				stage('gcc [debian] - amd64') {
+				stage('gcc [debian]') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('gcc-debian', 'debian', 'amd64')
+							dispatchBuildCompilerImageJob('gcc-debian', 'debian', "${ARCHITECTURE}")
 						}
 					}
 				}
-				stage('gcc [fedora] - amd64') {
+				stage('gcc [fedora]') {
 					steps {
 						script {
-							dispatchBuildCompilerImageJob('gcc-latest', 'fedora', 'amd64')
-						}
-					}
-				}
-
-				stage('clang prior - amd64') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('clang-prior', 'ubuntu', 'amd64')
-						}
-					}
-				}
-				stage('clang latest - amd64') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('clang-latest', 'ubuntu', 'amd64')
+							dispatchBuildCompilerImageJob('gcc-latest', 'fedora', "${ARCHITECTURE}")
 						}
 					}
 				}
 
-				stage('msvc latest - amd64') {
+				stage('clang prior') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('clang-prior', 'ubuntu', "${ARCHITECTURE}")
+						}
+					}
+				}
+				stage('clang latest') {
+					steps {
+						script {
+							dispatchBuildCompilerImageJob('clang-latest', 'ubuntu', "${ARCHITECTURE}")
+						}
+					}
+				}
+
+				stage('msvc latest') {
+					when {
+						expression {
+							'amd64' == "${ARCHITECTURE}"
+						}
+					}
 					steps {
 						script {
 							dispatchBuildCompilerImageJob('msvc-latest', 'windows', 'amd64')
 						}
 					}
 				}
-				stage('msvc prior - amd64') {
+				stage('msvc prior') {
+					when {
+						expression {
+							'amd64' == "${ARCHITECTURE}"
+						}
+					}
 					steps {
 						script {
 							dispatchBuildCompilerImageJob('msvc-prior', 'windows', 'amd64')
-						}
-					}
-				}
-
-				stage('gcc prior - arm64') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('gcc-prior', 'ubuntu', 'arm64')
-						}
-					}
-				}
-				stage('gcc latest - arm64') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('gcc-latest', 'ubuntu', 'arm64')
-						}
-					}
-				}
-				stage('gcc [debian] - arm64') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('gcc-debian', 'debian', 'arm64')
-						}
-					}
-				}
-				stage('gcc [fedora] - arm64') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('gcc-latest', 'fedora', 'arm64')
-						}
-					}
-				}
-
-				stage('clang prior - arm64') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('clang-prior', 'ubuntu', 'arm64')
-						}
-					}
-				}
-				stage('clang latest - arm64') {
-					steps {
-						script {
-							dispatchBuildCompilerImageJob('clang-latest', 'ubuntu', 'arm64')
 						}
 					}
 				}
@@ -140,10 +119,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-						':confetti_ball: Compiler Image All Job Successfully completed',
-						'Not much to see here, all is good',
-						env.BUILD_URL,
-						currentBuild.currentResult
+							':confetti_ball: Compiler Image All Job Successfully completed',
+							'Not much to see here, all is good',
+							env.BUILD_URL,
+							currentBuild.currentResult
 					)
 				}
 			}
@@ -152,10 +131,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-						":worried: Compiler Image All Job Failed for ${currentBuild.fullDisplayName}",
-						"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
-						env.BUILD_URL,
-						currentBuild.currentResult
+							":worried: Compiler Image All Job Failed for ${currentBuild.fullDisplayName}",
+							"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
+							env.BUILD_URL,
+							currentBuild.currentResult
 					)
 				}
 			}
@@ -165,13 +144,13 @@ pipeline {
 
 void dispatchBuildCompilerImageJob(String compilerConfiguration, String operatingSystem, String architecture) {
 	build job: 'catapult-client-build-compiler-image', parameters: [
-		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
-		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
-		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
-		string(name: 'ARCHITECTURE', value: "${architecture}"),
-		booleanParam(
-			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
-			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
-		)
+			string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
+			string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
+			string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+			string(name: 'ARCHITECTURE', value: "${architecture}"),
+			booleanParam(
+					name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
+					value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
+			)
 	]
 }

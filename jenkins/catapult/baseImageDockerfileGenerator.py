@@ -89,7 +89,7 @@ class OptionsManager:
 	def base_image_name(self):
 		name_parts = [self.operating_system, self.compiler.c, str(self.compiler.version)]
 		if not self.ignore_architecture:
-			name_parts.extend([self.architecture])
+			name_parts.append(self.architecture)
 
 		return f'symbolplatform/symbol-server-compiler:{"-".join(name_parts)}'
 
@@ -103,7 +103,7 @@ class OptionsManager:
 			name_parts.append(tag)
 
 		if not self.ignore_architecture:
-			name_parts.extend([self.architecture])
+			name_parts.append(self.architecture)
 
 		return f'symbolplatform/symbol-server-build-base:{"-".join(name_parts)}'
 
@@ -367,6 +367,8 @@ class LinuxSystemGenerator:
 		self.options = options
 
 	def generate_phase_os(self):
+		# for compiler ignore architecture since we dont have a westmere compiler
+		self.options.ignore_architecture = True
 		print_lines([
 			'FROM {BASE_IMAGE_NAME}',
 			'ARG DEBIAN_FRONTEND=noninteractive',
@@ -434,7 +436,7 @@ class LinuxSystemGenerator:
 	@staticmethod
 	def add_openssl(options, configure):
 		version = options.versions['openssl_openssl']
-		compiler = 'linux-x86_64-clang' if options.is_clang else 'linux-aarch64' if 'arm64' == options.architecture else 'linux-x86_64'
+		compiler = 'linux-aarch64' if 'arm64' == options.architecture else 'linux-x86_64-clang' if options.is_clang else 'linux-x86_64'
 		openssl_destinations = [f'--{key}=/usr/catapult/deps' for key in ('prefix', 'openssldir', 'libdir')]
 		print_line([
 			'RUN git clone https://github.com/openssl/openssl.git -b {VERSION}',
@@ -454,7 +456,7 @@ class LinuxSystemGenerator:
 	def generate_phase_deps(self):
 		print(f'FROM {self.options.layer_image_name("boost")}')
 
-		self.add_openssl(self.options, self.options.openssl_configure() if self.options.sanitizers else [])
+		self.add_openssl(self.options, [])
 
 		self.add_git_dependency('mongodb', 'mongo-c-driver', self.options.mongo_c())
 		self.add_git_dependency('mongodb', 'mongo-cxx-driver', self.options.mongo_cxx())
@@ -470,6 +472,8 @@ class LinuxSystemGenerator:
 		self.add_git_dependency('google', 'benchmark', self.options.googlebench())
 
 		self.system.add_test_packages(not self.options.sanitizers)
+
+		self.add_openssl(self.options, self.options.openssl_configure() if self.options.sanitizers else [])
 
 		print_lines([
 			'RUN echo "docker image build $BUILD_NUMBER"',

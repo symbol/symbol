@@ -5,6 +5,9 @@ void updateDockerImage(String targetImageName, String sourceImageName, String ar
 			return
 		}
 
+		// The docker buildx append command will always append to an existing image
+		// and doesnt override if the architecture manifest already exist.
+		// Need to pull the image manifest to check if the architecture already exist.
 		String imageManifest = resolveDockerImageManifestInRegistry(targetImageName)
 		Object packageJson = readJSON text: imageManifest
 		if (isSingleDigestImage(packageJson)) {
@@ -28,6 +31,7 @@ void updateDockerImage(String targetImageName, String sourceImageName, String ar
 			runScript("docker buildx imagetools create --tag ${targetImageName} ${digestList}")
 		}
 
+		// log the manifest for the updated image
 		runScript("docker buildx imagetools inspect ${targetImageName}")
 	}
 }
@@ -74,5 +78,19 @@ void loginAndRunCommand(String dockerCredentialsId, Closure command) {
 			passwordVariable: 'DOCKER_PASSWORD')]) {
 		runScript('echo $DOCKER_PASSWORD | docker login -u $DOCKER_ID --password-stdin')
 		command()
+	}
+}
+
+void createTag(String operatingSystem, String dockerUrl, String dockerCredentialsId, String imageName, String destImageName) {
+	// Windows container does not support docker buildx so just push the image
+	if ('windows' == operatingSystem) {
+		docker.withRegistry(dockerUrl, dockerCredentialsId) {
+			String tag = destImageName.split(':')[1]
+			docker.image(imageName).push(tag)
+		}
+	} else {
+		loginAndRunCommand(dockerCredentialsId) {
+			updateDockerImage(destImageName, imageName, "${ARCHITECTURE}")
+		}
 	}
 }

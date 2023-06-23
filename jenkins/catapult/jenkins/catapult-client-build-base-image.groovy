@@ -1,6 +1,3 @@
-final String finalStageName = 'test'
-final String conanStageName = 'conan'
-
 pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
@@ -104,18 +101,9 @@ pipeline {
 				stage('build test') {
 					steps {
 						script {
-							dockerBuildAndPushLayer('test', "${baseImageDockerfileGeneratorCommand}")
-						}
-					}
-				}
-				stage('build final image') {
-					steps {
-						script {
-							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-								String multiArchImageName = resolveImageName(finalStageName, true)
-								String archImageName = resolveImageName(finalStageName, false)
-								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
-							}
+							final String stageName = 'test'
+							dockerBuildAndPushLayer(stageName, "${baseImageDockerfileGeneratorCommand}")
+							createDockerTagForStage(stageName)
 						}
 					}
 				}
@@ -125,21 +113,9 @@ pipeline {
 					}
 					steps {
 						script {
-							dockerBuildAndPushLayer(conanStageName, "${baseImageDockerfileGeneratorCommand}")
-						}
-					}
-				}
-				stage('build conan final image') {
-					when {
-						expression { SHOULD_BUILD_CONAN_LAYER.toBoolean() }
-					}
-					steps {
-						script {
-							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-								String multiArchImageName = resolveImageName(conanStageName, true)
-								String archImageName = resolveImageName(conanStageName, false)
-								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
-							}
+							final String stageName = 'conan'
+							dockerBuildAndPushLayer(stageName, "${baseImageDockerfileGeneratorCommand}")
+							createDockerTagForStage(stageName)
 						}
 					}
 				}
@@ -185,8 +161,14 @@ void dockerBuildAndPushLayer(String layer, String baseImageDockerfileGeneratorCo
 				cat Dockerfile
 			"""
 
-		dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-			dockerHelper.dockerBuildAndPushImage(destImageName)
+		docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+			docker.build(destImageName).push()
 		}
 	}
+}
+
+void createDockerTagForStage(String stageName) {
+	String destImageName = resolveImageName(stageName, true)
+	String archImageName = resolveImageName(stageName, false)
+	dockerHelper.createTag("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
 }
