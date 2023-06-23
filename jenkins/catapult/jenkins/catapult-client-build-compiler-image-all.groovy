@@ -119,10 +119,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							':confetti_ball: Compiler Image All Job Successfully completed',
-							'Not much to see here, all is good',
-							env.BUILD_URL,
-							currentBuild.currentResult
+						':confetti_ball: Compiler Image All Job Successfully completed',
+						'Not much to see here, all is good',
+						env.BUILD_URL,
+						currentBuild.currentResult
 					)
 				}
 			}
@@ -131,10 +131,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							":worried: Compiler Image All Job Failed for ${currentBuild.fullDisplayName}",
-							"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
-							env.BUILD_URL,
-							currentBuild.currentResult
+						":worried: Compiler Image All Job Failed for ${currentBuild.fullDisplayName}",
+						"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
+						env.BUILD_URL,
+						currentBuild.currentResult
 					)
 				}
 			}
@@ -144,13 +144,13 @@ pipeline {
 
 void dispatchBuildCompilerImageJob(String compilerConfiguration, String operatingSystem, String architecture) {
 	build job: 'catapult-client-build-compiler-image', parameters: [
-			string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
-			string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
-			string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
-			string(name: 'ARCHITECTURE', value: "${architecture}"),
-			booleanParam(
-					name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
-					value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
-			)
+		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
+		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${architecture}"),
+		booleanParam(
+			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
+			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
+		)
 	]
 }

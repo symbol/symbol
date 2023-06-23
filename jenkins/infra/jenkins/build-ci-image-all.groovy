@@ -94,10 +94,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							':confetti_ball: CI Image All Job Successfully completed',
-							'Not much to see here, all is good',
-							env.BUILD_URL,
-							currentBuild.currentResult
+						':confetti_ball: CI Image All Job Successfully completed',
+						'Not much to see here, all is good',
+						env.BUILD_URL,
+						currentBuild.currentResult
 					)
 				}
 			}
@@ -106,10 +106,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							":worried: CI Image All Job Failed for ${currentBuild.fullDisplayName}",
-							"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
-							env.BUILD_URL,
-							currentBuild.currentResult
+						":worried: CI Image All Job Failed for ${currentBuild.fullDisplayName}",
+						"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
+						env.BUILD_URL,
+						currentBuild.currentResult
 					)
 				}
 			}
@@ -119,12 +119,12 @@ pipeline {
 
 void dispatchBuildCiImageJob(String ciImage) {
 	build job: 'build-ci-image', parameters: [
-			string(name: 'CI_IMAGE', value: "${ciImage}"),
-			string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
-			string(name: 'ARCHITECTURE', value: "${params.ARCHITECTURE}"),
-			booleanParam(
-					name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
-					value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
-			)
+		string(name: 'CI_IMAGE', value: "${ciImage}"),
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${params.ARCHITECTURE}"),
+		booleanParam(
+			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
+			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
+		)
 	]
 }

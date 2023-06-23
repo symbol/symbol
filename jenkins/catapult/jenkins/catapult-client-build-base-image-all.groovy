@@ -198,10 +198,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							':confetti_ball: Catapult Client All Image Job Successfully completed',
-							'Not much to see here, all is good',
-							env.BUILD_URL,
-							currentBuild.currentResult
+						':confetti_ball: Catapult Client All Image Job Successfully completed',
+						'Not much to see here, all is good',
+						env.BUILD_URL,
+						currentBuild.currentResult
 					)
 				}
 			}
@@ -210,10 +210,10 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-							":confused: Catapult Client All Image Job Failed for ${currentBuild.fullDisplayName}",
-							"At least an image job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
-							env.BUILD_URL,
-							currentBuild.currentResult
+						":confused: Catapult Client All Image Job Failed for ${currentBuild.fullDisplayName}",
+						"At least an image job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
+						env.BUILD_URL,
+						currentBuild.currentResult
 					)
 				}
 			}
