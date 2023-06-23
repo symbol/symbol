@@ -46,7 +46,7 @@ pipeline {
 										script: "${baseImageDockerfileGeneratorCommand}",
 										returnStdout: true
 								).trim()
-								multiArchImageName = sh(
+								destImageName = sh(
 										script: "${baseImageDockerfileGeneratorCommand} --ignore-architecture",
 										returnStdout: true
 								).trim()
@@ -64,7 +64,7 @@ pipeline {
 								  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
 									  ARCHITECTURE: ${ARCHITECTURE}
 
-								     destImageName: ${multiArchImageName}
+								     destImageName: ${destImageName}
 						"""
 					}
 				}
@@ -79,10 +79,10 @@ pipeline {
 						{
 							String compilerVersion = readYaml(file: "../${COMPILER_CONFIGURATION}.yaml").version
 							String buildArg = "--build-arg COMPILER_VERSION=${compilerVersion} ."
-							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-								dockerHelper.dockerBuildAndPushImage(archImageName, buildArg)
-								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
+							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+								docker.build(archImageName, buildArg).push()
 							}
+							dockerHelper.tagDockerImage("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
 						}
 					}
 				}

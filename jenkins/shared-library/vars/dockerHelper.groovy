@@ -81,7 +81,7 @@ void loginAndRunCommand(String dockerCredentialsId, Closure command) {
 	}
 }
 
-void createTag(String operatingSystem, String dockerUrl, String dockerCredentialsId, String imageName, String destImageName) {
+void tagDockerImage(String operatingSystem, String dockerUrl, String dockerCredentialsId, String imageName, String destImageName) {
 	// Windows container does not support docker buildx so just push the image
 	if ('windows' == operatingSystem) {
 		docker.withRegistry(dockerUrl, dockerCredentialsId) {

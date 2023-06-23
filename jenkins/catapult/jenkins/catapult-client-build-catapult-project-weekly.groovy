@@ -30,7 +30,7 @@ pipeline {
 				stage('gcc (metal) [debian]') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-debian', 'tests-metal', 'debian')
+							dispatchBuildJob('gcc-debian', 'tests-metal', 'debian', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -38,7 +38,7 @@ pipeline {
 				stage('gcc (westmere)') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-westmere', 'tests-metal', 'ubuntu')
+							dispatchBuildJob('gcc-westmere', 'tests-metal', 'ubuntu', 'amd64')
 						}
 					}
 				}
@@ -46,7 +46,7 @@ pipeline {
 				stage('gcc (metal) [fedora]') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-latest', 'tests-metal', 'fedora')
+							dispatchBuildJob('gcc-latest', 'tests-metal', 'fedora', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -54,7 +54,7 @@ pipeline {
 				stage('clang prior (metal)') {
 					steps {
 						script {
-							dispatchBuildJob('clang-prior', 'tests-metal', 'ubuntu')
+							dispatchBuildJob('clang-prior', 'tests-metal', 'ubuntu', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -62,7 +62,7 @@ pipeline {
 				stage('clang prior (conan)') {
 					steps {
 						script {
-							dispatchBuildJob('clang-prior', 'tests-conan', 'ubuntu')
+							dispatchBuildJob('clang-prior', 'tests-conan', 'ubuntu', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -70,7 +70,7 @@ pipeline {
 				stage('gcc prior (metal)') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-prior', 'tests-metal', 'ubuntu')
+							dispatchBuildJob('gcc-prior', 'tests-metal', 'ubuntu', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -78,7 +78,7 @@ pipeline {
 				stage('gcc prior (conan)') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-prior', 'tests-conan', 'ubuntu')
+							dispatchBuildJob('gcc-prior', 'tests-conan', 'ubuntu', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -86,7 +86,7 @@ pipeline {
 				stage('msvc prior (metal)') {
 					steps {
 						script {
-							dispatchBuildJob('msvc-prior', 'tests-metal', 'windows')
+							dispatchBuildJob('msvc-prior', 'tests-metal', 'windows', 'amd64')
 						}
 					}
 				}
@@ -121,13 +121,13 @@ pipeline {
 	}
 }
 
-void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem) {
+void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem, String architecture) {
 	build job: 'catapult-client-build-catapult-project', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
-		string(name: 'ARCHITECTURE', value: "${params.ARCHITECTURE}"),
+		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"

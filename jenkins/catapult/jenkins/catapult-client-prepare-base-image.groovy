@@ -88,22 +88,22 @@ pipeline {
 			steps {
 				script {
 					helper.runStepAndRecordFailure {
-						String imageName = "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
+						String destImageName = "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
 						if (SANITIZER_BUILD.toBoolean()) {
-							imageName += '-sanitizer'
+							destImageName += '-sanitizer'
 						}
 
-						String platformImageName = imageName + "-${ARCHITECTURE}"
+						String archImageName = destImageName + "-${ARCHITECTURE}"
 
-						echo "Docker image name: ${imageName}"
+						echo "Docker image name: ${archImageName}"
 						echo "Dockerfile name: ${dockerfile}"
 						echo "Base image name: ${baseImage}"
 
-						buildArg = "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} ."
-						dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-							dockerHelper.dockerBuildAndPushImage(platformImageName, buildArg)
-							dockerHelper.updateDockerImage(imageName, platformImageName, "${ARCHITECTURE}")
+						dockerImage = docker.build(archImageName, "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} .")
+						docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+							dockerImage.push()
 						}
+						dockerHelper.tagDockerImage("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
 					}
 				}
 			}

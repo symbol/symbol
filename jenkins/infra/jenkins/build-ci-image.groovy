@@ -32,7 +32,7 @@ pipeline {
 						script {
 							helper.runStepAndRecordFailure {
 								multiArchImageName = "symbolplatform/build-ci:${CI_IMAGE}"
-								archImageName = "${destImageName}-${ARCHITECTURE}"
+								archImageName = "${multiArchImageName}-${ARCHITECTURE}"
 							}
 						}
 					}

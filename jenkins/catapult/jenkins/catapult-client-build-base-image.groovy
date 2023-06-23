@@ -103,7 +103,7 @@ pipeline {
 						script {
 							final String stageName = 'test'
 							dockerBuildAndPushLayer(stageName, "${baseImageDockerfileGeneratorCommand}")
-							createDockerTagForStage(stageName)
+							tagDockerImageForStage(stageName)
 						}
 					}
 				}
@@ -115,7 +115,7 @@ pipeline {
 						script {
 							final String stageName = 'conan'
 							dockerBuildAndPushLayer(stageName, "${baseImageDockerfileGeneratorCommand}")
-							createDockerTagForStage(stageName)
+							tagDockerImageForStage(stageName)
 						}
 					}
 				}
@@ -167,8 +167,8 @@ void dockerBuildAndPushLayer(String layer, String baseImageDockerfileGeneratorCo
 	}
 }
 
-void createDockerTagForStage(String stageName) {
+void tagDockerImageForStage(String stageName) {
 	String destImageName = resolveImageName(stageName, true)
 	String archImageName = resolveImageName(stageName, false)
-	dockerHelper.createTag("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
+	dockerHelper.tagDockerImage("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
 }

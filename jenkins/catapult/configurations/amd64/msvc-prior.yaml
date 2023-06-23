@@ -1,2 +1,2 @@
 compiler: ../compilers/msvc-prior.yaml
-architecture: skylake
+architecture: amd64

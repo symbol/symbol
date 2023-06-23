@@ -30,14 +30,14 @@ pipeline {
 				stage('gcc latest (conan)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('gcc-latest', 'tests-conan')
+							dispatchUbuntuBuildJob('gcc-latest', 'tests-conan', "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('gcc latest (metal)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('gcc-latest', 'tests-metal')
+							dispatchUbuntuBuildJob('gcc-latest', 'tests-metal', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -45,14 +45,14 @@ pipeline {
 				stage('clang latest (conan)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('clang-latest', 'tests-conan')
+							dispatchUbuntuBuildJob('clang-latest', 'tests-conan', "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('clang latest (metal)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('clang-latest', 'tests-metal')
+							dispatchUbuntuBuildJob('clang-latest', 'tests-metal', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -60,35 +60,35 @@ pipeline {
 				stage('clang ausan') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('clang-ausan', 'tests-metal')
+							dispatchUbuntuBuildJob('clang-ausan', 'tests-metal', 'amd64')
 						}
 					}
 				}
 				stage('clang tsan') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('clang-tsan', 'tests-metal')
+							dispatchUbuntuBuildJob('clang-tsan', 'tests-metal', 'amd64')
 						}
 					}
 				}
 				stage('clang diagnostics') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('clang-latest', 'tests-diagnostics')
+							dispatchUbuntuBuildJob('clang-latest', 'tests-diagnostics', "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('code coverage (gcc latest)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('gcc-code-coverage', 'tests-metal')
+							dispatchUbuntuBuildJob('gcc-code-coverage', 'tests-metal', "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('msvc latest (conan)') {
 					steps {
 						script {
-							dispatchBuildJob('msvc-latest', 'tests-conan', 'windows')
+							dispatchBuildJob('msvc-latest', 'tests-conan', 'windows', 'amd64')
 						}
 					}
 				}
@@ -123,13 +123,13 @@ pipeline {
 	}
 }
 
-void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem) {
+void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem, String architecture) {
 	build job: 'catapult-client-build-catapult-project', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
-		string(name: 'ARCHITECTURE', value: "${params.ARCHITECTURE}"),
+		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
@@ -137,6 +137,6 @@ void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, S
 	]
 }
 
-void dispatchUbuntuBuildJob(String compilerConfiguration, String buildConfiguration) {
-	dispatchBuildJob(compilerConfiguration, buildConfiguration, 'ubuntu')
+void dispatchUbuntuBuildJob(String compilerConfiguration, String buildConfiguration, String architecture) {
+	dispatchBuildJob(compilerConfiguration, buildConfiguration, 'ubuntu', architecture)
 }

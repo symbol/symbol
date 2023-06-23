@@ -1,3 +1,5 @@
+import java.time.LocalDateTime
+
 Boolean isManualBuild(String manualBranch) {
 	return null != manualBranch && '' != manualBranch && 'null' != manualBranch
 }
@@ -62,4 +64,10 @@ void runStepAndRecordFailure(Closure body) {
 		env.FAILED_STAGE_NAME = env.STAGE_NAME
 		throw exception
 	}
+}
+
+String determineArchitecture() {
+	String architecture = LocalDateTime.now().dayOfMonth % 2 == 0 ? 'amd64' : 'arm64'
+	println "Architecture: ${architecture}"
+	return architecture
 }

@@ -49,13 +49,14 @@ class OptionsManager(BasicBuildManager):
 
 	@property
 	def ccache_path(self):
+		ccache_architecture_path = CCACHE_ROOT / self.architecture
 		if self.enable_code_coverage:
-			return CCACHE_ROOT / 'cc'
+			return ccache_architecture_path / 'cc'
 
 		if self.is_release:
-			return CCACHE_ROOT / 'release'
+			return ccache_architecture_path / 'release'
 
-		return CCACHE_ROOT / ('conan' if self.use_conan else 'all')
+		return ccache_architecture_path / ('conan' if self.use_conan else 'all')
 
 	@property
 	def conan_path(self):
