@@ -58,6 +58,11 @@ pipeline {
 				}
 
 				stage('clang ausan') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
 							dispatchUbuntuBuildJob('clang-ausan', 'tests-metal', 'amd64')
@@ -65,6 +70,11 @@ pipeline {
 					}
 				}
 				stage('clang tsan') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
 							dispatchUbuntuBuildJob('clang-tsan', 'tests-metal', 'amd64')
@@ -86,6 +96,11 @@ pipeline {
 					}
 				}
 				stage('msvc latest (conan)') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
 							dispatchBuildJob('msvc-latest', 'tests-conan', 'windows', 'amd64')

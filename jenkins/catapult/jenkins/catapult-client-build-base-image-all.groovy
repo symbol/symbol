@@ -67,7 +67,7 @@ pipeline {
 				stage('gcc westmere') {
 					when {
 						expression {
-							isAmd64Architecture()
+							helper.isAmd64Architecture(params.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -102,7 +102,7 @@ pipeline {
 				stage('clang ausan') {
 					when {
 						expression {
-							isAmd64Architecture()
+							helper.isAmd64Architecture(params.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -114,7 +114,7 @@ pipeline {
 				stage('clang tsan') {
 					when {
 						expression {
-							isAmd64Architecture()
+							helper.isAmd64Architecture(params.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -127,7 +127,7 @@ pipeline {
 				stage('msvc latest') {
 					when {
 						expression {
-							isAmd64Architecture()
+							helper.isAmd64Architecture(params.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -139,7 +139,7 @@ pipeline {
 				stage('msvc prior') {
 					when {
 						expression {
-							isAmd64Architecture()
+							helper.isAmd64Architecture(params.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -181,7 +181,7 @@ pipeline {
 				stage('test base image [windows]') {
 					when {
 						expression {
-							isAmd64Architecture()
+							helper.isAmd64Architecture(params.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -246,8 +246,4 @@ void dispatchPrepareBaseImageJob(String imageType, String operatingSystem, Strin
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
 		)
 	]
-}
-
-boolean isAmd64Architecture() {
-	return 'amd64' == ARCHITECTURE
 }

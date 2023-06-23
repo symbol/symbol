@@ -90,7 +90,7 @@ pipeline {
 				stage('msvc latest') {
 					when {
 						expression {
-							'amd64' == "${ARCHITECTURE}"
+							helper.isAmd64Architecture(params.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -102,7 +102,7 @@ pipeline {
 				stage('msvc prior') {
 					when {
 						expression {
-							'amd64' == "${ARCHITECTURE}"
+							helper.isAmd64Architecture(params.ARCHITECTURE)
 						}
 					}
 					steps {

@@ -71,3 +71,7 @@ String determineArchitecture() {
 	println "Architecture: ${architecture}"
 	return architecture
 }
+
+boolean isAmd64Architecture(String architecture) {
+	return 'amd64' == architecture
+}

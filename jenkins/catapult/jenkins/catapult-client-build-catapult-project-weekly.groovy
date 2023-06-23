@@ -36,6 +36,11 @@ pipeline {
 				}
 
 				stage('gcc (westmere)') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
 							dispatchBuildJob('gcc-westmere', 'tests-metal', 'ubuntu', 'amd64')
@@ -84,6 +89,11 @@ pipeline {
 				}
 
 				stage('msvc prior (metal)') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
 							dispatchBuildJob('msvc-prior', 'tests-metal', 'windows', 'amd64')
