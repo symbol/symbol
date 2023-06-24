@@ -15,7 +15,7 @@ def get_image_label(image_name):
 
 def create_docker_compose_command(mode):
 	return [
-		'docker', 'compose', 'up',
+		'docker-compose', 'up',
 		'--no-color',
 		'--abort-on-container-exit',
 		'--remove-orphans',

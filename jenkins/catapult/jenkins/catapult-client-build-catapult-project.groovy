@@ -267,12 +267,13 @@ pipeline {
 									'''
 
 									withCredentials([string(credentialsId: 'SYMBOL_CODECOV_ID', variable: 'CODECOV_TOKEN')]) {
-										sh '''
+										String platform = 'arm64' == params.ARCHITECTURE ? 'aarch64' : 'linux'
+										sh """
 											cd /catapult-src
-											curl -Os https://uploader.codecov.io/latest/linux/codecov
+											curl -Os https://uploader.codecov.io/latest/${platform}/codecov
 											chmod +x codecov
 											./codecov --verbose --nonZero --rootDir . --flags client-catapult --file client_coverage.info
-										'''
+										"""
 									}
 								}
 							}
