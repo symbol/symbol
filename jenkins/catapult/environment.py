@@ -22,7 +22,7 @@ class EnvironmentManager:
 		if self.dry_run:
 			return '<SYSTEM_BIN_PATH>'
 
-		for descriptor in [('ubuntu', '/usr/lib/x86_64-linux-gnu'), ('fedora', '/usr/lib64')]:
+		for descriptor in [('ubuntu', '/usr/lib/x86_64-linux-gnu'), ('fedora', '/usr/lib64'), ('ubuntu arm64', '/usr/lib/aarch64-linux-gnu')]:
 			if Path(descriptor[1]).exists():
 				self._print_command('system_bin_path', ['detected', descriptor[1], 'for', descriptor[0]])
 				return descriptor[1]

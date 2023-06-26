@@ -1,11 +1,12 @@
 pipeline {
-	agent {
-		label 'ubuntu-agent'
-	}
-
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		choice name: 'ARCHITECTURE', choices: ['amd64', 'arm64'], description: 'Computer architecture'
 		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
+	}
+
+	agent {
+		label "${helper.resolveAgentName('ubuntu', "${ARCHITECTURE}", 'small')}"
 	}
 
 	options {
@@ -14,15 +15,28 @@ pipeline {
 	}
 
 	triggers {
-		cron('@weekly')
+		// saturday and sunday of the week
+		cron('H H * * 6,7')
 	}
 
 	stages {
+		stage('override architecture') {
+			when {
+				triggeredBy 'TimerTrigger'
+			}
+			steps {
+				script {
+					// even days are amd64, odd days are arm64
+					ARCHITECTURE = helper.determineArchitecture()
+				}
+			}
+		}
 		stage('print env') {
 			steps {
 				echo """
 							env.GIT_BRANCH: ${env.GIT_BRANCH}
 						 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
+							  ARCHITECTURE: ${ARCHITECTURE}
 				"""
 			}
 		}
@@ -107,6 +121,7 @@ void dispatchBuildCiImageJob(String ciImage) {
 	build job: 'build-ci-image', parameters: [
 		string(name: 'CI_IMAGE', value: "${ciImage}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${params.ARCHITECTURE}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"

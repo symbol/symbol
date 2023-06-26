@@ -38,7 +38,9 @@ void generateMonorepoPipelineJobs(Object buildConfiguration, String gitUrl, Stri
 		jobConfiguration.displayName = build.name
 		jobConfiguration.buildsToKeep = build.logRotation
 		addTriggers(build.triggers, jobConfiguration)
-		jobConfiguration.jenkinsfilePath = build.scriptPath
+		jobConfiguration.jenkinsfilePath = build.targetDirectory
+				? Paths.get(build.targetDirectory.toString()).resolve(build.scriptPath.toString()).toString()
+				: build.scriptPath
 		jobConfiguration.targetDirectory = build.targetDirectory
 		createPipelineJob(jobConfiguration)
 	}

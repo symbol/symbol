@@ -7,13 +7,16 @@ pipeline {
 		choice name: 'IMAGE_TYPE',
 			choices: ['release', 'test'],
 			description: 'image type'
+		choice name: 'ARCHITECTURE',
+			choices: ['amd64', 'arm64'],
+			description: 'Computer architecture'
 
 		booleanParam name: 'SANITIZER_BUILD', description: 'true to build sanitizer', defaultValue: false
 		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
 	agent {
-		label "${helper.resolveAgentName("${OPERATING_SYSTEM}")}"
+		label "${helper.resolveAgentName("${OPERATING_SYSTEM}", "${ARCHITECTURE}", 'medium')}"
 	}
 
 	options {
@@ -35,6 +38,7 @@ pipeline {
 
 						  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
 								IMAGE_TYPE: ${IMAGE_TYPE}
+							  ARCHITECTURE: ${ARCHITECTURE}
 						   SANITIZER_BUILD: ${SANITIZER_BUILD}
 				"""
 			}
@@ -50,7 +54,7 @@ pipeline {
 						baseImage = SANITIZER_BUILD.toBoolean()
 							? sh(script: """
 								python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
-									--compiler-configuration jenkins/catapult/configurations/clang-latest.yaml \
+									--compiler-configuration jenkins/catapult/configurations/${ARCHITECTURE}/clang-latest.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
 									--versions ./jenkins/catapult/versions.properties \
 									--layer os \
@@ -84,18 +88,22 @@ pipeline {
 			steps {
 				script {
 					helper.runStepAndRecordFailure {
-						dockerImageName = "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
+						String destImageName = "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
 						if (SANITIZER_BUILD.toBoolean()) {
-							dockerImageName += '-sanitizer'
+							destImageName += '-sanitizer'
 						}
 
-						echo "Docker image name: ${dockerImageName}"
+						String archImageName = destImageName + "-${ARCHITECTURE}"
+
+						echo "Docker image name: ${archImageName}"
 						echo "Dockerfile name: ${dockerfile}"
 						echo "Base image name: ${baseImage}"
-						dockerImage = docker.build(dockerImageName, "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} .")
+
+						dockerImage = docker.build(archImageName, "--file ${dockerfile} --build-arg FROM_IMAGE=${baseImage} .")
 						docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
 							dockerImage.push()
 						}
+						dockerHelper.tagDockerImage("${OPERATING_SYSTEM}", "${DOCKER_URL}", "${DOCKER_CREDENTIALS_ID}", archImageName, destImageName)
 					}
 				}
 			}

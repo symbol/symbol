@@ -1,0 +1,3 @@
+compiler: ../compilers/clang-latest.yaml
+sanitizers: thread
+architecture: arm64

@@ -1,5 +1,6 @@
 monorepoSeedPipeline {
-	platform = ['ubuntu']
+	operatingSystem = ['ubuntu']
+	instanceSize = 'small'
 	organizationName = 'Symbol'
 	gitHubId = 'Symbol-Github-app'
 }

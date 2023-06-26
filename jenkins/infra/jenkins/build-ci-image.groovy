@@ -4,11 +4,14 @@ pipeline {
 		choice name: 'CI_IMAGE',
 			choices: ['cpp', 'java', 'javascript', 'linter', 'postgres', 'python'],
 			description: 'continuous integration image'
+		choice name: 'ARCHITECTURE',
+			choices: ['amd64', 'arm64'],
+			description: 'Computer architecture'
 		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
 	agent {
-		label 'ubuntu-agent'
+		label "${helper.resolveAgentName('ubuntu', "${ARCHITECTURE}", 'medium')}"
 	}
 
 	environment {
@@ -28,7 +31,8 @@ pipeline {
 					steps {
 						script {
 							helper.runStepAndRecordFailure {
-								destImageName = "symbolplatform/build-ci:${CI_IMAGE}"
+								multiArchImageName = "symbolplatform/build-ci:${CI_IMAGE}"
+								archImageName = "${multiArchImageName}-${ARCHITECTURE}"
 							}
 						}
 					}
@@ -39,7 +43,7 @@ pipeline {
 									env.GIT_BRANCH: ${env.GIT_BRANCH}
 								 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
 
-								     destImageName: ${destImageName}
+								     destImageName: ${multiArchImageName}
 						"""
 					}
 				}
@@ -62,8 +66,9 @@ pipeline {
 						dir('jenkins/docker')
 						{
 							String buildArg = "-f ${CI_IMAGE}.Dockerfile ."
-							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								docker.build(destImageName, buildArg).push()
+							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
+								dockerHelper.dockerBuildAndPushImage(archImageName, buildArg)
+								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
 							}
 						}
 					}

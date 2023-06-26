@@ -1,3 +1,4 @@
+// groovylint-disable-next-line MethodSize
 void call(Closure body) {
 	Map params = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST
@@ -13,13 +14,20 @@ void call(Closure body) {
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
 				useRepository: "${helper.resolveRepoName()}"
-			choice name: 'PLATFORM',
-				choices: params.platform ?: 'ubuntu',
-				description: 'Run on specific platform'
+			choice name: 'OPERATING_SYSTEM',
+				choices: params.operatingSystem ?: 'ubuntu',
+				description: 'Run on specific OS'
+			choice name: 'ARCHITECTURE',
+				choices: ['amd64', 'arm64'],
+				description: 'Computer architecture'
 		}
 
 		agent {
-			label 'ubuntu-agent'
+			label """${helper.resolveAgentName(
+					env.OPERATING_SYSTEM ?: "${params.operatingSystem[0]}",
+					env.ARCHITECTURE ?: 'amd64',
+					params.instanceSize ?: 'small'
+			)}"""
 		}
 
 		options {

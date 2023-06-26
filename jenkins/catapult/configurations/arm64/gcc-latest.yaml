@@ -1,0 +1,2 @@
+compiler: ../compilers/gcc-latest.yaml
+architecture: arm64

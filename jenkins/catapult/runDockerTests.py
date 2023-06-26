@@ -18,6 +18,7 @@ def create_docker_compose_command(mode):
 		'docker-compose', 'up',
 		'--no-color',
 		'--abort-on-container-exit',
+		'--remove-orphans',
 		'--exit-code-from', mode
 	]
 
@@ -74,9 +75,11 @@ def main():
 	compose_filename += '.yaml'
 	compose_template_filepath = Path(__file__).parent / 'templates' / compose_filename
 	print(f'processing template from {compose_template_filepath}')
+	compiler_filepath = Path(args.compiler_configuration)
+	compiler_base_path = f'{compiler_filepath.parent.name}/{compiler_filepath.name}'
 	prepare_replacements = {
 		'image_name': args.image,
-		'compiler_configuration': f'/scripts/configurations/{Path(args.compiler_configuration).name}',
+		'compiler_configuration': f'/scripts/configurations/{compiler_base_path}',
 		'user': args.user,
 		'verbosity': args.verbosity,
 		'src_dir': str(Path(args.source_path).resolve().absolute()),

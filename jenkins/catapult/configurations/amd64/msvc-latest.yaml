@@ -1,2 +1,2 @@
 compiler: ../compilers/msvc-latest.yaml
-architecture: skylake
+architecture: amd64

@@ -49,23 +49,25 @@ class OptionsManager(BasicBuildManager):
 
 	@property
 	def ccache_path(self):
+		ccache_architecture_path = CCACHE_ROOT / self.architecture
 		if self.enable_code_coverage:
-			return CCACHE_ROOT / 'cc'
+			return ccache_architecture_path / 'cc'
 
 		if self.is_release:
-			return CCACHE_ROOT / 'release'
+			return ccache_architecture_path / 'release'
 
-		return CCACHE_ROOT / ('conan' if self.use_conan else 'all')
+		return ccache_architecture_path / ('conan' if self.use_conan else 'all')
 
 	@property
 	def conan_path(self):
+		conan_path = CONAN_ROOT / self.architecture
 		if self.is_clang:
-			return CONAN_ROOT / 'clang'
+			return conan_path / 'clang'
 
 		if self.is_msvc:
-			return CONAN_ROOT / 'msvc'
+			return conan_path / 'msvc'
 
-		return CONAN_ROOT / 'gcc'
+		return conan_path / 'gcc'
 
 	def docker_run_settings(self):
 		settings = [
@@ -110,12 +112,13 @@ def create_docker_run_command(options, prepare_replacements):
 
 	docker_args.extend(docker_run_settings)
 	docker_args.extend(volume_mappings)
-
+	compiler_config_filepath = Path(prepare_replacements['compiler_configuration_filepath'])
+	inner_compiler_configuration_path = f'{inner_configuration_path}/{compiler_config_filepath.parent.name}/{compiler_config_filepath.name}'
 	docker_args.extend([
 		options.build_base_image_name,
 		'python3', '/scripts/runDockerBuildInnerBuild.py',
 		# assume paths are relative to workdir
-		f'--compiler-configuration={inner_configuration_path}/{get_base_from_path(prepare_replacements["compiler_configuration_filepath"])}',
+		f'--compiler-configuration={inner_compiler_configuration_path}',
 		f'--build-configuration={inner_configuration_path}/{get_base_from_path(prepare_replacements["build_configuration_filepath"])}',
 		'--source-path=/catapult-src/client/catapult',
 		'--out-dir=/binaries'

@@ -1,9 +1,12 @@
 pipeline {
-	agent any
-
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		choice name: 'ARCHITECTURE', choices: ['amd64', 'arm64'], description: 'Computer architecture'
 		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
+	}
+
+	agent {
+		label "${helper.resolveAgentName('ubuntu', "${ARCHITECTURE}", 'small')}"
 	}
 
 	options {
@@ -12,16 +15,28 @@ pipeline {
 	}
 
 	triggers {
-		// second of the month
-		cron('H 0 2 * *')
+		// third and fourth of the month
+		cron('H 0 3,4 * *')
 	}
 
 	stages {
+		stage('override architecture') {
+			when {
+				triggeredBy 'TimerTrigger'
+			}
+			steps {
+				script {
+					// even days are amd64, odd days are arm64
+					ARCHITECTURE = helper.determineArchitecture()
+				}
+			}
+		}
 		stage('print env') {
 			steps {
 				echo """
 							env.GIT_BRANCH: ${env.GIT_BRANCH}
 						 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
+							  ARCHITECTURE: ${ARCHITECTURE}
 				"""
 			}
 		}
@@ -31,35 +46,40 @@ pipeline {
 				stage('gcc prior') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true, "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('gcc latest') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true, "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('gcc 10 [debian]') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-debian', 'debian', false)
+							dispatchBuildBaseImageJob('gcc-debian', 'debian', false, "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('gcc westmere') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-westmere', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-westmere', 'ubuntu', true, 'amd64')
 						}
 					}
 				}
 				stage('gcc [fedora]') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false)
+							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false, "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -67,44 +87,64 @@ pipeline {
 				stage('clang prior') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true)
+							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true, "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('clang latest') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true)
+							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true, "${ARCHITECTURE}")
 						}
 					}
 				}
 
 				stage('clang ausan') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-ausan', 'ubuntu', false)
+							dispatchBuildBaseImageJob('clang-ausan', 'ubuntu', false, 'amd64')
 						}
 					}
 				}
 				stage('clang tsan') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-tsan', 'ubuntu', false)
+							dispatchBuildBaseImageJob('clang-tsan', 'ubuntu', false, 'amd64')
 						}
 					}
 				}
 
 				stage('msvc latest') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
-							dispatchBuildBaseImageJob('msvc-latest', 'windows', true)
+							dispatchBuildBaseImageJob('msvc-latest', 'windows', true, 'amd64')
 						}
 					}
 				}
 				stage('msvc prior') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
-							dispatchBuildBaseImageJob('msvc-prior', 'windows', true)
+							dispatchBuildBaseImageJob('msvc-prior', 'windows', true, 'amd64')
 						}
 					}
 				}
@@ -112,7 +152,7 @@ pipeline {
 				stage('release base image') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('release', 'ubuntu')
+							dispatchPrepareBaseImageJob('release', 'ubuntu', "${ARCHITECTURE}")
 						}
 					}
 				}
@@ -120,28 +160,33 @@ pipeline {
 				stage('test base image') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'ubuntu')
+							dispatchPrepareBaseImageJob('test', 'ubuntu', "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('test base image [debian]') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'debian')
+							dispatchPrepareBaseImageJob('test', 'debian', "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('test base image [fedora]') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'fedora')
+							dispatchPrepareBaseImageJob('test', 'fedora', "${ARCHITECTURE}")
 						}
 					}
 				}
 				stage('test base image [windows]') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'windows')
+							dispatchPrepareBaseImageJob('test', 'windows', 'amd64')
 						}
 					}
 				}
@@ -176,12 +221,13 @@ pipeline {
 	}
 }
 
-void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
+void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer, String architecture) {
 	build job: 'catapult-client-build-base-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${shouldBuildConanLayer}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
@@ -189,11 +235,12 @@ void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSys
 	]
 }
 
-void dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
+void dispatchPrepareBaseImageJob(String imageType, String operatingSystem, String architecture) {
 	build job: 'catapult-client-prepare-base-image', parameters: [
 		string(name: 'IMAGE_TYPE', value: "${imageType}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
+		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"

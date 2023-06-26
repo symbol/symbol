@@ -25,7 +25,8 @@ RUN sed -i '/^default = default_sect/a legacy = legacy_sect\n' /etc/ssl/openssl.
 	&& cat /etc/ssl/openssl.cnf
 
 # codecov uploader
-RUN curl -Os https://uploader.codecov.io/latest/linux/codecov \
+RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "linux" || echo "aarch64") \
+	&& curl -Os "https://uploader.codecov.io/latest/${ARCH}/codecov" \
 	&& chmod +x codecov \
 	&& mv codecov /usr/local/bin
 
