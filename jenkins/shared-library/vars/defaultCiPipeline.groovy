@@ -108,6 +108,9 @@ void call(Closure body) {
 							anyOf {
 								branch env.DEV_BRANCH
 								branch env.RELEASE_BRANCH
+
+								// Dependabot commits does not always conform to our commit message convention
+								environment name: 'CHANGE_AUTHOR', value: 'dependabot[bot]'
 							}
 						}
 						steps {
