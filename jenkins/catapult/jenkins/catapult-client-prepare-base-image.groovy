@@ -65,7 +65,8 @@ pipeline {
 							: 'windows' == "${OPERATING_SYSTEM}"
 								? 'mcr.microsoft.com/powershell:latest'
 								: "${params.OPERATING_SYSTEM}:${version}"
-						filename = "${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
+						operatingSystem = 'debian' == "${params.OPERATING_SYSTEM}" ? 'ubuntu' : "${params.OPERATING_SYSTEM}"
+						filename = "${operatingSystem.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
 						dockerfile = "./jenkins/catapult/templates/${filename}BaseImage.Dockerfile"
 					}
 				}
