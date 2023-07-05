@@ -27,6 +27,11 @@ RUN apt-get install -y python3-pip
 RUN apt-get install -y shellcheck \
 	&& pip install gitlint
 
+# rust dependencies - https://docs.rs/crate/openssl-sys/0.9.19
+RUN apt-get install -y libssl-dev pkg-config \
+# there is no aarch64 build of binaryen -  https://github.com/WebAssembly/binaryen/issues/5337
+	&& if [ "$(uname -m)" = "aarch64" ] apt-get install -y binaryen; fi \
+
 # codecov uploader
 RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "linux" || echo "aarch64") \
 	&& curl -Os "https://uploader.codecov.io/latest/${ARCH}/codecov" \
