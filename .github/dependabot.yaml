@@ -101,3 +101,13 @@ updates:
     target-branch: dev
     commit-message:
       prefix: '[dependency]'
+
+  - package-ecosystem: cargo
+    directory: /sdk/javascript/wasm
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: [sdk-javascript]
+    commit-message:
+      prefix: '[sdk/javascript]'
