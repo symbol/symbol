@@ -30,7 +30,9 @@ void dockerPublisher(Map config, String phase) {
 	final String imageVersionName = "${config.dockerImageName}:${version}"
 	final String archImageName = imageVersionName + "-${ARCHITECTURE}"
 	dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-		dockerHelper.dockerBuildAndPushImage(archImageName, config.dockerBuildArgs ?: '.')
+		String args = config.dockerBuildArgs ?: '.'
+		args = '--network host ' + args
+		dockerHelper.dockerBuildAndPushImage(archImageName, args)
 		dockerHelper.updateDockerImage(imageVersionName, archImageName, "${ARCHITECTURE}")
 		if (isRelease(phase)) {
 			final String imageLatestName = "${config.dockerImageName}:latest"
