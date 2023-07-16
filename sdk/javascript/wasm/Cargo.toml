@@ -30,7 +30,7 @@ zeroize = "1.5.7"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
-clap = { version = "3.2.18", features = ["derive"] }
+clap = { version = "4.3.12", features = ["derive"] }
 hex-literal = "0.4.1"
 serde = { version = "1.0.144", features = ["derive"] }
 serde-hex = "0.1.0"
