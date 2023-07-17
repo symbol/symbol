@@ -20,6 +20,9 @@ describe('arrayHelpers', () => {
 			this.elements = elementSizes.map(size => new MockElement(size));
 
 			this.output = {
+				/**
+				 * @type {Array<{type: string, value: number}>}
+				 */
 				writes: [],
 				write(value) {
 					this.writes.push(value instanceof Uint8Array ? { type: 'fill', value: value.length } : { type: 'value', value });

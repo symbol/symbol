@@ -14,6 +14,7 @@ const nameToEnumValue = (mapping, enumType, enumValueName) => {
 };
 
 const buildTypeHintsMap = structValue => {
+	/** @type {{[key: string]: string}} */
 	const typeHints = {};
 	const rawTypeHints = structValue.constructor.TYPE_HINTS || {};
 	Object.getOwnPropertyNames(rawTypeHints).forEach(key => {
@@ -55,33 +56,59 @@ const autoEncodeStrings = entity => {
 
 /**
  * Rule based transaction factory.
+ * @note This class is not intended to be used directly.
  */
 export default class RuleBasedTransactionFactory {
 	/**
 	 * Creates a rule based transaction factory for use with catbuffer generated code.
 	 * @param {object} module Catbuffer generated module.
-	 * @param {function} typeConverter Type converter.
-	 * @param {Map} typeRuleOverrides Type rule overrides.
+	 * @param {function|undefined} typeConverter Type converter.
+	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
 	 */
 	constructor(module, typeConverter = undefined, typeRuleOverrides = undefined) {
-		this.module = module;
-		this.typeConverter = value => typeConverterFactory(this.module, typeConverter, value);
-		this.typeRuleOverrides = typeRuleOverrides || new Map();
+		/**
+		 * @private
+		 */
+		this._module = module;
+
+		/**
+		 * Tries to coerce a value to a more appropriate type.
+		 * @param {object} value Original value.
+		 * @returns {object} Type converted value.
+		 * @private
+		 */
+		this._typeConverter = value => typeConverterFactory(this._module, typeConverter, value);
+
+		/**
+		 * @private
+		 */
+		this._typeRuleOverrides = typeRuleOverrides || new Map();
+
+		/**
+		 * Map of rule names to transform functions.
+		 * @type Map<string, function>
+		 */
 		this.rules = new Map();
 	}
 
+	/**
+	 * Looks up a class in the wrapped module.
+	 * @param {string} name Class name.
+	 * @returns {Constructable} Class type.
+	 * @private
+	 */
 	_getModuleClass(name) {
-		return this.module[name];
+		return this._module[name];
 	}
 
 	/**
 	 * Creates wrapper for SDK POD types.
 	 * @param {string} name Class name.
-	 * @param {type} PodClass Class type.
+	 * @param {Constructable} PodClass Class type.
 	 */
 	addPodParser(name, PodClass) {
-		if (this.typeRuleOverrides.has(PodClass)) {
-			this.rules.set(name, this.typeRuleOverrides.get(PodClass));
+		if (this._typeRuleOverrides.has(PodClass)) {
+			this.rules.set(name, this._typeRuleOverrides.get(PodClass));
 			return;
 		}
 
@@ -153,8 +180,10 @@ export default class RuleBasedTransactionFactory {
 	 */
 	addArrayParser(name) {
 		const elementRule = this.rules.get(name);
-		const elementName = name.replace(/^struct:/, '');
+		if (!elementRule)
+			throw Error(`cannot create array type parser because element rule "${name}" is unknown`);
 
+		const elementName = name.replace(/^struct:/, '');
 		this.rules.set(`array[${elementName}]`, values => values.map(value => elementRule(value)));
 	}
 
@@ -162,8 +191,8 @@ export default class RuleBasedTransactionFactory {
 	 * Autodetects rules using reflection.
 	 */
 	autodetect() {
-		Object.getOwnPropertyNames(this.module).forEach(key => {
-			const cls = this.module[key];
+		Object.getOwnPropertyNames(this._module).forEach(key => {
+			const cls = this._module[key];
 			if (Object.prototype.isPrototypeOf.call(BaseValue.prototype, cls.prototype))
 				this.addPodParser(key, cls);
 		});
@@ -188,7 +217,23 @@ export default class RuleBasedTransactionFactory {
 		return entity;
 	}
 
+	/**
+	 * Creates a transaction descriptor processor around a descriptor.
+	 * @param {object} descriptor Transaction descriptor.
+	 * @returns {TransactionDescriptorProcessor} Transaction descriptor processor.
+	 * @private
+	 */
 	_createProcessor(descriptor) {
-		return new TransactionDescriptorProcessor(descriptor, this.rules, this.typeConverter);
+		return new TransactionDescriptorProcessor(descriptor, this.rules, this._typeConverter);
 	}
 }
+
+// region type declarations
+
+/**
+ * Constructable class type.
+ * @class
+ * @typedef {{new(...args: any[]): object}} Constructable
+ */
+
+// endregion

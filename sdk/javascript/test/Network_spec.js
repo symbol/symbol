@@ -2,11 +2,19 @@ import { Network, NetworkLocator } from '../src/Network.js';
 import { NetworkTimestamp, NetworkTimestampDatetimeConverter } from '../src/NetworkTimestamp.js';
 import { expect } from 'chai';
 
+const createNetwork = (name, identifier) => {
+	class MockAddress {
+		static ENCODED_SIZE = 0;
+	}
+
+	const converter = new NetworkTimestampDatetimeConverter(new Date(Date.UTC(2022, 2, 16, 0, 6, 25)), 'minutes');
+	return new Network(name, identifier, converter, () => {}, () => {}, MockAddress, NetworkTimestamp);
+};
+
 describe('Network', () => {
 	it('can convert network time to datetime', () => {
 		// Arrange:
-		const converter = new NetworkTimestampDatetimeConverter(new Date(Date.UTC(2022, 2, 16, 0, 6, 25)), 'minutes');
-		const network = new Network('foo', 0x55, converter, undefined, undefined, undefined, NetworkTimestamp);
+		const network = createNetwork('foo', 0x55);
 
 		// Act:
 		const datetimeTimestamp = network.toDatetime(new NetworkTimestamp(60));
@@ -17,8 +25,7 @@ describe('Network', () => {
 
 	it('can convert datetime to network time', () => {
 		// Arrange:
-		const converter = new NetworkTimestampDatetimeConverter(new Date(Date.UTC(2022, 2, 16, 0, 6, 25)), 'minutes');
-		const network = new Network('foo', 0x55, converter, undefined, undefined, undefined, NetworkTimestamp);
+		const network = createNetwork('foo', 0x55);
 
 		// Act:
 		const networkTimestamp = network.fromDatetime(new Date(Date.UTC(2022, 2, 16, 1, 6, 25)));
@@ -29,14 +36,14 @@ describe('Network', () => {
 
 	it('supports toString', () => {
 		// Arrange:
-		const network = new Network('foo', 0x55);
+		const network = createNetwork('foo', 0x55);
 
 		// Act + Assert:
 		expect(network.toString()).to.equal('foo');
 	});
 });
 
-const PREDEFINED_NETWORKS = [new Network('foo', 0x55), new Network('bar', 0x37)];
+const PREDEFINED_NETWORKS = [createNetwork('foo', 0x55), createNetwork('bar', 0x37)];
 
 describe('NetworkLocator', () => {
 	it('can find well known network by name (single)', () => {

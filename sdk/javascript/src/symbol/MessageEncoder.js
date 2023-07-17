@@ -28,25 +28,34 @@ export default class MessageEncoder {
 	 * @param {KeyPair} keyPair Key pair.
 	 */
 	constructor(keyPair) {
-		this.keyPair = keyPair;
+		/**
+		 * @private
+		 */
+		this._keyPair = keyPair;
 	}
 
 	/**
-	 * Tries to decode encoded message, returns tuple:
-	 *  * true, message - if message has been decoded and decrypted
-	 *  * false, encodedMessage - otherwise
+	 * Public key used for message encoding.
+	 * @returns {PublicKey} Public key used for message encoding.
+	 */
+	get publicKey() {
+		return this._keyPair.publicKey;
+	}
+
+	/**
+	 * Tries to decode encoded message.
 	 * @param {PublicKey} recipientPublicKey Recipient's public key.
-	 * @param {Uint8Array} encodedMessage Encoded message
-	 * @returns {array} Tuple containing decoded status and message.
+	 * @param {Uint8Array} encodedMessage Encoded message.
+	 * @returns {TryDecodeResult} Tuple containing decoded status and message.
 	 */
 	tryDecode(recipientPublicKey, encodedMessage) {
 		if (1 === encodedMessage[0]) {
 			const [result, message] = filterExceptions(
-				() => decodeAesGcm(deriveSharedKey, this.keyPair, recipientPublicKey, encodedMessage.subarray(1)),
+				() => decodeAesGcm(deriveSharedKey, this._keyPair, recipientPublicKey, encodedMessage.subarray(1)),
 				['Unsupported state or unable to authenticate data']
 			);
 			if (result)
-				return [true, message];
+				return { isDecoded: true, message };
 		}
 
 		if (0xFE === encodedMessage[0] && 0 === deepCompare(DELEGATION_MARKER, encodedMessage.slice(0, 8))) {
@@ -55,17 +64,17 @@ export default class MessageEncoder {
 			const ephemeralPublicKey = new PublicKey(encodedMessage.subarray(ephemeralPublicKeyStart, ephemeralPublicKeyEnd));
 
 			const [result, message] = filterExceptions(
-				() => decodeAesGcm(deriveSharedKey, this.keyPair, ephemeralPublicKey, encodedMessage.subarray(ephemeralPublicKeyEnd)),
+				() => decodeAesGcm(deriveSharedKey, this._keyPair, ephemeralPublicKey, encodedMessage.subarray(ephemeralPublicKeyEnd)),
 				[
 					'Unsupported state or unable to authenticate data',
 					'invalid point'
 				]
 			);
 			if (result)
-				return [true, message];
+				return { isDecoded: true, message };
 		}
 
-		return [false, encodedMessage];
+		return { isDecoded: false, message: encodedMessage };
 	}
 
 	/**
@@ -75,7 +84,7 @@ export default class MessageEncoder {
 	 * @returns {Uint8Array} Encrypted and encoded message.
 	 */
 	encode(recipientPublicKey, message) {
-		const { tag, initializationVector, cipherText } = encodeAesGcm(deriveSharedKey, this.keyPair, recipientPublicKey, message);
+		const { tag, initializationVector, cipherText } = encodeAesGcm(deriveSharedKey, this._keyPair, recipientPublicKey, message);
 
 		return concatArrays(new Uint8Array([1]), tag, initializationVector, cipherText);
 	}
@@ -97,14 +106,12 @@ export default class MessageEncoder {
 	}
 
 	/**
-	 * Tries to decode encoded wallet message, returns tuple:
-	 *  * true, message - if message has been decoded and decrypted
-	 *  * false, encodedMessage - otherwise
+	 * Tries to decode encoded message.
 	 * @deprecated This function is only provided for compatability with the original Symbol wallets.
 	 *             Please use `tryDecode` in any new code.
 	 * @param {PublicKey} recipientPublicKey Recipient's public key.
 	 * @param {Uint8Array} encodedMessage Encoded message
-	 * @returns {array} Tuple containing decoded status and message.
+	 * @returns {TryDecodeResult} Tuple containing decoded status and message.
 	 */
 	tryDecodeDeprecated(recipientPublicKey, encodedMessage) {
 		const encodedHexString = new TextDecoder().decode(encodedMessage.subarray(1));
@@ -131,3 +138,15 @@ export default class MessageEncoder {
 		return new Uint8Array([1, ...encodedHexStringBytes]);
 	}
 }
+
+// region type declarations
+
+/**
+ * Result of a try decode operation.
+ * @class
+ * @typedef {object} TryDecodeResult
+ * @property {boolean} isDecoded \c true if message has been decoded and decrypted; \c false otherwise.
+ * @property {Uint8Array} message Decoded message when `isDecoded` is \c true; encoded message otherwise.
+ */
+
+// endregion

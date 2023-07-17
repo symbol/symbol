@@ -1,7 +1,18 @@
-import { Address } from './Network.js';
+import {
+	Address,
+	/* eslint-disable no-unused-vars */
+	Network
+	/* eslint-enable no-unused-vars */
+} from './Network.js';
 import { generateMosaicId, generateNamespaceId } from './idGenerator.js';
 import * as sc from './models.js';
-import { Hash256, PublicKey } from '../CryptoTypes.js';
+import {
+	Hash256,
+	PublicKey,
+	/* eslint-disable no-unused-vars */
+	Signature
+	/* eslint-enable no-unused-vars */
+} from '../CryptoTypes.js';
 import RuleBasedTransactionFactory from '../RuleBasedTransactionFactory.js';
 import { uint8ToHex } from '../utils/converter.js';
 
@@ -12,17 +23,41 @@ export default class TransactionFactory {
 	/**
 	 * Creates a factory for the specified network.
 	 * @param {Network} network Symbol network.
-	 * @param {Map} typeRuleOverrides Type rule overrides.
+	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
 	 */
-	constructor(network, typeRuleOverrides) {
-		this.factory = TransactionFactory.buildRules(typeRuleOverrides);
-		this.network = network;
+	constructor(network, typeRuleOverrides = undefined) {
+		/**
+		 * @private
+		 */
+		this._factory = TransactionFactory._buildRules(typeRuleOverrides); // eslint-disable-line no-underscore-dangle
+
+		/**
+		 * @private
+		 */
+		this._network = network;
 	}
 
+	/**
+	 * Gets rule names with registered hints.
+	 */
+	get ruleNames() {
+		return Array.from(this._factory.rules.keys());
+	}
+
+	/**
+	 * Creates a transaction from a transaction descriptor.
+	 * @template TTransaction
+	 * @param {object} transactionDescriptor Transaction descriptor.
+	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
+	 *                           When unset, descriptor arrays will be presumed to be already sorted.
+	 * @param {{createByName: function}} FactoryClass Factory class used to create the transaction.
+	 * @returns {TTransaction} Newly created transaction.
+	 * @private
+	 */
 	_createAndExtend(transactionDescriptor, autosort, FactoryClass) {
-		const transaction = this.factory.createFromFactory(FactoryClass.createByName, {
+		const transaction = this._factory.createFromFactory(FactoryClass.createByName, {
 			...transactionDescriptor,
-			network: this.network.identifier
+			network: this._network.identifier
 		});
 		if (autosort)
 			transaction.sort();
@@ -33,7 +68,7 @@ export default class TransactionFactory {
 			const rawNamespaceId = generateNamespaceId(new TextDecoder().decode(transaction.name), parentId);
 			transaction.id = new sc.NamespaceId(rawNamespaceId);
 		} else if (sc.TransactionType.MOSAIC_DEFINITION === transaction.type) {
-			const address = this.network.publicKeyToAddress(new PublicKey(transaction.signerPublicKey.bytes));
+			const address = this._network.publicKeyToAddress(new PublicKey(transaction.signerPublicKey.bytes));
 			transaction.id = new sc.MosaicId(generateMosaicId(address, transaction.nonce.value));
 		}
 
@@ -45,7 +80,7 @@ export default class TransactionFactory {
 	 * @param {object} transactionDescriptor Transaction descriptor.
 	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
 	 *                           When unset, descriptor arrays will be presumed to be already sorted.
-	 * @returns {object} Newly created transaction.
+	 * @returns {sc.Transaction} Newly created transaction.
 	 */
 	create(transactionDescriptor, autosort = true) {
 		return this._createAndExtend(transactionDescriptor, autosort, sc.TransactionFactory);
@@ -56,7 +91,7 @@ export default class TransactionFactory {
 	 * @param {object} transactionDescriptor Transaction descriptor.
 	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
 	 *                           When unset, descriptor arrays will be presumed to be already sorted.
-	 * @returns {object} Newly created transaction.
+	 * @returns {sc.EmbeddedTransaction} Newly created transaction.
 	 */
 	createEmbedded(transactionDescriptor, autosort = true) {
 		return this._createAndExtend(transactionDescriptor, autosort, sc.EmbeddedTransactionFactory);
@@ -64,7 +99,7 @@ export default class TransactionFactory {
 
 	/**
 	 * Attaches a signature to a transaction.
-	 * @param {object} transaction Transaction object.
+	 * @param {sc.Transaction} transaction Transaction object.
 	 * @param {Signature} signature Signature to attach.
 	 * @returns {string} JSON transaction payload.
 	 */
@@ -77,6 +112,12 @@ export default class TransactionFactory {
 		return jsonPayload;
 	}
 
+	/**
+	 * Tries to coerce an sdk type to a model type.
+	 * @param {object} value Value to convert.
+	 * @returns {sc.Address|undefined} Converted value or undefined.
+	 * @private
+	 */
 	static _symbolTypeConverter(value) {
 		if (value instanceof Address)
 			return new sc.UnresolvedAddress(value.bytes);
@@ -84,7 +125,13 @@ export default class TransactionFactory {
 		return undefined;
 	}
 
-	static buildRules(typeRuleOverrides) {
+	/**
+	 * Builds a rule based transaction factory.
+	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
+	 * @returns {RuleBasedTransactionFactory} Rule based transaction factory.
+	 * @private
+	 */
+	static _buildRules(typeRuleOverrides) {
 		const factory = new RuleBasedTransactionFactory(sc, this._symbolTypeConverter, typeRuleOverrides);
 		factory.autodetect();
 

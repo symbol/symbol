@@ -1,9 +1,18 @@
+/* eslint-disable no-unused-vars */
+import { Bip32Node } from '../Bip32.js';
+/* eslint-enable no-unused-vars */
 import {
-	Hash256, PrivateKey, PublicKey, Signature
+	Hash256,
+	PrivateKey,
+	PublicKey,
+	/* eslint-disable no-unused-vars */
+	SharedKey256,
+	/* eslint-enable no-unused-vars */
+	Signature
 } from '../CryptoTypes.js';
 import { NetworkLocator } from '../Network.js';
 import { KeyPair, Verifier } from '../symbol/KeyPair.js';
-import { Address, Network } from '../symbol/Network.js';
+import { Address, Network as SymbolNetwork } from '../symbol/Network.js';
 import { deriveSharedKey } from '../symbol/SharedKey.js';
 import TransactionFactory from '../symbol/TransactionFactory.js';
 import { MerkleHashBuilder } from '../symbol/merkle.js';
@@ -45,28 +54,59 @@ const transactionDataBuffer = transactionBuffer => {
  * Facade used to interact with Symbol blockchain.
  */
 export default class SymbolFacade {
+	/**
+	 * BIP32 curve name.
+	 * @type {string}
+	 */
 	static BIP32_CURVE_NAME = 'ed25519';
 
+	/**
+	 * Network address class type.
+	 * @type {typeof Address}
+	 */
 	static Address = Address;
 
+	/**
+	 * Network key pair class type.
+	 * @type {typeof KeyPair}
+	 */
 	static KeyPair = KeyPair;
 
+	/**
+	 * Network verifier class type.
+	 * @type {typeof Verifier}
+	 */
 	static Verifier = Verifier;
 
+	/**
+	 * Derives shared key from key pair and other party's public key.
+	 * @param {KeyPair} keyPair Key pair.
+	 * @param {PublicKey} otherPublicKey Other party's public key.
+	 * @returns {SharedKey256} Shared encryption key.
+	 */
 	static deriveSharedKey = deriveSharedKey;
 
 	/**
 	 * Creates a Symbol facade.
-	 * @param {string|Network} network Symbol network or network name.
+	 * @param {string|SymbolNetwork} network Symbol network or network name.
 	 */
 	constructor(network) {
-		this.network = 'string' === typeof network ? NetworkLocator.findByName(Network.NETWORKS, network) : network;
+		/**
+		 * Underlying network.
+		 * @type SymbolNetwork
+		 */
+		this.network = 'string' === typeof network ? NetworkLocator.findByName(SymbolNetwork.NETWORKS, network) : network;
+
+		/**
+		 * Underlying transaction factory.
+		 * @type TransactionFactory
+		 */
 		this.transactionFactory = new TransactionFactory(this.network);
 	}
 
 	/**
 	 * Hashes a Symbol transaction.
-	 * @param {object} transaction Transaction object.
+	 * @param {sc.Transaction} transaction Transaction object.
 	 * @returns {Hash256} Transaction hash.
 	 */
 	hashTransaction(transaction) {
@@ -81,7 +121,7 @@ export default class SymbolFacade {
 	/**
 	 * Signs a Symbol transaction.
 	 * @param {KeyPair} keyPair Key pair.
-	 * @param {object} transaction Transaction object.
+	 * @param {sc.Transaction} transaction Transaction object.
 	 * @returns {Signature} Transaction signature.
 	 */
 	signTransaction(keyPair, transaction) {
@@ -93,9 +133,9 @@ export default class SymbolFacade {
 
 	/**
 	 * Verifies a Symbol transaction.
-	 * @param {object} transaction Transaction object.
+	 * @param {sc.Transaction} transaction Transaction object.
 	 * @param {Signature} signature Signature to verify.
-	 * @returns {boolean} true if transaction signature is verified.
+	 * @returns {boolean} \c true if transaction signature is verified.
 	 */
 	verifyTransaction(transaction, signature) {
 		const verifyBuffer = new Uint8Array([
@@ -108,27 +148,35 @@ export default class SymbolFacade {
 	/**
 	 * Cosigns a Symbol transaction.
 	 * @param {KeyPair} keyPair Key pair of the cosignatory.
-	 * @param {object} transaction Transaction object.
+	 * @param {sc.Transaction} transaction Transaction object.
 	 * @param {boolean} detached \c true if resulting cosignature is appropriate for network propagation.
 	 *                           \c false if resulting cosignature is appropriate for attaching to an aggregate.
-	 * @returns {Cosignature|DetachedCosignature} Signed cosignature.
+	 * @returns {sc.Cosignature|sc.DetachedCosignature} Signed cosignature.
 	 */
 	cosignTransaction(keyPair, transaction, detached = false) {
 		const transactionHash = this.hashTransaction(transaction);
 
-		const cosignature = detached ? new sc.DetachedCosignature() : new sc.Cosignature();
-		if (detached)
-			cosignature.parentHash = new sc.Hash256(transactionHash.bytes);
+		const initializeCosignature = cosignature => {
+			cosignature.version = 0n;
+			cosignature.signerPublicKey = new sc.PublicKey(keyPair.publicKey.bytes);
+			cosignature.signature = new sc.Signature(keyPair.sign(transactionHash.bytes).bytes);
+		};
 
-		cosignature.version = 0n;
-		cosignature.signerPublicKey = new sc.PublicKey(keyPair.publicKey.bytes);
-		cosignature.signature = new sc.Signature(keyPair.sign(transactionHash.bytes).bytes);
+		if (detached) {
+			const cosignature = new sc.DetachedCosignature();
+			cosignature.parentHash = new sc.Hash256(transactionHash.bytes);
+			initializeCosignature(cosignature);
+			return cosignature;
+		}
+
+		const cosignature = new sc.Cosignature();
+		initializeCosignature(cosignature);
 		return cosignature;
 	}
 
 	/**
-	 * Hashes embedded transactions of an aggregate."""
-	 * @param {array<object>} embeddedTransactions Embedded transactions to hash.
+	 * Hashes embedded transactions of an aggregate transaction.
+	 * @param {Array<sc.EmbeddedTransaction>} embeddedTransactions Embedded transactions to hash.
 	 * @returns {Hash256} Aggregate transactions hash.
 	 */
 	static hashEmbeddedTransactions(embeddedTransactions) {
@@ -143,8 +191,8 @@ export default class SymbolFacade {
 	/**
 	 * Creates a network compatible BIP32 path for the specified account.
 	 *
-	 * @param {int} accountId Id of the account for which to generate a BIP32 path.
-	 * @returns {array<int>} BIP32 path for the specified account.
+	 * @param {number} accountId Id of the account for which to generate a BIP32 path.
+	 * @returns {Array<number>} BIP32 path for the specified account.
 	 */
 	bip32Path(accountId) {
 		return [44, 'mainnet' === this.network.name ? 4343 : 1, accountId, 0, 0];

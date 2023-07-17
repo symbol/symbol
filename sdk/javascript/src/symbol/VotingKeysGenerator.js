@@ -15,43 +15,50 @@ export default class VotingKeysGenerator {
 	 * @param {function} privateKeyGenerator Private key generator.
 	 */
 	constructor(rootKeyPair, privateKeyGenerator = PrivateKey.random) {
-		this.rootKeyPair = rootKeyPair;
-		this.privateKeyGenerator = privateKeyGenerator;
+		/**
+		 * @private
+		 */
+		this._rootKeyPair = rootKeyPair;
+
+		/**
+		 * @private
+		 */
+		this._privateKeyGenerator = privateKeyGenerator;
 	}
 
 	/**
 	 * Generates voting keys for specified epochs.
-	 * @param {number} startEpoch Start epoch.
-	 * @param {number} endEpoch End epoch.
+	 * @param {bigint} startEpoch Start epoch.
+	 * @param {bigint} endEpoch End epoch.
 	 * @returns {Uint8Array} Serialized voting keys.
 	 */
 	generate(startEpoch, endEpoch) {
 		const HEADER_SIZE = 80;
 		const EPOCH_ENTRY_SIZE = 96;
 
-		const numEpochs = Number(endEpoch - startEpoch) + 1;
+		const numEpochs = Number(endEpoch - startEpoch + 1n);
 		const buffer = new ArrayBuffer(HEADER_SIZE + (EPOCH_ENTRY_SIZE * numEpochs));
 
 		const view = new DataView(buffer);
-		view.setBigUint64(0, BigInt(startEpoch), true); // start key identifier
-		view.setBigUint64(8, BigInt(endEpoch), true); // end key identifier
+		view.setBigUint64(0, startEpoch, true); // start key identifier
+		view.setBigUint64(8, endEpoch, true); // end key identifier
 		view.setBigUint64(16, 0xFFFFFFFFFFFFFFFFn, true); // reserved - last (used) key identifier
 		view.setBigUint64(24, 0xFFFFFFFFFFFFFFFFn, true); // reserved - last wiped key identifier
 
-		setBuffer(view, 32, this.rootKeyPair.publicKey.bytes); // root voting public key
-		view.setBigUint64(64, BigInt(startEpoch), true); // level 1/1 start key identifier
-		view.setBigUint64(72, BigInt(endEpoch), true); // level 1/1 end key identifier
+		setBuffer(view, 32, this._rootKeyPair.publicKey.bytes); // root voting public key
+		view.setBigUint64(64, startEpoch, true); // level 1/1 start key identifier
+		view.setBigUint64(72, endEpoch, true); // level 1/1 end key identifier
 
 		for (let i = 0; i < numEpochs; ++i) {
 			const identifier = endEpoch - BigInt(i);
-			const childPrivateKey = this.privateKeyGenerator();
+			const childPrivateKey = this._privateKeyGenerator();
 			const childKeyPair = new KeyPair(childPrivateKey);
 
 			const parentSignedPayloadBuffer = new ArrayBuffer(40);
 			const parentSignedPayloadView = new DataView(parentSignedPayloadBuffer);
 			setBuffer(parentSignedPayloadView, 0, childKeyPair.publicKey.bytes);
 			parentSignedPayloadView.setBigUint64(32, identifier, true);
-			const signature = this.rootKeyPair.sign(new Uint8Array(parentSignedPayloadBuffer));
+			const signature = this._rootKeyPair.sign(new Uint8Array(parentSignedPayloadBuffer));
 
 			const startOffset = HEADER_SIZE + (EPOCH_ENTRY_SIZE * i);
 			setBuffer(view, startOffset, childKeyPair.privateKey.bytes); // child voting private key used to sign votes for an epoch

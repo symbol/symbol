@@ -1,5 +1,11 @@
+/* eslint-disable no-unused-vars */
+import { KeyPair } from './KeyPair.js';
+/* eslint-enable no-unused-vars */
 import { deriveSharedKey, deriveSharedKeyDeprecated } from './SharedKey.js'; // eslint-disable-line import/no-deprecated
 import { Message, MessageType } from './models.js';
+/* eslint-disable no-unused-vars */
+import { PublicKey } from '../CryptoTypes.js';
+/* eslint-enable no-unused-vars */
 import {
 	concatArrays, decodeAesCbc, decodeAesGcm, encodeAesCbc, encodeAesGcm
 } from '../impl/CipherHelpers.js';
@@ -25,31 +31,40 @@ export default class MessageEncoder {
 	 * @param {KeyPair} keyPair Key pair.
 	 */
 	constructor(keyPair) {
-		this.keyPair = keyPair;
+		/**
+		 * @private
+		 */
+		this._keyPair = keyPair;
 	}
 
 	/**
-	 * Tries to decode encoded message, returns tuple:
-	 *  * true, message - if message has been decoded and decrypted
-	 *  * false, encodedMessage - otherwise
+	 * Public key used for message encoding.
+	 * @returns {PublicKey} Public key used for message encoding.
+	 */
+	get publicKey() {
+		return this._keyPair.publicKey;
+	}
+
+	/**
+	 * Tries to decode encoded message.
 	 * @param {PublicKey} recipientPublicKey Recipient public key.
-	 * @param {Uint8Array} encodedMessage Encoded message.
-	 * @returns {array} Tuple containing decoded status and message.
+	 * @param {Message} encodedMessage Encoded message.
+	 * @returns {TryDecodeResult} Tuple containing decoded status and message.
 	 */
 	tryDecode(recipientPublicKey, encodedMessage) {
 		if (MessageType.ENCRYPTED !== encodedMessage.messageType)
 			throw new Error('invalid message format');
 
 		let [result, message] = filterExceptions(
-			() => decodeAesGcm(deriveSharedKey, this.keyPair, recipientPublicKey, encodedMessage.message),
+			() => decodeAesGcm(deriveSharedKey, this._keyPair, recipientPublicKey, encodedMessage.message),
 			['Unsupported state or unable to authenticate data']
 		);
 		if (result)
-			return [true, message];
+			return { isDecoded: true, message };
 
 		[result, message] = filterExceptions(
 			// eslint-disable-next-line import/no-deprecated
-			() => decodeAesCbc(deriveSharedKeyDeprecated, this.keyPair, recipientPublicKey, encodedMessage.message),
+			() => decodeAesCbc(deriveSharedKeyDeprecated, this._keyPair, recipientPublicKey, encodedMessage.message),
 			[
 				'digital envelope routines:EVP_DecryptFinal_ex:bad decrypt',
 				'digital envelope routines:EVP_DecryptFinal_ex:wrong final block length',
@@ -57,19 +72,19 @@ export default class MessageEncoder {
 			]
 		);
 		if (result)
-			return [true, message];
+			return { isDecoded: true, message };
 
-		return [false, encodedMessage];
+		return { isDecoded: false, message: encodedMessage };
 	}
 
 	/**
 	 * Encodes message to recipient using recommended format.
 	 * @param {PublicKey} recipientPublicKey Recipient public key.
 	 * @param {Uint8Array} message Message to encode.
-	 * @returns {Uint8Array} Encrypted and encoded message.
+	 * @returns {Message} Encrypted and encoded message.
 	 */
 	encode(recipientPublicKey, message) {
-		const { tag, initializationVector, cipherText } = encodeAesGcm(deriveSharedKey, this.keyPair, recipientPublicKey, message);
+		const { tag, initializationVector, cipherText } = encodeAesGcm(deriveSharedKey, this._keyPair, recipientPublicKey, message);
 
 		const encodedMessage = new Message();
 		encodedMessage.messageType = MessageType.ENCRYPTED;
@@ -83,11 +98,11 @@ export default class MessageEncoder {
 	 *             Please use `encode` in any new code.
 	 * @param {PublicKey} recipientPublicKey Recipient public key.
 	 * @param {Uint8Array} message Message to encode.
-	 * @returns {Uint8Array} Encrypted and encoded message.
+	 * @returns {Message} Encrypted and encoded message.
 	 */
 	encodeDeprecated(recipientPublicKey, message) {
 		// eslint-disable-next-line import/no-deprecated
-		const encoded = encodeAesCbc(deriveSharedKeyDeprecated, this.keyPair, recipientPublicKey, message);
+		const encoded = encodeAesCbc(deriveSharedKeyDeprecated, this._keyPair, recipientPublicKey, message);
 
 		const encodedMessage = new Message();
 		encodedMessage.messageType = MessageType.ENCRYPTED;
@@ -95,3 +110,15 @@ export default class MessageEncoder {
 		return encodedMessage;
 	}
 }
+
+// region type declarations
+
+/**
+ * Result of a try decode operation.
+ * @class
+ * @typedef {object} TryDecodeResult
+ * @property {boolean} isDecoded \c true if message has been decoded and decrypted; \c false otherwise.
+ * @property {Uint8Array|Message} message Decoded message when `isDecoded` is \c true; encoded message otherwise.
+ */
+
+// endregion

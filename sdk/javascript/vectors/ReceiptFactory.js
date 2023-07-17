@@ -8,10 +8,10 @@ import * as sc from '../src/symbol/models.js';
 export default class ReceiptFactory {
 	/**
 	 * Creates a factory.
-	 * @param {Map} typeRuleOverrides Type rule overrides.
+	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
 	 */
-	constructor(typeRuleOverrides) {
-		this.factory = ReceiptFactory.buildRules(typeRuleOverrides);
+	constructor(typeRuleOverrides = undefined) {
+		this.factory = ReceiptFactory._buildRules(typeRuleOverrides); // eslint-disable-line no-underscore-dangle
 	}
 
 	/**
@@ -23,7 +23,7 @@ export default class ReceiptFactory {
 		return this.factory.createFromFactory(sc.ReceiptFactory.createByName, receiptDescriptor);
 	}
 
-	static buildRules(typeRuleOverrides) {
+	static _buildRules(typeRuleOverrides) {
 		const factory = new RuleBasedTransactionFactory(sc, undefined, typeRuleOverrides);
 		factory.autodetect();
 

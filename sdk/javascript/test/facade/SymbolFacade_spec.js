@@ -1,9 +1,12 @@
-import Bip32 from '../../src/Bip32.js';
+import { Bip32 } from '../../src/Bip32.js';
 import {
 	Hash256, PrivateKey, PublicKey, Signature
 } from '../../src/CryptoTypes.js';
 import SymbolFacade from '../../src/facade/SymbolFacade.js';
 import { Network } from '../../src/symbol/Network.js';
+/* eslint-disable no-unused-vars */
+import TransactionFactory from '../../src/symbol/TransactionFactory.js';
+/* eslint-enable no-unused-vars */
 import * as sc from '../../src/symbol/models.js';
 import { expect } from 'chai';
 import crypto from 'crypto';
@@ -155,7 +158,7 @@ describe('Symbol Facade', () => {
 
 	it('can create around unknown network', () => {
 		// Arrange:
-		const network = new Network('foo', 0xDE);
+		const network = new Network('foo', 0xDE, new Date(), Hash256.zero());
 
 		// Act:
 		const facade = new SymbolFacade(network);
@@ -176,6 +179,10 @@ describe('Symbol Facade', () => {
 
 	// region hash transaction / sign transaction
 
+	const attachSignature = (facade, transaction, signature) => {
+		(/** @type typeof TransactionFactory */(facade.transactionFactory.constructor)).attachSignature(transaction, signature);
+	};
+
 	const assertCanHashTransaction = (transactionFactory, expectedHash) => {
 		// Arrange:
 		const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
@@ -183,7 +190,7 @@ describe('Symbol Facade', () => {
 
 		const transaction = transactionFactory(facade);
 		const signature = facade.signTransaction(new SymbolFacade.KeyPair(privateKey), transaction);
-		facade.transactionFactory.constructor.attachSignature(transaction, signature);
+		attachSignature(facade, transaction, signature);
 
 		// Act:
 		const hashValue = facade.hashTransaction(transaction);
@@ -270,18 +277,19 @@ describe('Symbol Facade', () => {
 
 			const transaction = createRealAggregateSwap(facade);
 			const signature = facade.signTransaction(new SymbolFacade.KeyPair(signerPrivateKey), transaction);
-			facade.transactionFactory.constructor.attachSignature(transaction, signature);
+			attachSignature(facade, transaction, signature);
 
 			// Act:
 			const cosignature = facade.cosignTransaction(new SymbolFacade.KeyPair(cosignerPrivateKey), transaction, detached);
 
 			// Assert: check common fields
+			const expectedPublicKeyBytes = new PublicKey('29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3').bytes;
+			const expectedSignatureBytes = new Signature('204BD2C4F86B66313E5C5F817FD650B108826D53EDEFC8BDFF936E4D6AA07E38'
+					+ '5F819CF0BF22D14D4AA2011AD07BC0FE6023E2CB48DC5D82A6A1FF1348FA3E0B').bytes;
+
 			expect(cosignature.version).to.equal(0n);
-			expect(cosignature.signerPublicKey)
-				.to.deep.equal(new sc.PublicKey('29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3'));
-			expect(cosignature.signature)
-				.to.deep.equal(new sc.Signature('204BD2C4F86B66313E5C5F817FD650B108826D53EDEFC8BDFF936E4D6AA07E38'
-					+ '5F819CF0BF22D14D4AA2011AD07BC0FE6023E2CB48DC5D82A6A1FF1348FA3E0B'));
+			expect(cosignature.signerPublicKey).to.deep.equal(new sc.PublicKey(expectedPublicKeyBytes));
+			expect(cosignature.signature).to.deep.equal(new sc.Signature(expectedSignatureBytes));
 			return cosignature;
 		};
 
@@ -291,17 +299,19 @@ describe('Symbol Facade', () => {
 
 			// Assert: cosignature should be suitable for attaching to an aggregate
 			expect(cosignature.size).to.equal(104);
-			expect(cosignature.parentHash).to.equal(undefined);
+			expect(Object.prototype.hasOwnProperty.call(cosignature, '_parentHash')).to.equal(false);
 		});
 
 		it('as detached cosignature', () => {
 			// Act:
-			const cosignature = assertCanCosignTransaction(true);
+			const cosignature = /** @type {sc.DetachedCosignature} */ (assertCanCosignTransaction(true));
 
 			// Assert: cosignature should be detached
+			const expectedHashBytes = new Hash256('214DFF47469D462E1D9A03232C2582C7E44DE026A287F98529CC74DE9BD69641').bytes;
+
 			expect(cosignature.size).to.equal(136);
-			expect(cosignature.parentHash)
-				.to.deep.equal(new sc.Hash256('214DFF47469D462E1D9A03232C2582C7E44DE026A287F98529CC74DE9BD69641'));
+			expect(Object.prototype.hasOwnProperty.call(cosignature, '_parentHash')).to.equal(true);
+			expect(cosignature.parentHash).to.deep.equal(new sc.Hash256(expectedHashBytes));
 		});
 	});
 

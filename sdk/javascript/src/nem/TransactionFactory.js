@@ -1,6 +1,17 @@
-import { Address } from './Network.js';
+import {
+	Address,
+	/* eslint-disable no-unused-vars */
+	Network
+	/* eslint-enable no-unused-vars */
+} from './Network.js';
 import * as nc from './models.js';
-import { Hash256, PublicKey } from '../CryptoTypes.js';
+import {
+	Hash256,
+	PublicKey,
+	/* eslint-disable no-unused-vars */
+	Signature
+	/* eslint-enable no-unused-vars */
+} from '../CryptoTypes.js';
 import RuleBasedTransactionFactory from '../RuleBasedTransactionFactory.js';
 import { uint8ToHex } from '../utils/converter.js';
 
@@ -11,11 +22,25 @@ export default class TransactionFactory {
 	/**
 	 * Creates a factory for the specified network.
 	 * @param {Network} network NEM network.
-	 * @param {Map} typeRuleOverrides Type rule overrides.
+	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
 	 */
-	constructor(network, typeRuleOverrides) {
-		this.factory = TransactionFactory.buildRules(typeRuleOverrides);
-		this.network = network;
+	constructor(network, typeRuleOverrides = undefined) {
+		/**
+		 * @private
+		 */
+		this._factory = TransactionFactory._buildRules(typeRuleOverrides); // eslint-disable-line no-underscore-dangle
+
+		/**
+		 * @private
+		 */
+		this._network = network;
+	}
+
+	/**
+	 * Gets rule names with registered hints.
+	 */
+	get ruleNames() {
+		return Array.from(this._factory.rules.keys());
 	}
 
 	/**
@@ -23,12 +48,12 @@ export default class TransactionFactory {
 	 * @param {object} transactionDescriptor Transaction descriptor.
 	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
 	 *                           When unset, descriptor arrays will be presumed to be already sorted.
-	 * @returns {object} Newly created transaction.
+	 * @returns {nc.Transaction} Newly created transaction.
 	 */
 	create(transactionDescriptor, autosort = true) {
-		const transaction = this.factory.createFromFactory(nc.TransactionFactory.createByName, {
+		const transaction = this._factory.createFromFactory(nc.TransactionFactory.createByName, {
 			...transactionDescriptor,
-			network: this.network.identifier
+			network: this._network.identifier
 		});
 		if (autosort)
 			transaction.sort();
@@ -42,8 +67,8 @@ export default class TransactionFactory {
 
 	/**
 	 * Converts a transaction to a non-verifiable transaction.
-	 * @param {object} transaction Transaction object.
-	 * @returns {object} Non-verifiable transaction object.
+	 * @param {nc.Transaction|nc.NonVerifiableTransaction} transaction Transaction object.
+	 * @returns {nc.NonVerifiableTransaction} Non-verifiable transaction object.
 	 */
 	static toNonVerifiableTransaction(transaction) {
 		let nonVerifiableClassName = transaction.constructor.name;
@@ -53,7 +78,8 @@ export default class TransactionFactory {
 		const NonVerifiableClass = nc[nonVerifiableClassName];
 		const nonVerifiableTransaction = new NonVerifiableClass();
 		Object.getOwnPropertyNames(transaction).forEach(key => {
-			nonVerifiableTransaction[key] = transaction[key];
+			if (key in nonVerifiableTransaction)
+				nonVerifiableTransaction[key] = transaction[key];
 		});
 
 		return nonVerifiableTransaction;
@@ -61,7 +87,7 @@ export default class TransactionFactory {
 
 	/**
 	 * Attaches a signature to a transaction.
-	 * @param {object} transaction Transaction object.
+	 * @param {nc.Transaction} transaction Transaction object.
 	 * @param {Signature} signature Signature to attach.
 	 * @returns {string} JSON transaction payload.
 	 */
@@ -74,6 +100,12 @@ export default class TransactionFactory {
 		return jsonPayload;
 	}
 
+	/**
+	 * Tries to coerce an sdk type to a model type.
+	 * @param {object} value Value to convert.
+	 * @returns {nc.Address|undefined} Converted value or undefined.
+	 * @private
+	 */
 	static _nemTypeConverter(value) {
 		if (value instanceof Address) {
 			// yes, unfortunately, nem's Address is 40 bytes string, but we need to pass it as actual bytes not to confuse ByteArray
@@ -83,7 +115,13 @@ export default class TransactionFactory {
 		return undefined;
 	}
 
-	static buildRules(typeRuleOverrides) {
+	/**
+	 * Builds a rule based transaction factory.
+	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
+	 * @returns {RuleBasedTransactionFactory} Rule based transaction factory.
+	 * @private
+	 */
+	static _buildRules(typeRuleOverrides) {
 		const factory = new RuleBasedTransactionFactory(nc, this._nemTypeConverter, typeRuleOverrides);
 		factory.autodetect();
 

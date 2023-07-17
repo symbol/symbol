@@ -1,28 +1,54 @@
 /**
  * Processes and looks up transaction descriptor properties.
+ * @note This class is not intended to be used directly.
  */
 export default class TransactionDescriptorProcessor {
 	/**
 	 * Creates a transaction descriptor processor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
-	 * @param {Map} typeParsingRules Type-dependent parsing rules.
-	 * @param {function} typeConverter Converts a generated type to an sdk type (optional).
+	 * @param {Map<string, function>} typeParsingRules Type-dependent parsing rules.
+	 * @param {function|undefined} typeConverter Converts a generated type to an sdk type (optional).
 	 */
 	constructor(transactionDescriptor, typeParsingRules, typeConverter = undefined) {
-		this.transactionDescriptor = transactionDescriptor;
-		this.typeParsingRules = typeParsingRules;
-		this.typeConverter = typeConverter || (value => value);
-		this.typeHints = {};
+		/**
+		 * @private
+		 */
+		this._transactionDescriptor = transactionDescriptor;
+
+		/**
+		 * @private
+		 */
+		this._typeParsingRules = typeParsingRules;
+
+		/**
+		 * Tries to coerce a value to a more appropriate type.
+		 * @param {object} value Original value.
+		 * @returns {object} Type converted value.
+		 * @private
+		 */
+		this._typeConverter = typeConverter || (value => value);
+
+		/**
+		 * @private
+		 */
+		this._typeHints = {};
 	}
 
+	/**
+	 * Looks up value and applies type hints.
+	 * @param {string} key Key for which to retrieve value.
+	 * @returns {object} Value corresponding to key.
+	 * @private
+	 */
 	_lookupValueAndApplyTypeHints(key) {
-		if (undefined === this.transactionDescriptor[key])
+		if (undefined === this._transactionDescriptor[key])
 			throw RangeError(`transaction descriptor does not have attribute ${key}`);
 
-		let value = this.transactionDescriptor[key];
-		const typeHint = this.typeHints[key];
-		if (this.typeParsingRules.has(typeHint))
-			value = this.typeParsingRules.get(typeHint)(value);
+		let value = this._transactionDescriptor[key];
+		const typeHint = this._typeHints[key];
+		const rule = this._typeParsingRules.get(typeHint);
+		if (rule)
+			value = rule(value);
 
 		return value;
 	}
@@ -35,17 +61,17 @@ export default class TransactionDescriptorProcessor {
 	lookupValue(key) {
 		const value = this._lookupValueAndApplyTypeHints(key);
 		return Array.isArray(value)
-			? value.map(item => this.typeConverter(item))
-			: this.typeConverter(value);
+			? value.map(item => this._typeConverter(item))
+			: this._typeConverter(value);
 	}
 
 	/**
 	 * Copies all descriptor information to a transaction.
 	 * @param {object} transaction Transaction to which to copy keys.
-	 * @param {array<string>} ignoreKeys Keys of descriptor values not to copy (optional).
+	 * @param {Array<string>|undefined} ignoreKeys Keys of descriptor values not to copy (optional).
 	 */
 	copyTo(transaction, ignoreKeys = undefined) {
-		Object.getOwnPropertyNames(this.transactionDescriptor).forEach(key => {
+		Object.getOwnPropertyNames(this._transactionDescriptor).forEach(key => {
 			if (ignoreKeys && -1 !== ignoreKeys.indexOf(key))
 				return;
 
@@ -62,9 +88,19 @@ export default class TransactionDescriptorProcessor {
 
 	/**
 	 * Sets type hints.
-	 * @param {object} typeHints New type hints.
+	 * @param {TypeHintsMap|undefined} typeHints New type hints. // eslint-disable-line valid-jsdoc
 	 */
 	setTypeHints(typeHints) {
-		this.typeHints = typeHints || {};
+		this._typeHints = typeHints || {};
 	}
 }
+
+// region type declarations
+
+/**
+ * Type hints map.
+ * @class
+ * @typedef {{[key: string]: string}} TypeHintsMap
+ */
+
+// endregion

@@ -7,22 +7,22 @@ describe('converter', () => {
 			// Arrange:
 			const charToValueMappings = [];
 			for (let code = '0'.charCodeAt(0); code <= '9'.charCodeAt(0); ++code)
-				charToValueMappings.push([String.fromCharCode(code), code - '0'.charCodeAt(0)]);
+				charToValueMappings.push({ char: String.fromCharCode(code), code: code - '0'.charCodeAt(0) });
 			for (let code = 'a'.charCodeAt(0); code <= 'f'.charCodeAt(0); ++code)
-				charToValueMappings.push([String.fromCharCode(code), code - 'a'.charCodeAt(0) + 10]);
+				charToValueMappings.push({ char: String.fromCharCode(code), code: code - 'a'.charCodeAt(0) + 10 });
 			for (let code = 'A'.charCodeAt(0); code <= 'F'.charCodeAt(0); ++code)
-				charToValueMappings.push([String.fromCharCode(code), code - 'A'.charCodeAt(0) + 10]);
+				charToValueMappings.push({ char: String.fromCharCode(code), code: code - 'A'.charCodeAt(0) + 10 });
 
 			// Act:
 			let numTests = 0;
 			charToValueMappings.forEach(pair1 => {
 				charToValueMappings.forEach(pair2 => {
 					// Act:
-					const byte = converter.toByte(pair1[0], pair2[0]);
+					const byte = converter.toByte(pair1.char, pair2.char);
 
 					// Assert:
-					const expected = (pair1[1] * 16) + pair2[1];
-					expect(byte, `input: ${pair1[0]}${pair2[0]}`).to.equal(expected);
+					const expected = (pair1.code * 16) + pair2.code;
+					expect(byte, `input: ${pair1.char}${pair2.char}`).to.equal(expected);
 					++numTests;
 				});
 			});
@@ -182,83 +182,79 @@ describe('converter', () => {
 		addTryParseFailureTest('cannot parse arbitrary string', 'catapult');
 	});
 
-	const assertSigned = asserter => {
-		it('8-bit value', () => {
-			// Assert:
-			asserter([0x00], 1, 0);
-			asserter([0x7F], 1, 127);
-			asserter([0x80], 1, -128);
-			asserter([0x81], 1, -127);
-			asserter([0xFF], 1, -1);
-		});
+	const assertSigned = (asserter, isBigIntTest) => {
+		if (!isBigIntTest) {
+			it('8-bit value', () => {
+				asserter([0x00], 1, 0);
+				asserter([0x7F], 1, 127);
+				asserter([0x80], 1, -128);
+				asserter([0x81], 1, -127);
+				asserter([0xFF], 1, -1);
+			});
 
-		it('16-bit value', () => {
-			// Assert:
-			asserter([0x00, 0x00], 2, 0);
-			asserter([0xFF, 0x7F], 2, 32767);
-			asserter([0x00, 0x80], 2, -32768);
-			asserter([0x01, 0x80], 2, -32767);
-			asserter([0xFF, 0xFF], 2, -1);
-		});
+			it('16-bit value', () => {
+				asserter([0x00, 0x00], 2, 0);
+				asserter([0xFF, 0x7F], 2, 32767);
+				asserter([0x00, 0x80], 2, -32768);
+				asserter([0x01, 0x80], 2, -32767);
+				asserter([0xFF, 0xFF], 2, -1);
+			});
 
-		it('32-bit value', () => {
-			// Assert:
-			asserter([0x00, 0x00, 0x00, 0x00], 4, 0);
-			asserter([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
-			asserter([0x00, 0x00, 0x00, 0x80], 4, -2147483648);
-			asserter([0x01, 0x00, 0x00, 0x80], 4, -2147483647);
-			asserter([0xFF, 0xFF, 0xFF, 0xFF], 4, -1);
-		});
-
-		it('64-bit value', () => {
-			// Assert:
-			asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, 0n);
-			asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, 9223372036854775807n);
-			asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -9223372036854775808n);
-			asserter([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -9223372036854775807n);
-			asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, -1n);
-		});
+			it('32-bit value', () => {
+				asserter([0x00, 0x00, 0x00, 0x00], 4, 0);
+				asserter([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
+				asserter([0x00, 0x00, 0x00, 0x80], 4, -2147483648);
+				asserter([0x01, 0x00, 0x00, 0x80], 4, -2147483647);
+				asserter([0xFF, 0xFF, 0xFF, 0xFF], 4, -1);
+			});
+		} else {
+			it('64-bit value', () => {
+				asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, 0n);
+				asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, 9223372036854775807n);
+				asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -9223372036854775808n);
+				asserter([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -9223372036854775807n);
+				asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, -1n);
+			});
+		}
 	};
 
-	const assertUnsigned = asserter => {
-		it('8-bit value', () => {
-			// Assert:
-			asserter([0x00], 1, 0);
-			asserter([0x7F], 1, 127);
-			asserter([0x80], 1, 128);
-			asserter([0x81], 1, 129);
-			asserter([0xFF], 1, 255);
-		});
+	const assertUnsigned = (asserter, isBigIntTest) => {
+		if (!isBigIntTest) {
+			it('8-bit value', () => {
+				asserter([0x00], 1, 0);
+				asserter([0x7F], 1, 127);
+				asserter([0x80], 1, 128);
+				asserter([0x81], 1, 129);
+				asserter([0xFF], 1, 255);
+			});
 
-		it('16-bit value', () => {
-			// Assert:
-			asserter([0x00, 0x00], 2, 0);
-			asserter([0xFF, 0x7F], 2, 32767);
-			asserter([0x00, 0x80], 2, 32768);
-			asserter([0x01, 0x80], 2, 32769);
-			asserter([0xFF, 0xFF], 2, 65535);
-		});
+			it('16-bit value', () => {
+				asserter([0x00, 0x00], 2, 0);
+				asserter([0xFF, 0x7F], 2, 32767);
+				asserter([0x00, 0x80], 2, 32768);
+				asserter([0x01, 0x80], 2, 32769);
+				asserter([0xFF, 0xFF], 2, 65535);
+			});
 
-		it('32-bit value', () => {
-			// Assert:
-			asserter([0x00, 0x00, 0x00, 0x00], 4, 0);
-			asserter([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
-			asserter([0x00, 0x00, 0x00, 0x80], 4, 2147483648);
-			asserter([0x01, 0x00, 0x00, 0x80], 4, 2147483649);
-			asserter([0xFF, 0xFF, 0xFF, 0xFF], 4, 4294967295);
-		});
-
-		it('64-bit value', () => {
-			// Assert:
-			asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, BigInt(0n));
-			asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, BigInt(9223372036854775807n));
-			asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt(9223372036854775808n));
-			asserter([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt(9223372036854775809n));
-			asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, BigInt(18446744073709551615n));
-		});
+			it('32-bit value', () => {
+				asserter([0x00, 0x00, 0x00, 0x00], 4, 0);
+				asserter([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
+				asserter([0x00, 0x00, 0x00, 0x80], 4, 2147483648);
+				asserter([0x01, 0x00, 0x00, 0x80], 4, 2147483649);
+				asserter([0xFF, 0xFF, 0xFF, 0xFF], 4, 4294967295);
+			});
+		} else {
+			it('64-bit value', () => {
+				asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, BigInt(0n));
+				asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, BigInt(9223372036854775807n));
+				asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt(9223372036854775808n));
+				asserter([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt(9223372036854775809n));
+				asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, BigInt(18446744073709551615n));
+			});
+		}
 	};
 
-	const assertBytesToInt = bytesToInt => {
+	const assertBytesToInt = (bytesToInt, isBigIntTest = false) => {
 		const assertBytesToIntFactory = isSigned => (input, size, expectedValue) => {
 			// Act:
 			const actual = bytesToInt(new Uint8Array(input), size, isSigned);
@@ -268,16 +264,17 @@ describe('converter', () => {
 		};
 
 		describe('can convert signed', () => {
-			assertSigned(assertBytesToIntFactory(true));
+			assertSigned(assertBytesToIntFactory(true), isBigIntTest);
 		});
 
 		describe('can convert unsigned', () => {
-			assertUnsigned(assertBytesToIntFactory(false));
+			assertUnsigned(assertBytesToIntFactory(false), isBigIntTest);
 		});
 	};
 
 	describe('bytesToInt', () => {
-		assertBytesToInt(converter.bytesToInt);
+		const { bytesToInt } = converter;
+		assertBytesToInt(bytesToInt);
 
 		const assertBytesToIntOnMisaligned = (input, size, isSigned) => {
 			// Arrange:
@@ -285,38 +282,101 @@ describe('converter', () => {
 			const misalignedBuffer = new Uint8Array(data.buffer, 1, size);
 
 			// Act:
-			expect(() => converter.bytesToInt(misalignedBuffer, size, isSigned)).to.throw(/start offset of (Ui|I)nt.+Array should be/);
+			expect(() => bytesToInt(misalignedBuffer, size, isSigned)).to.throw(/start offset of (Ui|I)nt.+Array should be/);
 		};
 
-		describe('fails on misaligned access', () => {
+		it('fails on misaligned access', () => {
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x80], 2, true);
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x80], 2, false);
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x80], 4, true);
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x80], 4, false);
-			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 4, true);
-			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 4, false);
+		});
+
+		it('fails on unsupported integer size', () => {
+			[3, 7, 8, 16].forEach(size => {
+				expect(() => bytesToInt(new Uint8Array(32), size, true)).to.throw('unsupported int size');
+				expect(() => bytesToInt(new Uint8Array(32), size, false)).to.throw('unsupported int size');
+			});
+		});
+	});
+
+	describe('bytesToBigInt', () => {
+		const bytesToInt = converter.bytesToBigInt;
+		assertBytesToInt(bytesToInt, true);
+
+		const assertBytesToIntOnMisaligned = (input, size, isSigned) => {
+			// Arrange:
+			const data = new Uint8Array(input);
+			const misalignedBuffer = new Uint8Array(data.buffer, 1, size);
+
+			// Act:
+			expect(() => bytesToInt(misalignedBuffer, size, isSigned)).to.throw(/start offset of Big(Ui|I)nt.+Array should be/);
+		};
+
+		it('fails on misaligned access', () => {
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 8, true);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 8, false);
+		});
+
+		it('fails on unsupported integer size', () => {
+			[1, 2, 4, 16].forEach(size => {
+				expect(() => bytesToInt(new Uint8Array(32), size, true)).to.throw('unsupported int size');
+				expect(() => bytesToInt(new Uint8Array(32), size, false)).to.throw('unsupported int size');
+			});
 		});
 	});
 
 	describe('bytesToIntUnaligned', () => {
-		assertBytesToInt(converter.bytesToIntUnaligned);
+		const bytesToInt = converter.bytesToIntUnaligned;
+		assertBytesToInt(bytesToInt);
 
 		const assertBytesToIntOnMisaligned = (input, size, isSigned, expectedValue) => {
 			// Arrange:
 			const data = new Uint8Array(input);
 			const misalignedBuffer = new Uint8Array(data.buffer, 1, size);
 
-			// Act:
-			expect(converter.bytesToIntUnaligned(misalignedBuffer, size, isSigned)).to.equal(expectedValue);
+			// Act + Assert:
+			expect(bytesToInt(misalignedBuffer, size, isSigned)).to.equal(expectedValue);
 		};
 
-		describe('succeeds on misaligned access', () => {
+		it('succeeds on misaligned access', () => {
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x80], 2, true, -32751);
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x80], 2, false, 0x8011);
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x80], 4, true, -2144132591);
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x80], 4, false, 0x80332211);
+		});
+
+		it('fails on unsupported integer size', () => {
+			[3, 7, 8, 16].forEach(size => {
+				expect(() => bytesToInt(new Uint8Array(32), size, true)).to.throw('unsupported int size');
+				expect(() => bytesToInt(new Uint8Array(32), size, false)).to.throw('unsupported int size');
+			});
+		});
+	});
+
+	describe('bytesToBigIntUnaligned', () => {
+		const bytesToInt = converter.bytesToBigIntUnaligned;
+		assertBytesToInt(bytesToInt, true);
+
+		const assertBytesToIntOnMisaligned = (input, size, isSigned, expectedValue) => {
+			// Arrange:
+			const data = new Uint8Array(input);
+			const misalignedBuffer = new Uint8Array(data.buffer, 1, size);
+
+			// Act + Assert:
+			expect(bytesToInt(misalignedBuffer, size, isSigned)).to.equal(expectedValue);
+		};
+
+		it('succeeds on misaligned access', () => {
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 8, true, -9189763998223752687n);
 			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 8, false, 0x8077665544332211n);
+		});
+
+		it('fails on unsupported integer size', () => {
+			[1, 2, 4, 16].forEach(size => {
+				expect(() => bytesToInt(new Uint8Array(32), size, true)).to.throw('unsupported int size');
+				expect(() => bytesToInt(new Uint8Array(32), size, false)).to.throw('unsupported int size');
+			});
 		});
 	});
 

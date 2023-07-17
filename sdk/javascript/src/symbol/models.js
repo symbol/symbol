@@ -16,12 +16,12 @@ export class Amount extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new Amount(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new Amount(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new Amount(converter.bytesToInt(byteArray, 8, false));
+		return new Amount(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -38,12 +38,12 @@ export class BlockDuration extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new BlockDuration(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new BlockDuration(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new BlockDuration(converter.bytesToInt(byteArray, 8, false));
+		return new BlockDuration(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -82,12 +82,12 @@ export class Difficulty extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new Difficulty(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new Difficulty(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new Difficulty(converter.bytesToInt(byteArray, 8, false));
+		return new Difficulty(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -148,12 +148,12 @@ export class Height extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new Height(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new Height(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new Height(converter.bytesToInt(byteArray, 8, false));
+		return new Height(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -170,12 +170,12 @@ export class Importance extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new Importance(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new Importance(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new Importance(converter.bytesToInt(byteArray, 8, false));
+		return new Importance(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -192,12 +192,12 @@ export class ImportanceHeight extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new ImportanceHeight(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new ImportanceHeight(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new ImportanceHeight(converter.bytesToInt(byteArray, 8, false));
+		return new ImportanceHeight(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -214,12 +214,12 @@ export class UnresolvedMosaicId extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new UnresolvedMosaicId(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new UnresolvedMosaicId(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new UnresolvedMosaicId(converter.bytesToInt(byteArray, 8, false));
+		return new UnresolvedMosaicId(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -236,12 +236,12 @@ export class MosaicId extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new MosaicId(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new MosaicId(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new MosaicId(converter.bytesToInt(byteArray, 8, false));
+		return new MosaicId(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -258,12 +258,12 @@ export class Timestamp extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new Timestamp(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new Timestamp(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new Timestamp(converter.bytesToInt(byteArray, 8, false));
+		return new Timestamp(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -1825,7 +1825,7 @@ export class NemesisBlockV1 {
 		view.shiftRight(feeMultiplier.size);
 		const votingEligibleAccountsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
-		const harvestingEligibleAccountsCount = converter.bytesToInt(view.buffer, 8, false);
+		const harvestingEligibleAccountsCount = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const totalVotingBalance = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(totalVotingBalance.size);
@@ -2520,7 +2520,7 @@ export class ImportanceBlockV1 {
 		view.shiftRight(feeMultiplier.size);
 		const votingEligibleAccountsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
-		const harvestingEligibleAccountsCount = converter.bytesToInt(view.buffer, 8, false);
+		const harvestingEligibleAccountsCount = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const totalVotingBalance = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(totalVotingBalance.size);
@@ -4183,12 +4183,12 @@ export class NamespaceId extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new NamespaceId(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new NamespaceId(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new NamespaceId(converter.bytesToInt(byteArray, 8, false));
+		return new NamespaceId(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -5927,7 +5927,7 @@ export class Cosignature {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const version = converter.bytesToInt(view.buffer, 8, false);
+		const version = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
@@ -6019,7 +6019,7 @@ export class DetachedCosignature {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const version = converter.bytesToInt(view.buffer, 8, false);
+		const version = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
@@ -9217,7 +9217,7 @@ export class AccountMetadataTransactionV1 {
 		view.shiftRight(deadline.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
-		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
+		const scopedMetadataKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const valueSizeDelta = converter.bytesToInt(view.buffer, 2, true);
 		view.shiftRight(2);
@@ -9412,7 +9412,7 @@ export class EmbeddedAccountMetadataTransactionV1 {
 		view.shiftRight(type.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
-		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
+		const scopedMetadataKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const valueSizeDelta = converter.bytesToInt(view.buffer, 2, true);
 		view.shiftRight(2);
@@ -9648,7 +9648,7 @@ export class MosaicMetadataTransactionV1 {
 		view.shiftRight(deadline.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
-		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
+		const scopedMetadataKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const targetMosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(targetMosaicId.size);
@@ -9859,7 +9859,7 @@ export class EmbeddedMosaicMetadataTransactionV1 {
 		view.shiftRight(type.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
-		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
+		const scopedMetadataKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const targetMosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(targetMosaicId.size);
@@ -10100,7 +10100,7 @@ export class NamespaceMetadataTransactionV1 {
 		view.shiftRight(deadline.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
-		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
+		const scopedMetadataKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const targetNamespaceId = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(targetNamespaceId.size);
@@ -10311,7 +10311,7 @@ export class EmbeddedNamespaceMetadataTransactionV1 {
 		view.shiftRight(type.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
-		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
+		const scopedMetadataKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const targetNamespaceId = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(targetNamespaceId.size);
@@ -13087,11 +13087,11 @@ export class NamespaceRegistrationTransactionV1 {
 		view.shiftRight(id.size);
 		const registrationType = NamespaceRegistrationType.deserializeAligned(view.buffer);
 		view.shiftRight(registrationType.size);
-		let duration = null;
+		let duration = new BlockDuration();
 		if (NamespaceRegistrationType.ROOT === registrationType)
 			duration = BlockDuration.deserializeAligned(registration_type_condition);
 
-		let parentId = null;
+		let parentId = new NamespaceId();
 		if (NamespaceRegistrationType.CHILD === registrationType)
 			parentId = NamespaceId.deserializeAligned(registration_type_condition);
 
@@ -13321,11 +13321,11 @@ export class EmbeddedNamespaceRegistrationTransactionV1 {
 		view.shiftRight(id.size);
 		const registrationType = NamespaceRegistrationType.deserializeAligned(view.buffer);
 		view.shiftRight(registrationType.size);
-		let duration = null;
+		let duration = new BlockDuration();
 		if (NamespaceRegistrationType.ROOT === registrationType)
 			duration = BlockDuration.deserializeAligned(registration_type_condition);
 
-		let parentId = null;
+		let parentId = new NamespaceId();
 		if (NamespaceRegistrationType.CHILD === registrationType)
 			parentId = NamespaceId.deserializeAligned(registration_type_condition);
 
@@ -14867,11 +14867,11 @@ export class MosaicAddressRestrictionTransactionV1 {
 		view.shiftRight(deadline.size);
 		const mosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
-		const restrictionKey = converter.bytesToInt(view.buffer, 8, false);
+		const restrictionKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const previousRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
+		const previousRestrictionValue = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const newRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
+		const newRestrictionValue = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
@@ -15073,11 +15073,11 @@ export class EmbeddedMosaicAddressRestrictionTransactionV1 {
 		view.shiftRight(type.size);
 		const mosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
-		const restrictionKey = converter.bytesToInt(view.buffer, 8, false);
+		const restrictionKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const previousRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
+		const previousRestrictionValue = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const newRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
+		const newRestrictionValue = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
@@ -15137,12 +15137,12 @@ export class MosaicRestrictionKey extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
-		return new MosaicRestrictionKey(converter.bytesToIntUnaligned(byteArray, 8, false));
+		return new MosaicRestrictionKey(converter.bytesToBigIntUnaligned(byteArray, 8, false));
 	}
 
 	static deserializeAligned(payload) {
 		const byteArray = payload;
-		return new MosaicRestrictionKey(converter.bytesToInt(byteArray, 8, false));
+		return new MosaicRestrictionKey(converter.bytesToBigInt(byteArray, 8, false));
 	}
 
 	serialize() {
@@ -15416,11 +15416,11 @@ export class MosaicGlobalRestrictionTransactionV1 {
 		view.shiftRight(mosaicId.size);
 		const referenceMosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(referenceMosaicId.size);
-		const restrictionKey = converter.bytesToInt(view.buffer, 8, false);
+		const restrictionKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const previousRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
+		const previousRestrictionValue = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const newRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
+		const newRestrictionValue = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const previousRestrictionType = MosaicRestrictionType.deserializeAligned(view.buffer);
 		view.shiftRight(previousRestrictionType.size);
@@ -15654,11 +15654,11 @@ export class EmbeddedMosaicGlobalRestrictionTransactionV1 {
 		view.shiftRight(mosaicId.size);
 		const referenceMosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(referenceMosaicId.size);
-		const restrictionKey = converter.bytesToInt(view.buffer, 8, false);
+		const restrictionKey = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const previousRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
+		const previousRestrictionValue = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const newRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
+		const newRestrictionValue = converter.bytesToBigInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const previousRestrictionType = MosaicRestrictionType.deserializeAligned(view.buffer);
 		view.shiftRight(previousRestrictionType.size);
@@ -16165,35 +16165,34 @@ export class TransactionFactory {
 	static deserialize(payload) {
 		const view = new BufferView(payload);
 		const parent = Transaction.deserialize(view.buffer);
-		const mapping = new Map([
-			[TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, AccountKeyLinkTransactionV1.TRANSACTION_VERSION]), AccountKeyLinkTransactionV1],
-			[TransactionFactory.toKey([NodeKeyLinkTransactionV1.TRANSACTION_TYPE.value, NodeKeyLinkTransactionV1.TRANSACTION_VERSION]), NodeKeyLinkTransactionV1],
-			[TransactionFactory.toKey([AggregateCompleteTransactionV1.TRANSACTION_TYPE.value, AggregateCompleteTransactionV1.TRANSACTION_VERSION]), AggregateCompleteTransactionV1],
-			[TransactionFactory.toKey([AggregateCompleteTransactionV2.TRANSACTION_TYPE.value, AggregateCompleteTransactionV2.TRANSACTION_VERSION]), AggregateCompleteTransactionV2],
-			[TransactionFactory.toKey([AggregateBondedTransactionV1.TRANSACTION_TYPE.value, AggregateBondedTransactionV1.TRANSACTION_VERSION]), AggregateBondedTransactionV1],
-			[TransactionFactory.toKey([AggregateBondedTransactionV2.TRANSACTION_TYPE.value, AggregateBondedTransactionV2.TRANSACTION_VERSION]), AggregateBondedTransactionV2],
-			[TransactionFactory.toKey([VotingKeyLinkTransactionV1.TRANSACTION_TYPE.value, VotingKeyLinkTransactionV1.TRANSACTION_VERSION]), VotingKeyLinkTransactionV1],
-			[TransactionFactory.toKey([VrfKeyLinkTransactionV1.TRANSACTION_TYPE.value, VrfKeyLinkTransactionV1.TRANSACTION_VERSION]), VrfKeyLinkTransactionV1],
-			[TransactionFactory.toKey([HashLockTransactionV1.TRANSACTION_TYPE.value, HashLockTransactionV1.TRANSACTION_VERSION]), HashLockTransactionV1],
-			[TransactionFactory.toKey([SecretLockTransactionV1.TRANSACTION_TYPE.value, SecretLockTransactionV1.TRANSACTION_VERSION]), SecretLockTransactionV1],
-			[TransactionFactory.toKey([SecretProofTransactionV1.TRANSACTION_TYPE.value, SecretProofTransactionV1.TRANSACTION_VERSION]), SecretProofTransactionV1],
-			[TransactionFactory.toKey([AccountMetadataTransactionV1.TRANSACTION_TYPE.value, AccountMetadataTransactionV1.TRANSACTION_VERSION]), AccountMetadataTransactionV1],
-			[TransactionFactory.toKey([MosaicMetadataTransactionV1.TRANSACTION_TYPE.value, MosaicMetadataTransactionV1.TRANSACTION_VERSION]), MosaicMetadataTransactionV1],
-			[TransactionFactory.toKey([NamespaceMetadataTransactionV1.TRANSACTION_TYPE.value, NamespaceMetadataTransactionV1.TRANSACTION_VERSION]), NamespaceMetadataTransactionV1],
-			[TransactionFactory.toKey([MosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, MosaicDefinitionTransactionV1.TRANSACTION_VERSION]), MosaicDefinitionTransactionV1],
-			[TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), MosaicSupplyChangeTransactionV1],
-			[TransactionFactory.toKey([MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION]), MosaicSupplyRevocationTransactionV1],
-			[TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV1],
-			[TransactionFactory.toKey([AddressAliasTransactionV1.TRANSACTION_TYPE.value, AddressAliasTransactionV1.TRANSACTION_VERSION]), AddressAliasTransactionV1],
-			[TransactionFactory.toKey([MosaicAliasTransactionV1.TRANSACTION_TYPE.value, MosaicAliasTransactionV1.TRANSACTION_VERSION]), MosaicAliasTransactionV1],
-			[TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NamespaceRegistrationTransactionV1],
-			[TransactionFactory.toKey([AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountAddressRestrictionTransactionV1.TRANSACTION_VERSION]), AccountAddressRestrictionTransactionV1],
-			[TransactionFactory.toKey([AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION]), AccountMosaicRestrictionTransactionV1],
-			[TransactionFactory.toKey([AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountOperationRestrictionTransactionV1.TRANSACTION_VERSION]), AccountOperationRestrictionTransactionV1],
-			[TransactionFactory.toKey([MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, MosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION]), MosaicAddressRestrictionTransactionV1],
-			[TransactionFactory.toKey([MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value, MosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION]), MosaicGlobalRestrictionTransactionV1],
-			[TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value, TransferTransactionV1.TRANSACTION_VERSION]), TransferTransactionV1]
-		]);
+		const mapping = new Map();
+		mapping.set(TransactionFactory.toKey([AccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, AccountKeyLinkTransactionV1.TRANSACTION_VERSION]), AccountKeyLinkTransactionV1);
+		mapping.set(TransactionFactory.toKey([NodeKeyLinkTransactionV1.TRANSACTION_TYPE.value, NodeKeyLinkTransactionV1.TRANSACTION_VERSION]), NodeKeyLinkTransactionV1);
+		mapping.set(TransactionFactory.toKey([AggregateCompleteTransactionV1.TRANSACTION_TYPE.value, AggregateCompleteTransactionV1.TRANSACTION_VERSION]), AggregateCompleteTransactionV1);
+		mapping.set(TransactionFactory.toKey([AggregateCompleteTransactionV2.TRANSACTION_TYPE.value, AggregateCompleteTransactionV2.TRANSACTION_VERSION]), AggregateCompleteTransactionV2);
+		mapping.set(TransactionFactory.toKey([AggregateBondedTransactionV1.TRANSACTION_TYPE.value, AggregateBondedTransactionV1.TRANSACTION_VERSION]), AggregateBondedTransactionV1);
+		mapping.set(TransactionFactory.toKey([AggregateBondedTransactionV2.TRANSACTION_TYPE.value, AggregateBondedTransactionV2.TRANSACTION_VERSION]), AggregateBondedTransactionV2);
+		mapping.set(TransactionFactory.toKey([VotingKeyLinkTransactionV1.TRANSACTION_TYPE.value, VotingKeyLinkTransactionV1.TRANSACTION_VERSION]), VotingKeyLinkTransactionV1);
+		mapping.set(TransactionFactory.toKey([VrfKeyLinkTransactionV1.TRANSACTION_TYPE.value, VrfKeyLinkTransactionV1.TRANSACTION_VERSION]), VrfKeyLinkTransactionV1);
+		mapping.set(TransactionFactory.toKey([HashLockTransactionV1.TRANSACTION_TYPE.value, HashLockTransactionV1.TRANSACTION_VERSION]), HashLockTransactionV1);
+		mapping.set(TransactionFactory.toKey([SecretLockTransactionV1.TRANSACTION_TYPE.value, SecretLockTransactionV1.TRANSACTION_VERSION]), SecretLockTransactionV1);
+		mapping.set(TransactionFactory.toKey([SecretProofTransactionV1.TRANSACTION_TYPE.value, SecretProofTransactionV1.TRANSACTION_VERSION]), SecretProofTransactionV1);
+		mapping.set(TransactionFactory.toKey([AccountMetadataTransactionV1.TRANSACTION_TYPE.value, AccountMetadataTransactionV1.TRANSACTION_VERSION]), AccountMetadataTransactionV1);
+		mapping.set(TransactionFactory.toKey([MosaicMetadataTransactionV1.TRANSACTION_TYPE.value, MosaicMetadataTransactionV1.TRANSACTION_VERSION]), MosaicMetadataTransactionV1);
+		mapping.set(TransactionFactory.toKey([NamespaceMetadataTransactionV1.TRANSACTION_TYPE.value, NamespaceMetadataTransactionV1.TRANSACTION_VERSION]), NamespaceMetadataTransactionV1);
+		mapping.set(TransactionFactory.toKey([MosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, MosaicDefinitionTransactionV1.TRANSACTION_VERSION]), MosaicDefinitionTransactionV1);
+		mapping.set(TransactionFactory.toKey([MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), MosaicSupplyChangeTransactionV1);
+		mapping.set(TransactionFactory.toKey([MosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value, MosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION]), MosaicSupplyRevocationTransactionV1);
+		mapping.set(TransactionFactory.toKey([MultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), MultisigAccountModificationTransactionV1);
+		mapping.set(TransactionFactory.toKey([AddressAliasTransactionV1.TRANSACTION_TYPE.value, AddressAliasTransactionV1.TRANSACTION_VERSION]), AddressAliasTransactionV1);
+		mapping.set(TransactionFactory.toKey([MosaicAliasTransactionV1.TRANSACTION_TYPE.value, MosaicAliasTransactionV1.TRANSACTION_VERSION]), MosaicAliasTransactionV1);
+		mapping.set(TransactionFactory.toKey([NamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NamespaceRegistrationTransactionV1);
+		mapping.set(TransactionFactory.toKey([AccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountAddressRestrictionTransactionV1.TRANSACTION_VERSION]), AccountAddressRestrictionTransactionV1);
+		mapping.set(TransactionFactory.toKey([AccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION]), AccountMosaicRestrictionTransactionV1);
+		mapping.set(TransactionFactory.toKey([AccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value, AccountOperationRestrictionTransactionV1.TRANSACTION_VERSION]), AccountOperationRestrictionTransactionV1);
+		mapping.set(TransactionFactory.toKey([MosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, MosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION]), MosaicAddressRestrictionTransactionV1);
+		mapping.set(TransactionFactory.toKey([MosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value, MosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION]), MosaicGlobalRestrictionTransactionV1);
+		mapping.set(TransactionFactory.toKey([TransferTransactionV1.TRANSACTION_TYPE.value, TransferTransactionV1.TRANSACTION_VERSION]), TransferTransactionV1);
 		const discriminator = TransactionFactory.toKey([parent.type.value, parent.version]);
 		const factory_class = mapping.get(discriminator);
 		return factory_class.deserialize(view.buffer);
@@ -16249,31 +16248,30 @@ export class EmbeddedTransactionFactory {
 	static deserialize(payload) {
 		const view = new BufferView(payload);
 		const parent = EmbeddedTransaction.deserialize(view.buffer);
-		const mapping = new Map([
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedNodeKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedVotingKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedVrfKeyLinkTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedHashLockTransactionV1.TRANSACTION_TYPE.value, EmbeddedHashLockTransactionV1.TRANSACTION_VERSION]), EmbeddedHashLockTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE.value, EmbeddedSecretLockTransactionV1.TRANSACTION_VERSION]), EmbeddedSecretLockTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE.value, EmbeddedSecretProofTransactionV1.TRANSACTION_VERSION]), EmbeddedSecretProofTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedNamespaceMetadataTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicDefinitionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicSupplyChangeTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicSupplyRevocationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), EmbeddedMultisigAccountModificationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE.value, EmbeddedAddressAliasTransactionV1.TRANSACTION_VERSION]), EmbeddedAddressAliasTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicAliasTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicAliasTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), EmbeddedNamespaceRegistrationTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountAddressRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountMosaicRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountOperationRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicAddressRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicGlobalRestrictionTransactionV1],
-			[EmbeddedTransactionFactory.toKey([EmbeddedTransferTransactionV1.TRANSACTION_TYPE.value, EmbeddedTransferTransactionV1.TRANSACTION_VERSION]), EmbeddedTransferTransactionV1]
-		]);
+		const mapping = new Map();
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountKeyLinkTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedNodeKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedNodeKeyLinkTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedVotingKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedVotingKeyLinkTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_TYPE.value, EmbeddedVrfKeyLinkTransactionV1.TRANSACTION_VERSION]), EmbeddedVrfKeyLinkTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedHashLockTransactionV1.TRANSACTION_TYPE.value, EmbeddedHashLockTransactionV1.TRANSACTION_VERSION]), EmbeddedHashLockTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedSecretLockTransactionV1.TRANSACTION_TYPE.value, EmbeddedSecretLockTransactionV1.TRANSACTION_VERSION]), EmbeddedSecretLockTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedSecretProofTransactionV1.TRANSACTION_TYPE.value, EmbeddedSecretProofTransactionV1.TRANSACTION_VERSION]), EmbeddedSecretProofTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedAccountMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountMetadataTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedMosaicMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicMetadataTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_TYPE.value, EmbeddedNamespaceMetadataTransactionV1.TRANSACTION_VERSION]), EmbeddedNamespaceMetadataTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicDefinitionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicDefinitionTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicSupplyChangeTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicSupplyRevocationTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicSupplyRevocationTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, EmbeddedMultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), EmbeddedMultisigAccountModificationTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedAddressAliasTransactionV1.TRANSACTION_TYPE.value, EmbeddedAddressAliasTransactionV1.TRANSACTION_VERSION]), EmbeddedAddressAliasTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedMosaicAliasTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicAliasTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicAliasTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, EmbeddedNamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), EmbeddedNamespaceRegistrationTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountAddressRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountAddressRestrictionTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountMosaicRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountMosaicRestrictionTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedAccountOperationRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedAccountOperationRestrictionTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicAddressRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicAddressRestrictionTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_TYPE.value, EmbeddedMosaicGlobalRestrictionTransactionV1.TRANSACTION_VERSION]), EmbeddedMosaicGlobalRestrictionTransactionV1);
+		mapping.set(EmbeddedTransactionFactory.toKey([EmbeddedTransferTransactionV1.TRANSACTION_TYPE.value, EmbeddedTransferTransactionV1.TRANSACTION_VERSION]), EmbeddedTransferTransactionV1);
 		const discriminator = EmbeddedTransactionFactory.toKey([parent.type.value, parent.version]);
 		const factory_class = mapping.get(discriminator);
 		return factory_class.deserialize(view.buffer);
@@ -16325,11 +16323,10 @@ export class BlockFactory {
 	static deserialize(payload) {
 		const view = new BufferView(payload);
 		const parent = Block.deserialize(view.buffer);
-		const mapping = new Map([
-			[BlockFactory.toKey([NemesisBlockV1.BLOCK_TYPE.value]), NemesisBlockV1],
-			[BlockFactory.toKey([NormalBlockV1.BLOCK_TYPE.value]), NormalBlockV1],
-			[BlockFactory.toKey([ImportanceBlockV1.BLOCK_TYPE.value]), ImportanceBlockV1]
-		]);
+		const mapping = new Map();
+		mapping.set(BlockFactory.toKey([NemesisBlockV1.BLOCK_TYPE.value]), NemesisBlockV1);
+		mapping.set(BlockFactory.toKey([NormalBlockV1.BLOCK_TYPE.value]), NormalBlockV1);
+		mapping.set(BlockFactory.toKey([ImportanceBlockV1.BLOCK_TYPE.value]), ImportanceBlockV1);
 		const discriminator = BlockFactory.toKey([parent.type.value]);
 		const factory_class = mapping.get(discriminator);
 		return factory_class.deserialize(view.buffer);
@@ -16361,21 +16358,20 @@ export class ReceiptFactory {
 	static deserialize(payload) {
 		const view = new BufferView(payload);
 		const parent = Receipt.deserialize(view.buffer);
-		const mapping = new Map([
-			[ReceiptFactory.toKey([HarvestFeeReceipt.RECEIPT_TYPE.value]), HarvestFeeReceipt],
-			[ReceiptFactory.toKey([InflationReceipt.RECEIPT_TYPE.value]), InflationReceipt],
-			[ReceiptFactory.toKey([LockHashCreatedFeeReceipt.RECEIPT_TYPE.value]), LockHashCreatedFeeReceipt],
-			[ReceiptFactory.toKey([LockHashCompletedFeeReceipt.RECEIPT_TYPE.value]), LockHashCompletedFeeReceipt],
-			[ReceiptFactory.toKey([LockHashExpiredFeeReceipt.RECEIPT_TYPE.value]), LockHashExpiredFeeReceipt],
-			[ReceiptFactory.toKey([LockSecretCreatedFeeReceipt.RECEIPT_TYPE.value]), LockSecretCreatedFeeReceipt],
-			[ReceiptFactory.toKey([LockSecretCompletedFeeReceipt.RECEIPT_TYPE.value]), LockSecretCompletedFeeReceipt],
-			[ReceiptFactory.toKey([LockSecretExpiredFeeReceipt.RECEIPT_TYPE.value]), LockSecretExpiredFeeReceipt],
-			[ReceiptFactory.toKey([MosaicExpiredReceipt.RECEIPT_TYPE.value]), MosaicExpiredReceipt],
-			[ReceiptFactory.toKey([MosaicRentalFeeReceipt.RECEIPT_TYPE.value]), MosaicRentalFeeReceipt],
-			[ReceiptFactory.toKey([NamespaceExpiredReceipt.RECEIPT_TYPE.value]), NamespaceExpiredReceipt],
-			[ReceiptFactory.toKey([NamespaceDeletedReceipt.RECEIPT_TYPE.value]), NamespaceDeletedReceipt],
-			[ReceiptFactory.toKey([NamespaceRentalFeeReceipt.RECEIPT_TYPE.value]), NamespaceRentalFeeReceipt]
-		]);
+		const mapping = new Map();
+		mapping.set(ReceiptFactory.toKey([HarvestFeeReceipt.RECEIPT_TYPE.value]), HarvestFeeReceipt);
+		mapping.set(ReceiptFactory.toKey([InflationReceipt.RECEIPT_TYPE.value]), InflationReceipt);
+		mapping.set(ReceiptFactory.toKey([LockHashCreatedFeeReceipt.RECEIPT_TYPE.value]), LockHashCreatedFeeReceipt);
+		mapping.set(ReceiptFactory.toKey([LockHashCompletedFeeReceipt.RECEIPT_TYPE.value]), LockHashCompletedFeeReceipt);
+		mapping.set(ReceiptFactory.toKey([LockHashExpiredFeeReceipt.RECEIPT_TYPE.value]), LockHashExpiredFeeReceipt);
+		mapping.set(ReceiptFactory.toKey([LockSecretCreatedFeeReceipt.RECEIPT_TYPE.value]), LockSecretCreatedFeeReceipt);
+		mapping.set(ReceiptFactory.toKey([LockSecretCompletedFeeReceipt.RECEIPT_TYPE.value]), LockSecretCompletedFeeReceipt);
+		mapping.set(ReceiptFactory.toKey([LockSecretExpiredFeeReceipt.RECEIPT_TYPE.value]), LockSecretExpiredFeeReceipt);
+		mapping.set(ReceiptFactory.toKey([MosaicExpiredReceipt.RECEIPT_TYPE.value]), MosaicExpiredReceipt);
+		mapping.set(ReceiptFactory.toKey([MosaicRentalFeeReceipt.RECEIPT_TYPE.value]), MosaicRentalFeeReceipt);
+		mapping.set(ReceiptFactory.toKey([NamespaceExpiredReceipt.RECEIPT_TYPE.value]), NamespaceExpiredReceipt);
+		mapping.set(ReceiptFactory.toKey([NamespaceDeletedReceipt.RECEIPT_TYPE.value]), NamespaceDeletedReceipt);
+		mapping.set(ReceiptFactory.toKey([NamespaceRentalFeeReceipt.RECEIPT_TYPE.value]), NamespaceRentalFeeReceipt);
 		const discriminator = ReceiptFactory.toKey([parent.type.value]);
 		const factory_class = mapping.get(discriminator);
 		return factory_class.deserialize(view.buffer);

@@ -4,9 +4,13 @@
 export class NetworkTimestamp {
 	/**
 	 * Creates a timestamp.
-	 * @param {number} timestamp Raw network timestamp.
+	 * @param {number|bigint} timestamp Raw network timestamp.
 	 */
 	constructor(timestamp) {
+		/**
+		 * Underlying timestamp.
+		 * @type bigint
+		 */
 		this.timestamp = BigInt(timestamp);
 	}
 
@@ -20,16 +24,16 @@ export class NetworkTimestamp {
 	/**
 	 * Adds a specified number of seconds to this timestamp.
 	 * @abstract
-	 * @param {number} count Number of seconds to add.
+	 * @param {number|bigint} count Number of seconds to add.
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of seconds past this timestamp.
 	 */
-	addSeconds() { // eslint-disable-line class-methods-use-this
-		throw new Error('`addSeconds` be implemented by concrete class');
+	addSeconds(count) { // eslint-disable-line class-methods-use-this, no-unused-vars
+		throw new Error('`addSeconds` must be implemented by concrete class');
 	}
 
 	/**
 	 * Adds a specified number of minutes to this timestamp.
-	 * @param {number} count Number of minutes to add.
+	 * @param {number|bigint} count Number of minutes to add.
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of minutes past this timestamp.
 	 */
 	addMinutes(count) {
@@ -38,7 +42,7 @@ export class NetworkTimestamp {
 
 	/**
 	 * Adds a specified number of hours to this timestamp.
-	 * @param {number} count Number of hours to add.
+	 * @param {number|bigint} count Number of hours to add.
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of hours past this timestamp.
 	 */
 	addHours(count) {
@@ -64,7 +68,16 @@ export class NetworkTimestampDatetimeConverter {
 	 * @param {string} timeUnits Time unit the network uses for progressing.
 	 */
 	constructor(epoch, timeUnits) {
+		/**
+		 * Date at which network started
+		 * @type Date
+		 */
 		this.epoch = epoch;
+
+		/**
+		 * Number of milliseconds per time unit.
+		 * @type number
+		 */
 		this.timeUnits = {
 			hours: 60 * 60 * 1000,
 			minutes: 60 * 1000,
@@ -91,6 +104,7 @@ export class NetworkTimestampDatetimeConverter {
 		if (referenceDatetime < this.epoch)
 			throw RangeError('timestamp cannot be before epoch');
 
-		return (referenceDatetime - this.epoch) / this.timeUnits;
+		const subtractDates = (lhs, rhs) => (lhs - rhs);
+		return subtractDates(referenceDatetime, this.epoch) / this.timeUnits;
 	}
 }

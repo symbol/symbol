@@ -1,31 +1,76 @@
-import { Hash256, PrivateKey } from '../CryptoTypes.js';
+/* eslint-disable no-unused-vars */
+import { Bip32Node } from '../Bip32.js';
+/* eslint-enable no-unused-vars */
+import {
+	Hash256,
+	PrivateKey,
+	/* eslint-disable no-unused-vars */
+	PublicKey,
+	SharedKey256,
+	Signature
+	/* eslint-enable no-unused-vars */
+} from '../CryptoTypes.js';
 import { NetworkLocator } from '../Network.js';
 import { KeyPair, Verifier } from '../nem/KeyPair.js';
-import { Address, Network } from '../nem/Network.js';
+import { Address, Network as NemNetwork } from '../nem/Network.js';
 import { deriveSharedKey } from '../nem/SharedKey.js';
 import TransactionFactory from '../nem/TransactionFactory.js';
+/* eslint-disable no-unused-vars */
+import * as nc from '../nem/models.js';
+/* eslint-enable no-unused-vars */
 import { keccak_256 } from '@noble/hashes/sha3';
 
 /**
  * Facade used to interact with NEM blockchain.
  */
 export default class NemFacade {
+	/**
+	 * BIP32 curve name.
+	 * @type {string}
+	 */
 	static BIP32_CURVE_NAME = 'ed25519-keccak';
 
+	/**
+	 * Network address class type.
+	 * @type {typeof Address}
+	 */
 	static Address = Address;
 
+	/**
+	 * Network key pair class type.
+	 * @type {typeof KeyPair}
+	 */
 	static KeyPair = KeyPair;
 
+	/**
+	 * Network verifier class type.
+	 * @type {typeof Verifier}
+	 */
 	static Verifier = Verifier;
 
+	/**
+	 * Derives shared key from key pair and other party's public key.
+	 * @param {KeyPair} keyPair Key pair.
+	 * @param {PublicKey} otherPublicKey Other party's public key.
+	 * @returns {SharedKey256} Shared encryption key.
+	 */
 	static deriveSharedKey = deriveSharedKey;
 
 	/**
 	 * Creates a NEM facade.
-	 * @param {string|Network} network NEM network or network name.
+	 * @param {string|NemNetwork} network NEM network or network name.
 	 */
 	constructor(network) {
-		this.network = 'string' === typeof network ? NetworkLocator.findByName(Network.NETWORKS, network) : network;
+		/**
+		 * Underlying network.
+		 * @type NemNetwork
+		 */
+		this.network = 'string' === typeof network ? NetworkLocator.findByName(NemNetwork.NETWORKS, network) : network;
+
+		/**
+		 * Underlying transaction factory.
+		 * @type TransactionFactory
+		 */
 		this.transactionFactory = new TransactionFactory(this.network);
 	}
 
@@ -33,7 +78,7 @@ export default class NemFacade {
 
 	/**
 	 * Hashes a NEM transaction.
-	 * @param {object} transaction Transaction object.
+	 * @param {nc.Transaction} transaction Transaction object.
 	 * @returns {Hash256} Transaction hash.
 	 */
 	hashTransaction(transaction) { // eslint-disable-line class-methods-use-this
@@ -44,7 +89,7 @@ export default class NemFacade {
 	/**
 	 * Signs a NEM transaction.
 	 * @param {KeyPair} keyPair Key pair.
-	 * @param {object} transaction Transaction object.
+	 * @param {nc.Transaction} transaction Transaction object.
 	 * @returns {Signature} Transaction signature.
 	 */
 	signTransaction(keyPair, transaction) { // eslint-disable-line class-methods-use-this
@@ -54,9 +99,9 @@ export default class NemFacade {
 
 	/**
 	 * Verifies a NEM transaction.
-	 * @param {object} transaction Transaction object.
+	 * @param {nc.Transaction} transaction Transaction object.
 	 * @param {Signature} signature Signature to verify.
-	 * @returns {boolean} true if transaction signature is verified.
+	 * @returns {boolean} \c true if transaction signature is verified.
 	 */
 	verifyTransaction(transaction, signature) { // eslint-disable-line class-methods-use-this
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
@@ -66,8 +111,8 @@ export default class NemFacade {
 	/**
 	 * Creates a network compatible BIP32 path for the specified account.
 	 *
-	 * @param {int} accountId Id of the account for which to generate a BIP32 path.
-	 * @returns {array<int>} BIP32 path for the specified account.
+	 * @param {number} accountId Id of the account for which to generate a BIP32 path.
+	 * @returns {Array<number>} BIP32 path for the specified account.
 	 */
 	bip32Path(accountId) {
 		return [44, 'mainnet' === this.network.name ? 43 : 1, accountId, 0, 0];

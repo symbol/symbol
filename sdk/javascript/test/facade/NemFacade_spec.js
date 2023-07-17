@@ -1,4 +1,4 @@
-import Bip32 from '../../src/Bip32.js';
+import { Bip32 } from '../../src/Bip32.js';
 import {
 	Hash256, PrivateKey, PublicKey, Signature
 } from '../../src/CryptoTypes.js';
@@ -68,7 +68,7 @@ describe('NEM Facade', () => {
 
 	it('can create around unknown network', () => {
 		// Arrange:
-		const network = new Network('foo', 0xDE);
+		const network = new Network('foo', 0xDE, new Date());
 
 		// Act:
 		const facade = new NemFacade(network);

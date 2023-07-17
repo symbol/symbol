@@ -2,7 +2,7 @@ import { PublicKey, Signature } from '../../src/CryptoTypes.js';
 import { Address, Network } from '../../src/nem/Network.js';
 import TransactionFactory from '../../src/nem/TransactionFactory.js';
 import * as nc from '../../src/nem/models.js';
-import { uint8ToHex } from '../../src/utils/converter.js';
+import { hexToUint8, uint8ToHex } from '../../src/utils/converter.js';
 import { runBasicTransactionFactoryTests } from '../test/basicTransactionFactoryTests.js';
 import { expect } from 'chai';
 import crypto from 'crypto';
@@ -53,7 +53,8 @@ describe('transaction factory (NEM)', () => {
 
 			'array[SizePrefixedMosaic]', 'array[SizePrefixedMosaicProperty]', 'array[SizePrefixedMultisigAccountModification]'
 		]);
-		expect(new Set(Array.from(factory.factory.rules.keys()))).to.deep.equal(expectedRuleNames);
+		const ruleNames = new Set(factory.ruleNames);
+		expect(ruleNames).to.deep.equal(expectedRuleNames);
 	});
 
 	// endregion
@@ -103,8 +104,8 @@ describe('transaction factory (NEM)', () => {
 		});
 
 		// Assert:
-		expect(transaction.rentalFeeSink)
-			.to.deep.equal(new nc.Address('4145424147424146415944515143494B424D474132445150434149524545595543554C424F474142'));
+		const expectedAddressBytes = hexToUint8('4145424147424146415944515143494B424D474132445150434149524545595543554C424F474142');
+		expect(transaction.rentalFeeSink).to.deep.equal(new nc.Address(expectedAddressBytes));
 	});
 
 	// endregion
@@ -218,8 +219,9 @@ describe('transaction factory (NEM)', () => {
 		// Act:
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
 
-		// Assert:
-		expect(nonVerifiableTransaction.signature).to.equal(undefined);
+		// Assert: nonVerifiableTransaction does not contain signature but source transaction does
+		expect(Object.prototype.hasOwnProperty.call(transaction, '_signature')).to.equal(true);
+		expect(Object.prototype.hasOwnProperty.call(nonVerifiableTransaction, '_signature')).to.equal(false);
 
 		// - cut out size and signature from the buffer
 		const verifiableBuffer = transaction.serialize();

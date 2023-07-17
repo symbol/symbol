@@ -1,6 +1,14 @@
 import { Hash256 } from '../../src/CryptoTypes.js';
 import {
-	MerkleHashBuilder, PatriciaMerkleProofResult, deserializePatriciaTreeNodes, proveMerkle, provePatriciaMerkle
+	/* eslint-disable no-unused-vars */
+	BranchNode,
+	LeafNode,
+	/* eslint-enable no-unused-vars */
+	MerkleHashBuilder,
+	PatriciaMerkleProofResult,
+	deserializePatriciaTreeNodes,
+	proveMerkle,
+	provePatriciaMerkle
 } from '../../src/symbol/merkle.js';
 import { hexToUint8 } from '../../src/utils/converter.js';
 import { expect } from 'chai';
@@ -285,7 +293,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`FF${ENCODED_EVEN_PATH}3A50C5BF83CBA3370CF4E4AC0FC5A6FFB0E29501F66DA12DE25FFB13A419BA77`);
 
 			// Act:
-			const nodes = deserializePatriciaTreeNodes(buffer);
+			const nodes = /** @type Array<LeafNode> */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -301,7 +309,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`FF${ENCODED_ODD_PATH}F48F12376B7C72F97E1533DE6DDB6F957DAB4F9031F959261AA2C5B655C864AA`);
 
 			// Act:
-			const nodes = deserializePatriciaTreeNodes(buffer);
+			const nodes = /** @type Array<LeafNode> */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -338,7 +346,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`0000${ENCODED_BRANCH_LINKS}`);
 
 			// Act:
-			const nodes = deserializePatriciaTreeNodes(buffer);
+			const nodes = /** @type Array<BranchNode> */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -354,7 +362,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`00${ENCODED_EVEN_PATH}${ENCODED_BRANCH_LINKS}`);
 
 			// Act:
-			const nodes = deserializePatriciaTreeNodes(buffer);
+			const nodes = /** @type Array<BranchNode> */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -370,7 +378,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`00${ENCODED_ODD_PATH}${ENCODED_BRANCH_LINKS}`);
 
 			// Act:
-			const nodes = deserializePatriciaTreeNodes(buffer);
+			const nodes = /** @type Array<BranchNode> */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -467,7 +475,7 @@ describe('merkle', () => {
 			params[3] = new Hash256('AAAABBBBCCCCDDDDEEEEFFFF0000111122223333444455556666777788889999');
 
 			// Act:
-			const result = provePatriciaMerkle(...params);
+			const result = provePatriciaMerkle.apply(undefined, [...params]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.STATE_HASH_DOES_NOT_MATCH_ROOTS);
@@ -476,10 +484,10 @@ describe('merkle', () => {
 		it('cannot validate proof when unanchored path tree', () => {
 			// Arrange: drop anchored node
 			const params = [...POSITIVE_PARAMS];
-			params[2] = params[2].slice(1);
+			params[2] = deserializePatriciaTreeNodes(hexToUint8(POSITIVE_PROOF_SERIALIZED_PATH)).slice(1);
 
 			// Act:
-			const result = provePatriciaMerkle(...params);
+			const result = provePatriciaMerkle.apply(undefined, [...params]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.UNANCHORED_PATH_TREE);
@@ -491,7 +499,7 @@ describe('merkle', () => {
 			params[1] = new Hash256('AAAABBBBCCCCDDDDEEEEFFFF0000111122223333444455556666777788889999');
 
 			// Act:
-			const result = provePatriciaMerkle(...params);
+			const result = provePatriciaMerkle.apply(undefined, [...params]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.LEAF_VALUE_MISMATCH);
@@ -500,11 +508,11 @@ describe('merkle', () => {
 		it('cannot validate proof when unlinked node', () => {
 			// Arrange: drop connecting node
 			const params = [...POSITIVE_PARAMS];
-			params[2] = [...params[2]];
+			params[2] = deserializePatriciaTreeNodes(hexToUint8(POSITIVE_PROOF_SERIALIZED_PATH));
 			params[2].splice(1, 1);
 
 			// Act:
-			const result = provePatriciaMerkle(...params);
+			const result = provePatriciaMerkle.apply(undefined, [...params]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.UNLINKED_NODE);
@@ -516,7 +524,7 @@ describe('merkle', () => {
 			params[0] = new Hash256('AAAABBBBCCCCDDDDEEEEFFFF0000111122223333444455556666777788889999');
 
 			// Act:
-			const result = provePatriciaMerkle(...params);
+			const result = provePatriciaMerkle.apply(undefined, [...params]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.PATH_MISMATCH);
@@ -528,7 +536,7 @@ describe('merkle', () => {
 			params[0] = new Hash256('AAAABBBBCCCCDDDDEEEEFFFF0000111122223333444455556666777788889999');
 
 			// Act:
-			const result = provePatriciaMerkle(...params);
+			const result = provePatriciaMerkle.apply(undefined, [...params]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.PATH_MISMATCH);
@@ -540,7 +548,7 @@ describe('merkle', () => {
 			params[0] = new Hash256('59F2C175E9685A2F56267CCD5E5DABF900471FAC76B9EDB78FE67B2C85128D3B');
 
 			// Act:
-			const result = provePatriciaMerkle(...params);
+			const result = provePatriciaMerkle.apply(undefined, [...params]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.INCONCLUSIVE);
@@ -548,7 +556,7 @@ describe('merkle', () => {
 
 		it('can validate valid proof positive including node with even path', () => {
 			// Act:
-			const result = provePatriciaMerkle(...POSITIVE_PARAMS);
+			const result = provePatriciaMerkle.apply(undefined, [...POSITIVE_PARAMS]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.VALID_POSITIVE);
@@ -556,7 +564,7 @@ describe('merkle', () => {
 
 		it('can validate valid proof positive including node with odd path', () => {
 			// Act:
-			const result = provePatriciaMerkle(...POSITIVE_PARAMS_ODD);
+			const result = provePatriciaMerkle.apply(undefined, [...POSITIVE_PARAMS_ODD]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.VALID_POSITIVE);
@@ -564,7 +572,7 @@ describe('merkle', () => {
 
 		it('can validate valid proof negative', () => {
 			// Act:
-			const result = provePatriciaMerkle(...NEGATIVE_PARAMS);
+			const result = provePatriciaMerkle.apply(undefined, [...NEGATIVE_PARAMS]);
 
 			// Assert:
 			expect(result).to.equal(PatriciaMerkleProofResult.VALID_NEGATIVE);

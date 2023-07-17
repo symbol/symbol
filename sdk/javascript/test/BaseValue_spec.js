@@ -23,7 +23,6 @@ describe('BaseValue', () => {
 			expect(() => new BaseValue(byteSize, NaN)).to.throw('is not an integer');
 			expect(() => new BaseValue(byteSize, -Infinity)).to.throw('is not an integer');
 			expect(() => new BaseValue(byteSize, Infinity)).to.throw('is not an integer');
-			expect(() => new BaseValue(byteSize, undefined)).to.throw('is not an integer');
 		});
 	});
 

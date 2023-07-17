@@ -1,4 +1,12 @@
-import { SharedKey256 } from '../CryptoTypes.js';
+/* eslint-disable no-unused-vars */
+import { KeyPair } from './KeyPair.js';
+/* eslint-enable no-unused-vars */
+import {
+	/* eslint-disable no-unused-vars */
+	PublicKey,
+	/* eslint-enable no-unused-vars */
+	SharedKey256
+} from '../CryptoTypes.js';
 import { deriveSharedKeyFactory, deriveSharedSecretFactory } from '../SharedKey.js';
 import { keccak_256, keccak_512 } from '@noble/hashes/sha3';
 
@@ -21,7 +29,7 @@ const deriveSharedKeyImpl = deriveSharedKeyFactory('nem-nis1', crypto_hash);
  * @param {PublicKey} otherPublicKey Other party's public key.
  * @returns {SharedKey256} Shared encryption key.
  */
-export const deriveSharedKey = (keyPair, otherPublicKey) => {
+const deriveSharedKey = (keyPair, otherPublicKey) => {
 	const reversedPrivateKeyBytes = new Uint8Array([...keyPair.privateKey.bytes]);
 	reversedPrivateKeyBytes.reverse();
 
@@ -36,7 +44,7 @@ export const deriveSharedKey = (keyPair, otherPublicKey) => {
  * @param {Uint8Array} salt Random salt. Should be unique per every use.
  * @returns {SharedKey256} Shared encryption key.
  */
-export const deriveSharedKeyDeprecated = (keyPair, otherPublicKey, salt) => {
+const deriveSharedKeyDeprecated = (keyPair, otherPublicKey, salt) => {
 	if (SharedKey256.SIZE !== salt.length)
 		throw Error('invalid salt');
 
@@ -49,4 +57,9 @@ export const deriveSharedKeyDeprecated = (keyPair, otherPublicKey, salt) => {
 		sharedKeyBytes[i] = sharedSecret[i] ^ salt[i];
 
 	return new SharedKey256(keccak_256(sharedKeyBytes));
+};
+
+export {
+	deriveSharedKey,
+	deriveSharedKeyDeprecated
 };

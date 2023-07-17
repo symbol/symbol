@@ -6,6 +6,17 @@ import { runBasicMessageEncoderTests } from '../test/messageEncoderTests.js';
 import { expect } from 'chai';
 
 describe('MessageEncoder (NEM)', () => {
+	it('can create encoder', () => {
+		// Arrange:
+		const keyPair = new KeyPair(PrivateKey.random());
+
+		// Act:
+		const encoder = new MessageEncoder(keyPair);
+
+		// Assert:
+		expect(encoder.publicKey).to.deep.equal(keyPair.publicKey);
+	});
+
 	runBasicMessageEncoderTests({
 		KeyPair,
 		MessageEncoder,
@@ -34,11 +45,11 @@ describe('MessageEncoder (NEM)', () => {
 		encodedMessage.message = new Uint8Array(16 + 32 + 1);
 
 		// Act:
-		const [result, decoded] = encoder.tryDecode(recipientPublicKey, encodedMessage);
+		const result = encoder.tryDecode(recipientPublicKey, encodedMessage);
 
 		// Assert:
-		expect(result).to.equal(false);
-		expect(decoded).to.deep.equal(encodedMessage);
+		expect(result.isDecoded).to.equal(false);
+		expect(result.message).to.deep.equal(encodedMessage);
 	});
 
 	it('decode throws when message type is invalid', () => {

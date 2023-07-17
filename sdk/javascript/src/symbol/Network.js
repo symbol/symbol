@@ -6,12 +6,12 @@ import base32 from '../utils/base32.js';
 import { sha3_256 } from '@noble/hashes/sha3';
 
 /**
- * Represents a symbol network timestamp with millisecond resolution.
+ * Represents a Symbol network timestamp with millisecond resolution.
  */
 export class NetworkTimestamp extends BasicNetworkTimestamp {
 	/**
 	 * Adds a specified number of milliseconds to this timestamp.
-	 * @param {number} count Number of milliseconds to add.
+	 * @param {number|bigint} count Number of milliseconds to add.
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of milliseconds past this timestamp.
 	 */
 	addMilliseconds(count) {
@@ -21,7 +21,7 @@ export class NetworkTimestamp extends BasicNetworkTimestamp {
 	/**
 	 * Adds a specified number of seconds to this timestamp.
 	 * @override
-	 * @param {number} count Number of seconds to add.
+	 * @param {number|bigint} count Number of seconds to add.
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of seconds past this timestamp.
 	 */
 	addSeconds(count) {
@@ -33,22 +33,34 @@ export class NetworkTimestamp extends BasicNetworkTimestamp {
  * Represents a Symbol address.
  */
 export class Address extends ByteArray {
+	/**
+	 * Byte size of raw address.
+	 * @type number
+	 */
 	static SIZE = 24;
 
+	/**
+	 * Length of encoded address string.
+	 * @type number
+	 */
 	static ENCODED_SIZE = 39;
 
 	/**
 	 * Creates a Symbol address.
-	 * @param {Uint8Array|string|Address} address Input string, byte array or address.
+	 * @param {Uint8Array|string|Address} addressInput Input string, byte array or address.
 	 */
-	constructor(address) {
-		let rawBytes = address;
-		if ('string' === typeof address)
-			rawBytes = base32.decode(`${address}A`).slice(0, -1);
-		else if (address instanceof Address)
-			rawBytes = address.bytes;
+	constructor(addressInput) {
+		const extractAddressBytes = () => {
+			if ('string' === typeof addressInput)
+				return base32.decode(`${addressInput}A`).slice(0, -1);
 
-		super(Address.SIZE, rawBytes);
+			if (addressInput instanceof Address)
+				return addressInput.bytes;
+
+			return addressInput;
+		};
+
+		super(Address.SIZE, extractAddressBytes());
 	}
 
 	/**
@@ -65,13 +77,31 @@ export class Address extends ByteArray {
  */
 export class Network extends BasicNetwork {
 	/**
+	 * Symbol main network.
+	 * @type Network
+	 */
+	static MAINNET;
+
+	/**
+	 * Symbol test network.
+	 * @type Network
+	 */
+	static TESTNET;
+
+	/**
+	 * Symbol well known networks.
+	 * @type Array<Network>
+	 */
+	static NETWORKS;
+
+	/**
 	 * Creates a new network with the specified name, identifier byte and generation hash seed.
 	 * @param {string} name Network name.
 	 * @param {number} identifier Network identifier byte.
 	 * @param {Date} epochTime Network epoch time.
 	 * @param {Hash256} generationHashSeed Network generation hash seed.
 	 */
-	constructor(name, identifier, epochTime, generationHashSeed = undefined) {
+	constructor(name, identifier, epochTime, generationHashSeed) {
 		super(
 			name,
 			identifier,
@@ -81,6 +111,11 @@ export class Network extends BasicNetwork {
 			Address,
 			NetworkTimestamp
 		);
+
+		/**
+		 * Network generation hash seed.
+		 * @type Hash256
+		 */
 		this.generationHashSeed = generationHashSeed;
 	}
 }

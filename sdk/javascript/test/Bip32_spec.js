@@ -1,4 +1,4 @@
-import Bip32 from '../src/Bip32.js';
+import { Bip32 } from '../src/Bip32.js';
 import { PrivateKey } from '../src/CryptoTypes.js';
 import { hexToUint8 } from '../src/utils/converter.js';
 import { expect } from 'chai';

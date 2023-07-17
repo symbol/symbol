@@ -41,7 +41,8 @@ describe('transaction factory (Symbol)', () => {
 
 			'array[UnresolvedMosaicId]', 'array[TransactionType]', 'array[UnresolvedAddress]', 'array[UnresolvedMosaic]'
 		]);
-		expect(new Set(Array.from(factory.factory.rules.keys()))).to.deep.equal(expectedRuleNames);
+		const ruleNames = new Set(factory.ruleNames);
+		expect(ruleNames).to.deep.equal(expectedRuleNames);
 	});
 
 	// endregion
@@ -98,7 +99,7 @@ describe('transaction factory (Symbol)', () => {
 			});
 
 			// Assert:
-			const range = (start, end) => new Uint8Array(end - start).fill().map((_, i) => start + i);
+			const range = (start, end) => new Uint8Array(end - start).map((_, i) => start + i);
 			expect(transaction.restrictionAdditions).to.deep.equal([
 				new sc.UnresolvedAddress(range(1, 25)), new sc.UnresolvedAddress(range(26, 50))
 			]);
@@ -201,7 +202,7 @@ describe('transaction factory (Symbol)', () => {
 			});
 
 			// Assert:
-			const expectedId = generateMosaicId(factory.network.publicKeyToAddress(new PublicKey(TEST_SIGNER_PUBLIC_KEY)), 123);
+			const expectedId = generateMosaicId(Network.TESTNET.publicKeyToAddress(new PublicKey(TEST_SIGNER_PUBLIC_KEY)), 123);
 			expect(transaction.id.value).to.equal(expectedId);
 		});
 

@@ -67,21 +67,19 @@ class FactoryFormatter(AbstractTypeFormatter):
 		field_types = self.factory_descriptor.discriminator_types
 
 		values = ', '.join(map(lambda value_type: self.map_to_value(name, *value_type), zip(field_values, field_types)))
-		return f'[{self.typename}.toKey([{values}]), {name}]'
+		return f'mapping.set({self.typename}.toKey([{values}]), {name});'
 
 	def get_deserialize_descriptor(self):
 		body = 'const view = new BufferView(payload);\n'
 		body += f'const {self.printer.name} = {self.printer.load()};\n'
 
-		body += 'const mapping = new Map([\n'
+		body += 'const mapping = new Map();\n'
 
 		if self.factory_descriptor:
 			names = [f'{concrete.name}' for concrete in self.factory_descriptor.children]
-			body += indent(
-				',\n'.join(map(self.create_discriminator, names))
-			)
+			body += '\n'.join(map(self.create_discriminator, names))
 
-		body += ']);\n'
+		body += '\n'
 
 		discriminators = [] if not self.factory_descriptor else map(fix_name, self.factory_descriptor.discriminator_names)
 		discriminator_types = self.factory_descriptor.discriminator_types

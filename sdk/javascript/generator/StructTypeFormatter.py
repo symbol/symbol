@@ -236,6 +236,15 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return MethodDescriptor(body=body)
 
+	def initialize_with_null(self, field):
+		# HACK: instead of handling dumb magic value in namespace parent_name, generate slightly simpler condition
+		if DisplayType.UNSET != field.display_type:
+			return True
+
+		# any fields with computed conditions should be null initialized or else the size computation will fail
+		condition_field = next(f for f in self.non_const_fields() if field.value.linked_field_name == f.name)
+		return is_computed(condition_field)
+
 	def generate_deserialize_field(self, field, deserializer_mode, arg_buffer_name=None):
 		# pylint: disable=too-many-locals
 
@@ -281,7 +290,11 @@ class StructFormatter(AbstractTypeFormatter):
 		deserialize_field = deserialize + adjust + additional_statements
 
 		if condition:
-			condition = f'let {field.extensions.printer.name} = null;\n' + condition
+			value = field.extensions.printer.get_default_value()
+			if self.initialize_with_null(field):
+				value = 'null'
+
+			condition = f'let {field.extensions.printer.name} = {value};\n' + condition
 
 		return indent_if_conditional(condition, deserialize_field)
 

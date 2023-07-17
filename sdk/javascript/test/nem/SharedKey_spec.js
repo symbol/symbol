@@ -13,7 +13,7 @@ describe('SharedKey (NEM)', () => {
 });
 
 describe('SharedKey (NEM) (deprecated)', () => {
-	const deterministicSalt = new TextEncoder('utf-8').encode('1234567890ABCDEF1234567890ABCDEF');
+	const deterministicSalt = new TextEncoder().encode('1234567890ABCDEF1234567890ABCDEF');
 	runBasicSharedKeyTests({
 		KeyPair,
 		// eslint-disable-next-line import/no-deprecated

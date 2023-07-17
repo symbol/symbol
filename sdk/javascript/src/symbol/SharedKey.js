@@ -1,8 +1,12 @@
+/* eslint-disable no-unused-vars */
+import { KeyPair } from './KeyPair.js';
+import { PublicKey, SharedKey256 } from '../CryptoTypes.js';
+/* eslint-enable no-unused-vars */
 import { deriveSharedKeyFactory } from '../SharedKey.js';
 import tweetnacl from 'tweetnacl';
 
-const { crypto_hash } = tweetnacl.lowlevel;
-const deriveSharedKeyImpl = deriveSharedKeyFactory('catapult', crypto_hash);
+const tweetnacl_lowlevel = (/** @type {any} */ (tweetnacl)).lowlevel;
+const deriveSharedKeyImpl = deriveSharedKeyFactory('catapult', tweetnacl_lowlevel.crypto_hash);
 
 /**
  * Derives shared key from key pair and other party's public key.
@@ -10,5 +14,6 @@ const deriveSharedKeyImpl = deriveSharedKeyFactory('catapult', crypto_hash);
  * @param {PublicKey} otherPublicKey Other party's public key.
  * @returns {SharedKey256} Shared encryption key.
  */
-export const deriveSharedKey = (keyPair, otherPublicKey) => // eslint-disable-line import/prefer-default-export
-	deriveSharedKeyImpl(keyPair.privateKey.bytes, otherPublicKey);
+const deriveSharedKey = (keyPair, otherPublicKey) => deriveSharedKeyImpl(keyPair.privateKey.bytes, otherPublicKey);
+
+export { deriveSharedKey }; // eslint-disable-line import/prefer-default-export

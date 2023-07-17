@@ -13,7 +13,14 @@ export class KeyPair {
 	 * @param {PrivateKey} privateKey Private key.
 	 */
 	constructor(privateKey) {
+		/**
+		 * @private
+		 */
 		this._privateKey = privateKey;
+
+		/**
+		 * @private
+		 */
 		this._keyPair = ed25519.keyPairFromSeed(HASH_MODE, this._privateKey.bytes);
 	}
 
@@ -55,6 +62,10 @@ export class Verifier {
 		if (0 === deepCompare(new Uint8Array(PublicKey.SIZE), publicKey.bytes))
 			throw new Error('public key cannot be zero');
 
+		/**
+		 * Public key used for signature verification.
+		 * @type PublicKey
+		 */
 		this.publicKey = publicKey;
 	}
 

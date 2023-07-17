@@ -35,11 +35,13 @@ class IntPrinter(Printer):
 	def load(self, buffer_name='byteArray', is_aligned=False):
 		data_size = self.get_size()
 		arguments = f'{buffer_name}, {data_size}, {js_bool(not self.descriptor.is_unsigned)}'
+		qualifier = '' if data_size < 8 else 'Big'
+
 		# is_aligned - handles both generation of deserializeAligned for pod and enum types and generation of fields within struct
 		if is_aligned:
-			return f'converter.bytesToInt({arguments})'
+			return f'converter.bytesTo{qualifier}Int({arguments})'
 
-		return f'converter.bytesToIntUnaligned({arguments})'
+		return f'converter.bytesTo{qualifier}IntUnaligned({arguments})'
 
 	def advancement_size(self):
 		return self.get_size()

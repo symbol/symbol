@@ -1,4 +1,3 @@
-import { PublicKey } from '../src/CryptoTypes.js';
 import TransactionDescriptorProcessor from '../src/TransactionDescriptorProcessor.js';
 import { expect } from 'chai';
 
@@ -15,10 +14,10 @@ describe('TransactionDescriptorProcessor', () => {
 			...(extendedDescriptor || {})
 		};
 		const typeParsingRules = new Map();
-		typeParsingRules.set(PublicKey, name => `${name} PUBLICKEY`);
+		typeParsingRules.set('PublicKey', name => `${name} PUBLICKEY`);
 
 		const processor = new TransactionDescriptorProcessor(transactionDescriptor, typeParsingRules);
-		processor.setTypeHints({ signer: PublicKey, timestamp: Number });
+		processor.setTypeHints({ signer: 'PublicKey', timestamp: 'Number' });
 		return processor;
 	};
 
@@ -33,11 +32,11 @@ describe('TransactionDescriptorProcessor', () => {
 			deadline: undefined === deadlineValue ? 300 : deadlineValue
 		};
 		const typeParsingRules = new Map();
-		typeParsingRules.set(Number, value => value + 42);
+		typeParsingRules.set('Number', value => value + 42);
 
 		const typeConverter = value => ('number' === typeof value ? value * 2 : value);
 		const processor = new TransactionDescriptorProcessor(transactionDescriptor, typeParsingRules, typeConverter);
-		processor.setTypeHints({ timestamp: Number });
+		processor.setTypeHints({ timestamp: 'Number' });
 		return processor;
 	};
 
@@ -243,13 +242,13 @@ describe('TransactionDescriptorProcessor', () => {
 			const transactionDescriptor = {
 				type: 'transfer',
 				signer: 'signerName',
-				mosaics: [(1, 2), (3, 5)]
+				mosaics: [[1, 2], [3, 5]]
 			};
 			const typeParsingRules = new Map();
-			typeParsingRules.set(PublicKey, name => `${name} PUBLICKEY`);
+			typeParsingRules.set('PublicKey', name => `${name} PUBLICKEY`);
 
 			const processor = new TransactionDescriptorProcessor(transactionDescriptor, typeParsingRules);
-			processor.setTypeHints({ signer: PublicKey });
+			processor.setTypeHints({ signer: 'PublicKey' });
 
 			const transaction = {
 				type: null, signer: null, mosaics: []
@@ -262,7 +261,7 @@ describe('TransactionDescriptorProcessor', () => {
 			expect(transaction).to.deep.equal({
 				type: 'transfer',
 				signer: 'signerName PUBLICKEY',
-				mosaics: [(1, 2), (3, 5)]
+				mosaics: [[1, 2], [3, 5]]
 			});
 		});
 
@@ -304,7 +303,7 @@ describe('TransactionDescriptorProcessor', () => {
 			};
 
 			// Act:
-			processor.setTypeHints({ recipient: PublicKey });
+			processor.setTypeHints({ recipient: 'PublicKey' });
 			processor.copyTo(transaction);
 
 			// Assert:

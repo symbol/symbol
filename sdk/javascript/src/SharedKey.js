@@ -1,12 +1,20 @@
-import { SharedKey256 } from './CryptoTypes.js';
+// this file contains implementation details and is not intended to be used directly
+
+import {
+	/* eslint-disable no-unused-vars */
+	PublicKey,
+	/* eslint-enable no-unused-vars */
+	SharedKey256
+} from './CryptoTypes.js';
 import { hkdf } from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha256';
 import tweetnacl from 'tweetnacl';
 
 // order matches order of exported methods
+const tweetnacl_lowlevel = (/** @type {any} */ (tweetnacl)).lowlevel;
 const {
 	crypto_verify_32, gf, pack25519, unpack25519, pow2523, set25519
-} = tweetnacl.lowlevel;
+} = tweetnacl_lowlevel;
 
 // region curve operations - unfortunatelly tweetnacl.lowlevel does not expose those functions, so needed to copy them here
 
@@ -25,7 +33,7 @@ const par25519 = a => {
 };
 
 const inv25519 = (o, i) => {
-	const { M, S } = tweetnacl.lowlevel;
+	const { M, S } = tweetnacl_lowlevel;
 
 	const c = gf();
 	for (let a = 0; 16 > a; a++)
@@ -41,7 +49,7 @@ const inv25519 = (o, i) => {
 };
 
 const pack = (r, p) => {
-	const { M } = tweetnacl.lowlevel;
+	const { M } = tweetnacl_lowlevel;
 	const tx = gf();
 	const ty = gf();
 	const zi = gf();
@@ -57,7 +65,7 @@ const pack = (r, p) => {
 const unpackNeg = (r, p) => {
 	const {
 		D, M, A, S, Z
-	} = tweetnacl.lowlevel;
+	} = tweetnacl_lowlevel;
 
 	const gf0 = gf();
 	const gf1 = gf([1]);
@@ -127,7 +135,7 @@ const isCanonicalKey = publicKey => {
 };
 
 const isInMainSubgroup = point => {
-	const { scalarmult, L } = tweetnacl.lowlevel;
+	const { scalarmult, L } = tweetnacl_lowlevel;
 	const result = [gf(), gf(), gf(), gf()];
 	// multiply by group order
 	scalarmult(result, point, L);
@@ -141,8 +149,13 @@ const isInMainSubgroup = point => {
 	return 0 === (areEqual | isZero);
 };
 
-export const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPublicKey) => {
-	const { scalarmult, Z } = tweetnacl.lowlevel;
+/**
+ * Creates a shared secret factory given a hash function.
+ * @param {function} cryptoHash Hash function to use.
+ * @returns {function(Uint8Array, PublicKey): Uint8Array} Creates a shared secret from a raw private key and public key.
+ */
+const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPublicKey) => {
+	const { scalarmult, Z } = tweetnacl_lowlevel;
 	const point = [gf(), gf(), gf(), gf()];
 
 	if (!isCanonicalKey(otherPublicKey) || 0 !== unpackNeg(point, otherPublicKey.bytes) || !isInMainSubgroup(point))
@@ -167,10 +180,21 @@ export const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPu
 	return sharedSecret;
 };
 
-export const deriveSharedKeyFactory = (info, cryptoHash) => {
+/**
+ * Creates a shared key factory given a tag and a hash function.
+ * @param {string} info Tag used in HKDF algorithm.
+ * @param {function} cryptoHash Hash function to use.
+ * @returns {function(Uint8Array, PublicKey): SharedKey256} Creates a shared key from a raw private key and public key.
+ */
+const deriveSharedKeyFactory = (info, cryptoHash) => {
 	const deriveSharedSecret = deriveSharedSecretFactory(cryptoHash);
 	return (privateKeyBytes, otherPublicKey) => {
 		const sharedSecret = deriveSharedSecret(privateKeyBytes, otherPublicKey);
 		return new SharedKey256(hkdf(sha256, sharedSecret, undefined, info, 32));
 	};
+};
+
+export {
+	deriveSharedSecretFactory,
+	deriveSharedKeyFactory
 };

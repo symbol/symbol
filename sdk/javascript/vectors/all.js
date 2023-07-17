@@ -1,4 +1,4 @@
-import Bip32 from '../src/Bip32.js';
+import { Bip32 } from '../src/Bip32.js';
 import { AesCbcCipher, AesGcmCipher } from '../src/Cipher.js';
 import {
 	PrivateKey, PublicKey, SharedKey256, Signature
@@ -436,20 +436,25 @@ import path from 'path';
 	};
 
 	const hasAnyFailures = processedPairs => processedPairs.some(pair => !areEqual(pair[0], pair[1]));
-
 	const args = yargs(process.argv.slice(2))
-		.demandOption('vectors', 'path to test-vectors directory')
+		.option('vectors', {
+			describe: 'path to test-vectors directory',
+			require: true,
+			type: 'string'
+		})
 		.option('blockchain', {
 			describe: 'blockchain to run vectors against',
 			choices: ['nem', 'symbol'],
-			default: 'symbol'
+			default: 'symbol',
+			type: 'string'
 		})
 		.option('tests', {
 			describe: 'identifiers of tests to include',
 			choices: [0, 1, 2, 3, 4, 5, 6, 7],
-			array: true
+			array: true,
+			type: 'array'
 		})
-		.argv;
+		.parseSync();
 
 	console.log(`running tests for ${args.blockchain} blockchain with vectors from ${args.vectors}`);
 
@@ -462,7 +467,7 @@ import path from 'path';
 		}
 
 		let hasTestGroups = false;
-		let testVectors = JSON.parse(fs.readFileSync(path.format({ dir: args.vectors, base: `${testSuite.filename}.json` })));
+		let testVectors = JSON.parse(fs.readFileSync(path.format({ dir: args.vectors, base: `${testSuite.filename}.json` })).toString());
 		if (!Array.isArray(testVectors)) {
 			hasTestGroups = true;
 			testVectors = Object.keys(testVectors).map(name => ({
@@ -476,15 +481,14 @@ import path from 'path';
 		let testCaseNumber = 0;
 		let numFailed = 0;
 		testVectors.forEach(testCaseOrGroup => {
-			let testGroupName;
 			let testCases;
 			if (hasTestGroups)
-				({ testGroupName, testCases } = testCaseOrGroup);
+				({ testCases } = testCaseOrGroup);
 			else
 				testCases = [testCaseOrGroup];
 
 			testCases.forEach(testCase => {
-				const processedPairs = testSuite.process(testCase, testGroupName);
+				const processedPairs = testSuite.process(testCase);
 				if (!processedPairs)
 					return;
 

@@ -14,7 +14,7 @@ describe('base32', () => {
 	describe('encode', () => {
 		it('can convert empty input', () => {
 			// Act:
-			const encoded = base32.encode([]);
+			const encoded = base32.encode(new Uint8Array());
 
 			// Assert:
 			expect(encoded).to.equal('');
@@ -35,9 +35,9 @@ describe('base32', () => {
 
 		it('accepts all byte values', () => {
 			// Arrange:
-			const data = [];
+			const data = new Uint8Array(260);
 			for (let i = 0; 260 > i; ++i)
-				data.push(i & 0xFF);
+				data[i] = i & 0xFF;
 
 			// Act:
 			const encoded = base32.encode(data);
@@ -61,7 +61,7 @@ describe('base32', () => {
 		it('throws if input size is not a multiple of block size', () => {
 			// Arrange:
 			for (let i = 2; 10 > i; i += 2) {
-				const input = new Array(i);
+				const input = new Uint8Array(i);
 
 				// Act + Assert:
 				expect(() => { base32.encode(input); }, `input at ${i}`).to.throw('decoded size must be multiple of 5');
