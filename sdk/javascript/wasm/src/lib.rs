@@ -15,7 +15,7 @@ use curve25519_dalek::edwards::{CompressedEdwardsY, EdwardsPoint};
 extern crate serde;
 
 use sha2::{Digest as Sha2Digest, Sha512};
-use sha3::{Digest as Sha3Digest, Keccak512};
+use sha3::{Keccak512};
 
 use js_sys::Uint8Array;
 use wasm_bindgen::prelude::*;
