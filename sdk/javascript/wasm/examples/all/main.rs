@@ -159,11 +159,11 @@ struct Cli {
 	blockchain: String,
 
 	/// Path to test-vectors directory.
-	#[clap(short, long, parse(from_os_str))]
+	#[clap(short, long, value_parser)]
 	vectors: std::path::PathBuf,
 
 	/// Identifiers of test suites to run.
-	#[clap(short, long, multiple_values(true), value_parser(1..=2))]
+	#[clap(short, long, num_args(0..), value_parser(1..=2))]
 	tests: Vec<i64>,
 }
 
