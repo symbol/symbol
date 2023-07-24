@@ -2,7 +2,7 @@ cryptography==41.0.2
 mnemonic==0.20
 Pillow==10.0.0
 pynacl==1.5.0
-PyYAML==6.0
+PyYAML==6.0.1
 pyzbar==0.1.9
 qrcode==7.4.2
 ripemd-hash==1.0.0
