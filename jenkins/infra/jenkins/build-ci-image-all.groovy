@@ -86,6 +86,20 @@ pipeline {
 						}
 					}
 				}
+				stage('python - ubuntu:20.04') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('python', 'ubuntu:20.04')
+						}
+					}
+				}
+				stage('python - ubuntu:23.04') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('python', 'ubuntu:23.04')
+						}
+					}
+				}
 			}
 		}
 	}
@@ -117,11 +131,12 @@ pipeline {
 	}
 }
 
-void dispatchBuildCiImageJob(String ciImage) {
+void dispatchBuildCiImageJob(String ciImage, String baseImage = 'ubuntu:22.04') {
 	build job: 'build-ci-image', parameters: [
 		string(name: 'CI_IMAGE', value: "${ciImage}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		string(name: 'ARCHITECTURE', value: "${params.ARCHITECTURE}"),
+		string(name: 'BASE_IMAGE', value: "${baseImage}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"

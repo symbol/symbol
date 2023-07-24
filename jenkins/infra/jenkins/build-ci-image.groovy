@@ -7,6 +7,9 @@ pipeline {
 		choice name: 'ARCHITECTURE',
 			choices: ['amd64', 'arm64'],
 			description: 'Computer architecture'
+		choice name: 'BASE_IMAGE',
+			choices: ['ubuntu:22.04', 'ubuntu:20.04', 'ubuntu:23.04'],
+			description: 'Base image'
 		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
@@ -31,7 +34,8 @@ pipeline {
 					steps {
 						script {
 							helper.runStepAndRecordFailure {
-								multiArchImageName = "symbolplatform/build-ci:${CI_IMAGE}"
+								baseImageName = "${BASE_IMAGE}".replace(':', '-')
+								multiArchImageName = "symbolplatform/build-ci:${CI_IMAGE}-${baseImageName}"
 								archImageName = "${multiArchImageName}-${ARCHITECTURE}"
 							}
 						}
@@ -65,7 +69,7 @@ pipeline {
 					helper.runStepAndRecordFailure {
 						dir('jenkins/docker')
 						{
-							String buildArg = "-f ${CI_IMAGE}.Dockerfile ."
+							String buildArg = "-f ${CI_IMAGE}.Dockerfile --build-arg BASE_IMAGE=${BASE_IMAGE} ."
 							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
 								dockerHelper.dockerBuildAndPushImage(archImageName, buildArg)
 								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
