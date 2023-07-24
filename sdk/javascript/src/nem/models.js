@@ -218,7 +218,7 @@ export class TransactionType {
 
 	static MULTISIG_COSIGNATURE = new TransactionType(4098);
 
-	static MULTISIG_TRANSACTION = new TransactionType(4100);
+	static MULTISIG = new TransactionType(4100);
 
 	static NAMESPACE_REGISTRATION = new TransactionType(8193);
 
@@ -235,8 +235,8 @@ export class TransactionType {
 			257, 2049, 4097, 4098, 4100, 8193, 16385, 16386
 		];
 		const keys = [
-			'TRANSFER', 'ACCOUNT_KEY_LINK', 'MULTISIG_ACCOUNT_MODIFICATION', 'MULTISIG_COSIGNATURE', 'MULTISIG_TRANSACTION',
-			'NAMESPACE_REGISTRATION', 'MOSAIC_DEFINITION', 'MOSAIC_SUPPLY_CHANGE'
+			'TRANSFER', 'ACCOUNT_KEY_LINK', 'MULTISIG_ACCOUNT_MODIFICATION', 'MULTISIG_COSIGNATURE', 'MULTISIG', 'NAMESPACE_REGISTRATION',
+			'MOSAIC_DEFINITION', 'MOSAIC_SUPPLY_CHANGE'
 		];
 
 		const index = values.indexOf(value);
@@ -4093,7 +4093,7 @@ export class SizePrefixedCosignatureV1 {
 export class MultisigTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
-	static TRANSACTION_TYPE = TransactionType.MULTISIG_TRANSACTION;
+	static TRANSACTION_TYPE = TransactionType.MULTISIG;
 
 	static TYPE_HINTS = {
 		type: 'enum:TransactionType',
@@ -4321,7 +4321,7 @@ export class MultisigTransactionV1 {
 export class NonVerifiableMultisigTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
-	static TRANSACTION_TYPE = TransactionType.MULTISIG_TRANSACTION;
+	static TRANSACTION_TYPE = TransactionType.MULTISIG;
 
 	static TYPE_HINTS = {
 		type: 'enum:TransactionType',

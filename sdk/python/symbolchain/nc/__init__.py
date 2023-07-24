@@ -165,7 +165,7 @@ class TransactionType(Enum):
 	ACCOUNT_KEY_LINK = 2049
 	MULTISIG_ACCOUNT_MODIFICATION = 4097
 	MULTISIG_COSIGNATURE = 4098
-	MULTISIG_TRANSACTION = 4100
+	MULTISIG = 4100
 	NAMESPACE_REGISTRATION = 8193
 	MOSAIC_DEFINITION = 16385
 	MOSAIC_SUPPLY_CHANGE = 16386
@@ -3706,7 +3706,7 @@ class SizePrefixedCosignatureV1:
 
 class MultisigTransactionV1:
 	TRANSACTION_VERSION: int = 1
-	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_TRANSACTION
+	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG
 	TYPE_HINTS = {
 		'type_': 'enum:TransactionType',
 		'network': 'enum:NetworkType',
@@ -3925,7 +3925,7 @@ class MultisigTransactionV1:
 
 class NonVerifiableMultisigTransactionV1:
 	TRANSACTION_VERSION: int = 1
-	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_TRANSACTION
+	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG
 	TYPE_HINTS = {
 		'type_': 'enum:TransactionType',
 		'network': 'enum:NetworkType',

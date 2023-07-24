@@ -32,7 +32,7 @@ struct SizePrefixedCosignatureV1
 # shared content between V1 verifiable and non-verifiable multisig transactions
 inline struct MultisigTransactionV1Body
 	TRANSACTION_VERSION = make_const(uint8, 1)
-	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_TRANSACTION)
+	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG)
 
 	# inner transaction size
 	inner_transaction_size = sizeof(uint32, inner_transaction)
