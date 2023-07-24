@@ -15,6 +15,11 @@ class TransactionFactory:
 		self.factory = self._build_rules(type_rule_overrides)
 		self.network = network
 
+	@staticmethod
+	def lookup_transaction_name(transaction_type, transaction_version):
+		"""Looks up the friendly name for the specified transaction."""
+		return f'{str(transaction_type)[str(transaction_type).index(".") + 1:].lower()}_transaction_v{transaction_version}'
+
 	def create(self, transaction_descriptor, autosort=True):
 		"""
 		Creates a transaction from a transaction descriptor.

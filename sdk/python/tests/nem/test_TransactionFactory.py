@@ -70,6 +70,19 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 
 	# endregion
 
+	# region lookup_transaction_name
+
+	def test_lookup_transaction_name_can_lookup_known_transaction(self):
+		self.assertEqual('transfer_transaction_v1', TransactionFactory.lookup_transaction_name(nc.TransactionType.TRANSFER, 1))
+		self.assertEqual('transfer_transaction_v2', TransactionFactory.lookup_transaction_name(nc.TransactionType.TRANSFER, 2))
+		self.assertEqual('multisig_transaction_v1', TransactionFactory.lookup_transaction_name(nc.TransactionType.MULTISIG, 1))
+
+	def test_lookup_transaction_name_cannot_lookup_unknown_transaction(self):
+		with self.assertRaises(ValueError):
+			TransactionFactory.lookup_transaction_name(nc.TransactionType(123), 1)
+
+	# endregion
+
 	# region create
 
 	def test_can_create_known_transaction_with_multiple_overrides(self):
