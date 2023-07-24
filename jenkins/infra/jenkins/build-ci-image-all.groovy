@@ -43,57 +43,57 @@ pipeline {
 
 		stage('build ci images') {
 			parallel {
-				stage('cpp') {
+				stage('cpp - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('cpp')
+							dispatchBuildCiImageJob('cpp', 'ubuntu:22.04')
 						}
 					}
 				}
-				stage('java') {
+				stage('java - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('java')
+							dispatchBuildCiImageJob('java', 'ubuntu:22.04')
 						}
 					}
 				}
-				stage('javascript') {
+				stage('javascript - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('javascript')
+							dispatchBuildCiImageJob('javascript', 'ubuntu:22.04')
 						}
 					}
 				}
-				stage('linter') {
+				stage('linter - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('linter')
+							dispatchBuildCiImageJob('linter', 'ubuntu:22.04')
 						}
 					}
 				}
-				stage('postgres') {
+				stage('postgres - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('postgres')
+							dispatchBuildCiImageJob('postgres', 'ubuntu:22.04')
 						}
 					}
 				}
 
-				stage('python') {
+				stage('python - ubuntu:22.04') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('python', 'ubuntu:22.04')
 						}
 					}
 				}
-				stage('python') {
+				stage('python - ubuntu:20.04') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('python', 'ubuntu:20.04')
 						}
 					}
 				}
-				stage('python') {
+				stage('python - ubuntu:23.04') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('python', 'ubuntu:23.04' )
@@ -131,7 +131,7 @@ pipeline {
 	}
 }
 
-void dispatchBuildCiImageJob(String ciImage, String baseImage = 'ubuntu:22.04') {
+void dispatchBuildCiImageJob(String ciImage, String baseImage) {
 	build job: 'build-ci-image', parameters: [
 		string(name: 'CI_IMAGE', value: "${ciImage}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
