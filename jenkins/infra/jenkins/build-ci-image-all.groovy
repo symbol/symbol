@@ -96,7 +96,7 @@ pipeline {
 				stage('python - ubuntu:23.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('python', 'ubuntu:23.04' )
+							dispatchBuildCiImageJob('python', 'ubuntu:23.04')
 						}
 					}
 				}
