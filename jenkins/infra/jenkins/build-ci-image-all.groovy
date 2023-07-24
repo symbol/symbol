@@ -43,35 +43,35 @@ pipeline {
 
 		stage('build ci images') {
 			parallel {
-				stage('cpp - ubuntu:22.04') {
+				stage('cpp') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('cpp')
 						}
 					}
 				}
-				stage('java - ubuntu:22.04') {
+				stage('java') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('java')
 						}
 					}
 				}
-				stage('javascript - ubuntu:22.04') {
+				stage('javascript') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('javascript')
 						}
 					}
 				}
-				stage('linter - ubuntu:22.04') {
+				stage('linter') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('linter')
 						}
 					}
 				}
-				stage('postgres - ubuntu:22.04') {
+				stage('postgres') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('postgres')
@@ -79,7 +79,7 @@ pipeline {
 					}
 				}
 
-				stage('python - ubuntu:22.04') {
+				stage('python') {
 					steps {
 						script {
 							dispatchBuildCiImageJob('python')
