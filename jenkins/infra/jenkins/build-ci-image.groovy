@@ -8,8 +8,8 @@ pipeline {
 			choices: ['amd64', 'arm64'],
 			description: 'Computer architecture'
 		choice name: 'BASE_IMAGE',
-				choices: ['ubuntu:22.04', 'ubuntu:20.04', 'ubuntu:23.04'],
-				description: 'Base image'
+			choices: ['ubuntu:22.04', 'ubuntu:20.04', 'ubuntu:23.04'],
+			description: 'Base image'
 		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 

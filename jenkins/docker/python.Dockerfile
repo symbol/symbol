@@ -35,7 +35,7 @@ RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
 USER ubuntu
 WORKDIR /home/ubuntu
 
-# create virtual environment which is required by Ubuntu 23.04
+# create a virtual environment, which is required by Ubuntu 23.04
 ENV VIRTUAL_ENV=/home/ubuntu/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"

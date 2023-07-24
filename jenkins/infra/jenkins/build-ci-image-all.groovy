@@ -46,35 +46,35 @@ pipeline {
 				stage('cpp - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('cpp', 'ubuntu:22.04')
+							dispatchBuildCiImageJob('cpp')
 						}
 					}
 				}
 				stage('java - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('java', 'ubuntu:22.04')
+							dispatchBuildCiImageJob('java')
 						}
 					}
 				}
 				stage('javascript - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('javascript', 'ubuntu:22.04')
+							dispatchBuildCiImageJob('javascript')
 						}
 					}
 				}
 				stage('linter - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('linter', 'ubuntu:22.04')
+							dispatchBuildCiImageJob('linter')
 						}
 					}
 				}
 				stage('postgres - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('postgres', 'ubuntu:22.04')
+							dispatchBuildCiImageJob('postgres')
 						}
 					}
 				}
@@ -82,7 +82,7 @@ pipeline {
 				stage('python - ubuntu:22.04') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('python', 'ubuntu:22.04')
+							dispatchBuildCiImageJob('python')
 						}
 					}
 				}
@@ -131,7 +131,7 @@ pipeline {
 	}
 }
 
-void dispatchBuildCiImageJob(String ciImage, String baseImage) {
+void dispatchBuildCiImageJob(String ciImage, String baseImage = 'ubuntu:22.04') {
 	build job: 'build-ci-image', parameters: [
 		string(name: 'CI_IMAGE', value: "${ciImage}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
