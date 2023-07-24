@@ -45,6 +45,16 @@ export default class TransactionFactory {
 	}
 
 	/**
+	 * Looks up the friendly name for the specified transaction.
+	 * @param {sc.TransactionType} transactionType Transaction type.
+	 * @param {number} transactionVersion Transaction version.
+	 * @returns {string} Transaction friendly name.
+	 */
+	static lookupTransactionName(transactionType, transactionVersion) {
+		return `${sc.TransactionType.valueToKey(transactionType.value).toLowerCase()}_transaction_v${transactionVersion}`;
+	}
+
+	/**
 	 * Creates a transaction from a transaction descriptor.
 	 * @template TTransaction
 	 * @param {object} transactionDescriptor Transaction descriptor.

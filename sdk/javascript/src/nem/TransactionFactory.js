@@ -44,6 +44,16 @@ export default class TransactionFactory {
 	}
 
 	/**
+	 * Looks up the friendly name for the specified transaction.
+	 * @param {nc.TransactionType} transactionType Transaction type.
+	 * @param {number} transactionVersion Transaction version.
+	 * @returns {string} Transaction friendly name.
+	 */
+	static lookupTransactionName(transactionType, transactionVersion) {
+		return `${nc.TransactionType.valueToKey(transactionType.value).toLowerCase()}_transaction_v${transactionVersion}`;
+	}
+
+	/**
 	 * Creates a transaction from a transaction descriptor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
 	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.

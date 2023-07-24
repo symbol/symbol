@@ -59,6 +59,22 @@ describe('transaction factory (NEM)', () => {
 
 	// endregion
 
+	// region lookupTransactionName
+
+	describe('lookupTransactionName', () => {
+		it('can lookup known transaction', () => {
+			expect(TransactionFactory.lookupTransactionName(nc.TransactionType.TRANSFER, 1)).to.equal('transfer_transaction_v1');
+			expect(TransactionFactory.lookupTransactionName(nc.TransactionType.TRANSFER, 2)).to.equal('transfer_transaction_v2');
+			expect(TransactionFactory.lookupTransactionName(nc.TransactionType.MULTISIG, 1)).to.equal('multisig_transaction_v1');
+		});
+
+		it('cannot lookup unknown transaction', () => {
+			expect(() => TransactionFactory.lookupTransactionName(new nc.TransactionType(123), 1)).to.throw('invalid enum value 123');
+		});
+	});
+
+	// endregion
+
 	// region create
 
 	it('can create known transaction with multiple overrides', () => {

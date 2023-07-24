@@ -47,6 +47,22 @@ describe('transaction factory (Symbol)', () => {
 
 	// endregion
 
+	// region lookupTransactionName
+
+	describe('lookupTransactionName', () => {
+		it('can lookup known transaction', () => {
+			expect(TransactionFactory.lookupTransactionName(sc.TransactionType.TRANSFER, 1)).to.equal('transfer_transaction_v1');
+			expect(TransactionFactory.lookupTransactionName(sc.TransactionType.TRANSFER, 2)).to.equal('transfer_transaction_v2');
+			expect(TransactionFactory.lookupTransactionName(sc.TransactionType.HASH_LOCK, 1)).to.equal('hash_lock_transaction_v1');
+		});
+
+		it('cannot lookup unknown transaction', () => {
+			expect(() => TransactionFactory.lookupTransactionName(new sc.TransactionType(123), 1)).to.throw('invalid enum value 123');
+		});
+	});
+
+	// endregion
+
 	const runSymbolTransactionFactoryTests = testDescriptor => {
 		// region create
 
