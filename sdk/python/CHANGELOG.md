@@ -5,6 +5,16 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.0.8] - 27-Jul-2023
+
+### Added
+ - lookup_transaction_name for generating friendly transaction name from transaction type and version
+ - (Symbol-only) special handling for encrypted messages created by Symbol wallets
+
+### Fixed
+ - (NEM-only) rename TransactionType enum value MULTISIG_TRANSACTION to MULTISIG
+ - (Symbol-only) error that occurs when setting MosaicFlags in the Mosaic definition transaction
+
 ## [3.0.7] - 27-Apr-2023
 
 ### Changed
@@ -83,6 +93,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
+[3.0.8]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.7...sdk%2Fpython%2Fv3.0.8
 [3.0.7]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.3...sdk%2Fpython%2Fv3.0.7
 [3.0.3]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.2...sdk%2Fpython%2Fv3.0.3
 [3.0.2]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.1...sdk%2Fpython%2Fv3.0.2
