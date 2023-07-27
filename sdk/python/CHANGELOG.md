@@ -78,16 +78,15 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Fixed
  - add mapping for voting key dto
 
-## [1.0.0] - 22-Apr-2021
+## 1.0.0 - 22-Apr-2021
 
 ### Added
  - initial code release
 
-[3.0.7]: https://github.com/symbol/sdk-python/compare/v3.0.3...v3.0.7
-[3.0.3]: https://github.com/symbol/sdk-python/compare/v3.0.2...v3.0.3
-[3.0.2]: https://github.com/symbol/sdk-python/compare/v3.0.1...v3.0.2
-[3.0.1]: https://github.com/symbol/sdk-python/compare/v3.0.0...v3.0.1
-[3.0.0]: https://github.com/symbol/sdk-python/compare/v2.0.0...v3.0.0
-[2.0.0]: https://github.com/symbol/sdk-python/compare/v1.0.3...v2.0.0
-[1.0.3]: https://github.com/symbol/sdk-python/compare/v1.0.0...v1.0.3
-[1.0.0]: https://github.com/symbol/sdk-python/releases/tag/v1.0.0
+[3.0.7]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.3...sdk%2Fpython%2Fv3.0.7
+[3.0.3]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.2...sdk%2Fpython%2Fv3.0.3
+[3.0.2]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.1...sdk%2Fpython%2Fv3.0.2
+[3.0.1]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.0...sdk%2Fpython%2Fv3.0.1
+[3.0.0]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv2.0.0...sdk%2Fpython%2Fv3.0.0
+[2.0.0]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv1.0.3...sdk%2Fpython%2Fv2.0.0
+[1.0.3]: https://github.com/symbol/symbol/releases/tag/sdk%2Fpython%2Fv1.0.3
