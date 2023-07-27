@@ -17,6 +17,3 @@ npm run bundle
 # build TS bindings
 npx tsc -p ./tsconfig-generate.json
 npx tsc
-find src -name "*.ts" -type f -delete
-find test -name "*.ts" -type f -delete
-find vectors -name "*.ts" -type f -delete

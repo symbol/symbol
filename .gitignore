@@ -19,6 +19,7 @@ _temp/
 # js
 node_modules/
 npm-*.log*
+ts/
 
 # python
 __pycache__/

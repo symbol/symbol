@@ -11,5 +11,5 @@
         "noEmit": true,
         "forceConsistentCasingInFileNames": true
     },
-     "include": ["src/**/*.ts", "test/**/*.ts", "vectors/**/*.ts"]
+     "include": ["ts/src/**/*.ts", "ts/test/**/*.ts", "ts/vectors/**/*.ts"]
 }
