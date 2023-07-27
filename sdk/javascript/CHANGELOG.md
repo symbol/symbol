@@ -44,5 +44,5 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
-[3.0.7]: https://github.com/symbol/sdk-python/compare/v3.0.0...v3.0.7
-[3.0.0]: https://github.com/symbol/sdk-python/releases/tag/v3.0.0
+[3.0.7]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.0...sdk%2Fjavascript%2Fv3.0.7
+[3.0.0]: https://github.com/symbol/symbol/releases/tag/sdk%2Fjavascript%2Fv3.0.0
