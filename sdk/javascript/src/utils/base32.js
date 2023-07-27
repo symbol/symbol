@@ -50,38 +50,36 @@ const decodeBlock = (input, inputOffset, output, outputOffset) => {
 
 // endregion
 
-const base32 = {
-	/**
-	 * Base32 encodes a binary buffer.
-	 * @param {Uint8Array} data Binary data to encode.
-	 * @returns {string} Base32 encoded string corresponding to the input data.
-	 */
-	encode: data => {
-		if (0 !== data.length % DECODED_BLOCK_SIZE)
-			throw Error(`decoded size must be multiple of ${DECODED_BLOCK_SIZE}`);
+/**
+ * Base32 encodes a binary buffer.
+ * @param {Uint8Array} data Binary data to encode.
+ * @returns {string} Base32 encoded string corresponding to the input data.
+ */
+const encode = data => {
+	if (0 !== data.length % DECODED_BLOCK_SIZE)
+		throw Error(`decoded size must be multiple of ${DECODED_BLOCK_SIZE}`);
 
-		const output = new Array(data.length / DECODED_BLOCK_SIZE * ENCODED_BLOCK_SIZE);
-		for (let i = 0; i < data.length / DECODED_BLOCK_SIZE; ++i)
-			encodeBlock(data, i * DECODED_BLOCK_SIZE, output, i * ENCODED_BLOCK_SIZE);
+	const output = new Array(data.length / DECODED_BLOCK_SIZE * ENCODED_BLOCK_SIZE);
+	for (let i = 0; i < data.length / DECODED_BLOCK_SIZE; ++i)
+		encodeBlock(data, i * DECODED_BLOCK_SIZE, output, i * ENCODED_BLOCK_SIZE);
 
-		return output.join('');
-	},
-
-	/**
-	 * Base32 decodes a base32 encoded string.
-	 * @param {string} encoded Base32 encoded string to decode.
-	 * @returns {Uint8Array} Binary data corresponding to the input string.
-	 */
-	decode: encoded => {
-		if (0 !== encoded.length % ENCODED_BLOCK_SIZE)
-			throw Error(`encoded size must be multiple of ${ENCODED_BLOCK_SIZE}`);
-
-		const output = new Uint8Array(encoded.length / ENCODED_BLOCK_SIZE * DECODED_BLOCK_SIZE);
-		for (let i = 0; i < encoded.length / ENCODED_BLOCK_SIZE; ++i)
-			decodeBlock(encoded, i * ENCODED_BLOCK_SIZE, output, i * DECODED_BLOCK_SIZE);
-
-		return output;
-	}
+	return output.join('');
 };
 
-export default base32;
+/**
+ * Base32 decodes a base32 encoded string.
+ * @param {string} encoded Base32 encoded string to decode.
+ * @returns {Uint8Array} Binary data corresponding to the input string.
+ */
+const decode = encoded => {
+	if (0 !== encoded.length % ENCODED_BLOCK_SIZE)
+		throw Error(`encoded size must be multiple of ${ENCODED_BLOCK_SIZE}`);
+
+	const output = new Uint8Array(encoded.length / ENCODED_BLOCK_SIZE * DECODED_BLOCK_SIZE);
+	for (let i = 0; i < encoded.length / ENCODED_BLOCK_SIZE; ++i)
+		decodeBlock(encoded, i * ENCODED_BLOCK_SIZE, output, i * DECODED_BLOCK_SIZE);
+
+	return output;
+};
+
+export default { encode, decode };
