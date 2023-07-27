@@ -5,6 +5,16 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.0.8] - 27-Jul-2023
+
+### Added
+ - TypeScript support via JSDoc documentation
+ - lookupTransactionName for generating friendly transaction name from transaction type and version
+ - (Symbol-only) special handling for encrypted messages created by Symbol wallets
+
+### Fixed
+ - (NEM-only) rename TransactionType enum value MULTISIG_TRANSACTION to MULTISIG
+
 ## [3.0.7] - 27-Apr-2023
 
 ### Changed
@@ -44,5 +54,6 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.0.8]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.7...sdk%2Fjavascript%2Fv3.0.8
 [3.0.7]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.0...sdk%2Fjavascript%2Fv3.0.7
 [3.0.0]: https://github.com/symbol/symbol/releases/tag/sdk%2Fjavascript%2Fv3.0.0
