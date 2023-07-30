@@ -21,7 +21,7 @@ js-sys = "0.3.59"
 
 # dalek deps
 
-curve25519-dalek = { version = "3", default-features = false }
+curve25519-dalek = { version = "4", default-features = false }
 sha2 = { version = "0.10", default-features = false }
 serde = { version = "1.0.144", default-features = false, optional = true }
 serde_bytes = { version = "0.11", optional = true }
