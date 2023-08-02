@@ -106,7 +106,7 @@ void triggerAllJobs(
 				String fullJobName = siblingName.key + '/' + jobName
 
 				echo "job name - ${fullJobName}"
-				Map jenkinsfileParameters = jobHelper.readJenkinsFileParameters(displayNameJenkinsfileMap.get(displayName))
+				Map<String, String> jenkinsfileParameters = jobHelper.readJenkinsFileParameters(displayNameJenkinsfileMap.get(displayName))
 				String osValue = jobHelper.resolveOperatingSystem(jenkinsfileParameters.operatingSystem)
 				build job: "${fullJobName}", parameters: [
 					gitParameter(name: manualGitBranchName, value: branchName),
@@ -123,5 +123,3 @@ void triggerAllJobs(
 
 	parallel buildJobs
 }
-
-

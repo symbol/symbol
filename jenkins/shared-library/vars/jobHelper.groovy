@@ -1,19 +1,24 @@
-Map readJenkinsFileParameters(String jenkinsfilePath) {
+import java.util.regex.Matcher
+
+Map<String, String> readJenkinsFileParameters(String jenkinsfilePath) {
 	String content = readFile "${jenkinsfilePath}/Jenkinsfile"
-	def matcher = content =~ "(?ms)defaultCiPipeline \\{(.*)}"
+	Matcher matcher = content =~ '(?ms)defaultCiPipeline \\{(.*)}'
 	String matchValue = matcher[0][1]?.toString().trim()
 
 	// set matcher to null to avoid serialization exception
 	matcher = null
 
-	def parameters = readProperties text: matchValue
+	Map<String, String> parameters = readProperties text: matchValue
 
 	println "Found parameters: ${parameters} in ${jenkinsfilePath}"
 	return parameters
 }
 
 List<String> readArrayParameterValue(String parameterValue) {
-	List<String> values = parameterValue.replaceAll("(\\[|\\]|')", '').split(',').collect { it.trim() }
+	// Disable due to https://issues.jenkins.io/browse/JENKINS-33051
+	// And don't want to bypass CPS
+	// groovylint-disable-next-line UnnecessaryCollectCall
+	List<String> values = parameterValue.replaceAll("(\\[|\\]|')", '').split(',').collect { String value -> value.trim() }
 	println "${parameterValue} -> ${values}"
 	return values
 }
@@ -94,7 +99,7 @@ String resolveCiEnvironmentName(Map params) {
 		return params.environment.replaceAll("'", '')
 	}
 
-	String[] parts = params.ciBuildDockerfile.split('\\.').collect { it.replaceAll("'", '').trim() }
+	String[] parts = params.ciBuildDockerfile.split('\\.').collect { String part -> part.replaceAll("'", '').trim() }
 	println("environment: ${parts[0]}")
 	return parts[0]
 }

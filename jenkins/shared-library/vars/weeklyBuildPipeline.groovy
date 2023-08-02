@@ -1,3 +1,4 @@
+// groovylint-disable-next-line MethodSize
 void call(Closure body) {
 	Map jenkinfileParams = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST
@@ -7,7 +8,7 @@ void call(Closure body) {
 	final String shouldPublishFailJobStatusName = 'SHOULD_PUBLISH_FAIL_JOB_STATUS'
 	final String manualGitBranchName = 'MANUAL_GIT_BRANCH'
 	final String defaultBranch = 'dev'
-	def projectNames = jenkinfileParams.projectNames ?: []
+	String[] projectNames = jenkinfileParams.projectNames ?: []
 
 	pipeline {
 		parameters {
@@ -111,9 +112,9 @@ void triggerAllJobs(
 		String shouldPublishFailJobStatusName,
 		boolean shouldPublishFailJobStatusValue,
 		String manualGitBranchName,
-		List<String> projectNames) {
+		String[] projectNames) {
 	Map<String, String> allJenkinsfileMap = jobHelper.jenkinsfileMap()
-	Map<String, String> displayNameJenkinsfileMap = allJenkinsfileMap.findAll { projectNames.contains(it.key) }
+	Map<String, String> displayNameJenkinsfileMap = allJenkinsfileMap.findAll { namePathMap -> projectNames.contains(namePathMap.key) }
 	if (displayNameJenkinsfileMap.isEmpty()) {
 		println "No projects found for ${projectNames} in ${allJenkinsfileMap}"
 		return
@@ -125,9 +126,9 @@ void triggerAllJobs(
 	String jobName = jobHelper.resolveJobName(siblingNameMap.keySet().toArray()[0], branchName)
 	println "job name - ${jobName}"
 
-	siblingNameMap.each {siblingName ->
+	siblingNameMap.each { siblingName ->
 		String displayName = siblingName.value
-		Map jenkinsfileParameters = jobHelper.readJenkinsFileParameters(displayNameJenkinsfileMap.get(displayName))
+		Map<String, String> jenkinsfileParameters = jobHelper.readJenkinsFileParameters(displayNameJenkinsfileMap.get(displayName))
 		String environmentName = jobHelper.resolveCiEnvironmentName(jenkinsfileParameters)
 		List<String> otherEnvironments = jobHelper.readArrayParameterValue(jenkinsfileParameters.otherEnvironments)
 		List<String> environments = jobHelper.resolveCiEnvironment(environmentName, otherEnvironments)

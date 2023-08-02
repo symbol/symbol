@@ -178,7 +178,7 @@ void call(Closure body) {
 					}
 					stage('run tests') {
 						steps {
-							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'test', {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${jenkinfileParams.packageId}", 'test', {
 								runTests(env.TEST_SCRIPT_FILEPATH)
 							}
 						}
