@@ -7,6 +7,7 @@ void call(Closure body) {
 	final String shouldPublishFailJobStatusName = 'SHOULD_PUBLISH_FAIL_JOB_STATUS'
 	final String manualGitBranchName = 'MANUAL_GIT_BRANCH'
 	final String defaultBranch = 'dev'
+	def projectNames = jenkinfileParams.projectNames ?: []
 
 	pipeline {
 		parameters {
@@ -17,6 +18,9 @@ void call(Closure body) {
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
 				useRepository: "${helper.resolveRepoName()}"
+			choice name: 'PROJECT_NAME',
+				choices: jenkinfileParams.projectNames,
+				description: 'Project name'
 			choice name: 'ARCHITECTURE',
 				choices: ['amd64', 'arm64'],
 				description: 'Computer architecture'
@@ -32,7 +36,7 @@ void call(Closure body) {
 		}
 
 		triggers {
-			cron('@midnight')
+			cron('@weekly')
 		}
 
 		options {
@@ -41,6 +45,18 @@ void call(Closure body) {
 		}
 
 		stages {
+			stage('setup projects') {
+				when {
+					triggeredBy 'UserIdCause'
+				}
+				steps {
+					script {
+						// only use the selected project name when triggered by user
+						projectNames = [params.PROJECT_NAME]
+						println "projectNames: ${projectNames}"
+					}
+				}
+			}
 			stage('display environment') {
 				steps {
 					sh 'printenv'
@@ -48,7 +64,7 @@ void call(Closure body) {
 			}
 			stage('checkout') {
 				when {
-					expression { helper.isManualBuild(env.MANUAL_GIT_BRANCH) }
+					triggeredBy 'UserIdCause'
 				}
 				steps {
 					script {
@@ -65,7 +81,8 @@ void call(Closure body) {
 							!env.WAIT_FOR_BUILDS || env.WAIT_FOR_BUILDS.toBoolean(),
 							shouldPublishFailJobStatusName,
 							!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean(),
-							manualGitBranchName
+							manualGitBranchName,
+							projectNames
 						)
 					}
 				}
@@ -93,35 +110,50 @@ void triggerAllJobs(
 		boolean waitForDownStream,
 		String shouldPublishFailJobStatusName,
 		boolean shouldPublishFailJobStatusValue,
-		String manualGitBranchName) {
-	Map<String, String> displayNameJenkinsfileMap = jobHelper.jenkinsfileMap()
+		String manualGitBranchName,
+		List<String> projectNames) {
+	Map<String, String> allJenkinsfileMap = jobHelper.jenkinsfileMap()
+	Map<String, String> displayNameJenkinsfileMap = allJenkinsfileMap.findAll { projectNames.contains(it.key) }
+	if (displayNameJenkinsfileMap.isEmpty()) {
+		println "No projects found for ${projectNames} in ${allJenkinsfileMap}"
+		return
+	}
+
+	println "found weekly build projects - ${displayNameJenkinsfileMap}"
 	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(displayNameJenkinsfileMap)
 	Map<String, Closure> buildJobs = [:]
 	String jobName = jobHelper.resolveJobName(siblingNameMap.keySet().toArray()[0], branchName)
+	println "job name - ${jobName}"
 
-	siblingNameMap.each { siblingName ->
+	siblingNameMap.each {siblingName ->
 		String displayName = siblingName.value
-		buildJobs["${displayName}"] = {
-			stage("${displayName}") {
-				String fullJobName = siblingName.key + '/' + jobName
+		Map jenkinsfileParameters = jobHelper.readJenkinsFileParameters(displayNameJenkinsfileMap.get(displayName))
+		String environmentName = jobHelper.resolveCiEnvironmentName(jenkinsfileParameters)
+		List<String> otherEnvironments = jobHelper.readArrayParameterValue(jenkinsfileParameters.otherEnvironments)
+		List<String> environments = jobHelper.resolveCiEnvironment(environmentName, otherEnvironments)
 
-				echo "job name - ${fullJobName}"
-				Map jenkinsfileParameters = jobHelper.readJenkinsFileParameters(displayNameJenkinsfileMap.get(displayName))
-				String osValue = jobHelper.resolveOperatingSystem(jenkinsfileParameters.operatingSystem)
-				build job: "${fullJobName}", parameters: [
-					gitParameter(name: manualGitBranchName, value: branchName),
-					string(name: 'OPERATING_SYSTEM', value: osValue),
-					string(name: 'BUILD_CONFIGURATION', value: 'release-private'),
-					string(name: 'TEST_MODE', value: 'code-coverage'),
-					string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
-					booleanParam(name: 'SHOULD_PUBLISH_IMAGE', value: false),
-					booleanParam(name: shouldPublishFailJobStatusName, value: shouldPublishFailJobStatusValue)],
-					wait: waitForDownStream
+		environments.each { environment ->
+			String stageName = "${displayName} (${environment})"
+
+			buildJobs[stageName] = {
+				stage("${stageName}") {
+					String fullJobName = siblingName.key + '/' + jobName
+					String osValue = jobHelper.resolveOperatingSystem(jenkinsfileParameters.operatingSystem)
+
+					build job: "${fullJobName}", parameters: [
+						gitParameter(name: manualGitBranchName, value: branchName),
+						string(name: 'OPERATING_SYSTEM', value: osValue),
+						string(name: 'BUILD_CONFIGURATION', value: 'release-private'),
+						string(name: 'TEST_MODE', value: 'test'),
+						string(name: 'ARCHITECTURE', value: env.ARCHITECTURE),
+						string(name: 'CI_ENVIRONMENT', value: environment),
+						booleanParam(name: 'SHOULD_PUBLISH_IMAGE', value: false),
+						booleanParam(name: shouldPublishFailJobStatusName, value: shouldPublishFailJobStatusValue)],
+						wait: waitForDownStream
+				}
 			}
 		}
 	}
 
 	parallel buildJobs
 }
-
-

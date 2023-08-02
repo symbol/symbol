@@ -3,9 +3,9 @@ import org.jenkinsci.plugins.badge.EmbeddableBadgeConfig
 
 // groovylint-disable-next-line MethodSize
 void call(Closure body) {
-	Map params = [:]
+	Map jenkinfileParams = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST
-	body.delegate = params
+	body.delegate = jenkinfileParams
 	body()
 
 	final String packageRootPath = findJenkinsfilePath()
@@ -13,17 +13,20 @@ void call(Closure body) {
 	pipeline {
 		parameters {
 			choice name: 'OPERATING_SYSTEM',
-				choices: params.operatingSystem ?: ['ubuntu'],
+				choices: jenkinfileParams.operatingSystem ?: ['ubuntu'],
 				description: 'Operating System'
 			choice name: 'BUILD_CONFIGURATION',
 				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
-			choice name: 'TEST_MODE',
-				choices: ['code-coverage', 'test'],
-				description: 'test mode'
 			choice name: 'ARCHITECTURE',
 				choices: ['amd64', 'arm64'],
 				description: 'Computer architecture'
+			choice name: 'TEST_MODE',
+				choices: ['code-coverage', 'test'],
+				description: 'test mode'
+			choice name: 'CI_ENVIRONMENT',
+				choices: resolveCiEnvironment(jenkinfileParams),
+				description: 'ci environment'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 			booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 		}
@@ -31,9 +34,9 @@ void call(Closure body) {
 		agent {
 			// ARCHITECTURE can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
 			label """${
-				env.OPERATING_SYSTEM  = env.OPERATING_SYSTEM ?: "${params.operatingSystem[0]}"
+				env.OPERATING_SYSTEM  = env.OPERATING_SYSTEM ?: "${jenkinfileParams.operatingSystem[0]}"
 				env.ARCHITECTURE  = env.ARCHITECTURE ?: 'amd64'
-				return helper.resolveAgentName(env.OPERATING_SYSTEM, env.ARCHITECTURE, params.instanceSize ?: 'medium')
+				return helper.resolveAgentName(env.OPERATING_SYSTEM, env.ARCHITECTURE, jenkinfileParams.instanceSize ?: 'medium')
 			}"""
 		}
 
@@ -76,10 +79,8 @@ void call(Closure body) {
 			stage('CI pipeline') {
 				agent {
 					docker {
-						image null == params.ciBuildDockerImage
-								? "symbolplatform/build-ci:${get_docker_tag(params.ciBuildDockerfile)}"
-								: "${params.ciBuildDockerImage}"
-						args null == params.dockerArgs ? '' : "${params.dockerArgs}"
+						image jobHelper.resolveBuildImageName(params.CI_ENVIRONMENT ?: resolveCiEnvironment(jenkinfileParams)[0])
+						args jenkinfileParams.dockerArgs ?: ''
 
 						// using the same node and the same workspace mounted to the container
 						reuseNode true
@@ -88,7 +89,7 @@ void call(Closure body) {
 				stages {
 					stage('display environment') {
 						steps {
-							println("Parameters: ${params}")
+							println("Jenkinsfile parameters: ${jenkinfileParams}")
 							sh 'printenv'
 						}
 					}
@@ -134,7 +135,7 @@ void call(Closure body) {
 					stage('run lint') {
 						when { expression { return fileExists(resolvePath(packageRootPath, env.LINT_SCRIPT_FILEPATH)) } }
 						steps {
-							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'lint', {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${jenkinfileParams.packageId}", 'lint', {
 								linter(env.LINT_SCRIPT_FILEPATH)
 							}
 						}
@@ -158,7 +159,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'build', {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${jenkinfileParams.packageId}", 'build', {
 								buildCode(env.BUILD_SCRIPT_FILEPATH)
 							}
 						}
@@ -189,7 +190,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'examples', {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${jenkinfileParams.packageId}", 'examples', {
 								runTests(env.TEST_EXAMPLES_SCRIPT_FILEPATH)
 							}
 						}
@@ -201,7 +202,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'vectors', {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${jenkinfileParams.packageId}", 'vectors', {
 								runTests(env.TEST_VECTORS_SCRIPT_FILEPATH)
 							}
 						}
@@ -214,13 +215,13 @@ void call(Closure body) {
 									return env.TEST_MODE == null || 'code-coverage' == env.TEST_MODE
 								}
 								expression {
-									return params.codeCoverageTool != null
+									return jenkinfileParams.codeCoverageTool != null
 								}
 							}
 						}
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
-								codeCoverage(params)
+								codeCoverage(jenkinfileParams)
 							}
 						}
 					}
@@ -244,7 +245,7 @@ void call(Closure body) {
 						}
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
-								publish(params, 'alpha')
+								publish(jenkinfileParams, 'alpha')
 							}
 						}
 					}
@@ -263,7 +264,7 @@ void call(Closure body) {
 						}
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
-								publish(params, 'release')
+								publish(jenkinfileParams, 'release')
 							}
 						}
 					}
@@ -335,8 +336,11 @@ Boolean shouldPublishImage(String shouldPublish) {
 	return shouldPublish == null ? false : shouldPublish.toBoolean()
 }
 
-String get_docker_tag(String dockerfile) {
-	String[] parts = dockerfile.split('\\.')
-	println("dockerfile: ${dockerfile} tag:${parts[0]}")
-	return parts[0]
+List<String> resolveCiEnvironment(Map params) {
+	String environmentName = jobHelper.resolveCiEnvironmentName(params)
+	List<String> environmentTags = params.otherEnvironments?.clone() ?: []
+
+	// default environment is LTS
+	environmentTags.add(0, 'lts')
+	return jobHelper.resolveCiEnvironment(environmentName, environmentTags)
 }
