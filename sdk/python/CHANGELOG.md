@@ -5,6 +5,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.1.0] - 04-Aug-2023
+
+### Changed
+ - bump minimum python requirement to 3.9
+ - bump version of ripemd-hash dependency to allow windows compilation
+
 ## [3.0.11] - 27-Jul-2023
 
 ### Added
@@ -93,6 +99,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
+[3.0.11]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.11...sdk%2Fpython%2Fv3.1.0
 [3.0.11]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.7...sdk%2Fpython%2Fv3.0.11
 [3.0.7]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.3...sdk%2Fpython%2Fv3.0.7
 [3.0.3]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.2...sdk%2Fpython%2Fv3.0.3
