@@ -1,14 +1,14 @@
 // groovylint-disable-next-line MethodSize
 void call(Closure body) {
-	Map jenkinfileParams = [:]
+	Map jenkinsfileParams = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST
-	body.delegate = jenkinfileParams
+	body.delegate = jenkinsfileParams
 	body()
 
 	final String shouldPublishFailJobStatusName = 'SHOULD_PUBLISH_FAIL_JOB_STATUS'
 	final String manualGitBranchName = 'MANUAL_GIT_BRANCH'
 	final String defaultBranch = 'dev'
-	String[] projectNames = jenkinfileParams.projectNames ?: []
+	String[] projectNames = jenkinsfileParams.projectNames ?: []
 
 	pipeline {
 		parameters {
@@ -20,7 +20,7 @@ void call(Closure body) {
 				sortMode: 'ASCENDING',
 				useRepository: "${helper.resolveRepoName()}"
 			choice name: 'PROJECT_NAME',
-				choices: jenkinfileParams.projectNames,
+				choices: jenkinsfileParams.projectNames,
 				description: 'Project name'
 			choice name: 'ARCHITECTURE',
 				choices: ['amd64', 'arm64'],
@@ -113,7 +113,7 @@ void triggerAllJobs(
 		boolean shouldPublishFailJobStatusValue,
 		String manualGitBranchName,
 		String[] projectNames) {
-	Map<String, String> allJenkinsfileMap = jobHelper.jenkinsfileMap()
+	Map<String, String> allJenkinsfileMap = jobHelper.loadJenkinsfileMap()
 	Map<String, String> displayNameJenkinsfileMap = allJenkinsfileMap.findAll { namePathMap -> projectNames.contains(namePathMap.key) }
 	if (displayNameJenkinsfileMap.isEmpty()) {
 		println "No projects found for ${projectNames} in ${allJenkinsfileMap}"
@@ -146,7 +146,7 @@ void triggerAllJobs(
 						string(name: 'OPERATING_SYSTEM', value: osValue),
 						string(name: 'BUILD_CONFIGURATION', value: 'release-private'),
 						string(name: 'TEST_MODE', value: 'test'),
-						string(name: 'ARCHITECTURE', value: env.ARCHITECTURE),
+						string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
 						string(name: 'CI_ENVIRONMENT', value: environment),
 						booleanParam(name: 'SHOULD_PUBLISH_IMAGE', value: false),
 						booleanParam(name: shouldPublishFailJobStatusName, value: shouldPublishFailJobStatusValue)],

@@ -68,7 +68,7 @@ String resolveJobName(String jobFolder, String branchName) {
 	throw new IllegalStateException("Multibranch job folder ${jobFolder} does not contain a job with branch ${branchName}")
 }
 
-Map <String, String> jenkinsfileMap() {
+Map <String, String> loadJenkinsfileMap() {
 	Object buildConfiguration = yamlHelper.readYamlFromFile(helper.resolveBuildConfigurationFile())
 	Map<String, String> displayNameJenkinsfileMap = [:]
 

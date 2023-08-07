@@ -1,7 +1,7 @@
 void call(Closure body) {
-	Map jenkinfileParams = [:]
+	Map jenkinsfileParams = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST
-	body.delegate = jenkinfileParams
+	body.delegate = jenkinsfileParams
 	body()
 
 	final String shouldPublishFailJobStatusName = 'SHOULD_PUBLISH_FAIL_JOB_STATUS'
@@ -94,7 +94,7 @@ void triggerAllJobs(
 		String shouldPublishFailJobStatusName,
 		boolean shouldPublishFailJobStatusValue,
 		String manualGitBranchName) {
-	Map<String, String> displayNameJenkinsfileMap = jobHelper.jenkinsfileMap()
+	Map<String, String> displayNameJenkinsfileMap = jobHelper.loadJenkinsfileMap()
 	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(displayNameJenkinsfileMap)
 	Map<String, Closure> buildJobs = [:]
 	String jobName = jobHelper.resolveJobName(siblingNameMap.keySet().toArray()[0], branchName)
