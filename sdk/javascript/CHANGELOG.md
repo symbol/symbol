@@ -5,6 +5,11 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.1.0] - 7-Aug-2023
+
+### Changed
+ - Sync major and minor version with Python SDK
+
 ## [3.0.11] - 27-Jul-2023
 
 ### Added
@@ -54,6 +59,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.1.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.11...sdk%2Fjavascript%2Fv3.1.0
 [3.0.11]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.7...sdk%2Fjavascript%2Fv3.0.11
 [3.0.7]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.0...sdk%2Fjavascript%2Fv3.0.7
 [3.0.0]: https://github.com/symbol/symbol/releases/tag/sdk%2Fjavascript%2Fv3.0.0
