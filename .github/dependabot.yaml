@@ -90,6 +90,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [sdk-python]
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
