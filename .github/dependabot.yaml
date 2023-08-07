@@ -1,6 +1,15 @@
 version: 2
 updates:
 
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    commit-message:
+      prefix: '[dependency]'
+
   - package-ecosystem: pip
     directory: /catbuffer/parser
     schedule:
@@ -8,6 +17,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [catbuffer-parser]
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
@@ -18,6 +28,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [catapult]
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
@@ -28,7 +39,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [rest]
-    versioning-strategy: increase
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
@@ -39,6 +50,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [jenkins]
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
@@ -49,6 +61,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [linters]
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
@@ -59,6 +72,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [linters]
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
@@ -69,7 +83,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [sdk-javascript]
-    versioning-strategy: increase
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
@@ -80,6 +94,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [sdk-javascript]
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: '[dependency]'
 
@@ -94,15 +109,6 @@ updates:
     commit-message:
       prefix: '[dependency]'
 
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-      day: sunday
-    target-branch: dev
-    commit-message:
-      prefix: '[dependency]'
-
   - package-ecosystem: cargo
     directory: /sdk/javascript/wasm
     schedule:
@@ -110,5 +116,6 @@ updates:
       day: sunday
     target-branch: dev
     labels: [sdk-javascript]
+    versioning-strategy: auto
     commit-message:
       prefix: '[sdk/javascript]'
