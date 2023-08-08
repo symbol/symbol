@@ -26,7 +26,7 @@ void call(Closure body) {
 
 		agent {
 			label """${
-				env.ARCHITECTURE  = env.ARCHITECTURE ?: 'amd64'
+				env.ARCHITECTURE = env.ARCHITECTURE ?: 'amd64'
 				return helper.resolveAgentName('ubuntu', env.ARCHITECTURE, 'small')
 			}"""
 		}

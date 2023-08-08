@@ -34,8 +34,8 @@ void call(Closure body) {
 		agent {
 			// ARCHITECTURE can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
 			label """${
-				env.OPERATING_SYSTEM  = env.OPERATING_SYSTEM ?: "${jenkinsfileParams.operatingSystem[0]}"
-				env.ARCHITECTURE  = env.ARCHITECTURE ?: 'amd64'
+				env.OPERATING_SYSTEM = env.OPERATING_SYSTEM ?: "${jenkinsfileParams.operatingSystem[0]}"
+				env.ARCHITECTURE = env.ARCHITECTURE ?: 'amd64'
 				return helper.resolveAgentName(env.OPERATING_SYSTEM, env.ARCHITECTURE, jenkinsfileParams.instanceSize ?: 'medium')
 			}"""
 		}
