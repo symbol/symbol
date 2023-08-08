@@ -1,0 +1,3 @@
+lts: ubuntu-22.04
+base: ubuntu-20.04
+latest: ubuntu-23.04
