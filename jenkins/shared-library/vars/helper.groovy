@@ -75,3 +75,7 @@ String determineArchitecture() {
 boolean isAmd64Architecture(String architecture) {
 	return 'amd64' == architecture
 }
+
+String resolveBuildArchitecture() {
+	return env.ARCHITECTURE ?: 'amd64'
+}
