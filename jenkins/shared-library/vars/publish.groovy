@@ -76,7 +76,10 @@ void pythonPublisher(Map config, String phase) {
 		credentialsId = TEST_PYTHON_CREDENTIALS_ID
 	}
 
-	withCredentials([string(credentialsId: credentialsId, variable: 'POETRY_PYPI_TOKEN_PYPI')]) {
+	withCredentials([string(credentialsId: credentialsId, variable: 'PYPI_TOKEN')]) {
+		env.TWINE_USERNAME = '__token__'
+		env.TWINE_PASSWORD = env.PYPI_TOKEN
+
 		publishArtifact {
 			Object requirementsFile = readFile 'requirements.txt'
 			requirementsFile.readLines().each { line ->
@@ -88,10 +91,10 @@ void pythonPublisher(Map config, String phase) {
 
 			if (isAlphaRelease(phase)) {
 				runScript('poetry config "repositories.test" "https://test.pypi.org/legacy/"')
-				runScript("poetry config 'pypi-token.test' ${POETRY_PYPI_TOKEN_PYPI}")
+				runScript("poetry config 'pypi-token.test' ${env.PYPI_TOKEN}")
 				runScript('poetry publish --repository "test"')
 			} else {
-				runScript("poetry config 'pypi-token.pypi' ${POETRY_PYPI_TOKEN_PYPI}")
+				runScript("poetry config 'pypi-token.pypi' ${env.PYPI_TOKEN}")
 				runScript('poetry publish')
 			}
 		}
