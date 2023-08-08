@@ -141,7 +141,7 @@ void publisher(Map config, String phase) {
 
 void publishArtifact(Closure defaultPublisher) {
 	final String publishScriptFilePath = 'scripts/ci/publish.sh'
-	final architecture = helper.resolveBuildArchitecture()
+	final String architecture = helper.resolveBuildArchitecture()
 
 	if (fileExists(publishScriptFilePath)) {
 		runScript("${publishScriptFilePath} ${architecture}")
