@@ -77,9 +77,6 @@ void pythonPublisher(Map config, String phase) {
 	}
 
 	withCredentials([string(credentialsId: credentialsId, variable: 'PYPI_TOKEN')]) {
-		env.TWINE_USERNAME = '__token__'
-		env.TWINE_PASSWORD = env.PYPI_TOKEN
-
 		publishArtifact {
 			Object requirementsFile = readFile 'requirements.txt'
 			requirementsFile.readLines().each { line ->
