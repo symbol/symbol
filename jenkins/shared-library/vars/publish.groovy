@@ -30,15 +30,17 @@ void dockerPublisher(Map config, String phase) {
 	final String imageVersionName = "${config.dockerImageName}:${version}"
 	final String archImageName = imageVersionName + "-${ARCHITECTURE}"
 	dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-		String args = config.dockerBuildArgs ?: '.'
-		args = '--network host ' + args
-		dockerHelper.dockerBuildAndPushImage(archImageName, args)
-		dockerHelper.updateDockerImage(imageVersionName, archImageName, "${ARCHITECTURE}")
-		if (isRelease(phase)) {
-			final String imageLatestName = "${config.dockerImageName}:latest"
+		publishArtifact {
+			String args = config.dockerBuildArgs ?: '.'
+			args = '--network host ' + args
+			dockerHelper.dockerBuildAndPushImage(archImageName, args)
+			dockerHelper.updateDockerImage(imageVersionName, archImageName, "${ARCHITECTURE}")
+			if (isRelease(phase)) {
+				final String imageLatestName = "${config.dockerImageName}:latest"
 
-			logger.logInfo('Releasing the latest image')
-			dockerHelper.updateDockerImage(imageLatestName, archImageName, "${ARCHITECTURE}")
+				logger.logInfo('Releasing the latest image')
+				dockerHelper.updateDockerImage(imageLatestName, archImageName, "${ARCHITECTURE}")
+			}
 		}
 	}
 }
@@ -57,8 +59,10 @@ void npmPublisher(Map config, String phase) {
 	writeFile(file: '.npmrc', text: '//registry.npmjs.org/:_authToken=${NPM_TOKEN}')
 	runScript('cat .npmrc')
 	withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
-		logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()}")
-		runScript(npmPublishCommand)
+		publishArtifact {
+			logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()}")
+			runScript(npmPublishCommand)
+		}
 	}
 }
 
@@ -72,22 +76,24 @@ void pythonPublisher(Map config, String phase) {
 		credentialsId = TEST_PYTHON_CREDENTIALS_ID
 	}
 
-	Object requirementsFile = readFile 'requirements.txt'
-	requirementsFile.readLines().each { line ->
-		runScript("poetry add ${line}")
-	}
-	runScript('cat pyproject.toml')
+	withCredentials([string(credentialsId: credentialsId, variable: 'PYPI_TOKEN')]) {
+		publishArtifact {
+			Object requirementsFile = readFile 'requirements.txt'
+			requirementsFile.readLines().each { line ->
+				runScript("poetry add ${line}")
+			}
+			runScript('cat pyproject.toml')
 
-	runScript('poetry build')
+			runScript('poetry build')
 
-	withCredentials([string(credentialsId: credentialsId, variable: 'POETRY_PYPI_TOKEN_PYPI')]) {
-		if (isAlphaRelease(phase)) {
-			runScript('poetry config "repositories.test" "https://test.pypi.org/legacy/"')
-			runScript("poetry config 'pypi-token.test' ${POETRY_PYPI_TOKEN_PYPI}")
-			runScript('poetry publish --repository "test"')
-		} else {
-			runScript("poetry config 'pypi-token.pypi' ${POETRY_PYPI_TOKEN_PYPI}")
-			runScript('poetry publish')
+			if (isAlphaRelease(phase)) {
+				runScript('poetry config "repositories.test" "https://test.pypi.org/legacy/"')
+				runScript("poetry config 'pypi-token.test' ${env.PYPI_TOKEN}")
+				runScript('poetry publish --repository "test"')
+			} else {
+				runScript("poetry config 'pypi-token.pypi' ${env.PYPI_TOKEN}")
+				runScript('poetry publish')
+			}
 		}
 	}
 }
@@ -130,5 +136,16 @@ void publisher(Map config, String phase) {
 
 	strategies.each { publisher ->
 		publisher.call(config, phase)
+	}
+}
+
+void publishArtifact(Closure defaultPublisher) {
+	final String publishScriptFilePath = 'scripts/ci/publish.sh'
+	final String architecture = helper.resolveBuildArchitecture()
+
+	if (fileExists(publishScriptFilePath)) {
+		runScript("${publishScriptFilePath} ${architecture}")
+	} else {
+		defaultPublisher.call()
 	}
 }

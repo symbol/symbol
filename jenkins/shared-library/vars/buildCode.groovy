@@ -1,4 +1,4 @@
 void call(String buildScriptFilename) {
-	String architecture = env.ARCHITECTURE ?: 'amd64'
+	final String architecture = helper.resolveBuildArchitecture()
 	runScript("${buildScriptFilename} ${architecture}")
 }
