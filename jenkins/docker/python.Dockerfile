@@ -7,8 +7,15 @@ RUN apt-get update >/dev/null \
 	&& apt-get install -y tzdata \
 	&& apt-get install -y git curl
 
-# install python
-RUN apt-get install -y python3-pip python3-venv
+# install python (python3.9 for ubuntu 20.04)
+ARG FROM_IMAGE
+RUN if [ "${FROM_IMAGE}" = "ubuntu:20.04" ]; then \
+		apt-get install -y python3.9 python3-pip python3.9-venv \
+		&& update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 10; \
+	else \
+		apt-get install -y python3-pip python3-venv; \
+	fi
+
 
 # install shellcheck
 RUN apt-get install -y shellcheck
@@ -17,7 +24,7 @@ RUN apt-get install -y shellcheck
 RUN apt-get install -y zbar-tools libssl-dev
 
 # enable legacy providers in openssl3(ripemd160)
-RUN if echo "$(openssl version)" |  grep -q "^OpenSSL 3"; then \
+RUN if echo "$(openssl version)" | grep -q "^OpenSSL 3"; then \
 		sed -i '/^default = default_sect/a legacy = legacy_sect\n' /etc/ssl/openssl.cnf \
 		&& sed -i '/^\[default_sect\]/i [legacy_sect]\nactivate = 1\n' /etc/ssl/openssl.cnf \
 		&& sed -i 's/^# activate = 1/activate = 1/g' /etc/ssl/openssl.cnf \

@@ -69,7 +69,7 @@ pipeline {
 					helper.runStepAndRecordFailure {
 						dir('jenkins/docker')
 						{
-							String buildArg = "-f ${CI_IMAGE}.Dockerfile --build-arg BASE_IMAGE=${BASE_IMAGE} ."
+							String buildArg = "-f ${CI_IMAGE}.Dockerfile --build-arg FROM_IMAGE=${BASE_IMAGE} ."
 							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
 								dockerHelper.dockerBuildAndPushImage(archImageName, buildArg)
 								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
