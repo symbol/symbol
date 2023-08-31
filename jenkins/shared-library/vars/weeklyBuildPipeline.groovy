@@ -135,11 +135,11 @@ void triggerAllJobs(
 
 		environments.each { environment ->
 			String stageName = "${displayName} (${environment})"
+			String osValue = environment.split('-')[1]
 
 			buildJobs[stageName] = {
 				stage("${stageName}") {
 					String fullJobName = siblingName.key + '/' + jobName
-					String osValue = jobHelper.resolveOperatingSystem(jenkinsfileParameters.operatingSystem)
 
 					build job: "${fullJobName}", parameters: [
 						gitParameter(name: manualGitBranchName, value: branchName),

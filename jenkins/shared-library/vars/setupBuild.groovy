@@ -1,3 +1,3 @@
 void call(String scriptFilepath) {
-	runScript(scriptFilepath)
+	runScript.withBash(scriptFilepath)
 }

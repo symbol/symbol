@@ -105,13 +105,12 @@ String resolveCiEnvironmentName(Map params) {
 }
 
 List<String> resolveCiEnvironment(String environmentName, List<String> environmentTags) {
-	List<String> environments = []
+	Set<String> environments = []
 
-	Object buildEnvironment = loadBuildBaseImages()
 	environmentTags.each { String environment ->
-		environments.add(buildEnvironment.containsKey(environment) ? "${environmentName}-${buildEnvironment.get(environment)}" : environment)
+		environments.add("${environmentName}-${environment}")
 	}
 
 	println "Environments: ${environments}"
-	return environments
+	return new ArrayList<String>(environments)
 }

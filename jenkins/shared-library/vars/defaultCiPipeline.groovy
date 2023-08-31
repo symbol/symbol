@@ -90,7 +90,7 @@ void call(Closure body) {
 					stage('display environment') {
 						steps {
 							println("Jenkinsfile parameters: ${jenkinsfileParams}")
-							sh 'printenv'
+							runScript(isUnix() ? 'printenv' : 'set')
 						}
 					}
 					stage('checkout') {
@@ -99,7 +99,7 @@ void call(Closure body) {
 						}
 						steps {
 							script {
-								sh "git reset --hard origin/${env.BRANCH_NAME}"
+								runScript("git reset --hard origin/${env.BRANCH_NAME}")
 								helper.runInitializeScriptIfPresent()
 							}
 						}
@@ -212,10 +212,10 @@ void call(Closure body) {
 							allOf {
 								expression {
 									// The branch indexing build TEST_MODE = null
-									return env.TEST_MODE == null || 'code-coverage' == env.TEST_MODE
+									return null == params.TEST_MODE || 'code-coverage' == params.TEST_MODE
 								}
 								expression {
-									return jenkinsfileParams.codeCoverageTool != null
+									return  null != jenkinsfileParams.codeCoverageTool
 								}
 							}
 						}
@@ -341,6 +341,6 @@ List<String> resolveCiEnvironment(Map params) {
 	List<String> environmentTags = params.otherEnvironments?.clone() ?: []
 
 	// default environment is LTS
-	environmentTags.add(0, 'lts')
+	environmentTags.add(0, "${params.operatingSystem[0]}-lts")
 	return jobHelper.resolveCiEnvironment(environmentName, environmentTags)
 }

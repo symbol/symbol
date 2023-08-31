@@ -10,7 +10,7 @@ RUN apt-get update >/dev/null \
 # install python (python3.9 for ubuntu 20.04)
 ARG FROM_IMAGE
 RUN if [ "${FROM_IMAGE}" = "ubuntu:20.04" ]; then \
-		apt-get install -y python3.9 python3-pip python3.9-venv \
+		apt-get install -y python3.9 python3-pip python3.9-venv python3.9-dev  \
 		&& update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 10; \
 	else \
 		apt-get install -y python3-pip python3-venv; \
