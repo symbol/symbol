@@ -13,7 +13,7 @@ defaultCiPipeline {
 	publisher = 'docker'
 	dockerImageName = 'symbolplatform/symbol-server-private'
 	environment = 'python'
-	otherEnvironments = ['base', 'latest']
+	otherEnvironments = ['python-ubuntu-base', 'python-ubuntu-latest', 'python-windows-lts']
 	gitHubId = 'Symbol-Github-app'
 }
 ````
@@ -30,7 +30,7 @@ defaultCiPipeline {
 
 ``environment`` - The environment to use for the build.  The options are ``python``, ``javascript``, ``cpp``, ``java`` and ``linter``.
 
-``otherEnvironments`` - The other environments to build.  The options are ``base`` and ``latest``.
+``otherEnvironments`` - The other environments to build.
 
 The environment and otherEnvironments are used to build the docker image name.
 For example, if the environment is ``python`` then the docker image name will be ``symbolplatform/build-ci:python-ubuntu-22.04``.

@@ -5,7 +5,7 @@ ARG FROM_IMAGE=symbolplatform/symbol-server-compiler:windows-msvc-17
 FROM ${FROM_IMAGE}
 LABEL maintainer="Catapult Development Team"
 
-SHELL ["pwsh","-command", "$ErrorActionPreference = 'Stop';"]
+SHELL ["pwsh", "-command", "$ErrorActionPreference = 'Stop';"]
 
 RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	(new-object net.webclient).DownloadFile('https://get.scoop.sh','c:\scoop.ps1'); `
@@ -19,7 +19,7 @@ RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 # Install codecov
 RUN Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile c:\Windows\System32\codecov.exe
 
-# Restore the default Windows shell for correct batch processing.
+# Restore the default Windows shell for correct setx processing.
 SHELL ["cmd", "/S", "/C"]
 
 RUN setx PATH "%PATH%;C:\Users\ContainerAdministrator\scoop\apps\rustup\current\.cargo\bin"

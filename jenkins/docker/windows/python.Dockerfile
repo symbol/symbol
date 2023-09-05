@@ -5,7 +5,7 @@ ARG FROM_IMAGE=symbolplatform/symbol-server-compiler:windows-msvc-17
 FROM ${FROM_IMAGE}
 LABEL maintainer="Catapult Development Team"
 
-SHELL ["pwsh","-command", "$ErrorActionPreference = 'Stop';"]
+SHELL ["pwsh", "-command", "$ErrorActionPreference = 'Stop';"]
 
 # Microsoft Visual C++ Redistributable packages for Visual Studio 2013 required by pyzbar
 ADD https://aka.ms/highdpimfc2013x64enu c:\temp\vc_redist.x64.exe

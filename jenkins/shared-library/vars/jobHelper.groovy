@@ -103,14 +103,3 @@ String resolveCiEnvironmentName(Map params) {
 	println("environment: ${parts[0]}")
 	return parts[0]
 }
-
-List<String> resolveCiEnvironment(String environmentName, List<String> environmentTags) {
-	Set<String> environments = []
-
-	environmentTags.each { String environment ->
-		environments.add("${environmentName}-${environment}")
-	}
-
-	println "Environments: ${environments}"
-	return new ArrayList<String>(environments)
-}

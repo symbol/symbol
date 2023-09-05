@@ -341,6 +341,6 @@ List<String> resolveCiEnvironment(Map params) {
 	List<String> environmentTags = params.otherEnvironments?.clone() ?: []
 
 	// default environment is LTS
-	environmentTags.add(0, "${params.operatingSystem[0]}-lts")
-	return jobHelper.resolveCiEnvironment(environmentName, environmentTags)
+	environmentTags.add(0, "${environmentName}-${params.operatingSystem[0]}-lts")
+	return environmentTags
 }
