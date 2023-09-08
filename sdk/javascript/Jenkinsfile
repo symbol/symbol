@@ -1,8 +1,9 @@
 defaultCiPipeline {
-	operatingSystem = ['ubuntu']
+	operatingSystem = ['ubuntu', 'windows']
 	instanceSize = 'medium'
 
-	ciBuildDockerfile = 'javascript.Dockerfile'
+	environment = 'javascript'
+	otherEnvironments = ['javascript-windows-lts']
 
 	packageId = 'sdk-javascript'
 
