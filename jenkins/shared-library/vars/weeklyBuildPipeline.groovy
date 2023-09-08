@@ -129,17 +129,15 @@ void triggerAllJobs(
 	siblingNameMap.each { siblingName ->
 		String displayName = siblingName.value
 		Map<String, String> jenkinsfileParameters = jobHelper.readJenkinsFileParameters(displayNameJenkinsfileMap.get(displayName))
-		String environmentName = jobHelper.resolveCiEnvironmentName(jenkinsfileParameters)
 		List<String> otherEnvironments = jobHelper.readArrayParameterValue(jenkinsfileParameters.otherEnvironments)
-		List<String> environments = jobHelper.resolveCiEnvironment(environmentName, otherEnvironments)
 
-		environments.each { environment ->
+		otherEnvironments.each { environment ->
 			String stageName = "${displayName} (${environment})"
+			String osValue = environment.split('-')[1]
 
 			buildJobs[stageName] = {
 				stage("${stageName}") {
 					String fullJobName = siblingName.key + '/' + jobName
-					String osValue = jobHelper.resolveOperatingSystem(jenkinsfileParameters.operatingSystem)
 
 					build job: "${fullJobName}", parameters: [
 						gitParameter(name: manualGitBranchName, value: branchName),

@@ -22,3 +22,7 @@ void call(String scriptFilepath, String label='', Boolean returnStdout, Boolean 
 		bat label: label, script: scriptFilepath, encoding: encoding, returnStdout: returnStdout, returnStatus: returnStatus
 	}
 }
+
+void withBash(String scriptFilepath) {
+	call("bash -c \"${scriptFilepath}\"", scriptFilepath, false)
+}

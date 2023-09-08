@@ -1,6 +1,9 @@
 pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		choice name: 'OPERATING_SYSTEM',
+			choices: ['ubuntu', 'windows'],
+			description: 'operating system'
 		choice name: 'CI_IMAGE',
 			choices: ['cpp', 'java', 'javascript', 'linter', 'postgres', 'python'],
 			description: 'continuous integration image'
@@ -8,13 +11,13 @@ pipeline {
 			choices: ['amd64', 'arm64'],
 			description: 'Computer architecture'
 		choice name: 'BASE_IMAGE',
-			choices: ['ubuntu:22.04', 'ubuntu:20.04', 'ubuntu:23.04'],
+			choices: ['lts', 'base', 'latest'],
 			description: 'Base image'
 		booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 	}
 
 	agent {
-		label "${helper.resolveAgentName('ubuntu', "${ARCHITECTURE}", 'medium')}"
+		label "${helper.resolveAgentName(params.OPERATING_SYSTEM, params.ARCHITECTURE, 'medium')}"
 	}
 
 	environment {
@@ -34,7 +37,10 @@ pipeline {
 					steps {
 						script {
 							helper.runStepAndRecordFailure {
-								baseImageName = "${BASE_IMAGE}".replace(':', '-')
+								Object buildEnvironment = jobHelper.loadBuildBaseImages()
+								baseImageName = "${params.OPERATING_SYSTEM}-${params.BASE_IMAGE}"
+								dockerFromImage = buildEnvironment[baseImageName]
+
 								multiArchImageName = "symbolplatform/build-ci:${CI_IMAGE}-${baseImageName}"
 								archImageName = "${multiArchImageName}-${ARCHITECTURE}"
 							}
@@ -46,6 +52,8 @@ pipeline {
 						echo """
 									env.GIT_BRANCH: ${env.GIT_BRANCH}
 								 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
+								  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
+									  ARCHITECTURE: ${ARCHITECTURE}
 
 								     destImageName: ${multiArchImageName}
 						"""
@@ -59,7 +67,7 @@ pipeline {
 			}
 			steps {
 				script {
-					sh "git reset --hard origin/${env.MANUAL_GIT_BRANCH}"
+					runScript "git reset --hard origin/${env.MANUAL_GIT_BRANCH}"
 				}
 			}
 		}
@@ -67,13 +75,19 @@ pipeline {
 			steps {
 				script {
 					helper.runStepAndRecordFailure {
-						dir('jenkins/docker')
+						dir("jenkins/docker/${params.OPERATING_SYSTEM}")
 						{
-							String buildArg = "-f ${CI_IMAGE}.Dockerfile --build-arg FROM_IMAGE=${BASE_IMAGE} ."
-							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-								dockerHelper.dockerBuildAndPushImage(archImageName, buildArg)
-								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
+							String buildArg = "-f ${CI_IMAGE}.Dockerfile --build-arg FROM_IMAGE=${dockerFromImage} ."
+							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+								docker.build(archImageName, buildArg).push()
 							}
+							dockerHelper.tagDockerImage(
+								params.OPERATING_SYSTEM,
+								"${env.DOCKER_URL}",
+								"${env.DOCKER_CREDENTIALS_ID}",
+								archImageName,
+								multiArchImageName
+							)
 						}
 					}
 				}

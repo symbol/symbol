@@ -103,15 +103,3 @@ String resolveCiEnvironmentName(Map params) {
 	println("environment: ${parts[0]}")
 	return parts[0]
 }
-
-List<String> resolveCiEnvironment(String environmentName, List<String> environmentTags) {
-	List<String> environments = []
-
-	Object buildEnvironment = loadBuildBaseImages()
-	environmentTags.each { String environment ->
-		environments.add(buildEnvironment.containsKey(environment) ? "${environmentName}-${buildEnvironment.get(environment)}" : environment)
-	}
-
-	println "Environments: ${environments}"
-	return environments
-}

@@ -57,6 +57,7 @@ pipeline {
 						}
 					}
 				}
+
 				stage('javascript') {
 					steps {
 						script {
@@ -64,6 +65,19 @@ pipeline {
 						}
 					}
 				}
+				stage('javascript - windows') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
+					steps {
+						script {
+							dispatchBuildCiImageJob('javascript', 'lts', 'windows')
+						}
+					}
+				}
+
 				stage('linter') {
 					steps {
 						script {
@@ -86,17 +100,29 @@ pipeline {
 						}
 					}
 				}
-				stage('python - ubuntu:20.04') {
+				stage('python - ubuntu base') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('python', 'ubuntu:20.04')
+							dispatchBuildCiImageJob('python', 'base')
 						}
 					}
 				}
-				stage('python - ubuntu:23.04') {
+				stage('python - ubuntu latest') {
 					steps {
 						script {
-							dispatchBuildCiImageJob('python', 'ubuntu:23.04')
+							dispatchBuildCiImageJob('python', 'latest')
+						}
+					}
+				}
+				stage('python - windows') {
+					when {
+						expression {
+							helper.isAmd64Architecture(params.ARCHITECTURE)
+						}
+					}
+					steps {
+						script {
+							dispatchBuildCiImageJob('python', 'lts', 'windows')
 						}
 					}
 				}
@@ -131,12 +157,13 @@ pipeline {
 	}
 }
 
-void dispatchBuildCiImageJob(String ciImage, String baseImage = 'ubuntu:22.04') {
+void dispatchBuildCiImageJob(String ciImage, String baseImage = 'lts', String operatingSystem = 'ubuntu') {
 	build job: 'build-ci-image', parameters: [
-		string(name: 'CI_IMAGE', value: "${ciImage}"),
-		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
-		string(name: 'ARCHITECTURE', value: "${params.ARCHITECTURE}"),
-		string(name: 'BASE_IMAGE', value: "${baseImage}"),
+		string(name: 'OPERATING_SYSTEM', value: operatingSystem),
+		string(name: 'CI_IMAGE', value: ciImage),
+		string(name: 'MANUAL_GIT_BRANCH', value: params.MANUAL_GIT_BRANCH),
+		string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
+		string(name: 'BASE_IMAGE', value: baseImage),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
 			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
