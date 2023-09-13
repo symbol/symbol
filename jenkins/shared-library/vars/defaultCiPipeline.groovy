@@ -91,6 +91,7 @@ void call(Closure body) {
 						steps {
 							println("Jenkinsfile parameters: ${jenkinsfileParams}")
 							runScript(isUnix() ? 'printenv' : 'set')
+							configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams))
 						}
 					}
 					stage('checkout') {

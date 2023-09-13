@@ -79,3 +79,32 @@ boolean isAmd64Architecture(String architecture) {
 String resolveBuildArchitecture() {
 	return env.ARCHITECTURE ?: 'amd64'
 }
+
+boolean tryRunCommand(String failurePrefixMessage, Closure command) {
+	try {
+		command()
+		return true
+		// groovylint-disable-next-line CatchException
+	} catch (Exception exception) {
+		println "${failurePrefixMessage}: ${exception}"
+		return false
+	}
+}
+
+boolean tryRunWithStringCredentials(String id, Closure command) {
+	return tryRunCommand("Failed to get string credentials with id ${id}") {
+		withCredentials([string(credentialsId: id, variable: 'STRING_CREDENTIALS')]) {
+			command(env.STRING_CREDENTIALS)
+		}
+	}
+}
+
+boolean tryRunWithUserCredentials(String id, Closure command) {
+	return tryRunCommand("Failed to get user credentials with id ${id}") {
+		withCredentials([usernamePassword(credentialsId: id,
+				usernameVariable: 'USERNAME',
+				passwordVariable: 'PASSWORD')]) {
+			command(env.USERNAME, env.PASSWORD)
+		}
+	}
+}
