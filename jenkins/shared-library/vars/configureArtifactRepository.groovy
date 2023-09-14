@@ -45,15 +45,17 @@ void configureArtifactRepository(String environment, String gitOrgName) {
 		final String artifactoryUrlId = "${gitOrgName.toUpperCase()}_${environment.toUpperCase()}_ARTIFACTORY_URL_ID"
 		final String artifactoryLoginId = "${gitOrgName.toUpperCase()}_${environment.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
 
-		helper.tryRunWithStringCredentials(artifactoryUrlId) { String url ->
+		boolean foundUrl = helper.tryRunWithStringCredentials(artifactoryUrlId) { String url ->
 			artifactRepositoryInfo.url = url
 		}
 
-		helper.tryRunWithUserCredentials(artifactoryLoginId) { String userName, String password ->
-			artifactRepositoryInfo.userName = userName
-			artifactRepositoryInfo.password = password
-		}
+		if (foundUrl) {
+			helper.tryRunWithUserCredentials(artifactoryLoginId) { String userName, String password ->
+				artifactRepositoryInfo.userName = userName
+				artifactRepositoryInfo.password = password
+			}
 
-		handler[environment](artifactRepositoryInfo)
+			handler[environment](artifactRepositoryInfo)
+		}
 	}
 }
