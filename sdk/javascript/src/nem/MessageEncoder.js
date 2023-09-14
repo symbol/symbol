@@ -66,8 +66,8 @@ export default class MessageEncoder {
 			// eslint-disable-next-line import/no-deprecated
 			() => decodeAesCbc(deriveSharedKeyDeprecated, this._keyPair, recipientPublicKey, encodedMessage.message),
 			[
-				'digital envelope routines:EVP_DecryptFinal_ex:bad decrypt',
-				'digital envelope routines:EVP_DecryptFinal_ex:wrong final block length',
+				'bad decrypt',
+				'wrong final block length',
 				'Invalid initialization vector'
 			]
 		);
