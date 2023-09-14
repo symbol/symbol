@@ -71,6 +71,7 @@ class RuleBasedTransactionFactory:
 		"""Creates flag type parser."""
 		flags_class = self._get_module_class(name)
 		string_to_enum = dict(map(lambda key: (key.name.lower(), key), flags_class))
+		string_to_enum['none'] = flags_class(0)  # automatically add none => 0 mapping (required for python 3.11+)
 
 		def parser(flags):
 			if isinstance(flags, str):

@@ -139,6 +139,9 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual(expected_value, parsed)
 
+	def test_flags_parser_can_handle_none_string_flag(self):
+		self._assert_flags_parser('none', Module.MosaicFlags.NONE)
+
 	def test_flags_parser_can_handle_single_string_flag(self):
 		self._assert_flags_parser('restrictable', Module.MosaicFlags.RESTRICTABLE)
 
