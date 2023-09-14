@@ -2,47 +2,58 @@ void call(String environment) {
 	final String ownerName = env.GIT_URL.tokenize('/')[2]
 	logger.logInfo("Configuring respository pull for ${environment}")
 
-	configureArtifactRepositoryUrl(environment, ownerName)
-	configureArtifactRepositoryLogin(environment, ownerName)
+	configureArtifactRepository(environment, ownerName)
 }
 
-void configureNpmUrl(String url) {
-	env.NPM_URL = url
-	runScript('npm config set registry=$NPM_URL')
+String readNpmPackageScopeName() {
+	Object packageJson = readJSON file: 'package.json'
+	String[] nameParts = packageJson.name.tokenize('/')
+	return nameParts.length > 1 ? nameParts[0] : ''
 }
 
-void npmLogin(String userName, String password) {
-	env.USERNAME_PASSWORD_ENCODING = "${userName}:${password}".bytes.encodeBase64().toString()
-	runScript('set +x; npm config set _auth=$USERNAME_PASSWORD_ENCODING')
-	runScript('npm config set always-auth=true')
-}
+void configureNpm(Map info) {
+	final String scopeName = readNpmPackageScopeName()
+	final String registryUrl = "registry=${info.url}"
 
-void configurePipUrl(String url) {
-	env.PIP_INDEX_URL = url
-}
+	env.NPM_REGISTRY_URL = scopeName ? "${scopeName}:${registryUrl}" : registryUrl
+	runScript('set +x && npm config set $NPM_REGISTRY_URL')
+	if (!scopeName) {
+		runScript('npm config set registry=https://registry.npmjs.org/')
+	}
 
-void configureArtifactRepositoryUrl(String environment, String gitOrgName) {
-	Map<String, Closure> handler = [
-			'javascript' : this.&configureNpmUrl,
-			'python': this.&configurePipUrl
-	]
+	if (info.userName != null && info.password != null) {
+		String hostNamePath = info.url.split('://')[1]
+		String userNamePasswordEncoding = "${info.userName}:${info.password}".bytes.encodeBase64()
 
-	helper.tryRunWithStringCredentials("${gitOrgName.toUpperCase()}_${environment.toUpperCase()}_ARTIFACTORY_URL_ID") { String url ->
-		if (handler.containsKey(environment)) {
-			handler[environment](url)
-		}
+		env.NPM_AUTH_ENCODING = "//${hostNamePath}:_auth=$userNamePasswordEncoding"
+		runScript('set +x && npm config set $NPM_AUTH_ENCODING')
 	}
 }
 
-void configureArtifactRepositoryLogin(String environment, String gitOrgName) {
+void configurePip(Map info) {
+	env.PIP_INDEX_URL = info.url
+}
+
+void configureArtifactRepository(String environment, String gitOrgName) {
+	Map artifactRepositoryInfo = [:]
 	Map<String, Closure> handler = [
-			'javascript' : this.&npmLogin
+			'javascript' : this.&configureNpm,
+			'python': this.&configurePip
 	]
 
-	helper.tryRunWithUserCredentials("${gitOrgName.toUpperCase()}_${environment.toUpperCase()}_ARTIFACTORY_LOGIN_ID") { String userName,
-																														String password ->
-		if (handler.containsKey(environment)) {
-			handler[environment](userName, password)
+	if (handler.containsKey(environment)) {
+		final String artifactoryUrlId = "${gitOrgName.toUpperCase()}_${environment.toUpperCase()}_ARTIFACTORY_URL_ID"
+		final String artifactoryLoginId = "${gitOrgName.toUpperCase()}_${environment.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
+
+		helper.tryRunWithStringCredentials(artifactoryUrlId) { String url ->
+			artifactRepositoryInfo.url = url
 		}
+
+		helper.tryRunWithUserCredentials(artifactoryLoginId) { String userName, String password ->
+			artifactRepositoryInfo.userName = userName
+			artifactRepositoryInfo.password = password
+		}
+
+		handler[environment](artifactRepositoryInfo)
 	}
 }

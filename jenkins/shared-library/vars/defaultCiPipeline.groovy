@@ -87,11 +87,17 @@ void call(Closure body) {
 					}
 				}
 				stages {
+					stage('setup docker environment') {
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams))
+							}
+						}
+					}
 					stage('display environment') {
 						steps {
 							println("Jenkinsfile parameters: ${jenkinsfileParams}")
 							runScript(isUnix() ? 'printenv' : 'set')
-							configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams))
 						}
 					}
 					stage('checkout') {
