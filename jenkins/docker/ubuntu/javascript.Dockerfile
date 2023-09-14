@@ -16,6 +16,7 @@ RUN apt-get install -y wget gnupg \
 	&& apt-get install -y mongodb-org
 
 # nodejs
+ENV NODE_OPTIONS="--dns-result-order=ipv4first"
 ARG NODE_MAJOR=18
 RUN apt-get install -y ca-certificates curl gnupg \
 	&& mkdir -p /etc/apt/keyrings \
