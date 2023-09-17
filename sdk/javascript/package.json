@@ -21,7 +21,7 @@
   "author": "Symbol Contributors <contributors@symbol.dev>",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "~29.5.4",
+    "@types/jest": "~29.5.5",
     "@types/ripemd160": "~2.0.0",
     "@types/yargs": "~17.0.24",
     "@wasm-tool/wasm-pack-plugin": "~1.7.0",
