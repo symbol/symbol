@@ -1,61 +1,114 @@
 void call(String environment) {
-	final String ownerName = env.GIT_URL.tokenize('/')[2]
+	final String ownerName = helper.resolveOrganizationName()
 	logger.logInfo("Configuring respository pull for ${environment}")
 
-	configureArtifactRepository(environment, ownerName)
+	String url = resolveRepositoryUrl(ownerName, resolveRepositoryName(environment))
+
+	if (null != url) {
+		configure(environment, ownerName, url)
+	}
+}
+
+String resolveRepositoryName(String environment) {
+	Map<String, List<Object>> environmentRepoNameMap = [
+		'javascript' : 'npm-group',
+		'python': 'pypi-group'
+	]
+
+	return environmentRepoNameMap[environment] ?: ''
 }
 
 String readNpmPackageScopeName() {
 	Object packageJson = readJSON file: 'package.json'
 	String[] nameParts = packageJson.name.tokenize('/')
-	return nameParts.length > 1 ? nameParts[0] : ''
+	return nameParts.length > 1 ? nameParts[0] : null
 }
 
 void configureNpm(Map info) {
 	final String scopeName = readNpmPackageScopeName()
-	final String registryUrl = "registry=${info.url}"
+	String registryUrl = "registry=${info.url}"
 
-	env.NPM_REGISTRY_URL = scopeName ? "${scopeName}:${registryUrl}" : registryUrl
-	runScript('set +x && npm config set $NPM_REGISTRY_URL')
-	if (!scopeName) {
+	registryUrl = scopeName ? "${scopeName}:${registryUrl}" : registryUrl
+	withEnv(["NPM_REGISTRY_URL=${registryUrl}"]) {
+		runScript.withBash('set +x && npm config set $NPM_REGISTRY_URL')
+	}
+
+	if (null != scopeName) {
 		runScript('npm config set registry=https://registry.npmjs.org/')
 	}
 
-	if (info.userName != null && info.password != null) {
-		String hostNamePath = info.url.split('://')[1]
-		String userNamePasswordEncoding = "${info.userName}:${info.password}".bytes.encodeBase64()
+	if (null != info.userName && null != info.password) {
+		final String hostNamePath = info.url.split('://')[1]
+		final String userNamePasswordEncoding = "${info.userName}:${info.password}".bytes.encodeBase64()
 
-		env.NPM_AUTH_ENCODING = "//${hostNamePath}:_auth=$userNamePasswordEncoding"
-		runScript('set +x && npm config set $NPM_AUTH_ENCODING')
+		withEnv(["NPM_AUTH_ENCODING=//${hostNamePath}:_auth=${userNamePasswordEncoding}"]) {
+			runScript.withBash('set +x && npm config set $NPM_AUTH_ENCODING')
+		}
 	}
 }
 
-void configurePip(Map info) {
-	env.PIP_INDEX_URL = info.url
+void configurePypi(Map info) {
+	final URL url = info.url.toString().toURL()
+	final String hostName = url.host
+
+	env.PIP_INDEX_URL = "${info.url}simple"
+	env.PIP_TRUSTED_HOST = "${hostName} pypi.org"
+	env.PIP_EXTRA_INDEX_URL = 'https://pypi.org/simple'
+	if (null != info.userName && null != info.password) {
+		env.NETRC = pwd()
+		// groovylint-disable-next-line GStringExpressionWithinString
+		writeFile(file: '.netrc', text: """
+			machine ${hostName}
+			login ${info.userName}
+			password ${info.password}
+		""")
+	}
 }
 
-void configureArtifactRepository(String environment, String gitOrgName) {
+String resolveRepositoryUrl(String ownerName, String repositoryName) {
+	final String artifactoryUrlId = "${ownerName.toUpperCase()}_ARTIFACTORY_URL_ID"
+	String repositoryUrl = null
+
+	helper.tryRunCommand {
+		withCredentials([string(credentialsId: artifactoryUrlId, variable: 'ARTIFACTORY_URL')]) {
+			repositoryUrl = env.ARTIFACTORY_URL.toString().endsWith('/') ? env.ARTIFACTORY_URL : "${env.ARTIFACTORY_URL}/"
+			repositoryUrl += "${repositoryName}/"
+		}
+	}
+
+	return repositoryUrl
+}
+
+List<String> resolveRepositoryUserNamePassword(String ownerName) {
+	final String artifactoryLoginId = "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
+	List<String> userNamePassword = null
+
+	helper.tryRunCommand {
+		withCredentials([usernamePassword(credentialsId: artifactoryLoginId,
+				usernameVariable: 'USERNAME',
+				passwordVariable: 'PASSWORD')]) {
+			userNamePassword = [env.USERNAME, env.PASSWORD]
+		}
+	}
+
+	return userNamePassword
+}
+
+void configure(String environment, String gitOrgName, String url) {
 	Map artifactRepositoryInfo = [:]
-	Map<String, Closure> handler = [
+	Map<String, List<Object>> repositoryHandlerMap = [
 			'javascript' : this.&configureNpm,
-			'python': this.&configurePip
+			'python': this.&configurePypi
 	]
 
-	if (handler.containsKey(environment)) {
-		final String artifactoryUrlId = "${gitOrgName.toUpperCase()}_${environment.toUpperCase()}_ARTIFACTORY_URL_ID"
-		final String artifactoryLoginId = "${gitOrgName.toUpperCase()}_${environment.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
-
-		boolean foundUrl = helper.tryRunWithStringCredentials(artifactoryUrlId) { String url ->
-			artifactRepositoryInfo.url = url
+	if (repositoryHandlerMap.containsKey(environment)) {
+		artifactRepositoryInfo.url = url
+		List<String> userNamePassword = resolveRepositoryUserNamePassword(gitOrgName)
+		if (null != userNamePassword) {
+			artifactRepositoryInfo.userName = userNamePassword[0]
+			artifactRepositoryInfo.password = userNamePassword[1]
 		}
 
-		if (foundUrl) {
-			helper.tryRunWithUserCredentials(artifactoryLoginId) { String userName, String password ->
-				artifactRepositoryInfo.userName = userName
-				artifactRepositoryInfo.password = password
-			}
-
-			handler[environment](artifactRepositoryInfo)
-		}
+		repositoryHandlerMap[environment](artifactRepositoryInfo)
 	}
 }

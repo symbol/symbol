@@ -26,10 +26,19 @@ void dockerPublisher(Map config, String phase) {
 		return
 	}
 
+	final String ownerName = helper.resolveOrganizationName()
+	final String repositoryName = helper.resolveRepositoryName()
+	String dockerHost = 'registry.hub.docker.com'
+	String dockerCredentialsId = DOCKER_CREDENTIALS_ID
+	if (isAlphaRelease(phase) || !isGitHubRepositoryPublic(ownerName, repositoryName)) {
+		dockerCredentialsId = "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
+		dockerHost = helper.resolveUrlBase(configureArtifactRepository.resolveRepositoryUrl(ownerName, 'docker-hosted')).toURL().host
+	}
+
 	final String version = readPackageVersion()
-	final String imageVersionName = "${config.dockerImageName}:${version}"
+	final String imageVersionName = "${dockerHost}/${config.dockerImageName}:${version}"
 	final String archImageName = imageVersionName + "-${ARCHITECTURE}"
-	dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
+	dockerHelper.loginAndRunCommand(dockerCredentialsId, dockerHost) {
 		publishArtifact {
 			String args = config.dockerBuildArgs ?: '.'
 			args = '--network host ' + args
@@ -55,13 +64,29 @@ void npmPublisher(Map config, String phase) {
 		npmPublishCommand += ' --tag alpha'
 	}
 
-	// groovylint-disable-next-line GStringExpressionWithinString
-	writeFile(file: '.npmrc', text: '//registry.npmjs.org/:_authToken=${NPM_TOKEN}')
-	runScript('cat .npmrc')
-	withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
+	final String ownerName = helper.resolveOrganizationName()
+	final String repositoryName = helper.resolveRepositoryName()
+	if (isAlphaRelease(phase) || !isGitHubRepositoryPublic(ownerName, repositoryName)) {
+		final String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, 'npm-hosted')
+		final String environment = jobHelper.resolveCiEnvironmentName(config)
+
+		npmPublishCommand += ' --registry=' + publishUrl
+		configureArtifactRepository.configure(environment, ownerName, publishUrl)
 		publishArtifact {
-			logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()}")
+			logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()} to private repository")
 			runScript(npmPublishCommand)
+		}
+	}
+	else
+	{
+		// groovylint-disable-next-line GStringExpressionWithinString
+		writeFile(file: '.npmrc', text: '//registry.npmjs.org/:_authToken=${NPM_TOKEN}')
+		runScript('cat .npmrc')
+		withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
+			publishArtifact {
+				logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()}")
+				runScript(npmPublishCommand)
+			}
 		}
 	}
 }
@@ -71,31 +96,40 @@ void pythonPublisher(Map config, String phase) {
 		return
 	}
 
-	credentialsId = PYTHON_CREDENTIALS_ID
-	if (isAlphaRelease(phase)) {
-		credentialsId = TEST_PYTHON_CREDENTIALS_ID
-	}
+	final String ownerName = helper.resolveOrganizationName()
+	final String repositoryName = helper.resolveRepositoryName()
+	if (isAlphaRelease(phase) || !isGitHubRepositoryPublic(ownerName, repositoryName)) {
+		withCredentials([usernamePassword(credentialsId: "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID",
+			usernameVariable: 'USERNAME',
+			passwordVariable: 'PASSWORD')]) {
+			publishArtifact {
+				String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, 'pypi-hosted')
 
-	withCredentials([string(credentialsId: credentialsId, variable: 'PYPI_TOKEN')]) {
-		publishArtifact {
-			Object requirementsFile = readFile 'requirements.txt'
-			requirementsFile.readLines().each { line ->
-				runScript("poetry add ${line}")
+				poetryBuildPackage()
+				runScript("poetry config repositories.internal ${publishUrl}")
+				runScript('poetry config http-basic.internal $USERNAME $PASSWORD')
+				runScript('poetry publish --repository internal')
 			}
-			runScript('cat pyproject.toml')
-
-			runScript('poetry build')
-
-			if (isAlphaRelease(phase)) {
-				runScript('poetry config "repositories.test" "https://test.pypi.org/legacy/"')
-				runScript("poetry config 'pypi-token.test' ${env.PYPI_TOKEN}")
-				runScript('poetry publish --repository "test"')
-			} else {
-				runScript("poetry config 'pypi-token.pypi' ${env.PYPI_TOKEN}")
+		}
+	} else {
+		withCredentials([string(credentialsId: PYTHON_CREDENTIALS_ID, variable: 'PYPI_TOKEN')]) {
+			publishArtifact {
+				poetryBuildPackage()
+				runScript('poetry config pypi-token.pypi $PYPI_TOKEN')
 				runScript('poetry publish')
 			}
 		}
 	}
+}
+
+void poetryBuildPackage() {
+	Object requirementsFile = readFile 'requirements.txt'
+	requirementsFile.readLines().each { line ->
+		runScript("poetry add ${line}")
+	}
+	runScript('cat pyproject.toml')
+
+	runScript('poetry build')
 }
 
 void gitHubPagesPublisher(Map config, String phase) {
@@ -147,5 +181,17 @@ void publishArtifact(Closure defaultPublisher) {
 		runScript("${publishScriptFilePath} ${architecture}")
 	} else {
 		defaultPublisher.call()
+	}
+}
+
+boolean isGitHubRepositoryPublic(String orgName, String repoName) {
+	try {
+		final URL url = "https://api.github.com/repos/${orgName}/${repoName}".toURL()
+		final Object repo = yamlHelper.readYamlFromText(url.text)
+
+		return repo.name == repoName && repo.visibility == 'public'
+	} catch (FileNotFoundException exception) {
+		println "Repository ${orgName}/${repoName} not found - ${exception}"
+		return false
 	}
 }

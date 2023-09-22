@@ -72,12 +72,14 @@ void dockerBuildAndPushImage(String imageName, String buildArgs='.') {
 	runScript("docker push ${imageName}")
 }
 
-void loginAndRunCommand(String dockerCredentialsId, Closure command) {
+void loginAndRunCommand(String dockerCredentialsId, String hostName, Closure command) {
 	withCredentials([usernamePassword(credentialsId: dockerCredentialsId,
 			usernameVariable: 'DOCKER_ID',
 			passwordVariable: 'DOCKER_PASSWORD')]) {
-		runScript('echo $DOCKER_PASSWORD | docker login -u $DOCKER_ID --password-stdin')
-		command()
+		withEnv(["DOCKER_REGISTRY_HOSTNAME=${hostName}"]) {
+			runScript('echo $DOCKER_PASSWORD | docker login $DOCKER_REGISTRY_HOSTNAME -u $DOCKER_ID --password-stdin')
+			command()
+		}
 	}
 }
 
@@ -89,7 +91,7 @@ void tagDockerImage(String operatingSystem, String dockerUrl, String dockerCrede
 			docker.image(imageName).push(tag)
 		}
 	} else {
-		loginAndRunCommand(dockerCredentialsId) {
+		loginAndRunCommand(dockerCredentialsId, dockerUrl) {
 			updateDockerImage(destImageName, imageName, "${ARCHITECTURE}")
 		}
 	}

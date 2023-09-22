@@ -126,7 +126,7 @@ pipeline {
 					}
 					steps {
 						script {
-							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
+							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID, DOCKER_URL) {
 								dockerHelper.pushImage(buildImageFullName, buildImageFullName)
 								String archImageName = "${dockerRepoName}:${resolveShortArchitectureImageLabel(compilerConfigurationFilepath)}"
 								dockerHelper.pushImage(buildImageFullName, archImageName)
