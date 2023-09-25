@@ -27,29 +27,24 @@ String readNpmPackageScopeName() {
 void configureNpm(Map info) {
 	final String scopeName = readNpmPackageScopeName()
 	String registryUrl = "registry=${info.url}"
-
-	registryUrl = scopeName ? "${scopeName}:${registryUrl}" : registryUrl
-	withEnv(["NPM_REGISTRY_URL=${registryUrl}"]) {
-		runScript.withBash('set +x && npm config set $NPM_REGISTRY_URL')
-	}
+	String npmrcContent = scopeName ? "${scopeName}:${registryUrl}" : registryUrl
 
 	if (null != scopeName) {
-		runScript('npm config set registry=https://registry.npmjs.org/')
+		npmrcContent += '\nregistry=https://registry.npmjs.org/'
 	}
 
 	if (null != info.userName && null != info.password) {
 		final String hostNamePath = info.url.split('://')[1]
 		final String userNamePasswordEncoding = "${info.userName}:${info.password}".bytes.encodeBase64()
 
-		withEnv(["NPM_AUTH_ENCODING=//${hostNamePath}:_auth=${userNamePasswordEncoding}"]) {
-			runScript.withBash('set +x && npm config set $NPM_AUTH_ENCODING')
-		}
+		npmrcContent += "\n//${hostNamePath}:_auth=${userNamePasswordEncoding}"
 	}
+
+	writeFile(file: '.npmrc', text: npmrcContent)
 }
 
 void configurePypi(Map info) {
-	final URL url = info.url.toString().toURL()
-	final String hostName = url.host
+	final String hostName = helper.resolveUrlHostName(info.url)
 
 	env.PIP_INDEX_URL = "${info.url}simple"
 	env.PIP_TRUSTED_HOST = "${hostName} pypi.org"

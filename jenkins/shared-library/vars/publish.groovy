@@ -32,7 +32,7 @@ void dockerPublisher(Map config, String phase) {
 	String dockerCredentialsId = DOCKER_CREDENTIALS_ID
 	if (isAlphaRelease(phase) || !isGitHubRepositoryPublic(ownerName, repositoryName)) {
 		dockerCredentialsId = "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
-		dockerHost = helper.resolveUrlBase(configureArtifactRepository.resolveRepositoryUrl(ownerName, 'docker-hosted')).toURL().host
+		dockerHost = helper.resolveUrlHostName(configureArtifactRepository.resolveRepositoryUrl(ownerName, 'docker-hosted'))
 	}
 
 	final String version = readPackageVersion()
@@ -45,7 +45,7 @@ void dockerPublisher(Map config, String phase) {
 			dockerHelper.dockerBuildAndPushImage(archImageName, args)
 			dockerHelper.updateDockerImage(imageVersionName, archImageName, "${ARCHITECTURE}")
 			if (isRelease(phase)) {
-				final String imageLatestName = "${config.dockerImageName}:latest"
+				final String imageLatestName = "${dockerHost}/${config.dockerImageName}:latest"
 
 				logger.logInfo('Releasing the latest image')
 				dockerHelper.updateDockerImage(imageLatestName, archImageName, "${ARCHITECTURE}")

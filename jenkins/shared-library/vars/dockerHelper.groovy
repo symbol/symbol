@@ -25,7 +25,7 @@ void updateDockerImage(String targetImageName, String sourceImageName, String ar
 		}
 		else {
 			// This is a multi-architecture image
-			List<String> imageDigests = resolveDockerImageDigests(packageJson, sourceImageName, architecture)
+			List<String> imageDigests = resolveDockerImageDigests(packageJson, sourceImageName, targetImageName, architecture)
 			String digestList = imageDigests.join(' ')
 			print("Digest list: ${digestList}")
 			runScript("docker buildx imagetools create --tag ${targetImageName} ${digestList}")
@@ -53,14 +53,14 @@ boolean isSingleDigestImage(Object packageJson) {
 	return null == packageJson.manifests
 }
 
-List<String> resolveDockerImageDigests(Object packageJson, String latestImageName, String architecture) {
+List<String> resolveDockerImageDigests(Object packageJson, String latestImageName, String destImageName, String architecture) {
 	Map<String, String> digests = [:]
 
 	digests.put(architecture, latestImageName)
 	packageJson.manifests.each { manifest ->
 		print "Manifest: ${manifest.platform.architecture}, ${manifest.digest}"
 		if (!digests.containsKey(manifest.platform.architecture)) {
-			digests.put(manifest.platform.architecture, manifest.digest)
+			digests.put(manifest.platform.architecture, "${destImageName}@${manifest.digest}")
 		}
 	}
 
@@ -92,7 +92,8 @@ void tagDockerImage(String operatingSystem, String dockerUrl, String dockerCrede
 		}
 	} else {
 		loginAndRunCommand(dockerCredentialsId, dockerUrl) {
-			updateDockerImage(destImageName, imageName, "${ARCHITECTURE}")
+			final String hostName = helper.resolveUrlHostName(dockerUrl)
+			updateDockerImage("${hostName}/${destImageName}", "${hostName}/${imageName}", "${ARCHITECTURE}")
 		}
 	}
 }

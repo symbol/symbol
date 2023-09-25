@@ -93,6 +93,10 @@ String resolveUrlBase(String url) {
 	return "${urlObject.protocol}://${urlObject.host}"
 }
 
+String resolveUrlHostName(String url) {
+	return new URL(url).host
+}
+
 boolean tryRunCommand(Closure command) {
 	try {
 		command()
