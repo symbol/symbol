@@ -7,7 +7,7 @@ class CharacterMapBuilder {
 	 */
 	constructor() {
 		/**
-		 * Mapping of charcters to character codes.
+		 * Mapping of characters to character codes.
 		 * @type {{[key: string]: number}}
 		 */
 		this.map = {};
