@@ -147,7 +147,8 @@ void triggerAllJobs(
 						string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
 						string(name: 'CI_ENVIRONMENT', value: environment),
 						booleanParam(name: 'SHOULD_PUBLISH_IMAGE', value: false),
-						booleanParam(name: shouldPublishFailJobStatusName, value: shouldPublishFailJobStatusValue)],
+						booleanParam(name: shouldPublishFailJobStatusName, value: shouldPublishFailJobStatusValue),
+						booleanParam(name: 'SHOULD_RUN_ALL_TEST', value: true)],
 						wait: waitForDownStream
 				}
 			}

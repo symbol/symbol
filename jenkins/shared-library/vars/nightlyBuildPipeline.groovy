@@ -115,7 +115,8 @@ void triggerAllJobs(
 					string(name: 'TEST_MODE', value: 'code-coverage'),
 					string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
 					booleanParam(name: 'SHOULD_PUBLISH_IMAGE', value: false),
-					booleanParam(name: shouldPublishFailJobStatusName, value: shouldPublishFailJobStatusValue)],
+					booleanParam(name: shouldPublishFailJobStatusName, value: shouldPublishFailJobStatusValue),
+					booleanParam(name: 'SHOULD_RUN_ALL_TEST', value: true)],
 					wait: waitForDownStream
 			}
 		}

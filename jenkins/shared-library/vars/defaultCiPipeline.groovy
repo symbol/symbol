@@ -29,6 +29,7 @@ void call(Closure body) {
 				description: 'ci environment'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 			booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
+			booleanParam name: 'SHOULD_RUN_ALL_TEST', description: 'true to run all the test stage', defaultValue: false
 		}
 
 		agent {
@@ -192,8 +193,13 @@ void call(Closure body) {
 					}
 					stage('run tests (examples)') {
 						when {
-							expression {
-								return fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH))
+							allOf {
+								expression {
+									return params.SHOULD_RUN_ALL_TEST?.toBoolean()
+								}
+								expression {
+									return fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH))
+								}
 							}
 						}
 						steps {
@@ -204,8 +210,13 @@ void call(Closure body) {
 					}
 					stage('run tests (vectors)') {
 						when {
-							expression {
-								return fileExists(resolvePath(packageRootPath, env.TEST_VECTORS_SCRIPT_FILEPATH))
+							allOf {
+								expression {
+									return params.SHOULD_RUN_ALL_TEST?.toBoolean()
+								}
+								expression {
+									return fileExists(resolvePath(packageRootPath, env.TEST_VECTORS_SCRIPT_FILEPATH))
+								}
 							}
 						}
 						steps {
