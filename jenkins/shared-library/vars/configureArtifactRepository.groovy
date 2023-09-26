@@ -92,8 +92,8 @@ List<String> resolveRepositoryUserNamePassword(String ownerName) {
 void configure(String environment, String gitOrgName, String url) {
 	Map artifactRepositoryInfo = [:]
 	Map<String, List<Object>> repositoryHandlerMap = [
-			'javascript' : this.&configureNpm,
-			'python': this.&configurePypi
+		'javascript' : this.&configureNpm,
+		'python': this.&configurePypi
 	]
 
 	if (repositoryHandlerMap.containsKey(environment)) {

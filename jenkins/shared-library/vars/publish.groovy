@@ -59,9 +59,9 @@ void npmPublisher(Map config, String phase) {
 		return
 	}
 
-	String npmPublishCommand = 'npm publish'
+	StringBuilder npmPublishCommand = new StringBuilder('npm publish')
 	if (isAlphaRelease(phase)) {
-		npmPublishCommand += ' --tag alpha'
+		npmPublishCommand.append(' --tag alpha')
 	}
 
 	final String ownerName = helper.resolveOrganizationName()
@@ -70,11 +70,11 @@ void npmPublisher(Map config, String phase) {
 		final String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, 'npm-hosted')
 		final String environment = jobHelper.resolveCiEnvironmentName(config)
 
-		npmPublishCommand += ' --registry=' + publishUrl
+		npmPublishCommand.append(" --registry=${publishUrl}")
 		configureArtifactRepository.configure(environment, ownerName, publishUrl)
 		publishArtifact {
 			logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()} to private repository")
-			runScript(npmPublishCommand)
+			runScript(npmPublishCommand.toString())
 		}
 	}
 	else
@@ -85,7 +85,7 @@ void npmPublisher(Map config, String phase) {
 		withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
 			publishArtifact {
 				logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()}")
-				runScript(npmPublishCommand)
+				runScript(npmPublishCommand.toString())
 			}
 		}
 	}
