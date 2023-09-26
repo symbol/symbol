@@ -10,6 +10,9 @@ find . -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m isort \
 	--check-only
 find . -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m pycodestyle \
 	--config="$(git rev-parse --show-toplevel)/linters/python/.pycodestyle"
-find . -type f -name "*.py" -print0 | PYTHONPATH=".:$(git rev-parse --show-toplevel)/catbuffer/parser" xargs -0 python3 -m pylint \
+
+# Cygwin is install in our Windows images so pick the correct separator if Windows(Msys)
+SEPARATOR="$([ "$(uname -o)" = "Msys" ] && echo ";" || echo ":")"
+find . -type f -name "*.py" -print0 | PYTHONPATH=".${SEPARATOR}$(git rev-parse --show-toplevel)/catbuffer/parser" xargs -0 python3 -m pylint \
 	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc" \
 	--load-plugins pylint_quotes
