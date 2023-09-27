@@ -76,9 +76,7 @@ void npmPublisher(Map config, String phase) {
 			logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()} to private repository")
 			runScript(npmPublishCommand.toString())
 		}
-	}
-	else
-	{
+	} else {
 		// groovylint-disable-next-line GStringExpressionWithinString
 		writeFile(file: '.npmrc', text: '//registry.npmjs.org/:_authToken=${NPM_TOKEN}')
 		runScript('cat .npmrc')
@@ -150,6 +148,18 @@ void gitHubPagesPublisher(Map config, String phase) {
 	}
 }
 
+void awsPublisher(Map config, String phase) {
+	if (config.publisher != 'aws' || !isRelease(phase)) {
+		return
+	}
+
+	withCredentials([usernamePassword(credentialsId: config.awsCredentialId,
+		usernameVariable: 'AWS_ACCESS_KEY_ID',
+		passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+		publishArtifact { }
+	}
+}
+
 void publisher(Map config, String phase) {
 	if (!config.publisher) {
 		logger.logInfo('No publisher is configured.')
@@ -194,17 +204,5 @@ boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	} catch (FileNotFoundException exception) {
 		println "Repository ${orgName}/${repoName} not found - ${exception}"
 		return false
-	}
-}
-
-void awsPublisher(Map config, String phase) {
-	if (config.publisher != 'aws' || !isRelease(phase)) {
-		return
-	}
-
-	withCredentials([usernamePassword(credentialsId: config.awsCredentialId,
-			usernameVariable: 'AWS_ACCESS_KEY_ID',
-			passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-		publishArtifact { }
 	}
 }
