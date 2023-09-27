@@ -165,7 +165,8 @@ void publisher(Map config, String phase) {
 		this.&dockerPublisher,
 		this.&npmPublisher,
 		this.&pythonPublisher,
-		this.&gitHubPagesPublisher
+		this.&gitHubPagesPublisher,
+		this.&awsPublisher
 	]
 
 	strategies.each { publisher ->
@@ -193,5 +194,17 @@ boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	} catch (FileNotFoundException exception) {
 		println "Repository ${orgName}/${repoName} not found - ${exception}"
 		return false
+	}
+}
+
+void awsPublisher(Map config, String phase) {
+	if (config.publisher != 'aws') {
+		return
+	}
+
+	withCredentials([usernamePassword(credentialsId: config.awsCredentialId,
+			usernameVariable: 'AWS_ACCESS_KEY_ID',
+			passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+		publishArtifact {}
 	}
 }
