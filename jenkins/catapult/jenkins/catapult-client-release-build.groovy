@@ -42,6 +42,14 @@ pipeline {
 								returnStdout: true
 							).trim()
 
+							final String ownerName = helper.resolveOrganizationName()
+							dockerCredentialId = helper.isPublicBuild(params.BUILD_CONFIGURATION)
+									? env.DOCKER_CREDENTIALS_ID
+									: "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
+							dockerUrl = helper.isPublicBuild(params.BUILD_CONFIGURATION)
+									? env.DOCKER_URL
+									: helper.resolveUrlBase(configureArtifactRepository.resolveRepositoryUrl(ownerName, 'docker-hosted'))
+
 							compilerConfigurationFilepath = "symbol-mono/jenkins/catapult/configurations/${ARCHITECTURE}/${COMPILER_CONFIGURATION}.yaml"
 							imageLabel = resolveImageLabel(compilerConfigurationFilepath)
 							dockerRepoName = "symbolplatform/${resolveImageRepo()}"
@@ -126,11 +134,13 @@ pipeline {
 					}
 					steps {
 						script {
-							dockerHelper.loginAndRunCommand(DOCKER_CREDENTIALS_ID) {
-								dockerHelper.pushImage(buildImageFullName, buildImageFullName)
-								String archImageName = "${dockerRepoName}:${resolveShortArchitectureImageLabel(compilerConfigurationFilepath)}"
+							dockerHelper.loginAndRunCommand(dockerCredentialId, dockerUrl) {
+								final String hostName = helper.resolveUrlHostName(dockerUrl)
+
+								dockerHelper.pushImage(buildImageFullName, "${hostName}/${buildImageFullName}")
+								String archImageName = "${hostName}/${dockerRepoName}:${resolveShortArchitectureImageLabel(compilerConfigurationFilepath)}"
 								dockerHelper.pushImage(buildImageFullName, archImageName)
-								String multiArchImageName = "${dockerRepoName}:${resolveShortImageLabel()}"
+								String multiArchImageName = "${hostName}/${dockerRepoName}:${resolveShortImageLabel()}"
 								dockerHelper.updateDockerImage(multiArchImageName, archImageName, "${ARCHITECTURE}")
 							}
 						}

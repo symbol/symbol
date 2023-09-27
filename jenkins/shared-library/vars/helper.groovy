@@ -79,3 +79,30 @@ boolean isAmd64Architecture(String architecture) {
 String resolveBuildArchitecture() {
 	return env.ARCHITECTURE ?: 'amd64'
 }
+
+String resolveOrganizationName() {
+	return env.GIT_URL.tokenize('/')[2]
+}
+
+String resolveRepositoryName() {
+	return env.GIT_URL.tokenize('/').last().split('\\.')[0]
+}
+
+String resolveUrlBase(String url) {
+	URL urlObject = new URL(url)
+	return "${urlObject.protocol}://${urlObject.host}"
+}
+
+String resolveUrlHostName(String url) {
+	return new URL(url).host
+}
+
+boolean tryRunCommand(Closure command) {
+	try {
+		command()
+		return true
+		// groovylint-disable-next-line CatchException
+	} catch (_) {
+		return false
+	}
+}

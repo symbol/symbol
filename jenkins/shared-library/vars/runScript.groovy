@@ -24,5 +24,5 @@ void call(String scriptFilepath, String label='', Boolean returnStdout, Boolean 
 }
 
 void withBash(String scriptFilepath) {
-	call("bash -c \"${scriptFilepath}\"", scriptFilepath, false)
+	call("bash -c '${scriptFilepath}'", scriptFilepath, false)
 }

@@ -93,6 +93,13 @@ void call(Closure body) {
 							runScript(isUnix() ? 'printenv' : 'set')
 						}
 					}
+					stage('setup docker environment') {
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams))
+							}
+						}
+					}
 					stage('checkout') {
 						when {
 							triggeredBy 'UserIdCause'
