@@ -198,13 +198,13 @@ boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 }
 
 void awsPublisher(Map config, String phase) {
-	if (config.publisher != 'aws') {
+	if (config.publisher != 'aws' || !isRelease(phase)) {
 		return
 	}
 
 	withCredentials([usernamePassword(credentialsId: config.awsCredentialId,
 			usernameVariable: 'AWS_ACCESS_KEY_ID',
 			passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-		publishArtifact {}
+		publishArtifact { }
 	}
 }
