@@ -106,3 +106,7 @@ boolean tryRunCommand(Closure command) {
 		return false
 	}
 }
+
+String resolveWorkspacePath(String os) {
+	return 'windows' == os ? 'C:\\Users\\Administrator\\jenkins\\workspace\\' : '/home/ubuntu/jenkins/workspace/'
+}
