@@ -1,10 +1,20 @@
 name: Combine PRs
 
-on:
+'on':
   schedule:
     # yamllint disable-line rule:quoted-strings
-    - cron: '0 1 * * 1' # Monday at 01:00
-  workflow_dispatch: # allows you to manually trigger the workflow
+    - cron: '0 1 * * 1'  # Monday at 01:00 AM
+  workflow_dispatch:  # allows you to manually trigger the workflow
+    inputs:
+      logLevel:
+        description: Log level
+        required: true
+        default: warning
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
 
 # The minimum permissions required to run this Action
 permissions:
