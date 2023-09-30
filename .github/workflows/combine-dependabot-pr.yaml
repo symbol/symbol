@@ -39,8 +39,9 @@ jobs:
           pr_body_header: '# Combined Dependabot PRs ➡️📦⬅️'
 
       - name: Enable auto-merge for Dependabot PRs
+        if: ${{ steps.combine-prs.outputs.pr_url }}
         run: gh pr merge --auto --squash --subject "$PR_TITLE" "$PR_URL"
         env:
-          PR_URL: ${{ steps.combine-prs.outputs.pr_url  }}
+          PR_URL: ${{ steps.combine-prs.outputs.pr_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_TITLE: '[dependency]: Combine dependabot PRs'
