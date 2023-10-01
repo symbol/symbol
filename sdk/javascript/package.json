@@ -22,7 +22,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "~29.5.5",
-    "@types/ripemd160": "~2.0.0",
+    "@types/ripemd160": "~2.0.1",
     "@types/yargs": "~17.0.24",
     "@wasm-tool/wasm-pack-plugin": "~1.7.0",
     "assert": "~2.1.0",
