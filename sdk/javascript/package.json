@@ -37,7 +37,7 @@
     "mocha": "~10.2.0",
     "mocha-jenkins-reporter": "~0.4.8",
     "process": "~0.11.10",
-    "rimraf": "~5.0.1",
+    "rimraf": "~5.0.5",
     "stream-browserify": "~3.0.0",
     "typescript": "~5.2.2",
     "url": "~0.11.3",
