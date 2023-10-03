@@ -238,6 +238,13 @@ void call(Closure body) {
 								expression {
 									return  null != jenkinsfileParams.codeCoverageTool
 								}
+								expression {
+									// If all the tests are not run then code coverage will fail to meet the required minimum
+									// Nightly builds will run all tests.
+									return (params.SHOULD_RUN_ALL_TEST?.toBoolean()
+										|| (!fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH))
+										&& !fileExists(resolvePath(packageRootPath, env.TEST_VECTORS_SCRIPT_FILEPATH))))
+								}
 							}
 						}
 						steps {
