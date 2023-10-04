@@ -1,12 +1,15 @@
 pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
-		choice name: 'ARCHITECTURE', choices: ['amd64', 'arm64'], description: 'Computer architecture'
+		choice name: 'ARCHITECTURE', choices: ['arm64', 'amd64'], description: 'Computer architecture'
 		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
 	}
 
 	agent {
-		label "${helper.resolveAgentName('ubuntu', env.ARCHITECTURE ?: 'amd64', 'small')}"
+		label """${
+			env.ARCHITECTURE = env.ARCHITECTURE ?: 'arm64'
+			return helper.resolveAgentName('ubuntu', env.ARCHITECTURE, 'small')
+		}"""
 	}
 
 	options {
@@ -15,6 +18,17 @@ pipeline {
 	}
 
 	stages {
+		stage('override architecture') {
+			when {
+				triggeredBy 'TimerTrigger'
+			}
+			steps {
+				script {
+					// even days are amd64, odd days are arm64
+					ARCHITECTURE = helper.determineArchitecture()
+				}
+			}
+		}
 		stage('print env') {
 			steps {
 				echo """

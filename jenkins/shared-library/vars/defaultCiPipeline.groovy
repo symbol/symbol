@@ -19,7 +19,7 @@ void call(Closure body) {
 				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
 			choice name: 'ARCHITECTURE',
-				choices: ['amd64', 'arm64'],
+				choices: ['arm64', 'amd64'],
 				description: 'Computer architecture'
 			choice name: 'TEST_MODE',
 				choices: ['code-coverage', 'test'],
@@ -37,7 +37,7 @@ void call(Closure body) {
 				// ARCHITECTURE can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
 				label """${
 					env.OPERATING_SYSTEM = env.OPERATING_SYSTEM ?: "${jenkinsfileParams.operatingSystem[0]}"
-					env.ARCHITECTURE = env.ARCHITECTURE ?: 'amd64'
+					env.ARCHITECTURE = env.ARCHITECTURE ?: 'arm64'
 					return helper.resolveAgentName(env.OPERATING_SYSTEM, env.ARCHITECTURE, jenkinsfileParams.instanceSize ?: 'medium')
 				}"""
 				customWorkspace "${helper.resolveWorkspacePath(env.OPERATING_SYSTEM)}"
