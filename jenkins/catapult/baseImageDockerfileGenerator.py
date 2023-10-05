@@ -292,7 +292,7 @@ class UbuntuSystem:
 			'RUN apt-get -y update',
 			'apt-get remove -y --purge pylint',
 			'apt-get install -y {APT_PACKAGES}',
-			'python3 -m pip install -U pycodestyle pylint pyyaml'
+			'python3 -m pip install -U pycodestyle "pylint<3.0.0" pyyaml'
 		], APT_PACKAGES=' '.join(apt_packages))
 
 
@@ -329,7 +329,7 @@ class FedoraSystem:
 			'RUN dnf update --assumeyes',
 			'dnf remove --assumeyes pylint',
 			'dnf install --assumeyes {RPM_PACKAGES}',
-			'python3 -m pip install -U pycodestyle pylint pyyaml',
+			'python3 -m pip install -U pycodestyle "pylint<3.0.0" pyyaml',
 			'dnf clean all',
 			'rm -rf /var/cache/yum'
 		], RPM_PACKAGES=' '.join(rpm_packages))
@@ -354,7 +354,7 @@ class WindowsSystem:
 	def add_test_packages():
 		print_powershell_lines([
 			'scoop update',
-			'python3 -m pip install -U pycodestyle pylint pyyaml'
+			'python3 -m pip install -U pycodestyle "pylint<3.0.0" pyyaml'
 		])
 
 
