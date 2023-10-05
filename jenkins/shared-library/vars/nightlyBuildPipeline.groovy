@@ -18,7 +18,7 @@ void call(Closure body) {
 				sortMode: 'ASCENDING',
 				useRepository: "${helper.resolveRepoName()}"
 			choice name: 'ARCHITECTURE',
-				choices: ['amd64', 'arm64'],
+				choices: ['arm64', 'amd64'],
 				description: 'Computer architecture'
 			booleanParam name: shouldPublishFailJobStatusName, description: 'true to publish job status if failed', defaultValue: true
 			booleanParam name: 'WAIT_FOR_BUILDS', description: 'true to wait for trigger build to complete', defaultValue: true
@@ -26,7 +26,7 @@ void call(Closure body) {
 
 		agent {
 			label """${
-				env.ARCHITECTURE = env.ARCHITECTURE ?: 'amd64'
+				env.ARCHITECTURE = env.ARCHITECTURE ?: 'arm64'
 				return helper.resolveAgentName('ubuntu', env.ARCHITECTURE, 'small')
 			}"""
 		}
