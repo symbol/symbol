@@ -125,12 +125,12 @@ void call(Closure body) {
 						steps {
 							script {
 								runStepRelativeToPackageRoot '.', {
-									final String[] exemptAuther = ['github-actions[bot]', 'dependabot[bot]']
+									final String[] exemptAuthor = ['github-actions[bot]', 'dependabot[bot]']
 									String author = runScript('git log -1 --pretty=format:\'%an\'', true)
 
-									if (exemptAuther.contains(author)) {
+									if (exemptAuthor.contains(author)) {
 										println("Disabling max body line length rule for ${author}")
-										env.GITLINT_IGNORE='body-max-line-length'
+										env.GITLINT_IGNORE = 'body-max-line-length'
 									}
 
 									verifyCommitMessage()
