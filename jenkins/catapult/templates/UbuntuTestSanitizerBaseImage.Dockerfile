@@ -20,5 +20,5 @@ RUN apt-get -y update && apt-get install -y \
 	libslang2-dev \
 	&& \
 	rm -rf /var/lib/apt/lists/* && \
-	pip3 install -U colorama cryptography gitpython pycodestyle pylint pylint-quotes PyYAML
+	pip3 install -U colorama cryptography gitpython pycodestyle "pylint<3.0.0" pylint-quotes PyYAML
 

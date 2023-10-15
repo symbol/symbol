@@ -20,7 +20,7 @@ RUN apt-get -y update && apt-get install -y \
 	libslang2-dev \
 	&& \
 	rm -rf /var/lib/apt/lists/* && \
-	pip3 install -U colorama cryptography gitpython pycodestyle pylint pylint-quotes PyYAML && \
+	pip3 install -U colorama cryptography gitpython pycodestyle "pylint<3.0.0" pylint-quotes PyYAML && \
 	git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux.git && \
 	cd linux.git/tools/perf && \
 	NO_LIBTRACEEVENT=1 make && \
