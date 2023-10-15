@@ -120,14 +120,21 @@ void call(Closure body) {
 							anyOf {
 								branch env.DEV_BRANCH
 								branch env.RELEASE_BRANCH
-
-								// Dependabot commits do not always conform to our commit message convention
-								environment name: 'CHANGE_AUTHOR', value: 'dependabot[bot]'
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot '.', {
-								verifyCommitMessage()
+							script {
+								runStepRelativeToPackageRoot '.', {
+									final String[] exemptAuthor = ['github-actions[bot]', 'dependabot[bot]']
+									String author = runScript('git log -1 --pretty=format:\'%an\'', true)
+
+									if (exemptAuthor.contains(author)) {
+										println("Disabling max body line length rule for ${author}")
+										env.GITLINT_IGNORE = 'body-max-line-length'
+									}
+
+									verifyCommitMessage()
+								}
 							}
 						}
 					}
