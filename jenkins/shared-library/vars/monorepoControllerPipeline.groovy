@@ -106,7 +106,7 @@ void call(Closure body) {
 	}
 }
 
-void triggerJobs(String branchName, Map jenkinsfileParams) {
+void triggerJobs(String branchName) {
 	final Object buildConfiguration = jobHelper.loadBuildConfigurationfile()
 	final Map<String, String> allJenkinsfiles = jobHelper.loadJenkinsfileMap(buildConfiguration)
 	final Map<String, String> triggeredJenkinsfile = changedSetHelper.resolveJenkinsfilesJobToRun(allJenkinsfiles)
