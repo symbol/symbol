@@ -1,5 +1,21 @@
 // groovylint-disable-next-line MethodSize
-void call(Map jobConfiguration) {
+void call(Map jobConfiguration, Boolean manualTrigger = true) {
+	final String triggerText = manualTrigger ? '''
+				buildStrategies {
+					// By default, Jenkins will trigger builds as it detects changes on the source repository. We want
+					// to avoid that since we will trigger child pipelines on our own only when relevant.
+					skipInitialBuildOnFirstBranchIndexing()
+				}
+				strategy {
+					defaultBranchPropertyStrategy {
+						props {
+							noTriggerBranchProperty()
+						}
+					}
+				}
+	'''
+	: ''
+
 	logger.logInfo("job configuration: ${jobConfiguration}")
 
 	jobDsl scriptText: """
@@ -78,20 +94,15 @@ void call(Map jobConfiguration) {
 											parentCredentials(true)
 										}
 									}
+									gitHubStatusChecks {
+										name(checkStatusName)
+									}
 								}
 							}
 						}
 
-						buildStrategies {
-							includeRegionBranchBuildStrategy {
-								// Each inclusion uses ant pattern matching, and must be separated by a new line.
-								includedRegions(packageIncludePaths)
-							}
-							excludeRegionBranchBuildStrategy {
-								// Each exclusion uses ant pattern matching,and must be separated by a new line.
-								excludedRegions(packageExcludePaths)
-							}
-						}
+						${triggerText}
+
 					}
 				}
 				factory {
@@ -121,6 +132,7 @@ void call(Map jobConfiguration) {
 			credentialsId: jobConfiguration.credentialsId.toString(),
 			notificationContextLabel: "continuous-integration/jenkins/${jobConfiguration.packageFolder}",
 			displayName: jobConfiguration.displayName.toString(),
-			daysToKeep: jobConfiguration.daysToKeep ?: 14
+			daysToKeep: jobConfiguration.daysToKeep ?: 14,
+			checkStatusName: "Jenkins CI - ${jobConfiguration.displayName}"
 	]
 }

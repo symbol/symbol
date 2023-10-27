@@ -23,8 +23,8 @@ List<String> readArrayParameterValue(String parameterValue) {
 	return values
 }
 
-Map<String, String> siblingJobNames(Map<String, String> displayNameJenkinsfileMap) {
-	Item project = Jenkins.get().getItemByFullName(currentBuild.fullProjectName)
+Map<String, String> siblingJobNames(Map<String, String> displayNameJenkinsfileMap, String jobFolder) {
+	Item project = Jenkins.get().getItemByFullName(jobFolder)
 	List<Item> siblingItems = project.parent.items
 
 	Map<String, String> targets = [:]
@@ -68,8 +68,11 @@ String resolveJobName(String jobFolder, String branchName) {
 	throw new IllegalStateException("Multibranch job folder ${jobFolder} does not contain a job with branch ${branchName}")
 }
 
-Map <String, String> loadJenkinsfileMap() {
-	Object buildConfiguration = yamlHelper.readYamlFromFile(helper.resolveBuildConfigurationFile())
+Object loadBuildConfigurationfile() {
+	return yamlHelper.readYamlFromFile(helper.resolveBuildConfigurationFile())
+}
+
+Map <String, String> loadJenkinsfileMap(Object buildConfiguration = loadBuildConfigurationfile()) {
 	Map<String, String> displayNameJenkinsfileMap = [:]
 
 	buildConfiguration.builds.each { build -> displayNameJenkinsfileMap.put(build.name, build.path) }
