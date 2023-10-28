@@ -48,8 +48,8 @@ String resolveAgentName(String os, String architecture, String size) {
 	return 'windows' == os ? "windows-${size}-${architecture}-agent" : "ubuntu-${size}-${architecture}-agent"
 }
 
-void sendDiscordNotification(String title, String description, String url, String result, String footer = '') {
-	withCredentials([string(credentialsId: 'DISCORD_WEB_HOOK_URL_ID', variable: 'WEB_HOOK_URL')]) {
+void sendDiscordNotification(String webHookUrlId, String title, String description, String url, String result, String footer = '') {
+	withCredentials([string(credentialsId: webHookUrlId ?: 'DISCORD_WEB_HOOK_URL_ID', variable: 'WEB_HOOK_URL')]) {
 		discordSend description: description, footer: footer, link: url, result: result, title: title, webhookURL: "${env.WEB_HOOK_URL}"
 	}
 }
