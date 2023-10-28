@@ -320,6 +320,7 @@ void call(Closure body) {
 				script {
 					if (null != env.SHOULD_PUBLISH_FAIL_JOB_STATUS && env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()) {
 						helper.sendDiscordNotification(
+							jenkinsfileParams.discordWebHookUrlId,
 							"Jenkins Job Failed for ${currentBuild.fullDisplayName}",
 							"Build#${env.BUILD_NUMBER} has result of ${currentBuild.currentResult} in stage **${env.FAILED_STAGE_NAME}** " +
 									"with message: **${env.FAILURE_MESSAGE}**.",

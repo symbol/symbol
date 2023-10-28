@@ -89,20 +89,6 @@ void call(Closure body) {
 				}
 			}
 		}
-		post {
-			unsuccessful {
-				script {
-					if (null != env.SHOULD_PUBLISH_FAIL_JOB_STATUS && env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()) {
-						helper.sendDiscordNotification(
-							"Jenkins Job Failed for ${currentBuild.fullDisplayName}",
-							"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
-							env.BUILD_URL,
-							currentBuild.currentResult
-						)
-					}
-				}
-			}
-		}
 	}
 }
 

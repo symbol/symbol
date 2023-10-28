@@ -298,6 +298,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
+						'CLIENT_DISCORD_WEB_HOOK_URL_ID',
 						"Catapult Client Job Failed for ${currentBuild.fullDisplayName}",
 						"Job configuration ${COMPILER_CONFIGURATION} with ${BUILD_CONFIGURATION} on ${OPERATING_SYSTEM} has result of"
 						+ " ${currentBuild.currentResult} in stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",

@@ -129,6 +129,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
+						'CLIENT_DISCORD_WEB_HOOK_URL_ID',
 						':tada: Catapult Client Daily Job Successfully completed',
 						'All is good with the client',
 						env.BUILD_URL,
@@ -141,6 +142,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
+						'CLIENT_DISCORD_WEB_HOOK_URL_ID',
 						":scream_cat: Catapult Client Daily Job Failed for ${currentBuild.fullDisplayName}",
 						"At least one daily job failed for Build#${env.BUILD_NUMBER} with a result of ${currentBuild.currentResult}.",
 						env.BUILD_URL,
