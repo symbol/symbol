@@ -12,4 +12,6 @@ defaultCiPipeline {
 		--ip6 2001:db8:1::20'
 
 	packageId = 'client-catapult'
+
+	discordWebHookUrlId = 'CLIENT_DISCORD_WEB_HOOK_URL_ID'
 }

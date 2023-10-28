@@ -5,4 +5,6 @@ defaultCiPipeline {
 	ciBuildDockerfile = 'linter.Dockerfile'
 
 	packageId = 'linters'
+
+	discordWebHookUrlId = 'INFRA_DISCORD_WEB_HOOK_URL_ID'
 }
