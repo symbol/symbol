@@ -134,7 +134,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-						'CLIENT_DISCORD_WEB_HOOK_URL_ID',
+						'INFRA_DISCORD_WEB_HOOK_URL_ID',
 						':confetti_ball: CI Image All Job Successfully completed',
 						'Not much to see here, all is good',
 						env.BUILD_URL,
@@ -147,7 +147,7 @@ pipeline {
 			script {
 				if (env.SHOULD_PUBLISH_JOB_STATUS?.toBoolean()) {
 					helper.sendDiscordNotification(
-						'CLIENT_DISCORD_WEB_HOOK_URL_ID',
+						'INFRA_DISCORD_WEB_HOOK_URL_ID',
 						":worried: CI Image All Job Failed for ${currentBuild.fullDisplayName}",
 						"At least one job failed for Build#${env.BUILD_NUMBER} which has a result of ${currentBuild.currentResult}.",
 						env.BUILD_URL,
