@@ -46,7 +46,3 @@ Map<String, String> findRelevantMultibranchPipelines(List<String> changedFilesPa
 Map<String, String> findMultibranchPipelinesToRun(Map<String, String> jenkinsBuilds) {
 	return findRelevantMultibranchPipelines(resolveChangedList(), jenkinsBuilds)
 }
-
-Map <String, String> resolveJenkinsfilesJobToRun(Map<String, String> allJenkinsfileMap) {
-	return findMultibranchPipelinesToRun(allJenkinsfileMap)
-}

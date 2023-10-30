@@ -109,8 +109,8 @@ void call(Closure body) {
 void triggerJobs(String branchName) {
 	final Object buildConfiguration = jobHelper.loadBuildConfigurationfile()
 	final Map<String, String> allJenkinsfiles = jobHelper.loadJenkinsfileMap(buildConfiguration)
-	final Map<String, String> triggeredJenkinsfile = changedSetHelper.resolveJenkinsfilesJobToRun(allJenkinsfiles)
-	final Map<String, String> dependencyJenkinsfile = resolveDependencyJobMap(triggeredJenkinsfile, buildConfiguration)
+	final Map<String, String> triggeredJenkinsfile = changedSetHelper.findMultibranchPipelinesToRun(allJenkinsfiles)
+	final Map<String, String> dependencyJenkinsfile = findDependencyMultibranchPipelinesToRun(triggeredJenkinsfile, buildConfiguration)
 	final String currentJobName = Paths.get(currentBuild.fullProjectName).parent
 	final Map<String, String> jenkinsfilesJobToRun = triggeredJenkinsfile + dependencyJenkinsfile
 	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(jenkinsfilesJobToRun, currentJobName)
@@ -157,7 +157,7 @@ void triggerJobs(String branchName) {
 	parallel buildJobs
 }
 
-Map<String, String> resolveDependencyJobMap(Map<String, String> jenkinsfileMap, Object buildConfiguration) {
+Map<String, String> findDependencyMultibranchPipelinesToRun(Map<String, String> jenkinsfileMap, Object buildConfiguration) {
 	List<Object> dependencyBuilds =  jenkinsfileMap.collectMany { String displayName, String jenkinsfilePath ->
 		buildConfiguration.builds.findAll { build -> build.dependsOn.find { dependsOnPath -> dependsOnPath == jenkinsfilePath } }
 	}.unique()
