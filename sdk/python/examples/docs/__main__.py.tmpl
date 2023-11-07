@@ -121,7 +121,7 @@ async def wait_for_transaction_status(transaction_hash, desired_status, **kwargs
 		raise RuntimeError(f'{transaction_description} {transaction_hash} did not transition to {desired_status} in alloted time period')
 
 
-async def create_account_with_tokens(facade, amount=500, private_key=None):
+async def create_account_with_tokens(facade, amount=500, private_key=None):  # pylint: disable=too-many-locals
 	# create a key pair that will be used to send transactions
 	# when the PrivateKey is known, pass the raw private key bytes or hex encoded string to the PrivateKey(...) constructor instead
 	key_pair = facade.KeyPair(PrivateKey.random()) if private_key is None else facade.KeyPair(private_key)
