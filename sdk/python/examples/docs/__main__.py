@@ -79,11 +79,15 @@ async def create_account_with_tokens(facade, amount=500, private_key=None):
 
 	signer_key_pair = facade.KeyPair(PrivateKey(seed_private_key))
 
+	# derive the signer's address
+	signer_address = facade.network.public_key_to_address(signer_key_pair.public_key)
+	print(f'creating transaction with signer {signer_address}')
+
 	# get the current network time from the network, and set the transaction deadline two hours in the future
 	network_time = await get_network_time()
-	network_time = network_time.add_hours(1)
+	network_time = network_time.add_hours(2)
 
-	# create transfer transaction to seed account
+	# create transfer transaction from seed account
 	transaction = facade.transaction_factory.create({
 		'signer_public_key': signer_key_pair.public_key,
 		'deadline': network_time.timestamp,
@@ -95,24 +99,33 @@ async def create_account_with_tokens(facade, amount=500, private_key=None):
 		],
 	})
 
+	# set the maximum fee that the signer will pay to confirm the transaction; transactions bidding higher fees are generally prioritized
 	transaction.fee = Amount(100 * transaction.size)
-	print(f'seed transaction: {transaction}')
 
 	# sign the transaction and attach its signature
 	signature = facade.sign_transaction(signer_key_pair, transaction)
 	facade.transaction_factory.attach_signature(transaction, signature)
 
+	# hash the transaction (this is dependent on the signature)
 	transaction_hash = facade.hash_transaction(transaction)
-	print(f'seed transaction hash {transaction_hash}')
+	print(f'seed transfer transaction hash {transaction_hash}')
+
+	# finally, construct the over wire payload
 	json_payload = facade.transaction_factory.attach_signature(transaction, signature)
+
+	# print the signed transaction, including its signature
+	print(transaction)
 
 	# submit the transaction to the network
 	async with ClientSession(raise_for_status=True) as session:
+		# initiate a HTTP PUT request to a Symbol REST endpoint
 		async with session.put(f'{SYMBOL_API_ENDPOINT}/transactions', json=json.loads(json_payload)) as response:
 			response_json = await response.json()
 			print(f'/transactions: {response_json}')
 
+	# wait for the transaction to be confirmed
 	await wait_for_transaction_status(transaction_hash, 'confirmed', transaction_description='seed transfer transaction')
+
 	return key_pair
 
 # endregion
