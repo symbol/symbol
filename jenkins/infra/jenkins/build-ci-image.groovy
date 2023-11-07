@@ -8,7 +8,7 @@ pipeline {
 			choices: ['cpp', 'java', 'javascript', 'linter', 'postgres', 'python'],
 			description: 'continuous integration image'
 		choice name: 'ARCHITECTURE',
-			choices: ['amd64', 'arm64'],
+			choices: ['arm64', 'amd64'],
 			description: 'Computer architecture'
 		choice name: 'BASE_IMAGE',
 			choices: ['lts', 'base', 'latest'],
@@ -17,7 +17,10 @@ pipeline {
 	}
 
 	agent {
-		label "${helper.resolveAgentName(params.OPERATING_SYSTEM, params.ARCHITECTURE, 'medium')}"
+		label """${
+			env.ARCHITECTURE = env.ARCHITECTURE ?: 'arm64'
+			helper.resolveAgentName(params.OPERATING_SYSTEM, env.ARCHITECTURE, 'medium')
+		}}"""
 	}
 
 	environment {
@@ -42,7 +45,7 @@ pipeline {
 								dockerFromImage = buildEnvironment[baseImageName]
 
 								multiArchImageName = "symbolplatform/build-ci:${CI_IMAGE}-${baseImageName}"
-								archImageName = "${multiArchImageName}-${ARCHITECTURE}"
+								archImageName = "${multiArchImageName}-${env.ARCHITECTURE}"
 							}
 						}
 					}
@@ -51,9 +54,9 @@ pipeline {
 					steps {
 						echo """
 									env.GIT_BRANCH: ${env.GIT_BRANCH}
-								 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
-								  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
-									  ARCHITECTURE: ${ARCHITECTURE}
+								 MANUAL_GIT_BRANCH: ${env.MANUAL_GIT_BRANCH}
+								  OPERATING_SYSTEM: ${env.OPERATING_SYSTEM}
+									  ARCHITECTURE: ${env.ARCHITECTURE}
 
 								     destImageName: ${multiArchImageName}
 						"""

@@ -1,12 +1,15 @@
 pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
-		choice name: 'ARCHITECTURE', choices: ['amd64', 'arm64'], description: 'Computer architecture'
+		choice name: 'ARCHITECTURE', choices: ['arm64', 'amd64'], description: 'Computer architecture'
 		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
 	}
 
 	agent {
-		label "${helper.resolveAgentName('ubuntu', "${ARCHITECTURE}", 'small')}"
+		label """${
+			env.ARCHITECTURE = env.ARCHITECTURE ?: 'arm64'
+			helper.resolveAgentName('ubuntu', "${env.ARCHITECTURE}", 'small')
+		}}"""
 	}
 
 	options {
@@ -27,7 +30,7 @@ pipeline {
 			steps {
 				script {
 					// even days are amd64, odd days are arm64
-					ARCHITECTURE = helper.determineArchitecture()
+					env.ARCHITECTURE = helper.determineArchitecture()
 				}
 			}
 		}
@@ -35,8 +38,8 @@ pipeline {
 			steps {
 				echo """
 							env.GIT_BRANCH: ${env.GIT_BRANCH}
-						 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
-							  ARCHITECTURE: ${ARCHITECTURE}
+						 MANUAL_GIT_BRANCH: ${env.MANUAL_GIT_BRANCH}
+							  ARCHITECTURE: ${env.ARCHITECTURE}
 				"""
 			}
 		}
@@ -46,28 +49,28 @@ pipeline {
 				stage('gcc prior') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true, "${ARCHITECTURE}")
+							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true, "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('gcc latest') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true, "${ARCHITECTURE}")
+							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true, "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('gcc 10 [debian]') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-debian', 'debian', false, "${ARCHITECTURE}")
+							dispatchBuildBaseImageJob('gcc-debian', 'debian', false, "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('gcc westmere') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -79,7 +82,7 @@ pipeline {
 				stage('gcc [fedora]') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false, "${ARCHITECTURE}")
+							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false, "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -87,14 +90,14 @@ pipeline {
 				stage('clang prior') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true, "${ARCHITECTURE}")
+							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true, "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('clang latest') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true, "${ARCHITECTURE}")
+							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true, "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -102,7 +105,7 @@ pipeline {
 				stage('clang ausan') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -114,7 +117,7 @@ pipeline {
 				stage('clang tsan') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -127,7 +130,7 @@ pipeline {
 				stage('msvc latest') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -139,7 +142,7 @@ pipeline {
 				stage('msvc prior') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -152,7 +155,7 @@ pipeline {
 				stage('release base image') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('release', 'ubuntu', "${ARCHITECTURE}")
+							dispatchPrepareBaseImageJob('release', 'ubuntu', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -160,28 +163,28 @@ pipeline {
 				stage('test base image') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'ubuntu', "${ARCHITECTURE}")
+							dispatchPrepareBaseImageJob('test', 'ubuntu', "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('test base image [debian]') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'debian', "${ARCHITECTURE}")
+							dispatchPrepareBaseImageJob('test', 'debian', "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('test base image [fedora]') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'fedora', "${ARCHITECTURE}")
+							dispatchPrepareBaseImageJob('test', 'fedora', "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('test base image [windows]') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
