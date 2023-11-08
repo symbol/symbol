@@ -30,7 +30,7 @@ void dockerPublisher(Map config, String phase) {
 	final String repositoryName = helper.resolveRepositoryName()
 	String dockerHost = 'registry.hub.docker.com'
 	String dockerCredentialsId = DOCKER_CREDENTIALS_ID
-	if (isAlphaRelease(phase) || !isGitHubRepositoryPublic(ownerName, repositoryName)) {
+	if (isAlphaRelease(phase) || !helper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
 		dockerCredentialsId = "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
 		dockerHost = helper.resolveUrlHostName(configureArtifactRepository.resolveRepositoryUrl(ownerName, 'docker-hosted'))
 	}
@@ -66,7 +66,7 @@ void npmPublisher(Map config, String phase) {
 
 	final String ownerName = helper.resolveOrganizationName()
 	final String repositoryName = helper.resolveRepositoryName()
-	if (isAlphaRelease(phase) || !isGitHubRepositoryPublic(ownerName, repositoryName)) {
+	if (isAlphaRelease(phase) || !helper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
 		final String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, 'npm-hosted')
 		final String environment = jobHelper.resolveCiEnvironmentName(config)
 
@@ -96,7 +96,7 @@ void pythonPublisher(Map config, String phase) {
 
 	final String ownerName = helper.resolveOrganizationName()
 	final String repositoryName = helper.resolveRepositoryName()
-	if (isAlphaRelease(phase) || !isGitHubRepositoryPublic(ownerName, repositoryName)) {
+	if (isAlphaRelease(phase) || !helper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
 		withCredentials([usernamePassword(credentialsId: "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID",
 			usernameVariable: 'USERNAME',
 			passwordVariable: 'PASSWORD')]) {
@@ -192,17 +192,5 @@ void publishArtifact(Closure defaultPublisher) {
 		runScript("${publishScriptFilePath} ${architecture}")
 	} else {
 		defaultPublisher.call()
-	}
-}
-
-boolean isGitHubRepositoryPublic(String orgName, String repoName) {
-	try {
-		final URL url = "https://api.github.com/repos/${orgName}/${repoName}".toURL()
-		final Object repo = yamlHelper.readYamlFromText(url.text)
-
-		return repo.name == repoName && repo.visibility == 'public'
-	} catch (FileNotFoundException exception) {
-		println "Repository ${orgName}/${repoName} not found - ${exception}"
-		return false
 	}
 }

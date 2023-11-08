@@ -4,10 +4,18 @@ void call(Object config) {
 }
 
 void uploadCodeCoverage(String flag) {
-	String repoName = env.GIT_URL.tokenize('/').last().split('\\.')[0].toUpperCase()
-	withCredentials([string(credentialsId: "${repoName}_CODECOV_ID", variable: 'CODECOV_TOKEN')]) {
+	final String repositoryName = helper.resolveRepositoryName()
+	withCredentials([string(credentialsId: "${repositoryName.toUpperCase()}_CODECOV_ID", variable: 'CODECOV_TOKEN')]) {
+		final String ownerName = helper.resolveOrganizationName()
+		final Boolean isPublicRepo = helper.isGitHubRepositoryPublic(ownerName, repositoryName)
+		String codeCoverageCommand = "codecov --verbose --flags ${flag} --dir ."
+
+		if (isPublicRepo) {
+			codeCoverageCommand += ' --nonZero'
+		}
+
 		logger.logInfo("Uploading code coverage for ${flag}")
-		runScript("codecov --verbose --nonZero --rootDir ${env.WORKSPACE} --flags ${flag} --dir .")
+		runScript(codeCoverageCommand)
 	}
 }
 
