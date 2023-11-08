@@ -20,7 +20,7 @@ pipeline {
 		label """${
 			env.ARCHITECTURE = env.ARCHITECTURE ?: 'arm64'
 			helper.resolveAgentName(params.OPERATING_SYSTEM, env.ARCHITECTURE, 'medium')
-		}}"""
+		}"""
 	}
 
 	environment {

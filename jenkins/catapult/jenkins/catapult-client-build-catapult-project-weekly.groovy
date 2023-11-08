@@ -9,7 +9,7 @@ pipeline {
 		label """${
 			env.ARCHITECTURE = env.ARCHITECTURE ?: 'amd64'
 			helper.resolveAgentName('ubuntu', env.ARCHITECTURE, 'small')
-		}}"""
+		}"""
 	}
 
 	options {
