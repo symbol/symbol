@@ -1,12 +1,15 @@
 pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
-		choice name: 'ARCHITECTURE', choices: ['amd64', 'arm64'], description: 'Computer architecture'
+		choice name: 'ARCHITECTURE', choices: ['arm64', 'amd64'], description: 'Computer architecture'
 		booleanParam name: 'SHOULD_PUBLISH_JOB_STATUS', description: 'true to publish job status', defaultValue: true
 	}
 
 	agent {
-		label "${helper.resolveAgentName('ubuntu', "${ARCHITECTURE}", 'small')}"
+		label """${
+			env.ARCHITECTURE = env.ARCHITECTURE ?: 'arm64'
+			helper.resolveAgentName('ubuntu', "${env.ARCHITECTURE}", 'small')
+		}"""
 	}
 
 	options {
@@ -27,7 +30,7 @@ pipeline {
 			steps {
 				script {
 					// even days are amd64, odd days are arm64
-					ARCHITECTURE = helper.determineArchitecture()
+					env.ARCHITECTURE = helper.determineArchitecture()
 				}
 			}
 		}
@@ -35,8 +38,8 @@ pipeline {
 			steps {
 				echo """
 							env.GIT_BRANCH: ${env.GIT_BRANCH}
-						 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
-							  ARCHITECTURE: ${ARCHITECTURE}
+						 MANUAL_GIT_BRANCH: ${env.MANUAL_GIT_BRANCH}
+							  ARCHITECTURE: ${env.ARCHITECTURE}
 				"""
 			}
 		}
@@ -68,7 +71,7 @@ pipeline {
 				stage('javascript - windows') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -117,7 +120,7 @@ pipeline {
 				stage('python - windows') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -162,7 +165,7 @@ void dispatchBuildCiImageJob(String ciImage, String baseImage = 'lts', String op
 		string(name: 'OPERATING_SYSTEM', value: operatingSystem),
 		string(name: 'CI_IMAGE', value: ciImage),
 		string(name: 'MANUAL_GIT_BRANCH', value: params.MANUAL_GIT_BRANCH),
-		string(name: 'ARCHITECTURE', value: params.ARCHITECTURE),
+		string(name: 'ARCHITECTURE', value: env.ARCHITECTURE),
 		string(name: 'BASE_IMAGE', value: baseImage),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',

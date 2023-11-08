@@ -25,7 +25,7 @@ pipeline {
 			steps {
 				script {
 					// even days are amd64, odd days are arm64
-					ARCHITECTURE = helper.determineArchitecture()
+					env.ARCHITECTURE = helper.determineArchitecture()
 				}
 			}
 		}
@@ -33,8 +33,8 @@ pipeline {
 			steps {
 				echo """
 							env.GIT_BRANCH: ${env.GIT_BRANCH}
-						 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
-							  ARCHITECTURE: ${ARCHITECTURE}
+						 MANUAL_GIT_BRANCH: ${env.MANUAL_GIT_BRANCH}
+							  ARCHITECTURE: ${env.ARCHITECTURE}
 				"""
 			}
 		}
@@ -44,14 +44,14 @@ pipeline {
 				stage('gcc latest (conan)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('gcc-latest', 'tests-conan', "${ARCHITECTURE}")
+							dispatchUbuntuBuildJob('gcc-latest', 'tests-conan', "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('gcc latest (metal)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('gcc-latest', 'tests-metal', "${ARCHITECTURE}")
+							dispatchUbuntuBuildJob('gcc-latest', 'tests-metal', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -59,14 +59,14 @@ pipeline {
 				stage('clang latest (conan)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('clang-latest', 'tests-conan', "${ARCHITECTURE}")
+							dispatchUbuntuBuildJob('clang-latest', 'tests-conan', "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('clang latest (metal)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('clang-latest', 'tests-metal', "${ARCHITECTURE}")
+							dispatchUbuntuBuildJob('clang-latest', 'tests-metal', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -74,7 +74,7 @@ pipeline {
 				stage('clang ausan') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -86,7 +86,7 @@ pipeline {
 				stage('clang tsan') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -98,21 +98,21 @@ pipeline {
 				stage('clang diagnostics') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('clang-latest', 'tests-diagnostics', "${ARCHITECTURE}")
+							dispatchUbuntuBuildJob('clang-latest', 'tests-diagnostics', "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('code coverage (gcc latest)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('gcc-code-coverage', 'tests-metal', "${ARCHITECTURE}")
+							dispatchUbuntuBuildJob('gcc-code-coverage', 'tests-metal', "${env.ARCHITECTURE}")
 						}
 					}
 				}
 				stage('msvc latest (conan)') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {

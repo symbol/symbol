@@ -6,7 +6,10 @@ pipeline {
 	}
 
 	agent {
-		label "${helper.resolveAgentName('ubuntu', env.ARCHITECTURE ?: 'amd64', 'small')}"
+		label """${
+			env.ARCHITECTURE = env.ARCHITECTURE ?: 'amd64'
+			helper.resolveAgentName('ubuntu', env.ARCHITECTURE, 'small')
+		}"""
 	}
 
 	options {
@@ -19,8 +22,8 @@ pipeline {
 			steps {
 				echo """
 							env.GIT_BRANCH: ${env.GIT_BRANCH}
-						 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
-							  ARCHITECTURE: ${ARCHITECTURE}
+						 MANUAL_GIT_BRANCH: ${env.MANUAL_GIT_BRANCH}
+							  ARCHITECTURE: ${env.ARCHITECTURE}
 				"""
 			}
 		}
@@ -30,7 +33,7 @@ pipeline {
 				stage('gcc (metal) [debian]') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-debian', 'tests-metal', 'debian', "${ARCHITECTURE}")
+							dispatchBuildJob('gcc-debian', 'tests-metal', 'debian', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -38,7 +41,7 @@ pipeline {
 				stage('gcc (westmere)') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
@@ -51,7 +54,7 @@ pipeline {
 				stage('gcc (metal) [fedora]') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-latest', 'tests-metal', 'fedora', "${ARCHITECTURE}")
+							dispatchBuildJob('gcc-latest', 'tests-metal', 'fedora', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -59,7 +62,7 @@ pipeline {
 				stage('clang prior (metal)') {
 					steps {
 						script {
-							dispatchBuildJob('clang-prior', 'tests-metal', 'ubuntu', "${ARCHITECTURE}")
+							dispatchBuildJob('clang-prior', 'tests-metal', 'ubuntu', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -67,7 +70,7 @@ pipeline {
 				stage('clang prior (conan)') {
 					steps {
 						script {
-							dispatchBuildJob('clang-prior', 'tests-conan', 'ubuntu', "${ARCHITECTURE}")
+							dispatchBuildJob('clang-prior', 'tests-conan', 'ubuntu', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -75,7 +78,7 @@ pipeline {
 				stage('gcc prior (metal)') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-prior', 'tests-metal', 'ubuntu', "${ARCHITECTURE}")
+							dispatchBuildJob('gcc-prior', 'tests-metal', 'ubuntu', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -83,7 +86,7 @@ pipeline {
 				stage('gcc prior (conan)') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-prior', 'tests-conan', 'ubuntu', "${ARCHITECTURE}")
+							dispatchBuildJob('gcc-prior', 'tests-conan', 'ubuntu', "${env.ARCHITECTURE}")
 						}
 					}
 				}
@@ -91,7 +94,7 @@ pipeline {
 				stage('msvc prior (metal)') {
 					when {
 						expression {
-							helper.isAmd64Architecture(params.ARCHITECTURE)
+							helper.isAmd64Architecture(env.ARCHITECTURE)
 						}
 					}
 					steps {
