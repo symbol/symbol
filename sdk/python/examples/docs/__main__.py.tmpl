@@ -4,6 +4,7 @@
 import asyncio
 import hashlib
 import json
+import os
 import shutil
 import tempfile
 import time
@@ -28,7 +29,6 @@ from symbolchain.symbol.VotingKeysGenerator import VotingKeysGenerator
 
 SYMBOL_API_ENDPOINT = 'https://reference.symboltest.net:3001'
 SYMBOL_WEBSOCKET_ENDPOINT = 'wss://reference.symboltest.net:3001/ws'
-SYMBOL_TOOLS_ENDPOINT = 'https://testnet.symbol.tools'
 SYMBOL_EXPLORER_TRANSACTION_URL_PATTERN = 'https://testnet.symbol.fyi/transactions/{}'
 {% macro create_transaction_header() -%}
 	# derive the signer's address
@@ -121,28 +121,35 @@ async def wait_for_transaction_status(transaction_hash, desired_status, **kwargs
 		raise RuntimeError(f'{transaction_description} {transaction_hash} did not transition to {desired_status} in alloted time period')
 
 
-async def create_account_with_tokens_from_faucet(facade, amount=500, private_key=None):
+async def create_account_with_tokens(facade, amount=500, private_key=None):  # pylint: disable=too-many-locals
 	# create a key pair that will be used to send transactions
 	# when the PrivateKey is known, pass the raw private key bytes or hex encoded string to the PrivateKey(...) constructor instead
 	key_pair = facade.KeyPair(PrivateKey.random()) if private_key is None else facade.KeyPair(private_key)
-	address = facade.network.public_key_to_address(key_pair.public_key)
-	print(f'new account created with address: {address}')
+	recipient_address = facade.network.public_key_to_address(key_pair.public_key)
+	print(f'new account created with address: {recipient_address}')
 
-	async with ClientSession(raise_for_status=True) as session:
-		# initiate a HTTP POST request to faucet endpoint
-		request = {
-			'recipient': str(address),
-			'amount': amount,
-			'selectedMosaics': ['72C0212E67A08BCE']  # XYM mosaic id on testnet
-		}
-		async with session.post(f'{SYMBOL_TOOLS_ENDPOINT}/claims', json=request) as response:
-			# wait for the (JSON) response
-			response_json = await response.json()
+	# create a key pair that will be used to send transactions
+	seed_private_key = os.environ.get('SEED_ACCOUNT_PRIVATE_KEY')
+	if not seed_private_key:
+		raise RuntimeError('SEED_ACCOUNT_PRIVATE_KEY environment variable is not set')
 
-			# extract the funding transaction hash and wait for it to be confirmed
-			transaction_hash = Hash256(response_json['txHash'])
-			await wait_for_transaction_status(transaction_hash, 'confirmed', transaction_description='funding transaction')
+	signer_key_pair = facade.KeyPair(PrivateKey(seed_private_key))
 
+	{{ create_transaction_header() }}
+
+	# create transfer transaction from seed account
+	transaction = facade.transaction_factory.create({
+		'signer_public_key': signer_key_pair.public_key,
+		'deadline': network_time.timestamp,
+
+		'type': 'transfer_transaction_v1',
+		'recipient_address': recipient_address,
+		'mosaics': [
+			{'mosaic_id': generate_mosaic_alias_id('symbol.xym'), 'amount': amount * 1_000000},
+		],
+	})
+
+	{{ create_transaction_footer('seed transfer') }}
 	return key_pair
 
 # endregion
@@ -828,7 +835,7 @@ async def create_mosaic_atomic_swap(facade, signer_key_pair):
 	{{ create_transaction_header() }}
 
 	# create a second signing key pair that will be used as the swap partner
-	partner_key_pair = await create_account_with_tokens_from_faucet(facade)
+	partner_key_pair = await create_account_with_tokens(facade)
 
 	# Alice (signer) owns some amount of custom mosaic (with divisibility=2)
 	# Bob (partner) wants to exchange 20 xym for a single piece of Alice's custom mosaic
@@ -918,7 +925,7 @@ async def create_mosaic_metadata_cosigned_1(facade, signer_key_pair):
 	{{ create_transaction_header() }}
 
 	authority_semi_deterministic_key = PrivateKey(signer_key_pair.private_key.bytes[:-4] + bytes([0, 0, 0, 0]))
-	authority_key_pair = await create_account_with_tokens_from_faucet(facade, 100, authority_semi_deterministic_key)
+	authority_key_pair = await create_account_with_tokens(facade, 100, authority_semi_deterministic_key)
 
 	# set new high score for an account
 
@@ -964,7 +971,7 @@ async def create_mosaic_metadata_cosigned_2(facade, signer_key_pair):
 	{{ create_transaction_header() }}
 
 	authority_semi_deterministic_key = PrivateKey(signer_key_pair.private_key.bytes[:-4] + bytes([0, 0, 0, 0]))
-	authority_key_pair = await create_account_with_tokens_from_faucet(facade, 100, authority_semi_deterministic_key)
+	authority_key_pair = await create_account_with_tokens(facade, 100, authority_semi_deterministic_key)
 
 	# update high score for an account
 
@@ -1923,7 +1930,7 @@ async def run_transaction_examples(facade, group_filter=None):
 		print_banner(f'CREATING SIGNER ACCOUNT FOR TRANSACTION EXAMPLES - {group_name}')
 
 		# create a signing key pair that will be used to sign the created transaction(s) in this group
-		signer_key_pair = await create_account_with_tokens_from_faucet(facade)
+		signer_key_pair = await create_account_with_tokens(facade)
 
 		for func in functions:
 			print_banner(func.__qualname__)
