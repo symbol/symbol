@@ -30,7 +30,7 @@ elif [[ "$1" = "dryrun" ]]; then
 	for name in "nem" "symbol";
 	do
 		generate_code "${name}" "${name}2"
-		diff "./src/${name}/models.js" "./src/${name}2/models.js"
+		diff --strip-trailing-cr "./src/${name}/models.js" "./src/${name}2/models.js"
 		rm -rf "./src/${name}2/models.js"
 	done
 else
