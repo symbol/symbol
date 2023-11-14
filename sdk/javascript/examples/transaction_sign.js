@@ -7,7 +7,7 @@
 import symbolSdk from '../src/index.js';
 import yargs from 'yargs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 (() => {
 	class TransactionSample {
@@ -58,7 +58,7 @@ import { fileURLToPath } from 'url';
 			testsPending += 1;
 
 			const filepath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'descriptors', `${factoryName}.js`);
-			import(filepath).then(module => {
+			import(pathToFileURL(filepath)).then(module => {
 				const transactionDescriptors = module.default();
 				sample.processTransactionDescriptors(transactionDescriptors);
 				totalDescriptorsCount += transactionDescriptors.length;

@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
-    "vectors": "node ./vectors/all.js --vectors $(git rev-parse --show-toplevel)/tests/vectors/${BLOCKCHAIN}/crypto --blockchain ${BLOCKCHAIN}",
+    "vectors": "bash -c 'node ./vectors/all.js --vectors $(git rev-parse --show-toplevel)/tests/vectors/${BLOCKCHAIN}/crypto --blockchain ${BLOCKCHAIN}'",
     "catvectors": "mocha --full-trace ./vectors/catbuffer.js",
     "lint:jenkins": "eslint -o lint.sdk.javascript.xml -f junit . || exit 0",
     "test:jenkins": "c8 --require mocha --no-clean  --reporter=lcov npm run test",

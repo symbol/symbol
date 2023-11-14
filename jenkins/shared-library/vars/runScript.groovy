@@ -24,5 +24,11 @@ void call(String scriptFilepath, String label='', Boolean returnStdout, Boolean 
 }
 
 void withBash(String scriptFilepath) {
-	call("bash -c '${scriptFilepath}'", scriptFilepath, false)
+	if (isUnix()) {
+		call("bash -c '${scriptFilepath}'", scriptFilepath, false)
+	} else {
+		// Force the login scripts to run on Windows so that the PATH is set correctly
+		// from the user's profile.
+		call("bash --login -c '${scriptFilepath}'", scriptFilepath, false)
+	}
 }

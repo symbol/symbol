@@ -22,6 +22,9 @@ RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	python3 -m pip install --upgrade pip; `
 	python3 -m pip install --upgrade gitlint wheel
 
+# Set VS tools first in the path so the correct link.exe is used.
+RUN Set-Content -Path c:\Users\ContainerAdministrator\.bash_profile  -Value 'export PATH=${VCToolsInstallDir}bin/Hostx64/x64:${PATH}'
+
 # Install codecov
 RUN Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile c:\Windows\System32\codecov.exe
 
