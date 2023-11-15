@@ -11,7 +11,7 @@ function generate_examples_docs() {
 	jinja2 "${docs_folder}/__main__.py.tmpl" > "${docs_folder}/$1"
 
 	if [[ $2 -ne 0 ]]; then
-		diff "${docs_folder}/__main__.py" "${docs_folder}/$1"
+		diff --strip-trailing-cr "${docs_folder}/__main__.py" "${docs_folder}/$1"
 		rm "${docs_folder}/$1"
 	fi
 }

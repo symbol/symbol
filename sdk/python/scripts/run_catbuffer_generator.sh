@@ -28,7 +28,7 @@ elif [[ "$1" = "dryrun" ]]; then
 
 	for name in "nc" "sc";
 	do
-		diff "./symbolchain/${name}/__init__.py" "./symbolchain/${name}2/__init__.py"
+		diff --strip-trailing-cr "./symbolchain/${name}/__init__.py" "./symbolchain/${name}2/__init__.py"
 		rm -rf "./symbolchain/${name}2"
 	done
 else

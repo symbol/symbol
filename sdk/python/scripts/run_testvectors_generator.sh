@@ -18,7 +18,7 @@ elif [[ "$1" = "dryrun" ]]; then
 
 	for name in "nem" "symbol";
 	do
-		diff \
+		diff --strip-trailing-cr \
 			"$(git rev-parse --show-toplevel)/tests/vectors/${name}/models/transactions.json" \
 			"$(git rev-parse --show-toplevel)/tests/vectors2/${name}/models/transactions.json"
 	done
