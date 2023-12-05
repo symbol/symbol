@@ -77,7 +77,10 @@ void call(Closure body) {
 		stages {
 			stage('setup environment') {
 				steps {
-					runScript('git submodule update --remote')
+					script {
+						runScript('git submodule update --remote')
+						author = sh(script: 'git log -1 --pretty=format:\'%an\'', returnStdout: true).trim()
+					}
 				}
 			}
 			stage('CI pipeline') {
@@ -126,8 +129,8 @@ void call(Closure body) {
 							script {
 								runStepRelativeToPackageRoot '.', {
 									final String[] exemptAuthor = ['github-actions[bot]', 'dependabot[bot]']
-									String author = runScript('git log -1 --pretty=format:\'%an\'', true)
 
+									println("Last commit author: ${author}")
 									if (exemptAuthor.contains(author)) {
 										println("Disabling max body line length rule for ${author}")
 										env.GITLINT_IGNORE = 'body-max-line-length'
