@@ -73,7 +73,7 @@ While Conan will be building and installing packages, you might want to go for a
 as this will probably take *a bit*.
 
 ```sh
-conan remote add nemtech https://catapult.jfrog.io/artifactory/api/conan/symbol-conan
+conan remote add nemtech https://conan.symbol.dev/artifactory/api/conan/catapult
 
 git clone https://github.com/symbol/symbol.git
 cd symbol/client/catapult
