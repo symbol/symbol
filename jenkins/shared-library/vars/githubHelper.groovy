@@ -35,12 +35,12 @@ Object createPullRequest(
 	final String jsonBody = JsonOutput.toJson(body)
 	final String pullRequestCommand = """
 		curl -L \\
-  			-X POST \\
-  			-H "Accept: application/vnd.github+json" \\
-  			-H "Authorization: Bearer ${token}" \\
-  			-H "X-GitHub-Api-Version: 2022-11-28" \\
-  			https://api.github.com/repos/${ownerName}/${repositoryName}/pulls \\
-  			-d '{"title":"${title}","body":${jsonBody},"head":"${branchName}","base":"${baseBranchName}"}'
+			-X POST \\
+			-H "Accept: application/vnd.github+json" \\
+			-H "Authorization: Bearer ${token}" \\
+			-H "X-GitHub-Api-Version: 2022-11-28" \\
+			https://api.github.com/repos/${ownerName}/${repositoryName}/pulls \\
+			-d '{"title":"${title}","body":${jsonBody},"head":"${branchName}","base":"${baseBranchName}"}'
 	"""
 
 	final String pullRequestResponse = executeGithubApiRequest(pullRequestCommand)
@@ -52,12 +52,12 @@ Object createPullRequest(
 Object requestReviewersForPullRequest(String token, String ownerName, String repositoryName, int pullRequestNumber, List reviewers) {
 	final String reviewersCommand = """
 		curl -L \\
-  			-X POST \\
-  			-H "Accept: application/vnd.github+json" \\
-  			-H "Authorization: Bearer ${token}" \\
-  			-H "X-GitHub-Api-Version: 2022-11-28" \\
-  			https://api.github.com/repos/${ownerName}/${repositoryName}/pulls/${pullRequestNumber}/requested_reviewers \\
-  			-d '{"reviewers": ["${reviewers.join('", "')}"]}'
+			-X POST \\
+			-H "Accept: application/vnd.github+json" \\
+			-H "Authorization: Bearer ${token}" \\
+			-H "X-GitHub-Api-Version: 2022-11-28" \\
+			https://api.github.com/repos/${ownerName}/${repositoryName}/pulls/${pullRequestNumber}/requested_reviewers \\
+			-d '{"reviewers": ["${reviewers.join('", "')}"]}'
 	"""
 
 	String response = executeGithubApiRequest(reviewersCommand)
