@@ -23,18 +23,19 @@ class Downloader:
 
 	def download_boost_unix(self):
 		version = self.versions['boost']
-		tar_filename = f'boost_1_{version}_0.tar.gz'
-		tar_source_path = f'https://boostorg.jfrog.io/artifactory/main/release/1.{version}.0/source/{tar_filename}'
+		archive_name = f'boost_{version.replace(".", "_")}'
+		tar_filename = f'{archive_name}.tar.gz'
+		tar_source_path = f'https://boostorg.jfrog.io/artifactory/main/release/{version}/source/{tar_filename}'
 
 		self.process_manager.dispatch_subprocess(['curl', '-o', tar_filename, '-SL', tar_source_path])
 		self.process_manager.dispatch_subprocess(['tar', '-xzf', tar_filename])
-		self.process_manager.dispatch_subprocess(['mv', f'boost_1_{version}_0', 'boost'])
+		self.process_manager.dispatch_subprocess(['mv', archive_name, 'boost'])
 
 	def download_boost_windows(self):
 		version = self.versions['boost']
-		archive_name = f'boost_1_{version}_0'
+		archive_name = f'boost_{version.replace(".", "_")}'
 		zip_filename = f'{archive_name}.7z'
-		zip_source_path = f'https://boostorg.jfrog.io/artifactory/main/release/1.{version}.0/source/{zip_filename}'
+		zip_source_path = f'https://boostorg.jfrog.io/artifactory/main/release/{version}/source/{zip_filename}'
 
 		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'wget', zip_source_path, '-outfile', zip_filename])
 		self.process_manager.dispatch_subprocess(['powershell', '-Command', '7z', 'x', zip_filename])
