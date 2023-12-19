@@ -7,7 +7,7 @@ void uploadCodeCoverage(String flag) {
 	final String repositoryName = helper.resolveRepositoryName()
 	withCredentials([string(credentialsId: "${repositoryName.toUpperCase()}_CODECOV_ID", variable: 'CODECOV_TOKEN')]) {
 		final String ownerName = helper.resolveOrganizationName()
-		final Boolean isPublicRepo = helper.isGitHubRepositoryPublic(ownerName, repositoryName)
+		final Boolean isPublicRepo = githubHelper.isGitHubRepositoryPublic(ownerName, repositoryName)
 		String codeCoverageCommand = "codecov --verbose --flags ${flag} --dir ."
 
 		if (isPublicRepo) {

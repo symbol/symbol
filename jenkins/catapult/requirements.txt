@@ -1,1 +1,2 @@
 PyYAML==6.0.1
+node-semver==0.6.1 # use the same version as conan to avoid conflicts
