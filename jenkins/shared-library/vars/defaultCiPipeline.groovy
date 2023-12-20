@@ -102,6 +102,10 @@ void call(Closure body) {
 					}
 					stage('setup docker environment') {
 						steps {
+							script {
+								helper.runInitializeScriptIfPresent()
+							}
+
 							runStepRelativeToPackageRoot packageRootPath, {
 								configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams))
 							}
