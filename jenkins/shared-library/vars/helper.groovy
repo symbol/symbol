@@ -109,3 +109,19 @@ boolean tryRunCommand(Closure command) {
 String resolveWorkspacePath(String os) {
 	return 'windows' == os ? 'C:\\Users\\Administrator\\jenkins\\workspace\\' : '/home/ubuntu/jenkins/workspace/'
 }
+
+boolean isGitHubRepositoryPublic(String orgName, String repoName) {
+	try {
+		final URL url = "https://api.github.com/repos/${orgName}/${repoName}".toURL()
+		final Object repo = yamlHelper.readYamlFromText(url.text)
+
+		return repo.name == repoName && repo.visibility == 'public'
+	} catch (FileNotFoundException exception) {
+		println "Repository ${orgName}/${repoName} not found - ${exception}"
+		return false
+	}
+}
+
+String resolveGitHubCredentialsId() {
+	return scm.userRemoteConfigs[0].credentialsId
+}
