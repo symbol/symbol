@@ -98,7 +98,7 @@ void call(Closure body) {
 			stage('build jobs') {
 				steps {
 					script {
-						triggerJobs(helper.resolveBranchName(env.MANUAL_GIT_BRANCH), jenkinsfileParams)
+						triggerJobs(helper.resolveBranchName(env.MANUAL_GIT_BRANCH))
 					}
 				}
 			}
