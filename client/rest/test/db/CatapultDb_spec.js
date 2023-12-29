@@ -216,13 +216,14 @@ describe('catapult db', () => {
 
 		const { createObjectId } = test.db;
 
-		const createBlock = (objectId, height, signerPublicKey, beneficiaryAddress) => ({
+		const createBlock = (objectId, height, signerPublicKey, beneficiaryAddress, timestamp) => ({
 			_id: createObjectId(objectId),
 			meta: {},
 			block: {
 				height,
 				signerPublicKey: signerPublicKey ? Buffer.from(signerPublicKey) : undefined,
-				beneficiaryAddress: beneficiaryAddress ? Buffer.from(beneficiaryAddress) : undefined
+				beneficiaryAddress: beneficiaryAddress ? Buffer.from(beneficiaryAddress) : undefined,
+				timestamp: timestamp || undefined
 			}
 		});
 
@@ -243,13 +244,13 @@ describe('catapult db', () => {
 		it('returns expected structure', () => {
 			// Arrange:
 			const dbBlocks = [
-				createBlock(10, 100, account1.publicKey, account2.address)
+				createBlock(10, 100, account1.publicKey, account2.address, 12345)
 			];
 
 			// Act + Assert:
 			return runDbTest(
 				{ blocks: dbBlocks },
-				db => db.blocks(undefined, undefined, paginationOptions),
+				db => db.blocks(undefined, undefined, undefined, undefined, paginationOptions),
 				page => {
 					const expected_keys = ['id', 'meta', 'block'];
 					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
@@ -262,11 +263,15 @@ describe('catapult db', () => {
 			const dbBlocks = [
 				createBlock(10, 1),
 				createBlock(20, 1, account1.publicKey),
-				createBlock(30, 1, account1.publicKey, account2.address)
+				createBlock(30, 1, account1.publicKey, account2.address),
+				createBlock(40, 1, account1.publicKey, account2.address, 12345)
 			];
 
 			// Act + Assert:
-			return runTestAndVerifyIds(dbBlocks, db => db.blocks(undefined, undefined, paginationOptions), [10, 20, 30]);
+			return runTestAndVerifyIds(
+				dbBlocks,
+				db => db.blocks(undefined, undefined, undefined, undefined, paginationOptions), [10, 20, 30, 40]
+			);
 		});
 
 		it('all the provided filters are taken into account', () => {
@@ -274,11 +279,15 @@ describe('catapult db', () => {
 			const dbBlocks = [
 				createBlock(10, 1),
 				createBlock(20, 1, account1.publicKey),
-				createBlock(30, 1, account1.publicKey, account2.address)
+				createBlock(30, 1, account1.publicKey, account2.address),
+				createBlock(40, 1, account1.publicKey, account2.address, 12345)
 			];
 
 			// Act + Assert:
-			return runTestAndVerifyIds(dbBlocks, db => db.blocks(account1.publicKey, account2.address, paginationOptions), [30]);
+			return runTestAndVerifyIds(
+				dbBlocks,
+				db => db.blocks(account1.publicKey, account2.address, 12345, 23456, paginationOptions), [40]
+			);
 		});
 
 		describe('respects offset', () => {
@@ -300,14 +309,14 @@ describe('catapult db', () => {
 				options.sortDirection = 1;
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbBlocks(), db => db.blocks(undefined, undefined, options), [30]);
+				return runTestAndVerifyIds(dbBlocks(), db => db.blocks(undefined, undefined, undefined, undefined, options), [30]);
 			});
 
 			it('lt', () => {
 				options.sortDirection = -1;
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbBlocks(), db => db.blocks(undefined, undefined, options), [10]);
+				return runTestAndVerifyIds(dbBlocks(), db => db.blocks(undefined, undefined, undefined, undefined, options), [10]);
 			});
 		});
 
@@ -330,7 +339,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ blocks: dbBlocks() },
-					db => db.blocks(undefined, undefined, options),
+					db => db.blocks(undefined, undefined, undefined, undefined, options),
 					blocksPage => {
 						expect(blocksPage.data[0].id).to.deep.equal(createObjectId(10));
 						expect(blocksPage.data[1].id).to.deep.equal(createObjectId(20));
@@ -350,7 +359,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ blocks: dbBlocks() },
-					db => db.blocks(undefined, undefined, options),
+					db => db.blocks(undefined, undefined, undefined, undefined, options),
 					blocksPage => {
 						expect(blocksPage.data[0].id).to.deep.equal(createObjectId(30));
 						expect(blocksPage.data[1].id).to.deep.equal(createObjectId(20));
@@ -371,7 +380,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ blocks: dbBlocks() },
-					db => db.blocks(undefined, undefined, options),
+					db => db.blocks(undefined, undefined, undefined, undefined, options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
 						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('block.height');
@@ -390,7 +399,8 @@ describe('catapult db', () => {
 				];
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbBlocks, db => db.blocks(account1.publicKey, undefined, paginationOptions), [10]);
+				return runTestAndVerifyIds(dbBlocks, db =>
+					db.blocks(account1.publicKey, undefined, undefined, undefined, paginationOptions), [10]);
 			});
 
 			it('beneficiaryAddress', () => {
@@ -401,7 +411,45 @@ describe('catapult db', () => {
 				];
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbBlocks, db => db.blocks(undefined, account1.address, paginationOptions), [10]);
+				return runTestAndVerifyIds(dbBlocks, db =>
+					db.blocks(undefined, account1.address, undefined, undefined, paginationOptions), [10]);
+			});
+
+			it('fromTimestamp', () => {
+				// Arrange:
+				const dbBlocks = [
+					createBlock(10, 1, account1.publicKey, account1.address, 23456),
+					createBlock(20, 1, account1.publicKey, account1.address, 12345)
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbBlocks, db =>
+					db.blocks(undefined, undefined, 23456, undefined, paginationOptions), [10]);
+			});
+
+			it('toTimestamp', () => {
+				// Arrange:
+				const dbBlocks = [
+					createBlock(10, 1, account1.publicKey, account1.address, 12345),
+					createBlock(20, 1, account1.publicKey, account1.address, 23456)
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbBlocks, db =>
+					db.blocks(undefined, undefined, undefined, 12345, paginationOptions), [10]);
+			});
+
+			it('fromTimestamp && toTimestamp', () => {
+				// Arrange:
+				const dbBlocks = [
+					createBlock(10, 1, account1.publicKey, account1.address, 12345),
+					createBlock(20, 1, account1.publicKey, account1.address, 23456),
+					createBlock(30, 1, account1.publicKey, account1.address, 34567)
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbBlocks, db =>
+					db.blocks(undefined, undefined, 23456, 34566, paginationOptions), [20]);
 			});
 		});
 	});

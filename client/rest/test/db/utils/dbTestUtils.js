@@ -162,7 +162,7 @@ const createDbTransaction = (id, signerPublicKey, recipientAddress, options) => 
 		message: { size: 12, payload: new Binary(test.random.bytes(12)) },
 		mosaics: []
 	};
-	for (let j = 0; 3 < j; ++j)
+	for (let j = 0; 3 > j; ++j)
 		transaction.mosaics.push({ id: Long.fromNumber(j), amount: Long.fromNumber(j * j) });
 
 	return { _id: id, meta, transaction };
