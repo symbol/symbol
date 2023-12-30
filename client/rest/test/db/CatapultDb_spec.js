@@ -418,28 +418,17 @@ describe('catapult db', () => {
 			it('fromTimestamp', () => {
 				// Arrange:
 				const dbBlocks = [
-					createBlock(10, 1, account1.publicKey, account1.address, 23456),
-					createBlock(20, 1, account1.publicKey, account1.address, 12345)
+					createBlock(10, 1, account1.publicKey, account1.address, 12345),
+					createBlock(20, 1, account1.publicKey, account1.address, 23456),
+					createBlock(30, 1, account1.publicKey, account1.address, 34567)
 				];
 
 				// Act + Assert:
 				return runTestAndVerifyIds(dbBlocks, db =>
-					db.blocks(undefined, undefined, 23456, undefined, paginationOptions), [10]);
+					db.blocks(undefined, undefined, 23456, undefined, paginationOptions), [20, 30]);
 			});
 
 			it('toTimestamp', () => {
-				// Arrange:
-				const dbBlocks = [
-					createBlock(10, 1, account1.publicKey, account1.address, 12345),
-					createBlock(20, 1, account1.publicKey, account1.address, 23456)
-				];
-
-				// Act + Assert:
-				return runTestAndVerifyIds(dbBlocks, db =>
-					db.blocks(undefined, undefined, undefined, 12345, paginationOptions), [10]);
-			});
-
-			it('fromTimestamp && toTimestamp', () => {
 				// Arrange:
 				const dbBlocks = [
 					createBlock(10, 1, account1.publicKey, account1.address, 12345),
@@ -449,7 +438,22 @@ describe('catapult db', () => {
 
 				// Act + Assert:
 				return runTestAndVerifyIds(dbBlocks, db =>
-					db.blocks(undefined, undefined, 23456, 34566, paginationOptions), [20]);
+					db.blocks(undefined, undefined, undefined, 23456, paginationOptions), [10, 20]);
+			});
+
+			it('fromTimestamp && toTimestamp', () => {
+				// Arrange:
+				const dbBlocks = [
+					createBlock(10, 1, account1.publicKey, account1.address, 12345),
+					createBlock(20, 1, account1.publicKey, account1.address, 23456),
+					createBlock(30, 1, account1.publicKey, account1.address, 34567),
+					createBlock(40, 1, account1.publicKey, account1.address, 45678),
+					createBlock(50, 1, account1.publicKey, account1.address, 56789)
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbBlocks, db =>
+					db.blocks(undefined, undefined, 23456, 45678, paginationOptions), [20, 30, 40]);
 			});
 		});
 	});
