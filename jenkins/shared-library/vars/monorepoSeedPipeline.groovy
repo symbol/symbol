@@ -1,33 +1,28 @@
+import java.nio.file.Paths
+
 // groovylint-disable-next-line MethodSize
 void call(Closure body) {
-	Map params = [:]
+	Map jenkinsfileParams = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST
-	body.delegate = params
+	body.delegate = jenkinsfileParams
 	body()
 
 	pipeline {
 		parameters {
-			gitParameter branchFilter: 'origin/(.*)',
-				defaultValue: "${env.GIT_BRANCH}",
-				name: 'MANUAL_GIT_BRANCH',
-				type: 'PT_BRANCH',
-				selectedValue: 'TOP',
-				sortMode: 'ASCENDING',
-				useRepository: "${helper.resolveRepoName()}"
 			choice name: 'OPERATING_SYSTEM',
-				choices: params.operatingSystem ?: 'ubuntu',
+				choices: jenkinsfileParams.operatingSystem ?: ['ubuntu'],
 				description: 'Run on specific OS'
 			choice name: 'ARCHITECTURE',
-				choices: ['amd64', 'arm64'],
+				choices: ['arm64', 'amd64'],
 				description: 'Computer architecture'
 		}
 
 		agent {
-			label """${helper.resolveAgentName(
-					env.OPERATING_SYSTEM ?: "${params.operatingSystem[0]}",
-					env.ARCHITECTURE ?: 'amd64',
-					params.instanceSize ?: 'small'
-			)}"""
+			label """${
+				env.OPERATING_SYSTEM = env.OPERATING_SYSTEM ?: "${jenkinsfileParams.operatingSystem[0]}"
+				env.ARCHITECTURE = env.ARCHITECTURE ?: 'arm64'
+				return helper.resolveAgentName(env.OPERATING_SYSTEM, env.ARCHITECTURE, jenkinsfileParams.instanceSize ?: 'small')
+			}"""
 		}
 
 		options {
@@ -36,67 +31,76 @@ void call(Closure body) {
 		}
 
 		environment {
-			JENKINS_ROOT_FOLDER = "${params.organizationName}/generated"
-			GITHUB_CREDENTIALS_ID = "${params.gitHubId}"
+			JENKINS_ROOT_FOLDER = "${jenkinsfileParams.organizationName}/generated"
+			GITHUB_CREDENTIALS_ID = "${jenkinsfileParams.gitHubId}"
 		}
 
 		stages {
-			stage('display environment') {
-				steps {
-					sh 'printenv'
-				}
-			}
-			stage('checkout') {
+			stage('create controller jobs') {
 				when {
-					expression { helper.isManualBuild(env.MANUAL_GIT_BRANCH) }
-				}
-				steps {
-					script {
-						gitCheckout(helper.resolveBranchName(env.MANUAL_GIT_BRANCH), env.GITHUB_CREDENTIALS_ID, env.GIT_URL)
-						helper.runInitializeScriptIfPresent()
-					}
-				}
-			}
-			stage('create pipeline jobs') {
-				when {
-					expression {
-						return fileExists(helper.resolveBuildConfigurationFile())
+					beforeAgent true
+					anyOf {
+						expression { changedSetHelper.isFileInChangedSet('.github/jenkinsfile/controller.groovy') }
+						triggeredBy 'UserIdCause'
 					}
 				}
 				stages {
-					stage('read build configuration') {
+					stage('display environment') {
+						steps {
+							sh 'printenv'
+						}
+					}
+					stage('checkout') {
+						when {
+							triggeredBy 'UserIdCause'
+						}
 						steps {
 							script {
-								buildConfiguration = yamlHelper.readYamlFromFile(helper.resolveBuildConfigurationFile())
+								runScript("git reset --hard origin/${env.BRANCH_NAME}")
 							}
 						}
 					}
-					stage('Multibranch job') {
-						when {
-							expression {
-								return null != buildConfiguration.builds
-							}
-						}
+					stage('Controller multibranch job') {
 						steps {
 							script {
-								createMonorepoMultibranchJobs(buildConfiguration, env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
-							}
-						}
-					}
-					stage('Pipeline job') {
-						when {
-							expression {
-								return null != buildConfiguration.customBuilds
-							}
-						}
-						steps {
-							script {
-								createMonorepoPipelineJobs(buildConfiguration, env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
+								generateControllerMultibranchJob(env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+}
+
+void generateControllerMultibranchJob(String gitUrl, String rootFolder, String credentialsId) {
+	Map jobConfiguration = [:]
+
+	jobConfiguration.gitUrl = gitUrl
+	jobConfiguration.rootFolder = rootFolder
+	jobConfiguration.credentialsId = credentialsId
+	jobConfiguration.repositoryOwner = helper.resolveOrganizationName()
+	jobConfiguration.repositoryName = helper.resolveRepositoryName()
+	jobConfiguration.packageExcludePaths = ''
+	jobConfiguration.fullBranchFolder = Paths.get(rootFolder).resolve(jobConfiguration.repositoryName).toString()
+	jobConfiguration.jobName = Paths.get(jobConfiguration.fullBranchFolder.toString()).resolve('controller').toString()
+	jobConfiguration.jenkinsfilePath = '.github/jenkinsfile/controller.groovy'
+	jobConfiguration.packageIncludePaths = ''
+	jobConfiguration.displayName = 'Controller'
+	jobConfiguration.packageFolder = "${jobConfiguration.repositoryName}/controller"
+	jobConfiguration.daysToKeep = 30
+	generateJobFolder(jobConfiguration.jobName)
+	createMultibranchJob(jobConfiguration, false)
+}
+
+void generateJobFolder(String jobFullName) {
+	final String pathSeparator = '/'
+	String jobFolder = Paths.get(jobFullName).parent
+	String fullFolderName = pathSeparator
+
+	jobFolder.tokenize(pathSeparator).each { folderName ->
+		fullFolderName += folderName
+		createJenkinsFolder(fullFolderName, "${folderName}")
+		fullFolderName += pathSeparator
 	}
 }

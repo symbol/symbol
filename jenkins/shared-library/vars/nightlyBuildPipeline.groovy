@@ -95,7 +95,7 @@ void triggerAllJobs(
 		boolean shouldPublishFailJobStatusValue,
 		String manualGitBranchName) {
 	Map<String, String> displayNameJenkinsfileMap = jobHelper.loadJenkinsfileMap()
-	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(displayNameJenkinsfileMap)
+	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(displayNameJenkinsfileMap, currentBuild.fullProjectName)
 	Map<String, Closure> buildJobs = [:]
 	String jobName = jobHelper.resolveJobName(siblingNameMap.keySet().toArray()[0], branchName)
 
