@@ -55,7 +55,9 @@ void call(Map jobConfiguration, Boolean manualTrigger = true) {
 
 									gitHubForkDiscovery {
 										strategyId(USE_CURRENT_SOURCE_STRATEGY_ID)
-										// One of the great powers of pull requests is that anyone with read access to a repository can fork it, commit some changes to their fork and then create a pull request against the original repository with their changes.
+										// One of the great powers of pull requests is that anyone with read access
+										// to a repository can fork it, commit some changes to their fork and then
+										// create a pull request against the original repository with their changes.
 										trust {
 											gitHubTrustPermissions()
 										}
