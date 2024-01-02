@@ -13,8 +13,7 @@ Boolean isPublicBuild(String buildConfiguration) {
 }
 
 String resolveRepoName() {
-	// groovylint-disable-next-line UnnecessaryGetter
-	return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last()
+	return scm.userRemoteConfigs[0].url.tokenize('/').last()
 }
 
 void runInitializeScriptIfPresent() {
@@ -121,4 +120,8 @@ boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 		println "Repository ${orgName}/${repoName} not found - ${exception}"
 		return false
 	}
+}
+
+String resolveGitHubCredentialsId() {
+	return scm.userRemoteConfigs[0].credentialsId
 }

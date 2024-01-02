@@ -121,7 +121,7 @@ void triggerAllJobs(
 	}
 
 	println "found weekly build projects - ${displayNameJenkinsfileMap}"
-	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(displayNameJenkinsfileMap)
+	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(displayNameJenkinsfileMap, currentBuild.fullProjectName)
 	Map<String, Closure> buildJobs = [:]
 	String jobName = jobHelper.resolveJobName(siblingNameMap.keySet().toArray()[0], branchName)
 	println "job name - ${jobName}"
