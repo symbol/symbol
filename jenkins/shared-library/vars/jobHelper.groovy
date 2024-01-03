@@ -57,8 +57,7 @@ String resolveJobName(String jobFolder, String branchName) {
 	List<Item> jobs = Jenkins.get().getItemByFullName(jobFolder).items
 	for (Item item in jobs) {
 		if (item.name.startsWith('PR-') && item.isBuildable()) {
-			String changeBranch = item.lastBuild.environment.get('CHANGE_BRANCH', '')
-			if (changeBranch == branchName) {
+			if (env.CHANGE_BRANCH == branchName) {
 				echo "found PR: ${item.name}"
 				return item.name
 			}
@@ -69,7 +68,8 @@ String resolveJobName(String jobFolder, String branchName) {
 }
 
 Object loadBuildConfigurationfile() {
-	return yamlHelper.readYamlFromFile(helper.resolveBuildConfigurationFile())
+	String buildConfiguration = readTrusted(helper.resolveBuildConfigurationFile())
+	return yamlHelper.readYamlFromText(buildConfiguration)
 }
 
 Map <String, String> loadJenkinsfileMap(Object buildConfiguration = loadBuildConfigurationfile()) {
