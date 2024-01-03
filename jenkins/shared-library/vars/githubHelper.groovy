@@ -86,8 +86,8 @@ Object createPullRequestWithReviewers(
 }
 
 void configureGitHub() {
-	runScript('git config --global user.name "symbol-bot"')
-	runScript('git config --global user.email "jenkins@symbol.dev"')
+	runScript('git config user.name "symbol-bot"')
+	runScript('git config user.email "jenkins@symbol.dev"')
 }
 
 void executeGitAuthenticatedCommand(Closure command) {
@@ -97,7 +97,7 @@ void executeGitAuthenticatedCommand(Closure command) {
 		final String ownerName = helper.resolveOrganizationName()
 		final String replaceUrl = "https://${GITHUB_APP}:${GITHUB_ACCESS_TOKEN}@github.com/${ownerName}.insteadOf" +
 			" 'https://github.com/${ownerName}'"
-		sh("git config --global url.${replaceUrl}")
+		sh("git config url.${replaceUrl}")
 		configureGitHub()
 		command()
 	}

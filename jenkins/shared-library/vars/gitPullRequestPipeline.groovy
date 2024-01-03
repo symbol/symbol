@@ -63,7 +63,7 @@ void call(Closure body) {
 				steps {
 					script {
 						helper.runStepAndRecordFailure {
-							sh("${jenkinsfileParams.srcriptCommand}")
+							sh("${jenkinsfileParams.scriptCommand}")
 						}
 					}
 				}
