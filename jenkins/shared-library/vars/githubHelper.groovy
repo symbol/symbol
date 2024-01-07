@@ -27,7 +27,7 @@ Object createPullRequest(
 	String token,
 	String ownerName,
 	String repositoryName,
-	String branchName,
+	String prBranchName,
 	String baseBranchName,
 	String title,
 	String body
@@ -40,7 +40,7 @@ Object createPullRequest(
 			-H "Authorization: Bearer ${token}" \\
 			-H "X-GitHub-Api-Version: 2022-11-28" \\
 			https://api.github.com/repos/${ownerName}/${repositoryName}/pulls \\
-			-d '{"title":"${title}","body":${jsonBody},"head":"${branchName}","base":"${baseBranchName}"}'
+			-d '{"title":"${title}","body":${jsonBody},"head":"${prBranchName}","base":"${baseBranchName}"}'
 	"""
 
 	final String pullRequestResponse = executeGithubApiRequest(pullRequestCommand)
@@ -70,13 +70,13 @@ Object createPullRequestWithReviewers(
 	String token,
 	String ownerName,
 	String repositoryName,
-	String branchName,
+	String prBranchName,
 	String baseBranchName,
 	String title,
 	String body,
 	List reviewers
 ) {
-	Object pullRequest = createPullRequest(token, ownerName, repositoryName, branchName, baseBranchName, title, body)
+	Object pullRequest = createPullRequest(token, ownerName, repositoryName, prBranchName, baseBranchName, title, body)
 	if (!reviewers.isEmpty()) {
 		final int pullRequestNumber = pullRequest.number.toInteger()
 		pullRequest = requestReviewersForPullRequest(token, ownerName, repositoryName, pullRequestNumber, reviewers)

@@ -77,7 +77,7 @@ void call(Closure body) {
 						steps {
 							script {
 								helper.runStepAndRecordFailure {
-									sh("git checkout -b ${jenkinsfileParams.branchName}")
+									sh("git checkout -b ${jenkinsfileParams.prBranchName}")
 								}
 							}
 						}
@@ -87,7 +87,7 @@ void call(Closure body) {
 							script {
 								helper.runStepAndRecordFailure {
 									githubHelper.executeGitAuthenticatedCommand {
-										sh("git push origin ${jenkinsfileParams.branchName}")
+										sh("git push origin ${jenkinsfileParams.prBranchName}")
 										final String prTitle = sh(script: 'git log -1 --pretty=%s', returnStdout: true).trim()
 										final String prBody = sh(script: 'git log -1 --pretty=%b', returnStdout: true).trim()
 										final String ownerName = helper.resolveOrganizationName()
@@ -96,7 +96,7 @@ void call(Closure body) {
 											"${GITHUB_ACCESS_TOKEN}",
 											ownerName,
 											repositoryName,
-											jenkinsfileParams.branchName,
+											jenkinsfileParams.prBranchName,
 											baseBranchName,
 											prTitle,
 											prBody,
