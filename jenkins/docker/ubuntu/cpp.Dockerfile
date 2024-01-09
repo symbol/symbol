@@ -15,11 +15,18 @@ RUN apt-get install -y wget gnupg \
 	&& apt-get update \
 	&& apt-get install -y mongodb-org
 
+RUN apt-get install -y python3-pip python3-venv
+
 # add ubuntu user (used by jenkins)
 RUN useradd --uid 1000 -ms /bin/bash ubuntu
 
 # Create the MongoDB data directory
 RUN mkdir -p /data/db \
 	&& chown -R ubuntu:ubuntu /data
-
+USER ubuntu
 WORKDIR /home/ubuntu
+
+# create a virtual environment
+ENV VIRTUAL_ENV=/home/ubuntu/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
