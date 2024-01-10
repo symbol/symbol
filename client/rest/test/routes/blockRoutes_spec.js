@@ -92,12 +92,32 @@ describe('block routes', () => {
 				mockServer.callRoute(route, { params: { signerPublicKey: testPublickeyString } }).then(() => {
 					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(testPublickey);
 					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[3]).to.deep.equal(undefined);
 				}));
 
 			it('forwards beneficiaryAddress filter', () =>
 				mockServer.callRoute(route, { params: { beneficiaryAddress: testAddressString } }).then(() => {
 					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(undefined);
 					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(testAddress);
+					expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[3]).to.deep.equal(undefined);
+				}));
+
+			it('forwards fromTimestamp filter', () =>
+				mockServer.callRoute(route, { params: { fromTimestamp: '123456' } }).then(() => {
+					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[2]).to.deep.equal([123456, 0]);
+					expect(dbBlocksFake.firstCall.args[3]).to.deep.equal(undefined);
+				}));
+
+			it('forwards toTimestamp filter', () =>
+				mockServer.callRoute(route, { params: { toTimestamp: '123456' } }).then(() => {
+					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[3]).to.deep.equal([123456, 0]);
 				}));
 
 			describe('parses paging', () => {
@@ -114,7 +134,7 @@ describe('block routes', () => {
 						expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId', height: 'uint64' });
 
 						expect(dbBlocksFake.calledOnce).to.equal(true);
-						expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(pagingBag);
+						expect(dbBlocksFake.firstCall.args[4]).to.deep.equal(pagingBag);
 						paginationParser.restore();
 					});
 				});

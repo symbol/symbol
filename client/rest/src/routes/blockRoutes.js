@@ -36,13 +36,16 @@ module.exports = {
 				? routeUtils.parseArgument(params, 'beneficiaryAddress', 'address')
 				: undefined;
 
+			const fromTimestamp = params.fromTimestamp ? routeUtils.parseArgument(params, 'fromTimestamp', 'uint64') : undefined;
+			const toTimestamp = params.toTimestamp ? routeUtils.parseArgument(params, 'toTimestamp', 'uint64') : undefined;
+
 			const offsetParsers = {
 				id: 'objectId',
 				height: 'uint64'
 			};
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, offsetParsers);
 
-			return db.blocks(signerPublicKey, beneficiaryAddress, options)
+			return db.blocks(signerPublicKey, beneficiaryAddress, fromTimestamp, toTimestamp, options)
 				.then(result => routeUtils.createSender(routeResultTypes.block).sendPage(res, next)(result));
 		});
 
