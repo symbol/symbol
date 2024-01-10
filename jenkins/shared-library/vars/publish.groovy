@@ -135,11 +135,7 @@ void gitHubPagesPublisher(Map config, String phase) {
 		return
 	}
 
-	withCredentials([usernamePassword(credentialsId: config.gitHubId,
-		usernameVariable: 'GITHUB_APP',
-		passwordVariable: 'GITHUB_ACCESS_TOKEN')]) {
-		helper.configureGitHub()
-
+	githubHelper.executeGitAuthenticatedCommand {
 		withCredentials([usernamePassword(credentialsId: 'TRANSIFEX_LOGIN_ID',
 			usernameVariable: 'TRANSIFEX_USER',
 			passwordVariable: 'TRANSIFEX_PASSWORD')]) {
