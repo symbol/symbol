@@ -44,7 +44,7 @@ message("boost    libs: ${Boost_LIBRARIES}")
 if(ENABLE_TESTS)
 	message("--- locating gtest dependencies ---")
 
-	find_package(GTest 1.13.0 EXACT REQUIRED)
+	find_package(GTest 1.14.0 EXACT REQUIRED)
 	message("GTest   found: ${GTest_FOUND}")
 	message("GTest     inc: ${GTEST_INCLUDE_DIRS}")
 	message("GTest     ver: ${GTest_VERSION}")
@@ -54,7 +54,7 @@ endif()
 ### setup openssl
 message("--- locating openssl dependencies ---")
 
-find_package(OpenSSL 3.1.0 EXACT REQUIRED)
+find_package(OpenSSL 3.2.0 EXACT REQUIRED)
 message("OpenSSL   ver: ${OPENSSL_VERSION}")
 message("OpenSSL  root: ${OPENSSL_ROOT_DIR}")
 message("OpenSSL   inc: ${OPENSSL_INCLUDE_DIR}")
@@ -68,7 +68,7 @@ endfunction()
 
 ### setup rocksdb
 message("--- locating rocksdb dependencies ---")
-find_package(RocksDB 7.10.2 EXACT REQUIRED)
+find_package(RocksDB 8.9.1 EXACT REQUIRED)
 
 if(WIN32)
 	set(RocksDB_LIBRARY RocksDB::rocksdb)

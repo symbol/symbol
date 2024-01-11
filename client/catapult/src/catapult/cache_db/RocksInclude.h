@@ -22,6 +22,7 @@
 #pragma once
 #include <rocksdb/compaction_filter.h>
 #include <rocksdb/db.h>
+#include <rocksdb/statistics.h>
 #include <rocksdb/write_batch.h>
 
 namespace catapult { namespace cache {
