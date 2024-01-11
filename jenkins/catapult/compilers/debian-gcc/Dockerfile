@@ -1,4 +1,4 @@
-FROM debian:11.4
+FROM debian:12
 
 RUN apt-get update >/dev/null && \
 	apt-get install -y \
