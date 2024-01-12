@@ -86,7 +86,7 @@ pipeline {
 							String compilerVersion = readYaml(file: "../${COMPILER_CONFIGURATION}.yaml").version
 							properties = readProperties(file: '../../versions.properties')
 							osVersion = properties[params.OPERATING_SYSTEM]
-							String fromImage = 'windows' == params.OPERATING_SYSTEM 
+							String fromImage = 'windows' == params.OPERATING_SYSTEM
 									? 'mcr.microsoft.com/powershell:latest'
 									: "${params.OPERATING_SYSTEM}:${osVersion}"
 							String buildArg = "--build-arg COMPILER_VERSION=${compilerVersion} --build-arg FROM_IMAGE=${fromImage} ."
