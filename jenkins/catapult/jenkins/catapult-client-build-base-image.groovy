@@ -73,6 +73,15 @@ pipeline {
 						"""
 					}
 				}
+				stage('git checkout') {
+					when {
+						triggeredBy 'UserIdCause'
+					}
+					steps {
+						sh "git checkout ${params.MANUAL_GIT_BRANCH}"
+						sh "git reset --hard origin/${params.MANUAL_GIT_BRANCH}"
+					}
+				}
 			}
 		}
 		stage('build image') {
