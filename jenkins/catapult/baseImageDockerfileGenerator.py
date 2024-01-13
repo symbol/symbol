@@ -152,6 +152,7 @@ class OptionsManager:
 		descriptor = self._enable_thread_san_descriptor()
 		descriptor.options += ['-DOPENSSL_ROOT_DIR=/usr/catapult/deps']
 		descriptor.options += get_dependency_flags('mongodb_mongo-cxx-driver')
+		descriptor.options += [f'-DBUILD_VERSION=${self.versions["mongodb_mongo-cxx-driver"]}']
 
 		if self.is_msvc:
 			# For build without a C++17 polyfill
@@ -273,6 +274,8 @@ class UbuntuSystem:
 			'ninja-build',
 			'pkg-config',
 			'python3',
+			'python3-pip',
+			'python3-venv',
 			'python3-ply',
 			'xz-utils'
 		]
@@ -470,6 +473,13 @@ class LinuxSystemGenerator:
 		print(f'FROM {self.options.layer_image_name("deps")}')
 		self.add_git_dependency('google', 'googletest', self.options.googletest())
 		self.add_git_dependency('google', 'benchmark', self.options.googlebench())
+
+		# create a virtual python environment
+		print_lines([
+			'ENV VIRTUAL_ENV=/home/ubuntu/venv',
+			'RUN python3 -m venv $VIRTUAL_ENV',
+			'ENV PATH="$VIRTUAL_ENV/bin:$PATH'
+		])
 
 		self.system.add_test_packages(not self.options.sanitizers)
 
