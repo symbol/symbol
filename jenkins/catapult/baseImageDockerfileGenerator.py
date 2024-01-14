@@ -392,6 +392,13 @@ class LinuxSystemGenerator:
 			'rm -rf {CMAKE_SCRIPT}'
 		], CMAKE_SCRIPT=cmake_script, CMAKE_URI=cmake_uri)
 
+		# create a virtual python environment
+		print_lines([
+			'ENV VIRTUAL_ENV=/home/ubuntu/venv',
+			'RUN python3 -m venv $VIRTUAL_ENV',
+			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"'
+		])
+
 	def generate_phase_boost(self):
 		print(f'FROM {self.options.layer_image_name("os")}')
 		gosu_version = self.options.versions['gosu']
@@ -474,13 +481,6 @@ class LinuxSystemGenerator:
 		self.add_git_dependency('google', 'googletest', self.options.googletest())
 		self.add_git_dependency('google', 'benchmark', self.options.googlebench())
 
-		# create a virtual python environment
-		print_lines([
-			'ENV VIRTUAL_ENV=/home/ubuntu/venv',
-			'RUN python3 -m venv $VIRTUAL_ENV',
-			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"'
-		])
-
 		self.system.add_test_packages(not self.options.sanitizers)
 
 		self.add_openssl(self.options, self.options.openssl_configure() if self.options.sanitizers else [])
@@ -498,7 +498,10 @@ class LinuxSystemGenerator:
 		print_line([
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}',
-			'python3 -m pip install -U "conan<2.0"',
+		], APT_PACKAGES=' '.join(apt_packages))
+
+		print_line([
+			'RUN python3 -m pip install -U "conan<2.0"',
 		], APT_PACKAGES=' '.join(apt_packages))
 
 
