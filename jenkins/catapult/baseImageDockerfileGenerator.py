@@ -152,7 +152,7 @@ class OptionsManager:
 		descriptor = self._enable_thread_san_descriptor()
 		descriptor.options += ['-DOPENSSL_ROOT_DIR=/usr/catapult/deps']
 		descriptor.options += get_dependency_flags('mongodb_mongo-cxx-driver')
-		descriptor.options += [f'-DBUILD_VERSION=${self.versions["mongodb_mongo-cxx-driver"]}']
+		descriptor.options += [f'-DBUILD_VERSION={self.versions["mongodb_mongo-cxx-driver"][1:]}']
 
 		if self.is_msvc:
 			# For build without a C++17 polyfill
@@ -478,7 +478,7 @@ class LinuxSystemGenerator:
 		print_lines([
 			'ENV VIRTUAL_ENV=/home/ubuntu/venv',
 			'RUN python3 -m venv $VIRTUAL_ENV',
-			'ENV PATH="$VIRTUAL_ENV/bin:$PATH'
+			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"'
 		])
 
 		self.system.add_test_packages(not self.options.sanitizers)
