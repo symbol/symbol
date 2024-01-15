@@ -20,11 +20,11 @@
 **/
 
 #pragma once
-#include <cstdint>
 #include <sstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <stdint.h>
 
 namespace catapult { namespace test {
 

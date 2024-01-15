@@ -23,9 +23,9 @@
 #include "StreamFormatGuard.h"
 #include "traits/Traits.h"
 #include <array>
-#include <cstdint>
 #include <iostream>
 #include <vector>
+#include <stdint.h>
 
 namespace catapult { namespace utils {
 
