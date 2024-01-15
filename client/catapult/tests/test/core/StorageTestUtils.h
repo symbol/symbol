@@ -21,6 +21,7 @@
 
 #pragma once
 #include "catapult/functions.h"
+#include <cstdint>
 #include <string>
 
 namespace catapult {
