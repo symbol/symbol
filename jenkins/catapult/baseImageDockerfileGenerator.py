@@ -394,9 +394,14 @@ class LinuxSystemGenerator:
 
 		# create a virtual python environment
 		print_lines([
+			# add ubuntu user (used by jenkins)
+			'RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu',
+			'USER ubuntu',
+			'WORKDIR /home/ubuntu',
 			'ENV VIRTUAL_ENV=/home/ubuntu/venv',
 			'RUN python3 -m venv $VIRTUAL_ENV',
-			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"'
+			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"',
+			'USER root'
 		])
 
 	def generate_phase_boost(self):
