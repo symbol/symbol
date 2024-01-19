@@ -39,5 +39,3 @@ RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 	cp perf /usr/bin && \
 	cd ../../.. && \
 	rm -rf linux.git
-
-USER ubuntu
