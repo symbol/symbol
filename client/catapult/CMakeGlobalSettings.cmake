@@ -245,15 +245,15 @@ function(catapult_set_test_compiler_options)
 	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 		# - Wno-dangling-else: workaround for GTEST ambiguous else blocker not working https://github.com/google/googletest/issues/1119
 		# disable dangling reference for tests - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108165#c9
-        if("${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^13.")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-                -Wno-dangling-else -Wno-dangling-reference"
-                PARENT_SCOPE)
-        else()
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-                -Wno-dangling-else"
-                PARENT_SCOPE)
-        endif()
+		if("${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^13.")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+				-Wno-dangling-else -Wno-dangling-reference"
+				PARENT_SCOPE)
+		else()
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+				-Wno-dangling-else"
+				PARENT_SCOPE)
+		endif()
 	elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		# - Wno-global-constructors: required for GTEST test definition macros
 		# - Wno-zero-as-null-pointer-constant: workaround for GTEST NULL/nullptr mismatch https://github.com/google/googletest/issues/1323

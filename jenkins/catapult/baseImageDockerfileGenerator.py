@@ -503,10 +503,7 @@ class LinuxSystemGenerator:
 		print_line([
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}',
-		], APT_PACKAGES=' '.join(apt_packages))
-
-		print_line([
-			'RUN python3 -m pip install -U "conan<2.0"',
+			'python3 -m pip install -U "conan<2.0"'
 		], APT_PACKAGES=' '.join(apt_packages))
 
 
