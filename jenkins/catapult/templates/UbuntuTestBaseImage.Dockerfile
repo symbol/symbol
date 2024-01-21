@@ -10,7 +10,6 @@ RUN apt-get -y update && apt-get install -y \
 	git \
 	flex \
 	python3 \
-	python3-ply \
 	python3-pip \
 	python3-venv \
 	shellcheck \
@@ -30,7 +29,7 @@ ENV VIRTUAL_ENV=/home/ubuntu/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN pip3 install -U colorama cryptography gitpython pycodestyle "pylint<3.0.0" pylint-quotes PyYAML
+RUN pip3 install -U colorama cryptography gitpython pycodestyle "pylint<3.0.0" pylint-quotes ply PyYAML
 
 USER root
 RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux.git && \
