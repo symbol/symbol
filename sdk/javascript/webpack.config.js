@@ -29,7 +29,7 @@ export default {
 			outDir: `${buildDirectory}/wasm/${target}_webpack`
 		}),
 		new webpack.ProvidePlugin({
-			process: 'process/browser',
+			process: 'process/browser.js',
 			Buffer: ['buffer', 'Buffer']
 		}),
 		new webpack.NormalModuleReplacementPlugin(

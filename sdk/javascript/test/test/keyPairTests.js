@@ -1,9 +1,10 @@
 import { PrivateKey, PublicKey, Signature } from '../../src/CryptoTypes.js';
+import ed25519 from '../../src/impl/ed25519.js';
 import { hexToUint8 } from '../../src/utils/converter.js';
 import { expect } from 'chai';
 import crypto from 'crypto';
 
-export const runBasicKeyPairTests = testDescriptor => { // eslint-disable-line import/prefer-default-export
+const runBasicKeyPairTestsSuite = testDescriptor => {
 	// region create
 
 	it('can create key pair from private key', () => {
@@ -199,4 +200,22 @@ export const runBasicKeyPairTests = testDescriptor => { // eslint-disable-line i
 	});
 
 	// endregion
+};
+
+export const runBasicKeyPairTests = testDescriptor => { // eslint-disable-line import/prefer-default-export
+	describe('JS', () => {
+		beforeEach(() => {
+			process.env.SYMBOL_SDK_NO_WASM = '1';
+			ed25519.unload();
+		});
+		afterEach(() => {
+			delete process.env.SYMBOL_SDK_NO_WASM;
+			ed25519.unload();
+		});
+
+		runBasicKeyPairTestsSuite(testDescriptor);
+	});
+	describe('WASM', () => {
+		runBasicKeyPairTestsSuite(testDescriptor);
+	});
 };

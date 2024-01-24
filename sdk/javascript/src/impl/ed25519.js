@@ -1,24 +1,20 @@
 // this file contains implementation details and is not intended to be used directly
 
-import {
-	HashMode, crypto_private_sign, crypto_private_verify, crypto_sign_keypair
-} from 'symbol-crypto-wasm-node';
+import ed25519_js from './ed25519_js.js';
+import ed25519_wasm from './ed25519_wasm.js';
 
-const CRYPTO_SIGN_BYTES = 64;
-const CRYPTO_SIGN_PUBLICKEYBYTES = 32;
+let ed25519;
+export default {
+	get: () => {
+		// 1. certain environments, like ReactNative, do not support WebAssembly
+		//    in those cases, default to JS-implementation
+		// 2. for testing, check environment variable to force JS-implementation
+		if (!ed25519)
+			ed25519 = global.WebAssembly && !process.env.SYMBOL_SDK_NO_WASM ? ed25519_wasm : ed25519_js;
 
-const ed25519 = {
-	keyPairFromSeed: (hashMode, seed) => {
-		const publicKey = new Uint8Array(CRYPTO_SIGN_PUBLICKEYBYTES);
-		crypto_sign_keypair(HashMode[hashMode], seed, publicKey);
-		return { publicKey, privateKey: seed };
+		return ed25519;
 	},
-	sign: (hashMode, message, privateKey) => {
-		const signature = new Uint8Array(CRYPTO_SIGN_BYTES);
-		crypto_private_sign(HashMode[hashMode], privateKey, message, signature);
-		return signature;
-	},
-	verify: (hashMode, message, signature, publicKey) => crypto_private_verify(HashMode[hashMode], publicKey, message, signature)
+	unload: () => {
+		ed25519 = undefined;
+	}
 };
-
-export default ed25519;

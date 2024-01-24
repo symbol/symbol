@@ -6,9 +6,9 @@ import {
 	/* eslint-enable no-unused-vars */
 	SharedKey256
 } from './CryptoTypes.js';
+import tweetnacl from './impl/external/tweetnacl-nacl-fast-symbol.js';
 import { hkdf } from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha256';
-import tweetnacl from 'tweetnacl';
 
 // order matches order of exported methods
 const tweetnacl_lowlevel = (/** @type {any} */ (tweetnacl)).lowlevel;
@@ -151,10 +151,10 @@ const isInMainSubgroup = point => {
 
 /**
  * Creates a shared secret factory given a hash function.
- * @param {function} cryptoHash Hash function to use.
+ * @param {object} hasher Hash object to use.
  * @returns {function(Uint8Array, PublicKey): Uint8Array} Creates a shared secret from a raw private key and public key.
  */
-const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPublicKey) => {
+const deriveSharedSecretFactory = hasher => (privateKeyBytes, otherPublicKey) => {
 	const { scalarmult, Z } = tweetnacl_lowlevel;
 	const point = [gf(), gf(), gf(), gf()];
 
@@ -167,7 +167,7 @@ const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPublicKey
 
 	const scalar = new Uint8Array(64);
 
-	cryptoHash(scalar, privateKeyBytes, 32);
+	tweetnacl.lowlevel.crypto_hash(scalar, privateKeyBytes, 32, hasher);
 	scalar[0] &= 248;
 	scalar[31] &= 127;
 	scalar[31] |= 64;
@@ -183,11 +183,11 @@ const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPublicKey
 /**
  * Creates a shared key factory given a tag and a hash function.
  * @param {string} info Tag used in HKDF algorithm.
- * @param {function} cryptoHash Hash function to use.
+ * @param {object} hasher Hash object to use.
  * @returns {function(Uint8Array, PublicKey): SharedKey256} Creates a shared key from a raw private key and public key.
  */
-const deriveSharedKeyFactory = (info, cryptoHash) => {
-	const deriveSharedSecret = deriveSharedSecretFactory(cryptoHash);
+const deriveSharedKeyFactory = (info, hasher) => {
+	const deriveSharedSecret = deriveSharedSecretFactory(hasher);
 	return (privateKeyBytes, otherPublicKey) => {
 		const sharedSecret = deriveSharedSecret(privateKeyBytes, otherPublicKey);
 		return new SharedKey256(hkdf(sha256, sharedSecret, undefined, info, 32));
