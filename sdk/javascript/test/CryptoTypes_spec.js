@@ -16,6 +16,10 @@ describe('CryptoTypes', () => {
 
 		// Assert:
 		expect(byteArray.bytes).to.deep.equal(rawBytes);
+
+		// - check constants
+		expect(ByteArrayClass.NAME).to.deep.equal(byteArray.constructor.name);
+		expect(ByteArrayClass.SIZE).to.deep.equal(size);
 	};
 
 	const assertCannotCreateByteArrayWithIncorrectNumberOfBytes = (ByteArrayClass, requiredSize) => {
