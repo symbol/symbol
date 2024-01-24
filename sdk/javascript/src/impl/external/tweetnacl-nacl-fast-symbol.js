@@ -1,24 +1,13 @@
-// this file is the same as tweetnacl/nacl-fast except that it implements a custom `crypto_hash` function
-// that uses keccak_512 instead of sha_512
-const { keccak_512 } = require('@noble/hashes/sha3');
-
-(function(nacl) {
-'use strict';
-
-// Ported in 2014 by Dmitry Chestnykh and Devi Mandiri.
-// Public domain.
-//
-// Implementation derived from TweetNaCl version 20140427.
-// See for details: http://tweetnacl.cr.yp.to/
+// this file is based on tweetnacl/nacl-fast with the following changes:
+// - allows custom hash functions
+// - pruned to include minimal dependencies
+// - ES6
 
 var gf = function(init) {
 	var i, r = new Float64Array(16);
 	if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
 	return r;
 };
-
-//  Pluggable, initialized in high-level API below.
-var randombytes = function(/* x, n */) { throw new Error('no PRNG'); };
 
 var _0 = new Uint8Array(16);
 var _9 = new Uint8Array(32); _9[0] = 9;
@@ -1382,11 +1371,6 @@ function crypto_scalarmult_base(q, n) {
 	return crypto_scalarmult(q, n, _9);
 }
 
-function crypto_box_keypair(y, x) {
-	randombytes(x, 32);
-	return crypto_scalarmult_base(y, x);
-}
-
 function crypto_box_beforenm(k, y, x) {
 	var s = new Uint8Array(32);
 	crypto_scalarmult(s, x, y);
@@ -1812,8 +1796,8 @@ function crypto_hashblocks_hl(hh, hl, m, n) {
 	return n;
 }
 
-function crypto_hash(out, m, n) {
-	const hashBuilder = keccak_512.create();
+function crypto_hash(out, m, n, hasher) {
+	const hashBuilder = hasher.create();
 	hashBuilder.update(m.subarray(0, n));
 	const hash = hashBuilder.digest();
 
@@ -1889,13 +1873,12 @@ function scalarbase(p, s) {
 	scalarmult(p, q, s);
 }
 
-function crypto_sign_keypair(pk, sk, seeded) {
+function crypto_sign_keypair(pk, sk, hasher) {
 	var d = new Uint8Array(64);
 	var p = [gf(), gf(), gf(), gf()];
 	var i;
 
-	if (!seeded) randombytes(sk, 32);
-	crypto_hash(d, sk, 32);
+	crypto_hash(d, sk, 32, hasher);
 	d[0] &= 248;
 	d[31] &= 127;
 	d[31] |= 64;
@@ -1942,12 +1925,12 @@ function reduce(r) {
 }
 
 // Note: difference from C - smlen returned, not passed as argument.
-function crypto_sign(sm, m, n, sk) {
+function crypto_sign(sm, m, n, sk, hasher) {
 	var d = new Uint8Array(64), h = new Uint8Array(64), r = new Uint8Array(64);
 	var i, j, x = new Float64Array(64);
 	var p = [gf(), gf(), gf(), gf()];
 
-	crypto_hash(d, sk, 32);
+	crypto_hash(d, sk, 32, hasher);
 	d[0] &= 248;
 	d[31] &= 127;
 	d[31] |= 64;
@@ -1956,13 +1939,13 @@ function crypto_sign(sm, m, n, sk) {
 	for (i = 0; i < n; i++) sm[64 + i] = m[i];
 	for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
 
-	crypto_hash(r, sm.subarray(32), n+32);
+	crypto_hash(r, sm.subarray(32), n+32, hasher);
 	reduce(r);
 	scalarbase(p, r);
 	pack(sm, p);
 
 	for (i = 32; i < 64; i++) sm[i] = sk[i];
-	crypto_hash(h, sm, n + 64);
+	crypto_hash(h, sm, n + 64, hasher);
 	reduce(h);
 
 	for (i = 0; i < 64; i++) x[i] = 0;
@@ -2015,7 +1998,7 @@ function unpackneg(r, p) {
 	return 0;
 }
 
-function crypto_sign_open(m, sm, n, pk) {
+function crypto_sign_open(m, sm, n, pk, hasher) {
 	var i;
 	var t = new Uint8Array(32), h = new Uint8Array(64);
 	var p = [gf(), gf(), gf(), gf()],
@@ -2027,7 +2010,7 @@ function crypto_sign_open(m, sm, n, pk) {
 
 	for (i = 0; i < n; i++) m[i] = sm[i];
 	for (i = 0; i < 32; i++) m[i+32] = pk[i];
-	crypto_hash(h, m, n);
+	crypto_hash(h, m, n, hasher);
 	reduce(h);
 	scalarmult(p, q, h);
 
@@ -2063,6 +2046,7 @@ var crypto_secretbox_KEYBYTES = 32,
 		crypto_sign_SEEDBYTES = 32,
 		crypto_hash_BYTES = 64;
 
+const nacl = {};
 nacl.lowlevel = {
 	crypto_core_hsalsa20: crypto_core_hsalsa20,
 	crypto_stream_xor: crypto_stream_xor,
@@ -2081,7 +2065,6 @@ nacl.lowlevel = {
 	crypto_box_afternm: crypto_box_afternm,
 	crypto_box: crypto_box,
 	crypto_box_open: crypto_box_open,
-	crypto_box_keypair: crypto_box_keypair,
 	crypto_hash: crypto_hash,
 	crypto_sign: crypto_sign,
 	crypto_sign_keypair: crypto_sign_keypair,
@@ -2144,12 +2127,6 @@ function checkArrayTypes() {
 function cleanup(arr) {
 	for (var i = 0; i < arr.length; i++) arr[i] = 0;
 }
-
-nacl.randomBytes = function(n) {
-	var b = new Uint8Array(n);
-	randombytes(b, n);
-	return b;
-};
 
 nacl.secretbox = function(msg, nonce, key) {
 	checkArrayTypes(msg, nonce, key);
@@ -2218,12 +2195,7 @@ nacl.box.open = function(msg, nonce, publicKey, secretKey) {
 
 nacl.box.open.after = nacl.secretbox.open;
 
-nacl.box.keyPair = function() {
-	var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
-	var sk = new Uint8Array(crypto_box_SECRETKEYBYTES);
-	crypto_box_keypair(pk, sk);
-	return {publicKey: pk, secretKey: sk};
-};
+nacl.box.keyPair = {};
 
 nacl.box.keyPair.fromSecretKey = function(secretKey) {
 	checkArrayTypes(secretKey);
@@ -2240,35 +2212,23 @@ nacl.box.sharedKeyLength = crypto_box_BEFORENMBYTES;
 nacl.box.nonceLength = crypto_box_NONCEBYTES;
 nacl.box.overheadLength = nacl.secretbox.overheadLength;
 
-nacl.sign = function(msg, secretKey) {
+nacl.sign = function(msg, secretKey, hasher) {
 	checkArrayTypes(msg, secretKey);
 	if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
 		throw new Error('bad secret key size');
 	var signedMsg = new Uint8Array(crypto_sign_BYTES+msg.length);
-	crypto_sign(signedMsg, msg, msg.length, secretKey);
+	crypto_sign(signedMsg, msg, msg.length, secretKey, hasher);
 	return signedMsg;
 };
 
-nacl.sign.open = function(signedMsg, publicKey) {
-	checkArrayTypes(signedMsg, publicKey);
-	if (publicKey.length !== crypto_sign_PUBLICKEYBYTES)
-		throw new Error('bad public key size');
-	var tmp = new Uint8Array(signedMsg.length);
-	var mlen = crypto_sign_open(tmp, signedMsg, signedMsg.length, publicKey);
-	if (mlen < 0) return null;
-	var m = new Uint8Array(mlen);
-	for (var i = 0; i < m.length; i++) m[i] = tmp[i];
-	return m;
-};
-
-nacl.sign.detached = function(msg, secretKey) {
-	var signedMsg = nacl.sign(msg, secretKey);
+nacl.sign.detached = function(msg, secretKey, hasher) {
+	var signedMsg = nacl.sign(msg, secretKey, hasher);
 	var sig = new Uint8Array(crypto_sign_BYTES);
 	for (var i = 0; i < sig.length; i++) sig[i] = signedMsg[i];
 	return sig;
 };
 
-nacl.sign.detached.verify = function(msg, sig, publicKey) {
+nacl.sign.detached.verify = function(msg, sig, publicKey, hasher) {
 	checkArrayTypes(msg, sig, publicKey);
 	if (sig.length !== crypto_sign_BYTES)
 		throw new Error('bad signature size');
@@ -2279,88 +2239,19 @@ nacl.sign.detached.verify = function(msg, sig, publicKey) {
 	var i;
 	for (i = 0; i < crypto_sign_BYTES; i++) sm[i] = sig[i];
 	for (i = 0; i < msg.length; i++) sm[i+crypto_sign_BYTES] = msg[i];
-	return (crypto_sign_open(m, sm, sm.length, publicKey) >= 0);
+	return (crypto_sign_open(m, sm, sm.length, publicKey, hasher) >= 0);
 };
 
-nacl.sign.keyPair = function() {
-	var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
-	var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
-	crypto_sign_keypair(pk, sk);
-	return {publicKey: pk, secretKey: sk};
-};
-
-nacl.sign.keyPair.fromSecretKey = function(secretKey) {
-	checkArrayTypes(secretKey);
-	if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
-		throw new Error('bad secret key size');
-	var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
-	for (var i = 0; i < pk.length; i++) pk[i] = secretKey[32+i];
-	return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
-};
-
-nacl.sign.keyPair.fromSeed = function(seed) {
+nacl.sign.keyPair = {};
+nacl.sign.keyPair.fromSeed = function(seed, hasher) {
 	checkArrayTypes(seed);
 	if (seed.length !== crypto_sign_SEEDBYTES)
 		throw new Error('bad seed size');
 	var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
 	var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
 	for (var i = 0; i < 32; i++) sk[i] = seed[i];
-	crypto_sign_keypair(pk, sk, true);
+	crypto_sign_keypair(pk, sk, hasher);
 	return {publicKey: pk, secretKey: sk};
 };
 
-nacl.sign.publicKeyLength = crypto_sign_PUBLICKEYBYTES;
-nacl.sign.secretKeyLength = crypto_sign_SECRETKEYBYTES;
-nacl.sign.seedLength = crypto_sign_SEEDBYTES;
-nacl.sign.signatureLength = crypto_sign_BYTES;
-
-nacl.hash = function(msg) {
-	checkArrayTypes(msg);
-	var h = new Uint8Array(crypto_hash_BYTES);
-	crypto_hash(h, msg, msg.length);
-	return h;
-};
-
-nacl.hash.hashLength = crypto_hash_BYTES;
-
-nacl.verify = function(x, y) {
-	checkArrayTypes(x, y);
-	// Zero length arguments are considered not equal.
-	if (x.length === 0 || y.length === 0) return false;
-	if (x.length !== y.length) return false;
-	return (vn(x, 0, y, 0, x.length) === 0) ? true : false;
-};
-
-nacl.setPRNG = function(fn) {
-	randombytes = fn;
-};
-
-(function() {
-	// Initialize PRNG if environment provides CSPRNG.
-	// If not, methods calling randombytes will throw.
-	var crypto = typeof self !== 'undefined' ? (self.crypto || self.msCrypto) : null;
-	if (crypto && crypto.getRandomValues) {
-		// Browsers.
-		var QUOTA = 65536;
-		nacl.setPRNG(function(x, n) {
-			var i, v = new Uint8Array(n);
-			for (i = 0; i < n; i += QUOTA) {
-				crypto.getRandomValues(v.subarray(i, i + Math.min(n - i, QUOTA)));
-			}
-			for (i = 0; i < n; i++) x[i] = v[i];
-			cleanup(v);
-		});
-	} else if (typeof require !== 'undefined') {
-		// Node.js.
-		crypto = require('crypto');
-		if (crypto && crypto.randomBytes) {
-			nacl.setPRNG(function(x, n) {
-				var i, v = crypto.randomBytes(n);
-				for (i = 0; i < n; i++) x[i] = v[i];
-				cleanup(v);
-			});
-		}
-	}
-})();
-
-})(typeof module !== 'undefined' && module.exports ? module.exports : (self.nacl = self.nacl || {}));
+export default nacl;

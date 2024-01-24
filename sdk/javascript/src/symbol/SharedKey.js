@@ -3,10 +3,9 @@ import { KeyPair } from './KeyPair.js';
 import { PublicKey, SharedKey256 } from '../CryptoTypes.js';
 /* eslint-enable no-unused-vars */
 import { deriveSharedKeyFactory } from '../SharedKey.js';
-import tweetnacl from 'tweetnacl';
+import { sha512 } from '@noble/hashes/sha512';
 
-const tweetnacl_lowlevel = (/** @type {any} */ (tweetnacl)).lowlevel;
-const deriveSharedKeyImpl = deriveSharedKeyFactory('catapult', tweetnacl_lowlevel.crypto_hash);
+const deriveSharedKeyImpl = deriveSharedKeyFactory('catapult', sha512);
 
 /**
  * Derives shared key from key pair and other party's public key.
