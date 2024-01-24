@@ -12,6 +12,12 @@ export class Hash256 extends ByteArray {
 	static SIZE = 32;
 
 	/**
+	 * Byte array name (required because `constructor.name` is dropped during minification).
+	 * @type string
+	 */
+	static NAME = 'Hash256';
+
+	/**
 	 * Creates a hash from bytes or a hex string.
 	 * @param {Uint8Array|string} hash256 Input string or byte array.
 	 */
@@ -37,6 +43,12 @@ export class PrivateKey extends ByteArray {
 	 * @type number
 	 */
 	static SIZE = 32;
+
+	/**
+	 * Byte array name (required because `constructor.name` is dropped during minification).
+	 * @type string
+	 */
+	static NAME = 'PrivateKey';
 
 	/**
 	 * Creates a private key from bytes or a hex string.
@@ -66,6 +78,12 @@ export class PublicKey extends ByteArray {
 	static SIZE = 32;
 
 	/**
+	 * Byte array name (required because `constructor.name` is dropped during minification).
+	 * @type string
+	 */
+	static NAME = 'PublicKey';
+
+	/**
 	 * Creates a public key from bytes or a hex string.
 	 * @param {Uint8Array|string|PublicKey} publicKey Input string, byte array or public key.
 	 */
@@ -85,6 +103,12 @@ export class SharedKey256 extends ByteArray {
 	static SIZE = 32;
 
 	/**
+	 * Byte array name (required because `constructor.name` is dropped during minification).
+	 * @type string
+	 */
+	static NAME = 'SharedKey256';
+
+	/**
 	 * Creates a shared key from bytes or a hex string.
 	 * @param {Uint8Array|string} sharedKey Input string or byte array.
 	 */
@@ -102,6 +126,12 @@ export class Signature extends ByteArray {
 	 * @type number
 	 */
 	static SIZE = 64;
+
+	/**
+	 * Byte array name (required because `constructor.name` is dropped during minification).
+	 * @type string
+	 */
+	static NAME = 'Signature';
 
 	/**
 	 * Creates a signature from bytes or a hex string.

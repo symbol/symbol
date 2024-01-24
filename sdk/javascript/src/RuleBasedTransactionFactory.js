@@ -40,8 +40,11 @@ const typeConverterFactory = (module, customTypeConverter, value) => {
 	if (customTypeConverter && customTypeConverter(value))
 		return customTypeConverter(value);
 
-	if (value instanceof ByteArray)
-		return new module[value.constructor.name](value.bytes);
+	if (value instanceof ByteArray) {
+		/** @type object */
+		const ByteArrayClass = value.constructor;
+		return new module[ByteArrayClass.NAME](value.bytes);
+	}
 
 	return value;
 };
