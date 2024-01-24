@@ -81,7 +81,11 @@ export default class TransactionFactory {
 	 * @returns {nc.NonVerifiableTransaction} Non-verifiable transaction object.
 	 */
 	static toNonVerifiableTransaction(transaction) {
-		let nonVerifiableClassName = transaction.constructor.name;
+		// search module to find class name because `constructor.name` is dropped during minification
+		let nonVerifiableClassName = Object.getOwnPropertyNames(nc).find(key => transaction.constructor === nc[key]);
+		if (!nonVerifiableClassName)
+			throw Error('invalid transaction instance');
+
 		if (0 !== nonVerifiableClassName.indexOf('NonVerifiable'))
 			nonVerifiableClassName = `NonVerifiable${nonVerifiableClassName}`;
 

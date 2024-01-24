@@ -268,5 +268,15 @@ describe('transaction factory (NEM)', () => {
 		expect(nonVerifiableTransaction2.serialize()).to.deep.equal(nonVerifiableTransaction1.serialize());
 	});
 
+	it('cannot convert non-transaction to non-verifiable', () => {
+		// Arrange:
+		const factory = testDescriptor.createFactory();
+		const signature = new Signature(crypto.randomBytes(Signature.SIZE));
+		const transaction = testDescriptor.createTransaction(factory)(createTransferDescriptorWithSignature(signature));
+
+		// Act + Assert: parameter has correct shape but is not a known transaction type
+		expect(() => TransactionFactory.toNonVerifiableTransaction({ ...transaction })).to.throw('invalid transaction instance');
+	});
+
 	// endregion
 });
