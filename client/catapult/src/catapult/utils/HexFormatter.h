@@ -25,6 +25,7 @@
 #include <array>
 #include <iostream>
 #include <vector>
+#include <stdint.h>
 
 namespace catapult { namespace utils {
 

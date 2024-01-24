@@ -22,6 +22,7 @@
 #pragma once
 #include "catapult/functions.h"
 #include <string>
+#include <stdint.h>
 
 namespace catapult {
 	namespace model {

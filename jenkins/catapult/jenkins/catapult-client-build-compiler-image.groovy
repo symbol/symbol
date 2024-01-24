@@ -68,6 +68,12 @@ pipeline {
 						"""
 					}
 				}
+				stage('git checkout') {
+					steps {
+						sh "git checkout ${params.MANUAL_GIT_BRANCH}"
+						sh "git reset --hard origin/${params.MANUAL_GIT_BRANCH}"
+					}
+				}
 			}
 		}
 		stage('build image') {
@@ -78,7 +84,12 @@ pipeline {
 						dir("jenkins/catapult/compilers/${OPERATING_SYSTEM}-${compilerParts[0]}")
 						{
 							String compilerVersion = readYaml(file: "../${COMPILER_CONFIGURATION}.yaml").version
-							String buildArg = "--build-arg COMPILER_VERSION=${compilerVersion} ."
+							properties = readProperties(file: '../../versions.properties')
+							osVersion = properties[params.OPERATING_SYSTEM]
+							String fromImage = 'windows' == params.OPERATING_SYSTEM
+									? 'mcr.microsoft.com/powershell:latest'
+									: "${params.OPERATING_SYSTEM}:${osVersion}"
+							String buildArg = "--build-arg COMPILER_VERSION=${compilerVersion} --build-arg FROM_IMAGE=${fromImage} ."
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
 								docker.build(archImageName, buildArg).push()
 							}

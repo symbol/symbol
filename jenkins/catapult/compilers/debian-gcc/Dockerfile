@@ -1,4 +1,5 @@
-FROM debian:11.4
+ARG FROM_IMAGE=debian:12
+FROM ${FROM_IMAGE}
 
 RUN apt-get update >/dev/null && \
 	apt-get install -y \

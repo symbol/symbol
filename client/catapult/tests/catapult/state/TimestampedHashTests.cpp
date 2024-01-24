@@ -74,7 +74,8 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, OperatorLessThanReturnsTrueForSmallerValuesAndFalseOtherwise) {
 		// Arrange:
 		Hash256 hash1{ {} };
-		Hash256 hash2{ { 1 } }; // hash1 < hash2
+		std::array<uint8_t, Hash256::Size> array{ 1 };
+		Hash256 hash2{ array }; // hash1 < hash2
 		std::vector<TimestampedHash> timestampedHashes{
 			TimestampedHash(Timestamp(123), hash1),
 			TimestampedHash(Timestamp(123), hash2),
@@ -90,7 +91,8 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
 		// Arrange:
 		Hash256 hash1{ {} };
-		Hash256 hash2{ { 1 } }; // hash1 < hash2
+		std::array<uint8_t, Hash256::Size> array{ 1 };
+		Hash256 hash2{ array }; // hash1 < hash2
 		auto timestampedHash1 = TimestampedHash(Timestamp(123), hash1);
 		auto timestampedHash2 = TimestampedHash(Timestamp(123), hash1);
 		auto timestampedHash3 = TimestampedHash(Timestamp(234), hash1);
@@ -106,7 +108,8 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
 		// Arrange:
 		Hash256 hash1{ {} };
-		Hash256 hash2{ { 1 } }; // hash1 < hash2
+		std::array<uint8_t, Hash256::Size> array{ 1 };
+		Hash256 hash2{ array }; // hash1 < hash2
 		auto timestampedHash1 = TimestampedHash(Timestamp(123), hash1);
 		auto timestampedHash2 = TimestampedHash(Timestamp(123), hash1);
 		auto timestampedHash3 = TimestampedHash(Timestamp(234), hash1);
