@@ -120,9 +120,6 @@ pipeline {
 String getVersionArg(String toolName, Object buildEnvironment) {
 	String name = 'javascript' == toolName ? 'nodejs' : toolName
 	String version = buildEnvironment[name]
-	if (version) {
-		return "${name.toUpperCase()}_VERSION=${version}"
-	}
 
-	return ''
+	return version ? "${name.toUpperCase()}_VERSION=${version}" : ''
 }
