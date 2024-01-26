@@ -1,5 +1,4 @@
 {
   "all": "true",
-  "include": ["src/**"],
-  "exclude": ["**/external/**"]
+  "include": ["src/**"]
 }
