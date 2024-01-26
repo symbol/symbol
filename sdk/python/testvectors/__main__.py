@@ -77,11 +77,11 @@ class SymbolHelper:
 	@staticmethod
 	def get_test_name(object_name, test_prefix, index):
 		name_mapping = {
-			'transaction': lambda test_prefix, index: f'{test_prefix}_single_{index+1}',
-			'aggregate': lambda test_prefix, index: f'{test_prefix}_aggregate_{index+1}',
-			'receipt': lambda test_prefix, index: f'{test_prefix}_{index+1}',
-			'block': lambda test_prefix, index: f'{test_prefix}_{index+1}',
-			'other': lambda test_prefix, index: f'{test_prefix}_other_{index+1}'
+			'transaction': lambda test_prefix, index: f'{test_prefix}_single_{index + 1}',
+			'aggregate': lambda test_prefix, index: f'{test_prefix}_aggregate_{index + 1}',
+			'receipt': lambda test_prefix, index: f'{test_prefix}_{index + 1}',
+			'block': lambda test_prefix, index: f'{test_prefix}_{index + 1}',
+			'other': lambda test_prefix, index: f'{test_prefix}_other_{index + 1}'
 		}
 
 		return name_mapping[object_name](test_prefix, index)
@@ -115,7 +115,7 @@ class SymbolHelper:
 
 	@staticmethod
 	def create_cosignature_descriptor(test_name, index):
-		name = f'{test_name}_cosig_{index+1}'
+		name = f'{test_name}_cosig_{index + 1}'
 		return {
 			'signer_public_key': hashlib.sha3_256(name.encode('utf8')).hexdigest(),
 			'signature': hashlib.sha3_512(name.encode('utf8')).hexdigest()
@@ -213,8 +213,8 @@ class NemHelper:
 	@staticmethod
 	def get_test_name(object_name, test_prefix, index):
 		name_mapping = {
-			'transaction': lambda test_prefix, index: f'{test_prefix}_single_{index+1}',
-			'aggregate': lambda test_prefix, index: f'{test_prefix}_aggregate_{index+1}'
+			'transaction': lambda test_prefix, index: f'{test_prefix}_single_{index + 1}',
+			'aggregate': lambda test_prefix, index: f'{test_prefix}_aggregate_{index + 1}'
 		}
 
 		return name_mapping[object_name](test_prefix, index)
@@ -260,7 +260,7 @@ class NemHelper:
 		return self.facade.transaction_factory.create(descriptor), printable_descriptor
 
 	def create_cosignature(self, test_name, index):
-		name = f'{test_name}_cosig_{index+1}'
+		name = f'{test_name}_cosig_{index + 1}'
 		descriptor = {
 			# note: `type: cosignature`` is not present, it's handled by TransactionDescriptorProcessor
 			'multisig_transaction_hash': hashlib.sha3_256(test_name.encode('utf8')).hexdigest(),
@@ -340,7 +340,7 @@ class VectorGenerator:
 				continue
 
 			test_prefix = f'{recipe["schema_name"]}_{module_descriptor[0]}'
-			test_name = f'{test_prefix}_aggregate_{index+1}'
+			test_name = f'{test_prefix}_aggregate_{index + 1}'
 
 			handler = self.helper.create_aggregate_from_single
 			test_cases.append(self.create_entry(self.helper.AGGREGATE_SCHEMA_NAME, test_name, handler, recipe['descriptor']))

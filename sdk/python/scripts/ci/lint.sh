@@ -17,8 +17,7 @@ find . -name "nc" -prune -o -name "sc" -prune -o -type f -name "*.py" -print0 | 
 SEPARATOR="$([ "$(uname -o)" = "Msys" ] && echo ";" || echo ":")"
 find . -name "nc" -prune -o -name "sc" -prune -o -type f -name "*.py" -print0 | xargs -0 git check-ignore -nv | grep :: | cut -f2- | \
 	PYTHONPATH=".${SEPARATOR}$(git rev-parse --show-toplevel)/catbuffer/parser" xargs python3 -m pylint \
-	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc" \
-	--load-plugins pylint_quotes
+	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc"
 
 # generated code with some suppressions
 find . -name "nc" -o -name "sc" -o -type f -name "*.py" -print0 | xargs -0 git check-ignore -nv | grep :: | cut -f2- | \
@@ -28,5 +27,4 @@ find . -name "nc" -o -name "sc" -o -type f -name "*.py" -print0 | xargs -0 git c
 find . -name "nc" -o -name "sc" -o -type f -name "*.py" -print0 | xargs -0 git check-ignore -nv | grep :: | cut -f2- | \
 	PYTHONPATH=".${SEPARATOR}$(git rev-parse --show-toplevel)/catbuffer/parser" xargs python3 -m pylint \
 	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc" \
-	--load-plugins pylint_quotes \
 	--disable=duplicate-code

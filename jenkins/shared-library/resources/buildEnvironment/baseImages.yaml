@@ -1,4 +1,14 @@
-ubuntu-lts: ubuntu:22.04
-ubuntu-base: ubuntu:20.04
-ubuntu-latest: ubuntu:23.04
-windows-lts: symbolplatform/symbol-server-compiler:windows-msvc-17
+ubuntu-lts:
+  image: ubuntu:22.04
+  python: 3.11
+  nodejs: 20
+ubuntu-base:
+  image: ubuntu:20.04
+  python: 3.9
+  nodejs: 18
+ubuntu-latest:
+  image: ubuntu:24.04
+  python: 3.12
+  nodejs: 21
+windows-lts:
+  image: symbolplatform/symbol-server-compiler:windows-msvc-17

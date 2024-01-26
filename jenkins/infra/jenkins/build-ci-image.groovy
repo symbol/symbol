@@ -40,9 +40,10 @@ pipeline {
 					steps {
 						script {
 							helper.runStepAndRecordFailure {
-								Object buildEnvironment = jobHelper.loadBuildBaseImages()
+								Object buildEnvironments = jobHelper.loadBuildBaseImages()
 								baseImageName = "${params.OPERATING_SYSTEM}-${params.BASE_IMAGE}"
-								dockerFromImage = buildEnvironment[baseImageName]
+								buildEnvironment = buildEnvironments[baseImageName]
+								dockerFromImage = buildEnvironment.image
 
 								multiArchImageName = "symbolplatform/build-ci:${CI_IMAGE}-${baseImageName}"
 								archImageName = "${multiArchImageName}-${env.ARCHITECTURE}"
@@ -80,10 +81,12 @@ pipeline {
 					helper.runStepAndRecordFailure {
 						dir("jenkins/docker/${params.OPERATING_SYSTEM}")
 						{
-							String buildArg = "-f ${CI_IMAGE}.Dockerfile --build-arg FROM_IMAGE=${dockerFromImage} ."
+							String versionArg = getVersionArg(params.CI_IMAGE, buildEnvironment)
+							String buildArg = "-f ${CI_IMAGE}.Dockerfile --build-arg ${versionArg} --build-arg FROM_IMAGE=${dockerFromImage} ."
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
 								docker.build(archImageName, buildArg).push()
 							}
+
 							dockerHelper.tagDockerImage(
 								params.OPERATING_SYSTEM,
 								"${env.DOCKER_URL}",
@@ -112,4 +115,14 @@ pipeline {
 			}
 		}
 	}
+}
+
+String getVersionArg(String toolName, Object buildEnvironment) {
+	String name = 'javascript' == toolName ? 'nodejs' : toolName
+	String version = buildEnvironment[name]
+	if (version) {
+		return "${name.toUpperCase()}_VERSION=${version}"
+	}
+
+	return ''
 }

@@ -276,7 +276,7 @@ missing-member-max-choices=1
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
-additional-builtins=_
+additional-builtins=
 
 # Tells whether unused global variables should be treated as a violation.
 allow-global-unused-variables=yes
@@ -388,3 +388,9 @@ known-third-party=enchant
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
 overgeneral-exceptions=builtins.Exception
+
+[STRING]
+
+# This flag controls whether inconsistent-quotes generates a warning when the
+# character used as a quote delimiter is used inconsistently within a module.
+check-quote-consistency=yes
