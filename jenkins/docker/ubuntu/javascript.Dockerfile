@@ -17,7 +17,7 @@ RUN apt-get install -y wget gnupg \
 
 # nodejs
 ENV NODE_OPTIONS="--dns-result-order=ipv4first"
-ARG NODEJS_VERSION=18
+ARG NODEJS_VERSION=20
 RUN apt-get install -y ca-certificates curl gnupg \
 	&& mkdir -p /etc/apt/keyrings \
 	&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
