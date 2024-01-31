@@ -40,6 +40,12 @@ endif()
 ### set boost settings
 add_definitions(-DBOOST_ALL_DYN_LINK)
 add_definitions(-DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
+
+if(Boost_VERSION VERSION_LESS 1.84)
+	# workaround for https://github.com/boostorg/phoenix/issues/111
+	add_definitions(-DBOOST_PHOENIX_STL_TUPLE_H_)
+endif()
+
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
