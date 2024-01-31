@@ -16,7 +16,7 @@ RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	$command='c:\scoop.ps1 -RunAsAdmin'; `
 	iex $command; `
 	del c:\scoop.ps1; `
-	scoop install git shellcheck openssl cmake cygwin python3; `
+	scoop install git shellcheck openssl cmake cygwin python; `
 	python3 -m pip install --upgrade pip; `
 	python3 -m pip install --upgrade gitlint wheel
 

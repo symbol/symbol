@@ -66,9 +66,6 @@ pipeline {
 			}
 		}
 		stage('checkout') {
-			when {
-				triggeredBy 'UserIdCause'
-			}
 			steps {
 				script {
 					runScript "git reset --hard origin/${env.MANUAL_GIT_BRANCH}"
@@ -82,7 +79,7 @@ pipeline {
 						dir("jenkins/docker/${params.OPERATING_SYSTEM}")
 						{
 							String versionArg = getVersionArg(params.CI_IMAGE, buildEnvironment)
-							String buildArg = "-f ${CI_IMAGE}.Dockerfile --build-arg ${versionArg} --build-arg FROM_IMAGE=${dockerFromImage} ."
+							String buildArg = "-f ${CI_IMAGE}.Dockerfile ${versionArg} --build-arg FROM_IMAGE=${dockerFromImage} ."
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
 								docker.build(archImageName, buildArg).push()
 							}
@@ -121,5 +118,5 @@ String getVersionArg(String toolName, Object buildEnvironment) {
 	String name = 'javascript' == toolName ? 'nodejs' : toolName
 	String version = buildEnvironment[name]
 
-	return version ? "${name.toUpperCase()}_VERSION=${version}" : ''
+	return version ? "--build-arg ${name.toUpperCase()}_VERSION=${version}" : ''
 }
