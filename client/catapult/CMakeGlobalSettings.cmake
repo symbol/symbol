@@ -440,8 +440,6 @@ endfunction()
 function(catapult_test_executable TARGET_NAME)
 	catapult_executable(${TARGET_NAME} ${ARGN})
 	add_test(NAME ${TARGET_NAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TARGET_NAME})
-
-	target_link_libraries(${TARGET_NAME} ${GTEST_LIBRARIES})
 endfunction()
 
 # used to define a catapult test executable for a catapult library by combining catapult_test_executable and
@@ -458,13 +456,14 @@ function(catapult_test_executable_target TARGET_NAME TEST_DEPENDENCY_NAME)
 	MATH(EXPR TEST_END_INDEX "${TEST_END_INDEX}+1")
 	string(SUBSTRING ${TARGET_NAME} ${TEST_END_INDEX} -1 LIBRARY_UNDER_TEST)
 
-	target_link_libraries(${TARGET_NAME} tests.catapult.test.${TEST_DEPENDENCY_NAME} ${LIBRARY_UNDER_TEST} ${GTEST_LIBRARIES})
+	target_link_libraries(${TARGET_NAME} tests.catapult.test.${TEST_DEPENDENCY_NAME} ${LIBRARY_UNDER_TEST})
 	catapult_target(${TARGET_NAME})
 endfunction()
 
 # used to define a catapult test executable for a header only catapult library by combining catapult_test_executable and
 # catapult_target and adding some library dependencies
-function(catapult_test_executable_target_header_only TARGET_NAME TEST_DEPENDENCY_NAME)
+# also used when the library under test should not be automatically added because it's included by the test dependency library
+function(catapult_test_executable_target_no_lib TARGET_NAME TEST_DEPENDENCY_NAME)
 	catapult_test_executable(${TARGET_NAME} ${ARGN})
 
 	# customize and export compiler options for gtest

@@ -9,5 +9,4 @@ target_link_libraries(${TARGET_NAME}
 	tests.catapult.test.plugins.mosaic
 	tests.catapult.test.cache
 	tests.catapult.test.mongo
-	catapult.mongo.plugins.mosaic
-	catapult.plugins.mosaic.deps)
+	catapult.mongo.plugins.mosaic)
