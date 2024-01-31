@@ -1,4 +1,4 @@
-FROM symbolplatform/symbol-server-build-base:ubuntu-gcc-12-conan
+FROM symbolplatform/symbol-server-build-base:ubuntu-gcc-13-conan
 
 # install shellcheck and gitlint
 RUN apt-get install -y shellcheck
@@ -18,15 +18,10 @@ RUN apt-get install -y wget gnupg \
 RUN apt-get install -y python3-pip python3-venv
 
 # add ubuntu user (used by jenkins)
-RUN useradd --uid 1000 -ms /bin/bash ubuntu
+RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
 
 # Create the MongoDB data directory
 RUN mkdir -p /data/db \
 	&& chown -R ubuntu:ubuntu /data
 USER ubuntu
 WORKDIR /home/ubuntu
-
-# create a virtual environment
-ENV VIRTUAL_ENV=/home/ubuntu/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"

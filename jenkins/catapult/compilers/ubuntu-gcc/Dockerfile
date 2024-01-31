@@ -1,4 +1,5 @@
-FROM ubuntu:22.04
+ARG FROM_IMAGE=ubuntu:23.10
+FROM ${FROM_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -13,7 +14,7 @@ RUN apt-get update >/dev/null && \
 	>/dev/null 
 	
 # Use the latest gcc version.
-ARG COMPILER_VERSION=12
+ARG COMPILER_VERSION=13
 RUN apt-get update >/dev/null && \
 	apt-get install -y \
 	gcc-${COMPILER_VERSION} g++-${COMPILER_VERSION} >/dev/null && \

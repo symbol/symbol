@@ -166,7 +166,8 @@ const makeWrappedRequest = (server, options = {}) => {
 		headers: {
 			'User-Agent': 'requestWrapper',
 			'Content-Type': 'application/json; charset=utf-8',
-			Accept: 'application/json'
+			Accept: 'application/json',
+			Connection: 'close'
 		}
 	};
 

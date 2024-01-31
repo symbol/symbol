@@ -152,6 +152,7 @@ class OptionsManager:
 		descriptor = self._enable_thread_san_descriptor()
 		descriptor.options += ['-DOPENSSL_ROOT_DIR=/usr/catapult/deps']
 		descriptor.options += get_dependency_flags('mongodb_mongo-cxx-driver')
+		descriptor.options += [f'-DBUILD_VERSION={self.versions["mongodb_mongo-cxx-driver"][1:]}']
 
 		if self.is_msvc:
 			# For build without a C++17 polyfill
@@ -273,6 +274,8 @@ class UbuntuSystem:
 			'ninja-build',
 			'pkg-config',
 			'python3',
+			'python3-pip',
+			'python3-venv',
 			'python3-ply',
 			'xz-utils'
 		]
@@ -389,6 +392,18 @@ class LinuxSystemGenerator:
 			'rm -rf {CMAKE_SCRIPT}'
 		], CMAKE_SCRIPT=cmake_script, CMAKE_URI=cmake_uri)
 
+		# create a virtual python environment
+		print_lines([
+			# add ubuntu user (used by jenkins)
+			'RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu',
+			'USER ubuntu',
+			'WORKDIR /home/ubuntu',
+			'ENV VIRTUAL_ENV=/home/ubuntu/venv',
+			'RUN python3 -m venv $VIRTUAL_ENV',
+			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"',
+			'USER root'
+		])
+
 	def generate_phase_boost(self):
 		print(f'FROM {self.options.layer_image_name("os")}')
 		gosu_version = self.options.versions['gosu']
@@ -488,7 +503,7 @@ class LinuxSystemGenerator:
 		print_line([
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}',
-			'python3 -m pip install -U "conan<2.0"',
+			'python3 -m pip install -U "conan<2.0"'
 		], APT_PACKAGES=' '.join(apt_packages))
 
 
