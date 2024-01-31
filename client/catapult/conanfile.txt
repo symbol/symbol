@@ -1,6 +1,6 @@
 [requires]
 # release dependencies
-boost/1.80.0
+boost/1.83.0
 openssl/3.2.0
 
 cppzmq/4.10.0@nemtech/stable
