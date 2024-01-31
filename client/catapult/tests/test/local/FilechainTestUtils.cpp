@@ -23,7 +23,6 @@
 #include "RealTransactionFactory.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 
 namespace catapult { namespace test {

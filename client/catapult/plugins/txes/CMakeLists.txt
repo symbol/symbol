@@ -19,7 +19,6 @@ function(catapult_tx_plugin_src PLUGIN_BASE_NAME)
 
 	# create a plugin dll
 	catapult_shared_library_target(${PLUGIN_BASE_NAME} plugins)
-	target_link_libraries(${PLUGIN_BASE_NAME} ${PLUGIN_CATAPULT_LIBS})
 
 	if(DEFINED PLUGIN_DEPS_FOLDERS)
 		target_link_libraries(${PLUGIN_BASE_NAME} ${PLUGIN_BASE_NAME}.deps)
