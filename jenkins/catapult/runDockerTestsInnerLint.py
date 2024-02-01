@@ -73,7 +73,6 @@ def run_python_linters(linter_runner, python_files, script_path):
 	linter_runner.run([
 		'pylint',
 		'--rcfile', str(LINTER_DIR.joinpath('python/.pylintrc').resolve()),
-		'--load-plugins', 'pylint_quotes',
 		'--output-format', 'parseable'
 	] + python_files)
 	linter_runner.fixup(lambda line: line if not pylint_warning_pattern.match(line) else f'{script_path}/{line}')

@@ -7,15 +7,11 @@ RUN apt-get update >/dev/null \
 	&& apt-get install -y tzdata \
 	&& apt-get install -y git curl
 
-# install python (python3.9 for ubuntu 20.04)
+# install python
 ARG FROM_IMAGE
-RUN if [ "${FROM_IMAGE}" = "ubuntu:20.04" ]; then \
-		apt-get install -y python3.9 python3-pip python3.9-venv python3.9-dev  \
-		&& update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 10; \
-	else \
-		apt-get install -y python3-pip python3-venv; \
-	fi
-
+ARG PYTHON_VERSION='3.11'
+RUN apt-get install -y python${PYTHON_VERSION} python3-pip python${PYTHON_VERSION}-venv python${PYTHON_VERSION}-dev  \
+		&& update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 10
 
 # install shellcheck
 RUN apt-get install -y shellcheck
@@ -48,4 +44,4 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # install poetry and gitlint
-RUN pip install poetry gitlint wheel
+RUN python3 -m pip install poetry gitlint wheel

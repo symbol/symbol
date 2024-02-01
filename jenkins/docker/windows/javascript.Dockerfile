@@ -12,9 +12,7 @@ RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	$command='c:\scoop.ps1 -RunAsAdmin'; `
 	iex $command; `
 	del c:\scoop.ps1; `
-	scoop install git shellcheck nodejs-lts cygwin rustup; `
-	scoop bucket add versions; `
-	scoop install versions/python311; `
+	scoop install git shellcheck nodejs-lts cygwin rustup python; `
 	python3 -m pip install --upgrade pip; `
 	python3 -m pip install --upgrade gitlint wheel
 

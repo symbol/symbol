@@ -20,4 +20,4 @@ RUN dnf update --assumeyes && dnf install --assumeyes \
 	&& \
 	dnf clean all && \
 	rm -rf /var/cache/yum && \
-	pip3 install -U colorama cryptography gitpython pycodestyle "pylint<3.0.0" pylint-quotes PyYAML
+	pip3 install -U colorama cryptography gitpython pycodestyle pylint PyYAML

@@ -27,7 +27,7 @@ def create_cats_lark_parser():
 		CLOSE_PAREN_types = []
 		INDENT_type = '_INDENT'
 		DEDENT_type = '_DEDENT'
-		tab_len = 4
+		tab_len = 4  # pylint: disable=invalid-name
 
 	class CatbufferTransformer(Transformer):
 		# pylint: disable=too-many-public-methods
