@@ -261,7 +261,7 @@ pipeline {
 								docker.image(baseImageNames[0]).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
 									sh '''
 										cd /catapult-src
-										lcov --directory client/catapult/_build --capture --output-file coverage_all.info
+										lcov --directory client/catapult/_build --capture --output-file coverage_all.info --ignore-errors mismatch
 										lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info
 										lcov --list client_coverage.info
 									'''
