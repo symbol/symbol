@@ -1262,7 +1262,7 @@ namespace catapult { namespace ionet {
 
 	namespace {
 		auto CreateEndpointForListenInterface(const std::string& listenInterface) {
-			return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(listenInterface), test::GetLocalHostPort());
+			return boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(listenInterface), test::GetLocalHostPort());
 		}
 
 		void RunConnectionAcceptedTest(const std::string& listenInterface, const std::string& remoteHost, IpProtocol outgoingProtocols) {

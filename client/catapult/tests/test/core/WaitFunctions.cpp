@@ -39,7 +39,7 @@ namespace catapult { namespace test {
 				return;
 
 			auto pTimer = std::make_shared<boost::asio::steady_timer>(ioContext);
-			pTimer->expires_from_now(std::chrono::milliseconds(waitMillis));
+			pTimer->expires_after(std::chrono::milliseconds(waitMillis));
 			pTimer->async_wait([&ioContext, shouldWait, waitMillis](const auto&) {
 				WaitAsync(ioContext, shouldWait, waitMillis);
 			});
