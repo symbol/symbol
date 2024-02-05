@@ -258,7 +258,7 @@ namespace catapult { namespace test {
 
 				// otherwise, set a timer
 				CATAPULT_LOG(debug) << "delaying for " << delayMillis << "ms";
-				m_timer.expires_from_now(std::chrono::milliseconds(delayMillis));
+				m_timer.expires_after(std::chrono::milliseconds(delayMillis));
 				m_timer.async_wait([continuation](const auto& ec) {
 					CATAPULT_LOG(debug) << "resuming " << ToMessage(ec);
 					continuation();

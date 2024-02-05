@@ -33,6 +33,7 @@ endif()
 ### set boost settings
 add_definitions(-DBOOST_ALL_DYN_LINK)
 add_definitions(-DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
+add_definitions(-DBOOST_ASIO_NO_DEPRECATED)
 
 if(Boost_VERSION VERSION_LESS 1.84)
 	# workaround for https://github.com/boostorg/phoenix/issues/111

@@ -198,7 +198,7 @@ namespace catapult { namespace net {
 
 			public:
 				void setDeadline(size_t millis, const ConnectionHandler& handler) {
-					m_deadline.expires_from_now(std::chrono::milliseconds(millis));
+					m_deadline.expires_after(std::chrono::milliseconds(millis));
 					m_deadline.async_wait([pThis = shared_from_this(), handler](const auto& ec) {
 						pThis->handleTimeout(ec, handler);
 					});
@@ -722,7 +722,7 @@ namespace catapult { namespace net {
 
 	namespace {
 		auto CreateEndpointForListenInterface(const std::string& listenInterface) {
-			return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(listenInterface), test::GetLocalHostPort());
+			return boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(listenInterface), test::GetLocalHostPort());
 		}
 
 		auto CreateServerForConnectionTests(

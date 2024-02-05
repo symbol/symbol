@@ -490,7 +490,7 @@ namespace catapult { namespace thread {
 			auto pTimer = std::make_shared<boost::asio::steady_timer>(ioContext);
 			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, pCounter, [callbackDelayMs, pTimer]() {
 				auto pPromise = std::make_shared<promise<TaskResult>>();
-				pTimer->expires_from_now(std::chrono::milliseconds(callbackDelayMs));
+				pTimer->expires_after(std::chrono::milliseconds(callbackDelayMs));
 				pTimer->async_wait([pPromise](const auto&) {
 					pPromise->set_value(TaskResult::Continue);
 				});
