@@ -92,10 +92,15 @@ namespace catapult { namespace ionet {
 
 		private:
 			void next() {
-				// note that it's very important to not call pop_front here - the request should only be popped
-				// after the callback is invoked (and the operation is complete)
+				// it's very important to not call pop_front here - the request should only be popped
+				// after the callback is invoked (and the operation is complete) - otherwise, the pending write data
+				// could be destroyed before the write is completed
 				auto& request = m_requests.front();
-				request.first.invoke(m_wrapper.wrap(WrappedWithRequests<TCallback>(request.second, *this)));
+
+				// currently, CreateBufferedPacketIo is only called from PacketSocket::buffered, where the underlying PacketSocket
+				// guarantees the read and write callbacks are called from within the appropriate strand, so no additional logic
+				// is needed here
+				request.first.invoke(WrappedWithRequests<TCallback>(request.second, *this));
 			}
 
 			template<typename THandler>
