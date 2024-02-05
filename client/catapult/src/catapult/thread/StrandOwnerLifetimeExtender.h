@@ -89,6 +89,15 @@ namespace catapult { namespace thread {
 		}
 
 	public:
+		/// Attaches \a pOwner to \a handler and dispatches it to the strand.
+		template<typename THandler>
+		void dispatch(const std::shared_ptr<TOwner>& pOwner, THandler handler) {
+			// ensure all handlers extend the lifetime of pOwner and dispatch to a strand
+			boost::asio::dispatch(m_strand, [pOwner, handler]() {
+				handler(pOwner);
+			});
+		}
+
 		/// Attaches \a pOwner to \a handler and posts it to the strand.
 		template<typename THandler>
 		void post(const std::shared_ptr<TOwner>& pOwner, THandler handler) {
