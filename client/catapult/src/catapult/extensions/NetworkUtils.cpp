@@ -101,7 +101,7 @@ namespace catapult { namespace extensions {
 			const supplier<Timestamp>& timeSupplier,
 			subscribers::NodeSubscriber& nodeSubscriber,
 			net::AcceptedConnectionContainer& acceptor) {
-		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.Node.ListenInterface), port);
+		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(config.Node.ListenInterface), port);
 		BootServerState bootServerState(port, serviceId, nodeSubscriber, acceptor);
 		auto rateMonitorSettings = GetRateMonitorSettings(config.Node.Banning);
 

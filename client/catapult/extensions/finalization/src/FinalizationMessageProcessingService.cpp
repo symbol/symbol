@@ -94,7 +94,7 @@ namespace catapult { namespace finalization {
 						if (!pRecentHashCache->add(messageHash))
 							continue;
 
-						messageProcessingPool.ioContext().dispatch([&messageAggregator, pMessage, messageHash]() {
+						boost::asio::dispatch(messageProcessingPool.ioContext(), [&messageAggregator, pMessage, messageHash]() {
 							auto addResult = messageAggregator.modifier().add(pMessage);
 							if (addResult < chain::RoundMessageAggregatorAddResult::Neutral_Redundant)
 								CATAPULT_LOG(warning) << "finalization message " << messageHash << " rejected due to " << addResult;
