@@ -18,7 +18,7 @@ RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	del c:\scoop.ps1; `
 	scoop install git shellcheck openssl cmake cygwin python; `
 	python3 -m pip install --upgrade pip; `
-	python3 -m pip install --upgrade gitlint wheel
+	python3 -m pip install --upgrade gitlint wheel setuptools
 
 # Set VS tools first in the path so the correct link.exe is used.
 RUN Set-Content -Path c:\Users\ContainerAdministrator\.bash_profile  -Value 'export PATH=${VCToolsInstallDir}bin/Hostx64/x64:${PATH}'

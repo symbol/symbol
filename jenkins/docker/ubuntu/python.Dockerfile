@@ -44,4 +44,4 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # install poetry and gitlint
-RUN python3 -m pip install poetry gitlint wheel
+RUN python3 -m pip install poetry gitlint wheel setuptools
