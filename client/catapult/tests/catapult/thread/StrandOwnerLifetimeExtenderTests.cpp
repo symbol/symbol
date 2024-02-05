@@ -80,8 +80,7 @@ namespace catapult { namespace thread {
 		TestContext context;
 
 		// Act: create a wrapper that does NOT capture the owner shared_ptr
-		auto& extender = context.Extender;
-		auto addCrumbs = extender.wrap(context.pOwner, [&owner = *context.pOwner](auto id, auto numCrumbs) {
+		auto addCrumbs = context.Extender.wrap(context.pOwner, [&owner = *context.pOwner](auto id, auto numCrumbs) {
 			owner.addCrumbs(static_cast<uint8_t>(id), static_cast<uint8_t>(numCrumbs));
 		});
 
@@ -92,6 +91,27 @@ namespace catapult { namespace thread {
 		DispatchWrappedFunction(addCrumbs, 0x70, 5);
 		DispatchWrappedFunction(addCrumbs, 0x10, 1);
 		DispatchWrappedFunction(addCrumbs, 0xF0, 3);
+
+		// - wait for all work to complete
+		context.pPool->join();
+
+		// Assert: all breadcrumbs were pushed in order
+		BreadcrumbsType expected{ 0x7001, 0x7002, 0x7003, 0x7004, 0x7005, 0x1001, 0xF001, 0xF002, 0xF003 };
+		EXPECT_EQ(expected, context.Breadcrumbs);
+		EXPECT_FALSE(!!context.pOwner); // sanity
+	}
+
+	TEST(TEST_CLASS, DispatchExtendsLifetime) {
+		// Arrange:
+		TestContext context;
+
+		// Act: dispatch some work that does NOT capture the owner shared_ptr
+		context.Extender.dispatch(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0x70, 5); });
+		context.Extender.dispatch(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0x10, 1); });
+		context.Extender.dispatch(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0xF0, 3); });
+
+		// - destroy the owner
+		context.pOwner.reset();
 
 		// - wait for all work to complete
 		context.pPool->join();
@@ -123,20 +143,19 @@ namespace catapult { namespace thread {
 		EXPECT_FALSE(!!context.pOwner); // sanity
 	}
 
-	TEST(TEST_CLASS, WrapAndPostAreProtectedByStrand) {
+	TEST(TEST_CLASS, AllOperationsAreProtectedByStrand) {
 		// Arrange:
 		TestContext context;
 
 		// - create a wrapper
-		auto& extender = context.Extender;
-		auto addCrumbs = extender.wrap(context.pOwner, [&owner = *context.pOwner](auto id, auto numCrumbs) {
+		auto addCrumbs = context.Extender.wrap(context.pOwner, [&owner = *context.pOwner](auto id, auto numCrumbs) {
 			owner.addCrumbs(static_cast<uint8_t>(id), static_cast<uint8_t>(numCrumbs));
 		});
 
-		// Act: post some work via post and addCrumbs, neither of which capture the owner shared_ptr
+		// Act: add some work via post, dispatch and addCrumbs; none of which capture the owner shared_ptr
 		context.Extender.post(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0x70, 2); });
 		DispatchWrappedFunction(addCrumbs, 0x07, 2);
-		context.Extender.post(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0x10, 2); });
+		context.Extender.dispatch(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0x10, 2); });
 		DispatchWrappedFunction(addCrumbs, 0xAA, 2);
 		context.Extender.post(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0xF0, 2); });
 
@@ -148,6 +167,31 @@ namespace catapult { namespace thread {
 
 		// Assert: all breadcrumbs were pushed in order
 		BreadcrumbsType expected{ 0x7001, 0x7002, 0x0701, 0x0702, 0x1001, 0x1002, 0xAA01, 0xAA02, 0xF001, 0xF002 };
+		EXPECT_EQ(expected, context.Breadcrumbs);
+		EXPECT_FALSE(!!context.pOwner); // sanity
+	}
+
+	TEST(TEST_CLASS, PostDispatchHaveExpectedBehaviorWhenCalledWithinStrand) {
+		// Arrange:
+		TestContext context;
+
+		// Act: post and dispatch within the strand
+		DispatchWrappedFunction(context.Extender.wrap(context.pOwner, [&context, pOwnerOuter = context.pOwner]() {
+			context.Extender.post(pOwnerOuter, [](const auto& pOwner) { pOwner->addCrumbs(0x80, 2); });
+			context.Extender.dispatch(pOwnerOuter, [](const auto& pOwner) { pOwner->addCrumbs(0x90, 2); });
+			context.Extender.post(pOwnerOuter, [](const auto& pOwner) { pOwner->addCrumbs(0xA0, 2); });
+			context.Extender.dispatch(pOwnerOuter, [](const auto& pOwner) { pOwner->addCrumbs(0xB0, 2); });
+		}));
+
+		// - destroy the owner
+		context.pOwner.reset();
+
+		// - wait for all work to complete
+		context.pPool->join();
+
+		// Assert: all breadcrumbs were pushed in expected order
+		// dispatch should execute immediately when called within a strand, while post should wait for the strand to be available
+		BreadcrumbsType expected{ 0x9001, 0x9002, 0xB001, 0xB002, 0x8001, 0x8002, 0xA001, 0xA002 };
 		EXPECT_EQ(expected, context.Breadcrumbs);
 		EXPECT_FALSE(!!context.pOwner); // sanity
 	}
