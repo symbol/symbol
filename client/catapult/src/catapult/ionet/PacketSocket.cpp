@@ -116,8 +116,15 @@ namespace catapult { namespace ionet {
 
 		public:
 			void close() {
+				m_strandWrapper.dispatch(shared_from_this(), [](const auto& pGuard) {
+					pGuard->closeImpl();
+				});
+			}
+
+		private:
+			void closeImpl() {
 				if (m_isClosed.test_and_set()) {
-					abort();
+					abortImpl();
 					return;
 				}
 
@@ -132,13 +139,23 @@ namespace catapult { namespace ionet {
 					if (ec && !IsProtocolShutdown(ec))
 						CATAPULT_LOG(warning) << "async_write returned an error: " << ec.message();
 
-					abort();
+					abortImpl();
 				}));
 			}
 
+		public:
 			void abort() {
+				m_strandWrapper.dispatch(shared_from_this(), [](const auto& pGuard) {
+					pGuard->abortImpl();
+				});
+			}
+
+		private:
+			void abortImpl() {
 				boost::system::error_code ignoredEc;
 				m_socket.lowest_layer().close(ignoredEc);
+
+				m_isClosed.test_and_set();
 			}
 
 		private:
