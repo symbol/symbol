@@ -67,6 +67,12 @@ namespace catapult { namespace thread {
 					, Extender(Strand)
 			{}
 		};
+
+		template<typename TFunc, typename... TArgs>
+		void DispatchWrappedFunction(TFunc func, TArgs&&... args) {
+			// simulate deprecated strand::wrap
+			boost::asio::dispatch(boost::asio::get_associated_executor(func), std::bind(func, std::forward<TArgs>(args)...));
+		}
 	}
 
 	TEST(TEST_CLASS, WrapExtendsLifetime) {
@@ -83,9 +89,9 @@ namespace catapult { namespace thread {
 		context.pOwner.reset();
 
 		// - invoke some work
-		addCrumbs(0x70, 5);
-		addCrumbs(0x10, 1);
-		addCrumbs(0xF0, 3);
+		DispatchWrappedFunction(addCrumbs, 0x70, 5);
+		DispatchWrappedFunction(addCrumbs, 0x10, 1);
+		DispatchWrappedFunction(addCrumbs, 0xF0, 3);
 
 		// - wait for all work to complete
 		context.pPool->join();
@@ -129,9 +135,9 @@ namespace catapult { namespace thread {
 
 		// Act: post some work via post and addCrumbs, neither of which capture the owner shared_ptr
 		context.Extender.post(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0x70, 2); });
-		addCrumbs(0x07, 2);
+		DispatchWrappedFunction(addCrumbs, 0x07, 2);
 		context.Extender.post(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0x10, 2); });
-		addCrumbs(0xAA, 2);
+		DispatchWrappedFunction(addCrumbs, 0xAA, 2);
 		context.Extender.post(context.pOwner, [](const auto& pOwner) { pOwner->addCrumbs(0xF0, 2); });
 
 		// - destroy the owner

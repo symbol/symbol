@@ -56,7 +56,7 @@ namespace catapult { namespace thread {
 
 		public:
 			void setTimeout(const utils::TimeSpan& timeout) {
-				m_timer.expires_from_now(std::chrono::milliseconds(timeout.millis()));
+				m_timer.expires_after(std::chrono::milliseconds(timeout.millis()));
 				m_timer.async_wait(m_wrapper.wrap([this](const auto&) {
 					this->handleTimedOut();
 				}));

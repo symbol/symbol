@@ -52,7 +52,7 @@ namespace catapult { namespace ionet {
 			m_data.resize(m_originalSize);
 	}
 
-	boost::asio::mutable_buffers_1 AppendContext::buffer() {
+	boost::asio::mutable_buffer AppendContext::buffer() {
 		assertNotCommitted();
 		return boost::asio::buffer(&m_data[m_originalSize], m_appendSize);
 	}
