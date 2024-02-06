@@ -24,8 +24,6 @@ js-sys = "0.3.59"
 curve25519-dalek = { version = "4", default-features = false }
 hex = { version = "0.4.3", features = ["serde"] }
 sha2 = { version = "0.10", default-features = false }
-serde = { version = "1.0.144", default-features = false, optional = true }
-serde_bytes = { version = "0.11", optional = true }
 subtle = "2.5.0"
 zeroize = "1.5.7"
 
@@ -49,6 +47,5 @@ opt-level = "s"
 default = [
 	"curve25519-dalek/precomputed-tables",
 	"curve25519-dalek/zeroize",
-	"serde",
 	"console_error_panic_hook"
 ]

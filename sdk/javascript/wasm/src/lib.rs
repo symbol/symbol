@@ -12,8 +12,6 @@ extern crate curve25519_dalek;
 use curve25519_dalek::scalar::Scalar;
 use curve25519_dalek::edwards::{CompressedEdwardsY, EdwardsPoint};
 
-extern crate serde;
-
 use sha2::{Digest as Sha2Digest, Sha512};
 use sha3::{Keccak512};
 
