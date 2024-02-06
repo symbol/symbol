@@ -167,6 +167,18 @@ pipeline {
 						}
 					}
 				}
+				stage('san test base image') {
+					when {
+						expression {
+							helper.isAmd64Architecture(env.ARCHITECTURE)
+						}
+					}
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('test', 'ubuntu', 'amd64', true)
+						}
+					}
+				}
 				stage('test base image [debian]') {
 					steps {
 						script {
@@ -228,7 +240,7 @@ void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSys
 	build job: 'catapult-client-build-base-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
-		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${shouldBuildConanLayer}"),
+		booleanParam(name: 'SHOULD_BUILD_CONAN_LAYER', value: shouldBuildConanLayer),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
@@ -238,7 +250,7 @@ void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSys
 	]
 }
 
-void dispatchPrepareBaseImageJob(String imageType, String operatingSystem, String architecture) {
+void dispatchPrepareBaseImageJob(String imageType, String operatingSystem, String architecture, boolean sanitizerBuild = false) {
 	build job: 'catapult-client-prepare-base-image', parameters: [
 		string(name: 'IMAGE_TYPE', value: "${imageType}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
@@ -246,7 +258,8 @@ void dispatchPrepareBaseImageJob(String imageType, String operatingSystem, Strin
 		string(name: 'ARCHITECTURE', value: "${architecture}"),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
-			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
-		)
+			value: !env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()
+		),
+		booleanParam(name: 'SANITIZER_BUILD', value: sanitizerBuild)
 	]
 }
