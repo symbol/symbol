@@ -394,3 +394,8 @@ overgeneral-exceptions=builtins.Exception
 # This flag controls whether inconsistent-quotes generates a warning when the
 # character used as a quote delimiter is used inconsistently within a module.
 check-quote-consistency=yes
+
+[MAIN]
+
+# Minimum supported python version
+py-version = 3.8
