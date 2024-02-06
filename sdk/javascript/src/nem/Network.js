@@ -36,6 +36,12 @@ export class Address extends ByteArray {
 	static ENCODED_SIZE = 40;
 
 	/**
+	 * Byte array name (required because `constructor.name` is dropped during minification).
+	 * @type string
+	 */
+	static NAME = 'Address';
+
+	/**
 	 * Creates a NEM address.
 	 * @param {Uint8Array|string|Address} addressInput Input string, byte array or address.
 	 */

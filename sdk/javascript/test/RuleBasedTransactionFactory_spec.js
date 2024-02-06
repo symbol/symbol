@@ -403,7 +403,7 @@ describe('RuleBasedTransactionFactory', () => {
 			expect(parsed.mosaicId instanceof Module.UnresolvedMosaicId).to.equal(true);
 		});
 
-		it('can parse with type converter and autodetect byte arrays', () => {
+		const assertCanParseWithTypeConverterAndAutodetectByteArrays = ByteArrayClass => {
 			// Arrange:
 			const factory = new RuleBasedTransactionFactory(Module);
 			factory.addPodParser('Hash256', Module.Hash256);
@@ -412,13 +412,21 @@ describe('RuleBasedTransactionFactory', () => {
 
 			// Act:
 			const parsed = rule({
-				hash: new Hash256('E9B3AEDE9A57C2B8C3D78DB9805D12AB0D983B63CE8F89D8DFE108D0FF08D23C')
+				hash: new ByteArrayClass('E9B3AEDE9A57C2B8C3D78DB9805D12AB0D983B63CE8F89D8DFE108D0FF08D23C')
 			});
 
 			// Assert:
 			expect(parsed.hash).to.deep.equal(new Module.Hash256('E9B3AEDE9A57C2B8C3D78DB9805D12AB0D983B63CE8F89D8DFE108D0FF08D23C'));
 
 			expect(parsed.hash instanceof Module.Hash256).to.equal(true);
+		};
+
+		it('can parse with type converter and autodetect byte arrays (from public type)', () => {
+			assertCanParseWithTypeConverterAndAutodetectByteArrays(Hash256);
+		});
+
+		it('can parse with type converter and autodetect byte arrays (from model type)', () => {
+			assertCanParseWithTypeConverterAndAutodetectByteArrays(Module.Hash256);
 		});
 	});
 

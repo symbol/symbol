@@ -30,6 +30,12 @@ describe('Address (NEM)', () => {
 		encodedAddress: 'TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
 		decodedAddress: hexToUint8('988A692D13959918BA9A33BE57B114A0C8BA3E59A3684C977B')
 	});
+
+	it('has correct constants', () => {
+		expect(Address.NAME).to.deep.equal('Address');
+		expect(Address.SIZE).to.deep.equal(25);
+		expect(Address.ENCODED_SIZE).to.deep.equal(40);
+	});
 });
 
 describe('Network (NEM)', () => {

@@ -45,6 +45,12 @@ describe('Address (Symbol)', () => {
 		encodedAddress: 'TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA',
 		decodedAddress: hexToUint8('985783F7A83BE5D8084C6DA3B366CAAFACC129F36A3EA90C')
 	});
+
+	it('has correct constants', () => {
+		expect(Address.NAME).to.deep.equal('Address');
+		expect(Address.SIZE).to.deep.equal(24);
+		expect(Address.ENCODED_SIZE).to.deep.equal(39);
+	});
 });
 
 describe('Network (Symbol)', () => {

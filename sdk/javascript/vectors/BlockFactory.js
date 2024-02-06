@@ -15,6 +15,8 @@ import * as sc from '../src/symbol/models.js';
 class ProofGamma extends ByteArray {
 	static SIZE = 32;
 
+	static NAME = 'ProofGamma';
+
 	/**
 	 * Creates a vrf proof gamma from bytes or a hex string.
 	 * @param {Uint8Array|string} proofGamma Input string or byte array.
@@ -30,6 +32,8 @@ class ProofGamma extends ByteArray {
 class ProofVerificationHash extends ByteArray {
 	static SIZE = 16;
 
+	static NAME = 'ProofVerificationHash';
+
 	/**
 	 * Creates a proof verification hash from bytes or a hex string.
 	 * @param {Uint8Array|string} proofVerificationHash Input string or byte array.
@@ -44,6 +48,8 @@ class ProofVerificationHash extends ByteArray {
  */
 class ProofScalar extends ByteArray {
 	static SIZE = 32;
+
+	static NAME = 'ProofScalar';
 
 	/**
 	 * Creates a vrf proof scalar from bytes or a hex string.

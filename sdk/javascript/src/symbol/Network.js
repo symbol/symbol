@@ -46,6 +46,12 @@ export class Address extends ByteArray {
 	static ENCODED_SIZE = 39;
 
 	/**
+	 * Byte array name (required because `constructor.name` is dropped during minification).
+	 * @type string
+	 */
+	static NAME = 'Address';
+
+	/**
 	 * Creates a Symbol address.
 	 * @param {Uint8Array|string|Address} addressInput Input string, byte array or address.
 	 */
