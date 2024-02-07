@@ -1,7 +1,7 @@
 [requires]
 # release dependencies
 boost/1.83.0
-openssl/3.2.0
+openssl/3.2.1
 
 cppzmq/4.10.0@nemtech/stable
 mongo-cxx-driver/3.9.0@nemtech/stable
