@@ -12,8 +12,6 @@ extern crate curve25519_dalek;
 use curve25519_dalek::scalar::Scalar;
 use curve25519_dalek::edwards::{CompressedEdwardsY, EdwardsPoint};
 
-extern crate serde;
-
 use sha2::{Digest as Sha2Digest, Sha512};
 use sha3::{Keccak512};
 
@@ -104,7 +102,7 @@ fn copy_and_clamp_private_hash(private_hash: &[u8; HASH_LENGTH]) -> Scalar {
 	bits[31] &= 127;
 	bits[31] |= 64;
 
-	Scalar::from_bits(*&mut bits)
+	Scalar::from_bytes_mod_order(*&mut bits)
 }
 
 fn hash_to_scalar(builder: Hasher512) -> Scalar {
@@ -132,7 +130,7 @@ pub fn crypto_sign_keypair_unboxed(hash_mode: HashMode, sk: &[u8; SECRET_KEY_LEN
 	let mut key = copy_and_clamp_private_hash(&private_hash);
 	private_hash.zeroize();
 
-	let point = &key * &curve25519_dalek::constants::ED25519_BASEPOINT_TABLE;
+	let point = &key * curve25519_dalek::constants::ED25519_BASEPOINT_TABLE;
 	key.zeroize();
 
 	let compressed = point.compress();
@@ -146,7 +144,7 @@ pub fn crypto_private_sign_unboxed(hash_mode: HashMode, sk: &[u8; SECRET_KEY_LEN
 	// R = rModQ * base point
 	let r = generate_nonce(hash_mode, &private_hash, &message);
 	#[allow(non_snake_case)]
-	let R: CompressedEdwardsY = (&r * &curve25519_dalek::constants::ED25519_BASEPOINT_TABLE).compress();
+	let R: CompressedEdwardsY = (&r * curve25519_dalek::constants::ED25519_BASEPOINT_TABLE).compress();
 
 	// h = H(encodedR || public || data)
 	let public_key = crypto_sign_keypair_unboxed(hash_mode, &sk);
@@ -186,8 +184,14 @@ pub fn crypto_private_verify_unboxed(
 	// check s scalar before hashing
 	let mut upper: [u8; 32] = [0u8; 32];
 	upper.copy_from_slice(&signature[32..]);
-	let s: Scalar = Scalar::from_bits(upper);
-	if Scalar::zero() == s || !s.is_canonical() {
+	let s_option: subtle::CtOption<Scalar> = Scalar::from_canonical_bytes(upper);
+
+	if s_option.is_none().into() {
+		return false;
+	}
+
+	let s: Scalar = s_option.unwrap();
+	if Scalar::ZERO == s {
 		return false;
 	}
 

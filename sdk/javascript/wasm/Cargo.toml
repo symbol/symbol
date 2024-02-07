@@ -21,11 +21,10 @@ js-sys = "0.3.59"
 
 # dalek deps
 
-curve25519-dalek = { version = "3", default-features = false }
-sha2 = { version = "0.10", default-features = false }
-serde = { version = "1.0.144", default-features = false, optional = true }
-serde_bytes = { version = "0.11", optional = true }
+curve25519-dalek = { version = "4", default-features = false }
 hex = { version = "0.4.3", features = ["serde"] }
+sha2 = { version = "0.10", default-features = false }
+subtle = "2.5.0"
 zeroize = "1.5.7"
 
 [dev-dependencies]
@@ -45,11 +44,8 @@ opt-level = "s"
 # debuginfo = 1
 
 [features]
-default = ["std", "u64_backend", "console_error_panic_hook"]
-
-std = ["curve25519-dalek/std", "serde/std", "sha2/std"]
-
-u64_backend = ["curve25519-dalek/u64_backend"]
-u32_backend = ["curve25519-dalek/u32_backend"]
-simd_backend = ["curve25519-dalek/simd_backend"]
-
+default = [
+	"curve25519-dalek/precomputed-tables",
+	"curve25519-dalek/zeroize",
+	"console_error_panic_hook"
+]
