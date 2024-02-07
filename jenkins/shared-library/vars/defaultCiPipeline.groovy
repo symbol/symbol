@@ -226,13 +226,8 @@ void call(Closure body) {
 					}
 					stage('run tests (vectors)') {
 						when {
-							allOf {
-								expression {
-									return params.SHOULD_RUN_ALL_TEST?.toBoolean()
-								}
-								expression {
-									return fileExists(resolvePath(packageRootPath, env.TEST_VECTORS_SCRIPT_FILEPATH))
-								}
+							expression {
+								return fileExists(resolvePath(packageRootPath, env.TEST_VECTORS_SCRIPT_FILEPATH))
 							}
 						}
 						steps {
@@ -255,8 +250,7 @@ void call(Closure body) {
 									// If all the tests are not run then code coverage will fail to meet the required minimum
 									// Nightly builds will run all tests.
 									return (params.SHOULD_RUN_ALL_TEST?.toBoolean()
-										|| (!fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH))
-										&& !fileExists(resolvePath(packageRootPath, env.TEST_VECTORS_SCRIPT_FILEPATH))))
+										|| !fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH)))
 								}
 							}
 						}
