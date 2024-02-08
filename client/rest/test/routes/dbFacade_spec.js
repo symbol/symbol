@@ -74,7 +74,9 @@ describe('db facade', () => {
 				transactionsByHashesStub.restore();
 			});
 		};
-		const toBinary = hash => new Binary(`${hash}`);
+		// hash is provided as a number in tests
+		// toBinary maps each number "hash" to a number[], which will result in an equivalent Binary object for the same input
+		const toBinary = hash => new Binary(`${hash}`.split('').map(ch => parseInt(ch, 10)));
 
 		const createFailed = (value, hash) => ({ status: { f: value, hash: toBinary(hash) } });
 		const createUnwrappedFailedStatus = (value, hash) => ({ group: 'failed', f: value, hash: toBinary(hash) });

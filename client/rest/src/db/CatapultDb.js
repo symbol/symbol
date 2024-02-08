@@ -125,11 +125,10 @@ class CatapultDb {
 		if (!this.database)
 			return Promise.resolve();
 
-		return new Promise(resolve => {
-			this.client.close(resolve);
-			this.client = undefined;
-			this.database = undefined;
-		});
+		const closePromise = this.client.close();
+		this.client = undefined;
+		this.database = undefined;
+		return closePromise;
 	}
 
 	// endregion

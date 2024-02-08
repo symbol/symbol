@@ -30,12 +30,12 @@ describe('db utils', () => {
 	describe('convertToLong', () => {
 		it('can convert from integer to long', () => {
 			// Act + Assert:
-			expect(dbUtils.convertToLong(123)).to.deep.equal(MongoDb.Long(123, 0));
+			expect(dbUtils.convertToLong(123)).to.deep.equal(new MongoDb.Long(123, 0));
 		});
 
 		it('can convert from uint64 array to long', () => {
 			// Act + Assert:
-			expect(dbUtils.convertToLong([123, 456])).to.deep.equal(MongoDb.Long(123, 456));
+			expect(dbUtils.convertToLong([123, 456])).to.deep.equal(new MongoDb.Long(123, 456));
 		});
 
 		it('can convert from negative one to long', () => {
@@ -72,7 +72,7 @@ describe('db utils', () => {
 	describe('longToUint64', () => {
 		it('can convert from long to uint64', () => {
 			// Act + Assert:
-			expect(dbUtils.longToUint64(MongoDb.Long(123, 456))).to.deep.equal([123, 456]);
+			expect(dbUtils.longToUint64(new MongoDb.Long(123, 456))).to.deep.equal([123, 456]);
 		});
 
 		it('can convert from one, long value, to uint64', () => {

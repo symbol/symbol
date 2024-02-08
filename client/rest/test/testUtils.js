@@ -43,7 +43,7 @@ module.exports = {
 	random,
 	factory: {
 		createBinary: buffer => new MongoDb.Binary(buffer),
-		createObjectIdFromHexString: id => new MongoDb.ObjectID(id)
+		createObjectIdFromHexString: id => new MongoDb.ObjectId(id)
 	},
 	log: (...args) => {
 		winston.debug(...args);
