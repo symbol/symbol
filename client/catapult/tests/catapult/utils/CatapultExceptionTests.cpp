@@ -120,7 +120,7 @@ namespace catapult {
 			std::string endBrace = " >";
 			std::string exceptionFqn = std::string(TTraits::Exception_Fqn);
 
-#if 15 == __clang_major__
+#if 15 <= __clang_major__
 			endBrace = ">";
 			std::string toSearch = "> >";
 			auto pos = exceptionFqn.find(toSearch);
