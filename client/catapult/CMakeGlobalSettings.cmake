@@ -160,6 +160,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	# - Wno-padded: allow compiler to automatically pad data types for alignment
 	# - Wno-switch-enum: do not require enum switch statements to list every value (this setting is also incompatible with GCC warnings)
 	# - Wno-weak-vtables: vtables are emitted in all translation units for virtual classes with no out-of-line virtual method definitions
+	# - Wno-unsafe-buffer-usage: allow unsafe buffer usage https://reviews.llvm.org/D137379
+	# = Wno-shadow-uncaptured-local: allow shadowing of local variables in lambdas https://github.com/llvm/llvm-project/issues/81307
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 		-stdlib=libc++ \
 		-Weverything \
@@ -169,7 +171,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		-Wno-disabled-macro-expansion \
 		-Wno-padded \
 		-Wno-switch-enum \
-		-Wno-weak-vtables")
+		-Wno-weak-vtables \
+		-Wno-unsafe-buffer-usage \
+		-Wno-shadow-uncaptured-local")
 
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
 endif()

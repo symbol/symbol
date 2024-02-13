@@ -22,6 +22,7 @@
 #pragma once
 #include "PacketType.h"
 #include <iosfwd>
+#include <stddef.h>
 
 namespace catapult { namespace ionet {
 
