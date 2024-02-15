@@ -18,10 +18,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+const metal = require('./metal');
 const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
 const routeUtils = require('../../routes/routeUtils');
-const metal = require('./metal');
 
 class MetadataDb {
 	/**
@@ -89,7 +88,7 @@ class MetadataDb {
 	 */
 	binDataByMetalId(metalId, step) {
 		const compositeHashes = [routeUtils.parseArgument(metal.restoreMetadataHash(metalId), 'compositeHash', 'hash256')];
-		return step ?  metal.decodeDataStepByStep(this, compositeHashes) : metal.decodeDataBulk(this, compositeHashes);
+		return step ? metal.decodeDataStepByStep(this, compositeHashes) : metal.decodeDataBulk(this, compositeHashes);
 	}
 }
 

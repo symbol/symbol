@@ -23,6 +23,10 @@ const catapult = require('../../catapult-sdk/index');
 const merkleUtils = require('../../routes/merkleUtils');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
+const NodeCache = require('node-cache');
+
+const cache = new NodeCache();
+
 const { PacketType } = catapult.packet;
 
 module.exports = {
@@ -64,7 +68,8 @@ module.exports = {
 
 		/*
 		 * If mimeType is empty, use `application/octet-stream`
-		 * If fileName is empty, `Content-Dispositio`n is set to `inline` and the file is downloaded. Include the extension in the file name.
+		 * If fileName is empty, `Content-Dispositio`n is set to `inline` and the file is downloaded.
+		 * Include the extension in the file name.
 		 * If both are empty, the file is downloaded with the Metal ID as the file name.
 		 */
 		server.get('/metadata/metal/:metalId', async (req, res, next) => {
@@ -73,12 +78,17 @@ module.exports = {
 				mimeType,
 				fileName
 			);
-			let { metalId, mimeType, fileName, step } = req.params;
+			const {
+				metalId, fileName, step
+			} = req.params;
+			let {
+				mimeType
+			} = req.params;
 			const cacheKey = `metadata:${metalId}}`;
-			const cachedData = cache.get(cacheKey)
+			const cachedData = cache.get(cacheKey);
 			mimeType = mimeType ?? 'application/octet-stream';
-			
-			if(cachedData != undefined) {
+
+			if (cachedData !== undefined) {
 				sendData(cachedData, mimeType, fileName);
 			} else {
 				const data = await db.binDataByMetalId(metalId, step);
