@@ -23,7 +23,8 @@ const catapult = require('../../catapult-sdk/index');
 const merkleUtils = require('../../routes/merkleUtils');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
-
+const metal = require('./metal');
+const { convertToLong } = require('../../db/dbUtils');
 const { PacketType } = catapult.packet;
 
 module.exports = {
@@ -61,6 +62,32 @@ module.exports = {
 				res.send(response);
 				next();
 			});
+		});
+
+		/*
+		 * If mimeType is empty, use `application/octet-stream`
+		 * If fileName is empty, `Content-Dispositio`n is set to `inline` and the file is downloaded. Include the extension in the file name.
+		 * If both are empty, the file is downloaded with the Metal ID as the file name.
+		 */
+		server.get('/metadata/metal/:metalId', async (req, res, next) => {
+			const sendData = (data, mimeType, fileName) => routeUtils.createSender('content').sendData(res, next)(
+				data,
+				mimeType,
+				fileName
+			);
+			let { metalId, mimeType, fileName, step } = req.params;
+			const cacheKey = `metadata:${metalId}}`;
+			const cachedData = cache.get(cacheKey)
+			mimeType = mimeType ?? 'application/octet-stream';
+			
+			if(cachedData != undefined) {
+				sendData(cachedData, mimeType, fileName);
+			} else {
+				const data = await db.binDataByMetalId(metalId, step);
+				// Cache the data for 1 hour
+				cache.set(cacheKey, data, 3600);
+				sendData(data, mimeType, fileName);
+			}
 		});
 	}
 };

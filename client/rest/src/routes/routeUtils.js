@@ -275,6 +275,23 @@ const routeUtils = {
 				res.send(data);
 				next();
 			};
+		},
+
+		/**
+		 * Creates a data handler that forwards binary data result.
+		 * @param {object} res Restify response object.
+		 * @param {Function} next Restify next callback handler.
+		 * @returns {Function} An appropriate object handler.
+		 */
+		sendData(res, next) {
+			return (data, mime, fileName) => {
+				res.setHeader('content-type', mime);
+				const disposition = fileName ? `attachment; filename="${fileName}"` : 'inline;';
+				res.setHeader('Content-Disposition', `${disposition}"`);
+				res.write(data);
+				res.end();
+				next();
+			};
 		}
 	}),
 

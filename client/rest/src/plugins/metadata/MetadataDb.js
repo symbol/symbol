@@ -20,6 +20,8 @@
  */
 
 const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+const routeUtils = require('../../routes/routeUtils');
+const metal = require('./metal');
 
 class MetadataDb {
 	/**
@@ -77,6 +79,17 @@ class MetadataDb {
 			.sort({ _id: -1 })
 			.toArray()
 			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
+	}
+
+	/**
+	 * Obtain binary data based on metal id
+	 * @param {string} metalId metal Id
+	 * @param {boolean} step Set to true if you want step-by-step decoding
+	 * @returns {Buffer} Decoded binary data.
+	 */
+	binDataByMetalId(metalId, step) {
+		const compositeHashes = [routeUtils.parseArgument(metal.restoreMetadataHash(metalId), 'compositeHash', 'hash256')];
+		return step ?  metal.decodeDataStepByStep(this, compositeHashes) : metal.decodeDataBulk(this, compositeHashes);
 	}
 }
 
