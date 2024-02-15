@@ -23,8 +23,6 @@ const catapult = require('../../catapult-sdk/index');
 const merkleUtils = require('../../routes/merkleUtils');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
-const metal = require('./metal');
-const { convertToLong } = require('../../db/dbUtils');
 const { PacketType } = catapult.packet;
 
 module.exports = {
