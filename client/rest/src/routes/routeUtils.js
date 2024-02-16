@@ -284,10 +284,12 @@ const routeUtils = {
 		 * @returns {Function} An appropriate object handler.
 		 */
 		sendData(res, next) {
-			return (data, mime, fileName) => {
+			return (data, mime, fileName, text) => {
 				res.setHeader('content-type', mime);
 				const disposition = fileName ? `attachment; filename="${fileName}"` : 'inline;';
 				res.setHeader('Content-Disposition', `${disposition}"`);
+				if (text)
+					res.setHeader('Content-Text', `${text}`);
 				res.write(data);
 				res.end();
 				next();

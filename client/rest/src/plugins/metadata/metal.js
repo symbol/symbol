@@ -1,9 +1,9 @@
 const catapult = require('../../catapult-sdk');
-const { longToUint64 } = require('../../db/dbUtils');
 const { sha3_256 } = require('@noble/hashes/sha3');
 const bs58 = require('bs58');
 
 const METAL_ID_HEADER_HEX = '0B2A';
+const METAL_ID_LENGTH = 68;
 
 const metal = {
 	/**
@@ -13,22 +13,9 @@ const metal = {
 	 */
 	restoreMetadataHash(metalId) {
 		const hashHex = catapult.utils.convert.uint8ToHex(bs58.decode(metalId));
-		if (!hashHex.startsWith(METAL_ID_HEADER_HEX))
+		if (!hashHex.startsWith(METAL_ID_HEADER_HEX) || METAL_ID_LENGTH !== hashHex.length)
 			throw Error('Invalid metal ID.');
 		return { compositeHash: hashHex.slice(METAL_ID_HEADER_HEX.length) };
-	},
-
-	/**
-   * Split and return the value of a metadata entry according to the metadata protocol.
-   * @param {Buffer} b Value obtained from metadata entry.
-   * @returns {object} Objects containing values in line with the METAL protocol.
-   */
-	splitBuffer(b) {
-		return {
-			magic: b.subarray(0, 1),
-			scopedMetadataKey: catapult.utils.uint64.fromBytes(new Uint8Array(b.subarray(4, 12)).reverse()),
-			value: b.subarray(12)
-		};
 	},
 
 	/**
@@ -45,16 +32,59 @@ const metal = {
 	},
 
 	/**
+	 * extract chunk and return the value of a metadata entry according to the metadata protocol.
+	 * @param {Buffer} b Value obtained from metadata entry.
+	 * @returns {object} Objects containing values in line with the METAL protocol.
+	 * - magic: number
+	 * - text: boolean
+	 * - scopedMetadataKey: uint64
+	 * - chunkPayload: Uint8Array
+	 */
+	extractChunk(b) {
+		if (12 >= b.length || 1024 < b.length)
+			throw new Error(`Invalid metadata value size ${b.length}`);
+		const header = b.subarray(0, 1);
+		const magic = header[0] & 0x80;
+		const text = !!(header[0] & 0x40);
+		return {
+			magic,
+			text,
+			scopedMetadataKey: catapult.utils.uint64.fromBytes(new Uint8Array(b.subarray(4, 12)).reverse()),
+			chunkPayload: b.subarray(12)
+		};
+	},
+
+	splitChunkPayloadAndText(chunkData) {
+		if (!chunkData.text) {
+			// No text in the chunk
+			return {
+				chunkPayload: chunkData.chunkPayload,
+				chunkText: undefined
+			};
+		}
+
+		// Extract text section until null char is encountered.
+		const textBytes = [];
+		for (let i = 0; i < chunkData.chunkPayload.length && chunkData.chunkPayload[i]; i++)
+			textBytes.push(chunkData.chunkPayload[i]);
+
+		return {
+			chunkPayload: new Uint8Array(chunkData.chunkPayload.subarray(textBytes.length + 1)),
+			chunkText: new Uint8Array(textBytes)
+		};
+	},
+
+	/**
 	 * Decode binary data from chunks.
 	 * @param {Uint64} fitstKey ScopedMetadataKey of the beginning chunk.
 	 * @param {Array} chunks Chunk containing data to be decoded.
 	 * @returns {Buffer} Decoded binary data.
 	 */
-	decodeData(fitstKey, chunks) {
+	decode(fitstKey, chunks) {
 		let scopedMetadataKey = fitstKey;
 		let magic;
-		let value;
-		let valueResult = Buffer.from([]);
+		let decodedPayload = Buffer.from([]);
+		let decodedText = Buffer.from([]);
 		const findChunk = c => 0 === catapult.utils.uint64.compare(c.key, scopedMetadataKey);
 		do {
 			const chunk = chunks.find(findChunk);
@@ -63,101 +93,29 @@ const metal = {
 			const checksum = this.generateMetadataKey(chunk.value);
 			if (0 !== catapult.utils.uint64.compare(checksum, scopedMetadataKey))
 				throw new Error(`Error: The chunk ${scopedMetadataKey} is broken (calculated=${checksum})`);
-			({ scopedMetadataKey, magic, value } = this.splitBuffer(chunk.value));
-			valueResult = Buffer.concat([valueResult, value]);
-		} while (0x80 !== (magic[0] & 0x80));
-		return valueResult;
-	},
+			const chunkData = this.extractChunk(chunk.value);
+			({ magic, scopedMetadataKey } = chunkData);
 
-	/**
-	 * Read and decode ScopedMetadaKey in order, usually not used because it is slow.
-	 * @param {MetadataDb} db database
-	 * @param {Uint8Array} compositeHashes metal Id
-	 * @returns {Buffer} Decoded binary data.
-	 */
-	async decodeDataStepByStep(db, compositeHashes) {
-		const chunks = [];
-		const firstChunk = (await db.metadatasByCompositeHash(compositeHashes))[0];
-		if (!firstChunk)
-			throw Error('could not get first chunk, it may mistake the metal ID.');
-		chunks.push({
-			key: longToUint64(firstChunk.metadataEntry.scopedMetadataKey),
-			value: firstChunk.metadataEntry.value.buffer
-		});
-		const { metadataEntry } = firstChunk;
-		const { magic, scopedMetadataKey } = this.splitBuffer(metadataEntry.value.buffer);
+			const { chunkPayload, chunkText } = this.splitChunkPayloadAndText(chunkData);
 
-		const fetchMetadata = async (_magic, _scopedMetadataKey) => {
-			let magicValue = _magic;
-			let scopedMetadataKeyValue = _scopedMetadataKey;
-			const options = {
-				sortField: 'id', sortDirection: 1, pageSize: 1, pageNumber: 1
-			};
-			const chunk = await db.metadata(
-				new Uint8Array(metadataEntry.sourceAddress.buffer),
-				new Uint8Array(metadataEntry.targetAddress.buffer),
-				scopedMetadataKeyValue,
-				metadataEntry.targetId,
-				metadataEntry.metadataType,
-				options
-			);
-			chunks.push({
-				key: longToUint64(chunk.data[0].metadataEntry.scopedMetadataKey),
-				value: chunk.data[0].metadataEntry.value.buffer
-			});
-			const splited = this.splitBuffer(chunk.data[0].metadataEntry.value.buffer);
-			magicValue = splited.magic;
-			scopedMetadataKeyValue = splited.scopedMetadataKey;
-			if (0x80 !== (magicValue[0] & 0x80))
-				await fetchMetadata(magicValue, scopedMetadataKeyValue);
+			if (chunkPayload.length) {
+				const payloadBuffer = Buffer.alloc(decodedPayload.length + chunkPayload.length);
+				payloadBuffer.set(decodedPayload);
+				payloadBuffer.set(chunkPayload, decodedPayload.length);
+				decodedPayload = payloadBuffer;
+			}
+
+			if (chunkText?.length) {
+				const textBuffer = Buffer.alloc(decodedText.length + chunkText.length);
+				textBuffer.set(decodedText);
+				textBuffer.set(chunkText, decodedText.length);
+				decodedText = textBuffer;
+			}
+		} while (0x80 !== (magic & 0x80));
+		return {
+			payload: decodedPayload,
+			text: decodedText.length ? decodedText.toString('utf-8') : undefined
 		};
-		await fetchMetadata(magic, scopedMetadataKey);
-		return this.decodeData(longToUint64(metadataEntry.scopedMetadataKey), chunks);
-	},
-
-	/**
-	 * Retrieve and align all metadata, may be slow if amount of data tied to it is large.
-	 * @param {MetadataDb} db database
-	 * @param {Uint8Array} compositeHashes metal Id
-	 * @returns {Buffer} Decoded binary data.
-	 */
-	/**
-	 * Retrieve and align all metadata, may be slow if amount of data tied to it is large.
-	 * @param {MetadataDb} db database
-	 * @param {Uint8Array} compositeHashes metal Id
-	 * @returns {Buffer} Decoded binary data.
-	 */
-	async decodeDataBulk(db, compositeHashes) {
-		const firstChunk = (await db.metadatasByCompositeHash(compositeHashes))[0];
-		if (!firstChunk)
-			throw Error('could not get first chunk, it may mistake the metal ID.');
-		const { metadataEntry } = firstChunk;
-		const chunks = [];
-		let counter = 1;
-		const fetchMetadata = async () => {
-			const options = {
-				sortField: 'id', sortDirection: 1, pageSize: 2000, pageNumber: counter
-			};
-			const c = await db.metadata(
-				new Uint8Array(metadataEntry.sourceAddress.buffer),
-				new Uint8Array(metadataEntry.targetAddress.buffer),
-				undefined,
-				metadataEntry.targetId,
-				metadataEntry.metadataType,
-				options
-			);
-			c.data.forEach(e => {
-				chunks.push({
-					key: longToUint64(e.metadataEntry.scopedMetadataKey),
-					value: e.metadataEntry.value.buffer
-				});
-			});
-			counter++;
-			if (0 < c.data.length)
-				await fetchMetadata();
-		};
-		await fetchMetadata();
-		return this.decodeData(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}
 };
 

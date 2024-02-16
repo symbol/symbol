@@ -18,8 +18,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 const metal = require('./metal');
-const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
 const routeUtils = require('../../routes/routeUtils');
 
 class MetadataDb {
@@ -80,15 +81,40 @@ class MetadataDb {
 			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
 	}
 
-	/**
-	 * Obtain binary data based on metal id
-	 * @param {string} metalId metal Id
-	 * @param {boolean} step Set to true if you want step-by-step decoding
-	 * @returns {Buffer} Decoded binary data.
-	 */
-	binDataByMetalId(metalId, step) {
+	async binDataByMetalId(metalId) {
 		const compositeHashes = [routeUtils.parseArgument(metal.restoreMetadataHash(metalId), 'compositeHash', 'hash256')];
-		return step ? metal.decodeDataStepByStep(this, compositeHashes) : metal.decodeDataBulk(this, compositeHashes);
+		const { metadataEntry } = (await this.metadatasByCompositeHash(compositeHashes))[0];
+		if (!metadataEntry)
+			throw Error('could not get first chunk, it may mistake the metal ID.');
+		const chunks = [];
+		let counter = 1;
+		const fetchMetadata = async () => {
+			const options = {
+				sortField: 'id', sortDirection: 1, pageSize: 2000, pageNumber: counter
+			};
+
+			const c = await this.metadata(
+				new Uint8Array(metadataEntry.sourceAddress.buffer),
+				new Uint8Array(metadataEntry.targetAddress.buffer),
+				undefined,
+				metadataEntry.targetId,
+				metadataEntry.metadataType,
+				options
+			);
+			c.data.forEach(e => {
+				chunks.push({
+					key: longToUint64(e.metadataEntry.scopedMetadataKey),
+					value: e.metadataEntry.value.buffer
+				});
+			});
+
+			counter++;
+			if (0 < c.data.length)
+				await fetchMetadata();
+		};
+
+		await fetchMetadata();
+		return metal.decode(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}
 }
 

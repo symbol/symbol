@@ -73,28 +73,29 @@ module.exports = {
 		 * If both are empty, the file is downloaded with the Metal ID as the file name.
 		 */
 		server.get('/metadata/metal/:metalId', async (req, res, next) => {
-			const sendData = (data, mimeType, fileName) => routeUtils.createSender('content').sendData(res, next)(
+			const sendData = (data, mimeType, fileName, text) => routeUtils.createSender('content').sendData(res, next)(
 				data,
 				mimeType,
-				fileName
+				fileName,
+				text
 			);
-			const {
-				metalId, fileName, step
-			} = req.params;
-			let {
-				mimeType
-			} = req.params;
-			const cacheKey = `metadata:${metalId}}`;
-			const cachedData = cache.get(cacheKey);
+			let { mimeType } = req.params;
+			const { metalId, fileName } = req.params;
+			const cachePayloadKey = `metadata:${metalId}_payload}`;
+			const cacheTextKey = `metadata:${metalId}_text}`;
+			const cachedPayload = cache.get(cachePayloadKey);
+			const cachedText = cache.get(cacheTextKey);
 			mimeType = mimeType ?? 'application/octet-stream';
 
-			if (cachedData !== undefined) {
-				sendData(cachedData, mimeType, fileName);
+			if (cachedPayload !== undefined) {
+				sendData(cachedPayload, mimeType, fileName, cachedText);
 			} else {
-				const data = await db.binDataByMetalId(metalId, step);
-				// Cache the data for 1 hour
-				cache.set(cacheKey, data, 3600);
-				sendData(data, mimeType, fileName);
+				const { payload, text } = await db.binDataByMetalId(metalId);
+				// Cache the data for 5 minutes
+				cache.set(cachePayloadKey, payload, 300);
+				if (text)
+					cache.set(cacheTextKey, text, 300);
+				sendData(payload, mimeType, fileName, text);
 			}
 		});
 	}
