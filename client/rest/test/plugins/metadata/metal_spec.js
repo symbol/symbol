@@ -19,18 +19,16 @@
  * along with Catapult.	If not, see <http://www.gnu.org/licenses/>.
  */
 
+const {
+	combinePayloadWithText,
+	generateChecksum,
+	getMetadata,
+	chunks,
+	textSection,
+	imageBytes
+} = require('./metalUtils');
 const metal = require('../../../src/plugins/metadata/metal');
 const { expect } = require('chai');
-const fs = require('fs');
-
-const chunksValueArrayToBuffer = metadataJson => {
-	const chunks = JSON.parse(metadataJson);
-	chunks.forEach(chunk => {
-		if (Array.isArray(chunk.value))
-			chunk.value = Buffer.from(chunk.value);
-	});
-	return chunks;
-};
 
 describe('metal', () => {
 	describe('restoreMetadataHash', () => {
@@ -60,70 +58,94 @@ describe('metal', () => {
 		});
 	});
 	describe('extractChunk', () => {
-		it('extract chunk and returns the value with chunk', () => {
+		it('extract chunk and returns the value chunk', () => {
 			// Arrange:
-			const b = Buffer.from([0x00, 0x31, 0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0A, 0x0B]);
+			const metadata = getMetadata(70);
+			const nextMetadata = getMetadata(80);
 			// Act:
-			const result = metal.extractChunk(b);
+			const result = metal.extractChunk(Buffer.from(metadata.value));
 			// Assert:
 			expect(result).to.deep.equal({
 				magic: 0x00,
-				scopedMetadataKey: [0x08090A0B, 0x04050607],
-				chunkPayload: Buffer.from([0x0A, 0x0B]),
+				scopedMetadataKey: nextMetadata.scopedMetadataKey,
+				chunkPayload: Buffer.from(metadata.value.slice(12)),
 				text: false
 			});
 		});
-		it('extract chunk and returns the value with end chunk', () => {
+		it('extract chunk and returns the value end chunk', () => {
 			// Arrange:
-			const b = Buffer.from([0x80, 0x31, 0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0A, 0x0B]);
+			const metadata = getMetadata(120);
+			const { combinedPayload } = combinePayloadWithText(imageBytes);
+			const checkSum = generateChecksum(combinedPayload);
+
 			// Act:
-			const result = metal.extractChunk(b);
+			const result = metal.extractChunk(Buffer.from(metadata.value));
 			// Assert:
 			expect(result).to.deep.equal({
 				magic: 0x80,
-				scopedMetadataKey: [0x08090A0B, 0x04050607],
-				chunkPayload: Buffer.from([0x0A, 0x0B]),
+				scopedMetadataKey: checkSum,
+				chunkPayload: Buffer.from(metadata.value.slice(12)),
 				text: false
 			});
 		});
-		it('splits and returns the value with text', () => {
+		it('extract chunk and returns the value chunk with text', () => {
 			// Arrange:
-			const b = Buffer.from([0x40, 0x31, 0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0A, 0x00, 0x0B]);
+			const metadata = getMetadata(10);
+			const nextMetadata = getMetadata(20);
 			// Act:
-			const result = metal.extractChunk(b);
+			const result = metal.extractChunk(Buffer.from(metadata.value));
 			// Assert:
 			expect(result).to.deep.equal({
 				magic: 0x00,
-				scopedMetadataKey: [0x08090A0B, 0x04050607],
-				chunkPayload: Buffer.from([0x0A, 0x00, 0x0B]),
+				scopedMetadataKey: nextMetadata.scopedMetadataKey,
+				chunkPayload: Buffer.from(metadata.value.slice(12)),
 				text: true
 			});
 		});
-		it('can not splits size is shorten', () => {
+		it('extract chunk and returns the value end chunk with text', () => {
 			// Arrange:
-			const b = Buffer.from([0x80, 0x31, 0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A]);
+			const metadata = getMetadata(60);
+			const { combinedPayload } = combinePayloadWithText(imageBytes, textSection);
+			const checkSum = generateChecksum(combinedPayload);
+
 			// Act:
-			const result = () => metal.extractChunk(b);
+			const result = metal.extractChunk(Buffer.from(metadata.value));
 			// Assert:
-			expect(result).to.throw(`Invalid metadata value size ${b.length}`);
+			expect(result).to.deep.equal({
+				magic: 0x80,
+				scopedMetadataKey: checkSum,
+				chunkPayload: Buffer.from(metadata.value.slice(12)),
+				text: false
+			});
 		});
-		it('can not splits size is longer', () => {
+		it('can not extract size is shorten', () => {
 			// Arrange:
-			const b = Buffer.alloc(1025, 0xFF);
+			const metadata = getMetadata(10);
+			const metadataValue = metadata.value.slice(0, 11);
 			// Act:
-			const result = () => metal.extractChunk(b);
+			const result = () => metal.extractChunk(Buffer.from(metadataValue));
 			// Assert:
-			expect(result).to.throw(`Invalid metadata value size ${b.length}`);
+			expect(result).to.throw(`Invalid metadata value size ${metadataValue.length}`);
+		});
+		it('can not extract size is longer', () => {
+			// Arrange:
+			const metadata = getMetadata(10);
+			const metadataValue = metadata.value.concat(Buffer.alloc(1, 0x00));
+			// Act:
+			const result = () => metal.extractChunk(Buffer.from(metadataValue));
+			// Assert:
+			expect(result).to.throw(`Invalid metadata value size ${metadataValue.length}`);
 		});
 	});
 	describe('generateMetadataKey', () => {
 		it('generate metadata key', () => {
 			// Arrange:
-			const input = Buffer.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B]);
+			const metadata = getMetadata(10);
+			const input = metadata.value;
 			// Act:
-			const result = metal.generateMetadataKey(input);
+			const result = metal.generateMetadataKey(new Uint8Array(input));
 			// Assert:
-			expect(result).to.deep.equal([0x2DD9CB4A, 0x06C30F31]);
+			expect(result).to.deep.equal(metadata.scopedMetadataKey);
 		});
 		it('can not generates metadata key input is empty', () => {
 			// Arrange:
@@ -137,92 +159,106 @@ describe('metal', () => {
 	describe('splitChunkPayloadAndText', () => {
 		it('split chunk payload and text', () => {
 			// Arrange:
-			const metadataJson = fs.readFileSync('./test/plugins/metadata/metadata.json', 'utf8');
-			const chunks = chunksValueArrayToBuffer(metadataJson);
-			const textChunkKey = [1636421861, 1538397383];
-			const exceptedText = {
-				MimeType: 'image/png',
-				FileName: 'image.png'
-			};
-			const textChunk = chunks.find(obj => JSON.stringify(obj.key) === JSON.stringify(textChunkKey));
-			const extractChunk = metal.extractChunk(textChunk.value);
-
+			const metadata = getMetadata(10);
+			const extractChunk = metal.extractChunk(Buffer.from(metadata.value));
 			// Act:
 			const { chunkText } = metal.splitChunkPayloadAndText(extractChunk);
 			// Assert:
-			expect(Buffer.from(chunkText.buffer).toString('utf-8')).to.equal(JSON.stringify(exceptedText));
+			expect(Buffer.from(chunkText.buffer).toString('utf-8')).to.equal(textSection);
 		});
 		it('split chunk payload and text but does not have text', () => {
 			// Arrange:
-			const metadataJson = fs.readFileSync('./test/plugins/metadata/metadata.json', 'utf8');
-			const chunks = chunksValueArrayToBuffer(metadataJson);
-			const nonTextChunkKey = [242152552, 118238590];
-			const nonTextChunk = chunks.find(obj => JSON.stringify(obj.key) === JSON.stringify(nonTextChunkKey));
-			const extractChunk = metal.extractChunk(nonTextChunk.value);
-
+			const metadata = getMetadata(70);
+			const extractChunk = metal.extractChunk(Buffer.from(metadata.value));
 			// Act:
 			const { chunkText } = metal.splitChunkPayloadAndText(extractChunk);
 			// Assert:
 			expect(chunkText).to.equal(undefined);
 		});
 	});
+	describe('getMetadataEntryByCompositehash', () => {
+		it('check metadata length equal 1', () => {
+			// Arrange:
+			const metadata = getMetadata(10);
+			const processedMetadata = [
+				{
+					metadataEntry: {
+						sourceAddress: Buffer.from(metadata.sourceAddress),
+						targetAddress: Buffer.from(metadata.targetAddress),
+						scopedMetadataKey: metadata.scopedMetadataKey,
+						targetId: metadata.targetId,
+						metadataType: metadata.metadataType,
+						value: Buffer.from(metadata.value)
+					}
+				}
+			];
+			// Act:
+			const metadataEntry = metal.getMetadataEntryByCompositehash(processedMetadata);
+			// Assert:
+			expect(metadataEntry).to.deep.equal(processedMetadata[0].metadataEntry);
+		});
+		it('can not metadata entry metal id is incorrect', () => {
+			// Arrange:
+			const processedMetadata = [];
+			// Act:
+			const meta = () => metal.getMetadataEntryByCompositehash(processedMetadata);
+			// Assert:
+			expect(meta).to.throw('could not get first chunk, it may mistake the metal ID.');
+		});
+	});
 	describe('decode', () => {
 		it('decodes binary data from chunks with text', () => {
 			// Arrange:
-			const fitstKey = [1636421861, 1538397383];
-			const metadataJson = fs.readFileSync('./test/plugins/metadata/metadata.json', 'utf8');
-			const chunks = chunksValueArrayToBuffer(metadataJson);
-			const image = fs.readFileSync('./test/plugins/metadata/image.png');
-			const exceptedText = {
-				MimeType: 'image/png',
-				FileName: 'image.png'
-			};
+			const metadata = getMetadata(10);
+			const fitstKey = metadata.scopedMetadataKey;
 			// Act:
 			const { payload, text } = metal.decode(fitstKey, chunks);
 			// Assert:
-			expect(payload).to.deep.equal(image);
-			expect(text).to.equal(JSON.stringify(exceptedText));
+			expect(payload).to.deep.equal(imageBytes);
+			expect(text).to.equal(textSection);
 		});
 		it('decodes binary data from chunks without text', () => {
 			// Arrange:
-			const fitstKey = [986594817, 1604531706];
-			const metadataJson = fs.readFileSync('./test/plugins/metadata/metadata.json', 'utf8');
-			const chunks = chunksValueArrayToBuffer(metadataJson);
-			const image = fs.readFileSync('./test/plugins/metadata/image.png');
+			const metadata = getMetadata(70);
+			const fitstKey = metadata.scopedMetadataKey;
 			// Act:
 			const { payload } = metal.decode(fitstKey, chunks);
 			// Assert:
-			expect(payload).to.deep.equal(image);
+			expect(payload).to.deep.equal(imageBytes);
 		});
 		it('can not decodes binary data chunk is broken', () => {
 			// Arrange:
-			const fitstKey = [986594817, 1604531706];
-			const metadataJson = fs.readFileSync('./test/plugins/metadata/metadata.json', 'utf8');
-			const chunks = chunksValueArrayToBuffer(metadataJson);
-			const deleteChunkKey = [892070002, 409383513];
+			const metadata = getMetadata(10);
+			const fitstKey = metadata.scopedMetadataKey;
 			// delete chunk
-			const deletedChunks = chunks.filter(obj => JSON.stringify(obj.key) !== JSON.stringify(deleteChunkKey));
-
+			const deleteChunk = getMetadata(20);
+			const deletedChunks = chunks.filter(obj => JSON.stringify(obj.key) !== JSON.stringify(deleteChunk.scopedMetadataKey));
 			// Act:
 			const result = () => metal.decode(fitstKey, deletedChunks);
 			// Assert:
-			expect(result).to.throw(`Error: The chunk ${deleteChunkKey} is missing`);
+			expect(result).to.throw(`Error: The chunk ${deleteChunk.scopedMetadataKey} is missing`);
 		});
 		it('can not decodes binary data value is broken', () => {
 			// Arrange:
-			const fitstKey = [986594817, 1604531706];
-			const metadataJson = fs.readFileSync('./test/plugins/metadata/metadata.json', 'utf8');
-			const chunks = chunksValueArrayToBuffer(metadataJson);
-			const deleteValueChunkKey = [892070002, 409383513];
-			const deleteValueChunk = chunks.find(chunk => JSON.stringify(chunk.key) === JSON.stringify(deleteValueChunkKey));
-			// delete last value
-			deleteValueChunk.value = deleteValueChunk.value.slice(0, deleteValueChunk.value.length - 1);
-
-			const checksum = metal.generateMetadataKey(deleteValueChunk.value);
+			const metadata = getMetadata(10);
+			const fitstKey = metadata.scopedMetadataKey;
+			// delete chunk value
+			const deleteChunk = chunks.find(obj => 20 === obj.id);
+			deleteChunk.value = deleteChunk.value.slice(0, deleteChunk.value.length - 1);
+			const checksum = metal.generateMetadataKey(new Uint8Array(deleteChunk.value));
 			// Act:
 			const result = () => metal.decode(fitstKey, chunks);
 			// Assert:
-			expect(result).to.throw(`Error: The chunk ${deleteValueChunkKey} is broken (calculated=${checksum})`);
+			expect(result).to.throw(`Error: The chunk ${deleteChunk.key} is broken (calculated=${checksum})`);
+		});
+		it('decodes mosaic metadata from chunks', () => {
+			// Arrange:
+			const metadata = getMetadata(130);
+			const fitstKey = metadata.scopedMetadataKey;
+			// Act:
+			const { payload } = metal.decode(fitstKey, chunks);
+			// Assert:
+			expect(payload).to.deep.equal(imageBytes);
 		});
 	});
 });

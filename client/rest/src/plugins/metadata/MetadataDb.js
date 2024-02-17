@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 const metal = require('./metal');
 const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
 const routeUtils = require('../../routes/routeUtils');
@@ -83,16 +82,14 @@ class MetadataDb {
 
 	async binDataByMetalId(metalId) {
 		const compositeHashes = [routeUtils.parseArgument(metal.restoreMetadataHash(metalId), 'compositeHash', 'hash256')];
-		const { metadataEntry } = (await this.metadatasByCompositeHash(compositeHashes))[0];
-		if (!metadataEntry)
-			throw Error('could not get first chunk, it may mistake the metal ID.');
+		const metadatasByCompositeHash = await this.metadatasByCompositeHash(compositeHashes);
+		const metadataEntry = metal.getMetadataEntryByCompositehash(metadatasByCompositeHash);
 		const chunks = [];
 		let counter = 1;
 		const fetchMetadata = async () => {
 			const options = {
 				sortField: 'id', sortDirection: 1, pageSize: 2000, pageNumber: counter
 			};
-
 			const c = await this.metadata(
 				new Uint8Array(metadataEntry.sourceAddress.buffer),
 				new Uint8Array(metadataEntry.targetAddress.buffer),
@@ -112,7 +109,6 @@ class MetadataDb {
 			if (0 < c.data.length)
 				await fetchMetadata();
 		};
-
 		await fetchMetadata();
 		return metal.decode(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}

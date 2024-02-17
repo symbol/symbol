@@ -19,6 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const {
+	metadatas,
+	textSection,
+	imageBytes
+} = require('./metalUtils');
 const catapult = require('../../../src/catapult-sdk/index');
 const CatapultDb = require('../../../src/db/CatapultDb');
 const { convertToLong } = require('../../../src/db/dbUtils');
@@ -276,6 +281,62 @@ describe('metadata db', () => {
 					[10]
 				);
 			});
+		});
+	});
+	describe.only('metal decode', () => {
+		const createMetadata = (
+			objectId,
+			sourceAddress,
+			targetAddress,
+			scopedMetadataKey,
+			targetId,
+			metadataType,
+			value,
+			compositeHash
+		) => ({
+			_id: createObjectId(objectId),
+			metadataEntry: {
+				sourceAddress: sourceAddress ? Buffer.from(sourceAddress) : undefined,
+				targetAddress: targetAddress ? Buffer.from(targetAddress) : undefined,
+				scopedMetadataKey: scopedMetadataKey ? convertToLong(scopedMetadataKey) : undefined,
+				targetId: targetId ? convertToLong(targetId) : undefined,
+				metadataType: undefined !== metadataType ? metadataType : undefined,
+				value: value ? Buffer.from(value) : undefined,
+				compositeHash: compositeHash ? Buffer.from(compositeHash) : undefined
+			}
+		});
+
+		const dbMetadata = [];
+		metadatas.forEach(e => {
+			dbMetadata.push(createMetadata(
+				e.id,
+				e.sourceAddress,
+				e.targetAddress,
+				e.scopedMetadataKey,
+				e.targetId,
+				e.metadataType,
+				e.value,
+				e.compositeHash
+			));
+		});
+
+		it('decode account metal with text', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata,
+				db => db.binDataByMetalId('Fe6bHHsgKw4AidYYQYDwEAU2v7VXXP5xn6bDxRaCzukytM'),
+				d => {
+					expect(d.payload).to.deep.equal(imageBytes);
+					expect(d.text).to.deep.equal(textSection);
+				}
+			));
+		it('decode account metal without text', () => {
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata,
+				db => db.binDataByMetalId('Fe6Ha1b24qBjm6tMx5BpUeNHHPSvWpHdVXC4ks37AMESLt'),
+				d => expect(d.payload).to.deep.equal(imageBytes)
+			);
 		});
 	});
 });

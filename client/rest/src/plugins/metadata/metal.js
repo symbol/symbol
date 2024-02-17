@@ -7,7 +7,7 @@ const METAL_ID_LENGTH = 68;
 
 const metal = {
 	/**
-   * convert MetalID to compositehash
+	 * convert MetalID to compositehash
 	 * @param {string} metalId ex) FeF65JftVPEGwaua35LnbU9jK46uG3W8karGDDuDwVEh8Z.
 	 * @returns {string} composite hash.
 	 */
@@ -20,7 +20,7 @@ const metal = {
 
 	/**
 	 * generate metadata key for checking the metadata is broken or not.
-	 * @param {Buffer} input value of chunk.
+	 * @param {Uint8Array} input value of chunk.
 	 * @returns {Uint32Array} Return Metadata key as Uint32Array.
 	 */
 	generateMetadataKey(input) {
@@ -38,7 +38,7 @@ const metal = {
 	 * - magic: number
 	 * - text: boolean
 	 * - scopedMetadataKey: uint64
-	 * - chunkPayload: Uint8Array
+	 * - chunkPayload: Buffer
 	 */
 	extractChunk(b) {
 		if (12 >= b.length || 1024 < b.length)
@@ -54,6 +54,15 @@ const metal = {
 		};
 	},
 
+	/**
+	 * Separate by null if text is present or not.
+	 * @param {object} chunkData chunkPayload and has text or not
+	 * - chunkPayload: Buffer
+	 * - text: boolean
+	 * @returns {object} return chunkPayload and chunkText.
+	 * - chunkPayload: Uint8Array
+	 * - chunkText: Uint8Array
+	 */
 	splitChunkPayloadAndText(chunkData) {
 		if (!chunkData.text) {
 			// No text in the chunk
@@ -62,7 +71,6 @@ const metal = {
 				chunkText: undefined
 			};
 		}
-
 		// Extract text section until null char is encountered.
 		const textBytes = [];
 		for (let i = 0; i < chunkData.chunkPayload.length && chunkData.chunkPayload[i]; i++)
@@ -95,7 +103,6 @@ const metal = {
 				throw new Error(`Error: The chunk ${scopedMetadataKey} is broken (calculated=${checksum})`);
 			const chunkData = this.extractChunk(chunk.value);
 			({ magic, scopedMetadataKey } = chunkData);
-
 			const { chunkPayload, chunkText } = this.splitChunkPayloadAndText(chunkData);
 
 			if (chunkPayload.length) {
@@ -112,10 +119,23 @@ const metal = {
 				decodedText = textBuffer;
 			}
 		} while (0x80 !== (magic & 0x80));
+
 		return {
 			payload: decodedPayload,
 			text: decodedText.length ? decodedText.toString('utf-8') : undefined
 		};
+	},
+
+	/**
+	 * Get metadata entry by compositehash.
+	 * I can't throw exceptions in db tests, so I made it for unit tests.
+	 * @param {object} metadata Metadata obtained by composite hash.
+   * @returns {object} metadataEntry
+	 */
+	getMetadataEntryByCompositehash(metadata) {
+		if (0 === metadata.length)
+			throw Error('could not get first chunk, it may mistake the metal ID.');
+		return metadata[0].metadataEntry;
 	}
 };
 
