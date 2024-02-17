@@ -46,7 +46,7 @@ endfunction()
 
 function(catapult_plugin_test_library TARGET_NAME)
 	catapult_library_target(${TARGET_NAME})
-	target_link_libraries(${TARGET_NAME} ${GTEST_LIBRARIES})
+	target_link_libraries(${TARGET_NAME} ${GTest_LIBRARIES})
 endfunction()
 
 add_subdirectory(account_link)

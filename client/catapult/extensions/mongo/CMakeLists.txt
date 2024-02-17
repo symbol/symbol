@@ -7,7 +7,8 @@ find_package(MONGOC-1.0 1.25.4 EXACT REQUIRED)
 message("mongocxx  ver: ${MONGOCXX_VERSION}")
 message("mongoc    ver: ${MONGOC-1.0_VERSION}")
 get_library_path("MONGOCXX_LIBRARY_PATH" mongo::mongocxx_shared)
-message("mongocxx  lib: ${MONGOCXX_LIBRARY_PATH}")
+message("mongocxx  lib: ${mongocxx_LIBRARIES}")
+message("mongocxx  dir: ${mongocxx_INCLUDE_DIRS}")
 
 ### find and set mongo includes and libraries
 function(catapult_add_mongo_dependencies TARGET_NAME)

@@ -58,7 +58,7 @@ endfunction()
 function(catapult_mongo_plugin_test_library TARGET_NAME)
 	catapult_library_target(${TARGET_NAME})
 	catapult_add_mongo_dependencies(${TARGET_NAME})
-	target_link_libraries(${TARGET_NAME} ${GTEST_LIBRARIES})
+	target_link_libraries(${TARGET_NAME} ${GTest_LIBRARIES})
 endfunction()
 
 add_subdirectory(account_link)

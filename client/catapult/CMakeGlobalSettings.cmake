@@ -28,13 +28,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 ### set up conan
 if(USE_CONAN)
 	set(CONAN_SYSTEM_INCLUDES ON)
-	include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-
-	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		conan_basic_setup(KEEP_RPATHS)
-	else()
-		conan_basic_setup()
-	endif()
 endif()
 
 ### set boost settings

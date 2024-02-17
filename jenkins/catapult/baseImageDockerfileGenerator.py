@@ -516,7 +516,7 @@ class LinuxSystemGenerator:
 			'RUN apt-get -y update',
 			'apt-get install -y {APT_PACKAGES}'
 		], APT_PACKAGES=' '.join(apt_packages))
-		install_pip_package(self.system.user, '"conan<2.0"')
+		install_pip_package(self.system.user, 'conan')
 
 
 class WindowsSystemGenerator:
@@ -636,7 +636,7 @@ class WindowsSystemGenerator:
 
 		print_powershell_lines([
 			'scoop update',
-			'python3 -m pip install -U "conan<2.0"',
+			'python3 -m pip install -U conan',
 			'echo "docker image build $BUILD_NUMBER"'
 		])
 

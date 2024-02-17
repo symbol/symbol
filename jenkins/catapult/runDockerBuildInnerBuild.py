@@ -57,7 +57,7 @@ class BuildEnvironment:
 
 	def run_conan_install(self, source_path):
 		# assuming working directory == build directory
-		self.dispatch_subprocess(['conan', 'profile', 'show', 'default'])
+		self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
 		self.dispatch_subprocess(['conan', 'install', source_path, '--build', 'missing'])
 
 
