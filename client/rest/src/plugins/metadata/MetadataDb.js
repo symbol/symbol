@@ -86,6 +86,7 @@ class MetadataDb {
 		const metadataEntry = metal.getMetadataEntryByCompositehash(metadatasByCompositeHash);
 		const chunks = [];
 		let counter = 1;
+
 		const fetchMetadata = async () => {
 			const options = {
 				sortField: 'id', sortDirection: 1, pageSize: 2000, pageNumber: counter
@@ -104,11 +105,11 @@ class MetadataDb {
 					value: e.metadataEntry.value.buffer
 				});
 			});
-
 			counter++;
 			if (0 < c.data.length)
 				await fetchMetadata();
 		};
+
 		await fetchMetadata();
 		return metal.decode(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}

@@ -10,9 +10,8 @@ const metadatas = JSON.parse(metadataJson);
 
 const combinePayloadWithText = (payload, text) => {
 	const textBytes = text ? Buffer.from(text, 'utf8') : Buffer.alloc(0);
-	const textSize = textBytes.length % CHUNK_PAYLOAD_MAX_SIZE
-		? textBytes.length + 1 // If extJson section end at mid-chunk then append null char
-		: textBytes.length;
+	const isEndAtMidChunk = textBytes.length % CHUNK_PAYLOAD_MAX_SIZE;
+	const textSize = isEndAtMidChunk ? textBytes.length + 1 : textBytes.length;
 
 	const combinedPayload = new Uint8Array(textSize + payload.length);
 	let offset = 0;
@@ -38,9 +37,10 @@ const combinePayloadWithText = (payload, text) => {
 const generateChecksum = input => {
 	if (0 === input.length)
 		throw new Error('Input must not be empty');
-	const buf = sha3_256(input).buffer;
-	const result = new Uint32Array(buf);
-	return [result[0], result[1]];
+
+	const { buffer } = sha3_256(input);
+	const uint32Array = new Uint32Array(buffer);
+	return [uint32Array[0], uint32Array[1]];
 };
 
 const getMetadata = id => metadatas.find(obj => obj.id === id);

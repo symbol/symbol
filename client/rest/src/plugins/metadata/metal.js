@@ -13,9 +13,13 @@ const metal = {
 	 */
 	restoreMetadataHash(metalId) {
 		const hashHex = catapult.utils.convert.uint8ToHex(bs58.decode(metalId));
-		if (!hashHex.startsWith(METAL_ID_HEADER_HEX) || METAL_ID_LENGTH !== hashHex.length)
+		const isValidMetalId = hashHex.startsWith(METAL_ID_HEADER_HEX) && METAL_ID_LENGTH === hashHex.length;
+
+		if (!isValidMetalId)
 			throw Error('Invalid metal ID.');
-		return { compositeHash: hashHex.slice(METAL_ID_HEADER_HEX.length) };
+
+		const compositeHash = hashHex.slice(METAL_ID_HEADER_HEX.length);
+		return { compositeHash };
 	},
 
 	/**
@@ -24,11 +28,11 @@ const metal = {
 	 * @returns {Uint32Array} Return Metadata key as Uint32Array.
 	 */
 	generateMetadataKey(input) {
-		if (0 === input.length)
+		if (!input.length)
 			throw new Error('Input must not be empty');
-		const buf = sha3_256(input).buffer;
-		const result = new Uint32Array(buf);
-		return [result[0], result[1] & 0x7FFFFFFF];
+		const { buffer } = sha3_256(input);
+		const uint32Array = new Uint32Array(buffer);
+		return [uint32Array[0], uint32Array[1] & 0x7FFFFFFF];
 	},
 
 	/**
@@ -41,16 +45,19 @@ const metal = {
 	 * - chunkPayload: Buffer
 	 */
 	extractChunk(b) {
-		if (12 >= b.length || 1024 < b.length)
+		const isValidSize = 12 < b.length && 1024 >= b.length;
+		if (!isValidSize)
 			throw new Error(`Invalid metadata value size ${b.length}`);
+
 		const header = b.subarray(0, 1);
 		const magic = header[0] & 0x80;
-		const text = !!(header[0] & 0x40);
+		const text = Boolean(header[0] & 0x40);
+
+		const scopedMetadataKey = catapult.utils.uint64.fromBytes(new Uint8Array(b.subarray(4, 12)).reverse());
+		const chunkPayload = b.subarray(12);
+
 		return {
-			magic,
-			text,
-			scopedMetadataKey: catapult.utils.uint64.fromBytes(new Uint8Array(b.subarray(4, 12)).reverse()),
-			chunkPayload: b.subarray(12)
+			magic, text, scopedMetadataKey, chunkPayload
 		};
 	},
 
@@ -71,6 +78,7 @@ const metal = {
 				chunkText: undefined
 			};
 		}
+
 		// Extract text section until null char is encountered.
 		const textBytes = [];
 		for (let i = 0; i < chunkData.chunkPayload.length && chunkData.chunkPayload[i]; i++)
@@ -98,28 +106,22 @@ const metal = {
 			const chunk = chunks.find(findChunk);
 			if (!chunk)
 				throw new Error(`Error: The chunk ${scopedMetadataKey} is missing`);
+
 			const checksum = this.generateMetadataKey(chunk.value);
-			if (0 !== catapult.utils.uint64.compare(checksum, scopedMetadataKey))
+			const isValidChecksum = 0 === catapult.utils.uint64.compare(checksum, scopedMetadataKey);
+			if (!isValidChecksum)
 				throw new Error(`Error: The chunk ${scopedMetadataKey} is broken (calculated=${checksum})`);
+
 			const chunkData = this.extractChunk(chunk.value);
 			({ magic, scopedMetadataKey } = chunkData);
 			const { chunkPayload, chunkText } = this.splitChunkPayloadAndText(chunkData);
 
-			if (chunkPayload.length) {
-				const payloadBuffer = Buffer.alloc(decodedPayload.length + chunkPayload.length);
-				payloadBuffer.set(decodedPayload);
-				payloadBuffer.set(chunkPayload, decodedPayload.length);
-				decodedPayload = payloadBuffer;
-			}
+			if (chunkPayload.length)
+				decodedPayload = Buffer.concat([decodedPayload, chunkPayload]);
 
-			if (chunkText?.length) {
-				const textBuffer = Buffer.alloc(decodedText.length + chunkText.length);
-				textBuffer.set(decodedText);
-				textBuffer.set(chunkText, decodedText.length);
-				decodedText = textBuffer;
-			}
+			if (chunkText?.length)
+				decodedText = Buffer.concat([decodedText, chunkText]);
 		} while (0x80 !== (magic & 0x80));
-
 		return {
 			payload: decodedPayload,
 			text: decodedText.length ? decodedText.toString('utf-8') : undefined
