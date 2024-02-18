@@ -284,9 +284,10 @@ const routeUtils = {
 		 * @returns {Function} An appropriate object handler.
 		 */
 		sendData(res, next) {
-			return (data, mime, fileName, text) => {
+			return (data, mime, fileName, text, download) => {
 				res.setHeader('content-type', mime);
-				const disposition = fileName ? `attachment; filename="${fileName}"` : 'inline;';
+				let disposition = 'true' === download ? 'attachment;' : 'inline;';
+				disposition += fileName ? ` filename="${fileName}"` : '';
 				res.setHeader('Content-Disposition', `${disposition}"`);
 				if (text)
 					res.setHeader('Content-Text', `${text}`);
