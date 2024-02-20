@@ -19,10 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { MetalSeal } = require('./metal');
 const catapult = require('../../catapult-sdk/index');
 const merkleUtils = require('../../routes/merkleUtils');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
+const NodeCache = require('node-cache');
+
+const cache = new NodeCache();
 
 const { PacketType } = catapult.packet;
 

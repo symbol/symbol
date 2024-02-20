@@ -19,10 +19,16 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const {
+	metadatas,
+	mosaicMetadatas,
+	imageBytes
+} = require('./metalUtils');
 const catapult = require('../../../src/catapult-sdk/index');
 const CatapultDb = require('../../../src/db/CatapultDb');
 const { convertToLong } = require('../../../src/db/dbUtils');
 const MetadataDb = require('../../../src/plugins/metadata/MetadataDb');
+const { MetalSeal } = require('../../../src/plugins/metadata/metal');
 const test = require('../../db/utils/dbTestUtils');
 const { expect } = require('chai');
 const sinon = require('sinon');

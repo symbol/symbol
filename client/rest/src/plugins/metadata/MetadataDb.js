@@ -19,7 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+const { metal } = require('./metal');
+const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
+const routeUtils = require('../../routes/routeUtils');
 
 class MetadataDb {
 	/**
