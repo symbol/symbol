@@ -2,11 +2,14 @@ const { sha3_256 } = require('@noble/hashes/sha3');
 const fs = require('fs');
 
 const FILE_PATH = './test/plugins/metadata/resources/metadata.json';
+const MOSAIC_FILE_PATH = './test/plugins/metadata/resources/metadata_mosaic.json';
 const IMAGE_PATH = './test/plugins/metadata/resources/image.png';
 const CHUNK_PAYLOAD_MAX_SIZE = 1012;
 
 const metadataJson = fs.readFileSync(FILE_PATH, 'utf8');
+const mosaicMetadataJson = fs.readFileSync(MOSAIC_FILE_PATH, 'utf8');
 const metadatas = JSON.parse(metadataJson);
+const mosaicMetadatas = JSON.parse(mosaicMetadataJson);
 
 const combinePayloadWithText = (payload, text) => {
 	const textBytes = text ? Buffer.from(text, 'utf8') : Buffer.alloc(0);
@@ -20,7 +23,7 @@ const combinePayloadWithText = (payload, text) => {
 		combinedPayload.set(textBytes, offset);
 		offset += textBytes.length;
 	}
-	if (textBytes.length % CHUNK_PAYLOAD_MAX_SIZE) {
+	if (isEndAtMidChunk) {
 		// append null char as terminator
 		combinedPayload.set([0x00], offset);
 		offset++;
@@ -40,10 +43,15 @@ const generateChecksum = input => {
 
 	const { buffer } = sha3_256(input);
 	const uint32Array = new Uint32Array(buffer);
+
 	return [uint32Array[0], uint32Array[1]];
 };
 
-const getMetadata = id => metadatas.find(obj => obj.id === id);
+const getMetadata = (id, isMosaic = false) => {
+	if (!isMosaic)
+		return metadatas.find(obj => obj.id === id);
+	return mosaicMetadatas.find(obj => obj.id === id);
+};
 
 const chunks = metadatas.map(obj => ({
 	id: obj.id,
@@ -51,10 +59,11 @@ const chunks = metadatas.map(obj => ({
 	value: Buffer.from(obj.value)
 }));
 
-const textSection = JSON.stringify({
-	MimeType: 'image/png',
-	FileName: 'image.png'
-});
+const moasicChunks = mosaicMetadatas.map(obj => ({
+	id: obj.id,
+	key: obj.scopedMetadataKey,
+	value: Buffer.from(obj.value)
+}));
 
 const imageBytes = fs.readFileSync(IMAGE_PATH);
 
@@ -63,7 +72,8 @@ module.exports = {
 	generateChecksum,
 	getMetadata,
 	metadatas,
+	mosaicMetadatas,
 	chunks,
-	textSection,
+	moasicChunks,
 	imageBytes
 };
