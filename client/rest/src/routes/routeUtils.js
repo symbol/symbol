@@ -12,11 +12,11 @@
  *
  * Catapult is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Catapult.	If not, see <http://www.gnu.org/licenses/>.
  */
 
 const dbFacade = require('./dbFacade');
@@ -284,13 +284,18 @@ const routeUtils = {
 		 * @returns {Function} An appropriate object handler.
 		 */
 		sendData(res, next) {
-			return (data, mime, fileName, text, download) => {
-				res.setHeader('content-type', mime);
-				let disposition = 'true' === download ? 'attachment;' : 'inline;';
+			const isDownload = (download, mimeType) => {
+				if ('true' === download || 'application/octet-stream' === mimeType)
+					return true;
+				return false;
+			};
+			return (data, mimeType, fileName, text, download) => {
+				res.setHeader('content-type', mimeType);
+				let disposition = isDownload(download, mimeType) ? 'attachment;' : 'inline;';
 				disposition += fileName ? ` filename="${fileName}"` : '';
-				res.setHeader('Content-Disposition', `${disposition}"`);
+				res.setHeader('Content-Disposition', disposition);
 				if (text)
-					res.setHeader('Content-MetalText', `${text}`);
+					res.setHeader('Content-Text', `${text}`);
 				res.write(data);
 				res.end();
 				next();
