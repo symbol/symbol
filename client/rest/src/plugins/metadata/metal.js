@@ -115,7 +115,6 @@ const metal = {
 			const chunkData = this.extractChunk(chunk.value);
 			({ magic, scopedMetadataKey } = chunkData);
 			const { chunkPayload, chunkText } = this.splitChunkPayloadAndText(chunkData);
-
 			if (chunkPayload.length)
 				decodedPayload = Buffer.concat([decodedPayload, chunkPayload]);
 
@@ -132,7 +131,7 @@ const metal = {
 	 * Get metadata entry by compositehash.
 	 * I can't throw exceptions in db tests, so I made it for unit tests.
 	 * @param {object} metadata Metadata obtained by composite hash.
-   * @returns {object} metadataEntry
+	 * @returns {object} metadataEntry
 	 */
 	getMetadataEntryByCompositehash(metadata) {
 		if (0 === metadata.length)
@@ -141,4 +140,79 @@ const metal = {
 	}
 };
 
-module.exports = metal;
+class MetalSeal {
+	static SCHEMA = 'seal1';
+
+	static COMPAT = [MetalSeal.SCHEMA];
+
+	/**
+	 * @param {number} length size of the file
+	 * @param {string} mimeType mime type of the file
+	 * @param {string} name file name of the file
+	 * @param {string} comment some comment
+	 */
+	constructor(length, mimeType, name, comment) {
+		this.length = length;
+		this.mimeType = mimeType;
+		this.name = name;
+		this.comment = comment;
+		this.schema = MetalSeal.SCHEMA;
+	}
+
+	static isMetalSealHead(value) {
+		return value !== undefined
+		&& MetalSeal.SCHEMA === value[0]
+		&& 'number' === typeof (value[1])
+		&& ('string' === typeof (value[2]) || !value[2])
+		&& ('string' === typeof (value[3]) || !value[3])
+		&& ('string' === typeof (value[4]) || !value[4]);
+	}
+
+	stringify() {
+		const result = [
+			this.schema,
+			this.length
+		];
+
+		if (this.mimeType)
+			result.push(this.mimeType);
+		else if (this.name || this.comment)
+			result.push(null);
+
+		if (this.name)
+			result.push(this.name);
+		else if (this.comment)
+			result.push(null);
+
+		if (this.comment)
+			result.push(this.comment);
+
+		return JSON.stringify(result);
+	}
+
+	static parse(json) {
+		try {
+			const parsedObject = JSON.parse(json);
+			if (!Array.isArray(parsedObject)
+				|| !this.isMetalSealHead(parsedObject)
+				|| !MetalSeal.COMPAT.includes(parsedObject[0])
+			)
+				throw new Error('Malformed seal JSON.');
+
+			return new MetalSeal(
+				parsedObject[1],
+				parsedObject[2] ?? undefined,
+				parsedObject[3] ?? undefined,
+				parsedObject[4] ?? undefined,
+				parsedObject[0]
+			);
+		} catch {
+			return null;
+		}
+	}
+}
+
+module.exports = {
+	metal,
+	MetalSeal
+};

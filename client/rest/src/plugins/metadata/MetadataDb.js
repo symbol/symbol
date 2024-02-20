@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
-const metal = require('./metal');
+const { metal } = require('./metal');
 const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
 const routeUtils = require('../../routes/routeUtils');
 
@@ -105,11 +105,11 @@ class MetadataDb {
 					value: e.metadataEntry.value.buffer
 				});
 			});
+
 			counter++;
 			if (0 < c.data.length)
 				await fetchMetadata();
 		};
-
 		await fetchMetadata();
 		return metal.decode(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}

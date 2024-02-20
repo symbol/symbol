@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { MetalSeal } = require('./metal');
 const catapult = require('../../catapult-sdk/index');
 const merkleUtils = require('../../routes/merkleUtils');
 const routeResultTypes = require('../../routes/routeResultTypes');
@@ -81,11 +82,14 @@ module.exports = {
 				download
 			);
 			const setParams = (text, mimeType, fileName) => {
-				const textObj = text ? JSON.parse(text) : {};
-				const resultMimeType = mimeType || textObj.MimeType || 'application/octet-stream';
-				const resultFileName = fileName || textObj.FileName;
+				const seal = MetalSeal.parse(text);
+
+				const resultMimeType = mimeType || (seal && seal.mimeType) || 'application/octet-stream';
+				const resultFileName = fileName || (seal && seal.name) || null;
+
 				return { resultMimeType, resultFileName };
 			};
+
 			const {
 				mimeType: initialMimeType, fileName: initialFileName, metalId, download
 			} = req.params;

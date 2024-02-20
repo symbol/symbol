@@ -24,10 +24,10 @@ const {
 	generateChecksum,
 	getMetadata,
 	chunks,
-	textSection,
+	moasicChunks,
 	imageBytes
 } = require('./metalUtils');
-const metal = require('../../../src/plugins/metadata/metal');
+const { metal, MetalSeal } = require('../../../src/plugins/metadata/metal');
 const { expect } = require('chai');
 
 describe('metal', () => {
@@ -105,6 +105,7 @@ describe('metal', () => {
 		it('extract chunk and returns the value end chunk with text', () => {
 			// Arrange:
 			const metadata = getMetadata(60);
+			const textSection = new MetalSeal(imageBytes.length, 'image/png', 'image.png', 'test').stringify();
 			const { combinedPayload } = combinePayloadWithText(imageBytes, textSection);
 			const checkSum = generateChecksum(combinedPayload);
 
@@ -161,6 +162,7 @@ describe('metal', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const extractChunk = metal.extractChunk(Buffer.from(metadata.value));
+			const textSection = new MetalSeal(imageBytes.length, 'image/png', 'image.png', 'test').stringify();
 			// Act:
 			const { chunkText } = metal.splitChunkPayloadAndText(extractChunk);
 			// Assert:
@@ -211,7 +213,9 @@ describe('metal', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const fitstKey = metadata.scopedMetadataKey;
+			const textSection = new MetalSeal(imageBytes.length, 'image/png', 'image.png', 'test').stringify();
 			// Act:
+
 			const { payload, text } = metal.decode(fitstKey, chunks);
 			// Assert:
 			expect(payload).to.deep.equal(imageBytes);
@@ -253,12 +257,53 @@ describe('metal', () => {
 		});
 		it('decodes mosaic metadata from chunks', () => {
 			// Arrange:
-			const metadata = getMetadata(130);
+			const metadata = getMetadata(130, true);
 			const fitstKey = metadata.scopedMetadataKey;
 			// Act:
-			const { payload } = metal.decode(fitstKey, chunks);
+			const { payload } = metal.decode(fitstKey, moasicChunks);
 			// Assert:
 			expect(payload).to.deep.equal(imageBytes);
+		});
+	});
+	describe('metal seal', () => {
+		it('metal seal all aggs', () => {
+			// Arrange:
+			const seal = new MetalSeal(1, 'image/png', 'image.png', 'test');
+			// Act:
+			const sealString = seal.stringify();
+			const parsed = MetalSeal.parse(sealString);
+			// Assert:
+			expect(parsed.schema).to.deep.equal(seal.schema);
+			expect(parsed.length).to.deep.equal(seal.length);
+			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
+			expect(parsed.name).to.deep.equal(seal.name);
+			expect(parsed.comment).to.deep.equal(seal.comment);
+		});
+		it('metal seal missing comment', () => {
+			// Arrange:
+			const seal = new MetalSeal(1, 'image/png', 'image.png');
+			// Act:
+			const sealString = seal.stringify();
+			const parsed = MetalSeal.parse(sealString);
+			// Assert:
+			expect(parsed.schema).to.deep.equal(seal.schema);
+			expect(parsed.length).to.deep.equal(seal.length);
+			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
+			expect(parsed.name).to.deep.equal(seal.name);
+			expect(parsed.comment).to.deep.equal(seal.comment);
+		});
+		it('metal seal missing mimetype and comment', () => {
+			// Arrange:
+			const seal = new MetalSeal(1, undefined, 'image.png');
+			// Act:
+			const sealString = seal.stringify();
+			const parsed = MetalSeal.parse(sealString);
+			// Assert:
+			expect(parsed.schema).to.deep.equal(seal.schema);
+			expect(parsed.length).to.deep.equal(seal.length);
+			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
+			expect(parsed.name).to.deep.equal(seal.name);
+			expect(parsed.comment).to.deep.equal(seal.comment);
 		});
 	});
 });
