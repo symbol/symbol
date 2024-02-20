@@ -295,7 +295,7 @@ const routeUtils = {
 				disposition += fileName ? ` filename="${fileName}"` : '';
 				res.setHeader('Content-Disposition', disposition);
 				if (text)
-					res.setHeader('Content-Text', `${text}`);
+					res.setHeader('Content-MetalText', `${text}`);
 				res.write(data);
 				res.end();
 				next();
