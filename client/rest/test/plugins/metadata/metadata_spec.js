@@ -36,7 +36,8 @@ describe('metadata plugin', () => {
 			const server = test.setup.createCapturingMockServer('get', routes);
 			const registeredRoutes = ['/metadata',
 				'/metadata/:compositeHash',
-				'/metadata/:compositeHash/merkle'];
+				'/metadata/:compositeHash/merkle',
+				'/metadata/metal/:metalId'];
 
 			// Act:
 			metadata.registerRoutes(server, {});
