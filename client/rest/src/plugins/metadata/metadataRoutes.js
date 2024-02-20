@@ -67,12 +67,6 @@ module.exports = {
 			});
 		});
 
-		/*
-		 * If mimeType is empty, use `application/octet-stream`
-		 * If fileName is empty, `Content-Dispositio`n is set to `inline` and the file is downloaded.
-		 * Include the extension in the file name.
-		 * If both are empty, the file is downloaded with the Metal ID as the file name.
-		 */
 		server.get('/metadata/metal/:metalId', async (req, res, next) => {
 			const sendData = (data, mimeType, fileName, text, download) => routeUtils.createSender('content').sendData(res, next)(
 				data,
@@ -83,10 +77,8 @@ module.exports = {
 			);
 			const setParams = (text, mimeType, fileName) => {
 				const seal = MetalSeal.parse(text);
-
 				const resultMimeType = mimeType || (seal && seal.mimeType) || 'application/octet-stream';
 				const resultFileName = fileName || (seal && seal.name) || null;
-
 				return { resultMimeType, resultFileName };
 			};
 
