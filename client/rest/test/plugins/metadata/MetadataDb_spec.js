@@ -278,4 +278,95 @@ describe('metadata db', () => {
 			});
 		});
 	});
+	const textSection = new MetalSeal(imageBytes.length, 'image/png', 'image.png', 'test').stringify();
+	describe('metal decode', () => {
+		const createMetadata = (
+			objectId,
+			sourceAddress,
+			targetAddress,
+			scopedMetadataKey,
+			targetId,
+			metadataType,
+			value,
+			compositeHash
+		) => ({
+			_id: createObjectId(objectId),
+			metadataEntry: {
+				sourceAddress: sourceAddress ? Buffer.from(sourceAddress) : undefined,
+				targetAddress: targetAddress ? Buffer.from(targetAddress) : undefined,
+				scopedMetadataKey: scopedMetadataKey ? convertToLong(scopedMetadataKey) : undefined,
+				targetId: targetId ? convertToLong(targetId) : undefined,
+				metadataType: undefined !== metadataType ? metadataType : undefined,
+				value: value ? Buffer.from(value) : undefined,
+				compositeHash: compositeHash ? Buffer.from(compositeHash) : undefined
+			}
+		});
+
+		const dbMetadata = [];
+		metadatas.forEach(e => {
+			dbMetadata.push(createMetadata(
+				e.id,
+				e.sourceAddress,
+				e.targetAddress,
+				e.scopedMetadataKey,
+				e.targetId,
+				e.metadataType,
+				e.value,
+				e.compositeHash
+			));
+		});
+
+		const dbMosaicMetadata = [];
+		mosaicMetadatas.forEach(e => {
+			dbMosaicMetadata.push(createMetadata(
+				e.id,
+				e.sourceAddress,
+				e.targetAddress,
+				e.scopedMetadataKey,
+				e.targetId,
+				e.metadataType,
+				e.value,
+				e.compositeHash
+			));
+		});
+
+		it('decode account metal with metal seal', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata,
+				db => db.binDataByMetalId('FeDrfgiBsT2Vg5swUPV4QqstqxyYV4bCsLMA7tjHfsiW55'),
+				d => {
+					expect(d.payload).to.deep.equal(imageBytes);
+					expect(d.text).to.deep.equal(textSection);
+				}
+			));
+		it('decode account metal with text', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata,
+				db => db.binDataByMetalId('FeBcE8zDa2ZMu4s2Q24yRSnyehmonKjnbJPnyTe8zfBEAi'),
+				d => {
+					expect(d.payload).to.deep.equal(imageBytes);
+					expect(d.text).to.deep.equal('test');
+				}
+			));
+		it('decode account metal without text', () => {
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata,
+				db => db.binDataByMetalId('Fe7Gp6QiTfb1MjgKVQkDGF9JyTyMZbN4Yo6Uz1oJewRycB'),
+				d => expect(d.payload).to.deep.equal(imageBytes)
+			);
+		});
+		it('decode mosaic metal with metal seal', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMosaicMetadata,
+				db => db.binDataByMetalId('Fe4YG12YcUzgATsZexNAhLyfbxogSaLX7dhoHMvCqgnPao'),
+				d => {
+					expect(d.payload).to.deep.equal(imageBytes);
+					expect(d.text).to.deep.equal(textSection);
+				}
+			));
+	});
 });
