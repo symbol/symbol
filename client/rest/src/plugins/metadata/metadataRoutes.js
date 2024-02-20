@@ -62,5 +62,42 @@ module.exports = {
 				next();
 			});
 		});
+
+		server.get('/metadata/metal/:metalId', async (req, res, next) => {
+			const sendData = (data, mimeType, fileName, text, download) => routeUtils.createSender('content').sendData(res, next)(
+				data,
+				mimeType,
+				fileName,
+				text,
+				download
+			);
+			const setParams = (text, mimeType, fileName) => {
+				const seal = MetalSeal.parse(text);
+				const resultMimeType = mimeType || (seal && seal.mimeType) || 'application/octet-stream';
+				const resultFileName = fileName || (seal && seal.name) || null;
+				return { resultMimeType, resultFileName };
+			};
+
+			const {
+				mimeType: initialMimeType, fileName: initialFileName, metalId, download
+			} = req.params;
+			const cachePayloadKey = `metadata:${metalId}_payload}`;
+			const cacheTextKey = `metadata:${metalId}_text}`;
+			const cachedPayload = cache.get(cachePayloadKey);
+			const cachedText = cache.get(cacheTextKey);
+
+			if (cachedPayload !== undefined) {
+				const { resultMimeType, resultFileName } = setParams(cachedText, initialMimeType, initialFileName);
+				sendData(cachedPayload, resultMimeType, resultFileName, cachedText, download);
+			} else {
+				const { payload, text } = await db.binDataByMetalId(metalId);
+				const { resultMimeType, resultFileName } = setParams(text, initialMimeType, initialFileName);
+				// Cache the data for 5 minutes
+				cache.set(cachePayloadKey, payload, 300);
+				if (text)
+					cache.set(cacheTextKey, text, 300);
+				sendData(payload, resultMimeType, resultFileName, text, download);
+			}
+		});
 	}
 };
