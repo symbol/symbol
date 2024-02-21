@@ -76,9 +76,15 @@ module.exports = {
 				download
 			);
 			const setParams = (text, mimeType, fileName) => {
-				const seal = MetalSeal.parse(text);
+				let seal;
+				try {
+					seal = MetalSeal.parse(text);
+				} catch {
+					// ignore
+				}
 				const resultMimeType = mimeType || (seal && seal.mimeType) || 'application/octet-stream';
 				const resultFileName = fileName || (seal && seal.name) || null;
+
 				return { resultMimeType, resultFileName };
 			};
 
