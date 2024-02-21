@@ -7,8 +7,8 @@
   "types": "./ts/src/index.d.ts",
   "exports": {
     ".": {
-      "default": "./src/index.js",
-      "types": "./ts/src/index.d.ts"
+      "types": "./ts/src/index.d.ts",
+      "default": "./src/index.js"
     }
   },
   "scripts": {
