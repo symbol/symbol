@@ -292,6 +292,19 @@ describe('metal', () => {
 			expect(parsed.name).to.deep.equal(seal.name);
 			expect(parsed.comment).to.deep.equal(seal.comment);
 		});
+		it('metal seal missing fileName', () => {
+			// Arrange:
+			const seal = new MetalSeal(1, 'image/png', undefined, 'test');
+			// Act:
+			const sealString = seal.stringify();
+			const parsed = MetalSeal.parse(sealString);
+			// Assert:
+			expect(parsed.schema).to.deep.equal(seal.schema);
+			expect(parsed.length).to.deep.equal(seal.length);
+			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
+			expect(parsed.name).to.deep.equal(seal.name);
+			expect(parsed.comment).to.deep.equal(seal.comment);
+		});
 		it('metal seal missing mimetype and comment', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, undefined, 'image.png');
@@ -304,6 +317,14 @@ describe('metal', () => {
 			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
 			expect(parsed.name).to.deep.equal(seal.name);
 			expect(parsed.comment).to.deep.equal(seal.comment);
+		});
+		it('malformed seal JSON.', () => {
+			// Arrange:
+			const failJson = JSON.stringify(['seal2', 1]);
+			// Act:
+			const parsed = () => MetalSeal.parse(failJson);
+			// Assert:
+			expect(parsed).to.throw('Malformed seal JSON.');
 		});
 	});
 });
