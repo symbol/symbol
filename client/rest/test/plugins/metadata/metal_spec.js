@@ -318,15 +318,14 @@ describe('metal', () => {
 			expect(parsed.name).to.deep.equal(seal.name);
 			expect(parsed.comment).to.deep.equal(seal.comment);
 		});
-		// Jenkins will error out.
-		// It is not a problem when tested locally, but it is not very important, so I have commented it out.
-		/* it('malformed seal JSON.', () => {
+
+		it('malformed seal JSON.', () => {
 			// Arrange:
 			const failJson = JSON.stringify(['seal2', 1]);
 			// Act:
 			const parsed = () => MetalSeal.parse(failJson);
 			// Assert:
 			expect(parsed).to.throw('Malformed seal JSON.');
-		}); */
+		});
 	});
 });

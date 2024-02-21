@@ -191,24 +191,20 @@ class MetalSeal {
 	}
 
 	static parse(json) {
-		try {
-			const parsedObject = JSON.parse(json);
-			if (!Array.isArray(parsedObject)
-				|| !this.isMetalSealHead(parsedObject)
-				|| !MetalSeal.COMPAT.includes(parsedObject[0])
-			)
-				throw new Error('Malformed seal JSON.');
+		const parsedObject = JSON.parse(json);
+		if (!Array.isArray(parsedObject)
+			|| !this.isMetalSealHead(parsedObject)
+			|| !MetalSeal.COMPAT.includes(parsedObject[0])
+		)
+			throw new Error('Malformed seal JSON.');
 
-			return new MetalSeal(
-				parsedObject[1],
-				parsedObject[2] ?? undefined,
-				parsedObject[3] ?? undefined,
-				parsedObject[4] ?? undefined,
-				parsedObject[0]
-			);
-		} catch {
-			return null;
-		}
+		return new MetalSeal(
+			parsedObject[1],
+			parsedObject[2] ?? undefined,
+			parsedObject[3] ?? undefined,
+			parsedObject[4] ?? undefined,
+			parsedObject[0]
+		);
 	}
 }
 
