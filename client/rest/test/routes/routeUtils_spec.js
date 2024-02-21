@@ -606,6 +606,98 @@ describe('route utils', () => {
 				});
 			});
 		});
+		describe('send data', () => {
+			describe('send data', () => {
+				const sendDataTest = (sender, assertResponse) => {
+					// Arrange
+					const routeContext = { numNextCalls: 0 };
+					const next = () => { ++routeContext.numNextCalls; };
+					const data = [];
+					const headers = [];
+
+					const res = {
+						setHeader: (name, value) => {
+							headers.push({ name, value });
+						},
+						write: d => {
+							data.push(d);
+						},
+						end: () => {}
+					};
+					routeContext.responses = {};
+					routeContext.responses.headers = headers;
+					routeContext.responses.data = data;
+
+					// Act: send the entity
+					sender(res, next);
+
+					assertResponse(routeContext.responses);
+				};
+				const send = ({
+					data, mimeType, fileName, text, download
+				}, type, assertResponse) => {
+					sendDataTest((res, next) =>
+						routeUtils.createSender(type).sendData(res, next)(data, mimeType, fileName, text, download), assertResponse);
+				};
+
+				it('send data', () => {
+					// Act:
+					send({ data: Buffer.from([0, 1, 2]), mimeType: 'imnage/png' }, 'foo', response => {
+						// Arrange:
+						const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
+						const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
+						// Assert:
+						expect(response.data[0]).to.deep.equal(Buffer.from([0, 1, 2]));
+						expect(contentDispositionValue).to.equal('inline;');
+						expect(contentTypeValue).to.equal('imnage/png');
+					});
+				});
+				it('send data with fileName', () => {
+					// Act:
+					send({ data: Buffer.from([0, 1, 2]), mimeType: 'imnage/png', fileName: 'image.png' }, 'foo', response => {
+						// Arrange:
+						const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
+						const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
+						// Assert:
+						expect(response.data[0]).to.deep.equal(Buffer.from([0, 1, 2]));
+						expect(contentDispositionValue).to.equal('inline; filename="image.png"');
+						expect(contentTypeValue).to.equal('imnage/png');
+					});
+				});
+				it('send data with fileName and text', () => {
+					// Act:
+					send({
+						data: Buffer.from([0, 1, 2]), mimeType: 'imnage/png', fileName: 'image.png', text: 'test'
+					}, 'foo', response => {
+						// Arrange:
+						const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
+						const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
+						const contentTextValue = response.headers.find(header => 'Content-MetalText' === header.name)?.value;
+						// Assert:
+						expect(response.data[0]).to.deep.equal(Buffer.from([0, 1, 2]));
+						expect(contentDispositionValue).to.equal('inline; filename="image.png"');
+						expect(contentTypeValue).to.equal('imnage/png');
+						expect(contentTextValue).to.equal('test');
+					});
+				});
+				it('send data with fileName, text and download', () => {
+					// Act:
+					send({
+						data: Buffer.from([0, 1, 2]), mimeType: 'imnage/png', fileName: 'image.png', text: 'test', download: 'true'
+					}, 'foo', response => {
+						// Arrange:
+						const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
+						const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
+						const contentTextValue = response.headers.find(header => 'Content-MetalText' === header.name)?.value;
+						// Assert:
+						expect(response.data[0]).to.deep.equal(Buffer.from([0, 1, 2]));
+						expect(contentDispositionValue).to.equal('attachment; filename="image.png"');
+						expect(contentTypeValue).to.equal('imnage/png');
+						expect(contentTextValue).to.equal('test');
+					});
+				});
+			});
+		});
 	});
 
 	describe('addGetPostDocumentRoutes', () => {

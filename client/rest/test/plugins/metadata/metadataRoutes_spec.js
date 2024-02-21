@@ -240,4 +240,45 @@ describe('metadata routes', () => {
 			});
 		});
 	});
+	describe('metal', () => {
+		const mockServer = new MockServer();
+		const db = {
+			binDataByMetalId: sinon.stub().resolves({ payload: 'db_payload', text: 'db_text' })
+		};
+		metadataRoutes.register(mockServer.server, db, {});
+
+		beforeEach(() => {
+			mockServer.resetStats();
+			mockServer.res.setHeader = sinon.spy();
+			mockServer.res.write = sinon.spy();
+			mockServer.res.end = sinon.spy();
+		});
+
+		describe('get by metal id', () => {
+			it('returns page with results', () => {
+				// Arrange:
+				const route = mockServer.getRoute('/metadata/metal/:metalId').get();
+				const metalId = 'your_metal_id';
+				const mimeType = 'image/png';
+				const fileName = 'image.png';
+				const download = 'true';
+				const req = {
+					params: {
+						metalId, mimeType, fileName, download
+					}
+				};
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.res.write.calledOnce).to.equal(true);
+					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.res.setHeader.calledWithExactly('content-type', 'image/png')).to.equal(true);
+					expect(mockServer.res.setHeader
+						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
+					expect(db.binDataByMetalId.calledOnce).to.equal(true);
+					expect(db.binDataByMetalId.alwaysCalledWith(metalId)).to.equal(true);
+				});
+			});
+		});
+	});
 });
