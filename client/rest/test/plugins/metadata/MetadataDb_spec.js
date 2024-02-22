@@ -309,6 +309,7 @@ describe('metadata db', () => {
 					expect(decoded.text).to.deep.equal(textSection);
 				}
 			));
+
 		it('decodes account metal with text', () =>
 			// Act + Assert:
 			runMetadataDbTest(
@@ -319,6 +320,7 @@ describe('metadata db', () => {
 					expect(decoded.text).to.deep.equal('test');
 				}
 			));
+
 		it('decodes account metal without text or seal', () => {
 			// Act + Assert:
 			runMetadataDbTest(
@@ -330,6 +332,7 @@ describe('metadata db', () => {
 				}
 			);
 		});
+
 		it('decodes mosaic metal with seal', () =>
 			// Act + Assert:
 			runMetadataDbTest(
