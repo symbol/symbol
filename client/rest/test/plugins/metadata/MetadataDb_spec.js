@@ -19,11 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const {
-	metadatas,
-	mosaicMetadatas,
-	imageBytes
-} = require('./metalUtils');
+const { testData } = require('./metalUtils');
 const catapult = require('../../../src/catapult-sdk/index');
 const CatapultDb = require('../../../src/db/CatapultDb');
 const { convertToLong } = require('../../../src/db/dbUtils');
@@ -284,94 +280,64 @@ describe('metadata db', () => {
 			});
 		});
 	});
-	const textSection = new MetalSeal(imageBytes.length, 'image/png', 'image.png', 'test').stringify();
-	describe('metal decode', () => {
-		const createMetadata = (
-			objectId,
-			sourceAddress,
-			targetAddress,
-			scopedMetadataKey,
-			targetId,
-			metadataType,
-			value,
-			compositeHash
-		) => ({
-			_id: createObjectId(objectId),
+
+	describe('binDataByMetalId', () => {
+		const textSection = new MetalSeal(testData.imageBytes.length, 'image/png', 'image.png', 'test').stringify();
+		const createMetadata = metadata => ({
+			_id: createObjectId(metadata.id),
 			metadataEntry: {
-				sourceAddress: sourceAddress ? Buffer.from(sourceAddress) : undefined,
-				targetAddress: targetAddress ? Buffer.from(targetAddress) : undefined,
-				scopedMetadataKey: scopedMetadataKey ? convertToLong(scopedMetadataKey) : undefined,
-				targetId: targetId ? convertToLong(targetId) : undefined,
-				metadataType: undefined !== metadataType ? metadataType : undefined,
-				value: value ? Buffer.from(value) : undefined,
-				compositeHash: compositeHash ? Buffer.from(compositeHash) : undefined
+				sourceAddress: metadata.sourceAddress ? Buffer.from(metadata.sourceAddress) : undefined,
+				targetAddress: metadata.targetAddress ? Buffer.from(metadata.targetAddress) : undefined,
+				scopedMetadataKey: metadata.scopedMetadataKey ? convertToLong(metadata.scopedMetadataKey) : undefined,
+				targetId: metadata.targetId ? convertToLong(metadata.targetId) : undefined,
+				metadataType: metadata.metadataType,
+				value: metadata.value ? Buffer.from(metadata.value) : undefined,
+				compositeHash: metadata.compositeHash ? Buffer.from(metadata.compositeHash) : undefined
 			}
 		});
 
-		const dbMetadata = [];
-		metadatas.forEach(e => {
-			dbMetadata.push(createMetadata(
-				e.id,
-				e.sourceAddress,
-				e.targetAddress,
-				e.scopedMetadataKey,
-				e.targetId,
-				e.metadataType,
-				e.value,
-				e.compositeHash
-			));
-		});
+		const dbMetadata = () => testData.metadatas.map(metadata => createMetadata(metadata));
+		const dbMosaicMetadata = () => testData.mosaicMetadatas.map(metadata => createMetadata(metadata));
 
-		const dbMosaicMetadata = [];
-		mosaicMetadatas.forEach(e => {
-			dbMosaicMetadata.push(createMetadata(
-				e.id,
-				e.sourceAddress,
-				e.targetAddress,
-				e.scopedMetadataKey,
-				e.targetId,
-				e.metadataType,
-				e.value,
-				e.compositeHash
-			));
-		});
-
-		it('decode account metal with metal seal', () =>
+		it('decodes account metal with seal', () =>
 			// Act + Assert:
 			runMetadataDbTest(
-				dbMetadata,
+				dbMetadata(),
 				db => db.binDataByMetalId('FeDrfgiBsT2Vg5swUPV4QqstqxyYV4bCsLMA7tjHfsiW55'),
-				d => {
-					expect(d.payload).to.deep.equal(imageBytes);
-					expect(d.text).to.deep.equal(textSection);
+				decoded => {
+					expect(decoded.payload).to.deep.equal(testData.imageBytes);
+					expect(decoded.text).to.deep.equal(textSection);
 				}
 			));
-		it('decode account metal with text', () =>
+		it('decodes account metal with text', () =>
 			// Act + Assert:
 			runMetadataDbTest(
-				dbMetadata,
+				dbMetadata(),
 				db => db.binDataByMetalId('FeBcE8zDa2ZMu4s2Q24yRSnyehmonKjnbJPnyTe8zfBEAi'),
-				d => {
-					expect(d.payload).to.deep.equal(imageBytes);
-					expect(d.text).to.deep.equal('test');
+				decoded => {
+					expect(decoded.payload).to.deep.equal(testData.imageBytes);
+					expect(decoded.text).to.deep.equal('test');
 				}
 			));
-		it('decode account metal without text', () => {
+		it('decodes account metal without text or seal', () => {
 			// Act + Assert:
 			runMetadataDbTest(
-				dbMetadata,
+				dbMetadata(),
 				db => db.binDataByMetalId('Fe7Gp6QiTfb1MjgKVQkDGF9JyTyMZbN4Yo6Uz1oJewRycB'),
-				d => expect(d.payload).to.deep.equal(imageBytes)
+				decoded => {
+					expect(decoded.payload).to.deep.equal(testData.imageBytes);
+					expect(decoded.text).to.deep.equal(undefined);
+				}
 			);
 		});
-		it('decode mosaic metal with metal seal', () =>
+		it('decodes mosaic metal with seal', () =>
 			// Act + Assert:
 			runMetadataDbTest(
-				dbMosaicMetadata,
+				dbMosaicMetadata(),
 				db => db.binDataByMetalId('Fe4YG12YcUzgATsZexNAhLyfbxogSaLX7dhoHMvCqgnPao'),
-				d => {
-					expect(d.payload).to.deep.equal(imageBytes);
-					expect(d.text).to.deep.equal(textSection);
+				decoded => {
+					expect(decoded.payload).to.deep.equal(testData.imageBytes);
+					expect(decoded.text).to.deep.equal(textSection);
 				}
 			));
 	});

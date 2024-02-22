@@ -606,95 +606,86 @@ describe('route utils', () => {
 				});
 			});
 		});
+
 		describe('send data', () => {
-			describe('send data', () => {
-				const sendDataTest = (sender, assertResponse) => {
-					// Arrange
-					const routeContext = { numNextCalls: 0 };
-					const next = () => { ++routeContext.numNextCalls; };
-					const data = [];
-					const headers = [];
+			const sendDataTest = (sender, assertResponse) => {
+				// Arrange
+				const routeContext = { numNextCalls: 0 };
+				const next = () => { ++routeContext.numNextCalls; };
+				const data = [];
+				const headers = [];
 
-					const res = {
-						setHeader: (name, value) => {
-							headers.push({ name, value });
-						},
-						write: d => {
-							data.push(d);
-						},
-						end: () => {}
-					};
-					routeContext.responses = {};
-					routeContext.responses.headers = headers;
-					routeContext.responses.data = data;
-
-					// Act: send the entity
-					sender(res, next);
-
-					assertResponse(routeContext.responses);
+				const res = {
+					setHeader: (name, value) => {
+						headers.push({ name, value });
+					},
+					write: writeData => {
+						data.push(writeData);
+					},
+					end: () => {}
 				};
-				const send = ({
-					data, mimeType, fileName, text, download
-				}, type, assertResponse) => {
-					sendDataTest((res, next) =>
-						routeUtils.createSender(type).sendData(res, next)(data, mimeType, fileName, text, download), assertResponse);
-				};
+				routeContext.responses = { headers, data };
 
-				it('send data', () => {
-					// Act:
-					send({ data: Buffer.from([0, 1, 2]), mimeType: 'imnage/png' }, 'foo', response => {
-						// Arrange:
-						const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
-						const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
-						// Assert:
-						expect(response.data[0]).to.deep.equal(Buffer.from([0, 1, 2]));
-						expect(contentDispositionValue).to.equal('inline;');
-						expect(contentTypeValue).to.equal('imnage/png');
-					});
+				// Act: send the entity
+				sender(res, next);
+
+				expect(routeContext.numNextCalls).to.equal(1);
+				assertResponse(routeContext.responses);
+			};
+			const send = ({
+				data, mimeType, fileName, text, download
+			}, type, assertResponse) => {
+				sendDataTest((res, next) =>
+					routeUtils.createSender(type).sendData(res, next)(data, mimeType, fileName, text, download), assertResponse);
+			};
+
+			const testHeader = (response, dataBuffer, disposition, mimeType, text) => {
+				// Arrange:
+				const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
+				const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
+				const contentTextValue = response.headers.find(header => 'Content-MetalText' === header.name)?.value;
+				// Assert:
+				expect(response.data.length).to.equal(1);
+				expect(response.data[0]).to.deep.equal(dataBuffer);
+				expect(contentDispositionValue).to.equal(disposition);
+				expect(contentTypeValue).to.equal(mimeType);
+				expect(contentTextValue).to.equal(text);
+			};
+
+			it('nothing params', () => {
+				// Act:
+				send({ data: Buffer.from([0, 1, 2]), mimeType: 'image/png' }, 'foo', response => {
+					testHeader(response, Buffer.from([0, 1, 2]), 'inline;', 'image/png');
 				});
-				it('send data with fileName', () => {
-					// Act:
-					send({ data: Buffer.from([0, 1, 2]), mimeType: 'imnage/png', fileName: 'image.png' }, 'foo', response => {
-						// Arrange:
-						const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
-						const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
-						// Assert:
-						expect(response.data[0]).to.deep.equal(Buffer.from([0, 1, 2]));
-						expect(contentDispositionValue).to.equal('inline; filename="image.png"');
-						expect(contentTypeValue).to.equal('imnage/png');
-					});
+			});
+			it('with fileName', () => {
+				// Act:
+				send({ data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png' }, 'foo', response => {
+					testHeader(response, Buffer.from([0, 1, 2]), 'inline; filename="image.png"', 'image/png', undefined);
 				});
-				it('send data with fileName and text', () => {
-					// Act:
-					send({
-						data: Buffer.from([0, 1, 2]), mimeType: 'imnage/png', fileName: 'image.png', text: 'test'
-					}, 'foo', response => {
-						// Arrange:
-						const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
-						const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
-						const contentTextValue = response.headers.find(header => 'Content-MetalText' === header.name)?.value;
-						// Assert:
-						expect(response.data[0]).to.deep.equal(Buffer.from([0, 1, 2]));
-						expect(contentDispositionValue).to.equal('inline; filename="image.png"');
-						expect(contentTypeValue).to.equal('imnage/png');
-						expect(contentTextValue).to.equal('test');
-					});
+			});
+			it('with fileName and text', () => {
+				// Act:
+				send({
+					data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png', text: 'test'
+				}, 'foo', response => {
+					testHeader(response, Buffer.from([0, 1, 2]), 'inline; filename="image.png"', 'image/png', 'test');
 				});
-				it('send data with fileName, text and download', () => {
-					// Act:
-					send({
-						data: Buffer.from([0, 1, 2]), mimeType: 'imnage/png', fileName: 'image.png', text: 'test', download: 'true'
-					}, 'foo', response => {
-						// Arrange:
-						const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
-						const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
-						const contentTextValue = response.headers.find(header => 'Content-MetalText' === header.name)?.value;
-						// Assert:
-						expect(response.data[0]).to.deep.equal(Buffer.from([0, 1, 2]));
-						expect(contentDispositionValue).to.equal('attachment; filename="image.png"');
-						expect(contentTypeValue).to.equal('imnage/png');
-						expect(contentTextValue).to.equal('test');
-					});
+			});
+			it('with fileName and text as attachment', () => {
+				// Act:
+				send({
+					data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png', text: 'test', download: 'true'
+				}, 'foo', response => {
+					testHeader(response, Buffer.from([0, 1, 2]), 'attachment; filename="image.png"', 'image/png', 'test');
+				});
+			});
+			it('mimeType is application/octet-stream as attachment', () => {
+				// Act:
+				send({
+					data: Buffer.from([0, 1, 2]), mimeType: 'application/octet-stream'
+				}, 'foo', response => {
+					testHeader(response, Buffer.from([0, 1, 2]), 'attachment;', 'application/octet-stream');
 				});
 			});
 		});

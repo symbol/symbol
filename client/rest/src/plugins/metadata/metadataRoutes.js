@@ -68,6 +68,7 @@ module.exports = {
 		});
 
 		server.get('/metadata/metal/:metalId', async (req, res, next) => {
+			const CACHE_TTL = 300;
 			const sendData = (data, mimeType, fileName, text, download) => routeUtils.createSender('content').sendData(res, next)(
 				data,
 				mimeType,
@@ -75,17 +76,12 @@ module.exports = {
 				text,
 				download
 			);
-			const setParams = (text, mimeType, fileName) => {
-				let seal;
-				try {
-					seal = MetalSeal.parse(text);
-				} catch {
-					// ignore
-				}
-				const resultMimeType = mimeType || (seal && seal.mimeType) || 'application/octet-stream';
-				const resultFileName = fileName || (seal && seal.name) || null;
+			const deriveParams = (text, initialMimeType, initialFileName) => {
+				const seal = MetalSeal.parse(text);
+				const mimeType = initialMimeType || (seal && seal.mimeType) || 'application/octet-stream';
+				const fileName = initialFileName || (seal && seal.name) || null;
 
-				return { resultMimeType, resultFileName };
+				return { mimeType, fileName };
 			};
 
 			const {
@@ -96,17 +92,17 @@ module.exports = {
 			const cachedPayload = cache.get(cachePayloadKey);
 			const cachedText = cache.get(cacheTextKey);
 
-			if (cachedPayload !== undefined) {
-				const { resultMimeType, resultFileName } = setParams(cachedText, initialMimeType, initialFileName);
-				sendData(cachedPayload, resultMimeType, resultFileName, cachedText, download);
+			if (undefined !== cachedPayload) {
+				const { mimeType, fileName } = deriveParams(cachedText, initialMimeType, initialFileName);
+				sendData(cachedPayload, mimeType, fileName, cachedText, download);
 			} else {
 				const { payload, text } = await db.binDataByMetalId(metalId);
-				const { resultMimeType, resultFileName } = setParams(text, initialMimeType, initialFileName);
+				const { mimeType, fileName } = deriveParams(text, initialMimeType, initialFileName);
 				// Cache the data for 5 minutes
-				cache.set(cachePayloadKey, payload, 300);
+				cache.set(cachePayloadKey, payload, CACHE_TTL);
 				if (text)
-					cache.set(cacheTextKey, text, 300);
-				sendData(payload, resultMimeType, resultFileName, text, download);
+					cache.set(cacheTextKey, text, CACHE_TTL);
+				sendData(payload, mimeType, fileName, text, download);
 			}
 		});
 	}

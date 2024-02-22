@@ -21,7 +21,6 @@
 
 const { metal } = require('./metal');
 const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
-const routeUtils = require('../../routes/routeUtils');
 
 class MetadataDb {
 	/**
@@ -82,36 +81,37 @@ class MetadataDb {
 	}
 
 	async binDataByMetalId(metalId) {
-		const compositeHashes = [routeUtils.parseArgument(metal.restoreMetadataHash(metalId), 'compositeHash', 'hash256')];
-		const metadatasByCompositeHash = await this.metadatasByCompositeHash(compositeHashes);
-		const metadataEntry = metal.getMetadataEntryByCompositehash(metadatasByCompositeHash);
+		const metadatasByCompositeHash = await this.metadatasByCompositeHash([metal.extractCompositeHashFromMetalId(metalId)]);
+		if (0 === metadatasByCompositeHash.length)
+			throw Error(`could not get first chunk, it may mistake the metal ID: ${metalId}`);
+		const { metadataEntry } = metadatasByCompositeHash[0];
 		const chunks = [];
 		let counter = 1;
+		let moreData = true;
 
-		const fetchMetadata = async () => {
+		while (moreData) {
 			const options = {
-				sortField: 'id', sortDirection: 1, pageSize: 2000, pageNumber: counter
+				sortField: 'id', sortDirection: 1, pageSize: 100, pageNumber: counter
 			};
-			const c = await this.metadata(
-				new Uint8Array(metadataEntry.sourceAddress.buffer),
-				new Uint8Array(metadataEntry.targetAddress.buffer),
+			// eslint-disable-next-line no-await-in-loop
+			const metadatas = await this.metadata(
+				metadataEntry.sourceAddress.buffer,
+				metadataEntry.targetAddress.buffer,
 				undefined,
 				metadataEntry.targetId,
 				metadataEntry.metadataType,
 				options
 			);
-			c.data.forEach(e => {
+			metadatas.data.forEach(e => {
 				chunks.push({
 					key: longToUint64(e.metadataEntry.scopedMetadataKey),
 					value: e.metadataEntry.value.buffer
 				});
 			});
 
+			moreData = 0 < metadatas.data.length;
 			counter++;
-			if (0 < c.data.length)
-				await fetchMetadata();
-		};
-		await fetchMetadata();
+		}
 		return metal.decode(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}
 }

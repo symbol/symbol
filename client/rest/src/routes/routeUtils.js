@@ -284,18 +284,14 @@ const routeUtils = {
 		 * @returns {Function} An appropriate object handler.
 		 */
 		sendData(res, next) {
-			const isDownload = (download, mimeType) => {
-				if ('true' === download || 'application/octet-stream' === mimeType)
-					return true;
-				return false;
-			};
+			const isAttachment = (download, mimeType) => 'true' === download || 'application/octet-stream' === mimeType;
 			return (data, mimeType, fileName, text, download) => {
 				res.setHeader('content-type', mimeType);
-				let disposition = isDownload(download, mimeType) ? 'attachment;' : 'inline;';
+				let disposition = isAttachment(download, mimeType) ? 'attachment;' : 'inline;';
 				disposition += fileName ? ` filename="${fileName}"` : '';
 				res.setHeader('Content-Disposition', disposition);
 				if (text)
-					res.setHeader('Content-MetalText', `${text}`);
+					res.setHeader('Content-MetalText', text);
 				res.write(data);
 				res.end();
 				next();

@@ -1,15 +1,10 @@
 const { sha3_256 } = require('@noble/hashes/sha3');
 const fs = require('fs');
 
-const FILE_PATH = './test/plugins/metadata/resources/metadata.json';
-const MOSAIC_FILE_PATH = './test/plugins/metadata/resources/metadata_mosaic.json';
-const IMAGE_PATH = './test/plugins/metadata/resources/image.png';
+const FILE_PATH = `${__dirname}/resources/metadata.json`;
+const MOSAIC_FILE_PATH = `${__dirname}/resources/metadata_mosaic.json`;
+const IMAGE_PATH = `${__dirname}/resources/image.png`;
 const CHUNK_PAYLOAD_MAX_SIZE = 1012;
-
-const metadataJson = fs.readFileSync(FILE_PATH, 'utf8');
-const mosaicMetadataJson = fs.readFileSync(MOSAIC_FILE_PATH, 'utf8');
-const metadatas = JSON.parse(metadataJson);
-const mosaicMetadatas = JSON.parse(mosaicMetadataJson);
 
 const combinePayloadWithText = (payload, text) => {
 	const textBytes = text ? Buffer.from(text, 'utf8') : Buffer.alloc(0);
@@ -33,7 +28,7 @@ const combinePayloadWithText = (payload, text) => {
 
 	return {
 		combinedPayload,
-		textChunks: Math.ceil(textBytes.length / CHUNK_PAYLOAD_MAX_SIZE)
+		totalTextChunksCount: Math.ceil(textBytes.length / CHUNK_PAYLOAD_MAX_SIZE)
 	};
 };
 
@@ -47,33 +42,36 @@ const generateChecksum = input => {
 	return [uint32Array[0], uint32Array[1]];
 };
 
-const getMetadata = (id, isMosaic = false) => {
-	if (!isMosaic)
-		return metadatas.find(obj => obj.id === id);
-	return mosaicMetadatas.find(obj => obj.id === id);
+const loadAndFormatMetadata = filePath => {
+	const metadataJson = fs.readFileSync(filePath, 'utf8');
+	const metadatas = JSON.parse(metadataJson);
+	const chunks = metadatas.map(obj => ({
+		id: obj.id,
+		key: obj.scopedMetadataKey,
+		value: Buffer.from(obj.value)
+	}));
+	return { metadatas, chunks };
 };
 
-const chunks = metadatas.map(obj => ({
-	id: obj.id,
-	key: obj.scopedMetadataKey,
-	value: Buffer.from(obj.value)
-}));
+const { metadatas, chunks } = loadAndFormatMetadata(FILE_PATH);
+const { metadatas: mosaicMetadatas, chunks: mosaicChunks } = loadAndFormatMetadata(MOSAIC_FILE_PATH);
 
-const moasicChunks = mosaicMetadatas.map(obj => ({
-	id: obj.id,
-	key: obj.scopedMetadataKey,
-	value: Buffer.from(obj.value)
-}));
+const getMetadata = (id, isMosaic = false) =>
+	(isMosaic ? mosaicMetadatas.find(obj => obj.id === id) : metadatas.find(obj => obj.id === id));
 
 const imageBytes = fs.readFileSync(IMAGE_PATH);
+
+const testData = {
+	metadatas,
+	mosaicMetadatas,
+	chunks,
+	mosaicChunks,
+	imageBytes
+};
 
 module.exports = {
 	combinePayloadWithText,
 	generateChecksum,
 	getMetadata,
-	metadatas,
-	mosaicMetadatas,
-	chunks,
-	moasicChunks,
-	imageBytes
+	testData
 };

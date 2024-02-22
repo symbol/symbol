@@ -240,6 +240,7 @@ describe('metadata routes', () => {
 			});
 		});
 	});
+
 	describe('metal', () => {
 		const mockServer = new MockServer();
 		const db = {
@@ -255,28 +256,44 @@ describe('metadata routes', () => {
 		});
 
 		describe('get by metal id', () => {
-			it('returns page with results', () => {
+			it('returns page with results and uses cache on second call', async () => {
 				// Arrange:
 				const route = mockServer.getRoute('/metadata/metal/:metalId').get();
-				const metalId = 'your_metal_id';
-				const mimeType = 'image/png';
-				const fileName = 'image.png';
-				const download = 'true';
 				const req = {
 					params: {
-						metalId, mimeType, fileName, download
+						metalId: 'metal_id',
+						mimeType: 'image/png',
+						fileName: 'image.png',
+						download: 'true'
 					}
 				};
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
+
+				// Act & Assert:
+				// First call
+				await mockServer.callRoute(route, req).then(() => {
 					expect(mockServer.res.write.calledOnce).to.equal(true);
 					expect(mockServer.next.calledOnce).to.equal(true);
 					expect(mockServer.res.setHeader.calledWithExactly('content-type', 'image/png')).to.equal(true);
 					expect(mockServer.res.setHeader
 						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
 					expect(db.binDataByMetalId.calledOnce).to.equal(true);
-					expect(db.binDataByMetalId.alwaysCalledWith(metalId)).to.equal(true);
+					expect(db.binDataByMetalId.alwaysCalledWith('metal_id')).to.equal(true);
+				});
+
+				// Reset the spies
+				mockServer.res.write.resetHistory();
+				mockServer.next.resetHistory();
+				mockServer.res.setHeader.resetHistory();
+				db.binDataByMetalId.resetHistory();
+
+				// Second call
+				await mockServer.callRoute(route, req).then(() => {
+					expect(mockServer.res.write.calledOnce).to.equal(true);
+					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.res.setHeader.calledWithExactly('content-type', 'image/png')).to.equal(true);
+					expect(mockServer.res.setHeader
+						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
+					expect(db.binDataByMetalId.calledOnce).to.equal(false); // db.binDataByMetalId should not be called on second request
 				});
 			});
 		});

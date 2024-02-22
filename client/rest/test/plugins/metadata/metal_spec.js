@@ -23,163 +23,188 @@ const {
 	combinePayloadWithText,
 	generateChecksum,
 	getMetadata,
-	chunks,
-	moasicChunks,
-	imageBytes
+	testData
 } = require('./metalUtils');
+const { hexToUint8 } = require('../../../src/catapult-sdk/utils/convert');
 const { metal, MetalSeal } = require('../../../src/plugins/metadata/metal');
 const { expect } = require('chai');
 
 describe('metal', () => {
-	describe('restoreMetadataHash', () => {
-		it('can convert MetalID to compositehash', () => {
+	describe('extractCompositeHashFromMetalId', () => {
+		it('can convert MetalID to CompositeHash', () => {
 			// Arrange:
 			const metalId = 'FeDr2dAx9GnK8j4w6VDwtBLBbvnvxx7rea4eHrpQvG6hhX';
-			// Act:
-			const result = metal.restoreMetadataHash(metalId);
-			// Assert:
-			expect(result).to.deep.equal({ compositeHash: 'BBFB2A837D3A9CF993195C2CA417645518A2ED2C30E8B760D3E224EC75F601E6' });
+			// Act + Assert:
+			expect(metal.extractCompositeHashFromMetalId(metalId))
+				.to.deep.equal(hexToUint8('BBFB2A837D3A9CF993195C2CA417645518A2ED2C30E8B760D3E224EC75F601E6'));
 		});
-		it('can not convert MetalID to compositehash start with not Fe', () => {
+
+		it('cannot convert MetalID to CompositeHash not starting with metal id header', () => {
 			// Arrange:
 			const metalId = 'AuDr2dAx9GnK8j4w6VDwtBLBbvnvxx7rea4eHrpQvG6hhX';
-			// Act:
-			const result = () => metal.restoreMetadataHash(metalId);
-			// Assert:
-			expect(result).to.throw('Invalid metal ID.');
+			// Act + Assert:
+			expect(() => metal.extractCompositeHashFromMetalId(metalId)).to.throw(`'${metalId}' is not a valid metal ID`);
 		});
-		it('can not convert MetalID to compositehash length is not 68', () => {
+
+		it('cannot convert MetalID to CompositeHash when length is not 34', () => {
 			// Arrange:
 			const metalId = 'FeDr2dAx9GnK8j4w6VDwtBLBbvnvxx7rea4eHrpQvG6hh';
-			// Act:
-			const result = () => metal.restoreMetadataHash(metalId);
-			// Assert:
-			expect(result).to.throw('Invalid metal ID.');
+			// Act + Assert:
+			expect(() => metal.extractCompositeHashFromMetalId(metalId)).to.throw(`'${metalId}' is not a valid metal ID`);
 		});
 	});
+
+	describe('generateMetadataKey', () => {
+		it('can generates metadata key', () => {
+			// Arrange:
+			const metadata = getMetadata(10);
+			const input = metadata.value;
+			// Act + Assert:
+			expect(metal.generateMetadataKey(new Uint8Array(input))).to.deep.equal(metadata.scopedMetadataKey);
+		});
+
+		it('can not generates metadata key input is empty', () => {
+			// Arrange:
+			const input = Buffer.alloc(0);
+			// Act + Assert:
+			expect(() => metal.generateMetadataKey(input)).to.throw('Input must not be empty');
+		});
+	});
+
 	describe('extractChunk', () => {
-		it('extract chunk and returns the value chunk', () => {
+		it('extract chunk', () => {
 			// Arrange:
 			const metadata = getMetadata(70);
 			const nextMetadata = getMetadata(80);
-			// Act:
-			const result = metal.extractChunk(Buffer.from(metadata.value));
-			// Assert:
-			expect(result).to.deep.equal({
+			// Act + Assert:
+			expect(metal.extractChunk(Buffer.from(metadata.value))).to.deep.equal({
 				magic: 0x00,
 				scopedMetadataKey: nextMetadata.scopedMetadataKey,
 				chunkPayload: Buffer.from(metadata.value.slice(12)),
 				text: false
 			});
 		});
-		it('extract chunk and returns the value end chunk', () => {
+
+		it('extract end chunk', () => {
 			// Arrange:
 			const metadata = getMetadata(120);
-			const { combinedPayload } = combinePayloadWithText(imageBytes);
+			const { combinedPayload } = combinePayloadWithText(testData.imageBytes);
 			const checkSum = generateChecksum(combinedPayload);
-
-			// Act:
-			const result = metal.extractChunk(Buffer.from(metadata.value));
-			// Assert:
-			expect(result).to.deep.equal({
+			// Act + Assert:
+			expect(metal.extractChunk(Buffer.from(metadata.value))).to.deep.equal({
 				magic: 0x80,
 				scopedMetadataKey: checkSum,
 				chunkPayload: Buffer.from(metadata.value.slice(12)),
 				text: false
 			});
 		});
-		it('extract chunk and returns the value chunk with text', () => {
+
+		it('extract chunk with text', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const nextMetadata = getMetadata(20);
-			// Act:
-			const result = metal.extractChunk(Buffer.from(metadata.value));
-			// Assert:
-			expect(result).to.deep.equal({
+			// Act + Assert:
+			expect(metal.extractChunk(Buffer.from(metadata.value))).to.deep.equal({
 				magic: 0x00,
 				scopedMetadataKey: nextMetadata.scopedMetadataKey,
 				chunkPayload: Buffer.from(metadata.value.slice(12)),
 				text: true
 			});
 		});
-		it('extract chunk and returns the value end chunk with text', () => {
+
+		it('extract end chunk with text', () => {
 			// Arrange:
 			const metadata = getMetadata(60);
-			const textSection = new MetalSeal(imageBytes.length, 'image/png', 'image.png', 'test').stringify();
-			const { combinedPayload } = combinePayloadWithText(imageBytes, textSection);
+			const textSection = new MetalSeal(testData.imageBytes.length, 'image/png', 'image.png', 'test').stringify();
+			const { combinedPayload } = combinePayloadWithText(testData.imageBytes, textSection);
 			const checkSum = generateChecksum(combinedPayload);
-
-			// Act:
-			const result = metal.extractChunk(Buffer.from(metadata.value));
-			// Assert:
-			expect(result).to.deep.equal({
+			// Act + Assert:
+			expect(metal.extractChunk(Buffer.from(metadata.value))).to.deep.equal({
 				magic: 0x80,
 				scopedMetadataKey: checkSum,
 				chunkPayload: Buffer.from(metadata.value.slice(12)),
 				text: false
 			});
 		});
-		it('can not extract size is shorten', () => {
-			// Arrange:
-			const metadata = getMetadata(10);
-			const metadataValue = metadata.value.slice(0, 11);
-			// Act:
-			const result = () => metal.extractChunk(Buffer.from(metadataValue));
-			// Assert:
-			expect(result).to.throw(`Invalid metadata value size ${metadataValue.length}`);
-		});
-		it('can not extract size is longer', () => {
-			// Arrange:
-			const metadata = getMetadata(10);
-			const metadataValue = metadata.value.concat(Buffer.alloc(1, 0x00));
-			// Act:
-			const result = () => metal.extractChunk(Buffer.from(metadataValue));
-			// Assert:
-			expect(result).to.throw(`Invalid metadata value size ${metadataValue.length}`);
-		});
 	});
-	describe('generateMetadataKey', () => {
-		it('generate metadata key', () => {
-			// Arrange:
-			const metadata = getMetadata(10);
-			const input = metadata.value;
-			// Act:
-			const result = metal.generateMetadataKey(new Uint8Array(input));
-			// Assert:
-			expect(result).to.deep.equal(metadata.scopedMetadataKey);
-		});
-		it('can not generates metadata key input is empty', () => {
-			// Arrange:
-			const input = Buffer.alloc(0);
-			// Act:
-			const result = () => metal.generateMetadataKey(input);
-			// Assert:
-			expect(result).to.throw('Input must not be empty');
-		});
-	});
+
 	describe('splitChunkPayloadAndText', () => {
 		it('split chunk payload and text', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const extractChunk = metal.extractChunk(Buffer.from(metadata.value));
-			const textSection = new MetalSeal(imageBytes.length, 'image/png', 'image.png', 'test').stringify();
+			const textSection = new MetalSeal(testData.imageBytes.length, 'image/png', 'image.png', 'test').stringify();
+			const imageBytesToSeparatorIndex = testData.imageBytes.slice(0, 966);
 			// Act:
-			const { chunkText } = metal.splitChunkPayloadAndText(extractChunk);
+			const { chunkPayload, chunkText } = metal.splitChunkPayloadAndText(extractChunk);
 			// Assert:
-			expect(Buffer.from(chunkText.buffer).toString('utf-8')).to.equal(textSection);
+			expect(chunkPayload).to.deep.equal(imageBytesToSeparatorIndex);
+			expect(chunkText.toString('utf-8')).to.equal(textSection);
 		});
-		it('split chunk payload and text but does not have text', () => {
+
+		it('split chunk payload text is undefined', () => {
 			// Arrange:
 			const metadata = getMetadata(70);
 			const extractChunk = metal.extractChunk(Buffer.from(metadata.value));
+			const imageBytesToSeparatorIndex = testData.imageBytes.slice(0, 1012);
 			// Act:
-			const { chunkText } = metal.splitChunkPayloadAndText(extractChunk);
+			const { chunkPayload, chunkText } = metal.splitChunkPayloadAndText(extractChunk);
 			// Assert:
+			expect(chunkPayload).to.deep.equal(imageBytesToSeparatorIndex);
 			expect(chunkText).to.equal(undefined);
 		});
 	});
+
+	describe('decode', () => {
+		it('can decodes binary data from chunks with text', () => {
+			// Arrange:
+			const metadata = getMetadata(10);
+			const firstKey = metadata.scopedMetadataKey;
+			const textSection = new MetalSeal(testData.imageBytes.length, 'image/png', 'image.png', 'test').stringify();
+			// Act:
+			const { payload, text } = metal.decode(firstKey, testData.chunks);
+			// Assert:
+			expect(payload).to.deep.equal(testData.imageBytes);
+			expect(text).to.equal(textSection);
+		});
+
+		it('can decodes binary data from chunks without text', () => {
+			// Arrange:
+			const metadata = getMetadata(70);
+			const firstKey = metadata.scopedMetadataKey;
+			// Act:
+			const { payload } = metal.decode(firstKey, testData.chunks);
+			// Assert:
+			expect(payload).to.deep.equal(testData.imageBytes);
+		});
+
+		it('cannot decodes binary data chunk is broken', () => {
+			// Arrange:
+			const metadata = getMetadata(10);
+			const firstKey = metadata.scopedMetadataKey;
+			// delete chunk
+			const deleteChunk = getMetadata(20);
+			const deletedChunks = testData.chunks.filter(obj => JSON.stringify(obj.key) !== JSON.stringify(deleteChunk.scopedMetadataKey));
+			// Act + Assert:
+			expect(() => metal.decode(firstKey, deletedChunks)).to.throw(`Error: The chunk ${deleteChunk.scopedMetadataKey} is missing`);
+		});
+
+		it('cannot decodes binary data value is broken', () => {
+			// Arrange:
+			const metadata = getMetadata(10);
+			const firstKey = metadata.scopedMetadataKey;
+			// delete chunk value
+			const mutatedChunk = testData.chunks.find(obj => 20 === obj.id);
+			mutatedChunk.value = mutatedChunk.value.slice(0, mutatedChunk.value.length - 1);
+			const checksum = metal.generateMetadataKey(new Uint8Array(mutatedChunk.value));
+			// Act + Assert:
+			expect(() => metal.decode(firstKey, testData.chunks))
+				.to.throw(`Error: The chunk ${mutatedChunk.key} is broken (calculated=${checksum})`);
+		});
+	});
+
 	describe('getMetadataEntryByCompositehash', () => {
-		it('check metadata length equal 1', () => {
+		it('can check metadata length equal 1', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const processedMetadata = [
@@ -194,138 +219,79 @@ describe('metal', () => {
 					}
 				}
 			];
-			// Act:
-			const metadataEntry = metal.getMetadataEntryByCompositehash(processedMetadata);
-			// Assert:
-			expect(metadataEntry).to.deep.equal(processedMetadata[0].metadataEntry);
+			// Act + Assert:
+			expect(metal.getMetadataEntryByCompositehash(processedMetadata)).to.deep.equal(processedMetadata[0].metadataEntry);
 		});
-		it('can not metadata entry metal id is incorrect', () => {
+
+		it('cannot metadata entry metal id is incorrect', () => {
 			// Arrange:
 			const processedMetadata = [];
-			// Act:
-			const meta = () => metal.getMetadataEntryByCompositehash(processedMetadata);
-			// Assert:
-			expect(meta).to.throw('could not get first chunk, it may mistake the metal ID.');
+			// Act + Assert:
+			expect(() => metal.getMetadataEntryByCompositehash(processedMetadata))
+				.to.throw('could not get first chunk, it may mistake the metal ID.');
 		});
 	});
-	describe('decode', () => {
-		it('decodes binary data from chunks with text', () => {
-			// Arrange:
-			const metadata = getMetadata(10);
-			const fitstKey = metadata.scopedMetadataKey;
-			const textSection = new MetalSeal(imageBytes.length, 'image/png', 'image.png', 'test').stringify();
-			// Act:
 
-			const { payload, text } = metal.decode(fitstKey, chunks);
-			// Assert:
-			expect(payload).to.deep.equal(imageBytes);
-			expect(text).to.equal(textSection);
-		});
-		it('decodes binary data from chunks without text', () => {
-			// Arrange:
-			const metadata = getMetadata(70);
-			const fitstKey = metadata.scopedMetadataKey;
-			// Act:
-			const { payload } = metal.decode(fitstKey, chunks);
-			// Assert:
-			expect(payload).to.deep.equal(imageBytes);
-		});
-		it('can not decodes binary data chunk is broken', () => {
-			// Arrange:
-			const metadata = getMetadata(10);
-			const fitstKey = metadata.scopedMetadataKey;
-			// delete chunk
-			const deleteChunk = getMetadata(20);
-			const deletedChunks = chunks.filter(obj => JSON.stringify(obj.key) !== JSON.stringify(deleteChunk.scopedMetadataKey));
-			// Act:
-			const result = () => metal.decode(fitstKey, deletedChunks);
-			// Assert:
-			expect(result).to.throw(`Error: The chunk ${deleteChunk.scopedMetadataKey} is missing`);
-		});
-		it('can not decodes binary data value is broken', () => {
-			// Arrange:
-			const metadata = getMetadata(10);
-			const fitstKey = metadata.scopedMetadataKey;
-			// delete chunk value
-			const deleteChunk = chunks.find(obj => 20 === obj.id);
-			deleteChunk.value = deleteChunk.value.slice(0, deleteChunk.value.length - 1);
-			const checksum = metal.generateMetadataKey(new Uint8Array(deleteChunk.value));
-			// Act:
-			const result = () => metal.decode(fitstKey, chunks);
-			// Assert:
-			expect(result).to.throw(`Error: The chunk ${deleteChunk.key} is broken (calculated=${checksum})`);
-		});
-		it('decodes mosaic metadata from chunks', () => {
-			// Arrange:
-			const metadata = getMetadata(130, true);
-			const fitstKey = metadata.scopedMetadataKey;
-			// Act:
-			const { payload } = metal.decode(fitstKey, moasicChunks);
-			// Assert:
-			expect(payload).to.deep.equal(imageBytes);
-		});
-	});
 	describe('metal seal', () => {
-		it('metal seal all aggs', () => {
+		const testSealRoundtrip = (seal, hardcodedString) => {
+			// Act:
+			const sealString = seal.stringify();
+			const parsed = MetalSeal.parse(sealString);
+			// Assert:
+			expect(sealString).to.equal(hardcodedString);
+			expect(parsed.schema).to.deep.equal(seal.schema);
+			expect(parsed.length).to.deep.equal(seal.length);
+			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
+			expect(parsed.name).to.deep.equal(seal.name);
+			expect(parsed.comment).to.deep.equal(seal.comment);
+		};
+		it('can roundtrip with all parameters provided', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, 'image/png', 'image.png', 'test');
-			// Act:
-			const sealString = seal.stringify();
-			const parsed = MetalSeal.parse(sealString);
-			// Assert:
-			expect(parsed.schema).to.deep.equal(seal.schema);
-			expect(parsed.length).to.deep.equal(seal.length);
-			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
-			expect(parsed.name).to.deep.equal(seal.name);
-			expect(parsed.comment).to.deep.equal(seal.comment);
-		});
-		it('metal seal missing comment', () => {
-			// Arrange:
-			const seal = new MetalSeal(1, 'image/png', 'image.png');
-			// Act:
-			const sealString = seal.stringify();
-			const parsed = MetalSeal.parse(sealString);
-			// Assert:
-			expect(parsed.schema).to.deep.equal(seal.schema);
-			expect(parsed.length).to.deep.equal(seal.length);
-			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
-			expect(parsed.name).to.deep.equal(seal.name);
-			expect(parsed.comment).to.deep.equal(seal.comment);
-		});
-		it('metal seal missing fileName', () => {
-			// Arrange:
-			const seal = new MetalSeal(1, 'image/png', undefined, 'test');
-			// Act:
-			const sealString = seal.stringify();
-			const parsed = MetalSeal.parse(sealString);
-			// Assert:
-			expect(parsed.schema).to.deep.equal(seal.schema);
-			expect(parsed.length).to.deep.equal(seal.length);
-			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
-			expect(parsed.name).to.deep.equal(seal.name);
-			expect(parsed.comment).to.deep.equal(seal.comment);
-		});
-		it('metal seal missing mimetype and comment', () => {
-			// Arrange:
-			const seal = new MetalSeal(1, undefined, 'image.png');
-			// Act:
-			const sealString = seal.stringify();
-			const parsed = MetalSeal.parse(sealString);
-			// Assert:
-			expect(parsed.schema).to.deep.equal(seal.schema);
-			expect(parsed.length).to.deep.equal(seal.length);
-			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
-			expect(parsed.name).to.deep.equal(seal.name);
-			expect(parsed.comment).to.deep.equal(seal.comment);
+			// Act + Assert:
+			testSealRoundtrip(seal, '["seal1",1,"image/png","image.png","test"]');
 		});
 
-		it('malformed seal JSON.', () => {
+		it('can roundtrip missing comment', () => {
+			// Arrange:
+			const seal = new MetalSeal(1, 'image/png', 'image.png');
+			// Act + Assert:
+			testSealRoundtrip(seal, '["seal1",1,"image/png","image.png"]');
+		});
+
+		it('can roundtrip missing fileName', () => {
+			// Arrange:
+			const seal = new MetalSeal(1, 'image/png', undefined, 'test');
+			// Act + Assert:
+			testSealRoundtrip(seal, '["seal1",1,"image/png",null,"test"]');
+		});
+
+		it('can roundtrip missing mimetype and comment', () => {
+			// Arrange:
+			const seal = new MetalSeal(1, undefined, 'image.png');
+			// Act + Assert:
+			testSealRoundtrip(seal, '["seal1",1,null,"image.png"]');
+		});
+
+		it('cannot roundtrip invalid head', () => {
+			// Arrange:
+			const failJson = JSON.stringify(['seal1', '1']);
+			// Act + Assert:
+			expect(MetalSeal.parse(failJson)).to.equal(null);
+		});
+
+		it('cannot roundtrip not array', () => {
+			// Arrange:
+			const failJson = JSON.stringify({ schema: 'seal1', length: 1 });
+			// Act + Assert:
+			expect(MetalSeal.parse(failJson)).to.equal(null);
+		});
+
+		it('cannot roundtrip not compat', () => {
 			// Arrange:
 			const failJson = JSON.stringify(['seal2', 1]);
-			// Act:
-			const parsed = () => MetalSeal.parse(failJson);
-			// Assert:
-			expect(parsed).to.throw('Malformed seal JSON.');
+			// Act + Assert:
+			expect(MetalSeal.parse(failJson)).to.equal(null);
 		});
 	});
 });
