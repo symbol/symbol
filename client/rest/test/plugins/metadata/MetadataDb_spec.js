@@ -321,7 +321,7 @@ describe('metadata db', () => {
 				}
 			));
 
-		it('decodes account metal without text or seal', () => {
+		it('decodes account metal without text or seal', () =>
 			// Act + Assert:
 			runMetadataDbTest(
 				dbMetadata(),
@@ -330,8 +330,7 @@ describe('metadata db', () => {
 					expect(decoded.payload).to.deep.equal(testData.imageBytes);
 					expect(decoded.text).to.deep.equal(undefined);
 				}
-			);
-		});
+			));
 
 		it('decodes mosaic metal with seal', () =>
 			// Act + Assert:
@@ -342,6 +341,21 @@ describe('metadata db', () => {
 					expect(decoded.payload).to.deep.equal(testData.imageBytes);
 					expect(decoded.text).to.deep.equal(textSection);
 				}
+			));
+
+		it('cannot decodes not getting first chunk', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata(),
+				async db => {
+					const metalId = 'Fe4YG12YcUzgATsZexNAhLyfbxogSaLX7dhoHMvCqgnPao';
+					try {
+						await db.binDataByMetalId(metalId);
+					} catch (error) {
+						expect(error.message).to.equal(`could not get first chunk, it may mistake the metal ID: ${metalId}`);
+					}
+				},
+				() => {} // assertion done as part of (failed) issueDbCommand
 			));
 	});
 });
