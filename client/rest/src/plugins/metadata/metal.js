@@ -201,32 +201,37 @@ class MetalSeal {
 	}
 
 	/**
-	 * Parses a JSON string into a MetalSeal object.
+	 * Try parses a JSON string into a MetalSeal object.
 	 * The JSON string should represent an array with the schema, length, mimeType (if exists), name (if exists), and comment (if exists).
 	 * @param {string} json - The JSON string to parse.
-	 * @returns {MetalSeal|null} - A new MetalSeal object created from the parsed JSON string or null.
+	 * @returns {object} - if could parse, return isParsed is true and a new MetalSeal object created from the parsed JSON string.
+	 * Otherwise, isParsed is false and the return value is original.
+	 * - isParsed: boolean
+	 * - value: MetalSeal | string
 	 */
-	static parse(json) {
+	static tryParse(json) {
 		let parsedObject;
 		try {
 			parsedObject = JSON.parse(json);
 		} catch {
-			return null;
+			return { isParsed: false, value: json };
 		}
-
 		if (!Array.isArray(parsedObject)
 			|| !this.isHead(parsedObject)
 			|| !MetalSeal.COMPAT.includes(parsedObject[0])
 		)
-			return null;
+			return { isParsed: false, value: json };
 
-		return new MetalSeal(
-			parsedObject[1],
-			parsedObject[2] ?? undefined,
-			parsedObject[3] ?? undefined,
-			parsedObject[4] ?? undefined,
-			parsedObject[0]
-		);
+		return {
+			isParsed: true,
+			value: new MetalSeal(
+				parsedObject[1],
+				parsedObject[2] ?? undefined,
+				parsedObject[3] ?? undefined,
+				parsedObject[4] ?? undefined,
+				parsedObject[0]
+			)
+		};
 	}
 }
 

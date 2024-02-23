@@ -276,6 +276,8 @@ describe('metadata routes', () => {
 					expect(mockServer.res.setHeader.calledWithExactly('content-type', 'image/png')).to.equal(true);
 					expect(mockServer.res.setHeader
 						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
+					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_text')).to.equal(true);
+					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_fail_text')).to.equal(false);
 					expect(db.binDataByMetalId.calledOnce).to.equal(true);
 					expect(db.binDataByMetalId.alwaysCalledWith('metal_id')).to.equal(true);
 				});
@@ -293,6 +295,8 @@ describe('metadata routes', () => {
 					expect(mockServer.res.setHeader.calledWithExactly('content-type', 'image/png')).to.equal(true);
 					expect(mockServer.res.setHeader
 						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
+					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_text')).to.equal(true);
+					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_fail_text')).to.equal(false);
 					expect(db.binDataByMetalId.calledOnce).to.equal(false); // db.binDataByMetalId should not be called on second request
 				});
 			});

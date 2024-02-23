@@ -233,65 +233,74 @@ describe('metal', () => {
 	});
 
 	describe('metal seal', () => {
-		const testSealRoundtrip = (seal, hardcodedString) => {
+		const canSealRoundtrip = (seal, hardcodedString) => {
 			// Act:
 			const sealString = seal.stringify();
-			const parsed = MetalSeal.parse(sealString);
+			const { isParsed, value } = MetalSeal.tryParse(sealString);
 			// Assert:
+			expect(isParsed).to.equal(true);
 			expect(sealString).to.equal(hardcodedString);
-			expect(parsed.schema).to.deep.equal(seal.schema);
-			expect(parsed.length).to.deep.equal(seal.length);
-			expect(parsed.mimeType).to.deep.equal(seal.mimeType);
-			expect(parsed.name).to.deep.equal(seal.name);
-			expect(parsed.comment).to.deep.equal(seal.comment);
+			expect(value.schema).to.deep.equal(seal.schema);
+			expect(value.length).to.deep.equal(seal.length);
+			expect(value.mimeType).to.deep.equal(seal.mimeType);
+			expect(value.name).to.deep.equal(seal.name);
+			expect(value.comment).to.deep.equal(seal.comment);
 		};
-		it('can roundtrip with all parameters provided', () => {
+		const cannotSealRoundtrip = json => {
+			// Act:
+			const { isParsed, value } = MetalSeal.tryParse(json);
+			// Assert:
+			expect(isParsed).to.equal(false);
+			expect(value).to.equal(json);
+		};
+
+		it('roundtrip with all parameters provided', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, 'image/png', 'image.png', 'test');
 			// Act + Assert:
-			testSealRoundtrip(seal, '["seal1",1,"image/png","image.png","test"]');
+			canSealRoundtrip(seal, '["seal1",1,"image/png","image.png","test"]');
 		});
 
-		it('can roundtrip missing comment', () => {
+		it('roundtrip missing comment', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, 'image/png', 'image.png');
 			// Act + Assert:
-			testSealRoundtrip(seal, '["seal1",1,"image/png","image.png"]');
+			canSealRoundtrip(seal, '["seal1",1,"image/png","image.png"]');
 		});
 
-		it('can roundtrip missing fileName', () => {
+		it('roundtrip missing fileName', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, 'image/png', undefined, 'test');
 			// Act + Assert:
-			testSealRoundtrip(seal, '["seal1",1,"image/png",null,"test"]');
+			canSealRoundtrip(seal, '["seal1",1,"image/png",null,"test"]');
 		});
 
-		it('can roundtrip missing mimetype and comment', () => {
+		it('roundtrip missing mimetype and comment', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, undefined, 'image.png');
 			// Act + Assert:
-			testSealRoundtrip(seal, '["seal1",1,null,"image.png"]');
+			canSealRoundtrip(seal, '["seal1",1,null,"image.png"]');
 		});
 
 		it('cannot roundtrip invalid head', () => {
 			// Arrange:
 			const failJson = JSON.stringify(['seal1', '1']);
 			// Act + Assert:
-			expect(MetalSeal.parse(failJson)).to.equal(null);
+			cannotSealRoundtrip(failJson);
 		});
 
 		it('cannot roundtrip not array', () => {
 			// Arrange:
 			const failJson = JSON.stringify({ schema: 'seal1', length: 1 });
 			// Act + Assert:
-			expect(MetalSeal.parse(failJson)).to.equal(null);
+			cannotSealRoundtrip(failJson);
 		});
 
 		it('cannot roundtrip not compat', () => {
 			// Arrange:
 			const failJson = JSON.stringify(['seal2', 1]);
 			// Act + Assert:
-			expect(MetalSeal.parse(failJson)).to.equal(null);
+			cannotSealRoundtrip(failJson);
 		});
 	});
 });
