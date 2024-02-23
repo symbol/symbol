@@ -132,7 +132,7 @@ const metal = {
 	 */
 	getMetadataEntryByCompositehash(metadata) {
 		if (0 === metadata.length)
-			throw Error('could not get first chunk, it may mistake the metal ID.');
+			throw Error('could not get first chunk, it may mistake the metal id.');
 		return metadata[0].metadataEntry;
 	}
 };
