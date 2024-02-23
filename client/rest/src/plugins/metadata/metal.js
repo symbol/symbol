@@ -18,7 +18,7 @@ const metal = {
 			&& METAL_ID_LENGTH === decodedBs58HashBytes.length;
 
 		if (!isValidMetalId)
-			throw Error(`'${metalId}' is not a valid metal ID`);
+			throw Error(`'${metalId}' is not a valid metal id`);
 
 		return decodedBs58HashBytes
 			.subarray(METAL_ID_HEADER_HEX.length);

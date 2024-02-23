@@ -43,14 +43,14 @@ describe('metal', () => {
 			// Arrange:
 			const metalId = 'AuDr2dAx9GnK8j4w6VDwtBLBbvnvxx7rea4eHrpQvG6hhX';
 			// Act + Assert:
-			expect(() => metal.extractCompositeHashFromMetalId(metalId)).to.throw(`'${metalId}' is not a valid metal ID`);
+			expect(() => metal.extractCompositeHashFromMetalId(metalId)).to.throw(`'${metalId}' is not a valid metal id`);
 		});
 
 		it('cannot convert MetalID to CompositeHash when length is not 34', () => {
 			// Arrange:
 			const metalId = 'FeDr2dAx9GnK8j4w6VDwtBLBbvnvxx7rea4eHrpQvG6hh';
 			// Act + Assert:
-			expect(() => metal.extractCompositeHashFromMetalId(metalId)).to.throw(`'${metalId}' is not a valid metal ID`);
+			expect(() => metal.extractCompositeHashFromMetalId(metalId)).to.throw(`'${metalId}' is not a valid metal id`);
 		});
 	});
 
@@ -67,7 +67,7 @@ describe('metal', () => {
 			// Arrange:
 			const input = Buffer.alloc(0);
 			// Act + Assert:
-			expect(() => metal.generateMetadataKey(input)).to.throw('Input must not be empty');
+			expect(() => metal.generateMetadataKey(input)).to.throw('input must not be empty');
 		});
 	});
 
@@ -186,7 +186,7 @@ describe('metal', () => {
 			const deleteChunk = getMetadata(20);
 			const deletedChunks = testData.chunks.filter(obj => JSON.stringify(obj.key) !== JSON.stringify(deleteChunk.scopedMetadataKey));
 			// Act + Assert:
-			expect(() => metal.decode(firstKey, deletedChunks)).to.throw(`Error: The chunk ${deleteChunk.scopedMetadataKey} is missing`);
+			expect(() => metal.decode(firstKey, deletedChunks)).to.throw(`the chunk ${deleteChunk.scopedMetadataKey} is missing`);
 		});
 
 		it('cannot decodes binary data value is broken', () => {
@@ -199,7 +199,7 @@ describe('metal', () => {
 			const checksum = metal.generateMetadataKey(new Uint8Array(mutatedChunk.value));
 			// Act + Assert:
 			expect(() => metal.decode(firstKey, testData.chunks))
-				.to.throw(`Error: The chunk ${mutatedChunk.key} is broken (calculated=${checksum})`);
+				.to.throw(`the chunk ${mutatedChunk.key} is broken (calculated=${checksum})`);
 		});
 	});
 
@@ -228,7 +228,7 @@ describe('metal', () => {
 			const processedMetadata = [];
 			// Act + Assert:
 			expect(() => metal.getMetadataEntryByCompositehash(processedMetadata))
-				.to.throw('could not get first chunk, it may mistake the metal ID.');
+				.to.throw('could not get first chunk, it may mistake the metal id.');
 		});
 	});
 
