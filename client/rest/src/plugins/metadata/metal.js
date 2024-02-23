@@ -122,18 +122,6 @@ const metal = {
 			payload: Buffer.concat(decodedPayload),
 			text: decodedText.length ? Buffer.concat(decodedText).toString('utf-8') : undefined
 		};
-	},
-
-	/**
-	 * Get metadata entry by compositehash.
-	 * I can't throw exceptions in db tests, so I made it for unit tests.
-	 * @param {object} metadata Metadata obtained by composite hash.
-	 * @returns {object} metadataEntry
-	 */
-	getMetadataEntryByCompositehash(metadata) {
-		if (0 === metadata.length)
-			throw Error('could not get first chunk, it may mistake the metal id.');
-		return metadata[0].metadataEntry;
 	}
 };
 

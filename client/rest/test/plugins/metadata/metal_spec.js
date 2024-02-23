@@ -203,35 +203,6 @@ describe('metal', () => {
 		});
 	});
 
-	describe('getMetadataEntryByCompositehash', () => {
-		it('can check metadata length equal 1', () => {
-			// Arrange:
-			const metadata = getMetadata(10);
-			const processedMetadata = [
-				{
-					metadataEntry: {
-						sourceAddress: Buffer.from(metadata.sourceAddress),
-						targetAddress: Buffer.from(metadata.targetAddress),
-						scopedMetadataKey: metadata.scopedMetadataKey,
-						targetId: metadata.targetId,
-						metadataType: metadata.metadataType,
-						value: Buffer.from(metadata.value)
-					}
-				}
-			];
-			// Act + Assert:
-			expect(metal.getMetadataEntryByCompositehash(processedMetadata)).to.deep.equal(processedMetadata[0].metadataEntry);
-		});
-
-		it('cannot metadata entry metal id is incorrect', () => {
-			// Arrange:
-			const processedMetadata = [];
-			// Act + Assert:
-			expect(() => metal.getMetadataEntryByCompositehash(processedMetadata))
-				.to.throw('could not get first chunk, it may mistake the metal id.');
-		});
-	});
-
 	describe('metal seal', () => {
 		const canSealRoundtrip = (seal, hardcodedString) => {
 			// Act:
