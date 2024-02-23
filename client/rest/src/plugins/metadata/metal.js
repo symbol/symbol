@@ -206,8 +206,8 @@ class MetalSeal {
 	 * @param {string} json - The JSON string to parse.
 	 * @returns {object} - if could parse, return isParsed is true and a new MetalSeal object created from the parsed JSON string.
 	 * Otherwise, isParsed is false and the return value is original.
-	 * - isParsed: boolean
-	 * - value: MetalSeal | string
+	 * - isParsed: boolean could parse or not
+	 * - value: MetalSeal | string isParsed is true MetalSeal, otherwise original JSON string
 	 */
 	static tryParse(json) {
 		let parsedObject;
