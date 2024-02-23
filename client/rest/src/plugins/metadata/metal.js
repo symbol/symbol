@@ -216,8 +216,7 @@ class MetalSeal {
 				parsedObject[1],
 				parsedObject[2] ?? undefined,
 				parsedObject[3] ?? undefined,
-				parsedObject[4] ?? undefined,
-				parsedObject[0]
+				parsedObject[4] ?? undefined
 			)
 		};
 	}
