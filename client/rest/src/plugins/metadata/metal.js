@@ -31,7 +31,7 @@ const metal = {
 	 */
 	generateMetadataKey(input) {
 		if (!input.length)
-			throw new Error('Input must not be empty');
+			throw new Error('input must not be empty');
 		const hashedBytes = sha3_256(input);
 		const uint64 = catapult.utils.uint64.fromBytes(hashedBytes.subarray(0, 8));
 		return [uint64[0], uint64[1] & 0x7FFFFFFF];
@@ -102,12 +102,12 @@ const metal = {
 		do {
 			const chunk = chunks.find(findChunk);
 			if (!chunk)
-				throw new Error(`Error: The chunk ${scopedMetadataKey} is missing`);
+				throw new Error(`the chunk ${scopedMetadataKey} is missing`);
 
 			const metadataKey = this.generateMetadataKey(chunk.value);
 			const isValidMetadataKey = 0 === catapult.utils.uint64.compare(metadataKey, scopedMetadataKey);
 			if (!isValidMetadataKey)
-				throw new Error(`Error: The chunk ${scopedMetadataKey} is broken (calculated=${metadataKey})`);
+				throw new Error(`the chunk ${scopedMetadataKey} is broken (calculated=${metadataKey})`);
 
 			const chunkData = this.extractChunk(chunk.value);
 			({ magic, scopedMetadataKey } = chunkData);
