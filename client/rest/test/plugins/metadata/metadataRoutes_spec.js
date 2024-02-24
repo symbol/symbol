@@ -256,20 +256,7 @@ describe('metadata routes', () => {
 		});
 
 		describe('get by metal id', () => {
-			it('returns page with results and uses cache on second call', async () => {
-				// Arrange:
-				const route = mockServer.getRoute('/metadata/metal/:metalId').get();
-				const req = {
-					params: {
-						metalId: 'metal_id',
-						mimeType: 'image/png',
-						fileName: 'image.png',
-						download: 'true'
-					}
-				};
-
-				// Act & Assert:
-				// First call
+			const callRouteAndAssert = async (route, req, shouldCallDb) => {
 				await mockServer.callRoute(route, req).then(() => {
 					expect(mockServer.res.write.calledOnce).to.equal(true);
 					expect(mockServer.next.calledOnce).to.equal(true);
@@ -278,9 +265,32 @@ describe('metadata routes', () => {
 						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
 					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_text')).to.equal(true);
 					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_fail_text')).to.equal(false);
-					expect(db.binDataByMetalId.calledOnce).to.equal(true);
-					expect(db.binDataByMetalId.alwaysCalledWith('metal_id')).to.equal(true);
+					expect(db.binDataByMetalId.calledOnce).to.equal(shouldCallDb);
+					if (shouldCallDb)
+						expect(db.binDataByMetalId.alwaysCalledWith('metal_id')).to.equal(true);
 				});
+			};
+
+			// Arrange:
+			const route = mockServer.getRoute('/metadata/metal/:metalId').get();
+			const req = {
+				params: {
+					metalId: 'metal_id',
+					mimeType: 'image/png',
+					fileName: 'image.png',
+					download: 'true'
+				}
+			};
+
+			it('returns page with results and uses DB on single call', async () => {
+				// Act & Assert:
+				callRouteAndAssert(route, req, true);
+			});
+
+			it('returns page with results and uses cache on second call', async () => {
+				// Act:
+				// First call
+				await mockServer.callRoute(route, req);
 
 				// Reset the spies
 				mockServer.res.write.resetHistory();
@@ -288,17 +298,8 @@ describe('metadata routes', () => {
 				mockServer.res.setHeader.resetHistory();
 				db.binDataByMetalId.resetHistory();
 
-				// Second call
-				await mockServer.callRoute(route, req).then(() => {
-					expect(mockServer.res.write.calledOnce).to.equal(true);
-					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.res.setHeader.calledWithExactly('content-type', 'image/png')).to.equal(true);
-					expect(mockServer.res.setHeader
-						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
-					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_text')).to.equal(true);
-					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_fail_text')).to.equal(false);
-					expect(db.binDataByMetalId.calledOnce).to.equal(false); // db.binDataByMetalId should not be called on second request
-				});
+				// Assert:
+				await callRouteAndAssert(route, req, false);
 			});
 		});
 	});

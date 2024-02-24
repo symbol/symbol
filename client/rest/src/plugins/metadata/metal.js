@@ -2,7 +2,7 @@ const catapult = require('../../catapult-sdk');
 const { sha3_256 } = require('@noble/hashes/sha3');
 const bs58 = require('bs58');
 
-const METAL_ID_HEADER_HEX = [0x0B, 0x2A];
+const METAL_ID_HEADER_SIGNATURE = [0x0B, 0x2A];
 const METAL_ID_LENGTH = 34;
 
 const metal = {
@@ -13,21 +13,21 @@ const metal = {
 	 */
 	extractCompositeHashFromMetalId(metalId) {
 		const decodedBs58HashBytes = bs58.decode(metalId);
-		const isValidMetalId = METAL_ID_HEADER_HEX[0] === decodedBs58HashBytes[0]
-			&& METAL_ID_HEADER_HEX[1] === decodedBs58HashBytes[1]
+		const isValidMetalId = METAL_ID_HEADER_SIGNATURE[0] === decodedBs58HashBytes[0]
+			&& METAL_ID_HEADER_SIGNATURE[1] === decodedBs58HashBytes[1]
 			&& METAL_ID_LENGTH === decodedBs58HashBytes.length;
 
 		if (!isValidMetalId)
 			throw Error(`'${metalId}' is not a valid metal id`);
 
 		return decodedBs58HashBytes
-			.subarray(METAL_ID_HEADER_HEX.length);
+			.subarray(METAL_ID_HEADER_SIGNATURE.length);
 	},
 
 	/**
-	 * generate metadata key for checking the metadata is broken or not.
-	 * @param {Uint8Array} input value of chunk.
-	 * @returns {module:utils/uint64} Return Metadata key as uint64.
+	 * generates a metadata key to check if the metadata is broken or not.
+	 * @param {Uint8Array} input The chunk value to generate the key from.
+	 * @returns {module:utils/uint64} The metadata key as a uint64, represented as an array of two numbers.
 	 */
 	generateMetadataKey(input) {
 		if (!input.length)
@@ -41,10 +41,10 @@ const metal = {
 	 * extract chunk and return the value of a metadata entry according to the metadata protocol.
 	 * @param {Buffer} buffer Value obtained from metadata entry.
 	 * @returns {object} Objects containing values in line with the METAL protocol.
-	 * - magic: number
-	 * - text: boolean
-	 * - scopedMetadataKey: uint64
-	 * - chunkPayload: Buffer
+	 * - magic: number - 0x00 is chunk, 0x80 is end of chunk.
+	 * - text: boolean - true if text is present, false otherwise.
+	 * - scopedMetadataKey: uint64 - ScopedMetadataKey of the next chunk.
+	 * - chunkPayload: Buffer - payload of the chunk.
 	 */
 	extractChunk(buffer) {
 		const header = buffer.subarray(0, 1);
@@ -62,11 +62,11 @@ const metal = {
 	/**
 	 * Separate by null if text is present or not.
 	 * @param {object} chunkData chunkPayload and has text or not
-	 * - chunkPayload: Buffer
-	 * - text: boolean
+	 * - chunkPayload: Buffer - payload of chunk that may contain text
+	 * - text: boolean - true if text is present, false otherwise.
 	 * @returns {object} return chunkPayload and chunkText.
-	 * - chunkPayload: Buffer
-	 * - chunkText: Buffer
+	 * - chunkPayload: Buffer - if text is present, separated chunkPayload. otherwise, original chunkPayload.
+	 * - chunkText: Buffer - if text is present, separated chunkText. otherwise, undefined.
 	 */
 	splitChunkPayloadAndText(chunkData) {
 		if (!chunkData.text) {
@@ -95,8 +95,8 @@ const metal = {
 	decode(firstKey, chunks) {
 		let scopedMetadataKey = firstKey;
 		let magic;
-		const decodedPayload = [];
-		const decodedText = [];
+		const decodedPayloads = [];
+		const decodedTexts = [];
 		const findChunk = chunk => 0 === catapult.utils.uint64.compare(chunk.key, scopedMetadataKey);
 
 		do {
@@ -113,20 +113,21 @@ const metal = {
 			({ magic, scopedMetadataKey } = chunkData);
 			const { chunkPayload, chunkText } = this.splitChunkPayloadAndText(chunkData);
 			if (chunkPayload.length)
-				decodedPayload.push(chunkPayload);
+				decodedPayloads.push(chunkPayload);
 
 			if (chunkText?.length)
-				decodedText.push(chunkText);
+				decodedTexts.push(chunkText);
 		} while (0x80 !== magic);
 		return {
-			payload: Buffer.concat(decodedPayload),
-			text: decodedText.length ? Buffer.concat(decodedText).toString('utf-8') : undefined
+			payload: Buffer.concat(decodedPayloads),
+			text: decodedTexts.length ? Buffer.concat(decodedTexts).toString('utf-8') : undefined
 		};
 	}
 };
 
 /**
- * MetalSeal class
+ * MetalSeal is a simple JSON schema for writing file informations
+ * filellength, mimetype, filename and comment in text sections.
  */
 class MetalSeal {
 	static SCHEMA = 'seal1';
@@ -134,6 +135,7 @@ class MetalSeal {
 	static COMPAT = [MetalSeal.SCHEMA];
 
 	/**
+	 * Creates a metal seal object from provided arguments.
 	 * @param {number} length size of the file
 	 * @param {string} mimeType mime type of the file
 	 * @param {string} name file name of the file
@@ -148,7 +150,7 @@ class MetalSeal {
 	}
 
 	/**
-	 * Checks if the given value is a MetalSeal head
+	 * Checks if the given value is a MetalSeal head.
 	 * @param {any} value - The value to check
 	 * @returns {boolean} - Returns true if the value is a MetalSeal head, false otherwise
 	 */

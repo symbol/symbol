@@ -639,29 +639,32 @@ describe('route utils', () => {
 					routeUtils.createSender(type).sendData(res, next)(data, mimeType, fileName, text, download), assertResponse);
 			};
 
-			const testHeader = (response, dataBuffer, disposition, mimeType, text) => {
+			const assertHeader = (response, dataBuffer, disposition, mimeType, text) => {
 				// Arrange:
 				const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
 				const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
-				const contentTextValue = response.headers.find(header => 'Content-MetalText' === header.name)?.value;
+				const contentTextHeader = response.headers.find(header => 'Content-MetalText' === header.name);
 				// Assert:
 				expect(response.data.length).to.equal(1);
 				expect(response.data[0]).to.deep.equal(dataBuffer);
 				expect(contentDispositionValue).to.equal(disposition);
 				expect(contentTypeValue).to.equal(mimeType);
-				expect(contentTextValue).to.equal(text);
+				if (text)
+					expect(contentTextHeader.value).to.equal(text);
+				else
+					expect(contentTextHeader).to.equal(undefined);
 			};
 
-			it('nothing params', () => {
+			it('no params', () => {
 				// Act:
 				send({ data: Buffer.from([0, 1, 2]), mimeType: 'image/png' }, 'foo', response => {
-					testHeader(response, Buffer.from([0, 1, 2]), 'inline;', 'image/png');
+					assertHeader(response, Buffer.from([0, 1, 2]), 'inline;', 'image/png');
 				});
 			});
 			it('with fileName', () => {
 				// Act:
 				send({ data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png' }, 'foo', response => {
-					testHeader(response, Buffer.from([0, 1, 2]), 'inline; filename="image.png"', 'image/png', undefined);
+					assertHeader(response, Buffer.from([0, 1, 2]), 'inline; filename="image.png"', 'image/png', undefined);
 				});
 			});
 			it('with fileName and text', () => {
@@ -669,7 +672,7 @@ describe('route utils', () => {
 				send({
 					data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png', text: 'test'
 				}, 'foo', response => {
-					testHeader(response, Buffer.from([0, 1, 2]), 'inline; filename="image.png"', 'image/png', 'test');
+					assertHeader(response, Buffer.from([0, 1, 2]), 'inline; filename="image.png"', 'image/png', 'test');
 				});
 			});
 			it('with fileName and text as attachment', () => {
@@ -677,7 +680,7 @@ describe('route utils', () => {
 				send({
 					data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png', text: 'test', download: 'true'
 				}, 'foo', response => {
-					testHeader(response, Buffer.from([0, 1, 2]), 'attachment; filename="image.png"', 'image/png', 'test');
+					assertHeader(response, Buffer.from([0, 1, 2]), 'attachment; filename="image.png"', 'image/png', 'test');
 				});
 			});
 			it('mimeType is application/octet-stream as attachment', () => {
@@ -685,7 +688,7 @@ describe('route utils', () => {
 				send({
 					data: Buffer.from([0, 1, 2]), mimeType: 'application/octet-stream'
 				}, 'foo', response => {
-					testHeader(response, Buffer.from([0, 1, 2]), 'attachment;', 'application/octet-stream');
+					assertHeader(response, Buffer.from([0, 1, 2]), 'attachment;', 'application/octet-stream');
 				});
 			});
 		});

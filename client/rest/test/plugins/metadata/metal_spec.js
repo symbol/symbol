@@ -55,7 +55,7 @@ describe('metal', () => {
 	});
 
 	describe('generateMetadataKey', () => {
-		it('can generates metadata key', () => {
+		it('can generate metadata key', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const input = metadata.value;
@@ -63,7 +63,7 @@ describe('metal', () => {
 			expect(metal.generateMetadataKey(new Uint8Array(input))).to.deep.equal(metadata.scopedMetadataKey);
 		});
 
-		it('can not generates metadata key input is empty', () => {
+		it('cannot generate metadata key input is empty', () => {
 			// Arrange:
 			const input = Buffer.alloc(0);
 			// Act + Assert:
@@ -72,7 +72,7 @@ describe('metal', () => {
 	});
 
 	describe('extractChunk', () => {
-		it('extract chunk', () => {
+		it('can extract chunk', () => {
 			// Arrange:
 			const metadata = getMetadata(70);
 			const nextMetadata = getMetadata(80);
@@ -85,7 +85,7 @@ describe('metal', () => {
 			});
 		});
 
-		it('extract end chunk', () => {
+		it('can extract end chunk', () => {
 			// Arrange:
 			const metadata = getMetadata(120);
 			const { combinedPayload } = combinePayloadWithText(testData.imageBytes);
@@ -99,7 +99,7 @@ describe('metal', () => {
 			});
 		});
 
-		it('extract chunk with text', () => {
+		it('can extract chunk with text', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const nextMetadata = getMetadata(20);
@@ -112,24 +112,25 @@ describe('metal', () => {
 			});
 		});
 
-		it('extract end chunk with text', () => {
+		it('can extract end chunk with text', () => {
 			// Arrange:
-			const metadata = getMetadata(60);
-			const textSection = new MetalSeal(testData.imageBytes.length, 'image/png', 'image.png', 'test').stringify();
-			const { combinedPayload } = combinePayloadWithText(testData.imageBytes, textSection);
+			const metadata = getMetadata(250);
+			const payload = Buffer.from(Buffer.from('test', 'utf-8'));
+			const textSection = new MetalSeal(payload.length, 'text/plain', 'text.text', 'test').stringify();
+			const { combinedPayload } = combinePayloadWithText(payload, textSection);
 			const checkSum = generateChecksum(combinedPayload);
 			// Act + Assert:
 			expect(metal.extractChunk(Buffer.from(metadata.value))).to.deep.equal({
 				magic: 0x80,
 				scopedMetadataKey: checkSum,
 				chunkPayload: Buffer.from(metadata.value.slice(12)),
-				text: false
+				text: true
 			});
 		});
 	});
 
 	describe('splitChunkPayloadAndText', () => {
-		it('split chunk payload and text', () => {
+		it('can extract payload and text when both present', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const extractChunk = metal.extractChunk(Buffer.from(metadata.value));
@@ -142,7 +143,7 @@ describe('metal', () => {
 			expect(chunkText.toString('utf-8')).to.equal(textSection);
 		});
 
-		it('split chunk payload text is undefined', () => {
+		it('can extract payload when only payload present', () => {
 			// Arrange:
 			const metadata = getMetadata(70);
 			const extractChunk = metal.extractChunk(Buffer.from(metadata.value));
@@ -156,7 +157,7 @@ describe('metal', () => {
 	});
 
 	describe('decode', () => {
-		it('can decodes binary data from chunks with text', () => {
+		it('can decode binary data from chunks with text', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const firstKey = metadata.scopedMetadataKey;
@@ -168,7 +169,7 @@ describe('metal', () => {
 			expect(text).to.equal(textSection);
 		});
 
-		it('can decodes binary data from chunks without text', () => {
+		it('can decode binary data from chunks without text', () => {
 			// Arrange:
 			const metadata = getMetadata(70);
 			const firstKey = metadata.scopedMetadataKey;
@@ -178,7 +179,7 @@ describe('metal', () => {
 			expect(payload).to.deep.equal(testData.imageBytes);
 		});
 
-		it('cannot decodes binary data chunk is broken', () => {
+		it('cannot decode binary data chunk is broken', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const firstKey = metadata.scopedMetadataKey;
@@ -189,7 +190,7 @@ describe('metal', () => {
 			expect(() => metal.decode(firstKey, deletedChunks)).to.throw(`the chunk ${deleteChunk.scopedMetadataKey} is missing`);
 		});
 
-		it('cannot decodes binary data value is broken', () => {
+		it('cannot decode binary data value is broken', () => {
 			// Arrange:
 			const metadata = getMetadata(10);
 			const firstKey = metadata.scopedMetadataKey;
@@ -204,7 +205,7 @@ describe('metal', () => {
 	});
 
 	describe('metal seal', () => {
-		const canSealRoundtrip = (seal, hardcodedString) => {
+		const canRoundtripSeal = (seal, hardcodedString) => {
 			// Act:
 			const sealString = seal.stringify();
 			const { isParsed, value } = MetalSeal.tryParse(sealString);
@@ -217,7 +218,7 @@ describe('metal', () => {
 			expect(value.name).to.deep.equal(seal.name);
 			expect(value.comment).to.deep.equal(seal.comment);
 		};
-		const cannotSealRoundtrip = json => {
+		const cannotRoundtripSeal = json => {
 			// Act:
 			const { isParsed, value } = MetalSeal.tryParse(json);
 			// Assert:
@@ -225,53 +226,53 @@ describe('metal', () => {
 			expect(value).to.equal(json);
 		};
 
-		it('roundtrip with all parameters provided', () => {
+		it('can roundtrip with all parameters provided', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, 'image/png', 'image.png', 'test');
 			// Act + Assert:
-			canSealRoundtrip(seal, '["seal1",1,"image/png","image.png","test"]');
+			canRoundtripSeal(seal, '["seal1",1,"image/png","image.png","test"]');
 		});
 
-		it('roundtrip missing comment', () => {
+		it('can roundtrip missing comment', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, 'image/png', 'image.png');
 			// Act + Assert:
-			canSealRoundtrip(seal, '["seal1",1,"image/png","image.png"]');
+			canRoundtripSeal(seal, '["seal1",1,"image/png","image.png"]');
 		});
 
-		it('roundtrip missing fileName', () => {
+		it('can roundtrip missing fileName', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, 'image/png', undefined, 'test');
 			// Act + Assert:
-			canSealRoundtrip(seal, '["seal1",1,"image/png",null,"test"]');
+			canRoundtripSeal(seal, '["seal1",1,"image/png",null,"test"]');
 		});
 
-		it('roundtrip missing mimetype and comment', () => {
+		it('can roundtrip missing mimetype and comment', () => {
 			// Arrange:
 			const seal = new MetalSeal(1, undefined, 'image.png');
 			// Act + Assert:
-			canSealRoundtrip(seal, '["seal1",1,null,"image.png"]');
+			canRoundtripSeal(seal, '["seal1",1,null,"image.png"]');
 		});
 
 		it('cannot roundtrip invalid head', () => {
 			// Arrange:
 			const failJson = JSON.stringify(['seal1', '1']);
 			// Act + Assert:
-			cannotSealRoundtrip(failJson);
+			cannotRoundtripSeal(failJson);
 		});
 
 		it('cannot roundtrip not array', () => {
 			// Arrange:
 			const failJson = JSON.stringify({ schema: 'seal1', length: 1 });
 			// Act + Assert:
-			cannotSealRoundtrip(failJson);
+			cannotRoundtripSeal(failJson);
 		});
 
 		it('cannot roundtrip not compat', () => {
 			// Arrange:
 			const failJson = JSON.stringify(['seal2', 1]);
 			// Act + Assert:
-			cannotSealRoundtrip(failJson);
+			cannotRoundtripSeal(failJson);
 		});
 	});
 });

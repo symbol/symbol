@@ -299,7 +299,7 @@ describe('metadata db', () => {
 		const dbMetadata = () => testData.metadatas.map(metadata => createMetadata(metadata));
 		const dbMosaicMetadata = () => testData.mosaicMetadatas.map(metadata => createMetadata(metadata));
 
-		it('decodes account metal with seal', () =>
+		it('can decode account metal with seal', () =>
 			// Act + Assert:
 			runMetadataDbTest(
 				dbMetadata(),
@@ -310,7 +310,7 @@ describe('metadata db', () => {
 				}
 			));
 
-		it('decodes account metal with text', () =>
+		it('can decode account metal with text', () =>
 			// Act + Assert:
 			runMetadataDbTest(
 				dbMetadata(),
@@ -321,7 +321,7 @@ describe('metadata db', () => {
 				}
 			));
 
-		it('decodes account metal without text or seal', () =>
+		it('can decode account metal without text or seal', () =>
 			// Act + Assert:
 			runMetadataDbTest(
 				dbMetadata(),
@@ -332,7 +332,7 @@ describe('metadata db', () => {
 				}
 			));
 
-		it('decodes mosaic metal with seal', () =>
+		it('can decode mosaic metal with seal', () =>
 			// Act + Assert:
 			runMetadataDbTest(
 				dbMosaicMetadata(),
@@ -343,19 +343,16 @@ describe('metadata db', () => {
 				}
 			));
 
-		it('cannot decodes not getting first chunk', () =>
+		it('cannot decode not getting first chunk', () => {
+			// Arrange:
+			const metalId = 'Fe4YG12YcUzgATsZexNAhLyfbxogSaLX7dhoHMvCqgnPao';
+
 			// Act + Assert:
-			runMetadataDbTest(
+			return runMetadataDbTest(
 				dbMetadata(),
-				async db => {
-					const metalId = 'Fe4YG12YcUzgATsZexNAhLyfbxogSaLX7dhoHMvCqgnPao';
-					try {
-						await db.binDataByMetalId(metalId);
-					} catch (error) {
-						expect(error.message).to.equal(`could not get first chunk, it may mistake the metal ID: ${metalId}`);
-					}
-				},
-				() => {} // assertion done as part of (failed) issueDbCommand
-			));
+				db => db.binDataByMetalId(metalId).catch(error => error),
+				error => expect(error.message).to.equal(`could not get first chunk, it may mistake the metal ID: ${metalId}`)
+			);
+		});
 	});
 });

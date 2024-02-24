@@ -56,8 +56,10 @@ const loadAndFormatMetadata = filePath => {
 const { metadatas, chunks } = loadAndFormatMetadata(FILE_PATH);
 const { metadatas: mosaicMetadatas, chunks: mosaicChunks } = loadAndFormatMetadata(MOSAIC_FILE_PATH);
 
-const getMetadata = (id, isMosaic = false) =>
-	(isMosaic ? mosaicMetadatas.find(obj => obj.id === id) : metadatas.find(obj => obj.id === id));
+const getMetadata = (id, isMosaic = false) => {
+	const targetArray = isMosaic ? mosaicMetadatas : metadatas;
+	return targetArray.find(obj => obj.id === id);
+};
 
 const imageBytes = fs.readFileSync(IMAGE_PATH);
 
