@@ -7,7 +7,7 @@ const METAL_ID_LENGTH = 34;
 
 const metal = {
 	/**
-	 * Convert a metal id (e.g. 'FeF65JftVPEGwaua35LnbU9jK46uG3W8karGDDuDwVEh8Z') into its associated composite hash.
+	 * convert a metal id (e.g. 'FeF65JftVPEGwaua35LnbU9jK46uG3W8karGDDuDwVEh8Z') into its associated composite hash.
 	 * @param {string} metalId metal id to convert.
 	 * @returns {Uint8Array} Associated composite hash.
 	 */
