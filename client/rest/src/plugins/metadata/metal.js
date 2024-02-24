@@ -8,7 +8,7 @@ const METAL_ID_LENGTH = 34;
 const metal = {
 	/**
 	 * Convert a metal id (e.g. 'FeF65JftVPEGwaua35LnbU9jK46uG3W8karGDDuDwVEh8Z') into its associated composite hash.
-	 * @param {string} metalId Metal id to convert.
+	 * @param {string} metalId metal id to convert.
 	 * @returns {Uint8Array} Associated composite hash.
 	 */
 	extractCompositeHashFromMetalId(metalId) {
@@ -26,8 +26,8 @@ const metal = {
 
 	/**
 	 * generates a metadata key to check if the metadata is broken or not.
-	 * @param {Uint8Array} input The chunk value to generate the key from.
-	 * @returns {module:utils/uint64} The metadata key as a uint64, represented as an array of two numbers.
+	 * @param {Uint8Array} input chunk value to generate the key from.
+	 * @returns {module:utils/uint64} metadata key as a uint64, represented as an array of two numbers.
 	 */
 	generateMetadataKey(input) {
 		if (!input.length)
@@ -39,8 +39,8 @@ const metal = {
 
 	/**
 	 * extract chunk and return the value of a metadata entry according to the metadata protocol.
-	 * @param {Buffer} buffer Value obtained from metadata entry.
-	 * @returns {object} Objects containing values in line with the METAL protocol.
+	 * @param {Buffer} buffer value obtained from metadata entry.
+	 * @returns {object} objects containing values in line with the METAL protocol.
 	 * - magic: number - 0x00 is chunk, 0x80 is end of chunk.
 	 * - text: boolean - true if text is present, false otherwise.
 	 * - scopedMetadataKey: uint64 - ScopedMetadataKey of the next chunk.
