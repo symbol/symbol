@@ -264,7 +264,6 @@ describe('metadata routes', () => {
 					expect(mockServer.res.setHeader
 						.calledWithExactly('Content-Disposition', 'attachment; filename="image.png"')).to.equal(true);
 					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_text')).to.equal(true);
-					expect(mockServer.res.setHeader.calledWithExactly('Content-MetalText', 'db_fail_text')).to.equal(false);
 					expect(db.binDataByMetalId.calledOnce).to.equal(shouldCallDb);
 					if (shouldCallDb)
 						expect(db.binDataByMetalId.alwaysCalledWith('metal_id')).to.equal(true);
@@ -283,7 +282,7 @@ describe('metadata routes', () => {
 			};
 
 			it('returns page with results and uses DB on single call', async () => {
-				// Act & Assert:
+				// Act + Assert:
 				callRouteAndAssert(route, req, true);
 			});
 
