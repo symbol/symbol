@@ -7,8 +7,8 @@ const METAL_ID_LENGTH = 34;
 
 const metal = {
 	/**
-	 * convert a metal id (e.g. 'FeF65JftVPEGwaua35LnbU9jK46uG3W8karGDDuDwVEh8Z') into its associated composite hash.
-	 * @param {string} metalId metal id to convert.
+	 * Convert a metal id (e.g. 'FeF65JftVPEGwaua35LnbU9jK46uG3W8karGDDuDwVEh8Z') into its associated composite hash.
+	 * @param {string} metalId Metal id to convert.
 	 * @returns {Uint8Array} Associated composite hash.
 	 */
 	extractCompositeHashFromMetalId(metalId) {
@@ -25,9 +25,9 @@ const metal = {
 	},
 
 	/**
-	 * generates a metadata key to check if the metadata is broken or not.
-	 * @param {Uint8Array} input chunk value to generate the key from.
-	 * @returns {module:utils/uint64} metadata key as a uint64, represented as an array of two numbers.
+	 * Generates a metadata key to check if the metadata is broken or not.
+	 * @param {Uint8Array} input Chunk value to generate the key from.
+	 * @returns {module:utils/uint64} Metadata key as a uint64, represented as an array of two numbers.
 	 */
 	generateMetadataKey(input) {
 		if (!input.length)
@@ -38,13 +38,13 @@ const metal = {
 	},
 
 	/**
-	 * extract chunk and return the value of a metadata entry according to the metadata protocol.
-	 * @param {Buffer} buffer value obtained from metadata entry.
-	 * @returns {object} objects containing values in line with the METAL protocol.
+	 * Extract chunk and return the value of a metadata entry according to the metadata protocol.
+	 * @param {Buffer} buffer Value obtained from metadata entry.
+	 * @returns {object} Object containing values in line with the METAL protocol.
 	 * - magic: number - 0x00 is chunk, 0x80 is end of chunk.
-	 * - text: boolean - true if text is present, false otherwise.
+	 * - text: boolean - True if text is present, false otherwise.
 	 * - scopedMetadataKey: uint64 - ScopedMetadataKey of the next chunk.
-	 * - chunkPayload: Buffer - payload of the chunk.
+	 * - chunkPayload: Buffer - Payload of the chunk.
 	 */
 	extractChunk(buffer) {
 		const header = buffer.subarray(0, 1);
@@ -61,12 +61,12 @@ const metal = {
 
 	/**
 	 * Separate by null if text is present or not.
-	 * @param {object} chunkData chunkPayload and has text or not
-	 * - chunkPayload: Buffer - payload of chunk that may contain text
+	 * @param {object} chunkData ChunkPayload and has text or not
+	 * - chunkPayload: Buffer - Payload of chunk that may contain text
 	 * - text: boolean - true if text is present, false otherwise.
-	 * @returns {object} return chunkPayload and chunkText.
-	 * - chunkPayload: Buffer - if text is present, separated chunkPayload. otherwise, original chunkPayload.
-	 * - chunkText: Buffer - if text is present, separated chunkText. otherwise, undefined.
+	 * @returns {object} Return chunkPayload and chunkText.
+	 * - chunkPayload: Buffer - If text is present, separated chunkPayload. otherwise, original chunkPayload.
+	 * - chunkText: Buffer - If text is present, separated chunkText. otherwise, undefined.
 	 */
 	splitChunkPayloadAndText(chunkData) {
 		if (!chunkData.text) {
@@ -136,10 +136,10 @@ class MetalSeal {
 
 	/**
 	 * Creates a metal seal object from provided arguments.
-	 * @param {number} length size of the file
-	 * @param {string} mimeType mime type of the file
-	 * @param {string} name file name of the file
-	 * @param {string} comment some comment
+	 * @param {number} length Size of the file
+	 * @param {string} mimeType Mime type of the file
+	 * @param {string} name File name of the file
+	 * @param {string} comment Some comment
 	 */
 	constructor(length, mimeType, name, comment) {
 		this.length = length;
@@ -194,10 +194,10 @@ class MetalSeal {
 	 * Try parses a JSON string into a MetalSeal object.
 	 * The JSON string should represent an array with the schema, length, mimeType (if exists), name (if exists), and comment (if exists).
 	 * @param {string} json - The JSON string to parse.
-	 * @returns {object} - if could parse, return isParsed is true and a new MetalSeal object created from the parsed JSON string.
+	 * @returns {object} - If could parse, return isParsed is true and a new MetalSeal object created from the parsed JSON string.
 	 * Otherwise, isParsed is false and the return value is original.
-	 * - isParsed: boolean could parse or not
-	 * - value: MetalSeal | string isParsed is true MetalSeal, otherwise original JSON string
+	 * - isParsed: boolean Could parse or not
+	 * - value: MetalSeal | string If isParsed is true MetalSeal, otherwise original JSON string
 	 */
 	static tryParse(json) {
 		let parsedObject;
