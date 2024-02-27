@@ -288,7 +288,7 @@ describe('metadata routes', () => {
 			});
 
 			it('returns page with results and uses cache on second call', async () => {
-				// Act:
+				// Arrange:
 				// First call
 				await mockServer.callRoute(route, req);
 
@@ -298,7 +298,7 @@ describe('metadata routes', () => {
 				mockServer.res.setHeader.resetHistory();
 				db.binDataByMetalId.resetHistory();
 
-				// Assert:
+				// Act & Assert:
 				await callRouteAndAssert(route, req, false);
 			});
 		});
