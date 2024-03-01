@@ -7,8 +7,16 @@
   "types": "./ts/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./ts/src/index.d.ts",
-      "default": "./src/index.js"
+      "default": "./src/index.js",
+      "types": "./ts/src/index.d.ts"
+    },
+    "./nem": {
+      "default": "./src/nem/index.js",
+      "types": "./ts/src/nem/index.d.ts"
+    },
+    "./symbol": {
+      "default": "./src/symbol/index.js",
+      "types": "./ts/src/symbol/index.d.ts"
     }
   },
   "scripts": {

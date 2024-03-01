@@ -1,6 +1,4 @@
-import symbolSdk from '../../src/index.js';
-
-const { symbol } = symbolSdk;
+import { generateNamespaceId } from '../../src/symbol/index.js';
 
 export default () => ([
 	{
@@ -13,7 +11,7 @@ export default () => ([
 	{
 		type: 'namespace_registration_transaction_v1',
 		registrationType: 'child',
-		parentId: symbol.generateNamespaceId('roger'),
+		parentId: generateNamespaceId('roger'),
 		name: 'charlie'
 	}
 ]);

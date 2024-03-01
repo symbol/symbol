@@ -7,15 +7,13 @@
 //
 
 import { readContents, readPrivateKey } from './examples_utils.js';
-import symbolSdk from '../src/index.js';
+import { SymbolFacade } from '../src/symbol/index.js';
 import yargs from 'yargs';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 (() => {
-	const { SymbolFacade } = symbolSdk.facade;
-
 	const addEmbeddedTransfers = (facade, publicKey) => {
 		const textEncoder = new TextEncoder();
 

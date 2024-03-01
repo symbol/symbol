@@ -1,6 +1,4 @@
-import symbolSdk from '../../src/index.js';
-
-const { nem } = symbolSdk;
+import { Address, models as nem } from '../../src/nem/index.js';
 
 export default () => {
 	const sampleAddress = 'TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C';
@@ -9,7 +7,7 @@ export default () => {
 	// HACK: until fixed
 	const levy = new nem.MosaicLevy();
 	levy.transferFeeType = nem.MosaicTransferFeeType.ABSOLUTE;
-	levy.recipientAddress.bytes = (new nem.Address(sampleAddress)).bytes;
+	levy.recipientAddress.bytes = (new Address(sampleAddress)).bytes;
 	levy.mosaicId = new nem.MosaicId();
 	levy.mosaicId.namespaceId = new nem.NamespaceId();
 	levy.mosaicId.namespaceId.name = textEncoder.encode('lieutenant');

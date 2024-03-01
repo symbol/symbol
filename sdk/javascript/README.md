@@ -21,16 +21,18 @@ To send a transaction, first create a facade for the desired network:
 
 _Symbol_
 ```javascript
-import symbolSdk from 'symbol-sdk';
+import { PrivateKey } from 'symbol-sdk';
+import { SymbolFacade } from 'symbol-sdk/symbol';
 
-const facade = new symbolSdk.facade.SymbolFacade('testnet');
+const facade = new SymbolFacade('testnet');
 ```
 
 _NEM_
 ```javascript
-import symbolSdk from 'symbol-sdk';
+import { PrivateKey } from 'symbol-sdk';
+import { NemFacade } from 'symbol-sdk/nem';
 
-const facade = new symbolSdk.facade.NemFacade('testnet');
+const facade = new NemFacade('testnet');
 ````
 
 Second, describe the transaction using JavaScript object syntax. For example, a transfer transaction can be described as follows:
@@ -66,7 +68,7 @@ Third, sign the transaction and attach the signature:
 
 
 ```javascript
-const privateKey = new symbolSdk.PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
+const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
 const signature = facade.signTransaction(new facade.constructor.KeyPair(privateKey), transaction);
 
 const jsonPayload = facade.transactionFactory.constructor.attachSignature(transaction, signature);;
@@ -90,12 +92,13 @@ npm install symbol-sdk
 ```
 
 ```js
-import symbolSdk from 'symbol-sdk';
+import { PrivateKey } from 'symbol-sdk';
+import { KeyPair } from 'symbol-sdk/symbol';
 
-const privateKey = new symbolSdk.PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
+const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
 console.log(`Private Key: ${privateKey.toString()}`);
 
-const keyPair = new symbolSdk.symbol.KeyPair(privateKey);
+const keyPair = new KeyPair(privateKey);
 console.log(`Public Key: ${keyPair.publicKey.toString()}`);
 ```
 
@@ -105,12 +108,15 @@ Symbol-sdk is alternatively published as a bundled file, which can be imported d
 
 ```html
 <script type="module">
-	import symbolSdk from './node_modules/symbol-sdk/dist/bundle.web.js';
+	import { core, /* nem, */ symbol } from './node_modules/symbol-sdk/dist/bundle.web.js';
 
-	const privateKey = new symbolSdk.PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
+	const { PrivateKey } = core;
+	const { KeyPair } = symbol;
+
+	const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
 	console.log(`Private Key: ${privateKey.toString()}`);
 
-	const keyPair = new symbolSdk.symbol.KeyPair(privateKey);
+	const keyPair = new KeyPair(privateKey);
 	console.log(`Public Key: ${keyPair.publicKey.toString()}`);
 </script>
 ```

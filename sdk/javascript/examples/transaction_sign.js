@@ -4,7 +4,9 @@
 // Shows how to create all transactions manually using TransactionFactory.
 //
 
-import symbolSdk from '../src/index.js';
+import { PrivateKey } from '../src/index.js';
+import { NemFacade } from '../src/nem/index.js';
+import { SymbolFacade } from '../src/symbol/index.js';
 import yargs from 'yargs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -15,7 +17,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 			this.facade = facade;
 			this.commonFields = commonFields;
 
-			const privateKey = new symbolSdk.PrivateKey('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF');
+			const privateKey = new PrivateKey('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF');
 			this.keyPair = new this.facade.constructor.KeyPair(privateKey);
 		}
 
@@ -70,11 +72,11 @@ import { fileURLToPath, pathToFileURL } from 'url';
 		decrementTestsPending();
 	};
 
-	const nemTransactionSample = new TransactionSample(new symbolSdk.facade.NemFacade('testnet'), {
+	const nemTransactionSample = new TransactionSample(new NemFacade('testnet'), {
 		deadline: 12345
 	});
 
-	const symbolTransactionSample = new TransactionSample(new symbolSdk.facade.SymbolFacade('testnet'), {
+	const symbolTransactionSample = new TransactionSample(new SymbolFacade('testnet'), {
 		fee: 625n,
 		deadline: 12345n
 	});

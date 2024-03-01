@@ -4,15 +4,16 @@
 // Shows how to create multisig account.
 //
 
-import symbolSdk from '../src/index.js';
+import { PrivateKey } from '../src/index.js';
+import { KeyPair, SymbolFacade, models } from '../src/symbol/index.js';
 
 (() => {
 	const createKeyPairFromPrivateKey = privateKeyString =>
-		new symbolSdk.symbol.KeyPair(new symbolSdk.PrivateKey(privateKeyString));
+		new KeyPair(new PrivateKey(privateKeyString));
 
 	class MultisigAccountModificationSample {
 		constructor() {
-			this.facade = new symbolSdk.facade.SymbolFacade('testnet');
+			this.facade = new SymbolFacade('testnet');
 			this.multisigkeyPair = createKeyPairFromPrivateKey('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF');
 			this.cosignatorykeyPairs = [
 				createKeyPairFromPrivateKey('AABBCCDDEEFF11002233445566778899AABBCCDDEEFF11002233445566778899'),
@@ -61,7 +62,7 @@ import symbolSdk from '../src/index.js';
 		addCosignatures(aggregateTransaction) {
 			const transactionHash = this.facade.hashTransaction(aggregateTransaction).bytes;
 			aggregateTransaction.cosignatures = this.cosignatorykeyPairs.map(keyPair => {
-				const cosignature = new symbolSdk.symbol.Cosignature();
+				const cosignature = new models.Cosignature();
 				cosignature.version = 0;
 				cosignature.signerPublicKey = keyPair.publicKey;
 				cosignature.signature = keyPair.sign(transactionHash);

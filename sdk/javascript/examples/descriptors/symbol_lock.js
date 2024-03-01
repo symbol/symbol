@@ -1,4 +1,4 @@
-import symbolSdk from '../../src/index.js';
+import { ByteArray, Hash256 } from '../../src/index.js';
 
 export default () => {
 	const sampleAddress = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y';
@@ -11,7 +11,7 @@ export default () => {
 			type: 'hash_lock_transaction_v1',
 			mosaic: { mosaicId: sampleMosaicId, amount: 123_000000n },
 			duration: 123n,
-			hash: symbolSdk.Hash256.zero()
+			hash: Hash256.zero()
 		},
 
 		{
@@ -28,7 +28,7 @@ export default () => {
 			recipientAddress: sampleAddress,
 			secret,
 			hashAlgorithm: 'hash_160',
-			proof: (new symbolSdk.ByteArray(4, 'C1ECFDFC')).bytes
+			proof: (new ByteArray(4, 'C1ECFDFC')).bytes
 		}
 	];
 };

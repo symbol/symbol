@@ -6,7 +6,8 @@
 // note: this example is *not* generating keys compatible with wallet
 //
 
-import symbolSdk from '../src/index.js';
+import { Bip32 } from '../src/index.js';
+import { SymbolFacade } from '../src/symbol/index.js';
 
 (() => {
 	const deriveKey = (rootNode, facade, change, index) => {
@@ -26,9 +27,9 @@ import symbolSdk from '../src/index.js';
 		console.log('');
 	};
 
-	const facade = new symbolSdk.facade.SymbolFacade('testnet');
+	const facade = new SymbolFacade('testnet');
 
-	const bip = new symbolSdk.Bip32(facade.BIP32_CURVE_NAME);
+	const bip = new Bip32(facade.BIP32_CURVE_NAME);
 	const rootNode = bip.fromMnemonic(
 		'cat swing flag economy stadium alone churn speed unique patch report train',
 		'correcthorsebatterystaple'
