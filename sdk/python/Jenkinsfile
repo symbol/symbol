@@ -3,7 +3,7 @@ defaultCiPipeline {
 	instanceSize = 'medium'
 
 	environment = 'python'
-	otherEnvironments = ['python-ubuntu-base', 'python-ubuntu-latest', 'python-windows-lts']
+	otherEnvironments = ['python-fedora-lts', 'python-ubuntu-base', 'python-ubuntu-latest', 'python-windows-lts']
 
 	packageId = 'sdk-python'
 
