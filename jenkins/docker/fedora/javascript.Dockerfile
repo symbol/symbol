@@ -19,7 +19,7 @@ RUN dnf install --assumeyes shellcheck \
 	&& pip install gitlint
 
 # rust dependencies - https://docs.rs/crate/openssl-sys/0.9.19
-RUN dnf install --assumeyes openssl-devel pkg-config \
+RUN dnf install --assumeyes openssl openssl-devel pkg-config \
 # there is no aarch64 build of binaryen -  https://github.com/WebAssembly/binaryen/issues/5337
 	&& if [ "$(uname -m)" = "aarch64" ]; then dnf install --assumeyes binaryen; fi
 

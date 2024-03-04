@@ -11,7 +11,7 @@ RUN dnf install --assumeyes python3 python3-pip python3-virtualenv python3-devel
 RUN dnf install --assumeyes shellcheck
 
 # sdk dependencies
-RUN dnf install --assumeyes zbar openssl-devel make gcc g++ diffutils
+RUN dnf install --assumeyes zbar openssl openssl-devel make gcc g++ diffutils
 
 # enable legacy providers in openssl3(ripemd160)
 RUN if echo "$(openssl version)" | grep -q "^OpenSSL 3"; then \
