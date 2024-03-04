@@ -1,9 +1,10 @@
 defaultCiPipeline {
-	operatingSystem = ['ubuntu', 'windows']
+	// First OS is the default for CI
+	operatingSystem = ['ubuntu', 'fedora', 'windows']
 	instanceSize = 'medium'
 
 	environment = 'javascript'
-	otherEnvironments = ['javascript-windows-lts']
+	otherEnvironments = ['javascript-fedora-lts', 'javascript-windows-lts']
 
 	packageId = 'sdk-javascript'
 

@@ -80,6 +80,13 @@ pipeline {
 						}
 					}
 				}
+				stage('javascript - fedora') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('javascript', 'lts', 'fedora')
+						}
+					}
+				}
 
 				stage('linter') {
 					steps {
@@ -126,6 +133,13 @@ pipeline {
 					steps {
 						script {
 							dispatchBuildCiImageJob('python', 'lts', 'windows')
+						}
+					}
+				}
+				stage('python - fedora') {
+					steps {
+						script {
+							dispatchBuildCiImageJob('python', 'lts', 'fedora')
 						}
 					}
 				}

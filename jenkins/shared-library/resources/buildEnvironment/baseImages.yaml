@@ -1,3 +1,5 @@
+fedora-lts:
+  image: fedora:39
 ubuntu-lts:
   image: ubuntu:22.04
   python: 3.11
