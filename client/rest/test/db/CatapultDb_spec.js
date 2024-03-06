@@ -75,7 +75,7 @@ describe('catapult db', () => {
 			.then(() => deleteIds(dbEntities))
 			.then(() => issueDbCommand(db))
 			.then(assertDbCommandResult)
-			.then(() => db.close());
+			.finally(() => db.close());
 	};
 
 	const assertEqualDocuments = (expectedDocuments, actualDocuments) => {

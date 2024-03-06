@@ -10,10 +10,10 @@ name: Code Scanning - Action
     - cron: '44 11 * * 3'
 
 jobs:
-  CodeQL-Build:
-    # CodeQL runs on ubuntu-latest, windows-latest, and macos-latest
+  analyze:
+    name: Analyze
     runs-on: ubuntu-latest
-
+    timeout-minutes: 360
     permissions:
       # required for all workflows
       security-events: write
@@ -22,6 +22,11 @@ jobs:
       actions: read
       contents: read
 
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,14 +34,15 @@ jobs:
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
-        # Override language selection by uncommenting this and choosing your languages
         with:
-          languages: javascript, python
+          languages: ${{ matrix.language }}
 
-      # Autobuild attempts to build any compiled languages (C/C++, C#, Go, or Java).
-      # If this step fails, then you should remove it and run the build manually (see below).
+      # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
+      # If this step fails, then you should remove it and run the build manually (see below)
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{matrix.language}}

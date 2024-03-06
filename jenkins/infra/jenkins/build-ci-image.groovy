@@ -2,7 +2,7 @@ pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'OPERATING_SYSTEM',
-			choices: ['ubuntu', 'windows'],
+			choices: ['fedora', 'ubuntu', 'windows'],
 			description: 'operating system'
 		choice name: 'CI_IMAGE',
 			choices: ['cpp', 'java', 'javascript', 'linter', 'postgres', 'python'],
