@@ -134,7 +134,9 @@ const registerRoutes = (server, db, services) => {
 			deployment: services.config.deployment,
 
 			uncirculatingAccountPublicKeys: services.config.uncirculatingAccountPublicKeys,
-			nodeMetadata: services.config.nodeMetadata
+			nodeMetadata: services.config.nodeMetadata,
+
+			metal: services.config.metal
 		},
 		connections: services.connectionService
 	};
