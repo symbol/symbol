@@ -38,8 +38,7 @@ def filter_size_if_first(fields_iter):
 	else:
 		yield first_field
 
-	for field in fields_iter:
-		yield field
+	yield from fields_iter
 
 
 class StructFormatter(AbstractTypeFormatter):
