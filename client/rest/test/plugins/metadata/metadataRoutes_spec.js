@@ -246,7 +246,15 @@ describe('metadata routes', () => {
 		const db = {
 			binDataByMetalId: sinon.stub().resolves({ payload: 'db_payload', text: 'db_text' })
 		};
-		metadataRoutes.register(mockServer.server, db, {});
+		const services = {
+			config: {
+				metal: {
+					chcheTtl: 300,
+					sizeLimit: 10000000
+				}
+			}
+		};
+		metadataRoutes.register(mockServer.server, db, services);
 
 		beforeEach(() => {
 			mockServer.resetStats();
