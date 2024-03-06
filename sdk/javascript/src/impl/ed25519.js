@@ -10,7 +10,7 @@ export default {
 		//    in those cases, default to JS-implementation
 		// 2. for testing, check environment variable to force JS-implementation
 		if (!ed25519)
-			ed25519 = global.WebAssembly && !process.env.SYMBOL_SDK_NO_WASM ? ed25519_wasm : ed25519_js;
+			ed25519 = globalThis.WebAssembly && !process.env.SYMBOL_SDK_NO_WASM ? ed25519_wasm : ed25519_js;
 
 		return ed25519;
 	},
