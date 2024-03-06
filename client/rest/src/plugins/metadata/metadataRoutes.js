@@ -68,7 +68,7 @@ module.exports = {
 		});
 
 		server.get('/metadata/metal/:metalId', async (req, res, next) => {
-			const CACHE_TTL = 300;
+			const { chcheTtl, sizeLimit } = services.config.metal;
 			const sendData = (data, mimeType, fileName, text, download) => routeUtils.createSender('content').sendData(res, next)(
 				data,
 				mimeType,
@@ -87,8 +87,8 @@ module.exports = {
 			const {
 				mimeType: initialMimeType, fileName: initialFileName, metalId, download
 			} = req.params;
-			const cachePayloadKey = `metadata:${metalId}_payload}`;
-			const cacheTextKey = `metadata:${metalId}_text}`;
+			const cachePayloadKey = `metadata:${metalId}_payload`;
+			const cacheTextKey = `metadata:${metalId}_text`;
 			const cachedPayload = cache.get(cachePayloadKey);
 			const cachedText = cache.get(cacheTextKey);
 
@@ -98,10 +98,13 @@ module.exports = {
 			} else {
 				const { payload, text } = await db.binDataByMetalId(metalId);
 				const { mimeType, fileName } = deriveParams(text, initialMimeType, initialFileName);
-				// Cache the data for 5 minutes
-				cache.set(cachePayloadKey, payload, CACHE_TTL);
-				if (text)
-					cache.set(cacheTextKey, text, CACHE_TTL);
+				const cachedTotalSize = cache.keys().reduce((totalSize, key) => totalSize + cache.get(key).length, 0);
+				if (cachedTotalSize <= sizeLimit) {
+					// Cache the data for chcheTtl
+					cache.set(cachePayloadKey, payload, chcheTtl);
+					if (text)
+						cache.set(cacheTextKey, text, chcheTtl);
+				}
 				sendData(payload, mimeType, fileName, text, download);
 			}
 		});
