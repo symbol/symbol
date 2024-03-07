@@ -70,9 +70,10 @@ class FactoryFormatter(AbstractTypeFormatter):
 		return f'mapping.set({self.typename}.toKey([{values}]), {name});'
 
 	def get_deserialize_descriptor(self):
-		body = 'const view = new BufferView(payload);\n'
-		body += f'const {self.printer.name} = {self.printer.load()};\n'
-
+		body = f'const {self.printer.name} = {self.printer.get_default_value()};\n'
+		body += f'{self.printer.get_type()}._deserialize(new BufferView(payload), {self.printer.name});\n'
+		body += '\n'
+		body += 'const view = new BufferView(payload);\n'
 		body += 'const mapping = new Map();\n'
 
 		if self.factory_descriptor:

@@ -57,29 +57,57 @@ class DeserializerMode(Enum):
 class StructFormatter(AbstractTypeFormatter):
 	# pylint: disable=too-many-public-methods
 
-	def __init__(self, ast_model):
+	def __init__(self, ast_model, factory_ast_model=None):
 		super().__init__()
 
 		self.struct = ast_model
+		self.base_struct = factory_ast_model
 
-	def non_const_fields(self):
-		return filterfalse(is_const, self.struct.fields)
+	def non_const_fields(self, include_inherited=True):
+		fields = filterfalse(is_const, self.struct.fields)
+		return self._filter_inherited_fields(fields, include_inherited)
 
 	def const_fields(self):
 		return filter(is_const, self.struct.fields)
 
-	def non_reserved_fields(self):
-		return filter_size_if_first(filterfalse(is_computed, filterfalse(is_bound_size, filterfalse(is_reserved, self.non_const_fields()))))
+	def non_reserved_fields(self, include_inherited=True):
+		fields = filter_size_if_first(
+			filterfalse(is_computed, filterfalse(is_bound_size, filterfalse(is_reserved, self.non_const_fields())))
+		)
+		return self._filter_inherited_fields(fields, include_inherited)
 
-	def reserved_fields(self):
-		return filter(is_reserved, self.non_const_fields())
+	def reserved_fields(self, include_inherited=True):
+		fields = filter(is_reserved, self.non_const_fields())
+		return self._filter_inherited_fields(fields, include_inherited)
 
-	def computed_fields(self):
-		return filter(is_computed, self.non_const_fields())
+	def computed_fields(self, include_inherited=True):
+		fields = filter(is_computed, self.non_const_fields())
+		return self._filter_inherited_fields(fields, include_inherited)
+
+	def _is_inherited_field(self, field):
+		if not self.base_struct:
+			return False
+
+		return bool(
+			next((base_struct_field for base_struct_field in self.base_struct.fields if field.name == base_struct_field.name), None)
+		)
+
+	def _filter_inherited_fields(self, fields, include_inherited):
+		if include_inherited:
+			return fields
+
+		return filterfalse(self._is_inherited_field, fields)
 
 	@property
 	def typename(self):
 		return self.struct.name
+
+	@property
+	def is_type_abstract(self):
+		return self.struct.is_abstract
+
+	def get_base_class(self):
+		return self.struct.factory_type
 
 	@staticmethod
 	def field_name(field, object_name='this'):
@@ -103,7 +131,11 @@ class StructFormatter(AbstractTypeFormatter):
 	def generate_type_hints(self):
 		body = 'static TYPE_HINTS = {\n'
 		hints = []
-		for field in self.non_reserved_fields():
+
+		if self.base_struct:
+			hints.append(f'...{self.base_struct.name}.TYPE_HINTS')
+
+		for field in self.non_reserved_fields(include_inherited=False):
 			if not field.extensions.printer.type_hint:
 				continue
 
@@ -126,12 +158,16 @@ class StructFormatter(AbstractTypeFormatter):
 		arguments = []
 
 		body = ''
+		if self.base_struct:
+			body += 'super();\n'
+
+		# include inherited fields because those paired with constants need to be set
 		for field in self.non_reserved_fields():
 			const_field = self.get_paired_const_field(field)
 			field_name = self.field_name(field)
 			if const_field:
 				body += f'{field_name} = {self.typename}.{const_field.name};\n'
-			else:
+			elif not self._is_inherited_field(field):
 				value = field.extensions.printer.get_default_value()
 				if field.is_conditional:
 					conditional = field.value
@@ -148,7 +184,7 @@ class StructFormatter(AbstractTypeFormatter):
 		body += '\n'.join(
 			map(
 				lambda field: f'{self.field_name(field)} = {field.value}; // reserved field',
-				self.reserved_fields()
+				self.reserved_fields(include_inherited=False)
 			)
 		)
 
@@ -298,13 +334,19 @@ class StructFormatter(AbstractTypeFormatter):
 		return indent_if_conditional(condition, deserialize_field)
 
 	def get_deserialize_descriptor_impl(self, deserializer_mode):  # pylint: disable=too-many-locals
-		body = 'const view = new BufferView(payload);\n'
+		body = ''
+		if not self.is_type_abstract:
+			body = 'const view = new BufferView(payload);\n'
+			body += f'const instance = new {self.typename}();\n\n'
+
+		if self.base_struct:
+			body += f'{self.base_struct.name}._deserialize(view, instance);\n'
 
 		# special treatment for condition-guarded fields,
 		# where condition is behind the fields...
 		processed_fields = set()
 		queued_fields = {}
-		for field in self.non_const_fields():
+		for field in self.non_const_fields(include_inherited=False):
 			if field.is_conditional:
 				condition_field_name = field.value.linked_field_name
 
@@ -337,15 +379,15 @@ class StructFormatter(AbstractTypeFormatter):
 					create_temporary_buffer_name(field.name),
 				)
 
-		# create call to ctor
+		# set fields
 		body += '\n'
-		body += f'const instance = new {self.typename}();\n'
-
-		for field in self.non_reserved_fields():
+		for field in self.non_reserved_fields(include_inherited=False):
 			field_name = self.field_name(field, 'instance')
 			body += f'{field_name} = {field.extensions.printer.name};\n'
 
-		body += 'return instance;'
+		if not self.is_type_abstract:
+			body += 'return instance;'
+
 		return MethodDescriptor(body=body)
 
 	def get_deserialize_descriptor(self):
@@ -401,11 +443,12 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return indent_if_conditional(condition, serialize_line)
 
-	def get_serialize_descriptor(self):
-		body = 'const buffer = new Writer(this.size);\n'
+	def generate_serialize_fields(self):
+		body = ''
 
 		# if first field is size replace serializer with custom one (to access builder .size() instead)
-		fields_iter = self.non_const_fields()
+		fields_iter = self.non_const_fields(include_inherited=False)
+
 		first_field = next(fields_iter)
 		if self.struct.size == first_field.extensions.printer.name:
 			body += f'buffer.write(converter.intToBytes(this.size, {first_field.size}, false));\n'
@@ -415,7 +458,27 @@ class StructFormatter(AbstractTypeFormatter):
 		for field in fields_iter:
 			body += self.generate_serialize_field(field)
 
+		return body
+
+	def get_serialize_descriptor(self):
+		body = 'const buffer = new Writer(this.size);\n'
+
+		if self.base_struct:
+			body += 'super._serialize(buffer);\n'
+
+		if self.is_type_abstract:
+			body += 'this._serialize(buffer);\n'
+		else:
+			body += self.generate_serialize_fields()
+
 		body += 'return buffer.storage;'
+		return MethodDescriptor(body=body)
+
+	def get_serialize_protected_descriptor(self):
+		if not self.is_type_abstract:
+			return None
+
+		body = self.generate_serialize_fields()
 		return MethodDescriptor(body=body)
 
 	def generate_size_field(self, field):
@@ -426,7 +489,11 @@ class StructFormatter(AbstractTypeFormatter):
 
 	def get_size_descriptor(self):
 		body = 'let size = 0;\n'
-		body += ''.join(map(self.generate_size_field, self.non_const_fields()))
+		if self.base_struct:
+			body += 'size += super.size;\n'
+
+		body += ''.join(map(self.generate_size_field, self.non_const_fields(include_inherited=False)))
+
 		body += 'return size;'
 		return MethodDescriptor(body=body)
 
@@ -453,11 +520,11 @@ class StructFormatter(AbstractTypeFormatter):
 
 	def get_getter_setter_descriptors(self):
 		descriptors = []
-		for field in self.non_reserved_fields():
+		for field in self.non_reserved_fields(include_inherited=False):
 			descriptors.append(self.create_getter_descriptor(field))
 			descriptors.append(self.create_setter_descriptor(field))
 
-		for field in self.computed_fields():
+		for field in self.computed_fields(include_inherited=False):
 			descriptors.append(self.create_getter_descriptor(field))
 
 		return descriptors
@@ -476,7 +543,12 @@ class StructFormatter(AbstractTypeFormatter):
 
 	def get_str_descriptor(self):
 		body = 'let result = \'(\';\n'
-		body += ''.join(map(self.generate_str_field, self.non_reserved_fields()))
+
+		if self.base_struct:
+			body += 'result += super.toString();\n'
+
+		body += ''.join(map(self.generate_str_field, self.non_reserved_fields(include_inherited=False)))
+
 		body += 'result += \')\';\n'
 		body += 'return result;'
 		return MethodDescriptor(body=body)

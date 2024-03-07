@@ -103,14 +103,25 @@ class TypeFormatter(ClassFormatter):
 			return None
 
 		generated_name = generated_name or name
-		method_descriptor.method_name = f'static {generated_name}'
-		method_descriptor.arguments = ['payload']
+		prefix = '_' if self.provider.is_type_abstract else ''
+		method_descriptor.method_name = f'static {prefix}{generated_name}'
+		method_descriptor.arguments = ['view', 'instance'] if self.provider.is_type_abstract else ['payload']
+
 		method_descriptor.annotations = []
 		return self.generate_method(method_descriptor)
 
 	def generate_serializer(self):
 		method_descriptor = self.provider.get_serialize_descriptor()
 		method_descriptor.method_name = 'serialize'
+		return self.generate_method(method_descriptor)
+
+	def generate_serializer_protected(self):
+		method_descriptor = self.provider.get_serialize_protected_descriptor()
+		if not method_descriptor:
+			return None
+
+		method_descriptor.method_name = '_serialize'
+		method_descriptor.arguments = ['buffer']
 		return self.generate_method(method_descriptor)
 
 	def generate_size(self):
@@ -149,6 +160,7 @@ class TypeFormatter(ClassFormatter):
 		_append_if_not_none(methods, self.generate_deserializer('deserialize_aligned', 'deserializeAligned'))
 
 		methods.append(self.generate_serializer())
+		_append_if_not_none(methods, self.generate_serializer_protected())
 
 		_append_if_not_none(methods, self.generate_representation())
 

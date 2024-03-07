@@ -17,7 +17,12 @@ def create_printer(descriptor, name, is_pod):
 	return (create_pod_printer if is_pod else BuiltinPrinter)(descriptor, name)
 
 
-def to_type_formatter_instance(ast_model):
+def to_type_formatter_instance(ast_model, ast_models):
+	if DisplayType.STRUCT == ast_model.display_type and ast_model.factory_type:
+		return StructFormatter(
+			ast_model,
+			next(factory_ast_model for factory_ast_model in ast_models if ast_model.factory_type == factory_ast_model.name))
+
 	type_formatter_class = {
 		DisplayType.STRUCT: StructFormatter,
 		DisplayType.ENUM: EnumTypeFormatter,
@@ -59,7 +64,7 @@ import * as converter from '../utils/converter.js';
 		output_file.write('\n')
 
 		for ast_model in ast_models:
-			generator = TypeFormatter(to_type_formatter_instance(ast_model))
+			generator = TypeFormatter(to_type_formatter_instance(ast_model, ast_models))
 			output_file.write(str(generator))
 			output_file.write('\n')
 
