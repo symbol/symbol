@@ -98,8 +98,9 @@ module.exports = {
 			} else {
 				const { payload, text } = await db.binDataByMetalId(metalId);
 				const { mimeType, fileName } = deriveParams(text, initialMimeType, initialFileName);
-				const cachedTotalSize = cache.keys().reduce((totalSize, key) => totalSize + cache.get(key).length, 0);
-				if (cachedTotalSize + payload.length <= sizeLimit) {
+				const estimateSize = cache.getStats().vsize + payload.length + (text?.length || 0);
+
+				if (estimateSize <= sizeLimit) {
 					// Cache the data for chcheTtl
 					cache.set(cachePayloadKey, payload, chcheTtl);
 					if (text)
