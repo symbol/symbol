@@ -249,7 +249,7 @@ describe('metadata routes', () => {
 		const services = {
 			config: {
 				metal: {
-					chcheTtl: 300,
+					cacheTtl: 300,
 					sizeLimit: 10000000
 				}
 			}

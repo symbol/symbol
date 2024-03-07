@@ -68,7 +68,7 @@ module.exports = {
 		});
 
 		server.get('/metadata/metal/:metalId', async (req, res, next) => {
-			const { chcheTtl, sizeLimit } = services.config.metal;
+			const { cacheTtl, sizeLimit } = services.config.metal;
 			const sendData = (data, mimeType, fileName, text, download) => routeUtils.createSender('content').sendData(res, next)(
 				data,
 				mimeType,
@@ -101,10 +101,10 @@ module.exports = {
 				const estimateSize = cache.getStats().vsize + payload.length + (text?.length || 0);
 
 				if (estimateSize <= sizeLimit) {
-					// Cache the data for chcheTtl
-					cache.set(cachePayloadKey, payload, chcheTtl);
+					// Cache the data for cacheTtl
+					cache.set(cachePayloadKey, payload, cacheTtl);
 					if (text)
-						cache.set(cacheTextKey, text, chcheTtl);
+						cache.set(cacheTextKey, text, cacheTtl);
 				}
 				sendData(payload, mimeType, fileName, text, download);
 			}
