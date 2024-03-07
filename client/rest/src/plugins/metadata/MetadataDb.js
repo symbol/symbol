@@ -19,7 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+const { metal } = require('./metal');
+const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
 
 class MetadataDb {
 	/**
@@ -77,6 +78,41 @@ class MetadataDb {
 			.sort({ _id: -1 })
 			.toArray()
 			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
+	}
+
+	async binDataByMetalId(metalId) {
+		const metadatasByCompositeHash = await this.metadatasByCompositeHash([metal.extractCompositeHashFromMetalId(metalId)]);
+		if (0 === metadatasByCompositeHash.length)
+			throw Error(`could not get first chunk, it may mistake the metal ID: ${metalId}`);
+		const { metadataEntry } = metadatasByCompositeHash[0];
+		const chunks = [];
+		let counter = 1;
+		let hasMoreData = true;
+
+		while (hasMoreData) {
+			const options = {
+				sortField: 'id', sortDirection: 1, pageSize: 100, pageNumber: counter
+			};
+			// eslint-disable-next-line no-await-in-loop
+			const metadatas = await this.metadata(
+				metadataEntry.sourceAddress.buffer,
+				metadataEntry.targetAddress.buffer,
+				undefined,
+				metadataEntry.targetId,
+				metadataEntry.metadataType,
+				options
+			);
+			metadatas.data.forEach(e => {
+				chunks.push({
+					key: longToUint64(e.metadataEntry.scopedMetadataKey),
+					value: e.metadataEntry.value.buffer
+				});
+			});
+
+			hasMoreData = 0 < metadatas.data.length;
+			counter++;
+		}
+		return metal.decode(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}
 }
 

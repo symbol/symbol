@@ -103,5 +103,10 @@
 
   "nodeMetadata": {
     "_info": "replace the body of this object with custom fields and objects to personalize your node"
+  },
+
+  "metal": {
+    "cacheTtl": 300,
+    "sizeLimit": 10000000
   }
 }

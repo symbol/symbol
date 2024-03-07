@@ -19,10 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { testData } = require('./metalUtils');
 const catapult = require('../../../src/catapult-sdk/index');
 const CatapultDb = require('../../../src/db/CatapultDb');
 const { convertToLong } = require('../../../src/db/dbUtils');
 const MetadataDb = require('../../../src/plugins/metadata/MetadataDb');
+const { MetalSeal } = require('../../../src/plugins/metadata/metal');
 const test = require('../../db/utils/dbTestUtils');
 const { expect } = require('chai');
 const sinon = require('sinon');
@@ -276,6 +278,81 @@ describe('metadata db', () => {
 					[10]
 				);
 			});
+		});
+	});
+
+	describe('binDataByMetalId', () => {
+		const textSection = new MetalSeal(testData.imageBytes.length, 'image/png', 'image.png', 'test').stringify();
+		const createMetadata = metadata => ({
+			_id: createObjectId(metadata.id),
+			metadataEntry: {
+				sourceAddress: metadata.sourceAddress ? Buffer.from(metadata.sourceAddress) : undefined,
+				targetAddress: metadata.targetAddress ? Buffer.from(metadata.targetAddress) : undefined,
+				scopedMetadataKey: metadata.scopedMetadataKey ? convertToLong(metadata.scopedMetadataKey) : undefined,
+				targetId: metadata.targetId ? convertToLong(metadata.targetId) : undefined,
+				metadataType: metadata.metadataType,
+				value: metadata.value ? Buffer.from(metadata.value) : undefined,
+				compositeHash: metadata.compositeHash ? Buffer.from(metadata.compositeHash) : undefined
+			}
+		});
+
+		const dbMetadata = () => testData.metadatas.map(metadata => createMetadata(metadata));
+		const dbMosaicMetadata = () => testData.mosaicMetadatas.map(metadata => createMetadata(metadata));
+
+		it('can decode account metal with seal', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata(),
+				db => db.binDataByMetalId('FeDrfgiBsT2Vg5swUPV4QqstqxyYV4bCsLMA7tjHfsiW55'),
+				decoded => {
+					expect(decoded.payload).to.deep.equal(testData.imageBytes);
+					expect(decoded.text).to.deep.equal(textSection);
+				}
+			));
+
+		it('can decode account metal with text', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata(),
+				db => db.binDataByMetalId('FeBcE8zDa2ZMu4s2Q24yRSnyehmonKjnbJPnyTe8zfBEAi'),
+				decoded => {
+					expect(decoded.payload).to.deep.equal(testData.imageBytes);
+					expect(decoded.text).to.deep.equal('test');
+				}
+			));
+
+		it('can decode account metal without text or seal', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMetadata(),
+				db => db.binDataByMetalId('Fe7Gp6QiTfb1MjgKVQkDGF9JyTyMZbN4Yo6Uz1oJewRycB'),
+				decoded => {
+					expect(decoded.payload).to.deep.equal(testData.imageBytes);
+					expect(decoded.text).to.deep.equal(undefined);
+				}
+			));
+
+		it('can decode mosaic metal with seal', () =>
+			// Act + Assert:
+			runMetadataDbTest(
+				dbMosaicMetadata(),
+				db => db.binDataByMetalId('Fe4YG12YcUzgATsZexNAhLyfbxogSaLX7dhoHMvCqgnPao'),
+				decoded => {
+					expect(decoded.payload).to.deep.equal(testData.imageBytes);
+					expect(decoded.text).to.deep.equal(textSection);
+				}
+			));
+
+		it('cannot decode not getting first chunk', () => {
+			// Arrange:
+			const metalId = 'Fe4YG12YcUzgATsZexNAhLyfbxogSaLX7dhoHMvCqgnPao';
+
+			// Act + Assert:
+			return runMetadataDbTest(
+				dbMetadata(),
+				db => db.binDataByMetalId(metalId).catch(error => error),
+				error => expect(error.message).to.equal(`could not get first chunk, it may mistake the metal ID: ${metalId}`)
+			);
 		});
 	});
 });

@@ -19,10 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { MetalSeal } = require('./metal');
 const catapult = require('../../catapult-sdk/index');
 const merkleUtils = require('../../routes/merkleUtils');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
+const NodeCache = require('node-cache');
+
+const cache = new NodeCache();
 
 const { PacketType } = catapult.packet;
 
@@ -61,6 +65,49 @@ module.exports = {
 				res.send(response);
 				next();
 			});
+		});
+
+		server.get('/metadata/metal/:metalId', async (req, res, next) => {
+			const { cacheTtl, sizeLimit } = services.config.metal;
+			const sendData = (data, mimeType, fileName, text, download) => routeUtils.createSender('content').sendData(res, next)(
+				data,
+				mimeType,
+				fileName,
+				text,
+				download
+			);
+			const deriveParams = (text, initialMimeType, initialFileName) => {
+				const seal = MetalSeal.tryParse(text);
+				const mimeType = initialMimeType || (seal.isParsed && seal.value.mimeType) || 'application/octet-stream';
+				const fileName = initialFileName || (seal.isParsed && seal.value.name) || null;
+
+				return { mimeType, fileName };
+			};
+
+			const {
+				mimeType: initialMimeType, fileName: initialFileName, metalId, download
+			} = req.params;
+			const cachePayloadKey = `metadata:${metalId}_payload`;
+			const cacheTextKey = `metadata:${metalId}_text`;
+			const cachedPayload = cache.get(cachePayloadKey);
+			const cachedText = cache.get(cacheTextKey);
+
+			if (undefined !== cachedPayload) {
+				const { mimeType, fileName } = deriveParams(cachedText, initialMimeType, initialFileName);
+				sendData(cachedPayload, mimeType, fileName, cachedText, download);
+			} else {
+				const { payload, text } = await db.binDataByMetalId(metalId);
+				const { mimeType, fileName } = deriveParams(text, initialMimeType, initialFileName);
+				const estimatedNewCacheSize = cache.getStats().vsize + payload.length + (text?.length || 0);
+
+				if (estimatedNewCacheSize <= sizeLimit) {
+					// Cache the data for cacheTtl
+					cache.set(cachePayloadKey, payload, cacheTtl);
+					if (text)
+						cache.set(cacheTextKey, text, cacheTtl);
+				}
+				sendData(payload, mimeType, fileName, text, download);
+			}
 		});
 	}
 };
