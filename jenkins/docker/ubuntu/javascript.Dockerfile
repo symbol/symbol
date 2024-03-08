@@ -59,6 +59,7 @@ ENV PATH=$PATH:/home/ubuntu/.cargo/bin
 ENV CARGO_HOME=/home/ubuntu/.cargo 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
 	&& curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | bash -s -- \
-	&& chown -R ubuntu:ubuntu /home/ubuntu/.cargo
+	&& chown -R ubuntu:ubuntu /home/ubuntu/.cargo \
+	&& rustup default stable
 
 WORKDIR /home/ubuntu
