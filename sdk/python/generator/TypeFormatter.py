@@ -93,7 +93,7 @@ class TypeFormatter(ClassFormatter):
 		# 'deserialize'
 		method_descriptor = self.provider.get_deserialize_descriptor()
 		method_descriptor.method_name = 'deserialize'
-		method_descriptor.arguments = ['payload: ByteString']
+		method_descriptor.arguments = ['payload: bytes | bytearray | memoryview']
 		method_descriptor.result = self.provider.typename
 		method_descriptor.annotations = ['@classmethod']
 		return self.generate_method(method_descriptor)

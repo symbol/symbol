@@ -48,7 +48,7 @@ from __future__ import annotations
 
 from binascii import hexlify
 from enum import Enum, Flag
-from typing import ByteString, List, TypeVar
+from typing import List, TypeVar
 
 from ..ArrayHelpers import ArrayHelpers
 from ..BaseValue import BaseValue

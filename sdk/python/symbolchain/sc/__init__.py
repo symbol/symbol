@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from binascii import hexlify
 from enum import Enum, Flag
-from typing import ByteString, List, TypeVar
+from typing import List, TypeVar
 
 from ..ArrayHelpers import ArrayHelpers
 from ..BaseValue import BaseValue
@@ -27,7 +27,7 @@ class Amount(BaseValue):
 		super().__init__(self.SIZE, amount, Amount)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Amount:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Amount:
 		buffer = memoryview(payload)
 		return Amount(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -42,7 +42,7 @@ class BlockDuration(BaseValue):
 		super().__init__(self.SIZE, block_duration, BlockDuration)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> BlockDuration:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> BlockDuration:
 		buffer = memoryview(payload)
 		return BlockDuration(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -57,7 +57,7 @@ class BlockFeeMultiplier(BaseValue):
 		super().__init__(self.SIZE, block_fee_multiplier, BlockFeeMultiplier)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> BlockFeeMultiplier:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> BlockFeeMultiplier:
 		buffer = memoryview(payload)
 		return BlockFeeMultiplier(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
@@ -72,7 +72,7 @@ class Difficulty(BaseValue):
 		super().__init__(self.SIZE, difficulty, Difficulty)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Difficulty:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Difficulty:
 		buffer = memoryview(payload)
 		return Difficulty(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -87,7 +87,7 @@ class FinalizationEpoch(BaseValue):
 		super().__init__(self.SIZE, finalization_epoch, FinalizationEpoch)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> FinalizationEpoch:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> FinalizationEpoch:
 		buffer = memoryview(payload)
 		return FinalizationEpoch(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
@@ -102,7 +102,7 @@ class FinalizationPoint(BaseValue):
 		super().__init__(self.SIZE, finalization_point, FinalizationPoint)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> FinalizationPoint:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> FinalizationPoint:
 		buffer = memoryview(payload)
 		return FinalizationPoint(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
@@ -117,7 +117,7 @@ class Height(BaseValue):
 		super().__init__(self.SIZE, height, Height)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Height:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Height:
 		buffer = memoryview(payload)
 		return Height(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -132,7 +132,7 @@ class Importance(BaseValue):
 		super().__init__(self.SIZE, importance, Importance)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Importance:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Importance:
 		buffer = memoryview(payload)
 		return Importance(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -147,7 +147,7 @@ class ImportanceHeight(BaseValue):
 		super().__init__(self.SIZE, importance_height, ImportanceHeight)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> ImportanceHeight:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> ImportanceHeight:
 		buffer = memoryview(payload)
 		return ImportanceHeight(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -162,7 +162,7 @@ class UnresolvedMosaicId(BaseValue):
 		super().__init__(self.SIZE, unresolved_mosaic_id, UnresolvedMosaicId)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> UnresolvedMosaicId:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> UnresolvedMosaicId:
 		buffer = memoryview(payload)
 		return UnresolvedMosaicId(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -177,7 +177,7 @@ class MosaicId(BaseValue):
 		super().__init__(self.SIZE, mosaic_id, MosaicId)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicId:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicId:
 		buffer = memoryview(payload)
 		return MosaicId(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -192,7 +192,7 @@ class Timestamp(BaseValue):
 		super().__init__(self.SIZE, timestamp, Timestamp)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Timestamp:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Timestamp:
 		buffer = memoryview(payload)
 		return Timestamp(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -211,7 +211,7 @@ class UnresolvedAddress(ByteArray):
 		return 24
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> UnresolvedAddress:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> UnresolvedAddress:
 		buffer = memoryview(payload)
 		return UnresolvedAddress(ArrayHelpers.get_bytes(buffer, 24))
 
@@ -230,7 +230,7 @@ class Address(ByteArray):
 		return 24
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Address:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Address:
 		buffer = memoryview(payload)
 		return Address(ArrayHelpers.get_bytes(buffer, 24))
 
@@ -249,7 +249,7 @@ class Hash256(ByteArray):
 		return 32
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Hash256:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Hash256:
 		buffer = memoryview(payload)
 		return Hash256(ArrayHelpers.get_bytes(buffer, 32))
 
@@ -268,7 +268,7 @@ class Hash512(ByteArray):
 		return 64
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Hash512:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Hash512:
 		buffer = memoryview(payload)
 		return Hash512(ArrayHelpers.get_bytes(buffer, 64))
 
@@ -287,7 +287,7 @@ class PublicKey(ByteArray):
 		return 32
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> PublicKey:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> PublicKey:
 		buffer = memoryview(payload)
 		return PublicKey(ArrayHelpers.get_bytes(buffer, 32))
 
@@ -306,7 +306,7 @@ class VotingPublicKey(ByteArray):
 		return 32
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> VotingPublicKey:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> VotingPublicKey:
 		buffer = memoryview(payload)
 		return VotingPublicKey(ArrayHelpers.get_bytes(buffer, 32))
 
@@ -325,7 +325,7 @@ class Signature(ByteArray):
 		return 64
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Signature:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Signature:
 		buffer = memoryview(payload)
 		return Signature(ArrayHelpers.get_bytes(buffer, 64))
 
@@ -370,7 +370,7 @@ class Mosaic:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Mosaic:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Mosaic:
 		buffer = memoryview(payload)
 		mosaic_id = MosaicId.deserialize(buffer)
 		buffer = buffer[mosaic_id.size:]
@@ -433,7 +433,7 @@ class UnresolvedMosaic:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> UnresolvedMosaic:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> UnresolvedMosaic:
 		buffer = memoryview(payload)
 		mosaic_id = UnresolvedMosaicId.deserialize(buffer)
 		buffer = buffer[mosaic_id.size:]
@@ -468,7 +468,7 @@ class LinkAction(Enum):
 		return 1
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> LinkAction:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> LinkAction:
 		buffer = memoryview(payload)
 		return LinkAction(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
@@ -487,7 +487,7 @@ class NetworkType(Enum):
 		return 1
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NetworkType:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NetworkType:
 		buffer = memoryview(payload)
 		return NetworkType(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
@@ -529,7 +529,7 @@ class TransactionType(Enum):
 		return 2
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> TransactionType:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> TransactionType:
 		buffer = memoryview(payload)
 		return TransactionType(int.from_bytes(buffer[:2], byteorder='little', signed=False))
 
@@ -635,7 +635,7 @@ class Transaction:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Transaction:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Transaction:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -762,7 +762,7 @@ class EmbeddedTransaction:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedTransaction:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedTransaction:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -822,7 +822,7 @@ class ProofGamma(ByteArray):
 		return 32
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> ProofGamma:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> ProofGamma:
 		buffer = memoryview(payload)
 		return ProofGamma(ArrayHelpers.get_bytes(buffer, 32))
 
@@ -841,7 +841,7 @@ class ProofVerificationHash(ByteArray):
 		return 16
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> ProofVerificationHash:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> ProofVerificationHash:
 		buffer = memoryview(payload)
 		return ProofVerificationHash(ArrayHelpers.get_bytes(buffer, 16))
 
@@ -860,7 +860,7 @@ class ProofScalar(ByteArray):
 		return 32
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> ProofScalar:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> ProofScalar:
 		buffer = memoryview(payload)
 		return ProofScalar(ArrayHelpers.get_bytes(buffer, 32))
 
@@ -878,7 +878,7 @@ class BlockType(Enum):
 		return 2
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> BlockType:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> BlockType:
 		buffer = memoryview(payload)
 		return BlockType(int.from_bytes(buffer[:2], byteorder='little', signed=False))
 
@@ -936,7 +936,7 @@ class VrfProof:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> VrfProof:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> VrfProof:
 		buffer = memoryview(payload)
 		gamma = ProofGamma.deserialize(buffer)
 		buffer = buffer[gamma.size:]
@@ -1151,7 +1151,7 @@ class Block:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Block:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Block:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -1494,7 +1494,7 @@ class NemesisBlockV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NemesisBlockV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NemesisBlockV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -1822,7 +1822,7 @@ class NormalBlockV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NormalBlockV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NormalBlockV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -2174,7 +2174,7 @@ class ImportanceBlockV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> ImportanceBlockV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> ImportanceBlockV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -2340,7 +2340,7 @@ class FinalizationRound:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> FinalizationRound:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> FinalizationRound:
 		buffer = memoryview(payload)
 		epoch = FinalizationEpoch.deserialize(buffer)
 		buffer = buffer[epoch.size:]
@@ -2414,7 +2414,7 @@ class FinalizedBlockHeader:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> FinalizedBlockHeader:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> FinalizedBlockHeader:
 		buffer = memoryview(payload)
 		round = FinalizationRound.deserialize(buffer)
 		buffer = buffer[round.size:]
@@ -2468,7 +2468,7 @@ class ReceiptType(Enum):
 		return 2
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> ReceiptType:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> ReceiptType:
 		buffer = memoryview(payload)
 		return ReceiptType(int.from_bytes(buffer[:2], byteorder='little', signed=False))
 
@@ -2515,7 +2515,7 @@ class Receipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Receipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Receipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -2606,7 +2606,7 @@ class HarvestFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> HarvestFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> HarvestFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -2696,7 +2696,7 @@ class InflationReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> InflationReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> InflationReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -2792,7 +2792,7 @@ class LockHashCreatedFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> LockHashCreatedFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> LockHashCreatedFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -2893,7 +2893,7 @@ class LockHashCompletedFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> LockHashCompletedFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> LockHashCompletedFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -2994,7 +2994,7 @@ class LockHashExpiredFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> LockHashExpiredFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> LockHashExpiredFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3095,7 +3095,7 @@ class LockSecretCreatedFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> LockSecretCreatedFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> LockSecretCreatedFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3196,7 +3196,7 @@ class LockSecretCompletedFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> LockSecretCompletedFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> LockSecretCompletedFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3297,7 +3297,7 @@ class LockSecretExpiredFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> LockSecretExpiredFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> LockSecretExpiredFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3387,7 +3387,7 @@ class MosaicExpiredReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicExpiredReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicExpiredReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3494,7 +3494,7 @@ class MosaicRentalFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicRentalFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicRentalFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3547,7 +3547,7 @@ class NamespaceId(BaseValue):
 		super().__init__(self.SIZE, namespace_id, NamespaceId)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NamespaceId:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceId:
 		buffer = memoryview(payload)
 		return NamespaceId(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -3564,7 +3564,7 @@ class NamespaceRegistrationType(Enum):
 		return 1
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NamespaceRegistrationType:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceRegistrationType:
 		buffer = memoryview(payload)
 		return NamespaceRegistrationType(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
@@ -3583,7 +3583,7 @@ class AliasAction(Enum):
 		return 1
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AliasAction:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AliasAction:
 		buffer = memoryview(payload)
 		return AliasAction(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
@@ -3642,7 +3642,7 @@ class NamespaceExpiredReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NamespaceExpiredReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceExpiredReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3727,7 +3727,7 @@ class NamespaceDeletedReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NamespaceDeletedReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceDeletedReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3834,7 +3834,7 @@ class NamespaceRentalFeeReceipt:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NamespaceRentalFeeReceipt:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceRentalFeeReceipt:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3915,7 +3915,7 @@ class ReceiptSource:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> ReceiptSource:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> ReceiptSource:
 		buffer = memoryview(payload)
 		primary_id = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3978,7 +3978,7 @@ class AddressResolutionEntry:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AddressResolutionEntry:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AddressResolutionEntry:
 		buffer = memoryview(payload)
 		source = ReceiptSource.deserialize(buffer)
 		buffer = buffer[source.size:]
@@ -4042,7 +4042,7 @@ class AddressResolutionStatement:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AddressResolutionStatement:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AddressResolutionStatement:
 		buffer = memoryview(payload)
 		unresolved = UnresolvedAddress.deserialize(buffer)
 		buffer = buffer[unresolved.size:]
@@ -4108,7 +4108,7 @@ class MosaicResolutionEntry:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicResolutionEntry:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicResolutionEntry:
 		buffer = memoryview(payload)
 		source = ReceiptSource.deserialize(buffer)
 		buffer = buffer[source.size:]
@@ -4172,7 +4172,7 @@ class MosaicResolutionStatement:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicResolutionStatement:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicResolutionStatement:
 		buffer = memoryview(payload)
 		unresolved = UnresolvedMosaicId.deserialize(buffer)
 		buffer = buffer[unresolved.size:]
@@ -4248,7 +4248,7 @@ class TransactionStatement:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> TransactionStatement:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> TransactionStatement:
 		buffer = memoryview(payload)
 		primary_id = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -4333,7 +4333,7 @@ class BlockStatement:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> BlockStatement:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> BlockStatement:
 		buffer = memoryview(payload)
 		transaction_statement_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -4493,7 +4493,7 @@ class AccountKeyLinkTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AccountKeyLinkTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AccountKeyLinkTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -4654,7 +4654,7 @@ class EmbeddedAccountKeyLinkTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedAccountKeyLinkTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedAccountKeyLinkTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -4833,7 +4833,7 @@ class NodeKeyLinkTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NodeKeyLinkTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NodeKeyLinkTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -4994,7 +4994,7 @@ class EmbeddedNodeKeyLinkTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedNodeKeyLinkTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedNodeKeyLinkTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -5100,7 +5100,7 @@ class Cosignature:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> Cosignature:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Cosignature:
 		buffer = memoryview(payload)
 		version = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
@@ -5189,7 +5189,7 @@ class DetachedCosignature:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> DetachedCosignature:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> DetachedCosignature:
 		buffer = memoryview(payload)
 		version = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
@@ -5359,7 +5359,7 @@ class AggregateCompleteTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AggregateCompleteTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AggregateCompleteTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -5579,7 +5579,7 @@ class AggregateCompleteTransactionV2:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AggregateCompleteTransactionV2:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AggregateCompleteTransactionV2:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -5799,7 +5799,7 @@ class AggregateBondedTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AggregateBondedTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AggregateBondedTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -6019,7 +6019,7 @@ class AggregateBondedTransactionV2:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AggregateBondedTransactionV2:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AggregateBondedTransactionV2:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -6247,7 +6247,7 @@ class VotingKeyLinkTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> VotingKeyLinkTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> VotingKeyLinkTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -6440,7 +6440,7 @@ class EmbeddedVotingKeyLinkTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedVotingKeyLinkTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedVotingKeyLinkTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -6629,7 +6629,7 @@ class VrfKeyLinkTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> VrfKeyLinkTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> VrfKeyLinkTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -6790,7 +6790,7 @@ class EmbeddedVrfKeyLinkTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedVrfKeyLinkTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedVrfKeyLinkTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -6980,7 +6980,7 @@ class HashLockTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> HashLockTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> HashLockTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -7157,7 +7157,7 @@ class EmbeddedHashLockTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedHashLockTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedHashLockTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -7231,7 +7231,7 @@ class LockHashAlgorithm(Enum):
 		return 1
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> LockHashAlgorithm:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> LockHashAlgorithm:
 		buffer = memoryview(payload)
 		return LockHashAlgorithm(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
@@ -7394,7 +7394,7 @@ class SecretLockTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> SecretLockTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> SecretLockTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -7603,7 +7603,7 @@ class EmbeddedSecretLockTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedSecretLockTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedSecretLockTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -7820,7 +7820,7 @@ class SecretProofTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> SecretProofTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> SecretProofTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -8017,7 +8017,7 @@ class EmbeddedSecretProofTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedSecretProofTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedSecretProofTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -8230,7 +8230,7 @@ class AccountMetadataTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AccountMetadataTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AccountMetadataTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -8425,7 +8425,7 @@ class EmbeddedAccountMetadataTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedAccountMetadataTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedAccountMetadataTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -8649,7 +8649,7 @@ class MosaicMetadataTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicMetadataTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicMetadataTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -8860,7 +8860,7 @@ class EmbeddedMosaicMetadataTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedMosaicMetadataTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedMosaicMetadataTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -9089,7 +9089,7 @@ class NamespaceMetadataTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NamespaceMetadataTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceMetadataTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -9300,7 +9300,7 @@ class EmbeddedNamespaceMetadataTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedNamespaceMetadataTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedNamespaceMetadataTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -9384,7 +9384,7 @@ class MosaicNonce(BaseValue):
 		super().__init__(self.SIZE, mosaic_nonce, MosaicNonce)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicNonce:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicNonce:
 		buffer = memoryview(payload)
 		return MosaicNonce(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
@@ -9404,7 +9404,7 @@ class MosaicFlags(Flag):
 		return 1
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicFlags:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicFlags:
 		buffer = memoryview(payload)
 		return MosaicFlags(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
@@ -9423,7 +9423,7 @@ class MosaicSupplyChangeAction(Enum):
 		return 1
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicSupplyChangeAction:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicSupplyChangeAction:
 		buffer = memoryview(payload)
 		return MosaicSupplyChangeAction(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
@@ -9585,7 +9585,7 @@ class MosaicDefinitionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicDefinitionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicDefinitionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -9793,7 +9793,7 @@ class EmbeddedMosaicDefinitionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedMosaicDefinitionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedMosaicDefinitionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -9998,7 +9998,7 @@ class MosaicSupplyChangeTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicSupplyChangeTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicSupplyChangeTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -10175,7 +10175,7 @@ class EmbeddedMosaicSupplyChangeTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedMosaicSupplyChangeTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedMosaicSupplyChangeTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -10359,7 +10359,7 @@ class MosaicSupplyRevocationTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicSupplyRevocationTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicSupplyRevocationTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -10520,7 +10520,7 @@ class EmbeddedMosaicSupplyRevocationTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedMosaicSupplyRevocationTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedMosaicSupplyRevocationTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -10723,7 +10723,7 @@ class MultisigAccountModificationTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MultisigAccountModificationTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MultisigAccountModificationTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -10928,7 +10928,7 @@ class EmbeddedMultisigAccountModificationTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedMultisigAccountModificationTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedMultisigAccountModificationTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -11138,7 +11138,7 @@ class AddressAliasTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AddressAliasTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AddressAliasTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -11315,7 +11315,7 @@ class EmbeddedAddressAliasTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedAddressAliasTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedAddressAliasTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -11510,7 +11510,7 @@ class MosaicAliasTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicAliasTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicAliasTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -11687,7 +11687,7 @@ class EmbeddedMosaicAliasTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedMosaicAliasTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedMosaicAliasTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -11907,7 +11907,7 @@ class NamespaceRegistrationTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NamespaceRegistrationTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceRegistrationTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -12135,7 +12135,7 @@ class EmbeddedNamespaceRegistrationTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedNamespaceRegistrationTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedNamespaceRegistrationTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -12237,7 +12237,7 @@ class AccountRestrictionFlags(Flag):
 		return 2
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AccountRestrictionFlags:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AccountRestrictionFlags:
 		buffer = memoryview(payload)
 		return AccountRestrictionFlags(int.from_bytes(buffer[:2], byteorder='little', signed=False))
 
@@ -12382,7 +12382,7 @@ class AccountAddressRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AccountAddressRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AccountAddressRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -12573,7 +12573,7 @@ class EmbeddedAccountAddressRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedAccountAddressRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedAccountAddressRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -12782,7 +12782,7 @@ class AccountMosaicRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AccountMosaicRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AccountMosaicRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -12973,7 +12973,7 @@ class EmbeddedAccountMosaicRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedAccountMosaicRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedAccountMosaicRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -13182,7 +13182,7 @@ class AccountOperationRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> AccountOperationRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AccountOperationRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -13373,7 +13373,7 @@ class EmbeddedAccountOperationRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedAccountOperationRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedAccountOperationRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -13597,7 +13597,7 @@ class MosaicAddressRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicAddressRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicAddressRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -13803,7 +13803,7 @@ class EmbeddedMosaicAddressRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedMosaicAddressRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedMosaicAddressRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -13884,7 +13884,7 @@ class MosaicRestrictionKey(BaseValue):
 		super().__init__(self.SIZE, mosaic_restriction_key, MosaicRestrictionKey)
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicRestrictionKey:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicRestrictionKey:
 		buffer = memoryview(payload)
 		return MosaicRestrictionKey(int.from_bytes(buffer[:8], byteorder='little', signed=False))
 
@@ -13906,7 +13906,7 @@ class MosaicRestrictionType(Enum):
 		return 1
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicRestrictionType:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicRestrictionType:
 		buffer = memoryview(payload)
 		return MosaicRestrictionType(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
@@ -14088,7 +14088,7 @@ class MosaicGlobalRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MosaicGlobalRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicGlobalRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -14326,7 +14326,7 @@ class EmbeddedMosaicGlobalRestrictionTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedMosaicGlobalRestrictionTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedMosaicGlobalRestrictionTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -14547,7 +14547,7 @@ class TransferTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> TransferTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> TransferTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -14744,7 +14744,7 @@ class EmbeddedTransferTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> EmbeddedTransferTransactionV1:
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> EmbeddedTransferTransactionV1:
 		buffer = memoryview(payload)
 		size_ = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
