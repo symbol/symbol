@@ -265,7 +265,8 @@ class OptionsManager:
 # region SYSTEMS
 
 class UbuntuSystem:
-	user = 'ubuntu'
+	def __init__(self):
+		self.user = 'ubuntu'
 
 	@staticmethod
 	def add_base_os_packages():
@@ -295,8 +296,7 @@ class UbuntuSystem:
 			'rm -rf /var/lib/apt/lists/*'
 		], APT_PACKAGES=' '.join(apt_packages))
 
-	@staticmethod
-	def add_test_packages(install_openssl):
+	def add_test_packages(self, install_openssl):
 		apt_packages = ['python3-pip', 'lcov']
 		if install_openssl:
 			apt_packages += ['libssl-dev']
@@ -306,11 +306,12 @@ class UbuntuSystem:
 			'apt-get remove -y --purge pylint',
 			'apt-get install -y {APT_PACKAGES}'
 		], APT_PACKAGES=' '.join(apt_packages))
-		install_pip_package(UbuntuSystem.user, 'pycodestyle pylint pyyaml')
+		install_pip_package(self.user, 'pycodestyle pylint pyyaml')
 
 
 class FedoraSystem:
-	user = 'fedora'
+	def __init__(self):
+		self.user = 'fedora'
 
 	@staticmethod
 	def add_base_os_packages():
@@ -334,8 +335,7 @@ class FedoraSystem:
 			'rm -rf /var/cache/yum'
 		], RPM_PACKAGES=' '.join(rpm_packages))
 
-	@staticmethod
-	def add_test_packages(install_openssl):
+	def add_test_packages(self, install_openssl):
 		rpm_packages = ['python3-pip']
 		if install_openssl:
 			rpm_packages += ['openssl-devel']
@@ -347,7 +347,7 @@ class FedoraSystem:
 			'dnf clean all',
 			'rm -rf /var/cache/yum'
 		], RPM_PACKAGES=' '.join(rpm_packages))
-		install_pip_package(FedoraSystem.user, 'pycodestyle pylint pyyaml')
+		install_pip_package(self.user, 'pycodestyle pylint pyyaml')
 
 
 class WindowsSystem:
