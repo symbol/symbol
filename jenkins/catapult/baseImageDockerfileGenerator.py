@@ -57,6 +57,14 @@ def print_msvc_line(lines, separator=' `\n    && ', **kwargs):
 	print(separator.join([run_line] + lines).format(**kwargs))
 
 
+def install_pip_package(user, package_name):
+	print_lines([
+		f'USER {user}',
+		f'RUN python3 -m pip install -U {package_name}',
+		'USER root'
+	])
+
+
 # region OptionsManager
 
 class OptionsManager:
@@ -257,6 +265,9 @@ class OptionsManager:
 # region SYSTEMS
 
 class UbuntuSystem:
+	def __init__(self):
+		self.user = 'ubuntu'
+
 	@staticmethod
 	def add_base_os_packages():
 		apt_packages = [
@@ -285,8 +296,7 @@ class UbuntuSystem:
 			'rm -rf /var/lib/apt/lists/*'
 		], APT_PACKAGES=' '.join(apt_packages))
 
-	@staticmethod
-	def add_test_packages(install_openssl):
+	def add_test_packages(self, install_openssl):
 		apt_packages = ['python3-pip', 'lcov']
 		if install_openssl:
 			apt_packages += ['libssl-dev']
@@ -294,12 +304,15 @@ class UbuntuSystem:
 		print_line([
 			'RUN apt-get -y update',
 			'apt-get remove -y --purge pylint',
-			'apt-get install -y {APT_PACKAGES}',
-			'python3 -m pip install -U pycodestyle pylint pyyaml'
+			'apt-get install -y {APT_PACKAGES}'
 		], APT_PACKAGES=' '.join(apt_packages))
+		install_pip_package(self.user, 'pycodestyle pylint pyyaml')
 
 
 class FedoraSystem:
+	def __init__(self):
+		self.user = 'fedora'
+
 	@staticmethod
 	def add_base_os_packages():
 		rpm_packages = [
@@ -322,8 +335,7 @@ class FedoraSystem:
 			'rm -rf /var/cache/yum'
 		], RPM_PACKAGES=' '.join(rpm_packages))
 
-	@staticmethod
-	def add_test_packages(install_openssl):
+	def add_test_packages(self, install_openssl):
 		rpm_packages = ['python3-pip']
 		if install_openssl:
 			rpm_packages += ['openssl-devel']
@@ -332,10 +344,10 @@ class FedoraSystem:
 			'RUN dnf update --assumeyes',
 			'dnf remove --assumeyes pylint',
 			'dnf install --assumeyes {RPM_PACKAGES}',
-			'python3 -m pip install -U pycodestyle pylint pyyaml',
 			'dnf clean all',
 			'rm -rf /var/cache/yum'
 		], RPM_PACKAGES=' '.join(rpm_packages))
+		install_pip_package(self.user, 'pycodestyle pylint pyyaml')
 
 
 class WindowsSystem:
@@ -394,11 +406,11 @@ class LinuxSystemGenerator:
 
 		# create a virtual python environment
 		print_lines([
-			# add ubuntu user (used by jenkins)
-			'RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu',
-			'USER ubuntu',
-			'WORKDIR /home/ubuntu',
-			'ENV VIRTUAL_ENV=/home/ubuntu/venv',
+			# add user (used by jenkins)
+			f'RUN id -u "{self.system.user}" || useradd --uid 1000 -ms /bin/bash {self.system.user}',
+			f'USER {self.system.user}',
+			f'WORKDIR /home/{self.system.user}',
+			f'ENV VIRTUAL_ENV=/home/{self.system.user}/venv',
 			'RUN python3 -m venv $VIRTUAL_ENV',
 			'ENV PATH="$VIRTUAL_ENV/bin:$PATH"',
 			'USER root'
@@ -502,9 +514,9 @@ class LinuxSystemGenerator:
 
 		print_line([
 			'RUN apt-get -y update',
-			'apt-get install -y {APT_PACKAGES}',
-			'python3 -m pip install -U "conan<2.0"'
+			'apt-get install -y {APT_PACKAGES}'
 		], APT_PACKAGES=' '.join(apt_packages))
+		install_pip_package(self.system.user, '"conan<2.0"')
 
 
 class WindowsSystemGenerator:

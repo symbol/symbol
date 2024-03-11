@@ -1,8 +1,7 @@
 FROM symbolplatform/symbol-server-build-base:ubuntu-gcc-13-conan
 
-# install shellcheck and gitlint
+# install shellcheck
 RUN apt-get install -y shellcheck
-RUN pip install gitlint
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
@@ -25,3 +24,6 @@ RUN mkdir -p /data/db \
 	&& chown -R ubuntu:ubuntu /data
 USER ubuntu
 WORKDIR /home/ubuntu
+
+# installl all pip packages as ubuntu user
+RUN pip install gitlint
