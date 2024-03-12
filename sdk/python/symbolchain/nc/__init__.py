@@ -155,7 +155,7 @@ class NetworkType(Enum):
 		return NetworkType(int.from_bytes(buffer[:1], byteorder='little', signed=False))
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
 
@@ -180,7 +180,7 @@ class TransactionType(Enum):
 		return TransactionType(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
 
@@ -293,8 +293,8 @@ class Transaction:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Transaction:
-		buffer = memoryview(payload)
+	def _deserialize(cls, buffer: memoryview, instance) -> (int, int):
+		size_ = len(buffer)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
 		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
@@ -321,7 +321,7 @@ class Transaction:
 		deadline = Timestamp.deserialize(buffer)
 		buffer = buffer[deadline.size:]
 
-		instance = Transaction()
+		# pylint: disable=protected-access
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -330,10 +330,14 @@ class Transaction:
 		instance._signature = signature
 		instance._fee = fee
 		instance._deadline = deadline
-		return instance
+		return (size_ - len(buffer), size_)
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
+		self._serialize(buffer)
+		return buffer
+
+	def _serialize(self, buffer: memoryview):
 		buffer += self._type_.serialize()
 		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
 		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
@@ -345,7 +349,6 @@ class Transaction:
 		buffer += self._signature.serialize()
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
-		return buffer
 
 	def __str__(self) -> str:
 		result = '('
@@ -456,8 +459,8 @@ class NonVerifiableTransaction:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableTransaction:
-		buffer = memoryview(payload)
+	def _deserialize(cls, buffer: memoryview, instance) -> (int, int):
+		size_ = len(buffer)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
 		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
@@ -479,7 +482,7 @@ class NonVerifiableTransaction:
 		deadline = Timestamp.deserialize(buffer)
 		buffer = buffer[deadline.size:]
 
-		instance = NonVerifiableTransaction()
+		# pylint: disable=protected-access
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -487,10 +490,14 @@ class NonVerifiableTransaction:
 		instance._signer_public_key = signer_public_key
 		instance._fee = fee
 		instance._deadline = deadline
-		return instance
+		return (size_ - len(buffer), size_)
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
+		self._serialize(buffer)
+		return buffer
+
+	def _serialize(self, buffer: memoryview):
 		buffer += self._type_.serialize()
 		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
 		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
@@ -500,7 +507,6 @@ class NonVerifiableTransaction:
 		buffer += self._signer_public_key.serialize()
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
-		return buffer
 
 	def __str__(self) -> str:
 		result = '('
@@ -529,76 +535,30 @@ class LinkAction(Enum):
 		return LinkAction(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
 
 
-class AccountKeyLinkTransactionV1:
+class AccountKeyLinkTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.ACCOUNT_KEY_LINK
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'link_action': 'enum:LinkAction',
 		'remote_public_key': 'pod:PublicKey'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = AccountKeyLinkTransactionV1.TRANSACTION_TYPE
 		self._version = AccountKeyLinkTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._link_action = LinkAction.LINK
 		self._remote_public_key = PublicKey()
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 		self._remote_public_key_size = 32  # reserved field
 
 	def sort(self) -> None:
 		pass
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def link_action(self) -> LinkAction:
@@ -607,38 +567,6 @@ class AccountKeyLinkTransactionV1:
 	@property
 	def remote_public_key(self) -> PublicKey:
 		return self._remote_public_key
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@link_action.setter
 	def link_action(self, value: LinkAction):
@@ -651,17 +579,7 @@ class AccountKeyLinkTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += self.link_action.size
 		size += 4
 		size += self.remote_public_key.size
@@ -670,31 +588,9 @@ class AccountKeyLinkTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> AccountKeyLinkTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = AccountKeyLinkTransactionV1()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		link_action = LinkAction.deserialize(buffer)
 		buffer = buffer[link_action.size:]
 		remote_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
@@ -703,32 +599,14 @@ class AccountKeyLinkTransactionV1:
 		remote_public_key = PublicKey.deserialize(buffer)
 		buffer = buffer[remote_public_key.size:]
 
-		instance = AccountKeyLinkTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._link_action = link_action
 		instance._remote_public_key = remote_public_key
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._link_action.serialize()
 		buffer += self._remote_public_key_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._remote_public_key.serialize()
@@ -736,78 +614,32 @@ class AccountKeyLinkTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'link_action: {self._link_action.__str__()}, '
 		result += f'remote_public_key: {self._remote_public_key.__str__()}, '
 		result += ')'
 		return result
 
 
-class NonVerifiableAccountKeyLinkTransactionV1:
+class NonVerifiableAccountKeyLinkTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.ACCOUNT_KEY_LINK
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'link_action': 'enum:LinkAction',
 		'remote_public_key': 'pod:PublicKey'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableAccountKeyLinkTransactionV1.TRANSACTION_TYPE
 		self._version = NonVerifiableAccountKeyLinkTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._link_action = LinkAction.LINK
 		self._remote_public_key = PublicKey()
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 		self._remote_public_key_size = 32  # reserved field
 
 	def sort(self) -> None:
 		pass
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def link_action(self) -> LinkAction:
@@ -816,34 +648,6 @@ class NonVerifiableAccountKeyLinkTransactionV1:
 	@property
 	def remote_public_key(self) -> PublicKey:
 		return self._remote_public_key
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@link_action.setter
 	def link_action(self, value: LinkAction):
@@ -856,15 +660,7 @@ class NonVerifiableAccountKeyLinkTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += self.link_action.size
 		size += 4
 		size += self.remote_public_key.size
@@ -873,26 +669,9 @@ class NonVerifiableAccountKeyLinkTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableAccountKeyLinkTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableAccountKeyLinkTransactionV1()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		link_action = LinkAction.deserialize(buffer)
 		buffer = buffer[link_action.size:]
 		remote_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
@@ -901,29 +680,14 @@ class NonVerifiableAccountKeyLinkTransactionV1:
 		remote_public_key = PublicKey.deserialize(buffer)
 		buffer = buffer[remote_public_key.size:]
 
-		instance = NonVerifiableAccountKeyLinkTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._link_action = link_action
 		instance._remote_public_key = remote_public_key
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._link_action.serialize()
 		buffer += self._remote_public_key_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._remote_public_key.serialize()
@@ -931,13 +695,7 @@ class NonVerifiableAccountKeyLinkTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'link_action: {self._link_action.__str__()}, '
 		result += f'remote_public_key: {self._remote_public_key.__str__()}, '
 		result += ')'
@@ -973,17 +731,18 @@ class NamespaceId:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceId:
 		buffer = memoryview(payload)
+		instance = NamespaceId()
 		name_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		name = ArrayHelpers.get_bytes(buffer, name_size)
 		buffer = buffer[name_size:]
 
-		instance = NamespaceId()
+		# pylint: disable=protected-access
 		instance._name = name
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += len(self._name).to_bytes(4, byteorder='little', signed=False)  # name_size
 		buffer += self._name
 		return buffer
@@ -1035,6 +794,7 @@ class MosaicId:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicId:
 		buffer = memoryview(payload)
+		instance = MosaicId()
 		namespace_id = NamespaceId.deserialize(buffer)
 		buffer = buffer[namespace_id.size:]
 		name_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
@@ -1042,13 +802,13 @@ class MosaicId:
 		name = ArrayHelpers.get_bytes(buffer, name_size)
 		buffer = buffer[name_size:]
 
-		instance = MosaicId()
+		# pylint: disable=protected-access
 		instance._namespace_id = namespace_id
 		instance._name = name
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self._namespace_id.serialize()
 		buffer += len(self._name).to_bytes(4, byteorder='little', signed=False)  # name_size
 		buffer += self._name
@@ -1102,6 +862,7 @@ class Mosaic:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Mosaic:
 		buffer = memoryview(payload)
+		instance = Mosaic()
 		mosaic_id_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
@@ -1110,13 +871,13 @@ class Mosaic:
 		amount = Amount.deserialize(buffer)
 		buffer = buffer[amount.size:]
 
-		instance = Mosaic()
+		# pylint: disable=protected-access
 		instance._mosaic_id = mosaic_id
 		instance._amount = amount
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.mosaic_id.size.to_bytes(4, byteorder='little', signed=False)  # mosaic_id_size
 		buffer += self._mosaic_id.serialize()
 		buffer += self._amount.serialize()
@@ -1159,18 +920,19 @@ class SizePrefixedMosaic:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> SizePrefixedMosaic:
 		buffer = memoryview(payload)
+		instance = SizePrefixedMosaic()
 		mosaic_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
 		mosaic = Mosaic.deserialize(buffer[:mosaic_size])
 		buffer = buffer[mosaic.size:]
 
-		instance = SizePrefixedMosaic()
+		# pylint: disable=protected-access
 		instance._mosaic = mosaic
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.mosaic.size.to_bytes(4, byteorder='little', signed=False)  # mosaic_size
 		buffer += self._mosaic.serialize()
 		return buffer
@@ -1196,7 +958,7 @@ class MosaicTransferFeeType(Enum):
 		return MosaicTransferFeeType(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
 
@@ -1265,6 +1027,7 @@ class MosaicLevy:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicLevy:
 		buffer = memoryview(payload)
+		instance = MosaicLevy()
 		transfer_fee_type = MosaicTransferFeeType.deserialize(buffer)
 		buffer = buffer[transfer_fee_type.size:]
 		recipient_address_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
@@ -1280,7 +1043,7 @@ class MosaicLevy:
 		fee = Amount.deserialize(buffer)
 		buffer = buffer[fee.size:]
 
-		instance = MosaicLevy()
+		# pylint: disable=protected-access
 		instance._transfer_fee_type = transfer_fee_type
 		instance._recipient_address = recipient_address
 		instance._mosaic_id = mosaic_id
@@ -1288,7 +1051,7 @@ class MosaicLevy:
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self._transfer_fee_type.serialize()
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
@@ -1348,6 +1111,7 @@ class MosaicProperty:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicProperty:
 		buffer = memoryview(payload)
+		instance = MosaicProperty()
 		name_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		name = ArrayHelpers.get_bytes(buffer, name_size)
@@ -1357,13 +1121,13 @@ class MosaicProperty:
 		value = ArrayHelpers.get_bytes(buffer, value_size)
 		buffer = buffer[value_size:]
 
-		instance = MosaicProperty()
+		# pylint: disable=protected-access
 		instance._name = name
 		instance._value = value
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += len(self._name).to_bytes(4, byteorder='little', signed=False)  # name_size
 		buffer += self._name
 		buffer += len(self._value).to_bytes(4, byteorder='little', signed=False)  # value_size
@@ -1407,18 +1171,19 @@ class SizePrefixedMosaicProperty:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> SizePrefixedMosaicProperty:
 		buffer = memoryview(payload)
+		instance = SizePrefixedMosaicProperty()
 		property_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
 		property_ = MosaicProperty.deserialize(buffer[:property_size])
 		buffer = buffer[property_.size:]
 
-		instance = SizePrefixedMosaicProperty()
+		# pylint: disable=protected-access
 		instance._property_ = property_
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.property_.size.to_bytes(4, byteorder='little', signed=False)  # property_size
 		buffer += self._property_.serialize()
 		return buffer
@@ -1515,6 +1280,7 @@ class MosaicDefinition:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicDefinition:
 		buffer = memoryview(payload)
+		instance = MosaicDefinition()
 		owner_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert owner_public_key_size == 32, f'Invalid value of reserved field ({owner_public_key_size})'
@@ -1540,7 +1306,7 @@ class MosaicDefinition:
 			levy = MosaicLevy.deserialize(buffer)
 			buffer = buffer[levy.size:]
 
-		instance = MosaicDefinition()
+		# pylint: disable=protected-access
 		instance._owner_public_key = owner_public_key
 		instance._id = id
 		instance._description = description
@@ -1549,7 +1315,7 @@ class MosaicDefinition:
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self._owner_public_key_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._owner_public_key.serialize()
 		buffer += self.id.size.to_bytes(4, byteorder='little', signed=False)  # id_size
@@ -1575,73 +1341,27 @@ class MosaicDefinition:
 		return result
 
 
-class MosaicDefinitionTransactionV1:
+class MosaicDefinitionTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MOSAIC_DEFINITION
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'mosaic_definition': 'struct:MosaicDefinition',
 		'rental_fee_sink': 'pod:Address',
 		'rental_fee': 'pod:Amount'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = MosaicDefinitionTransactionV1.TRANSACTION_TYPE
 		self._version = MosaicDefinitionTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._mosaic_definition = MosaicDefinition()
 		self._rental_fee_sink = Address()
 		self._rental_fee = Amount()
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
 
 	def sort(self) -> None:
 		self._mosaic_definition.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def mosaic_definition(self) -> MosaicDefinition:
@@ -1654,38 +1374,6 @@ class MosaicDefinitionTransactionV1:
 	@property
 	def rental_fee(self) -> Amount:
 		return self._rental_fee
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@mosaic_definition.setter
 	def mosaic_definition(self, value: MosaicDefinition):
@@ -1702,17 +1390,7 @@ class MosaicDefinitionTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.mosaic_definition.size
 		size += 4
@@ -1723,31 +1401,9 @@ class MosaicDefinitionTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicDefinitionTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = MosaicDefinitionTransactionV1()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		mosaic_definition_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
@@ -1761,33 +1417,15 @@ class MosaicDefinitionTransactionV1:
 		rental_fee = Amount.deserialize(buffer)
 		buffer = buffer[rental_fee.size:]
 
-		instance = MosaicDefinitionTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._mosaic_definition = mosaic_definition
 		instance._rental_fee_sink = rental_fee_sink
 		instance._rental_fee = rental_fee
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self.mosaic_definition.size.to_bytes(4, byteorder='little', signed=False)  # mosaic_definition_size
 		buffer += self._mosaic_definition.serialize()
 		buffer += self._rental_fee_sink_size.to_bytes(4, byteorder='little', signed=False)
@@ -1797,14 +1435,7 @@ class MosaicDefinitionTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'mosaic_definition: {self._mosaic_definition.__str__()}, '
 		result += f'rental_fee_sink: {self._rental_fee_sink.__str__()}, '
 		result += f'rental_fee: {self._rental_fee.__str__()}, '
@@ -1812,66 +1443,27 @@ class MosaicDefinitionTransactionV1:
 		return result
 
 
-class NonVerifiableMosaicDefinitionTransactionV1:
+class NonVerifiableMosaicDefinitionTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MOSAIC_DEFINITION
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'mosaic_definition': 'struct:MosaicDefinition',
 		'rental_fee_sink': 'pod:Address',
 		'rental_fee': 'pod:Amount'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableMosaicDefinitionTransactionV1.TRANSACTION_TYPE
 		self._version = NonVerifiableMosaicDefinitionTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._mosaic_definition = MosaicDefinition()
 		self._rental_fee_sink = Address()
 		self._rental_fee = Amount()
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
 
 	def sort(self) -> None:
 		self._mosaic_definition.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def mosaic_definition(self) -> MosaicDefinition:
@@ -1884,34 +1476,6 @@ class NonVerifiableMosaicDefinitionTransactionV1:
 	@property
 	def rental_fee(self) -> Amount:
 		return self._rental_fee
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@mosaic_definition.setter
 	def mosaic_definition(self, value: MosaicDefinition):
@@ -1928,15 +1492,7 @@ class NonVerifiableMosaicDefinitionTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.mosaic_definition.size
 		size += 4
@@ -1947,26 +1503,9 @@ class NonVerifiableMosaicDefinitionTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableMosaicDefinitionTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableMosaicDefinitionTransactionV1()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		mosaic_definition_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
@@ -1980,30 +1519,15 @@ class NonVerifiableMosaicDefinitionTransactionV1:
 		rental_fee = Amount.deserialize(buffer)
 		buffer = buffer[rental_fee.size:]
 
-		instance = NonVerifiableMosaicDefinitionTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._mosaic_definition = mosaic_definition
 		instance._rental_fee_sink = rental_fee_sink
 		instance._rental_fee = rental_fee
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self.mosaic_definition.size.to_bytes(4, byteorder='little', signed=False)  # mosaic_definition_size
 		buffer += self._mosaic_definition.serialize()
 		buffer += self._rental_fee_sink_size.to_bytes(4, byteorder='little', signed=False)
@@ -2013,13 +1537,7 @@ class NonVerifiableMosaicDefinitionTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'mosaic_definition: {self._mosaic_definition.__str__()}, '
 		result += f'rental_fee_sink: {self._rental_fee_sink.__str__()}, '
 		result += f'rental_fee: {self._rental_fee.__str__()}, '
@@ -2041,77 +1559,31 @@ class MosaicSupplyChangeAction(Enum):
 		return MosaicSupplyChangeAction(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
 
 
-class MosaicSupplyChangeTransactionV1:
+class MosaicSupplyChangeTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MOSAIC_SUPPLY_CHANGE
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'mosaic_id': 'struct:MosaicId',
 		'action': 'enum:MosaicSupplyChangeAction',
 		'delta': 'pod:Amount'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = MosaicSupplyChangeTransactionV1.TRANSACTION_TYPE
 		self._version = MosaicSupplyChangeTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._mosaic_id = MosaicId()
 		self._action = MosaicSupplyChangeAction.INCREASE
 		self._delta = Amount()
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 
 	def sort(self) -> None:
 		self._mosaic_id.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def mosaic_id(self) -> MosaicId:
@@ -2124,38 +1596,6 @@ class MosaicSupplyChangeTransactionV1:
 	@property
 	def delta(self) -> Amount:
 		return self._delta
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@mosaic_id.setter
 	def mosaic_id(self, value: MosaicId):
@@ -2172,17 +1612,7 @@ class MosaicSupplyChangeTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.mosaic_id.size
 		size += self.action.size
@@ -2192,31 +1622,9 @@ class MosaicSupplyChangeTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MosaicSupplyChangeTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = MosaicSupplyChangeTransactionV1()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		mosaic_id_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
@@ -2227,33 +1635,15 @@ class MosaicSupplyChangeTransactionV1:
 		delta = Amount.deserialize(buffer)
 		buffer = buffer[delta.size:]
 
-		instance = MosaicSupplyChangeTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._mosaic_id = mosaic_id
 		instance._action = action
 		instance._delta = delta
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self.mosaic_id.size.to_bytes(4, byteorder='little', signed=False)  # mosaic_id_size
 		buffer += self._mosaic_id.serialize()
 		buffer += self._action.serialize()
@@ -2262,14 +1652,7 @@ class MosaicSupplyChangeTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'mosaic_id: {self._mosaic_id.__str__()}, '
 		result += f'action: {self._action.__str__()}, '
 		result += f'delta: {self._delta.__str__()}, '
@@ -2277,65 +1660,26 @@ class MosaicSupplyChangeTransactionV1:
 		return result
 
 
-class NonVerifiableMosaicSupplyChangeTransactionV1:
+class NonVerifiableMosaicSupplyChangeTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MOSAIC_SUPPLY_CHANGE
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'mosaic_id': 'struct:MosaicId',
 		'action': 'enum:MosaicSupplyChangeAction',
 		'delta': 'pod:Amount'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE
 		self._version = NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._mosaic_id = MosaicId()
 		self._action = MosaicSupplyChangeAction.INCREASE
 		self._delta = Amount()
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 
 	def sort(self) -> None:
 		self._mosaic_id.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def mosaic_id(self) -> MosaicId:
@@ -2348,34 +1692,6 @@ class NonVerifiableMosaicSupplyChangeTransactionV1:
 	@property
 	def delta(self) -> Amount:
 		return self._delta
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@mosaic_id.setter
 	def mosaic_id(self, value: MosaicId):
@@ -2392,15 +1708,7 @@ class NonVerifiableMosaicSupplyChangeTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.mosaic_id.size
 		size += self.action.size
@@ -2410,26 +1718,9 @@ class NonVerifiableMosaicSupplyChangeTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableMosaicSupplyChangeTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableMosaicSupplyChangeTransactionV1()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		mosaic_id_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
@@ -2440,30 +1731,15 @@ class NonVerifiableMosaicSupplyChangeTransactionV1:
 		delta = Amount.deserialize(buffer)
 		buffer = buffer[delta.size:]
 
-		instance = NonVerifiableMosaicSupplyChangeTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._mosaic_id = mosaic_id
 		instance._action = action
 		instance._delta = delta
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self.mosaic_id.size.to_bytes(4, byteorder='little', signed=False)  # mosaic_id_size
 		buffer += self._mosaic_id.serialize()
 		buffer += self._action.serialize()
@@ -2472,13 +1748,7 @@ class NonVerifiableMosaicSupplyChangeTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'mosaic_id: {self._mosaic_id.__str__()}, '
 		result += f'action: {self._action.__str__()}, '
 		result += f'delta: {self._delta.__str__()}, '
@@ -2500,7 +1770,7 @@ class MultisigAccountModificationType(Enum):
 		return MultisigAccountModificationType(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
 
@@ -2554,6 +1824,7 @@ class MultisigAccountModification:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MultisigAccountModification:
 		buffer = memoryview(payload)
+		instance = MultisigAccountModification()
 		modification_type = MultisigAccountModificationType.deserialize(buffer)
 		buffer = buffer[modification_type.size:]
 		cosignatory_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
@@ -2562,13 +1833,13 @@ class MultisigAccountModification:
 		cosignatory_public_key = PublicKey.deserialize(buffer)
 		buffer = buffer[cosignatory_public_key.size:]
 
-		instance = MultisigAccountModification()
+		# pylint: disable=protected-access
 		instance._modification_type = modification_type
 		instance._cosignatory_public_key = cosignatory_public_key
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self._modification_type.serialize()
 		buffer += self._cosignatory_public_key_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._cosignatory_public_key.serialize()
@@ -2611,18 +1882,19 @@ class SizePrefixedMultisigAccountModification:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> SizePrefixedMultisigAccountModification:
 		buffer = memoryview(payload)
+		instance = SizePrefixedMultisigAccountModification()
 		modification_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
 		modification = MultisigAccountModification.deserialize(buffer[:modification_size])
 		buffer = buffer[modification.size:]
 
-		instance = SizePrefixedMultisigAccountModification()
+		# pylint: disable=protected-access
 		instance._modification = modification
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.modification.size.to_bytes(4, byteorder='little', signed=False)  # modification_size
 		buffer += self._modification.serialize()
 		return buffer
@@ -2634,104 +1906,26 @@ class SizePrefixedMultisigAccountModification:
 		return result
 
 
-class MultisigAccountModificationTransactionV1:
+class MultisigAccountModificationTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_ACCOUNT_MODIFICATION
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'modifications': 'array[SizePrefixedMultisigAccountModification]'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = MultisigAccountModificationTransactionV1.TRANSACTION_TYPE
 		self._version = MultisigAccountModificationTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._modifications = []
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 
 	def sort(self) -> None:
 		self._modifications = sorted(self._modifications, key=lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 
 	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
-
-	@property
 	def modifications(self) -> List[SizePrefixedMultisigAccountModification]:
 		return self._modifications
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@modifications.setter
 	def modifications(self, value: List[SizePrefixedMultisigAccountModification]):
@@ -2740,17 +1934,7 @@ class MultisigAccountModificationTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += ArrayHelpers.size(self.modifications)
 		return size
@@ -2758,167 +1942,53 @@ class MultisigAccountModificationTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MultisigAccountModificationTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = MultisigAccountModificationTransactionV1()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer = buffer[ArrayHelpers.size(modifications):]
 
-		instance = MultisigAccountModificationTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._modifications = modifications
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += len(self._modifications).to_bytes(4, byteorder='little', signed=False)  # modifications_count
 		buffer += ArrayHelpers.write_array(self._modifications, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		return buffer
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'modifications: {list(map(str, self._modifications))}, '
 		result += ')'
 		return result
 
 
-class NonVerifiableMultisigAccountModificationTransactionV1:
+class NonVerifiableMultisigAccountModificationTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_ACCOUNT_MODIFICATION
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'modifications': 'array[SizePrefixedMultisigAccountModification]'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE
 		self._version = NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._modifications = []
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 
 	def sort(self) -> None:
 		self._modifications = sorted(self._modifications, key=lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 
 	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
-
-	@property
 	def modifications(self) -> List[SizePrefixedMultisigAccountModification]:
 		return self._modifications
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@modifications.setter
 	def modifications(self, value: List[SizePrefixedMultisigAccountModification]):
@@ -2927,15 +1997,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += ArrayHelpers.size(self.modifications)
 		return size
@@ -2943,135 +2005,51 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableMultisigAccountModificationTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableMultisigAccountModificationTransactionV1()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer = buffer[ArrayHelpers.size(modifications):]
 
-		instance = NonVerifiableMultisigAccountModificationTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._modifications = modifications
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += len(self._modifications).to_bytes(4, byteorder='little', signed=False)  # modifications_count
 		buffer += ArrayHelpers.write_array(self._modifications, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		return buffer
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'modifications: {list(map(str, self._modifications))}, '
 		result += ')'
 		return result
 
 
-class MultisigAccountModificationTransactionV2:
+class MultisigAccountModificationTransactionV2(Transaction):
 	TRANSACTION_VERSION: int = 2
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_ACCOUNT_MODIFICATION
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'modifications': 'array[SizePrefixedMultisigAccountModification]'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = MultisigAccountModificationTransactionV2.TRANSACTION_TYPE
 		self._version = MultisigAccountModificationTransactionV2.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._modifications = []
 		self._min_approval_delta = 0
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 		self._min_approval_delta_size = 4  # reserved field
 
 	def sort(self) -> None:
 		self._modifications = sorted(self._modifications, key=lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def modifications(self) -> List[SizePrefixedMultisigAccountModification]:
@@ -3080,38 +2058,6 @@ class MultisigAccountModificationTransactionV2:
 	@property
 	def min_approval_delta(self) -> int:
 		return self._min_approval_delta
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@modifications.setter
 	def modifications(self, value: List[SizePrefixedMultisigAccountModification]):
@@ -3124,17 +2070,7 @@ class MultisigAccountModificationTransactionV2:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += ArrayHelpers.size(self.modifications)
 		size += 4
@@ -3144,31 +2080,9 @@ class MultisigAccountModificationTransactionV2:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MultisigAccountModificationTransactionV2:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = MultisigAccountModificationTransactionV2()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
@@ -3179,32 +2093,14 @@ class MultisigAccountModificationTransactionV2:
 		min_approval_delta = int.from_bytes(buffer[:4], byteorder='little', signed=True)
 		buffer = buffer[4:]
 
-		instance = MultisigAccountModificationTransactionV2()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._modifications = modifications
 		instance._min_approval_delta = min_approval_delta
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += len(self._modifications).to_bytes(4, byteorder='little', signed=False)  # modifications_count
 		buffer += ArrayHelpers.write_array(self._modifications, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer += self._min_approval_delta_size.to_bytes(4, byteorder='little', signed=False)
@@ -3213,77 +2109,31 @@ class MultisigAccountModificationTransactionV2:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'modifications: {list(map(str, self._modifications))}, '
 		result += f'min_approval_delta: 0x{self._min_approval_delta:X}, '
 		result += ')'
 		return result
 
 
-class NonVerifiableMultisigAccountModificationTransactionV2:
+class NonVerifiableMultisigAccountModificationTransactionV2(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 2
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_ACCOUNT_MODIFICATION
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'modifications': 'array[SizePrefixedMultisigAccountModification]'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_TYPE
 		self._version = NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._modifications = []
 		self._min_approval_delta = 0
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 		self._min_approval_delta_size = 4  # reserved field
 
 	def sort(self) -> None:
 		self._modifications = sorted(self._modifications, key=lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def modifications(self) -> List[SizePrefixedMultisigAccountModification]:
@@ -3292,34 +2142,6 @@ class NonVerifiableMultisigAccountModificationTransactionV2:
 	@property
 	def min_approval_delta(self) -> int:
 		return self._min_approval_delta
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@modifications.setter
 	def modifications(self, value: List[SizePrefixedMultisigAccountModification]):
@@ -3332,15 +2154,7 @@ class NonVerifiableMultisigAccountModificationTransactionV2:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += ArrayHelpers.size(self.modifications)
 		size += 4
@@ -3350,26 +2164,9 @@ class NonVerifiableMultisigAccountModificationTransactionV2:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableMultisigAccountModificationTransactionV2:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableMultisigAccountModificationTransactionV2()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
@@ -3380,29 +2177,14 @@ class NonVerifiableMultisigAccountModificationTransactionV2:
 		min_approval_delta = int.from_bytes(buffer[:4], byteorder='little', signed=True)
 		buffer = buffer[4:]
 
-		instance = NonVerifiableMultisigAccountModificationTransactionV2()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._modifications = modifications
 		instance._min_approval_delta = min_approval_delta
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += len(self._modifications).to_bytes(4, byteorder='little', signed=False)  # modifications_count
 		buffer += ArrayHelpers.write_array(self._modifications, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer += self._min_approval_delta_size.to_bytes(4, byteorder='little', signed=False)
@@ -3411,48 +2193,28 @@ class NonVerifiableMultisigAccountModificationTransactionV2:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'modifications: {list(map(str, self._modifications))}, '
 		result += f'min_approval_delta: 0x{self._min_approval_delta:X}, '
 		result += ')'
 		return result
 
 
-class CosignatureV1:
+class CosignatureV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_COSIGNATURE
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'multisig_transaction_hash': 'pod:Hash256',
 		'multisig_account_address': 'pod:Address'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = CosignatureV1.TRANSACTION_TYPE
 		self._version = CosignatureV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._multisig_transaction_hash = Hash256()
 		self._multisig_account_address = Address()
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 		self._multisig_transaction_hash_outer_size = 36  # reserved field
 		self._multisig_transaction_hash_size = 32  # reserved field
 		self._multisig_account_address_size = 40  # reserved field
@@ -3461,76 +2223,12 @@ class CosignatureV1:
 		pass
 
 	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
-
-	@property
 	def multisig_transaction_hash(self) -> Hash256:
 		return self._multisig_transaction_hash
 
 	@property
 	def multisig_account_address(self) -> Address:
 		return self._multisig_account_address
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@multisig_transaction_hash.setter
 	def multisig_transaction_hash(self, value: Hash256):
@@ -3543,17 +2241,7 @@ class CosignatureV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += 4
 		size += self.multisig_transaction_hash.size
@@ -3564,31 +2252,9 @@ class CosignatureV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> CosignatureV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = CosignatureV1()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		multisig_transaction_hash_outer_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert multisig_transaction_hash_outer_size == 36, f'Invalid value of reserved field ({multisig_transaction_hash_outer_size})'
@@ -3603,32 +2269,14 @@ class CosignatureV1:
 		multisig_account_address = Address.deserialize(buffer)
 		buffer = buffer[multisig_account_address.size:]
 
-		instance = CosignatureV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._multisig_transaction_hash = multisig_transaction_hash
 		instance._multisig_account_address = multisig_account_address
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._multisig_transaction_hash_outer_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._multisig_transaction_hash_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._multisig_transaction_hash.serialize()
@@ -3638,14 +2286,7 @@ class CosignatureV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'multisig_transaction_hash: {self._multisig_transaction_hash.__str__()}, '
 		result += f'multisig_account_address: {self._multisig_account_address.__str__()}, '
 		result += ')'
@@ -3681,18 +2322,19 @@ class SizePrefixedCosignatureV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> SizePrefixedCosignatureV1:
 		buffer = memoryview(payload)
+		instance = SizePrefixedCosignatureV1()
 		cosignature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
 		cosignature = CosignatureV1.deserialize(buffer[:cosignature_size])
 		buffer = buffer[cosignature.size:]
 
-		instance = SizePrefixedCosignatureV1()
+		# pylint: disable=protected-access
 		instance._cosignature = cosignature
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.cosignature.size.to_bytes(4, byteorder='little', signed=False)  # cosignature_size
 		buffer += self._cosignature.serialize()
 		return buffer
@@ -3704,70 +2346,24 @@ class SizePrefixedCosignatureV1:
 		return result
 
 
-class MultisigTransactionV1:
+class MultisigTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'inner_transaction': 'struct:NonVerifiableTransaction',
 		'cosignatures': 'array[SizePrefixedCosignatureV1]'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = MultisigTransactionV1.TRANSACTION_TYPE
 		self._version = MultisigTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._inner_transaction = NonVerifiableTransaction()
 		self._cosignatures = []
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 
 	def sort(self) -> None:
 		self._inner_transaction.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def inner_transaction(self) -> NonVerifiableTransaction:
@@ -3776,38 +2372,6 @@ class MultisigTransactionV1:
 	@property
 	def cosignatures(self) -> List[SizePrefixedCosignatureV1]:
 		return self._cosignatures
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@inner_transaction.setter
 	def inner_transaction(self, value: NonVerifiableTransaction):
@@ -3820,17 +2384,7 @@ class MultisigTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.inner_transaction.size
 		size += 4
@@ -3840,31 +2394,9 @@ class MultisigTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> MultisigTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = MultisigTransactionV1()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		inner_transaction_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
@@ -3875,32 +2407,14 @@ class MultisigTransactionV1:
 		cosignatures = ArrayHelpers.read_array_count(buffer, SizePrefixedCosignatureV1, cosignatures_count)
 		buffer = buffer[ArrayHelpers.size(cosignatures):]
 
-		instance = MultisigTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._inner_transaction = inner_transaction
 		instance._cosignatures = cosignatures
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self.inner_transaction.size.to_bytes(4, byteorder='little', signed=False)  # inner_transaction_size
 		buffer += self._inner_transaction.serialize()
 		buffer += len(self._cosignatures).to_bytes(4, byteorder='little', signed=False)  # cosignatures_count
@@ -3909,107 +2423,33 @@ class MultisigTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'inner_transaction: {self._inner_transaction.__str__()}, '
 		result += f'cosignatures: {list(map(str, self._cosignatures))}, '
 		result += ')'
 		return result
 
 
-class NonVerifiableMultisigTransactionV1:
+class NonVerifiableMultisigTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'inner_transaction': 'struct:NonVerifiableTransaction'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableMultisigTransactionV1.TRANSACTION_TYPE
 		self._version = NonVerifiableMultisigTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._inner_transaction = NonVerifiableTransaction()
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 
 	def sort(self) -> None:
 		self._inner_transaction.sort()
 
 	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
-
-	@property
 	def inner_transaction(self) -> NonVerifiableTransaction:
 		return self._inner_transaction
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@inner_transaction.setter
 	def inner_transaction(self, value: NonVerifiableTransaction):
@@ -4018,15 +2458,7 @@ class NonVerifiableMultisigTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.inner_transaction.size
 		return size
@@ -4034,83 +2466,39 @@ class NonVerifiableMultisigTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableMultisigTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableMultisigTransactionV1()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		inner_transaction_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		# marking sizeof field
 		inner_transaction = NonVerifiableTransactionFactory.deserialize(buffer[:inner_transaction_size])
 		buffer = buffer[inner_transaction.size:]
 
-		instance = NonVerifiableMultisigTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._inner_transaction = inner_transaction
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self.inner_transaction.size.to_bytes(4, byteorder='little', signed=False)  # inner_transaction_size
 		buffer += self._inner_transaction.serialize()
 		return buffer
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'inner_transaction: {self._inner_transaction.__str__()}, '
 		result += ')'
 		return result
 
 
-class NamespaceRegistrationTransactionV1:
+class NamespaceRegistrationTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.NAMESPACE_REGISTRATION
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'rental_fee_sink': 'pod:Address',
 		'rental_fee': 'pod:Amount',
 		'name': 'bytes_array',
@@ -4118,57 +2506,17 @@ class NamespaceRegistrationTransactionV1:
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NamespaceRegistrationTransactionV1.TRANSACTION_TYPE
 		self._version = NamespaceRegistrationTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._rental_fee_sink = Address()
 		self._rental_fee = Amount()
 		self._name = bytes()
 		self._parent_name = None
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
 
 	def sort(self) -> None:
 		pass
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def rental_fee_sink(self) -> Address:
@@ -4185,38 +2533,6 @@ class NamespaceRegistrationTransactionV1:
 	@property
 	def parent_name(self) -> bytes:
 		return self._parent_name
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@rental_fee_sink.setter
 	def rental_fee_sink(self, value: Address):
@@ -4237,17 +2553,7 @@ class NamespaceRegistrationTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.rental_fee_sink.size
 		size += self.rental_fee.size
@@ -4261,31 +2567,9 @@ class NamespaceRegistrationTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NamespaceRegistrationTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NamespaceRegistrationTransactionV1()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		rental_fee_sink_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert rental_fee_sink_size == 40, f'Invalid value of reserved field ({rental_fee_sink_size})'
@@ -4304,15 +2588,7 @@ class NamespaceRegistrationTransactionV1:
 			parent_name = ArrayHelpers.get_bytes(buffer, parent_name_size)
 			buffer = buffer[parent_name_size:]
 
-		instance = NamespaceRegistrationTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._rental_fee_sink = rental_fee_sink
 		instance._rental_fee = rental_fee
 		instance._name = name
@@ -4320,18 +2596,8 @@ class NamespaceRegistrationTransactionV1:
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._rental_fee_sink_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._rental_fee_sink.serialize()
 		buffer += self._rental_fee.serialize()
@@ -4344,14 +2610,7 @@ class NamespaceRegistrationTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'rental_fee_sink: {self._rental_fee_sink.__str__()}, '
 		result += f'rental_fee: {self._rental_fee.__str__()}, '
 		result += f'name: {hexlify(self._name).decode("utf8")}, '
@@ -4361,16 +2620,11 @@ class NamespaceRegistrationTransactionV1:
 		return result
 
 
-class NonVerifiableNamespaceRegistrationTransactionV1:
+class NonVerifiableNamespaceRegistrationTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.NAMESPACE_REGISTRATION
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'rental_fee_sink': 'pod:Address',
 		'rental_fee': 'pod:Amount',
 		'name': 'bytes_array',
@@ -4378,51 +2632,17 @@ class NonVerifiableNamespaceRegistrationTransactionV1:
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_TYPE
 		self._version = NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._rental_fee_sink = Address()
 		self._rental_fee = Amount()
 		self._name = bytes()
 		self._parent_name = None
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
 
 	def sort(self) -> None:
 		pass
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def rental_fee_sink(self) -> Address:
@@ -4439,34 +2659,6 @@ class NonVerifiableNamespaceRegistrationTransactionV1:
 	@property
 	def parent_name(self) -> bytes:
 		return self._parent_name
-
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
 
 	@rental_fee_sink.setter
 	def rental_fee_sink(self, value: Address):
@@ -4487,15 +2679,7 @@ class NonVerifiableNamespaceRegistrationTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.rental_fee_sink.size
 		size += self.rental_fee.size
@@ -4509,26 +2693,9 @@ class NonVerifiableNamespaceRegistrationTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableNamespaceRegistrationTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableNamespaceRegistrationTransactionV1()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		rental_fee_sink_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert rental_fee_sink_size == 40, f'Invalid value of reserved field ({rental_fee_sink_size})'
@@ -4547,14 +2714,7 @@ class NonVerifiableNamespaceRegistrationTransactionV1:
 			parent_name = ArrayHelpers.get_bytes(buffer, parent_name_size)
 			buffer = buffer[parent_name_size:]
 
-		instance = NonVerifiableNamespaceRegistrationTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._rental_fee_sink = rental_fee_sink
 		instance._rental_fee = rental_fee
 		instance._name = name
@@ -4562,16 +2722,8 @@ class NonVerifiableNamespaceRegistrationTransactionV1:
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._rental_fee_sink_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._rental_fee_sink.serialize()
 		buffer += self._rental_fee.serialize()
@@ -4584,13 +2736,7 @@ class NonVerifiableNamespaceRegistrationTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'rental_fee_sink: {self._rental_fee_sink.__str__()}, '
 		result += f'rental_fee: {self._rental_fee.__str__()}, '
 		result += f'name: {hexlify(self._name).decode("utf8")}, '
@@ -4614,7 +2760,7 @@ class MessageType(Enum):
 		return MessageType(int.from_bytes(buffer[:4], byteorder='little', signed=False))
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
 
@@ -4659,6 +2805,7 @@ class Message:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> Message:
 		buffer = memoryview(payload)
+		instance = Message()
 		message_type = MessageType.deserialize(buffer)
 		buffer = buffer[message_type.size:]
 		message_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
@@ -4666,13 +2813,13 @@ class Message:
 		message = ArrayHelpers.get_bytes(buffer, message_size)
 		buffer = buffer[message_size:]
 
-		instance = Message()
+		# pylint: disable=protected-access
 		instance._message_type = message_type
 		instance._message = message
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
+		buffer = bytearray()
 		buffer += self._message_type.serialize()
 		buffer += len(self._message).to_bytes(4, byteorder='little', signed=False)  # message_size
 		buffer += self._message
@@ -4686,74 +2833,28 @@ class Message:
 		return result
 
 
-class TransferTransactionV1:
+class TransferTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.TRANSFER
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'recipient_address': 'pod:Address',
 		'amount': 'pod:Amount',
 		'message': 'struct:Message'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = TransferTransactionV1.TRANSACTION_TYPE
 		self._version = TransferTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._recipient_address = Address()
 		self._amount = Amount()
 		self._message = None
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 		self._recipient_address_size = 40  # reserved field
 
 	def sort(self) -> None:
 		if 0 != self.message_envelope_size_computed:
 			self._message.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def recipient_address(self) -> Address:
@@ -4771,38 +2872,6 @@ class TransferTransactionV1:
 	def message_envelope_size_computed(self) -> int:
 		return 0 if not self.message else self.message.size + 0
 
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
-
 	@recipient_address.setter
 	def recipient_address(self, value: Address):
 		self._recipient_address = value
@@ -4818,17 +2887,7 @@ class TransferTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.recipient_address.size
 		size += self.amount.size
@@ -4840,31 +2899,9 @@ class TransferTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> TransferTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = TransferTransactionV1()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		recipient_address_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert recipient_address_size == 40, f'Invalid value of reserved field ({recipient_address_size})'
@@ -4879,33 +2916,15 @@ class TransferTransactionV1:
 			message = Message.deserialize(buffer)
 			buffer = buffer[message.size:]
 
-		instance = TransferTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._recipient_address = recipient_address
 		instance._amount = amount
 		instance._message = message
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
 		buffer += self._amount.serialize()
@@ -4916,14 +2935,7 @@ class TransferTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
 		if 0 != self.message_envelope_size_computed:
@@ -4932,67 +2944,28 @@ class TransferTransactionV1:
 		return result
 
 
-class NonVerifiableTransferTransactionV1:
+class NonVerifiableTransferTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.TRANSFER
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'recipient_address': 'pod:Address',
 		'amount': 'pod:Amount',
 		'message': 'struct:Message'
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableTransferTransactionV1.TRANSACTION_TYPE
 		self._version = NonVerifiableTransferTransactionV1.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._recipient_address = Address()
 		self._amount = Amount()
 		self._message = None
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 		self._recipient_address_size = 40  # reserved field
 
 	def sort(self) -> None:
 		if 0 != self.message_envelope_size_computed:
 			self._message.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def recipient_address(self) -> Address:
@@ -5010,34 +2983,6 @@ class NonVerifiableTransferTransactionV1:
 	def message_envelope_size_computed(self) -> int:
 		return 0 if not self.message else self.message.size + 0
 
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
-
 	@recipient_address.setter
 	def recipient_address(self, value: Address):
 		self._recipient_address = value
@@ -5053,15 +2998,7 @@ class NonVerifiableTransferTransactionV1:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.recipient_address.size
 		size += self.amount.size
@@ -5073,26 +3010,9 @@ class NonVerifiableTransferTransactionV1:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableTransferTransactionV1:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableTransferTransactionV1()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		recipient_address_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert recipient_address_size == 40, f'Invalid value of reserved field ({recipient_address_size})'
@@ -5107,30 +3027,15 @@ class NonVerifiableTransferTransactionV1:
 			message = Message.deserialize(buffer)
 			buffer = buffer[message.size:]
 
-		instance = NonVerifiableTransferTransactionV1()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._recipient_address = recipient_address
 		instance._amount = amount
 		instance._message = message
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
 		buffer += self._amount.serialize()
@@ -5141,13 +3046,7 @@ class NonVerifiableTransferTransactionV1:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
 		if 0 != self.message_envelope_size_computed:
@@ -5156,17 +3055,11 @@ class NonVerifiableTransferTransactionV1:
 		return result
 
 
-class TransferTransactionV2:
+class TransferTransactionV2(Transaction):
 	TRANSACTION_VERSION: int = 2
 	TRANSACTION_TYPE: TransactionType = TransactionType.TRANSFER
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'signature': 'pod:Signature',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**Transaction.TYPE_HINTS,
 		'recipient_address': 'pod:Address',
 		'amount': 'pod:Amount',
 		'message': 'struct:Message',
@@ -5174,58 +3067,18 @@ class TransferTransactionV2:
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = TransferTransactionV2.TRANSACTION_TYPE
 		self._version = TransferTransactionV2.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._signature = Signature()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._recipient_address = Address()
 		self._amount = Amount()
 		self._message = None
 		self._mosaics = []
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
-		self._signature_size = 64  # reserved field
 		self._recipient_address_size = 40  # reserved field
 
 	def sort(self) -> None:
 		if 0 != self.message_envelope_size_computed:
 			self._message.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def signature(self) -> Signature:
-		return self._signature
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def recipient_address(self) -> Address:
@@ -5247,38 +3100,6 @@ class TransferTransactionV2:
 	def message_envelope_size_computed(self) -> int:
 		return 0 if not self.message else self.message.size + 0
 
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@signature.setter
-	def signature(self, value: Signature):
-		self._signature = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
-
 	@recipient_address.setter
 	def recipient_address(self, value: Address):
 		self._recipient_address = value
@@ -5298,17 +3119,7 @@ class TransferTransactionV2:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += 4
-		size += self.signature.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.recipient_address.size
 		size += self.amount.size
@@ -5322,31 +3133,9 @@ class TransferTransactionV2:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> TransferTransactionV2:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		signature_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signature_size == 64, f'Invalid value of reserved field ({signature_size})'
-		signature = Signature.deserialize(buffer)
-		buffer = buffer[signature.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = TransferTransactionV2()
+		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		recipient_address_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert recipient_address_size == 40, f'Invalid value of reserved field ({recipient_address_size})'
@@ -5365,15 +3154,7 @@ class TransferTransactionV2:
 		mosaics = ArrayHelpers.read_array_count(buffer, SizePrefixedMosaic, mosaics_count)
 		buffer = buffer[ArrayHelpers.size(mosaics):]
 
-		instance = TransferTransactionV2()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._signature = signature
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._recipient_address = recipient_address
 		instance._amount = amount
 		instance._message = message
@@ -5381,18 +3162,8 @@ class TransferTransactionV2:
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._signature_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signature.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
 		buffer += self._amount.serialize()
@@ -5405,14 +3176,7 @@ class TransferTransactionV2:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'signature: {self._signature.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
 		if 0 != self.message_envelope_size_computed:
@@ -5422,16 +3186,11 @@ class TransferTransactionV2:
 		return result
 
 
-class NonVerifiableTransferTransactionV2:
+class NonVerifiableTransferTransactionV2(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 2
 	TRANSACTION_TYPE: TransactionType = TransactionType.TRANSFER
 	TYPE_HINTS = {
-		'type_': 'enum:TransactionType',
-		'network': 'enum:NetworkType',
-		'timestamp': 'pod:Timestamp',
-		'signer_public_key': 'pod:PublicKey',
-		'fee': 'pod:Amount',
-		'deadline': 'pod:Timestamp',
+		**NonVerifiableTransaction.TYPE_HINTS,
 		'recipient_address': 'pod:Address',
 		'amount': 'pod:Amount',
 		'message': 'struct:Message',
@@ -5439,52 +3198,18 @@ class NonVerifiableTransferTransactionV2:
 	}
 
 	def __init__(self):
+		super().__init__()
 		self._type_ = NonVerifiableTransferTransactionV2.TRANSACTION_TYPE
 		self._version = NonVerifiableTransferTransactionV2.TRANSACTION_VERSION
-		self._network = NetworkType.MAINNET
-		self._timestamp = Timestamp()
-		self._signer_public_key = PublicKey()
-		self._fee = Amount()
-		self._deadline = Timestamp()
 		self._recipient_address = Address()
 		self._amount = Amount()
 		self._message = None
 		self._mosaics = []
-		self._entity_body_reserved_1 = 0  # reserved field
-		self._signer_public_key_size = 32  # reserved field
 		self._recipient_address_size = 40  # reserved field
 
 	def sort(self) -> None:
 		if 0 != self.message_envelope_size_computed:
 			self._message.sort()
-
-	@property
-	def type_(self) -> TransactionType:
-		return self._type_
-
-	@property
-	def version(self) -> int:
-		return self._version
-
-	@property
-	def network(self) -> NetworkType:
-		return self._network
-
-	@property
-	def timestamp(self) -> Timestamp:
-		return self._timestamp
-
-	@property
-	def signer_public_key(self) -> PublicKey:
-		return self._signer_public_key
-
-	@property
-	def fee(self) -> Amount:
-		return self._fee
-
-	@property
-	def deadline(self) -> Timestamp:
-		return self._deadline
 
 	@property
 	def recipient_address(self) -> Address:
@@ -5506,34 +3231,6 @@ class NonVerifiableTransferTransactionV2:
 	def message_envelope_size_computed(self) -> int:
 		return 0 if not self.message else self.message.size + 0
 
-	@type_.setter
-	def type_(self, value: TransactionType):
-		self._type_ = value
-
-	@version.setter
-	def version(self, value: int):
-		self._version = value
-
-	@network.setter
-	def network(self, value: NetworkType):
-		self._network = value
-
-	@timestamp.setter
-	def timestamp(self, value: Timestamp):
-		self._timestamp = value
-
-	@signer_public_key.setter
-	def signer_public_key(self, value: PublicKey):
-		self._signer_public_key = value
-
-	@fee.setter
-	def fee(self, value: Amount):
-		self._fee = value
-
-	@deadline.setter
-	def deadline(self, value: Timestamp):
-		self._deadline = value
-
 	@recipient_address.setter
 	def recipient_address(self, value: Address):
 		self._recipient_address = value
@@ -5553,15 +3250,7 @@ class NonVerifiableTransferTransactionV2:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += self.type_.size
-		size += 1
-		size += 2
-		size += self.network.size
-		size += self.timestamp.size
-		size += 4
-		size += self.signer_public_key.size
-		size += self.fee.size
-		size += self.deadline.size
+		size += super().size
 		size += 4
 		size += self.recipient_address.size
 		size += self.amount.size
@@ -5575,26 +3264,9 @@ class NonVerifiableTransferTransactionV2:
 	@classmethod
 	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableTransferTransactionV2:
 		buffer = memoryview(payload)
-		type_ = TransactionType.deserialize(buffer)
-		buffer = buffer[type_.size:]
-		version = int.from_bytes(buffer[:1], byteorder='little', signed=False)
-		buffer = buffer[1:]
-		entity_body_reserved_1 = int.from_bytes(buffer[:2], byteorder='little', signed=False)
-		buffer = buffer[2:]
-		assert entity_body_reserved_1 == 0, f'Invalid value of reserved field ({entity_body_reserved_1})'
-		network = NetworkType.deserialize(buffer)
-		buffer = buffer[network.size:]
-		timestamp = Timestamp.deserialize(buffer)
-		buffer = buffer[timestamp.size:]
-		signer_public_key_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
-		buffer = buffer[4:]
-		assert signer_public_key_size == 32, f'Invalid value of reserved field ({signer_public_key_size})'
-		signer_public_key = PublicKey.deserialize(buffer)
-		buffer = buffer[signer_public_key.size:]
-		fee = Amount.deserialize(buffer)
-		buffer = buffer[fee.size:]
-		deadline = Timestamp.deserialize(buffer)
-		buffer = buffer[deadline.size:]
+		instance = NonVerifiableTransferTransactionV2()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
 		recipient_address_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert recipient_address_size == 40, f'Invalid value of reserved field ({recipient_address_size})'
@@ -5613,14 +3285,7 @@ class NonVerifiableTransferTransactionV2:
 		mosaics = ArrayHelpers.read_array_count(buffer, SizePrefixedMosaic, mosaics_count)
 		buffer = buffer[ArrayHelpers.size(mosaics):]
 
-		instance = NonVerifiableTransferTransactionV2()
-		instance._type_ = type_
-		instance._version = version
-		instance._network = network
-		instance._timestamp = timestamp
-		instance._signer_public_key = signer_public_key
-		instance._fee = fee
-		instance._deadline = deadline
+		# pylint: disable=protected-access
 		instance._recipient_address = recipient_address
 		instance._amount = amount
 		instance._message = message
@@ -5628,16 +3293,8 @@ class NonVerifiableTransferTransactionV2:
 		return instance
 
 	def serialize(self) -> bytes:
-		buffer = bytes()
-		buffer += self._type_.serialize()
-		buffer += self._version.to_bytes(1, byteorder='little', signed=False)
-		buffer += self._entity_body_reserved_1.to_bytes(2, byteorder='little', signed=False)
-		buffer += self._network.serialize()
-		buffer += self._timestamp.serialize()
-		buffer += self._signer_public_key_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._signer_public_key.serialize()
-		buffer += self._fee.serialize()
-		buffer += self._deadline.serialize()
+		buffer = bytearray()
+		super()._serialize(buffer)
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
 		buffer += self._amount.serialize()
@@ -5650,13 +3307,7 @@ class NonVerifiableTransferTransactionV2:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
-		result += f'version: 0x{self._version:X}, '
-		result += f'network: {self._network.__str__()}, '
-		result += f'timestamp: {self._timestamp.__str__()}, '
-		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
-		result += f'fee: {self._fee.__str__()}, '
-		result += f'deadline: {self._deadline.__str__()}, '
+		result += super().__str__()
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
 		if 0 != self.message_envelope_size_computed:
@@ -5669,8 +3320,10 @@ class NonVerifiableTransferTransactionV2:
 class TransactionFactory:
 	@classmethod
 	def deserialize(cls, payload: bytes) -> Transaction:
+		parent = Transaction()
 		buffer = bytes(payload)
-		parent = Transaction.deserialize(buffer)
+		Transaction._deserialize(buffer, parent)  # pylint: disable=protected-access
+
 		mapping = {
 			(AccountKeyLinkTransactionV1.TRANSACTION_TYPE, AccountKeyLinkTransactionV1.TRANSACTION_VERSION): AccountKeyLinkTransactionV1,
 			(MosaicDefinitionTransactionV1.TRANSACTION_TYPE, MosaicDefinitionTransactionV1.TRANSACTION_VERSION): MosaicDefinitionTransactionV1,
@@ -5711,8 +3364,10 @@ class TransactionFactory:
 class NonVerifiableTransactionFactory:
 	@classmethod
 	def deserialize(cls, payload: bytes) -> NonVerifiableTransaction:
+		parent = NonVerifiableTransaction()
 		buffer = bytes(payload)
-		parent = NonVerifiableTransaction.deserialize(buffer)
+		NonVerifiableTransaction._deserialize(buffer, parent)  # pylint: disable=protected-access
+
 		mapping = {
 			(NonVerifiableAccountKeyLinkTransactionV1.TRANSACTION_TYPE, NonVerifiableAccountKeyLinkTransactionV1.TRANSACTION_VERSION): NonVerifiableAccountKeyLinkTransactionV1,
 			(NonVerifiableMosaicDefinitionTransactionV1.TRANSACTION_TYPE, NonVerifiableMosaicDefinitionTransactionV1.TRANSACTION_VERSION): NonVerifiableMosaicDefinitionTransactionV1,

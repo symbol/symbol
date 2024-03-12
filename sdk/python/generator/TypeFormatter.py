@@ -20,7 +20,7 @@ class ClassFormatter(ABC):
 
 		annotations = '\n'.join(method_descriptor.annotations + [''])
 
-		is_void = annotations.endswith('setter\n') or method_descriptor.method_name == '__init__'
+		is_void = annotations.endswith('setter\n') or method_descriptor.method_name == '__init__' or not method_descriptor.result
 		method_result = '' if is_void else f' -> {method_descriptor.result}'
 		body = indent(method_descriptor.body)
 		return f'{annotations}def {method_descriptor.method_name}({arguments}){method_result}:\n{body}'
@@ -90,11 +90,18 @@ class TypeFormatter(ClassFormatter):
 		return self.generate_method(method_descriptor)
 
 	def generate_deserializer(self):
-		# 'deserialize'
 		method_descriptor = self.provider.get_deserialize_descriptor()
-		method_descriptor.method_name = 'deserialize'
-		method_descriptor.arguments = ['payload: bytes | bytearray | memoryview']
-		method_descriptor.result = self.provider.typename
+
+		prefix = '_' if self.provider.is_type_abstract else ''
+		method_descriptor.method_name = f'{prefix}deserialize'
+
+		if self.provider.is_type_abstract:
+			method_descriptor.arguments = ['buffer: memoryview', 'instance']
+			method_descriptor.result = '(int, int)'
+		else:
+			method_descriptor.arguments = ['payload: bytes | bytearray | memoryview']
+			method_descriptor.result = self.provider.typename
+
 		method_descriptor.annotations = ['@classmethod']
 		return self.generate_method(method_descriptor)
 
@@ -102,6 +109,15 @@ class TypeFormatter(ClassFormatter):
 		method_descriptor = self.provider.get_serialize_descriptor()
 		method_descriptor.method_name = 'serialize'
 		method_descriptor.result = 'bytes'
+		return self.generate_method(method_descriptor)
+
+	def generate_serializer_protected(self):
+		method_descriptor = self.provider.get_serialize_protected_descriptor()
+		if not method_descriptor:
+			return None
+
+		method_descriptor.method_name = '_serialize'
+		method_descriptor.arguments = ['buffer: memoryview']
 		return self.generate_method(method_descriptor)
 
 	def generate_size(self):
@@ -146,6 +162,7 @@ class TypeFormatter(ClassFormatter):
 
 		methods.append(self.generate_deserializer())
 		methods.append(self.generate_serializer())
+		_append_if_not_none(methods, self.generate_serializer_protected())
 
 		_append_if_not_none(methods, self.generate_representation())
 

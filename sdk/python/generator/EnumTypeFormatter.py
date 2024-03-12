@@ -35,7 +35,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body)
 
 	def get_serialize_descriptor(self):
-		body = 'buffer = bytes()\n'
+		body = 'buffer = bytearray()\n'
 		body += f'buffer += {self.int_printer.store("self.value")}\n'
 		body += 'return buffer'
 		return MethodDescriptor(body=body)
