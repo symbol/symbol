@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.23)
 
 message("--- locating mongo dependencies ---")
 find_package(MONGOCXX 3.9.0 EXACT REQUIRED)
