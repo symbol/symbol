@@ -4,6 +4,12 @@ import { Address, Network, NetworkTimestamp } from './Network.js';
 import SymbolTransactionFactory from './TransactionFactory.js';
 import VotingKeysGenerator from './VotingKeysGenerator.js';
 import {
+	TransferTransactionV1Descriptor,
+	TransferTransactionV1Descriptor2,
+	UnresolvedMosaicDescriptor,
+	UnresolvedMosaicDescriptor2
+} from './descriptors.js';
+import {
 	generateMosaicAliasId,
 	generateMosaicId,
 	generateNamespaceId,
@@ -95,7 +101,30 @@ export {
 	/**
 	 * Raw models generated from catbuffer schemas.
 	 */
-	models
+	models,
 
+	/**
+	 * Type safe descriptor for building unresolved mosaic.
+	 * @type {typeof UnresolvedMosaicDescriptor}
+	 */
+	UnresolvedMosaicDescriptor,
+
+	/**
+	 * Type safe descriptor for building transaction of transfer transaction v1.
+	 * @type {typeof TransferTransactionV1Descriptor}
+	 */
+	TransferTransactionV1Descriptor,
+
+	/**
+	 * Type safe descriptor for building unresolved mosaic.
+	 * @type {typeof UnresolvedMosaicDescriptor2}
+	 */
+	UnresolvedMosaicDescriptor2,
+
+	/**
+	 * Type safe descriptor for building transaction of transfer transaction v1.
+	 * @type {typeof TransferTransactionV1Descriptor2}
+	 */
+	TransferTransactionV1Descriptor2
 	// endregion
 };
