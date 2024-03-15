@@ -105,6 +105,13 @@ export default class SymbolFacade {
 	}
 
 	/**
+	 * Gets class type.
+	 */
+	get static() { // eslint-disable-line class-methods-use-this
+		return SymbolFacade;
+	}
+
+	/**
 	 * Hashes a Symbol transaction.
 	 * @param {sc.Transaction} transaction Transaction object.
 	 * @returns {Hash256} Transaction hash.

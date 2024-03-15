@@ -27,7 +27,7 @@ import { KeyPair, SymbolFacade, models } from '../src/symbol/index.js';
 			const aggregateTransaction = this.createAggregateTransaction();
 
 			const signature = this.facade.signTransaction(this.multisigkeyPair, aggregateTransaction);
-			this.facade.transactionFactory.constructor.attachSignature(aggregateTransaction, signature);
+			this.facade.transactionFactory.static.attachSignature(aggregateTransaction, signature);
 
 			console.log(`Hash: ${this.facade.hashTransaction(aggregateTransaction)}`);
 
@@ -49,23 +49,26 @@ import { KeyPair, SymbolFacade, models } from '../src/symbol/index.js';
 				})
 			];
 
-			return this.facade.transactionFactory.create({
+			const aggregateTransaction = this.facade.transactionFactory.create({
 				type: 'aggregate_complete_transaction_v2',
 				signerPublicKey: this.multisigkeyPair.publicKey,
 				fee: 625n,
 				deadline: 12345n,
-				transactionsHash: this.facade.constructor.hashEmbeddedTransactions(embeddedTransactions).bytes,
+				transactionsHash: this.facade.static.hashEmbeddedTransactions(embeddedTransactions).bytes,
 				transactions: embeddedTransactions
 			});
+
+			// aggregateTransaction as models.AggregateCompleteTransactionV2
+			return (/** @type {models.AggregateCompleteTransactionV2} */ (/** @type {any} */ aggregateTransaction));
 		}
 
 		addCosignatures(aggregateTransaction) {
 			const transactionHash = this.facade.hashTransaction(aggregateTransaction).bytes;
 			aggregateTransaction.cosignatures = this.cosignatorykeyPairs.map(keyPair => {
 				const cosignature = new models.Cosignature();
-				cosignature.version = 0;
-				cosignature.signerPublicKey = keyPair.publicKey;
-				cosignature.signature = keyPair.sign(transactionHash);
+				cosignature.version = 0n;
+				cosignature.signerPublicKey = new models.PublicKey(keyPair.publicKey.bytes);
+				cosignature.signature = new models.Signature(keyPair.sign(transactionHash).bytes);
 				return cosignature;
 			});
 		}

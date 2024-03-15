@@ -38,6 +38,13 @@ export default class TransactionFactory {
 	}
 
 	/**
+	 * Gets class type.
+	 */
+	get static() { // eslint-disable-line class-methods-use-this
+		return TransactionFactory;
+	}
+
+	/**
 	 * Gets rule names with registered hints.
 	 */
 	get ruleNames() {

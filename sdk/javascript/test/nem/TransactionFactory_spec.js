@@ -32,7 +32,15 @@ describe('transaction factory (NEM)', () => {
 
 	runBasicTransactionFactoryTests(testDescriptor);
 
-	// region rules
+	// region constants + rules
+
+	it('has correct static accessor', () => {
+		// Arrange:
+		const factory = new TransactionFactory(Network.TESTNET);
+
+		// Assert:
+		expect(TransactionFactory).to.deep.equal(factory.static);
+	});
 
 	it('has rules with expected hints', () => {
 		// Act:

@@ -18,7 +18,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 			this.commonFields = commonFields;
 
 			const privateKey = new PrivateKey('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF');
-			this.keyPair = new this.facade.constructor.KeyPair(privateKey);
+			this.keyPair = new this.facade.static.KeyPair(privateKey);
 		}
 
 		processTransactionDescriptors(transactionDescriptors) {
@@ -38,7 +38,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 
 		signAndPrint(transaction) {
 			const signature = this.facade.signTransaction(this.keyPair, transaction);
-			this.facade.transactionFactory.constructor.attachSignature(transaction, signature);
+			this.facade.transactionFactory.static.attachSignature(transaction, signature);
 
 			console.log(`Hash: ${this.facade.hashTransaction(transaction)}`);
 			console.log(transaction.toString());
@@ -60,7 +60,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 			testsPending += 1;
 
 			const filepath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'descriptors', `${factoryName}.js`);
-			import(pathToFileURL(filepath)).then(module => {
+			import(pathToFileURL(filepath).toString()).then(module => {
 				const transactionDescriptors = module.default();
 				sample.processTransactionDescriptors(transactionDescriptors);
 				totalDescriptorsCount += transactionDescriptors.length;
@@ -87,7 +87,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 			choices: ['nem', 'symbol'],
 			require: true
 		})
-		.argv;
+		.parseSync();
 
 	if ('nem' === args.blockchain) {
 		runAllTests(nemTransactionSample, [

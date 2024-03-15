@@ -16,9 +16,9 @@ console.log('created NEM transaction:');
 console.log(transaction.toString());
 
 const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
-const signature = facade.signTransaction(new facade.constructor.KeyPair(privateKey), transaction);
+const signature = facade.signTransaction(new facade.static.KeyPair(privateKey), transaction);
 
-const jsonPayload = facade.transactionFactory.constructor.attachSignature(transaction, signature);
+const jsonPayload = facade.transactionFactory.static.attachSignature(transaction, signature);
 
 console.log('prepared NEM JSON payload:');
 console.log(jsonPayload);

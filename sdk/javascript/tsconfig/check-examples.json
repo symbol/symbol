@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "nodenext",
         "target": "es2020",
         "lib": ["es2020"],
 
@@ -12,12 +12,10 @@
         "forceConsistentCasingInFileNames": true,
 
         "allowJs": true,
-        "declaration": true,
-        "emitDeclarationOnly": true,
-        "declarationDir": "ts",
+        "noEmit": true,
 
         "checkJs": true,
         "esModuleInterop": true
     },
-     "include": ["src/**/*.js", "test/**/*.js", "vectors/**/*.js"]
+     "include": ["../examples/**/*.js"]
 }

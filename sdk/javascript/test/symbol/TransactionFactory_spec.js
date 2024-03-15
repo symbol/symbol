@@ -17,7 +17,15 @@ describe('transaction factory (Symbol)', () => {
 		expect(transaction.network).to.deep.equal(sc.NetworkType.TESTNET);
 	};
 
-	// region rules
+	// region constants + rules
+
+	it('has correct static accessor', () => {
+		// Arrange:
+		const factory = new TransactionFactory(Network.TESTNET);
+
+		// Assert:
+		expect(TransactionFactory).to.deep.equal(factory.static);
+	});
 
 	it('has rules with expected hints', () => {
 		// Act:

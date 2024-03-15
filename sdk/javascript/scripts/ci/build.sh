@@ -15,5 +15,6 @@ cd ..
 npm run bundle
 
 # build TS bindings
-npx tsc -p ./tsconfig-generate.json
-npx tsc
+npx tsc -p ./tsconfig/build-bindings.json
+npx tsc -p ./tsconfig/check-bindings.json
+npx tsc -p ./tsconfig/check-examples.json

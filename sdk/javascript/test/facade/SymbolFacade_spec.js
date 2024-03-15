@@ -105,6 +105,14 @@ describe('Symbol Facade', () => {
 		expect(SymbolFacade.BIP32_CURVE_NAME).to.equal('ed25519');
 	});
 
+	it('has correct static accessor', () => {
+		// Arrange:
+		const facade = new SymbolFacade('testnet');
+
+		// Assert:
+		expect(SymbolFacade).to.deep.equal(facade.static);
+	});
+
 	it('has correct KeyPair', () => {
 		// Arrange:
 		const privateKey = new PrivateKey('E88283CE35FE74C89FFCB2D8BFA0A2CF6108BDC0D07606DEE34D161C30AC2F1E');
@@ -180,7 +188,7 @@ describe('Symbol Facade', () => {
 	// region hash transaction / sign transaction
 
 	const attachSignature = (facade, transaction, signature) => {
-		(/** @type typeof TransactionFactory */(facade.transactionFactory.constructor)).attachSignature(transaction, signature);
+		facade.transactionFactory.static.attachSignature(transaction, signature);
 	};
 
 	const assertCanHashTransaction = (transactionFactory, expectedHash) => {

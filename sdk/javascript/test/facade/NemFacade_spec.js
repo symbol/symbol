@@ -15,6 +15,14 @@ describe('NEM Facade', () => {
 		expect(NemFacade.BIP32_CURVE_NAME).to.equal('ed25519-keccak');
 	});
 
+	it('has correct static accessor', () => {
+		// Arrange:
+		const facade = new NemFacade('testnet');
+
+		// Assert:
+		expect(NemFacade).to.deep.equal(facade.static);
+	});
+
 	it('has correct KeyPair', () => {
 		// Arrange:
 		const privateKey = new PrivateKey('ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57'); // reversed

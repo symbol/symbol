@@ -74,6 +74,13 @@ export default class NemFacade {
 		this.transactionFactory = new TransactionFactory(this.network);
 	}
 
+	/**
+	 * Gets class type.
+	 */
+	get static() { // eslint-disable-line class-methods-use-this
+		return NemFacade;
+	}
+
 	// the following three functions are NOT static in order for NemFacade and SymbolFacade to conform to the same interface
 
 	/**

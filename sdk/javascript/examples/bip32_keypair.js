@@ -29,7 +29,7 @@ import { SymbolFacade } from '../src/symbol/index.js';
 
 	const facade = new SymbolFacade('testnet');
 
-	const bip = new Bip32(facade.BIP32_CURVE_NAME);
+	const bip = new Bip32(facade.static.BIP32_CURVE_NAME);
 	const rootNode = bip.fromMnemonic(
 		'cat swing flag economy stadium alone churn speed unique patch report train',
 		'correcthorsebatterystaple'
