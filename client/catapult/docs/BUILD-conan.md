@@ -15,7 +15,7 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 
   2. Install latest version of [Conan](https://conan.io/downloads.html).
 
-  3. Set the right C++ ABI for Conan:
+  3. Create a profile for Conan:
 
      ```sh
      conan profile detect --name default
@@ -29,7 +29,7 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 
   2. Install latest version of [Conan](https://conan.io/downloads.html).
 
-  3. Set the right config for Conan:
+  3. Create a profile for Conan:
 
    ```sh
   conan profile detect --name default
@@ -51,7 +51,7 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 
   3. Install latest version of [Conan](https://conan.io/downloads.html).
 
-  4. Set the right config for Conan:
+  4. Create a profile for Conan:
 
       ```sh
      conan profile detect --name default
@@ -73,7 +73,6 @@ cd symbol/client/catapult
 ```sh
 conan install . --build=missing -s build_type=Release
 cd build/Release
-
 ```
 
 ### Windows
@@ -105,7 +104,7 @@ cd build
 
   ```sh
   cmake --build . --target publish
-  msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 /m ALL_BUILD.vcxproj
+  msbuild /p:Configuration=Release /p:Platform=x64 /m ALL_BUILD.vcxproj
   ```
 
   After building successfully, the tools in ``_build\bin`` are ready to use. All runtime dependencies have been copied into the same folder so Windows will find them.

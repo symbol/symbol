@@ -61,7 +61,6 @@ class CatapultDependencyUpdater:
 		query = f'{name}/*' if not self._is_remote_nemtech(name) else f'{name}/*@{NEMTECH_REMOTE_NAME}/stable'
 		remote_name = NEMTECH_REMOTE_NAME if self._is_remote_nemtech(name) else 'conancenter'
 		output, _ = dispatch_subprocess(['conan', 'search', query, '--remote', remote_name])
-		print(f'search result for {name}:\n{output}')
 		version_list = [line.split('/')[1].split('@')[0] for line in output.splitlines() if '/' in line]
 		filtered_versions = [version for version in version_list if version[0].isdigit()]
 		return filtered_versions[-1]

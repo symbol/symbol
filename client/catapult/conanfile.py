@@ -67,7 +67,7 @@ class CatapultConan(ConanFile):
 
 		# release dependencies - other
 		self.options["mongo-cxx-driver*"].shared = True
-		self.options["rocksdb*"].shared = False if self.settings.os == "Windows" else True
+		self.options["rocksdb*"].shared = "Windows" != self.settings.os
 		self.options["zeromq*"].shared = True
 
 		# test dependencies
@@ -94,10 +94,10 @@ class CatapultConan(ConanFile):
 				# on macos, copy shared libraries into deps directory
 				copy(self, "*.dylib", dep.cpp_info.libdirs[0], dependency_path)
 
-		tc = CMakeToolchain(self)
+		toolchain = CMakeToolchain(self)
 		if "Macos" == self.settings.os:
-			tc.blocks["rpath"].skip_rpath = False
+			toolchain.blocks["rpath"].skip_rpath = False
 
-		tc.generate()
+		toolchain.generate()
 		deps = CMakeDeps(self)
 		deps.generate()
