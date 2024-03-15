@@ -1,10 +1,12 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy
 import os
 
+from conan import ConanFile
+from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy
+
+
 class CatapultConan(ConanFile):
-	settings = "os", "compiler", "build_type", "arch"
+	settings = "os", "compiler", "build_type", "arch"  # pylint: disable=invalid-name
 
 	def requirements(self):
 		self.requires("boost/1.83.0")
@@ -14,6 +16,7 @@ class CatapultConan(ConanFile):
 		self.requires("rocksdb/8.9.1@nemtech/stable")
 
 	def build_requirements(self):
+		# pylint: disable=not-callable
 		self.tool_requires("cmake/3.23.5")
 		self.test_requires("gtest/1.14.0")
 		self.test_requires("benchmark/1.8.3@nemtech/stable")
@@ -67,7 +70,7 @@ class CatapultConan(ConanFile):
 
 		# release dependencies - other
 		self.options["mongo-cxx-driver*"].shared = True
-		self.options["rocksdb*"].shared = "Windows" != self.settings.os
+		self.options["rocksdb*"].shared = "Windows" != self.settings.os  # pylint: disable=no-member
 		self.options["zeromq*"].shared = True
 
 		# test dependencies
@@ -83,19 +86,19 @@ class CatapultConan(ConanFile):
 			if not dep.cpp_info.libdirs:
 				continue
 
-			if "Windows" == self.settings.os:
+			if "Windows" == self.settings.os:  # pylint: disable=no-member
 				# on windows, copy shared libraries into deps directory
 				copy(self, "*.dll", dep.cpp_info.bindirs[0], dependency_path)
 				copy(self, "*.dll", dep.cpp_info.libdirs[0], dependency_path)
-			elif "Linux" == self.settings.os:
+			elif "Linux" == self.settings.os:  # pylint: disable=no-member
 				# on linux,  copy shared libraries into deps directory
 				copy(self, "*.so*", dep.cpp_info.libdirs[0], dependency_path)
-			elif "Macos" == self.settings.os:
+			elif "Macos" == self.settings.os:  # pylint: disable=no-member
 				# on macos, copy shared libraries into deps directory
 				copy(self, "*.dylib", dep.cpp_info.libdirs[0], dependency_path)
 
 		toolchain = CMakeToolchain(self)
-		if "Macos" == self.settings.os:
+		if "Macos" == self.settings.os:  # pylint: disable=no-member
 			toolchain.blocks["rpath"].skip_rpath = False
 
 		toolchain.generate()
