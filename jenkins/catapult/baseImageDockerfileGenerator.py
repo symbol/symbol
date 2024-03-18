@@ -410,7 +410,7 @@ class LinuxSystemGenerator:
 
 		# create a virtual python environment
 		print_lines([
-			f'# add user {self.system.user()(used by jenkins)} if it does not exist',
+			f'# add user {self.system.user()} (used by jenkins) if it does not exist',
 			f'RUN id -u "{self.system.user()}" || useradd --uid 1000 -ms /bin/bash {self.system.user()}',
 			f'USER {self.system.user()}',
 			f'WORKDIR /home/{self.system.user()}',

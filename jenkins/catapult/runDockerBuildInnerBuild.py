@@ -52,16 +52,16 @@ class BuildEnvironment:
 
 	def run_conan_install(self, source_path, settings, build_path, build_type):
 		# assuming working directory == build directory
-		setting_override = []
+		setting_overrides = []
 		for key, value in settings.items():
-			setting_override.extend(['-s', f'compiler.{key}={value}'])
+			setting_overrides += ['-s', f'compiler.{key}={value}']
 		self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
 		self.dispatch_subprocess([
 			'conan', 'install', source_path,
 			'--build', 'missing',
 			'--output-folder', build_path,
 			'-s', f'build_type={build_type}',
-		] + setting_override)
+		] + setting_overrides)
 
 
 class BuildManager(BasicBuildManager):

@@ -17,7 +17,6 @@ class CatapultConan(ConanFile):
 
 	def build_requirements(self):
 		# pylint: disable=not-callable
-		self.tool_requires("cmake/3.23.5")
 		self.test_requires("gtest/1.14.0")
 		self.test_requires("benchmark/1.8.3@nemtech/stable")
 
