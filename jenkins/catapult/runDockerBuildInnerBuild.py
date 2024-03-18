@@ -16,14 +16,13 @@ class BuildEnvironment:
 		self.dispatch_subprocess = process_manager.dispatch_subprocess
 		self.environment_manager = environment_manager
 
-	def prepare(self, enable_code_coverage, out_dir):
-		self._prepare_directory(enable_code_coverage, out_dir)
+	def prepare(self, build_path):
+		self._prepare_directory(build_path)
 		self._prepare_environment_variables()
 		self.dispatch_subprocess(['ccache', '-M', '30G'])
 		self.dispatch_subprocess(['ccache', '-s'])
 
-	def _prepare_directory(self, enable_code_coverage, out_dir):
-		build_path = f'{out_dir}/_build' if enable_code_coverage else '/tmp/_build'
+	def _prepare_directory(self, build_path):
 		self.environment_manager.mkdirs(build_path)
 		self.environment_manager.chdir(build_path)
 
@@ -43,30 +42,35 @@ class BuildEnvironment:
 				self.environment_manager.set_env_var('BOOST_ROOT', '/mybuild')
 				self.environment_manager.set_env_var('GTEST_ROOT', '/usr/local')
 
-	def prepare_conan(self, settings):
+	def prepare_conan(self):
 		# create default profile if it does not exist
-		if self.dispatch_subprocess(['conan', 'profile', 'get', 'settings.compiler', 'default'], show_output=False, handle_error=False):
-			self.dispatch_subprocess(['conan', 'profile', 'new', 'default', '--detect'])
+		if self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'], show_output=False, handle_error=False):
+			self.dispatch_subprocess(['conan', 'profile', 'detect', '--name', 'default'])
 
-		self.dispatch_subprocess(['conan', 'profile', 'show', 'default'])
-		self.dispatch_subprocess(['conan', 'remote', 'add', '--force', 'nemtech', CONAN_NEMTECH_REMOTE])
-		self.dispatch_subprocess(['conan', 'config', 'set', 'general.revisions_enabled=True'])
-
-		for key, value in settings.items():
-			self.dispatch_subprocess(['conan', 'profile', 'update', f'settings.compiler.{key}={value}', 'default'])
-
-	def run_conan_install(self, source_path):
-		# assuming working directory == build directory
 		self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
-		self.dispatch_subprocess(['conan', 'install', source_path, '--build', 'missing'])
+		self.dispatch_subprocess(['conan', 'remote', 'add', '--force', 'nemtech', CONAN_NEMTECH_REMOTE])
+
+	def run_conan_install(self, source_path, settings, build_path, build_type):
+		# assuming working directory == build directory
+		setting_override = []
+		for key, value in settings.items():
+			setting_override = ['-s', f'compiler.{key}={value}']
+		self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
+		self.dispatch_subprocess([
+			'conan', 'install', source_path,
+			'--build', 'missing',
+			'--output-folder', build_path,
+			'-s', f'build_type={build_type}',
+		] + setting_override)
 
 
 class BuildManager(BasicBuildManager):
-	def __init__(self, args, process_manager, environment_manager):
+	def __init__(self, args, process_manager, environment_manager, build_type):
 		super().__init__(args.compiler_configuration, args.build_configuration)
 		self.dispatch_subprocess = process_manager.dispatch_subprocess
 		self.list_dir = process_manager.list_dir
 		self.environment_manager = environment_manager
+		self.build_type = build_type
 
 	def cmake_settings(self, output_path):
 		settings = [
@@ -112,14 +116,16 @@ class BuildManager(BasicBuildManager):
 
 	def run_cmake(self, source_path, output_path):
 		cmake_settings = self.cmake_settings(output_path)
+		conan_preset_name = 'conan-default' if self.environment_manager.is_windows_platform() else f'conan-{self.build_type.lower()}'
+		cmake_preset = [f'--preset={conan_preset_name}']
 		if self.environment_manager.is_windows_platform():
 			self.dispatch_subprocess(
-				['cmake'] + cmake_settings + [
+				['cmake'] + cmake_preset + cmake_settings + [
 					'-G', 'Visual Studio 16 2019' if 16 == self.compiler.version else 'Visual Studio 17 2022', '-A', 'x64', source_path
 				]
 			)
 		else:
-			self.dispatch_subprocess(['cmake'] + cmake_settings + ['-G', 'Ninja', source_path])
+			self.dispatch_subprocess(['cmake'] + cmake_preset + cmake_settings + ['-G', 'Ninja', source_path])
 
 	def build(self):
 		if self.environment_manager.is_windows_platform():
@@ -128,7 +134,7 @@ class BuildManager(BasicBuildManager):
 			self.dispatch_subprocess(['cmake', '--build', '.', '--target', 'publish'])
 			self.dispatch_subprocess([
 				'msbuild',
-				'/p:Configuration=RelWithDebInfo',
+				f'/p:Configuration={self.build_type}',
 				'/p:Platform=x64',
 				'/m',
 				'/p:UseMultiToolTask=true',
@@ -149,7 +155,6 @@ class BuildManager(BasicBuildManager):
 
 	def copy_dependencies(self, destination):
 		if self.use_conan:
-			self.environment_manager.copy_tree_with_symlinks('./deps', destination)
 			return
 
 		self.environment_manager.mkdirs(destination)
@@ -218,23 +223,26 @@ def main():
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
 	parser.add_argument('--out-dir', help='output path to copy catapult binaries', required=True)
+	parser.add_argument('--build-type', help='output path to copy catapult binaries', default='RelWithDebInfo')
 	args = parser.parse_args()
 
 	process_manager = ProcessManager(args.dry_run)
 	environment_manager = EnvironmentManager(args.dry_run)
 
-	builder = BuildManager(args, process_manager, environment_manager)
+	builder = BuildManager(args, process_manager, environment_manager, args.build_type)
 	conan_options = {'version': builder.compiler.version, 'libcxx': builder.stl.lib}
 	if builder.is_msvc:
-		conan_options = {'version': builder.compiler.version}
+		conan_options = {'cppstd': 17}
 
 	env = BuildEnvironment(builder.use_conan, process_manager, environment_manager)
-	env.prepare(builder.enable_code_coverage, args.source_path)
+	build_path = f'{args.source_path}/_build' if builder.enable_code_coverage else '/tmp/_build'
+	env.prepare(build_path)
 
 	if builder.use_conan:
-		env.prepare_conan(conan_options)
-		env.run_conan_install(args.source_path)
+		env.prepare_conan()
+		env.run_conan_install(args.source_path, conan_options, build_path, args.build_type)
 
+	environment_manager.chdir(f'{build_path}/build' if environment_manager.is_windows_platform() else f'{build_path}/build/{args.build_type}')
 	builder.run_cmake(args.source_path, args.out_dir)
 	builder.build()
 	builder.copy_files(args.out_dir)

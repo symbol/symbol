@@ -14,6 +14,10 @@ class CatapultConan(ConanFile):
 		self.requires("cppzmq/4.10.0@nemtech/stable")
 		self.requires("mongo-cxx-driver/3.9.0@nemtech/stable")
 		self.requires("rocksdb/8.9.1@nemtech/stable")
+		# conan 2 doesn't support transitive libs to be copied indirectly
+		# make these direct requirements to ensure they are copied
+		self.requires("zeromq/4.3.5@nemtech/stable")
+		self.requires("mongo-c-driver/1.25.4@nemtech/stable")
 
 	def build_requirements(self):
 		# pylint: disable=not-callable
