@@ -9,15 +9,11 @@ class CatapultConan(ConanFile):
 	settings = "os", "compiler", "build_type", "arch"  # pylint: disable=invalid-name
 
 	def requirements(self):
-		self.requires("boost/1.83.0")
-		self.requires("openssl/3.2.1")
-		self.requires("cppzmq/4.10.0@nemtech/stable")
-		self.requires("mongo-cxx-driver/3.9.0@nemtech/stable")
-		self.requires("rocksdb/8.9.1@nemtech/stable")
-		# conan 2 doesn't support transitive libs to be copied indirectly
-		# make these direct requirements to ensure they are copied
-		self.requires("zeromq/4.3.5@nemtech/stable")
-		self.requires("mongo-c-driver/1.25.4@nemtech/stable")
+		self.requires("boost/1.83.0", run=True)
+		self.requires("openssl/3.2.1", run=True)
+		self.requires("cppzmq/4.10.0@nemtech/stable", run=True)
+		self.requires("mongo-cxx-driver/3.9.0@nemtech/stable", run=True)
+		self.requires("rocksdb/8.9.1@nemtech/stable", run=True)
 
 	def build_requirements(self):
 		# pylint: disable=not-callable
@@ -85,21 +81,19 @@ class CatapultConan(ConanFile):
 
 	def generate(self):
 		dependency_path = os.path.join(self.build_folder, "deps")
-		for dep in self.dependencies.direct_host.values():
-			self.output.info(f"Copying shared libraries into deps directory: {dep}")
-			if not dep.cpp_info.libdirs:
-				continue
-
-			if "Windows" == self.settings.os:  # pylint: disable=no-member
-				# on windows, copy shared libraries into deps directory
-				copy(self, "*.dll", dep.cpp_info.bindirs[0], dependency_path)
-				copy(self, "*.dll", dep.cpp_info.libdirs[0], dependency_path)
-			elif "Linux" == self.settings.os:  # pylint: disable=no-member
-				# on linux,  copy shared libraries into deps directory
-				copy(self, "*.so*", dep.cpp_info.libdirs[0], dependency_path)
-			elif "Macos" == self.settings.os:  # pylint: disable=no-member
-				# on macos, copy shared libraries into deps directory
-				copy(self, "*.dylib", dep.cpp_info.libdirs[0], dependency_path)
+		for require, dep in self.dependencies.items():
+			if dep.cpp_info.libdirs and require.libs and require.run:
+				self.output.info(f"Copying shared libraries into deps directory: {dep}")
+				if "Windows" == self.settings.os:  # pylint: disable=no-member
+					# on windows, copy shared libraries into deps directory
+					copy(self, "*.dll", dep.cpp_info.bindirs[0], dependency_path)
+					copy(self, "*.dll", dep.cpp_info.libdirs[0], dependency_path)
+				elif "Linux" == self.settings.os:  # pylint: disable=no-member
+					# on linux,  copy shared libraries into deps directory
+					copy(self, "*.so*", dep.cpp_info.libdirs[0], dependency_path)
+				elif "Macos" == self.settings.os:  # pylint: disable=no-member
+					# on macos, copy shared libraries into deps directory
+					copy(self, "*.dylib", dep.cpp_info.libdirs[0], dependency_path)
 
 		toolchain = CMakeToolchain(self)
 		if "Macos" == self.settings.os:  # pylint: disable=no-member

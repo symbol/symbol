@@ -54,7 +54,7 @@ class BuildEnvironment:
 		# assuming working directory == build directory
 		setting_override = []
 		for key, value in settings.items():
-			setting_override = ['-s', f'compiler.{key}={value}']
+			setting_override.extend(['-s', f'compiler.{key}={value}'])
 		self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
 		self.dispatch_subprocess([
 			'conan', 'install', source_path,
