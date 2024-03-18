@@ -223,7 +223,7 @@ def main():
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
 	parser.add_argument('--out-dir', help='output path to copy catapult binaries', required=True)
-	parser.add_argument('--build-type', help='output path to copy catapult binaries', default='RelWithDebInfo')
+	parser.add_argument('--build-type', help='build type for the build', default='RelWithDebInfo')
 	args = parser.parse_args()
 
 	process_manager = ProcessManager(args.dry_run)
