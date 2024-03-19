@@ -114,10 +114,8 @@ class BuildManager(BasicBuildManager):
 
 		return [f'-D{key}={value}' for key, value in settings]
 
-	def run_cmake(self, source_path, output_path):
+	def run_cmake(self, source_path, output_path, cmake_preset):
 		cmake_settings = self.cmake_settings(output_path)
-		conan_preset_name = 'conan-default' if self.environment_manager.is_windows_platform() else f'conan-{self.build_type.lower()}'
-		cmake_preset = [f'--preset={conan_preset_name}']
 		if self.environment_manager.is_windows_platform():
 			self.dispatch_subprocess(
 				['cmake'] + cmake_preset + cmake_settings + [
@@ -238,12 +236,15 @@ def main():
 	build_path = f'{args.source_path}/_build' if builder.enable_code_coverage else '/tmp/_build'
 	env.prepare(build_path)
 
+	cmake_preset = []
 	if builder.use_conan:
 		env.prepare_conan()
 		env.run_conan_install(args.source_path, conan_options, build_path, args.build_type)
+		environment_manager.chdir(f'{build_path}/build' if environment_manager.is_windows_platform() else f'{build_path}/build/{args.build_type}')
+		conan_preset_name = 'conan-default' if environment_manager.is_windows_platform() else f'conan-{args.build_type.lower()}'
+		cmake_preset = [f'--preset={conan_preset_name}']
 
-	environment_manager.chdir(f'{build_path}/build' if environment_manager.is_windows_platform() else f'{build_path}/build/{args.build_type}')
-	builder.run_cmake(args.source_path, args.out_dir)
+	builder.run_cmake(args.source_path, args.out_dir, cmake_preset)
 	builder.build()
 	builder.copy_files(args.out_dir)
 
