@@ -90,20 +90,6 @@ rules:
   - object: true
     array: false
 
-  valid-jsdoc:
-  - error
-  - requireReturn: false
-    prefer:
-      arg: param
-      argument: param
-      class: constructor
-      return: returns
-    preferType:
-      Boolean: boolean
-      Number: number
-      Object: object
-      String: string
-
   import/order:
     - error
     - newlines-between: never

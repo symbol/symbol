@@ -93,19 +93,20 @@ export default class SymbolFacade {
 	constructor(network) {
 		/**
 		 * Underlying network.
-		 * @type SymbolNetwork
+		 * @type {SymbolNetwork}
 		 */
 		this.network = 'string' === typeof network ? NetworkLocator.findByName(SymbolNetwork.NETWORKS, network) : network;
 
 		/**
 		 * Underlying transaction factory.
-		 * @type TransactionFactory
+		 * @type {TransactionFactory}
 		 */
 		this.transactionFactory = new TransactionFactory(this.network);
 	}
 
 	/**
 	 * Gets class type.
+	 * @returns {typeof SymbolFacade} Class type.
 	 */
 	get static() { // eslint-disable-line class-methods-use-this
 		return SymbolFacade;
@@ -197,7 +198,6 @@ export default class SymbolFacade {
 
 	/**
 	 * Creates a network compatible BIP32 path for the specified account.
-	 *
 	 * @param {number} accountId Id of the account for which to generate a BIP32 path.
 	 * @returns {Array<number>} BIP32 path for the specified account.
 	 */

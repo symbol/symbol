@@ -12,7 +12,7 @@ export default class VotingKeysGenerator {
 	/**
 	 * Creates a generator around a voting root key pair.
 	 * @param {KeyPair} rootKeyPair Voting root key pair.
-	 * @param {function} privateKeyGenerator Private key generator.
+	 * @param {Function} privateKeyGenerator Private key generator.
 	 */
 	constructor(rootKeyPair, privateKeyGenerator = PrivateKey.random) {
 		/**

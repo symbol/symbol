@@ -293,7 +293,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`FF${ENCODED_EVEN_PATH}3A50C5BF83CBA3370CF4E4AC0FC5A6FFB0E29501F66DA12DE25FFB13A419BA77`);
 
 			// Act:
-			const nodes = /** @type Array<LeafNode> */ (deserializePatriciaTreeNodes(buffer));
+			const nodes = /** @type {Array<LeafNode>} */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -309,7 +309,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`FF${ENCODED_ODD_PATH}F48F12376B7C72F97E1533DE6DDB6F957DAB4F9031F959261AA2C5B655C864AA`);
 
 			// Act:
-			const nodes = /** @type Array<LeafNode> */ (deserializePatriciaTreeNodes(buffer));
+			const nodes = /** @type {Array<LeafNode>} */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -346,7 +346,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`0000${ENCODED_BRANCH_LINKS}`);
 
 			// Act:
-			const nodes = /** @type Array<BranchNode> */ (deserializePatriciaTreeNodes(buffer));
+			const nodes = /** @type {Array<BranchNode>} */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -362,7 +362,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`00${ENCODED_EVEN_PATH}${ENCODED_BRANCH_LINKS}`);
 
 			// Act:
-			const nodes = /** @type Array<BranchNode> */ (deserializePatriciaTreeNodes(buffer));
+			const nodes = /** @type {Array<BranchNode>} */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);
@@ -378,7 +378,7 @@ describe('merkle', () => {
 			const buffer = hexToUint8(`00${ENCODED_ODD_PATH}${ENCODED_BRANCH_LINKS}`);
 
 			// Act:
-			const nodes = /** @type Array<BranchNode> */ (deserializePatriciaTreeNodes(buffer));
+			const nodes = /** @type {Array<BranchNode>} */ (deserializePatriciaTreeNodes(buffer));
 
 			// Assert:
 			expect(nodes.length).to.equal(1);

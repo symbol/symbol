@@ -16,43 +16,43 @@ export {
 
 	/**
 	 * Factory for creating NEM transactions.
-	 * @type {typeof NemTransactionFactory}
+	 * @type {typeof TransactionFactory}
 	 */
 	TransactionFactory,
 
 	/**
 	 * Represents a NEM network timestamp with second resolution.
-	 * @type {typeof NemNetwork.NetworkTimestamp}
+	 * @type {typeof NetworkTimestamp}
 	 */
 	NetworkTimestamp,
 
 	/**
 	 * Represents a NEM address.
-	 * @type {typeof NemNetwork.Address}
+	 * @type {typeof Address}
 	 */
 	Address,
 
 	/**
 	 * Represents a NEM network.
-	 * @type {typeof NemNetwork.Network}
+	 * @type {typeof Network}
 	 */
 	Network,
 
 	/**
 	 * Encrypts and encodes messages between two parties.
-	 * @type {typeof NemMessageEncoder}
+	 * @type {typeof MessageEncoder}
 	 */
 	MessageEncoder,
 
 	/**
 	 * Encrypts and encodes messages between two parties.
-	 * @type {typeof NemKeyPair.KeyPair}
+	 * @type {typeof KeyPair}
 	 */
 	KeyPair,
 
 	/**
 	 * Encrypts and encodes messages between two parties.
-	 * @type {typeof NemKeyPair.Verifier}
+	 * @type {typeof Verifier}
 	 */
 	Verifier,
 

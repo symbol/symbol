@@ -36,37 +36,37 @@ export {
 
 	/**
 	 * Represents a Symbol network timestamp with second resolution.
-	 * @type {typeof SymbolNetwork.NetworkTimestamp}
+	 * @type {typeof NetworkTimestamp}
 	 */
 	NetworkTimestamp,
 
 	/**
 	 * Represents a Symbol address.
-	 * @type {typeof SymbolNetwork.Address}
+	 * @type {typeof Address}
 	 */
 	Address,
 
 	/**
 	 * Represents a Symbol network.
-	 * @type {typeof SymbolNetwork.Network}
+	 * @type {typeof Network}
 	 */
 	Network,
 
 	/**
 	 * Encrypts and encodes messages between two parties.
-	 * @type {typeof SymbolMessageEncoder}
+	 * @type {typeof MessageEncoder}
 	 */
 	MessageEncoder,
 
 	/**
 	 * Encrypts and encodes messages between two parties.
-	 * @type {typeof SymbolKeyPair.KeyPair}
+	 * @type {typeof KeyPair}
 	 */
 	KeyPair,
 
 	/**
 	 * Encrypts and encodes messages between two parties.
-	 * @type {typeof SymbolKeyPair.Verifier}
+	 * @type {typeof Verifier}
 	 */
 	Verifier,
 

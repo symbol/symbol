@@ -93,8 +93,8 @@ const size = (elements, alignment = 0, skipLastElementPadding = false) => {
 /**
  * Reads array of objects.
  * @param {Uint8Array} bufferInput Buffer input.
- * @param {{deserialize: function}} FactoryClass Factory used to deserialize objects.
- * @param {function|undefined} accessor Optional accessor used to check objects order.
+ * @param {{deserialize: Function}} FactoryClass Factory used to deserialize objects.
+ * @param {Function|undefined} accessor Optional accessor used to check objects order.
  * @returns {Array<object>} Array of deserialized objects.
  */
 const readArray = (bufferInput, FactoryClass, accessor = undefined) =>
@@ -105,9 +105,9 @@ const readArray = (bufferInput, FactoryClass, accessor = undefined) =>
 /**
  * Reads array of deterministic number of objects.
  * @param {Uint8Array} bufferInput Buffer input.
- * @param {{deserialize: function}} FactoryClass Factory used to deserialize objects.
+ * @param {{deserialize: Function}} FactoryClass Factory used to deserialize objects.
  * @param {number} count Number of object to deserialize.
- * @param {function|undefined} accessor Optional accessor used to check objects order.
+ * @param {Function|undefined} accessor Optional accessor used to check objects order.
  * @returns {Array<object>} Array of deserialized objects.
  */
 const readArrayCount = (bufferInput, FactoryClass, count, accessor = undefined) =>
@@ -116,7 +116,7 @@ const readArrayCount = (bufferInput, FactoryClass, count, accessor = undefined) 
 /**
  * Reads array of variable size objects.
  * @param {Uint8Array} bufferInput Buffer input.
- * @param {{deserialize: function}} FactoryClass Factory used to deserialize objects.
+ * @param {{deserialize: Function}} FactoryClass Factory used to deserialize objects.
  * @param {number} alignment Alignment used to make sure each object is at boundary.
  * @param {boolean} skipLastElementPadding \c true if last element is not aligned/padded.
  * @returns {Array<object>} Array of deserialized objects.
@@ -146,9 +146,9 @@ const readVariableSizeElements = (bufferInput, FactoryClass, alignment, skipLast
 
 /**
  * Writes array of objects.
- * @param {{write: function}} output Output sink.
+ * @param {{write: Function}} output Output sink.
  * @param {Array<object>} elements Serializable elements.
- * @param {function|undefined} accessor Optional accessor used to check objects order.
+ * @param {Function|undefined} accessor Optional accessor used to check objects order.
  */
 const writeArray = (output, elements, accessor = undefined) => {
 	writeArrayImpl(output, elements, elements.length, accessor);
@@ -156,10 +156,10 @@ const writeArray = (output, elements, accessor = undefined) => {
 
 /**
  * Writes array of deterministic number of objects.
- * @param {{write: function}} output Output sink.
+ * @param {{write: Function}} output Output sink.
  * @param {Array<object>} elements Serializable elements.
  * @param {number} count Number of objects to write.
- * @param {function|undefined} accessor Optional accessor used to check objects order.
+ * @param {Function|undefined} accessor Optional accessor used to check objects order.
  */
 const writeArrayCount = (output, elements, count, accessor = undefined) => {
 	writeArrayImpl(output, elements, count, accessor);
@@ -167,7 +167,7 @@ const writeArrayCount = (output, elements, count, accessor = undefined) => {
 
 /**
  * Writes array of variable size objects.
- * @param {{write: function}} output Output sink.
+ * @param {{write: Function}} output Output sink.
  * @param {Array<object>} elements Serializable elements.
  * @param {number} alignment Alignment used to make sure each object is at boundary.
  * @param {boolean} skipLastElementPadding \c true if last element should not be aligned/padded.

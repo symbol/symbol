@@ -41,7 +41,7 @@ const typeConverterFactory = (module, customTypeConverter, value) => {
 		return customTypeConverter(value);
 
 	if (value instanceof ByteArray) {
-		/** @type object */
+		/** @type {object} */
 		const ByteArrayClass = value.constructor;
 
 		if (ByteArrayClass.NAME in module)
@@ -63,14 +63,14 @@ const autoEncodeStrings = entity => {
 
 /**
  * Rule based transaction factory.
- * @note This class is not intended to be used directly.
+ * This class is not intended to be used directly.
  */
 export default class RuleBasedTransactionFactory {
 	/**
 	 * Creates a rule based transaction factory for use with catbuffer generated code.
 	 * @param {object} module Catbuffer generated module.
-	 * @param {function|undefined} typeConverter Type converter.
-	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
+	 * @param {Function|undefined} typeConverter Type converter.
+	 * @param {Map<string, Function>|undefined} typeRuleOverrides Type rule overrides.
 	 */
 	constructor(module, typeConverter = undefined, typeRuleOverrides = undefined) {
 		/**
@@ -93,7 +93,7 @@ export default class RuleBasedTransactionFactory {
 
 		/**
 		 * Map of rule names to transform functions.
-		 * @type Map<string, function>
+		 * @type {Map<string, Function>}
 		 */
 		this.rules = new Map();
 	}
@@ -207,7 +207,7 @@ export default class RuleBasedTransactionFactory {
 
 	/**
 	 * Creates an entity from a descriptor using a factory.
-	 * @param {function} factory Factory function.
+	 * @param {Function} factory Factory function.
 	 * @param {object} descriptor Entity descriptor.
 	 * @returns {object} Newly created entity.
 	 */
@@ -240,7 +240,7 @@ export default class RuleBasedTransactionFactory {
 /**
  * Constructable class type.
  * @class
- * @typedef {{new(...args: any[]): object}} Constructable
+ * @typedef {new(...args: any[]) => object} Constructable
  */
 
 // endregion

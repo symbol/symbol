@@ -17,27 +17,27 @@ export class Network {
 	 * @param {string} name Network name.
 	 * @param {number} identifier Network identifier byte.
 	 * @param {NetworkTimestampDatetimeConverter} datetimeConverter Network timestamp datetime converter associated with this network.
-	 * @param {function} addressHasher Gets the primary hasher to use in the public key to address conversion.
-	 * @param {function} createAddress Creates an encoded address from an address without checksum and checksum bytes.
+	 * @param {Function} addressHasher Gets the primary hasher to use in the public key to address conversion.
+	 * @param {Function} createAddress Creates an encoded address from an address without checksum and checksum bytes.
 	 * @param {AddressConstructable} AddressClass Address class associated with this network.
 	 * @param {Constructable} NetworkTimestampClass Network timestamp class associated with this network.
 	 */
 	constructor(name, identifier, datetimeConverter, addressHasher, createAddress, AddressClass, NetworkTimestampClass) {
 		/**
 		 * Network name.
-		 * @type string
+		 * @type {string}
 		 */
 		this.name = name;
 
 		/**
 		 * Network identifier byte.
-		 * @type number
+		 * @type {number}
 		 */
 		this.identifier = identifier;
 
 		/**
 		 * Network timestamp datetime converter associated with this network.
-		 * @type NetworkTimestampDatetimeConverter
+		 * @type {NetworkTimestampDatetimeConverter}
 		 */
 		this.datetimeConverter = datetimeConverter;
 
@@ -192,13 +192,20 @@ export class NetworkLocator {
 /**
  * Constructable class type.
  * @class
- * @typedef {{new(...args: any[]): object}} Constructable
+ * @typedef {new(...args: any[]) => object} Constructable
  */
 
 /**
- * Address class type.
+ * Object exposing an `ENCODED_SIZE` property.
  * @class
- * @typedef {{new(...args: any[]): object, ENCODED_SIZE: number}} AddressConstructable
+ * @typedef {object} EncodedSizeAccessor
+ * @property {number} ENCODED_SIZE Length of encoded address string.
+ */
+
+/**
+ * Address constructable class type.
+ * @class
+ * @typedef {EncodedSizeAccessor & Constructable} AddressConstructable
  */
 
 // endregion

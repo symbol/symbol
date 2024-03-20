@@ -76,7 +76,7 @@ export class AesCbcCipher {
 export class AesGcmCipher {
 	/**
 	 * Byte size of GCM tag.
-	 * @type number
+	 * @type {number}
 	 */
 	static TAG_SIZE = 16;
 

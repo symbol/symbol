@@ -35,19 +35,19 @@ export class NetworkTimestamp extends BasicNetworkTimestamp {
 export class Address extends ByteArray {
 	/**
 	 * Byte size of raw address.
-	 * @type number
+	 * @type {number}
 	 */
 	static SIZE = 24;
 
 	/**
 	 * Length of encoded address string.
-	 * @type number
+	 * @type {number}
 	 */
 	static ENCODED_SIZE = 39;
 
 	/**
 	 * Byte array name (required because `constructor.name` is dropped during minification).
-	 * @type string
+	 * @type {string}
 	 */
 	static NAME = 'Address';
 
@@ -84,19 +84,19 @@ export class Address extends ByteArray {
 export class Network extends BasicNetwork {
 	/**
 	 * Symbol main network.
-	 * @type Network
+	 * @type {Network}
 	 */
 	static MAINNET;
 
 	/**
 	 * Symbol test network.
-	 * @type Network
+	 * @type {Network}
 	 */
 	static TESTNET;
 
 	/**
 	 * Symbol well known networks.
-	 * @type Array<Network>
+	 * @type {Array<Network>}
 	 */
 	static NETWORKS;
 
@@ -120,7 +120,7 @@ export class Network extends BasicNetwork {
 
 		/**
 		 * Network generation hash seed.
-		 * @type Hash256
+		 * @type {Hash256}
 		 */
 		this.generationHashSeed = generationHashSeed;
 	}

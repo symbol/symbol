@@ -9,13 +9,13 @@ export default class Writer {
 	constructor(size) {
 		/**
 		 *  Underlying storage.
-		 * @type Uint8Array
+		 * @type {Uint8Array}
 		 */
 		this.storage = new Uint8Array(size);
 
 		/**
 		 * Current offset.
-		 * @type number
+		 * @type {number}
 		 */
 		this.offset = 0;
 	}

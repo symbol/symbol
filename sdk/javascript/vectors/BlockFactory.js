@@ -67,7 +67,7 @@ export default class BlockFactory {
 	/**
 	 * Creates a factory for the specified network.
 	 * @param {Network} network Symbol network.
-	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
+	 * @param {Map<string, Function>|undefined} typeRuleOverrides Type rule overrides.
 	 */
 	constructor(network, typeRuleOverrides = undefined) {
 		this.factory = BlockFactory._buildRules(typeRuleOverrides); // eslint-disable-line no-underscore-dangle

@@ -9,7 +9,7 @@ export default class BufferView {
 	constructor(buffer) {
 		/**
 		 * Underlying buffer view.
-		 * @type Uint8Array
+		 * @type {Uint8Array}
 		 */
 		this.buffer = buffer;
 	}
