@@ -30,11 +30,10 @@ RUN apt-get install -y ca-certificates curl gnupg \
 RUN apt-get install -y make gcc g++
 
 # install python
-RUN apt-get install -y python3-pip
+RUN apt-get install -y python3-pip python3-venv
 
-# install shellcheck and gitlint
-RUN apt-get install -y shellcheck \
-	&& pip install gitlint
+# install shellcheck
+RUN apt-get install -y shellcheck
 
 # rust dependencies - https://docs.rs/crate/openssl-sys/0.9.19
 RUN apt-get install -y libssl-dev pkg-config \
@@ -48,7 +47,7 @@ RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "linux" || echo "aarch64") \
 	&& mv codecov /usr/local/bin
 
 # add ubuntu user (used by jenkins)
-RUN useradd --uid 1000 -ms /bin/bash ubuntu
+RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
 
 # Create the MongoDB data directory
 RUN mkdir -p /data/db \
@@ -62,4 +61,13 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
 	&& chown -R ubuntu:ubuntu /home/ubuntu/.cargo \
 	&& rustup default stable
 
+USER ubuntu
 WORKDIR /home/ubuntu
+
+# create a virtual environment, which is required by Ubuntu 23.04
+ENV VIRTUAL_ENV=/home/ubuntu/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# install common python packages
+RUN python3 -m pip install --upgrade gitlint isort lark pycodestyle pylint PyYAML

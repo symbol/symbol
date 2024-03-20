@@ -26,4 +26,4 @@ USER ubuntu
 WORKDIR /home/ubuntu
 
 # installl all pip packages as ubuntu user
-RUN pip install gitlint
+RUN pip install --upgrade colorama gitlint isort pycodestyle ply pylint PyYAML
