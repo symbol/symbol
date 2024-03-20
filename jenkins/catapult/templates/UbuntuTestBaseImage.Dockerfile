@@ -29,7 +29,7 @@ ENV VIRTUAL_ENV=/home/ubuntu/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN pip3 install -U colorama cryptography gitpython pycodestyle pylint ply PyYAML
+RUN pip3 install -U colorama conan cryptography gitpython pycodestyle pylint ply PyYAML
 
 USER root
 RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux.git && \

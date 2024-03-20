@@ -48,9 +48,11 @@ if(ENABLE_TESTS)
 	message("GTest   found: ${GTest_FOUND}")
 	message("GTest     inc: ${GTest_INCLUDE_DIRS}")
 	message("GTest     ver: ${GTest_VERSION}")
+
 	if (NOT GTest_LIBRARIES AND GTEST_LIBRARIES)
 		set(GTest_LIBRARIES ${GTEST_LIBRARIES})
 	endif()
+
 	message("GTest    libs: ${GTest_LIBRARIES}")
 endif()
 
