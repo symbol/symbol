@@ -49,6 +49,7 @@ if(ENABLE_TESTS)
 	message("GTest     inc: ${GTest_INCLUDE_DIRS}")
 	message("GTest     ver: ${GTest_VERSION}")
 
+	# GTest_LIBRARIES is when using Conan 2, GTEST_LIBRARIES is set for metal builds
 	if (NOT GTest_LIBRARIES AND GTEST_LIBRARIES)
 		set(GTest_LIBRARIES ${GTEST_LIBRARIES})
 	endif()
