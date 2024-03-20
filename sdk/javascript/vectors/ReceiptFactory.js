@@ -8,7 +8,7 @@ import * as sc from '../src/symbol/models.js';
 export default class ReceiptFactory {
 	/**
 	 * Creates a factory.
-	 * @param {Map<string, function>|undefined} typeRuleOverrides Type rule overrides.
+	 * @param {Map<string, Function>|undefined} typeRuleOverrides Type rule overrides.
 	 */
 	constructor(typeRuleOverrides = undefined) {
 		this.factory = ReceiptFactory._buildRules(typeRuleOverrides); // eslint-disable-line no-underscore-dangle

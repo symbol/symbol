@@ -67,7 +67,7 @@ export class Verifier {
 
 		/**
 		 * Public key used for signature verification.
-		 * @type PublicKey
+		 * @type {PublicKey}
 		 */
 		this.publicKey = publicKey;
 	}

@@ -36,31 +36,31 @@ export {
 
 	/**
 	 * Represents a 256-bit hash.
-	 * @type {typeof CryptoTypes.Hash256}
+	 * @type {typeof Hash256}
 	 */
 	Hash256,
 
 	/**
 	 * Represents a private key.
-	 * @type {typeof CryptoTypes.PrivateKey}
+	 * @type {typeof PrivateKey}
 	 */
 	PrivateKey,
 
 	/**
 	 * Represents a public key.
-	 * @type {typeof CryptoTypes.PublicKey}
+	 * @type {typeof PublicKey}
 	 */
 	PublicKey,
 
 	/**
 	 * Represents a 256-bit symmetric encryption key.
-	 * @type {typeof CryptoTypes.SharedKey256}
+	 * @type {typeof SharedKey256}
 	 */
 	SharedKey256,
 
 	/**
 	 * Represents a signature.
-	 * @type {typeof CryptoTypes.Signature}
+	 * @type {typeof Signature}
 	 */
 	Signature,
 

@@ -23,7 +23,8 @@
 	space-before-function-paren,
 	space-infix-ops,
 	vars-on-top,
-	yoda
+	yoda,
+	jsdoc/require-jsdoc
 */
 
 var gf = function(init) {

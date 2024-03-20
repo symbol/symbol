@@ -63,19 +63,20 @@ export default class NemFacade {
 	constructor(network) {
 		/**
 		 * Underlying network.
-		 * @type NemNetwork
+		 * @type {NemNetwork}
 		 */
 		this.network = 'string' === typeof network ? NetworkLocator.findByName(NemNetwork.NETWORKS, network) : network;
 
 		/**
 		 * Underlying transaction factory.
-		 * @type TransactionFactory
+		 * @type {TransactionFactory}
 		 */
 		this.transactionFactory = new TransactionFactory(this.network);
 	}
 
 	/**
 	 * Gets class type.
+	 * @returns {typeof NemFacade} Class type.
 	 */
 	get static() { // eslint-disable-line class-methods-use-this
 		return NemFacade;
@@ -117,7 +118,6 @@ export default class NemFacade {
 
 	/**
 	 * Creates a network compatible BIP32 path for the specified account.
-	 *
 	 * @param {number} accountId Id of the account for which to generate a BIP32 path.
 	 * @returns {Array<number>} BIP32 path for the specified account.
 	 */

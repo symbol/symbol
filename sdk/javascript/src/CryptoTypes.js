@@ -7,13 +7,13 @@ import crypto from 'crypto';
 export class Hash256 extends ByteArray {
 	/**
 	 * Byte size of raw hash.
-	 * @type number
+	 * @type {number}
 	 */
 	static SIZE = 32;
 
 	/**
 	 * Byte array name (required because `constructor.name` is dropped during minification).
-	 * @type string
+	 * @type {string}
 	 */
 	static NAME = 'Hash256';
 
@@ -40,13 +40,13 @@ export class Hash256 extends ByteArray {
 export class PrivateKey extends ByteArray {
 	/**
 	 * Byte size of raw private key.
-	 * @type number
+	 * @type {number}
 	 */
 	static SIZE = 32;
 
 	/**
 	 * Byte array name (required because `constructor.name` is dropped during minification).
-	 * @type string
+	 * @type {string}
 	 */
 	static NAME = 'PrivateKey';
 
@@ -73,13 +73,13 @@ export class PrivateKey extends ByteArray {
 export class PublicKey extends ByteArray {
 	/**
 	 * Byte size of raw public key.
-	 * @type number
+	 * @type {number}
 	 */
 	static SIZE = 32;
 
 	/**
 	 * Byte array name (required because `constructor.name` is dropped during minification).
-	 * @type string
+	 * @type {string}
 	 */
 	static NAME = 'PublicKey';
 
@@ -98,13 +98,13 @@ export class PublicKey extends ByteArray {
 export class SharedKey256 extends ByteArray {
 	/**
 	 * Byte size of raw shared key.
-	 * @type number
+	 * @type {number}
 	 */
 	static SIZE = 32;
 
 	/**
 	 * Byte array name (required because `constructor.name` is dropped during minification).
-	 * @type string
+	 * @type {string}
 	 */
 	static NAME = 'SharedKey256';
 
@@ -123,13 +123,13 @@ export class SharedKey256 extends ByteArray {
 export class Signature extends ByteArray {
 	/**
 	 * Byte size of raw signature.
-	 * @type number
+	 * @type {number}
 	 */
 	static SIZE = 64;
 
 	/**
 	 * Byte array name (required because `constructor.name` is dropped during minification).
-	 * @type string
+	 * @type {string}
 	 */
 	static NAME = 'Signature';
 

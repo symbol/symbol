@@ -126,7 +126,7 @@ export class TreeNode {
 	constructor(path) {
 		/**
 		 * Node path.
-		 * @type PatriciaTreePath
+		 * @type {PatriciaTreePath}
 		 */
 		this.path = path;
 	}
@@ -194,7 +194,7 @@ export class BranchNode extends TreeNode {
 
 		/**
 		 * Branch links.
-		 * @type Array<Hash256>
+		 * @type {Array<Hash256>}
 		 */
 		this.links = links;
 	}
@@ -309,49 +309,49 @@ const deserializePatriciaTreeNodes = buffer => {
 export class PatriciaMerkleProofResult {
 	/**
 	 * Proof is valid (positive).
-	 * @type number
+	 * @type {number}
 	 */
 	static VALID_POSITIVE = 0x0001;
 
 	/**
 	 * Proof is valid (negative).
-	 * @type number
+	 * @type {number}
 	 */
 	static VALID_NEGATIVE = 0x0002;
 
 	/**
 	 * Negative proof is inconclusive.
-	 * @type number
+	 * @type {number}
 	 */
 	static INCONCLUSIVE = 0x4001;
 
 	/**
 	 * State hash cannot be derived from subcache merkle roots.
-	 * @type number
+	 * @type {number}
 	 */
 	static STATE_HASH_DOES_NOT_MATCH_ROOTS = 0x8001;
 
 	/**
 	 * Root of the path tree being proven is not a subcache merkle root.
-	 * @type number
+	 * @type {number}
 	 */
 	static UNANCHORED_PATH_TREE = 0x8002;
 
 	/**
 	 * Leaf value does not match expected value.
-	 * @type number
+	 * @type {number}
 	 */
 	static LEAF_VALUE_MISMATCH = 0x8003;
 
 	/**
 	 * Provided merkle hash contains an unlinked node.
-	 * @type number
+	 * @type {number}
 	 */
 	static UNLINKED_NODE = 0x8004;
 
 	/**
 	 * Actual merkle path does not match encoded key.
-	 * @type number
+	 * @type {number}
 	 */
 	static PATH_MISMATCH = 0x8005;
 }
@@ -389,7 +389,7 @@ const provePatriciaMerkle = (encodedKey, valueToTest, merklePath, stateHash, sub
 	// positive proof must end with a leaf
 	const isPositiveProof = 'value' in merklePath[merklePath.length - 1];
 	if (isPositiveProof) {
-		if (0 !== deepCompare(valueToTest.bytes, (/** @type LeafNode */ (merklePath[merklePath.length - 1])).value.bytes))
+		if (0 !== deepCompare(valueToTest.bytes, (/** @type {LeafNode} */ (merklePath[merklePath.length - 1])).value.bytes))
 			return PatriciaMerkleProofResult.LEAF_VALUE_MISMATCH;
 	}
 
@@ -421,7 +421,7 @@ const provePatriciaMerkle = (encodedKey, valueToTest, merklePath, stateHash, sub
 		return PatriciaMerkleProofResult.PATH_MISMATCH;
 
 	const nextNibble = getNibbleAt({ path: encodedKey.bytes, size: 2 * encodedKey.bytes.length }, actualPath.length);
-	const nextNode = (/** @type BranchNode */ (merklePath[merklePath.length - 1])).links[nextNibble];
+	const nextNode = (/** @type {BranchNode} */ (merklePath[merklePath.length - 1])).links[nextNibble];
 	return undefined !== nextNode ? PatriciaMerkleProofResult.INCONCLUSIVE : PatriciaMerkleProofResult.VALID_NEGATIVE;
 };
 

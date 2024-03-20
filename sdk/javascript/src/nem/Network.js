@@ -25,19 +25,19 @@ export class NetworkTimestamp extends BasicNetworkTimestamp {
 export class Address extends ByteArray {
 	/**
 	 * Byte size of raw address.
-	 * @type number
+	 * @type {number}
 	 */
 	static SIZE = 25;
 
 	/**
 	 * Length of encoded address string.
-	 * @type number
+	 * @type {number}
 	 */
 	static ENCODED_SIZE = 40;
 
 	/**
 	 * Byte array name (required because `constructor.name` is dropped during minification).
-	 * @type string
+	 * @type {string}
 	 */
 	static NAME = 'Address';
 
@@ -74,19 +74,19 @@ export class Address extends ByteArray {
 export class Network extends BasicNetwork {
 	/**
 	 * NEM main network.
-	 * @type Network
+	 * @type {Network}
 	 */
 	static MAINNET;
 
 	/**
 	 * NEM test network.
-	 * @type Network
+	 * @type {Network}
 	 */
 	static TESTNET;
 
 	/**
 	 * NEM well known networks.
-	 * @type Array<Network>
+	 * @type {Array<Network>}
 	 */
 	static NETWORKS;
 

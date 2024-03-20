@@ -18,13 +18,13 @@ export class Bip32Node {
 
 		/**
 		 * Private key associated with this node.
-		 * @type PrivateKey
+		 * @type {PrivateKey}
 		 */
 		this.privateKey = new PrivateKey(hmacResult.subarray(0, PrivateKey.SIZE));
 
 		/**
 		 * Chain code associated with this node.
-		 * @type Uint8Array
+		 * @type {Uint8Array}
 		 */
 		this.chainCode = hmacResult.subarray(PrivateKey.SIZE);
 	}
@@ -54,7 +54,7 @@ export class Bip32Node {
 	 * @returns {Bip32Node} BIP32 node at the end of the path.
 	 */
 	derivePath(path) {
-		/** @type Bip32Node */
+		/** @type {Bip32Node} */
 		let nextNode = this;
 		path.forEach(identifier => {
 			nextNode = nextNode.deriveOne(identifier);

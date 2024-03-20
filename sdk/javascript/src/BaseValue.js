@@ -44,19 +44,19 @@ export default class BaseValue {
 	constructor(size, value, isSigned = false) {
 		/**
 		 * Size of the integer.
-		 * @type number
+		 * @type {number}
 		 */
 		this.size = size;
 
 		/**
 		 * \c true if the value should be treated as signed.
-		 * @type boolean
+		 * @type {boolean}
 		 */
 		this.isSigned = isSigned;
 
 		/**
 		 * Value.
-		 * @type number|bigint
+		 * @type {number|bigint}
 		 */
 		this.value = check(size, value, isSigned);
 	}

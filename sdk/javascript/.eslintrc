@@ -1,6 +1,7 @@
 ---
 extends:
   - airbnb
+  - plugin:jsdoc/recommended-error
   - ../../linters/javascript/default.eslintrc
 rules:
   import/extensions:

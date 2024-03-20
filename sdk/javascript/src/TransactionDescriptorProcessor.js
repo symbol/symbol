@@ -1,13 +1,13 @@
 /**
  * Processes and looks up transaction descriptor properties.
- * @note This class is not intended to be used directly.
+ * This class is not intended to be used directly.
  */
 export default class TransactionDescriptorProcessor {
 	/**
 	 * Creates a transaction descriptor processor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
-	 * @param {Map<string, function>} typeParsingRules Type-dependent parsing rules.
-	 * @param {function|undefined} typeConverter Converts a generated type to an sdk type (optional).
+	 * @param {Map<string, Function>} typeParsingRules Type-dependent parsing rules.
+	 * @param {Function|undefined} typeConverter Converts a generated type to an sdk type (optional).
 	 */
 	constructor(transactionDescriptor, typeParsingRules, typeConverter = undefined) {
 		/**

@@ -9,13 +9,14 @@ export class NetworkTimestamp {
 	constructor(timestamp) {
 		/**
 		 * Underlying timestamp.
-		 * @type bigint
+		 * @type {bigint}
 		 */
 		this.timestamp = BigInt(timestamp);
 	}
 
 	/**
 	 * Determines if this is the epochal timestamp.
+	 * @returns {boolean} \c true if this is the epochal timestamp.
 	 */
 	get isEpochal() {
 		return 0n === this.timestamp;
@@ -70,13 +71,13 @@ export class NetworkTimestampDatetimeConverter {
 	constructor(epoch, timeUnits) {
 		/**
 		 * Date at which network started
-		 * @type Date
+		 * @type {Date}
 		 */
 		this.epoch = epoch;
 
 		/**
 		 * Number of milliseconds per time unit.
-		 * @type number
+		 * @type {number}
 		 */
 		this.timeUnits = {
 			hours: 60 * 60 * 1000,
