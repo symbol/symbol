@@ -14,9 +14,8 @@ RUN dnf install --assumeyes make gcc g++ diffutils
 # install python
 RUN dnf install --assumeyes python3 python3-pip
 
-# install shellcheck and gitlint
-RUN dnf install --assumeyes shellcheck \
-	&& pip install gitlint
+# install shellcheck
+RUN dnf install --assumeyes shellcheck
 
 # rust dependencies - https://docs.rs/crate/openssl-sys/0.9.19
 RUN dnf install --assumeyes openssl openssl-devel pkg-config \
@@ -39,4 +38,13 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
 	&& curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | bash -s -- \
 	&& chown -R fedora:fedora /home/fedora/.cargo
 
+USER fedora
 WORKDIR /home/fedora
+
+# create a virtual environment
+ENV VIRTUAL_ENV=/home/fedora/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# install common python packages
+RUN python3 -m pip install --upgrade gitlint isort lark pycodestyle pylint PyYAML

@@ -13,8 +13,7 @@ RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	iex $command; `
 	del c:\scoop.ps1; `
 	scoop install git shellcheck nodejs-lts cygwin rustup python; `
-	python3 -m pip install --upgrade pip; `
-	python3 -m pip install --upgrade gitlint wheel
+	python3 -m pip install --upgrade pip
 
 # Set VS tools first in the path so the correct link.exe is used.
 RUN Set-Content -Path c:\Users\ContainerAdministrator\.bash_profile  -Value 'export PATH=${VCToolsInstallDir}bin/Hostx64/x64:${PATH}'
@@ -30,3 +29,6 @@ ENV CARGO_HOME=C:\Users\ContainerAdministrator\scoop\apps\rustup\current\.cargo
 
 # Install wasm-pack
 RUN cargo install wasm-pack
+
+# install common python packages
+RUN python3 -m pip install --upgrade gitlint isort lark pycodestyle pylint PyYAML wheel

@@ -18,18 +18,22 @@ RUN apt-get install -y default-jre ca-certificates curl gnupg \
 	&& npm install -g npm-groovy-lint@11.1.1
 
 # install python
-RUN apt-get install -y python3-pip
+RUN apt-get install -y python3-pip python3-venv
 
-# install shellcheck and gitlint
-RUN apt-get install -y shellcheck \
-	&& pip install gitlint
+# install shellcheck and ripgrep
+RUN apt-get install -y shellcheck ripgrep
 
-# install ripgrep and yamllint
-RUN apt-get install -y ripgrep \
-	&& pip install yamllint
 
 # add ubuntu user (used by jenkins)
-RUN useradd --uid 1000 -ms /bin/bash ubuntu
+RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
+USER ubuntu
+WORKDIR /home/ubuntu
 ENV PATH=$PATH:/home/ubuntu/.local/bin
 
-WORKDIR /home/ubuntu
+# create a virtual environment
+ENV VIRTUAL_ENV=/home/ubuntu/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# install common python packages
+RUN python3 -m pip install --upgrade gitlint isort lark pycodestyle pylint PyYAML yamllint
