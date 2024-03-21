@@ -3,8 +3,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from conan.tools.scm import Version
 from configuration import load_versions_map
-from semver import compare
 
 CONAN_NEMTECH_REMOTE = 'https://conan.symbol.dev/artifactory/api/conan/catapult'
 NEMTECH_REMOTE_NAME = 'nemtech'
@@ -46,23 +46,22 @@ class CatapultDependencyUpdater:
 
 	@staticmethod
 	def _setup_conan_environment():
-		_, error_code = dispatch_subprocess(['conan', 'profile', 'show', 'default'], handle_error=False)
+		_, error_code = dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'], handle_error=False)
 		if 0 != error_code:
-			dispatch_subprocess(['conan', 'profile', 'new', 'default', '--detect'])
+			dispatch_subprocess(['conan', 'profile', 'detect', '--name', 'default'])
 
-		dispatch_subprocess(['conan', 'profile', 'show', 'default'])
-		dispatch_subprocess(['conan', 'config', 'set', 'general.revisions_enabled=True'])
+		dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
 		dispatch_subprocess(['conan', 'remote', 'add', '--force', NEMTECH_REMOTE_NAME, CONAN_NEMTECH_REMOTE])
 
 	@staticmethod
 	def _is_remote_nemtech(dependency_name):
-		return dependency_name in ['benchmark', 'cppzmq', 'libzmq', 'mongo-c-driver', 'mongo-cxx-driver', 'rocksdb']
+		return dependency_name in ['benchmark', 'cppzmq', 'zeromq', 'mongo-c-driver', 'mongo-cxx-driver', 'rocksdb']
 
 	def _get_conan_latest_version(self, name):
 		query = f'{name}/*' if not self._is_remote_nemtech(name) else f'{name}/*@{NEMTECH_REMOTE_NAME}/stable'
 		remote_name = NEMTECH_REMOTE_NAME if self._is_remote_nemtech(name) else 'conancenter'
-		output, _ = dispatch_subprocess(['conan', 'search', query, '--raw', '--remote', remote_name])
-		version_list = [line.split('/')[1].split('@')[0] for line in output.splitlines()]
+		output, _ = dispatch_subprocess(['conan', 'search', query, '--remote', remote_name])
+		version_list = [line.split('/')[1].split('@')[0] for line in output.splitlines() if '/' in line]
 		filtered_versions = [version for version in version_list if version[0].isdigit()]
 		return filtered_versions[-1]
 
@@ -72,7 +71,7 @@ class CatapultDependencyUpdater:
 			latest_version = self._get_conan_latest_version(dependency)
 			current_version = re.sub(r'[^\d\.]', '', self.versions[DEPENDENCY_NAMES_MAP[dependency][0]])
 			print(f'checking dependency {dependency} {current_version} -> {latest_version}')
-			if compare(latest_version, current_version, False) > 0:
+			if Version(latest_version) > Version(current_version):
 				print(f'{dependency} {current_version} -> {latest_version}')
 				dependencies_with_updates.append((dependency, current_version, latest_version))
 
@@ -109,7 +108,7 @@ class CatapultDependencyUpdater:
 
 			update_version_in_file(
 				dependency_name,
-				self.source_path.joinpath('conanfile.txt'),
+				self.source_path.joinpath('conanfile.py'),
 				current_version,
 				latest_version,
 				lambda name, version: f'{name}/{version}'
@@ -127,7 +126,7 @@ class CatapultDependencyUpdater:
 
 def main():
 	parser = argparse.ArgumentParser(description='Update catapult dependencies')
-	parser.add_argument('--dependencies', choices=DEPENDENCIES_NAME, help='dependencies to update', default=DEPENDENCIES_NAME)
+	parser.add_argument('--dependencies', choices=DEPENDENCIES_NAME, nargs='*', help='dependencies to update', default=DEPENDENCIES_NAME)
 	parser.add_argument('--versions-file', help='path to the versions file', required=True)
 	parser.add_argument('--source-path', help='path to the catapult source', required=True)
 	parser.add_argument('--commit', help='commit changes to git', action='store_false')

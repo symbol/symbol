@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.23)
 
 message("--- locating zeromq dependencies ---")
 find_package(cppzmq 4.10.0 EXACT REQUIRED)
 
 message("zeromq    ver: ${ZeroMQ_VERSION}")
 message("zeromq    inc: ${ZeroMQ_INCLUDE_DIR}")
-message("zeromq    lib: ${ZeroMQ_LIBRARY}")
+message("zeromq    lib: ${ZeroMQ_LIBRARIES}")
 message("cppzmq    ver: ${cppzmq_VERSION}")
 message("cppzmq    inc: ${cppzmq_INCLUDE_DIR}")
 

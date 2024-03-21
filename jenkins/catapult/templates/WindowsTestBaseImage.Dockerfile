@@ -14,7 +14,7 @@ RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	del c:\scoop.ps1; `
 	scoop install python git shellcheck; `
 	python3 -m pip install --upgrade pip; `
-	python3 -m pip install --upgrade colorama cryptography gitpython ply pycodestyle pylint PyYAML
+	python3 -m pip install --upgrade colorama conan cryptography gitpython ply pycodestyle pylint PyYAML
 	
 RUN "'ACP', 'OEMCP', 'MACCP' | Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CodePage' -Name { $_ } 65001"; `
 	Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CodePage'

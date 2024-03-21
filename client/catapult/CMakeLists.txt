@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.23)
 project(catapult_server)
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
 option(ENABLE_TESTS "Enable tests" ON)
@@ -46,9 +46,15 @@ if(ENABLE_TESTS)
 
 	find_package(GTest 1.14.0 EXACT REQUIRED)
 	message("GTest   found: ${GTest_FOUND}")
-	message("GTest     inc: ${GTEST_INCLUDE_DIRS}")
+	message("GTest     inc: ${GTest_INCLUDE_DIRS}")
 	message("GTest     ver: ${GTest_VERSION}")
-	message("GTest    libs: ${GTEST_LIBRARIES}")
+
+	# GTest_LIBRARIES is when using Conan 2, GTEST_LIBRARIES is set for metal builds
+	if (NOT GTest_LIBRARIES AND GTEST_LIBRARIES)
+		set(GTest_LIBRARIES ${GTEST_LIBRARIES})
+	endif()
+
+	message("GTest    libs: ${GTest_LIBRARIES}")
 endif()
 
 ### setup openssl
@@ -114,3 +120,8 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/internal/CMakeLists.txt")
 endif()
 
 add_subdirectory(tools)
+
+if(USE_CONAN)
+	message("--- copy conan deps ---")
+	install(DIRECTORY ${CMAKE_BINARY_DIR}/deps/ DESTINATION deps)
+endif()

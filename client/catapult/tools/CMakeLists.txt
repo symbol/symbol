@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.23)
 
 include_directories(. ${CMAKE_BINARY_DIR}/inc)
 

@@ -13,24 +13,13 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
      sudo apt install build-essential git cmake ninja-build pkg-config
      ```
 
-  2. Install [Conan](https://conan.io/downloads.html).
+  2. Install latest version of [Conan](https://conan.io/downloads.html).
 
-  3. Set the right C++ ABI for Conan:
+  3. Create a profile for Conan:
 
      ```sh
-     conan profile new default --detect
-     conan config set general.revisions_enabled=True
+     conan profile detect --name default
      ```
-     
-    For gcc compiler:
-    ```sh
-    conan profile update settings.compiler.libcxx=libstdc++11 default
-    ```
-
-    For clang compiler:
-    ```sh
-    conan profile update settings.compiler.libcxx=libc++ default
-    ```
 
 * **On Windows**:
 
@@ -38,7 +27,13 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 
      Run all commands from a command prompt that has access to Visual Studio and Git. This can be accomplished by using the "Native Tools Command Prompt" shortcut installed by Visual Studio on the Start Menu.
 
-  2. Install [Conan](https://conan.io/downloads.html).
+  2. Install latest version of [Conan](https://conan.io/downloads.html).
+
+  3. Create a profile for Conan:
+
+   ```sh
+  conan profile detect --name default
+   ```
 
 * **On Mac**:
 
@@ -54,18 +49,13 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
      brew install git cmake ninja pkg-config
      ```
 
-  3. Install [Conan](https://conan.io/downloads.html).
+  3. Install latest version of [Conan](https://conan.io/downloads.html).
 
-  4. Set the right config for Conan:
+  4. Create a profile for Conan:
 
       ```sh
-      conan profile new default --detect
-      conan config set general.revisions_enabled=True
+     conan profile detect --name default
       ```
-
-  5. Modify `conanfile.txt` (Only for Mac M1):
-      - Change `boost:without_math=True`.
-      - Add `rocksdb:enable_sse = False` under `rocksdb:shared = True`.
 
 ## Step 1: Build dependencies
 
@@ -77,9 +67,18 @@ conan remote add nemtech https://conan.symbol.dev/artifactory/api/conan/catapult
 
 git clone https://github.com/symbol/symbol.git
 cd symbol/client/catapult
+```
 
-mkdir _build && cd _build
-CONAN_REVISIONS_ENABLED=1 conan install .. --build missing
+### Linux and Macos
+```sh
+conan install . --build=missing -s build_type=Release
+cd build/Release
+```
+
+### Windows
+```shell
+conan install . --build=missing -s compiler.cppstd=17 -s build_type=Release
+cd build
 ```
 
 ## Step 2: Build catapult
@@ -92,20 +91,20 @@ CONAN_REVISIONS_ENABLED=1 conan install .. --build missing
 * Generate project files for Visual Studio 2022:
 
   ```sh
-  cmake -G "Visual Studio 17 2022" -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
+  cmake --preset conan-default -G "Visual Studio 17 2022" -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
   ```
 
 * Generate project files for Visual Studio 2019:
 
   ```sh
-  cmake -G "Visual Studio 16 2019"  -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
+  cmake --preset conan-default -G "Visual Studio 16 2019"  -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
   ```
 
 * Build:
 
   ```sh
   cmake --build . --target publish
-  msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 /m ALL_BUILD.vcxproj
+  msbuild /p:Configuration=Release /p:Platform=x64 /m ALL_BUILD.vcxproj
   ```
 
   After building successfully, the tools in ``_build\bin`` are ready to use. All runtime dependencies have been copied into the same folder so Windows will find them.
@@ -123,7 +122,7 @@ CONAN_REVISIONS_ENABLED=1 conan install .. --build missing
 * Build:
 
   ```sh
-  cmake -DUSE_CONAN=ON -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+  cmake --preset conan-release -G Ninja -DUSE_CONAN=ON ../../
   ninja publish
   ninja -j4
   ```

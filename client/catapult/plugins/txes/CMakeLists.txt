@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.23)
 
 function(catapult_tx_plugin_src PLUGIN_BASE_NAME)
 	# create an sdk lib
@@ -46,7 +46,7 @@ endfunction()
 
 function(catapult_plugin_test_library TARGET_NAME)
 	catapult_library_target(${TARGET_NAME})
-	target_link_libraries(${TARGET_NAME} ${GTEST_LIBRARIES})
+	target_link_libraries(${TARGET_NAME} ${GTest_LIBRARIES})
 endfunction()
 
 add_subdirectory(account_link)
