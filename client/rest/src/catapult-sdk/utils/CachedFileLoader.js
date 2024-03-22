@@ -39,7 +39,7 @@ class CachedFileLoader {
 	/**
 	 * Loads a file.
 	 * @param {string} filePath Path to file to read.
-	 * @param {function} processor File processor.
+	 * @param {Function} processor File processor.
 	 * @returns {Promise} Promise to processed file contents.
 	 */
 	readAlways(filePath, processor) {
@@ -61,7 +61,7 @@ class CachedFileLoader {
 	/**
 	 * Loads a file exactly once and caches the result.
 	 * @param {string} filePath Path to file to read.
-	 * @param {function} processor File processor.
+	 * @param {Function} processor File processor.
 	 * @returns {Promise} Promise to processed file contents.
 	 */
 	readOnce(filePath, processor) {
@@ -73,7 +73,7 @@ class CachedFileLoader {
 	/**
 	 * Loads a file only if it has changed on disk since last load.
 	 * @param {string} filePath Path to file to read.
-	 * @param {function} processor File processor.
+	 * @param {Function} processor File processor.
 	 * @returns {Promise} Promise to processed file contents.
 	 */
 	readNewer(filePath, processor) {

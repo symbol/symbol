@@ -32,8 +32,8 @@ class RestrictionsDb {
 
 	/**
 	 * Retrieves account restrictions for the given addresses.
-	 * @param {array<object>} addresses Given addresses.
-	 * @returns {Promise.<array>} Owned account restrictions.
+	 * @param {Array<Uint8Array>} addresses Given addresses.
+	 * @returns {Promise<Array<object>>} Owned account restrictions.
 	 */
 	accountRestrictionsByAddresses(addresses) {
 		const buffers = addresses.map(address => Buffer.from(address));
@@ -46,7 +46,7 @@ class RestrictionsDb {
 	 * @param {Uint8Array} address Mosaic restriction target address
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Mosaic restrictions page.
+	 * @returns {Promise<object>} Mosaic restrictions page.
 	 */
 	accountRestrictions(address, options) {
 		const sortingOptions = { id: '_id' };
@@ -66,12 +66,12 @@ class RestrictionsDb {
 
 	/**
 	 * Retrieves filtered and paginated mosaic restrictions.
-	 * @param {Uint64} mosaicId Mosaic id
-	 * @param {uint} entryType Mosaic restriction type
+	 * @param {module:utils/uint64~uint64} mosaicId Mosaic id
+	 * @param {number} entryType Mosaic restriction type
 	 * @param {Uint8Array} targetAddress Mosaic restriction target address
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Mosaic restrictions page.
+	 * @returns {Promise<object>} Mosaic restrictions page.
 	 */
 	mosaicRestrictions(mosaicId, entryType, targetAddress, options) {
 		const sortingOptions = { id: '_id' };

@@ -33,7 +33,7 @@ const rejectOnClose = reject => () => reject(errors.createServiceUnavailableErro
 module.exports = {
 	/**
 	 * Wraps a catapult connection around a socket connection.
-	 * @param {net.Socket} connection Socket connection to wrap.
+	 * @param {object} connection Socket connection to wrap.
 	 * @returns {object} A catapult connection wrapped around the socket connection.
 	 */
 	wrap: connection => ({

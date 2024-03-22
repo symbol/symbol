@@ -57,7 +57,6 @@ class ModelCodecBuilder {
 	 * Adds support for a typed transaction.
 	 * @param {module:model/EntityType} type Transaction type.
 	 * @param {object} codec Transaction codec.
-	 * @param {number} version the transaction version
 	 */
 	addTransactionSupport(type, codec) {
 		if (isBlockType(type) || this.codecs[type])

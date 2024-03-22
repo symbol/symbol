@@ -48,7 +48,7 @@ module.exports = {
 	/**
 	 * Registers transaction state descriptors.
 	 * @instance
-	 * @param {array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} states Transaction state descriptors.
+	 * @param {Array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} states Transaction state descriptors.
 	 */
 	registerTransactionStates: states => {},
 

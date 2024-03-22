@@ -22,8 +22,7 @@
 const convert = require('../utils/convert');
 /**
  * Catapult model namespace.
- * @enum {numeric}
- * @exports model/namespace
+ * @enum {number}
  */
 const namespace = {
 	/** Namespace alias type. */

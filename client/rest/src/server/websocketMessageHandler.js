@@ -43,7 +43,7 @@ module.exports = {
 	 * @param {object} client Client that sent the message.
 	 * @param {string} messageJson JSON message.
 	 * @param {object} subscriptionManager Subscription manager.
-	 * @returns {array} Error information or undefined if no error occurred.
+	 * @returns {Array|undefined} Error information or undefined if no error occurred.
 	 */
 	handleMessage: (client, messageJson, subscriptionManager) => {
 		let request;

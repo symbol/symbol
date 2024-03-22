@@ -35,8 +35,6 @@ const constants = {
 	}
 };
 
-/** @exports model/address */
-
 /**
  * A catapult public key.
  * @typedef {Uint8Array} PublicKey
@@ -75,7 +73,7 @@ const address = {
 	/**
 	 * Converts a public key to a decoded address for a specific network.
 	 * @param {module:model/address~PublicKey} publicKey Public key.
-	 * @param {numeric} networkIdentifier Network identifier.
+	 * @param {number} networkIdentifier Network identifier.
 	 * @returns {Uint8Array} Decoded address corresponding to the inputs.
 	 */
 	publicKeyToAddress: (publicKey, networkIdentifier) => {

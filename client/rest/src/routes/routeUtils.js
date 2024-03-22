@@ -330,8 +330,8 @@ const routeUtils = {
 
 	/**
 	 * Adds PUT route for sending a packet to an api server.
- 	 * @param {object} server Server on which to register the routes.
- 	 * @param {object} connections Api server connection pool.
+	 * @param {object} server Server on which to register the routes.
+	 * @param {object} connections Api server connection pool.
 	 * @param {object} routeInfo Information about the route.
 	 * @param {Function} parser Parser to use to parse the route parameters into a packet payload.
 	 */

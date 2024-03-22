@@ -45,13 +45,12 @@ const tryParseByte = (char1, char2) => {
 		: (nibble1 << 4) | nibble2;
 };
 
-/** @exports utils/convert */
 const convert = {
 	/**
 	 * Decodes two hex characters into a byte.
 	 * @param {string} char1 First hex digit.
 	 * @param {string} char2 Second hex digit.
-	 * @returns {numeric} Decoded byte.
+	 * @returns {number} Decoded byte.
 	 */
 	toByte: (char1, char2) => {
 		const byte = tryParseByte(char1, char2);
@@ -112,7 +111,7 @@ const convert = {
 	/**
 	 * Tries to parse a string representing an unsigned integer.
 	 * @param {string} str String to parse.
-	 * @returns {numeric} Number represented by the input or undefined.
+	 * @returns {number} Number represented by the input or undefined.
 	 */
 	tryParseUint: str => {
 		if ('0' === str)
@@ -149,9 +148,10 @@ const convert = {
 	 */
 	uint32ToUint8: input => new Uint8Array(input.buffer),
 
-	/** Converts an unsigned byte to a signed byte with the same binary representation.
-	 * @param {Numeric} input An unsigned byte.
-	 * @returns {Numeric} A signed byte with the same binary representation as the input.
+	/**
+	 * Converts an unsigned byte to a signed byte with the same binary representation.
+	 * @param {number} input An unsigned byte.
+	 * @returns {number} A signed byte with the same binary representation as the input.
 	 */
 	uint8ToInt8: input => {
 		if (0xFF < input)
@@ -160,9 +160,10 @@ const convert = {
 		return input << 24 >> 24;
 	},
 
-	/** Converts a signed byte to an unsigned byte with the same binary representation.
-	 * @param {Numeric} input A signed byte.
-	 * @returns {Numeric} An unsigned byte with the same binary representation as the input.
+	/**
+	 * Converts a signed byte to an unsigned byte with the same binary representation.
+	 * @param {number} input A signed byte.
+	 * @returns {number} An unsigned byte with the same binary representation as the input.
 	 */
 	int8ToUint8: input => {
 		if (127 < input || -128 > input)
@@ -171,9 +172,10 @@ const convert = {
 		return input & 0xFF;
 	},
 
-	/** Converts an unsigned 16bits integer to a signed 16bits integer with the same binary representation.
-	 * @param {Numeric} input An unsigned 16bits integer.
-	 * @returns {Numeric} A signed 16bits integer with the same binary representation as the input.
+	/**
+	 * Converts an unsigned 16bits integer to a signed 16bits integer with the same binary representation.
+	 * @param {number} input An unsigned 16bits integer.
+	 * @returns {number} A signed 16bits integer with the same binary representation as the input.
 	 */
 	uint16ToInt16: input => {
 		if (0xFFFF < input)
@@ -182,9 +184,10 @@ const convert = {
 		return input << 48 >> 48;
 	},
 
-	/** Converts a signed 16bits integer to an unsigned 16bits integer with the same binary representation.
-	 * @param {Numeric} input A signed 16bits integer.
-	 * @returns {Numeric} An unsigned 16bits integer with the same binary representation as the input.
+	/**
+	 * Converts a signed 16bits integer to an unsigned 16bits integer with the same binary representation.
+	 * @param {number} input A signed 16bits integer.
+	 * @returns {number} An unsigned 16bits integer with the same binary representation as the input.
 	 */
 	int16ToUint16: input => {
 		if (32767 < input || -32768 > input)
@@ -193,9 +196,10 @@ const convert = {
 		return input & 0xFFFF;
 	},
 
-	/** Converts an unsigned 32bits integer to a signed 32bits integer with the same binary representation.
-	 * @param {Numeric} input An unsigned 32bits integer.
-	 * @returns {Numeric} A signed 32bits integer with the same binary representation as the input.
+	/**
+	 * Converts an unsigned 32bits integer to a signed 32bits integer with the same binary representation.
+	 * @param {number} input An unsigned 32bits integer.
+	 * @returns {number} A signed 32bits integer with the same binary representation as the input.
 	 */
 	uint32ToInt32: input => {
 		if (0xFFFFFFFF < input)
@@ -204,9 +208,10 @@ const convert = {
 		return input << 96 >> 96;
 	},
 
-	/** Converts a signed 32bits integer to an unsigned 32bits integer with the same binary representation.
-	 * @param {Numeric} input A signed 32bits integer.
-	 * @returns {Numeric} An unsigned 32bits integer with the same binary representation as the input.
+	/**
+	 * Converts a signed 32bits integer to an unsigned 32bits integer with the same binary representation.
+	 * @param {number} input A signed 32bits integer.
+	 * @returns {number} An unsigned 32bits integer with the same binary representation as the input.
 	 */
 	int32ToUint32: input => {
 		if (2147483647 < input || -2147483648 > input)

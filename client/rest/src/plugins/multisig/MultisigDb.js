@@ -32,8 +32,8 @@ class MultisigDb {
 
 	/**
 	 * Retrieves the multisig entries for given account addresses.
-	 * @param {array<{Uint8Array}>} addresses Addresses.
-	 * @returns {Promise.<array>} Multisig entries for all addresses.
+	 * @param {Array<Uint8Array>} addresses Addresses.
+	 * @returns {Promise<Array<object>>} Multisig entries for all addresses.
 	 */
 	multisigsByAddresses(addresses) {
 		const buffers = addresses.map(address => Buffer.from(address));

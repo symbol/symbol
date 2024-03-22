@@ -88,7 +88,7 @@ const metal = {
 
 	/**
 	 * Decode binary data from chunks.
-	 * @param {Uint64} firstKey ScopedMetadataKey of the beginning chunk.
+	 * @param {module:utils/uint64~uint64} firstKey ScopedMetadataKey of the beginning chunk.
 	 * @param {Array} chunks Chunk containing data to be decoded.
 	 * @returns {Buffer} Decoded binary data.
 	 */

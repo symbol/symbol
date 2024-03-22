@@ -34,7 +34,7 @@ class SerializedSizeCalculator {
 
 	/**
 	 * Gets the calculated size.
-	 * @returns {numeric} Calculated size.
+	 * @returns {number} Calculated size.
 	 */
 	size() {
 		return this.totalSize;

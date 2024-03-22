@@ -40,9 +40,9 @@ const arrayUtils = {
 	 * Copies elements from a source array to a destination array.
 	 * @param {Array} dest Destination array.
 	 * @param {Array} src Source array.
-	 * @param {numeric} [numElementsToCopy=undefined] Number of elements to copy.
-	 * @param {numeric} [destOffset=0] First index of the destination to write.
-	 * @param {numeric} [srcOffset=0] First index of the source to read.
+	 * @param {number} [numElementsToCopy] Number of elements to copy.
+	 * @param {number} [destOffset] First index of the destination to write.
+	 * @param {number} [srcOffset] First index of the source to read.
 	 */
 	copy: (dest, src, numElementsToCopy, destOffset = 0, srcOffset = 0) => {
 		const length = undefined === numElementsToCopy ? dest.length : numElementsToCopy;
@@ -61,7 +61,7 @@ const arrayUtils = {
 	 * Deeply checks the equality of two arrays.
 	 * @param {Array} lhs First array to compare.
 	 * @param {Array} rhs Second array to compare.
-	 * @param {numeric} [numElementsToCompare=undefined] Number of elements to compare.
+	 * @param {number} [numElementsToCompare] Number of elements to compare.
 	 * @returns {boolean} true if all compared elements are equal, false otherwise.
 	 */
 	deepEqual: (lhs, rhs, numElementsToCompare) => {

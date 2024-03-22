@@ -25,7 +25,7 @@ const statePathBaseType = 0x200;
 
 /**
  * Packet types.
- * @enum {numeric}
+ * @enum {number}
  */
 const PacketType = {
 	/** A challenge from a server to a client. */

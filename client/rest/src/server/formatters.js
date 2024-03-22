@@ -62,7 +62,7 @@ const formatBody = (modelFormatter, body) => {
 module.exports = {
 	/**
 	 * Creates server formatters around a model formatter.
-	 * @param {array<object>} modelFormatters Model formatters.
+	 * @param {Array<object>} modelFormatters Model formatters.
 	 * @returns {object} Server formatters.
 	 */
 	create: modelFormatters => ({

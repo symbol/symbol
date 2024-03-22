@@ -774,7 +774,6 @@ describe('catapult db', () => {
 
 	/**
 	 * It creates the blocks for the given transactions.
-	 *
 	 * @param {object[]} transactions the transactions to know the required blocks
 	 * @returns {object[]} the block of the transactions to be stored
 	 */
@@ -786,7 +785,6 @@ describe('catapult db', () => {
 
 	/**
 	 * It copies the transactions adding the blocks meta.
-	 *
 	 * @param {object[]} transactions the transactions without the blocks' meta.
 	 * @param {object[]} blocks the blocks of the transactions.
 	 * @returns {object[]} the transactions with the blocks' meta like the db would return after joining the results.

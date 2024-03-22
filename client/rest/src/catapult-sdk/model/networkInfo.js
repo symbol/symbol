@@ -26,8 +26,8 @@ const convert = require('../utils/convert');
 /**
  * Information about a catapult network.
  * @typedef {object} NetworkInfo
- * @property {numeric} id Network id.
- * @property {numeric} bytePrefix First byte of a compatible network (decoded) address.
+ * @property {number} id Network id.
+ * @property {number} bytePrefix First byte of a compatible network (decoded) address.
  * @property {string} charPrefix First character of a compatible network (encoded) address.
  */
 
@@ -59,7 +59,7 @@ const networkInfo = {
 
 	/**
 	 * Finds network information given a network id.
-	 * @param {numeric} id Network id.
+	 * @param {number} id Network id.
 	 * @returns {module:model/networkInfo~NetworkInfo} Network with the specified id or undefined if unknown.
 	 */
 	findById: id => findNetwork('id', id),

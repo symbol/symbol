@@ -34,11 +34,11 @@ class LockSecretDb {
 
 	/**
 	 * Retrieves secret infos for given accounts filtered and paginated.
-	 * @param {array<{Uint8Array}>} addresses Account addresses.
+	 * @param {Array<Uint8Array>} addresses Account addresses.
 	 * @param {Uint8Array} secret Secret hash.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<array>} Secret lock infos for all accounts.
+	 * @returns {Promise<Array<object>>} Secret lock infos for all accounts.
 	 */
 	secretLocks(addresses, secret, options) {
 		const sortingOptions = { id: '_id' };

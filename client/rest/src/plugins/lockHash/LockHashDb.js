@@ -34,10 +34,10 @@ class LockHashDb {
 
 	/**
 	 * Retrieves hash lock infos for given accounts filtered and paginated.
-	 * @param {array<{Uint8Array}>} addresses Account addresses.
+	 * @param {Array<Uint8Array>} addresses Account addresses.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<array>} Hash lock infos for all accounts.
+	 * @returns {Promise<Array<object>>} Hash lock infos for all accounts.
 	 */
 	hashLocks(addresses, options) {
 		const sortingOptions = { id: '_id' };
@@ -56,7 +56,7 @@ class LockHashDb {
 	/**
 	 * Retrieves hash info for given hash.
 	 * @param {Uint8Array[]} ids Lock hash.
-	 * @returns {Promise.<object>} Hash lock info for a hash.
+	 * @returns {Promise<object>} Hash lock info for a hash.
 	 */
 	hashLockByHash(ids) {
 		const hashes = ids.map(id => Buffer.from(id));

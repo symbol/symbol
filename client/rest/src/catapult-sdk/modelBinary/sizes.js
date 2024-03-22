@@ -23,37 +23,37 @@
 
 const sizes = {
 	/**
-	 * @property {numeric} Size of a signature.
+	 * @property {number} Size of a signature.
 	 */
 	signature: 64,
 
 	/**
-	 * @property {numeric} Size of a signer public key.
+	 * @property {number} Size of a signer public key.
 	 */
 	signerPublicKey: 32,
 
 	/**
-	 * @property {numeric} Size of a decoded address.
+	 * @property {number} Size of a decoded address.
 	 */
 	addressDecoded: 24,
 
 	/**
-	 * @property {numeric} Size of a transaction header.
+	 * @property {number} Size of a transaction header.
 	 */
 	transactionHeader: 4 + 4 + 64 + 32 + 4,
 
 	/**
-	 * @property {numeric} Size of a sha3 256 hash.
+	 * @property {number} Size of a sha3 256 hash.
 	 */
 	hash256: 32,
 
 	/**
-	 * @property {numeric} Size of a sha3 512 hash.
+	 * @property {number} Size of a sha3 512 hash.
 	 */
 	hash512: 64,
 
 	/**
-	 * @property {numeric} Size of VRF proof properties.
+	 * @property {number} Size of VRF proof properties.
 	 */
 	vrfProof: {
 		gamma: 32,

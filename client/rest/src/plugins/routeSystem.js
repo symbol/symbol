@@ -49,17 +49,17 @@ const plugins = {
 module.exports = {
 	/**
 	 * Gets the names of all supported plugins.
-	 * @returns {array<string>} Names of all supported plugins.
+	 * @returns {Array<string>} Names of all supported plugins.
 	 */
 	supportedPluginNames: () => Object.keys(plugins),
 
 	/**
 	 * Configures the server with the specified extensions.
-	 * @param {array} pluginNames Additional extensions to use.
+	 * @param {Array<string>} pluginNames Additional extensions to use.
 	 * @param {object} server Server.
 	 * @param {module:db/CatapultDb} db Catapult database.
 	 * @param {object} services Supporting services.
-	 * @returns {array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} Additional transaction states to register.
+	 * @returns {Array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} Additional transaction states to register.
 	 */
 	configure: (pluginNames, server, db, services) => {
 		const transactionStates = [];

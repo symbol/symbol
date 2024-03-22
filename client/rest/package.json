@@ -19,6 +19,7 @@
     "chai": "^4.3.10",
     "eslint": "^8.50.0",
     "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-jsdoc": "^48.2.1",
     "minimist": "^1.2.8",
     "mocha": "^10.2.0",
     "mocha-jenkins-reporter": "^0.4.8",

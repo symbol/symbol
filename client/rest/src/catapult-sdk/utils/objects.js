@@ -25,7 +25,6 @@ const isObject = object => 'object' === typeof object && !Array.isArray(object) 
 const areCompatible = (lhs, rhs) =>
 	typeof lhs === typeof rhs && ((null === lhs) === (null === rhs)) && (Array.isArray(lhs) === Array.isArray(rhs));
 
-/** @exports utils/objects */
 const objects = {
 	/**
 	 * Deeply assigns properties in target from one or more source objects.

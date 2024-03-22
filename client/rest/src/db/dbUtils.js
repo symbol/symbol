@@ -51,7 +51,7 @@ const dbUtils = {
 	/**
 	 * Converts long to uint64.
 	 * @param {Long} value Value to convert.
-	 * @returns {uint64} Converted value.
+	 * @returns {module:utils/uint64~uint64} Converted value.
 	 */
 	longToUint64: value => {
 		if (value instanceof Long)

@@ -21,8 +21,7 @@
 
 /**
  * Catapult model restriction.
- * @enum {numeric}
- * @exports model/restriction
+ * @enum {number}
  */
 const restriction = {
 	mosaicRestriction: {

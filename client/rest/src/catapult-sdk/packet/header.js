@@ -19,17 +19,16 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @exports packet/header */
 const packetHeader = {
 	/**
-	 * @property {numeric} size Size (in bytes) of a packet header.
+	 * @property {number} size Size (in bytes) of a packet header.
 	 */
 	size: 8,
 
 	/**
 	 * Creates a packet header buffer.
 	 * @param {module:packet/types} type Packet type.
-	 * @param {numeric} size Packet size.
+	 * @param {number} size Packet size.
 	 * @returns {Buffer} Packet header buffer.
 	 */
 	createBuffer: (type, size) => {
