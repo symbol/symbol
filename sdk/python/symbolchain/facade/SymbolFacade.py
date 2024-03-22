@@ -1,4 +1,5 @@
 import hashlib
+from datetime import datetime, timezone
 
 from .. import sc
 from ..CryptoTypes import Hash256, PublicKey, Signature
@@ -57,6 +58,10 @@ class SymbolFacade:
 			Address: 'address',
 			PublicKey: 'public_key',
 		}
+
+	def now(self):
+		"""Creates a network timestamp representing the current time."""
+		return self.network.from_datetime(datetime.now(timezone.utc))
 
 	def hash_transaction(self, transaction):
 		"""Hashes a Symbol transaction."""

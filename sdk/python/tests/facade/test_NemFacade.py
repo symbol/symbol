@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timezone
 
 from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.Bip32 import Bip32
@@ -108,6 +109,28 @@ class NemFacadeTest(unittest.TestCase):
 		self.assertEqual(
 			str(NemFacade.Address('TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF')).encode('utf8'),
 			transaction.recipient_address.bytes)
+
+	# endregion
+
+	# region now
+
+	def test_can_create_current_timestamp_for_network_via_now(self):
+		while True:
+			# Arrange: affinitize test to run so that whole test runs within the context of the same millisecond
+			start_time = datetime.now()
+			facade = NemFacade('testnet')
+
+			# Act:
+			now_from_facade = facade.now()
+			now_from_network = facade.network.from_datetime(datetime.now(timezone.utc))
+
+			end_time = datetime.now()
+			if (start_time.microsecond // 1000) != (end_time.microsecond // 1000):
+				continue
+
+			# Assert:
+			self.assertEqual(now_from_network, now_from_facade)
+			break
 
 	# endregion
 

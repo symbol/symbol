@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timezone
 
 from symbolchain import sc
 from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
@@ -202,6 +203,28 @@ class SymbolFacadeTest(unittest.TestCase):
 			PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8').bytes,
 			transaction.signer_public_key.bytes)
 		self.assertEqual(SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y').bytes, transaction.recipient_address.bytes)
+
+	# endregion
+
+	# region now
+
+	def test_can_create_current_timestamp_for_network_via_now(self):
+		while True:
+			# Arrange: affinitize test to run so that whole test runs within the context of the same millisecond
+			start_time = datetime.now()
+			facade = SymbolFacade('testnet')
+
+			# Act:
+			now_from_facade = facade.now()
+			now_from_network = facade.network.from_datetime(datetime.now(timezone.utc))
+
+			end_time = datetime.now()
+			if (start_time.microsecond // 1000) != (end_time.microsecond // 1000):
+				continue
+
+			# Assert:
+			self.assertEqual(now_from_network, now_from_facade)
+			break
 
 	# endregion
 

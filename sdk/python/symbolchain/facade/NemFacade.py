@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import sha3
 
 from ..CryptoTypes import Hash256, PrivateKey, PublicKey
@@ -39,6 +41,10 @@ class NemFacade:
 			Address: 'address',
 			PublicKey: 'public_key'
 		}
+
+	def now(self):
+		"""Creates a network timestamp representing the current time."""
+		return self.network.from_datetime(datetime.now(timezone.utc))
 
 	@staticmethod
 	def hash_transaction(transaction):

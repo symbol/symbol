@@ -50,4 +50,4 @@ class NetworkTimestampDatetimeConverter:
 		if reference_datetime < self.epoch:
 			raise ValueError('timestamp cannot be before epoch')
 
-		return (reference_datetime - self.epoch) / datetime.timedelta(**{self.time_units: 1})
+		return (reference_datetime - self.epoch) // datetime.timedelta(**{self.time_units: 1})

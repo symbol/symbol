@@ -101,7 +101,7 @@ class NetworkTimestampDatetimeConverterTest(unittest.TestCase):
 		converter = create_converter()
 
 		# Act:
-		raw_timestamp = converter.to_difference(datetime.datetime(2020, 1, 2, 3))
+		raw_timestamp = converter.to_difference(datetime.datetime(2020, 1, 2, 3, 4))
 
 		# Assert:
 		self.assertEqual(0, raw_timestamp)
@@ -111,7 +111,7 @@ class NetworkTimestampDatetimeConverterTest(unittest.TestCase):
 		converter = create_converter()
 
 		# Act:
-		raw_timestamp = converter.to_difference(datetime.datetime(2020, 1, 2, 3 + 5))
+		raw_timestamp = converter.to_difference(datetime.datetime(2020, 1, 2, 3 + 5, 4))
 
 		# Assert:
 		self.assertEqual(5, raw_timestamp)
