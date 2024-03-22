@@ -71,7 +71,7 @@ class BufferContainer {
 class BinarySerializer {
 	/**
 	 * Creates a binary serializer.
-	 * @param {numeric} size Size of the underlying fixed size buffer.
+	 * @param {number} size Size of the underlying fixed size buffer.
 	 */
 	constructor(size) {
 		if (!Number.isInteger(size) || 0 >= size)
@@ -82,7 +82,7 @@ class BinarySerializer {
 
 	/**
 	 * Gets the size of the underlying fixed size buffer.
-	 * @returns {Numeric} Size of the underlying buffer.
+	 * @returns {number} Size of the underlying buffer.
 	 */
 	bufferSize() {
 		return this.container.buffer.length;
@@ -98,7 +98,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a uint8 to the working buffer.
-	 * @param {numeric} value Value to write.
+	 * @param {number} value Value to write.
 	 */
 	writeUint8(value) {
 		this.container.writeUint8(value);
@@ -106,7 +106,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a uint16 to the working buffer.
-	 * @param {numeric} value Value to write.
+	 * @param {number} value Value to write.
 	 */
 	writeUint16(value) {
 		this.container.writeUint16(value);
@@ -114,7 +114,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a uint32 to the working buffer.
-	 * @param {numeric} value Value to write.
+	 * @param {number} value Value to write.
 	 */
 	writeUint32(value) {
 		this.container.writeUint32(value);
@@ -122,7 +122,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a uint64 to the working buffer.
-	 * @param {numeric} value Value to write.
+	 * @param {number} value Value to write.
 	 */
 	writeUint64(value) {
 		this.container.writeUint64(value);

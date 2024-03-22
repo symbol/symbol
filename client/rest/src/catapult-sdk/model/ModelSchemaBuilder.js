@@ -335,7 +335,7 @@ class ModelSchemaBuilder {
 
 	/**
 	 * Returns a function that returns the best known schema for a given transaction.
-	 * @returns {function} Transaction schema lookup function.
+	 * @returns {Function} Transaction schema lookup function.
 	 */
 	transactionSchemaNameSupplier() {
 		// default to transaction

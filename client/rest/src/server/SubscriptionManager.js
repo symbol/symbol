@@ -78,7 +78,7 @@ class SubscriptionManager {
 	/**
 	 * Gets all active subscriptions for a client.
 	 * @param {object} client Client.
-	 * @returns {array<string>} Client's subscribed channels.
+	 * @returns {Array<string>} Client's subscribed channels.
 	 */
 	clientSubscriptions(client) {
 		return Object.keys(this.subscriptions).filter(channel => this.subscriptions[channel].has(client));

@@ -28,7 +28,7 @@
 /**
  * Aggregate codec for serializing and deserializing a model supporting multiple entity types.
  * @interface
- * @extends {module:modelBinary/ModelCodec}
+ * @augments {module:modelBinary/ModelCodec}
  */
 const AggregateModelCodec = {
 	/**

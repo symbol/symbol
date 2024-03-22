@@ -52,7 +52,6 @@ const getSchemaName = (schemaName, entity) => ('function' === typeof schemaName 
  * @instance
  */
 
-/** @exports utils/schemaFormatter */
 const schemaFormatter = {
 	/**
 	 * Formats an entity according to a schema and rules.

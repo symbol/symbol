@@ -34,8 +34,8 @@ const dbFacade = {
 	/**
 	 * Runs a database operation that is dependent on current chain height.
 	 * @param {module:db/CatapultDb} db Catapult database.
-	 * @param {numeric} height Request height.
-	 * @param {function} operation Height-dependent operation that returns a promise.
+	 * @param {number} height Request height.
+	 * @param {Function} operation Height-dependent operation that returns a promise.
 	 * @returns {object} Operation result if the request height is no greater than the chain height, undefined otherwise.
 	 */
 	runHeightDependentOperation: (db, height, operation) => {
@@ -57,9 +57,10 @@ const dbFacade = {
 	/**
 	 * Retrieves transaction statuses by specified hashes.
 	 * @param {module:db/CatapultDb} db Catapult database.
-	 * @param {array} hashes Hashes of transactions to query.
-	 * @param {array} additionalTransactionStates Additional transaction states.
-	 * @returns {Promise.<array>} Array of failed, unconfirmed and confirmed transactions.
+	 * @param {Array<Uint8Array>} hashes Hashes of transactions to query.
+	 * @param {Array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} additionalTransactionStates
+	 *        Additional transaction states.
+	 * @returns {Promise<Array<object>>} Array of failed, unconfirmed and confirmed transactions.
 	 */
 	transactionStatusesByHashes: (db, hashes, additionalTransactionStates) => {
 		const transactionStates = [].concat(
@@ -78,7 +79,7 @@ const dbFacade = {
 			promises.push(dbPromise.then(objs => objs.map(transaction => extractFromMetadata(state.friendlyName, transaction))));
 		});
 		promises.push(db.transactionsByHashesFailed(hashes)
-			.then(objs => objs.map(status => status.status))	// removes wrapping property
+			.then(objs => objs.map(status => status.status)) // removes wrapping property
 			.then(objs => objs.map(status => Object.assign(status, { group: 'failed' }))));
 
 		return Promise.all(promises).then(tuple => {

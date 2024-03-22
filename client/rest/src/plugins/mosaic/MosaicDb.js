@@ -38,7 +38,7 @@ class MosaicDb {
 	 * @param {Uint8Array} ownerAddress Mosaic owner address
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Mosaics page.
+	 * @returns {Promise<object>} Mosaics page.
 	 */
 	mosaics(ownerAddress, options) {
 		const sortingOptions = { id: '_id' };
@@ -58,8 +58,8 @@ class MosaicDb {
 
 	/**
 	 * Retrieves mosaics given their ids.
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} ids Mosaic ids.
-	 * @returns {Promise.<array>} Mosaics.
+	 * @param {Array<module:utils/uint64~uint64>} ids Mosaic ids.
+	 * @returns {Promise<Array<object>>} Mosaics.
 	 */
 	mosaicsByIds(ids) {
 		const mosaicIds = ids.map(id => new Long(id[0], id[1]));

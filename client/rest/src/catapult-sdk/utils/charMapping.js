@@ -24,7 +24,6 @@
 /**
  * Builder for building a character map.
  * @class CharacterMapBuilder
- *
  * @property {object} map Character map.
  */
 
@@ -42,7 +41,7 @@ const charMapping = {
 			 * Adds a range mapping to the map.
 			 * @param {string} start Start character.
 			 * @param {string} end End character.
-			 * @param {numeric} base Value corresponding to the start character.
+			 * @param {number} base Value corresponding to the start character.
 			 * @memberof module:utils/charMapping~CharacterMapBuilder
 			 * @instance
 			 */

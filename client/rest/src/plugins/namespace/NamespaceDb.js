@@ -61,13 +61,13 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves filtered and paginated namespaces.
-	 * @param {Uint32} aliasType Namespace alias type
-	 * @param {module:catapult.utils/uint64~uint64} level0 Namespace level0
+	 * @param {number} aliasType Namespace alias type
+	 * @param {module:utils/uint64~uint64} level0 Namespace level0
 	 * @param {Uint8Array} ownerAddress Namespace owner address
-	 * @param {Uint32} registrationType Namespace registration type
+	 * @param {number} registrationType Namespace registration type
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Namespaces page.
+	 * @returns {Promise<object>} Namespaces page.
 	 */
 	async namespaces(aliasType, level0, ownerAddress, registrationType, options) {
 		const sortingOptions = { id: '_id' };
@@ -103,8 +103,8 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves a namespace.
-	 * @param {module:catapult.utils/uint64~uint64} id Namespace id.
-	 * @returns {Promise.<object>} Namespace.
+	 * @param {module:utils/uint64~uint64} id Namespace id.
+	 * @returns {Promise<object>} Namespace.
 	 */
 	async namespaceById(id) {
 		const { height } = await this.catapultDb.chainStatisticCurrent();
@@ -125,9 +125,9 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves non expired namespaces aliasing mosaics or addresses.
-	 * @param {Array.<module:catapult.model.namespace/aliasType>} aliasType Alias type.
+	 * @param {Array<module:catapult.model.namespace.aliasType>} aliasType Alias type.
 	 * @param {*} ids Set of mosaic or address ids.
-	 * @returns {Promise.<array>} Active namespaces aliasing ids.
+	 * @returns {Promise<Array<object>>} Active namespaces aliasing ids.
 	 */
 	async activeNamespacesWithAlias(aliasType, ids) {
 		const aliasFilterCondition = {
@@ -149,8 +149,8 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves transactions that registered the specified namespaces.
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} namespaceIds Namespace ids.
-	 * @returns {Promise.<array>} Register namespace transactions.
+	 * @param {Array<module:utils/uint64~uint64>} namespaceIds Namespace ids.
+	 * @returns {Promise<Array<object>>} Register namespace transactions.
 	 */
 	registerNamespaceTransactionsByNamespaceIds(namespaceIds) {
 		const type = catapult.model.EntityType.registerNamespace;

@@ -78,8 +78,8 @@ class PacketParserImpl {
 /**
  * A raw packet composed of header information and a payload.
  * @typedef {object} RawPacket
- * @property {numeric} type Packet type.
- * @property {numeric} size Packet size.
+ * @property {number} type Packet type.
+ * @property {number} size Packet size.
  * @property {Buffer} payload Packet payload.
  */
 

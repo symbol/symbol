@@ -22,7 +22,6 @@
 /**
  * Account id types.
  * @enum {string}
- * @exports db/AccountType
  */
 const AccountType = {
 	/** Account id is a public key */

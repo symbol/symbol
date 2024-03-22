@@ -29,14 +29,14 @@ const readUint32At = (bytes, i) => (bytes[i] + (bytes[i + 1] << 8) + (bytes[i + 
 /**
  * An exact uint64 representation composed of two 32bit values.
  * @typedef {Array} uint64
- * @property {numeric} 0 Low 32bit value.
- * @property {numeric} 1 High 32bit value.
+ * @property {number} 0 Low 32bit value.
+ * @property {number} 1 High 32bit value.
  */
 const uint64Module = {
 	/**
 	 * Tries to compact a uint64 into a simple numeric.
 	 * @param {module:utils/uint64~uint64} uint64 A uint64 value.
-	 * @returns {numeric|module:utils/uint64~uint64}
+	 * @returns {number|module:utils/uint64~uint64}
 	 * A numeric if the uint64 is no greater than Number.MAX_SAFE_INTEGER or the original uint64 value otherwise.
 	 */
 	compact: uint64 => {
@@ -53,7 +53,7 @@ const uint64Module = {
 
 	/**
 	 * Converts a numeric unsigned integer into a uint64.
-	 * @param {Numeric} number Unsigned integer.
+	 * @param {number} number Unsigned integer.
 	 * @returns {module:utils/uint64~uint64} Uint64 representation of the input.
 	 */
 	fromUint: number => {

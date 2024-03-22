@@ -21,8 +21,7 @@
 
 /**
  * Catapult model entity types.
- * @enum {numeric}
- * @exports model/EntityType
+ * @enum {number}
  */
 const EntityType = {
 	/** Transfer transaction. */

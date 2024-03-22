@@ -92,7 +92,7 @@ class MessageChannelBuilder {
 	 * Adds support for a new channel.
 	 * @param {string} name Channel name.
 	 * @param {string} markerChar Channel marker character.
-	 * @param {function} handler Channel data handler.
+	 * @param {Function} handler Channel data handler.
 	 */
 	add(name, markerChar, handler) {
 		if (name in this.descriptors)

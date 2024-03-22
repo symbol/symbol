@@ -203,11 +203,13 @@ class CatapultDb {
 	 * Retrieves filtered and paginated blocks.
 	 * @param {Uint8Array} signerPublicKey Filters by signer public key
 	 * @param {Uint8Array} beneficiaryAddress Filters by beneficiary address
-	 * @param {uint64} fromTimestamp Filters blocks by only including blocks with a timestamp greater than or equal to provided value
-	 * @param {uint64} toTimestamp Filters blocks by only including blocks with a timestamp less than or equal to provided value
+	 * @param {module:utils/uint64~uint64} fromTimestamp
+	 *        Filters blocks by only including blocks with a timestamp greater than or equal to provided value
+	 * @param {module:utils/uint64~uint64} toTimestamp
+	 *        Filters blocks by only including blocks with a timestamp less than or equal to provided value
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Blocks page.
+	 * @returns {Promise<object>} Blocks page.
 	 */
 	blocks(signerPublicKey, beneficiaryAddress, fromTimestamp, toTimestamp, options) {
 		const sortingOptions = {
@@ -251,7 +253,7 @@ class CatapultDb {
 
 	/**
 	 * Returns the blocks (or a projection of the blocks) for the given heights.
-	 * @param {Long[]} heights the array of long heights
+	 * @param {MongoDb.Long[]} heights the array of long heights
 	 * @param {object} projection optional projection, by default it excludes the transactionMerkleTree and statementMerkleTree fields
 	 * @returns {Promise} with the blocks objects or projections.
 	 */
@@ -277,7 +279,7 @@ class CatapultDb {
 
 	/**
 	 * Retrieves the fee multiplier for the last (higher on the chain) numBlocks blocks
-	 * @param {int} numBlocks Number of blocks to retrieve.
+	 * @param {number} numBlocks Number of blocks to retrieve.
 	 * @returns {Promise} Promise that resolves to feeMultiplier array
 	 */
 	latestBlocksFeeMultiplier(numBlocks) {
@@ -301,13 +303,13 @@ class CatapultDb {
 
 	/**
 	 * Makes a paginated query with the provided arguments.
-	 * @param {array<object>} queryConditions The conditions that determine the query results, may be empty.
-	 * @param {array<string>} removedFields Field names to be hidden from the query results, may be empty.
+	 * @param {Array<object>} queryConditions The conditions that determine the query results, may be empty.
+	 * @param {Array<string>} removedFields Field names to be hidden from the query results, may be empty.
 	 * @param {object} sortConditions Condition that describes the order of the results, must be set.
 	 * @param {string} collectionName Name of the collection to be queried.
 	 * @param {object} options Pagination options, must contain `pageSize` and `pageNumber` (starting at 1).
-	 * @param {function} mapper to transform each element of the page.
-	 * @returns {Promise.<object>} Page result, contains the attributes `data` with the actual results, and `paging` with pagination
+	 * @param {Function} mapper to transform each element of the page.
+	 * @returns {Promise<object>} Page result, contains the attributes `data` with the actual results, and `paging` with pagination
 	 * metadata - which is comprised of: `pageNumber`, and `pageSize`.
 	 */
 	queryPagedDocuments(queryConditions, removedFields, sortConditions, collectionName, options, mapper) {
@@ -344,7 +346,7 @@ class CatapultDb {
 	 * If `address` is provided, other account related filters are omitted.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Transactions page.
+	 * @returns {Promise<object>} Transactions page.
 	 */
 	async transactions(group, filters, options) {
 		const sortingOptions = { id: '_id' };
@@ -458,9 +460,7 @@ class CatapultDb {
 
 	/**
 	 * It retrieves and adds the block information to the transactions' meta.
-	 *
 	 * The block information includes its timestamp and feeMultiplier
-	 *
 	 * @param {object[]} list the transaction list without the added block information.
 	 * @returns {Promise<object[]>} the list with the added block information.
 	 */
@@ -470,7 +470,6 @@ class CatapultDb {
 
 	/**
 	 * It retrieves and adds the block information to the entities' meta.
-	 *
 	 * @param {object[]} list the entity list without the added block information.
 	 * @param {string[]} fields the list of fields to be be copied from the block's to the entity's meta.
 	 * @param {Function} getHeight a function that returns the block's height of a given entity.
@@ -521,7 +520,7 @@ class CatapultDb {
 	 * @param {*} ids Set of transaction ids.
 	 * @param {*} transactionType Transaction type.
 	 * @param {object} fieldNames Descriptor for fields used in query.
-	 * @returns {Promise.<array>} Promise that is resolved when tuples are ready.
+	 * @returns {Promise<Array<object>>} Promise that is resolved when tuples are ready.
 	 */
 	findNamesByIds(ids, transactionType, fieldNames) {
 		const queriedIds = ids.map(convertToLong);
@@ -553,10 +552,11 @@ class CatapultDb {
 	/**
 	 * Retrieves filtered and paginated accounts
 	 * @param {Uint8Array} address Filters by address
-	 * @param {uint64} mosaicId Filters by accounts with some mosaicId balance. Required if provided `sortField` is `balance`
+	 * @param {module:utils/uint64~uint64} mosaicId
+	 *        Filters by accounts with some mosaicId balance. Required if provided `sortField` is `balance`
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Accounts page.
+	 * @returns {Promise<object>} Accounts page.
 	 */
 	accounts(address, mosaicId, options) {
 		const sortingOptions = { id: '_id', balance: 'account.mosaics.amount' };
@@ -630,8 +630,8 @@ class CatapultDb {
 
 	/**
 	 * Retrieves transaction results for the given hashes.
-	 * @param {Array.<Uint8Array>} hashes Transaction hashes.
-	 * @returns {Promise.<Array>} Promise that resolves to the array of hash / validation result pairs.
+	 * @param {Array<Uint8Array>} hashes Transaction hashes.
+	 * @returns {Promise<Array>} Promise that resolves to the array of hash / validation result pairs.
 	 */
 	transactionsByHashesFailed(hashes) {
 		const buffers = hashes.map(hash => Buffer.from(hash));

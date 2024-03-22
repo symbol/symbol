@@ -52,19 +52,18 @@ const plugins = {
 /**
  * A complete catapult model system.
  * @class CatapultModelSystem
- *
  * @property {object} schema Complete schema information.
  */
 const catapultModelSystem = {
 	/**
 	 * Gets the names of all supported plugins.
-	 * @returns {array<string>} Names of all supported plugins.
+	 * @returns {Array<string>} Names of all supported plugins.
 	 */
 	supportedPluginNames: () => Object.keys(plugins),
 
 	/**
 	 * Builds a catapult model system with the specified extensions.
-	 * @param {array} pluginNames Additional extensions to use.
+	 * @param {Array<object>} pluginNames Additional extensions to use.
 	 * @param {object} namedFormattingRules A dictionary containing named sets of formatting rules.
 	 * @returns {module:plugins/catapultModelSystem} Configured catapult model system.
 	 */

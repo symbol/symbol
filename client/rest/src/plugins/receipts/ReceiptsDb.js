@@ -28,9 +28,9 @@ const isNamespaceId = id => 0 !== (0x80 & convert.hexToUint8(uint64.toHex(id))[0
 
 class ReceiptsDb {
 	/**
-	* Creates ReceiptsDb around CatapultDb.
-	* @param {module:db/CatapultDb} db Catapult db instance.
-	*/
+	 * Creates ReceiptsDb around CatapultDb.
+	 * @param {module:db/CatapultDb} db Catapult db instance.
+	 */
 	constructor(db) {
 		this.catapultDb = db;
 	}
@@ -41,7 +41,7 @@ class ReceiptsDb {
 	 * `artifactId`.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Transaction statements page.
+	 * @returns {Promise<object>} Transaction statements page.
 	 */
 	transactionStatements(filters, options) {
 		const sortingOptions = { id: '_id' };
@@ -91,12 +91,12 @@ class ReceiptsDb {
 
 	/**
 	 * Retrieves filtered and paginated artifact resolution statements.
-	 * @param {numeric} height Statement height.
+	 * @param {number} height Statement height.
 	 * @param {Uint8Array} artifact Must be provided, determines the type of statements that are being fetched. May be `address`, or
 	 * `mosaic`.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
-	 * @returns {Promise.<object>} Artifact statements page.
+	 * @returns {Promise<object>} Artifact statements page.
 	 */
 	artifactStatements(height, artifact, options) {
 		const sortingOptions = { id: '_id' };
@@ -117,9 +117,7 @@ class ReceiptsDb {
 
 	/**
 	 * It retrieves and adds the blocks information to the statements' meta.
-	 *
 	 * The block information includes the its timestamp
-	 *
 	 * @param {object} page the page without meta in the items.
 	 * @returns {Promise<{pagination, data}>} the page with the added block's meta to the items.
 	 */

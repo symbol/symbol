@@ -35,7 +35,7 @@ const evenify = number => (number % 2 ? number + 1 : number);
  * Returns the index of a hash in a Merkle tree.
  * @param {Uint8Array} hash Hash to look up in the tree.
  * @param {object} tree Merkle tree object containing the number of hashed elements and the tree of hashes.
- * @returns {array} Index of the first element in the tree matching the given hash, otherwise -1 is returned.
+ * @returns {number} Index of the first element in the tree matching the given hash, otherwise -1 is returned.
  */
 const indexOfLeafWithHash = (hash, tree) => tree.nodes
 	.slice(0, evenify(tree.count))
@@ -58,7 +58,7 @@ const siblingOf = nodeIndex => {
  * Given a Merkle tree and a hashed element in it, returns the audit path required for a consistency check.
  * @param {Uint8Array} hash Element's hash for which to build the audit path.
  * @param {object} tree Merkle tree object containing the number of elements and the tree of hashes.
- * @returns {array} Array of objects containing the Merkle tree hash, and its relative position (left or right).
+ * @returns {Array<object>} Array of objects containing the Merkle tree hash, and its relative position (left or right).
  */
 const buildAuditPath = (hash, tree) => {
 	if (0 === tree.count)

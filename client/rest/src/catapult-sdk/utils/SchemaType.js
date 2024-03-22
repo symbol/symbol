@@ -23,7 +23,7 @@
 
 /**
  * Basic schema property types.
- * @enum {numeric}
+ * @enum {number}
  */
 const SchemaType = {
 	/** Default schema property type. */

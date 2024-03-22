@@ -23,9 +23,8 @@ const SchemaType = require('../utils/SchemaType');
 
 /**
  * Catapult model extended schema property types.
- * @enum {numeric}
- * @extends module:utils/SchemaType
- * @exports model/ModelType
+ * @enum {number}
+ * @augments module:utils/SchemaType
  */
 const ModelType = {
 	/** Schema property type indicating a binary value. */

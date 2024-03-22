@@ -193,7 +193,7 @@ const toStringInternal = code => {
 const status = {
 	/**
 	 * Converts a status code to a string.
-	 * @param {numeric} code Status code.
+	 * @param {number} code Status code.
 	 * @returns {string} String representation of the status code.
 	 */
 	toString: code => {
