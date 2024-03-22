@@ -185,6 +185,30 @@ describe('Symbol Facade', () => {
 
 	// endregion
 
+	// region now
+
+	it('can create current timestamp for network via now', () => {
+		for (;;) {
+			// Arrange: affinitize test to run so that whole test runs within the context of the same millisecond
+			const startTime = new Date().getTime();
+			const facade = new SymbolFacade('testnet');
+
+			// Act:
+			const nowFromFacade = facade.now();
+			const nowFromNetwork = facade.network.fromDatetime(new Date(Date.now()));
+
+			const endTime = new Date().getTime();
+			if (startTime !== endTime)
+				continue; // eslint-disable-line no-continue
+
+			// Assert:
+			expect(nowFromFacade).to.deep.equal(nowFromNetwork);
+			break;
+		}
+	});
+
+	// endregion
+
 	// region hash transaction / sign transaction
 
 	const attachSignature = (facade, transaction, signature) => {

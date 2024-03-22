@@ -12,7 +12,13 @@ import {
 } from '../CryptoTypes.js';
 import { NetworkLocator } from '../Network.js';
 import { KeyPair, Verifier } from '../symbol/KeyPair.js';
-import { Address, Network as SymbolNetwork } from '../symbol/Network.js';
+import {
+	Address,
+	Network,
+	/* eslint-disable no-unused-vars */
+	NetworkTimestamp
+	/* eslint-enable no-unused-vars */
+} from '../symbol/Network.js';
 import { deriveSharedKey } from '../symbol/SharedKey.js';
 import TransactionFactory from '../symbol/TransactionFactory.js';
 import { MerkleHashBuilder } from '../symbol/merkle.js';
@@ -88,14 +94,14 @@ export default class SymbolFacade {
 
 	/**
 	 * Creates a Symbol facade.
-	 * @param {string|SymbolNetwork} network Symbol network or network name.
+	 * @param {string|Network} network Symbol network or network name.
 	 */
 	constructor(network) {
 		/**
 		 * Underlying network.
-		 * @type {SymbolNetwork}
+		 * @type {Network}
 		 */
-		this.network = 'string' === typeof network ? NetworkLocator.findByName(SymbolNetwork.NETWORKS, network) : network;
+		this.network = 'string' === typeof network ? NetworkLocator.findByName(Network.NETWORKS, network) : network;
 
 		/**
 		 * Underlying transaction factory.
@@ -110,6 +116,14 @@ export default class SymbolFacade {
 	 */
 	get static() { // eslint-disable-line class-methods-use-this
 		return SymbolFacade;
+	}
+
+	/**
+	 * Creates a network timestamp representing the current time.
+	 * @returns {NetworkTimestamp} Network timestamp representing the current time
+	 */
+	now() {
+		return this.network.fromDatetime(new Date());
 	}
 
 	/**
