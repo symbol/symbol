@@ -116,8 +116,15 @@ namespace catapult { namespace ionet {
 
 		public:
 			void close() {
+				m_strandWrapper.dispatch(shared_from_this(), [](const auto& pGuard) {
+					pGuard->closeImpl();
+				});
+			}
+
+		private:
+			void closeImpl() {
 				if (m_isClosed.test_and_set()) {
-					abort();
+					abortImpl();
 					return;
 				}
 
@@ -132,13 +139,23 @@ namespace catapult { namespace ionet {
 					if (ec && !IsProtocolShutdown(ec))
 						CATAPULT_LOG(warning) << "async_write returned an error: " << ec.message();
 
-					abort();
+					abortImpl();
 				}));
 			}
 
+		public:
 			void abort() {
+				m_strandWrapper.dispatch(shared_from_this(), [](const auto& pGuard) {
+					pGuard->abortImpl();
+				});
+			}
+
+		private:
+			void abortImpl() {
 				boost::system::error_code ignoredEc;
 				m_socket.lowest_layer().close(ignoredEc);
+
+				m_isClosed.test_and_set();
 			}
 
 		private:
@@ -759,7 +776,7 @@ namespace catapult { namespace ionet {
 		template<typename TCallbackWrapper>
 		class BasicConnectHandler final {
 		private:
-			using Resolver = boost::asio::ip::tcp::resolver;
+			using ResolverType = boost::asio::ip::tcp::resolver;
 
 		public:
 			BasicConnectHandler(
@@ -775,23 +792,16 @@ namespace catapult { namespace ionet {
 							options))
 					, m_resolver(ioContext)
 					, m_host(endpoint.Host)
-					, m_query(m_host, std::to_string(endpoint.Port))
+					, m_port(std::to_string(endpoint.Port))
 					, m_protocols(options.OutgoingProtocols)
 					, m_isCancelled(false)
 			{}
 
 		public:
 			void start() {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4459) /* declaration of 'query' hides global declaration */
-#endif
-				m_resolver.async_resolve(m_query, m_wrapper.wrap([this](const auto& ec, auto iter) {
-					this->handleResolve(ec, std::move(iter));
+				m_resolver.async_resolve(m_host, m_port, m_wrapper.wrap([this](const auto& ec, const auto& results) {
+					this->handleResolve(ec, results);
 				}));
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 			}
 
 			void cancel() {
@@ -806,13 +816,13 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
-			void handleResolve(const boost::system::error_code& ec, Resolver::iterator&& iter) {
+			void handleResolve(const boost::system::error_code& ec, const ResolverType::results_type& results) {
 				if (shouldAbort(ec, "resolving address"))
 					return invokeCallback(ConnectResult::Resolve_Error);
 
 				auto foundMatchingProtocol = false;
-				while (Resolver::iterator() != iter) {
-					auto endpoint = iter->endpoint();
+				for (const auto& result : results) {
+					const auto& endpoint = result.endpoint();
 					if (HasFlag(IpProtocol::IPv4, m_protocols) && boost::asio::ip::tcp::v4() == endpoint.protocol()) {
 						m_endpoint = endpoint;
 						foundMatchingProtocol = true;
@@ -830,8 +840,6 @@ namespace catapult { namespace ionet {
 						if (!HasFlag(IpProtocol::IPv4, m_protocols))
 							break;
 					}
-
-					++iter;
 				}
 
 				if (!foundMatchingProtocol)
@@ -886,9 +894,9 @@ namespace catapult { namespace ionet {
 			TCallbackWrapper& m_wrapper;
 
 			std::shared_ptr<StrandedPacketSocket> m_pSocket;
-			Resolver m_resolver;
+			ResolverType m_resolver;
 			std::string m_host;
-			Resolver::query m_query;
+			std::string m_port;
 			IpProtocol m_protocols;
 			bool m_isCancelled;
 			boost::asio::ip::tcp::endpoint m_endpoint;
