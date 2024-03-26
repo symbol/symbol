@@ -28,5 +28,5 @@ RUN Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.ex
 ENV OPENSSL_ROOT_DIR='C:\Users\ContainerAdministrator\scoop\apps\openssl\current'
 
 # install common python packages
-RUN python3 -m pip install --upgrade aiohttp colorama coverage cryptography gitlint isort Jinja2 lark ply Pillow pycodestyle pylint pynacl pytest PyYAML pyzbar \
+RUN python3 -m pip install --upgrade aiohttp colorama coverage cryptography gitlint isort Jinja2 lark ply Pillow pycodestyle pylint pynacl pytest PyYAML pyzbar `
 	requests ripemd-hash safe-pysha3 setuptools websockets wheel zenlog
