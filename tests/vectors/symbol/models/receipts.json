@@ -142,19 +142,5 @@
       "type": "namespace_expired_receipt",
       "artifact_id": 13169662675581784054
     }
-  },
-  {
-    "schema_name": "NamespaceRentalFeeReceipt",
-    "test_name": "NamespaceRentalFeeReceipt_receipts_13",
-    "payload": "4800000000004D1244B262C46CEABB85EFCDAB90785634129841E5B8E40781CF74DABF592817DE48711D778648DEAFB298F409274B52FABBFBCF7E7DF7E20DE1D0C3F657FB8595C1",
-    "descriptor": {
-      "type": "mosaic_rental_fee_receipt",
-      "mosaic": {
-        "mosaic_id": 9636553580561478212,
-        "amount": 1311768467294899695
-      },
-      "sender_address": "TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ",
-      "recipient_address": "TD2ASJ2LKL5LX66PPZ67PYQN4HIMH5SX7OCZLQI"
-    }
   }
 ]

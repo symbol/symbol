@@ -97,14 +97,5 @@ receipts = [
 			'type': 'namespace_expired_receipt',
 			'artifact_id': generate_namespace_id('evolving')
 		}
-	},
-	{
-		'schema_name': 'NamespaceRentalFeeReceipt',
-		'descriptor': {
-			'type': 'mosaic_rental_fee_receipt',
-			'mosaic': {'mosaic_id': 0x85BBEA6CC462B244, 'amount': 0x1234567890ABCDEF},
-			'sender_address': SAMPLE_ADDRESS,
-			'recipient_address': SAMPLE_ADDRESS_2
-		}
-	},
+	}
 ]
