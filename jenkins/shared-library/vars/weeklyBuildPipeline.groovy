@@ -6,7 +6,6 @@ void call(Closure body) {
 	body()
 
 	final String shouldPublishFailJobStatusName = 'SHOULD_PUBLISH_FAIL_JOB_STATUS'
-	final String manualGitBranchName = 'MANUAL_GIT_BRANCH'
 	final String defaultBranch = 'dev'
 	String[] projectNames = jenkinsfileParams.projectNames ?: []
 
@@ -14,7 +13,7 @@ void call(Closure body) {
 		parameters {
 			gitParameter branchFilter: 'origin/(.*)',
 				defaultValue: defaultBranch,
-				name: manualGitBranchName,
+				name: 'MANUAL_GIT_BRANCH',
 				type: 'PT_BRANCH',
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
@@ -82,7 +81,6 @@ void call(Closure body) {
 							!env.WAIT_FOR_BUILDS || env.WAIT_FOR_BUILDS.toBoolean(),
 							shouldPublishFailJobStatusName,
 							!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean(),
-							manualGitBranchName,
 							projectNames
 						)
 					}
@@ -111,7 +109,6 @@ void triggerAllJobs(
 		boolean waitForDownStream,
 		String shouldPublishFailJobStatusName,
 		boolean shouldPublishFailJobStatusValue,
-		String manualGitBranchName,
 		String[] projectNames) {
 	Map<String, String> allJenkinsfileMap = jobHelper.loadJenkinsfileMap()
 	Map<String, String> displayNameJenkinsfileMap = allJenkinsfileMap.findAll { namePathMap -> projectNames.contains(namePathMap.key) }
@@ -124,7 +121,6 @@ void triggerAllJobs(
 	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(displayNameJenkinsfileMap, currentBuild.fullProjectName)
 	Map<String, Closure> buildJobs = [:]
 	String jobName = jobHelper.resolveJobName(siblingNameMap.keySet().toArray()[0], branchName)
-	println "job name - ${jobName}"
 
 	siblingNameMap.each { siblingName ->
 		String displayName = siblingName.value
@@ -138,9 +134,9 @@ void triggerAllJobs(
 			buildJobs[stageName] = {
 				stage("${stageName}") {
 					String fullJobName = siblingName.key + '/' + jobName
+					println "job name - ${fullJobName}"
 
 					build job: "${fullJobName}", parameters: [
-						gitParameter(name: manualGitBranchName, value: branchName),
 						string(name: 'OPERATING_SYSTEM', value: osValue),
 						string(name: 'BUILD_CONFIGURATION', value: 'release-private'),
 						string(name: 'TEST_MODE', value: 'test'),
