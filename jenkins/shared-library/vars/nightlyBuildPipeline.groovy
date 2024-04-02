@@ -5,14 +5,13 @@ void call(Closure body) {
 	body()
 
 	final String shouldPublishFailJobStatusName = 'SHOULD_PUBLISH_FAIL_JOB_STATUS'
-	final String manualGitBranchName = 'MANUAL_GIT_BRANCH'
 	final String defaultBranch = 'dev'
 
 	pipeline {
 		parameters {
 			gitParameter branchFilter: 'origin/(.*)',
 				defaultValue: defaultBranch,
-				name: manualGitBranchName,
+				name: 'MANUAL_GIT_BRANCH',
 				type: 'PT_BRANCH',
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
@@ -64,8 +63,7 @@ void call(Closure body) {
 							env.MANUAL_GIT_BRANCH ?: defaultBranch,
 							!env.WAIT_FOR_BUILDS || env.WAIT_FOR_BUILDS.toBoolean(),
 							shouldPublishFailJobStatusName,
-							!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean(),
-							manualGitBranchName
+							!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()
 						)
 					}
 				}
@@ -92,8 +90,7 @@ void triggerAllJobs(
 		String branchName,
 		boolean waitForDownStream,
 		String shouldPublishFailJobStatusName,
-		boolean shouldPublishFailJobStatusValue,
-		String manualGitBranchName) {
+		boolean shouldPublishFailJobStatusValue) {
 	Map<String, String> displayNameJenkinsfileMap = jobHelper.loadJenkinsfileMap()
 	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(displayNameJenkinsfileMap, currentBuild.fullProjectName)
 	Map<String, Closure> buildJobs = [:]
@@ -109,7 +106,6 @@ void triggerAllJobs(
 				Map<String, String> jenkinsfileParameters = jobHelper.readJenkinsFileParameters(displayNameJenkinsfileMap.get(displayName))
 				String osValue = jobHelper.resolveOperatingSystem(jenkinsfileParameters.operatingSystem)
 				build job: "${fullJobName}", parameters: [
-					gitParameter(name: manualGitBranchName, value: branchName),
 					string(name: 'OPERATING_SYSTEM', value: osValue),
 					string(name: 'BUILD_CONFIGURATION', value: 'release-private'),
 					string(name: 'TEST_MODE', value: 'code-coverage'),
