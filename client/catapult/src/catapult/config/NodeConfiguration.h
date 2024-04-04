@@ -167,6 +167,12 @@ namespace catapult { namespace config {
 			/// Maximum number of open files.
 			uint32_t MaxOpenFiles;
 
+			/// Maximum number of log files.
+			uint32_t MaxLogFiles;
+
+			/// Maximum log file size.
+			utils::FileSize MaxLogFileSize;
+
 			/// Maximum number of background threads.
 			uint32_t MaxBackgroundThreads;
 

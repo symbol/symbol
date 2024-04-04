@@ -97,6 +97,8 @@ namespace catapult { namespace config {
 
 		LOAD_CACHE_DATABASE_PROPERTY(EnableStatistics);
 		LOAD_CACHE_DATABASE_PROPERTY(MaxOpenFiles);
+		LOAD_CACHE_DATABASE_PROPERTY(MaxLogFiles);
+		LOAD_CACHE_DATABASE_PROPERTY(MaxLogFileSize);
 		LOAD_CACHE_DATABASE_PROPERTY(MaxBackgroundThreads);
 		LOAD_CACHE_DATABASE_PROPERTY(MaxSubcompactionThreads);
 		LOAD_CACHE_DATABASE_PROPERTY(BlockCacheSize);
@@ -150,7 +152,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 40 + 7 + 4 + 4 + 5 + 9);
+		utils::VerifyBagSizeExact(bag, 40 + 9 + 4 + 4 + 5 + 9);
 		return config;
 	}
 

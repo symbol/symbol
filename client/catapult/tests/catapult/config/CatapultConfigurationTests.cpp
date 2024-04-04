@@ -165,6 +165,8 @@ namespace catapult { namespace config {
 
 			EXPECT_FALSE(config.CacheDatabase.EnableStatistics);
 			EXPECT_EQ(0u, config.CacheDatabase.MaxOpenFiles);
+			EXPECT_EQ(0, config.CacheDatabase.MaxLogFiles);
+			EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.MaxLogFileSize);
 			EXPECT_EQ(0u, config.CacheDatabase.MaxBackgroundThreads);
 			EXPECT_EQ(0u, config.CacheDatabase.MaxSubcompactionThreads);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.BlockCacheSize);

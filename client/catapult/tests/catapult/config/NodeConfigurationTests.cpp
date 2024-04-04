@@ -97,6 +97,8 @@ namespace catapult { namespace config {
 						{
 							{ "enableStatistics", "true" },
 							{ "maxOpenFiles", "1111" },
+							{ "maxLogFiles", "23" },
+							{ "maxLogFileSize", "12MB" },
 							{ "maxBackgroundThreads", "19" },
 							{ "maxSubcompactionThreads", "11" },
 							{ "blockCacheSize", "111MB" },
@@ -215,6 +217,8 @@ namespace catapult { namespace config {
 
 				EXPECT_FALSE(config.CacheDatabase.EnableStatistics);
 				EXPECT_EQ(0u, config.CacheDatabase.MaxOpenFiles);
+				EXPECT_EQ(0, config.CacheDatabase.MaxLogFiles);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.MaxLogFileSize);
 				EXPECT_EQ(0u, config.CacheDatabase.MaxBackgroundThreads);
 				EXPECT_EQ(0u, config.CacheDatabase.MaxSubcompactionThreads);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.BlockCacheSize);
@@ -310,6 +314,8 @@ namespace catapult { namespace config {
 
 				EXPECT_TRUE(config.CacheDatabase.EnableStatistics);
 				EXPECT_EQ(1111u, config.CacheDatabase.MaxOpenFiles);
+				EXPECT_EQ(23u, config.CacheDatabase.MaxLogFiles);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(12), config.CacheDatabase.MaxLogFileSize);
 				EXPECT_EQ(19u, config.CacheDatabase.MaxBackgroundThreads);
 				EXPECT_EQ(11u, config.CacheDatabase.MaxSubcompactionThreads);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(111), config.CacheDatabase.BlockCacheSize);

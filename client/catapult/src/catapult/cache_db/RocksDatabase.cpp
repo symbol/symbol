@@ -117,6 +117,12 @@ namespace catapult { namespace cache {
 			if (config.MaxOpenFiles > 0)
 				dbOptions.max_open_files = static_cast<int>(config.MaxOpenFiles);
 
+			if (config.MaxLogFiles > 0)
+				dbOptions.keep_log_file_num = config.MaxLogFiles;
+
+			if (utils::FileSize() != config.MaxLogFileSize)
+				dbOptions.max_log_file_size = config.MaxLogFileSize.bytes();
+
 			if (config.MaxBackgroundThreads > 0)
 				dbOptions.IncreaseParallelism(static_cast<int>(config.MaxBackgroundThreads));
 
