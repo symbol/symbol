@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3.7] - 04-Apr-2024
+
+### Changed
+ - update catapult dependencies
+ - expose configuration to allow node operator to manage RocksDB log files
+
+### Fixed
+ - (BREAKING FORK) fix secret lock pruning bug that, in certain circumstances, can lead to duplicate locks being added
+
 ## [1.0.3.6] - 17-Mar-2023
 
 ### Changed
@@ -486,38 +495,39 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
-[1.0.3.6]: https://github.com/nemtech/catapult-server/compare/v1.0.3.5...v1.0.3.6
-[1.0.3.5]: https://github.com/nemtech/catapult-server/compare/v1.0.3.4...v1.0.3.5
-[1.0.3.4]: https://github.com/nemtech/catapult-server/compare/v1.0.3.3...v1.0.3.4
-[1.0.3.3]: https://github.com/nemtech/catapult-server/compare/v1.0.3.1...v1.0.3.3
-[1.0.3.1]: https://github.com/nemtech/catapult-server/compare/v1.0.3.0...v1.0.3.1
-[1.0.3.0]: https://github.com/nemtech/catapult-server/compare/v1.0.2.0...v1.0.3.0
-[1.0.2.0]: https://github.com/nemtech/catapult-server/compare/v1.0.1.0...v1.0.2.0
-[1.0.1.0]: https://github.com/nemtech/catapult-server/compare/v1.0.0.0...v1.0.1.0
-[0.10.0.8]: https://github.com/nemtech/catapult-server/compare/v0.10.0.7...v0.10.0.8
-[0.10.0.7]: https://github.com/nemtech/catapult-server/compare/v0.10.0.6...v0.10.0.7
-[0.10.0.6]: https://github.com/nemtech/catapult-server/compare/v0.10.0.5...v0.10.0.6
-[0.10.0.5]: https://github.com/nemtech/catapult-server/compare/v0.10.0.4...v0.10.0.5
-[0.10.0.4]: https://github.com/nemtech/catapult-server/compare/v0.10.0.3...v0.10.0.4
-[0.10.0.3]: https://github.com/nemtech/catapult-server/compare/v0.10.0.2...v0.10.0.3
-[0.10.0.2]: https://github.com/nemtech/catapult-server/compare/v0.10.0.1...v0.10.0.2
-[0.10.0.1]: https://github.com/nemtech/catapult-server/compare/v0.9.6.4...v0.10.0.1
-[0.9.6.4]: https://github.com/nemtech/catapult-server/compare/v0.9.6.3...v0.9.6.4
-[0.9.6.3]: https://github.com/nemtech/catapult-server/compare/v0.9.6.2...v0.9.6.3
-[0.9.6.2]: https://github.com/nemtech/catapult-server/compare/v0.9.5.1...v0.9.6.2
-[0.9.5.1]: https://github.com/nemtech/catapult-server/compare/v0.9.4.1...v0.9.5.1
-[0.9.4.1]: https://github.com/nemtech/catapult-server/compare/v0.9.3.2...v0.9.4.1
-[0.9.3.2]: https://github.com/nemtech/catapult-server/compare/v0.9.3.1...v0.9.3.2
-[0.9.3.1]: https://github.com/nemtech/catapult-server/compare/v0.9.2.1...v0.9.3.1
-[0.9.2.1]: https://github.com/nemtech/catapult-server/compare/v0.9.1.1...v0.9.2.1
-[0.9.1.1]: https://github.com/nemtech/catapult-server/compare/v0.9.0.1...v0.9.1.1
-[0.9.0.1]: https://github.com/nemtech/catapult-server/compare/v0.8.0.3...v0.9.0.1
-[0.8.0.3]: https://github.com/nemtech/catapult-server/compare/v0.7.0.1...v0.8.0.3
-[0.7.0.1]: https://github.com/nemtech/catapult-server/compare/v0.6.0.1...v0.7.0.1
-[0.6.0.1]: https://github.com/nemtech/catapult-server/compare/v0.5.0.1...v0.6.0.1
-[0.5.0.1]: https://github.com/nemtech/catapult-server/compare/v0.4.0.1...v0.5.0.1
-[0.4.0.1]: https://github.com/nemtech/catapult-server/compare/v0.3.0.2...v0.4.0.1
-[0.3.0.2]: https://github.com/nemtech/catapult-server/compare/v0.3.0.1...v0.3.0.2
-[0.3.0.1]: https://github.com/nemtech/catapult-server/compare/v0.2.0.2...v0.3.0.1
-[0.2.0.2]: https://github.com/nemtech/catapult-server/compare/v0.1.0.1...v0.2.0.2
-[0.1.0.1]: https://github.com/nemtech/catapult-server/releases/tag/v0.1.0.1
+[1.0.3.7]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.6...client%2Fcatapult%2Fv1.0.3.7
+[1.0.3.6]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.5...client%2Fcatapult%2Fv1.0.3.6
+[1.0.3.5]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.4...client%2Fcatapult%2Fv1.0.3.5
+[1.0.3.4]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.3...client%2Fcatapult%2Fv1.0.3.4
+[1.0.3.3]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.1...client%2Fcatapult%2Fv1.0.3.3
+[1.0.3.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.0...client%2Fcatapult%2Fv1.0.3.1
+[1.0.3.0]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.2.0...client%2Fcatapult%2Fv1.0.3.0
+[1.0.2.0]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.1.0...client%2Fcatapult%2Fv1.0.2.0
+[1.0.1.0]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.0.0...client%2Fcatapult%2Fv1.0.1.0
+[0.10.0.8]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.10.0.7...client%2Fcatapult%2Fv0.10.0.8
+[0.10.0.7]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.10.0.6...client%2Fcatapult%2Fv0.10.0.7
+[0.10.0.6]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.10.0.5...client%2Fcatapult%2Fv0.10.0.6
+[0.10.0.5]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.10.0.4...client%2Fcatapult%2Fv0.10.0.5
+[0.10.0.4]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.10.0.3...client%2Fcatapult%2Fv0.10.0.4
+[0.10.0.3]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.10.0.2...client%2Fcatapult%2Fv0.10.0.3
+[0.10.0.2]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.10.0.1...client%2Fcatapult%2Fv0.10.0.2
+[0.10.0.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.6.4...client%2Fcatapult%2Fv0.10.0.1
+[0.9.6.4]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.6.3...client%2Fcatapult%2Fv0.9.6.4
+[0.9.6.3]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.6.2...client%2Fcatapult%2Fv0.9.6.3
+[0.9.6.2]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.5.1...client%2Fcatapult%2Fv0.9.6.2
+[0.9.5.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.4.1...client%2Fcatapult%2Fv0.9.5.1
+[0.9.4.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.3.2...client%2Fcatapult%2Fv0.9.4.1
+[0.9.3.2]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.3.1...client%2Fcatapult%2Fv0.9.3.2
+[0.9.3.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.2.1...client%2Fcatapult%2Fv0.9.3.1
+[0.9.2.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.1.1...client%2Fcatapult%2Fv0.9.2.1
+[0.9.1.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.9.0.1...client%2Fcatapult%2Fv0.9.1.1
+[0.9.0.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.8.0.3...client%2Fcatapult%2Fv0.9.0.1
+[0.8.0.3]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.7.0.1...client%2Fcatapult%2Fv0.8.0.3
+[0.7.0.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.6.0.1...client%2Fcatapult%2Fv0.7.0.1
+[0.6.0.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.5.0.1...client%2Fcatapult%2Fv0.6.0.1
+[0.5.0.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.4.0.1...client%2Fcatapult%2Fv0.5.0.1
+[0.4.0.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.3.0.2...client%2Fcatapult%2Fv0.4.0.1
+[0.3.0.2]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.3.0.1...client%2Fcatapult%2Fv0.3.0.2
+[0.3.0.1]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.2.0.2...client%2Fcatapult%2Fv0.3.0.1
+[0.2.0.2]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv0.1.0.1...client%2Fcatapult%2Fv0.2.0.2
+[0.1.0.1]: https://github.com/symbol/symbol/releases/tag/client%2Fcatapult%2Fv0.1.0.1
