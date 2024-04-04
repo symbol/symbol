@@ -494,9 +494,9 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region set
+	// region set (string)
 
-	TEST(TEST_CLASS, CanParseValidUnorderedSetOfString) {
+	TEST(TEST_CLASS, CanParseValidUnorderedSetOfStrings) {
 		// Arrange:
 		using Container = std::unordered_set<std::string>;
 
@@ -508,7 +508,7 @@ namespace catapult { namespace utils {
 		AssertSuccessfulParse("Foo BAR,Ac$D*a98p124!", Container{ "Foo BAR", "Ac$D*a98p124!" });
 	}
 
-	TEST(TEST_CLASS, CannotParseInvalidUnorderedSetOfString) {
+	TEST(TEST_CLASS, CannotParseInvalidUnorderedSetOfStrings) {
 		// Arrange:
 		std::unordered_set<std::string> initialValue{ "default", "values" };
 
@@ -519,6 +519,38 @@ namespace catapult { namespace utils {
 		AssertFailedParse(",alpha,gammA", initialValue); // empty value (first)
 		AssertFailedParse("alpha, \t \t,gammA", initialValue); // whitespace value
 		AssertFailedParse("alpha,beta,alpha", initialValue); // duplicate values
+	}
+
+	// endregion
+
+	// region set (height)
+
+	TEST(TEST_CLASS, CanParseValidUnorderedSetOfHeights) {
+		// Arrange:
+		using Container = std::unordered_set<Height, BaseValueHasher<Height>>;
+
+		// Assert:
+		AssertSuccessfulParse("", Container()); // no values
+		AssertSuccessfulParse("1111", Container{ Height(1111) });
+		AssertSuccessfulParse("1111,2222,3333", Container{ Height(1111), Height(2222), Height(3333) });
+		AssertSuccessfulParse("\t1111\t,  4444  "", 3333,2222 ", Container{ Height(1111), Height(4444), Height(3333), Height(2222) });
+		AssertSuccessfulParse("3333,1111", Container{ Height(3333), Height(1111) });
+	}
+
+	TEST(TEST_CLASS, CannotParseInvalidUnorderedSetOfHeights) {
+		// Arrange:
+		std::unordered_set<Height, BaseValueHasher<Height>> initialValue{ Height(12345), Height(98765) };
+
+		// Assert
+		AssertFailedParse(",", initialValue); // no values
+		AssertFailedParse("1111,,3333", initialValue); // empty value (middle)
+		AssertFailedParse("1111,3333,", initialValue); // empty value (last)
+		AssertFailedParse(",1111,3333", initialValue); // empty value (first)
+		AssertFailedParse("1111, \t \t,3333", initialValue); // whitespace value
+		AssertFailedParse("1111,2222,1111", initialValue); // duplicate values
+		AssertFailedParse("1111,22X2,3333", initialValue); // unparseable value (middle)
+		AssertFailedParse("1111,2222,3X33", initialValue); // unparseable value (last)
+		AssertFailedParse("11X1,2222,3333", initialValue); // unparseable value (first)
 	}
 
 	// endregion

@@ -154,6 +154,9 @@ namespace catapult { namespace model {
 		LOAD_FORK_HEIGHT_PROPERTY(TotalVotingBalanceCalculationFix);
 		LOAD_FORK_HEIGHT_PROPERTY(TreasuryReissuance);
 		LOAD_FORK_HEIGHT_PROPERTY(StrictAggregateTransactionHash);
+		LOAD_FORK_HEIGHT_PROPERTY(SkipSecretLockUniquenessChecks);
+		LOAD_FORK_HEIGHT_PROPERTY(SkipSecretLockExpirations);
+		LOAD_FORK_HEIGHT_PROPERTY(ForceSecretLockExpirations);
 
 #undef LOAD_FORK_HEIGHT_PROPERTY
 
@@ -161,7 +164,7 @@ namespace catapult { namespace model {
 		numAdditionalKeys += ParseHashMapSection(bag, config.KnownCorruptAggregateTransactionHashesMap);
 		numAdditionalKeys += ParsePluginSections(bag, config.Plugins);
 
-		utils::VerifyBagSizeExact(bag, 5 + 28 + 3 + numAdditionalKeys);
+		utils::VerifyBagSizeExact(bag, 5 + 28 + 6 + numAdditionalKeys);
 		return config;
 	}
 

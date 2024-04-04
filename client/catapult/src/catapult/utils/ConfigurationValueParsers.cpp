@@ -372,5 +372,23 @@ namespace catapult { namespace utils {
 		return true;
 	}
 
+	bool TryParseValue(const std::string& str, std::unordered_set<Height, BaseValueHasher<Height>>& parsedValue) {
+		std::unordered_set<std::string> strParts;
+		if (!TryParseValue(str, strParts))
+			return false;
+
+		std::unordered_set<Height, BaseValueHasher<Height>> heights;
+		for (const auto& strPart : strParts) {
+			Height height;
+			if (!TryParseValue(strPart, height))
+				return false;
+
+			heights.emplace(height);
+		}
+
+		parsedValue = std::move(heights);
+		return true;
+	}
+
 	// endregion
 }}

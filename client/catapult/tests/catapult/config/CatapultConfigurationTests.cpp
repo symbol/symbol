@@ -38,6 +38,8 @@ namespace catapult { namespace config {
 	// region CatapultConfiguration file io
 
 	namespace {
+		using HeightUnorderedSet = std::unordered_set<Height, utils::BaseValueHasher<Height>>;
+
 		const char* Resources_Path = "../resources";
 		const char* Config_Filenames[] = {
 			"config-extensions-server.properties",
@@ -100,6 +102,9 @@ namespace catapult { namespace config {
 			EXPECT_EQ(Height(528'000), config.ForkHeights.TotalVotingBalanceCalculationFix);
 			EXPECT_EQ(Height(600'000), config.ForkHeights.TreasuryReissuance);
 			EXPECT_EQ(Height(777'777), config.ForkHeights.StrictAggregateTransactionHash);
+			EXPECT_EQ(HeightUnorderedSet({ Height(888'888), Height(999'999) }), config.ForkHeights.SkipSecretLockUniquenessChecks);
+			EXPECT_EQ(HeightUnorderedSet({ Height(555'555), Height(444'444) }), config.ForkHeights.SkipSecretLockExpirations);
+			EXPECT_EQ(HeightUnorderedSet({ Height(333'333), Height(111'111) }), config.ForkHeights.ForceSecretLockExpirations);
 
 			EXPECT_TRUE(config.TreasuryReissuanceTransactionSignatures.empty());
 			EXPECT_TRUE(config.KnownCorruptAggregateTransactionHashesMap.empty());

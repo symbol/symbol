@@ -138,6 +138,18 @@ namespace catapult { namespace model {
 
 			/// Height of fork at which aggregate transaction hash is strictly enforced.
 			Height StrictAggregateTransactionHash;
+
+			/// Heights at which the secret lock uniqueness requirement is violated.
+			/// \note This is required to allow mainnet to sync from scratch due to a (since fixed) bug.
+			std::unordered_set<Height, utils::BaseValueHasher<Height>> SkipSecretLockUniquenessChecks;
+
+			/// Heights at which secret lock expiration should be ignored (and locked value burned).
+			/// \note This is required to allow mainnet to sync from scratch due to a (since fixed) bug.
+			std::unordered_set<Height, utils::BaseValueHasher<Height>> SkipSecretLockExpirations;
+
+			/// Heights at which secret lock expiration should be forced (and locked value created).
+			/// \note This is required to allow mainnet to sync from scratch due to a (since fixed) bug.
+			std::unordered_set<Height, utils::BaseValueHasher<Height>> ForceSecretLockExpirations;
 		};
 
 		/// Fork heights.
