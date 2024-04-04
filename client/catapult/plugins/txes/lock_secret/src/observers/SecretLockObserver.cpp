@@ -54,9 +54,6 @@ namespace catapult { namespace observers {
 			auto endHeight = context.Height + Height(notification.Duration.unwrap());
 			auto mosaicId = context.Resolvers.resolve(notification.Mosaic.MosaicId);
 			auto lockInfo = CreateLockInfo(notification.Owner, mosaicId, endHeight, notification, context.Resolvers);
-			if (cache.isActive(lockInfo.CompositeHash, context.Height))
-				CATAPULT_THROW_INVALID_ARGUMENT("cannot add already active hash lock");
-
 			cache.insert(lockInfo);
 
 			auto receiptType = model::Receipt_Type_LockSecret_Created;

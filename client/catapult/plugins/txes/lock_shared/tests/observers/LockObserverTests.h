@@ -99,7 +99,10 @@ namespace catapult { namespace observers {
 			AssertStatement(notification, *observerContext.statementBuilder().build());
 		}
 
-		static void AssertObserverCannotAddToHistoryWhenInfoIsActive() {
+		// please note:
+		// * this should be prevented by validators, so does not need to be prohibited by the observer
+		// * this behavior simplifies workaround for SkipSecretLockUniquenessCheck fork
+		static void AssertObserverCanAddToHistoryWhenInfoIsActive() {
 			// Arrange:
 			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit, Default_Height);
 			auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
@@ -113,9 +116,22 @@ namespace catapult { namespace observers {
 			notificationBuilder.prepare(lockInfo);
 			auto notification = notificationBuilder.notification();
 
-			// Act + Assert:
+			// Act:
 			auto pObserver = TTraits::CreateObserver();
-			EXPECT_THROW(test::ObserveNotification(*pObserver, notification, observerContext), catapult_invalid_argument);
+			test::ObserveNotification(*pObserver, notification, observerContext);
+
+			// Assert: lock info was added to cache and history size is two
+			EXPECT_EQ(1u, lockInfoCacheDelta.size());
+
+			const auto& key = TTraits::ToKey(notification);
+			ASSERT_TRUE(lockInfoCacheDelta.contains(key));
+
+			const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
+			EXPECT_EQ(key, lockInfoHistory.id());
+			ASSERT_EQ(2u, lockInfoHistory.historyDepth());
+
+			AssertLockInfo(notification, lockInfoHistory.back());
+			AssertStatement(notification, *observerContext.statementBuilder().build());
 		}
 
 	private:
@@ -221,7 +237,7 @@ namespace catapult { namespace observers {
 #define DEFINE_LOCK_OBSERVER_TESTS(TRAITS_NAME) \
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverAddsInfoOnCommit) \
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCanAddToHistoryWhenInfoIsInactive) \
-	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCannotAddToHistoryWhenInfoIsActive) \
+	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCanAddToHistoryWhenInfoIsActive) \
 	\
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverRemovesInfoOnRollbackWhenHistoryDepthIsOne) \
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverRemovesInfoOnRollbackWhenHistoryDepthIsGreaterThanOne)
