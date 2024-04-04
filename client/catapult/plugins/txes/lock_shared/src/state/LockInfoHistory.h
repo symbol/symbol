@@ -100,6 +100,12 @@ namespace catapult { namespace state {
 			return !empty() && back().isActive(height);
 		}
 
+		/// Prunes all lock infos with an expiration at or before \a height.
+		void prune(Height height) {
+			while (!empty() && m_lockInfos.front().EndHeight <= height)
+				m_lockInfos.pop_front();
+		}
+
 	private:
 		LockIdentifier m_id;
 		std::list<ValueType> m_lockInfos;

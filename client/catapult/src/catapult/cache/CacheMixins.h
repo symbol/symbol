@@ -330,25 +330,4 @@ namespace catapult { namespace cache {
 		TSet& m_set;
 		THeightGroupedSet& m_heightGroupedSet;
 	};
-
-	/// Mixin for height-based pruning.
-	template<typename TSet, typename THeightGroupedSet>
-	class HeightBasedPruningMixin {
-	public:
-		/// Creates a mixin around \a set and \a heightGroupedSet.
-		HeightBasedPruningMixin(TSet& set, THeightGroupedSet& heightGroupedSet)
-				: m_set(set)
-				, m_heightGroupedSet(heightGroupedSet)
-		{}
-
-	public:
-		/// Prunes the cache at \a height.
-		void prune(Height height) {
-			RemoveAllIdentifiersWithGroup(m_set, m_heightGroupedSet, height);
-		}
-
-	private:
-		TSet& m_set;
-		THeightGroupedSet& m_heightGroupedSet;
-	};
 }}

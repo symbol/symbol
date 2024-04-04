@@ -264,62 +264,6 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region RemoveAllIdentifiersWithGroup
-
-	TEST(TEST_CLASS, RemoveAllIdentifiersWithGroup_DoesNotRemoveAnythingWhenNoIdentifiersInGroup) {
-		// Arrange:
-		RunHeightGroupedTest([](auto& delta, auto& groupedDelta) {
-			// Sanity:
-			EXPECT_FALSE(groupedDelta.contains(Height(5)));
-
-			// Act:
-			RemoveAllIdentifiersWithGroup(delta, groupedDelta, Height(5));
-
-			// Assert: nothing was removed
-			EXPECT_EQ(5u, delta.size());
-			EXPECT_EQ(4u, groupedDelta.size());
-		});
-	}
-
-	TEST(TEST_CLASS, RemoveAllIdentifiersWithGroup_RemovesAllValuesInGroup) {
-		// Arrange:
-		RunHeightGroupedTest([](auto& delta, auto& groupedDelta) {
-			// Act:
-			RemoveAllIdentifiersWithGroup(delta, groupedDelta, Height(6));
-
-			// Assert:
-			EXPECT_EQ(2u, delta.size());
-			EXPECT_TRUE(delta.contains(4));
-			EXPECT_TRUE(delta.contains(100));
-
-			EXPECT_EQ(3u, groupedDelta.size());
-			EXPECT_TRUE(groupedDelta.contains(Height(1)));
-			EXPECT_TRUE(groupedDelta.contains(Height(3)));
-			EXPECT_TRUE(groupedDelta.contains(Height(7)));
-		});
-	}
-
-	TEST(TEST_CLASS, RemoveAllIdentifiersWithGroup_RemovesAllValuesInGroupAndIgnoresUnknownValues) {
-		// Arrange:
-		RunHeightGroupedTest([](auto& delta, auto& groupedDelta) {
-			// Act:
-			RemoveAllIdentifiersWithGroup(delta, groupedDelta, Height(3));
-
-			// Assert:
-			EXPECT_EQ(3u, delta.size());
-			EXPECT_TRUE(delta.contains(1));
-			EXPECT_TRUE(delta.contains(3));
-			EXPECT_TRUE(delta.contains(9));
-
-			EXPECT_EQ(3u, groupedDelta.size());
-			EXPECT_TRUE(groupedDelta.contains(Height(1)));
-			EXPECT_TRUE(groupedDelta.contains(Height(6)));
-			EXPECT_TRUE(groupedDelta.contains(Height(7)));
-		});
-	}
-
-	// endregion
-
 	// region FindDeactivatingIdentifiersAtHeight
 
 	TEST(TEST_CLASS, FindDeactivatingIdentifiersAtHeight_ReturnsNothingWhenNoIdentifiersInGroup) {

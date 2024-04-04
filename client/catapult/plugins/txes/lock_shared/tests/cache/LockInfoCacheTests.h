@@ -380,6 +380,50 @@ namespace catapult { namespace cache {
 		}
 
 		// endregion
+
+	public:
+		// region prune
+
+		static void AssertPruneDoesNotRemoveLockHistoriesWithSomeExpiredAndSomeUnexpiredLockInfos() {
+			// Arrange:
+			typename CacheTraits::CacheType cache;
+
+			// Act: add two lock histories with a total of four locks
+			std::vector<typename TLockInfoTraits::LockInfoType> lockInfos;
+			lockInfos.push_back(CacheTraits::CreateWithIdAndExpiration(20, Height(40)));
+			lockInfos.push_back(CacheTraits::CreateWithIdAndExpiration(30, Height(40)));
+			lockInfos.push_back(CacheTraits::CreateWithIdAndExpiration(20, Height(60)));
+			lockInfos.push_back(CacheTraits::CreateWithIdAndExpiration(20, Height(80)));
+			PopulateCache(cache, lockInfos);
+
+			// Sanity:
+			{
+				auto view = cache.createView();
+				EXPECT_EQ(2u, view->size());
+				EXPECT_TRUE(view->contains(CacheTraits::MakeId(20)));
+				EXPECT_TRUE(view->contains(CacheTraits::MakeId(30)));
+			}
+
+			// Act: prune locks expiring at height 40
+			{
+				auto delta = cache.createDelta();
+				delta->prune(Height(40));
+				cache.commit();
+			}
+
+			// Assert: only lock histories with all lock infos ending at height 40 are pruned
+			auto view = cache.createView();
+			EXPECT_EQ(1u, view->size());
+			EXPECT_TRUE(view->contains(CacheTraits::MakeId(20)));
+			EXPECT_FALSE(view->contains(CacheTraits::MakeId(30)));
+
+			auto iter = view->find(CacheTraits::MakeId(20));
+			ASSERT_EQ(2u, iter.get().historyDepth());
+			EXPECT_EQ(Height(60), iter.get().begin()->EndHeight);
+			EXPECT_EQ(Height(80), (++iter.get().begin())->EndHeight);
+		}
+
+		// endregion
 	};
 }}
 
@@ -415,4 +459,6 @@ namespace catapult { namespace cache {
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_SingleLock) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_MultipleLocks) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsOnlyUnusedExpiredLocks_MultipleLocks) \
-	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksIsHistoryAware)
+	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksIsHistoryAware) \
+	\
+	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, PruneDoesNotRemoveLockHistoriesWithSomeExpiredAndSomeUnexpiredLockInfos)

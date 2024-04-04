@@ -29,11 +29,7 @@ namespace catapult { namespace cache {
 
 	/// Mixins used by the lock info cache delta.
 	template<typename TDescriptor, typename TCacheTypes>
-	struct LockInfoCacheDeltaMixins : public PatriciaTreeCacheMixins<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType, TDescriptor> {
-		using Pruning = HeightBasedPruningMixin<
-			typename TCacheTypes::PrimaryTypes::BaseSetDeltaType,
-			typename TCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
-	};
+	using LockInfoCacheDeltaMixins = PatriciaTreeCacheMixins<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType, TDescriptor>;
 
 	/// Basic delta on top of the lock info cache.
 	template<typename TDescriptor, typename TCacheTypes>
@@ -45,7 +41,6 @@ namespace catapult { namespace cache {
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::MutableAccessor
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::PatriciaTreeDelta
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::ActivePredicate
-			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::Pruning
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::DeltaElements {
 	public:
 		using ReadOnlyView = typename TCacheTypes::CacheReadOnlyType;
@@ -62,7 +57,6 @@ namespace catapult { namespace cache {
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::MutableAccessor(*lockInfoSets.pPrimary)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::PatriciaTreeDelta(*lockInfoSets.pPrimary, lockInfoSets.pPatriciaTree)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::ActivePredicate(*lockInfoSets.pPrimary)
-				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::Pruning(*lockInfoSets.pPrimary, *lockInfoSets.pHeightGrouping)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::DeltaElements(*lockInfoSets.pPrimary)
 				, m_pDelta(lockInfoSets.pPrimary)
 				, m_pHeightGroupingDelta(lockInfoSets.pHeightGrouping)
@@ -112,6 +106,22 @@ namespace catapult { namespace cache {
 				if (state::LockStatus::Unused == history.back().Status)
 					consumer(history.back());
 			});
+		}
+
+		/// Prunes the cache at \a height.
+		void prune(Height height) {
+			std::unordered_set<typename TDescriptor::KeyType, utils::ArrayHasher<typename TDescriptor::KeyType>> pendingRemovalIds;
+			ForEachIdentifierWithGroup(*m_pDelta, *m_pHeightGroupingDelta, height, [height, &pendingRemovalIds](auto& history) {
+				history.prune(height);
+
+				if (history.empty())
+					pendingRemovalIds.insert(history.id());
+			});
+
+			for (const auto& identifier : pendingRemovalIds)
+				m_pDelta->remove(identifier);
+
+			m_pHeightGroupingDelta->remove(height);
 		}
 
 	private:

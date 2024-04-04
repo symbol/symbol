@@ -205,6 +205,64 @@ namespace catapult { namespace state {
 
 		// endregion
 
+		// region prune
+
+		static void AssertPruneIsNoOpWhenNoLockInfosAreExpired() {
+			// Arrange:
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+			auto history = TLockInfoHistory(hash);
+			history.push_back(TTraits::CreateLockInfo(Height(11), hash));
+			history.push_back(TTraits::CreateLockInfo(Height(67), hash));
+			history.push_back(TTraits::CreateLockInfo(Height(99), hash));
+
+			// Act:
+			history.prune(Height(10));
+
+			// Assert:
+			EXPECT_EQ(hash, history.id());
+			EXPECT_FALSE(history.empty());
+			EXPECT_EQ(3u, history.historyDepth());
+			EXPECT_EQ(std::vector<Height>({ Height(11), Height(67), Height(99) }), GetLifetimeEndHeights(history));
+		}
+
+		static void AssertPruneCanPartiallyPruneHistoryWhenSomeLockInfosAreExpired() {
+			// Arrange:
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+			auto history = TLockInfoHistory(hash);
+			history.push_back(TTraits::CreateLockInfo(Height(11), hash));
+			history.push_back(TTraits::CreateLockInfo(Height(67), hash));
+			history.push_back(TTraits::CreateLockInfo(Height(99), hash));
+
+			// Act:
+			history.prune(Height(67));
+
+			// Assert:
+			EXPECT_EQ(hash, history.id());
+			EXPECT_FALSE(history.empty());
+			EXPECT_EQ(1u, history.historyDepth());
+			EXPECT_EQ(std::vector<Height>({ Height(99) }), GetLifetimeEndHeights(history));
+		}
+
+		static void AssertPruneCanPartiallyPruneHistoryWhenAllLockInfosAreExpired() {
+			// Arrange:
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+			auto history = TLockInfoHistory(hash);
+			history.push_back(TTraits::CreateLockInfo(Height(11), hash));
+			history.push_back(TTraits::CreateLockInfo(Height(67), hash));
+			history.push_back(TTraits::CreateLockInfo(Height(99), hash));
+
+			// Act:
+			history.prune(Height(120));
+
+			// Assert:
+			EXPECT_EQ(hash, history.id());
+			EXPECT_TRUE(history.empty());
+			EXPECT_EQ(0u, history.historyDepth());
+			EXPECT_EQ(std::vector<Height>(), GetLifetimeEndHeights(history));
+		}
+
+		// endregion
+
 	private:
 		// region test utils
 
@@ -260,4 +318,8 @@ namespace catapult { namespace state {
 	\
 	MAKE_LOCK_INFO_HISTORY_TEST(LOCK_INFO_HISTORY_TYPE, IsActiveReturnsFalseWhenHistoryIsEmpty) \
 	MAKE_LOCK_INFO_HISTORY_TEST(LOCK_INFO_HISTORY_TYPE, IsActiveReturnsCorrectValueWhenLastLockIsUsed) \
-	MAKE_LOCK_INFO_HISTORY_TEST(LOCK_INFO_HISTORY_TYPE, IsActiveReturnsCorrectValueWhenLastLockIsNotUsed)
+	MAKE_LOCK_INFO_HISTORY_TEST(LOCK_INFO_HISTORY_TYPE, IsActiveReturnsCorrectValueWhenLastLockIsNotUsed) \
+	\
+	MAKE_LOCK_INFO_HISTORY_TEST(LOCK_INFO_HISTORY_TYPE, PruneIsNoOpWhenNoLockInfosAreExpired) \
+	MAKE_LOCK_INFO_HISTORY_TEST(LOCK_INFO_HISTORY_TYPE, PruneCanPartiallyPruneHistoryWhenSomeLockInfosAreExpired) \
+	MAKE_LOCK_INFO_HISTORY_TEST(LOCK_INFO_HISTORY_TYPE, PruneCanPartiallyPruneHistoryWhenAllLockInfosAreExpired)
