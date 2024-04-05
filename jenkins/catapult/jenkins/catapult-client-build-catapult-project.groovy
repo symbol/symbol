@@ -104,11 +104,10 @@ pipeline {
 					steps {
 						script {
 							helper.runStepAndRecordFailure {
-								cleanWs()
 								dir('catapult-src') {
 									sh 'git config -l'
-									git branch: "${resolveBranchName()}",
-											url: 'https://github.com/symbol/symbol.git'
+									sh "git checkout ${resolveBranchName()}"
+									sh "git reset --hard origin/${resolveBranchName()}"
 								}
 							}
 						}
