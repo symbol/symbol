@@ -184,7 +184,7 @@ endif()
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
 	# set hardening flags
 	if(ENABLE_HARDENING)
-		set(HARDENING_FLAGS "-fstack-protector-all -D_FORTIFY_SOURCE=2")
+		set(HARDENING_FLAGS "-fstack-protector-all -D_FORTIFY_SOURCE=3")
 		if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 			set(HARDENING_FLAGS "${HARDENING_FLAGS} -fstack-clash-protection")
 		else()
