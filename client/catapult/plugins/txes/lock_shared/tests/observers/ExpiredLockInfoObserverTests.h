@@ -40,6 +40,18 @@ namespace catapult { namespace observers {
 			Amount LockAmount;
 		};
 
+		struct BalanceTestOptions {
+		public:
+			bool ExpectTouches;
+			bool SetFutureExpiration;
+
+		public:
+			BalanceTestOptions() {
+				ExpectTouches = true;
+				SetFutureExpiration = false;
+			}
+		};
+
 	public:
 		// region RunBalanceTest / RunReceiptTest
 
@@ -48,7 +60,8 @@ namespace catapult { namespace observers {
 				HarvesterType harvesterType,
 				const Key& harvesterPublicKey,
 				const std::vector<SeedTuple>& expiringSeeds,
-				const std::vector<SeedTuple>& expectedPostObserveBalances) {
+				const std::vector<SeedTuple>& expectedPostObserveBalances,
+				const BalanceTestOptions& options = BalanceTestOptions()) {
 			// Arrange:
 			TestContext context(Height(55), mode);
 			auto notificationBlockHarvester = context.addBlockHarvester(harvesterType, harvesterPublicKey, MosaicId(500), Amount(200));
@@ -58,13 +71,14 @@ namespace catapult { namespace observers {
 			context.addLockInfos(seeds, [](auto i) { return Height((i + 1) * 10); });
 
 			// - add expiring accounts
-			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); });
+			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); }, options.SetFutureExpiration);
 
 			// Act:
 			context.observe(notificationBlockHarvester);
 
-			// Assert: each expiring lock info was touched
-			context.assertLockInfoTouches(expiringSeeds.size());
+			// Assert: all expiring lock infos were touched (options.ExpectTouches, default)
+			//         or NONE were touched (!options.ExpectTouches)
+			context.assertLockInfoTouches(options.ExpectTouches ? expiringSeeds.size() : 0);
 
 			// - unaffected accounts have unchanged balances
 			context.assertBalances(seeds, "unaffected accounts");
@@ -150,9 +164,12 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			void addLockInfos(const std::vector<SeedTuple>& seeds, const HeightGenerator& heightGenerator) {
+			void addLockInfos(
+					const std::vector<SeedTuple>& seeds,
+					const HeightGenerator& heightGenerator,
+					bool setFutureExpiration = false) {
 				for (auto i = 0u; i < seeds.size(); ++i)
-					addLockInfo(seeds[i], heightGenerator(i));
+					addLockInfo(seeds[i], heightGenerator(i), setFutureExpiration);
 			}
 
 			Address addBlockHarvester(HarvesterType harvesterType, const Key& harvesterPublicKey, MosaicId mosaicId, Amount amount) {
@@ -178,7 +195,7 @@ namespace catapult { namespace observers {
 				return remoteAccountStateIter.get().Address;
 			}
 
-			void addLockInfo(const SeedTuple& seed, Height height) {
+			void addLockInfo(const SeedTuple& seed, Height height, bool setFutureExpiration) {
 				// lock info cache
 				auto& lockInfoCacheDelta = TTraits::SubCache(m_observerContext.cache());
 				auto lockInfo = TTraits::CreateLockInfo(height);
@@ -186,6 +203,11 @@ namespace catapult { namespace observers {
 				lockInfo.MosaicId = seed.MosaicId;
 				lockInfo.Amount = seed.LockAmount;
 				lockInfoCacheDelta.insert(lockInfo);
+
+				if (setFutureExpiration) {
+					lockInfo.EndHeight = Height(lockInfo.EndHeight.unwrap() + 10);
+					lockInfoCacheDelta.insert(lockInfo);
+				}
 
 				// account state cache
 				auto& accountStateCache = this->accountStateCache();

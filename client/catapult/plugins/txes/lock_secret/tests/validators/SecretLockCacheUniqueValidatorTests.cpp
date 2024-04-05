@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS SecretLockCacheUniqueValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(SecretLockCacheUnique,)
+	DEFINE_COMMON_VALIDATOR_TESTS(SecretLockCacheUnique, std::unordered_set<Height, utils::BaseValueHasher<Height>>())
 
 	namespace {
 		struct SecretCacheTraits {
@@ -40,10 +40,25 @@ namespace catapult { namespace validators {
 			static constexpr auto Failure = Failure_LockSecret_Hash_Already_Exists;
 
 			static auto CreateValidator() {
-				return CreateSecretLockCacheUniqueValidator();
+				return CreateSecretLockCacheUniqueValidator(std::unordered_set<Height, utils::BaseValueHasher<Height>>());
 			}
 		};
 	}
 
 	DEFINE_CACHE_UNIQUE_TESTS(SecretCacheTraits)
+
+	TEST(TEST_CLASS, SuccessWhenHashIsInCacheAndActiveAtSkipHeight) {
+		// Arrange: configure the validator to skip validation at height 10
+		struct CustomSecretCacheTraits : public SecretCacheTraits {
+		public:
+			static auto CreateValidator() {
+				return CreateSecretLockCacheUniqueValidator(std::unordered_set<Height, utils::BaseValueHasher<Height>>{
+					Height(10)
+				});
+			}
+		};
+
+		// Act + Assert: notification height is 10
+		LockCacheUniqueValidatorTests<CustomSecretCacheTraits>::RunNotEmptyCacheTest(ValidationResult::Success, Height(11), Height(10));
+	}
 }}

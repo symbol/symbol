@@ -39,5 +39,9 @@ namespace catapult { namespace observers {
 	/// Observes block notifications and:
 	/// - handles expired secret lock infos
 	/// - credits the lock creator the mosaics given in the lock info
-	DECLARE_OBSERVER(ExpiredSecretLockInfo, model::BlockNotification)();
+	/// - observation is skipped at heights specified by \a skipHeights
+	/// - observation is forced at heights specified by \a forceHeights
+	DECLARE_OBSERVER(ExpiredSecretLockInfo, model::BlockNotification)(
+			const std::unordered_set<Height, utils::BaseValueHasher<Height>>& skipHeights,
+			const std::unordered_set<Height, utils::BaseValueHasher<Height>>& forceHeights);
 }}

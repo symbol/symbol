@@ -60,17 +60,19 @@ namespace catapult { namespace plugins {
 			builder.add(validators::CreateProofSecretValidator(config.MinProofSize, config.MaxProofSize));
 		});
 
-		manager.addStatefulValidatorHook([](auto& builder) {
+		auto skipUniquenessForkHeights = manager.config().ForkHeights.SkipSecretLockUniquenessChecks;
+		manager.addStatefulValidatorHook([skipUniquenessForkHeights](auto& builder) {
 			builder
-				.add(validators::CreateSecretLockCacheUniqueValidator())
+				.add(validators::CreateSecretLockCacheUniqueValidator(skipUniquenessForkHeights))
 				.add(validators::CreateProofValidator());
 		});
 
-		auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
-		manager.addObserverHook([maxRollbackBlocks](auto& builder) {
+		auto skipExpirationForkHeights = manager.config().ForkHeights.SkipSecretLockExpirations;
+		auto forceExpirationForkHeights = manager.config().ForkHeights.ForceSecretLockExpirations;
+		manager.addObserverHook([skipExpirationForkHeights, forceExpirationForkHeights](auto& builder) {
 			builder
 				.add(observers::CreateSecretLockObserver())
-				.add(observers::CreateExpiredSecretLockInfoObserver())
+				.add(observers::CreateExpiredSecretLockInfoObserver(skipExpirationForkHeights, forceExpirationForkHeights))
 				.add(observers::CreateProofObserver());
 		});
 	}

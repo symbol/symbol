@@ -27,12 +27,24 @@
 
 namespace catapult { namespace observers {
 
-	DEFINE_OBSERVER(ExpiredSecretLockInfo, model::BlockNotification, [](const auto&, ObserverContext& context) {
-		ExpiredLockInfoObserver<cache::SecretLockInfoCache>(context, model::Receipt_Type_LockSecret_Expired, [](
-				auto& accountStateCache,
-				const auto& lockInfo,
-				auto accountStateConsumer) {
-			accountStateConsumer(accountStateCache.find(lockInfo.OwnerAddress).get());
-		});
-	})
+	DECLARE_OBSERVER(ExpiredSecretLockInfo, model::BlockNotification)(
+			const std::unordered_set<Height, utils::BaseValueHasher<Height>>& skipHeights,
+			const std::unordered_set<Height, utils::BaseValueHasher<Height>>& forceHeights) {
+		return MAKE_OBSERVER(ExpiredSecretLockInfo, model::BlockNotification, ([skipHeights, forceHeights](
+				const auto&,
+				ObserverContext& context) {
+			if (skipHeights.cend() != skipHeights.find(context.Height)) // bypass expiration for specified heights
+				return;
+
+			const auto Expired_Receipt_Type = model::Receipt_Type_LockSecret_Expired;
+			ExpiredLockInfoObserver<cache::SecretLockInfoCache>(context, Expired_Receipt_Type, [height = context.Height, &forceHeights](
+					auto& accountStateCache,
+					const auto& lockInfo,
+					auto accountStateConsumer) {
+				// only process if last lock in history is expiring or processing is forced
+				if (height == lockInfo.EndHeight || forceHeights.cend() != forceHeights.find(height))
+					accountStateConsumer(accountStateCache.find(lockInfo.OwnerAddress).get());
+			});
+		}));
+	}
 }}

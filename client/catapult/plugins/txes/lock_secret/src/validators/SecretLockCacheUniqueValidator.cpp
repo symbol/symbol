@@ -27,9 +27,17 @@ namespace catapult { namespace validators {
 
 	using Notification = model::SecretLockNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(SecretLockCacheUnique, [](const Notification& notification, const ValidatorContext& context) {
-		const auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
-		auto key = model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient));
-		return cache.isActive(key, context.Height) ? Failure_LockSecret_Hash_Already_Exists : ValidationResult::Success;
-	})
+	DECLARE_STATEFUL_VALIDATOR(SecretLockCacheUnique, Notification)(
+			const std::unordered_set<Height, utils::BaseValueHasher<Height>>& skipHeights) {
+		return MAKE_STATEFUL_VALIDATOR(SecretLockCacheUnique, ([skipHeights](
+				const Notification& notification,
+				const ValidatorContext& context) {
+			if (skipHeights.cend() != skipHeights.find(context.Height)) // bypass check for specified heights
+				return ValidationResult::Success;
+
+			const auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
+			auto key = model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient));
+			return cache.isActive(key, context.Height) ? Failure_LockSecret_Hash_Already_Exists : ValidationResult::Success;
+		}));
+	}
 }}

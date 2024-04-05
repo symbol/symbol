@@ -66,6 +66,7 @@ namespace catapult { namespace validators {
 			return cache;
 		}
 
+	public:
 		static void RunNotEmptyCacheTest(ValidationResult expectedResult, Height endHeight, Height notificationHeight) {
 			// Arrange:
 			auto lockInfos = test::CreateLockInfos<BasicTraits>(3);

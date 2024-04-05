@@ -101,7 +101,7 @@ namespace catapult { namespace observers {
 
 		// please note:
 		// * this should be prevented by validators, so does not need to be prohibited by the observer
-		// * this behavior simplifies workaround for SkipSecretLockUniquenessCheck fork
+		// * this behavior simplifies workaround for SkipSecretLockUniquenessChecks fork
 		static void AssertObserverCanAddToHistoryWhenInfoIsActive() {
 			// Arrange:
 			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit, Default_Height);
