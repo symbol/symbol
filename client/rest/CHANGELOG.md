@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.4.4] - 05-Apr-2024
+
+### Added
+
+- Support to filter blocks by timestamp
+- Metal decode support
+
+### Changed
+
+- Upgrade to MongoDb 6.x
+- Update rest image to Nodejs 18
+
 ## [v2.4.3] - 06-Apr-2023
 
 ### Fixed
@@ -336,10 +348,5 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 - Initial code release.
 
-[0.7.14]: https://github.com/nemtech/catapult-rest/compare/v0.7.13...v0.7.14
-[0.7.13]: https://github.com/nemtech/catapult-rest/compare/v0.7.12...v0.7.13
-[0.7.12]: https://github.com/nemtech/catapult-rest/compare/v0.7.11...v0.7.12
-[0.7.11]: https://github.com/nemtech/catapult-rest/compare/v0.7.8...v0.7.11
-[0.7.8]: https://github.com/nemtech/catapult-rest/compare/v0.7.7...v0.7.8
-[0.7.7]: https://github.com/nemtech/catapult-rest/compare/v0.7.5...v0.7.7
-[0.7.5]: https://github.com/nemtech/catapult-rest/releases/tag/v0.7.5
+[2.4.4]: https://github.com/symbol/symbol/compare/rest%2Fv2.4.3...rest%2Fv2.4.4
+[2.4.3]: https://github.com/symbol/symbol/releases/tag/rest%2Fv2.4.3

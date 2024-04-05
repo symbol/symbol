@@ -24,7 +24,7 @@ const nodeRoutes = require('../../src/routes/nodeRoutes');
 const errors = require('../../src/server/errors');
 const { expect } = require('chai');
 
-const restVersion = '2.4.3';
+const restVersion = '2.4.4';
 
 describe('node routes', () => {
 	describe('get', () => {
