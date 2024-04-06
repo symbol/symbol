@@ -30,7 +30,7 @@ void dockerPublisher(Map config, String phase) {
 	final String repositoryName = helper.resolveRepositoryName()
 	String dockerHost = 'registry.hub.docker.com'
 	String dockerCredentialsId = DOCKER_CREDENTIALS_ID
-	if (isAlphaRelease(phase) || !helper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
+	if (isAlphaRelease(phase) || !githubHelper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
 		dockerCredentialsId = "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
 		dockerHost = helper.resolveUrlHostName(configureArtifactRepository.resolveRepositoryUrl(ownerName, 'docker-hosted'))
 	}
@@ -66,7 +66,7 @@ void npmPublisher(Map config, String phase) {
 
 	final String ownerName = helper.resolveOrganizationName()
 	final String repositoryName = helper.resolveRepositoryName()
-	if (isAlphaRelease(phase) || !helper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
+	if (isAlphaRelease(phase) || !githubHelper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
 		final String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, 'npm-hosted')
 		final String environment = jobHelper.resolveCiEnvironmentName(config)
 
@@ -96,7 +96,7 @@ void pythonPublisher(Map config, String phase) {
 
 	final String ownerName = helper.resolveOrganizationName()
 	final String repositoryName = helper.resolveRepositoryName()
-	if (isAlphaRelease(phase) || !helper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
+	if (isAlphaRelease(phase) || !githubHelper.isGitHubRepositoryPublic(ownerName, repositoryName)) {
 		withCredentials([usernamePassword(credentialsId: "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID",
 			usernameVariable: 'USERNAME',
 			passwordVariable: 'PASSWORD')]) {
