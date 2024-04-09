@@ -5,6 +5,27 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.2.0] - 09-Apr-2024
+
+### Added
+- add now() to facade for getting current timestamp
+- add alternative pure JavaScript implementation for all WASM logic
+- add static getter that can be used instead of constructor in TS
+- use exports in package.json
+
+### Changed
+- split single entry point into default, nem and symbol for better discoverability
+- make symbol-crypto-wasm-node an optional dependency
+
+### Fixed
+- improve codegen to significantly reduce size of generated models
+- use globalThis instead of global for WebAssembly for browser compatibility
+- mm-snap requires default export to be last
+- update Cipher.js to support ReactNative environment
+- update rust code to use dalek 4
+- prune customized tweetnacl implementation
+- search through nc module to find transaction class name to workaround minification dropping 'constructor.name'
+
 ## [3.1.0] - 7-Aug-2023
 
 ### Changed
