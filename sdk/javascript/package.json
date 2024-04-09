@@ -34,6 +34,12 @@
   "keywords": [],
   "author": "Symbol Contributors <contributors@symbol.dev>",
   "license": "MIT",
+  "bugs": "https://github.com/symbol/symbol/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/symbol/symbol/tree/main/sdk/javascript"
+  },
+  "homepage": "https://github.com/symbol/symbol/blob/main/sdk/javascript#readme",
   "devDependencies": {
     "@types/jest": "~29.5.5",
     "@types/ripemd160": "~2.0.1",
