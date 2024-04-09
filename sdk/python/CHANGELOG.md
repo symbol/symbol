@@ -5,6 +5,18 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.2.0] - 09-Apr-2024
+
+### Added
+- add now() to facade for getting current timestamp
+- add support for python 3.11
+
+### Changed
+- improve codegen to significantly reduce size of generated models
+
+### Fixed
+- ByteString is deprecated in Python 3.9
+
 ## [3.1.0] - 04-Aug-2023
 
 ### Changed
