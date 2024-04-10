@@ -224,6 +224,7 @@ class SymbolFacadeTest(unittest.TestCase):
 
 			# Assert:
 			self.assertEqual(now_from_network, now_from_facade)
+			self.assertGreater(now_from_facade.timestamp, 0)
 			break
 
 	# endregion

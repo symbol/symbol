@@ -123,4 +123,16 @@ describe('NetworkTimestampDatetimeConverter', () => {
 		// Assert:
 		expect(rawTimestamp).to.equal(5);
 	});
+
+	it('can convert datetime to non epochal timestamp (large)', () => {
+		// Arrange:
+		const converter = new NetworkTimestampDatetimeConverter(new Date(Date.UTC(2020, 1, 2, 3)), 'milliseconds');
+
+		// Act:
+		const rawTimestamp = converter.toDifference(new Date(Date.UTC(2025, 1, 2, 3)));
+
+		// Assert:
+		expect(rawTimestamp).to.equal(((5 * 365) + 2) * 24 * 60 * 60 * 1000);
+		expect(rawTimestamp).to.be.above(2 ** 31);
+	});
 });

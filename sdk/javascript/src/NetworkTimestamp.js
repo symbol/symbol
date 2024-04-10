@@ -105,7 +105,7 @@ export class NetworkTimestampDatetimeConverter {
 		if (referenceDatetime < this.epoch)
 			throw RangeError('timestamp cannot be before epoch');
 
-		const subtractDates = (lhs, rhs) => (lhs - rhs);
-		return (subtractDates(referenceDatetime, this.epoch) / this.timeUnits) | 0;
+		const differenceMilliseconds = referenceDatetime.getTime() - this.epoch.getTime();
+		return Math.trunc(differenceMilliseconds / this.timeUnits);
 	}
 }

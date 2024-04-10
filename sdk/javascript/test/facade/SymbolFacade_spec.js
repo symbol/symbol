@@ -203,6 +203,7 @@ describe('Symbol Facade', () => {
 
 			// Assert:
 			expect(nowFromFacade).to.deep.equal(nowFromNetwork);
+			expect(0n < nowFromFacade.timestamp).to.equal(true);
 			break;
 		}
 	});

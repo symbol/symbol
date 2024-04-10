@@ -115,3 +115,13 @@ class NetworkTimestampDatetimeConverterTest(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual(5, raw_timestamp)
+
+	def test_can_convert_datetime_to_non_epochal_timestamp_large(self):
+		# Arrange:
+		converter = NetworkTimestampDatetimeConverter(datetime.datetime(2020, 1, 2, 3), 'milliseconds')
+
+		# Act:
+		raw_timestamp = converter.to_difference(datetime.datetime(2025, 1, 2, 3))
+
+		# Assert:
+		self.assertEqual(((5 * 365) + 2) * 24 * 60 * 60 * 1000, raw_timestamp)
