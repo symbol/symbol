@@ -1,15 +1,15 @@
 c: clang
 cpp: clang++
-version: 17
+version: 18
 
 stl:
   version: c++1y
   lib: libc++
 
 deps:
-  - /usr/lib/llvm-17/lib/libc++.so.*
-  - /usr/lib/llvm-17/lib/libc++abi.so.*
-  - /usr/lib/llvm-17/lib/libunwind.*
+  - /usr/lib/llvm-18/lib/libc++.so.*
+  - /usr/lib/llvm-18/lib/libc++abi.so.*
+  - /usr/lib/llvm-18/lib/libunwind.*
 
-  - /usr/lib/llvm-17/bin/llvm-symbolizer
-  - /usr/lib/x86_64-linux-gnu/libLLVM-17.*
+  - /usr/lib/llvm-18/bin/llvm-symbolizer
+  - /usr/lib/x86_64-linux-gnu/libLLVM-18.*
