@@ -43,13 +43,13 @@ pipeline {
 
 	stages {
 		stage('prepare') {
-			stage('git checkout') {
-				steps {
-					sh "git checkout ${params.MANUAL_GIT_BRANCH}"
-					sh "git reset --hard origin/${params.MANUAL_GIT_BRANCH}"
-				}
-			}
 			stages {
+				stage('git checkout') {
+					steps {
+						sh "git checkout ${params.MANUAL_GIT_BRANCH}"
+						sh "git reset --hard origin/${params.MANUAL_GIT_BRANCH}"
+					}
+				}
 				stage('prepare variables') {
 					steps {
 						script {
