@@ -28,6 +28,12 @@ pipeline {
 	}
 
 	stages {
+		stage('git checkout') {
+			steps {
+				sh "git checkout ${params.MANUAL_GIT_BRANCH}"
+				sh "git reset --hard origin/${params.MANUAL_GIT_BRANCH}"
+			}
+		}
 		stage('prepare') {
 			stages {
 				stage('prepare variables') {
@@ -66,12 +72,6 @@ pipeline {
 
 								     destImageName: ${destImageName}
 						"""
-					}
-				}
-				stage('git checkout') {
-					steps {
-						sh "git checkout ${params.MANUAL_GIT_BRANCH}"
-						sh "git reset --hard origin/${params.MANUAL_GIT_BRANCH}"
 					}
 				}
 			}
