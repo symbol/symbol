@@ -56,6 +56,22 @@ pipeline {
 	stages {
 		stage('prepare') {
 			stages {
+				stage('git checkout') {
+					when {
+						expression { isManualBuild() }
+					}
+					steps {
+						script {
+							helper.runStepAndRecordFailure {
+								dir('catapult-src') {
+									sh 'git config -l'
+									sh "git checkout ${resolveBranchName()}"
+									sh "git reset --hard origin/${resolveBranchName()}"
+								}
+							}
+						}
+					}
+				}
 				stage('prepare variables') {
 					steps {
 						script {
@@ -95,22 +111,6 @@ pipeline {
 								   buildImageLabel: ${buildImageLabel}
 								buildImageFullName: ${buildImageFullName}
 						"""
-					}
-				}
-				stage('git checkout') {
-					when {
-						expression { isManualBuild() }
-					}
-					steps {
-						script {
-							helper.runStepAndRecordFailure {
-								dir('catapult-src') {
-									sh 'git config -l'
-									sh "git checkout ${resolveBranchName()}"
-									sh "git reset --hard origin/${resolveBranchName()}"
-								}
-							}
-						}
 					}
 				}
 			}

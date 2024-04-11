@@ -34,6 +34,17 @@ pipeline {
 	stages {
 		stage('prepare') {
 			stages {
+				stage('git checkout') {
+					when {
+						expression { isManualBuild() }
+					}
+					steps {
+						dir('symbol-mono') {
+							sh "git checkout ${resolveBranchName()}"
+							sh "git reset --hard origin/${resolveBranchName()}"
+						}
+					}
+				}
 				stage('prepare variables') {
 					steps {
 						script {
@@ -75,17 +86,6 @@ pipeline {
 										imageLabel: ${imageLabel}
 								buildImageFullName: ${buildImageFullName}
 						"""
-					}
-				}
-				stage('git checkout') {
-					when {
-						expression { isManualBuild() }
-					}
-					steps {
-						dir('symbol-mono') {
-							sh "git checkout ${resolveBranchName()}"
-							sh "git reset --hard origin/${resolveBranchName()}"
-						}
 					}
 				}
 			}
