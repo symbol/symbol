@@ -166,7 +166,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		-Wno-switch-enum \
 		-Wno-weak-vtables \
 		-Wno-unsafe-buffer-usage \
-		-Wno-shadow-uncaptured-local")
+		-Wno-shadow-uncaptured-local \
+		-Wno-switch-default")
 
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
 endif()
