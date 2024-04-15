@@ -173,7 +173,7 @@ class OptionsManager:
 		descriptor = self._enable_thread_san_descriptor()
 		descriptor.options += get_dependency_flags('zeromq_libzmq')
 
-		if self.is_clang:
+		if not 'arm64' == self.architecture and self.is_clang:
 			# Xeon-based build machine, even with -mskylake seems to do miscompilation in libzmq,
 			# try to pass additional flags to disable faulty optimizations
 			descriptor.cxxflags += ['-mno-avx', '-mno-avx2']
