@@ -31,7 +31,7 @@ elif [[ "$1" = "dryrun" ]]; then
 	do
 		generate_code "${name}" "${name}2"
 		diff --strip-trailing-cr "./src/${name}/models.js" "./src/${name}2/models.js"
-		rm -rf "./src/${name}2/models.js"
+		rm -rf "./src/${name}2"
 	done
 else
 	echo "unknown options"
