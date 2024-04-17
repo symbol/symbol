@@ -164,6 +164,20 @@ export default {
 
 If everything is set up correctly, the same syntax as the Node example can be used.
 
+### TypeScript Support
+
+JavaScript SDK uses [node subpath exports](https://nodejs.org/api/packages.html#subpath-exports) for cleaner imports and depends on ES2020 functionality.
+For TypeScript compatibility, the following minimum settings must be specified in `tsconfig.json`:
+
+```json
+	{
+		"compilerOptions": {
+			"target": "ES2020",
+			"module": "Node16",
+			"moduleResolution": "Node16"
+		}
+	}
+```
 
 ## NEM Cheat Sheet
 

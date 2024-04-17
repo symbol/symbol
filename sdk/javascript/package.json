@@ -7,16 +7,19 @@
   "types": "./ts/src/index.d.ts",
   "exports": {
     ".": {
-      "default": "./src/index.js",
-      "types": "./ts/src/index.d.ts"
+      "import": "./src/index.js",
+      "types": "./ts/src/index.d.ts",
+      "default": "./src/index.js"
     },
     "./nem": {
-      "default": "./src/nem/index.js",
-      "types": "./ts/src/nem/index.d.ts"
+      "import": "./src/nem/index.js",
+      "types": "./ts/src/nem/index.d.ts",
+      "default": "./src/nem/index.js"
     },
     "./symbol": {
-      "default": "./src/symbol/index.js",
-      "types": "./ts/src/symbol/index.d.ts"
+      "import": "./src/symbol/index.js",
+      "types": "./ts/src/symbol/index.d.ts",
+      "default": "./src/symbol/index.js"
     }
   },
   "scripts": {
