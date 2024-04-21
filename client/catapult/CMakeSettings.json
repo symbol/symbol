@@ -8,7 +8,7 @@
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "ctestCommandArgs": "",
-      "cmakeToolchain": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      "cmakeToolchain": "${env.VCPKG_ROOT}\\scripts\\buildsystems\\vcpkg.cmake"
     },
     {
       "name": "x64-RelWithDebug",
@@ -18,7 +18,7 @@
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "ctestCommandArgs": "",
-      "cmakeToolchain": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      "cmakeToolchain": "${env.VCPKG_ROOT}\\scripts\\buildsystems\\vcpkg.cmake"
     },
     {
       "name": "x64-Release",
@@ -28,7 +28,7 @@
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "ctestCommandArgs": "",
-      "cmakeToolchain": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      "cmakeToolchain": "${env.VCPKG_ROOT}\\scripts\\buildsystems\\vcpkg.cmake"
     }
   ]
 }
