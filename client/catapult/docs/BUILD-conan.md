@@ -2,6 +2,10 @@
 
 Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 
+## Mandatory version requirements
+- Python version >= 3.6
+- Conan version >= 2.x
+
 ## Prerequisites
 
 * **On Linux**:
@@ -9,8 +13,8 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
   1. Install the compiler and build dependencies:
 
      ```sh
-     sudo apt update
-     sudo apt install build-essential git cmake ninja-build pkg-config
+     $> sudo apt update
+     $> sudo apt install build-essential git cmake ninja-build pkg-config
      ```
 
   2. Install latest version of [Conan](https://conan.io/downloads.html).
@@ -18,7 +22,7 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
   3. Create a profile for Conan:
 
      ```sh
-     conan profile detect --name default
+     $> conan profile detect --name default
      ```
 
 * **On Windows**:
@@ -27,12 +31,27 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 
      Run all commands from a command prompt that has access to Visual Studio and Git. This can be accomplished by using the "Native Tools Command Prompt" shortcut installed by Visual Studio on the Start Menu.
 
-  2. Install latest version of [Conan](https://conan.io/downloads.html).
+  2. Install latest version of [Conan](https://conan.io/downloads.html). You can proceed in two ways:
+  
+        - if you have Python installed, you can use pip:
+		
+		```shell
+        $> pip install conan
+        ```
+        _Even on recent versions of python it has been reported that this command installs conan version 1.x: for this reason, before proceeding further, it is necessary to check version of conan installed by `conan -v`. Should the reported version be lower than 2.x please run `pip install conan --upgrade`. Eventually verify the new installed version is 2.x_
+
+        - or you can download and run the installer from the [Conan website](https://conan.io/downloads.html).
 
   3. Create a profile for Conan:
 
    ```sh
-  conan profile detect --name default
+   $> conan profile detect --name default
+   ```
+   This should produce an output like the following:
+   ```sh
+   Found Visual Studio 17
+   [...]
+   Profile created with detected settings: C:\Users\<yourusername>\.conan\profiles\default
    ```
 
 * **On Mac**:
@@ -62,24 +81,26 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 While Conan will be building and installing packages, you might want to go for a ☕ (or lunch),
 as this will probably take *a bit*.
 
+### Install conan sources repo and get catapult source code (any OS)
 ```sh
-conan remote add nemtech https://conan.symbol.dev/artifactory/api/conan/catapult
-
-git clone https://github.com/symbol/symbol.git
-cd symbol/client/catapult
+$> conan remote add nemtech https://conan.symbol.dev/artifactory/api/conan/catapult
+$> git clone https://github.com/symbol/symbol.git
+$> cd symbol/client/catapult
 ```
 
 ### Linux and Macos
 ```sh
-conan install . --build=missing -s build_type=Release
-cd build/Release
+$> conan install . --build=missing -s build_type=Release
+$> cd build/Release
 ```
 
 ### Windows
-```shell
-conan install . --build=missing -s compiler.cppstd=17 -s build_type=Release
-cd build
+```sh
+$> $env:CONAN_REVISIONS_ENABLED=1
+$> conan install . --build=missing -s compiler.cppstd=17 -s build_type=Release
+$> cd build
 ```
+
 
 ## Step 2: Build catapult
 
@@ -91,20 +112,20 @@ cd build
 * Generate project files for Visual Studio 2022:
 
   ```sh
-  cmake --preset conan-default -G "Visual Studio 17 2022" -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
+  $> cmake --preset conan-default -G "Visual Studio 17 2022" -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
   ```
 
 * Generate project files for Visual Studio 2019:
 
   ```sh
-  cmake --preset conan-default -G "Visual Studio 16 2019"  -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
+  $> cmake --preset conan-default -G "Visual Studio 16 2019"  -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
   ```
 
 * Build:
 
   ```sh
-  cmake --build . --target publish
-  msbuild /p:Configuration=Release /p:Platform=x64 /m ALL_BUILD.vcxproj
+  $> cmake --build . --target publish
+  $> msbuild /p:Configuration=Release /p:Platform=x64 /m ALL_BUILD.vcxproj
   ```
 
   After building successfully, the tools in ``_build\bin`` are ready to use. All runtime dependencies have been copied into the same folder so Windows will find them.
@@ -114,7 +135,7 @@ cd build
   Check that the tools are working correctly by running:
 
   ```sh
-  bin\catapult.tools.address --help
+  $> bin\catapult.tools.address --help
   ```
 
 ### Linux and macOS
@@ -122,9 +143,9 @@ cd build
 * Build:
 
   ```sh
-  cmake --preset conan-release -G Ninja -DUSE_CONAN=ON ../../
-  ninja publish
-  ninja -j4
+  $> cmake --preset conan-release -G Ninja -DUSE_CONAN=ON ../../
+  $> ninja publish
+  $> ninja -j4
   ```
 
   Once the build finishes successfully, the tools in ``_build/bin`` are ready to use. However, the dependencies in ``_build/deps`` must be accessible so make sure to add this folder to the ``LD_LIBRARY_PATH`` environment variable (Linux) or ``DYLD_LIBRARY_PATH`` (Mac).
@@ -132,7 +153,7 @@ cd build
   One way of doing this is by running this from the ``_build`` directory:
 
   ```sh
-  export LD_LIBRARY_PATH=$PWD/deps
+  $> export LD_LIBRARY_PATH=$PWD/deps
   ```
 
   You will need to run this line every new session, unless you add it at the end of your ``~/.bashrc`` or ``~/.profile`` files.
@@ -142,7 +163,7 @@ cd build
   The catapult tools can be made available globally by running:
 
   ```sh
-  sudo ninja install
+  $> sudo ninja install
   ```
 
   > **NOTE:**
@@ -153,5 +174,5 @@ cd build
   Check that the tools are working correctly by running:
 
   ```sh
-  bin/catapult.tools.address --help
+  $> bin/catapult.tools.address --help
   ```
