@@ -2,24 +2,42 @@ import groovy.json.JsonOutput
 
 boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	try {
-		final URL url = "https://api.github.com/repos/${orgName}/${repoName}".toURL()
-		final Object repo = yamlHelper.readYamlFromText(url.text)
-
-		return repo.name == repoName && repo.visibility == 'public'
+		executeGitAuthenticatedCommand {
+			final Object repo = getRepositoryInfo("${GITHUB_ACCESS_TOKEN}", orgName, repoName)
+			return repo.name == repoName && repo.visibility == 'public'
+		}
 	} catch (FileNotFoundException exception) {
 		println "Repository ${orgName}/${repoName} not found - ${exception}"
 		return false
 	}
 }
 
+Object getRepositoryInfo(String token, String ownerName, String repositoryName) {
+	final String getRepoCommand = """
+		curl -L \\
+		  -H "Accept: application/vnd.github+json" \\
+		  -H "Authorization: Bearer ${token}" \\
+		  -H "X-GitHub-Api-Version: 2022-11-28" \\
+		  https://api.github.com/repos/${ownerName}/${repositoryName} \\
+	"""
+
+	final String getRepoResponse = executeGithubApiRequest(getRepoCommand)
+	return yamlHelper.readYamlFromText(getRepoResponse)
+}
+
 String executeGithubApiRequest(String command) {
-	final String response = runScript(command, true)
-	if (response.contains('message')) {
-		println "GitHub API request failed: ${response}"
-		throw new IllegalArgumentException(response)
+	String results = ''
+	helper.withTempDir {
+		String file = "./${System.currentTimeMillis()}"
+		final String response = runScript("${command} -s -w '%{http_code}\\n' -o ${file}", true).trim()
+		results = readFile(file).trim()
+		if ('200' != response) {
+			String error = "GitHub API request failed: ${response}\n ${results}"
+			throw new IllegalArgumentException(error)
+		}
 	}
 
-	return response
+	return results
 }
 
 // groovylint-disable-next-line FactoryMethodName

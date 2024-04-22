@@ -99,17 +99,6 @@ void call(Closure body) {
 							runScript(isUnix() ? 'printenv' : 'set')
 						}
 					}
-					stage('setup docker environment') {
-						steps {
-							script {
-								helper.runInitializeScriptIfPresent()
-							}
-
-							runStepRelativeToPackageRoot packageRootPath, {
-								configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams))
-							}
-						}
-					}
 					stage('checkout') {
 						when {
 							triggeredBy 'UserIdCause'
@@ -118,6 +107,20 @@ void call(Closure body) {
 							script {
 								runScript("git reset --hard origin/${env.BRANCH_NAME}")
 								helper.runInitializeScriptIfPresent()
+							}
+						}
+					}
+					stage('setup docker environment') {
+						steps {
+							script {
+								helper.runInitializeScriptIfPresent()
+								runStepRelativeToPackageRoot packageRootPath, {
+									final String ownerName = helper.resolveOrganizationName()
+									final String gitHubRepositoryName = helper.resolveRepositoryName()
+									final Boolean isGitHubRepoPublic = githubHelper.isGitHubRepositoryPublic(ownerName, gitHubRepositoryName)
+
+									configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams), isGitHubRepoPublic)
+								}
 							}
 						}
 					}

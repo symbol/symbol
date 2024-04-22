@@ -107,3 +107,13 @@ String resolveWorkspacePath(String os) {
 String resolveGitHubCredentialsId() {
 	return scm.userRemoteConfigs[0].credentialsId
 }
+
+void withTempDir(Closure body) {
+	dir( pwd(tmp: true) ) {
+		try {
+			body()
+		} finally {
+			deleteDir()
+		}
+	}
+}
