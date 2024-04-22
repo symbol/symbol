@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-include_directories(${PROJECT_SOURCE_DIR}/external)
+include_directories(../../../external)
 
 catapult_library_target(catapult.crypto)
 

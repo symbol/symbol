@@ -11,4 +11,4 @@ target_link_libraries(${TARGET_NAME}
 set_property(TEST ${TARGET_NAME} PROPERTY LABELS Stress)
 
 # add dependency on hash cache plugin
-include_directories(${PROJECT_SOURCE_DIR}/plugins/services/hashcache)
+include_directories(../../../plugins/services/hashcache)
