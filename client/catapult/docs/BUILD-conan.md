@@ -96,10 +96,10 @@ $> cd build/Release
 
 ### Windows
 ```sh
-$> $env:CONAN_REVISIONS_ENABLED=1
 $> conan install . --build=missing -s compiler.cppstd=17 -s build_type=Release
 $> cd build
 ```
+_where `build_type` argument value can be any of Release, RelWithDebInfo, Debug_
 
 
 ## Step 2: Build catapult
@@ -127,15 +127,16 @@ $> cd build
   $> cmake --build . --target publish
   $> msbuild /p:Configuration=Release /p:Platform=x64 /m ALL_BUILD.vcxproj
   ```
+  > **NOTE:** Ensure the `Configuration` argument matches the `build_type` used in the `conan install ..` command you have executed earlier.
 
-  After building successfully, the tools in ``_build\bin`` are ready to use. All runtime dependencies have been copied into the same folder so Windows will find them.
+  After building successfully, the tools in ``build\bin\<configuration>`` (where <configuration> is the name of the configuration profile you have set i.e. Release | RelWithDebInfo | Debug) are ready to use. All runtime dependencies have been copied into the same folder so Windows will find them.
 
 * Verify:
 
   Check that the tools are working correctly by running:
 
   ```sh
-  $> bin\catapult.tools.address --help
+  $> bin\Release\catapult.tools.address --help
   ```
 
 ### Linux and macOS
