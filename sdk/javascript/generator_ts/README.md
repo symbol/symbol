@@ -1,9 +1,9 @@
-# javascript catbuffer generator
+# javascript catbuffer transaction descriptor generator
 
 ## Generate catbuffer
 
 ```sh
-./scripts/run_catbuffer_generator.sh
+./scripts/run_catbuffer_generator_ts.sh
 ```
 
 Run test vectors (assuming node project is `sdk/javascript`):

@@ -1,5 +1,7 @@
 import SymbolBlockFactory from './BlockFactory.js';
 import ReceiptFactory from './ReceiptFactory.js';
+import roundtripTsDescriptorNem from './tsDescriptorsNem.js';
+import roundtripTsDescriptorSymbol from './tsDescriptorsSymbol.js';
 import NemFacade from '../src/facade/NemFacade.js';
 import SymbolFacade from '../src/facade/SymbolFacade.js';
 import * as nc from '../src/nem/models.js';
@@ -123,25 +125,25 @@ describe('catbuffer vectors', () => {
 
 	const jsifyNem = jsifyImpl(isNumericNem);
 
+	const fixupDescriptorCommon = (descriptor, module) => {
+		Object.getOwnPropertyNames(descriptor).forEach(key => {
+			// skip false positive due to ABC123 value that should be treated as plain string
+			if ('value' === key && 'namespace_metadata_transaction_v1' === descriptor.type)
+				return;
+
+			const value = descriptor[key];
+			if ('string' === typeof (value) && converter.isHexString(value))
+				descriptor[key] = converter.hexToUint8(value);
+			else if ('object' === typeof (value) && null !== value)
+				fixupDescriptorCommon(value, module);
+		});
+	};
+
 	// endregion
 
 	// region create from descriptor
 
 	describe('create from descriptor', () => {
-		const fixupDescriptorCommon = (descriptor, module) => {
-			Object.getOwnPropertyNames(descriptor).forEach(key => {
-				// skip false positive due to ABC123 value that should be treated as plain string
-				if ('value' === key && 'namespace_metadata_transaction_v1' === descriptor.type)
-					return;
-
-				const value = descriptor[key];
-				if ('string' === typeof (value) && converter.isHexString(value))
-					descriptor[key] = converter.hexToUint8(value);
-				else if ('object' === typeof (value) && null !== value)
-					fixupDescriptorCommon(value, module);
-			});
-		};
-
 		const fixupDescriptorNem = (descriptor, module, facade) => {
 			descriptor.signature = new module.Signature(descriptor.signature);
 			fixupDescriptorCommon(descriptor, module);
@@ -297,6 +299,82 @@ describe('catbuffer vectors', () => {
 			prepareTestCases('symbol', { includes: ['receipts'] }).forEach(item => {
 				it(`can create from descriptor ${item.test_name}`, () => {
 					assertCreateSymbolReceiptFromDescriptor(item, () => {});
+				});
+			});
+		});
+	});
+
+	// endregion
+
+	// region create from descriptor (typescript)
+
+	describe('create from descriptor (typescript)', () => {
+		const fixupAggregateNem = (module, facade, tsDerivedDescriptor) => {
+			if (!tsDerivedDescriptor.innerTransaction)
+				return;
+
+			tsDerivedDescriptor.innerTransaction = facade.transactionFactory.constructor
+				.toNonVerifiableTransaction(facade.transactionFactory.create({
+					...tsDerivedDescriptor.innerTransaction.toMap(),
+
+					// override base transaction properties to get vectors to pass
+					timestamp: tsDerivedDescriptor.timestamp,
+					signerPublicKey: tsDerivedDescriptor.signerPublicKey,
+					fee: tsDerivedDescriptor.fee
+				}));
+			if (tsDerivedDescriptor.cosignatures) {
+				tsDerivedDescriptor.cosignatures = tsDerivedDescriptor.cosignatures.map(cosignatureDescriptor => {
+					const cosignature = facade.transactionFactory.create({
+						type: 'cosignature_v1',
+						...cosignatureDescriptor.cosignature
+					});
+					cosignature.network = module.NetworkType.MAINNET; // TODO: fixup based on mismatch in vectors
+
+					const sizePrefixedCosignature = new module.SizePrefixedCosignatureV1();
+					sizePrefixedCosignature.cosignature = cosignature;
+					return sizePrefixedCosignature;
+				});
+			}
+		};
+
+		const fixupAggregateSymbol = (module, facade, tsDerivedDescriptor) => {
+			if (!tsDerivedDescriptor.transactions)
+				return;
+
+			tsDerivedDescriptor.transactions = tsDerivedDescriptor.transactions
+				.map(childDescriptor => facade.transactionFactory.createEmbedded(childDescriptor.toMap()));
+		};
+
+		const assertCreateFromDescriptor = (item, module, FacadeClass, fixupAggregate, jsify, roundtripTsDescriptor) => {
+			// Arrange:
+			const facade = new FacadeClass('testnet');
+
+			const descriptor = jsify(item.descriptor);
+			fixupDescriptorCommon(descriptor, module);
+
+			// Act:
+			const tsDerivedDescriptor = roundtripTsDescriptor(descriptor);
+			fixupAggregate(module, facade, tsDerivedDescriptor);
+
+			const transaction = facade.transactionFactory.create(tsDerivedDescriptor);
+			const transactionBuffer = transaction.serialize();
+
+			// Assert:
+			expect(converter.uint8ToHex(transactionBuffer)).to.equal(item.payload);
+		};
+
+		describe('NEM (transactions)', () => {
+			prepareTestCases('nem', { includes: ['transactions'] }).forEach(item => {
+				it(`can create from descriptor ${item.test_name}`, () => {
+					assertCreateFromDescriptor(item, nc, NemFacade, fixupAggregateNem, jsifyNem, roundtripTsDescriptorNem);
+				});
+			});
+		});
+
+		describe('Symbol (transactions)', () => {
+			prepareTestCases('symbol', { includes: ['transactions'] }).forEach(item => {
+				it(`can create from descriptor ${item.test_name}`, () => {
+					assertCreateFromDescriptor(item, sc, SymbolFacade, fixupAggregateSymbol, jsifySymbol, roundtripTsDescriptorSymbol);
 				});
 			});
 		});

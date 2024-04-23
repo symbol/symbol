@@ -8,6 +8,7 @@ class MethodDescriptor:
 		self.body = body
 		self.annotations = []
 		self.disabled_warnings = []
+		self.documentation = []
 
 
 class AbstractTypeFormatter(ABC):

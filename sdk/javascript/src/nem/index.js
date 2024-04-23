@@ -3,6 +3,7 @@ import MessageEncoder from './MessageEncoder.js';
 import { Address, Network, NetworkTimestamp } from './Network.js';
 import TransactionFactory from './TransactionFactory.js';
 import * as models from './models.js';
+import * as descriptors from './models_ts.js';
 import NemFacade from '../facade/NemFacade.js';
 
 export {
@@ -61,7 +62,12 @@ export {
 	/**
 	 * Raw models generated from catbuffer schemas.
 	 */
-	models
+	models,
+
+	/**
+	 * Descriptors generated from catbuffer schemas for improved TypeScript support.
+	 */
+	descriptors
 
 	// endregion
 };
