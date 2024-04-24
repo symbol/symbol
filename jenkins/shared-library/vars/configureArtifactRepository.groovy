@@ -31,6 +31,10 @@ String resolveRepositoryName(String environment, Boolean isGitHubRepoPublic) {
 
 String readNpmPackageScopeName() {
 	Object packageJson = readJSON file: 'package.json'
+	if (null == packageJson.name) {
+		return null
+	}
+
 	String[] nameParts = packageJson.name.tokenize('/')
 	return nameParts.length > 1 ? nameParts[0] : null
 }
