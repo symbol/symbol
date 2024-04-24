@@ -1,11 +1,11 @@
-ARG FROM_IMAGE='ubuntu:22.04'
+ARG FROM_IMAGE='ubuntu:24.04'
 
 FROM ${FROM_IMAGE}
 
 # install tzdata first to prevent 'geographic area' prompt
 RUN apt-get update >/dev/null \
 	&& apt-get install -y tzdata \
-	&& apt-get install -y git curl
+	&& apt-get install -y git curl zip unzip
 
 # mongodb 6.0
 RUN apt-get install -y wget gnupg \
@@ -45,6 +45,12 @@ RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "linux" || echo "aarch64") \
 	&& curl -Os "https://uploader.codecov.io/latest/${ARCH}/codecov" \
 	&& chmod +x codecov \
 	&& mv codecov /usr/local/bin
+
+# install aws cli
+RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "x86_64" || echo "aarch64") \
+	&& curl "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o "awscliv2.zip" \
+	&& unzip awscliv2.zip \
+	&& ./aws/install
 
 # add ubuntu user (used by jenkins)
 RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
