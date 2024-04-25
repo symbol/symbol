@@ -13,7 +13,7 @@ All scripts used in this guide can be found in the ``jenkins/catapult`` folder a
 - Python 3.
 - About 15 GB of free disk space.
 
-These instructions have been verified to work on Ubuntu 20.04 with 8 GB of RAM and 4 CPU cores. **The scripts used are not ready for Windows yet**.
+These instructions have been verified to work on Ubuntu 24.04 with 8 GB of RAM and 4 CPU cores. **The scripts used are not ready for Windows yet**.
 
 ## Step 1: Clone symbol repo
 
@@ -119,16 +119,16 @@ These images are built automatically via Docker Hub and are available in the [Do
 
 The process described next allows building several combinations of Operating Systems and compilers. The following is the list of combinations automatically built by Docker Hub:
 
-- Ubuntu (22.04)
-  - gcc-11
+- Ubuntu (24.04)
   - gcc-12
-  - clang-13
-  - clang-14
+  - gcc-13
+  - clang-17
+  - clang-18
   - clang + sanitizers (address + undefined behavior)
   - clang + sanitizers (threads)
-- Fedora (36)
-  - gcc-12
-- Debian (11.4)
+- Fedora (40)
+  - gcc-14
+- Debian (12)
   - gcc-10 (this is the newest gcc avail on Debian)
 
 ### Building your own base image

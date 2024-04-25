@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   db:
-    image: mongo:6.0
+    image: mongo:7.0
     command: mongod --bind_ip_all --dbpath=c:\mongo --logpath c:\mongo\mongod.log
     volumes:
       - ./mongo/{{BUILD_NUMBER}}:c:\mongo:rw
