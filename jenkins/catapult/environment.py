@@ -71,7 +71,8 @@ class EnvironmentManager:
 		if self.dry_run:
 			return
 
-		shutil.rmtree(path, onerror=rm_failure_handler)
+		kwargs = {'onexc' if sys.version_info >= (3, 12) else 'onerror': rm_failure_handler}
+		shutil.rmtree(path, **kwargs)
 
 	# endregion
 
