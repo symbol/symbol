@@ -44,7 +44,7 @@
   },
   "homepage": "https://github.com/symbol/symbol/blob/main/sdk/javascript#readme",
   "devDependencies": {
-    "@types/jest": "~29.5.5",
+    "@types/mocha": "^10.0.6",
     "@types/ripemd160": "~2.0.1",
     "@types/yargs": "~17.0.26",
     "@wasm-tool/wasm-pack-plugin": "~1.7.0",
