@@ -1,4 +1,4 @@
-ARG FROM_IMAGE=ubuntu:23.10
+ARG FROM_IMAGE=ubuntu:24.04
 FROM ${FROM_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive

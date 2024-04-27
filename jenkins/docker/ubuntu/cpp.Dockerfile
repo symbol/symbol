@@ -6,11 +6,11 @@ RUN apt-get install -y shellcheck
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 
-# mongodb 6.0
+# mongodb 7.0
 RUN apt-get install -y wget gnupg \
-	&& wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc |  gpg --dearmor | tee /usr/share/keyrings/mongodb.gpg > /dev/null \
-	&& echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse"  \
-	| tee /etc/apt/sources.list.d/mongodb-org-6.0.list \
+	&& wget -qO - https://www.mongodb.org/static/pgp/server-7.0.asc |  gpg --dearmor | tee /usr/share/keyrings/mongodb.gpg > /dev/null \
+	&& echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse"  \
+	| tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
 	&& apt-get update \
 	&& apt-get install -y mongodb-org
 
