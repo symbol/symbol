@@ -3,11 +3,12 @@ import {
 	Hash256, PrivateKey, PublicKey, Signature
 } from '../../src/CryptoTypes.js';
 import SymbolFacade from '../../src/facade/SymbolFacade.js';
-import { Network } from '../../src/symbol/Network.js';
+import { Address, Network } from '../../src/symbol/Network.js';
 /* eslint-disable no-unused-vars */
 import TransactionFactory from '../../src/symbol/TransactionFactory.js';
 /* eslint-enable no-unused-vars */
 import * as sc from '../../src/symbol/models.js';
+import * as descriptors from '../../src/symbol/models_ts.js';
 import { expect } from 'chai';
 import crypto from 'crypto';
 
@@ -206,6 +207,75 @@ describe('Symbol Facade', () => {
 			expect(0n < nowFromFacade.timestamp).to.equal(true);
 			break;
 		}
+	});
+
+	// endregion
+
+	// region create from typed descriptor
+
+	it('can create transaction from typed descriptor', () => {
+		// Arrange:
+		const facade = new SymbolFacade('testnet');
+		const nowTimestamp = facade.now();
+
+		const signerPublicKey = new PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8');
+		const typedDescriptor = new descriptors.TransferTransactionV1Descriptor(
+			new Address('TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I'),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(new sc.UnresolvedMosaicId(0x7CDF3B117A3C40CCn), new sc.Amount(1000000n))
+			],
+			'hello symbol'
+		);
+
+		// Act:
+		const transaction = (/** @type {sc.TransferTransactionV1} */ (facade.createTransactionFromTypedDescriptor(
+			typedDescriptor,
+			signerPublicKey,
+			100,
+			60 * 60
+		)));
+
+		// Assert:
+		expect(transaction.type).to.equal(sc.TransactionType.TRANSFER);
+		expect(transaction.version).to.equal(1);
+		expect(transaction.network).to.deep.equal(sc.NetworkType.TESTNET);
+		expect(transaction.message).to.deep.equal(new TextEncoder().encode('hello symbol'));
+
+		expect(transaction.signerPublicKey).to.deep.equal(signerPublicKey);
+		expect(transaction.fee.value).to.equal(BigInt(transaction.size * 100));
+
+		// - check deadline is in range (within 10s)
+		const minRawDeadline = nowTimestamp.timestamp + (60n * 60n * 1000n);
+		expect(minRawDeadline <= transaction.deadline.value).to.equal(true);
+		expect(transaction.deadline.value <= (minRawDeadline + 10000n)).to.equal(true);
+	});
+
+	it('can create embedded transaction from typed descriptor', () => {
+		// Arrange:
+		const facade = new SymbolFacade('testnet');
+
+		const signerPublicKey = new PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8');
+		const typedDescriptor = new descriptors.TransferTransactionV1Descriptor(
+			new Address('TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I'),
+			[
+				new descriptors.UnresolvedMosaicDescriptor(new sc.UnresolvedMosaicId(0x7CDF3B117A3C40CCn), new sc.Amount(1000000n))
+			],
+			'hello symbol'
+		);
+
+		// Act:
+		const transaction = (/** @type {sc.EmbeddedTransferTransactionV1} */ (facade.createEmbeddedTransactionFromTypedDescriptor(
+			typedDescriptor,
+			signerPublicKey
+		)));
+
+		// Assert:
+		expect(transaction.type).to.equal(sc.TransactionType.TRANSFER);
+		expect(transaction.version).to.equal(1);
+		expect(transaction.network).to.deep.equal(sc.NetworkType.TESTNET);
+		expect(transaction.message).to.deep.equal(new TextEncoder().encode('hello symbol'));
+
+		expect(transaction.signerPublicKey).to.deep.equal(signerPublicKey);
 	});
 
 	// endregion

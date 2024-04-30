@@ -96,6 +96,27 @@ export default class NemFacade {
 		return this.network.fromDatetime(new Date());
 	}
 
+	/**
+	 * Creates a transaction from a (typed) transaction descriptor.
+	 * @param {object} typedDescriptor Transaction (typed) descriptor.
+	 * @param {PublicKey} signerPublicKey Signer public key.
+	 * @param {bigint} fee Transaction fee.
+	 * @param {number} deadlineSeconds Approximate seconds from now for deadline.
+	 * @returns {nc.Transaction} Created transaction.
+	 */
+	createTransactionFromTypedDescriptor(typedDescriptor, signerPublicKey, fee, deadlineSeconds) {
+		const now = this.now();
+		const transaction = this.transactionFactory.create({
+			...typedDescriptor.toMap(),
+
+			signerPublicKey,
+			fee,
+			timestamp: now.timestamp,
+			deadline: now.addSeconds(deadlineSeconds).timestamp
+		});
+		return transaction;
+	}
+
 	// the following three functions are NOT static in order for NemFacade and SymbolFacade to conform to the same interface
 
 	/**

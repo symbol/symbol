@@ -127,6 +127,40 @@ export default class SymbolFacade {
 	}
 
 	/**
+	 * Creates a transaction from a (typed) transaction descriptor.
+	 * @param {object} typedDescriptor Transaction (typed) descriptor.
+	 * @param {PublicKey} signerPublicKey Signer public key.
+	 * @param {number} feeMultiplier Fee multiplier.
+	 * @param {number} deadlineSeconds Approximate seconds from now for deadline.
+	 * @returns {sc.Transaction} Created transaction.
+	 */
+	createTransactionFromTypedDescriptor(typedDescriptor, signerPublicKey, feeMultiplier, deadlineSeconds) {
+		const transaction = this.transactionFactory.create({
+			...typedDescriptor.toMap(),
+
+			signerPublicKey,
+			deadline: this.now().addSeconds(deadlineSeconds).timestamp
+		});
+		transaction.fee = new sc.Amount(BigInt(transaction.size) * BigInt(feeMultiplier));
+		return transaction;
+	}
+
+	/**
+	 * Creates an embedded transaction from a (typed) transaction descriptor.
+	 * @param {object} typedDescriptor Transaction (typed) descriptor.
+	 * @param {PublicKey} signerPublicKey Signer public key.
+	 * @returns {sc.EmbeddedTransaction} Created embedded transaction.
+	 */
+	createEmbeddedTransactionFromTypedDescriptor(typedDescriptor, signerPublicKey) {
+		const transaction = this.transactionFactory.createEmbedded({
+			...typedDescriptor.toMap(),
+
+			signerPublicKey
+		});
+		return transaction;
+	}
+
+	/**
 	 * Hashes a Symbol transaction.
 	 * @param {sc.Transaction} transaction Transaction object.
 	 * @returns {Hash256} Transaction hash.
