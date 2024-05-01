@@ -24,6 +24,10 @@ class AbstractBasicTransactionFactoryExSignatureTest:
 	def create_transaction(factory):
 		return factory.create
 
+	@staticmethod
+	def deserialize_transaction(factory):
+		return factory.deserialize
+
 
 class BasicTransactionFactoryExSignatureTest(AbstractBasicTransactionFactoryExSignatureTest):
 	# pylint: disable=abstract-method, no-member
@@ -54,6 +58,26 @@ class BasicTransactionFactoryExSignatureTest(AbstractBasicTransactionFactoryExSi
 				'type': f'x{self.transaction_type_name()}',
 				'signer_public_key': TEST_SIGNER_PUBLIC_KEY
 			})
+
+	# endregion
+
+	# region deserialize
+
+	def test_can_deserialize_transaction_from_buffer(self):
+		# Arrange: create a transaction and serialize it to a buffer
+		factory = self.create_factory()
+
+		transaction = self.create_transaction(factory)({
+			'type': self.transaction_type_name(),
+			'signer_public_key': TEST_SIGNER_PUBLIC_KEY
+		})
+		payload = transaction.serialize()
+
+		# Act: deserialize a transaction from the buffer
+		transaction_deserialized = self.deserialize_transaction(factory)(payload)
+
+		# Assert: the two transactions are equal
+		self.assertEqual(transaction.__dict__, transaction_deserialized.__dict__)
 
 	# endregion
 

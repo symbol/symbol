@@ -56,6 +56,16 @@ class TransactionFactory:
 		return self._create_and_extend(transaction_descriptor, autosort, sc.EmbeddedTransactionFactory)
 
 	@staticmethod
+	def deserialize(payload):
+		"""Deserializes a transaction from a binary payload."""
+		return sc.TransactionFactory.deserialize(payload)
+
+	@staticmethod
+	def deserialize_embedded(payload):
+		"""Deserializes an embedded transaction from a binary payload."""
+		return sc.EmbeddedTransactionFactory.deserialize(payload)
+
+	@staticmethod
 	def attach_signature(transaction, signature):
 		"""Attaches a signature to a transaction."""
 		transaction.signature = sc.Signature(signature.bytes)

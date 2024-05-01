@@ -40,6 +40,11 @@ class TransactionFactory:
 		return transaction
 
 	@staticmethod
+	def deserialize(payload):
+		"""Deserializes a transaction from a binary payload."""
+		return nc.TransactionFactory.deserialize(payload)
+
+	@staticmethod
 	def to_non_verifiable_transaction(transaction):
 		"""Converts a transaction to a non-verifiable transaction."""
 		non_verifiable_class_name = type(transaction).__name__
