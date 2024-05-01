@@ -21,6 +21,7 @@ describe('transaction factory (NEM)', () => {
 		transactionTypeName: 'transfer_transaction_v2',
 		createFactory: typeRuleOverrides => new TransactionFactory(Network.TESTNET, typeRuleOverrides),
 		createTransaction: factory => ((descriptor, autosort = true) => factory.create(descriptor, autosort)),
+		deserializeTransaction: TransactionFactory.deserialize,
 		assertTransaction: assertTransfer,
 		assertSignature: (transaction, signature, signedTransactionPayload) => {
 			const transactionHex = uint8ToHex(TransactionFactory.toNonVerifiableTransaction(transaction).serialize());

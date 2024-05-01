@@ -117,6 +117,24 @@ export default class TransactionFactory {
 	}
 
 	/**
+	 * Deserializes a transaction from a binary payload.
+	 * @param {Uint8Array} payload Binary payload.
+	 * @returns {sc.Transaction} Deserialized transaction.
+	 */
+	static deserialize(payload) {
+		return sc.TransactionFactory.deserialize(payload);
+	}
+
+	/**
+	 * Deserializes an embedded transaction from a binary payload.
+	 * @param {Uint8Array} payload Binary payload.
+	 * @returns {sc.EmbeddedTransaction} Deserialized embedded transaction.
+	 */
+	static deserializeEmbedded(payload) {
+		return sc.EmbeddedTransactionFactory.deserialize(payload);
+	}
+
+	/**
 	 * Attaches a signature to a transaction.
 	 * @param {sc.Transaction} transaction Transaction object.
 	 * @param {Signature} signature Signature to attach.

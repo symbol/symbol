@@ -41,6 +41,27 @@ export const runBasicTransactionFactoryTests = ( // eslint-disable-line import/p
 
 	// endregion
 
+	// region deserialize
+
+	it('can deserialize transaction from buffer', () => {
+		// Arrange: create a transaction and serialize it to a buffer
+		const factory = testDescriptor.createFactory();
+
+		const transaction = testDescriptor.createTransaction(factory)({
+			type: transactionTypeName,
+			signerPublicKey: TEST_SIGNER_PUBLIC_KEY
+		});
+		const payload = transaction.serialize();
+
+		// Act: deserialize a transaction from the buffer
+		const transactionDeserialized = testDescriptor.deserializeTransaction(payload);
+
+		// Assert: the two transactions are equal
+		expect(transactionDeserialized).to.deep.equal(transaction);
+	});
+
+	// endregion
+
 	if (includeAttachSignatureTests) {
 		// region attachSignature
 

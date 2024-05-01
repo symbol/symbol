@@ -238,6 +238,7 @@ describe('transaction factory (Symbol)', () => {
 			name: 'Transaction',
 			createFactory: typeRuleOverrides => new TransactionFactory(Network.TESTNET, typeRuleOverrides),
 			createTransaction: factory => ((descriptor, autosort = true) => factory.create(descriptor, autosort)),
+			deserializeTransaction: TransactionFactory.deserialize,
 			assertTransaction: assertTransfer,
 			assertSignature: (transaction, signature, signedTransactionPayload) => {
 				const transactionHex = uint8ToHex(transaction.serialize());
@@ -254,6 +255,7 @@ describe('transaction factory (Symbol)', () => {
 			name: 'EmbeddedTransaction',
 			createFactory: typeRuleOverrides => new TransactionFactory(Network.TESTNET, typeRuleOverrides),
 			createTransaction: factory => ((descriptor, autosort = true) => factory.createEmbedded(descriptor, autosort)),
+			deserializeTransaction: TransactionFactory.deserializeEmbedded,
 			assertTransaction: assertTransfer
 		};
 		runBasicTransactionFactoryTests(testDescriptor, false);
