@@ -117,9 +117,12 @@ void call(Closure body) {
 								runStepRelativeToPackageRoot packageRootPath, {
 									final String ownerName = helper.resolveOrganizationName()
 									final String gitHubRepositoryName = helper.resolveRepositoryName()
-									final Boolean isGitHubRepoPublic = githubHelper.isGitHubRepositoryPublic(ownerName, gitHubRepositoryName)
 
-									configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams), isGitHubRepoPublic)
+									if (null == jenkinsfileParams.publicGitHubRepo) {
+										jenkinsfileParams.publicGitHubRepo = githubHelper.isGitHubRepositoryPublic(ownerName, gitHubRepositoryName)
+									}
+
+									configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams), jenkinsfileParams.publicGitHubRepo)
 								}
 							}
 						}
