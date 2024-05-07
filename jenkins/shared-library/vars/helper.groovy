@@ -59,8 +59,12 @@ void runStepAndRecordFailure(Closure body) {
 	}
 }
 
+int dayOfMonth() {
+	return LocalDateTime.now().dayOfMonth
+}
+
 String determineArchitecture() {
-	String architecture = LocalDateTime.now().dayOfMonth % 2 == 0 ? 'amd64' : 'arm64'
+	String architecture = dayOfMonth() % 2 == 0 ? 'amd64' : 'arm64'
 	println "Architecture: ${architecture}"
 	return architecture
 }
