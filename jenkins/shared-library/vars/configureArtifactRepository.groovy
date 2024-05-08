@@ -1,25 +1,40 @@
-void call(String environment) {
+void call(String environment, Boolean isPublicGitHubRepo) {
 	final String ownerName = helper.resolveOrganizationName()
 	logger.logInfo("Configuring respository pull for ${environment}")
 
-	String url = resolveRepositoryUrl(ownerName, resolveRepositoryName(environment))
+	final String url = resolveRepositoryUrl(ownerName, resolveRepositoryName(environment, isPublicGitHubRepo))
 
 	if (null != url) {
 		configure(environment, ownerName, url)
+
+		if ('javascript' == environment && fileExists('package-lock.json')) {
+			// remove package-lock.json file since the hashes will not match private repository
+			sh('rm -f package-lock.json')
+		}
 	}
 }
 
-String resolveRepositoryName(String environment) {
+String resolveRepositoryName(String environment, Boolean isPublicGitHubRepo) {
 	Map<String, List<Object>> environmentRepoNameMap = [
 		'javascript' : 'npm-group',
 		'python': 'pypi-group'
 	]
 
-	return environmentRepoNameMap[environment] ?: ''
+	final String repositoryName = environmentRepoNameMap[environment]
+	if (null == repositoryName) {
+		logger.logInfo("No repository found for ${environment}")
+		return ''
+	}
+
+	return isPublicGitHubRepo ? repositoryName : "${repositoryName}-private"
 }
 
 String readNpmPackageScopeName() {
 	Object packageJson = readJSON file: 'package.json'
+	if (null == packageJson.name) {
+		return null
+	}
+
 	String[] nameParts = packageJson.name.tokenize('/')
 	return nameParts.length > 1 ? nameParts[0] : null
 }
