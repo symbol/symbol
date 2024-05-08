@@ -157,8 +157,10 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							helper.runStepRelativeToPackageRoot packageRootPath, {
-								setupBuild(env.LINT_SETUP_SCRIPT_FILEPATH)
+							script {
+								helper.runStepRelativeToPackageRoot packageRootPath, {
+									setupBuild(env.LINT_SETUP_SCRIPT_FILEPATH)
+								}
 							}
 						}
 					}
@@ -177,8 +179,10 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							helper.runStepRelativeToPackageRoot packageRootPath, {
-								setupBuild(env.BUILD_SETUP_SCRIPT_FILEPATH)
+							script {
+								helper.runStepRelativeToPackageRoot packageRootPath, {
+									setupBuild(env.BUILD_SETUP_SCRIPT_FILEPATH)
+								}
 							}
 						}
 					}
@@ -201,8 +205,10 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							helper.runStepRelativeToPackageRoot packageRootPath, {
-								setupTests(env.TEST_SETUP_SCRIPT_FILEPATH)
+							script {
+								helper.runStepRelativeToPackageRoot packageRootPath, {
+									setupTests(env.TEST_SETUP_SCRIPT_FILEPATH)
+								}
 							}
 						}
 					}
@@ -261,8 +267,10 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							helper.runStepRelativeToPackageRoot packageRootPath, {
-								codeCoverage(jenkinsfileParams)
+							script {
+								helper.runStepRelativeToPackageRoot packageRootPath, {
+									codeCoverage(jenkinsfileParams)
+								}
 							}
 						}
 					}
@@ -285,8 +293,10 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							helper.runStepRelativeToPackageRoot packageRootPath, {
-								publish(jenkinsfileParams, 'alpha')
+							script {
+								helper.runStepRelativeToPackageRoot packageRootPath, {
+									publish(jenkinsfileParams, 'alpha')
+								}
 							}
 						}
 					}
@@ -304,8 +314,10 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							helper.runStepRelativeToPackageRoot packageRootPath, {
-								publish(jenkinsfileParams, 'release')
+							script {
+								helper.runStepRelativeToPackageRoot packageRootPath, {
+									publish(jenkinsfileParams, 'release')
+								}
 							}
 						}
 					}

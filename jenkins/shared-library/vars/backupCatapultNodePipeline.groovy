@@ -26,46 +26,58 @@ void call(Closure body) {
 		stages {
 			stage('Shutdown server') {
 				steps {
-					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
-						sh 'docker compose down --timeout 300'
+					script {
+						helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+							sh 'docker compose down --timeout 300'
+						}
 					}
 				}
 			}
 			stage('backup data') {
 				steps {
-					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
-						sh "tar -cvzf ${jenkinsfileParams.backupFileName} ${jenkinsfileParams.backupPath.join(' ')} > /dev/null"
+					script {
+						helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+							sh "tar -cvzf ${jenkinsfileParams.backupFileName} ${jenkinsfileParams.backupPath.join(' ')} > /dev/null"
+						}
 					}
 				}
 			}
 			stage('start server') {
 				steps {
-					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
-						sh 'docker compose up --detach'
+					script {
+						helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+							sh 'docker compose up --detach'
+						}
 					}
 				}
 			}
 			stage('upload weekly data to s3') {
 				steps {
-					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
-						sh "aws s3 cp ${jenkinsfileParams.backupFileName} s3://catapultmainnetdata/weekly/ > /dev/null"
-						sh "aws s3api put-object-acl --bucket catapultmainnetdata --key weekly/${jenkinsfileParams.backupFileName} --acl public-read"
+					script {
+						helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+							sh "aws s3 cp ${jenkinsfileParams.backupFileName} s3://catapultmainnetdata/weekly/ > /dev/null"
+							sh "aws s3api put-object-acl --bucket catapultmainnetdata --key weekly/${jenkinsfileParams.backupFileName} --acl public-read"
+						}
 					}
 				}
 			}
 			stage('upload monthly data to s3') {
 				when { expression { return 7 >= helper.dayOfMonth() } }  // first week of the month
 				steps {
-					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
-						sh "aws s3 cp ${jenkinsfileParams.backupFileName} s3://catapultmainnetdata/monthly/ > /dev/null"
-						sh "aws s3api put-object-acl --bucket catapultmainnetdata --key monthly/${jenkinsfileParams.backupFileName} --acl public-read"
+					script {
+						helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+							sh "aws s3 cp ${jenkinsfileParams.backupFileName} s3://catapultmainnetdata/monthly/ > /dev/null"
+							sh "aws s3api put-object-acl --bucket catapultmainnetdata --key monthly/${jenkinsfileParams.backupFileName} --acl public-read"
+						}
 					}
 				}
 			}
 			stage('cleanup backup file') {
 				steps {
-					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
-						sh "rm -f ${jenkinsfileParams.backupFileName}"
+					script {
+						helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+							sh "rm -f ${jenkinsfileParams.backupFileName}"
+						}
 					}
 				}
 			}
