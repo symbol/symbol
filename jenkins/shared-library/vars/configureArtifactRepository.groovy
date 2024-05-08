@@ -1,8 +1,8 @@
-void call(String environment, Boolean publicGitHubRepo) {
+void call(String environment, Boolean isPublicGitHubRepo) {
 	final String ownerName = helper.resolveOrganizationName()
 	logger.logInfo("Configuring respository pull for ${environment}")
 
-	final String url = resolveRepositoryUrl(ownerName, resolveRepositoryName(environment, publicGitHubRepo))
+	final String url = resolveRepositoryUrl(ownerName, resolveRepositoryName(environment, isPublicGitHubRepo))
 
 	if (null != url) {
 		configure(environment, ownerName, url)
@@ -14,7 +14,7 @@ void call(String environment, Boolean publicGitHubRepo) {
 	}
 }
 
-String resolveRepositoryName(String environment, Boolean publicGitHubRepo) {
+String resolveRepositoryName(String environment, Boolean isPublicGitHubRepo) {
 	Map<String, List<Object>> environmentRepoNameMap = [
 		'javascript' : 'npm-group',
 		'python': 'pypi-group'
@@ -26,7 +26,7 @@ String resolveRepositoryName(String environment, Boolean publicGitHubRepo) {
 		return ''
 	}
 
-	return publicGitHubRepo ? repositoryName : "${repositoryName}-private"
+	return isPublicGitHubRepo ? repositoryName : "${repositoryName}-private"
 }
 
 String readNpmPackageScopeName() {

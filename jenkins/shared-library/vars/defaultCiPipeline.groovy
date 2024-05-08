@@ -118,11 +118,11 @@ void call(Closure body) {
 									final String ownerName = helper.resolveOrganizationName()
 									final String gitHubRepositoryName = helper.resolveRepositoryName()
 
-									if (null == jenkinsfileParams.publicGitHubRepo) {
-										jenkinsfileParams.publicGitHubRepo = githubHelper.isGitHubRepositoryPublic(ownerName, gitHubRepositoryName)
+									if (null == jenkinsfileParams.isPublicGitHubRepo) {
+										jenkinsfileParams.isPublicGitHubRepo = githubHelper.isGitHubRepositoryPublic(ownerName, gitHubRepositoryName)
 									}
 
-									configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams), jenkinsfileParams.publicGitHubRepo)
+									configureArtifactRepository(jobHelper.resolveCiEnvironmentName(jenkinsfileParams), jenkinsfileParams.isPublicGitHubRepo)
 								}
 							}
 						}

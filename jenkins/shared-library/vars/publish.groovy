@@ -25,6 +25,10 @@ String resolveArtifactRepositoryName(String repositoryName, Boolean isPublicRepo
 	return isPublicRepo ? repositoryName : "${repositoryName}-private"
 }
 
+Boolean shouldPublishToInternalRepository(String phase, Map config) {
+	return isAlphaRelease(phase) || !config.isPublicGitHubRepo
+}
+
 void dockerPublisher(Map config, String phase) {
 	if (config.publisher != 'docker' || config.dockerImageName == null) {
 		return
@@ -32,8 +36,8 @@ void dockerPublisher(Map config, String phase) {
 
 	String dockerHost = 'registry.hub.docker.com'
 	String dockerCredentialsId = DOCKER_CREDENTIALS_ID
-	if (isAlphaRelease(phase) || !config.publicGitHubRepo) {
-		String artifactRepositoryName = resolveArtifactRepositoryName('docker-hosted', config.publicGitHubRepo)
+	if (shouldPublishToInternalRepository(phase, config)) {
+		String artifactRepositoryName = resolveArtifactRepositoryName('docker-hosted', config.isPublicGitHubRepo)
 		final String ownerName = helper.resolveOrganizationName()
 		dockerCredentialsId = "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID"
 		dockerHost = helper.resolveUrlHostName(configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName))
@@ -68,8 +72,8 @@ void npmPublisher(Map config, String phase) {
 		npmPublishCommand.append(' --tag alpha')
 	}
 
-	if (isAlphaRelease(phase) || !config.publicGitHubRepo) {
-		final String artifactRepositoryName = resolveArtifactRepositoryName('npm-hosted', config.publicGitHubRepo)
+	if (shouldPublishToInternalRepository(phase, config)) {
+		final String artifactRepositoryName = resolveArtifactRepositoryName('npm-hosted', config.isPublicGitHubRepo)
 		final String ownerName = helper.resolveOrganizationName()
 		final String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName)
 		final String environment = jobHelper.resolveCiEnvironmentName(config)
@@ -98,13 +102,13 @@ void pythonPublisher(Map config, String phase) {
 		return
 	}
 
-	if (isAlphaRelease(phase) || !config.publicGitHubRepo) {
+	if (shouldPublishToInternalRepository(phase, config)) {
 		final String ownerName = helper.resolveOrganizationName()
 		withCredentials([usernamePassword(credentialsId: "${ownerName.toUpperCase()}_ARTIFACTORY_LOGIN_ID",
 			usernameVariable: 'USERNAME',
 			passwordVariable: 'PASSWORD')]) {
 			publishArtifact {
-				final String artifactRepositoryName = resolveArtifactRepositoryName('pypi-hosted', config.publicGitHubRepo)
+				final String artifactRepositoryName = resolveArtifactRepositoryName('pypi-hosted', config.isPublicGitHubRepo)
 				String publishUrl = configureArtifactRepository.resolveRepositoryUrl(ownerName, artifactRepositoryName)
 
 				poetryBuildPackage()

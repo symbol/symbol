@@ -109,7 +109,7 @@ String resolveGitHubCredentialsId() {
 }
 
 void withTempDir(Closure body) {
-	dir( pwd(tmp: true) ) {
+	dir(pwd(tmp: true)) {
 		try {
 			body()
 		} finally {
