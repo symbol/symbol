@@ -121,3 +121,17 @@ void withTempDir(Closure body) {
 		}
 	}
 }
+
+void runStepRelativeToPackageRoot(String rootPath, Closure body) {
+	try {
+		dir(rootPath) {
+			body()
+		}
+		// groovylint-disable-next-line CatchException
+	} catch (Exception exception) {
+		echo "Caught: ${exception}"
+		env.FAILURE_MESSAGE = exception.message ?: exception
+		env.FAILED_STAGE_NAME = env.STAGE_NAME
+		throw exception
+	}
+}

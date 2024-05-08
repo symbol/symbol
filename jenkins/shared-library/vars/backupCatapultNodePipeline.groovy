@@ -26,28 +26,28 @@ void call(Closure body) {
 		stages {
 			stage('Shutdown server') {
 				steps {
-					runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
 						sh 'docker compose down --timeout 300'
 					}
 				}
 			}
 			stage('backup data') {
 				steps {
-					runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
 						sh "tar -cvzf ${jenkinsfileParams.backupFileName} ${jenkinsfileParams.backupPath.join(' ')} > /dev/null"
 					}
 				}
 			}
 			stage('start server') {
 				steps {
-					runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
 						sh 'docker compose up --detach'
 					}
 				}
 			}
 			stage('upload weekly data to s3') {
 				steps {
-					runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
 						sh "aws s3 cp ${jenkinsfileParams.backupFileName} s3://catapultmainnetdata/weekly/ > /dev/null"
 						sh "aws s3api put-object-acl --bucket catapultmainnetdata --key weekly/${jenkinsfileParams.backupFileName} --acl public-read"
 					}
@@ -56,7 +56,7 @@ void call(Closure body) {
 			stage('upload monthly data to s3') {
 				when { expression { return 7 >= helper.dayOfMonth() } }  // first week of the month
 				steps {
-					runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
 						sh "aws s3 cp ${jenkinsfileParams.backupFileName} s3://catapultmainnetdata/monthly/ > /dev/null"
 						sh "aws s3api put-object-acl --bucket catapultmainnetdata --key monthly/${jenkinsfileParams.backupFileName} --acl public-read"
 					}
@@ -64,7 +64,7 @@ void call(Closure body) {
 			}
 			stage('cleanup backup file') {
 				steps {
-					runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
+					helper.runStepRelativeToPackageRoot jenkinsfileParams.catapultPath.toString(), {
 						sh "rm -f ${jenkinsfileParams.backupFileName}"
 					}
 				}
@@ -83,7 +83,7 @@ void call(Closure body) {
 						helper.sendDiscordNotification(
 								"Node backup job Failed for ${currentBuild.fullDisplayName}",
 								"Job for ${jenkinsfileParams.agentName} agent has result of ${currentBuild.currentResult} in"
-										+ " stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
+									+ " stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
 								env.BUILD_URL,
 								currentBuild.currentResult
 						)
@@ -91,19 +91,5 @@ void call(Closure body) {
 				}
 			}
 		}
-	}
-}
-
-void runStepRelativeToPackageRoot(String rootPath, Closure body) {
-	try {
-		dir(rootPath) {
-			body()
-		}
-		// groovylint-disable-next-line CatchException
-	} catch (Exception exception) {
-		echo "Caught: ${exception}"
-		env.FAILURE_MESSAGE = exception.message ?: exception
-		env.FAILED_STAGE_NAME = env.STAGE_NAME
-		throw exception
 	}
 }

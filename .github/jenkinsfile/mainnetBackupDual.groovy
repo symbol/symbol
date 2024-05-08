@@ -1,6 +1,6 @@
 backupCatapultNodePipeline {
 	agentName = 'mainnet-dual'
-	backupFileName = 'catapult_dual_data_database.tar.gz'
+	backupFileName = 'catapult_dual_data.tar.gz'
 	backupPath = ['data', 'dbdata']
 	catapultPath = '/home/ubuntu/symbol'
 }

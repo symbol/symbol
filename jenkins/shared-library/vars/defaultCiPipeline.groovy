@@ -136,7 +136,7 @@ void call(Closure body) {
 						}
 						steps {
 							script {
-								runStepRelativeToPackageRoot '.', {
+								helper.runStepRelativeToPackageRoot '.', {
 									final String[] exemptAuthor = ['github-actions[bot]', 'dependabot[bot]']
 
 									println("Last commit author: ${author}")
@@ -157,7 +157,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							helper.runStepRelativeToPackageRoot packageRootPath, {
 								setupBuild(env.LINT_SETUP_SCRIPT_FILEPATH)
 							}
 						}
@@ -177,7 +177,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							helper.runStepRelativeToPackageRoot packageRootPath, {
 								setupBuild(env.BUILD_SETUP_SCRIPT_FILEPATH)
 							}
 						}
@@ -201,7 +201,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							helper.runStepRelativeToPackageRoot packageRootPath, {
 								setupTests(env.TEST_SETUP_SCRIPT_FILEPATH)
 							}
 						}
@@ -261,7 +261,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							helper.runStepRelativeToPackageRoot packageRootPath, {
 								codeCoverage(jenkinsfileParams)
 							}
 						}
@@ -285,7 +285,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							helper.runStepRelativeToPackageRoot packageRootPath, {
 								publish(jenkinsfileParams, 'alpha')
 							}
 						}
@@ -304,7 +304,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							helper.runStepRelativeToPackageRoot packageRootPath, {
 								publish(jenkinsfileParams, 'release')
 							}
 						}
@@ -339,27 +339,13 @@ void call(Closure body) {
 	}
 }
 
-void runStepRelativeToPackageRoot(String rootPath, Closure body) {
-	try {
-		dir(rootPath) {
-			body()
-		}
-		// groovylint-disable-next-line CatchException
-	} catch (Exception exception) {
-		echo "Caught: ${exception}"
-		env.FAILURE_MESSAGE = exception.message ?: exception
-		env.FAILED_STAGE_NAME = env.STAGE_NAME
-		throw exception
-	}
-}
-
 void runStepRelativeToPackageRootWithBadge(String rootPath, String packageId, String badgeName, Closure body) {
 	EmbeddableBadgeConfig badge = addEmbeddableBadgeConfiguration(id: "${packageId}-${badgeName}", subject: badgeName)
 	badge.status = 'running'
 
 	Boolean isSuccess = false
 	try {
-		runStepRelativeToPackageRoot rootPath, body
+		helper.runStepRelativeToPackageRoot rootPath, body
 		badge.status = 'passing'
 		isSuccess = true
 	} finally {
