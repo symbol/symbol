@@ -81,11 +81,11 @@ void call(Closure body) {
 				script {
 					if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
 						helper.sendDiscordNotification(
-								"Node backup job Failed for ${currentBuild.fullDisplayName}",
-								"Job for ${jenkinsfileParams.agentName} agent has result of ${currentBuild.currentResult} in"
-									+ " stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
-								env.BUILD_URL,
-								currentBuild.currentResult
+							"Node backup job Failed for ${currentBuild.fullDisplayName}",
+							"Job for ${jenkinsfileParams.agentName} agent has result of ${currentBuild.currentResult} in"
+								+ " stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
+							env.BUILD_URL,
+							currentBuild.currentResult
 						)
 					}
 				}
