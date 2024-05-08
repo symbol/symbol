@@ -132,16 +132,28 @@ export default class SymbolFacade {
 	 * @param {PublicKey} signerPublicKey Signer public key.
 	 * @param {number} feeMultiplier Fee multiplier.
 	 * @param {number} deadlineSeconds Approximate seconds from now for deadline.
+	 * @param {number} cosignatureCount Number of cosignature spaces to reserve.
 	 * @returns {sc.Transaction} Created transaction.
 	 */
-	createTransactionFromTypedDescriptor(typedDescriptor, signerPublicKey, feeMultiplier, deadlineSeconds) {
+	createTransactionFromTypedDescriptor(typedDescriptor, signerPublicKey, feeMultiplier, deadlineSeconds, cosignatureCount = 0) {
+		const rawDescriptor = typedDescriptor.toMap();
 		const transaction = this.transactionFactory.create({
-			...typedDescriptor.toMap(),
+			...rawDescriptor,
 
 			signerPublicKey,
 			deadline: this.now().addSeconds(deadlineSeconds).timestamp
 		});
-		transaction.fee = new sc.Amount(BigInt(transaction.size) * BigInt(feeMultiplier));
+
+		// if cosignatures are specified in the descriptor, use the max of them and cosignatureCount
+		let cosignatureCountAdjustment = cosignatureCount;
+		if (rawDescriptor.cosignatures) {
+			cosignatureCountAdjustment = rawDescriptor.cosignatures.length > cosignatureCount
+				? 0
+				: cosignatureCount - rawDescriptor.cosignatures.length;
+		}
+
+		const transactionWithCosignaturesSize = transaction.size + (cosignatureCountAdjustment * new sc.Cosignature().size);
+		transaction.fee = new sc.Amount(BigInt(transactionWithCosignaturesSize) * BigInt(feeMultiplier));
 		return transaction;
 	}
 

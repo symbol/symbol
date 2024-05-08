@@ -250,6 +250,46 @@ describe('Symbol Facade', () => {
 		expect(transaction.deadline.value <= (minRawDeadline + 10000n)).to.equal(true);
 	});
 
+	const assertAggregateSizeCalculation = (descriptorCosignatureCount, reservedCosignatureCount, expectedCosignatureCount) => {
+		// Arrange:
+		const facade = new SymbolFacade('testnet');
+
+		const signerPublicKey = new PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8');
+		const typedDescriptor = new descriptors.AggregateCompleteTransactionV1Descriptor(
+			new Hash256('157D3C15A677030DBD106C0C16556E305F3796B66F684715E0C18FC178DC8026'),
+			[],
+			descriptorCosignatureCount ? Array.from(Array(descriptorCosignatureCount), () => new sc.Cosignature()) : undefined
+		);
+
+		// Act:
+		const transaction = facade.createTransactionFromTypedDescriptor(
+			typedDescriptor,
+			signerPublicKey,
+			100,
+			60 * 60,
+			reservedCosignatureCount
+		);
+
+		// Assert: check size and fee
+		expect(transaction.size).to.equal(168 + (104 * descriptorCosignatureCount));
+		expect(transaction.fee.value).to.equal(BigInt((168 + (104 * expectedCosignatureCount)) * 100));
+	};
+
+	it('can create aggregate transaction from typed descriptor with explicit cosignatures', () => {
+		assertAggregateSizeCalculation(3, 0, 3);
+	});
+
+	it('can create aggregate transaction from typed descriptor with implicit cosignatures', () => {
+		assertAggregateSizeCalculation(0, 4, 4);
+	});
+
+	it('can create aggregate transaction from typed descriptor with both explicit and implicit cosignatures', () => {
+		// Assert: maximum of two values should be used in fee calculation
+		assertAggregateSizeCalculation(3, 4, 4);
+		assertAggregateSizeCalculation(4, 3, 4);
+		assertAggregateSizeCalculation(4, 4, 4);
+	});
+
 	it('can create embedded transaction from typed descriptor', () => {
 		// Arrange:
 		const facade = new SymbolFacade('testnet');
