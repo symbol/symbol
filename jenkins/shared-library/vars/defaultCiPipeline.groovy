@@ -114,7 +114,7 @@ void call(Closure body) {
 						steps {
 							script {
 								helper.runInitializeScriptIfPresent()
-								runStepRelativeToPackageRoot packageRootPath, {
+								helper.runStepRelativeToPackageRoot packageRootPath, {
 									final String ownerName = helper.resolveOrganizationName()
 									final String gitHubRepositoryName = helper.resolveRepositoryName()
 
