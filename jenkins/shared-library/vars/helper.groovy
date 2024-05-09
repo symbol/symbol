@@ -59,8 +59,12 @@ void runStepAndRecordFailure(Closure body) {
 	}
 }
 
+int dayOfMonth() {
+	return LocalDateTime.now().dayOfMonth
+}
+
 String determineArchitecture() {
-	String architecture = LocalDateTime.now().dayOfMonth % 2 == 0 ? 'amd64' : 'arm64'
+	String architecture = dayOfMonth() % 2 == 0 ? 'amd64' : 'arm64'
 	println "Architecture: ${architecture}"
 	return architecture
 }
@@ -115,5 +119,19 @@ void withTempDir(Closure body) {
 		} finally {
 			deleteDir()
 		}
+	}
+}
+
+void runStepRelativeToPackageRoot(String rootPath, Closure body) {
+	try {
+		dir(rootPath) {
+			body()
+		}
+		// groovylint-disable-next-line CatchException
+	} catch (Exception exception) {
+		echo "Caught: ${exception}"
+		env.FAILURE_MESSAGE = exception.message ?: exception
+		env.FAILED_STAGE_NAME = env.STAGE_NAME
+		throw exception
 	}
 }

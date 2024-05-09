@@ -43,12 +43,26 @@ customBuilds:
         schedule: '@midnight'
 
   - name: Build CI Image
-    jobName: /infra/build-ci-image
+    jobName: /Infrastructure/build-ci-image
     scriptPath: jenkins/infra/jenkins/build-ci-image.groovy
 
   - name: Build All CI Images
-    jobName: /infra/build-ci-image-all
+    jobName: /Infrastructure/build-ci-image-all
     scriptPath: jenkins/infra/jenkins/build-ci-image-all.groovy
+    triggers:
+      - type: cron
+        schedule: '@weekly'
+
+  - name: Backup Mainnet Dual Node
+    jobName: /Infrastructure/backup-mainnet-dual-node
+    scriptPath: .github/jenkinsfile/mainnetBackupDual.groovy
+    triggers:
+      - type: cron
+        schedule: '@weekly'
+
+  - name: Backup Mainnet Peer Node
+    jobName: /Infrastructure/backup-mainnet-peer-node
+    scriptPath: .github/jenkinsfile/mainnetBackupPeer.groovy
     triggers:
       - type: cron
         schedule: '@weekly'
