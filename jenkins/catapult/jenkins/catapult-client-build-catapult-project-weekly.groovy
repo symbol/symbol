@@ -18,6 +18,17 @@ pipeline {
 	}
 
 	stages {
+		stage('override variables') {
+			when {
+				triggeredBy 'TimerTrigger'
+			}
+			steps {
+				script {
+					env.MANUAL_GIT_BRANCH = env.MANUAL_GIT_BRANCH ?: 'dev'
+					env.SHOULD_PUBLISH_JOB_STATUS = env.SHOULD_PUBLISH_JOB_STATUS ?: 'true'
+				}
+			}
+		}
 		stage('print env') {
 			steps {
 				echo """
@@ -141,9 +152,13 @@ void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, S
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}"),
 		string(name: 'ARCHITECTURE', value: "${architecture}"),
+		string(name: 'TEST_IMAGE_LABEL', value: ''),
+		string(name: 'TEST_MODE', value: 'test'),
+		string(name: 'TEST_VERBOSITY', value: 'suite'),
+		booleanParam(name: 'SHOULD_PUBLISH_BUILD_IMAGE', value: false),
 		booleanParam(
 			name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS',
-			value: "${!env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()}"
+			value: !env.SHOULD_PUBLISH_JOB_STATUS || env.SHOULD_PUBLISH_JOB_STATUS.toBoolean()
 		)
 	]
 }
