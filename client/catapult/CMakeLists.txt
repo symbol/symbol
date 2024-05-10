@@ -12,12 +12,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 message(STATUS "CATAPULT_VERSION_DESCRIPTION: ${CATAPULT_VERSION_DESCRIPTION}")
 message(STATUS "USE_CONAN:                    ${USE_CONAN}")
-
-message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "CMAKE_CXX_FLAGS:       ${CMAKE_CXX_FLAGS}")
-message(STATUS "CMAKE_PREFIX_PATH:     ${CMAKE_PREFIX_PATH}")
-message(STATUS "CMAKE_MODULE_PATH:     ${CMAKE_MODULE_PATH}")
-message(STATUS "CMAKE_BUILD_TYPE:      ${CMAKE_BUILD_TYPE}")
+message(STATUS "CMAKE_CXX_COMPILER_ID:        ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_CXX_FLAGS:              ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_PREFIX_PATH:            ${CMAKE_PREFIX_PATH}")
+message(STATUS "CMAKE_MODULE_PATH:            ${CMAKE_MODULE_PATH}")
+message(STATUS "CMAKE_BUILD_TYPE:             ${CMAKE_BUILD_TYPE}")
 
 set(CORE_CATAPULT_LIBS catapult.io catapult.ionet catapult.model catapult.thread catapult.utils)
 
