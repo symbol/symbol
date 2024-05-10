@@ -3,7 +3,7 @@ import groovy.json.JsonOutput
 boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	try {
 		executeGitAuthenticatedCommand {
-			final Object repo = getRepositoryInfo("${GITHUB_ACCESS_TOKEN}", orgName, repoName)
+			final Object repo = getRepositoryInfo("${GITHUB_TOKEN}", orgName, repoName)
 			return repo.name == repoName && repo.visibility == 'public'
 		}
 	} catch (FileNotFoundException exception) {
@@ -111,9 +111,9 @@ void configureGitHub() {
 void executeGitAuthenticatedCommand(Closure command) {
 	withCredentials([usernamePassword(credentialsId: helper.resolveGitHubCredentialsId(),
 			usernameVariable: 'GITHUB_APP',
-			passwordVariable: 'GITHUB_ACCESS_TOKEN')]) {
+			passwordVariable: 'GITHUB_TOKEN')]) {
 		final String ownerName = helper.resolveOrganizationName()
-		final String replaceUrl = "https://${GITHUB_APP}:${GITHUB_ACCESS_TOKEN}@github.com/${ownerName}.insteadOf" +
+		final String replaceUrl = "https://${GITHUB_APP}:${GITHUB_TOKEN}@github.com/${ownerName}.insteadOf" +
 			" 'https://github.com/${ownerName}'"
 		sh("git config url.${replaceUrl}")
 		configureGitHub()
