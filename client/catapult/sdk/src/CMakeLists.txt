@@ -12,7 +12,7 @@ target_link_libraries(${TARGET_NAME}
 	catapult.plugins.namespace.sdk
 	catapult.plugins.restrictionaccount.sdk)
 
-find_program(PYTHON_EXECUTABLE python3 python)
+find_program(PYTHON_EXECUTABLE python3 python REQUIRED)
 
 add_custom_command(
 	OUTPUT ${CMAKE_BINARY_DIR}/inc/catapult/catapult.h
