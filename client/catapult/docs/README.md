@@ -53,6 +53,7 @@ Windows:
 
 * Visual Studio 2017 (15.8)
 * Visual Studio 2019 (16.8)
+* Visual Studio 2022 (17.9)
 
 ### Guides
 
@@ -60,6 +61,7 @@ In increasing order of complexity:
 
 * [Build with Docker](BUILD-docker.md)
 * [Build with Conan](BUILD-conan.md)
+* [Build with Visual Studio](BUILD-vs.md) (*easiest for Windows users on VS integrated with CMake)
 * [Build manually](BUILD-manual.md)
 
 ### Sanitizers
