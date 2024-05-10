@@ -26,7 +26,7 @@ Make sure that the node's host is accessible from the internet and that the port
 
 Required
 
-* cmake >= 3.14
+* cmake >= 3.23
 * git
 * python 3.x
 
