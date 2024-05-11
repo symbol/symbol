@@ -1,13 +1,15 @@
 [Visual Studio]: https://www.visualstudio.com/downloads
 [vcpkg]: https://github.com/microsoft/vcpkg
+[Python]: https://www.python.org/downloads/windows/
+[Git]: https://git-scm.com/download/win
 
 # Building with VisualStudio 2019
 
 Following instructions are meant for integrated builds using VisualStudio on Windows only. This instructions **do not appy to VSCode**
 
 ## Mandatory version requirements
-- Git version >= 2.25
-- Python version >= 3.6
+- [Git] version >= 2.25
+- [Python] version >= 3.6
 - [Visual Studio] 2017+ (2019 recommended): tested on 2022 (17.9.6)
 - [vcpkg] package manager >= 2024.04.26 (instructions for install below)
 
