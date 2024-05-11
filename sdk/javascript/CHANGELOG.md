@@ -5,6 +5,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.2.1] - 22-Apr-2024
+
+### Fixed
+- now() does not return the correct timestamp since bitwise OR operation only works with signed 32-bit integers
+- package subpath exports are not working correctly with certain JS/TS environments
+
 ## [3.2.0] - 09-Apr-2024
 
 ### Added
@@ -80,6 +86,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.2.1]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.0...sdk%2Fjavascript%2Fv3.2.1
+[3.2.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.1.0...sdk%2Fjavascript%2Fv3.2.0
 [3.1.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.11...sdk%2Fjavascript%2Fv3.1.0
 [3.0.11]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.7...sdk%2Fjavascript%2Fv3.0.11
 [3.0.7]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.0...sdk%2Fjavascript%2Fv3.0.7

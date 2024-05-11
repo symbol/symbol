@@ -1,4 +1,4 @@
-ARG FROM_IMAGE=fedora:39
+ARG FROM_IMAGE=fedora:40
 FROM ${FROM_IMAGE}
 
 RUN dnf update --assumeyes >/dev/null && \

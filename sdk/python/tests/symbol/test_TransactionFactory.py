@@ -209,6 +209,10 @@ class EmbeddedTransactionFactoryTest(BasicTransactionFactoryExSignatureTest, Sym
 	def create_transaction(factory):
 		return factory.create_embedded
 
+	@staticmethod
+	def deserialize_transaction(factory):
+		return factory.deserialize_embedded
+
 
 class TransactionFactoryTest(BasicTransactionFactoryTest, SymbolTransactionFactoryTest, unittest.TestCase):
 	def assert_transaction(self, transaction):

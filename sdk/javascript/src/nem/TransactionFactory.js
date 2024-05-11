@@ -85,6 +85,15 @@ export default class TransactionFactory {
 	}
 
 	/**
+	 * Deserializes a transaction from a binary payload.
+	 * @param {Uint8Array} payload Binary payload.
+	 * @returns {nc.Transaction} Deserialized transaction.
+	 */
+	static deserialize(payload) {
+		return nc.TransactionFactory.deserialize(payload);
+	}
+
+	/**
 	 * Converts a transaction to a non-verifiable transaction.
 	 * @param {nc.Transaction|nc.NonVerifiableTransaction} transaction Transaction object.
 	 * @returns {nc.NonVerifiableTransaction} Non-verifiable transaction object.

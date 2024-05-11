@@ -11,34 +11,59 @@ describe('BaseValue', () => {
 		expect(value.value).to.equal(expectedValue);
 	};
 
-	it('cannot create 64-bit value with invalid type', () => {
+	// region type checking / coercion
+
+	it('can create BigInt value from Number', () => {
+		// Arrange:
+		const canCreateUnsignedBaseValue = canCreateBaseValueFactory(false);
+
 		// Assert:
-		expect(() => new BaseValue(8, -1)).to.throw('has invalid type');
-		expect(() => new BaseValue(8, 1)).to.throw('has invalid type');
+		[0, 0x243F_6A88, 0xFFFF_FFFF].forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 8, BigInt(rawValue)));
 	});
 
-	it('cannot create from dumb values', () => {
+	it('cannot create BigInt value from non-integer', () => {
+		expect(() => new BaseValue(8, NaN)).to.throw('is not an integer');
+		expect(() => new BaseValue(8, -Infinity)).to.throw('is not an integer');
+		expect(() => new BaseValue(8, Infinity)).to.throw('is not an integer');
+		expect(() => new BaseValue(8, 1.2)).to.throw('is not an integer');
+	});
+
+	it('can create Number value from BigInt', () => {
+		// Arrange:
+		const canCreateUnsignedBaseValue = canCreateBaseValueFactory(false);
+
 		// Assert:
-		[1, 2, 4].forEach(byteSize => {
-			expect(() => new BaseValue(byteSize, NaN)).to.throw('is not an integer');
-			expect(() => new BaseValue(byteSize, -Infinity)).to.throw('is not an integer');
-			expect(() => new BaseValue(byteSize, Infinity)).to.throw('is not an integer');
+		// - 8-bit
+		[0n, 0x24n, 0xFFn].forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 1, Number(rawValue)));
+
+		// - 16-bit
+		[0n, 0x243Fn, 0xFFFFn].forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 2, Number(rawValue)));
+
+		// - 32-bit
+		[0n, 0x243F_6A88n, 0xFFFF_FFFFn].forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 4, Number(rawValue)));
+	});
+
+	it('cannot create Number value from non-integer', () => {
+		[1, 2, 4].forEach(size => {
+			expect(() => new BaseValue(size, NaN)).to.throw('is not an integer');
+			expect(() => new BaseValue(size, -Infinity)).to.throw('is not an integer');
+			expect(() => new BaseValue(size, Infinity)).to.throw('is not an integer');
+			expect(() => new BaseValue(size, 1.2)).to.throw('is not an integer');
 		});
 	});
 
-	it('cannot create unsigned with values outside range', () => {
-		expect(() => new BaseValue(1, -1)).to.throw('outside of valid 8-bit range');
-		expect(() => new BaseValue(1, 0x100)).to.throw('outside of valid 8-bit range');
-
-		expect(() => new BaseValue(2, -1)).to.throw('outside of valid 16-bit range');
-		expect(() => new BaseValue(2, 0x1_0000)).to.throw('outside of valid 16-bit range');
-
-		expect(() => new BaseValue(4, -1)).to.throw('outside of valid 32-bit range');
-		expect(() => new BaseValue(4, 0x1_0000_0000)).to.throw('outside of valid 32-bit range');
-
-		expect(() => new BaseValue(8, -1n)).to.throw('outside of valid 64-bit range');
-		expect(() => new BaseValue(8, 0x1_0000_0000_0000_0000n)).to.throw('outside of valid 64-bit range');
+	it('cannot create Number value from large values', () => {
+		const maxSafeInteger = BigInt(Number.MAX_SAFE_INTEGER);
+		[1, 2, 4].forEach(size => {
+			expect(() => new BaseValue(size, maxSafeInteger - 1n)).to.throw('outside of valid'); // coerced to Number but out of bounds
+			expect(() => new BaseValue(size, maxSafeInteger)).to.throw('outside of valid'); // coerced to Number but out of bounds
+			expect(() => new BaseValue(size, maxSafeInteger + 1n)).to.throw('is not an integer'); // not coerced to Number
+		});
 	});
+
+	// endregion
+
+	// region creation / bounds checking
 
 	it('can create unsigned base value', () => {
 		// Arrange:
@@ -59,18 +84,18 @@ describe('BaseValue', () => {
 			.forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 8, rawValue));
 	});
 
-	it('cannot create signed with values outised range', () => {
-		expect(() => new BaseValue(1, -0x81, true)).to.throw('outside of valid 8-bit range');
-		expect(() => new BaseValue(1, 0x80, true)).to.throw('outside of valid 8-bit range');
+	it('cannot create unsigned with values outside range', () => {
+		expect(() => new BaseValue(1, -1)).to.throw('outside of valid 8-bit range');
+		expect(() => new BaseValue(1, 0x100)).to.throw('outside of valid 8-bit range');
 
-		expect(() => new BaseValue(2, -0x8001, true)).to.throw('outside of valid 16-bit range');
-		expect(() => new BaseValue(2, 0x8000, true)).to.throw('outside of valid 16-bit range');
+		expect(() => new BaseValue(2, -1)).to.throw('outside of valid 16-bit range');
+		expect(() => new BaseValue(2, 0x1_0000)).to.throw('outside of valid 16-bit range');
 
-		expect(() => new BaseValue(4, -0x8000_0001, true)).to.throw('outside of valid 32-bit range');
-		expect(() => new BaseValue(4, 0x8000_0000, true)).to.throw('outside of valid 32-bit range');
+		expect(() => new BaseValue(4, -1)).to.throw('outside of valid 32-bit range');
+		expect(() => new BaseValue(4, 0x1_0000_0000)).to.throw('outside of valid 32-bit range');
 
-		expect(() => new BaseValue(8, -0x8000_0000_0000_0001n, true)).to.throw('outside of valid 64-bit range');
-		expect(() => new BaseValue(8, 0x8000_0000_0000_0000n, true)).to.throw('outside of valid 64-bit range');
+		expect(() => new BaseValue(8, -1n)).to.throw('outside of valid 64-bit range');
+		expect(() => new BaseValue(8, 0x1_0000_0000_0000_0000n)).to.throw('outside of valid 64-bit range');
 	});
 
 	it('can create signed base value', () => {
@@ -91,6 +116,24 @@ describe('BaseValue', () => {
 		[-0x8000_0000_0000_0000n, 0x243F_6A88_85A3_08D3n, 0x7FFF_FFFF_FFFF_FFFFn]
 			.forEach(rawValue => canCreateSignedBaseValue(rawValue, 8, rawValue));
 	});
+
+	it('cannot create signed with values outside range', () => {
+		expect(() => new BaseValue(1, -0x81, true)).to.throw('outside of valid 8-bit range');
+		expect(() => new BaseValue(1, 0x80, true)).to.throw('outside of valid 8-bit range');
+
+		expect(() => new BaseValue(2, -0x8001, true)).to.throw('outside of valid 16-bit range');
+		expect(() => new BaseValue(2, 0x8000, true)).to.throw('outside of valid 16-bit range');
+
+		expect(() => new BaseValue(4, -0x8000_0001, true)).to.throw('outside of valid 32-bit range');
+		expect(() => new BaseValue(4, 0x8000_0000, true)).to.throw('outside of valid 32-bit range');
+
+		expect(() => new BaseValue(8, -0x8000_0000_0000_0001n, true)).to.throw('outside of valid 64-bit range');
+		expect(() => new BaseValue(8, 0x8000_0000_0000_0000n, true)).to.throw('outside of valid 64-bit range');
+	});
+
+	// endregion
+
+	// region toString
 
 	const assertFormatting = (size, isSigned, testCases) => {
 		testCases.forEach(testCase => {
@@ -132,4 +175,6 @@ describe('BaseValue', () => {
 			[-0x8000000000000000n, '0x8000000000000000'], [-5n, '0xFFFFFFFFFFFFFFFB'], [-1n, '0xFFFFFFFFFFFFFFFF']
 		]);
 	});
+
+	// endregion
 });

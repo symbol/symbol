@@ -3,8 +3,10 @@ import {
 	Hash256, PrivateKey, PublicKey, Signature
 } from '../../src/CryptoTypes.js';
 import NemFacade from '../../src/facade/NemFacade.js';
-import { Network } from '../../src/nem/Network.js';
+import { Address, Network } from '../../src/nem/Network.js';
 import TransactionFactory from '../../src/nem/TransactionFactory.js';
+import * as nc from '../../src/nem/models.js';
+import * as descriptors from '../../src/nem/models_ts.js';
 import { expect } from 'chai';
 import crypto from 'crypto';
 
@@ -116,6 +118,48 @@ describe('NEM Facade', () => {
 			expect(0n < nowFromFacade.timestamp).to.equal(true);
 			break;
 		}
+	});
+
+	// endregion
+
+	// region create from typed descriptor
+
+	it('can create transaction from typed descriptor', () => {
+		// Arrange:
+		const facade = new NemFacade('testnet');
+		const nowTimestamp = facade.now();
+
+		const signerPublicKey = new PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8');
+		const typedDescriptor = new descriptors.TransferTransactionV1Descriptor(
+			new Address('TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW'),
+			new nc.Amount(1000000n),
+			new descriptors.MessageDescriptor(nc.MessageType.PLAIN, 'hello nem')
+		);
+
+		// Act:
+		const transaction = (/** @type {nc.TransferTransactionV1} */ (facade.createTransactionFromTypedDescriptor(
+			typedDescriptor,
+			signerPublicKey,
+			100n,
+			60 * 60
+		)));
+
+		// Assert:
+		expect(transaction.type).to.equal(nc.TransactionType.TRANSFER);
+		expect(transaction.version).to.equal(1);
+		expect(transaction.network).to.deep.equal(nc.NetworkType.TESTNET);
+		expect(transaction.message.message).to.deep.equal(new TextEncoder().encode('hello nem'));
+
+		expect(transaction.signerPublicKey).to.deep.equal(signerPublicKey);
+		expect(transaction.fee.value).to.equal(100n);
+
+		// - check timestamp and deadline are in range (within 10s)
+		expect(nowTimestamp.timestamp <= transaction.timestamp.value).to.equal(true);
+		expect(transaction.timestamp.value <= (nowTimestamp.timestamp + 10n)).to.equal(true);
+
+		const minRawDeadline = nowTimestamp.timestamp + (60n * 60n);
+		expect(minRawDeadline <= transaction.deadline.value).to.equal(true);
+		expect(transaction.deadline.value <= (minRawDeadline + 10n)).to.equal(true);
 	});
 
 	// endregion

@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # install dependencies (install tzdata first to prevent 'geographic area' prompt)
 RUN apt-get update \
@@ -7,11 +7,10 @@ RUN apt-get update \
 	&& update-ca-certificates
 
 # install python
-RUN apt-get install -y python3-pip
+RUN apt-get install -y python3-pip python3-venv
 
-# install shellcheck and gitlint
-RUN apt-get install -y shellcheck \
-	&& pip install gitlint
+# install shellcheck
+RUN apt-get install -y shellcheck
 
 # codecov uploader
 RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "linux" || echo "aarch64") \
@@ -20,6 +19,17 @@ RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "linux" || echo "aarch64") \
 	&& mv codecov /usr/local/bin
 
 # add ubuntu user (used by jenkins)
-RUN useradd --uid 1000 -ms /bin/bash ubuntu
+RUN id -u "ubuntu" || useradd --uid 1000 -ms /bin/bash ubuntu
+USER ubuntu
+WORKDIR /home/ubuntu
+ENV PATH=$PATH:/home/ubuntu/.local/bin
+
+# create a virtual environment
+ENV VIRTUAL_ENV=/home/ubuntu/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# install gitlint
+RUN pip install gitlint
 
 WORKDIR /home/ubuntu

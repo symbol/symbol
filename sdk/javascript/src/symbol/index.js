@@ -17,6 +17,7 @@ import {
 } from './merkle.js';
 import { metadataUpdateValue } from './metadata.js';
 import * as models from './models.js';
+import * as descriptors from './models_ts.js';
 import SymbolFacade from '../facade/SymbolFacade.js';
 
 export {
@@ -95,7 +96,12 @@ export {
 	/**
 	 * Raw models generated from catbuffer schemas.
 	 */
-	models
+	models,
+
+	/**
+	 * Descriptors generated from catbuffer schemas for improved TypeScript support.
+	 */
+	descriptors
 
 	// endregion
 };

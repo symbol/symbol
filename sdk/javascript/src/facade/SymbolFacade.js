@@ -127,6 +127,52 @@ export default class SymbolFacade {
 	}
 
 	/**
+	 * Creates a transaction from a (typed) transaction descriptor.
+	 * @param {object} typedDescriptor Transaction (typed) descriptor.
+	 * @param {PublicKey} signerPublicKey Signer public key.
+	 * @param {number} feeMultiplier Fee multiplier.
+	 * @param {number} deadlineSeconds Approximate seconds from now for deadline.
+	 * @param {number} cosignatureCount Number of cosignature spaces to reserve.
+	 * @returns {sc.Transaction} Created transaction.
+	 */
+	createTransactionFromTypedDescriptor(typedDescriptor, signerPublicKey, feeMultiplier, deadlineSeconds, cosignatureCount = 0) {
+		const rawDescriptor = typedDescriptor.toMap();
+		const transaction = this.transactionFactory.create({
+			...rawDescriptor,
+
+			signerPublicKey,
+			deadline: this.now().addSeconds(deadlineSeconds).timestamp
+		});
+
+		// if cosignatures are specified in the descriptor, use the max of them and cosignatureCount
+		let cosignatureCountAdjustment = cosignatureCount;
+		if (rawDescriptor.cosignatures) {
+			cosignatureCountAdjustment = rawDescriptor.cosignatures.length > cosignatureCount
+				? 0
+				: cosignatureCount - rawDescriptor.cosignatures.length;
+		}
+
+		const transactionWithCosignaturesSize = transaction.size + (cosignatureCountAdjustment * new sc.Cosignature().size);
+		transaction.fee = new sc.Amount(BigInt(transactionWithCosignaturesSize) * BigInt(feeMultiplier));
+		return transaction;
+	}
+
+	/**
+	 * Creates an embedded transaction from a (typed) transaction descriptor.
+	 * @param {object} typedDescriptor Transaction (typed) descriptor.
+	 * @param {PublicKey} signerPublicKey Signer public key.
+	 * @returns {sc.EmbeddedTransaction} Created embedded transaction.
+	 */
+	createEmbeddedTransactionFromTypedDescriptor(typedDescriptor, signerPublicKey) {
+		const transaction = this.transactionFactory.createEmbedded({
+			...typedDescriptor.toMap(),
+
+			signerPublicKey
+		});
+		return transaction;
+	}
+
+	/**
 	 * Hashes a Symbol transaction.
 	 * @param {sc.Transaction} transaction Transaction object.
 	 * @returns {Hash256} Transaction hash.
