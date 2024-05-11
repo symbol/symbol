@@ -25,6 +25,11 @@
 #include "catapult/io/Stream.h"
 #include <vector>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4702) /* unreachable code */
+#endif
+
 namespace catapult { namespace cache {
 
 	/// Writes serialized cache \a changes into \a outputStream.
@@ -64,4 +69,9 @@ namespace catapult { namespace cache {
 		readAllInto(changes.Removed, numRemoved);
 		readAllInto(changes.Copied, numCopied);
 	}
+
 }}
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

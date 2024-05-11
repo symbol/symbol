@@ -24,6 +24,11 @@
 #include "catapult/io/Stream.h"
 #include "catapult/functions.h"
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4702) /* unreachable code */
+#endif
+
 namespace catapult { namespace cache {
 
 	/// Loads data from an input stream in chunks.
@@ -54,3 +59,7 @@ namespace catapult { namespace cache {
 		uint64_t m_numRemainingEntries;
 	};
 }}
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
