@@ -211,6 +211,24 @@ describe('Symbol Facade', () => {
 
 	// endregion
 
+	// region createAccount
+
+	it('can create account from private key', () => {
+		// Arrange:
+		const facade = new SymbolFacade('testnet');
+		const privateKey = new PrivateKey('E88283CE35FE74C89FFCB2D8BFA0A2CF6108BDC0D07606DEE34D161C30AC2F1E');
+
+		// Act:
+		const account = facade.createAccount(privateKey);
+
+		// Assert:
+		expect(account.address).to.deep.equal(new Address('TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI'));
+		expect(account.keyPair.publicKey).to.deep.equal(new PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD'));
+		expect(account.keyPair.privateKey).to.deep.equal(privateKey);
+	});
+
+	// endregion
+
 	// region create from typed descriptor
 
 	it('can create transaction from typed descriptor', () => {

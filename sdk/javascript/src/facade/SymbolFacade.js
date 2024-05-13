@@ -127,6 +127,19 @@ export default class SymbolFacade {
 	}
 
 	/**
+	 * Creates a Symbol account from a private key.
+	 * @param {PrivateKey} privateKey Account private key.
+	 * @returns {SymbolAccount} Symbol account.
+	 */
+	createAccount(privateKey) {
+		const keyPair = new KeyPair(privateKey);
+		return {
+			address: this.network.publicKeyToAddress(keyPair.publicKey),
+			keyPair
+		};
+	}
+
+	/**
 	 * Creates a transaction from a (typed) transaction descriptor.
 	 * @param {object} typedDescriptor Transaction (typed) descriptor.
 	 * @param {PublicKey} signerPublicKey Signer public key.
@@ -274,3 +287,15 @@ export default class SymbolFacade {
 		return new KeyPair(new PrivateKey(bip32Node.privateKey.bytes));
 	}
 }
+
+// region type declarations
+
+/**
+ * Symbol account.
+ * @class
+ * @typedef {object} SymbolAccount
+ * @property {Address} address Symbol account address.
+ * @property {KeyPair} keyPair Symbol account key pair.
+ */
+
+// endregion
