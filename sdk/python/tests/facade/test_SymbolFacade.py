@@ -229,6 +229,23 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	# endregion
 
+	# region create_account
+
+	def test_can_create_account_from_private_key(self):
+		# Arrange:
+		facade = SymbolFacade('testnet')
+		private_key = PrivateKey('E88283CE35FE74C89FFCB2D8BFA0A2CF6108BDC0D07606DEE34D161C30AC2F1E')
+
+		# Act:
+		account = facade.create_account(private_key)
+
+		# Assert:
+		self.assertEqual(facade.Address('TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI'), account.address)
+		self.assertEqual(PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD'), account.key_pair.public_key)
+		self.assertEqual(private_key, account.key_pair.private_key)
+
+	# endregion
+
 	# region hash_transaction / sign_transaction
 
 	def _assert_can_hash_transaction(self, transaction_factory, expected_hash):
