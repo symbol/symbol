@@ -159,7 +159,9 @@ void call(Closure body) {
 						steps {
 							script {
 								helper.runStepRelativeToPackageRoot packageRootPath, {
-									setupBuild(env.LINT_SETUP_SCRIPT_FILEPATH)
+									githubHelper.executeGitAuthenticatedCommand {
+										setupBuild(env.LINT_SETUP_SCRIPT_FILEPATH)
+									}
 								}
 							}
 						}

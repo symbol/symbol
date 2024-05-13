@@ -93,7 +93,7 @@ void call(Closure body) {
 										final String ownerName = helper.resolveOrganizationName()
 										final String repositoryName = helper.resolveRepositoryName()
 										githubHelper.createPullRequestWithReviewers(
-											"${GITHUB_ACCESS_TOKEN}",
+											"${GITHUB_TOKEN}",
 											ownerName,
 											repositoryName,
 											jenkinsfileParams.prBranchName,
