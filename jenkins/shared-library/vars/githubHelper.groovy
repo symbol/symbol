@@ -110,10 +110,10 @@ void configureGitHub() {
 
 void executeGitAuthenticatedCommand(Closure command) {
 	withCredentials([usernamePassword(credentialsId: helper.resolveGitHubCredentialsId(),
-			usernameVariable: 'GITHUB_APP',
+			usernameVariable: 'GITHUB_USER',
 			passwordVariable: 'GITHUB_TOKEN')]) {
 		final String ownerName = helper.resolveOrganizationName()
-		final String replaceUrl = "https://${GITHUB_APP}:${GITHUB_TOKEN}@github.com/${ownerName}.insteadOf" +
+		final String replaceUrl = "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${ownerName}.insteadOf" +
 			" 'https://github.com/${ownerName}'"
 		sh("git config url.${replaceUrl}")
 		configureGitHub()
