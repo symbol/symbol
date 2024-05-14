@@ -47,4 +47,4 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # install common python packages
-RUN python3 -m pip install --upgrade gitlint isort lark pycodestyle pylint PyYAML
+RUN python3 -m pip install --upgrade gitlint isort lark pycodestyle pylint PyYAML coverage

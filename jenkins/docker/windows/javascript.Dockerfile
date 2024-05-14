@@ -1,5 +1,5 @@
 # escape=`
-
+ht
 ARG FROM_IMAGE=symbolplatform/symbol-server-compiler:windows-msvc-17
 
 FROM ${FROM_IMAGE}
@@ -31,4 +31,4 @@ ENV CARGO_HOME=C:\Users\ContainerAdministrator\scoop\apps\rustup\current\.cargo
 RUN cargo install wasm-pack
 
 # install common python packages
-RUN python3 -m pip install --upgrade gitlint isort lark pycodestyle pylint PyYAML wheel
+RUN python3 -m pip install --upgrade gitlint isort lark pycodestyle pylint PyYAML wheel coverage
