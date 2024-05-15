@@ -123,8 +123,8 @@ if(MSVC)
 	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG:FASTLINK")
 	set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG")
 
-    add_compile_options(/MP)            # Enable parallel compilation
-    add_compile_options(/GA)            # Optimizes for Windows applications
+	add_compile_options(/MP)            # Enable parallel compilation
+	add_compile_options(/GA)            # Optimizes for Windows applications
 
 	add_definitions(-D_WIN32_WINNT=0x0601 /w44287 /w44388)
 
