@@ -22,13 +22,13 @@ Following instructions are meant for integrated builds using VisualStudio on Win
 1. From a terminal window clone the vcpkg repository in a directory of your choice. If you omit to specify a directory, the repository will be cloned in a sub-directory of your current working dir named `vcpkg`.
 
 ```shell
-$ git clone https://github.com/microsoft/vcpkg.git [<your_chosen_directory>]
-$ cd vcpkg
+git clone https://github.com/microsoft/vcpkg.git [<your_chosen_directory>]
+cd vcpkg
 ```
 
 2. Run the bootstrap script to build the vcpkg executable
 ```shell
-$ .\bootstrap-vcpkg.bat
+.\bootstrap-vcpkg.bat
 ```
 
 3. Set a global environment variable named 'VCPKG_ROOT' to the full path where you have cloned [vcpkg] in point 1 (e.g. C:\vcpkg). This is needed for the CMake scripts to find the vcpkg toolchain file.
@@ -55,7 +55,7 @@ At the end of the build procedure check for any errors in the output window. Sho
 By default builds are created in the `build` directory of the `catapult` project. On behalf of your build type (i.e. Debug or Release) you will find the binaries in the corresponding sub-directory. For example if you built the Debug configuration, you will find the binaries in `build\X64-Debug\bin`.
 Directly from within Visual Studio access the Developer Powershell (it opens with current work directory set to the catapult project) and run the following command to start the catapult server:
 ```shell
-PS [...]> .\build\x64-Debug\bin\Debug\catapult.tools.address.exe --help
+.\build\x64-Debug\bin\Debug\catapult.tools.address.exe --help
 ```
 If something like this appears
 ```shell
@@ -78,6 +78,5 @@ Address Inspector Tool options:
   --suppressConsole
                     true to suppress console output
   -m [ --mode ] arg mode, possible values: encoded, decoded, public, secret
-PS [...]> _
 ```
 you're all set and have successfully built Catapult
