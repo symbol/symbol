@@ -51,7 +51,6 @@ OS X:
 
 Windows:
 
-* Visual Studio 2017 (15.8)
 * Visual Studio 2019 (16.8)
 * Visual Studio 2022 (17.9)
 

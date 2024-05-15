@@ -3,7 +3,7 @@
 Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 
 ## Mandatory version requirements
-- Python version >= 3.6
+- Python version >= 3.8
 - Conan version >= 2.x
 
 ## Prerequisites
@@ -35,10 +35,9 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
   
         - if you have Python installed, you can use pip:
 		
-		```shell
-        pip install conan
+        ```sh
+        pip install --upgrade conan
         ```
-        _Even on recent versions of python it has been reported that this command installs conan version 1.x: for this reason, before proceeding further, it is necessary to check version of conan installed by `conan -v`. Should the reported version be lower than 2.x please run `pip install conan --upgrade`. Eventually verify the new installed version is 2.x_
 
         - or you can download and run the installer from the [Conan website](https://conan.io/downloads.html).
 

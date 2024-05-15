@@ -9,8 +9,8 @@ Following instructions are meant for integrated builds using VisualStudio on Win
 
 ## Mandatory version requirements
 - [Git] version >= 2.25
-- [Python] version >= 3.6
-- [Visual Studio] 2017+ (2019 recommended): tested on 2022 (17.9.6)
+- [Python] version >= 3.8
+- [Visual Studio] 2019+ (2022 recommended): tested on 2022 (17.9.6)
 - [vcpkg] package manager >= 2024.04.26 (instructions for install below)
 
 **Important: Ensure your VS setup includes CMAKE support**
