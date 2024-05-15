@@ -1,4 +1,5 @@
 import hashlib
+from collections import namedtuple
 from datetime import datetime, timezone
 
 from .. import sc
@@ -9,6 +10,8 @@ from ..symbol.Merkle import MerkleHashBuilder
 from ..symbol.Network import Address, Network
 from ..symbol.SharedKey import SharedKey
 from ..symbol.TransactionFactory import TransactionFactory
+
+SymbolAccount = namedtuple('SymbolAccount', ['address', 'key_pair'])
 
 TRANSACTION_HEADER_SIZE = sum(field[1] for field in [
 	('size', 4),
@@ -62,6 +65,12 @@ class SymbolFacade:
 	def now(self):
 		"""Creates a network timestamp representing the current time."""
 		return self.network.from_datetime(datetime.now(timezone.utc))
+
+	def create_account(self, private_key):
+		"""Creates a Symbol account from a private key."""
+		key_pair = KeyPair(private_key)
+		address = self.network.public_key_to_address(key_pair.public_key)
+		return SymbolAccount(address, key_pair)
 
 	def hash_transaction(self, transaction):
 		"""Hashes a Symbol transaction."""

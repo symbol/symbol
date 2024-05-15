@@ -122,6 +122,24 @@ describe('NEM Facade', () => {
 
 	// endregion
 
+	// region createAccount
+
+	it('can create account from private key', () => {
+		// Arrange:
+		const facade = new NemFacade('testnet');
+		const privateKey = new PrivateKey('ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57');
+
+		// Act:
+		const account = facade.createAccount(privateKey);
+
+		// Assert:
+		expect(account.address).to.deep.equal(new Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33'));
+		expect(account.keyPair.publicKey).to.deep.equal(new PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0'));
+		expect(account.keyPair.privateKey).to.deep.equal(privateKey);
+	});
+
+	// endregion
+
 	// region create from typed descriptor
 
 	it('can create transaction from typed descriptor', () => {

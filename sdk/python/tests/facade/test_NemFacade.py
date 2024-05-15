@@ -135,6 +135,23 @@ class NemFacadeTest(unittest.TestCase):
 
 	# endregion
 
+	# region create_account
+
+	def test_can_create_account_from_private_key(self):
+		# Arrange:
+		facade = NemFacade('testnet')
+		private_key = PrivateKey('ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57')
+
+		# Act:
+		account = facade.create_account(private_key)
+
+		# Assert:
+		self.assertEqual(facade.Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33'), account.address)
+		self.assertEqual(PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0'), account.key_pair.public_key)
+		self.assertEqual(private_key, account.key_pair.private_key)
+
+	# endregion
+
 	# region hash_transaction / sign_transaction
 
 	@staticmethod

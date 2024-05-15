@@ -97,6 +97,19 @@ export default class NemFacade {
 	}
 
 	/**
+	 * Creates a NEM account from a private key.
+	 * @param {PrivateKey} privateKey Account private key.
+	 * @returns {NemAccount} NEM account.
+	 */
+	createAccount(privateKey) {
+		const keyPair = new KeyPair(privateKey);
+		return {
+			address: this.network.publicKeyToAddress(keyPair.publicKey),
+			keyPair
+		};
+	}
+
+	/**
 	 * Creates a transaction from a (typed) transaction descriptor.
 	 * @param {object} typedDescriptor Transaction (typed) descriptor.
 	 * @param {PublicKey} signerPublicKey Signer public key.
@@ -173,3 +186,15 @@ export default class NemFacade {
 		return new KeyPair(new PrivateKey(reversedPrivateKeyBytes));
 	}
 }
+
+// region type declarations
+
+/**
+ * NEM account.
+ * @class
+ * @typedef {object} NemAccount
+ * @property {Address} address NEM account address.
+ * @property {KeyPair} keyPair NEM account key pair.
+ */
+
+// endregion
