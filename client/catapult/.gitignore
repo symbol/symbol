@@ -3,3 +3,4 @@
 .vs/
 .vscode/
 conanbuildinfo.txt
+CMakeUserPresets.json
