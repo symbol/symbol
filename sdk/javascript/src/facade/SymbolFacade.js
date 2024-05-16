@@ -56,6 +56,68 @@ const transactionDataBuffer = transactionBuffer => {
 	return transactionBuffer.subarray(dataBufferStart, dataBufferEnd);
 };
 
+// region SymbolPublicAccount / SymbolAccount
+
+/**
+ * Symbol public account.
+ */
+class SymbolPublicAccount {
+	/**
+	 * Creates a Symbol public account.
+	 * @param {SymbolFacade} facade Symbol facade.
+	 * @param {PublicKey} publicKey Account public key.
+	 */
+	constructor(facade, publicKey) {
+		/**
+		 * @protected
+		 */
+		this._facade = facade;
+
+		/**
+		 * Account public key.
+		 * @type {PublicKey}
+		 */
+		this.publicKey = publicKey;
+
+		/**
+		 * Account address.
+		 * @type {Address}
+		 */
+		this.address = this._facade.network.publicKeyToAddress(this.publicKey);
+	}
+}
+
+/**
+ * Symbol account.
+ */
+class SymbolAccount extends SymbolPublicAccount {
+	/**
+	 * Creates a Symbol account.
+	 * @param {SymbolFacade} facade Symbol facade.
+	 * @param {KeyPair} keyPair Account key pair.
+	 */
+	constructor(facade, keyPair) {
+		super(facade, keyPair.publicKey);
+
+		/**
+		 * Account key pair.
+		 * @type {KeyPair}
+		 */
+		this.keyPair = keyPair;
+	}
+
+	/**
+	 * Signs a Symbol transaction.
+	 * @param {sc.Transaction} transaction Transaction object.
+	 * @returns {Signature} Transaction signature.
+	 */
+	signTransaction(transaction) {
+		return this._facade.signTransaction(this.keyPair, transaction);
+	}
+}
+
+// endregion
+
 /**
  * Facade used to interact with Symbol blockchain.
  */
@@ -127,16 +189,21 @@ export default class SymbolFacade {
 	}
 
 	/**
+	 * Creates a Symbol public account from a public key.
+	 * @param {PublicKey} publicKey Account public key.
+	 * @returns {SymbolPublicAccount} Symbol public account.
+	 */
+	createPublicAccount(publicKey) {
+		return new SymbolPublicAccount(this, publicKey);
+	}
+
+	/**
 	 * Creates a Symbol account from a private key.
 	 * @param {PrivateKey} privateKey Account private key.
 	 * @returns {SymbolAccount} Symbol account.
 	 */
 	createAccount(privateKey) {
-		const keyPair = new KeyPair(privateKey);
-		return {
-			address: this.network.publicKeyToAddress(keyPair.publicKey),
-			keyPair
-		};
+		return new SymbolAccount(this, new KeyPair(privateKey));
 	}
 
 	/**
@@ -287,15 +354,3 @@ export default class SymbolFacade {
 		return new KeyPair(new PrivateKey(bip32Node.privateKey.bytes));
 	}
 }
-
-// region type declarations
-
-/**
- * Symbol account.
- * @class
- * @typedef {object} SymbolAccount
- * @property {Address} address Symbol account address.
- * @property {KeyPair} keyPair Symbol account key pair.
- */
-
-// endregion
