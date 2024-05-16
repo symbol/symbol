@@ -126,7 +126,10 @@ if(MSVC)
 	add_compile_options(/MP)            # Enable parallel compilation
 	add_compile_options(/GA)            # Optimizes for Windows applications
 
-	add_definitions(-D_WIN32_WINNT=0x0601 /w44287 /w44388)
+	add_definitions(-D_WIN32_WINNT=0x0601)
+
+	add_compile_options(/w44287)		# 'operator' : unsigned/negative constant mismatch
+	add_compile_options(/w44388)		# 'token' : signed/unsigned mismatch
 
 	# explicitly disable linking against static boost libs
 	add_definitions(-DBOOST_ALL_NO_LIB)
