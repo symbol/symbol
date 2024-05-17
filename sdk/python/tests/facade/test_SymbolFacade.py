@@ -229,11 +229,24 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	# endregion
 
-	# region create_account
+	# region create_public_account / create_account
+
+	def test_can_create_public_account_from_public_key(self):
+		# Arrange:
+		facade = SymbolFacade('testnet')
+		public_key = PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD')
+
+		# Act:
+		account = facade.create_public_account(public_key)
+
+		# Assert:
+		self.assertEqual(facade.Address('TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI'), account.address)
+		self.assertEqual(public_key, account.public_key)
 
 	def test_can_create_account_from_private_key(self):
 		# Arrange:
 		facade = SymbolFacade('testnet')
+		public_key = PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD')
 		private_key = PrivateKey('E88283CE35FE74C89FFCB2D8BFA0A2CF6108BDC0D07606DEE34D161C30AC2F1E')
 
 		# Act:
@@ -241,8 +254,26 @@ class SymbolFacadeTest(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual(facade.Address('TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI'), account.address)
-		self.assertEqual(PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD'), account.key_pair.public_key)
+		self.assertEqual(public_key, account.public_key)
+		self.assertEqual(public_key, account.key_pair.public_key)
 		self.assertEqual(private_key, account.key_pair.private_key)
+
+	def test_can_sign_transaction_with_account_wrappers(self):
+		# Arrange:
+		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+		account = facade.create_account(PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC'))
+
+		transaction = self._create_real_transfer(facade)
+
+		# Sanity:
+		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
+
+		# Act:
+		signature = account.sign_transaction(transaction)
+		is_verified = facade.verify_transaction(transaction, signature)
+
+		# Assert:
+		self.assertTrue(is_verified)
 
 	# endregion
 

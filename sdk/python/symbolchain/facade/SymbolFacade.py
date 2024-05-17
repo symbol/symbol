@@ -1,5 +1,4 @@
 import hashlib
-from collections import namedtuple
 from datetime import datetime, timezone
 
 from .. import sc
@@ -10,8 +9,6 @@ from ..symbol.Merkle import MerkleHashBuilder
 from ..symbol.Network import Address, Network
 from ..symbol.SharedKey import SharedKey
 from ..symbol.TransactionFactory import TransactionFactory
-
-SymbolAccount = namedtuple('SymbolAccount', ['address', 'key_pair'])
 
 TRANSACTION_HEADER_SIZE = sum(field[1] for field in [
 	('size', 4),
@@ -27,6 +24,33 @@ AGGREGATE_HASHED_SIZE = sum(field[1] for field in [
 	('deadline', 8),
 	('transactions_hash', Hash256.SIZE)
 ])
+
+
+# region SymbolPublicAccount / SymbolAccount
+
+class SymbolPublicAccount:
+	"""Symbol public account."""
+
+	def __init__(self, facade, public_key):
+		"""Creates a Symbol public account."""
+		self._facade = facade
+		self.public_key = public_key
+		self.address = self._facade.network.public_key_to_address(self.public_key)
+
+
+class SymbolAccount(SymbolPublicAccount):
+	"""Symbol account."""
+
+	def __init__(self, facade, key_pair):
+		"""Creates a Symbol account."""
+		super().__init__(facade, key_pair.public_key)
+		self.key_pair = key_pair
+
+	def sign_transaction(self, transaction):
+		"""Signs a Symbol transaction."""
+		return self._facade.sign_transaction(self.key_pair, transaction)
+
+# endregion
 
 
 class SymbolFacade:
@@ -66,11 +90,13 @@ class SymbolFacade:
 		"""Creates a network timestamp representing the current time."""
 		return self.network.from_datetime(datetime.now(timezone.utc))
 
+	def create_public_account(self, public_key):
+		"""Creates a Symbol public account from a public key."""
+		return SymbolPublicAccount(self, public_key)
+
 	def create_account(self, private_key):
 		"""Creates a Symbol account from a private key."""
-		key_pair = KeyPair(private_key)
-		address = self.network.public_key_to_address(key_pair.public_key)
-		return SymbolAccount(address, key_pair)
+		return SymbolAccount(self, KeyPair(private_key))
 
 	def hash_transaction(self, transaction):
 		"""Hashes a Symbol transaction."""
