@@ -11,6 +11,44 @@ import { expect } from 'chai';
 import crypto from 'crypto';
 
 describe('NEM Facade', () => {
+	// region real transactions
+
+	const createRealTransfer = () => {
+		const facade = new NemFacade('testnet');
+		const transaction = facade.transactionFactory.create({
+			type: 'transfer_transaction_v1',
+			signerPublicKey: 'A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74',
+			fee: 0x186A0n,
+			timestamp: 191205516,
+			deadline: 191291916,
+			recipientAddress: 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
+			amount: 5100000n,
+			message: {
+				messageType: 'plain',
+				message: 'blah blah'
+			}
+		});
+		return transaction;
+	};
+
+	const createRealMultisigTransaction = () => {
+		const facade = new NemFacade('testnet');
+		const innerTransaction = TransactionFactory.toNonVerifiableTransaction(createRealTransfer());
+
+		const transaction = facade.transactionFactory.create({
+			type: 'multisig_transaction_v1',
+			signerPublicKey: 'A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74',
+			fee: 0x123456n,
+			timestamp: 191205516,
+			deadline: 191291916,
+
+			innerTransaction
+		});
+		return transaction;
+	};
+
+	// endregion
+
 	// region constants
 
 	it('has correct BIP32 constants', () => {
@@ -122,20 +160,55 @@ describe('NEM Facade', () => {
 
 	// endregion
 
-	// region createAccount
+	// region createPublicAccount / createAccount
 
-	it('can create account from private key', () => {
-		// Arrange:
-		const facade = new NemFacade('testnet');
-		const privateKey = new PrivateKey('ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57');
+	describe('account wrappers', () => {
+		it('can create public account from public key', () => {
+			// Arrange:
+			const facade = new NemFacade('testnet');
+			const publicKey = new PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0');
 
-		// Act:
-		const account = facade.createAccount(privateKey);
+			// Act:
+			const account = facade.createPublicAccount(publicKey);
 
-		// Assert:
-		expect(account.address).to.deep.equal(new Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33'));
-		expect(account.keyPair.publicKey).to.deep.equal(new PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0'));
-		expect(account.keyPair.privateKey).to.deep.equal(privateKey);
+			// Assert:
+			expect(account.address).to.deep.equal(new Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33'));
+			expect(account.publicKey).to.deep.equal(publicKey);
+		});
+
+		it('can create account from private key', () => {
+			// Arrange:
+			const facade = new NemFacade('testnet');
+			const publicKey = new PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0');
+			const privateKey = new PrivateKey('ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57');
+
+			// Act:
+			const account = facade.createAccount(privateKey);
+
+			// Assert:
+			expect(account.address).to.deep.equal(new Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33'));
+			expect(account.publicKey).to.deep.equal(publicKey);
+			expect(account.keyPair.publicKey).to.deep.equal(publicKey);
+			expect(account.keyPair.privateKey).to.deep.equal(privateKey);
+		});
+
+		it('can sign and verify transaction', () => {
+			// Arrange:
+			const facade = new NemFacade('testnet');
+			const account = facade.createAccount(new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC'));
+
+			const transaction = createRealTransfer();
+
+			// Sanity:
+			expect(transaction.signature).to.deep.equal(Signature.zero());
+
+			// Act:
+			const signature = account.signTransaction(transaction);
+			const isVerified = facade.verifyTransaction(transaction, signature);
+
+			// Assert:
+			expect(isVerified).to.equal(true);
+		});
 	});
 
 	// endregion
@@ -183,24 +256,6 @@ describe('NEM Facade', () => {
 	// endregion
 
 	// region hash transaction / sign transaction
-
-	const createRealTransfer = () => {
-		const facade = new NemFacade('testnet');
-		const transaction = facade.transactionFactory.create({
-			type: 'transfer_transaction_v1',
-			signerPublicKey: 'A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74',
-			fee: 0x186A0n,
-			timestamp: 191205516,
-			deadline: 191291916,
-			recipientAddress: 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
-			amount: 5100000n,
-			message: {
-				messageType: 'plain',
-				message: 'blah blah'
-			}
-		});
-		return transaction;
-	};
 
 	const addTransactionTests = descriptor => {
 		it(`can hash ${descriptor.name} transaction`, () => {
@@ -267,22 +322,6 @@ describe('NEM Facade', () => {
 	// endregion
 
 	// region multisig transaction
-
-	const createRealMultisigTransaction = () => {
-		const facade = new NemFacade('testnet');
-		const innerTransaction = TransactionFactory.toNonVerifiableTransaction(createRealTransfer());
-
-		const transaction = facade.transactionFactory.create({
-			type: 'multisig_transaction_v1',
-			signerPublicKey: 'A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74',
-			fee: 0x123456n,
-			timestamp: 191205516,
-			deadline: 191291916,
-
-			innerTransaction
-		});
-		return transaction;
-	};
 
 	const multisigTestDescriptor = {
 		name: 'multisig',

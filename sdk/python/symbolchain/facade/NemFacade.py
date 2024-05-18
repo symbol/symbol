@@ -1,4 +1,3 @@
-from collections import namedtuple
 from datetime import datetime, timezone
 
 import sha3
@@ -10,7 +9,32 @@ from ..nem.SharedKey import SharedKey
 from ..nem.TransactionFactory import TransactionFactory
 from ..Network import NetworkLocator
 
-NemAccount = namedtuple('NemAccount', ['address', 'key_pair'])
+# region NemPublicAccount / NemAccount
+
+
+class NemPublicAccount:
+	"""NEM public account."""
+
+	def __init__(self, facade, public_key):
+		"""Creates a NEM public account."""
+		self._facade = facade
+		self.public_key = public_key
+		self.address = self._facade.network.public_key_to_address(self.public_key)
+
+
+class NemAccount(NemPublicAccount):
+	"""NEM account."""
+
+	def __init__(self, facade, key_pair):
+		"""Creates a NEM account."""
+		super().__init__(facade, key_pair.public_key)
+		self.key_pair = key_pair
+
+	def sign_transaction(self, transaction):
+		"""Signs a NEM transaction."""
+		return self._facade.sign_transaction(self.key_pair, transaction)
+
+# endregion
 
 
 class NemFacade:
@@ -49,11 +73,13 @@ class NemFacade:
 		"""Creates a network timestamp representing the current time."""
 		return self.network.from_datetime(datetime.now(timezone.utc))
 
+	def create_public_account(self, public_key):
+		"""Creates a NEM public account from a public key."""
+		return NemPublicAccount(self, public_key)
+
 	def create_account(self, private_key):
 		"""Creates a NEM account from a private key."""
-		key_pair = KeyPair(private_key)
-		address = self.network.public_key_to_address(key_pair.public_key)
-		return NemAccount(address, key_pair)
+		return NemAccount(self, KeyPair(private_key))
 
 	@staticmethod
 	def hash_transaction(transaction):

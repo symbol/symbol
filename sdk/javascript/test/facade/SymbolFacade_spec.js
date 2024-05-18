@@ -211,20 +211,55 @@ describe('Symbol Facade', () => {
 
 	// endregion
 
-	// region createAccount
+	// region createPublicAccount / createAccount
 
-	it('can create account from private key', () => {
-		// Arrange:
-		const facade = new SymbolFacade('testnet');
-		const privateKey = new PrivateKey('E88283CE35FE74C89FFCB2D8BFA0A2CF6108BDC0D07606DEE34D161C30AC2F1E');
+	describe('account wrappers', () => {
+		it('can create public account from public key', () => {
+			// Arrange:
+			const facade = new SymbolFacade('testnet');
+			const publicKey = new PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD');
 
-		// Act:
-		const account = facade.createAccount(privateKey);
+			// Act:
+			const account = facade.createPublicAccount(publicKey);
 
-		// Assert:
-		expect(account.address).to.deep.equal(new Address('TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI'));
-		expect(account.keyPair.publicKey).to.deep.equal(new PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD'));
-		expect(account.keyPair.privateKey).to.deep.equal(privateKey);
+			// Assert:
+			expect(account.address).to.deep.equal(new Address('TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI'));
+			expect(account.publicKey).to.deep.equal(publicKey);
+		});
+
+		it('can create account from private key', () => {
+			// Arrange:
+			const facade = new SymbolFacade('testnet');
+			const publicKey = new PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD');
+			const privateKey = new PrivateKey('E88283CE35FE74C89FFCB2D8BFA0A2CF6108BDC0D07606DEE34D161C30AC2F1E');
+
+			// Act:
+			const account = facade.createAccount(privateKey);
+
+			// Assert:
+			expect(account.address).to.deep.equal(new Address('TABDOFVM2QYIMVNQII6UJWU7Y66GZI4LQTMN4PI'));
+			expect(account.publicKey).to.deep.equal(publicKey);
+			expect(account.keyPair.publicKey).to.deep.equal(publicKey);
+			expect(account.keyPair.privateKey).to.deep.equal(privateKey);
+		});
+
+		it('can sign transaction', () => {
+			// Arrange:
+			const facade = new SymbolFacade('testnet');
+			const account = facade.createAccount(new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC'));
+
+			const transaction = createRealTransfer(facade);
+
+			// Sanity:
+			expect(transaction.signature).to.deep.equal(Signature.zero());
+
+			// Act:
+			const signature = account.signTransaction(transaction);
+			const isVerified = facade.verifyTransaction(transaction, signature);
+
+			// Assert:
+			expect(isVerified).to.equal(true);
+		});
 	});
 
 	// endregion

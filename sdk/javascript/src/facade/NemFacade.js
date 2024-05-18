@@ -26,6 +26,68 @@ import * as nc from '../nem/models.js';
 /* eslint-enable no-unused-vars */
 import { keccak_256 } from '@noble/hashes/sha3';
 
+// region NemPublicAccount / NemAccount
+
+/**
+ * NEM public account.
+ */
+class NemPublicAccount {
+	/**
+	 * Creates a NEM public account.
+	 * @param {NemFacade} facade NEM facade.
+	 * @param {PublicKey} publicKey Account public key.
+	 */
+	constructor(facade, publicKey) {
+		/**
+		 * @protected
+		 */
+		this._facade = facade;
+
+		/**
+		 * Account public key.
+		 * @type {PublicKey}
+		 */
+		this.publicKey = publicKey;
+
+		/**
+		 * Account address.
+		 * @type {Address}
+		 */
+		this.address = this._facade.network.publicKeyToAddress(this.publicKey);
+	}
+}
+
+/**
+ * NEM account.
+ */
+class NemAccount extends NemPublicAccount {
+	/**
+	 * Creates a NEM account.
+	 * @param {NemFacade} facade NEM facade.
+	 * @param {KeyPair} keyPair Account key pair.
+	 */
+	constructor(facade, keyPair) {
+		super(facade, keyPair.publicKey);
+
+		/**
+		 * Account key pair.
+		 * @type {KeyPair}
+		 */
+		this.keyPair = keyPair;
+	}
+
+	/**
+	 * Signs a NEM transaction.
+	 * @param {nc.Transaction} transaction Transaction object.
+	 * @returns {Signature} Transaction signature.
+	 */
+	signTransaction(transaction) {
+		return this._facade.signTransaction(this.keyPair, transaction);
+	}
+}
+
+// endregion
+
 /**
  * Facade used to interact with NEM blockchain.
  */
@@ -97,16 +159,21 @@ export default class NemFacade {
 	}
 
 	/**
+	 * Creates a NEM public account from a public key.
+	 * @param {PublicKey} publicKey Account public key.
+	 * @returns {NemPublicAccount} NEM public account.
+	 */
+	createPublicAccount(publicKey) {
+		return new NemPublicAccount(this, publicKey);
+	}
+
+	/**
 	 * Creates a NEM account from a private key.
 	 * @param {PrivateKey} privateKey Account private key.
 	 * @returns {NemAccount} NEM account.
 	 */
 	createAccount(privateKey) {
-		const keyPair = new KeyPair(privateKey);
-		return {
-			address: this.network.publicKeyToAddress(keyPair.publicKey),
-			keyPair
-		};
+		return new NemAccount(this, new KeyPair(privateKey));
 	}
 
 	/**
@@ -186,15 +253,3 @@ export default class NemFacade {
 		return new KeyPair(new PrivateKey(reversedPrivateKeyBytes));
 	}
 }
-
-// region type declarations
-
-/**
- * NEM account.
- * @class
- * @typedef {object} NemAccount
- * @property {Address} address NEM account address.
- * @property {KeyPair} keyPair NEM account key pair.
- */
-
-// endregion
