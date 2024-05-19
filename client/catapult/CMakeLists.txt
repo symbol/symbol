@@ -1,4 +1,15 @@
 cmake_minimum_required(VERSION 3.23)
+
+find_package(Git QUIET)
+if(NOT GIT_FOUND)
+    message(FATAL_ERROR "Git not found")
+else()
+    message(STATUS "Git found: ${GIT_EXECUTABLE} version ${GIT_VERSION_STRING}")
+    if(GIT_VERSION_STRING VERSION_LESS "2.15.0")
+        message(FATAL_ERROR "Git version 2.15.0 or later required")
+    endif()
+endif()
+
 project(catapult_server)
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
 option(ENABLE_TESTS "Enable tests" ON)
