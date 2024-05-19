@@ -10,6 +10,10 @@ else()
     endif()
 endif()
 
+if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../../.git)
+    message(FATAL_ERROR "It seems symbol repository has not been properly cloned or copied (missing .git directory)")
+endif ()
+
 project(catapult_server)
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
 option(ENABLE_TESTS "Enable tests" ON)
