@@ -1,4 +1,19 @@
 cmake_minimum_required(VERSION 3.23)
+
+find_package(Git QUIET)
+if(NOT GIT_FOUND)
+    message(FATAL_ERROR "Git not found")
+else()
+    message(STATUS "Git found: ${GIT_EXECUTABLE} version ${GIT_VERSION_STRING}")
+    if(GIT_VERSION_STRING VERSION_LESS "2.25.0")
+        message(FATAL_ERROR "Git version 2.25.0 or later required")
+    endif()
+endif()
+
+if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../../.git)
+    message(FATAL_ERROR "It seems symbol repository has not been properly cloned or copied (missing .git directory)")
+endif ()
+
 project(catapult_server)
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
 option(ENABLE_TESTS "Enable tests" ON)
@@ -12,12 +27,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 message(STATUS "CATAPULT_VERSION_DESCRIPTION: ${CATAPULT_VERSION_DESCRIPTION}")
 message(STATUS "USE_CONAN:                    ${USE_CONAN}")
-
-message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "CMAKE_CXX_FLAGS:       ${CMAKE_CXX_FLAGS}")
-message(STATUS "CMAKE_PREFIX_PATH:     ${CMAKE_PREFIX_PATH}")
-message(STATUS "CMAKE_MODULE_PATH:     ${CMAKE_MODULE_PATH}")
-message(STATUS "CMAKE_BUILD_TYPE:      ${CMAKE_BUILD_TYPE}")
+message(STATUS "CMAKE_CXX_COMPILER_ID:        ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_CXX_FLAGS:              ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_PREFIX_PATH:            ${CMAKE_PREFIX_PATH}")
+message(STATUS "CMAKE_MODULE_PATH:            ${CMAKE_MODULE_PATH}")
+message(STATUS "CMAKE_BUILD_TYPE:             ${CMAKE_BUILD_TYPE}")
 
 set(CORE_CATAPULT_LIBS catapult.io catapult.ionet catapult.model catapult.thread catapult.utils)
 
