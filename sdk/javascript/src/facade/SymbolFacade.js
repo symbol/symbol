@@ -114,6 +114,17 @@ export class SymbolAccount extends SymbolPublicAccount {
 	signTransaction(transaction) {
 		return this._facade.signTransaction(this.keyPair, transaction);
 	}
+
+	/**
+	 * Cosigns a Symbol transaction.
+	 * @param {sc.Transaction} transaction Transaction object.
+	 * @param {boolean} detached \c true if resulting cosignature is appropriate for network propagation.
+	 *                           \c false if resulting cosignature is appropriate for attaching to an aggregate.
+	 * @returns {sc.Cosignature|sc.DetachedCosignature} Signed cosignature.
+	 */
+	cosignTransaction(transaction, detached = false) {
+		return this._facade.cosignTransaction(this.keyPair, transaction, detached);
+	}
 }
 
 // endregion

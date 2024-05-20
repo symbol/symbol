@@ -100,6 +100,61 @@ describe('Symbol Facade', () => {
 
 	// endregion
 
+	// region test utils
+
+	const attachSignature = (facade, transaction, signature) => {
+		facade.transactionFactory.static.attachSignature(transaction, signature);
+	};
+
+	const addCosignTransactionTests = testDescriptor => {
+		const assertCanCosignTransaction = detached => {
+			// Arrange:
+			const signerPrivateKey = new PrivateKey('F4BC233E183E8CEA08D0A604A3DC67FF3261D1E6EBF84D233488BC53D89C50B7');
+			const cosignerPrivateKey = new PrivateKey('BE7B98F835A896136ADDAF04220F28CB4925D24F0675A21421BF213C180BEF86');
+			const facade = new SymbolFacade('testnet');
+
+			const transaction = createRealAggregateSwap(facade);
+			const signature = testDescriptor.signTransaction(facade, signerPrivateKey, transaction);
+			attachSignature(facade, transaction, signature);
+
+			// Act:
+			const cosignature = testDescriptor.cosignTransaction(facade, cosignerPrivateKey, transaction, detached);
+
+			// Assert: check common fields
+			const expectedPublicKeyBytes = new PublicKey('29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3').bytes;
+			const expectedSignatureBytes = new Signature('204BD2C4F86B66313E5C5F817FD650B108826D53EDEFC8BDFF936E4D6AA07E38'
+					+ '5F819CF0BF22D14D4AA2011AD07BC0FE6023E2CB48DC5D82A6A1FF1348FA3E0B').bytes;
+
+			expect(cosignature.version).to.equal(0n);
+			expect(cosignature.signerPublicKey).to.deep.equal(new sc.PublicKey(expectedPublicKeyBytes));
+			expect(cosignature.signature).to.deep.equal(new sc.Signature(expectedSignatureBytes));
+			return cosignature;
+		};
+
+		it(`${testDescriptor.testNamePrefix}as attached cosignature`, () => {
+			// Act:
+			const cosignature = assertCanCosignTransaction();
+
+			// Assert: cosignature should be suitable for attaching to an aggregate
+			expect(cosignature.size).to.equal(104);
+			expect(Object.prototype.hasOwnProperty.call(cosignature, '_parentHash')).to.equal(false);
+		});
+
+		it(`${testDescriptor.testNamePrefix}as detached cosignature`, () => {
+			// Act:
+			const cosignature = /** @type {sc.DetachedCosignature} */ (assertCanCosignTransaction(true));
+
+			// Assert: cosignature should be detached
+			const expectedHashBytes = new Hash256('214DFF47469D462E1D9A03232C2582C7E44DE026A287F98529CC74DE9BD69641').bytes;
+
+			expect(cosignature.size).to.equal(136);
+			expect(Object.prototype.hasOwnProperty.call(cosignature, '_parentHash')).to.equal(true);
+			expect(cosignature.parentHash).to.deep.equal(new sc.Hash256(expectedHashBytes));
+		});
+	};
+
+	// endregion
+
 	// region constants
 
 	it('has correct BIP32 constants', () => {
@@ -260,6 +315,13 @@ describe('Symbol Facade', () => {
 			// Assert:
 			expect(isVerified).to.equal(true);
 		});
+
+		addCosignTransactionTests({
+			testNamePrefix: 'can cosign transaction ',
+			signTransaction: (facade, privateKey, transaction) => facade.createAccount(privateKey).signTransaction(transaction),
+			cosignTransaction: (facade, privateKey, transaction, detached) =>
+				facade.createAccount(privateKey).cosignTransaction(transaction, detached)
+		});
 	});
 
 	// endregion
@@ -375,10 +437,6 @@ describe('Symbol Facade', () => {
 
 	// region hash transaction / sign transaction
 
-	const attachSignature = (facade, transaction, signature) => {
-		facade.transactionFactory.static.attachSignature(transaction, signature);
-	};
-
 	const assertCanHashTransaction = (transactionFactory, expectedHash) => {
 		// Arrange:
 		const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
@@ -465,49 +523,11 @@ describe('Symbol Facade', () => {
 	// region cosignTransaction
 
 	describe('can cosign transactions', () => {
-		const assertCanCosignTransaction = detached => {
-			// Arrange:
-			const signerPrivateKey = new PrivateKey('F4BC233E183E8CEA08D0A604A3DC67FF3261D1E6EBF84D233488BC53D89C50B7');
-			const cosignerPrivateKey = new PrivateKey('BE7B98F835A896136ADDAF04220F28CB4925D24F0675A21421BF213C180BEF86');
-			const facade = new SymbolFacade('testnet');
-
-			const transaction = createRealAggregateSwap(facade);
-			const signature = facade.signTransaction(new SymbolFacade.KeyPair(signerPrivateKey), transaction);
-			attachSignature(facade, transaction, signature);
-
-			// Act:
-			const cosignature = facade.cosignTransaction(new SymbolFacade.KeyPair(cosignerPrivateKey), transaction, detached);
-
-			// Assert: check common fields
-			const expectedPublicKeyBytes = new PublicKey('29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3').bytes;
-			const expectedSignatureBytes = new Signature('204BD2C4F86B66313E5C5F817FD650B108826D53EDEFC8BDFF936E4D6AA07E38'
-					+ '5F819CF0BF22D14D4AA2011AD07BC0FE6023E2CB48DC5D82A6A1FF1348FA3E0B').bytes;
-
-			expect(cosignature.version).to.equal(0n);
-			expect(cosignature.signerPublicKey).to.deep.equal(new sc.PublicKey(expectedPublicKeyBytes));
-			expect(cosignature.signature).to.deep.equal(new sc.Signature(expectedSignatureBytes));
-			return cosignature;
-		};
-
-		it('as attached cosignature', () => {
-			// Act:
-			const cosignature = assertCanCosignTransaction();
-
-			// Assert: cosignature should be suitable for attaching to an aggregate
-			expect(cosignature.size).to.equal(104);
-			expect(Object.prototype.hasOwnProperty.call(cosignature, '_parentHash')).to.equal(false);
-		});
-
-		it('as detached cosignature', () => {
-			// Act:
-			const cosignature = /** @type {sc.DetachedCosignature} */ (assertCanCosignTransaction(true));
-
-			// Assert: cosignature should be detached
-			const expectedHashBytes = new Hash256('214DFF47469D462E1D9A03232C2582C7E44DE026A287F98529CC74DE9BD69641').bytes;
-
-			expect(cosignature.size).to.equal(136);
-			expect(Object.prototype.hasOwnProperty.call(cosignature, '_parentHash')).to.equal(true);
-			expect(cosignature.parentHash).to.deep.equal(new sc.Hash256(expectedHashBytes));
+		addCosignTransactionTests({
+			testNamePrefix: '',
+			signTransaction: (facade, privateKey, transaction) => facade.signTransaction(new SymbolFacade.KeyPair(privateKey), transaction),
+			cosignTransaction: (facade, privateKey, transaction, detached) =>
+				facade.cosignTransaction(new SymbolFacade.KeyPair(privateKey), transaction, detached)
 		});
 	});
 
