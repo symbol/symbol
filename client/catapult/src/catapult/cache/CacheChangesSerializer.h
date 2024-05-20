@@ -25,6 +25,13 @@
 #include "catapult/io/Stream.h"
 #include <vector>
 
+#if defined(_MSC_VER) && defined(_MT) && defined(_DEBUG)
+// See /MDd flag in CMakeGlobalSettings.cmake
+// Note ! _DEBUG is MSVC only and behaves differently than standard NDEBUG
+#pragma warning(push)
+#pragma warning(disable : 4702) /* unreachable code */
+#endif
+
 namespace catapult { namespace cache {
 
 	/// Writes serialized cache \a changes into \a outputStream.
@@ -64,4 +71,9 @@ namespace catapult { namespace cache {
 		readAllInto(changes.Removed, numRemoved);
 		readAllInto(changes.Copied, numCopied);
 	}
+
 }}
+
+#if defined(_MSC_VER) && defined(_MT) && defined(_DEBUG)
+#pragma warning(pop)
+#endif

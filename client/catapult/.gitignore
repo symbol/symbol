@@ -1,0 +1,6 @@
+# Editor [CLion | Visual Studio | VSCode]
+.idea/
+.vs/
+.vscode/
+conanbuildinfo.txt
+CMakeUserPresets.json
