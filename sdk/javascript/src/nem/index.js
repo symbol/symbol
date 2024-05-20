@@ -4,14 +4,30 @@ import { Address, Network, NetworkTimestamp } from './Network.js';
 import TransactionFactory from './TransactionFactory.js';
 import * as models from './models.js';
 import * as descriptors from './models_ts.js';
-import NemFacade from '../facade/NemFacade.js';
+import { NemAccount, NemFacade, NemPublicAccount } from '../facade/NemFacade.js';
 
 export {
+	// region facade
+
 	/**
 	 * Facade used to interact with NEM blockchain.
 	 * @type {typeof NemFacade}
 	 */
 	NemFacade,
+
+	/**
+	 * NEM public account.
+	 * @type {typeof NemPublicAccount}
+	 */
+	NemPublicAccount,
+
+	/**
+	 * NEM account.
+	 * @type {typeof NemAccount}
+	 */
+	NemAccount,
+
+	// endregion
 
 	// region common
 

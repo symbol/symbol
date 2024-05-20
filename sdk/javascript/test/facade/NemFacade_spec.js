@@ -2,7 +2,7 @@ import { Bip32 } from '../../src/Bip32.js';
 import {
 	Hash256, PrivateKey, PublicKey, Signature
 } from '../../src/CryptoTypes.js';
-import NemFacade from '../../src/facade/NemFacade.js';
+import { NemFacade } from '../../src/facade/NemFacade.js';
 import { Address, Network } from '../../src/nem/Network.js';
 import TransactionFactory from '../../src/nem/TransactionFactory.js';
 import * as nc from '../../src/nem/models.js';

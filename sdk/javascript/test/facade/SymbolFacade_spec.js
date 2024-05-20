@@ -2,7 +2,7 @@ import { Bip32 } from '../../src/Bip32.js';
 import {
 	Hash256, PrivateKey, PublicKey, Signature
 } from '../../src/CryptoTypes.js';
-import SymbolFacade from '../../src/facade/SymbolFacade.js';
+import { SymbolFacade } from '../../src/facade/SymbolFacade.js';
 import { Address, Network } from '../../src/symbol/Network.js';
 /* eslint-disable no-unused-vars */
 import TransactionFactory from '../../src/symbol/TransactionFactory.js';

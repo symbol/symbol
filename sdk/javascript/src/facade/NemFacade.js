@@ -31,7 +31,7 @@ import { keccak_256 } from '@noble/hashes/sha3';
 /**
  * NEM public account.
  */
-class NemPublicAccount {
+export class NemPublicAccount {
 	/**
 	 * Creates a NEM public account.
 	 * @param {NemFacade} facade NEM facade.
@@ -60,7 +60,7 @@ class NemPublicAccount {
 /**
  * NEM account.
  */
-class NemAccount extends NemPublicAccount {
+export class NemAccount extends NemPublicAccount {
 	/**
 	 * Creates a NEM account.
 	 * @param {NemFacade} facade NEM facade.
@@ -91,7 +91,7 @@ class NemAccount extends NemPublicAccount {
 /**
  * Facade used to interact with NEM blockchain.
  */
-export default class NemFacade {
+export class NemFacade {
 	/**
 	 * BIP32 curve name.
 	 * @type {string}

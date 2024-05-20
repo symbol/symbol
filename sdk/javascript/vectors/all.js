@@ -4,8 +4,8 @@ import {
 	PrivateKey, PublicKey, SharedKey256, Signature
 } from '../src/CryptoTypes.js';
 import { NetworkLocator } from '../src/Network.js';
-import NemFacade from '../src/facade/NemFacade.js';
-import SymbolFacade from '../src/facade/SymbolFacade.js';
+import { NemFacade } from '../src/facade/NemFacade.js';
+import { SymbolFacade } from '../src/facade/SymbolFacade.js';
 import { Network as NemNetwork } from '../src/nem/Network.js';
 import { deriveSharedKeyDeprecated } from '../src/nem/SharedKey.js'; // eslint-disable-line import/no-deprecated
 import { Network as SymbolNetwork } from '../src/symbol/Network.js';

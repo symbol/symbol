@@ -1,5 +1,5 @@
 import { PrivateKey } from '../../src/CryptoTypes.js';
-import NemFacade from '../../src/facade/NemFacade.js';
+import { NemFacade } from '../../src/facade/NemFacade.js';
 import { KeyPair } from '../../src/nem/KeyPair.js';
 import { deriveSharedKeyDeprecated } from '../../src/nem/SharedKey.js'; // eslint-disable-line import/no-deprecated
 import runBasicSharedKeyTests from '../test/sharedKeyTests.js';

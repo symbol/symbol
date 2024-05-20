@@ -18,14 +18,30 @@ import {
 import { metadataUpdateValue } from './metadata.js';
 import * as models from './models.js';
 import * as descriptors from './models_ts.js';
-import SymbolFacade from '../facade/SymbolFacade.js';
+import { SymbolAccount, SymbolFacade, SymbolPublicAccount } from '../facade/SymbolFacade.js';
 
 export {
+	// region facade
+
 	/**
 	 * Facade used to interact with Symbol blockchain.
 	 * @type {typeof SymbolFacade}
 	 */
 	SymbolFacade,
+
+	/**
+	 * Symbol public account.
+	 * @type {typeof SymbolPublicAccount}
+	 */
+	SymbolPublicAccount,
+
+	/**
+	 * Symbol account.
+	 * @type {typeof SymbolAccount}
+	 */
+	SymbolAccount,
+
+	// endregion
 
 	// region common
 

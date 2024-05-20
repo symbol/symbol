@@ -61,7 +61,7 @@ const transactionDataBuffer = transactionBuffer => {
 /**
  * Symbol public account.
  */
-class SymbolPublicAccount {
+export class SymbolPublicAccount {
 	/**
 	 * Creates a Symbol public account.
 	 * @param {SymbolFacade} facade Symbol facade.
@@ -90,7 +90,7 @@ class SymbolPublicAccount {
 /**
  * Symbol account.
  */
-class SymbolAccount extends SymbolPublicAccount {
+export class SymbolAccount extends SymbolPublicAccount {
 	/**
 	 * Creates a Symbol account.
 	 * @param {SymbolFacade} facade Symbol facade.
@@ -121,7 +121,7 @@ class SymbolAccount extends SymbolPublicAccount {
 /**
  * Facade used to interact with Symbol blockchain.
  */
-export default class SymbolFacade {
+export class SymbolFacade {
 	/**
 	 * BIP32 curve name.
 	 * @type {string}
