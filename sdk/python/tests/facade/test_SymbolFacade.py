@@ -1,4 +1,5 @@
 import unittest
+from collections import namedtuple
 from datetime import datetime, timezone
 
 from symbolchain import sc
@@ -9,6 +10,8 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.symbol.Network import Network
 
 from ..test.TestUtils import TestUtils
+
+CosignTransactionTestDescriptor = namedtuple('CosignTransactionTestDescriptor', ['sign_transaction', 'cosign_transaction'])
 
 YAML_INPUT = '''
 - public_key: 87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8
@@ -111,6 +114,49 @@ class SymbolFacadeTest(unittest.TestCase):
 				})
 			]
 		})
+
+	# endregion
+
+	# region test utils
+
+	def _assert_can_cosign_transaction(self, test_descriptor, detached=False):
+		# Arrange:
+		signer_private_key = PrivateKey('F4BC233E183E8CEA08D0A604A3DC67FF3261D1E6EBF84D233488BC53D89C50B7')
+		cosigner_private_key = PrivateKey('BE7B98F835A896136ADDAF04220F28CB4925D24F0675A21421BF213C180BEF86')
+		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+
+		transaction = self._create_real_aggregate_swap(facade)
+		signature = test_descriptor.sign_transaction(facade, signer_private_key, transaction)
+		facade.transaction_factory.attach_signature(transaction, signature)
+
+		# Act:
+		cosignature = test_descriptor.cosign_transaction(facade, cosigner_private_key, transaction, detached)
+
+		# Assert: check common fields
+		self.assertEqual(0, cosignature.version)
+		self.assertEqual(sc.PublicKey('29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3'), cosignature.signer_public_key)
+		self.assertEqual(
+			sc.Signature('204BD2C4F86B66313E5C5F817FD650B108826D53EDEFC8BDFF936E4D6AA07E38' + (
+				'5F819CF0BF22D14D4AA2011AD07BC0FE6023E2CB48DC5D82A6A1FF1348FA3E0B'
+			)),
+			cosignature.signature)
+		return cosignature
+
+	def _run_test_can_cosign_transaction(self, test_descriptor):
+		# Act:
+		cosignature = self._assert_can_cosign_transaction(test_descriptor)
+
+		# Assert: cosignature should be suitable for attaching to an aggregate
+		self.assertEqual(104, cosignature.size)
+		self.assertFalse(hasattr(cosignature, 'parent_hash'))
+
+	def _run_test_can_cosign_transaction_detached(self, test_descriptor):
+		# Act:
+		cosignature = self._assert_can_cosign_transaction(test_descriptor, True)
+
+		# Assert: cosignature should be detached
+		self.assertEqual(136, cosignature.size)
+		self.assertEqual(sc.Hash256('214DFF47469D462E1D9A03232C2582C7E44DE026A287F98529CC74DE9BD69641'), cosignature.parent_hash)
 
 	# endregion
 
@@ -275,6 +321,19 @@ class SymbolFacadeTest(unittest.TestCase):
 		# Assert:
 		self.assertTrue(is_verified)
 
+	@staticmethod
+	def _get_cosign_transaction_test_descriptor_for_account_wrappers():
+		return CosignTransactionTestDescriptor(
+			lambda facade, private_key, transaction: facade.create_account(private_key).sign_transaction(transaction),
+			lambda facade, private_key, transaction, detached: facade.create_account(private_key).cosign_transaction(transaction, detached)
+		)
+
+	def test_can_cosign_transaction_with_account_wrappers(self):
+		self._run_test_can_cosign_transaction(self._get_cosign_transaction_test_descriptor_for_account_wrappers())
+
+	def test_can_cosign_transaction_detached_with_account_wrappers(self):
+		self._run_test_can_cosign_transaction_detached(self._get_cosign_transaction_test_descriptor_for_account_wrappers())
+
 	# endregion
 
 	# region hash_transaction / sign_transaction
@@ -359,44 +418,18 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	# region cosign_transaction
 
-	def _assert_can_cosign_transaction(self, detached=False):
-		# Arrange:
-		signer_private_key = PrivateKey('F4BC233E183E8CEA08D0A604A3DC67FF3261D1E6EBF84D233488BC53D89C50B7')
-		cosigner_private_key = PrivateKey('BE7B98F835A896136ADDAF04220F28CB4925D24F0675A21421BF213C180BEF86')
-		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
-
-		transaction = self._create_real_aggregate_swap(facade)
-		signature = facade.sign_transaction(SymbolFacade.KeyPair(signer_private_key), transaction)
-		facade.transaction_factory.attach_signature(transaction, signature)
-
-		# Act:
-		cosignature = facade.cosign_transaction(SymbolFacade.KeyPair(cosigner_private_key), transaction, detached)
-
-		# Assert: check common fields
-		self.assertEqual(0, cosignature.version)
-		self.assertEqual(sc.PublicKey('29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3'), cosignature.signer_public_key)
-		self.assertEqual(
-			sc.Signature('204BD2C4F86B66313E5C5F817FD650B108826D53EDEFC8BDFF936E4D6AA07E38' + (
-				'5F819CF0BF22D14D4AA2011AD07BC0FE6023E2CB48DC5D82A6A1FF1348FA3E0B'
-			)),
-			cosignature.signature)
-		return cosignature
+	@staticmethod
+	def _get_cosign_transaction_test_descriptor_for_facade():
+		return CosignTransactionTestDescriptor(
+			lambda facade, private_key, transaction: facade.sign_transaction(facade.KeyPair(private_key), transaction),
+			lambda facade, private_key, transaction, detached: facade.cosign_transaction(facade.KeyPair(private_key), transaction, detached)
+		)
 
 	def test_can_cosign_transaction(self):
-		# Act:
-		cosignature = self._assert_can_cosign_transaction()
-
-		# Assert: cosignature should be suitable for attaching to an aggregate
-		self.assertEqual(104, cosignature.size)
-		self.assertFalse(hasattr(cosignature, 'parent_hash'))
+		self._run_test_can_cosign_transaction(self._get_cosign_transaction_test_descriptor_for_facade())
 
 	def test_can_cosign_transaction_detached(self):
-		# Act:
-		cosignature = self._assert_can_cosign_transaction(True)
-
-		# Assert: cosignature should be detached
-		self.assertEqual(136, cosignature.size)
-		self.assertEqual(sc.Hash256('214DFF47469D462E1D9A03232C2582C7E44DE026A287F98529CC74DE9BD69641'), cosignature.parent_hash)
+		self._run_test_can_cosign_transaction_detached(self._get_cosign_transaction_test_descriptor_for_facade())
 
 	# endregion
 

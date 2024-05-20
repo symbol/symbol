@@ -50,6 +50,10 @@ class SymbolAccount(SymbolPublicAccount):
 		"""Signs a Symbol transaction."""
 		return self._facade.sign_transaction(self.key_pair, transaction)
 
+	def cosign_transaction(self, transaction, detached=False):
+		"""Cosigns a Symbol transaction."""
+		return self._facade.cosign_transaction(self.key_pair, transaction, detached)
+
 # endregion
 
 
