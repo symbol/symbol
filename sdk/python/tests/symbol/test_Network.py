@@ -2,6 +2,7 @@ import unittest
 from binascii import unhexlify
 
 from symbolchain.CryptoTypes import Hash256, PublicKey
+from symbolchain.sc import NamespaceId
 from symbolchain.symbol.Network import Address, Network, NetworkTimestamp
 
 from ..test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
@@ -41,6 +42,40 @@ class AddressTest(BasicAddressTest, unittest.TestCase):
 			Address,
 			'TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA',
 			unhexlify('985783F7A83BE5D8084C6DA3B366CAAFACC129F36A3EA90C'))
+
+	def test_cannot_extract_namespace_id_from_non_alias_address(self):
+		# Arrange:
+		address = Address('TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA')
+
+		# Act:
+		namespace_id = address.to_namespace_id()
+
+		# Assert:
+		self.assertEqual(None, namespace_id)
+
+	def test_can_extract_namespace_id_from_alias_address(self):
+		# Arrange:
+		address = Address('THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA')
+
+		# Act:
+		namespace_id = address.to_namespace_id()
+
+		# Assert:
+		self.assertEqual(NamespaceId(0xD3D88F39730B86C2), namespace_id)
+
+	def test_can_be_created_from_decoded_address_hex_string(self):
+		# Act:
+		address = Address.from_decoded_address_hex_string('980E356BFE40284E4C9C532CB2D5260F6D5FC029D35D2D62')
+
+		# Assert:
+		self.assertEqual(Address('TAHDK276IAUE4TE4KMWLFVJGB5WV7QBJ2NOS2YQ'), address)
+
+	def test_can_be_created_from_namespace_id(self):
+		# Act:
+		address = Address.from_namespace_id(NamespaceId(0xD3D88F39730B86C2), 152)
+
+		# Assert:
+		self.assertEqual(Address('THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA'), address)
 
 
 class NetworkTest(BasicNetworkTest, unittest.TestCase):
