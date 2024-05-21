@@ -5,6 +5,7 @@ if 'ripemd160' not in hashlib.algorithms_guaranteed:
 
 
 def _factory():
+	# pylint: disable=possibly-used-before-assignment
 	return hashlib.new('ripemd160') if 'ripemd160' in hashlib.algorithms_guaranteed else ripemd160_impl.new()
 
 
