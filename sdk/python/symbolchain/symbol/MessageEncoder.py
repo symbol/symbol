@@ -20,6 +20,12 @@ class MessageEncoder:
 
 		self.key_pair = key_pair
 
+	@property
+	def public_key(self):
+		"""Public key used for message encoding."""
+
+		return self.key_pair.public_key
+
 	def try_decode(self, recipient_public_key, encoded_message):
 		"""Tries to decode encoded message, returns tuple:
 		* True, message - if message has been decoded and decrypted

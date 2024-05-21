@@ -6,6 +6,7 @@ from ..CryptoTypes import Hash256, PublicKey, Signature
 from ..Network import NetworkLocator
 from ..symbol.KeyPair import KeyPair, Verifier
 from ..symbol.Merkle import MerkleHashBuilder
+from ..symbol.MessageEncoder import MessageEncoder
 from ..symbol.Network import Address, Network
 from ..symbol.SharedKey import SharedKey
 from ..symbol.TransactionFactory import TransactionFactory
@@ -45,6 +46,10 @@ class SymbolAccount(SymbolPublicAccount):
 		"""Creates a Symbol account."""
 		super().__init__(facade, key_pair.public_key)
 		self.key_pair = key_pair
+
+	def message_encoder(self):
+		"""Creates a message encoder that can be used for encrypting and encoding messages between two parties."""
+		return MessageEncoder(self.key_pair)
 
 	def sign_transaction(self, transaction):
 		"""Signs a Symbol transaction."""

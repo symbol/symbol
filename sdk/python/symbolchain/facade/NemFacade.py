@@ -4,6 +4,7 @@ import sha3
 
 from ..CryptoTypes import Hash256, PrivateKey, PublicKey
 from ..nem.KeyPair import KeyPair, Verifier
+from ..nem.MessageEncoder import MessageEncoder
 from ..nem.Network import Address, Network
 from ..nem.SharedKey import SharedKey
 from ..nem.TransactionFactory import TransactionFactory
@@ -29,6 +30,10 @@ class NemAccount(NemPublicAccount):
 		"""Creates a NEM account."""
 		super().__init__(facade, key_pair.public_key)
 		self.key_pair = key_pair
+
+	def message_encoder(self):
+		"""Creates a message encoder that can be used for encrypting and encoding messages between two parties."""
+		return MessageEncoder(self.key_pair)
 
 	def sign_transaction(self, transaction):
 		"""Signs a NEM transaction."""

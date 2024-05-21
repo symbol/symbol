@@ -49,6 +49,17 @@ class MessageEncoderDecodeFailureTest:
 class BasicMessageEncoderTest(MessageEncoderDecodeFailureTest):
 	# pylint: disable=no-member
 
+	def test_can_create_encoder(self):
+		# Arrange:
+		interface = self.get_basic_test_interface()
+		key_pair = interface.key_pair_class(PrivateKey.random())
+
+		# Act:
+		encoder = interface.encoder_class(key_pair)
+
+		# Assert:
+		self.assertEqual(key_pair.public_key, encoder.public_key)
+
 	def test_sender_can_decode_encoded_message(self):
 		# Arrange:
 		interface = self.get_basic_test_interface()

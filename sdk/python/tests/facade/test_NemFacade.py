@@ -205,6 +205,17 @@ class NemFacadeTest(unittest.TestCase):
 		self.assertEqual(public_key, account.key_pair.public_key)
 		self.assertEqual(private_key, account.key_pair.private_key)
 
+	def test_can_create_message_encoder_from_account(self):
+		# Arrange:
+		facade = NemFacade('testnet')
+		account = facade.create_account(PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC'))
+
+		# Act:
+		encoder = account.message_encoder()
+
+		# Assert: message encoder matches the account
+		self.assertEqual(account.public_key, encoder.public_key)
+
 	def test_can_sign_transaction_with_account_wrappers(self):
 		# Arrange:
 		facade = NemFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
