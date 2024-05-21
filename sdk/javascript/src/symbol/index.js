@@ -15,7 +15,7 @@ import {
 	proveMerkle,
 	provePatriciaMerkle
 } from './merkle.js';
-import { metadataUpdateValue } from './metadata.js';
+import { metadataGenerateKey, metadataUpdateValue } from './metadata.js';
 import * as models from './models.js';
 import * as descriptors from './models_ts.js';
 import { SymbolAccount, SymbolFacade, SymbolPublicAccount } from '../facade/SymbolFacade.js';
@@ -101,6 +101,7 @@ export {
 	deserializePatriciaTreeNodes,
 	provePatriciaMerkle,
 
+	metadataGenerateKey,
 	metadataUpdateValue,
 
 	/**
