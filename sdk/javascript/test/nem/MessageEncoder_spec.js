@@ -6,17 +6,6 @@ import { runBasicMessageEncoderTests } from '../test/messageEncoderTests.js';
 import { expect } from 'chai';
 
 describe('MessageEncoder (NEM)', () => {
-	it('can create encoder', () => {
-		// Arrange:
-		const keyPair = new KeyPair(PrivateKey.random());
-
-		// Act:
-		const encoder = new MessageEncoder(keyPair);
-
-		// Assert:
-		expect(encoder.publicKey).to.deep.equal(keyPair.publicKey);
-	});
-
 	runBasicMessageEncoderTests({
 		KeyPair,
 		MessageEncoder,

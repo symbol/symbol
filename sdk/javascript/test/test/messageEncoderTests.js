@@ -11,6 +11,17 @@ const tryDecode = (testDescriptor, decoder) => (
 const runMessageEncoderDecodeSuccessTests = testDescriptor => {
 	const testSuffix = testDescriptor.name ? ` (${testDescriptor.name})` : '';
 
+	it(`can create encoder${testSuffix}`, () => {
+		// Arrange:
+		const keyPair = new testDescriptor.KeyPair(PrivateKey.random());
+
+		// Act:
+		const encoder = new testDescriptor.MessageEncoder(keyPair);
+
+		// Assert:
+		expect(encoder.publicKey).to.deep.equal(keyPair.publicKey);
+	});
+
 	it(`sender can decode encoded message${testSuffix}`, () => {
 		// Arrange:
 		const keyPair = new testDescriptor.KeyPair(PrivateKey.random());

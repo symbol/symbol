@@ -192,6 +192,18 @@ describe('NEM Facade', () => {
 			expect(account.keyPair.privateKey).to.deep.equal(privateKey);
 		});
 
+		it('can create message encoder', () => {
+			// Arrange:
+			const facade = new NemFacade('testnet');
+			const account = facade.createAccount(new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC'));
+
+			// Act:
+			const encoder = account.messageEncoder();
+
+			// Assert: message encoder matches the account
+			expect(encoder.publicKey).to.deep.equal(account.publicKey);
+		});
+
 		it('can sign and verify transaction', () => {
 			// Arrange:
 			const facade = new NemFacade('testnet');

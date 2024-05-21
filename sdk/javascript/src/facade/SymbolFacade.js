@@ -12,6 +12,7 @@ import {
 } from '../CryptoTypes.js';
 import { NetworkLocator } from '../Network.js';
 import { KeyPair, Verifier } from '../symbol/KeyPair.js';
+import MessageEncoder from '../symbol/MessageEncoder.js';
 import {
 	Address,
 	Network,
@@ -104,6 +105,14 @@ export class SymbolAccount extends SymbolPublicAccount {
 		 * @type {KeyPair}
 		 */
 		this.keyPair = keyPair;
+	}
+
+	/**
+	 * Creates a message encoder that can be used for encrypting and encoding messages between two parties.
+	 * @returns {MessageEncoder} Message encoder using this account as one party.
+	 */
+	messageEncoder() {
+		return new MessageEncoder(this.keyPair);
 	}
 
 	/**

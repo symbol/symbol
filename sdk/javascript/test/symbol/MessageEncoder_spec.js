@@ -6,17 +6,6 @@ import { runBasicMessageEncoderTests, runMessageEncoderDecodeFailureTests } from
 import { expect } from 'chai';
 
 describe('MessageEncoder (Symbol)', () => {
-	it('can create encoder', () => {
-		// Arrange:
-		const keyPair = new KeyPair(PrivateKey.random());
-
-		// Act:
-		const encoder = new MessageEncoder(keyPair);
-
-		// Assert:
-		expect(encoder.publicKey).to.deep.equal(keyPair.publicKey);
-	});
-
 	const malformEncoded = encoded => {
 		encoded[encoded.length - 1] ^= 0xFF;
 	};
