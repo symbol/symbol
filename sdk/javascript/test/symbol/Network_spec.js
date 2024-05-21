@@ -1,5 +1,6 @@
 import { Hash256, PublicKey } from '../../src/CryptoTypes.js';
 import { Address, Network, NetworkTimestamp } from '../../src/symbol/Network.js';
+import { NamespaceId } from '../../src/symbol/models.js';
 import { hexToUint8 } from '../../src/utils/converter.js';
 import { runBasicAddressTests } from '../test/addressTests.js';
 import { runBasicNetworkTests } from '../test/networkTests.js';
@@ -50,6 +51,44 @@ describe('Address (Symbol)', () => {
 		expect(Address.NAME).to.deep.equal('Address');
 		expect(Address.SIZE).to.deep.equal(24);
 		expect(Address.ENCODED_SIZE).to.deep.equal(39);
+	});
+
+	it('cannot extract namespace id from non-alias address', () => {
+		// Arrange:
+		const address = new Address('TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA');
+
+		// Act:
+		const namespaceId = address.toNamespaceId();
+
+		// Assert:
+		expect(namespaceId).to.equal(undefined);
+	});
+
+	it('can extract namespace id from alias address', () => {
+		// Arrange:
+		const address = new Address('THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA');
+
+		// Act:
+		const namespaceId = address.toNamespaceId();
+
+		// Assert:
+		expect(namespaceId).to.deep.equal(new NamespaceId(0xD3D88F39730B86C2n));
+	});
+
+	it('can be created from decoded address hex string', () => {
+		// Act:
+		const address = Address.fromDecodedAddressHexString('980E356BFE40284E4C9C532CB2D5260F6D5FC029D35D2D62');
+
+		// Assert:
+		expect(address.toString()).to.equal('TAHDK276IAUE4TE4KMWLFVJGB5WV7QBJ2NOS2YQ');
+	});
+
+	it('can be created from namespace id', () => {
+		// Act:
+		const address = Address.fromNamespaceId(new NamespaceId(0xD3D88F39730B86C2n), 152);
+
+		// Assert:
+		expect(address.toString()).to.equal('THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA');
 	});
 });
 

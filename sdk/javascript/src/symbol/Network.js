@@ -1,8 +1,10 @@
+import { NamespaceId } from './models.js';
 import ByteArray from '../ByteArray.js';
 import { Hash256 } from '../CryptoTypes.js';
 import { Network as BasicNetwork } from '../Network.js';
 import { NetworkTimestamp as BasicNetworkTimestamp, NetworkTimestampDatetimeConverter } from '../NetworkTimestamp.js';
 import base32 from '../utils/base32.js';
+import { hexToUint8 } from '../utils/converter.js';
 import { sha3_256 } from '@noble/hashes/sha3';
 
 /**
@@ -70,11 +72,51 @@ export class Address extends ByteArray {
 	}
 
 	/**
+	 * Attempts to convert this address into a namespace id.
+	 * @returns {NamespaceId|undefined} Namespace id if this adresss is an alias, undefined otherwise.
+	 */
+	toNamespaceId() {
+		if (!(this.bytes[0] & 0x01))
+			return undefined;
+
+		const idBytes = this.bytes.slice(1, 9); // slice because namespace id is unaligned
+		const ids = new BigUint64Array(idBytes.buffer);
+		return new NamespaceId(ids[0]);
+	}
+
+	/**
 	 * Returns string representation of this object.
 	 * @returns {string} String representation of this object
 	 */
 	toString() {
 		return base32.encode(new Uint8Array([...this.bytes, 0])).slice(0, -1);
+	}
+
+	/**
+	 * Creates an address from a decoded address hex string (typically from REST).
+	 * @param {string} hexString Decoded address hex string.
+	 * @returns {Address} Equivalent address.
+	 */
+	static fromDecodedAddressHexString(hexString) {
+		const bytes = hexToUint8(hexString);
+		return new Address(bytes);
+	}
+
+	/**
+	 * Creates an address from a namespace id.
+	 * @param {NamespaceId} namespaceId Namespace id.
+	 * @param {number} networkIdentifier Network identifier byte.
+	 * @returns {Address} Address referencing namespace id.
+	 */
+	static fromNamespaceId(namespaceId, networkIdentifier) {
+		const ids = new BigUint64Array(1);
+		ids[0] = /** @type {bigint} */ (namespaceId.value);
+
+		return new Address(new Uint8Array([
+			networkIdentifier + 1,
+			...new Uint8Array(ids.buffer),
+			...new Uint8Array(Address.SIZE - 9)
+		]));
 	}
 }
 
