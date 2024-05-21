@@ -193,7 +193,7 @@ export class SymbolFacade {
 
 	/**
 	 * Creates a network timestamp representing the current time.
-	 * @returns {NetworkTimestamp} Network timestamp representing the current time
+	 * @returns {NetworkTimestamp} Network timestamp representing the current time.
 	 */
 	now() {
 		return this.network.fromDatetime(new Date());
