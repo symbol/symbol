@@ -1,3 +1,17 @@
+import hashlib
+
+
+def metadata_generate_key(seed):
+	"""Generates a metadata key from a string."""
+
+	hash_result = hashlib.sha3_256(seed.encode('utf8')).digest()
+
+	key_bytes = bytearray(hash_result[:8])
+	key_bytes[7] |= 0x80  # set high bit to match SDK V2 implementation
+
+	return int.from_bytes(key_bytes, 'little')
+
+
 def metadata_update_value(old_value, new_value):
 	"""Creates a metadata payload for updating old value to new value."""
 

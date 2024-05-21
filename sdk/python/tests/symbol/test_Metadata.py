@@ -1,9 +1,21 @@
 import unittest
 
-from symbolchain.symbol.Metadata import metadata_update_value
+from symbolchain.symbol.Metadata import metadata_generate_key, metadata_update_value
 
 
 class MetadataTest(unittest.TestCase):
+	def _assert_key_generation(self, seed, expected_key):
+		# Act:
+		key = metadata_generate_key(seed)
+
+		# Assert:
+		self.assertEqual(expected_key, key)
+
+	def test_can_generate_expected_keys_from_seeds(self):
+		self._assert_key_generation('a', 0xF524A0FBF24B0880)
+		self._assert_key_generation('abc', 0xB225E24FA75D983A)
+		self._assert_key_generation('def', 0xB0AC5222678F0D8E)
+
 	def test_can_set_new_value_without_old_value(self):
 		# Arrange:
 		new_value = [0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36]
