@@ -108,6 +108,13 @@ customBuilds:
       - type: cron
         schedule: H 0 1 * *
 
+  - name: Clone Symbol Branches to internal
+    jobName: /Infrastructure/clone-symbol-branches-to-internal
+    scriptPath: .github/jenkinsfile/cloneSymbolBranches.groovy
+    triggers:
+      - type: cron
+        schedule: '@weekly'
+
   - name: Prepare Base Image
     jobName: /symbol/catapult-client/catapult-client-prepare-base-image
     scriptPath: jenkins/catapult/jenkins/catapult-client-prepare-base-image.groovy
