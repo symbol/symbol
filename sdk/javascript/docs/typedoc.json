@@ -1,0 +1,16 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+
+    "entryPoints": [
+        "../ts/src/index.d.ts",
+        "../ts/src/nem/index.d.ts",
+        "../ts/src/symbol/index.d.ts"
+    ],
+    "out": "./build/html",
+
+    "includeVersion": "true",
+    "excludePrivate": "true",
+    "excludeExternals": "true",
+
+    "sortEntryPoints": "false"
+}

@@ -32,7 +32,8 @@
     "vectors:jenkins": "c8 --require mocha --no-clean  --reporter=lcov npm run vectors",
     "catvectors:jenkins": "c8 --require mocha --no-clean  --reporter=lcov npm run catvectors",
     "bundle": "mkdirp ./dist && webpack",
-    "bundle:clean": "rimraf ./dist ./_build"
+    "bundle:clean": "rimraf ./dist ./_build",
+    "generate-docs": "typedoc --options ./docs/typedoc.json"
   },
   "keywords": [],
   "author": "Symbol Contributors <contributors@symbol.dev>",
@@ -63,6 +64,7 @@
     "process": "~0.11.10",
     "rimraf": "~5.0.5",
     "stream-browserify": "~3.0.0",
+    "typedoc": "^0.25.13",
     "typescript": "~5.4.2",
     "url": "~0.11.3",
     "webpack": "~5.91.0",
