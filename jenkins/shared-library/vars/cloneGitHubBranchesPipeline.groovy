@@ -28,8 +28,11 @@ void call(Closure body) {
 				steps {
 					script {
 						helper.runStepAndRecordFailure {
-							helper.runStepRelativeToPackageRoot '.', {
-								sh "git clone ${jenkinsfileParams.sourceRepoUrl} repo"
+							sh "git clone ${jenkinsfileParams.sourceRepoUrl} repo"
+							helper.runStepRelativeToPackageRoot 'repo', {
+								jenkinsfileParams.branches.each { branch ->
+									sh "git checkout ${branch}"
+								}
 							}
 						}
 					}
@@ -51,11 +54,11 @@ void call(Closure body) {
 				steps {
 					script {
 						helper.runStepAndRecordFailure {
-							githubHelper.executeGitAuthenticatedCommand {
-								helper.runStepRelativeToPackageRoot 'repo', {
+							helper.runStepRelativeToPackageRoot 'repo', {
+								githubHelper.executeGitAuthenticatedCommand {
 									sh 'git fetch --all'
 									jenkinsfileParams.branches.each { branch ->
-										sh "git push -f ${branch}"
+										sh "git push -f origin ${branch}:${branch}"
 									}
 								}
 							}
