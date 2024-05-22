@@ -73,8 +73,8 @@ void call(Closure body) {
 					if (env.SHOULD_PUBLISH_FAIL_JOB_STATUS?.toBoolean()) {
 						helper.sendDiscordNotification(
 							"Repo job clone failed for ${currentBuild.fullDisplayName}",
-							"Job for ${jenkinsfileParams.sourceRepoUrl} repo has result of ${currentBuild.currentResult} in"
-								+ " stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
+							"Job for ${jenkinsfileParams.sourceRepoUrl} -> ${jenkinsfileParams.destRepoUrl} repo has result of " +
+								"${currentBuild.currentResult} in stage **${env.FAILED_STAGE_NAME}** with message: **${env.FAILURE_MESSAGE}**.",
 							env.BUILD_URL,
 							currentBuild.currentResult
 						)
