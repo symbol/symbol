@@ -12,11 +12,21 @@ boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	}
 }
 
-Object getRepositoryInfo(String token, String ownerName, String repositoryName) {
-	final String getRepoCommand = new StringBuilder().append('curl -L -H "Accept: application/vnd.github+json"')
-		.append(""" -H "Authorization: Bearer ${token}" """)
-		.append("""-H "X-GitHub-Api-Version: 2022-11-28"  https://api.github.com/repos/${ownerName}/${repositoryName}""")
+String getCurlCommand(String token, String url, String data = null, Boolean post = false) {
+	return [
+		'curl -L',
+		'--fail',
+		post ? '-X POST' : '',
+		'-H "Accept: application/vnd.github+json"',
+		"-H \"Authorization: Bearer ${token}\"",
+		'-H "X-GitHub-Api-Version: 2022-11-28"'
+		url,
+		data ? "-d '${data}'" : ''
+	].join(' ')
+}
 
+Object getRepositoryInfo(String token, String ownerName, String repositoryName) {
+	final String getRepoCommand = getCurlCommand(token, "https://api.github.com/repos/${ownerName}/${repositoryName}")
 	final String getRepoResponse = executeGithubApiRequest(getRepoCommand)
 	return yamlHelper.readYamlFromText(getRepoResponse)
 }
@@ -43,11 +53,12 @@ Object createPullRequest(
 	String body
 ) {
 	final String jsonBody = JsonOutput.toJson(body)
-	final String pullRequestCommand = new StringBuilder().append('curl -L -X POST -H "Accept: application/vnd.github+json" ')
-		.append("""-H "Authorization: Bearer ${token}" """)
-		.append("""-H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${ownerName}/${repositoryName}/pulls """)
-		.append("""-d '{"title":"${title}","body":${jsonBody},"head":"${prBranchName}","base":"${baseBranchName}"}'""")
-
+	final String pullRequestCommand = getCurlCommand(
+		token,
+		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls",
+		"{'title':'${title}','body':${jsonBody},'head':'${prBranchName}','base':'${baseBranchName}'}",
+		true
+	)
 	final String pullRequestResponse = executeGithubApiRequest(pullRequestCommand)
 	final Object pullRequest = yamlHelper.readYamlFromText(pullRequestResponse)
 	println "Pull request created: ${pullRequest.number}"
@@ -55,12 +66,12 @@ Object createPullRequest(
 }
 
 Object requestReviewersForPullRequest(String token, String ownerName, String repositoryName, int pullRequestNumber, List reviewers) {
-	final String reviewersCommand = new StringBuilder().append('curl -L -X POST -H "Accept: application/vnd.github+json" ')
-		.append("""-H "Authorization: Bearer ${token}" """)
-		.append('-H "X-GitHub-Api-Version: 2022-11-28" ')
-		.append("""https://api.github.com/repos/${ownerName}/${repositoryName}/pulls/${pullRequestNumber}/requested_reviewers """)
-		.append("""-d '{"reviewers": ["${reviewers.join('", "')}"]}'""")
-
+	final String reviewersCommand = getCurlCommand(
+		token,
+		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls/${pullRequestNumber}/requested_reviewers",
+		"{'reviewers': ['${reviewers.join('\', \'')}']}",
+		true
+	)
 	String response = executeGithubApiRequest(reviewersCommand)
 	println "Reviewers requested: ${response}"
 	return yamlHelper.readYamlFromText(response)
