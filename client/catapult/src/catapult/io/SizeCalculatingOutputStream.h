@@ -22,25 +22,30 @@
 #pragma once
 #include "Stream.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// Stream implementation for calculating the stream size.
-	struct SizeCalculatingOutputStream : public io::OutputStream {
-	public:
-		/// Gets the size.
-		size_t size() const {
-			return m_size;
-		}
+    /// Stream implementation for calculating the stream size.
+    struct SizeCalculatingOutputStream : public io::OutputStream {
+    public:
+        /// Gets the size.
+        size_t size() const
+        {
+            return m_size;
+        }
 
-	public:
-		void write(const RawBuffer& buffer) override {
-			m_size += buffer.Size;
-		}
+    public:
+        void write(const RawBuffer& buffer) override
+        {
+            m_size += buffer.Size;
+        }
 
-		void flush() override {
-		}
+        void flush() override
+        {
+        }
 
-	private:
-		size_t m_size = 0;
-	};
-}}
+    private:
+        size_t m_size = 0;
+    };
+}
+}

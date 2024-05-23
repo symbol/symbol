@@ -22,26 +22,29 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace timesync {
+namespace catapult {
+namespace timesync {
 
-	/// Information about the result of a time synchronization procedure with a remote node.
-	struct TimeSynchronizationResult {
-	public:
-		/// Creates a result around \a timestamp, \a currentOffset and \a change.
-		TimeSynchronizationResult(catapult::Timestamp timestamp, int64_t currentOffset, int64_t change)
-				: Timestamp(timestamp)
-				, CurrentOffset(currentOffset)
-				, Change(change) {
-		}
+    /// Information about the result of a time synchronization procedure with a remote node.
+    struct TimeSynchronizationResult {
+    public:
+        /// Creates a result around \a timestamp, \a currentOffset and \a change.
+        TimeSynchronizationResult(catapult::Timestamp timestamp, int64_t currentOffset, int64_t change)
+            : Timestamp(timestamp)
+            , CurrentOffset(currentOffset)
+            , Change(change)
+        {
+        }
 
-	public:
-		/// Time when the synchronization happened.
-		catapult::Timestamp Timestamp;
+    public:
+        /// Time when the synchronization happened.
+        catapult::Timestamp Timestamp;
 
-		/// Time offset after the synchronization.
-		int64_t CurrentOffset;
+        /// Time offset after the synchronization.
+        int64_t CurrentOffset;
 
-		/// Change in time offset caused by the synchronization.
-		int64_t Change;
-	};
-}}
+        /// Change in time offset caused by the synchronization.
+        int64_t Change;
+    };
+}
+}

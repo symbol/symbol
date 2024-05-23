@@ -20,29 +20,33 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/MultisigCache.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/MultisigCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::MultisigCosignatoriesNotification;
+    using Notification = model::MultisigCosignatoriesNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignatories, Notification)(uint32_t maxCosignatoriesPerAccount) {
-		return MAKE_STATEFUL_VALIDATOR(
-				MultisigMaxCosignatories,
-				[maxCosignatoriesPerAccount](const Notification& notification, const ValidatorContext& context) {
-					const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-					auto multisigIter = multisigCache.find(notification.Multisig);
+    DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignatories, Notification)
+    (uint32_t maxCosignatoriesPerAccount)
+    {
+        return MAKE_STATEFUL_VALIDATOR(
+            MultisigMaxCosignatories,
+            [maxCosignatoriesPerAccount](const Notification& notification, const ValidatorContext& context) {
+                const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+                auto multisigIter = multisigCache.find(notification.Multisig);
 
-					size_t numCosignatories = 0u;
-					if (multisigIter.tryGet()) {
-						const auto& multisigAccountEntry = multisigIter.get();
-						numCosignatories = multisigAccountEntry.cosignatoryAddresses().size();
-					}
+                size_t numCosignatories = 0u;
+                if (multisigIter.tryGet()) {
+                    const auto& multisigAccountEntry = multisigIter.get();
+                    numCosignatories = multisigAccountEntry.cosignatoryAddresses().size();
+                }
 
-					// cannot underflow because other validator checks that all addresses being deleted exist
-					numCosignatories += notification.AddressAdditionsCount - notification.AddressDeletionsCount;
-					return numCosignatories > maxCosignatoriesPerAccount ? Failure_Multisig_Max_Cosignatories : ValidationResult::Success;
-				});
-	}
-}}
+                // cannot underflow because other validator checks that all addresses being deleted exist
+                numCosignatories += notification.AddressAdditionsCount - notification.AddressDeletionsCount;
+                return numCosignatories > maxCosignatoriesPerAccount ? Failure_Multisig_Max_Cosignatories : ValidationResult::Success;
+            });
+    }
+}
+}

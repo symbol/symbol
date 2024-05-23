@@ -21,43 +21,48 @@
 
 #include "BlockChangeReader.h"
 #include "SubscriberOperationTypes.h"
+#include "catapult/exceptions.h"
 #include "catapult/io/BlockChangeSubscriber.h"
 #include "catapult/io/BlockElementSerializer.h"
 #include "catapult/io/BlockStatementSerializer.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/Stream.h"
-#include "catapult/exceptions.h"
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	namespace {
-		void ReadAndNotifyBlock(io::InputStream& inputStream, io::BlockChangeSubscriber& subscriber) {
-			auto pBlockElement = io::ReadBlockElement(inputStream);
-			if (0 != io::Read8(inputStream)) {
-				auto pStatement = std::make_shared<model::BlockStatement>();
-				io::ReadBlockStatement(inputStream, *pStatement);
-				pBlockElement->OptionalStatement = pStatement;
-			}
+    namespace {
+        void ReadAndNotifyBlock(io::InputStream& inputStream, io::BlockChangeSubscriber& subscriber)
+        {
+            auto pBlockElement = io::ReadBlockElement(inputStream);
+            if (0 != io::Read8(inputStream)) {
+                auto pStatement = std::make_shared<model::BlockStatement>();
+                io::ReadBlockStatement(inputStream, *pStatement);
+                pBlockElement->OptionalStatement = pStatement;
+            }
 
-			subscriber.notifyBlock(*pBlockElement);
-		}
+            subscriber.notifyBlock(*pBlockElement);
+        }
 
-		void ReadAndNotifyDropBlocksAfter(io::InputStream& inputStream, io::BlockChangeSubscriber& subscriber) {
-			auto height = io::Read<Height>(inputStream);
-			subscriber.notifyDropBlocksAfter(height);
-		}
-	}
+        void ReadAndNotifyDropBlocksAfter(io::InputStream& inputStream, io::BlockChangeSubscriber& subscriber)
+        {
+            auto height = io::Read<Height>(inputStream);
+            subscriber.notifyDropBlocksAfter(height);
+        }
+    }
 
-	void ReadNextBlockChange(io::InputStream& inputStream, io::BlockChangeSubscriber& subscriber) {
-		auto operationType = static_cast<BlockChangeOperationType>(io::Read8(inputStream));
+    void ReadNextBlockChange(io::InputStream& inputStream, io::BlockChangeSubscriber& subscriber)
+    {
+        auto operationType = static_cast<BlockChangeOperationType>(io::Read8(inputStream));
 
-		switch (operationType) {
-		case BlockChangeOperationType::Block:
-			return ReadAndNotifyBlock(inputStream, subscriber);
-		case BlockChangeOperationType::Drop_Blocks_After:
-			return ReadAndNotifyDropBlocksAfter(inputStream, subscriber);
-		}
+        switch (operationType) {
+        case BlockChangeOperationType::Block:
+            return ReadAndNotifyBlock(inputStream, subscriber);
+        case BlockChangeOperationType::Drop_Blocks_After:
+            return ReadAndNotifyDropBlocksAfter(inputStream, subscriber);
+        }
 
-		CATAPULT_THROW_INVALID_ARGUMENT_1("invalid block change operation type", static_cast<uint16_t>(operationType));
-	}
-}}
+        CATAPULT_THROW_INVALID_ARGUMENT_1("invalid block change operation type", static_cast<uint16_t>(operationType));
+    }
+}
+}

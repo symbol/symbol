@@ -27,77 +27,84 @@
 #include "catapult/utils/TimeSpan.h"
 #include <unordered_set>
 
-namespace catapult { namespace consumers {
+namespace catapult {
+namespace consumers {
 
-	namespace {
-		namespace {
-			bool IsLink(const model::BlockElement& previousElement, const model::Block& currentBlock) {
-				return chain::IsChainLink(previousElement.Block, previousElement.EntityHash, currentBlock);
-			}
-		}
+    namespace {
+        namespace {
+            bool IsLink(const model::BlockElement& previousElement, const model::Block& currentBlock)
+            {
+                return chain::IsChainLink(previousElement.Block, previousElement.EntityHash, currentBlock);
+            }
+        }
 
-		class BlockchainCheckConsumer {
-		public:
-			BlockchainCheckConsumer(const utils::TimeSpan& maxBlockFutureTime, const chain::TimeSupplier& timeSupplier)
-					: m_maxBlockFutureTime(maxBlockFutureTime)
-					, m_timeSupplier(timeSupplier) {
-			}
+        class BlockchainCheckConsumer {
+        public:
+            BlockchainCheckConsumer(const utils::TimeSpan& maxBlockFutureTime, const chain::TimeSupplier& timeSupplier)
+                : m_maxBlockFutureTime(maxBlockFutureTime)
+                , m_timeSupplier(timeSupplier)
+            {
+            }
 
-		public:
-			ConsumerResult operator()(const BlockElements& elements) const {
-				if (elements.empty())
-					return Abort(Failure_Consumer_Empty_Input);
+        public:
+            ConsumerResult operator()(const BlockElements& elements) const
+            {
+                if (elements.empty())
+                    return Abort(Failure_Consumer_Empty_Input);
 
-				if (!isChainTimestampAllowed(elements.back().Block.Timestamp))
-					return Abort(Failure_Consumer_Remote_Chain_Too_Far_In_Future);
+                if (!isChainTimestampAllowed(elements.back().Block.Timestamp))
+                    return Abort(Failure_Consumer_Remote_Chain_Too_Far_In_Future);
 
-				utils::HashPointerSet hashes;
-				const model::BlockElement* pPreviousElement = nullptr;
-				const Hash256* pPreviousImportanceBlockHash = nullptr;
-				for (const auto& element : elements) {
-					// check for a valid chain link
-					if (pPreviousElement && !IsLink(*pPreviousElement, element.Block))
-						return Abort(Failure_Consumer_Remote_Chain_Improper_Link);
+                utils::HashPointerSet hashes;
+                const model::BlockElement* pPreviousElement = nullptr;
+                const Hash256* pPreviousImportanceBlockHash = nullptr;
+                for (const auto& element : elements) {
+                    // check for a valid chain link
+                    if (pPreviousElement && !IsLink(*pPreviousElement, element.Block))
+                        return Abort(Failure_Consumer_Remote_Chain_Improper_Link);
 
-					// check for importance link
-					if (model::IsImportanceBlock(element.Block.Type)) {
-						const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(element.Block);
-						if (pPreviousImportanceBlockHash && *pPreviousImportanceBlockHash != blockFooter.PreviousImportanceBlockHash) {
-							CATAPULT_LOG(warning) << "block at height " << element.Block.Height << " has PreviousImportanceBlockHash "
-												  << blockFooter.PreviousImportanceBlockHash << " but " << *pPreviousImportanceBlockHash
-												  << " is expected";
-							return Abort(Failure_Consumer_Remote_Chain_Improper_Importance_Link);
-						}
+                    // check for importance link
+                    if (model::IsImportanceBlock(element.Block.Type)) {
+                        const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(element.Block);
+                        if (pPreviousImportanceBlockHash && *pPreviousImportanceBlockHash != blockFooter.PreviousImportanceBlockHash) {
+                            CATAPULT_LOG(warning) << "block at height " << element.Block.Height << " has PreviousImportanceBlockHash "
+                                                  << blockFooter.PreviousImportanceBlockHash << " but " << *pPreviousImportanceBlockHash
+                                                  << " is expected";
+                            return Abort(Failure_Consumer_Remote_Chain_Improper_Importance_Link);
+                        }
 
-						pPreviousImportanceBlockHash = &element.EntityHash;
-					}
+                        pPreviousImportanceBlockHash = &element.EntityHash;
+                    }
 
-					// check for duplicate transactions
-					for (const auto& transactionElement : element.Transactions) {
-						if (!hashes.insert(&transactionElement.EntityHash).second)
-							return Abort(Failure_Consumer_Remote_Chain_Duplicate_Transactions);
-					}
+                    // check for duplicate transactions
+                    for (const auto& transactionElement : element.Transactions) {
+                        if (!hashes.insert(&transactionElement.EntityHash).second)
+                            return Abort(Failure_Consumer_Remote_Chain_Duplicate_Transactions);
+                    }
 
-					pPreviousElement = &element;
-				}
+                    pPreviousElement = &element;
+                }
 
-				return Continue();
-			}
+                return Continue();
+            }
 
-		private:
-			bool isChainTimestampAllowed(Timestamp chainTimestamp) const {
-				return chainTimestamp <= m_timeSupplier() + m_maxBlockFutureTime;
-			}
+        private:
+            bool isChainTimestampAllowed(Timestamp chainTimestamp) const
+            {
+                return chainTimestamp <= m_timeSupplier() + m_maxBlockFutureTime;
+            }
 
-		private:
-			utils::TimeSpan m_maxBlockFutureTime;
-			chain::TimeSupplier m_timeSupplier;
-		};
-	}
+        private:
+            utils::TimeSpan m_maxBlockFutureTime;
+            chain::TimeSupplier m_timeSupplier;
+        };
+    }
 
-	disruptor::ConstBlockConsumer CreateBlockchainCheckConsumer(
-			const utils::TimeSpan& maxBlockFutureTime,
-			const chain::TimeSupplier& timeSupplier) {
-		return BlockchainCheckConsumer(maxBlockFutureTime, timeSupplier);
-	}
-}}
+    disruptor::ConstBlockConsumer CreateBlockchainCheckConsumer(
+        const utils::TimeSpan& maxBlockFutureTime,
+        const chain::TimeSupplier& timeSupplier)
+    {
+        return BlockchainCheckConsumer(maxBlockFutureTime, timeSupplier);
+    }
+}
+}

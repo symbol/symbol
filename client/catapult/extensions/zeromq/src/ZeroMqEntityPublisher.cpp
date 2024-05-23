@@ -32,241 +32,265 @@
 #include <boost/asio.hpp>
 #include <set>
 
-namespace catapult { namespace zeromq {
+namespace catapult {
+namespace zeromq {
 
-	class MessageGroup {
-	public:
-		explicit MessageGroup(const supplier<std::string>& errorMessageGenerator)
-				: m_errorMessageGenerator(errorMessageGenerator) {
-		}
+    class MessageGroup {
+    public:
+        explicit MessageGroup(const supplier<std::string>& errorMessageGenerator)
+            : m_errorMessageGenerator(errorMessageGenerator)
+        {
+        }
 
-	public:
-		void add(zmq::multipart_t&& message) {
-			m_messages.push_back(std::move(message));
-		}
+    public:
+        void add(zmq::multipart_t&& message)
+        {
+            m_messages.push_back(std::move(message));
+        }
 
-		void flush(zmq::socket_t& zmqSocket) {
-			bool result = true;
-			for (auto& message : m_messages)
-				result &= message.send(zmqSocket);
+        void flush(zmq::socket_t& zmqSocket)
+        {
+            bool result = true;
+            for (auto& message : m_messages)
+                result &= message.send(zmqSocket);
 
-			if (!result)
-				CATAPULT_LOG(warning) << m_errorMessageGenerator();
-		}
+            if (!result)
+                CATAPULT_LOG(warning) << m_errorMessageGenerator();
+        }
 
-	private:
-		supplier<std::string> m_errorMessageGenerator;
-		std::vector<zmq::multipart_t> m_messages;
-	};
+    private:
+        supplier<std::string> m_errorMessageGenerator;
+        std::vector<zmq::multipart_t> m_messages;
+    };
 
-	class ZeroMqEntityPublisher::SynchronizedPublisher {
-	public:
-		SynchronizedPublisher(const std::string& listenInterface, unsigned short port)
-				: m_zmqSocket(m_zmqContext, ZMQ_PUB)
-				, m_pPool(thread::CreateIoThreadPool(1, "ZeroMqEntityPublisher")) {
-			// note that we want closing the socket to be synchronous
-			// setting linger to 0 means that all pending messages are discarded and the socket is closed immediately
-			m_zmqSocket.set(zmq::sockopt::linger, 0);
-			if (std::string::npos != listenInterface.find(':'))
-				m_zmqSocket.set(zmq::sockopt::ipv6, 1);
+    class ZeroMqEntityPublisher::SynchronizedPublisher {
+    public:
+        SynchronizedPublisher(const std::string& listenInterface, unsigned short port)
+            : m_zmqSocket(m_zmqContext, ZMQ_PUB)
+            , m_pPool(thread::CreateIoThreadPool(1, "ZeroMqEntityPublisher"))
+        {
+            // note that we want closing the socket to be synchronous
+            // setting linger to 0 means that all pending messages are discarded and the socket is closed immediately
+            m_zmqSocket.set(zmq::sockopt::linger, 0);
+            if (std::string::npos != listenInterface.find(':'))
+                m_zmqSocket.set(zmq::sockopt::ipv6, 1);
 
-			std::ostringstream out;
-			out << "tcp://[" << listenInterface << "]:" << port;
-			m_zmqSocket.bind(out.str());
+            std::ostringstream out;
+            out << "tcp://[" << listenInterface << "]:" << port;
+            m_zmqSocket.bind(out.str());
 
-			m_pPool->start();
-		}
+            m_pPool->start();
+        }
 
-		~SynchronizedPublisher() {
-			// stop the pool first to prevent any work from being written to (closed) socket
-			m_pPool->join();
-			m_zmqSocket.close();
-		}
+        ~SynchronizedPublisher()
+        {
+            // stop the pool first to prevent any work from being written to (closed) socket
+            m_pPool->join();
+            m_zmqSocket.close();
+        }
 
-	public:
-		void queue(std::unique_ptr<MessageGroup>&& pMessageGroup) {
-			// dispatch function needs to be copyable
-			auto pMessageGroupShared = std::shared_ptr<MessageGroup>(std::move(pMessageGroup));
-			boost::asio::dispatch(m_pPool->ioContext(), [&zmqSocket = m_zmqSocket, pMessageGroup{ std::move(pMessageGroupShared) }]() {
-				pMessageGroup->flush(zmqSocket);
-			});
-		}
+    public:
+        void queue(std::unique_ptr<MessageGroup>&& pMessageGroup)
+        {
+            // dispatch function needs to be copyable
+            auto pMessageGroupShared = std::shared_ptr<MessageGroup>(std::move(pMessageGroup));
+            boost::asio::dispatch(m_pPool->ioContext(), [&zmqSocket = m_zmqSocket, pMessageGroup { std::move(pMessageGroupShared) }]() {
+                pMessageGroup->flush(zmqSocket);
+            });
+        }
 
-	private:
-		zmq::context_t m_zmqContext;
-		zmq::socket_t m_zmqSocket;
-		std::unique_ptr<thread::IoThreadPool> m_pPool;
-	};
+    private:
+        zmq::context_t m_zmqContext;
+        zmq::socket_t m_zmqSocket;
+        std::unique_ptr<thread::IoThreadPool> m_pPool;
+    };
 
-	struct ZeroMqEntityPublisher::WeakTransactionInfo {
-	public:
-		explicit WeakTransactionInfo(const model::TransactionInfo& transactionInfo)
-				: Transaction(*transactionInfo.pEntity)
-				, EntityHash(transactionInfo.EntityHash)
-				, MerkleComponentHash(transactionInfo.MerkleComponentHash)
-				, OptionalAddresses(transactionInfo.OptionalExtractedAddresses.get()) {
-		}
+    struct ZeroMqEntityPublisher::WeakTransactionInfo {
+    public:
+        explicit WeakTransactionInfo(const model::TransactionInfo& transactionInfo)
+            : Transaction(*transactionInfo.pEntity)
+            , EntityHash(transactionInfo.EntityHash)
+            , MerkleComponentHash(transactionInfo.MerkleComponentHash)
+            , OptionalAddresses(transactionInfo.OptionalExtractedAddresses.get())
+        {
+        }
 
-		explicit WeakTransactionInfo(const model::TransactionElement& element)
-				: Transaction(element.Transaction)
-				, EntityHash(element.EntityHash)
-				, MerkleComponentHash(element.MerkleComponentHash)
-				, OptionalAddresses(element.OptionalExtractedAddresses.get()) {
-		}
+        explicit WeakTransactionInfo(const model::TransactionElement& element)
+            : Transaction(element.Transaction)
+            , EntityHash(element.EntityHash)
+            , MerkleComponentHash(element.MerkleComponentHash)
+            , OptionalAddresses(element.OptionalExtractedAddresses.get())
+        {
+        }
 
-		WeakTransactionInfo(const model::Transaction& transaction, const Hash256& hash)
-				: Transaction(transaction)
-				, EntityHash(hash)
-				, MerkleComponentHash(hash)
-				, OptionalAddresses(nullptr) {
-		}
+        WeakTransactionInfo(const model::Transaction& transaction, const Hash256& hash)
+            : Transaction(transaction)
+            , EntityHash(hash)
+            , MerkleComponentHash(hash)
+            , OptionalAddresses(nullptr)
+        {
+        }
 
-	public:
-		const model::Transaction& Transaction;
-		const Hash256& EntityHash;
-		const Hash256& MerkleComponentHash;
-		const model::UnresolvedAddressSet* OptionalAddresses;
-	};
+    public:
+        const model::Transaction& Transaction;
+        const Hash256& EntityHash;
+        const Hash256& MerkleComponentHash;
+        const model::UnresolvedAddressSet* OptionalAddresses;
+    };
 
-	ZeroMqEntityPublisher::ZeroMqEntityPublisher(
-			const std::string& listenInterface,
-			unsigned short port,
-			std::unique_ptr<const model::NotificationPublisher>&& pNotificationPublisher)
-			: m_pNotificationPublisher(std::move(pNotificationPublisher))
-			, m_pSynchronizedPublisher(std::make_unique<SynchronizedPublisher>(listenInterface, port)) {
-	}
+    ZeroMqEntityPublisher::ZeroMqEntityPublisher(
+        const std::string& listenInterface,
+        unsigned short port,
+        std::unique_ptr<const model::NotificationPublisher>&& pNotificationPublisher)
+        : m_pNotificationPublisher(std::move(pNotificationPublisher))
+        , m_pSynchronizedPublisher(std::make_unique<SynchronizedPublisher>(listenInterface, port))
+    {
+    }
 
-	ZeroMqEntityPublisher::~ZeroMqEntityPublisher() = default;
+    ZeroMqEntityPublisher::~ZeroMqEntityPublisher() = default;
 
-	namespace {
-		auto CreateHeightMessageGenerator(const std::string& topicName, Height height) {
-			return [topicName, height]() {
-				std::ostringstream out;
-				out << "cannot publish " << topicName << " at height: " << height;
-				return out.str();
-			};
-		}
-	}
+    namespace {
+        auto CreateHeightMessageGenerator(const std::string& topicName, Height height)
+        {
+            return [topicName, height]() {
+                std::ostringstream out;
+                out << "cannot publish " << topicName << " at height: " << height;
+                return out.str();
+            };
+        }
+    }
 
-	void ZeroMqEntityPublisher::publishBlockHeader(const model::BlockElement& blockElement) {
-		auto pMessageGroup = std::make_unique<MessageGroup>(CreateHeightMessageGenerator("block header", blockElement.Block.Height));
+    void ZeroMqEntityPublisher::publishBlockHeader(const model::BlockElement& blockElement)
+    {
+        auto pMessageGroup = std::make_unique<MessageGroup>(CreateHeightMessageGenerator("block header", blockElement.Block.Height));
 
-		zmq::multipart_t multipart;
-		auto marker = BlockMarker::Block_Marker;
-		multipart.addmem(&marker, sizeof(BlockMarker));
-		multipart.addmem(static_cast<const void*>(&blockElement.Block), model::GetBlockHeaderSize(blockElement.Block.Type));
-		multipart.addmem(static_cast<const void*>(&blockElement.EntityHash), Hash256::Size);
-		multipart.addmem(static_cast<const void*>(&blockElement.GenerationHash), Hash256::Size);
-		pMessageGroup->add(std::move(multipart));
-		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
-	}
+        zmq::multipart_t multipart;
+        auto marker = BlockMarker::Block_Marker;
+        multipart.addmem(&marker, sizeof(BlockMarker));
+        multipart.addmem(static_cast<const void*>(&blockElement.Block), model::GetBlockHeaderSize(blockElement.Block.Type));
+        multipart.addmem(static_cast<const void*>(&blockElement.EntityHash), Hash256::Size);
+        multipart.addmem(static_cast<const void*>(&blockElement.GenerationHash), Hash256::Size);
+        pMessageGroup->add(std::move(multipart));
+        m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
+    }
 
-	void ZeroMqEntityPublisher::publishDropBlocks(Height height) {
-		auto pMessageGroup = std::make_unique<MessageGroup>(CreateHeightMessageGenerator("drop blocks", height));
+    void ZeroMqEntityPublisher::publishDropBlocks(Height height)
+    {
+        auto pMessageGroup = std::make_unique<MessageGroup>(CreateHeightMessageGenerator("drop blocks", height));
 
-		zmq::multipart_t multipart;
-		auto marker = BlockMarker::Drop_Blocks_Marker;
-		multipart.addmem(&marker, sizeof(BlockMarker));
-		multipart.addmem(static_cast<const void*>(&height), sizeof(Height));
-		pMessageGroup->add(std::move(multipart));
-		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
-	}
+        zmq::multipart_t multipart;
+        auto marker = BlockMarker::Drop_Blocks_Marker;
+        multipart.addmem(&marker, sizeof(BlockMarker));
+        multipart.addmem(static_cast<const void*>(&height), sizeof(Height));
+        pMessageGroup->add(std::move(multipart));
+        m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
+    }
 
-	void ZeroMqEntityPublisher::publishFinalizedBlock(const PackedFinalizedBlockHeader& header) {
-		auto pMessageGroup = std::make_unique<MessageGroup>(CreateHeightMessageGenerator("finalized block", header.Height));
+    void ZeroMqEntityPublisher::publishFinalizedBlock(const PackedFinalizedBlockHeader& header)
+    {
+        auto pMessageGroup = std::make_unique<MessageGroup>(CreateHeightMessageGenerator("finalized block", header.Height));
 
-		zmq::multipart_t multipart;
-		auto marker = BlockMarker::Finalized_Block_Marker;
-		multipart.addmem(&marker, sizeof(BlockMarker));
-		multipart.addmem(static_cast<const void*>(&header), sizeof(PackedFinalizedBlockHeader));
-		pMessageGroup->add(std::move(multipart));
-		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
-	}
+        zmq::multipart_t multipart;
+        auto marker = BlockMarker::Finalized_Block_Marker;
+        multipart.addmem(&marker, sizeof(BlockMarker));
+        multipart.addmem(static_cast<const void*>(&header), sizeof(PackedFinalizedBlockHeader));
+        pMessageGroup->add(std::move(multipart));
+        m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
+    }
 
-	namespace {
-		auto CreateHashMessageGenerator(const std::string& topicName, const Hash256& hash) {
-			return [topicName, hash]() {
-				std::ostringstream out;
-				out << "cannot publish " << topicName << " with hash: " << hash;
-				return out.str();
-			};
-		}
-	}
+    namespace {
+        auto CreateHashMessageGenerator(const std::string& topicName, const Hash256& hash)
+        {
+            return [topicName, hash]() {
+                std::ostringstream out;
+                out << "cannot publish " << topicName << " with hash: " << hash;
+                return out.str();
+            };
+        }
+    }
 
-	void ZeroMqEntityPublisher::publishTransaction(
-			TransactionMarker topicMarker,
-			const model::TransactionElement& transactionElement,
-			Height height) {
-		publishTransaction(topicMarker, WeakTransactionInfo(transactionElement), height);
-	}
+    void ZeroMqEntityPublisher::publishTransaction(
+        TransactionMarker topicMarker,
+        const model::TransactionElement& transactionElement,
+        Height height)
+    {
+        publishTransaction(topicMarker, WeakTransactionInfo(transactionElement), height);
+    }
 
-	void ZeroMqEntityPublisher::publishTransaction(
-			TransactionMarker topicMarker,
-			const model::TransactionInfo& transactionInfo,
-			Height height) {
-		publishTransaction(topicMarker, WeakTransactionInfo(transactionInfo), height);
-	}
+    void ZeroMqEntityPublisher::publishTransaction(
+        TransactionMarker topicMarker,
+        const model::TransactionInfo& transactionInfo,
+        Height height)
+    {
+        publishTransaction(topicMarker, WeakTransactionInfo(transactionInfo), height);
+    }
 
-	void ZeroMqEntityPublisher::publishTransactionHash(TransactionMarker topicMarker, const model::TransactionInfo& transactionInfo) {
-		const auto& hash = transactionInfo.EntityHash;
-		publish("transaction hash", topicMarker, WeakTransactionInfo(transactionInfo), [&hash](auto& multipart) {
-			multipart.addmem(static_cast<const void*>(&hash), Hash256::Size);
-		});
-	}
+    void ZeroMqEntityPublisher::publishTransactionHash(TransactionMarker topicMarker, const model::TransactionInfo& transactionInfo)
+    {
+        const auto& hash = transactionInfo.EntityHash;
+        publish("transaction hash", topicMarker, WeakTransactionInfo(transactionInfo), [&hash](auto& multipart) {
+            multipart.addmem(static_cast<const void*>(&hash), Hash256::Size);
+        });
+    }
 
-	void ZeroMqEntityPublisher::publishTransaction(
-			TransactionMarker topicMarker,
-			const WeakTransactionInfo& transactionInfo,
-			Height height) {
-		publish("transaction", topicMarker, transactionInfo, [&transactionInfo, height](auto& multipart) {
-			const auto& transaction = transactionInfo.Transaction;
-			multipart.addmem(static_cast<const void*>(&transaction), transaction.Size);
-			multipart.addmem(static_cast<const void*>(&transactionInfo.EntityHash), Hash256::Size);
-			multipart.addmem(static_cast<const void*>(&transactionInfo.MerkleComponentHash), Hash256::Size);
-			multipart.addtyp(height);
-		});
-	}
+    void ZeroMqEntityPublisher::publishTransaction(
+        TransactionMarker topicMarker,
+        const WeakTransactionInfo& transactionInfo,
+        Height height)
+    {
+        publish("transaction", topicMarker, transactionInfo, [&transactionInfo, height](auto& multipart) {
+            const auto& transaction = transactionInfo.Transaction;
+            multipart.addmem(static_cast<const void*>(&transaction), transaction.Size);
+            multipart.addmem(static_cast<const void*>(&transactionInfo.EntityHash), Hash256::Size);
+            multipart.addmem(static_cast<const void*>(&transactionInfo.MerkleComponentHash), Hash256::Size);
+            multipart.addtyp(height);
+        });
+    }
 
-	void ZeroMqEntityPublisher::publishTransactionStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) {
-		auto topicMarker = TransactionMarker::Transaction_Status_Marker;
-		model::TransactionStatus transactionStatus(hash, transaction.Deadline, status);
-		publish("transaction status", topicMarker, WeakTransactionInfo(transaction, hash), [&transactionStatus](auto& multipart) {
-			multipart.addmem(static_cast<const void*>(&transactionStatus), sizeof(model::TransactionStatus));
-		});
-	}
+    void ZeroMqEntityPublisher::publishTransactionStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status)
+    {
+        auto topicMarker = TransactionMarker::Transaction_Status_Marker;
+        model::TransactionStatus transactionStatus(hash, transaction.Deadline, status);
+        publish("transaction status", topicMarker, WeakTransactionInfo(transaction, hash), [&transactionStatus](auto& multipart) {
+            multipart.addmem(static_cast<const void*>(&transactionStatus), sizeof(model::TransactionStatus));
+        });
+    }
 
-	void ZeroMqEntityPublisher::publishCosignature(
-			const model::TransactionInfo& parentTransactionInfo,
-			const model::Cosignature& cosignature) {
-		auto topicMarker = TransactionMarker::Cosignature_Marker;
-		model::DetachedCosignature detachedCosignature(cosignature, parentTransactionInfo.EntityHash);
-		publish("detached cosignature", topicMarker, WeakTransactionInfo(parentTransactionInfo), [&detachedCosignature](auto& multipart) {
-			multipart.addmem(static_cast<const void*>(&detachedCosignature), sizeof(model::DetachedCosignature));
-		});
-	}
+    void ZeroMqEntityPublisher::publishCosignature(
+        const model::TransactionInfo& parentTransactionInfo,
+        const model::Cosignature& cosignature)
+    {
+        auto topicMarker = TransactionMarker::Cosignature_Marker;
+        model::DetachedCosignature detachedCosignature(cosignature, parentTransactionInfo.EntityHash);
+        publish("detached cosignature", topicMarker, WeakTransactionInfo(parentTransactionInfo), [&detachedCosignature](auto& multipart) {
+            multipart.addmem(static_cast<const void*>(&detachedCosignature), sizeof(model::DetachedCosignature));
+        });
+    }
 
-	void ZeroMqEntityPublisher::publish(
-			const std::string& topicName,
-			TransactionMarker topicMarker,
-			const WeakTransactionInfo& transactionInfo,
-			const MessagePayloadBuilder& payloadBuilder) {
-		auto pMessageGroup = std::make_unique<MessageGroup>(CreateHashMessageGenerator(topicName, transactionInfo.EntityHash));
+    void ZeroMqEntityPublisher::publish(
+        const std::string& topicName,
+        TransactionMarker topicMarker,
+        const WeakTransactionInfo& transactionInfo,
+        const MessagePayloadBuilder& payloadBuilder)
+    {
+        auto pMessageGroup = std::make_unique<MessageGroup>(CreateHashMessageGenerator(topicName, transactionInfo.EntityHash));
 
-		const auto& addresses = transactionInfo.OptionalAddresses
-										? *transactionInfo.OptionalAddresses
-										: model::ExtractAddresses(transactionInfo.Transaction, *m_pNotificationPublisher);
+        const auto& addresses = transactionInfo.OptionalAddresses
+            ? *transactionInfo.OptionalAddresses
+            : model::ExtractAddresses(transactionInfo.Transaction, *m_pNotificationPublisher);
 
-		if (addresses.empty())
-			CATAPULT_LOG(warning) << "no addresses are associated with transaction " << transactionInfo.EntityHash;
+        if (addresses.empty())
+            CATAPULT_LOG(warning) << "no addresses are associated with transaction " << transactionInfo.EntityHash;
 
-		for (const auto& address : addresses) {
-			zmq::multipart_t multipart;
-			auto topic = CreateTopic(topicMarker, address);
-			multipart.addmem(topic.data(), topic.size());
-			payloadBuilder(multipart);
-			pMessageGroup->add(std::move(multipart));
-		}
+        for (const auto& address : addresses) {
+            zmq::multipart_t multipart;
+            auto topic = CreateTopic(topicMarker, address);
+            multipart.addmem(topic.data(), topic.size());
+            payloadBuilder(multipart);
+            pMessageGroup->add(std::move(multipart));
+        }
 
-		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
-	}
-}}
+        m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
+    }
+}
+}

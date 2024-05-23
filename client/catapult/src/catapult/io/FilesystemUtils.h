@@ -22,11 +22,13 @@
 #pragma once
 #include <string>
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// Deletes everything in \a directory but does not delete the directory itself.
-	void PurgeDirectory(const std::string& directory);
+    /// Deletes everything in \a directory but does not delete the directory itself.
+    void PurgeDirectory(const std::string& directory);
 
-	/// Moves all files from \a sourceDirectory to \a destDirectory.
-	void MoveAllFiles(const std::string& sourceDirectory, const std::string& destDirectory);
-}}
+    /// Moves all files from \a sourceDirectory to \a destDirectory.
+    void MoveAllFiles(const std::string& sourceDirectory, const std::string& destDirectory);
+}
+}

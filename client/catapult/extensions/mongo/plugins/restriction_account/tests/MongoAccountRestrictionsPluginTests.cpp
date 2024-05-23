@@ -19,32 +19,39 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/restriction_account/src/model/AccountRestrictionEntityType.h"
 #include "mongo/tests/test/MongoPluginTestUtils.h"
+#include "plugins/txes/restriction_account/src/model/AccountRestrictionEntityType.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct MongoAccountRestrictionPluginTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+        namespace {
+            struct MongoAccountRestrictionPluginTraits {
+            public:
+                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Account_Address_Restriction,
-						 model::Entity_Type_Account_Mosaic_Restriction,
-						 model::Entity_Type_Account_Operation_Restriction };
-			}
+                static std::vector<model::EntityType> GetTransactionTypes()
+                {
+                    return { model::Entity_Type_Account_Address_Restriction,
+                        model::Entity_Type_Account_Mosaic_Restriction,
+                        model::Entity_Type_Account_Operation_Restriction };
+                }
 
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return {};
-			}
+                static std::vector<model::ReceiptType> GetReceiptTypes()
+                {
+                    return {};
+                }
 
-			static std::string GetStorageName() {
-				return "{ AccountRestrictionCache }";
-			}
-		};
-	}
+                static std::string GetStorageName()
+                {
+                    return "{ AccountRestrictionCache }";
+                }
+            };
+        }
 
-	DEFINE_MONGO_PLUGIN_TESTS(MongoAccountRestrictionPluginTests, MongoAccountRestrictionPluginTraits)
-}}}
+        DEFINE_MONGO_PLUGIN_TESTS(MongoAccountRestrictionPluginTests, MongoAccountRestrictionPluginTraits)
+    }
+}
+}

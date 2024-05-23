@@ -24,124 +24,135 @@
 #include <unordered_set>
 #include <vector>
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	// region MemoryCacheChanges
+    // region MemoryCacheChanges
 
-	/// Deserialized cache changes for a single cache.
-	/// \note This is used for tagging.
-	struct PLUGIN_API_DEPENDENCY MemoryCacheChanges : public utils::NonCopyable {
-		virtual ~MemoryCacheChanges() = default;
-	};
+    /// Deserialized cache changes for a single cache.
+    /// \note This is used for tagging.
+    struct PLUGIN_API_DEPENDENCY MemoryCacheChanges : public utils::NonCopyable {
+        virtual ~MemoryCacheChanges() = default;
+    };
 
-	/// Deserialized cache changes for a single cache.
-	template<typename TValue>
-	struct PLUGIN_API_DEPENDENCY MemoryCacheChangesT : public MemoryCacheChanges {
-		/// Added elements.
-		std::vector<TValue> Added;
+    /// Deserialized cache changes for a single cache.
+    template <typename TValue>
+    struct PLUGIN_API_DEPENDENCY MemoryCacheChangesT : public MemoryCacheChanges {
+        /// Added elements.
+        std::vector<TValue> Added;
 
-		/// Removed elements.
-		std::vector<TValue> Removed;
+        /// Removed elements.
+        std::vector<TValue> Removed;
 
-		/// Copied elements.
-		std::vector<TValue> Copied;
-	};
+        /// Copied elements.
+        std::vector<TValue> Copied;
+    };
 
-	// endregion
+    // endregion
 
-	// region SingleCacheChanges
+    // region SingleCacheChanges
 
-	/// Provides common view of single sub cache changes.
-	/// \note This is used for tagging.
-	struct SingleCacheChanges : public utils::NonCopyable {};
+    /// Provides common view of single sub cache changes.
+    /// \note This is used for tagging.
+    struct SingleCacheChanges : public utils::NonCopyable { };
 
-	/// Provides common view of single sub cache changes.
-	template<typename TCacheDelta, typename TValue>
-	class SingleCacheChangesT : public SingleCacheChanges {
-	private:
-		using PointerContainer = decltype(reinterpret_cast<const TCacheDelta*>(1)->addedElements());
+    /// Provides common view of single sub cache changes.
+    template <typename TCacheDelta, typename TValue>
+    class SingleCacheChangesT : public SingleCacheChanges {
+    private:
+        using PointerContainer = decltype(reinterpret_cast<const TCacheDelta*>(1)->addedElements());
 
-	public:
-		/// Creates changes around \a cacheDelta.
-		explicit SingleCacheChangesT(const TCacheDelta& cacheDelta)
-				: m_pCacheDelta(&cacheDelta)
-				, m_pMemoryCacheChanges(nullptr) {
-		}
+    public:
+        /// Creates changes around \a cacheDelta.
+        explicit SingleCacheChangesT(const TCacheDelta& cacheDelta)
+            : m_pCacheDelta(&cacheDelta)
+            , m_pMemoryCacheChanges(nullptr)
+        {
+        }
 
-		/// Creates changes around \a memoryCacheChanges.
-		explicit SingleCacheChangesT(const MemoryCacheChangesT<TValue>& memoryCacheChanges)
-				: m_pCacheDelta(nullptr)
-				, m_pMemoryCacheChanges(&memoryCacheChanges) {
-		}
+        /// Creates changes around \a memoryCacheChanges.
+        explicit SingleCacheChangesT(const MemoryCacheChangesT<TValue>& memoryCacheChanges)
+            : m_pCacheDelta(nullptr)
+            , m_pMemoryCacheChanges(&memoryCacheChanges)
+        {
+        }
 
-	public:
-		/// Gets the pointers to all added elements.
-		PointerContainer addedElements() const {
-			return m_pCacheDelta ? m_pCacheDelta->addedElements() : CollectAllPointers(m_pMemoryCacheChanges->Added);
-		}
+    public:
+        /// Gets the pointers to all added elements.
+        PointerContainer addedElements() const
+        {
+            return m_pCacheDelta ? m_pCacheDelta->addedElements() : CollectAllPointers(m_pMemoryCacheChanges->Added);
+        }
 
-		/// Gets the pointers to all modified elements.
-		PointerContainer modifiedElements() const {
-			return m_pCacheDelta ? m_pCacheDelta->modifiedElements() : CollectAllPointers(m_pMemoryCacheChanges->Copied);
-		}
+        /// Gets the pointers to all modified elements.
+        PointerContainer modifiedElements() const
+        {
+            return m_pCacheDelta ? m_pCacheDelta->modifiedElements() : CollectAllPointers(m_pMemoryCacheChanges->Copied);
+        }
 
-		/// Gets the pointers to all removed elements.
-		PointerContainer removedElements() const {
-			return m_pCacheDelta ? m_pCacheDelta->removedElements() : CollectAllPointers(m_pMemoryCacheChanges->Removed);
-		}
+        /// Gets the pointers to all removed elements.
+        PointerContainer removedElements() const
+        {
+            return m_pCacheDelta ? m_pCacheDelta->removedElements() : CollectAllPointers(m_pMemoryCacheChanges->Removed);
+        }
 
-	private:
-		static PointerContainer CollectAllPointers(const std::vector<TValue>& values) {
-			PointerContainer pointers;
-			for (const auto& value : values)
-				pointers.insert(&value);
+    private:
+        static PointerContainer CollectAllPointers(const std::vector<TValue>& values)
+        {
+            PointerContainer pointers;
+            for (const auto& value : values)
+                pointers.insert(&value);
 
-			return pointers;
-		}
+            return pointers;
+        }
 
-	private:
-		const TCacheDelta* m_pCacheDelta;
-		const MemoryCacheChangesT<TValue>* m_pMemoryCacheChanges;
-	};
+    private:
+        const TCacheDelta* m_pCacheDelta;
+        const MemoryCacheChangesT<TValue>* m_pMemoryCacheChanges;
+    };
 
-	// endregion
+    // endregion
 
-	// region CacheChanges
+    // region CacheChanges
 
-	/// Provides common view of aggregate cache changes.
-	class CacheChanges : public utils::MoveOnly {
-	public:
-		/// Memory cache changes container.
-		using MemoryCacheChangesContainer = std::vector<std::unique_ptr<const MemoryCacheChanges>>;
+    /// Provides common view of aggregate cache changes.
+    class CacheChanges : public utils::MoveOnly {
+    public:
+        /// Memory cache changes container.
+        using MemoryCacheChangesContainer = std::vector<std::unique_ptr<const MemoryCacheChanges>>;
 
-	public:
-		/// Creates changes around \a cacheDelta.
-		explicit CacheChanges(const CatapultCacheDelta& cacheDelta)
-				: m_pCacheDelta(&cacheDelta) {
-		}
+    public:
+        /// Creates changes around \a cacheDelta.
+        explicit CacheChanges(const CatapultCacheDelta& cacheDelta)
+            : m_pCacheDelta(&cacheDelta)
+        {
+        }
 
-		/// Creates changes around \a memoryCacheChangesContainer.
-		explicit CacheChanges(MemoryCacheChangesContainer&& memoryCacheChangesContainer)
-				: m_pCacheDelta(nullptr)
-				, m_memoryCacheChangesContainer(std::move(memoryCacheChangesContainer)) {
-		}
+        /// Creates changes around \a memoryCacheChangesContainer.
+        explicit CacheChanges(MemoryCacheChangesContainer&& memoryCacheChangesContainer)
+            : m_pCacheDelta(nullptr)
+            , m_memoryCacheChangesContainer(std::move(memoryCacheChangesContainer))
+        {
+        }
 
-	public:
-		/// Gets a specific sub cache changes view.
-		template<typename TCache>
-		auto sub() const {
-			using SubCacheChanges = SingleCacheChangesT<typename TCache::CacheDeltaType, typename TCache::CacheValueType>;
-			if (m_pCacheDelta)
-				return SubCacheChanges(m_pCacheDelta->sub<TCache>());
+    public:
+        /// Gets a specific sub cache changes view.
+        template <typename TCache>
+        auto sub() const
+        {
+            using SubCacheChanges = SingleCacheChangesT<typename TCache::CacheDeltaType, typename TCache::CacheValueType>;
+            if (m_pCacheDelta)
+                return SubCacheChanges(m_pCacheDelta->sub<TCache>());
 
-			using TypedMemoryCacheChanges = MemoryCacheChangesT<typename TCache::CacheValueType>;
-			return SubCacheChanges(*static_cast<const TypedMemoryCacheChanges*>(m_memoryCacheChangesContainer[TCache::Id].get()));
-		}
+            using TypedMemoryCacheChanges = MemoryCacheChangesT<typename TCache::CacheValueType>;
+            return SubCacheChanges(*static_cast<const TypedMemoryCacheChanges*>(m_memoryCacheChangesContainer[TCache::Id].get()));
+        }
 
-	private:
-		const CatapultCacheDelta* m_pCacheDelta;
-		MemoryCacheChangesContainer m_memoryCacheChangesContainer;
-	};
+    private:
+        const CatapultCacheDelta* m_pCacheDelta;
+        MemoryCacheChangesContainer m_memoryCacheChangesContainer;
+    };
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -23,41 +23,51 @@
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include <filesystem>
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	CatapultKeys::CatapultKeys()
-			: m_nodeKeyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey())) {
-	}
+    CatapultKeys::CatapultKeys()
+        : m_nodeKeyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey()))
+    {
+    }
 
-	CatapultKeys::CatapultKeys(const std::string& directory)
-			: m_caPublicKey(crypto::ReadPublicKeyFromPublicKeyPemFile(GetCaPublicKeyPemFilename(directory)))
-			, m_nodeKeyPair(crypto::ReadKeyPairFromPrivateKeyPemFile(GetNodePrivateKeyPemFilename(directory))) {
-	}
+    CatapultKeys::CatapultKeys(const std::string& directory)
+        : m_caPublicKey(crypto::ReadPublicKeyFromPublicKeyPemFile(GetCaPublicKeyPemFilename(directory)))
+        , m_nodeKeyPair(crypto::ReadKeyPairFromPrivateKeyPemFile(GetNodePrivateKeyPemFilename(directory)))
+    {
+    }
 
-	CatapultKeys::CatapultKeys(Key&& caPublicKey, crypto::KeyPair&& nodeKeyPair)
-			: m_caPublicKey(std::move(caPublicKey))
-			, m_nodeKeyPair(std::move(nodeKeyPair)) {
-	}
+    CatapultKeys::CatapultKeys(Key&& caPublicKey, crypto::KeyPair&& nodeKeyPair)
+        : m_caPublicKey(std::move(caPublicKey))
+        , m_nodeKeyPair(std::move(nodeKeyPair))
+    {
+    }
 
-	const Key& CatapultKeys::caPublicKey() const {
-		return m_caPublicKey;
-	}
+    const Key& CatapultKeys::caPublicKey() const
+    {
+        return m_caPublicKey;
+    }
 
-	const crypto::KeyPair& CatapultKeys::nodeKeyPair() const {
-		return m_nodeKeyPair;
-	}
+    const crypto::KeyPair& CatapultKeys::nodeKeyPair() const
+    {
+        return m_nodeKeyPair;
+    }
 
-	namespace {
-		std::string GetPemFilename(const std::string& directory, const std::string& name) {
-			return (std::filesystem::path(directory) / (name + ".pem")).generic_string();
-		}
-	}
+    namespace {
+        std::string GetPemFilename(const std::string& directory, const std::string& name)
+        {
+            return (std::filesystem::path(directory) / (name + ".pem")).generic_string();
+        }
+    }
 
-	std::string GetCaPublicKeyPemFilename(const std::string& directory) {
-		return GetPemFilename(directory, "ca.pubkey");
-	}
+    std::string GetCaPublicKeyPemFilename(const std::string& directory)
+    {
+        return GetPemFilename(directory, "ca.pubkey");
+    }
 
-	std::string GetNodePrivateKeyPemFilename(const std::string& directory) {
-		return GetPemFilename(directory, "node.key");
-	}
-}}
+    std::string GetNodePrivateKeyPemFilename(const std::string& directory)
+    {
+        return GetPemFilename(directory, "node.key");
+    }
+}
+}

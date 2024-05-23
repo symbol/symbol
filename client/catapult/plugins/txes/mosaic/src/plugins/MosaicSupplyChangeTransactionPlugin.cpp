@@ -20,22 +20,25 @@
 **/
 
 #include "MosaicSupplyChangeTransactionPlugin.h"
-#include "src/model/MosaicNotifications.h"
-#include "src/model/MosaicSupplyChangeTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/MosaicNotifications.h"
+#include "src/model/MosaicSupplyChangeTransaction.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.MosaicId));
-			sub.notify(MosaicSupplyChangeNotification(context.SignerAddress, transaction.MosaicId, transaction.Action, transaction.Delta));
-		}
-	}
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.MosaicId));
+            sub.notify(MosaicSupplyChangeNotification(context.SignerAddress, transaction.MosaicId, transaction.Action, transaction.Delta));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicSupplyChange, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicSupplyChange, Default, Publish)
+}
+}

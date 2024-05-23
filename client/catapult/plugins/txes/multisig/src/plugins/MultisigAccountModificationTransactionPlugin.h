@@ -23,13 +23,17 @@
 #include "catapult/plugins.h"
 #include <memory>
 
-namespace catapult { namespace model {
-	class TransactionPlugin;
-}}
+namespace catapult {
+namespace model {
+    class TransactionPlugin;
+}
+}
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	/// Creates a multisig account modification transaction plugin.
-	PLUGIN_API
-	std::unique_ptr<model::TransactionPlugin> CreateMultisigAccountModificationTransactionPlugin();
-}}
+    /// Creates a multisig account modification transaction plugin.
+    PLUGIN_API
+    std::unique_ptr<model::TransactionPlugin> CreateMultisigAccountModificationTransactionPlugin();
+}
+}

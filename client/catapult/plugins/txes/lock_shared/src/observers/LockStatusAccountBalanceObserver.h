@@ -22,33 +22,36 @@
 #pragma once
 #include "catapult/cache_core/AccountStateCache.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// On commit, marks lock as used and credits destination account.
-	/// On rollback, marks lock as unused and debits destination account.
-	/// Uses the observer \a context to determine notification direction and access caches.
-	/// Uses \a notification to determine the destination account.
-	template<typename TTraits>
-	void LockStatusAccountBalanceObserver(const typename TTraits::Notification& notification, ObserverContext& context) {
-		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-		auto& cache = context.Cache.template sub<typename TTraits::CacheType>();
-		const auto& key = TTraits::NotificationToKey(notification, context.Resolvers);
-		auto lockInfoIter = cache.find(key);
-		auto& lockInfo = lockInfoIter.get().back();
+    /// On commit, marks lock as used and credits destination account.
+    /// On rollback, marks lock as unused and debits destination account.
+    /// Uses the observer \a context to determine notification direction and access caches.
+    /// Uses \a notification to determine the destination account.
+    template <typename TTraits>
+    void LockStatusAccountBalanceObserver(const typename TTraits::Notification& notification, ObserverContext& context)
+    {
+        auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+        auto& cache = context.Cache.template sub<typename TTraits::CacheType>();
+        const auto& key = TTraits::NotificationToKey(notification, context.Resolvers);
+        auto lockInfoIter = cache.find(key);
+        auto& lockInfo = lockInfoIter.get().back();
 
-		auto accountStateIter = accountStateCache.find(TTraits::DestinationAccount(lockInfo));
-		auto& accountState = accountStateIter.get();
+        auto accountStateIter = accountStateCache.find(TTraits::DestinationAccount(lockInfo));
+        auto& accountState = accountStateIter.get();
 
-		if (NotifyMode::Rollback == context.Mode) {
-			lockInfo.Status = state::LockStatus::Unused;
-			accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
-			return;
-		}
+        if (NotifyMode::Rollback == context.Mode) {
+            lockInfo.Status = state::LockStatus::Unused;
+            accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
+            return;
+        }
 
-		lockInfo.Status = state::LockStatus::Used;
-		accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
+        lockInfo.Status = state::LockStatus::Used;
+        accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
 
-		model::BalanceChangeReceipt receipt(TTraits::Receipt_Type, accountState.Address, lockInfo.MosaicId, lockInfo.Amount);
-		context.StatementBuilder().addReceipt(receipt);
-	}
-}}
+        model::BalanceChangeReceipt receipt(TTraits::Receipt_Type, accountState.Address, lockInfo.MosaicId, lockInfo.Amount);
+        context.StatementBuilder().addReceipt(receipt);
+    }
+}
+}

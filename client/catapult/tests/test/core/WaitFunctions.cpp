@@ -21,30 +21,35 @@
 
 #include "WaitFunctions.h"
 #include "tests/test/nodeps/Waits.h"
-#include <boost/asio/steady_timer.hpp>
 #include <boost/asio.hpp>
+#include <boost/asio/steady_timer.hpp>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	WaitFunction CreateSyncWaitFunction(uint32_t waitMillis) {
-		return [waitMillis](const auto&, const auto& shouldWait) {
-			while (shouldWait())
-				Sleep(waitMillis);
-		};
-	}
+    WaitFunction CreateSyncWaitFunction(uint32_t waitMillis)
+    {
+        return [waitMillis](const auto&, const auto& shouldWait) {
+            while (shouldWait())
+                Sleep(waitMillis);
+        };
+    }
 
-	namespace {
-		void WaitAsync(boost::asio::io_context& ioContext, const ShouldWaitPredicate& shouldWait, uint32_t waitMillis) {
-			if (!shouldWait())
-				return;
+    namespace {
+        void WaitAsync(boost::asio::io_context& ioContext, const ShouldWaitPredicate& shouldWait, uint32_t waitMillis)
+        {
+            if (!shouldWait())
+                return;
 
-			auto pTimer = std::make_shared<boost::asio::steady_timer>(ioContext);
-			pTimer->expires_from_now(std::chrono::milliseconds(waitMillis));
-			pTimer->async_wait([&ioContext, shouldWait, waitMillis](const auto&) { WaitAsync(ioContext, shouldWait, waitMillis); });
-		}
-	}
+            auto pTimer = std::make_shared<boost::asio::steady_timer>(ioContext);
+            pTimer->expires_from_now(std::chrono::milliseconds(waitMillis));
+            pTimer->async_wait([&ioContext, shouldWait, waitMillis](const auto&) { WaitAsync(ioContext, shouldWait, waitMillis); });
+        }
+    }
 
-	WaitFunction CreateAsyncWaitFunction(uint32_t waitMillis) {
-		return [waitMillis](auto& ioContext, const auto& shouldWait) { WaitAsync(ioContext, shouldWait, waitMillis); };
-	}
-}}
+    WaitFunction CreateAsyncWaitFunction(uint32_t waitMillis)
+    {
+        return [waitMillis](auto& ioContext, const auto& shouldWait) { WaitAsync(ioContext, shouldWait, waitMillis); };
+    }
+}
+}

@@ -24,49 +24,58 @@
 #include "tests/test/nodeps/Conversions.h"
 #include <string>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// String-based key wrapper for test purposes.
-	class StringKey {
-	public:
-		/// Creates a string key around \a data.
-		StringKey(const std::string& data)
-				: m_data(data) {
-		}
+    /// String-based key wrapper for test purposes.
+    class StringKey {
+    public:
+        /// Creates a string key around \a data.
+        StringKey(const std::string& data)
+            : m_data(data)
+        {
+        }
 
-		/// Creates a string key around \a data.
-		StringKey(const char* data)
-				: m_data(data) {
-		}
+        /// Creates a string key around \a data.
+        StringKey(const char* data)
+            : m_data(data)
+        {
+        }
 
-	public:
-		/// Gets a pointer to data.
-		auto data() const {
-			return m_data.data();
-		}
+    public:
+        /// Gets a pointer to data.
+        auto data() const
+        {
+            return m_data.data();
+        }
 
-		/// Gets the size of data.
-		auto size() const {
-			return m_data.size();
-		}
+        /// Gets the size of data.
+        auto size() const
+        {
+            return m_data.size();
+        }
 
-		/// Gets the data.
-		const auto& str() const {
-			return m_data;
-		}
+        /// Gets the data.
+        const auto& str() const
+        {
+            return m_data;
+        }
 
-	public:
-		/// Returns \c true if this is less than \a rhs.
-		bool operator<(const StringKey& rhs) const {
-			return m_data < rhs.m_data;
-		}
+    public:
+        /// Returns \c true if this is less than \a rhs.
+        bool operator<(const StringKey& rhs) const
+        {
+            return m_data < rhs.m_data;
+        }
 
-	private:
-		std::string m_data;
-	};
+    private:
+        std::string m_data;
+    };
 
-	/// Serializes string-based \a key.
-	inline RawBuffer SerializeKey(const StringKey& key) {
-		return { AsBytePointer(key.data()), key.size() };
-	}
-}}
+    /// Serializes string-based \a key.
+    inline RawBuffer SerializeKey(const StringKey& key)
+    {
+        return { AsBytePointer(key.data()), key.size() };
+    }
+}
+}

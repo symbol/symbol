@@ -20,82 +20,91 @@
 **/
 
 #include "catapult/chain/TransactionUpdateResultUtils.h"
-#include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/TransactionInfoTestUtils.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
 #define TEST_CLASS TransactionUpdateResultUtilsTests
 
-	// region UpdateResult
+    // region UpdateResult
 
-	namespace {
-		struct UpdateResult {
-			enum class UpdateType { New_Alpha, New_Beta, Invalid, Neutral };
+    namespace {
+        struct UpdateResult {
+            enum class UpdateType { New_Alpha,
+                New_Beta,
+                Invalid,
+                Neutral };
 
-			UpdateType Type;
-		};
+            UpdateType Type;
+        };
 
-		constexpr auto New_Alpha = UpdateResult::UpdateType::New_Alpha;
-		constexpr auto New_Beta = UpdateResult::UpdateType::New_Beta;
-		constexpr auto Neutral = UpdateResult::UpdateType::Neutral;
-		constexpr auto Invalid = UpdateResult::UpdateType::Invalid;
-	}
+        constexpr auto New_Alpha = UpdateResult::UpdateType::New_Alpha;
+        constexpr auto New_Beta = UpdateResult::UpdateType::New_Beta;
+        constexpr auto Neutral = UpdateResult::UpdateType::Neutral;
+        constexpr auto Invalid = UpdateResult::UpdateType::Invalid;
+    }
 
-	// endregion
+    // endregion
 
-	// region AggregateUpdateResults
+    // region AggregateUpdateResults
 
-	TEST(TEST_CLASS, AggregateUpdateResults_AggregatesByCount) {
-		// Arrange:
-		auto updateResults = std::vector<UpdateResult>{ { New_Alpha }, { Invalid },	 { Neutral }, { Neutral },	{ New_Beta },
-														{ Invalid },   { New_Beta }, { Neutral }, { New_Alpha } };
+    TEST(TEST_CLASS, AggregateUpdateResults_AggregatesByCount)
+    {
+        // Arrange:
+        auto updateResults = std::vector<UpdateResult> { { New_Alpha }, { Invalid }, { Neutral }, { Neutral }, { New_Beta },
+            { Invalid }, { New_Beta }, { Neutral }, { New_Alpha } };
 
-		// Act:
-		auto aggregateResult = AggregateUpdateResults(updateResults);
+        // Act:
+        auto aggregateResult = AggregateUpdateResults(updateResults);
 
-		// Assert:
-		EXPECT_EQ(BatchUpdateResult(4, 3, 2), aggregateResult);
-	}
+        // Assert:
+        EXPECT_EQ(BatchUpdateResult(4, 3, 2), aggregateResult);
+    }
 
-	// endregion
+    // endregion
 
-	// region SelectValid
+    // region SelectValid
 
-	TEST(TEST_CLASS, SelectValid_FailsWhenFewerTransactionInfosThanUpdateResults) {
-		// Arrange:
-		auto transactionInfos = test::CreateTransactionInfos(2);
-		auto updateResults = std::vector<UpdateResult>{ { New_Alpha }, { New_Alpha }, { New_Alpha } };
+    TEST(TEST_CLASS, SelectValid_FailsWhenFewerTransactionInfosThanUpdateResults)
+    {
+        // Arrange:
+        auto transactionInfos = test::CreateTransactionInfos(2);
+        auto updateResults = std::vector<UpdateResult> { { New_Alpha }, { New_Alpha }, { New_Alpha } };
 
-		// Act + Assert:
-		EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
-	}
+        // Act + Assert:
+        EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, SelectValid_FailsWhenMoreTransactionInfosThanUpdateResults) {
-		// Arrange:
-		auto transactionInfos = test::CreateTransactionInfos(4);
-		auto updateResults = std::vector<UpdateResult>{ { New_Alpha }, { New_Alpha }, { New_Alpha } };
+    TEST(TEST_CLASS, SelectValid_FailsWhenMoreTransactionInfosThanUpdateResults)
+    {
+        // Arrange:
+        auto transactionInfos = test::CreateTransactionInfos(4);
+        auto updateResults = std::vector<UpdateResult> { { New_Alpha }, { New_Alpha }, { New_Alpha } };
 
-		// Act + Assert:
-		EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
-	}
+        // Act + Assert:
+        EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, SelectValid_FiltersOutInvalidTransactions) {
-		// Arrange:
-		auto transactionInfos = test::CreateTransactionInfos(9);
-		auto updateResults = std::vector<UpdateResult>{ { New_Alpha }, { Invalid },	 { Neutral }, { Neutral },	{ New_Beta },
-														{ Invalid },   { New_Beta }, { Neutral }, { New_Alpha } };
+    TEST(TEST_CLASS, SelectValid_FiltersOutInvalidTransactions)
+    {
+        // Arrange:
+        auto transactionInfos = test::CreateTransactionInfos(9);
+        auto updateResults = std::vector<UpdateResult> { { New_Alpha }, { Invalid }, { Neutral }, { Neutral }, { New_Beta },
+            { Invalid }, { New_Beta }, { Neutral }, { New_Alpha } };
 
-		// Act:
-		auto filteredTransactionInfos = SelectValid(test::CopyTransactionInfos(transactionInfos), updateResults);
+        // Act:
+        auto filteredTransactionInfos = SelectValid(test::CopyTransactionInfos(transactionInfos), updateResults);
 
-		// Assert:
-		ASSERT_EQ(4u, filteredTransactionInfos.size());
-		test::AssertEqual(transactionInfos[0], filteredTransactionInfos[0], "0");
-		test::AssertEqual(transactionInfos[4], filteredTransactionInfos[1], "1");
-		test::AssertEqual(transactionInfos[6], filteredTransactionInfos[2], "2");
-		test::AssertEqual(transactionInfos[8], filteredTransactionInfos[3], "3");
-	}
+        // Assert:
+        ASSERT_EQ(4u, filteredTransactionInfos.size());
+        test::AssertEqual(transactionInfos[0], filteredTransactionInfos[0], "0");
+        test::AssertEqual(transactionInfos[4], filteredTransactionInfos[1], "1");
+        test::AssertEqual(transactionInfos[6], filteredTransactionInfos[2], "2");
+        test::AssertEqual(transactionInfos[8], filteredTransactionInfos[3], "3");
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

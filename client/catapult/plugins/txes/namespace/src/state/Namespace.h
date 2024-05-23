@@ -23,46 +23,48 @@
 #include "NamespaceLifetime.h"
 #include "src/model/NamespaceConstants.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Catapult namespace.
-	class Namespace {
-	public:
-		/// Underlying namespace path type.
-		using Path = std::vector<NamespaceId>;
+    /// Catapult namespace.
+    class Namespace {
+    public:
+        /// Underlying namespace path type.
+        using Path = std::vector<NamespaceId>;
 
-	public:
-		/// Creates a namespace around \a path.
-		explicit Namespace(const Path& path);
+    public:
+        /// Creates a namespace around \a path.
+        explicit Namespace(const Path& path);
 
-	public:
-		/// Gets the namespace id.
-		NamespaceId id() const;
+    public:
+        /// Gets the namespace id.
+        NamespaceId id() const;
 
-		/// Gets the parent namespace id.
-		NamespaceId parentId() const;
+        /// Gets the parent namespace id.
+        NamespaceId parentId() const;
 
-		/// Gets the corresponding root namespace id.
-		NamespaceId rootId() const;
+        /// Gets the corresponding root namespace id.
+        NamespaceId rootId() const;
 
-		/// Gets a value indicating whether or not this namespace is a root namespace.
-		bool isRoot() const;
+        /// Gets a value indicating whether or not this namespace is a root namespace.
+        bool isRoot() const;
 
-		/// Gets the path.
-		const Path& path() const;
+        /// Gets the path.
+        const Path& path() const;
 
-	public:
-		/// Creates a child namespace of this namespace with namespace identifier \a id.
-		Namespace createChild(NamespaceId id) const;
+    public:
+        /// Creates a child namespace of this namespace with namespace identifier \a id.
+        Namespace createChild(NamespaceId id) const;
 
-	public:
-		/// Returns \c true if this namespace is equal to \a rhs.
-		bool operator==(const Namespace& rhs) const;
+    public:
+        /// Returns \c true if this namespace is equal to \a rhs.
+        bool operator==(const Namespace& rhs) const;
 
-		/// Returns \c true if this namespace is not equal to \a rhs.
-		bool operator!=(const Namespace& rhs) const;
+        /// Returns \c true if this namespace is not equal to \a rhs.
+        bool operator!=(const Namespace& rhs) const;
 
-	private:
-		Path m_path;
-	};
-}}
+    private:
+        Path m_path;
+    };
+}
+}

@@ -25,25 +25,27 @@
 
 namespace catapult {
 namespace api {
-	class RemoteProofApi;
+    class RemoteProofApi;
 }
 namespace io {
-	class BlockStorageCache;
-	class ProofStorageCache;
+    class BlockStorageCache;
+    class ProofStorageCache;
 }
 namespace model {
-	struct FinalizationProof;
+    struct FinalizationProof;
 }
 }
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Creates a finalization proof synchronizer around block storage (\a blockStorage) and proof storage (\a proofStorage)
-	/// given \a votingSetGrouping, \a unfinalizedBlocksDuration and \a proofValidator.
-	RemoteNodeSynchronizer<api::RemoteProofApi> CreateFinalizationProofSynchronizer(
-			uint64_t votingSetGrouping,
-			BlockDuration unfinalizedBlocksDuration,
-			const io::BlockStorageCache& blockStorage,
-			io::ProofStorageCache& proofStorage,
-			const predicate<const model::FinalizationProof&>& proofValidator);
-}}
+    /// Creates a finalization proof synchronizer around block storage (\a blockStorage) and proof storage (\a proofStorage)
+    /// given \a votingSetGrouping, \a unfinalizedBlocksDuration and \a proofValidator.
+    RemoteNodeSynchronizer<api::RemoteProofApi> CreateFinalizationProofSynchronizer(
+        uint64_t votingSetGrouping,
+        BlockDuration unfinalizedBlocksDuration,
+        const io::BlockStorageCache& blockStorage,
+        io::ProofStorageCache& proofStorage,
+        const predicate<const model::FinalizationProof&>& proofValidator);
+}
+}

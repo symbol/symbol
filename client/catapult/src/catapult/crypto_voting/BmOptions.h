@@ -22,14 +22,16 @@
 #pragma once
 #include "BmKeyIdentifier.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	/// Two-layer Bellare-Miner private key tree key options.
-	struct BmOptions {
-		/// Start key identifier.
-		BmKeyIdentifier StartKeyIdentifier;
+    /// Two-layer Bellare-Miner private key tree key options.
+    struct BmOptions {
+        /// Start key identifier.
+        BmKeyIdentifier StartKeyIdentifier;
 
-		/// End key identifier.
-		BmKeyIdentifier EndKeyIdentifier;
-	};
-}}
+        /// End key identifier.
+        BmKeyIdentifier EndKeyIdentifier;
+    };
+}
+}

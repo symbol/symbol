@@ -20,40 +20,42 @@
 **/
 
 #pragma once
-#include "catapult/utils/Hashers.h"
 #include "catapult/types.h"
+#include "catapult/utils/Hashers.h"
 #include <unordered_map>
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Map of accounts to weights.
-	class AccountWeights {
-	public:
-		/// Creates account weights.
-		AccountWeights();
+    /// Map of accounts to weights.
+    class AccountWeights {
+    public:
+        /// Creates account weights.
+        AccountWeights();
 
-	public:
-		/// Gets the number of unique accounts.
-		size_t size() const;
+    public:
+        /// Gets the number of unique accounts.
+        size_t size() const;
 
-		/// Gets the sum of all weights.
-		uint64_t totalWeight() const;
+        /// Gets the sum of all weights.
+        uint64_t totalWeight() const;
 
-		/// Gets the weight for the account with public \a key.
-		uint64_t weight(const Key& key) const;
+        /// Gets the weight for the account with public \a key.
+        uint64_t weight(const Key& key) const;
 
-	public:
-		/// Increases the weight for the account with public \a key by \a delta.
-		void increment(const Key& key, uint64_t delta);
+    public:
+        /// Increases the weight for the account with public \a key by \a delta.
+        void increment(const Key& key, uint64_t delta);
 
-		/// Decreases the weight for the account with public \a key by \a delta.
-		void decrement(const Key& key, uint64_t delta);
+        /// Decreases the weight for the account with public \a key by \a delta.
+        void decrement(const Key& key, uint64_t delta);
 
-		/// Resets the weights.
-		void reset();
+        /// Resets the weights.
+        void reset();
 
-	private:
-		std::unordered_map<Key, uint64_t, utils::ArrayHasher<Key>> m_accountWeights;
-		uint64_t m_totalWeight;
-	};
-}}
+    private:
+        std::unordered_map<Key, uint64_t, utils::ArrayHasher<Key>> m_accountWeights;
+        uint64_t m_totalWeight;
+    };
+}
+}

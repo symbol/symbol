@@ -25,41 +25,43 @@
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/nodeps/Filesystem.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Remote server that accepts client connections.
-	class RemoteAcceptServer {
-	public:
-		/// Creates a remote accept server.
-		RemoteAcceptServer();
+    /// Remote server that accepts client connections.
+    class RemoteAcceptServer {
+    public:
+        /// Creates a remote accept server.
+        RemoteAcceptServer();
 
-		/// Creates a remote accept server with specified \a caKeyPair.
-		explicit RemoteAcceptServer(const crypto::KeyPair& caKeyPair);
+        /// Creates a remote accept server with specified \a caKeyPair.
+        explicit RemoteAcceptServer(const crypto::KeyPair& caKeyPair);
 
-	public:
-		/// Gets the underlying io context.
-		boost::asio::io_context& ioContext();
+    public:
+        /// Gets the underlying io context.
+        boost::asio::io_context& ioContext();
 
-		/// Gets the server CA public key.
-		const Key& caPublicKey() const;
+        /// Gets the server CA public key.
+        const Key& caPublicKey() const;
 
-	public:
-		/// Starts the server so that it can accept a single connection.
-		void start();
+    public:
+        /// Starts the server so that it can accept a single connection.
+        void start();
 
-		/// Starts the server so that it can accept a single connection and execute \a serverWork.
-		void start(const PacketSocketWork& serverWork);
+        /// Starts the server so that it can accept a single connection and execute \a serverWork.
+        void start(const PacketSocketWork& serverWork);
 
-		/// Starts the server so that it can accept a single connection with \a acceptor and execute \a serverWork.
-		void start(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork);
+        /// Starts the server so that it can accept a single connection with \a acceptor and execute \a serverWork.
+        void start(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork);
 
-		/// Waits for the server to complete.
-		void join();
+        /// Waits for the server to complete.
+        void join();
 
-	private:
-		TempDirectoryGuard m_directoryGuard;
-		std::unique_ptr<thread::IoThreadPool> m_pPool;
-		crypto::KeyPair m_caKeyPair;
-		crypto::KeyPair m_nodeKeyPair;
-	};
-}}
+    private:
+        TempDirectoryGuard m_directoryGuard;
+        std::unique_ptr<thread::IoThreadPool> m_pPool;
+        crypto::KeyPair m_caKeyPair;
+        crypto::KeyPair m_nodeKeyPair;
+    };
+}
+}

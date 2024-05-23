@@ -19,16 +19,22 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/UnbondedPruningService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/UnbondedPruningService.h"
 
-namespace catapult { namespace unbondedpruning { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		// register service(s)
-		bootstrapper.extensionManager().addServiceRegistrar(CreateUnbondedPruningServiceRegistrar());
-	}
-}}}
+namespace catapult {
+namespace unbondedpruning {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            // register service(s)
+            bootstrapper.extensionManager().addServiceRegistrar(CreateUnbondedPruningServiceRegistrar());
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::unbondedpruning::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::unbondedpruning::RegisterExtension(bootstrapper);
 }

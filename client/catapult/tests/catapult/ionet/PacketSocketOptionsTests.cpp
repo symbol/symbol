@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/ionet/PacketSocketOptions.h"
+#include "tests/TestHarness.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
-#include "tests/TestHarness.h"
 #include <boost/asio/ssl.hpp>
 
 #ifdef __clang__
@@ -36,147 +36,157 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
 #define TEST_CLASS PacketSocketOptionsTests
 
-	// region PacketSocketSslVerifyContext
+    // region PacketSocketSslVerifyContext
 
-	TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanCreateDefault) {
-		// Act:
-		PacketSocketSslVerifyContext context;
+    TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanCreateDefault)
+    {
+        // Act:
+        PacketSocketSslVerifyContext context;
 
-		// Assert:
-		EXPECT_FALSE(context.preverified());
-		EXPECT_NO_THROW(context.publicKey());
-	}
+        // Assert:
+        EXPECT_FALSE(context.preverified());
+        EXPECT_NO_THROW(context.publicKey());
+    }
 
-	TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanCreateWithArguments) {
-		// Arrange:
-		boost::asio::ssl::verify_context asioVerifyContext(nullptr);
-		Key publicKey;
+    TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanCreateWithArguments)
+    {
+        // Arrange:
+        boost::asio::ssl::verify_context asioVerifyContext(nullptr);
+        Key publicKey;
 
-		// Act:
-		PacketSocketSslVerifyContext context(true, asioVerifyContext, publicKey);
+        // Act:
+        PacketSocketSslVerifyContext context(true, asioVerifyContext, publicKey);
 
-		// Assert:
-		EXPECT_TRUE(context.preverified());
-		EXPECT_EQ(&asioVerifyContext, &context.asioVerifyContext());
-		EXPECT_EQ(&publicKey, &context.publicKey());
-	}
+        // Assert:
+        EXPECT_TRUE(context.preverified());
+        EXPECT_EQ(&asioVerifyContext, &context.asioVerifyContext());
+        EXPECT_EQ(&publicKey, &context.publicKey());
+    }
 
-	TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanChangePublicKey) {
-		// Arrange:
-		boost::asio::ssl::verify_context asioVerifyContext(nullptr);
-		Key publicKey;
-		PacketSocketSslVerifyContext context(true, asioVerifyContext, publicKey);
+    TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanChangePublicKey)
+    {
+        // Arrange:
+        boost::asio::ssl::verify_context asioVerifyContext(nullptr);
+        Key publicKey;
+        PacketSocketSslVerifyContext context(true, asioVerifyContext, publicKey);
 
-		// Act:
-		auto publicKey2 = test::GenerateRandomByteArray<Key>();
-		context.setPublicKey(publicKey2);
+        // Act:
+        auto publicKey2 = test::GenerateRandomByteArray<Key>();
+        context.setPublicKey(publicKey2);
 
-		// Assert:
-		EXPECT_EQ(publicKey2, publicKey);
-	}
+        // Assert:
+        EXPECT_EQ(publicKey2, publicKey);
+    }
 
-	// endregion
+    // endregion
 
-	// region CreateSslContextSupplier
+    // region CreateSslContextSupplier
 
-	TEST(TEST_CLASS, CreateSslContextSupplier_CanCreateSslContext) {
-		// Arrange:
-		auto supplier = CreateSslContextSupplier(test::GetDefaultCertificateDirectory());
+    TEST(TEST_CLASS, CreateSslContextSupplier_CanCreateSslContext)
+    {
+        // Arrange:
+        auto supplier = CreateSslContextSupplier(test::GetDefaultCertificateDirectory());
 
-		// Act + Assert:
-		EXPECT_NO_THROW(supplier());
-	}
+        // Act + Assert:
+        EXPECT_NO_THROW(supplier());
+    }
 
-	TEST(TEST_CLASS, CreateSslContextSupplier_SslContextIsSingleton) {
-		// Arrange:
-		auto supplier = CreateSslContextSupplier(test::GetDefaultCertificateDirectory());
+    TEST(TEST_CLASS, CreateSslContextSupplier_SslContextIsSingleton)
+    {
+        // Arrange:
+        auto supplier = CreateSslContextSupplier(test::GetDefaultCertificateDirectory());
 
-		// Act:
-		auto& sslContext1 = supplier();
-		auto& sslContext2 = supplier();
+        // Act:
+        auto& sslContext1 = supplier();
+        auto& sslContext2 = supplier();
 
-		// Assert:
-		EXPECT_EQ(&sslContext1, &sslContext2);
-	}
+        // Assert:
+        EXPECT_EQ(&sslContext1, &sslContext2);
+    }
 
-	// endregion
+    // endregion
 
-	// region CreateSslVerifyCallbackSupplier
+    // region CreateSslVerifyCallbackSupplier
 
-	namespace {
-		auto CreateChainedCertificateStoreContext(const crypto::KeyPair& rootKeyPair, bool useValidSelfSignature) {
-			auto pCertificateKey = test::GenerateCertificateKey(rootKeyPair);
+    namespace {
+        auto CreateChainedCertificateStoreContext(const crypto::KeyPair& rootKeyPair, bool useValidSelfSignature)
+        {
+            auto pCertificateKey = test::GenerateCertificateKey(rootKeyPair);
 
-			// root certificate - self-sign
-			test::CertificateBuilder builder1;
-			builder1.setSubject("JP", "NEM", "Root");
-			builder1.setIssuer("JP", "NEM", "Root");
-			builder1.setPublicKey(*pCertificateKey);
-			auto certificate1 = useValidSelfSignature ? builder1.buildAndSign(*pCertificateKey) : builder1.build();
+            // root certificate - self-sign
+            test::CertificateBuilder builder1;
+            builder1.setSubject("JP", "NEM", "Root");
+            builder1.setIssuer("JP", "NEM", "Root");
+            builder1.setPublicKey(*pCertificateKey);
+            auto certificate1 = useValidSelfSignature ? builder1.buildAndSign(*pCertificateKey) : builder1.build();
 
-			// node certificate - sign with root key pair
-			test::CertificateBuilder builder2;
-			builder2.setSubject("JP", "NEM", "Node");
-			builder2.setIssuer("JP", "NEM", "Root");
-			builder2.setPublicKey(*test::GenerateRandomCertificateKey());
-			auto certificate2 = builder2.buildAndSign(*pCertificateKey);
+            // node certificate - sign with root key pair
+            test::CertificateBuilder builder2;
+            builder2.setSubject("JP", "NEM", "Node");
+            builder2.setIssuer("JP", "NEM", "Root");
+            builder2.setPublicKey(*test::GenerateRandomCertificateKey());
+            auto certificate2 = builder2.buildAndSign(*pCertificateKey);
 
-			std::vector<test::CertificatePointer> certificates;
-			certificates.push_back(std::move(certificate1));
-			certificates.push_back(std::move(certificate2));
-			auto holder = test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
-			X509_STORE_CTX_set_error(holder.pCertificateStoreContext.get(), X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN);
-			return holder;
-		}
-	}
+            std::vector<test::CertificatePointer> certificates;
+            certificates.push_back(std::move(certificate1));
+            certificates.push_back(std::move(certificate2));
+            auto holder = test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
+            X509_STORE_CTX_set_error(holder.pCertificateStoreContext.get(), X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN);
+            return holder;
+        }
+    }
 
-	TEST(TEST_CLASS, CreateSslVerifyCallbackSupplier_SuccessVerificationDelegatesToProcessor) {
-		// Arrange:
-		auto predicate = CreateSslVerifyCallbackSupplier()();
+    TEST(TEST_CLASS, CreateSslVerifyCallbackSupplier_SuccessVerificationDelegatesToProcessor)
+    {
+        // Arrange:
+        auto predicate = CreateSslVerifyCallbackSupplier()();
 
-		auto keyPair = test::GenerateKeyPair();
-		auto holder = CreateChainedCertificateStoreContext(keyPair, true);
+        auto keyPair = test::GenerateKeyPair();
+        auto holder = CreateChainedCertificateStoreContext(keyPair, true);
 
-		Key publicKey;
-		boost::asio::ssl::verify_context asioVerifyContext(holder.pCertificateStoreContext.get());
-		PacketSocketSslVerifyContext contextPreverifyFalse(false, asioVerifyContext, publicKey);
-		PacketSocketSslVerifyContext contextPreverifyTrue(true, asioVerifyContext, publicKey);
+        Key publicKey;
+        boost::asio::ssl::verify_context asioVerifyContext(holder.pCertificateStoreContext.get());
+        PacketSocketSslVerifyContext contextPreverifyFalse(false, asioVerifyContext, publicKey);
+        PacketSocketSslVerifyContext contextPreverifyTrue(true, asioVerifyContext, publicKey);
 
-		// Act: simulate two level chain  - root(false), root(true), node(true)
-		auto result1 = predicate(contextPreverifyFalse);
-		auto result2 = predicate(contextPreverifyTrue);
+        // Act: simulate two level chain  - root(false), root(true), node(true)
+        auto result1 = predicate(contextPreverifyFalse);
+        auto result2 = predicate(contextPreverifyTrue);
 
-		test::SetActiveCertificate(holder, 1);
-		auto result3 = predicate(contextPreverifyTrue);
+        test::SetActiveCertificate(holder, 1);
+        auto result3 = predicate(contextPreverifyTrue);
 
-		// Assert:
-		EXPECT_TRUE(result1);
-		EXPECT_TRUE(result2);
-		EXPECT_TRUE(result3);
-		EXPECT_EQ(keyPair.publicKey(), publicKey);
-	}
+        // Assert:
+        EXPECT_TRUE(result1);
+        EXPECT_TRUE(result2);
+        EXPECT_TRUE(result3);
+        EXPECT_EQ(keyPair.publicKey(), publicKey);
+    }
 
-	TEST(TEST_CLASS, CreateSslVerifyCallbackSupplier_FailureVerificationDelegatesToProcessor) {
-		// Arrange:
-		auto predicate = CreateSslVerifyCallbackSupplier()();
+    TEST(TEST_CLASS, CreateSslVerifyCallbackSupplier_FailureVerificationDelegatesToProcessor)
+    {
+        // Arrange:
+        auto predicate = CreateSslVerifyCallbackSupplier()();
 
-		auto keyPair = test::GenerateKeyPair();
-		auto holder = CreateChainedCertificateStoreContext(keyPair, false);
+        auto keyPair = test::GenerateKeyPair();
+        auto holder = CreateChainedCertificateStoreContext(keyPair, false);
 
-		Key publicKey;
-		boost::asio::ssl::verify_context asioVerifyContext(holder.pCertificateStoreContext.get());
-		PacketSocketSslVerifyContext contextPreverifyFalse(false, asioVerifyContext, publicKey);
+        Key publicKey;
+        boost::asio::ssl::verify_context asioVerifyContext(holder.pCertificateStoreContext.get());
+        PacketSocketSslVerifyContext contextPreverifyFalse(false, asioVerifyContext, publicKey);
 
-		// Act: simulate two level chain  - root(false); first failure short circuits processing of certificate chain
-		auto result1 = predicate(contextPreverifyFalse);
+        // Act: simulate two level chain  - root(false); first failure short circuits processing of certificate chain
+        auto result1 = predicate(contextPreverifyFalse);
 
-		// Assert:
-		EXPECT_FALSE(result1);
-	}
+        // Assert:
+        EXPECT_FALSE(result1);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -23,21 +23,23 @@
 #include "VotingKeyPair.h"
 #include <vector>
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	/// Signs data pointed by \a dataBuffer using \a keyPair, placing resulting signature in \a computedSignature.
-	/// \note The function will throw if the generated S part of the signature is not less than the group order.
-	void Sign(const VotingKeyPair& keyPair, const RawBuffer& dataBuffer, VotingSignature& computedSignature);
+    /// Signs data pointed by \a dataBuffer using \a keyPair, placing resulting signature in \a computedSignature.
+    /// \note The function will throw if the generated S part of the signature is not less than the group order.
+    void Sign(const VotingKeyPair& keyPair, const RawBuffer& dataBuffer, VotingSignature& computedSignature);
 
-	/// Signs data in \a buffersList using \a keyPair, placing resulting signature in \a computedSignature.
-	/// \note The function will throw if the generated S part of the signature is not less than the group order.
-	void Sign(const VotingKeyPair& keyPair, std::initializer_list<const RawBuffer> buffersList, VotingSignature& computedSignature);
+    /// Signs data in \a buffersList using \a keyPair, placing resulting signature in \a computedSignature.
+    /// \note The function will throw if the generated S part of the signature is not less than the group order.
+    void Sign(const VotingKeyPair& keyPair, std::initializer_list<const RawBuffer> buffersList, VotingSignature& computedSignature);
 
-	/// Verifies that \a signature of data pointed by \a dataBuffer is valid, using public key \a publicKey.
-	/// Returns \c true if signature is valid.
-	bool Verify(const VotingKey& publicKey, const RawBuffer& dataBuffer, const VotingSignature& signature);
+    /// Verifies that \a signature of data pointed by \a dataBuffer is valid, using public key \a publicKey.
+    /// Returns \c true if signature is valid.
+    bool Verify(const VotingKey& publicKey, const RawBuffer& dataBuffer, const VotingSignature& signature);
 
-	/// Verifies that \a signature of data in \a buffersList is valid, using public key \a publicKey.
-	/// Returns \c true if signature is valid.
-	bool Verify(const VotingKey& publicKey, const std::vector<RawBuffer>& buffersList, const VotingSignature& signature);
-}}
+    /// Verifies that \a signature of data in \a buffersList is valid, using public key \a publicKey.
+    /// Returns \c true if signature is valid.
+    bool Verify(const VotingKey& publicKey, const std::vector<RawBuffer>& buffersList, const VotingSignature& signature);
+}
+}

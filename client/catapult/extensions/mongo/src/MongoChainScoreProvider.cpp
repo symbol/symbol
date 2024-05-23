@@ -21,38 +21,43 @@
 
 #include "MongoChainScoreProvider.h"
 #include "MongoChainStatisticUtils.h"
-#include "mappers/MapperUtils.h"
 #include "catapult/model/ChainScore.h"
+#include "mappers/MapperUtils.h"
 
 using namespace bsoncxx::builder::stream;
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	namespace {
-		class MongoChainScoreProvider final : public ChainScoreProvider {
-		public:
-			explicit MongoChainScoreProvider(MongoStorageContext& context)
-					: m_database(context.createDatabaseConnection())
-					, m_errorPolicy(context.createCollectionErrorPolicy("chainStatistic")) {
-			}
+    namespace {
+        class MongoChainScoreProvider final : public ChainScoreProvider {
+        public:
+            explicit MongoChainScoreProvider(MongoStorageContext& context)
+                : m_database(context.createDatabaseConnection())
+                , m_errorPolicy(context.createCollectionErrorPolicy("chainStatistic"))
+            {
+            }
 
-		public:
-			void saveScore(const model::ChainScore& chainScore) override {
-				auto scoreArray = chainScore.toArray();
-				auto scoreValue = document() << "$set" << open_document << "current.scoreHigh" << static_cast<int64_t>(scoreArray[0])
-											 << "current.scoreLow" << static_cast<int64_t>(scoreArray[1]) << close_document << finalize;
+        public:
+            void saveScore(const model::ChainScore& chainScore) override
+            {
+                auto scoreArray = chainScore.toArray();
+                auto scoreValue = document() << "$set" << open_document << "current.scoreHigh" << static_cast<int64_t>(scoreArray[0])
+                                             << "current.scoreLow" << static_cast<int64_t>(scoreArray[1]) << close_document << finalize;
 
-				auto result = TrySetChainStatisticDocument(m_database, scoreValue.view());
-				m_errorPolicy.checkUpserted(1, result, "chain score");
-			}
+                auto result = TrySetChainStatisticDocument(m_database, scoreValue.view());
+                m_errorPolicy.checkUpserted(1, result, "chain score");
+            }
 
-		private:
-			MongoDatabase m_database;
-			MongoErrorPolicy m_errorPolicy;
-		};
-	}
+        private:
+            MongoDatabase m_database;
+            MongoErrorPolicy m_errorPolicy;
+        };
+    }
 
-	std::unique_ptr<ChainScoreProvider> CreateMongoChainScoreProvider(MongoStorageContext& context) {
-		return std::make_unique<MongoChainScoreProvider>(context);
-	}
-}}
+    std::unique_ptr<ChainScoreProvider> CreateMongoChainScoreProvider(MongoStorageContext& context)
+    {
+        return std::make_unique<MongoChainScoreProvider>(context);
+    }
+}
+}

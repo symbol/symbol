@@ -24,50 +24,52 @@
 #include "plugins/txes/restriction_account/src/model/AccountMosaicRestrictionTransaction.h"
 #include <vector>
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for an account mosaic restriction transaction.
-	class AccountMosaicRestrictionBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::AccountMosaicRestrictionTransaction;
-		using EmbeddedTransaction = model::EmbeddedAccountMosaicRestrictionTransaction;
+    /// Builder for an account mosaic restriction transaction.
+    class AccountMosaicRestrictionBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::AccountMosaicRestrictionTransaction;
+        using EmbeddedTransaction = model::EmbeddedAccountMosaicRestrictionTransaction;
 
-	public:
-		/// Creates an account mosaic restriction builder for building an account mosaic restriction transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		AccountMosaicRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates an account mosaic restriction builder for building an account mosaic restriction transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        AccountMosaicRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the account restriction flags to \a restrictionFlags.
-		void setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags);
+    public:
+        /// Sets the account restriction flags to \a restrictionFlags.
+        void setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags);
 
-		/// Adds \a restrictionAddition to account restriction additions.
-		void addRestrictionAddition(UnresolvedMosaicId restrictionAddition);
+        /// Adds \a restrictionAddition to account restriction additions.
+        void addRestrictionAddition(UnresolvedMosaicId restrictionAddition);
 
-		/// Adds \a restrictionDeletion to account restriction deletions.
-		void addRestrictionDeletion(UnresolvedMosaicId restrictionDeletion);
+        /// Adds \a restrictionDeletion to account restriction deletions.
+        void addRestrictionDeletion(UnresolvedMosaicId restrictionDeletion);
 
-	public:
-		/// Gets the size of account mosaic restriction transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of account mosaic restriction transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new account mosaic restriction transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new account mosaic restriction transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded account mosaic restriction transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded account mosaic restriction transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		model::AccountRestrictionFlags m_restrictionFlags;
-		std::vector<UnresolvedMosaicId> m_restrictionAdditions;
-		std::vector<UnresolvedMosaicId> m_restrictionDeletions;
-	};
-}}
+    private:
+        model::AccountRestrictionFlags m_restrictionFlags;
+        std::vector<UnresolvedMosaicId> m_restrictionAdditions;
+        std::vector<UnresolvedMosaicId> m_restrictionDeletions;
+    };
+}
+}

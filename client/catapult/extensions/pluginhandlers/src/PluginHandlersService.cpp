@@ -23,27 +23,34 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/plugins/PluginManager.h"
 
-namespace catapult { namespace pluginhandlers {
+namespace catapult {
+namespace pluginhandlers {
 
-	namespace {
-		class PluginHandlersServiceRegistrar : public extensions::ServiceRegistrar {
-		public:
-			extensions::ServiceRegistrarInfo info() const override {
-				return { "PluginHandlers", extensions::ServiceRegistrarPhase::Initial };
-			}
+    namespace {
+        class PluginHandlersServiceRegistrar : public extensions::ServiceRegistrar {
+        public:
+            extensions::ServiceRegistrarInfo info() const override
+            {
+                return { "PluginHandlers", extensions::ServiceRegistrarPhase::Initial };
+            }
 
-			void registerServiceCounters(extensions::ServiceLocator&) override {
-				// no additional counters
-			}
+            void registerServiceCounters(extensions::ServiceLocator&) override
+            {
+                // no additional counters
+            }
 
-			void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override {
-				// add packet handlers
-				state.pluginManager().addHandlers(state.packetHandlers(), state.cache());
-			}
-		};
-	}
+            void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override
+            {
+                // add packet handlers
+                state.pluginManager().addHandlers(state.packetHandlers(), state.cache());
+            }
+        };
+    }
 
-	DECLARE_SERVICE_REGISTRAR(PluginHandlers)() {
-		return std::make_unique<PluginHandlersServiceRegistrar>();
-	}
-}}
+    DECLARE_SERVICE_REGISTRAR(PluginHandlers)
+    ()
+    {
+        return std::make_unique<PluginHandlersServiceRegistrar>();
+    }
+}
+}

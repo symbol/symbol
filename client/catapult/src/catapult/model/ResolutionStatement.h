@@ -24,62 +24,64 @@
 #include "ReceiptType.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Collection of receipts scoped to a unresolved value.
-	template<typename TUnresolved, typename TResolved, ReceiptType ResolutionReceiptType>
-	class ResolutionStatement {
-	public:
+    /// Collection of receipts scoped to a unresolved value.
+    template <typename TUnresolved, typename TResolved, ReceiptType ResolutionReceiptType>
+    class ResolutionStatement {
+    public:
 #pragma pack(push, 1)
 
-		/// Resolution entry.
-		struct ResolutionEntry {
-			/// Source of resolution within block.
-			ReceiptSource Source;
+        /// Resolution entry.
+        struct ResolutionEntry {
+            /// Source of resolution within block.
+            ReceiptSource Source;
 
-			/// Resolved value.
-			TResolved ResolvedValue;
-		};
+            /// Resolved value.
+            TResolved ResolvedValue;
+        };
 
 #pragma pack(pop)
 
-	public:
-		/// Creates a statement around \a unresolved value.
-		explicit ResolutionStatement(const TUnresolved& unresolved);
+    public:
+        /// Creates a statement around \a unresolved value.
+        explicit ResolutionStatement(const TUnresolved& unresolved);
 
-	public:
-		/// Gets the unresolved value.
-		const TUnresolved& unresolved() const;
+    public:
+        /// Gets the unresolved value.
+        const TUnresolved& unresolved() const;
 
-		/// Gets the number of attached resolution entries.
-		size_t size() const;
+        /// Gets the number of attached resolution entries.
+        size_t size() const;
 
-		/// Gets the resolution entry at \a index.
-		const ResolutionEntry& entryAt(size_t index) const;
+        /// Gets the resolution entry at \a index.
+        const ResolutionEntry& entryAt(size_t index) const;
 
-		/// Calculates a unique hash for this statment.
-		Hash256 hash() const;
+        /// Calculates a unique hash for this statment.
+        Hash256 hash() const;
 
-	public:
-		/// Adds a resolution entry for resolving the unresolved value to \a resolved value at \a source.
-		void addResolution(const TResolved& resolved, const ReceiptSource& source);
+    public:
+        /// Adds a resolution entry for resolving the unresolved value to \a resolved value at \a source.
+        void addResolution(const TResolved& resolved, const ReceiptSource& source);
 
-	private:
-		// store compiler aligned struct in vector instead of packed struct in order to align all entries in vector on 8-byte boundaries
-		struct PaddedResolutionEntry : public ResolutionEntry {
-			uint64_t Reserved;
-		};
+    private:
+        // store compiler aligned struct in vector instead of packed struct in order to align all entries in vector on 8-byte boundaries
+        struct PaddedResolutionEntry : public ResolutionEntry {
+            uint64_t Reserved;
+        };
 
-	private:
-		TUnresolved m_unresolved;
-		std::vector<PaddedResolutionEntry> m_entries;
-	};
+    private:
+        TUnresolved m_unresolved;
+        std::vector<PaddedResolutionEntry> m_entries;
+    };
 
-	/// Address resolution statement.
-	using AddressResolutionStatement = ResolutionStatement<UnresolvedAddress, Address, Receipt_Type_Address_Alias_Resolution>;
-	extern template class ResolutionStatement<UnresolvedAddress, Address, Receipt_Type_Address_Alias_Resolution>;
+    /// Address resolution statement.
+    using AddressResolutionStatement = ResolutionStatement<UnresolvedAddress, Address, Receipt_Type_Address_Alias_Resolution>;
+    extern template class ResolutionStatement<UnresolvedAddress, Address, Receipt_Type_Address_Alias_Resolution>;
 
-	/// Mosaic resolution statement.
-	using MosaicResolutionStatement = ResolutionStatement<UnresolvedMosaicId, MosaicId, Receipt_Type_Mosaic_Alias_Resolution>;
-	extern template class ResolutionStatement<UnresolvedMosaicId, MosaicId, Receipt_Type_Mosaic_Alias_Resolution>;
-}}
+    /// Mosaic resolution statement.
+    using MosaicResolutionStatement = ResolutionStatement<UnresolvedMosaicId, MosaicId, Receipt_Type_Mosaic_Alias_Resolution>;
+    extern template class ResolutionStatement<UnresolvedMosaicId, MosaicId, Receipt_Type_Mosaic_Alias_Resolution>;
+}
+}

@@ -19,53 +19,57 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/HashLockInfoHistorySerializer.h"
 #include "plugins/txes/lock_shared/tests/state/LockInfoHistorySerializerTests.h"
-#include "tests/test/HashLockInfoCacheTestUtils.h"
+#include "src/state/HashLockInfoHistorySerializer.h"
 #include "tests/TestHarness.h"
+#include "tests/test/HashLockInfoCacheTestUtils.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS HashLockInfoHistorySerializerTests
 
-	namespace {
-		// region PackedHashLockInfo
+    namespace {
+        // region PackedHashLockInfo
 
 #pragma pack(push, 1)
 
-		struct PackedHashLockInfo : public PackedLockInfo {
-		public:
-			explicit PackedHashLockInfo(const HashLockInfo& hashLockInfo)
-					: PackedLockInfo(hashLockInfo)
-					, Hash(hashLockInfo.Hash) {
-			}
+        struct PackedHashLockInfo : public PackedLockInfo {
+        public:
+            explicit PackedHashLockInfo(const HashLockInfo& hashLockInfo)
+                : PackedLockInfo(hashLockInfo)
+                , Hash(hashLockInfo.Hash)
+            {
+            }
 
-		public:
-			Hash256 Hash;
-		};
+        public:
+            Hash256 Hash;
+        };
 
 #pragma pack(pop)
 
-		// endregion
+        // endregion
 
-		struct HashLockInfoTraits : public test::BasicHashLockInfoTestTraits {
-		public:
-			using HistoryType = HashLockInfoHistory;
-			using PackedValueType = PackedHashLockInfo;
+        struct HashLockInfoTraits : public test::BasicHashLockInfoTestTraits {
+        public:
+            using HistoryType = HashLockInfoHistory;
+            using PackedValueType = PackedHashLockInfo;
 
-			using SerializerType = HashLockInfoHistorySerializer;
-			using NonHistoricalSerializerType = HashLockInfoHistoryNonHistoricalSerializer;
+            using SerializerType = HashLockInfoHistorySerializer;
+            using NonHistoricalSerializerType = HashLockInfoHistoryNonHistoricalSerializer;
 
-		public:
-			static Hash256 SetEqualIdentifier(std::vector<HashLockInfo>& lockInfos) {
-				auto hash = test::GenerateRandomByteArray<Hash256>();
-				for (auto& lockInfo : lockInfos)
-					lockInfo.Hash = hash;
+        public:
+            static Hash256 SetEqualIdentifier(std::vector<HashLockInfo>& lockInfos)
+            {
+                auto hash = test::GenerateRandomByteArray<Hash256>();
+                for (auto& lockInfo : lockInfos)
+                    lockInfo.Hash = hash;
 
-				return hash;
-			}
-		};
-	}
+                return hash;
+            }
+        };
+    }
 
-	DEFINE_LOCK_INFO_HISTORY_SERIALIZER_TESTS(HashLockInfoTraits)
-}}
+    DEFINE_LOCK_INFO_HISTORY_SERIALIZER_TESTS(HashLockInfoTraits)
+}
+}

@@ -26,9 +26,9 @@
 #define STRINGIFY2(STR) #STR
 #define STRINGIFY(STR) STRINGIFY2(STR)
 
-#define CATAPULT_BASE_VERSION \
-	STRINGIFY(CATAPULT_VERSION_MAJOR) \
-	"." STRINGIFY(CATAPULT_VERSION_MINOR) "." STRINGIFY(CATAPULT_VERSION_REVISION) "." STRINGIFY(CATAPULT_VERSION_BUILD)
+#define CATAPULT_BASE_VERSION         \
+    STRINGIFY(CATAPULT_VERSION_MAJOR) \
+    "." STRINGIFY(CATAPULT_VERSION_MINOR) "." STRINGIFY(CATAPULT_VERSION_REVISION) "." STRINGIFY(CATAPULT_VERSION_BUILD)
 
 #ifdef CATAPULT_VERSION_DESCRIPTION
 #define CATAPULT_VERSION CATAPULT_BASE_VERSION " " CATAPULT_VERSION_DESCRIPTION
@@ -38,8 +38,10 @@
 
 #define CATAPULT_COPYRIGHT "Copyright (c) Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp."
 
-namespace catapult { namespace version {
+namespace catapult {
+namespace version {
 
-	/// Writes custom version information to \a out.
-	void WriteVersionInformation(std::ostream& out);
-}}
+    /// Writes custom version information to \a out.
+    void WriteVersionInformation(std::ostream& out);
+}
+}

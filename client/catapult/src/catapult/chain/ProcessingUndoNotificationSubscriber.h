@@ -23,28 +23,30 @@
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/observers/ObserverTypes.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Notification subscriber that captures notifications and allows them to be undone.
-	class ProcessingUndoNotificationSubscriber : public model::NotificationSubscriber {
-	public:
-		/// Creates a subscriber around \a observer and \a observerContext.
-		ProcessingUndoNotificationSubscriber(const observers::NotificationObserver& observer, observers::ObserverContext& observerContext);
+    /// Notification subscriber that captures notifications and allows them to be undone.
+    class ProcessingUndoNotificationSubscriber : public model::NotificationSubscriber {
+    public:
+        /// Creates a subscriber around \a observer and \a observerContext.
+        ProcessingUndoNotificationSubscriber(const observers::NotificationObserver& observer, observers::ObserverContext& observerContext);
 
-	public:
-		/// Undoes all executions.
-		void undo();
+    public:
+        /// Undoes all executions.
+        void undo();
 
-	public:
-		void notify(const model::Notification& notification) override;
+    public:
+        void notify(const model::Notification& notification) override;
 
-	private:
-		void observe(const model::Notification& notification);
+    private:
+        void observe(const model::Notification& notification);
 
-	private:
-		const observers::NotificationObserver& m_observer;
-		observers::ObserverContext& m_observerContext;
+    private:
+        const observers::NotificationObserver& m_observer;
+        observers::ObserverContext& m_observerContext;
 
-		std::vector<std::vector<uint8_t>> m_notificationBuffers;
-	};
-}}
+        std::vector<std::vector<uint8_t>> m_notificationBuffers;
+    };
+}
+}

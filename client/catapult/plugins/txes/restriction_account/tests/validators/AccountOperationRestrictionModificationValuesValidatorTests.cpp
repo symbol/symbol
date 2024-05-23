@@ -20,74 +20,82 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "tests/TestHarness.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS AccountOperationRestrictionModificationValuesValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionModificationValues, )
+    DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionModificationValues, )
 
-	namespace {
-		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
-			using NotificationType = model::ModifyAccountOperationRestrictionsNotification;
-		};
+    namespace {
+        struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
+            using NotificationType = model::ModifyAccountOperationRestrictionsNotification;
+        };
 
-		void AssertValidationResult(ValidationResult expectedResult, const std::vector<uint16_t>& rawValues) {
-			// Arrange:
-			std::vector<model::EntityType> entityTypeAdditions;
-			std::vector<model::EntityType> entityTypeDeletions;
-			for (auto rawValue : rawValues)
-				entityTypeAdditions.push_back(static_cast<model::EntityType>(rawValue));
+        void AssertValidationResult(ValidationResult expectedResult, const std::vector<uint16_t>& rawValues)
+        {
+            // Arrange:
+            std::vector<model::EntityType> entityTypeAdditions;
+            std::vector<model::EntityType> entityTypeDeletions;
+            for (auto rawValue : rawValues)
+                entityTypeAdditions.push_back(static_cast<model::EntityType>(rawValue));
 
-			auto notification = test::CreateAccountRestrictionsNotification<AccountOperationRestrictionTraits>(
-					test::GenerateRandomByteArray<Address>(),
-					entityTypeAdditions,
-					entityTypeDeletions);
-			auto pValidator = CreateAccountOperationRestrictionModificationValuesValidator();
+            auto notification = test::CreateAccountRestrictionsNotification<AccountOperationRestrictionTraits>(
+                test::GenerateRandomByteArray<Address>(),
+                entityTypeAdditions,
+                entityTypeDeletions);
+            auto pValidator = CreateAccountOperationRestrictionModificationValuesValidator();
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result);
+        }
+    }
 
-	// region failure
+    // region failure
 
-	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithSingleInvalidAccountRestrictionModificationValue) {
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x8000 });
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x2001 });
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x0049 });
-	}
+    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithSingleInvalidAccountRestrictionModificationValue)
+    {
+        AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x8000 });
+        AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x2001 });
+        AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x0049 });
+    }
 
-	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValidAndInvalidAccountRestrictionModificationValue) {
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x4000, 0x8000, 0x4149 });
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x2001, 0x4149, 0x4123 });
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x4149, 0x0000, 0x4100 });
-	}
+    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValidAndInvalidAccountRestrictionModificationValue)
+    {
+        AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x4000, 0x8000, 0x4149 });
+        AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x2001, 0x4149, 0x4123 });
+        AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x4149, 0x0000, 0x4100 });
+    }
 
-	// endregion
+    // endregion
 
-	// region success
+    // region success
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithNoAccountRestrictionModification) {
-		AssertValidationResult(ValidationResult::Success, {});
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithNoAccountRestrictionModification)
+    {
+        AssertValidationResult(ValidationResult::Success, {});
+    }
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithSingleValidAccountRestrictionModificationValue) {
-		AssertValidationResult(ValidationResult::Success, { 0x4000 });
-		AssertValidationResult(ValidationResult::Success, { 0x4001 });
-		AssertValidationResult(ValidationResult::Success, { 0x4149 });
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithSingleValidAccountRestrictionModificationValue)
+    {
+        AssertValidationResult(ValidationResult::Success, { 0x4000 });
+        AssertValidationResult(ValidationResult::Success, { 0x4001 });
+        AssertValidationResult(ValidationResult::Success, { 0x4149 });
+    }
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMultipleValidAccountRestrictionModificationValues) {
-		AssertValidationResult(ValidationResult::Success, { 0x4000, 0x4001, 0x4149 });
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMultipleValidAccountRestrictionModificationValues)
+    {
+        AssertValidationResult(ValidationResult::Success, { 0x4000, 0x4001, 0x4149 });
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

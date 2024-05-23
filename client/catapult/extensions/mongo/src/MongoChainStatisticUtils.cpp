@@ -25,20 +25,24 @@
 
 using namespace bsoncxx::builder::stream;
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	BulkWriteResult TrySetChainStatisticDocument(mongocxx::database& database, const bsoncxx::document::view& upsertDoc) {
-		auto collection = database["chainStatistic"];
-		auto result = collection.update_one({}, upsertDoc, mongocxx::options::update().upsert(true)).value().result();
-		return BulkWriteResult(result);
-	}
+    BulkWriteResult TrySetChainStatisticDocument(mongocxx::database& database, const bsoncxx::document::view& upsertDoc)
+    {
+        auto collection = database["chainStatistic"];
+        auto result = collection.update_one({}, upsertDoc, mongocxx::options::update().upsert(true)).value().result();
+        return BulkWriteResult(result);
+    }
 
-	bsoncxx::document::value GetChainStatisticDocument(const mongocxx::database& database) {
-		auto collection = database["chainStatistic"];
-		auto matchedDocument = collection.find_one({});
-		if (matchedDocument.has_value())
-			return matchedDocument.value();
+    bsoncxx::document::value GetChainStatisticDocument(const mongocxx::database& database)
+    {
+        auto collection = database["chainStatistic"];
+        auto matchedDocument = collection.find_one({});
+        if (matchedDocument.has_value())
+            return matchedDocument.value();
 
-		return bsoncxx::document::value(nullptr, 0, [](auto*) {});
-	}
-}}
+        return bsoncxx::document::value(nullptr, 0, [](auto*) {});
+    }
+}
+}

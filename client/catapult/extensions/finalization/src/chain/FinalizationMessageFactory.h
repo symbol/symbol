@@ -20,51 +20,54 @@
 **/
 
 #pragma once
-#include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/model/FinalizationRound.h"
+#include "finalization/src/model/FinalizationMessage.h"
 #include <memory>
 
 namespace catapult {
 namespace crypto {
-	class AggregateBmPrivateKeyTree;
+    class AggregateBmPrivateKeyTree;
 }
 namespace finalization {
-	struct FinalizationConfiguration;
+    struct FinalizationConfiguration;
 }
 namespace io {
-	class BlockStorageCache;
-	class BlockStorageView;
-	struct PrevoteChainDescriptor;
-	class ProofStorageCache;
+    class BlockStorageCache;
+    class BlockStorageView;
+    struct PrevoteChainDescriptor;
+    class ProofStorageCache;
 }
 }
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Consumer that's passed a block storage and a prevote chain descriptor.
-	using PrevoteChainDescriptorConsumer = consumer<const io::BlockStorageView&, const io::PrevoteChainDescriptor&>;
+    /// Consumer that's passed a block storage and a prevote chain descriptor.
+    using PrevoteChainDescriptorConsumer = consumer<const io::BlockStorageView&, const io::PrevoteChainDescriptor&>;
 
-	/// Factory for creating finalization messages.
-	class FinalizationMessageFactory {
-	public:
-		virtual ~FinalizationMessageFactory() = default;
+    /// Factory for creating finalization messages.
+    class FinalizationMessageFactory {
+    public:
+        virtual ~FinalizationMessageFactory() = default;
 
-	public:
-		/// Creates a prevote message for the specified \a round.
-		virtual std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) = 0;
+    public:
+        /// Creates a prevote message for the specified \a round.
+        virtual std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) = 0;
 
-		/// Creates a precommit message for the specified \a round, \a height and \a hash.
-		virtual std::unique_ptr<model::FinalizationMessage> createPrecommit(
-				const model::FinalizationRound& round,
-				Height height,
-				const Hash256& hash) = 0;
-	};
+        /// Creates a precommit message for the specified \a round, \a height and \a hash.
+        virtual std::unique_ptr<model::FinalizationMessage> createPrecommit(
+            const model::FinalizationRound& round,
+            Height height,
+            const Hash256& hash)
+            = 0;
+    };
 
-	/// Creates a factory around \a config, \a blockStorage, \a proofStorage, \a prevoteChainDescriptorConsumer and \a bmPrivateKeyTree.
-	std::unique_ptr<FinalizationMessageFactory> CreateFinalizationMessageFactory(
-			const finalization::FinalizationConfiguration& config,
-			const io::BlockStorageCache& blockStorage,
-			const io::ProofStorageCache& proofStorage,
-			const PrevoteChainDescriptorConsumer& prevoteChainDescriptorConsumer,
-			crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree);
-}}
+    /// Creates a factory around \a config, \a blockStorage, \a proofStorage, \a prevoteChainDescriptorConsumer and \a bmPrivateKeyTree.
+    std::unique_ptr<FinalizationMessageFactory> CreateFinalizationMessageFactory(
+        const finalization::FinalizationConfiguration& config,
+        const io::BlockStorageCache& blockStorage,
+        const io::ProofStorageCache& proofStorage,
+        const PrevoteChainDescriptorConsumer& prevoteChainDescriptorConsumer,
+        crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree);
+}
+}

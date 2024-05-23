@@ -29,46 +29,48 @@
 #include "catapult/model/BlockchainConfiguration.h"
 #include <filesystem>
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Comprehensive configuration for a catapult process.
-	class CatapultConfiguration {
-	public:
-		/// Creates a catapult configuration around \a blockchainConfig, \a nodeConfig, \a loggingConfig, \a userConfig,
-		/// \a extensionsConfig and \a inflationConfig.
-		CatapultConfiguration(
-				model::BlockchainConfiguration&& blockchainConfig,
-				NodeConfiguration&& nodeConfig,
-				LoggingConfiguration&& loggingConfig,
-				UserConfiguration&& userConfig,
-				ExtensionsConfiguration&& extensionsConfig,
-				InflationConfiguration&& inflationConfig);
+    /// Comprehensive configuration for a catapult process.
+    class CatapultConfiguration {
+    public:
+        /// Creates a catapult configuration around \a blockchainConfig, \a nodeConfig, \a loggingConfig, \a userConfig,
+        /// \a extensionsConfig and \a inflationConfig.
+        CatapultConfiguration(
+            model::BlockchainConfiguration&& blockchainConfig,
+            NodeConfiguration&& nodeConfig,
+            LoggingConfiguration&& loggingConfig,
+            UserConfiguration&& userConfig,
+            ExtensionsConfiguration&& extensionsConfig,
+            InflationConfiguration&& inflationConfig);
 
-	public:
-		/// Blockchain configuration.
-		const model::BlockchainConfiguration Blockchain;
+    public:
+        /// Blockchain configuration.
+        const model::BlockchainConfiguration Blockchain;
 
-		/// Node configuration.
-		const NodeConfiguration Node;
+        /// Node configuration.
+        const NodeConfiguration Node;
 
-		/// Logging configuration.
-		const LoggingConfiguration Logging;
+        /// Logging configuration.
+        const LoggingConfiguration Logging;
 
-		/// User configuration.
-		const UserConfiguration User;
+        /// User configuration.
+        const UserConfiguration User;
 
-		/// Extensions configuration.
-		const ExtensionsConfiguration Extensions;
+        /// Extensions configuration.
+        const ExtensionsConfiguration Extensions;
 
-		/// Inflation configuration.
-		const InflationConfiguration Inflation;
+        /// Inflation configuration.
+        const InflationConfiguration Inflation;
 
-	public:
-		/// Loads a catapult configuration from \a resourcesPath given the specified extensions host (\a extensionsHost).
-		/// \note This function is expected to be called be before logging is enabled.
-		static CatapultConfiguration LoadFromPath(const std::filesystem::path& resourcesPath, const std::string& extensionsHost);
-	};
+    public:
+        /// Loads a catapult configuration from \a resourcesPath given the specified extensions host (\a extensionsHost).
+        /// \note This function is expected to be called be before logging is enabled.
+        static CatapultConfiguration LoadFromPath(const std::filesystem::path& resourcesPath, const std::string& extensionsHost);
+    };
 
-	/// Extracts a node representing the local node from \a config.
-	ionet::Node ToLocalNode(const CatapultConfiguration& config);
-}}
+    /// Extracts a node representing the local node from \a config.
+    ionet::Node ToLocalNode(const CatapultConfiguration& config);
+}
+}

@@ -24,42 +24,44 @@
 #include "catapult/model/EntityRange.h"
 #include "catapult/model/HeightHashPair.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// Fixed size value storage.
-	template<typename TKey, typename TValue>
-	class FixedSizeValueStorage final {
-	public:
-		/// Creates storage under \a dataDirectory using \a prefix.
-		FixedSizeValueStorage(const std::string& dataDirectory, const std::string& prefix);
+    /// Fixed size value storage.
+    template <typename TKey, typename TValue>
+    class FixedSizeValueStorage final {
+    public:
+        /// Creates storage under \a dataDirectory using \a prefix.
+        FixedSizeValueStorage(const std::string& dataDirectory, const std::string& prefix);
 
-		/// Destroys storage.
-		~FixedSizeValueStorage() = default;
+        /// Destroys storage.
+        ~FixedSizeValueStorage() = default;
 
-	public:
-		/// Loads \a numValues values starting at \a key.
-		model::EntityRange<TValue> loadRangeFrom(TKey key, size_t numValues) const;
+    public:
+        /// Loads \a numValues values starting at \a key.
+        model::EntityRange<TValue> loadRangeFrom(TKey key, size_t numValues) const;
 
-		/// Saves \a value at \a key.
-		/// \note Expects ascending keys.
-		void save(TKey key, const TValue& value);
+        /// Saves \a value at \a key.
+        /// \note Expects ascending keys.
+        void save(TKey key, const TValue& value);
 
-		/// Closes cached file.
-		void reset();
+        /// Closes cached file.
+        void reset();
 
-	private:
-		std::unique_ptr<RawFile> openStorageFile(TKey key, OpenMode openMode) const;
-		void seekStorageFile(RawFile& rawFile, TKey key) const;
+    private:
+        std::unique_ptr<RawFile> openStorageFile(TKey key, OpenMode openMode) const;
+        void seekStorageFile(RawFile& rawFile, TKey key) const;
 
-	private:
-		std::string m_dataDirectory;
-		std::string m_prefix;
+    private:
+        std::string m_dataDirectory;
+        std::string m_prefix;
 
-		// used for caching inside save()
-		uint64_t m_cachedDirectoryId;
-		std::unique_ptr<RawFile> m_pCachedStorageFile;
-	};
+        // used for caching inside save()
+        uint64_t m_cachedDirectoryId;
+        std::unique_ptr<RawFile> m_pCachedStorageFile;
+    };
 
-	using HashFile = FixedSizeValueStorage<Height, Hash256>;
-	extern template class FixedSizeValueStorage<Height, Hash256>;
-}}
+    using HashFile = FixedSizeValueStorage<Height, Hash256>;
+    extern template class FixedSizeValueStorage<Height, Hash256>;
+}
+}

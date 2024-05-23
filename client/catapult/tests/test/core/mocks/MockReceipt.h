@@ -22,20 +22,22 @@
 #pragma once
 #include "catapult/model/Receipt.h"
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
 #pragma pack(push, 1)
 
-	/// Mock receipt.
-	struct MockReceipt : public model::Receipt {
-	public:
-		/// Receipt type.
-		static constexpr auto Receipt_Type = static_cast<model::ReceiptType>(0xFFFF);
+    /// Mock receipt.
+    struct MockReceipt : public model::Receipt {
+    public:
+        /// Receipt type.
+        static constexpr auto Receipt_Type = static_cast<model::ReceiptType>(0xFFFF);
 
-	public:
-		/// Binary data payload.
-		std::array<uint8_t, 11> Payload;
-	};
+    public:
+        /// Binary data payload.
+        std::array<uint8_t, 11> Payload;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

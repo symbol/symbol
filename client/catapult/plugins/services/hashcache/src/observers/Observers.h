@@ -23,8 +23,11 @@
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Observes transaction hashes.
-	DECLARE_OBSERVER(TransactionHash, model::TransactionNotification)();
-}}
+    /// Observes transaction hashes.
+    DECLARE_OBSERVER(TransactionHash, model::TransactionNotification)
+    ();
+}
+}

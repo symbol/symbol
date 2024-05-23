@@ -21,38 +21,47 @@
 
 #include "MosaicAddressRestriction.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	MosaicAddressRestriction::MosaicAddressRestriction(MosaicId mosaicId, Address address)
-			: m_mosaicId(mosaicId)
-			, m_address(address) {
-	}
+    MosaicAddressRestriction::MosaicAddressRestriction(MosaicId mosaicId, Address address)
+        : m_mosaicId(mosaicId)
+        , m_address(address)
+    {
+    }
 
-	MosaicId MosaicAddressRestriction::mosaicId() const {
-		return m_mosaicId;
-	}
+    MosaicId MosaicAddressRestriction::mosaicId() const
+    {
+        return m_mosaicId;
+    }
 
-	Address MosaicAddressRestriction::address() const {
-		return m_address;
-	}
+    Address MosaicAddressRestriction::address() const
+    {
+        return m_address;
+    }
 
-	size_t MosaicAddressRestriction::size() const {
-		return m_keyValuePairs.size();
-	}
+    size_t MosaicAddressRestriction::size() const
+    {
+        return m_keyValuePairs.size();
+    }
 
-	std::set<uint64_t> MosaicAddressRestriction::keys() const {
-		return m_keyValuePairs.keys();
-	}
+    std::set<uint64_t> MosaicAddressRestriction::keys() const
+    {
+        return m_keyValuePairs.keys();
+    }
 
-	uint64_t MosaicAddressRestriction::get(uint64_t key) const {
-		uint64_t value;
-		return m_keyValuePairs.tryGet(key, value) ? value : Sentinel_Removal_Value;
-	}
+    uint64_t MosaicAddressRestriction::get(uint64_t key) const
+    {
+        uint64_t value;
+        return m_keyValuePairs.tryGet(key, value) ? value : Sentinel_Removal_Value;
+    }
 
-	void MosaicAddressRestriction::set(uint64_t key, uint64_t value) {
-		if (Sentinel_Removal_Value == value)
-			m_keyValuePairs.remove(key);
-		else
-			m_keyValuePairs.set(key, value);
-	}
-}}
+    void MosaicAddressRestriction::set(uint64_t key, uint64_t value)
+    {
+        if (Sentinel_Removal_Value == value)
+            m_keyValuePairs.remove(key);
+        else
+            m_keyValuePairs.set(key, value);
+    }
+}
+}

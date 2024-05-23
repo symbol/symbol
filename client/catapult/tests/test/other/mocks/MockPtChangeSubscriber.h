@@ -24,60 +24,68 @@
 #include "catapult/model/Cosignature.h"
 #include "tests/test/cache/AggregateTransactionsCacheTestUtils.h"
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	/// Mock partial transactions change subscriber flush params.
-	struct PtFlushInfo {
-	public:
-		/// Number of added partial transaction infos.
-		size_t NumAdds;
+    /// Mock partial transactions change subscriber flush params.
+    struct PtFlushInfo {
+    public:
+        /// Number of added partial transaction infos.
+        size_t NumAdds;
 
-		/// Number of added cosignatures.
-		size_t NumCosignatureAdds;
+        /// Number of added cosignatures.
+        size_t NumCosignatureAdds;
 
-		/// Number of removed partial transaction infos.
-		size_t NumRemoves;
+        /// Number of removed partial transaction infos.
+        size_t NumRemoves;
 
-	public:
-		/// Returns \c true if this flush info is equal to \a rhs.
-		constexpr bool operator==(const PtFlushInfo& rhs) const {
-			return NumAdds == rhs.NumAdds && NumCosignatureAdds == rhs.NumCosignatureAdds && NumRemoves == rhs.NumRemoves;
-		}
-	};
+    public:
+        /// Returns \c true if this flush info is equal to \a rhs.
+        constexpr bool operator==(const PtFlushInfo& rhs) const
+        {
+            return NumAdds == rhs.NumAdds && NumCosignatureAdds == rhs.NumCosignatureAdds && NumRemoves == rhs.NumRemoves;
+        }
+    };
 
-	/// Mock partial transactions change subscriber.
-	class MockPtChangeSubscriber : public test::MockTransactionsChangeSubscriber<cache::PtChangeSubscriber, PtFlushInfo> {
-	private:
-		using CosignatureInfo = std::pair<std::unique_ptr<const model::TransactionInfo>, model::Cosignature>;
+    /// Mock partial transactions change subscriber.
+    class MockPtChangeSubscriber : public test::MockTransactionsChangeSubscriber<cache::PtChangeSubscriber, PtFlushInfo> {
+    private:
+        using CosignatureInfo = std::pair<std::unique_ptr<const model::TransactionInfo>, model::Cosignature>;
 
-	public:
-		/// Gets the added cosignatures.
-		const std::vector<CosignatureInfo>& addedCosignatureInfos() const {
-			return m_addedCosignatureInfos;
-		}
+    public:
+        /// Gets the added cosignatures.
+        const std::vector<CosignatureInfo>& addedCosignatureInfos() const
+        {
+            return m_addedCosignatureInfos;
+        }
 
-	public:
-		void notifyAddPartials(const TransactionInfos& transactionInfos) override {
-			for (const auto& transactionInfo : transactionInfos)
-				m_addedInfos.push_back(transactionInfo.copy());
-		}
+    public:
+        void notifyAddPartials(const TransactionInfos& transactionInfos) override
+        {
+            for (const auto& transactionInfo : transactionInfos)
+                m_addedInfos.push_back(transactionInfo.copy());
+        }
 
-		void notifyRemovePartials(const TransactionInfos& transactionInfos) override {
-			for (const auto& transactionInfo : transactionInfos)
-				m_removedInfos.push_back(transactionInfo.copy());
-		}
+        void notifyRemovePartials(const TransactionInfos& transactionInfos) override
+        {
+            for (const auto& transactionInfo : transactionInfos)
+                m_removedInfos.push_back(transactionInfo.copy());
+        }
 
-	public:
-		void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override {
-			m_addedCosignatureInfos.emplace_back(std::make_unique<model::TransactionInfo>(parentTransactionInfo.copy()), cosignature);
-		}
+    public:
+        void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override
+        {
+            m_addedCosignatureInfos.emplace_back(std::make_unique<model::TransactionInfo>(parentTransactionInfo.copy()), cosignature);
+        }
 
-	private:
-		PtFlushInfo createFlushInfo() const override {
-			return { m_addedInfos.size(), m_addedCosignatureInfos.size(), m_removedInfos.size() };
-		}
+    private:
+        PtFlushInfo createFlushInfo() const override
+        {
+            return { m_addedInfos.size(), m_addedCosignatureInfos.size(), m_removedInfos.size() };
+        }
 
-	private:
-		std::vector<CosignatureInfo> m_addedCosignatureInfos;
-	};
-}}
+    private:
+        std::vector<CosignatureInfo> m_addedCosignatureInfos;
+    };
+}
+}

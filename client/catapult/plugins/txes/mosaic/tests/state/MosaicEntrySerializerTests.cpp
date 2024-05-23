@@ -20,103 +20,109 @@
 **/
 
 #include "src/state/MosaicEntrySerializer.h"
+#include "tests/TestHarness.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS MosaicEntrySerializerTests
 
-	// region headers
+    // region headers
 
 #pragma pack(push, 1)
 
-	namespace {
-		struct MosaicEntryHeader {
-			catapult::MosaicId MosaicId;
-			Amount Supply;
-			catapult::Height Height;
-			Address Owner;
-			uint32_t Revision;
-			model::MosaicFlags Flags;
-			uint8_t Divisibility;
-			BlockDuration Duration;
-		};
-	}
+    namespace {
+        struct MosaicEntryHeader {
+            catapult::MosaicId MosaicId;
+            Amount Supply;
+            catapult::Height Height;
+            Address Owner;
+            uint32_t Revision;
+            model::MosaicFlags Flags;
+            uint8_t Divisibility;
+            BlockDuration Duration;
+        };
+    }
 
 #pragma pack(pop)
 
-	// endregion
+    // endregion
 
-	// region Save
+    // region Save
 
-	namespace {
-		model::MosaicProperties CreateMosaicProperties(uint64_t seed) {
-			return model::MosaicProperties(static_cast<model::MosaicFlags>(seed), static_cast<uint8_t>(seed + 1), BlockDuration(seed + 4));
-		}
+    namespace {
+        model::MosaicProperties CreateMosaicProperties(uint64_t seed)
+        {
+            return model::MosaicProperties(static_cast<model::MosaicFlags>(seed), static_cast<uint8_t>(seed + 1), BlockDuration(seed + 4));
+        }
 
-		void AssertEntryHeader(
-				const std::vector<uint8_t>& buffer,
-				MosaicId mosaicId,
-				Amount supply,
-				Height height,
-				const Address& owner,
-				uint32_t revision,
-				uint64_t propertiesSeed) {
-			auto message = "entry header at 0";
-			const auto& entryHeader = reinterpret_cast<const MosaicEntryHeader&>(buffer[0]);
+        void AssertEntryHeader(
+            const std::vector<uint8_t>& buffer,
+            MosaicId mosaicId,
+            Amount supply,
+            Height height,
+            const Address& owner,
+            uint32_t revision,
+            uint64_t propertiesSeed)
+        {
+            auto message = "entry header at 0";
+            const auto& entryHeader = reinterpret_cast<const MosaicEntryHeader&>(buffer[0]);
 
-			// - id and supply
-			EXPECT_EQ(mosaicId, entryHeader.MosaicId) << message;
-			EXPECT_EQ(supply, entryHeader.Supply) << message;
+            // - id and supply
+            EXPECT_EQ(mosaicId, entryHeader.MosaicId) << message;
+            EXPECT_EQ(supply, entryHeader.Supply) << message;
 
-			// - definition
-			EXPECT_EQ(height, entryHeader.Height) << message;
-			EXPECT_EQ(owner, entryHeader.Owner) << message;
-			EXPECT_EQ(revision, entryHeader.Revision) << message;
+            // - definition
+            EXPECT_EQ(height, entryHeader.Height) << message;
+            EXPECT_EQ(owner, entryHeader.Owner) << message;
+            EXPECT_EQ(revision, entryHeader.Revision) << message;
 
-			// - properties
-			EXPECT_EQ(static_cast<model::MosaicFlags>(propertiesSeed), entryHeader.Flags);
-			EXPECT_EQ(static_cast<uint8_t>(propertiesSeed + 1), entryHeader.Divisibility);
-			EXPECT_EQ(BlockDuration(propertiesSeed + 4), entryHeader.Duration);
-		}
-	}
+            // - properties
+            EXPECT_EQ(static_cast<model::MosaicFlags>(propertiesSeed), entryHeader.Flags);
+            EXPECT_EQ(static_cast<uint8_t>(propertiesSeed + 1), entryHeader.Divisibility);
+            EXPECT_EQ(BlockDuration(propertiesSeed + 4), entryHeader.Duration);
+        }
+    }
 
-	TEST(TEST_CLASS, CanSaveEntry) {
-		// Arrange:
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream(buffer);
+    TEST(TEST_CLASS, CanSaveEntry)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer;
+        mocks::MockMemoryStream stream(buffer);
 
-		auto definition = MosaicDefinition(Height(888), test::CreateRandomOwner(), 5, CreateMosaicProperties(17));
-		auto entry = MosaicEntry(MosaicId(123), definition);
-		entry.increaseSupply(Amount(111));
+        auto definition = MosaicDefinition(Height(888), test::CreateRandomOwner(), 5, CreateMosaicProperties(17));
+        auto entry = MosaicEntry(MosaicId(123), definition);
+        entry.increaseSupply(Amount(111));
 
-		// Act:
-		MosaicEntrySerializer::Save(entry, stream);
+        // Act:
+        MosaicEntrySerializer::Save(entry, stream);
 
-		// Assert:
-		ASSERT_EQ(sizeof(MosaicEntryHeader), buffer.size());
-		AssertEntryHeader(buffer, MosaicId(123), Amount(111), Height(888), definition.ownerAddress(), 5, 17);
-	}
+        // Assert:
+        ASSERT_EQ(sizeof(MosaicEntryHeader), buffer.size());
+        AssertEntryHeader(buffer, MosaicId(123), Amount(111), Height(888), definition.ownerAddress(), 5, 17);
+    }
 
-	// endregion
+    // endregion
 
-	// region Roundtrip
+    // region Roundtrip
 
-	TEST(TEST_CLASS, CanRoundtripEntry) {
-		// Arrange:
-		auto definition = MosaicDefinition(Height(888), test::CreateRandomOwner(), 5, CreateMosaicProperties(17));
-		auto originalEntry = MosaicEntry(MosaicId(123), definition);
-		originalEntry.increaseSupply(Amount(111));
+    TEST(TEST_CLASS, CanRoundtripEntry)
+    {
+        // Arrange:
+        auto definition = MosaicDefinition(Height(888), test::CreateRandomOwner(), 5, CreateMosaicProperties(17));
+        auto originalEntry = MosaicEntry(MosaicId(123), definition);
+        originalEntry.increaseSupply(Amount(111));
 
-		// Act:
-		auto result = test::RunRoundtripBufferTest<MosaicEntrySerializer>(originalEntry);
+        // Act:
+        auto result = test::RunRoundtripBufferTest<MosaicEntrySerializer>(originalEntry);
 
-		// Assert:
-		test::AssertEqual(originalEntry, result);
-	}
+        // Assert:
+        test::AssertEqual(originalEntry, result);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

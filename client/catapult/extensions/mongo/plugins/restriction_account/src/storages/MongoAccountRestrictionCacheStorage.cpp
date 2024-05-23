@@ -20,28 +20,34 @@
 **/
 
 #include "MongoAccountRestrictionCacheStorage.h"
-#include "src/mappers/AccountRestrictionsMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/restriction_account/src/cache/AccountRestrictionCache.h"
+#include "src/mappers/AccountRestrictionsMapper.h"
 
 using namespace bsoncxx::builder::stream;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct AccountRestrictionCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::AccountRestrictionCacheDescriptor> {
-			static constexpr auto Collection_Name = "accountRestrictions";
-			static constexpr auto Id_Property_Name = "accountRestrictions.address";
+        namespace {
+            struct AccountRestrictionCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::AccountRestrictionCacheDescriptor> {
+                static constexpr auto Collection_Name = "accountRestrictions";
+                static constexpr auto Id_Property_Name = "accountRestrictions.address";
 
-			static auto MapToMongoId(const KeyType& key) {
-				return mappers::ToBinary(key);
-			}
+                static auto MapToMongoId(const KeyType& key)
+                {
+                    return mappers::ToBinary(key);
+                }
 
-			static auto MapToMongoDocument(const ModelType& restrictions, model::NetworkIdentifier) {
-				return plugins::ToDbModel(restrictions);
-			}
-		};
-	}
+                static auto MapToMongoDocument(const ModelType& restrictions, model::NetworkIdentifier)
+                {
+                    return plugins::ToDbModel(restrictions);
+                }
+            };
+        }
 
-	DEFINE_MONGO_FLAT_CACHE_STORAGE(AccountRestriction, AccountRestrictionCacheTraits)
-}}}
+        DEFINE_MONGO_FLAT_CACHE_STORAGE(AccountRestriction, AccountRestrictionCacheTraits)
+    }
+}
+}

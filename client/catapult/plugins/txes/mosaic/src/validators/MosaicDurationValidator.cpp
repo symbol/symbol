@@ -20,41 +20,45 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/MosaicCache.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/MosaicCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::MosaicDefinitionNotification;
+    using Notification = model::MosaicDefinitionNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(MosaicDuration, Notification)(BlockDuration maxMosaicDuration) {
-		return MAKE_STATEFUL_VALIDATOR(
-				MosaicDuration,
-				[maxMosaicDuration](const Notification& notification, const ValidatorContext& context) {
-					// skip this validator is there is no duration change
-					if (BlockDuration() == notification.Properties.duration())
-						return ValidationResult::Success;
+    DECLARE_STATEFUL_VALIDATOR(MosaicDuration, Notification)
+    (BlockDuration maxMosaicDuration)
+    {
+        return MAKE_STATEFUL_VALIDATOR(
+            MosaicDuration,
+            [maxMosaicDuration](const Notification& notification, const ValidatorContext& context) {
+                // skip this validator is there is no duration change
+                if (BlockDuration() == notification.Properties.duration())
+                    return ValidationResult::Success;
 
-					// as an optimization, since duration is additive, check notification before checking cache
-					if (maxMosaicDuration < notification.Properties.duration())
-						return Failure_Mosaic_Invalid_Duration;
+                // as an optimization, since duration is additive, check notification before checking cache
+                if (maxMosaicDuration < notification.Properties.duration())
+                    return Failure_Mosaic_Invalid_Duration;
 
-					// allow a new mosaic because checks above passed
-					const auto& cache = context.Cache.sub<cache::MosaicCache>();
-					auto mosaicIter = cache.find(notification.MosaicId);
-					if (!mosaicIter.tryGet())
-						return ValidationResult::Success;
+                // allow a new mosaic because checks above passed
+                const auto& cache = context.Cache.sub<cache::MosaicCache>();
+                auto mosaicIter = cache.find(notification.MosaicId);
+                if (!mosaicIter.tryGet())
+                    return ValidationResult::Success;
 
-					const auto& mosaicEntry = mosaicIter.get();
-					auto currentDuration = mosaicEntry.definition().properties().duration();
+                const auto& mosaicEntry = mosaicIter.get();
+                auto currentDuration = mosaicEntry.definition().properties().duration();
 
-					// cannot change eternal durations
-					if (BlockDuration() == currentDuration)
-						return Failure_Mosaic_Invalid_Duration;
+                // cannot change eternal durations
+                if (BlockDuration() == currentDuration)
+                    return Failure_Mosaic_Invalid_Duration;
 
-					auto resultingDuration = currentDuration + notification.Properties.duration();
-					return maxMosaicDuration < resultingDuration || resultingDuration < currentDuration ? Failure_Mosaic_Invalid_Duration
-																										: ValidationResult::Success;
-				});
-	}
-}}
+                auto resultingDuration = currentDuration + notification.Properties.duration();
+                return maxMosaicDuration < resultingDuration || resultingDuration < currentDuration ? Failure_Mosaic_Invalid_Duration
+                                                                                                    : ValidationResult::Success;
+            });
+    }
+}
+}

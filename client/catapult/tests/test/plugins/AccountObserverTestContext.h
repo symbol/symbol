@@ -23,35 +23,41 @@
 #include "ObserverTestContext.h"
 #include "catapult/cache_core/AccountStateCache.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Observer test context that wraps an observer context and exposes functions for interacting with the account state cache.
-	class AccountObserverTestContext : public test::ObserverTestContext {
-	public:
-		using ObserverTestContext::ObserverTestContext;
+    /// Observer test context that wraps an observer context and exposes functions for interacting with the account state cache.
+    class AccountObserverTestContext : public test::ObserverTestContext {
+    public:
+        using ObserverTestContext::ObserverTestContext;
 
-	public:
-		/// Finds the account identified by \a address.
-		const state::AccountState* find(const Address& address) const {
-			return cache().sub<cache::AccountStateCache>().find(address).tryGet();
-		}
+    public:
+        /// Finds the account identified by \a address.
+        const state::AccountState* find(const Address& address) const
+        {
+            return cache().sub<cache::AccountStateCache>().find(address).tryGet();
+        }
 
-		/// Finds the account identified by \a publicKey.
-		const state::AccountState* find(const Key& publicKey) const {
-			return cache().sub<cache::AccountStateCache>().find(publicKey).tryGet();
-		}
+        /// Finds the account identified by \a publicKey.
+        const state::AccountState* find(const Key& publicKey) const
+        {
+            return cache().sub<cache::AccountStateCache>().find(publicKey).tryGet();
+        }
 
-	private:
-		state::AccountState& addAccount(const Address& address) {
-			auto& accountStateCache = cache().sub<cache::AccountStateCache>();
-			accountStateCache.addAccount(address, Height(1234));
-			return accountStateCache.find(address).get();
-		}
+    private:
+        state::AccountState& addAccount(const Address& address)
+        {
+            auto& accountStateCache = cache().sub<cache::AccountStateCache>();
+            accountStateCache.addAccount(address, Height(1234));
+            return accountStateCache.find(address).get();
+        }
 
-		state::AccountState& addAccount(const Key& publicKey) {
-			auto& accountStateCache = cache().sub<cache::AccountStateCache>();
-			accountStateCache.addAccount(publicKey, Height(1));
-			return accountStateCache.find(publicKey).get();
-		}
-	};
-}}
+        state::AccountState& addAccount(const Key& publicKey)
+        {
+            auto& accountStateCache = cache().sub<cache::AccountStateCache>();
+            accountStateCache.addAccount(publicKey, Height(1));
+            return accountStateCache.find(publicKey).get();
+        }
+    };
+}
+}

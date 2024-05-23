@@ -23,38 +23,44 @@
 #include <list>
 #include <thread>
 
-namespace catapult { namespace thread {
+namespace catapult {
+namespace thread {
 
-	/// Container of multiple threads based on boost thread_group.
-	class ThreadGroup {
-	public:
-		/// Destroys this thread group.
-		~ThreadGroup() {
-			join();
-		}
+    /// Container of multiple threads based on boost thread_group.
+    class ThreadGroup {
+    public:
+        /// Destroys this thread group.
+        ~ThreadGroup()
+        {
+            join();
+        }
 
-	public:
-		/// Gets the number of threads.
-		size_t size() const {
-			return m_threads.size();
-		}
+    public:
+        /// Gets the number of threads.
+        size_t size() const
+        {
+            return m_threads.size();
+        }
 
-	public:
-		/// Spawns a new thread around \a func.
-		template<typename TFunction>
-		void spawn(TFunction func) {
-			m_threads.emplace_back(func);
-		}
+    public:
+        /// Spawns a new thread around \a func.
+        template <typename TFunction>
+        void spawn(TFunction func)
+        {
+            m_threads.emplace_back(func);
+        }
 
-		/// Waits for all threads to complete.
-		void join() {
-			for (auto& thread : m_threads) {
-				if (thread.joinable())
-					thread.join();
-			}
-		}
+        /// Waits for all threads to complete.
+        void join()
+        {
+            for (auto& thread : m_threads) {
+                if (thread.joinable())
+                    thread.join();
+            }
+        }
 
-	private:
-		std::list<std::thread> m_threads;
-	};
-}}
+    private:
+        std::list<std::thread> m_threads;
+    };
+}
+}

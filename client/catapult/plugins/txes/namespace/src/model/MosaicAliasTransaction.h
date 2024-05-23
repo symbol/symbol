@@ -22,40 +22,43 @@
 #pragma once
 #include "NamespaceEntityType.h"
 #include "NamespaceTypes.h"
-#include "plugins/txes/namespace/src/types.h"
 #include "catapult/model/Transaction.h"
+#include "plugins/txes/namespace/src/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a mosaic alias transaction body.
-	template<typename THeader>
-	struct MosaicAliasTransactionBody : public THeader {
-	private:
-		using TransactionType = MosaicAliasTransactionBody<THeader>;
+    /// Binary layout for a mosaic alias transaction body.
+    template <typename THeader>
+    struct MosaicAliasTransactionBody : public THeader {
+    private:
+        using TransactionType = MosaicAliasTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Alias_Mosaic, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Alias_Mosaic, 1)
 
-	public:
-		/// Identifier of the namespace that will become an alias.
-		catapult::NamespaceId NamespaceId;
+    public:
+        /// Identifier of the namespace that will become an alias.
+        catapult::NamespaceId NamespaceId;
 
-		/// Aliased mosaic identifier.
-		catapult::MosaicId MosaicId;
+        /// Aliased mosaic identifier.
+        catapult::MosaicId MosaicId;
 
-		/// Alias action.
-		model::AliasAction AliasAction;
+        /// Alias action.
+        model::AliasAction AliasAction;
 
-	public:
-		/// Calculates the real size of mosaic alias \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+    public:
+        /// Calculates the real size of mosaic alias \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
+        {
+            return sizeof(TransactionType);
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(MosaicAlias)
+    DEFINE_EMBEDDABLE_TRANSACTION(MosaicAlias)
 
 #pragma pack(pop)
-}}
+}
+}

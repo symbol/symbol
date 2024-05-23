@@ -19,66 +19,70 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/MosaicSupplyChangeTransactionPlugin.h"
 #include "src/model/MosaicNotifications.h"
 #include "src/model/MosaicSupplyChangeTransaction.h"
+#include "src/plugins/MosaicSupplyChangeTransactionPlugin.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
-#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
 #define TEST_CLASS MosaicSupplyChangeTransactionPluginTests
 
-	// region test utils
+    // region test utils
 
-	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicSupplyChange, 1, 1, )
-	}
+    namespace {
+        DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicSupplyChange, 1, 1, )
+    }
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Supply_Change)
+    DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Supply_Change)
 
-	// endregion
+    // endregion
 
-	// region publish
+    // region publish
 
-	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder) {
-		// Arrange:
-		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction);
+    PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder)
+    {
+        // Arrange:
+        typename TTraits::TransactionType transaction;
+        test::FillWithRandomData(transaction);
 
-		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
-				transaction,
-				{ MosaicRequiredNotification::Notification_Type, MosaicSupplyChangeNotification::Notification_Type });
-	}
+        // Act + Assert:
+        test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+            transaction,
+            { MosaicRequiredNotification::Notification_Type, MosaicSupplyChangeNotification::Notification_Type });
+    }
 
-	PLUGIN_TEST(CanPublishAllNotifications) {
-		// Arrange:
-		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction);
+    PLUGIN_TEST(CanPublishAllNotifications)
+    {
+        // Arrange:
+        typename TTraits::TransactionType transaction;
+        test::FillWithRandomData(transaction);
 
-		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
-		builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-			EXPECT_TRUE(notification.Owner.isResolved());
-			EXPECT_FALSE(notification.MosaicId.isResolved());
+        typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+        builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
+            EXPECT_TRUE(notification.Owner.isResolved());
+            EXPECT_FALSE(notification.MosaicId.isResolved());
 
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Owner.resolved());
-			EXPECT_EQ(transaction.MosaicId, notification.MosaicId.unresolved());
-			EXPECT_EQ(0u, notification.PropertyFlagMask);
-		});
-		builder.template addExpectation<MosaicSupplyChangeNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
-			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-			EXPECT_EQ(transaction.Action, notification.Action);
-			EXPECT_EQ(transaction.Delta, notification.Delta);
-		});
+            EXPECT_EQ(GetSignerAddress(transaction), notification.Owner.resolved());
+            EXPECT_EQ(transaction.MosaicId, notification.MosaicId.unresolved());
+            EXPECT_EQ(0u, notification.PropertyFlagMask);
+        });
+        builder.template addExpectation<MosaicSupplyChangeNotification>([&transaction](const auto& notification) {
+            EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
+            EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+            EXPECT_EQ(transaction.Action, notification.Action);
+            EXPECT_EQ(transaction.Delta, notification.Delta);
+        });
 
-		// Act + Assert:
-		builder.runTest(transaction);
-	}
+        // Act + Assert:
+        builder.runTest(transaction);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

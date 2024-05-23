@@ -26,43 +26,46 @@
 
 namespace catapult {
 namespace cache {
-	class AccountStateCacheDelta;
+    class AccountStateCacheDelta;
 }
 namespace model {
-	struct BlockchainConfiguration;
+    struct BlockchainConfiguration;
 }
 }
 
-namespace catapult { namespace importance {
+namespace catapult {
+namespace importance {
 
-	/// Importance rollback mode.
-	enum class ImportanceRollbackMode {
-		/// Calculates importances in a way that guarantees the calculation can be rolled back.
-		/// \note External resources might be used.
-		Enabled,
+    /// Importance rollback mode.
+    enum class ImportanceRollbackMode {
+        /// Calculates importances in a way that guarantees the calculation can be rolled back.
+        /// \note External resources might be used.
+        Enabled,
 
-		/// Calculates importances in an optimized way that might not allow the calculation to be rolled back.
-		/// \note External resources are guaranteed to not be used.
-		Disabled
-	};
+        /// Calculates importances in an optimized way that might not allow the calculation to be rolled back.
+        /// \note External resources are guaranteed to not be used.
+        Disabled
+    };
 
-	/// Base class for all importance calculators.
-	class ImportanceCalculator {
-	public:
-		virtual ~ImportanceCalculator() = default;
+    /// Base class for all importance calculators.
+    class ImportanceCalculator {
+    public:
+        virtual ~ImportanceCalculator() = default;
 
-	public:
-		/// Recalculates importances for all accounts in \a cache at \a importanceHeight that are eligible for harvesting
-		/// with optional rollback support based on \a mode.
-		virtual void recalculate(
-				ImportanceRollbackMode mode,
-				model::ImportanceHeight importanceHeight,
-				cache::AccountStateCacheDelta& cache) const = 0;
-	};
+    public:
+        /// Recalculates importances for all accounts in \a cache at \a importanceHeight that are eligible for harvesting
+        /// with optional rollback support based on \a mode.
+        virtual void recalculate(
+            ImportanceRollbackMode mode,
+            model::ImportanceHeight importanceHeight,
+            cache::AccountStateCacheDelta& cache) const
+            = 0;
+    };
 
-	/// Creates an importance calculator for the blockchain described by \a config.
-	std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockchainConfiguration& config);
+    /// Creates an importance calculator for the blockchain described by \a config.
+    std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockchainConfiguration& config);
 
-	/// Creates a restore importance calculator.
-	std::unique_ptr<ImportanceCalculator> CreateRestoreImportanceCalculator();
-}}
+    /// Creates a restore importance calculator.
+    std::unique_ptr<ImportanceCalculator> CreateRestoreImportanceCalculator();
+}
+}

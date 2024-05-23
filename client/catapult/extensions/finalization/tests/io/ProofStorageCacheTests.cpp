@@ -19,52 +19,60 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/src/io/FileProofStorage.h"
+#include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/tests/test/ProofStorageTests.h"
-#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/TestConstants.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
 #define TEST_CLASS ProofStorageCacheTests
 
-	namespace {
-		// wraps a ProofStorageCache in a ProofStorage so that it can be tested via the tests in ProofStorageTests.h
-		class ProofStorageCacheToProofStorageAdapter : public ProofStorage {
-		public:
-			explicit ProofStorageCacheToProofStorageAdapter(std::unique_ptr<ProofStorage>&& pStorage)
-					: m_cache(std::move(pStorage)) {
-			}
+    namespace {
+        // wraps a ProofStorageCache in a ProofStorage so that it can be tested via the tests in ProofStorageTests.h
+        class ProofStorageCacheToProofStorageAdapter : public ProofStorage {
+        public:
+            explicit ProofStorageCacheToProofStorageAdapter(std::unique_ptr<ProofStorage>&& pStorage)
+                : m_cache(std::move(pStorage))
+            {
+            }
 
-		public:
-			model::FinalizationStatistics statistics() const override {
-				return m_cache.view().statistics();
-			}
+        public:
+            model::FinalizationStatistics statistics() const override
+            {
+                return m_cache.view().statistics();
+            }
 
-			std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const override {
-				return m_cache.view().loadProof(epoch);
-			}
+            std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const override
+            {
+                return m_cache.view().loadProof(epoch);
+            }
 
-			std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override {
-				return m_cache.view().loadProof(height);
-			}
+            std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override
+            {
+                return m_cache.view().loadProof(height);
+            }
 
-			void saveProof(const model::FinalizationProof& proof) override {
-				m_cache.modifier().saveProof(proof);
-			}
+            void saveProof(const model::FinalizationProof& proof) override
+            {
+                m_cache.modifier().saveProof(proof);
+            }
 
-		private:
-			ProofStorageCache m_cache;
-		};
+        private:
+            ProofStorageCache m_cache;
+        };
 
-		struct ProofStorageCacheTraits {
-			static std::unique_ptr<ProofStorage> CreateStorage(const std::string& destination) {
-				return std::make_unique<ProofStorageCacheToProofStorageAdapter>(
-						std::make_unique<FileProofStorage>(destination, test::File_Database_Batch_Size));
-			}
-		};
-	}
+        struct ProofStorageCacheTraits {
+            static std::unique_ptr<ProofStorage> CreateStorage(const std::string& destination)
+            {
+                return std::make_unique<ProofStorageCacheToProofStorageAdapter>(
+                    std::make_unique<FileProofStorage>(destination, test::File_Database_Batch_Size));
+            }
+        };
+    }
 
-	DEFINE_PROOF_STORAGE_TESTS(ProofStorageCacheTraits)
-}}
+    DEFINE_PROOF_STORAGE_TESTS(ProofStorageCacheTraits)
+}
+}

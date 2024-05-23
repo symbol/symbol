@@ -21,19 +21,21 @@
 
 #pragma once
 #include "catapult/utils/BaseValue.h"
-#include <string>
 #include <stdint.h>
+#include <string>
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	struct NodeVersion_tag {};
+    struct NodeVersion_tag { };
 
-	/// 32-bit node version where each byte represents a version component { major, minor, revision, build }.
-	using NodeVersion = utils::BaseValue<uint32_t, NodeVersion_tag>;
+    /// 32-bit node version where each byte represents a version component { major, minor, revision, build }.
+    using NodeVersion = utils::BaseValue<uint32_t, NodeVersion_tag>;
 
-	/// Gets the current server version.
-	NodeVersion GetCurrentServerVersion();
+    /// Gets the current server version.
+    NodeVersion GetCurrentServerVersion();
 
-	/// Tries to parse \a str into node \a version.
-	bool TryParseValue(const std::string& str, NodeVersion& version);
-}}
+    /// Tries to parse \a str into node \a version.
+    bool TryParseValue(const std::string& str, NodeVersion& version);
+}
+}

@@ -21,11 +21,13 @@
 
 #include "Validators.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::InternalPaddingNotification;
+    using Notification = model::InternalPaddingNotification;
 
-	DEFINE_STATELESS_VALIDATOR(ZeroInternalPadding, [](const Notification& notification) {
-		return 0 == notification.Padding ? ValidationResult::Success : Failure_Core_Nonzero_Internal_Padding;
-	})
-}}
+    DEFINE_STATELESS_VALIDATOR(ZeroInternalPadding, [](const Notification& notification) {
+        return 0 == notification.Padding ? ValidationResult::Success : Failure_Core_Nonzero_Internal_Padding;
+    })
+}
+}

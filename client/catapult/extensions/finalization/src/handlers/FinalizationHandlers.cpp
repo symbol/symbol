@@ -22,31 +22,36 @@
 #include "FinalizationHandlers.h"
 #include "catapult/handlers/HandlerUtils.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	namespace {
-		auto CreatePushMessagesHandler(const MessageRangeHandler& rangeHandler) {
-			return [rangeHandler](const ionet::Packet& packet, const auto& context) {
-				auto range = ionet::ExtractEntitiesFromPacket<model::FinalizationMessage>(
-						packet,
-						model::IsSizeValidT<model::FinalizationMessage>);
-				if (range.empty()) {
-					CATAPULT_LOG(warning) << "rejecting empty range: " << packet;
-					return;
-				}
+    namespace {
+        auto CreatePushMessagesHandler(const MessageRangeHandler& rangeHandler)
+        {
+            return [rangeHandler](const ionet::Packet& packet, const auto& context) {
+                auto range = ionet::ExtractEntitiesFromPacket<model::FinalizationMessage>(
+                    packet,
+                    model::IsSizeValidT<model::FinalizationMessage>);
+                if (range.empty()) {
+                    CATAPULT_LOG(warning) << "rejecting empty range: " << packet;
+                    return;
+                }
 
-				CATAPULT_LOG(trace) << "received valid " << packet;
-				rangeHandler({ std::move(range), { context.key(), context.host() } });
-			};
-		}
-	}
+                CATAPULT_LOG(trace) << "received valid " << packet;
+                rangeHandler({ std::move(range), { context.key(), context.host() } });
+            };
+        }
+    }
 
-	void RegisterPushMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessageRangeHandler& messageRangeHandler) {
-		handlers.registerHandler(ionet::PacketType::Push_Finalization_Messages, CreatePushMessagesHandler(messageRangeHandler));
-	}
+    void RegisterPushMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessageRangeHandler& messageRangeHandler)
+    {
+        handlers.registerHandler(ionet::PacketType::Push_Finalization_Messages, CreatePushMessagesHandler(messageRangeHandler));
+    }
 
-	void RegisterPullMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetriever& messagesRetriever) {
-		constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
-		handlers.registerHandler(Packet_Type, PullEntitiesHandler<model::FinalizationRoundRange>::Create(Packet_Type, messagesRetriever));
-	}
-}}
+    void RegisterPullMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetriever& messagesRetriever)
+    {
+        constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
+        handlers.registerHandler(Packet_Type, PullEntitiesHandler<model::FinalizationRoundRange>::Create(Packet_Type, messagesRetriever));
+    }
+}
+}

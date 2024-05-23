@@ -22,45 +22,50 @@
 #include "AccountLinkPlugin.h"
 #include "AccountKeyLinkTransactionPlugin.h"
 #include "NodeKeyLinkTransactionPlugin.h"
-#include "src/observers/Observers.h"
-#include "src/validators/Validators.h"
 #include "catapult/keylink/KeyLinkObserver.h"
 #include "catapult/keylink/KeyLinkValidator.h"
 #include "catapult/plugins/PluginManager.h"
+#include "src/observers/Observers.h"
+#include "src/validators/Validators.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		struct NodeKeyAccessor {
-			static constexpr auto Failure_Link_Already_Exists = validators::Failure_AccountLink_Link_Already_Exists;
-			static constexpr auto Failure_Inconsistent_Unlink_Data = validators::Failure_AccountLink_Inconsistent_Unlink_Data;
+    namespace {
+        struct NodeKeyAccessor {
+            static constexpr auto Failure_Link_Already_Exists = validators::Failure_AccountLink_Link_Already_Exists;
+            static constexpr auto Failure_Inconsistent_Unlink_Data = validators::Failure_AccountLink_Inconsistent_Unlink_Data;
 
-			template<typename TAccountState>
-			static auto& Get(TAccountState& accountState) {
-				return accountState.SupplementalPublicKeys.node();
-			}
-		};
-	}
+            template <typename TAccountState>
+            static auto& Get(TAccountState& accountState)
+            {
+                return accountState.SupplementalPublicKeys.node();
+            }
+        };
+    }
 
-	void RegisterAccountLinkSubsystem(PluginManager& manager) {
-		manager.addTransactionSupport(CreateAccountKeyLinkTransactionPlugin());
-		manager.addTransactionSupport(CreateNodeKeyLinkTransactionPlugin());
+    void RegisterAccountLinkSubsystem(PluginManager& manager)
+    {
+        manager.addTransactionSupport(CreateAccountKeyLinkTransactionPlugin());
+        manager.addTransactionSupport(CreateNodeKeyLinkTransactionPlugin());
 
-		manager.addStatefulValidatorHook([](auto& builder) {
-			builder.add(validators::CreateAccountKeyLinkValidator())
-					.add(validators::CreateNewRemoteAccountAvailabilityValidator())
-					.add(validators::CreateRemoteSenderValidator())
-					.add(validators::CreateRemoteInteractionValidator())
-					.add(keylink::CreateKeyLinkValidator<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
-		});
+        manager.addStatefulValidatorHook([](auto& builder) {
+            builder.add(validators::CreateAccountKeyLinkValidator())
+                .add(validators::CreateNewRemoteAccountAvailabilityValidator())
+                .add(validators::CreateRemoteSenderValidator())
+                .add(validators::CreateRemoteInteractionValidator())
+                .add(keylink::CreateKeyLinkValidator<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
+        });
 
-		manager.addObserverHook([](auto& builder) {
-			builder.add(observers::CreateAccountKeyLinkObserver())
-					.add(keylink::CreateKeyLinkObserver<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
-		});
-	}
-}}
+        manager.addObserverHook([](auto& builder) {
+            builder.add(observers::CreateAccountKeyLinkObserver())
+                .add(keylink::CreateKeyLinkObserver<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
+        });
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
-	catapult::plugins::RegisterAccountLinkSubsystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
+{
+    catapult::plugins::RegisterAccountLinkSubsystem(manager);
 }

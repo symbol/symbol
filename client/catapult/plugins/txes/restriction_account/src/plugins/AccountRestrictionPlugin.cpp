@@ -20,72 +20,76 @@
 **/
 
 #include "AccountRestrictionPlugin.h"
+#include "catapult/plugins/CacheHandlers.h"
+#include "catapult/plugins/PluginManager.h"
 #include "src/cache/AccountRestrictionCache.h"
 #include "src/cache/AccountRestrictionCacheStorage.h"
 #include "src/config/AccountRestrictionConfiguration.h"
 #include "src/observers/Observers.h"
 #include "src/plugins/AccountRestrictionTransactionPlugin.h"
 #include "src/validators/Validators.h"
-#include "catapult/plugins/CacheHandlers.h"
-#include "catapult/plugins/PluginManager.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	void RegisterAccountRestrictionSubsystem(PluginManager& manager) {
-		manager.addTransactionSupport(CreateAccountAddressRestrictionTransactionPlugin());
-		manager.addTransactionSupport(CreateAccountMosaicRestrictionTransactionPlugin());
-		manager.addTransactionSupport(CreateAccountOperationRestrictionTransactionPlugin());
+    void RegisterAccountRestrictionSubsystem(PluginManager& manager)
+    {
+        manager.addTransactionSupport(CreateAccountAddressRestrictionTransactionPlugin());
+        manager.addTransactionSupport(CreateAccountMosaicRestrictionTransactionPlugin());
+        manager.addTransactionSupport(CreateAccountOperationRestrictionTransactionPlugin());
 
-		auto networkIdentifier = manager.config().Network.Identifier;
-		manager.addCacheSupport<cache::AccountRestrictionCacheStorage>(std::make_unique<cache::AccountRestrictionCache>(
-				manager.cacheConfig(cache::AccountRestrictionCache::Name),
-				networkIdentifier));
+        auto networkIdentifier = manager.config().Network.Identifier;
+        manager.addCacheSupport<cache::AccountRestrictionCacheStorage>(std::make_unique<cache::AccountRestrictionCache>(
+            manager.cacheConfig(cache::AccountRestrictionCache::Name),
+            networkIdentifier));
 
-		using CacheHandlers = CacheHandlers<cache::AccountRestrictionCacheDescriptor>;
-		CacheHandlers::Register<model::FacilityCode::RestrictionAccount>(manager);
+        using CacheHandlers = CacheHandlers<cache::AccountRestrictionCacheDescriptor>;
+        CacheHandlers::Register<model::FacilityCode::RestrictionAccount>(manager);
 
-		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
-			counters.emplace_back(utils::DiagnosticCounterId("ACCTREST C"), [&cache]() {
-				return cache.sub<cache::AccountRestrictionCache>().createView()->size();
-			});
-		});
+        manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
+            counters.emplace_back(utils::DiagnosticCounterId("ACCTREST C"), [&cache]() {
+                return cache.sub<cache::AccountRestrictionCache>().createView()->size();
+            });
+        });
 
-		manager.addStatelessValidatorHook([](auto& builder) {
-			builder.add(validators::CreateAccountRestrictionFlagsValidator())
+        manager.addStatelessValidatorHook([](auto& builder) {
+            builder.add(validators::CreateAccountRestrictionFlagsValidator())
 
-					.add(validators::CreateAccountOperationRestrictionModificationValuesValidator());
-		});
+                .add(validators::CreateAccountOperationRestrictionModificationValuesValidator());
+        });
 
-		auto config = model::LoadPluginConfiguration<config::AccountRestrictionConfiguration>(
-				manager.config(),
-				"catapult.plugins.restrictionaccount");
-		manager.addStatefulValidatorHook([maxAccountRestrictionValues = config.MaxAccountRestrictionValues](auto& builder) {
-			builder.add(validators::CreateAccountAddressRestrictionRedundantModificationValidator())
-					.add(validators::CreateAccountAddressRestrictionValueModificationValidator())
-					.add(validators::CreateMaxAccountAddressRestrictionValuesValidator(maxAccountRestrictionValues))
-					.add(validators::CreateAddressInteractionValidator())
-					.add(validators::CreateAccountAddressRestrictionNoSelfModificationValidator())
+        auto config = model::LoadPluginConfiguration<config::AccountRestrictionConfiguration>(
+            manager.config(),
+            "catapult.plugins.restrictionaccount");
+        manager.addStatefulValidatorHook([maxAccountRestrictionValues = config.MaxAccountRestrictionValues](auto& builder) {
+            builder.add(validators::CreateAccountAddressRestrictionRedundantModificationValidator())
+                .add(validators::CreateAccountAddressRestrictionValueModificationValidator())
+                .add(validators::CreateMaxAccountAddressRestrictionValuesValidator(maxAccountRestrictionValues))
+                .add(validators::CreateAddressInteractionValidator())
+                .add(validators::CreateAccountAddressRestrictionNoSelfModificationValidator())
 
-					.add(validators::CreateAccountMosaicRestrictionRedundantModificationValidator())
-					.add(validators::CreateAccountMosaicRestrictionValueModificationValidator())
-					.add(validators::CreateMaxAccountMosaicRestrictionValuesValidator(maxAccountRestrictionValues))
-					.add(validators::CreateMosaicRecipientValidator())
+                .add(validators::CreateAccountMosaicRestrictionRedundantModificationValidator())
+                .add(validators::CreateAccountMosaicRestrictionValueModificationValidator())
+                .add(validators::CreateMaxAccountMosaicRestrictionValuesValidator(maxAccountRestrictionValues))
+                .add(validators::CreateMosaicRecipientValidator())
 
-					.add(validators::CreateAccountOperationRestrictionRedundantModificationValidator())
-					.add(validators::CreateAccountOperationRestrictionValueModificationValidator())
-					.add(validators::CreateMaxAccountOperationRestrictionValuesValidator(maxAccountRestrictionValues))
-					.add(validators::CreateOperationRestrictionValidator())
-					.add(validators::CreateAccountOperationRestrictionNoSelfBlockingValidator());
-		});
+                .add(validators::CreateAccountOperationRestrictionRedundantModificationValidator())
+                .add(validators::CreateAccountOperationRestrictionValueModificationValidator())
+                .add(validators::CreateMaxAccountOperationRestrictionValuesValidator(maxAccountRestrictionValues))
+                .add(validators::CreateOperationRestrictionValidator())
+                .add(validators::CreateAccountOperationRestrictionNoSelfBlockingValidator());
+        });
 
-		manager.addObserverHook([](auto& builder) {
-			builder.add(observers::CreateAccountAddressRestrictionValueModificationObserver())
-					.add(observers::CreateAccountMosaicRestrictionValueModificationObserver())
-					.add(observers::CreateAccountOperationRestrictionValueModificationObserver());
-		});
-	}
-}}
+        manager.addObserverHook([](auto& builder) {
+            builder.add(observers::CreateAccountAddressRestrictionValueModificationObserver())
+                .add(observers::CreateAccountMosaicRestrictionValueModificationObserver())
+                .add(observers::CreateAccountOperationRestrictionValueModificationObserver());
+        });
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
-	catapult::plugins::RegisterAccountRestrictionSubsystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
+{
+    catapult::plugins::RegisterAccountRestrictionSubsystem(manager);
 }

@@ -25,32 +25,33 @@
 #include "catapult/tree/MemoryDataSource.h"
 #include <vector>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Serializer for uint32_t key and std::string value.
-	struct MemoryPatriciaTreeSimpleSerializer {
-		using KeyType = uint32_t;
-		using ValueType = std::string;
+    /// Serializer for uint32_t key and std::string value.
+    struct MemoryPatriciaTreeSimpleSerializer {
+        using KeyType = uint32_t;
+        using ValueType = std::string;
 
-		static const std::string& SerializeValue(const ValueType& value) {
-			return value;
-		}
-	};
+        static const std::string& SerializeValue(const ValueType& value)
+        {
+            return value;
+        }
+    };
 
-	/// Memory patricia tree used in cache tests.
-	using MemoryPatriciaTree =
-			tree::PatriciaTree<cache::SerializerPlainKeyEncoder<MemoryPatriciaTreeSimpleSerializer>, tree::MemoryDataSource>;
+    /// Memory patricia tree used in cache tests.
+    using MemoryPatriciaTree = tree::PatriciaTree<cache::SerializerPlainKeyEncoder<MemoryPatriciaTreeSimpleSerializer>, tree::MemoryDataSource>;
 
-	/// Memory base patricia tree used in cache tests.
-	using MemoryBasePatriciaTree =
-			tree::BasePatriciaTree<cache::SerializerPlainKeyEncoder<MemoryPatriciaTreeSimpleSerializer>, tree::MemoryDataSource>;
+    /// Memory base patricia tree used in cache tests.
+    using MemoryBasePatriciaTree = tree::BasePatriciaTree<cache::SerializerPlainKeyEncoder<MemoryPatriciaTreeSimpleSerializer>, tree::MemoryDataSource>;
 
-	/// Seeds \a tree with four nodes.
-	void SeedTreeWithFourNodes(MemoryPatriciaTree& tree);
+    /// Seeds \a tree with four nodes.
+    void SeedTreeWithFourNodes(MemoryPatriciaTree& tree);
 
-	/// Seeds \a tree with four nodes.
-	void SeedTreeWithFourNodes(MemoryBasePatriciaTree& tree);
+    /// Seeds \a tree with four nodes.
+    void SeedTreeWithFourNodes(MemoryBasePatriciaTree& tree);
 
-	/// Calculates the expected patricia tree root hash given nodes represented by \a pairs.
-	Hash256 CalculateRootHash(const std::vector<std::pair<uint32_t, std::string>>& pairs);
-}}
+    /// Calculates the expected patricia tree root hash given nodes represented by \a pairs.
+    Hash256 CalculateRootHash(const std::vector<std::pair<uint32_t, std::string>>& pairs);
+}
+}

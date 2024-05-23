@@ -23,35 +23,40 @@
 #include "EntityRange.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Height hash pair.
-	struct HeightHashPair {
-	public:
-		static constexpr auto Size = sizeof(catapult::Height) + Hash256::Size;
+    /// Height hash pair.
+    struct HeightHashPair {
+    public:
+        static constexpr auto Size = sizeof(catapult::Height) + Hash256::Size;
 
-	public:
-		/// Height.
-		catapult::Height Height;
+    public:
+        /// Height.
+        catapult::Height Height;
 
-		/// Hash.
-		Hash256 Hash;
+        /// Hash.
+        Hash256 Hash;
 
-	public:
-		/// Returns \c true if this pair is equal to \a rhs.
-		constexpr bool operator==(const HeightHashPair& rhs) const {
-			return Height == rhs.Height && Hash == rhs.Hash;
-		}
+    public:
+        /// Returns \c true if this pair is equal to \a rhs.
+        constexpr bool operator==(const HeightHashPair& rhs) const
+        {
+            return Height == rhs.Height && Hash == rhs.Hash;
+        }
 
-		/// Returns \c true if this pair is not equal to \a rhs.
-		constexpr bool operator!=(const HeightHashPair& rhs) const {
-			return !(*this == rhs);
-		}
+        /// Returns \c true if this pair is not equal to \a rhs.
+        constexpr bool operator!=(const HeightHashPair& rhs) const
+        {
+            return !(*this == rhs);
+        }
 
-		/// Insertion operator for outputting \a pair to \a out.
-		friend std::ostream& operator<<(std::ostream& out, const HeightHashPair& pair) {
-			out << pair.Hash << " @ " << pair.Height;
-			return out;
-		}
-	};
-}}
+        /// Insertion operator for outputting \a pair to \a out.
+        friend std::ostream& operator<<(std::ostream& out, const HeightHashPair& pair)
+        {
+            out << pair.Hash << " @ " << pair.Height;
+            return out;
+        }
+    };
+}
+}

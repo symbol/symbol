@@ -21,29 +21,32 @@
 
 #pragma once
 #include "CommunicationTimestamps.h"
-#include "timesync/src/api/RemoteTimeSyncApi.h"
 #include "catapult/net/BriefServerRequestor.h"
+#include "timesync/src/api/RemoteTimeSyncApi.h"
 
-namespace catapult { namespace timesync {
+namespace catapult {
+namespace timesync {
 
-	/// Node network time request policy.
-	struct NodeNetworkTimeRequestPolicy {
-		using ResponseType = CommunicationTimestamps;
+    /// Node network time request policy.
+    struct NodeNetworkTimeRequestPolicy {
+        using ResponseType = CommunicationTimestamps;
 
-		static constexpr auto Friendly_Name = "network time";
+        static constexpr auto Friendly_Name = "network time";
 
-		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo, const std::string&) {
-			return api::CreateRemoteTimeSyncApi(packetIo)->networkTime();
-		}
-	};
+        static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo, const std::string&)
+        {
+            return api::CreateRemoteTimeSyncApi(packetIo)->networkTime();
+        }
+    };
 
-	/// Brief server requestor for requesting node network time information.
-	using NodeNetworkTimeRequestor = net::BriefServerRequestor<NodeNetworkTimeRequestPolicy>;
+    /// Brief server requestor for requesting node network time information.
+    using NodeNetworkTimeRequestor = net::BriefServerRequestor<NodeNetworkTimeRequestPolicy>;
 
-	/// Creates a node network time requestor for a server with specified \a serverPublicKey using \a pool and configured
-	/// with \a settings.
-	std::shared_ptr<NodeNetworkTimeRequestor> CreateNodeNetworkTimeRequestor(
-			thread::IoThreadPool& pool,
-			const Key& serverPublicKey,
-			const net::ConnectionSettings& settings);
-}}
+    /// Creates a node network time requestor for a server with specified \a serverPublicKey using \a pool and configured
+    /// with \a settings.
+    std::shared_ptr<NodeNetworkTimeRequestor> CreateNodeNetworkTimeRequestor(
+        thread::IoThreadPool& pool,
+        const Key& serverPublicKey,
+        const net::ConnectionSettings& settings);
+}
+}

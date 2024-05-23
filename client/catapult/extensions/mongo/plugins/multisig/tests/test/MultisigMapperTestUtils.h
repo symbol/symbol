@@ -23,8 +23,10 @@
 #include "plugins/txes/multisig/src/state/MultisigEntry.h"
 #include <bsoncxx/json.hpp>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Verifies that db multisig (\a dbMultisig) is equivalent to model multisig \a entry.
-	void AssertEqualMultisigData(const state::MultisigEntry& entry, const bsoncxx::document::view& dbMultisig);
-}}
+    /// Verifies that db multisig (\a dbMultisig) is equivalent to model multisig \a entry.
+    void AssertEqualMultisigData(const state::MultisigEntry& entry, const bsoncxx::document::view& dbMultisig);
+}
+}

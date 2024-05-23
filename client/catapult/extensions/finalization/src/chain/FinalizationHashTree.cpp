@@ -22,56 +22,65 @@
 #include "FinalizationHashTree.h"
 #include "catapult/utils/Hashers.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	size_t FinalizationHashTree::TreeNodeHasher::operator()(const TreeNode& node) const {
-		return utils::ArrayHasher<Hash256>()(node.Key.Hash);
-	}
+    size_t FinalizationHashTree::TreeNodeHasher::operator()(const TreeNode& node) const
+    {
+        return utils::ArrayHasher<Hash256>()(node.Key.Hash);
+    }
 
-	size_t FinalizationHashTree::size() const {
-		return m_tree.size();
-	}
+    size_t FinalizationHashTree::size() const
+    {
+        return m_tree.size();
+    }
 
-	bool FinalizationHashTree::contains(const model::HeightHashPair& key) const {
-		return !!tryFindNode(key);
-	}
+    bool FinalizationHashTree::contains(const model::HeightHashPair& key) const
+    {
+        return !!tryFindNode(key);
+    }
 
-	bool FinalizationHashTree::isDescendant(const model::HeightHashPair& parentKey, const model::HeightHashPair& childKey) const {
-		const auto* pNode = tryFindNode(childKey);
-		while (pNode) {
-			if (pNode->Key == parentKey)
-				return true;
+    bool FinalizationHashTree::isDescendant(const model::HeightHashPair& parentKey, const model::HeightHashPair& childKey) const
+    {
+        const auto* pNode = tryFindNode(childKey);
+        while (pNode) {
+            if (pNode->Key == parentKey)
+                return true;
 
-			pNode = pNode->pParent;
-		}
+            pNode = pNode->pParent;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	std::vector<model::HeightHashPair> FinalizationHashTree::findAncestors(const model::HeightHashPair& key) const {
-		std::vector<model::HeightHashPair> ancestors;
-		const auto* pNode = tryFindNode(key);
-		while (pNode) {
-			ancestors.push_back(pNode->Key);
-			pNode = pNode->pParent;
-		}
+    std::vector<model::HeightHashPair> FinalizationHashTree::findAncestors(const model::HeightHashPair& key) const
+    {
+        std::vector<model::HeightHashPair> ancestors;
+        const auto* pNode = tryFindNode(key);
+        while (pNode) {
+            ancestors.push_back(pNode->Key);
+            pNode = pNode->pParent;
+        }
 
-		return ancestors;
-	}
+        return ancestors;
+    }
 
-	void FinalizationHashTree::addBranch(Height height, const Hash256* pHashes, size_t count) {
-		const TreeNode* pParent = nullptr;
-		for (auto i = 0u; i < count; ++i) {
-			auto node = TreeNode({ height + Height(i), pHashes[i] });
-			node.pParent = pParent;
+    void FinalizationHashTree::addBranch(Height height, const Hash256* pHashes, size_t count)
+    {
+        const TreeNode* pParent = nullptr;
+        for (auto i = 0u; i < count; ++i) {
+            auto node = TreeNode({ height + Height(i), pHashes[i] });
+            node.pParent = pParent;
 
-			auto insertResultPair = m_tree.insert(node);
-			pParent = &*insertResultPair.first;
-		}
-	}
+            auto insertResultPair = m_tree.insert(node);
+            pParent = &*insertResultPair.first;
+        }
+    }
 
-	const FinalizationHashTree::TreeNode* FinalizationHashTree::tryFindNode(const model::HeightHashPair& key) const {
-		auto iter = m_tree.find(TreeNode(key));
-		return m_tree.cend() == iter ? nullptr : &*iter;
-	}
-}}
+    const FinalizationHashTree::TreeNode* FinalizationHashTree::tryFindNode(const model::HeightHashPair& key) const
+    {
+        auto iter = m_tree.find(TreeNode(key));
+        return m_tree.cend() == iter ? nullptr : &*iter;
+    }
+}
+}

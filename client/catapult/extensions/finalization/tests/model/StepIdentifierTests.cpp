@@ -25,142 +25,153 @@
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Functional.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS StepIdentifierTests
 
-	// region constructor
+    // region constructor
 
-	TEST(TEST_CLASS, CanCreateDefaultStepIdentifier) {
-		// Act:
-		auto stepIdentifier = StepIdentifier();
+    TEST(TEST_CLASS, CanCreateDefaultStepIdentifier)
+    {
+        // Act:
+        auto stepIdentifier = StepIdentifier();
 
-		// Assert:
-		EXPECT_EQ(FinalizationEpoch(), stepIdentifier.Epoch);
-		EXPECT_EQ(StepIdentifier::FinalizationPointStage(), stepIdentifier.PointStage);
+        // Assert:
+        EXPECT_EQ(FinalizationEpoch(), stepIdentifier.Epoch);
+        EXPECT_EQ(StepIdentifier::FinalizationPointStage(), stepIdentifier.PointStage);
 
-		EXPECT_EQ(test::CreateFinalizationRound(0, 0), stepIdentifier.Round());
-		EXPECT_EQ(FinalizationStage::Prevote, stepIdentifier.Stage());
-	}
+        EXPECT_EQ(test::CreateFinalizationRound(0, 0), stepIdentifier.Round());
+        EXPECT_EQ(FinalizationStage::Prevote, stepIdentifier.Stage());
+    }
 
-	TEST(TEST_CLASS, CanCreatePrevoteStepIdentifier) {
-		// Act:
-		auto stepIdentifier = StepIdentifier{ FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote };
+    TEST(TEST_CLASS, CanCreatePrevoteStepIdentifier)
+    {
+        // Act:
+        auto stepIdentifier = StepIdentifier { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote };
 
-		// Assert:
-		EXPECT_EQ(FinalizationEpoch(7), stepIdentifier.Epoch);
-		EXPECT_EQ(StepIdentifier::FinalizationPointStage(22), stepIdentifier.PointStage);
+        // Assert:
+        EXPECT_EQ(FinalizationEpoch(7), stepIdentifier.Epoch);
+        EXPECT_EQ(StepIdentifier::FinalizationPointStage(22), stepIdentifier.PointStage);
 
-		EXPECT_EQ(test::CreateFinalizationRound(7, 11), stepIdentifier.Round());
-		EXPECT_EQ(FinalizationStage::Prevote, stepIdentifier.Stage());
-	}
+        EXPECT_EQ(test::CreateFinalizationRound(7, 11), stepIdentifier.Round());
+        EXPECT_EQ(FinalizationStage::Prevote, stepIdentifier.Stage());
+    }
 
-	TEST(TEST_CLASS, CanCreatePrecommitStepIdentifier) {
-		// Act:
-		auto stepIdentifier = StepIdentifier{ FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit };
+    TEST(TEST_CLASS, CanCreatePrecommitStepIdentifier)
+    {
+        // Act:
+        auto stepIdentifier = StepIdentifier { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit };
 
-		// Assert:
-		EXPECT_EQ(FinalizationEpoch(7), stepIdentifier.Epoch);
-		EXPECT_EQ(StepIdentifier::FinalizationPointStage(23), stepIdentifier.PointStage);
+        // Assert:
+        EXPECT_EQ(FinalizationEpoch(7), stepIdentifier.Epoch);
+        EXPECT_EQ(StepIdentifier::FinalizationPointStage(23), stepIdentifier.PointStage);
 
-		EXPECT_EQ(test::CreateFinalizationRound(7, 11), stepIdentifier.Round());
-		EXPECT_EQ(FinalizationStage::Precommit, stepIdentifier.Stage());
-	}
+        EXPECT_EQ(test::CreateFinalizationRound(7, 11), stepIdentifier.Round());
+        EXPECT_EQ(FinalizationStage::Precommit, stepIdentifier.Stage());
+    }
 
-	// endregion
+    // endregion
 
-	// region size + alignment
+    // region size + alignment
 
 #define STEP_IDENTIFIER_FIELDS FIELD(Epoch) FIELD(PointStage)
 
-	TEST(TEST_CLASS, StepIdentifierHasExpectedSize) {
-		// Arrange:
-		auto expectedSize = 0u;
+    TEST(TEST_CLASS, StepIdentifierHasExpectedSize)
+    {
+        // Arrange:
+        auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(StepIdentifier::X)>();
-		STEP_IDENTIFIER_FIELDS
+        STEP_IDENTIFIER_FIELDS
 #undef FIELD
 
-		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(StepIdentifier));
-		EXPECT_EQ(8u, sizeof(StepIdentifier));
-	}
+        // Assert:
+        EXPECT_EQ(expectedSize, sizeof(StepIdentifier));
+        EXPECT_EQ(8u, sizeof(StepIdentifier));
+    }
 
-	TEST(TEST_CLASS, StepIdentifierHasProperAlignment) {
+    TEST(TEST_CLASS, StepIdentifierHasProperAlignment)
+    {
 #define FIELD(X) EXPECT_ALIGNED(StepIdentifier, X);
-		STEP_IDENTIFIER_FIELDS
+        STEP_IDENTIFIER_FIELDS
 #undef FIELD
 
-		EXPECT_EQ(0u, sizeof(StepIdentifier) % 8);
-	}
+        EXPECT_EQ(0u, sizeof(StepIdentifier) % 8);
+    }
 
 #undef STEP_IDENTIFIER_FIELDS
 
-	// endregion
+    // endregion
 
-	// region operators
+    // region operators
 
-	namespace {
-		std::vector<StepIdentifier> GenerateIncreasingStepIdentifierValues() {
-			return { { FinalizationEpoch(7), FinalizationPoint(5), FinalizationStage::Prevote },
-					 { FinalizationEpoch(7), FinalizationPoint(10), FinalizationStage::Prevote },
-					 { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote },
-					 { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit },
-					 { FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Prevote },
-					 { FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Precommit } };
-		}
-	}
+    namespace {
+        std::vector<StepIdentifier> GenerateIncreasingStepIdentifierValues()
+        {
+            return { { FinalizationEpoch(7), FinalizationPoint(5), FinalizationStage::Prevote },
+                { FinalizationEpoch(7), FinalizationPoint(10), FinalizationStage::Prevote },
+                { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote },
+                { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit },
+                { FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Prevote },
+                { FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Precommit } };
+        }
+    }
 
-	DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingStepIdentifierValues())
+    DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingStepIdentifierValues())
 
-	TEST(TEST_CLASS, StepIdentifier_CanOutputPrevote) {
-		// Arrange:
-		auto stepIdentifier = StepIdentifier{ FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote };
+    TEST(TEST_CLASS, StepIdentifier_CanOutputPrevote)
+    {
+        // Arrange:
+        auto stepIdentifier = StepIdentifier { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote };
 
-		// Act:
-		auto str = test::ToString(stepIdentifier);
+        // Act:
+        auto str = test::ToString(stepIdentifier);
 
-		// Assert:
-		EXPECT_EQ("(7, 11) prevote", str);
-	}
+        // Assert:
+        EXPECT_EQ("(7, 11) prevote", str);
+    }
 
-	TEST(TEST_CLASS, StepIdentifier_CanOutputPrecommit) {
-		// Arrange:
-		auto stepIdentifier = StepIdentifier{ FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit };
+    TEST(TEST_CLASS, StepIdentifier_CanOutputPrecommit)
+    {
+        // Arrange:
+        auto stepIdentifier = StepIdentifier { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit };
 
-		// Act:
-		auto str = test::ToString(stepIdentifier);
+        // Act:
+        auto str = test::ToString(stepIdentifier);
 
-		// Assert:
-		EXPECT_EQ("(7, 11) precommit", str);
-	}
+        // Assert:
+        EXPECT_EQ("(7, 11) precommit", str);
+    }
 
-	// endregion
+    // endregion
 
-	// region StepIdentifierToBmKeyIdentifier
+    // region StepIdentifierToBmKeyIdentifier
 
-	namespace {
-		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
-			return { { FinalizationEpoch(10), FinalizationPoint(1), FinalizationStage::Prevote },
-					 { FinalizationEpoch(20), FinalizationPoint(2), FinalizationStage::Prevote },
-					 { FinalizationEpoch(21), FinalizationPoint(3), FinalizationStage::Precommit },
-					 { FinalizationEpoch(22), FinalizationPoint(4), FinalizationStage::Prevote },
-					 { FinalizationEpoch(23), FinalizationPoint(5), FinalizationStage::Precommit } };
-		}
-	}
+    namespace {
+        std::vector<StepIdentifier> GenerateValidStepIdentifierValues()
+        {
+            return { { FinalizationEpoch(10), FinalizationPoint(1), FinalizationStage::Prevote },
+                { FinalizationEpoch(20), FinalizationPoint(2), FinalizationStage::Prevote },
+                { FinalizationEpoch(21), FinalizationPoint(3), FinalizationStage::Precommit },
+                { FinalizationEpoch(22), FinalizationPoint(4), FinalizationStage::Prevote },
+                { FinalizationEpoch(23), FinalizationPoint(5), FinalizationStage::Precommit } };
+        }
+    }
 
-	TEST(TEST_CLASS, StepIdentifierToBmKeyIdentifierProducesCorrectValues) {
-		// Arrange:
-		auto identifiers = GenerateValidStepIdentifierValues();
-		auto expectedKeyIdentifiers = std::vector<crypto::BmKeyIdentifier>{ { 10 }, { 20 }, { 21 }, { 22 }, { 23 } };
+    TEST(TEST_CLASS, StepIdentifierToBmKeyIdentifierProducesCorrectValues)
+    {
+        // Arrange:
+        auto identifiers = GenerateValidStepIdentifierValues();
+        auto expectedKeyIdentifiers = std::vector<crypto::BmKeyIdentifier> { { 10 }, { 20 }, { 21 }, { 22 }, { 23 } };
 
-		// Act:
-		auto keyIdentifiers =
-				test::Apply(true, identifiers, [](const auto& stepIdentifier) { return StepIdentifierToBmKeyIdentifier(stepIdentifier); });
+        // Act:
+        auto keyIdentifiers = test::Apply(true, identifiers, [](const auto& stepIdentifier) { return StepIdentifierToBmKeyIdentifier(stepIdentifier); });
 
-		// Assert:
-		EXPECT_EQ(expectedKeyIdentifiers, keyIdentifiers);
-	}
+        // Assert:
+        EXPECT_EQ(expectedKeyIdentifiers, keyIdentifiers);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

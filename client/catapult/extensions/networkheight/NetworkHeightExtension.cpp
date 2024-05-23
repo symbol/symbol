@@ -19,18 +19,24 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/NetworkHeightConfiguration.h"
 #include "src/NetworkHeightService.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace networkheight { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		// register service(s)
-		auto config = NetworkHeightConfiguration::LoadFromPath(bootstrapper.resourcesPath());
-		bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkHeightServiceRegistrar(config));
-	}
-}}}
+namespace catapult {
+namespace networkheight {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            // register service(s)
+            auto config = NetworkHeightConfiguration::LoadFromPath(bootstrapper.resourcesPath());
+            bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkHeightServiceRegistrar(config));
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::networkheight::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::networkheight::RegisterExtension(bootstrapper);
 }

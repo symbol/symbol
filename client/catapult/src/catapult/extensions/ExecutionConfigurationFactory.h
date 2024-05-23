@@ -22,12 +22,16 @@
 #pragma once
 #include "catapult/chain/ExecutionConfiguration.h"
 
-namespace catapult { namespace plugins {
-	class PluginManager;
-}}
+namespace catapult {
+namespace plugins {
+    class PluginManager;
+}
+}
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Creates an execution configuration based on \a pluginManager.
-	chain::ExecutionConfiguration CreateExecutionConfiguration(const plugins::PluginManager& pluginManager);
-}}
+    /// Creates an execution configuration based on \a pluginManager.
+    chain::ExecutionConfiguration CreateExecutionConfiguration(const plugins::PluginManager& pluginManager);
+}
+}

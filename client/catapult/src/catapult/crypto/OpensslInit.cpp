@@ -23,24 +23,27 @@
 #include "catapult/exceptions.h"
 #include <openssl/provider.h>
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	namespace {
-		struct OpensslContext {
-			std::shared_ptr<OSSL_PROVIDER> pDefaultProvider;
-			std::shared_ptr<OSSL_PROVIDER> pLegacyProvider;
-		};
-	}
+    namespace {
+        struct OpensslContext {
+            std::shared_ptr<OSSL_PROVIDER> pDefaultProvider;
+            std::shared_ptr<OSSL_PROVIDER> pLegacyProvider;
+        };
+    }
 
-	std::shared_ptr<void> SetupOpensslCryptoFunctions() {
-		auto pContext = std::make_shared<OpensslContext>();
+    std::shared_ptr<void> SetupOpensslCryptoFunctions()
+    {
+        auto pContext = std::make_shared<OpensslContext>();
 
-		pContext->pDefaultProvider.reset(OSSL_PROVIDER_load(nullptr, "default"), OSSL_PROVIDER_unload);
-		pContext->pLegacyProvider.reset(OSSL_PROVIDER_load(nullptr, "legacy"), OSSL_PROVIDER_unload);
+        pContext->pDefaultProvider.reset(OSSL_PROVIDER_load(nullptr, "default"), OSSL_PROVIDER_unload);
+        pContext->pLegacyProvider.reset(OSSL_PROVIDER_load(nullptr, "legacy"), OSSL_PROVIDER_unload);
 
-		if (!pContext->pDefaultProvider || !pContext->pLegacyProvider)
-			CATAPULT_THROW_RUNTIME_ERROR("unable to load required OpenSSL crypto providers");
+        if (!pContext->pDefaultProvider || !pContext->pLegacyProvider)
+            CATAPULT_THROW_RUNTIME_ERROR("unable to load required OpenSSL crypto providers");
 
-		return pContext;
-	}
-}}
+        return pContext;
+    }
+}
+}

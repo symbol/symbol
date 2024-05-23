@@ -22,70 +22,82 @@
 #include "Random.h"
 #include "catapult/utils/RandomGenerator.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		template<typename T>
-		void RandomFill(T& container) {
-			std::generate_n(container.begin(), container.size(), []() { return static_cast<typename T::value_type>(RandomByte()); });
-		}
+    namespace {
+        template <typename T>
+        void RandomFill(T& container)
+        {
+            std::generate_n(container.begin(), container.size(), []() { return static_cast<typename T::value_type>(RandomByte()); });
+        }
 
-		template<typename T>
-		T GenerateRandomContainer(size_t size) {
-			T container;
-			container.resize(size);
-			RandomFill(container);
-			return container;
-		}
-	}
+        template <typename T>
+        T GenerateRandomContainer(size_t size)
+        {
+            T container;
+            container.resize(size);
+            RandomFill(container);
+            return container;
+        }
+    }
 
-	// region random suppliers
+    // region random suppliers
 
-	uint64_t Random() {
-		return utils::LowEntropyRandomGenerator()();
-	}
+    uint64_t Random()
+    {
+        return utils::LowEntropyRandomGenerator()();
+    }
 
-	uint8_t RandomByte() {
-		return static_cast<uint8_t>(Random());
-	}
+    uint8_t RandomByte()
+    {
+        return static_cast<uint8_t>(Random());
+    }
 
-	// endregion
+    // endregion
 
-	// region fill with random data
+    // region fill with random data
 
-	void FillWithRandomData(std::vector<uint8_t>& vec) {
-		RandomFill(vec);
-	}
+    void FillWithRandomData(std::vector<uint8_t>& vec)
+    {
+        RandomFill(vec);
+    }
 
-	void FillWithRandomData(const MutableRawBuffer& dataBuffer) {
-		std::generate_n(dataBuffer.pData, dataBuffer.Size, RandomByte);
-	}
+    void FillWithRandomData(const MutableRawBuffer& dataBuffer)
+    {
+        std::generate_n(dataBuffer.pData, dataBuffer.Size, RandomByte);
+    }
 
-	void FillWithRandomData(UnresolvedAddress& unresolvedAddress) {
-		FillWithRandomData({ reinterpret_cast<uint8_t*>(unresolvedAddress.data()), unresolvedAddress.size() });
-	}
+    void FillWithRandomData(UnresolvedAddress& unresolvedAddress)
+    {
+        FillWithRandomData({ reinterpret_cast<uint8_t*>(unresolvedAddress.data()), unresolvedAddress.size() });
+    }
 
-	// endregion
+    // endregion
 
-	// region generate random objects
+    // region generate random objects
 
-	std::string GenerateRandomString(size_t size) {
-		return GenerateRandomContainer<std::string>(size);
-	}
+    std::string GenerateRandomString(size_t size)
+    {
+        return GenerateRandomContainer<std::string>(size);
+    }
 
-	std::string GenerateRandomHexString(size_t size) {
-		std::string str;
-		str.resize(size);
-		std::generate_n(str.begin(), str.size(), []() {
-			auto value = Random() % 16;
-			return static_cast<char>(value < 10 ? (value + '0') : (value - 10 + 'a'));
-		});
-		return str;
-	}
+    std::string GenerateRandomHexString(size_t size)
+    {
+        std::string str;
+        str.resize(size);
+        std::generate_n(str.begin(), str.size(), []() {
+            auto value = Random() % 16;
+            return static_cast<char>(value < 10 ? (value + '0') : (value - 10 + 'a'));
+        });
+        return str;
+    }
 
-	std::vector<uint8_t> GenerateRandomVector(size_t size) {
-		return GenerateRandomDataVector<uint8_t>(size);
-	}
+    std::vector<uint8_t> GenerateRandomVector(size_t size)
+    {
+        return GenerateRandomDataVector<uint8_t>(size);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -21,19 +21,25 @@
 
 #pragma once
 #include <boost/asio.hpp>
-#include <vector>
 #include <stdint.h>
+#include <vector>
 
-namespace boost { namespace asio { namespace ssl {
-	template<typename NextLayer>
-	class stream;
-}}}
+namespace boost {
+namespace asio {
+    namespace ssl {
+        template <typename NextLayer>
+        class stream;
+    }
+}
+}
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	using ByteBuffer = std::vector<uint8_t>;
+    using ByteBuffer = std::vector<uint8_t>;
 
-	using NetworkSocket = boost::asio::ip::tcp::socket;
+    using NetworkSocket = boost::asio::ip::tcp::socket;
 
-	using Socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
-}}
+    using Socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
+}
+}

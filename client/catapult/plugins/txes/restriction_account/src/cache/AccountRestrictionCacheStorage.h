@@ -21,13 +21,15 @@
 
 #pragma once
 #include "AccountRestrictionCacheTypes.h"
-#include "src/state/AccountRestrictionsSerializer.h"
 #include "catapult/cache/CacheStorageInclude.h"
+#include "src/state/AccountRestrictionsSerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Policy for saving and loading account restriction cache data.
-	struct AccountRestrictionCacheStorage
-			: public CacheStorageForBasicInsertRemoveCache<AccountRestrictionCacheDescriptor>
-			, public state::AccountRestrictionsSerializer {};
-}}
+    /// Policy for saving and loading account restriction cache data.
+    struct AccountRestrictionCacheStorage
+        : public CacheStorageForBasicInsertRemoveCache<AccountRestrictionCacheDescriptor>,
+          public state::AccountRestrictionsSerializer { };
+}
+}

@@ -20,45 +20,51 @@
 **/
 
 #include "AccountRestrictionsMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/utils/Casting.h"
+#include "mongo/src/mappers/MapperUtils.h"
 
 using namespace catapult::mongo::mappers;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	// region ToDbModel
+        // region ToDbModel
 
-	namespace {
-		void StreamAccountRestriction(bson_stream::array_context& context, const state::AccountRestriction& restriction) {
-			if (restriction.values().empty())
-				return;
+        namespace {
+            void StreamAccountRestriction(bson_stream::array_context& context, const state::AccountRestriction& restriction)
+            {
+                if (restriction.values().empty())
+                    return;
 
-			auto keyContext = context << bson_stream::open_document << "restrictionFlags"
-									  << static_cast<int32_t>(restriction.descriptor().raw());
+                auto keyContext = context << bson_stream::open_document << "restrictionFlags"
+                                          << static_cast<int32_t>(restriction.descriptor().raw());
 
-			auto valueArray = keyContext << "values" << bson_stream::open_array;
-			for (const auto& value : restriction.values())
-				valueArray << ToBinary(value.data(), value.size());
+                auto valueArray = keyContext << "values" << bson_stream::open_array;
+                for (const auto& value : restriction.values())
+                    valueArray << ToBinary(value.data(), value.size());
 
-			valueArray << bson_stream::close_array;
-			keyContext << bson_stream::close_document;
-		}
-	}
+                valueArray << bson_stream::close_array;
+                keyContext << bson_stream::close_document;
+            }
+        }
 
-	bsoncxx::document::value ToDbModel(const state::AccountRestrictions& restrictions) {
-		bson_stream::document builder;
-		auto doc = builder << "accountRestrictions" << bson_stream::open_document << "version" << 1 << "address"
-						   << ToBinary(restrictions.address());
+        bsoncxx::document::value ToDbModel(const state::AccountRestrictions& restrictions)
+        {
+            bson_stream::document builder;
+            auto doc = builder << "accountRestrictions" << bson_stream::open_document << "version" << 1 << "address"
+                               << ToBinary(restrictions.address());
 
-		auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
-		for (const auto& pair : restrictions)
-			StreamAccountRestriction(restrictionArray, pair.second);
+            auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
+            for (const auto& pair : restrictions)
+                StreamAccountRestriction(restrictionArray, pair.second);
 
-		restrictionArray << bson_stream::close_array;
+            restrictionArray << bson_stream::close_array;
 
-		return doc << bson_stream::close_document << bson_stream::finalize;
-	}
+            return doc << bson_stream::close_document << bson_stream::finalize;
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

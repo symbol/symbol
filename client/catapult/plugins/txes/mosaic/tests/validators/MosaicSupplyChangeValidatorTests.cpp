@@ -20,60 +20,68 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/plugins/ValidatorTestUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS MosaicSupplyChangeValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicSupplyChange, )
+    DEFINE_COMMON_VALIDATOR_TESTS(MosaicSupplyChange, )
 
-	namespace {
-		void AssertValidationResult(ValidationResult expectedResult, model::MosaicSupplyChangeAction action, Amount delta) {
-			// Arrange:
-			model::MosaicSupplyChangeNotification notification(Address(), UnresolvedMosaicId(), action, delta);
-			auto pValidator = CreateMosaicSupplyChangeValidator();
+    namespace {
+        void AssertValidationResult(ValidationResult expectedResult, model::MosaicSupplyChangeAction action, Amount delta)
+        {
+            // Arrange:
+            model::MosaicSupplyChangeNotification notification(Address(), UnresolvedMosaicId(), action, delta);
+            auto pValidator = CreateMosaicSupplyChangeValidator();
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "action " << utils::to_underlying_type(action) << ", delta " << delta;
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result) << "action " << utils::to_underlying_type(action) << ", delta " << delta;
+        }
+    }
 
-	// region action
+    // region action
 
-	namespace {
-		constexpr auto ToAction(int32_t action) {
-			return static_cast<model::MosaicSupplyChangeAction>(action);
-		}
-	}
+    namespace {
+        constexpr auto ToAction(int32_t action)
+        {
+            return static_cast<model::MosaicSupplyChangeAction>(action);
+        }
+    }
 
-	TEST(TEST_CLASS, SuccessWhenValidatingValidAction) {
-		for (auto action : { 0x00, 0x01 })
-			AssertValidationResult(ValidationResult::Success, ToAction(action), Amount(123));
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingValidAction)
+    {
+        for (auto action : { 0x00, 0x01 })
+            AssertValidationResult(ValidationResult::Success, ToAction(action), Amount(123));
+    }
 
-	TEST(TEST_CLASS, FailureWhenValidatingInvalidAction) {
-		for (auto action : { 0x02, 0xFF })
-			AssertValidationResult(Failure_Mosaic_Invalid_Supply_Change_Action, ToAction(action), Amount(123));
-	}
+    TEST(TEST_CLASS, FailureWhenValidatingInvalidAction)
+    {
+        for (auto action : { 0x02, 0xFF })
+            AssertValidationResult(Failure_Mosaic_Invalid_Supply_Change_Action, ToAction(action), Amount(123));
+    }
 
-	// endregion
+    // endregion
 
-	// region amount
+    // region amount
 
-	TEST(TEST_CLASS, SuccessWhenDeltaIsNonzero) {
-		for (auto action : { 0x00, 0x01 })
-			AssertValidationResult(ValidationResult::Success, ToAction(action), Amount(1));
-	}
+    TEST(TEST_CLASS, SuccessWhenDeltaIsNonzero)
+    {
+        for (auto action : { 0x00, 0x01 })
+            AssertValidationResult(ValidationResult::Success, ToAction(action), Amount(1));
+    }
 
-	TEST(TEST_CLASS, FailureWhenDeltaIsZero) {
-		for (auto action : { 0x00, 0x01 })
-			AssertValidationResult(Failure_Mosaic_Invalid_Supply_Change_Amount, ToAction(action), Amount());
-	}
+    TEST(TEST_CLASS, FailureWhenDeltaIsZero)
+    {
+        for (auto action : { 0x00, 0x01 })
+            AssertValidationResult(Failure_Mosaic_Invalid_Supply_Change_Amount, ToAction(action), Amount());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

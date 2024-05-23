@@ -22,50 +22,56 @@
 #include "catapult/model/WeakCosignedTransactionInfo.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS WeakCosignedTransactionInfoTests
 
-	TEST(TEST_CLASS, CanCreateUnsetWeakCosignedTransactionInfo) {
-		// Act:
-		WeakCosignedTransactionInfo transactionInfo;
+    TEST(TEST_CLASS, CanCreateUnsetWeakCosignedTransactionInfo)
+    {
+        // Act:
+        WeakCosignedTransactionInfo transactionInfo;
 
-		// Assert:
-		EXPECT_FALSE(!!transactionInfo);
-	}
+        // Assert:
+        EXPECT_FALSE(!!transactionInfo);
+    }
 
-	TEST(TEST_CLASS, CanCreateWeakCosignedTransactionInfo) {
-		// Act:
-		Transaction transaction;
-		auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
-		WeakCosignedTransactionInfo transactionInfo(&transaction, &cosignatures);
+    TEST(TEST_CLASS, CanCreateWeakCosignedTransactionInfo)
+    {
+        // Act:
+        Transaction transaction;
+        auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
+        WeakCosignedTransactionInfo transactionInfo(&transaction, &cosignatures);
 
-		// Assert:
-		EXPECT_TRUE(!!transactionInfo);
-		EXPECT_EQ(&transaction, &transactionInfo.transaction());
-		EXPECT_EQ(&cosignatures, &transactionInfo.cosignatures());
-	}
+        // Assert:
+        EXPECT_TRUE(!!transactionInfo);
+        EXPECT_EQ(&transaction, &transactionInfo.transaction());
+        EXPECT_EQ(&cosignatures, &transactionInfo.cosignatures());
+    }
 
-	TEST(TEST_CLASS, HasCosignatoryReturnsTrueWhenSignerIsCosignatory) {
-		// Arrange:
-		Transaction transaction;
-		auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
-		WeakCosignedTransactionInfo transactionInfo(&transaction, &cosignatures);
+    TEST(TEST_CLASS, HasCosignatoryReturnsTrueWhenSignerIsCosignatory)
+    {
+        // Arrange:
+        Transaction transaction;
+        auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
+        WeakCosignedTransactionInfo transactionInfo(&transaction, &cosignatures);
 
-		// Act + Assert:
-		for (const auto& cosignature : cosignatures)
-			EXPECT_TRUE(transactionInfo.hasCosignatory(cosignature.SignerPublicKey));
-	}
+        // Act + Assert:
+        for (const auto& cosignature : cosignatures)
+            EXPECT_TRUE(transactionInfo.hasCosignatory(cosignature.SignerPublicKey));
+    }
 
-	TEST(TEST_CLASS, HasCosignatoryReturnsFalseWhenSignerIsNotCosignatory) {
-		// Arrange:
-		Transaction transaction;
-		transaction.SignerPublicKey = test::GenerateRandomByteArray<Key>();
-		auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
-		WeakCosignedTransactionInfo transactionInfo(&transaction, &cosignatures);
+    TEST(TEST_CLASS, HasCosignatoryReturnsFalseWhenSignerIsNotCosignatory)
+    {
+        // Arrange:
+        Transaction transaction;
+        transaction.SignerPublicKey = test::GenerateRandomByteArray<Key>();
+        auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
+        WeakCosignedTransactionInfo transactionInfo(&transaction, &cosignatures);
 
-		// Act + Assert:
-		EXPECT_FALSE(transactionInfo.hasCosignatory(transaction.SignerPublicKey));
-		EXPECT_FALSE(transactionInfo.hasCosignatory(test::GenerateRandomByteArray<Key>()));
-	}
-}}
+        // Act + Assert:
+        EXPECT_FALSE(transactionInfo.hasCosignatory(transaction.SignerPublicKey));
+        EXPECT_FALSE(transactionInfo.hasCosignatory(test::GenerateRandomByteArray<Key>()));
+    }
+}
+}

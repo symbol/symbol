@@ -26,100 +26,102 @@
 
 namespace catapult {
 namespace cache {
-	class MemoryPtCacheProxy;
+    class MemoryPtCacheProxy;
 }
 namespace chain {
-	class PtValidator;
+    class PtValidator;
 }
 namespace model {
-	struct DetachedCosignature;
-	struct Transaction;
-	struct TransactionInfo;
+    struct DetachedCosignature;
+    struct Transaction;
+    struct TransactionInfo;
 }
 namespace thread {
-	class IoThreadPool;
+    class IoThreadPool;
 }
 }
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	// region results
+    // region results
 
-	/// Result of a partial transaction update.
-	struct PtUpdateResult {
-		/// Possible update types.
-		enum class UpdateType {
-			/// New transaction.
-			New,
+    /// Result of a partial transaction update.
+    struct PtUpdateResult {
+        /// Possible update types.
+        enum class UpdateType {
+            /// New transaction.
+            New,
 
-			/// Existing transaction.
-			Existing,
+            /// Existing transaction.
+            Existing,
 
-			/// Invalid transaction.
-			Invalid,
+            /// Invalid transaction.
+            Invalid,
 
-			/// Neutral transaction (e.g. cache is full).
-			Neutral
-		};
+            /// Neutral transaction (e.g. cache is full).
+            Neutral
+        };
 
-		/// Type of the update.
-		UpdateType Type;
+        /// Type of the update.
+        UpdateType Type;
 
-		/// Number of cosignatures added.
-		size_t NumCosignaturesAdded;
-	};
+        /// Number of cosignatures added.
+        size_t NumCosignaturesAdded;
+    };
 
-	/// Result of a cosignature update.
-	enum class CosignatureUpdateResult {
-		/// Error occurred during processing of cosignature.
-		Error,
+    /// Result of a cosignature update.
+    enum class CosignatureUpdateResult {
+        /// Error occurred during processing of cosignature.
+        Error,
 
-		/// Cosignature is ineligible.
-		Ineligible,
+        /// Cosignature is ineligible.
+        Ineligible,
 
-		/// Cosignature is unverifiable.
-		Unverifiable,
+        /// Cosignature is unverifiable.
+        Unverifiable,
 
-		/// Cosignature is redundant.
-		Redundant,
+        /// Cosignature is redundant.
+        Redundant,
 
-		/// Cosignature is added and did not complete the owning transaction.
-		Added_Incomplete,
+        /// Cosignature is added and did not complete the owning transaction.
+        Added_Incomplete,
 
-		/// Cosignature is added and completed the owning transaction.
-		Added_Complete
-	};
+        /// Cosignature is added and completed the owning transaction.
+        Added_Complete
+    };
 
-	// endregion
+    // endregion
 
-	/// Provides updating of a partial transactions cache.
-	class PtUpdater {
-	public:
-		/// Sink that is passed completed transactions.
-		using CompletedTransactionSink = consumer<std::unique_ptr<model::Transaction>&&>;
+    /// Provides updating of a partial transactions cache.
+    class PtUpdater {
+    public:
+        /// Sink that is passed completed transactions.
+        using CompletedTransactionSink = consumer<std::unique_ptr<model::Transaction>&&>;
 
-	public:
-		/// Creates an updater around \a transactionsCache, \a pValidator, \a completedTransactionSink and \a failedTransactionSink
-		/// using \a pool for parallelization.
-		PtUpdater(
-				cache::MemoryPtCacheProxy& transactionsCache,
-				std::unique_ptr<const PtValidator>&& pValidator,
-				const CompletedTransactionSink& completedTransactionSink,
-				const FailedTransactionSink& failedTransactionSink,
-				thread::IoThreadPool& pool);
+    public:
+        /// Creates an updater around \a transactionsCache, \a pValidator, \a completedTransactionSink and \a failedTransactionSink
+        /// using \a pool for parallelization.
+        PtUpdater(
+            cache::MemoryPtCacheProxy& transactionsCache,
+            std::unique_ptr<const PtValidator>&& pValidator,
+            const CompletedTransactionSink& completedTransactionSink,
+            const FailedTransactionSink& failedTransactionSink,
+            thread::IoThreadPool& pool);
 
-		/// Destroys the updater.
-		~PtUpdater();
+        /// Destroys the updater.
+        ~PtUpdater();
 
-	public:
-		/// Updates this cache by adding a new transaction info (\a transactionInfo).
-		thread::future<PtUpdateResult> update(const model::TransactionInfo& transactionInfo);
+    public:
+        /// Updates this cache by adding a new transaction info (\a transactionInfo).
+        thread::future<PtUpdateResult> update(const model::TransactionInfo& transactionInfo);
 
-		/// Updates this cache by adding a new \a cosignature.
-		thread::future<CosignatureUpdateResult> update(const model::DetachedCosignature& cosignature);
+        /// Updates this cache by adding a new \a cosignature.
+        thread::future<CosignatureUpdateResult> update(const model::DetachedCosignature& cosignature);
 
-	private:
-		class Impl;
-		std::shared_ptr<Impl> m_pImpl; // shared_ptr to allow use of enable_shared_from_this
-	};
-}}
+    private:
+        class Impl;
+        std::shared_ptr<Impl> m_pImpl; // shared_ptr to allow use of enable_shared_from_this
+    };
+}
+}

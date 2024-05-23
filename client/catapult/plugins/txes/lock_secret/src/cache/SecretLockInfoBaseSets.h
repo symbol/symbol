@@ -24,7 +24,9 @@
 #include "SecretLockInfoCacheTypes.h"
 #include "plugins/txes/lock_shared/src/cache/LockInfoBaseSets.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	DEFINE_LOCK_INFO_BASE_SETS(SecretLockInfo)
-}}
+    DEFINE_LOCK_INFO_BASE_SETS(SecretLockInfo)
+}
+}

@@ -26,45 +26,50 @@
 #include "catapult/cache/ReadOnlySimpleCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Mixins used by the hash cache view.
-	using HashCacheViewMixins = BasicCacheMixins<HashCacheTypes::PrimaryTypes::BaseSetType, HashCacheDescriptor>;
+    /// Mixins used by the hash cache view.
+    using HashCacheViewMixins = BasicCacheMixins<HashCacheTypes::PrimaryTypes::BaseSetType, HashCacheDescriptor>;
 
-	/// Basic view on top of the hash cache.
-	class BasicHashCacheView
-			: public utils::MoveOnly
-			, public HashCacheViewMixins::Size
-			, public HashCacheViewMixins::Contains
-			, public HashCacheViewMixins::Iteration {
-	public:
-		using ReadOnlyView = HashCacheTypes::CacheReadOnlyType;
+    /// Basic view on top of the hash cache.
+    class BasicHashCacheView
+        : public utils::MoveOnly,
+          public HashCacheViewMixins::Size,
+          public HashCacheViewMixins::Contains,
+          public HashCacheViewMixins::Iteration {
+    public:
+        using ReadOnlyView = HashCacheTypes::CacheReadOnlyType;
 
-	public:
-		/// Creates a view around \a hashSets and \a options.
-		BasicHashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
-				: HashCacheViewMixins::Size(hashSets.Primary)
-				, HashCacheViewMixins::Contains(hashSets.Primary)
-				, HashCacheViewMixins::Iteration(hashSets.Primary)
-				, m_retentionTime(options.RetentionTime) {
-		}
+    public:
+        /// Creates a view around \a hashSets and \a options.
+        BasicHashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
+            : HashCacheViewMixins::Size(hashSets.Primary)
+            , HashCacheViewMixins::Contains(hashSets.Primary)
+            , HashCacheViewMixins::Iteration(hashSets.Primary)
+            , m_retentionTime(options.RetentionTime)
+        {
+        }
 
-	public:
-		/// Gets the retention time for the cache.
-		utils::TimeSpan retentionTime() const {
-			return m_retentionTime;
-		}
+    public:
+        /// Gets the retention time for the cache.
+        utils::TimeSpan retentionTime() const
+        {
+            return m_retentionTime;
+        }
 
-	private:
-		utils::TimeSpan m_retentionTime;
-	};
+    private:
+        utils::TimeSpan m_retentionTime;
+    };
 
-	/// View on top of the hash cache.
-	class HashCacheView : public ReadOnlyViewSupplier<BasicHashCacheView> {
-	public:
-		/// Creates a view around \a hashSets and \a options.
-		HashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
-				: ReadOnlyViewSupplier(hashSets, options) {
-		}
-	};
-}}
+    /// View on top of the hash cache.
+    class HashCacheView : public ReadOnlyViewSupplier<BasicHashCacheView> {
+    public:
+        /// Creates a view around \a hashSets and \a options.
+        HashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
+            : ReadOnlyViewSupplier(hashSets, options)
+        {
+        }
+    };
+}
+}

@@ -23,31 +23,35 @@
 #include "TransactionPlugin.h"
 #include "catapult/utils/Logging.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	namespace {
-		bool IsSizeValidInternal(const Transaction& transaction, const TransactionRegistry& registry) {
-			const auto* pPlugin = registry.findPlugin(transaction.Type);
-			if (!pPlugin || !pPlugin->supportsTopLevel()) {
-				CATAPULT_LOG(warning) << "rejected transaction with type: " << transaction.Type
-									  << (pPlugin ? " (top level not supported)" : "");
-				return false;
-			}
+    namespace {
+        bool IsSizeValidInternal(const Transaction& transaction, const TransactionRegistry& registry)
+        {
+            const auto* pPlugin = registry.findPlugin(transaction.Type);
+            if (!pPlugin || !pPlugin->supportsTopLevel()) {
+                CATAPULT_LOG(warning) << "rejected transaction with type: " << transaction.Type
+                                      << (pPlugin ? " (top level not supported)" : "");
+                return false;
+            }
 
-			return pPlugin->isSizeValid(transaction);
-		}
-	}
+            return pPlugin->isSizeValid(transaction);
+        }
+    }
 
-	bool IsSizeValid(const Transaction& transaction, const TransactionRegistry& registry) {
-		if (transaction.Size < sizeof(Transaction)) {
-			CATAPULT_LOG(warning) << "transaction failed size validation with size " << transaction.Size;
-			return false;
-		}
+    bool IsSizeValid(const Transaction& transaction, const TransactionRegistry& registry)
+    {
+        if (transaction.Size < sizeof(Transaction)) {
+            CATAPULT_LOG(warning) << "transaction failed size validation with size " << transaction.Size;
+            return false;
+        }
 
-		if (IsSizeValidInternal(transaction, registry))
-			return true;
+        if (IsSizeValidInternal(transaction, registry))
+            return true;
 
-		CATAPULT_LOG(warning) << transaction.Type << " transaction failed size validation with size " << transaction.Size;
-		return false;
-	}
-}}
+        CATAPULT_LOG(warning) << transaction.Type << " transaction failed size validation with size " << transaction.Size;
+        return false;
+    }
+}
+}

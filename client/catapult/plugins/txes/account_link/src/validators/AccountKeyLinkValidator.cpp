@@ -23,27 +23,29 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/validators/ValidatorContext.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::RemoteAccountKeyLinkNotification;
+    using Notification = model::RemoteAccountKeyLinkNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(AccountKeyLink, [](const Notification& notification, const ValidatorContext& context) {
-		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
-		auto accountStateIter = cache.find(notification.MainAccountPublicKey);
-		const auto& accountState = accountStateIter.get();
+    DEFINE_STATEFUL_VALIDATOR(AccountKeyLink, [](const Notification& notification, const ValidatorContext& context) {
+        const auto& cache = context.Cache.sub<cache::AccountStateCache>();
+        auto accountStateIter = cache.find(notification.MainAccountPublicKey);
+        const auto& accountState = accountStateIter.get();
 
-		if (model::LinkAction::Link == notification.LinkAction) {
-			if (state::AccountType::Unlinked != accountState.AccountType)
-				return Failure_AccountLink_Link_Already_Exists;
-		} else {
-			// only main accounts can unlink (not remotes)
-			if (state::AccountType::Main != accountState.AccountType)
-				return Failure_AccountLink_Unknown_Link;
+        if (model::LinkAction::Link == notification.LinkAction) {
+            if (state::AccountType::Unlinked != accountState.AccountType)
+                return Failure_AccountLink_Link_Already_Exists;
+        } else {
+            // only main accounts can unlink (not remotes)
+            if (state::AccountType::Main != accountState.AccountType)
+                return Failure_AccountLink_Unknown_Link;
 
-			if (notification.LinkedPublicKey != state::GetLinkedPublicKey(accountState))
-				return Failure_AccountLink_Inconsistent_Unlink_Data;
-		}
+            if (notification.LinkedPublicKey != state::GetLinkedPublicKey(accountState))
+                return Failure_AccountLink_Inconsistent_Unlink_Data;
+        }
 
-		return ValidationResult::Success;
-	})
-}}
+        return ValidationResult::Success;
+    })
+}
+}

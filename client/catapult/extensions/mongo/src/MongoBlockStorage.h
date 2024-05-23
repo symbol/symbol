@@ -23,17 +23,21 @@
 #include "MongoStorageContext.h"
 #include "catapult/io/BlockStorage.h"
 
-namespace catapult { namespace mongo {
-	class MongoReceiptRegistry;
-	class MongoTransactionRegistry;
-}}
+namespace catapult {
+namespace mongo {
+    class MongoReceiptRegistry;
+    class MongoTransactionRegistry;
+}
+}
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	/// Creates a mongodb block storage around \a context, \a maxDropBatchSize, \a transactionRegistry and \a receiptRegistry.
-	std::unique_ptr<io::LightBlockStorage> CreateMongoBlockStorage(
-			MongoStorageContext& context,
-			uint32_t maxDropBatchSize,
-			const MongoTransactionRegistry& transactionRegistry,
-			const MongoReceiptRegistry& receiptRegistry);
-}}
+    /// Creates a mongodb block storage around \a context, \a maxDropBatchSize, \a transactionRegistry and \a receiptRegistry.
+    std::unique_ptr<io::LightBlockStorage> CreateMongoBlockStorage(
+        MongoStorageContext& context,
+        uint32_t maxDropBatchSize,
+        const MongoTransactionRegistry& transactionRegistry,
+        const MongoReceiptRegistry& receiptRegistry);
+}
+}

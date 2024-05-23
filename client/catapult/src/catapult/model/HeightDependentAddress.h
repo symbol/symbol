@@ -23,27 +23,29 @@
 #include "catapult/types.h"
 #include <vector>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Container that provides a height to address mapping.
-	class HeightDependentAddress {
-	public:
-		/// Creates an empty height dependent address.
-		HeightDependentAddress();
+    /// Container that provides a height to address mapping.
+    class HeightDependentAddress {
+    public:
+        /// Creates an empty height dependent address.
+        HeightDependentAddress();
 
-		/// Creates a height dependent address around a default \a address.
-		explicit HeightDependentAddress(const Address& address);
+        /// Creates a height dependent address around a default \a address.
+        explicit HeightDependentAddress(const Address& address);
 
-	public:
-		/// Tries to set an address that should be used for all heights between the current highest overloaded height and \a endHeight.
-		/// \note Zero \a endHeight is ignored.
-		bool trySet(const Address& address, Height endHeight);
+    public:
+        /// Tries to set an address that should be used for all heights between the current highest overloaded height and \a endHeight.
+        /// \note Zero \a endHeight is ignored.
+        bool trySet(const Address& address, Height endHeight);
 
-		/// Gets the active address at \a height.
-		Address get(Height height) const;
+        /// Gets the active address at \a height.
+        Address get(Height height) const;
 
-	private:
-		Address m_defaultAddress;
-		std::vector<std::pair<Address, Height>> m_addresses;
-	};
-}}
+    private:
+        Address m_defaultAddress;
+        std::vector<std::pair<Address, Height>> m_addresses;
+    };
+}
+}

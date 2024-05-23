@@ -22,37 +22,42 @@
 #pragma once
 #include <stdint.h>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Receipt source (unique within a block).
-	struct ReceiptSource {
-	public:
-		/// Creates a default receipt source.
-		ReceiptSource()
-				: ReceiptSource(0, 0) {
-		}
+    /// Receipt source (unique within a block).
+    struct ReceiptSource {
+    public:
+        /// Creates a default receipt source.
+        ReceiptSource()
+            : ReceiptSource(0, 0)
+        {
+        }
 
-		/// Creates a receipt source around \a primaryId and \a secondaryId.
-		ReceiptSource(uint32_t primaryId, uint32_t secondaryId)
-				: PrimaryId(primaryId)
-				, SecondaryId(secondaryId) {
-		}
+        /// Creates a receipt source around \a primaryId and \a secondaryId.
+        ReceiptSource(uint32_t primaryId, uint32_t secondaryId)
+            : PrimaryId(primaryId)
+            , SecondaryId(secondaryId)
+        {
+        }
 
-	public:
-		/// Transaction primary source (e.g. index within block).
-		uint32_t PrimaryId;
+    public:
+        /// Transaction primary source (e.g. index within block).
+        uint32_t PrimaryId;
 
-		/// Transaction secondary source (e.g. index within aggregate).
-		uint32_t SecondaryId;
+        /// Transaction secondary source (e.g. index within aggregate).
+        uint32_t SecondaryId;
 
-	public:
-		/// Returns \c true if this receipt source is less than \a rhs.
-		constexpr bool operator<(const ReceiptSource& rhs) const {
-			return PrimaryId < rhs.PrimaryId || (PrimaryId == rhs.PrimaryId && SecondaryId < rhs.SecondaryId);
-		}
-	};
+    public:
+        /// Returns \c true if this receipt source is less than \a rhs.
+        constexpr bool operator<(const ReceiptSource& rhs) const
+        {
+            return PrimaryId < rhs.PrimaryId || (PrimaryId == rhs.PrimaryId && SecondaryId < rhs.SecondaryId);
+        }
+    };
 
 #pragma pack(pop)
-}}
+}
+}

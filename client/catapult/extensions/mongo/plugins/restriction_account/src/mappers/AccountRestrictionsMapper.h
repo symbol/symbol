@@ -23,8 +23,12 @@
 #include "mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Maps \a restrictions to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::AccountRestrictions& restrictions);
-}}}
+        /// Maps \a restrictions to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(const state::AccountRestrictions& restrictions);
+    }
+}
+}

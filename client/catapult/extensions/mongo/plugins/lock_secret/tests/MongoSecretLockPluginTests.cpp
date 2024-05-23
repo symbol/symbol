@@ -19,33 +19,40 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/lock_secret/src/model/SecretLockEntityType.h"
 #include "plugins/txes/lock_secret/src/model/SecretLockReceiptType.h"
-#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct MongoSecretLockPluginTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+        namespace {
+            struct MongoSecretLockPluginTraits {
+            public:
+                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Secret_Lock, model::Entity_Type_Secret_Proof };
-			}
+                static std::vector<model::EntityType> GetTransactionTypes()
+                {
+                    return { model::Entity_Type_Secret_Lock, model::Entity_Type_Secret_Proof };
+                }
 
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return { model::Receipt_Type_LockSecret_Created,
-						 model::Receipt_Type_LockSecret_Completed,
-						 model::Receipt_Type_LockSecret_Expired };
-			}
+                static std::vector<model::ReceiptType> GetReceiptTypes()
+                {
+                    return { model::Receipt_Type_LockSecret_Created,
+                        model::Receipt_Type_LockSecret_Completed,
+                        model::Receipt_Type_LockSecret_Expired };
+                }
 
-			static std::string GetStorageName() {
-				return "{ SecretLockInfoCache }";
-			}
-		};
-	}
+                static std::string GetStorageName()
+                {
+                    return "{ SecretLockInfoCache }";
+                }
+            };
+        }
 
-	DEFINE_MONGO_PLUGIN_TESTS(MongoSecretLockPluginTests, MongoSecretLockPluginTraits)
-}}}
+        DEFINE_MONGO_PLUGIN_TESTS(MongoSecretLockPluginTests, MongoSecretLockPluginTraits)
+    }
+}
+}

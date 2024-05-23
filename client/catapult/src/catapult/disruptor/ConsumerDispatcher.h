@@ -28,73 +28,77 @@
 #include "catapult/utils/NamedObject.h"
 #include <atomic>
 
-namespace catapult { namespace disruptor {
-	class ConsumerEntry;
-}}
+namespace catapult {
+namespace disruptor {
+    class ConsumerEntry;
+}
+}
 
-namespace catapult { namespace disruptor {
+namespace catapult {
+namespace disruptor {
 
-	/// Dispatcher for disruptor consumers.
-	class ConsumerDispatcher final : public utils::NamedObjectMixin {
-	public:
-		/// Creates a dispatcher of \a consumers configured with \a options.
-		/// Inspector (\a inspector) is a special consumer that is always run (independent of skip) and as a last one.
-		/// Inspector runs within a thread of the last consumer.
-		ConsumerDispatcher(
-				const ConsumerDispatcherOptions& options,
-				const std::vector<DisruptorConsumer>& consumers,
-				const DisruptorInspector& inspector);
+    /// Dispatcher for disruptor consumers.
+    class ConsumerDispatcher final : public utils::NamedObjectMixin {
+    public:
+        /// Creates a dispatcher of \a consumers configured with \a options.
+        /// Inspector (\a inspector) is a special consumer that is always run (independent of skip) and as a last one.
+        /// Inspector runs within a thread of the last consumer.
+        ConsumerDispatcher(
+            const ConsumerDispatcherOptions& options,
+            const std::vector<DisruptorConsumer>& consumers,
+            const DisruptorInspector& inspector);
 
-		/// Creates a dispatcher of \a consumers configured with \a options.
-		ConsumerDispatcher(const ConsumerDispatcherOptions& options, const std::vector<DisruptorConsumer>& consumers);
+        /// Creates a dispatcher of \a consumers configured with \a options.
+        ConsumerDispatcher(const ConsumerDispatcherOptions& options, const std::vector<DisruptorConsumer>& consumers);
 
-		~ConsumerDispatcher();
+        ~ConsumerDispatcher();
 
-	public:
-		/// Shuts down dispatcher and stops all threads.
-		void shutdown();
+    public:
+        /// Shuts down dispatcher and stops all threads.
+        void shutdown();
 
-		/// Returns \c true if dispatcher is running, \c false otherwise.
-		bool isRunning() const;
+        /// Returns \c true if dispatcher is running, \c false otherwise.
+        bool isRunning() const;
 
-		/// Gets the number of registered consumers.
-		size_t size() const;
+        /// Gets the number of registered consumers.
+        size_t size() const;
 
-		/// Pushes the \a input into underlying disruptor and returns the assigned element id.
-		/// Once the processing of the input is complete, \a processingComplete will be called.
-		DisruptorElementId processElement(ConsumerInput&& input, const ProcessingCompleteFunc& processingComplete);
+        /// Pushes the \a input into underlying disruptor and returns the assigned element id.
+        /// Once the processing of the input is complete, \a processingComplete will be called.
+        DisruptorElementId processElement(ConsumerInput&& input, const ProcessingCompleteFunc& processingComplete);
 
-		/// Pushes the \a input into underlying disruptor and returns the assigned element id.
-		DisruptorElementId processElement(ConsumerInput&& input);
+        /// Pushes the \a input into underlying disruptor and returns the assigned element id.
+        DisruptorElementId processElement(ConsumerInput&& input);
 
-		/// Gets the total number of elements added to the disruptor.
-		size_t numAddedElements() const;
+        /// Gets the total number of elements added to the disruptor.
+        size_t numAddedElements() const;
 
-		/// Gets the number of elements currently in the disruptor.
-		size_t numActiveElements() const;
+        /// Gets the number of elements currently in the disruptor.
+        size_t numActiveElements() const;
 
-		/// Gets the cumulative size of all elements currently in the disruptor.
-		utils::FileSize memorySize() const;
+        /// Gets the cumulative size of all elements currently in the disruptor.
+        utils::FileSize memorySize() const;
 
-	private:
-		DisruptorElement* tryNext(ConsumerEntry& consumerEntry);
+    private:
+        DisruptorElement* tryNext(ConsumerEntry& consumerEntry);
 
-		void advance(ConsumerEntry& consumerEntry);
+        void advance(ConsumerEntry& consumerEntry);
 
-		bool canProcessNextElement() const;
+        bool canProcessNextElement() const;
 
-		ProcessingCompleteFunc wrap(const ProcessingCompleteFunc& processingComplete, utils::FileSize inputMemorySize);
+        ProcessingCompleteFunc wrap(const ProcessingCompleteFunc& processingComplete, utils::FileSize inputMemorySize);
 
-	private:
-		ConsumerDispatcherOptions m_options;
-		std::atomic_bool m_keepRunning;
-		DisruptorBarriers m_barriers;
-		Disruptor m_disruptor;
-		DisruptorInspector m_inspector;
-		thread::ThreadGroup m_threads;
-		std::atomic<size_t> m_numActiveElements;
-		std::atomic<uint64_t> m_memorySize;
+    private:
+        ConsumerDispatcherOptions m_options;
+        std::atomic_bool m_keepRunning;
+        DisruptorBarriers m_barriers;
+        Disruptor m_disruptor;
+        DisruptorInspector m_inspector;
+        thread::ThreadGroup m_threads;
+        std::atomic<size_t> m_numActiveElements;
+        std::atomic<uint64_t> m_memorySize;
 
-		utils::SpinLock m_addSpinLock; // lock to serialize access to Disruptor::add
-	};
-}}
+        utils::SpinLock m_addSpinLock; // lock to serialize access to Disruptor::add
+    };
+}
+}

@@ -22,12 +22,15 @@
 #include "PinnedVotingKey.h"
 #include <algorithm>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	VotingKey FindVotingPublicKeyForEpoch(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationEpoch epoch) {
-		auto iter = std::find_if(pinnedPublicKeys.cbegin(), pinnedPublicKeys.cend(), [epoch](const auto& pinnedPublicKey) {
-			return pinnedPublicKey.StartEpoch <= epoch && epoch <= pinnedPublicKey.EndEpoch;
-		});
-		return pinnedPublicKeys.cend() != iter ? iter->VotingKey : VotingKey();
-	}
-}}
+    VotingKey FindVotingPublicKeyForEpoch(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationEpoch epoch)
+    {
+        auto iter = std::find_if(pinnedPublicKeys.cbegin(), pinnedPublicKeys.cend(), [epoch](const auto& pinnedPublicKey) {
+            return pinnedPublicKey.StartEpoch <= epoch && epoch <= pinnedPublicKey.EndEpoch;
+        });
+        return pinnedPublicKeys.cend() != iter ? iter->VotingKey : VotingKey();
+    }
+}
+}

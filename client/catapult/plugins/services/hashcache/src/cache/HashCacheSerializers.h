@@ -23,22 +23,26 @@
 #include "catapult/cache/CacheSerializerAdapter.h"
 #include "catapult/state/TimestampedHash.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Primary serializer for hash cache.
-	struct HashCachePrimarySerializer {
-	public:
-		/// Serializes to string.
-		/// \note Returns empty value because serialized key is actual value.
-		static std::string SerializeValue(const typename state::TimestampedHash&) {
-			return std::string();
-		}
+    /// Primary serializer for hash cache.
+    struct HashCachePrimarySerializer {
+    public:
+        /// Serializes to string.
+        /// \note Returns empty value because serialized key is actual value.
+        static std::string SerializeValue(const typename state::TimestampedHash&)
+        {
+            return std::string();
+        }
 
-		/// Converts \a timestampedHash to pruning boundary.
-		static uint64_t KeyToBoundary(const state::TimestampedHash& timestampedHash) {
-			return timestampedHash.Time.unwrap();
-		}
+        /// Converts \a timestampedHash to pruning boundary.
+        static uint64_t KeyToBoundary(const state::TimestampedHash& timestampedHash)
+        {
+            return timestampedHash.Time.unwrap();
+        }
 
-		// DeserializeValue is not needed because code using it shouldn't be generated for hash cache
-	};
-}}
+        // DeserializeValue is not needed because code using it shouldn't be generated for hash cache
+    };
+}
+}

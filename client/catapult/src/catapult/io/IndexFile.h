@@ -23,33 +23,35 @@
 #include "RawFile.h"
 #include <string>
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// Index file containing a uint64_t value.
-	class IndexFile {
-	public:
-		/// Creates an index file with name \a filename and file locking specified by \a lockMode.
-		explicit IndexFile(const std::string& filename, LockMode lockMode = LockMode::File);
+    /// Index file containing a uint64_t value.
+    class IndexFile {
+    public:
+        /// Creates an index file with name \a filename and file locking specified by \a lockMode.
+        explicit IndexFile(const std::string& filename, LockMode lockMode = LockMode::File);
 
-	public:
-		/// \c true if the index file exists.
-		bool exists() const;
+    public:
+        /// \c true if the index file exists.
+        bool exists() const;
 
-		/// Gets the index value.
-		uint64_t get() const;
+        /// Gets the index value.
+        uint64_t get() const;
 
-	public:
-		/// Sets the index value to \a value.
-		void set(uint64_t value);
+    public:
+        /// Sets the index value to \a value.
+        void set(uint64_t value);
 
-		/// Increments the index value by one and returns the new value.
-		uint64_t increment();
+        /// Increments the index value by one and returns the new value.
+        uint64_t increment();
 
-	private:
-		RawFile open(OpenMode mode) const;
+    private:
+        RawFile open(OpenMode mode) const;
 
-	private:
-		std::string m_filename;
-		LockMode m_lockMode;
-	};
-}}
+    private:
+        std::string m_filename;
+        LockMode m_lockMode;
+    };
+}
+}

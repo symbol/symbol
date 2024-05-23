@@ -23,34 +23,36 @@
 #include "catapult/state/AccountState.h"
 #include <vector>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Account states collection.
-	using AccountStates = std::vector<std::shared_ptr<state::AccountState>>;
+    /// Account states collection.
+    using AccountStates = std::vector<std::shared_ptr<state::AccountState>>;
 
-	/// Fill \a accountState with pseudo-random importances and \a numMosaics mosaics.
-	void RandomFillAccountData(uint64_t seed, state::AccountState& accountState, size_t numMosaics = 10);
+    /// Fill \a accountState with pseudo-random importances and \a numMosaics mosaics.
+    void RandomFillAccountData(uint64_t seed, state::AccountState& accountState, size_t numMosaics = 10);
 
-	/// Asserts that account state \a actual is equal to \a expected with optional \a message.
-	void AssertEqual(const state::AccountState& expected, const state::AccountState& actual, const std::string& message = "");
+    /// Asserts that account state \a actual is equal to \a expected with optional \a message.
+    void AssertEqual(const state::AccountState& expected, const state::AccountState& actual, const std::string& message = "");
 
-	/// Creates an account state at \a height.
-	/// \note The account state has no valid public key.
-	std::shared_ptr<state::AccountState> CreateAccountStateWithoutPublicKey(uint64_t height);
+    /// Creates an account state at \a height.
+    /// \note The account state has no valid public key.
+    std::shared_ptr<state::AccountState> CreateAccountStateWithoutPublicKey(uint64_t height);
 
-	/// Creates \a count account states with successive public keys starting at \c 1.
-	AccountStates CreateAccountStates(size_t count);
+    /// Creates \a count account states with successive public keys starting at \c 1.
+    AccountStates CreateAccountStates(size_t count);
 
-	/// Sets all supplemental public keys specified in \a mask to random values in \a accountState and adds \a numVotingKeys
-	/// random voting keys.
-	void SetRandomSupplementalPublicKeys(state::AccountState& accountState, state::AccountPublicKeys::KeyType mask, uint8_t numVotingKeys);
+    /// Sets all supplemental public keys specified in \a mask to random values in \a accountState and adds \a numVotingKeys
+    /// random voting keys.
+    void SetRandomSupplementalPublicKeys(state::AccountState& accountState, state::AccountPublicKeys::KeyType mask, uint8_t numVotingKeys);
 
-	/// Forcibly clears and sets linked public key in \a accountState to \a linkedPublicKey.
-	void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey);
+    /// Forcibly clears and sets linked public key in \a accountState to \a linkedPublicKey.
+    void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey);
 
-	/// Gets the heights of all \a snapshots.
-	std::vector<Height::ValueType> GetSnapshotHeights(const state::AccountImportanceSnapshots& snapshots);
+    /// Gets the heights of all \a snapshots.
+    std::vector<Height::ValueType> GetSnapshotHeights(const state::AccountImportanceSnapshots& snapshots);
 
-	/// Gets the heights of all \a buckets.
-	std::vector<Height::ValueType> GetBucketHeights(const state::AccountActivityBuckets& buckets);
-}}
+    /// Gets the heights of all \a buckets.
+    std::vector<Height::ValueType> GetBucketHeights(const state::AccountActivityBuckets& buckets);
+}
+}

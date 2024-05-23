@@ -20,43 +20,46 @@
 **/
 
 #include "MosaicDefinitionTransactionPlugin.h"
-#include "src/model/MosaicDefinitionTransaction.h"
-#include "src/model/MosaicNotifications.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/MosaicDefinitionTransaction.h"
+#include "src/model/MosaicNotifications.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		auto CreatePublisher(const MosaicRentalFeeConfiguration& config) {
-			return [config](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-				// 1. sink account notification
-				auto sinkAddress = config.SinkAddress.get(context.BlockHeight);
-				sub.notify(AccountAddressNotification(sinkAddress));
+    namespace {
+        template <typename TTransaction>
+        auto CreatePublisher(const MosaicRentalFeeConfiguration& config)
+        {
+            return [config](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
+                // 1. sink account notification
+                auto sinkAddress = config.SinkAddress.get(context.BlockHeight);
+                sub.notify(AccountAddressNotification(sinkAddress));
 
-				// 2. rental fee charge
-				// a. exempt the nemesis account
-				if (config.NemesisSignerPublicKey != transaction.SignerPublicKey) {
-					sub.notify(BalanceTransferNotification(
-							context.SignerAddress,
-							sinkAddress,
-							config.CurrencyMosaicId,
-							config.Fee,
-							BalanceTransferNotification::AmountType::Dynamic));
-					sub.notify(MosaicRentalFeeNotification(context.SignerAddress, sinkAddress, config.CurrencyMosaicId, config.Fee));
-				}
+                // 2. rental fee charge
+                // a. exempt the nemesis account
+                if (config.NemesisSignerPublicKey != transaction.SignerPublicKey) {
+                    sub.notify(BalanceTransferNotification(
+                        context.SignerAddress,
+                        sinkAddress,
+                        config.CurrencyMosaicId,
+                        config.Fee,
+                        BalanceTransferNotification::AmountType::Dynamic));
+                    sub.notify(MosaicRentalFeeNotification(context.SignerAddress, sinkAddress, config.CurrencyMosaicId, config.Fee));
+                }
 
-				// 3. registration
-				auto properties = MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
-				sub.notify(MosaicNonceNotification(context.SignerAddress, transaction.Nonce, transaction.Id));
-				sub.notify(MosaicPropertiesNotification(properties));
-				sub.notify(MosaicDefinitionNotification(context.SignerAddress, transaction.Id, properties));
-			};
-		}
-	}
+                // 3. registration
+                auto properties = MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+                sub.notify(MosaicNonceNotification(context.SignerAddress, transaction.Nonce, transaction.Id));
+                sub.notify(MosaicPropertiesNotification(properties));
+                sub.notify(MosaicDefinitionNotification(context.SignerAddress, transaction.Id, properties));
+            };
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(MosaicDefinition, Default, CreatePublisher, MosaicRentalFeeConfiguration)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(MosaicDefinition, Default, CreatePublisher, MosaicRentalFeeConfiguration)
+}
+}

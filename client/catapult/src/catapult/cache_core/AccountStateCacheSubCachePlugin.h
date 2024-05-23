@@ -24,18 +24,20 @@
 #include "AccountStateCacheStorage.h"
 #include "catapult/cache/SubCachePluginAdapter.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Specialized account state cache sub cache plugin.
-	class AccountStateCacheSubCachePlugin : public SubCachePluginAdapter<AccountStateCache, AccountStateCacheStorage> {
-	private:
-		using BaseType = SubCachePluginAdapter<AccountStateCache, AccountStateCacheStorage>;
+    /// Specialized account state cache sub cache plugin.
+    class AccountStateCacheSubCachePlugin : public SubCachePluginAdapter<AccountStateCache, AccountStateCacheStorage> {
+    private:
+        using BaseType = SubCachePluginAdapter<AccountStateCache, AccountStateCacheStorage>;
 
-	public:
-		/// Creates a plugin around \a config and \a options.
-		AccountStateCacheSubCachePlugin(const CacheConfiguration& config, const AccountStateCacheTypes::Options& options);
+    public:
+        /// Creates a plugin around \a config and \a options.
+        AccountStateCacheSubCachePlugin(const CacheConfiguration& config, const AccountStateCacheTypes::Options& options);
 
-	public:
-		std::unique_ptr<CacheStorage> createStorage() override;
-	};
-}}
+    public:
+        std::unique_ptr<CacheStorage> createStorage() override;
+    };
+}
+}

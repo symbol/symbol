@@ -22,43 +22,50 @@
 #include "MultisigCacheUtils.h"
 #include "MultisigCache.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	namespace {
-		struct AncestorTraits {
-			static const auto& GetAddresses(const state::MultisigEntry& multisigEntry) {
-				return multisigEntry.multisigAddresses();
-			}
-		};
+    namespace {
+        struct AncestorTraits {
+            static const auto& GetAddresses(const state::MultisigEntry& multisigEntry)
+            {
+                return multisigEntry.multisigAddresses();
+            }
+        };
 
-		struct DescendantTraits {
-			static const auto& GetAddresses(const state::MultisigEntry& multisigEntry) {
-				return multisigEntry.cosignatoryAddresses();
-			}
-		};
+        struct DescendantTraits {
+            static const auto& GetAddresses(const state::MultisigEntry& multisigEntry)
+            {
+                return multisigEntry.cosignatoryAddresses();
+            }
+        };
 
-		template<typename TTraits>
-		size_t FindAll(const MultisigCacheTypes::CacheReadOnlyType& multisigCache, const Address& address, model::AddressSet& addresses) {
-			auto multisigIter = multisigCache.find(address);
-			if (!multisigIter.tryGet())
-				return 0;
+        template <typename TTraits>
+        size_t FindAll(const MultisigCacheTypes::CacheReadOnlyType& multisigCache, const Address& address, model::AddressSet& addresses)
+        {
+            auto multisigIter = multisigCache.find(address);
+            if (!multisigIter.tryGet())
+                return 0;
 
-			size_t numLevels = 0;
-			const auto& multisigEntry = multisigIter.get();
-			for (const auto& linkedAddress : TTraits::GetAddresses(multisigEntry)) {
-				addresses.insert(linkedAddress);
-				numLevels = std::max(numLevels, FindAll<TTraits>(multisigCache, linkedAddress, addresses) + 1);
-			}
+            size_t numLevels = 0;
+            const auto& multisigEntry = multisigIter.get();
+            for (const auto& linkedAddress : TTraits::GetAddresses(multisigEntry)) {
+                addresses.insert(linkedAddress);
+                numLevels = std::max(numLevels, FindAll<TTraits>(multisigCache, linkedAddress, addresses) + 1);
+            }
 
-			return numLevels;
-		}
-	}
+            return numLevels;
+        }
+    }
 
-	size_t FindAncestors(const MultisigCacheTypes::CacheReadOnlyType& cache, const Address& address, model::AddressSet& ancestors) {
-		return FindAll<AncestorTraits>(cache, address, ancestors);
-	}
+    size_t FindAncestors(const MultisigCacheTypes::CacheReadOnlyType& cache, const Address& address, model::AddressSet& ancestors)
+    {
+        return FindAll<AncestorTraits>(cache, address, ancestors);
+    }
 
-	size_t FindDescendants(const MultisigCacheTypes::CacheReadOnlyType& cache, const Address& address, model::AddressSet& descendants) {
-		return FindAll<DescendantTraits>(cache, address, descendants);
-	}
-}}
+    size_t FindDescendants(const MultisigCacheTypes::CacheReadOnlyType& cache, const Address& address, model::AddressSet& descendants)
+    {
+        return FindAll<DescendantTraits>(cache, address, descendants);
+    }
+}
+}

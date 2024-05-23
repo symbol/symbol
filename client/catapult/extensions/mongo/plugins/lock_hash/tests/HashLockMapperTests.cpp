@@ -19,45 +19,51 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/HashLockMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/lock_hash/src/model/HashLockTransaction.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "plugins/txes/lock_hash/src/model/HashLockTransaction.h"
 #include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
+#include "src/HashLockMapper.h"
 #include "tests/test/HashLockMapperTestUtils.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS HashLockMapperTests
 
-	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(HashLock, )
+        namespace {
+            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(HashLock, )
 
-		template<typename TTransaction>
-		void AssertHashLockTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
-			EXPECT_EQ(transaction.Hash, test::GetHashValue(dbTransaction, "hash"));
-		}
-	}
+            template <typename TTransaction>
+            void AssertHashLockTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction)
+            {
+                EXPECT_EQ(transaction.Hash, test::GetHashValue(dbTransaction, "hash"));
+            }
+        }
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Hash_Lock)
+        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Hash_Lock)
 
-	// region streamTransaction
+        // region streamTransaction
 
-	PLUGIN_TEST(CanMapHashLockTransaction) {
-		// Arrange:
-		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
-		auto pPlugin = TTraits::CreatePlugin();
+        PLUGIN_TEST(CanMapHashLockTransaction)
+        {
+            // Arrange:
+            auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
+            auto pPlugin = TTraits::CreatePlugin();
 
-		// Act:
-		mappers::bson_stream::document builder;
-		pPlugin->streamTransaction(builder, *pTransaction);
-		auto view = builder.view();
+            // Act:
+            mappers::bson_stream::document builder;
+            pPlugin->streamTransaction(builder, *pTransaction);
+            auto view = builder.view();
 
-		// Assert:
-		EXPECT_EQ(4u, test::GetFieldCount(view));
-		test::AssertEqualNonInheritedLockTransactionData(*pTransaction, view);
-		AssertHashLockTransaction(*pTransaction, view);
-	}
+            // Assert:
+            EXPECT_EQ(4u, test::GetFieldCount(view));
+            test::AssertEqualNonInheritedLockTransactionData(*pTransaction, view);
+            AssertHashLockTransaction(*pTransaction, view);
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

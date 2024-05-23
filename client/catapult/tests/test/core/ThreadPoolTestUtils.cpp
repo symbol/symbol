@@ -21,15 +21,19 @@
 
 #include "ThreadPoolTestUtils.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	std::unique_ptr<thread::IoThreadPool> CreateStartedIoThreadPool(const char* name) {
-		return CreateStartedIoThreadPool(GetNumDefaultPoolThreads(), name);
-	}
+    std::unique_ptr<thread::IoThreadPool> CreateStartedIoThreadPool(const char* name)
+    {
+        return CreateStartedIoThreadPool(GetNumDefaultPoolThreads(), name);
+    }
 
-	std::unique_ptr<thread::IoThreadPool> CreateStartedIoThreadPool(uint32_t numThreads, const char* name) {
-		auto pPool = thread::CreateIoThreadPool(numThreads, name);
-		pPool->start();
-		return pPool;
-	}
-}}
+    std::unique_ptr<thread::IoThreadPool> CreateStartedIoThreadPool(uint32_t numThreads, const char* name)
+    {
+        auto pPool = thread::CreateIoThreadPool(numThreads, name);
+        pPool->start();
+        return pPool;
+    }
+}
+}

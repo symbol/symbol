@@ -21,15 +21,17 @@
 
 #pragma once
 #include "MosaicCacheTypes.h"
-#include "src/state/MosaicEntrySerializer.h"
 #include "catapult/cache/CacheSerializerAdapter.h"
 #include "catapult/cache/IdentifierGroupSerializer.h"
+#include "src/state/MosaicEntrySerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Primary serializer for mosaic cache.
-	struct MosaicEntryPrimarySerializer : public CacheSerializerAdapter<state::MosaicEntrySerializer, MosaicCacheDescriptor> {};
+    /// Primary serializer for mosaic cache.
+    struct MosaicEntryPrimarySerializer : public CacheSerializerAdapter<state::MosaicEntrySerializer, MosaicCacheDescriptor> { };
 
-	/// Serializer for mosaic cache height grouped elements.
-	struct MosaicHeightGroupingSerializer : public IdentifierGroupSerializer<MosaicCacheTypes::HeightGroupingTypesDescriptor> {};
-}}
+    /// Serializer for mosaic cache height grouped elements.
+    struct MosaicHeightGroupingSerializer : public IdentifierGroupSerializer<MosaicCacheTypes::HeightGroupingTypesDescriptor> { };
+}
+}

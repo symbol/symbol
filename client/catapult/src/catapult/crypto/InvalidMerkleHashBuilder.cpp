@@ -23,62 +23,69 @@
 #include "Hashes.h"
 #include "catapult/functions.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	namespace {
-		void InsertInWindow(std::vector<Hash256>& hashes, Hash256& hash, size_t index, size_t windowSize) {
-			// shift all hashes after index within the window
-			for (auto i = std::min(hashes.size(), windowSize) - 1; i > index; --i)
-				hashes[i] = hashes[i - 1];
+    namespace {
+        void InsertInWindow(std::vector<Hash256>& hashes, Hash256& hash, size_t index, size_t windowSize)
+        {
+            // shift all hashes after index within the window
+            for (auto i = std::min(hashes.size(), windowSize) - 1; i > index; --i)
+                hashes[i] = hashes[i - 1];
 
-			// update the new hash
-			hashes[index] = hash;
-		}
+            // update the new hash
+            hashes[index] = hash;
+        }
 
-		Hash256 Final(std::vector<Hash256>& hashes) {
-			if (hashes.empty()) {
-				Hash256 hash{};
-				return hash;
-			}
+        Hash256 Final(std::vector<Hash256>& hashes)
+        {
+            if (hashes.empty()) {
+                Hash256 hash {};
+                return hash;
+            }
 
-			// build the merkle tree
-			Hash256 newHash;
-			auto numRemainingHashes = hashes.size();
-			while (numRemainingHashes > 1) {
-				auto i = 0u;
-				for (; i < numRemainingHashes; i += 2) {
-					if (i + 1 < numRemainingHashes) {
-						Sha3_256({ hashes[i].data(), 2 * Hash256::Size }, newHash);
-						InsertInWindow(hashes, newHash, i / 2, numRemainingHashes);
-						continue;
-					}
+            // build the merkle tree
+            Hash256 newHash;
+            auto numRemainingHashes = hashes.size();
+            while (numRemainingHashes > 1) {
+                auto i = 0u;
+                for (; i < numRemainingHashes; i += 2) {
+                    if (i + 1 < numRemainingHashes) {
+                        Sha3_256({ hashes[i].data(), 2 * Hash256::Size }, newHash);
+                        InsertInWindow(hashes, newHash, i / 2, numRemainingHashes);
+                        continue;
+                    }
 
-					// if there is an odd number of hashes, duplicate the last one
-					Sha3_256_Builder builder;
-					builder.update(hashes[i]);
-					builder.update(hashes[i]);
-					builder.final(newHash);
-					InsertInWindow(hashes, newHash, i / 2, numRemainingHashes);
-					++numRemainingHashes;
-				}
+                    // if there is an odd number of hashes, duplicate the last one
+                    Sha3_256_Builder builder;
+                    builder.update(hashes[i]);
+                    builder.update(hashes[i]);
+                    builder.final(newHash);
+                    InsertInWindow(hashes, newHash, i / 2, numRemainingHashes);
+                    ++numRemainingHashes;
+                }
 
-				numRemainingHashes /= 2;
-			}
+                numRemainingHashes /= 2;
+            }
 
-			return hashes[0];
-		}
-	}
+            return hashes[0];
+        }
+    }
 
-	InvalidMerkleHashBuilder::InvalidMerkleHashBuilder(size_t capacity) {
-		m_hashes.reserve(capacity);
-	}
+    InvalidMerkleHashBuilder::InvalidMerkleHashBuilder(size_t capacity)
+    {
+        m_hashes.reserve(capacity);
+    }
 
-	void InvalidMerkleHashBuilder::update(const Hash256& hash) {
-		m_hashes.push_back(hash);
-	}
+    void InvalidMerkleHashBuilder::update(const Hash256& hash)
+    {
+        m_hashes.push_back(hash);
+    }
 
-	void InvalidMerkleHashBuilder::final(Hash256& hash) {
-		// build the merkle root
-		hash = Final(m_hashes);
-	}
-}}
+    void InvalidMerkleHashBuilder::final(Hash256& hash)
+    {
+        // build the merkle root
+        hash = Final(m_hashes);
+    }
+}
+}

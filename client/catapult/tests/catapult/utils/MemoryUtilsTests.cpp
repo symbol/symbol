@@ -22,109 +22,121 @@
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
 #define TEST_CLASS MemoryUtilsTests
 
-	// region MakeWithSize
+    // region MakeWithSize
 
-	namespace {
-		struct Foo {
-			uint32_t Alpha;
-		};
+    namespace {
+        struct Foo {
+            uint32_t Alpha;
+        };
 
-		struct UniqueTraits {
-			template<typename T>
-			static auto MakeWithSize(size_t size) {
-				return MakeUniqueWithSize<T>(size);
-			}
-		};
+        struct UniqueTraits {
+            template <typename T>
+            static auto MakeWithSize(size_t size)
+            {
+                return MakeUniqueWithSize<T>(size);
+            }
+        };
 
-		struct SharedTraits {
-			template<typename T>
-			static auto MakeWithSize(size_t size) {
-				return MakeSharedWithSize<T>(size);
-			}
-		};
-	}
+        struct SharedTraits {
+            template <typename T>
+            static auto MakeWithSize(size_t size)
+            {
+                return MakeSharedWithSize<T>(size);
+            }
+        };
+    }
 
-#define POINTER_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Unique) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UniqueTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Shared) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define POINTER_TEST(TEST_NAME)                                  \
+    template <typename TTraits>                                  \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();              \
+    TEST(TEST_CLASS, TEST_NAME##_Unique)                         \
+    {                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UniqueTraits>(); \
+    }                                                            \
+    TEST(TEST_CLASS, TEST_NAME##_Shared)                         \
+    {                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedTraits>(); \
+    }                                                            \
+    template <typename TTraits>                                  \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	POINTER_TEST(CannotCreatePointerWithInsufficientSize) {
-		EXPECT_THROW(TTraits::template MakeWithSize<Foo>(sizeof(Foo) - 1), catapult_invalid_argument);
-	}
+    POINTER_TEST(CannotCreatePointerWithInsufficientSize)
+    {
+        EXPECT_THROW(TTraits::template MakeWithSize<Foo>(sizeof(Foo) - 1), catapult_invalid_argument);
+    }
 
-	POINTER_TEST(CanCreatePointerWithMinimumSize) {
-		// Act:
-		auto pFoo = TTraits::template MakeWithSize<Foo>(sizeof(Foo));
+    POINTER_TEST(CanCreatePointerWithMinimumSize)
+    {
+        // Act:
+        auto pFoo = TTraits::template MakeWithSize<Foo>(sizeof(Foo));
 
-		// Assert:
-		EXPECT_TRUE(!!pFoo);
-	}
+        // Assert:
+        EXPECT_TRUE(!!pFoo);
+    }
 
-	POINTER_TEST(CanCreatePointerWithCustomSize) {
-		// Act:
-		auto pFoo = TTraits::template MakeWithSize<Foo>(sizeof(Foo) + 123);
+    POINTER_TEST(CanCreatePointerWithCustomSize)
+    {
+        // Act:
+        auto pFoo = TTraits::template MakeWithSize<Foo>(sizeof(Foo) + 123);
 
-		// Assert:
-		EXPECT_TRUE(!!pFoo);
-	}
+        // Assert:
+        EXPECT_TRUE(!!pFoo);
+    }
 
-	// endregion
+    // endregion
 
-	// region UniqueToShared
+    // region UniqueToShared
 
-	TEST(TEST_CLASS, CanConvertUniquePointerToSharedPointer) {
-		// Arrange:
-		auto pUniqueInt = std::make_unique<int>(123);
-		const auto* pRawInt = pUniqueInt.get();
+    TEST(TEST_CLASS, CanConvertUniquePointerToSharedPointer)
+    {
+        // Arrange:
+        auto pUniqueInt = std::make_unique<int>(123);
+        const auto* pRawInt = pUniqueInt.get();
 
-		// Act:
-		auto pSharedInt = UniqueToShared(std::move(pUniqueInt));
+        // Act:
+        auto pSharedInt = UniqueToShared(std::move(pUniqueInt));
 
-		// Assert:
-		EXPECT_FALSE(!!pUniqueInt);
-		EXPECT_TRUE(!!pSharedInt);
-		EXPECT_EQ(1, pSharedInt.use_count());
-		EXPECT_EQ(pRawInt, pSharedInt.get());
-	}
+        // Assert:
+        EXPECT_FALSE(!!pUniqueInt);
+        EXPECT_TRUE(!!pSharedInt);
+        EXPECT_EQ(1, pSharedInt.use_count());
+        EXPECT_EQ(pRawInt, pSharedInt.get());
+    }
 
-	// endregion
+    // endregion
 
-	// region memcpy_cond
+    // region memcpy_cond
 
-	TEST(TEST_CLASS, ConditionalMemcpyBypassesZeroSizeOperation) {
-		// Arrange:
-		std::array<uint8_t, 4> buffer;
+    TEST(TEST_CLASS, ConditionalMemcpyBypassesZeroSizeOperation)
+    {
+        // Arrange:
+        std::array<uint8_t, 4> buffer;
 
-		// Act + Assert:
-		EXPECT_NO_THROW(memcpy_cond(nullptr, nullptr, 0));
-		EXPECT_NO_THROW(memcpy_cond(nullptr, &buffer[0], 0));
-		EXPECT_NO_THROW(memcpy_cond(&buffer[0], nullptr, 0));
-	}
+        // Act + Assert:
+        EXPECT_NO_THROW(memcpy_cond(nullptr, nullptr, 0));
+        EXPECT_NO_THROW(memcpy_cond(nullptr, &buffer[0], 0));
+        EXPECT_NO_THROW(memcpy_cond(&buffer[0], nullptr, 0));
+    }
 
-	TEST(TEST_CLASS, ConditionalMemcpyProcessesNonzeroSizeOperation) {
-		// Arrange:
-		std::array<uint8_t, 4> src{ { 9, 5, 7, 6 } };
-		std::array<uint8_t, 4> dest{ { 1, 2, 3, 4 } };
+    TEST(TEST_CLASS, ConditionalMemcpyProcessesNonzeroSizeOperation)
+    {
+        // Arrange:
+        std::array<uint8_t, 4> src { { 9, 5, 7, 6 } };
+        std::array<uint8_t, 4> dest { { 1, 2, 3, 4 } };
 
-		// Act:
-		memcpy_cond(&dest[0], &src[0], 2);
+        // Act:
+        memcpy_cond(&dest[0], &src[0], 2);
 
-		// Assert:
-		std::array<uint8_t, 4> expected{ { 9, 5, 3, 4 } };
-		EXPECT_EQ(expected, dest);
-	}
+        // Assert:
+        std::array<uint8_t, 4> expected { { 9, 5, 3, 4 } };
+        EXPECT_EQ(expected, dest);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -23,33 +23,39 @@
 #include "BasicAggregateSubscriber.h"
 #include "catapult/cache_tx/PtChangeSubscriber.h"
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	/// Aggregate partial transactions change subscriber.
-	template<typename TPtChangeSubscriber = cache::PtChangeSubscriber>
-	class AggregatePtChangeSubscriber
-			: public BasicAggregateSubscriber<TPtChangeSubscriber>
-			, public cache::PtChangeSubscriber {
-	public:
-		using BasicAggregateSubscriber<TPtChangeSubscriber>::BasicAggregateSubscriber;
+    /// Aggregate partial transactions change subscriber.
+    template <typename TPtChangeSubscriber = cache::PtChangeSubscriber>
+    class AggregatePtChangeSubscriber
+        : public BasicAggregateSubscriber<TPtChangeSubscriber>,
+          public cache::PtChangeSubscriber {
+    public:
+        using BasicAggregateSubscriber<TPtChangeSubscriber>::BasicAggregateSubscriber;
 
-	public:
-		void notifyAddPartials(const TransactionInfos& transactionInfos) override {
-			this->forEach([&transactionInfos](auto& subscriber) { subscriber.notifyAddPartials(transactionInfos); });
-		}
+    public:
+        void notifyAddPartials(const TransactionInfos& transactionInfos) override
+        {
+            this->forEach([&transactionInfos](auto& subscriber) { subscriber.notifyAddPartials(transactionInfos); });
+        }
 
-		void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override {
-			this->forEach([&parentTransactionInfo, &cosignature](auto& subscriber) {
-				subscriber.notifyAddCosignature(parentTransactionInfo, cosignature);
-			});
-		}
+        void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override
+        {
+            this->forEach([&parentTransactionInfo, &cosignature](auto& subscriber) {
+                subscriber.notifyAddCosignature(parentTransactionInfo, cosignature);
+            });
+        }
 
-		void notifyRemovePartials(const TransactionInfos& transactionInfos) override {
-			this->forEach([&transactionInfos](auto& subscriber) { subscriber.notifyRemovePartials(transactionInfos); });
-		}
+        void notifyRemovePartials(const TransactionInfos& transactionInfos) override
+        {
+            this->forEach([&transactionInfos](auto& subscriber) { subscriber.notifyRemovePartials(transactionInfos); });
+        }
 
-		void flush() override {
-			this->forEach([](auto& subscriber) { subscriber.flush(); });
-		}
-	};
-}}
+        void flush() override
+        {
+            this->forEach([](auto& subscriber) { subscriber.flush(); });
+        }
+    };
+}
+}

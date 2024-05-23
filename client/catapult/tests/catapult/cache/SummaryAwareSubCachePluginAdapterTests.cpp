@@ -20,54 +20,62 @@
 **/
 
 #include "catapult/cache/SummaryAwareSubCachePluginAdapter.h"
-#include "tests/test/cache/SimpleCache.h"
 #include "tests/TestHarness.h"
+#include "tests/test/cache/SimpleCache.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS SummaryAwareSubCachePluginAdapterTests
 
-	namespace {
-		class SimpleCacheSummaryCacheStorage : public SummaryCacheStorage<test::SimpleCache> {
-		public:
-			using SummaryCacheStorage<test::SimpleCache>::SummaryCacheStorage;
+    namespace {
+        class SimpleCacheSummaryCacheStorage : public SummaryCacheStorage<test::SimpleCache> {
+        public:
+            using SummaryCacheStorage<test::SimpleCache>::SummaryCacheStorage;
 
-		public:
-			void saveAll(const CatapultCacheView&, io::OutputStream&) const override {
-				// do nothing
-			}
+        public:
+            void saveAll(const CatapultCacheView&, io::OutputStream&) const override
+            {
+                // do nothing
+            }
 
-			void saveSummary(const CatapultCacheDelta&, io::OutputStream&) const override {
-				// do nothing
-			}
+            void saveSummary(const CatapultCacheDelta&, io::OutputStream&) const override
+            {
+                // do nothing
+            }
 
-			void loadAll(io::InputStream&, size_t) override {
-				// do nothing
-			}
-		};
+            void loadAll(io::InputStream&, size_t) override
+            {
+                // do nothing
+            }
+        };
 
-		void AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode mode, const std::string& expectedStorageName) {
-			// Arrange:
-			using PluginType = SummaryAwareSubCachePluginAdapter<
-					test::SimpleCacheT<3>,
-					test::SimpleCacheStorageTraits,
-					SimpleCacheSummaryCacheStorage>;
-			PluginType plugin(std::make_unique<test::SimpleCacheT<3>>(mode));
+        void AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode mode, const std::string& expectedStorageName)
+        {
+            // Arrange:
+            using PluginType = SummaryAwareSubCachePluginAdapter<
+                test::SimpleCacheT<3>,
+                test::SimpleCacheStorageTraits,
+                SimpleCacheSummaryCacheStorage>;
+            PluginType plugin(std::make_unique<test::SimpleCacheT<3>>(mode));
 
-			// Act:
-			auto pStorage = plugin.createStorage();
+            // Act:
+            auto pStorage = plugin.createStorage();
 
-			// Assert:
-			ASSERT_TRUE(!!pStorage);
-			EXPECT_EQ(expectedStorageName, pStorage->name());
-		}
-	}
+            // Assert:
+            ASSERT_TRUE(!!pStorage);
+            EXPECT_EQ(expectedStorageName, pStorage->name());
+        }
+    }
 
-	TEST(TEST_CLASS, CanCreateCacheStorageViaPluginForFullStorage) {
-		AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode::Iterable, "SimpleCache");
-	}
+    TEST(TEST_CLASS, CanCreateCacheStorageViaPluginForFullStorage)
+    {
+        AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode::Iterable, "SimpleCache");
+    }
 
-	TEST(TEST_CLASS, CanCreateCacheStorageViaPluginForSummaryStorage) {
-		AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode::Basic, "SimpleCache_summary");
-	}
-}}
+    TEST(TEST_CLASS, CanCreateCacheStorageViaPluginForSummaryStorage)
+    {
+        AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode::Basic, "SimpleCache_summary");
+    }
+}
+}

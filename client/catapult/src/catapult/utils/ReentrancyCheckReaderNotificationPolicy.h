@@ -25,43 +25,48 @@
 #include <thread>
 #include <unordered_set>
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	/// Exception class that is thrown when reader reentrancy is detected.
-	class reader_reentrancy_error : public catapult_runtime_error {
-	public:
-		using catapult_runtime_error::catapult_runtime_error;
-	};
+    /// Exception class that is thrown when reader reentrancy is detected.
+    class reader_reentrancy_error : public catapult_runtime_error {
+    public:
+        using catapult_runtime_error::catapult_runtime_error;
+    };
 
-	/// Reentrancy check reader notification policy.
-	class ReentrancyCheckReaderNotificationPolicy {
-	public:
-		/// Reader was acquried by the current thread.
-		void readerAcquired() {
-			executeSynchronized([this](auto id) {
-				if (m_threadIds.cend() != m_threadIds.find(id))
-					CATAPULT_THROW_AND_LOG_1(reader_reentrancy_error, "reader reentrancy detected", id);
+    /// Reentrancy check reader notification policy.
+    class ReentrancyCheckReaderNotificationPolicy {
+    public:
+        /// Reader was acquried by the current thread.
+        void readerAcquired()
+        {
+            executeSynchronized([this](auto id) {
+                if (m_threadIds.cend() != m_threadIds.find(id))
+                    CATAPULT_THROW_AND_LOG_1(reader_reentrancy_error, "reader reentrancy detected", id);
 
-				m_threadIds.insert(id);
-			});
-		}
+                m_threadIds.insert(id);
+            });
+        }
 
-		/// Reader was released by the current thread.
-		void readerReleased() {
-			executeSynchronized([this](auto id) { m_threadIds.erase(id); });
-		}
+        /// Reader was released by the current thread.
+        void readerReleased()
+        {
+            executeSynchronized([this](auto id) { m_threadIds.erase(id); });
+        }
 
-	private:
-		template<typename TAction>
-		void executeSynchronized(TAction action) {
-			auto id = std::this_thread::get_id();
-			SpinLockGuard lock(m_mutex);
+    private:
+        template <typename TAction>
+        void executeSynchronized(TAction action)
+        {
+            auto id = std::this_thread::get_id();
+            SpinLockGuard lock(m_mutex);
 
-			action(id);
-		}
+            action(id);
+        }
 
-	private:
-		SpinLock m_mutex;
-		std::unordered_set<std::thread::id> m_threadIds;
-	};
-}}
+    private:
+        SpinLock m_mutex;
+        std::unordered_set<std::thread::id> m_threadIds;
+    };
+}
+}

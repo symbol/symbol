@@ -21,36 +21,38 @@
 
 #pragma once
 #include "FinalizationConfiguration.h"
-#include "finalization/src/model/FinalizationContext.h"
 #include "catapult/model/FinalizationRound.h"
+#include "finalization/src/model/FinalizationContext.h"
 
 namespace catapult {
 namespace cache {
-	class AccountStateCache;
+    class AccountStateCache;
 }
 namespace extensions {
-	class ServiceState;
+    class ServiceState;
 }
 namespace io {
-	class BlockStorageCache;
+    class BlockStorageCache;
 }
 }
 
-namespace catapult { namespace finalization {
+namespace catapult {
+namespace finalization {
 
-	/// Factory for creating finalization contexts.
-	class FinalizationContextFactory {
-	public:
-		/// Creates a factory given \a config and \a state.
-		FinalizationContextFactory(const FinalizationConfiguration& config, const extensions::ServiceState& state);
+    /// Factory for creating finalization contexts.
+    class FinalizationContextFactory {
+    public:
+        /// Creates a factory given \a config and \a state.
+        FinalizationContextFactory(const FinalizationConfiguration& config, const extensions::ServiceState& state);
 
-	public:
-		/// Creates a finalization context for \a epoch.
-		model::FinalizationContext create(FinalizationEpoch epoch) const;
+    public:
+        /// Creates a finalization context for \a epoch.
+        model::FinalizationContext create(FinalizationEpoch epoch) const;
 
-	private:
-		FinalizationConfiguration m_config;
-		const cache::AccountStateCache& m_accountStateCache;
-		const io::BlockStorageCache& m_blockStorage;
-	};
-}}
+    private:
+        FinalizationConfiguration m_config;
+        const cache::AccountStateCache& m_accountStateCache;
+        const io::BlockStorageCache& m_blockStorage;
+    };
+}
+}

@@ -20,130 +20,140 @@
 **/
 
 #include "catapult/model/TransactionPluginFactory.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS TransactionPluginFactoryTests
 
-	namespace {
-		constexpr auto Mock_Transaction_Type = static_cast<EntityType>(0x4FFF);
+    namespace {
+        constexpr auto Mock_Transaction_Type = static_cast<EntityType>(0x4FFF);
 
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			// raise notifications dependent on the transaction and context data
-			sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
-			sub.notify(mocks::MockPublisherContextNotification(context.SignerAddress, context.BlockHeight));
-		}
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            // raise notifications dependent on the transaction and context data
+            sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
+            sub.notify(mocks::MockPublisherContextNotification(context.SignerAddress, context.BlockHeight));
+        }
 
-		template<TransactionPluginFactoryOptions Options>
-		struct RegularTraits {
-			using TransactionType = mocks::MockTransaction;
-			static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
-			static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
+        template <TransactionPluginFactoryOptions Options>
+        struct RegularTraits {
+            using TransactionType = mocks::MockTransaction;
+            static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
+            static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
 
-			static auto CreatePlugin() {
-				return TransactionPluginFactory<Options>::template Create<mocks::MockTransaction, mocks::EmbeddedMockTransaction>(
-						Publish<mocks::MockTransaction>,
-						Publish<mocks::EmbeddedMockTransaction>);
-			}
-		};
+            static auto CreatePlugin()
+            {
+                return TransactionPluginFactory<Options>::template Create<mocks::MockTransaction, mocks::EmbeddedMockTransaction>(
+                    Publish<mocks::MockTransaction>,
+                    Publish<mocks::EmbeddedMockTransaction>);
+            }
+        };
 
-		using DefaultRegularTraits = RegularTraits<TransactionPluginFactoryOptions::Default>;
-		using OnlyEmbeddableRegularTraits = RegularTraits<TransactionPluginFactoryOptions::Only_Embeddable>;
+        using DefaultRegularTraits = RegularTraits<TransactionPluginFactoryOptions::Default>;
+        using OnlyEmbeddableRegularTraits = RegularTraits<TransactionPluginFactoryOptions::Only_Embeddable>;
 
-		template<TransactionPluginFactoryOptions Options>
-		struct EmbeddedTraits {
-			using TransactionType = mocks::EmbeddedMockTransaction;
-			static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
-			static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
+        template <TransactionPluginFactoryOptions Options>
+        struct EmbeddedTraits {
+            using TransactionType = mocks::EmbeddedMockTransaction;
+            static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
+            static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
 
-			static auto CreatePlugin() {
-				return TransactionPluginFactory<Options>::template CreateEmbedded<mocks::EmbeddedMockTransaction>(
-						Publish<mocks::EmbeddedMockTransaction>);
-			}
-		};
+            static auto CreatePlugin()
+            {
+                return TransactionPluginFactory<Options>::template CreateEmbedded<mocks::EmbeddedMockTransaction>(
+                    Publish<mocks::EmbeddedMockTransaction>);
+            }
+        };
 
-		using DefaultEmbeddedTraits = EmbeddedTraits<TransactionPluginFactoryOptions::Default>;
-		using OnlyEmbeddableEmbeddedTraits = EmbeddedTraits<TransactionPluginFactoryOptions::Only_Embeddable>;
-	}
+        using DefaultEmbeddedTraits = EmbeddedTraits<TransactionPluginFactoryOptions::Default>;
+        using OnlyEmbeddableEmbeddedTraits = EmbeddedTraits<TransactionPluginFactoryOptions::Only_Embeddable>;
+    }
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Default, _Default, Mock_Transaction_Type)
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, OnlyEmbeddable, _OnlyEmbeddable, Mock_Transaction_Type)
+    DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Default, _Default, Mock_Transaction_Type)
+    DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, OnlyEmbeddable, _OnlyEmbeddable, Mock_Transaction_Type)
 
-	namespace {
-		template<typename TTraits, typename TSubscriber, typename TCheckPublish>
-		void RunPublishTest(TCheckPublish checkPublish) {
-			// Arrange:
-			auto pPlugin = TTraits::CreatePlugin();
+    namespace {
+        template <typename TTraits, typename TSubscriber, typename TCheckPublish>
+        void RunPublishTest(TCheckPublish checkPublish)
+        {
+            // Arrange:
+            auto pPlugin = TTraits::CreatePlugin();
 
-			typename TTraits::TransactionType transaction;
-			test::FillWithRandomData(transaction);
+            typename TTraits::TransactionType transaction;
+            test::FillWithRandomData(transaction);
 
-			PublishContext context;
-			test::FillWithRandomData(context.SignerAddress);
+            PublishContext context;
+            test::FillWithRandomData(context.SignerAddress);
 
-			TSubscriber sub;
+            TSubscriber sub;
 
-			// Act:
-			pPlugin->publish(transaction, context, sub);
+            // Act:
+            pPlugin->publish(transaction, context, sub);
 
-			// Assert:
-			ASSERT_EQ(2u, sub.numNotifications());
-			checkPublish(transaction, context, sub);
-		}
-	}
+            // Assert:
+            ASSERT_EQ(2u, sub.numNotifications());
+            checkPublish(transaction, context, sub);
+        }
+    }
 
-	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishAllNotifications, Default, _Default) {
-		// Act:
-		using Subscriber = mocks::MockNotificationSubscriber;
-		RunPublishTest<TTraits, Subscriber>([](const auto&, const auto&, const auto& sub) {
-			// Assert:
-			EXPECT_EQ(AccountPublicKeyNotification::Notification_Type, sub.notificationTypes()[0]);
-			EXPECT_EQ(mocks::MockPublisherContextNotification::Notification_Type, sub.notificationTypes()[1]);
-		});
-	}
+    PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishAllNotifications, Default, _Default)
+    {
+        // Act:
+        using Subscriber = mocks::MockNotificationSubscriber;
+        RunPublishTest<TTraits, Subscriber>([](const auto&, const auto&, const auto& sub) {
+            // Assert:
+            EXPECT_EQ(AccountPublicKeyNotification::Notification_Type, sub.notificationTypes()[0]);
+            EXPECT_EQ(mocks::MockPublisherContextNotification::Notification_Type, sub.notificationTypes()[1]);
+        });
+    }
 
-	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishTransactionDependentNotifications, Default, _Default) {
-		// Act:
-		using Subscriber = mocks::MockTypedNotificationSubscriber<AccountPublicKeyNotification>;
-		RunPublishTest<TTraits, Subscriber>([](const auto& transaction, const auto&, const auto& sub) {
-			// Assert:
-			ASSERT_EQ(1u, sub.numMatchingNotifications());
-			EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].PublicKey);
-		});
-	}
+    PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishTransactionDependentNotifications, Default, _Default)
+    {
+        // Act:
+        using Subscriber = mocks::MockTypedNotificationSubscriber<AccountPublicKeyNotification>;
+        RunPublishTest<TTraits, Subscriber>([](const auto& transaction, const auto&, const auto& sub) {
+            // Assert:
+            ASSERT_EQ(1u, sub.numMatchingNotifications());
+            EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].PublicKey);
+        });
+    }
 
-	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishContextDependentNotifications, Default, _Default) {
-		// Act:
-		using Subscriber = mocks::MockTypedNotificationSubscriber<mocks::MockPublisherContextNotification>;
-		RunPublishTest<TTraits, Subscriber>([](const auto&, const auto& context, const auto& sub) {
-			// Assert:
-			ASSERT_EQ(1u, sub.numMatchingNotifications());
+    PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishContextDependentNotifications, Default, _Default)
+    {
+        // Act:
+        using Subscriber = mocks::MockTypedNotificationSubscriber<mocks::MockPublisherContextNotification>;
+        RunPublishTest<TTraits, Subscriber>([](const auto&, const auto& context, const auto& sub) {
+            // Assert:
+            ASSERT_EQ(1u, sub.numMatchingNotifications());
 
-			const auto& notification = sub.matchingNotifications()[0];
-			EXPECT_EQ(context.SignerAddress, notification.SignerAddress);
-			EXPECT_EQ(context.BlockHeight, notification.BlockHeight);
-		});
-	}
+            const auto& notification = sub.matchingNotifications()[0];
+            EXPECT_EQ(context.SignerAddress, notification.SignerAddress);
+            EXPECT_EQ(context.BlockHeight, notification.BlockHeight);
+        });
+    }
 
-	TEST(TEST_CLASS, PluginExposesCustomAdditionalRequiredCosignatories_OnlyEmbeddable) {
-		// Arrange:
-		auto pPlugin = OnlyEmbeddableEmbeddedTraits::CreatePlugin();
+    TEST(TEST_CLASS, PluginExposesCustomAdditionalRequiredCosignatories_OnlyEmbeddable)
+    {
+        // Arrange:
+        auto pPlugin = OnlyEmbeddableEmbeddedTraits::CreatePlugin();
 
-		OnlyEmbeddableEmbeddedTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction);
+        OnlyEmbeddableEmbeddedTraits::TransactionType transaction;
+        test::FillWithRandomData(transaction);
 
-		// Act:
-		auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
+        // Act:
+        auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
 
-		// Assert: cosignatories are forwarded from ExtractAdditionalRequiredCosignatories
-		UnresolvedAddressSet expectedAdditionalCosignatories{ UnresolvedAddress{ { 1 } },
-															  UnresolvedAddress{ { 2 } },
-															  mocks::GetRecipientAddress(transaction).copyTo<UnresolvedAddress>() };
-		EXPECT_EQ(expectedAdditionalCosignatories, additionalCosignatories);
-	}
-}}
+        // Assert: cosignatories are forwarded from ExtractAdditionalRequiredCosignatories
+        UnresolvedAddressSet expectedAdditionalCosignatories { UnresolvedAddress { { 1 } },
+            UnresolvedAddress { { 2 } },
+            mocks::GetRecipientAddress(transaction).copyTo<UnresolvedAddress>() };
+        EXPECT_EQ(expectedAdditionalCosignatories, additionalCosignatories);
+    }
+}
+}

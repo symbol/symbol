@@ -19,33 +19,40 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
 #include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
-#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct MongoHashLockPluginTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+        namespace {
+            struct MongoHashLockPluginTraits {
+            public:
+                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Hash_Lock };
-			}
+                static std::vector<model::EntityType> GetTransactionTypes()
+                {
+                    return { model::Entity_Type_Hash_Lock };
+                }
 
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return { model::Receipt_Type_LockHash_Created,
-						 model::Receipt_Type_LockHash_Completed,
-						 model::Receipt_Type_LockHash_Expired };
-			}
+                static std::vector<model::ReceiptType> GetReceiptTypes()
+                {
+                    return { model::Receipt_Type_LockHash_Created,
+                        model::Receipt_Type_LockHash_Completed,
+                        model::Receipt_Type_LockHash_Expired };
+                }
 
-			static std::string GetStorageName() {
-				return "{ HashLockInfoCache }";
-			}
-		};
-	}
+                static std::string GetStorageName()
+                {
+                    return "{ HashLockInfoCache }";
+                }
+            };
+        }
 
-	DEFINE_MONGO_PLUGIN_TESTS(MongoHashLockPluginTests, MongoHashLockPluginTraits)
-}}}
+        DEFINE_MONGO_PLUGIN_TESTS(MongoHashLockPluginTests, MongoHashLockPluginTraits)
+    }
+}
+}

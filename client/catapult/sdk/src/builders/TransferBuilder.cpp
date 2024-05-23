@@ -21,71 +21,82 @@
 
 #include "TransferBuilder.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	TransferBuilder::TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-			: TransactionBuilder(networkIdentifier, signer)
-			, m_recipientAddress()
-			, m_mosaics()
-			, m_message() {
-	}
+    TransferBuilder::TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+        : TransactionBuilder(networkIdentifier, signer)
+        , m_recipientAddress()
+        , m_mosaics()
+        , m_message()
+    {
+    }
 
-	void TransferBuilder::setRecipientAddress(const UnresolvedAddress& recipientAddress) {
-		m_recipientAddress = recipientAddress;
-	}
+    void TransferBuilder::setRecipientAddress(const UnresolvedAddress& recipientAddress)
+    {
+        m_recipientAddress = recipientAddress;
+    }
 
-	void TransferBuilder::addMosaic(const model::UnresolvedMosaic& mosaic) {
-		InsertSorted(m_mosaics, mosaic, [](const auto& lhs, const auto& rhs) { return lhs.MosaicId < rhs.MosaicId; });
-	}
+    void TransferBuilder::addMosaic(const model::UnresolvedMosaic& mosaic)
+    {
+        InsertSorted(m_mosaics, mosaic, [](const auto& lhs, const auto& rhs) { return lhs.MosaicId < rhs.MosaicId; });
+    }
 
-	void TransferBuilder::setMessage(const RawBuffer& message) {
-		if (0 == message.Size)
-			CATAPULT_THROW_INVALID_ARGUMENT("argument `message` cannot be empty");
+    void TransferBuilder::setMessage(const RawBuffer& message)
+    {
+        if (0 == message.Size)
+            CATAPULT_THROW_INVALID_ARGUMENT("argument `message` cannot be empty");
 
-		if (!m_message.empty())
-			CATAPULT_THROW_RUNTIME_ERROR("`message` field already set");
+        if (!m_message.empty())
+            CATAPULT_THROW_RUNTIME_ERROR("`message` field already set");
 
-		m_message.resize(message.Size);
-		m_message.assign(message.pData, message.pData + message.Size);
-	}
+        m_message.resize(message.Size);
+        m_message.assign(message.pData, message.pData + message.Size);
+    }
 
-	size_t TransferBuilder::size() const {
-		return sizeImpl<Transaction>();
-	}
+    size_t TransferBuilder::size() const
+    {
+        return sizeImpl<Transaction>();
+    }
 
-	std::unique_ptr<TransferBuilder::Transaction> TransferBuilder::build() const {
-		return buildImpl<Transaction>();
-	}
+    std::unique_ptr<TransferBuilder::Transaction> TransferBuilder::build() const
+    {
+        return buildImpl<Transaction>();
+    }
 
-	std::unique_ptr<TransferBuilder::EmbeddedTransaction> TransferBuilder::buildEmbedded() const {
-		return buildImpl<EmbeddedTransaction>();
-	}
+    std::unique_ptr<TransferBuilder::EmbeddedTransaction> TransferBuilder::buildEmbedded() const
+    {
+        return buildImpl<EmbeddedTransaction>();
+    }
 
-	template<typename TransactionType>
-	size_t TransferBuilder::sizeImpl() const {
-		// calculate transaction size
-		auto size = sizeof(TransactionType);
-		size += m_mosaics.size() * sizeof(model::UnresolvedMosaic);
-		size += m_message.size();
-		return size;
-	}
+    template <typename TransactionType>
+    size_t TransferBuilder::sizeImpl() const
+    {
+        // calculate transaction size
+        auto size = sizeof(TransactionType);
+        size += m_mosaics.size() * sizeof(model::UnresolvedMosaic);
+        size += m_message.size();
+        return size;
+    }
 
-	template<typename TransactionType>
-	std::unique_ptr<TransactionType> TransferBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
-		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+    template <typename TransactionType>
+    std::unique_ptr<TransactionType> TransferBuilder::buildImpl() const
+    {
+        // 1. allocate, zero (header), set model::Transaction fields
+        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-		// 2. set fixed transaction fields
-		pTransaction->RecipientAddress = m_recipientAddress;
-		pTransaction->MessageSize = utils::checked_cast<size_t, uint16_t>(m_message.size());
-		pTransaction->MosaicsCount = utils::checked_cast<size_t, uint8_t>(m_mosaics.size());
-		pTransaction->TransferTransactionBody_Reserved1 = 0;
-		pTransaction->TransferTransactionBody_Reserved2 = 0;
+        // 2. set fixed transaction fields
+        pTransaction->RecipientAddress = m_recipientAddress;
+        pTransaction->MessageSize = utils::checked_cast<size_t, uint16_t>(m_message.size());
+        pTransaction->MosaicsCount = utils::checked_cast<size_t, uint8_t>(m_mosaics.size());
+        pTransaction->TransferTransactionBody_Reserved1 = 0;
+        pTransaction->TransferTransactionBody_Reserved2 = 0;
 
-		// 3. set transaction attachments
-		std::copy(m_mosaics.cbegin(), m_mosaics.cend(), pTransaction->MosaicsPtr());
-		std::copy(m_message.cbegin(), m_message.cend(), pTransaction->MessagePtr());
+        // 3. set transaction attachments
+        std::copy(m_mosaics.cbegin(), m_mosaics.cend(), pTransaction->MosaicsPtr());
+        std::copy(m_message.cbegin(), m_message.cend(), pTransaction->MessagePtr());
 
-		return pTransaction;
-	}
-}}
+        return pTransaction;
+    }
+}
+}

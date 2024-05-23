@@ -23,27 +23,29 @@
 #include "Validators.h"
 #include "catapult/validators/ValidatorContext.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::MosaicRequiredNotification;
+    using Notification = model::MosaicRequiredNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(RequiredMosaic, [](const Notification& notification, const ValidatorContext& context) {
-		auto view = ActiveMosaicView(context.Cache);
-		auto mosaicId = notification.MosaicId.resolved(context.Resolvers);
+    DEFINE_STATEFUL_VALIDATOR(RequiredMosaic, [](const Notification& notification, const ValidatorContext& context) {
+        auto view = ActiveMosaicView(context.Cache);
+        auto mosaicId = notification.MosaicId.resolved(context.Resolvers);
 
-		ActiveMosaicView::FindIterator mosaicIter;
-		auto result = view.tryGet(mosaicId, context.Height, notification.Owner.resolved(context.Resolvers), mosaicIter);
-		if (IsValidationResultFailure(result))
-			return result;
+        ActiveMosaicView::FindIterator mosaicIter;
+        auto result = view.tryGet(mosaicId, context.Height, notification.Owner.resolved(context.Resolvers), mosaicIter);
+        if (IsValidationResultFailure(result))
+            return result;
 
-		if (0 != notification.PropertyFlagMask) {
-			const auto& properties = mosaicIter.get().definition().properties();
-			for (auto i = 1u; i < utils::to_underlying_type(model::MosaicFlags::All); i <<= 1) {
-				if (0 != (notification.PropertyFlagMask & i) && !properties.is(static_cast<model::MosaicFlags>(i)))
-					return Failure_Mosaic_Required_Property_Flag_Unset;
-			}
-		}
+        if (0 != notification.PropertyFlagMask) {
+            const auto& properties = mosaicIter.get().definition().properties();
+            for (auto i = 1u; i < utils::to_underlying_type(model::MosaicFlags::All); i <<= 1) {
+                if (0 != (notification.PropertyFlagMask & i) && !properties.is(static_cast<model::MosaicFlags>(i)))
+                    return Failure_Mosaic_Required_Property_Flag_Unset;
+            }
+        }
 
-		return ValidationResult::Success;
-	})
-}}
+        return ValidationResult::Success;
+    })
+}
+}

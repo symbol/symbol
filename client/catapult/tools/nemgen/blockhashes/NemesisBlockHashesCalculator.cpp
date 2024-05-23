@@ -27,43 +27,48 @@
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/plugins/PluginManager.h"
 
-namespace catapult { namespace tools { namespace nemgen {
+namespace catapult {
+namespace tools {
+    namespace nemgen {
 
-	BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
-			const model::BlockElement& blockElement,
-			const model::BlockchainConfiguration& config,
-			plugins::PluginManager& pluginManager) {
-		// 1. prepare observer
-		auto publisherOptions = model::ExtractNemesisNotificationPublisherOptions(config);
-		observers::NotificationObserverAdapter entityObserver(
-				pluginManager.createObserver(),
-				model::CreateNemesisNotificationPublisher(pluginManager.createNotificationPublisher(), publisherOptions));
+        BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
+            const model::BlockElement& blockElement,
+            const model::BlockchainConfiguration& config,
+            plugins::PluginManager& pluginManager)
+        {
+            // 1. prepare observer
+            auto publisherOptions = model::ExtractNemesisNotificationPublisherOptions(config);
+            observers::NotificationObserverAdapter entityObserver(
+                pluginManager.createObserver(),
+                model::CreateNemesisNotificationPublisher(pluginManager.createNotificationPublisher(), publisherOptions));
 
-		// 2. prepare observer state
-		auto cache = pluginManager.createCache();
-		auto cacheDetachableDelta = cache.createDetachableDelta();
-		auto cacheDetachedDelta = cacheDetachableDelta.detach();
-		auto pCacheDelta = cacheDetachedDelta.tryLock();
-		auto blockStatementBuilder = model::BlockStatementBuilder();
-		auto observerState = observers::ObserverState(*pCacheDelta, blockStatementBuilder);
+            // 2. prepare observer state
+            auto cache = pluginManager.createCache();
+            auto cacheDetachableDelta = cache.createDetachableDelta();
+            auto cacheDetachedDelta = cacheDetachableDelta.detach();
+            auto pCacheDelta = cacheDetachedDelta.tryLock();
+            auto blockStatementBuilder = model::BlockStatementBuilder();
+            auto observerState = observers::ObserverState(*pCacheDelta, blockStatementBuilder);
 
-		// 3. prepare resolvers
-		auto readOnlyCache = pCacheDelta->toReadOnly();
-		auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
+            // 3. prepare resolvers
+            auto readOnlyCache = pCacheDelta->toReadOnly();
+            auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
 
-		// 4. execute block
-		chain::ExecuteBlock(blockElement, { entityObserver, resolverContext, observerState });
-		auto pBlockStatement = blockStatementBuilder.build();
-		auto cacheStateHashInfo = pCacheDelta->calculateStateHash(blockElement.Block.Height);
-		auto blockReceiptsHash = config.EnableVerifiableReceipts ? model::CalculateMerkleHash(*pBlockStatement) : Hash256();
+            // 4. execute block
+            chain::ExecuteBlock(blockElement, { entityObserver, resolverContext, observerState });
+            auto pBlockStatement = blockStatementBuilder.build();
+            auto cacheStateHashInfo = pCacheDelta->calculateStateHash(blockElement.Block.Height);
+            auto blockReceiptsHash = config.EnableVerifiableReceipts ? model::CalculateMerkleHash(*pBlockStatement) : Hash256();
 
-		auto highValueAccountStatistics = readOnlyCache.sub<cache::AccountStateCache>().highValueAccountStatistics(FinalizationEpoch(0));
-		return { highValueAccountStatistics.VotingEligibleAccountsCount,
-				 highValueAccountStatistics.HarvestingEligibleAccountsCount,
-				 highValueAccountStatistics.TotalVotingBalance,
-				 blockReceiptsHash,
-				 cacheStateHashInfo.StateHash,
-				 cacheStateHashInfo.SubCacheMerkleRoots,
-				 std::move(pBlockStatement) };
-	}
-}}}
+            auto highValueAccountStatistics = readOnlyCache.sub<cache::AccountStateCache>().highValueAccountStatistics(FinalizationEpoch(0));
+            return { highValueAccountStatistics.VotingEligibleAccountsCount,
+                highValueAccountStatistics.HarvestingEligibleAccountsCount,
+                highValueAccountStatistics.TotalVotingBalance,
+                blockReceiptsHash,
+                cacheStateHashInfo.StateHash,
+                cacheStateHashInfo.SubCacheMerkleRoots,
+                std::move(pBlockStatement) };
+        }
+    }
+}
+}

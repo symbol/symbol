@@ -26,69 +26,75 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	// region CatapultConfiguration
+    // region CatapultConfiguration
 
-	namespace {
-		std::string Qualify(const std::string& name) {
-			std::ostringstream out;
-			out << "config-" << name << ".properties";
-			return out.str();
-		}
+    namespace {
+        std::string Qualify(const std::string& name)
+        {
+            std::ostringstream out;
+            out << "config-" << name << ".properties";
+            return out.str();
+        }
 
-		std::string HostQualify(const std::string& name, const std::string& host) {
-			std::ostringstream out;
-			out << "config-" << name << "-" << host << ".properties";
-			return out.str();
-		}
-	}
+        std::string HostQualify(const std::string& name, const std::string& host)
+        {
+            std::ostringstream out;
+            out << "config-" << name << "-" << host << ".properties";
+            return out.str();
+        }
+    }
 
-	CatapultConfiguration::CatapultConfiguration(
-			model::BlockchainConfiguration&& blockchainConfig,
-			NodeConfiguration&& nodeConfig,
-			LoggingConfiguration&& loggingConfig,
-			UserConfiguration&& userConfig,
-			ExtensionsConfiguration&& extensionsConfig,
-			InflationConfiguration&& inflationConfig)
-			: Blockchain(std::move(blockchainConfig))
-			, Node(std::move(nodeConfig))
-			, Logging(std::move(loggingConfig))
-			, User(std::move(userConfig))
-			, Extensions(std::move(extensionsConfig))
-			, Inflation(std::move(inflationConfig)) {
-	}
+    CatapultConfiguration::CatapultConfiguration(
+        model::BlockchainConfiguration&& blockchainConfig,
+        NodeConfiguration&& nodeConfig,
+        LoggingConfiguration&& loggingConfig,
+        UserConfiguration&& userConfig,
+        ExtensionsConfiguration&& extensionsConfig,
+        InflationConfiguration&& inflationConfig)
+        : Blockchain(std::move(blockchainConfig))
+        , Node(std::move(nodeConfig))
+        , Logging(std::move(loggingConfig))
+        , User(std::move(userConfig))
+        , Extensions(std::move(extensionsConfig))
+        , Inflation(std::move(inflationConfig))
+    {
+    }
 
-	CatapultConfiguration CatapultConfiguration::LoadFromPath(
-			const std::filesystem::path& resourcesPath,
-			const std::string& extensionsHost) {
-		return CatapultConfiguration(
-				LoadIniConfiguration<model::BlockchainConfiguration>(resourcesPath / Qualify("network")),
-				LoadIniConfiguration<NodeConfiguration>(resourcesPath / Qualify("node")),
-				LoadIniConfiguration<LoggingConfiguration>(resourcesPath / HostQualify("logging", extensionsHost)),
-				LoadIniConfiguration<UserConfiguration>(resourcesPath / Qualify("user")),
-				LoadIniConfiguration<ExtensionsConfiguration>(resourcesPath / HostQualify("extensions", extensionsHost)),
-				LoadIniConfiguration<InflationConfiguration>(resourcesPath / Qualify("inflation")));
-	}
+    CatapultConfiguration CatapultConfiguration::LoadFromPath(
+        const std::filesystem::path& resourcesPath,
+        const std::string& extensionsHost)
+    {
+        return CatapultConfiguration(
+            LoadIniConfiguration<model::BlockchainConfiguration>(resourcesPath / Qualify("network")),
+            LoadIniConfiguration<NodeConfiguration>(resourcesPath / Qualify("node")),
+            LoadIniConfiguration<LoggingConfiguration>(resourcesPath / HostQualify("logging", extensionsHost)),
+            LoadIniConfiguration<UserConfiguration>(resourcesPath / Qualify("user")),
+            LoadIniConfiguration<ExtensionsConfiguration>(resourcesPath / HostQualify("extensions", extensionsHost)),
+            LoadIniConfiguration<InflationConfiguration>(resourcesPath / Qualify("inflation")));
+    }
 
-	// endregion
+    // endregion
 
-	ionet::Node ToLocalNode(const CatapultConfiguration& config) {
-		const auto& localNodeConfig = config.Node.Local;
+    ionet::Node ToLocalNode(const CatapultConfiguration& config)
+    {
+        const auto& localNodeConfig = config.Node.Local;
 
-		auto identityKey = crypto::ReadPublicKeyFromPublicKeyPemFile(GetCaPublicKeyPemFilename(config.User.CertificateDirectory));
+        auto identityKey = crypto::ReadPublicKeyFromPublicKeyPemFile(GetCaPublicKeyPemFilename(config.User.CertificateDirectory));
 
-		auto endpoint = ionet::NodeEndpoint();
-		endpoint.Host = localNodeConfig.Host;
-		endpoint.Port = config.Node.Port;
+        auto endpoint = ionet::NodeEndpoint();
+        endpoint.Host = localNodeConfig.Host;
+        endpoint.Port = config.Node.Port;
 
-		auto networkFingerprint =
-				model::UniqueNetworkFingerprint(config.Blockchain.Network.Identifier, config.Blockchain.Network.GenerationHashSeed);
-		auto metadata = ionet::NodeMetadata(networkFingerprint);
-		metadata.Name = localNodeConfig.FriendlyName;
-		metadata.Version = ionet::NodeVersion(localNodeConfig.Version);
-		metadata.Roles = localNodeConfig.Roles;
+        auto networkFingerprint = model::UniqueNetworkFingerprint(config.Blockchain.Network.Identifier, config.Blockchain.Network.GenerationHashSeed);
+        auto metadata = ionet::NodeMetadata(networkFingerprint);
+        metadata.Name = localNodeConfig.FriendlyName;
+        metadata.Version = ionet::NodeVersion(localNodeConfig.Version);
+        metadata.Roles = localNodeConfig.Roles;
 
-		return ionet::Node({ identityKey, "_local_" }, endpoint, metadata);
-	}
-}}
+        return ionet::Node({ identityKey, "_local_" }, endpoint, metadata);
+    }
+}
+}

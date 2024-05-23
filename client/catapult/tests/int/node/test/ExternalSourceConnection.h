@@ -28,55 +28,57 @@
 
 namespace catapult {
 namespace api {
-	class RemoteChainApi;
+    class RemoteChainApi;
 }
 namespace ionet {
-	class PacketIo;
-	class PacketSocket;
+    class PacketIo;
+    class PacketSocket;
 }
 namespace net {
-	class ServerConnector;
+    class ServerConnector;
 }
 namespace thread {
-	class IoThreadPool;
+    class IoThreadPool;
 }
 }
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Represents an external source connection.
-	class ExternalSourceConnection {
-	public:
-		/// Creates an external source connection to default local node with public \a key.
-		explicit ExternalSourceConnection(const Key& key);
+    /// Represents an external source connection.
+    class ExternalSourceConnection {
+    public:
+        /// Creates an external source connection to default local node with public \a key.
+        explicit ExternalSourceConnection(const Key& key);
 
-		/// Creates an external source connection to specified local \a node.
-		explicit ExternalSourceConnection(const ionet::Node& node);
+        /// Creates an external source connection to specified local \a node.
+        explicit ExternalSourceConnection(const ionet::Node& node);
 
-	public:
-		/// Gets the connected io.
-		std::shared_ptr<ionet::PacketIo> io() const;
+    public:
+        /// Gets the connected io.
+        std::shared_ptr<ionet::PacketIo> io() const;
 
-	public:
-		/// Connects to the local node and calls \a onConnect with socket on completion.
-		void connect(const consumer<const std::shared_ptr<ionet::PacketSocket>&>& onConnect);
+    public:
+        /// Connects to the local node and calls \a onConnect with socket on completion.
+        void connect(const consumer<const std::shared_ptr<ionet::PacketSocket>&>& onConnect);
 
-		/// Connects to the local node and calls \a onConnect with api on completion.
-		void apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect);
+        /// Connects to the local node and calls \a onConnect with api on completion.
+        void apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect);
 
-	private:
-		net::ConnectionSettings createConnectionSettings();
+    private:
+        net::ConnectionSettings createConnectionSettings();
 
-	private:
-		static model::TransactionRegistry CreateTransactionRegistry();
+    private:
+        static model::TransactionRegistry CreateTransactionRegistry();
 
-	private:
-		std::unique_ptr<thread::IoThreadPool> m_pPool;
-		crypto::KeyPair m_caKeyPair;
-		TempDirectoryGuard m_tempDirectoryGuard;
-		std::shared_ptr<net::ServerConnector> m_pConnector;
-		ionet::Node m_localNode;
+    private:
+        std::unique_ptr<thread::IoThreadPool> m_pPool;
+        crypto::KeyPair m_caKeyPair;
+        TempDirectoryGuard m_tempDirectoryGuard;
+        std::shared_ptr<net::ServerConnector> m_pConnector;
+        ionet::Node m_localNode;
 
-		std::shared_ptr<ionet::PacketIo> m_pIo;
-	};
-}}
+        std::shared_ptr<ionet::PacketIo> m_pIo;
+    };
+}
+}

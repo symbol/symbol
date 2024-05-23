@@ -22,27 +22,31 @@
 #include "catapult/model/NotificationContext.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS NotificationContextTests
 
-	namespace {
-		ResolverContext CreateResolverContext() {
-			return ResolverContext(
-					[](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
-					[](const auto& unresolved) { return Address{ { unresolved[0] } }; });
-		}
-	}
+    namespace {
+        ResolverContext CreateResolverContext()
+        {
+            return ResolverContext(
+                [](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
+                [](const auto& unresolved) { return Address { { unresolved[0] } }; });
+        }
+    }
 
-	TEST(TEST_CLASS, CanCreateNotificationContextAroundParameters) {
-		// Act:
-		auto context = NotificationContext(Height(1234), CreateResolverContext());
+    TEST(TEST_CLASS, CanCreateNotificationContextAroundParameters)
+    {
+        // Act:
+        auto context = NotificationContext(Height(1234), CreateResolverContext());
 
-		// Assert:
-		EXPECT_EQ(Height(1234), context.Height);
+        // Assert:
+        EXPECT_EQ(Height(1234), context.Height);
 
-		// - resolvers are copied into context and wired up correctly
-		EXPECT_EQ(MosaicId(48), context.Resolvers.resolve(UnresolvedMosaicId(24)));
-		EXPECT_EQ(Address{ { 11 } }, context.Resolvers.resolve(UnresolvedAddress{ { 11, 32 } }));
-	}
-}}
+        // - resolvers are copied into context and wired up correctly
+        EXPECT_EQ(MosaicId(48), context.Resolvers.resolve(UnresolvedMosaicId(24)));
+        EXPECT_EQ(Address { { 11 } }, context.Resolvers.resolve(UnresolvedAddress { { 11, 32 } }));
+    }
+}
+}

@@ -22,22 +22,24 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a mosaic.
-	template<typename TMosaicId>
-	struct MosaicT {
-		/// Mosaic id.
-		TMosaicId MosaicId;
+    /// Binary layout for a mosaic.
+    template <typename TMosaicId>
+    struct MosaicT {
+        /// Mosaic id.
+        TMosaicId MosaicId;
 
-		/// Mosaic amount.
-		catapult::Amount Amount;
-	};
+        /// Mosaic amount.
+        catapult::Amount Amount;
+    };
 
-	using Mosaic = MosaicT<MosaicId>;
-	using UnresolvedMosaic = MosaicT<UnresolvedMosaicId>;
+    using Mosaic = MosaicT<MosaicId>;
+    using UnresolvedMosaic = MosaicT<UnresolvedMosaicId>;
 
 #pragma pack(pop)
-}}
+}
+}

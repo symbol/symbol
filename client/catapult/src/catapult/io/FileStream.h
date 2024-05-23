@@ -23,27 +23,29 @@
 #include "RawFile.h"
 #include "SeekableStream.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// File-based implementation of input and output stream.
-	class FileStream : public SeekableStream {
-	public:
-		/// Creates a file stream around \a rawFile.
-		explicit FileStream(RawFile&& rawFile);
+    /// File-based implementation of input and output stream.
+    class FileStream : public SeekableStream {
+    public:
+        /// Creates a file stream around \a rawFile.
+        explicit FileStream(RawFile&& rawFile);
 
-	public:
-		void write(const RawBuffer& buffer) override;
-		void flush() override;
+    public:
+        void write(const RawBuffer& buffer) override;
+        void flush() override;
 
-	public:
-		bool eof() const override;
-		void read(const MutableRawBuffer& buffer) override;
+    public:
+        bool eof() const override;
+        void read(const MutableRawBuffer& buffer) override;
 
-	public:
-		void seek(uint64_t position) override;
-		uint64_t position() const override;
+    public:
+        void seek(uint64_t position) override;
+        uint64_t position() const override;
 
-	private:
-		RawFile m_rawFile;
-	};
-}}
+    private:
+        RawFile m_rawFile;
+    };
+}
+}

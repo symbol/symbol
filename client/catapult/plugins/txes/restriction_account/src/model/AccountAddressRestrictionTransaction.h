@@ -22,12 +22,14 @@
 #pragma once
 #include "AccountRestrictionSharedTransaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for an account address restriction transaction body.
-	DEFINE_ACCOUNT_RESTRICTION_TRANSACTION(Address, Address, UnresolvedAddress)
+    /// Binary layout for an account address restriction transaction body.
+    DEFINE_ACCOUNT_RESTRICTION_TRANSACTION(Address, Address, UnresolvedAddress)
 
 #pragma pack(pop)
-}}
+}
+}

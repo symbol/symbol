@@ -23,20 +23,25 @@
 #include "catapult/utils/RandomGenerator.h"
 #include <algorithm>
 
-namespace catapult { namespace tools {
+namespace catapult {
+namespace tools {
 
-	uint64_t Random() {
-		return utils::LowEntropyRandomGenerator()();
-	}
+    uint64_t Random()
+    {
+        return utils::LowEntropyRandomGenerator()();
+    }
 
-	uint8_t RandomByte() {
-		return static_cast<uint8_t>(Random());
-	}
+    uint8_t RandomByte()
+    {
+        return static_cast<uint8_t>(Random());
+    }
 
-	std::vector<uint8_t> GenerateRandomVector(size_t size) {
-		std::vector<uint8_t> container;
-		container.resize(size);
-		std::generate_n(container.begin(), container.size(), RandomByte);
-		return container;
-	}
-}}
+    std::vector<uint8_t> GenerateRandomVector(size_t size)
+    {
+        std::vector<uint8_t> container;
+        container.resize(size);
+        std::generate_n(container.begin(), container.size(), RandomByte);
+        return container;
+    }
+}
+}

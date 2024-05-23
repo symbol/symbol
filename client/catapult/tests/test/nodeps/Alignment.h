@@ -22,29 +22,32 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Gets the desired alignment for type T.
-	template<typename T>
-	constexpr size_t GetRequiredAlignment() {
-		if constexpr (utils::traits::is_scalar_v<T>)
-			return sizeof(T); // require scalars to be aligned on their natural boundaries
-		else
-			return sizeof(uint64_t); // require non-scalars to be aligned on 64-bit boundaries
-	}
-}}
+    /// Gets the desired alignment for type T.
+    template <typename T>
+    constexpr size_t GetRequiredAlignment()
+    {
+        if constexpr (utils::traits::is_scalar_v<T>)
+            return sizeof(T); // require scalars to be aligned on their natural boundaries
+        else
+            return sizeof(uint64_t); // require non-scalars to be aligned on 64-bit boundaries
+    }
+}
+}
 
 /// Asserts that \a FIELD has proper alignment within \a STRUCT.
 #define EXPECT_ALIGNED_(STRUCT, FIELD) EXPECT_EQ(0u, offsetof(STRUCT, FIELD) % test::GetRequiredAlignment<decltype(STRUCT::FIELD)>())
 
 #ifndef _MSC_VER
-#define EXPECT_ALIGNED_WITH_PRAGMAS(STRUCT, FIELD) \
-	do { \
-		_Pragma("GCC diagnostic push") \
-				_Pragma("GCC diagnostic ignored \"-Winvalid-offsetof\"") /* allow offsetof on non-standard layout type */ \
-				EXPECT_ALIGNED_(STRUCT, FIELD); \
-		_Pragma("GCC diagnostic pop") \
-	} while (false)
+#define EXPECT_ALIGNED_WITH_PRAGMAS(STRUCT, FIELD)                                                                    \
+    do {                                                                                                              \
+        _Pragma("GCC diagnostic push")                                                                                \
+            _Pragma("GCC diagnostic ignored \"-Winvalid-offsetof\"") /* allow offsetof on non-standard layout type */ \
+            EXPECT_ALIGNED_(STRUCT, FIELD);                                                                           \
+        _Pragma("GCC diagnostic pop")                                                                                 \
+    } while (false)
 
 // extra indirection is needed for GCC Release builds
 #define EXPECT_ALIGNED EXPECT_ALIGNED_WITH_PRAGMAS

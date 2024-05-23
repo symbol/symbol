@@ -20,33 +20,36 @@
 **/
 
 #include "AccountKeyLinkTransactionPlugin.h"
-#include "src/model/AccountKeyLinkTransaction.h"
-#include "src/model/AccountLinkNotifications.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/AccountKeyLinkTransaction.h"
+#include "src/model/AccountLinkNotifications.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			if (LinkAction::Link == transaction.LinkAction) {
-				// NewRemoteAccountNotification must be raised before AccountPublicKeyNotification because the latter adds account to cache
-				sub.notify(NewRemoteAccountNotification(transaction.LinkedPublicKey));
-				sub.notify(AccountPublicKeyNotification(transaction.LinkedPublicKey));
-			}
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            if (LinkAction::Link == transaction.LinkAction) {
+                // NewRemoteAccountNotification must be raised before AccountPublicKeyNotification because the latter adds account to cache
+                sub.notify(NewRemoteAccountNotification(transaction.LinkedPublicKey));
+                sub.notify(AccountPublicKeyNotification(transaction.LinkedPublicKey));
+            }
 
-			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
-			sub.notify(AddressInteractionNotification(
-					context.SignerAddress,
-					transaction.Type,
-					{ PublicKeyToAddress(transaction.LinkedPublicKey, transaction.Network).template copyTo<UnresolvedAddress>() }));
-			sub.notify(RemoteAccountKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
-		}
-	}
+            sub.notify(KeyLinkActionNotification(transaction.LinkAction));
+            sub.notify(AddressInteractionNotification(
+                context.SignerAddress,
+                transaction.Type,
+                { PublicKeyToAddress(transaction.LinkedPublicKey, transaction.Network).template copyTo<UnresolvedAddress>() }));
+            sub.notify(RemoteAccountKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountKeyLink, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountKeyLink, Default, Publish)
+}
+}

@@ -19,85 +19,92 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/model/EntityHasher.h"
 #include "src/cache/HashCache.h"
 #include "src/observers/Observers.h"
-#include "catapult/model/EntityHasher.h"
+#include "tests/TestHarness.h"
 #include "tests/test/HashCacheTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
 #define TEST_CLASS TransactionHashObserverTests
 
-	using ObserverTestContext = test::ObserverTestContextT<test::HashCacheFactory>;
+    using ObserverTestContext = test::ObserverTestContextT<test::HashCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(TransactionHash, )
+    DEFINE_COMMON_OBSERVER_TESTS(TransactionHash, )
 
-	namespace {
-		constexpr size_t Num_Hashes = 10;
+    namespace {
+        constexpr size_t Num_Hashes = 10;
 
-		void SeedCache(cache::HashCacheDelta& cache) {
-			for (auto i = 0u; i < Num_Hashes; ++i)
-				cache.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
-		}
+        void SeedCache(cache::HashCacheDelta& cache)
+        {
+            for (auto i = 0u; i < Num_Hashes; ++i)
+                cache.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
+        }
 
-		state::TimestampedHash CreateTimestampedHash(Timestamp deadline, const Hash256& hash) {
-			return state::TimestampedHash(deadline, hash);
-		}
+        state::TimestampedHash CreateTimestampedHash(Timestamp deadline, const Hash256& hash)
+        {
+            return state::TimestampedHash(deadline, hash);
+        }
 
-		model::TransactionNotification MakeNotification(Timestamp deadline, const Hash256& hash) {
-			return model::TransactionNotification(Address(), hash, model::EntityType(), deadline);
-		}
-	}
+        model::TransactionNotification MakeNotification(Timestamp deadline, const Hash256& hash)
+        {
+            return model::TransactionNotification(Address(), hash, model::EntityType(), deadline);
+        }
+    }
 
-	TEST(TEST_CLASS, ObserverInsertsHashIntoCacheInModeCommit) {
-		// Arrange:
-		ObserverTestContext context(NotifyMode::Commit);
-		auto pObserver = CreateTransactionHashObserver();
+    TEST(TEST_CLASS, ObserverInsertsHashIntoCacheInModeCommit)
+    {
+        // Arrange:
+        ObserverTestContext context(NotifyMode::Commit);
+        auto pObserver = CreateTransactionHashObserver();
 
-		auto deadline = test::GenerateRandomValue<Timestamp>();
-		auto hash = test::GenerateRandomByteArray<Hash256>();
-		auto timestampedHash = CreateTimestampedHash(deadline, hash);
+        auto deadline = test::GenerateRandomValue<Timestamp>();
+        auto hash = test::GenerateRandomByteArray<Hash256>();
+        auto timestampedHash = CreateTimestampedHash(deadline, hash);
 
-		auto& cache = context.observerContext().Cache.sub<cache::HashCache>();
-		SeedCache(cache);
+        auto& cache = context.observerContext().Cache.sub<cache::HashCache>();
+        SeedCache(cache);
 
-		// Sanity:
-		EXPECT_EQ(Num_Hashes, cache.size());
-		EXPECT_FALSE(cache.contains(timestampedHash));
+        // Sanity:
+        EXPECT_EQ(Num_Hashes, cache.size());
+        EXPECT_FALSE(cache.contains(timestampedHash));
 
-		// Act:
-		pObserver->notify(MakeNotification(deadline, hash), context.observerContext());
+        // Act:
+        pObserver->notify(MakeNotification(deadline, hash), context.observerContext());
 
-		// Assert:
-		EXPECT_EQ(Num_Hashes + 1, cache.size());
-		EXPECT_TRUE(cache.contains(timestampedHash));
-	}
+        // Assert:
+        EXPECT_EQ(Num_Hashes + 1, cache.size());
+        EXPECT_TRUE(cache.contains(timestampedHash));
+    }
 
-	TEST(TEST_CLASS, ObserverRemovesHashFromCacheInModeRollback) {
-		// Arrange:
-		ObserverTestContext context(NotifyMode::Rollback);
-		auto pObserver = CreateTransactionHashObserver();
+    TEST(TEST_CLASS, ObserverRemovesHashFromCacheInModeRollback)
+    {
+        // Arrange:
+        ObserverTestContext context(NotifyMode::Rollback);
+        auto pObserver = CreateTransactionHashObserver();
 
-		auto deadline = test::GenerateRandomValue<Timestamp>();
-		auto hash = test::GenerateRandomByteArray<Hash256>();
-		auto timestampedHash = CreateTimestampedHash(deadline, hash);
+        auto deadline = test::GenerateRandomValue<Timestamp>();
+        auto hash = test::GenerateRandomByteArray<Hash256>();
+        auto timestampedHash = CreateTimestampedHash(deadline, hash);
 
-		auto& cache = context.observerContext().Cache.sub<cache::HashCache>();
-		SeedCache(cache);
-		cache.insert(timestampedHash);
+        auto& cache = context.observerContext().Cache.sub<cache::HashCache>();
+        SeedCache(cache);
+        cache.insert(timestampedHash);
 
-		// Sanity:
-		EXPECT_EQ(Num_Hashes + 1, cache.size());
-		EXPECT_TRUE(cache.contains(timestampedHash));
+        // Sanity:
+        EXPECT_EQ(Num_Hashes + 1, cache.size());
+        EXPECT_TRUE(cache.contains(timestampedHash));
 
-		// Act:
-		pObserver->notify(MakeNotification(deadline, hash), context.observerContext());
+        // Act:
+        pObserver->notify(MakeNotification(deadline, hash), context.observerContext());
 
-		// Assert:
-		EXPECT_EQ(Num_Hashes, cache.size());
-		EXPECT_FALSE(cache.contains(timestampedHash));
-	}
-}}
+        // Assert:
+        EXPECT_EQ(Num_Hashes, cache.size());
+        EXPECT_FALSE(cache.contains(timestampedHash));
+    }
+}
+}

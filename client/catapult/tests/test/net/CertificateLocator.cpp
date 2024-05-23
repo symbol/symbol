@@ -20,43 +20,50 @@
 **/
 
 #include "CertificateLocator.h"
-#include "catapult/io/RawFile.h"
 #include "catapult/exceptions.h"
+#include "catapult/io/RawFile.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include <filesystem>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		void SaveToFile(const std::string& certDirectory, const std::string& filename, const std::string& buffer) {
-			io::RawFile dataFile((std::filesystem::path(certDirectory) / filename).generic_string(), io::OpenMode::Read_Write);
-			dataFile.write({ reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size() });
-		}
+    namespace {
+        void SaveToFile(const std::string& certDirectory, const std::string& filename, const std::string& buffer)
+        {
+            io::RawFile dataFile((std::filesystem::path(certDirectory) / filename).generic_string(), io::OpenMode::Read_Write);
+            dataFile.write({ reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size() });
+        }
 
-		void SavePemCertificate(const PemCertificate& pemCertificate, const std::string& certificateDirectory) {
-			SaveToFile(certificateDirectory, "ca.pubkey.pem", pemCertificate.caPublicKeyString());
-			SaveToFile(certificateDirectory, "node.key.pem", pemCertificate.nodePrivateKeyString());
-			SaveToFile(certificateDirectory, "node.full.crt.pem", pemCertificate.certificateChainString());
-		}
-	}
+        void SavePemCertificate(const PemCertificate& pemCertificate, const std::string& certificateDirectory)
+        {
+            SaveToFile(certificateDirectory, "ca.pubkey.pem", pemCertificate.caPublicKeyString());
+            SaveToFile(certificateDirectory, "node.key.pem", pemCertificate.nodePrivateKeyString());
+            SaveToFile(certificateDirectory, "node.full.crt.pem", pemCertificate.certificateChainString());
+        }
+    }
 
-	std::string GetDefaultCertificateDirectory() {
-		auto certificateDirectory = "./cert";
-		if (!std::filesystem::exists(certificateDirectory))
-			GenerateCertificateDirectory(certificateDirectory);
+    std::string GetDefaultCertificateDirectory()
+    {
+        auto certificateDirectory = "./cert";
+        if (!std::filesystem::exists(certificateDirectory))
+            GenerateCertificateDirectory(certificateDirectory);
 
-		return certificateDirectory;
-	}
+        return certificateDirectory;
+    }
 
-	void GenerateCertificateDirectory(const std::string& certificateDirectory) {
-		GenerateCertificateDirectory(certificateDirectory, PemCertificate());
-	}
+    void GenerateCertificateDirectory(const std::string& certificateDirectory)
+    {
+        GenerateCertificateDirectory(certificateDirectory, PemCertificate());
+    }
 
-	void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate) {
-		CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
-		std::filesystem::create_directories(certificateDirectory);
+    void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate)
+    {
+        CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
+        std::filesystem::create_directories(certificateDirectory);
 
-		SavePemCertificate(pemCertificate, certificateDirectory);
-	}
-}}
+        SavePemCertificate(pemCertificate, certificateDirectory);
+    }
+}
+}

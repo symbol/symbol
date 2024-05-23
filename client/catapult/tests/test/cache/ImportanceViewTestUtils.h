@@ -23,37 +23,43 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/ImportanceView.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Wrapper for an importance view.
-	class ImportanceViewWrapper {
-	public:
-		/// Creates a wrapper around \a cache.
-		explicit ImportanceViewWrapper(const cache::AccountStateCache& cache)
-				: m_cacheView(cache.createView())
-				, m_readOnlyCache(*m_cacheView)
-				, m_view(m_readOnlyCache) {
-		}
+    /// Wrapper for an importance view.
+    class ImportanceViewWrapper {
+    public:
+        /// Creates a wrapper around \a cache.
+        explicit ImportanceViewWrapper(const cache::AccountStateCache& cache)
+            : m_cacheView(cache.createView())
+            , m_readOnlyCache(*m_cacheView)
+            , m_view(m_readOnlyCache)
+        {
+        }
 
-	public:
-		/// Gets a const reference to the underlying importance view.
-		const cache::ImportanceView& operator*() {
-			return m_view;
-		}
+    public:
+        /// Gets a const reference to the underlying importance view.
+        const cache::ImportanceView& operator*()
+        {
+            return m_view;
+        }
 
-		/// Gets a const pointer to the underlying importance view.
-		const cache::ImportanceView* operator->() {
-			return &m_view;
-		}
+        /// Gets a const pointer to the underlying importance view.
+        const cache::ImportanceView* operator->()
+        {
+            return &m_view;
+        }
 
-	private:
-		cache::LockedCacheView<cache::AccountStateCacheView> m_cacheView;
-		cache::ReadOnlyAccountStateCache m_readOnlyCache;
-		cache::ImportanceView m_view;
-	};
+    private:
+        cache::LockedCacheView<cache::AccountStateCacheView> m_cacheView;
+        cache::ReadOnlyAccountStateCache m_readOnlyCache;
+        cache::ImportanceView m_view;
+    };
 
-	/// Creates an importance view wrapper around \a cache.
-	inline ImportanceViewWrapper CreateImportanceView(const cache::AccountStateCache& cache) {
-		return ImportanceViewWrapper(cache);
-	}
-}}
+    /// Creates an importance view wrapper around \a cache.
+    inline ImportanceViewWrapper CreateImportanceView(const cache::AccountStateCache& cache)
+    {
+        return ImportanceViewWrapper(cache);
+    }
+}
+}

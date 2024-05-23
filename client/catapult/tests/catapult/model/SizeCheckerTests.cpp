@@ -22,75 +22,84 @@
 #include "catapult/model/SizeChecker.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS SizeCheckerTests
 
-	namespace {
+    namespace {
 #pragma pack(push, 1)
 
-		struct VariableSizedEntity {
-		public:
-			explicit VariableSizedEntity(uint8_t extraSize)
-					: ExtraSize(extraSize) {
-			}
+        struct VariableSizedEntity {
+        public:
+            explicit VariableSizedEntity(uint8_t extraSize)
+                : ExtraSize(extraSize)
+            {
+            }
 
-		public:
-			uint32_t Size;
-			uint8_t ExtraSize;
+        public:
+            uint32_t Size;
+            uint8_t ExtraSize;
 
-		public:
-			static uint64_t CalculateRealSize(const VariableSizedEntity& entity) {
-				return sizeof(VariableSizedEntity) + entity.ExtraSize;
-			}
-		};
+        public:
+            static uint64_t CalculateRealSize(const VariableSizedEntity& entity)
+            {
+                return sizeof(VariableSizedEntity) + entity.ExtraSize;
+            }
+        };
 
 #pragma pack(pop)
-	}
+    }
 
-	TEST(TEST_CLASS, IsSizeValidReturnsTrueWhenEntitySizeIsCorrect_WithNoVariableData) {
-		// Arrange:
-		auto entity = VariableSizedEntity(0);
-		entity.Size = sizeof(VariableSizedEntity);
+    TEST(TEST_CLASS, IsSizeValidReturnsTrueWhenEntitySizeIsCorrect_WithNoVariableData)
+    {
+        // Arrange:
+        auto entity = VariableSizedEntity(0);
+        entity.Size = sizeof(VariableSizedEntity);
 
-		// Act + Assert:
-		EXPECT_TRUE(IsSizeValidT(entity));
-	}
+        // Act + Assert:
+        EXPECT_TRUE(IsSizeValidT(entity));
+    }
 
-	TEST(TEST_CLASS, IsSizeValidReturnsTrueWhenEntitySizeIsCorrect_WithVariableData) {
-		// Arrange:
-		auto entity = VariableSizedEntity(123);
-		entity.Size = sizeof(VariableSizedEntity) + 123;
+    TEST(TEST_CLASS, IsSizeValidReturnsTrueWhenEntitySizeIsCorrect_WithVariableData)
+    {
+        // Arrange:
+        auto entity = VariableSizedEntity(123);
+        entity.Size = sizeof(VariableSizedEntity) + 123;
 
-		// Act + Assert:
-		EXPECT_TRUE(IsSizeValidT(entity));
-	}
+        // Act + Assert:
+        EXPECT_TRUE(IsSizeValidT(entity));
+    }
 
-	TEST(TEST_CLASS, IsSizeValidReturnsFalseWhenEntitySizeIsLessThanEntityHeaderSize) {
-		// Arrange: construct an incomplete VariableSizedEntity that will cause an AV when accessing ExtraSize
-		std::vector<uint8_t> buffer(sizeof(uint32_t));
-		auto& entity = reinterpret_cast<VariableSizedEntity&>(buffer[0]);
-		entity.Size = sizeof(uint32_t);
+    TEST(TEST_CLASS, IsSizeValidReturnsFalseWhenEntitySizeIsLessThanEntityHeaderSize)
+    {
+        // Arrange: construct an incomplete VariableSizedEntity that will cause an AV when accessing ExtraSize
+        std::vector<uint8_t> buffer(sizeof(uint32_t));
+        auto& entity = reinterpret_cast<VariableSizedEntity&>(buffer[0]);
+        entity.Size = sizeof(uint32_t);
 
-		// Act + Assert:
-		EXPECT_FALSE(IsSizeValidT(entity));
-	}
+        // Act + Assert:
+        EXPECT_FALSE(IsSizeValidT(entity));
+    }
 
-	TEST(TEST_CLASS, IsSizeValidReturnsFalseWhenEntitySizeIsTooSmall) {
-		// Arrange:
-		auto entity = VariableSizedEntity(123);
-		entity.Size = sizeof(VariableSizedEntity) + 123 - 1;
+    TEST(TEST_CLASS, IsSizeValidReturnsFalseWhenEntitySizeIsTooSmall)
+    {
+        // Arrange:
+        auto entity = VariableSizedEntity(123);
+        entity.Size = sizeof(VariableSizedEntity) + 123 - 1;
 
-		// Act + Assert:
-		EXPECT_FALSE(IsSizeValidT(entity));
-	}
+        // Act + Assert:
+        EXPECT_FALSE(IsSizeValidT(entity));
+    }
 
-	TEST(TEST_CLASS, IsSizeValidReturnsFalseWhenEntitySizeIsTooLarge) {
-		// Arrange:
-		auto entity = VariableSizedEntity(123);
-		entity.Size = sizeof(VariableSizedEntity) + 123 + 1;
+    TEST(TEST_CLASS, IsSizeValidReturnsFalseWhenEntitySizeIsTooLarge)
+    {
+        // Arrange:
+        auto entity = VariableSizedEntity(123);
+        entity.Size = sizeof(VariableSizedEntity) + 123 + 1;
 
-		// Act + Assert:
-		EXPECT_FALSE(IsSizeValidT(entity));
-	}
-}}
+        // Act + Assert:
+        EXPECT_FALSE(IsSizeValidT(entity));
+    }
+}
+}

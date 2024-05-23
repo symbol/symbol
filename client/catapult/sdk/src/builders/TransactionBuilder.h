@@ -20,81 +20,91 @@
 **/
 
 #pragma once
+#include "catapult/functions.h"
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/model/Transaction.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "catapult/functions.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Base transaction builder.
-	class TransactionBuilder {
-	public:
-		/// Creates a transaction builder with \a networkIdentifier and \a signerPublicKey.
-		TransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signerPublicKey)
-				: m_networkIdentifier(networkIdentifier)
-				, m_signerPublicKey(signerPublicKey) {
-		}
+    /// Base transaction builder.
+    class TransactionBuilder {
+    public:
+        /// Creates a transaction builder with \a networkIdentifier and \a signerPublicKey.
+        TransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signerPublicKey)
+            : m_networkIdentifier(networkIdentifier)
+            , m_signerPublicKey(signerPublicKey)
+        {
+        }
 
-	public:
-		/// Gets the signer public key.
-		const Key& signerPublicKey() const {
-			return m_signerPublicKey;
-		}
+    public:
+        /// Gets the signer public key.
+        const Key& signerPublicKey() const
+        {
+            return m_signerPublicKey;
+        }
 
-	public:
-		/// Sets the transaction \a deadline.
-		void setDeadline(catapult::Timestamp deadline) {
-			m_deadline = deadline;
-		}
+    public:
+        /// Sets the transaction \a deadline.
+        void setDeadline(catapult::Timestamp deadline)
+        {
+            m_deadline = deadline;
+        }
 
-		/// Sets the maximum transaction \a fee.
-		void setMaxFee(catapult::Amount fee) {
-			m_maxFee = fee;
-		}
+        /// Sets the maximum transaction \a fee.
+        void setMaxFee(catapult::Amount fee)
+        {
+            m_maxFee = fee;
+        }
 
-	private:
-		void setAdditionalFields(model::EmbeddedTransaction&) const {
-		}
+    private:
+        void setAdditionalFields(model::EmbeddedTransaction&) const
+        {
+        }
 
-		void setAdditionalFields(model::Transaction& transaction) const {
-			transaction.Deadline = m_deadline;
-			transaction.MaxFee = m_maxFee;
-		}
+        void setAdditionalFields(model::Transaction& transaction) const
+        {
+            transaction.Deadline = m_deadline;
+            transaction.MaxFee = m_maxFee;
+        }
 
-	protected:
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> createTransaction(size_t size) const {
-			auto pTransaction = utils::MakeUniqueWithSize<TTransaction>(size);
-			std::memset(static_cast<void*>(pTransaction.get()), 0, sizeof(TTransaction));
+    protected:
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> createTransaction(size_t size) const
+        {
+            auto pTransaction = utils::MakeUniqueWithSize<TTransaction>(size);
+            std::memset(static_cast<void*>(pTransaction.get()), 0, sizeof(TTransaction));
 
-			// verifiable entity data
-			pTransaction->Size = utils::checked_cast<size_t, uint32_t>(size);
-			pTransaction->Version = TTransaction::Current_Version;
-			pTransaction->Network = m_networkIdentifier;
-			pTransaction->Type = TTransaction::Entity_Type;
-			pTransaction->SignerPublicKey = m_signerPublicKey;
+            // verifiable entity data
+            pTransaction->Size = utils::checked_cast<size_t, uint32_t>(size);
+            pTransaction->Version = TTransaction::Current_Version;
+            pTransaction->Network = m_networkIdentifier;
+            pTransaction->Type = TTransaction::Entity_Type;
+            pTransaction->SignerPublicKey = m_signerPublicKey;
 
-			// transaction data
-			setAdditionalFields(*pTransaction);
-			return pTransaction;
-		}
+            // transaction data
+            setAdditionalFields(*pTransaction);
+            return pTransaction;
+        }
 
-		template<typename T, typename Predicate>
-		static void InsertSorted(std::vector<T>& vector, const T& element, Predicate orderPredicate) {
-			auto iter = std::upper_bound(vector.begin(), vector.end(), element, orderPredicate);
-			if (iter != vector.begin() && !orderPredicate(*(iter - 1), element) && !orderPredicate(element, *(iter - 1)))
-				CATAPULT_THROW_RUNTIME_ERROR("duplicate element in sorted set");
+        template <typename T, typename Predicate>
+        static void InsertSorted(std::vector<T>& vector, const T& element, Predicate orderPredicate)
+        {
+            auto iter = std::upper_bound(vector.begin(), vector.end(), element, orderPredicate);
+            if (iter != vector.begin() && !orderPredicate(*(iter - 1), element) && !orderPredicate(element, *(iter - 1)))
+                CATAPULT_THROW_RUNTIME_ERROR("duplicate element in sorted set");
 
-			vector.insert(iter, element);
-		}
+            vector.insert(iter, element);
+        }
 
-	private:
-		const model::NetworkIdentifier m_networkIdentifier;
-		const Key& m_signerPublicKey;
+    private:
+        const model::NetworkIdentifier m_networkIdentifier;
+        const Key& m_signerPublicKey;
 
-		Timestamp m_deadline;
-		Amount m_maxFee;
-	};
-}}
+        Timestamp m_deadline;
+        Amount m_maxFee;
+    };
+}
+}

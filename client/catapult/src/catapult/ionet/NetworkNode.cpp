@@ -22,61 +22,66 @@
 #include "NetworkNode.h"
 #include "catapult/utils/MemoryUtils.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	namespace {
-		uint8_t GetPackedSize(const std::string& str) {
-			// string sizes are checked in Node constructor, so checked_cast is precautionary
-			return utils::checked_cast<size_t, uint8_t>(str.size());
-		}
-	}
+    namespace {
+        uint8_t GetPackedSize(const std::string& str)
+        {
+            // string sizes are checked in Node constructor, so checked_cast is precautionary
+            return utils::checked_cast<size_t, uint8_t>(str.size());
+        }
+    }
 
-	std::unique_ptr<NetworkNode> PackNode(const Node& node) {
-		const auto& endpoint = node.endpoint();
-		const auto& metadata = node.metadata();
+    std::unique_ptr<NetworkNode> PackNode(const Node& node)
+    {
+        const auto& endpoint = node.endpoint();
+        const auto& metadata = node.metadata();
 
-		auto hostSize = GetPackedSize(endpoint.Host);
-		auto friendlyNameSize = GetPackedSize(metadata.Name);
-		uint32_t packedNodeSize = SizeOf32<NetworkNode>() + hostSize + friendlyNameSize;
-		auto pNetworkNode = utils::MakeUniqueWithSize<NetworkNode>(packedNodeSize);
+        auto hostSize = GetPackedSize(endpoint.Host);
+        auto friendlyNameSize = GetPackedSize(metadata.Name);
+        uint32_t packedNodeSize = SizeOf32<NetworkNode>() + hostSize + friendlyNameSize;
+        auto pNetworkNode = utils::MakeUniqueWithSize<NetworkNode>(packedNodeSize);
 
-		pNetworkNode->Size = packedNodeSize;
-		pNetworkNode->Port = endpoint.Port;
-		pNetworkNode->IdentityKey = node.identity().PublicKey;
-		pNetworkNode->NetworkIdentifier = metadata.NetworkFingerprint.Identifier;
-		pNetworkNode->NetworkGenerationHashSeed = metadata.NetworkFingerprint.GenerationHashSeed;
-		pNetworkNode->Version = metadata.Version;
-		pNetworkNode->Roles = metadata.Roles;
+        pNetworkNode->Size = packedNodeSize;
+        pNetworkNode->Port = endpoint.Port;
+        pNetworkNode->IdentityKey = node.identity().PublicKey;
+        pNetworkNode->NetworkIdentifier = metadata.NetworkFingerprint.Identifier;
+        pNetworkNode->NetworkGenerationHashSeed = metadata.NetworkFingerprint.GenerationHashSeed;
+        pNetworkNode->Version = metadata.Version;
+        pNetworkNode->Roles = metadata.Roles;
 
-		pNetworkNode->HostSize = hostSize;
-		pNetworkNode->FriendlyNameSize = friendlyNameSize;
+        pNetworkNode->HostSize = hostSize;
+        pNetworkNode->FriendlyNameSize = friendlyNameSize;
 
-		auto* pNetworkNodeData = reinterpret_cast<uint8_t*>(pNetworkNode.get() + 1);
-		std::memcpy(pNetworkNodeData, endpoint.Host.c_str(), hostSize);
-		pNetworkNodeData += hostSize;
+        auto* pNetworkNodeData = reinterpret_cast<uint8_t*>(pNetworkNode.get() + 1);
+        std::memcpy(pNetworkNodeData, endpoint.Host.c_str(), hostSize);
+        pNetworkNodeData += hostSize;
 
-		std::memcpy(pNetworkNodeData, metadata.Name.c_str(), friendlyNameSize);
-		return pNetworkNode;
-	}
+        std::memcpy(pNetworkNodeData, metadata.Name.c_str(), friendlyNameSize);
+        return pNetworkNode;
+    }
 
-	Node UnpackNode(const NetworkNode& networkNode) {
-		const auto* pNetworkNodeData = reinterpret_cast<const char*>(&networkNode + 1);
+    Node UnpackNode(const NetworkNode& networkNode)
+    {
+        const auto* pNetworkNodeData = reinterpret_cast<const char*>(&networkNode + 1);
 
-		auto identity = model::NodeIdentity();
-		identity.PublicKey = networkNode.IdentityKey;
+        auto identity = model::NodeIdentity();
+        identity.PublicKey = networkNode.IdentityKey;
 
-		auto endpoint = NodeEndpoint();
-		endpoint.Port = networkNode.Port;
-		endpoint.Host = std::string(pNetworkNodeData, networkNode.HostSize);
-		pNetworkNodeData += networkNode.HostSize;
+        auto endpoint = NodeEndpoint();
+        endpoint.Port = networkNode.Port;
+        endpoint.Host = std::string(pNetworkNodeData, networkNode.HostSize);
+        pNetworkNodeData += networkNode.HostSize;
 
-		auto metadata = NodeMetadata();
-		metadata.NetworkFingerprint.Identifier = networkNode.NetworkIdentifier;
-		metadata.NetworkFingerprint.GenerationHashSeed = networkNode.NetworkGenerationHashSeed;
-		metadata.Name = std::string(pNetworkNodeData, networkNode.FriendlyNameSize);
-		metadata.Version = networkNode.Version;
-		metadata.Roles = networkNode.Roles;
+        auto metadata = NodeMetadata();
+        metadata.NetworkFingerprint.Identifier = networkNode.NetworkIdentifier;
+        metadata.NetworkFingerprint.GenerationHashSeed = networkNode.NetworkGenerationHashSeed;
+        metadata.Name = std::string(pNetworkNodeData, networkNode.FriendlyNameSize);
+        metadata.Version = networkNode.Version;
+        metadata.Roles = networkNode.Roles;
 
-		return Node(identity, endpoint, metadata);
-	}
-}}
+        return Node(identity, endpoint, metadata);
+    }
+}
+}

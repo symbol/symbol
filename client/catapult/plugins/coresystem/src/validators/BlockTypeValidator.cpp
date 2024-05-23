@@ -22,14 +22,18 @@
 #include "Validators.h"
 #include "catapult/model/BlockUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::BlockTypeNotification;
+    using Notification = model::BlockTypeNotification;
 
-	DECLARE_STATELESS_VALIDATOR(BlockType, Notification)(uint64_t importanceGrouping) {
-		return MAKE_STATELESS_VALIDATOR(BlockType, [importanceGrouping](const Notification& notification) {
-			auto expectedBlockType = model::CalculateBlockTypeFromHeight(notification.BlockHeight, importanceGrouping);
-			return expectedBlockType == notification.BlockType ? ValidationResult::Success : Failure_Core_Unexpected_Block_Type;
-		});
-	}
-}}
+    DECLARE_STATELESS_VALIDATOR(BlockType, Notification)
+    (uint64_t importanceGrouping)
+    {
+        return MAKE_STATELESS_VALIDATOR(BlockType, [importanceGrouping](const Notification& notification) {
+            auto expectedBlockType = model::CalculateBlockTypeFromHeight(notification.BlockHeight, importanceGrouping);
+            return expectedBlockType == notification.BlockType ? ValidationResult::Success : Failure_Core_Unexpected_Block_Type;
+        });
+    }
+}
+}

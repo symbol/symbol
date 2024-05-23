@@ -22,65 +22,75 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Simple wrapper around a byte buffer that reads data by copying.
-	/// \note This is intended to simplify testing serialized buffers that contain unaligned data.
-	class BufferReader {
-	public:
-		/// Creates a reader around \a buffer.
-		explicit BufferReader(const RawBuffer& buffer)
-				: m_buffer(buffer)
-				, m_offset(0) {
-		}
+    /// Simple wrapper around a byte buffer that reads data by copying.
+    /// \note This is intended to simplify testing serialized buffers that contain unaligned data.
+    class BufferReader {
+    public:
+        /// Creates a reader around \a buffer.
+        explicit BufferReader(const RawBuffer& buffer)
+            : m_buffer(buffer)
+            , m_offset(0)
+        {
+        }
 
-	public:
-		/// Gets the current offset.
-		size_t position() const {
-			return m_offset;
-		}
+    public:
+        /// Gets the current offset.
+        size_t position() const
+        {
+            return m_offset;
+        }
 
-		/// Gets a const pointer to the data at the current position.
-		const uint8_t* data() const {
-			return &m_buffer.pData[m_offset];
-		}
+        /// Gets a const pointer to the data at the current position.
+        const uint8_t* data() const
+        {
+            return &m_buffer.pData[m_offset];
+        }
 
-	public:
-		/// Reads a value and advances.
-		template<typename TValue>
-		TValue read() {
-			TValue value;
-			readInto(value);
+    public:
+        /// Reads a value and advances.
+        template <typename TValue>
+        TValue read()
+        {
+            TValue value;
+            readInto(value);
 
-			m_offset += sizeof(TValue);
-			return value;
-		}
+            m_offset += sizeof(TValue);
+            return value;
+        }
 
-		/// Advances \a count bytes without reading.
-		void advance(size_t count) {
-			m_offset += count;
-		}
+        /// Advances \a count bytes without reading.
+        void advance(size_t count)
+        {
+            m_offset += count;
+        }
 
-	private:
-		template<typename TValue, typename TTag>
-		void readInto(utils::BaseValue<TValue, TTag>& value) {
-			TValue rawValue;
-			readInto(rawValue);
-			value = utils::BaseValue<TValue, TTag>(rawValue);
-		}
+    private:
+        template <typename TValue, typename TTag>
+        void readInto(utils::BaseValue<TValue, TTag>& value)
+        {
+            TValue rawValue;
+            readInto(rawValue);
+            value = utils::BaseValue<TValue, TTag>(rawValue);
+        }
 
-		template<typename TTag>
-		void readInto(utils::ByteArray<TTag>& byteArray) {
-			std::memcpy(byteArray.data(), data(), utils::ByteArray<TTag>::Size);
-		}
+        template <typename TTag>
+        void readInto(utils::ByteArray<TTag>& byteArray)
+        {
+            std::memcpy(byteArray.data(), data(), utils::ByteArray<TTag>::Size);
+        }
 
-		template<typename TValue>
-		void readInto(TValue& value) {
-			std::memcpy(&value, data(), sizeof(TValue));
-		}
+        template <typename TValue>
+        void readInto(TValue& value)
+        {
+            std::memcpy(&value, data(), sizeof(TValue));
+        }
 
-	private:
-		RawBuffer m_buffer;
-		size_t m_offset;
-	};
-}}
+    private:
+        RawBuffer m_buffer;
+        size_t m_offset;
+    };
+}
+}

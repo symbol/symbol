@@ -22,20 +22,21 @@
 #include "tests/catapult/deltaset/test/BaseSetDeltaTests.h"
 #include "tests/catapult/deltaset/test/BaseSetTests.h"
 
-namespace catapult { namespace deltaset {
+namespace catapult {
+namespace deltaset {
 
-	namespace {
-		// to emulate storage virtualization, use two separate sets (ordered and unordered)
-		template<typename TMutabilityTraits, typename TElement = test::SetElementType<TMutabilityTraits>>
-		using SetVirtualizedTraits = test::BaseSetTraits<
-				TMutabilityTraits,
-				SetStorageTraits<
-						std::set<TElement, std::less<TElement>>,
-						std::unordered_set<TElement, test::Hasher<TElement>, test::EqualityChecker<TElement>>>>;
+    namespace {
+        // to emulate storage virtualization, use two separate sets (ordered and unordered)
+        template <typename TMutabilityTraits, typename TElement = test::SetElementType<TMutabilityTraits>>
+        using SetVirtualizedTraits = test::BaseSetTraits<
+            TMutabilityTraits,
+            SetStorageTraits<
+                std::set<TElement, std::less<TElement>>,
+                std::unordered_set<TElement, test::Hasher<TElement>, test::EqualityChecker<TElement>>>>;
 
-		using SetVirtualizedMutableTraits = SetVirtualizedTraits<test::MutableElementValueTraits>;
-		using SetVirtualizedImmutableTraits = SetVirtualizedTraits<test::ImmutableElementValueTraits>;
-	}
+        using SetVirtualizedMutableTraits = SetVirtualizedTraits<test::MutableElementValueTraits>;
+        using SetVirtualizedImmutableTraits = SetVirtualizedTraits<test::ImmutableElementValueTraits>;
+    }
 
 // iteration is not supported by virtualized sets
 #undef DEFINE_BASE_SET_ITERATION_TESTS
@@ -43,15 +44,16 @@ namespace catapult { namespace deltaset {
 #define DEFINE_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS)
 #define DEFINE_BASE_SET_DELTA_ITERATION_TESTS(TEST_CLASS, TRAITS)
 
-	// base (mutable)
-	DEFINE_MUTABLE_BASE_SET_TESTS_FOR(SetVirtualizedMutable)
+    // base (mutable)
+    DEFINE_MUTABLE_BASE_SET_TESTS_FOR(SetVirtualizedMutable)
 
-	// base (immutable)
-	DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(SetVirtualizedImmutable)
+    // base (immutable)
+    DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(SetVirtualizedImmutable)
 
-	// delta (mutable)
-	DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(SetVirtualizedMutable)
+    // delta (mutable)
+    DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(SetVirtualizedMutable)
 
-	// delta (immutable)
-	DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(SetVirtualizedImmutable)
-}}
+    // delta (immutable)
+    DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(SetVirtualizedImmutable)
+}
+}

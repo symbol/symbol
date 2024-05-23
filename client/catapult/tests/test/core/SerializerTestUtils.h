@@ -20,60 +20,66 @@
 **/
 
 #pragma once
-#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Runs a roundtrip test by serializing \a value using \a serializer and then deserializing it using \a deserializer into \a result.
-	template<typename TValue, typename TResultValue, typename TSerializer, typename TDeserializer>
-	void RunRoundtripBufferTest(const TValue& value, TResultValue& result, TSerializer serializer, TDeserializer deserializer) {
-		// Act: serialize it
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream outputStream(buffer);
-		serializer(value, outputStream);
+    /// Runs a roundtrip test by serializing \a value using \a serializer and then deserializing it using \a deserializer into \a result.
+    template <typename TValue, typename TResultValue, typename TSerializer, typename TDeserializer>
+    void RunRoundtripBufferTest(const TValue& value, TResultValue& result, TSerializer serializer, TDeserializer deserializer)
+    {
+        // Act: serialize it
+        std::vector<uint8_t> buffer;
+        mocks::MockMemoryStream outputStream(buffer);
+        serializer(value, outputStream);
 
-		// - deserialize it
-		mocks::MockMemoryStream inputStream(buffer);
-		deserializer(inputStream, result);
+        // - deserialize it
+        mocks::MockMemoryStream inputStream(buffer);
+        deserializer(inputStream, result);
 
-		// Assert: whole buffer has been read
-		EXPECT_EQ(buffer.size(), inputStream.position());
-	}
+        // Assert: whole buffer has been read
+        EXPECT_EQ(buffer.size(), inputStream.position());
+    }
 
-	/// Runs a roundtrip test by serializing \a value using \a serializer and then deserializing it using \a deserializer.
-	template<typename TValue, typename TSerializer, typename TDeserializer>
-	auto RunRoundtripBufferTest(const TValue& value, TSerializer serializer, TDeserializer deserializer) {
-		// Act: serialize it
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream outputStream(buffer);
-		serializer(value, outputStream);
+    /// Runs a roundtrip test by serializing \a value using \a serializer and then deserializing it using \a deserializer.
+    template <typename TValue, typename TSerializer, typename TDeserializer>
+    auto RunRoundtripBufferTest(const TValue& value, TSerializer serializer, TDeserializer deserializer)
+    {
+        // Act: serialize it
+        std::vector<uint8_t> buffer;
+        mocks::MockMemoryStream outputStream(buffer);
+        serializer(value, outputStream);
 
-		// - deserialize it
-		mocks::MockMemoryStream inputStream(buffer);
-		auto result = deserializer(inputStream);
+        // - deserialize it
+        mocks::MockMemoryStream inputStream(buffer);
+        auto result = deserializer(inputStream);
 
-		// Assert: whole buffer has been read
-		EXPECT_EQ(buffer.size(), inputStream.position());
-		return result;
-	}
+        // Assert: whole buffer has been read
+        EXPECT_EQ(buffer.size(), inputStream.position());
+        return result;
+    }
 
-	/// Runs a roundtrip test by serializing \a value and then deserializing it.
-	template<typename TSerializer, typename TValue>
-	auto RunRoundtripBufferTest(const TValue& value) {
-		return RunRoundtripBufferTest(value, TSerializer::Save, TSerializer::Load);
-	}
+    /// Runs a roundtrip test by serializing \a value and then deserializing it.
+    template <typename TSerializer, typename TValue>
+    auto RunRoundtripBufferTest(const TValue& value)
+    {
+        return RunRoundtripBufferTest(value, TSerializer::Save, TSerializer::Load);
+    }
 
-	/// Runs a roundtrip test by serializing \a value to a string and then deserializing it.
-	/// \note This function is intended for data stored directly in rocks db.
-	template<typename TSerializer, typename TValue>
-	TValue RunRoundtripStringTest(const TValue& value) {
-		// Act: serialize it
-		auto serializedString = TSerializer::SerializeValue(value);
-		std::vector<uint8_t> serializedBuffer(serializedString.size());
-		std::memcpy(serializedBuffer.data(), serializedString.data(), serializedString.size());
+    /// Runs a roundtrip test by serializing \a value to a string and then deserializing it.
+    /// \note This function is intended for data stored directly in rocks db.
+    template <typename TSerializer, typename TValue>
+    TValue RunRoundtripStringTest(const TValue& value)
+    {
+        // Act: serialize it
+        auto serializedString = TSerializer::SerializeValue(value);
+        std::vector<uint8_t> serializedBuffer(serializedString.size());
+        std::memcpy(serializedBuffer.data(), serializedString.data(), serializedString.size());
 
-		// - deserialize it
-		return TSerializer::DeserializeValue(serializedBuffer);
-	}
-}}
+        // - deserialize it
+        return TSerializer::DeserializeValue(serializedBuffer);
+    }
+}
+}

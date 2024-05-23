@@ -19,50 +19,58 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/api/RemoteTimeSyncApi.h"
-#include "timesync/src/api/TimeSyncPackets.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
-#include "tests/TestHarness.h"
+#include "timesync/src/api/RemoteTimeSyncApi.h"
+#include "timesync/src/api/TimeSyncPackets.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
-	namespace {
-		struct NetworkTimeTraits {
-			static auto Invoke(const RemoteTimeSyncApi& api) {
-				return api.networkTime();
-			}
+    namespace {
+        struct NetworkTimeTraits {
+            static auto Invoke(const RemoteTimeSyncApi& api)
+            {
+                return api.networkTime();
+            }
 
-			static auto CreateValidResponsePacket() {
-				auto pResponsePacket = ionet::CreateSharedPacket<NetworkTimePacket>();
-				pResponsePacket->CommunicationTimestamps.SendTimestamp = Timestamp(123);
-				pResponsePacket->CommunicationTimestamps.ReceiveTimestamp = Timestamp(234);
-				return pResponsePacket;
-			}
+            static auto CreateValidResponsePacket()
+            {
+                auto pResponsePacket = ionet::CreateSharedPacket<NetworkTimePacket>();
+                pResponsePacket->CommunicationTimestamps.SendTimestamp = Timestamp(123);
+                pResponsePacket->CommunicationTimestamps.ReceiveTimestamp = Timestamp(234);
+                return pResponsePacket;
+            }
 
-			static auto CreateMalformedResponsePacket() {
-				// just change the size because no responses are intrinsically invalid
-				auto pResponsePacket = CreateValidResponsePacket();
-				--pResponsePacket->Size;
-				return pResponsePacket;
-			}
+            static auto CreateMalformedResponsePacket()
+            {
+                // just change the size because no responses are intrinsically invalid
+                auto pResponsePacket = CreateValidResponsePacket();
+                --pResponsePacket->Size;
+                return pResponsePacket;
+            }
 
-			static void ValidateRequest(const ionet::Packet& packet) {
-				EXPECT_TRUE(ionet::IsPacketValid(packet, NetworkTimePacket::Packet_Type));
-			}
+            static void ValidateRequest(const ionet::Packet& packet)
+            {
+                EXPECT_TRUE(ionet::IsPacketValid(packet, NetworkTimePacket::Packet_Type));
+            }
 
-			static void ValidateResponse(const ionet::Packet&, const timesync::CommunicationTimestamps& timestamps) {
-				EXPECT_EQ(Timestamp(123), timestamps.SendTimestamp);
-				EXPECT_EQ(Timestamp(234), timestamps.ReceiveTimestamp);
-			}
-		};
+            static void ValidateResponse(const ionet::Packet&, const timesync::CommunicationTimestamps& timestamps)
+            {
+                EXPECT_EQ(Timestamp(123), timestamps.SendTimestamp);
+                EXPECT_EQ(Timestamp(234), timestamps.ReceiveTimestamp);
+            }
+        };
 
-		struct RemoteTimeSyncApiTraits {
-			static auto Create(ionet::PacketIo& packetIo) {
-				return CreateRemoteTimeSyncApi(packetIo);
-			}
-		};
-	}
+        struct RemoteTimeSyncApiTraits {
+            static auto Create(ionet::PacketIo& packetIo)
+            {
+                return CreateRemoteTimeSyncApi(packetIo);
+            }
+        };
+    }
 
-	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteTimeSyncApi, NetworkTime)
-}}
+    DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteTimeSyncApi, NetworkTime)
+}
+}

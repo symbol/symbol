@@ -21,72 +21,83 @@
 
 #include "BlockStatementBuilder.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	BlockStatementBuilder::BlockStatementBuilder()
-			: m_activeSource({ 0, 0 })
-			, m_pStatement(std::make_unique<BlockStatement>()) {
-	}
+    BlockStatementBuilder::BlockStatementBuilder()
+        : m_activeSource({ 0, 0 })
+        , m_pStatement(std::make_unique<BlockStatement>())
+    {
+    }
 
-	const ReceiptSource& BlockStatementBuilder::source() const {
-		return m_activeSource;
-	}
+    const ReceiptSource& BlockStatementBuilder::source() const
+    {
+        return m_activeSource;
+    }
 
-	void BlockStatementBuilder::setSource(const ReceiptSource& source) {
-		m_activeSource = source;
-	}
+    void BlockStatementBuilder::setSource(const ReceiptSource& source)
+    {
+        m_activeSource = source;
+    }
 
-	void BlockStatementBuilder::popSource() {
-		if (0 == m_activeSource.PrimaryId)
-			return;
+    void BlockStatementBuilder::popSource()
+    {
+        if (0 == m_activeSource.PrimaryId)
+            return;
 
-		setSource({ m_activeSource.PrimaryId - 1, 0 });
-		auto pTruncatedStatement = std::make_unique<BlockStatement>();
-		DeepCopyTo(*pTruncatedStatement, *m_pStatement, m_activeSource.PrimaryId);
-		m_pStatement = std::move(pTruncatedStatement);
-	}
+        setSource({ m_activeSource.PrimaryId - 1, 0 });
+        auto pTruncatedStatement = std::make_unique<BlockStatement>();
+        DeepCopyTo(*pTruncatedStatement, *m_pStatement, m_activeSource.PrimaryId);
+        m_pStatement = std::move(pTruncatedStatement);
+    }
 
-	void BlockStatementBuilder::addReceipt(const Receipt& receipt) {
-		auto& statements = m_pStatement->TransactionStatements;
-		auto iter = statements.find(m_activeSource);
-		if (statements.end() == iter) {
-			TransactionStatement statement(m_activeSource);
-			statement.addReceipt(receipt);
-			statements.emplace(m_activeSource, std::move(statement));
-			return;
-		}
+    void BlockStatementBuilder::addReceipt(const Receipt& receipt)
+    {
+        auto& statements = m_pStatement->TransactionStatements;
+        auto iter = statements.find(m_activeSource);
+        if (statements.end() == iter) {
+            TransactionStatement statement(m_activeSource);
+            statement.addReceipt(receipt);
+            statements.emplace(m_activeSource, std::move(statement));
+            return;
+        }
 
-		iter->second.addReceipt(receipt);
-	}
+        iter->second.addReceipt(receipt);
+    }
 
-	namespace {
-		template<typename TResolutionStatements, typename TUnresolved, typename TResolved>
-		void AddResolution(
-				TResolutionStatements& statements,
-				const ReceiptSource& source,
-				const TUnresolved& unresolved,
-				const TResolved& resolved) {
-			auto iter = statements.find(unresolved);
-			if (statements.end() == iter) {
-				typename TResolutionStatements::value_type::second_type statement(unresolved);
-				statement.addResolution(resolved, source);
-				statements.emplace(unresolved, std::move(statement));
-				return;
-			}
+    namespace {
+        template <typename TResolutionStatements, typename TUnresolved, typename TResolved>
+        void AddResolution(
+            TResolutionStatements& statements,
+            const ReceiptSource& source,
+            const TUnresolved& unresolved,
+            const TResolved& resolved)
+        {
+            auto iter = statements.find(unresolved);
+            if (statements.end() == iter) {
+                typename TResolutionStatements::value_type::second_type statement(unresolved);
+                statement.addResolution(resolved, source);
+                statements.emplace(unresolved, std::move(statement));
+                return;
+            }
 
-			iter->second.addResolution(resolved, source);
-		}
-	}
+            iter->second.addResolution(resolved, source);
+        }
+    }
 
-	void BlockStatementBuilder::addResolution(const UnresolvedAddress& unresolved, const Address& resolved) {
-		AddResolution(m_pStatement->AddressResolutionStatements, m_activeSource, unresolved, resolved);
-	}
+    void BlockStatementBuilder::addResolution(const UnresolvedAddress& unresolved, const Address& resolved)
+    {
+        AddResolution(m_pStatement->AddressResolutionStatements, m_activeSource, unresolved, resolved);
+    }
 
-	void BlockStatementBuilder::addResolution(UnresolvedMosaicId unresolved, MosaicId resolved) {
-		AddResolution(m_pStatement->MosaicResolutionStatements, m_activeSource, unresolved, resolved);
-	}
+    void BlockStatementBuilder::addResolution(UnresolvedMosaicId unresolved, MosaicId resolved)
+    {
+        AddResolution(m_pStatement->MosaicResolutionStatements, m_activeSource, unresolved, resolved);
+    }
 
-	std::unique_ptr<BlockStatement> BlockStatementBuilder::build() {
-		return std::move(m_pStatement);
-	}
-}}
+    std::unique_ptr<BlockStatement> BlockStatementBuilder::build()
+    {
+        return std::move(m_pStatement);
+    }
+}
+}

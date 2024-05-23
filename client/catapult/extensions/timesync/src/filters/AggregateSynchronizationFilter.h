@@ -24,23 +24,27 @@
 #include "filter_constants.h"
 #include <vector>
 
-namespace catapult { namespace timesync { namespace filters {
+namespace catapult {
+namespace timesync {
+    namespace filters {
 
-	/// Aggregate synchronization filter.
-	class AggregateSynchronizationFilter {
-	public:
-		/// Creates an aggregate synchronization filter around \a filters.
-		explicit AggregateSynchronizationFilter(const std::vector<SynchronizationFilter>& filters);
+        /// Aggregate synchronization filter.
+        class AggregateSynchronizationFilter {
+        public:
+            /// Creates an aggregate synchronization filter around \a filters.
+            explicit AggregateSynchronizationFilter(const std::vector<SynchronizationFilter>& filters);
 
-	public:
-		/// Gets the number of filters.
-		size_t size() const;
+        public:
+            /// Gets the number of filters.
+            size_t size() const;
 
-	public:
-		/// Filters \a samples according to \a nodeAge.
-		void operator()(TimeSynchronizationSamples& samples, NodeAge nodeAge);
+        public:
+            /// Filters \a samples according to \a nodeAge.
+            void operator()(TimeSynchronizationSamples& samples, NodeAge nodeAge);
 
-	private:
-		std::vector<SynchronizationFilter> m_filters;
-	};
-}}}
+        private:
+            std::vector<SynchronizationFilter> m_filters;
+        };
+    }
+}
+}

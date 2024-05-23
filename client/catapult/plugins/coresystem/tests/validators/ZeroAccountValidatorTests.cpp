@@ -19,75 +19,84 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/model/Address.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "src/validators/Validators.h"
-#include "catapult/model/Address.h"
-#include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/plugins/ValidatorTestUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	DEFINE_COMMON_VALIDATOR_TESTS(ZeroAddress, model::NetworkIdentifier::Zero)
-	DEFINE_COMMON_VALIDATOR_TESTS(ZeroPublicKey, )
+    DEFINE_COMMON_VALIDATOR_TESTS(ZeroAddress, model::NetworkIdentifier::Zero)
+    DEFINE_COMMON_VALIDATOR_TESTS(ZeroPublicKey, )
 
 #define ADDRESS_TEST_CLASS ZeroAddressValidatorTests
 #define PUBLIC_KEY_TEST_CLASS ZeroPublicKeyValidatorTests
 
-	// region Address
+    // region Address
 
-	namespace {
-		void RunAddressTest(ValidationResult expectedResult, const Address& address) {
-			// Arrange:
-			auto pValidator = CreateZeroAddressValidator(static_cast<model::NetworkIdentifier>(123));
+    namespace {
+        void RunAddressTest(ValidationResult expectedResult, const Address& address)
+        {
+            // Arrange:
+            auto pValidator = CreateZeroAddressValidator(static_cast<model::NetworkIdentifier>(123));
 
-			// Act:
-			auto unresolvedAddress = extensions::CopyToUnresolvedAddress(address);
-			auto result = test::ValidateNotification(*pValidator, model::AccountAddressNotification(unresolvedAddress));
+            // Act:
+            auto unresolvedAddress = extensions::CopyToUnresolvedAddress(address);
+            auto result = test::ValidateNotification(*pValidator, model::AccountAddressNotification(unresolvedAddress));
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result);
+        }
+    }
 
-	TEST(ADDRESS_TEST_CLASS, SuccessWhenAddressIsDerivedFromNonzeroKey) {
-		auto address = model::PublicKeyToAddress({ { 1 } }, static_cast<model::NetworkIdentifier>(123));
-		RunAddressTest(ValidationResult::Success, address);
-	}
+    TEST(ADDRESS_TEST_CLASS, SuccessWhenAddressIsDerivedFromNonzeroKey)
+    {
+        auto address = model::PublicKeyToAddress({ { 1 } }, static_cast<model::NetworkIdentifier>(123));
+        RunAddressTest(ValidationResult::Success, address);
+    }
 
-	TEST(ADDRESS_TEST_CLASS, SuccessWhenAddressIsDerivedFromZeroKeyWithDifferentNetwork) {
-		auto address = model::PublicKeyToAddress(Key(), static_cast<model::NetworkIdentifier>(122));
-		RunAddressTest(ValidationResult::Success, address);
-	}
+    TEST(ADDRESS_TEST_CLASS, SuccessWhenAddressIsDerivedFromZeroKeyWithDifferentNetwork)
+    {
+        auto address = model::PublicKeyToAddress(Key(), static_cast<model::NetworkIdentifier>(122));
+        RunAddressTest(ValidationResult::Success, address);
+    }
 
-	TEST(ADDRESS_TEST_CLASS, FailureWhenAddressIsDerivedFromZeroKeyWithMatchingNetwork) {
-		auto address = model::PublicKeyToAddress(Key(), static_cast<model::NetworkIdentifier>(123));
-		RunAddressTest(Failure_Core_Zero_Address, address);
-	}
+    TEST(ADDRESS_TEST_CLASS, FailureWhenAddressIsDerivedFromZeroKeyWithMatchingNetwork)
+    {
+        auto address = model::PublicKeyToAddress(Key(), static_cast<model::NetworkIdentifier>(123));
+        RunAddressTest(Failure_Core_Zero_Address, address);
+    }
 
-	// endregion
+    // endregion
 
-	// region PublicKey
+    // region PublicKey
 
-	namespace {
-		void RunPublicKeyTest(ValidationResult expectedResult, const Key& publicKey) {
-			// Arrange:
-			auto pValidator = CreateZeroPublicKeyValidator();
+    namespace {
+        void RunPublicKeyTest(ValidationResult expectedResult, const Key& publicKey)
+        {
+            // Arrange:
+            auto pValidator = CreateZeroPublicKeyValidator();
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, model::AccountPublicKeyNotification(publicKey));
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, model::AccountPublicKeyNotification(publicKey));
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result);
+        }
+    }
 
-	TEST(PUBLIC_KEY_TEST_CLASS, SuccessWhenPublicKeyIsNonzero) {
-		RunPublicKeyTest(ValidationResult::Success, { { 1 } });
-	}
+    TEST(PUBLIC_KEY_TEST_CLASS, SuccessWhenPublicKeyIsNonzero)
+    {
+        RunPublicKeyTest(ValidationResult::Success, { { 1 } });
+    }
 
-	TEST(PUBLIC_KEY_TEST_CLASS, FailureWhenPublicKeyIsZero) {
-		RunPublicKeyTest(Failure_Core_Zero_Public_Key, Key());
-	}
+    TEST(PUBLIC_KEY_TEST_CLASS, FailureWhenPublicKeyIsZero)
+    {
+        RunPublicKeyTest(Failure_Core_Zero_Public_Key, Key());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

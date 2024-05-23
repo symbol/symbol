@@ -22,67 +22,69 @@
 #pragma once
 #include "LocalNodeTestContext.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Additional (non-nemesis) local node transaction plugins to register.
-	enum class NonNemesisTransactionPlugins {
-		/// No additional plugins.
-		None,
+    /// Additional (non-nemesis) local node transaction plugins to register.
+    enum class NonNemesisTransactionPlugins {
+        /// No additional plugins.
+        None,
 
-		/// Lock secret plugin.
-		Lock_Secret,
+        /// Lock secret plugin.
+        Lock_Secret,
 
-		/// Restriction account plugin.
-		Restriction_Account
-	};
+        /// Restriction account plugin.
+        Restriction_Account
+    };
 
-	/// Test context for peer local node tests.
-	class PeerLocalNodeTestContext {
-	public:
-		/// Creates a context around \a nodeFlag, \a additionalPlugins and \a configTransform.
-		explicit PeerLocalNodeTestContext(
-				NodeFlag nodeFlag = NodeFlag::Regular,
-				NonNemesisTransactionPlugins additionalPlugins = NonNemesisTransactionPlugins::None,
-				const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
+    /// Test context for peer local node tests.
+    class PeerLocalNodeTestContext {
+    public:
+        /// Creates a context around \a nodeFlag, \a additionalPlugins and \a configTransform.
+        explicit PeerLocalNodeTestContext(
+            NodeFlag nodeFlag = NodeFlag::Regular,
+            NonNemesisTransactionPlugins additionalPlugins = NonNemesisTransactionPlugins::None,
+            const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
 
-	public:
-		/// Gets the public key of the (primary) local node.
-		const Key& publicKey() const;
+    public:
+        /// Gets the public key of the (primary) local node.
+        const Key& publicKey() const;
 
-		/// Gets the (primary) local node.
-		local::LocalNode& localNode() const;
+        /// Gets the (primary) local node.
+        local::LocalNode& localNode() const;
 
-		/// Gets the data directory.
-		std::string dataDirectory() const;
+        /// Gets the data directory.
+        std::string dataDirectory() const;
 
-		/// Gets the node stats.
-		PeerLocalNodeStats stats() const;
+        /// Gets the node stats.
+        PeerLocalNodeStats stats() const;
 
-		/// Gets the current node height via an external connection.
-		Height height() const;
+        /// Gets the current node height via an external connection.
+        Height height() const;
 
-		/// Loads saved height from persisted state.
-		Height loadSavedStateChainHeight() const;
+        /// Loads saved height from persisted state.
+        Height loadSavedStateChainHeight() const;
 
-		/// Creates a copy of the default catapult configuration.
-		config::CatapultConfiguration createConfig() const;
+        /// Creates a copy of the default catapult configuration.
+        config::CatapultConfiguration createConfig() const;
 
-	public:
-		/// Waits for node height to equal \a height.
-		void waitForHeight(Height height) const;
+    public:
+        /// Waits for node height to equal \a height.
+        void waitForHeight(Height height) const;
 
-		/// Prepares a fresh data \a directory and returns corresponding configuration.
-		config::CatapultConfiguration prepareFreshDataDirectory(const std::string& directory) const;
+        /// Prepares a fresh data \a directory and returns corresponding configuration.
+        config::CatapultConfiguration prepareFreshDataDirectory(const std::string& directory) const;
 
-	public:
-		/// Asserts that node has a single reader connection.
-		void assertSingleReaderConnection() const;
+    public:
+        /// Asserts that node has a single reader connection.
+        void assertSingleReaderConnection() const;
 
-	public:
-		/// Asserts that \a stats indicates a single reader connection.
-		static void AssertSingleReaderConnection(const PeerLocalNodeStats& stats);
+    public:
+        /// Asserts that \a stats indicates a single reader connection.
+        static void AssertSingleReaderConnection(const PeerLocalNodeStats& stats);
 
-	private:
-		LocalNodeTestContext<LocalNodePeerTraits> m_context;
-	};
-}}
+    private:
+        LocalNodeTestContext<LocalNodePeerTraits> m_context;
+    };
+}
+}

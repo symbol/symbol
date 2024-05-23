@@ -24,33 +24,37 @@
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/utils/TimeSpan.h"
 
-namespace catapult { namespace chain {
-	class MultiRoundMessageAggregator;
-}}
+namespace catapult {
+namespace chain {
+    class MultiRoundMessageAggregator;
+}
+}
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Advances through finalization stages.
-	class FinalizationStageAdvancer {
-	public:
-		virtual ~FinalizationStageAdvancer() = default;
+    /// Advances through finalization stages.
+    class FinalizationStageAdvancer {
+    public:
+        virtual ~FinalizationStageAdvancer() = default;
 
-	public:
-		/// Returns \c true if a prevote can be sent at the specified \a time.
-		virtual bool canSendPrevote(Timestamp time) const = 0;
+    public:
+        /// Returns \c true if a prevote can be sent at the specified \a time.
+        virtual bool canSendPrevote(Timestamp time) const = 0;
 
-		/// Returns \c true if a precommit can be sent at the specified \a time.
-		/// On success, \a target is set to the value to precommit.
-		virtual bool canSendPrecommit(Timestamp time, model::HeightHashPair& target) const = 0;
+        /// Returns \c true if a precommit can be sent at the specified \a time.
+        /// On success, \a target is set to the value to precommit.
+        virtual bool canSendPrecommit(Timestamp time, model::HeightHashPair& target) const = 0;
 
-		/// Returns \c true if the next round can be started at the specified \a time.
-		virtual bool canStartNextRound() const = 0;
-	};
+        /// Returns \c true if the next round can be started at the specified \a time.
+        virtual bool canStartNextRound() const = 0;
+    };
 
-	/// Creates an advancer for the specified \a round given the current \a time, \a stepDuration and \a messageAggregator.
-	std::unique_ptr<FinalizationStageAdvancer> CreateFinalizationStageAdvancer(
-			const model::FinalizationRound& round,
-			Timestamp time,
-			const utils::TimeSpan& stepDuration,
-			const MultiRoundMessageAggregator& messageAggregator);
-}}
+    /// Creates an advancer for the specified \a round given the current \a time, \a stepDuration and \a messageAggregator.
+    std::unique_ptr<FinalizationStageAdvancer> CreateFinalizationStageAdvancer(
+        const model::FinalizationRound& round,
+        Timestamp time,
+        const utils::TimeSpan& stepDuration,
+        const MultiRoundMessageAggregator& messageAggregator);
+}
+}

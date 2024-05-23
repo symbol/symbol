@@ -27,48 +27,51 @@
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/IdentifierGroup.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Basic lock info cache types.
-	template<typename TDescriptor>
-	struct LockInfoCacheTypes {
-	private:
-		using IdentifierType = typename TDescriptor::KeyType;
+    /// Basic lock info cache types.
+    template <typename TDescriptor>
+    struct LockInfoCacheTypes {
+    private:
+        using IdentifierType = typename TDescriptor::KeyType;
 
-		// region secondary descriptors
+        // region secondary descriptors
 
-	public:
-		struct HeightGroupingTypesDescriptor {
-		public:
-			using KeyType = Height;
-			using ValueType = utils::IdentifierGroup<IdentifierType, Height, utils::ArrayHasher<IdentifierType>>;
-			using Serializer = IdentifierGroupSerializer<HeightGroupingTypesDescriptor>;
+    public:
+        struct HeightGroupingTypesDescriptor {
+        public:
+            using KeyType = Height;
+            using ValueType = utils::IdentifierGroup<IdentifierType, Height, utils::ArrayHasher<IdentifierType>>;
+            using Serializer = IdentifierGroupSerializer<HeightGroupingTypesDescriptor>;
 
-		public:
-			static auto GetKeyFromValue(const ValueType& heightHashes) {
-				return heightHashes.key();
-			}
-		};
+        public:
+            static auto GetKeyFromValue(const ValueType& heightHashes)
+            {
+                return heightHashes.key();
+            }
+        };
 
-		// endregion
+        // endregion
 
-	public:
-		using PrimaryTypes = MutableUnorderedMapAdapter<TDescriptor, utils::ArrayHasher<IdentifierType>>;
-		using HeightGroupingTypes = MutableUnorderedMapAdapter<HeightGroupingTypesDescriptor, utils::BaseValueHasher<Height>>;
-	};
-}}
+    public:
+        using PrimaryTypes = MutableUnorderedMapAdapter<TDescriptor, utils::ArrayHasher<IdentifierType>>;
+        using HeightGroupingTypes = MutableUnorderedMapAdapter<HeightGroupingTypesDescriptor, utils::BaseValueHasher<Height>>;
+    };
+}
+}
 
 /// Defines lock info cache serializers for \a LOCK_INFO.
-#define DEFINE_LOCK_INFO_CACHE_SERIALIZERS(LOCK_INFO) \
-	/* Primary serializer for lock info cache. */ \
-	struct LOCK_INFO##PrimarySerializer \
-			: public CacheSerializerAdapter<state::LOCK_INFO##HistorySerializer, LOCK_INFO##CacheDescriptor> {}; \
-\
-	/* Serializer for lock info cache height grouped elements. */ \
-	struct LOCK_INFO##HeightGroupingSerializer \
-			: public IdentifierGroupSerializer<LOCK_INFO##CacheTypes::HeightGroupingTypesDescriptor> {}; \
-\
-	/* Primary serializer for lock info cache for patricia tree hashes. */ \
-	/* \note This serializer excludes historical lock infos. */ \
-	struct LOCK_INFO##PatriciaTreeSerializer \
-			: public CacheSerializerAdapter<state::LOCK_INFO##HistoryNonHistoricalSerializer, LOCK_INFO##CacheDescriptor> {};
+#define DEFINE_LOCK_INFO_CACHE_SERIALIZERS(LOCK_INFO)                                                         \
+    /* Primary serializer for lock info cache. */                                                             \
+    struct LOCK_INFO##PrimarySerializer                                                                       \
+        : public CacheSerializerAdapter<state::LOCK_INFO##HistorySerializer, LOCK_INFO##CacheDescriptor> { }; \
+                                                                                                              \
+    /* Serializer for lock info cache height grouped elements. */                                             \
+    struct LOCK_INFO##HeightGroupingSerializer                                                                \
+        : public IdentifierGroupSerializer<LOCK_INFO##CacheTypes::HeightGroupingTypesDescriptor> { };         \
+                                                                                                              \
+    /* Primary serializer for lock info cache for patricia tree hashes. */                                    \
+    /* \note This serializer excludes historical lock infos. */                                               \
+    struct LOCK_INFO##PatriciaTreeSerializer                                                                  \
+        : public CacheSerializerAdapter<state::LOCK_INFO##HistoryNonHistoricalSerializer, LOCK_INFO##CacheDescriptor> { };

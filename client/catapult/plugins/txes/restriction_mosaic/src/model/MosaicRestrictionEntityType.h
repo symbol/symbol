@@ -28,11 +28,11 @@ namespace model {
 
 #endif
 
-	/// Mosaic global restriction transaction.
-	DEFINE_TRANSACTION_TYPE(RestrictionMosaic, Mosaic_Global_Restriction, 0x1);
+    /// Mosaic global restriction transaction.
+    DEFINE_TRANSACTION_TYPE(RestrictionMosaic, Mosaic_Global_Restriction, 0x1);
 
-	/// Mosaic address restriction transaction.
-	DEFINE_TRANSACTION_TYPE(RestrictionMosaic, Mosaic_Address_Restriction, 0x2);
+    /// Mosaic address restriction transaction.
+    DEFINE_TRANSACTION_TYPE(RestrictionMosaic, Mosaic_Address_Restriction, 0x2);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

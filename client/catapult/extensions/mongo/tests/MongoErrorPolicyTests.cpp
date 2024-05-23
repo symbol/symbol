@@ -19,214 +19,233 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoErrorPolicy.h"
 #include "mongo/src/MongoBulkWriter.h"
+#include "mongo/src/MongoErrorPolicy.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
 #define TEST_CLASS MongoErrorPolicyTests
 
-	// region constructor / mode
+    // region constructor / mode
 
-	TEST(TEST_CLASS, CanCreateStrictErrorPolicy) {
-		// Act:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
+    TEST(TEST_CLASS, CanCreateStrictErrorPolicy)
+    {
+        // Act:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
 
-		// Assert:
-		EXPECT_EQ(MongoErrorPolicy::Mode::Strict, errorPolicy.mode());
-	}
+        // Assert:
+        EXPECT_EQ(MongoErrorPolicy::Mode::Strict, errorPolicy.mode());
+    }
 
-	TEST(TEST_CLASS, CanCreateIdempotentErrorPolicy) {
-		// Act:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
+    TEST(TEST_CLASS, CanCreateIdempotentErrorPolicy)
+    {
+        // Act:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
 
-		// Assert:
-		EXPECT_EQ(MongoErrorPolicy::Mode::Idempotent, errorPolicy.mode());
-	}
+        // Assert:
+        EXPECT_EQ(MongoErrorPolicy::Mode::Idempotent, errorPolicy.mode());
+    }
 
-	// endregion
+    // endregion
 
-	// region equal constraint - traits
+    // region equal constraint - traits
 
-	namespace {
-		struct DeletedTraits {
-			static constexpr auto CheckerFunc = &MongoErrorPolicy::checkDeleted;
+    namespace {
+        struct DeletedTraits {
+            static constexpr auto CheckerFunc = &MongoErrorPolicy::checkDeleted;
 
-			static void SetValue(BulkWriteResult& result, int32_t value) {
-				result.NumDeleted = value;
-			}
-		};
+            static void SetValue(BulkWriteResult& result, int32_t value)
+            {
+                result.NumDeleted = value;
+            }
+        };
 
-		struct InsertedTraits {
-			static constexpr auto CheckerFunc = &MongoErrorPolicy::checkInserted;
+        struct InsertedTraits {
+            static constexpr auto CheckerFunc = &MongoErrorPolicy::checkInserted;
 
-			static void SetValue(BulkWriteResult& result, int32_t value) {
-				result.NumInserted = value;
-			}
-		};
+            static void SetValue(BulkWriteResult& result, int32_t value)
+            {
+                result.NumInserted = value;
+            }
+        };
 
-		struct UpsertedTraits {
-			static constexpr auto CheckerFunc = &MongoErrorPolicy::checkUpserted;
+        struct UpsertedTraits {
+            static constexpr auto CheckerFunc = &MongoErrorPolicy::checkUpserted;
 
-			static void SetValue(BulkWriteResult& result, int32_t value) {
-				result.NumUpserted = value / 25;
-				result.NumModified = value - result.NumUpserted;
-			}
-		};
-	}
+            static void SetValue(BulkWriteResult& result, int32_t value)
+            {
+                result.NumUpserted = value / 25;
+                result.NumModified = value - result.NumUpserted;
+            }
+        };
+    }
 
-#define EQUAL_CONSTRAINT_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Deleted) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeletedTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Inserted) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<InsertedTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Upserted) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UpsertedTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define EQUAL_CONSTRAINT_TEST(TEST_NAME)                           \
+    template <typename TTraits>                                    \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                \
+    TEST(TEST_CLASS, TEST_NAME##_Deleted)                          \
+    {                                                              \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeletedTraits>();  \
+    }                                                              \
+    TEST(TEST_CLASS, TEST_NAME##_Inserted)                         \
+    {                                                              \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<InsertedTraits>(); \
+    }                                                              \
+    TEST(TEST_CLASS, TEST_NAME##_Upserted)                         \
+    {                                                              \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UpsertedTraits>(); \
+    }                                                              \
+    template <typename TTraits>                                    \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	// endregion
+    // endregion
 
-	// region strict mode - equal constraint - tests
+    // region strict mode - equal constraint - tests
 
-	EQUAL_CONSTRAINT_TEST(StrictCheckThrowsWhenExpectedIsNotEqualToActual) {
-		// Arrange:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
-		auto checkerFunc = TTraits::CheckerFunc;
+    EQUAL_CONSTRAINT_TEST(StrictCheckThrowsWhenExpectedIsNotEqualToActual)
+    {
+        // Arrange:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
+        auto checkerFunc = TTraits::CheckerFunc;
 
-		BulkWriteResult result;
-		TTraits::SetValue(result, 101);
+        BulkWriteResult result;
+        TTraits::SetValue(result, 101);
 
-		// Act + Assert:
-		for (auto numExpected : { 0u, 1u, 50u, 100u, 102u, 150u, 999u })
-			EXPECT_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits"), catapult_runtime_error) << numExpected;
-	}
+        // Act + Assert:
+        for (auto numExpected : { 0u, 1u, 50u, 100u, 102u, 150u, 999u })
+            EXPECT_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits"), catapult_runtime_error) << numExpected;
+    }
 
-	EQUAL_CONSTRAINT_TEST(StrictCheckDoesNotThrowWhenExpectedIsEqualToActual) {
-		// Arrange:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
-		auto checkerFunc = TTraits::CheckerFunc;
+    EQUAL_CONSTRAINT_TEST(StrictCheckDoesNotThrowWhenExpectedIsEqualToActual)
+    {
+        // Arrange:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
+        auto checkerFunc = TTraits::CheckerFunc;
 
-		BulkWriteResult result;
-		TTraits::SetValue(result, 101);
+        BulkWriteResult result;
+        TTraits::SetValue(result, 101);
 
-		// Act + Assert:
-		EXPECT_NO_THROW((errorPolicy.*checkerFunc)(101, result, "rabbits"));
-	}
+        // Act + Assert:
+        EXPECT_NO_THROW((errorPolicy.*checkerFunc)(101, result, "rabbits"));
+    }
 
-	// endregion
+    // endregion
 
-	// region at least constraint - traits
+    // region at least constraint - traits
 
-	namespace {
-		struct DeletedAtLeastTraits : public DeletedTraits {
-			static constexpr auto CheckerFunc = &MongoErrorPolicy::checkDeletedAtLeast;
-		};
-	}
+    namespace {
+        struct DeletedAtLeastTraits : public DeletedTraits {
+            static constexpr auto CheckerFunc = &MongoErrorPolicy::checkDeletedAtLeast;
+        };
+    }
 
-#define AT_LEAST_CONSTRAINT_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Deleted) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeletedAtLeastTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define AT_LEAST_CONSTRAINT_TEST(TEST_NAME)                              \
+    template <typename TTraits>                                          \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                      \
+    TEST(TEST_CLASS, TEST_NAME##_Deleted)                                \
+    {                                                                    \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeletedAtLeastTraits>(); \
+    }                                                                    \
+    template <typename TTraits>                                          \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	// endregion
+    // endregion
 
-	// region strict mode - at least constraint - tests
+    // region strict mode - at least constraint - tests
 
-	AT_LEAST_CONSTRAINT_TEST(StrictAtLeastCheckThrowsWhenExpectedIsGreaterThanActual) {
-		// Arrange:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
-		auto checkerFunc = TTraits::CheckerFunc;
+    AT_LEAST_CONSTRAINT_TEST(StrictAtLeastCheckThrowsWhenExpectedIsGreaterThanActual)
+    {
+        // Arrange:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
+        auto checkerFunc = TTraits::CheckerFunc;
 
-		BulkWriteResult result;
-		TTraits::SetValue(result, 101);
+        BulkWriteResult result;
+        TTraits::SetValue(result, 101);
 
-		// Act + Assert:
-		for (auto numExpected : { 102u, 150u, 999u })
-			EXPECT_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits"), catapult_runtime_error) << numExpected;
-	}
+        // Act + Assert:
+        for (auto numExpected : { 102u, 150u, 999u })
+            EXPECT_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits"), catapult_runtime_error) << numExpected;
+    }
 
-	AT_LEAST_CONSTRAINT_TEST(StrictAtLeastCheckDoesNotThrowWhenExpectedIsLessThanOrEqualToActual) {
-		// Arrange:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
-		auto checkerFunc = TTraits::CheckerFunc;
+    AT_LEAST_CONSTRAINT_TEST(StrictAtLeastCheckDoesNotThrowWhenExpectedIsLessThanOrEqualToActual)
+    {
+        // Arrange:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Strict);
+        auto checkerFunc = TTraits::CheckerFunc;
 
-		BulkWriteResult result;
-		TTraits::SetValue(result, 101);
+        BulkWriteResult result;
+        TTraits::SetValue(result, 101);
 
-		// Act + Assert:
-		for (auto numExpected : { 0u, 1u, 50u, 100u, 101u })
-			EXPECT_NO_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits")) << numExpected;
-	}
+        // Act + Assert:
+        for (auto numExpected : { 0u, 1u, 50u, 100u, 101u })
+            EXPECT_NO_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits")) << numExpected;
+    }
 
-	// endregion
+    // endregion
 
-	// region idempotent mode - equal constraint - tests
+    // region idempotent mode - equal constraint - tests
 
-	EQUAL_CONSTRAINT_TEST(IdempotentCheckDoesNotThrowWhenExpectedIsGreaterThanActual) {
-		// Arrange:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
-		auto checkerFunc = TTraits::CheckerFunc;
+    EQUAL_CONSTRAINT_TEST(IdempotentCheckDoesNotThrowWhenExpectedIsGreaterThanActual)
+    {
+        // Arrange:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
+        auto checkerFunc = TTraits::CheckerFunc;
 
-		BulkWriteResult result;
-		TTraits::SetValue(result, 101);
+        BulkWriteResult result;
+        TTraits::SetValue(result, 101);
 
-		// Act + Assert:
-		for (auto numExpected : { 102u, 150u, 999u })
-			EXPECT_NO_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits")) << numExpected;
-	}
+        // Act + Assert:
+        for (auto numExpected : { 102u, 150u, 999u })
+            EXPECT_NO_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits")) << numExpected;
+    }
 
-	EQUAL_CONSTRAINT_TEST(IdempotentCheckDoesNotThrowWhenExpectedIsEqualToActual) {
-		// Arrange:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
-		auto checkerFunc = TTraits::CheckerFunc;
+    EQUAL_CONSTRAINT_TEST(IdempotentCheckDoesNotThrowWhenExpectedIsEqualToActual)
+    {
+        // Arrange:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
+        auto checkerFunc = TTraits::CheckerFunc;
 
-		BulkWriteResult result;
-		TTraits::SetValue(result, 101);
+        BulkWriteResult result;
+        TTraits::SetValue(result, 101);
 
-		// Act + Assert:
-		EXPECT_NO_THROW((errorPolicy.*checkerFunc)(101, result, "rabbits"));
-	}
+        // Act + Assert:
+        EXPECT_NO_THROW((errorPolicy.*checkerFunc)(101, result, "rabbits"));
+    }
 
-	EQUAL_CONSTRAINT_TEST(IdempotentCheckThrowsWhenExpectedIsLessThanActual) {
-		// Arrange:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
-		auto checkerFunc = TTraits::CheckerFunc;
+    EQUAL_CONSTRAINT_TEST(IdempotentCheckThrowsWhenExpectedIsLessThanActual)
+    {
+        // Arrange:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
+        auto checkerFunc = TTraits::CheckerFunc;
 
-		BulkWriteResult result;
-		TTraits::SetValue(result, 101);
+        BulkWriteResult result;
+        TTraits::SetValue(result, 101);
 
-		// Act + Assert:
-		for (auto numExpected : { 0u, 1u, 50u, 100u })
-			EXPECT_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits"), catapult_runtime_error) << numExpected;
-	}
+        // Act + Assert:
+        for (auto numExpected : { 0u, 1u, 50u, 100u })
+            EXPECT_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits"), catapult_runtime_error) << numExpected;
+    }
 
-	// endregion
+    // endregion
 
-	// region idempotent mode - at least constraint - tests
+    // region idempotent mode - at least constraint - tests
 
-	AT_LEAST_CONSTRAINT_TEST(IdempotentAtLeastCheckNeverThrows) {
-		// Arrange:
-		MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
-		auto checkerFunc = TTraits::CheckerFunc;
+    AT_LEAST_CONSTRAINT_TEST(IdempotentAtLeastCheckNeverThrows)
+    {
+        // Arrange:
+        MongoErrorPolicy errorPolicy("foo", MongoErrorPolicy::Mode::Idempotent);
+        auto checkerFunc = TTraits::CheckerFunc;
 
-		BulkWriteResult result;
-		TTraits::SetValue(result, 101);
+        BulkWriteResult result;
+        TTraits::SetValue(result, 101);
 
-		// Act + Assert:
-		for (auto numExpected : { 0u, 1u, 50u, 100u, 101u, 102u, 150u, 999u })
-			EXPECT_NO_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits")) << numExpected;
-	}
+        // Act + Assert:
+        for (auto numExpected : { 0u, 1u, 50u, 100u, 101u, 102u, 150u, 999u })
+            EXPECT_NO_THROW((errorPolicy.*checkerFunc)(numExpected, result, "rabbits")) << numExpected;
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

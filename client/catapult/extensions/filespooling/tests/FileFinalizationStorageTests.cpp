@@ -20,35 +20,38 @@
 **/
 
 #include "filespooling/src/FileFinalizationStorage.h"
-#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 
-namespace catapult { namespace filespooling {
+namespace catapult {
+namespace filespooling {
 
 #define TEST_CLASS FileFinalizationStorageTests
 
-	TEST(TEST_CLASS, NotifyFinalizedBlockWritesToUnderlyingStream) {
-		// Arrange: create output stream
-		std::vector<uint8_t> buffer;
-		auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
-		const auto& stream = *pStream;
+    TEST(TEST_CLASS, NotifyFinalizedBlockWritesToUnderlyingStream)
+    {
+        // Arrange: create output stream
+        std::vector<uint8_t> buffer;
+        auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
+        const auto& stream = *pStream;
 
-		// - create finalization data
-		auto hash = test::GenerateRandomByteArray<Hash256>();
-		auto round = model::FinalizationRound{ FinalizationEpoch(987), FinalizationPoint(456) };
+        // - create finalization data
+        auto hash = test::GenerateRandomByteArray<Hash256>();
+        auto round = model::FinalizationRound { FinalizationEpoch(987), FinalizationPoint(456) };
 
-		// - create storage
-		auto pStorage = CreateFileFinalizationStorage(std::move(pStream));
+        // - create storage
+        auto pStorage = CreateFileFinalizationStorage(std::move(pStream));
 
-		// Act:
-		pStorage->notifyFinalizedBlock(round, Height(777), hash);
+        // Act:
+        pStorage->notifyFinalizedBlock(round, Height(777), hash);
 
-		// Assert:
-		EXPECT_EQ(1u, stream.numFlushes());
-		ASSERT_EQ(Hash256::Size + sizeof(model::FinalizationRound) + sizeof(Height), buffer.size());
+        // Assert:
+        EXPECT_EQ(1u, stream.numFlushes());
+        ASSERT_EQ(Hash256::Size + sizeof(model::FinalizationRound) + sizeof(Height), buffer.size());
 
-		EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(buffer[0]));
-		EXPECT_EQ(round, reinterpret_cast<const model::FinalizationRound&>(buffer[Hash256::Size]));
-		EXPECT_EQ(Height(777), reinterpret_cast<const Height&>(buffer[Hash256::Size + sizeof(model::FinalizationRound)]));
-	}
-}}
+        EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(buffer[0]));
+        EXPECT_EQ(round, reinterpret_cast<const model::FinalizationRound&>(buffer[Hash256::Size]));
+        EXPECT_EQ(Height(777), reinterpret_cast<const Height&>(buffer[Hash256::Size + sizeof(model::FinalizationRound)]));
+    }
+}
+}

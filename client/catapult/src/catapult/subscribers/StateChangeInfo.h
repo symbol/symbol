@@ -24,26 +24,29 @@
 #include "catapult/model/ChainScore.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	/// State change information.
-	struct StateChangeInfo {
-	public:
-		/// Creates state change information around \a cacheChanges, \a scoreDelta and \a height.
-		StateChangeInfo(cache::CacheChanges&& cacheChanges, model::ChainScore::Delta scoreDelta, Height height)
-				: CacheChanges(std::move(cacheChanges))
-				, ScoreDelta(scoreDelta)
-				, Height(height) {
-		}
+    /// State change information.
+    struct StateChangeInfo {
+    public:
+        /// Creates state change information around \a cacheChanges, \a scoreDelta and \a height.
+        StateChangeInfo(cache::CacheChanges&& cacheChanges, model::ChainScore::Delta scoreDelta, Height height)
+            : CacheChanges(std::move(cacheChanges))
+            , ScoreDelta(scoreDelta)
+            , Height(height)
+        {
+        }
 
-	public:
-		/// Cache changes.
-		const cache::CacheChanges CacheChanges;
+    public:
+        /// Cache changes.
+        const cache::CacheChanges CacheChanges;
 
-		/// Chain score delta.
-		const model::ChainScore::Delta ScoreDelta;
+        /// Chain score delta.
+        const model::ChainScore::Delta ScoreDelta;
 
-		/// New chain height.
-		const catapult::Height Height;
-	};
-}}
+        /// New chain height.
+        const catapult::Height Height;
+    };
+}
+}

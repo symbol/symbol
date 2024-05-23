@@ -21,12 +21,15 @@
 
 #include "PublisherUtils.h"
 
-namespace catapult { namespace zeromq {
+namespace catapult {
+namespace zeromq {
 
-	std::vector<uint8_t> CreateTopic(TransactionMarker marker, const UnresolvedAddress& address) {
-		std::vector<uint8_t> topic(sizeof(TransactionMarker) + address.size());
-		std::memcpy(topic.data(), &marker, sizeof(TransactionMarker));
-		std::memcpy(topic.data() + sizeof(TransactionMarker), address.data(), address.size());
-		return topic;
-	}
-}}
+    std::vector<uint8_t> CreateTopic(TransactionMarker marker, const UnresolvedAddress& address)
+    {
+        std::vector<uint8_t> topic(sizeof(TransactionMarker) + address.size());
+        std::memcpy(topic.data(), &marker, sizeof(TransactionMarker));
+        std::memcpy(topic.data() + sizeof(TransactionMarker), address.data(), address.size());
+        return topic;
+    }
+}
+}

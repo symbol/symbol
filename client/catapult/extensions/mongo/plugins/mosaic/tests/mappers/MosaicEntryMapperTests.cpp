@@ -19,41 +19,47 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/MosaicEntryMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
 #include "mongo/tests/test/MapperTestUtils.h"
+#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
 #include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
-#include "tests/test/MosaicMapperTestUtils.h"
+#include "src/mappers/MosaicEntryMapper.h"
 #include "tests/TestHarness.h"
+#include "tests/test/MosaicMapperTestUtils.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS MosaicEntryMapperTests
 
-	// region ToDbModel
+        // region ToDbModel
 
-	namespace {
-		state::MosaicEntry CreateMosaicEntry() {
-			auto owner = test::CreateRandomOwner();
-			return test::CreateMosaicEntry(MosaicId(345), Height(123), owner, Amount(456), BlockDuration(12345));
-		}
-	}
+        namespace {
+            state::MosaicEntry CreateMosaicEntry()
+            {
+                auto owner = test::CreateRandomOwner();
+                return test::CreateMosaicEntry(MosaicId(345), Height(123), owner, Amount(456), BlockDuration(12345));
+            }
+        }
 
-	TEST(TEST_CLASS, CanMapMosaicEntry_ModelToDbModel) {
-		// Arrange:
-		auto entry = CreateMosaicEntry();
+        TEST(TEST_CLASS, CanMapMosaicEntry_ModelToDbModel)
+        {
+            // Arrange:
+            auto entry = CreateMosaicEntry();
 
-		// Act:
-		auto document = ToDbModel(entry);
-		auto documentView = document.view();
+            // Act:
+            auto document = ToDbModel(entry);
+            auto documentView = document.view();
 
-		// Assert:
-		EXPECT_EQ(1u, test::GetFieldCount(documentView));
+            // Assert:
+            EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
-		auto mosaicView = documentView["mosaic"].get_document().view();
-		test::AssertEqualMosaicData(entry, mosaicView);
-	}
+            auto mosaicView = documentView["mosaic"].get_document().view();
+            test::AssertEqualMosaicData(entry, mosaicView);
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

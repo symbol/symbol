@@ -23,37 +23,42 @@
 #include "catapult/model/ContiguousEntityContainer.h"
 #include <type_traits>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Gets the number of entities in \a container.
-	template<typename TEntity>
-	size_t CountContainerEntities(model::BasicContiguousEntityContainer<TEntity>&& container) {
-		size_t count = 0;
-		for (auto iter = container.begin(); container.end() != iter; ++iter)
-			++count;
+    /// Gets the number of entities in \a container.
+    template <typename TEntity>
+    size_t CountContainerEntities(model::BasicContiguousEntityContainer<TEntity>&& container)
+    {
+        size_t count = 0;
+        for (auto iter = container.begin(); container.end() != iter; ++iter)
+            ++count;
 
-		return count;
-	}
+        return count;
+    }
 
-	/// Traits for accessing a source via a const reference.
-	template<typename TSource>
-	struct ConstTraitsT {
-		using SourceType = std::add_const_t<TSource>;
+    /// Traits for accessing a source via a const reference.
+    template <typename TSource>
+    struct ConstTraitsT {
+        using SourceType = std::add_const_t<TSource>;
 
-		/// Gets a const reference to \a source.
-		static SourceType& GetAccessor(SourceType& source) {
-			return source;
-		}
-	};
+        /// Gets a const reference to \a source.
+        static SourceType& GetAccessor(SourceType& source)
+        {
+            return source;
+        }
+    };
 
-	/// Traits for accessing a source via a non-const reference.
-	template<typename TSource>
-	struct NonConstTraitsT {
-		using SourceType = std::remove_const_t<TSource>;
+    /// Traits for accessing a source via a non-const reference.
+    template <typename TSource>
+    struct NonConstTraitsT {
+        using SourceType = std::remove_const_t<TSource>;
 
-		/// Gets a non-const reference to \a source.
-		static SourceType& GetAccessor(SourceType& source) {
-			return source;
-		}
-	};
-}}
+        /// Gets a non-const reference to \a source.
+        static SourceType& GetAccessor(SourceType& source)
+        {
+            return source;
+        }
+    };
+}
+}

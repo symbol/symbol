@@ -25,6 +25,6 @@
 namespace catapult {
 
 /// Mosaic nonce.
-struct MosaicNonce_tag {};
+struct MosaicNonce_tag { };
 using MosaicNonce = utils::BaseValue<uint32_t, MosaicNonce_tag>;
 }

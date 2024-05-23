@@ -25,31 +25,36 @@
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	namespace {
-		model::HashRange ToHashRange(const std::vector<Hash256>& hashes) {
-			return model::HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size());
-		}
+    namespace {
+        model::HashRange ToHashRange(const std::vector<Hash256>& hashes)
+        {
+            return model::HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size());
+        }
 
-		auto CreateSubCacheMerkleRootsHandler(const io::BlockStorageCache& storage) {
-			return [&storage](const auto& packet, auto& context) {
-				using RequestType = api::HeightPacket<ionet::PacketType::Sub_Cache_Merkle_Roots>;
-				auto storageView = storage.view();
-				auto info = HeightRequestProcessor<RequestType>::Process(storageView, packet, context, false);
-				if (!info.pRequest)
-					return;
+        auto CreateSubCacheMerkleRootsHandler(const io::BlockStorageCache& storage)
+        {
+            return [&storage](const auto& packet, auto& context) {
+                using RequestType = api::HeightPacket<ionet::PacketType::Sub_Cache_Merkle_Roots>;
+                auto storageView = storage.view();
+                auto info = HeightRequestProcessor<RequestType>::Process(storageView, packet, context, false);
+                if (!info.pRequest)
+                    return;
 
-				auto pBlockElement = storageView.loadBlockElement(info.pRequest->Height);
+                auto pBlockElement = storageView.loadBlockElement(info.pRequest->Height);
 
-				auto hashRange = ToHashRange(pBlockElement->SubCacheMerkleRoots);
-				auto payload = ionet::PacketPayloadFactory::FromFixedSizeRange(RequestType::Packet_Type, std::move(hashRange));
-				context.response(std::move(payload));
-			};
-		}
-	}
+                auto hashRange = ToHashRange(pBlockElement->SubCacheMerkleRoots);
+                auto payload = ionet::PacketPayloadFactory::FromFixedSizeRange(RequestType::Packet_Type, std::move(hashRange));
+                context.response(std::move(payload));
+            };
+        }
+    }
 
-	void RegisterSubCacheMerkleRootsHandler(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage) {
-		handlers.registerHandler(ionet::PacketType::Sub_Cache_Merkle_Roots, CreateSubCacheMerkleRootsHandler(storage));
-	}
-}}
+    void RegisterSubCacheMerkleRootsHandler(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage)
+    {
+        handlers.registerHandler(ionet::PacketType::Sub_Cache_Merkle_Roots, CreateSubCacheMerkleRootsHandler(storage));
+    }
+}
+}

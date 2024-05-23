@@ -24,19 +24,23 @@
 #include "catapult/io/Stream.h"
 #include "tests/test/nodeps/Random.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	FinalizationNotification GenerateRandomFinalizationNotification() {
-		FinalizationNotification notification;
-		notification.Round = { FinalizationEpoch(static_cast<uint32_t>(Random())), FinalizationPoint(static_cast<uint32_t>(Random())) };
-		notification.Height = Height(Random());
-		FillWithRandomData(notification.Hash);
-		return notification;
-	}
+    FinalizationNotification GenerateRandomFinalizationNotification()
+    {
+        FinalizationNotification notification;
+        notification.Round = { FinalizationEpoch(static_cast<uint32_t>(Random())), FinalizationPoint(static_cast<uint32_t>(Random())) };
+        notification.Height = Height(Random());
+        FillWithRandomData(notification.Hash);
+        return notification;
+    }
 
-	void WriteFinalizationNotification(io::OutputStream& outputStream, const FinalizationNotification& notification) {
-		outputStream.write(notification.Hash);
-		outputStream.write({ reinterpret_cast<const uint8_t*>(&notification.Round), sizeof(model::FinalizationRound) });
-		io::Write(outputStream, notification.Height);
-	}
-}}
+    void WriteFinalizationNotification(io::OutputStream& outputStream, const FinalizationNotification& notification)
+    {
+        outputStream.write(notification.Hash);
+        outputStream.write({ reinterpret_cast<const uint8_t*>(&notification.Round), sizeof(model::FinalizationRound) });
+        io::Write(outputStream, notification.Height);
+    }
+}
+}

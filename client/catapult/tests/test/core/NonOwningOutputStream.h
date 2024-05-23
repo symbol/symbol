@@ -22,26 +22,31 @@
 #pragma once
 #include "catapult/io/Stream.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Non-owning output stream wrapper.
-	class NonOwningOutputStream : public io::OutputStream {
-	public:
-		/// Creates non-owning output stream around \a outputStream.
-		explicit NonOwningOutputStream(io::OutputStream& outputStream)
-				: m_outputStream(outputStream) {
-		}
+    /// Non-owning output stream wrapper.
+    class NonOwningOutputStream : public io::OutputStream {
+    public:
+        /// Creates non-owning output stream around \a outputStream.
+        explicit NonOwningOutputStream(io::OutputStream& outputStream)
+            : m_outputStream(outputStream)
+        {
+        }
 
-	public:
-		void write(const RawBuffer& buffer) override {
-			m_outputStream.write(buffer);
-		}
+    public:
+        void write(const RawBuffer& buffer) override
+        {
+            m_outputStream.write(buffer);
+        }
 
-		void flush() override {
-			m_outputStream.flush();
-		}
+        void flush() override
+        {
+            m_outputStream.flush();
+        }
 
-	private:
-		io::OutputStream& m_outputStream;
-	};
-}}
+    private:
+        io::OutputStream& m_outputStream;
+    };
+}
+}

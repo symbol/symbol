@@ -21,36 +21,43 @@
 
 #include "MetadataValue.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	bool MetadataValue::empty() const {
-		return m_buffer.empty();
-	}
+    bool MetadataValue::empty() const
+    {
+        return m_buffer.empty();
+    }
 
-	size_t MetadataValue::size() const {
-		return m_buffer.size();
-	}
+    size_t MetadataValue::size() const
+    {
+        return m_buffer.size();
+    }
 
-	const uint8_t* MetadataValue::data() const {
-		return m_buffer.data();
-	}
+    const uint8_t* MetadataValue::data() const
+    {
+        return m_buffer.data();
+    }
 
-	bool MetadataValue::canTrim(const RawBuffer& buffer, size_t count) const {
-		// if parameters are invalid, return false to prevent crash
-		if (m_buffer.size() != buffer.Size || count > m_buffer.size())
-			return false;
+    bool MetadataValue::canTrim(const RawBuffer& buffer, size_t count) const
+    {
+        // if parameters are invalid, return false to prevent crash
+        if (m_buffer.size() != buffer.Size || count > m_buffer.size())
+            return false;
 
-		for (auto i = buffer.Size - count; i < buffer.Size; ++i) {
-			if (m_buffer[i] != buffer.pData[i])
-				return false;
-		}
+        for (auto i = buffer.Size - count; i < buffer.Size; ++i) {
+            if (m_buffer[i] != buffer.pData[i])
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	void MetadataValue::update(const RawBuffer& buffer) {
-		m_buffer.resize(buffer.Size);
-		for (auto i = 0u; i < buffer.Size; ++i)
-			m_buffer[i] ^= buffer.pData[i];
-	}
-}}
+    void MetadataValue::update(const RawBuffer& buffer)
+    {
+        m_buffer.resize(buffer.Size);
+        for (auto i = 0u; i < buffer.Size; ++i)
+            m_buffer[i] ^= buffer.pData[i];
+    }
+}
+}

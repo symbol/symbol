@@ -22,17 +22,20 @@
 #include "NodeRoles.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	namespace {
-		const std::array<std::pair<const char*, NodeRoles>, 5> String_To_Node_Role_Pairs{ { { "Peer", NodeRoles::Peer },
-																							{ "Api", NodeRoles::Api },
-																							{ "Voting", NodeRoles::Voting },
-																							{ "IPv4", NodeRoles::IPv4 },
-																							{ "IPv6", NodeRoles::IPv6 } } };
-	}
+    namespace {
+        const std::array<std::pair<const char*, NodeRoles>, 5> String_To_Node_Role_Pairs { { { "Peer", NodeRoles::Peer },
+            { "Api", NodeRoles::Api },
+            { "Voting", NodeRoles::Voting },
+            { "IPv4", NodeRoles::IPv4 },
+            { "IPv6", NodeRoles::IPv6 } } };
+    }
 
-	bool TryParseValue(const std::string& str, NodeRoles& roles) {
-		return utils::TryParseBitwiseEnumValue(String_To_Node_Role_Pairs, str, roles);
-	}
-}}
+    bool TryParseValue(const std::string& str, NodeRoles& roles)
+    {
+        return utils::TryParseBitwiseEnumValue(String_To_Node_Role_Pairs, str, roles);
+    }
+}
+}

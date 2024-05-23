@@ -24,18 +24,20 @@
 #include "Transaction.h"
 #include <vector>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Information about a cosigned transaction.
-	/// \note In order to allow efficient aggregation, only some information may be specified.
-	struct CosignedTransactionInfo {
-		/// Transaction entity hash.
-		Hash256 EntityHash;
+    /// Information about a cosigned transaction.
+    /// \note In order to allow efficient aggregation, only some information may be specified.
+    struct CosignedTransactionInfo {
+        /// Transaction entity hash.
+        Hash256 EntityHash;
 
-		/// Transaction pointer (optional).
-		std::shared_ptr<const Transaction> pTransaction;
+        /// Transaction pointer (optional).
+        std::shared_ptr<const Transaction> pTransaction;
 
-		/// Cosignatures (optional).
-		std::vector<Cosignature> Cosignatures;
-	};
-}}
+        /// Cosignatures (optional).
+        std::vector<Cosignature> Cosignatures;
+    };
+}
+}

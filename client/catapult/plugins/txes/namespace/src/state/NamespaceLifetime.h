@@ -22,36 +22,38 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Lifetime of a namespace.
-	struct NamespaceLifetime {
-	public:
-		/// Creates a lifetime with \a start height and \a end height (including grace period).
-		NamespaceLifetime(Height start, Height end);
+    /// Lifetime of a namespace.
+    struct NamespaceLifetime {
+    public:
+        /// Creates a lifetime with \a start height and \a end height (including grace period).
+        NamespaceLifetime(Height start, Height end);
 
-		/// Creates a lifetime with \a start height, \a end height (excluding grace period) and grace period (\a gracePeriodDuration).
-		NamespaceLifetime(Height start, Height end, BlockDuration gracePeriodDuration);
+        /// Creates a lifetime with \a start height, \a end height (excluding grace period) and grace period (\a gracePeriodDuration).
+        NamespaceLifetime(Height start, Height end, BlockDuration gracePeriodDuration);
 
-	public:
-		/// Returns \c true if history is active at \a height.
-		bool isActive(Height height) const;
+    public:
+        /// Returns \c true if history is active at \a height.
+        bool isActive(Height height) const;
 
-		/// Returns \c true if history is active at \a height excluding grace period (\a gracePeriodDuration).
-		bool isActiveExcludingGracePeriod(Height height, BlockDuration gracePeriodDuration) const;
+        /// Returns \c true if history is active at \a height excluding grace period (\a gracePeriodDuration).
+        bool isActiveExcludingGracePeriod(Height height, BlockDuration gracePeriodDuration) const;
 
-	public:
-		/// Returns \c true if this NamespaceLifetime is equal to \a rhs.
-		bool operator==(const NamespaceLifetime& rhs) const;
+    public:
+        /// Returns \c true if this NamespaceLifetime is equal to \a rhs.
+        bool operator==(const NamespaceLifetime& rhs) const;
 
-		/// Returns \c true if this NamespaceLifetime is not equal to \a rhs.
-		bool operator!=(const NamespaceLifetime& rhs) const;
+        /// Returns \c true if this NamespaceLifetime is not equal to \a rhs.
+        bool operator!=(const NamespaceLifetime& rhs) const;
 
-	public:
-		/// Start height.
-		Height Start;
+    public:
+        /// Start height.
+        Height Start;
 
-		/// End height including grace period.
-		Height End;
-	};
-}}
+        /// End height including grace period.
+        Height End;
+    };
+}
+}

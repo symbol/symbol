@@ -23,54 +23,59 @@
 #include "NodePingUtils.h"
 #include "catapult/ionet/NodeContainer.h"
 
-namespace catapult { namespace nodediscovery {
+namespace catapult {
+namespace nodediscovery {
 
-	PeersProcessor::PeersProcessor(
-			const Key& serverPublicKey,
-			const ionet::NodeContainer& nodeContainer,
-			const NodePingRequestInitiator& pingRequestInitiator,
-			const model::UniqueNetworkFingerprint& networkFingerprint,
-			const NodeConsumer& newPartnerNodeConsumer)
-			: m_serverPublicKey(serverPublicKey)
-			, m_nodeContainer(nodeContainer)
-			, m_pingRequestInitiator(pingRequestInitiator)
-			, m_networkFingerprint(networkFingerprint)
-			, m_newPartnerNodeConsumer(newPartnerNodeConsumer) {
-	}
+    PeersProcessor::PeersProcessor(
+        const Key& serverPublicKey,
+        const ionet::NodeContainer& nodeContainer,
+        const NodePingRequestInitiator& pingRequestInitiator,
+        const model::UniqueNetworkFingerprint& networkFingerprint,
+        const NodeConsumer& newPartnerNodeConsumer)
+        : m_serverPublicKey(serverPublicKey)
+        , m_nodeContainer(nodeContainer)
+        , m_pingRequestInitiator(pingRequestInitiator)
+        , m_networkFingerprint(networkFingerprint)
+        , m_newPartnerNodeConsumer(newPartnerNodeConsumer)
+    {
+    }
 
-	void PeersProcessor::process(const ionet::NodeSet& candidateNodes) const {
-		for (const auto& candidateNode : SelectUnknownNodes(m_nodeContainer.view(), candidateNodes)) {
-			// compare identity keys to bypass self pings even when local host is loopback address
-			if (m_serverPublicKey == candidateNode.identity().PublicKey) {
-				CATAPULT_LOG(debug) << "bypassing ping with local node: " << candidateNode;
-				continue;
-			}
+    void PeersProcessor::process(const ionet::NodeSet& candidateNodes) const
+    {
+        for (const auto& candidateNode : SelectUnknownNodes(m_nodeContainer.view(), candidateNodes)) {
+            // compare identity keys to bypass self pings even when local host is loopback address
+            if (m_serverPublicKey == candidateNode.identity().PublicKey) {
+                CATAPULT_LOG(debug) << "bypassing ping with local node: " << candidateNode;
+                continue;
+            }
 
-			CATAPULT_LOG(debug) << "initiating ping with: " << candidateNode;
-			process(candidateNode);
-		}
-	}
+            CATAPULT_LOG(debug) << "initiating ping with: " << candidateNode;
+            process(candidateNode);
+        }
+    }
 
-	void PeersProcessor::process(const ionet::Node& candidateNode) const {
-		auto networkFingerprint = m_networkFingerprint;
-		auto newPartnerNodeConsumer = m_newPartnerNodeConsumer;
-		m_pingRequestInitiator(
-				candidateNode,
-				[candidateNode, networkFingerprint, newPartnerNodeConsumer](auto result, const auto& responseNode) {
-					CATAPULT_LOG(info) << "ping with '" << candidateNode << "' completed with: " << result;
-					if (net::NodeRequestResult::Success != result)
-						return;
+    void PeersProcessor::process(const ionet::Node& candidateNode) const
+    {
+        auto networkFingerprint = m_networkFingerprint;
+        auto newPartnerNodeConsumer = m_newPartnerNodeConsumer;
+        m_pingRequestInitiator(
+            candidateNode,
+            [candidateNode, networkFingerprint, newPartnerNodeConsumer](auto result, const auto& responseNode) {
+                CATAPULT_LOG(info) << "ping with '" << candidateNode << "' completed with: " << result;
+                if (net::NodeRequestResult::Success != result)
+                    return;
 
-					if (!IsNodeCompatible(responseNode, networkFingerprint, candidateNode.identity().PublicKey)) {
-						CATAPULT_LOG(warning) << "ping with '" << candidateNode << "' rejected due to incompatibility";
-						return;
-					}
+                if (!IsNodeCompatible(responseNode, networkFingerprint, candidateNode.identity().PublicKey)) {
+                    CATAPULT_LOG(warning) << "ping with '" << candidateNode << "' rejected due to incompatibility";
+                    return;
+                }
 
-					// if the node responds without a host, use the endpoint that was used to ping it
-					if (responseNode.endpoint().Host.empty())
-						newPartnerNodeConsumer(ionet::Node(responseNode.identity(), candidateNode.endpoint(), responseNode.metadata()));
-					else
-						newPartnerNodeConsumer(responseNode);
-				});
-	}
-}}
+                // if the node responds without a host, use the endpoint that was used to ping it
+                if (responseNode.endpoint().Host.empty())
+                    newPartnerNodeConsumer(ionet::Node(responseNode.identity(), candidateNode.endpoint(), responseNode.metadata()));
+                else
+                    newPartnerNodeConsumer(responseNode);
+            });
+    }
+}
+}

@@ -20,18 +20,22 @@
 **/
 
 #include "MongoHashLockInfoCacheStorage.h"
-#include "src/mappers/HashLockInfoMapper.h"
 #include "mongo/plugins/lock_shared/src/storages/MongoLockInfoCacheStorageTraits.h"
 #include "plugins/txes/lock_hash/src/cache/HashLockInfoCache.h"
+#include "src/mappers/HashLockInfoMapper.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct HashLockCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::HashLockInfoCacheDescriptor> {
-			static constexpr auto Collection_Name = "hashLocks";
-			static constexpr auto Id_Property_Name = "lock.hash";
-		};
-	}
+        namespace {
+            struct HashLockCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::HashLockInfoCacheDescriptor> {
+                static constexpr auto Collection_Name = "hashLocks";
+                static constexpr auto Id_Property_Name = "lock.hash";
+            };
+        }
 
-	DEFINE_MONGO_FLAT_CACHE_STORAGE(HashLockInfo, MongoLockInfoCacheStorageTraits<HashLockCacheTraits>)
-}}}
+        DEFINE_MONGO_FLAT_CACHE_STORAGE(HashLockInfo, MongoLockInfoCacheStorageTraits<HashLockCacheTraits>)
+    }
+}
+}

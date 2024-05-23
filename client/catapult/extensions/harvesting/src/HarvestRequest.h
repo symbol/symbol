@@ -22,52 +22,54 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	struct HarvestRequestIdentifier_tag {
-		static constexpr size_t Size = 32;
-	};
-	using HarvestRequestIdentifier = utils::ByteArray<HarvestRequestIdentifier_tag>;
+    struct HarvestRequestIdentifier_tag {
+        static constexpr size_t Size = 32;
+    };
+    using HarvestRequestIdentifier = utils::ByteArray<HarvestRequestIdentifier_tag>;
 
-	/// Harvest request operation.
-	enum class HarvestRequestOperation : uint8_t {
-		/// Add unlocked harvester.
-		Add,
+    /// Harvest request operation.
+    enum class HarvestRequestOperation : uint8_t {
+        /// Add unlocked harvester.
+        Add,
 
-		/// Remove unlocked harvester.
-		Remove
-	};
+        /// Remove unlocked harvester.
+        Remove
+    };
 
-	/// Harvest request.
-	struct HarvestRequest {
-	public:
-		/// Request operation.
-		HarvestRequestOperation Operation;
+    /// Harvest request.
+    struct HarvestRequest {
+    public:
+        /// Request operation.
+        HarvestRequestOperation Operation;
 
-		/// Request height.
-		catapult::Height Height;
+        /// Request height.
+        catapult::Height Height;
 
-		/// Public key of the main account that initiated the request.
-		Key MainAccountPublicKey;
+        /// Public key of the main account that initiated the request.
+        Key MainAccountPublicKey;
 
-		/// Encrypted payload.
-		/// \note This decrypts into BlockGeneratorAccountDescriptor.
-		RawBuffer EncryptedPayload;
+        /// Encrypted payload.
+        /// \note This decrypts into BlockGeneratorAccountDescriptor.
+        RawBuffer EncryptedPayload;
 
-	public:
-		/// Gets the decrypted payload size.
-		static size_t DecryptedPayloadSize();
+    public:
+        /// Gets the decrypted payload size.
+        static size_t DecryptedPayloadSize();
 
-		/// Gets the encrypted payload size.
-		static size_t EncryptedPayloadSize();
-	};
+        /// Gets the encrypted payload size.
+        static size_t EncryptedPayloadSize();
+    };
 
-	/// Gets a unique identifier for \a request.
-	HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequest& request);
+    /// Gets a unique identifier for \a request.
+    HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequest& request);
 
-	/// Serializes harvest \a request into buffer.
-	std::vector<uint8_t> SerializeHarvestRequest(const HarvestRequest& request);
+    /// Serializes harvest \a request into buffer.
+    std::vector<uint8_t> SerializeHarvestRequest(const HarvestRequest& request);
 
-	/// Deserializes harvest request from \a buffer.
-	HarvestRequest DeserializeHarvestRequest(const std::vector<uint8_t>& buffer);
-}}
+    /// Deserializes harvest request from \a buffer.
+    HarvestRequest DeserializeHarvestRequest(const std::vector<uint8_t>& buffer);
+}
+}

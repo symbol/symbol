@@ -20,129 +20,142 @@
 **/
 
 #include "catapult/cache/CacheDatabaseMixin.h"
-#include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Filesystem.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS CacheDatabaseMixinTests
 
-	namespace {
-		class ConcreteCacheDatabaseMixin : public CacheDatabaseMixin {
-		public:
-			ConcreteCacheDatabaseMixin(
-					const CacheConfiguration& config,
-					const std::vector<std::string>& columnFamilyNames,
-					FilterPruningMode pruningMode = FilterPruningMode::Disabled)
-					: CacheDatabaseMixin(config, columnFamilyNames, pruningMode) {
-			}
+    namespace {
+        class ConcreteCacheDatabaseMixin : public CacheDatabaseMixin {
+        public:
+            ConcreteCacheDatabaseMixin(
+                const CacheConfiguration& config,
+                const std::vector<std::string>& columnFamilyNames,
+                FilterPruningMode pruningMode = FilterPruningMode::Disabled)
+                : CacheDatabaseMixin(config, columnFamilyNames, pruningMode)
+            {
+            }
 
-		public:
-			bool hasPatriciaTreeSupport() const {
-				return CacheDatabaseMixin::hasPatriciaTreeSupport();
-			}
+        public:
+            bool hasPatriciaTreeSupport() const
+            {
+                return CacheDatabaseMixin::hasPatriciaTreeSupport();
+            }
 
-			CacheDatabase& database() {
-				return CacheDatabaseMixin::database();
-			}
+            CacheDatabase& database()
+            {
+                return CacheDatabaseMixin::database();
+            }
 
-			void flush() {
-				return CacheDatabaseMixin::flush();
-			}
+            void flush()
+            {
+                return CacheDatabaseMixin::flush();
+            }
 
-		public:
-			static deltaset::ConditionalContainerMode GetContainerMode(const CacheConfiguration& config) {
-				return CacheDatabaseMixin::GetContainerMode(config);
-			}
-		};
-	}
+        public:
+            static deltaset::ConditionalContainerMode GetContainerMode(const CacheConfiguration& config)
+            {
+                return CacheDatabaseMixin::GetContainerMode(config);
+            }
+        };
+    }
 
-	TEST(TEST_CLASS, DatabaseInitializationIsBypassedWhenCacheDatabaseIsDisabled) {
-		// Arrange:
-		CacheConfiguration config;
+    TEST(TEST_CLASS, DatabaseInitializationIsBypassedWhenCacheDatabaseIsDisabled)
+    {
+        // Arrange:
+        CacheConfiguration config;
 
-		// Act:
-		ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
+        // Act:
+        ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
 
-		// Assert:
-		EXPECT_FALSE(mixin.hasPatriciaTreeSupport());
+        // Assert:
+        EXPECT_FALSE(mixin.hasPatriciaTreeSupport());
 
-		EXPECT_TRUE(mixin.database().columnFamilyNames().empty());
-		EXPECT_FALSE(mixin.database().canPrune());
+        EXPECT_TRUE(mixin.database().columnFamilyNames().empty());
+        EXPECT_FALSE(mixin.database().canPrune());
 
-		EXPECT_EQ(deltaset::ConditionalContainerMode::Memory, decltype(mixin)::GetContainerMode(config));
-	}
+        EXPECT_EQ(deltaset::ConditionalContainerMode::Memory, decltype(mixin)::GetContainerMode(config));
+    }
 
-	TEST(TEST_CLASS, CanInitializeBasicDatabase) {
-		// Arrange:
-		test::TempDirectoryGuard dbDirGuard;
-		CacheConfiguration config(dbDirGuard.name(), PatriciaTreeStorageMode::Disabled);
+    TEST(TEST_CLASS, CanInitializeBasicDatabase)
+    {
+        // Arrange:
+        test::TempDirectoryGuard dbDirGuard;
+        CacheConfiguration config(dbDirGuard.name(), PatriciaTreeStorageMode::Disabled);
 
-		// Act:
-		ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
+        // Act:
+        ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
 
-		// Assert:
-		EXPECT_FALSE(mixin.hasPatriciaTreeSupport());
+        // Assert:
+        EXPECT_FALSE(mixin.hasPatriciaTreeSupport());
 
-		EXPECT_EQ((std::vector<std::string>{ "default", "foo", "bar" }), mixin.database().columnFamilyNames());
-		EXPECT_FALSE(mixin.database().canPrune());
+        EXPECT_EQ((std::vector<std::string> { "default", "foo", "bar" }), mixin.database().columnFamilyNames());
+        EXPECT_FALSE(mixin.database().canPrune());
 
-		EXPECT_EQ(deltaset::ConditionalContainerMode::Storage, decltype(mixin)::GetContainerMode(config));
-	}
+        EXPECT_EQ(deltaset::ConditionalContainerMode::Storage, decltype(mixin)::GetContainerMode(config));
+    }
 
-	TEST(TEST_CLASS, CanInitializeDatabaseWithPruning) {
-		// Arrange:
-		test::TempDirectoryGuard dbDirGuard;
-		CacheConfiguration config(dbDirGuard.name(), PatriciaTreeStorageMode::Disabled);
+    TEST(TEST_CLASS, CanInitializeDatabaseWithPruning)
+    {
+        // Arrange:
+        test::TempDirectoryGuard dbDirGuard;
+        CacheConfiguration config(dbDirGuard.name(), PatriciaTreeStorageMode::Disabled);
 
-		// Act:
-		ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" }, FilterPruningMode::Enabled);
+        // Act:
+        ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" }, FilterPruningMode::Enabled);
 
-		// Assert:
-		EXPECT_FALSE(mixin.hasPatriciaTreeSupport());
+        // Assert:
+        EXPECT_FALSE(mixin.hasPatriciaTreeSupport());
 
-		EXPECT_EQ((std::vector<std::string>{ "default", "foo", "bar" }), mixin.database().columnFamilyNames());
-		EXPECT_TRUE(mixin.database().canPrune());
+        EXPECT_EQ((std::vector<std::string> { "default", "foo", "bar" }), mixin.database().columnFamilyNames());
+        EXPECT_TRUE(mixin.database().canPrune());
 
-		EXPECT_EQ(deltaset::ConditionalContainerMode::Storage, decltype(mixin)::GetContainerMode(config));
-	}
+        EXPECT_EQ(deltaset::ConditionalContainerMode::Storage, decltype(mixin)::GetContainerMode(config));
+    }
 
-	TEST(TEST_CLASS, CanInitializeDatabaseWithPatriciaTreeSupport) {
-		// Arrange:
-		test::TempDirectoryGuard dbDirGuard;
-		CacheConfiguration config(dbDirGuard.name(), PatriciaTreeStorageMode::Enabled);
+    TEST(TEST_CLASS, CanInitializeDatabaseWithPatriciaTreeSupport)
+    {
+        // Arrange:
+        test::TempDirectoryGuard dbDirGuard;
+        CacheConfiguration config(dbDirGuard.name(), PatriciaTreeStorageMode::Enabled);
 
-		// Act:
-		ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
+        // Act:
+        ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
 
-		// Assert:
-		EXPECT_TRUE(mixin.hasPatriciaTreeSupport());
+        // Assert:
+        EXPECT_TRUE(mixin.hasPatriciaTreeSupport());
 
-		EXPECT_EQ((std::vector<std::string>{ "default", "foo", "bar", "patricia_tree" }), mixin.database().columnFamilyNames());
-		EXPECT_FALSE(mixin.database().canPrune());
+        EXPECT_EQ((std::vector<std::string> { "default", "foo", "bar", "patricia_tree" }), mixin.database().columnFamilyNames());
+        EXPECT_FALSE(mixin.database().canPrune());
 
-		EXPECT_EQ(deltaset::ConditionalContainerMode::Storage, decltype(mixin)::GetContainerMode(config));
-	}
+        EXPECT_EQ(deltaset::ConditionalContainerMode::Storage, decltype(mixin)::GetContainerMode(config));
+    }
 
-	TEST(TEST_CLASS, CanFlushWhenCacheDatabaseIsDisabled) {
-		// Arrange:
-		CacheConfiguration config;
-		ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
+    TEST(TEST_CLASS, CanFlushWhenCacheDatabaseIsDisabled)
+    {
+        // Arrange:
+        CacheConfiguration config;
+        ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
 
-		// Act + Assert:
-		EXPECT_NO_THROW(mixin.flush());
-	}
+        // Act + Assert:
+        EXPECT_NO_THROW(mixin.flush());
+    }
 
-	TEST(TEST_CLASS, CanFlushWhenCacheDatabaseIsEnabled) {
-		// Arrange: create mixin with non-zero batch-size
-		auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
-		cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromKilobytes(100);
+    TEST(TEST_CLASS, CanFlushWhenCacheDatabaseIsEnabled)
+    {
+        // Arrange: create mixin with non-zero batch-size
+        auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+        cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromKilobytes(100);
 
-		test::TempDirectoryGuard dbDirGuard;
-		CacheConfiguration config(dbDirGuard.name(), cacheDatabaseConfig, PatriciaTreeStorageMode::Disabled);
-		ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
+        test::TempDirectoryGuard dbDirGuard;
+        CacheConfiguration config(dbDirGuard.name(), cacheDatabaseConfig, PatriciaTreeStorageMode::Disabled);
+        ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
 
-		// Act + Assert:
-		EXPECT_NO_THROW(mixin.flush());
-	}
-}}
+        // Act + Assert:
+        EXPECT_NO_THROW(mixin.flush());
+    }
+}
+}

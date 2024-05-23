@@ -22,78 +22,85 @@
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
 #define TEST_CLASS LocalNodeChainScoreTests
 
-	// region constructor
+    // region constructor
 
-	TEST(TEST_CLASS, CanCreateDefaultChainScore) {
-		// Act:
-		LocalNodeChainScore score;
+    TEST(TEST_CLASS, CanCreateDefaultChainScore)
+    {
+        // Act:
+        LocalNodeChainScore score;
 
-		// Assert:
-		auto scoreArray = score.get().toArray();
-		EXPECT_EQ(0u, scoreArray[0]);
-		EXPECT_EQ(0u, scoreArray[1]);
-	}
+        // Assert:
+        auto scoreArray = score.get().toArray();
+        EXPECT_EQ(0u, scoreArray[0]);
+        EXPECT_EQ(0u, scoreArray[1]);
+    }
 
-	TEST(TEST_CLASS, CanCreateChainScoreFromModelChainScore) {
-		// Act:
-		LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
+    TEST(TEST_CLASS, CanCreateChainScoreFromModelChainScore)
+    {
+        // Act:
+        LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
 
-		// Assert:
-		auto scoreArray = score.get().toArray();
-		EXPECT_EQ(0x8FDE'4267'9C23'D678u, scoreArray[0]);
-		EXPECT_EQ(0x7A6B'3481'0235'43B6u, scoreArray[1]);
-	}
+        // Assert:
+        auto scoreArray = score.get().toArray();
+        EXPECT_EQ(0x8FDE'4267'9C23'D678u, scoreArray[0]);
+        EXPECT_EQ(0x7A6B'3481'0235'43B6u, scoreArray[1]);
+    }
 
-	// endregion
+    // endregion
 
-	// region set
+    // region set
 
-	TEST(TEST_CLASS, CanSetNewChainScore) {
-		// Act:
-		LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
-		score.set(model::ChainScore(0x9FDE'426A'8C23'D688u, 0x7C6B'3981'0265'43BBu));
+    TEST(TEST_CLASS, CanSetNewChainScore)
+    {
+        // Act:
+        LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
+        score.set(model::ChainScore(0x9FDE'426A'8C23'D688u, 0x7C6B'3981'0265'43BBu));
 
-		// Assert:
-		auto scoreArray = score.get().toArray();
-		EXPECT_EQ(0x9FDE'426A'8C23'D688u, scoreArray[0]);
-		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
-	}
+        // Assert:
+        auto scoreArray = score.get().toArray();
+        EXPECT_EQ(0x9FDE'426A'8C23'D688u, scoreArray[0]);
+        EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
+    }
 
-	// endregion
+    // endregion
 
-	// region add
+    // region add
 
-	TEST(TEST_CLASS, CanAddToChainScore) {
-		// Arrange:
-		LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
+    TEST(TEST_CLASS, CanAddToChainScore)
+    {
+        // Arrange:
+        LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
 
-		// Act:
-		const auto& result = score += model::ChainScore(0x1000'0002'F000'0010, 0x0200'0500'0030'0005);
+        // Act:
+        const auto& result = score += model::ChainScore(0x1000'0002'F000'0010, 0x0200'0500'0030'0005);
 
-		// Assert:
-		auto scoreArray = score.get().toArray();
-		EXPECT_EQ(&score, &result);
-		EXPECT_EQ(0x9FDE'426A'8C23'D688u, scoreArray[0]);
-		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
-	}
+        // Assert:
+        auto scoreArray = score.get().toArray();
+        EXPECT_EQ(&score, &result);
+        EXPECT_EQ(0x9FDE'426A'8C23'D688u, scoreArray[0]);
+        EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
+    }
 
-	TEST(TEST_CLASS, CanAddToChainScore_Delta) {
-		// Arrange:
-		LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
+    TEST(TEST_CLASS, CanAddToChainScore_Delta)
+    {
+        // Arrange:
+        LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
 
-		// Act:
-		const auto& result = score += model::ChainScore::Delta(0x0200'0500'0030'0005);
+        // Act:
+        const auto& result = score += model::ChainScore::Delta(0x0200'0500'0030'0005);
 
-		// Assert:
-		auto scoreArray = score.get().toArray();
-		EXPECT_EQ(&score, &result);
-		EXPECT_EQ(0x8FDE'4267'9C23'D678u, scoreArray[0]);
-		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
-	}
+        // Assert:
+        auto scoreArray = score.get().toArray();
+        EXPECT_EQ(&score, &result);
+        EXPECT_EQ(0x8FDE'4267'9C23'D678u, scoreArray[0]);
+        EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

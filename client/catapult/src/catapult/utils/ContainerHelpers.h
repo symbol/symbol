@@ -21,16 +21,19 @@
 
 #pragma once
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	/// Removes all entries from \a map that fulfill the given \a predicate.
-	template<typename TMap, typename TPredicate>
-	void map_erase_if(TMap& map, TPredicate predicate) {
-		for (auto iter = map.begin(); map.end() != iter;) {
-			if (predicate(*iter))
-				iter = map.erase(iter);
-			else
-				++iter;
-		}
-	}
-}}
+    /// Removes all entries from \a map that fulfill the given \a predicate.
+    template <typename TMap, typename TPredicate>
+    void map_erase_if(TMap& map, TPredicate predicate)
+    {
+        for (auto iter = map.begin(); map.end() != iter;) {
+            if (predicate(*iter))
+                iter = map.erase(iter);
+            else
+                ++iter;
+        }
+    }
+}
+}

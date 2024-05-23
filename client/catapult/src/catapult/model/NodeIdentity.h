@@ -24,78 +24,81 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Unique node identifier.
-	struct NodeIdentity {
-	public:
-		/// Identity key.
-		Key PublicKey;
+    /// Unique node identifier.
+    struct NodeIdentity {
+    public:
+        /// Identity key.
+        Key PublicKey;
 
-		/// Host (must be resolved).
-		std::string Host;
+        /// Host (must be resolved).
+        std::string Host;
 
-	public:
-		/// Insertion operator for outputting \a identity to \a out.
-		friend std::ostream& operator<<(std::ostream& out, const NodeIdentity& identity);
-	};
+    public:
+        /// Insertion operator for outputting \a identity to \a out.
+        friend std::ostream& operator<<(std::ostream& out, const NodeIdentity& identity);
+    };
 
-	/// Strategy to use for comparing NodeIdentity structures.
-	enum class NodeIdentityEqualityStrategy {
-		/// Identities are uniquely identified by identity key.
-		Key,
+    /// Strategy to use for comparing NodeIdentity structures.
+    enum class NodeIdentityEqualityStrategy {
+        /// Identities are uniquely identified by identity key.
+        Key,
 
-		/// Identities are uniquely identified by host.
-		Host,
+        /// Identities are uniquely identified by host.
+        Host,
 
-		/// Identities are uniquely identified by key and host.
-		Key_And_Host
-	};
+        /// Identities are uniquely identified by key and host.
+        Key_And_Host
+    };
 
-	/// Tries to parse \a strategyName into a node identity equality \a strategy.
-	bool TryParseValue(const std::string& strategyName, NodeIdentityEqualityStrategy& strategy);
+    /// Tries to parse \a strategyName into a node identity equality \a strategy.
+    bool TryParseValue(const std::string& strategyName, NodeIdentityEqualityStrategy& strategy);
 
-	/// Equality object for NodeIdentity.
-	class NodeIdentityEquality {
-	public:
-		/// Creates an equality object with \a strategy.
-		explicit NodeIdentityEquality(NodeIdentityEqualityStrategy strategy);
+    /// Equality object for NodeIdentity.
+    class NodeIdentityEquality {
+    public:
+        /// Creates an equality object with \a strategy.
+        explicit NodeIdentityEquality(NodeIdentityEqualityStrategy strategy);
 
-	public:
-		/// Returns \c true if \a lhs and \a rhs are equal.
-		bool operator()(const NodeIdentity& lhs, const NodeIdentity& rhs) const;
+    public:
+        /// Returns \c true if \a lhs and \a rhs are equal.
+        bool operator()(const NodeIdentity& lhs, const NodeIdentity& rhs) const;
 
-	private:
-		NodeIdentityEqualityStrategy m_strategy;
-	};
+    private:
+        NodeIdentityEqualityStrategy m_strategy;
+    };
 
-	/// Hasher object for NodeIdentity.
-	class NodeIdentityHasher {
-	public:
-		/// Creates a hasher object with \a strategy.
-		explicit NodeIdentityHasher(NodeIdentityEqualityStrategy strategy);
+    /// Hasher object for NodeIdentity.
+    class NodeIdentityHasher {
+    public:
+        /// Creates a hasher object with \a strategy.
+        explicit NodeIdentityHasher(NodeIdentityEqualityStrategy strategy);
 
-	public:
-		/// Hashes \a identity.
-		size_t operator()(const NodeIdentity& identity) const;
+    public:
+        /// Hashes \a identity.
+        size_t operator()(const NodeIdentity& identity) const;
 
-	private:
-		NodeIdentityEqualityStrategy m_strategy;
-	};
+    private:
+        NodeIdentityEqualityStrategy m_strategy;
+    };
 
-	/// Unordered set of node identities.
-	using NodeIdentitySet = std::unordered_set<NodeIdentity, NodeIdentityHasher, NodeIdentityEquality>;
+    /// Unordered set of node identities.
+    using NodeIdentitySet = std::unordered_set<NodeIdentity, NodeIdentityHasher, NodeIdentityEquality>;
 
-	/// Creates an empty node identity set with \a strategy.
-	NodeIdentitySet CreateNodeIdentitySet(NodeIdentityEqualityStrategy strategy);
+    /// Creates an empty node identity set with \a strategy.
+    NodeIdentitySet CreateNodeIdentitySet(NodeIdentityEqualityStrategy strategy);
 
-	/// Map of node identities to associated data.
-	template<typename TValue>
-	using NodeIdentityMap = std::unordered_map<NodeIdentity, TValue, NodeIdentityHasher, NodeIdentityEquality>;
+    /// Map of node identities to associated data.
+    template <typename TValue>
+    using NodeIdentityMap = std::unordered_map<NodeIdentity, TValue, NodeIdentityHasher, NodeIdentityEquality>;
 
-	/// Creates an empty node identity map with \a strategy.
-	template<typename TValue>
-	NodeIdentityMap<TValue> CreateNodeIdentityMap(NodeIdentityEqualityStrategy strategy) {
-		return NodeIdentityMap<TValue>(0, NodeIdentityHasher(strategy), NodeIdentityEquality(strategy));
-	}
-}}
+    /// Creates an empty node identity map with \a strategy.
+    template <typename TValue>
+    NodeIdentityMap<TValue> CreateNodeIdentityMap(NodeIdentityEqualityStrategy strategy)
+    {
+        return NodeIdentityMap<TValue>(0, NodeIdentityHasher(strategy), NodeIdentityEquality(strategy));
+    }
+}
+}

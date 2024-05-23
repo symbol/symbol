@@ -23,32 +23,35 @@
 #include "LinkAction.h"
 #include "Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a key link transaction body.
-	template<typename THeader, typename TAccountPublicKey, EntityType Key_Link_Entity_Type>
-	struct BasicKeyLinkTransactionBody : public THeader {
-	private:
-		using TransactionType = BasicKeyLinkTransactionBody<THeader, TAccountPublicKey, Key_Link_Entity_Type>;
+    /// Binary layout for a key link transaction body.
+    template <typename THeader, typename TAccountPublicKey, EntityType Key_Link_Entity_Type>
+    struct BasicKeyLinkTransactionBody : public THeader {
+    private:
+        using TransactionType = BasicKeyLinkTransactionBody<THeader, TAccountPublicKey, Key_Link_Entity_Type>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Key_Link_Entity_Type, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Key_Link_Entity_Type, 1)
 
-	public:
-		/// Linked public key.
-		TAccountPublicKey LinkedPublicKey;
+    public:
+        /// Linked public key.
+        TAccountPublicKey LinkedPublicKey;
 
-		/// Link action.
-		model::LinkAction LinkAction;
+        /// Link action.
+        model::LinkAction LinkAction;
 
-	public:
-		/// Calculates the real size of key link \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+    public:
+        /// Calculates the real size of key link \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
+        {
+            return sizeof(TransactionType);
+        }
+    };
 
 #pragma pack(pop)
-}}
+}
+}

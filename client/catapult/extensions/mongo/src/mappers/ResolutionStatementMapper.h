@@ -24,11 +24,15 @@
 #include "MapperUtils.h"
 #include "catapult/model/ResolutionStatement.h"
 
-namespace catapult { namespace mongo { namespace mappers {
+namespace catapult {
+namespace mongo {
+    namespace mappers {
 
-	/// Maps \a statement at \a height to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(Height height, const model::AddressResolutionStatement& statement);
+        /// Maps \a statement at \a height to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(Height height, const model::AddressResolutionStatement& statement);
 
-	/// Maps \a statement at \a height to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(Height height, const model::MosaicResolutionStatement& statement);
-}}}
+        /// Maps \a statement at \a height to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(Height height, const model::MosaicResolutionStatement& statement);
+    }
+}
+}

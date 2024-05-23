@@ -23,18 +23,22 @@
 #include "catapult/io/TransactionInfoSerializer.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	model::TransactionInfosSet CreateTransactionInfosSetWithOptionalAddresses(size_t count) {
-		auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(count);
-		return test::CopyTransactionInfosToSet(transactionInfos);
-	}
+    model::TransactionInfosSet CreateTransactionInfosSetWithOptionalAddresses(size_t count)
+    {
+        auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(count);
+        return test::CopyTransactionInfosToSet(transactionInfos);
+    }
 
-	std::vector<uint8_t> SerializeTransactionInfo(const model::TransactionInfo& transactionInfo) {
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream(buffer);
+    std::vector<uint8_t> SerializeTransactionInfo(const model::TransactionInfo& transactionInfo)
+    {
+        std::vector<uint8_t> buffer;
+        mocks::MockMemoryStream stream(buffer);
 
-		io::WriteTransactionInfo(transactionInfo, stream);
-		return buffer;
-	}
-}}
+        io::WriteTransactionInfo(transactionInfo, stream);
+        return buffer;
+    }
+}
+}

@@ -22,21 +22,26 @@
 #include "Validators.h"
 #include "catapult/constants.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::RootNamespaceNotification;
+    using Notification = model::RootNamespaceNotification;
 
-	namespace {
-		constexpr bool IsEternal(BlockDuration duration) {
-			return Eternal_Artifact_Duration == duration;
-		}
-	}
+    namespace {
+        constexpr bool IsEternal(BlockDuration duration)
+        {
+            return Eternal_Artifact_Duration == duration;
+        }
+    }
 
-	DECLARE_STATELESS_VALIDATOR(RootNamespace, Notification)(BlockDuration minDuration, BlockDuration maxDuration) {
-		return MAKE_STATELESS_VALIDATOR(RootNamespace, ([minDuration, maxDuration](const Notification& notification) {
-											auto isInRange = minDuration <= notification.Duration && notification.Duration <= maxDuration;
-											return !IsEternal(notification.Duration) && !isInRange ? Failure_Namespace_Invalid_Duration
-																								   : ValidationResult::Success;
-										}));
-	}
-}}
+    DECLARE_STATELESS_VALIDATOR(RootNamespace, Notification)
+    (BlockDuration minDuration, BlockDuration maxDuration)
+    {
+        return MAKE_STATELESS_VALIDATOR(RootNamespace, ([minDuration, maxDuration](const Notification& notification) {
+            auto isInRange = minDuration <= notification.Duration && notification.Duration <= maxDuration;
+            return !IsEternal(notification.Duration) && !isInRange ? Failure_Namespace_Invalid_Duration
+                                                                   : ValidationResult::Success;
+        }));
+    }
+}
+}

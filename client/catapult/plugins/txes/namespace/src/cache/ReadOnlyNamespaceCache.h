@@ -20,34 +20,37 @@
 **/
 
 #pragma once
-#include "src/state/NamespaceEntry.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
+#include "src/state/NamespaceEntry.h"
 
-namespace catapult { namespace cache {
-	class BasicNamespaceCacheDelta;
-	class BasicNamespaceCacheView;
-}}
+namespace catapult {
+namespace cache {
+    class BasicNamespaceCacheDelta;
+    class BasicNamespaceCacheView;
+}
+}
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	using ReadOnlyNamespaceArtifactCache =
-			ReadOnlyArtifactCache<BasicNamespaceCacheView, BasicNamespaceCacheDelta, NamespaceId, state::NamespaceEntry>;
+    using ReadOnlyNamespaceArtifactCache = ReadOnlyArtifactCache<BasicNamespaceCacheView, BasicNamespaceCacheDelta, NamespaceId, state::NamespaceEntry>;
 
-	/// Read-only overlay on top of a namespace cache.
-	class ReadOnlyNamespaceCache : public ReadOnlyNamespaceArtifactCache {
-	public:
-		/// Creates a read-only overlay on top of \a cache.
-		explicit ReadOnlyNamespaceCache(const BasicNamespaceCacheView& cache);
+    /// Read-only overlay on top of a namespace cache.
+    class ReadOnlyNamespaceCache : public ReadOnlyNamespaceArtifactCache {
+    public:
+        /// Creates a read-only overlay on top of \a cache.
+        explicit ReadOnlyNamespaceCache(const BasicNamespaceCacheView& cache);
 
-		/// Creates a read-only overlay on top of \a cache.
-		explicit ReadOnlyNamespaceCache(const BasicNamespaceCacheDelta& cache);
+        /// Creates a read-only overlay on top of \a cache.
+        explicit ReadOnlyNamespaceCache(const BasicNamespaceCacheDelta& cache);
 
-	public:
-		/// Gets the grace period duration.
-		BlockDuration gracePeriodDuration() const;
+    public:
+        /// Gets the grace period duration.
+        BlockDuration gracePeriodDuration() const;
 
-	private:
-		const BasicNamespaceCacheView* m_pCache;
-		const BasicNamespaceCacheDelta* m_pCacheDelta;
-	};
-}}
+    private:
+        const BasicNamespaceCacheView* m_pCache;
+        const BasicNamespaceCacheDelta* m_pCacheDelta;
+    };
+}
+}

@@ -22,16 +22,19 @@
 #include "MosaicIdGenerator.h"
 #include "catapult/crypto/Hashes.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	MosaicId GenerateMosaicId(const Address& owner, MosaicNonce nonce) noexcept {
-		Hash256 result;
-		crypto::Sha3_256_Builder sha3;
-		sha3.update({ { reinterpret_cast<const uint8_t*>(&nonce), sizeof(MosaicNonce) }, owner });
-		sha3.final(result);
+    MosaicId GenerateMosaicId(const Address& owner, MosaicNonce nonce) noexcept
+    {
+        Hash256 result;
+        crypto::Sha3_256_Builder sha3;
+        sha3.update({ { reinterpret_cast<const uint8_t*>(&nonce), sizeof(MosaicNonce) }, owner });
+        sha3.final(result);
 
-		// clear high bit
-		constexpr uint64_t Namespace_Flag = 1ull << 63;
-		return MosaicId(reinterpret_cast<const uint64_t&>(result[0]) & ~Namespace_Flag);
-	}
-}}
+        // clear high bit
+        constexpr uint64_t Namespace_Flag = 1ull << 63;
+        return MosaicId(reinterpret_cast<const uint64_t&>(result[0]) & ~Namespace_Flag);
+    }
+}
+}

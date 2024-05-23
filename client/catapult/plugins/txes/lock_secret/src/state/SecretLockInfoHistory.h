@@ -23,11 +23,13 @@
 #include "SecretLockInfo.h"
 #include "plugins/txes/lock_shared/src/state/LockInfoHistory.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Secret lock info history.
-	struct PLUGIN_API_DEPENDENCY SecretLockInfoHistory : public LockInfoHistory<SecretLockInfo> {
-	public:
-		using LockInfoHistory<SecretLockInfo>::LockInfoHistory;
-	};
-}}
+    /// Secret lock info history.
+    struct PLUGIN_API_DEPENDENCY SecretLockInfoHistory : public LockInfoHistory<SecretLockInfo> {
+    public:
+        using LockInfoHistory<SecretLockInfo>::LockInfoHistory;
+    };
+}
+}

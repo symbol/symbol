@@ -22,62 +22,69 @@
 #include "TransactionsBuilder.h"
 #include "tests/test/local/RealTransactionFactory.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	// region ctor
+    // region ctor
 
-	TransactionsBuilder::TransactionsBuilder(const Accounts& accounts)
-			: BasicTransactionsBuilder(accounts) {
-	}
+    TransactionsBuilder::TransactionsBuilder(const Accounts& accounts)
+        : BasicTransactionsBuilder(accounts)
+    {
+    }
 
-	// endregion
+    // endregion
 
-	// region generate
+    // region generate
 
-	std::unique_ptr<model::Transaction> TransactionsBuilder::generate(
-			uint32_t descriptorType,
-			const std::shared_ptr<const void>& pDescriptor,
-			Timestamp deadline) const {
-		switch (static_cast<DescriptorType>(descriptorType)) {
-		case DescriptorType::Namespace:
-			return createNamespaceRegistration(CastToDescriptor<NamespaceDescriptor>(pDescriptor), deadline);
+    std::unique_ptr<model::Transaction> TransactionsBuilder::generate(
+        uint32_t descriptorType,
+        const std::shared_ptr<const void>& pDescriptor,
+        Timestamp deadline) const
+    {
+        switch (static_cast<DescriptorType>(descriptorType)) {
+        case DescriptorType::Namespace:
+            return createNamespaceRegistration(CastToDescriptor<NamespaceDescriptor>(pDescriptor), deadline);
 
-		case DescriptorType::Alias:
-			return createAddressAlias(CastToDescriptor<NamespaceDescriptor>(pDescriptor), deadline);
-		}
+        case DescriptorType::Alias:
+            return createAddressAlias(CastToDescriptor<NamespaceDescriptor>(pDescriptor), deadline);
+        }
 
-		return nullptr;
-	}
+        return nullptr;
+    }
 
-	// endregion
+    // endregion
 
-	// region add / create
+    // region add / create
 
-	void TransactionsBuilder::addNamespace(size_t ownerId, const std::string& name, BlockDuration duration, size_t aliasId) {
-		auto descriptor = NamespaceDescriptor{ ownerId, name, duration, aliasId };
-		add(DescriptorType::Namespace, descriptor);
+    void TransactionsBuilder::addNamespace(size_t ownerId, const std::string& name, BlockDuration duration, size_t aliasId)
+    {
+        auto descriptor = NamespaceDescriptor { ownerId, name, duration, aliasId };
+        add(DescriptorType::Namespace, descriptor);
 
-		if (0 != descriptor.AddressAliasId)
-			add(DescriptorType::Alias, descriptor);
-	}
+        if (0 != descriptor.AddressAliasId)
+            add(DescriptorType::Alias, descriptor);
+    }
 
-	std::unique_ptr<model::Transaction> TransactionsBuilder::createNamespaceRegistration(
-			const NamespaceDescriptor& descriptor,
-			Timestamp deadline) const {
-		const auto& ownerKeyPair = accounts().getKeyPair(descriptor.OwnerId);
+    std::unique_ptr<model::Transaction> TransactionsBuilder::createNamespaceRegistration(
+        const NamespaceDescriptor& descriptor,
+        Timestamp deadline) const
+    {
+        const auto& ownerKeyPair = accounts().getKeyPair(descriptor.OwnerId);
 
-		auto pTransaction = CreateRootNamespaceRegistrationTransaction(ownerKeyPair, descriptor.Name, descriptor.Duration);
-		return SignWithDeadline(std::move(pTransaction), ownerKeyPair, deadline);
-	}
+        auto pTransaction = CreateRootNamespaceRegistrationTransaction(ownerKeyPair, descriptor.Name, descriptor.Duration);
+        return SignWithDeadline(std::move(pTransaction), ownerKeyPair, deadline);
+    }
 
-	std::unique_ptr<model::Transaction> TransactionsBuilder::createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline)
-			const {
-		const auto& ownerKeyPair = accounts().getKeyPair(descriptor.OwnerId);
-		const auto& aliasedAddress = accounts().getAddress(descriptor.AddressAliasId);
+    std::unique_ptr<model::Transaction> TransactionsBuilder::createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline)
+        const
+    {
+        const auto& ownerKeyPair = accounts().getKeyPair(descriptor.OwnerId);
+        const auto& aliasedAddress = accounts().getAddress(descriptor.AddressAliasId);
 
-		auto pTransaction = CreateRootAddressAliasTransaction(ownerKeyPair, descriptor.Name, aliasedAddress);
-		return SignWithDeadline(std::move(pTransaction), ownerKeyPair, deadline);
-	}
+        auto pTransaction = CreateRootAddressAliasTransaction(ownerKeyPair, descriptor.Name, aliasedAddress);
+        return SignWithDeadline(std::move(pTransaction), ownerKeyPair, deadline);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -20,14 +20,15 @@
 **/
 
 #include "MultisigAccountModificationMapper.h"
-#include "storages/MongoMultisigCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
+#include "storages/MongoMultisigCacheStorage.h"
 
-extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
-	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateMultisigAccountModificationTransactionMongoPlugin());
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager)
+{
+    // transaction support
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateMultisigAccountModificationTransactionMongoPlugin());
 
-	// cache storage support
-	manager.addStorageSupport(
-			catapult::mongo::plugins::CreateMongoMultisigCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+    // cache storage support
+    manager.addStorageSupport(
+        catapult::mongo::plugins::CreateMongoMultisigCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 }

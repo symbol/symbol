@@ -24,35 +24,39 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Adds a random account to \a cacheDelta with specified linked public key (\a publicKey).
-	inline Key AddAccountWithLink(cache::CatapultCacheDelta& cacheDelta, const Key& publicKey) {
-		auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+    /// Adds a random account to \a cacheDelta with specified linked public key (\a publicKey).
+    inline Key AddAccountWithLink(cache::CatapultCacheDelta& cacheDelta, const Key& publicKey)
+    {
+        auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-		auto mainAccountPublicKey = GenerateRandomByteArray<Key>();
-		accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
-		auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
+        auto mainAccountPublicKey = GenerateRandomByteArray<Key>();
+        accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
+        auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
 
-		if (Key() != publicKey)
-			mainAccountStateIter.get().SupplementalPublicKeys.linked().set(publicKey);
+        if (Key() != publicKey)
+            mainAccountStateIter.get().SupplementalPublicKeys.linked().set(publicKey);
 
-		return mainAccountPublicKey;
-	}
+        return mainAccountPublicKey;
+    }
 
-	/// Adds a random account to \a cacheDelta with specified voting public keys (\a publicKeys).
-	inline Key AddAccountWithMultiVotingLinks(
-			cache::CatapultCacheDelta& cacheDelta,
-			const std::vector<model::PinnedVotingKey>& publicKeys) {
-		auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+    /// Adds a random account to \a cacheDelta with specified voting public keys (\a publicKeys).
+    inline Key AddAccountWithMultiVotingLinks(
+        cache::CatapultCacheDelta& cacheDelta,
+        const std::vector<model::PinnedVotingKey>& publicKeys)
+    {
+        auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-		auto mainAccountPublicKey = GenerateRandomByteArray<Key>();
-		accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
-		auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
+        auto mainAccountPublicKey = GenerateRandomByteArray<Key>();
+        accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
+        auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
 
-		for (const auto& publicKey : publicKeys)
-			mainAccountStateIter.get().SupplementalPublicKeys.voting().add(publicKey);
+        for (const auto& publicKey : publicKeys)
+            mainAccountStateIter.get().SupplementalPublicKeys.voting().add(publicKey);
 
-		return mainAccountPublicKey;
-	}
-}}
+        return mainAccountPublicKey;
+    }
+}
+}

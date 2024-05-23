@@ -24,61 +24,68 @@
 #include "StateChangeSubscriber.h"
 #include "SubscriberOperationTypes.h"
 #include "catapult/cache/CacheChangesStorage.h"
+#include "catapult/exceptions.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/Stream.h"
-#include "catapult/exceptions.h"
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	namespace {
-		model::ChainScore ReadChainScore(io::InputStream& inputStream) {
-			auto scoreHigh = io::Read64(inputStream);
-			auto scoreLow = io::Read64(inputStream);
-			return model::ChainScore(scoreHigh, scoreLow);
-		}
+    namespace {
+        model::ChainScore ReadChainScore(io::InputStream& inputStream)
+        {
+            auto scoreHigh = io::Read64(inputStream);
+            auto scoreLow = io::Read64(inputStream);
+            return model::ChainScore(scoreHigh, scoreLow);
+        }
 
-		cache::CacheChanges ReadCacheChanges(io::InputStream& inputStream, const CacheChangesStorages& cacheChangesStorages) {
-			cache::CacheChanges::MemoryCacheChangesContainer loadedChanges;
-			for (const auto& pStorage : cacheChangesStorages) {
-				auto cacheId = pStorage->id();
-				if (loadedChanges.size() <= cacheId)
-					loadedChanges.resize(cacheId + 1);
+        cache::CacheChanges ReadCacheChanges(io::InputStream& inputStream, const CacheChangesStorages& cacheChangesStorages)
+        {
+            cache::CacheChanges::MemoryCacheChangesContainer loadedChanges;
+            for (const auto& pStorage : cacheChangesStorages) {
+                auto cacheId = pStorage->id();
+                if (loadedChanges.size() <= cacheId)
+                    loadedChanges.resize(cacheId + 1);
 
-				loadedChanges[cacheId] = pStorage->loadAll(inputStream);
-			}
+                loadedChanges[cacheId] = pStorage->loadAll(inputStream);
+            }
 
-			return cache::CacheChanges(std::move(loadedChanges));
-		}
+            return cache::CacheChanges(std::move(loadedChanges));
+        }
 
-		void ReadAndNotifyScoreChange(io::InputStream& inputStream, StateChangeSubscriber& subscriber) {
-			auto chainScore = ReadChainScore(inputStream);
-			subscriber.notifyScoreChange(chainScore);
-		}
+        void ReadAndNotifyScoreChange(io::InputStream& inputStream, StateChangeSubscriber& subscriber)
+        {
+            auto chainScore = ReadChainScore(inputStream);
+            subscriber.notifyScoreChange(chainScore);
+        }
 
-		void ReadAndNotifyStateChange(
-				io::InputStream& inputStream,
-				const CacheChangesStorages& cacheChangesStorages,
-				StateChangeSubscriber& subscriber) {
-			auto chainScoreDelta = model::ChainScore::Delta(static_cast<int64_t>(io::Read64(inputStream)));
-			auto height = io::Read<Height>(inputStream);
-			auto cacheChanges = ReadCacheChanges(inputStream, cacheChangesStorages);
-			subscriber.notifyStateChange({ std::move(cacheChanges), chainScoreDelta, height });
-		}
-	}
+        void ReadAndNotifyStateChange(
+            io::InputStream& inputStream,
+            const CacheChangesStorages& cacheChangesStorages,
+            StateChangeSubscriber& subscriber)
+        {
+            auto chainScoreDelta = model::ChainScore::Delta(static_cast<int64_t>(io::Read64(inputStream)));
+            auto height = io::Read<Height>(inputStream);
+            auto cacheChanges = ReadCacheChanges(inputStream, cacheChangesStorages);
+            subscriber.notifyStateChange({ std::move(cacheChanges), chainScoreDelta, height });
+        }
+    }
 
-	void ReadNextStateChange(
-			io::InputStream& inputStream,
-			const CacheChangesStorages& cacheChangesStorages,
-			StateChangeSubscriber& subscriber) {
-		auto operationType = static_cast<StateChangeOperationType>(io::Read8(inputStream));
+    void ReadNextStateChange(
+        io::InputStream& inputStream,
+        const CacheChangesStorages& cacheChangesStorages,
+        StateChangeSubscriber& subscriber)
+    {
+        auto operationType = static_cast<StateChangeOperationType>(io::Read8(inputStream));
 
-		switch (operationType) {
-		case StateChangeOperationType::Score_Change:
-			return ReadAndNotifyScoreChange(inputStream, subscriber);
-		case StateChangeOperationType::State_Change:
-			return ReadAndNotifyStateChange(inputStream, cacheChangesStorages, subscriber);
-		}
+        switch (operationType) {
+        case StateChangeOperationType::Score_Change:
+            return ReadAndNotifyScoreChange(inputStream, subscriber);
+        case StateChangeOperationType::State_Change:
+            return ReadAndNotifyStateChange(inputStream, cacheChangesStorages, subscriber);
+        }
 
-		CATAPULT_THROW_INVALID_ARGUMENT_1("invalid state change operation type", static_cast<uint16_t>(operationType));
-	}
-}}
+        CATAPULT_THROW_INVALID_ARGUMENT_1("invalid state change operation type", static_cast<uint16_t>(operationType));
+    }
+}
+}

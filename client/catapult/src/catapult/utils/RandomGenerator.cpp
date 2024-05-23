@@ -22,58 +22,68 @@
 #include "RandomGenerator.h"
 #include <cstring>
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	namespace {
-		template<typename TGenerator>
-		void Fill(uint8_t* pOut, size_t count, TGenerator& generator) {
-			using GeneratorResultType = decltype(generator());
+    namespace {
+        template <typename TGenerator>
+        void Fill(uint8_t* pOut, size_t count, TGenerator& generator)
+        {
+            using GeneratorResultType = decltype(generator());
 
-			for (size_t i = 0; i < count; i += sizeof(GeneratorResultType)) {
-				auto randomValue = generator();
-				std::memcpy(pOut + i, &randomValue, std::min(sizeof(GeneratorResultType), count - i));
-			}
-		}
-	}
+            for (size_t i = 0; i < count; i += sizeof(GeneratorResultType)) {
+                auto randomValue = generator();
+                std::memcpy(pOut + i, &randomValue, std::min(sizeof(GeneratorResultType), count - i));
+            }
+        }
+    }
 
-	// region HighEntropyRandomGenerator
+    // region HighEntropyRandomGenerator
 
-	HighEntropyRandomGenerator::HighEntropyRandomGenerator() = default;
+    HighEntropyRandomGenerator::HighEntropyRandomGenerator() = default;
 
-	HighEntropyRandomGenerator::HighEntropyRandomGenerator(const std::string& token)
-			: m_rd(token) {
-	}
+    HighEntropyRandomGenerator::HighEntropyRandomGenerator(const std::string& token)
+        : m_rd(token)
+    {
+    }
 
-	HighEntropyRandomGenerator::result_type HighEntropyRandomGenerator::operator()() {
-		return (static_cast<uint64_t>(m_rd()) << 32) | m_rd();
-	}
+    HighEntropyRandomGenerator::result_type HighEntropyRandomGenerator::operator()()
+    {
+        return (static_cast<uint64_t>(m_rd()) << 32) | m_rd();
+    }
 
-	void HighEntropyRandomGenerator::fill(uint8_t* pOut, size_t count) {
-		Fill(pOut, count, m_rd);
-	}
+    void HighEntropyRandomGenerator::fill(uint8_t* pOut, size_t count)
+    {
+        Fill(pOut, count, m_rd);
+    }
 
-	// endregion
+    // endregion
 
-	// region LowEntropyRandomGenerator
+    // region LowEntropyRandomGenerator
 
-	namespace {
-		std::mt19937_64& GetThreadLocalLowEntropyRandomGenerator() {
-			thread_local auto gen = std::mt19937_64(HighEntropyRandomGenerator()());
-			return gen;
-		}
-	}
+    namespace {
+        std::mt19937_64& GetThreadLocalLowEntropyRandomGenerator()
+        {
+            thread_local auto gen = std::mt19937_64(HighEntropyRandomGenerator()());
+            return gen;
+        }
+    }
 
-	LowEntropyRandomGenerator::LowEntropyRandomGenerator()
-			: m_gen(GetThreadLocalLowEntropyRandomGenerator()) {
-	}
+    LowEntropyRandomGenerator::LowEntropyRandomGenerator()
+        : m_gen(GetThreadLocalLowEntropyRandomGenerator())
+    {
+    }
 
-	LowEntropyRandomGenerator::result_type LowEntropyRandomGenerator::operator()() {
-		return m_gen();
-	}
+    LowEntropyRandomGenerator::result_type LowEntropyRandomGenerator::operator()()
+    {
+        return m_gen();
+    }
 
-	void LowEntropyRandomGenerator::fill(uint8_t* pOut, size_t count) {
-		Fill(pOut, count, m_gen);
-	}
+    void LowEntropyRandomGenerator::fill(uint8_t* pOut, size_t count)
+    {
+        Fill(pOut, count, m_gen);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

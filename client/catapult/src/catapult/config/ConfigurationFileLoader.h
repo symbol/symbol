@@ -25,35 +25,40 @@
 #include <filesystem>
 #include <iostream>
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Loads configuration from \a path using \a loader.
-	template<typename TConfigurationLoader, typename TConfiguration = std::invoke_result_t<TConfigurationLoader, const std::string&>>
-	TConfiguration LoadConfiguration(const std::filesystem::path& path, TConfigurationLoader loader) {
-		if (!std::filesystem::exists(path)) {
-			auto message = "aborting load due to missing configuration file";
-			CATAPULT_LOG(fatal) << message << ": " << path;
-			CATAPULT_THROW_EXCEPTION(catapult_runtime_error(message));
-		}
+    /// Loads configuration from \a path using \a loader.
+    template <typename TConfigurationLoader, typename TConfiguration = std::invoke_result_t<TConfigurationLoader, const std::string&>>
+    TConfiguration LoadConfiguration(const std::filesystem::path& path, TConfigurationLoader loader)
+    {
+        if (!std::filesystem::exists(path)) {
+            auto message = "aborting load due to missing configuration file";
+            CATAPULT_LOG(fatal) << message << ": " << path;
+            CATAPULT_THROW_EXCEPTION(catapult_runtime_error(message));
+        }
 
-		std::cout << "loading configuration from " << path << std::endl;
-		return loader(path.generic_string());
-	}
+        std::cout << "loading configuration from " << path << std::endl;
+        return loader(path.generic_string());
+    }
 
-	/// Loads ini configuration from \a path.
-	template<typename TConfiguration>
-	TConfiguration LoadIniConfiguration(const std::filesystem::path& path) {
-		return LoadConfiguration(path, [](const auto& filePath) {
-			return TConfiguration::LoadFromBag(utils::ConfigurationBag::FromPath(filePath));
-		});
-	}
+    /// Loads ini configuration from \a path.
+    template <typename TConfiguration>
+    TConfiguration LoadIniConfiguration(const std::filesystem::path& path)
+    {
+        return LoadConfiguration(path, [](const auto& filePath) {
+            return TConfiguration::LoadFromBag(utils::ConfigurationBag::FromPath(filePath));
+        });
+    }
 
-	/// Loads peers configuration from \a path for network \a networkFingerprint.
-	inline std::vector<ionet::Node> LoadPeersConfiguration(
-			const std::filesystem::path& path,
-			const model::UniqueNetworkFingerprint& networkFingerprint) {
-		return LoadConfiguration(path, [networkFingerprint](const auto& filePath) {
-			return LoadPeersFromPath(filePath, networkFingerprint);
-		});
-	}
-}}
+    /// Loads peers configuration from \a path for network \a networkFingerprint.
+    inline std::vector<ionet::Node> LoadPeersConfiguration(
+        const std::filesystem::path& path,
+        const model::UniqueNetworkFingerprint& networkFingerprint)
+    {
+        return LoadConfiguration(path, [networkFingerprint](const auto& filePath) {
+            return LoadPeersFromPath(filePath, networkFingerprint);
+        });
+    }
+}
+}

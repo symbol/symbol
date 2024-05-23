@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "catapult/functions.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/Stream.h"
-#include "catapult/functions.h"
 
 #if defined(_MSC_VER) && defined(_MT) && defined(_DEBUG)
 // See /MDd flag in CMakeGlobalSettings.cmake
@@ -31,37 +31,42 @@
 #pragma warning(disable : 4702) /* unreachable code */
 #endif
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Loads data from an input stream in chunks.
-	template<typename TStorageTraits>
-	class ChunkedDataLoader {
-	public:
-		/// Creates a chunked loader around \a input.
-		explicit ChunkedDataLoader(io::InputStream& input)
-				: m_input(input) {
-			m_numRemainingEntries = io::Read64(input);
-		}
+    /// Loads data from an input stream in chunks.
+    template <typename TStorageTraits>
+    class ChunkedDataLoader {
+    public:
+        /// Creates a chunked loader around \a input.
+        explicit ChunkedDataLoader(io::InputStream& input)
+            : m_input(input)
+        {
+            m_numRemainingEntries = io::Read64(input);
+        }
 
-	public:
-		/// Returns \c true if there are more entries in the input.
-		bool hasNext() const {
-			return 0 != m_numRemainingEntries;
-		}
+    public:
+        /// Returns \c true if there are more entries in the input.
+        bool hasNext() const
+        {
+            return 0 != m_numRemainingEntries;
+        }
 
-		/// Loads the next data chunk of at most \a numRequestedEntries into \a destination.
-		void next(uint64_t numRequestedEntries, typename TStorageTraits::DestinationType& destination) {
-			numRequestedEntries = std::min(numRequestedEntries, m_numRemainingEntries);
-			m_numRemainingEntries -= numRequestedEntries;
-			while (numRequestedEntries--)
-				TStorageTraits::LoadInto(TStorageTraits::Load(m_input), destination);
-		}
+        /// Loads the next data chunk of at most \a numRequestedEntries into \a destination.
+        void next(uint64_t numRequestedEntries, typename TStorageTraits::DestinationType& destination)
+        {
+            numRequestedEntries = std::min(numRequestedEntries, m_numRemainingEntries);
+            m_numRemainingEntries -= numRequestedEntries;
+            while (numRequestedEntries--)
+                TStorageTraits::LoadInto(TStorageTraits::Load(m_input), destination);
+        }
 
-	private:
-		io::InputStream& m_input;
-		uint64_t m_numRemainingEntries;
-	};
-}}
+    private:
+        io::InputStream& m_input;
+        uint64_t m_numRemainingEntries;
+    };
+}
+}
 
 #if defined(_MSC_VER) && defined(_MT) && defined(_DEBUG)
 #pragma warning(pop)

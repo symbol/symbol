@@ -25,71 +25,73 @@
 #include "catapult/model/Block.h"
 #include "catapult/model/BlockchainConfiguration.h"
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	/// Importance block hash supplier.
-	using ImportanceBlockHashSupplier = std::function<Hash256(Height)>;
+    /// Importance block hash supplier.
+    using ImportanceBlockHashSupplier = std::function<Hash256(Height)>;
 
-	/// Facade around unconfirmed transactions cache and updater.
-	class HarvestingUtFacade {
-	public:
-		/// Creates a facade around \a blockTime, \a cache, \a blockchainConfig, \a executionConfig and \a importanceBlockHashSupplier.
-		HarvestingUtFacade(
-				Timestamp blockTime,
-				const cache::CatapultCache& cache,
-				const model::BlockchainConfiguration& blockchainConfig,
-				const chain::ExecutionConfiguration& executionConfig,
-				const ImportanceBlockHashSupplier& importanceBlockHashSupplier);
+    /// Facade around unconfirmed transactions cache and updater.
+    class HarvestingUtFacade {
+    public:
+        /// Creates a facade around \a blockTime, \a cache, \a blockchainConfig, \a executionConfig and \a importanceBlockHashSupplier.
+        HarvestingUtFacade(
+            Timestamp blockTime,
+            const cache::CatapultCache& cache,
+            const model::BlockchainConfiguration& blockchainConfig,
+            const chain::ExecutionConfiguration& executionConfig,
+            const ImportanceBlockHashSupplier& importanceBlockHashSupplier);
 
-		/// Destroys the facade.
-		~HarvestingUtFacade();
+        /// Destroys the facade.
+        ~HarvestingUtFacade();
 
-	public:
-		/// Gets the locked height.
-		Height height() const;
+    public:
+        /// Gets the locked height.
+        Height height() const;
 
-		/// Gets the number of successfully applied transactions.
-		size_t size() const;
+        /// Gets the number of successfully applied transactions.
+        size_t size() const;
 
-		/// Gets all successfully applied transactions.
-		const std::vector<model::TransactionInfo>& transactionInfos() const;
+        /// Gets all successfully applied transactions.
+        const std::vector<model::TransactionInfo>& transactionInfos() const;
 
-	public:
-		/// Attempts to apply \a transactionInfo to the cache.
-		bool apply(const model::TransactionInfo& transactionInfo);
+    public:
+        /// Attempts to apply \a transactionInfo to the cache.
+        bool apply(const model::TransactionInfo& transactionInfo);
 
-		/// Unapplies last successfully applied transaction.
-		void unapply();
+        /// Unapplies last successfully applied transaction.
+        void unapply();
 
-		/// Commits all transactions into a block with specified seed header (\a blockHeader).
-		std::unique_ptr<model::Block> commit(const model::BlockHeader& blockHeader);
+        /// Commits all transactions into a block with specified seed header (\a blockHeader).
+        std::unique_ptr<model::Block> commit(const model::BlockHeader& blockHeader);
 
-	private:
-		class Impl;
+    private:
+        class Impl;
 
-	private:
-		std::vector<model::TransactionInfo> m_transactionInfos;
-		std::unique_ptr<Impl> m_pImpl;
-	};
+    private:
+        std::vector<model::TransactionInfo> m_transactionInfos;
+        std::unique_ptr<Impl> m_pImpl;
+    };
 
-	/// Factory for creating unconfirmed transactions facades.
-	class HarvestingUtFacadeFactory {
-	public:
-		/// Creates a factory around \a cache, \a blockchainConfig, \a executionConfig and \a importanceBlockHashSupplier.
-		HarvestingUtFacadeFactory(
-				const cache::CatapultCache& cache,
-				const model::BlockchainConfiguration& blockchainConfig,
-				const chain::ExecutionConfiguration& executionConfig,
-				const ImportanceBlockHashSupplier& importanceBlockHashSupplier);
+    /// Factory for creating unconfirmed transactions facades.
+    class HarvestingUtFacadeFactory {
+    public:
+        /// Creates a factory around \a cache, \a blockchainConfig, \a executionConfig and \a importanceBlockHashSupplier.
+        HarvestingUtFacadeFactory(
+            const cache::CatapultCache& cache,
+            const model::BlockchainConfiguration& blockchainConfig,
+            const chain::ExecutionConfiguration& executionConfig,
+            const ImportanceBlockHashSupplier& importanceBlockHashSupplier);
 
-	public:
-		/// Creates a facade for applying transactions at a given block time (\a blockTime).
-		std::unique_ptr<HarvestingUtFacade> create(Timestamp blockTime) const;
+    public:
+        /// Creates a facade for applying transactions at a given block time (\a blockTime).
+        std::unique_ptr<HarvestingUtFacade> create(Timestamp blockTime) const;
 
-	private:
-		const cache::CatapultCache& m_cache;
-		model::BlockchainConfiguration m_blockchainConfig;
-		chain::ExecutionConfiguration m_executionConfig;
-		ImportanceBlockHashSupplier m_importanceBlockHashSupplier;
-	};
-}}
+    private:
+        const cache::CatapultCache& m_cache;
+        model::BlockchainConfiguration m_blockchainConfig;
+        chain::ExecutionConfiguration m_executionConfig;
+        ImportanceBlockHashSupplier m_importanceBlockHashSupplier;
+    };
+}
+}

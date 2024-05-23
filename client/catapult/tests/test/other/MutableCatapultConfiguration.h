@@ -22,50 +22,54 @@
 #pragma once
 #include "catapult/config/CatapultConfiguration.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Comprehensive mutable configuration for a catapult process.
-	class MutableCatapultConfiguration {
-	public:
-		/// Creates a mutable catapult configuration.
-		MutableCatapultConfiguration()
-				: Blockchain(model::BlockchainConfiguration::Uninitialized())
-				, Node(config::NodeConfiguration::Uninitialized())
-				, Logging(config::LoggingConfiguration::Uninitialized())
-				, User(config::UserConfiguration::Uninitialized())
-				, Extensions(config::ExtensionsConfiguration::Uninitialized())
-				, Inflation(config::InflationConfiguration::Uninitialized()) {
-		}
+    /// Comprehensive mutable configuration for a catapult process.
+    class MutableCatapultConfiguration {
+    public:
+        /// Creates a mutable catapult configuration.
+        MutableCatapultConfiguration()
+            : Blockchain(model::BlockchainConfiguration::Uninitialized())
+            , Node(config::NodeConfiguration::Uninitialized())
+            , Logging(config::LoggingConfiguration::Uninitialized())
+            , User(config::UserConfiguration::Uninitialized())
+            , Extensions(config::ExtensionsConfiguration::Uninitialized())
+            , Inflation(config::InflationConfiguration::Uninitialized())
+        {
+        }
 
-	public:
-		/// Blockchain configuration.
-		model::BlockchainConfiguration Blockchain;
+    public:
+        /// Blockchain configuration.
+        model::BlockchainConfiguration Blockchain;
 
-		/// Node configuration.
-		config::NodeConfiguration Node;
+        /// Node configuration.
+        config::NodeConfiguration Node;
 
-		/// Logging configuration.
-		config::LoggingConfiguration Logging;
+        /// Logging configuration.
+        config::LoggingConfiguration Logging;
 
-		/// User configuration.
-		config::UserConfiguration User;
+        /// User configuration.
+        config::UserConfiguration User;
 
-		/// Extensions configuration.
-		config::ExtensionsConfiguration Extensions;
+        /// Extensions configuration.
+        config::ExtensionsConfiguration Extensions;
 
-		/// Inflation configuration.
-		config::InflationConfiguration Inflation;
+        /// Inflation configuration.
+        config::InflationConfiguration Inflation;
 
-	public:
-		/// Converts this mutable configuration to a const configuration.
-		config::CatapultConfiguration ToConst() {
-			return config::CatapultConfiguration(
-					std::move(Blockchain),
-					std::move(Node),
-					std::move(Logging),
-					std::move(User),
-					std::move(Extensions),
-					std::move(Inflation));
-		}
-	};
-}}
+    public:
+        /// Converts this mutable configuration to a const configuration.
+        config::CatapultConfiguration ToConst()
+        {
+            return config::CatapultConfiguration(
+                std::move(Blockchain),
+                std::move(Node),
+                std::move(Logging),
+                std::move(User),
+                std::move(Extensions),
+                std::move(Inflation));
+        }
+    };
+}
+}

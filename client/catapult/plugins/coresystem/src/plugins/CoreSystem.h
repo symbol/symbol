@@ -22,14 +22,18 @@
 #pragma once
 #include "catapult/plugins.h"
 
-namespace catapult { namespace plugins {
-	class PluginManager;
-}}
+namespace catapult {
+namespace plugins {
+    class PluginManager;
+}
+}
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	/// Registers the core system with \a manager.
-	/// \note This plugin is required for basic system operation.
-	PLUGIN_API
-	void RegisterCoreSystem(PluginManager& manager);
-}}
+    /// Registers the core system with \a manager.
+    /// \note This plugin is required for basic system operation.
+    PLUGIN_API
+    void RegisterCoreSystem(PluginManager& manager);
+}
+}

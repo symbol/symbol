@@ -20,82 +20,94 @@
 **/
 
 #include "catapult/chain/UtSynchronizer.h"
+#include "tests/TestHarness.h"
 #include "tests/catapult/chain/test/MockTransactionApi.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/other/EntitiesSynchronizerTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	namespace {
-		using MockRemoteApi = mocks::MockTransactionApi;
+    namespace {
+        using MockRemoteApi = mocks::MockTransactionApi;
 
-		class UtSynchronizerTraits {
-		public:
-			using RequestElementType = utils::ShortHash;
-			using ResponseContainerType = model::AnnotatedEntityRange<model::Transaction>;
+        class UtSynchronizerTraits {
+        public:
+            using RequestElementType = utils::ShortHash;
+            using ResponseContainerType = model::AnnotatedEntityRange<model::Transaction>;
 
-		public:
-			class RemoteApiWrapper {
-			public:
-				explicit RemoteApiWrapper(const model::TransactionRange& transactionRange)
-						: m_pTransactionApi(std::make_unique<MockRemoteApi>(transactionRange)) {
-				}
+        public:
+            class RemoteApiWrapper {
+            public:
+                explicit RemoteApiWrapper(const model::TransactionRange& transactionRange)
+                    : m_pTransactionApi(std::make_unique<MockRemoteApi>(transactionRange))
+                {
+                }
 
-			public:
-				const auto& api() const {
-					return *m_pTransactionApi;
-				}
+            public:
+                const auto& api() const
+                {
+                    return *m_pTransactionApi;
+                }
 
-				auto numCalls() const {
-					return m_pTransactionApi->utRequests().size();
-				}
+                auto numCalls() const
+                {
+                    return m_pTransactionApi->utRequests().size();
+                }
 
-				const auto& singleRequest() const {
-					return m_pTransactionApi->utRequests()[0].ShortHashes;
-				}
+                const auto& singleRequest() const
+                {
+                    return m_pTransactionApi->utRequests()[0].ShortHashes;
+                }
 
-				void setError(bool setError = true) {
-					auto entryPoint = setError ? MockRemoteApi::EntryPoint::Unconfirmed_Transactions : MockRemoteApi::EntryPoint::None;
-					m_pTransactionApi->setError(entryPoint);
-				}
+                void setError(bool setError = true)
+                {
+                    auto entryPoint = setError ? MockRemoteApi::EntryPoint::Unconfirmed_Transactions : MockRemoteApi::EntryPoint::None;
+                    m_pTransactionApi->setError(entryPoint);
+                }
 
-				void checkAdditionalRequestParameters() {
-					EXPECT_EQ(Timestamp(84), m_pTransactionApi->utRequests()[0].Deadline);
-					EXPECT_EQ(BlockFeeMultiplier(17), m_pTransactionApi->utRequests()[0].FeeMultiplier);
-				}
+                void checkAdditionalRequestParameters()
+                {
+                    EXPECT_EQ(Timestamp(84), m_pTransactionApi->utRequests()[0].Deadline);
+                    EXPECT_EQ(BlockFeeMultiplier(17), m_pTransactionApi->utRequests()[0].FeeMultiplier);
+                }
 
-			private:
-				std::unique_ptr<MockRemoteApi> m_pTransactionApi;
-			};
+            private:
+                std::unique_ptr<MockRemoteApi> m_pTransactionApi;
+            };
 
-		public:
-			static auto CreateRequestRange(uint32_t count) {
-				auto shortHashes = test::GenerateRandomDataVector<utils::ShortHash>(count);
-				return model::ShortHashRange::CopyFixed(reinterpret_cast<const uint8_t*>(shortHashes.data()), count);
-			}
+        public:
+            static auto CreateRequestRange(uint32_t count)
+            {
+                auto shortHashes = test::GenerateRandomDataVector<utils::ShortHash>(count);
+                return model::ShortHashRange::CopyFixed(reinterpret_cast<const uint8_t*>(shortHashes.data()), count);
+            }
 
-			static auto CreateResponseContainer(uint32_t count) {
-				return test::CreateTransactionEntityRange(count);
-			}
+            static auto CreateResponseContainer(uint32_t count)
+            {
+                return test::CreateTransactionEntityRange(count);
+            }
 
-			static auto CreateRemoteApi(const model::TransactionRange& transactionRange) {
-				return RemoteApiWrapper(transactionRange);
-			}
+            static auto CreateRemoteApi(const model::TransactionRange& transactionRange)
+            {
+                return RemoteApiWrapper(transactionRange);
+            }
 
-			static auto CreateSynchronizer(
-					const ShortHashesSupplier& shortHashesSupplier,
-					const handlers::TransactionRangeHandler& transactionRangeConsumer,
-					bool shouldExecute = true) {
-				return CreateUtSynchronizer(
-						BlockFeeMultiplier(17),
-						[]() { return Timestamp(84); },
-						shortHashesSupplier,
-						transactionRangeConsumer,
-						[shouldExecute]() { return shouldExecute; });
-			}
-		};
-	}
+            static auto CreateSynchronizer(
+                const ShortHashesSupplier& shortHashesSupplier,
+                const handlers::TransactionRangeHandler& transactionRangeConsumer,
+                bool shouldExecute = true)
+            {
+                return CreateUtSynchronizer(
+                    BlockFeeMultiplier(17),
+                    []() { return Timestamp(84); },
+                    shortHashesSupplier,
+                    transactionRangeConsumer,
+                    [shouldExecute]() { return shouldExecute; });
+            }
+        };
+    }
 
-	DEFINE_CONDITIONAL_ENTITIES_SYNCHRONIZER_TESTS(UtSynchronizer)
-}}
+    DEFINE_CONDITIONAL_ENTITIES_SYNCHRONIZER_TESTS(UtSynchronizer)
+}
+}

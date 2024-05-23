@@ -23,20 +23,24 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	MetadataConfiguration MetadataConfiguration::Uninitialized() {
-		return MetadataConfiguration();
-	}
+    MetadataConfiguration MetadataConfiguration::Uninitialized()
+    {
+        return MetadataConfiguration();
+    }
 
-	MetadataConfiguration MetadataConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		MetadataConfiguration config;
+    MetadataConfiguration MetadataConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        MetadataConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
-		LOAD_PROPERTY(MaxValueSize);
+        LOAD_PROPERTY(MaxValueSize);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 1);
-		return config;
-	}
-}}
+        utils::VerifyBagSizeExact(bag, 1);
+        return config;
+    }
+}
+}

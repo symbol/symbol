@@ -23,17 +23,19 @@
 #include "AccountRestrictions.h"
 #include "catapult/io/Stream.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Policy for saving and loading account restrictions data.
-	struct AccountRestrictionsSerializer {
-		/// Serialized state version.
-		static constexpr uint16_t State_Version = 1;
+    /// Policy for saving and loading account restrictions data.
+    struct AccountRestrictionsSerializer {
+        /// Serialized state version.
+        static constexpr uint16_t State_Version = 1;
 
-		/// Saves \a restrictions to \a output.
-		static void Save(const AccountRestrictions& restrictions, io::OutputStream& output);
+        /// Saves \a restrictions to \a output.
+        static void Save(const AccountRestrictions& restrictions, io::OutputStream& output);
 
-		/// Loads a single value from \a input.
-		static AccountRestrictions Load(io::InputStream& input);
-	};
-}}
+        /// Loads a single value from \a input.
+        static AccountRestrictions Load(io::InputStream& input);
+    };
+}
+}

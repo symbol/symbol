@@ -22,32 +22,34 @@
 #pragma once
 #include <iosfwd>
 
-namespace catapult { namespace net {
+namespace catapult {
+namespace net {
 
-#define PEER_CONNECT_CODE_LIST \
-	/* Underlying socket operation failed. */ \
-	ENUM_VALUE(Socket_Error) \
-\
-	/* Peer failed verification. */ \
-	ENUM_VALUE(Verify_Error) \
-\
-	/* Self connection was detected and bypassed. */ \
-	ENUM_VALUE(Self_Connection_Error) \
-\
-	/* Verification timed out. */ \
-	ENUM_VALUE(Timed_Out) \
-\
-	/* Peer was accepted. */ \
-	ENUM_VALUE(Accepted) \
-\
-	/* Peer is already connected. */ \
-	ENUM_VALUE(Already_Connected)
+#define PEER_CONNECT_CODE_LIST                       \
+    /* Underlying socket operation failed. */        \
+    ENUM_VALUE(Socket_Error)                         \
+                                                     \
+    /* Peer failed verification. */                  \
+    ENUM_VALUE(Verify_Error)                         \
+                                                     \
+    /* Self connection was detected and bypassed. */ \
+    ENUM_VALUE(Self_Connection_Error)                \
+                                                     \
+    /* Verification timed out. */                    \
+    ENUM_VALUE(Timed_Out)                            \
+                                                     \
+    /* Peer was accepted. */                         \
+    ENUM_VALUE(Accepted)                             \
+                                                     \
+    /* Peer is already connected. */                 \
+    ENUM_VALUE(Already_Connected)
 
 #define ENUM_VALUE(LABEL) LABEL,
-	/// Enumeration of possible peer connection codes.
-	enum class PeerConnectCode { PEER_CONNECT_CODE_LIST };
+    /// Enumeration of possible peer connection codes.
+    enum class PeerConnectCode { PEER_CONNECT_CODE_LIST };
 #undef ENUM_VALUE
 
-	/// Insertion operator for outputting \a value to \a out.
-	std::ostream& operator<<(std::ostream& out, PeerConnectCode value);
-}}
+    /// Insertion operator for outputting \a value to \a out.
+    std::ostream& operator<<(std::ostream& out, PeerConnectCode value);
+}
+}

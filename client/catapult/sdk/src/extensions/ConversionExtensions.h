@@ -22,17 +22,19 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Casts \a mosaicId to an unresolved mosaic id.
-	UnresolvedMosaicId CastToUnresolvedMosaicId(MosaicId mosaicId);
+    /// Casts \a mosaicId to an unresolved mosaic id.
+    UnresolvedMosaicId CastToUnresolvedMosaicId(MosaicId mosaicId);
 
-	/// Casts \a unresolvedMosaicId to a mosaic id.
-	MosaicId CastToMosaicId(UnresolvedMosaicId unresolvedMosaicId);
+    /// Casts \a unresolvedMosaicId to a mosaic id.
+    MosaicId CastToMosaicId(UnresolvedMosaicId unresolvedMosaicId);
 
-	/// Copies \a address to an unresolved address.
-	UnresolvedAddress CopyToUnresolvedAddress(const Address& address);
+    /// Copies \a address to an unresolved address.
+    UnresolvedAddress CopyToUnresolvedAddress(const Address& address);
 
-	/// Copies \a unresolvedAddress to an address.
-	Address CopyToAddress(const UnresolvedAddress& unresolvedAddress);
-}}
+    /// Copies \a unresolvedAddress to an address.
+    Address CopyToAddress(const UnresolvedAddress& unresolvedAddress);
+}
+}

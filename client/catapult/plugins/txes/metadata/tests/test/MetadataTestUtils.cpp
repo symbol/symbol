@@ -20,107 +20,118 @@
 **/
 
 #include "MetadataTestUtils.h"
-#include "src/state/MetadataEntry.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/utils/Casting.h"
-#include "tests/test/core/ResolverTestUtils.h"
+#include "src/state/MetadataEntry.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include <numeric>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	// region PartialMetadataKey
+    // region PartialMetadataKey
 
-	model::PartialMetadataKey GenerateRandomPartialMetadataKey() {
-		return GenerateRandomPartialMetadataKey(Random());
-	}
+    model::PartialMetadataKey GenerateRandomPartialMetadataKey()
+    {
+        return GenerateRandomPartialMetadataKey(Random());
+    }
 
-	model::PartialMetadataKey GenerateRandomPartialMetadataKey(uint64_t scopedMetadataKey) {
-		return { GenerateRandomByteArray<Address>(), GenerateRandomByteArray<Address>(), scopedMetadataKey };
-	}
+    model::PartialMetadataKey GenerateRandomPartialMetadataKey(uint64_t scopedMetadataKey)
+    {
+        return { GenerateRandomByteArray<Address>(), GenerateRandomByteArray<Address>(), scopedMetadataKey };
+    }
 
-	// endregion
+    // endregion
 
-	// region MetadataKey
+    // region MetadataKey
 
-	Hash256 CreateMetadataUniqueKeyFromSeed(uint8_t seed) {
-		std::array<uint8_t, 2 * Key::Size + 2 * sizeof(uint64_t) + sizeof(model::MetadataType)> key;
-		std::iota(key.begin(), key.end(), static_cast<uint8_t>(1));
-		key[0] = seed;
-		key[key.size() - 1] = utils::to_underlying_type(model::MetadataType::Mosaic);
+    Hash256 CreateMetadataUniqueKeyFromSeed(uint8_t seed)
+    {
+        std::array<uint8_t, 2 * Key::Size + 2 * sizeof(uint64_t) + sizeof(model::MetadataType)> key;
+        std::iota(key.begin(), key.end(), static_cast<uint8_t>(1));
+        key[0] = seed;
+        key[key.size() - 1] = utils::to_underlying_type(model::MetadataType::Mosaic);
 
-		Hash256 hash;
-		crypto::Sha3_256(key, hash);
-		return hash;
-	}
+        Hash256 hash;
+        crypto::Sha3_256(key, hash);
+        return hash;
+    }
 
-	state::MetadataKey GenerateRandomMetadataKey() {
-		auto partialKey = GenerateRandomPartialMetadataKey();
-		auto targetId = Random();
+    state::MetadataKey GenerateRandomMetadataKey()
+    {
+        auto partialKey = GenerateRandomPartialMetadataKey();
+        auto targetId = Random();
 
-		auto metadataType = static_cast<model::MetadataType>(Random() % 3);
-		switch (metadataType) {
-		case model::MetadataType::Account:
-			return state::MetadataKey(partialKey);
+        auto metadataType = static_cast<model::MetadataType>(Random() % 3);
+        switch (metadataType) {
+        case model::MetadataType::Account:
+            return state::MetadataKey(partialKey);
 
-		case model::MetadataType::Mosaic:
-			return state::MetadataKey(partialKey, MosaicId(targetId));
+        case model::MetadataType::Mosaic:
+            return state::MetadataKey(partialKey, MosaicId(targetId));
 
-		case model::MetadataType::Namespace:
-			return state::MetadataKey(partialKey, NamespaceId(targetId));
-		}
+        case model::MetadataType::Namespace:
+            return state::MetadataKey(partialKey, NamespaceId(targetId));
+        }
 
-		CATAPULT_THROW_INVALID_ARGUMENT_1("cannot create MetadataKey with unexpected type", static_cast<uint16_t>(metadataType));
-	}
+        CATAPULT_THROW_INVALID_ARGUMENT_1("cannot create MetadataKey with unexpected type", static_cast<uint16_t>(metadataType));
+    }
 
-	state::MetadataKey GenerateMetadataKey(const Hash256& hash) {
-		// hack to set the metadata unique key (required for cache tests)
-		auto key = GenerateRandomMetadataKey();
-		const_cast<Hash256&>(key.uniqueKey()) = hash;
-		return key;
-	}
+    state::MetadataKey GenerateMetadataKey(const Hash256& hash)
+    {
+        // hack to set the metadata unique key (required for cache tests)
+        auto key = GenerateRandomMetadataKey();
+        const_cast<Hash256&>(key.uniqueKey()) = hash;
+        return key;
+    }
 
-	// endregion
+    // endregion
 
-	// region notifications
+    // region notifications
 
-	model::MetadataValueNotification CreateMetadataValueNotification(
-			const state::MetadataKey& metadataKey,
-			int16_t valueSizeDelta,
-			uint16_t valueSize,
-			const uint8_t* pValue) {
-		auto targetId = metadataKey.targetId();
-		if (model::MetadataType::Mosaic == metadataKey.metadataType())
-			targetId = UnresolveXor(MosaicId(targetId)).unwrap();
+    model::MetadataValueNotification CreateMetadataValueNotification(
+        const state::MetadataKey& metadataKey,
+        int16_t valueSizeDelta,
+        uint16_t valueSize,
+        const uint8_t* pValue)
+    {
+        auto targetId = metadataKey.targetId();
+        if (model::MetadataType::Mosaic == metadataKey.metadataType())
+            targetId = UnresolveXor(MosaicId(targetId)).unwrap();
 
-		return model::MetadataValueNotification(
-				{ metadataKey.sourceAddress(), UnresolveXor(metadataKey.targetAddress()), metadataKey.scopedMetadataKey() },
-				{ metadataKey.metadataType(), targetId },
-				valueSizeDelta,
-				valueSize,
-				pValue);
-	}
+        return model::MetadataValueNotification(
+            { metadataKey.sourceAddress(), UnresolveXor(metadataKey.targetAddress()), metadataKey.scopedMetadataKey() },
+            { metadataKey.metadataType(), targetId },
+            valueSizeDelta,
+            valueSize,
+            pValue);
+    }
 
-	// endregion
+    // endregion
 
-	// region asserts
+    // region asserts
 
-	namespace {
-		void AssertEqual(const state::MetadataKey& expected, const state::MetadataKey& actual) {
-			EXPECT_EQ(expected.metadataType(), actual.metadataType());
-			EXPECT_EQ(expected.uniqueKey(), actual.uniqueKey());
-		}
+    namespace {
+        void AssertEqual(const state::MetadataKey& expected, const state::MetadataKey& actual)
+        {
+            EXPECT_EQ(expected.metadataType(), actual.metadataType());
+            EXPECT_EQ(expected.uniqueKey(), actual.uniqueKey());
+        }
 
-		void AssertEqual(const state::MetadataValue& expected, const state::MetadataValue& actual) {
-			ASSERT_EQ(expected.size(), actual.size());
-			EXPECT_EQ_MEMORY(expected.data(), actual.data(), expected.size());
-		}
-	}
+        void AssertEqual(const state::MetadataValue& expected, const state::MetadataValue& actual)
+        {
+            ASSERT_EQ(expected.size(), actual.size());
+            EXPECT_EQ_MEMORY(expected.data(), actual.data(), expected.size());
+        }
+    }
 
-	void AssertEqual(const state::MetadataEntry& expected, const state::MetadataEntry& actual) {
-		AssertEqual(expected.key(), actual.key());
-		AssertEqual(expected.value(), actual.value());
-	}
+    void AssertEqual(const state::MetadataEntry& expected, const state::MetadataEntry& actual)
+    {
+        AssertEqual(expected.key(), actual.key());
+        AssertEqual(expected.value(), actual.value());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

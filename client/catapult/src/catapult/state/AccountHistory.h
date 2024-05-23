@@ -24,44 +24,46 @@
 #include "catapult/model/PinnedVotingKey.h"
 #include <vector>
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Represents an account history.
-	/// \note This is required for finalization voting.
-	class AccountHistory {
-	public:
-		/// Gets the balance history.
-		const HeightIndexedHistoryMap<Amount>& balance() const;
+    /// Represents an account history.
+    /// \note This is required for finalization voting.
+    class AccountHistory {
+    public:
+        /// Gets the balance history.
+        const HeightIndexedHistoryMap<Amount>& balance() const;
 
-		/// Gets the vrf public key history.
-		const HeightIndexedHistoryMap<Key>& vrfPublicKey() const;
+        /// Gets the vrf public key history.
+        const HeightIndexedHistoryMap<Key>& vrfPublicKey() const;
 
-		/// Gets the voting public keys history.
-		const HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>>& votingPublicKeys() const;
+        /// Gets the voting public keys history.
+        const HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>>& votingPublicKeys() const;
 
-		/// Returns \c true if any historical balance is at least \a minAmount.
-		bool anyAtLeast(Amount minAmount) const;
+        /// Returns \c true if any historical balance is at least \a minAmount.
+        bool anyAtLeast(Amount minAmount) const;
 
-	public:
-		/// Adds \a balance at \a height.
-		void add(Height height, Amount balance);
+    public:
+        /// Adds \a balance at \a height.
+        void add(Height height, Amount balance);
 
-		/// Adds \a vrfPublicKey at \a height.
-		void add(Height height, const Key& vrfPublicKey);
+        /// Adds \a vrfPublicKey at \a height.
+        void add(Height height, const Key& vrfPublicKey);
 
-		/// Adds \a votingPublicKeys at \a height.
-		void add(Height height, const std::vector<model::PinnedVotingKey>& votingPublicKeys);
+        /// Adds \a votingPublicKeys at \a height.
+        void add(Height height, const std::vector<model::PinnedVotingKey>& votingPublicKeys);
 
-		/// Prunes all values less than \a height.
-		/// \note Prune will never change the result of value queries at or after \a height.
-		void pruneLess(Height height);
+        /// Prunes all values less than \a height.
+        /// \note Prune will never change the result of value queries at or after \a height.
+        void pruneLess(Height height);
 
-		/// Prunes all values greater than \a height.
-		void pruneGreater(Height height);
+        /// Prunes all values greater than \a height.
+        void pruneGreater(Height height);
 
-	private:
-		HeightIndexedHistoryMap<Amount> m_heightBalanceMap;
-		HeightIndexedHistoryMap<Key> m_heightVrfPublicKeyMap;
-		HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>> m_heightVotingPublicKeysMap;
-	};
-}}
+    private:
+        HeightIndexedHistoryMap<Amount> m_heightBalanceMap;
+        HeightIndexedHistoryMap<Key> m_heightVrfPublicKeyMap;
+        HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>> m_heightVotingPublicKeysMap;
+    };
+}
+}

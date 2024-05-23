@@ -22,33 +22,35 @@
 #pragma once
 #include "catapult/crypto/KeyPair.h"
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	/// Contains all account dependent information required to generate a block.
-	class BlockGeneratorAccountDescriptor {
-	public:
-		/// Creates default descriptor.
-		BlockGeneratorAccountDescriptor();
+    /// Contains all account dependent information required to generate a block.
+    class BlockGeneratorAccountDescriptor {
+    public:
+        /// Creates default descriptor.
+        BlockGeneratorAccountDescriptor();
 
-		/// Creates descriptor around \a signingKeyPair and \a vrfKeyPair.
-		BlockGeneratorAccountDescriptor(crypto::KeyPair&& signingKeyPair, crypto::KeyPair&& vrfKeyPair);
+        /// Creates descriptor around \a signingKeyPair and \a vrfKeyPair.
+        BlockGeneratorAccountDescriptor(crypto::KeyPair&& signingKeyPair, crypto::KeyPair&& vrfKeyPair);
 
-	public:
-		/// Gets the signing key pair.
-		const crypto::KeyPair& signingKeyPair() const;
+    public:
+        /// Gets the signing key pair.
+        const crypto::KeyPair& signingKeyPair() const;
 
-		/// Gets the vrf key pair.
-		const crypto::KeyPair& vrfKeyPair() const;
+        /// Gets the vrf key pair.
+        const crypto::KeyPair& vrfKeyPair() const;
 
-	public:
-		/// Returns \c true if this descriptor is equal to \a rhs.
-		bool operator==(const BlockGeneratorAccountDescriptor& rhs) const;
+    public:
+        /// Returns \c true if this descriptor is equal to \a rhs.
+        bool operator==(const BlockGeneratorAccountDescriptor& rhs) const;
 
-		/// Returns \c true if this descriptor is not equal to \a rhs.
-		bool operator!=(const BlockGeneratorAccountDescriptor& rhs) const;
+        /// Returns \c true if this descriptor is not equal to \a rhs.
+        bool operator!=(const BlockGeneratorAccountDescriptor& rhs) const;
 
-	private:
-		crypto::KeyPair m_signingKeyPair;
-		crypto::KeyPair m_vrfKeyPair;
-	};
-}}
+    private:
+        crypto::KeyPair m_signingKeyPair;
+        crypto::KeyPair m_vrfKeyPair;
+    };
+}
+}

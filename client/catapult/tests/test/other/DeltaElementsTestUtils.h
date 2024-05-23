@@ -25,93 +25,101 @@
 #include <map>
 #include <unordered_map>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Test helpers for interacting with delta elements representing mutable element values with storage virtualization.
-	class DeltaElementsTestUtils {
-	public:
-		/// Type definitions.
-		struct Types {
-		private:
-			using ElementType = SetElementType<MutableElementValueTraits>;
+    /// Test helpers for interacting with delta elements representing mutable element values with storage virtualization.
+    class DeltaElementsTestUtils {
+    public:
+        /// Type definitions.
+        struct Types {
+        private:
+            using ElementType = SetElementType<MutableElementValueTraits>;
 
-		public:
-			using StorageMapType = std::map<std::pair<std::string, unsigned int>, ElementType>;
-			using MemoryMapType = std::unordered_map<std::pair<std::string, unsigned int>, ElementType, MapKeyHasher>;
+        public:
+            using StorageMapType = std::map<std::pair<std::string, unsigned int>, ElementType>;
+            using MemoryMapType = std::unordered_map<std::pair<std::string, unsigned int>, ElementType, MapKeyHasher>;
 
-			// to emulate storage virtualization, use two separate sets (ordered and unordered)
-			using StorageTraits = deltaset::MapStorageTraits<StorageMapType, TestElementToKeyConverter<ElementType>, MemoryMapType>;
-		};
+            // to emulate storage virtualization, use two separate sets (ordered and unordered)
+            using StorageTraits = deltaset::MapStorageTraits<StorageMapType, TestElementToKeyConverter<ElementType>, MemoryMapType>;
+        };
 
-	public:
-		/// Storage for delta elements.
-		template<typename TSet>
-		struct Wrapper {
-		public:
-			using SetType = TSet;
-			using MemorySetType = SetType;
+    public:
+        /// Storage for delta elements.
+        template <typename TSet>
+        struct Wrapper {
+        public:
+            using SetType = TSet;
+            using MemorySetType = SetType;
 
-		public:
-			/// Added elements.
-			SetType Added;
+        public:
+            /// Added elements.
+            SetType Added;
 
-			/// Removed elements.
-			SetType Removed;
+            /// Removed elements.
+            SetType Removed;
 
-			/// Copied elements.
-			SetType Copied;
+            /// Copied elements.
+            SetType Copied;
 
-		public:
-			/// Gets a delta elements around the sub sets.
-			auto deltas() const {
-				return deltaset::DeltaElements<SetType>(Added, Removed, Copied);
-			}
-		};
+        public:
+            /// Gets a delta elements around the sub sets.
+            auto deltas() const
+            {
+                return deltaset::DeltaElements<SetType>(Added, Removed, Copied);
+            }
+        };
 
-		/// Mixin that provides generational change emulation.
-		template<typename TSet>
-		class GenerationalChangeMixin {
-		public:
-			using KeyType = typename TSet::key_type;
+        /// Mixin that provides generational change emulation.
+        template <typename TSet>
+        class GenerationalChangeMixin {
+        public:
+            using KeyType = typename TSet::key_type;
 
-		public:
-			/// Creates mixin.
-			GenerationalChangeMixin()
-					: m_generationId(1) {
-			}
+        public:
+            /// Creates mixin.
+            GenerationalChangeMixin()
+                : m_generationId(1)
+            {
+            }
 
-		public:
-			/// Gets the current generation id.
-			uint32_t generationId() const {
-				return m_generationId;
-			}
+        public:
+            /// Gets the current generation id.
+            uint32_t generationId() const
+            {
+                return m_generationId;
+            }
 
-			/// Gets the generation id associated with \a key.
-			uint32_t generationId(const KeyType& key) const {
-				// unlike BaseSetDelta, default generation is initial generation (1) instead of unset generation (0)
-				auto iter = m_keyGenerationIdMap.find(key);
-				return m_keyGenerationIdMap.cend() == iter ? 1 : iter->second;
-			}
+            /// Gets the generation id associated with \a key.
+            uint32_t generationId(const KeyType& key) const
+            {
+                // unlike BaseSetDelta, default generation is initial generation (1) instead of unset generation (0)
+                auto iter = m_keyGenerationIdMap.find(key);
+                return m_keyGenerationIdMap.cend() == iter ? 1 : iter->second;
+            }
 
-			/// Sets the generation id (\a generationId) for \a key.
-			void setGenerationId(const KeyType& key, uint32_t generationId) {
-				m_keyGenerationIdMap[key] = generationId;
-			}
+            /// Sets the generation id (\a generationId) for \a key.
+            void setGenerationId(const KeyType& key, uint32_t generationId)
+            {
+                m_keyGenerationIdMap[key] = generationId;
+            }
 
-			/// Increments the generation id.
-			void incrementGenerationId() {
-				++m_generationId;
-			}
+            /// Increments the generation id.
+            void incrementGenerationId()
+            {
+                ++m_generationId;
+            }
 
-		private:
-			uint32_t m_generationId;
-			std::unordered_map<KeyType, uint32_t> m_keyGenerationIdMap;
-		};
+        private:
+            uint32_t m_generationId;
+            std::unordered_map<KeyType, uint32_t> m_keyGenerationIdMap;
+        };
 
-		/// Storage for delta elements with generational support.
-		template<typename TSet>
-		struct WrapperWithGenerationalSupport
-				: public Wrapper<TSet>
-				, public GenerationalChangeMixin<TSet> {};
-	};
-}}
+        /// Storage for delta elements with generational support.
+        template <typename TSet>
+        struct WrapperWithGenerationalSupport
+            : public Wrapper<TSet>,
+              public GenerationalChangeMixin<TSet> { };
+    };
+}
+}

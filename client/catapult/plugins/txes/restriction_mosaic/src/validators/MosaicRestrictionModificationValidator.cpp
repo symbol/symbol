@@ -20,49 +20,52 @@
 **/
 
 #include "Validators.h"
+#include "catapult/validators/ValidatorContext.h"
 #include "src/cache/MosaicRestrictionCache.h"
 #include "src/state/MosaicAddressRestrictionNotificationFacade.h"
 #include "src/state/MosaicGlobalRestrictionNotificationFacade.h"
-#include "catapult/validators/ValidatorContext.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	namespace {
-		using GlobalNotificationFacade = state::MosaicGlobalRestrictionNotificationFacade<
-				model::MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type>;
-		using AddressNotificationFacade = state::MosaicAddressRestrictionNotificationFacade<
-				model::MosaicAddressRestrictionModificationPreviousValueNotification::Notification_Type>;
+    namespace {
+        using GlobalNotificationFacade = state::MosaicGlobalRestrictionNotificationFacade<
+            model::MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type>;
+        using AddressNotificationFacade = state::MosaicAddressRestrictionNotificationFacade<
+            model::MosaicAddressRestrictionModificationPreviousValueNotification::Notification_Type>;
 
-		template<typename TNotificationFacade>
-		ValidationResult MosaicRestrictionModificationValidator(
-				const typename TNotificationFacade::NotificationType& notification,
-				const ValidatorContext& context) {
-			TNotificationFacade notificationFacade(notification, context.Resolvers);
+        template <typename TNotificationFacade>
+        ValidationResult MosaicRestrictionModificationValidator(
+            const typename TNotificationFacade::NotificationType& notification,
+            const ValidatorContext& context)
+        {
+            TNotificationFacade notificationFacade(notification, context.Resolvers);
 
-			const auto& cache = context.Cache.sub<cache::MosaicRestrictionCache>();
-			auto entryIter = cache.find(notificationFacade.uniqueKey());
+            const auto& cache = context.Cache.sub<cache::MosaicRestrictionCache>();
+            auto entryIter = cache.find(notificationFacade.uniqueKey());
 
-			typename TNotificationFacade::RuleType rule;
-			if (entryIter.tryGet() && notificationFacade.tryGet(entryIter.get(), rule)) {
-				if (!notificationFacade.isMatch(rule))
-					return Failure_RestrictionMosaic_Previous_Value_Mismatch;
-			} else {
-				if (!notificationFacade.isUnset())
-					return Failure_RestrictionMosaic_Previous_Value_Must_Be_Zero;
-			}
+            typename TNotificationFacade::RuleType rule;
+            if (entryIter.tryGet() && notificationFacade.tryGet(entryIter.get(), rule)) {
+                if (!notificationFacade.isMatch(rule))
+                    return Failure_RestrictionMosaic_Previous_Value_Mismatch;
+            } else {
+                if (!notificationFacade.isUnset())
+                    return Failure_RestrictionMosaic_Previous_Value_Must_Be_Zero;
+            }
 
-			return ValidationResult::Success;
-		}
-	}
+            return ValidationResult::Success;
+        }
+    }
 
-#define DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(NAME) \
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE( \
-			Mosaic##NAME##RestrictionModification, \
-			NAME##NotificationFacade::NotificationType, \
-			([](const NAME##NotificationFacade::NotificationType& notification, const ValidatorContext& context) { \
-				return MosaicRestrictionModificationValidator<NAME##NotificationFacade>(notification, context); \
-			}))
+#define DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(NAME)                                                 \
+    DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(                                                                       \
+        Mosaic##NAME##RestrictionModification,                                                                 \
+        NAME##NotificationFacade::NotificationType,                                                            \
+        ([](const NAME##NotificationFacade::NotificationType& notification, const ValidatorContext& context) { \
+            return MosaicRestrictionModificationValidator<NAME##NotificationFacade>(notification, context);    \
+        }))
 
-	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(Global)
-	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(Address)
-}}
+    DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(Global)
+    DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(Address)
+}
+}

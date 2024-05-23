@@ -26,27 +26,29 @@
 namespace {
 constexpr auto Process_Name = "broker";
 
-void OptimizeConfigurationForBroker(catapult::config::CatapultConfiguration& config) {
-	// fixup config for broker-specific optimizations
-	const_cast<bool&>(config.Blockchain.EnableVerifiableState) = false;
+void OptimizeConfigurationForBroker(catapult::config::CatapultConfiguration& config)
+{
+    // fixup config for broker-specific optimizations
+    const_cast<bool&>(config.Blockchain.EnableVerifiableState) = false;
 
-	const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = false;
+    const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = false;
 }
 }
 
-int main(int argc, const char** argv) {
-	using namespace catapult;
-	return process::ProcessMain(argc, argv, Process_Name, [argc, argv](auto&& config, const auto&) {
-		// create bootstrapper
-		OptimizeConfigurationForBroker(config);
-		auto resourcesPath = process::GetResourcesPath(argc, argv).generic_string();
-		auto disposition = extensions::ProcessDisposition::Production;
-		auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(config, resourcesPath, disposition, Process_Name);
+int main(int argc, const char** argv)
+{
+    using namespace catapult;
+    return process::ProcessMain(argc, argv, Process_Name, [argc, argv](auto&& config, const auto&) {
+        // create bootstrapper
+        OptimizeConfigurationForBroker(config);
+        auto resourcesPath = process::GetResourcesPath(argc, argv).generic_string();
+        auto disposition = extensions::ProcessDisposition::Production;
+        auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(config, resourcesPath, disposition, Process_Name);
 
-		// register extension(s)
-		pBootstrapper->loadExtensions();
+        // register extension(s)
+        pBootstrapper->loadExtensions();
 
-		// create the local node
-		return local::CreateBroker(std::move(pBootstrapper));
-	});
+        // create the local node
+        return local::CreateBroker(std::move(pBootstrapper));
+    });
 }

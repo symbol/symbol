@@ -22,35 +22,41 @@
 #include "catapult/utils/StreamFormatGuard.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
 #define TEST_CLASS StreamFormatGuardTests
 
-	TEST(TEST_CLASS, ConstructorSetsCustomFormattingSettings) {
-		// Arrange:
-		std::ostringstream out;
-		out.flags(std::ios::hex | std::ios::fixed);
-		out.fill('~');
+    TEST(TEST_CLASS, ConstructorSetsCustomFormattingSettings)
+    {
+        // Arrange:
+        std::ostringstream out;
+        out.flags(std::ios::hex | std::ios::fixed);
+        out.fill('~');
 
-		// Act:
-		StreamFormatGuard guard(out, std::ios::oct | std::ios::right, 'X');
+        // Act:
+        StreamFormatGuard guard(out, std::ios::oct | std::ios::right, 'X');
 
-		// Assert:
-		EXPECT_EQ(std::ios::oct | std::ios::right, out.flags());
-		EXPECT_EQ('X', out.fill());
-	}
+        // Assert:
+        EXPECT_EQ(std::ios::oct | std::ios::right, out.flags());
+        EXPECT_EQ('X', out.fill());
+    }
 
-	TEST(TEST_CLASS, DestructorRestoresOriginalFormattingSettings) {
-		// Arrange:
-		std::ostringstream out;
-		out.flags(std::ios::hex | std::ios::fixed);
-		out.fill('~');
+    TEST(TEST_CLASS, DestructorRestoresOriginalFormattingSettings)
+    {
+        // Arrange:
+        std::ostringstream out;
+        out.flags(std::ios::hex | std::ios::fixed);
+        out.fill('~');
 
-		// Act:
-		{ StreamFormatGuard guard(out, std::ios::oct | std::ios::right, 'X'); }
+        // Act:
+        {
+            StreamFormatGuard guard(out, std::ios::oct | std::ios::right, 'X');
+        }
 
-		// Assert:
-		EXPECT_EQ(std::ios::hex | std::ios::fixed, out.flags());
-		EXPECT_EQ('~', out.fill());
-	}
-}}
+        // Assert:
+        EXPECT_EQ(std::ios::hex | std::ios::fixed, out.flags());
+        EXPECT_EQ('~', out.fill());
+    }
+}
+}

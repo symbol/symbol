@@ -22,22 +22,25 @@
 #include "StateRecoveryMode.h"
 #include "catapult/config/NodeConfiguration.h"
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	StateRecoveryMode CalculateStateRecoveryMode(const config::NodeConfiguration& config, const extensions::StateHeights& heights) {
-		if (heights.Cache == heights.Storage)
-			return StateRecoveryMode::None;
+    StateRecoveryMode CalculateStateRecoveryMode(const config::NodeConfiguration& config, const extensions::StateHeights& heights)
+    {
+        if (heights.Cache == heights.Storage)
+            return StateRecoveryMode::None;
 
-		if (Height(1) == heights.Cache)
-			return StateRecoveryMode::Reseed;
+        if (Height(1) == heights.Cache)
+            return StateRecoveryMode::Reseed;
 
-		if (heights.Cache > heights.Storage) {
-			std::ostringstream out;
-			out << "cache height (" << heights.Cache << ")"
-				<< " is greater than storage height (" << heights.Storage << ")";
-			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-		}
+        if (heights.Cache > heights.Storage) {
+            std::ostringstream out;
+            out << "cache height (" << heights.Cache << ")"
+                << " is greater than storage height (" << heights.Storage << ")";
+            CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+        }
 
-		return config.EnableCacheDatabaseStorage ? StateRecoveryMode::None : StateRecoveryMode::Repair;
-	}
-}}
+        return config.EnableCacheDatabaseStorage ? StateRecoveryMode::None : StateRecoveryMode::Repair;
+    }
+}
+}

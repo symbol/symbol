@@ -20,134 +20,143 @@
 **/
 
 #include "src/cache/NamespaceCacheSerializers.h"
+#include "tests/TestHarness.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/core/BufferReader.h"
 #include "tests/test/core/SerializerTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS NamespaceCacheSerializersTests
 
-	namespace {
-		using Serializer = NamespaceFlatMapTypesSerializer;
-	}
+    namespace {
+        using Serializer = NamespaceFlatMapTypesSerializer;
+    }
 
-	// region NamespaceFlatMapTypesSerializer Serialize
+    // region NamespaceFlatMapTypesSerializer Serialize
 
-	TEST(TEST_CLASS, FlatMapTypesSerializer_CanSerializePartialValue) {
-		// Arrange:
-		auto ns = state::Namespace(test::CreatePath({ 11 }));
+    TEST(TEST_CLASS, FlatMapTypesSerializer_CanSerializePartialValue)
+    {
+        // Arrange:
+        auto ns = state::Namespace(test::CreatePath({ 11 }));
 
-		// Act:
-		auto result = Serializer::SerializeValue(ns);
+        // Act:
+        auto result = Serializer::SerializeValue(ns);
 
-		// Assert:
-		ASSERT_EQ(sizeof(uint16_t) + sizeof(uint64_t) + sizeof(NamespaceId), result.size());
+        // Assert:
+        ASSERT_EQ(sizeof(uint16_t) + sizeof(uint64_t) + sizeof(NamespaceId), result.size());
 
-		test::BufferReader reader({ reinterpret_cast<const uint8_t*>(result.data()), result.size() });
-		EXPECT_EQ(1u, reader.read<uint16_t>());
+        test::BufferReader reader({ reinterpret_cast<const uint8_t*>(result.data()), result.size() });
+        EXPECT_EQ(1u, reader.read<uint16_t>());
 
-		EXPECT_EQ(1u, reader.read<uint64_t>());
-		EXPECT_EQ(11u, reader.read<uint64_t>());
-	}
+        EXPECT_EQ(1u, reader.read<uint64_t>());
+        EXPECT_EQ(11u, reader.read<uint64_t>());
+    }
 
-	TEST(TEST_CLASS, FlatMapTypesSerializer_CanSerializeFullValue) {
-		// Arrange:
-		auto ns = state::Namespace(test::CreatePath({ 11, 7, 21 }));
+    TEST(TEST_CLASS, FlatMapTypesSerializer_CanSerializeFullValue)
+    {
+        // Arrange:
+        auto ns = state::Namespace(test::CreatePath({ 11, 7, 21 }));
 
-		// Act:
-		auto result = Serializer::SerializeValue(ns);
+        // Act:
+        auto result = Serializer::SerializeValue(ns);
 
-		// Assert:
-		ASSERT_EQ(sizeof(uint16_t) + sizeof(uint64_t) + 3 * sizeof(NamespaceId), result.size());
+        // Assert:
+        ASSERT_EQ(sizeof(uint16_t) + sizeof(uint64_t) + 3 * sizeof(NamespaceId), result.size());
 
-		test::BufferReader reader({ reinterpret_cast<const uint8_t*>(result.data()), result.size() });
-		EXPECT_EQ(1u, reader.read<uint16_t>());
+        test::BufferReader reader({ reinterpret_cast<const uint8_t*>(result.data()), result.size() });
+        EXPECT_EQ(1u, reader.read<uint16_t>());
 
-		EXPECT_EQ(3u, reader.read<uint64_t>());
-		EXPECT_EQ(11u, reader.read<uint64_t>());
-		EXPECT_EQ(7u, reader.read<uint64_t>());
-		EXPECT_EQ(21u, reader.read<uint64_t>());
-	}
+        EXPECT_EQ(3u, reader.read<uint64_t>());
+        EXPECT_EQ(11u, reader.read<uint64_t>());
+        EXPECT_EQ(7u, reader.read<uint64_t>());
+        EXPECT_EQ(21u, reader.read<uint64_t>());
+    }
 
-	// endregion
+    // endregion
 
-	// region NamespaceFlatMapTypesSerializer Deserialize
+    // region NamespaceFlatMapTypesSerializer Deserialize
 
-	TEST(TEST_CLASS, FlatMapTypesSerializer_CannotDeserializeWithInvalidVersion) {
-		// Arrange:
-		std::vector<uint8_t> buffer{
-			2,	0, // invalid version
-			1,	0, 0, 0, 0, 0, 0, 0, // path elements
-			11, 0, 0, 0, 0, 0, 0, 0 // id
-		};
+    TEST(TEST_CLASS, FlatMapTypesSerializer_CannotDeserializeWithInvalidVersion)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer {
+            2, 0, // invalid version
+            1, 0, 0, 0, 0, 0, 0, 0, // path elements
+            11, 0, 0, 0, 0, 0, 0, 0 // id
+        };
 
-		// Act + Assert:
-		EXPECT_THROW(Serializer::DeserializeValue(buffer), catapult_runtime_error);
-	}
+        // Act + Assert:
+        EXPECT_THROW(Serializer::DeserializeValue(buffer), catapult_runtime_error);
+    }
 
-	TEST(TEST_CLASS, FlatMapTypesSerializer_CanDeserializePartialValue) {
-		// Arrange:
-		std::vector<uint8_t> buffer{
-			1,	0, // version
-			1,	0, 0, 0, 0, 0, 0, 0, // path elements
-			11, 0, 0, 0, 0, 0, 0, 0 // id
-		};
+    TEST(TEST_CLASS, FlatMapTypesSerializer_CanDeserializePartialValue)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer {
+            1, 0, // version
+            1, 0, 0, 0, 0, 0, 0, 0, // path elements
+            11, 0, 0, 0, 0, 0, 0, 0 // id
+        };
 
-		// Act:
-		auto ns = Serializer::DeserializeValue(buffer);
+        // Act:
+        auto ns = Serializer::DeserializeValue(buffer);
 
-		// Assert:
-		ASSERT_EQ(1u, ns.path().size());
-		EXPECT_EQ(NamespaceId(11), ns.path()[0]);
-	}
+        // Assert:
+        ASSERT_EQ(1u, ns.path().size());
+        EXPECT_EQ(NamespaceId(11), ns.path()[0]);
+    }
 
-	TEST(TEST_CLASS, FlatMapTypesSerializer_CanDeserializeFullValue) {
-		// Arrange:
-		std::vector<uint8_t> buffer{
-			1,	0, // version
-			3,	0, 0, 0, 0, 0, 0, 0, // path elements
-			11, 0, 0, 0, 0, 0, 0, 0, // id
-			7,	0, 0, 0, 0, 0, 0, 0, // id
-			21, 0, 0, 0, 0, 0, 0, 0, // id
-		};
+    TEST(TEST_CLASS, FlatMapTypesSerializer_CanDeserializeFullValue)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer {
+            1, 0, // version
+            3, 0, 0, 0, 0, 0, 0, 0, // path elements
+            11, 0, 0, 0, 0, 0, 0, 0, // id
+            7, 0, 0, 0, 0, 0, 0, 0, // id
+            21, 0, 0, 0, 0, 0, 0, 0, // id
+        };
 
-		// Act:
-		auto ns = Serializer::DeserializeValue(buffer);
+        // Act:
+        auto ns = Serializer::DeserializeValue(buffer);
 
-		// Assert:
-		ASSERT_EQ(3u, ns.path().size());
-		EXPECT_EQ(NamespaceId(11), ns.path()[0]);
-		EXPECT_EQ(NamespaceId(7), ns.path()[1]);
-		EXPECT_EQ(NamespaceId(21), ns.path()[2]);
-	}
+        // Assert:
+        ASSERT_EQ(3u, ns.path().size());
+        EXPECT_EQ(NamespaceId(11), ns.path()[0]);
+        EXPECT_EQ(NamespaceId(7), ns.path()[1]);
+        EXPECT_EQ(NamespaceId(21), ns.path()[2]);
+    }
 
-	// endregion
+    // endregion
 
-	// region  NamespaceFlatMapTypesSerializer Roundtrip
+    // region  NamespaceFlatMapTypesSerializer Roundtrip
 
-	TEST(TEST_CLASS, FlatMapTypesSerializer_CanRoundtripPartialValue) {
-		// Arrange:
-		auto ns = state::Namespace(test::CreatePath({ 11 }));
+    TEST(TEST_CLASS, FlatMapTypesSerializer_CanRoundtripPartialValue)
+    {
+        // Arrange:
+        auto ns = state::Namespace(test::CreatePath({ 11 }));
 
-		// Act:
-		auto result = test::RunRoundtripStringTest<Serializer>(ns);
+        // Act:
+        auto result = test::RunRoundtripStringTest<Serializer>(ns);
 
-		// Assert:
-		EXPECT_EQ(ns, result);
-	}
+        // Assert:
+        EXPECT_EQ(ns, result);
+    }
 
-	TEST(TEST_CLASS, FlatMapTypesSerializer_CanRoundtripFullValue) {
-		// Arrange:
-		auto ns = state::Namespace(test::CreatePath({ 11, 7, 21 }));
+    TEST(TEST_CLASS, FlatMapTypesSerializer_CanRoundtripFullValue)
+    {
+        // Arrange:
+        auto ns = state::Namespace(test::CreatePath({ 11, 7, 21 }));
 
-		// Act:
-		auto result = test::RunRoundtripStringTest<Serializer>(ns);
+        // Act:
+        auto result = test::RunRoundtripStringTest<Serializer>(ns);
 
-		// Assert:
-		EXPECT_EQ(ns, result);
-	}
+        // Assert:
+        EXPECT_EQ(ns, result);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

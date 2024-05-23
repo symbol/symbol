@@ -20,36 +20,40 @@
 **/
 
 #pragma once
-#include "catapult/utils/BlockSpan.h"
 #include "catapult/types.h"
+#include "catapult/utils/BlockSpan.h"
 #include <stdint.h>
 
-namespace catapult { namespace utils {
-	class ConfigurationBag;
-}}
+namespace catapult {
+namespace utils {
+    class ConfigurationBag;
+}
+}
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Secret lock plugin configuration settings.
-	struct SecretLockConfiguration {
-	public:
-		/// Maximum number of blocks for which a secret lock can exist.
-		utils::BlockSpan MaxSecretLockDuration;
+    /// Secret lock plugin configuration settings.
+    struct SecretLockConfiguration {
+    public:
+        /// Maximum number of blocks for which a secret lock can exist.
+        utils::BlockSpan MaxSecretLockDuration;
 
-		/// Minimum size of a proof in bytes.
-		uint16_t MinProofSize;
+        /// Minimum size of a proof in bytes.
+        uint16_t MinProofSize;
 
-		/// Maximum size of a proof in bytes.
-		uint16_t MaxProofSize;
+        /// Maximum size of a proof in bytes.
+        uint16_t MaxProofSize;
 
-	private:
-		SecretLockConfiguration() = default;
+    private:
+        SecretLockConfiguration() = default;
 
-	public:
-		/// Creates an uninitialized lock configuration.
-		static SecretLockConfiguration Uninitialized();
+    public:
+        /// Creates an uninitialized lock configuration.
+        static SecretLockConfiguration Uninitialized();
 
-		/// Loads lock configuration from \a bag.
-		static SecretLockConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-	};
-}}
+        /// Loads lock configuration from \a bag.
+        static SecretLockConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+    };
+}
+}

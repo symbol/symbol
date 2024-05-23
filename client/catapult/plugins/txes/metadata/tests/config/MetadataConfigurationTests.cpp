@@ -20,34 +20,40 @@
 **/
 
 #include "src/config/MetadataConfiguration.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	namespace {
-		struct MetadataConfigurationTraits {
-			using ConfigurationType = MetadataConfiguration;
+    namespace {
+        struct MetadataConfigurationTraits {
+            using ConfigurationType = MetadataConfiguration;
 
-			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return { { "", { { "maxValueSize", "234" } } } };
-			}
+            static utils::ConfigurationBag::ValuesContainer CreateProperties()
+            {
+                return { { "", { { "maxValueSize", "234" } } } };
+            }
 
-			static bool IsSectionOptional(const std::string&) {
-				return false;
-			}
+            static bool IsSectionOptional(const std::string&)
+            {
+                return false;
+            }
 
-			static void AssertZero(const MetadataConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(0u, config.MaxValueSize);
-			}
+            static void AssertZero(const MetadataConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(0u, config.MaxValueSize);
+            }
 
-			static void AssertCustom(const MetadataConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(234u, config.MaxValueSize);
-			}
-		};
-	}
+            static void AssertCustom(const MetadataConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(234u, config.MaxValueSize);
+            }
+        };
+    }
 
-	DEFINE_CONFIGURATION_TESTS(MetadataConfigurationTests, Metadata)
-}}
+    DEFINE_CONFIGURATION_TESTS(MetadataConfigurationTests, Metadata)
+}
+}

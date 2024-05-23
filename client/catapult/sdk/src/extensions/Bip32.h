@@ -22,39 +22,41 @@
 #pragma once
 #include "catapult/crypto/KeyPair.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Symbol BIP32 node.
-	class Bip32Node {
-	private:
-		Bip32Node(const RawBuffer& key, const RawBuffer& data);
+    /// Symbol BIP32 node.
+    class Bip32Node {
+    private:
+        Bip32Node(const RawBuffer& key, const RawBuffer& data);
 
-	private:
-		Bip32Node(Hash512&& hmacResult);
+    private:
+        Bip32Node(Hash512&& hmacResult);
 
-	public:
-		/// Gets the node's chain code.
-		const Hash256& chainCode() const;
+    public:
+        /// Gets the node's chain code.
+        const Hash256& chainCode() const;
 
-		/// Gets the node's public key.
-		const Key& publicKey() const;
+        /// Gets the node's public key.
+        const Key& publicKey() const;
 
-	public:
-		/// Derives a direct child node with \a id.
-		Bip32Node derive(uint32_t id);
+    public:
+        /// Derives a direct child node with \a id.
+        Bip32Node derive(uint32_t id);
 
-		/// Derives a descendent node with \a path.
-		Bip32Node derive(const std::vector<uint32_t>& path);
+        /// Derives a descendent node with \a path.
+        Bip32Node derive(const std::vector<uint32_t>& path);
 
-	public:
-		/// Creates a BIP32 root node from \a seed.
-		static Bip32Node FromSeed(const RawBuffer& seed);
+    public:
+        /// Creates a BIP32 root node from \a seed.
+        static Bip32Node FromSeed(const RawBuffer& seed);
 
-		/// Extracts the key pair from \a node.
-		static crypto::KeyPair ExtractKeyPair(Bip32Node&& node);
+        /// Extracts the key pair from \a node.
+        static crypto::KeyPair ExtractKeyPair(Bip32Node&& node);
 
-	private:
-		crypto::KeyPair m_keyPair;
-		Hash256 m_chainCode;
-	};
-}}
+    private:
+        crypto::KeyPair m_keyPair;
+        Hash256 m_chainCode;
+    };
+}
+}

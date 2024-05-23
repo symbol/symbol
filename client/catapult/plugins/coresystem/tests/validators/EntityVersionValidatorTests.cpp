@@ -20,65 +20,72 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/plugins/ValidatorTestUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS EntityVersionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(EntityVersion, )
+    DEFINE_COMMON_VALIDATOR_TESTS(EntityVersion, )
 
-	namespace {
-		constexpr uint8_t Min_Entity_Version = 55;
-		constexpr uint8_t Max_Entity_Version = 77;
+    namespace {
+        constexpr uint8_t Min_Entity_Version = 55;
+        constexpr uint8_t Max_Entity_Version = 77;
 
-		void AssertValidationResult(ValidationResult expectedResult, uint8_t version) {
-			// Arrange:
-			model::EntityNotification notification(
-					model::NetworkIdentifier::Zero,
-					static_cast<model::EntityType>(123),
-					version,
-					Min_Entity_Version,
-					Max_Entity_Version);
-			auto pValidator = CreateEntityVersionValidator();
+        void AssertValidationResult(ValidationResult expectedResult, uint8_t version)
+        {
+            // Arrange:
+            model::EntityNotification notification(
+                model::NetworkIdentifier::Zero,
+                static_cast<model::EntityType>(123),
+                version,
+                Min_Entity_Version,
+                Max_Entity_Version);
+            auto pValidator = CreateEntityVersionValidator();
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "entity version " << static_cast<uint16_t>(version);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result) << "entity version " << static_cast<uint16_t>(version);
+        }
+    }
 
-	// region validation
+    // region validation
 
-	TEST(TEST_CLASS, FailureWhenEntityHasVersionLowerThanMinVersion) {
-		for (uint8_t version = 0u; version < Min_Entity_Version; ++version)
-			AssertValidationResult(Failure_Core_Invalid_Version, version);
-	}
+    TEST(TEST_CLASS, FailureWhenEntityHasVersionLowerThanMinVersion)
+    {
+        for (uint8_t version = 0u; version < Min_Entity_Version; ++version)
+            AssertValidationResult(Failure_Core_Invalid_Version, version);
+    }
 
-	TEST(TEST_CLASS, FailureWhenEntityHasVersionGreaterThanMaxVersion) {
-		for (uint8_t version = 0xFF; version >= Max_Entity_Version + 1; --version)
-			AssertValidationResult(Failure_Core_Invalid_Version, version);
-	}
+    TEST(TEST_CLASS, FailureWhenEntityHasVersionGreaterThanMaxVersion)
+    {
+        for (uint8_t version = 0xFF; version >= Max_Entity_Version + 1; --version)
+            AssertValidationResult(Failure_Core_Invalid_Version, version);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenEntityHasVersionWithinBounds) {
-		for (uint8_t version = Min_Entity_Version; version <= Max_Entity_Version; ++version)
-			AssertValidationResult(ValidationResult::Success, version);
-	}
+    TEST(TEST_CLASS, SuccessWhenEntityHasVersionWithinBounds)
+    {
+        for (uint8_t version = Min_Entity_Version; version <= Max_Entity_Version; ++version)
+            AssertValidationResult(ValidationResult::Success, version);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenEntityMatchesBounds) {
-		// Arrange:
-		model::EntityNotification notification(model::NetworkIdentifier::Zero, static_cast<model::EntityType>(123), 5, 5, 5);
-		auto pValidator = CreateEntityVersionValidator();
+    TEST(TEST_CLASS, SuccessWhenEntityMatchesBounds)
+    {
+        // Arrange:
+        model::EntityNotification notification(model::NetworkIdentifier::Zero, static_cast<model::EntityType>(123), 5, 5, 5);
+        auto pValidator = CreateEntityVersionValidator();
 
-		// Act:
-		auto result = test::ValidateNotification(*pValidator, notification);
+        // Act:
+        auto result = test::ValidateNotification(*pValidator, notification);
 
-		// Assert:
-		EXPECT_EQ(ValidationResult::Success, result);
-	}
+        // Assert:
+        EXPECT_EQ(ValidationResult::Success, result);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

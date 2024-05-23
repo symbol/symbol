@@ -23,60 +23,64 @@
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/version/version.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	namespace {
-		static constexpr auto Num_Version_Parts = 4u;
+    namespace {
+        static constexpr auto Num_Version_Parts = 4u;
 
-		NodeVersion PackVersion(const std::array<uint8_t, Num_Version_Parts>& versionParts) {
-			NodeVersion::ValueType version = 0;
-			for (auto part : versionParts) {
-				version <<= 8;
-				version |= part;
-			}
+        NodeVersion PackVersion(const std::array<uint8_t, Num_Version_Parts>& versionParts)
+        {
+            NodeVersion::ValueType version = 0;
+            for (auto part : versionParts) {
+                version <<= 8;
+                version |= part;
+            }
 
-			return NodeVersion(version);
-		}
-	}
+            return NodeVersion(version);
+        }
+    }
 
-	NodeVersion GetCurrentServerVersion() {
-		return PackVersion({ CATAPULT_VERSION_MAJOR, CATAPULT_VERSION_MINOR, CATAPULT_VERSION_REVISION, CATAPULT_VERSION_BUILD });
-	}
+    NodeVersion GetCurrentServerVersion()
+    {
+        return PackVersion({ CATAPULT_VERSION_MAJOR, CATAPULT_VERSION_MINOR, CATAPULT_VERSION_REVISION, CATAPULT_VERSION_BUILD });
+    }
 
-	bool TryParseValue(const std::string& str, NodeVersion& version) {
-		if (str.empty()) {
-			version = GetCurrentServerVersion();
-			return true;
-		}
+    bool TryParseValue(const std::string& str, NodeVersion& version)
+    {
+        if (str.empty()) {
+            version = GetCurrentServerVersion();
+            return true;
+        }
 
-		size_t searchIndex = 0;
-		std::vector<std::string> versionParts;
-		while (true) {
-			auto separatorIndex = str.find('.', searchIndex);
-			auto item =
-					std::string::npos == separatorIndex ? str.substr(searchIndex) : str.substr(searchIndex, separatorIndex - searchIndex);
+        size_t searchIndex = 0;
+        std::vector<std::string> versionParts;
+        while (true) {
+            auto separatorIndex = str.find('.', searchIndex);
+            auto item = std::string::npos == separatorIndex ? str.substr(searchIndex) : str.substr(searchIndex, separatorIndex - searchIndex);
 
-			// don't allow empty values
-			if (item.empty())
-				return false;
+            // don't allow empty values
+            if (item.empty())
+                return false;
 
-			versionParts.push_back(item);
-			if (std::string::npos == separatorIndex)
-				break;
+            versionParts.push_back(item);
+            if (std::string::npos == separatorIndex)
+                break;
 
-			searchIndex = separatorIndex + 1;
-		}
+            searchIndex = separatorIndex + 1;
+        }
 
-		if (Num_Version_Parts != versionParts.size())
-			return false;
+        if (Num_Version_Parts != versionParts.size())
+            return false;
 
-		std::array<uint8_t, Num_Version_Parts> parsedVersionParts;
-		for (auto i = 0u; i < Num_Version_Parts; ++i) {
-			if (!utils::TryParseValue(versionParts[i], parsedVersionParts[i]))
-				return false;
-		}
+        std::array<uint8_t, Num_Version_Parts> parsedVersionParts;
+        for (auto i = 0u; i < Num_Version_Parts; ++i) {
+            if (!utils::TryParseValue(versionParts[i], parsedVersionParts[i]))
+                return false;
+        }
 
-		version = PackVersion(parsedVersionParts);
-		return true;
-	}
-}}
+        version = PackVersion(parsedVersionParts);
+        return true;
+    }
+}
+}

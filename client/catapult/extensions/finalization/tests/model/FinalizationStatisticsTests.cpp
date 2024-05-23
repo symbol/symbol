@@ -20,39 +20,43 @@
 **/
 
 #include "finalization/src/model/FinalizationStatistics.h"
-#include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Alignment.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS FinalizationStatisticsTests
 
-	// region FinalizationStatistics (size + alignment)
+    // region FinalizationStatistics (size + alignment)
 
 #define STATISTICS_FIELDS FIELD(Round) FIELD(Height) FIELD(Hash)
 
-	TEST(TEST_CLASS, FinalizationStatisticsHasExpectedSize) {
-		// Arrange:
-		auto expectedSize = 0u;
+    TEST(TEST_CLASS, FinalizationStatisticsHasExpectedSize)
+    {
+        // Arrange:
+        auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(FinalizationStatistics::X)>();
-		STATISTICS_FIELDS
+        STATISTICS_FIELDS
 #undef FIELD
 
-		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(FinalizationStatistics));
-		EXPECT_EQ(48u, sizeof(FinalizationStatistics));
-	}
+        // Assert:
+        EXPECT_EQ(expectedSize, sizeof(FinalizationStatistics));
+        EXPECT_EQ(48u, sizeof(FinalizationStatistics));
+    }
 
-	TEST(TEST_CLASS, FinalizationStatisticsHasProperAlignment) {
+    TEST(TEST_CLASS, FinalizationStatisticsHasProperAlignment)
+    {
 #define FIELD(X) EXPECT_ALIGNED(FinalizationStatistics, X);
-		STATISTICS_FIELDS
+        STATISTICS_FIELDS
 #undef FIELD
 
-		EXPECT_EQ(0u, sizeof(FinalizationStatistics) % 8);
-	}
+        EXPECT_EQ(0u, sizeof(FinalizationStatistics) % 8);
+    }
 
 #undef STATISTICS_FIELDS
 
-	// endregion
-}}
+    // endregion
+}
+}

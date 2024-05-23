@@ -22,31 +22,36 @@
 #pragma once
 #include "PacketPayloadBuilder.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	/// Factory for creating common packet payloads.
-	class PacketPayloadFactory {
-	public:
-		/// Creates a packet payload with the specified packet \a type around a single entity (\a pEntity).
-		template<typename TEntity>
-		static PacketPayload FromEntity(PacketType type, const std::shared_ptr<TEntity>& pEntity) {
-			return FromEntities<TEntity>(type, { pEntity });
-		}
+    /// Factory for creating common packet payloads.
+    class PacketPayloadFactory {
+    public:
+        /// Creates a packet payload with the specified packet \a type around a single entity (\a pEntity).
+        template <typename TEntity>
+        static PacketPayload FromEntity(PacketType type, const std::shared_ptr<TEntity>& pEntity)
+        {
+            return FromEntities<TEntity>(type, { pEntity });
+        }
 
-		/// Creates a packet payload with the specified packet \a type around multiple \a entities.
-		template<typename TEntity>
-		static PacketPayload FromEntities(PacketType type, const std::vector<std::shared_ptr<TEntity>>& entities) {
-			PacketPayloadBuilder builder(type);
-			builder.appendEntities(entities);
-			return builder.build();
-		}
+        /// Creates a packet payload with the specified packet \a type around multiple \a entities.
+        template <typename TEntity>
+        static PacketPayload FromEntities(PacketType type, const std::vector<std::shared_ptr<TEntity>>& entities)
+        {
+            PacketPayloadBuilder builder(type);
+            builder.appendEntities(entities);
+            return builder.build();
+        }
 
-		/// Creates a packet payload with the specified packet \a type around a fixed size structure \a range.
-		template<typename TStructure>
-		static PacketPayload FromFixedSizeRange(PacketType type, model::EntityRange<TStructure>&& range) {
-			PacketPayloadBuilder builder(type);
-			builder.appendRange(std::move(range));
-			return builder.build();
-		}
-	};
-}}
+        /// Creates a packet payload with the specified packet \a type around a fixed size structure \a range.
+        template <typename TStructure>
+        static PacketPayload FromFixedSizeRange(PacketType type, model::EntityRange<TStructure>&& range)
+        {
+            PacketPayloadBuilder builder(type);
+            builder.appendRange(std::move(range));
+            return builder.build();
+        }
+    };
+}
+}

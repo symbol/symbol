@@ -19,16 +19,22 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/NetworkPacketReadersService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/NetworkPacketReadersService.h"
 
-namespace catapult { namespace packetserver { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		// register service(s)
-		bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkPacketReadersServiceRegistrar());
-	}
-}}}
+namespace catapult {
+namespace packetserver {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            // register service(s)
+            bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkPacketReadersServiceRegistrar());
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::packetserver::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::packetserver::RegisterExtension(bootstrapper);
 }

@@ -23,8 +23,12 @@
 #include "mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/restriction_mosaic/src/state/MosaicRestrictionEntry.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Maps \a restrictionEntry to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::MosaicRestrictionEntry& restrictionEntry);
-}}}
+        /// Maps \a restrictionEntry to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(const state::MosaicRestrictionEntry& restrictionEntry);
+    }
+}
+}

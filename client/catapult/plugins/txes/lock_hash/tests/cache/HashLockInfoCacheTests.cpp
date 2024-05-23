@@ -19,22 +19,24 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/HashLockInfoCache.h"
 #include "plugins/txes/lock_shared/tests/cache/LockInfoCacheTests.h"
-#include "tests/test/HashLockInfoCacheTestUtils.h"
+#include "src/cache/HashLockInfoCache.h"
 #include "tests/TestHarness.h"
+#include "tests/test/HashLockInfoCacheTestUtils.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS HashLockInfoCacheTests
 
-	namespace {
-		struct HashTraits : public test::BasicHashLockInfoTestTraits {
-			using ValueType = state::HashLockInfoHistory;
-		};
-	}
+    namespace {
+        struct HashTraits : public test::BasicHashLockInfoTestTraits {
+            using ValueType = state::HashLockInfoHistory;
+        };
+    }
 
-	DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<HashTraits>, LockInfoCacheDeltaModificationPolicy<HashTraits>, )
+    DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<HashTraits>, LockInfoCacheDeltaModificationPolicy<HashTraits>, )
 
-	DEFINE_CACHE_PRUNE_TESTS(LockInfoCacheDeltaElementsMixinTraits<HashTraits>, )
-}}
+    DEFINE_CACHE_PRUNE_TESTS(LockInfoCacheDeltaElementsMixinTraits<HashTraits>, )
+}
+}

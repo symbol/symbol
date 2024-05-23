@@ -22,144 +22,157 @@
 #include "src/state/MetadataValue.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS MetadataValueTests
 
-	// region constructor
+    // region constructor
 
-	TEST(TEST_CLASS, CanCreateEmptyValue) {
-		// Act:
-		auto value = MetadataValue();
+    TEST(TEST_CLASS, CanCreateEmptyValue)
+    {
+        // Act:
+        auto value = MetadataValue();
 
-		// Assert:
-		EXPECT_TRUE(value.empty());
-		EXPECT_EQ(0u, value.size());
-		EXPECT_FALSE(!!value.data());
-	}
+        // Assert:
+        EXPECT_TRUE(value.empty());
+        EXPECT_EQ(0u, value.size());
+        EXPECT_FALSE(!!value.data());
+    }
 
-	// endregion
+    // endregion
 
-	// region canTrim
+    // region canTrim
 
-	namespace {
-		bool CanTrim(const std::vector<uint8_t>& buffer1, const std::vector<uint8_t>& buffer2, size_t count) {
-			auto value = MetadataValue();
-			value.update(buffer1);
-			return value.canTrim(buffer2, count);
-		}
-	}
+    namespace {
+        bool CanTrim(const std::vector<uint8_t>& buffer1, const std::vector<uint8_t>& buffer2, size_t count)
+        {
+            auto value = MetadataValue();
+            value.update(buffer1);
+            return value.canTrim(buffer2, count);
+        }
+    }
 
-	TEST(TEST_CLASS, CanTrimReturnsFalseWhenValueAndTrimBuffersAreDifferentSizes) {
-		// Arrange:
-		std::vector<uint8_t> buffer1{ 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
-		std::vector<uint8_t> buffer2{ 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0 };
+    TEST(TEST_CLASS, CanTrimReturnsFalseWhenValueAndTrimBuffersAreDifferentSizes)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer1 { 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
+        std::vector<uint8_t> buffer2 { 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0 };
 
-		// Act + Assert:
-		EXPECT_FALSE(CanTrim(buffer1, buffer2, 1));
-		EXPECT_FALSE(CanTrim(buffer2, buffer1, 1));
-	}
+        // Act + Assert:
+        EXPECT_FALSE(CanTrim(buffer1, buffer2, 1));
+        EXPECT_FALSE(CanTrim(buffer2, buffer1, 1));
+    }
 
-	namespace {
-		void RunCanTrimTest(bool expectedCanTrim, size_t bufferSize, size_t differenceIndex, size_t start, size_t end) {
-			// Arrange:
-			auto buffer1 = test::GenerateRandomVector(bufferSize);
-			auto buffer2 = buffer1;
-			buffer2[differenceIndex] ^= 0xFF;
+    namespace {
+        void RunCanTrimTest(bool expectedCanTrim, size_t bufferSize, size_t differenceIndex, size_t start, size_t end)
+        {
+            // Arrange:
+            auto buffer1 = test::GenerateRandomVector(bufferSize);
+            auto buffer2 = buffer1;
+            buffer2[differenceIndex] ^= 0xFF;
 
-			// Act + Assert:
-			for (auto i = start; i <= end; ++i) {
-				EXPECT_EQ(expectedCanTrim, CanTrim(buffer1, buffer2, i)) << i;
-				EXPECT_EQ(expectedCanTrim, CanTrim(buffer2, buffer1, i)) << i;
-			}
-		}
-	}
+            // Act + Assert:
+            for (auto i = start; i <= end; ++i) {
+                EXPECT_EQ(expectedCanTrim, CanTrim(buffer1, buffer2, i)) << i;
+                EXPECT_EQ(expectedCanTrim, CanTrim(buffer2, buffer1, i)) << i;
+            }
+        }
+    }
 
-	TEST(TEST_CLASS, CanTrimReturnsTrueWhenValueAndTrimBuffersProduceAtLeastCountTrailingZeros) {
-		RunCanTrimTest(true, 8, 3, 0, 4);
-	}
+    TEST(TEST_CLASS, CanTrimReturnsTrueWhenValueAndTrimBuffersProduceAtLeastCountTrailingZeros)
+    {
+        RunCanTrimTest(true, 8, 3, 0, 4);
+    }
 
-	TEST(TEST_CLASS, CanTrimReturnsFalseWhenValueAndTrimBuffersProduceFewerThanCountTrailingZeros) {
-		RunCanTrimTest(false, 8, 3, 5, 8);
-	}
+    TEST(TEST_CLASS, CanTrimReturnsFalseWhenValueAndTrimBuffersProduceFewerThanCountTrailingZeros)
+    {
+        RunCanTrimTest(false, 8, 3, 5, 8);
+    }
 
-	TEST(TEST_CLASS, CanTrimReturnsFalseWhenValueAndTrimBuffersAreSmallerThanCount) {
-		RunCanTrimTest(false, 8, 3, 9, 16);
-	}
+    TEST(TEST_CLASS, CanTrimReturnsFalseWhenValueAndTrimBuffersAreSmallerThanCount)
+    {
+        RunCanTrimTest(false, 8, 3, 9, 16);
+    }
 
-	// endregion
+    // endregion
 
-	// region update
+    // region update
 
-	TEST(TEST_CLASS, CanSetValue) {
-		// Arrange:
-		std::vector<uint8_t> buffer{ 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
+    TEST(TEST_CLASS, CanSetValue)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer { 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
 
-		auto value = MetadataValue();
+        auto value = MetadataValue();
 
-		// Act:
-		value.update(buffer);
+        // Act:
+        value.update(buffer);
 
-		// Assert:
-		EXPECT_FALSE(value.empty());
-		EXPECT_EQ(7u, value.size());
-		EXPECT_EQ_MEMORY(buffer.data(), value.data(), buffer.size());
-	}
+        // Assert:
+        EXPECT_FALSE(value.empty());
+        EXPECT_EQ(7u, value.size());
+        EXPECT_EQ_MEMORY(buffer.data(), value.data(), buffer.size());
+    }
 
-	TEST(TEST_CLASS, CanUpdateEqualLengthValue) {
-		// Arrange:
-		std::vector<uint8_t> buffer1{ 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
-		std::vector<uint8_t> buffer2{ 0x9A ^ 0xD4, 0xC7 ^ 0x60, 0x33 ^ 0x82, 0x18 ^ 0xF8, 0xA7 ^ 0x78, 0xB0 ^ 0xFE, 0x36 ^ 0x78 };
-		std::vector<uint8_t> expected{ 0xD4, 0x60, 0x82, 0xF8, 0x78, 0xFE, 0x78 };
+    TEST(TEST_CLASS, CanUpdateEqualLengthValue)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer1 { 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
+        std::vector<uint8_t> buffer2 { 0x9A ^ 0xD4, 0xC7 ^ 0x60, 0x33 ^ 0x82, 0x18 ^ 0xF8, 0xA7 ^ 0x78, 0xB0 ^ 0xFE, 0x36 ^ 0x78 };
+        std::vector<uint8_t> expected { 0xD4, 0x60, 0x82, 0xF8, 0x78, 0xFE, 0x78 };
 
-		auto value = MetadataValue();
-		value.update(buffer1);
+        auto value = MetadataValue();
+        value.update(buffer1);
 
-		// Act:
-		value.update(buffer2);
+        // Act:
+        value.update(buffer2);
 
-		// Assert:
-		EXPECT_FALSE(value.empty());
-		EXPECT_EQ(7u, value.size());
-		EXPECT_EQ_MEMORY(expected.data(), value.data(), expected.size());
-	}
+        // Assert:
+        EXPECT_FALSE(value.empty());
+        EXPECT_EQ(7u, value.size());
+        EXPECT_EQ_MEMORY(expected.data(), value.data(), expected.size());
+    }
 
-	TEST(TEST_CLASS, CanUpdateShorterValue) {
-		// Arrange:
-		std::vector<uint8_t> buffer1{ 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
-		std::vector<uint8_t> buffer2{ 0x9A ^ 0xD4, 0xC7 ^ 0x60, 0x33 ^ 0x82, 0x18 ^ 0xF8 };
-		std::vector<uint8_t> expected{ 0xD4, 0x60, 0x82, 0xF8 };
+    TEST(TEST_CLASS, CanUpdateShorterValue)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer1 { 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
+        std::vector<uint8_t> buffer2 { 0x9A ^ 0xD4, 0xC7 ^ 0x60, 0x33 ^ 0x82, 0x18 ^ 0xF8 };
+        std::vector<uint8_t> expected { 0xD4, 0x60, 0x82, 0xF8 };
 
-		auto value = MetadataValue();
-		value.update(buffer1);
+        auto value = MetadataValue();
+        value.update(buffer1);
 
-		// Act:
-		value.update(buffer2);
+        // Act:
+        value.update(buffer2);
 
-		// Assert:
-		EXPECT_FALSE(value.empty());
-		EXPECT_EQ(4u, value.size());
-		EXPECT_EQ_MEMORY(expected.data(), value.data(), expected.size());
-	}
+        // Assert:
+        EXPECT_FALSE(value.empty());
+        EXPECT_EQ(4u, value.size());
+        EXPECT_EQ_MEMORY(expected.data(), value.data(), expected.size());
+    }
 
-	TEST(TEST_CLASS, CanUpdateLongerValue) {
-		// Arrange:
-		std::vector<uint8_t> buffer1{ 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
-		std::vector<uint8_t> buffer2{ 0x9A ^ 0xD4, 0xC7 ^ 0x60, 0x33 ^ 0x82, 0x18 ^ 0xF8, 0xA7 ^ 0x78,
-									  0xB0 ^ 0xFE, 0x36 ^ 0x78, 0xE6,		 0x9D,		  0xD6 };
-		std::vector<uint8_t> expected{ 0xD4, 0x60, 0x82, 0xF8, 0x78, 0xFE, 0x78, 0xE6, 0x9D, 0xD6 };
+    TEST(TEST_CLASS, CanUpdateLongerValue)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer1 { 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
+        std::vector<uint8_t> buffer2 { 0x9A ^ 0xD4, 0xC7 ^ 0x60, 0x33 ^ 0x82, 0x18 ^ 0xF8, 0xA7 ^ 0x78,
+            0xB0 ^ 0xFE, 0x36 ^ 0x78, 0xE6, 0x9D, 0xD6 };
+        std::vector<uint8_t> expected { 0xD4, 0x60, 0x82, 0xF8, 0x78, 0xFE, 0x78, 0xE6, 0x9D, 0xD6 };
 
-		auto value = MetadataValue();
-		value.update(buffer1);
+        auto value = MetadataValue();
+        value.update(buffer1);
 
-		// Act:
-		value.update(buffer2);
+        // Act:
+        value.update(buffer2);
 
-		// Assert:
-		EXPECT_FALSE(value.empty());
-		EXPECT_EQ(10u, value.size());
-		EXPECT_EQ_MEMORY(expected.data(), value.data(), expected.size());
-	}
+        // Assert:
+        EXPECT_FALSE(value.empty());
+        EXPECT_EQ(10u, value.size());
+        EXPECT_EQ_MEMORY(expected.data(), value.data(), expected.size());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -27,16 +27,21 @@
 
 using namespace catapult::mongo::mappers;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
-			builder << "linkedPublicKey" << ToBinary(transaction.LinkedPublicKey) << "linkAction"
-					<< utils::to_underlying_type(transaction.LinkAction);
-		}
-	}
+        namespace {
+            template <typename TTransaction>
+            void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction)
+            {
+                builder << "linkedPublicKey" << ToBinary(transaction.LinkedPublicKey) << "linkAction"
+                        << utils::to_underlying_type(transaction.LinkAction);
+            }
+        }
 
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountKeyLink, StreamTransaction)
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(NodeKeyLink, StreamTransaction)
-}}}
+        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountKeyLink, StreamTransaction)
+        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(NodeKeyLink, StreamTransaction)
+    }
+}
+}

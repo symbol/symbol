@@ -26,111 +26,127 @@
 #include "catapult/plugins/PluginModule.h"
 #include <filesystem>
 
-namespace catapult { namespace tools { namespace plugins {
+namespace catapult {
+namespace tools {
+    namespace plugins {
 
-	namespace {
-		// region TempDirectoryGuard
+        namespace {
+            // region TempDirectoryGuard
 
-		class TempDirectoryGuard {
-		public:
-			explicit TempDirectoryGuard(const std::string& directoryPath)
-					: m_directoryPath(directoryPath) {
-			}
+            class TempDirectoryGuard {
+            public:
+                explicit TempDirectoryGuard(const std::string& directoryPath)
+                    : m_directoryPath(directoryPath)
+                {
+                }
 
-			~TempDirectoryGuard() {
-				auto numRemovedFiles = std::filesystem::remove_all(m_directoryPath);
-				CATAPULT_LOG(info) << "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles << " files (exists? "
-								   << std::filesystem::exists(m_directoryPath) << ")";
-			}
+                ~TempDirectoryGuard()
+                {
+                    auto numRemovedFiles = std::filesystem::remove_all(m_directoryPath);
+                    CATAPULT_LOG(info) << "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles << " files (exists? "
+                                       << std::filesystem::exists(m_directoryPath) << ")";
+                }
 
-		private:
-			std::string m_directoryPath;
-		};
+            private:
+                std::string m_directoryPath;
+            };
 
-		// endregion
-	}
+            // endregion
+        }
 
-	// region PluginLoader::Impl
+        // region PluginLoader::Impl
 
-	class PluginLoader::Impl {
-	public:
-		Impl(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode)
-				: m_config(config)
-				, m_pluginManager(m_config.Blockchain, CreateStorageConfiguration(m_config), m_config.User, m_config.Inflation) {
-			// in purge mode, clean up the data directory after each execution
-			// (cache database is hardcoded to "statedb" so entire data directory must be temporary)
-			if (CacheDatabaseCleanupMode::Purge != databaseCleanupMode)
-				return;
+        class PluginLoader::Impl {
+        public:
+            Impl(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode)
+                : m_config(config)
+                , m_pluginManager(m_config.Blockchain, CreateStorageConfiguration(m_config), m_config.User, m_config.Inflation)
+            {
+                // in purge mode, clean up the data directory after each execution
+                // (cache database is hardcoded to "statedb" so entire data directory must be temporary)
+                if (CacheDatabaseCleanupMode::Purge != databaseCleanupMode)
+                    return;
 
-			if (std::filesystem::exists(m_config.User.DataDirectory))
-				CATAPULT_THROW_INVALID_ARGUMENT_1("temporary data directory must not exist", m_config.User.DataDirectory);
+                if (std::filesystem::exists(m_config.User.DataDirectory))
+                    CATAPULT_THROW_INVALID_ARGUMENT_1("temporary data directory must not exist", m_config.User.DataDirectory);
 
-			auto temporaryDirectory = (std::filesystem::path(m_config.User.DataDirectory)).generic_string();
-			m_pCacheDatabaseGuard = std::make_unique<TempDirectoryGuard>(temporaryDirectory);
-		}
+                auto temporaryDirectory = (std::filesystem::path(m_config.User.DataDirectory)).generic_string();
+                m_pCacheDatabaseGuard = std::make_unique<TempDirectoryGuard>(temporaryDirectory);
+            }
 
-	public:
-		catapult::plugins::PluginManager& manager() {
-			return m_pluginManager;
-		}
+        public:
+            catapult::plugins::PluginManager& manager()
+            {
+                return m_pluginManager;
+            }
 
-	public:
-		void loadAll() {
-			// default plugins
-			for (const auto& pluginName : { "catapult.plugins.coresystem", "catapult.plugins.signature" })
-				loadPlugin(pluginName);
+        public:
+            void loadAll()
+            {
+                // default plugins
+                for (const auto& pluginName : { "catapult.plugins.coresystem", "catapult.plugins.signature" })
+                    loadPlugin(pluginName);
 
-			// custom plugins
-			for (const auto& pair : m_config.Blockchain.Plugins)
-				loadPlugin(pair.first);
-		}
+                // custom plugins
+                for (const auto& pair : m_config.Blockchain.Plugins)
+                    loadPlugin(pair.first);
+            }
 
-	private:
-		void loadPlugin(const std::string& pluginName) {
-			LoadPluginByName(m_pluginManager, m_pluginModules, m_config.User.PluginsDirectory, pluginName);
-		}
+        private:
+            void loadPlugin(const std::string& pluginName)
+            {
+                LoadPluginByName(m_pluginManager, m_pluginModules, m_config.User.PluginsDirectory, pluginName);
+            }
 
-	private:
-		static catapult::plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
-			catapult::plugins::StorageConfiguration storageConfig;
-			storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
-			storageConfig.CacheDatabaseDirectory = (std::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
-			return storageConfig;
-		}
+        private:
+            static catapult::plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config)
+            {
+                catapult::plugins::StorageConfiguration storageConfig;
+                storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
+                storageConfig.CacheDatabaseDirectory = (std::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
+                return storageConfig;
+            }
 
-	private:
-		const config::CatapultConfiguration& m_config;
-		std::vector<catapult::plugins::PluginModule> m_pluginModules;
-		catapult::plugins::PluginManager m_pluginManager;
+        private:
+            const config::CatapultConfiguration& m_config;
+            std::vector<catapult::plugins::PluginModule> m_pluginModules;
+            catapult::plugins::PluginManager m_pluginManager;
 
-		std::unique_ptr<TempDirectoryGuard> m_pCacheDatabaseGuard;
-	};
+            std::unique_ptr<TempDirectoryGuard> m_pCacheDatabaseGuard;
+        };
 
-	// endregion
+        // endregion
 
-	// region PluginLoader
+        // region PluginLoader
 
-	PluginLoader::PluginLoader(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode)
-			: m_pImpl(std::make_unique<Impl>(config, databaseCleanupMode)) {
-	}
+        PluginLoader::PluginLoader(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode)
+            : m_pImpl(std::make_unique<Impl>(config, databaseCleanupMode))
+        {
+        }
 
-	PluginLoader::~PluginLoader() = default;
+        PluginLoader::~PluginLoader() = default;
 
-	catapult::plugins::PluginManager& PluginLoader::manager() {
-		return m_pImpl->manager();
-	}
+        catapult::plugins::PluginManager& PluginLoader::manager()
+        {
+            return m_pImpl->manager();
+        }
 
-	const model::TransactionRegistry& PluginLoader::transactionRegistry() const {
-		return m_pImpl->manager().transactionRegistry();
-	}
+        const model::TransactionRegistry& PluginLoader::transactionRegistry() const
+        {
+            return m_pImpl->manager().transactionRegistry();
+        }
 
-	std::unique_ptr<const model::NotificationPublisher> PluginLoader::createNotificationPublisher() const {
-		return m_pImpl->manager().createNotificationPublisher();
-	}
+        std::unique_ptr<const model::NotificationPublisher> PluginLoader::createNotificationPublisher() const
+        {
+            return m_pImpl->manager().createNotificationPublisher();
+        }
 
-	void PluginLoader::loadAll() {
-		m_pImpl->loadAll();
-	}
+        void PluginLoader::loadAll()
+        {
+            m_pImpl->loadAll();
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

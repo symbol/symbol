@@ -22,13 +22,17 @@
 #pragma once
 #include "catapult/plugins.h"
 
-namespace catapult { namespace plugins {
-	class PluginManager;
-}}
+namespace catapult {
+namespace plugins {
+    class PluginManager;
+}
+}
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	/// Registers mosaic restriction support with \a manager.
-	PLUGIN_API
-	void RegisterMosaicRestrictionSubsystem(PluginManager& manager);
-}}
+    /// Registers mosaic restriction support with \a manager.
+    PLUGIN_API
+    void RegisterMosaicRestrictionSubsystem(PluginManager& manager);
+}
+}

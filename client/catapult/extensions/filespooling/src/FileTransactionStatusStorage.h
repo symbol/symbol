@@ -24,9 +24,11 @@
 #include "catapult/subscribers/TransactionStatusSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace filespooling {
+namespace catapult {
+namespace filespooling {
 
-	/// Creates a transaction status storage around \a pOutputStream.
-	std::unique_ptr<subscribers::TransactionStatusSubscriber> CreateFileTransactionStatusStorage(
-			std::unique_ptr<io::OutputStream>&& pOutputStream);
-}}
+    /// Creates a transaction status storage around \a pOutputStream.
+    std::unique_ptr<subscribers::TransactionStatusSubscriber> CreateFileTransactionStatusStorage(
+        std::unique_ptr<io::OutputStream>&& pOutputStream);
+}
+}

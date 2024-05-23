@@ -23,40 +23,45 @@
 #include "MockNotificationObserver.h"
 #include <vector>
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	/// Mock notification observer that captures block heights.
-	class MockBlockHeightCapturingNotificationObserver : public mocks::MockNotificationObserver {
-	public:
-		/// Creates a mock observer around \a blockHeights.
-		explicit MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights)
-				: MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
-				, m_pBlockHeights(&blockHeights)
-				, m_pBlockStates(nullptr) {
-		}
+    /// Mock notification observer that captures block heights.
+    class MockBlockHeightCapturingNotificationObserver : public mocks::MockNotificationObserver {
+    public:
+        /// Creates a mock observer around \a blockHeights.
+        explicit MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights)
+            : MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
+            , m_pBlockHeights(&blockHeights)
+            , m_pBlockStates(nullptr)
+        {
+        }
 
-		/// Creates a mock observer around \a blockHeights and \a blockStates.
-		MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights, std::vector<state::CatapultState>& blockStates)
-				: MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
-				, m_pBlockHeights(&blockHeights)
-				, m_pBlockStates(&blockStates) {
-		}
+        /// Creates a mock observer around \a blockHeights and \a blockStates.
+        MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights, std::vector<state::CatapultState>& blockStates)
+            : MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
+            , m_pBlockHeights(&blockHeights)
+            , m_pBlockStates(&blockStates)
+        {
+        }
 
-	public:
-		void notify(const model::Notification& notification, observers::ObserverContext& context) const override {
-			MockNotificationObserverT::notify(notification, context);
+    public:
+        void notify(const model::Notification& notification, observers::ObserverContext& context) const override
+        {
+            MockNotificationObserverT::notify(notification, context);
 
-			// collect heights and states only when a block is processed
-			if (model::Core_Block_Notification == notification.Type) {
-				m_pBlockHeights->push_back(context.Height);
+            // collect heights and states only when a block is processed
+            if (model::Core_Block_Notification == notification.Type) {
+                m_pBlockHeights->push_back(context.Height);
 
-				if (m_pBlockStates)
-					m_pBlockStates->push_back(context.Cache.dependentState());
-			}
-		}
+                if (m_pBlockStates)
+                    m_pBlockStates->push_back(context.Cache.dependentState());
+            }
+        }
 
-	private:
-		std::vector<Height>* m_pBlockHeights;
-		std::vector<state::CatapultState>* m_pBlockStates;
-	};
-}}
+    private:
+        std::vector<Height>* m_pBlockHeights;
+        std::vector<state::CatapultState>* m_pBlockStates;
+    };
+}
+}

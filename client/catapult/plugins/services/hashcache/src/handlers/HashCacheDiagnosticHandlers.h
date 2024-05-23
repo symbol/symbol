@@ -23,11 +23,13 @@
 #include "ConfirmedTimestampedHashesProducerFactory.h"
 #include "catapult/ionet/PacketHandlers.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	/// Registers a confirm timestamped hashes handler in \a handlers that responds with timestamped hashes
-	/// not filtered by a producer from \a confirmedTimestampedHashesProducerFactory.
-	void RegisterConfirmTimestampedHashesHandler(
-			ionet::ServerPacketHandlers& handlers,
-			const ConfirmedTimestampedHashesProducerFactory& confirmedTimestampedHashesProducerFactory);
-}}
+    /// Registers a confirm timestamped hashes handler in \a handlers that responds with timestamped hashes
+    /// not filtered by a producer from \a confirmedTimestampedHashesProducerFactory.
+    void RegisterConfirmTimestampedHashesHandler(
+        ionet::ServerPacketHandlers& handlers,
+        const ConfirmedTimestampedHashesProducerFactory& confirmedTimestampedHashesProducerFactory);
+}
+}

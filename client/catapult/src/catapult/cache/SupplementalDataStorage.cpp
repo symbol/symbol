@@ -24,48 +24,53 @@
 #include "catapult/io/Stream.h"
 #include "catapult/utils/Logging.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	namespace {
-		void LogSupplementalData(const char* prefix, const SupplementalData& supplementalData, Height chainHeight) {
-			auto scoreArray = supplementalData.ChainScore.toArray();
-			CATAPULT_LOG(debug) << prefix << " last recalculation height " << supplementalData.State.LastRecalculationHeight
-								<< " last finalized height " << supplementalData.State.LastFinalizedHeight << " dynamic fee multiplier "
-								<< supplementalData.State.DynamicFeeMultiplier << " total transactions "
-								<< supplementalData.State.NumTotalTransactions << " (score = [" << scoreArray[0] << ", " << scoreArray[1]
-								<< "]"
-								<< ", height = " << chainHeight << ")";
-		}
-	}
+    namespace {
+        void LogSupplementalData(const char* prefix, const SupplementalData& supplementalData, Height chainHeight)
+        {
+            auto scoreArray = supplementalData.ChainScore.toArray();
+            CATAPULT_LOG(debug) << prefix << " last recalculation height " << supplementalData.State.LastRecalculationHeight
+                                << " last finalized height " << supplementalData.State.LastFinalizedHeight << " dynamic fee multiplier "
+                                << supplementalData.State.DynamicFeeMultiplier << " total transactions "
+                                << supplementalData.State.NumTotalTransactions << " (score = [" << scoreArray[0] << ", " << scoreArray[1]
+                                << "]"
+                                << ", height = " << chainHeight << ")";
+        }
+    }
 
-	void SaveSupplementalData(const SupplementalData& supplementalData, Height chainHeight, io::OutputStream& output) {
-		io::Write(output, chainHeight);
+    void SaveSupplementalData(const SupplementalData& supplementalData, Height chainHeight, io::OutputStream& output)
+    {
+        io::Write(output, chainHeight);
 
-		auto scoreArray = supplementalData.ChainScore.toArray();
-		io::Write64(output, scoreArray[0]);
-		io::Write64(output, scoreArray[1]);
+        auto scoreArray = supplementalData.ChainScore.toArray();
+        io::Write64(output, scoreArray[0]);
+        io::Write64(output, scoreArray[1]);
 
-		io::Write(output, supplementalData.State.LastRecalculationHeight);
-		io::Write(output, supplementalData.State.LastFinalizedHeight);
-		io::Write64(output, supplementalData.State.NumTotalTransactions);
-		io::Write(output, supplementalData.State.DynamicFeeMultiplier); // write last for alignment
+        io::Write(output, supplementalData.State.LastRecalculationHeight);
+        io::Write(output, supplementalData.State.LastFinalizedHeight);
+        io::Write64(output, supplementalData.State.NumTotalTransactions);
+        io::Write(output, supplementalData.State.DynamicFeeMultiplier); // write last for alignment
 
-		LogSupplementalData("wrote", supplementalData, chainHeight);
-		output.flush();
-	}
+        LogSupplementalData("wrote", supplementalData, chainHeight);
+        output.flush();
+    }
 
-	void LoadSupplementalData(io::InputStream& input, SupplementalData& supplementalData, Height& chainHeight) {
-		io::Read(input, chainHeight);
+    void LoadSupplementalData(io::InputStream& input, SupplementalData& supplementalData, Height& chainHeight)
+    {
+        io::Read(input, chainHeight);
 
-		auto scoreHigh = io::Read64(input);
-		auto scoreLow = io::Read64(input);
-		supplementalData.ChainScore = model::ChainScore(scoreHigh, scoreLow);
+        auto scoreHigh = io::Read64(input);
+        auto scoreLow = io::Read64(input);
+        supplementalData.ChainScore = model::ChainScore(scoreHigh, scoreLow);
 
-		io::Read(input, supplementalData.State.LastRecalculationHeight);
-		io::Read(input, supplementalData.State.LastFinalizedHeight);
-		supplementalData.State.NumTotalTransactions = io::Read64(input);
-		io::Read(input, supplementalData.State.DynamicFeeMultiplier);
+        io::Read(input, supplementalData.State.LastRecalculationHeight);
+        io::Read(input, supplementalData.State.LastFinalizedHeight);
+        supplementalData.State.NumTotalTransactions = io::Read64(input);
+        io::Read(input, supplementalData.State.DynamicFeeMultiplier);
 
-		LogSupplementalData("read", supplementalData, chainHeight);
-	}
-}}
+        LogSupplementalData("read", supplementalData, chainHeight);
+    }
+}
+}

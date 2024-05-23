@@ -23,7 +23,9 @@
 #include "HashLockInfoCacheTypes.h"
 #include "src/state/HashLockInfoHistorySerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	DEFINE_LOCK_INFO_CACHE_SERIALIZERS(HashLockInfo)
-}}
+    DEFINE_LOCK_INFO_CACHE_SERIALIZERS(HashLockInfo)
+}
+}

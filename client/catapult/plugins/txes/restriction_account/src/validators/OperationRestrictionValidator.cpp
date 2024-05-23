@@ -21,21 +21,23 @@
 
 #include "AccountRestrictionView.h"
 #include "Validators.h"
-#include "src/cache/AccountRestrictionCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/AccountRestrictionCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::TransactionNotification;
+    using Notification = model::TransactionNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(OperationRestriction, [](const Notification& notification, const ValidatorContext& context) {
-		constexpr auto Restriction_Flags = model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
-		AccountRestrictionView view(context.Cache);
-		if (!view.initialize(notification.Sender))
-			return ValidationResult::Success;
+    DEFINE_STATEFUL_VALIDATOR(OperationRestriction, [](const Notification& notification, const ValidatorContext& context) {
+        constexpr auto Restriction_Flags = model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
+        AccountRestrictionView view(context.Cache);
+        if (!view.initialize(notification.Sender))
+            return ValidationResult::Success;
 
-		auto isTransferAllowed = view.isAllowed(Restriction_Flags, notification.TransactionType);
-		return isTransferAllowed ? ValidationResult::Success : Failure_RestrictionAccount_Operation_Type_Prohibited;
-	})
-}}
+        auto isTransferAllowed = view.isAllowed(Restriction_Flags, notification.TransactionType);
+        return isTransferAllowed ? ValidationResult::Success : Failure_RestrictionAccount_Operation_Type_Prohibited;
+    })
+}
+}

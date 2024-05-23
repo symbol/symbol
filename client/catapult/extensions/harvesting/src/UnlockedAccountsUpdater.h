@@ -25,41 +25,43 @@
 
 namespace catapult {
 namespace cache {
-	class CatapultCache;
+    class CatapultCache;
 }
 namespace harvesting {
-	class UnlockedAccounts;
+    class UnlockedAccounts;
 }
 }
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	/// Unlocked accounts updater.
-	class UnlockedAccountsUpdater {
-	public:
-		/// Creates unlocked accounts updater around \a cache, \a unlockedAccounts, node owner
-		/// (identified by \a signingPublicKey and \a encryptionKeyPair) and \a dataDirectory.
-		UnlockedAccountsUpdater(
-				const cache::CatapultCache& cache,
-				UnlockedAccounts& unlockedAccounts,
-				const Key& signingPublicKey,
-				const crypto::KeyPair& encryptionKeyPair,
-				const config::CatapultDataDirectory& dataDirectory);
+    /// Unlocked accounts updater.
+    class UnlockedAccountsUpdater {
+    public:
+        /// Creates unlocked accounts updater around \a cache, \a unlockedAccounts, node owner
+        /// (identified by \a signingPublicKey and \a encryptionKeyPair) and \a dataDirectory.
+        UnlockedAccountsUpdater(
+            const cache::CatapultCache& cache,
+            UnlockedAccounts& unlockedAccounts,
+            const Key& signingPublicKey,
+            const crypto::KeyPair& encryptionKeyPair,
+            const config::CatapultDataDirectory& dataDirectory);
 
-	public:
-		/// Loads storage.
-		void load();
+    public:
+        /// Loads storage.
+        void load();
 
-		/// Updates unlocked accounts.
-		void update();
+        /// Updates unlocked accounts.
+        void update();
 
-	private:
-		const cache::CatapultCache& m_cache;
-		UnlockedAccounts& m_unlockedAccounts;
-		Key m_signingPublicKey;
-		const crypto::KeyPair& m_encryptionKeyPair;
-		config::CatapultDataDirectory m_dataDirectory;
-		std::string m_harvestersFilename;
-		UnlockedAccountsStorage m_unlockedAccountsStorage;
-	};
-}}
+    private:
+        const cache::CatapultCache& m_cache;
+        UnlockedAccounts& m_unlockedAccounts;
+        Key m_signingPublicKey;
+        const crypto::KeyPair& m_encryptionKeyPair;
+        config::CatapultDataDirectory m_dataDirectory;
+        std::string m_harvestersFilename;
+        UnlockedAccountsStorage m_unlockedAccountsStorage;
+    };
+}
+}

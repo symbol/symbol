@@ -23,13 +23,17 @@
 #include "mongo/src/MongoStorageContext.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	cache::CatapultCache MongoHashLockInfoTestTraits::CreateCatapultCache() {
-		return HashLockInfoCacheFactory::Create();
-	}
+    cache::CatapultCache MongoHashLockInfoTestTraits::CreateCatapultCache()
+    {
+        return HashLockInfoCacheFactory::Create();
+    }
 
-	std::unique_ptr<mongo::ExternalCacheStorage> MongoHashLockInfoTestTraits::CreateMongoCacheStorage(mongo::MongoStorageContext& context) {
-		return mongo::plugins::CreateMongoHashLockInfoCacheStorage(context, model::NetworkIdentifier());
-	}
-}}
+    std::unique_ptr<mongo::ExternalCacheStorage> MongoHashLockInfoTestTraits::CreateMongoCacheStorage(mongo::MongoStorageContext& context)
+    {
+        return mongo::plugins::CreateMongoHashLockInfoCacheStorage(context, model::NetworkIdentifier());
+    }
+}
+}

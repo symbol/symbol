@@ -20,39 +20,42 @@
 **/
 
 #include "SecretLockTransactionPlugin.h"
-#include "src/model/SecretLockNotifications.h"
-#include "src/model/SecretLockTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/SecretLockNotifications.h"
+#include "src/model/SecretLockTransaction.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			sub.notify(AccountAddressNotification(transaction.RecipientAddress));
-			sub.notify(SecretLockDurationNotification(transaction.Duration));
-			sub.notify(SecretLockHashAlgorithmNotification(transaction.HashAlgorithm));
-			sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, { transaction.RecipientAddress }));
-			sub.notify(BalanceDebitNotification(context.SignerAddress, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
-			sub.notify(SecretLockNotification(
-					context.SignerAddress,
-					transaction.Mosaic,
-					transaction.Duration,
-					transaction.HashAlgorithm,
-					transaction.Secret,
-					transaction.RecipientAddress));
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            sub.notify(AccountAddressNotification(transaction.RecipientAddress));
+            sub.notify(SecretLockDurationNotification(transaction.Duration));
+            sub.notify(SecretLockHashAlgorithmNotification(transaction.HashAlgorithm));
+            sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, { transaction.RecipientAddress }));
+            sub.notify(BalanceDebitNotification(context.SignerAddress, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
+            sub.notify(SecretLockNotification(
+                context.SignerAddress,
+                transaction.Mosaic,
+                transaction.Duration,
+                transaction.HashAlgorithm,
+                transaction.Secret,
+                transaction.RecipientAddress));
 
-			// raise a zero-transfer notification in order to trigger all mosaic authorization validators
-			sub.notify(BalanceTransferNotification(
-					context.SignerAddress,
-					transaction.RecipientAddress,
-					transaction.Mosaic.MosaicId,
-					Amount(0)));
-		}
-	}
+            // raise a zero-transfer notification in order to trigger all mosaic authorization validators
+            sub.notify(BalanceTransferNotification(
+                context.SignerAddress,
+                transaction.RecipientAddress,
+                transaction.Mosaic.MosaicId,
+                Amount(0)));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(SecretLock, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(SecretLock, Default, Publish)
+}
+}

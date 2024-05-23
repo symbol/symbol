@@ -21,14 +21,16 @@
 
 #pragma once
 
-namespace catapult { namespace tree {
+namespace catapult {
+namespace tree {
 
-	/// Data source verbosity.
-	enum class DataSourceVerbosity {
-		/// No messages.
-		Off,
+    /// Data source verbosity.
+    enum class DataSourceVerbosity {
+        /// No messages.
+        Off,
 
-		/// Verbose messages.
-		Verbose
-	};
-}}
+        /// Verbose messages.
+        Verbose
+    };
+}
+}

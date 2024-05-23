@@ -22,78 +22,86 @@
 #include "catapult/cache/PatriciaTreeEncoderAdapters.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS PatriciaTreeEncoderAdaptersTests
 
-	namespace {
-		class Serializer {
-		public:
-			using KeyType = Amount;
-			using ValueType = std::vector<uint8_t>;
+    namespace {
+        class Serializer {
+        public:
+            using KeyType = Amount;
+            using ValueType = std::vector<uint8_t>;
 
-		public:
-			static std::string SerializeValue(const ValueType& value) {
-				std::string str;
-				for (auto byte : value)
-					str.push_back(static_cast<char>(byte));
+        public:
+            static std::string SerializeValue(const ValueType& value)
+            {
+                std::string str;
+                for (auto byte : value)
+                    str.push_back(static_cast<char>(byte));
 
-				return str;
-			}
-		};
+                return str;
+            }
+        };
 
-		using PlainKeyEncoder = SerializerPlainKeyEncoder<Serializer>;
-		using HashedKeyEncoder = SerializerHashedKeyEncoder<Serializer>;
+        using PlainKeyEncoder = SerializerPlainKeyEncoder<Serializer>;
+        using HashedKeyEncoder = SerializerHashedKeyEncoder<Serializer>;
 
-		template<typename TEncoder>
-		void AssertCanEncodeValue() {
-			// Act:
-			auto value = test::GenerateRandomVector(45);
-			const auto& encodedValue = TEncoder::EncodeValue(value);
+        template <typename TEncoder>
+        void AssertCanEncodeValue()
+        {
+            // Act:
+            auto value = test::GenerateRandomVector(45);
+            const auto& encodedValue = TEncoder::EncodeValue(value);
 
-			// Assert:
-			Hash256 valueHash;
-			crypto::Sha3_256(value, valueHash);
+            // Assert:
+            Hash256 valueHash;
+            crypto::Sha3_256(value, valueHash);
 
-			EXPECT_EQ(valueHash, encodedValue);
-		}
-	}
+            EXPECT_EQ(valueHash, encodedValue);
+        }
+    }
 
-	// region SerializerPlainKeyEncoder
+    // region SerializerPlainKeyEncoder
 
-	TEST(TEST_CLASS, CanEncodeKey_PlainKey) {
-		// Act:
-		auto key = Amount(123);
-		const auto& encodedKey = PlainKeyEncoder::EncodeKey(key);
+    TEST(TEST_CLASS, CanEncodeKey_PlainKey)
+    {
+        // Act:
+        auto key = Amount(123);
+        const auto& encodedKey = PlainKeyEncoder::EncodeKey(key);
 
-		// Assert:
-		EXPECT_EQ(&key, &encodedKey);
-		EXPECT_EQ(Amount(123), encodedKey);
-	}
+        // Assert:
+        EXPECT_EQ(&key, &encodedKey);
+        EXPECT_EQ(Amount(123), encodedKey);
+    }
 
-	TEST(TEST_CLASS, CanEncodeValue_PlainKey) {
-		AssertCanEncodeValue<PlainKeyEncoder>();
-	}
+    TEST(TEST_CLASS, CanEncodeValue_PlainKey)
+    {
+        AssertCanEncodeValue<PlainKeyEncoder>();
+    }
 
-	// endregion
+    // endregion
 
-	// region SerializerHashedKeyEncoder
+    // region SerializerHashedKeyEncoder
 
-	TEST(TEST_CLASS, CanEncodeKey_HashedKey) {
-		// Act:
-		auto key = Amount(123);
-		const auto& encodedKey = HashedKeyEncoder::EncodeKey(key);
+    TEST(TEST_CLASS, CanEncodeKey_HashedKey)
+    {
+        // Act:
+        auto key = Amount(123);
+        const auto& encodedKey = HashedKeyEncoder::EncodeKey(key);
 
-		// Assert:
-		Hash256 keyHash;
-		crypto::Sha3_256({ test::AsBytePointer(&key), sizeof(Amount) }, keyHash);
+        // Assert:
+        Hash256 keyHash;
+        crypto::Sha3_256({ test::AsBytePointer(&key), sizeof(Amount) }, keyHash);
 
-		EXPECT_EQ(keyHash, encodedKey);
-	}
+        EXPECT_EQ(keyHash, encodedKey);
+    }
 
-	TEST(TEST_CLASS, CanEncodeValue_HashedKey) {
-		AssertCanEncodeValue<HashedKeyEncoder>();
-	}
+    TEST(TEST_CLASS, CanEncodeValue_HashedKey)
+    {
+        AssertCanEncodeValue<HashedKeyEncoder>();
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

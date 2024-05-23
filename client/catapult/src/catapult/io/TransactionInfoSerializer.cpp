@@ -23,54 +23,60 @@
 #include "EntityIoUtils.h"
 #include "Stream.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	void WriteTransactionInfo(const model::TransactionInfo& transactionInfo, OutputStream& outputStream) {
-		outputStream.write(transactionInfo.EntityHash);
-		outputStream.write(transactionInfo.MerkleComponentHash);
+    void WriteTransactionInfo(const model::TransactionInfo& transactionInfo, OutputStream& outputStream)
+    {
+        outputStream.write(transactionInfo.EntityHash);
+        outputStream.write(transactionInfo.MerkleComponentHash);
 
-		if (transactionInfo.OptionalExtractedAddresses) {
-			Write64(outputStream, transactionInfo.OptionalExtractedAddresses->size());
-			for (const auto& address : *transactionInfo.OptionalExtractedAddresses)
-				outputStream.write({ reinterpret_cast<const uint8_t*>(address.data()), address.size() });
-		} else {
-			Write64(outputStream, std::numeric_limits<uint64_t>::max());
-		}
+        if (transactionInfo.OptionalExtractedAddresses) {
+            Write64(outputStream, transactionInfo.OptionalExtractedAddresses->size());
+            for (const auto& address : *transactionInfo.OptionalExtractedAddresses)
+                outputStream.write({ reinterpret_cast<const uint8_t*>(address.data()), address.size() });
+        } else {
+            Write64(outputStream, std::numeric_limits<uint64_t>::max());
+        }
 
-		WriteEntity(outputStream, *transactionInfo.pEntity);
-	}
+        WriteEntity(outputStream, *transactionInfo.pEntity);
+    }
 
-	void ReadTransactionInfo(InputStream& inputStream, model::TransactionInfo& transactionInfo) {
-		inputStream.read(transactionInfo.EntityHash);
-		inputStream.read(transactionInfo.MerkleComponentHash);
+    void ReadTransactionInfo(InputStream& inputStream, model::TransactionInfo& transactionInfo)
+    {
+        inputStream.read(transactionInfo.EntityHash);
+        inputStream.read(transactionInfo.MerkleComponentHash);
 
-		auto numAddresses = Read64(inputStream);
-		if (std::numeric_limits<uint64_t>::max() != numAddresses) {
-			UnresolvedAddress address;
-			auto pExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
-			for (auto i = 0u; i < numAddresses; ++i) {
-				inputStream.read({ reinterpret_cast<uint8_t*>(address.data()), address.size() });
-				pExtractedAddresses->insert(address);
-			}
+        auto numAddresses = Read64(inputStream);
+        if (std::numeric_limits<uint64_t>::max() != numAddresses) {
+            UnresolvedAddress address;
+            auto pExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
+            for (auto i = 0u; i < numAddresses; ++i) {
+                inputStream.read({ reinterpret_cast<uint8_t*>(address.data()), address.size() });
+                pExtractedAddresses->insert(address);
+            }
 
-			transactionInfo.OptionalExtractedAddresses = pExtractedAddresses;
-		}
+            transactionInfo.OptionalExtractedAddresses = pExtractedAddresses;
+        }
 
-		transactionInfo.pEntity = ReadEntity<model::Transaction>(inputStream);
-	}
+        transactionInfo.pEntity = ReadEntity<model::Transaction>(inputStream);
+    }
 
-	void WriteTransactionInfos(const model::TransactionInfosSet& transactionInfos, OutputStream& outputStream) {
-		Write32(outputStream, static_cast<uint32_t>(transactionInfos.size()));
-		for (const auto& transactionInfo : transactionInfos)
-			WriteTransactionInfo(transactionInfo, outputStream);
-	}
+    void WriteTransactionInfos(const model::TransactionInfosSet& transactionInfos, OutputStream& outputStream)
+    {
+        Write32(outputStream, static_cast<uint32_t>(transactionInfos.size()));
+        for (const auto& transactionInfo : transactionInfos)
+            WriteTransactionInfo(transactionInfo, outputStream);
+    }
 
-	void ReadTransactionInfos(InputStream& inputStream, model::TransactionInfosSet& transactionInfos) {
-		auto numTransactionInfos = Read32(inputStream);
-		for (auto i = 0u; i < numTransactionInfos; ++i) {
-			model::TransactionInfo transactionInfo;
-			ReadTransactionInfo(inputStream, transactionInfo);
-			transactionInfos.insert(std::move(transactionInfo));
-		}
-	}
-}}
+    void ReadTransactionInfos(InputStream& inputStream, model::TransactionInfosSet& transactionInfos)
+    {
+        auto numTransactionInfos = Read32(inputStream);
+        for (auto i = 0u; i < numTransactionInfos; ++i) {
+            model::TransactionInfo transactionInfo;
+            ReadTransactionInfo(inputStream, transactionInfo);
+            transactionInfos.insert(std::move(transactionInfo));
+        }
+    }
+}
+}

@@ -22,51 +22,55 @@
 #pragma once
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Metadata transaction header.
-	template<typename THeader>
-	struct MetadataTransactionHeader : public THeader {
-		/// Metadata target address.
-		UnresolvedAddress TargetAddress;
+    /// Metadata transaction header.
+    template <typename THeader>
+    struct MetadataTransactionHeader : public THeader {
+        /// Metadata target address.
+        UnresolvedAddress TargetAddress;
 
-		/// Metadata key scoped to source, target and type.
-		uint64_t ScopedMetadataKey;
-	};
+        /// Metadata key scoped to source, target and type.
+        uint64_t ScopedMetadataKey;
+    };
 
-	/// Binary layout for a basic metadata transaction body.
-	template<typename THeader, EntityType Metadata_Entity_Type>
-	struct BasicMetadataTransactionBody : public THeader {
-	private:
-		using TransactionType = BasicMetadataTransactionBody<THeader, Metadata_Entity_Type>;
+    /// Binary layout for a basic metadata transaction body.
+    template <typename THeader, EntityType Metadata_Entity_Type>
+    struct BasicMetadataTransactionBody : public THeader {
+    private:
+        using TransactionType = BasicMetadataTransactionBody<THeader, Metadata_Entity_Type>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Metadata_Entity_Type, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Metadata_Entity_Type, 1)
 
-	public:
-		/// Change in value size in bytes.
-		int16_t ValueSizeDelta;
+    public:
+        /// Change in value size in bytes.
+        int16_t ValueSizeDelta;
 
-		/// Value size in bytes.
-		uint16_t ValueSize;
+        /// Value size in bytes.
+        uint16_t ValueSize;
 
-		// followed by value data if ValueSize != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Value, uint8_t)
+        // followed by value data if ValueSize != 0
+        DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Value, uint8_t)
 
-	private:
-		template<typename T>
-		static auto* ValuePtrT(T& transaction) {
-			return transaction.ValueSize ? THeader::PayloadStart(transaction) : nullptr;
-		}
+    private:
+        template <typename T>
+        static auto* ValuePtrT(T& transaction)
+        {
+            return transaction.ValueSize ? THeader::PayloadStart(transaction) : nullptr;
+        }
 
-	public:
-		/// Calculates the real size of metadata \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
-			return sizeof(TransactionType) + transaction.ValueSize;
-		}
-	};
+    public:
+        /// Calculates the real size of metadata \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept
+        {
+            return sizeof(TransactionType) + transaction.ValueSize;
+        }
+    };
 
 #pragma pack(pop)
-}}
+}
+}

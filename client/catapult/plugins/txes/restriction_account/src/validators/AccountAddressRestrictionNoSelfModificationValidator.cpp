@@ -21,15 +21,17 @@
 
 #include "Validators.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::ModifyAccountAddressRestrictionValueNotification;
+    using Notification = model::ModifyAccountAddressRestrictionValueNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(
-			AccountAddressRestrictionNoSelfModification,
-			[](const Notification& notification, const ValidatorContext& context) {
-				return notification.Address != context.Resolvers.resolve(notification.RestrictionValue)
-							   ? ValidationResult::Success
-							   : Failure_RestrictionAccount_Invalid_Modification_Address;
-			})
-}}
+    DEFINE_STATEFUL_VALIDATOR(
+        AccountAddressRestrictionNoSelfModification,
+        [](const Notification& notification, const ValidatorContext& context) {
+            return notification.Address != context.Resolvers.resolve(notification.RestrictionValue)
+                ? ValidationResult::Success
+                : Failure_RestrictionAccount_Invalid_Modification_Address;
+        })
+}
+}

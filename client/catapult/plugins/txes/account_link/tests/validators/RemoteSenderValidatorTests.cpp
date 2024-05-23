@@ -19,84 +19,92 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
+#include "src/validators/Validators.h"
+#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS RemoteSenderValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(RemoteSender, )
+    DEFINE_COMMON_VALIDATOR_TESTS(RemoteSender, )
 
-	namespace {
-		void AddAccount(cache::CatapultCache& cache, const Address& address, state::AccountType accountType) {
-			auto cacheDelta = cache.createDelta();
-			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+    namespace {
+        void AddAccount(cache::CatapultCache& cache, const Address& address, state::AccountType accountType)
+        {
+            auto cacheDelta = cache.createDelta();
+            auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-			accountStateCacheDelta.addAccount(address, Height(1));
-			auto accountStateIter = accountStateCacheDelta.find(address);
-			auto& accountState = accountStateIter.get();
-			accountState.AccountType = accountType;
+            accountStateCacheDelta.addAccount(address, Height(1));
+            auto accountStateIter = accountStateCacheDelta.find(address);
+            auto& accountState = accountStateIter.get();
+            accountState.AccountType = accountType;
 
-			cache.commit(Height(1));
-		}
+            cache.commit(Height(1));
+        }
 
-		void AssertValidation(
-				ValidationResult expectedResult,
-				const Address& address,
-				state::AccountType accountType,
-				const Address& notificationAddress) {
-			// Arrange:
-			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-			AddAccount(cache, address, accountType);
+        void AssertValidation(
+            ValidationResult expectedResult,
+            const Address& address,
+            state::AccountType accountType,
+            const Address& notificationAddress)
+        {
+            // Arrange:
+            auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+            AddAccount(cache, address, accountType);
 
-			auto pValidator = CreateRemoteSenderValidator();
-			auto entityType = static_cast<model::EntityType>(0x4201);
-			auto notification = model::TransactionNotification(notificationAddress, Hash256(), entityType, Timestamp());
+            auto pValidator = CreateRemoteSenderValidator();
+            auto entityType = static_cast<model::EntityType>(0x4201);
+            auto notification = model::TransactionNotification(notificationAddress, Hash256(), entityType, Timestamp());
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, cache);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result);
+        }
+    }
 
-	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndSender) {
-		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
+    TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndSender)
+    {
+        // Arrange:
+        auto address = test::GenerateRandomByteArray<Address>();
 
-		// Assert:
-		constexpr auto Failure_Result = Failure_AccountLink_Remote_Account_Signer_Prohibited;
-		AssertValidation(Failure_Result, address, state::AccountType::Remote, address);
-	}
+        // Assert:
+        constexpr auto Failure_Result = Failure_AccountLink_Remote_Account_Signer_Prohibited;
+        AssertValidation(Failure_Result, address, state::AccountType::Remote, address);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenSenderIsUnknown) {
-		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
-		auto notificationAddress = test::GenerateRandomByteArray<Address>();
+    TEST(TEST_CLASS, SuccessWhenSenderIsUnknown)
+    {
+        // Arrange:
+        auto address = test::GenerateRandomByteArray<Address>();
+        auto notificationAddress = test::GenerateRandomByteArray<Address>();
 
-		// Assert:
-		AssertValidation(ValidationResult::Success, address, state::AccountType::Remote, notificationAddress);
-	}
+        // Assert:
+        AssertValidation(ValidationResult::Success, address, state::AccountType::Remote, notificationAddress);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenAccountIsMainAndSender) {
-		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
+    TEST(TEST_CLASS, SuccessWhenAccountIsMainAndSender)
+    {
+        // Arrange:
+        auto address = test::GenerateRandomByteArray<Address>();
 
-		// Assert:
-		AssertValidation(ValidationResult::Success, address, state::AccountType::Main, address);
-	}
+        // Assert:
+        AssertValidation(ValidationResult::Success, address, state::AccountType::Main, address);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenAccountIsUnlinkedAndSender) {
-		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
+    TEST(TEST_CLASS, SuccessWhenAccountIsUnlinkedAndSender)
+    {
+        // Arrange:
+        auto address = test::GenerateRandomByteArray<Address>();
 
-		// Assert:
-		AssertValidation(ValidationResult::Success, address, state::AccountType::Unlinked, address);
-	}
-}}
+        // Assert:
+        AssertValidation(ValidationResult::Success, address, state::AccountType::Unlinked, address);
+    }
+}
+}

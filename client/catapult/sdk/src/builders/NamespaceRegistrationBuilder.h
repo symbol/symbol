@@ -23,52 +23,54 @@
 #include "TransactionBuilder.h"
 #include "plugins/txes/namespace/src/model/NamespaceRegistrationTransaction.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for a namespace registration transaction.
-	class NamespaceRegistrationBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::NamespaceRegistrationTransaction;
-		using EmbeddedTransaction = model::EmbeddedNamespaceRegistrationTransaction;
+    /// Builder for a namespace registration transaction.
+    class NamespaceRegistrationBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::NamespaceRegistrationTransaction;
+        using EmbeddedTransaction = model::EmbeddedNamespaceRegistrationTransaction;
 
-	public:
-		/// Creates a namespace registration builder for building a namespace registration transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		NamespaceRegistrationBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates a namespace registration builder for building a namespace registration transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        NamespaceRegistrationBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the namespace duration to \a duration and registrationType to `root`.
-		void setDuration(BlockDuration duration);
+    public:
+        /// Sets the namespace duration to \a duration and registrationType to `root`.
+        void setDuration(BlockDuration duration);
 
-		/// Sets the parent namespace identifier to \a parentId and registrationType to `child`.
-		void setParentId(NamespaceId parentId);
+        /// Sets the parent namespace identifier to \a parentId and registrationType to `child`.
+        void setParentId(NamespaceId parentId);
 
-		/// Sets the namespace name to \a name.
-		void setName(const RawBuffer& name);
+        /// Sets the namespace name to \a name.
+        void setName(const RawBuffer& name);
 
-	public:
-		/// Gets the size of namespace registration transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of namespace registration transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new namespace registration transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new namespace registration transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded namespace registration transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded namespace registration transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		BlockDuration m_duration;
-		NamespaceId m_parentId;
-		NamespaceId m_id;
-		model::NamespaceRegistrationType m_registrationType;
-		std::vector<uint8_t> m_name;
-	};
-}}
+    private:
+        BlockDuration m_duration;
+        NamespaceId m_parentId;
+        NamespaceId m_id;
+        model::NamespaceRegistrationType m_registrationType;
+        std::vector<uint8_t> m_name;
+    };
+}
+}

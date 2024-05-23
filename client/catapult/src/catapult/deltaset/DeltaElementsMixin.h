@@ -24,87 +24,97 @@
 #include "catapult/utils/traits/StlTraits.h"
 #include <unordered_set>
 
-namespace catapult { namespace deltaset {
+namespace catapult {
+namespace deltaset {
 
-	/// Mixin that wraps BaseSetDelta and provides a facade on top of BaseSetDelta::deltas().
-	template<typename TSetDelta>
-	class DeltaElementsMixin {
-	private:
-		// region value accessors
+    /// Mixin that wraps BaseSetDelta and provides a facade on top of BaseSetDelta::deltas().
+    template <typename TSetDelta>
+    class DeltaElementsMixin {
+    private:
+        // region value accessors
 
-		template<typename TSet, bool IsMap = utils::traits::is_map_v<TSet>>
-		struct ValueAccessorT {
-			using ValueType = typename TSet::value_type;
+        template <typename TSet, bool IsMap = utils::traits::is_map_v<TSet>>
+        struct ValueAccessorT {
+            using ValueType = typename TSet::value_type;
 
-			static const ValueType* GetPointer(const typename TSet::value_type& value) {
-				return &value;
-			}
-		};
+            static const ValueType* GetPointer(const typename TSet::value_type& value)
+            {
+                return &value;
+            }
+        };
 
-		template<typename TSet>
-		struct ValueAccessorT<TSet, true> { // map specialization
-			using ValueType = typename TSet::value_type::second_type;
+        template <typename TSet>
+        struct ValueAccessorT<TSet, true> { // map specialization
+            using ValueType = typename TSet::value_type::second_type;
 
-			static const ValueType* GetPointer(const typename TSet::value_type& pair) {
-				return &pair.second;
-			}
-		};
+            static const ValueType* GetPointer(const typename TSet::value_type& pair)
+            {
+                return &pair.second;
+            }
+        };
 
-		// endregion
+        // endregion
 
-	private:
-		template<typename TSet>
-		struct PointerComparer {
-			bool operator()(const typename TSet::value_type* pLhs, const typename TSet::value_type* pRhs) const {
-				return typename TSet::key_compare()(*pLhs, *pRhs);
-			}
-		};
+    private:
+        template <typename TSet>
+        struct PointerComparer {
+            bool operator()(const typename TSet::value_type* pLhs, const typename TSet::value_type* pRhs) const
+            {
+                return typename TSet::key_compare()(*pLhs, *pRhs);
+            }
+        };
 
-		// use MemorySetType for detection because it is always stl (memory) container
-		using MemorySetType = typename TSetDelta::MemorySetType;
-		using ValueAccessor = ValueAccessorT<MemorySetType>;
-		using ValueType = typename ValueAccessor::ValueType;
+        // use MemorySetType for detection because it is always stl (memory) container
+        using MemorySetType = typename TSetDelta::MemorySetType;
+        using ValueAccessor = ValueAccessorT<MemorySetType>;
+        using ValueType = typename ValueAccessor::ValueType;
 
-		// only ordered sets (not maps) support ordered pointers
-		// [this constraint is inconsequential because ordered maps aren't currently used]
-		using PointerContainer = std::conditional_t<
-				!utils::traits::is_map_v<MemorySetType> && utils::traits::is_ordered_v<MemorySetType>,
-				std::set<const ValueType*, PointerComparer<MemorySetType>>,
-				std::unordered_set<const ValueType*>>;
+        // only ordered sets (not maps) support ordered pointers
+        // [this constraint is inconsequential because ordered maps aren't currently used]
+        using PointerContainer = std::conditional_t<
+            !utils::traits::is_map_v<MemorySetType> && utils::traits::is_ordered_v<MemorySetType>,
+            std::set<const ValueType*, PointerComparer<MemorySetType>>,
+            std::unordered_set<const ValueType*>>;
 
-	public:
-		/// Creates a mixin around \a setDelta.
-		explicit DeltaElementsMixin(const TSetDelta& setDelta)
-				: m_setDelta(setDelta) {
-		}
+    public:
+        /// Creates a mixin around \a setDelta.
+        explicit DeltaElementsMixin(const TSetDelta& setDelta)
+            : m_setDelta(setDelta)
+        {
+        }
 
-	public:
-		/// Gets the pointers to all added elements.
-		PointerContainer addedElements() const {
-			return CollectAllPointers(m_setDelta.deltas().Added);
-		}
+    public:
+        /// Gets the pointers to all added elements.
+        PointerContainer addedElements() const
+        {
+            return CollectAllPointers(m_setDelta.deltas().Added);
+        }
 
-		/// Gets the pointers to all modified elements.
-		PointerContainer modifiedElements() const {
-			return CollectAllPointers(m_setDelta.deltas().Copied);
-		}
+        /// Gets the pointers to all modified elements.
+        PointerContainer modifiedElements() const
+        {
+            return CollectAllPointers(m_setDelta.deltas().Copied);
+        }
 
-		/// Gets the pointers to all removed elements.
-		PointerContainer removedElements() const {
-			return CollectAllPointers(m_setDelta.deltas().Removed);
-		}
+        /// Gets the pointers to all removed elements.
+        PointerContainer removedElements() const
+        {
+            return CollectAllPointers(m_setDelta.deltas().Removed);
+        }
 
-	private:
-		template<typename TSource>
-		static PointerContainer CollectAllPointers(const TSource& source) {
-			PointerContainer dest;
-			for (const auto& value : source)
-				dest.insert(ValueAccessor::GetPointer(value));
+    private:
+        template <typename TSource>
+        static PointerContainer CollectAllPointers(const TSource& source)
+        {
+            PointerContainer dest;
+            for (const auto& value : source)
+                dest.insert(ValueAccessor::GetPointer(value));
 
-			return dest;
-		}
+            return dest;
+        }
 
-	private:
-		const TSetDelta& m_setDelta;
-	};
-}}
+    private:
+        const TSetDelta& m_setDelta;
+    };
+}
+}

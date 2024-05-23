@@ -23,41 +23,49 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/Notifications.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Creates a new notification with \a type.
-	inline model::Notification CreateNotification(model::NotificationType type) {
-		return model::Notification(type, sizeof(model::Notification));
-	}
+    /// Creates a new notification with \a type.
+    inline model::Notification CreateNotification(model::NotificationType type)
+    {
+        return model::Notification(type, sizeof(model::Notification));
+    }
 
-	/// Creates a block notification around \a harvester and \a beneficiary.
-	inline model::BlockNotification CreateBlockNotification(const Address& harvester, const Address& beneficiary) {
-		return model::BlockNotification(model::EntityType(), harvester, beneficiary, Timestamp(), Difficulty(), BlockFeeMultiplier());
-	}
+    /// Creates a block notification around \a harvester and \a beneficiary.
+    inline model::BlockNotification CreateBlockNotification(const Address& harvester, const Address& beneficiary)
+    {
+        return model::BlockNotification(model::EntityType(), harvester, beneficiary, Timestamp(), Difficulty(), BlockFeeMultiplier());
+    }
 
-	/// Creates a block notification around \a harvester.
-	inline model::BlockNotification CreateBlockNotification(const Address& harvester) {
-		return CreateBlockNotification(harvester, Address());
-	}
+    /// Creates a block notification around \a harvester.
+    inline model::BlockNotification CreateBlockNotification(const Address& harvester)
+    {
+        return CreateBlockNotification(harvester, Address());
+    }
 
-	/// Creates a placeholder block notification.
-	inline model::BlockNotification CreateBlockNotification() {
-		return CreateBlockNotification(Address());
-	}
+    /// Creates a placeholder block notification.
+    inline model::BlockNotification CreateBlockNotification()
+    {
+        return CreateBlockNotification(Address());
+    }
 
-	/// Casts \a notification to a derived notification type.
-	template<typename TNotification>
-	const TNotification& CastToDerivedNotification(const model::Notification& notification) {
-		if (sizeof(TNotification) != notification.Size)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("notification has incorrect size", utils::to_underlying_type(notification.Type));
+    /// Casts \a notification to a derived notification type.
+    template <typename TNotification>
+    const TNotification& CastToDerivedNotification(const model::Notification& notification)
+    {
+        if (sizeof(TNotification) != notification.Size)
+            CATAPULT_THROW_INVALID_ARGUMENT_1("notification has incorrect size", utils::to_underlying_type(notification.Type));
 
-		return static_cast<const TNotification&>(notification);
-	}
+        return static_cast<const TNotification&>(notification);
+    }
 
-	/// Calculates the hash of \a notification.
-	inline Hash256 CalculateNotificationHash(const model::Notification& notification) {
-		Hash256 notificationHash;
-		crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(&notification), notification.Size }, notificationHash);
-		return notificationHash;
-	}
-}}
+    /// Calculates the hash of \a notification.
+    inline Hash256 CalculateNotificationHash(const model::Notification& notification)
+    {
+        Hash256 notificationHash;
+        crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(&notification), notification.Size }, notificationHash);
+        return notificationHash;
+    }
+}
+}

@@ -23,66 +23,68 @@
 #include "TransactionBuilder.h"
 #include "plugins/txes/restriction_mosaic/src/model/MosaicGlobalRestrictionTransaction.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for a mosaic global restriction transaction.
-	class MosaicGlobalRestrictionBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::MosaicGlobalRestrictionTransaction;
-		using EmbeddedTransaction = model::EmbeddedMosaicGlobalRestrictionTransaction;
+    /// Builder for a mosaic global restriction transaction.
+    class MosaicGlobalRestrictionBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::MosaicGlobalRestrictionTransaction;
+        using EmbeddedTransaction = model::EmbeddedMosaicGlobalRestrictionTransaction;
 
-	public:
-		/// Creates a mosaic global restriction builder for building a mosaic global restriction transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		MosaicGlobalRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates a mosaic global restriction builder for building a mosaic global restriction transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        MosaicGlobalRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the identifier of the mosaic being restricted to \a mosaicId.
-		void setMosaicId(UnresolvedMosaicId mosaicId);
+    public:
+        /// Sets the identifier of the mosaic being restricted to \a mosaicId.
+        void setMosaicId(UnresolvedMosaicId mosaicId);
 
-		/// Sets the identifier of the mosaic providing the restriction key to \a referenceMosaicId.
-		void setReferenceMosaicId(UnresolvedMosaicId referenceMosaicId);
+        /// Sets the identifier of the mosaic providing the restriction key to \a referenceMosaicId.
+        void setReferenceMosaicId(UnresolvedMosaicId referenceMosaicId);
 
-		/// Sets the restriction key relative to the reference mosaic identifier to \a restrictionKey.
-		void setRestrictionKey(uint64_t restrictionKey);
+        /// Sets the restriction key relative to the reference mosaic identifier to \a restrictionKey.
+        void setRestrictionKey(uint64_t restrictionKey);
 
-		/// Sets the previous restriction value to \a previousRestrictionValue.
-		void setPreviousRestrictionValue(uint64_t previousRestrictionValue);
+        /// Sets the previous restriction value to \a previousRestrictionValue.
+        void setPreviousRestrictionValue(uint64_t previousRestrictionValue);
 
-		/// Sets the new restriction value to \a newRestrictionValue.
-		void setNewRestrictionValue(uint64_t newRestrictionValue);
+        /// Sets the new restriction value to \a newRestrictionValue.
+        void setNewRestrictionValue(uint64_t newRestrictionValue);
 
-		/// Sets the previous restriction type to \a previousRestrictionType.
-		void setPreviousRestrictionType(model::MosaicRestrictionType previousRestrictionType);
+        /// Sets the previous restriction type to \a previousRestrictionType.
+        void setPreviousRestrictionType(model::MosaicRestrictionType previousRestrictionType);
 
-		/// Sets the new restriction type to \a newRestrictionType.
-		void setNewRestrictionType(model::MosaicRestrictionType newRestrictionType);
+        /// Sets the new restriction type to \a newRestrictionType.
+        void setNewRestrictionType(model::MosaicRestrictionType newRestrictionType);
 
-	public:
-		/// Gets the size of mosaic global restriction transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of mosaic global restriction transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new mosaic global restriction transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new mosaic global restriction transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded mosaic global restriction transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded mosaic global restriction transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		UnresolvedMosaicId m_mosaicId;
-		UnresolvedMosaicId m_referenceMosaicId;
-		uint64_t m_restrictionKey;
-		uint64_t m_previousRestrictionValue;
-		uint64_t m_newRestrictionValue;
-		model::MosaicRestrictionType m_previousRestrictionType;
-		model::MosaicRestrictionType m_newRestrictionType;
-	};
-}}
+    private:
+        UnresolvedMosaicId m_mosaicId;
+        UnresolvedMosaicId m_referenceMosaicId;
+        uint64_t m_restrictionKey;
+        uint64_t m_previousRestrictionValue;
+        uint64_t m_newRestrictionValue;
+        model::MosaicRestrictionType m_previousRestrictionType;
+        model::MosaicRestrictionType m_newRestrictionType;
+    };
+}
+}

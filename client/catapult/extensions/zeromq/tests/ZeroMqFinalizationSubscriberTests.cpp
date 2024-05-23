@@ -19,59 +19,65 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "zeromq/src/ZeroMqFinalizationSubscriber.h"
-#include "zeromq/src/ZeroMqEntityPublisher.h"
-#include "zeromq/tests/test/ZeroMqTestUtils.h"
 #include "tests/TestHarness.h"
+#include "zeromq/src/ZeroMqEntityPublisher.h"
+#include "zeromq/src/ZeroMqFinalizationSubscriber.h"
+#include "zeromq/tests/test/ZeroMqTestUtils.h"
 
-namespace catapult { namespace zeromq {
+namespace catapult {
+namespace zeromq {
 
 #define TEST_CLASS ZeroMqFinalizationSubscriberTests
 
-	namespace {
-		class MqSubscriberContext : public test::MqContextT<subscribers::FinalizationSubscriber> {
-		public:
-			MqSubscriberContext()
-					: MqContextT(CreateZeroMqFinalizationSubscriber) {
-			}
+    namespace {
+        class MqSubscriberContext : public test::MqContextT<subscribers::FinalizationSubscriber> {
+        public:
+            MqSubscriberContext()
+                : MqContextT(CreateZeroMqFinalizationSubscriber)
+            {
+            }
 
-		public:
-			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) {
-				subscriber().notifyFinalizedBlock(round, height, hash);
-			}
-		};
-	}
+        public:
+            void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash)
+            {
+                subscriber().notifyFinalizedBlock(round, height, hash);
+            }
+        };
+    }
 
-	TEST(TEST_CLASS, SubscriberDoesNotReceiveDataOnDifferentTopic) {
-		// Arrange:
-		uint64_t topic(0x12345678);
-		MqSubscriberContext context;
-		context.subscribe(topic);
+    TEST(TEST_CLASS, SubscriberDoesNotReceiveDataOnDifferentTopic)
+    {
+        // Arrange:
+        uint64_t topic(0x12345678);
+        MqSubscriberContext context;
+        context.subscribe(topic);
 
-		auto hash = test::GenerateRandomByteArray<Hash256>();
+        auto hash = test::GenerateRandomByteArray<Hash256>();
 
-		// Act:
-		context.notifyFinalizedBlock({ FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
+        // Act:
+        context.notifyFinalizedBlock({ FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
 
-		// Assert:
-		test::AssertNoPendingMessages(context.zmqSocket());
-	}
+        // Assert:
+        test::AssertNoPendingMessages(context.zmqSocket());
+    }
 
-	TEST(TEST_CLASS, CanNotifyFinalizedBlock) {
-		// Arrange:
-		MqSubscriberContext context;
-		context.subscribe(BlockMarker::Finalized_Block_Marker);
+    TEST(TEST_CLASS, CanNotifyFinalizedBlock)
+    {
+        // Arrange:
+        MqSubscriberContext context;
+        context.subscribe(BlockMarker::Finalized_Block_Marker);
 
-		auto hash = test::GenerateRandomByteArray<Hash256>();
+        auto hash = test::GenerateRandomByteArray<Hash256>();
 
-		// Act:
-		context.notifyFinalizedBlock({ FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
+        // Act:
+        context.notifyFinalizedBlock({ FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
 
-		// Assert:
-		zmq::multipart_t message;
-		test::ZmqReceive(message, context.zmqSocket());
+        // Assert:
+        zmq::multipart_t message;
+        test::ZmqReceive(message, context.zmqSocket());
 
-		test::AssertFinalizedBlockMessage(message, { FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
-		test::AssertNoPendingMessages(context.zmqSocket());
-	}
-}}
+        test::AssertFinalizedBlockMessage(message, { FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
+        test::AssertNoPendingMessages(context.zmqSocket());
+    }
+}
+}

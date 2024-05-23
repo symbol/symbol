@@ -20,20 +20,22 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/MultisigCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/MultisigCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::TransactionNotification;
+    using Notification = model::TransactionNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(MultisigPermittedOperation, [](const Notification& notification, const ValidatorContext& context) {
-		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		auto multisigIter = multisigCache.find(notification.Sender);
+    DEFINE_STATEFUL_VALIDATOR(MultisigPermittedOperation, [](const Notification& notification, const ValidatorContext& context) {
+        const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+        auto multisigIter = multisigCache.find(notification.Sender);
 
-		return !multisigIter.tryGet() || multisigIter.get().cosignatoryAddresses().empty()
-					   ? ValidationResult::Success
-					   : Failure_Multisig_Operation_Prohibited_By_Account;
-	})
-}}
+        return !multisigIter.tryGet() || multisigIter.get().cosignatoryAddresses().empty()
+            ? ValidationResult::Success
+            : Failure_Multisig_Operation_Prohibited_By_Account;
+    })
+}
+}

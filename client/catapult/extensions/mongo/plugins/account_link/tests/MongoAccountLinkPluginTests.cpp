@@ -19,30 +19,37 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/account_link/src/model/AccountLinkEntityType.h"
 #include "mongo/tests/test/MongoPluginTestUtils.h"
+#include "plugins/txes/account_link/src/model/AccountLinkEntityType.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct MongoAccountLinkPluginTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+        namespace {
+            struct MongoAccountLinkPluginTraits {
+            public:
+                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Account_Key_Link, model::Entity_Type_Node_Key_Link };
-			}
+                static std::vector<model::EntityType> GetTransactionTypes()
+                {
+                    return { model::Entity_Type_Account_Key_Link, model::Entity_Type_Node_Key_Link };
+                }
 
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return {};
-			}
+                static std::vector<model::ReceiptType> GetReceiptTypes()
+                {
+                    return {};
+                }
 
-			static std::string GetStorageName() {
-				return "{}";
-			}
-		};
-	}
+                static std::string GetStorageName()
+                {
+                    return "{}";
+                }
+            };
+        }
 
-	DEFINE_MONGO_PLUGIN_TESTS(MongoAccountLinkPluginTests, MongoAccountLinkPluginTraits)
-}}}
+        DEFINE_MONGO_PLUGIN_TESTS(MongoAccountLinkPluginTests, MongoAccountLinkPluginTraits)
+    }
+}
+}

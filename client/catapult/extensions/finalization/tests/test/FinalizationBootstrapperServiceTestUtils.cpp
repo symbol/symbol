@@ -20,50 +20,56 @@
 **/
 
 #include "FinalizationBootstrapperServiceTestUtils.h"
-#include "finalization/src/FinalizationConfiguration.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	cache::CatapultCache FinalizationBootstrapperServiceTestUtils::CreateCache() {
-		return CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-	}
+    cache::CatapultCache FinalizationBootstrapperServiceTestUtils::CreateCache()
+    {
+        return CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+    }
 
-	cache::CatapultCache FinalizationBootstrapperServiceTestUtils::CreateCache(std::vector<AccountKeyPairDescriptor>& keyPairDescriptors) {
-		auto config = model::BlockchainConfiguration::Uninitialized();
-		config.HarvestingMosaicId = Default_Harvesting_Mosaic_Id;
-		config.MinVoterBalance = Amount(2'000'000);
+    cache::CatapultCache FinalizationBootstrapperServiceTestUtils::CreateCache(std::vector<AccountKeyPairDescriptor>& keyPairDescriptors)
+    {
+        auto config = model::BlockchainConfiguration::Uninitialized();
+        config.HarvestingMosaicId = Default_Harvesting_Mosaic_Id;
+        config.MinVoterBalance = Amount(2'000'000);
 
-		auto cache = CoreSystemCacheFactory::Create(config);
-		auto cacheDelta = cache.createDelta();
-		auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-		keyPairDescriptors = AddAccountsWithBalances(
-				accountStateCacheDelta,
-				Height(1),
-				Default_Harvesting_Mosaic_Id,
-				{ Amount(2'000'000), Amount(4'000'000'000'000), Amount(1'000'000), Amount(6'000'000'000'000) });
-		cache.commit(Height());
-		return cache;
-	}
+        auto cache = CoreSystemCacheFactory::Create(config);
+        auto cacheDelta = cache.createDelta();
+        auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+        keyPairDescriptors = AddAccountsWithBalances(
+            accountStateCacheDelta,
+            Height(1),
+            Default_Harvesting_Mosaic_Id,
+            { Amount(2'000'000), Amount(4'000'000'000'000), Amount(1'000'000), Amount(6'000'000'000'000) });
+        cache.commit(Height());
+        return cache;
+    }
 
-	void FinalizationBootstrapperServiceTestUtils::Register(extensions::ServiceLocator& locator, extensions::ServiceState& state) {
-		Register(locator, state, std::make_unique<mocks::MockProofStorage>());
-	}
+    void FinalizationBootstrapperServiceTestUtils::Register(extensions::ServiceLocator& locator, extensions::ServiceState& state)
+    {
+        Register(locator, state, std::make_unique<mocks::MockProofStorage>());
+    }
 
-	void FinalizationBootstrapperServiceTestUtils::Register(
-			extensions::ServiceLocator& locator,
-			extensions::ServiceState& state,
-			std::unique_ptr<io::ProofStorage>&& pProofStorage) {
-		auto config = finalization::FinalizationConfiguration::Uninitialized();
-		config.Size = 3000;
-		config.Threshold = 2000;
-		config.MaxHashesPerPoint = 64;
-		config.VotingSetGrouping = 500;
+    void FinalizationBootstrapperServiceTestUtils::Register(
+        extensions::ServiceLocator& locator,
+        extensions::ServiceState& state,
+        std::unique_ptr<io::ProofStorage>&& pProofStorage)
+    {
+        auto config = finalization::FinalizationConfiguration::Uninitialized();
+        config.Size = 3000;
+        config.Threshold = 2000;
+        config.MaxHashesPerPoint = 64;
+        config.VotingSetGrouping = 500;
 
-		auto pBootstrapperRegistrar = CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage));
-		pBootstrapperRegistrar->registerServices(locator, state);
-	}
-}}
+        auto pBootstrapperRegistrar = CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage));
+        pBootstrapperRegistrar->registerServices(locator, state);
+    }
+}
+}

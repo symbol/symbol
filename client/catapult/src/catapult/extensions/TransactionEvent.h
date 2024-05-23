@@ -20,37 +20,40 @@
 **/
 
 #pragma once
-#include "catapult/utils/BitwiseEnum.h"
 #include "catapult/functions.h"
 #include "catapult/types.h"
+#include "catapult/utils/BitwiseEnum.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Possible transaction events.
-	enum class TransactionEvent {
-		/// Transaction dependency was removed.
-		Dependency_Removed = 1
-	};
+    /// Possible transaction events.
+    enum class TransactionEvent {
+        /// Transaction dependency was removed.
+        Dependency_Removed = 1
+    };
 
-	MAKE_BITWISE_ENUM(TransactionEvent)
+    MAKE_BITWISE_ENUM(TransactionEvent)
 
-	/// Data associated with a transaction event.
-	struct TransactionEventData {
-	public:
-		/// Creates transaction event data around \a transactionHash and \a event.
-		TransactionEventData(const Hash256& transactionHash, TransactionEvent event)
-				: TransactionHash(transactionHash)
-				, Event(event) {
-		}
+    /// Data associated with a transaction event.
+    struct TransactionEventData {
+    public:
+        /// Creates transaction event data around \a transactionHash and \a event.
+        TransactionEventData(const Hash256& transactionHash, TransactionEvent event)
+            : TransactionHash(transactionHash)
+            , Event(event)
+        {
+        }
 
-	public:
-		/// Transaction hash.
-		const Hash256& TransactionHash;
+    public:
+        /// Transaction hash.
+        const Hash256& TransactionHash;
 
-		/// Transaction event.
-		TransactionEvent Event;
-	};
+        /// Transaction event.
+        TransactionEvent Event;
+    };
 
-	/// Handler that is called when a transaction event is raised.
-	using TransactionEventHandler = consumer<const TransactionEventData&>;
-}}
+    /// Handler that is called when a transaction event is raised.
+    using TransactionEventHandler = consumer<const TransactionEventData&>;
+}
+}

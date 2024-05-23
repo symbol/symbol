@@ -20,37 +20,43 @@
 **/
 
 #include "MosaicEntryMapper.h"
+#include "catapult/utils/Casting.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/mosaic/src/state/MosaicEntry.h"
-#include "catapult/utils/Casting.h"
 
 using namespace catapult::mongo::mappers;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	// region ToDbModel
+        // region ToDbModel
 
-	namespace {
-		void StreamProperties(bson_stream::document& builder, const model::MosaicProperties& properties) {
-			builder << "flags" << utils::to_underlying_type(properties.flags()) << "divisibility" << properties.divisibility() << "duration"
-					<< ToInt64(properties.duration());
-		}
-	}
+        namespace {
+            void StreamProperties(bson_stream::document& builder, const model::MosaicProperties& properties)
+            {
+                builder << "flags" << utils::to_underlying_type(properties.flags()) << "divisibility" << properties.divisibility() << "duration"
+                        << ToInt64(properties.duration());
+            }
+        }
 
-	bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry) {
-		const auto& definition = mosaicEntry.definition();
-		bson_stream::document builder;
-		auto doc = builder << "mosaic" << bson_stream::open_document << "version" << 1 << "id" << ToInt64(mosaicEntry.mosaicId())
-						   << "supply" << ToInt64(mosaicEntry.supply()) << "startHeight" << ToInt64(definition.startHeight())
-						   << "ownerAddress" << ToBinary(definition.ownerAddress()) << "revision"
-						   << static_cast<int32_t>(definition.revision());
+        bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry)
+        {
+            const auto& definition = mosaicEntry.definition();
+            bson_stream::document builder;
+            auto doc = builder << "mosaic" << bson_stream::open_document << "version" << 1 << "id" << ToInt64(mosaicEntry.mosaicId())
+                               << "supply" << ToInt64(mosaicEntry.supply()) << "startHeight" << ToInt64(definition.startHeight())
+                               << "ownerAddress" << ToBinary(definition.ownerAddress()) << "revision"
+                               << static_cast<int32_t>(definition.revision());
 
-		StreamProperties(builder, definition.properties());
+            StreamProperties(builder, definition.properties());
 
-		doc << bson_stream::close_document;
+            doc << bson_stream::close_document;
 
-		return builder << bson_stream::finalize;
-	}
+            return builder << bson_stream::finalize;
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

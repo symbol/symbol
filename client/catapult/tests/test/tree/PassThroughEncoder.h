@@ -24,30 +24,35 @@
 #include "catapult/types.h"
 #include <string>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Patricia tree pass-through encoder.
-	class PassThroughEncoder {
-	public:
-		using KeyType = uint32_t;
-		using ValueType = std::string;
+    /// Patricia tree pass-through encoder.
+    class PassThroughEncoder {
+    public:
+        using KeyType = uint32_t;
+        using ValueType = std::string;
 
-	public:
-		/// Encodes \a key.
-		static const KeyType& EncodeKey(const KeyType& key) {
-			return key;
-		}
+    public:
+        /// Encodes \a key.
+        static const KeyType& EncodeKey(const KeyType& key)
+        {
+            return key;
+        }
 
-		/// Encodes \a value.
-		static Hash256 EncodeValue(const ValueType& value) {
-			Hash256 valueHash;
-			crypto::Sha3_256(StringToBuffer(value), valueHash);
-			return valueHash;
-		}
+        /// Encodes \a value.
+        static Hash256 EncodeValue(const ValueType& value)
+        {
+            Hash256 valueHash;
+            crypto::Sha3_256(StringToBuffer(value), valueHash);
+            return valueHash;
+        }
 
-	private:
-		static RawBuffer StringToBuffer(const std::string& str) {
-			return { reinterpret_cast<const uint8_t*>(str.data()), str.size() };
-		}
-	};
-}}
+    private:
+        static RawBuffer StringToBuffer(const std::string& str)
+        {
+            return { reinterpret_cast<const uint8_t*>(str.data()), str.size() };
+        }
+    };
+}
+}

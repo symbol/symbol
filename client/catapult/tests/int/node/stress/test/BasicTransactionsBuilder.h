@@ -24,80 +24,85 @@
 #include "TransactionsGenerator.h"
 #include <vector>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Basic transactions builder and generator for transfer transactions.
-	class BasicTransactionsBuilder : public TransactionsGenerator {
-	private:
-		// region descriptors
+    /// Basic transactions builder and generator for transfer transactions.
+    class BasicTransactionsBuilder : public TransactionsGenerator {
+    private:
+        // region descriptors
 
-		struct TransferDescriptor {
-			size_t SenderId;
-			size_t RecipientId;
-			catapult::Amount Amount;
-			std::string RecipientAlias; // optional
-		};
+        struct TransferDescriptor {
+            size_t SenderId;
+            size_t RecipientId;
+            catapult::Amount Amount;
+            std::string RecipientAlias; // optional
+        };
 
-		// endregion
+        // endregion
 
-	public:
-		/// Creates a builder around \a accounts.
-		explicit BasicTransactionsBuilder(const Accounts& accounts);
+    public:
+        /// Creates a builder around \a accounts.
+        explicit BasicTransactionsBuilder(const Accounts& accounts);
 
-	public:
-		// TransactionsGenerator
-		size_t size() const override;
-		std::unique_ptr<model::Transaction> generateAt(size_t index, Timestamp deadline) const override;
+    public:
+        // TransactionsGenerator
+        size_t size() const override;
+        std::unique_ptr<model::Transaction> generateAt(size_t index, Timestamp deadline) const override;
 
-	public:
-		/// Adds a transfer from \a senderId to \a recipientId for amount \a transferAmount.
-		void addTransfer(size_t senderId, size_t recipientId, Amount transferAmount);
+    public:
+        /// Adds a transfer from \a senderId to \a recipientId for amount \a transferAmount.
+        void addTransfer(size_t senderId, size_t recipientId, Amount transferAmount);
 
-		/// Adds a transfer from \a senderId to \a recipientAlias for amount \a transferAmount.
-		void addTransfer(size_t senderId, const std::string& recipientAlias, Amount transferAmount);
+        /// Adds a transfer from \a senderId to \a recipientAlias for amount \a transferAmount.
+        void addTransfer(size_t senderId, const std::string& recipientAlias, Amount transferAmount);
 
-	protected:
-		/// Gets the accounts.
-		const Accounts& accounts() const;
+    protected:
+        /// Gets the accounts.
+        const Accounts& accounts() const;
 
-		/// Gets the transaction descriptor pair at \ index.
-		const std::pair<uint32_t, std::shared_ptr<const void>>& getAt(size_t index) const;
+        /// Gets the transaction descriptor pair at \ index.
+        const std::pair<uint32_t, std::shared_ptr<const void>>& getAt(size_t index) const;
 
-		/// Adds transaction described by \a descriptor with descriptor type (\a descriptorType).
-		template<typename TDescriptorType, typename TDescriptor>
-		void add(TDescriptorType descriptorType, const TDescriptor& descriptor) {
-			m_transactionDescriptorPairs.emplace_back(utils::to_underlying_type(descriptorType), std::make_shared<TDescriptor>(descriptor));
-		}
+        /// Adds transaction described by \a descriptor with descriptor type (\a descriptorType).
+        template <typename TDescriptorType, typename TDescriptor>
+        void add(TDescriptorType descriptorType, const TDescriptor& descriptor)
+        {
+            m_transactionDescriptorPairs.emplace_back(utils::to_underlying_type(descriptorType), std::make_shared<TDescriptor>(descriptor));
+        }
 
-	private:
-		/// Generates transaction with specified \a deadline given descriptor (\a pDescriptor) and descriptor type (\a descriptorType).
-		virtual std::unique_ptr<model::Transaction> generate(
-				uint32_t descriptorType,
-				const std::shared_ptr<const void>& pDescriptor,
-				Timestamp deadline) const = 0;
+    private:
+        /// Generates transaction with specified \a deadline given descriptor (\a pDescriptor) and descriptor type (\a descriptorType).
+        virtual std::unique_ptr<model::Transaction> generate(
+            uint32_t descriptorType,
+            const std::shared_ptr<const void>& pDescriptor,
+            Timestamp deadline) const
+            = 0;
 
-	private:
-		std::unique_ptr<model::Transaction> createTransfer(const TransferDescriptor& descriptor, Timestamp deadline) const;
+    private:
+        std::unique_ptr<model::Transaction> createTransfer(const TransferDescriptor& descriptor, Timestamp deadline) const;
 
-	protected:
-		/// Casts \a pVoid to a descriptor.
-		template<typename TDescriptor>
-		static const TDescriptor& CastToDescriptor(const std::shared_ptr<const void>& pVoid) {
-			return *static_cast<const TDescriptor*>(pVoid.get());
-		}
+    protected:
+        /// Casts \a pVoid to a descriptor.
+        template <typename TDescriptor>
+        static const TDescriptor& CastToDescriptor(const std::shared_ptr<const void>& pVoid)
+        {
+            return *static_cast<const TDescriptor*>(pVoid.get());
+        }
 
-		/// Signs \a pTransaction with \a signerKeyPair and sets specified transaction \a deadline.
-		static std::unique_ptr<model::Transaction> SignWithDeadline(
-				std::unique_ptr<model::Transaction>&& pTransaction,
-				const crypto::KeyPair& signerKeyPair,
-				Timestamp deadline);
+        /// Signs \a pTransaction with \a signerKeyPair and sets specified transaction \a deadline.
+        static std::unique_ptr<model::Transaction> SignWithDeadline(
+            std::unique_ptr<model::Transaction>&& pTransaction,
+            const crypto::KeyPair& signerKeyPair,
+            Timestamp deadline);
 
-	private:
-		enum class DescriptorType { Transfer };
+    private:
+        enum class DescriptorType { Transfer };
 
-	private:
-		const Accounts& m_accounts;
+    private:
+        const Accounts& m_accounts;
 
-		std::vector<std::pair<uint32_t, std::shared_ptr<const void>>> m_transactionDescriptorPairs;
-	};
-}}
+        std::vector<std::pair<uint32_t, std::shared_ptr<const void>>> m_transactionDescriptorPairs;
+    };
+}
+}

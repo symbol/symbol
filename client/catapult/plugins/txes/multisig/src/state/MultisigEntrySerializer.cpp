@@ -23,48 +23,54 @@
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/utils/HexFormatter.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	namespace {
-		void SaveAddresses(io::OutputStream& output, const SortedAddressSet& addresses) {
-			io::Write64(output, addresses.size());
-			for (const auto& address : addresses)
-				output.write(address);
-		}
-	}
+    namespace {
+        void SaveAddresses(io::OutputStream& output, const SortedAddressSet& addresses)
+        {
+            io::Write64(output, addresses.size());
+            for (const auto& address : addresses)
+                output.write(address);
+        }
+    }
 
-	void MultisigEntrySerializer::Save(const MultisigEntry& entry, io::OutputStream& output) {
-		io::Write32(output, entry.minApproval());
-		io::Write32(output, entry.minRemoval());
-		output.write(entry.address());
+    void MultisigEntrySerializer::Save(const MultisigEntry& entry, io::OutputStream& output)
+    {
+        io::Write32(output, entry.minApproval());
+        io::Write32(output, entry.minRemoval());
+        output.write(entry.address());
 
-		SaveAddresses(output, entry.cosignatoryAddresses());
-		SaveAddresses(output, entry.multisigAddresses());
-	}
+        SaveAddresses(output, entry.cosignatoryAddresses());
+        SaveAddresses(output, entry.multisigAddresses());
+    }
 
-	namespace {
-		void LoadAddresses(io::InputStream& input, SortedAddressSet& addresses) {
-			auto count = io::Read64(input);
-			while (count--) {
-				Address address;
-				input.read(address);
-				addresses.insert(address);
-			}
-		}
-	}
+    namespace {
+        void LoadAddresses(io::InputStream& input, SortedAddressSet& addresses)
+        {
+            auto count = io::Read64(input);
+            while (count--) {
+                Address address;
+                input.read(address);
+                addresses.insert(address);
+            }
+        }
+    }
 
-	MultisigEntry MultisigEntrySerializer::Load(io::InputStream& input) {
-		auto minApproval = io::Read32(input);
-		auto minRemoval = io::Read32(input);
-		Address address;
-		input.read(address);
+    MultisigEntry MultisigEntrySerializer::Load(io::InputStream& input)
+    {
+        auto minApproval = io::Read32(input);
+        auto minRemoval = io::Read32(input);
+        Address address;
+        input.read(address);
 
-		auto entry = MultisigEntry(address);
-		entry.setMinApproval(minApproval);
-		entry.setMinRemoval(minRemoval);
+        auto entry = MultisigEntry(address);
+        entry.setMinApproval(minApproval);
+        entry.setMinRemoval(minRemoval);
 
-		LoadAddresses(input, entry.cosignatoryAddresses());
-		LoadAddresses(input, entry.multisigAddresses());
-		return entry;
-	}
-}}
+        LoadAddresses(input, entry.cosignatoryAddresses());
+        LoadAddresses(input, entry.multisigAddresses());
+        return entry;
+    }
+}
+}

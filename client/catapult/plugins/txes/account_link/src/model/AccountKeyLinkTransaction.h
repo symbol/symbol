@@ -23,15 +23,17 @@
 #include "AccountLinkEntityType.h"
 #include "catapult/model/KeyLinkSharedTransaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for an account key link transaction body.
-	template<typename THeader>
-	struct AccountKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Account_Key_Link> {};
+    /// Binary layout for an account key link transaction body.
+    template <typename THeader>
+    struct AccountKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Account_Key_Link> { };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(AccountKeyLink)
+    DEFINE_EMBEDDABLE_TRANSACTION(AccountKeyLink)
 
 #pragma pack(pop)
-}}
+}
+}

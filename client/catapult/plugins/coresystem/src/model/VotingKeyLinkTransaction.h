@@ -22,40 +22,43 @@
 #pragma once
 #include "catapult/model/KeyLinkSharedTransaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a voting key link transaction body.
-	template<typename THeader>
-	struct VotingKeyLinkTransactionBody : public THeader {
-	private:
-		using TransactionType = VotingKeyLinkTransactionBody<THeader>;
+    /// Binary layout for a voting key link transaction body.
+    template <typename THeader>
+    struct VotingKeyLinkTransactionBody : public THeader {
+    private:
+        using TransactionType = VotingKeyLinkTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Voting_Key_Link, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Voting_Key_Link, 1)
 
-	public:
-		/// Linked public key.
-		VotingKey LinkedPublicKey;
+    public:
+        /// Linked public key.
+        VotingKey LinkedPublicKey;
 
-		/// Start epoch.
-		FinalizationEpoch StartEpoch;
+        /// Start epoch.
+        FinalizationEpoch StartEpoch;
 
-		/// End epoch.
-		FinalizationEpoch EndEpoch;
+        /// End epoch.
+        FinalizationEpoch EndEpoch;
 
-		/// Link action.
-		model::LinkAction LinkAction;
+        /// Link action.
+        model::LinkAction LinkAction;
 
-	public:
-		/// Calculates the real size of key link \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+    public:
+        /// Calculates the real size of key link \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
+        {
+            return sizeof(TransactionType);
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(VotingKeyLink)
+    DEFINE_EMBEDDABLE_TRANSACTION(VotingKeyLink)
 
 #pragma pack(pop)
-}}
+}
+}

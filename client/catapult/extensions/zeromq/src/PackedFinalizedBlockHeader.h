@@ -22,21 +22,23 @@
 #pragma once
 #include "catapult/model/FinalizationRound.h"
 
-namespace catapult { namespace zeromq {
+namespace catapult {
+namespace zeromq {
 
 #pragma pack(push, 1)
 
-	/// Packed finalized block header.
-	struct PackedFinalizedBlockHeader {
-		/// Finalization round.
-		model::FinalizationRound Round;
+    /// Packed finalized block header.
+    struct PackedFinalizedBlockHeader {
+        /// Finalization round.
+        model::FinalizationRound Round;
 
-		/// Finalization height.
-		catapult::Height Height;
+        /// Finalization height.
+        catapult::Height Height;
 
-		/// Finalization hash.
-		Hash256 Hash;
-	};
+        /// Finalization hash.
+        Hash256 Hash;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

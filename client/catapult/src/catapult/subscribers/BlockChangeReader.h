@@ -21,13 +21,17 @@
 
 #pragma once
 
-namespace catapult { namespace io {
-	class BlockChangeSubscriber;
-	class InputStream;
-}}
+namespace catapult {
+namespace io {
+    class BlockChangeSubscriber;
+    class InputStream;
+}
+}
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	/// Reads next block change from \a inputStream and forwards it to \a subscriber.
-	void ReadNextBlockChange(io::InputStream& inputStream, io::BlockChangeSubscriber& subscriber);
-}}
+    /// Reads next block change from \a inputStream and forwards it to \a subscriber.
+    void ReadNextBlockChange(io::InputStream& inputStream, io::BlockChangeSubscriber& subscriber);
+}
+}

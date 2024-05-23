@@ -20,254 +20,275 @@
 **/
 
 #include "catapult/ionet/RateMonitor.h"
-#include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/TimeSupplier.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
 #define TEST_CLASS RateMonitorTests
 
-	// region TestContext
+    // region TestContext
 
-	namespace {
-		class TestContext {
-		public:
-			explicit TestContext(const std::vector<uint32_t>& rawTimestamps)
-					: m_numRateExceededTriggers(0)
-					, m_monitor(
-							  { 5, utils::TimeSpan::FromMilliseconds(111), utils::FileSize::FromBytes(5 * 1234) },
-							  test::CreateTimeSupplierFromMilliseconds(rawTimestamps),
-							  [&numRateExceededTriggers = m_numRateExceededTriggers]() { ++numRateExceededTriggers; }) {
-			}
+    namespace {
+        class TestContext {
+        public:
+            explicit TestContext(const std::vector<uint32_t>& rawTimestamps)
+                : m_numRateExceededTriggers(0)
+                , m_monitor(
+                      { 5, utils::TimeSpan::FromMilliseconds(111), utils::FileSize::FromBytes(5 * 1234) },
+                      test::CreateTimeSupplierFromMilliseconds(rawTimestamps),
+                      [&numRateExceededTriggers = m_numRateExceededTriggers]() { ++numRateExceededTriggers; })
+            {
+            }
 
-		public:
-			size_t numRateExceededTriggers() const {
-				return m_numRateExceededTriggers;
-			}
+        public:
+            size_t numRateExceededTriggers() const
+            {
+                return m_numRateExceededTriggers;
+            }
 
-			const auto& monitor() const {
-				return m_monitor;
-			}
+            const auto& monitor() const
+            {
+                return m_monitor;
+            }
 
-		public:
-			void acceptAll(std::initializer_list<uint32_t> sizes) {
-				for (auto size : sizes)
-					m_monitor.accept(size);
-			}
+        public:
+            void acceptAll(std::initializer_list<uint32_t> sizes)
+            {
+                for (auto size : sizes)
+                    m_monitor.accept(size);
+            }
 
-		private:
-			size_t m_numRateExceededTriggers;
-			RateMonitor m_monitor;
-		};
-	}
+        private:
+            size_t m_numRateExceededTriggers;
+            RateMonitor m_monitor;
+        };
+    }
 
-	// endregion
+    // endregion
 
-	// region zero buckets
+    // region zero buckets
 
-	TEST(TEST_CLASS, RateMonitorIsInitiallyEmpty) {
-		// Arrange:
-		TestContext context({ 1 });
+    TEST(TEST_CLASS, RateMonitorIsInitiallyEmpty)
+    {
+        // Arrange:
+        TestContext context({ 1 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize(), context.monitor().totalSize());
-		EXPECT_EQ(0u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize(), context.monitor().totalSize());
+        EXPECT_EQ(0u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	// endregion
+    // endregion
 
-	// region single bucket
+    // region single bucket
 
-	TEST(TEST_CLASS, CanAddSingleSizeToSingleBucket) {
-		// Arrange:
-		TestContext context({ 1 });
+    TEST(TEST_CLASS, CanAddSingleSizeToSingleBucket)
+    {
+        // Arrange:
+        TestContext context({ 1 });
 
-		// Act:
-		context.acceptAll({ 123 });
+        // Act:
+        context.acceptAll({ 123 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(123), context.monitor().totalSize());
-		EXPECT_EQ(1u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(123), context.monitor().totalSize());
+        EXPECT_EQ(1u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, CanAddMultipleSizesToSingleBucket) {
-		// Arrange: add sizes with timestamps ranging from beginning to end of single bucket
-		TestContext context({ 1, 1, 50, 111, 111 });
+    TEST(TEST_CLASS, CanAddMultipleSizesToSingleBucket)
+    {
+        // Arrange: add sizes with timestamps ranging from beginning to end of single bucket
+        TestContext context({ 1, 1, 50, 111, 111 });
 
-		// Act:
-		context.acceptAll({ 7, 9, 1, 3, 5 });
+        // Act:
+        context.acceptAll({ 7, 9, 1, 3, 5 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(25), context.monitor().totalSize());
-		EXPECT_EQ(1u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(25), context.monitor().totalSize());
+        EXPECT_EQ(1u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, CanAddMultipleSizesToSingleBucket_RelativeToStartTime) {
-		// Arrange:
-		TestContext context({ 50, 112, 151 });
+    TEST(TEST_CLASS, CanAddMultipleSizesToSingleBucket_RelativeToStartTime)
+    {
+        // Arrange:
+        TestContext context({ 50, 112, 151 });
 
-		// Act:
-		context.acceptAll({ 10, 20, 40 });
+        // Act:
+        context.acceptAll({ 10, 20, 40 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(70), context.monitor().totalSize());
-		EXPECT_EQ(1u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(70), context.monitor().totalSize());
+        EXPECT_EQ(1u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, RateIsNotTriggeredBySingleBucketWhenMax) {
-		// Arrange:
-		TestContext context({ 1, 1 });
+    TEST(TEST_CLASS, RateIsNotTriggeredBySingleBucketWhenMax)
+    {
+        // Arrange:
+        TestContext context({ 1, 1 });
 
-		// Act:
-		context.acceptAll({ 5 * 1000, 5 * 234 });
+        // Act:
+        context.acceptAll({ 5 * 1000, 5 * 234 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(5 * 1234), context.monitor().totalSize());
-		EXPECT_EQ(1u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(5 * 1234), context.monitor().totalSize());
+        EXPECT_EQ(1u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, RateIsTriggeredBySingleBucketWhenMaxIsExceeded) {
-		// Arrange:
-		TestContext context({ 1, 1 });
+    TEST(TEST_CLASS, RateIsTriggeredBySingleBucketWhenMaxIsExceeded)
+    {
+        // Arrange:
+        TestContext context({ 1, 1 });
 
-		// Act:
-		context.acceptAll({ 5 * 1000, 5 * 234 + 1 });
+        // Act:
+        context.acceptAll({ 5 * 1000, 5 * 234 + 1 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(5 * 1234 + 1), context.monitor().totalSize());
-		EXPECT_EQ(1u, context.monitor().bucketsSize());
-		EXPECT_EQ(1u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(5 * 1234 + 1), context.monitor().totalSize());
+        EXPECT_EQ(1u, context.monitor().bucketsSize());
+        EXPECT_EQ(1u, context.numRateExceededTriggers());
+    }
 
-	// endregion
+    // endregion
 
-	// region multiple buckets
+    // region multiple buckets
 
-	TEST(TEST_CLASS, CanAddSingleSizeToMultipleBuckets) {
-		// Arrange:
-		TestContext context({ 1, 112, 223 });
+    TEST(TEST_CLASS, CanAddSingleSizeToMultipleBuckets)
+    {
+        // Arrange:
+        TestContext context({ 1, 112, 223 });
 
-		// Act:
-		context.acceptAll({ 123, 50, 10 });
+        // Act:
+        context.acceptAll({ 123, 50, 10 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(183), context.monitor().totalSize());
-		EXPECT_EQ(3u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(183), context.monitor().totalSize());
+        EXPECT_EQ(3u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, CanAddSingleSizeToMultipleBuckets_RelativeToStartTime) {
-		// Arrange:
-		TestContext context({ 50, 223, 262 });
+    TEST(TEST_CLASS, CanAddSingleSizeToMultipleBuckets_RelativeToStartTime)
+    {
+        // Arrange:
+        TestContext context({ 50, 223, 262 });
 
-		// Act:
-		context.acceptAll({ 123, 50, 10 });
+        // Act:
+        context.acceptAll({ 123, 50, 10 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(183), context.monitor().totalSize());
-		EXPECT_EQ(2u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(183), context.monitor().totalSize());
+        EXPECT_EQ(2u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, CanAddSingleSizeToMultipleBucketsWithGaps) {
-		// Arrange:
-		TestContext context({ 1, 223, 556 });
+    TEST(TEST_CLASS, CanAddSingleSizeToMultipleBucketsWithGaps)
+    {
+        // Arrange:
+        TestContext context({ 1, 223, 556 });
 
-		// Act:
-		context.acceptAll({ 123, 50, 10 });
+        // Act:
+        context.acceptAll({ 123, 50, 10 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(183), context.monitor().totalSize());
-		EXPECT_EQ(3u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(183), context.monitor().totalSize());
+        EXPECT_EQ(3u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, CanAddSingleSizeToMaxBuckets) {
-		// Arrange:
-		TestContext context({ 1, 112, 223, 334, 445, 556 });
+    TEST(TEST_CLASS, CanAddSingleSizeToMaxBuckets)
+    {
+        // Arrange:
+        TestContext context({ 1, 112, 223, 334, 445, 556 });
 
-		// Act:
-		context.acceptAll({ 10, 20, 40, 30, 50, 60 });
+        // Act:
+        context.acceptAll({ 10, 20, 40, 30, 50, 60 });
 
-		// Assert: there can be at most NumBuckets + 1 buckets
-		EXPECT_EQ(utils::FileSize::FromBytes(210), context.monitor().totalSize());
-		EXPECT_EQ(6u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert: there can be at most NumBuckets + 1 buckets
+        EXPECT_EQ(utils::FileSize::FromBytes(210), context.monitor().totalSize());
+        EXPECT_EQ(6u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, RateIsNotTriggeredByMultipleBucketsWhenMax) {
-		// Arrange:
-		TestContext context({ 1, 556 });
+    TEST(TEST_CLASS, RateIsNotTriggeredByMultipleBucketsWhenMax)
+    {
+        // Arrange:
+        TestContext context({ 1, 556 });
 
-		// Act:
-		context.acceptAll({ 5 * 1000, 5 * 234 });
+        // Act:
+        context.acceptAll({ 5 * 1000, 5 * 234 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(5 * 1234), context.monitor().totalSize());
-		EXPECT_EQ(2u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(5 * 1234), context.monitor().totalSize());
+        EXPECT_EQ(2u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, RateIsTriggeredByMultipleBucketsWhenMaxIsExceeded) {
-		// Arrange:
-		TestContext context({ 1, 556 });
+    TEST(TEST_CLASS, RateIsTriggeredByMultipleBucketsWhenMaxIsExceeded)
+    {
+        // Arrange:
+        TestContext context({ 1, 556 });
 
-		// Act:
-		context.acceptAll({ 5 * 1000, 5 * 234 + 1 });
+        // Act:
+        context.acceptAll({ 5 * 1000, 5 * 234 + 1 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(5 * 1234 + 1), context.monitor().totalSize());
-		EXPECT_EQ(2u, context.monitor().bucketsSize());
-		EXPECT_EQ(1u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(5 * 1234 + 1), context.monitor().totalSize());
+        EXPECT_EQ(2u, context.monitor().bucketsSize());
+        EXPECT_EQ(1u, context.numRateExceededTriggers());
+    }
 
-	// endregion
+    // endregion
 
-	// region multiple buckets - pruning
+    // region multiple buckets - pruning
 
-	TEST(TEST_CLASS, CanPruneSingleBucket) {
-		// Arrange:
-		TestContext context({ 1, 223, 557 });
+    TEST(TEST_CLASS, CanPruneSingleBucket)
+    {
+        // Arrange:
+        TestContext context({ 1, 223, 557 });
 
-		// Act:
-		context.acceptAll({ 123, 50, 10 });
+        // Act:
+        context.acceptAll({ 123, 50, 10 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(60), context.monitor().totalSize());
-		EXPECT_EQ(2u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(60), context.monitor().totalSize());
+        EXPECT_EQ(2u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, CanPruneMultipleBuckets) {
-		// Arrange:
-		TestContext context({ 1, 223, 1000 });
+    TEST(TEST_CLASS, CanPruneMultipleBuckets)
+    {
+        // Arrange:
+        TestContext context({ 1, 223, 1000 });
 
-		// Act:
-		context.acceptAll({ 123, 50, 10 });
+        // Act:
+        context.acceptAll({ 123, 50, 10 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(10), context.monitor().totalSize());
-		EXPECT_EQ(1u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(10), context.monitor().totalSize());
+        EXPECT_EQ(1u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	TEST(TEST_CLASS, RateTriggeringRespectsPruning) {
-		// Arrange:
-		TestContext context({ 1, 557 });
+    TEST(TEST_CLASS, RateTriggeringRespectsPruning)
+    {
+        // Arrange:
+        TestContext context({ 1, 557 });
 
-		// Act:
-		context.acceptAll({ 5 * 1000, 5 * 234 + 1 });
+        // Act:
+        context.acceptAll({ 5 * 1000, 5 * 234 + 1 });
 
-		// Assert:
-		EXPECT_EQ(utils::FileSize::FromBytes(5 * 234 + 1), context.monitor().totalSize());
-		EXPECT_EQ(1u, context.monitor().bucketsSize());
-		EXPECT_EQ(0u, context.numRateExceededTriggers());
-	}
+        // Assert:
+        EXPECT_EQ(utils::FileSize::FromBytes(5 * 234 + 1), context.monitor().totalSize());
+        EXPECT_EQ(1u, context.monitor().bucketsSize());
+        EXPECT_EQ(0u, context.numRateExceededTriggers());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

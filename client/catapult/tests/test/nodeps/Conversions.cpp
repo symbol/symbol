@@ -24,21 +24,25 @@
 #include "catapult/utils/HexParser.h"
 #include <sstream>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	std::string ToHexString(const std::vector<uint8_t>& data) {
-		std::stringstream out;
-		out << utils::HexFormat(data.data(), data.data() + data.size());
-		return out.str();
-	}
+    std::string ToHexString(const std::vector<uint8_t>& data)
+    {
+        std::stringstream out;
+        out << utils::HexFormat(data.data(), data.data() + data.size());
+        return out.str();
+    }
 
-	std::vector<uint8_t> HexStringToVector(const std::string& hexString) {
-		std::vector<uint8_t> result;
-		if (hexString.size() % 2)
-			CATAPULT_THROW_RUNTIME_ERROR_1("hexString has odd number of characters", hexString.size());
+    std::vector<uint8_t> HexStringToVector(const std::string& hexString)
+    {
+        std::vector<uint8_t> result;
+        if (hexString.size() % 2)
+            CATAPULT_THROW_RUNTIME_ERROR_1("hexString has odd number of characters", hexString.size());
 
-		result.resize(hexString.size() / 2);
-		utils::ParseHexStringIntoContainer(hexString.c_str(), hexString.size(), result);
-		return result;
-	}
-}}
+        result.resize(hexString.size() / 2);
+        utils::ParseHexStringIntoContainer(hexString.c_str(), hexString.size(), result);
+        return result;
+    }
+}
+}

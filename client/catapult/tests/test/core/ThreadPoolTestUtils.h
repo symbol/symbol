@@ -25,11 +25,13 @@
 #include <memory>
 #include <stdint.h>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Creates an auto started thread pool with a default number of threads and \a name.
-	std::unique_ptr<thread::IoThreadPool> CreateStartedIoThreadPool(const char* name = nullptr);
+    /// Creates an auto started thread pool with a default number of threads and \a name.
+    std::unique_ptr<thread::IoThreadPool> CreateStartedIoThreadPool(const char* name = nullptr);
 
-	/// Creates an auto started thread pool with \a numThreads threads and \a name.
-	std::unique_ptr<thread::IoThreadPool> CreateStartedIoThreadPool(uint32_t numThreads, const char* name = nullptr);
-}}
+    /// Creates an auto started thread pool with \a numThreads threads and \a name.
+    std::unique_ptr<thread::IoThreadPool> CreateStartedIoThreadPool(uint32_t numThreads, const char* name = nullptr);
+}
+}

@@ -27,36 +27,41 @@
 
 DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	MosaicConfiguration MosaicConfiguration::Uninitialized() {
-		return MosaicConfiguration();
-	}
+    MosaicConfiguration MosaicConfiguration::Uninitialized()
+    {
+        return MosaicConfiguration();
+    }
 
-	MosaicConfiguration MosaicConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		MosaicConfiguration config;
+    MosaicConfiguration MosaicConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        MosaicConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
 
-		LOAD_PROPERTY(MaxMosaicsPerAccount);
-		LOAD_PROPERTY(MaxMosaicDuration);
-		LOAD_PROPERTY(MaxMosaicDivisibility);
+        LOAD_PROPERTY(MaxMosaicsPerAccount);
+        LOAD_PROPERTY(MaxMosaicDuration);
+        LOAD_PROPERTY(MaxMosaicDivisibility);
 
-		LOAD_PROPERTY(MosaicRentalFeeSinkAddressV1);
-		LOAD_PROPERTY(MosaicRentalFeeSinkAddress);
-		LOAD_PROPERTY(MosaicRentalFee);
+        LOAD_PROPERTY(MosaicRentalFeeSinkAddressV1);
+        LOAD_PROPERTY(MosaicRentalFeeSinkAddress);
+        LOAD_PROPERTY(MosaicRentalFee);
 
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 6);
-		return config;
-	}
+        utils::VerifyBagSizeExact(bag, 6);
+        return config;
+    }
 
-	model::HeightDependentAddress GetMosaicRentalFeeSinkAddress(
-			const MosaicConfiguration& config,
-			const model::BlockchainConfiguration& blockchainConfig) {
-		model::HeightDependentAddress sinkAddress(config.MosaicRentalFeeSinkAddress);
-		sinkAddress.trySet(config.MosaicRentalFeeSinkAddressV1, blockchainConfig.ForkHeights.TreasuryReissuance);
-		return sinkAddress;
-	}
-}}
+    model::HeightDependentAddress GetMosaicRentalFeeSinkAddress(
+        const MosaicConfiguration& config,
+        const model::BlockchainConfiguration& blockchainConfig)
+    {
+        model::HeightDependentAddress sinkAddress(config.MosaicRentalFeeSinkAddress);
+        sinkAddress.trySet(config.MosaicRentalFeeSinkAddressV1, blockchainConfig.ForkHeights.TreasuryReissuance);
+        return sinkAddress;
+    }
+}
+}

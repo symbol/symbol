@@ -21,68 +21,81 @@
 
 #include "MosaicAddressRestrictionBuilder.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	MosaicAddressRestrictionBuilder::MosaicAddressRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-			: TransactionBuilder(networkIdentifier, signer)
-			, m_mosaicId()
-			, m_restrictionKey()
-			, m_previousRestrictionValue()
-			, m_newRestrictionValue()
-			, m_targetAddress() {
-	}
+    MosaicAddressRestrictionBuilder::MosaicAddressRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+        : TransactionBuilder(networkIdentifier, signer)
+        , m_mosaicId()
+        , m_restrictionKey()
+        , m_previousRestrictionValue()
+        , m_newRestrictionValue()
+        , m_targetAddress()
+    {
+    }
 
-	void MosaicAddressRestrictionBuilder::setMosaicId(UnresolvedMosaicId mosaicId) {
-		m_mosaicId = mosaicId;
-	}
+    void MosaicAddressRestrictionBuilder::setMosaicId(UnresolvedMosaicId mosaicId)
+    {
+        m_mosaicId = mosaicId;
+    }
 
-	void MosaicAddressRestrictionBuilder::setRestrictionKey(uint64_t restrictionKey) {
-		m_restrictionKey = restrictionKey;
-	}
+    void MosaicAddressRestrictionBuilder::setRestrictionKey(uint64_t restrictionKey)
+    {
+        m_restrictionKey = restrictionKey;
+    }
 
-	void MosaicAddressRestrictionBuilder::setPreviousRestrictionValue(uint64_t previousRestrictionValue) {
-		m_previousRestrictionValue = previousRestrictionValue;
-	}
+    void MosaicAddressRestrictionBuilder::setPreviousRestrictionValue(uint64_t previousRestrictionValue)
+    {
+        m_previousRestrictionValue = previousRestrictionValue;
+    }
 
-	void MosaicAddressRestrictionBuilder::setNewRestrictionValue(uint64_t newRestrictionValue) {
-		m_newRestrictionValue = newRestrictionValue;
-	}
+    void MosaicAddressRestrictionBuilder::setNewRestrictionValue(uint64_t newRestrictionValue)
+    {
+        m_newRestrictionValue = newRestrictionValue;
+    }
 
-	void MosaicAddressRestrictionBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
-		m_targetAddress = targetAddress;
-	}
+    void MosaicAddressRestrictionBuilder::setTargetAddress(const UnresolvedAddress& targetAddress)
+    {
+        m_targetAddress = targetAddress;
+    }
 
-	size_t MosaicAddressRestrictionBuilder::size() const {
-		return sizeImpl<Transaction>();
-	}
+    size_t MosaicAddressRestrictionBuilder::size() const
+    {
+        return sizeImpl<Transaction>();
+    }
 
-	std::unique_ptr<MosaicAddressRestrictionBuilder::Transaction> MosaicAddressRestrictionBuilder::build() const {
-		return buildImpl<Transaction>();
-	}
+    std::unique_ptr<MosaicAddressRestrictionBuilder::Transaction> MosaicAddressRestrictionBuilder::build() const
+    {
+        return buildImpl<Transaction>();
+    }
 
-	std::unique_ptr<MosaicAddressRestrictionBuilder::EmbeddedTransaction> MosaicAddressRestrictionBuilder::buildEmbedded() const {
-		return buildImpl<EmbeddedTransaction>();
-	}
+    std::unique_ptr<MosaicAddressRestrictionBuilder::EmbeddedTransaction> MosaicAddressRestrictionBuilder::buildEmbedded() const
+    {
+        return buildImpl<EmbeddedTransaction>();
+    }
 
-	template<typename TransactionType>
-	size_t MosaicAddressRestrictionBuilder::sizeImpl() const {
-		// calculate transaction size
-		auto size = sizeof(TransactionType);
-		return size;
-	}
+    template <typename TransactionType>
+    size_t MosaicAddressRestrictionBuilder::sizeImpl() const
+    {
+        // calculate transaction size
+        auto size = sizeof(TransactionType);
+        return size;
+    }
 
-	template<typename TransactionType>
-	std::unique_ptr<TransactionType> MosaicAddressRestrictionBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
-		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+    template <typename TransactionType>
+    std::unique_ptr<TransactionType> MosaicAddressRestrictionBuilder::buildImpl() const
+    {
+        // 1. allocate, zero (header), set model::Transaction fields
+        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-		// 2. set fixed transaction fields
-		pTransaction->MosaicId = m_mosaicId;
-		pTransaction->RestrictionKey = m_restrictionKey;
-		pTransaction->PreviousRestrictionValue = m_previousRestrictionValue;
-		pTransaction->NewRestrictionValue = m_newRestrictionValue;
-		pTransaction->TargetAddress = m_targetAddress;
+        // 2. set fixed transaction fields
+        pTransaction->MosaicId = m_mosaicId;
+        pTransaction->RestrictionKey = m_restrictionKey;
+        pTransaction->PreviousRestrictionValue = m_previousRestrictionValue;
+        pTransaction->NewRestrictionValue = m_newRestrictionValue;
+        pTransaction->TargetAddress = m_targetAddress;
 
-		return pTransaction;
-	}
-}}
+        return pTransaction;
+    }
+}
+}

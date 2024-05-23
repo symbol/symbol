@@ -24,20 +24,22 @@
 #include "EntityRange.h"
 #include "catapult/utils/ShortHash.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Entity range composed of blocks.
-	using BlockRange = EntityRange<Block>;
+    /// Entity range composed of blocks.
+    using BlockRange = EntityRange<Block>;
 
-	/// Entity range composed of transactions.
-	using TransactionRange = EntityRange<Transaction>;
+    /// Entity range composed of transactions.
+    using TransactionRange = EntityRange<Transaction>;
 
-	/// Entity range composed of hashes.
-	using HashRange = EntityRange<Hash256>;
+    /// Entity range composed of hashes.
+    using HashRange = EntityRange<Hash256>;
 
-	/// Entity range composed of short hashes.
-	using ShortHashRange = EntityRange<utils::ShortHash>;
+    /// Entity range composed of short hashes.
+    using ShortHashRange = EntityRange<utils::ShortHash>;
 
-	/// Entity range composed of addresses.
-	using AddressRange = EntityRange<Address>;
-}}
+    /// Entity range composed of addresses.
+    using AddressRange = EntityRange<Address>;
+}
+}

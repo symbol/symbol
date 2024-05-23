@@ -22,30 +22,33 @@
 #pragma once
 #include "catapult/model/Notifications.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Notification with a tag.
-	template<uint32_t TaggedNotificationType>
-	struct TaggedNotificationT : model::Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = static_cast<model::NotificationType>(TaggedNotificationType);
+    /// Notification with a tag.
+    template <uint32_t TaggedNotificationType>
+    struct TaggedNotificationT : model::Notification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = static_cast<model::NotificationType>(TaggedNotificationType);
 
-	public:
-		/// Creates a notification with \a tag.
-		explicit TaggedNotificationT(uint8_t tag)
-				: Notification(Notification_Type, sizeof(TaggedNotificationT))
-				, Tag(tag) {
-		}
+    public:
+        /// Creates a notification with \a tag.
+        explicit TaggedNotificationT(uint8_t tag)
+            : Notification(Notification_Type, sizeof(TaggedNotificationT))
+            , Tag(tag)
+        {
+        }
 
-	public:
-		/// Tag value.
-		uint8_t Tag;
-	};
+    public:
+        /// Tag value.
+        uint8_t Tag;
+    };
 
-	/// Tagged notification.
-	using TaggedNotification = TaggedNotificationT<0x0000FFFF>;
+    /// Tagged notification.
+    using TaggedNotification = TaggedNotificationT<0x0000FFFF>;
 
-	/// Alternative tagged notification.
-	using TaggedNotification2 = TaggedNotificationT<0x0000FFFE>;
-}}
+    /// Alternative tagged notification.
+    using TaggedNotification2 = TaggedNotificationT<0x0000FFFE>;
+}
+}

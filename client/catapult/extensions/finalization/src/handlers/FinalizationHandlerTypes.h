@@ -20,11 +20,13 @@
 **/
 
 #pragma once
-#include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/handlers/HandlerTypes.h"
+#include "finalization/src/model/FinalizationMessage.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	/// Prototype for a function that processes a range of finalization messages.
-	using MessageRangeHandler = RangeHandler<model::FinalizationMessage>;
-}}
+    /// Prototype for a function that processes a range of finalization messages.
+    using MessageRangeHandler = RangeHandler<model::FinalizationMessage>;
+}
+}

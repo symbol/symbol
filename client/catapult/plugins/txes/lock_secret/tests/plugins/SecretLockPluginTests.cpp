@@ -19,72 +19,84 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/SecretLockPlugin.h"
 #include "src/model/SecretLockEntityType.h"
+#include "src/plugins/SecretLockPlugin.h"
+#include "tests/TestHarness.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		struct SecretLockPluginTraits {
-		public:
-			template<typename TAction>
-			static void RunTestAfterRegistration(TAction action) {
-				// Arrange:
-				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1);
-				config.Plugins.emplace(
-						"catapult.plugins.locksecret",
-						utils::ConfigurationBag(
-								{ { "", { { "maxSecretLockDuration", "30d" }, { "minProofSize", "10" }, { "maxProofSize", "1000" } } } }));
+    namespace {
+        struct SecretLockPluginTraits {
+        public:
+            template <typename TAction>
+            static void RunTestAfterRegistration(TAction action)
+            {
+                // Arrange:
+                auto config = model::BlockchainConfiguration::Uninitialized();
+                config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1);
+                config.Plugins.emplace(
+                    "catapult.plugins.locksecret",
+                    utils::ConfigurationBag(
+                        { { "", { { "maxSecretLockDuration", "30d" }, { "minProofSize", "10" }, { "maxProofSize", "1000" } } } }));
 
-				auto manager = test::CreatePluginManager(config);
-				RegisterSecretLockSubsystem(manager);
+                auto manager = test::CreatePluginManager(config);
+                RegisterSecretLockSubsystem(manager);
 
-				// Act:
-				action(manager);
-			}
+                // Act:
+                action(manager);
+            }
 
-		public:
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Secret_Lock, model::Entity_Type_Secret_Proof };
-			}
+        public:
+            static std::vector<model::EntityType> GetTransactionTypes()
+            {
+                return { model::Entity_Type_Secret_Lock, model::Entity_Type_Secret_Proof };
+            }
 
-			static std::vector<std::string> GetCacheNames() {
-				return { "SecretLockInfoCache" };
-			}
+            static std::vector<std::string> GetCacheNames()
+            {
+                return { "SecretLockInfoCache" };
+            }
 
-			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
-				return { ionet::PacketType::Secret_Lock_State_Path };
-			}
+            static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes()
+            {
+                return { ionet::PacketType::Secret_Lock_State_Path };
+            }
 
-			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return { ionet::PacketType::Secret_Lock_Infos };
-			}
+            static std::vector<ionet::PacketType> GetDiagnosticPacketTypes()
+            {
+                return { ionet::PacketType::Secret_Lock_Infos };
+            }
 
-			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return { "SECRETLOCK C" };
-			}
+            static std::vector<std::string> GetDiagnosticCounterNames()
+            {
+                return { "SECRETLOCK C" };
+            }
 
-			static std::vector<std::string> GetStatelessValidatorNames() {
-				return { "SecretLockDurationValidator", "SecretLockHashAlgorithmValidator", "ProofSecretValidator" };
-			}
+            static std::vector<std::string> GetStatelessValidatorNames()
+            {
+                return { "SecretLockDurationValidator", "SecretLockHashAlgorithmValidator", "ProofSecretValidator" };
+            }
 
-			static std::vector<std::string> GetStatefulValidatorNames() {
-				return { "SecretLockCacheUniqueValidator", "ProofValidator" };
-			}
+            static std::vector<std::string> GetStatefulValidatorNames()
+            {
+                return { "SecretLockCacheUniqueValidator", "ProofValidator" };
+            }
 
-			static std::vector<std::string> GetObserverNames() {
-				return { "SecretLockObserver", "ExpiredSecretLockInfoObserver", "ProofObserver" };
-			}
+            static std::vector<std::string> GetObserverNames()
+            {
+                return { "SecretLockObserver", "ExpiredSecretLockInfoObserver", "ProofObserver" };
+            }
 
-			static std::vector<std::string> GetPermanentObserverNames() {
-				return GetObserverNames();
-			}
-		};
-	}
+            static std::vector<std::string> GetPermanentObserverNames()
+            {
+                return GetObserverNames();
+            }
+        };
+    }
 
-	DEFINE_PLUGIN_TESTS(SecretLockPluginTests, SecretLockPluginTraits)
-}}
+    DEFINE_PLUGIN_TESTS(SecretLockPluginTests, SecretLockPluginTraits)
+}
+}

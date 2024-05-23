@@ -26,50 +26,58 @@
 #include "TransactionPlugin.h"
 #include "catapult/utils/IntegerMath.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	std::ostream& operator<<(std::ostream& out, const EmbeddedTransaction& transaction) {
-		auto version = static_cast<uint16_t>(transaction.Version);
-		out << "(embedded) " << transaction.Type << " (v" << version << ") with size " << transaction.Size;
-		return out;
-	}
+    std::ostream& operator<<(std::ostream& out, const EmbeddedTransaction& transaction)
+    {
+        auto version = static_cast<uint16_t>(transaction.Version);
+        out << "(embedded) " << transaction.Type << " (v" << version << ") with size " << transaction.Size;
+        return out;
+    }
 
-	Address GetSignerAddress(const EmbeddedTransaction& transaction) {
-		return PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
-	}
+    Address GetSignerAddress(const EmbeddedTransaction& transaction)
+    {
+        return PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+    }
 
-	namespace {
-		bool IsSizeValidInternal(const EmbeddedTransaction& transaction, const TransactionRegistry& registry) {
-			const auto* pPlugin = registry.findPlugin(transaction.Type);
-			if (!pPlugin || !pPlugin->supportsEmbedding()) {
-				CATAPULT_LOG(warning) << "rejected embedded transaction with type: " << transaction.Type;
-				return false;
-			}
+    namespace {
+        bool IsSizeValidInternal(const EmbeddedTransaction& transaction, const TransactionRegistry& registry)
+        {
+            const auto* pPlugin = registry.findPlugin(transaction.Type);
+            if (!pPlugin || !pPlugin->supportsEmbedding()) {
+                CATAPULT_LOG(warning) << "rejected embedded transaction with type: " << transaction.Type;
+                return false;
+            }
 
-			return pPlugin->embeddedPlugin().isSizeValid(transaction);
-		}
-	}
+            return pPlugin->embeddedPlugin().isSizeValid(transaction);
+        }
+    }
 
-	bool IsSizeValid(const EmbeddedTransaction& transaction, const TransactionRegistry& registry) {
-		if (transaction.Size < sizeof(EmbeddedTransaction)) {
-			CATAPULT_LOG(warning) << "transaction failed size validation with size " << transaction.Size;
-			return false;
-		}
+    bool IsSizeValid(const EmbeddedTransaction& transaction, const TransactionRegistry& registry)
+    {
+        if (transaction.Size < sizeof(EmbeddedTransaction)) {
+            CATAPULT_LOG(warning) << "transaction failed size validation with size " << transaction.Size;
+            return false;
+        }
 
-		if (IsSizeValidInternal(transaction, registry))
-			return true;
+        if (IsSizeValidInternal(transaction, registry))
+            return true;
 
-		CATAPULT_LOG(warning) << transaction.Type << " transaction failed size validation with size " << transaction.Size;
-		return false;
-	}
+        CATAPULT_LOG(warning) << transaction.Type << " transaction failed size validation with size " << transaction.Size;
+        return false;
+    }
 
-	void PublishNotifications(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) {
-		sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
-	}
+    void PublishNotifications(const EmbeddedTransaction& transaction, NotificationSubscriber& sub)
+    {
+        sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
+    }
 
-	const model::EmbeddedTransaction* AdvanceNext(const model::EmbeddedTransaction* pTransaction) {
-		const auto* pTransactionData = reinterpret_cast<const uint8_t*>(pTransaction);
-		auto paddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
-		return reinterpret_cast<const model::EmbeddedTransaction*>(pTransactionData + pTransaction->Size + paddingSize);
-	}
-}}
+    const model::EmbeddedTransaction* AdvanceNext(const model::EmbeddedTransaction* pTransaction)
+    {
+        const auto* pTransactionData = reinterpret_cast<const uint8_t*>(pTransaction);
+        auto paddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
+        return reinterpret_cast<const model::EmbeddedTransaction*>(pTransactionData + pTransaction->Size + paddingSize);
+    }
+}
+}

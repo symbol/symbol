@@ -20,48 +20,53 @@
 **/
 
 #include "catapult/cache_core/AccountStateCacheSerializers.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS AccountStateCacheSerializersTests
 
-	TEST(TEST_CLASS, KeyAddressPairSerializer_CanSerializeValue) {
-		// Arrange:
-		auto originalPair = std::make_pair(test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Address>());
+    TEST(TEST_CLASS, KeyAddressPairSerializer_CanSerializeValue)
+    {
+        // Arrange:
+        auto originalPair = std::make_pair(test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Address>());
 
-		// Act:
-		auto result = KeyAddressPairSerializer::SerializeValue(originalPair);
+        // Act:
+        auto result = KeyAddressPairSerializer::SerializeValue(originalPair);
 
-		// Assert:
-		ASSERT_EQ(Key::Size + Address::Size, result.size());
-		EXPECT_EQ(originalPair.first, reinterpret_cast<const Key&>(result[0]));
-		EXPECT_EQ(originalPair.second, reinterpret_cast<const Address&>(result[Key::Size]));
-	}
+        // Assert:
+        ASSERT_EQ(Key::Size + Address::Size, result.size());
+        EXPECT_EQ(originalPair.first, reinterpret_cast<const Key&>(result[0]));
+        EXPECT_EQ(originalPair.second, reinterpret_cast<const Address&>(result[Key::Size]));
+    }
 
-	TEST(TEST_CLASS, KeyAddressPairSerializer_CanDeserializeValue) {
-		// Arrange:
-		auto buffer = test::GenerateRandomArray<Key::Size + Address::Size>();
+    TEST(TEST_CLASS, KeyAddressPairSerializer_CanDeserializeValue)
+    {
+        // Arrange:
+        auto buffer = test::GenerateRandomArray<Key::Size + Address::Size>();
 
-		// Act:
-		auto pair = KeyAddressPairSerializer::DeserializeValue(buffer);
+        // Act:
+        auto pair = KeyAddressPairSerializer::DeserializeValue(buffer);
 
-		// Assert:
-		EXPECT_EQ(reinterpret_cast<const Key&>(buffer[0]), pair.first);
-		EXPECT_EQ(reinterpret_cast<const Address&>(buffer[Key::Size]), pair.second);
-	}
+        // Assert:
+        EXPECT_EQ(reinterpret_cast<const Key&>(buffer[0]), pair.first);
+        EXPECT_EQ(reinterpret_cast<const Address&>(buffer[Key::Size]), pair.second);
+    }
 
-	TEST(TEST_CLASS, KeyAddressPairSerializer_CanRoundtripValue) {
-		// Arrange:
-		auto originalPair = std::make_pair(test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Address>());
+    TEST(TEST_CLASS, KeyAddressPairSerializer_CanRoundtripValue)
+    {
+        // Arrange:
+        auto originalPair = std::make_pair(test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Address>());
 
-		// Act:
-		auto result = test::RunRoundtripStringTest<KeyAddressPairSerializer>(originalPair);
+        // Act:
+        auto result = test::RunRoundtripStringTest<KeyAddressPairSerializer>(originalPair);
 
-		// Assert:
-		EXPECT_EQ(originalPair.first, result.first);
-		EXPECT_EQ(originalPair.second, result.second);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(originalPair.first, result.first);
+        EXPECT_EQ(originalPair.second, result.second);
+    }
+}
+}

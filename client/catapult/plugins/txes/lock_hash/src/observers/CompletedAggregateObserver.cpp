@@ -20,36 +20,40 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/HashLockInfoCache.h"
-#include "src/model/HashLockReceiptType.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 #include "plugins/txes/lock_shared/src/observers/LockStatusAccountBalanceObserver.h"
+#include "src/cache/HashLockInfoCache.h"
+#include "src/model/HashLockReceiptType.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	using Notification = model::TransactionNotification;
+    using Notification = model::TransactionNotification;
 
-	namespace {
-		struct HashTraits {
-		public:
-			using CacheType = cache::HashLockInfoCache;
-			using Notification = observers::Notification;
-			static auto constexpr Receipt_Type = model::Receipt_Type_LockHash_Completed;
+    namespace {
+        struct HashTraits {
+        public:
+            using CacheType = cache::HashLockInfoCache;
+            using Notification = observers::Notification;
+            static auto constexpr Receipt_Type = model::Receipt_Type_LockHash_Completed;
 
-			static auto NotificationToKey(const Notification& notification, const model::ResolverContext&) {
-				return notification.TransactionHash;
-			}
+            static auto NotificationToKey(const Notification& notification, const model::ResolverContext&)
+            {
+                return notification.TransactionHash;
+            }
 
-			static auto DestinationAccount(const state::HashLockInfo& lockInfo) {
-				return lockInfo.OwnerAddress;
-			}
-		};
-	}
+            static auto DestinationAccount(const state::HashLockInfo& lockInfo)
+            {
+                return lockInfo.OwnerAddress;
+            }
+        };
+    }
 
-	DEFINE_OBSERVER(CompletedAggregate, Notification, [](const Notification& notification, ObserverContext& context) {
-		if (model::Entity_Type_Aggregate_Bonded != notification.TransactionType)
-			return;
+    DEFINE_OBSERVER(CompletedAggregate, Notification, [](const Notification& notification, ObserverContext& context) {
+        if (model::Entity_Type_Aggregate_Bonded != notification.TransactionType)
+            return;
 
-		LockStatusAccountBalanceObserver<HashTraits>(notification, context);
-	})
-}}
+        LockStatusAccountBalanceObserver<HashTraits>(notification, context);
+    })
+}
+}

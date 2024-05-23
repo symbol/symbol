@@ -19,56 +19,64 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/CommunicationTimestamps.h"
-#include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Equality.h"
+#include "timesync/src/CommunicationTimestamps.h"
 
-namespace catapult { namespace timesync {
+namespace catapult {
+namespace timesync {
 
 #define TEST_CLASS CommunicationTimestampsTests
 
-	TEST(TEST_CLASS, CanCreateDefaultCommunicationTimestamps) {
-		// Act:
-		CommunicationTimestamps timestamps;
+    TEST(TEST_CLASS, CanCreateDefaultCommunicationTimestamps)
+    {
+        // Act:
+        CommunicationTimestamps timestamps;
 
-		// Assert:
-		EXPECT_EQ(Timestamp(0), timestamps.SendTimestamp);
-		EXPECT_EQ(Timestamp(0), timestamps.ReceiveTimestamp);
-	}
+        // Assert:
+        EXPECT_EQ(Timestamp(0), timestamps.SendTimestamp);
+        EXPECT_EQ(Timestamp(0), timestamps.ReceiveTimestamp);
+    }
 
-	TEST(TEST_CLASS, CanCreateCommunicationTimestamps) {
-		// Act:
-		CommunicationTimestamps timestamps(Timestamp(123), Timestamp(234));
+    TEST(TEST_CLASS, CanCreateCommunicationTimestamps)
+    {
+        // Act:
+        CommunicationTimestamps timestamps(Timestamp(123), Timestamp(234));
 
-		// Assert:
-		EXPECT_EQ(Timestamp(123), timestamps.SendTimestamp);
-		EXPECT_EQ(Timestamp(234), timestamps.ReceiveTimestamp);
-	}
+        // Assert:
+        EXPECT_EQ(Timestamp(123), timestamps.SendTimestamp);
+        EXPECT_EQ(Timestamp(234), timestamps.ReceiveTimestamp);
+    }
 
-	// region equality operators
+    // region equality operators
 
-	namespace {
-		const char* Default_Key = "default";
+    namespace {
+        const char* Default_Key = "default";
 
-		std::unordered_set<std::string> GetEqualTags() {
-			return { Default_Key, "copy" };
-		}
+        std::unordered_set<std::string> GetEqualTags()
+        {
+            return { Default_Key, "copy" };
+        }
 
-		std::unordered_map<std::string, CommunicationTimestamps> GenerateEqualityInstanceMap() {
-			return { { Default_Key, CommunicationTimestamps(Timestamp(123), Timestamp(234)) },
-					 { "copy", CommunicationTimestamps(Timestamp(123), Timestamp(234)) },
-					 { "diff-send", CommunicationTimestamps(Timestamp(125), Timestamp(234)) },
-					 { "diff-receive", CommunicationTimestamps(Timestamp(123), Timestamp(235)) } };
-		}
-	}
+        std::unordered_map<std::string, CommunicationTimestamps> GenerateEqualityInstanceMap()
+        {
+            return { { Default_Key, CommunicationTimestamps(Timestamp(123), Timestamp(234)) },
+                { "copy", CommunicationTimestamps(Timestamp(123), Timestamp(234)) },
+                { "diff-send", CommunicationTimestamps(Timestamp(125), Timestamp(234)) },
+                { "diff-receive", CommunicationTimestamps(Timestamp(123), Timestamp(235)) } };
+        }
+    }
 
-	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
-		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
-	}
+    TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects)
+    {
+        test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
+    }
 
-	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
-		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
-	}
+    TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects)
+    {
+        test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

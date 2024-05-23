@@ -26,52 +26,56 @@
 struct evp_pkey_st;
 struct x509_st;
 
-namespace catapult { namespace tools { namespace ssl {
+namespace catapult {
+namespace tools {
+    namespace ssl {
 
-	// region key utils
+        // region key utils
 
-	/// Creates pem private key.
-	std::string CreatePrivateKeyPem(const crypto::KeyPair& keyPair);
+        /// Creates pem private key.
+        std::string CreatePrivateKeyPem(const crypto::KeyPair& keyPair);
 
-	/// Creates a certificate chain from \a certificates.
-	std::string CreateFullCertificateChainPem(const std::vector<std::shared_ptr<x509_st>>& certificates);
+        /// Creates a certificate chain from \a certificates.
+        std::string CreateFullCertificateChainPem(const std::vector<std::shared_ptr<x509_st>>& certificates);
 
-	// endregion
+        // endregion
 
-	// region CertificateBuilder
+        // region CertificateBuilder
 
-	/// Builder for x509 certificates.
-	class CertificateBuilder {
-	public:
-		/// Creates a builder.
-		CertificateBuilder();
+        /// Builder for x509 certificates.
+        class CertificateBuilder {
+        public:
+            /// Creates a builder.
+            CertificateBuilder();
 
-	public:
-		/// Adds the specified \a country, \a organization and \a commonName fields to the subject.
-		void setSubject(const std::string& country, const std::string& organization, const std::string& commonName);
+        public:
+            /// Adds the specified \a country, \a organization and \a commonName fields to the subject.
+            void setSubject(const std::string& country, const std::string& organization, const std::string& commonName);
 
-		/// Adds the specified \a country, \a organization and \a commonName fields to the issuer.
-		void setIssuer(const std::string& country, const std::string& organization, const std::string& commonName);
+            /// Adds the specified \a country, \a organization and \a commonName fields to the issuer.
+            void setIssuer(const std::string& country, const std::string& organization, const std::string& commonName);
 
-		/// Sets the public key to \a publicKey.
-		void setPublicKey(const Key& publicKey);
+            /// Sets the public key to \a publicKey.
+            void setPublicKey(const Key& publicKey);
 
-		/// Sets the validity of certificate to span from \a startDate to \a endDate.
-		void setValidity(long startDate, long endDate);
+            /// Sets the validity of certificate to span from \a startDate to \a endDate.
+            void setValidity(long startDate, long endDate);
 
-	public:
-		/// Builds the certificate.
-		std::shared_ptr<x509_st> build();
+        public:
+            /// Builds the certificate.
+            std::shared_ptr<x509_st> build();
 
-		/// Builds and signs the certificate with \a keyPair.
-		std::shared_ptr<x509_st> buildAndSign(const crypto::KeyPair& keyPair);
+            /// Builds and signs the certificate with \a keyPair.
+            std::shared_ptr<x509_st> buildAndSign(const crypto::KeyPair& keyPair);
 
-	private:
-		x509_st* get();
+        private:
+            x509_st* get();
 
-	private:
-		std::shared_ptr<x509_st> m_pCertificate;
-	};
+        private:
+            std::shared_ptr<x509_st> m_pCertificate;
+        };
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

@@ -19,133 +19,142 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/NemesisBlockLoader.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
+#include "catapult/extensions/NemesisBlockLoader.h"
+#include "tests/TestHarness.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nemesis/NemesisTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
 #define TEST_CLASS NemesisBlockLoaderIntegrityTests
 
-	namespace {
-		// region test utils
+    namespace {
+        // region test utils
 
-		// Num_Nemesis_Transactions - nemesis block has:
-		// 1) Num_Nemesis_Namespaces namespace registration transactions
-		// 2) for each mosaic - (a) mosaic definition transaction, (b) mosaic supply change transaction, (c) mosaic alias transaction
-		// 3) Num_Nemesis_Accounts transfer transactions
-		// 4) Num_Nemesis_Harvesting_Accounts vrf key link transactions
+        // Num_Nemesis_Transactions - nemesis block has:
+        // 1) Num_Nemesis_Namespaces namespace registration transactions
+        // 2) for each mosaic - (a) mosaic definition transaction, (b) mosaic supply change transaction, (c) mosaic alias transaction
+        // 3) Num_Nemesis_Accounts transfer transactions
+        // 4) Num_Nemesis_Harvesting_Accounts vrf key link transactions
 
-		constexpr auto Num_Nemesis_Accounts = CountOf(test::Test_Network_Private_Keys);
-		constexpr auto Num_Nemesis_Harvesting_Accounts = CountOf(test::Test_Network_Vrf_Private_Keys);
-		constexpr auto Num_Nemesis_Namespaces = 3;
-		constexpr auto Num_Nemesis_Mosaics = 2;
-		constexpr auto Num_Nemesis_Transactions =
-				0 + Num_Nemesis_Namespaces + 3 * Num_Nemesis_Mosaics + Num_Nemesis_Accounts + Num_Nemesis_Harvesting_Accounts;
+        constexpr auto Num_Nemesis_Accounts = CountOf(test::Test_Network_Private_Keys);
+        constexpr auto Num_Nemesis_Harvesting_Accounts = CountOf(test::Test_Network_Vrf_Private_Keys);
+        constexpr auto Num_Nemesis_Namespaces = 3;
+        constexpr auto Num_Nemesis_Mosaics = 2;
+        constexpr auto Num_Nemesis_Transactions = 0 + Num_Nemesis_Namespaces + 3 * Num_Nemesis_Mosaics + Num_Nemesis_Accounts + Num_Nemesis_Harvesting_Accounts;
 
-		template<typename TAction>
-		void RunNemesisBlockTest(TAction action) {
-			// Arrange:
-			test::TempDirectoryGuard tempDir;
-			config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
+        template <typename TAction>
+        void RunNemesisBlockTest(TAction action)
+        {
+            // Arrange:
+            test::TempDirectoryGuard tempDir;
+            config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
 
-			auto config = test::CreatePrototypicalCatapultConfiguration(tempDir.name());
-			test::AddNemesisPluginExtensions(const_cast<model::BlockchainConfiguration&>(config.Blockchain));
+            auto config = test::CreatePrototypicalCatapultConfiguration(tempDir.name());
+            test::AddNemesisPluginExtensions(const_cast<model::BlockchainConfiguration&>(config.Blockchain));
 
-			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
-			test::LocalNodeTestState localNodeState(pPluginManager->config(), tempDir.name(), pPluginManager->createCache());
+            auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
+            test::LocalNodeTestState localNodeState(pPluginManager->config(), tempDir.name(), pPluginManager->createCache());
 
-			{
-				auto cacheDelta = localNodeState.ref().Cache.createDelta();
+            {
+                auto cacheDelta = localNodeState.ref().Cache.createDelta();
 
-				// Act:
-				NemesisBlockLoader loader(cacheDelta, *pPluginManager, pPluginManager->createObserver());
-				loader.executeAndCommit(localNodeState.ref(), StateHashVerification::Enabled);
-			}
+                // Act:
+                NemesisBlockLoader loader(cacheDelta, *pPluginManager, pPluginManager->createObserver());
+                loader.executeAndCommit(localNodeState.ref(), StateHashVerification::Enabled);
+            }
 
-			// Assert:
-			action(localNodeState.ref());
-		}
+            // Assert:
+            action(localNodeState.ref());
+        }
 
-		// endregion
-	}
+        // endregion
+    }
 
-	// region tests
+    // region tests
 
-	TEST(TEST_CLASS, ProperAccountStateAfterLoadingNemesisBlock) {
-		// Act:
-		RunNemesisBlockTest([](const auto& stateRef) {
-			// Assert:
-			const auto& cacheView = stateRef.Cache.createView();
-			EXPECT_EQ(Height(1), cacheView.height());
-			test::AssertNemesisAccountState(cacheView);
-		});
-	}
+    TEST(TEST_CLASS, ProperAccountStateAfterLoadingNemesisBlock)
+    {
+        // Act:
+        RunNemesisBlockTest([](const auto& stateRef) {
+            // Assert:
+            const auto& cacheView = stateRef.Cache.createView();
+            EXPECT_EQ(Height(1), cacheView.height());
+            test::AssertNemesisAccountState(cacheView);
+        });
+    }
 
-	TEST(TEST_CLASS, ProperMosaicStateAfterLoadingNemesisBlock) {
-		// Act:
-		RunNemesisBlockTest([](const auto& stateRef) {
-			// Assert:
-			const auto& cacheView = stateRef.Cache.createView();
-			test::AssertNemesisNamespaceState(cacheView);
-			test::AssertNemesisMosaicState(cacheView);
-		});
-	}
+    TEST(TEST_CLASS, ProperMosaicStateAfterLoadingNemesisBlock)
+    {
+        // Act:
+        RunNemesisBlockTest([](const auto& stateRef) {
+            // Assert:
+            const auto& cacheView = stateRef.Cache.createView();
+            test::AssertNemesisNamespaceState(cacheView);
+            test::AssertNemesisMosaicState(cacheView);
+        });
+    }
 
-	TEST(TEST_CLASS, ProperChainScoreAfterLoadingNemesisBlock) {
-		// Act:
-		RunNemesisBlockTest([](const auto& stateRef) {
-			// Assert: NemesisBlockLoader doesn't modify score
-			EXPECT_EQ(model::ChainScore(0), stateRef.Score.get());
-		});
-	}
+    TEST(TEST_CLASS, ProperChainScoreAfterLoadingNemesisBlock)
+    {
+        // Act:
+        RunNemesisBlockTest([](const auto& stateRef) {
+            // Assert: NemesisBlockLoader doesn't modify score
+            EXPECT_EQ(model::ChainScore(0), stateRef.Score.get());
+        });
+    }
 
-	TEST(TEST_CLASS, ProperRecalculationHeightAfterLoadingNemesisBlock) {
-		// Act:
-		RunNemesisBlockTest([](const auto& stateRef) {
-			// Assert:
-			EXPECT_EQ(model::ImportanceHeight(1), stateRef.Cache.createView().dependentState().LastRecalculationHeight);
-		});
-	}
+    TEST(TEST_CLASS, ProperRecalculationHeightAfterLoadingNemesisBlock)
+    {
+        // Act:
+        RunNemesisBlockTest([](const auto& stateRef) {
+            // Assert:
+            EXPECT_EQ(model::ImportanceHeight(1), stateRef.Cache.createView().dependentState().LastRecalculationHeight);
+        });
+    }
 
-	TEST(TEST_CLASS, ProperFinalizedHeightAfterLoadingNemesisBlock) {
-		// Act:
-		RunNemesisBlockTest([](const auto& stateRef) {
-			// Assert:
-			EXPECT_EQ(Height(1), stateRef.Cache.createView().dependentState().LastFinalizedHeight);
-		});
-	}
+    TEST(TEST_CLASS, ProperFinalizedHeightAfterLoadingNemesisBlock)
+    {
+        // Act:
+        RunNemesisBlockTest([](const auto& stateRef) {
+            // Assert:
+            EXPECT_EQ(Height(1), stateRef.Cache.createView().dependentState().LastFinalizedHeight);
+        });
+    }
 
-	TEST(TEST_CLASS, ProperNumTransactionsAfterLoadingNemesisBlock) {
-		// Act:
-		RunNemesisBlockTest([](const auto& stateRef) {
-			// Assert:
-			EXPECT_EQ(Num_Nemesis_Transactions, stateRef.Cache.createView().dependentState().NumTotalTransactions);
-		});
-	}
+    TEST(TEST_CLASS, ProperNumTransactionsAfterLoadingNemesisBlock)
+    {
+        // Act:
+        RunNemesisBlockTest([](const auto& stateRef) {
+            // Assert:
+            EXPECT_EQ(Num_Nemesis_Transactions, stateRef.Cache.createView().dependentState().NumTotalTransactions);
+        });
+    }
 
-	TEST(TEST_CLASS, ProperHighValueAccountStatisticsAfterLoadingNemesisBlock) {
-		// Act:
-		RunNemesisBlockTest([](const auto& stateRef) {
-			auto cacheView = stateRef.Cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			const auto& accountStateCache = readOnlyCache.template sub<cache::AccountStateCache>();
-			auto highValueAccountStatistics = accountStateCache.highValueAccountStatistics(FinalizationEpoch(0));
+    TEST(TEST_CLASS, ProperHighValueAccountStatisticsAfterLoadingNemesisBlock)
+    {
+        // Act:
+        RunNemesisBlockTest([](const auto& stateRef) {
+            auto cacheView = stateRef.Cache.createView();
+            auto readOnlyCache = cacheView.toReadOnly();
+            const auto& accountStateCache = readOnlyCache.template sub<cache::AccountStateCache>();
+            auto highValueAccountStatistics = accountStateCache.highValueAccountStatistics(FinalizationEpoch(0));
 
-			// Assert:
-			EXPECT_EQ(0u, highValueAccountStatistics.VotingEligibleAccountsCount);
-			EXPECT_EQ(Num_Nemesis_Harvesting_Accounts, highValueAccountStatistics.HarvestingEligibleAccountsCount);
-			EXPECT_EQ(Amount(), highValueAccountStatistics.TotalVotingBalance);
-		});
-	}
+            // Assert:
+            EXPECT_EQ(0u, highValueAccountStatistics.VotingEligibleAccountsCount);
+            EXPECT_EQ(Num_Nemesis_Harvesting_Accounts, highValueAccountStatistics.HarvestingEligibleAccountsCount);
+            EXPECT_EQ(Amount(), highValueAccountStatistics.TotalVotingBalance);
+        });
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

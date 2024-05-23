@@ -22,154 +22,166 @@
 #include "src/state/RestrictionValueMap.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS RestrictionValueMapTests
 
-	// region ctor
+    // region ctor
 
-	TEST(TEST_CLASS, CanCreateMap) {
-		// Act:
-		RestrictionValueMap<uint64_t> map;
+    TEST(TEST_CLASS, CanCreateMap)
+    {
+        // Act:
+        RestrictionValueMap<uint64_t> map;
 
-		// Assert:
-		EXPECT_EQ(0u, map.size());
-		EXPECT_EQ(std::set<uint64_t>(), map.keys());
-	}
+        // Assert:
+        EXPECT_EQ(0u, map.size());
+        EXPECT_EQ(std::set<uint64_t>(), map.keys());
+    }
 
-	// endregion
+    // endregion
 
-	// region get
+    // region get
 
-	TEST(TEST_CLASS, CannotGetValueForUnsetRestriction) {
-		// Arrange:
-		RestrictionValueMap<uint64_t> map;
-		map.set(111, 444);
+    TEST(TEST_CLASS, CannotGetValueForUnsetRestriction)
+    {
+        // Arrange:
+        RestrictionValueMap<uint64_t> map;
+        map.set(111, 444);
 
-		// Act:
-		uint64_t value;
-		auto result = map.tryGet(112, value);
+        // Act:
+        uint64_t value;
+        auto result = map.tryGet(112, value);
 
-		// Assert:
-		EXPECT_FALSE(result);
-	}
+        // Assert:
+        EXPECT_FALSE(result);
+    }
 
-	TEST(TEST_CLASS, CanGetValueForSetRestriction) {
-		// Arrange:
-		RestrictionValueMap<uint64_t> map;
-		map.set(111, 444);
+    TEST(TEST_CLASS, CanGetValueForSetRestriction)
+    {
+        // Arrange:
+        RestrictionValueMap<uint64_t> map;
+        map.set(111, 444);
 
-		// Act:
-		uint64_t value;
-		auto result = map.tryGet(111, value);
+        // Act:
+        uint64_t value;
+        auto result = map.tryGet(111, value);
 
-		// Assert:
-		EXPECT_TRUE(result);
-		EXPECT_EQ(444u, value);
-	}
+        // Assert:
+        EXPECT_TRUE(result);
+        EXPECT_EQ(444u, value);
+    }
 
-	// endregion
+    // endregion
 
-	// region set
+    // region set
 
-	namespace {
-		void AssertCanGetValue(const RestrictionValueMap<uint64_t>& map, uint64_t key, uint64_t expectedValue) {
-			uint64_t value;
-			auto result = map.tryGet(key, value);
+    namespace {
+        void AssertCanGetValue(const RestrictionValueMap<uint64_t>& map, uint64_t key, uint64_t expectedValue)
+        {
+            uint64_t value;
+            auto result = map.tryGet(key, value);
 
-			EXPECT_TRUE(result) << "for key " << key;
-			EXPECT_EQ(expectedValue, value) << "for key " << key;
-		}
+            EXPECT_TRUE(result) << "for key " << key;
+            EXPECT_EQ(expectedValue, value) << "for key " << key;
+        }
 
-		void AssertCannotGetValue(const RestrictionValueMap<uint64_t>& map, uint64_t key) {
-			uint64_t value;
-			auto result = map.tryGet(key, value);
+        void AssertCannotGetValue(const RestrictionValueMap<uint64_t>& map, uint64_t key)
+        {
+            uint64_t value;
+            auto result = map.tryGet(key, value);
 
-			EXPECT_FALSE(result) << "for key " << key;
-		}
-	}
+            EXPECT_FALSE(result) << "for key " << key;
+        }
+    }
 
-	TEST(TEST_CLASS, CanSetSingleValue) {
-		// Arrange:
-		RestrictionValueMap<uint64_t> map;
+    TEST(TEST_CLASS, CanSetSingleValue)
+    {
+        // Arrange:
+        RestrictionValueMap<uint64_t> map;
 
-		// Act:
-		map.set(111, 444);
+        // Act:
+        map.set(111, 444);
 
-		// Assert:
-		EXPECT_EQ(1u, map.size());
-		AssertCanGetValue(map, 111, 444);
-		EXPECT_EQ(std::set<uint64_t>({ 111 }), map.keys());
-	}
+        // Assert:
+        EXPECT_EQ(1u, map.size());
+        AssertCanGetValue(map, 111, 444);
+        EXPECT_EQ(std::set<uint64_t>({ 111 }), map.keys());
+    }
 
-	TEST(TEST_CLASS, CanSetMultipleValues) {
-		// Arrange:
-		RestrictionValueMap<uint64_t> map;
+    TEST(TEST_CLASS, CanSetMultipleValues)
+    {
+        // Arrange:
+        RestrictionValueMap<uint64_t> map;
 
-		// Act:
-		map.set(111, 444);
-		map.set(321, 987);
-		map.set(222, 567);
+        // Act:
+        map.set(111, 444);
+        map.set(321, 987);
+        map.set(222, 567);
 
-		// Assert:
-		EXPECT_EQ(3u, map.size());
-		AssertCanGetValue(map, 111, 444);
-		AssertCanGetValue(map, 222, 567);
-		AssertCanGetValue(map, 321, 987);
-		EXPECT_EQ(std::set<uint64_t>({ 111, 222, 321 }), map.keys());
-	}
+        // Assert:
+        EXPECT_EQ(3u, map.size());
+        AssertCanGetValue(map, 111, 444);
+        AssertCanGetValue(map, 222, 567);
+        AssertCanGetValue(map, 321, 987);
+        EXPECT_EQ(std::set<uint64_t>({ 111, 222, 321 }), map.keys());
+    }
 
-	TEST(TEST_CLASS, CanChangeSingleValue) {
-		// Arrange:
-		RestrictionValueMap<uint64_t> map;
-		map.set(111, 444);
-		map.set(321, 987);
+    TEST(TEST_CLASS, CanChangeSingleValue)
+    {
+        // Arrange:
+        RestrictionValueMap<uint64_t> map;
+        map.set(111, 444);
+        map.set(321, 987);
 
-		// Act:
-		map.set(111, 555);
+        // Act:
+        map.set(111, 555);
 
-		// Assert:
-		EXPECT_EQ(2u, map.size());
-		AssertCanGetValue(map, 111, 555);
-		AssertCanGetValue(map, 321, 987);
-		EXPECT_EQ(std::set<uint64_t>({ 111, 321 }), map.keys());
-	}
+        // Assert:
+        EXPECT_EQ(2u, map.size());
+        AssertCanGetValue(map, 111, 555);
+        AssertCanGetValue(map, 321, 987);
+        EXPECT_EQ(std::set<uint64_t>({ 111, 321 }), map.keys());
+    }
 
-	// endregion
+    // endregion
 
-	// region remove
+    // region remove
 
-	TEST(TEST_CLASS, CanRemoveValueNotInMap) {
-		// Arrange:
-		RestrictionValueMap<uint64_t> map;
-		map.set(111, 444);
-		map.set(321, 987);
+    TEST(TEST_CLASS, CanRemoveValueNotInMap)
+    {
+        // Arrange:
+        RestrictionValueMap<uint64_t> map;
+        map.set(111, 444);
+        map.set(321, 987);
 
-		// Act:
-		map.remove(222);
+        // Act:
+        map.remove(222);
 
-		// Assert:
-		EXPECT_EQ(2u, map.size());
-		AssertCanGetValue(map, 111, 444);
-		AssertCanGetValue(map, 321, 987);
-		EXPECT_EQ(std::set<uint64_t>({ 111, 321 }), map.keys());
-	}
+        // Assert:
+        EXPECT_EQ(2u, map.size());
+        AssertCanGetValue(map, 111, 444);
+        AssertCanGetValue(map, 321, 987);
+        EXPECT_EQ(std::set<uint64_t>({ 111, 321 }), map.keys());
+    }
 
-	TEST(TEST_CLASS, CanRemoveSingleValue) {
-		// Arrange:
-		RestrictionValueMap<uint64_t> map;
-		map.set(111, 444);
-		map.set(321, 987);
+    TEST(TEST_CLASS, CanRemoveSingleValue)
+    {
+        // Arrange:
+        RestrictionValueMap<uint64_t> map;
+        map.set(111, 444);
+        map.set(321, 987);
 
-		// Act:
-		map.remove(111);
+        // Act:
+        map.remove(111);
 
-		// Assert:
-		EXPECT_EQ(1u, map.size());
-		AssertCannotGetValue(map, 111);
-		AssertCanGetValue(map, 321, 987);
-		EXPECT_EQ(std::set<uint64_t>({ 321 }), map.keys());
-	}
+        // Assert:
+        EXPECT_EQ(1u, map.size());
+        AssertCannotGetValue(map, 111);
+        AssertCanGetValue(map, 321, 987);
+        EXPECT_EQ(std::set<uint64_t>({ 321 }), map.keys());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

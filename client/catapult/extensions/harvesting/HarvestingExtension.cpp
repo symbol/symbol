@@ -19,20 +19,26 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/HarvestingConfiguration.h"
 #include "src/HarvestingService.h"
 #include "src/ValidateHarvestingConfiguration.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace harvesting { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		auto config = HarvestingConfiguration::LoadFromPath(bootstrapper.resourcesPath());
-		ValidateHarvestingConfiguration(config);
+namespace catapult {
+namespace harvesting {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            auto config = HarvestingConfiguration::LoadFromPath(bootstrapper.resourcesPath());
+            ValidateHarvestingConfiguration(config);
 
-		bootstrapper.extensionManager().addServiceRegistrar(CreateHarvestingServiceRegistrar(config));
-	}
-}}}
+            bootstrapper.extensionManager().addServiceRegistrar(CreateHarvestingServiceRegistrar(config));
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::harvesting::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::harvesting::RegisterExtension(bootstrapper);
 }

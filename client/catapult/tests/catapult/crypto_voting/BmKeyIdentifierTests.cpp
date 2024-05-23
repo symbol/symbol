@@ -20,63 +20,69 @@
 **/
 
 #include "catapult/crypto_voting/BmKeyIdentifier.h"
+#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Comparison.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
 #define TEST_CLASS BmKeyIdentifierTests
 
-	// region size + alignment
+    // region size + alignment
 
 #define KEY_IDENTIFIER_FIELDS FIELD(KeyId)
 
-	TEST(TEST_CLASS, KeyIdentifierHasExpectedSize) {
-		// Arrange:
-		auto expectedSize = 0u;
+    TEST(TEST_CLASS, KeyIdentifierHasExpectedSize)
+    {
+        // Arrange:
+        auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(BmKeyIdentifier::X)>();
-		KEY_IDENTIFIER_FIELDS
+        KEY_IDENTIFIER_FIELDS
 #undef FIELD
 
-		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(BmKeyIdentifier));
-		EXPECT_EQ(8u, sizeof(BmKeyIdentifier));
-	}
+        // Assert:
+        EXPECT_EQ(expectedSize, sizeof(BmKeyIdentifier));
+        EXPECT_EQ(8u, sizeof(BmKeyIdentifier));
+    }
 
-	TEST(TEST_CLASS, KeyIdentifierHasProperAlignment) {
+    TEST(TEST_CLASS, KeyIdentifierHasProperAlignment)
+    {
 #define FIELD(X) EXPECT_ALIGNED(BmKeyIdentifier, X);
-		KEY_IDENTIFIER_FIELDS
+        KEY_IDENTIFIER_FIELDS
 #undef FIELD
 
-		EXPECT_EQ(0u, sizeof(BmKeyIdentifier) % 8);
-	}
+        EXPECT_EQ(0u, sizeof(BmKeyIdentifier) % 8);
+    }
 
 #undef KEY_IDENTIFIER_FIELDS
 
-	// endregion
+    // endregion
 
-	// region operators
+    // region operators
 
-	namespace {
-		std::vector<BmKeyIdentifier> GenerateIncreasingKeyIdentifierValues() {
-			return { { BmKeyIdentifier::Invalid_Id }, { 0 }, { 1 }, { 5 }, { 10 } };
-		}
-	}
+    namespace {
+        std::vector<BmKeyIdentifier> GenerateIncreasingKeyIdentifierValues()
+        {
+            return { { BmKeyIdentifier::Invalid_Id }, { 0 }, { 1 }, { 5 }, { 10 } };
+        }
+    }
 
-	DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingKeyIdentifierValues())
+    DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingKeyIdentifierValues())
 
-	TEST(TEST_CLASS, KeyIdentifier_CanOutput) {
-		// Arrange:
-		BmKeyIdentifier keyIdentifier{ 11 };
+    TEST(TEST_CLASS, KeyIdentifier_CanOutput)
+    {
+        // Arrange:
+        BmKeyIdentifier keyIdentifier { 11 };
 
-		// Act:
-		auto str = test::ToString(keyIdentifier);
+        // Act:
+        auto str = test::ToString(keyIdentifier);
 
-		// Assert:
-		EXPECT_EQ("(11)", str);
-	}
+        // Assert:
+        EXPECT_EQ("(11)", str);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

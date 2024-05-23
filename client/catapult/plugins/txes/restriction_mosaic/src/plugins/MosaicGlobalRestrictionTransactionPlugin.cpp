@@ -20,41 +20,44 @@
 **/
 
 #include "MosaicGlobalRestrictionTransactionPlugin.h"
-#include "src/model/MosaicGlobalRestrictionTransaction.h"
-#include "src/model/MosaicRestrictionNotifications.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/MosaicGlobalRestrictionTransaction.h"
+#include "src/model/MosaicRestrictionNotifications.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		constexpr uint8_t Mosaic_Flags_Restrictable = 0x04;
+    namespace {
+        constexpr uint8_t Mosaic_Flags_Restrictable = 0x04;
 
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			sub.notify(MosaicRestrictionTypeNotification(transaction.NewRestrictionType));
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            sub.notify(MosaicRestrictionTypeNotification(transaction.NewRestrictionType));
 
-			sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.MosaicId, Mosaic_Flags_Restrictable));
+            sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.MosaicId, Mosaic_Flags_Restrictable));
 
-			if (UnresolvedMosaicId() != transaction.ReferenceMosaicId)
-				sub.notify(MosaicRestrictionRequiredNotification(transaction.ReferenceMosaicId, transaction.RestrictionKey));
+            if (UnresolvedMosaicId() != transaction.ReferenceMosaicId)
+                sub.notify(MosaicRestrictionRequiredNotification(transaction.ReferenceMosaicId, transaction.RestrictionKey));
 
-			sub.notify(MosaicGlobalRestrictionModificationPreviousValueNotification(
-					transaction.MosaicId,
-					transaction.ReferenceMosaicId,
-					transaction.RestrictionKey,
-					transaction.PreviousRestrictionValue,
-					transaction.PreviousRestrictionType));
-			sub.notify(MosaicGlobalRestrictionModificationNewValueNotification(
-					transaction.MosaicId,
-					transaction.ReferenceMosaicId,
-					transaction.RestrictionKey,
-					transaction.NewRestrictionValue,
-					transaction.NewRestrictionType));
-		}
-	}
+            sub.notify(MosaicGlobalRestrictionModificationPreviousValueNotification(
+                transaction.MosaicId,
+                transaction.ReferenceMosaicId,
+                transaction.RestrictionKey,
+                transaction.PreviousRestrictionValue,
+                transaction.PreviousRestrictionType));
+            sub.notify(MosaicGlobalRestrictionModificationNewValueNotification(
+                transaction.MosaicId,
+                transaction.ReferenceMosaicId,
+                transaction.RestrictionKey,
+                transaction.NewRestrictionValue,
+                transaction.NewRestrictionType));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicGlobalRestriction, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicGlobalRestriction, Default, Publish)
+}
+}

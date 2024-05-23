@@ -23,34 +23,36 @@
 #include "BasicKeyPair.h"
 #include "SecureByteArray.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	struct PrivateKey_tag {
-		static constexpr size_t Size = 32;
-	};
-	using PrivateKey = SecureByteArray<PrivateKey_tag>;
+    struct PrivateKey_tag {
+        static constexpr size_t Size = 32;
+    };
+    using PrivateKey = SecureByteArray<PrivateKey_tag>;
 
-	/// ED25519 key pair traits.
-	struct Ed25519KeyPairTraits {
-	public:
-		using PublicKey = Key;
-		using PrivateKey = crypto::PrivateKey;
+    /// ED25519 key pair traits.
+    struct Ed25519KeyPairTraits {
+    public:
+        using PublicKey = Key;
+        using PrivateKey = crypto::PrivateKey;
 
-	public:
-		/// Extracts a public key (\a publicKey) from a private key (\a privateKey).
-		static void ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey);
-	};
+    public:
+        /// Extracts a public key (\a publicKey) from a private key (\a privateKey).
+        static void ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey);
+    };
 
-	/// ED25519 key pair.
-	/// \note This type does not have a prefix because it's the default signature scheme used in catapult.
-	using KeyPair = BasicKeyPair<Ed25519KeyPairTraits>;
+    /// ED25519 key pair.
+    /// \note This type does not have a prefix because it's the default signature scheme used in catapult.
+    using KeyPair = BasicKeyPair<Ed25519KeyPairTraits>;
 
-	/// ED25519 utils.
-	struct Ed25519Utils {
-		/// Formats a private \a key for printing.
-		static utils::ContainerHexFormatter<Key::const_iterator> FormatPrivateKey(const PrivateKey& key);
+    /// ED25519 utils.
+    struct Ed25519Utils {
+        /// Formats a private \a key for printing.
+        static utils::ContainerHexFormatter<Key::const_iterator> FormatPrivateKey(const PrivateKey& key);
 
-		/// Returns \c true if \a str represents a valid private key, \c false otherwise.
-		static bool IsValidPrivateKeyString(const std::string& str);
-	};
-}}
+        /// Returns \c true if \a str represents a valid private key, \c false otherwise.
+        static bool IsValidPrivateKeyString(const std::string& str);
+    };
+}
+}

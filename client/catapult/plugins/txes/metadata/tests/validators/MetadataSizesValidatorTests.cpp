@@ -20,80 +20,92 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/plugins/ValidatorTestUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS MetadataSizesValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MetadataSizes, 0)
+    DEFINE_COMMON_VALIDATOR_TESTS(MetadataSizes, 0)
 
-	namespace {
-		void AssertValidationResult(ValidationResult expectedResult, int16_t valueSizeDelta, uint16_t valueSize, uint16_t maxValueSize) {
-			// Arrange:
-			auto notification = model::MetadataSizesNotification(valueSizeDelta, valueSize);
-			auto pValidator = CreateMetadataSizesValidator(maxValueSize);
+    namespace {
+        void AssertValidationResult(ValidationResult expectedResult, int16_t valueSizeDelta, uint16_t valueSize, uint16_t maxValueSize)
+        {
+            // Arrange:
+            auto notification = model::MetadataSizesNotification(valueSizeDelta, valueSize);
+            auto pValidator = CreateMetadataSizesValidator(maxValueSize);
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "valueSizeDelta = " << valueSizeDelta << ", valueSize = " << valueSize;
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result) << "valueSizeDelta = " << valueSizeDelta << ", valueSize = " << valueSize;
+        }
+    }
 
-	// region value size too small
+    // region value size too small
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithZeroValueSizeDeltaButNonzeroValueSize) {
-		AssertValidationResult(ValidationResult::Success, 0, 1, 1234);
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithZeroValueSizeDeltaButNonzeroValueSize)
+    {
+        AssertValidationResult(ValidationResult::Success, 0, 1, 1234);
+    }
 
-	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithNonzeroValueSizeDeltaButZeroValueSize) {
-		for (auto valueSizeDelta : std::initializer_list<int16_t>{ -1, 1 })
-			AssertValidationResult(Failure_Metadata_Value_Too_Small, valueSizeDelta, 0, 1234);
-	}
+    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithNonzeroValueSizeDeltaButZeroValueSize)
+    {
+        for (auto valueSizeDelta : std::initializer_list<int16_t> { -1, 1 })
+            AssertValidationResult(Failure_Metadata_Value_Too_Small, valueSizeDelta, 0, 1234);
+    }
 
-	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithBothZeroValueSizeDeltaAndZeroValueSize) {
-		AssertValidationResult(Failure_Metadata_Value_Too_Small, 0, 0, 1234);
-	}
+    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithBothZeroValueSizeDeltaAndZeroValueSize)
+    {
+        AssertValidationResult(Failure_Metadata_Value_Too_Small, 0, 0, 1234);
+    }
 
-	// endregion
+    // endregion
 
-	// region value size delta magnitude too large
+    // region value size delta magnitude too large
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeDeltaMagnitudeLessThanValueSize) {
-		for (auto multiplier : std::initializer_list<int16_t>{ -1, 1 })
-			AssertValidationResult(ValidationResult::Success, static_cast<int16_t>(multiplier * 99), 100, 1234);
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeDeltaMagnitudeLessThanValueSize)
+    {
+        for (auto multiplier : std::initializer_list<int16_t> { -1, 1 })
+            AssertValidationResult(ValidationResult::Success, static_cast<int16_t>(multiplier * 99), 100, 1234);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeDeltaMagnitudeEqualToValueSize) {
-		for (auto multiplier : std::initializer_list<int16_t>{ -1, 1 })
-			AssertValidationResult(ValidationResult::Success, static_cast<int16_t>(multiplier * 100), 100, 1234);
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeDeltaMagnitudeEqualToValueSize)
+    {
+        for (auto multiplier : std::initializer_list<int16_t> { -1, 1 })
+            AssertValidationResult(ValidationResult::Success, static_cast<int16_t>(multiplier * 100), 100, 1234);
+    }
 
-	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValueSizeDeltaMagnitudeGreaterThanValueSize) {
-		for (auto multiplier : std::initializer_list<int16_t>{ -1, 1 })
-			AssertValidationResult(Failure_Metadata_Value_Size_Delta_Too_Large, static_cast<int16_t>(multiplier * 101), 100, 1234);
+    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValueSizeDeltaMagnitudeGreaterThanValueSize)
+    {
+        for (auto multiplier : std::initializer_list<int16_t> { -1, 1 })
+            AssertValidationResult(Failure_Metadata_Value_Size_Delta_Too_Large, static_cast<int16_t>(multiplier * 101), 100, 1234);
 
-		AssertValidationResult(Failure_Metadata_Value_Size_Delta_Too_Large, std::numeric_limits<int16_t>::min(), 100, 1234);
-	}
+        AssertValidationResult(Failure_Metadata_Value_Size_Delta_Too_Large, std::numeric_limits<int16_t>::min(), 100, 1234);
+    }
 
-	// endregion
+    // endregion
 
-	// region value size too large
+    // region value size too large
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeLessThanMax) {
-		AssertValidationResult(ValidationResult::Success, 1, 100, 1234);
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeLessThanMax)
+    {
+        AssertValidationResult(ValidationResult::Success, 1, 100, 1234);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeEqualToMax) {
-		AssertValidationResult(ValidationResult::Success, 1, 1234, 1234);
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeEqualToMax)
+    {
+        AssertValidationResult(ValidationResult::Success, 1, 1234, 1234);
+    }
 
-	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValueSizeGreaterThanMax) {
-		AssertValidationResult(Failure_Metadata_Value_Too_Large, 1, 1235, 1234);
-	}
+    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValueSizeGreaterThanMax)
+    {
+        AssertValidationResult(Failure_Metadata_Value_Too_Large, 1, 1235, 1234);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

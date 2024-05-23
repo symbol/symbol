@@ -24,32 +24,34 @@
 #include "catapult/api/ChainApi.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Options for comparing two chains.
-	struct CompareChainsOptions {
-		/// Number of hashes to pull per batch.
-		uint32_t HashesPerBatch;
+    /// Options for comparing two chains.
+    struct CompareChainsOptions {
+        /// Number of hashes to pull per batch.
+        uint32_t HashesPerBatch;
 
-		/// Finalized height supplier.
-		supplier<Height> FinalizedHeightSupplier;
-	};
+        /// Finalized height supplier.
+        supplier<Height> FinalizedHeightSupplier;
+    };
 
-	/// Result of a chain comparison operation.
-	struct CompareChainsResult {
-		/// End state of the chain comparison operation.
-		ChainComparisonCode Code;
+    /// Result of a chain comparison operation.
+    struct CompareChainsResult {
+        /// End state of the chain comparison operation.
+        ChainComparisonCode Code;
 
-		/// Height of the last common block between the two chains.
-		Height CommonBlockHeight;
+        /// Height of the last common block between the two chains.
+        Height CommonBlockHeight;
 
-		/// Depth of the fork that needs to be resolved.
-		uint64_t ForkDepth;
-	};
+        /// Depth of the fork that needs to be resolved.
+        uint64_t ForkDepth;
+    };
 
-	/// Compares two chains (\a local and \a remote) with the specified \a options.
-	thread::future<CompareChainsResult> CompareChains(
-			const api::ChainApi& local,
-			const api::ChainApi& remote,
-			const CompareChainsOptions& options);
-}}
+    /// Compares two chains (\a local and \a remote) with the specified \a options.
+    thread::future<CompareChainsResult> CompareChains(
+        const api::ChainApi& local,
+        const api::ChainApi& remote,
+        const CompareChainsOptions& options);
+}
+}

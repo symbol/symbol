@@ -24,51 +24,57 @@
 #include "catapult/api/RemoteTransactionApi.h"
 #include "catapult/model/NodeIdentity.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	namespace {
-		struct UtTraits {
-		public:
-			using RemoteApiType = api::RemoteTransactionApi;
-			static constexpr auto Name = "unconfirmed transactions";
+    namespace {
+        struct UtTraits {
+        public:
+            using RemoteApiType = api::RemoteTransactionApi;
+            static constexpr auto Name = "unconfirmed transactions";
 
-		public:
-			UtTraits(
-					BlockFeeMultiplier minFeeMultiplier,
-					const TimeSupplier& timeSupplier,
-					const ShortHashesSupplier& shortHashesSupplier,
-					const handlers::TransactionRangeHandler& transactionRangeConsumer)
-					: m_minFeeMultiplier(minFeeMultiplier)
-					, m_timeSupplier(timeSupplier)
-					, m_shortHashesSupplier(shortHashesSupplier)
-					, m_transactionRangeConsumer(transactionRangeConsumer) {
-			}
+        public:
+            UtTraits(
+                BlockFeeMultiplier minFeeMultiplier,
+                const TimeSupplier& timeSupplier,
+                const ShortHashesSupplier& shortHashesSupplier,
+                const handlers::TransactionRangeHandler& transactionRangeConsumer)
+                : m_minFeeMultiplier(minFeeMultiplier)
+                , m_timeSupplier(timeSupplier)
+                , m_shortHashesSupplier(shortHashesSupplier)
+                , m_transactionRangeConsumer(transactionRangeConsumer)
+            {
+            }
 
-		public:
-			thread::future<model::TransactionRange> apiCall(const RemoteApiType& api) const {
-				return api.unconfirmedTransactions(m_timeSupplier(), m_minFeeMultiplier, m_shortHashesSupplier());
-			}
+        public:
+            thread::future<model::TransactionRange> apiCall(const RemoteApiType& api) const
+            {
+                return api.unconfirmedTransactions(m_timeSupplier(), m_minFeeMultiplier, m_shortHashesSupplier());
+            }
 
-			void consume(model::TransactionRange&& range, const model::NodeIdentity& sourceIdentity) const {
-				m_transactionRangeConsumer(model::AnnotatedTransactionRange(std::move(range), sourceIdentity));
-			}
+            void consume(model::TransactionRange&& range, const model::NodeIdentity& sourceIdentity) const
+            {
+                m_transactionRangeConsumer(model::AnnotatedTransactionRange(std::move(range), sourceIdentity));
+            }
 
-		private:
-			BlockFeeMultiplier m_minFeeMultiplier;
-			TimeSupplier m_timeSupplier;
-			ShortHashesSupplier m_shortHashesSupplier;
-			handlers::TransactionRangeHandler m_transactionRangeConsumer;
-		};
-	}
+        private:
+            BlockFeeMultiplier m_minFeeMultiplier;
+            TimeSupplier m_timeSupplier;
+            ShortHashesSupplier m_shortHashesSupplier;
+            handlers::TransactionRangeHandler m_transactionRangeConsumer;
+        };
+    }
 
-	RemoteNodeSynchronizer<api::RemoteTransactionApi> CreateUtSynchronizer(
-			BlockFeeMultiplier minFeeMultiplier,
-			const TimeSupplier& timeSupplier,
-			const ShortHashesSupplier& shortHashesSupplier,
-			const handlers::TransactionRangeHandler& transactionRangeConsumer,
-			const predicate<>& shouldExecute) {
-		auto traits = UtTraits(minFeeMultiplier, timeSupplier, shortHashesSupplier, transactionRangeConsumer);
-		auto pSynchronizer = std::make_shared<EntitiesSynchronizer<UtTraits>>(std::move(traits));
-		return CreateConditionalRemoteNodeSynchronizer(pSynchronizer, shouldExecute);
-	}
-}}
+    RemoteNodeSynchronizer<api::RemoteTransactionApi> CreateUtSynchronizer(
+        BlockFeeMultiplier minFeeMultiplier,
+        const TimeSupplier& timeSupplier,
+        const ShortHashesSupplier& shortHashesSupplier,
+        const handlers::TransactionRangeHandler& transactionRangeConsumer,
+        const predicate<>& shouldExecute)
+    {
+        auto traits = UtTraits(minFeeMultiplier, timeSupplier, shortHashesSupplier, transactionRangeConsumer);
+        auto pSynchronizer = std::make_shared<EntitiesSynchronizer<UtTraits>>(std::move(traits));
+        return CreateConditionalRemoteNodeSynchronizer(pSynchronizer, shouldExecute);
+    }
+}
+}

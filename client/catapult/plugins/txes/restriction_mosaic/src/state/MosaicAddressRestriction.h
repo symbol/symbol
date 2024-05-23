@@ -24,41 +24,43 @@
 #include "catapult/types.h"
 #include <limits>
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Mosaic restrictions scoped to an address.
-	class MosaicAddressRestriction {
-	public:
-		/// Sentinel value that triggers restriction removal.
-		static constexpr uint64_t Sentinel_Removal_Value = std::numeric_limits<uint64_t>::max();
+    /// Mosaic restrictions scoped to an address.
+    class MosaicAddressRestriction {
+    public:
+        /// Sentinel value that triggers restriction removal.
+        static constexpr uint64_t Sentinel_Removal_Value = std::numeric_limits<uint64_t>::max();
 
-	public:
-		/// Creates a restriction around \a mosaicId and \a address.
-		MosaicAddressRestriction(MosaicId mosaicId, Address address);
+    public:
+        /// Creates a restriction around \a mosaicId and \a address.
+        MosaicAddressRestriction(MosaicId mosaicId, Address address);
 
-	public:
-		/// Gets the mosaic id.
-		MosaicId mosaicId() const;
+    public:
+        /// Gets the mosaic id.
+        MosaicId mosaicId() const;
 
-		/// Gets the address.
-		Address address() const;
+        /// Gets the address.
+        Address address() const;
 
-		/// Gets the number of restriction rules.
-		size_t size() const;
+        /// Gets the number of restriction rules.
+        size_t size() const;
 
-		/// Gets all restriction keys.
-		std::set<uint64_t> keys() const;
+        /// Gets all restriction keys.
+        std::set<uint64_t> keys() const;
 
-	public:
-		/// Gets the value associated with \a key.
-		uint64_t get(uint64_t key) const;
+    public:
+        /// Gets the value associated with \a key.
+        uint64_t get(uint64_t key) const;
 
-		/// Sets the \a value associated with \a key.
-		void set(uint64_t key, uint64_t value);
+        /// Sets the \a value associated with \a key.
+        void set(uint64_t key, uint64_t value);
 
-	public:
-		MosaicId m_mosaicId;
-		Address m_address;
-		RestrictionValueMap<uint64_t> m_keyValuePairs;
-	};
-}}
+    public:
+        MosaicId m_mosaicId;
+        Address m_address;
+        RestrictionValueMap<uint64_t> m_keyValuePairs;
+    };
+}
+}

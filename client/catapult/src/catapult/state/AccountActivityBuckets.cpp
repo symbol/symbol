@@ -21,66 +21,77 @@
 
 #include "AccountActivityBuckets.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	bool AccountActivityBuckets::empty() const {
-		return std::all_of(m_buckets.begin(), m_buckets.end(), [](const auto& bucket) {
-			return model::ImportanceHeight() == bucket.StartHeight;
-		});
-	}
+    bool AccountActivityBuckets::empty() const
+    {
+        return std::all_of(m_buckets.begin(), m_buckets.end(), [](const auto& bucket) {
+            return model::ImportanceHeight() == bucket.StartHeight;
+        });
+    }
 
-	AccountActivityBuckets::ActivityBucket AccountActivityBuckets::get(model::ImportanceHeight height) const {
-		auto iter = std::find_if(m_buckets.begin(), m_buckets.end(), [height](const auto& bucket) { return bucket.StartHeight == height; });
+    AccountActivityBuckets::ActivityBucket AccountActivityBuckets::get(model::ImportanceHeight height) const
+    {
+        auto iter = std::find_if(m_buckets.begin(), m_buckets.end(), [height](const auto& bucket) { return bucket.StartHeight == height; });
 
-		return m_buckets.end() == iter ? ActivityBucket() : *iter;
-	}
+        return m_buckets.end() == iter ? ActivityBucket() : *iter;
+    }
 
-	void AccountActivityBuckets::update(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer) {
-		tryUpdate(height, consumer, true);
-	}
+    void AccountActivityBuckets::update(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer)
+    {
+        tryUpdate(height, consumer, true);
+    }
 
-	bool AccountActivityBuckets::tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer) {
-		return tryUpdate(height, consumer, false);
-	}
+    bool AccountActivityBuckets::tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer)
+    {
+        return tryUpdate(height, consumer, false);
+    }
 
-	void AccountActivityBuckets::push() {
-		m_buckets.push(ActivityBucket());
-	}
+    void AccountActivityBuckets::push()
+    {
+        m_buckets.push(ActivityBucket());
+    }
 
-	void AccountActivityBuckets::pop() {
-		m_buckets.pop();
-	}
+    void AccountActivityBuckets::pop()
+    {
+        m_buckets.pop();
+    }
 
-	AccountActivityBuckets::ActivityBucketStack::const_iterator AccountActivityBuckets::begin() const {
-		return m_buckets.begin();
-	}
+    AccountActivityBuckets::ActivityBucketStack::const_iterator AccountActivityBuckets::begin() const
+    {
+        return m_buckets.begin();
+    }
 
-	AccountActivityBuckets::ActivityBucketStack::const_iterator AccountActivityBuckets::end() const {
-		return m_buckets.end();
-	}
+    AccountActivityBuckets::ActivityBucketStack::const_iterator AccountActivityBuckets::end() const
+    {
+        return m_buckets.end();
+    }
 
-	bool AccountActivityBuckets::tryUpdate(
-			model::ImportanceHeight height,
-			const consumer<HeightDetachedActivityBucket&>& consumer,
-			bool shouldCreateNewBucket) {
-		auto lastHeight = m_buckets.begin()->StartHeight;
-		if (model::ImportanceHeight() != lastHeight && lastHeight > height) {
-			std::ostringstream out;
-			out << "older buckets cannot be updated (last = " << lastHeight << ", new = " << height << ")";
-			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-		}
+    bool AccountActivityBuckets::tryUpdate(
+        model::ImportanceHeight height,
+        const consumer<HeightDetachedActivityBucket&>& consumer,
+        bool shouldCreateNewBucket)
+    {
+        auto lastHeight = m_buckets.begin()->StartHeight;
+        if (model::ImportanceHeight() != lastHeight && lastHeight > height) {
+            std::ostringstream out;
+            out << "older buckets cannot be updated (last = " << lastHeight << ", new = " << height << ")";
+            CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
+        }
 
-		if (lastHeight < height) {
-			if (!shouldCreateNewBucket)
-				return false;
+        if (lastHeight < height) {
+            if (!shouldCreateNewBucket)
+                return false;
 
-			auto bucket = ActivityBucket();
-			bucket.StartHeight = height;
-			m_buckets.push(bucket);
-		}
+            auto bucket = ActivityBucket();
+            bucket.StartHeight = height;
+            m_buckets.push(bucket);
+        }
 
-		auto& bucket = m_buckets.peek();
-		consumer(bucket);
-		return true;
-	}
-}}
+        auto& bucket = m_buckets.peek();
+        consumer(bucket);
+        return true;
+    }
+}
+}

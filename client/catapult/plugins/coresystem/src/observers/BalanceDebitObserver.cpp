@@ -22,20 +22,22 @@
 #include "Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	DEFINE_OBSERVER(
-			BalanceDebit,
-			model::BalanceDebitNotification,
-			[](const model::BalanceDebitNotification& notification, const ObserverContext& context) {
-				auto& cache = context.Cache.sub<cache::AccountStateCache>();
-				auto senderIter = cache.find(notification.Sender.resolved(context.Resolvers));
-				auto& senderState = senderIter.get();
+    DEFINE_OBSERVER(
+        BalanceDebit,
+        model::BalanceDebitNotification,
+        [](const model::BalanceDebitNotification& notification, const ObserverContext& context) {
+            auto& cache = context.Cache.sub<cache::AccountStateCache>();
+            auto senderIter = cache.find(notification.Sender.resolved(context.Resolvers));
+            auto& senderState = senderIter.get();
 
-				auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-				if (NotifyMode::Commit == context.Mode)
-					senderState.Balances.debit(mosaicId, notification.Amount);
-				else
-					senderState.Balances.credit(mosaicId, notification.Amount);
-			})
-}}
+            auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+            if (NotifyMode::Commit == context.Mode)
+                senderState.Balances.debit(mosaicId, notification.Amount);
+            else
+                senderState.Balances.credit(mosaicId, notification.Amount);
+        })
+}
+}

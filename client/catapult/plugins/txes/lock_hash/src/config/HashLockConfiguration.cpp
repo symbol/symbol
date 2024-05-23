@@ -23,21 +23,25 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	HashLockConfiguration HashLockConfiguration::Uninitialized() {
-		return HashLockConfiguration();
-	}
+    HashLockConfiguration HashLockConfiguration::Uninitialized()
+    {
+        return HashLockConfiguration();
+    }
 
-	HashLockConfiguration HashLockConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		HashLockConfiguration config;
+    HashLockConfiguration HashLockConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        HashLockConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
-		LOAD_PROPERTY(LockedFundsPerAggregate);
-		LOAD_PROPERTY(MaxHashLockDuration);
+        LOAD_PROPERTY(LockedFundsPerAggregate);
+        LOAD_PROPERTY(MaxHashLockDuration);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 2);
-		return config;
-	}
-}}
+        utils::VerifyBagSizeExact(bag, 2);
+        return config;
+    }
+}
+}

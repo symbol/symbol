@@ -23,50 +23,52 @@
 #include "TransactionBuilder.h"
 #include "plugins/txes/namespace/src/model/MosaicAliasTransaction.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for a mosaic alias transaction.
-	class MosaicAliasBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::MosaicAliasTransaction;
-		using EmbeddedTransaction = model::EmbeddedMosaicAliasTransaction;
+    /// Builder for a mosaic alias transaction.
+    class MosaicAliasBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::MosaicAliasTransaction;
+        using EmbeddedTransaction = model::EmbeddedMosaicAliasTransaction;
 
-	public:
-		/// Creates a mosaic alias builder for building a mosaic alias transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		MosaicAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates a mosaic alias builder for building a mosaic alias transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        MosaicAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the identifier of the namespace that will become an alias to \a namespaceId.
-		void setNamespaceId(NamespaceId namespaceId);
+    public:
+        /// Sets the identifier of the namespace that will become an alias to \a namespaceId.
+        void setNamespaceId(NamespaceId namespaceId);
 
-		/// Sets the aliased mosaic identifier to \a mosaicId.
-		void setMosaicId(MosaicId mosaicId);
+        /// Sets the aliased mosaic identifier to \a mosaicId.
+        void setMosaicId(MosaicId mosaicId);
 
-		/// Sets the alias action to \a aliasAction.
-		void setAliasAction(model::AliasAction aliasAction);
+        /// Sets the alias action to \a aliasAction.
+        void setAliasAction(model::AliasAction aliasAction);
 
-	public:
-		/// Gets the size of mosaic alias transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of mosaic alias transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new mosaic alias transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new mosaic alias transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded mosaic alias transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded mosaic alias transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		NamespaceId m_namespaceId;
-		MosaicId m_mosaicId;
-		model::AliasAction m_aliasAction;
-	};
-}}
+    private:
+        NamespaceId m_namespaceId;
+        MosaicId m_mosaicId;
+        model::AliasAction m_aliasAction;
+    };
+}
+}

@@ -26,20 +26,23 @@
 #include "catapult/io/Stream.h"
 #include "catapult/io/TransactionInfoSerializer.h"
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	void ReadNextUtChange(io::InputStream& inputStream, cache::UtChangeSubscriber& subscriber) {
-		auto operationType = static_cast<UtChangeOperationType>(io::Read8(inputStream));
-		model::TransactionInfosSet transactionInfos;
-		io::ReadTransactionInfos(inputStream, transactionInfos);
+    void ReadNextUtChange(io::InputStream& inputStream, cache::UtChangeSubscriber& subscriber)
+    {
+        auto operationType = static_cast<UtChangeOperationType>(io::Read8(inputStream));
+        model::TransactionInfosSet transactionInfos;
+        io::ReadTransactionInfos(inputStream, transactionInfos);
 
-		switch (operationType) {
-		case UtChangeOperationType::Add:
-			return subscriber.notifyAdds(transactionInfos);
-		case UtChangeOperationType::Remove:
-			return subscriber.notifyRemoves(transactionInfos);
-		}
+        switch (operationType) {
+        case UtChangeOperationType::Add:
+            return subscriber.notifyAdds(transactionInfos);
+        case UtChangeOperationType::Remove:
+            return subscriber.notifyRemoves(transactionInfos);
+        }
 
-		CATAPULT_THROW_INVALID_ARGUMENT_1("invalid ut change operation type", static_cast<uint16_t>(operationType));
-	}
-}}
+        CATAPULT_THROW_INVALID_ARGUMENT_1("invalid ut change operation type", static_cast<uint16_t>(operationType));
+    }
+}
+}

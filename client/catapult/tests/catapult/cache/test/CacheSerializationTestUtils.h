@@ -20,45 +20,49 @@
 **/
 
 #pragma once
-#include <vector>
 #include <stddef.h>
 #include <stdint.h>
+#include <vector>
 
-namespace catapult { namespace io {
-	class InputStream;
-	class OutputStream;
-}}
+namespace catapult {
+namespace io {
+    class InputStream;
+    class OutputStream;
+}
+}
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
 #pragma pack(push, 1)
 
-	/// Test entry used for cache serialization tests.
-	struct CacheSerializationTestEntry {
-	public:
-		uint64_t Alpha;
-		uint8_t Beta;
-		uint32_t Gamma;
+    /// Test entry used for cache serialization tests.
+    struct CacheSerializationTestEntry {
+    public:
+        uint64_t Alpha;
+        uint8_t Beta;
+        uint32_t Gamma;
 
-	public:
-		/// Returns \c true if this entry is equal to \a rhs.
-		bool operator==(const CacheSerializationTestEntry& rhs) const;
-	};
+    public:
+        /// Returns \c true if this entry is equal to \a rhs.
+        bool operator==(const CacheSerializationTestEntry& rhs) const;
+    };
 
 #pragma pack(pop)
 
-	/// Traits for cache serialization loader tests.
-	struct CacheSerializationTestEntryLoaderTraits {
-		using DestinationType = std::vector<CacheSerializationTestEntry>;
+    /// Traits for cache serialization loader tests.
+    struct CacheSerializationTestEntryLoaderTraits {
+        using DestinationType = std::vector<CacheSerializationTestEntry>;
 
-		static CacheSerializationTestEntry Load(io::InputStream& input);
+        static CacheSerializationTestEntry Load(io::InputStream& input);
 
-		static void LoadInto(const CacheSerializationTestEntry& entry, DestinationType& destination);
-	};
+        static void LoadInto(const CacheSerializationTestEntry& entry, DestinationType& destination);
+    };
 
-	/// Generates \a count random cache serialization test entries.
-	std::vector<CacheSerializationTestEntry> GenerateRandomCacheSerializationTestEntries(size_t count);
+    /// Generates \a count random cache serialization test entries.
+    std::vector<CacheSerializationTestEntry> GenerateRandomCacheSerializationTestEntries(size_t count);
 
-	/// Copies cache serialization test \a entries to a buffer.
-	std::vector<uint8_t> CopyCacheSerializationTestEntriesToStreamBuffer(const std::vector<CacheSerializationTestEntry>& entries);
-}}
+    /// Copies cache serialization test \a entries to a buffer.
+    std::vector<uint8_t> CopyCacheSerializationTestEntriesToStreamBuffer(const std::vector<CacheSerializationTestEntry>& entries);
+}
+}

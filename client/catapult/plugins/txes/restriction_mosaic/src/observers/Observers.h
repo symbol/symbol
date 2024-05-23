@@ -20,24 +20,30 @@
 **/
 
 #pragma once
-#include "src/model/MosaicRestrictionNotifications.h"
 #include "catapult/observers/ObserverTypes.h"
+#include "src/model/MosaicRestrictionNotifications.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Observes changes triggered by new value notifications of mosaic global restriction modifications and:
-	/// - adds / deletes mosaic global restriction value to / from cache (only executes during commit)
-	DECLARE_OBSERVER(MosaicGlobalRestrictionCommitModification, model::MosaicGlobalRestrictionModificationNewValueNotification)();
+    /// Observes changes triggered by new value notifications of mosaic global restriction modifications and:
+    /// - adds / deletes mosaic global restriction value to / from cache (only executes during commit)
+    DECLARE_OBSERVER(MosaicGlobalRestrictionCommitModification, model::MosaicGlobalRestrictionModificationNewValueNotification)
+    ();
 
-	/// Observes changes triggered by previous value notifications of mosaic global restriction modifications and:
-	/// - adds / deletes mosaic global restriction value to / from cache (only executes during rollback)
-	DECLARE_OBSERVER(MosaicGlobalRestrictionRollbackModification, model::MosaicGlobalRestrictionModificationPreviousValueNotification)();
+    /// Observes changes triggered by previous value notifications of mosaic global restriction modifications and:
+    /// - adds / deletes mosaic global restriction value to / from cache (only executes during rollback)
+    DECLARE_OBSERVER(MosaicGlobalRestrictionRollbackModification, model::MosaicGlobalRestrictionModificationPreviousValueNotification)
+    ();
 
-	/// Observes changes triggered by new value notifications of mosaic address restriction modifications and:
-	/// - adds / deletes mosaic address restriction value to / from cache (only executes during commit)
-	DECLARE_OBSERVER(MosaicAddressRestrictionCommitModification, model::MosaicAddressRestrictionModificationNewValueNotification)();
+    /// Observes changes triggered by new value notifications of mosaic address restriction modifications and:
+    /// - adds / deletes mosaic address restriction value to / from cache (only executes during commit)
+    DECLARE_OBSERVER(MosaicAddressRestrictionCommitModification, model::MosaicAddressRestrictionModificationNewValueNotification)
+    ();
 
-	/// Observes changes triggered by previous value notifications of mosaic address restriction modifications and:
-	/// - adds / deletes mosaic address restriction value to / from cache (only executes during rollback)
-	DECLARE_OBSERVER(MosaicAddressRestrictionRollbackModification, model::MosaicAddressRestrictionModificationPreviousValueNotification)();
-}}
+    /// Observes changes triggered by previous value notifications of mosaic address restriction modifications and:
+    /// - adds / deletes mosaic address restriction value to / from cache (only executes during rollback)
+    DECLARE_OBSERVER(MosaicAddressRestrictionRollbackModification, model::MosaicAddressRestrictionModificationPreviousValueNotification)
+    ();
+}
+}

@@ -21,44 +21,48 @@
 
 #include "AccountRestrictionView.h"
 #include "Validators.h"
-#include "src/cache/AccountRestrictionCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/AccountRestrictionCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::AddressInteractionNotification;
-	using CacheReadOnlyType = typename cache::AccountRestrictionCacheTypes::CacheReadOnlyType;
+    using Notification = model::AddressInteractionNotification;
+    using CacheReadOnlyType = typename cache::AccountRestrictionCacheTypes::CacheReadOnlyType;
 
-	namespace {
-		constexpr auto Address_Restriction_Flags = model::AccountRestrictionFlags::Address;
-		constexpr auto Address_Outgoing_Restriction_Flags = Address_Restriction_Flags | model::AccountRestrictionFlags::Outgoing;
+    namespace {
+        constexpr auto Address_Restriction_Flags = model::AccountRestrictionFlags::Address;
+        constexpr auto Address_Outgoing_Restriction_Flags = Address_Restriction_Flags | model::AccountRestrictionFlags::Outgoing;
 
-		bool IsInteractionAllowed(
-				const cache::ReadOnlyCatapultCache& cache,
-				model::AccountRestrictionFlags restrictionFlags,
-				const Address& source,
-				const Address& participant) {
-			if (source == participant)
-				return true;
+        bool IsInteractionAllowed(
+            const cache::ReadOnlyCatapultCache& cache,
+            model::AccountRestrictionFlags restrictionFlags,
+            const Address& source,
+            const Address& participant)
+        {
+            if (source == participant)
+                return true;
 
-			AccountRestrictionView view(cache);
-			return !view.initialize(participant) || view.isAllowed(restrictionFlags, source);
-		}
+            AccountRestrictionView view(cache);
+            return !view.initialize(participant) || view.isAllowed(restrictionFlags, source);
+        }
 
-		bool IsInteractionAllowed(const cache::ReadOnlyCatapultCache& cache, const Address& source, const Address& participant) {
-			return IsInteractionAllowed(cache, Address_Restriction_Flags, source, participant)
-				   && IsInteractionAllowed(cache, Address_Outgoing_Restriction_Flags, participant, source);
-		}
-	}
+        bool IsInteractionAllowed(const cache::ReadOnlyCatapultCache& cache, const Address& source, const Address& participant)
+        {
+            return IsInteractionAllowed(cache, Address_Restriction_Flags, source, participant)
+                && IsInteractionAllowed(cache, Address_Outgoing_Restriction_Flags, participant, source);
+        }
+    }
 
-	DEFINE_STATEFUL_VALIDATOR(AddressInteraction, [](const Notification& notification, const ValidatorContext& context) {
-		for (const auto& address : notification.ParticipantsByAddress) {
-			auto participant = context.Resolvers.resolve(address);
-			if (!IsInteractionAllowed(context.Cache, notification.Source, participant))
-				return Failure_RestrictionAccount_Address_Interaction_Prohibited;
-		}
+    DEFINE_STATEFUL_VALIDATOR(AddressInteraction, [](const Notification& notification, const ValidatorContext& context) {
+        for (const auto& address : notification.ParticipantsByAddress) {
+            auto participant = context.Resolvers.resolve(address);
+            if (!IsInteractionAllowed(context.Cache, notification.Source, participant))
+                return Failure_RestrictionAccount_Address_Interaction_Prohibited;
+        }
 
-		return ValidationResult::Success;
-	})
-}}
+        return ValidationResult::Success;
+    })
+}
+}

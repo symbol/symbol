@@ -20,43 +20,47 @@
 **/
 
 #include "BatchPeersRequestor.h"
-#include "nodediscovery/src/api/RemoteNodeApi.h"
 #include "catapult/thread/FutureUtils.h"
 #include "catapult/utils/ThrottleLogger.h"
 #include "catapult/utils/TimeSpan.h"
+#include "nodediscovery/src/api/RemoteNodeApi.h"
 
-namespace catapult { namespace nodediscovery {
+namespace catapult {
+namespace nodediscovery {
 
-	BatchPeersRequestor::BatchPeersRequestor(const net::PacketIoPickerContainer& packetIoPickers, const NodesConsumer& nodesConsumer)
-			: m_packetIoPickers(packetIoPickers)
-			, m_nodesConsumer(nodesConsumer) {
-	}
+    BatchPeersRequestor::BatchPeersRequestor(const net::PacketIoPickerContainer& packetIoPickers, const NodesConsumer& nodesConsumer)
+        : m_packetIoPickers(packetIoPickers)
+        , m_nodesConsumer(nodesConsumer)
+    {
+    }
 
-	thread::future<BatchPeersRequestor::RemoteApiResults> BatchPeersRequestor::findPeersOfPeers(const utils::TimeSpan& timeout) const {
-		auto packetIoPairs = m_packetIoPickers.pickMatching(timeout, ionet::NodeRoles::None);
-		if (packetIoPairs.empty()) {
-			CATAPULT_LOG_THROTTLE(warning, utils::TimeSpan::FromMinutes(1).millis()) << "no packet io available for requesting peers";
-			return thread::make_ready_future(std::vector<ionet::NodeInteractionResult>());
-		}
+    thread::future<BatchPeersRequestor::RemoteApiResults> BatchPeersRequestor::findPeersOfPeers(const utils::TimeSpan& timeout) const
+    {
+        auto packetIoPairs = m_packetIoPickers.pickMatching(timeout, ionet::NodeRoles::None);
+        if (packetIoPairs.empty()) {
+            CATAPULT_LOG_THROTTLE(warning, utils::TimeSpan::FromMinutes(1).millis()) << "no packet io available for requesting peers";
+            return thread::make_ready_future(std::vector<ionet::NodeInteractionResult>());
+        }
 
-		auto i = 0u;
-		std::vector<thread::future<ionet::NodeInteractionResult>> futures(packetIoPairs.size());
-		for (const auto& packetIoPair : packetIoPairs) {
-			auto peersInfoFuture = api::CreateRemoteNodeApi(*packetIoPair.io())->peersInfo();
-			auto identity = packetIoPair.node().identity();
-			futures[i++] = peersInfoFuture.then([nodesConsumer = m_nodesConsumer, packetIoPair, identity](auto&& nodesFuture) {
-				try {
-					auto nodes = nodesFuture.get();
-					CATAPULT_LOG(debug) << "partner node " << packetIoPair.node() << " returned " << nodes.size() << " peers";
-					nodesConsumer(nodes);
-					return ionet::NodeInteractionResult(identity, ionet::NodeInteractionResultCode::Success);
-				} catch (const catapult_runtime_error& e) {
-					CATAPULT_LOG(warning) << "exception thrown while requesting peers: " << e.what();
-					return ionet::NodeInteractionResult(identity, ionet::NodeInteractionResultCode::Failure);
-				}
-			});
-		}
+        auto i = 0u;
+        std::vector<thread::future<ionet::NodeInteractionResult>> futures(packetIoPairs.size());
+        for (const auto& packetIoPair : packetIoPairs) {
+            auto peersInfoFuture = api::CreateRemoteNodeApi(*packetIoPair.io())->peersInfo();
+            auto identity = packetIoPair.node().identity();
+            futures[i++] = peersInfoFuture.then([nodesConsumer = m_nodesConsumer, packetIoPair, identity](auto&& nodesFuture) {
+                try {
+                    auto nodes = nodesFuture.get();
+                    CATAPULT_LOG(debug) << "partner node " << packetIoPair.node() << " returned " << nodes.size() << " peers";
+                    nodesConsumer(nodes);
+                    return ionet::NodeInteractionResult(identity, ionet::NodeInteractionResultCode::Success);
+                } catch (const catapult_runtime_error& e) {
+                    CATAPULT_LOG(warning) << "exception thrown while requesting peers: " << e.what();
+                    return ionet::NodeInteractionResult(identity, ionet::NodeInteractionResultCode::Failure);
+                }
+            });
+        }
 
-		return thread::when_all(std::move(futures)).then([](auto&& resultsFuture) { return thread::get_all(resultsFuture.get()); });
-	}
-}}
+        return thread::when_all(std::move(futures)).then([](auto&& resultsFuture) { return thread::get_all(resultsFuture.get()); });
+    }
+}
+}

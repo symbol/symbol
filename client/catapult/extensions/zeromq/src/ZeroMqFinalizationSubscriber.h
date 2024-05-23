@@ -23,12 +23,16 @@
 #include "catapult/subscribers/FinalizationSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace zeromq {
-	class ZeroMqEntityPublisher;
-}}
+namespace catapult {
+namespace zeromq {
+    class ZeroMqEntityPublisher;
+}
+}
 
-namespace catapult { namespace zeromq {
+namespace catapult {
+namespace zeromq {
 
-	/// Creates a zeromq finalization subscriber around an entity \a publisher.
-	std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher);
-}}
+    /// Creates a zeromq finalization subscriber around an entity \a publisher.
+    std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher);
+}
+}

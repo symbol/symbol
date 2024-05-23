@@ -24,20 +24,22 @@
 #include "catapult/model/NetworkIdentifier.h"
 #include <memory>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Generates a random address.
-	Address GenerateRandomAddress();
+    /// Generates a random address.
+    Address GenerateRandomAddress();
 
-	/// Generates a random address for a given network with id (\a networkIdentifier).
-	Address GenerateRandomAddress(model::NetworkIdentifier networkIdentifier);
+    /// Generates a random address for a given network with id (\a networkIdentifier).
+    Address GenerateRandomAddress(model::NetworkIdentifier networkIdentifier);
 
-	/// Generates a random (unresolved) address.
-	UnresolvedAddress GenerateRandomUnresolvedAddress();
+    /// Generates a random (unresolved) address.
+    UnresolvedAddress GenerateRandomUnresolvedAddress();
 
-	/// Generates a random vector of \a count addresses.
-	std::vector<Address> GenerateRandomAddresses(size_t count);
+    /// Generates a random vector of \a count addresses.
+    std::vector<Address> GenerateRandomAddresses(size_t count);
 
-	/// Generates a random set of \a count (unresolved) addresses.
-	std::shared_ptr<model::UnresolvedAddressSet> GenerateRandomUnresolvedAddressSetPointer(size_t count);
-}}
+    /// Generates a random set of \a count (unresolved) addresses.
+    std::shared_ptr<model::UnresolvedAddressSet> GenerateRandomUnresolvedAddressSetPointer(size_t count);
+}
+}

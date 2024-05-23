@@ -23,122 +23,131 @@
 #include "BasicBatchHandlerTests.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	// region PullHandlerTests
+    // region PullHandlerTests
 
-	/// Container of pull handler tests.
-	/// \note Tests only test invalid and empty packets. Real response tests are suite-specific.
-	template<typename TTraits>
-	struct PullHandlerTests : public BasicBatchHandlerTests<TTraits> {
-	private:
-		using BaseType = BasicBatchHandlerTests<TTraits>;
+    /// Container of pull handler tests.
+    /// \note Tests only test invalid and empty packets. Real response tests are suite-specific.
+    template <typename TTraits>
+    struct PullHandlerTests : public BasicBatchHandlerTests<TTraits> {
+    private:
+        using BaseType = BasicBatchHandlerTests<TTraits>;
 
-	public:
-		/// Asserts that a valid packet with a payload composed of no elements is accepted.
-		static void AssertValidPacketWithEmptyPayloadIsAccepted() {
-			BaseType::AssertValidPacketWithElementsIsAccepted(0, TTraits::Data_Header_Size);
-		}
+    public:
+        /// Asserts that a valid packet with a payload composed of no elements is accepted.
+        static void AssertValidPacketWithEmptyPayloadIsAccepted()
+        {
+            BaseType::AssertValidPacketWithElementsIsAccepted(0, TTraits::Data_Header_Size);
+        }
 
-		/// Asserts that a valid packet with a payload composed of some elements is accepted.
-		static void AssertValidPacketWithPayloadIsAccepted() {
-			BaseType::AssertValidPacketWithElementsIsAccepted(3, TTraits::Data_Header_Size);
-		}
-	};
+        /// Asserts that a valid packet with a payload composed of some elements is accepted.
+        static void AssertValidPacketWithPayloadIsAccepted()
+        {
+            BaseType::AssertValidPacketWithElementsIsAccepted(3, TTraits::Data_Header_Size);
+        }
+    };
 
-	// endregion
+    // endregion
 
-	// region PullEntitiesHandlerAssertAdapter
+    // region PullEntitiesHandlerAssertAdapter
 
-	/// Assert for use with DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS for pull handlers implemented with PullEntitiesHandler.
-	template<typename TTraits>
-	class PullEntitiesHandlerAssertAdapter {
-	private:
-		using FilterType = typename TTraits::FilterType;
+    /// Assert for use with DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS for pull handlers implemented with PullEntitiesHandler.
+    template <typename TTraits>
+    class PullEntitiesHandlerAssertAdapter {
+    private:
+        using FilterType = typename TTraits::FilterType;
 
-	private:
-		struct ShortHashTraits {
-			using Container = utils::ShortHashesSet;
+    private:
+        struct ShortHashTraits {
+            using Container = utils::ShortHashesSet;
 
-			static uint32_t CalculatePayloadSize(uint32_t count) {
-				return count * SizeOf32<utils::ShortHash>();
-			}
+            static uint32_t CalculatePayloadSize(uint32_t count)
+            {
+                return count * SizeOf32<utils::ShortHash>();
+            }
 
-			static auto ExtractFromPacket(const ionet::Packet& packet, size_t count) {
-				auto filterValue = reinterpret_cast<const FilterType&>(*packet.Data());
+            static auto ExtractFromPacket(const ionet::Packet& packet, size_t count)
+            {
+                auto filterValue = reinterpret_cast<const FilterType&>(*packet.Data());
 
-				utils::ShortHashesSet extractedShortHashes;
-				auto pShortHashData = reinterpret_cast<const utils::ShortHash*>(packet.Data() + sizeof(FilterType));
-				for (auto i = 0u; i < count; ++i)
-					extractedShortHashes.insert(*pShortHashData++);
+                utils::ShortHashesSet extractedShortHashes;
+                auto pShortHashData = reinterpret_cast<const utils::ShortHash*>(packet.Data() + sizeof(FilterType));
+                for (auto i = 0u; i < count; ++i)
+                    extractedShortHashes.insert(*pShortHashData++);
 
-				return std::make_pair(filterValue, extractedShortHashes);
-			}
-		};
+                return std::make_pair(filterValue, extractedShortHashes);
+            }
+        };
 
-	public:
-		template<typename THashTraits = ShortHashTraits>
-		static void AssertFunc(uint32_t numRequestHashes, uint32_t numResponseEntities) {
-			// Arrange:
-			auto packetType = TTraits::Packet_Type;
-			auto hashesSize = THashTraits::CalculatePayloadSize(numRequestHashes);
-			auto pPacket = test::CreateRandomPacket(SizeOf32<FilterType>() + hashesSize, packetType);
-			ionet::ServerPacketHandlers handlers;
-			size_t counter = 0;
+    public:
+        template <typename THashTraits = ShortHashTraits>
+        static void AssertFunc(uint32_t numRequestHashes, uint32_t numResponseEntities)
+        {
+            // Arrange:
+            auto packetType = TTraits::Packet_Type;
+            auto hashesSize = THashTraits::CalculatePayloadSize(numRequestHashes);
+            auto pPacket = test::CreateRandomPacket(SizeOf32<FilterType>() + hashesSize, packetType);
+            ionet::ServerPacketHandlers handlers;
+            size_t counter = 0;
 
-			auto extractedRequestData = THashTraits::ExtractFromPacket(*pPacket, numRequestHashes);
-			FilterType actualFilterValue;
-			typename THashTraits::Container actualRequestHashes;
-			typename TTraits::PullResponseContext responseContext(numResponseEntities);
-			TTraits::RegisterHandler(handlers, [&](auto filterValue, const auto& requestHashes) {
-				++counter;
-				actualFilterValue = filterValue;
-				actualRequestHashes = requestHashes;
-				return responseContext.response();
-			});
+            auto extractedRequestData = THashTraits::ExtractFromPacket(*pPacket, numRequestHashes);
+            FilterType actualFilterValue;
+            typename THashTraits::Container actualRequestHashes;
+            typename TTraits::PullResponseContext responseContext(numResponseEntities);
+            TTraits::RegisterHandler(handlers, [&](auto filterValue, const auto& requestHashes) {
+                ++counter;
+                actualFilterValue = filterValue;
+                actualRequestHashes = requestHashes;
+                return responseContext.response();
+            });
 
-			// Act:
-			ionet::ServerPacketHandlerContext handlerContext;
-			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
+            // Act:
+            ionet::ServerPacketHandlerContext handlerContext;
+            EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
-			// Assert: the requested values were passed to the supplier
-			EXPECT_EQ(extractedRequestData.first, actualFilterValue);
-			EXPECT_EQ(extractedRequestData.second, actualRequestHashes);
+            // Assert: the requested values were passed to the supplier
+            EXPECT_EQ(extractedRequestData.first, actualFilterValue);
+            EXPECT_EQ(extractedRequestData.second, actualRequestHashes);
 
-			// - the handler was called and has the correct header
-			EXPECT_EQ(1u, counter);
-			ASSERT_TRUE(handlerContext.hasResponse());
-			auto payload = handlerContext.response();
-			test::AssertPacketHeader(payload, sizeof(ionet::PacketHeader) + responseContext.responseSize(), packetType);
+            // - the handler was called and has the correct header
+            EXPECT_EQ(1u, counter);
+            ASSERT_TRUE(handlerContext.hasResponse());
+            auto payload = handlerContext.response();
+            test::AssertPacketHeader(payload, sizeof(ionet::PacketHeader) + responseContext.responseSize(), packetType);
 
-			// - let the traits assert the returned payload (may be one or more buffers)
-			responseContext.assertPayload(payload);
-		}
-	};
+            // - let the traits assert the returned payload (may be one or more buffers)
+            responseContext.assertPayload(payload);
+        }
+    };
 
-	// endregion
+    // endregion
 
 #define MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, HANDLER_NAME##_##TEST_NAME) { \
-		test::PullHandlerTests<HANDLER_NAME##Traits>::Assert##TEST_NAME(); \
-	}
+    TEST(TEST_CLASS, HANDLER_NAME##_##TEST_NAME)                              \
+    {                                                                         \
+        test::PullHandlerTests<HANDLER_NAME##Traits>::Assert##TEST_NAME();    \
+    }
 
-#define DEFINE_PULL_HANDLER_EDGE_CASE_TESTS(TEST_CLASS, HANDLER_NAME) \
-	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, TooSmallPacketIsRejected) \
-	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, PacketWithWrongTypeIsRejected) \
-	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, PacketWithInvalidPayloadIsRejected) \
-\
-	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithEmptyPayloadIsAccepted) \
-	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithPayloadIsAccepted)
+#define DEFINE_PULL_HANDLER_EDGE_CASE_TESTS(TEST_CLASS, HANDLER_NAME)                                 \
+    MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, TooSmallPacketIsRejected)              \
+    MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, PacketWithWrongTypeIsRejected)         \
+    MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, PacketWithInvalidPayloadIsRejected)    \
+                                                                                                      \
+    MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithEmptyPayloadIsAccepted) \
+    MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithPayloadIsAccepted)
 
 #define MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, TEST_NAME, NUM_REQUESTS, NUM_RESPONSES) \
-	TEST(TEST_CLASS, HANDLER_NAME##_BehavesCorrectlyWhen##TEST_NAME) { \
-		ASSERT_FUNC(NUM_REQUESTS, NUM_RESPONSES); \
-	}
+    TEST(TEST_CLASS, HANDLER_NAME##_BehavesCorrectlyWhen##TEST_NAME)                                                           \
+    {                                                                                                                          \
+        ASSERT_FUNC(NUM_REQUESTS, NUM_RESPONSES);                                                                              \
+    }
 
-#define DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC) \
-	MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, ZeroResponseEntities, 5, 0) \
-	MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, SingleResponseEntities, 3, 1) \
-	MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, MoreRequestHashesThanResponseEntities, 5, 3) \
-	MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, LessRequestHashesThanResponseEntities, 7, 10)
-}}
+#define DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC)                                       \
+    MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, ZeroResponseEntities, 5, 0)                  \
+    MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, SingleResponseEntities, 3, 1)                \
+    MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, MoreRequestHashesThanResponseEntities, 5, 3) \
+    MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, HANDLER_NAME, ASSERT_FUNC, LessRequestHashesThanResponseEntities, 7, 10)
+}
+}

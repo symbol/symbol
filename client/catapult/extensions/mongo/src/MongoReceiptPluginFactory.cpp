@@ -22,26 +22,31 @@
 #include "MongoReceiptPluginFactory.h"
 #include "mappers/MapperUtils.h"
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	namespace {
-		void StreamBalanceTransferReceipt(bsoncxx::builder::stream::document& builder, const model::BalanceTransferReceipt& receipt) {
-			builder << "senderAddress" << mappers::ToBinary(receipt.SenderAddress) << "recipientAddress"
-					<< mappers::ToBinary(receipt.RecipientAddress) << "mosaicId" << mappers::ToInt64(receipt.Mosaic.MosaicId) << "amount"
-					<< mappers::ToInt64(receipt.Mosaic.Amount);
-		}
+    namespace {
+        void StreamBalanceTransferReceipt(bsoncxx::builder::stream::document& builder, const model::BalanceTransferReceipt& receipt)
+        {
+            builder << "senderAddress" << mappers::ToBinary(receipt.SenderAddress) << "recipientAddress"
+                    << mappers::ToBinary(receipt.RecipientAddress) << "mosaicId" << mappers::ToInt64(receipt.Mosaic.MosaicId) << "amount"
+                    << mappers::ToInt64(receipt.Mosaic.Amount);
+        }
 
-		void StreamBalanceChangeReceipt(bsoncxx::builder::stream::document& builder, const model::BalanceChangeReceipt& receipt) {
-			builder << "targetAddress" << mappers::ToBinary(receipt.TargetAddress) << "mosaicId"
-					<< mappers::ToInt64(receipt.Mosaic.MosaicId) << "amount" << mappers::ToInt64(receipt.Mosaic.Amount);
-		}
+        void StreamBalanceChangeReceipt(bsoncxx::builder::stream::document& builder, const model::BalanceChangeReceipt& receipt)
+        {
+            builder << "targetAddress" << mappers::ToBinary(receipt.TargetAddress) << "mosaicId"
+                    << mappers::ToInt64(receipt.Mosaic.MosaicId) << "amount" << mappers::ToInt64(receipt.Mosaic.Amount);
+        }
 
-		void StreamInflationReceipt(bsoncxx::builder::stream::document& builder, const model::InflationReceipt& receipt) {
-			builder << "mosaicId" << mappers::ToInt64(receipt.Mosaic.MosaicId) << "amount" << mappers::ToInt64(receipt.Mosaic.Amount);
-		}
-	}
+        void StreamInflationReceipt(bsoncxx::builder::stream::document& builder, const model::InflationReceipt& receipt)
+        {
+            builder << "mosaicId" << mappers::ToInt64(receipt.Mosaic.MosaicId) << "amount" << mappers::ToInt64(receipt.Mosaic.Amount);
+        }
+    }
 
-	DEFINE_MONGO_RECEIPT_PLUGIN_FACTORY(BalanceTransfer, StreamBalanceTransferReceipt)
-	DEFINE_MONGO_RECEIPT_PLUGIN_FACTORY(BalanceChange, StreamBalanceChangeReceipt)
-	DEFINE_MONGO_RECEIPT_PLUGIN_FACTORY(Inflation, StreamInflationReceipt)
-}}
+    DEFINE_MONGO_RECEIPT_PLUGIN_FACTORY(BalanceTransfer, StreamBalanceTransferReceipt)
+    DEFINE_MONGO_RECEIPT_PLUGIN_FACTORY(BalanceChange, StreamBalanceChangeReceipt)
+    DEFINE_MONGO_RECEIPT_PLUGIN_FACTORY(Inflation, StreamInflationReceipt)
+}
+}

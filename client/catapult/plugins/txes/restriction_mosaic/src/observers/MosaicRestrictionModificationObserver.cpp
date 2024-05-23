@@ -24,54 +24,56 @@
 #include "src/state/MosaicAddressRestrictionNotificationFacade.h"
 #include "src/state/MosaicGlobalRestrictionNotificationFacade.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	namespace {
-		using GlobalCommitNotification = model::MosaicGlobalRestrictionModificationNewValueNotification;
-		using GlobalRollbackNotification = model::MosaicGlobalRestrictionModificationPreviousValueNotification;
-		using AddressCommitNotification = model::MosaicAddressRestrictionModificationNewValueNotification;
-		using AddressRollbackNotification = model::MosaicAddressRestrictionModificationPreviousValueNotification;
+    namespace {
+        using GlobalCommitNotification = model::MosaicGlobalRestrictionModificationNewValueNotification;
+        using GlobalRollbackNotification = model::MosaicGlobalRestrictionModificationPreviousValueNotification;
+        using AddressCommitNotification = model::MosaicAddressRestrictionModificationNewValueNotification;
+        using AddressRollbackNotification = model::MosaicAddressRestrictionModificationPreviousValueNotification;
 
-		template<typename TNotificationFacade>
-		void ObserveNotification(
-				NotifyMode requiredMode,
-				const typename TNotificationFacade::NotificationType& notification,
-				const ObserverContext& context) {
-			if (requiredMode != context.Mode)
-				return;
+        template <typename TNotificationFacade>
+        void ObserveNotification(
+            NotifyMode requiredMode,
+            const typename TNotificationFacade::NotificationType& notification,
+            const ObserverContext& context)
+        {
+            if (requiredMode != context.Mode)
+                return;
 
-			TNotificationFacade notificationFacade(notification, context.Resolvers);
+            TNotificationFacade notificationFacade(notification, context.Resolvers);
 
-			auto& cache = context.Cache.sub<cache::MosaicRestrictionCache>();
-			auto entryIter = cache.find(notificationFacade.uniqueKey());
+            auto& cache = context.Cache.sub<cache::MosaicRestrictionCache>();
+            auto entryIter = cache.find(notificationFacade.uniqueKey());
 
-			if (!entryIter.tryGet()) {
-				auto entry = state::MosaicRestrictionEntry(notificationFacade.toRestriction());
-				notificationFacade.update(entry);
-				cache.insert(entry);
-				return;
-			}
+            if (!entryIter.tryGet()) {
+                auto entry = state::MosaicRestrictionEntry(notificationFacade.toRestriction());
+                notificationFacade.update(entry);
+                cache.insert(entry);
+                return;
+            }
 
-			auto& entry = entryIter.get();
-			auto numRules = notificationFacade.update(entry);
-			if (0 == numRules)
-				cache.remove(entry.uniqueKey());
-		}
-	}
+            auto& entry = entryIter.get();
+            auto numRules = notificationFacade.update(entry);
+            if (0 == numRules)
+                cache.remove(entry.uniqueKey());
+        }
+    }
 
-#define DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(NAME, MODE) \
-	DEFINE_OBSERVER( \
-			Mosaic##NAME##Restriction##MODE##Modification, \
-			NAME##MODE##Notification, \
-			([](const NAME##MODE##Notification& notification, const ObserverContext& context) { \
-				using NotificationFacade = \
-						state::Mosaic##NAME##RestrictionNotificationFacade<NAME##MODE##Notification::Notification_Type>; \
-				ObserveNotification<NotificationFacade>(NotifyMode::MODE, notification, context); \
-			}))
+#define DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(NAME, MODE)                                                                     \
+    DEFINE_OBSERVER(                                                                                                                    \
+        Mosaic##NAME##Restriction##MODE##Modification,                                                                                  \
+        NAME##MODE##Notification,                                                                                                       \
+        ([](const NAME##MODE##Notification& notification, const ObserverContext& context) {                                             \
+            using NotificationFacade = state::Mosaic##NAME##RestrictionNotificationFacade<NAME##MODE##Notification::Notification_Type>; \
+            ObserveNotification<NotificationFacade>(NotifyMode::MODE, notification, context);                                           \
+        }))
 
-	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Global, Commit)
-	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Global, Rollback)
+    DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Global, Commit)
+    DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Global, Rollback)
 
-	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Address, Commit)
-	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Address, Rollback)
-}}
+    DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Address, Commit)
+    DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Address, Rollback)
+}
+}

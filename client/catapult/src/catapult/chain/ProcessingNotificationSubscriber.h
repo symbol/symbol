@@ -24,44 +24,46 @@
 #include "catapult/validators/ValidatorContext.h"
 #include "catapult/validators/ValidatorTypes.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Notification subscriber that processes notifications.
-	class ProcessingNotificationSubscriber : public model::NotificationSubscriber {
-	public:
-		/// Creates a subscriber around \a validator, \a validatorContext, \a observer and \a observerContext.
-		ProcessingNotificationSubscriber(
-				const validators::stateful::NotificationValidator& validator,
-				const validators::ValidatorContext& validatorContext,
-				const observers::NotificationObserver& observer,
-				observers::ObserverContext& observerContext);
+    /// Notification subscriber that processes notifications.
+    class ProcessingNotificationSubscriber : public model::NotificationSubscriber {
+    public:
+        /// Creates a subscriber around \a validator, \a validatorContext, \a observer and \a observerContext.
+        ProcessingNotificationSubscriber(
+            const validators::stateful::NotificationValidator& validator,
+            const validators::ValidatorContext& validatorContext,
+            const observers::NotificationObserver& observer,
+            observers::ObserverContext& observerContext);
 
-	public:
-		/// Gets the aggregate result of processed notifications.
-		validators::ValidationResult result() const;
+    public:
+        /// Gets the aggregate result of processed notifications.
+        validators::ValidationResult result() const;
 
-	public:
-		/// Enables subsequent notifications to be undone.
-		void enableUndo();
+    public:
+        /// Enables subsequent notifications to be undone.
+        void enableUndo();
 
-		/// Undoes all executions since enableUndo was first called.
-		void undo();
+        /// Undoes all executions since enableUndo was first called.
+        void undo();
 
-	public:
-		void notify(const model::Notification& notification) override;
+    public:
+        void notify(const model::Notification& notification) override;
 
-	private:
-		void validate(const model::Notification& notification);
-		void observe(const model::Notification& notification);
+    private:
+        void validate(const model::Notification& notification);
+        void observe(const model::Notification& notification);
 
-	private:
-		const validators::stateful::NotificationValidator& m_validator;
-		const validators::ValidatorContext& m_validatorContext;
-		const observers::NotificationObserver& m_observer;
-		observers::ObserverContext& m_observerContext;
+    private:
+        const validators::stateful::NotificationValidator& m_validator;
+        const validators::ValidatorContext& m_validatorContext;
+        const observers::NotificationObserver& m_observer;
+        observers::ObserverContext& m_observerContext;
 
-		ProcessingUndoNotificationSubscriber m_undoNotificationSubscriber;
-		validators::ValidationResult m_aggregateResult;
-		bool m_isUndoEnabled;
-	};
-}}
+        ProcessingUndoNotificationSubscriber m_undoNotificationSubscriber;
+        validators::ValidationResult m_aggregateResult;
+        bool m_isUndoEnabled;
+    };
+}
+}

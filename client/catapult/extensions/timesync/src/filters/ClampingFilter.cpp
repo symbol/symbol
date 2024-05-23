@@ -20,21 +20,26 @@
 **/
 
 #include "SynchronizationFilters.h"
-#include "filter_constants.h"
 #include "catapult/utils/ContainerHelpers.h"
+#include "filter_constants.h"
 #include <algorithm>
 #include <cmath>
 
-namespace catapult { namespace timesync { namespace filters {
+namespace catapult {
+namespace timesync {
+    namespace filters {
 
-	SynchronizationFilter CreateClampingFilter() {
-		return [](const auto& sample, auto nodeAge) {
-			auto ageToUse = static_cast<double>(std::max<int64_t>(nodeAge.unwrap() - Start_Decay_After_Round, 0));
-			auto toleratedDeviation = std::max(
-					static_cast<int64_t>(std::exp(-Decay_Strength * ageToUse) * static_cast<double>(Tolerated_Deviation_Start.millis())),
-					static_cast<int64_t>(Tolerated_Deviation_Minimum.millis()));
-			auto timeOffsetToRemote = sample.timeOffsetToRemote();
-			return timeOffsetToRemote > toleratedDeviation || -toleratedDeviation > timeOffsetToRemote;
-		};
-	}
-}}}
+        SynchronizationFilter CreateClampingFilter()
+        {
+            return [](const auto& sample, auto nodeAge) {
+                auto ageToUse = static_cast<double>(std::max<int64_t>(nodeAge.unwrap() - Start_Decay_After_Round, 0));
+                auto toleratedDeviation = std::max(
+                    static_cast<int64_t>(std::exp(-Decay_Strength * ageToUse) * static_cast<double>(Tolerated_Deviation_Start.millis())),
+                    static_cast<int64_t>(Tolerated_Deviation_Minimum.millis()));
+                auto timeOffsetToRemote = sample.timeOffsetToRemote();
+                return timeOffsetToRemote > toleratedDeviation || -toleratedDeviation > timeOffsetToRemote;
+            };
+        }
+    }
+}
+}

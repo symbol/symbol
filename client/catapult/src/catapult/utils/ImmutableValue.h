@@ -22,28 +22,32 @@
 #pragma once
 #include "NonCopyable.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
 #pragma pack(push, 1)
 
-	/// Move-only value wrapper.
-	template<typename TValue>
-	class ImmutableValue : public utils::MoveOnly {
-	public:
-		/// Creates an immutable value around \a value.
-		constexpr explicit ImmutableValue(TValue value)
-				: m_value(value) {
-		}
+    /// Move-only value wrapper.
+    template <typename TValue>
+    class ImmutableValue : public utils::MoveOnly {
+    public:
+        /// Creates an immutable value around \a value.
+        constexpr explicit ImmutableValue(TValue value)
+            : m_value(value)
+        {
+        }
 
-	public:
-		/// Casts this immutable value to a mutable value.
-		constexpr operator const TValue() const {
-			return m_value;
-		}
+    public:
+        /// Casts this immutable value to a mutable value.
+        constexpr operator const TValue() const
+        {
+            return m_value;
+        }
 
-	private:
-		TValue m_value;
-	};
+    private:
+        TValue m_value;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

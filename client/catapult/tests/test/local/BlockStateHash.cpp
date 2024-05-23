@@ -28,35 +28,39 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	Hash256 CalculateNemesisStateHash(const model::BlockElement& blockElement, const config::CatapultConfiguration& config) {
-		auto pPluginManager = CreatePluginManagerWithRealPlugins(config);
+    Hash256 CalculateNemesisStateHash(const model::BlockElement& blockElement, const config::CatapultConfiguration& config)
+    {
+        auto pPluginManager = CreatePluginManagerWithRealPlugins(config);
 
-		auto cache = pPluginManager->createCache();
-		auto cacheDetachableDelta = cache.createDetachableDelta();
-		auto cacheDetachedDelta = cacheDetachableDelta.detach();
-		auto pCacheDelta = cacheDetachedDelta.tryLock();
+        auto cache = pPluginManager->createCache();
+        auto cacheDetachableDelta = cache.createDetachableDelta();
+        auto cacheDetachedDelta = cacheDetachableDelta.detach();
+        auto pCacheDelta = cacheDetachedDelta.tryLock();
 
-		return CalculateBlockStateHash(blockElement.Block, *pCacheDelta, *pPluginManager);
-	}
+        return CalculateBlockStateHash(blockElement.Block, *pCacheDelta, *pPluginManager);
+    }
 
-	Hash256 CalculateBlockStateHash(
-			const model::Block& block,
-			cache::CatapultCacheDelta& cache,
-			const plugins::PluginManager& pluginManager) {
-		// 1. prepare observer
-		observers::NotificationObserverAdapter entityObserver(pluginManager.createObserver(), pluginManager.createNotificationPublisher());
+    Hash256 CalculateBlockStateHash(
+        const model::Block& block,
+        cache::CatapultCacheDelta& cache,
+        const plugins::PluginManager& pluginManager)
+    {
+        // 1. prepare observer
+        observers::NotificationObserverAdapter entityObserver(pluginManager.createObserver(), pluginManager.createNotificationPublisher());
 
-		// 2. prepare observer state
-		auto observerState = observers::ObserverState(cache);
+        // 2. prepare observer state
+        auto observerState = observers::ObserverState(cache);
 
-		// 3. prepare resolvers
-		auto readOnlyCache = cache.toReadOnly();
-		auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
+        // 3. prepare resolvers
+        auto readOnlyCache = cache.toReadOnly();
+        auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
 
-		// 4. execute block
-		chain::ExecuteBlock(BlockToBlockElement(block, GetNemesisGenerationHashSeed()), { entityObserver, resolverContext, observerState });
-		return cache.calculateStateHash(block.Height).StateHash;
-	}
-}}
+        // 4. execute block
+        chain::ExecuteBlock(BlockToBlockElement(block, GetNemesisGenerationHashSeed()), { entityObserver, resolverContext, observerState });
+        return cache.calculateStateHash(block.Height).StateHash;
+    }
+}
+}

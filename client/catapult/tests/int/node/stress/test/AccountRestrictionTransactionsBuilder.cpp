@@ -23,64 +23,71 @@
 #include "sdk/src/builders/AccountAddressRestrictionBuilder.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
-	}
+    namespace {
+        constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
+    }
 
-	// region ctor
+    // region ctor
 
-	AccountRestrictionTransactionsBuilder::AccountRestrictionTransactionsBuilder(const Accounts& accounts)
-			: BasicTransactionsBuilder(accounts) {
-	}
+    AccountRestrictionTransactionsBuilder::AccountRestrictionTransactionsBuilder(const Accounts& accounts)
+        : BasicTransactionsBuilder(accounts)
+    {
+    }
 
-	// endregion
+    // endregion
 
-	// region generate
+    // region generate
 
-	std::unique_ptr<model::Transaction> AccountRestrictionTransactionsBuilder::generate(
-			uint32_t descriptorType,
-			const std::shared_ptr<const void>& pDescriptor,
-			Timestamp deadline) const {
-		switch (static_cast<DescriptorType>(descriptorType)) {
-		case DescriptorType::Account_Restriction_Address_Block:
-			return createAddressRestrictionTransaction(CastToDescriptor<AccountAddressRestrictionBlockDescriptor>(pDescriptor), deadline);
-		}
+    std::unique_ptr<model::Transaction> AccountRestrictionTransactionsBuilder::generate(
+        uint32_t descriptorType,
+        const std::shared_ptr<const void>& pDescriptor,
+        Timestamp deadline) const
+    {
+        switch (static_cast<DescriptorType>(descriptorType)) {
+        case DescriptorType::Account_Restriction_Address_Block:
+            return createAddressRestrictionTransaction(CastToDescriptor<AccountAddressRestrictionBlockDescriptor>(pDescriptor), deadline);
+        }
 
-		return nullptr;
-	}
+        return nullptr;
+    }
 
-	// endregion
+    // endregion
 
-	// region add / create
+    // region add / create
 
-	void AccountRestrictionTransactionsBuilder::addAccountAddressRestrictionBlock(size_t senderId, size_t partnerId) {
-		auto descriptor = AccountAddressRestrictionBlockDescriptor{ senderId, partnerId, true };
-		add(DescriptorType::Account_Restriction_Address_Block, descriptor);
-	}
+    void AccountRestrictionTransactionsBuilder::addAccountAddressRestrictionBlock(size_t senderId, size_t partnerId)
+    {
+        auto descriptor = AccountAddressRestrictionBlockDescriptor { senderId, partnerId, true };
+        add(DescriptorType::Account_Restriction_Address_Block, descriptor);
+    }
 
-	void AccountRestrictionTransactionsBuilder::delAccountAddressRestrictionBlock(size_t senderId, size_t partnerId) {
-		auto descriptor = AccountAddressRestrictionBlockDescriptor{ senderId, partnerId, false };
-		add(DescriptorType::Account_Restriction_Address_Block, descriptor);
-	}
+    void AccountRestrictionTransactionsBuilder::delAccountAddressRestrictionBlock(size_t senderId, size_t partnerId)
+    {
+        auto descriptor = AccountAddressRestrictionBlockDescriptor { senderId, partnerId, false };
+        add(DescriptorType::Account_Restriction_Address_Block, descriptor);
+    }
 
-	std::unique_ptr<model::Transaction> AccountRestrictionTransactionsBuilder::createAddressRestrictionTransaction(
-			const AccountAddressRestrictionBlockDescriptor& descriptor,
-			Timestamp deadline) const {
-		const auto& senderKeyPair = accounts().getKeyPair(descriptor.SenderId);
-		auto partnerAddress = extensions::CopyToUnresolvedAddress(accounts().getAddress(descriptor.PartnerId));
+    std::unique_ptr<model::Transaction> AccountRestrictionTransactionsBuilder::createAddressRestrictionTransaction(
+        const AccountAddressRestrictionBlockDescriptor& descriptor,
+        Timestamp deadline) const
+    {
+        const auto& senderKeyPair = accounts().getKeyPair(descriptor.SenderId);
+        auto partnerAddress = extensions::CopyToUnresolvedAddress(accounts().getAddress(descriptor.PartnerId));
 
-		builders::AccountAddressRestrictionBuilder builder(Network_Identifier, senderKeyPair.publicKey());
-		builder.setRestrictionFlags(model::AccountRestrictionFlags::Block | model::AccountRestrictionFlags::Address);
-		if (descriptor.IsAdd)
-			builder.addRestrictionAddition(partnerAddress);
-		else
-			builder.addRestrictionDeletion(partnerAddress);
+        builders::AccountAddressRestrictionBuilder builder(Network_Identifier, senderKeyPair.publicKey());
+        builder.setRestrictionFlags(model::AccountRestrictionFlags::Block | model::AccountRestrictionFlags::Address);
+        if (descriptor.IsAdd)
+            builder.addRestrictionAddition(partnerAddress);
+        else
+            builder.addRestrictionDeletion(partnerAddress);
 
-		auto pTransaction = builder.build();
-		return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
-	}
+        auto pTransaction = builder.build();
+        return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

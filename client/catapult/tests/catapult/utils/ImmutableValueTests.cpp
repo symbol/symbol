@@ -22,51 +22,58 @@
 #include "catapult/utils/ImmutableValue.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
 #define TEST_CLASS ImmutableValueTests
 
-	TEST(TEST_CLASS, CanCreateAsConstexpr) {
-		// Act:
-		constexpr ImmutableValue<uint32_t> Const_Value(78);
+    TEST(TEST_CLASS, CanCreateAsConstexpr)
+    {
+        // Act:
+        constexpr ImmutableValue<uint32_t> Const_Value(78);
 
-		// Assert:
-		EXPECT_EQ(78u, Const_Value);
-	}
+        // Assert:
+        EXPECT_EQ(78u, Const_Value);
+    }
 
-	TEST(TEST_CLASS, CanCreateAroundMutableValue) {
-		// Act:
-		ImmutableValue<uint32_t> value(78);
+    TEST(TEST_CLASS, CanCreateAroundMutableValue)
+    {
+        // Act:
+        ImmutableValue<uint32_t> value(78);
 
-		// Assert:
-		EXPECT_EQ(78u, value);
-	}
+        // Assert:
+        EXPECT_EQ(78u, value);
+    }
 
-	TEST(TEST_CLASS, CanMoveConstruct) {
-		// Act:
-		ImmutableValue<uint32_t> value(78);
-		ImmutableValue<uint32_t> value2(std::move(value));
+    TEST(TEST_CLASS, CanMoveConstruct)
+    {
+        // Act:
+        ImmutableValue<uint32_t> value(78);
+        ImmutableValue<uint32_t> value2(std::move(value));
 
-		// Assert:
-		EXPECT_EQ(78u, value2);
-	}
+        // Assert:
+        EXPECT_EQ(78u, value2);
+    }
 
-	TEST(TEST_CLASS, CanMoveAssign) {
-		// Act:
-		ImmutableValue<uint32_t> value(78);
-		ImmutableValue<uint32_t> value2(12);
-		const auto& assignResult = (value2 = std::move(value));
+    TEST(TEST_CLASS, CanMoveAssign)
+    {
+        // Act:
+        ImmutableValue<uint32_t> value(78);
+        ImmutableValue<uint32_t> value2(12);
+        const auto& assignResult = (value2 = std::move(value));
 
-		// Assert:
-		EXPECT_EQ(78u, value2);
-		EXPECT_EQ(&value2, &assignResult);
-	}
+        // Assert:
+        EXPECT_EQ(78u, value2);
+        EXPECT_EQ(&value2, &assignResult);
+    }
 
-	TEST(TEST_CLASS, CanCastToMutableValue) {
-		// Act:
-		auto rawValue = static_cast<uint32_t>(78);
+    TEST(TEST_CLASS, CanCastToMutableValue)
+    {
+        // Act:
+        auto rawValue = static_cast<uint32_t>(78);
 
-		// Assert:
-		EXPECT_EQ(78u, rawValue);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(78u, rawValue);
+    }
+}
+}

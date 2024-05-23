@@ -23,40 +23,45 @@
 #include "catapult/cache_db/KeySerializers.h"
 #include "catapult/crypto/Hashes.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Encoder adapter that hashes values but not keys.
-	template<typename TSerializer>
-	class SerializerPlainKeyEncoder {
-	public:
-		using KeyType = typename TSerializer::KeyType;
-		using ValueType = typename TSerializer::ValueType;
+    /// Encoder adapter that hashes values but not keys.
+    template <typename TSerializer>
+    class SerializerPlainKeyEncoder {
+    public:
+        using KeyType = typename TSerializer::KeyType;
+        using ValueType = typename TSerializer::ValueType;
 
-	public:
-		/// Encodes \a key by returning it without modification.
-		static constexpr const KeyType& EncodeKey(const KeyType& key) {
-			return key;
-		}
+    public:
+        /// Encodes \a key by returning it without modification.
+        static constexpr const KeyType& EncodeKey(const KeyType& key)
+        {
+            return key;
+        }
 
-		/// Encodes \a value by hashing it.
-		static Hash256 EncodeValue(const ValueType& value) {
-			auto encodedData = TSerializer::SerializeValue(value);
+        /// Encodes \a value by hashing it.
+        static Hash256 EncodeValue(const ValueType& value)
+        {
+            auto encodedData = TSerializer::SerializeValue(value);
 
-			Hash256 valueHash;
-			crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(encodedData.data()), encodedData.size() }, valueHash);
-			return valueHash;
-		}
-	};
+            Hash256 valueHash;
+            crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(encodedData.data()), encodedData.size() }, valueHash);
+            return valueHash;
+        }
+    };
 
-	/// Encoder adapter that hashes values and keys.
-	template<typename TSerializer>
-	class SerializerHashedKeyEncoder : public SerializerPlainKeyEncoder<TSerializer> {
-	public:
-		/// Encodes \a key by hashing it.
-		static Hash256 EncodeKey(const typename SerializerPlainKeyEncoder<TSerializer>::KeyType& key) {
-			Hash256 keyHash;
-			crypto::Sha3_256(SerializeKey(key), keyHash);
-			return keyHash;
-		}
-	};
-}}
+    /// Encoder adapter that hashes values and keys.
+    template <typename TSerializer>
+    class SerializerHashedKeyEncoder : public SerializerPlainKeyEncoder<TSerializer> {
+    public:
+        /// Encodes \a key by hashing it.
+        static Hash256 EncodeKey(const typename SerializerPlainKeyEncoder<TSerializer>::KeyType& key)
+        {
+            Hash256 keyHash;
+            crypto::Sha3_256(SerializeKey(key), keyHash);
+            return keyHash;
+        }
+    };
+}
+}

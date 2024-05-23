@@ -23,20 +23,24 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	AccountRestrictionConfiguration AccountRestrictionConfiguration::Uninitialized() {
-		return AccountRestrictionConfiguration();
-	}
+    AccountRestrictionConfiguration AccountRestrictionConfiguration::Uninitialized()
+    {
+        return AccountRestrictionConfiguration();
+    }
 
-	AccountRestrictionConfiguration AccountRestrictionConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		AccountRestrictionConfiguration config;
+    AccountRestrictionConfiguration AccountRestrictionConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        AccountRestrictionConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
-		LOAD_PROPERTY(MaxAccountRestrictionValues);
+        LOAD_PROPERTY(MaxAccountRestrictionValues);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 1);
-		return config;
-	}
-}}
+        utils::VerifyBagSizeExact(bag, 1);
+        return config;
+    }
+}
+}

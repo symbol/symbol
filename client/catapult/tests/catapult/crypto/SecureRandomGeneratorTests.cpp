@@ -20,12 +20,14 @@
 **/
 
 #include "catapult/crypto/SecureRandomGenerator.h"
-#include "tests/test/nodeps/RandomnessTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/RandomnessTestUtils.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
 #define TEST_CLASS SecureRandomGeneratorTests
 
-	DEFINE_RANDOMNESS_UINT64_TESTS(SecureRandomGenerator)
-}}
+    DEFINE_RANDOMNESS_UINT64_TESTS(SecureRandomGenerator)
+}
+}

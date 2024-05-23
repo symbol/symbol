@@ -20,25 +20,27 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/HashLockInfoCache.h"
-#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
+#include "src/cache/HashLockInfoCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::TransactionNotification;
+    using Notification = model::TransactionNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(AggregateHashPresent, [](const Notification& notification, const ValidatorContext& context) {
-		if (model::Entity_Type_Aggregate_Bonded != notification.TransactionType)
-			return ValidationResult::Success;
+    DEFINE_STATEFUL_VALIDATOR(AggregateHashPresent, [](const Notification& notification, const ValidatorContext& context) {
+        if (model::Entity_Type_Aggregate_Bonded != notification.TransactionType)
+            return ValidationResult::Success;
 
-		const auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
-		if (!cache.contains(notification.TransactionHash))
-			return Failure_LockHash_Unknown_Hash;
+        const auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
+        if (!cache.contains(notification.TransactionHash))
+            return Failure_LockHash_Unknown_Hash;
 
-		if (!cache.isActive(notification.TransactionHash, context.Height))
-			return Failure_LockHash_Inactive_Hash;
+        if (!cache.isActive(notification.TransactionHash, context.Height))
+            return Failure_LockHash_Inactive_Hash;
 
-		return ValidationResult::Success;
-	})
-}}
+        return ValidationResult::Success;
+    })
+}
+}

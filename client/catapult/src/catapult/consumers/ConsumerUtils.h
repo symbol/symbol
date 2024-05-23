@@ -22,15 +22,19 @@
 #pragma once
 #include "catapult/ionet/NodeInteractionResult.h"
 
-namespace catapult { namespace disruptor {
-	struct ConsumerCompletionResult;
-	class ConsumerInput;
-}}
+namespace catapult {
+namespace disruptor {
+    struct ConsumerCompletionResult;
+    class ConsumerInput;
+}
+}
 
-namespace catapult { namespace consumers {
+namespace catapult {
+namespace consumers {
 
-	/// Converts a consumer completion \a result to a node interaction result with \a sourceIdentity.
-	ionet::NodeInteractionResult ToNodeInteractionResult(
-			const model::NodeIdentity& sourceIdentity,
-			const disruptor::ConsumerCompletionResult& result);
-}}
+    /// Converts a consumer completion \a result to a node interaction result with \a sourceIdentity.
+    ionet::NodeInteractionResult ToNodeInteractionResult(
+        const model::NodeIdentity& sourceIdentity,
+        const disruptor::ConsumerCompletionResult& result);
+}
+}

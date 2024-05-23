@@ -22,45 +22,56 @@
 #include "AccountHistory.h"
 #include <algorithm>
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	const HeightIndexedHistoryMap<Amount>& AccountHistory::balance() const {
-		return m_heightBalanceMap;
-	}
+    const HeightIndexedHistoryMap<Amount>& AccountHistory::balance() const
+    {
+        return m_heightBalanceMap;
+    }
 
-	const HeightIndexedHistoryMap<Key>& AccountHistory::vrfPublicKey() const {
-		return m_heightVrfPublicKeyMap;
-	}
+    const HeightIndexedHistoryMap<Key>& AccountHistory::vrfPublicKey() const
+    {
+        return m_heightVrfPublicKeyMap;
+    }
 
-	const HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>>& AccountHistory::votingPublicKeys() const {
-		return m_heightVotingPublicKeysMap;
-	}
+    const HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>>& AccountHistory::votingPublicKeys() const
+    {
+        return m_heightVotingPublicKeysMap;
+    }
 
-	bool AccountHistory::anyAtLeast(Amount minAmount) const {
-		return m_heightBalanceMap.anyOf([minAmount](auto amount) { return minAmount <= amount; });
-	}
+    bool AccountHistory::anyAtLeast(Amount minAmount) const
+    {
+        return m_heightBalanceMap.anyOf([minAmount](auto amount) { return minAmount <= amount; });
+    }
 
-	void AccountHistory::add(Height height, Amount balance) {
-		m_heightBalanceMap.add(height, balance);
-	}
+    void AccountHistory::add(Height height, Amount balance)
+    {
+        m_heightBalanceMap.add(height, balance);
+    }
 
-	void AccountHistory::add(Height height, const Key& vrfPublicKey) {
-		m_heightVrfPublicKeyMap.add(height, vrfPublicKey);
-	}
+    void AccountHistory::add(Height height, const Key& vrfPublicKey)
+    {
+        m_heightVrfPublicKeyMap.add(height, vrfPublicKey);
+    }
 
-	void AccountHistory::add(Height height, const std::vector<model::PinnedVotingKey>& votingPublicKeys) {
-		m_heightVotingPublicKeysMap.add(height, votingPublicKeys);
-	}
+    void AccountHistory::add(Height height, const std::vector<model::PinnedVotingKey>& votingPublicKeys)
+    {
+        m_heightVotingPublicKeysMap.add(height, votingPublicKeys);
+    }
 
-	void AccountHistory::pruneLess(Height height) {
-		m_heightBalanceMap.pruneLess(height);
-		m_heightVrfPublicKeyMap.pruneLess(height);
-		m_heightVotingPublicKeysMap.pruneLess(height);
-	}
+    void AccountHistory::pruneLess(Height height)
+    {
+        m_heightBalanceMap.pruneLess(height);
+        m_heightVrfPublicKeyMap.pruneLess(height);
+        m_heightVotingPublicKeysMap.pruneLess(height);
+    }
 
-	void AccountHistory::pruneGreater(Height height) {
-		m_heightBalanceMap.pruneGreater(height);
-		m_heightVrfPublicKeyMap.pruneGreater(height);
-		m_heightVotingPublicKeysMap.pruneGreater(height);
-	}
-}}
+    void AccountHistory::pruneGreater(Height height)
+    {
+        m_heightBalanceMap.pruneGreater(height);
+        m_heightVrfPublicKeyMap.pruneGreater(height);
+        m_heightVotingPublicKeysMap.pruneGreater(height);
+    }
+}
+}

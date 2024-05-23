@@ -26,7 +26,8 @@
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
 #define DEFINE_ENUM ConnectResult
 #define ENUM_LIST CONNECT_RESULT_LIST
@@ -53,4 +54,5 @@ namespace catapult { namespace ionet {
 #undef ENUM_LIST
 #undef EXPLICIT_VALUE_ENUM
 #undef DEFINE_ENUM
-}}
+}
+}

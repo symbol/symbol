@@ -21,42 +21,46 @@
 
 #include "AggregatePlugin.h"
 #include "AggregateTransactionPlugin.h"
+#include "catapult/plugins/PluginManager.h"
 #include "src/config/AggregateConfiguration.h"
 #include "src/model/AggregateEntityType.h"
 #include "src/validators/Validators.h"
-#include "catapult/plugins/PluginManager.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	void RegisterAggregateSubsystem(PluginManager& manager) {
-		// configure the aggregate to allow all registered transactions that support embedding
-		// (this works because the transaction registry is held by reference)
-		const auto& transactionRegistry = manager.transactionRegistry();
-		auto config = model::LoadPluginConfiguration<config::AggregateConfiguration>(manager.config(), "catapult.plugins.aggregate");
-		manager.addTransactionSupport(CreateAggregateTransactionPlugin(transactionRegistry, model::Entity_Type_Aggregate_Complete));
-		if (config.EnableBondedAggregateSupport) {
-			manager.addTransactionSupport(CreateAggregateTransactionPlugin(
-					transactionRegistry,
-					config.MaxBondedTransactionLifetime,
-					model::Entity_Type_Aggregate_Bonded));
-		}
+    void RegisterAggregateSubsystem(PluginManager& manager)
+    {
+        // configure the aggregate to allow all registered transactions that support embedding
+        // (this works because the transaction registry is held by reference)
+        const auto& transactionRegistry = manager.transactionRegistry();
+        auto config = model::LoadPluginConfiguration<config::AggregateConfiguration>(manager.config(), "catapult.plugins.aggregate");
+        manager.addTransactionSupport(CreateAggregateTransactionPlugin(transactionRegistry, model::Entity_Type_Aggregate_Complete));
+        if (config.EnableBondedAggregateSupport) {
+            manager.addTransactionSupport(CreateAggregateTransactionPlugin(
+                transactionRegistry,
+                config.MaxBondedTransactionLifetime,
+                model::Entity_Type_Aggregate_Bonded));
+        }
 
-		const auto& knownCorruptedHashes = manager.config().KnownCorruptAggregateTransactionHashesMap;
-		manager.addStatelessValidatorHook([config, &knownCorruptedHashes](auto& builder) {
-			builder.add(validators::CreateAggregateTransactionsHashValidator(knownCorruptedHashes));
-			builder.add(validators::CreateBasicAggregateCosignaturesValidator(
-					config.MaxTransactionsPerAggregate,
-					config.MaxCosignaturesPerAggregate));
-			if (config.EnableStrictCosignatureCheck)
-				builder.add(validators::CreateStrictAggregateCosignaturesValidator());
-		});
+        const auto& knownCorruptedHashes = manager.config().KnownCorruptAggregateTransactionHashesMap;
+        manager.addStatelessValidatorHook([config, &knownCorruptedHashes](auto& builder) {
+            builder.add(validators::CreateAggregateTransactionsHashValidator(knownCorruptedHashes));
+            builder.add(validators::CreateBasicAggregateCosignaturesValidator(
+                config.MaxTransactionsPerAggregate,
+                config.MaxCosignaturesPerAggregate));
+            if (config.EnableStrictCosignatureCheck)
+                builder.add(validators::CreateStrictAggregateCosignaturesValidator());
+        });
 
-		auto v2ForkHeight = manager.config().ForkHeights.StrictAggregateTransactionHash;
-		manager.addStatefulValidatorHook(
-				[v2ForkHeight](auto& builder) { builder.add(validators::CreateAggregateTransactionVersionValidator(v2ForkHeight)); });
-	}
-}}
+        auto v2ForkHeight = manager.config().ForkHeights.StrictAggregateTransactionHash;
+        manager.addStatefulValidatorHook(
+            [v2ForkHeight](auto& builder) { builder.add(validators::CreateAggregateTransactionVersionValidator(v2ForkHeight)); });
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
-	catapult::plugins::RegisterAggregateSubsystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
+{
+    catapult::plugins::RegisterAggregateSubsystem(manager);
 }

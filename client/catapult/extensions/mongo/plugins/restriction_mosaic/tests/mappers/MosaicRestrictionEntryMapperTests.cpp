@@ -19,60 +19,70 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/MosaicRestrictionEntryMapper.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "tests/test/MosaicRestrictionEntryMapperTestUtils.h"
+#include "src/mappers/MosaicRestrictionEntryMapper.h"
 #include "tests/TestHarness.h"
+#include "tests/test/MosaicRestrictionEntryMapperTestUtils.h"
 #include <set>
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS MosaicRestrictionEntryMapperTests
 
-	// region ToDbModel
+        // region ToDbModel
 
-	namespace {
-		template<typename TRestrictionTraits>
-		void AssertCanMapRestriction(size_t numValues) {
-			// Arrange:
-			auto restriction = TRestrictionTraits::CreateRestriction(numValues);
-			state::MosaicRestrictionEntry restrictionEntry(restriction);
+        namespace {
+            template <typename TRestrictionTraits>
+            void AssertCanMapRestriction(size_t numValues)
+            {
+                // Arrange:
+                auto restriction = TRestrictionTraits::CreateRestriction(numValues);
+                state::MosaicRestrictionEntry restrictionEntry(restriction);
 
-			// Act:
-			auto document = ToDbModel(restrictionEntry);
-			auto view = document.view();
+                // Act:
+                auto document = ToDbModel(restrictionEntry);
+                auto view = document.view();
 
-			// Assert:
-			EXPECT_EQ(1u, test::GetFieldCount(view));
+                // Assert:
+                EXPECT_EQ(1u, test::GetFieldCount(view));
 
-			auto dbRestrictionEntry = view["mosaicRestrictionEntry"].get_document().view();
-			TRestrictionTraits::AssertEqualRestriction(restrictionEntry, dbRestrictionEntry);
-		}
-	}
+                auto dbRestrictionEntry = view["mosaicRestrictionEntry"].get_document().view();
+                TRestrictionTraits::AssertEqualRestriction(restrictionEntry, dbRestrictionEntry);
+            }
+        }
 
-#define RESTRICTION_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicAddressRestrictionTestTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Global) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicGlobalRestrictionTestTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define RESTRICTION_TRAITS_BASED_TEST(TEST_NAME)                                             \
+    template <typename TTraits>                                                              \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                          \
+    TEST(TEST_CLASS, TEST_NAME##_Address)                                                    \
+    {                                                                                        \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicAddressRestrictionTestTraits>(); \
+    }                                                                                        \
+    TEST(TEST_CLASS, TEST_NAME##_Global)                                                     \
+    {                                                                                        \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicGlobalRestrictionTestTraits>();  \
+    }                                                                                        \
+    template <typename TTraits>                                                              \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	RESTRICTION_TRAITS_BASED_TEST(CanMapRestriction_NoValues) {
-		AssertCanMapRestriction<TTraits>(0);
-	}
+        RESTRICTION_TRAITS_BASED_TEST(CanMapRestriction_NoValues)
+        {
+            AssertCanMapRestriction<TTraits>(0);
+        }
 
-	RESTRICTION_TRAITS_BASED_TEST(CanMapRestriction_SingleValue) {
-		AssertCanMapRestriction<TTraits>(1);
-	}
+        RESTRICTION_TRAITS_BASED_TEST(CanMapRestriction_SingleValue)
+        {
+            AssertCanMapRestriction<TTraits>(1);
+        }
 
-	RESTRICTION_TRAITS_BASED_TEST(CanMapRestriction_MultipleValues) {
-		AssertCanMapRestriction<TTraits>(5);
-	}
+        RESTRICTION_TRAITS_BASED_TEST(CanMapRestriction_MultipleValues)
+        {
+            AssertCanMapRestriction<TTraits>(5);
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

@@ -21,119 +21,131 @@
 
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "src/validators/Validators.h"
+#include "tests/TestHarness.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS MaxAccountRestrictionValuesValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MaxAccountAddressRestrictionValues, 5)
-	DEFINE_COMMON_VALIDATOR_TESTS(MaxAccountMosaicRestrictionValues, 5)
-	DEFINE_COMMON_VALIDATOR_TESTS(MaxAccountOperationRestrictionValues, 5)
+    DEFINE_COMMON_VALIDATOR_TESTS(MaxAccountAddressRestrictionValues, 5)
+    DEFINE_COMMON_VALIDATOR_TESTS(MaxAccountMosaicRestrictionValues, 5)
+    DEFINE_COMMON_VALIDATOR_TESTS(MaxAccountOperationRestrictionValues, 5)
 
-	namespace {
-		struct AccountAddressRestrictionTraits : public test::BaseAccountAddressRestrictionTraits {
-			static constexpr auto CreateValidator = CreateMaxAccountAddressRestrictionValuesValidator;
+    namespace {
+        struct AccountAddressRestrictionTraits : public test::BaseAccountAddressRestrictionTraits {
+            static constexpr auto CreateValidator = CreateMaxAccountAddressRestrictionValuesValidator;
 
-			using NotificationType = model::ModifyAccountAddressRestrictionsNotification;
+            using NotificationType = model::ModifyAccountAddressRestrictionsNotification;
 
-			static auto ToUnresolved(const ValueType& value) {
-				return extensions::CopyToUnresolvedAddress(value);
-			}
-		};
+            static auto ToUnresolved(const ValueType& value)
+            {
+                return extensions::CopyToUnresolvedAddress(value);
+            }
+        };
 
-		struct AccountMosaicRestrictionTraits : public test::BaseAccountMosaicRestrictionTraits {
-			static constexpr auto CreateValidator = CreateMaxAccountMosaicRestrictionValuesValidator;
+        struct AccountMosaicRestrictionTraits : public test::BaseAccountMosaicRestrictionTraits {
+            static constexpr auto CreateValidator = CreateMaxAccountMosaicRestrictionValuesValidator;
 
-			using NotificationType = model::ModifyAccountMosaicRestrictionsNotification;
+            using NotificationType = model::ModifyAccountMosaicRestrictionsNotification;
 
-			static auto ToUnresolved(const ValueType& value) {
-				return extensions::CastToUnresolvedMosaicId(value);
-			}
-		};
+            static auto ToUnresolved(const ValueType& value)
+            {
+                return extensions::CastToUnresolvedMosaicId(value);
+            }
+        };
 
-		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
-			static constexpr auto CreateValidator = CreateMaxAccountOperationRestrictionValuesValidator;
+        struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
+            static constexpr auto CreateValidator = CreateMaxAccountOperationRestrictionValuesValidator;
 
-			using NotificationType = model::ModifyAccountOperationRestrictionsNotification;
+            using NotificationType = model::ModifyAccountOperationRestrictionsNotification;
 
-			static auto ToUnresolved(const ValueType& value) {
-				return value;
-			}
-		};
+            static auto ToUnresolved(const ValueType& value)
+            {
+                return value;
+            }
+        };
 
-		template<typename TRestrictionValueTraits>
-		void AssertValidationResult(
-				ValidationResult expectedResult,
-				uint16_t maxAccountRestrictionValues,
-				uint16_t numInitialValues,
-				uint8_t numAdditions,
-				uint8_t numDeletions) {
-			// Sanity:
-			ASSERT_GE(numInitialValues, numDeletions);
+        template <typename TRestrictionValueTraits>
+        void AssertValidationResult(
+            ValidationResult expectedResult,
+            uint16_t maxAccountRestrictionValues,
+            uint16_t numInitialValues,
+            uint8_t numAdditions,
+            uint8_t numDeletions)
+        {
+            // Sanity:
+            ASSERT_GE(numInitialValues, numDeletions);
 
-			// Arrange:
-			auto initialValues = test::GenerateUniqueRandomDataVector<typename TRestrictionValueTraits::ValueType>(numInitialValues);
-			auto cache = test::AccountRestrictionCacheFactory::Create();
-			auto address = test::GenerateRandomByteArray<Address>();
-			test::PopulateCache<TRestrictionValueTraits>(cache, address, initialValues);
+            // Arrange:
+            auto initialValues = test::GenerateUniqueRandomDataVector<typename TRestrictionValueTraits::ValueType>(numInitialValues);
+            auto cache = test::AccountRestrictionCacheFactory::Create();
+            auto address = test::GenerateRandomByteArray<Address>();
+            test::PopulateCache<TRestrictionValueTraits>(cache, address, initialValues);
 
-			std::vector<typename TRestrictionValueTraits::UnresolvedValueType> restrictionAdditions;
-			for (auto i = 0u; i < numAdditions; ++i)
-				restrictionAdditions.push_back(TRestrictionValueTraits::RandomUnresolvedValue());
+            std::vector<typename TRestrictionValueTraits::UnresolvedValueType> restrictionAdditions;
+            for (auto i = 0u; i < numAdditions; ++i)
+                restrictionAdditions.push_back(TRestrictionValueTraits::RandomUnresolvedValue());
 
-			std::vector<typename TRestrictionValueTraits::UnresolvedValueType> restrictionDeletions;
-			for (auto i = 0u; i < numDeletions; ++i)
-				restrictionDeletions.push_back(TRestrictionValueTraits::ToUnresolved(initialValues[i]));
+            std::vector<typename TRestrictionValueTraits::UnresolvedValueType> restrictionDeletions;
+            for (auto i = 0u; i < numDeletions; ++i)
+                restrictionDeletions.push_back(TRestrictionValueTraits::ToUnresolved(initialValues[i]));
 
-			auto pValidator = TRestrictionValueTraits::CreateValidator(maxAccountRestrictionValues);
-			auto notification = test::CreateAccountRestrictionsNotification<TRestrictionValueTraits>(
-					address,
-					restrictionAdditions,
-					restrictionDeletions);
+            auto pValidator = TRestrictionValueTraits::CreateValidator(maxAccountRestrictionValues);
+            auto notification = test::CreateAccountRestrictionsNotification<TRestrictionValueTraits>(
+                address,
+                restrictionAdditions,
+                restrictionDeletions);
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, cache);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "numAdditions " << numAdditions << ", numDeletions " << numDeletions;
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result) << "numAdditions " << numAdditions << ", numDeletions " << numDeletions;
+        }
+    }
 
-#define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Operation) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define TRAITS_BASED_TEST(TEST_NAME)                                                  \
+    template <typename TTraits>                                                       \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                   \
+    TEST(TEST_CLASS, TEST_NAME##_Address)                                             \
+    {                                                                                 \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>();   \
+    }                                                                                 \
+    TEST(TEST_CLASS, TEST_NAME##_Mosaic)                                              \
+    {                                                                                 \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>();    \
+    }                                                                                 \
+    TEST(TEST_CLASS, TEST_NAME##_Operation)                                           \
+    {                                                                                 \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>(); \
+    }                                                                                 \
+    template <typename TTraits>                                                       \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	TRAITS_BASED_TEST(FailureWhenMaxModificationsIsExceeded) {
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 0, 11, 0);
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 5, 6, 5);
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 6, 5, 6);
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 11, 0, 11);
-	}
+    TRAITS_BASED_TEST(FailureWhenMaxModificationsIsExceeded)
+    {
+        AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 0, 11, 0);
+        AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 5, 6, 5);
+        AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 6, 5, 6);
+        AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 11, 0, 11);
+    }
 
-	TRAITS_BASED_TEST(FailureWhenResultingAccountRestrictionValuesExceedsMaximum) {
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Values_Count_Exceeded, 10, 5, 6, 0);
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Values_Count_Exceeded, 10, 5, 8, 2);
-	}
+    TRAITS_BASED_TEST(FailureWhenResultingAccountRestrictionValuesExceedsMaximum)
+    {
+        AssertValidationResult<TTraits>(Failure_RestrictionAccount_Values_Count_Exceeded, 10, 5, 6, 0);
+        AssertValidationResult<TTraits>(Failure_RestrictionAccount_Values_Count_Exceeded, 10, 5, 8, 2);
+    }
 
-	TRAITS_BASED_TEST(SuccessWhenResultingAccountRestrictionValuesDoesNotExceedMaximum) {
-		AssertValidationResult<TTraits>(ValidationResult::Success, 10, 0, 9, 0);
-		AssertValidationResult<TTraits>(ValidationResult::Success, 10, 0, 10, 0);
-		AssertValidationResult<TTraits>(ValidationResult::Success, 10, 5, 5, 0);
-		AssertValidationResult<TTraits>(ValidationResult::Success, 10, 5, 7, 2);
-	}
-}}
+    TRAITS_BASED_TEST(SuccessWhenResultingAccountRestrictionValuesDoesNotExceedMaximum)
+    {
+        AssertValidationResult<TTraits>(ValidationResult::Success, 10, 0, 9, 0);
+        AssertValidationResult<TTraits>(ValidationResult::Success, 10, 0, 10, 0);
+        AssertValidationResult<TTraits>(ValidationResult::Success, 10, 5, 5, 0);
+        AssertValidationResult<TTraits>(ValidationResult::Success, 10, 5, 7, 2);
+    }
+}
+}

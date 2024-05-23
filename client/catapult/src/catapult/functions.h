@@ -28,14 +28,14 @@ namespace catapult {
 using action = std::function<void()>;
 
 /// Predicate function.
-template<typename... TArgs>
+template <typename... TArgs>
 using predicate = std::function<bool(TArgs...)>;
 
 /// Consumer function.
-template<typename... TArgs>
+template <typename... TArgs>
 using consumer = std::function<void(TArgs...)>;
 
 /// Parameterless supplier function.
-template<typename T>
+template <typename T>
 using supplier = std::function<T()>;
 }

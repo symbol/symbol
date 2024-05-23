@@ -20,68 +20,76 @@
 **/
 
 #pragma once
-#include "catapult/utils/SpinReaderWriterLock.h"
 #include "catapult/types.h"
+#include "catapult/utils/SpinReaderWriterLock.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Read only view on top of a cache height.
-	class CacheHeightView : public utils::MoveOnly {
-	public:
-		/// Creates a cache height view around \a height with lock context \a readLock.
-		CacheHeightView(Height height, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
-				: m_height(height)
-				, m_readLock(std::move(readLock)) {
-		}
+    /// Read only view on top of a cache height.
+    class CacheHeightView : public utils::MoveOnly {
+    public:
+        /// Creates a cache height view around \a height with lock context \a readLock.
+        CacheHeightView(Height height, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+            : m_height(height)
+            , m_readLock(std::move(readLock))
+        {
+        }
 
-	public:
-		/// Gets the height.
-		Height get() const {
-			return m_height;
-		}
+    public:
+        /// Gets the height.
+        Height get() const
+        {
+            return m_height;
+        }
 
-	private:
-		Height m_height;
-		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
-	};
+    private:
+        Height m_height;
+        utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
+    };
 
-	/// Write only view on top of a cache height.
-	class CacheHeightModifier : public utils::MoveOnly {
-	public:
-		/// Creates a write only view around \a height with lock context \a writeLock.
-		CacheHeightModifier(Height& height, utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
-				: m_height(height)
-				, m_writeLock(std::move(writeLock)) {
-		}
+    /// Write only view on top of a cache height.
+    class CacheHeightModifier : public utils::MoveOnly {
+    public:
+        /// Creates a write only view around \a height with lock context \a writeLock.
+        CacheHeightModifier(Height& height, utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
+            : m_height(height)
+            , m_writeLock(std::move(writeLock))
+        {
+        }
 
-	public:
-		/// Sets the cache height to \a height.
-		void set(Height height) {
-			m_height = height;
-		}
+    public:
+        /// Sets the cache height to \a height.
+        void set(Height height)
+        {
+            m_height = height;
+        }
 
-	private:
-		Height& m_height;
-		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
-	};
+    private:
+        Height& m_height;
+        utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
+    };
 
-	/// Synchronized height associated with a catapult cache.
-	class CacheHeight {
-	public:
-		/// Gets a read only view of the height.
-		CacheHeightView view() const {
-			auto readLock = m_lock.acquireReader();
-			return CacheHeightView(m_height, std::move(readLock));
-		}
+    /// Synchronized height associated with a catapult cache.
+    class CacheHeight {
+    public:
+        /// Gets a read only view of the height.
+        CacheHeightView view() const
+        {
+            auto readLock = m_lock.acquireReader();
+            return CacheHeightView(m_height, std::move(readLock));
+        }
 
-		/// Gets a write only view of the height.
-		CacheHeightModifier modifier() {
-			auto writeLock = m_lock.acquireWriter();
-			return CacheHeightModifier(m_height, std::move(writeLock));
-		}
+        /// Gets a write only view of the height.
+        CacheHeightModifier modifier()
+        {
+            auto writeLock = m_lock.acquireWriter();
+            return CacheHeightModifier(m_height, std::move(writeLock));
+        }
 
-	private:
-		Height m_height;
-		mutable utils::SpinReaderWriterLock m_lock;
-	};
-}}
+    private:
+        Height m_height;
+        mutable utils::SpinReaderWriterLock m_lock;
+    };
+}
+}

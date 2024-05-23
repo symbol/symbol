@@ -21,37 +21,43 @@
 
 #pragma once
 
-namespace catapult { namespace deltaset {
+namespace catapult {
+namespace deltaset {
 
-	/// Represents an optional pruning boundary.
-	template<typename T>
-	class PruningBoundary {
-	public:
-		/// Creates a null pruning boundary.
-		constexpr PruningBoundary()
-				: m_isSet(false)
-				, m_value() {
-		}
+    /// Represents an optional pruning boundary.
+    template <typename T>
+    class PruningBoundary {
+    public:
+        /// Creates a null pruning boundary.
+        constexpr PruningBoundary()
+            : m_isSet(false)
+            , m_value()
+        {
+        }
 
-		/// Creates a pruning boundary around \a value.
-		constexpr PruningBoundary(const T& value)
-				: m_isSet(true)
-				, m_value(value) {
-		}
+        /// Creates a pruning boundary around \a value.
+        constexpr PruningBoundary(const T& value)
+            : m_isSet(true)
+            , m_value(value)
+        {
+        }
 
-	public:
-		/// Returns \c true if the pruning boundary value is set.
-		constexpr bool isSet() const {
-			return m_isSet;
-		}
+    public:
+        /// Returns \c true if the pruning boundary value is set.
+        constexpr bool isSet() const
+        {
+            return m_isSet;
+        }
 
-		/// Gets the pruning boundary value.
-		constexpr const T& value() const {
-			return m_value;
-		}
+        /// Gets the pruning boundary value.
+        constexpr const T& value() const
+        {
+            return m_value;
+        }
 
-	private:
-		bool m_isSet;
-		T m_value;
-	};
-}}
+    private:
+        bool m_isSet;
+        T m_value;
+    };
+}
+}

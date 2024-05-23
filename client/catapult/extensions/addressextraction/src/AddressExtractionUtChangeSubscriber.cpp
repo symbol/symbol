@@ -22,34 +22,41 @@
 #include "AddressExtractionUtChangeSubscriber.h"
 #include "AddressExtractor.h"
 
-namespace catapult { namespace addressextraction {
+namespace catapult {
+namespace addressextraction {
 
-	namespace {
-		class AddressExtractionUtChangeSubscriber : public cache::UtChangeSubscriber {
-		public:
-			explicit AddressExtractionUtChangeSubscriber(const AddressExtractor& extractor)
-					: m_extractor(extractor) {
-			}
+    namespace {
+        class AddressExtractionUtChangeSubscriber : public cache::UtChangeSubscriber {
+        public:
+            explicit AddressExtractionUtChangeSubscriber(const AddressExtractor& extractor)
+                : m_extractor(extractor)
+            {
+            }
 
-		public:
-			void notifyAdds(const TransactionInfos& transactionInfos) override {
-				m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
-			}
+        public:
+            void notifyAdds(const TransactionInfos& transactionInfos) override
+            {
+                m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
+            }
 
-			void notifyRemoves(const TransactionInfos& transactionInfos) override {
-				m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
-			}
+            void notifyRemoves(const TransactionInfos& transactionInfos) override
+            {
+                m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
+            }
 
-			void flush() override {
-				// nothing to intercept
-			}
+            void flush() override
+            {
+                // nothing to intercept
+            }
 
-		private:
-			const AddressExtractor& m_extractor;
-		};
-	}
+        private:
+            const AddressExtractor& m_extractor;
+        };
+    }
 
-	std::unique_ptr<cache::UtChangeSubscriber> CreateAddressExtractionUtChangeSubscriber(const AddressExtractor& extractor) {
-		return std::make_unique<AddressExtractionUtChangeSubscriber>(extractor);
-	}
-}}
+    std::unique_ptr<cache::UtChangeSubscriber> CreateAddressExtractionUtChangeSubscriber(const AddressExtractor& extractor)
+    {
+        return std::make_unique<AddressExtractionUtChangeSubscriber>(extractor);
+    }
+}
+}

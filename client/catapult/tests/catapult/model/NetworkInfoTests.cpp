@@ -19,78 +19,84 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NetworkInfo.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/NetworkInfo.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS NetworkInfoTests
 
-	TEST(TEST_CLASS, CanCreateDefaultNetwork) {
-		// Act:
-		NetworkInfo networkInfo;
+    TEST(TEST_CLASS, CanCreateDefaultNetwork)
+    {
+        // Act:
+        NetworkInfo networkInfo;
 
-		// Assert:
-		EXPECT_EQ(NetworkIdentifier::Zero, networkInfo.Identifier);
-		EXPECT_EQ(NodeIdentityEqualityStrategy::Key, networkInfo.NodeEqualityStrategy);
-		EXPECT_EQ(Key(), networkInfo.NemesisSignerPublicKey);
-		EXPECT_EQ(GenerationHashSeed(), networkInfo.GenerationHashSeed);
-		EXPECT_EQ(utils::TimeSpan(), networkInfo.EpochAdjustment);
-	}
+        // Assert:
+        EXPECT_EQ(NetworkIdentifier::Zero, networkInfo.Identifier);
+        EXPECT_EQ(NodeIdentityEqualityStrategy::Key, networkInfo.NodeEqualityStrategy);
+        EXPECT_EQ(Key(), networkInfo.NemesisSignerPublicKey);
+        EXPECT_EQ(GenerationHashSeed(), networkInfo.GenerationHashSeed);
+        EXPECT_EQ(utils::TimeSpan(), networkInfo.EpochAdjustment);
+    }
 
-	TEST(TEST_CLASS, CanCreateCustomNetwork) {
-		// Arrange:
-		auto nemesisSignerPublicKey = test::GenerateRandomByteArray<Key>();
-		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
+    TEST(TEST_CLASS, CanCreateCustomNetwork)
+    {
+        // Arrange:
+        auto nemesisSignerPublicKey = test::GenerateRandomByteArray<Key>();
+        auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
 
-		// Act:
-		NetworkInfo networkInfo(
-				static_cast<NetworkIdentifier>(0xB9),
-				static_cast<NodeIdentityEqualityStrategy>(0xA7),
-				nemesisSignerPublicKey,
-				generationHashSeed,
-				utils::TimeSpan::FromHours(123));
+        // Act:
+        NetworkInfo networkInfo(
+            static_cast<NetworkIdentifier>(0xB9),
+            static_cast<NodeIdentityEqualityStrategy>(0xA7),
+            nemesisSignerPublicKey,
+            generationHashSeed,
+            utils::TimeSpan::FromHours(123));
 
-		// Assert:
-		EXPECT_EQ(static_cast<NetworkIdentifier>(0xB9), networkInfo.Identifier);
-		EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0xA7), networkInfo.NodeEqualityStrategy);
-		EXPECT_EQ(nemesisSignerPublicKey, networkInfo.NemesisSignerPublicKey);
-		EXPECT_EQ(generationHashSeed, networkInfo.GenerationHashSeed);
-		EXPECT_EQ(utils::TimeSpan::FromHours(123), networkInfo.EpochAdjustment);
-	}
+        // Assert:
+        EXPECT_EQ(static_cast<NetworkIdentifier>(0xB9), networkInfo.Identifier);
+        EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0xA7), networkInfo.NodeEqualityStrategy);
+        EXPECT_EQ(nemesisSignerPublicKey, networkInfo.NemesisSignerPublicKey);
+        EXPECT_EQ(generationHashSeed, networkInfo.GenerationHashSeed);
+        EXPECT_EQ(utils::TimeSpan::FromHours(123), networkInfo.EpochAdjustment);
+    }
 
-	TEST(TEST_CLASS, CanGetNemesisSignerAddressForNetwork) {
-		// Arrange:
-		auto nemesisSignerPublicKey = test::GenerateRandomByteArray<Key>();
-		NetworkInfo networkInfo(
-				static_cast<NetworkIdentifier>(0xB9),
-				static_cast<NodeIdentityEqualityStrategy>(0xA7),
-				nemesisSignerPublicKey,
-				test::GenerateRandomByteArray<GenerationHashSeed>(),
-				utils::TimeSpan::FromHours(123));
+    TEST(TEST_CLASS, CanGetNemesisSignerAddressForNetwork)
+    {
+        // Arrange:
+        auto nemesisSignerPublicKey = test::GenerateRandomByteArray<Key>();
+        NetworkInfo networkInfo(
+            static_cast<NetworkIdentifier>(0xB9),
+            static_cast<NodeIdentityEqualityStrategy>(0xA7),
+            nemesisSignerPublicKey,
+            test::GenerateRandomByteArray<GenerationHashSeed>(),
+            utils::TimeSpan::FromHours(123));
 
-		// Act:
-		auto nemesisSignerAddress = GetNemesisSignerAddress(networkInfo);
+        // Act:
+        auto nemesisSignerAddress = GetNemesisSignerAddress(networkInfo);
 
-		// Assert:
-		EXPECT_EQ(PublicKeyToAddress(nemesisSignerPublicKey, static_cast<NetworkIdentifier>(0xB9)), nemesisSignerAddress);
-	}
+        // Assert:
+        EXPECT_EQ(PublicKeyToAddress(nemesisSignerPublicKey, static_cast<NetworkIdentifier>(0xB9)), nemesisSignerAddress);
+    }
 
-	TEST(TEST_CLASS, CanGetUniqueNetworkFingerprintForNetwork) {
-		// Arrange:
-		NetworkInfo networkInfo(
-				static_cast<NetworkIdentifier>(0xB9),
-				static_cast<NodeIdentityEqualityStrategy>(0xA7),
-				test::GenerateRandomByteArray<Key>(),
-				test::GenerateRandomByteArray<GenerationHashSeed>(),
-				utils::TimeSpan::FromHours(123));
+    TEST(TEST_CLASS, CanGetUniqueNetworkFingerprintForNetwork)
+    {
+        // Arrange:
+        NetworkInfo networkInfo(
+            static_cast<NetworkIdentifier>(0xB9),
+            static_cast<NodeIdentityEqualityStrategy>(0xA7),
+            test::GenerateRandomByteArray<Key>(),
+            test::GenerateRandomByteArray<GenerationHashSeed>(),
+            utils::TimeSpan::FromHours(123));
 
-		// Act:
-		auto fingerprint = GetUniqueNetworkFingerprint(networkInfo);
+        // Act:
+        auto fingerprint = GetUniqueNetworkFingerprint(networkInfo);
 
-		// Assert:
-		EXPECT_EQ(static_cast<NetworkIdentifier>(0xB9), fingerprint.Identifier);
-		EXPECT_EQ(networkInfo.GenerationHashSeed, fingerprint.GenerationHashSeed);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(static_cast<NetworkIdentifier>(0xB9), fingerprint.Identifier);
+        EXPECT_EQ(networkInfo.GenerationHashSeed, fingerprint.GenerationHashSeed);
+    }
+}
+}

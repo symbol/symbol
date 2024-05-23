@@ -21,32 +21,41 @@
 
 #include "FileStream.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	FileStream::FileStream(RawFile&& rawFile)
-			: m_rawFile(std::move(rawFile)) {
-	}
+    FileStream::FileStream(RawFile&& rawFile)
+        : m_rawFile(std::move(rawFile))
+    {
+    }
 
-	void FileStream::write(const RawBuffer& buffer) {
-		m_rawFile.write(buffer);
-	}
+    void FileStream::write(const RawBuffer& buffer)
+    {
+        m_rawFile.write(buffer);
+    }
 
-	void FileStream::flush() {
-	}
+    void FileStream::flush()
+    {
+    }
 
-	bool FileStream::eof() const {
-		return m_rawFile.position() == m_rawFile.size();
-	}
+    bool FileStream::eof() const
+    {
+        return m_rawFile.position() == m_rawFile.size();
+    }
 
-	void FileStream::read(const MutableRawBuffer& buffer) {
-		m_rawFile.read(buffer);
-	}
+    void FileStream::read(const MutableRawBuffer& buffer)
+    {
+        m_rawFile.read(buffer);
+    }
 
-	void FileStream::seek(uint64_t position) {
-		m_rawFile.seek(position);
-	}
+    void FileStream::seek(uint64_t position)
+    {
+        m_rawFile.seek(position);
+    }
 
-	uint64_t FileStream::position() const {
-		return m_rawFile.position();
-	}
-}}
+    uint64_t FileStream::position() const
+    {
+        return m_rawFile.position();
+    }
+}
+}

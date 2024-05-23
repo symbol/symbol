@@ -26,84 +26,96 @@
 
 namespace catapult {
 namespace importance {
-	class ImportanceCalculator;
+    class ImportanceCalculator;
 }
 namespace model {
-	class InflationCalculator;
+    class InflationCalculator;
 }
 }
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	// region VerifiableEntity
+    // region VerifiableEntity
 
-	/// Observes account address changes.
-	DECLARE_OBSERVER(AccountAddress, model::AccountAddressNotification)();
+    /// Observes account address changes.
+    DECLARE_OBSERVER(AccountAddress, model::AccountAddressNotification)
+    ();
 
-	/// Observes account public key changes.
-	DECLARE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification)();
+    /// Observes account public key changes.
+    DECLARE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification)
+    ();
 
-	// endregion
+    // endregion
 
-	// region Block
+    // region Block
 
-	/// Options for the harvest fee observer.
-	struct HarvestFeeOptions {
-		/// Mosaic id used as primary chain currency.
-		MosaicId CurrencyMosaicId;
+    /// Options for the harvest fee observer.
+    struct HarvestFeeOptions {
+        /// Mosaic id used as primary chain currency.
+        MosaicId CurrencyMosaicId;
 
-		/// Percentage of the harvested fee that is collected by the beneficiary account.
-		uint8_t HarvestBeneficiaryPercentage;
+        /// Percentage of the harvested fee that is collected by the beneficiary account.
+        uint8_t HarvestBeneficiaryPercentage;
 
-		/// Percentage of the harvested fee that is collected by the network.
-		uint8_t HarvestNetworkPercentage;
+        /// Percentage of the harvested fee that is collected by the network.
+        uint8_t HarvestNetworkPercentage;
 
-		/// Address of the harvest network fee sink account(s).
-		model::HeightDependentAddress HarvestNetworkFeeSinkAddress;
-	};
+        /// Address of the harvest network fee sink account(s).
+        model::HeightDependentAddress HarvestNetworkFeeSinkAddress;
+    };
 
-	/// Observes block notifications and triggers importance recalculations using either \a pCommitCalculator (for commits)
-	/// or \a pRollbackCalculator (for rollbacks).
-	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)
-	(std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
-	 std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator);
+    /// Observes block notifications and triggers importance recalculations using either \a pCommitCalculator (for commits)
+    /// or \a pRollbackCalculator (for rollbacks).
+    DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)
+    (std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
+        std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator);
 
-	/// Observes block notifications and credits the harvester and, optionally, additional accounts specified in \a options
-	/// with the currency mosaic given the specified inflation \a calculator.
-	DECLARE_OBSERVER(HarvestFee, model::BlockNotification)(const HarvestFeeOptions& options, const model::InflationCalculator& calculator);
+    /// Observes block notifications and credits the harvester and, optionally, additional accounts specified in \a options
+    /// with the currency mosaic given the specified inflation \a calculator.
+    DECLARE_OBSERVER(HarvestFee, model::BlockNotification)
+    (const HarvestFeeOptions& options, const model::InflationCalculator& calculator);
 
-	/// Observes block beneficiary.
-	DECLARE_OBSERVER(Beneficiary, model::BlockNotification)();
+    /// Observes block beneficiary.
+    DECLARE_OBSERVER(Beneficiary, model::BlockNotification)
+    ();
 
-	/// Observes block statistics and updates dynamic fee multiplier given \a maxDifficultyBlocks and \a defaultDynamicFeeMultiplier.
-	DECLARE_OBSERVER(BlockStatistic, model::BlockNotification)
-	(uint32_t maxDifficultyBlocks, BlockFeeMultiplier defaultDynamicFeeMultiplier);
+    /// Observes block statistics and updates dynamic fee multiplier given \a maxDifficultyBlocks and \a defaultDynamicFeeMultiplier.
+    DECLARE_OBSERVER(BlockStatistic, model::BlockNotification)
+    (uint32_t maxDifficultyBlocks, BlockFeeMultiplier defaultDynamicFeeMultiplier);
 
-	/// Observes block notifications and counts transactions.
-	DECLARE_OBSERVER(TotalTransactions, model::BlockNotification)();
+    /// Observes block notifications and counts transactions.
+    DECLARE_OBSERVER(TotalTransactions, model::BlockNotification)
+    ();
 
-	/// Observes block notifications and recalculates high value account information when \a mode matches.
-	DECLARE_OBSERVER(HighValueAccount, model::BlockNotification)(NotifyMode mode);
+    /// Observes block notifications and recalculates high value account information when \a mode matches.
+    DECLARE_OBSERVER(HighValueAccount, model::BlockNotification)
+    (NotifyMode mode);
 
-	// endregion
+    // endregion
 
-	// region Transaction
+    // region Transaction
 
-	/// Observes balance changes triggered by balance transfer notifications.
-	DECLARE_OBSERVER(BalanceTransfer, model::BalanceTransferNotification)();
+    /// Observes balance changes triggered by balance transfer notifications.
+    DECLARE_OBSERVER(BalanceTransfer, model::BalanceTransferNotification)
+    ();
 
-	/// Observes balance changes triggered by balance debit notifications.
-	DECLARE_OBSERVER(BalanceDebit, model::BalanceDebitNotification)();
+    /// Observes balance changes triggered by balance debit notifications.
+    DECLARE_OBSERVER(BalanceDebit, model::BalanceDebitNotification)
+    ();
 
-	/// Observes transaction fee notifications and updates account activity information.
-	DECLARE_OBSERVER(TransactionFeeActivity, model::TransactionFeeNotification)();
+    /// Observes transaction fee notifications and updates account activity information.
+    DECLARE_OBSERVER(TransactionFeeActivity, model::TransactionFeeNotification)
+    ();
 
-	// endregion
+    // endregion
 
-	// region SourceChange
+    // region SourceChange
 
-	/// Observes source changes and changes observer source.
-	DECLARE_OBSERVER(SourceChange, model::SourceChangeNotification)();
+    /// Observes source changes and changes observer source.
+    DECLARE_OBSERVER(SourceChange, model::SourceChangeNotification)
+    ();
 
-	// endregion
-}}
+    // endregion
+}
+}

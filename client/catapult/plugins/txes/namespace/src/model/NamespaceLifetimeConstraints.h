@@ -22,18 +22,21 @@
 #pragma once
 #include "NamespaceConstants.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Constraints for a namespace's lifetime.
-	struct NamespaceLifetimeConstraints {
-	public:
-		/// Creates constraints around \a maxDuration and \a gracePeriodDuration.
-		constexpr NamespaceLifetimeConstraints(BlockDuration maxDuration, BlockDuration gracePeriodDuration)
-				: MaxNamespaceDuration(maxDuration.unwrap() + gracePeriodDuration.unwrap()) {
-		}
+    /// Constraints for a namespace's lifetime.
+    struct NamespaceLifetimeConstraints {
+    public:
+        /// Creates constraints around \a maxDuration and \a gracePeriodDuration.
+        constexpr NamespaceLifetimeConstraints(BlockDuration maxDuration, BlockDuration gracePeriodDuration)
+            : MaxNamespaceDuration(maxDuration.unwrap() + gracePeriodDuration.unwrap())
+        {
+        }
 
-	public:
-		/// Maximum lifetime a namespace may have including the grace period.
-		BlockDuration MaxNamespaceDuration;
-	};
-}}
+    public:
+        /// Maximum lifetime a namespace may have including the grace period.
+        BlockDuration MaxNamespaceDuration;
+    };
+}
+}

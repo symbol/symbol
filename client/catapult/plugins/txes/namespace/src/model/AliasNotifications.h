@@ -24,99 +24,104 @@
 #include "NamespaceTypes.h"
 #include "catapult/model/Notifications.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region alias notification types
+    // region alias notification types
 
 /// Defines a namespace alias notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
 /// \note Alias notifications reuse Namespace facility code.
 #define DEFINE_NAMESPACE_ALIAS_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) \
-	DEFINE_NOTIFICATION_TYPE(CHANNEL, Namespace, DESCRIPTION, 0x1000 | CODE)
+    DEFINE_NOTIFICATION_TYPE(CHANNEL, Namespace, DESCRIPTION, 0x1000 | CODE)
 
-	/// Alias link was provided.
-	DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Alias_Link, 0x0001, Validator);
+    /// Alias link was provided.
+    DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Alias_Link, 0x0001, Validator);
 
-	/// Address alias was un/linked.
-	DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Aliased_Address, 0x0002, All);
+    /// Address alias was un/linked.
+    DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Aliased_Address, 0x0002, All);
 
-	/// Mosaic alias was un/linked.
-	DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Aliased_MosaicId, 0x0003, All);
+    /// Mosaic alias was un/linked.
+    DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Aliased_MosaicId, 0x0003, All);
 
 #undef DEFINE_NAMESPACE_ALIAS_NOTIFICATION
 
-	// endregion
+    // endregion
 
-	// region BaseAliasNotification
+    // region BaseAliasNotification
 
-	/// Base alias notification.
-	struct BaseAliasNotification : public Notification {
-	public:
-		/// Creates a base alias notification around \a namespaceId and \a aliasAction using \a notificationType and \a notificationSize.
-		BaseAliasNotification(
-				NotificationType notificationType,
-				size_t notificationSize,
-				catapult::NamespaceId namespaceId,
-				model::AliasAction aliasAction)
-				: Notification(notificationType, notificationSize)
-				, NamespaceId(namespaceId)
-				, AliasAction(aliasAction) {
-		}
+    /// Base alias notification.
+    struct BaseAliasNotification : public Notification {
+    public:
+        /// Creates a base alias notification around \a namespaceId and \a aliasAction using \a notificationType and \a notificationSize.
+        BaseAliasNotification(
+            NotificationType notificationType,
+            size_t notificationSize,
+            catapult::NamespaceId namespaceId,
+            model::AliasAction aliasAction)
+            : Notification(notificationType, notificationSize)
+            , NamespaceId(namespaceId)
+            , AliasAction(aliasAction)
+        {
+        }
 
-	public:
-		/// Namespace id.
-		catapult::NamespaceId NamespaceId;
+    public:
+        /// Namespace id.
+        catapult::NamespaceId NamespaceId;
 
-		/// Alias action.
-		model::AliasAction AliasAction;
-	};
+        /// Alias action.
+        model::AliasAction AliasAction;
+    };
 
-	// endregion
+    // endregion
 
-	// region AliasLinkNotification
+    // region AliasLinkNotification
 
-	/// Notification of alias link.
-	struct AliasLinkNotification : public BaseAliasNotification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Namespace_Alias_Link_Notification;
+    /// Notification of alias link.
+    struct AliasLinkNotification : public BaseAliasNotification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Namespace_Alias_Link_Notification;
 
-	public:
-		/// Creates a notification around \a namespaceId and \a aliasAction.
-		AliasLinkNotification(catapult::NamespaceId namespaceId, model::AliasAction aliasAction)
-				: BaseAliasNotification(Notification_Type, sizeof(AliasLinkNotification), namespaceId, aliasAction) {
-		}
-	};
+    public:
+        /// Creates a notification around \a namespaceId and \a aliasAction.
+        AliasLinkNotification(catapult::NamespaceId namespaceId, model::AliasAction aliasAction)
+            : BaseAliasNotification(Notification_Type, sizeof(AliasLinkNotification), namespaceId, aliasAction)
+        {
+        }
+    };
 
-	// endregion
+    // endregion
 
-	// region AliasedDataNotification
+    // region AliasedDataNotification
 
-	/// Notification of aliased data.
-	template<typename TAliasedData, NotificationType Aliased_Notification_Type>
-	struct AliasedDataNotification : public BaseAliasNotification {
-	private:
-		using AliasedNotification = AliasedDataNotification<TAliasedData, Aliased_Notification_Type>;
+    /// Notification of aliased data.
+    template <typename TAliasedData, NotificationType Aliased_Notification_Type>
+    struct AliasedDataNotification : public BaseAliasNotification {
+    private:
+        using AliasedNotification = AliasedDataNotification<TAliasedData, Aliased_Notification_Type>;
 
-	public:
-		static constexpr auto Notification_Type = Aliased_Notification_Type;
+    public:
+        static constexpr auto Notification_Type = Aliased_Notification_Type;
 
-	public:
-		/// Creates a notification around \a namespaceId, \a aliasAction and \a aliasedData.
-		AliasedDataNotification(catapult::NamespaceId namespaceId, model::AliasAction aliasAction, const TAliasedData& aliasedData)
-				: BaseAliasNotification(Notification_Type, sizeof(AliasedNotification), namespaceId, aliasAction)
-				, AliasedData(aliasedData) {
-		}
+    public:
+        /// Creates a notification around \a namespaceId, \a aliasAction and \a aliasedData.
+        AliasedDataNotification(catapult::NamespaceId namespaceId, model::AliasAction aliasAction, const TAliasedData& aliasedData)
+            : BaseAliasNotification(Notification_Type, sizeof(AliasedNotification), namespaceId, aliasAction)
+            , AliasedData(aliasedData)
+        {
+        }
 
-	public:
-		/// Aliased data.
-		TAliasedData AliasedData;
-	};
+    public:
+        /// Aliased data.
+        TAliasedData AliasedData;
+    };
 
-	/// Notification of an aliased address.
-	using AliasedAddressNotification = AliasedDataNotification<Address, Namespace_Aliased_Address_Notification>;
+    /// Notification of an aliased address.
+    using AliasedAddressNotification = AliasedDataNotification<Address, Namespace_Aliased_Address_Notification>;
 
-	/// Notification of an aliased mosaic id.
-	using AliasedMosaicIdNotification = AliasedDataNotification<MosaicId, Namespace_Aliased_MosaicId_Notification>;
+    /// Notification of an aliased mosaic id.
+    using AliasedMosaicIdNotification = AliasedDataNotification<MosaicId, Namespace_Aliased_MosaicId_Notification>;
 
-	// endregion
-}}
+    // endregion
+}
+}

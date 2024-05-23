@@ -22,28 +22,32 @@
 #include "NamespaceCacheSerializers.h"
 #include "catapult/io/PodIoUtils.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	std::string NamespaceFlatMapTypesSerializer::SerializeValue(const ValueType& value) {
-		io::StringOutputStream output(sizeof(ValueType));
+    std::string NamespaceFlatMapTypesSerializer::SerializeValue(const ValueType& value)
+    {
+        io::StringOutputStream output(sizeof(ValueType));
 
-		StateVersion<NamespaceFlatMapTypesSerializer>::Write(output);
-		io::Write64(output, value.path().size());
-		for (auto id : value.path())
-			io::Write(output, id);
+        StateVersion<NamespaceFlatMapTypesSerializer>::Write(output);
+        io::Write64(output, value.path().size());
+        for (auto id : value.path())
+            io::Write(output, id);
 
-		return output.str();
-	}
+        return output.str();
+    }
 
-	state::Namespace NamespaceFlatMapTypesSerializer::DeserializeValue(const RawBuffer& buffer) {
-		io::BufferInputStreamAdapter<RawBuffer> input(buffer);
-		StateVersion<NamespaceFlatMapTypesSerializer>::ReadAndCheck(input);
+    state::Namespace NamespaceFlatMapTypesSerializer::DeserializeValue(const RawBuffer& buffer)
+    {
+        io::BufferInputStreamAdapter<RawBuffer> input(buffer);
+        StateVersion<NamespaceFlatMapTypesSerializer>::ReadAndCheck(input);
 
-		state::Namespace::Path path;
-		auto size = io::Read64(input);
-		for (auto i = 0u; i < size; ++i)
-			path.push_back(io::Read<NamespaceId>(input));
+        state::Namespace::Path path;
+        auto size = io::Read64(input);
+        for (auto i = 0u; i < size; ++i)
+            path.push_back(io::Read<NamespaceId>(input));
 
-		return state::Namespace(path);
-	}
-}}
+        return state::Namespace(path);
+    }
+}
+}

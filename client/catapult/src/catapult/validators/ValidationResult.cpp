@@ -23,29 +23,31 @@
 #include "catapult/utils/HexFormatter.h"
 #include <iostream>
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define DEFINE_CASE(RESULT) case utils::to_underlying_type(RESULT)
 
-#define CASE_WELL_KNOWN_RESULT(CODE) \
-	DEFINE_CASE(ValidationResult::CODE) \
-			: return #CODE
+#define CASE_WELL_KNOWN_RESULT(CODE)    \
+    DEFINE_CASE(ValidationResult::CODE) \
+        : return #CODE
 
 #define CUSTOM_RESULT_DEFINITION 1
 #undef DEFINE_VALIDATION_RESULT
 
 #define STR(SYMBOL) #SYMBOL
-#define DEFINE_VALIDATION_RESULT(SEVERITY, FACILITY, DESCRIPTION, CODE, FLAGS) \
-	DEFINE_CASE(MakeValidationResult((ResultSeverity::SEVERITY), (FacilityCode::FACILITY), CODE, (ResultFlags::FLAGS))) \
-			: return STR(SEVERITY##_##FACILITY##_##DESCRIPTION)
+#define DEFINE_VALIDATION_RESULT(SEVERITY, FACILITY, DESCRIPTION, CODE, FLAGS)                                          \
+    DEFINE_CASE(MakeValidationResult((ResultSeverity::SEVERITY), (FacilityCode::FACILITY), CODE, (ResultFlags::FLAGS))) \
+        : return STR(SEVERITY##_##FACILITY##_##DESCRIPTION)
 
-	namespace {
-		const char* ToString(ValidationResult result) {
-			switch (utils::to_underlying_type(result)) {
-				// well known results (defined in enum)
-				CASE_WELL_KNOWN_RESULT(Success);
-				CASE_WELL_KNOWN_RESULT(Neutral);
-				CASE_WELL_KNOWN_RESULT(Failure);
+    namespace {
+        const char* ToString(ValidationResult result)
+        {
+            switch (utils::to_underlying_type(result)) {
+                // well known results (defined in enum)
+                CASE_WELL_KNOWN_RESULT(Success);
+                CASE_WELL_KNOWN_RESULT(Neutral);
+                CASE_WELL_KNOWN_RESULT(Failure);
 
 // custom plugin results
 #include "plugins/coresystem/src/validators/Results.h"
@@ -65,19 +67,21 @@ namespace catapult { namespace validators {
 #include "src/catapult/chain/ChainResults.h"
 #include "src/catapult/consumers/ConsumerResults.h"
 #include "src/catapult/extensions/Results.h"
-			}
+            }
 
-			return nullptr;
-		}
-	}
+            return nullptr;
+        }
+    }
 
-	std::ostream& operator<<(std::ostream& out, ValidationResult result) {
-		auto pStr = ToString(result);
-		if (pStr)
-			out << pStr;
-		else
-			out << "ValidationResult<0x" << utils::HexFormat(utils::to_underlying_type(result)) << ">";
+    std::ostream& operator<<(std::ostream& out, ValidationResult result)
+    {
+        auto pStr = ToString(result);
+        if (pStr)
+            out << pStr;
+        else
+            out << "ValidationResult<0x" << utils::HexFormat(utils::to_underlying_type(result)) << ">";
 
-		return out;
-	}
-}}
+        return out;
+    }
+}
+}

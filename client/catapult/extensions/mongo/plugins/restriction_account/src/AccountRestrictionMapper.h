@@ -22,17 +22,21 @@
 #pragma once
 #include "mongo/src/MongoTransactionPlugin.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Creates a mongo account address restriction transaction plugin.
-	PLUGIN_API
-	std::unique_ptr<MongoTransactionPlugin> CreateAccountAddressRestrictionTransactionMongoPlugin();
+        /// Creates a mongo account address restriction transaction plugin.
+        PLUGIN_API
+        std::unique_ptr<MongoTransactionPlugin> CreateAccountAddressRestrictionTransactionMongoPlugin();
 
-	/// Creates a mongo account mosaic restriction transaction plugin.
-	PLUGIN_API
-	std::unique_ptr<MongoTransactionPlugin> CreateAccountMosaicRestrictionTransactionMongoPlugin();
+        /// Creates a mongo account mosaic restriction transaction plugin.
+        PLUGIN_API
+        std::unique_ptr<MongoTransactionPlugin> CreateAccountMosaicRestrictionTransactionMongoPlugin();
 
-	/// Creates a mongo account operation restriction transaction plugin.
-	PLUGIN_API
-	std::unique_ptr<MongoTransactionPlugin> CreateAccountOperationRestrictionTransactionMongoPlugin();
-}}}
+        /// Creates a mongo account operation restriction transaction plugin.
+        PLUGIN_API
+        std::unique_ptr<MongoTransactionPlugin> CreateAccountOperationRestrictionTransactionMongoPlugin();
+    }
+}
+}

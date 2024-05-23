@@ -26,12 +26,13 @@
 
 extern void RegisterTests();
 
-int main(int argc, char** argv) {
-	catapult::version::WriteVersionInformation(std::cout);
-	std::srand(static_cast<unsigned int>(std::time(nullptr)));
+int main(int argc, char** argv)
+{
+    catapult::version::WriteVersionInformation(std::cout);
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-	RegisterTests();
-	benchmark::Initialize(&argc, argv);
-	benchmark::RunSpecifiedBenchmarks();
-	return 0;
+    RegisterTests();
+    benchmark::Initialize(&argc, argv);
+    benchmark::RunSpecifiedBenchmarks();
+    return 0;
 }

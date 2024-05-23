@@ -20,17 +20,19 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/HashCache.h"
 #include "catapult/state/TimestampedHash.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/HashCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::TransactionNotification;
+    using Notification = model::TransactionNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(UniqueTransactionHash, [](const Notification& notification, const ValidatorContext& context) {
-		const auto& hashCache = context.Cache.sub<cache::HashCache>();
-		return hashCache.contains(state::TimestampedHash(notification.Deadline, notification.TransactionHash)) ? Failure_Hash_Already_Exists
-																											   : ValidationResult::Success;
-	})
-}}
+    DEFINE_STATEFUL_VALIDATOR(UniqueTransactionHash, [](const Notification& notification, const ValidatorContext& context) {
+        const auto& hashCache = context.Cache.sub<cache::HashCache>();
+        return hashCache.contains(state::TimestampedHash(notification.Deadline, notification.TransactionHash)) ? Failure_Hash_Already_Exists
+                                                                                                               : ValidationResult::Success;
+    })
+}
+}

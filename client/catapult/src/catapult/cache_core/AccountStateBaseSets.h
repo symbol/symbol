@@ -26,57 +26,63 @@
 #include "catapult/cache/PatriciaTreeEncoderAdapters.h"
 #include "catapult/tree/BasePatriciaTree.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	using BasicAccountStatePatriciaTree = tree::BasePatriciaTree<
-			SerializerHashedKeyEncoder<AccountStatePatriciaTreeSerializer>,
-			PatriciaTreeRdbDataSource,
-			utils::ArrayHasher<Address>>;
+    using BasicAccountStatePatriciaTree = tree::BasePatriciaTree<
+        SerializerHashedKeyEncoder<AccountStatePatriciaTreeSerializer>,
+        PatriciaTreeRdbDataSource,
+        utils::ArrayHasher<Address>>;
 
-	class AccountStatePatriciaTree : public BasicAccountStatePatriciaTree {
-	public:
-		using BasicAccountStatePatriciaTree::BasicAccountStatePatriciaTree;
-		using Serializer = AccountStatePatriciaTreeSerializer;
-	};
+    class AccountStatePatriciaTree : public BasicAccountStatePatriciaTree {
+    public:
+        using BasicAccountStatePatriciaTree::BasicAccountStatePatriciaTree;
+        using Serializer = AccountStatePatriciaTreeSerializer;
+    };
 
-	struct AccountStateBaseSetDeltaPointers {
-		AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaPointerType pPrimary;
-		AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaPointerType pKeyLookupMap;
-		std::shared_ptr<AccountStatePatriciaTree::DeltaType> pPatriciaTree;
-	};
+    struct AccountStateBaseSetDeltaPointers {
+        AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaPointerType pPrimary;
+        AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaPointerType pKeyLookupMap;
+        std::shared_ptr<AccountStatePatriciaTree::DeltaType> pPatriciaTree;
+    };
 
-	struct AccountStateBaseSets : public CacheDatabaseMixin {
-	public:
-		/// Indicates the set is not ordered.
-		using IsOrderedSet = std::false_type;
+    struct AccountStateBaseSets : public CacheDatabaseMixin {
+    public:
+        /// Indicates the set is not ordered.
+        using IsOrderedSet = std::false_type;
 
-	public:
-		explicit AccountStateBaseSets(const CacheConfiguration& config)
-				: CacheDatabaseMixin(config, { "default", "key_lookup" })
-				, Primary(GetContainerMode(config), database(), 0)
-				, KeyLookupMap(GetContainerMode(config), database(), 1)
-				, PatriciaTree(hasPatriciaTreeSupport(), database(), 2) {
-		}
+    public:
+        explicit AccountStateBaseSets(const CacheConfiguration& config)
+            : CacheDatabaseMixin(config, { "default", "key_lookup" })
+            , Primary(GetContainerMode(config), database(), 0)
+            , KeyLookupMap(GetContainerMode(config), database(), 1)
+            , PatriciaTree(hasPatriciaTreeSupport(), database(), 2)
+        {
+        }
 
-	public:
-		AccountStateCacheTypes::PrimaryTypes::BaseSetType Primary;
-		AccountStateCacheTypes::KeyLookupMapTypes::BaseSetType KeyLookupMap;
-		CachePatriciaTree<AccountStatePatriciaTree> PatriciaTree;
+    public:
+        AccountStateCacheTypes::PrimaryTypes::BaseSetType Primary;
+        AccountStateCacheTypes::KeyLookupMapTypes::BaseSetType KeyLookupMap;
+        CachePatriciaTree<AccountStatePatriciaTree> PatriciaTree;
 
-	public:
-		AccountStateBaseSetDeltaPointers rebase() {
-			return { Primary.rebase(), KeyLookupMap.rebase(), PatriciaTree.rebase() };
-		}
+    public:
+        AccountStateBaseSetDeltaPointers rebase()
+        {
+            return { Primary.rebase(), KeyLookupMap.rebase(), PatriciaTree.rebase() };
+        }
 
-		AccountStateBaseSetDeltaPointers rebaseDetached() const {
-			return { Primary.rebaseDetached(), KeyLookupMap.rebaseDetached(), PatriciaTree.rebaseDetached() };
-		}
+        AccountStateBaseSetDeltaPointers rebaseDetached() const
+        {
+            return { Primary.rebaseDetached(), KeyLookupMap.rebaseDetached(), PatriciaTree.rebaseDetached() };
+        }
 
-		void commit() {
-			Primary.commit();
-			KeyLookupMap.commit();
-			PatriciaTree.commit();
-			flush();
-		}
-	};
-}}
+        void commit()
+        {
+            Primary.commit();
+            KeyLookupMap.commit();
+            PatriciaTree.commit();
+            flush();
+        }
+    };
+}
+}

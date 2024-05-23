@@ -24,19 +24,23 @@
 #include "catapult/io/EntityIoUtils.h"
 #include "catapult/io/Stream.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	TransactionStatusNotification GenerateRandomTransactionStatusNotification(uint32_t transactionSize) {
-		TransactionStatusNotification notification;
-		notification.pTransaction = GenerateRandomTransactionWithSize(transactionSize);
-		FillWithRandomData(notification.Hash);
-		notification.Status = static_cast<uint32_t>(Random());
-		return notification;
-	}
+    TransactionStatusNotification GenerateRandomTransactionStatusNotification(uint32_t transactionSize)
+    {
+        TransactionStatusNotification notification;
+        notification.pTransaction = GenerateRandomTransactionWithSize(transactionSize);
+        FillWithRandomData(notification.Hash);
+        notification.Status = static_cast<uint32_t>(Random());
+        return notification;
+    }
 
-	void WriteTransactionStatusNotification(io::OutputStream& outputStream, const TransactionStatusNotification& notification) {
-		outputStream.write(notification.Hash);
-		io::Write32(outputStream, notification.Status);
-		io::WriteEntity(outputStream, *notification.pTransaction);
-	}
-}}
+    void WriteTransactionStatusNotification(io::OutputStream& outputStream, const TransactionStatusNotification& notification)
+    {
+        outputStream.write(notification.Hash);
+        io::Write32(outputStream, notification.Status);
+        io::WriteEntity(outputStream, *notification.pTransaction);
+    }
+}
+}

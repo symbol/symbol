@@ -21,30 +21,33 @@
 
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/state/CatapultState.h"
-#include "tests/test/cache/SimpleCache.h"
 #include "tests/TestHarness.h"
+#include "tests/test/cache/SimpleCache.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS ReadOnlyCatapultCacheTests
 
-	TEST(TEST_CLASS, CanCreateAroundArbitraryCaches) {
-		// Arrange:
-		state::CatapultState dependentState;
+    TEST(TEST_CLASS, CanCreateAroundArbitraryCaches)
+    {
+        // Arrange:
+        state::CatapultState dependentState;
 
-		test::SimpleCacheT<0> cache0;
-		test::SimpleCacheT<2> cache2;
-		std::vector<const void*> subViews{ &cache0.createView()->asReadOnly(), nullptr, &cache2.createView()->asReadOnly() };
+        test::SimpleCacheT<0> cache0;
+        test::SimpleCacheT<2> cache2;
+        std::vector<const void*> subViews { &cache0.createView()->asReadOnly(), nullptr, &cache2.createView()->asReadOnly() };
 
-		// Act:
-		ReadOnlyCatapultCache readOnlyCache(dependentState, subViews);
+        // Act:
+        ReadOnlyCatapultCache readOnlyCache(dependentState, subViews);
 
-		// Assert:
-		// - dependent state is held by reference
-		EXPECT_EQ(&dependentState, &readOnlyCache.dependentState());
+        // Assert:
+        // - dependent state is held by reference
+        EXPECT_EQ(&dependentState, &readOnlyCache.dependentState());
 
-		// - sub caches match input
-		EXPECT_EQ(subViews[0], &readOnlyCache.sub<test::SimpleCacheT<0>>());
-		EXPECT_EQ(subViews[2], &readOnlyCache.sub<test::SimpleCacheT<2>>());
-	}
-}}
+        // - sub caches match input
+        EXPECT_EQ(subViews[0], &readOnlyCache.sub<test::SimpleCacheT<0>>());
+        EXPECT_EQ(subViews[2], &readOnlyCache.sub<test::SimpleCacheT<2>>());
+    }
+}
+}

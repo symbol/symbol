@@ -22,35 +22,37 @@
 #pragma once
 #include "catapult/crypto/KeyPair.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Container of keys used by catapult.
-	class CatapultKeys {
-	public:
-		/// Creates empty container.
-		CatapultKeys();
+    /// Container of keys used by catapult.
+    class CatapultKeys {
+    public:
+        /// Creates empty container.
+        CatapultKeys();
 
-		/// Creates a new container and loads keys from \a directory.
-		explicit CatapultKeys(const std::string& directory);
+        /// Creates a new container and loads keys from \a directory.
+        explicit CatapultKeys(const std::string& directory);
 
-		/// Creates a new container around \a caPublicKey and \a nodeKeyPair.
-		CatapultKeys(Key&& caPublicKey, crypto::KeyPair&& nodeKeyPair);
+        /// Creates a new container around \a caPublicKey and \a nodeKeyPair.
+        CatapultKeys(Key&& caPublicKey, crypto::KeyPair&& nodeKeyPair);
 
-	public:
-		/// Gets the CA public key.
-		const Key& caPublicKey() const;
+    public:
+        /// Gets the CA public key.
+        const Key& caPublicKey() const;
 
-		/// Gets the node key pair.
-		const crypto::KeyPair& nodeKeyPair() const;
+        /// Gets the node key pair.
+        const crypto::KeyPair& nodeKeyPair() const;
 
-	private:
-		Key m_caPublicKey;
-		crypto::KeyPair m_nodeKeyPair;
-	};
+    private:
+        Key m_caPublicKey;
+        crypto::KeyPair m_nodeKeyPair;
+    };
 
-	/// Gets the name of the CA public key pem file in \a directory.
-	std::string GetCaPublicKeyPemFilename(const std::string& directory);
+    /// Gets the name of the CA public key pem file in \a directory.
+    std::string GetCaPublicKeyPemFilename(const std::string& directory);
 
-	/// Gets the name of the node private key pem file in \a directory.
-	std::string GetNodePrivateKeyPemFilename(const std::string& directory);
-}}
+    /// Gets the name of the node private key pem file in \a directory.
+    std::string GetNodePrivateKeyPemFilename(const std::string& directory);
+}
+}

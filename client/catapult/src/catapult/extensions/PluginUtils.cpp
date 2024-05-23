@@ -23,36 +23,42 @@
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/observers/ReverseNotificationObserverAdapter.h"
-#include "catapult/validators/NotificationValidatorAdapter.h"
 #include "catapult/preprocessor.h"
+#include "catapult/validators/NotificationValidatorAdapter.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
-		plugins::StorageConfiguration storageConfig;
-		storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
-		storageConfig.CacheDatabaseDirectory = (std::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
-		storageConfig.CacheDatabaseConfig = config.Node.CacheDatabase;
-		return storageConfig;
-	}
+    plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config)
+    {
+        plugins::StorageConfiguration storageConfig;
+        storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
+        storageConfig.CacheDatabaseDirectory = (std::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
+        storageConfig.CacheDatabaseConfig = config.Node.CacheDatabase;
+        return storageConfig;
+    }
 
-	namespace {
-		template<typename TAdapter, typename TAdaptee>
-		auto MakeAdapter(const plugins::PluginManager& manager, std::unique_ptr<TAdaptee>&& pAdaptee) {
-			return std::make_unique<TAdapter>(std::move(pAdaptee), manager.createNotificationPublisher());
-		}
-	}
+    namespace {
+        template <typename TAdapter, typename TAdaptee>
+        auto MakeAdapter(const plugins::PluginManager& manager, std::unique_ptr<TAdaptee>&& pAdaptee)
+        {
+            return std::make_unique<TAdapter>(std::move(pAdaptee), manager.createNotificationPublisher());
+        }
+    }
 
-	std::unique_ptr<const validators::StatelessEntityValidator> CreateStatelessEntityValidator(
-			const plugins::PluginManager& manager,
-			model::NotificationType excludedNotificationType) {
-		auto pAdapter = MakeAdapter<validators::NotificationValidatorAdapter>(manager, manager.createStatelessValidator());
-		pAdapter->setExclusionFilter(
-				[excludedNotificationType](auto notificationType) { return excludedNotificationType == notificationType; });
-		return PORTABLE_MOVE(pAdapter);
-	}
+    std::unique_ptr<const validators::StatelessEntityValidator> CreateStatelessEntityValidator(
+        const plugins::PluginManager& manager,
+        model::NotificationType excludedNotificationType)
+    {
+        auto pAdapter = MakeAdapter<validators::NotificationValidatorAdapter>(manager, manager.createStatelessValidator());
+        pAdapter->setExclusionFilter(
+            [excludedNotificationType](auto notificationType) { return excludedNotificationType == notificationType; });
+        return PORTABLE_MOVE(pAdapter);
+    }
 
-	std::unique_ptr<const observers::EntityObserver> CreateUndoEntityObserver(const plugins::PluginManager& manager) {
-		return MakeAdapter<observers::ReverseNotificationObserverAdapter>(manager, manager.createObserver());
-	}
-}}
+    std::unique_ptr<const observers::EntityObserver> CreateUndoEntityObserver(const plugins::PluginManager& manager)
+    {
+        return MakeAdapter<observers::ReverseNotificationObserverAdapter>(manager, manager.createObserver());
+    }
+}
+}

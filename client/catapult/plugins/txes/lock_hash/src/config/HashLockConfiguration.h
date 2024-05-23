@@ -20,33 +20,37 @@
 **/
 
 #pragma once
-#include "catapult/utils/BlockSpan.h"
 #include "catapult/types.h"
+#include "catapult/utils/BlockSpan.h"
 #include <stdint.h>
 
-namespace catapult { namespace utils {
-	class ConfigurationBag;
-}}
+namespace catapult {
+namespace utils {
+    class ConfigurationBag;
+}
+}
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Hash lock plugin configuration settings.
-	struct HashLockConfiguration {
-	public:
-		/// Amount that has to be locked per aggregate in partial cache.
-		Amount LockedFundsPerAggregate;
+    /// Hash lock plugin configuration settings.
+    struct HashLockConfiguration {
+    public:
+        /// Amount that has to be locked per aggregate in partial cache.
+        Amount LockedFundsPerAggregate;
 
-		/// Maximum number of blocks for which a hash lock can exist.
-		utils::BlockSpan MaxHashLockDuration;
+        /// Maximum number of blocks for which a hash lock can exist.
+        utils::BlockSpan MaxHashLockDuration;
 
-	private:
-		HashLockConfiguration() = default;
+    private:
+        HashLockConfiguration() = default;
 
-	public:
-		/// Creates an uninitialized hash lock configuration.
-		static HashLockConfiguration Uninitialized();
+    public:
+        /// Creates an uninitialized hash lock configuration.
+        static HashLockConfiguration Uninitialized();
 
-		/// Loads hash lock configuration from \a bag.
-		static HashLockConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-	};
-}}
+        /// Loads hash lock configuration from \a bag.
+        static HashLockConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+    };
+}
+}

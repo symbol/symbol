@@ -23,37 +23,43 @@
 #include "catapult/io/PodIoUtils.h"
 #include <filesystem>
 
-namespace catapult { namespace finalization {
+namespace catapult {
+namespace finalization {
 
-	VotingStatusFile::VotingStatusFile(const std::string& filename)
-			: m_filename(filename) {
-	}
+    VotingStatusFile::VotingStatusFile(const std::string& filename)
+        : m_filename(filename)
+    {
+    }
 
-	chain::VotingStatus VotingStatusFile::load() const {
-		chain::VotingStatus status;
-		if (!std::filesystem::is_regular_file(m_filename)) {
-			// if file doesn't exist, start at the first post-nemesis epoch
-			status.Round = { FinalizationEpoch(2), FinalizationPoint(1) };
-		} else {
-			auto rawFile = open(io::OpenMode::Read_Only);
-			status.Round.Epoch = FinalizationEpoch(io::Read32(rawFile));
-			status.Round.Point = FinalizationPoint(io::Read32(rawFile));
-			status.HasSentPrevote = !!io::Read8(rawFile);
-			status.HasSentPrecommit = !!io::Read8(rawFile);
-		}
+    chain::VotingStatus VotingStatusFile::load() const
+    {
+        chain::VotingStatus status;
+        if (!std::filesystem::is_regular_file(m_filename)) {
+            // if file doesn't exist, start at the first post-nemesis epoch
+            status.Round = { FinalizationEpoch(2), FinalizationPoint(1) };
+        } else {
+            auto rawFile = open(io::OpenMode::Read_Only);
+            status.Round.Epoch = FinalizationEpoch(io::Read32(rawFile));
+            status.Round.Point = FinalizationPoint(io::Read32(rawFile));
+            status.HasSentPrevote = !!io::Read8(rawFile);
+            status.HasSentPrecommit = !!io::Read8(rawFile);
+        }
 
-		return status;
-	}
+        return status;
+    }
 
-	void VotingStatusFile::save(const chain::VotingStatus& status) {
-		auto rawFile = open(io::OpenMode::Read_Write);
-		io::Write32(rawFile, status.Round.Epoch.unwrap());
-		io::Write32(rawFile, status.Round.Point.unwrap());
-		io::Write8(rawFile, status.HasSentPrevote ? 1 : 0);
-		io::Write8(rawFile, status.HasSentPrecommit ? 1 : 0);
-	}
+    void VotingStatusFile::save(const chain::VotingStatus& status)
+    {
+        auto rawFile = open(io::OpenMode::Read_Write);
+        io::Write32(rawFile, status.Round.Epoch.unwrap());
+        io::Write32(rawFile, status.Round.Point.unwrap());
+        io::Write8(rawFile, status.HasSentPrevote ? 1 : 0);
+        io::Write8(rawFile, status.HasSentPrecommit ? 1 : 0);
+    }
 
-	io::RawFile VotingStatusFile::open(io::OpenMode mode) const {
-		return io::RawFile(m_filename, mode);
-	}
-}}
+    io::RawFile VotingStatusFile::open(io::OpenMode mode) const
+    {
+        return io::RawFile(m_filename, mode);
+    }
+}
+}

@@ -24,42 +24,48 @@
 #include "catapult/model/Block.h"
 #include "catapult/observers/EntityObserver.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	namespace {
-		observers::ObserverContext CreateObserverContext(
-				const BlockExecutionContext& executionContext,
-				Height height,
-				observers::NotifyMode mode) {
-			return observers::ObserverContext(model::NotificationContext(height, executionContext.Resolvers), executionContext.State, mode);
-		}
+    namespace {
+        observers::ObserverContext CreateObserverContext(
+            const BlockExecutionContext& executionContext,
+            Height height,
+            observers::NotifyMode mode)
+        {
+            return observers::ObserverContext(model::NotificationContext(height, executionContext.Resolvers), executionContext.State, mode);
+        }
 
-		void ObserveAll(
-				const observers::EntityObserver& observer,
-				observers::ObserverContext& context,
-				const model::WeakEntityInfos& entityInfos) {
-			for (const auto& entityInfo : entityInfos)
-				observer.notify(entityInfo, context);
-		}
-	}
+        void ObserveAll(
+            const observers::EntityObserver& observer,
+            observers::ObserverContext& context,
+            const model::WeakEntityInfos& entityInfos)
+        {
+            for (const auto& entityInfo : entityInfos)
+                observer.notify(entityInfo, context);
+        }
+    }
 
-	void ExecuteBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext) {
-		model::WeakEntityInfos entityInfos;
-		model::ExtractEntityInfos(blockElement, entityInfos);
+    void ExecuteBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext)
+    {
+        model::WeakEntityInfos entityInfos;
+        model::ExtractEntityInfos(blockElement, entityInfos);
 
-		auto context = CreateObserverContext(executionContext, blockElement.Block.Height, observers::NotifyMode::Commit);
-		ObserveAll(executionContext.Observer, context, entityInfos);
-	}
+        auto context = CreateObserverContext(executionContext, blockElement.Block.Height, observers::NotifyMode::Commit);
+        ObserveAll(executionContext.Observer, context, entityInfos);
+    }
 
-	void RollbackBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext) {
-		model::WeakEntityInfos entityInfos;
-		model::ExtractEntityInfos(blockElement, entityInfos);
-		std::reverse(entityInfos.begin(), entityInfos.end());
+    void RollbackBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext)
+    {
+        model::WeakEntityInfos entityInfos;
+        model::ExtractEntityInfos(blockElement, entityInfos);
+        std::reverse(entityInfos.begin(), entityInfos.end());
 
-		auto context = CreateObserverContext(executionContext, blockElement.Block.Height, observers::NotifyMode::Rollback);
-		ObserveAll(executionContext.Observer, context, entityInfos);
+        auto context = CreateObserverContext(executionContext, blockElement.Block.Height, observers::NotifyMode::Rollback);
+        ObserveAll(executionContext.Observer, context, entityInfos);
 
-		// commit removals
-		executionContext.State.Cache.sub<cache::AccountStateCache>().commitRemovals();
-	}
-}}
+        // commit removals
+        executionContext.State.Cache.sub<cache::AccountStateCache>().commitRemovals();
+    }
+}
+}

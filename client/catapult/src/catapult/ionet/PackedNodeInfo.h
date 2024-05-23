@@ -23,80 +23,85 @@
 #include "NodeInfo.h"
 #include "catapult/model/TrailingVariableDataLayout.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
 #pragma pack(push, 1)
 
-	/// Connection state unique to a node and connection identifier.
-	struct PackedConnectionState {
-	public:
-		/// Connection identifier.
-		ServiceIdentifier ServiceId;
+    /// Connection state unique to a node and connection identifier.
+    struct PackedConnectionState {
+    public:
+        /// Connection identifier.
+        ServiceIdentifier ServiceId;
 
-		/// Current connection age.
-		/// \c 0 if the connection is not active.
-		uint32_t Age;
+        /// Current connection age.
+        /// \c 0 if the connection is not active.
+        uint32_t Age;
 
-		/// Number of consecutive failed connections.
-		uint32_t NumConsecutiveFailures;
+        /// Number of consecutive failed connections.
+        uint32_t NumConsecutiveFailures;
 
-		/// Current ban age.
-		/// \c 0 if the connection is not banned.
-		uint32_t BanAge;
+        /// Current ban age.
+        /// \c 0 if the connection is not banned.
+        uint32_t BanAge;
 
-	public:
-		/// Updates values with corresponding values from \a connectionState.
-		void Update(const ConnectionState& connectionState) {
-			Age = connectionState.Age;
-			NumConsecutiveFailures = connectionState.NumConsecutiveFailures;
-			BanAge = connectionState.BanAge;
-		}
-	};
+    public:
+        /// Updates values with corresponding values from \a connectionState.
+        void Update(const ConnectionState& connectionState)
+        {
+            Age = connectionState.Age;
+            NumConsecutiveFailures = connectionState.NumConsecutiveFailures;
+            BanAge = connectionState.BanAge;
+        }
+    };
 
-	/// Node interactions.
-	struct PackedNodeInteractions {
-	public:
-		/// Number of successful interactions.
-		uint32_t NumSuccesses;
+    /// Node interactions.
+    struct PackedNodeInteractions {
+    public:
+        /// Number of successful interactions.
+        uint32_t NumSuccesses;
 
-		/// Number of failed interactions.
-		uint32_t NumFailures;
+        /// Number of failed interactions.
+        uint32_t NumFailures;
 
-	public:
-		/// Updates values with corresponding values from \a interactions.
-		void Update(const NodeInteractions& interactions) {
-			NumSuccesses = interactions.NumSuccesses;
-			NumFailures = interactions.NumFailures;
-		}
-	};
+    public:
+        /// Updates values with corresponding values from \a interactions.
+        void Update(const NodeInteractions& interactions)
+        {
+            NumSuccesses = interactions.NumSuccesses;
+            NumFailures = interactions.NumFailures;
+        }
+    };
 
-	/// Information about a node and its interactions.
-	struct PackedNodeInfo : public model::TrailingVariableDataLayout<PackedNodeInfo, PackedConnectionState> {
-	public:
-		/// Node source.
-		NodeSource Source;
+    /// Information about a node and its interactions.
+    struct PackedNodeInfo : public model::TrailingVariableDataLayout<PackedNodeInfo, PackedConnectionState> {
+    public:
+        /// Node source.
+        NodeSource Source;
 
-		/// Node unique identifier.
-		Key IdentityKey;
+        /// Node unique identifier.
+        Key IdentityKey;
 
-		/// Node interactions.
-		PackedNodeInteractions Interactions;
+        /// Node interactions.
+        PackedNodeInteractions Interactions;
 
-		/// Number of connection states.
-		uint8_t ConnectionStatesCount;
+        /// Number of connection states.
+        uint8_t ConnectionStatesCount;
 
-		/// Reserved padding to align end of PackedNodeInfo on 8-byte boundary.
-		uint8_t PackedNodeInfo_Reserved1[7];
+        /// Reserved padding to align end of PackedNodeInfo on 8-byte boundary.
+        uint8_t PackedNodeInfo_Reserved1[7];
 
-		// followed by connection states if ConnectionStatesCount != 0
-		DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(ConnectionStates, Count)
+        // followed by connection states if ConnectionStatesCount != 0
+        DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(ConnectionStates, Count)
 
-	public:
-		/// Calculates the real size of \a nodeInfo.
-		static constexpr uint64_t CalculateRealSize(const PackedNodeInfo& nodeInfo) noexcept {
-			return sizeof(PackedNodeInfo) + nodeInfo.ConnectionStatesCount * sizeof(PackedConnectionState);
-		}
-	};
+    public:
+        /// Calculates the real size of \a nodeInfo.
+        static constexpr uint64_t CalculateRealSize(const PackedNodeInfo& nodeInfo) noexcept
+        {
+            return sizeof(PackedNodeInfo) + nodeInfo.ConnectionStatesCount * sizeof(PackedConnectionState);
+        }
+    };
 
 #pragma pack(pop)
-}}
+}
+}

@@ -27,64 +27,68 @@
 #include "catapult/deltaset/BaseSetDelta.h"
 #include "catapult/model/NetworkIdentifier.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Mixins used by the mosaic restriction cache delta.
-	using MosaicRestrictionCacheDeltaMixins =
-			PatriciaTreeCacheMixins<MosaicRestrictionCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicRestrictionCacheDescriptor>;
+    /// Mixins used by the mosaic restriction cache delta.
+    using MosaicRestrictionCacheDeltaMixins = PatriciaTreeCacheMixins<MosaicRestrictionCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicRestrictionCacheDescriptor>;
 
-	/// Basic delta on top of the mosaic restriction cache.
-	class BasicMosaicRestrictionCacheDelta
-			: public utils::MoveOnly
-			, public MosaicRestrictionCacheDeltaMixins::Size
-			, public MosaicRestrictionCacheDeltaMixins::Contains
-			, public MosaicRestrictionCacheDeltaMixins::ConstAccessor
-			, public MosaicRestrictionCacheDeltaMixins::MutableAccessor
-			, public MosaicRestrictionCacheDeltaMixins::PatriciaTreeDelta
-			, public MosaicRestrictionCacheDeltaMixins::BasicInsertRemove
-			, public MosaicRestrictionCacheDeltaMixins::DeltaElements {
-	public:
-		using ReadOnlyView = MosaicRestrictionCacheTypes::CacheReadOnlyType;
+    /// Basic delta on top of the mosaic restriction cache.
+    class BasicMosaicRestrictionCacheDelta
+        : public utils::MoveOnly,
+          public MosaicRestrictionCacheDeltaMixins::Size,
+          public MosaicRestrictionCacheDeltaMixins::Contains,
+          public MosaicRestrictionCacheDeltaMixins::ConstAccessor,
+          public MosaicRestrictionCacheDeltaMixins::MutableAccessor,
+          public MosaicRestrictionCacheDeltaMixins::PatriciaTreeDelta,
+          public MosaicRestrictionCacheDeltaMixins::BasicInsertRemove,
+          public MosaicRestrictionCacheDeltaMixins::DeltaElements {
+    public:
+        using ReadOnlyView = MosaicRestrictionCacheTypes::CacheReadOnlyType;
 
-	public:
-		/// Creates a delta around \a restrictionSets and \a networkIdentifier.
-		BasicMosaicRestrictionCacheDelta(
-				const MosaicRestrictionCacheTypes::BaseSetDeltaPointers& restrictionSets,
-				model::NetworkIdentifier networkIdentifier)
-				: MosaicRestrictionCacheDeltaMixins::Size(*restrictionSets.pPrimary)
-				, MosaicRestrictionCacheDeltaMixins::Contains(*restrictionSets.pPrimary)
-				, MosaicRestrictionCacheDeltaMixins::ConstAccessor(*restrictionSets.pPrimary)
-				, MosaicRestrictionCacheDeltaMixins::MutableAccessor(*restrictionSets.pPrimary)
-				, MosaicRestrictionCacheDeltaMixins::PatriciaTreeDelta(*restrictionSets.pPrimary, restrictionSets.pPatriciaTree)
-				, MosaicRestrictionCacheDeltaMixins::BasicInsertRemove(*restrictionSets.pPrimary)
-				, MosaicRestrictionCacheDeltaMixins::DeltaElements(*restrictionSets.pPrimary)
-				, m_pMosaicRestrictionEntries(restrictionSets.pPrimary)
-				, m_networkIdentifier(networkIdentifier) {
-		}
+    public:
+        /// Creates a delta around \a restrictionSets and \a networkIdentifier.
+        BasicMosaicRestrictionCacheDelta(
+            const MosaicRestrictionCacheTypes::BaseSetDeltaPointers& restrictionSets,
+            model::NetworkIdentifier networkIdentifier)
+            : MosaicRestrictionCacheDeltaMixins::Size(*restrictionSets.pPrimary)
+            , MosaicRestrictionCacheDeltaMixins::Contains(*restrictionSets.pPrimary)
+            , MosaicRestrictionCacheDeltaMixins::ConstAccessor(*restrictionSets.pPrimary)
+            , MosaicRestrictionCacheDeltaMixins::MutableAccessor(*restrictionSets.pPrimary)
+            , MosaicRestrictionCacheDeltaMixins::PatriciaTreeDelta(*restrictionSets.pPrimary, restrictionSets.pPatriciaTree)
+            , MosaicRestrictionCacheDeltaMixins::BasicInsertRemove(*restrictionSets.pPrimary)
+            , MosaicRestrictionCacheDeltaMixins::DeltaElements(*restrictionSets.pPrimary)
+            , m_pMosaicRestrictionEntries(restrictionSets.pPrimary)
+            , m_networkIdentifier(networkIdentifier)
+        {
+        }
 
-	public:
-		using MosaicRestrictionCacheDeltaMixins::ConstAccessor::find;
-		using MosaicRestrictionCacheDeltaMixins::MutableAccessor::find;
+    public:
+        using MosaicRestrictionCacheDeltaMixins::ConstAccessor::find;
+        using MosaicRestrictionCacheDeltaMixins::MutableAccessor::find;
 
-	public:
-		/// Gets the network identifier.
-		model::NetworkIdentifier networkIdentifier() const {
-			return m_networkIdentifier;
-		}
+    public:
+        /// Gets the network identifier.
+        model::NetworkIdentifier networkIdentifier() const
+        {
+            return m_networkIdentifier;
+        }
 
-	private:
-		MosaicRestrictionCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pMosaicRestrictionEntries;
-		model::NetworkIdentifier m_networkIdentifier;
-	};
+    private:
+        MosaicRestrictionCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pMosaicRestrictionEntries;
+        model::NetworkIdentifier m_networkIdentifier;
+    };
 
-	/// Delta on top of the mosaic restriction cache.
-	class MosaicRestrictionCacheDelta : public ReadOnlyViewSupplier<BasicMosaicRestrictionCacheDelta> {
-	public:
-		/// Creates a delta around \a restrictionSets and \a networkIdentifier.
-		MosaicRestrictionCacheDelta(
-				const MosaicRestrictionCacheTypes::BaseSetDeltaPointers& restrictionSets,
-				model::NetworkIdentifier networkIdentifier)
-				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier) {
-		}
-	};
-}}
+    /// Delta on top of the mosaic restriction cache.
+    class MosaicRestrictionCacheDelta : public ReadOnlyViewSupplier<BasicMosaicRestrictionCacheDelta> {
+    public:
+        /// Creates a delta around \a restrictionSets and \a networkIdentifier.
+        MosaicRestrictionCacheDelta(
+            const MosaicRestrictionCacheTypes::BaseSetDeltaPointers& restrictionSets,
+            model::NetworkIdentifier networkIdentifier)
+            : ReadOnlyViewSupplier(restrictionSets, networkIdentifier)
+        {
+        }
+    };
+}
+}

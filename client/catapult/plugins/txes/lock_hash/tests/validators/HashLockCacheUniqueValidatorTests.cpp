@@ -22,27 +22,30 @@
 #include "plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h"
 #include "tests/test/HashLockNotificationsTestUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS HashLockCacheUniqueValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(HashLockCacheUnique, )
+    DEFINE_COMMON_VALIDATOR_TESTS(HashLockCacheUnique, )
 
-	namespace {
-		struct HashCacheTraits {
-		public:
-			using DescriptorType = test::BasicHashLockInfoTestTraits;
-			using NotificationType = model::HashLockNotification;
-			using NotificationBuilder = test::HashLockNotificationBuilder;
-			using CacheFactory = test::HashLockInfoCacheFactory;
+    namespace {
+        struct HashCacheTraits {
+        public:
+            using DescriptorType = test::BasicHashLockInfoTestTraits;
+            using NotificationType = model::HashLockNotification;
+            using NotificationBuilder = test::HashLockNotificationBuilder;
+            using CacheFactory = test::HashLockInfoCacheFactory;
 
-			static constexpr auto Failure = Failure_LockHash_Hash_Already_Exists;
+            static constexpr auto Failure = Failure_LockHash_Hash_Already_Exists;
 
-			static auto CreateValidator() {
-				return CreateHashLockCacheUniqueValidator();
-			}
-		};
-	}
+            static auto CreateValidator()
+            {
+                return CreateHashLockCacheUniqueValidator();
+            }
+        };
+    }
 
-	DEFINE_CACHE_UNIQUE_TESTS(HashCacheTraits)
-}}
+    DEFINE_CACHE_UNIQUE_TESTS(HashCacheTraits)
+}
+}

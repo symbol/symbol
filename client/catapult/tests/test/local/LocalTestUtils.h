@@ -22,69 +22,71 @@
 #pragma once
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/plugins/PluginManager.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
-#include "tests/TestHarness.h"
 #include <string>
 
 namespace catapult {
 namespace cache {
-	class CatapultCache;
-	class MemoryUtCache;
-	class MemoryUtCacheProxy;
-	class MemoryUtCacheView;
-	class UtCache;
+    class CatapultCache;
+    class MemoryUtCache;
+    class MemoryUtCacheProxy;
+    class MemoryUtCacheView;
+    class UtCache;
 }
 namespace chain {
-	class UtUpdater;
+    class UtUpdater;
 }
 }
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Bit flags for configuring a LocalNode under test.
-	enum class LocalNodeFlags {
-		/// No special configuration flag is set.
-		None = 0,
+    /// Bit flags for configuring a LocalNode under test.
+    enum class LocalNodeFlags {
+        /// No special configuration flag is set.
+        None = 0,
 
-		/// Local node should harvest upon startup.
-		Should_Auto_Harvest = 2
-	};
+        /// Local node should harvest upon startup.
+        Should_Auto_Harvest = 2
+    };
 
-	/// Creates a default network time supplier for use in local tests.
-	supplier<Timestamp> CreateDefaultNetworkTimeSupplier();
+    /// Creates a default network time supplier for use in local tests.
+    supplier<Timestamp> CreateDefaultNetworkTimeSupplier();
 
-	/// Creates a prototypical blockchain configuration that is safe to use in local tests.
-	model::BlockchainConfiguration CreatePrototypicalBlockchainConfiguration();
+    /// Creates a prototypical blockchain configuration that is safe to use in local tests.
+    model::BlockchainConfiguration CreatePrototypicalBlockchainConfiguration();
 
-	/// Creates an uninitialized catapult configuration.
-	config::CatapultConfiguration CreateUninitializedCatapultConfiguration();
+    /// Creates an uninitialized catapult configuration.
+    config::CatapultConfiguration CreateUninitializedCatapultConfiguration();
 
-	/// Creates a prototypical catapult configuration that is safe to use in local tests.
-	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration();
+    /// Creates a prototypical catapult configuration that is safe to use in local tests.
+    config::CatapultConfiguration CreatePrototypicalCatapultConfiguration();
 
-	/// Creates a test catapult configuration with a storage in the specified directory (\a dataDirectory).
-	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(const std::string& dataDirectory);
+    /// Creates a test catapult configuration with a storage in the specified directory (\a dataDirectory).
+    config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(const std::string& dataDirectory);
 
-	/// Creates a test catapult configuration according to the supplied configuration (\a blockchainConfig)
-	/// with a storage in the specified directory (\a dataDirectory).
-	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(
-			model::BlockchainConfiguration&& blockchainConfig,
-			const std::string& dataDirectory);
+    /// Creates a test catapult configuration according to the supplied configuration (\a blockchainConfig)
+    /// with a storage in the specified directory (\a dataDirectory).
+    config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(
+        model::BlockchainConfiguration&& blockchainConfig,
+        const std::string& dataDirectory);
 
-	/// Creates a default unconfirmed transactions cache.
-	std::unique_ptr<cache::MemoryUtCache> CreateUtCache();
+    /// Creates a default unconfirmed transactions cache.
+    std::unique_ptr<cache::MemoryUtCache> CreateUtCache();
 
-	/// Creates a default unconfirmed transactions cache proxy.
-	std::unique_ptr<cache::MemoryUtCacheProxy> CreateUtCacheProxy();
+    /// Creates a default unconfirmed transactions cache proxy.
+    std::unique_ptr<cache::MemoryUtCacheProxy> CreateUtCacheProxy();
 
-	/// Creates a default plugin manager.
-	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManagerWithRealPlugins();
+    /// Creates a default plugin manager.
+    std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManagerWithRealPlugins();
 
-	/// Creates a plugin manager around \a config.
-	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockchainConfiguration& config);
+    /// Creates a plugin manager around \a config.
+    std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockchainConfiguration& config);
 
-	/// Creates a plugin manager around \a config.
-	/// \note This overload is the only overload that allows state verification.
-	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const config::CatapultConfiguration& config);
-}}
+    /// Creates a plugin manager around \a config.
+    /// \note This overload is the only overload that allows state verification.
+    std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const config::CatapultConfiguration& config);
+}
+}

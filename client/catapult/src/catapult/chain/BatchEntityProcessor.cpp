@@ -26,45 +26,50 @@
 
 using namespace catapult::validators;
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	namespace {
-		class DefaultBatchEntityProcessor {
-		public:
-			explicit DefaultBatchEntityProcessor(const ExecutionConfiguration& config)
-					: m_config(config) {
-			}
+    namespace {
+        class DefaultBatchEntityProcessor {
+        public:
+            explicit DefaultBatchEntityProcessor(const ExecutionConfiguration& config)
+                : m_config(config)
+            {
+            }
 
-		public:
-			ValidationResult operator()(
-					Height height,
-					Timestamp timestamp,
-					const model::WeakEntityInfos& entityInfos,
-					observers::ObserverState& state) const {
-				if (entityInfos.empty())
-					return ValidationResult::Neutral;
+        public:
+            ValidationResult operator()(
+                Height height,
+                Timestamp timestamp,
+                const model::WeakEntityInfos& entityInfos,
+                observers::ObserverState& state) const
+            {
+                if (entityInfos.empty())
+                    return ValidationResult::Neutral;
 
-				ProcessContextsBuilder contextBuilder(height, timestamp, m_config);
-				contextBuilder.setObserverState(state); // this uses contents of ObserverState to initialize the builder
-				auto validatorContext = contextBuilder.buildValidatorContext();
-				auto observerContext = contextBuilder.buildObserverContext();
+                ProcessContextsBuilder contextBuilder(height, timestamp, m_config);
+                contextBuilder.setObserverState(state); // this uses contents of ObserverState to initialize the builder
+                auto validatorContext = contextBuilder.buildValidatorContext();
+                auto observerContext = contextBuilder.buildObserverContext();
 
-				ProcessingNotificationSubscriber sub(*m_config.pValidator, validatorContext, *m_config.pObserver, observerContext);
-				for (const auto& entityInfo : entityInfos) {
-					m_config.pNotificationPublisher->publish(entityInfo, sub);
-					if (!IsValidationResultSuccess(sub.result()))
-						return sub.result();
-				}
+                ProcessingNotificationSubscriber sub(*m_config.pValidator, validatorContext, *m_config.pObserver, observerContext);
+                for (const auto& entityInfo : entityInfos) {
+                    m_config.pNotificationPublisher->publish(entityInfo, sub);
+                    if (!IsValidationResultSuccess(sub.result()))
+                        return sub.result();
+                }
 
-				return ValidationResult::Success;
-			}
+                return ValidationResult::Success;
+            }
 
-		private:
-			ExecutionConfiguration m_config;
-		};
-	}
+        private:
+            ExecutionConfiguration m_config;
+        };
+    }
 
-	BatchEntityProcessor CreateBatchEntityProcessor(const ExecutionConfiguration& config) {
-		return DefaultBatchEntityProcessor(config);
-	}
-}}
+    BatchEntityProcessor CreateBatchEntityProcessor(const ExecutionConfiguration& config)
+    {
+        return DefaultBatchEntityProcessor(config);
+    }
+}
+}

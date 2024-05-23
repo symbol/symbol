@@ -21,11 +21,14 @@
 
 #pragma once
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Checks the real size of \a entity against its reported size and returns \c true if the sizes match.
-	template<typename TEntity>
-	bool IsSizeValidT(const TEntity& entity) {
-		return entity.Size >= sizeof(TEntity) && TEntity::CalculateRealSize(entity) == entity.Size;
-	}
-}}
+    /// Checks the real size of \a entity against its reported size and returns \c true if the sizes match.
+    template <typename TEntity>
+    bool IsSizeValidT(const TEntity& entity)
+    {
+        return entity.Size >= sizeof(TEntity) && TEntity::CalculateRealSize(entity) == entity.Size;
+    }
+}
+}

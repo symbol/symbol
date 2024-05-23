@@ -21,9 +21,12 @@
 
 #include "SliceTestUtils.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	rocksdb::Slice ToSlice(const uint64_t& value) {
-		return rocksdb::Slice(reinterpret_cast<const char*>(&value), sizeof(uint64_t));
-	}
-}}
+    rocksdb::Slice ToSlice(const uint64_t& value)
+    {
+        return rocksdb::Slice(reinterpret_cast<const char*>(&value), sizeof(uint64_t));
+    }
+}
+}

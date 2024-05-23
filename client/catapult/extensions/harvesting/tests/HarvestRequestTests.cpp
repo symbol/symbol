@@ -23,60 +23,66 @@
 #include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
 #define TEST_CLASS HarvestRequestTests
 
-	TEST(TEST_CLASS, CanGetDecryptedPayloadSize) {
-		EXPECT_EQ(32u + 32, HarvestRequest::DecryptedPayloadSize());
-	}
+    TEST(TEST_CLASS, CanGetDecryptedPayloadSize)
+    {
+        EXPECT_EQ(32u + 32, HarvestRequest::DecryptedPayloadSize());
+    }
 
-	TEST(TEST_CLASS, CanGetEncryptedPayloadSize) {
-		EXPECT_EQ(32u + 16 + 12 + 32 + 32, HarvestRequest::EncryptedPayloadSize());
-		EXPECT_EQ(test::HarvestRequestEncryptedPayload::Size, HarvestRequest::EncryptedPayloadSize());
-	}
+    TEST(TEST_CLASS, CanGetEncryptedPayloadSize)
+    {
+        EXPECT_EQ(32u + 16 + 12 + 32 + 32, HarvestRequest::EncryptedPayloadSize());
+        EXPECT_EQ(test::HarvestRequestEncryptedPayload::Size, HarvestRequest::EncryptedPayloadSize());
+    }
 
-	TEST(TEST_CLASS, CanGetRequestIdentifierFromRequest) {
-		// Arrange:
-		auto expectedRequestIdentifier = test::GenerateRandomByteArray<HarvestRequestIdentifier>();
+    TEST(TEST_CLASS, CanGetRequestIdentifierFromRequest)
+    {
+        // Arrange:
+        auto expectedRequestIdentifier = test::GenerateRandomByteArray<HarvestRequestIdentifier>();
 
-		HarvestRequest request;
-		request.EncryptedPayload = RawBuffer{ expectedRequestIdentifier.data(), expectedRequestIdentifier.size() };
+        HarvestRequest request;
+        request.EncryptedPayload = RawBuffer { expectedRequestIdentifier.data(), expectedRequestIdentifier.size() };
 
-		// Act:
-		auto requestIdentifier = GetRequestIdentifier(request);
+        // Act:
+        auto requestIdentifier = GetRequestIdentifier(request);
 
-		// Assert:
-		EXPECT_EQ(expectedRequestIdentifier, requestIdentifier);
-	}
+        // Assert:
+        EXPECT_EQ(expectedRequestIdentifier, requestIdentifier);
+    }
 
-	TEST(TEST_CLASS, CanRoundtripHarvestRequest) {
-		// Arrange:
-		auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
-		auto encryptedPayload = test::GenerateRandomVector(HarvestRequest::EncryptedPayloadSize());
+    TEST(TEST_CLASS, CanRoundtripHarvestRequest)
+    {
+        // Arrange:
+        auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+        auto encryptedPayload = test::GenerateRandomVector(HarvestRequest::EncryptedPayloadSize());
 
-		HarvestRequest originalRequest;
-		originalRequest.Operation = HarvestRequestOperation::Remove;
-		originalRequest.Height = Height(753);
-		originalRequest.MainAccountPublicKey = mainAccountPublicKey;
-		originalRequest.EncryptedPayload = RawBuffer(encryptedPayload);
+        HarvestRequest originalRequest;
+        originalRequest.Operation = HarvestRequestOperation::Remove;
+        originalRequest.Height = Height(753);
+        originalRequest.MainAccountPublicKey = mainAccountPublicKey;
+        originalRequest.EncryptedPayload = RawBuffer(encryptedPayload);
 
-		// Act: serialize
-		auto buffer = SerializeHarvestRequest(originalRequest);
+        // Act: serialize
+        auto buffer = SerializeHarvestRequest(originalRequest);
 
-		// Sanity:
-		ASSERT_EQ(1u + 8 + 32 + HarvestRequest::EncryptedPayloadSize(), buffer.size());
+        // Sanity:
+        ASSERT_EQ(1u + 8 + 32 + HarvestRequest::EncryptedPayloadSize(), buffer.size());
 
-		// Act: deserialize
-		auto request = DeserializeHarvestRequest(buffer);
+        // Act: deserialize
+        auto request = DeserializeHarvestRequest(buffer);
 
-		// Assert:
-		EXPECT_EQ(HarvestRequestOperation::Remove, request.Operation);
-		EXPECT_EQ(Height(753), request.Height);
-		EXPECT_EQ(mainAccountPublicKey, request.MainAccountPublicKey);
+        // Assert:
+        EXPECT_EQ(HarvestRequestOperation::Remove, request.Operation);
+        EXPECT_EQ(Height(753), request.Height);
+        EXPECT_EQ(mainAccountPublicKey, request.MainAccountPublicKey);
 
-		ASSERT_EQ(encryptedPayload.size(), request.EncryptedPayload.Size);
-		EXPECT_NE(encryptedPayload.data(), request.EncryptedPayload.pData);
-		EXPECT_EQ_MEMORY(encryptedPayload.data(), request.EncryptedPayload.pData, encryptedPayload.size());
-	}
-}}
+        ASSERT_EQ(encryptedPayload.size(), request.EncryptedPayload.Size);
+        EXPECT_NE(encryptedPayload.data(), request.EncryptedPayload.pData);
+        EXPECT_EQ_MEMORY(encryptedPayload.data(), request.EncryptedPayload.pData, encryptedPayload.size());
+    }
+}
+}

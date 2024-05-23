@@ -19,28 +19,34 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/TimeSynchronizationConfiguration.h"
 #include "src/TimeSynchronizationService.h"
 #include "src/TimeSynchronizationState.h"
 #include "src/constants.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace timesync { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		auto& extensionManager = bootstrapper.extensionManager();
+namespace catapult {
+namespace timesync {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            auto& extensionManager = bootstrapper.extensionManager();
 
-		// register network time provider
-		auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(
-				bootstrapper.config().Blockchain.Network.EpochAdjustment,
-				Clock_Adjustment_Threshold);
-		extensionManager.setNetworkTimeSupplier([&timeSyncState = *pTimeSyncState]() { return timeSyncState.networkTime(); });
+            // register network time provider
+            auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(
+                bootstrapper.config().Blockchain.Network.EpochAdjustment,
+                Clock_Adjustment_Threshold);
+            extensionManager.setNetworkTimeSupplier([&timeSyncState = *pTimeSyncState]() { return timeSyncState.networkTime(); });
 
-		// register service(s)
-		auto config = TimeSynchronizationConfiguration::LoadFromPath(bootstrapper.resourcesPath());
-		extensionManager.addServiceRegistrar(CreateTimeSynchronizationServiceRegistrar(config, pTimeSyncState));
-	}
-}}}
+            // register service(s)
+            auto config = TimeSynchronizationConfiguration::LoadFromPath(bootstrapper.resourcesPath());
+            extensionManager.addServiceRegistrar(CreateTimeSynchronizationServiceRegistrar(config, pTimeSyncState));
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::timesync::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::timesync::RegisterExtension(bootstrapper);
 }

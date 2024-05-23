@@ -22,100 +22,107 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/io/FileQueue.h"
+#include "tests/TestHarness.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
-#include "tests/TestHarness.h"
 #include <filesystem>
 
-namespace catapult { namespace consumers {
+namespace catapult {
+namespace consumers {
 
 #define TEST_CLASS BlockchainSyncCleanupConsumerTests
 
-	namespace {
-		static constexpr auto Index_Writer_Filename = "index_server.dat";
-		static constexpr auto Index_Reader_Filename = "index_server_r.dat";
+    namespace {
+        static constexpr auto Index_Writer_Filename = "index_server.dat";
+        static constexpr auto Index_Reader_Filename = "index_server_r.dat";
 
-		uint64_t ReadIndexFileValue(const std::filesystem::path& indexFilePath) {
-			return io::IndexFile(indexFilePath.generic_string()).get();
-		}
+        uint64_t ReadIndexFileValue(const std::filesystem::path& indexFilePath)
+        {
+            return io::IndexFile(indexFilePath.generic_string()).get();
+        }
 
-		void ProduceThreeStateChangeMessages(const std::filesystem::path& stateChangeDirectory) {
-			// Arrange: write three files
-			io::FileQueueWriter writer(stateChangeDirectory.generic_string(), Index_Writer_Filename);
-			for (auto i = 0u; i < 3; ++i) {
-				writer.write(test::GenerateRandomVector(12 + i));
-				writer.flush();
-			}
+        void ProduceThreeStateChangeMessages(const std::filesystem::path& stateChangeDirectory)
+        {
+            // Arrange: write three files
+            io::FileQueueWriter writer(stateChangeDirectory.generic_string(), Index_Writer_Filename);
+            for (auto i = 0u; i < 3; ++i) {
+                writer.write(test::GenerateRandomVector(12 + i));
+                writer.flush();
+            }
 
-			// Sanity:
-			EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
-			EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
-			EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
+            // Sanity:
+            EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
+            EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
+            EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
 
-			EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
-			EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / Index_Reader_Filename));
-		}
-	}
+            EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
+            EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / Index_Reader_Filename));
+        }
+    }
 
-	TEST(TEST_CLASS, ConsumerHasNoEffectWhenStateChangeDirectoryDoesNotExist) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto dataDirectory = config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
+    TEST(TEST_CLASS, ConsumerHasNoEffectWhenStateChangeDirectoryDoesNotExist)
+    {
+        // Arrange:
+        test::TempDirectoryGuard tempDir;
+        auto dataDirectory = config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
 
-		// Act:
-		auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
+        // Act:
+        auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
 
-		// Assert:
-		test::AssertContinued(result);
-	}
+        // Assert:
+        test::AssertContinued(result);
+    }
 
-	TEST(TEST_CLASS, ConsumerDeletesOldestStateChangeMessages) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto dataDirectory = config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
-		auto stateChangeDirectory = dataDirectory.spoolDir("state_change").path();
-		ProduceThreeStateChangeMessages(stateChangeDirectory);
+    TEST(TEST_CLASS, ConsumerDeletesOldestStateChangeMessages)
+    {
+        // Arrange:
+        test::TempDirectoryGuard tempDir;
+        auto dataDirectory = config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
+        auto stateChangeDirectory = dataDirectory.spoolDir("state_change").path();
+        ProduceThreeStateChangeMessages(stateChangeDirectory);
 
-		// Act:
-		auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
+        // Act:
+        auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
 
-		// Assert:
-		test::AssertContinued(result);
+        // Assert:
+        test::AssertContinued(result);
 
-		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
-		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
-		EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
+        EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
+        EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
+        EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
 
-		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
-		EXPECT_EQ(2u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));
-	}
+        EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
+        EXPECT_EQ(2u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));
+    }
 
-	TEST(TEST_CLASS, ConsumerHasNoEffectWhenAllStateChangeMessagesHavePreviouslyBeenConsumed) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto dataDirectory = config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
-		auto stateChangeDirectory = dataDirectory.spoolDir("state_change").path();
-		ProduceThreeStateChangeMessages(stateChangeDirectory);
+    TEST(TEST_CLASS, ConsumerHasNoEffectWhenAllStateChangeMessagesHavePreviouslyBeenConsumed)
+    {
+        // Arrange:
+        test::TempDirectoryGuard tempDir;
+        auto dataDirectory = config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
+        auto stateChangeDirectory = dataDirectory.spoolDir("state_change").path();
+        ProduceThreeStateChangeMessages(stateChangeDirectory);
 
-		io::FileQueueReader reader(stateChangeDirectory.generic_string(), Index_Reader_Filename, Index_Writer_Filename);
-		for (auto i = 0u; i < 3; ++i)
-			reader.tryReadNextMessage([](const auto&) {});
+        io::FileQueueReader reader(stateChangeDirectory.generic_string(), Index_Reader_Filename, Index_Writer_Filename);
+        for (auto i = 0u; i < 3; ++i)
+            reader.tryReadNextMessage([](const auto&) {});
 
-		// Sanity:
-		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
-		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));
+        // Sanity:
+        EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
+        EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));
 
-		// Act:
-		auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
+        // Act:
+        auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
 
-		// Assert:
-		test::AssertContinued(result);
+        // Assert:
+        test::AssertContinued(result);
 
-		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
-		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
-		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
+        EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
+        EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
+        EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
 
-		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
-		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));
-	}
-}}
+        EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
+        EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));
+    }
+}
+}

@@ -24,37 +24,40 @@
 #include "MosaicTypes.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a mosaic supply change transaction body.
-	template<typename THeader>
-	struct MosaicSupplyChangeTransactionBody : public THeader {
-	private:
-		using TransactionType = MosaicSupplyChangeTransactionBody<THeader>;
+    /// Binary layout for a mosaic supply change transaction body.
+    template <typename THeader>
+    struct MosaicSupplyChangeTransactionBody : public THeader {
+    private:
+        using TransactionType = MosaicSupplyChangeTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Supply_Change, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Supply_Change, 1)
 
-	public:
-		/// Affected mosaic identifier.
-		UnresolvedMosaicId MosaicId;
+    public:
+        /// Affected mosaic identifier.
+        UnresolvedMosaicId MosaicId;
 
-		/// Change amount.
-		Amount Delta;
+        /// Change amount.
+        Amount Delta;
 
-		/// Supply change action.
-		MosaicSupplyChangeAction Action;
+        /// Supply change action.
+        MosaicSupplyChangeAction Action;
 
-	public:
-		/// Calculates the real size of a mosaic supply change \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+    public:
+        /// Calculates the real size of a mosaic supply change \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
+        {
+            return sizeof(TransactionType);
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(MosaicSupplyChange)
+    DEFINE_EMBEDDABLE_TRANSACTION(MosaicSupplyChange)
 
 #pragma pack(pop)
-}}
+}
+}

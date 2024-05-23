@@ -20,26 +20,29 @@
 **/
 
 #include "Observers.h"
-#include "src/importance/ActivityObserverUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheUtils.h"
+#include "src/importance/ActivityObserverUtils.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	namespace {
-		void UpdateBeneficiaryActivity(const Address& address, ObserverContext& context) {
-			auto& cache = context.Cache.sub<cache::AccountStateCache>();
-			cache::ProcessForwardedAccountState(cache, address, [&context](auto& accountState) {
-				importance::UpdateActivity(
-						accountState.Address,
-						context,
-						[](auto& bucket) { ++bucket.BeneficiaryCount; },
-						[](auto& bucket) { --bucket.BeneficiaryCount; });
-			});
-		}
-	}
+    namespace {
+        void UpdateBeneficiaryActivity(const Address& address, ObserverContext& context)
+        {
+            auto& cache = context.Cache.sub<cache::AccountStateCache>();
+            cache::ProcessForwardedAccountState(cache, address, [&context](auto& accountState) {
+                importance::UpdateActivity(
+                    accountState.Address,
+                    context,
+                    [](auto& bucket) { ++bucket.BeneficiaryCount; },
+                    [](auto& bucket) { --bucket.BeneficiaryCount; });
+            });
+        }
+    }
 
-	DEFINE_OBSERVER(Beneficiary, model::BlockNotification, ([](const model::BlockNotification& notification, ObserverContext& context) {
-						UpdateBeneficiaryActivity(notification.Beneficiary, context);
-					}))
-}}
+    DEFINE_OBSERVER(Beneficiary, model::BlockNotification, ([](const model::BlockNotification& notification, ObserverContext& context) {
+        UpdateBeneficiaryActivity(notification.Beneficiary, context);
+    }))
+}
+}

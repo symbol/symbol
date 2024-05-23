@@ -22,7 +22,8 @@
 #include "ChainComparisonCode.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
 #define DEFINE_ENUM ChainComparisonCode
 #define EXPLICIT_VALUE_ENUM
@@ -32,11 +33,14 @@ namespace catapult { namespace chain {
 #undef EXPLICIT_VALUE_ENUM
 #undef DEFINE_ENUM
 
-	bool IsRemoteOutOfSync(ChainComparisonCode code) {
-		return 0 != (Remote_Is_Out_Of_Sync_Flag & utils::to_underlying_type(code));
-	}
+    bool IsRemoteOutOfSync(ChainComparisonCode code)
+    {
+        return 0 != (Remote_Is_Out_Of_Sync_Flag & utils::to_underlying_type(code));
+    }
 
-	bool IsRemoteEvil(ChainComparisonCode code) {
-		return 0 != (Remote_Is_Evil_Flag & utils::to_underlying_type(code));
-	}
-}}
+    bool IsRemoteEvil(ChainComparisonCode code)
+    {
+        return 0 != (Remote_Is_Evil_Flag & utils::to_underlying_type(code));
+    }
+}
+}

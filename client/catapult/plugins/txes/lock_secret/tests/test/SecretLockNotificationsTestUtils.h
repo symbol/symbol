@@ -25,101 +25,116 @@
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Secret lock notification builder.
-	struct SecretLockNotificationBuilder {
-	public:
-		/// Creates secret lock notification builder.
-		SecretLockNotificationBuilder() {
-			FillWithRandomData({ reinterpret_cast<uint8_t*>(this), sizeof(SecretLockNotificationBuilder) });
-		}
+    /// Secret lock notification builder.
+    struct SecretLockNotificationBuilder {
+    public:
+        /// Creates secret lock notification builder.
+        SecretLockNotificationBuilder()
+        {
+            FillWithRandomData({ reinterpret_cast<uint8_t*>(this), sizeof(SecretLockNotificationBuilder) });
+        }
 
-		/// Creates secret lock notification builder with \a lockHashAlgorithm.
-		explicit SecretLockNotificationBuilder(model::LockHashAlgorithm lockHashAlgorithm)
-				: SecretLockNotificationBuilder() {
-			m_hashAlgorithm = lockHashAlgorithm;
-		}
+        /// Creates secret lock notification builder with \a lockHashAlgorithm.
+        explicit SecretLockNotificationBuilder(model::LockHashAlgorithm lockHashAlgorithm)
+            : SecretLockNotificationBuilder()
+        {
+            m_hashAlgorithm = lockHashAlgorithm;
+        }
 
-		/// Creates a notification.
-		auto notification() {
-			return model::SecretLockNotification(m_owner, m_mosaic, m_duration, m_hashAlgorithm, m_secret, m_recipient);
-		}
+        /// Creates a notification.
+        auto notification()
+        {
+            return model::SecretLockNotification(m_owner, m_mosaic, m_duration, m_hashAlgorithm, m_secret, m_recipient);
+        }
 
-		/// Prepares the builder using \a lockInfo.
-		void prepare(const state::SecretLockInfo& lockInfo) {
-			m_secret = lockInfo.Secret;
-			m_recipient = test::UnresolveXor(lockInfo.RecipientAddress);
-		}
+        /// Prepares the builder using \a lockInfo.
+        void prepare(const state::SecretLockInfo& lockInfo)
+        {
+            m_secret = lockInfo.Secret;
+            m_recipient = test::UnresolveXor(lockInfo.RecipientAddress);
+        }
 
-	private:
-		Address m_owner;
-		model::UnresolvedMosaic m_mosaic;
-		BlockDuration m_duration;
-		model::LockHashAlgorithm m_hashAlgorithm;
-		Hash256 m_secret;
-		UnresolvedAddress m_recipient;
-	};
+    private:
+        Address m_owner;
+        model::UnresolvedMosaic m_mosaic;
+        BlockDuration m_duration;
+        model::LockHashAlgorithm m_hashAlgorithm;
+        Hash256 m_secret;
+        UnresolvedAddress m_recipient;
+    };
 
-	/// Proof notification builder.
-	struct ProofNotificationBuilder {
-	public:
-		/// Creates a proof notification builder.
-		ProofNotificationBuilder()
-				: ProofNotificationBuilder(test::GenerateRandomValue<Height>()) {
-		}
+    /// Proof notification builder.
+    struct ProofNotificationBuilder {
+    public:
+        /// Creates a proof notification builder.
+        ProofNotificationBuilder()
+            : ProofNotificationBuilder(test::GenerateRandomValue<Height>())
+        {
+        }
 
-		/// Creates a proof notification builder around \a notificationHeight.
-		explicit ProofNotificationBuilder(Height notificationHeight)
-				: m_notificationHeight(notificationHeight)
-				, m_algorithm(model::LockHashAlgorithm::Op_Sha3_256) {
-			test::FillWithRandomData(m_owner);
-			test::FillWithRandomData(m_secret);
-			test::FillWithRandomData(m_recipient);
-		}
+        /// Creates a proof notification builder around \a notificationHeight.
+        explicit ProofNotificationBuilder(Height notificationHeight)
+            : m_notificationHeight(notificationHeight)
+            , m_algorithm(model::LockHashAlgorithm::Op_Sha3_256)
+        {
+            test::FillWithRandomData(m_owner);
+            test::FillWithRandomData(m_secret);
+            test::FillWithRandomData(m_recipient);
+        }
 
-	public:
-		/// Creates a notification.
-		auto notification() const {
-			return model::ProofPublicationNotification(m_owner, m_algorithm, m_secret, m_recipient);
-		}
+    public:
+        /// Creates a notification.
+        auto notification() const
+        {
+            return model::ProofPublicationNotification(m_owner, m_algorithm, m_secret, m_recipient);
+        }
 
-		/// Sets the notification \a height.
-		void setHeight(Height height) {
-			m_notificationHeight = height;
-		}
+        /// Sets the notification \a height.
+        void setHeight(Height height)
+        {
+            m_notificationHeight = height;
+        }
 
-		/// Sets the notification \a algorithm.
-		void setAlgorithm(model::LockHashAlgorithm algorithm) {
-			m_algorithm = algorithm;
-		}
+        /// Sets the notification \a algorithm.
+        void setAlgorithm(model::LockHashAlgorithm algorithm)
+        {
+            m_algorithm = algorithm;
+        }
 
-		/// Prepares the builder using \a lockInfo.
-		void prepare(const state::SecretLockInfo& lockInfo) {
-			m_secret = lockInfo.Secret;
-			m_recipient = test::UnresolveXor(lockInfo.RecipientAddress);
-		}
+        /// Prepares the builder using \a lockInfo.
+        void prepare(const state::SecretLockInfo& lockInfo)
+        {
+            m_secret = lockInfo.Secret;
+            m_recipient = test::UnresolveXor(lockInfo.RecipientAddress);
+        }
 
-		/// Gets the notification height.
-		auto notificationHeight() const {
-			return m_notificationHeight;
-		}
+        /// Gets the notification height.
+        auto notificationHeight() const
+        {
+            return m_notificationHeight;
+        }
 
-		/// Gets the notification hash.
-		const auto& hash() const {
-			return m_secret;
-		}
+        /// Gets the notification hash.
+        const auto& hash() const
+        {
+            return m_secret;
+        }
 
-		/// Gets the notification recipient.
-		const auto& recipient() const {
-			return m_recipient;
-		}
+        /// Gets the notification recipient.
+        const auto& recipient() const
+        {
+            return m_recipient;
+        }
 
-	private:
-		Height m_notificationHeight;
-		model::LockHashAlgorithm m_algorithm;
-		Address m_owner;
-		Hash256 m_secret;
-		UnresolvedAddress m_recipient;
-	};
-}}
+    private:
+        Height m_notificationHeight;
+        model::LockHashAlgorithm m_algorithm;
+        Address m_owner;
+        Hash256 m_secret;
+        UnresolvedAddress m_recipient;
+    };
+}
+}

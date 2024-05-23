@@ -23,20 +23,23 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/FilesystemUtils.h"
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	void RepairImportance(const config::CatapultDataDirectory& dataDirectory, consumers::CommitOperationStep commitStep) {
-		auto importanceDirectory = dataDirectory.dir("importance");
-		auto importanceWipDirectory = importanceDirectory.dir("wip");
-		if (consumers::CommitOperationStep::State_Written != commitStep) {
-			// importance/wip files should be purged if state hasn't been fully written
-			CATAPULT_LOG(debug) << " - purging " << importanceWipDirectory.str();
-			io::PurgeDirectory(importanceWipDirectory.str());
-			return;
-		} else {
-			// otherwise, copy importance/wip files to commit them
-			CATAPULT_LOG(debug) << " - committing " << importanceWipDirectory.str();
-			io::MoveAllFiles(importanceWipDirectory.str(), importanceDirectory.str());
-		}
-	}
-}}
+    void RepairImportance(const config::CatapultDataDirectory& dataDirectory, consumers::CommitOperationStep commitStep)
+    {
+        auto importanceDirectory = dataDirectory.dir("importance");
+        auto importanceWipDirectory = importanceDirectory.dir("wip");
+        if (consumers::CommitOperationStep::State_Written != commitStep) {
+            // importance/wip files should be purged if state hasn't been fully written
+            CATAPULT_LOG(debug) << " - purging " << importanceWipDirectory.str();
+            io::PurgeDirectory(importanceWipDirectory.str());
+            return;
+        } else {
+            // otherwise, copy importance/wip files to commit them
+            CATAPULT_LOG(debug) << " - committing " << importanceWipDirectory.str();
+            io::MoveAllFiles(importanceWipDirectory.str(), importanceDirectory.str());
+        }
+    }
+}
+}

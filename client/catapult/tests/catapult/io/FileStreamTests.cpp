@@ -20,42 +20,49 @@
 **/
 
 #include "catapult/io/FileStream.h"
+#include "tests/TestHarness.h"
 #include "tests/catapult/io/test/StreamTests.h"
 #include "tests/test/nodeps/Filesystem.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
 #define TEST_CLASS FileStreamTests
 
-	namespace {
-		class FileStreamContext {
-		public:
-			explicit FileStreamContext(const char* name)
-					: m_guard(name) {
-			}
+    namespace {
+        class FileStreamContext {
+        public:
+            explicit FileStreamContext(const char* name)
+                : m_guard(name)
+            {
+            }
 
-			auto outputStream() const {
-				return MakeStream(OpenMode::Read_Write);
-			}
+            auto outputStream() const
+            {
+                return MakeStream(OpenMode::Read_Write);
+            }
 
-			auto inputStream() const {
-				return MakeStream(OpenMode::Read_Only);
-			}
+            auto inputStream() const
+            {
+                return MakeStream(OpenMode::Read_Only);
+            }
 
-			std::string filename() const {
-				return m_guard.name();
-			}
+            std::string filename() const
+            {
+                return m_guard.name();
+            }
 
-		private:
-			std::unique_ptr<FileStream> MakeStream(OpenMode mode) const {
-				return std::make_unique<FileStream>(RawFile(filename(), mode));
-			}
+        private:
+            std::unique_ptr<FileStream> MakeStream(OpenMode mode) const
+            {
+                return std::make_unique<FileStream>(RawFile(filename(), mode));
+            }
 
-		private:
-			test::TempFileGuard m_guard;
-		};
-	}
+        private:
+            test::TempFileGuard m_guard;
+        };
+    }
 
-	DEFINE_SEEKABLE_STREAM_TESTS(FileStreamContext)
-}}
+    DEFINE_SEEKABLE_STREAM_TESTS(FileStreamContext)
+}
+}

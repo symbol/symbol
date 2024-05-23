@@ -20,68 +20,75 @@
 **/
 
 #include "catapult/config/CatapultKeys.h"
+#include "tests/TestHarness.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
 #define TEST_CLASS CatapultKeysTests
 
-	TEST(TEST_CLASS, CanCreateEmpty) {
-		// Act:
-		CatapultKeys keys;
+    TEST(TEST_CLASS, CanCreateEmpty)
+    {
+        // Act:
+        CatapultKeys keys;
 
-		// Assert:
-		EXPECT_EQ(Key(), keys.caPublicKey());
-		EXPECT_EQ(crypto::KeyPair::FromPrivate(crypto::PrivateKey()).publicKey(), keys.nodeKeyPair().publicKey());
-	}
+        // Assert:
+        EXPECT_EQ(Key(), keys.caPublicKey());
+        EXPECT_EQ(crypto::KeyPair::FromPrivate(crypto::PrivateKey()).publicKey(), keys.nodeKeyPair().publicKey());
+    }
 
-	TEST(TEST_CLASS, CanCreateFromComponentKeys) {
-		// Arrange:
-		auto caPublicKey = test::GenerateRandomByteArray<Key>();
-		auto nodeKeyPair = test::GenerateKeyPair();
+    TEST(TEST_CLASS, CanCreateFromComponentKeys)
+    {
+        // Arrange:
+        auto caPublicKey = test::GenerateRandomByteArray<Key>();
+        auto nodeKeyPair = test::GenerateKeyPair();
 
-		// Act:
-		CatapultKeys keys(Key(caPublicKey), test::CopyKeyPair(nodeKeyPair));
+        // Act:
+        CatapultKeys keys(Key(caPublicKey), test::CopyKeyPair(nodeKeyPair));
 
-		// Assert:
-		EXPECT_EQ(caPublicKey, keys.caPublicKey());
-		EXPECT_EQ(nodeKeyPair.publicKey(), keys.nodeKeyPair().publicKey());
-	}
+        // Assert:
+        EXPECT_EQ(caPublicKey, keys.caPublicKey());
+        EXPECT_EQ(nodeKeyPair.publicKey(), keys.nodeKeyPair().publicKey());
+    }
 
-	TEST(TEST_CLASS, CanCreateFromUserConfiguration) {
-		// Arrange:
-		test::TempDirectoryGuard directoryGuard;
-		auto caKeyPair = test::GenerateKeyPair();
-		auto nodeKeyPair = test::GenerateKeyPair();
+    TEST(TEST_CLASS, CanCreateFromUserConfiguration)
+    {
+        // Arrange:
+        test::TempDirectoryGuard directoryGuard;
+        auto caKeyPair = test::GenerateKeyPair();
+        auto nodeKeyPair = test::GenerateKeyPair();
 
-		test::PemCertificate pemCertificate(caKeyPair, nodeKeyPair);
-		test::GenerateCertificateDirectory(directoryGuard.name(), pemCertificate);
+        test::PemCertificate pemCertificate(caKeyPair, nodeKeyPair);
+        test::GenerateCertificateDirectory(directoryGuard.name(), pemCertificate);
 
-		// Act:
-		CatapultKeys keys(directoryGuard.name());
+        // Act:
+        CatapultKeys keys(directoryGuard.name());
 
-		// Assert:
-		EXPECT_EQ(caKeyPair.publicKey(), keys.caPublicKey());
-		EXPECT_EQ(nodeKeyPair.publicKey(), keys.nodeKeyPair().publicKey());
-	}
+        // Assert:
+        EXPECT_EQ(caKeyPair.publicKey(), keys.caPublicKey());
+        EXPECT_EQ(nodeKeyPair.publicKey(), keys.nodeKeyPair().publicKey());
+    }
 
-	TEST(TEST_CLASS, GetCaPublicKeyPemFilename_ReturnsCorrectFilename) {
-		// Act:
-		auto filename = GetCaPublicKeyPemFilename("xyz");
+    TEST(TEST_CLASS, GetCaPublicKeyPemFilename_ReturnsCorrectFilename)
+    {
+        // Act:
+        auto filename = GetCaPublicKeyPemFilename("xyz");
 
-		// Assert:
-		EXPECT_EQ("xyz/ca.pubkey.pem", filename);
-	}
+        // Assert:
+        EXPECT_EQ("xyz/ca.pubkey.pem", filename);
+    }
 
-	TEST(TEST_CLASS, GetNodePrivateKeyPemFilename_ReturnsCorrectFilename) {
-		// Act:
-		auto filename = GetNodePrivateKeyPemFilename("xyz");
+    TEST(TEST_CLASS, GetNodePrivateKeyPemFilename_ReturnsCorrectFilename)
+    {
+        // Act:
+        auto filename = GetNodePrivateKeyPemFilename("xyz");
 
-		// Assert:
-		EXPECT_EQ("xyz/node.key.pem", filename);
-	}
-}}
+        // Assert:
+        EXPECT_EQ("xyz/node.key.pem", filename);
+    }
+}
+}

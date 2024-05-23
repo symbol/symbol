@@ -19,92 +19,100 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NemesisNotificationPublisher.h"
 #include "catapult/model/BlockchainConfiguration.h"
+#include "catapult/model/NemesisNotificationPublisher.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationPublisher.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS NemesisNotificationPublisherTests
 
-	// region ExtractNemesisNotificationPublisherOptions
+    // region ExtractNemesisNotificationPublisherOptions
 
-	TEST(TEST_CLASS, ExtractNemesisNotificationPublisherOptions_CanExtractWhenHarvestNetworkFeesAreDisabled) {
-		// Arrange:
-		auto config = BlockchainConfiguration::Uninitialized();
-		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
+    TEST(TEST_CLASS, ExtractNemesisNotificationPublisherOptions_CanExtractWhenHarvestNetworkFeesAreDisabled)
+    {
+        // Arrange:
+        auto config = BlockchainConfiguration::Uninitialized();
+        test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
 
-		// Act:
-		auto options = ExtractNemesisNotificationPublisherOptions(config);
+        // Act:
+        auto options = ExtractNemesisNotificationPublisherOptions(config);
 
-		// Assert:
-		EXPECT_EQ(0u, options.SpecialAccountAddresses.size());
-	}
+        // Assert:
+        EXPECT_EQ(0u, options.SpecialAccountAddresses.size());
+    }
 
-	TEST(TEST_CLASS, ExtractNemesisNotificationPublisherOptions_CanExtractWhenHarvestNetworkFeesAreEnabled) {
-		// Arrange:
-		auto config = BlockchainConfiguration::Uninitialized();
-		config.HarvestNetworkPercentage = 15;
-		config.ForkHeights.TreasuryReissuance = Height(100);
-		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
-		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddressV1);
+    TEST(TEST_CLASS, ExtractNemesisNotificationPublisherOptions_CanExtractWhenHarvestNetworkFeesAreEnabled)
+    {
+        // Arrange:
+        auto config = BlockchainConfiguration::Uninitialized();
+        config.HarvestNetworkPercentage = 15;
+        config.ForkHeights.TreasuryReissuance = Height(100);
+        test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
+        test::FillWithRandomData(config.HarvestNetworkFeeSinkAddressV1);
 
-		// Act:
-		auto options = ExtractNemesisNotificationPublisherOptions(config);
+        // Act:
+        auto options = ExtractNemesisNotificationPublisherOptions(config);
 
-		// Assert:
-		EXPECT_EQ(1u, options.SpecialAccountAddresses.size());
-		EXPECT_EQ(AddressSet{ config.HarvestNetworkFeeSinkAddressV1 }, options.SpecialAccountAddresses);
-	}
+        // Assert:
+        EXPECT_EQ(1u, options.SpecialAccountAddresses.size());
+        EXPECT_EQ(AddressSet { config.HarvestNetworkFeeSinkAddressV1 }, options.SpecialAccountAddresses);
+    }
 
-	// endregion
+    // endregion
 
-	// region CreateNemesisNotificationPublisher
+    // region CreateNemesisNotificationPublisher
 
-	namespace {
-		void RunNemesisNotificationPublisherTest(const AddressSet& specialAccountAddresses) {
-			// Arrange:
-			NemesisNotificationPublisherOptions options;
-			options.SpecialAccountAddresses = specialAccountAddresses;
+    namespace {
+        void RunNemesisNotificationPublisherTest(const AddressSet& specialAccountAddresses)
+        {
+            // Arrange:
+            NemesisNotificationPublisherOptions options;
+            options.SpecialAccountAddresses = specialAccountAddresses;
 
-			auto pMockPublisher = std::make_unique<mocks::MockNotificationPublisher>();
-			auto pMockPublisherRaw = pMockPublisher.get();
-			auto pPublisher = CreateNemesisNotificationPublisher(std::move(pMockPublisher), options);
+            auto pMockPublisher = std::make_unique<mocks::MockNotificationPublisher>();
+            auto pMockPublisherRaw = pMockPublisher.get();
+            auto pPublisher = CreateNemesisNotificationPublisher(std::move(pMockPublisher), options);
 
-			auto pMockSubscriber = std::make_unique<mocks::MockNotificationSubscriber>();
+            auto pMockSubscriber = std::make_unique<mocks::MockNotificationSubscriber>();
 
-			// Act:
-			pPublisher->publish(WeakEntityInfo(), *pMockSubscriber);
+            // Act:
+            pPublisher->publish(WeakEntityInfo(), *pMockSubscriber);
 
-			// Assert: underlying publisher was called
-			EXPECT_EQ(1u, pMockPublisherRaw->numPublishCalls());
+            // Assert: underlying publisher was called
+            EXPECT_EQ(1u, pMockPublisherRaw->numPublishCalls());
 
-			// - one notification was added for each special account
-			EXPECT_EQ(specialAccountAddresses.size(), pMockSubscriber->numNotifications());
-			EXPECT_EQ(
-					std::vector<NotificationType>(specialAccountAddresses.size(), Core_Register_Account_Address_Notification),
-					pMockSubscriber->notificationTypes());
+            // - one notification was added for each special account
+            EXPECT_EQ(specialAccountAddresses.size(), pMockSubscriber->numNotifications());
+            EXPECT_EQ(
+                std::vector<NotificationType>(specialAccountAddresses.size(), Core_Register_Account_Address_Notification),
+                pMockSubscriber->notificationTypes());
 
-			for (const auto& address : specialAccountAddresses)
-				EXPECT_TRUE(pMockSubscriber->contains(address));
-		}
-	}
+            for (const auto& address : specialAccountAddresses)
+                EXPECT_TRUE(pMockSubscriber->contains(address));
+        }
+    }
 
-	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithZeroSpecialAccounts) {
-		RunNemesisNotificationPublisherTest({});
-	}
+    TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithZeroSpecialAccounts)
+    {
+        RunNemesisNotificationPublisherTest({});
+    }
 
-	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithSingleSpecialAccount) {
-		RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>() });
-	}
+    TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithSingleSpecialAccount)
+    {
+        RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>() });
+    }
 
-	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithMultipleSpecialAccounts) {
-		RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>(),
-											  test::GenerateRandomByteArray<Address>(),
-											  test::GenerateRandomByteArray<Address>() });
-	}
+    TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithMultipleSpecialAccounts)
+    {
+        RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>(),
+            test::GenerateRandomByteArray<Address>(),
+            test::GenerateRandomByteArray<Address>() });
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

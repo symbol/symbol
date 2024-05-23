@@ -21,39 +21,46 @@
 
 #include "addressextraction/src/AddressExtractionPtChangeSubscriber.h"
 #include "addressextraction/tests/test/AddressExtractionSubscriberTestContext.h"
-#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/TransactionTestUtils.h"
 
-namespace catapult { namespace addressextraction {
+namespace catapult {
+namespace addressextraction {
 
 #define TEST_CLASS AddressExtractionPtChangeSubscriberTests
 
-	namespace {
-		class TestContext : public test::AddressExtractionSubscriberTestContext<cache::PtChangeSubscriber> {
-		public:
-			TestContext()
-					: AddressExtractionSubscriberTestContext(CreateAddressExtractionPtChangeSubscriber) {
-			}
-		};
-	}
+    namespace {
+        class TestContext : public test::AddressExtractionSubscriberTestContext<cache::PtChangeSubscriber> {
+        public:
+            TestContext()
+                : AddressExtractionSubscriberTestContext(CreateAddressExtractionPtChangeSubscriber)
+            {
+            }
+        };
+    }
 
-	TEST(TEST_CLASS, NotifyAddPartialsExtractsTransactionAddresses) {
-		TestContext().assertTransactionInfosExtractions(
-				[](auto& subscriber, const auto& transactionInfos) { subscriber.notifyAddPartials(transactionInfos); });
-	}
+    TEST(TEST_CLASS, NotifyAddPartialsExtractsTransactionAddresses)
+    {
+        TestContext().assertTransactionInfosExtractions(
+            [](auto& subscriber, const auto& transactionInfos) { subscriber.notifyAddPartials(transactionInfos); });
+    }
 
-	TEST(TEST_CLASS, NotifyAddCosignatureExtractsTransactionAddresses) {
-		TestContext().assertTransactionInfoExtractions([](auto& subscriber, const auto& transactionInfo) {
-			subscriber.notifyAddCosignature(transactionInfo, test::CreateRandomDetachedCosignature());
-		});
-	}
+    TEST(TEST_CLASS, NotifyAddCosignatureExtractsTransactionAddresses)
+    {
+        TestContext().assertTransactionInfoExtractions([](auto& subscriber, const auto& transactionInfo) {
+            subscriber.notifyAddCosignature(transactionInfo, test::CreateRandomDetachedCosignature());
+        });
+    }
 
-	TEST(TEST_CLASS, NotifyRemovePartialsExtractsTransactionAddresses) {
-		TestContext().assertTransactionInfosExtractions(
-				[](auto& subscriber, const auto& transactionInfos) { subscriber.notifyRemovePartials(transactionInfos); });
-	}
+    TEST(TEST_CLASS, NotifyRemovePartialsExtractsTransactionAddresses)
+    {
+        TestContext().assertTransactionInfosExtractions(
+            [](auto& subscriber, const auto& transactionInfos) { subscriber.notifyRemovePartials(transactionInfos); });
+    }
 
-	TEST(TEST_CLASS, FlushDoesNotExtractTransactionAddresses) {
-		TestContext().assertNoExtractions([](auto& subscriber) { subscriber.flush(); });
-	}
-}}
+    TEST(TEST_CLASS, FlushDoesNotExtractTransactionAddresses)
+    {
+        TestContext().assertNoExtractions([](auto& subscriber) { subscriber.flush(); });
+    }
+}
+}

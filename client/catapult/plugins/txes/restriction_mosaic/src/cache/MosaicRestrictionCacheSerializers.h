@@ -21,12 +21,14 @@
 
 #pragma once
 #include "MosaicRestrictionCacheTypes.h"
-#include "src/state/MosaicRestrictionEntrySerializer.h"
 #include "catapult/cache/CacheSerializerAdapter.h"
+#include "src/state/MosaicRestrictionEntrySerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Primary serializer for mosaic restriction cache.
-	struct MosaicRestrictionEntryPrimarySerializer
-			: public CacheSerializerAdapter<state::MosaicRestrictionEntrySerializer, MosaicRestrictionCacheDescriptor> {};
-}}
+    /// Primary serializer for mosaic restriction cache.
+    struct MosaicRestrictionEntryPrimarySerializer
+        : public CacheSerializerAdapter<state::MosaicRestrictionEntrySerializer, MosaicRestrictionCacheDescriptor> { };
+}
+}

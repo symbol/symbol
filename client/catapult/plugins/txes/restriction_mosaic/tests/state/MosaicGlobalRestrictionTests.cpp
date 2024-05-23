@@ -22,151 +22,163 @@
 #include "src/state/MosaicGlobalRestriction.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS MosaicGlobalRestrictionTests
 
-	// region ctor
+    // region ctor
 
-	TEST(TEST_CLASS, CanCreateRestriction) {
-		// Act:
-		MosaicGlobalRestriction restriction(MosaicId(123));
+    TEST(TEST_CLASS, CanCreateRestriction)
+    {
+        // Act:
+        MosaicGlobalRestriction restriction(MosaicId(123));
 
-		// Assert:
-		EXPECT_EQ(MosaicId(123), restriction.mosaicId());
+        // Assert:
+        EXPECT_EQ(MosaicId(123), restriction.mosaicId());
 
-		EXPECT_EQ(0u, restriction.size());
-		EXPECT_EQ(std::set<uint64_t>(), restriction.keys());
-	}
+        EXPECT_EQ(0u, restriction.size());
+        EXPECT_EQ(std::set<uint64_t>(), restriction.keys());
+    }
 
-	// endregion
+    // endregion
 
-	// region get
+    // region get
 
-	TEST(TEST_CLASS, CannotGetValueForUnsetRestriction) {
-		// Arrange:
-		MosaicGlobalRestriction restriction(MosaicId(123));
-		restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
+    TEST(TEST_CLASS, CannotGetValueForUnsetRestriction)
+    {
+        // Arrange:
+        MosaicGlobalRestriction restriction(MosaicId(123));
+        restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
 
-		// Act:
-		MosaicGlobalRestriction::RestrictionRule rule;
-		auto result = restriction.tryGet(112, rule);
+        // Act:
+        MosaicGlobalRestriction::RestrictionRule rule;
+        auto result = restriction.tryGet(112, rule);
 
-		// Assert:
-		EXPECT_FALSE(result);
-	}
+        // Assert:
+        EXPECT_FALSE(result);
+    }
 
-	TEST(TEST_CLASS, CanGetValueForSetRestriction) {
-		// Arrange:
-		MosaicGlobalRestriction restriction(MosaicId(123));
-		restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
+    TEST(TEST_CLASS, CanGetValueForSetRestriction)
+    {
+        // Arrange:
+        MosaicGlobalRestriction restriction(MosaicId(123));
+        restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
 
-		// Act:
-		MosaicGlobalRestriction::RestrictionRule rule;
-		auto result = restriction.tryGet(111, rule);
+        // Act:
+        MosaicGlobalRestriction::RestrictionRule rule;
+        auto result = restriction.tryGet(111, rule);
 
-		// Assert:
-		EXPECT_TRUE(result);
-		EXPECT_EQ(MosaicId(17), rule.ReferenceMosaicId);
-		EXPECT_EQ(444u, rule.RestrictionValue);
-		EXPECT_EQ(model::MosaicRestrictionType::LT, rule.RestrictionType);
-	}
+        // Assert:
+        EXPECT_TRUE(result);
+        EXPECT_EQ(MosaicId(17), rule.ReferenceMosaicId);
+        EXPECT_EQ(444u, rule.RestrictionValue);
+        EXPECT_EQ(model::MosaicRestrictionType::LT, rule.RestrictionType);
+    }
 
-	// endregion
+    // endregion
 
-	// region set
+    // region set
 
-	namespace {
-		void AssertCanGetValue(const MosaicGlobalRestriction& restriction, uint64_t key, uint64_t expectedValue) {
-			MosaicGlobalRestriction::RestrictionRule rule;
-			auto result = restriction.tryGet(key, rule);
+    namespace {
+        void AssertCanGetValue(const MosaicGlobalRestriction& restriction, uint64_t key, uint64_t expectedValue)
+        {
+            MosaicGlobalRestriction::RestrictionRule rule;
+            auto result = restriction.tryGet(key, rule);
 
-			EXPECT_TRUE(result) << "for key " << key;
-			EXPECT_EQ(expectedValue, rule.RestrictionValue) << "for key " << key;
-		}
+            EXPECT_TRUE(result) << "for key " << key;
+            EXPECT_EQ(expectedValue, rule.RestrictionValue) << "for key " << key;
+        }
 
-		void AssertCannotGetValue(const MosaicGlobalRestriction& restriction, uint64_t key) {
-			MosaicGlobalRestriction::RestrictionRule rule;
-			auto result = restriction.tryGet(key, rule);
+        void AssertCannotGetValue(const MosaicGlobalRestriction& restriction, uint64_t key)
+        {
+            MosaicGlobalRestriction::RestrictionRule rule;
+            auto result = restriction.tryGet(key, rule);
 
-			EXPECT_FALSE(result) << "for key " << key;
-		}
-	}
+            EXPECT_FALSE(result) << "for key " << key;
+        }
+    }
 
-	TEST(TEST_CLASS, CanSetSingleValue) {
-		// Arrange:
-		MosaicGlobalRestriction restriction(MosaicId(123));
+    TEST(TEST_CLASS, CanSetSingleValue)
+    {
+        // Arrange:
+        MosaicGlobalRestriction restriction(MosaicId(123));
 
-		// Act:
-		restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
+        // Act:
+        restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
 
-		// Assert:
-		EXPECT_EQ(1u, restriction.size());
-		AssertCanGetValue(restriction, 111, 444);
-		EXPECT_EQ(std::set<uint64_t>({ 111 }), restriction.keys());
-	}
+        // Assert:
+        EXPECT_EQ(1u, restriction.size());
+        AssertCanGetValue(restriction, 111, 444);
+        EXPECT_EQ(std::set<uint64_t>({ 111 }), restriction.keys());
+    }
 
-	TEST(TEST_CLASS, CannotSetSentinelValue) {
-		// Arrange:
-		MosaicGlobalRestriction restriction(MosaicId(123));
+    TEST(TEST_CLASS, CannotSetSentinelValue)
+    {
+        // Arrange:
+        MosaicGlobalRestriction restriction(MosaicId(123));
 
-		// Act:
-		restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::NONE });
+        // Act:
+        restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::NONE });
 
-		// Assert:
-		EXPECT_EQ(0u, restriction.size());
-		AssertCannotGetValue(restriction, 111);
-		EXPECT_EQ(std::set<uint64_t>(), restriction.keys());
-	}
+        // Assert:
+        EXPECT_EQ(0u, restriction.size());
+        AssertCannotGetValue(restriction, 111);
+        EXPECT_EQ(std::set<uint64_t>(), restriction.keys());
+    }
 
-	TEST(TEST_CLASS, CanSetMultipleValues) {
-		// Arrange:
-		MosaicGlobalRestriction restriction(MosaicId(123));
+    TEST(TEST_CLASS, CanSetMultipleValues)
+    {
+        // Arrange:
+        MosaicGlobalRestriction restriction(MosaicId(123));
 
-		// Act:
-		restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
-		restriction.set(321, { MosaicId(2), 987, model::MosaicRestrictionType::GT });
-		restriction.set(222, { MosaicId(3), 567, model::MosaicRestrictionType::EQ });
+        // Act:
+        restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
+        restriction.set(321, { MosaicId(2), 987, model::MosaicRestrictionType::GT });
+        restriction.set(222, { MosaicId(3), 567, model::MosaicRestrictionType::EQ });
 
-		// Assert:
-		EXPECT_EQ(3u, restriction.size());
-		AssertCanGetValue(restriction, 111, 444);
-		AssertCanGetValue(restriction, 222, 567);
-		AssertCanGetValue(restriction, 321, 987);
-		EXPECT_EQ(std::set<uint64_t>({ 111, 222, 321 }), restriction.keys());
-	}
+        // Assert:
+        EXPECT_EQ(3u, restriction.size());
+        AssertCanGetValue(restriction, 111, 444);
+        AssertCanGetValue(restriction, 222, 567);
+        AssertCanGetValue(restriction, 321, 987);
+        EXPECT_EQ(std::set<uint64_t>({ 111, 222, 321 }), restriction.keys());
+    }
 
-	TEST(TEST_CLASS, CanChangeSingleValue) {
-		// Arrange:
-		MosaicGlobalRestriction restriction(MosaicId(123));
-		restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
-		restriction.set(321, { MosaicId(2), 987, model::MosaicRestrictionType::GT });
+    TEST(TEST_CLASS, CanChangeSingleValue)
+    {
+        // Arrange:
+        MosaicGlobalRestriction restriction(MosaicId(123));
+        restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
+        restriction.set(321, { MosaicId(2), 987, model::MosaicRestrictionType::GT });
 
-		// Act:
-		restriction.set(111, { MosaicId(9), 555, model::MosaicRestrictionType::EQ });
+        // Act:
+        restriction.set(111, { MosaicId(9), 555, model::MosaicRestrictionType::EQ });
 
-		// Assert:
-		EXPECT_EQ(2u, restriction.size());
-		AssertCanGetValue(restriction, 111, 555);
-		AssertCanGetValue(restriction, 321, 987);
-		EXPECT_EQ(std::set<uint64_t>({ 111, 321 }), restriction.keys());
-	}
+        // Assert:
+        EXPECT_EQ(2u, restriction.size());
+        AssertCanGetValue(restriction, 111, 555);
+        AssertCanGetValue(restriction, 321, 987);
+        EXPECT_EQ(std::set<uint64_t>({ 111, 321 }), restriction.keys());
+    }
 
-	TEST(TEST_CLASS, CanRemoveSingleValue) {
-		// Arrange:
-		MosaicGlobalRestriction restriction(MosaicId(123));
-		restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
-		restriction.set(321, { MosaicId(2), 987, model::MosaicRestrictionType::GT });
+    TEST(TEST_CLASS, CanRemoveSingleValue)
+    {
+        // Arrange:
+        MosaicGlobalRestriction restriction(MosaicId(123));
+        restriction.set(111, { MosaicId(17), 444, model::MosaicRestrictionType::LT });
+        restriction.set(321, { MosaicId(2), 987, model::MosaicRestrictionType::GT });
 
-		// Act:
-		restriction.set(111, { MosaicId(9), 555, model::MosaicRestrictionType::NONE });
+        // Act:
+        restriction.set(111, { MosaicId(9), 555, model::MosaicRestrictionType::NONE });
 
-		// Assert:
-		EXPECT_EQ(1u, restriction.size());
-		AssertCannotGetValue(restriction, 111);
-		AssertCanGetValue(restriction, 321, 987);
-		EXPECT_EQ(std::set<uint64_t>({ 321 }), restriction.keys());
-	}
+        // Assert:
+        EXPECT_EQ(1u, restriction.size());
+        AssertCannotGetValue(restriction, 111);
+        AssertCanGetValue(restriction, 321, 987);
+        EXPECT_EQ(std::set<uint64_t>({ 321 }), restriction.keys());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

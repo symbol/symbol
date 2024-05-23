@@ -23,41 +23,43 @@
 #include "Stream.h"
 #include "catapult/config/CatapultDataDirectory.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// Database that stores arbitrary payloads indexed by ids across multiple files.
-	class FileDatabase {
-	public:
-		/// File database options.
-		struct Options {
-			/// Maximum number of payloads per file.
-			size_t BatchSize;
+    /// Database that stores arbitrary payloads indexed by ids across multiple files.
+    class FileDatabase {
+    public:
+        /// File database options.
+        struct Options {
+            /// Maximum number of payloads per file.
+            size_t BatchSize;
 
-			/// Extension of created files.
-			std::string FileExtension;
-		};
+            /// Extension of created files.
+            std::string FileExtension;
+        };
 
-	public:
-		/// Creates a database in \a directory with \a options.
-		FileDatabase(const config::CatapultDirectory& directory, const Options& options);
+    public:
+        /// Creates a database in \a directory with \a options.
+        FileDatabase(const config::CatapultDirectory& directory, const Options& options);
 
-	public:
-		/// Returns \c true if a payload for \a id is contained.
-		bool contains(uint64_t id) const;
+    public:
+        /// Returns \c true if a payload for \a id is contained.
+        bool contains(uint64_t id) const;
 
-		/// Gets an input stream for \a id and optionally returns the stream size (\a pSize).
-		std::unique_ptr<InputStream> inputStream(uint64_t id, size_t* pSize = nullptr) const;
+        /// Gets an input stream for \a id and optionally returns the stream size (\a pSize).
+        std::unique_ptr<InputStream> inputStream(uint64_t id, size_t* pSize = nullptr) const;
 
-		/// Gets an output stream for \a id.
-		std::unique_ptr<OutputStream> outputStream(uint64_t id);
+        /// Gets an output stream for \a id.
+        std::unique_ptr<OutputStream> outputStream(uint64_t id);
 
-	private:
-		bool bypassHeader() const;
-		uint64_t getHeaderOffset(uint64_t id) const;
-		std::string getFilePath(uint64_t id, bool createDirectories) const;
+    private:
+        bool bypassHeader() const;
+        uint64_t getHeaderOffset(uint64_t id) const;
+        std::string getFilePath(uint64_t id, bool createDirectories) const;
 
-	private:
-		config::CatapultDirectory m_directory;
-		Options m_options;
-	};
-}}
+    private:
+        config::CatapultDirectory m_directory;
+        Options m_options;
+    };
+}
+}

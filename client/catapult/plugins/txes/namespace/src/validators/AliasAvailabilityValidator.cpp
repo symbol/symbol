@@ -20,26 +20,28 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/NamespaceCache.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/NamespaceCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::AliasLinkNotification;
+    using Notification = model::AliasLinkNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(AliasAvailability, [](const Notification& notification, const ValidatorContext& context) {
-		const auto& cache = context.Cache.sub<cache::NamespaceCache>();
-		auto namespaceIter = cache.find(notification.NamespaceId);
-		if (!namespaceIter.tryGet())
-			return Failure_Namespace_Unknown;
+    DEFINE_STATEFUL_VALIDATOR(AliasAvailability, [](const Notification& notification, const ValidatorContext& context) {
+        const auto& cache = context.Cache.sub<cache::NamespaceCache>();
+        auto namespaceIter = cache.find(notification.NamespaceId);
+        if (!namespaceIter.tryGet())
+            return Failure_Namespace_Unknown;
 
-		const auto& root = namespaceIter.get().root();
-		auto aliasType = root.alias(notification.NamespaceId).type();
-		if (model::AliasAction::Link == notification.AliasAction && state::AliasType::None != aliasType)
-			return Failure_Namespace_Alias_Already_Exists;
-		else if (model::AliasAction::Unlink == notification.AliasAction && state::AliasType::None == aliasType)
-			return Failure_Namespace_Unknown_Alias;
+        const auto& root = namespaceIter.get().root();
+        auto aliasType = root.alias(notification.NamespaceId).type();
+        if (model::AliasAction::Link == notification.AliasAction && state::AliasType::None != aliasType)
+            return Failure_Namespace_Alias_Already_Exists;
+        else if (model::AliasAction::Unlink == notification.AliasAction && state::AliasType::None == aliasType)
+            return Failure_Namespace_Unknown_Alias;
 
-		return ValidationResult::Success;
-	})
-}}
+        return ValidationResult::Success;
+    })
+}
+}

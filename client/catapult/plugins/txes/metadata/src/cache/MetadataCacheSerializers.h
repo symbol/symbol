@@ -21,11 +21,13 @@
 
 #pragma once
 #include "MetadataCacheTypes.h"
-#include "src/state/MetadataEntrySerializer.h"
 #include "catapult/cache/CacheSerializerAdapter.h"
+#include "src/state/MetadataEntrySerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Primary serializer for metadata cache.
-	struct MetadataEntryPrimarySerializer : public CacheSerializerAdapter<state::MetadataEntrySerializer, MetadataCacheDescriptor> {};
-}}
+    /// Primary serializer for metadata cache.
+    struct MetadataEntryPrimarySerializer : public CacheSerializerAdapter<state::MetadataEntrySerializer, MetadataCacheDescriptor> { };
+}
+}

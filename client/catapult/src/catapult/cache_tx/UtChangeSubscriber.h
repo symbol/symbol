@@ -23,24 +23,26 @@
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/EntityInfo.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Unconfirmed transactions change subscriber.
-	class PLUGIN_API_DEPENDENCY UtChangeSubscriber {
-	public:
-		using TransactionInfos = model::TransactionInfosSet;
+    /// Unconfirmed transactions change subscriber.
+    class PLUGIN_API_DEPENDENCY UtChangeSubscriber {
+    public:
+        using TransactionInfos = model::TransactionInfosSet;
 
-	public:
-		virtual ~UtChangeSubscriber() = default;
+    public:
+        virtual ~UtChangeSubscriber() = default;
 
-	public:
-		/// Indicates transaction infos (\a transactionInfos) were added to unconfirmed transactions.
-		virtual void notifyAdds(const TransactionInfos& transactionInfos) = 0;
+    public:
+        /// Indicates transaction infos (\a transactionInfos) were added to unconfirmed transactions.
+        virtual void notifyAdds(const TransactionInfos& transactionInfos) = 0;
 
-		/// Indicates transaction infos (\a transactionInfos) were removed from unconfirmed transactions.
-		virtual void notifyRemoves(const TransactionInfos& transactionInfos) = 0;
+        /// Indicates transaction infos (\a transactionInfos) were removed from unconfirmed transactions.
+        virtual void notifyRemoves(const TransactionInfos& transactionInfos) = 0;
 
-		/// Flushes all pending unconfirmed transactions changes.
-		virtual void flush() = 0;
-	};
-}}
+        /// Flushes all pending unconfirmed transactions changes.
+        virtual void flush() = 0;
+    };
+}
+}

@@ -22,9 +22,13 @@
 #include "version.h"
 #include <iostream>
 
-namespace catapult { namespace version {
+namespace catapult {
+namespace version {
 
-	void WriteVersionInformation(std::ostream& out) {
-		out << CATAPULT_COPYRIGHT << std::endl << "catapult version: " << CATAPULT_VERSION << std::endl;
-	}
-}}
+    void WriteVersionInformation(std::ostream& out)
+    {
+        out << CATAPULT_COPYRIGHT << std::endl
+            << "catapult version: " << CATAPULT_VERSION << std::endl;
+    }
+}
+}

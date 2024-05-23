@@ -20,27 +20,31 @@
 **/
 
 #pragma once
+#include "catapult/model/BlockchainConfiguration.h"
 #include "src/cache/MetadataCache.h"
 #include "src/cache/MetadataCacheStorage.h"
-#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Cache factory for creating a catapult cache containing at least the metadata cache.
-	struct MetadataCacheFactory {
-	public:
-		/// Creates an empty catapult cache.
-		static cache::CatapultCache Create() {
-			auto cacheId = cache::MetadataCache::Id;
-			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
-			subCaches[cacheId] = MakeSubCachePlugin<cache::MetadataCache, cache::MetadataCacheStorage>();
-			return cache::CatapultCache(std::move(subCaches));
-		}
+    /// Cache factory for creating a catapult cache containing at least the metadata cache.
+    struct MetadataCacheFactory {
+    public:
+        /// Creates an empty catapult cache.
+        static cache::CatapultCache Create()
+        {
+            auto cacheId = cache::MetadataCache::Id;
+            std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
+            subCaches[cacheId] = MakeSubCachePlugin<cache::MetadataCache, cache::MetadataCacheStorage>();
+            return cache::CatapultCache(std::move(subCaches));
+        }
 
-		/// Creates an empty catapult cache around \a config.
-		static cache::CatapultCache Create(const model::BlockchainConfiguration&) {
-			return Create();
-		}
-	};
-}}
+        /// Creates an empty catapult cache around \a config.
+        static cache::CatapultCache Create(const model::BlockchainConfiguration&)
+        {
+            return Create();
+        }
+    };
+}
+}

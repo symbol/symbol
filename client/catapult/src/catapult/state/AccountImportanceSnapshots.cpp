@@ -22,57 +22,68 @@
 #include "AccountImportanceSnapshots.h"
 #include <algorithm>
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	bool AccountImportanceSnapshots::empty() const {
-		return std::all_of(m_snapshots.begin(), m_snapshots.end(), [](const auto& bucket) {
-			return model::ImportanceHeight() == bucket.Height;
-		});
-	}
+    bool AccountImportanceSnapshots::empty() const
+    {
+        return std::all_of(m_snapshots.begin(), m_snapshots.end(), [](const auto& bucket) {
+            return model::ImportanceHeight() == bucket.Height;
+        });
+    }
 
-	bool AccountImportanceSnapshots::active() const {
-		return model::ImportanceHeight() != height();
-	}
+    bool AccountImportanceSnapshots::active() const
+    {
+        return model::ImportanceHeight() != height();
+    }
 
-	Importance AccountImportanceSnapshots::current() const {
-		return m_snapshots.begin()->Importance;
-	}
+    Importance AccountImportanceSnapshots::current() const
+    {
+        return m_snapshots.begin()->Importance;
+    }
 
-	model::ImportanceHeight AccountImportanceSnapshots::height() const {
-		return m_snapshots.begin()->Height;
-	}
+    model::ImportanceHeight AccountImportanceSnapshots::height() const
+    {
+        return m_snapshots.begin()->Height;
+    }
 
-	Importance AccountImportanceSnapshots::get(model::ImportanceHeight height) const {
-		auto iter =
-				std::find_if(m_snapshots.begin(), m_snapshots.end(), [height](const auto& snapshot) { return snapshot.Height == height; });
+    Importance AccountImportanceSnapshots::get(model::ImportanceHeight height) const
+    {
+        auto iter = std::find_if(m_snapshots.begin(), m_snapshots.end(), [height](const auto& snapshot) { return snapshot.Height == height; });
 
-		return m_snapshots.end() == iter ? Importance() : iter->Importance;
-	}
+        return m_snapshots.end() == iter ? Importance() : iter->Importance;
+    }
 
-	void AccountImportanceSnapshots::set(Importance importance, model::ImportanceHeight height) {
-		auto lastHeight = this->height();
-		if (model::ImportanceHeight() != lastHeight && lastHeight >= height) {
-			std::ostringstream out;
-			out << "importances must be set with ascending heights (last = " << lastHeight << ", new = " << height << ")";
-			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-		}
+    void AccountImportanceSnapshots::set(Importance importance, model::ImportanceHeight height)
+    {
+        auto lastHeight = this->height();
+        if (model::ImportanceHeight() != lastHeight && lastHeight >= height) {
+            std::ostringstream out;
+            out << "importances must be set with ascending heights (last = " << lastHeight << ", new = " << height << ")";
+            CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
+        }
 
-		m_snapshots.push({ importance, height });
-	}
+        m_snapshots.push({ importance, height });
+    }
 
-	void AccountImportanceSnapshots::push() {
-		m_snapshots.push(ImportanceSnapshot());
-	}
+    void AccountImportanceSnapshots::push()
+    {
+        m_snapshots.push(ImportanceSnapshot());
+    }
 
-	void AccountImportanceSnapshots::pop() {
-		m_snapshots.pop();
-	}
+    void AccountImportanceSnapshots::pop()
+    {
+        m_snapshots.pop();
+    }
 
-	AccountImportanceSnapshots::SnapshotStack::const_iterator AccountImportanceSnapshots::begin() const {
-		return m_snapshots.begin();
-	}
+    AccountImportanceSnapshots::SnapshotStack::const_iterator AccountImportanceSnapshots::begin() const
+    {
+        return m_snapshots.begin();
+    }
 
-	AccountImportanceSnapshots::SnapshotStack::const_iterator AccountImportanceSnapshots::end() const {
-		return m_snapshots.end();
-	}
-}}
+    AccountImportanceSnapshots::SnapshotStack::const_iterator AccountImportanceSnapshots::end() const
+    {
+        return m_snapshots.end();
+    }
+}
+}

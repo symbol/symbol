@@ -22,52 +22,59 @@
 #pragma once
 #include "SubCachePluginAdapter.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// CacheStorage implementation for saving and loading summary cache data.
-	template<typename TCache>
-	class SummaryCacheStorage : public CacheStorage {
-	public:
-		/// Creates a storage around \a cache.
-		explicit SummaryCacheStorage(TCache& cache)
-				: m_cache(cache)
-				, m_name(std::string(TCache::Name) + "_summary") {
-		}
+    /// CacheStorage implementation for saving and loading summary cache data.
+    template <typename TCache>
+    class SummaryCacheStorage : public CacheStorage {
+    public:
+        /// Creates a storage around \a cache.
+        explicit SummaryCacheStorage(TCache& cache)
+            : m_cache(cache)
+            , m_name(std::string(TCache::Name) + "_summary")
+        {
+        }
 
-	public:
-		const std::string& name() const override {
-			return m_name;
-		}
+    public:
+        const std::string& name() const override
+        {
+            return m_name;
+        }
 
-	protected:
-		/// Gets a typed const reference to the underlying cache.
-		const TCache& cache() const {
-			return m_cache;
-		}
+    protected:
+        /// Gets a typed const reference to the underlying cache.
+        const TCache& cache() const
+        {
+            return m_cache;
+        }
 
-		/// Gets a typed reference to the underlying cache.
-		TCache& cache() {
-			return m_cache;
-		}
+        /// Gets a typed reference to the underlying cache.
+        TCache& cache()
+        {
+            return m_cache;
+        }
 
-	private:
-		TCache& m_cache;
-		std::string m_name;
-	};
+    private:
+        TCache& m_cache;
+        std::string m_name;
+    };
 
-	/// Specialized sub cache plugin adapter that provides proper handling of summary cache state.
-	template<typename TCache, typename TStorageTraits, typename TSummaryCacheStorage>
-	class SummaryAwareSubCachePluginAdapter : public SubCachePluginAdapter<TCache, TStorageTraits> {
-	private:
-		using BaseType = SubCachePluginAdapter<TCache, TStorageTraits>;
+    /// Specialized sub cache plugin adapter that provides proper handling of summary cache state.
+    template <typename TCache, typename TStorageTraits, typename TSummaryCacheStorage>
+    class SummaryAwareSubCachePluginAdapter : public SubCachePluginAdapter<TCache, TStorageTraits> {
+    private:
+        using BaseType = SubCachePluginAdapter<TCache, TStorageTraits>;
 
-	public:
-		using BaseType::BaseType;
+    public:
+        using BaseType::BaseType;
 
-	public:
-		std::unique_ptr<CacheStorage> createStorage() override {
-			auto pStorage = BaseType::createStorage();
-			return pStorage ? std::move(pStorage) : std::make_unique<TSummaryCacheStorage>(this->cache());
-		}
-	};
-}}
+    public:
+        std::unique_ptr<CacheStorage> createStorage() override
+        {
+            auto pStorage = BaseType::createStorage();
+            return pStorage ? std::move(pStorage) : std::make_unique<TSummaryCacheStorage>(this->cache());
+        }
+    };
+}
+}

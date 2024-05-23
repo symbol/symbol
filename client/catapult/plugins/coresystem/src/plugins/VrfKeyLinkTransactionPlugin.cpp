@@ -20,22 +20,25 @@
 **/
 
 #include "VrfKeyLinkTransactionPlugin.h"
-#include "src/model/KeyLinkNotifications.h"
-#include "src/model/VrfKeyLinkTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/KeyLinkNotifications.h"
+#include "src/model/VrfKeyLinkTransaction.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
-			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
-			sub.notify(VrfKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
-		}
-	}
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub)
+        {
+            sub.notify(KeyLinkActionNotification(transaction.LinkAction));
+            sub.notify(VrfKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(VrfKeyLink, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(VrfKeyLink, Default, Publish)
+}
+}

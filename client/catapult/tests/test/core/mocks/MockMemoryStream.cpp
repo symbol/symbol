@@ -22,39 +22,47 @@
 #include "MockMemoryStream.h"
 #include "catapult/exceptions.h"
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	// region MockMemoryStream
+    // region MockMemoryStream
 
-	MockMemoryStream::MockMemoryStream(std::vector<uint8_t>& buffer)
-			: MemoryStream(buffer)
-			, m_flushCount(0) {
-	}
+    MockMemoryStream::MockMemoryStream(std::vector<uint8_t>& buffer)
+        : MemoryStream(buffer)
+        , m_flushCount(0)
+    {
+    }
 
-	void MockMemoryStream::flush() {
-		++m_flushCount;
-	}
+    void MockMemoryStream::flush()
+    {
+        ++m_flushCount;
+    }
 
-	size_t MockMemoryStream::numFlushes() const {
-		return m_flushCount;
-	}
+    size_t MockMemoryStream::numFlushes() const
+    {
+        return m_flushCount;
+    }
 
-	// endregion
+    // endregion
 
-	// region MockSeekableMemoryStream
+    // region MockSeekableMemoryStream
 
-	MockSeekableMemoryStream::MockSeekableMemoryStream()
-			: extensions::MemoryStream(m_buffer) {
-		m_buffer.reserve(1024);
-	}
+    MockSeekableMemoryStream::MockSeekableMemoryStream()
+        : extensions::MemoryStream(m_buffer)
+    {
+        m_buffer.reserve(1024);
+    }
 
-	const std::vector<uint8_t>& MockSeekableMemoryStream::buffer() const {
-		return m_buffer;
-	}
+    const std::vector<uint8_t>& MockSeekableMemoryStream::buffer() const
+    {
+        return m_buffer;
+    }
 
-	void MockSeekableMemoryStream::copyTo(MockSeekableMemoryStream& dest) const {
-		dest.m_buffer = m_buffer;
-	}
+    void MockSeekableMemoryStream::copyTo(MockSeekableMemoryStream& dest) const
+    {
+        dest.m_buffer = m_buffer;
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

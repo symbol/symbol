@@ -22,15 +22,17 @@
 #pragma once
 #include "catapult/crypto/AesDecrypt.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Encrypts \a input into \a output using \a iv and \a encryptionKey.
-	void AesGcmEncrypt(
-			const crypto::SharedKey& encryptionKey,
-			const crypto::AesGcm256::IV& iv,
-			const RawBuffer& input,
-			std::vector<uint8_t>& output);
+    /// Encrypts \a input into \a output using \a iv and \a encryptionKey.
+    void AesGcmEncrypt(
+        const crypto::SharedKey& encryptionKey,
+        const crypto::AesGcm256::IV& iv,
+        const RawBuffer& input,
+        std::vector<uint8_t>& output);
 
-	/// Encrypts \a clearText with shared key derived from generated ephemeral key and \a recipientPublicKey.
-	std::vector<uint8_t> GenerateEphemeralAndEncrypt(const RawBuffer& clearText, const Key& recipientPublicKey);
-}}
+    /// Encrypts \a clearText with shared key derived from generated ephemeral key and \a recipientPublicKey.
+    std::vector<uint8_t> GenerateEphemeralAndEncrypt(const RawBuffer& clearText, const Key& recipientPublicKey);
+}
+}

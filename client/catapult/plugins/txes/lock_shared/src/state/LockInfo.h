@@ -22,53 +22,58 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Lock status.
-	enum class LockStatus : uint8_t {
-		/// Lock is unused.
-		Unused,
+    /// Lock status.
+    enum class LockStatus : uint8_t {
+        /// Lock is unused.
+        Unused,
 
-		/// Lock was already used.
-		Used
-	};
+        /// Lock was already used.
+        Used
+    };
 
-	/// Lock info.
-	struct LockInfo {
-	protected:
-		/// Creates a default lock info.
-		LockInfo() {
-		}
+    /// Lock info.
+    struct LockInfo {
+    protected:
+        /// Creates a default lock info.
+        LockInfo()
+        {
+        }
 
-		/// Creates a lock info around \a ownerAddress, \a mosaicId, \a amount and \a endHeight.
-		LockInfo(const Address& ownerAddress, catapult::MosaicId mosaicId, catapult::Amount amount, Height endHeight)
-				: OwnerAddress(ownerAddress)
-				, MosaicId(mosaicId)
-				, Amount(amount)
-				, EndHeight(endHeight)
-				, Status(LockStatus::Unused) {
-		}
+        /// Creates a lock info around \a ownerAddress, \a mosaicId, \a amount and \a endHeight.
+        LockInfo(const Address& ownerAddress, catapult::MosaicId mosaicId, catapult::Amount amount, Height endHeight)
+            : OwnerAddress(ownerAddress)
+            , MosaicId(mosaicId)
+            , Amount(amount)
+            , EndHeight(endHeight)
+            , Status(LockStatus::Unused)
+        {
+        }
 
-	public:
-		/// Owner address.
-		Address OwnerAddress;
+    public:
+        /// Owner address.
+        Address OwnerAddress;
 
-		/// Mosaic id.
-		catapult::MosaicId MosaicId;
+        /// Mosaic id.
+        catapult::MosaicId MosaicId;
 
-		/// Amount.
-		catapult::Amount Amount;
+        /// Amount.
+        catapult::Amount Amount;
 
-		/// Height at which the lock expires.
-		Height EndHeight;
+        /// Height at which the lock expires.
+        Height EndHeight;
 
-		/// Flag indicating whether or not the lock was already used.
-		LockStatus Status;
+        /// Flag indicating whether or not the lock was already used.
+        LockStatus Status;
 
-	public:
-		/// Returns \c true if lock info is active at \a height.
-		constexpr bool isActive(Height height) const {
-			return height < EndHeight && LockStatus::Unused == Status;
-		}
-	};
-}}
+    public:
+        /// Returns \c true if lock info is active at \a height.
+        constexpr bool isActive(Height height) const
+        {
+            return height < EndHeight && LockStatus::Unused == Status;
+        }
+    };
+}
+}

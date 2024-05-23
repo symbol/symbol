@@ -24,62 +24,72 @@
 #include "catapult/model/NodeIdentity.h"
 #include <memory>
 
-namespace catapult { namespace ionet {
-	class PacketSocket;
-}}
+namespace catapult {
+namespace ionet {
+    class PacketSocket;
+}
+}
 
-namespace catapult { namespace net {
+namespace catapult {
+namespace net {
 
-	/// Peer connection result.
-	struct PeerConnectResult {
-	public:
-		/// Creates a default result.
-		PeerConnectResult()
-				: PeerConnectResult(static_cast<PeerConnectCode>(-1)) {
-		}
+    /// Peer connection result.
+    struct PeerConnectResult {
+    public:
+        /// Creates a default result.
+        PeerConnectResult()
+            : PeerConnectResult(static_cast<PeerConnectCode>(-1))
+        {
+        }
 
-		/// Creates a result around \a code.
-		PeerConnectResult(PeerConnectCode code)
-				: PeerConnectResult(code, model::NodeIdentity()) {
-		}
+        /// Creates a result around \a code.
+        PeerConnectResult(PeerConnectCode code)
+            : PeerConnectResult(code, model::NodeIdentity())
+        {
+        }
 
-		/// Creates a result around \a code and \a identity.
-		PeerConnectResult(PeerConnectCode code, const model::NodeIdentity& identity)
-				: Code(code)
-				, Identity(PeerConnectCode::Accepted == code ? identity : model::NodeIdentity()) {
-		}
+        /// Creates a result around \a code and \a identity.
+        PeerConnectResult(PeerConnectCode code, const model::NodeIdentity& identity)
+            : Code(code)
+            , Identity(PeerConnectCode::Accepted == code ? identity : model::NodeIdentity())
+        {
+        }
 
-	public:
-		/// Connection result code.
-		PeerConnectCode Code;
+    public:
+        /// Connection result code.
+        PeerConnectCode Code;
 
-		/// Connection identity.
-		/// \note This is only valid if Code is PeerConnectCode::Accepted.
-		model::NodeIdentity Identity;
-	};
+        /// Connection identity.
+        /// \note This is only valid if Code is PeerConnectCode::Accepted.
+        model::NodeIdentity Identity;
+    };
 
-	/// Peer connection result with socket.
-	/// \note This attaches a socket to a PeerConnectResult in order to allow more targeted PacketWriters tests.
-	struct PeerConnectResultEx : public PeerConnectResult {
-	public:
-		/// Creates a default result.
-		PeerConnectResultEx()
-				: PeerConnectResult() {
-		}
+    /// Peer connection result with socket.
+    /// \note This attaches a socket to a PeerConnectResult in order to allow more targeted PacketWriters tests.
+    struct PeerConnectResultEx : public PeerConnectResult {
+    public:
+        /// Creates a default result.
+        PeerConnectResultEx()
+            : PeerConnectResult()
+        {
+        }
 
-		/// Creates a result around \a code.
-		PeerConnectResultEx(PeerConnectCode code)
-				: PeerConnectResult(code) {
-		}
+        /// Creates a result around \a code.
+        PeerConnectResultEx(PeerConnectCode code)
+            : PeerConnectResult(code)
+        {
+        }
 
-		/// Creates a result around \a code, \a identity and \a pSocket.
-		PeerConnectResultEx(PeerConnectCode code, const model::NodeIdentity& identity, const std::shared_ptr<ionet::PacketSocket>& pSocket)
-				: PeerConnectResult(code, identity)
-				, pPeerSocket(PeerConnectCode::Accepted == code ? pSocket : nullptr) {
-		}
+        /// Creates a result around \a code, \a identity and \a pSocket.
+        PeerConnectResultEx(PeerConnectCode code, const model::NodeIdentity& identity, const std::shared_ptr<ionet::PacketSocket>& pSocket)
+            : PeerConnectResult(code, identity)
+            , pPeerSocket(PeerConnectCode::Accepted == code ? pSocket : nullptr)
+        {
+        }
 
-	public:
-		/// Peer socket.
-		std::shared_ptr<ionet::PacketSocket> pPeerSocket;
-	};
-}}
+    public:
+        /// Peer socket.
+        std::shared_ptr<ionet::PacketSocket> pPeerSocket;
+    };
+}
+}

@@ -20,23 +20,28 @@
 **/
 
 #pragma once
-#include "src/model/HashLockNotifications.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
+#include "src/model/HashLockNotifications.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Observes changes triggered by hash lock notifications and:
-	/// - adds/removes hash lock info to/from hash lock info cache
-	DECLARE_OBSERVER(HashLock, model::HashLockNotification)();
+    /// Observes changes triggered by hash lock notifications and:
+    /// - adds/removes hash lock info to/from hash lock info cache
+    DECLARE_OBSERVER(HashLock, model::HashLockNotification)
+    ();
 
-	/// Observes hashes of completed, bonded aggregate transactions and:
-	/// - credits/debits lock owner
-	/// - marks proper hash lock as used/unused
-	DECLARE_OBSERVER(CompletedAggregate, model::TransactionNotification)();
+    /// Observes hashes of completed, bonded aggregate transactions and:
+    /// - credits/debits lock owner
+    /// - marks proper hash lock as used/unused
+    DECLARE_OBSERVER(CompletedAggregate, model::TransactionNotification)
+    ();
 
-	/// Observes block notifications and:
-	/// - handles expired hash lock infos
-	/// - credits the block signer the mosaics given in the lock info
-	DECLARE_OBSERVER(ExpiredHashLockInfo, model::BlockNotification)();
-}}
+    /// Observes block notifications and:
+    /// - handles expired hash lock infos
+    /// - credits the block signer the mosaics given in the lock info
+    DECLARE_OBSERVER(ExpiredHashLockInfo, model::BlockNotification)
+    ();
+}
+}

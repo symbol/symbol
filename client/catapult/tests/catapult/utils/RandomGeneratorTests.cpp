@@ -20,23 +20,26 @@
 **/
 
 #include "catapult/utils/RandomGenerator.h"
-#include "tests/test/nodeps/RandomnessTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/RandomnessTestUtils.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
 #define TEST_CLASS RandomGeneratorTests
 
-	namespace {
-		class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
-		public:
-			HighEntropyRandomGeneratorCustomToken()
-					: HighEntropyRandomGenerator("/dev/urandom") {
-			}
-		};
-	}
+    namespace {
+        class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
+        public:
+            HighEntropyRandomGeneratorCustomToken()
+                : HighEntropyRandomGenerator("/dev/urandom")
+            {
+            }
+        };
+    }
 
-	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGenerator)
-	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGeneratorCustomToken)
-	DEFINE_RANDOMNESS_UINT64_TESTS(LowEntropyRandomGenerator)
-}}
+    DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGenerator)
+    DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGeneratorCustomToken)
+    DEFINE_RANDOMNESS_UINT64_TESTS(LowEntropyRandomGenerator)
+}
+}

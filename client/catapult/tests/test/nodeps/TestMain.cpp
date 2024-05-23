@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/crypto/OpensslInit.h"
+#include "catapult/preprocessor.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/version/version.h"
-#include "catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 #include <thread>
 
@@ -34,84 +34,93 @@ int global_argc;
 char** global_argv;
 #endif
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		uint32_t global_stress_iteration_count = 0;
-	}
+    namespace {
+        uint32_t global_stress_iteration_count = 0;
+    }
 
-	uint32_t GetStressIterationCount() {
-		return global_stress_iteration_count;
-	}
+    uint32_t GetStressIterationCount()
+    {
+        return global_stress_iteration_count;
+    }
 
-	unsigned short GetLocalHostPort() {
-		return GetStressIterationCount() ? 3014 : 2014;
-	}
+    unsigned short GetLocalHostPort()
+    {
+        return GetStressIterationCount() ? 3014 : 2014;
+    }
 
-	uint32_t GetMaxNonDeterministicTestRetries() {
-		return GetStressIterationCount() ? 500 : 25;
-	}
+    uint32_t GetMaxNonDeterministicTestRetries()
+    {
+        return GetStressIterationCount() ? 500 : 25;
+    }
 
-	uint32_t GetNumDefaultPoolThreads() {
-		return std::max<uint32_t>(16, 2 * std::thread::hardware_concurrency());
-	}
+    uint32_t GetNumDefaultPoolThreads()
+    {
+        return std::max<uint32_t>(16, 2 * std::thread::hardware_concurrency());
+    }
 
-	namespace {
-		std::shared_ptr<void> SetupLogging() {
-			utils::BasicLoggerOptions options;
-			options.SinkType = utils::LogSinkType::Sync;
+    namespace {
+        std::shared_ptr<void> SetupLogging()
+        {
+            utils::BasicLoggerOptions options;
+            options.SinkType = utils::LogSinkType::Sync;
 #ifndef _MSC_VER
-			options.ColorMode = utils::LogColorMode::Ansi;
+            options.ColorMode = utils::LogColorMode::Ansi;
 #endif
 
-			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
-			pBootstrapper->addConsoleLogger(options, utils::LogFilter(utils::LogLevel::debug));
-			return PORTABLE_MOVE(pBootstrapper);
-		}
+            auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
+            pBootstrapper->addConsoleLogger(options, utils::LogFilter(utils::LogLevel::debug));
+            return PORTABLE_MOVE(pBootstrapper);
+        }
 
-		uint32_t GetArgumentUint32(const std::string& name, int argc, char** argv) {
-			auto key = "--cat_" + name + "=";
-			for (auto i = 0; i < argc; ++i) {
-				auto argumentKeyValue = std::string(argv[i]);
-				if (0 != argumentKeyValue.find(key))
-					continue;
+        uint32_t GetArgumentUint32(const std::string& name, int argc, char** argv)
+        {
+            auto key = "--cat_" + name + "=";
+            for (auto i = 0; i < argc; ++i) {
+                auto argumentKeyValue = std::string(argv[i]);
+                if (0 != argumentKeyValue.find(key))
+                    continue;
 
-				uint32_t parsedValue;
-				auto value = argumentKeyValue.substr(key.size());
-				if (!utils::TryParseValue(value, parsedValue))
-					CATAPULT_LOG(warning) << "argument '" << name << "' has invalid value: " << value;
+                uint32_t parsedValue;
+                auto value = argumentKeyValue.substr(key.size());
+                if (!utils::TryParseValue(value, parsedValue))
+                    CATAPULT_LOG(warning) << "argument '" << name << "' has invalid value: " << value;
 
-				return parsedValue;
-			}
+                return parsedValue;
+            }
 
-			return 0;
-		}
-	}
-}}
+            return 0;
+        }
+    }
+}
+}
 
-int main(int argc, char** argv) {
-	catapult::version::WriteVersionInformation(std::cout);
-	std::srand(static_cast<unsigned int>(std::time(nullptr)));
+int main(int argc, char** argv)
+{
+    catapult::version::WriteVersionInformation(std::cout);
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-	std::cout << "Initializing Logging..." << std::endl;
-	auto pLoggingGuard = catapult::test::SetupLogging();
+    std::cout << "Initializing Logging..." << std::endl;
+    auto pLoggingGuard = catapult::test::SetupLogging();
 
-	std::cout << "Initializing and Running Tests..." << std::endl;
-	::testing::InitGoogleTest(&argc, argv);
+    std::cout << "Initializing and Running Tests..." << std::endl;
+    ::testing::InitGoogleTest(&argc, argv);
 
-	std::cout << "Initializing OpenSSL crypto functions" << std::endl;
-	auto pOpensslContext = catapult::crypto::SetupOpensslCryptoFunctions();
+    std::cout << "Initializing OpenSSL crypto functions" << std::endl;
+    auto pOpensslContext = catapult::crypto::SetupOpensslCryptoFunctions();
 
 #ifdef CATAPULT_DOCKER_TESTS
-	global_argc = argc;
-	global_argv = argv;
+    global_argc = argc;
+    global_argv = argv;
 #endif
 
-	if (argc >= 2) {
-		auto& count = catapult::test::global_stress_iteration_count;
-		count = catapult::test::GetArgumentUint32("stress", argc, argv);
-		CATAPULT_LOG(warning) << "Note: Catapult Test stress iteration count = " << count << std::endl;
-	}
+    if (argc >= 2) {
+        auto& count = catapult::test::global_stress_iteration_count;
+        count = catapult::test::GetArgumentUint32("stress", argc, argv);
+        CATAPULT_LOG(warning) << "Note: Catapult Test stress iteration count = " << count << std::endl;
+    }
 
-	return RUN_ALL_TESTS();
+    return RUN_ALL_TESTS();
 }

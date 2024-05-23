@@ -20,53 +20,59 @@
 **/
 
 #include "src/config/AggregateConfiguration.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	namespace {
-		struct AggregateConfigurationTraits {
-			using ConfigurationType = AggregateConfiguration;
+    namespace {
+        struct AggregateConfigurationTraits {
+            using ConfigurationType = AggregateConfiguration;
 
-			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return { { "",
-						   { { "maxTransactionsPerAggregate", "674" },
-							 { "maxCosignaturesPerAggregate", "52" },
+            static utils::ConfigurationBag::ValuesContainer CreateProperties()
+            {
+                return { { "",
+                    { { "maxTransactionsPerAggregate", "674" },
+                        { "maxCosignaturesPerAggregate", "52" },
 
-							 { "enableStrictCosignatureCheck", "true" },
-							 { "enableBondedAggregateSupport", "true" },
+                        { "enableStrictCosignatureCheck", "true" },
+                        { "enableBondedAggregateSupport", "true" },
 
-							 { "maxBondedTransactionLifetime", "14m" } } } };
-			}
+                        { "maxBondedTransactionLifetime", "14m" } } } };
+            }
 
-			static bool IsSectionOptional(const std::string&) {
-				return false;
-			}
+            static bool IsSectionOptional(const std::string&)
+            {
+                return false;
+            }
 
-			static void AssertZero(const AggregateConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(0u, config.MaxTransactionsPerAggregate);
-				EXPECT_EQ(0u, config.MaxCosignaturesPerAggregate);
+            static void AssertZero(const AggregateConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(0u, config.MaxTransactionsPerAggregate);
+                EXPECT_EQ(0u, config.MaxCosignaturesPerAggregate);
 
-				EXPECT_FALSE(config.EnableStrictCosignatureCheck);
-				EXPECT_FALSE(config.EnableBondedAggregateSupport);
+                EXPECT_FALSE(config.EnableStrictCosignatureCheck);
+                EXPECT_FALSE(config.EnableBondedAggregateSupport);
 
-				EXPECT_EQ(utils::TimeSpan(), config.MaxBondedTransactionLifetime);
-			}
+                EXPECT_EQ(utils::TimeSpan(), config.MaxBondedTransactionLifetime);
+            }
 
-			static void AssertCustom(const AggregateConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(674u, config.MaxTransactionsPerAggregate);
-				EXPECT_EQ(52u, config.MaxCosignaturesPerAggregate);
+            static void AssertCustom(const AggregateConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(674u, config.MaxTransactionsPerAggregate);
+                EXPECT_EQ(52u, config.MaxCosignaturesPerAggregate);
 
-				EXPECT_TRUE(config.EnableStrictCosignatureCheck);
-				EXPECT_TRUE(config.EnableBondedAggregateSupport);
+                EXPECT_TRUE(config.EnableStrictCosignatureCheck);
+                EXPECT_TRUE(config.EnableBondedAggregateSupport);
 
-				EXPECT_EQ(utils::TimeSpan::FromMinutes(14), config.MaxBondedTransactionLifetime);
-			}
-		};
-	}
+                EXPECT_EQ(utils::TimeSpan::FromMinutes(14), config.MaxBondedTransactionLifetime);
+            }
+        };
+    }
 
-	DEFINE_CONFIGURATION_TESTS(AggregateConfigurationTests, Aggregate)
-}}
+    DEFINE_CONFIGURATION_TESTS(AggregateConfigurationTests, Aggregate)
+}
+}

@@ -22,42 +22,46 @@
 #pragma once
 #include "WeakEntityInfo.h"
 
-namespace catapult { namespace model {
-	class NotificationSubscriber;
-	class TransactionRegistry;
-}}
+namespace catapult {
+namespace model {
+    class NotificationSubscriber;
+    class TransactionRegistry;
+}
+}
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Publication modes.
-	enum class PublicationMode {
-		/// Only basic notifications are published.
-		Basic,
+    /// Publication modes.
+    enum class PublicationMode {
+        /// Only basic notifications are published.
+        Basic,
 
-		/// Only custom notifications are published.
-		Custom,
+        /// Only custom notifications are published.
+        Custom,
 
-		/// All notifications are published.
-		All
-	};
+        /// All notifications are published.
+        All
+    };
 
-	/// Notification publisher.
-	class NotificationPublisher {
-	public:
-		virtual ~NotificationPublisher() = default;
+    /// Notification publisher.
+    class NotificationPublisher {
+    public:
+        virtual ~NotificationPublisher() = default;
 
-	public:
-		/// Sends all notifications from \a entityInfo to \a sub.
-		virtual void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const = 0;
-	};
+    public:
+        /// Sends all notifications from \a entityInfo to \a sub.
+        virtual void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const = 0;
+    };
 
-	/// Creates a notification publisher around \a transactionRegistry for the specified \a mode given specified
-	/// fee mosaic id (\a feeMosaicId).
-	/// For blocks with heights at or after \a feeDebitAppliedLastForkHeight, fee debit notification
-	/// will be raised after custom notifications.
-	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
-			const TransactionRegistry& transactionRegistry,
-			UnresolvedMosaicId feeMosaicId,
-			Height feeDebitAppliedLastForkHeight,
-			PublicationMode mode = PublicationMode::All);
-}}
+    /// Creates a notification publisher around \a transactionRegistry for the specified \a mode given specified
+    /// fee mosaic id (\a feeMosaicId).
+    /// For blocks with heights at or after \a feeDebitAppliedLastForkHeight, fee debit notification
+    /// will be raised after custom notifications.
+    std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
+        const TransactionRegistry& transactionRegistry,
+        UnresolvedMosaicId feeMosaicId,
+        Height feeDebitAppliedLastForkHeight,
+        PublicationMode mode = PublicationMode::All);
+}
+}

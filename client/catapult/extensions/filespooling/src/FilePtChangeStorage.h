@@ -24,8 +24,10 @@
 #include "catapult/io/Stream.h"
 #include <memory>
 
-namespace catapult { namespace filespooling {
+namespace catapult {
+namespace filespooling {
 
-	/// Creates a partial transactions change storage around \a pOutputStream.
-	std::unique_ptr<cache::PtChangeSubscriber> CreateFilePtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream);
-}}
+    /// Creates a partial transactions change storage around \a pOutputStream.
+    std::unique_ptr<cache::PtChangeSubscriber> CreateFilePtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream);
+}
+}

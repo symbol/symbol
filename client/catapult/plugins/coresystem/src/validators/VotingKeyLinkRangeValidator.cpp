@@ -22,28 +22,33 @@
 #include "KeyLinkValidators.h"
 #include "catapult/validators/ValidatorUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::VotingKeyLinkNotification;
+    using Notification = model::VotingKeyLinkNotification;
 
-	namespace {
-		bool IsOutsideRange(const Notification& notification, uint32_t minRange, uint32_t maxRange) {
-			const auto& pinnedVotingKey = notification.LinkedPublicKey;
-			if (pinnedVotingKey.EndEpoch < pinnedVotingKey.StartEpoch)
-				return true;
+    namespace {
+        bool IsOutsideRange(const Notification& notification, uint32_t minRange, uint32_t maxRange)
+        {
+            const auto& pinnedVotingKey = notification.LinkedPublicKey;
+            if (pinnedVotingKey.EndEpoch < pinnedVotingKey.StartEpoch)
+                return true;
 
-			auto range = (pinnedVotingKey.EndEpoch - pinnedVotingKey.StartEpoch).unwrap() + 1;
-			return range < minRange || range > maxRange;
-		}
-	}
+            auto range = (pinnedVotingKey.EndEpoch - pinnedVotingKey.StartEpoch).unwrap() + 1;
+            return range < minRange || range > maxRange;
+        }
+    }
 
-	DECLARE_STATELESS_VALIDATOR(VotingKeyLinkRange, Notification)(uint32_t minRange, uint32_t maxRange) {
-		return MAKE_STATELESS_VALIDATOR(VotingKeyLinkRange, ([minRange, maxRange](const Notification& notification) {
-											if (FinalizationEpoch() == notification.LinkedPublicKey.StartEpoch)
-												return Failure_Core_Link_Start_Epoch_Invalid;
+    DECLARE_STATELESS_VALIDATOR(VotingKeyLinkRange, Notification)
+    (uint32_t minRange, uint32_t maxRange)
+    {
+        return MAKE_STATELESS_VALIDATOR(VotingKeyLinkRange, ([minRange, maxRange](const Notification& notification) {
+            if (FinalizationEpoch() == notification.LinkedPublicKey.StartEpoch)
+                return Failure_Core_Link_Start_Epoch_Invalid;
 
-											return IsOutsideRange(notification, minRange, maxRange) ? Failure_Core_Invalid_Link_Range
-																									: ValidationResult::Success;
-										}));
-	}
-}}
+            return IsOutsideRange(notification, minRange, maxRange) ? Failure_Core_Invalid_Link_Range
+                                                                    : ValidationResult::Success;
+        }));
+    }
+}
+}

@@ -23,8 +23,10 @@
 #include "DisruptorElement.h"
 #include <functional>
 
-namespace catapult { namespace disruptor {
+namespace catapult {
+namespace disruptor {
 
-	/// Disruptor inspector function.
-	using DisruptorInspector = consumer<ConsumerInput&, const ConsumerCompletionResult&>;
-}}
+    /// Disruptor inspector function.
+    using DisruptorInspector = consumer<ConsumerInput&, const ConsumerCompletionResult&>;
+}
+}

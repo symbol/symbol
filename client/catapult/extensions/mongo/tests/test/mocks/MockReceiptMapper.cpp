@@ -22,34 +22,40 @@
 #include "MockReceiptMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	using namespace catapult::mongo::mappers;
-	using MongoReceiptPlugin = mongo::MongoReceiptPlugin;
+    using namespace catapult::mongo::mappers;
+    using MongoReceiptPlugin = mongo::MongoReceiptPlugin;
 
-	namespace {
-		class MockMongoReceiptPlugin : public MongoReceiptPlugin {
-		public:
-			explicit MockMongoReceiptPlugin(model::ReceiptType type)
-					: m_type(type) {
-			}
+    namespace {
+        class MockMongoReceiptPlugin : public MongoReceiptPlugin {
+        public:
+            explicit MockMongoReceiptPlugin(model::ReceiptType type)
+                : m_type(type)
+            {
+            }
 
-		public:
-			model::ReceiptType type() const override {
-				return m_type;
-			}
+        public:
+            model::ReceiptType type() const override
+            {
+                return m_type;
+            }
 
-			void streamReceipt(bson_stream::document& builder, const model::Receipt& receipt) const override {
-				const auto& mockReceipt = static_cast<const MockReceipt&>(receipt);
-				builder << "mock_payload" << ToBinary(mockReceipt.Payload.data(), mockReceipt.Payload.size());
-			}
+            void streamReceipt(bson_stream::document& builder, const model::Receipt& receipt) const override
+            {
+                const auto& mockReceipt = static_cast<const MockReceipt&>(receipt);
+                builder << "mock_payload" << ToBinary(mockReceipt.Payload.data(), mockReceipt.Payload.size());
+            }
 
-		private:
-			model::ReceiptType m_type;
-		};
-	}
+        private:
+            model::ReceiptType m_type;
+        };
+    }
 
-	std::unique_ptr<MongoReceiptPlugin> CreateMockReceiptMongoPlugin(int type) {
-		return std::make_unique<MockMongoReceiptPlugin>(static_cast<model::ReceiptType>(type));
-	}
-}}
+    std::unique_ptr<MongoReceiptPlugin> CreateMockReceiptMongoPlugin(int type)
+    {
+        return std::make_unique<MockMongoReceiptPlugin>(static_cast<model::ReceiptType>(type));
+    }
+}
+}

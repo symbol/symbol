@@ -30,32 +30,38 @@
 
 using namespace catapult::mongo::mappers;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		template<typename TRestrictionValue>
-		void StreamValues(bson_stream::document& builder, const std::string& name, const TRestrictionValue* pValues, uint8_t numValues) {
-			auto valuesArray = builder << name << bson_stream::open_array;
-			for (auto i = 0u; i < numValues; ++i) {
-				auto valueBuffer = state::ToVector(pValues[i]);
-				valuesArray << ToBinary(valueBuffer.data(), valueBuffer.size());
-			}
+        namespace {
+            template <typename TRestrictionValue>
+            void StreamValues(bson_stream::document& builder, const std::string& name, const TRestrictionValue* pValues, uint8_t numValues)
+            {
+                auto valuesArray = builder << name << bson_stream::open_array;
+                for (auto i = 0u; i < numValues; ++i) {
+                    auto valueBuffer = state::ToVector(pValues[i]);
+                    valuesArray << ToBinary(valueBuffer.data(), valueBuffer.size());
+                }
 
-			valuesArray << bson_stream::close_array;
-		}
+                valuesArray << bson_stream::close_array;
+            }
 
-		template<typename TRestrictionValue>
-		struct AccountRestrictionTransactionStreamer {
-			template<typename TTransaction>
-			static void Stream(bson_stream::document& builder, const TTransaction& transaction) {
-				builder << "restrictionFlags" << static_cast<int32_t>(transaction.RestrictionFlags);
-				StreamValues(builder, "restrictionAdditions", transaction.RestrictionAdditionsPtr(), transaction.RestrictionAdditionsCount);
-				StreamValues(builder, "restrictionDeletions", transaction.RestrictionDeletionsPtr(), transaction.RestrictionDeletionsCount);
-			}
-		};
-	}
+            template <typename TRestrictionValue>
+            struct AccountRestrictionTransactionStreamer {
+                template <typename TTransaction>
+                static void Stream(bson_stream::document& builder, const TTransaction& transaction)
+                {
+                    builder << "restrictionFlags" << static_cast<int32_t>(transaction.RestrictionFlags);
+                    StreamValues(builder, "restrictionAdditions", transaction.RestrictionAdditionsPtr(), transaction.RestrictionAdditionsCount);
+                    StreamValues(builder, "restrictionDeletions", transaction.RestrictionDeletionsPtr(), transaction.RestrictionDeletionsCount);
+                }
+            };
+        }
 
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountAddressRestriction, AccountRestrictionTransactionStreamer<Address>::Stream)
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountMosaicRestriction, AccountRestrictionTransactionStreamer<MosaicId>::Stream)
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountOperationRestriction, AccountRestrictionTransactionStreamer<model::EntityType>::Stream)
-}}}
+        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountAddressRestriction, AccountRestrictionTransactionStreamer<Address>::Stream)
+        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountMosaicRestriction, AccountRestrictionTransactionStreamer<MosaicId>::Stream)
+        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountOperationRestriction, AccountRestrictionTransactionStreamer<model::EntityType>::Stream)
+    }
+}
+}

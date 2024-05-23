@@ -38,59 +38,61 @@
 #include <string>
 #include <vector>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Creates options for a test file logger.
-	utils::FileLoggerOptions CreateTestFileLoggerOptions();
+    /// Creates options for a test file logger.
+    utils::FileLoggerOptions CreateTestFileLoggerOptions();
 
-	/// Creates options for a test file logger with log file \a prefix.
-	utils::FileLoggerOptions CreateTestFileLoggerOptions(const std::string& prefix);
+    /// Creates options for a test file logger with log file \a prefix.
+    utils::FileLoggerOptions CreateTestFileLoggerOptions(const std::string& prefix);
 
-	/// Uses RAII to delete a test logs directory.
-	class TempLogsDirectoryGuard final {
-	public:
-		/// Guards a default test logs directory.
-		TempLogsDirectoryGuard();
+    /// Uses RAII to delete a test logs directory.
+    class TempLogsDirectoryGuard final {
+    public:
+        /// Guards a default test logs directory.
+        TempLogsDirectoryGuard();
 
-		/// Guards a test logs directory with log file \a prefix.
-		explicit TempLogsDirectoryGuard(const std::string& prefix);
+        /// Guards a test logs directory with log file \a prefix.
+        explicit TempLogsDirectoryGuard(const std::string& prefix);
 
-	public:
-		/// Gets the name of the log file with \a id.
-		std::string name(size_t id = 0);
+    public:
+        /// Gets the name of the log file with \a id.
+        std::string name(size_t id = 0);
 
-	private:
-		std::string m_prefix;
-		TempDirectoryGuard m_directoryGuard;
-	};
+    private:
+        std::string m_prefix;
+        TempDirectoryGuard m_directoryGuard;
+    };
 
-	/// Parsed log record.
-	struct SimpleLogRecord {
-		/// Log timestamp.
-		boost::posix_time::ptime Timestamp;
+    /// Parsed log record.
+    struct SimpleLogRecord {
+        /// Log timestamp.
+        boost::posix_time::ptime Timestamp;
 
-		/// Log thread id.
-		std::string ThreadId;
+        /// Log thread id.
+        std::string ThreadId;
 
-		/// Log message.
-		std::string Message;
+        /// Log message.
+        std::string Message;
 
-		/// Log subcomponent.
-		std::string Subcomponent;
-	};
+        /// Log subcomponent.
+        std::string Subcomponent;
+    };
 
-	/// Parses an unstructured log file (\a logFilename) into simple log records grouped by thread id.
-	std::map<std::string, std::vector<SimpleLogRecord>> ParseMultiThreadedLogLines(const std::string& logFilename);
+    /// Parses an unstructured log file (\a logFilename) into simple log records grouped by thread id.
+    std::map<std::string, std::vector<SimpleLogRecord>> ParseMultiThreadedLogLines(const std::string& logFilename);
 
-	/// Parses an unstructured log file (\a logFilename) into simple log records.
-	std::vector<SimpleLogRecord> ParseLogLines(const std::string& logFilename);
+    /// Parses an unstructured log file (\a logFilename) into simple log records.
+    std::vector<SimpleLogRecord> ParseLogLines(const std::string& logFilename);
 
-	/// Asserts that \a records have increasing timestamps.
-	void AssertTimestampsAreIncreasing(const std::vector<SimpleLogRecord>& records);
+    /// Asserts that \a records have increasing timestamps.
+    void AssertTimestampsAreIncreasing(const std::vector<SimpleLogRecord>& records);
 
-	/// Asserts that \a records have \a numExpectedThreadIds unique thread ids.
-	void AssertNumUniqueThreadIds(const std::vector<SimpleLogRecord>& records, size_t numExpectedThreadIds);
+    /// Asserts that \a records have \a numExpectedThreadIds unique thread ids.
+    void AssertNumUniqueThreadIds(const std::vector<SimpleLogRecord>& records, size_t numExpectedThreadIds);
 
-	/// Asserts that \a records have ordered messages equal to \a expectedMessages.
-	void AssertMessages(const std::vector<SimpleLogRecord>& records, const std::vector<std::string>& expectedMessages);
-}}
+    /// Asserts that \a records have ordered messages equal to \a expectedMessages.
+    void AssertMessages(const std::vector<SimpleLogRecord>& records, const std::vector<std::string>& expectedMessages);
+}
+}

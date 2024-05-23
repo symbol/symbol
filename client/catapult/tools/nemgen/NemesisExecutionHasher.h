@@ -23,22 +23,28 @@
 #include "blockhashes/NemesisBlockHashesCalculator.h"
 #include <string>
 
-namespace catapult { namespace config {
-	class CatapultConfiguration;
-}}
+namespace catapult {
+namespace config {
+    class CatapultConfiguration;
+}
+}
 
-namespace catapult { namespace tools { namespace nemgen {
+namespace catapult {
+namespace tools {
+    namespace nemgen {
 
-	/// Nemesis block execution dependent hashes information.
-	struct NemesisExecutionHashesDescriptor : public BlockExecutionHashesInfo {
-		/// Textual summary including sub cache hashes.
-		std::string Summary;
-	};
+        /// Nemesis block execution dependent hashes information.
+        struct NemesisExecutionHashesDescriptor : public BlockExecutionHashesInfo {
+            /// Textual summary including sub cache hashes.
+            std::string Summary;
+        };
 
-	/// Calculates and logs the nemesis block execution dependent hashes after executing nemesis \a blockElement
-	/// for network configured with \a config and \a pluginManager.
-	NemesisExecutionHashesDescriptor CalculateAndLogNemesisExecutionHashes(
-			const model::BlockElement& blockElement,
-			const config::CatapultConfiguration& config,
-			plugins::PluginManager& pluginManager);
-}}}
+        /// Calculates and logs the nemesis block execution dependent hashes after executing nemesis \a blockElement
+        /// for network configured with \a config and \a pluginManager.
+        NemesisExecutionHashesDescriptor CalculateAndLogNemesisExecutionHashes(
+            const model::BlockElement& blockElement,
+            const config::CatapultConfiguration& config,
+            plugins::PluginManager& pluginManager);
+    }
+}
+}

@@ -24,27 +24,31 @@
 #include <cstring>
 #include <tuple>
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	/// Hasher object for a ByteArray with a variable offset.
-	/// \note Offset defaults to 4 because because some arrays (e.g. Address) don't have a lot of entropy at the beginning.
-	/// \note Hash is composed of only sizeof(size_t) bytes starting at offset.
-	template<typename TArray, size_t Offset = 4>
-	struct ArrayHasher {
-		/// Hashes \a arrayData.
-		size_t operator()(const TArray& array) const {
-			size_t hash;
-			std::memcpy(static_cast<void*>(&hash), &array[Offset], sizeof(size_t));
-			return hash;
-		}
-	};
+    /// Hasher object for a ByteArray with a variable offset.
+    /// \note Offset defaults to 4 because because some arrays (e.g. Address) don't have a lot of entropy at the beginning.
+    /// \note Hash is composed of only sizeof(size_t) bytes starting at offset.
+    template <typename TArray, size_t Offset = 4>
+    struct ArrayHasher {
+        /// Hashes \a arrayData.
+        size_t operator()(const TArray& array) const
+        {
+            size_t hash;
+            std::memcpy(static_cast<void*>(&hash), &array[Offset], sizeof(size_t));
+            return hash;
+        }
+    };
 
-	/// Hasher object for a base value.
-	template<typename TValue>
-	struct BaseValueHasher {
-		/// Hashes \a value.
-		size_t operator()(TValue value) const {
-			return static_cast<size_t>(value.unwrap());
-		}
-	};
-}}
+    /// Hasher object for a base value.
+    template <typename TValue>
+    struct BaseValueHasher {
+        /// Hashes \a value.
+        size_t operator()(TValue value) const
+        {
+            return static_cast<size_t>(value.unwrap());
+        }
+    };
+}
+}

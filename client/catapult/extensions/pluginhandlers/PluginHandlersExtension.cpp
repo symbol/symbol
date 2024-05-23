@@ -19,16 +19,22 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/PluginHandlersService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
+#include "src/PluginHandlersService.h"
 
-namespace catapult { namespace pluginhandlers { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		// register service(s)
-		bootstrapper.extensionManager().addServiceRegistrar(CreatePluginHandlersServiceRegistrar());
-	}
-}}}
+namespace catapult {
+namespace pluginhandlers {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            // register service(s)
+            bootstrapper.extensionManager().addServiceRegistrar(CreatePluginHandlersServiceRegistrar());
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::pluginhandlers::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::pluginhandlers::RegisterExtension(bootstrapper);
 }

@@ -20,67 +20,73 @@
 **/
 
 #include "src/model/MosaicSupplyChangeTransaction.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS MosaicSupplyChangeTransactionTests
 
-	// region size + alignment + properties
+    // region size + alignment + properties
 
 #define TRANSACTION_FIELDS FIELD(MosaicId) FIELD(Delta) FIELD(Action)
 
-	namespace {
-		template<typename T>
-		void AssertTransactionHasExpectedSize(size_t baseSize) {
-			// Arrange:
-			auto expectedSize = baseSize;
+    namespace {
+        template <typename T>
+        void AssertTransactionHasExpectedSize(size_t baseSize)
+        {
+            // Arrange:
+            auto expectedSize = baseSize;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
-			TRANSACTION_FIELDS
+            TRANSACTION_FIELDS
 #undef FIELD
 
-			// Assert:
-			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 17u, sizeof(T));
-		}
+            // Assert:
+            EXPECT_EQ(expectedSize, sizeof(T));
+            EXPECT_EQ(baseSize + 17u, sizeof(T));
+        }
 
-		template<typename T>
-		void AssertTransactionHasProperAlignment() {
+        template <typename T>
+        void AssertTransactionHasProperAlignment()
+        {
 #define FIELD(X) EXPECT_ALIGNED(T, X);
-			TRANSACTION_FIELDS
+            TRANSACTION_FIELDS
 #undef FIELD
-		}
+        }
 
-		template<typename T>
-		void AssertTransactionHasExpectedProperties() {
-			// Assert:
-			EXPECT_EQ(Entity_Type_Mosaic_Supply_Change, T::Entity_Type);
-			EXPECT_EQ(1u, T::Current_Version);
-		}
-	}
+        template <typename T>
+        void AssertTransactionHasExpectedProperties()
+        {
+            // Assert:
+            EXPECT_EQ(Entity_Type_Mosaic_Supply_Change, T::Entity_Type);
+            EXPECT_EQ(1u, T::Current_Version);
+        }
+    }
 
 #undef TRANSACTION_FIELDS
 
-	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(MosaicSupplyChange)
+    ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(MosaicSupplyChange)
 
-	// endregion
+    // endregion
 
-	// region CalculateRealSize
+    // region CalculateRealSize
 
-	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
-		// Arrange:
-		MosaicSupplyChangeTransaction transaction;
-		transaction.Size = 0;
+    TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues)
+    {
+        // Arrange:
+        MosaicSupplyChangeTransaction transaction;
+        transaction.Size = 0;
 
-		// Act:
-		auto realSize = MosaicSupplyChangeTransaction::CalculateRealSize(transaction);
+        // Act:
+        auto realSize = MosaicSupplyChangeTransaction::CalculateRealSize(transaction);
 
-		// Assert:
-		EXPECT_EQ(sizeof(MosaicSupplyChangeTransaction), realSize);
-	}
+        // Assert:
+        EXPECT_EQ(sizeof(MosaicSupplyChangeTransaction), realSize);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

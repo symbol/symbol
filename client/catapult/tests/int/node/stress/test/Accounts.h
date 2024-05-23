@@ -23,23 +23,25 @@
 #include "catapult/crypto/KeyPair.h"
 #include <vector>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Container of accounts.
-	/// \note First account is always nemesis recipient account.
-	class Accounts {
-	public:
-		/// Creates a container with \a numAccounts accounts.
-		explicit Accounts(size_t numAccounts);
+    /// Container of accounts.
+    /// \note First account is always nemesis recipient account.
+    class Accounts {
+    public:
+        /// Creates a container with \a numAccounts accounts.
+        explicit Accounts(size_t numAccounts);
 
-	public:
-		/// Gets the address for the \a id account.
-		Address getAddress(size_t id) const;
+    public:
+        /// Gets the address for the \a id account.
+        Address getAddress(size_t id) const;
 
-		/// Gets the key pair for the \a id account.
-		const crypto::KeyPair& getKeyPair(size_t id) const;
+        /// Gets the key pair for the \a id account.
+        const crypto::KeyPair& getKeyPair(size_t id) const;
 
-	private:
-		std::vector<crypto::KeyPair> m_keyPairs;
-	};
-}}
+    private:
+        std::vector<crypto::KeyPair> m_keyPairs;
+    };
+}
+}

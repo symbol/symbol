@@ -24,37 +24,42 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
 #define LOAD_PROPERTY(SECTION, NAME) utils::LoadIniProperty(bag, SECTION, #NAME, config.NAME)
 
-	DatabaseConfiguration DatabaseConfiguration::Uninitialized() {
-		return DatabaseConfiguration();
-	}
+    DatabaseConfiguration DatabaseConfiguration::Uninitialized()
+    {
+        return DatabaseConfiguration();
+    }
 
-	DatabaseConfiguration DatabaseConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		DatabaseConfiguration config;
+    DatabaseConfiguration DatabaseConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        DatabaseConfiguration config;
 
 #define LOAD_DB_PROPERTY(NAME) LOAD_PROPERTY("database", NAME)
 
-		LOAD_DB_PROPERTY(DatabaseUri);
-		LOAD_DB_PROPERTY(DatabaseName);
-		LOAD_DB_PROPERTY(MaxWriterThreads);
-		LOAD_DB_PROPERTY(MaxDropBatchSize);
-		LOAD_DB_PROPERTY(WriteTimeout);
+        LOAD_DB_PROPERTY(DatabaseUri);
+        LOAD_DB_PROPERTY(DatabaseName);
+        LOAD_DB_PROPERTY(MaxWriterThreads);
+        LOAD_DB_PROPERTY(MaxDropBatchSize);
+        LOAD_DB_PROPERTY(WriteTimeout);
 
 #undef LOAD_DB_PROPERTY
 
-		auto pluginsPair = utils::ExtractSectionAsUnorderedSet(bag, "plugins");
-		config.Plugins = pluginsPair.first;
+        auto pluginsPair = utils::ExtractSectionAsUnorderedSet(bag, "plugins");
+        config.Plugins = pluginsPair.first;
 
-		utils::VerifyBagSizeExact(bag, 5 + pluginsPair.second);
-		return config;
-	}
+        utils::VerifyBagSizeExact(bag, 5 + pluginsPair.second);
+        return config;
+    }
 
 #undef LOAD_PROPERTY
 
-	DatabaseConfiguration DatabaseConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
-		return config::LoadIniConfiguration<DatabaseConfiguration>(resourcesPath / "config-database.properties");
-	}
-}}
+    DatabaseConfiguration DatabaseConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath)
+    {
+        return config::LoadIniConfiguration<DatabaseConfiguration>(resourcesPath / "config-database.properties");
+    }
+}
+}

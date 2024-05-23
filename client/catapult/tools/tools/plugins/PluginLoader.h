@@ -26,49 +26,53 @@
 
 namespace catapult {
 namespace config {
-	class CatapultConfiguration;
+    class CatapultConfiguration;
 }
 namespace plugins {
-	class PluginManager;
+    class PluginManager;
 }
 }
 
-namespace catapult { namespace tools { namespace plugins {
+namespace catapult {
+namespace tools {
+    namespace plugins {
 
-	/// Possible cache database cleanup modes.
-	enum class CacheDatabaseCleanupMode {
-		/// Perform no cleanup.
-		None,
+        /// Possible cache database cleanup modes.
+        enum class CacheDatabaseCleanupMode {
+            /// Perform no cleanup.
+            None,
 
-		/// Purge after execution.
-		Purge
-	};
+            /// Purge after execution.
+            Purge
+        };
 
-	/// Loads plugins into a plugin manager.
-	class PluginLoader {
-	public:
-		/// Creates a loader around \a config with specified database cleanup mode (\a databaseCleanupMode).
-		PluginLoader(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode);
+        /// Loads plugins into a plugin manager.
+        class PluginLoader {
+        public:
+            /// Creates a loader around \a config with specified database cleanup mode (\a databaseCleanupMode).
+            PluginLoader(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode);
 
-		/// Destroys the loader.
-		~PluginLoader();
+            /// Destroys the loader.
+            ~PluginLoader();
 
-	public:
-		/// Gets the plugin manager.
-		catapult::plugins::PluginManager& manager();
+        public:
+            /// Gets the plugin manager.
+            catapult::plugins::PluginManager& manager();
 
-		/// Gets the transaction registry.
-		const model::TransactionRegistry& transactionRegistry() const;
+            /// Gets the transaction registry.
+            const model::TransactionRegistry& transactionRegistry() const;
 
-		/// Creates a notification publisher.
-		std::unique_ptr<const model::NotificationPublisher> createNotificationPublisher() const;
+            /// Creates a notification publisher.
+            std::unique_ptr<const model::NotificationPublisher> createNotificationPublisher() const;
 
-	public:
-		/// Loads all configured plugins.
-		void loadAll();
+        public:
+            /// Loads all configured plugins.
+            void loadAll();
 
-	private:
-		class Impl;
-		std::unique_ptr<Impl> m_pImpl;
-	};
-}}}
+        private:
+            class Impl;
+            std::unique_ptr<Impl> m_pImpl;
+        };
+    }
+}
+}

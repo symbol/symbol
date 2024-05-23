@@ -22,8 +22,10 @@
 #pragma once
 #include "catapult/io/BlockStorage.h"
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Creates non-owning read-only storage around \a storage.
-	std::unique_ptr<io::BlockStorage> CreateReadOnlyStorageAdapter(const io::BlockStorage& storage);
-}}
+    /// Creates non-owning read-only storage around \a storage.
+    std::unique_ptr<io::BlockStorage> CreateReadOnlyStorageAdapter(const io::BlockStorage& storage);
+}
+}

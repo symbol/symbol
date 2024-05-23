@@ -22,47 +22,51 @@
 #pragma once
 #include <iosfwd>
 
-namespace catapult { namespace model {
-	class FinalizationContext;
-	struct FinalizationProof;
-}}
+namespace catapult {
+namespace model {
+    class FinalizationContext;
+    struct FinalizationProof;
+}
+}
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	// region VerifyFinalizationProofResult
+    // region VerifyFinalizationProofResult
 
-#define VERIFY_FINALIZATION_PROOF_RESULT_LIST \
-	/* Proof version is not supported. */ \
-	ENUM_VALUE(Failure_Invalid_Version) \
-\
-	/* Proof epoch does not match context. */ \
-	ENUM_VALUE(Failure_Invalid_Epoch) \
-\
-	/* Proof height is invalid. */ \
-	ENUM_VALUE(Failure_Invalid_Height) \
-\
-	/* Proof hash is invalid. */ \
-	ENUM_VALUE(Failure_Invalid_Hash) \
-\
-	/* Proof does not represent a valid precommit. */ \
-	ENUM_VALUE(Failure_No_Precommit) \
-\
-	/* Proof contains an invalid message. */ \
-	ENUM_VALUE(Failure_Invalid_Messsage) \
-\
-	/* Proof was successfully verified. */ \
-	ENUM_VALUE(Success)
+#define VERIFY_FINALIZATION_PROOF_RESULT_LIST         \
+    /* Proof version is not supported. */             \
+    ENUM_VALUE(Failure_Invalid_Version)               \
+                                                      \
+    /* Proof epoch does not match context. */         \
+    ENUM_VALUE(Failure_Invalid_Epoch)                 \
+                                                      \
+    /* Proof height is invalid. */                    \
+    ENUM_VALUE(Failure_Invalid_Height)                \
+                                                      \
+    /* Proof hash is invalid. */                      \
+    ENUM_VALUE(Failure_Invalid_Hash)                  \
+                                                      \
+    /* Proof does not represent a valid precommit. */ \
+    ENUM_VALUE(Failure_No_Precommit)                  \
+                                                      \
+    /* Proof contains an invalid message. */          \
+    ENUM_VALUE(Failure_Invalid_Messsage)              \
+                                                      \
+    /* Proof was successfully verified. */            \
+    ENUM_VALUE(Success)
 
 #define ENUM_VALUE(LABEL) LABEL,
-	/// Verify finalization proof results.
-	enum class VerifyFinalizationProofResult { VERIFY_FINALIZATION_PROOF_RESULT_LIST };
+    /// Verify finalization proof results.
+    enum class VerifyFinalizationProofResult { VERIFY_FINALIZATION_PROOF_RESULT_LIST };
 #undef ENUM_VALUE
 
-	/// Insertion operator for outputting \a value to \a out.
-	std::ostream& operator<<(std::ostream& out, VerifyFinalizationProofResult value);
+    /// Insertion operator for outputting \a value to \a out.
+    std::ostream& operator<<(std::ostream& out, VerifyFinalizationProofResult value);
 
-	// endregion
+    // endregion
 
-	/// Verifies \a proof given \a context.
-	VerifyFinalizationProofResult VerifyFinalizationProof(const model::FinalizationProof& proof, const model::FinalizationContext& context);
-}}
+    /// Verifies \a proof given \a context.
+    VerifyFinalizationProofResult VerifyFinalizationProof(const model::FinalizationProof& proof, const model::FinalizationContext& context);
+}
+}

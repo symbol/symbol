@@ -19,21 +19,25 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/SecretLockInfoMapper.h"
 #include "mongo/plugins/lock_shared/tests/mappers/LockInfoMapperTests.h"
+#include "src/mappers/SecretLockInfoMapper.h"
+#include "tests/TestHarness.h"
 #include "tests/test/MongoSecretLockInfoTestTraits.h"
 #include "tests/test/SecretLockMapperTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS SecretLockInfoMapperTests
 
-	namespace {
-		struct SecretLockInfoMapperTraits : public test::MongoSecretLockInfoTestTraits {
-			static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
-		};
-	}
+        namespace {
+            struct SecretLockInfoMapperTraits : public test::MongoSecretLockInfoTestTraits {
+                static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
+            };
+        }
 
-	DEFINE_LOCK_INFO_MAPPER_TESTS(SecretLockInfoMapperTraits)
-}}}
+        DEFINE_LOCK_INFO_MAPPER_TESTS(SecretLockInfoMapperTraits)
+    }
+}
+}

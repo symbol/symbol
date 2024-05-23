@@ -23,43 +23,47 @@
 #include "catapult/ionet/NodeInteractionResultCode.h"
 #include "catapult/thread/FutureUtils.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Entities synchronizer.
-	template<typename TSynchronizerTraits>
-	class EntitiesSynchronizer {
-	public:
-		using RemoteApiType = typename TSynchronizerTraits::RemoteApiType;
+    /// Entities synchronizer.
+    template <typename TSynchronizerTraits>
+    class EntitiesSynchronizer {
+    public:
+        using RemoteApiType = typename TSynchronizerTraits::RemoteApiType;
 
-	private:
-		using NodeInteractionFuture = thread::future<ionet::NodeInteractionResultCode>;
+    private:
+        using NodeInteractionFuture = thread::future<ionet::NodeInteractionResultCode>;
 
-	public:
-		/// Creates an entities synchronizer around \a traits.
-		explicit EntitiesSynchronizer(TSynchronizerTraits&& traits)
-				: m_traits(std::move(traits)) {
-		}
+    public:
+        /// Creates an entities synchronizer around \a traits.
+        explicit EntitiesSynchronizer(TSynchronizerTraits&& traits)
+            : m_traits(std::move(traits))
+        {
+        }
 
-	public:
-		/// Pulls entities from a remote node using \a api.
-		NodeInteractionFuture operator()(const RemoteApiType& api) {
-			return m_traits.apiCall(api).then([&traits = m_traits, sourceIdentity = api.remoteIdentity()](auto&& rangeFuture) {
-				try {
-					auto range = rangeFuture.get();
-					if (range.empty())
-						return ionet::NodeInteractionResultCode::Neutral;
+    public:
+        /// Pulls entities from a remote node using \a api.
+        NodeInteractionFuture operator()(const RemoteApiType& api)
+        {
+            return m_traits.apiCall(api).then([&traits = m_traits, sourceIdentity = api.remoteIdentity()](auto&& rangeFuture) {
+                try {
+                    auto range = rangeFuture.get();
+                    if (range.empty())
+                        return ionet::NodeInteractionResultCode::Neutral;
 
-					CATAPULT_LOG(debug) << "peer returned " << range.size() << " " << TSynchronizerTraits::Name;
-					traits.consume(std::move(range), sourceIdentity);
-					return ionet::NodeInteractionResultCode::Success;
-				} catch (const catapult_runtime_error& e) {
-					CATAPULT_LOG(warning) << "exception thrown while requesting " << TSynchronizerTraits::Name << ": " << e.what();
-					return ionet::NodeInteractionResultCode::Failure;
-				}
-			});
-		}
+                    CATAPULT_LOG(debug) << "peer returned " << range.size() << " " << TSynchronizerTraits::Name;
+                    traits.consume(std::move(range), sourceIdentity);
+                    return ionet::NodeInteractionResultCode::Success;
+                } catch (const catapult_runtime_error& e) {
+                    CATAPULT_LOG(warning) << "exception thrown while requesting " << TSynchronizerTraits::Name << ": " << e.what();
+                    return ionet::NodeInteractionResultCode::Failure;
+                }
+            });
+        }
 
-	private:
-		TSynchronizerTraits m_traits;
-	};
-}}
+    private:
+        TSynchronizerTraits m_traits;
+    };
+}
+}

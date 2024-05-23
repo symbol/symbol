@@ -24,18 +24,25 @@
 #include "MapperUtils.h"
 #include "catapult/model/Receipt.h"
 
-namespace catapult { namespace mongo {
-	class MongoReceiptRegistry;
-}}
+namespace catapult {
+namespace mongo {
+    class MongoReceiptRegistry;
+}
+}
 
-namespace catapult { namespace mongo { namespace mappers {
+namespace catapult {
+namespace mongo {
+    namespace mappers {
 
-	/// Streams \a receipt to \a builder.
-	template<typename TArtifactId>
-	void StreamReceipt(bson_stream::document& builder, const model::ArtifactExpiryReceipt<TArtifactId>& receipt) {
-		builder << "artifactId" << ToInt64(receipt.ArtifactId);
-	}
+        /// Streams \a receipt to \a builder.
+        template <typename TArtifactId>
+        void StreamReceipt(bson_stream::document& builder, const model::ArtifactExpiryReceipt<TArtifactId>& receipt)
+        {
+            builder << "artifactId" << ToInt64(receipt.ArtifactId);
+        }
 
-	/// Streams \a receipt to \a builder using \a receiptRegistry for mapping derived receipt types.
-	void StreamReceipt(bson_stream::document& builder, const model::Receipt& receipt, const MongoReceiptRegistry& receiptRegistry);
-}}}
+        /// Streams \a receipt to \a builder using \a receiptRegistry for mapping derived receipt types.
+        void StreamReceipt(bson_stream::document& builder, const model::Receipt& receipt, const MongoReceiptRegistry& receiptRegistry);
+    }
+}
+}

@@ -20,49 +20,52 @@
 **/
 
 #include "MultisigAccountModificationTransactionPlugin.h"
-#include "src/model/MultisigAccountModificationTransaction.h"
-#include "src/model/MultisigNotifications.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/MultisigAccountModificationTransaction.h"
+#include "src/model/MultisigNotifications.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			// 1. basic
-			sub.notify(InternalPaddingNotification(transaction.MultisigAccountModificationTransactionBody_Reserved1));
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            // 1. basic
+            sub.notify(InternalPaddingNotification(transaction.MultisigAccountModificationTransactionBody_Reserved1));
 
-			// 2. cosig changes
-			UnresolvedAddressSet addedCosignatories;
-			if (0 < transaction.AddressAdditionsCount || 0 < transaction.AddressDeletionsCount) {
-				// - raise new cosignatory notifications first because they are used for multisig loop detection
-				// - notify cosignatories' addresses in order to allow added cosignatories to get aggregate notifications
-				const auto* pAddressAdditions = transaction.AddressAdditionsPtr();
-				for (auto i = 0u; i < transaction.AddressAdditionsCount; ++i) {
-					addedCosignatories.insert(pAddressAdditions[i]);
+            // 2. cosig changes
+            UnresolvedAddressSet addedCosignatories;
+            if (0 < transaction.AddressAdditionsCount || 0 < transaction.AddressDeletionsCount) {
+                // - raise new cosignatory notifications first because they are used for multisig loop detection
+                // - notify cosignatories' addresses in order to allow added cosignatories to get aggregate notifications
+                const auto* pAddressAdditions = transaction.AddressAdditionsPtr();
+                for (auto i = 0u; i < transaction.AddressAdditionsCount; ++i) {
+                    addedCosignatories.insert(pAddressAdditions[i]);
 
-					sub.notify(AccountAddressNotification(pAddressAdditions[i]));
-					sub.notify(MultisigNewCosignatoryNotification(context.SignerAddress, pAddressAdditions[i]));
-				}
+                    sub.notify(AccountAddressNotification(pAddressAdditions[i]));
+                    sub.notify(MultisigNewCosignatoryNotification(context.SignerAddress, pAddressAdditions[i]));
+                }
 
-				sub.notify(MultisigCosignatoriesNotification(
-						context.SignerAddress,
-						transaction.AddressAdditionsCount,
-						pAddressAdditions,
-						transaction.AddressDeletionsCount,
-						transaction.AddressDeletionsPtr()));
-			}
+                sub.notify(MultisigCosignatoriesNotification(
+                    context.SignerAddress,
+                    transaction.AddressAdditionsCount,
+                    pAddressAdditions,
+                    transaction.AddressDeletionsCount,
+                    transaction.AddressDeletionsPtr()));
+            }
 
-			if (!addedCosignatories.empty())
-				sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, addedCosignatories));
+            if (!addedCosignatories.empty())
+                sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, addedCosignatories));
 
-			// 3. setting changes
-			sub.notify(MultisigSettingsNotification(context.SignerAddress, transaction.MinRemovalDelta, transaction.MinApprovalDelta));
-		}
-	}
+            // 3. setting changes
+            sub.notify(MultisigSettingsNotification(context.SignerAddress, transaction.MinRemovalDelta, transaction.MinApprovalDelta));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(MultisigAccountModification, Only_Embeddable, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(MultisigAccountModification, Only_Embeddable, Publish)
+}
+}

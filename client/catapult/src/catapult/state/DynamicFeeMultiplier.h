@@ -23,32 +23,35 @@
 #include "BlockStatistic.h"
 #include <algorithm>
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Calculates the dynamic fee multiplier over the specified range [\a beginIter, \a endIter)
-	/// given the number of historical statistics (\a count) and default multiplier value (\a defaultFeeMultiplier).
-	template<typename TIterator>
-	BlockFeeMultiplier CalculateDynamicFeeMultiplier(
-			const TIterator& beginIter,
-			const TIterator& endIter,
-			size_t count,
-			BlockFeeMultiplier defaultFeeMultiplier) {
-		if (0 == count)
-			return defaultFeeMultiplier;
+    /// Calculates the dynamic fee multiplier over the specified range [\a beginIter, \a endIter)
+    /// given the number of historical statistics (\a count) and default multiplier value (\a defaultFeeMultiplier).
+    template <typename TIterator>
+    BlockFeeMultiplier CalculateDynamicFeeMultiplier(
+        const TIterator& beginIter,
+        const TIterator& endIter,
+        size_t count,
+        BlockFeeMultiplier defaultFeeMultiplier)
+    {
+        if (0 == count)
+            return defaultFeeMultiplier;
 
-		std::vector<BlockFeeMultiplier> feeMultipliers;
-		feeMultipliers.reserve(count);
+        std::vector<BlockFeeMultiplier> feeMultipliers;
+        feeMultipliers.reserve(count);
 
-		for (auto iter = beginIter; endIter != iter && feeMultipliers.size() < count; ++iter) {
-			if (BlockFeeMultiplier() != iter->FeeMultiplier)
-				feeMultipliers.push_back(iter->FeeMultiplier);
-		}
+        for (auto iter = beginIter; endIter != iter && feeMultipliers.size() < count; ++iter) {
+            if (BlockFeeMultiplier() != iter->FeeMultiplier)
+                feeMultipliers.push_back(iter->FeeMultiplier);
+        }
 
-		while (feeMultipliers.size() < count)
-			feeMultipliers.push_back(defaultFeeMultiplier);
+        while (feeMultipliers.size() < count)
+            feeMultipliers.push_back(defaultFeeMultiplier);
 
-		auto feeMultipliersMedianIter = feeMultipliers.begin() + count / 2;
-		std::nth_element(feeMultipliers.begin(), feeMultipliersMedianIter, feeMultipliers.end());
-		return *feeMultipliersMedianIter;
-	}
-}}
+        auto feeMultipliersMedianIter = feeMultipliers.begin() + count / 2;
+        std::nth_element(feeMultipliers.begin(), feeMultipliersMedianIter, feeMultipliers.end());
+        return *feeMultipliersMedianIter;
+    }
+}
+}

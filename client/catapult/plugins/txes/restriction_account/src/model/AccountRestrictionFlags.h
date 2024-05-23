@@ -23,28 +23,30 @@
 #include "catapult/utils/BitwiseEnum.h"
 #include <stdint.h>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Account restriction flags.
-	enum class AccountRestrictionFlags : uint16_t {
-		/// Restriction type is an address.
-		Address = 0x0001,
+    /// Account restriction flags.
+    enum class AccountRestrictionFlags : uint16_t {
+        /// Restriction type is an address.
+        Address = 0x0001,
 
-		/// Restriction type is a mosaic identifier.
-		MosaicId = 0x0002,
+        /// Restriction type is a mosaic identifier.
+        MosaicId = 0x0002,
 
-		/// Restriction type is a transaction type.
-		TransactionType = 0x0004,
+        /// Restriction type is a transaction type.
+        TransactionType = 0x0004,
 
-		/// Restriction type sentinel.
-		Sentinel = 0x0008,
+        /// Restriction type sentinel.
+        Sentinel = 0x0008,
 
-		/// Restriction is interpreted as outgoing.
-		Outgoing = 0x4000,
+        /// Restriction is interpreted as outgoing.
+        Outgoing = 0x4000,
 
-		/// Restriction is interpreted as blocking operation.
-		Block = 0x8000
-	};
+        /// Restriction is interpreted as blocking operation.
+        Block = 0x8000
+    };
 
-	MAKE_BITWISE_ENUM(AccountRestrictionFlags)
-}}
+    MAKE_BITWISE_ENUM(AccountRestrictionFlags)
+}
+}

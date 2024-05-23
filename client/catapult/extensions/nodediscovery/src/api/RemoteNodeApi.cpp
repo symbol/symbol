@@ -20,73 +20,83 @@
 **/
 
 #include "RemoteNodeApi.h"
-#include "nodediscovery/src/NodePingUtils.h"
 #include "catapult/api/RemoteRequestDispatcher.h"
+#include "nodediscovery/src/NodePingUtils.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
-	namespace {
-		// region traits
+    namespace {
+        // region traits
 
-		struct NodeInfoTraits {
-		public:
-			using ResultType = ionet::Node;
-			static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Ping;
-			static constexpr auto Friendly_Name = "node info";
+        struct NodeInfoTraits {
+        public:
+            using ResultType = ionet::Node;
+            static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Ping;
+            static constexpr auto Friendly_Name = "node info";
 
-			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(Packet_Type);
-			}
+            static auto CreateRequestPacketPayload()
+            {
+                return ionet::PacketPayload(Packet_Type);
+            }
 
-		public:
-			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				return nodediscovery::TryParseNodePacket(packet, result);
-			}
-		};
+        public:
+            bool tryParseResult(const ionet::Packet& packet, ResultType& result) const
+            {
+                return nodediscovery::TryParseNodePacket(packet, result);
+            }
+        };
 
-		struct PeersInfoTraits {
-		public:
-			using ResultType = ionet::NodeSet;
-			static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Peers;
-			static constexpr auto Friendly_Name = "peers info";
+        struct PeersInfoTraits {
+        public:
+            using ResultType = ionet::NodeSet;
+            static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Peers;
+            static constexpr auto Friendly_Name = "peers info";
 
-			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(Packet_Type);
-			}
+            static auto CreateRequestPacketPayload()
+            {
+                return ionet::PacketPayload(Packet_Type);
+            }
 
-		public:
-			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				return nodediscovery::TryParseNodesPacket(packet, result);
-			}
-		};
+        public:
+            bool tryParseResult(const ionet::Packet& packet, ResultType& result) const
+            {
+                return nodediscovery::TryParseNodesPacket(packet, result);
+            }
+        };
 
-		// endregion
+        // endregion
 
-		class DefaultRemoteNodeApi : public RemoteNodeApi {
-		private:
-			template<typename TTraits>
-			using FutureType = thread::future<typename TTraits::ResultType>;
+        class DefaultRemoteNodeApi : public RemoteNodeApi {
+        private:
+            template <typename TTraits>
+            using FutureType = thread::future<typename TTraits::ResultType>;
 
-		public:
-			explicit DefaultRemoteNodeApi(ionet::PacketIo& io)
-					: m_impl(io) {
-			}
+        public:
+            explicit DefaultRemoteNodeApi(ionet::PacketIo& io)
+                : m_impl(io)
+            {
+            }
 
-		public:
-			FutureType<NodeInfoTraits> nodeInfo() const override {
-				return m_impl.dispatch(NodeInfoTraits());
-			}
+        public:
+            FutureType<NodeInfoTraits> nodeInfo() const override
+            {
+                return m_impl.dispatch(NodeInfoTraits());
+            }
 
-			FutureType<PeersInfoTraits> peersInfo() const override {
-				return m_impl.dispatch(PeersInfoTraits());
-			}
+            FutureType<PeersInfoTraits> peersInfo() const override
+            {
+                return m_impl.dispatch(PeersInfoTraits());
+            }
 
-		private:
-			mutable RemoteRequestDispatcher m_impl;
-		};
-	}
+        private:
+            mutable RemoteRequestDispatcher m_impl;
+        };
+    }
 
-	std::unique_ptr<RemoteNodeApi> CreateRemoteNodeApi(ionet::PacketIo& io) {
-		return std::make_unique<DefaultRemoteNodeApi>(io);
-	}
-}}
+    std::unique_ptr<RemoteNodeApi> CreateRemoteNodeApi(ionet::PacketIo& io)
+    {
+        return std::make_unique<DefaultRemoteNodeApi>(io);
+    }
+}
+}

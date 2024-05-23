@@ -23,14 +23,18 @@
 #include "MongoStorageContext.h"
 #include "catapult/cache_tx/PtChangeSubscriber.h"
 
-namespace catapult { namespace mongo {
-	class MongoTransactionRegistry;
-}}
+namespace catapult {
+namespace mongo {
+    class MongoTransactionRegistry;
+}
+}
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	/// Creates a mongodb partial transaction storage around \a context and \a transactionRegistry.
-	std::unique_ptr<cache::PtChangeSubscriber> CreateMongoPtStorage(
-			MongoStorageContext& context,
-			const MongoTransactionRegistry& transactionRegistry);
-}}
+    /// Creates a mongodb partial transaction storage around \a context and \a transactionRegistry.
+    std::unique_ptr<cache::PtChangeSubscriber> CreateMongoPtStorage(
+        MongoStorageContext& context,
+        const MongoTransactionRegistry& transactionRegistry);
+}
+}

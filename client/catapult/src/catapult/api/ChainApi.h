@@ -26,30 +26,32 @@
 #include "catapult/thread/Future.h"
 #include "catapult/utils/NonCopyable.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
-	/// Chain statistics.
-	struct ChainStatistics {
-		/// Chain height.
-		catapult::Height Height;
+    /// Chain statistics.
+    struct ChainStatistics {
+        /// Chain height.
+        catapult::Height Height;
 
-		/// Finalized chain height.
-		catapult::Height FinalizedHeight;
+        /// Finalized chain height.
+        catapult::Height FinalizedHeight;
 
-		/// Chain score.
-		model::ChainScore Score;
-	};
+        /// Chain score.
+        model::ChainScore Score;
+    };
 
-	/// Api for retrieving chain statistics from a node.
-	class ChainApi : public utils::NonCopyable {
-	public:
-		virtual ~ChainApi() = default;
+    /// Api for retrieving chain statistics from a node.
+    class ChainApi : public utils::NonCopyable {
+    public:
+        virtual ~ChainApi() = default;
 
-	public:
-		/// Gets the chain statistics.
-		virtual thread::future<ChainStatistics> chainStatistics() const = 0;
+    public:
+        /// Gets the chain statistics.
+        virtual thread::future<ChainStatistics> chainStatistics() const = 0;
 
-		/// Gets the hashes starting at \a height but no more than \a maxHashes.
-		virtual thread::future<model::HashRange> hashesFrom(Height height, uint32_t maxHashes) const = 0;
-	};
-}}
+        /// Gets the hashes starting at \a height but no more than \a maxHashes.
+        virtual thread::future<model::HashRange> hashesFrom(Height height, uint32_t maxHashes) const = 0;
+    };
+}
+}

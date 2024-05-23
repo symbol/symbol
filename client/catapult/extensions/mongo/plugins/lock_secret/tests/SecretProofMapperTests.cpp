@@ -19,45 +19,50 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/SecretProofMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
 #include "plugins/txes/lock_secret/tests/test/SecretLockTransactionUtils.h"
+#include "src/SecretProofMapper.h"
 #include "tests/test/SecretLockMapperTestUtils.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS SecretProofMapperTests
 
-	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(SecretProof, )
-	}
+        namespace {
+            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(SecretProof, )
+        }
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Secret_Proof)
+        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Secret_Proof)
 
-	// region streamTransaction
+        // region streamTransaction
 
-	PLUGIN_TEST(CanMapSecretProofTransactionWithProof) {
-		// Arrange:
-		auto pTransaction = test::CreateRandomSecretProofTransaction<TTraits>(123);
-		auto pPlugin = TTraits::CreatePlugin();
+        PLUGIN_TEST(CanMapSecretProofTransactionWithProof)
+        {
+            // Arrange:
+            auto pTransaction = test::CreateRandomSecretProofTransaction<TTraits>(123);
+            auto pPlugin = TTraits::CreatePlugin();
 
-		// Act:
-		mappers::bson_stream::document builder;
-		pPlugin->streamTransaction(builder, *pTransaction);
-		auto view = builder.view();
+            // Act:
+            mappers::bson_stream::document builder;
+            pPlugin->streamTransaction(builder, *pTransaction);
+            auto view = builder.view();
 
-		// Assert:
-		EXPECT_EQ(4u, test::GetFieldCount(view));
-		EXPECT_EQ(utils::to_underlying_type(pTransaction->HashAlgorithm), test::GetUint8(view, "hashAlgorithm"));
-		EXPECT_EQ(pTransaction->Secret, test::GetHashValue(view, "secret"));
-		EXPECT_EQ(pTransaction->RecipientAddress, test::GetUnresolvedAddressValue(view, "recipientAddress"));
+            // Assert:
+            EXPECT_EQ(4u, test::GetFieldCount(view));
+            EXPECT_EQ(utils::to_underlying_type(pTransaction->HashAlgorithm), test::GetUint8(view, "hashAlgorithm"));
+            EXPECT_EQ(pTransaction->Secret, test::GetHashValue(view, "secret"));
+            EXPECT_EQ(pTransaction->RecipientAddress, test::GetUnresolvedAddressValue(view, "recipientAddress"));
 
-		const auto* pProof = pTransaction->ProofPtr();
-		const auto* pDbProof = test::GetBinary(view, "proof");
-		EXPECT_EQ_MEMORY(pProof, pDbProof, pTransaction->ProofSize);
-	}
+            const auto* pProof = pTransaction->ProofPtr();
+            const auto* pDbProof = test::GetBinary(view, "proof");
+            EXPECT_EQ_MEMORY(pProof, pDbProof, pTransaction->ProofSize);
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

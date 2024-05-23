@@ -20,21 +20,22 @@
 **/
 
 #include "HashLockMapper.h"
-#include "storages/MongoHashLockInfoCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
 #include "mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
+#include "storages/MongoHashLockInfoCacheStorage.h"
 
-extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
-	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateHashLockTransactionMongoPlugin());
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager)
+{
+    // transaction support
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateHashLockTransactionMongoPlugin());
 
-	// cache storage support
-	manager.addStorageSupport(
-			catapult::mongo::plugins::CreateMongoHashLockInfoCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+    // cache storage support
+    manager.addStorageSupport(
+        catapult::mongo::plugins::CreateMongoHashLockInfoCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 
-	// receipt support
-	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Created));
-	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Completed));
-	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Expired));
+    // receipt support
+    manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Created));
+    manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Completed));
+    manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Expired));
 }

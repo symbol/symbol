@@ -20,24 +20,27 @@
 **/
 
 #include "HashLockTransactionPlugin.h"
-#include "src/model/HashLockNotifications.h"
-#include "src/model/HashLockTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/HashLockNotifications.h"
+#include "src/model/HashLockTransaction.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			sub.notify(HashLockDurationNotification(transaction.Duration));
-			sub.notify(HashLockMosaicNotification(transaction.Mosaic));
-			sub.notify(BalanceDebitNotification(context.SignerAddress, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
-			sub.notify(HashLockNotification(context.SignerAddress, transaction.Mosaic, transaction.Duration, transaction.Hash));
-		}
-	}
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            sub.notify(HashLockDurationNotification(transaction.Duration));
+            sub.notify(HashLockMosaicNotification(transaction.Mosaic));
+            sub.notify(BalanceDebitNotification(context.SignerAddress, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
+            sub.notify(HashLockNotification(context.SignerAddress, transaction.Mosaic, transaction.Duration, transaction.Hash));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(HashLock, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(HashLock, Default, Publish)
+}
+}

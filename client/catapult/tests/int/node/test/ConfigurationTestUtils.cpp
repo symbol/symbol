@@ -28,48 +28,54 @@
 
 namespace pt = boost::property_tree;
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		std::string CopyFile(const std::filesystem::path& destinationPath, const std::string& filename) {
-			auto sourceFilePath = std::filesystem::path("..") / "resources" / filename;
-			auto destinationFilePath = destinationPath / filename;
-			std::filesystem::copy_file(sourceFilePath, destinationFilePath);
-			return destinationFilePath.generic_string();
-		}
+    namespace {
+        std::string CopyFile(const std::filesystem::path& destinationPath, const std::string& filename)
+        {
+            auto sourceFilePath = std::filesystem::path("..") / "resources" / filename;
+            auto destinationFilePath = destinationPath / filename;
+            std::filesystem::copy_file(sourceFilePath, destinationFilePath);
+            return destinationFilePath.generic_string();
+        }
 
-		void DisableVoting(const std::string& configFilePath) {
-			pt::ptree properties;
-			pt::read_ini(configFilePath, properties);
-			properties.put("finalization.enableVoting", false);
-			pt::write_ini(configFilePath, properties);
-		}
+        void DisableVoting(const std::string& configFilePath)
+        {
+            pt::ptree properties;
+            pt::read_ini(configFilePath, properties);
+            properties.put("finalization.enableVoting", false);
+            pt::write_ini(configFilePath, properties);
+        }
 
-		void ClearAutoHarvesting(const std::string& configFilePath) {
-			pt::ptree properties;
-			pt::read_ini(configFilePath, properties);
-			properties.put("harvesting.enableAutoHarvesting", false);
-			pt::write_ini(configFilePath, properties);
-		}
-	}
+        void ClearAutoHarvesting(const std::string& configFilePath)
+        {
+            pt::ptree properties;
+            pt::read_ini(configFilePath, properties);
+            properties.put("harvesting.enableAutoHarvesting", false);
+            pt::write_ini(configFilePath, properties);
+        }
+    }
 
-	void PrepareConfiguration(const std::string& destination, NodeFlag nodeFlag) {
-		auto destinationResourcesPath = std::filesystem::path(destination) / "resources";
-		std::filesystem::create_directories(destinationResourcesPath);
+    void PrepareConfiguration(const std::string& destination, NodeFlag nodeFlag)
+    {
+        auto destinationResourcesPath = std::filesystem::path(destination) / "resources";
+        std::filesystem::create_directories(destinationResourcesPath);
 
-		auto finalizationConfigFilePath = CopyFile(destinationResourcesPath, "config-finalization.properties");
-		DisableVoting(finalizationConfigFilePath);
+        auto finalizationConfigFilePath = CopyFile(destinationResourcesPath, "config-finalization.properties");
+        DisableVoting(finalizationConfigFilePath);
 
-		CopyFile(destinationResourcesPath, "config-task.properties");
+        CopyFile(destinationResourcesPath, "config-task.properties");
 
-		GenerateCertificateDirectory((std::filesystem::path(destination) / "cert").generic_string());
+        GenerateCertificateDirectory((std::filesystem::path(destination) / "cert").generic_string());
 
-		// don't copy the harvesting configuration if an api node is being simulated
-		if (HasFlag(NodeFlag::Simulated_Api, nodeFlag))
-			return;
+        // don't copy the harvesting configuration if an api node is being simulated
+        if (HasFlag(NodeFlag::Simulated_Api, nodeFlag))
+            return;
 
-		auto harvestingConfigFilePath = CopyFile(destinationResourcesPath, "config-harvesting.properties");
-		if (!HasFlag(NodeFlag::Auto_Harvest, nodeFlag))
-			ClearAutoHarvesting(harvestingConfigFilePath);
-	}
-}}
+        auto harvestingConfigFilePath = CopyFile(destinationResourcesPath, "config-harvesting.properties");
+        if (!HasFlag(NodeFlag::Auto_Harvest, nodeFlag))
+            ClearAutoHarvesting(harvestingConfigFilePath);
+    }
+}
+}

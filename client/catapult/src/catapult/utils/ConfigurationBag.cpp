@@ -25,26 +25,30 @@
 
 namespace pt = boost::property_tree;
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	ConfigurationBag ConfigurationBag::FromStream(std::istream& input) {
-		pt::ptree properties;
-		pt::read_ini(input, properties);
+    ConfigurationBag ConfigurationBag::FromStream(std::istream& input)
+    {
+        pt::ptree properties;
+        pt::read_ini(input, properties);
 
-		ValuesContainer values;
-		for (const auto& section : properties) {
-			ValuesContainer::value_type::second_type sectionValues;
-			for (const auto& item : section.second)
-				sectionValues.emplace_back(item.first, item.second.get_value<std::string>());
+        ValuesContainer values;
+        for (const auto& section : properties) {
+            ValuesContainer::value_type::second_type sectionValues;
+            for (const auto& item : section.second)
+                sectionValues.emplace_back(item.first, item.second.get_value<std::string>());
 
-			values.emplace(section.first, std::move(sectionValues));
-		}
+            values.emplace(section.first, std::move(sectionValues));
+        }
 
-		return ConfigurationBag(std::move(values));
-	}
+        return ConfigurationBag(std::move(values));
+    }
 
-	ConfigurationBag ConfigurationBag::FromPath(const std::string& path) {
-		std::ifstream inputStream(path);
-		return ConfigurationBag::FromStream(inputStream);
-	}
-}}
+    ConfigurationBag ConfigurationBag::FromPath(const std::string& path)
+    {
+        std::ifstream inputStream(path);
+        return ConfigurationBag::FromStream(inputStream);
+    }
+}
+}

@@ -22,26 +22,30 @@
 #pragma once
 #include <stdint.h>
 
-namespace catapult { namespace utils {
-	class ConfigurationBag;
-}}
+namespace catapult {
+namespace utils {
+    class ConfigurationBag;
+}
+}
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Account restriction plugin configuration settings.
-	struct AccountRestrictionConfiguration {
-	public:
-		/// Maximum number of account restriction values.
-		uint16_t MaxAccountRestrictionValues;
+    /// Account restriction plugin configuration settings.
+    struct AccountRestrictionConfiguration {
+    public:
+        /// Maximum number of account restriction values.
+        uint16_t MaxAccountRestrictionValues;
 
-	private:
-		AccountRestrictionConfiguration() = default;
+    private:
+        AccountRestrictionConfiguration() = default;
 
-	public:
-		/// Creates an uninitialized account restriction configuration.
-		static AccountRestrictionConfiguration Uninitialized();
+    public:
+        /// Creates an uninitialized account restriction configuration.
+        static AccountRestrictionConfiguration Uninitialized();
 
-		/// Loads account restriction configuration from \a bag.
-		static AccountRestrictionConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-	};
-}}
+        /// Loads account restriction configuration from \a bag.
+        static AccountRestrictionConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+    };
+}
+}

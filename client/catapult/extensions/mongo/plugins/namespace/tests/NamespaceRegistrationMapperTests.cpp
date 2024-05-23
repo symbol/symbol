@@ -19,109 +19,118 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/NamespaceRegistrationMapper.h"
-#include "sdk/src/builders/NamespaceRegistrationBuilder.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
-#include "tests/test/core/AddressTestUtils.h"
+#include "sdk/src/builders/NamespaceRegistrationBuilder.h"
+#include "src/NamespaceRegistrationMapper.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/AddressTestUtils.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS NamespaceRegistrationMapperTests
 
-	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(NamespaceRegistration)
+        namespace {
+            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(NamespaceRegistration)
 
-		auto CreateNamespaceRegistrationTransactionBuilder(
-				const Key& signer,
-				model::NamespaceRegistrationType registrationType,
-				const std::string& namespaceName) {
-			builders::NamespaceRegistrationBuilder builder(model::NetworkIdentifier::Testnet, signer);
-			builder.setName({ reinterpret_cast<const uint8_t*>(namespaceName.data()), namespaceName.size() });
+            auto CreateNamespaceRegistrationTransactionBuilder(
+                const Key& signer,
+                model::NamespaceRegistrationType registrationType,
+                const std::string& namespaceName)
+            {
+                builders::NamespaceRegistrationBuilder builder(model::NetworkIdentifier::Testnet, signer);
+                builder.setName({ reinterpret_cast<const uint8_t*>(namespaceName.data()), namespaceName.size() });
 
-			if (model::NamespaceRegistrationType::Root == registrationType)
-				builder.setDuration(test::GenerateRandomValue<BlockDuration>());
-			else
-				builder.setParentId(test::GenerateRandomValue<NamespaceId>());
+                if (model::NamespaceRegistrationType::Root == registrationType)
+                    builder.setDuration(test::GenerateRandomValue<BlockDuration>());
+                else
+                    builder.setParentId(test::GenerateRandomValue<NamespaceId>());
 
-			return builder;
-		}
+                return builder;
+            }
 
-		void AssertSharedNamespaceRegistrationData(
-				model::NamespaceRegistrationType registrationType,
-				NamespaceId id,
-				const std::string& name,
-				const bsoncxx::document::view& dbTransaction) {
-			// Assert:
-			EXPECT_EQ(registrationType, static_cast<model::NamespaceRegistrationType>(test::GetUint32(dbTransaction, "registrationType")));
-			EXPECT_EQ(id, NamespaceId(test::GetUint64(dbTransaction, "id")));
+            void AssertSharedNamespaceRegistrationData(
+                model::NamespaceRegistrationType registrationType,
+                NamespaceId id,
+                const std::string& name,
+                const bsoncxx::document::view& dbTransaction)
+            {
+                // Assert:
+                EXPECT_EQ(registrationType, static_cast<model::NamespaceRegistrationType>(test::GetUint32(dbTransaction, "registrationType")));
+                EXPECT_EQ(id, NamespaceId(test::GetUint64(dbTransaction, "id")));
 
-			auto dbName = dbTransaction["name"].get_binary();
-			EXPECT_EQ(name.size(), dbName.size);
-			EXPECT_EQ_MEMORY(name.data(), dbName.bytes, name.size());
-		}
-	}
+                auto dbName = dbTransaction["name"].get_binary();
+                EXPECT_EQ(name.size(), dbName.size);
+                EXPECT_EQ_MEMORY(name.data(), dbName.bytes, name.size());
+            }
+        }
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Namespace_Registration)
+        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Namespace_Registration)
 
-	// region streamTransaction
+        // region streamTransaction
 
-	PLUGIN_TEST(CannotMapNamespaceRegistrationTransactionWithoutName) {
-		// Arrange:
-		typename TTraits::TransactionType transaction;
-		transaction.Size = sizeof(typename TTraits::TransactionType);
-		transaction.Type = model::Entity_Type_Namespace_Registration;
-		transaction.RegistrationType = model::NamespaceRegistrationType::Root;
-		transaction.NameSize = 0;
+        PLUGIN_TEST(CannotMapNamespaceRegistrationTransactionWithoutName)
+        {
+            // Arrange:
+            typename TTraits::TransactionType transaction;
+            transaction.Size = sizeof(typename TTraits::TransactionType);
+            transaction.Type = model::Entity_Type_Namespace_Registration;
+            transaction.RegistrationType = model::NamespaceRegistrationType::Root;
+            transaction.NameSize = 0;
 
-		auto pPlugin = TTraits::CreatePlugin();
+            auto pPlugin = TTraits::CreatePlugin();
 
-		// Act + Assert:
-		mappers::bson_stream::document builder;
-		EXPECT_THROW(pPlugin->streamTransaction(builder, transaction), catapult_runtime_error);
-	}
+            // Act + Assert:
+            mappers::bson_stream::document builder;
+            EXPECT_THROW(pPlugin->streamTransaction(builder, transaction), catapult_runtime_error);
+        }
 
-	PLUGIN_TEST(CanMapRootNamespaceRegistrationTransactionWithName) {
-		// Arrange:
-		std::string namespaceName("jabo38");
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = TTraits::Adapt(
-				CreateNamespaceRegistrationTransactionBuilder(signer, model::NamespaceRegistrationType::Root, namespaceName));
-		auto namespaceId = pTransaction->Id;
-		auto pPlugin = TTraits::CreatePlugin();
+        PLUGIN_TEST(CanMapRootNamespaceRegistrationTransactionWithName)
+        {
+            // Arrange:
+            std::string namespaceName("jabo38");
+            auto signer = test::GenerateRandomByteArray<Key>();
+            auto pTransaction = TTraits::Adapt(
+                CreateNamespaceRegistrationTransactionBuilder(signer, model::NamespaceRegistrationType::Root, namespaceName));
+            auto namespaceId = pTransaction->Id;
+            auto pPlugin = TTraits::CreatePlugin();
 
-		// Act:
-		mappers::bson_stream::document builder;
-		pPlugin->streamTransaction(builder, *pTransaction);
-		auto view = builder.view();
+            // Act:
+            mappers::bson_stream::document builder;
+            pPlugin->streamTransaction(builder, *pTransaction);
+            auto view = builder.view();
 
-		// Assert:
-		EXPECT_EQ(4u, test::GetFieldCount(view));
-		AssertSharedNamespaceRegistrationData(pTransaction->RegistrationType, namespaceId, namespaceName, view);
-		EXPECT_EQ(pTransaction->Duration, BlockDuration(test::GetUint64(view, "duration")));
-	}
+            // Assert:
+            EXPECT_EQ(4u, test::GetFieldCount(view));
+            AssertSharedNamespaceRegistrationData(pTransaction->RegistrationType, namespaceId, namespaceName, view);
+            EXPECT_EQ(pTransaction->Duration, BlockDuration(test::GetUint64(view, "duration")));
+        }
 
-	PLUGIN_TEST(CanMapChildNamespaceRegistrationTransactionWithName) {
-		// Arrange:
-		std::string namespaceName("jabo38");
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = TTraits::Adapt(
-				CreateNamespaceRegistrationTransactionBuilder(signer, model::NamespaceRegistrationType::Child, namespaceName));
-		auto namespaceId = pTransaction->Id;
-		auto pPlugin = TTraits::CreatePlugin();
+        PLUGIN_TEST(CanMapChildNamespaceRegistrationTransactionWithName)
+        {
+            // Arrange:
+            std::string namespaceName("jabo38");
+            auto signer = test::GenerateRandomByteArray<Key>();
+            auto pTransaction = TTraits::Adapt(
+                CreateNamespaceRegistrationTransactionBuilder(signer, model::NamespaceRegistrationType::Child, namespaceName));
+            auto namespaceId = pTransaction->Id;
+            auto pPlugin = TTraits::CreatePlugin();
 
-		// Act:
-		mappers::bson_stream::document builder;
-		pPlugin->streamTransaction(builder, *pTransaction);
-		auto view = builder.view();
+            // Act:
+            mappers::bson_stream::document builder;
+            pPlugin->streamTransaction(builder, *pTransaction);
+            auto view = builder.view();
 
-		// Assert:
-		EXPECT_EQ(4u, test::GetFieldCount(view));
-		AssertSharedNamespaceRegistrationData(pTransaction->RegistrationType, namespaceId, namespaceName, view);
-		EXPECT_EQ(pTransaction->ParentId, NamespaceId(test::GetUint64(view, "parentId")));
-	}
+            // Assert:
+            EXPECT_EQ(4u, test::GetFieldCount(view));
+            AssertSharedNamespaceRegistrationData(pTransaction->RegistrationType, namespaceId, namespaceName, view);
+            EXPECT_EQ(pTransaction->ParentId, NamespaceId(test::GetUint64(view, "parentId")));
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

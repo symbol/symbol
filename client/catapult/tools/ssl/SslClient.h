@@ -21,25 +21,29 @@
 
 #pragma once
 #include "CertificateDirectoryGenerator.h"
-#include "tools/ToolThreadUtils.h"
 #include "catapult/api/ChainApi.h"
 #include "catapult/ionet/Node.h"
+#include "tools/ToolThreadUtils.h"
 #include <boost/asio/ssl.hpp>
 
-namespace catapult { namespace tools { namespace ssl {
+namespace catapult {
+namespace tools {
+    namespace ssl {
 
-	/// Ssl client.
-	class SslClient {
-	public:
-		/// Creates ssl client around \a pool, \a caKeyPair, \a certificateDirectory and \a scenarioId.
-		SslClient(thread::IoThreadPool& pool, crypto::KeyPair&& caKeyPair, const std::string& certificateDirectory, ScenarioId scenarioId);
+        /// Ssl client.
+        class SslClient {
+        public:
+            /// Creates ssl client around \a pool, \a caKeyPair, \a certificateDirectory and \a scenarioId.
+            SslClient(thread::IoThreadPool& pool, crypto::KeyPair&& caKeyPair, const std::string& certificateDirectory, ScenarioId scenarioId);
 
-	public:
-		/// Connects to \a nodeEndpoint and retrieves chain statistics.
-		api::ChainStatistics connect(const ionet::NodeEndpoint& nodeEndpoint);
+        public:
+            /// Connects to \a nodeEndpoint and retrieves chain statistics.
+            api::ChainStatistics connect(const ionet::NodeEndpoint& nodeEndpoint);
 
-	private:
-		thread::IoThreadPool& m_pool;
-		std::shared_ptr<boost::asio::ssl::context> m_pSslContext;
-	};
-}}}
+        private:
+            thread::IoThreadPool& m_pool;
+            std::shared_ptr<boost::asio::ssl::context> m_pSslContext;
+        };
+    }
+}
+}

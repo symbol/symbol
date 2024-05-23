@@ -22,16 +22,17 @@
 #include "AccountMetadataMapper.h"
 #include "MosaicMetadataMapper.h"
 #include "NamespaceMetadataMapper.h"
-#include "storages/MongoMetadataCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
+#include "storages/MongoMetadataCacheStorage.h"
 
-extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
-	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountMetadataTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicMetadataTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateNamespaceMetadataTransactionMongoPlugin());
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager)
+{
+    // transaction support
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountMetadataTransactionMongoPlugin());
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicMetadataTransactionMongoPlugin());
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateNamespaceMetadataTransactionMongoPlugin());
 
-	// cache storage support
-	manager.addStorageSupport(
-			catapult::mongo::plugins::CreateMongoMetadataCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+    // cache storage support
+    manager.addStorageSupport(
+        catapult::mongo::plugins::CreateMongoMetadataCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 }

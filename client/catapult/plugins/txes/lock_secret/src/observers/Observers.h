@@ -20,28 +20,32 @@
 **/
 
 #pragma once
-#include "src/model/SecretLockNotifications.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
+#include "src/model/SecretLockNotifications.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Observes changes triggered by secret lock notifications and:
-	/// - adds/removes secret lock info to/from secret lock info cache
-	/// - debits/credits lock owner
-	DECLARE_OBSERVER(SecretLock, model::SecretLockNotification)();
+    /// Observes changes triggered by secret lock notifications and:
+    /// - adds/removes secret lock info to/from secret lock info cache
+    /// - debits/credits lock owner
+    DECLARE_OBSERVER(SecretLock, model::SecretLockNotification)
+    ();
 
-	/// Observes changes triggered by proof notifications and:
-	/// - credits/debits proof publisher
-	/// - marks proper secret lock as used/unused
-	DECLARE_OBSERVER(Proof, model::ProofPublicationNotification)();
+    /// Observes changes triggered by proof notifications and:
+    /// - credits/debits proof publisher
+    /// - marks proper secret lock as used/unused
+    DECLARE_OBSERVER(Proof, model::ProofPublicationNotification)
+    ();
 
-	/// Observes block notifications and:
-	/// - handles expired secret lock infos
-	/// - credits the lock creator the mosaics given in the lock info
-	/// - observation is skipped at heights specified by \a skipHeights
-	/// - observation is forced at heights specified by \a forceHeights
-	DECLARE_OBSERVER(ExpiredSecretLockInfo, model::BlockNotification)
-	(const std::unordered_set<Height, utils::BaseValueHasher<Height>>& skipHeights,
-	 const std::unordered_set<Height, utils::BaseValueHasher<Height>>& forceHeights);
-}}
+    /// Observes block notifications and:
+    /// - handles expired secret lock infos
+    /// - credits the lock creator the mosaics given in the lock info
+    /// - observation is skipped at heights specified by \a skipHeights
+    /// - observation is forced at heights specified by \a forceHeights
+    DECLARE_OBSERVER(ExpiredSecretLockInfo, model::BlockNotification)
+    (const std::unordered_set<Height, utils::BaseValueHasher<Height>>& skipHeights,
+        const std::unordered_set<Height, utils::BaseValueHasher<Height>>& forceHeights);
+}
+}

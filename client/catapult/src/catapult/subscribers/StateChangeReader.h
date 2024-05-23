@@ -25,24 +25,26 @@
 
 namespace catapult {
 namespace cache {
-	class CacheChangesStorage;
+    class CacheChangesStorage;
 }
 namespace io {
-	class InputStream;
+    class InputStream;
 }
 namespace subscribers {
-	class StateChangeSubscriber;
+    class StateChangeSubscriber;
 }
 }
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	/// Vector of cache changes storage unique pointers.
-	using CacheChangesStorages = std::vector<std::unique_ptr<const cache::CacheChangesStorage>>;
+    /// Vector of cache changes storage unique pointers.
+    using CacheChangesStorages = std::vector<std::unique_ptr<const cache::CacheChangesStorage>>;
 
-	/// Reads next state change from \a inputStream and forwards it to \a subscriber using \a cacheChangesStorages for deserialization.
-	void ReadNextStateChange(
-			io::InputStream& inputStream,
-			const CacheChangesStorages& cacheChangesStorages,
-			StateChangeSubscriber& subscriber);
-}}
+    /// Reads next state change from \a inputStream and forwards it to \a subscriber using \a cacheChangesStorages for deserialization.
+    void ReadNextStateChange(
+        io::InputStream& inputStream,
+        const CacheChangesStorages& cacheChangesStorages,
+        StateChangeSubscriber& subscriber);
+}
+}

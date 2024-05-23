@@ -20,40 +20,46 @@
 **/
 
 #pragma once
+#include "catapult/utils/Casting.h"
 #include "mongo/src/mappers/MapperInclude.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
-#include "catapult/utils/Casting.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Traits based lock info mapper.
-	template<typename TTraits>
-	class LockInfoMapper {
-	private:
-		using LockInfoType = typename TTraits::LockInfoType;
+        /// Traits based lock info mapper.
+        template <typename TTraits>
+        class LockInfoMapper {
+        private:
+            using LockInfoType = typename TTraits::LockInfoType;
 
-		// region ToDbModel
+            // region ToDbModel
 
-	private:
-		static void StreamLockInfo(mappers::bson_stream::document& builder, const state::LockInfo& lockInfo) {
-			using namespace catapult::mongo::mappers;
+        private:
+            static void StreamLockInfo(mappers::bson_stream::document& builder, const state::LockInfo& lockInfo)
+            {
+                using namespace catapult::mongo::mappers;
 
-			builder << "version" << 1 << "ownerAddress" << ToBinary(lockInfo.OwnerAddress) << "mosaicId" << ToInt64(lockInfo.MosaicId)
-					<< "amount" << ToInt64(lockInfo.Amount) << "endHeight" << ToInt64(lockInfo.EndHeight) << "status"
-					<< utils::to_underlying_type(lockInfo.Status);
-		}
+                builder << "version" << 1 << "ownerAddress" << ToBinary(lockInfo.OwnerAddress) << "mosaicId" << ToInt64(lockInfo.MosaicId)
+                        << "amount" << ToInt64(lockInfo.Amount) << "endHeight" << ToInt64(lockInfo.EndHeight) << "status"
+                        << utils::to_underlying_type(lockInfo.Status);
+            }
 
-	public:
-		/// Maps \a lockInfo to the corresponding db model value.
-		static bsoncxx::document::value ToDbModel(const LockInfoType& lockInfo) {
-			mappers::bson_stream::document builder;
-			auto doc = builder << "lock" << mappers::bson_stream::open_document;
-			StreamLockInfo(builder, lockInfo);
-			TTraits::StreamLockInfo(builder, lockInfo);
-			return doc << mappers::bson_stream::close_document << mappers::bson_stream::finalize;
-		}
+        public:
+            /// Maps \a lockInfo to the corresponding db model value.
+            static bsoncxx::document::value ToDbModel(const LockInfoType& lockInfo)
+            {
+                mappers::bson_stream::document builder;
+                auto doc = builder << "lock" << mappers::bson_stream::open_document;
+                StreamLockInfo(builder, lockInfo);
+                TTraits::StreamLockInfo(builder, lockInfo);
+                return doc << mappers::bson_stream::close_document << mappers::bson_stream::finalize;
+            }
 
-		// endregion
-	};
-}}}
+            // endregion
+        };
+    }
+}
+}

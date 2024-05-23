@@ -22,64 +22,74 @@
 #pragma once
 #include "BaseSet.h"
 
-namespace catapult { namespace deltaset {
+namespace catapult {
+namespace deltaset {
 
-	/// View that provides iteration support to a base set.
-	template<typename TSetTraits>
-	class BaseSetIterationView {
-	private:
-		using SetType = typename TSetTraits::MemorySetType;
-		using KeyType = typename TSetTraits::KeyType;
+    /// View that provides iteration support to a base set.
+    template <typename TSetTraits>
+    class BaseSetIterationView {
+    private:
+        using SetType = typename TSetTraits::MemorySetType;
+        using KeyType = typename TSetTraits::KeyType;
 
-	public:
-		/// Creates a view around \a set.
-		explicit BaseSetIterationView(const SetType& set)
-				: m_set(set) {
-		}
+    public:
+        /// Creates a view around \a set.
+        explicit BaseSetIterationView(const SetType& set)
+            : m_set(set)
+        {
+        }
 
-	public:
-		/// Gets an iterator that points to the element with \a key if it is contained in this set, or end() otherwise.
-		auto findIterator(const KeyType& key) const {
-			return m_set.find(key);
-		}
+    public:
+        /// Gets an iterator that points to the element with \a key if it is contained in this set, or end() otherwise.
+        auto findIterator(const KeyType& key) const
+        {
+            return m_set.find(key);
+        }
 
-	public:
-		/// Gets a const iterator to the first element of the underlying set.
-		auto begin() const {
-			return m_set.cbegin();
-		}
+    public:
+        /// Gets a const iterator to the first element of the underlying set.
+        auto begin() const
+        {
+            return m_set.cbegin();
+        }
 
-		/// Gets a const iterator to the element following the last element of the underlying set.
-		auto end() const {
-			return m_set.cend();
-		}
+        /// Gets a const iterator to the element following the last element of the underlying set.
+        auto end() const
+        {
+            return m_set.cend();
+        }
 
-	private:
-		const SetType& m_set;
-	};
+    private:
+        const SetType& m_set;
+    };
 
-	/// Returns \c true if \a set is iterable.
-	template<typename TSet>
-	bool IsSetIterable(const TSet&) {
-		return true;
-	}
+    /// Returns \c true if \a set is iterable.
+    template <typename TSet>
+    bool IsSetIterable(const TSet&)
+    {
+        return true;
+    }
 
-	/// Selects the iterable set from \a set.
-	template<typename TSet>
-	const TSet& SelectIterableSet(const TSet& set) {
-		return set;
-	}
+    /// Selects the iterable set from \a set.
+    template <typename TSet>
+    const TSet& SelectIterableSet(const TSet& set)
+    {
+        return set;
+    }
 
-	/// Returns \c true if \a set is iterable.
-	template<typename TElementTraits, typename TSetTraits, typename TCommitPolicy>
-	bool IsBaseSetIterable(const BaseSet<TElementTraits, TSetTraits, TCommitPolicy>& set) {
-		return IsSetIterable(set.m_elements);
-	}
+    /// Returns \c true if \a set is iterable.
+    template <typename TElementTraits, typename TSetTraits, typename TCommitPolicy>
+    bool IsBaseSetIterable(const BaseSet<TElementTraits, TSetTraits, TCommitPolicy>& set)
+    {
+        return IsSetIterable(set.m_elements);
+    }
 
-	/// Makes a base \a set iterable.
-	/// \note This should only be supported for in memory views.
-	template<typename TElementTraits, typename TSetTraits, typename TCommitPolicy>
-	BaseSetIterationView<TSetTraits> MakeIterableView(const BaseSet<TElementTraits, TSetTraits, TCommitPolicy>& set) {
-		return BaseSetIterationView<TSetTraits>(SelectIterableSet(set.m_elements));
-	}
-}}
+    /// Makes a base \a set iterable.
+    /// \note This should only be supported for in memory views.
+    template <typename TElementTraits, typename TSetTraits, typename TCommitPolicy>
+    BaseSetIterationView<TSetTraits> MakeIterableView(const BaseSet<TElementTraits, TSetTraits, TCommitPolicy>& set)
+    {
+        return BaseSetIterationView<TSetTraits>(SelectIterableSet(set.m_elements));
+    }
+}
+}

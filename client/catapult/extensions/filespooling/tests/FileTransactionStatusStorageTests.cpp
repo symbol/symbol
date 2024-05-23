@@ -20,57 +20,61 @@
 **/
 
 #include "filespooling/src/FileTransactionStatusStorage.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace filespooling {
+namespace catapult {
+namespace filespooling {
 
 #define TEST_CLASS FileTransactionStatusStorageTests
 
-	TEST(TEST_CLASS, NotifyStatusWritesToUnderlyingStream) {
-		// Arrange: create output stream
-		std::vector<uint8_t> buffer;
-		auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
-		const auto& stream = *pStream;
+    TEST(TEST_CLASS, NotifyStatusWritesToUnderlyingStream)
+    {
+        // Arrange: create output stream
+        std::vector<uint8_t> buffer;
+        auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
+        const auto& stream = *pStream;
 
-		// - create status data
-		auto pTransaction = test::GenerateRandomTransactionWithSize(132);
-		auto hash = test::GenerateRandomByteArray<Hash256>();
-		auto status = static_cast<uint32_t>(test::Random());
+        // - create status data
+        auto pTransaction = test::GenerateRandomTransactionWithSize(132);
+        auto hash = test::GenerateRandomByteArray<Hash256>();
+        auto status = static_cast<uint32_t>(test::Random());
 
-		// - create storage
-		auto pStorage = CreateFileTransactionStatusStorage(std::move(pStream));
+        // - create storage
+        auto pStorage = CreateFileTransactionStatusStorage(std::move(pStream));
 
-		// Act:
-		pStorage->notifyStatus(*pTransaction, hash, status);
+        // Act:
+        pStorage->notifyStatus(*pTransaction, hash, status);
 
-		// Assert:
-		EXPECT_EQ(0u, stream.numFlushes());
-		ASSERT_EQ(132u + Hash256::Size + sizeof(uint32_t), buffer.size());
+        // Assert:
+        EXPECT_EQ(0u, stream.numFlushes());
+        ASSERT_EQ(132u + Hash256::Size + sizeof(uint32_t), buffer.size());
 
-		EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(buffer[0]));
-		EXPECT_EQ(status, reinterpret_cast<const uint32_t&>(buffer[Hash256::Size]));
-		EXPECT_EQ(*pTransaction, reinterpret_cast<const model::Transaction&>(buffer[Hash256::Size + sizeof(uint32_t)]));
-	}
+        EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(buffer[0]));
+        EXPECT_EQ(status, reinterpret_cast<const uint32_t&>(buffer[Hash256::Size]));
+        EXPECT_EQ(*pTransaction, reinterpret_cast<const model::Transaction&>(buffer[Hash256::Size + sizeof(uint32_t)]));
+    }
 
-	TEST(TEST_CLASS, FlushFlushesUnderlyingStream) {
-		// Arrange: create output stream
-		std::vector<uint8_t> buffer;
-		auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
-		const auto& stream = *pStream;
+    TEST(TEST_CLASS, FlushFlushesUnderlyingStream)
+    {
+        // Arrange: create output stream
+        std::vector<uint8_t> buffer;
+        auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
+        const auto& stream = *pStream;
 
-		// - create storage
-		auto pStorage = CreateFileTransactionStatusStorage(std::move(pStream));
+        // - create storage
+        auto pStorage = CreateFileTransactionStatusStorage(std::move(pStream));
 
-		// Sanity:
-		EXPECT_EQ(0u, stream.numFlushes());
+        // Sanity:
+        EXPECT_EQ(0u, stream.numFlushes());
 
-		// Act:
-		pStorage->flush();
+        // Act:
+        pStorage->flush();
 
-		// Assert:
-		EXPECT_EQ(1u, stream.numFlushes());
-		EXPECT_TRUE(buffer.empty());
-	}
-}}
+        // Assert:
+        EXPECT_EQ(1u, stream.numFlushes());
+        EXPECT_TRUE(buffer.empty());
+    }
+}
+}

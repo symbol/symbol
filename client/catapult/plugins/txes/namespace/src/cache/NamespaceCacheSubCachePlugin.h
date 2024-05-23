@@ -24,28 +24,29 @@
 #include "NamespaceCacheStorage.h"
 #include "catapult/cache/SummaryAwareSubCachePluginAdapter.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// CacheStorage implementation for saving and loading summary namespace cache data.
-	class NamespaceCacheSummaryCacheStorage : public SummaryCacheStorage<NamespaceCache> {
-	public:
-		using SummaryCacheStorage<NamespaceCache>::SummaryCacheStorage;
+    /// CacheStorage implementation for saving and loading summary namespace cache data.
+    class NamespaceCacheSummaryCacheStorage : public SummaryCacheStorage<NamespaceCache> {
+    public:
+        using SummaryCacheStorage<NamespaceCache>::SummaryCacheStorage;
 
-	public:
-		void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const override;
+    public:
+        void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const override;
 
-		void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override;
+        void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override;
 
-		void loadAll(io::InputStream& input, size_t) override;
-	};
+        void loadAll(io::InputStream& input, size_t) override;
+    };
 
-	using BaseNamespaceCacheSubCachePlugin =
-			SummaryAwareSubCachePluginAdapter<NamespaceCache, NamespaceCacheStorage, NamespaceCacheSummaryCacheStorage>;
+    using BaseNamespaceCacheSubCachePlugin = SummaryAwareSubCachePluginAdapter<NamespaceCache, NamespaceCacheStorage, NamespaceCacheSummaryCacheStorage>;
 
-	/// Specialized namespace cache sub cache plugin.
-	class NamespaceCacheSubCachePlugin : public BaseNamespaceCacheSubCachePlugin {
-	public:
-		/// Creates a plugin around \a config and \a options.
-		NamespaceCacheSubCachePlugin(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options);
-	};
-}}
+    /// Specialized namespace cache sub cache plugin.
+    class NamespaceCacheSubCachePlugin : public BaseNamespaceCacheSubCachePlugin {
+    public:
+        /// Creates a plugin around \a config and \a options.
+        NamespaceCacheSubCachePlugin(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options);
+    };
+}
+}

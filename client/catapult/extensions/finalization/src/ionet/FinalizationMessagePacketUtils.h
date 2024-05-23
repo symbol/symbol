@@ -20,14 +20,16 @@
 **/
 
 #pragma once
-#include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/ionet/PacketPayload.h"
+#include "finalization/src/model/FinalizationMessage.h"
 #include <vector>
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	using FinalizationMessages = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
+    using FinalizationMessages = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
 
-	/// Creates a payload around \a messages for broadcasting.
-	PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages);
-}}
+    /// Creates a payload around \a messages for broadcasting.
+    PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages);
+}
+}

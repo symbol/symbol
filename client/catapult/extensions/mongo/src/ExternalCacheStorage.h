@@ -23,58 +23,65 @@
 #include "catapult/cache/CacheChanges.h"
 #include "catapult/functions.h"
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	/// Abstract class for saving cache data to external storage.
-	class ExternalCacheStorage {
-	protected:
-		/// Creates an external cache storage around \a name and \a id.
-		ExternalCacheStorage(const std::string& name, size_t id)
-				: m_name(name)
-				, m_id(id) {
-		}
+    /// Abstract class for saving cache data to external storage.
+    class ExternalCacheStorage {
+    protected:
+        /// Creates an external cache storage around \a name and \a id.
+        ExternalCacheStorage(const std::string& name, size_t id)
+            : m_name(name)
+            , m_id(id)
+        {
+        }
 
-	public:
-		virtual ~ExternalCacheStorage() = default;
+    public:
+        virtual ~ExternalCacheStorage() = default;
 
-	public:
-		/// Gets the cache name.
-		const std::string& name() const {
-			return m_name;
-		}
+    public:
+        /// Gets the cache name.
+        const std::string& name() const
+        {
+            return m_name;
+        }
 
-		/// Gets the cache id.
-		size_t id() const {
-			return m_id;
-		}
+        /// Gets the cache id.
+        size_t id() const
+        {
+            return m_id;
+        }
 
-	public:
-		/// Saves cache \a changes to external storage.
-		virtual void saveDelta(const cache::CacheChanges& changes) = 0;
+    public:
+        /// Saves cache \a changes to external storage.
+        virtual void saveDelta(const cache::CacheChanges& changes) = 0;
 
-	private:
-		std::string m_name;
-		size_t m_id;
-	};
+    private:
+        std::string m_name;
+        size_t m_id;
+    };
 
-	/// Typed interface for saving cache data to external storage.
-	template<typename TCache>
-	class ExternalCacheStorageT : public ExternalCacheStorage {
-	public:
-		/// Creates an external cache storage.
-		ExternalCacheStorageT()
-				: ExternalCacheStorage(TCache::Name, TCache::Id) {
-		}
+    /// Typed interface for saving cache data to external storage.
+    template <typename TCache>
+    class ExternalCacheStorageT : public ExternalCacheStorage {
+    public:
+        /// Creates an external cache storage.
+        ExternalCacheStorageT()
+            : ExternalCacheStorage(TCache::Name, TCache::Id)
+        {
+        }
 
-	public:
-		void saveDelta(const cache::CacheChanges& changes) final override {
-			saveDelta(changes.sub<TCache>());
-		}
+    public:
+        void saveDelta(const cache::CacheChanges& changes) final override
+        {
+            saveDelta(changes.sub<TCache>());
+        }
 
-	private:
-		using CacheChangesType = cache::SingleCacheChangesT<typename TCache::CacheDeltaType, typename TCache::CacheValueType>;
+    private:
+        using CacheChangesType = cache::SingleCacheChangesT<typename TCache::CacheDeltaType, typename TCache::CacheValueType>;
 
-		/// Saves cache \a changes to external storage.
-		virtual void saveDelta(const CacheChangesType& changes) = 0;
-	};
-}}
+        /// Saves cache \a changes to external storage.
+        virtual void saveDelta(const CacheChangesType& changes) = 0;
+    };
+}
+}

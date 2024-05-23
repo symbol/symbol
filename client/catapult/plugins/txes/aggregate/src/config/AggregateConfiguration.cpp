@@ -23,26 +23,30 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	AggregateConfiguration AggregateConfiguration::Uninitialized() {
-		return AggregateConfiguration();
-	}
+    AggregateConfiguration AggregateConfiguration::Uninitialized()
+    {
+        return AggregateConfiguration();
+    }
 
-	AggregateConfiguration AggregateConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		AggregateConfiguration config;
+    AggregateConfiguration AggregateConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        AggregateConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
-		LOAD_PROPERTY(MaxTransactionsPerAggregate);
-		LOAD_PROPERTY(MaxCosignaturesPerAggregate);
+        LOAD_PROPERTY(MaxTransactionsPerAggregate);
+        LOAD_PROPERTY(MaxCosignaturesPerAggregate);
 
-		LOAD_PROPERTY(EnableStrictCosignatureCheck);
-		LOAD_PROPERTY(EnableBondedAggregateSupport);
+        LOAD_PROPERTY(EnableStrictCosignatureCheck);
+        LOAD_PROPERTY(EnableBondedAggregateSupport);
 
-		LOAD_PROPERTY(MaxBondedTransactionLifetime);
+        LOAD_PROPERTY(MaxBondedTransactionLifetime);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 5);
-		return config;
-	}
-}}
+        utils::VerifyBagSizeExact(bag, 5);
+        return config;
+    }
+}
+}

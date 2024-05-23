@@ -23,15 +23,19 @@
 #include "Validators.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	AccountRestrictionView::AccountRestrictionView(const cache::ReadOnlyCatapultCache& cache)
-			: m_cache(cache) {
-	}
+    AccountRestrictionView::AccountRestrictionView(const cache::ReadOnlyCatapultCache& cache)
+        : m_cache(cache)
+    {
+    }
 
-	bool AccountRestrictionView::initialize(const Address& address) {
-		const auto& restrictionCache = m_cache.sub<cache::AccountRestrictionCache>();
-		m_iter = restrictionCache.find(address);
-		return m_iter.tryGet();
-	}
-}}
+    bool AccountRestrictionView::initialize(const Address& address)
+    {
+        const auto& restrictionCache = m_cache.sub<cache::AccountRestrictionCache>();
+        m_iter = restrictionCache.find(address);
+        return m_iter.tryGet();
+    }
+}
+}

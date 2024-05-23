@@ -24,54 +24,56 @@
 
 namespace catapult {
 namespace cache {
-	class CatapultCache;
+    class CatapultCache;
 }
 namespace io {
-	class BlockChangeSubscriber;
-	class BlockStorageCache;
+    class BlockChangeSubscriber;
+    class BlockStorageCache;
 }
 namespace model {
-	struct BlockchainConfiguration;
-	struct BlockElement;
+    struct BlockchainConfiguration;
+    struct BlockElement;
 }
 namespace plugins {
-	class PluginManager;
+    class PluginManager;
 }
 namespace subscribers {
-	class FinalizationSubscriber;
-	class StateChangeSubscriber;
+    class FinalizationSubscriber;
+    class StateChangeSubscriber;
 }
 }
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Raises nemesis block notifications.
-	class NemesisBlockNotifier {
-	public:
-		/// Creates a notifier around \a config, \a cache, \a storage and \a pluginManager.
-		NemesisBlockNotifier(
-				const model::BlockchainConfiguration& config,
-				const cache::CatapultCache& cache,
-				const io::BlockStorageCache& storage,
-				const plugins::PluginManager& pluginManager);
+    /// Raises nemesis block notifications.
+    class NemesisBlockNotifier {
+    public:
+        /// Creates a notifier around \a config, \a cache, \a storage and \a pluginManager.
+        NemesisBlockNotifier(
+            const model::BlockchainConfiguration& config,
+            const cache::CatapultCache& cache,
+            const io::BlockStorageCache& storage,
+            const plugins::PluginManager& pluginManager);
 
-	public:
-		/// Raises and forwards block change notifications to \a subscriber.
-		void raise(io::BlockChangeSubscriber& subscriber);
+    public:
+        /// Raises and forwards block change notifications to \a subscriber.
+        void raise(io::BlockChangeSubscriber& subscriber);
 
-		/// Raises and forwards finalization notifications to \a subscriber.
-		void raise(subscribers::FinalizationSubscriber& subscriber);
+        /// Raises and forwards finalization notifications to \a subscriber.
+        void raise(subscribers::FinalizationSubscriber& subscriber);
 
-		/// Raises and forwards state change notifications to \a subscriber.
-		void raise(subscribers::StateChangeSubscriber& subscriber);
+        /// Raises and forwards state change notifications to \a subscriber.
+        void raise(subscribers::StateChangeSubscriber& subscriber);
 
-	private:
-		void raise(const consumer<model::BlockElement>& action);
+    private:
+        void raise(const consumer<model::BlockElement>& action);
 
-	private:
-		const model::BlockchainConfiguration& m_config;
-		const cache::CatapultCache& m_cache;
-		const io::BlockStorageCache& m_storage;
-		const plugins::PluginManager& m_pluginManager;
-	};
-}}
+    private:
+        const model::BlockchainConfiguration& m_config;
+        const cache::CatapultCache& m_cache;
+        const io::BlockStorageCache& m_storage;
+        const plugins::PluginManager& m_pluginManager;
+    };
+}
+}

@@ -27,71 +27,75 @@
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Mixins used by the namespace cache view.
-	struct NamespaceCacheViewMixins {
-	private:
-		using PrimaryMixins = PatriciaTreeCacheMixins<NamespaceCacheTypes::PrimaryTypes::BaseSetType, NamespaceCacheDescriptor>;
-		using FlatMapMixins = BasicCacheMixins<NamespaceCacheTypes::FlatMapTypes::BaseSetType, NamespaceCacheDescriptor>;
+    /// Mixins used by the namespace cache view.
+    struct NamespaceCacheViewMixins {
+    private:
+        using PrimaryMixins = PatriciaTreeCacheMixins<NamespaceCacheTypes::PrimaryTypes::BaseSetType, NamespaceCacheDescriptor>;
+        using FlatMapMixins = BasicCacheMixins<NamespaceCacheTypes::FlatMapTypes::BaseSetType, NamespaceCacheDescriptor>;
 
-	public:
-		using Size = PrimaryMixins::Size;
-		using Contains = FlatMapMixins::Contains;
-		using Iteration = PrimaryMixins::Iteration;
-		using PatriciaTreeView = PrimaryMixins::PatriciaTreeView;
+    public:
+        using Size = PrimaryMixins::Size;
+        using Contains = FlatMapMixins::Contains;
+        using Iteration = PrimaryMixins::Iteration;
+        using PatriciaTreeView = PrimaryMixins::PatriciaTreeView;
 
-		using NamespaceDeepSize = NamespaceDeepSizeMixin;
-		using NamespaceLookup =
-				NamespaceLookupMixin<NamespaceCacheTypes::PrimaryTypes::BaseSetType, NamespaceCacheTypes::FlatMapTypes::BaseSetType>;
-	};
+        using NamespaceDeepSize = NamespaceDeepSizeMixin;
+        using NamespaceLookup = NamespaceLookupMixin<NamespaceCacheTypes::PrimaryTypes::BaseSetType, NamespaceCacheTypes::FlatMapTypes::BaseSetType>;
+    };
 
-	/// Basic view on top of the namespace cache.
-	class BasicNamespaceCacheView
-			: public utils::MoveOnly
-			, public NamespaceCacheViewMixins::Size
-			, public NamespaceCacheViewMixins::Contains
-			, public NamespaceCacheViewMixins::Iteration
-			, public NamespaceCacheViewMixins::PatriciaTreeView
-			, public NamespaceCacheViewMixins::NamespaceDeepSize
-			, public NamespaceCacheViewMixins::NamespaceLookup {
-	public:
-		using ReadOnlyView = NamespaceCacheTypes::CacheReadOnlyType;
+    /// Basic view on top of the namespace cache.
+    class BasicNamespaceCacheView
+        : public utils::MoveOnly,
+          public NamespaceCacheViewMixins::Size,
+          public NamespaceCacheViewMixins::Contains,
+          public NamespaceCacheViewMixins::Iteration,
+          public NamespaceCacheViewMixins::PatriciaTreeView,
+          public NamespaceCacheViewMixins::NamespaceDeepSize,
+          public NamespaceCacheViewMixins::NamespaceLookup {
+    public:
+        using ReadOnlyView = NamespaceCacheTypes::CacheReadOnlyType;
 
-	public:
-		/// Creates a view around \a namespaceSets, \a options and \a namespaceSizes.
-		BasicNamespaceCacheView(
-				const NamespaceCacheTypes::BaseSets& namespaceSets,
-				const NamespaceCacheTypes::Options& options,
-				const NamespaceSizes& namespaceSizes)
-				: NamespaceCacheViewMixins::Size(namespaceSets.Primary)
-				, NamespaceCacheViewMixins::Contains(namespaceSets.FlatMap)
-				, NamespaceCacheViewMixins::Iteration(namespaceSets.Primary)
-				, NamespaceCacheViewMixins::PatriciaTreeView(namespaceSets.PatriciaTree.get())
-				, NamespaceCacheViewMixins::NamespaceDeepSize(namespaceSizes)
-				, NamespaceCacheViewMixins::NamespaceLookup(namespaceSets.Primary, namespaceSets.FlatMap)
-				, m_gracePeriodDuration(options.GracePeriodDuration) {
-		}
+    public:
+        /// Creates a view around \a namespaceSets, \a options and \a namespaceSizes.
+        BasicNamespaceCacheView(
+            const NamespaceCacheTypes::BaseSets& namespaceSets,
+            const NamespaceCacheTypes::Options& options,
+            const NamespaceSizes& namespaceSizes)
+            : NamespaceCacheViewMixins::Size(namespaceSets.Primary)
+            , NamespaceCacheViewMixins::Contains(namespaceSets.FlatMap)
+            , NamespaceCacheViewMixins::Iteration(namespaceSets.Primary)
+            , NamespaceCacheViewMixins::PatriciaTreeView(namespaceSets.PatriciaTree.get())
+            , NamespaceCacheViewMixins::NamespaceDeepSize(namespaceSizes)
+            , NamespaceCacheViewMixins::NamespaceLookup(namespaceSets.Primary, namespaceSets.FlatMap)
+            , m_gracePeriodDuration(options.GracePeriodDuration)
+        {
+        }
 
-	public:
-		/// Gets the grace period duration.
-		BlockDuration gracePeriodDuration() const {
-			return m_gracePeriodDuration;
-		}
+    public:
+        /// Gets the grace period duration.
+        BlockDuration gracePeriodDuration() const
+        {
+            return m_gracePeriodDuration;
+        }
 
-	private:
-		BlockDuration m_gracePeriodDuration;
-	};
+    private:
+        BlockDuration m_gracePeriodDuration;
+    };
 
-	/// View on top of the namespace cache.
-	class NamespaceCacheView : public ReadOnlyViewSupplier<BasicNamespaceCacheView> {
-	public:
-		/// Creates a view around \a namespaceSets, \a options and \a namespaceSizes.
-		NamespaceCacheView(
-				const NamespaceCacheTypes::BaseSets& namespaceSets,
-				const NamespaceCacheTypes::Options& options,
-				const NamespaceSizes& namespaceSizes)
-				: ReadOnlyViewSupplier(namespaceSets, options, namespaceSizes) {
-		}
-	};
-}}
+    /// View on top of the namespace cache.
+    class NamespaceCacheView : public ReadOnlyViewSupplier<BasicNamespaceCacheView> {
+    public:
+        /// Creates a view around \a namespaceSets, \a options and \a namespaceSizes.
+        NamespaceCacheView(
+            const NamespaceCacheTypes::BaseSets& namespaceSets,
+            const NamespaceCacheTypes::Options& options,
+            const NamespaceSizes& namespaceSizes)
+            : ReadOnlyViewSupplier(namespaceSets, options, namespaceSizes)
+        {
+        }
+    };
+}
+}

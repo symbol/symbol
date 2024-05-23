@@ -20,27 +20,31 @@
 **/
 
 #pragma once
+#include "catapult/model/BlockchainConfiguration.h"
 #include "src/cache/MosaicRestrictionCache.h"
 #include "src/cache/MosaicRestrictionCacheStorage.h"
-#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Cache factory for creating a catapult cache containing at least the mosaic restriction cache.
-	struct MosaicRestrictionCacheFactory {
-	public:
-		/// Creates an empty catapult cache with optional \a networkIdentifier.
-		static cache::CatapultCache Create(model::NetworkIdentifier networkIdentifier = model::NetworkIdentifier::Zero) {
-			auto cacheId = cache::MosaicRestrictionCache::Id;
-			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
-			subCaches[cacheId] = MakeSubCachePlugin<cache::MosaicRestrictionCache, cache::MosaicRestrictionCacheStorage>(networkIdentifier);
-			return cache::CatapultCache(std::move(subCaches));
-		}
+    /// Cache factory for creating a catapult cache containing at least the mosaic restriction cache.
+    struct MosaicRestrictionCacheFactory {
+    public:
+        /// Creates an empty catapult cache with optional \a networkIdentifier.
+        static cache::CatapultCache Create(model::NetworkIdentifier networkIdentifier = model::NetworkIdentifier::Zero)
+        {
+            auto cacheId = cache::MosaicRestrictionCache::Id;
+            std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
+            subCaches[cacheId] = MakeSubCachePlugin<cache::MosaicRestrictionCache, cache::MosaicRestrictionCacheStorage>(networkIdentifier);
+            return cache::CatapultCache(std::move(subCaches));
+        }
 
-		/// Creates an empty catapult cache around \a config.
-		static cache::CatapultCache Create(const model::BlockchainConfiguration& config) {
-			return Create(config.Network.Identifier);
-		}
-	};
-}}
+        /// Creates an empty catapult cache around \a config.
+        static cache::CatapultCache Create(const model::BlockchainConfiguration& config)
+        {
+            return Create(config.Network.Identifier);
+        }
+    };
+}
+}

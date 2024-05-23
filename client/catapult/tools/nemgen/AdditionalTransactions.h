@@ -24,17 +24,23 @@
 
 namespace catapult {
 namespace model {
-	class NotificationPublisher;
+    class NotificationPublisher;
 }
-namespace tools { namespace nemgen {
-	struct NemesisConfiguration;
-}}
+namespace tools {
+    namespace nemgen {
+        struct NemesisConfiguration;
+    }
+}
 }
 
-namespace catapult { namespace tools { namespace nemgen {
+namespace catapult {
+namespace tools {
+    namespace nemgen {
 
-	/// Loads and validates additional transactions given \a config and \a notificationPublisher.
-	model::Transactions LoadAndValidateAdditionalTransactions(
-			const NemesisConfiguration& config,
-			const model::NotificationPublisher& notificationPublisher);
-}}}
+        /// Loads and validates additional transactions given \a config and \a notificationPublisher.
+        model::Transactions LoadAndValidateAdditionalTransactions(
+            const NemesisConfiguration& config,
+            const model::NotificationPublisher& notificationPublisher);
+    }
+}
+}

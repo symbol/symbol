@@ -24,31 +24,36 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace timesync {
+namespace catapult {
+namespace timesync {
 
 #define LOAD_PROPERTY(SECTION, NAME) utils::LoadIniProperty(bag, SECTION, #NAME, config.NAME)
 
-	TimeSynchronizationConfiguration TimeSynchronizationConfiguration::Uninitialized() {
-		return TimeSynchronizationConfiguration();
-	}
+    TimeSynchronizationConfiguration TimeSynchronizationConfiguration::Uninitialized()
+    {
+        return TimeSynchronizationConfiguration();
+    }
 
-	TimeSynchronizationConfiguration TimeSynchronizationConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		TimeSynchronizationConfiguration config;
+    TimeSynchronizationConfiguration TimeSynchronizationConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        TimeSynchronizationConfiguration config;
 
 #define LOAD_TIMESYNC_PROPERTY(NAME) LOAD_PROPERTY("timesynchronization", NAME)
 
-		LOAD_TIMESYNC_PROPERTY(MaxNodes);
-		LOAD_TIMESYNC_PROPERTY(MinImportance);
+        LOAD_TIMESYNC_PROPERTY(MaxNodes);
+        LOAD_TIMESYNC_PROPERTY(MinImportance);
 
 #undef LOAD_TIMESYNC_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 2);
-		return config;
-	}
+        utils::VerifyBagSizeExact(bag, 2);
+        return config;
+    }
 
 #undef LOAD_PROPERTY
 
-	TimeSynchronizationConfiguration TimeSynchronizationConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
-		return config::LoadIniConfiguration<TimeSynchronizationConfiguration>(resourcesPath / "config-timesync.properties");
-	}
-}}
+    TimeSynchronizationConfiguration TimeSynchronizationConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath)
+    {
+        return config::LoadIniConfiguration<TimeSynchronizationConfiguration>(resourcesPath / "config-timesync.properties");
+    }
+}
+}

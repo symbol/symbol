@@ -19,69 +19,78 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/AccountRestrictionsMapper.h"
-#include "plugins/txes/restriction_account/src/state/AccountRestriction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
+#include "plugins/txes/restriction_account/src/state/AccountRestriction.h"
+#include "src/mappers/AccountRestrictionsMapper.h"
+#include "tests/TestHarness.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/AccountRestrictionsMapperTestUtils.h"
-#include "tests/TestHarness.h"
 #include <bsoncxx/builder/stream/document.hpp>
 #include <set>
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS AccountRestrictionsMapperTests
 
-	namespace {
-		void AssertDbView(
-				const state::AccountRestrictions& restrictions,
-				const bsoncxx::document::view& view,
-				size_t numExpectedRestrictionValues) {
-			// Assert:
-			EXPECT_EQ(1u, test::GetFieldCount(view));
+        namespace {
+            void AssertDbView(
+                const state::AccountRestrictions& restrictions,
+                const bsoncxx::document::view& view,
+                size_t numExpectedRestrictionValues)
+            {
+                // Assert:
+                EXPECT_EQ(1u, test::GetFieldCount(view));
 
-			auto accountRestrictionsView = view["accountRestrictions"].get_document().view();
+                auto accountRestrictionsView = view["accountRestrictions"].get_document().view();
 
-			size_t numRestrictionValues = 0u;
-			for (const auto& pair : restrictions)
-				numRestrictionValues += pair.second.values().size();
+                size_t numRestrictionValues = 0u;
+                for (const auto& pair : restrictions)
+                    numRestrictionValues += pair.second.values().size();
 
-			EXPECT_EQ(numExpectedRestrictionValues, numRestrictionValues);
+                EXPECT_EQ(numExpectedRestrictionValues, numRestrictionValues);
 
-			test::AssertEqualAccountRestrictionsData(restrictions, accountRestrictionsView);
-		}
-	}
+                test::AssertEqualAccountRestrictionsData(restrictions, accountRestrictionsView);
+            }
+        }
 
-	// region ToDbModel
+        // region ToDbModel
 
-	namespace {
-		void AssertCanMapAccountRestrictions(const std::vector<size_t>& valueSizes, size_t numExpectedRestrictionValues) {
-			// Arrange:
-			auto restrictions = test::CreateAccountRestrictions(state::AccountRestrictionOperationType::Allow, valueSizes);
+        namespace {
+            void AssertCanMapAccountRestrictions(const std::vector<size_t>& valueSizes, size_t numExpectedRestrictionValues)
+            {
+                // Arrange:
+                auto restrictions = test::CreateAccountRestrictions(state::AccountRestrictionOperationType::Allow, valueSizes);
 
-			// Act:
-			auto document = ToDbModel(restrictions);
-			auto view = document.view();
+                // Act:
+                auto document = ToDbModel(restrictions);
+                auto view = document.view();
 
-			// Assert:
-			AssertDbView(restrictions, view, numExpectedRestrictionValues);
-		}
-	}
+                // Assert:
+                AssertDbView(restrictions, view, numExpectedRestrictionValues);
+            }
+        }
 
-	TEST(TEST_CLASS, CanMapAccountRestrictionsWithAllRestrictionsEmpty_ModelToDbModel) {
-		AssertCanMapAccountRestrictions({ 0, 0, 0, 0 }, 0);
-	}
+        TEST(TEST_CLASS, CanMapAccountRestrictionsWithAllRestrictionsEmpty_ModelToDbModel)
+        {
+            AssertCanMapAccountRestrictions({ 0, 0, 0, 0 }, 0);
+        }
 
-	TEST(TEST_CLASS, CanMapAccountRestrictionsWithSingleRestrictionNotEmpty_ModelToDbModel) {
-		AssertCanMapAccountRestrictions({ 5, 0, 0, 0 }, 5);
-		AssertCanMapAccountRestrictions({ 0, 5, 0, 0 }, 5);
-		AssertCanMapAccountRestrictions({ 0, 0, 5, 0 }, 5);
-		AssertCanMapAccountRestrictions({ 0, 0, 0, 5 }, 5);
-	}
+        TEST(TEST_CLASS, CanMapAccountRestrictionsWithSingleRestrictionNotEmpty_ModelToDbModel)
+        {
+            AssertCanMapAccountRestrictions({ 5, 0, 0, 0 }, 5);
+            AssertCanMapAccountRestrictions({ 0, 5, 0, 0 }, 5);
+            AssertCanMapAccountRestrictions({ 0, 0, 5, 0 }, 5);
+            AssertCanMapAccountRestrictions({ 0, 0, 0, 5 }, 5);
+        }
 
-	TEST(TEST_CLASS, CanMapAccountRestrictionsWithNoRestrictionsEmpty_ModelToDbModel) {
-		AssertCanMapAccountRestrictions({ 5, 7, 11, 3 }, 26);
-	}
+        TEST(TEST_CLASS, CanMapAccountRestrictionsWithNoRestrictionsEmpty_ModelToDbModel)
+        {
+            AssertCanMapAccountRestrictions({ 5, 7, 11, 3 }, 26);
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

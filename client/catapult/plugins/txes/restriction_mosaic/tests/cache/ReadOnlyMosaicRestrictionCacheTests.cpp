@@ -19,21 +19,24 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/ReadOnlyMosaicRestrictionCache.h"
 #include "src/cache/MosaicRestrictionCache.h"
+#include "src/cache/ReadOnlyMosaicRestrictionCache.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS ReadOnlyMosaicRestrictionCacheTests
 
-	TEST(TEST_CLASS, NetworkIdentifierIsExposed) {
-		// Arrange:
-		auto networkIdentifier = static_cast<model::NetworkIdentifier>(19);
-		MosaicRestrictionCache originalCache(CacheConfiguration(), networkIdentifier);
+    TEST(TEST_CLASS, NetworkIdentifierIsExposed)
+    {
+        // Arrange:
+        auto networkIdentifier = static_cast<model::NetworkIdentifier>(19);
+        MosaicRestrictionCache originalCache(CacheConfiguration(), networkIdentifier);
 
-		// Act + Assert:
-		EXPECT_EQ(networkIdentifier, ReadOnlyMosaicRestrictionCache(*originalCache.createView()).networkIdentifier());
-		EXPECT_EQ(networkIdentifier, ReadOnlyMosaicRestrictionCache(*originalCache.createDelta()).networkIdentifier());
-	}
-}}
+        // Act + Assert:
+        EXPECT_EQ(networkIdentifier, ReadOnlyMosaicRestrictionCache(*originalCache.createView()).networkIdentifier());
+        EXPECT_EQ(networkIdentifier, ReadOnlyMosaicRestrictionCache(*originalCache.createDelta()).networkIdentifier());
+    }
+}
+}

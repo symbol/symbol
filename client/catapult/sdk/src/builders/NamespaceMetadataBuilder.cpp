@@ -21,79 +21,92 @@
 
 #include "NamespaceMetadataBuilder.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	NamespaceMetadataBuilder::NamespaceMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-			: TransactionBuilder(networkIdentifier, signer)
-			, m_targetAddress()
-			, m_scopedMetadataKey()
-			, m_targetNamespaceId()
-			, m_valueSizeDelta()
-			, m_value() {
-	}
+    NamespaceMetadataBuilder::NamespaceMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+        : TransactionBuilder(networkIdentifier, signer)
+        , m_targetAddress()
+        , m_scopedMetadataKey()
+        , m_targetNamespaceId()
+        , m_valueSizeDelta()
+        , m_value()
+    {
+    }
 
-	void NamespaceMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
-		m_targetAddress = targetAddress;
-	}
+    void NamespaceMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress)
+    {
+        m_targetAddress = targetAddress;
+    }
 
-	void NamespaceMetadataBuilder::setScopedMetadataKey(uint64_t scopedMetadataKey) {
-		m_scopedMetadataKey = scopedMetadataKey;
-	}
+    void NamespaceMetadataBuilder::setScopedMetadataKey(uint64_t scopedMetadataKey)
+    {
+        m_scopedMetadataKey = scopedMetadataKey;
+    }
 
-	void NamespaceMetadataBuilder::setTargetNamespaceId(NamespaceId targetNamespaceId) {
-		m_targetNamespaceId = targetNamespaceId;
-	}
+    void NamespaceMetadataBuilder::setTargetNamespaceId(NamespaceId targetNamespaceId)
+    {
+        m_targetNamespaceId = targetNamespaceId;
+    }
 
-	void NamespaceMetadataBuilder::setValueSizeDelta(int16_t valueSizeDelta) {
-		m_valueSizeDelta = valueSizeDelta;
-	}
+    void NamespaceMetadataBuilder::setValueSizeDelta(int16_t valueSizeDelta)
+    {
+        m_valueSizeDelta = valueSizeDelta;
+    }
 
-	void NamespaceMetadataBuilder::setValue(const RawBuffer& value) {
-		if (0 == value.Size)
-			CATAPULT_THROW_INVALID_ARGUMENT("argument `value` cannot be empty");
+    void NamespaceMetadataBuilder::setValue(const RawBuffer& value)
+    {
+        if (0 == value.Size)
+            CATAPULT_THROW_INVALID_ARGUMENT("argument `value` cannot be empty");
 
-		if (!m_value.empty())
-			CATAPULT_THROW_RUNTIME_ERROR("`value` field already set");
+        if (!m_value.empty())
+            CATAPULT_THROW_RUNTIME_ERROR("`value` field already set");
 
-		m_value.resize(value.Size);
-		m_value.assign(value.pData, value.pData + value.Size);
-	}
+        m_value.resize(value.Size);
+        m_value.assign(value.pData, value.pData + value.Size);
+    }
 
-	size_t NamespaceMetadataBuilder::size() const {
-		return sizeImpl<Transaction>();
-	}
+    size_t NamespaceMetadataBuilder::size() const
+    {
+        return sizeImpl<Transaction>();
+    }
 
-	std::unique_ptr<NamespaceMetadataBuilder::Transaction> NamespaceMetadataBuilder::build() const {
-		return buildImpl<Transaction>();
-	}
+    std::unique_ptr<NamespaceMetadataBuilder::Transaction> NamespaceMetadataBuilder::build() const
+    {
+        return buildImpl<Transaction>();
+    }
 
-	std::unique_ptr<NamespaceMetadataBuilder::EmbeddedTransaction> NamespaceMetadataBuilder::buildEmbedded() const {
-		return buildImpl<EmbeddedTransaction>();
-	}
+    std::unique_ptr<NamespaceMetadataBuilder::EmbeddedTransaction> NamespaceMetadataBuilder::buildEmbedded() const
+    {
+        return buildImpl<EmbeddedTransaction>();
+    }
 
-	template<typename TransactionType>
-	size_t NamespaceMetadataBuilder::sizeImpl() const {
-		// calculate transaction size
-		auto size = sizeof(TransactionType);
-		size += m_value.size();
-		return size;
-	}
+    template <typename TransactionType>
+    size_t NamespaceMetadataBuilder::sizeImpl() const
+    {
+        // calculate transaction size
+        auto size = sizeof(TransactionType);
+        size += m_value.size();
+        return size;
+    }
 
-	template<typename TransactionType>
-	std::unique_ptr<TransactionType> NamespaceMetadataBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
-		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+    template <typename TransactionType>
+    std::unique_ptr<TransactionType> NamespaceMetadataBuilder::buildImpl() const
+    {
+        // 1. allocate, zero (header), set model::Transaction fields
+        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-		// 2. set fixed transaction fields
-		pTransaction->TargetAddress = m_targetAddress;
-		pTransaction->ScopedMetadataKey = m_scopedMetadataKey;
-		pTransaction->TargetNamespaceId = m_targetNamespaceId;
-		pTransaction->ValueSizeDelta = m_valueSizeDelta;
-		pTransaction->ValueSize = utils::checked_cast<size_t, uint16_t>(m_value.size());
+        // 2. set fixed transaction fields
+        pTransaction->TargetAddress = m_targetAddress;
+        pTransaction->ScopedMetadataKey = m_scopedMetadataKey;
+        pTransaction->TargetNamespaceId = m_targetNamespaceId;
+        pTransaction->ValueSizeDelta = m_valueSizeDelta;
+        pTransaction->ValueSize = utils::checked_cast<size_t, uint16_t>(m_value.size());
 
-		// 3. set transaction attachments
-		std::copy(m_value.cbegin(), m_value.cend(), pTransaction->ValuePtr());
+        // 3. set transaction attachments
+        std::copy(m_value.cbegin(), m_value.cend(), pTransaction->ValuePtr());
 
-		return pTransaction;
-	}
-}}
+        return pTransaction;
+    }
+}
+}

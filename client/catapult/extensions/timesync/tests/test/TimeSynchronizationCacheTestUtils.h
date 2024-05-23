@@ -24,22 +24,24 @@
 
 namespace catapult {
 namespace cache {
-	class AccountStateCacheDelta;
+    class AccountStateCacheDelta;
 }
 namespace ionet {
-	class NodeContainer;
+    class NodeContainer;
 }
 }
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Adds an account with \a publicKey, \a importance and \a importanceHeight to account state cache \a delta.
-	void AddAccount(
-			cache::AccountStateCacheDelta& delta,
-			const Key& publicKey,
-			Importance importance,
-			model::ImportanceHeight importanceHeight);
+    /// Adds an account with \a publicKey, \a importance and \a importanceHeight to account state cache \a delta.
+    void AddAccount(
+        cache::AccountStateCacheDelta& delta,
+        const Key& publicKey,
+        Importance importance,
+        model::ImportanceHeight importanceHeight);
 
-	/// Adds a node with \a identityKey and \a nodeName to node \a container.
-	void AddNode(ionet::NodeContainer& container, const Key& identityKey, const std::string& nodeName);
-}}
+    /// Adds a node with \a identityKey and \a nodeName to node \a container.
+    void AddNode(ionet::NodeContainer& container, const Key& identityKey, const std::string& nodeName);
+}
+}

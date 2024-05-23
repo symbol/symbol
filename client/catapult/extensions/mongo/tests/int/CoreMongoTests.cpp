@@ -23,26 +23,31 @@
 #include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	namespace {
-		struct CoreMongoTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterCoreMongoSystem;
+    namespace {
+        struct CoreMongoTraits {
+        public:
+            static constexpr auto RegisterSubsystem = RegisterCoreMongoSystem;
 
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Voting_Key_Link, model::Entity_Type_Vrf_Key_Link };
-			}
+            static std::vector<model::EntityType> GetTransactionTypes()
+            {
+                return { model::Entity_Type_Voting_Key_Link, model::Entity_Type_Vrf_Key_Link };
+            }
 
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return { model::Receipt_Type_Harvest_Fee, model::Receipt_Type_Inflation };
-			}
+            static std::vector<model::ReceiptType> GetReceiptTypes()
+            {
+                return { model::Receipt_Type_Harvest_Fee, model::Receipt_Type_Inflation };
+            }
 
-			static std::string GetStorageName() {
-				return "{ AccountStateCache }";
-			}
-		};
-	}
+            static std::string GetStorageName()
+            {
+                return "{ AccountStateCache }";
+            }
+        };
+    }
 
-	DEFINE_MONGO_PLUGIN_TESTS(CoreMongoTests, CoreMongoTraits)
-}}
+    DEFINE_MONGO_PLUGIN_TESTS(CoreMongoTests, CoreMongoTraits)
+}
+}

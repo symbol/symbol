@@ -23,58 +23,68 @@
 #include "MosaicFlags.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Container for mosaic properties.
-	class MosaicProperties {
-	public:
-		/// Creates zeroed mosaic properties.
-		MosaicProperties()
-				: MosaicProperties(MosaicFlags::None, 0, BlockDuration()) {
-		}
+    /// Container for mosaic properties.
+    class MosaicProperties {
+    public:
+        /// Creates zeroed mosaic properties.
+        MosaicProperties()
+            : MosaicProperties(MosaicFlags::None, 0, BlockDuration())
+        {
+        }
 
-		/// Creates mosaic properties around \a flags, \a divisibility and \a duration.
-		MosaicProperties(MosaicFlags flags, uint8_t divisibility, BlockDuration duration)
-				: m_flags(flags)
-				, m_divisibility(divisibility)
-				, m_duration(duration) {
-		}
+        /// Creates mosaic properties around \a flags, \a divisibility and \a duration.
+        MosaicProperties(MosaicFlags flags, uint8_t divisibility, BlockDuration duration)
+            : m_flags(flags)
+            , m_divisibility(divisibility)
+            , m_duration(duration)
+        {
+        }
 
-	public:
-		/// Gets the mosaic flags.
-		MosaicFlags flags() const {
-			return m_flags;
-		}
+    public:
+        /// Gets the mosaic flags.
+        MosaicFlags flags() const
+        {
+            return m_flags;
+        }
 
-		/// Gets the mosaic divisibility.
-		uint8_t divisibility() const {
-			return m_divisibility;
-		}
+        /// Gets the mosaic divisibility.
+        uint8_t divisibility() const
+        {
+            return m_divisibility;
+        }
 
-		/// Gets the mosaic duration.
-		BlockDuration duration() const {
-			return m_duration;
-		}
+        /// Gets the mosaic duration.
+        BlockDuration duration() const
+        {
+            return m_duration;
+        }
 
-		/// Returns \c true if mosaic flags contain \a testedFlag.
-		bool is(MosaicFlags testedFlag) const {
-			return HasFlag(testedFlag, m_flags);
-		}
+        /// Returns \c true if mosaic flags contain \a testedFlag.
+        bool is(MosaicFlags testedFlag) const
+        {
+            return HasFlag(testedFlag, m_flags);
+        }
 
-	public:
-		/// Returns \c true if this properties bag is equal to \a rhs.
-		bool operator==(const MosaicProperties& rhs) const {
-			return m_flags == rhs.m_flags && m_divisibility == rhs.m_divisibility && m_duration == rhs.m_duration;
-		}
+    public:
+        /// Returns \c true if this properties bag is equal to \a rhs.
+        bool operator==(const MosaicProperties& rhs) const
+        {
+            return m_flags == rhs.m_flags && m_divisibility == rhs.m_divisibility && m_duration == rhs.m_duration;
+        }
 
-		/// Returns \c true if this properties bag is not equal to \a rhs.
-		bool operator!=(const MosaicProperties& rhs) const {
-			return !(*this == rhs);
-		}
+        /// Returns \c true if this properties bag is not equal to \a rhs.
+        bool operator!=(const MosaicProperties& rhs) const
+        {
+            return !(*this == rhs);
+        }
 
-	private:
-		MosaicFlags m_flags;
-		uint8_t m_divisibility;
-		BlockDuration m_duration;
-	};
-}}
+    private:
+        MosaicFlags m_flags;
+        uint8_t m_divisibility;
+        BlockDuration m_duration;
+    };
+}
+}

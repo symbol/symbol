@@ -22,12 +22,18 @@
 #pragma once
 #include "MapperInclude.h"
 
-namespace catapult { namespace state {
-	struct AccountState;
-}}
+namespace catapult {
+namespace state {
+    struct AccountState;
+}
+}
 
-namespace catapult { namespace mongo { namespace mappers {
+namespace catapult {
+namespace mongo {
+    namespace mappers {
 
-	/// Maps an account state (\a accountState) to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::AccountState& accountState);
-}}}
+        /// Maps an account state (\a accountState) to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(const state::AccountState& accountState);
+    }
+}
+}

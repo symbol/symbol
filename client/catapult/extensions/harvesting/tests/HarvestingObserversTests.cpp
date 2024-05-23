@@ -19,223 +19,244 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/HarvestingObservers.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
+#include "harvesting/src/HarvestingObservers.h"
+#include "tests/TestHarness.h"
 #include "tests/test/plugins/ObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
 #define ADDRESS_TEST_CLASS HarvestingAccountAddressObserverTests
 #define PUBLIC_KEY_TEST_CLASS HarvestingAccountPublicKeyObserverTests
 
-	// region traits
+    // region traits
 
-	namespace {
-		struct AddressTraits {
-			static auto CreateAccountIdentifier() {
-				return test::GenerateRandomByteArray<Address>();
-			}
+    namespace {
+        struct AddressTraits {
+            static auto CreateAccountIdentifier()
+            {
+                return test::GenerateRandomByteArray<Address>();
+            }
 
-			static auto CreateNotification(const Address& address) {
-				return model::AccountAddressNotification(test::UnresolveXor(address));
-			}
+            static auto CreateNotification(const Address& address)
+            {
+                return model::AccountAddressNotification(test::UnresolveXor(address));
+            }
 
-			static auto CreateObserver(HarvestingAffectedAccounts& accounts) {
-				return CreateHarvestingAccountAddressObserver(accounts);
-			}
+            static auto CreateObserver(HarvestingAffectedAccounts& accounts)
+            {
+                return CreateHarvestingAccountAddressObserver(accounts);
+            }
 
-			static void AssertSize(const HarvestingAffectedAccounts& accounts, size_t size) {
-				EXPECT_EQ(size, accounts.Addresses.size());
-				EXPECT_EQ(0u, accounts.PublicKeys.size());
-			}
+            static void AssertSize(const HarvestingAffectedAccounts& accounts, size_t size)
+            {
+                EXPECT_EQ(size, accounts.Addresses.size());
+                EXPECT_EQ(0u, accounts.PublicKeys.size());
+            }
 
-			static void AssertContains(const HarvestingAffectedAccounts& accounts, const Address& address, size_t count) {
-				auto iter = accounts.Addresses.find(address);
-				ASSERT_NE(accounts.Addresses.cend(), iter);
-				EXPECT_EQ(count, iter->second);
-			}
-		};
+            static void AssertContains(const HarvestingAffectedAccounts& accounts, const Address& address, size_t count)
+            {
+                auto iter = accounts.Addresses.find(address);
+                ASSERT_NE(accounts.Addresses.cend(), iter);
+                EXPECT_EQ(count, iter->second);
+            }
+        };
 
-		struct PublicKeyTraits {
-			static auto CreateAccountIdentifier() {
-				return test::GenerateRandomByteArray<Key>();
-			}
+        struct PublicKeyTraits {
+            static auto CreateAccountIdentifier()
+            {
+                return test::GenerateRandomByteArray<Key>();
+            }
 
-			static auto CreateNotification(const Key& key) {
-				return model::AccountPublicKeyNotification(key);
-			}
+            static auto CreateNotification(const Key& key)
+            {
+                return model::AccountPublicKeyNotification(key);
+            }
 
-			static auto CreateObserver(HarvestingAffectedAccounts& accounts) {
-				return CreateHarvestingAccountPublicKeyObserver(accounts);
-			}
+            static auto CreateObserver(HarvestingAffectedAccounts& accounts)
+            {
+                return CreateHarvestingAccountPublicKeyObserver(accounts);
+            }
 
-			static void AssertSize(const HarvestingAffectedAccounts& accounts, size_t size) {
-				EXPECT_EQ(size, accounts.Addresses.size());
-				EXPECT_EQ(size, accounts.PublicKeys.size());
-			}
+            static void AssertSize(const HarvestingAffectedAccounts& accounts, size_t size)
+            {
+                EXPECT_EQ(size, accounts.Addresses.size());
+                EXPECT_EQ(size, accounts.PublicKeys.size());
+            }
 
-			static void AssertContains(const HarvestingAffectedAccounts& accounts, const Key& key, size_t count) {
-				auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-				AddressTraits::AssertContains(accounts, address, count);
+            static void AssertContains(const HarvestingAffectedAccounts& accounts, const Key& key, size_t count)
+            {
+                auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
+                AddressTraits::AssertContains(accounts, address, count);
 
-				auto iter = accounts.PublicKeys.find(key);
-				ASSERT_NE(accounts.PublicKeys.cend(), iter);
-				EXPECT_EQ(count, iter->second);
-			}
-		};
-	}
+                auto iter = accounts.PublicKeys.find(key);
+                ASSERT_NE(accounts.PublicKeys.cend(), iter);
+                EXPECT_EQ(count, iter->second);
+            }
+        };
+    }
 
-#define ACCOUNT_IDENTIFIER_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(ADDRESS_TEST_CLASS, TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); \
-	} \
-	TEST(PUBLIC_KEY_TEST_CLASS, TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define ACCOUNT_IDENTIFIER_TEST(TEST_NAME)                          \
+    template <typename TTraits>                                     \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                 \
+    TEST(ADDRESS_TEST_CLASS, TEST_NAME)                             \
+    {                                                               \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>();   \
+    }                                                               \
+    TEST(PUBLIC_KEY_TEST_CLASS, TEST_NAME)                          \
+    {                                                               \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); \
+    }                                                               \
+    template <typename TTraits>                                     \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	// endregion
+    // endregion
 
-	// region tracking tests
+    // region tracking tests
 
-	ACCOUNT_IDENTIFIER_TEST(AccountObserverAddsAccountOnCommit) {
-		// Arrange:
-		HarvestingAffectedAccounts accounts;
-		auto pObserver = TTraits::CreateObserver(accounts);
+    ACCOUNT_IDENTIFIER_TEST(AccountObserverAddsAccountOnCommit)
+    {
+        // Arrange:
+        HarvestingAffectedAccounts accounts;
+        auto pObserver = TTraits::CreateObserver(accounts);
 
-		auto accountIdentifier = TTraits::CreateAccountIdentifier();
-		auto notification = TTraits::CreateNotification(accountIdentifier);
+        auto accountIdentifier = TTraits::CreateAccountIdentifier();
+        auto notification = TTraits::CreateNotification(accountIdentifier);
 
-		// Act:
-		test::ObserverTestContext context(observers::NotifyMode::Commit);
-		test::ObserveNotification(*pObserver, notification, context);
+        // Act:
+        test::ObserverTestContext context(observers::NotifyMode::Commit);
+        test::ObserveNotification(*pObserver, notification, context);
 
-		// Assert: the account was captured
-		TTraits::AssertSize(accounts, 1);
-		TTraits::AssertContains(accounts, accountIdentifier, 1);
-	}
+        // Assert: the account was captured
+        TTraits::AssertSize(accounts, 1);
+        TTraits::AssertContains(accounts, accountIdentifier, 1);
+    }
 
-	ACCOUNT_IDENTIFIER_TEST(AccountObserverAddsAccountOnEachCommit) {
-		// Arrange:
-		HarvestingAffectedAccounts accounts;
-		auto pObserver = TTraits::CreateObserver(accounts);
+    ACCOUNT_IDENTIFIER_TEST(AccountObserverAddsAccountOnEachCommit)
+    {
+        // Arrange:
+        HarvestingAffectedAccounts accounts;
+        auto pObserver = TTraits::CreateObserver(accounts);
 
-		auto accountIdentifier = TTraits::CreateAccountIdentifier();
-		auto notification = TTraits::CreateNotification(accountIdentifier);
+        auto accountIdentifier = TTraits::CreateAccountIdentifier();
+        auto notification = TTraits::CreateNotification(accountIdentifier);
 
-		// Act:
-		test::ObserverTestContext context(observers::NotifyMode::Commit);
-		test::ObserveNotification(*pObserver, notification, context);
-		test::ObserveNotification(*pObserver, notification, context);
-		test::ObserveNotification(*pObserver, notification, context);
+        // Act:
+        test::ObserverTestContext context(observers::NotifyMode::Commit);
+        test::ObserveNotification(*pObserver, notification, context);
+        test::ObserveNotification(*pObserver, notification, context);
+        test::ObserveNotification(*pObserver, notification, context);
 
-		// Assert: the account was captured
-		TTraits::AssertSize(accounts, 1);
-		TTraits::AssertContains(accounts, accountIdentifier, 3);
-	}
+        // Assert: the account was captured
+        TTraits::AssertSize(accounts, 1);
+        TTraits::AssertContains(accounts, accountIdentifier, 3);
+    }
 
-	ACCOUNT_IDENTIFIER_TEST(AccountObserverRemovesAccountWhenLastReferenceIsRemovedOnRollback) {
-		// Arrange:
-		HarvestingAffectedAccounts accounts;
-		auto pObserver = TTraits::CreateObserver(accounts);
+    ACCOUNT_IDENTIFIER_TEST(AccountObserverRemovesAccountWhenLastReferenceIsRemovedOnRollback)
+    {
+        // Arrange:
+        HarvestingAffectedAccounts accounts;
+        auto pObserver = TTraits::CreateObserver(accounts);
 
-		auto accountIdentifier = TTraits::CreateAccountIdentifier();
-		auto notification = TTraits::CreateNotification(accountIdentifier);
+        auto accountIdentifier = TTraits::CreateAccountIdentifier();
+        auto notification = TTraits::CreateNotification(accountIdentifier);
 
-		test::ObserverTestContext commitContext(observers::NotifyMode::Commit);
-		test::ObserveNotification(*pObserver, notification, commitContext);
+        test::ObserverTestContext commitContext(observers::NotifyMode::Commit);
+        test::ObserveNotification(*pObserver, notification, commitContext);
 
-		// Sanity:
-		TTraits::AssertSize(accounts, 1);
+        // Sanity:
+        TTraits::AssertSize(accounts, 1);
 
-		// Act:
-		test::ObserverTestContext rollbackContext(observers::NotifyMode::Rollback);
-		test::ObserveNotification(*pObserver, notification, rollbackContext);
+        // Act:
+        test::ObserverTestContext rollbackContext(observers::NotifyMode::Rollback);
+        test::ObserveNotification(*pObserver, notification, rollbackContext);
 
-		// Assert: the account was removed
-		TTraits::AssertSize(accounts, 0);
-	}
+        // Assert: the account was removed
+        TTraits::AssertSize(accounts, 0);
+    }
 
-	ACCOUNT_IDENTIFIER_TEST(AccountObserverDoesNotRemoveAccountWhenIntermediateReferenceIsRemovedOnRollback) {
-		// Arrange:
-		HarvestingAffectedAccounts accounts;
-		auto pObserver = TTraits::CreateObserver(accounts);
+    ACCOUNT_IDENTIFIER_TEST(AccountObserverDoesNotRemoveAccountWhenIntermediateReferenceIsRemovedOnRollback)
+    {
+        // Arrange:
+        HarvestingAffectedAccounts accounts;
+        auto pObserver = TTraits::CreateObserver(accounts);
 
-		auto accountIdentifier = TTraits::CreateAccountIdentifier();
-		auto notification = TTraits::CreateNotification(accountIdentifier);
+        auto accountIdentifier = TTraits::CreateAccountIdentifier();
+        auto notification = TTraits::CreateNotification(accountIdentifier);
 
-		test::ObserverTestContext commitContext(observers::NotifyMode::Commit);
-		test::ObserveNotification(*pObserver, notification, commitContext);
-		test::ObserveNotification(*pObserver, notification, commitContext);
+        test::ObserverTestContext commitContext(observers::NotifyMode::Commit);
+        test::ObserveNotification(*pObserver, notification, commitContext);
+        test::ObserveNotification(*pObserver, notification, commitContext);
 
-		// Sanity:
-		TTraits::AssertSize(accounts, 1);
+        // Sanity:
+        TTraits::AssertSize(accounts, 1);
 
-		// Act:
-		test::ObserverTestContext rollbackContext(observers::NotifyMode::Rollback);
-		test::ObserveNotification(*pObserver, notification, rollbackContext);
+        // Act:
+        test::ObserverTestContext rollbackContext(observers::NotifyMode::Rollback);
+        test::ObserveNotification(*pObserver, notification, rollbackContext);
 
-		// Assert: the account was not removed
-		TTraits::AssertSize(accounts, 1);
-		TTraits::AssertContains(accounts, accountIdentifier, 1);
-	}
+        // Assert: the account was not removed
+        TTraits::AssertSize(accounts, 1);
+        TTraits::AssertContains(accounts, accountIdentifier, 1);
+    }
 
-	// endregion
+    // endregion
 
-	// region queue removal tests
+    // region queue removal tests
 
-	namespace {
-		template<typename TTraits, typename TAction>
-		void RunQueueRemovalTest(TAction action) {
-			// Arrange:
-			HarvestingAffectedAccounts accounts;
-			auto pObserver = TTraits::CreateObserver(accounts);
+    namespace {
+        template <typename TTraits, typename TAction>
+        void RunQueueRemovalTest(TAction action)
+        {
+            // Arrange:
+            HarvestingAffectedAccounts accounts;
+            auto pObserver = TTraits::CreateObserver(accounts);
 
-			auto accountIdentifier = TTraits::CreateAccountIdentifier();
-			auto notification = TTraits::CreateNotification(accountIdentifier);
+            auto accountIdentifier = TTraits::CreateAccountIdentifier();
+            auto notification = TTraits::CreateNotification(accountIdentifier);
 
-			test::ObserverTestContext commitContext(observers::NotifyMode::Commit);
-			test::ObserveNotification(*pObserver, notification, commitContext);
-			test::ObserveNotification(*pObserver, notification, commitContext);
+            test::ObserverTestContext commitContext(observers::NotifyMode::Commit);
+            test::ObserveNotification(*pObserver, notification, commitContext);
+            test::ObserveNotification(*pObserver, notification, commitContext);
 
-			// Act:
-			test::ObserverTestContext rollbackContext(observers::NotifyMode::Rollback);
-			test::ObserveNotification(*pObserver, notification, rollbackContext);
+            // Act:
+            test::ObserverTestContext rollbackContext(observers::NotifyMode::Rollback);
+            test::ObserveNotification(*pObserver, notification, rollbackContext);
 
-			// Sanity:
-			TTraits::AssertSize(accounts, 1);
+            // Sanity:
+            TTraits::AssertSize(accounts, 1);
 
-			// Assert: add account to cache and then call commit removals to check if anything was queued for removal
-			auto& accountStateCacheDelta = rollbackContext.cache().sub<cache::AccountStateCache>();
-			accountStateCacheDelta.addAccount(accountIdentifier, rollbackContext.observerContext().Height);
-			accountStateCacheDelta.commitRemovals();
+            // Assert: add account to cache and then call commit removals to check if anything was queued for removal
+            auto& accountStateCacheDelta = rollbackContext.cache().sub<cache::AccountStateCache>();
+            accountStateCacheDelta.addAccount(accountIdentifier, rollbackContext.observerContext().Height);
+            accountStateCacheDelta.commitRemovals();
 
-			action(accountStateCacheDelta, accountIdentifier);
-		}
-	}
+            action(accountStateCacheDelta, accountIdentifier);
+        }
+    }
 
-	TEST(ADDRESS_TEST_CLASS, QueueRemoveIsNotCalledForAddressDuringRollback) {
-		// Act:
-		RunQueueRemovalTest<AddressTraits>([](const auto& accountStateCache, const auto& address) {
-			// Assert: nothing should have been queued for removal
-			EXPECT_EQ(1u, accountStateCache.size());
-			EXPECT_TRUE(accountStateCache.contains(address));
-		});
-	}
+    TEST(ADDRESS_TEST_CLASS, QueueRemoveIsNotCalledForAddressDuringRollback)
+    {
+        // Act:
+        RunQueueRemovalTest<AddressTraits>([](const auto& accountStateCache, const auto& address) {
+            // Assert: nothing should have been queued for removal
+            EXPECT_EQ(1u, accountStateCache.size());
+            EXPECT_TRUE(accountStateCache.contains(address));
+        });
+    }
 
-	TEST(PUBLIC_KEY_TEST_CLASS, QueueRemoveIsCalledForAddressDuringRollback) {
-		// Act:
-		RunQueueRemovalTest<PublicKeyTraits>([](const auto& accountStateCache, const auto&) {
-			// Assert: address should have been queued for removal
-			EXPECT_EQ(0u, accountStateCache.size());
-		});
-	}
+    TEST(PUBLIC_KEY_TEST_CLASS, QueueRemoveIsCalledForAddressDuringRollback)
+    {
+        // Act:
+        RunQueueRemovalTest<PublicKeyTraits>([](const auto& accountStateCache, const auto&) {
+            // Assert: address should have been queued for removal
+            EXPECT_EQ(0u, accountStateCache.size());
+        });
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

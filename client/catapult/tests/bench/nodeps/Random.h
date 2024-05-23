@@ -22,14 +22,16 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace bench {
+namespace catapult {
+namespace bench {
 
-	/// Generates a uint64_t random number.
-	uint64_t Random();
+    /// Generates a uint64_t random number.
+    uint64_t Random();
 
-	/// Generates a uint8_t random number.
-	uint8_t RandomByte();
+    /// Generates a uint8_t random number.
+    uint8_t RandomByte();
 
-	/// Fills a buffer \a dataBuffer with random data.
-	void FillWithRandomData(const MutableRawBuffer& dataBuffer);
-}}
+    /// Fills a buffer \a dataBuffer with random data.
+    void FillWithRandomData(const MutableRawBuffer& dataBuffer);
+}
+}

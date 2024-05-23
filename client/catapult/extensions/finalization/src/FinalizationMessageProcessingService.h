@@ -22,13 +22,18 @@
 #pragma once
 #include "catapult/extensions/ServiceRegistrar.h"
 
-namespace catapult { namespace finalization {
-	struct FinalizationConfiguration;
-}}
+namespace catapult {
+namespace finalization {
+    struct FinalizationConfiguration;
+}
+}
 
-namespace catapult { namespace finalization {
+namespace catapult {
+namespace finalization {
 
-	/// Creates a registrar for a finalization message processing service around \a config.
-	/// \note This service is responsible for processing finalization messages.
-	DECLARE_SERVICE_REGISTRAR(FinalizationMessageProcessing)(const FinalizationConfiguration& config);
-}}
+    /// Creates a registrar for a finalization message processing service around \a config.
+    /// \note This service is responsible for processing finalization messages.
+    DECLARE_SERVICE_REGISTRAR(FinalizationMessageProcessing)
+    (const FinalizationConfiguration& config);
+}
+}

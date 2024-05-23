@@ -21,13 +21,15 @@
 
 #pragma once
 #include "MetadataCacheTypes.h"
-#include "src/state/MetadataEntrySerializer.h"
 #include "catapult/cache/CacheStorageInclude.h"
+#include "src/state/MetadataEntrySerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Policy for saving and loading metadata cache data.
-	struct MetadataCacheStorage
-			: public CacheStorageForBasicInsertRemoveCache<MetadataCacheDescriptor>
-			, public state::MetadataEntrySerializer {};
-}}
+    /// Policy for saving and loading metadata cache data.
+    struct MetadataCacheStorage
+        : public CacheStorageForBasicInsertRemoveCache<MetadataCacheDescriptor>,
+          public state::MetadataEntrySerializer { };
+}
+}

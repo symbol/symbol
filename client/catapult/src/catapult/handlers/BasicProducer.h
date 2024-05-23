@@ -21,27 +21,31 @@
 
 #pragma once
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	/// Base class for producers.
-	template<typename TContainer>
-	class BasicProducer {
-	public:
-		/// Creates a producer around \a container.
-		explicit BasicProducer(const TContainer& container)
-				: m_container(container)
-				, m_iter(m_container.cbegin()) {
-		}
+    /// Base class for producers.
+    template <typename TContainer>
+    class BasicProducer {
+    public:
+        /// Creates a producer around \a container.
+        explicit BasicProducer(const TContainer& container)
+            : m_container(container)
+            , m_iter(m_container.cbegin())
+        {
+        }
 
-	protected:
-		/// Produces the next entity and calls \a convert for any required adaptation.
-		template<typename TConverter>
-		auto next(TConverter convert) {
-			return m_container.cend() == m_iter ? nullptr : convert(*m_iter++);
-		}
+    protected:
+        /// Produces the next entity and calls \a convert for any required adaptation.
+        template <typename TConverter>
+        auto next(TConverter convert)
+        {
+            return m_container.cend() == m_iter ? nullptr : convert(*m_iter++);
+        }
 
-	private:
-		const TContainer& m_container;
-		decltype(TContainer().cbegin()) m_iter;
-	};
-}}
+    private:
+        const TContainer& m_container;
+        decltype(TContainer().cbegin()) m_iter;
+    };
+}
+}

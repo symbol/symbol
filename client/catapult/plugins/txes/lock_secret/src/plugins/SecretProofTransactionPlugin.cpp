@@ -20,30 +20,33 @@
 **/
 
 #include "SecretProofTransactionPlugin.h"
-#include "src/model/SecretLockNotifications.h"
-#include "src/model/SecretProofTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/SecretLockNotifications.h"
+#include "src/model/SecretProofTransaction.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			sub.notify(SecretLockHashAlgorithmNotification(transaction.HashAlgorithm));
-			sub.notify(ProofSecretNotification(
-					transaction.HashAlgorithm,
-					transaction.Secret,
-					{ transaction.ProofPtr(), transaction.ProofSize }));
-			sub.notify(ProofPublicationNotification(
-					context.SignerAddress,
-					transaction.HashAlgorithm,
-					transaction.Secret,
-					transaction.RecipientAddress));
-		}
-	}
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            sub.notify(SecretLockHashAlgorithmNotification(transaction.HashAlgorithm));
+            sub.notify(ProofSecretNotification(
+                transaction.HashAlgorithm,
+                transaction.Secret,
+                { transaction.ProofPtr(), transaction.ProofSize }));
+            sub.notify(ProofPublicationNotification(
+                context.SignerAddress,
+                transaction.HashAlgorithm,
+                transaction.Secret,
+                transaction.RecipientAddress));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(SecretProof, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(SecretProof, Default, Publish)
+}
+}

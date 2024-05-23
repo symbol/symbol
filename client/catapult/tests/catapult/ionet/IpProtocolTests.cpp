@@ -22,42 +22,49 @@
 #include "catapult/ionet/IpProtocol.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
 #define TEST_CLASS IpProtocolTests
 
-	TEST(TEST_CLASS, CanMapNodeRolesToIpProtocols) {
-		EXPECT_EQ(IpProtocol::IPv4, MapNodeRolesToIpProtocols(NodeRoles::None));
-		EXPECT_EQ(IpProtocol::IPv4, MapNodeRolesToIpProtocols(NodeRoles::IPv4));
-		EXPECT_EQ(IpProtocol::IPv6, MapNodeRolesToIpProtocols(NodeRoles::IPv6));
-		EXPECT_EQ(IpProtocol::IPv4 | IpProtocol::IPv6, MapNodeRolesToIpProtocols(NodeRoles::IPv4 | NodeRoles::IPv6));
-	}
+    TEST(TEST_CLASS, CanMapNodeRolesToIpProtocols)
+    {
+        EXPECT_EQ(IpProtocol::IPv4, MapNodeRolesToIpProtocols(NodeRoles::None));
+        EXPECT_EQ(IpProtocol::IPv4, MapNodeRolesToIpProtocols(NodeRoles::IPv4));
+        EXPECT_EQ(IpProtocol::IPv6, MapNodeRolesToIpProtocols(NodeRoles::IPv6));
+        EXPECT_EQ(IpProtocol::IPv4 | IpProtocol::IPv6, MapNodeRolesToIpProtocols(NodeRoles::IPv4 | NodeRoles::IPv6));
+    }
 
-	TEST(TEST_CLASS, HasAnyProtocolReturnsCorrectValue_None) {
-		EXPECT_FALSE(HasAnyProtocol(IpProtocol::None, NodeRoles::None));
-		EXPECT_FALSE(HasAnyProtocol(IpProtocol::None, NodeRoles::IPv4));
-		EXPECT_FALSE(HasAnyProtocol(IpProtocol::None, NodeRoles::IPv6));
-		EXPECT_FALSE(HasAnyProtocol(IpProtocol::None, NodeRoles::IPv4 | NodeRoles::IPv6));
-	}
+    TEST(TEST_CLASS, HasAnyProtocolReturnsCorrectValue_None)
+    {
+        EXPECT_FALSE(HasAnyProtocol(IpProtocol::None, NodeRoles::None));
+        EXPECT_FALSE(HasAnyProtocol(IpProtocol::None, NodeRoles::IPv4));
+        EXPECT_FALSE(HasAnyProtocol(IpProtocol::None, NodeRoles::IPv6));
+        EXPECT_FALSE(HasAnyProtocol(IpProtocol::None, NodeRoles::IPv4 | NodeRoles::IPv6));
+    }
 
-	TEST(TEST_CLASS, HasAnyProtocolReturnsCorrectValue_IPv4) {
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv4, NodeRoles::None));
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv4, NodeRoles::IPv4));
-		EXPECT_FALSE(HasAnyProtocol(IpProtocol::IPv4, NodeRoles::IPv6));
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv4, NodeRoles::IPv4 | NodeRoles::IPv6));
-	}
+    TEST(TEST_CLASS, HasAnyProtocolReturnsCorrectValue_IPv4)
+    {
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv4, NodeRoles::None));
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv4, NodeRoles::IPv4));
+        EXPECT_FALSE(HasAnyProtocol(IpProtocol::IPv4, NodeRoles::IPv6));
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv4, NodeRoles::IPv4 | NodeRoles::IPv6));
+    }
 
-	TEST(TEST_CLASS, HasAnyProtocolReturnsCorrectValue_IPv6) {
-		EXPECT_FALSE(HasAnyProtocol(IpProtocol::IPv6, NodeRoles::None));
-		EXPECT_FALSE(HasAnyProtocol(IpProtocol::IPv6, NodeRoles::IPv4));
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv6, NodeRoles::IPv6));
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv6, NodeRoles::IPv4 | NodeRoles::IPv6));
-	}
+    TEST(TEST_CLASS, HasAnyProtocolReturnsCorrectValue_IPv6)
+    {
+        EXPECT_FALSE(HasAnyProtocol(IpProtocol::IPv6, NodeRoles::None));
+        EXPECT_FALSE(HasAnyProtocol(IpProtocol::IPv6, NodeRoles::IPv4));
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv6, NodeRoles::IPv6));
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::IPv6, NodeRoles::IPv4 | NodeRoles::IPv6));
+    }
 
-	TEST(TEST_CLASS, HasAnyProtocolReturnsCorrectValue_All) {
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::All, NodeRoles::None));
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::All, NodeRoles::IPv4));
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::All, NodeRoles::IPv6));
-		EXPECT_TRUE(HasAnyProtocol(IpProtocol::All, NodeRoles::IPv4 | NodeRoles::IPv6));
-	}
-}}
+    TEST(TEST_CLASS, HasAnyProtocolReturnsCorrectValue_All)
+    {
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::All, NodeRoles::None));
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::All, NodeRoles::IPv4));
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::All, NodeRoles::IPv6));
+        EXPECT_TRUE(HasAnyProtocol(IpProtocol::All, NodeRoles::IPv4 | NodeRoles::IPv6));
+    }
+}
+}

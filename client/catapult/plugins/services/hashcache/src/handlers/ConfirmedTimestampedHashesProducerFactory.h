@@ -24,15 +24,19 @@
 #include "catapult/state/TimestampedHash.h"
 #include <vector>
 
-namespace catapult { namespace cache {
-	class HashCache;
-}}
+namespace catapult {
+namespace cache {
+    class HashCache;
+}
+}
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	/// Alias for creating a confirmed timestamped hashes producer given a range of hashes.
-	using ConfirmedTimestampedHashesProducerFactory = RawPointerProducerFactory<state::TimestampedHash, state::TimestampedHash>;
+    /// Alias for creating a confirmed timestamped hashes producer given a range of hashes.
+    using ConfirmedTimestampedHashesProducerFactory = RawPointerProducerFactory<state::TimestampedHash, state::TimestampedHash>;
 
-	/// Creates a confirmed timestamped hashes producer factory around \a hashCache.
-	ConfirmedTimestampedHashesProducerFactory CreateConfirmedTimestampedHashesProducerFactory(const cache::HashCache& hashCache);
-}}
+    /// Creates a confirmed timestamped hashes producer factory around \a hashCache.
+    ConfirmedTimestampedHashesProducerFactory CreateConfirmedTimestampedHashesProducerFactory(const cache::HashCache& hashCache);
+}
+}

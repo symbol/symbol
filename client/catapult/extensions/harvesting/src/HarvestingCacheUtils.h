@@ -22,15 +22,19 @@
 #pragma once
 #include "HarvestingObservers.h"
 
-namespace catapult { namespace cache {
-	class AccountStateCacheDelta;
-}}
+namespace catapult {
+namespace cache {
+    class AccountStateCacheDelta;
+}
+}
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	/// Updates \a accountStateCacheDelta to preserve all accounts referenced in \a accounts at \a height.
-	void PreserveAllAccounts(
-			cache::AccountStateCacheDelta& accountStateCacheDelta,
-			const HarvestingAffectedAccounts& accounts,
-			Height height);
-}}
+    /// Updates \a accountStateCacheDelta to preserve all accounts referenced in \a accounts at \a height.
+    void PreserveAllAccounts(
+        cache::AccountStateCacheDelta& accountStateCacheDelta,
+        const HarvestingAffectedAccounts& accounts,
+        Height height);
+}
+}

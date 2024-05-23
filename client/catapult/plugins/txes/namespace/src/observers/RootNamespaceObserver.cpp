@@ -20,58 +20,63 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/NamespaceCache.h"
 #include "catapult/constants.h"
+#include "src/cache/NamespaceCache.h"
 #include <limits>
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	namespace {
-		bool IsRenewal(const state::RootNamespace& root, const model::RootNamespaceNotification& notification, Height height) {
-			return root.lifetime().isActive(height) && root.ownerAddress() == notification.Owner;
-		}
+    namespace {
+        bool IsRenewal(const state::RootNamespace& root, const model::RootNamespaceNotification& notification, Height height)
+        {
+            return root.lifetime().isActive(height) && root.ownerAddress() == notification.Owner;
+        }
 
-		state::NamespaceLifetime CalculateNewLifetime(
-				const model::RootNamespaceNotification& notification,
-				Height height,
-				BlockDuration gracePeriodDuration) {
-			auto lifetimeEnd = Eternal_Artifact_Duration == notification.Duration ? Height(std::numeric_limits<Height::ValueType>::max())
-																				  : height + Height(notification.Duration.unwrap());
-			return state::NamespaceLifetime(height, lifetimeEnd, gracePeriodDuration);
-		}
+        state::NamespaceLifetime CalculateNewLifetime(
+            const model::RootNamespaceNotification& notification,
+            Height height,
+            BlockDuration gracePeriodDuration)
+        {
+            auto lifetimeEnd = Eternal_Artifact_Duration == notification.Duration ? Height(std::numeric_limits<Height::ValueType>::max())
+                                                                                  : height + Height(notification.Duration.unwrap());
+            return state::NamespaceLifetime(height, lifetimeEnd, gracePeriodDuration);
+        }
 
-		state::NamespaceLifetime CalculateLifetime(
-				const cache::NamespaceCacheDelta& cache,
-				const model::RootNamespaceNotification& notification,
-				Height height) {
-			auto newLifetime = CalculateNewLifetime(notification, height, cache.gracePeriodDuration());
-			auto namespaceIter = cache.find(notification.NamespaceId);
-			if (!namespaceIter.tryGet())
-				return newLifetime;
+        state::NamespaceLifetime CalculateLifetime(
+            const cache::NamespaceCacheDelta& cache,
+            const model::RootNamespaceNotification& notification,
+            Height height)
+        {
+            auto newLifetime = CalculateNewLifetime(notification, height, cache.gracePeriodDuration());
+            auto namespaceIter = cache.find(notification.NamespaceId);
+            if (!namespaceIter.tryGet())
+                return newLifetime;
 
-			const auto& rootEntry = namespaceIter.get();
-			if (!IsRenewal(rootEntry.root(), notification, height))
-				return newLifetime;
+            const auto& rootEntry = namespaceIter.get();
+            if (!IsRenewal(rootEntry.root(), notification, height))
+                return newLifetime;
 
-			// if a renewal, duration should add onto current expiry
-			auto currentLifetime = rootEntry.root().lifetime();
-			return state::NamespaceLifetime(currentLifetime.Start, currentLifetime.End + Height(notification.Duration.unwrap()));
-		}
-	}
+            // if a renewal, duration should add onto current expiry
+            auto currentLifetime = rootEntry.root().lifetime();
+            return state::NamespaceLifetime(currentLifetime.Start, currentLifetime.End + Height(notification.Duration.unwrap()));
+        }
+    }
 
-	DEFINE_OBSERVER(
-			RootNamespace,
-			model::RootNamespaceNotification,
-			[](const model::RootNamespaceNotification& notification, const ObserverContext& context) {
-				auto& cache = context.Cache.sub<cache::NamespaceCache>();
+    DEFINE_OBSERVER(
+        RootNamespace,
+        model::RootNamespaceNotification,
+        [](const model::RootNamespaceNotification& notification, const ObserverContext& context) {
+            auto& cache = context.Cache.sub<cache::NamespaceCache>();
 
-				if (NotifyMode::Rollback == context.Mode) {
-					cache.remove(notification.NamespaceId);
-					return;
-				}
+            if (NotifyMode::Rollback == context.Mode) {
+                cache.remove(notification.NamespaceId);
+                return;
+            }
 
-				auto lifetime = CalculateLifetime(cache, notification, context.Height);
-				auto root = state::RootNamespace(notification.NamespaceId, notification.Owner, lifetime);
-				cache.insert(root);
-			})
-}}
+            auto lifetime = CalculateLifetime(cache, notification, context.Height);
+            auto root = state::RootNamespace(notification.NamespaceId, notification.Owner, lifetime);
+            cache.insert(root);
+        })
+}
+}

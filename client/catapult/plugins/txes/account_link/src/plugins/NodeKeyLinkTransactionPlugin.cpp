@@ -20,22 +20,25 @@
 **/
 
 #include "NodeKeyLinkTransactionPlugin.h"
-#include "src/model/AccountLinkNotifications.h"
-#include "src/model/NodeKeyLinkTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/AccountLinkNotifications.h"
+#include "src/model/NodeKeyLinkTransaction.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
-			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
-			sub.notify(NodeKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
-		}
-	}
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub)
+        {
+            sub.notify(KeyLinkActionNotification(transaction.LinkAction));
+            sub.notify(NodeKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(NodeKeyLink, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(NodeKeyLink, Default, Publish)
+}
+}

@@ -21,54 +21,63 @@
 
 #include "AggregateValidationResult.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	namespace {
-		struct AtomicAssignPolicy {
-			using AggregateType = std::atomic<ValidationResult>;
+    namespace {
+        struct AtomicAssignPolicy {
+            using AggregateType = std::atomic<ValidationResult>;
 
-			static ValidationResult Unwrap(AggregateType& aggregate) {
-				return aggregate.load();
-			}
+            static ValidationResult Unwrap(AggregateType& aggregate)
+            {
+                return aggregate.load();
+            }
 
-			static bool CompareExchange(AggregateType& aggregate, ValidationResult current, ValidationResult value) {
-				return aggregate.compare_exchange_strong(current, value);
-			}
-		};
+            static bool CompareExchange(AggregateType& aggregate, ValidationResult current, ValidationResult value)
+            {
+                return aggregate.compare_exchange_strong(current, value);
+            }
+        };
 
-		struct EnumAssignPolicy {
-			using AggregateType = ValidationResult;
+        struct EnumAssignPolicy {
+            using AggregateType = ValidationResult;
 
-			static ValidationResult Unwrap(AggregateType& aggregate) {
-				return aggregate;
-			}
+            static ValidationResult Unwrap(AggregateType& aggregate)
+            {
+                return aggregate;
+            }
 
-			static bool CompareExchange(AggregateType& aggregate, ValidationResult, ValidationResult value) {
-				// policy is only supported for single threaded environment, so always exchange
-				aggregate = value;
-				return true;
-			}
-		};
+            static bool CompareExchange(AggregateType& aggregate, ValidationResult, ValidationResult value)
+            {
+                // policy is only supported for single threaded environment, so always exchange
+                aggregate = value;
+                return true;
+            }
+        };
 
-		template<typename TAssignPolicy>
-		void AggregateResult(typename TAssignPolicy::AggregateType& aggregate, ValidationResult value) {
-			for (;;) {
-				// only change aggregate value if new value increases severity
-				auto current = TAssignPolicy::Unwrap(aggregate);
-				if (GetSeverity(current) >= GetSeverity(value))
-					return;
+        template <typename TAssignPolicy>
+        void AggregateResult(typename TAssignPolicy::AggregateType& aggregate, ValidationResult value)
+        {
+            for (;;) {
+                // only change aggregate value if new value increases severity
+                auto current = TAssignPolicy::Unwrap(aggregate);
+                if (GetSeverity(current) >= GetSeverity(value))
+                    return;
 
-				if (TAssignPolicy::CompareExchange(aggregate, current, value))
-					return;
-			}
-		}
-	}
+                if (TAssignPolicy::CompareExchange(aggregate, current, value))
+                    return;
+            }
+        }
+    }
 
-	void AggregateValidationResult(std::atomic<ValidationResult>& aggregate, ValidationResult value) {
-		AggregateResult<AtomicAssignPolicy>(aggregate, value);
-	}
+    void AggregateValidationResult(std::atomic<ValidationResult>& aggregate, ValidationResult value)
+    {
+        AggregateResult<AtomicAssignPolicy>(aggregate, value);
+    }
 
-	void AggregateValidationResult(ValidationResult& aggregate, ValidationResult value) {
-		AggregateResult<EnumAssignPolicy>(aggregate, value);
-	}
-}}
+    void AggregateValidationResult(ValidationResult& aggregate, ValidationResult value)
+    {
+        AggregateResult<EnumAssignPolicy>(aggregate, value);
+    }
+}
+}

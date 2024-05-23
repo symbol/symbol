@@ -22,33 +22,37 @@
 #pragma once
 #include <bsoncxx/builder/stream/document.hpp>
 
-namespace catapult { namespace state {
-	class MosaicAddressRestriction;
-	class MosaicGlobalRestriction;
-	class MosaicRestrictionEntry;
-}}
+namespace catapult {
+namespace state {
+    class MosaicAddressRestriction;
+    class MosaicGlobalRestriction;
+    class MosaicRestrictionEntry;
+}
+}
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Mosaic address restriction traits for tests.
-	struct MosaicAddressRestrictionTestTraits {
-		/// Creates a mosaic address restriction with \a numValues values.
-		static state::MosaicAddressRestriction CreateRestriction(size_t numValues);
+    /// Mosaic address restriction traits for tests.
+    struct MosaicAddressRestrictionTestTraits {
+        /// Creates a mosaic address restriction with \a numValues values.
+        static state::MosaicAddressRestriction CreateRestriction(size_t numValues);
 
-		/// Asserts that model \a restrictionEntry and dbmodel \a dbRestrictionEntry are equal.
-		static void AssertEqualRestriction(
-				const state::MosaicRestrictionEntry& restrictionEntry,
-				const bsoncxx::document::view& dbRestrictionEntry);
-	};
+        /// Asserts that model \a restrictionEntry and dbmodel \a dbRestrictionEntry are equal.
+        static void AssertEqualRestriction(
+            const state::MosaicRestrictionEntry& restrictionEntry,
+            const bsoncxx::document::view& dbRestrictionEntry);
+    };
 
-	/// Mosaic global restriction traits for tests.
-	struct MosaicGlobalRestrictionTestTraits {
-		/// Creates a mosaic global restriction with \a numValues values.
-		static state::MosaicGlobalRestriction CreateRestriction(size_t numValues);
+    /// Mosaic global restriction traits for tests.
+    struct MosaicGlobalRestrictionTestTraits {
+        /// Creates a mosaic global restriction with \a numValues values.
+        static state::MosaicGlobalRestriction CreateRestriction(size_t numValues);
 
-		/// Asserts that model \a restrictionEntry and dbmodel \a dbRestrictionEntry are equal.
-		static void AssertEqualRestriction(
-				const state::MosaicRestrictionEntry& restrictionEntry,
-				const bsoncxx::document::view& dbRestrictionEntry);
-	};
-}}
+        /// Asserts that model \a restrictionEntry and dbmodel \a dbRestrictionEntry are equal.
+        static void AssertEqualRestriction(
+            const state::MosaicRestrictionEntry& restrictionEntry,
+            const bsoncxx::document::view& dbRestrictionEntry);
+    };
+}
+}

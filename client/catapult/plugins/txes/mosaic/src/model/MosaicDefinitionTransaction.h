@@ -25,44 +25,47 @@
 #include "MosaicProperties.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a mosaic definition transaction body.
-	template<typename THeader>
-	struct MosaicDefinitionTransactionBody : public THeader {
-	private:
-		using TransactionType = MosaicDefinitionTransactionBody<THeader>;
+    /// Binary layout for a mosaic definition transaction body.
+    template <typename THeader>
+    struct MosaicDefinitionTransactionBody : public THeader {
+    private:
+        using TransactionType = MosaicDefinitionTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Definition, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Definition, 1)
 
-	public:
-		/// Mosaic identifier.
-		/// \note This must match the generated id.
-		MosaicId Id;
+    public:
+        /// Mosaic identifier.
+        /// \note This must match the generated id.
+        MosaicId Id;
 
-		/// Mosaic duration
-		BlockDuration Duration;
+        /// Mosaic duration
+        BlockDuration Duration;
 
-		/// Mosaic nonce.
-		MosaicNonce Nonce;
+        /// Mosaic nonce.
+        MosaicNonce Nonce;
 
-		/// Mosaic flags.
-		MosaicFlags Flags;
+        /// Mosaic flags.
+        MosaicFlags Flags;
 
-		/// Mosaic divisibility.
-		uint8_t Divisibility;
+        /// Mosaic divisibility.
+        uint8_t Divisibility;
 
-	public:
-		/// Calculates the real size of mosaic definition \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+    public:
+        /// Calculates the real size of mosaic definition \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
+        {
+            return sizeof(TransactionType);
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(MosaicDefinition)
+    DEFINE_EMBEDDABLE_TRANSACTION(MosaicDefinition)
 
 #pragma pack(pop)
-}}
+}
+}

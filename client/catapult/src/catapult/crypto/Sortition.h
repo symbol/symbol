@@ -22,11 +22,13 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	/// Calculates inverse of a cdf for (\a n, \a successRate)-binomial distribution for value \a hit.
-	uint64_t InverseCdf(double n, double successRate, double hit);
+    /// Calculates inverse of a cdf for (\a n, \a successRate)-binomial distribution for value \a hit.
+    uint64_t InverseCdf(double n, double successRate, double hit);
 
-	/// Calculates number of allocated votes given \a sortitionHash, \a tau, \a stake and \a totalPower.
-	uint64_t Sortition(const Hash512& sortitionHash, uint64_t tau, Amount stake, Amount totalPower);
-}}
+    /// Calculates number of allocated votes given \a sortitionHash, \a tau, \a stake and \a totalPower.
+    uint64_t Sortition(const Hash512& sortitionHash, uint64_t tau, Amount stake, Amount totalPower);
+}
+}

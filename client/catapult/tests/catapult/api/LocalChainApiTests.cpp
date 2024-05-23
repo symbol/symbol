@@ -21,135 +21,148 @@
 
 #include "catapult/api/LocalChainApi.h"
 #include "catapult/model/EntityHasher.h"
-#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
 #define TEST_CLASS LocalChainApiTests
 
-	namespace {
-		std::unique_ptr<ChainApi> CreateLocalChainApi(const io::BlockStorageCache& storage) {
-			return api::CreateLocalChainApi(storage, []() { return model::ChainScore(1); }, []() { return Height(1); });
-		}
-	}
+    namespace {
+        std::unique_ptr<ChainApi> CreateLocalChainApi(const io::BlockStorageCache& storage)
+        {
+            return api::CreateLocalChainApi(storage, []() { return model::ChainScore(1); }, []() { return Height(1); });
+        }
+    }
 
-	// region chainStatistics
+    // region chainStatistics
 
-	TEST(TEST_CLASS, CanRetrieveChainStatistics) {
-		// Arrange:
-		auto numSupplierCalls = std::make_pair<size_t, size_t>(0, 0);
-		auto chainScoreSupplier = [&numSupplierCalls]() {
-			++numSupplierCalls.first;
-			return model::ChainScore(12345);
-		};
-		auto finalizedHeightSupplier = [&numSupplierCalls]() {
-			++numSupplierCalls.second;
-			return Height(7);
-		};
+    TEST(TEST_CLASS, CanRetrieveChainStatistics)
+    {
+        // Arrange:
+        auto numSupplierCalls = std::make_pair<size_t, size_t>(0, 0);
+        auto chainScoreSupplier = [&numSupplierCalls]() {
+            ++numSupplierCalls.first;
+            return model::ChainScore(12345);
+        };
+        auto finalizedHeightSupplier = [&numSupplierCalls]() {
+            ++numSupplierCalls.second;
+            return Height(7);
+        };
 
-		auto pStorage = mocks::CreateMemoryBlockStorageCache(12);
-		auto pApi = api::CreateLocalChainApi(*pStorage, chainScoreSupplier, finalizedHeightSupplier);
+        auto pStorage = mocks::CreateMemoryBlockStorageCache(12);
+        auto pApi = api::CreateLocalChainApi(*pStorage, chainScoreSupplier, finalizedHeightSupplier);
 
-		// Act:
-		auto chainStatistics = pApi->chainStatistics().get();
+        // Act:
+        auto chainStatistics = pApi->chainStatistics().get();
 
-		// Assert:
-		EXPECT_EQ(1u, numSupplierCalls.first);
-		EXPECT_EQ(1u, numSupplierCalls.second);
+        // Assert:
+        EXPECT_EQ(1u, numSupplierCalls.first);
+        EXPECT_EQ(1u, numSupplierCalls.second);
 
-		EXPECT_EQ(Height(12), chainStatistics.Height);
-		EXPECT_EQ(Height(7), chainStatistics.FinalizedHeight);
-		EXPECT_EQ(model::ChainScore(12345), chainStatistics.Score);
-	}
+        EXPECT_EQ(Height(12), chainStatistics.Height);
+        EXPECT_EQ(Height(7), chainStatistics.FinalizedHeight);
+        EXPECT_EQ(model::ChainScore(12345), chainStatistics.Score);
+    }
 
-	// endregion
+    // endregion
 
-	// region height-based errors
+    // region height-based errors
 
-	namespace {
-		struct HashesFromTraits {
-			static auto Invoke(ChainApi& api, Height height) {
-				// tests only check height, so number of hashes is not important
-				return api.hashesFrom(height, 1);
-			}
-		};
+    namespace {
+        struct HashesFromTraits {
+            static auto Invoke(ChainApi& api, Height height)
+            {
+                // tests only check height, so number of hashes is not important
+                return api.hashesFrom(height, 1);
+            }
+        };
 
-		template<typename TTraits>
-		void AssertApiErrorForHeight(uint32_t numBlocks, Height requestHeight) {
-			// Arrange:
-			auto pStorage = mocks::CreateMemoryBlockStorageCache(numBlocks);
-			auto pApi = CreateLocalChainApi(*pStorage);
+        template <typename TTraits>
+        void AssertApiErrorForHeight(uint32_t numBlocks, Height requestHeight)
+        {
+            // Arrange:
+            auto pStorage = mocks::CreateMemoryBlockStorageCache(numBlocks);
+            auto pApi = CreateLocalChainApi(*pStorage);
 
-			// Act + Assert:
-			auto future = TTraits::Invoke(*pApi, requestHeight);
-			EXPECT_THROW(future.get(), catapult_api_error);
-		}
-	}
+            // Act + Assert:
+            auto future = TTraits::Invoke(*pApi, requestHeight);
+            EXPECT_THROW(future.get(), catapult_api_error);
+        }
+    }
 
-#define CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_HashesFrom) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HashesFromTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(TEST_NAME)          \
+    template <typename TTraits>                                      \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                  \
+    TEST(TEST_CLASS, TEST_NAME##_HashesFrom)                         \
+    {                                                                \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HashesFromTraits>(); \
+    }                                                                \
+    template <typename TTraits>                                      \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(RequestAtHeightZeroFails) {
-		AssertApiErrorForHeight<TTraits>(12, Height(0));
-	}
+    CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(RequestAtHeightZeroFails)
+    {
+        AssertApiErrorForHeight<TTraits>(12, Height(0));
+    }
 
-	CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(RequestAtHeightGreaterThanLocalChainHeightFails) {
-		AssertApiErrorForHeight<TTraits>(12, Height(13));
-		AssertApiErrorForHeight<TTraits>(12, Height(100));
-	}
+    CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(RequestAtHeightGreaterThanLocalChainHeightFails)
+    {
+        AssertApiErrorForHeight<TTraits>(12, Height(13));
+        AssertApiErrorForHeight<TTraits>(12, Height(100));
+    }
 
-	// endregion
+    // endregion
 
-	// region hashesFrom
+    // region hashesFrom
 
-	namespace {
-		void AssertCanRetrieveHashes(
-				uint32_t numBlocks,
-				uint32_t maxHashes,
-				Height requestHeight,
-				const std::vector<Height>& expectedHeights) {
-			// Arrange:
-			auto pStorage = mocks::CreateMemoryBlockStorageCache(numBlocks);
-			auto pApi = CreateLocalChainApi(*pStorage);
+    namespace {
+        void AssertCanRetrieveHashes(
+            uint32_t numBlocks,
+            uint32_t maxHashes,
+            Height requestHeight,
+            const std::vector<Height>& expectedHeights)
+        {
+            // Arrange:
+            auto pStorage = mocks::CreateMemoryBlockStorageCache(numBlocks);
+            auto pApi = CreateLocalChainApi(*pStorage);
 
-			// Act:
-			auto hashes = pApi->hashesFrom(requestHeight, maxHashes).get();
+            // Act:
+            auto hashes = pApi->hashesFrom(requestHeight, maxHashes).get();
 
-			// Assert:
-			ASSERT_EQ(expectedHeights.size(), hashes.size());
+            // Assert:
+            ASSERT_EQ(expectedHeights.size(), hashes.size());
 
-			auto i = 0u;
-			auto storageView = pStorage->view();
-			for (const auto& hash : hashes) {
-				// - calculate the expected hash
-				auto pBlock = storageView.loadBlock(expectedHeights[i]);
-				auto expectedHash = CalculateHash(*pBlock);
+            auto i = 0u;
+            auto storageView = pStorage->view();
+            for (const auto& hash : hashes) {
+                // - calculate the expected hash
+                auto pBlock = storageView.loadBlock(expectedHeights[i]);
+                auto expectedHash = CalculateHash(*pBlock);
 
-				// - compare
-				EXPECT_EQ(expectedHash, hash) << "comparing hashes at " << i << " from " << requestHeight;
-				++i;
-			}
-		}
-	}
+                // - compare
+                EXPECT_EQ(expectedHash, hash) << "comparing hashes at " << i << " from " << requestHeight;
+                ++i;
+            }
+        }
+    }
 
-	TEST(TEST_CLASS, CanRetrieveAtMostMaxHashes) {
-		AssertCanRetrieveHashes(12, 5, Height(3), { Height(3), Height(4), Height(5), Height(6), Height(7) });
-	}
+    TEST(TEST_CLASS, CanRetrieveAtMostMaxHashes)
+    {
+        AssertCanRetrieveHashes(12, 5, Height(3), { Height(3), Height(4), Height(5), Height(6), Height(7) });
+    }
 
-	TEST(TEST_CLASS, RetreivedHashesAreBoundedByLastBlock) {
-		AssertCanRetrieveHashes(12, 10, Height(10), { Height(10), Height(11), Height(12) });
-	}
+    TEST(TEST_CLASS, RetreivedHashesAreBoundedByLastBlock)
+    {
+        AssertCanRetrieveHashes(12, 10, Height(10), { Height(10), Height(11), Height(12) });
+    }
 
-	TEST(TEST_CLASS, CanRetrieveLastBlockHash) {
-		AssertCanRetrieveHashes(12, 5, Height(12), { Height(12) });
-	}
+    TEST(TEST_CLASS, CanRetrieveLastBlockHash)
+    {
+        AssertCanRetrieveHashes(12, 5, Height(12), { Height(12) });
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

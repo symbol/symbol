@@ -22,21 +22,23 @@
 #pragma once
 #include "PrevoteChainStorage.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// File prevote chain storage.
-	class FilePrevoteChainStorage : public PrevoteChainStorage {
-	public:
-		/// Creates prevote chain storage around \a dataDirectory.
-		explicit FilePrevoteChainStorage(const std::string& dataDirectory);
+    /// File prevote chain storage.
+    class FilePrevoteChainStorage : public PrevoteChainStorage {
+    public:
+        /// Creates prevote chain storage around \a dataDirectory.
+        explicit FilePrevoteChainStorage(const std::string& dataDirectory);
 
-	public:
-		bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const override;
-		model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const override;
-		void save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor) override;
-		void remove(const model::FinalizationRound& round) override;
+    public:
+        bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const override;
+        model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const override;
+        void save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor) override;
+        void remove(const model::FinalizationRound& round) override;
 
-	private:
-		std::string m_dataDirectory;
-	};
-}}
+    private:
+        std::string m_dataDirectory;
+    };
+}
+}

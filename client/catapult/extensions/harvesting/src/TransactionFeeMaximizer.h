@@ -20,36 +20,38 @@
 **/
 
 #pragma once
-#include "catapult/model/EntityInfo.h"
 #include "catapult/functions.h"
+#include "catapult/model/EntityInfo.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	/// Information about a fee policy.
-	struct FeePolicy {
-		/// Number of transactions.
-		uint32_t NumTransactions = 0;
+    /// Information about a fee policy.
+    struct FeePolicy {
+        /// Number of transactions.
+        uint32_t NumTransactions = 0;
 
-		/// Fee multiplier.
-		BlockFeeMultiplier FeeMultiplier;
+        /// Fee multiplier.
+        BlockFeeMultiplier FeeMultiplier;
 
-		/// Base fee.
-		Amount BaseFee;
-	};
+        /// Base fee.
+        Amount BaseFee;
+    };
 
-	/// Maximizes fees given a stream of transaction infos.
-	class TransactionFeeMaximizer {
-	public:
-		/// Gets the best fee policy identified.
-		const FeePolicy& best() const;
+    /// Maximizes fees given a stream of transaction infos.
+    class TransactionFeeMaximizer {
+    public:
+        /// Gets the best fee policy identified.
+        const FeePolicy& best() const;
 
-	public:
-		/// Applies \a transactionInfo to the maximizer to include in the best fee policy calculation.
-		void apply(const model::TransactionInfo& transactionInfo);
+    public:
+        /// Applies \a transactionInfo to the maximizer to include in the best fee policy calculation.
+        void apply(const model::TransactionInfo& transactionInfo);
 
-	private:
-		FeePolicy m_current;
-		FeePolicy m_best;
-	};
-}}
+    private:
+        FeePolicy m_current;
+        FeePolicy m_best;
+    };
+}
+}

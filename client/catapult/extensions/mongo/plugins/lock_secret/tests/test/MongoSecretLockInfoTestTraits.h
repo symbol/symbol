@@ -24,18 +24,22 @@
 #include "src/storages/MongoSecretLockInfoCacheStorage.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 
-namespace catapult { namespace mongo {
-	class MongoStorageContext;
-}}
+namespace catapult {
+namespace mongo {
+    class MongoStorageContext;
+}
+}
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Mongo traits for a secret lock info.
-	struct MongoSecretLockInfoTestTraits : public BasicSecretLockInfoTestTraits {
-		/// Creates a catapult cache.
-		static cache::CatapultCache CreateCatapultCache();
+    /// Mongo traits for a secret lock info.
+    struct MongoSecretLockInfoTestTraits : public BasicSecretLockInfoTestTraits {
+        /// Creates a catapult cache.
+        static cache::CatapultCache CreateCatapultCache();
 
-		/// Creates a mongo secret lock info cache storage around \a context.
-		static std::unique_ptr<mongo::ExternalCacheStorage> CreateMongoCacheStorage(mongo::MongoStorageContext& context);
-	};
-}}
+        /// Creates a mongo secret lock info cache storage around \a context.
+        static std::unique_ptr<mongo::ExternalCacheStorage> CreateMongoCacheStorage(mongo::MongoStorageContext& context);
+    };
+}
+}

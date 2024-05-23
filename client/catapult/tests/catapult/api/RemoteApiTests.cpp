@@ -22,26 +22,30 @@
 #include "catapult/api/RemoteApi.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
 #define TEST_CLASS RemoteApiTests
 
-	namespace {
-		class CustomRemoteApi : public RemoteApi {
-		public:
-			explicit CustomRemoteApi(const model::NodeIdentity& remoteIdentity)
-					: RemoteApi(remoteIdentity) {
-			}
-		};
-	}
+    namespace {
+        class CustomRemoteApi : public RemoteApi {
+        public:
+            explicit CustomRemoteApi(const model::NodeIdentity& remoteIdentity)
+                : RemoteApi(remoteIdentity)
+            {
+            }
+        };
+    }
 
-	TEST(TEST_CLASS, CanCreateApiWithRemoteIdentity) {
-		// Arrange:
-		auto identityKey = test::GenerateRandomByteArray<Key>();
-		CustomRemoteApi remoteApi({ identityKey, "11.22.33.44" });
+    TEST(TEST_CLASS, CanCreateApiWithRemoteIdentity)
+    {
+        // Arrange:
+        auto identityKey = test::GenerateRandomByteArray<Key>();
+        CustomRemoteApi remoteApi({ identityKey, "11.22.33.44" });
 
-		// Act + Assert:
-		EXPECT_EQ(identityKey, remoteApi.remoteIdentity().PublicKey);
-		EXPECT_EQ("11.22.33.44", remoteApi.remoteIdentity().Host);
-	}
-}}
+        // Act + Assert:
+        EXPECT_EQ(identityKey, remoteApi.remoteIdentity().PublicKey);
+        EXPECT_EQ("11.22.33.44", remoteApi.remoteIdentity().Host);
+    }
+}
+}

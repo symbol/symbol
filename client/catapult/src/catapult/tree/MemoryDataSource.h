@@ -22,42 +22,44 @@
 #pragma once
 #include "DataSourceVerbosity.h"
 #include "TreeNode.h"
-#include "catapult/utils/Hashers.h"
 #include "catapult/functions.h"
+#include "catapult/utils/Hashers.h"
 #include <unordered_map>
 
-namespace catapult { namespace tree {
+namespace catapult {
+namespace tree {
 
-	/// Patricia tree memory data source.
-	class MemoryDataSource {
-	public:
-		/// Creates a data source with specified \a verbosity.
-		explicit MemoryDataSource(DataSourceVerbosity verbosity = DataSourceVerbosity::Off);
+    /// Patricia tree memory data source.
+    class MemoryDataSource {
+    public:
+        /// Creates a data source with specified \a verbosity.
+        explicit MemoryDataSource(DataSourceVerbosity verbosity = DataSourceVerbosity::Off);
 
-	public:
-		/// Gets the number of saved nodes.
-		size_t size() const;
+    public:
+        /// Gets the number of saved nodes.
+        size_t size() const;
 
-	public:
-		/// Gets the tree node associated with \a hash.
-		TreeNode get(const Hash256& hash) const;
+    public:
+        /// Gets the tree node associated with \a hash.
+        TreeNode get(const Hash256& hash) const;
 
-		/// Gets all nodes and passes them to \a consumer.
-		void forEach(const consumer<const TreeNode&>& consumer) const;
+        /// Gets all nodes and passes them to \a consumer.
+        void forEach(const consumer<const TreeNode&>& consumer) const;
 
-	public:
-		/// Saves a leaf tree \a node.
-		void set(const LeafTreeNode& node);
+    public:
+        /// Saves a leaf tree \a node.
+        void set(const LeafTreeNode& node);
 
-		/// Saves a branch tree \a node.
-		void set(const BranchTreeNode& node);
+        /// Saves a branch tree \a node.
+        void set(const BranchTreeNode& node);
 
-		/// Clears all nodes.
-		void clear();
+        /// Clears all nodes.
+        void clear();
 
-	private:
-		bool m_isVerbose;
-		std::unordered_map<Hash256, LeafTreeNode, utils::ArrayHasher<Hash256>> m_leafNodes;
-		std::unordered_map<Hash256, BranchTreeNode, utils::ArrayHasher<Hash256>> m_branchNodes;
-	};
-}}
+    private:
+        bool m_isVerbose;
+        std::unordered_map<Hash256, LeafTreeNode, utils::ArrayHasher<Hash256>> m_leafNodes;
+        std::unordered_map<Hash256, BranchTreeNode, utils::ArrayHasher<Hash256>> m_branchNodes;
+    };
+}
+}

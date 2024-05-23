@@ -23,80 +23,91 @@
 #include "ReadOnlySimpleCache.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Read-only overlay on top of a cache that provides support for contains, get and isActive.
-	template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TCacheValue>
-	class ReadOnlyArtifactCache : public ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey> {
-	public:
-		/// Find iterator returned by ReadOnlyArtifactCache::find.
-		template<typename TCacheIterator, typename TCacheDeltaIterator>
-		class ReadOnlyFindIterator {
-		public:
-			/// Creates an uninitialized iterator.
-			ReadOnlyFindIterator()
-					: m_hasCacheIter(false) {
-			}
+    /// Read-only overlay on top of a cache that provides support for contains, get and isActive.
+    template <typename TCache, typename TCacheDelta, typename TCacheKey, typename TCacheValue>
+    class ReadOnlyArtifactCache : public ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey> {
+    public:
+        /// Find iterator returned by ReadOnlyArtifactCache::find.
+        template <typename TCacheIterator, typename TCacheDeltaIterator>
+        class ReadOnlyFindIterator {
+        public:
+            /// Creates an uninitialized iterator.
+            ReadOnlyFindIterator()
+                : m_hasCacheIter(false)
+            {
+            }
 
-			/// Creates a find iterator around \a cacheIter.
-			explicit ReadOnlyFindIterator(TCacheIterator&& cacheIter)
-					: m_hasCacheIter(true)
-					, m_cacheIter(std::move(cacheIter)) {
-			}
+            /// Creates a find iterator around \a cacheIter.
+            explicit ReadOnlyFindIterator(TCacheIterator&& cacheIter)
+                : m_hasCacheIter(true)
+                , m_cacheIter(std::move(cacheIter))
+            {
+            }
 
-			/// Creates a find iterator around \a cacheDeltaIter.
-			explicit ReadOnlyFindIterator(TCacheDeltaIterator&& cacheDeltaIter)
-					: m_hasCacheIter(false)
-					, m_cacheDeltaIter(std::move(cacheDeltaIter)) {
-			}
+            /// Creates a find iterator around \a cacheDeltaIter.
+            explicit ReadOnlyFindIterator(TCacheDeltaIterator&& cacheDeltaIter)
+                : m_hasCacheIter(false)
+                , m_cacheDeltaIter(std::move(cacheDeltaIter))
+            {
+            }
 
-		public:
-			/// Gets a const value.
-			const TCacheValue& get() const {
-				return m_hasCacheIter ? m_cacheIter.get() : m_cacheDeltaIter.get();
-			}
+        public:
+            /// Gets a const value.
+            const TCacheValue& get() const
+            {
+                return m_hasCacheIter ? m_cacheIter.get() : m_cacheDeltaIter.get();
+            }
 
-			/// Tries to get a const value.
-			const TCacheValue* tryGet() const {
-				return m_hasCacheIter ? m_cacheIter.tryGet() : m_cacheDeltaIter.tryGet();
-			}
+            /// Tries to get a const value.
+            const TCacheValue* tryGet() const
+            {
+                return m_hasCacheIter ? m_cacheIter.tryGet() : m_cacheDeltaIter.tryGet();
+            }
 
-		private:
-			bool m_hasCacheIter;
-			TCacheIterator m_cacheIter;
-			TCacheDeltaIterator m_cacheDeltaIter;
-		};
+        private:
+            bool m_hasCacheIter;
+            TCacheIterator m_cacheIter;
+            TCacheDeltaIterator m_cacheDeltaIter;
+        };
 
-	public:
-		/// Creates a read-only overlay on top of \a cache.
-		explicit ReadOnlyArtifactCache(const TCache& cache)
-				: ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey>(cache)
-				, m_pCache(&cache)
-				, m_pCacheDelta(nullptr) {
-		}
+    public:
+        /// Creates a read-only overlay on top of \a cache.
+        explicit ReadOnlyArtifactCache(const TCache& cache)
+            : ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey>(cache)
+            , m_pCache(&cache)
+            , m_pCacheDelta(nullptr)
+        {
+        }
 
-		/// Creates a read-only overlay on top of \a cache.
-		explicit ReadOnlyArtifactCache(const TCacheDelta& cache)
-				: ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey>(cache)
-				, m_pCache(nullptr)
-				, m_pCacheDelta(&cache) {
-		}
+        /// Creates a read-only overlay on top of \a cache.
+        explicit ReadOnlyArtifactCache(const TCacheDelta& cache)
+            : ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey>(cache)
+            , m_pCache(nullptr)
+            , m_pCacheDelta(&cache)
+        {
+        }
 
-	public:
-		/// Finds the cache value identified by \a key.
-		auto find(const TCacheKey& key) const {
-			// note: having alias within function instead of at class scope allows forward declaration of caches
-			using FindIterator = ReadOnlyFindIterator<decltype(m_pCache->find(key)), decltype(m_pCacheDelta->find(key))>;
-			return m_pCache ? FindIterator(m_pCache->find(key)) : FindIterator(m_pCacheDelta->find(key));
-		}
+    public:
+        /// Finds the cache value identified by \a key.
+        auto find(const TCacheKey& key) const
+        {
+            // note: having alias within function instead of at class scope allows forward declaration of caches
+            using FindIterator = ReadOnlyFindIterator<decltype(m_pCache->find(key)), decltype(m_pCacheDelta->find(key))>;
+            return m_pCache ? FindIterator(m_pCache->find(key)) : FindIterator(m_pCacheDelta->find(key));
+        }
 
-		/// Gets a value indicating whether or not an artifact with \a key is active at \a height.
-		bool isActive(const TCacheKey& key, Height height) const {
-			return m_pCache ? m_pCache->isActive(key, height) : m_pCacheDelta->isActive(key, height);
-		}
+        /// Gets a value indicating whether or not an artifact with \a key is active at \a height.
+        bool isActive(const TCacheKey& key, Height height) const
+        {
+            return m_pCache ? m_pCache->isActive(key, height) : m_pCacheDelta->isActive(key, height);
+        }
 
-	private:
-		const TCache* m_pCache;
-		const TCacheDelta* m_pCacheDelta;
-	};
-}}
+    private:
+        const TCache* m_pCache;
+        const TCacheDelta* m_pCacheDelta;
+    };
+}
+}

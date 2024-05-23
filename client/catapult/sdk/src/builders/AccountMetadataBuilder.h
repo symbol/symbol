@@ -23,56 +23,58 @@
 #include "TransactionBuilder.h"
 #include "plugins/txes/metadata/src/model/AccountMetadataTransaction.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for an account metadata transaction.
-	class AccountMetadataBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::AccountMetadataTransaction;
-		using EmbeddedTransaction = model::EmbeddedAccountMetadataTransaction;
+    /// Builder for an account metadata transaction.
+    class AccountMetadataBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::AccountMetadataTransaction;
+        using EmbeddedTransaction = model::EmbeddedAccountMetadataTransaction;
 
-	public:
-		/// Creates an account metadata builder for building an account metadata transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		AccountMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates an account metadata builder for building an account metadata transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        AccountMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the metadata target address to \a targetAddress.
-		void setTargetAddress(const UnresolvedAddress& targetAddress);
+    public:
+        /// Sets the metadata target address to \a targetAddress.
+        void setTargetAddress(const UnresolvedAddress& targetAddress);
 
-		/// Sets the metadata key scoped to source, target and type to \a scopedMetadataKey.
-		void setScopedMetadataKey(uint64_t scopedMetadataKey);
+        /// Sets the metadata key scoped to source, target and type to \a scopedMetadataKey.
+        void setScopedMetadataKey(uint64_t scopedMetadataKey);
 
-		/// Sets the change in value size in bytes to \a valueSizeDelta.
-		void setValueSizeDelta(int16_t valueSizeDelta);
+        /// Sets the change in value size in bytes to \a valueSizeDelta.
+        void setValueSizeDelta(int16_t valueSizeDelta);
 
-		/// Sets the difference between existing value and new value to \a value.
-		/// \note When there is no existing value, new value is same this value.
-		/// \note When there is an existing value, new value is calculated as xor(previous-value, value).
-		void setValue(const RawBuffer& value);
+        /// Sets the difference between existing value and new value to \a value.
+        /// \note When there is no existing value, new value is same this value.
+        /// \note When there is an existing value, new value is calculated as xor(previous-value, value).
+        void setValue(const RawBuffer& value);
 
-	public:
-		/// Gets the size of account metadata transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of account metadata transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new account metadata transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new account metadata transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded account metadata transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded account metadata transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		UnresolvedAddress m_targetAddress;
-		uint64_t m_scopedMetadataKey;
-		int16_t m_valueSizeDelta;
-		std::vector<uint8_t> m_value;
-	};
-}}
+    private:
+        UnresolvedAddress m_targetAddress;
+        uint64_t m_scopedMetadataKey;
+        int16_t m_valueSizeDelta;
+        std::vector<uint8_t> m_value;
+    };
+}
+}

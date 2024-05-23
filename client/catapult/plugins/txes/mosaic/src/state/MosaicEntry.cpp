@@ -22,46 +22,55 @@
 #include "MosaicEntry.h"
 #include "catapult/utils/IntegerMath.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	// region MosaicEntrySupplyMixin
+    // region MosaicEntrySupplyMixin
 
-	Amount MosaicEntrySupplyMixin::supply() const {
-		return m_supply;
-	}
+    Amount MosaicEntrySupplyMixin::supply() const
+    {
+        return m_supply;
+    }
 
-	void MosaicEntrySupplyMixin::increaseSupply(Amount delta) {
-		if (!utils::CheckedAdd(m_supply, delta))
-			CATAPULT_THROW_INVALID_ARGUMENT_2("cannot increase mosaic supply above max (supply, delta)", m_supply, delta);
-	}
+    void MosaicEntrySupplyMixin::increaseSupply(Amount delta)
+    {
+        if (!utils::CheckedAdd(m_supply, delta))
+            CATAPULT_THROW_INVALID_ARGUMENT_2("cannot increase mosaic supply above max (supply, delta)", m_supply, delta);
+    }
 
-	void MosaicEntrySupplyMixin::decreaseSupply(Amount delta) {
-		if (delta > m_supply)
-			CATAPULT_THROW_INVALID_ARGUMENT_2("cannot decrease mosaic supply below zero (supply, delta)", m_supply, delta);
+    void MosaicEntrySupplyMixin::decreaseSupply(Amount delta)
+    {
+        if (delta > m_supply)
+            CATAPULT_THROW_INVALID_ARGUMENT_2("cannot decrease mosaic supply below zero (supply, delta)", m_supply, delta);
 
-		m_supply = m_supply - delta;
-	}
+        m_supply = m_supply - delta;
+    }
 
-	// endregion
+    // endregion
 
-	// region MosaicEntry
+    // region MosaicEntry
 
-	MosaicEntry::MosaicEntry(MosaicId id, const MosaicDefinition& definition)
-			: m_id(id)
-			, m_definition(definition) {
-	}
+    MosaicEntry::MosaicEntry(MosaicId id, const MosaicDefinition& definition)
+        : m_id(id)
+        , m_definition(definition)
+    {
+    }
 
-	MosaicId MosaicEntry::mosaicId() const {
-		return m_id;
-	}
+    MosaicId MosaicEntry::mosaicId() const
+    {
+        return m_id;
+    }
 
-	const MosaicDefinition& MosaicEntry::definition() const {
-		return m_definition;
-	}
+    const MosaicDefinition& MosaicEntry::definition() const
+    {
+        return m_definition;
+    }
 
-	bool MosaicEntry::isActive(Height height) const {
-		return m_definition.isActive(height);
-	}
+    bool MosaicEntry::isActive(Height height) const
+    {
+        return m_definition.isActive(height);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

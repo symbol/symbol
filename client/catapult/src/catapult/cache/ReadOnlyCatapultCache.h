@@ -22,31 +22,36 @@
 #pragma once
 #include <vector>
 
-namespace catapult { namespace state {
-	struct CatapultState;
-}}
+namespace catapult {
+namespace state {
+    struct CatapultState;
+}
+}
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Read-only overlay on top of a catapult cache.
-	class ReadOnlyCatapultCache {
-	public:
-		/// Creates a read-only overlay on top of \a dependentState and \a readOnlyViews.
-		ReadOnlyCatapultCache(const state::CatapultState& dependentState, const std::vector<const void*>& readOnlyViews);
+    /// Read-only overlay on top of a catapult cache.
+    class ReadOnlyCatapultCache {
+    public:
+        /// Creates a read-only overlay on top of \a dependentState and \a readOnlyViews.
+        ReadOnlyCatapultCache(const state::CatapultState& dependentState, const std::vector<const void*>& readOnlyViews);
 
-	public:
-		/// Gets a specific sub cache read-only view.
-		template<typename TCache>
-		const typename TCache::CacheReadOnlyType& sub() const {
-			return *static_cast<const typename TCache::CacheReadOnlyType*>(m_readOnlyViews[TCache::Id]);
-		}
+    public:
+        /// Gets a specific sub cache read-only view.
+        template <typename TCache>
+        const typename TCache::CacheReadOnlyType& sub() const
+        {
+            return *static_cast<const typename TCache::CacheReadOnlyType*>(m_readOnlyViews[TCache::Id]);
+        }
 
-	public:
-		/// Gets the (const) dependent catapult state.
-		const state::CatapultState& dependentState() const;
+    public:
+        /// Gets the (const) dependent catapult state.
+        const state::CatapultState& dependentState() const;
 
-	private:
-		const state::CatapultState& m_dependentState;
-		std::vector<const void*> m_readOnlyViews;
-	};
-}}
+    private:
+        const state::CatapultState& m_dependentState;
+        std::vector<const void*> m_readOnlyViews;
+    };
+}
+}

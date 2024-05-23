@@ -32,46 +32,56 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	// region OpensslDigestContext
+    // region OpensslDigestContext
 
-	OpensslDigestContext::OpensslDigestContext() {
-		std::memset(&m_buffer, 0, CountOf(m_buffer));
-	}
+    OpensslDigestContext::OpensslDigestContext()
+    {
+        std::memset(&m_buffer, 0, CountOf(m_buffer));
+    }
 
-	OpensslDigestContext::~OpensslDigestContext() {
-		reset();
-	}
+    OpensslDigestContext::~OpensslDigestContext()
+    {
+        reset();
+    }
 
-	OpensslDigestContext::context_type* OpensslDigestContext::get() {
-		return reinterpret_cast<context_type*>(m_buffer);
-	}
+    OpensslDigestContext::context_type* OpensslDigestContext::get()
+    {
+        return reinterpret_cast<context_type*>(m_buffer);
+    }
 
-	void OpensslDigestContext::reset() {
-		EVP_MD_CTX_reset(get());
-	}
+    void OpensslDigestContext::reset()
+    {
+        EVP_MD_CTX_reset(get());
+    }
 
-	// endregion
+    // endregion
 
-	// region OpensslCipherContext
+    // region OpensslCipherContext
 
-	OpensslCipherContext::OpensslCipherContext() {
-		std::memset(&m_buffer, 0, CountOf(m_buffer));
-		reset();
-	}
+    OpensslCipherContext::OpensslCipherContext()
+    {
+        std::memset(&m_buffer, 0, CountOf(m_buffer));
+        reset();
+    }
 
-	OpensslCipherContext::~OpensslCipherContext() {
-		reset();
-	}
+    OpensslCipherContext::~OpensslCipherContext()
+    {
+        reset();
+    }
 
-	OpensslCipherContext::context_type* OpensslCipherContext::get() {
-		return reinterpret_cast<context_type*>(m_buffer);
-	}
+    OpensslCipherContext::context_type* OpensslCipherContext::get()
+    {
+        return reinterpret_cast<context_type*>(m_buffer);
+    }
 
-	void OpensslCipherContext::reset() {
-		EVP_CIPHER_CTX_reset(get());
-	}
+    void OpensslCipherContext::reset()
+    {
+        EVP_CIPHER_CTX_reset(get());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

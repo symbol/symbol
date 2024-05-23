@@ -23,32 +23,34 @@
 #include "catapult/types.h"
 #include <functional>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Context used to resolve unresolved types.
-	class ResolverContext {
-	private:
-		template<typename TUnresolved, typename TResolved>
-		using Resolver = std::function<TResolved(const TUnresolved&)>;
-		using MosaicResolver = Resolver<UnresolvedMosaicId, MosaicId>;
-		using AddressResolver = Resolver<UnresolvedAddress, Address>;
+    /// Context used to resolve unresolved types.
+    class ResolverContext {
+    private:
+        template <typename TUnresolved, typename TResolved>
+        using Resolver = std::function<TResolved(const TUnresolved&)>;
+        using MosaicResolver = Resolver<UnresolvedMosaicId, MosaicId>;
+        using AddressResolver = Resolver<UnresolvedAddress, Address>;
 
-	public:
-		/// Creates a default context.
-		ResolverContext();
+    public:
+        /// Creates a default context.
+        ResolverContext();
 
-		/// Creates a context around \a mosaicResolver and \a addressResolver.
-		ResolverContext(const MosaicResolver& mosaicResolver, const AddressResolver& addressResolver);
+        /// Creates a context around \a mosaicResolver and \a addressResolver.
+        ResolverContext(const MosaicResolver& mosaicResolver, const AddressResolver& addressResolver);
 
-	public:
-		/// Resolves mosaic id (\a mosaicId).
-		MosaicId resolve(UnresolvedMosaicId mosaicId) const;
+    public:
+        /// Resolves mosaic id (\a mosaicId).
+        MosaicId resolve(UnresolvedMosaicId mosaicId) const;
 
-		/// Resolves \a address.
-		Address resolve(const UnresolvedAddress& address) const;
+        /// Resolves \a address.
+        Address resolve(const UnresolvedAddress& address) const;
 
-	private:
-		MosaicResolver m_mosaicResolver;
-		AddressResolver m_addressResolver;
-	};
-}}
+    private:
+        MosaicResolver m_mosaicResolver;
+        AddressResolver m_addressResolver;
+    };
+}
+}

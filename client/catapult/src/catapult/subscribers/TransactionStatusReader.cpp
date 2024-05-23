@@ -25,13 +25,16 @@
 #include "catapult/io/Stream.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	void ReadNextTransactionStatus(io::InputStream& inputStream, TransactionStatusSubscriber& subscriber) {
-		Hash256 hash;
-		inputStream.read(hash);
-		auto status = io::Read32(inputStream);
-		auto pTransaction = io::ReadEntity<model::Transaction>(inputStream);
-		subscriber.notifyStatus(*pTransaction, hash, status);
-	}
-}}
+    void ReadNextTransactionStatus(io::InputStream& inputStream, TransactionStatusSubscriber& subscriber)
+    {
+        Hash256 hash;
+        inputStream.read(hash);
+        auto status = io::Read32(inputStream);
+        auto pTransaction = io::ReadEntity<model::Transaction>(inputStream);
+        subscriber.notifyStatus(*pTransaction, hash, status);
+    }
+}
+}

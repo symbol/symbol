@@ -19,47 +19,53 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/MultisigCacheStorage.h"
 #include "src/cache/MultisigCache.h"
+#include "src/cache/MultisigCacheStorage.h"
+#include "tests/TestHarness.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	namespace {
-		struct MultisigCacheStorageTraits {
-			using StorageType = MultisigCacheStorage;
-			class CacheType : public MultisigCache {
-			public:
-				CacheType()
-						: MultisigCache(CacheConfiguration()) {
-				}
-			};
+    namespace {
+        struct MultisigCacheStorageTraits {
+            using StorageType = MultisigCacheStorage;
+            class CacheType : public MultisigCache {
+            public:
+                CacheType()
+                    : MultisigCache(CacheConfiguration())
+                {
+                }
+            };
 
-			static auto CreateId(uint8_t id) {
-				return Address{ { id } };
-			}
+            static auto CreateId(uint8_t id)
+            {
+                return Address { { id } };
+            }
 
-			static auto CreateValue(const Address& address) {
-				state::MultisigEntry entry(address);
-				entry.setMinApproval(23);
-				entry.setMinRemoval(34);
+            static auto CreateValue(const Address& address)
+            {
+                state::MultisigEntry entry(address);
+                entry.setMinApproval(23);
+                entry.setMinRemoval(34);
 
-				for (auto i = 0u; i < 3u; ++i)
-					entry.cosignatoryAddresses().insert(test::GenerateRandomByteArray<Address>());
+                for (auto i = 0u; i < 3u; ++i)
+                    entry.cosignatoryAddresses().insert(test::GenerateRandomByteArray<Address>());
 
-				for (auto i = 0u; i < 4u; ++i)
-					entry.multisigAddresses().insert(test::GenerateRandomByteArray<Address>());
+                for (auto i = 0u; i < 4u; ++i)
+                    entry.multisigAddresses().insert(test::GenerateRandomByteArray<Address>());
 
-				return entry;
-			}
+                return entry;
+            }
 
-			static void AssertEqual(const state::MultisigEntry& lhs, const state::MultisigEntry& rhs) {
-				test::AssertEqual(lhs, rhs);
-			}
-		};
-	}
+            static void AssertEqual(const state::MultisigEntry& lhs, const state::MultisigEntry& rhs)
+            {
+                test::AssertEqual(lhs, rhs);
+            }
+        };
+    }
 
-	DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MultisigCacheStorageTests, MultisigCacheStorageTraits)
-}}
+    DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MultisigCacheStorageTests, MultisigCacheStorageTraits)
+}
+}

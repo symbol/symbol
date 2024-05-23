@@ -25,33 +25,37 @@
 #include "catapult/io/SizeCalculatingOutputStream.h"
 #include "catapult/io/StringOutputStream.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Cache serializer adapter.
-	template<typename TSerializerTraits, typename TDescriptor = TSerializerTraits>
-	class CacheSerializerAdapter {
-	public:
-		using KeyType = typename TDescriptor::KeyType;
-		using ValueType = typename TDescriptor::ValueType;
+    /// Cache serializer adapter.
+    template <typename TSerializerTraits, typename TDescriptor = TSerializerTraits>
+    class CacheSerializerAdapter {
+    public:
+        using KeyType = typename TDescriptor::KeyType;
+        using ValueType = typename TDescriptor::ValueType;
 
-	public:
-		/// Serializes \a value to string.
-		static std::string SerializeValue(const ValueType& value) {
-			io::SizeCalculatingOutputStream calculator;
-			StateVersion<TSerializerTraits>::Write(calculator);
-			TSerializerTraits::Save(value, calculator);
+    public:
+        /// Serializes \a value to string.
+        static std::string SerializeValue(const ValueType& value)
+        {
+            io::SizeCalculatingOutputStream calculator;
+            StateVersion<TSerializerTraits>::Write(calculator);
+            TSerializerTraits::Save(value, calculator);
 
-			io::StringOutputStream output(calculator.size());
-			StateVersion<TSerializerTraits>::Write(output);
-			TSerializerTraits::Save(value, output);
-			return output.str();
-		}
+            io::StringOutputStream output(calculator.size());
+            StateVersion<TSerializerTraits>::Write(output);
+            TSerializerTraits::Save(value, output);
+            return output.str();
+        }
 
-		/// Deserializes value from \a buffer.
-		static ValueType DeserializeValue(const RawBuffer& buffer) {
-			io::BufferInputStreamAdapter<RawBuffer> input(buffer);
-			StateVersion<TSerializerTraits>::ReadAndCheck(input);
-			return TSerializerTraits::Load(input);
-		}
-	};
-}}
+        /// Deserializes value from \a buffer.
+        static ValueType DeserializeValue(const RawBuffer& buffer)
+        {
+            io::BufferInputStreamAdapter<RawBuffer> input(buffer);
+            StateVersion<TSerializerTraits>::ReadAndCheck(input);
+            return TSerializerTraits::Load(input);
+        }
+    };
+}
+}

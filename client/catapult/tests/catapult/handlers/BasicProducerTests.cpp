@@ -22,68 +22,75 @@
 #include "catapult/handlers/BasicProducer.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
 #define TEST_CLASS BasicProducerTests
 
-	namespace {
-		class IntProducer : public BasicProducer<std::vector<int>> {
-		public:
-			using BasicProducer<std::vector<int>>::BasicProducer;
+    namespace {
+        class IntProducer : public BasicProducer<std::vector<int>> {
+        public:
+            using BasicProducer<std::vector<int>>::BasicProducer;
 
-		public:
-			std::shared_ptr<int> operator()() {
-				return next([](auto i) { return std::make_shared<int>(2 * i); });
-			}
-		};
+        public:
+            std::shared_ptr<int> operator()()
+            {
+                return next([](auto i) { return std::make_shared<int>(2 * i); });
+            }
+        };
 
-		auto ProduceAll(IntProducer& producer) {
-			std::vector<int> producedValues;
-			for (;;) {
-				auto pInt = producer();
-				if (!pInt)
-					break;
+        auto ProduceAll(IntProducer& producer)
+        {
+            std::vector<int> producedValues;
+            for (;;) {
+                auto pInt = producer();
+                if (!pInt)
+                    break;
 
-				producedValues.push_back(*pInt);
-			}
+                producedValues.push_back(*pInt);
+            }
 
-			return producedValues;
-		}
-	}
+            return producedValues;
+        }
+    }
 
-	TEST(TEST_CLASS, CanProduceZeroEntities) {
-		// Arrange:
-		auto seedValues = std::vector<int>();
-		IntProducer producer(seedValues);
+    TEST(TEST_CLASS, CanProduceZeroEntities)
+    {
+        // Arrange:
+        auto seedValues = std::vector<int>();
+        IntProducer producer(seedValues);
 
-		// Act:
-		auto producedValues = ProduceAll(producer);
+        // Act:
+        auto producedValues = ProduceAll(producer);
 
-		// Assert:
-		EXPECT_EQ(std::vector<int>(), producedValues);
-	}
+        // Assert:
+        EXPECT_EQ(std::vector<int>(), producedValues);
+    }
 
-	TEST(TEST_CLASS, CanProduceSingleEntity) {
-		// Arrange:
-		auto seedValues = std::vector<int>{ 7 };
-		IntProducer producer(seedValues);
+    TEST(TEST_CLASS, CanProduceSingleEntity)
+    {
+        // Arrange:
+        auto seedValues = std::vector<int> { 7 };
+        IntProducer producer(seedValues);
 
-		// Act:
-		auto producedValues = ProduceAll(producer);
+        // Act:
+        auto producedValues = ProduceAll(producer);
 
-		// Assert:
-		EXPECT_EQ(std::vector<int>({ 14 }), producedValues);
-	}
+        // Assert:
+        EXPECT_EQ(std::vector<int>({ 14 }), producedValues);
+    }
 
-	TEST(TEST_CLASS, CanProduceMultipleEntiies) {
-		// Arrange:
-		auto seedValues = std::vector<int>{ 7, 11, 6 };
-		IntProducer producer(seedValues);
+    TEST(TEST_CLASS, CanProduceMultipleEntiies)
+    {
+        // Arrange:
+        auto seedValues = std::vector<int> { 7, 11, 6 };
+        IntProducer producer(seedValues);
 
-		// Act:
-		auto producedValues = ProduceAll(producer);
+        // Act:
+        auto producedValues = ProduceAll(producer);
 
-		// Assert:
-		EXPECT_EQ(std::vector<int>({ 14, 22, 12 }), producedValues);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(std::vector<int>({ 14, 22, 12 }), producedValues);
+    }
+}
+}

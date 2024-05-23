@@ -28,11 +28,11 @@ namespace model {
 
 #endif
 
-	/// Secret lock transaction.
-	DEFINE_TRANSACTION_TYPE(LockSecret, Secret_Lock, 0x1);
+    /// Secret lock transaction.
+    DEFINE_TRANSACTION_TYPE(LockSecret, Secret_Lock, 0x1);
 
-	/// Secret proof transaction.
-	DEFINE_TRANSACTION_TYPE(LockSecret, Secret_Proof, 0x2);
+    /// Secret proof transaction.
+    DEFINE_TRANSACTION_TYPE(LockSecret, Secret_Proof, 0x2);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

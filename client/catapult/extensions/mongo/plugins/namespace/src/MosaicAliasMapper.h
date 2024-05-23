@@ -22,9 +22,13 @@
 #pragma once
 #include "mongo/src/MongoTransactionPlugin.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Creates a mongo mosaic alias transaction plugin.
-	PLUGIN_API
-	std::unique_ptr<MongoTransactionPlugin> CreateMosaicAliasTransactionMongoPlugin();
-}}}
+        /// Creates a mongo mosaic alias transaction plugin.
+        PLUGIN_API
+        std::unique_ptr<MongoTransactionPlugin> CreateMosaicAliasTransactionMongoPlugin();
+    }
+}
+}

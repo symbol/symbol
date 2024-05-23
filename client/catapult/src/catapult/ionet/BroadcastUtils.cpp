@@ -24,27 +24,33 @@
 #include "catapult/model/Block.h"
 #include "catapult/model/BlockUtils.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	PacketPayload CreateBroadcastPayload(const std::shared_ptr<const model::Block>& pBlock) {
-		return PacketPayloadFactory::FromEntity(PacketType::Push_Block, pBlock);
-	}
+    PacketPayload CreateBroadcastPayload(const std::shared_ptr<const model::Block>& pBlock)
+    {
+        return PacketPayloadFactory::FromEntity(PacketType::Push_Block, pBlock);
+    }
 
-	PacketPayload CreateBroadcastPayload(const std::vector<model::TransactionInfo>& transactionInfos) {
-		return CreateBroadcastPayload(transactionInfos, PacketType::Push_Transactions);
-	}
+    PacketPayload CreateBroadcastPayload(const std::vector<model::TransactionInfo>& transactionInfos)
+    {
+        return CreateBroadcastPayload(transactionInfos, PacketType::Push_Transactions);
+    }
 
-	PacketPayload CreateBroadcastPayload(const std::vector<model::TransactionInfo>& transactionInfos, PacketType packetType) {
-		PacketPayloadBuilder builder(packetType);
-		for (const auto& transactionInfo : transactionInfos)
-			builder.appendEntity(transactionInfo.pEntity);
+    PacketPayload CreateBroadcastPayload(const std::vector<model::TransactionInfo>& transactionInfos, PacketType packetType)
+    {
+        PacketPayloadBuilder builder(packetType);
+        for (const auto& transactionInfo : transactionInfos)
+            builder.appendEntity(transactionInfo.pEntity);
 
-		return builder.build();
-	}
+        return builder.build();
+    }
 
-	PacketPayload CreateBroadcastPayload(const std::vector<model::DetachedCosignature>& cosignatures) {
-		PacketPayloadBuilder builder(PacketType::Push_Detached_Cosignatures);
-		builder.appendValues(cosignatures);
-		return builder.build();
-	}
-}}
+    PacketPayload CreateBroadcastPayload(const std::vector<model::DetachedCosignature>& cosignatures)
+    {
+        PacketPayloadBuilder builder(PacketType::Push_Detached_Cosignatures);
+        builder.appendValues(cosignatures);
+        return builder.build();
+    }
+}
+}

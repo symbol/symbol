@@ -23,43 +23,48 @@
 #include "catapult/subscribers/FinalizationSubscriber.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	/// Finalization subscriber finalized block params.
-	struct FinalizationSubscriberFinalizedBlockParams {
-	public:
-		/// Creates params around \a round, \a height and \a hash.
-		FinalizationSubscriberFinalizedBlockParams(const model::FinalizationRound& round, catapult::Height height, const Hash256& hash)
-				: Round(round)
-				, Height(height)
-				, Hash(hash) {
-		}
+    /// Finalization subscriber finalized block params.
+    struct FinalizationSubscriberFinalizedBlockParams {
+    public:
+        /// Creates params around \a round, \a height and \a hash.
+        FinalizationSubscriberFinalizedBlockParams(const model::FinalizationRound& round, catapult::Height height, const Hash256& hash)
+            : Round(round)
+            , Height(height)
+            , Hash(hash)
+        {
+        }
 
-	public:
-		/// Finalization round.
-		const model::FinalizationRound Round;
+    public:
+        /// Finalization round.
+        const model::FinalizationRound Round;
 
-		/// Block height.
-		const catapult::Height Height;
+        /// Block height.
+        const catapult::Height Height;
 
-		/// Block hash.
-		const Hash256 Hash;
-	};
+        /// Block hash.
+        const Hash256 Hash;
+    };
 
-	/// Mock finalization subscriber implementation.
-	class MockFinalizationSubscriber : public subscribers::FinalizationSubscriber {
-	public:
-		/// Gets the params passed to notifyFinalizedBlock.
-		const auto& finalizedBlockParams() const {
-			return m_finalizedBlockParams;
-		}
+    /// Mock finalization subscriber implementation.
+    class MockFinalizationSubscriber : public subscribers::FinalizationSubscriber {
+    public:
+        /// Gets the params passed to notifyFinalizedBlock.
+        const auto& finalizedBlockParams() const
+        {
+            return m_finalizedBlockParams;
+        }
 
-	public:
-		void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
-			m_finalizedBlockParams.push(round, height, hash);
-		}
+    public:
+        void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override
+        {
+            m_finalizedBlockParams.push(round, height, hash);
+        }
 
-	private:
-		test::ParamsCapture<FinalizationSubscriberFinalizedBlockParams> m_finalizedBlockParams;
-	};
-}}
+    private:
+        test::ParamsCapture<FinalizationSubscriberFinalizedBlockParams> m_finalizedBlockParams;
+    };
+}
+}

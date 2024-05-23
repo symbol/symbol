@@ -24,28 +24,32 @@
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		void AssertAddressSet(const state::SortedAddressSet& addresses, const bsoncxx::document::view& dbAddresses) {
-			ASSERT_EQ(addresses.size(), test::GetFieldCount(dbAddresses));
+    namespace {
+        void AssertAddressSet(const state::SortedAddressSet& addresses, const bsoncxx::document::view& dbAddresses)
+        {
+            ASSERT_EQ(addresses.size(), test::GetFieldCount(dbAddresses));
 
-			for (auto dbIter = dbAddresses.cbegin(); dbAddresses.cend() != dbIter; ++dbIter) {
-				auto address = test::GetByteArrayFromMongoSource<Address>(*dbIter);
-				EXPECT_CONTAINS(addresses, address);
-			}
-		}
-	}
+            for (auto dbIter = dbAddresses.cbegin(); dbAddresses.cend() != dbIter; ++dbIter) {
+                auto address = test::GetByteArrayFromMongoSource<Address>(*dbIter);
+                EXPECT_CONTAINS(addresses, address);
+            }
+        }
+    }
 
-	void AssertEqualMultisigData(const state::MultisigEntry& entry, const bsoncxx::document::view& dbMultisig) {
-		EXPECT_EQ(6u, GetFieldCount(dbMultisig));
-		EXPECT_EQ(1u, GetUint32(dbMultisig, "version"));
+    void AssertEqualMultisigData(const state::MultisigEntry& entry, const bsoncxx::document::view& dbMultisig)
+    {
+        EXPECT_EQ(6u, GetFieldCount(dbMultisig));
+        EXPECT_EQ(1u, GetUint32(dbMultisig, "version"));
 
-		EXPECT_EQ(entry.address(), GetAddressValue(dbMultisig, "accountAddress"));
-		EXPECT_EQ(entry.minApproval(), GetUint32(dbMultisig, "minApproval"));
-		EXPECT_EQ(entry.minRemoval(), GetUint32(dbMultisig, "minRemoval"));
+        EXPECT_EQ(entry.address(), GetAddressValue(dbMultisig, "accountAddress"));
+        EXPECT_EQ(entry.minApproval(), GetUint32(dbMultisig, "minApproval"));
+        EXPECT_EQ(entry.minRemoval(), GetUint32(dbMultisig, "minRemoval"));
 
-		AssertAddressSet(entry.cosignatoryAddresses(), dbMultisig["cosignatoryAddresses"].get_array().value);
-		AssertAddressSet(entry.multisigAddresses(), dbMultisig["multisigAddresses"].get_array().value);
-	}
-}}
+        AssertAddressSet(entry.cosignatoryAddresses(), dbMultisig["cosignatoryAddresses"].get_array().value);
+        AssertAddressSet(entry.multisigAddresses(), dbMultisig["multisigAddresses"].get_array().value);
+    }
+}
+}

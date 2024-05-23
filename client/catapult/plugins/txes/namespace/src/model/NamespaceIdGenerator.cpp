@@ -23,21 +23,25 @@
 #include "NamespaceConstants.h"
 #include "catapult/crypto/Hashes.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	NamespaceId GenerateRootNamespaceId(const RawString& name) noexcept {
-		return GenerateNamespaceId(Namespace_Base_Id, name);
-	}
+    NamespaceId GenerateRootNamespaceId(const RawString& name) noexcept
+    {
+        return GenerateNamespaceId(Namespace_Base_Id, name);
+    }
 
-	NamespaceId GenerateNamespaceId(NamespaceId parentId, const RawString& name) noexcept {
-		Hash256 result;
-		crypto::Sha3_256_Builder sha3;
-		sha3.update({ { reinterpret_cast<const uint8_t*>(&parentId), sizeof(NamespaceId) },
-					  { reinterpret_cast<const uint8_t*>(name.pData), name.Size } });
-		sha3.final(result);
+    NamespaceId GenerateNamespaceId(NamespaceId parentId, const RawString& name) noexcept
+    {
+        Hash256 result;
+        crypto::Sha3_256_Builder sha3;
+        sha3.update({ { reinterpret_cast<const uint8_t*>(&parentId), sizeof(NamespaceId) },
+            { reinterpret_cast<const uint8_t*>(name.pData), name.Size } });
+        sha3.final(result);
 
-		// set high bit
-		constexpr uint64_t Namespace_Flag = 1ull << 63;
-		return NamespaceId(reinterpret_cast<const uint64_t&>(result[0]) | Namespace_Flag);
-	}
-}}
+        // set high bit
+        constexpr uint64_t Namespace_Flag = 1ull << 63;
+        return NamespaceId(reinterpret_cast<const uint64_t&>(result[0]) | Namespace_Flag);
+    }
+}
+}

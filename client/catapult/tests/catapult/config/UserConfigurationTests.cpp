@@ -20,52 +20,58 @@
 **/
 
 #include "catapult/config/UserConfiguration.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	namespace {
-		struct UserConfigurationTraits {
-			using ConfigurationType = UserConfiguration;
+    namespace {
+        struct UserConfigurationTraits {
+            using ConfigurationType = UserConfiguration;
 
-			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return { { "account", { { "enableDelegatedHarvestersAutoDetection", "true" } } },
-						 { "storage",
-						   { { "seedDirectory", "./sd" },
-							 { "dataDirectory", "./dd" },
-							 { "certificateDirectory", "./cert" },
-							 { "votingKeysDirectory", "./keys" },
-							 { "pluginsDirectory", "./ext" } } } };
-			}
+            static utils::ConfigurationBag::ValuesContainer CreateProperties()
+            {
+                return { { "account", { { "enableDelegatedHarvestersAutoDetection", "true" } } },
+                    { "storage",
+                        { { "seedDirectory", "./sd" },
+                            { "dataDirectory", "./dd" },
+                            { "certificateDirectory", "./cert" },
+                            { "votingKeysDirectory", "./keys" },
+                            { "pluginsDirectory", "./ext" } } } };
+            }
 
-			static bool IsSectionOptional(const std::string&) {
-				return false;
-			}
+            static bool IsSectionOptional(const std::string&)
+            {
+                return false;
+            }
 
-			static void AssertZero(const UserConfiguration& config) {
-				// Assert:
-				EXPECT_FALSE(config.EnableDelegatedHarvestersAutoDetection);
+            static void AssertZero(const UserConfiguration& config)
+            {
+                // Assert:
+                EXPECT_FALSE(config.EnableDelegatedHarvestersAutoDetection);
 
-				EXPECT_EQ("", config.SeedDirectory);
-				EXPECT_EQ("", config.DataDirectory);
-				EXPECT_EQ("", config.CertificateDirectory);
-				EXPECT_EQ("", config.VotingKeysDirectory);
-				EXPECT_EQ("", config.PluginsDirectory);
-			}
+                EXPECT_EQ("", config.SeedDirectory);
+                EXPECT_EQ("", config.DataDirectory);
+                EXPECT_EQ("", config.CertificateDirectory);
+                EXPECT_EQ("", config.VotingKeysDirectory);
+                EXPECT_EQ("", config.PluginsDirectory);
+            }
 
-			static void AssertCustom(const UserConfiguration& config) {
-				// Assert:
-				EXPECT_TRUE(config.EnableDelegatedHarvestersAutoDetection);
+            static void AssertCustom(const UserConfiguration& config)
+            {
+                // Assert:
+                EXPECT_TRUE(config.EnableDelegatedHarvestersAutoDetection);
 
-				EXPECT_EQ("./sd", config.SeedDirectory);
-				EXPECT_EQ("./dd", config.DataDirectory);
-				EXPECT_EQ("./cert", config.CertificateDirectory);
-				EXPECT_EQ("./keys", config.VotingKeysDirectory);
-				EXPECT_EQ("./ext", config.PluginsDirectory);
-			}
-		};
-	}
+                EXPECT_EQ("./sd", config.SeedDirectory);
+                EXPECT_EQ("./dd", config.DataDirectory);
+                EXPECT_EQ("./cert", config.CertificateDirectory);
+                EXPECT_EQ("./keys", config.VotingKeysDirectory);
+                EXPECT_EQ("./ext", config.PluginsDirectory);
+            }
+        };
+    }
 
-	DEFINE_CONFIGURATION_TESTS(UserConfigurationTests, User)
-}}
+    DEFINE_CONFIGURATION_TESTS(UserConfigurationTests, User)
+}
+}

@@ -22,33 +22,35 @@
 #pragma once
 #include "BmPrivateKeyTree.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	/// Aggregate of multiple two-layer Bellare-Miner private key trees.
-	class AggregateBmPrivateKeyTree {
-	private:
-		using BmPublicKey = decltype(BmTreeSignature::Root.ParentPublicKey);
-		using PrivateKeyTreeFactory = supplier<std::unique_ptr<BmPrivateKeyTree>>;
+    /// Aggregate of multiple two-layer Bellare-Miner private key trees.
+    class AggregateBmPrivateKeyTree {
+    private:
+        using BmPublicKey = decltype(BmTreeSignature::Root.ParentPublicKey);
+        using PrivateKeyTreeFactory = supplier<std::unique_ptr<BmPrivateKeyTree>>;
 
-	public:
-		/// Creates a tree around \a factory.
-		explicit AggregateBmPrivateKeyTree(const PrivateKeyTreeFactory& factory);
+    public:
+        /// Creates a tree around \a factory.
+        explicit AggregateBmPrivateKeyTree(const PrivateKeyTreeFactory& factory);
 
-	public:
-		/// Gets the root public key.
-		const BmPublicKey& rootPublicKey() const;
+    public:
+        /// Gets the root public key.
+        const BmPublicKey& rootPublicKey() const;
 
-		/// Gets the options.
-		const BmOptions& options() const;
+        /// Gets the options.
+        const BmOptions& options() const;
 
-		/// Returns \c true if can sign at \a keyIdentifier.
-		bool canSign(const BmKeyIdentifier& keyIdentifier);
+        /// Returns \c true if can sign at \a keyIdentifier.
+        bool canSign(const BmKeyIdentifier& keyIdentifier);
 
-		/// Creates the signature for \a dataBuffer at \a keyIdentifier.
-		BmTreeSignature sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
+        /// Creates the signature for \a dataBuffer at \a keyIdentifier.
+        BmTreeSignature sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
 
-	private:
-		PrivateKeyTreeFactory m_factory;
-		std::unique_ptr<BmPrivateKeyTree> m_pTree;
-	};
-}}
+    private:
+        PrivateKeyTreeFactory m_factory;
+        std::unique_ptr<BmPrivateKeyTree> m_pTree;
+    };
+}
+}

@@ -19,58 +19,68 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/mappers/ResolutionStatementMapper.h"
 #include "catapult/model/ResolutionStatement.h"
+#include "mongo/src/mappers/ResolutionStatementMapper.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoReceiptTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace mappers {
+namespace catapult {
+namespace mongo {
+    namespace mappers {
 
 #define TEST_CLASS ResolutionStatementMapperTests
 
-	namespace {
-		template<typename TTraits>
-		void AssertCanMapResolutionStatement(size_t numResolutions) {
-			// Arrange:
-			auto unresolved = TTraits::CreateUnresolved(213);
-			typename TTraits::ResolutionStatementType statement(unresolved);
-			for (uint8_t i = 0; i < numResolutions; ++i)
-				statement.addResolution(TTraits::CreateResolved(i), { 123u + i, 234u + i });
+        namespace {
+            template <typename TTraits>
+            void AssertCanMapResolutionStatement(size_t numResolutions)
+            {
+                // Arrange:
+                auto unresolved = TTraits::CreateUnresolved(213);
+                typename TTraits::ResolutionStatementType statement(unresolved);
+                for (uint8_t i = 0; i < numResolutions; ++i)
+                    statement.addResolution(TTraits::CreateResolved(i), { 123u + i, 234u + i });
 
-			// Act:
-			auto document = ToDbModel(Height(567), statement);
-			auto documentView = document.view();
+                // Act:
+                auto document = ToDbModel(Height(567), statement);
+                auto documentView = document.view();
 
-			// Assert:
-			EXPECT_EQ(1u, test::GetFieldCount(documentView));
+                // Assert:
+                EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
-			auto statementView = documentView["statement"].get_document().view();
-			TTraits::AssertResolutionStatement(statement, Height(567), statementView, 3, 0);
-		}
-	}
+                auto statementView = documentView["statement"].get_document().view();
+                TTraits::AssertResolutionStatement(statement, Height(567), statementView, 3, 0);
+            }
+        }
 
-#define RESOLUTION_STATEMENT_MAPPER_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AddressResolutionTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicResolutionTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define RESOLUTION_STATEMENT_MAPPER_TEST(TEST_NAME)                               \
+    template <typename TTraits>                                                   \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                               \
+    TEST(TEST_CLASS, TEST_NAME##_Address)                                         \
+    {                                                                             \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AddressResolutionTraits>(); \
+    }                                                                             \
+    TEST(TEST_CLASS, TEST_NAME##_Mosaic)                                          \
+    {                                                                             \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicResolutionTraits>();  \
+    }                                                                             \
+    template <typename TTraits>                                                   \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_NoResolutions) {
-		AssertCanMapResolutionStatement<TTraits>(0);
-	}
+        RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_NoResolutions)
+        {
+            AssertCanMapResolutionStatement<TTraits>(0);
+        }
 
-	RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_SingleResolution) {
-		AssertCanMapResolutionStatement<TTraits>(1);
-	}
+        RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_SingleResolution)
+        {
+            AssertCanMapResolutionStatement<TTraits>(1);
+        }
 
-	RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_MultipleResolutions) {
-		AssertCanMapResolutionStatement<TTraits>(5);
-	}
-}}}
+        RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_MultipleResolutions)
+        {
+            AssertCanMapResolutionStatement<TTraits>(5);
+        }
+    }
+}
+}

@@ -22,197 +22,219 @@
 #include "finalization/src/chain/FinalizationPatchingSubscriber.h"
 #include "finalization/src/io/PrevoteChainStorage.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
 #define TEST_CLASS FinalizationPatchingSubscriberTests
 
-	namespace {
-		// region MockPrevoteChainStorage
+    namespace {
+        // region MockPrevoteChainStorage
 
-		class MockPrevoteChainStorage : public io::PrevoteChainStorage {
-		public:
-			bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const override {
-				m_containsRounds.push_back(round);
-				return m_containedHeightHashPair == heightHashPair;
-			}
+        class MockPrevoteChainStorage : public io::PrevoteChainStorage {
+        public:
+            bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const override
+            {
+                m_containsRounds.push_back(round);
+                return m_containedHeightHashPair == heightHashPair;
+            }
 
-			model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const override {
-				m_loadRounds.push_back(round);
-				return test::CreateBlockEntityRange(maxHeight.unwrap());
-			}
+            model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const override
+            {
+                m_loadRounds.push_back(round);
+                return test::CreateBlockEntityRange(maxHeight.unwrap());
+            }
 
-			void save(const io::BlockStorageView&, const io::PrevoteChainDescriptor&) override {
-				CATAPULT_THROW_RUNTIME_ERROR("save - not supported in mock");
-			}
+            void save(const io::BlockStorageView&, const io::PrevoteChainDescriptor&) override
+            {
+                CATAPULT_THROW_RUNTIME_ERROR("save - not supported in mock");
+            }
 
-			void remove(const model::FinalizationRound& round) override {
-				m_removeRounds.push_back(round);
-			}
+            void remove(const model::FinalizationRound& round) override
+            {
+                m_removeRounds.push_back(round);
+            }
 
-		public:
-			const auto& containsRounds() const {
-				return m_containsRounds;
-			}
+        public:
+            const auto& containsRounds() const
+            {
+                return m_containsRounds;
+            }
 
-			const auto& loadRounds() const {
-				return m_loadRounds;
-			}
+            const auto& loadRounds() const
+            {
+                return m_loadRounds;
+            }
 
-			const auto& removeRounds() const {
-				return m_removeRounds;
-			}
+            const auto& removeRounds() const
+            {
+                return m_removeRounds;
+            }
 
-		public:
-			void setContained(const model::HeightHashPair& heightHashPair) {
-				m_containedHeightHashPair = heightHashPair;
-			}
+        public:
+            void setContained(const model::HeightHashPair& heightHashPair)
+            {
+                m_containedHeightHashPair = heightHashPair;
+            }
 
-		private:
-			model::HeightHashPair m_containedHeightHashPair;
+        private:
+            model::HeightHashPair m_containedHeightHashPair;
 
-			mutable std::vector<model::FinalizationRound> m_containsRounds;
-			mutable std::vector<model::FinalizationRound> m_loadRounds;
-			std::vector<model::FinalizationRound> m_removeRounds;
-		};
+            mutable std::vector<model::FinalizationRound> m_containsRounds;
+            mutable std::vector<model::FinalizationRound> m_loadRounds;
+            std::vector<model::FinalizationRound> m_removeRounds;
+        };
 
-		// endregion
+        // endregion
 
-		// region TestContext
+        // region TestContext
 
-		class TestContext {
-		public:
-			explicit TestContext(uint32_t numBlocks)
-					: m_pBlockStorageCache(mocks::CreateMemoryBlockStorageCache(numBlocks))
-					, m_subscriber(m_prevoteChainStorage, *m_pBlockStorageCache, [this](auto&& blockRange) {
-						m_blockRangeSizes.push_back(blockRange.size());
-					}) {
-			}
+        class TestContext {
+        public:
+            explicit TestContext(uint32_t numBlocks)
+                : m_pBlockStorageCache(mocks::CreateMemoryBlockStorageCache(numBlocks))
+                , m_subscriber(m_prevoteChainStorage, *m_pBlockStorageCache, [this](auto&& blockRange) {
+                    m_blockRangeSizes.push_back(blockRange.size());
+                })
+            {
+            }
 
-		public:
-			auto& prevoteChainStorage() {
-				return m_prevoteChainStorage;
-			}
+        public:
+            auto& prevoteChainStorage()
+            {
+                return m_prevoteChainStorage;
+            }
 
-			auto blockStorageHash(Height height) {
-				return m_pBlockStorageCache->view().loadBlockElement(height)->EntityHash;
-			}
+            auto blockStorageHash(Height height)
+            {
+                return m_pBlockStorageCache->view().loadBlockElement(height)->EntityHash;
+            }
 
-			auto& blockRangeSizes() {
-				return m_blockRangeSizes;
-			}
+            auto& blockRangeSizes()
+            {
+                return m_blockRangeSizes;
+            }
 
-			auto& subscriber() {
-				return m_subscriber;
-			}
+            auto& subscriber()
+            {
+                return m_subscriber;
+            }
 
-		private:
-			MockPrevoteChainStorage m_prevoteChainStorage;
-			std::unique_ptr<io::BlockStorageCache> m_pBlockStorageCache;
-			std::vector<size_t> m_blockRangeSizes;
+        private:
+            MockPrevoteChainStorage m_prevoteChainStorage;
+            std::unique_ptr<io::BlockStorageCache> m_pBlockStorageCache;
+            std::vector<size_t> m_blockRangeSizes;
 
-			FinalizationPatchingSubscriber m_subscriber;
-		};
+            FinalizationPatchingSubscriber m_subscriber;
+        };
 
-		// endregion
+        // endregion
 
-		// region test utils
+        // region test utils
 
-		void AssertChainIsNotLoadedFromBackups(TestContext& context, const model::FinalizationRound& round, bool isInBlockStorage) {
-			// if block storage already contains finalized block, contains check in backups is bypassed
-			if (isInBlockStorage)
-				EXPECT_EQ(std::vector<model::FinalizationRound>(), context.prevoteChainStorage().containsRounds());
-			else
-				EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().containsRounds());
+        void AssertChainIsNotLoadedFromBackups(TestContext& context, const model::FinalizationRound& round, bool isInBlockStorage)
+        {
+            // if block storage already contains finalized block, contains check in backups is bypassed
+            if (isInBlockStorage)
+                EXPECT_EQ(std::vector<model::FinalizationRound>(), context.prevoteChainStorage().containsRounds());
+            else
+                EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().containsRounds());
 
-			EXPECT_EQ(std::vector<model::FinalizationRound>(), context.prevoteChainStorage().loadRounds());
-			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().removeRounds());
+            EXPECT_EQ(std::vector<model::FinalizationRound>(), context.prevoteChainStorage().loadRounds());
+            EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().removeRounds());
 
-			EXPECT_EQ(std::vector<size_t>(), context.blockRangeSizes());
-		}
+            EXPECT_EQ(std::vector<size_t>(), context.blockRangeSizes());
+        }
 
-		void AssertChainIsLoadedFromBackups(TestContext& context, const model::FinalizationRound& round, Height height) {
-			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().containsRounds());
-			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().loadRounds());
-			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().removeRounds());
+        void AssertChainIsLoadedFromBackups(TestContext& context, const model::FinalizationRound& round, Height height)
+        {
+            EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().containsRounds());
+            EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().loadRounds());
+            EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().removeRounds());
 
-			EXPECT_EQ(std::vector<size_t>({ height.unwrap() }), context.blockRangeSizes());
-		}
+            EXPECT_EQ(std::vector<size_t>({ height.unwrap() }), context.blockRangeSizes());
+        }
 
-		// endregion
-	}
+        // endregion
+    }
 
-	// region tests
+    // region tests
 
-	TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInNeitherStorageNorPrevoteBackups) {
-		// Arrange:
-		TestContext context(10);
-		context.prevoteChainStorage().setContained({ Height(7), test::GenerateRandomByteArray<Hash256>() });
+    TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInNeitherStorageNorPrevoteBackups)
+    {
+        // Arrange:
+        TestContext context(10);
+        context.prevoteChainStorage().setContained({ Height(7), test::GenerateRandomByteArray<Hash256>() });
 
-		// Act:
-		auto round = test::CreateFinalizationRound(3, 11);
-		context.subscriber().notifyFinalizedBlock(round, Height(7), test::GenerateRandomByteArray<Hash256>());
+        // Act:
+        auto round = test::CreateFinalizationRound(3, 11);
+        context.subscriber().notifyFinalizedBlock(round, Height(7), test::GenerateRandomByteArray<Hash256>());
 
-		// Assert:
-		AssertChainIsNotLoadedFromBackups(context, round, false);
-	}
+        // Assert:
+        AssertChainIsNotLoadedFromBackups(context, round, false);
+    }
 
-	TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInStorageButNotPrevoteBackups) {
-		// Arrange:
-		TestContext context(10);
-		context.prevoteChainStorage().setContained({ Height(7), test::GenerateRandomByteArray<Hash256>() });
+    TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInStorageButNotPrevoteBackups)
+    {
+        // Arrange:
+        TestContext context(10);
+        context.prevoteChainStorage().setContained({ Height(7), test::GenerateRandomByteArray<Hash256>() });
 
-		// Act:
-		auto round = test::CreateFinalizationRound(3, 11);
-		context.subscriber().notifyFinalizedBlock(round, Height(7), context.blockStorageHash(Height(7)));
+        // Act:
+        auto round = test::CreateFinalizationRound(3, 11);
+        context.subscriber().notifyFinalizedBlock(round, Height(7), context.blockStorageHash(Height(7)));
 
-		// Assert:
-		AssertChainIsNotLoadedFromBackups(context, round, true);
-	}
+        // Assert:
+        AssertChainIsNotLoadedFromBackups(context, round, true);
+    }
 
-	TEST(TEST_CLASS, PrevoteChainIsLoadedWhenFinalizedBlockIsInPrevoteBackupsButNotStorage) {
-		// Arrange:
-		auto hash = test::GenerateRandomByteArray<Hash256>();
-		TestContext context(10);
-		context.prevoteChainStorage().setContained({ Height(7), hash });
+    TEST(TEST_CLASS, PrevoteChainIsLoadedWhenFinalizedBlockIsInPrevoteBackupsButNotStorage)
+    {
+        // Arrange:
+        auto hash = test::GenerateRandomByteArray<Hash256>();
+        TestContext context(10);
+        context.prevoteChainStorage().setContained({ Height(7), hash });
 
-		// Act:
-		auto round = test::CreateFinalizationRound(3, 11);
-		context.subscriber().notifyFinalizedBlock(round, Height(7), hash);
+        // Act:
+        auto round = test::CreateFinalizationRound(3, 11);
+        context.subscriber().notifyFinalizedBlock(round, Height(7), hash);
 
-		// Assert:
-		AssertChainIsLoadedFromBackups(context, round, Height(7));
-	}
+        // Assert:
+        AssertChainIsLoadedFromBackups(context, round, Height(7));
+    }
 
-	TEST(TEST_CLASS, PrevoteChainIsLoadedWhenFinalizedBlockIsInPrevoteBackupsButNotStorageAndAheadOfStorage) {
-		// Arrange:
-		auto hash = test::GenerateRandomByteArray<Hash256>();
-		TestContext context(10);
-		context.prevoteChainStorage().setContained({ Height(12), hash });
+    TEST(TEST_CLASS, PrevoteChainIsLoadedWhenFinalizedBlockIsInPrevoteBackupsButNotStorageAndAheadOfStorage)
+    {
+        // Arrange:
+        auto hash = test::GenerateRandomByteArray<Hash256>();
+        TestContext context(10);
+        context.prevoteChainStorage().setContained({ Height(12), hash });
 
-		// Act:
-		auto round = test::CreateFinalizationRound(3, 11);
-		context.subscriber().notifyFinalizedBlock(round, Height(12), hash);
+        // Act:
+        auto round = test::CreateFinalizationRound(3, 11);
+        context.subscriber().notifyFinalizedBlock(round, Height(12), hash);
 
-		// Assert:
-		AssertChainIsLoadedFromBackups(context, round, Height(12));
-	}
+        // Assert:
+        AssertChainIsLoadedFromBackups(context, round, Height(12));
+    }
 
-	TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInBothStorageAndPrevoteBackups) {
-		// Arrange:
-		TestContext context(10);
-		context.prevoteChainStorage().setContained({ Height(7), context.blockStorageHash(Height(7)) });
+    TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInBothStorageAndPrevoteBackups)
+    {
+        // Arrange:
+        TestContext context(10);
+        context.prevoteChainStorage().setContained({ Height(7), context.blockStorageHash(Height(7)) });
 
-		// Act:
-		auto round = test::CreateFinalizationRound(3, 11);
-		context.subscriber().notifyFinalizedBlock(round, Height(7), context.blockStorageHash(Height(7)));
+        // Act:
+        auto round = test::CreateFinalizationRound(3, 11);
+        context.subscriber().notifyFinalizedBlock(round, Height(7), context.blockStorageHash(Height(7)));
 
-		// Assert:
-		AssertChainIsNotLoadedFromBackups(context, round, true);
-	}
+        // Assert:
+        AssertChainIsNotLoadedFromBackups(context, round, true);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

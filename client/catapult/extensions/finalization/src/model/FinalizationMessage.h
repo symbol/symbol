@@ -27,113 +27,116 @@
 
 namespace catapult {
 namespace crypto {
-	class AggregateBmPrivateKeyTree;
+    class AggregateBmPrivateKeyTree;
 }
 namespace model {
-	class FinalizationContext;
+    class FinalizationContext;
 }
 }
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region FinalizationMessage
+    // region FinalizationMessage
 
 #pragma pack(push, 1)
 
-	/// Finalization message.
-	struct FinalizationMessage : public TrailingVariableDataLayout<FinalizationMessage, Hash256> {
-	public:
-		/// Size of the header that can be skipped when signing/verifying.
-		static constexpr size_t Header_Size = sizeof(uint32_t) * 2 + sizeof(crypto::BmTreeSignature);
+    /// Finalization message.
+    struct FinalizationMessage : public TrailingVariableDataLayout<FinalizationMessage, Hash256> {
+    public:
+        /// Size of the header that can be skipped when signing/verifying.
+        static constexpr size_t Header_Size = sizeof(uint32_t) * 2 + sizeof(crypto::BmTreeSignature);
 
-		/// Message format version.
-		static constexpr uint8_t Current_Version = 1;
+        /// Message format version.
+        static constexpr uint8_t Current_Version = 1;
 
-	public:
-		/// Reserved padding to align Signature on 8-byte boundary.
-		uint32_t FinalizationMessage_Reserved1;
+    public:
+        /// Reserved padding to align Signature on 8-byte boundary.
+        uint32_t FinalizationMessage_Reserved1;
 
-		/// Message signature.
-		crypto::BmTreeSignature Signature;
+        /// Message signature.
+        crypto::BmTreeSignature Signature;
 
-		/// Message version.
-		uint32_t Version;
+        /// Message version.
+        uint32_t Version;
 
-		/// Number of hashes.
-		uint32_t HashesCount;
+        /// Number of hashes.
+        uint32_t HashesCount;
 
-		/// Step identifer.
-		model::StepIdentifier StepIdentifier;
+        /// Step identifer.
+        model::StepIdentifier StepIdentifier;
 
-		/// Block height corresponding to the the first hash.
-		catapult::Height Height;
+        /// Block height corresponding to the the first hash.
+        catapult::Height Height;
 
-	public:
-		DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(Hashes, Count)
+    public:
+        DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(Hashes, Count)
 
-	public:
-		/// Calculates the real size of \a message.
-		static constexpr uint64_t CalculateRealSize(const FinalizationMessage& message) noexcept {
-			return sizeof(FinalizationMessage) + message.HashesCount * Hash256::Size;
-		}
-	};
+    public:
+        /// Calculates the real size of \a message.
+        static constexpr uint64_t CalculateRealSize(const FinalizationMessage& message) noexcept
+        {
+            return sizeof(FinalizationMessage) + message.HashesCount * Hash256::Size;
+        }
+    };
 
 #pragma pack(pop)
 
-	/// Insertion operator for outputting \a message to \a out.
-	std::ostream& operator<<(std::ostream& out, const FinalizationMessage& message);
+    /// Insertion operator for outputting \a message to \a out.
+    std::ostream& operator<<(std::ostream& out, const FinalizationMessage& message);
 
-	/// Range of finalization messages.
-	using FinalizationMessageRange = EntityRange<FinalizationMessage>;
+    /// Range of finalization messages.
+    using FinalizationMessageRange = EntityRange<FinalizationMessage>;
 
-	// endregion
+    // endregion
 
-	// region CalculateMessageHash
+    // region CalculateMessageHash
 
-	/// Calculates a hash for \a message.
-	Hash256 CalculateMessageHash(const FinalizationMessage& message);
+    /// Calculates a hash for \a message.
+    Hash256 CalculateMessageHash(const FinalizationMessage& message);
 
-	// endregion
+    // endregion
 
-	// region PrepareMessage
+    // region PrepareMessage
 
-	/// Prepares a finalization message given \a bmPrivateKeyTree, \a stepIdentifier, \a height and \a hashes.
-	std::unique_ptr<FinalizationMessage> PrepareMessage(
-			crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
-			const StepIdentifier& stepIdentifier,
-			Height height,
-			const HashRange& hashes);
+    /// Prepares a finalization message given \a bmPrivateKeyTree, \a stepIdentifier, \a height and \a hashes.
+    std::unique_ptr<FinalizationMessage> PrepareMessage(
+        crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
+        const StepIdentifier& stepIdentifier,
+        Height height,
+        const HashRange& hashes);
 
-	// endregion
+    // endregion
 
-	// region ProcessMessage
+    // region ProcessMessage
 
-#define PROCESS_MESSAGE_RESULT_LIST \
-	/* Invalid message signature. */ \
-	ENUM_VALUE(Failure_Signature) \
-\
-	/* Invalid padding. */ \
-	ENUM_VALUE(Failure_Padding) \
-\
-	/* Invalid version. */ \
-	ENUM_VALUE(Failure_Version) \
-\
-	/* Invalid voter. */ \
-	ENUM_VALUE(Failure_Voter) \
-\
-	/* Processing succeeded. */ \
-	ENUM_VALUE(Success)
+#define PROCESS_MESSAGE_RESULT_LIST  \
+    /* Invalid message signature. */ \
+    ENUM_VALUE(Failure_Signature)    \
+                                     \
+    /* Invalid padding. */           \
+    ENUM_VALUE(Failure_Padding)      \
+                                     \
+    /* Invalid version. */           \
+    ENUM_VALUE(Failure_Version)      \
+                                     \
+    /* Invalid voter. */             \
+    ENUM_VALUE(Failure_Voter)        \
+                                     \
+    /* Processing succeeded. */      \
+    ENUM_VALUE(Success)
 
 #define ENUM_VALUE(LABEL) LABEL,
-	/// Process message results.
-	enum class ProcessMessageResult { PROCESS_MESSAGE_RESULT_LIST };
+    /// Process message results.
+    enum class ProcessMessageResult { PROCESS_MESSAGE_RESULT_LIST };
 #undef ENUM_VALUE
 
-	/// Insertion operator for outputting \a value to \a out.
-	std::ostream& operator<<(std::ostream& out, ProcessMessageResult value);
+    /// Insertion operator for outputting \a value to \a out.
+    std::ostream& operator<<(std::ostream& out, ProcessMessageResult value);
 
-	/// Processes a finalization \a message using \a context.
-	std::pair<ProcessMessageResult, size_t> ProcessMessage(const FinalizationMessage& message, const FinalizationContext& context);
+    /// Processes a finalization \a message using \a context.
+    std::pair<ProcessMessageResult, size_t> ProcessMessage(const FinalizationMessage& message, const FinalizationContext& context);
 
-	// endregion
-}}
+    // endregion
+}
+}

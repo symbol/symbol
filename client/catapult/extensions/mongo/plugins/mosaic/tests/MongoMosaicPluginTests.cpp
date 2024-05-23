@@ -19,33 +19,40 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
 #include "plugins/txes/mosaic/src/model/MosaicReceiptType.h"
-#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct MongoMosaicPluginTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+        namespace {
+            struct MongoMosaicPluginTraits {
+            public:
+                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Mosaic_Definition,
-						 model::Entity_Type_Mosaic_Supply_Change,
-						 model::Entity_Type_Mosaic_Supply_Revocation };
-			}
+                static std::vector<model::EntityType> GetTransactionTypes()
+                {
+                    return { model::Entity_Type_Mosaic_Definition,
+                        model::Entity_Type_Mosaic_Supply_Change,
+                        model::Entity_Type_Mosaic_Supply_Revocation };
+                }
 
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return { model::Receipt_Type_Mosaic_Expired, model::Receipt_Type_Mosaic_Rental_Fee };
-			}
+                static std::vector<model::ReceiptType> GetReceiptTypes()
+                {
+                    return { model::Receipt_Type_Mosaic_Expired, model::Receipt_Type_Mosaic_Rental_Fee };
+                }
 
-			static std::string GetStorageName() {
-				return "{ MosaicCache }";
-			}
-		};
-	}
+                static std::string GetStorageName()
+                {
+                    return "{ MosaicCache }";
+                }
+            };
+        }
 
-	DEFINE_MONGO_PLUGIN_TESTS(MongoMosaicPluginTests, MongoMosaicPluginTraits)
-}}}
+        DEFINE_MONGO_PLUGIN_TESTS(MongoMosaicPluginTests, MongoMosaicPluginTraits)
+    }
+}
+}

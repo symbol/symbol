@@ -20,39 +20,43 @@
 **/
 
 #include "MemoryHashCacheSystem.h"
+#include "catapult/observers/ObserverUtils.h"
+#include "catapult/plugins/PluginManager.h"
 #include "src/cache/HashCacheStorage.h"
 #include "src/handlers/HashCacheDiagnosticHandlers.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
-#include "catapult/observers/ObserverUtils.h"
-#include "catapult/plugins/PluginManager.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	void RegisterMemoryHashCacheSystem(PluginManager& manager) {
-		const auto& config = manager.config();
+    void RegisterMemoryHashCacheSystem(PluginManager& manager)
+    {
+        const auto& config = manager.config();
 
-		manager.addCacheSupport<cache::HashCacheStorage>(
-				std::make_unique<cache::HashCache>(manager.cacheConfig(cache::HashCache::Name), CalculateTransactionCacheDuration(config)));
+        manager.addCacheSupport<cache::HashCacheStorage>(
+            std::make_unique<cache::HashCache>(manager.cacheConfig(cache::HashCache::Name), CalculateTransactionCacheDuration(config)));
 
-		manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-			handlers::RegisterConfirmTimestampedHashesHandler(
-					handlers,
-					handlers::CreateConfirmedTimestampedHashesProducerFactory(cache.sub<cache::HashCache>()));
-		});
+        manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
+            handlers::RegisterConfirmTimestampedHashesHandler(
+                handlers,
+                handlers::CreateConfirmedTimestampedHashesProducerFactory(cache.sub<cache::HashCache>()));
+        });
 
-		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
-			counters.emplace_back(utils::DiagnosticCounterId("HASH C"), [&cache]() {
-				return cache.sub<cache::HashCache>().createView()->size();
-			});
-		});
+        manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
+            counters.emplace_back(utils::DiagnosticCounterId("HASH C"), [&cache]() {
+                return cache.sub<cache::HashCache>().createView()->size();
+            });
+        });
 
-		manager.addStatefulValidatorHook([](auto& builder) { builder.add(validators::CreateUniqueTransactionHashValidator()); });
+        manager.addStatefulValidatorHook([](auto& builder) { builder.add(validators::CreateUniqueTransactionHashValidator()); });
 
-		manager.addTransientObserverHook([](auto& builder) { builder.add(observers::CreateTransactionHashObserver()); });
-	}
-}}
+        manager.addTransientObserverHook([](auto& builder) { builder.add(observers::CreateTransactionHashObserver()); });
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
-	catapult::plugins::RegisterMemoryHashCacheSystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
+{
+    catapult::plugins::RegisterMemoryHashCacheSystem(manager);
 }

@@ -20,156 +20,165 @@
 **/
 
 #include "catapult/extensions/NemesisFundingObserver.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
 #define TEST_CLASS NemesisFundingObserverTests
 
-	namespace {
-		auto CreateBalanceTransferNotification(const Address& sender, UnresolvedMosaicId mosaicId, Amount amount) {
-			return model::BalanceTransferNotification(sender, test::GenerateRandomUnresolvedAddress(), mosaicId, amount);
-		}
-	}
+    namespace {
+        auto CreateBalanceTransferNotification(const Address& sender, UnresolvedMosaicId mosaicId, Amount amount)
+        {
+            return model::BalanceTransferNotification(sender, test::GenerateRandomUnresolvedAddress(), mosaicId, amount);
+        }
+    }
 
-	// region unsupported
+    // region unsupported
 
-	namespace {
-		void AssertUnsupported(observers::NotifyMode notifyMode, Height height) {
-			// Arrange:
-			test::AccountObserverTestContext context(notifyMode, height);
-			auto sender = test::GenerateRandomByteArray<Address>();
+    namespace {
+        void AssertUnsupported(observers::NotifyMode notifyMode, Height height)
+        {
+            // Arrange:
+            test::AccountObserverTestContext context(notifyMode, height);
+            auto sender = test::GenerateRandomByteArray<Address>();
 
-			NemesisFundingState fundingState;
-			auto pObserver = CreateNemesisFundingObserver(sender, fundingState);
-			auto notification = CreateBalanceTransferNotification(sender, UnresolvedMosaicId(9876), Amount(12));
+            NemesisFundingState fundingState;
+            auto pObserver = CreateNemesisFundingObserver(sender, fundingState);
+            auto notification = CreateBalanceTransferNotification(sender, UnresolvedMosaicId(9876), Amount(12));
 
-			// Act + Assert:
-			EXPECT_THROW(test::ObserveNotification(*pObserver, notification, context.observerContext()), catapult_invalid_argument);
-		}
-	}
+            // Act + Assert:
+            EXPECT_THROW(test::ObserveNotification(*pObserver, notification, context.observerContext()), catapult_invalid_argument);
+        }
+    }
 
-	TEST(TEST_CLASS, ObserverDoesNotSupportRollback) {
-		AssertUnsupported(observers::NotifyMode::Rollback, Height(1));
-	}
+    TEST(TEST_CLASS, ObserverDoesNotSupportRollback)
+    {
+        AssertUnsupported(observers::NotifyMode::Rollback, Height(1));
+    }
 
-	TEST(TEST_CLASS, ObserverDoesNotSupportNonNemesisBlock) {
-		AssertUnsupported(observers::NotifyMode::Commit, Height(2));
-	}
+    TEST(TEST_CLASS, ObserverDoesNotSupportNonNemesisBlock)
+    {
+        AssertUnsupported(observers::NotifyMode::Commit, Height(2));
+    }
 
-	// endregion
+    // endregion
 
-	// region non-nemesis account
+    // region non-nemesis account
 
-	TEST(TEST_CLASS, ObserverDoesNotFundNonNemesisAccount) {
-		// Arrange:
-		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto nemesis = test::GenerateRandomByteArray<Address>();
-		auto sender = test::GenerateRandomByteArray<Address>();
+    TEST(TEST_CLASS, ObserverDoesNotFundNonNemesisAccount)
+    {
+        // Arrange:
+        test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
+        auto nemesis = test::GenerateRandomByteArray<Address>();
+        auto sender = test::GenerateRandomByteArray<Address>();
 
-		NemesisFundingState fundingState;
-		auto pObserver = CreateNemesisFundingObserver(nemesis, fundingState);
-		auto notification = CreateBalanceTransferNotification(sender, UnresolvedMosaicId(9876), Amount(12));
+        NemesisFundingState fundingState;
+        auto pObserver = CreateNemesisFundingObserver(nemesis, fundingState);
+        auto notification = CreateBalanceTransferNotification(sender, UnresolvedMosaicId(9876), Amount(12));
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context.observerContext());
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context.observerContext());
 
-		// Assert: nothing was funded
-		EXPECT_EQ(NemesisFundingType::Unknown, fundingState.FundingType);
-		EXPECT_EQ(0u, fundingState.TotalFundedMosaics.size());
+        // Assert: nothing was funded
+        EXPECT_EQ(NemesisFundingType::Unknown, fundingState.FundingType);
+        EXPECT_EQ(0u, fundingState.TotalFundedMosaics.size());
 
-		const auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
-		EXPECT_EQ(0u, accountStateCache.size());
-	}
+        const auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
+        EXPECT_EQ(0u, accountStateCache.size());
+    }
 
-	// endregion
+    // endregion
 
-	// region explicitly funded account
+    // region explicitly funded account
 
-	TEST(TEST_CLASS, ObserverCanProcessExplicitlyFundedNemesisAccount) {
-		// Arrange:
-		auto mosaicId1 = MosaicId(1234);
-		auto mosaicId2 = MosaicId(8844);
+    TEST(TEST_CLASS, ObserverCanProcessExplicitlyFundedNemesisAccount)
+    {
+        // Arrange:
+        auto mosaicId1 = MosaicId(1234);
+        auto mosaicId2 = MosaicId(8844);
 
-		// - pre-fund account
-		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto sender = test::GenerateRandomByteArray<Address>();
+        // - pre-fund account
+        test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
+        auto sender = test::GenerateRandomByteArray<Address>();
 
-		auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
-		accountStateCache.addAccount(sender, Height(1));
-		accountStateCache.find(sender).get().Balances.credit(mosaicId1, Amount(46));
-		accountStateCache.find(sender).get().Balances.credit(mosaicId2, Amount(99));
+        auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
+        accountStateCache.addAccount(sender, Height(1));
+        accountStateCache.find(sender).get().Balances.credit(mosaicId1, Amount(46));
+        accountStateCache.find(sender).get().Balances.credit(mosaicId2, Amount(99));
 
-		NemesisFundingState fundingState;
-		auto pObserver = CreateNemesisFundingObserver(sender, fundingState);
-		auto notification1 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId1), Amount(12));
-		auto notification2 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId1), Amount(34));
-		auto notification3 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId2), Amount(39));
-		auto notification4 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId2), Amount(60));
+        NemesisFundingState fundingState;
+        auto pObserver = CreateNemesisFundingObserver(sender, fundingState);
+        auto notification1 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId1), Amount(12));
+        auto notification2 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId1), Amount(34));
+        auto notification3 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId2), Amount(39));
+        auto notification4 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId2), Amount(60));
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification1, context.observerContext()); // NemesisFundingType::Unknown
-		test::ObserveNotification(*pObserver, notification2, context.observerContext()); // NemesisFundingType::Explicit
-		test::ObserveNotification(*pObserver, notification3, context.observerContext()); // NemesisFundingType::Explicit
-		test::ObserveNotification(*pObserver, notification4, context.observerContext()); // NemesisFundingType::Explicit
+        // Act:
+        test::ObserveNotification(*pObserver, notification1, context.observerContext()); // NemesisFundingType::Unknown
+        test::ObserveNotification(*pObserver, notification2, context.observerContext()); // NemesisFundingType::Explicit
+        test::ObserveNotification(*pObserver, notification3, context.observerContext()); // NemesisFundingType::Explicit
+        test::ObserveNotification(*pObserver, notification4, context.observerContext()); // NemesisFundingType::Explicit
 
-		// Assert:
-		EXPECT_EQ(NemesisFundingType::Explicit, fundingState.FundingType);
-		EXPECT_EQ(2u, fundingState.TotalFundedMosaics.size());
-		EXPECT_EQ(Amount(46), fundingState.TotalFundedMosaics.get(mosaicId1));
-		EXPECT_EQ(Amount(99), fundingState.TotalFundedMosaics.get(mosaicId2));
+        // Assert:
+        EXPECT_EQ(NemesisFundingType::Explicit, fundingState.FundingType);
+        EXPECT_EQ(2u, fundingState.TotalFundedMosaics.size());
+        EXPECT_EQ(Amount(46), fundingState.TotalFundedMosaics.get(mosaicId1));
+        EXPECT_EQ(Amount(99), fundingState.TotalFundedMosaics.get(mosaicId2));
 
-		auto accountStateIter = accountStateCache.find(sender);
-		const auto& balances = accountStateIter.get().Balances;
-		EXPECT_EQ(1u, accountStateCache.size());
-		EXPECT_EQ(2u, balances.size());
-		EXPECT_EQ(Amount(46), balances.get(mosaicId1));
-		EXPECT_EQ(Amount(99), balances.get(mosaicId2));
-	}
+        auto accountStateIter = accountStateCache.find(sender);
+        const auto& balances = accountStateIter.get().Balances;
+        EXPECT_EQ(1u, accountStateCache.size());
+        EXPECT_EQ(2u, balances.size());
+        EXPECT_EQ(Amount(46), balances.get(mosaicId1));
+        EXPECT_EQ(Amount(99), balances.get(mosaicId2));
+    }
 
-	// endregion
+    // endregion
 
-	// region implicitly funded account
+    // region implicitly funded account
 
-	TEST(TEST_CLASS, ObserverCanProcessImplicitlyFundedNemesisAccount) {
-		// Arrange:
-		auto mosaicId1 = MosaicId(1234);
-		auto mosaicId2 = MosaicId(8844);
+    TEST(TEST_CLASS, ObserverCanProcessImplicitlyFundedNemesisAccount)
+    {
+        // Arrange:
+        auto mosaicId1 = MosaicId(1234);
+        auto mosaicId2 = MosaicId(8844);
 
-		// - don't pre-fund account
-		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto sender = test::GenerateRandomByteArray<Address>();
+        // - don't pre-fund account
+        test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
+        auto sender = test::GenerateRandomByteArray<Address>();
 
-		NemesisFundingState fundingState;
-		auto pObserver = CreateNemesisFundingObserver(sender, fundingState);
-		auto notification1 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId1), Amount(12));
-		auto notification2 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId1), Amount(34));
-		auto notification3 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId2), Amount(39));
-		auto notification4 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId2), Amount(60));
+        NemesisFundingState fundingState;
+        auto pObserver = CreateNemesisFundingObserver(sender, fundingState);
+        auto notification1 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId1), Amount(12));
+        auto notification2 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId1), Amount(34));
+        auto notification3 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId2), Amount(39));
+        auto notification4 = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId2), Amount(60));
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification1, context.observerContext()); // NemesisFundingType::Unknown
-		test::ObserveNotification(*pObserver, notification2, context.observerContext()); // NemesisFundingType::Implicit
-		test::ObserveNotification(*pObserver, notification3, context.observerContext()); // NemesisFundingType::Implicit
-		test::ObserveNotification(*pObserver, notification4, context.observerContext()); // NemesisFundingType::Implicit
+        // Act:
+        test::ObserveNotification(*pObserver, notification1, context.observerContext()); // NemesisFundingType::Unknown
+        test::ObserveNotification(*pObserver, notification2, context.observerContext()); // NemesisFundingType::Implicit
+        test::ObserveNotification(*pObserver, notification3, context.observerContext()); // NemesisFundingType::Implicit
+        test::ObserveNotification(*pObserver, notification4, context.observerContext()); // NemesisFundingType::Implicit
 
-		// Assert:
-		EXPECT_EQ(NemesisFundingType::Implicit, fundingState.FundingType);
-		EXPECT_EQ(2u, fundingState.TotalFundedMosaics.size());
-		EXPECT_EQ(Amount(46), fundingState.TotalFundedMosaics.get(mosaicId1));
-		EXPECT_EQ(Amount(99), fundingState.TotalFundedMosaics.get(mosaicId2));
+        // Assert:
+        EXPECT_EQ(NemesisFundingType::Implicit, fundingState.FundingType);
+        EXPECT_EQ(2u, fundingState.TotalFundedMosaics.size());
+        EXPECT_EQ(Amount(46), fundingState.TotalFundedMosaics.get(mosaicId1));
+        EXPECT_EQ(Amount(99), fundingState.TotalFundedMosaics.get(mosaicId2));
 
-		auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
-		auto accountStateIter = accountStateCache.find(sender);
-		const auto& balances = accountStateIter.get().Balances;
-		EXPECT_EQ(1u, accountStateCache.size());
-		EXPECT_EQ(2u, balances.size());
-		EXPECT_EQ(Amount(46), balances.get(mosaicId1));
-		EXPECT_EQ(Amount(99), balances.get(mosaicId2));
-	}
+        auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
+        auto accountStateIter = accountStateCache.find(sender);
+        const auto& balances = accountStateIter.get().Balances;
+        EXPECT_EQ(1u, accountStateCache.size());
+        EXPECT_EQ(2u, balances.size());
+        EXPECT_EQ(Amount(46), balances.get(mosaicId1));
+        EXPECT_EQ(Amount(99), balances.get(mosaicId2));
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

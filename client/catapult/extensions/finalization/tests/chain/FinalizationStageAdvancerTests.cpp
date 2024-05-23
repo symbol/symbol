@@ -25,295 +25,314 @@
 #include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
 #define TEST_CLASS FinalizationStageAdvancerTests
 
-	namespace {
-		constexpr auto Finalization_Epoch = FinalizationEpoch(11);
+    namespace {
+        constexpr auto Finalization_Epoch = FinalizationEpoch(11);
 
-		// region TestContext
+        // region TestContext
 
-		class TestContext {
-		private:
-			using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
+        class TestContext {
+        private:
+            using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
 
-		public:
-			TestContext(FinalizationPoint point, Timestamp time, const utils::TimeSpan& stepDuration)
-					: TestContext(point, point, time, stepDuration) {
-			}
+        public:
+            TestContext(FinalizationPoint point, Timestamp time, const utils::TimeSpan& stepDuration)
+                : TestContext(point, point, time, stepDuration)
+            {
+            }
 
-			TestContext(FinalizationPoint minPoint, FinalizationPoint maxPoint, Timestamp time, const utils::TimeSpan& stepDuration) {
-				m_pAggregator = std::make_unique<MultiRoundMessageAggregator>(
-						10'000'000,
-						model::FinalizationRound{ Finalization_Epoch, minPoint },
-						model::HeightHashPair(),
-						[this](const auto& round) {
-							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
-							if (m_roundMessageAggregatorInitializer)
-								m_roundMessageAggregatorInitializer(*pRoundMessageAggregator);
+            TestContext(FinalizationPoint minPoint, FinalizationPoint maxPoint, Timestamp time, const utils::TimeSpan& stepDuration)
+            {
+                m_pAggregator = std::make_unique<MultiRoundMessageAggregator>(
+                    10'000'000,
+                    model::FinalizationRound { Finalization_Epoch, minPoint },
+                    model::HeightHashPair(),
+                    [this](const auto& round) {
+                        auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
+                        if (m_roundMessageAggregatorInitializer)
+                            m_roundMessageAggregatorInitializer(*pRoundMessageAggregator);
 
-							return pRoundMessageAggregator;
-						});
+                        return pRoundMessageAggregator;
+                    });
 
-				// set the max round much higher than necessary in order to ensure that the advancer is not dependent on the
-				// aggregator's current max round
-				m_pAggregator->modifier().setMaxFinalizationRound({ Finalization_Epoch, maxPoint + FinalizationPoint(10) });
+                // set the max round much higher than necessary in order to ensure that the advancer is not dependent on the
+                // aggregator's current max round
+                m_pAggregator->modifier().setMaxFinalizationRound({ Finalization_Epoch, maxPoint + FinalizationPoint(10) });
 
-				m_pAdvancer = CreateFinalizationStageAdvancer({ Finalization_Epoch, maxPoint }, time, stepDuration, *m_pAggregator);
-			}
+                m_pAdvancer = CreateFinalizationStageAdvancer({ Finalization_Epoch, maxPoint }, time, stepDuration, *m_pAggregator);
+            }
 
-		public:
-			auto& aggregator() {
-				return *m_pAggregator;
-			}
+        public:
+            auto& aggregator()
+            {
+                return *m_pAggregator;
+            }
 
-			auto& advancer() {
-				return *m_pAdvancer;
-			}
+            auto& advancer()
+            {
+                return *m_pAdvancer;
+            }
 
-		public:
-			void setRoundMessageAggregatorInitializer(const RoundMessageAggregatorInitializer& roundMessageAggregatorInitializer) {
-				m_roundMessageAggregatorInitializer = roundMessageAggregatorInitializer;
-			}
+        public:
+            void setRoundMessageAggregatorInitializer(const RoundMessageAggregatorInitializer& roundMessageAggregatorInitializer)
+            {
+                m_roundMessageAggregatorInitializer = roundMessageAggregatorInitializer;
+            }
 
-		private:
-			RoundMessageAggregatorInitializer m_roundMessageAggregatorInitializer;
-			std::unique_ptr<MultiRoundMessageAggregator> m_pAggregator;
+        private:
+            RoundMessageAggregatorInitializer m_roundMessageAggregatorInitializer;
+            std::unique_ptr<MultiRoundMessageAggregator> m_pAggregator;
 
-			std::unique_ptr<FinalizationStageAdvancer> m_pAdvancer;
-		};
+            std::unique_ptr<FinalizationStageAdvancer> m_pAdvancer;
+        };
 
-		// endregion
-	}
+        // endregion
+    }
 
-	// region constructor
+    // region constructor
 
-	TEST(TEST_CLASS, AllPredicatesReturnFalseAtStartTime) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+    TEST(TEST_CLASS, AllPredicatesReturnFalseAtStartTime)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
 
-		// Act + Assert:
-		EXPECT_FALSE(context.advancer().canSendPrevote(Timestamp(50)));
+        // Act + Assert:
+        EXPECT_FALSE(context.advancer().canSendPrevote(Timestamp(50)));
 
-		model::HeightHashPair target;
-		EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(50), target));
-		EXPECT_EQ(model::HeightHashPair(), target);
+        model::HeightHashPair target;
+        EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(50), target));
+        EXPECT_EQ(model::HeightHashPair(), target);
 
-		EXPECT_FALSE(context.advancer().canStartNextRound());
-	}
+        EXPECT_FALSE(context.advancer().canStartNextRound());
+    }
 
-	// endregion
+    // endregion
 
-	// region canSendPrevote
+    // region canSendPrevote
 
-	TEST(TEST_CLASS, CanSendPrevoteReturnsTrueAtStepIntervalWhenRoundDoesNotExist) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+    TEST(TEST_CLASS, CanSendPrevoteReturnsTrueAtStepIntervalWhenRoundDoesNotExist)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
 
-		// Act + Assert:
-		for (auto value : std::initializer_list<uint64_t>{ 50, 100, 149 })
-			EXPECT_FALSE(context.advancer().canSendPrevote(Timestamp(value))) << value;
+        // Act + Assert:
+        for (auto value : std::initializer_list<uint64_t> { 50, 100, 149 })
+            EXPECT_FALSE(context.advancer().canSendPrevote(Timestamp(value))) << value;
 
-		for (auto value : std::initializer_list<uint64_t>{ 150, 151, 250 })
-			EXPECT_TRUE(context.advancer().canSendPrevote(Timestamp(value))) << value;
-	}
+        for (auto value : std::initializer_list<uint64_t> { 150, 151, 250 })
+            EXPECT_TRUE(context.advancer().canSendPrevote(Timestamp(value))) << value;
+    }
 
-	TEST(TEST_CLASS, CanSendPrevoteReturnsTrueAtStepIntervalWhenRoundIsNotCompletable) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
-		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
-		});
+    TEST(TEST_CLASS, CanSendPrevoteReturnsTrueAtStepIntervalWhenRoundIsNotCompletable)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+        context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
+            auto hash = test::GenerateRandomByteArray<Hash256>();
+            roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
+        });
 
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
-		// Act + Assert:
-		for (auto value : std::initializer_list<uint64_t>{ 50, 100, 149 })
-			EXPECT_FALSE(context.advancer().canSendPrevote(Timestamp(value))) << value;
+        // Act + Assert:
+        for (auto value : std::initializer_list<uint64_t> { 50, 100, 149 })
+            EXPECT_FALSE(context.advancer().canSendPrevote(Timestamp(value))) << value;
 
-		for (auto value : std::initializer_list<uint64_t>{ 150, 151, 250 })
-			EXPECT_TRUE(context.advancer().canSendPrevote(Timestamp(value))) << value;
-	}
+        for (auto value : std::initializer_list<uint64_t> { 150, 151, 250 })
+            EXPECT_TRUE(context.advancer().canSendPrevote(Timestamp(value))) << value;
+    }
 
-	TEST(TEST_CLASS, CanSendPrevoteReturnsTrueWhenRoundIsCompletable) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
-		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
-			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
-		});
+    TEST(TEST_CLASS, CanSendPrevoteReturnsTrueWhenRoundIsCompletable)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+        context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
+            auto hash = test::GenerateRandomByteArray<Hash256>();
+            roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
+            roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
+        });
 
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
-		// Act + Assert:
-		for (auto value : std::initializer_list<uint64_t>{ 50, 100, 149, 150, 151, 250 })
-			EXPECT_TRUE(context.advancer().canSendPrevote(Timestamp(value))) << value;
-	}
+        // Act + Assert:
+        for (auto value : std::initializer_list<uint64_t> { 50, 100, 149, 150, 151, 250 })
+            EXPECT_TRUE(context.advancer().canSendPrevote(Timestamp(value))) << value;
+    }
 
-	// endregion
+    // endregion
 
-	// region canSendPrecommit
+    // region canSendPrecommit
 
-	TEST(TEST_CLASS, CanSendPrecommitReturnsFalseWhenRoundDoesNotExist) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+    TEST(TEST_CLASS, CanSendPrecommitReturnsFalseWhenRoundDoesNotExist)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
 
-		// Act + Assert:
-		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249, 250, 251, 350 }) {
-			model::HeightHashPair target;
-			EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
-			EXPECT_EQ(model::HeightHashPair(), target);
-		}
-	}
+        // Act + Assert:
+        for (auto value : std::initializer_list<uint64_t> { 50, 150, 249, 250, 251, 350 }) {
+            model::HeightHashPair target;
+            EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
+            EXPECT_EQ(model::HeightHashPair(), target);
+        }
+    }
 
-	TEST(TEST_CLASS, CanSendPrecommitReturnsFalseWhenBestPrevoteDoesNotExist) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
-		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
-		});
+    TEST(TEST_CLASS, CanSendPrecommitReturnsFalseWhenBestPrevoteDoesNotExist)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+        context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
+            auto hash = test::GenerateRandomByteArray<Hash256>();
+            roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
+        });
 
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
-		// Act + Assert:
-		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249, 250, 251, 350 }) {
-			model::HeightHashPair target;
-			EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
-			EXPECT_EQ(model::HeightHashPair(), target);
-		}
-	}
+        // Act + Assert:
+        for (auto value : std::initializer_list<uint64_t> { 50, 150, 249, 250, 251, 350 }) {
+            model::HeightHashPair target;
+            EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
+            EXPECT_EQ(model::HeightHashPair(), target);
+        }
+    }
 
-	TEST(TEST_CLASS, CanSendPrecommitReturnsFalseWhenBestPrevoteIsNotDescendantOfPreviousRoundEstimate) {
-		// Arrange:
-		auto hash = test::GenerateRandomByteArray<Hash256>();
-		TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
-		context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
-			if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
-				auto hashes = std::vector<Hash256>{ hash, test::GenerateRandomByteArray<Hash256>() };
-				roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
-			} else {
-				auto hashes = std::vector<Hash256>{ hash, test::GenerateRandomByteArray<Hash256>() };
-				roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
-				roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hashes[1], 750);
-			}
-		});
+    TEST(TEST_CLASS, CanSendPrecommitReturnsFalseWhenBestPrevoteIsNotDescendantOfPreviousRoundEstimate)
+    {
+        // Arrange:
+        auto hash = test::GenerateRandomByteArray<Hash256>();
+        TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+        context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
+            if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
+                auto hashes = std::vector<Hash256> { hash, test::GenerateRandomByteArray<Hash256>() };
+                roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
+            } else {
+                auto hashes = std::vector<Hash256> { hash, test::GenerateRandomByteArray<Hash256>() };
+                roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
+                roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hashes[1], 750);
+            }
+        });
 
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
-		// Act + Assert:
-		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249, 250, 251, 350 }) {
-			model::HeightHashPair target;
-			EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
-			EXPECT_EQ(model::HeightHashPair(), target);
-		}
-	}
+        // Act + Assert:
+        for (auto value : std::initializer_list<uint64_t> { 50, 150, 249, 250, 251, 350 }) {
+            model::HeightHashPair target;
+            EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
+            EXPECT_EQ(model::HeightHashPair(), target);
+        }
+    }
 
-	TEST(TEST_CLASS, CanSendPrecommitReturnsTrueAtDoubleStepIntervalWhenBestPrevoteIsDescendant) {
-		// Arrange:
-		auto hash1 = test::GenerateRandomByteArray<Hash256>();
-		auto hash2 = test::GenerateRandomByteArray<Hash256>();
-		TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
-		context.setRoundMessageAggregatorInitializer([&hash1, &hash2](auto& roundMessageAggregator) {
-			if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
-				auto hashes = std::vector<Hash256>{ hash1, test::GenerateRandomByteArray<Hash256>() };
-				roundMessageAggregator.roundContext().acceptPrevote(Height(245), &hashes[0], 1, 750);
-				roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hashes[1], 1, 150);
-			} else {
-				auto hashes = std::vector<Hash256>{ hash1, hash2 };
-				roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
-			}
-		});
+    TEST(TEST_CLASS, CanSendPrecommitReturnsTrueAtDoubleStepIntervalWhenBestPrevoteIsDescendant)
+    {
+        // Arrange:
+        auto hash1 = test::GenerateRandomByteArray<Hash256>();
+        auto hash2 = test::GenerateRandomByteArray<Hash256>();
+        TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+        context.setRoundMessageAggregatorInitializer([&hash1, &hash2](auto& roundMessageAggregator) {
+            if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
+                auto hashes = std::vector<Hash256> { hash1, test::GenerateRandomByteArray<Hash256>() };
+                roundMessageAggregator.roundContext().acceptPrevote(Height(245), &hashes[0], 1, 750);
+                roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hashes[1], 1, 150);
+            } else {
+                auto hashes = std::vector<Hash256> { hash1, hash2 };
+                roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
+            }
+        });
 
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
-		// Act + Assert:
-		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249 }) {
-			model::HeightHashPair target;
-			EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
-			EXPECT_EQ(model::HeightHashPair(), target);
-		}
+        // Act + Assert:
+        for (auto value : std::initializer_list<uint64_t> { 50, 150, 249 }) {
+            model::HeightHashPair target;
+            EXPECT_FALSE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
+            EXPECT_EQ(model::HeightHashPair(), target);
+        }
 
-		for (auto value : std::initializer_list<uint64_t>{ 250, 251, 350 }) {
-			model::HeightHashPair target;
-			EXPECT_TRUE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
-			EXPECT_EQ(model::HeightHashPair({ Height(246), hash2 }), target);
-		}
-	}
+        for (auto value : std::initializer_list<uint64_t> { 250, 251, 350 }) {
+            model::HeightHashPair target;
+            EXPECT_TRUE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
+            EXPECT_EQ(model::HeightHashPair({ Height(246), hash2 }), target);
+        }
+    }
 
-	TEST(TEST_CLASS, CanSendPrecommitReturnsTrueWhenBestPrevoteIsDescendantAndRoundIsCompletable) {
-		// Arrange:
-		auto hash1 = test::GenerateRandomByteArray<Hash256>();
-		auto hash2 = test::GenerateRandomByteArray<Hash256>();
-		TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
-		context.setRoundMessageAggregatorInitializer([&hash1, &hash2](auto& roundMessageAggregator) {
-			if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
-				auto hashes = std::vector<Hash256>{ hash1, test::GenerateRandomByteArray<Hash256>() };
-				roundMessageAggregator.roundContext().acceptPrevote(Height(245), &hashes[0], 1, 750);
-				roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hashes[1], 1, 150);
-			} else {
-				auto hashes = std::vector<Hash256>{ hash1, hash2 };
-				roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
-				roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hashes[1], 750);
-			}
-		});
+    TEST(TEST_CLASS, CanSendPrecommitReturnsTrueWhenBestPrevoteIsDescendantAndRoundIsCompletable)
+    {
+        // Arrange:
+        auto hash1 = test::GenerateRandomByteArray<Hash256>();
+        auto hash2 = test::GenerateRandomByteArray<Hash256>();
+        TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+        context.setRoundMessageAggregatorInitializer([&hash1, &hash2](auto& roundMessageAggregator) {
+            if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
+                auto hashes = std::vector<Hash256> { hash1, test::GenerateRandomByteArray<Hash256>() };
+                roundMessageAggregator.roundContext().acceptPrevote(Height(245), &hashes[0], 1, 750);
+                roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hashes[1], 1, 150);
+            } else {
+                auto hashes = std::vector<Hash256> { hash1, hash2 };
+                roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
+                roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hashes[1], 750);
+            }
+        });
 
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
-		// Act + Assert:
-		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249, 250, 251, 350 }) {
-			model::HeightHashPair target;
-			EXPECT_TRUE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
-			EXPECT_EQ(model::HeightHashPair({ Height(246), hash2 }), target);
-		}
-	}
+        // Act + Assert:
+        for (auto value : std::initializer_list<uint64_t> { 50, 150, 249, 250, 251, 350 }) {
+            model::HeightHashPair target;
+            EXPECT_TRUE(context.advancer().canSendPrecommit(Timestamp(value), target)) << value;
+            EXPECT_EQ(model::HeightHashPair({ Height(246), hash2 }), target);
+        }
+    }
 
-	// endregion
+    // endregion
 
-	// region canStartNextRound
+    // region canStartNextRound
 
-	TEST(TEST_CLASS, CanStartNextRoundReturnsFalseWhenRoundDoesNotExist) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+    TEST(TEST_CLASS, CanStartNextRoundReturnsFalseWhenRoundDoesNotExist)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
 
-		// Act + Assert:
-		EXPECT_FALSE(context.advancer().canStartNextRound());
-	}
+        // Act + Assert:
+        EXPECT_FALSE(context.advancer().canStartNextRound());
+    }
 
-	TEST(TEST_CLASS, CanStartNextRoundReturnsFalseWhenRoundIsNotCompletable) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
-		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
-		});
+    TEST(TEST_CLASS, CanStartNextRoundReturnsFalseWhenRoundIsNotCompletable)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+        context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
+            auto hash = test::GenerateRandomByteArray<Hash256>();
+            roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
+        });
 
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
-		// Act + Assert:
-		EXPECT_FALSE(context.advancer().canStartNextRound());
-	}
+        // Act + Assert:
+        EXPECT_FALSE(context.advancer().canStartNextRound());
+    }
 
-	TEST(TEST_CLASS, CanStartNextRoundReturnsTrueWhenRoundIsCompletable) {
-		// Arrange:
-		TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
-		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
-			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
-		});
+    TEST(TEST_CLASS, CanStartNextRoundReturnsTrueWhenRoundIsCompletable)
+    {
+        // Arrange:
+        TestContext context(FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
+        context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
+            auto hash = test::GenerateRandomByteArray<Hash256>();
+            roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
+            roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
+        });
 
-		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
+        context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
-		// Act + Assert:
-		EXPECT_TRUE(context.advancer().canStartNextRound());
-	}
+        // Act + Assert:
+        EXPECT_TRUE(context.advancer().canStartNextRound());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

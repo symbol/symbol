@@ -19,127 +19,140 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
+#include "src/validators/Validators.h"
+#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS AccountKeyLinkValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountKeyLink, )
+    DEFINE_COMMON_VALIDATOR_TESTS(AccountKeyLink, )
 
-	// region test utils
+    // region test utils
 
-	namespace {
-		void AddLink(
-				cache::CatapultCache& cache,
-				const Key& mainAccountPublicKey,
-				const Key& linkedPublicKey,
-				state::AccountType accountType) {
-			auto cacheDelta = cache.createDelta();
-			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+    namespace {
+        void AddLink(
+            cache::CatapultCache& cache,
+            const Key& mainAccountPublicKey,
+            const Key& linkedPublicKey,
+            state::AccountType accountType)
+        {
+            auto cacheDelta = cache.createDelta();
+            auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-			accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
-			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
-			auto& mainAccountState = mainAccountStateIter.get();
+            accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
+            auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
+            auto& mainAccountState = mainAccountStateIter.get();
 
-			mainAccountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
-			mainAccountState.AccountType = accountType;
+            mainAccountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
+            mainAccountState.AccountType = accountType;
 
-			cache.commit(Height(1));
-		}
+            cache.commit(Height(1));
+        }
 
-		void AssertValidation(ValidationResult expectedResult, state::AccountType accountType, model::LinkAction linkAction) {
-			// Arrange:
-			auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
-			auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
+        void AssertValidation(ValidationResult expectedResult, state::AccountType accountType, model::LinkAction linkAction)
+        {
+            // Arrange:
+            auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+            auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
-			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-			AddLink(cache, mainAccountPublicKey, linkedPublicKey, accountType);
+            auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+            AddLink(cache, mainAccountPublicKey, linkedPublicKey, accountType);
 
-			auto pValidator = CreateAccountKeyLinkValidator();
-			auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, linkAction);
+            auto pValidator = CreateAccountKeyLinkValidator();
+            auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, linkAction);
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, cache);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result);
+        }
+    }
 
-	// endregion
+    // endregion
 
-	// region link - main account public key type validation
+    // region link - main account public key type validation
 
-	namespace {
-		void AssertLinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType) {
-			AssertValidation(expectedResult, accountType, model::LinkAction::Link);
-		}
-	}
+    namespace {
+        void AssertLinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType)
+        {
+            AssertValidation(expectedResult, accountType, model::LinkAction::Link);
+        }
+    }
 
-	TEST(TEST_CLASS, LinkFailsWhenExistingAccountHasMainLink) {
-		AssertLinkValidationForAccountWithType(Failure_AccountLink_Link_Already_Exists, state::AccountType::Main);
-	}
+    TEST(TEST_CLASS, LinkFailsWhenExistingAccountHasMainLink)
+    {
+        AssertLinkValidationForAccountWithType(Failure_AccountLink_Link_Already_Exists, state::AccountType::Main);
+    }
 
-	TEST(TEST_CLASS, LinkFailsWhenExistingAccountHasRemoteLink) {
-		AssertLinkValidationForAccountWithType(Failure_AccountLink_Link_Already_Exists, state::AccountType::Remote);
-	}
+    TEST(TEST_CLASS, LinkFailsWhenExistingAccountHasRemoteLink)
+    {
+        AssertLinkValidationForAccountWithType(Failure_AccountLink_Link_Already_Exists, state::AccountType::Remote);
+    }
 
-	TEST(TEST_CLASS, LinkSucceedsWhenExistingAccountHasNoLink) {
-		AssertLinkValidationForAccountWithType(ValidationResult::Success, state::AccountType::Unlinked);
-	}
+    TEST(TEST_CLASS, LinkSucceedsWhenExistingAccountHasNoLink)
+    {
+        AssertLinkValidationForAccountWithType(ValidationResult::Success, state::AccountType::Unlinked);
+    }
 
-	// endregion
+    // endregion
 
-	// region unlink - main account public key type validation
+    // region unlink - main account public key type validation
 
-	namespace {
-		void AssertUnlinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType) {
-			AssertValidation(expectedResult, accountType, model::LinkAction::Unlink);
-		}
-	}
+    namespace {
+        void AssertUnlinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType)
+        {
+            AssertValidation(expectedResult, accountType, model::LinkAction::Unlink);
+        }
+    }
 
-	TEST(TEST_CLASS, UnlinkSucceedsWhenExistingAccountHasMainLink) {
-		AssertUnlinkValidationForAccountWithType(ValidationResult::Success, state::AccountType::Main);
-	}
+    TEST(TEST_CLASS, UnlinkSucceedsWhenExistingAccountHasMainLink)
+    {
+        AssertUnlinkValidationForAccountWithType(ValidationResult::Success, state::AccountType::Main);
+    }
 
-	TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasRemoteLink) {
-		AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Unknown_Link, state::AccountType::Remote);
-	}
+    TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasRemoteLink)
+    {
+        AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Unknown_Link, state::AccountType::Remote);
+    }
 
-	TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasNoLink) {
-		AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Unknown_Link, state::AccountType::Unlinked);
-	}
+    TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasNoLink)
+    {
+        AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Unknown_Link, state::AccountType::Unlinked);
+    }
 
-	// endregion
+    // endregion
 
-	// region unlink - data consistency
+    // region unlink - data consistency
 
-	TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasMainLinkButNotificationDataIsInconsistentWithState) {
-		// Arrange:
-		auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
-		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
+    TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasMainLinkButNotificationDataIsInconsistentWithState)
+    {
+        // Arrange:
+        auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+        auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
-		auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-		AddLink(cache, mainAccountPublicKey, linkedPublicKey, state::AccountType::Main);
+        auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+        AddLink(cache, mainAccountPublicKey, linkedPublicKey, state::AccountType::Main);
 
-		// - the notification linked public key does not match the state linked public key
-		auto pValidator = CreateAccountKeyLinkValidator();
-		auto notificationRemoteKey = test::GenerateRandomByteArray<Key>();
-		auto unlinkAction = model::LinkAction::Unlink;
-		auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, notificationRemoteKey, unlinkAction);
+        // - the notification linked public key does not match the state linked public key
+        auto pValidator = CreateAccountKeyLinkValidator();
+        auto notificationRemoteKey = test::GenerateRandomByteArray<Key>();
+        auto unlinkAction = model::LinkAction::Unlink;
+        auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, notificationRemoteKey, unlinkAction);
 
-		// Act:
-		auto result = test::ValidateNotification(*pValidator, notification, cache);
+        // Act:
+        auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-		// Assert:
-		EXPECT_EQ(Failure_AccountLink_Inconsistent_Unlink_Data, result);
-	}
+        // Assert:
+        EXPECT_EQ(Failure_AccountLink_Inconsistent_Unlink_Data, result);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

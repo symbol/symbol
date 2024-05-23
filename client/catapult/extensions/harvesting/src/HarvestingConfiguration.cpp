@@ -27,36 +27,41 @@
 
 DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT_ALLOW_EMPTY(true)
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
 #define LOAD_PROPERTY(SECTION, NAME) utils::LoadIniProperty(bag, SECTION, #NAME, config.NAME)
 
-	HarvestingConfiguration HarvestingConfiguration::Uninitialized() {
-		return HarvestingConfiguration();
-	}
+    HarvestingConfiguration HarvestingConfiguration::Uninitialized()
+    {
+        return HarvestingConfiguration();
+    }
 
-	HarvestingConfiguration HarvestingConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		HarvestingConfiguration config;
+    HarvestingConfiguration HarvestingConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        HarvestingConfiguration config;
 
 #define LOAD_HARVESTING_PROPERTY(NAME) LOAD_PROPERTY("harvesting", NAME)
 
-		LOAD_HARVESTING_PROPERTY(HarvesterSigningPrivateKey);
-		LOAD_HARVESTING_PROPERTY(HarvesterVrfPrivateKey);
+        LOAD_HARVESTING_PROPERTY(HarvesterSigningPrivateKey);
+        LOAD_HARVESTING_PROPERTY(HarvesterVrfPrivateKey);
 
-		LOAD_HARVESTING_PROPERTY(EnableAutoHarvesting);
-		LOAD_HARVESTING_PROPERTY(MaxUnlockedAccounts);
-		LOAD_HARVESTING_PROPERTY(DelegatePrioritizationPolicy);
-		LOAD_HARVESTING_PROPERTY(BeneficiaryAddress);
+        LOAD_HARVESTING_PROPERTY(EnableAutoHarvesting);
+        LOAD_HARVESTING_PROPERTY(MaxUnlockedAccounts);
+        LOAD_HARVESTING_PROPERTY(DelegatePrioritizationPolicy);
+        LOAD_HARVESTING_PROPERTY(BeneficiaryAddress);
 
 #undef LOAD_HARVESTING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 6);
-		return config;
-	}
+        utils::VerifyBagSizeExact(bag, 6);
+        return config;
+    }
 
 #undef LOAD_PROPERTY
 
-	HarvestingConfiguration HarvestingConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
-		return config::LoadIniConfiguration<HarvestingConfiguration>(resourcesPath / "config-harvesting.properties");
-	}
-}}
+    HarvestingConfiguration HarvestingConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath)
+    {
+        return config::LoadIniConfiguration<HarvestingConfiguration>(resourcesPath / "config-harvesting.properties");
+    }
+}
+}

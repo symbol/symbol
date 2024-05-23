@@ -23,11 +23,13 @@
 #include "catapult/ionet/Node.h"
 #include <vector>
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Loads peers from the specified stream (\a input) for the network identified by \a networkFingerprint.
-	std::vector<ionet::Node> LoadPeersFromStream(std::istream& input, const model::UniqueNetworkFingerprint& networkFingerprint);
+    /// Loads peers from the specified stream (\a input) for the network identified by \a networkFingerprint.
+    std::vector<ionet::Node> LoadPeersFromStream(std::istream& input, const model::UniqueNetworkFingerprint& networkFingerprint);
 
-	/// Loads peers from the specified \a path for the network identified by \a networkFingerprint.
-	std::vector<ionet::Node> LoadPeersFromPath(const std::string& path, const model::UniqueNetworkFingerprint& networkFingerprint);
-}}
+    /// Loads peers from the specified \a path for the network identified by \a networkFingerprint.
+    std::vector<ionet::Node> LoadPeersFromPath(const std::string& path, const model::UniqueNetworkFingerprint& networkFingerprint);
+}
+}

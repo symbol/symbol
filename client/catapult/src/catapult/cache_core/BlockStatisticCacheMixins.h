@@ -22,80 +22,88 @@
 #pragma once
 #include "BlockStatisticCacheTypes.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Mixin for retreiving a range of statistics.
-	template<typename TSet>
-	class BlockStatisticRangeMixin {
-	public:
-		/// Creates a mixin around \a set.
-		explicit BlockStatisticRangeMixin(const TSet& set)
-				: m_set(set) {
-		}
+    /// Mixin for retreiving a range of statistics.
+    template <typename TSet>
+    class BlockStatisticRangeMixin {
+    public:
+        /// Creates a mixin around \a set.
+        explicit BlockStatisticRangeMixin(const TSet& set)
+            : m_set(set)
+        {
+        }
 
-	private:
-		enum class FindIteratorScheme { Search, Lookup };
-		using SearchFindIteratorFlag = std::integral_constant<FindIteratorScheme, FindIteratorScheme::Search>;
-		using LookupFindIteratorFlag = std::integral_constant<FindIteratorScheme, FindIteratorScheme::Lookup>;
+    private:
+        enum class FindIteratorScheme { Search,
+            Lookup };
+        using SearchFindIteratorFlag = std::integral_constant<FindIteratorScheme, FindIteratorScheme::Search>;
+        using LookupFindIteratorFlag = std::integral_constant<FindIteratorScheme, FindIteratorScheme::Lookup>;
 
-		template<typename T, typename = void>
-		struct FindIteratorSchemeAccessor : SearchFindIteratorFlag {};
+        template <typename T, typename = void>
+        struct FindIteratorSchemeAccessor : SearchFindIteratorFlag { };
 
-		template<typename T>
-		struct FindIteratorSchemeAccessor<
-				T,
-				utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->findIterator(state::BlockStatistic()))>>
-				: LookupFindIteratorFlag {};
+        template <typename T>
+        struct FindIteratorSchemeAccessor<
+            T,
+            utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->findIterator(state::BlockStatistic()))>>
+            : LookupFindIteratorFlag { };
 
-	private:
-		template<typename TIterableView>
-		static auto FindIterator(SearchFindIteratorFlag, const TIterableView& view, const state::BlockStatistic& statistic) {
-			// manually implement loop because vs has compile error with std::find
-			for (auto iter = view.begin(); view.end() != iter; ++iter) {
-				if (statistic == *iter)
-					return iter;
-			}
+    private:
+        template <typename TIterableView>
+        static auto FindIterator(SearchFindIteratorFlag, const TIterableView& view, const state::BlockStatistic& statistic)
+        {
+            // manually implement loop because vs has compile error with std::find
+            for (auto iter = view.begin(); view.end() != iter; ++iter) {
+                if (statistic == *iter)
+                    return iter;
+            }
 
-			return view.end();
-		}
+            return view.end();
+        }
 
-		template<typename TIterableView>
-		static auto FindIterator(LookupFindIteratorFlag, const TIterableView& view, const state::BlockStatistic& statistic) {
-			return view.findIterator(statistic);
-		}
+        template <typename TIterableView>
+        static auto FindIterator(LookupFindIteratorFlag, const TIterableView& view, const state::BlockStatistic& statistic)
+        {
+            return view.findIterator(statistic);
+        }
 
-		template<typename TIterableView>
-		static auto FindIterator(const TIterableView& view, const state::BlockStatistic& statistic) {
-			return FindIterator(FindIteratorSchemeAccessor<TIterableView>(), view, statistic);
-		}
+        template <typename TIterableView>
+        static auto FindIterator(const TIterableView& view, const state::BlockStatistic& statistic)
+        {
+            return FindIterator(FindIteratorSchemeAccessor<TIterableView>(), view, statistic);
+        }
 
-	public:
-		/// Gets a range object that spans \a count block statistics starting at the specified \a height.
-		auto statistics(Height height, size_t count) const {
-			if (m_set.empty()) {
-				// note: this should not happen since the nemesis block is available from the beginning
-				CATAPULT_THROW_RUNTIME_ERROR("block statistic cache is empty");
-			}
+    public:
+        /// Gets a range object that spans \a count block statistics starting at the specified \a height.
+        auto statistics(Height height, size_t count) const
+        {
+            if (m_set.empty()) {
+                // note: this should not happen since the nemesis block is available from the beginning
+                CATAPULT_THROW_RUNTIME_ERROR("block statistic cache is empty");
+            }
 
-			if (Height(0) == height || 0 == count)
-				CATAPULT_THROW_INVALID_ARGUMENT("specified height or count out of range");
+            if (Height(0) == height || 0 == count)
+                CATAPULT_THROW_INVALID_ARGUMENT("specified height or count out of range");
 
-			auto iterableStatistics = MakeIterableView(m_set);
-			auto lastIter = FindIterator(iterableStatistics, state::BlockStatistic(height));
+            auto iterableStatistics = MakeIterableView(m_set);
+            auto lastIter = FindIterator(iterableStatistics, state::BlockStatistic(height));
 
-			if (iterableStatistics.end() == lastIter)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("element with specified height not found", height);
+            if (iterableStatistics.end() == lastIter)
+                CATAPULT_THROW_INVALID_ARGUMENT_1("element with specified height not found", height);
 
-			const auto& firstSetElement = *iterableStatistics.begin();
-			const auto first = height.unwrap() - firstSetElement.Height.unwrap() < count - 1
-									   ? state::BlockStatistic(firstSetElement.Height)
-									   : state::BlockStatistic(height - Height(count - 1));
-			auto firstIter = FindIterator(iterableStatistics, first);
+            const auto& firstSetElement = *iterableStatistics.begin();
+            const auto first = height.unwrap() - firstSetElement.Height.unwrap() < count - 1
+                ? state::BlockStatistic(firstSetElement.Height)
+                : state::BlockStatistic(height - Height(count - 1));
+            auto firstIter = FindIterator(iterableStatistics, first);
 
-			return BlockStatisticRangeT<decltype(firstIter)>(firstIter, ++lastIter);
-		}
+            return BlockStatisticRangeT<decltype(firstIter)>(firstIter, ++lastIter);
+        }
 
-	private:
-		const TSet& m_set;
-	};
-}}
+    private:
+        const TSet& m_set;
+    };
+}
+}

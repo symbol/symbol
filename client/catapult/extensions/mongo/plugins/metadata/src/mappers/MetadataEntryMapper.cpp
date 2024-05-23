@@ -20,32 +20,37 @@
 **/
 
 #include "MetadataEntryMapper.h"
+#include "catapult/utils/Casting.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/metadata/src/state/MetadataEntry.h"
-#include "catapult/utils/Casting.h"
 
 using namespace catapult::mongo::mappers;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	// region ToDbModel
+        // region ToDbModel
 
-	bsoncxx::document::value ToDbModel(const state::MetadataEntry& metadataEntry) {
-		const auto& key = metadataEntry.key();
-		const auto& value = metadataEntry.value();
-		bson_stream::document builder;
-		auto doc = builder << "metadataEntry" << bson_stream::open_document << "version" << 1 << "compositeHash"
-						   << ToBinary(key.uniqueKey()) << "sourceAddress" << ToBinary(key.sourceAddress()) << "targetAddress"
-						   << ToBinary(key.targetAddress()) << "scopedMetadataKey" << static_cast<int64_t>(key.scopedMetadataKey())
-						   << "targetId" << static_cast<int64_t>(key.targetId()) << "metadataType"
-						   << utils::to_underlying_type(metadataEntry.key().metadataType()) << "valueSize"
-						   << static_cast<int32_t>(value.size());
+        bsoncxx::document::value ToDbModel(const state::MetadataEntry& metadataEntry)
+        {
+            const auto& key = metadataEntry.key();
+            const auto& value = metadataEntry.value();
+            bson_stream::document builder;
+            auto doc = builder << "metadataEntry" << bson_stream::open_document << "version" << 1 << "compositeHash"
+                               << ToBinary(key.uniqueKey()) << "sourceAddress" << ToBinary(key.sourceAddress()) << "targetAddress"
+                               << ToBinary(key.targetAddress()) << "scopedMetadataKey" << static_cast<int64_t>(key.scopedMetadataKey())
+                               << "targetId" << static_cast<int64_t>(key.targetId()) << "metadataType"
+                               << utils::to_underlying_type(metadataEntry.key().metadataType()) << "valueSize"
+                               << static_cast<int32_t>(value.size());
 
-		if (!value.empty())
-			builder << "value" << ToBinary(value.data(), value.size());
+            if (!value.empty())
+                builder << "value" << ToBinary(value.data(), value.size());
 
-		return doc << bson_stream::close_document << bson_stream::finalize;
-	}
+            return doc << bson_stream::close_document << bson_stream::finalize;
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

@@ -21,13 +21,15 @@
 
 #pragma once
 #include "MosaicRestrictionCacheTypes.h"
-#include "src/state/MosaicRestrictionEntrySerializer.h"
 #include "catapult/cache/CacheStorageInclude.h"
+#include "src/state/MosaicRestrictionEntrySerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Policy for saving and loading mosaic restriction cache data.
-	struct MosaicRestrictionCacheStorage
-			: public CacheStorageForBasicInsertRemoveCache<MosaicRestrictionCacheDescriptor>
-			, public state::MosaicRestrictionEntrySerializer {};
-}}
+    /// Policy for saving and loading mosaic restriction cache data.
+    struct MosaicRestrictionCacheStorage
+        : public CacheStorageForBasicInsertRemoveCache<MosaicRestrictionCacheDescriptor>,
+          public state::MosaicRestrictionEntrySerializer { };
+}
+}

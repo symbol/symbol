@@ -23,53 +23,55 @@
 #include "catapult/ionet/Packet.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
 #pragma pack(push, 1)
 
-	/// Chain statistics response.
-	struct ChainStatisticsResponse : public ionet::Packet {
-		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Chain_Statistics;
+    /// Chain statistics response.
+    struct ChainStatisticsResponse : public ionet::Packet {
+        static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Chain_Statistics;
 
-		/// Chain height.
-		catapult::Height Height;
+        /// Chain height.
+        catapult::Height Height;
 
-		/// Finalized chain height.
-		catapult::Height FinalizedHeight;
+        /// Finalized chain height.
+        catapult::Height FinalizedHeight;
 
-		/// High part of the score.
-		uint64_t ScoreHigh;
+        /// High part of the score.
+        uint64_t ScoreHigh;
 
-		/// Low part of the score.
-		uint64_t ScoreLow;
-	};
+        /// Low part of the score.
+        uint64_t ScoreLow;
+    };
 
-	/// Packet containing header information and a height.
-	template<ionet::PacketType PacketType>
-	struct HeightPacket : public ionet::Packet {
-		static constexpr ionet::PacketType Packet_Type = PacketType;
+    /// Packet containing header information and a height.
+    template <ionet::PacketType PacketType>
+    struct HeightPacket : public ionet::Packet {
+        static constexpr ionet::PacketType Packet_Type = PacketType;
 
-		/// Requested block height.
-		catapult::Height Height;
-	};
+        /// Requested block height.
+        catapult::Height Height;
+    };
 
-	/// Pull block request.
-	using PullBlockRequest = HeightPacket<ionet::PacketType::Pull_Block>;
+    /// Pull block request.
+    using PullBlockRequest = HeightPacket<ionet::PacketType::Pull_Block>;
 
-	/// Block hashes request.
-	struct BlockHashesRequest : public HeightPacket<ionet::PacketType::Block_Hashes> {
-		/// Requested number of hashes.
-		uint32_t NumHashes;
-	};
+    /// Block hashes request.
+    struct BlockHashesRequest : public HeightPacket<ionet::PacketType::Block_Hashes> {
+        /// Requested number of hashes.
+        uint32_t NumHashes;
+    };
 
-	/// Pull blocks request.
-	struct PullBlocksRequest : public HeightPacket<ionet::PacketType::Pull_Blocks> {
-		/// Requested number of blocks.
-		uint32_t NumBlocks;
+    /// Pull blocks request.
+    struct PullBlocksRequest : public HeightPacket<ionet::PacketType::Pull_Blocks> {
+        /// Requested number of blocks.
+        uint32_t NumBlocks;
 
-		/// Requested response size (in bytes).
-		uint32_t NumResponseBytes;
-	};
+        /// Requested response size (in bytes).
+        uint32_t NumResponseBytes;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

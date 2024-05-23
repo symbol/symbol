@@ -21,13 +21,15 @@
 
 #include "Validators.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::AccountRestrictionModificationNotification;
+    using Notification = model::AccountRestrictionModificationNotification;
 
-	DEFINE_STATELESS_VALIDATOR(AccountRestrictionModificationPresent, [](const Notification& notification) {
-		return 0 < notification.RestrictionAdditionsCount || 0 < notification.RestrictionDeletionsCount
-					   ? ValidationResult::Success
-					   : Failure_RestrictionAccount_No_Modifications;
-	})
-}}
+    DEFINE_STATELESS_VALIDATOR(AccountRestrictionModificationPresent, [](const Notification& notification) {
+        return 0 < notification.RestrictionAdditionsCount || 0 < notification.RestrictionDeletionsCount
+            ? ValidationResult::Success
+            : Failure_RestrictionAccount_No_Modifications;
+    })
+}
+}

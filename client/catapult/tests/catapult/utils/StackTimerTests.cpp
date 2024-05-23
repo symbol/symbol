@@ -22,66 +22,72 @@
 #include "catapult/utils/StackTimer.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
 #define TEST_CLASS StackTimerTests
 
-	TEST(TEST_CLASS, ElapsedMillisIsInitiallyZero) {
-		// Arrange:
-		uint64_t elapsedMillis;
-		test::RunDeterministicOperation([&elapsedMillis]() {
-			StackTimer stackTimer;
+    TEST(TEST_CLASS, ElapsedMillisIsInitiallyZero)
+    {
+        // Arrange:
+        uint64_t elapsedMillis;
+        test::RunDeterministicOperation([&elapsedMillis]() {
+            StackTimer stackTimer;
 
-			// Act:
-			elapsedMillis = stackTimer.millis();
-		});
+            // Act:
+            elapsedMillis = stackTimer.millis();
+        });
 
-		// Assert:
-		EXPECT_EQ(0u, elapsedMillis);
-	}
+        // Assert:
+        EXPECT_EQ(0u, elapsedMillis);
+    }
 
-	TEST(TEST_CLASS, ElapsedMillisIncreasesOverTime) {
-		// Arrange:
-		StackTimer stackTimer;
+    TEST(TEST_CLASS, ElapsedMillisIncreasesOverTime)
+    {
+        // Arrange:
+        StackTimer stackTimer;
 
-		// Act:
-		test::Sleep(5);
-		auto elapsedMillis1 = stackTimer.millis();
-		test::Sleep(10);
-		auto elapsedMillis2 = stackTimer.millis();
+        // Act:
+        test::Sleep(5);
+        auto elapsedMillis1 = stackTimer.millis();
+        test::Sleep(10);
+        auto elapsedMillis2 = stackTimer.millis();
 
-		// Assert:
-		EXPECT_LE(0u, elapsedMillis1);
-		EXPECT_LE(elapsedMillis1, elapsedMillis2);
-	}
+        // Assert:
+        EXPECT_LE(0u, elapsedMillis1);
+        EXPECT_LE(elapsedMillis1, elapsedMillis2);
+    }
 
-	namespace {
-		constexpr auto Sleep_Millis = 5u;
-		constexpr auto Epsilon_Millis = 1u;
+    namespace {
+        constexpr auto Sleep_Millis = 5u;
+        constexpr auto Epsilon_Millis = 1u;
 
-		bool IsWithinSleepEpsilonRange(uint64_t millis) {
-			return Sleep_Millis - Epsilon_Millis <= millis && millis <= Sleep_Millis + Epsilon_Millis;
-		}
-	}
+        bool IsWithinSleepEpsilonRange(uint64_t millis)
+        {
+            return Sleep_Millis - Epsilon_Millis <= millis && millis <= Sleep_Millis + Epsilon_Millis;
+        }
+    }
 
-	TEST(TEST_CLASS, ElapsedMillisCanBeAccessedAtPointInTime) {
-		// Arrange: non-deterministic due to sleep
-		test::RunNonDeterministicTest("specific elapsed time", []() {
-			StackTimer stackTimer;
+    TEST(TEST_CLASS, ElapsedMillisCanBeAccessedAtPointInTime)
+    {
+        // Arrange: non-deterministic due to sleep
+        test::RunNonDeterministicTest("specific elapsed time", []() {
+            StackTimer stackTimer;
 
-			// - wait
-			test::Sleep(Sleep_Millis);
+            // - wait
+            test::Sleep(Sleep_Millis);
 
-			// Act:
-			auto elapsedMillis = stackTimer.millis();
-			if (!IsWithinSleepEpsilonRange(elapsedMillis)) {
-				CATAPULT_LOG(debug) << "elapsedMillis (" << elapsedMillis << ") outside of expected range";
-				return false;
-			}
+            // Act:
+            auto elapsedMillis = stackTimer.millis();
+            if (!IsWithinSleepEpsilonRange(elapsedMillis)) {
+                CATAPULT_LOG(debug) << "elapsedMillis (" << elapsedMillis << ") outside of expected range";
+                return false;
+            }
 
-			// Assert:
-			EXPECT_TRUE(IsWithinSleepEpsilonRange(elapsedMillis)) << "elapsedMillis: " << elapsedMillis;
-			return true;
-		});
-	}
-}}
+            // Assert:
+            EXPECT_TRUE(IsWithinSleepEpsilonRange(elapsedMillis)) << "elapsedMillis: " << elapsedMillis;
+            return true;
+        });
+    }
+}
+}

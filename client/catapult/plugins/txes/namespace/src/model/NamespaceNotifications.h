@@ -24,200 +24,208 @@
 #include "NamespaceTypes.h"
 #include "catapult/model/Notifications.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region namespace notification types
+    // region namespace notification types
 
 /// Defines a namespace notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
 #define DEFINE_NAMESPACE_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Namespace, DESCRIPTION, CODE)
 
-	/// Namespace name was provided.
-	DEFINE_NAMESPACE_NOTIFICATION(Name, 0x0001, Validator);
+    /// Namespace name was provided.
+    DEFINE_NAMESPACE_NOTIFICATION(Name, 0x0001, Validator);
 
-	/// Namespace was registered.
-	DEFINE_NAMESPACE_NOTIFICATION(Registration, 0x0002, Validator);
+    /// Namespace was registered.
+    DEFINE_NAMESPACE_NOTIFICATION(Registration, 0x0002, Validator);
 
-	/// Root namespace was registered.
-	DEFINE_NAMESPACE_NOTIFICATION(Root_Registration, 0x0003, All);
+    /// Root namespace was registered.
+    DEFINE_NAMESPACE_NOTIFICATION(Root_Registration, 0x0003, All);
 
-	/// Child namespace was registered.
-	DEFINE_NAMESPACE_NOTIFICATION(Child_Registration, 0x0004, All);
+    /// Child namespace was registered.
+    DEFINE_NAMESPACE_NOTIFICATION(Child_Registration, 0x0004, All);
 
-	/// Namespace rental fee has been sent.
-	DEFINE_NAMESPACE_NOTIFICATION(Rental_Fee, 0x0005, Observer);
+    /// Namespace rental fee has been sent.
+    DEFINE_NAMESPACE_NOTIFICATION(Rental_Fee, 0x0005, Observer);
 
-	/// Namespace is required.
-	DEFINE_NAMESPACE_NOTIFICATION(Required, 0x0006, Validator);
+    /// Namespace is required.
+    DEFINE_NAMESPACE_NOTIFICATION(Required, 0x0006, Validator);
 
 #undef DEFINE_NAMESPACE_NOTIFICATION
 
-	// endregion
+    // endregion
 
-	// region NamespaceNameNotification
+    // region NamespaceNameNotification
 
-	/// Notification of a namespace name.
-	struct NamespaceNameNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Namespace_Name_Notification;
+    /// Notification of a namespace name.
+    struct NamespaceNameNotification : public Notification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Namespace_Name_Notification;
 
-	public:
-		/// Creates a notification around \a nameSize and \a pName given \a namespaceId and \a parentId.
-		NamespaceNameNotification(catapult::NamespaceId namespaceId, catapult::NamespaceId parentId, uint8_t nameSize, const uint8_t* pName)
-				: Notification(Notification_Type, sizeof(NamespaceNameNotification))
-				, NamespaceId(namespaceId)
-				, ParentId(parentId)
-				, NameSize(nameSize)
-				, NamePtr(pName) {
-		}
+    public:
+        /// Creates a notification around \a nameSize and \a pName given \a namespaceId and \a parentId.
+        NamespaceNameNotification(catapult::NamespaceId namespaceId, catapult::NamespaceId parentId, uint8_t nameSize, const uint8_t* pName)
+            : Notification(Notification_Type, sizeof(NamespaceNameNotification))
+            , NamespaceId(namespaceId)
+            , ParentId(parentId)
+            , NameSize(nameSize)
+            , NamePtr(pName)
+        {
+        }
 
-	public:
-		/// Id of the namespace.
-		catapult::NamespaceId NamespaceId;
+    public:
+        /// Id of the namespace.
+        catapult::NamespaceId NamespaceId;
 
-		/// Id of the parent namespace.
-		catapult::NamespaceId ParentId;
+        /// Id of the parent namespace.
+        catapult::NamespaceId ParentId;
 
-		/// Size of the name.
-		uint8_t NameSize;
+        /// Size of the name.
+        uint8_t NameSize;
 
-		/// Const pointer to the namespace name.
-		const uint8_t* NamePtr;
-	};
+        /// Const pointer to the namespace name.
+        const uint8_t* NamePtr;
+    };
 
-	// endregion
+    // endregion
 
-	// region NamespaceNotification
+    // region NamespaceNotification
 
-	/// Notification of a namespace registration.
-	struct NamespaceRegistrationNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Namespace_Registration_Notification;
+    /// Notification of a namespace registration.
+    struct NamespaceRegistrationNotification : public Notification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Namespace_Registration_Notification;
 
-	public:
-		/// Creates a notification around \a registrationType.
-		explicit NamespaceRegistrationNotification(NamespaceRegistrationType registrationType)
-				: Notification(Notification_Type, sizeof(NamespaceRegistrationNotification))
-				, RegistrationType(registrationType) {
-		}
+    public:
+        /// Creates a notification around \a registrationType.
+        explicit NamespaceRegistrationNotification(NamespaceRegistrationType registrationType)
+            : Notification(Notification_Type, sizeof(NamespaceRegistrationNotification))
+            , RegistrationType(registrationType)
+        {
+        }
 
-	public:
-		/// Type of the registered namespace.
-		NamespaceRegistrationType RegistrationType;
-	};
+    public:
+        /// Type of the registered namespace.
+        NamespaceRegistrationType RegistrationType;
+    };
 
-	// endregion
+    // endregion
 
-	// region RootNamespaceNotification
+    // region RootNamespaceNotification
 
-	/// Notification of a root namespace registration.
-	struct RootNamespaceNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Namespace_Root_Registration_Notification;
+    /// Notification of a root namespace registration.
+    struct RootNamespaceNotification : public Notification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Namespace_Root_Registration_Notification;
 
-	public:
-		/// Creates a notification around \a owner, \a namespaceId and \a duration.
-		RootNamespaceNotification(const Address& owner, NamespaceId namespaceId, BlockDuration duration)
-				: Notification(Notification_Type, sizeof(RootNamespaceNotification))
-				, Owner(owner)
-				, NamespaceId(namespaceId)
-				, Duration(duration) {
-		}
+    public:
+        /// Creates a notification around \a owner, \a namespaceId and \a duration.
+        RootNamespaceNotification(const Address& owner, NamespaceId namespaceId, BlockDuration duration)
+            : Notification(Notification_Type, sizeof(RootNamespaceNotification))
+            , Owner(owner)
+            , NamespaceId(namespaceId)
+            , Duration(duration)
+        {
+        }
 
-	public:
-		/// Namespace owner.
-		Address Owner;
+    public:
+        /// Namespace owner.
+        Address Owner;
 
-		/// Id of the namespace.
-		catapult::NamespaceId NamespaceId;
+        /// Id of the namespace.
+        catapult::NamespaceId NamespaceId;
 
-		/// Number of blocks for which the namespace should be valid.
-		BlockDuration Duration;
-	};
+        /// Number of blocks for which the namespace should be valid.
+        BlockDuration Duration;
+    };
 
-	// endregion
+    // endregion
 
-	// region ChildNamespaceNotification
+    // region ChildNamespaceNotification
 
-	/// Notification of a child namespace registration.
-	struct ChildNamespaceNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Namespace_Child_Registration_Notification;
+    /// Notification of a child namespace registration.
+    struct ChildNamespaceNotification : public Notification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Namespace_Child_Registration_Notification;
 
-	public:
-		/// Creates a notification around \a owner, \a namespaceId and \a parentId.
-		ChildNamespaceNotification(const Address& owner, NamespaceId namespaceId, NamespaceId parentId)
-				: Notification(Notification_Type, sizeof(ChildNamespaceNotification))
-				, Owner(owner)
-				, NamespaceId(namespaceId)
-				, ParentId(parentId) {
-		}
+    public:
+        /// Creates a notification around \a owner, \a namespaceId and \a parentId.
+        ChildNamespaceNotification(const Address& owner, NamespaceId namespaceId, NamespaceId parentId)
+            : Notification(Notification_Type, sizeof(ChildNamespaceNotification))
+            , Owner(owner)
+            , NamespaceId(namespaceId)
+            , ParentId(parentId)
+        {
+        }
 
-	public:
-		/// Namespace owner.
-		Address Owner;
+    public:
+        /// Namespace owner.
+        Address Owner;
 
-		/// Id of the namespace.
-		catapult::NamespaceId NamespaceId;
+        /// Id of the namespace.
+        catapult::NamespaceId NamespaceId;
 
-		/// Id of the parent namespace.
-		catapult::NamespaceId ParentId;
-	};
+        /// Id of the parent namespace.
+        catapult::NamespaceId ParentId;
+    };
 
-	// endregion
+    // endregion
 
-	// region NamespaceRentalFeeNotification
+    // region NamespaceRentalFeeNotification
 
-	/// Notification of a namespace rental fee.
-	struct NamespaceRentalFeeNotification : public BasicBalanceNotification<NamespaceRentalFeeNotification> {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Namespace_Rental_Fee_Notification;
+    /// Notification of a namespace rental fee.
+    struct NamespaceRentalFeeNotification : public BasicBalanceNotification<NamespaceRentalFeeNotification> {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Namespace_Rental_Fee_Notification;
 
-	public:
-		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
-		NamespaceRentalFeeNotification(
-				const Address& sender,
-				const ResolvableAddress& recipient,
-				UnresolvedMosaicId mosaicId,
-				catapult::Amount amount)
-				: BasicBalanceNotification(sender, mosaicId, amount)
-				, Recipient(recipient) {
-		}
+    public:
+        /// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
+        NamespaceRentalFeeNotification(
+            const Address& sender,
+            const ResolvableAddress& recipient,
+            UnresolvedMosaicId mosaicId,
+            catapult::Amount amount)
+            : BasicBalanceNotification(sender, mosaicId, amount)
+            , Recipient(recipient)
+        {
+        }
 
-	public:
-		/// Recipient.
-		ResolvableAddress Recipient;
-	};
+    public:
+        /// Recipient.
+        ResolvableAddress Recipient;
+    };
 
-	// endregion
+    // endregion
 
-	// region namespace required
+    // region namespace required
 
-	/// Notification of a required namespace.
-	struct NamespaceRequiredNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Namespace_Required_Notification;
+    /// Notification of a required namespace.
+    struct NamespaceRequiredNotification : public Notification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Namespace_Required_Notification;
 
-	public:
-		/// Creates a notification around \a owner and \a namespaceId.
-		NamespaceRequiredNotification(const ResolvableAddress& owner, NamespaceId namespaceId)
-				: Notification(Notification_Type, sizeof(NamespaceRequiredNotification))
-				, Owner(owner)
-				, NamespaceId(namespaceId) {
-		}
+    public:
+        /// Creates a notification around \a owner and \a namespaceId.
+        NamespaceRequiredNotification(const ResolvableAddress& owner, NamespaceId namespaceId)
+            : Notification(Notification_Type, sizeof(NamespaceRequiredNotification))
+            , Owner(owner)
+            , NamespaceId(namespaceId)
+        {
+        }
 
-	public:
-		/// Namespace owner (resolvable).
-		ResolvableAddress Owner;
+    public:
+        /// Namespace owner (resolvable).
+        ResolvableAddress Owner;
 
-		/// Namespace id.
-		catapult::NamespaceId NamespaceId;
-	};
+        /// Namespace id.
+        catapult::NamespaceId NamespaceId;
+    };
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -23,46 +23,48 @@
 #include "TransactionBuilder.h"
 #include "plugins/txes/../coresystem/src/model/VrfKeyLinkTransaction.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for a vrf key link transaction.
-	class VrfKeyLinkBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::VrfKeyLinkTransaction;
-		using EmbeddedTransaction = model::EmbeddedVrfKeyLinkTransaction;
+    /// Builder for a vrf key link transaction.
+    class VrfKeyLinkBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::VrfKeyLinkTransaction;
+        using EmbeddedTransaction = model::EmbeddedVrfKeyLinkTransaction;
 
-	public:
-		/// Creates a vrf key link builder for building a vrf key link transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		VrfKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates a vrf key link builder for building a vrf key link transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        VrfKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the linked public key to \a linkedPublicKey.
-		void setLinkedPublicKey(const Key& linkedPublicKey);
+    public:
+        /// Sets the linked public key to \a linkedPublicKey.
+        void setLinkedPublicKey(const Key& linkedPublicKey);
 
-		/// Sets the link action to \a linkAction.
-		void setLinkAction(model::LinkAction linkAction);
+        /// Sets the link action to \a linkAction.
+        void setLinkAction(model::LinkAction linkAction);
 
-	public:
-		/// Gets the size of vrf key link transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of vrf key link transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new vrf key link transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new vrf key link transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded vrf key link transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded vrf key link transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		Key m_linkedPublicKey;
-		model::LinkAction m_linkAction;
-	};
-}}
+    private:
+        Key m_linkedPublicKey;
+        model::LinkAction m_linkAction;
+    };
+}
+}

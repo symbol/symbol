@@ -20,36 +20,41 @@
 **/
 
 #pragma once
-#include "finalization/src/model/FinalizationProof.h"
-#include "finalization/src/model/FinalizationStatistics.h"
 #include "catapult/api/RemoteApi.h"
 #include "catapult/thread/Future.h"
+#include "finalization/src/model/FinalizationProof.h"
+#include "finalization/src/model/FinalizationStatistics.h"
 
-namespace catapult { namespace ionet {
-	class PacketIo;
-}}
+namespace catapult {
+namespace ionet {
+    class PacketIo;
+}
+}
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
-	/// Api for retrieving proof information from a remote node.
-	class RemoteProofApi : public RemoteApi {
-	protected:
-		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemoteProofApi(const model::NodeIdentity& remoteIdentity)
-				: RemoteApi(remoteIdentity) {
-		}
+    /// Api for retrieving proof information from a remote node.
+    class RemoteProofApi : public RemoteApi {
+    protected:
+        /// Creates a remote api for the node with specified \a remoteIdentity.
+        explicit RemoteProofApi(const model::NodeIdentity& remoteIdentity)
+            : RemoteApi(remoteIdentity)
+        {
+        }
 
-	public:
-		/// Gets the finalization statistics.
-		virtual thread::future<model::FinalizationStatistics> finalizationStatistics() const = 0;
+    public:
+        /// Gets the finalization statistics.
+        virtual thread::future<model::FinalizationStatistics> finalizationStatistics() const = 0;
 
-		/// Gets the finalization proof at \a epoch.
-		virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(FinalizationEpoch epoch) const = 0;
+        /// Gets the finalization proof at \a epoch.
+        virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(FinalizationEpoch epoch) const = 0;
 
-		/// Gets the finalization proof at \a height.
-		virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(Height height) const = 0;
-	};
+        /// Gets the finalization proof at \a height.
+        virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(Height height) const = 0;
+    };
 
-	/// Creates a proof api for interacting with a remote node with the specified \a io and \a remoteIdentity.
-	std::unique_ptr<RemoteProofApi> CreateRemoteProofApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity);
-}}
+    /// Creates a proof api for interacting with a remote node with the specified \a io and \a remoteIdentity.
+    std::unique_ptr<RemoteProofApi> CreateRemoteProofApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity);
+}
+}

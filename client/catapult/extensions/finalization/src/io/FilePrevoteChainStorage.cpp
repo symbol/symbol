@@ -28,118 +28,129 @@
 #include "catapult/io/IndexFile.h"
 #include "catapult/io/PodIoUtils.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	namespace {
-		static constexpr auto Block_File_Extension = ".dat";
+    namespace {
+        static constexpr auto Block_File_Extension = ".dat";
 
-		config::CatapultDirectory GetRoundDirectory(const std::string& dataDirectory, const model::FinalizationRound& round) {
-			auto votingDirectory = config::CatapultDataDirectory(dataDirectory).dir("voting");
+        config::CatapultDirectory GetRoundDirectory(const std::string& dataDirectory, const model::FinalizationRound& round)
+        {
+            auto votingDirectory = config::CatapultDataDirectory(dataDirectory).dir("voting");
 
-			std::ostringstream roundName;
-			roundName << round.Epoch << "_" << round.Point;
-			return config::CatapultDataDirectory(votingDirectory.path()).dir(roundName.str());
-		}
+            std::ostringstream roundName;
+            roundName << round.Epoch << "_" << round.Point;
+            return config::CatapultDataDirectory(votingDirectory.path()).dir(roundName.str());
+        }
 
-		std::string GetVotingBlockPath(const config::CatapultDirectory& roundDirectory, Height height) {
-			std::ostringstream buffer;
-			buffer << height << Block_File_Extension;
+        std::string GetVotingBlockPath(const config::CatapultDirectory& roundDirectory, Height height)
+        {
+            std::ostringstream buffer;
+            buffer << height << Block_File_Extension;
 
-			return roundDirectory.file(buffer.str());
-		}
+            return roundDirectory.file(buffer.str());
+        }
 
-		std::unique_ptr<model::Block> LoadBlock(const std::string& pathname) {
-			RawFile blockFile(pathname, OpenMode::Read_Only);
-			auto size = Read32(blockFile);
-			blockFile.seek(0);
+        std::unique_ptr<model::Block> LoadBlock(const std::string& pathname)
+        {
+            RawFile blockFile(pathname, OpenMode::Read_Only);
+            auto size = Read32(blockFile);
+            blockFile.seek(0);
 
-			auto pBlock = utils::MakeUniqueWithSize<model::Block>(size);
-			blockFile.read({ reinterpret_cast<uint8_t*>(pBlock.get()), size });
-			return pBlock;
-		}
+            auto pBlock = utils::MakeUniqueWithSize<model::Block>(size);
+            blockFile.read({ reinterpret_cast<uint8_t*>(pBlock.get()), size });
+            return pBlock;
+        }
 
-		auto GetBlockHash(const std::string& pathname) {
-			RawFile blockFile(pathname, OpenMode::Read_Only);
-			auto size = Read32(blockFile);
+        auto GetBlockHash(const std::string& pathname)
+        {
+            RawFile blockFile(pathname, OpenMode::Read_Only);
+            auto size = Read32(blockFile);
 
-			// skip block data
-			blockFile.seek(size);
+            // skip block data
+            blockFile.seek(size);
 
-			decltype(model::BlockElement::EntityHash) hash;
-			blockFile.read(hash);
-			return hash;
-		}
-	}
+            decltype(model::BlockElement::EntityHash) hash;
+            blockFile.read(hash);
+            return hash;
+        }
+    }
 
-	FilePrevoteChainStorage::FilePrevoteChainStorage(const std::string& dataDirectory)
-			: m_dataDirectory(dataDirectory) {
-	}
+    FilePrevoteChainStorage::FilePrevoteChainStorage(const std::string& dataDirectory)
+        : m_dataDirectory(dataDirectory)
+    {
+    }
 
-	bool FilePrevoteChainStorage::contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const {
-		auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
-		if (!roundDirectory.exists())
-			return false;
+    bool FilePrevoteChainStorage::contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const
+    {
+        auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
+        if (!roundDirectory.exists())
+            return false;
 
-		auto blockPath = GetVotingBlockPath(roundDirectory, heightHashPair.Height);
-		if (!std::filesystem::exists(blockPath))
-			return false;
+        auto blockPath = GetVotingBlockPath(roundDirectory, heightHashPair.Height);
+        if (!std::filesystem::exists(blockPath))
+            return false;
 
-		return GetBlockHash(blockPath) == heightHashPair.Hash;
-	}
+        return GetBlockHash(blockPath) == heightHashPair.Hash;
+    }
 
-	model::BlockRange FilePrevoteChainStorage::load(const model::FinalizationRound& round, Height maxHeight) const {
-		auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
-		auto indexPath = roundDirectory.file("index.dat");
-		IndexFile index(indexPath);
-		if (!index.exists())
-			CATAPULT_THROW_INVALID_ARGUMENT_1("round does not exist", round);
+    model::BlockRange FilePrevoteChainStorage::load(const model::FinalizationRound& round, Height maxHeight) const
+    {
+        auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
+        auto indexPath = roundDirectory.file("index.dat");
+        IndexFile index(indexPath);
+        if (!index.exists())
+            CATAPULT_THROW_INVALID_ARGUMENT_1("round does not exist", round);
 
-		auto startHeight = Height(index.get());
+        auto startHeight = Height(index.get());
 
-		std::vector<model::BlockRange> chain;
-		auto i = 0u;
-		while (true) {
-			if (startHeight + Height(i) > maxHeight)
-				break;
+        std::vector<model::BlockRange> chain;
+        auto i = 0u;
+        while (true) {
+            if (startHeight + Height(i) > maxHeight)
+                break;
 
-			auto blockPath = GetVotingBlockPath(roundDirectory, startHeight + Height(i));
-			if (!std::filesystem::exists(blockPath))
-				break;
+            auto blockPath = GetVotingBlockPath(roundDirectory, startHeight + Height(i));
+            if (!std::filesystem::exists(blockPath))
+                break;
 
-			chain.push_back(model::BlockRange::FromEntity(LoadBlock(blockPath)));
-			++i;
-		}
+            chain.push_back(model::BlockRange::FromEntity(LoadBlock(blockPath)));
+            ++i;
+        }
 
-		return model::BlockRange::MergeRanges(std::move(chain));
-	}
+        return model::BlockRange::MergeRanges(std::move(chain));
+    }
 
-	void FilePrevoteChainStorage::save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor) {
-		// blockStorageView holds lock on block storage
-		remove(descriptor.Round);
+    void FilePrevoteChainStorage::save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor)
+    {
+        // blockStorageView holds lock on block storage
+        remove(descriptor.Round);
 
-		auto roundDirectory = GetRoundDirectory(m_dataDirectory, descriptor.Round);
-		roundDirectory.createAll();
+        auto roundDirectory = GetRoundDirectory(m_dataDirectory, descriptor.Round);
+        roundDirectory.createAll();
 
-		for (auto i = 0u; i < descriptor.HashesCount; ++i) {
-			auto height = descriptor.Height + Height(i);
-			auto pBlockElement = blockStorageView.loadBlockElement(height);
+        for (auto i = 0u; i < descriptor.HashesCount; ++i) {
+            auto height = descriptor.Height + Height(i);
+            auto pBlockElement = blockStorageView.loadBlockElement(height);
 
-			auto destinationPath = GetVotingBlockPath(roundDirectory, height);
-			FileStream outputStream(RawFile(destinationPath, OpenMode::Read_Write));
-			WriteBlockElement(*pBlockElement, outputStream);
-		}
+            auto destinationPath = GetVotingBlockPath(roundDirectory, height);
+            FileStream outputStream(RawFile(destinationPath, OpenMode::Read_Write));
+            WriteBlockElement(*pBlockElement, outputStream);
+        }
 
-		auto indexPath = roundDirectory.file("index.dat");
-		IndexFile index(indexPath);
-		index.set(descriptor.Height.unwrap());
-	}
+        auto indexPath = roundDirectory.file("index.dat");
+        IndexFile index(indexPath);
+        index.set(descriptor.Height.unwrap());
+    }
 
-	void FilePrevoteChainStorage::remove(const model::FinalizationRound& round) {
-		auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
-		if (!roundDirectory.exists())
-			return;
+    void FilePrevoteChainStorage::remove(const model::FinalizationRound& round)
+    {
+        auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
+        if (!roundDirectory.exists())
+            return;
 
-		PurgeDirectory(roundDirectory.str());
-		std::filesystem::remove(roundDirectory.path());
-	}
-}}
+        PurgeDirectory(roundDirectory.str());
+        std::filesystem::remove(roundDirectory.path());
+    }
+}
+}

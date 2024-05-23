@@ -19,209 +19,230 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/VerifiableEntity.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/VerifiableEntity.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Alignment.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS VerifiableEntityTests
 
-	// region size + alignment
+    // region size + alignment
 
 #define VERIFIABLE_ENTITY_FIELDS FIELD(Signature) FIELD(SignerPublicKey) FIELD(Version) FIELD(Network) FIELD(Type)
 
-	TEST(TEST_CLASS, EntityHasExpectedSize) {
-		// Arrange:
-		auto expectedSize = sizeof(SizePrefixedEntity) + 2 * sizeof(uint32_t);
+    TEST(TEST_CLASS, EntityHasExpectedSize)
+    {
+        // Arrange:
+        auto expectedSize = sizeof(SizePrefixedEntity) + 2 * sizeof(uint32_t);
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(VerifiableEntity::X)>();
-		VERIFIABLE_ENTITY_FIELDS
+        VERIFIABLE_ENTITY_FIELDS
 #undef FIELD
 
-		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(VerifiableEntity));
-		EXPECT_EQ(4u + 8 + 100, sizeof(VerifiableEntity));
-	}
+        // Assert:
+        EXPECT_EQ(expectedSize, sizeof(VerifiableEntity));
+        EXPECT_EQ(4u + 8 + 100, sizeof(VerifiableEntity));
+    }
 
-	TEST(TEST_CLASS, EntityHasProperAlignment) {
+    TEST(TEST_CLASS, EntityHasProperAlignment)
+    {
 #define FIELD(X) EXPECT_ALIGNED(VerifiableEntity, X);
-		VERIFIABLE_ENTITY_FIELDS
+        VERIFIABLE_ENTITY_FIELDS
 #undef FIELD
 
-		EXPECT_EQ(0u, sizeof(VerifiableEntity) % 8);
-	}
+        EXPECT_EQ(0u, sizeof(VerifiableEntity) % 8);
+    }
 
 #undef VERIFIABLE_ENTITY_FIELDS
 
-	// endregion
+    // endregion
 
-	// region insertion operator
+    // region insertion operator
 
-	TEST(TEST_CLASS, CanOutputEntity) {
-		// Arrange:
-		VerifiableEntity entity;
-		entity.Size = 121;
-		entity.Version = 2;
-		entity.Type = Entity_Type_Block_Nemesis;
+    TEST(TEST_CLASS, CanOutputEntity)
+    {
+        // Arrange:
+        VerifiableEntity entity;
+        entity.Size = 121;
+        entity.Version = 2;
+        entity.Type = Entity_Type_Block_Nemesis;
 
-		// Act:
-		auto str = test::ToString(entity);
+        // Act:
+        auto str = test::ToString(entity);
 
-		// Assert:
-		EXPECT_EQ("Block_Nemesis (v2) with size 121", str);
-	}
+        // Assert:
+        EXPECT_EQ("Block_Nemesis (v2) with size 121", str);
+    }
 
-	// endregion
+    // endregion
 
-	// region GetSignerAddress
+    // region GetSignerAddress
 
-	TEST(TEST_CLASS, GetSignerAddressCalculatesCorrectSignerAddress) {
-		// Arrange:
-		VerifiableEntity entity;
-		test::FillWithRandomData(entity.SignerPublicKey);
-		entity.Network = static_cast<NetworkIdentifier>(test::RandomByte());
+    TEST(TEST_CLASS, GetSignerAddressCalculatesCorrectSignerAddress)
+    {
+        // Arrange:
+        VerifiableEntity entity;
+        test::FillWithRandomData(entity.SignerPublicKey);
+        entity.Network = static_cast<NetworkIdentifier>(test::RandomByte());
 
-		// Act:
-		auto signerAddress = GetSignerAddress(entity);
+        // Act:
+        auto signerAddress = GetSignerAddress(entity);
 
-		// Assert:
-		auto expectedSignerAddress = PublicKeyToAddress(entity.SignerPublicKey, entity.Network);
-		EXPECT_EQ(expectedSignerAddress, signerAddress);
-	}
+        // Assert:
+        auto expectedSignerAddress = PublicKeyToAddress(entity.SignerPublicKey, entity.Network);
+        EXPECT_EQ(expectedSignerAddress, signerAddress);
+    }
 
-	// endregion
+    // endregion
 
-	// region IsSizeValid - utils
+    // region IsSizeValid - utils
 
-	namespace {
-		bool IsSizeValid(const VerifiableEntity& entity) {
-			auto registry = mocks::CreateDefaultTransactionRegistry();
-			return IsSizeValid(entity, registry);
-		}
+    namespace {
+        bool IsSizeValid(const VerifiableEntity& entity)
+        {
+            auto registry = mocks::CreateDefaultTransactionRegistry();
+            return IsSizeValid(entity, registry);
+        }
 
-		struct TransactionTraits {
-			static auto Create() {
-				return test::GenerateRandomTransaction();
-			}
-		};
+        struct TransactionTraits {
+            static auto Create()
+            {
+                return test::GenerateRandomTransaction();
+            }
+        };
 
-		struct EmptyBlockTraits {
-			static auto Create() {
-				return test::GenerateEmptyRandomBlock();
-			}
-		};
+        struct EmptyBlockTraits {
+            static auto Create()
+            {
+                return test::GenerateEmptyRandomBlock();
+            }
+        };
 
-		struct BlockWithTransactionsTraits {
-			static auto Create() {
-				auto transactions = test::GenerateRandomTransactions(3);
-				return test::GenerateBlockWithTransactions(transactions);
-			}
-		};
-	}
+        struct BlockWithTransactionsTraits {
+            static auto Create()
+            {
+                auto transactions = test::GenerateRandomTransactions(3);
+                return test::GenerateBlockWithTransactions(transactions);
+            }
+        };
+    }
 
-#define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Transaction) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_EmptyBlock) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyBlockTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_BlockWithTransactions) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockWithTransactionsTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define TRAITS_BASED_TEST(TEST_NAME)                                            \
+    template <typename TTraits>                                                 \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                             \
+    TEST(TEST_CLASS, TEST_NAME##_Transaction)                                   \
+    {                                                                           \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>();           \
+    }                                                                           \
+    TEST(TEST_CLASS, TEST_NAME##_EmptyBlock)                                    \
+    {                                                                           \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyBlockTraits>();            \
+    }                                                                           \
+    TEST(TEST_CLASS, TEST_NAME##_BlockWithTransactions)                         \
+    {                                                                           \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockWithTransactionsTraits>(); \
+    }                                                                           \
+    template <typename TTraits>                                                 \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	// endregion
+    // endregion
 
-	// region IsSizeValid - basic tests
+    // region IsSizeValid - basic tests
 
-	TRAITS_BASED_TEST(SizeIsValidWhenEntitySizeIsCorrect) {
-		// Arrange:
-		auto pEntity = TTraits::Create();
+    TRAITS_BASED_TEST(SizeIsValidWhenEntitySizeIsCorrect)
+    {
+        // Arrange:
+        auto pEntity = TTraits::Create();
 
-		// Act + Assert:
-		EXPECT_TRUE(IsSizeValid(*pEntity));
-	}
+        // Act + Assert:
+        EXPECT_TRUE(IsSizeValid(*pEntity));
+    }
 
-	TRAITS_BASED_TEST(SizeIsInvalidWhenEntitySizeIsTooSmall) {
-		// Arrange:
-		auto pEntity = TTraits::Create();
-		--pEntity->Size;
+    TRAITS_BASED_TEST(SizeIsInvalidWhenEntitySizeIsTooSmall)
+    {
+        // Arrange:
+        auto pEntity = TTraits::Create();
+        --pEntity->Size;
 
-		// Act + Assert:
-		EXPECT_FALSE(IsSizeValid(*pEntity));
-	}
+        // Act + Assert:
+        EXPECT_FALSE(IsSizeValid(*pEntity));
+    }
 
-	TRAITS_BASED_TEST(SizeIsInvalidWhenEntitySizeIsTooLarge) {
-		// Arrange:
-		auto pEntity = TTraits::Create();
-		++pEntity->Size;
+    TRAITS_BASED_TEST(SizeIsInvalidWhenEntitySizeIsTooLarge)
+    {
+        // Arrange:
+        auto pEntity = TTraits::Create();
+        ++pEntity->Size;
 
-		// Act + Assert:
-		EXPECT_FALSE(IsSizeValid(*pEntity));
-	}
+        // Act + Assert:
+        EXPECT_FALSE(IsSizeValid(*pEntity));
+    }
 
-	TEST(TEST_CLASS, SizeIsInvalidForEntityWithReportedSizeLessThanHeaderSize) {
-		// Arrange:
-		std::vector<uint8_t> buffer(sizeof(SizePrefixedEntity));
-		auto* pEntity = reinterpret_cast<VerifiableEntity*>(&buffer[0]);
+    TEST(TEST_CLASS, SizeIsInvalidForEntityWithReportedSizeLessThanHeaderSize)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer(sizeof(SizePrefixedEntity));
+        auto* pEntity = reinterpret_cast<VerifiableEntity*>(&buffer[0]);
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds" // VerifiableEntity[0] is partly outside array bounds
 #endif
 
-		pEntity->Size = sizeof(SizePrefixedEntity);
+        pEntity->Size = sizeof(SizePrefixedEntity);
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 
-		// Act:
-		EXPECT_FALSE(IsSizeValid(*pEntity));
-	}
+        // Act:
+        EXPECT_FALSE(IsSizeValid(*pEntity));
+    }
 
-	// endregion
+    // endregion
 
-	// region IsSizeValid - block
+    // region IsSizeValid - block
 
-	namespace {
-		void AssertFailureForBlockWithEntityType(EntityType type) {
-			// Act:
-			auto pBlock = test::GenerateBlockWithTransactions(test::GenerateRandomTransactions(1));
-			auto transactions = pBlock->Transactions();
-			transactions.begin()->Type = type;
+    namespace {
+        void AssertFailureForBlockWithEntityType(EntityType type)
+        {
+            // Act:
+            auto pBlock = test::GenerateBlockWithTransactions(test::GenerateRandomTransactions(1));
+            auto transactions = pBlock->Transactions();
+            transactions.begin()->Type = type;
 
-			// Act + Assert:
-			EXPECT_FALSE(IsSizeValid(*pBlock));
-		}
-	}
+            // Act + Assert:
+            EXPECT_FALSE(IsSizeValid(*pBlock));
+        }
+    }
 
-	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingUnknownEntityType) {
-		AssertFailureForBlockWithEntityType(static_cast<EntityType>(1234));
-	}
+    TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingUnknownEntityType)
+    {
+        AssertFailureForBlockWithEntityType(static_cast<EntityType>(1234));
+    }
 
-	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingIncompatibleEntityType) {
-		AssertFailureForBlockWithEntityType(Entity_Type_Block_Nemesis);
-	}
+    TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingIncompatibleEntityType)
+    {
+        AssertFailureForBlockWithEntityType(Entity_Type_Block_Nemesis);
+    }
 
-	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingTransactionWithWrongSize) {
-		// Act:
-		auto pBlock = test::GenerateBlockWithTransactions(test::GenerateRandomTransactions(1));
-		auto transactions = pBlock->Transactions();
-		transactions.begin()->Size += 123;
+    TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingTransactionWithWrongSize)
+    {
+        // Act:
+        auto pBlock = test::GenerateBlockWithTransactions(test::GenerateRandomTransactions(1));
+        auto transactions = pBlock->Transactions();
+        transactions.begin()->Size += 123;
 
-		// Assert:// Act + Assert:
-		EXPECT_FALSE(IsSizeValid(*pBlock));
-	}
+        // Assert:// Act + Assert:
+        EXPECT_FALSE(IsSizeValid(*pBlock));
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

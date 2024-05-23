@@ -22,32 +22,35 @@
 #pragma once
 #include "MetadataEntityType.h"
 #include "MetadataSharedTransaction.h"
-#include "plugins/txes/namespace/src/types.h"
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/utils/ArraySet.h"
+#include "plugins/txes/namespace/src/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Metadata transaction header with namespace id target.
-	template<typename THeader>
-	struct NamespaceMetadataTransactionHeader : public MetadataTransactionHeader<THeader> {
-		/// Target namespace identifier.
-		NamespaceId TargetNamespaceId;
-	};
+    /// Metadata transaction header with namespace id target.
+    template <typename THeader>
+    struct NamespaceMetadataTransactionHeader : public MetadataTransactionHeader<THeader> {
+        /// Target namespace identifier.
+        NamespaceId TargetNamespaceId;
+    };
 
-	/// Binary layout for a namespace metadata transaction body.
-	template<typename THeader>
-	struct NamespaceMetadataTransactionBody
-			: public BasicMetadataTransactionBody<NamespaceMetadataTransactionHeader<THeader>, Entity_Type_Namespace_Metadata> {};
+    /// Binary layout for a namespace metadata transaction body.
+    template <typename THeader>
+    struct NamespaceMetadataTransactionBody
+        : public BasicMetadataTransactionBody<NamespaceMetadataTransactionHeader<THeader>, Entity_Type_Namespace_Metadata> { };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(NamespaceMetadata)
+    DEFINE_EMBEDDABLE_TRANSACTION(NamespaceMetadata)
 
 #pragma pack(pop)
 
-	/// Extracts addresses of additional accounts that must approve \a transaction.
-	inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedNamespaceMetadataTransaction& transaction) {
-		return { transaction.TargetAddress };
-	}
-}}
+    /// Extracts addresses of additional accounts that must approve \a transaction.
+    inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedNamespaceMetadataTransaction& transaction)
+    {
+        return { transaction.TargetAddress };
+    }
+}
+}

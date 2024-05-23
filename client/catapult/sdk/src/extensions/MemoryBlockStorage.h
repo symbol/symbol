@@ -24,41 +24,43 @@
 #include "catapult/model/Elements.h"
 #include <map>
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Memory-based block storage that loads and saves blocks in memory.
-	class MemoryBlockStorage : public io::PrunableBlockStorage {
-	private:
-		using Blocks = std::map<Height, std::shared_ptr<model::Block>>;
-		using BlockElements = std::map<Height, std::shared_ptr<model::BlockElement>>;
-		using BlockStatements = std::map<Height, std::shared_ptr<const model::BlockStatement>>;
+    /// Memory-based block storage that loads and saves blocks in memory.
+    class MemoryBlockStorage : public io::PrunableBlockStorage {
+    private:
+        using Blocks = std::map<Height, std::shared_ptr<model::Block>>;
+        using BlockElements = std::map<Height, std::shared_ptr<model::BlockElement>>;
+        using BlockStatements = std::map<Height, std::shared_ptr<const model::BlockStatement>>;
 
-	public:
-		/// Creates a memory-based block storage around \a nemesisBlockElement.
-		explicit MemoryBlockStorage(const model::BlockElement& nemesisBlockElement);
+    public:
+        /// Creates a memory-based block storage around \a nemesisBlockElement.
+        explicit MemoryBlockStorage(const model::BlockElement& nemesisBlockElement);
 
-	public:
-		// LightBlockStorage
-		Height chainHeight() const override;
-		model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override;
-		void saveBlock(const model::BlockElement& blockElement) override;
-		void dropBlocksAfter(Height height) override;
+    public:
+        // LightBlockStorage
+        Height chainHeight() const override;
+        model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override;
+        void saveBlock(const model::BlockElement& blockElement) override;
+        void dropBlocksAfter(Height height) override;
 
-		// BlockStorage
-		std::shared_ptr<const model::Block> loadBlock(Height height) const override;
-		std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override;
-		std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override;
+        // BlockStorage
+        std::shared_ptr<const model::Block> loadBlock(Height height) const override;
+        std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override;
+        std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override;
 
-		// PrunableBlockStorage
-		void purge() override;
+        // PrunableBlockStorage
+        void purge() override;
 
-	private:
-		void requireHeight(Height height, const char* description) const;
+    private:
+        void requireHeight(Height height, const char* description) const;
 
-	private:
-		Blocks m_blocks;
-		BlockElements m_blockElements;
-		BlockStatements m_blockStatements;
-		Height m_height;
-	};
-}}
+    private:
+        Blocks m_blocks;
+        BlockElements m_blockElements;
+        BlockStatements m_blockStatements;
+        Height m_height;
+    };
+}
+}

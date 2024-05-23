@@ -23,8 +23,12 @@
 #include "mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/multisig/src/state/MultisigEntry.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Maps a multisig \a entry to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::MultisigEntry& entry);
-}}}
+        /// Maps a multisig \a entry to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(const state::MultisigEntry& entry);
+    }
+}
+}

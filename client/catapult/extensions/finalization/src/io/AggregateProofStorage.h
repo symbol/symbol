@@ -23,10 +23,12 @@
 #include "ProofStorage.h"
 #include "catapult/subscribers/FinalizationSubscriber.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// Creates an aggregate proof storage that delegates to \a pStorage and publishes proof changes to \a pSubscriber.
-	std::unique_ptr<ProofStorage> CreateAggregateProofStorage(
-			std::unique_ptr<ProofStorage>&& pStorage,
-			std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber);
-}}
+    /// Creates an aggregate proof storage that delegates to \a pStorage and publishes proof changes to \a pSubscriber.
+    std::unique_ptr<ProofStorage> CreateAggregateProofStorage(
+        std::unique_ptr<ProofStorage>&& pStorage,
+        std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber);
+}
+}

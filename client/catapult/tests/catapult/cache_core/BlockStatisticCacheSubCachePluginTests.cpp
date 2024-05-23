@@ -21,77 +21,84 @@
 
 #include "catapult/cache_core/BlockStatisticCacheSubCachePlugin.h"
 #include "catapult/model/BlockchainConfiguration.h"
+#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS BlockStatisticCacheSubCachePluginTests
 
-	// region BlockStatisticCacheSummaryCacheStorage - saveAll / saveSummary
+    // region BlockStatisticCacheSummaryCacheStorage - saveAll / saveSummary
 
-	namespace {
-		void RunSaveConsistencyTest(size_t numValues) {
-			// Arrange:
-			auto catapultCache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-			{
-				auto cacheDelta = catapultCache.createDelta();
-				auto& delta = cacheDelta.sub<BlockStatisticCache>();
-				for (auto i = 100u; i < 100 + numValues; ++i)
-					delta.insert(state::BlockStatistic(Height(i), Timestamp(i), Difficulty(i), BlockFeeMultiplier(i)));
+    namespace {
+        void RunSaveConsistencyTest(size_t numValues)
+        {
+            // Arrange:
+            auto catapultCache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+            {
+                auto cacheDelta = catapultCache.createDelta();
+                auto& delta = cacheDelta.sub<BlockStatisticCache>();
+                for (auto i = 100u; i < 100 + numValues; ++i)
+                    delta.insert(state::BlockStatistic(Height(i), Timestamp(i), Difficulty(i), BlockFeeMultiplier(i)));
 
-				catapultCache.commit(Height(7));
+                catapultCache.commit(Height(7));
 
-				// Sanity:
-				EXPECT_EQ(numValues, delta.size());
-			}
+                // Sanity:
+                EXPECT_EQ(numValues, delta.size());
+            }
 
-			BlockStatisticCacheSubCachePlugin plugin(111);
-			auto pStorage = plugin.createStorage();
+            BlockStatisticCacheSubCachePlugin plugin(111);
+            auto pStorage = plugin.createStorage();
 
-			// Act: serialize via saveAll
-			std::vector<uint8_t> bufferAll;
-			mocks::MockMemoryStream streamAll(bufferAll);
-			pStorage->saveAll(catapultCache.createView(), streamAll);
+            // Act: serialize via saveAll
+            std::vector<uint8_t> bufferAll;
+            mocks::MockMemoryStream streamAll(bufferAll);
+            pStorage->saveAll(catapultCache.createView(), streamAll);
 
-			// - serialize via saveSummary
-			std::vector<uint8_t> bufferSummary;
-			mocks::MockMemoryStream streamSummary(bufferSummary);
-			pStorage->saveSummary(catapultCache.createDelta(), streamSummary);
+            // - serialize via saveSummary
+            std::vector<uint8_t> bufferSummary;
+            mocks::MockMemoryStream streamSummary(bufferSummary);
+            pStorage->saveSummary(catapultCache.createDelta(), streamSummary);
 
-			// Assert:
-			EXPECT_EQ(bufferAll, bufferSummary);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(bufferAll, bufferSummary);
+        }
+    }
 
-	TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_ZeroValues) {
-		RunSaveConsistencyTest(0);
-	}
+    TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_ZeroValues)
+    {
+        RunSaveConsistencyTest(0);
+    }
 
-	TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_SingleValue) {
-		RunSaveConsistencyTest(1);
-	}
+    TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_SingleValue)
+    {
+        RunSaveConsistencyTest(1);
+    }
 
-	TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_MultipleValues) {
-		RunSaveConsistencyTest(11);
-	}
+    TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_MultipleValues)
+    {
+        RunSaveConsistencyTest(11);
+    }
 
-	// endregion
+    // endregion
 
-	// region BlockStatisticCacheSubCachePlugin
+    // region BlockStatisticCacheSubCachePlugin
 
-	TEST(TEST_CLASS, CanCreateCacheStorageViaPlugin) {
-		// Arrange:
-		BlockStatisticCacheSubCachePlugin plugin(111);
+    TEST(TEST_CLASS, CanCreateCacheStorageViaPlugin)
+    {
+        // Arrange:
+        BlockStatisticCacheSubCachePlugin plugin(111);
 
-		// Act:
-		auto pStorage = plugin.createStorage();
+        // Act:
+        auto pStorage = plugin.createStorage();
 
-		// Assert:
-		ASSERT_TRUE(!!pStorage);
-		EXPECT_EQ("BlockStatisticCache", pStorage->name());
-	}
+        // Assert:
+        ASSERT_TRUE(!!pStorage);
+        EXPECT_EQ("BlockStatisticCache", pStorage->name());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

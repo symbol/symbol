@@ -20,80 +20,88 @@
 **/
 
 #pragma once
-#include "mongo/src/MongoTransactionPlugin.h"
 #include "catapult/model/Transaction.h"
+#include "mongo/src/MongoTransactionPlugin.h"
 #include "tests/test/plugins/SharedTransactionPluginTests.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
 /// Defines traits for mongo transaction plugin based tests for \a NAME transaction without adaptation support
 /// using traits prefixed by \a TRAITS_PREFIX.
-#define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NAME, TRAITS_PREFIX) \
-	struct TRAITS_PREFIX##RegularTraits { \
-		using TransactionType = model::NAME##Transaction; \
-\
-		static auto CreatePlugin() { \
-			return Create##NAME##TransactionMongoPlugin(); \
-		} \
-	}; \
-\
-	struct TRAITS_PREFIX##EmbeddedTraits { \
-		using TransactionType = model::Embedded##NAME##Transaction; \
-\
-		static auto CreatePlugin() { \
-			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin()); \
-		} \
-	};
+#define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NAME, TRAITS_PREFIX)             \
+    struct TRAITS_PREFIX##RegularTraits {                                                     \
+        using TransactionType = model::NAME##Transaction;                                     \
+                                                                                              \
+        static auto CreatePlugin()                                                            \
+        {                                                                                     \
+            return Create##NAME##TransactionMongoPlugin();                                    \
+        }                                                                                     \
+    };                                                                                        \
+                                                                                              \
+    struct TRAITS_PREFIX##EmbeddedTraits {                                                    \
+        using TransactionType = model::Embedded##NAME##Transaction;                           \
+                                                                                              \
+        static auto CreatePlugin()                                                            \
+        {                                                                                     \
+            return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin()); \
+        }                                                                                     \
+    };
 
 /// Defines traits for mongo transaction plugin based tests for \a NAME transaction.
-#define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(NAME) \
-	struct RegularTraits { \
-		using TransactionType = model::NAME##Transaction; \
-\
-		static auto CreatePlugin() { \
-			return Create##NAME##TransactionMongoPlugin(); \
-		} \
-\
-		template<typename TBuilder> \
-		static auto Adapt(const TBuilder& builder) { \
-			return builder.build(); \
-		} \
-	}; \
-\
-	struct EmbeddedTraits { \
-		using TransactionType = model::Embedded##NAME##Transaction; \
-\
-		static auto CreatePlugin() { \
-			return test::ExtractEmbeddedPlugin(RegularTraits::CreatePlugin()); \
-		} \
-\
-		template<typename TBuilder> \
-		static auto Adapt(const TBuilder& builder) { \
-			return builder.buildEmbedded(); \
-		} \
-	};
+#define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(NAME)                      \
+    struct RegularTraits {                                                     \
+        using TransactionType = model::NAME##Transaction;                      \
+                                                                               \
+        static auto CreatePlugin()                                             \
+        {                                                                      \
+            return Create##NAME##TransactionMongoPlugin();                     \
+        }                                                                      \
+                                                                               \
+        template <typename TBuilder>                                           \
+        static auto Adapt(const TBuilder& builder)                             \
+        {                                                                      \
+            return builder.build();                                            \
+        }                                                                      \
+    };                                                                         \
+                                                                               \
+    struct EmbeddedTraits {                                                    \
+        using TransactionType = model::Embedded##NAME##Transaction;            \
+                                                                               \
+        static auto CreatePlugin()                                             \
+        {                                                                      \
+            return test::ExtractEmbeddedPlugin(RegularTraits::CreatePlugin()); \
+        }                                                                      \
+                                                                               \
+        template <typename TBuilder>                                           \
+        static auto Adapt(const TBuilder& builder)                             \
+        {                                                                      \
+            return builder.buildEmbedded();                                    \
+        }                                                                      \
+    };
 
-	/// MongoTransactionPlugin tests.
-	template<typename TTraits>
-	class MongoTransactionPluginTests {
-	public:
-		/// Asserts that a mongo transaction plugin does not produce any dependent documents.
-		static void AssertDependentDocumentsAreNotSupported() {
-			// Arrange:
-			auto pPlugin = TTraits::CreatePlugin();
+    /// MongoTransactionPlugin tests.
+    template <typename TTraits>
+    class MongoTransactionPluginTests {
+    public:
+        /// Asserts that a mongo transaction plugin does not produce any dependent documents.
+        static void AssertDependentDocumentsAreNotSupported()
+        {
+            // Arrange:
+            auto pPlugin = TTraits::CreatePlugin();
 
-			typename TTraits::TransactionType transaction;
-			model::TransactionElement transactionElement(transaction);
-			transactionElement.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
-			auto metadata = mongo::MongoTransactionMetadata(transactionElement);
+            typename TTraits::TransactionType transaction;
+            model::TransactionElement transactionElement(transaction);
+            transactionElement.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
+            auto metadata = mongo::MongoTransactionMetadata(transactionElement);
 
-			// Act:
-			auto documents = pPlugin->extractDependentDocuments(transaction, metadata);
+            // Act:
+            auto documents = pPlugin->extractDependentDocuments(transaction, metadata);
 
-			// Assert:
-			EXPECT_TRUE(documents.empty());
-		}
-	};
+            // Assert:
+            EXPECT_TRUE(documents.empty());
+        }
+    };
 
 /// Defines basic tests for a mongo transaction plugin with \a TYPE in \a TEST_CLASS using traits prefixed by \a TRAITS_PREFIX
 /// and test name postfixed by \a TEST_POSTFIX.
@@ -102,10 +110,12 @@ namespace catapult { namespace test {
 /// - regular and embedded: { type }
 /// - regular: { supportsEmbedding, embeddedPlugin, extractDependentDocuments }
 /// - uncovered (regular and embedded): { streamTransaction }
-#define DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, TYPE) \
-	DEFINE_SHARED_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, TYPE) \
-\
-	TEST(TEST_CLASS, DependentDocumentsAreNotSupported##TEST_POSTFIX) { \
-		test::MongoTransactionPluginTests<TRAITS_PREFIX##RegularTraits>::AssertDependentDocumentsAreNotSupported(); \
-	}
-}}
+#define DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, TYPE)       \
+    DEFINE_SHARED_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, TYPE)                \
+                                                                                                                    \
+    TEST(TEST_CLASS, DependentDocumentsAreNotSupported##TEST_POSTFIX)                                               \
+    {                                                                                                               \
+        test::MongoTransactionPluginTests<TRAITS_PREFIX##RegularTraits>::AssertDependentDocumentsAreNotSupported(); \
+    }
+}
+}

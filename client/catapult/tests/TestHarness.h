@@ -34,42 +34,49 @@
 namespace std {
 
 // custom formatter for byte std::array
-template<size_t N>
-void PrintTo(const array<uint8_t, N>& array, std::ostream* pOut) {
-	*pOut << catapult::utils::HexFormat(array);
+template <size_t N>
+void PrintTo(const array<uint8_t, N>& array, std::ostream* pOut)
+{
+    *pOut << catapult::utils::HexFormat(array);
 }
 
 // custom formatter for byte std::vector
-inline void PrintTo(const vector<uint8_t>& vector, std::ostream* pOut) {
-	*pOut << catapult::utils::HexFormat(vector);
+inline void PrintTo(const vector<uint8_t>& vector, std::ostream* pOut)
+{
+    *pOut << catapult::utils::HexFormat(vector);
 }
 }
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	// custom formatter for utils::ByteArray
-	// (gtest does not seem to find utils::ByteArray insertion operator)
-	template<typename TTag>
-	void PrintTo(const ByteArray<TTag>& byteArray, std::ostream* pOut) {
-		*pOut << byteArray;
-	}
-}}
+    // custom formatter for utils::ByteArray
+    // (gtest does not seem to find utils::ByteArray insertion operator)
+    template <typename TTag>
+    void PrintTo(const ByteArray<TTag>& byteArray, std::ostream* pOut)
+    {
+        *pOut << byteArray;
+    }
+}
+}
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Gets the stress iteration count.
-	/// \note \c 0 when non-stress tests are running.
-	uint32_t GetStressIterationCount();
+    /// Gets the stress iteration count.
+    /// \note \c 0 when non-stress tests are running.
+    uint32_t GetStressIterationCount();
 
-	/// Gets the default local host port used in tests.
-	unsigned short GetLocalHostPort();
+    /// Gets the default local host port used in tests.
+    unsigned short GetLocalHostPort();
 
-	/// Gets the maximum number of times to retry a non-deterministic test.
-	uint32_t GetMaxNonDeterministicTestRetries();
+    /// Gets the maximum number of times to retry a non-deterministic test.
+    uint32_t GetMaxNonDeterministicTestRetries();
 
-	/// Gets the number of default thread pool threads to use in tests.
-	uint32_t GetNumDefaultPoolThreads();
-}}
+    /// Gets the number of default thread pool threads to use in tests.
+    uint32_t GetNumDefaultPoolThreads();
+}
+}
 
 // region custom EXPECT macros
 
@@ -78,43 +85,43 @@ namespace catapult { namespace test {
 /// - EXPECTED_COMPARE_RESULT > 0 : RHS > LHS
 /// - EXPECTED_COMPARE_RESULT == 0: RHS == LHS
 #define EXPECT_COMPARE(EXPECTED_COMPARE_RESULT, LHS, RHS) \
-	do { \
-		if (0 == EXPECTED_COMPARE_RESULT) \
-			EXPECT_EQ(LHS, RHS); \
-		else if (EXPECTED_COMPARE_RESULT < 0) \
-			EXPECT_GT(LHS, RHS); \
-		else \
-			EXPECT_LT(LHS, RHS); \
-	} while (false)
+    do {                                                  \
+        if (0 == EXPECTED_COMPARE_RESULT)                 \
+            EXPECT_EQ(LHS, RHS);                          \
+        else if (EXPECTED_COMPARE_RESULT < 0)             \
+            EXPECT_GT(LHS, RHS);                          \
+        else                                              \
+            EXPECT_LT(LHS, RHS);                          \
+    } while (false)
 
 /// Asserts that \a SIZE bytes starting at \a PEXPECTED and \a PACTUAL are equal.
-#define EXPECT_EQ_MEMORY(PEXPECTED, PACTUAL, SIZE) \
-	EXPECT_TRUE(0 == SIZE || 0 == std::memcmp(PEXPECTED, PACTUAL, SIZE)) \
-			<< "E: " << utils::HexFormat(reinterpret_cast<const uint8_t*>(PEXPECTED), reinterpret_cast<const uint8_t*>(PEXPECTED) + SIZE) \
-			<< std::endl \
-			<< "A: " << utils::HexFormat(reinterpret_cast<const uint8_t*>(PACTUAL), reinterpret_cast<const uint8_t*>(PACTUAL) + SIZE) \
-			<< " "
+#define EXPECT_EQ_MEMORY(PEXPECTED, PACTUAL, SIZE)                                                                                    \
+    EXPECT_TRUE(0 == SIZE || 0 == std::memcmp(PEXPECTED, PACTUAL, SIZE))                                                              \
+        << "E: " << utils::HexFormat(reinterpret_cast<const uint8_t*>(PEXPECTED), reinterpret_cast<const uint8_t*>(PEXPECTED) + SIZE) \
+        << std::endl                                                                                                                  \
+        << "A: " << utils::HexFormat(reinterpret_cast<const uint8_t*>(PACTUAL), reinterpret_cast<const uint8_t*>(PACTUAL) + SIZE)     \
+        << " "
 
 /// Asserts that \a VALUE is contained in \a VALUES with \a MESSAGE.
-#define EXPECT_CONTAINS_MESSAGE(VALUES, VALUE, MESSAGE) \
-	do { \
-		using Printer = testing::internal::UniversalPrinter<typename std::remove_reference_t<decltype(VALUES)>::value_type>; \
-		if (VALUES.end() == VALUES.find(VALUE)) { \
-			std::ostringstream ecm_out; \
-			if (!MESSAGE.empty()) \
-				ecm_out << MESSAGE << ":" << std::endl; \
-\
-			ecm_out << "{ "; \
-			for (const auto& ecm_value : VALUES) { \
-				Printer::Print(ecm_value, &ecm_out); \
-				ecm_out << " "; \
-			} \
-\
-			ecm_out << "} does not contain: "; \
-			Printer::Print(VALUE, &ecm_out); \
-			EXPECT_TRUE(VALUES.end() != VALUES.find(VALUE)) << ecm_out.str(); \
-		} \
-	} while (false)
+#define EXPECT_CONTAINS_MESSAGE(VALUES, VALUE, MESSAGE)                                                                      \
+    do {                                                                                                                     \
+        using Printer = testing::internal::UniversalPrinter<typename std::remove_reference_t<decltype(VALUES)>::value_type>; \
+        if (VALUES.end() == VALUES.find(VALUE)) {                                                                            \
+            std::ostringstream ecm_out;                                                                                      \
+            if (!MESSAGE.empty())                                                                                            \
+                ecm_out << MESSAGE << ":" << std::endl;                                                                      \
+                                                                                                                             \
+            ecm_out << "{ ";                                                                                                 \
+            for (const auto& ecm_value : VALUES) {                                                                           \
+                Printer::Print(ecm_value, &ecm_out);                                                                         \
+                ecm_out << " ";                                                                                              \
+            }                                                                                                                \
+                                                                                                                             \
+            ecm_out << "} does not contain: ";                                                                               \
+            Printer::Print(VALUE, &ecm_out);                                                                                 \
+            EXPECT_TRUE(VALUES.end() != VALUES.find(VALUE)) << ecm_out.str();                                                \
+        }                                                                                                                    \
+    } while (false)
 
 /// Asserts that \a VALUE is contained in \a VALUES.
 #define EXPECT_CONTAINS(VALUES, VALUE) EXPECT_CONTAINS_MESSAGE(VALUES, VALUE, std::string())

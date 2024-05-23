@@ -20,38 +20,41 @@
 **/
 
 #include "MosaicSupplyRevocationTransactionPlugin.h"
-#include "src/model/MosaicFlags.h"
-#include "src/model/MosaicSupplyRevocationTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
+#include "src/model/MosaicFlags.h"
+#include "src/model/MosaicSupplyRevocationTransaction.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		auto CreatePublisher(const Address& nemesisAddress) {
-			return [nemesisAddress](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-				auto isNemesisSigner = nemesisAddress == context.SignerAddress;
-				auto requiredMosaicFlags = utils::to_underlying_type(isNemesisSigner ? MosaicFlags::None : MosaicFlags::Revokable);
+    namespace {
+        template <typename TTransaction>
+        auto CreatePublisher(const Address& nemesisAddress)
+        {
+            return [nemesisAddress](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
+                auto isNemesisSigner = nemesisAddress == context.SignerAddress;
+                auto requiredMosaicFlags = utils::to_underlying_type(isNemesisSigner ? MosaicFlags::None : MosaicFlags::Revokable);
 
-				// MosaicFlagsValidator prevents any mosaics from being created with Revokable flag prior to fork block
-				// consequently, MosaicSupplyRevocation transactions will be rejected until then because of Revokable flag requirement
-				sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.Mosaic.MosaicId, requiredMosaicFlags));
+                // MosaicFlagsValidator prevents any mosaics from being created with Revokable flag prior to fork block
+                // consequently, MosaicSupplyRevocation transactions will be rejected until then because of Revokable flag requirement
+                sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.Mosaic.MosaicId, requiredMosaicFlags));
 
-				sub.notify(AccountAddressNotification(transaction.SourceAddress)); // mark SourceAddress as affected by this transaction
+                sub.notify(AccountAddressNotification(transaction.SourceAddress)); // mark SourceAddress as affected by this transaction
 
-				sub.notify(BalanceTransferNotification(
-						transaction.SourceAddress,
-						context.SignerAddress,
-						transaction.Mosaic.MosaicId,
-						transaction.Mosaic.Amount));
+                sub.notify(BalanceTransferNotification(
+                    transaction.SourceAddress,
+                    context.SignerAddress,
+                    transaction.Mosaic.MosaicId,
+                    transaction.Mosaic.Amount));
 
-				// don't raise an AddressInteractionNotification because revocation should be allowed irrespective of restrictions
-			};
-		}
-	}
+                // don't raise an AddressInteractionNotification because revocation should be allowed irrespective of restrictions
+            };
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(MosaicSupplyRevocation, Default, CreatePublisher, Address)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(MosaicSupplyRevocation, Default, CreatePublisher, Address)
+}
+}

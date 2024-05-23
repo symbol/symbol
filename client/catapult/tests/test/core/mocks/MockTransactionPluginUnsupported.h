@@ -23,50 +23,62 @@
 #include "MockTransaction.h"
 #include "catapult/model/TransactionPlugin.h"
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	/// Unsupported mock transaction plugin.
-	class MockTransactionPluginUnsupported : public model::TransactionPlugin {
-	public:
-		model::EntityType type() const override {
-			return mocks::MockTransaction::Entity_Type;
-		}
+    /// Unsupported mock transaction plugin.
+    class MockTransactionPluginUnsupported : public model::TransactionPlugin {
+    public:
+        model::EntityType type() const override
+        {
+            return mocks::MockTransaction::Entity_Type;
+        }
 
-		model::TransactionAttributes attributes() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("attributes - not implemented in mock");
-		}
+        model::TransactionAttributes attributes() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("attributes - not implemented in mock");
+        }
 
-		bool isSizeValid(const model::Transaction&) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("isSizeValid - not implemented in mock");
-		}
+        bool isSizeValid(const model::Transaction&) const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("isSizeValid - not implemented in mock");
+        }
 
-		void publish(const model::WeakEntityInfoT<model::Transaction>&, const model::PublishContext&, model::NotificationSubscriber&)
-				const override {
-			CATAPULT_THROW_RUNTIME_ERROR("publish - not implemented in mock");
-		}
+        void publish(const model::WeakEntityInfoT<model::Transaction>&, const model::PublishContext&, model::NotificationSubscriber&)
+            const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("publish - not implemented in mock");
+        }
 
-		uint32_t embeddedCount(const model::Transaction&) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("embeddedCount - not implemented in mock");
-		}
+        uint32_t embeddedCount(const model::Transaction&) const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("embeddedCount - not implemented in mock");
+        }
 
-		RawBuffer dataBuffer(const model::Transaction&) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("dataBuffer - not implemented in mock");
-		}
+        RawBuffer dataBuffer(const model::Transaction&) const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("dataBuffer - not implemented in mock");
+        }
 
-		std::vector<RawBuffer> merkleSupplementaryBuffers(const model::Transaction&) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("merkleSupplementaryBuffers - not implemented in mock");
-		}
+        std::vector<RawBuffer> merkleSupplementaryBuffers(const model::Transaction&) const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("merkleSupplementaryBuffers - not implemented in mock");
+        }
 
-		bool supportsTopLevel() const override {
-			return true;
-		}
+        bool supportsTopLevel() const override
+        {
+            return true;
+        }
 
-		bool supportsEmbedding() const override {
-			return false;
-		}
+        bool supportsEmbedding() const override
+        {
+            return false;
+        }
 
-		const model::EmbeddedTransactionPlugin& embeddedPlugin() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("embeddedPlugin - not implemented in mock");
-		}
-	};
-}}
+        const model::EmbeddedTransactionPlugin& embeddedPlugin() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("embeddedPlugin - not implemented in mock");
+        }
+    };
+}
+}

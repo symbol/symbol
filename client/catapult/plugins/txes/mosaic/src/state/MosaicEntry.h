@@ -22,54 +22,56 @@
 #pragma once
 #include "MosaicDefinition.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	// region MosaicEntrySupplyMixin
+    // region MosaicEntrySupplyMixin
 
-	/// Mixin for storing and modifying a supply in MosaicEntry.
-	class MosaicEntrySupplyMixin {
-	public:
-		/// Gets the mosaic supply.
-		Amount supply() const;
+    /// Mixin for storing and modifying a supply in MosaicEntry.
+    class MosaicEntrySupplyMixin {
+    public:
+        /// Gets the mosaic supply.
+        Amount supply() const;
 
-	public:
-		/// Increases the supply by \a delta.
-		void increaseSupply(Amount delta);
+    public:
+        /// Increases the supply by \a delta.
+        void increaseSupply(Amount delta);
 
-		/// Decreases the supply by \a delta.
-		void decreaseSupply(Amount delta);
+        /// Decreases the supply by \a delta.
+        void decreaseSupply(Amount delta);
 
-	private:
-		Amount m_supply;
-	};
+    private:
+        Amount m_supply;
+    };
 
-	// endregion
+    // endregion
 
-	// region MosaicEntry
+    // region MosaicEntry
 
-	/// Tuple composed of a mosaic definition and its current state.
-	class PLUGIN_API_DEPENDENCY MosaicEntry : public MosaicEntrySupplyMixin {
-	public:
-		static constexpr auto Is_Deactivation_Destructive = false;
+    /// Tuple composed of a mosaic definition and its current state.
+    class PLUGIN_API_DEPENDENCY MosaicEntry : public MosaicEntrySupplyMixin {
+    public:
+        static constexpr auto Is_Deactivation_Destructive = false;
 
-	public:
-		/// Creates a mosaic entry around mosaic \a id and mosaic \a definition.
-		MosaicEntry(MosaicId id, const MosaicDefinition& definition);
+    public:
+        /// Creates a mosaic entry around mosaic \a id and mosaic \a definition.
+        MosaicEntry(MosaicId id, const MosaicDefinition& definition);
 
-	public:
-		/// Gets the mosaic id.
-		MosaicId mosaicId() const;
+    public:
+        /// Gets the mosaic id.
+        MosaicId mosaicId() const;
 
-		/// Gets the mosaic definition.
-		const MosaicDefinition& definition() const;
+        /// Gets the mosaic definition.
+        const MosaicDefinition& definition() const;
 
-		/// Returns \c true if entry is active at \a height.
-		bool isActive(Height height) const;
+        /// Returns \c true if entry is active at \a height.
+        bool isActive(Height height) const;
 
-	private:
-		MosaicId m_id;
-		MosaicDefinition m_definition;
-	};
+    private:
+        MosaicId m_id;
+        MosaicDefinition m_definition;
+    };
 
-	// endregion
-}}
+    // endregion
+}
+}

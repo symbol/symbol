@@ -20,21 +20,25 @@
 **/
 
 #pragma once
+#include "catapult/functions.h"
 #include "timesync/src/TimeSynchronizationSample.h"
 #include "timesync/src/types.h"
-#include "catapult/functions.h"
 
-namespace catapult { namespace timesync { namespace filters {
+namespace catapult {
+namespace timesync {
+    namespace filters {
 
-	/// Signature of a synchronization filter.
-	using SynchronizationFilter = predicate<const TimeSynchronizationSample&, NodeAge>;
+        /// Signature of a synchronization filter.
+        using SynchronizationFilter = predicate<const TimeSynchronizationSample&, NodeAge>;
 
-	/// Creates a filter that filters out samples where send and receive timestamps don't have proper order.
-	SynchronizationFilter CreateReversedTimestampsFilter();
+        /// Creates a filter that filters out samples where send and receive timestamps don't have proper order.
+        SynchronizationFilter CreateReversedTimestampsFilter();
 
-	/// Creates a filter that filters out samples that indicate an unexpected delay in the response.
-	SynchronizationFilter CreateResponseDelayDetectionFilter();
+        /// Creates a filter that filters out samples that indicate an unexpected delay in the response.
+        SynchronizationFilter CreateResponseDelayDetectionFilter();
 
-	/// Creates a filter that filters out out samples that have a non tolerable high time offset.
-	SynchronizationFilter CreateClampingFilter();
-}}}
+        /// Creates a filter that filters out out samples that have a non tolerable high time offset.
+        SynchronizationFilter CreateClampingFilter();
+    }
+}
+}

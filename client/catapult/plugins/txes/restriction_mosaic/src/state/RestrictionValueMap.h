@@ -22,63 +22,71 @@
 #pragma once
 #include <algorithm>
 #include <set>
-#include <vector>
 #include <stdint.h>
+#include <vector>
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Map of restriction values.
-	template<typename TValue>
-	class RestrictionValueMap {
-	public:
-		/// Gets the number of values in the map.
-		size_t size() const {
-			return m_keyValuePairs.size();
-		}
+    /// Map of restriction values.
+    template <typename TValue>
+    class RestrictionValueMap {
+    public:
+        /// Gets the number of values in the map.
+        size_t size() const
+        {
+            return m_keyValuePairs.size();
+        }
 
-		/// Gets all restriction keys.
-		std::set<uint64_t> keys() const {
-			std::set<uint64_t> keys;
-			for (const auto& pair : m_keyValuePairs)
-				keys.insert(pair.first);
+        /// Gets all restriction keys.
+        std::set<uint64_t> keys() const
+        {
+            std::set<uint64_t> keys;
+            for (const auto& pair : m_keyValuePairs)
+                keys.insert(pair.first);
 
-			return keys;
-		}
+            return keys;
+        }
 
-	private:
-		template<typename TKeyValuePairs>
-		static auto Find(TKeyValuePairs& keyValuePairs, uint64_t key) {
-			return std::find_if(keyValuePairs.begin(), keyValuePairs.end(), [key](const auto& pair) { return key == pair.first; });
-		}
+    private:
+        template <typename TKeyValuePairs>
+        static auto Find(TKeyValuePairs& keyValuePairs, uint64_t key)
+        {
+            return std::find_if(keyValuePairs.begin(), keyValuePairs.end(), [key](const auto& pair) { return key == pair.first; });
+        }
 
-	public:
-		/// Tries to get the \a value associated with \a key.
-		bool tryGet(uint64_t key, TValue& value) const {
-			auto iter = Find(m_keyValuePairs, key);
-			if (m_keyValuePairs.cend() == iter)
-				return false;
+    public:
+        /// Tries to get the \a value associated with \a key.
+        bool tryGet(uint64_t key, TValue& value) const
+        {
+            auto iter = Find(m_keyValuePairs, key);
+            if (m_keyValuePairs.cend() == iter)
+                return false;
 
-			value = iter->second;
-			return true;
-		}
+            value = iter->second;
+            return true;
+        }
 
-		/// Sets the \a value associated with \a key.
-		void set(uint64_t key, const TValue& value) {
-			auto iter = Find(m_keyValuePairs, key);
-			if (m_keyValuePairs.cend() != iter)
-				iter->second = value;
-			else
-				m_keyValuePairs.emplace_back(key, value);
-		}
+        /// Sets the \a value associated with \a key.
+        void set(uint64_t key, const TValue& value)
+        {
+            auto iter = Find(m_keyValuePairs, key);
+            if (m_keyValuePairs.cend() != iter)
+                iter->second = value;
+            else
+                m_keyValuePairs.emplace_back(key, value);
+        }
 
-		/// Removes the value associated with \a key.
-		void remove(uint64_t key) {
-			auto iter = Find(m_keyValuePairs, key);
-			if (m_keyValuePairs.cend() != iter)
-				m_keyValuePairs.erase(iter);
-		}
+        /// Removes the value associated with \a key.
+        void remove(uint64_t key)
+        {
+            auto iter = Find(m_keyValuePairs, key);
+            if (m_keyValuePairs.cend() != iter)
+                m_keyValuePairs.erase(iter);
+        }
 
-	private:
-		std::vector<std::pair<uint64_t, TValue>> m_keyValuePairs;
-	};
-}}
+    private:
+        std::vector<std::pair<uint64_t, TValue>> m_keyValuePairs;
+    };
+}
+}

@@ -26,33 +26,40 @@
 
 using namespace catapult::mongo::mappers;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		void StreamMessage(bson_stream::document& builder, const uint8_t* pMessage, size_t messageSize) {
-			if (0 == messageSize)
-				return;
+        namespace {
+            void StreamMessage(bson_stream::document& builder, const uint8_t* pMessage, size_t messageSize)
+            {
+                if (0 == messageSize)
+                    return;
 
-			builder << "message" << ToBinary(pMessage, messageSize);
-		}
+                builder << "message" << ToBinary(pMessage, messageSize);
+            }
 
-		void StreamMosaics(bson_stream::document& builder, const model::UnresolvedMosaic* pMosaic, size_t numMosaics) {
-			auto mosaicsArray = builder << "mosaics" << bson_stream::open_array;
-			for (auto i = 0u; i < numMosaics; ++i) {
-				StreamMosaic(mosaicsArray, pMosaic->MosaicId, pMosaic->Amount);
-				++pMosaic;
-			}
+            void StreamMosaics(bson_stream::document& builder, const model::UnresolvedMosaic* pMosaic, size_t numMosaics)
+            {
+                auto mosaicsArray = builder << "mosaics" << bson_stream::open_array;
+                for (auto i = 0u; i < numMosaics; ++i) {
+                    StreamMosaic(mosaicsArray, pMosaic->MosaicId, pMosaic->Amount);
+                    ++pMosaic;
+                }
 
-			mosaicsArray << bson_stream::close_array;
-		}
+                mosaicsArray << bson_stream::close_array;
+            }
 
-		template<typename TTransaction>
-		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
-			builder << "recipientAddress" << ToBinary(transaction.RecipientAddress);
-			StreamMessage(builder, transaction.MessagePtr(), transaction.MessageSize);
-			StreamMosaics(builder, transaction.MosaicsPtr(), transaction.MosaicsCount);
-		}
-	}
+            template <typename TTransaction>
+            void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction)
+            {
+                builder << "recipientAddress" << ToBinary(transaction.RecipientAddress);
+                StreamMessage(builder, transaction.MessagePtr(), transaction.MessageSize);
+                StreamMosaics(builder, transaction.MosaicsPtr(), transaction.MosaicsCount);
+            }
+        }
 
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(Transfer, StreamTransaction)
-}}}
+        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(Transfer, StreamTransaction)
+    }
+}
+}

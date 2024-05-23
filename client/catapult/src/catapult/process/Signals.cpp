@@ -23,31 +23,34 @@
 #include "catapult/utils/Logging.h"
 #include <boost/asio.hpp>
 
-namespace catapult { namespace process {
+namespace catapult {
+namespace process {
 
-	namespace {
-		struct SignalInfo {
-			boost::system::error_code Error;
-			int Id;
-		};
-	}
+    namespace {
+        struct SignalInfo {
+            boost::system::error_code Error;
+            int Id;
+        };
+    }
 
-	void WaitForTerminationSignal() {
-		boost::asio::io_context ioContext;
-		boost::asio::signal_set signals(ioContext, SIGINT, SIGTERM);
+    void WaitForTerminationSignal()
+    {
+        boost::asio::io_context ioContext;
+        boost::asio::signal_set signals(ioContext, SIGINT, SIGTERM);
 
-		SignalInfo info;
-		signals.async_wait([&info](const auto& ec, auto signalId) {
-			info.Error = ec;
-			info.Id = signalId;
-		});
+        SignalInfo info;
+        signals.async_wait([&info](const auto& ec, auto signalId) {
+            info.Error = ec;
+            info.Id = signalId;
+        });
 
-		CATAPULT_LOG(info) << "waiting for termination signal";
-		ioContext.run();
+        CATAPULT_LOG(info) << "waiting for termination signal";
+        ioContext.run();
 
-		if (info.Error)
-			CATAPULT_LOG(warning) << "error waiting for termination signal: " << info.Error;
-		else
-			CATAPULT_LOG(info) << "termination signal " << info.Id << " received";
-	}
-}}
+        if (info.Error)
+            CATAPULT_LOG(warning) << "error waiting for termination signal: " << info.Error;
+        else
+            CATAPULT_LOG(info) << "termination signal " << info.Id << " received";
+    }
+}
+}

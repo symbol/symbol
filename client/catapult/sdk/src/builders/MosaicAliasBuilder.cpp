@@ -21,56 +21,67 @@
 
 #include "MosaicAliasBuilder.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	MosaicAliasBuilder::MosaicAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-			: TransactionBuilder(networkIdentifier, signer)
-			, m_namespaceId()
-			, m_mosaicId()
-			, m_aliasAction() {
-	}
+    MosaicAliasBuilder::MosaicAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+        : TransactionBuilder(networkIdentifier, signer)
+        , m_namespaceId()
+        , m_mosaicId()
+        , m_aliasAction()
+    {
+    }
 
-	void MosaicAliasBuilder::setNamespaceId(NamespaceId namespaceId) {
-		m_namespaceId = namespaceId;
-	}
+    void MosaicAliasBuilder::setNamespaceId(NamespaceId namespaceId)
+    {
+        m_namespaceId = namespaceId;
+    }
 
-	void MosaicAliasBuilder::setMosaicId(MosaicId mosaicId) {
-		m_mosaicId = mosaicId;
-	}
+    void MosaicAliasBuilder::setMosaicId(MosaicId mosaicId)
+    {
+        m_mosaicId = mosaicId;
+    }
 
-	void MosaicAliasBuilder::setAliasAction(model::AliasAction aliasAction) {
-		m_aliasAction = aliasAction;
-	}
+    void MosaicAliasBuilder::setAliasAction(model::AliasAction aliasAction)
+    {
+        m_aliasAction = aliasAction;
+    }
 
-	size_t MosaicAliasBuilder::size() const {
-		return sizeImpl<Transaction>();
-	}
+    size_t MosaicAliasBuilder::size() const
+    {
+        return sizeImpl<Transaction>();
+    }
 
-	std::unique_ptr<MosaicAliasBuilder::Transaction> MosaicAliasBuilder::build() const {
-		return buildImpl<Transaction>();
-	}
+    std::unique_ptr<MosaicAliasBuilder::Transaction> MosaicAliasBuilder::build() const
+    {
+        return buildImpl<Transaction>();
+    }
 
-	std::unique_ptr<MosaicAliasBuilder::EmbeddedTransaction> MosaicAliasBuilder::buildEmbedded() const {
-		return buildImpl<EmbeddedTransaction>();
-	}
+    std::unique_ptr<MosaicAliasBuilder::EmbeddedTransaction> MosaicAliasBuilder::buildEmbedded() const
+    {
+        return buildImpl<EmbeddedTransaction>();
+    }
 
-	template<typename TransactionType>
-	size_t MosaicAliasBuilder::sizeImpl() const {
-		// calculate transaction size
-		auto size = sizeof(TransactionType);
-		return size;
-	}
+    template <typename TransactionType>
+    size_t MosaicAliasBuilder::sizeImpl() const
+    {
+        // calculate transaction size
+        auto size = sizeof(TransactionType);
+        return size;
+    }
 
-	template<typename TransactionType>
-	std::unique_ptr<TransactionType> MosaicAliasBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
-		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+    template <typename TransactionType>
+    std::unique_ptr<TransactionType> MosaicAliasBuilder::buildImpl() const
+    {
+        // 1. allocate, zero (header), set model::Transaction fields
+        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-		// 2. set fixed transaction fields
-		pTransaction->NamespaceId = m_namespaceId;
-		pTransaction->MosaicId = m_mosaicId;
-		pTransaction->AliasAction = m_aliasAction;
+        // 2. set fixed transaction fields
+        pTransaction->NamespaceId = m_namespaceId;
+        pTransaction->MosaicId = m_mosaicId;
+        pTransaction->AliasAction = m_aliasAction;
 
-		return pTransaction;
-	}
-}}
+        return pTransaction;
+    }
+}
+}

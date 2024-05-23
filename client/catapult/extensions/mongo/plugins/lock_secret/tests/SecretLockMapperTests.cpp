@@ -19,48 +19,54 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/SecretLockMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
 #include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
+#include "src/SecretLockMapper.h"
 #include "tests/test/SecretLockMapperTestUtils.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS SecretLockMapperTests
 
-	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(SecretLock, )
+        namespace {
+            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(SecretLock, )
 
-		template<typename TTransaction>
-		void AssertSecretLockTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
-			EXPECT_EQ(utils::to_underlying_type(transaction.HashAlgorithm), test::GetUint32(dbTransaction, "hashAlgorithm"));
-			EXPECT_EQ(transaction.Secret, test::GetBinaryArray<Hash256::Size>(dbTransaction, "secret"));
-			EXPECT_EQ(transaction.RecipientAddress, test::GetUnresolvedAddressValue(dbTransaction, "recipientAddress"));
-		}
-	}
+            template <typename TTransaction>
+            void AssertSecretLockTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction)
+            {
+                EXPECT_EQ(utils::to_underlying_type(transaction.HashAlgorithm), test::GetUint32(dbTransaction, "hashAlgorithm"));
+                EXPECT_EQ(transaction.Secret, test::GetBinaryArray<Hash256::Size>(dbTransaction, "secret"));
+                EXPECT_EQ(transaction.RecipientAddress, test::GetUnresolvedAddressValue(dbTransaction, "recipientAddress"));
+            }
+        }
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Secret_Lock)
+        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Secret_Lock)
 
-	// region streamTransaction
+        // region streamTransaction
 
-	PLUGIN_TEST(CanMapSecretLockTransaction) {
-		// Arrange:
-		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
-		auto pPlugin = TTraits::CreatePlugin();
+        PLUGIN_TEST(CanMapSecretLockTransaction)
+        {
+            // Arrange:
+            auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
+            auto pPlugin = TTraits::CreatePlugin();
 
-		// Act:
-		mappers::bson_stream::document builder;
-		pPlugin->streamTransaction(builder, *pTransaction);
-		auto view = builder.view();
+            // Act:
+            mappers::bson_stream::document builder;
+            pPlugin->streamTransaction(builder, *pTransaction);
+            auto view = builder.view();
 
-		// Assert:
-		EXPECT_EQ(6u, test::GetFieldCount(view));
-		test::AssertEqualNonInheritedLockTransactionData(*pTransaction, view);
-		AssertSecretLockTransaction(*pTransaction, view);
-	}
+            // Assert:
+            EXPECT_EQ(6u, test::GetFieldCount(view));
+            test::AssertEqualNonInheritedLockTransactionData(*pTransaction, view);
+            AssertSecretLockTransaction(*pTransaction, view);
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

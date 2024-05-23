@@ -23,67 +23,75 @@
 #include "MongoTestUtils.h"
 #include "mongo/src/MongoStorageContext.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Base class that provides shared utils for mongo cache storage test suites.
-	template<typename TTraits>
-	class MongoCacheStorageTestUtils {
-	private:
-		using CacheType = typename TTraits::CacheType;
-		using ElementType = typename TTraits::ModelType;
+    /// Base class that provides shared utils for mongo cache storage test suites.
+    template <typename TTraits>
+    class MongoCacheStorageTestUtils {
+    private:
+        using CacheType = typename TTraits::CacheType;
+        using ElementType = typename TTraits::ModelType;
 
-	protected:
-		class CacheStorageWrapper : public PrepareDatabaseMixin {
-		public:
-			CacheStorageWrapper()
-					: m_pPool(CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads))
-					, m_pMongoContext(CreateDefaultMongoStorageContext(DatabaseName(), *m_pPool))
-					, m_pCacheStorage(TTraits::CreateCacheStorage(*m_pMongoContext, TTraits::Network_Id)) {
-			}
+    protected:
+        class CacheStorageWrapper : public PrepareDatabaseMixin {
+        public:
+            CacheStorageWrapper()
+                : m_pPool(CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads))
+                , m_pMongoContext(CreateDefaultMongoStorageContext(DatabaseName(), *m_pPool))
+                , m_pCacheStorage(TTraits::CreateCacheStorage(*m_pMongoContext, TTraits::Network_Id))
+            {
+            }
 
-		public:
-			mongo::ExternalCacheStorage& get() {
-				return *m_pCacheStorage;
-			}
+        public:
+            mongo::ExternalCacheStorage& get()
+            {
+                return *m_pCacheStorage;
+            }
 
-		private:
-			std::unique_ptr<thread::IoThreadPool> m_pPool;
-			std::unique_ptr<mongo::MongoStorageContext> m_pMongoContext;
-			std::unique_ptr<mongo::ExternalCacheStorage> m_pCacheStorage;
-		};
+        private:
+            std::unique_ptr<thread::IoThreadPool> m_pPool;
+            std::unique_ptr<mongo::MongoStorageContext> m_pMongoContext;
+            std::unique_ptr<mongo::ExternalCacheStorage> m_pCacheStorage;
+        };
 
-	protected:
-		static const auto& GetDelta(const cache::CatapultCacheDelta& delta) {
-			return delta.template sub<CacheType>();
-		}
+    protected:
+        static const auto& GetDelta(const cache::CatapultCacheDelta& delta)
+        {
+            return delta.template sub<CacheType>();
+        }
 
-		static size_t GetCollectionSize() {
-			auto connection = CreateDbConnection();
-			auto collection = connection[DatabaseName()][TTraits::Collection_Name];
-			return static_cast<size_t>(collection.count_documents({}));
-		}
+        static size_t GetCollectionSize()
+        {
+            auto connection = CreateDbConnection();
+            auto collection = connection[DatabaseName()][TTraits::Collection_Name];
+            return static_cast<size_t>(collection.count_documents({}));
+        }
 
-		static void AssertDbContents(const std::vector<ElementType>& elements, size_t numHiddenElements = 0) {
-			auto connection = CreateDbConnection();
-			auto database = connection[DatabaseName()];
+        static void AssertDbContents(const std::vector<ElementType>& elements, size_t numHiddenElements = 0)
+        {
+            auto connection = CreateDbConnection();
+            auto database = connection[DatabaseName()];
 
-			AssertCollectionSize(TTraits::Collection_Name, elements.size() + numHiddenElements);
-			for (const auto& element : elements)
-				AssertDbContains(database, element);
-		}
+            AssertCollectionSize(TTraits::Collection_Name, elements.size() + numHiddenElements);
+            for (const auto& element : elements)
+                AssertDbContains(database, element);
+        }
 
-	private:
-		static void AssertDbContains(mongocxx::database& database, const ElementType& element) {
-			// Assert: database contains matching element
-			auto filter = TTraits::GetFindFilter(element);
-			auto matchedDocument = database[TTraits::Collection_Name].find_one(filter.view());
-			ASSERT_TRUE(matchedDocument.has_value());
+    private:
+        static void AssertDbContains(mongocxx::database& database, const ElementType& element)
+        {
+            // Assert: database contains matching element
+            auto filter = TTraits::GetFindFilter(element);
+            auto matchedDocument = database[TTraits::Collection_Name].find_one(filter.view());
+            ASSERT_TRUE(matchedDocument.has_value());
 
-			auto view = matchedDocument.value().view();
-			TTraits::AssertEqual(element, view);
+            auto view = matchedDocument.value().view();
+            TTraits::AssertEqual(element, view);
 
-			// - all required properties are set
-			EXPECT_TRUE(!!view[TTraits::Primary_Document_Name].get_document().view()["version"]);
-		}
-	};
-}}
+            // - all required properties are set
+            EXPECT_TRUE(!!view[TTraits::Primary_Document_Name].get_document().view()["version"]);
+        }
+    };
+}
+}

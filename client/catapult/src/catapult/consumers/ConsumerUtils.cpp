@@ -24,24 +24,27 @@
 #include "catapult/disruptor/ConsumerInput.h"
 #include "catapult/ionet/NodeInteractionResult.h"
 
-namespace catapult { namespace consumers {
+namespace catapult {
+namespace consumers {
 
-	ionet::NodeInteractionResult ToNodeInteractionResult(
-			const model::NodeIdentity& sourceIdentity,
-			const disruptor::ConsumerCompletionResult& result) {
-		ionet::NodeInteractionResultCode code;
-		auto validationResult = static_cast<validators::ValidationResult>(result.CompletionCode);
-		switch (validators::GetSeverity(validationResult)) {
-		case validators::ResultSeverity::Success:
-			code = ionet::NodeInteractionResultCode::Success;
-			break;
-		case validators::ResultSeverity::Neutral:
-			code = ionet::NodeInteractionResultCode::Neutral;
-			break;
-		default:
-			code = ionet::NodeInteractionResultCode::Failure;
-		}
+    ionet::NodeInteractionResult ToNodeInteractionResult(
+        const model::NodeIdentity& sourceIdentity,
+        const disruptor::ConsumerCompletionResult& result)
+    {
+        ionet::NodeInteractionResultCode code;
+        auto validationResult = static_cast<validators::ValidationResult>(result.CompletionCode);
+        switch (validators::GetSeverity(validationResult)) {
+        case validators::ResultSeverity::Success:
+            code = ionet::NodeInteractionResultCode::Success;
+            break;
+        case validators::ResultSeverity::Neutral:
+            code = ionet::NodeInteractionResultCode::Neutral;
+            break;
+        default:
+            code = ionet::NodeInteractionResultCode::Failure;
+        }
 
-		return ionet::NodeInteractionResult(sourceIdentity, code);
-	}
-}}
+        return ionet::NodeInteractionResult(sourceIdentity, code);
+    }
+}
+}

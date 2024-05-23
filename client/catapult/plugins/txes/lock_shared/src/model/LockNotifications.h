@@ -23,51 +23,55 @@
 #include "catapult/model/Mosaic.h"
 #include "catapult/model/Notifications.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region BaseLockDurationNotification
+    // region BaseLockDurationNotification
 
-	/// Base for lock duration notification.
-	template<typename TDerivedNotification>
-	struct BaseLockDurationNotification : public Notification {
-	public:
-		/// Creates a notification around \a duration.
-		explicit BaseLockDurationNotification(BlockDuration duration)
-				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
-				, Duration(duration) {
-		}
+    /// Base for lock duration notification.
+    template <typename TDerivedNotification>
+    struct BaseLockDurationNotification : public Notification {
+    public:
+        /// Creates a notification around \a duration.
+        explicit BaseLockDurationNotification(BlockDuration duration)
+            : Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
+            , Duration(duration)
+        {
+        }
 
-	public:
-		/// Lock duration.
-		BlockDuration Duration;
-	};
+    public:
+        /// Lock duration.
+        BlockDuration Duration;
+    };
 
-	// endregion
+    // endregion
 
-	// region BaseLockNotification
+    // region BaseLockNotification
 
-	/// Base for lock transaction notification.
-	template<typename TDerivedNotification>
-	struct BaseLockNotification : public Notification {
-	protected:
-		/// Creates base lock notification around \a owner, \a mosaic and \a duration.
-		BaseLockNotification(const Address& owner, const UnresolvedMosaic& mosaic, BlockDuration duration)
-				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
-				, Owner(owner)
-				, Mosaic(mosaic)
-				, Duration(duration) {
-		}
+    /// Base for lock transaction notification.
+    template <typename TDerivedNotification>
+    struct BaseLockNotification : public Notification {
+    protected:
+        /// Creates base lock notification around \a owner, \a mosaic and \a duration.
+        BaseLockNotification(const Address& owner, const UnresolvedMosaic& mosaic, BlockDuration duration)
+            : Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
+            , Owner(owner)
+            , Mosaic(mosaic)
+            , Duration(duration)
+        {
+        }
 
-	public:
-		/// Lock owner.
-		Address Owner;
+    public:
+        /// Lock owner.
+        Address Owner;
 
-		/// Locked mosaic.
-		UnresolvedMosaic Mosaic;
+        /// Locked mosaic.
+        UnresolvedMosaic Mosaic;
 
-		/// Lock duration.
-		BlockDuration Duration;
-	};
+        /// Lock duration.
+        BlockDuration Duration;
+    };
 
-	// endregion
-}}
+    // endregion
+}
+}

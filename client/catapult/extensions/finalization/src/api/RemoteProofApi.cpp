@@ -24,100 +24,112 @@
 #include "catapult/api/RemoteRequestDispatcher.h"
 #include "catapult/ionet/PacketEntityUtils.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
-	namespace {
-		// region traits
+    namespace {
+        // region traits
 
-		struct FinalizationStatisticsTraits {
-		public:
-			using ResultType = model::FinalizationStatistics;
-			static constexpr auto Packet_Type = ionet::PacketType::Finalization_Statistics;
-			static constexpr auto Friendly_Name = "finalization statistics";
+        struct FinalizationStatisticsTraits {
+        public:
+            using ResultType = model::FinalizationStatistics;
+            static constexpr auto Packet_Type = ionet::PacketType::Finalization_Statistics;
+            static constexpr auto Friendly_Name = "finalization statistics";
 
-			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(Packet_Type);
-			}
+            static auto CreateRequestPacketPayload()
+            {
+                return ionet::PacketPayload(Packet_Type);
+            }
 
-		public:
-			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				const auto* pResponse = ionet::CoercePacket<FinalizationStatisticsResponse>(&packet);
-				if (!pResponse)
-					return false;
+        public:
+            bool tryParseResult(const ionet::Packet& packet, ResultType& result) const
+            {
+                const auto* pResponse = ionet::CoercePacket<FinalizationStatisticsResponse>(&packet);
+                if (!pResponse)
+                    return false;
 
-				result.Round = pResponse->Round;
-				result.Height = pResponse->Height;
-				result.Hash = pResponse->Hash;
-				return true;
-			}
-		};
+                result.Round = pResponse->Round;
+                result.Height = pResponse->Height;
+                result.Hash = pResponse->Hash;
+                return true;
+            }
+        };
 
-		struct BasicProofAtTraits {
-		public:
-			using ResultType = std::shared_ptr<const model::FinalizationProof>;
-			static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Proof;
+        struct BasicProofAtTraits {
+        public:
+            using ResultType = std::shared_ptr<const model::FinalizationProof>;
+            static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Proof;
 
-		public:
-			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractEntityFromPacket<model::FinalizationProof>(packet, model::IsSizeValid);
-				return !!result;
-			}
-		};
+        public:
+            bool tryParseResult(const ionet::Packet& packet, ResultType& result) const
+            {
+                result = ionet::ExtractEntityFromPacket<model::FinalizationProof>(packet, model::IsSizeValid);
+                return !!result;
+            }
+        };
 
-		struct ProofAtEpochTraits : public BasicProofAtTraits {
-		public:
-			static constexpr auto Friendly_Name = "proof at epoch";
+        struct ProofAtEpochTraits : public BasicProofAtTraits {
+        public:
+            static constexpr auto Friendly_Name = "proof at epoch";
 
-			static auto CreateRequestPacketPayload(FinalizationEpoch epoch) {
-				auto pPacket = ionet::CreateSharedPacket<ProofAtEpochRequest>();
-				pPacket->Epoch = epoch;
-				return ionet::PacketPayload(pPacket);
-			}
-		};
+            static auto CreateRequestPacketPayload(FinalizationEpoch epoch)
+            {
+                auto pPacket = ionet::CreateSharedPacket<ProofAtEpochRequest>();
+                pPacket->Epoch = epoch;
+                return ionet::PacketPayload(pPacket);
+            }
+        };
 
-		struct ProofAtHeightTraits : public BasicProofAtTraits {
-		public:
-			static constexpr auto Friendly_Name = "proof at height";
+        struct ProofAtHeightTraits : public BasicProofAtTraits {
+        public:
+            static constexpr auto Friendly_Name = "proof at height";
 
-			static auto CreateRequestPacketPayload(Height height) {
-				auto pPacket = ionet::CreateSharedPacket<ProofAtHeightRequest>();
-				pPacket->Height = height;
-				return ionet::PacketPayload(pPacket);
-			}
-		};
+            static auto CreateRequestPacketPayload(Height height)
+            {
+                auto pPacket = ionet::CreateSharedPacket<ProofAtHeightRequest>();
+                pPacket->Height = height;
+                return ionet::PacketPayload(pPacket);
+            }
+        };
 
-		// endregion
+        // endregion
 
-		class DefaultRemoteProofApi : public RemoteProofApi {
-		private:
-			template<typename TTraits>
-			using FutureType = thread::future<typename TTraits::ResultType>;
+        class DefaultRemoteProofApi : public RemoteProofApi {
+        private:
+            template <typename TTraits>
+            using FutureType = thread::future<typename TTraits::ResultType>;
 
-		public:
-			DefaultRemoteProofApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity)
-					: RemoteProofApi(remoteIdentity)
-					, m_impl(io) {
-			}
+        public:
+            DefaultRemoteProofApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity)
+                : RemoteProofApi(remoteIdentity)
+                , m_impl(io)
+            {
+            }
 
-		public:
-			FutureType<FinalizationStatisticsTraits> finalizationStatistics() const override {
-				return m_impl.dispatch(FinalizationStatisticsTraits());
-			}
+        public:
+            FutureType<FinalizationStatisticsTraits> finalizationStatistics() const override
+            {
+                return m_impl.dispatch(FinalizationStatisticsTraits());
+            }
 
-			FutureType<ProofAtEpochTraits> proofAt(FinalizationEpoch epoch) const override {
-				return m_impl.dispatch(ProofAtEpochTraits(), epoch);
-			}
+            FutureType<ProofAtEpochTraits> proofAt(FinalizationEpoch epoch) const override
+            {
+                return m_impl.dispatch(ProofAtEpochTraits(), epoch);
+            }
 
-			FutureType<ProofAtHeightTraits> proofAt(Height height) const override {
-				return m_impl.dispatch(ProofAtHeightTraits(), height);
-			}
+            FutureType<ProofAtHeightTraits> proofAt(Height height) const override
+            {
+                return m_impl.dispatch(ProofAtHeightTraits(), height);
+            }
 
-		private:
-			mutable RemoteRequestDispatcher m_impl;
-		};
-	}
+        private:
+            mutable RemoteRequestDispatcher m_impl;
+        };
+    }
 
-	std::unique_ptr<RemoteProofApi> CreateRemoteProofApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity) {
-		return std::make_unique<DefaultRemoteProofApi>(io, remoteIdentity);
-	}
-}}
+    std::unique_ptr<RemoteProofApi> CreateRemoteProofApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity)
+    {
+        return std::make_unique<DefaultRemoteProofApi>(io, remoteIdentity);
+    }
+}
+}

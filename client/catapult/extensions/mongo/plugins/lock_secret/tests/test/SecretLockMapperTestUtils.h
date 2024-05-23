@@ -26,12 +26,16 @@
 #include "tests/TestHarness.h"
 #include <mongocxx/client.hpp>
 
-namespace catapult { namespace state {
-	struct SecretLockInfo;
-}}
+namespace catapult {
+namespace state {
+    struct SecretLockInfo;
+}
+}
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Verifies that db lock info (\a dbLockInfo) is equivalent to model secret lock info (\a lockInfo).
-	void AssertEqualLockInfoData(const state::SecretLockInfo& lockInfo, const bsoncxx::document::view& dbLockInfo);
-}}
+    /// Verifies that db lock info (\a dbLockInfo) is equivalent to model secret lock info (\a lockInfo).
+    void AssertEqualLockInfoData(const state::SecretLockInfo& lockInfo, const bsoncxx::document::view& dbLockInfo);
+}
+}

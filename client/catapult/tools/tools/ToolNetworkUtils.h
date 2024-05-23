@@ -26,51 +26,53 @@
 
 namespace catapult {
 namespace ionet {
-	class Node;
-	class PacketIo;
-	class PacketSocketInfo;
+    class Node;
+    class PacketIo;
+    class PacketSocketInfo;
 }
 namespace thread {
-	class IoThreadPool;
+    class IoThreadPool;
 }
 }
 
-namespace catapult { namespace tools {
+namespace catapult {
+namespace tools {
 
-	/// Future that returns a packet io shared pointer.
-	using PacketIoFuture = thread::future<std::shared_ptr<ionet::PacketIo>>;
+    /// Future that returns a packet io shared pointer.
+    using PacketIoFuture = thread::future<std::shared_ptr<ionet::PacketIo>>;
 
-	/// Future that returns a packet socket info.
-	using PacketSocketInfoFuture = thread::future<ionet::PacketSocketInfo>;
+    /// Future that returns a packet socket info.
+    using PacketSocketInfoFuture = thread::future<ionet::PacketSocketInfo>;
 
-	/// Connects to \a node as a client with certificates in \a certificateDirectory using \a pool.
-	PacketIoFuture ConnectToNode(const std::string& certificateDirectory, const ionet::Node& node, thread::IoThreadPool& pool);
+    /// Connects to \a node as a client with certificates in \a certificateDirectory using \a pool.
+    PacketIoFuture ConnectToNode(const std::string& certificateDirectory, const ionet::Node& node, thread::IoThreadPool& pool);
 
-	/// Connects to \a node as a client with \a connectionSettings using \a pool.
-	PacketIoFuture ConnectToNode(const net::ConnectionSettings& connectionSettings, const ionet::Node& node, thread::IoThreadPool& pool);
+    /// Connects to \a node as a client with \a connectionSettings using \a pool.
+    PacketIoFuture ConnectToNode(const net::ConnectionSettings& connectionSettings, const ionet::Node& node, thread::IoThreadPool& pool);
 
-	/// Creates tool connection settings around certificates in \a certificateDirectory.
-	net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory);
+    /// Creates tool connection settings around certificates in \a certificateDirectory.
+    net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory);
 
-	/// Helper class for connecting to multiple nodes.
-	class MultiNodeConnector {
-	public:
-		/// Creates a connector around certificates in \a certificateDirectory.
-		explicit MultiNodeConnector(const std::string& certificateDirectory);
+    /// Helper class for connecting to multiple nodes.
+    class MultiNodeConnector {
+    public:
+        /// Creates a connector around certificates in \a certificateDirectory.
+        explicit MultiNodeConnector(const std::string& certificateDirectory);
 
-		/// Destroys the connector.
-		~MultiNodeConnector();
+        /// Destroys the connector.
+        ~MultiNodeConnector();
 
-	public:
-		/// Gets the underlying pool used by the connector.
-		thread::IoThreadPool& pool();
+    public:
+        /// Gets the underlying pool used by the connector.
+        thread::IoThreadPool& pool();
 
-	public:
-		/// Connects to \a node.
-		PacketSocketInfoFuture connect(const ionet::Node& node);
+    public:
+        /// Connects to \a node.
+        PacketSocketInfoFuture connect(const ionet::Node& node);
 
-	private:
-		std::string m_certificateDirectory;
-		std::unique_ptr<thread::IoThreadPool> m_pPool;
-	};
-}}
+    private:
+        std::string m_certificateDirectory;
+        std::unique_ptr<thread::IoThreadPool> m_pPool;
+    };
+}
+}

@@ -22,50 +22,55 @@
 #include "catapult/io/StringOutputStream.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
 #define TEST_CLASS StringOutputStreamTests
 
-	TEST(TEST_CLASS, WriteStoresDataInUnderlyingBuffer) {
-		// Act:
-		StringOutputStream output(25);
-		auto buffer = test::GenerateRandomArray<25>();
+    TEST(TEST_CLASS, WriteStoresDataInUnderlyingBuffer)
+    {
+        // Act:
+        StringOutputStream output(25);
+        auto buffer = test::GenerateRandomArray<25>();
 
-		// Act:
-		output.write(buffer);
+        // Act:
+        output.write(buffer);
 
-		// Assert:
-		std::string expected;
-		for (auto byte : buffer)
-			expected.push_back(static_cast<char>(byte));
+        // Assert:
+        std::string expected;
+        for (auto byte : buffer)
+            expected.push_back(static_cast<char>(byte));
 
-		EXPECT_EQ(25u, output.str().size());
-		EXPECT_EQ(expected, output.str());
-	}
+        EXPECT_EQ(25u, output.str().size());
+        EXPECT_EQ(expected, output.str());
+    }
 
-	TEST(TEST_CLASS, FlushIsNoOp) {
-		// Arrange:
-		StringOutputStream output(0);
+    TEST(TEST_CLASS, FlushIsNoOp)
+    {
+        // Arrange:
+        StringOutputStream output(0);
 
-		// Act:
-		output.flush();
+        // Act:
+        output.flush();
 
-		// Assert:
-		EXPECT_EQ(0u, output.str().size());
-	}
+        // Assert:
+        EXPECT_EQ(0u, output.str().size());
+    }
 
-	TEST(TEST_CLASS, FlushDoesNotAffectWrite) {
-		// Act:
-		StringOutputStream output(25);
-		output.write(test::GenerateRandomArray<25>());
+    TEST(TEST_CLASS, FlushDoesNotAffectWrite)
+    {
+        // Act:
+        StringOutputStream output(25);
+        output.write(test::GenerateRandomArray<25>());
 
-		// Sanity:
-		EXPECT_EQ(25u, output.str().size());
+        // Sanity:
+        EXPECT_EQ(25u, output.str().size());
 
-		// Act:
-		output.flush();
+        // Act:
+        output.flush();
 
-		// Assert:
-		EXPECT_EQ(25u, output.str().size());
-	}
-}}
+        // Assert:
+        EXPECT_EQ(25u, output.str().size());
+    }
+}
+}

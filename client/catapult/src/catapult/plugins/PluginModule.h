@@ -23,50 +23,54 @@
 #include <memory>
 #include <string>
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	/// Plugin module.
-	class PluginModule {
-	public:
-		/// Imported symbol scope.
-		enum class Scope {
-			/// Symbols are imported locally.
-			Local,
+    /// Plugin module.
+    class PluginModule {
+    public:
+        /// Imported symbol scope.
+        enum class Scope {
+            /// Symbols are imported locally.
+            Local,
 
-			/// Symbols are imported globally.
-			Global
-		};
+            /// Symbols are imported globally.
+            Global
+        };
 
-	public:
-		/// Creates an unloaded module.
-		PluginModule() = default;
+    public:
+        /// Creates an unloaded module.
+        PluginModule() = default;
 
-		/// Creates a loaded module around a plugin named \a name in \a directory.
-		PluginModule(const std::string& directory, const std::string& name);
+        /// Creates a loaded module around a plugin named \a name in \a directory.
+        PluginModule(const std::string& directory, const std::string& name);
 
-		/// Creates a loaded module around a plugin named \a name in \a directory with specified symbol import \a scope.
-		PluginModule(const std::string& directory, const std::string& name, Scope scope);
+        /// Creates a loaded module around a plugin named \a name in \a directory with specified symbol import \a scope.
+        PluginModule(const std::string& directory, const std::string& name, Scope scope);
 
-	public:
-		/// Returns \c true if this module wraps a loaded system module.
-		bool isLoaded() const {
-			return !!m_pModule;
-		}
+    public:
+        /// Returns \c true if this module wraps a loaded system module.
+        bool isLoaded() const
+        {
+            return !!m_pModule;
+        }
 
-		/// Gets a symbol of the specified type named \a symbolName.
-		template<typename TFunc>
-		TFunc symbol(const char* symbolName) const {
-			return reinterpret_cast<TFunc>(symbolVoid(symbolName));
-		}
+        /// Gets a symbol of the specified type named \a symbolName.
+        template <typename TFunc>
+        TFunc symbol(const char* symbolName) const
+        {
+            return reinterpret_cast<TFunc>(symbolVoid(symbolName));
+        }
 
-	private:
-		void* symbolVoid(const char* symbolName) const;
+    private:
+        void* symbolVoid(const char* symbolName) const;
 
-	public:
-		/// Releases the module.
-		void release();
+    public:
+        /// Releases the module.
+        void release();
 
-	private:
-		std::shared_ptr<void> m_pModule; // the system module
-	};
-}}
+    private:
+        std::shared_ptr<void> m_pModule; // the system module
+    };
+}
+}

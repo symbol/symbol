@@ -22,111 +22,125 @@
 #include "finalization/src/api/RemoteFinalizationApi.h"
 #include "finalization/src/model/FinalizationMessage.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "tests/TestHarness.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
-	namespace {
-		uint32_t HashPayloadSize(uint32_t count) {
-			return count * static_cast<uint32_t>(Hash256::Size);
-		}
+    namespace {
+        uint32_t HashPayloadSize(uint32_t count)
+        {
+            return count * static_cast<uint32_t>(Hash256::Size);
+        }
 
-		model::FinalizationRoundRange CreateDeterministicRoundRange() {
-			return { test::CreateFinalizationRound(11, 23), test::CreateFinalizationRound(33, 45) };
-		}
+        model::FinalizationRoundRange CreateDeterministicRoundRange()
+        {
+            return { test::CreateFinalizationRound(11, 23), test::CreateFinalizationRound(33, 45) };
+        }
 
-		std::shared_ptr<ionet::Packet> CreatePacketWithMessages(uint16_t numMessages) {
-			// Arrange: create messages with variable (incrementing) sizes
-			uint32_t variableDataSize = numMessages * (numMessages + 1) / 2;
-			uint32_t payloadSize = numMessages * SizeOf32<model::FinalizationMessage>() + HashPayloadSize(variableDataSize);
-			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
-			test::FillWithRandomData({ pPacket->Data(), payloadSize });
+        std::shared_ptr<ionet::Packet> CreatePacketWithMessages(uint16_t numMessages)
+        {
+            // Arrange: create messages with variable (incrementing) sizes
+            uint32_t variableDataSize = numMessages * (numMessages + 1) / 2;
+            uint32_t payloadSize = numMessages * SizeOf32<model::FinalizationMessage>() + HashPayloadSize(variableDataSize);
+            auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
+            test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
-			auto* pData = pPacket->Data();
-			for (uint16_t i = 0u; i < numMessages; ++i) {
-				auto& message = reinterpret_cast<model::FinalizationMessage&>(*pData);
-				message.Size = SizeOf32<model::FinalizationMessage>() + HashPayloadSize(i + 1);
-				message.HashesCount = i + 1;
+            auto* pData = pPacket->Data();
+            for (uint16_t i = 0u; i < numMessages; ++i) {
+                auto& message = reinterpret_cast<model::FinalizationMessage&>(*pData);
+                message.Size = SizeOf32<model::FinalizationMessage>() + HashPayloadSize(i + 1);
+                message.HashesCount = i + 1;
 
-				pData += message.Size;
-			}
+                pData += message.Size;
+            }
 
-			return pPacket;
-		}
+            return pPacket;
+        }
 
-		struct MessagesTraits {
-			static constexpr auto Request_Data_Header_Size = SizeOf32<model::FinalizationRoundRange>();
-			static constexpr auto Request_Data_Size = 3 * SizeOf32<utils::ShortHash>();
+        struct MessagesTraits {
+            static constexpr auto Request_Data_Header_Size = SizeOf32<model::FinalizationRoundRange>();
+            static constexpr auto Request_Data_Size = 3 * SizeOf32<utils::ShortHash>();
 
-			static std::vector<uint32_t> KnownShortHashValues() {
-				return { 123, 234, 345 };
-			}
+            static std::vector<uint32_t> KnownShortHashValues()
+            {
+                return { 123, 234, 345 };
+            }
 
-			static model::ShortHashRange KnownShortHashes() {
-				return model::ShortHashRange::CopyFixed(reinterpret_cast<uint8_t*>(KnownShortHashValues().data()), 3);
-			}
+            static model::ShortHashRange KnownShortHashes()
+            {
+                return model::ShortHashRange::CopyFixed(reinterpret_cast<uint8_t*>(KnownShortHashValues().data()), 3);
+            }
 
-			static auto Invoke(const RemoteFinalizationApi& api) {
-				return api.messages(CreateDeterministicRoundRange(), KnownShortHashes());
-			}
+            static auto Invoke(const RemoteFinalizationApi& api)
+            {
+                return api.messages(CreateDeterministicRoundRange(), KnownShortHashes());
+            }
 
-			static auto CreateValidResponsePacket() {
-				auto pResponsePacket = CreatePacketWithMessages(3);
-				pResponsePacket->Type = ionet::PacketType::Pull_Finalization_Messages;
-				return pResponsePacket;
-			}
+            static auto CreateValidResponsePacket()
+            {
+                auto pResponsePacket = CreatePacketWithMessages(3);
+                pResponsePacket->Type = ionet::PacketType::Pull_Finalization_Messages;
+                return pResponsePacket;
+            }
 
-			static auto CreateMalformedResponsePacket() {
-				// the packet is malformed because it contains a partial message
-				auto pResponsePacket = CreateValidResponsePacket();
-				--pResponsePacket->Size;
-				return pResponsePacket;
-			}
+            static auto CreateMalformedResponsePacket()
+            {
+                // the packet is malformed because it contains a partial message
+                auto pResponsePacket = CreateValidResponsePacket();
+                --pResponsePacket->Size;
+                return pResponsePacket;
+            }
 
-			static void ValidateRequest(const ionet::Packet& packet) {
-				EXPECT_EQ(ionet::PacketType::Pull_Finalization_Messages, packet.Type);
-				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
-				EXPECT_EQ(CreateDeterministicRoundRange(), reinterpret_cast<const model::FinalizationRoundRange&>(*packet.Data()));
-				EXPECT_EQ_MEMORY(packet.Data() + Request_Data_Header_Size, KnownShortHashValues().data(), Request_Data_Size);
-			}
+            static void ValidateRequest(const ionet::Packet& packet)
+            {
+                EXPECT_EQ(ionet::PacketType::Pull_Finalization_Messages, packet.Type);
+                ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
+                EXPECT_EQ(CreateDeterministicRoundRange(), reinterpret_cast<const model::FinalizationRoundRange&>(*packet.Data()));
+                EXPECT_EQ_MEMORY(packet.Data() + Request_Data_Header_Size, KnownShortHashValues().data(), Request_Data_Size);
+            }
 
-			static void ValidateResponse(const ionet::Packet& response, const model::FinalizationMessageRange& messages) {
-				ASSERT_EQ(3u, messages.size());
+            static void ValidateResponse(const ionet::Packet& response, const model::FinalizationMessageRange& messages)
+            {
+                ASSERT_EQ(3u, messages.size());
 
-				const auto* pExpectedData = response.Data();
-				auto parsedIter = messages.cbegin();
-				for (auto i = 0u; i < messages.size(); ++i, ++parsedIter) {
-					std::string description = "comparing message at " + std::to_string(i);
-					const auto& actualMessage = *parsedIter;
+                const auto* pExpectedData = response.Data();
+                auto parsedIter = messages.cbegin();
+                for (auto i = 0u; i < messages.size(); ++i, ++parsedIter) {
+                    std::string description = "comparing message at " + std::to_string(i);
+                    const auto& actualMessage = *parsedIter;
 
-					// `response` is the (unprocessed) response Packet, which contains unaligned data
-					// `messages` is the (processed) result, which is aligned
-					std::vector<uint8_t> expectedMessageBuffer(actualMessage.Size);
-					std::memcpy(&expectedMessageBuffer[0], pExpectedData, actualMessage.Size);
-					const auto& expectedMessage = reinterpret_cast<const model::FinalizationMessage&>(expectedMessageBuffer[0]);
+                    // `response` is the (unprocessed) response Packet, which contains unaligned data
+                    // `messages` is the (processed) result, which is aligned
+                    std::vector<uint8_t> expectedMessageBuffer(actualMessage.Size);
+                    std::memcpy(&expectedMessageBuffer[0], pExpectedData, actualMessage.Size);
+                    const auto& expectedMessage = reinterpret_cast<const model::FinalizationMessage&>(expectedMessageBuffer[0]);
 
-					ASSERT_EQ(expectedMessage.Size, actualMessage.Size) << description;
-					EXPECT_EQ(i + 1, actualMessage.HashesCount) << description;
-					EXPECT_EQ_MEMORY(&expectedMessage, &actualMessage, expectedMessage.Size) << description;
+                    ASSERT_EQ(expectedMessage.Size, actualMessage.Size) << description;
+                    EXPECT_EQ(i + 1, actualMessage.HashesCount) << description;
+                    EXPECT_EQ_MEMORY(&expectedMessage, &actualMessage, expectedMessage.Size) << description;
 
-					pExpectedData += expectedMessage.Size;
-				}
-			}
-		};
+                    pExpectedData += expectedMessage.Size;
+                }
+            }
+        };
 
-		struct RemoteFinalizationApiTraits {
-			static auto Create(ionet::PacketIo& packetIo, const model::NodeIdentity& remoteIdentity) {
-				return CreateRemoteFinalizationApi(packetIo, remoteIdentity);
-			}
+        struct RemoteFinalizationApiTraits {
+            static auto Create(ionet::PacketIo& packetIo, const model::NodeIdentity& remoteIdentity)
+            {
+                return CreateRemoteFinalizationApi(packetIo, remoteIdentity);
+            }
 
-			static auto Create(ionet::PacketIo& packetIo) {
-				return Create(packetIo, model::NodeIdentity());
-			}
-		};
-	}
+            static auto Create(ionet::PacketIo& packetIo)
+            {
+                return Create(packetIo, model::NodeIdentity());
+            }
+        };
+    }
 
-	DEFINE_REMOTE_API_TESTS(RemoteFinalizationApi)
-	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemoteFinalizationApi, Messages)
-}}
+    DEFINE_REMOTE_API_TESTS(RemoteFinalizationApi)
+    DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemoteFinalizationApi, Messages)
+}
+}

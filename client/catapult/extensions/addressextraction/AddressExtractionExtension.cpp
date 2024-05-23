@@ -19,31 +19,37 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/ProcessBootstrapper.h"
+#include "catapult/extensions/RootedService.h"
 #include "src/AddressExtractionBlockChangeSubscriber.h"
 #include "src/AddressExtractionPtChangeSubscriber.h"
 #include "src/AddressExtractionUtChangeSubscriber.h"
 #include "src/AddressExtractor.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/extensions/RootedService.h"
 
-namespace catapult { namespace addressextraction { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		auto pAddressExtractor = std::make_shared<AddressExtractor>(bootstrapper.pluginManager().createNotificationPublisher());
+namespace catapult {
+namespace addressextraction {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            auto pAddressExtractor = std::make_shared<AddressExtractor>(bootstrapper.pluginManager().createNotificationPublisher());
 
-		// add a dummy service for extending service lifetimes
-		bootstrapper.extensionManager().addServiceRegistrar(extensions::CreateRootedServiceRegistrar(
-				pAddressExtractor,
-				"addressextraction.extractor",
-				extensions::ServiceRegistrarPhase::Initial));
+            // add a dummy service for extending service lifetimes
+            bootstrapper.extensionManager().addServiceRegistrar(extensions::CreateRootedServiceRegistrar(
+                pAddressExtractor,
+                "addressextraction.extractor",
+                extensions::ServiceRegistrarPhase::Initial));
 
-		// register subscriber
-		auto& subscriptionManager = bootstrapper.subscriptionManager();
-		subscriptionManager.addBlockChangeSubscriber(CreateAddressExtractionBlockChangeSubscriber(*pAddressExtractor));
-		subscriptionManager.addUtChangeSubscriber(CreateAddressExtractionUtChangeSubscriber(*pAddressExtractor));
-		subscriptionManager.addPtChangeSubscriber(CreateAddressExtractionPtChangeSubscriber(*pAddressExtractor));
-	}
-}}}
+            // register subscriber
+            auto& subscriptionManager = bootstrapper.subscriptionManager();
+            subscriptionManager.addBlockChangeSubscriber(CreateAddressExtractionBlockChangeSubscriber(*pAddressExtractor));
+            subscriptionManager.addUtChangeSubscriber(CreateAddressExtractionUtChangeSubscriber(*pAddressExtractor));
+            subscriptionManager.addPtChangeSubscriber(CreateAddressExtractionPtChangeSubscriber(*pAddressExtractor));
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::addressextraction::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::addressextraction::RegisterExtension(bootstrapper);
 }

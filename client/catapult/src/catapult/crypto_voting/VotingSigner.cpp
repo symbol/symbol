@@ -22,27 +22,33 @@
 #include "VotingSigner.h"
 #include "catapult/crypto/Signer.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	void Sign(const VotingKeyPair& keyPair, const RawBuffer& dataBuffer, VotingSignature& computedSignature) {
-		Sign(keyPair, { dataBuffer }, computedSignature);
-	}
+    void Sign(const VotingKeyPair& keyPair, const RawBuffer& dataBuffer, VotingSignature& computedSignature)
+    {
+        Sign(keyPair, { dataBuffer }, computedSignature);
+    }
 
-	void Sign(const VotingKeyPair& keyPair, std::initializer_list<const RawBuffer> buffersList, VotingSignature& computedSignature) {
-		Signature ed25519Signature;
-		auto ed25519KeyPair = KeyPair::FromPrivate(PrivateKey::FromBuffer(keyPair.privateKey()));
-		Sign(ed25519KeyPair, buffersList, ed25519Signature);
+    void Sign(const VotingKeyPair& keyPair, std::initializer_list<const RawBuffer> buffersList, VotingSignature& computedSignature)
+    {
+        Signature ed25519Signature;
+        auto ed25519KeyPair = KeyPair::FromPrivate(PrivateKey::FromBuffer(keyPair.privateKey()));
+        Sign(ed25519KeyPair, buffersList, ed25519Signature);
 
-		computedSignature = ed25519Signature.copyTo<VotingSignature>();
-	}
+        computedSignature = ed25519Signature.copyTo<VotingSignature>();
+    }
 
-	bool Verify(const VotingKey& publicKey, const RawBuffer& dataBuffer, const VotingSignature& signature) {
-		return Verify(publicKey, std::vector<RawBuffer>{ dataBuffer }, signature);
-	}
+    bool Verify(const VotingKey& publicKey, const RawBuffer& dataBuffer, const VotingSignature& signature)
+    {
+        return Verify(publicKey, std::vector<RawBuffer> { dataBuffer }, signature);
+    }
 
-	bool Verify(const VotingKey& publicKey, const std::vector<RawBuffer>& buffersList, const VotingSignature& signature) {
-		auto ed25519PublicKey = publicKey.copyTo<Key>();
-		auto ed25519Signature = signature.copyTo<Signature>();
-		return Verify(ed25519PublicKey, buffersList, ed25519Signature);
-	}
-}}
+    bool Verify(const VotingKey& publicKey, const std::vector<RawBuffer>& buffersList, const VotingSignature& signature)
+    {
+        auto ed25519PublicKey = publicKey.copyTo<Key>();
+        auto ed25519Signature = signature.copyTo<Signature>();
+        return Verify(ed25519PublicKey, buffersList, ed25519Signature);
+    }
+}
+}

@@ -21,20 +21,22 @@
 
 #pragma once
 #include "FinalizationHandlerTypes.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
 #include "catapult/ionet/PacketHandlers.h"
+#include "finalization/src/model/FinalizationRoundRange.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	/// Prototype for a function that retrieves messages given a set of short hashes and filter.
-	using MessagesRetriever = std::function<std::vector<std::shared_ptr<const model::FinalizationMessage>>(
-			const model::FinalizationRoundRange&,
-			const utils::ShortHashesSet&)>;
+    /// Prototype for a function that retrieves messages given a set of short hashes and filter.
+    using MessagesRetriever = std::function<std::vector<std::shared_ptr<const model::FinalizationMessage>>(
+        const model::FinalizationRoundRange&,
+        const utils::ShortHashesSet&)>;
 
-	/// Registers a push messages handler in \a handlers that forwards messages to \a messageRangeHandler.
-	void RegisterPushMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessageRangeHandler& messageRangeHandler);
+    /// Registers a push messages handler in \a handlers that forwards messages to \a messageRangeHandler.
+    void RegisterPushMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessageRangeHandler& messageRangeHandler);
 
-	/// Registers a pull transactions handler in \a handlers that responds with messages
-	/// returned by the retriever (\a messagesRetriever).
-	void RegisterPullMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetriever& messagesRetriever);
-}}
+    /// Registers a pull transactions handler in \a handlers that responds with messages
+    /// returned by the retriever (\a messagesRetriever).
+    void RegisterPullMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetriever& messagesRetriever);
+}
+}

@@ -20,64 +20,70 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "tests/TestHarness.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS MultisigMaxCosignedAccountsValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MultisigMaxCosignedAccounts, 0)
+    DEFINE_COMMON_VALIDATOR_TESTS(MultisigMaxCosignedAccounts, 0)
 
-	namespace {
-		void AssertValidationResult(
-				ValidationResult expectedResult,
-				uint8_t initialCosignedAccounts,
-				uint8_t maxCosignedAccountsPerAccount) {
-			// Arrange:
-			auto multisig = test::GenerateRandomByteArray<Address>();
-			auto cosignatory = test::GenerateRandomByteArray<Address>();
+    namespace {
+        void AssertValidationResult(
+            ValidationResult expectedResult,
+            uint8_t initialCosignedAccounts,
+            uint8_t maxCosignedAccountsPerAccount)
+        {
+            // Arrange:
+            auto multisig = test::GenerateRandomByteArray<Address>();
+            auto cosignatory = test::GenerateRandomByteArray<Address>();
 
-			// - setup cache
-			auto cache = test::MultisigCacheFactory::Create();
-			if (initialCosignedAccounts > 0) {
-				auto cacheDelta = cache.createDelta();
-				auto cosignatoryEntry = state::MultisigEntry(cosignatory);
+            // - setup cache
+            auto cache = test::MultisigCacheFactory::Create();
+            if (initialCosignedAccounts > 0) {
+                auto cacheDelta = cache.createDelta();
+                auto cosignatoryEntry = state::MultisigEntry(cosignatory);
 
-				// - add multisig accounts
-				for (auto i = 0; i < initialCosignedAccounts; ++i)
-					cosignatoryEntry.multisigAddresses().insert(test::GenerateRandomByteArray<Address>());
+                // - add multisig accounts
+                for (auto i = 0; i < initialCosignedAccounts; ++i)
+                    cosignatoryEntry.multisigAddresses().insert(test::GenerateRandomByteArray<Address>());
 
-				cacheDelta.sub<cache::MultisigCache>().insert(cosignatoryEntry);
-				cache.commit(Height());
-			}
+                cacheDelta.sub<cache::MultisigCache>().insert(cosignatoryEntry);
+                cache.commit(Height());
+            }
 
-			model::MultisigNewCosignatoryNotification notification(multisig, test::UnresolveXor(cosignatory));
-			auto pValidator = CreateMultisigMaxCosignedAccountsValidator(maxCosignedAccountsPerAccount);
+            model::MultisigNewCosignatoryNotification notification(multisig, test::UnresolveXor(cosignatory));
+            auto pValidator = CreateMultisigMaxCosignedAccountsValidator(maxCosignedAccountsPerAccount);
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, cache);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "initial " << static_cast<uint32_t>(initialCosignedAccounts) << ", max "
-											  << static_cast<uint32_t>(maxCosignedAccountsPerAccount);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result) << "initial " << static_cast<uint32_t>(initialCosignedAccounts) << ", max "
+                                              << static_cast<uint32_t>(maxCosignedAccountsPerAccount);
+        }
+    }
 
-	TEST(TEST_CLASS, CanCosignFirstAccountWhenNoAccountsAreCosigned) {
-		// Assert: notice that the multisig cache will not have an entry when no accounts are cosigned
-		AssertValidationResult(ValidationResult::Success, 0, 10);
-	}
+    TEST(TEST_CLASS, CanCosignFirstAccountWhenNoAccountsAreCosigned)
+    {
+        // Assert: notice that the multisig cache will not have an entry when no accounts are cosigned
+        AssertValidationResult(ValidationResult::Success, 0, 10);
+    }
 
-	TEST(TEST_CLASS, CanCosignAdditionalAccountsWhenLessThanMaxAreCurrentlyCosigned) {
-		AssertValidationResult(ValidationResult::Success, 1, 10);
-		AssertValidationResult(ValidationResult::Success, 9, 10);
-	}
+    TEST(TEST_CLASS, CanCosignAdditionalAccountsWhenLessThanMaxAreCurrentlyCosigned)
+    {
+        AssertValidationResult(ValidationResult::Success, 1, 10);
+        AssertValidationResult(ValidationResult::Success, 9, 10);
+    }
 
-	TEST(TEST_CLASS, CannotCosignAdditionalAccountsWhenAtLeastMaxAreCurrentlyCosigned) {
-		AssertValidationResult(Failure_Multisig_Max_Cosigned_Accounts, 10, 10);
-		AssertValidationResult(Failure_Multisig_Max_Cosigned_Accounts, 11, 10);
-		AssertValidationResult(Failure_Multisig_Max_Cosigned_Accounts, 223, 10);
-	}
-}}
+    TEST(TEST_CLASS, CannotCosignAdditionalAccountsWhenAtLeastMaxAreCurrentlyCosigned)
+    {
+        AssertValidationResult(Failure_Multisig_Max_Cosigned_Accounts, 10, 10);
+        AssertValidationResult(Failure_Multisig_Max_Cosigned_Accounts, 11, 10);
+        AssertValidationResult(Failure_Multisig_Max_Cosigned_Accounts, 223, 10);
+    }
+}
+}

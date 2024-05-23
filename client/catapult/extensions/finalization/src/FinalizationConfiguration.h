@@ -26,69 +26,73 @@
 #include "catapult/utils/TimeSpan.h"
 #include <filesystem>
 
-namespace catapult { namespace utils {
-	class ConfigurationBag;
-}}
+namespace catapult {
+namespace utils {
+    class ConfigurationBag;
+}
+}
 
-namespace catapult { namespace finalization {
+namespace catapult {
+namespace finalization {
 
-	/// Finalization configuration settings.
-	struct FinalizationConfiguration {
-	public:
-		/// \c true if this node should participate in voting.
-		bool EnableVoting;
+    /// Finalization configuration settings.
+    struct FinalizationConfiguration {
+    public:
+        /// \c true if this node should participate in voting.
+        bool EnableVoting;
 
-		/// \c true if this node should resend votes on boot.
-		/// \note When \c true, a network is able to recover from a catastrophic outage that takes all nodes offline.
-		bool EnableRevoteOnBoot;
+        /// \c true if this node should resend votes on boot.
+        /// \note When \c true, a network is able to recover from a catastrophic outage that takes all nodes offline.
+        bool EnableRevoteOnBoot;
 
-		/// Finalization size.
-		uint64_t Size;
+        /// Finalization size.
+        uint64_t Size;
 
-		/// Finalization threshold.
-		uint64_t Threshold;
+        /// Finalization threshold.
+        uint64_t Threshold;
 
-		/// Duration of a finalization step.
-		utils::TimeSpan StepDuration;
+        /// Duration of a finalization step.
+        utils::TimeSpan StepDuration;
 
-		/// Duration of a finalization message in the short lived cache.
-		utils::TimeSpan ShortLivedCacheMessageDuration;
+        /// Duration of a finalization message in the short lived cache.
+        utils::TimeSpan ShortLivedCacheMessageDuration;
 
-		/// Maximum size of a finalization message synchronization response.
-		utils::FileSize MessageSynchronizationMaxResponseSize;
+        /// Maximum size of a finalization message synchronization response.
+        utils::FileSize MessageSynchronizationMaxResponseSize;
 
-		/// Maximum number of hashes to finalize per finalization point.
-		uint32_t MaxHashesPerPoint;
+        /// Maximum number of hashes to finalize per finalization point.
+        uint32_t MaxHashesPerPoint;
 
-		/// Height multiple of the last block in a prevote hash chain.
-		uint16_t PrevoteBlocksMultiple;
+        /// Height multiple of the last block in a prevote hash chain.
+        uint16_t PrevoteBlocksMultiple;
 
-		/// Target duration of unfinalized blocks.
-		/// \note This should be zero when `EnableVoting` is \c true.
-		utils::BlockSpan UnfinalizedBlocksDuration;
+        /// Target duration of unfinalized blocks.
+        /// \note This should be zero when `EnableVoting` is \c true.
+        utils::BlockSpan UnfinalizedBlocksDuration;
 
-		/// Epoch during which the treasury funds are burnt and reminted.
-		FinalizationEpoch TreasuryReissuanceEpoch;
+        /// Epoch during which the treasury funds are burnt and reminted.
+        FinalizationEpoch TreasuryReissuanceEpoch;
 
-		/// Addresses of accounts that are ineligible to vote during the treasury reissuance epoch.
-		model::AddressSet TreasuryReissuanceEpochIneligibleVoterAddresses;
+        /// Addresses of accounts that are ineligible to vote during the treasury reissuance epoch.
+        model::AddressSet TreasuryReissuanceEpochIneligibleVoterAddresses;
 
-		/// Number of blocks that should be treated as a group for voting set purposes.
-		/// \note This is copied from BlockchainConfiguration for easy access.
-		uint64_t VotingSetGrouping;
+        /// Number of blocks that should be treated as a group for voting set purposes.
+        /// \note This is copied from BlockchainConfiguration for easy access.
+        uint64_t VotingSetGrouping;
 
-	private:
-		FinalizationConfiguration() = default;
+    private:
+        FinalizationConfiguration() = default;
 
-	public:
-		/// Creates an uninitialized finalization configuration.
-		static FinalizationConfiguration Uninitialized();
+    public:
+        /// Creates an uninitialized finalization configuration.
+        static FinalizationConfiguration Uninitialized();
 
-	public:
-		/// Loads a finalization configuration from \a bag.
-		static FinalizationConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+    public:
+        /// Loads a finalization configuration from \a bag.
+        static FinalizationConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
-		/// Loads a finalization configuration from \a resourcesPath.
-		static FinalizationConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
-	};
-}}
+        /// Loads a finalization configuration from \a resourcesPath.
+        static FinalizationConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
+    };
+}
+}

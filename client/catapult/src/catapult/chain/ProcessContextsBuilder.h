@@ -25,58 +25,60 @@
 
 namespace catapult {
 namespace cache {
-	class CatapultCacheDelta;
-	class CatapultCacheView;
+    class CatapultCacheDelta;
+    class CatapultCacheView;
 }
 namespace model {
-	struct BlockchainConfiguration;
-	class BlockStatementBuilder;
+    struct BlockchainConfiguration;
+    class BlockStatementBuilder;
 }
 namespace observers {
-	struct ObserverState;
+    struct ObserverState;
 }
 }
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Builder for creating process (observer and validator) contexts.
-	class ProcessContextsBuilder {
-	public:
-		/// Creates a builder around \a height, \a blockTime and \a executionContextConfig.
-		ProcessContextsBuilder(Height height, Timestamp blockTime, const ExecutionContextConfiguration& executionContextConfig);
+    /// Builder for creating process (observer and validator) contexts.
+    class ProcessContextsBuilder {
+    public:
+        /// Creates a builder around \a height, \a blockTime and \a executionContextConfig.
+        ProcessContextsBuilder(Height height, Timestamp blockTime, const ExecutionContextConfiguration& executionContextConfig);
 
-	public:
-		/// Sets a catapult cache \a view.
-		void setCache(const cache::CatapultCacheView& view);
+    public:
+        /// Sets a catapult cache \a view.
+        void setCache(const cache::CatapultCacheView& view);
 
-		/// Sets a catapult cache \a delta.
-		void setCache(cache::CatapultCacheDelta& delta);
+        /// Sets a catapult cache \a delta.
+        void setCache(cache::CatapultCacheDelta& delta);
 
-		/// Sets a block statement builder (\a blockStatementBuilder) to use.
-		void setBlockStatementBuilder(model::BlockStatementBuilder& blockStatementBuilder);
+        /// Sets a block statement builder (\a blockStatementBuilder) to use.
+        void setBlockStatementBuilder(model::BlockStatementBuilder& blockStatementBuilder);
 
-		/// Sets a catapult observer \a state.
-		void setObserverState(const observers::ObserverState& state);
+        /// Sets a catapult observer \a state.
+        void setObserverState(const observers::ObserverState& state);
 
-	public:
-		/// Builds an observer context.
-		observers::ObserverContext buildObserverContext();
+    public:
+        /// Builds an observer context.
+        observers::ObserverContext buildObserverContext();
 
-		/// Builds a validator context.
-		validators::ValidatorContext buildValidatorContext();
+        /// Builds a validator context.
+        validators::ValidatorContext buildValidatorContext();
 
-	private:
-		model::NotificationContext buildNotificationContext();
+    private:
+        model::NotificationContext buildNotificationContext();
 
-	private:
-		Height m_height;
-		Timestamp m_blockTime;
-		ExecutionContextConfiguration m_executionContextConfig;
+    private:
+        Height m_height;
+        Timestamp m_blockTime;
+        ExecutionContextConfiguration m_executionContextConfig;
 
-		const cache::CatapultCacheView* m_pCacheView;
-		cache::CatapultCacheDelta* m_pCacheDelta;
-		std::unique_ptr<cache::ReadOnlyCatapultCache> m_pReadOnlyCache;
+        const cache::CatapultCacheView* m_pCacheView;
+        cache::CatapultCacheDelta* m_pCacheDelta;
+        std::unique_ptr<cache::ReadOnlyCatapultCache> m_pReadOnlyCache;
 
-		model::BlockStatementBuilder* m_pBlockStatementBuilder;
-	};
-}}
+        model::BlockStatementBuilder* m_pBlockStatementBuilder;
+    };
+}
+}

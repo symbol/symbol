@@ -22,34 +22,37 @@
 #pragma once
 #include "catapult/state/AccountBalances.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Possible nemesis funding types.
-	enum class NemesisFundingType {
-		/// Unknown (e.g. funding type has not yet been determined).
-		Unknown,
+    /// Possible nemesis funding types.
+    enum class NemesisFundingType {
+        /// Unknown (e.g. funding type has not yet been determined).
+        Unknown,
 
-		/// Explicitly funded (e.g. mosaic supply transaction).
-		Explicit,
+        /// Explicitly funded (e.g. mosaic supply transaction).
+        Explicit,
 
-		/// Implicitly funded (e.g. balance transfers).
-		Implicit
-	};
+        /// Implicitly funded (e.g. balance transfers).
+        Implicit
+    };
 
-	/// State used by the nemesis funding observer.
-	struct NemesisFundingState {
-	public:
-		/// Creates a default nemesis funding state.
-		NemesisFundingState()
-				: FundingType(NemesisFundingType::Unknown) {
-		}
+    /// State used by the nemesis funding observer.
+    struct NemesisFundingState {
+    public:
+        /// Creates a default nemesis funding state.
+        NemesisFundingState()
+            : FundingType(NemesisFundingType::Unknown)
+        {
+        }
 
-	public:
-		/// Total sums of mosaics credited in nemesis block.
-		/// \note Only sum of harvesting mosaic is used. Rest are accumulated for diagnostics.
-		state::AccountBalances TotalFundedMosaics;
+    public:
+        /// Total sums of mosaics credited in nemesis block.
+        /// \note Only sum of harvesting mosaic is used. Rest are accumulated for diagnostics.
+        state::AccountBalances TotalFundedMosaics;
 
-		/// Nemesis block funding type.
-		NemesisFundingType FundingType;
-	};
-}}
+        /// Nemesis block funding type.
+        NemesisFundingType FundingType;
+    };
+}
+}

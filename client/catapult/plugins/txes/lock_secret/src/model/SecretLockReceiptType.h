@@ -28,14 +28,14 @@ namespace model {
 
 #endif
 
-	/// Secret lock creation.
-	DEFINE_RECEIPT_TYPE(BalanceDebit, LockSecret, LockSecret_Created, 1);
+    /// Secret lock creation.
+    DEFINE_RECEIPT_TYPE(BalanceDebit, LockSecret, LockSecret_Created, 1);
 
-	/// Secret lock completion.
-	DEFINE_RECEIPT_TYPE(BalanceCredit, LockSecret, LockSecret_Completed, 2);
+    /// Secret lock completion.
+    DEFINE_RECEIPT_TYPE(BalanceCredit, LockSecret, LockSecret_Completed, 2);
 
-	/// Secret lock expiration.
-	DEFINE_RECEIPT_TYPE(BalanceCredit, LockSecret, LockSecret_Expired, 3);
+    /// Secret lock expiration.
+    DEFINE_RECEIPT_TYPE(BalanceCredit, LockSecret, LockSecret_Expired, 3);
 
 #ifndef CUSTOM_RECEIPT_TYPE_DEFINITION
 }

@@ -24,59 +24,64 @@
 #include "catapult/model/Mosaic.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a transfer transaction body.
-	template<typename THeader>
-	struct TransferTransactionBody : public THeader {
-	private:
-		using TransactionType = TransferTransactionBody<THeader>;
+    /// Binary layout for a transfer transaction body.
+    template <typename THeader>
+    struct TransferTransactionBody : public THeader {
+    private:
+        using TransactionType = TransferTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Transfer, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Transfer, 1)
 
-	public:
-		/// Recipient address.
-		UnresolvedAddress RecipientAddress;
+    public:
+        /// Recipient address.
+        UnresolvedAddress RecipientAddress;
 
-		/// Message size in bytes.
-		uint16_t MessageSize;
+        /// Message size in bytes.
+        uint16_t MessageSize;
 
-		/// Number of mosaics.
-		uint8_t MosaicsCount;
+        /// Number of mosaics.
+        uint8_t MosaicsCount;
 
-		/// Reserved padding to align Mosaics on 8-byte boundary.
-		uint32_t TransferTransactionBody_Reserved1;
-		uint8_t TransferTransactionBody_Reserved2;
+        /// Reserved padding to align Mosaics on 8-byte boundary.
+        uint32_t TransferTransactionBody_Reserved1;
+        uint8_t TransferTransactionBody_Reserved2;
 
-		// followed by mosaics data if MosaicsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Mosaics, UnresolvedMosaic)
+        // followed by mosaics data if MosaicsCount != 0
+        DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Mosaics, UnresolvedMosaic)
 
-		// followed by message data if MessageSize != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Message, uint8_t)
+        // followed by message data if MessageSize != 0
+        DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Message, uint8_t)
 
-	private:
-		template<typename T>
-		static auto* MosaicsPtrT(T& transaction) {
-			return transaction.MosaicsCount ? THeader::PayloadStart(transaction) : nullptr;
-		}
+    private:
+        template <typename T>
+        static auto* MosaicsPtrT(T& transaction)
+        {
+            return transaction.MosaicsCount ? THeader::PayloadStart(transaction) : nullptr;
+        }
 
-		template<typename T>
-		static auto* MessagePtrT(T& transaction) {
-			auto* pPayloadStart = THeader::PayloadStart(transaction);
-			return transaction.MessageSize && pPayloadStart ? pPayloadStart + transaction.MosaicsCount * sizeof(UnresolvedMosaic) : nullptr;
-		}
+        template <typename T>
+        static auto* MessagePtrT(T& transaction)
+        {
+            auto* pPayloadStart = THeader::PayloadStart(transaction);
+            return transaction.MessageSize && pPayloadStart ? pPayloadStart + transaction.MosaicsCount * sizeof(UnresolvedMosaic) : nullptr;
+        }
 
-	public:
-		/// Calculates the real size of transfer \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
-			return sizeof(TransactionType) + transaction.MessageSize + transaction.MosaicsCount * sizeof(UnresolvedMosaic);
-		}
-	};
+    public:
+        /// Calculates the real size of transfer \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept
+        {
+            return sizeof(TransactionType) + transaction.MessageSize + transaction.MosaicsCount * sizeof(UnresolvedMosaic);
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(Transfer)
+    DEFINE_EMBEDDABLE_TRANSACTION(Transfer)
 
 #pragma pack(pop)
-}}
+}
+}

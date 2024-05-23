@@ -19,20 +19,22 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/SecretLockInfoCacheStorage.h"
 #include "plugins/txes/lock_shared/tests/cache/LockInfoCacheStorageTests.h"
-#include "tests/test/SecretLockInfoCacheTestUtils.h"
+#include "src/cache/SecretLockInfoCacheStorage.h"
 #include "tests/TestHarness.h"
+#include "tests/test/SecretLockInfoCacheTestUtils.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS SecretLockInfoCacheStorageTests
 
-	namespace {
-		struct SecretLockInfoStorageTraits : public test::BasicSecretLockInfoTestTraits {
-			using StorageType = test::SecretLockInfoCacheFactory::LockInfoCacheStorage;
-		};
-	}
+    namespace {
+        struct SecretLockInfoStorageTraits : public test::BasicSecretLockInfoTestTraits {
+            using StorageType = test::SecretLockInfoCacheFactory::LockInfoCacheStorage;
+        };
+    }
 
-	DEFINE_LOCK_INFO_CACHE_STORAGE_TESTS(SecretLockInfoStorageTraits)
-}}
+    DEFINE_LOCK_INFO_CACHE_STORAGE_TESTS(SecretLockInfoStorageTraits)
+}
+}

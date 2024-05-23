@@ -22,40 +22,45 @@
 #include "plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS SecretLockCacheUniqueValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(SecretLockCacheUnique, std::unordered_set<Height, utils::BaseValueHasher<Height>>())
+    DEFINE_COMMON_VALIDATOR_TESTS(SecretLockCacheUnique, std::unordered_set<Height, utils::BaseValueHasher<Height>>())
 
-	namespace {
-		struct SecretCacheTraits {
-		public:
-			using DescriptorType = test::BasicSecretLockInfoTestTraits;
-			using NotificationType = model::SecretLockNotification;
-			using NotificationBuilder = test::SecretLockNotificationBuilder;
-			using CacheFactory = test::SecretLockInfoCacheFactory;
+    namespace {
+        struct SecretCacheTraits {
+        public:
+            using DescriptorType = test::BasicSecretLockInfoTestTraits;
+            using NotificationType = model::SecretLockNotification;
+            using NotificationBuilder = test::SecretLockNotificationBuilder;
+            using CacheFactory = test::SecretLockInfoCacheFactory;
 
-			static constexpr auto Failure = Failure_LockSecret_Hash_Already_Exists;
+            static constexpr auto Failure = Failure_LockSecret_Hash_Already_Exists;
 
-			static auto CreateValidator() {
-				return CreateSecretLockCacheUniqueValidator(std::unordered_set<Height, utils::BaseValueHasher<Height>>());
-			}
-		};
-	}
+            static auto CreateValidator()
+            {
+                return CreateSecretLockCacheUniqueValidator(std::unordered_set<Height, utils::BaseValueHasher<Height>>());
+            }
+        };
+    }
 
-	DEFINE_CACHE_UNIQUE_TESTS(SecretCacheTraits)
+    DEFINE_CACHE_UNIQUE_TESTS(SecretCacheTraits)
 
-	TEST(TEST_CLASS, SuccessWhenHashIsInCacheAndActiveAtSkipHeight) {
-		// Arrange: configure the validator to skip validation at height 10
-		struct CustomSecretCacheTraits : public SecretCacheTraits {
-		public:
-			static auto CreateValidator() {
-				return CreateSecretLockCacheUniqueValidator(std::unordered_set<Height, utils::BaseValueHasher<Height>>{ Height(10) });
-			}
-		};
+    TEST(TEST_CLASS, SuccessWhenHashIsInCacheAndActiveAtSkipHeight)
+    {
+        // Arrange: configure the validator to skip validation at height 10
+        struct CustomSecretCacheTraits : public SecretCacheTraits {
+        public:
+            static auto CreateValidator()
+            {
+                return CreateSecretLockCacheUniqueValidator(std::unordered_set<Height, utils::BaseValueHasher<Height>> { Height(10) });
+            }
+        };
 
-		// Act + Assert: notification height is 10
-		LockCacheUniqueValidatorTests<CustomSecretCacheTraits>::RunNotEmptyCacheTest(ValidationResult::Success, Height(11), Height(10));
-	}
-}}
+        // Act + Assert: notification height is 10
+        LockCacheUniqueValidatorTests<CustomSecretCacheTraits>::RunNotEmptyCacheTest(ValidationResult::Success, Height(11), Height(10));
+    }
+}
+}

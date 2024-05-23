@@ -24,59 +24,65 @@
 #include "catapult/state/CatapultState.h"
 #include "catapult/validators/ValidatorContext.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using BalanceTransferNotification = model::BalanceTransferNotification;
-	using BalanceDebitNotification = model::BalanceDebitNotification;
+    using BalanceTransferNotification = model::BalanceTransferNotification;
+    using BalanceDebitNotification = model::BalanceDebitNotification;
 
-	namespace {
-		bool TryGetEffectiveAmount(
-				const BalanceTransferNotification& notification,
-				BlockFeeMultiplier feeMultiplier,
-				Amount& effectiveAmount) {
-			effectiveAmount = notification.Amount;
-			if (BalanceTransferNotification::AmountType::Static == notification.TransferAmountType)
-				return true;
+    namespace {
+        bool TryGetEffectiveAmount(
+            const BalanceTransferNotification& notification,
+            BlockFeeMultiplier feeMultiplier,
+            Amount& effectiveAmount)
+        {
+            effectiveAmount = notification.Amount;
+            if (BalanceTransferNotification::AmountType::Static == notification.TransferAmountType)
+                return true;
 
-			effectiveAmount = Amount(notification.Amount.unwrap() * feeMultiplier.unwrap());
-			if (BlockFeeMultiplier() == feeMultiplier)
-				return true;
+            effectiveAmount = Amount(notification.Amount.unwrap() * feeMultiplier.unwrap());
+            if (BlockFeeMultiplier() == feeMultiplier)
+                return true;
 
-			return std::numeric_limits<Amount::ValueType>::max() / feeMultiplier.unwrap() >= notification.Amount.unwrap();
-		}
+            return std::numeric_limits<Amount::ValueType>::max() / feeMultiplier.unwrap() >= notification.Amount.unwrap();
+        }
 
-		bool TryGetEffectiveAmount(const BalanceDebitNotification& notification, BlockFeeMultiplier, Amount& effectiveAmount) {
-			effectiveAmount = notification.Amount;
-			return true;
-		}
+        bool TryGetEffectiveAmount(const BalanceDebitNotification& notification, BlockFeeMultiplier, Amount& effectiveAmount)
+        {
+            effectiveAmount = notification.Amount;
+            return true;
+        }
 
-		bool FindAccountBalance(const cache::ReadOnlyAccountStateCache& cache, const Address& address, MosaicId mosaicId, Amount& amount) {
-			auto accountStateAddressIter = cache.find(address);
-			if (accountStateAddressIter.tryGet()) {
-				amount = accountStateAddressIter.get().Balances.get(mosaicId);
-				return true;
-			}
+        bool FindAccountBalance(const cache::ReadOnlyAccountStateCache& cache, const Address& address, MosaicId mosaicId, Amount& amount)
+        {
+            auto accountStateAddressIter = cache.find(address);
+            if (accountStateAddressIter.tryGet()) {
+                amount = accountStateAddressIter.get().Balances.get(mosaicId);
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		template<typename TNotification>
-		ValidationResult CheckBalance(const TNotification& notification, const ValidatorContext& context) {
-			const auto& cache = context.Cache.sub<cache::AccountStateCache>();
+        template <typename TNotification>
+        ValidationResult CheckBalance(const TNotification& notification, const ValidatorContext& context)
+        {
+            const auto& cache = context.Cache.sub<cache::AccountStateCache>();
 
-			Amount amount;
-			auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-			if (FindAccountBalance(cache, notification.Sender.resolved(context.Resolvers), mosaicId, amount)) {
-				Amount effectiveAmount;
-				auto dynamicFeeMultiplier = context.Cache.dependentState().DynamicFeeMultiplier;
-				if (TryGetEffectiveAmount(notification, dynamicFeeMultiplier, effectiveAmount) && amount >= effectiveAmount)
-					return ValidationResult::Success;
-			}
+            Amount amount;
+            auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+            if (FindAccountBalance(cache, notification.Sender.resolved(context.Resolvers), mosaicId, amount)) {
+                Amount effectiveAmount;
+                auto dynamicFeeMultiplier = context.Cache.dependentState().DynamicFeeMultiplier;
+                if (TryGetEffectiveAmount(notification, dynamicFeeMultiplier, effectiveAmount) && amount >= effectiveAmount)
+                    return ValidationResult::Success;
+            }
 
-			return Failure_Core_Insufficient_Balance;
-		}
-	}
+            return Failure_Core_Insufficient_Balance;
+        }
+    }
 
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(BalanceTransfer, BalanceTransferNotification, CheckBalance<BalanceTransferNotification>)
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(BalanceDebit, BalanceDebitNotification, CheckBalance<BalanceDebitNotification>)
-}}
+    DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(BalanceTransfer, BalanceTransferNotification, CheckBalance<BalanceTransferNotification>)
+    DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(BalanceDebit, BalanceDebitNotification, CheckBalance<BalanceDebitNotification>)
+}
+}

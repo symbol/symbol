@@ -22,91 +22,100 @@
 #pragma once
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Lock info test suite.
-	template<typename TLockInfo, typename TTraits>
-	class LockInfoTests {
-	public:
-		// region isActive
+    /// Lock info test suite.
+    template <typename TLockInfo, typename TTraits>
+    class LockInfoTests {
+    public:
+        // region isActive
 
-		static void AssertIsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight() {
-			// Arrange:
-			TLockInfo lockInfo;
-			lockInfo.Status = LockStatus::Unused;
-			lockInfo.EndHeight = Height(123);
+        static void AssertIsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight()
+        {
+            // Arrange:
+            TLockInfo lockInfo;
+            lockInfo.Status = LockStatus::Unused;
+            lockInfo.EndHeight = Height(123);
 
-			// Act + Assert:
-			EXPECT_TRUE(lockInfo.isActive(Height(122)));
-			EXPECT_TRUE(lockInfo.isActive(Height(1)));
-		}
+            // Act + Assert:
+            EXPECT_TRUE(lockInfo.isActive(Height(122)));
+            EXPECT_TRUE(lockInfo.isActive(Height(1)));
+        }
 
-		static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUnusedLockInfoHeight() {
-			// Assert:
-			AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Unused);
-		}
+        static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUnusedLockInfoHeight()
+        {
+            // Assert:
+            AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Unused);
+        }
 
-		static void AssertIsActiveReturnsFalseWhenHeightIsLessThanUsedLockInfoHeight() {
-			// Arrange:
-			TLockInfo lockInfo;
-			lockInfo.Status = LockStatus::Used;
-			lockInfo.EndHeight = Height(123);
+        static void AssertIsActiveReturnsFalseWhenHeightIsLessThanUsedLockInfoHeight()
+        {
+            // Arrange:
+            TLockInfo lockInfo;
+            lockInfo.Status = LockStatus::Used;
+            lockInfo.EndHeight = Height(123);
 
-			// Act + Assert:
-			EXPECT_FALSE(lockInfo.isActive(Height(122)));
-			EXPECT_FALSE(lockInfo.isActive(Height(1)));
-		}
+            // Act + Assert:
+            EXPECT_FALSE(lockInfo.isActive(Height(122)));
+            EXPECT_FALSE(lockInfo.isActive(Height(1)));
+        }
 
-		static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight() {
-			// Assert:
-			AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Used);
-		}
+        static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight()
+        {
+            // Assert:
+            AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Used);
+        }
 
-	private:
-		static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus status) {
-			// Arrange:
-			TLockInfo lockInfo;
-			lockInfo.Status = status;
-			lockInfo.EndHeight = Height(123);
+    private:
+        static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus status)
+        {
+            // Arrange:
+            TLockInfo lockInfo;
+            lockInfo.Status = status;
+            lockInfo.EndHeight = Height(123);
 
-			// Act + Assert:
-			EXPECT_FALSE(lockInfo.isActive(Height(123)));
-			EXPECT_FALSE(lockInfo.isActive(Height(124)));
-			EXPECT_FALSE(lockInfo.isActive(Height(1111)));
-		}
+            // Act + Assert:
+            EXPECT_FALSE(lockInfo.isActive(Height(123)));
+            EXPECT_FALSE(lockInfo.isActive(Height(124)));
+            EXPECT_FALSE(lockInfo.isActive(Height(1111)));
+        }
 
-		// endregion
+        // endregion
 
-	public:
-		// region GetLockIdentifier
+    public:
+        // region GetLockIdentifier
 
-		static void AssertGetLockIdentifierReturnsExpectedIdentifier() {
-			// Arrange:
-			auto hash = test::GenerateRandomByteArray<Hash256>();
+        static void AssertGetLockIdentifierReturnsExpectedIdentifier()
+        {
+            // Arrange:
+            auto hash = test::GenerateRandomByteArray<Hash256>();
 
-			TLockInfo lockInfo;
-			TTraits::SetLockIdentifier(lockInfo, hash);
+            TLockInfo lockInfo;
+            TTraits::SetLockIdentifier(lockInfo, hash);
 
-			// Act:
-			auto lockIdentifier = GetLockIdentifier(lockInfo);
+            // Act:
+            auto lockIdentifier = GetLockIdentifier(lockInfo);
 
-			// Assert:
-			EXPECT_EQ(hash, lockIdentifier);
-		}
+            // Assert:
+            EXPECT_EQ(hash, lockIdentifier);
+        }
 
-		// endregion
-	};
-}}
+        // endregion
+    };
+}
+}
 
-#define MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { \
-		LockInfoTests<LOCK_INFO_TYPE, LOCK_INFO_TYPE##Traits>::Assert##TEST_NAME(); \
-	}
+#define MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, TEST_NAME)                              \
+    TEST(TEST_CLASS, TEST_NAME)                                                     \
+    {                                                                               \
+        LockInfoTests<LOCK_INFO_TYPE, LOCK_INFO_TYPE##Traits>::Assert##TEST_NAME(); \
+    }
 
-#define DEFINE_LOCK_INFO_TESTS(LOCK_INFO_TYPE) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUnusedLockInfoHeight) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsLessThanUsedLockInfoHeight) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight) \
-\
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, GetLockIdentifierReturnsExpectedIdentifier)
+#define DEFINE_LOCK_INFO_TESTS(LOCK_INFO_TYPE)                                                                    \
+    MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight)              \
+    MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUnusedLockInfoHeight) \
+    MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsLessThanUsedLockInfoHeight)               \
+    MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight)   \
+                                                                                                                  \
+    MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, GetLockIdentifierReturnsExpectedIdentifier)

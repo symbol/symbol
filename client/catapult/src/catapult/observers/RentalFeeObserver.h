@@ -23,25 +23,27 @@
 #include "ObserverTypes.h"
 #include "catapult/model/Receipt.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Creates a rental fee observer with \a name that adds receipts with \a receiptType.
-	template<typename TNotification>
-	NotificationObserverPointerT<TNotification> CreateRentalFeeObserver(const std::string& name, model::ReceiptType receiptType) {
-		using ObserverType = FunctionalNotificationObserverT<TNotification>;
-		return std::make_unique<ObserverType>(
-				name + "RentalFeeObserver",
-				[receiptType](const auto& notification, ObserverContext& context) {
-					if (NotifyMode::Rollback == context.Mode)
-						return;
+    /// Creates a rental fee observer with \a name that adds receipts with \a receiptType.
+    template <typename TNotification>
+    NotificationObserverPointerT<TNotification> CreateRentalFeeObserver(const std::string& name, model::ReceiptType receiptType)
+    {
+        using ObserverType = FunctionalNotificationObserverT<TNotification>;
+        return std::make_unique<ObserverType>(
+            name + "RentalFeeObserver",
+            [receiptType](const auto& notification, ObserverContext& context) {
+                if (NotifyMode::Rollback == context.Mode)
+                    return;
 
-					auto senderAddress = notification.Sender.resolved(context.Resolvers);
-					auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-					auto recipientAddress = notification.Recipient.resolved(context.Resolvers);
-					auto effectiveAmount =
-							Amount(notification.Amount.unwrap() * context.Cache.dependentState().DynamicFeeMultiplier.unwrap());
-					model::BalanceTransferReceipt receipt(receiptType, senderAddress, recipientAddress, mosaicId, effectiveAmount);
-					context.StatementBuilder().addReceipt(receipt);
-				});
-	}
-}}
+                auto senderAddress = notification.Sender.resolved(context.Resolvers);
+                auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+                auto recipientAddress = notification.Recipient.resolved(context.Resolvers);
+                auto effectiveAmount = Amount(notification.Amount.unwrap() * context.Cache.dependentState().DynamicFeeMultiplier.unwrap());
+                model::BalanceTransferReceipt receipt(receiptType, senderAddress, recipientAddress, mosaicId, effectiveAmount);
+                context.StatementBuilder().addReceipt(receipt);
+            });
+    }
+}
+}

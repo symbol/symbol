@@ -26,54 +26,58 @@
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Mixins used by the account restriction cache view.
-	using AccountRestrictionCacheViewMixins =
-			PatriciaTreeCacheMixins<AccountRestrictionCacheTypes::PrimaryTypes::BaseSetType, AccountRestrictionCacheDescriptor>;
+    /// Mixins used by the account restriction cache view.
+    using AccountRestrictionCacheViewMixins = PatriciaTreeCacheMixins<AccountRestrictionCacheTypes::PrimaryTypes::BaseSetType, AccountRestrictionCacheDescriptor>;
 
-	/// Basic view on top of the account restriction cache.
-	class BasicAccountRestrictionCacheView
-			: public utils::MoveOnly
-			, public AccountRestrictionCacheViewMixins::Size
-			, public AccountRestrictionCacheViewMixins::Contains
-			, public AccountRestrictionCacheViewMixins::Iteration
-			, public AccountRestrictionCacheViewMixins::ConstAccessor
-			, public AccountRestrictionCacheViewMixins::PatriciaTreeView {
-	public:
-		using ReadOnlyView = AccountRestrictionCacheTypes::CacheReadOnlyType;
+    /// Basic view on top of the account restriction cache.
+    class BasicAccountRestrictionCacheView
+        : public utils::MoveOnly,
+          public AccountRestrictionCacheViewMixins::Size,
+          public AccountRestrictionCacheViewMixins::Contains,
+          public AccountRestrictionCacheViewMixins::Iteration,
+          public AccountRestrictionCacheViewMixins::ConstAccessor,
+          public AccountRestrictionCacheViewMixins::PatriciaTreeView {
+    public:
+        using ReadOnlyView = AccountRestrictionCacheTypes::CacheReadOnlyType;
 
-	public:
-		/// Creates a view around \a restrictionSets and \a networkIdentifier.
-		BasicAccountRestrictionCacheView(
-				const AccountRestrictionCacheTypes::BaseSets& restrictionSets,
-				model::NetworkIdentifier networkIdentifier)
-				: AccountRestrictionCacheViewMixins::Size(restrictionSets.Primary)
-				, AccountRestrictionCacheViewMixins::Contains(restrictionSets.Primary)
-				, AccountRestrictionCacheViewMixins::Iteration(restrictionSets.Primary)
-				, AccountRestrictionCacheViewMixins::ConstAccessor(restrictionSets.Primary)
-				, AccountRestrictionCacheViewMixins::PatriciaTreeView(restrictionSets.PatriciaTree.get())
-				, m_networkIdentifier(networkIdentifier) {
-		}
+    public:
+        /// Creates a view around \a restrictionSets and \a networkIdentifier.
+        BasicAccountRestrictionCacheView(
+            const AccountRestrictionCacheTypes::BaseSets& restrictionSets,
+            model::NetworkIdentifier networkIdentifier)
+            : AccountRestrictionCacheViewMixins::Size(restrictionSets.Primary)
+            , AccountRestrictionCacheViewMixins::Contains(restrictionSets.Primary)
+            , AccountRestrictionCacheViewMixins::Iteration(restrictionSets.Primary)
+            , AccountRestrictionCacheViewMixins::ConstAccessor(restrictionSets.Primary)
+            , AccountRestrictionCacheViewMixins::PatriciaTreeView(restrictionSets.PatriciaTree.get())
+            , m_networkIdentifier(networkIdentifier)
+        {
+        }
 
-	public:
-		/// Gets the network identifier.
-		model::NetworkIdentifier networkIdentifier() const {
-			return m_networkIdentifier;
-		}
+    public:
+        /// Gets the network identifier.
+        model::NetworkIdentifier networkIdentifier() const
+        {
+            return m_networkIdentifier;
+        }
 
-	private:
-		model::NetworkIdentifier m_networkIdentifier;
-	};
+    private:
+        model::NetworkIdentifier m_networkIdentifier;
+    };
 
-	/// View on top of the account restriction cache.
-	class AccountRestrictionCacheView : public ReadOnlyViewSupplier<BasicAccountRestrictionCacheView> {
-	public:
-		/// Creates a view around \a restrictionSets and \a networkIdentifier.
-		AccountRestrictionCacheView(
-				const AccountRestrictionCacheTypes::BaseSets& restrictionSets,
-				model::NetworkIdentifier networkIdentifier)
-				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier) {
-		}
-	};
-}}
+    /// View on top of the account restriction cache.
+    class AccountRestrictionCacheView : public ReadOnlyViewSupplier<BasicAccountRestrictionCacheView> {
+    public:
+        /// Creates a view around \a restrictionSets and \a networkIdentifier.
+        AccountRestrictionCacheView(
+            const AccountRestrictionCacheTypes::BaseSets& restrictionSets,
+            model::NetworkIdentifier networkIdentifier)
+            : ReadOnlyViewSupplier(restrictionSets, networkIdentifier)
+        {
+        }
+    };
+}
+}

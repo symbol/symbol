@@ -22,12 +22,16 @@
 #pragma once
 #include "catapult/cache_tx/MemoryUtCache.h"
 
-namespace catapult { namespace config {
-	struct NodeConfiguration;
-}}
+namespace catapult {
+namespace config {
+    struct NodeConfiguration;
+}
+}
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Extracts unconfirmed transactions cache options from \a config.
-	cache::MemoryCacheOptions GetUtCacheOptions(const config::NodeConfiguration& config);
-}}
+    /// Extracts unconfirmed transactions cache options from \a config.
+    cache::MemoryCacheOptions GetUtCacheOptions(const config::NodeConfiguration& config);
+}
+}

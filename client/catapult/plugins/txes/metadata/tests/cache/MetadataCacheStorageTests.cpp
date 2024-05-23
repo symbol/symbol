@@ -19,42 +19,48 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/MetadataCacheStorage.h"
 #include "src/cache/MetadataCache.h"
+#include "src/cache/MetadataCacheStorage.h"
+#include "tests/TestHarness.h"
 #include "tests/test/MetadataTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	namespace {
-		struct MetadataCacheStorageTraits {
-			using StorageType = MetadataCacheStorage;
-			class CacheType : public MetadataCache {
-			public:
-				CacheType()
-						: MetadataCache(CacheConfiguration()) {
-				}
-			};
+    namespace {
+        struct MetadataCacheStorageTraits {
+            using StorageType = MetadataCacheStorage;
+            class CacheType : public MetadataCache {
+            public:
+                CacheType()
+                    : MetadataCache(CacheConfiguration())
+                {
+                }
+            };
 
-			static auto CreateId(uint8_t id) {
-				return test::CreateMetadataUniqueKeyFromSeed(id);
-			}
+            static auto CreateId(uint8_t id)
+            {
+                return test::CreateMetadataUniqueKeyFromSeed(id);
+            }
 
-			static auto CreateValue(const Hash256& hash) {
-				state::MetadataEntry entry(test::GenerateMetadataKey(hash));
+            static auto CreateValue(const Hash256& hash)
+            {
+                state::MetadataEntry entry(test::GenerateMetadataKey(hash));
 
-				std::vector<uint8_t> valueBuffer{ 0x9A, 0xC7, 0x33 };
-				entry.value().update(valueBuffer);
+                std::vector<uint8_t> valueBuffer { 0x9A, 0xC7, 0x33 };
+                entry.value().update(valueBuffer);
 
-				return entry;
-			}
+                return entry;
+            }
 
-			static void AssertEqual(const state::MetadataEntry& lhs, const state::MetadataEntry& rhs) {
-				test::AssertEqual(lhs, rhs);
-			}
-		};
-	}
+            static void AssertEqual(const state::MetadataEntry& lhs, const state::MetadataEntry& rhs)
+            {
+                test::AssertEqual(lhs, rhs);
+            }
+        };
+    }
 
-	DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MetadataCacheStorageTests, MetadataCacheStorageTraits)
-}}
+    DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MetadataCacheStorageTests, MetadataCacheStorageTraits)
+}
+}

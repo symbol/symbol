@@ -47,295 +47,315 @@
 #include "catapult/subscribers/TransactionStatusReader.h"
 #include "catapult/utils/StackLogger.h"
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	namespace {
-		// region DualStateChangeSubscriber
+    namespace {
+        // region DualStateChangeSubscriber
 
-		class DualStateChangeSubscriber final : public subscribers::StateChangeSubscriber {
-		public:
-			DualStateChangeSubscriber(subscribers::StateChangeSubscriber& subscriber1, subscribers::StateChangeSubscriber& subscriber2)
-					: m_subscriber1(subscriber1)
-					, m_subscriber2(subscriber2) {
-			}
+        class DualStateChangeSubscriber final : public subscribers::StateChangeSubscriber {
+        public:
+            DualStateChangeSubscriber(subscribers::StateChangeSubscriber& subscriber1, subscribers::StateChangeSubscriber& subscriber2)
+                : m_subscriber1(subscriber1)
+                , m_subscriber2(subscriber2)
+            {
+            }
 
-		public:
-			void notifyScoreChange(const model::ChainScore& chainScore) override {
-				m_subscriber1.notifyScoreChange(chainScore);
-				m_subscriber2.notifyScoreChange(chainScore);
-			}
+        public:
+            void notifyScoreChange(const model::ChainScore& chainScore) override
+            {
+                m_subscriber1.notifyScoreChange(chainScore);
+                m_subscriber2.notifyScoreChange(chainScore);
+            }
 
-			void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override {
-				m_subscriber1.notifyStateChange(stateChangeInfo);
-				m_subscriber2.notifyStateChange(stateChangeInfo);
-			}
+            void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override
+            {
+                m_subscriber1.notifyStateChange(stateChangeInfo);
+                m_subscriber2.notifyStateChange(stateChangeInfo);
+            }
 
-		private:
-			subscribers::StateChangeSubscriber& m_subscriber1;
-			subscribers::StateChangeSubscriber& m_subscriber2;
-		};
+        private:
+            subscribers::StateChangeSubscriber& m_subscriber1;
+            subscribers::StateChangeSubscriber& m_subscriber2;
+        };
 
-		// endregion
+        // endregion
 
-		std::unique_ptr<io::PrunableBlockStorage> CreateStagingBlockStorage(
-				const config::CatapultDataDirectory& dataDirectory,
-				uint32_t fileDatabaseBatchSize) {
-			auto stagingDirectory = dataDirectory.spoolDir("block_recover").str();
-			config::CatapultDirectory(stagingDirectory).create();
-			return std::make_unique<io::FileBlockStorage>(stagingDirectory, fileDatabaseBatchSize, io::FileBlockStorageMode::None);
-		}
+        std::unique_ptr<io::PrunableBlockStorage> CreateStagingBlockStorage(
+            const config::CatapultDataDirectory& dataDirectory,
+            uint32_t fileDatabaseBatchSize)
+        {
+            auto stagingDirectory = dataDirectory.spoolDir("block_recover").str();
+            config::CatapultDirectory(stagingDirectory).create();
+            return std::make_unique<io::FileBlockStorage>(stagingDirectory, fileDatabaseBatchSize, io::FileBlockStorageMode::None);
+        }
 
-		void MoveSupplementalDataFiles(const config::CatapultDataDirectory& dataDirectory) {
-			if (!std::filesystem::exists(dataDirectory.dir("state.tmp").path()))
-				return;
+        void MoveSupplementalDataFiles(const config::CatapultDataDirectory& dataDirectory)
+        {
+            if (!std::filesystem::exists(dataDirectory.dir("state.tmp").path()))
+                return;
 
-			extensions::LocalNodeStateSerializer serializer(dataDirectory.dir("state.tmp"));
-			serializer.moveTo(dataDirectory.dir("state"));
-		}
+            extensions::LocalNodeStateSerializer serializer(dataDirectory.dir("state.tmp"));
+            serializer.moveTo(dataDirectory.dir("state"));
+        }
 
-		Height MoveBlockFiles(
-				const config::CatapultDirectory& stagingDirectory,
-				io::BlockStorage& destinationStorage,
-				uint32_t fileDatabaseBatchSize) {
-			io::FileBlockStorage staging(stagingDirectory.str(), fileDatabaseBatchSize);
-			if (Height(0) == staging.chainHeight())
-				return Height(0);
+        Height MoveBlockFiles(
+            const config::CatapultDirectory& stagingDirectory,
+            io::BlockStorage& destinationStorage,
+            uint32_t fileDatabaseBatchSize)
+        {
+            io::FileBlockStorage staging(stagingDirectory.str(), fileDatabaseBatchSize);
+            if (Height(0) == staging.chainHeight())
+                return Height(0);
 
-			// mind that startHeight will be > 1, so there is no additional check
-			auto startHeight = FindStartHeight(staging);
-			CATAPULT_LOG(debug) << "moving blocks: " << startHeight << "-" << staging.chainHeight();
-			io::MoveBlockFiles(staging, destinationStorage, startHeight);
-			return startHeight;
-		}
+            // mind that startHeight will be > 1, so there is no additional check
+            auto startHeight = FindStartHeight(staging);
+            CATAPULT_LOG(debug) << "moving blocks: " << startHeight << "-" << staging.chainHeight();
+            io::MoveBlockFiles(staging, destinationStorage, startHeight);
+            return startHeight;
+        }
 
-		class DefaultRecoveryOrchestrator final : public RecoveryOrchestrator {
-		public:
-			explicit DefaultRecoveryOrchestrator(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper)
-					: m_pBootstrapper(std::move(pBootstrapper))
-					, m_config(m_pBootstrapper->config())
-					, m_dataDirectory(config::CatapultDataDirectoryPreparer::Prepare(m_config.User.DataDirectory))
-					, m_catapultCache({}) // note that sub caches are added in boot
-					, m_pBlockStorage(m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber))
-					, m_storage(
-							  CreateReadOnlyStorageAdapter(*m_pBlockStorage),
-							  CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
-					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
-					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
-					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
-					, m_pluginManager(m_pBootstrapper->pluginManager())
-					, m_stateSavingRequired(true) {
-			}
+        class DefaultRecoveryOrchestrator final : public RecoveryOrchestrator {
+        public:
+            explicit DefaultRecoveryOrchestrator(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper)
+                : m_pBootstrapper(std::move(pBootstrapper))
+                , m_config(m_pBootstrapper->config())
+                , m_dataDirectory(config::CatapultDataDirectoryPreparer::Prepare(m_config.User.DataDirectory))
+                , m_catapultCache({}) // note that sub caches are added in boot
+                , m_pBlockStorage(m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber))
+                , m_storage(
+                      CreateReadOnlyStorageAdapter(*m_pBlockStorage),
+                      CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
+                , m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
+                , m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
+                , m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
+                , m_pluginManager(m_pBootstrapper->pluginManager())
+                , m_stateSavingRequired(true)
+            {
+            }
 
-			~DefaultRecoveryOrchestrator() override {
-				shutdown();
-			}
+            ~DefaultRecoveryOrchestrator() override
+            {
+                shutdown();
+            }
 
-		public:
-			void boot() {
-				CATAPULT_LOG(info) << "registering system plugins";
-				m_pluginModules = LoadAllPlugins(*m_pBootstrapper);
+        public:
+            void boot()
+            {
+                CATAPULT_LOG(info) << "registering system plugins";
+                m_pluginModules = LoadAllPlugins(*m_pBootstrapper);
 
-				CATAPULT_LOG(debug) << "initializing cache";
-				m_catapultCache = m_pluginManager.createCache();
+                CATAPULT_LOG(debug) << "initializing cache";
+                m_catapultCache = m_pluginManager.createCache();
 
-				utils::StackLogger stackLogger("running recovery operations", utils::LogLevel::info);
-				recover();
-			}
+                utils::StackLogger stackLogger("running recovery operations", utils::LogLevel::info);
+                recover();
+            }
 
-		private:
-			void recover() {
-				auto systemState = CatapultSystemState(m_dataDirectory);
+        private:
+            void recover()
+            {
+                auto systemState = CatapultSystemState(m_dataDirectory);
 
-				CATAPULT_LOG(info) << "repairing spooling, commit step " << utils::to_underlying_type(systemState.commitStep());
-				RepairSpooling(m_dataDirectory, systemState.commitStep());
+                CATAPULT_LOG(info) << "repairing spooling, commit step " << utils::to_underlying_type(systemState.commitStep());
+                RepairSpooling(m_dataDirectory, systemState.commitStep());
 
-				CATAPULT_LOG(info) << "repairing importance";
-				RepairImportance(m_dataDirectory, systemState.commitStep());
+                CATAPULT_LOG(info) << "repairing importance";
+                RepairImportance(m_dataDirectory, systemState.commitStep());
 
-				CATAPULT_LOG(info) << "repairing messages";
-				repairSubscribers();
+                CATAPULT_LOG(info) << "repairing messages";
+                repairSubscribers();
 
-				CATAPULT_LOG(info) << "loading state";
-				auto heights = extensions::LoadStateFromDirectory(m_dataDirectory.dir("state"), stateRef(), m_pluginManager);
-				auto stateRecoveryMode = CalculateStateRecoveryMode(m_config.Node, heights);
-				if (StateRecoveryMode::Repair == stateRecoveryMode)
-					repairStateFromStorage(heights);
-				else if (StateRecoveryMode::Reseed == stateRecoveryMode)
-					CATAPULT_THROW_INVALID_ARGUMENT("reseed operation detected - please use the importer tool");
+                CATAPULT_LOG(info) << "loading state";
+                auto heights = extensions::LoadStateFromDirectory(m_dataDirectory.dir("state"), stateRef(), m_pluginManager);
+                auto stateRecoveryMode = CalculateStateRecoveryMode(m_config.Node, heights);
+                if (StateRecoveryMode::Repair == stateRecoveryMode)
+                    repairStateFromStorage(heights);
+                else if (StateRecoveryMode::Reseed == stateRecoveryMode)
+                    CATAPULT_THROW_INVALID_ARGUMENT("reseed operation detected - please use the importer tool");
 
-				CATAPULT_LOG(info) << "loaded blockchain (height = " << heights.Storage << ", score = " << m_score.get() << ")";
+                CATAPULT_LOG(info) << "loaded blockchain (height = " << heights.Storage << ", score = " << m_score.get() << ")";
 
-				CATAPULT_LOG(info) << "repairing state";
-				repairState(systemState.commitStep());
+                CATAPULT_LOG(info) << "repairing state";
+                repairState(systemState.commitStep());
 
-				CATAPULT_LOG(info) << "finalizing";
-				systemState.reset();
-			}
+                CATAPULT_LOG(info) << "finalizing";
+                systemState.reset();
+            }
 
-			void repairSubscribers() {
-				// due to behavior of SubscriptionManager, block change subscriber is only subscriber that can be nullptr
-				if (m_pBlockChangeSubscriber)
-					processMessages("block_change", *m_pBlockChangeSubscriber, subscribers::ReadNextBlockChange);
+            void repairSubscribers()
+            {
+                // due to behavior of SubscriptionManager, block change subscriber is only subscriber that can be nullptr
+                if (m_pBlockChangeSubscriber)
+                    processMessages("block_change", *m_pBlockChangeSubscriber, subscribers::ReadNextBlockChange);
 
-				processMessages("finalization", *m_pFinalizationSubscriber, subscribers::ReadNextFinalization);
-				processMessages("transaction_status", *m_pTransactionStatusSubscriber, subscribers::ReadNextTransactionStatus);
-			}
+                processMessages("finalization", *m_pFinalizationSubscriber, subscribers::ReadNextFinalization);
+                processMessages("transaction_status", *m_pTransactionStatusSubscriber, subscribers::ReadNextTransactionStatus);
+            }
 
-			template<typename TSubscriber, typename TMessageReader>
-			void processMessages(const std::string& queueName, TSubscriber& subscriber, TMessageReader readNextMessage) {
-				subscribers::ReadAll(
-						{ m_dataDirectory.spoolDir(queueName).str(), "index_broker_r.dat", "index.dat" },
-						subscriber,
-						readNextMessage);
-			}
+            template <typename TSubscriber, typename TMessageReader>
+            void processMessages(const std::string& queueName, TSubscriber& subscriber, TMessageReader readNextMessage)
+            {
+                subscribers::ReadAll(
+                    { m_dataDirectory.spoolDir(queueName).str(), "index_broker_r.dat", "index.dat" },
+                    subscriber,
+                    readNextMessage);
+            }
 
-			void repairStateFromStorage(const extensions::StateHeights& heights) {
-				// disable load optimizations (loading from the saved state is optimization enough) in order to prevent
-				// discontinuities in block analysis (e.g. statistic cache expects consecutive blocks)
-				CATAPULT_LOG(info) << "loading state - block loading required";
-				auto observerFactory = [&pluginManager = m_pluginManager](const auto&) { return pluginManager.createObserver(); };
-				auto partialScore = LoadBlockchain(observerFactory, m_pluginManager, stateRef(), heights.Cache + Height(1));
-				m_score += partialScore;
-			}
+            void repairStateFromStorage(const extensions::StateHeights& heights)
+            {
+                // disable load optimizations (loading from the saved state is optimization enough) in order to prevent
+                // discontinuities in block analysis (e.g. statistic cache expects consecutive blocks)
+                CATAPULT_LOG(info) << "loading state - block loading required";
+                auto observerFactory = [&pluginManager = m_pluginManager](const auto&) { return pluginManager.createObserver(); };
+                auto partialScore = LoadBlockchain(observerFactory, m_pluginManager, stateRef(), heights.Cache + Height(1));
+                m_score += partialScore;
+            }
 
-			void repairState(consumers::CommitOperationStep commitStep) {
-				// RepairState always needs to be called in order to recover broker messages
-				std::unique_ptr<subscribers::StateChangeSubscriber> pStateChangeRepairSubscriber;
-				std::unique_ptr<subscribers::StateChangeSubscriber> pDualStateChangeSubscriber;
-				if (stateRef().Config.Node.EnableCacheDatabaseStorage) {
-					pStateChangeRepairSubscriber = CreateStateChangeRepairingSubscriber(stateRef().Cache, stateRef().Score);
-					pDualStateChangeSubscriber =
-							std::make_unique<DualStateChangeSubscriber>(*pStateChangeRepairSubscriber, *m_pStateChangeSubscriber);
-				}
+            void repairState(consumers::CommitOperationStep commitStep)
+            {
+                // RepairState always needs to be called in order to recover broker messages
+                std::unique_ptr<subscribers::StateChangeSubscriber> pStateChangeRepairSubscriber;
+                std::unique_ptr<subscribers::StateChangeSubscriber> pDualStateChangeSubscriber;
+                if (stateRef().Config.Node.EnableCacheDatabaseStorage) {
+                    pStateChangeRepairSubscriber = CreateStateChangeRepairingSubscriber(stateRef().Cache, stateRef().Score);
+                    pDualStateChangeSubscriber = std::make_unique<DualStateChangeSubscriber>(*pStateChangeRepairSubscriber, *m_pStateChangeSubscriber);
+                }
 
-				auto& repairSubscriber =
-						stateRef().Config.Node.EnableCacheDatabaseStorage ? *pDualStateChangeSubscriber : *m_pStateChangeSubscriber;
-				RepairState(m_dataDirectory.spoolDir("state_change"), stateRef().Cache, *m_pStateChangeSubscriber, repairSubscriber);
+                auto& repairSubscriber = stateRef().Config.Node.EnableCacheDatabaseStorage ? *pDualStateChangeSubscriber : *m_pStateChangeSubscriber;
+                RepairState(m_dataDirectory.spoolDir("state_change"), stateRef().Cache, *m_pStateChangeSubscriber, repairSubscriber);
 
-				if (consumers::CommitOperationStep::State_Written != commitStep) {
-					CATAPULT_LOG(debug) << " - purging state.tmp";
-					io::PurgeDirectory(m_dataDirectory.dir("state.tmp").str());
-					return;
-				}
+                if (consumers::CommitOperationStep::State_Written != commitStep) {
+                    CATAPULT_LOG(debug) << " - purging state.tmp";
+                    io::PurgeDirectory(m_dataDirectory.dir("state.tmp").str());
+                    return;
+                }
 
-				CATAPULT_LOG(debug) << " - moving supplemental data and block files";
-				MoveSupplementalDataFiles(m_dataDirectory);
-				auto startHeight =
-						MoveBlockFiles(m_dataDirectory.spoolDir("block_sync"), *m_pBlockStorage, m_config.Node.FileDatabaseBatchSize);
+                CATAPULT_LOG(debug) << " - moving supplemental data and block files";
+                MoveSupplementalDataFiles(m_dataDirectory);
+                auto startHeight = MoveBlockFiles(m_dataDirectory.spoolDir("block_sync"), *m_pBlockStorage, m_config.Node.FileDatabaseBatchSize);
 
-				// when verifiable state is enabled, forcibly regenerate all patricia trees because cache changes are coalesced
-				if (stateRef().Config.Blockchain.EnableVerifiableState && startHeight > Height(0)) {
-					CATAPULT_LOG(debug) << "- reloading supplemental state";
-					extensions::LoadDependentStateFromDirectory(m_dataDirectory.dir("state"), stateRef().Cache);
-					reapplyBlocks(startHeight);
-				}
+                // when verifiable state is enabled, forcibly regenerate all patricia trees because cache changes are coalesced
+                if (stateRef().Config.Blockchain.EnableVerifiableState && startHeight > Height(0)) {
+                    CATAPULT_LOG(debug) << "- reloading supplemental state";
+                    extensions::LoadDependentStateFromDirectory(m_dataDirectory.dir("state"), stateRef().Cache);
+                    reapplyBlocks(startHeight);
+                }
 
-				// when cache database storage is enabled and State_Written,
-				// cache database and supplemental data are updated by repairState
-				m_stateSavingRequired = !stateRef().Config.Node.EnableCacheDatabaseStorage;
-			}
+                // when cache database storage is enabled and State_Written,
+                // cache database and supplemental data are updated by repairState
+                m_stateSavingRequired = !stateRef().Config.Node.EnableCacheDatabaseStorage;
+            }
 
-			void reapplyBlocks(Height startHeight) {
-				auto chainHeight = m_pBlockStorage->chainHeight();
-				CATAPULT_LOG(info) << "reapplying blocks to regenerate patricia trees " << startHeight << "-" << chainHeight;
+            void reapplyBlocks(Height startHeight)
+            {
+                auto chainHeight = m_pBlockStorage->chainHeight();
+                CATAPULT_LOG(info) << "reapplying blocks to regenerate patricia trees " << startHeight << "-" << chainHeight;
 
-				auto cacheDelta = stateRef().Cache.createDelta();
-				auto observerState = observers::ObserverState(cacheDelta);
+                auto cacheDelta = stateRef().Cache.createDelta();
+                auto observerState = observers::ObserverState(cacheDelta);
 
-				auto readOnlyCache = cacheDelta.toReadOnly();
-				auto resolverContext = m_pluginManager.createResolverContext(readOnlyCache);
+                auto readOnlyCache = cacheDelta.toReadOnly();
+                auto resolverContext = m_pluginManager.createResolverContext(readOnlyCache);
 
-				observers::NotificationObserverAdapter observer(
-						m_pluginManager.createObserver(),
-						m_pluginManager.createNotificationPublisher());
-				chain::BlockExecutionContext executionContext{ observer, resolverContext, observerState };
+                observers::NotificationObserverAdapter observer(
+                    m_pluginManager.createObserver(),
+                    m_pluginManager.createNotificationPublisher());
+                chain::BlockExecutionContext executionContext { observer, resolverContext, observerState };
 
-				// reapplyBlocks is only called when EnableVerifiableState is true.
-				// non rocksdb backed caches (e.g. BlockStatisticCache) are loaded initially from "state" directory
-				// but are not updated / reloaded after copying "state.tmp" to "state".
-				// of these, only BlockStatisticCache is problematic because it has strict bounds checking.
-				// as a workaround, fill it with statistics up to the new chain height.
-				FillBlockStatisticCache(cacheDelta.sub<cache::BlockStatisticCache>(), chainHeight);
+                // reapplyBlocks is only called when EnableVerifiableState is true.
+                // non rocksdb backed caches (e.g. BlockStatisticCache) are loaded initially from "state" directory
+                // but are not updated / reloaded after copying "state.tmp" to "state".
+                // of these, only BlockStatisticCache is problematic because it has strict bounds checking.
+                // as a workaround, fill it with statistics up to the new chain height.
+                FillBlockStatisticCache(cacheDelta.sub<cache::BlockStatisticCache>(), chainHeight);
 
-				CATAPULT_LOG(debug) << " - rolling back blocks";
-				for (auto height = chainHeight; height >= startHeight; height = height - Height(1))
-					chain::RollbackBlock(*m_pBlockStorage->loadBlockElement(height), executionContext);
+                CATAPULT_LOG(debug) << " - rolling back blocks";
+                for (auto height = chainHeight; height >= startHeight; height = height - Height(1))
+                    chain::RollbackBlock(*m_pBlockStorage->loadBlockElement(height), executionContext);
 
-				CATAPULT_LOG(debug) << " - executing blocks";
-				for (auto height = startHeight; height <= chainHeight; height = height + Height(1)) {
-					chain::ExecuteBlock(*m_pBlockStorage->loadBlockElement(height), executionContext);
-					cacheDelta.calculateStateHash(height); // force recalculation of patricia tree
-				}
+                CATAPULT_LOG(debug) << " - executing blocks";
+                for (auto height = startHeight; height <= chainHeight; height = height + Height(1)) {
+                    chain::ExecuteBlock(*m_pBlockStorage->loadBlockElement(height), executionContext);
+                    cacheDelta.calculateStateHash(height); // force recalculation of patricia tree
+                }
 
-				stateRef().Cache.commit(chainHeight);
-			}
+                stateRef().Cache.commit(chainHeight);
+            }
 
-		private:
-			static void FillBlockStatisticCache(cache::BlockStatisticCacheDelta& blockStatisticCacheDelta, Height newHeight) {
-				auto originalHeight = newHeight;
-				while (!blockStatisticCacheDelta.contains(state::BlockStatistic(originalHeight)))
-					originalHeight = originalHeight - Height(1);
+        private:
+            static void FillBlockStatisticCache(cache::BlockStatisticCacheDelta& blockStatisticCacheDelta, Height newHeight)
+            {
+                auto originalHeight = newHeight;
+                while (!blockStatisticCacheDelta.contains(state::BlockStatistic(originalHeight)))
+                    originalHeight = originalHeight - Height(1);
 
-				// these statistics are placeholders and don't need to reflect the block exactly as long as the height is correct
-				for (auto height = originalHeight + Height(1); height <= newHeight; height = height + Height(1))
-					blockStatisticCacheDelta.insert(state::BlockStatistic(height));
-			}
+                // these statistics are placeholders and don't need to reflect the block exactly as long as the height is correct
+                for (auto height = originalHeight + Height(1); height <= newHeight; height = height + Height(1))
+                    blockStatisticCacheDelta.insert(state::BlockStatistic(height));
+            }
 
-		public:
-			void shutdown() override {
-				utils::StackLogger stackLogger("shutting down recovery orchestrator", utils::LogLevel::info);
+        public:
+            void shutdown() override
+            {
+                utils::StackLogger stackLogger("shutting down recovery orchestrator", utils::LogLevel::info);
 
-				m_pBootstrapper->pool().shutdown();
-				saveStateToDisk();
-			}
+                m_pBootstrapper->pool().shutdown();
+                saveStateToDisk();
+            }
 
-		private:
-			void saveStateToDisk() {
-				if (!m_stateSavingRequired) {
-					// just write the commit step file that was deleted during recover
-					io::IndexFile commitStepFile(m_dataDirectory.rootDir().file("commit_step.dat"));
-					commitStepFile.set(utils::to_underlying_type(consumers::CommitOperationStep::All_Updated));
-					return;
-				}
+        private:
+            void saveStateToDisk()
+            {
+                if (!m_stateSavingRequired) {
+                    // just write the commit step file that was deleted during recover
+                    io::IndexFile commitStepFile(m_dataDirectory.rootDir().file("commit_step.dat"));
+                    commitStepFile.set(utils::to_underlying_type(consumers::CommitOperationStep::All_Updated));
+                    return;
+                }
 
-				constexpr auto SaveStateToDirectoryWithCheckpointing = extensions::SaveStateToDirectoryWithCheckpointing;
-				SaveStateToDirectoryWithCheckpointing(m_dataDirectory, m_config.Node, m_catapultCache, m_score.get());
-			}
+                constexpr auto SaveStateToDirectoryWithCheckpointing = extensions::SaveStateToDirectoryWithCheckpointing;
+                SaveStateToDirectoryWithCheckpointing(m_dataDirectory, m_config.Node, m_catapultCache, m_score.get());
+            }
 
-		public:
-			model::ChainScore score() const override {
-				return m_score.get();
-			}
+        public:
+            model::ChainScore score() const override
+            {
+                return m_score.get();
+            }
 
-		private:
-			extensions::LocalNodeStateRef stateRef() {
-				return extensions::LocalNodeStateRef(m_config, m_catapultCache, m_storage, m_score);
-			}
+        private:
+            extensions::LocalNodeStateRef stateRef()
+            {
+                return extensions::LocalNodeStateRef(m_config, m_catapultCache, m_storage, m_score);
+            }
 
-		private:
-			// make sure modules are unloaded last
-			std::vector<plugins::PluginModule> m_pluginModules;
-			std::unique_ptr<extensions::ProcessBootstrapper> m_pBootstrapper;
+        private:
+            // make sure modules are unloaded last
+            std::vector<plugins::PluginModule> m_pluginModules;
+            std::unique_ptr<extensions::ProcessBootstrapper> m_pBootstrapper;
 
-			io::BlockChangeSubscriber* m_pBlockChangeSubscriber;
-			const config::CatapultConfiguration& m_config;
-			config::CatapultDataDirectory m_dataDirectory;
+            io::BlockChangeSubscriber* m_pBlockChangeSubscriber;
+            const config::CatapultConfiguration& m_config;
+            config::CatapultDataDirectory m_dataDirectory;
 
-			cache::CatapultCache m_catapultCache;
-			std::unique_ptr<io::BlockStorage> m_pBlockStorage;
-			io::BlockStorageCache m_storage;
-			extensions::LocalNodeChainScore m_score;
+            cache::CatapultCache m_catapultCache;
+            std::unique_ptr<io::BlockStorage> m_pBlockStorage;
+            io::BlockStorageCache m_storage;
+            extensions::LocalNodeChainScore m_score;
 
-			std::unique_ptr<subscribers::FinalizationSubscriber> m_pFinalizationSubscriber;
-			std::unique_ptr<subscribers::StateChangeSubscriber> m_pStateChangeSubscriber;
-			std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pTransactionStatusSubscriber;
+            std::unique_ptr<subscribers::FinalizationSubscriber> m_pFinalizationSubscriber;
+            std::unique_ptr<subscribers::StateChangeSubscriber> m_pStateChangeSubscriber;
+            std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pTransactionStatusSubscriber;
 
-			plugins::PluginManager& m_pluginManager;
-			bool m_stateSavingRequired;
-		};
-	}
+            plugins::PluginManager& m_pluginManager;
+            bool m_stateSavingRequired;
+        };
+    }
 
-	std::unique_ptr<RecoveryOrchestrator> CreateRecoveryOrchestrator(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper) {
-		return CreateAndBootHost<DefaultRecoveryOrchestrator>(std::move(pBootstrapper));
-	}
-}}
+    std::unique_ptr<RecoveryOrchestrator> CreateRecoveryOrchestrator(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper)
+    {
+        return CreateAndBootHost<DefaultRecoveryOrchestrator>(std::move(pBootstrapper));
+    }
+}
+}

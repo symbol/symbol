@@ -27,78 +27,89 @@
 #include "catapult/net/ServerConnector.h"
 #include "catapult/thread/IoThreadPool.h"
 
-namespace catapult { namespace tools {
+namespace catapult {
+namespace tools {
 
-	net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory) {
-		auto settings = net::ConnectionSettings();
-		settings.NetworkIdentifier = model::NetworkIdentifier::Testnet;
-		settings.AllowOutgoingSelfConnections = true;
+    net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory)
+    {
+        auto settings = net::ConnectionSettings();
+        settings.NetworkIdentifier = model::NetworkIdentifier::Testnet;
+        settings.AllowOutgoingSelfConnections = true;
 
-		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(certificateDirectory);
-		settings.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
-		return settings;
-	}
+        settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(certificateDirectory);
+        settings.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
+        return settings;
+    }
 
-	namespace {
-		auto MakePeerConnectException(const ionet::Node& node, net::PeerConnectCode connectCode) {
-			std::ostringstream out;
-			out << "connecting to " << node << " failed with " << connectCode;
-			return std::make_exception_ptr(catapult_runtime_error(out.str().c_str()));
-		}
+    namespace {
+        auto MakePeerConnectException(const ionet::Node& node, net::PeerConnectCode connectCode)
+        {
+            std::ostringstream out;
+            out << "connecting to " << node << " failed with " << connectCode;
+            return std::make_exception_ptr(catapult_runtime_error(out.str().c_str()));
+        }
 
-		PacketSocketInfoFuture ConnectToNodeEx(
-				const net::ConnectionSettings& connectionSettings,
-				const ionet::Node& node,
-				thread::IoThreadPool& pool) {
-			auto pPromise = std::make_shared<thread::promise<ionet::PacketSocketInfo>>();
+        PacketSocketInfoFuture ConnectToNodeEx(
+            const net::ConnectionSettings& connectionSettings,
+            const ionet::Node& node,
+            thread::IoThreadPool& pool)
+        {
+            auto pPromise = std::make_shared<thread::promise<ionet::PacketSocketInfo>>();
 
-			// it is ok to pass empty Key() because key is only used to disallow connections to self
-			// and AllowOutgoingSelfConnections is set
-			auto pConnector = net::CreateServerConnector(pool, Key(), connectionSettings, "tool");
-			pConnector->connect(node, [node, pPromise](auto connectResult, const auto& socketInfo) {
-				switch (connectResult) {
-				case net::PeerConnectCode::Accepted:
-					return pPromise->set_value(ionet::PacketSocketInfo(socketInfo));
+            // it is ok to pass empty Key() because key is only used to disallow connections to self
+            // and AllowOutgoingSelfConnections is set
+            auto pConnector = net::CreateServerConnector(pool, Key(), connectionSettings, "tool");
+            pConnector->connect(node, [node, pPromise](auto connectResult, const auto& socketInfo) {
+                switch (connectResult) {
+                case net::PeerConnectCode::Accepted:
+                    return pPromise->set_value(ionet::PacketSocketInfo(socketInfo));
 
-				default:
-					CATAPULT_LOG(fatal) << "error occurred when trying to connect to node: " << connectResult;
-					return pPromise->set_exception(MakePeerConnectException(node, connectResult));
-				}
-			});
+                default:
+                    CATAPULT_LOG(fatal) << "error occurred when trying to connect to node: " << connectResult;
+                    return pPromise->set_exception(MakePeerConnectException(node, connectResult));
+                }
+            });
 
-			return pPromise->get_future();
-		}
-	}
+            return pPromise->get_future();
+        }
+    }
 
-	PacketIoFuture ConnectToNode(const std::string& certificateDirectory, const ionet::Node& node, thread::IoThreadPool& pool) {
-		return ConnectToNode(CreateToolConnectionSettings(certificateDirectory), node, pool);
-	}
+    PacketIoFuture ConnectToNode(const std::string& certificateDirectory, const ionet::Node& node, thread::IoThreadPool& pool)
+    {
+        return ConnectToNode(CreateToolConnectionSettings(certificateDirectory), node, pool);
+    }
 
-	PacketIoFuture ConnectToNode(const net::ConnectionSettings& connectionSettings, const ionet::Node& node, thread::IoThreadPool& pool) {
-		return ConnectToNodeEx(connectionSettings, node, pool).then([](auto&& socketInfoFuture) {
-			return socketInfoFuture.get().socket()->buffered();
-		});
-	}
+    PacketIoFuture ConnectToNode(const net::ConnectionSettings& connectionSettings, const ionet::Node& node, thread::IoThreadPool& pool)
+    {
+        return ConnectToNodeEx(connectionSettings, node, pool).then([](auto&& socketInfoFuture) {
+            return socketInfoFuture.get().socket()->buffered();
+        });
+    }
 
-	// region MultiNodeConnector
+    // region MultiNodeConnector
 
-	MultiNodeConnector::MultiNodeConnector(const std::string& certificateDirectory)
-			: m_certificateDirectory(certificateDirectory)
-			, m_pPool(CreateStartedThreadPool()) {
-	}
+    MultiNodeConnector::MultiNodeConnector(const std::string& certificateDirectory)
+        : m_certificateDirectory(certificateDirectory)
+        , m_pPool(CreateStartedThreadPool())
+    {
+    }
 
-	MultiNodeConnector::~MultiNodeConnector() {
-		// wait for all thread pool work to complete in order to prevent a self-join race condition
-		m_pPool->join();
-	}
+    MultiNodeConnector::~MultiNodeConnector()
+    {
+        // wait for all thread pool work to complete in order to prevent a self-join race condition
+        m_pPool->join();
+    }
 
-	thread::IoThreadPool& MultiNodeConnector::pool() {
-		return *m_pPool;
-	}
+    thread::IoThreadPool& MultiNodeConnector::pool()
+    {
+        return *m_pPool;
+    }
 
-	PacketSocketInfoFuture MultiNodeConnector::connect(const ionet::Node& node) {
-		return ConnectToNodeEx(CreateToolConnectionSettings(m_certificateDirectory), node, *m_pPool);
-	}
+    PacketSocketInfoFuture MultiNodeConnector::connect(const ionet::Node& node)
+    {
+        return ConnectToNodeEx(CreateToolConnectionSettings(m_certificateDirectory), node, *m_pPool);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

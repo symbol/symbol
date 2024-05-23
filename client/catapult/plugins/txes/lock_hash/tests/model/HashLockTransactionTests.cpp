@@ -19,71 +19,77 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/HashLockTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "src/model/HashLockTransaction.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	using TransactionType = HashLockTransaction;
+    using TransactionType = HashLockTransaction;
 
 #define TEST_CLASS HashLockTransactionTests
 
-	// region size + alignment + properties
+    // region size + alignment + properties
 
 #define TRANSACTION_FIELDS FIELD(Mosaic) FIELD(Duration) FIELD(Hash)
 
-	namespace {
-		template<typename T>
-		void AssertTransactionHasExpectedSize(size_t baseSize) {
-			// Arrange:
-			auto expectedSize = baseSize;
+    namespace {
+        template <typename T>
+        void AssertTransactionHasExpectedSize(size_t baseSize)
+        {
+            // Arrange:
+            auto expectedSize = baseSize;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
-			TRANSACTION_FIELDS
+            TRANSACTION_FIELDS
 #undef FIELD
 
-			// Assert:
-			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 56u, sizeof(T));
-		}
+            // Assert:
+            EXPECT_EQ(expectedSize, sizeof(T));
+            EXPECT_EQ(baseSize + 56u, sizeof(T));
+        }
 
-		template<typename T>
-		void AssertTransactionHasProperAlignment() {
+        template <typename T>
+        void AssertTransactionHasProperAlignment()
+        {
 #define FIELD(X) EXPECT_ALIGNED(T, X);
-			TRANSACTION_FIELDS
+            TRANSACTION_FIELDS
 #undef FIELD
-		}
+        }
 
-		template<typename T>
-		void AssertTransactionHasExpectedProperties() {
-			// Assert:
-			EXPECT_EQ(Entity_Type_Hash_Lock, T::Entity_Type);
-			EXPECT_EQ(1u, T::Current_Version);
-		}
-	}
+        template <typename T>
+        void AssertTransactionHasExpectedProperties()
+        {
+            // Assert:
+            EXPECT_EQ(Entity_Type_Hash_Lock, T::Entity_Type);
+            EXPECT_EQ(1u, T::Current_Version);
+        }
+    }
 
 #undef TRANSACTION_FIELDS
 
-	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(HashLock)
+    ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(HashLock)
 
-	// endregion
+    // endregion
 
-	// region CalculateRealSize
+    // region CalculateRealSize
 
-	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
-		// Arrange:
-		HashLockTransaction transaction;
-		transaction.Size = 0;
+    TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues)
+    {
+        // Arrange:
+        HashLockTransaction transaction;
+        transaction.Size = 0;
 
-		// Act:
-		auto realSize = HashLockTransaction::CalculateRealSize(transaction);
+        // Act:
+        auto realSize = HashLockTransaction::CalculateRealSize(transaction);
 
-		// Assert:
-		EXPECT_EQ(sizeof(HashLockTransaction), realSize);
-	}
+        // Assert:
+        EXPECT_EQ(sizeof(HashLockTransaction), realSize);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

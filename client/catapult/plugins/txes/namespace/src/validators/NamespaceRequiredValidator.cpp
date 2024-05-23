@@ -20,26 +20,28 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/NamespaceCache.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/NamespaceCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::NamespaceRequiredNotification;
+    using Notification = model::NamespaceRequiredNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(RequiredNamespace, [](const Notification& notification, const ValidatorContext& context) {
-		const auto& cache = context.Cache.sub<cache::NamespaceCache>();
+    DEFINE_STATEFUL_VALIDATOR(RequiredNamespace, [](const Notification& notification, const ValidatorContext& context) {
+        const auto& cache = context.Cache.sub<cache::NamespaceCache>();
 
-		auto namespaceIter = cache.find(notification.NamespaceId);
-		if (!namespaceIter.tryGet())
-			return Failure_Namespace_Unknown;
+        auto namespaceIter = cache.find(notification.NamespaceId);
+        if (!namespaceIter.tryGet())
+            return Failure_Namespace_Unknown;
 
-		// required namespace must be active (not merely in grace period)
-		const auto& root = namespaceIter.get().root();
-		if (!root.lifetime().isActiveExcludingGracePeriod(context.Height, cache.gracePeriodDuration()))
-			return Failure_Namespace_Expired;
+        // required namespace must be active (not merely in grace period)
+        const auto& root = namespaceIter.get().root();
+        if (!root.lifetime().isActiveExcludingGracePeriod(context.Height, cache.gracePeriodDuration()))
+            return Failure_Namespace_Expired;
 
-		return root.ownerAddress() == notification.Owner.resolved(context.Resolvers) ? ValidationResult::Success
-																					 : Failure_Namespace_Owner_Conflict;
-	})
-}}
+        return root.ownerAddress() == notification.Owner.resolved(context.Resolvers) ? ValidationResult::Success
+                                                                                     : Failure_Namespace_Owner_Conflict;
+    })
+}
+}

@@ -23,28 +23,30 @@
 #include "catapult/io/SeekableStream.h"
 #include <vector>
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Memory-based implementation of input and output stream.
-	class MemoryStream : public io::SeekableStream {
-	public:
-		/// Creates a memory stream around \a buffer.
-		explicit MemoryStream(std::vector<uint8_t>& buffer);
+    /// Memory-based implementation of input and output stream.
+    class MemoryStream : public io::SeekableStream {
+    public:
+        /// Creates a memory stream around \a buffer.
+        explicit MemoryStream(std::vector<uint8_t>& buffer);
 
-	public:
-		void write(const RawBuffer& buffer) override;
-		void flush() override;
+    public:
+        void write(const RawBuffer& buffer) override;
+        void flush() override;
 
-	public:
-		bool eof() const override;
-		void read(const MutableRawBuffer& buffer) override;
+    public:
+        bool eof() const override;
+        void read(const MutableRawBuffer& buffer) override;
 
-	public:
-		void seek(uint64_t position) override;
-		uint64_t position() const override;
+    public:
+        void seek(uint64_t position) override;
+        uint64_t position() const override;
 
-	private:
-		std::vector<uint8_t>& m_buffer;
-		size_t m_position;
-	};
-}}
+    private:
+        std::vector<uint8_t>& m_buffer;
+        size_t m_position;
+    };
+}
+}

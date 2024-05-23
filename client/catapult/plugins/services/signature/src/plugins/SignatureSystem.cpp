@@ -20,18 +20,22 @@
 **/
 
 #include "SignatureSystem.h"
-#include "src/validators/Validators.h"
 #include "catapult/plugins/PluginManager.h"
+#include "src/validators/Validators.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	void RegisterSignatureSystem(PluginManager& manager) {
-		manager.addStatelessValidatorHook([generationHashSeed = manager.config().Network.GenerationHashSeed](auto& builder) {
-			builder.add(validators::CreateSignatureValidator(generationHashSeed));
-		});
-	}
-}}
+    void RegisterSignatureSystem(PluginManager& manager)
+    {
+        manager.addStatelessValidatorHook([generationHashSeed = manager.config().Network.GenerationHashSeed](auto& builder) {
+            builder.add(validators::CreateSignatureValidator(generationHashSeed));
+        });
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
-	catapult::plugins::RegisterSignatureSystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
+{
+    catapult::plugins::RegisterSignatureSystem(manager);
 }

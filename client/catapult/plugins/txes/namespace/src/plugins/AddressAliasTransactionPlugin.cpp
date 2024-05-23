@@ -20,24 +20,27 @@
 **/
 
 #include "AddressAliasTransactionPlugin.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 #include "src/model/AddressAliasTransaction.h"
 #include "src/model/AliasNotifications.h"
 #include "src/model/NamespaceNotifications.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			sub.notify(NamespaceRequiredNotification(context.SignerAddress, transaction.NamespaceId));
-			sub.notify(AliasLinkNotification(transaction.NamespaceId, transaction.AliasAction));
-			sub.notify(AliasedAddressNotification(transaction.NamespaceId, transaction.AliasAction, transaction.Address));
-		}
-	}
+    namespace {
+        template <typename TTransaction>
+        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+        {
+            sub.notify(NamespaceRequiredNotification(context.SignerAddress, transaction.NamespaceId));
+            sub.notify(AliasLinkNotification(transaction.NamespaceId, transaction.AliasAction));
+            sub.notify(AliasedAddressNotification(transaction.NamespaceId, transaction.AliasAction, transaction.Address));
+        }
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(AddressAlias, Default, Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(AddressAlias, Default, Publish)
+}
+}

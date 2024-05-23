@@ -23,54 +23,63 @@
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/Logging.h"
 
-namespace catapult { namespace tree {
+namespace catapult {
+namespace tree {
 
-	MemoryDataSource::MemoryDataSource(DataSourceVerbosity verbosity)
-			: m_isVerbose(DataSourceVerbosity::Verbose == verbosity) {
-	}
+    MemoryDataSource::MemoryDataSource(DataSourceVerbosity verbosity)
+        : m_isVerbose(DataSourceVerbosity::Verbose == verbosity)
+    {
+    }
 
-	size_t MemoryDataSource::size() const {
-		return m_leafNodes.size() + m_branchNodes.size();
-	}
+    size_t MemoryDataSource::size() const
+    {
+        return m_leafNodes.size() + m_branchNodes.size();
+    }
 
-	TreeNode MemoryDataSource::get(const Hash256& hash) const {
-		auto leafNodeIter = m_leafNodes.find(hash);
-		if (m_leafNodes.cend() != leafNodeIter)
-			return TreeNode(leafNodeIter->second);
+    TreeNode MemoryDataSource::get(const Hash256& hash) const
+    {
+        auto leafNodeIter = m_leafNodes.find(hash);
+        if (m_leafNodes.cend() != leafNodeIter)
+            return TreeNode(leafNodeIter->second);
 
-		auto branchNodeIter = m_branchNodes.find(hash);
-		if (m_branchNodes.cend() != branchNodeIter)
-			return TreeNode(branchNodeIter->second);
+        auto branchNodeIter = m_branchNodes.find(hash);
+        if (m_branchNodes.cend() != branchNodeIter)
+            return TreeNode(branchNodeIter->second);
 
-		return TreeNode();
-	}
+        return TreeNode();
+    }
 
-	void MemoryDataSource::forEach(const consumer<const TreeNode&>& consumer) const {
-		for (const auto& pair : m_leafNodes)
-			consumer(TreeNode(pair.second));
+    void MemoryDataSource::forEach(const consumer<const TreeNode&>& consumer) const
+    {
+        for (const auto& pair : m_leafNodes)
+            consumer(TreeNode(pair.second));
 
-		for (const auto& pair : m_branchNodes)
-			consumer(TreeNode(pair.second));
-	}
+        for (const auto& pair : m_branchNodes)
+            consumer(TreeNode(pair.second));
+    }
 
-	void MemoryDataSource::set(const LeafTreeNode& node) {
-		if (m_isVerbose) {
-			CATAPULT_LOG(debug) << "saving leaf node: " << node.path() << ", hash = " << node.hash() << ", value = " << node.value();
-		}
+    void MemoryDataSource::set(const LeafTreeNode& node)
+    {
+        if (m_isVerbose) {
+            CATAPULT_LOG(debug) << "saving leaf node: " << node.path() << ", hash = " << node.hash() << ", value = " << node.value();
+        }
 
-		m_leafNodes.emplace(node.hash(), node);
-	}
+        m_leafNodes.emplace(node.hash(), node);
+    }
 
-	void MemoryDataSource::set(const BranchTreeNode& node) {
-		if (m_isVerbose) {
-			CATAPULT_LOG(debug) << "saving branch node: " << node.path() << ", hash = " << node.hash() << ", #links " << node.numLinks();
-		}
+    void MemoryDataSource::set(const BranchTreeNode& node)
+    {
+        if (m_isVerbose) {
+            CATAPULT_LOG(debug) << "saving branch node: " << node.path() << ", hash = " << node.hash() << ", #links " << node.numLinks();
+        }
 
-		m_branchNodes.emplace(node.hash(), node);
-	}
+        m_branchNodes.emplace(node.hash(), node);
+    }
 
-	void MemoryDataSource::clear() {
-		m_leafNodes.clear();
-		m_branchNodes.clear();
-	}
-}}
+    void MemoryDataSource::clear()
+    {
+        m_leafNodes.clear();
+        m_branchNodes.clear();
+    }
+}
+}

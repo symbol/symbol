@@ -22,239 +22,259 @@
 #include "catapult/model/InflationCalculator.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS InflationCalculatorTests
 
-	namespace {
-		struct InflationEntry {
-			catapult::Height Height;
-			catapult::Amount Amount;
-		};
+    namespace {
+        struct InflationEntry {
+            catapult::Height Height;
+            catapult::Amount Amount;
+        };
 
-		InflationCalculator CreateInflationCalculator(const std::vector<InflationEntry>& inflationEntries) {
-			InflationCalculator calculator;
-			for (const auto& inflationEntry : inflationEntries)
-				calculator.add(inflationEntry.Height, inflationEntry.Amount);
+        InflationCalculator CreateInflationCalculator(const std::vector<InflationEntry>& inflationEntries)
+        {
+            InflationCalculator calculator;
+            for (const auto& inflationEntry : inflationEntries)
+                calculator.add(inflationEntry.Height, inflationEntry.Amount);
 
-			// Sanity:
-			EXPECT_EQ(inflationEntries.size(), calculator.size());
+            // Sanity:
+            EXPECT_EQ(inflationEntries.size(), calculator.size());
 
-			return calculator;
-		}
-	}
+            return calculator;
+        }
+    }
 
-	// region ctor
+    // region ctor
 
-	TEST(TEST_CLASS, InflationCalculatorIsInitiallyEmpty) {
-		// Act:
-		InflationCalculator calculator;
+    TEST(TEST_CLASS, InflationCalculatorIsInitiallyEmpty)
+    {
+        // Act:
+        InflationCalculator calculator;
 
-		// Assert:
-		EXPECT_EQ(0u, calculator.size());
-	}
+        // Assert:
+        EXPECT_EQ(0u, calculator.size());
+    }
 
-	// endregion
+    // endregion
 
-	// region add
+    // region add
 
-	TEST(TEST_CLASS, CanAddSingleInflationEntry) {
-		// Arrange:
-		InflationCalculator calculator;
+    TEST(TEST_CLASS, CanAddSingleInflationEntry)
+    {
+        // Arrange:
+        InflationCalculator calculator;
 
-		// Act:
-		calculator.add(Height(5), Amount(123));
+        // Act:
+        calculator.add(Height(5), Amount(123));
 
-		// Assert:
-		EXPECT_EQ(1u, calculator.size());
-		EXPECT_TRUE(calculator.contains(Height(5), Amount(123)));
-	}
+        // Assert:
+        EXPECT_EQ(1u, calculator.size());
+        EXPECT_TRUE(calculator.contains(Height(5), Amount(123)));
+    }
 
-	TEST(TEST_CLASS, CanAddMultipleInflationEntries) {
-		// Arrange:
-		InflationCalculator calculator;
+    TEST(TEST_CLASS, CanAddMultipleInflationEntries)
+    {
+        // Arrange:
+        InflationCalculator calculator;
 
-		// Act:
-		calculator.add(Height(5), Amount(345));
-		calculator.add(Height(15), Amount(234));
-		calculator.add(Height(25), Amount(123));
+        // Act:
+        calculator.add(Height(5), Amount(345));
+        calculator.add(Height(15), Amount(234));
+        calculator.add(Height(25), Amount(123));
 
-		// Assert:
-		EXPECT_EQ(3u, calculator.size());
-		EXPECT_TRUE(calculator.contains(Height(5), Amount(345)));
-		EXPECT_TRUE(calculator.contains(Height(15), Amount(234)));
-		EXPECT_TRUE(calculator.contains(Height(25), Amount(123)));
-	}
+        // Assert:
+        EXPECT_EQ(3u, calculator.size());
+        EXPECT_TRUE(calculator.contains(Height(5), Amount(345)));
+        EXPECT_TRUE(calculator.contains(Height(15), Amount(234)));
+        EXPECT_TRUE(calculator.contains(Height(25), Amount(123)));
+    }
 
-	TEST(TEST_CLASS, CannotAddInflationEntryAtHeightZero) {
-		// Arrange:
-		InflationCalculator calculator;
+    TEST(TEST_CLASS, CannotAddInflationEntryAtHeightZero)
+    {
+        // Arrange:
+        InflationCalculator calculator;
 
-		// Act + Assert:
-		EXPECT_THROW(calculator.add(Height(0), Amount(123)), catapult_invalid_argument);
-	}
+        // Act + Assert:
+        EXPECT_THROW(calculator.add(Height(0), Amount(123)), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, CannotAddInflationEntryWhenHeightIsEqualToLastEntryHeight) {
-		// Arrange:
-		auto calculator = CreateInflationCalculator({ { Height(5), Amount(345) }, { Height(15), Amount(123) } });
+    TEST(TEST_CLASS, CannotAddInflationEntryWhenHeightIsEqualToLastEntryHeight)
+    {
+        // Arrange:
+        auto calculator = CreateInflationCalculator({ { Height(5), Amount(345) }, { Height(15), Amount(123) } });
 
-		// Assert:
-		EXPECT_THROW(calculator.add(Height(15), Amount(234)), catapult_invalid_argument);
-	}
+        // Assert:
+        EXPECT_THROW(calculator.add(Height(15), Amount(234)), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, CannotAddInflationEntryWhenHeightIsLessThanLastEntryHeight) {
-		// Arrange:
-		auto calculator = CreateInflationCalculator({ { Height(5), Amount(345) }, { Height(15), Amount(123) } });
+    TEST(TEST_CLASS, CannotAddInflationEntryWhenHeightIsLessThanLastEntryHeight)
+    {
+        // Arrange:
+        auto calculator = CreateInflationCalculator({ { Height(5), Amount(345) }, { Height(15), Amount(123) } });
 
-		// Assert:
-		EXPECT_THROW(calculator.add(Height(5), Amount(456)), catapult_invalid_argument);
-		EXPECT_THROW(calculator.add(Height(10), Amount(567)), catapult_invalid_argument);
-		EXPECT_THROW(calculator.add(Height(14), Amount(678)), catapult_invalid_argument);
-	}
+        // Assert:
+        EXPECT_THROW(calculator.add(Height(5), Amount(456)), catapult_invalid_argument);
+        EXPECT_THROW(calculator.add(Height(10), Amount(567)), catapult_invalid_argument);
+        EXPECT_THROW(calculator.add(Height(14), Amount(678)), catapult_invalid_argument);
+    }
 
-	// endregion
+    // endregion
 
-	// region getSpotAmount
+    // region getSpotAmount
 
-	namespace {
-		constexpr const char* Height_Message = "at height ";
-	}
+    namespace {
+        constexpr const char* Height_Message = "at height ";
+    }
 
-	TEST(TEST_CLASS, GetSpotAmountReturnsZeroWhenMapIsEmpty) {
-		// Arrange:
-		InflationCalculator calculator;
+    TEST(TEST_CLASS, GetSpotAmountReturnsZeroWhenMapIsEmpty)
+    {
+        // Arrange:
+        InflationCalculator calculator;
 
-		// Act + Assert:
-		for (auto rawHeight : { 0u, 1u, 10u, 123456u })
-			EXPECT_EQ(Amount(), calculator.getSpotAmount(Height(rawHeight))) << Height_Message << rawHeight;
-	}
+        // Act + Assert:
+        for (auto rawHeight : { 0u, 1u, 10u, 123456u })
+            EXPECT_EQ(Amount(), calculator.getSpotAmount(Height(rawHeight))) << Height_Message << rawHeight;
+    }
 
-	TEST(TEST_CLASS, GetSpotAmountReturnsExpectedAmount_HeightExistsInMap) {
-		// Arrange:
-		std::vector<InflationEntry> entries{ { Height(1), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
-		auto calculator = CreateInflationCalculator(entries);
+    TEST(TEST_CLASS, GetSpotAmountReturnsExpectedAmount_HeightExistsInMap)
+    {
+        // Arrange:
+        std::vector<InflationEntry> entries { { Height(1), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
+        auto calculator = CreateInflationCalculator(entries);
 
-		// Act + Assert:
-		EXPECT_EQ(Amount(345), calculator.getSpotAmount(Height(1)));
-		EXPECT_EQ(Amount(234), calculator.getSpotAmount(Height(15)));
-		EXPECT_EQ(Amount(123), calculator.getSpotAmount(Height(25)));
-	}
+        // Act + Assert:
+        EXPECT_EQ(Amount(345), calculator.getSpotAmount(Height(1)));
+        EXPECT_EQ(Amount(234), calculator.getSpotAmount(Height(15)));
+        EXPECT_EQ(Amount(123), calculator.getSpotAmount(Height(25)));
+    }
 
-	TEST(TEST_CLASS, GetSpotAmountReturnsExpectedAmount_HeightDoesNotExistInMap) {
-		// Arrange:
-		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
-		auto calculator = CreateInflationCalculator(entries);
+    TEST(TEST_CLASS, GetSpotAmountReturnsExpectedAmount_HeightDoesNotExistInMap)
+    {
+        // Arrange:
+        std::vector<InflationEntry> entries { { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
+        auto calculator = CreateInflationCalculator(entries);
 
-		// Act + Assert:
-		EXPECT_EQ(Amount(), calculator.getSpotAmount(Height(3))); // before first entry
-		EXPECT_EQ(Amount(345), calculator.getSpotAmount(Height(6))); // between first and second entry
-		EXPECT_EQ(Amount(234), calculator.getSpotAmount(Height(18))); // between second and third entry
-		EXPECT_EQ(Amount(123), calculator.getSpotAmount(Height(35))); // after third entry
-	}
+        // Act + Assert:
+        EXPECT_EQ(Amount(), calculator.getSpotAmount(Height(3))); // before first entry
+        EXPECT_EQ(Amount(345), calculator.getSpotAmount(Height(6))); // between first and second entry
+        EXPECT_EQ(Amount(234), calculator.getSpotAmount(Height(18))); // between second and third entry
+        EXPECT_EQ(Amount(123), calculator.getSpotAmount(Height(35))); // after third entry
+    }
 
-	// endregion
+    // endregion
 
-	// region getCumulativeAmount
+    // region getCumulativeAmount
 
-	TEST(TEST_CLASS, GetCumulativeAmountReturnsZeroWhenMapIsEmpty) {
-		// Arrange:
-		InflationCalculator calculator;
+    TEST(TEST_CLASS, GetCumulativeAmountReturnsZeroWhenMapIsEmpty)
+    {
+        // Arrange:
+        InflationCalculator calculator;
 
-		// Act + Assert:
-		for (auto rawHeight : { 1u, 5u, 10u, 123456u })
-			EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(rawHeight))) << Height_Message << rawHeight;
-	}
+        // Act + Assert:
+        for (auto rawHeight : { 1u, 5u, 10u, 123456u })
+            EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(rawHeight))) << Height_Message << rawHeight;
+    }
 
-	TEST(TEST_CLASS, GetCumulativeAmountReturnsAmountZeroAtHeightZero) {
-		// Arrange:
-		std::vector<InflationEntry> entries{ { Height(1), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
-		auto calculator = CreateInflationCalculator(entries);
+    TEST(TEST_CLASS, GetCumulativeAmountReturnsAmountZeroAtHeightZero)
+    {
+        // Arrange:
+        std::vector<InflationEntry> entries { { Height(1), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
+        auto calculator = CreateInflationCalculator(entries);
 
-		// Act + Assert:
-		EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(0)));
-	}
+        // Act + Assert:
+        EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(0)));
+    }
 
-	TEST(TEST_CLASS, GetCumulativeAmountReturnsExpectedAmount_HeightExistsInMap) {
-		// Arrange:
-		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(86) }, { Height(25), Amount(123) } };
-		auto calculator = CreateInflationCalculator(entries);
+    TEST(TEST_CLASS, GetCumulativeAmountReturnsExpectedAmount_HeightExistsInMap)
+    {
+        // Arrange:
+        std::vector<InflationEntry> entries { { Height(5), Amount(345) }, { Height(15), Amount(86) }, { Height(25), Amount(123) } };
+        auto calculator = CreateInflationCalculator(entries);
 
-		// Act + Assert: total inflation does not include the height provided in the call to getTotalAmount
-		EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(5))); // always zero up to first entry;
-		EXPECT_EQ(Amount(10 * 345), calculator.getCumulativeAmount(Height(15))); // 10 heights with inflation of 345
-		EXPECT_EQ(Amount(10 * 345 + 10 * 86), calculator.getCumulativeAmount(Height(25))); // additionally 10 heights with inflation of 86
-	}
+        // Act + Assert: total inflation does not include the height provided in the call to getTotalAmount
+        EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(5))); // always zero up to first entry;
+        EXPECT_EQ(Amount(10 * 345), calculator.getCumulativeAmount(Height(15))); // 10 heights with inflation of 345
+        EXPECT_EQ(Amount(10 * 345 + 10 * 86), calculator.getCumulativeAmount(Height(25))); // additionally 10 heights with inflation of 86
+    }
 
-	TEST(TEST_CLASS, GetCumulativeAmountReturnsExpectedAmount_HeightDoesNotExistInMap) {
-		// Arrange:
-		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
-		auto calculator = CreateInflationCalculator(entries);
+    TEST(TEST_CLASS, GetCumulativeAmountReturnsExpectedAmount_HeightDoesNotExistInMap)
+    {
+        // Arrange:
+        std::vector<InflationEntry> entries { { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
+        auto calculator = CreateInflationCalculator(entries);
 
-		// Act + Assert: total inflation does not include the height provided in the call to getTotalAmount
-		EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(1)));
-		EXPECT_EQ(Amount(1 * 345), calculator.getCumulativeAmount(Height(6)));
-		EXPECT_EQ(Amount(9 * 345), calculator.getCumulativeAmount(Height(14)));
-		EXPECT_EQ(Amount(10 * 345 + 1 * 234), calculator.getCumulativeAmount(Height(16)));
-		EXPECT_EQ(Amount(10 * 345 + 9 * 234), calculator.getCumulativeAmount(Height(24)));
-		EXPECT_EQ(Amount(10 * 345 + 10 * 234 + 1 * 123), calculator.getCumulativeAmount(Height(26))); // inflation of 123 from height 25 on
-		EXPECT_EQ(Amount(10 * 345 + 10 * 234 + 75 * 123), calculator.getCumulativeAmount(Height(100)));
-	}
+        // Act + Assert: total inflation does not include the height provided in the call to getTotalAmount
+        EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(1)));
+        EXPECT_EQ(Amount(1 * 345), calculator.getCumulativeAmount(Height(6)));
+        EXPECT_EQ(Amount(9 * 345), calculator.getCumulativeAmount(Height(14)));
+        EXPECT_EQ(Amount(10 * 345 + 1 * 234), calculator.getCumulativeAmount(Height(16)));
+        EXPECT_EQ(Amount(10 * 345 + 9 * 234), calculator.getCumulativeAmount(Height(24)));
+        EXPECT_EQ(Amount(10 * 345 + 10 * 234 + 1 * 123), calculator.getCumulativeAmount(Height(26))); // inflation of 123 from height 25 on
+        EXPECT_EQ(Amount(10 * 345 + 10 * 234 + 75 * 123), calculator.getCumulativeAmount(Height(100)));
+    }
 
-	// endregion
+    // endregion
 
-	// region sumAll
+    // region sumAll
 
-	TEST(TEST_CLASS, SumAllReturnsTotalInflationWhenNotEncounteringOverflow) {
-		// Arrange:
-		auto calculator = CreateInflationCalculator({ { Height(3), Amount(345) }, { Height(9), Amount(234) }, { Height(45), Amount(0) } });
+    TEST(TEST_CLASS, SumAllReturnsTotalInflationWhenNotEncounteringOverflow)
+    {
+        // Arrange:
+        auto calculator = CreateInflationCalculator({ { Height(3), Amount(345) }, { Height(9), Amount(234) }, { Height(45), Amount(0) } });
 
-		// Act:
-		auto totalInflation = calculator.sumAll();
+        // Act:
+        auto totalInflation = calculator.sumAll();
 
-		// Assert:
-		EXPECT_TRUE(totalInflation.second);
-		EXPECT_EQ(Amount(6 * 345 + 36 * 234), totalInflation.first);
-	}
+        // Assert:
+        EXPECT_TRUE(totalInflation.second);
+        EXPECT_EQ(Amount(6 * 345 + 36 * 234), totalInflation.first);
+    }
 
-	TEST(TEST_CLASS, SumAllReturnsFalseWhenInflationSummandCausesOverflow) {
-		// Arrange:
-		auto numBlocks = std::numeric_limits<uint64_t>::max() / 2 + 2;
-		auto calculator = CreateInflationCalculator({ { Height(1), Amount(2) }, { Height(numBlocks), Amount(0) } });
+    TEST(TEST_CLASS, SumAllReturnsFalseWhenInflationSummandCausesOverflow)
+    {
+        // Arrange:
+        auto numBlocks = std::numeric_limits<uint64_t>::max() / 2 + 2;
+        auto calculator = CreateInflationCalculator({ { Height(1), Amount(2) }, { Height(numBlocks), Amount(0) } });
 
-		// Act:
-		auto totalInflation = calculator.sumAll();
+        // Act:
+        auto totalInflation = calculator.sumAll();
 
-		// Act + Assert:
-		EXPECT_FALSE(totalInflation.second);
-		EXPECT_EQ(Amount(), totalInflation.first);
-	}
+        // Act + Assert:
+        EXPECT_FALSE(totalInflation.second);
+        EXPECT_EQ(Amount(), totalInflation.first);
+    }
 
-	TEST(TEST_CLASS, SumAllReturnsFalseWhenCurrentTotalInflationPlusSummandCausesOverflow) {
-		// Arrange:
-		auto numBlocks = std::numeric_limits<uint64_t>::max() / 2;
-		auto calculator = CreateInflationCalculator(
-				{ { Height(1), Amount(2) }, { Height(numBlocks), Amount(2) }, { Height(numBlocks + 2), Amount(0) } });
+    TEST(TEST_CLASS, SumAllReturnsFalseWhenCurrentTotalInflationPlusSummandCausesOverflow)
+    {
+        // Arrange:
+        auto numBlocks = std::numeric_limits<uint64_t>::max() / 2;
+        auto calculator = CreateInflationCalculator(
+            { { Height(1), Amount(2) }, { Height(numBlocks), Amount(2) }, { Height(numBlocks + 2), Amount(0) } });
 
-		// Act:
-		auto totalInflation = calculator.sumAll();
+        // Act:
+        auto totalInflation = calculator.sumAll();
 
-		// Act + Assert:
-		EXPECT_FALSE(totalInflation.second);
-		EXPECT_EQ(Amount(), totalInflation.first);
-	}
+        // Act + Assert:
+        EXPECT_FALSE(totalInflation.second);
+        EXPECT_EQ(Amount(), totalInflation.first);
+    }
 
-	TEST(TEST_CLASS, SumAllReturnsFalseWhenLastInflationEntryIsNonzero) {
-		// Arrange:
-		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(3) } };
-		auto calculator = CreateInflationCalculator(entries);
+    TEST(TEST_CLASS, SumAllReturnsFalseWhenLastInflationEntryIsNonzero)
+    {
+        // Arrange:
+        std::vector<InflationEntry> entries { { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(3) } };
+        auto calculator = CreateInflationCalculator(entries);
 
-		// Act:
-		auto totalInflation = calculator.sumAll();
+        // Act:
+        auto totalInflation = calculator.sumAll();
 
-		// Assert:
-		EXPECT_FALSE(totalInflation.second);
-		EXPECT_EQ(Amount(), totalInflation.first);
-	}
+        // Assert:
+        EXPECT_FALSE(totalInflation.second);
+        EXPECT_EQ(Amount(), totalInflation.first);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -19,49 +19,54 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/MosaicAddressRestrictionMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/restriction_mosaic/src/model/MosaicAddressRestrictionTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "plugins/txes/restriction_mosaic/src/model/MosaicAddressRestrictionTransaction.h"
+#include "src/MosaicAddressRestrictionMapper.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS MosaicAddressRestrictionMapperTests
 
-	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicAddressRestriction, )
-	}
+        namespace {
+            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicAddressRestriction, )
+        }
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Address_Restriction)
+        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Address_Restriction)
 
-	// region streamTransaction
+        // region streamTransaction
 
-	PLUGIN_TEST(CanMapMosaicAddressRestrictionTransaction) {
-		// Arrange:
-		typename TTraits::TransactionType transaction;
-		transaction.MosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
-		transaction.RestrictionKey = test::Random();
-		transaction.TargetAddress = test::GenerateRandomByteArray<UnresolvedAddress>();
-		transaction.PreviousRestrictionValue = test::Random();
-		transaction.NewRestrictionValue = test::Random();
+        PLUGIN_TEST(CanMapMosaicAddressRestrictionTransaction)
+        {
+            // Arrange:
+            typename TTraits::TransactionType transaction;
+            transaction.MosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
+            transaction.RestrictionKey = test::Random();
+            transaction.TargetAddress = test::GenerateRandomByteArray<UnresolvedAddress>();
+            transaction.PreviousRestrictionValue = test::Random();
+            transaction.NewRestrictionValue = test::Random();
 
-		auto pPlugin = TTraits::CreatePlugin();
+            auto pPlugin = TTraits::CreatePlugin();
 
-		// Act:
-		mappers::bson_stream::document builder;
-		pPlugin->streamTransaction(builder, transaction);
-		auto view = builder.view();
+            // Act:
+            mappers::bson_stream::document builder;
+            pPlugin->streamTransaction(builder, transaction);
+            auto view = builder.view();
 
-		// Assert:
-		EXPECT_EQ(5u, test::GetFieldCount(view));
-		EXPECT_EQ(transaction.MosaicId, UnresolvedMosaicId(test::GetUint64(view, "mosaicId")));
-		EXPECT_EQ(transaction.RestrictionKey, test::GetUint64(view, "restrictionKey"));
-		EXPECT_EQ(transaction.TargetAddress, test::GetUnresolvedAddressValue(view, "targetAddress"));
-		EXPECT_EQ(transaction.PreviousRestrictionValue, test::GetUint64(view, "previousRestrictionValue"));
-		EXPECT_EQ(transaction.NewRestrictionValue, test::GetUint64(view, "newRestrictionValue"));
-	}
+            // Assert:
+            EXPECT_EQ(5u, test::GetFieldCount(view));
+            EXPECT_EQ(transaction.MosaicId, UnresolvedMosaicId(test::GetUint64(view, "mosaicId")));
+            EXPECT_EQ(transaction.RestrictionKey, test::GetUint64(view, "restrictionKey"));
+            EXPECT_EQ(transaction.TargetAddress, test::GetUnresolvedAddressValue(view, "targetAddress"));
+            EXPECT_EQ(transaction.PreviousRestrictionValue, test::GetUint64(view, "previousRestrictionValue"));
+            EXPECT_EQ(transaction.NewRestrictionValue, test::GetUint64(view, "newRestrictionValue"));
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

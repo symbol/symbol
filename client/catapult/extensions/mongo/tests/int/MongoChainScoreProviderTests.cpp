@@ -19,115 +19,124 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/MongoChainScoreProvider.h"
-#include "mongo/src/MongoBulkWriter.h"
-#include "mongo/src/MongoChainStatisticUtils.h"
 #include "catapult/model/ChainScore.h"
+#include "mongo/src/MongoBulkWriter.h"
+#include "mongo/src/MongoChainScoreProvider.h"
+#include "mongo/src/MongoChainStatisticUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"
-#include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/ThreadPoolTestUtils.h"
 
 using namespace bsoncxx::builder::stream;
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
 #define TEST_CLASS MongoChainScoreProviderTests
 
-	namespace {
-		class TestContext final : public test::PrepareDatabaseMixin {
-		public:
-			explicit TestContext(MongoErrorPolicy::Mode errorPolicyMode = MongoErrorPolicy::Mode::Strict)
-					: m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
-					, m_pMongoContext(test::CreateDefaultMongoStorageContext(test::DatabaseName(), *m_pPool, errorPolicyMode))
-					, m_pScoreProvider(CreateMongoChainScoreProvider(*m_pMongoContext)) {
-			}
+    namespace {
+        class TestContext final : public test::PrepareDatabaseMixin {
+        public:
+            explicit TestContext(MongoErrorPolicy::Mode errorPolicyMode = MongoErrorPolicy::Mode::Strict)
+                : m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
+                , m_pMongoContext(test::CreateDefaultMongoStorageContext(test::DatabaseName(), *m_pPool, errorPolicyMode))
+                , m_pScoreProvider(CreateMongoChainScoreProvider(*m_pMongoContext))
+            {
+            }
 
-		public:
-			ChainScoreProvider& chainScoreProvider() {
-				return *m_pScoreProvider;
-			}
+        public:
+            ChainScoreProvider& chainScoreProvider()
+            {
+                return *m_pScoreProvider;
+            }
 
-		private:
-			std::unique_ptr<thread::IoThreadPool> m_pPool;
-			std::unique_ptr<MongoStorageContext> m_pMongoContext;
-			std::unique_ptr<ChainScoreProvider> m_pScoreProvider;
-		};
-	}
+        private:
+            std::unique_ptr<thread::IoThreadPool> m_pPool;
+            std::unique_ptr<MongoStorageContext> m_pMongoContext;
+            std::unique_ptr<ChainScoreProvider> m_pScoreProvider;
+        };
+    }
 
-	namespace {
-		void AssertDbScore(const model::ChainScore& expectedScore) {
-			auto connection = test::CreateDbConnection();
-			auto database = connection[test::DatabaseName()];
+    namespace {
+        void AssertDbScore(const model::ChainScore& expectedScore)
+        {
+            auto connection = test::CreateDbConnection();
+            auto database = connection[test::DatabaseName()];
 
-			auto cursor = database["chainStatistic"].find({});
-			ASSERT_EQ(1, std::distance(cursor.begin(), cursor.end()));
+            auto cursor = database["chainStatistic"].find({});
+            ASSERT_EQ(1, std::distance(cursor.begin(), cursor.end()));
 
-			auto matchedDocument = database["chainStatistic"].find_one({}).value();
-			auto currentView = matchedDocument.view()["current"].get_document().view();
+            auto matchedDocument = database["chainStatistic"].find_one({}).value();
+            auto currentView = matchedDocument.view()["current"].get_document().view();
 
-			auto scoreLow = test::GetUint64(currentView, "scoreLow");
-			auto scoreHigh = test::GetUint64(currentView, "scoreHigh");
-			EXPECT_EQ(expectedScore, model::ChainScore(scoreHigh, scoreLow));
-		}
-	}
+            auto scoreLow = test::GetUint64(currentView, "scoreLow");
+            auto scoreHigh = test::GetUint64(currentView, "scoreHigh");
+            EXPECT_EQ(expectedScore, model::ChainScore(scoreHigh, scoreLow));
+        }
+    }
 
-	TEST(TEST_CLASS, CanSaveScore) {
-		// Arrange:
-		TestContext context;
-		model::ChainScore score(0x12345670, 0x89ABCDEF);
+    TEST(TEST_CLASS, CanSaveScore)
+    {
+        // Arrange:
+        TestContext context;
+        model::ChainScore score(0x12345670, 0x89ABCDEF);
 
-		// Act:
-		context.chainScoreProvider().saveScore(score);
+        // Act:
+        context.chainScoreProvider().saveScore(score);
 
-		// Assert:
-		AssertDbScore(score);
-	}
+        // Assert:
+        AssertDbScore(score);
+    }
 
-	TEST(TEST_CLASS, CannotSaveSameScoreTwiceWhenErrorModeIsStrict) {
-		// Arrange:
-		TestContext context;
-		model::ChainScore score(0x12345670, 0x89ABCDEF);
+    TEST(TEST_CLASS, CannotSaveSameScoreTwiceWhenErrorModeIsStrict)
+    {
+        // Arrange:
+        TestContext context;
+        model::ChainScore score(0x12345670, 0x89ABCDEF);
 
-		context.chainScoreProvider().saveScore(score);
+        context.chainScoreProvider().saveScore(score);
 
-		// Act + Assert:
-		EXPECT_THROW(context.chainScoreProvider().saveScore(score), catapult_runtime_error);
-	}
+        // Act + Assert:
+        EXPECT_THROW(context.chainScoreProvider().saveScore(score), catapult_runtime_error);
+    }
 
-	TEST(TEST_CLASS, CanSaveSameScoreTwiceWhenErrorModeIsIdempotent) {
-		// Arrange:
-		TestContext context(MongoErrorPolicy::Mode::Idempotent);
-		model::ChainScore score(0x12345670, 0x89ABCDEF);
+    TEST(TEST_CLASS, CanSaveSameScoreTwiceWhenErrorModeIsIdempotent)
+    {
+        // Arrange:
+        TestContext context(MongoErrorPolicy::Mode::Idempotent);
+        model::ChainScore score(0x12345670, 0x89ABCDEF);
 
-		context.chainScoreProvider().saveScore(score);
+        context.chainScoreProvider().saveScore(score);
 
-		// Act:
-		context.chainScoreProvider().saveScore(score);
+        // Act:
+        context.chainScoreProvider().saveScore(score);
 
-		// Assert:
-		AssertDbScore(score);
-	}
+        // Assert:
+        AssertDbScore(score);
+    }
 
-	TEST(TEST_CLASS, SaveScoreDoesNotOverwriteHeight) {
-		// Arrange:
-		TestContext context;
-		model::ChainScore score(0x12345670, 0x89ABCDEF);
+    TEST(TEST_CLASS, SaveScoreDoesNotOverwriteHeight)
+    {
+        // Arrange:
+        TestContext context;
+        model::ChainScore score(0x12345670, 0x89ABCDEF);
 
-		// - set the height
-		auto connection = test::CreateDbConnection();
-		auto database = connection[test::DatabaseName()];
-		auto heightDocument = document() << "$set" << open_document << "current.height" << static_cast<int64_t>(123) << close_document
-										 << finalize;
-		TrySetChainStatisticDocument(database, heightDocument.view());
+        // - set the height
+        auto connection = test::CreateDbConnection();
+        auto database = connection[test::DatabaseName()];
+        auto heightDocument = document() << "$set" << open_document << "current.height" << static_cast<int64_t>(123) << close_document
+                                         << finalize;
+        TrySetChainStatisticDocument(database, heightDocument.view());
 
-		// Act:
-		context.chainScoreProvider().saveScore(score);
+        // Act:
+        context.chainScoreProvider().saveScore(score);
 
-		// Assert: the height is unchanged
-		auto chainStatisticDocument = GetChainStatisticDocument(database);
-		auto currentView = chainStatisticDocument.view()["current"].get_document().view();
-		EXPECT_EQ(3u, test::GetFieldCount(currentView));
-		EXPECT_EQ(123u, test::GetUint64(currentView, "height"));
-	}
-}}
+        // Assert: the height is unchanged
+        auto chainStatisticDocument = GetChainStatisticDocument(database);
+        auto currentView = chainStatisticDocument.view()["current"].get_document().view();
+        EXPECT_EQ(3u, test::GetFieldCount(currentView));
+        EXPECT_EQ(123u, test::GetUint64(currentView, "height"));
+    }
+}
+}

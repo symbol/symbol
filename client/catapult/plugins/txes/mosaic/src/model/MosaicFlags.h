@@ -23,29 +23,31 @@
 #include "catapult/utils/BitwiseEnum.h"
 #include <stdint.h>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Mosaic property flags.
-	enum class MosaicFlags : uint8_t {
-		/// No flags present.
-		None = 0x00,
+    /// Mosaic property flags.
+    enum class MosaicFlags : uint8_t {
+        /// No flags present.
+        None = 0x00,
 
-		/// Mosaic supports supply changes even when mosaic owner owns partial supply.
-		Supply_Mutable = 0x01,
+        /// Mosaic supports supply changes even when mosaic owner owns partial supply.
+        Supply_Mutable = 0x01,
 
-		/// Mosaic supports transfers between arbitrary accounts.
-		/// \note When not set, mosaic can only be transferred to and from mosaic owner.
-		Transferable = 0x02,
+        /// Mosaic supports transfers between arbitrary accounts.
+        /// \note When not set, mosaic can only be transferred to and from mosaic owner.
+        Transferable = 0x02,
 
-		/// Mosaic supports custom restrictions configured by mosaic owner.
-		Restrictable = 0x04,
+        /// Mosaic supports custom restrictions configured by mosaic owner.
+        Restrictable = 0x04,
 
-		/// Mosaic supports revocation of tokens by creator.
-		Revokable = 0x08,
+        /// Mosaic supports revocation of tokens by creator.
+        Revokable = 0x08,
 
-		/// All flags.
-		All = 0x0F
-	};
+        /// All flags.
+        All = 0x0F
+    };
 
-	MAKE_BITWISE_ENUM(MosaicFlags)
-}}
+    MAKE_BITWISE_ENUM(MosaicFlags)
+}
+}

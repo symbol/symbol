@@ -29,169 +29,184 @@
 #include "catapult/utils/MemoryUtils.h"
 #include <cstring>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region hashes
+    // region hashes
 
-	void CalculateBlockTransactionsHash(const std::vector<const TransactionInfo*>& transactionInfos, Hash256& blockTransactionsHash) {
-		crypto::MerkleHashBuilder builder;
-		for (const auto* pTransactionInfo : transactionInfos)
-			builder.update(pTransactionInfo->MerkleComponentHash);
+    void CalculateBlockTransactionsHash(const std::vector<const TransactionInfo*>& transactionInfos, Hash256& blockTransactionsHash)
+    {
+        crypto::MerkleHashBuilder builder;
+        for (const auto* pTransactionInfo : transactionInfos)
+            builder.update(pTransactionInfo->MerkleComponentHash);
 
-		builder.final(blockTransactionsHash);
-	}
+        builder.final(blockTransactionsHash);
+    }
 
-	GenerationHash CalculateGenerationHash(const crypto::ProofGamma& gamma) {
-		auto proofHash = GenerateVrfProofHash(gamma);
-		return proofHash.copyTo<GenerationHash>();
-	}
+    GenerationHash CalculateGenerationHash(const crypto::ProofGamma& gamma)
+    {
+        auto proofHash = GenerateVrfProofHash(gamma);
+        return proofHash.copyTo<GenerationHash>();
+    }
 
-	// endregion
+    // endregion
 
-	// region block type
+    // region block type
 
-	model::EntityType CalculateBlockTypeFromHeight(Height height, uint64_t importanceGrouping) {
-		if (Height(1) == height)
-			return model::Entity_Type_Block_Nemesis;
+    model::EntityType CalculateBlockTypeFromHeight(Height height, uint64_t importanceGrouping)
+    {
+        if (Height(1) == height)
+            return model::Entity_Type_Block_Nemesis;
 
-		return 0 == height.unwrap() % importanceGrouping ? model::Entity_Type_Block_Importance : model::Entity_Type_Block_Normal;
-	}
+        return 0 == height.unwrap() % importanceGrouping ? model::Entity_Type_Block_Importance : model::Entity_Type_Block_Normal;
+    }
 
-	// endregion
+    // endregion
 
-	// region block transactions info
+    // region block transactions info
 
-	namespace {
-		ExtendedBlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block, const TransactionRegistry* pTransactionRegistry) {
-			ExtendedBlockTransactionsInfo blockTransactionsInfo;
-			for (const auto& transaction : block.Transactions()) {
-				auto transactionFee = CalculateTransactionFee(block.FeeMultiplier, transaction);
-				blockTransactionsInfo.TotalFee = blockTransactionsInfo.TotalFee + transactionFee;
-				++blockTransactionsInfo.Count;
+    namespace {
+        ExtendedBlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block, const TransactionRegistry* pTransactionRegistry)
+        {
+            ExtendedBlockTransactionsInfo blockTransactionsInfo;
+            for (const auto& transaction : block.Transactions()) {
+                auto transactionFee = CalculateTransactionFee(block.FeeMultiplier, transaction);
+                blockTransactionsInfo.TotalFee = blockTransactionsInfo.TotalFee + transactionFee;
+                ++blockTransactionsInfo.Count;
 
-				if (!pTransactionRegistry)
-					continue;
+                if (!pTransactionRegistry)
+                    continue;
 
-				const auto* pPlugin = pTransactionRegistry->findPlugin(transaction.Type);
-				if (pPlugin)
-					blockTransactionsInfo.DeepCount += 1 + pPlugin->embeddedCount(transaction);
-				else
-					CATAPULT_LOG(warning) << "skipping transaction with unknown type " << transaction.Type;
-			}
+                const auto* pPlugin = pTransactionRegistry->findPlugin(transaction.Type);
+                if (pPlugin)
+                    blockTransactionsInfo.DeepCount += 1 + pPlugin->embeddedCount(transaction);
+                else
+                    CATAPULT_LOG(warning) << "skipping transaction with unknown type " << transaction.Type;
+            }
 
-			return blockTransactionsInfo;
-		}
-	}
+            return blockTransactionsInfo;
+        }
+    }
 
-	BlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block) {
-		return CalculateBlockTransactionsInfo(block, nullptr);
-	}
+    BlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block)
+    {
+        return CalculateBlockTransactionsInfo(block, nullptr);
+    }
 
-	ExtendedBlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block, const TransactionRegistry& transactionRegistry) {
-		return CalculateBlockTransactionsInfo(block, &transactionRegistry);
-	}
+    ExtendedBlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block, const TransactionRegistry& transactionRegistry)
+    {
+        return CalculateBlockTransactionsInfo(block, &transactionRegistry);
+    }
 
-	// endregion
+    // endregion
 
-	// region sign / verify
+    // region sign / verify
 
-	void SignBlockHeader(const crypto::KeyPair& signer, Block& block) {
-		crypto::Sign(signer, GetBlockHeaderDataBuffer(block), block.Signature);
-	}
+    void SignBlockHeader(const crypto::KeyPair& signer, Block& block)
+    {
+        crypto::Sign(signer, GetBlockHeaderDataBuffer(block), block.Signature);
+    }
 
-	bool VerifyBlockHeaderSignature(const Block& block) {
-		return crypto::Verify(block.SignerPublicKey, GetBlockHeaderDataBuffer(block), block.Signature);
-	}
+    bool VerifyBlockHeaderSignature(const Block& block)
+    {
+        return crypto::Verify(block.SignerPublicKey, GetBlockHeaderDataBuffer(block), block.Signature);
+    }
 
-	// endregion
+    // endregion
 
-	// region create block
+    // region create block
 
-	namespace {
-		template<typename TContainer>
-		void CopyTransactions(uint8_t* pDestination, const TContainer& transactions) {
-			for (auto i = 0u; i < transactions.size(); ++i) {
-				const auto& pTransaction = transactions[i];
-				std::memcpy(pDestination, pTransaction.get(), pTransaction->Size);
-				pDestination += pTransaction->Size;
+    namespace {
+        template <typename TContainer>
+        void CopyTransactions(uint8_t* pDestination, const TContainer& transactions)
+        {
+            for (auto i = 0u; i < transactions.size(); ++i) {
+                const auto& pTransaction = transactions[i];
+                std::memcpy(pDestination, pTransaction.get(), pTransaction->Size);
+                pDestination += pTransaction->Size;
 
-				if (i < transactions.size() - 1) {
-					auto paddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
-					std::memset(static_cast<void*>(pDestination), 0, paddingSize);
-					pDestination += paddingSize;
-				}
-			}
-		}
+                if (i < transactions.size() - 1) {
+                    auto paddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
+                    std::memset(static_cast<void*>(pDestination), 0, paddingSize);
+                    pDestination += paddingSize;
+                }
+            }
+        }
 
-		template<typename TContainer>
-		uint32_t CalculateTotalSize(const TContainer& transactions) {
-			uint32_t totalTransactionsSize = 0;
-			uint32_t lastPaddingSize = 0;
-			for (const auto& pTransaction : transactions) {
-				lastPaddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
-				totalTransactionsSize += pTransaction->Size + lastPaddingSize;
-			}
+        template <typename TContainer>
+        uint32_t CalculateTotalSize(const TContainer& transactions)
+        {
+            uint32_t totalTransactionsSize = 0;
+            uint32_t lastPaddingSize = 0;
+            for (const auto& pTransaction : transactions) {
+                lastPaddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
+                totalTransactionsSize += pTransaction->Size + lastPaddingSize;
+            }
 
-			return totalTransactionsSize - lastPaddingSize;
-		}
+            return totalTransactionsSize - lastPaddingSize;
+        }
 
-		template<typename TContainer>
-		std::unique_ptr<Block> CreateBlockT(
-				EntityType blockType,
-				const PreviousBlockContext& context,
-				NetworkIdentifier networkIdentifier,
-				const Key& signerPublicKey,
-				const TContainer& transactions) {
-			auto headerSize = GetBlockHeaderSize(blockType);
-			auto size = headerSize + CalculateTotalSize(transactions);
-			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
-			std::memset(static_cast<void*>(pBlock.get()), 0, headerSize);
-			pBlock->Size = size;
+        template <typename TContainer>
+        std::unique_ptr<Block> CreateBlockT(
+            EntityType blockType,
+            const PreviousBlockContext& context,
+            NetworkIdentifier networkIdentifier,
+            const Key& signerPublicKey,
+            const TContainer& transactions)
+        {
+            auto headerSize = GetBlockHeaderSize(blockType);
+            auto size = headerSize + CalculateTotalSize(transactions);
+            auto pBlock = utils::MakeUniqueWithSize<Block>(size);
+            std::memset(static_cast<void*>(pBlock.get()), 0, headerSize);
+            pBlock->Size = size;
 
-			pBlock->SignerPublicKey = signerPublicKey;
+            pBlock->SignerPublicKey = signerPublicKey;
 
-			pBlock->Version = Block::Current_Version;
-			pBlock->Network = networkIdentifier;
-			pBlock->Type = blockType;
+            pBlock->Version = Block::Current_Version;
+            pBlock->Network = networkIdentifier;
+            pBlock->Type = blockType;
 
-			pBlock->Height = context.BlockHeight + Height(1);
-			pBlock->Difficulty = Difficulty();
-			pBlock->PreviousBlockHash = context.BlockHash;
+            pBlock->Height = context.BlockHeight + Height(1);
+            pBlock->Difficulty = Difficulty();
+            pBlock->PreviousBlockHash = context.BlockHash;
 
-			pBlock->BeneficiaryAddress = GetSignerAddress(*pBlock);
+            pBlock->BeneficiaryAddress = GetSignerAddress(*pBlock);
 
-			// append all the transactions
-			auto* pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
-			CopyTransactions(pDestination, transactions);
-			return pBlock;
-		}
-	}
+            // append all the transactions
+            auto* pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
+            CopyTransactions(pDestination, transactions);
+            return pBlock;
+        }
+    }
 
-	std::unique_ptr<Block> CreateBlock(
-			EntityType blockType,
-			const PreviousBlockContext& context,
-			NetworkIdentifier networkIdentifier,
-			const Key& signerPublicKey,
-			const Transactions& transactions) {
-		return CreateBlockT(blockType, context, networkIdentifier, signerPublicKey, transactions);
-	}
+    std::unique_ptr<Block> CreateBlock(
+        EntityType blockType,
+        const PreviousBlockContext& context,
+        NetworkIdentifier networkIdentifier,
+        const Key& signerPublicKey,
+        const Transactions& transactions)
+    {
+        return CreateBlockT(blockType, context, networkIdentifier, signerPublicKey, transactions);
+    }
 
-	std::unique_ptr<Block> StitchBlock(const BlockHeader& blockHeader, const Transactions& transactions) {
-		auto headerSize = GetBlockHeaderSize(blockHeader.Type);
-		auto size = headerSize + CalculateTotalSize(transactions);
-		auto pBlock = utils::MakeUniqueWithSize<Block>(size);
-		auto* pBlockData = reinterpret_cast<uint8_t*>(pBlock.get());
+    std::unique_ptr<Block> StitchBlock(const BlockHeader& blockHeader, const Transactions& transactions)
+    {
+        auto headerSize = GetBlockHeaderSize(blockHeader.Type);
+        auto size = headerSize + CalculateTotalSize(transactions);
+        auto pBlock = utils::MakeUniqueWithSize<Block>(size);
+        auto* pBlockData = reinterpret_cast<uint8_t*>(pBlock.get());
 
-		// only copy BlockHeader and zero header footer
-		std::memcpy(pBlockData, &blockHeader, sizeof(BlockHeader));
-		std::memset(pBlockData + sizeof(BlockHeader), 0, headerSize - sizeof(BlockHeader));
-		pBlock->Size = static_cast<uint32_t>(size);
+        // only copy BlockHeader and zero header footer
+        std::memcpy(pBlockData, &blockHeader, sizeof(BlockHeader));
+        std::memset(pBlockData + sizeof(BlockHeader), 0, headerSize - sizeof(BlockHeader));
+        pBlock->Size = static_cast<uint32_t>(size);
 
-		// append all the transactions
-		auto* pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
-		CopyTransactions(pDestination, transactions);
-		return pBlock;
-	}
+        // append all the transactions
+        auto* pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
+        CopyTransactions(pDestination, transactions);
+        return pBlock;
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

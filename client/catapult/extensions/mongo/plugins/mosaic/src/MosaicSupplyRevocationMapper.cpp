@@ -26,15 +26,20 @@
 
 using namespace catapult::mongo::mappers;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
-			builder << "sourceAddress" << ToBinary(transaction.SourceAddress) << "mosaicId" << ToInt64(transaction.Mosaic.MosaicId)
-					<< "amount" << ToInt64(transaction.Mosaic.Amount);
-		}
-	}
+        namespace {
+            template <typename TTransaction>
+            void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction)
+            {
+                builder << "sourceAddress" << ToBinary(transaction.SourceAddress) << "mosaicId" << ToInt64(transaction.Mosaic.MosaicId)
+                        << "amount" << ToInt64(transaction.Mosaic.Amount);
+            }
+        }
 
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(MosaicSupplyRevocation, StreamTransaction)
-}}}
+        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(MosaicSupplyRevocation, StreamTransaction)
+    }
+}
+}

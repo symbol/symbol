@@ -24,23 +24,25 @@
 
 namespace catapult {
 namespace config {
-	class CatapultConfiguration;
+    class CatapultConfiguration;
 }
 namespace ionet {
-	struct BanSettings;
-	class Node;
-	class NodeContainer;
+    struct BanSettings;
+    class Node;
+    class NodeContainer;
 }
 }
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Validates all \a nodes.
-	void ValidateNodes(const std::vector<ionet::Node>& nodes);
+    /// Validates all \a nodes.
+    void ValidateNodes(const std::vector<ionet::Node>& nodes);
 
-	/// Adds local node specified in \a config to \a nodes.
-	void AddLocalNode(ionet::NodeContainer& nodes, const config::CatapultConfiguration& config);
+    /// Adds local node specified in \a config to \a nodes.
+    void AddLocalNode(ionet::NodeContainer& nodes, const config::CatapultConfiguration& config);
 
-	/// Gets the ban settings from \a banConfig.
-	ionet::BanSettings GetBanSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig);
-}}
+    /// Gets the ban settings from \a banConfig.
+    ionet::BanSettings GetBanSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig);
+}
+}

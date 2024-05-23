@@ -22,11 +22,13 @@
 #pragma once
 #include "tests/test/core/TransactionInfoTestUtils.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Creates a set of \a count transaction infos with allocated optional addresses.
-	model::TransactionInfosSet CreateTransactionInfosSetWithOptionalAddresses(size_t count);
+    /// Creates a set of \a count transaction infos with allocated optional addresses.
+    model::TransactionInfosSet CreateTransactionInfosSetWithOptionalAddresses(size_t count);
 
-	/// Serializes \a transactionInfo to a byte buffer.
-	std::vector<uint8_t> SerializeTransactionInfo(const model::TransactionInfo& transactionInfo);
-}}
+    /// Serializes \a transactionInfo to a byte buffer.
+    std::vector<uint8_t> SerializeTransactionInfo(const model::TransactionInfo& transactionInfo);
+}
+}

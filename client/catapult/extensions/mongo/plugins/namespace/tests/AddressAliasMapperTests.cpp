@@ -19,45 +19,50 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/AddressAliasMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/namespace/src/model/AddressAliasTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "plugins/txes/namespace/src/model/AddressAliasTransaction.h"
+#include "src/AddressAliasMapper.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS AddressAliasMapperTests
 
-	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(AddressAlias, )
-	}
+        namespace {
+            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(AddressAlias, )
+        }
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Alias_Address)
+        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Alias_Address)
 
-	// region streamTransaction
+        // region streamTransaction
 
-	PLUGIN_TEST(CanMapAddressAliasTransaction) {
-		// Arrange:
-		typename TTraits::TransactionType transaction;
-		transaction.NamespaceId = NamespaceId(753);
-		transaction.AliasAction = model::AliasAction::Unlink;
-		test::FillWithRandomData(transaction.Address);
+        PLUGIN_TEST(CanMapAddressAliasTransaction)
+        {
+            // Arrange:
+            typename TTraits::TransactionType transaction;
+            transaction.NamespaceId = NamespaceId(753);
+            transaction.AliasAction = model::AliasAction::Unlink;
+            test::FillWithRandomData(transaction.Address);
 
-		auto pPlugin = TTraits::CreatePlugin();
+            auto pPlugin = TTraits::CreatePlugin();
 
-		// Act:
-		mappers::bson_stream::document builder;
-		pPlugin->streamTransaction(builder, transaction);
-		auto view = builder.view();
+            // Act:
+            mappers::bson_stream::document builder;
+            pPlugin->streamTransaction(builder, transaction);
+            auto view = builder.view();
 
-		// Assert:
-		EXPECT_EQ(3u, test::GetFieldCount(view));
-		EXPECT_EQ(753u, test::GetUint64(view, "namespaceId"));
-		EXPECT_EQ(model::AliasAction::Unlink, static_cast<model::AliasAction>(test::GetUint32(view, "aliasAction")));
-		EXPECT_EQ(transaction.Address, test::GetAddressValue(view, "address"));
-	}
+            // Assert:
+            EXPECT_EQ(3u, test::GetFieldCount(view));
+            EXPECT_EQ(753u, test::GetUint64(view, "namespaceId"));
+            EXPECT_EQ(model::AliasAction::Unlink, static_cast<model::AliasAction>(test::GetUint32(view, "aliasAction")));
+            EXPECT_EQ(transaction.Address, test::GetAddressValue(view, "address"));
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

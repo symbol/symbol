@@ -23,21 +23,26 @@
 #include "NamespaceCacheDelta.h"
 #include "NamespaceCacheView.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	ReadOnlyNamespaceCache::ReadOnlyNamespaceCache(const BasicNamespaceCacheView& cache)
-			: ReadOnlyNamespaceArtifactCache(cache)
-			, m_pCache(&cache)
-			, m_pCacheDelta(nullptr) {
-	}
+    ReadOnlyNamespaceCache::ReadOnlyNamespaceCache(const BasicNamespaceCacheView& cache)
+        : ReadOnlyNamespaceArtifactCache(cache)
+        , m_pCache(&cache)
+        , m_pCacheDelta(nullptr)
+    {
+    }
 
-	ReadOnlyNamespaceCache::ReadOnlyNamespaceCache(const BasicNamespaceCacheDelta& cache)
-			: ReadOnlyNamespaceArtifactCache(cache)
-			, m_pCache(nullptr)
-			, m_pCacheDelta(&cache) {
-	}
+    ReadOnlyNamespaceCache::ReadOnlyNamespaceCache(const BasicNamespaceCacheDelta& cache)
+        : ReadOnlyNamespaceArtifactCache(cache)
+        , m_pCache(nullptr)
+        , m_pCacheDelta(&cache)
+    {
+    }
 
-	BlockDuration ReadOnlyNamespaceCache::gracePeriodDuration() const {
-		return m_pCache ? m_pCache->gracePeriodDuration() : m_pCacheDelta->gracePeriodDuration();
-	}
-}}
+    BlockDuration ReadOnlyNamespaceCache::gracePeriodDuration() const
+    {
+        return m_pCache ? m_pCache->gracePeriodDuration() : m_pCacheDelta->gracePeriodDuration();
+    }
+}
+}

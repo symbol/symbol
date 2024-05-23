@@ -22,29 +22,31 @@
 #pragma once
 #include <iosfwd>
 
-namespace catapult { namespace net {
+namespace catapult {
+namespace net {
 
-#define NODE_REQUEST_RESULT_LIST \
-	/* Connection to the remote node failed. */ \
-	ENUM_VALUE(Failure_Connection) \
-\
-	/* Interaction with the remote node failed. */ \
-	ENUM_VALUE(Failure_Interaction) \
-\
-	/* Remote response is incompatible with the local node. */ \
-	ENUM_VALUE(Failure_Incompatible) \
-\
-	/* Interaction with the remote node timed out. */ \
-	ENUM_VALUE(Failure_Timeout) \
-\
-	/* Ping operation succeeded. */ \
-	ENUM_VALUE(Success)
+#define NODE_REQUEST_RESULT_LIST                               \
+    /* Connection to the remote node failed. */                \
+    ENUM_VALUE(Failure_Connection)                             \
+                                                               \
+    /* Interaction with the remote node failed. */             \
+    ENUM_VALUE(Failure_Interaction)                            \
+                                                               \
+    /* Remote response is incompatible with the local node. */ \
+    ENUM_VALUE(Failure_Incompatible)                           \
+                                                               \
+    /* Interaction with the remote node timed out. */          \
+    ENUM_VALUE(Failure_Timeout)                                \
+                                                               \
+    /* Ping operation succeeded. */                            \
+    ENUM_VALUE(Success)
 
 #define ENUM_VALUE(LABEL) LABEL,
-	/// Enumeration of possible results of a ping operation.
-	enum class NodeRequestResult { NODE_REQUEST_RESULT_LIST };
+    /// Enumeration of possible results of a ping operation.
+    enum class NodeRequestResult { NODE_REQUEST_RESULT_LIST };
 #undef ENUM_VALUE
 
-	/// Insertion operator for outputting \a value to \a out.
-	std::ostream& operator<<(std::ostream& out, NodeRequestResult value);
-}}
+    /// Insertion operator for outputting \a value to \a out.
+    std::ostream& operator<<(std::ostream& out, NodeRequestResult value);
+}
+}

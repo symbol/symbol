@@ -30,20 +30,20 @@ namespace validators {
 /// Defines a metadata validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_METADATA_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Metadata, DESCRIPTION, CODE, None)
 
-	/// Validation failed because the metadata value is too small.
-	DEFINE_METADATA_RESULT(Value_Too_Small, 1);
+    /// Validation failed because the metadata value is too small.
+    DEFINE_METADATA_RESULT(Value_Too_Small, 1);
 
-	/// Validation failed because the metadata value is too large.
-	DEFINE_METADATA_RESULT(Value_Too_Large, 2);
+    /// Validation failed because the metadata value is too large.
+    DEFINE_METADATA_RESULT(Value_Too_Large, 2);
 
-	/// Validation failed because the metadata value size delta is larger in magnitude than the value size.
-	DEFINE_METADATA_RESULT(Value_Size_Delta_Too_Large, 3);
+    /// Validation failed because the metadata value size delta is larger in magnitude than the value size.
+    DEFINE_METADATA_RESULT(Value_Size_Delta_Too_Large, 3);
 
-	/// Validation failed because the metadata value size delta does not match expected value based on the current state.
-	DEFINE_METADATA_RESULT(Value_Size_Delta_Mismatch, 4);
+    /// Validation failed because the metadata value size delta does not match expected value based on the current state.
+    DEFINE_METADATA_RESULT(Value_Size_Delta_Mismatch, 4);
 
-	/// Validation failed because a metadata value change (truncation) is irreversible.
-	DEFINE_METADATA_RESULT(Value_Change_Irreversible, 5);
+    /// Validation failed because a metadata value change (truncation) is irreversible.
+    DEFINE_METADATA_RESULT(Value_Change_Irreversible, 5);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }

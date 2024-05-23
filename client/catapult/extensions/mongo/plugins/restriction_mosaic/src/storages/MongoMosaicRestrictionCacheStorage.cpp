@@ -20,28 +20,34 @@
 **/
 
 #include "MongoMosaicRestrictionCacheStorage.h"
-#include "src/mappers/MosaicRestrictionEntryMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
+#include "src/mappers/MosaicRestrictionEntryMapper.h"
 
 using namespace bsoncxx::builder::stream;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct MosaicRestrictionCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MosaicRestrictionCacheDescriptor> {
-			static constexpr auto Collection_Name = "mosaicRestrictions";
-			static constexpr auto Id_Property_Name = "mosaicRestrictionEntry.compositeHash";
+        namespace {
+            struct MosaicRestrictionCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MosaicRestrictionCacheDescriptor> {
+                static constexpr auto Collection_Name = "mosaicRestrictions";
+                static constexpr auto Id_Property_Name = "mosaicRestrictionEntry.compositeHash";
 
-			static auto MapToMongoId(const KeyType& key) {
-				return mappers::ToBinary(key);
-			}
+                static auto MapToMongoId(const KeyType& key)
+                {
+                    return mappers::ToBinary(key);
+                }
 
-			static auto MapToMongoDocument(const ModelType& restrictionEntry, model::NetworkIdentifier) {
-				return plugins::ToDbModel(restrictionEntry);
-			}
-		};
-	}
+                static auto MapToMongoDocument(const ModelType& restrictionEntry, model::NetworkIdentifier)
+                {
+                    return plugins::ToDbModel(restrictionEntry);
+                }
+            };
+        }
 
-	DEFINE_MONGO_FLAT_CACHE_STORAGE(MosaicRestriction, MosaicRestrictionCacheTraits)
-}}}
+        DEFINE_MONGO_FLAT_CACHE_STORAGE(MosaicRestriction, MosaicRestrictionCacheTraits)
+    }
+}
+}

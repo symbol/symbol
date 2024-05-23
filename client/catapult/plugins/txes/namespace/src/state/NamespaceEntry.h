@@ -24,38 +24,44 @@
 #include "RootNamespace.h"
 #include "catapult/exceptions.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Pair composed of a namespace and its root.
-	class NamespaceEntry {
-	public:
-		/// Creates an uninitialized entry.
-		NamespaceEntry()
-				: m_pNamespace(nullptr)
-				, m_pRoot(nullptr) {
-		}
+    /// Pair composed of a namespace and its root.
+    class NamespaceEntry {
+    public:
+        /// Creates an uninitialized entry.
+        NamespaceEntry()
+            : m_pNamespace(nullptr)
+            , m_pRoot(nullptr)
+        {
+        }
 
-		/// Creates an entry around \a ns and \a root.
-		NamespaceEntry(const Namespace& ns, const RootNamespace& root)
-				: m_pNamespace(&ns)
-				, m_pRoot(&root) {
-			if (m_pNamespace->rootId() != m_pRoot->id())
-				CATAPULT_THROW_INVALID_ARGUMENT("ns and root parameters are incompatible");
-		}
+        /// Creates an entry around \a ns and \a root.
+        NamespaceEntry(const Namespace& ns, const RootNamespace& root)
+            : m_pNamespace(&ns)
+            , m_pRoot(&root)
+        {
+            if (m_pNamespace->rootId() != m_pRoot->id())
+                CATAPULT_THROW_INVALID_ARGUMENT("ns and root parameters are incompatible");
+        }
 
-	public:
-		/// Gets the namespace.
-		const Namespace& ns() const {
-			return *m_pNamespace;
-		}
+    public:
+        /// Gets the namespace.
+        const Namespace& ns() const
+        {
+            return *m_pNamespace;
+        }
 
-		/// Gets the root.
-		const RootNamespace& root() const {
-			return *m_pRoot;
-		}
+        /// Gets the root.
+        const RootNamespace& root() const
+        {
+            return *m_pRoot;
+        }
 
-	private:
-		const Namespace* m_pNamespace;
-		const RootNamespace* m_pRoot;
-	};
-}}
+    private:
+        const Namespace* m_pNamespace;
+        const RootNamespace* m_pRoot;
+    };
+}
+}

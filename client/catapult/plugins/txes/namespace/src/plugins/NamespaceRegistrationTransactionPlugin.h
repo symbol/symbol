@@ -24,31 +24,35 @@
 #include "catapult/plugins.h"
 #include <memory>
 
-namespace catapult { namespace model {
-	class TransactionPlugin;
-}}
+namespace catapult {
+namespace model {
+    class TransactionPlugin;
+}
+}
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	/// Namespace rental fee configuration.
-	struct NamespaceRentalFeeConfiguration {
-		/// Currency mosaic id.
-		UnresolvedMosaicId CurrencyMosaicId;
+    /// Namespace rental fee configuration.
+    struct NamespaceRentalFeeConfiguration {
+        /// Currency mosaic id.
+        UnresolvedMosaicId CurrencyMosaicId;
 
-		/// Address of the rental fee sink account.
-		model::HeightDependentAddress SinkAddress;
+        /// Address of the rental fee sink account.
+        model::HeightDependentAddress SinkAddress;
 
-		/// Root namespace rental fee per block.
-		Amount RootFeePerBlock;
+        /// Root namespace rental fee per block.
+        Amount RootFeePerBlock;
 
-		/// Child namespace rental fee.
-		Amount ChildFee;
+        /// Child namespace rental fee.
+        Amount ChildFee;
 
-		/// Public key of the (exempt from fees) nemesis account.
-		Key NemesisSignerPublicKey;
-	};
+        /// Public key of the (exempt from fees) nemesis account.
+        Key NemesisSignerPublicKey;
+    };
 
-	/// Creates a namespace registration transaction plugin given the rental fee configuration (\a config).
-	PLUGIN_API
-	std::unique_ptr<model::TransactionPlugin> CreateNamespaceRegistrationTransactionPlugin(const NamespaceRentalFeeConfiguration& config);
-}}
+    /// Creates a namespace registration transaction plugin given the rental fee configuration (\a config).
+    PLUGIN_API
+    std::unique_ptr<model::TransactionPlugin> CreateNamespaceRegistrationTransactionPlugin(const NamespaceRentalFeeConfiguration& config);
+}
+}

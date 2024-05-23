@@ -20,63 +20,67 @@
 **/
 
 #pragma once
-#include "finalization/src/FinalizationConfiguration.h"
-#include "catapult/utils/Hashers.h"
 #include "catapult/types.h"
+#include "catapult/utils/Hashers.h"
+#include "finalization/src/FinalizationConfiguration.h"
 #include <unordered_map>
 
-namespace catapult { namespace cache {
-	class AccountStateCacheView;
-}}
+namespace catapult {
+namespace cache {
+    class AccountStateCacheView;
+}
+}
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Account data relevant to finalization.
-	struct FinalizationAccountView {
-		/// Finalization weight.
-		Amount Weight;
-	};
+    /// Account data relevant to finalization.
+    struct FinalizationAccountView {
+        /// Finalization weight.
+        Amount Weight;
+    };
 
-	/// Contextual information for finalizing blocks.
-	class FinalizationContext {
-	public:
-		/// Creates a finalization context from \a config, \a accountStateCacheView, information about the last finalized block
-		/// (\a height and \a generationHash) and the finalization \a epoch that is currently being finalized.
-		FinalizationContext(
-				FinalizationEpoch epoch,
-				Height height,
-				const GenerationHash& generationHash,
-				const finalization::FinalizationConfiguration& config,
-				const cache::AccountStateCacheView& accountStateCacheView);
+    /// Contextual information for finalizing blocks.
+    class FinalizationContext {
+    public:
+        /// Creates a finalization context from \a config, \a accountStateCacheView, information about the last finalized block
+        /// (\a height and \a generationHash) and the finalization \a epoch that is currently being finalized.
+        FinalizationContext(
+            FinalizationEpoch epoch,
+            Height height,
+            const GenerationHash& generationHash,
+            const finalization::FinalizationConfiguration& config,
+            const cache::AccountStateCacheView& accountStateCacheView);
 
-	public:
-		/// Gets the finalization epoch.
-		FinalizationEpoch epoch() const;
+    public:
+        /// Gets the finalization epoch.
+        FinalizationEpoch epoch() const;
 
-		/// Gets the height of the last finalized block.
-		Height height() const;
+        /// Gets the height of the last finalized block.
+        Height height() const;
 
-		/// Gets the generation hash of the last finalized block.
-		const GenerationHash& generationHash() const;
+        /// Gets the generation hash of the last finalized block.
+        const GenerationHash& generationHash() const;
 
-		/// Gets the finalization configuration.
-		const finalization::FinalizationConfiguration& config() const;
+        /// Gets the finalization configuration.
+        const finalization::FinalizationConfiguration& config() const;
 
-		/// Gets the total weight of all finalization-eligible accounts.
-		Amount weight() const;
+        /// Gets the total weight of all finalization-eligible accounts.
+        Amount weight() const;
 
-		/// Returns \c true if the account associated with \a votingPublicKey is an eligible voter.
-		bool isEligibleVoter(const VotingKey& votingPublicKey) const;
+        /// Returns \c true if the account associated with \a votingPublicKey is an eligible voter.
+        bool isEligibleVoter(const VotingKey& votingPublicKey) const;
 
-		/// Gets the finalization account view associated with \a votingPublicKey.
-		FinalizationAccountView lookup(const VotingKey& votingPublicKey) const;
+        /// Gets the finalization account view associated with \a votingPublicKey.
+        FinalizationAccountView lookup(const VotingKey& votingPublicKey) const;
 
-	private:
-		FinalizationEpoch m_epoch;
-		Height m_height;
-		GenerationHash m_generationHash;
-		finalization::FinalizationConfiguration m_config;
-		Amount m_weight;
-		std::unordered_map<VotingKey, FinalizationAccountView, utils::ArrayHasher<VotingKey>> m_accounts;
-	};
-}}
+    private:
+        FinalizationEpoch m_epoch;
+        Height m_height;
+        GenerationHash m_generationHash;
+        finalization::FinalizationConfiguration m_config;
+        Amount m_weight;
+        std::unordered_map<VotingKey, FinalizationAccountView, utils::ArrayHasher<VotingKey>> m_accounts;
+    };
+}
+}

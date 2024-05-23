@@ -23,43 +23,46 @@
 #include "MosaicRestrictionEntityType.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a mosaic address restriction transaction body.
-	template<typename THeader>
-	struct MosaicAddressRestrictionTransactionBody : public THeader {
-	private:
-		using TransactionType = MosaicAddressRestrictionTransactionBody<THeader>;
+    /// Binary layout for a mosaic address restriction transaction body.
+    template <typename THeader>
+    struct MosaicAddressRestrictionTransactionBody : public THeader {
+    private:
+        using TransactionType = MosaicAddressRestrictionTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Address_Restriction, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Address_Restriction, 1)
 
-	public:
-		/// Identifier of the mosaic to which the restriction applies.
-		UnresolvedMosaicId MosaicId;
+    public:
+        /// Identifier of the mosaic to which the restriction applies.
+        UnresolvedMosaicId MosaicId;
 
-		/// Restriction key.
-		uint64_t RestrictionKey;
+        /// Restriction key.
+        uint64_t RestrictionKey;
 
-		/// Previous restriction value.
-		uint64_t PreviousRestrictionValue;
+        /// Previous restriction value.
+        uint64_t PreviousRestrictionValue;
 
-		/// New restriction value.
-		uint64_t NewRestrictionValue;
+        /// New restriction value.
+        uint64_t NewRestrictionValue;
 
-		/// Address being restricted.
-		UnresolvedAddress TargetAddress;
+        /// Address being restricted.
+        UnresolvedAddress TargetAddress;
 
-	public:
-		/// Calculates the real size of a mosaic address restriction \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+    public:
+        /// Calculates the real size of a mosaic address restriction \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
+        {
+            return sizeof(TransactionType);
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(MosaicAddressRestriction)
+    DEFINE_EMBEDDABLE_TRANSACTION(MosaicAddressRestriction)
 
 #pragma pack(pop)
-}}
+}
+}

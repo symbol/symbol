@@ -20,37 +20,43 @@
 **/
 
 #pragma once
-#include "partialtransaction/src/PtTypes.h"
 #include "catapult/api/RemoteApi.h"
 #include "catapult/cache_tx/ShortHashPair.h"
 #include "catapult/thread/Future.h"
+#include "partialtransaction/src/PtTypes.h"
 
-namespace catapult { namespace ionet {
-	class PacketIo;
-}}
+namespace catapult {
+namespace ionet {
+    class PacketIo;
+}
+}
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
-	/// Api for retrieving partial transaction information from a remote node.
-	class RemotePtApi : public RemoteApi {
-	protected:
-		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemotePtApi(const model::NodeIdentity& remoteIdentity)
-				: RemoteApi(remoteIdentity) {
-		}
+    /// Api for retrieving partial transaction information from a remote node.
+    class RemotePtApi : public RemoteApi {
+    protected:
+        /// Creates a remote api for the node with specified \a remoteIdentity.
+        explicit RemotePtApi(const model::NodeIdentity& remoteIdentity)
+            : RemoteApi(remoteIdentity)
+        {
+        }
 
-	public:
-		/// Gets all partial transaction infos from the remote that have a deadline at least \a minDeadline
-		/// and do not have a short hash pair in \a knownShortHashPairs.
-		virtual thread::future<partialtransaction::CosignedTransactionInfos> transactionInfos(
-				Timestamp minDeadline,
-				cache::ShortHashPairRange&& knownShortHashPairs) const = 0;
-	};
+    public:
+        /// Gets all partial transaction infos from the remote that have a deadline at least \a minDeadline
+        /// and do not have a short hash pair in \a knownShortHashPairs.
+        virtual thread::future<partialtransaction::CosignedTransactionInfos> transactionInfos(
+            Timestamp minDeadline,
+            cache::ShortHashPairRange&& knownShortHashPairs) const
+            = 0;
+    };
 
-	/// Creates a partial transaction api for interacting with a remote node with the specified \a io and \a remoteIdentity
-	/// given transaction \a registry composed of supported transactions.
-	std::unique_ptr<RemotePtApi> CreateRemotePtApi(
-			ionet::PacketIo& io,
-			const model::NodeIdentity& remoteIdentity,
-			const model::TransactionRegistry& registry);
-}}
+    /// Creates a partial transaction api for interacting with a remote node with the specified \a io and \a remoteIdentity
+    /// given transaction \a registry composed of supported transactions.
+    std::unique_ptr<RemotePtApi> CreateRemotePtApi(
+        ionet::PacketIo& io,
+        const model::NodeIdentity& remoteIdentity,
+        const model::TransactionRegistry& registry);
+}
+}

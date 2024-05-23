@@ -21,19 +21,23 @@
 
 #pragma once
 #include "Results.h"
-#include "src/model/MetadataNotifications.h"
 #include "catapult/validators/ValidatorTypes.h"
+#include "src/model/MetadataNotifications.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	/// Validator that applies to metadata sizes notifications and validates that:
-	/// - values have a minimum value size of one
-	/// - magnitude of value size delta is less than value size
-	/// - values have a maximum value size of \a maxValueSize
-	DECLARE_STATELESS_VALIDATOR(MetadataSizes, model::MetadataSizesNotification)(uint16_t maxValueSize);
+    /// Validator that applies to metadata sizes notifications and validates that:
+    /// - values have a minimum value size of one
+    /// - magnitude of value size delta is less than value size
+    /// - values have a maximum value size of \a maxValueSize
+    DECLARE_STATELESS_VALIDATOR(MetadataSizes, model::MetadataSizesNotification)
+    (uint16_t maxValueSize);
 
-	/// Validator that applies to metadata value notifications and validates that:
-	/// - previous value size matches current state
-	/// - value trunction is reversible
-	DECLARE_STATEFUL_VALIDATOR(MetadataValue, model::MetadataValueNotification)();
-}}
+    /// Validator that applies to metadata value notifications and validates that:
+    /// - previous value size matches current state
+    /// - value trunction is reversible
+    DECLARE_STATEFUL_VALIDATOR(MetadataValue, model::MetadataValueNotification)
+    ();
+}
+}

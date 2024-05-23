@@ -23,8 +23,10 @@
 #include "catapult/types.h"
 #include <atomic>
 
-namespace catapult { namespace networkheight {
+namespace catapult {
+namespace networkheight {
 
-	/// Atomic network chain height.
-	using NetworkChainHeight = std::atomic<Height::ValueType>;
-}}
+    /// Atomic network chain height.
+    using NetworkChainHeight = std::atomic<Height::ValueType>;
+}
+}

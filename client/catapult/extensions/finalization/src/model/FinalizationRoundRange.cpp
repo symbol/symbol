@@ -21,22 +21,28 @@
 
 #include "FinalizationRoundRange.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	bool FinalizationRoundRange::operator==(const FinalizationRoundRange& rhs) const {
-		return Min == rhs.Min && Max == rhs.Max;
-	}
+    bool FinalizationRoundRange::operator==(const FinalizationRoundRange& rhs) const
+    {
+        return Min == rhs.Min && Max == rhs.Max;
+    }
 
-	bool FinalizationRoundRange::operator!=(const FinalizationRoundRange& rhs) const {
-		return !(*this == rhs);
-	}
+    bool FinalizationRoundRange::operator!=(const FinalizationRoundRange& rhs) const
+    {
+        return !(*this == rhs);
+    }
 
-	std::ostream& operator<<(std::ostream& out, const FinalizationRoundRange& roundRange) {
-		out << "[" << roundRange.Min << ", " << roundRange.Max << "]";
-		return out;
-	}
+    std::ostream& operator<<(std::ostream& out, const FinalizationRoundRange& roundRange)
+    {
+        out << "[" << roundRange.Min << ", " << roundRange.Max << "]";
+        return out;
+    }
 
-	bool IsInRange(const FinalizationRoundRange& roundRange, const FinalizationRound& round) {
-		return roundRange.Min <= round && round <= roundRange.Max;
-	}
-}}
+    bool IsInRange(const FinalizationRoundRange& roundRange, const FinalizationRound& round)
+    {
+        return roundRange.Min <= round && round <= roundRange.Max;
+    }
+}
+}

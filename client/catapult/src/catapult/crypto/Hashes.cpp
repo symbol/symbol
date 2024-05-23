@@ -36,115 +36,134 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	// region free functions
+    // region free functions
 
-	namespace {
-		template<typename THash>
-		void HashSingleBuffer(const EVP_MD* pMessageDigest, const RawBuffer& dataBuffer, THash& hash) {
-			auto outputSize = static_cast<unsigned int>(hash.size());
+    namespace {
+        template <typename THash>
+        void HashSingleBuffer(const EVP_MD* pMessageDigest, const RawBuffer& dataBuffer, THash& hash)
+        {
+            auto outputSize = static_cast<unsigned int>(hash.size());
 
-			OpensslDigestContext context;
-			context.dispatch(EVP_DigestInit_ex, pMessageDigest, nullptr);
-			context.dispatch(EVP_DigestUpdate, dataBuffer.pData, dataBuffer.Size);
-			context.dispatch(EVP_DigestFinal_ex, hash.data(), &outputSize);
-		}
-	}
+            OpensslDigestContext context;
+            context.dispatch(EVP_DigestInit_ex, pMessageDigest, nullptr);
+            context.dispatch(EVP_DigestUpdate, dataBuffer.pData, dataBuffer.Size);
+            context.dispatch(EVP_DigestFinal_ex, hash.data(), &outputSize);
+        }
+    }
 
-	void Ripemd160(const RawBuffer& dataBuffer, Hash160& hash) {
-		HashSingleBuffer(EVP_ripemd160(), dataBuffer, hash);
-	}
+    void Ripemd160(const RawBuffer& dataBuffer, Hash160& hash)
+    {
+        HashSingleBuffer(EVP_ripemd160(), dataBuffer, hash);
+    }
 
-	void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash) {
-		Hash256 firstHash;
-		Sha256(dataBuffer, firstHash);
-		Ripemd160(firstHash, hash);
-	}
+    void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash)
+    {
+        Hash256 firstHash;
+        Sha256(dataBuffer, firstHash);
+        Ripemd160(firstHash, hash);
+    }
 
-	void Sha256(const RawBuffer& dataBuffer, Hash256& hash) {
-		HashSingleBuffer(EVP_sha256(), dataBuffer, hash);
-	}
+    void Sha256(const RawBuffer& dataBuffer, Hash256& hash)
+    {
+        HashSingleBuffer(EVP_sha256(), dataBuffer, hash);
+    }
 
-	void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash) {
-		Hash256 firstHash;
-		Sha256(dataBuffer, firstHash);
-		Sha256(firstHash, hash);
-	}
+    void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash)
+    {
+        Hash256 firstHash;
+        Sha256(dataBuffer, firstHash);
+        Sha256(firstHash, hash);
+    }
 
-	void Sha512(const RawBuffer& dataBuffer, Hash512& hash) {
-		HashSingleBuffer(EVP_sha512(), dataBuffer, hash);
-	}
+    void Sha512(const RawBuffer& dataBuffer, Hash512& hash)
+    {
+        HashSingleBuffer(EVP_sha512(), dataBuffer, hash);
+    }
 
-	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash) {
-		HashSingleBuffer(EVP_sha3_256(), dataBuffer, hash);
-	}
+    void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash)
+    {
+        HashSingleBuffer(EVP_sha3_256(), dataBuffer, hash);
+    }
 
-	void Hmac_Sha256(const RawBuffer& key, const RawBuffer& input, Hash256& output) {
-		unsigned int outputSize = 0;
-		HMAC(EVP_sha256(), key.pData, static_cast<int>(key.Size), input.pData, input.Size, output.data(), &outputSize);
-	}
+    void Hmac_Sha256(const RawBuffer& key, const RawBuffer& input, Hash256& output)
+    {
+        unsigned int outputSize = 0;
+        HMAC(EVP_sha256(), key.pData, static_cast<int>(key.Size), input.pData, input.Size, output.data(), &outputSize);
+    }
 
-	void Hmac_Sha512(const RawBuffer& key, const RawBuffer& input, Hash512& output) {
-		unsigned int outputSize = 0;
-		HMAC(EVP_sha512(), key.pData, static_cast<int>(key.Size), input.pData, input.Size, output.data(), &outputSize);
-	}
+    void Hmac_Sha512(const RawBuffer& key, const RawBuffer& input, Hash512& output)
+    {
+        unsigned int outputSize = 0;
+        HMAC(EVP_sha512(), key.pData, static_cast<int>(key.Size), input.pData, input.Size, output.data(), &outputSize);
+    }
 
-	void Pbkdf2_Sha512(const RawBuffer& password, const RawBuffer& salt, uint32_t iterationCount, Hash512& output) {
-		PKCS5_PBKDF2_HMAC(
-				reinterpret_cast<const char*>(password.pData),
-				static_cast<int>(password.Size),
-				salt.pData,
-				static_cast<int>(salt.Size),
-				static_cast<int>(iterationCount),
-				EVP_sha512(),
-				Hash512::Size,
-				output.data());
-	}
+    void Pbkdf2_Sha512(const RawBuffer& password, const RawBuffer& salt, uint32_t iterationCount, Hash512& output)
+    {
+        PKCS5_PBKDF2_HMAC(
+            reinterpret_cast<const char*>(password.pData),
+            static_cast<int>(password.Size),
+            salt.pData,
+            static_cast<int>(salt.Size),
+            static_cast<int>(iterationCount),
+            EVP_sha512(),
+            Hash512::Size,
+            output.data());
+    }
 
-	// endregion
+    // endregion
 
-	// region hash builders
+    // region hash builders
 
-	namespace {
-		const EVP_MD* GetMessageDigest(Sha2ModeTag, Hash512_tag) {
-			return EVP_sha512();
-		}
+    namespace {
+        const EVP_MD* GetMessageDigest(Sha2ModeTag, Hash512_tag)
+        {
+            return EVP_sha512();
+        }
 
-		const EVP_MD* GetMessageDigest(Sha3ModeTag, Hash256_tag) {
-			return EVP_sha3_256();
-		}
+        const EVP_MD* GetMessageDigest(Sha3ModeTag, Hash256_tag)
+        {
+            return EVP_sha3_256();
+        }
 
-		const EVP_MD* GetMessageDigest(Sha3ModeTag, GenerationHash_tag) {
-			return EVP_sha3_256();
-		}
-	}
+        const EVP_MD* GetMessageDigest(Sha3ModeTag, GenerationHash_tag)
+        {
+            return EVP_sha3_256();
+        }
+    }
 
-	template<typename TModeTag, typename THashTag>
-	HashBuilderT<TModeTag, THashTag>::HashBuilderT() {
-		m_context.dispatch(EVP_DigestInit_ex, GetMessageDigest(TModeTag(), THashTag()), nullptr);
-	}
+    template <typename TModeTag, typename THashTag>
+    HashBuilderT<TModeTag, THashTag>::HashBuilderT()
+    {
+        m_context.dispatch(EVP_DigestInit_ex, GetMessageDigest(TModeTag(), THashTag()), nullptr);
+    }
 
-	template<typename TModeTag, typename THashTag>
-	void HashBuilderT<TModeTag, THashTag>::update(const RawBuffer& dataBuffer) {
-		m_context.dispatch(EVP_DigestUpdate, dataBuffer.pData, dataBuffer.Size);
-	}
+    template <typename TModeTag, typename THashTag>
+    void HashBuilderT<TModeTag, THashTag>::update(const RawBuffer& dataBuffer)
+    {
+        m_context.dispatch(EVP_DigestUpdate, dataBuffer.pData, dataBuffer.Size);
+    }
 
-	template<typename TModeTag, typename THashTag>
-	void HashBuilderT<TModeTag, THashTag>::update(std::initializer_list<const RawBuffer> buffers) {
-		for (const auto& buffer : buffers)
-			update(buffer);
-	}
+    template <typename TModeTag, typename THashTag>
+    void HashBuilderT<TModeTag, THashTag>::update(std::initializer_list<const RawBuffer> buffers)
+    {
+        for (const auto& buffer : buffers)
+            update(buffer);
+    }
 
-	template<typename TModeTag, typename THashTag>
-	void HashBuilderT<TModeTag, THashTag>::final(OutputType& output) {
-		auto outputSize = static_cast<unsigned int>(output.size());
-		m_context.dispatch(EVP_DigestFinal_ex, output.data(), &outputSize);
-	}
+    template <typename TModeTag, typename THashTag>
+    void HashBuilderT<TModeTag, THashTag>::final(OutputType& output)
+    {
+        auto outputSize = static_cast<unsigned int>(output.size());
+        m_context.dispatch(EVP_DigestFinal_ex, output.data(), &outputSize);
+    }
 
-	template class HashBuilderT<Sha2ModeTag, Hash512_tag>;
-	template class HashBuilderT<Sha3ModeTag, Hash256_tag>;
-	template class HashBuilderT<Sha3ModeTag, GenerationHash_tag>;
+    template class HashBuilderT<Sha2ModeTag, Hash512_tag>;
+    template class HashBuilderT<Sha3ModeTag, Hash256_tag>;
+    template class HashBuilderT<Sha3ModeTag, GenerationHash_tag>;
 
-	// endregion
-}}
+    // endregion
+}
+}

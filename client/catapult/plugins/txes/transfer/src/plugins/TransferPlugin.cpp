@@ -21,39 +21,43 @@
 
 #include "TransferPlugin.h"
 #include "TransferTransactionPlugin.h"
-#include "src/config/TransferConfiguration.h"
-#include "src/observers/Observers.h"
-#include "src/validators/Validators.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/plugins/PluginManager.h"
+#include "src/config/TransferConfiguration.h"
+#include "src/observers/Observers.h"
+#include "src/validators/Validators.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	void RegisterTransferSubsystem(PluginManager& manager) {
-		manager.addTransactionSupport(CreateTransferTransactionPlugin());
+    void RegisterTransferSubsystem(PluginManager& manager)
+    {
+        manager.addTransactionSupport(CreateTransferTransactionPlugin());
 
-		auto config = model::LoadPluginConfiguration<config::TransferConfiguration>(manager.config(), "catapult.plugins.transfer");
-		manager.addStatelessValidatorHook([config](auto& builder) {
-			builder.add(validators::CreateTransferMessageValidator(config.MaxMessageSize));
-			builder.add(validators::CreateTransferMosaicsValidator());
-		});
+        auto config = model::LoadPluginConfiguration<config::TransferConfiguration>(manager.config(), "catapult.plugins.transfer");
+        manager.addStatelessValidatorHook([config](auto& builder) {
+            builder.add(validators::CreateTransferMessageValidator(config.MaxMessageSize));
+            builder.add(validators::CreateTransferMosaicsValidator());
+        });
 
-		if (!manager.userConfig().EnableDelegatedHarvestersAutoDetection)
-			return;
+        if (!manager.userConfig().EnableDelegatedHarvestersAutoDetection)
+            return;
 
-		auto encryptionPrivateKeyPemFilename = config::GetNodePrivateKeyPemFilename(manager.userConfig().CertificateDirectory);
-		auto encryptionPublicKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(encryptionPrivateKeyPemFilename);
-		auto recipient = model::PublicKeyToAddress(encryptionPublicKey, manager.config().Network.Identifier);
-		auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
-		manager.addObserverHook([recipient, dataDirectory](auto& builder) {
-			builder.add(observers::CreateTransferMessageObserver(0xE201735761802AFE, recipient, dataDirectory.dir("transfer_message")));
-		});
-	}
-}}
+        auto encryptionPrivateKeyPemFilename = config::GetNodePrivateKeyPemFilename(manager.userConfig().CertificateDirectory);
+        auto encryptionPublicKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(encryptionPrivateKeyPemFilename);
+        auto recipient = model::PublicKeyToAddress(encryptionPublicKey, manager.config().Network.Identifier);
+        auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
+        manager.addObserverHook([recipient, dataDirectory](auto& builder) {
+            builder.add(observers::CreateTransferMessageObserver(0xE201735761802AFE, recipient, dataDirectory.dir("transfer_message")));
+        });
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
-	catapult::plugins::RegisterTransferSubsystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
+{
+    catapult::plugins::RegisterTransferSubsystem(manager);
 }

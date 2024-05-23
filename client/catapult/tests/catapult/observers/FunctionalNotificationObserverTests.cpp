@@ -20,57 +20,62 @@
 **/
 
 #include "catapult/observers/FunctionalNotificationObserver.h"
+#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
 #define TEST_CLASS FunctionalNotificationObserverTests
 
-	using NotificationType = model::AccountPublicKeyNotification;
+    using NotificationType = model::AccountPublicKeyNotification;
 
-	TEST(TEST_CLASS, HasCorrectName) {
-		// Act:
-		FunctionalNotificationObserverT<NotificationType> observer("Foo", [](const auto&, const auto&) {});
+    TEST(TEST_CLASS, HasCorrectName)
+    {
+        // Act:
+        FunctionalNotificationObserverT<NotificationType> observer("Foo", [](const auto&, const auto&) {});
 
-		// Assert:
-		EXPECT_EQ("Foo", observer.name());
-	}
+        // Assert:
+        EXPECT_EQ("Foo", observer.name());
+    }
 
-	namespace {
-		struct NotifyParams {
-		public:
-			NotifyParams(const NotificationType& notification, const ObserverContext& context)
-					: pNotification(&notification)
-					, pContext(&context) {
-			}
+    namespace {
+        struct NotifyParams {
+        public:
+            NotifyParams(const NotificationType& notification, const ObserverContext& context)
+                : pNotification(&notification)
+                , pContext(&context)
+            {
+            }
 
-		public:
-			const NotificationType* pNotification;
-			const ObserverContext* pContext;
-		};
-	}
+        public:
+            const NotificationType* pNotification;
+            const ObserverContext* pContext;
+        };
+    }
 
-	TEST(TEST_CLASS, NotifyDelegatesToFunction) {
-		// Arrange:
-		test::ParamsCapture<NotifyParams> capture;
-		FunctionalNotificationObserverT<NotificationType> observer("Foo", [&](const auto& notification, const auto& context) {
-			capture.push(notification, context);
-		});
+    TEST(TEST_CLASS, NotifyDelegatesToFunction)
+    {
+        // Arrange:
+        test::ParamsCapture<NotifyParams> capture;
+        FunctionalNotificationObserverT<NotificationType> observer("Foo", [&](const auto& notification, const auto& context) {
+            capture.push(notification, context);
+        });
 
-		// Act:
-		cache::CatapultCache cache({});
-		auto cacheDelta = cache.createDelta();
-		auto context = test::CreateObserverContext(cacheDelta, Height(123), NotifyMode::Commit);
+        // Act:
+        cache::CatapultCache cache({});
+        auto cacheDelta = cache.createDelta();
+        auto context = test::CreateObserverContext(cacheDelta, Height(123), NotifyMode::Commit);
 
-		auto publicKey = test::GenerateRandomByteArray<Key>();
-		model::AccountPublicKeyNotification notification(publicKey);
-		observer.notify(notification, context);
+        auto publicKey = test::GenerateRandomByteArray<Key>();
+        model::AccountPublicKeyNotification notification(publicKey);
+        observer.notify(notification, context);
 
-		// Assert:
-		ASSERT_EQ(1u, capture.params().size());
-		EXPECT_EQ(&notification, capture.params()[0].pNotification);
-		EXPECT_EQ(&context, capture.params()[0].pContext);
-	}
-}}
+        // Assert:
+        ASSERT_EQ(1u, capture.params().size());
+        EXPECT_EQ(&notification, capture.params()[0].pNotification);
+        EXPECT_EQ(&context, capture.params()[0].pContext);
+    }
+}
+}

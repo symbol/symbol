@@ -20,6 +20,8 @@
 **/
 
 #include "SecretLockPlugin.h"
+#include "catapult/plugins/CacheHandlers.h"
+#include "catapult/plugins/PluginManager.h"
 #include "src/cache/SecretLockInfoCache.h"
 #include "src/config/SecretLockConfiguration.h"
 #include "src/model/SecretLockReceiptType.h"
@@ -27,55 +29,57 @@
 #include "src/plugins/SecretLockTransactionPlugin.h"
 #include "src/plugins/SecretProofTransactionPlugin.h"
 #include "src/validators/Validators.h"
-#include "catapult/plugins/CacheHandlers.h"
-#include "catapult/plugins/PluginManager.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	void RegisterSecretLockSubsystem(PluginManager& manager) {
-		manager.addTransactionSupport(CreateSecretProofTransactionPlugin());
-		manager.addTransactionSupport(CreateSecretLockTransactionPlugin());
+    void RegisterSecretLockSubsystem(PluginManager& manager)
+    {
+        manager.addTransactionSupport(CreateSecretProofTransactionPlugin());
+        manager.addTransactionSupport(CreateSecretLockTransactionPlugin());
 
-		manager.addCacheSupport<cache::SecretLockInfoCacheStorage>(
-				std::make_unique<cache::SecretLockInfoCache>(manager.cacheConfig(cache::SecretLockInfoCache::Name)));
+        manager.addCacheSupport<cache::SecretLockInfoCacheStorage>(
+            std::make_unique<cache::SecretLockInfoCache>(manager.cacheConfig(cache::SecretLockInfoCache::Name)));
 
-		using CacheHandlers = CacheHandlers<cache::SecretLockInfoCacheDescriptor>;
-		CacheHandlers::Register<model::FacilityCode::LockSecret>(manager);
+        using CacheHandlers = CacheHandlers<cache::SecretLockInfoCacheDescriptor>;
+        CacheHandlers::Register<model::FacilityCode::LockSecret>(manager);
 
-		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
-			counters.emplace_back(utils::DiagnosticCounterId("SECRETLOCK C"), [&cache]() {
-				return cache.sub<cache::SecretLockInfoCache>().createView()->size();
-			});
-		});
+        manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
+            counters.emplace_back(utils::DiagnosticCounterId("SECRETLOCK C"), [&cache]() {
+                return cache.sub<cache::SecretLockInfoCache>().createView()->size();
+            });
+        });
 
-		auto config = model::LoadPluginConfiguration<config::SecretLockConfiguration>(manager.config(), "catapult.plugins.locksecret");
-		auto blockGenerationTargetTime = manager.config().BlockGenerationTargetTime;
-		manager.addStatelessValidatorHook([config, blockGenerationTargetTime](auto& builder) {
-			// secret lock validators
-			auto maxSecretLockDuration = config.MaxSecretLockDuration.blocks(blockGenerationTargetTime);
-			builder.add(validators::CreateSecretLockDurationValidator(maxSecretLockDuration));
-			builder.add(validators::CreateSecretLockHashAlgorithmValidator());
+        auto config = model::LoadPluginConfiguration<config::SecretLockConfiguration>(manager.config(), "catapult.plugins.locksecret");
+        auto blockGenerationTargetTime = manager.config().BlockGenerationTargetTime;
+        manager.addStatelessValidatorHook([config, blockGenerationTargetTime](auto& builder) {
+            // secret lock validators
+            auto maxSecretLockDuration = config.MaxSecretLockDuration.blocks(blockGenerationTargetTime);
+            builder.add(validators::CreateSecretLockDurationValidator(maxSecretLockDuration));
+            builder.add(validators::CreateSecretLockHashAlgorithmValidator());
 
-			// proof secret
-			builder.add(validators::CreateProofSecretValidator(config.MinProofSize, config.MaxProofSize));
-		});
+            // proof secret
+            builder.add(validators::CreateProofSecretValidator(config.MinProofSize, config.MaxProofSize));
+        });
 
-		auto skipUniquenessForkHeights = manager.config().ForkHeights.SkipSecretLockUniquenessChecks;
-		manager.addStatefulValidatorHook([skipUniquenessForkHeights](auto& builder) {
-			builder.add(validators::CreateSecretLockCacheUniqueValidator(skipUniquenessForkHeights))
-					.add(validators::CreateProofValidator());
-		});
+        auto skipUniquenessForkHeights = manager.config().ForkHeights.SkipSecretLockUniquenessChecks;
+        manager.addStatefulValidatorHook([skipUniquenessForkHeights](auto& builder) {
+            builder.add(validators::CreateSecretLockCacheUniqueValidator(skipUniquenessForkHeights))
+                .add(validators::CreateProofValidator());
+        });
 
-		auto skipExpirationForkHeights = manager.config().ForkHeights.SkipSecretLockExpirations;
-		auto forceExpirationForkHeights = manager.config().ForkHeights.ForceSecretLockExpirations;
-		manager.addObserverHook([skipExpirationForkHeights, forceExpirationForkHeights](auto& builder) {
-			builder.add(observers::CreateSecretLockObserver())
-					.add(observers::CreateExpiredSecretLockInfoObserver(skipExpirationForkHeights, forceExpirationForkHeights))
-					.add(observers::CreateProofObserver());
-		});
-	}
-}}
+        auto skipExpirationForkHeights = manager.config().ForkHeights.SkipSecretLockExpirations;
+        auto forceExpirationForkHeights = manager.config().ForkHeights.ForceSecretLockExpirations;
+        manager.addObserverHook([skipExpirationForkHeights, forceExpirationForkHeights](auto& builder) {
+            builder.add(observers::CreateSecretLockObserver())
+                .add(observers::CreateExpiredSecretLockInfoObserver(skipExpirationForkHeights, forceExpirationForkHeights))
+                .add(observers::CreateProofObserver());
+        });
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
-	catapult::plugins::RegisterSecretLockSubsystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
+{
+    catapult::plugins::RegisterSecretLockSubsystem(manager);
 }

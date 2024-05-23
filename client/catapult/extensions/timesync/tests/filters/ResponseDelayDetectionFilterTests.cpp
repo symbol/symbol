@@ -19,30 +19,36 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tests/TestHarness.h"
 #include "timesync/src/filters/SynchronizationFilters.h"
 #include "timesync/src/filters/filter_constants.h"
 #include "timesync/tests/test/TimeSynchronizationTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace timesync { namespace filters {
+namespace catapult {
+namespace timesync {
+    namespace filters {
 
 #define TEST_CLASS ResponseDelayDetectionFilterTests
 
-	TEST(TEST_CLASS, FiltersOutSamplesWithIntolerableDuration) {
-		// Arrange:
-		auto filter = CreateResponseDelayDetectionFilter();
+        TEST(TEST_CLASS, FiltersOutSamplesWithIntolerableDuration)
+        {
+            // Arrange:
+            auto filter = CreateResponseDelayDetectionFilter();
 
-		// Act + Assert:
-		for (int64_t offset : { 1, 2, 10, 1000 })
-			EXPECT_TRUE(filter(test::CreateTimeSyncSampleWithDuration(Tolerated_Duration_Maximum + offset), NodeAge()));
-	}
+            // Act + Assert:
+            for (int64_t offset : { 1, 2, 10, 1000 })
+                EXPECT_TRUE(filter(test::CreateTimeSyncSampleWithDuration(Tolerated_Duration_Maximum + offset), NodeAge()));
+        }
 
-	TEST(TEST_CLASS, DoesNotFilterOutSamplesWithTolerableDuration) {
-		// Arrange:
-		auto filter = CreateResponseDelayDetectionFilter();
+        TEST(TEST_CLASS, DoesNotFilterOutSamplesWithTolerableDuration)
+        {
+            // Arrange:
+            auto filter = CreateResponseDelayDetectionFilter();
 
-		// Act + Assert:
-		for (int64_t offset : { 0, -1, -2, -10, -1000 })
-			EXPECT_FALSE(filter(test::CreateTimeSyncSampleWithDuration(Tolerated_Duration_Maximum + offset), NodeAge()));
-	}
-}}}
+            // Act + Assert:
+            for (int64_t offset : { 0, -1, -2, -10, -1000 })
+                EXPECT_FALSE(filter(test::CreateTimeSyncSampleWithDuration(Tolerated_Duration_Maximum + offset), NodeAge()));
+        }
+    }
+}
+}

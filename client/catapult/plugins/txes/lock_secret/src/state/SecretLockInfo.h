@@ -20,54 +20,59 @@
 **/
 
 #pragma once
+#include "catapult/plugins.h"
+#include "plugins/txes/lock_shared/src/state/LockInfo.h"
 #include "src/model/LockHashAlgorithm.h"
 #include "src/model/LockHashUtils.h"
-#include "plugins/txes/lock_shared/src/state/LockInfo.h"
-#include "catapult/plugins.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Secret lock info.
-	struct PLUGIN_API_DEPENDENCY SecretLockInfo : public LockInfo {
-	public:
-		/// Creates a default secret lock info.
-		SecretLockInfo()
-				: LockInfo() {
-		}
+    /// Secret lock info.
+    struct PLUGIN_API_DEPENDENCY SecretLockInfo : public LockInfo {
+    public:
+        /// Creates a default secret lock info.
+        SecretLockInfo()
+            : LockInfo()
+        {
+        }
 
-		/// Creates a secret lock info around \a ownerAddress, \a mosaicId, \a amount, \a endHeight, \a hashAlgorithm, \a secret
-		/// and \a recipientAddress.
-		SecretLockInfo(
-				const Address& ownerAddress,
-				catapult::MosaicId mosaicId,
-				catapult::Amount amount,
-				Height endHeight,
-				model::LockHashAlgorithm hashAlgorithm,
-				const Hash256& secret,
-				const catapult::Address& recipientAddress)
-				: LockInfo(ownerAddress, mosaicId, amount, endHeight)
-				, HashAlgorithm(hashAlgorithm)
-				, Secret(secret)
-				, RecipientAddress(recipientAddress)
-				, CompositeHash() {
-		}
+        /// Creates a secret lock info around \a ownerAddress, \a mosaicId, \a amount, \a endHeight, \a hashAlgorithm, \a secret
+        /// and \a recipientAddress.
+        SecretLockInfo(
+            const Address& ownerAddress,
+            catapult::MosaicId mosaicId,
+            catapult::Amount amount,
+            Height endHeight,
+            model::LockHashAlgorithm hashAlgorithm,
+            const Hash256& secret,
+            const catapult::Address& recipientAddress)
+            : LockInfo(ownerAddress, mosaicId, amount, endHeight)
+            , HashAlgorithm(hashAlgorithm)
+            , Secret(secret)
+            , RecipientAddress(recipientAddress)
+            , CompositeHash()
+        {
+        }
 
-	public:
-		/// Hash algorithm.
-		model::LockHashAlgorithm HashAlgorithm;
+    public:
+        /// Hash algorithm.
+        model::LockHashAlgorithm HashAlgorithm;
 
-		/// Secret.
-		Hash256 Secret;
+        /// Secret.
+        Hash256 Secret;
 
-		/// Locked mosaic recipient address.
-		Address RecipientAddress;
+        /// Locked mosaic recipient address.
+        Address RecipientAddress;
 
-		/// Composite hash.
-		Hash256 CompositeHash;
-	};
+        /// Composite hash.
+        Hash256 CompositeHash;
+    };
 
-	/// Gets the lock identifier for \a lockInfo.
-	inline const Hash256& GetLockIdentifier(const SecretLockInfo& lockInfo) {
-		return lockInfo.CompositeHash;
-	}
-}}
+    /// Gets the lock identifier for \a lockInfo.
+    inline const Hash256& GetLockIdentifier(const SecretLockInfo& lockInfo)
+    {
+        return lockInfo.CompositeHash;
+    }
+}
+}

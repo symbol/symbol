@@ -21,22 +21,23 @@
 
 #include "SecretLockMapper.h"
 #include "SecretProofMapper.h"
-#include "storages/MongoSecretLockInfoCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
 #include "mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/lock_secret/src/model/SecretLockReceiptType.h"
+#include "storages/MongoSecretLockInfoCacheStorage.h"
 
-extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
-	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateSecretLockTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateSecretProofTransactionMongoPlugin());
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager)
+{
+    // transaction support
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateSecretLockTransactionMongoPlugin());
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateSecretProofTransactionMongoPlugin());
 
-	// cache storage support
-	manager.addStorageSupport(
-			catapult::mongo::plugins::CreateMongoSecretLockInfoCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+    // cache storage support
+    manager.addStorageSupport(
+        catapult::mongo::plugins::CreateMongoSecretLockInfoCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 
-	// receipt support
-	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Created));
-	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Completed));
-	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Expired));
+    // receipt support
+    manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Created));
+    manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Completed));
+    manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Expired));
 }

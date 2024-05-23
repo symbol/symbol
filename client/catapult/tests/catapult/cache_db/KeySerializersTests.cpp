@@ -22,31 +22,35 @@
 #include "catapult/cache_db/KeySerializers.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS KeySerializersTests
 
-	TEST(TEST_CLASS, CanSerializeBaseValue) {
-		// Arrange:
-		auto key = test::GenerateRandomValue<Height>();
+    TEST(TEST_CLASS, CanSerializeBaseValue)
+    {
+        // Arrange:
+        auto key = test::GenerateRandomValue<Height>();
 
-		// Act:
-		auto result = SerializeKey(key);
+        // Act:
+        auto result = SerializeKey(key);
 
-		// Assert:
-		ASSERT_EQ(sizeof(Height), result.Size);
-		EXPECT_EQ(test::AsBytePointer(&key), result.pData);
-	}
+        // Assert:
+        ASSERT_EQ(sizeof(Height), result.Size);
+        EXPECT_EQ(test::AsBytePointer(&key), result.pData);
+    }
 
-	TEST(TEST_CLASS, CanSerializeArray) {
-		// Arrange:
-		auto key = test::GenerateRandomByteArray<Hash256>();
+    TEST(TEST_CLASS, CanSerializeArray)
+    {
+        // Arrange:
+        auto key = test::GenerateRandomByteArray<Hash256>();
 
-		// Act:
-		auto result = SerializeKey(key);
+        // Act:
+        auto result = SerializeKey(key);
 
-		// Assert:
-		ASSERT_EQ(Hash256::Size, result.Size);
-		EXPECT_EQ(key.data(), result.pData);
-	}
-}}
+        // Assert:
+        ASSERT_EQ(Hash256::Size, result.Size);
+        EXPECT_EQ(key.data(), result.pData);
+    }
+}
+}

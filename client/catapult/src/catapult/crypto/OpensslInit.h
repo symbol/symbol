@@ -22,8 +22,10 @@
 #pragma once
 #include <memory>
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	/// Configures the openssl crypto functions and returns an openssl global context.
-	std::shared_ptr<void> SetupOpensslCryptoFunctions();
-}}
+    /// Configures the openssl crypto functions and returns an openssl global context.
+    std::shared_ptr<void> SetupOpensslCryptoFunctions();
+}
+}

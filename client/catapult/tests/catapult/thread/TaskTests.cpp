@@ -22,122 +22,131 @@
 #include "catapult/thread/Task.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace thread {
+namespace catapult {
+namespace thread {
 
 #define TEST_CLASS TaskTests
 
-	using TimeSpan = utils::TimeSpan;
+    using TimeSpan = utils::TimeSpan;
 
-	// region CreateUniformDelayGenerator
+    // region CreateUniformDelayGenerator
 
-	TEST(TEST_CLASS, UniformDelayGenerator_AlwaysReturnsRepeatDelay) {
-		// Arrange:
-		auto delayGenerator = CreateUniformDelayGenerator(TimeSpan::FromSeconds(3));
+    TEST(TEST_CLASS, UniformDelayGenerator_AlwaysReturnsRepeatDelay)
+    {
+        // Arrange:
+        auto delayGenerator = CreateUniformDelayGenerator(TimeSpan::FromSeconds(3));
 
-		// Act:
-		for (auto i = 0u; i < 100; ++i) {
-			auto delay = delayGenerator();
+        // Act:
+        for (auto i = 0u; i < 100; ++i) {
+            auto delay = delayGenerator();
 
-			// Assert:
-			EXPECT_EQ(TimeSpan::FromSeconds(3), delay) << "at " << i;
-		}
-	}
+            // Assert:
+            EXPECT_EQ(TimeSpan::FromSeconds(3), delay) << "at " << i;
+        }
+    }
 
-	// endregion
+    // endregion
 
-	// region CreateIncreasingDelayGenerator
+    // region CreateIncreasingDelayGenerator
 
-	TEST(TEST_CLASS, IncreasingDelayGenerator_RequiresMinDelayToBeLessThanMaxDelay) {
-		EXPECT_THROW(CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(3), 7, TimeSpan::FromSeconds(3), 5), catapult_invalid_argument);
-		EXPECT_THROW(CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(4), 7, TimeSpan::FromSeconds(3), 5), catapult_invalid_argument);
-	}
+    TEST(TEST_CLASS, IncreasingDelayGenerator_RequiresMinDelayToBeLessThanMaxDelay)
+    {
+        EXPECT_THROW(CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(3), 7, TimeSpan::FromSeconds(3), 5), catapult_invalid_argument);
+        EXPECT_THROW(CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(4), 7, TimeSpan::FromSeconds(3), 5), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, IncreasingDelayGenerator_ReturnsMinDelayThroughoutPhaseOne) {
-		// Arrange:
-		auto delayGenerator = CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(1), 7, TimeSpan::FromSeconds(3), 6);
+    TEST(TEST_CLASS, IncreasingDelayGenerator_ReturnsMinDelayThroughoutPhaseOne)
+    {
+        // Arrange:
+        auto delayGenerator = CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(1), 7, TimeSpan::FromSeconds(3), 6);
 
-		// Act:
-		for (auto i = 0u; i < 7; ++i) {
-			auto delay = delayGenerator();
+        // Act:
+        for (auto i = 0u; i < 7; ++i) {
+            auto delay = delayGenerator();
 
-			// Assert:
-			EXPECT_EQ(TimeSpan::FromSeconds(1), delay) << "at " << i;
-		}
-	}
+            // Assert:
+            EXPECT_EQ(TimeSpan::FromSeconds(1), delay) << "at " << i;
+        }
+    }
 
-	TEST(TEST_CLASS, IncreasingDelayGenerator_ReturnsLinearlyIncreasingDelaysThroughoutPhaseTwo) {
-		// Arrange:
-		auto delayGenerator = CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(1), 7, TimeSpan::FromSeconds(3), 6);
+    TEST(TEST_CLASS, IncreasingDelayGenerator_ReturnsLinearlyIncreasingDelaysThroughoutPhaseTwo)
+    {
+        // Arrange:
+        auto delayGenerator = CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(1), 7, TimeSpan::FromSeconds(3), 6);
 
-		// - skip to phase two
-		for (auto i = 0u; i < 7; ++i)
-			delayGenerator();
+        // - skip to phase two
+        for (auto i = 0u; i < 7; ++i)
+            delayGenerator();
 
-		// Act:
-		std::vector<TimeSpan> delays;
-		for (auto i = 0u; i < 5; ++i)
-			delays.push_back(delayGenerator());
+        // Act:
+        std::vector<TimeSpan> delays;
+        for (auto i = 0u; i < 5; ++i)
+            delays.push_back(delayGenerator());
 
-		// Assert:
-		std::vector<TimeSpan> expectedDelays{ TimeSpan::FromMilliseconds(1000 + 333),
-											  TimeSpan::FromMilliseconds(1000 + 666),
-											  TimeSpan::FromMilliseconds(1000 + 1000),
-											  TimeSpan::FromMilliseconds(1000 + 1333),
-											  TimeSpan::FromMilliseconds(1000 + 1666) };
-		EXPECT_EQ(expectedDelays, delays);
-	}
+        // Assert:
+        std::vector<TimeSpan> expectedDelays { TimeSpan::FromMilliseconds(1000 + 333),
+            TimeSpan::FromMilliseconds(1000 + 666),
+            TimeSpan::FromMilliseconds(1000 + 1000),
+            TimeSpan::FromMilliseconds(1000 + 1333),
+            TimeSpan::FromMilliseconds(1000 + 1666) };
+        EXPECT_EQ(expectedDelays, delays);
+    }
 
-	TEST(TEST_CLASS, IncreasingDelayGenerator_ReturnsMaxDelayThroughoutPhaseThree) {
-		// Arrange:
-		auto delayGenerator = CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(1), 7, TimeSpan::FromSeconds(3), 6);
+    TEST(TEST_CLASS, IncreasingDelayGenerator_ReturnsMaxDelayThroughoutPhaseThree)
+    {
+        // Arrange:
+        auto delayGenerator = CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(1), 7, TimeSpan::FromSeconds(3), 6);
 
-		// - skip to phase three
-		for (auto i = 0u; i < 7 + 5; ++i)
-			delayGenerator();
+        // - skip to phase three
+        for (auto i = 0u; i < 7 + 5; ++i)
+            delayGenerator();
 
-		// Act:
-		for (auto i = 0u; i < 100; ++i) {
-			auto delay = delayGenerator();
+        // Act:
+        for (auto i = 0u; i < 100; ++i) {
+            auto delay = delayGenerator();
 
-			// Assert:
-			EXPECT_EQ(TimeSpan::FromSeconds(3), delay) << "at " << i;
-		}
-	}
+            // Assert:
+            EXPECT_EQ(TimeSpan::FromSeconds(3), delay) << "at " << i;
+        }
+    }
 
-	// endregion
+    // endregion
 
-	// region Task
+    // region Task
 
-	TEST(TEST_CLASS, CanCreateDefaultTask) {
-		// Act:
-		Task task;
+    TEST(TEST_CLASS, CanCreateDefaultTask)
+    {
+        // Act:
+        Task task;
 
-		// Assert:
-		EXPECT_TRUE(task.Name.empty());
-		EXPECT_EQ(TimeSpan(), task.StartDelay);
-		EXPECT_FALSE(!!task.NextDelay);
+        // Assert:
+        EXPECT_TRUE(task.Name.empty());
+        EXPECT_EQ(TimeSpan(), task.StartDelay);
+        EXPECT_FALSE(!!task.NextDelay);
 
-		EXPECT_FALSE(!!task.Callback);
-	}
+        EXPECT_FALSE(!!task.Callback);
+    }
 
-	TEST(TEST_CLASS, CanCreateNamedTask) {
-		// Act:
-		auto counter = 0u;
-		auto task = CreateNamedTask("foo task", [&counter]() {
-			++counter;
-			return thread::make_ready_future(thread::TaskResult::Continue);
-		});
+    TEST(TEST_CLASS, CanCreateNamedTask)
+    {
+        // Act:
+        auto counter = 0u;
+        auto task = CreateNamedTask("foo task", [&counter]() {
+            ++counter;
+            return thread::make_ready_future(thread::TaskResult::Continue);
+        });
 
-		// Assert:
-		EXPECT_EQ("foo task", task.Name);
-		EXPECT_EQ(TimeSpan(), task.StartDelay);
-		EXPECT_FALSE(!!task.NextDelay);
+        // Assert:
+        EXPECT_EQ("foo task", task.Name);
+        EXPECT_EQ(TimeSpan(), task.StartDelay);
+        EXPECT_FALSE(!!task.NextDelay);
 
-		// - execute the callback (use counter as a proxy that the callback is set correctly)
-		ASSERT_TRUE(!!task.Callback);
-		task.Callback();
-		EXPECT_EQ(1u, counter);
-	}
+        // - execute the callback (use counter as a proxy that the callback is set correctly)
+        ASSERT_TRUE(!!task.Callback);
+        task.Callback();
+        EXPECT_EQ(1u, counter);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

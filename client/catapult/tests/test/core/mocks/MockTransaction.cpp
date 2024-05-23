@@ -29,274 +29,308 @@
 
 using namespace catapult::model;
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	namespace {
-		template<typename TTransaction>
-		Address GetRecipientAddressT(const TTransaction& mockTransaction) {
-			return PublicKeyToAddress(mockTransaction.RecipientPublicKey, mockTransaction.Network);
-		}
-	}
+    namespace {
+        template <typename TTransaction>
+        Address GetRecipientAddressT(const TTransaction& mockTransaction)
+        {
+            return PublicKeyToAddress(mockTransaction.RecipientPublicKey, mockTransaction.Network);
+        }
+    }
 
-	Address GetRecipientAddress(const MockTransaction& transaction) {
-		return GetRecipientAddressT(transaction);
-	}
+    Address GetRecipientAddress(const MockTransaction& transaction)
+    {
+        return GetRecipientAddressT(transaction);
+    }
 
-	Address GetRecipientAddress(const EmbeddedMockTransaction& transaction) {
-		return GetRecipientAddressT(transaction);
-	}
+    Address GetRecipientAddress(const EmbeddedMockTransaction& transaction)
+    {
+        return GetRecipientAddressT(transaction);
+    }
 
-	std::vector<model::NotificationType> GetExpectedMockTransactionObserverNotificationTypes() {
-		return { // basic transaction notifications
-				 model::Core_Source_Change_Notification,
-				 model::Core_Register_Account_Public_Key_Notification,
-				 model::Core_Transaction_Notification,
-				 model::Core_Transaction_Fee_Notification,
+    std::vector<model::NotificationType> GetExpectedMockTransactionObserverNotificationTypes()
+    {
+        return { // basic transaction notifications
+            model::Core_Source_Change_Notification,
+            model::Core_Register_Account_Public_Key_Notification,
+            model::Core_Transaction_Notification,
+            model::Core_Transaction_Fee_Notification,
 
-				 // mock transaction notifications
-				 model::Core_Register_Account_Public_Key_Notification,
-				 mocks::Mock_Observer_1_Notification,
-				 mocks::Mock_All_1_Notification,
-				 mocks::Mock_Observer_2_Notification,
-				 mocks::Mock_All_2_Notification,
+            // mock transaction notifications
+            model::Core_Register_Account_Public_Key_Notification,
+            mocks::Mock_Observer_1_Notification,
+            mocks::Mock_All_1_Notification,
+            mocks::Mock_Observer_2_Notification,
+            mocks::Mock_All_2_Notification,
 
-				 // basic transaction notifications
-				 model::Core_Balance_Debit_Notification
-		};
-	}
+            // basic transaction notifications
+            model::Core_Balance_Debit_Notification
+        };
+    }
 
-	std::vector<model::NotificationType> GetExpectedMockTransactionValidatorNotificationTypes() {
-		return { // basic transaction notifications
-				 model::Core_Register_Account_Public_Key_Notification,
-				 model::Core_Entity_Notification,
-				 model::Core_Transaction_Notification,
-				 model::Core_Transaction_Deadline_Notification,
-				 model::Core_Transaction_Fee_Notification,
+    std::vector<model::NotificationType> GetExpectedMockTransactionValidatorNotificationTypes()
+    {
+        return { // basic transaction notifications
+            model::Core_Register_Account_Public_Key_Notification,
+            model::Core_Entity_Notification,
+            model::Core_Transaction_Notification,
+            model::Core_Transaction_Deadline_Notification,
+            model::Core_Transaction_Fee_Notification,
 
-				 // mock transaction notifications
-				 model::Core_Register_Account_Public_Key_Notification,
-				 mocks::Mock_Validator_1_Notification,
-				 mocks::Mock_All_1_Notification,
-				 mocks::Mock_Validator_2_Notification,
-				 mocks::Mock_All_2_Notification,
+            // mock transaction notifications
+            model::Core_Register_Account_Public_Key_Notification,
+            mocks::Mock_Validator_1_Notification,
+            mocks::Mock_All_1_Notification,
+            mocks::Mock_Validator_2_Notification,
+            mocks::Mock_All_2_Notification,
 
-				 // basic transaction notifications
-				 model::Core_Balance_Debit_Notification,
-				 model::Core_Signature_Notification
-		};
-	}
+            // basic transaction notifications
+            model::Core_Balance_Debit_Notification,
+            model::Core_Signature_Notification
+        };
+    }
 
-	namespace {
-		template<typename TMockTransaction>
-		std::unique_ptr<TMockTransaction> CreateMockTransactionT(uint16_t dataSize) {
-			uint32_t entitySize = SizeOf32<TMockTransaction>() + dataSize;
-			auto pTransaction = utils::MakeUniqueWithSize<TMockTransaction>(entitySize);
+    namespace {
+        template <typename TMockTransaction>
+        std::unique_ptr<TMockTransaction> CreateMockTransactionT(uint16_t dataSize)
+        {
+            uint32_t entitySize = SizeOf32<TMockTransaction>() + dataSize;
+            auto pTransaction = utils::MakeUniqueWithSize<TMockTransaction>(entitySize);
 
-			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
-			pTransaction->Size = entitySize;
-			pTransaction->Type = MockTransaction::Entity_Type;
-			pTransaction->Data.Size = dataSize;
-			return pTransaction;
-		}
-	}
+            test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
+            pTransaction->Size = entitySize;
+            pTransaction->Type = MockTransaction::Entity_Type;
+            pTransaction->Data.Size = dataSize;
+            return pTransaction;
+        }
+    }
 
-	std::unique_ptr<MockTransaction> CreateMockTransaction(uint16_t dataSize) {
-		return CreateMockTransactionT<MockTransaction>(dataSize);
-	}
+    std::unique_ptr<MockTransaction> CreateMockTransaction(uint16_t dataSize)
+    {
+        return CreateMockTransactionT<MockTransaction>(dataSize);
+    }
 
-	std::unique_ptr<EmbeddedMockTransaction> CreateEmbeddedMockTransaction(uint16_t dataSize) {
-		return CreateMockTransactionT<EmbeddedMockTransaction>(dataSize);
-	}
+    std::unique_ptr<EmbeddedMockTransaction> CreateEmbeddedMockTransaction(uint16_t dataSize)
+    {
+        return CreateMockTransactionT<EmbeddedMockTransaction>(dataSize);
+    }
 
-	std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(Amount fee, const std::vector<UnresolvedMosaic>& transfers) {
-		auto pTransaction = CreateMockTransaction(static_cast<uint16_t>(transfers.size() * sizeof(Mosaic)));
-		pTransaction->MaxFee = fee;
-		pTransaction->Version = 0;
+    std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(Amount fee, const std::vector<UnresolvedMosaic>& transfers)
+    {
+        auto pTransaction = CreateMockTransaction(static_cast<uint16_t>(transfers.size() * sizeof(Mosaic)));
+        pTransaction->MaxFee = fee;
+        pTransaction->Version = 0;
 
-		auto* pTransferData = pTransaction->DataPtr();
-		for (const auto& transfer : transfers) {
-			std::memcpy(pTransferData, &transfer, sizeof(UnresolvedMosaic));
-			pTransferData += sizeof(UnresolvedMosaic);
-		}
+        auto* pTransferData = pTransaction->DataPtr();
+        for (const auto& transfer : transfers) {
+            std::memcpy(pTransferData, &transfer, sizeof(UnresolvedMosaic));
+            pTransferData += sizeof(UnresolvedMosaic);
+        }
 
-		return pTransaction;
-	}
+        return pTransaction;
+    }
 
-	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient) {
-		auto pTransaction = CreateMockTransactionT<MockTransaction>(0);
-		pTransaction->SignerPublicKey = signer;
-		pTransaction->RecipientPublicKey = recipient;
-		pTransaction->Version = 1;
-		pTransaction->Network = NetworkIdentifier::Testnet;
-		return pTransaction;
-	}
+    std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient)
+    {
+        auto pTransaction = CreateMockTransactionT<MockTransaction>(0);
+        pTransaction->SignerPublicKey = signer;
+        pTransaction->RecipientPublicKey = recipient;
+        pTransaction->Version = 1;
+        pTransaction->Network = NetworkIdentifier::Testnet;
+        return pTransaction;
+    }
 
-	UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction) {
-		return { UnresolvedAddress{ { 1 } }, GetRecipientAddress(transaction).copyTo<UnresolvedAddress>(), UnresolvedAddress{ { 2 } } };
-	}
+    UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction)
+    {
+        return { UnresolvedAddress { { 1 } }, GetRecipientAddress(transaction).copyTo<UnresolvedAddress>(), UnresolvedAddress { { 2 } } };
+    }
 
-	bool IsPluginOptionFlagSet(PluginOptionFlags options, PluginOptionFlags flag) {
-		return utils::to_underlying_type(flag) == (utils::to_underlying_type(options) & utils::to_underlying_type(flag));
-	}
+    bool IsPluginOptionFlagSet(PluginOptionFlags options, PluginOptionFlags flag)
+    {
+        return utils::to_underlying_type(flag) == (utils::to_underlying_type(options) & utils::to_underlying_type(flag));
+    }
 
-	namespace {
-		template<typename TTransaction>
-		void Publish(
-				const TTransaction& mockTransaction,
-				const PublishContext& context,
-				PluginOptionFlags options,
-				NotificationSubscriber& sub) {
-			sub.notify(AccountPublicKeyNotification(mockTransaction.RecipientPublicKey));
-			sub.notify(MockPublisherContextNotification(context.SignerAddress, context.BlockHeight));
+    namespace {
+        template <typename TTransaction>
+        void Publish(
+            const TTransaction& mockTransaction,
+            const PublishContext& context,
+            PluginOptionFlags options,
+            NotificationSubscriber& sub)
+        {
+            sub.notify(AccountPublicKeyNotification(mockTransaction.RecipientPublicKey));
+            sub.notify(MockPublisherContextNotification(context.SignerAddress, context.BlockHeight));
 
-			if (IsPluginOptionFlagSet(options, PluginOptionFlags::Publish_Custom_Notifications)) {
-				sub.notify(test::CreateNotification(Mock_Observer_1_Notification));
-				sub.notify(test::CreateNotification(Mock_Validator_1_Notification));
-				sub.notify(test::CreateNotification(Mock_All_1_Notification));
-				sub.notify(test::CreateNotification(Mock_Observer_2_Notification));
-				sub.notify(test::CreateNotification(Mock_Validator_2_Notification));
-				sub.notify(test::CreateNotification(Mock_All_2_Notification));
-			}
+            if (IsPluginOptionFlagSet(options, PluginOptionFlags::Publish_Custom_Notifications)) {
+                sub.notify(test::CreateNotification(Mock_Observer_1_Notification));
+                sub.notify(test::CreateNotification(Mock_Validator_1_Notification));
+                sub.notify(test::CreateNotification(Mock_All_1_Notification));
+                sub.notify(test::CreateNotification(Mock_Observer_2_Notification));
+                sub.notify(test::CreateNotification(Mock_Validator_2_Notification));
+                sub.notify(test::CreateNotification(Mock_All_2_Notification));
+            }
 
-			if (!IsPluginOptionFlagSet(options, PluginOptionFlags::Publish_Transfers))
-				return;
+            if (!IsPluginOptionFlagSet(options, PluginOptionFlags::Publish_Transfers))
+                return;
 
-			auto pMosaics = reinterpret_cast<const UnresolvedMosaic*>(mockTransaction.DataPtr());
-			for (auto i = 0u; i < mockTransaction.Data.Size / sizeof(UnresolvedMosaic); ++i) {
-				// forcibly XOR recipient even though PublicKeyToAddress always returns resolved address
-				// in order to force tests to use XOR resolver context with Publish_Transfers
-				auto recipient = test::UnresolveXor(GetRecipientAddress(mockTransaction));
-				sub.notify(BalanceTransferNotification(context.SignerAddress, recipient, pMosaics[i].MosaicId, pMosaics[i].Amount));
-			}
-		}
+            auto pMosaics = reinterpret_cast<const UnresolvedMosaic*>(mockTransaction.DataPtr());
+            for (auto i = 0u; i < mockTransaction.Data.Size / sizeof(UnresolvedMosaic); ++i) {
+                // forcibly XOR recipient even though PublicKeyToAddress always returns resolved address
+                // in order to force tests to use XOR resolver context with Publish_Transfers
+                auto recipient = test::UnresolveXor(GetRecipientAddress(mockTransaction));
+                sub.notify(BalanceTransferNotification(context.SignerAddress, recipient, pMosaics[i].MosaicId, pMosaics[i].Amount));
+            }
+        }
 
-		template<typename TTransaction, typename TDerivedTransaction, typename TPlugin>
-		class MockTransactionPluginT : public TPlugin {
-		public:
-			MockTransactionPluginT(EntityType type, PluginOptionFlags options)
-					: m_type(type)
-					, m_options(options) {
-			}
+        template <typename TTransaction, typename TDerivedTransaction, typename TPlugin>
+        class MockTransactionPluginT : public TPlugin {
+        public:
+            MockTransactionPluginT(EntityType type, PluginOptionFlags options)
+                : m_type(type)
+                , m_options(options)
+            {
+            }
 
-		public:
-			EntityType type() const override {
-				return m_type;
-			}
+        public:
+            EntityType type() const override
+            {
+                return m_type;
+            }
 
-			TransactionAttributes attributes() const override {
-				return { 0x02, 0xFE, utils::TimeSpan::FromMilliseconds(0xEEEE'EEEE'EEEE'1234) };
-			}
+            TransactionAttributes attributes() const override
+            {
+                return { 0x02, 0xFE, utils::TimeSpan::FromMilliseconds(0xEEEE'EEEE'EEEE'1234) };
+            }
 
-			bool isSizeValid(const TTransaction& transaction) const override {
-				return IsSizeValidT<TDerivedTransaction>(static_cast<const TDerivedTransaction&>(transaction));
-			}
+            bool isSizeValid(const TTransaction& transaction) const override
+            {
+                return IsSizeValidT<TDerivedTransaction>(static_cast<const TDerivedTransaction&>(transaction));
+            }
 
-		private:
-			EntityType m_type;
-			PluginOptionFlags m_options;
-		};
+        private:
+            EntityType m_type;
+            PluginOptionFlags m_options;
+        };
 
-		class EmbeddedMockTransactionPlugin
-				: public MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin> {
-		public:
-			EmbeddedMockTransactionPlugin(EntityType type, PluginOptionFlags options)
-					: MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin>(type, options)
-					, m_options(options) {
-			}
+        class EmbeddedMockTransactionPlugin
+            : public MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin> {
+        public:
+            EmbeddedMockTransactionPlugin(EntityType type, PluginOptionFlags options)
+                : MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin>(type, options)
+                , m_options(options)
+            {
+            }
 
-		public:
-			void publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
-					const override {
-				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), context, m_options, sub);
-			}
+        public:
+            void publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+                const override
+            {
+                Publish(static_cast<const EmbeddedMockTransaction&>(transaction), context, m_options, sub);
+            }
 
-			UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction&) const override {
-				return UnresolvedAddressSet();
-			}
+            UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction&) const override
+            {
+                return UnresolvedAddressSet();
+            }
 
-		private:
-			PluginOptionFlags m_options;
-		};
+        private:
+            PluginOptionFlags m_options;
+        };
 
-		class MockTransactionPlugin : public MockTransactionPluginT<Transaction, MockTransaction, TransactionPlugin> {
-		public:
-			MockTransactionPlugin(EntityType type, PluginOptionFlags options)
-					: MockTransactionPluginT<Transaction, MockTransaction, TransactionPlugin>(type, options)
-					, m_options(options) {
-				if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Not_Embeddable))
-					return;
+        class MockTransactionPlugin : public MockTransactionPluginT<Transaction, MockTransaction, TransactionPlugin> {
+        public:
+            MockTransactionPlugin(EntityType type, PluginOptionFlags options)
+                : MockTransactionPluginT<Transaction, MockTransaction, TransactionPlugin>(type, options)
+                , m_options(options)
+            {
+                if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Not_Embeddable))
+                    return;
 
-				m_pEmbeddedTransactionPlugin = std::make_unique<EmbeddedMockTransactionPlugin>(type, options);
-			}
+                m_pEmbeddedTransactionPlugin = std::make_unique<EmbeddedMockTransactionPlugin>(type, options);
+            }
 
-		public:
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub)
-					const override {
-				Publish(static_cast<const MockTransaction&>(transactionInfo.entity()), context, m_options, sub);
+        public:
+            void publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub)
+                const override
+            {
+                Publish(static_cast<const MockTransaction&>(transactionInfo.entity()), context, m_options, sub);
 
-				// raise a custom notification that includes the provided hash
-				// (this allows other tests to verify that the appropriate hash was passed down)
-				if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Publish_Custom_Notifications))
-					sub.notify(MockHashNotification(transactionInfo.hash()));
-			}
+                // raise a custom notification that includes the provided hash
+                // (this allows other tests to verify that the appropriate hash was passed down)
+                if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Publish_Custom_Notifications))
+                    sub.notify(MockHashNotification(transactionInfo.hash()));
+            }
 
-			uint32_t embeddedCount(const Transaction& transaction) const override {
-				return IsPluginOptionFlagSet(m_options, PluginOptionFlags::Contains_Embeddings) ? transaction.Size % 100 : 0;
-			}
+            uint32_t embeddedCount(const Transaction& transaction) const override
+            {
+                return IsPluginOptionFlagSet(m_options, PluginOptionFlags::Contains_Embeddings) ? transaction.Size % 100 : 0;
+            }
 
-			RawBuffer dataBuffer(const Transaction& transaction) const override {
-				if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Custom_Buffers)) {
-					// return only the mock transaction data payload
-					// (returning a non-standard dataBuffer allows tests to ensure that dataBuffer() is being called)
-					const auto& mockTransaction = static_cast<const MockTransaction&>(transaction);
-					return { reinterpret_cast<const uint8_t*>(&mockTransaction + 1), mockTransaction.Data.Size };
-				} else {
-					// return entire transaction payload (this is the "correct" behavior)
-					auto headerSize = VerifiableEntity::Header_Size;
-					return { reinterpret_cast<const uint8_t*>(&transaction) + headerSize, transaction.Size - headerSize };
-				}
-			}
+            RawBuffer dataBuffer(const Transaction& transaction) const override
+            {
+                if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Custom_Buffers)) {
+                    // return only the mock transaction data payload
+                    // (returning a non-standard dataBuffer allows tests to ensure that dataBuffer() is being called)
+                    const auto& mockTransaction = static_cast<const MockTransaction&>(transaction);
+                    return { reinterpret_cast<const uint8_t*>(&mockTransaction + 1), mockTransaction.Data.Size };
+                } else {
+                    // return entire transaction payload (this is the "correct" behavior)
+                    auto headerSize = VerifiableEntity::Header_Size;
+                    return { reinterpret_cast<const uint8_t*>(&transaction) + headerSize, transaction.Size - headerSize };
+                }
+            }
 
-			std::vector<RawBuffer> merkleSupplementaryBuffers(const Transaction&) const override {
-				return {};
-			}
+            std::vector<RawBuffer> merkleSupplementaryBuffers(const Transaction&) const override
+            {
+                return {};
+            }
 
-			bool supportsTopLevel() const override {
-				return !IsPluginOptionFlagSet(m_options, PluginOptionFlags::Not_Top_Level);
-			}
+            bool supportsTopLevel() const override
+            {
+                return !IsPluginOptionFlagSet(m_options, PluginOptionFlags::Not_Top_Level);
+            }
 
-			bool supportsEmbedding() const override {
-				return !!m_pEmbeddedTransactionPlugin;
-			}
+            bool supportsEmbedding() const override
+            {
+                return !!m_pEmbeddedTransactionPlugin;
+            }
 
-			const EmbeddedTransactionPlugin& embeddedPlugin() const override {
-				if (!m_pEmbeddedTransactionPlugin)
-					CATAPULT_THROW_RUNTIME_ERROR("mock transaction is not embeddable");
+            const EmbeddedTransactionPlugin& embeddedPlugin() const override
+            {
+                if (!m_pEmbeddedTransactionPlugin)
+                    CATAPULT_THROW_RUNTIME_ERROR("mock transaction is not embeddable");
 
-				return *m_pEmbeddedTransactionPlugin;
-			}
+                return *m_pEmbeddedTransactionPlugin;
+            }
 
-		private:
-			PluginOptionFlags m_options;
-			std::unique_ptr<EmbeddedTransactionPlugin> m_pEmbeddedTransactionPlugin;
-		};
-	}
+        private:
+            PluginOptionFlags m_options;
+            std::unique_ptr<EmbeddedTransactionPlugin> m_pEmbeddedTransactionPlugin;
+        };
+    }
 
-	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(EntityType type) {
-		return std::make_unique<MockTransactionPlugin>(type, PluginOptionFlags::Not_Embeddable);
-	}
+    std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(EntityType type)
+    {
+        return std::make_unique<MockTransactionPlugin>(type, PluginOptionFlags::Not_Embeddable);
+    }
 
-	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(PluginOptionFlags options) {
-		return std::make_unique<MockTransactionPlugin>(MockTransaction::Entity_Type, options);
-	}
+    std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(PluginOptionFlags options)
+    {
+        return std::make_unique<MockTransactionPlugin>(MockTransaction::Entity_Type, options);
+    }
 
-	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(EntityType type, PluginOptionFlags options) {
-		return std::make_unique<MockTransactionPlugin>(type, options);
-	}
+    std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(EntityType type, PluginOptionFlags options)
+    {
+        return std::make_unique<MockTransactionPlugin>(type, options);
+    }
 
-	TransactionRegistry CreateDefaultTransactionRegistry(PluginOptionFlags options) {
-		auto registry = TransactionRegistry();
-		registry.registerPlugin(CreateMockTransactionPlugin(options));
-		return registry;
-	}
-}}
+    TransactionRegistry CreateDefaultTransactionRegistry(PluginOptionFlags options)
+    {
+        auto registry = TransactionRegistry();
+        registry.registerPlugin(CreateMockTransactionPlugin(options));
+        return registry;
+    }
+}
+}

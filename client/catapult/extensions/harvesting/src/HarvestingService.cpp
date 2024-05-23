@@ -38,185 +38,200 @@
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/utils/HexParser.h"
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	namespace {
-		// region CreateUnlockedAccountsUpdater
+    namespace {
+        // region CreateUnlockedAccountsUpdater
 
-		struct UnlockedAccountsHolder {
-			std::shared_ptr<UnlockedAccounts> pUnlockedAccounts;
-			std::shared_ptr<UnlockedAccountsUpdater> pUnlockedAccountsUpdater;
-		};
+        struct UnlockedAccountsHolder {
+            std::shared_ptr<UnlockedAccounts> pUnlockedAccounts;
+            std::shared_ptr<UnlockedAccountsUpdater> pUnlockedAccountsUpdater;
+        };
 
-		BlockGeneratorAccountDescriptor CreateBlockGeneratorAccountDescriptor(const HarvestingConfiguration& config) {
-			if (!config.EnableAutoHarvesting)
-				return BlockGeneratorAccountDescriptor();
+        BlockGeneratorAccountDescriptor CreateBlockGeneratorAccountDescriptor(const HarvestingConfiguration& config)
+        {
+            if (!config.EnableAutoHarvesting)
+                return BlockGeneratorAccountDescriptor();
 
-			return BlockGeneratorAccountDescriptor(
-					crypto::KeyPair::FromString(config.HarvesterSigningPrivateKey),
-					crypto::KeyPair::FromString(config.HarvesterVrfPrivateKey));
-		}
+            return BlockGeneratorAccountDescriptor(
+                crypto::KeyPair::FromString(config.HarvesterSigningPrivateKey),
+                crypto::KeyPair::FromString(config.HarvesterVrfPrivateKey));
+        }
 
-		std::shared_ptr<UnlockedAccounts> CreateUnlockedAccounts(
-				const HarvestingConfiguration& config,
-				const cache::CatapultCache& cache,
-				BlockGeneratorAccountDescriptor&& blockGeneratorAccountDescriptor) {
-			auto harvesterSigningPublicKey = blockGeneratorAccountDescriptor.signingKeyPair().publicKey();
-			auto harvesterVrfPublicKey = blockGeneratorAccountDescriptor.vrfKeyPair().publicKey();
+        std::shared_ptr<UnlockedAccounts> CreateUnlockedAccounts(
+            const HarvestingConfiguration& config,
+            const cache::CatapultCache& cache,
+            BlockGeneratorAccountDescriptor&& blockGeneratorAccountDescriptor)
+        {
+            auto harvesterSigningPublicKey = blockGeneratorAccountDescriptor.signingKeyPair().publicKey();
+            auto harvesterVrfPublicKey = blockGeneratorAccountDescriptor.vrfKeyPair().publicKey();
 
-			auto pUnlockedAccounts = std::make_shared<UnlockedAccounts>(
-					config.MaxUnlockedAccounts,
-					CreateDelegatePrioritizer(config.DelegatePrioritizationPolicy, cache, harvesterSigningPublicKey));
+            auto pUnlockedAccounts = std::make_shared<UnlockedAccounts>(
+                config.MaxUnlockedAccounts,
+                CreateDelegatePrioritizer(config.DelegatePrioritizationPolicy, cache, harvesterSigningPublicKey));
 
-			if (config.EnableAutoHarvesting) {
-				// unlock configured account if it's eligible to harvest the next block
-				auto unlockResult = pUnlockedAccounts->modifier().add(std::move(blockGeneratorAccountDescriptor));
-				CATAPULT_LOG(important) << std::endl
-										<< "Unlocked harvesting account with result " << unlockResult << std::endl
-										<< "+ Signing " << harvesterSigningPublicKey << std::endl
-										<< "+ VRF     " << harvesterVrfPublicKey;
-			}
+            if (config.EnableAutoHarvesting) {
+                // unlock configured account if it's eligible to harvest the next block
+                auto unlockResult = pUnlockedAccounts->modifier().add(std::move(blockGeneratorAccountDescriptor));
+                CATAPULT_LOG(important) << std::endl
+                                        << "Unlocked harvesting account with result " << unlockResult << std::endl
+                                        << "+ Signing " << harvesterSigningPublicKey << std::endl
+                                        << "+ VRF     " << harvesterVrfPublicKey;
+            }
 
-			return pUnlockedAccounts;
-		}
+            return pUnlockedAccounts;
+        }
 
-		UnlockedAccountsHolder CreateUnlockedAccountsHolder(
-				const HarvestingConfiguration& config,
-				const extensions::ServiceState& state,
-				const crypto::KeyPair& encryptionKeyPair) {
-			auto blockGeneratorAccountDescriptor = CreateBlockGeneratorAccountDescriptor(config);
-			auto harvesterSigningPublicKey = blockGeneratorAccountDescriptor.signingKeyPair().publicKey();
+        UnlockedAccountsHolder CreateUnlockedAccountsHolder(
+            const HarvestingConfiguration& config,
+            const extensions::ServiceState& state,
+            const crypto::KeyPair& encryptionKeyPair)
+        {
+            auto blockGeneratorAccountDescriptor = CreateBlockGeneratorAccountDescriptor(config);
+            auto harvesterSigningPublicKey = blockGeneratorAccountDescriptor.signingKeyPair().publicKey();
 
-			auto pUnlockedAccounts = CreateUnlockedAccounts(config, state.cache(), std::move(blockGeneratorAccountDescriptor));
+            auto pUnlockedAccounts = CreateUnlockedAccounts(config, state.cache(), std::move(blockGeneratorAccountDescriptor));
 
-			auto pUnlockedAccountsUpdater = std::make_shared<UnlockedAccountsUpdater>(
-					state.cache(),
-					*pUnlockedAccounts,
-					harvesterSigningPublicKey,
-					encryptionKeyPair,
-					config::CatapultDataDirectory(state.config().User.DataDirectory));
-			pUnlockedAccountsUpdater->load();
+            auto pUnlockedAccountsUpdater = std::make_shared<UnlockedAccountsUpdater>(
+                state.cache(),
+                *pUnlockedAccounts,
+                harvesterSigningPublicKey,
+                encryptionKeyPair,
+                config::CatapultDataDirectory(state.config().User.DataDirectory));
+            pUnlockedAccountsUpdater->load();
 
-			return { pUnlockedAccounts, pUnlockedAccountsUpdater };
-		}
+            return { pUnlockedAccounts, pUnlockedAccountsUpdater };
+        }
 
-		// endregion
+        // endregion
 
-		// region harvesting task
+        // region harvesting task
 
-		ScheduledHarvesterTaskOptions CreateHarvesterTaskOptions(extensions::ServiceState& state) {
-			ScheduledHarvesterTaskOptions options;
-			options.HarvestingAllowed = state.hooks().chainSyncedPredicate();
-			options.LastBlockElementSupplier = [&storage = state.storage()]() {
-				auto storageView = storage.view();
-				return storageView.loadBlockElement(storageView.chainHeight());
-			};
-			options.TimeSupplier = state.timeSupplier();
-			options.RangeConsumer = state.hooks().completionAwareBlockRangeConsumerFactory()(disruptor::InputSource::Local);
-			return options;
-		}
+        ScheduledHarvesterTaskOptions CreateHarvesterTaskOptions(extensions::ServiceState& state)
+        {
+            ScheduledHarvesterTaskOptions options;
+            options.HarvestingAllowed = state.hooks().chainSyncedPredicate();
+            options.LastBlockElementSupplier = [&storage = state.storage()]() {
+                auto storageView = storage.view();
+                return storageView.loadBlockElement(storageView.chainHeight());
+            };
+            options.TimeSupplier = state.timeSupplier();
+            options.RangeConsumer = state.hooks().completionAwareBlockRangeConsumerFactory()(disruptor::InputSource::Local);
+            return options;
+        }
 
-		thread::Task CreateHarvestingTask(
-				extensions::ServiceState& state,
-				const UnlockedAccountsHolder& unlockedAccountsHolder,
-				const Address& beneficiaryAddress) {
-			auto strategy = state.config().Node.TransactionSelectionStrategy;
-			const auto& transactionRegistry = state.pluginManager().transactionRegistry();
-			const auto& utCache = const_cast<const extensions::ServiceState&>(state).utCache();
+        thread::Task CreateHarvestingTask(
+            extensions::ServiceState& state,
+            const UnlockedAccountsHolder& unlockedAccountsHolder,
+            const Address& beneficiaryAddress)
+        {
+            auto strategy = state.config().Node.TransactionSelectionStrategy;
+            const auto& transactionRegistry = state.pluginManager().transactionRegistry();
+            const auto& utCache = const_cast<const extensions::ServiceState&>(state).utCache();
 
-			const auto& cache = state.cache();
-			const auto& blockchainConfig = state.config().Blockchain;
-			auto executionConfig = extensions::CreateExecutionConfiguration(state.pluginManager());
-			HarvestingUtFacadeFactory utFacadeFactory(cache, blockchainConfig, executionConfig, [&storage = state.storage()](auto height) {
-				auto hashRange = storage.view().loadHashesFrom(height, 1);
-				return *hashRange.cbegin();
-			});
+            const auto& cache = state.cache();
+            const auto& blockchainConfig = state.config().Blockchain;
+            auto executionConfig = extensions::CreateExecutionConfiguration(state.pluginManager());
+            HarvestingUtFacadeFactory utFacadeFactory(cache, blockchainConfig, executionConfig, [&storage = state.storage()](auto height) {
+                auto hashRange = storage.view().loadHashesFrom(height, 1);
+                return *hashRange.cbegin();
+            });
 
-			auto pUnlockedAccounts = unlockedAccountsHolder.pUnlockedAccounts;
-			auto blockGenerator = CreateHarvesterBlockGenerator(strategy, transactionRegistry, utFacadeFactory, utCache);
-			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
-					CreateHarvesterTaskOptions(state),
-					std::make_unique<Harvester>(cache, blockchainConfig, beneficiaryAddress, *pUnlockedAccounts, blockGenerator));
+            auto pUnlockedAccounts = unlockedAccountsHolder.pUnlockedAccounts;
+            auto blockGenerator = CreateHarvesterBlockGenerator(strategy, transactionRegistry, utFacadeFactory, utCache);
+            auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
+                CreateHarvesterTaskOptions(state),
+                std::make_unique<Harvester>(cache, blockchainConfig, beneficiaryAddress, *pUnlockedAccounts, blockGenerator));
 
-			auto pUnlockedAccountsUpdater = unlockedAccountsHolder.pUnlockedAccountsUpdater;
-			return thread::CreateNamedTask("harvesting task", [pUnlockedAccountsUpdater, pHarvesterTask]() {
-				pUnlockedAccountsUpdater->update();
+            auto pUnlockedAccountsUpdater = unlockedAccountsHolder.pUnlockedAccountsUpdater;
+            return thread::CreateNamedTask("harvesting task", [pUnlockedAccountsUpdater, pHarvesterTask]() {
+                pUnlockedAccountsUpdater->update();
 
-				// harvest the next block
-				pHarvesterTask->harvest();
-				return thread::make_ready_future(thread::TaskResult::Continue);
-			});
-		}
+                // harvest the next block
+                pHarvesterTask->harvest();
+                return thread::make_ready_future(thread::TaskResult::Continue);
+            });
+        }
 
-		// endregion
+        // endregion
 
-		// region diagnostic handler
+        // region diagnostic handler
 
-		bool IsDiagnosticExtensionEnabled(const config::ExtensionsConfiguration& extensionsConfiguration) {
-			const auto& names = extensionsConfiguration.Names;
-			return names.cend() != std::find(names.cbegin(), names.cend(), "extension.diagnostics");
-		}
+        bool IsDiagnosticExtensionEnabled(const config::ExtensionsConfiguration& extensionsConfiguration)
+        {
+            const auto& names = extensionsConfiguration.Names;
+            return names.cend() != std::find(names.cbegin(), names.cend(), "extension.diagnostics");
+        }
 
-		void RegisterDiagnosticUnlockedAccountsHandler(extensions::ServiceState& state, const UnlockedAccounts& unlockedAccounts) {
-			auto& handlers = state.packetHandlers();
-			handlers.setAllowedHosts(state.config().Node.TrustedHosts);
+        void RegisterDiagnosticUnlockedAccountsHandler(extensions::ServiceState& state, const UnlockedAccounts& unlockedAccounts)
+        {
+            auto& handlers = state.packetHandlers();
+            handlers.setAllowedHosts(state.config().Node.TrustedHosts);
 
-			handlers.registerHandler(ionet::PacketType::Unlocked_Accounts, [&unlockedAccounts](const auto& packet, auto& context) {
-				if (!ionet::IsPacketValid(packet, ionet::PacketType::Unlocked_Accounts))
-					return;
+            handlers.registerHandler(ionet::PacketType::Unlocked_Accounts, [&unlockedAccounts](const auto& packet, auto& context) {
+                if (!ionet::IsPacketValid(packet, ionet::PacketType::Unlocked_Accounts))
+                    return;
 
-				auto view = unlockedAccounts.view();
-				std::vector<Key> harvesterPublicKeys;
-				view.forEach([&harvesterPublicKeys](const auto& descriptor) {
-					harvesterPublicKeys.push_back(descriptor.signingKeyPair().publicKey());
-					return true;
-				});
+                auto view = unlockedAccounts.view();
+                std::vector<Key> harvesterPublicKeys;
+                view.forEach([&harvesterPublicKeys](const auto& descriptor) {
+                    harvesterPublicKeys.push_back(descriptor.signingKeyPair().publicKey());
+                    return true;
+                });
 
-				const auto* pHarvesterPublicKeys = reinterpret_cast<const uint8_t*>(harvesterPublicKeys.data());
-				context.response(ionet::PacketPayloadFactory::FromFixedSizeRange(
-						ionet::PacketType::Unlocked_Accounts,
-						model::EntityRange<Key>::CopyFixed(pHarvesterPublicKeys, harvesterPublicKeys.size())));
-			});
+                const auto* pHarvesterPublicKeys = reinterpret_cast<const uint8_t*>(harvesterPublicKeys.data());
+                context.response(ionet::PacketPayloadFactory::FromFixedSizeRange(
+                    ionet::PacketType::Unlocked_Accounts,
+                    model::EntityRange<Key>::CopyFixed(pHarvesterPublicKeys, harvesterPublicKeys.size())));
+            });
 
-			handlers.setAllowedHosts({});
-		}
+            handlers.setAllowedHosts({});
+        }
 
-		// endregion
+        // endregion
 
-		class HarvestingServiceRegistrar : public extensions::ServiceRegistrar {
-		public:
-			explicit HarvestingServiceRegistrar(const HarvestingConfiguration& config)
-					: m_config(config) {
-			}
+        class HarvestingServiceRegistrar : public extensions::ServiceRegistrar {
+        public:
+            explicit HarvestingServiceRegistrar(const HarvestingConfiguration& config)
+                : m_config(config)
+            {
+            }
 
-			extensions::ServiceRegistrarInfo info() const override {
-				return { "Harvesting", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
-			}
+            extensions::ServiceRegistrarInfo info() const override
+            {
+                return { "Harvesting", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
+            }
 
-			void registerServiceCounters(extensions::ServiceLocator& locator) override {
-				locator.registerServiceCounter<UnlockedAccounts>("unlockedAccounts", "UNLKED ACCTS", [](const auto& accounts) {
-					return accounts.view().size();
-				});
-			}
+            void registerServiceCounters(extensions::ServiceLocator& locator) override
+            {
+                locator.registerServiceCounter<UnlockedAccounts>("unlockedAccounts", "UNLKED ACCTS", [](const auto& accounts) {
+                    return accounts.view().size();
+                });
+            }
 
-			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
-				// updater is owned by harvesting task
-				auto unlockedAccountsHolder = CreateUnlockedAccountsHolder(m_config, state, locator.keys().nodeKeyPair());
-				locator.registerRootedService("unlockedAccounts", unlockedAccountsHolder.pUnlockedAccounts);
+            void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override
+            {
+                // updater is owned by harvesting task
+                auto unlockedAccountsHolder = CreateUnlockedAccountsHolder(m_config, state, locator.keys().nodeKeyPair());
+                locator.registerRootedService("unlockedAccounts", unlockedAccountsHolder.pUnlockedAccounts);
 
-				// add tasks
-				state.tasks().push_back(CreateHarvestingTask(state, unlockedAccountsHolder, m_config.BeneficiaryAddress));
+                // add tasks
+                state.tasks().push_back(CreateHarvestingTask(state, unlockedAccountsHolder, m_config.BeneficiaryAddress));
 
-				if (IsDiagnosticExtensionEnabled(state.config().Extensions))
-					RegisterDiagnosticUnlockedAccountsHandler(state, *unlockedAccountsHolder.pUnlockedAccounts);
-			}
+                if (IsDiagnosticExtensionEnabled(state.config().Extensions))
+                    RegisterDiagnosticUnlockedAccountsHandler(state, *unlockedAccountsHolder.pUnlockedAccounts);
+            }
 
-		private:
-			HarvestingConfiguration m_config;
-		};
-	}
+        private:
+            HarvestingConfiguration m_config;
+        };
+    }
 
-	DECLARE_SERVICE_REGISTRAR(Harvesting)(const HarvestingConfiguration& config) {
-		return std::make_unique<HarvestingServiceRegistrar>(config);
-	}
-}}
+    DECLARE_SERVICE_REGISTRAR(Harvesting)
+    (const HarvestingConfiguration& config)
+    {
+        return std::make_unique<HarvestingServiceRegistrar>(config);
+    }
+}
+}

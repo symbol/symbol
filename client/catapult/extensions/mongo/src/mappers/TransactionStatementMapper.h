@@ -25,18 +25,22 @@
 
 namespace catapult {
 namespace model {
-	class TransactionStatement;
+    class TransactionStatement;
 }
 namespace mongo {
-	class MongoReceiptRegistry;
+    class MongoReceiptRegistry;
 }
 }
 
-namespace catapult { namespace mongo { namespace mappers {
+namespace catapult {
+namespace mongo {
+    namespace mappers {
 
-	/// Maps \a statement at \a height to the corresponding db model value using \a receiptRegistry for mapping derived receipt types.
-	bsoncxx::document::value ToDbModel(
-			Height height,
-			const model::TransactionStatement& statement,
-			const MongoReceiptRegistry& receiptRegistry);
-}}}
+        /// Maps \a statement at \a height to the corresponding db model value using \a receiptRegistry for mapping derived receipt types.
+        bsoncxx::document::value ToDbModel(
+            Height height,
+            const model::TransactionStatement& statement,
+            const MongoReceiptRegistry& receiptRegistry);
+    }
+}
+}

@@ -22,96 +22,104 @@
 #include "catapult/utils/NetworkTime.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
 #define TEST_CLASS NetworkTimeTests
 
-	TEST(TEST_CLASS, NetworkTimeReturnsExpectedTimestamp) {
-		// Arrange:
-		constexpr auto Epoch_Delta_Millis = 1459468800000ull;
-		NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
+    TEST(TEST_CLASS, NetworkTimeReturnsExpectedTimestamp)
+    {
+        // Arrange:
+        constexpr auto Epoch_Delta_Millis = 1459468800000ull;
+        NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
 
-		Timestamp now;
+        Timestamp now;
 
-		// Act:
-		auto duration = test::RunDeterministicOperation([&networkTime, &now]() { now = networkTime.now(); });
+        // Act:
+        auto duration = test::RunDeterministicOperation([&networkTime, &now]() { now = networkTime.now(); });
 
-		// Assert:
-		EXPECT_EQ(Timestamp(static_cast<uint64_t>(duration.count()) - Epoch_Delta_Millis), now);
-	}
+        // Assert:
+        EXPECT_EQ(Timestamp(static_cast<uint64_t>(duration.count()) - Epoch_Delta_Millis), now);
+    }
 
-	TEST(TEST_CLASS, ToNetworkTimeReturnsExpectedTimestamp) {
-		// Arrange:
-		constexpr auto Epoch_Delta_Millis = 1559468800000ull;
-		NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
+    TEST(TEST_CLASS, ToNetworkTimeReturnsExpectedTimestamp)
+    {
+        // Arrange:
+        constexpr auto Epoch_Delta_Millis = 1559468800000ull;
+        NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
 
-		Timestamp ts1(Epoch_Delta_Millis);
-		Timestamp ts2(Epoch_Delta_Millis + 1);
-		Timestamp ts3(Epoch_Delta_Millis + 123456);
+        Timestamp ts1(Epoch_Delta_Millis);
+        Timestamp ts2(Epoch_Delta_Millis + 1);
+        Timestamp ts3(Epoch_Delta_Millis + 123456);
 
-		// Act:
-		auto networkTime1 = networkTime.toNetworkTime(ts1);
-		auto networkTime2 = networkTime.toNetworkTime(ts2);
-		auto networkTime3 = networkTime.toNetworkTime(ts3);
+        // Act:
+        auto networkTime1 = networkTime.toNetworkTime(ts1);
+        auto networkTime2 = networkTime.toNetworkTime(ts2);
+        auto networkTime3 = networkTime.toNetworkTime(ts3);
 
-		// Assert:
-		EXPECT_EQ(Timestamp(0), networkTime1);
-		EXPECT_EQ(Timestamp(1), networkTime2);
-		EXPECT_EQ(Timestamp(123456), networkTime3);
-	}
+        // Assert:
+        EXPECT_EQ(Timestamp(0), networkTime1);
+        EXPECT_EQ(Timestamp(1), networkTime2);
+        EXPECT_EQ(Timestamp(123456), networkTime3);
+    }
 
-	TEST(TEST_CLASS, ToNetworkTimeThrowsWhenSuppliedTimestampIsBeforeEpochTime) {
-		// Arrange:
-		constexpr auto Epoch_Delta_Millis = 1559468800000ull;
-		NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
+    TEST(TEST_CLASS, ToNetworkTimeThrowsWhenSuppliedTimestampIsBeforeEpochTime)
+    {
+        // Arrange:
+        constexpr auto Epoch_Delta_Millis = 1559468800000ull;
+        NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
 
-		Timestamp ts1(Epoch_Delta_Millis - 1);
-		Timestamp ts2(Epoch_Delta_Millis - 10);
-		Timestamp ts3(Epoch_Delta_Millis - 1000);
+        Timestamp ts1(Epoch_Delta_Millis - 1);
+        Timestamp ts2(Epoch_Delta_Millis - 10);
+        Timestamp ts3(Epoch_Delta_Millis - 1000);
 
-		// Act + Assert:
-		EXPECT_THROW(networkTime.toNetworkTime(ts1), catapult_invalid_argument);
-		EXPECT_THROW(networkTime.toNetworkTime(ts2), catapult_invalid_argument);
-		EXPECT_THROW(networkTime.toNetworkTime(ts3), catapult_invalid_argument);
-	}
+        // Act + Assert:
+        EXPECT_THROW(networkTime.toNetworkTime(ts1), catapult_invalid_argument);
+        EXPECT_THROW(networkTime.toNetworkTime(ts2), catapult_invalid_argument);
+        EXPECT_THROW(networkTime.toNetworkTime(ts3), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, ToUnixTimeReturnsExpectedTimestamp) {
-		// Arrange:
-		constexpr auto Epoch_Delta_Millis = 1659468800000ull;
-		NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
+    TEST(TEST_CLASS, ToUnixTimeReturnsExpectedTimestamp)
+    {
+        // Arrange:
+        constexpr auto Epoch_Delta_Millis = 1659468800000ull;
+        NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
 
-		Timestamp ts(123456);
+        Timestamp ts(123456);
 
-		// Act:
-		auto unixTime = networkTime.toUnixTime(ts);
+        // Act:
+        auto unixTime = networkTime.toUnixTime(ts);
 
-		// Assert:
-		EXPECT_EQ(Timestamp(Epoch_Delta_Millis + 123456), unixTime);
-	}
+        // Assert:
+        EXPECT_EQ(Timestamp(Epoch_Delta_Millis + 123456), unixTime);
+    }
 
-	TEST(TEST_CLASS, ToUnixTimeDetectsOverflow) {
-		// Arrange:
-		constexpr auto Epoch_Delta_Millis = 1659468800000ull;
-		NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
+    TEST(TEST_CLASS, ToUnixTimeDetectsOverflow)
+    {
+        // Arrange:
+        constexpr auto Epoch_Delta_Millis = 1659468800000ull;
+        NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
 
-		Timestamp ts(std::numeric_limits<uint64_t>::max() - Epoch_Delta_Millis + 1);
+        Timestamp ts(std::numeric_limits<uint64_t>::max() - Epoch_Delta_Millis + 1);
 
-		// Act + Assert:
-		EXPECT_THROW(networkTime.toUnixTime(ts), catapult_invalid_argument);
-	}
+        // Act + Assert:
+        EXPECT_THROW(networkTime.toUnixTime(ts), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, ConvertingTimeForthAndBackResultsInAnEquivalentTimestamp) {
-		// Arrange:
-		constexpr auto Epoch_Delta_Millis = 1759468800000ul;
-		NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
+    TEST(TEST_CLASS, ConvertingTimeForthAndBackResultsInAnEquivalentTimestamp)
+    {
+        // Arrange:
+        constexpr auto Epoch_Delta_Millis = 1759468800000ul;
+        NetworkTime networkTime(utils::TimeSpan::FromSeconds(Epoch_Delta_Millis / 1000));
 
-		// -  represents a network time
-		auto ts = test::GenerateRandomValue<Timestamp>();
+        // -  represents a network time
+        auto ts = test::GenerateRandomValue<Timestamp>();
 
-		// Act: network time -> unix time -> network time
-		auto converted = networkTime.toNetworkTime(networkTime.toUnixTime(ts));
+        // Act: network time -> unix time -> network time
+        auto converted = networkTime.toNetworkTime(networkTime.toUnixTime(ts));
 
-		// Assert:
-		EXPECT_EQ(ts, converted);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(ts, converted);
+    }
+}
+}

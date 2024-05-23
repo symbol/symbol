@@ -23,18 +23,20 @@
 #include "catapult/model/Transaction.h"
 #include <memory>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Transactions generator.
-	class TransactionsGenerator {
-	public:
-		virtual ~TransactionsGenerator() = default;
+    /// Transactions generator.
+    class TransactionsGenerator {
+    public:
+        virtual ~TransactionsGenerator() = default;
 
-	public:
-		/// Gets the number of transactions.
-		virtual size_t size() const = 0;
+    public:
+        /// Gets the number of transactions.
+        virtual size_t size() const = 0;
 
-		/// Generates the transaction at \a index with specified \a deadline.
-		virtual std::unique_ptr<model::Transaction> generateAt(size_t index, Timestamp deadline) const = 0;
-	};
-}}
+        /// Generates the transaction at \a index with specified \a deadline.
+        virtual std::unique_ptr<model::Transaction> generateAt(size_t index, Timestamp deadline) const = 0;
+    };
+}
+}

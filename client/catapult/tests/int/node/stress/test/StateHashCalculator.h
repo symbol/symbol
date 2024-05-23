@@ -25,47 +25,50 @@
 
 namespace catapult {
 namespace model {
-	struct Block;
+    struct Block;
 }
 namespace plugins {
-	class PluginManager;
+    class PluginManager;
 }
 }
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Calculates state hashes by executing blocks.
-	class StateHashCalculator {
-	private:
-		enum class StateVerificationMode { Enabled, Disabled };
+    /// Calculates state hashes by executing blocks.
+    class StateHashCalculator {
+    private:
+        enum class StateVerificationMode { Enabled,
+            Disabled };
 
-	public:
-		/// Creates a default calculator that does not calculate state hashes.
-		StateHashCalculator();
+    public:
+        /// Creates a default calculator that does not calculate state hashes.
+        StateHashCalculator();
 
-		/// Creates a calculator around \a config that calculates state hashes.
-		explicit StateHashCalculator(const config::CatapultConfiguration& config);
+        /// Creates a calculator around \a config that calculates state hashes.
+        explicit StateHashCalculator(const config::CatapultConfiguration& config);
 
-	public:
-		/// Gets the data directory where intermediate data is output.
-		const std::string& dataDirectory() const;
+    public:
+        /// Gets the data directory where intermediate data is output.
+        const std::string& dataDirectory() const;
 
-		/// Gets the configuration.
-		const config::CatapultConfiguration& config() const;
+        /// Gets the configuration.
+        const config::CatapultConfiguration& config() const;
 
-	public:
-		/// Executes \a block and returns the block state hash.
-		Hash256 execute(const model::Block& block);
+    public:
+        /// Executes \a block and returns the block state hash.
+        Hash256 execute(const model::Block& block);
 
-		/// Executes \a block and updates its block state hash.
-		void updateStateHash(model::Block& block);
+        /// Executes \a block and updates its block state hash.
+        void updateStateHash(model::Block& block);
 
-	private:
-		StateVerificationMode m_stateVerificationMode;
-		config::CatapultConfiguration m_config;
+    private:
+        StateVerificationMode m_stateVerificationMode;
+        config::CatapultConfiguration m_config;
 
-		std::shared_ptr<plugins::PluginManager> m_pPluginManager;
-		cache::CatapultCache m_catapultCache;
-		bool m_isDirty;
-	};
-}}
+        std::shared_ptr<plugins::PluginManager> m_pPluginManager;
+        cache::CatapultCache m_catapultCache;
+        bool m_isDirty;
+    };
+}
+}

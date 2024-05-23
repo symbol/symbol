@@ -27,57 +27,60 @@
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 #include "catapult/deltaset/BaseSetDelta.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Mixins used by the mosaic cache delta.
-	struct MosaicCacheDeltaMixins
-			: public PatriciaTreeCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicCacheDescriptor> {
-		using Touch = HeightBasedTouchMixin<
-				typename MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType,
-				typename MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
-	};
+    /// Mixins used by the mosaic cache delta.
+    struct MosaicCacheDeltaMixins
+        : public PatriciaTreeCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicCacheDescriptor> {
+        using Touch = HeightBasedTouchMixin<
+            typename MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType,
+            typename MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
+    };
 
-	/// Basic delta on top of the mosaic cache.
-	class BasicMosaicCacheDelta
-			: public utils::MoveOnly
-			, public MosaicCacheDeltaMixins::Size
-			, public MosaicCacheDeltaMixins::Contains
-			, public MosaicCacheDeltaMixins::ConstAccessor
-			, public MosaicCacheDeltaMixins::MutableAccessor
-			, public MosaicCacheDeltaMixins::PatriciaTreeDelta
-			, public MosaicCacheDeltaMixins::ActivePredicate
-			, public MosaicCacheDeltaMixins::BasicInsertRemove
-			, public MosaicCacheDeltaMixins::Touch
-			, public MosaicCacheDeltaMixins::DeltaElements {
-	public:
-		using ReadOnlyView = MosaicCacheTypes::CacheReadOnlyType;
+    /// Basic delta on top of the mosaic cache.
+    class BasicMosaicCacheDelta
+        : public utils::MoveOnly,
+          public MosaicCacheDeltaMixins::Size,
+          public MosaicCacheDeltaMixins::Contains,
+          public MosaicCacheDeltaMixins::ConstAccessor,
+          public MosaicCacheDeltaMixins::MutableAccessor,
+          public MosaicCacheDeltaMixins::PatriciaTreeDelta,
+          public MosaicCacheDeltaMixins::ActivePredicate,
+          public MosaicCacheDeltaMixins::BasicInsertRemove,
+          public MosaicCacheDeltaMixins::Touch,
+          public MosaicCacheDeltaMixins::DeltaElements {
+    public:
+        using ReadOnlyView = MosaicCacheTypes::CacheReadOnlyType;
 
-	public:
-		/// Creates a delta around \a mosaicSets.
-		explicit BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets);
+    public:
+        /// Creates a delta around \a mosaicSets.
+        explicit BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets);
 
-	public:
-		using MosaicCacheDeltaMixins::ConstAccessor::find;
-		using MosaicCacheDeltaMixins::MutableAccessor::find;
+    public:
+        using MosaicCacheDeltaMixins::ConstAccessor::find;
+        using MosaicCacheDeltaMixins::MutableAccessor::find;
 
-	public:
-		/// Inserts the mosaic \a entry into the cache.
-		void insert(const state::MosaicEntry& entry);
+    public:
+        /// Inserts the mosaic \a entry into the cache.
+        void insert(const state::MosaicEntry& entry);
 
-		/// Removes the value identified by \a mosaicId from the cache.
-		void remove(MosaicId mosaicId);
+        /// Removes the value identified by \a mosaicId from the cache.
+        void remove(MosaicId mosaicId);
 
-	private:
-		MosaicCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pEntryById;
-		MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaPointerType m_pMosaicIdsByExpiryHeight;
-	};
+    private:
+        MosaicCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pEntryById;
+        MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaPointerType m_pMosaicIdsByExpiryHeight;
+    };
 
-	/// Delta on top of the mosaic cache.
-	class MosaicCacheDelta : public ReadOnlyViewSupplier<BasicMosaicCacheDelta> {
-	public:
-		/// Creates a delta around \a mosaicSets.
-		explicit MosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets)
-				: ReadOnlyViewSupplier(mosaicSets) {
-		}
-	};
-}}
+    /// Delta on top of the mosaic cache.
+    class MosaicCacheDelta : public ReadOnlyViewSupplier<BasicMosaicCacheDelta> {
+    public:
+        /// Creates a delta around \a mosaicSets.
+        explicit MosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets)
+            : ReadOnlyViewSupplier(mosaicSets)
+        {
+        }
+    };
+}
+}

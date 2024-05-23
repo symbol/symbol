@@ -23,11 +23,13 @@
 #include "HashLockInfo.h"
 #include "plugins/txes/lock_shared/src/state/LockInfoHistory.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Hash lock info history.
-	struct PLUGIN_API_DEPENDENCY HashLockInfoHistory : public LockInfoHistory<HashLockInfo> {
-	public:
-		using LockInfoHistory<HashLockInfo>::LockInfoHistory;
-	};
-}}
+    /// Hash lock info history.
+    struct PLUGIN_API_DEPENDENCY HashLockInfoHistory : public LockInfoHistory<HashLockInfo> {
+    public:
+        using LockInfoHistory<HashLockInfo>::LockInfoHistory;
+    };
+}
+}

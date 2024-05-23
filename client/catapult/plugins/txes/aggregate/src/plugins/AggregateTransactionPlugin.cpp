@@ -20,173 +20,190 @@
 **/
 
 #include "AggregateTransactionPlugin.h"
-#include "src/model/AggregateNotifications.h"
-#include "src/model/AggregateTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPlugin.h"
+#include "src/model/AggregateNotifications.h"
+#include "src/model/AggregateTransaction.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		constexpr const AggregateTransaction& CastToDerivedType(const Transaction& transaction) {
-			return static_cast<const AggregateTransaction&>(transaction);
-		}
+    namespace {
+        constexpr const AggregateTransaction& CastToDerivedType(const Transaction& transaction)
+        {
+            return static_cast<const AggregateTransaction&>(transaction);
+        }
 
-		uint32_t CountTransactions(const AggregateTransaction& aggregate) {
-			return static_cast<uint32_t>(std::distance(aggregate.Transactions().cbegin(), aggregate.Transactions().cend()));
-		}
+        uint32_t CountTransactions(const AggregateTransaction& aggregate)
+        {
+            return static_cast<uint32_t>(std::distance(aggregate.Transactions().cbegin(), aggregate.Transactions().cend()));
+        }
 
-		class AggregateTransactionPlugin : public TransactionPlugin {
-		public:
-			AggregateTransactionPlugin(
-					const TransactionRegistry& transactionRegistry,
-					const utils::TimeSpan& maxTransactionLifetime,
-					EntityType transactionType)
-					: m_transactionRegistry(transactionRegistry)
-					, m_maxTransactionLifetime(maxTransactionLifetime)
-					, m_transactionType(transactionType) {
-			}
+        class AggregateTransactionPlugin : public TransactionPlugin {
+        public:
+            AggregateTransactionPlugin(
+                const TransactionRegistry& transactionRegistry,
+                const utils::TimeSpan& maxTransactionLifetime,
+                EntityType transactionType)
+                : m_transactionRegistry(transactionRegistry)
+                , m_maxTransactionLifetime(maxTransactionLifetime)
+                , m_transactionType(transactionType)
+            {
+            }
 
-		public:
-			EntityType type() const override {
-				return m_transactionType;
-			}
+        public:
+            EntityType type() const override
+            {
+                return m_transactionType;
+            }
 
-			TransactionAttributes attributes() const override {
-				auto version = AggregateTransaction::Current_Version;
-				return { 1, version, m_maxTransactionLifetime };
-			}
+            TransactionAttributes attributes() const override
+            {
+                auto version = AggregateTransaction::Current_Version;
+                return { 1, version, m_maxTransactionLifetime };
+            }
 
-			bool isSizeValid(const Transaction& transaction) const override {
-				return IsSizeValid(CastToDerivedType(transaction), m_transactionRegistry);
-			}
+            bool isSizeValid(const Transaction& transaction) const override
+            {
+                return IsSizeValid(CastToDerivedType(transaction), m_transactionRegistry);
+            }
 
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub)
-					const override {
-				const auto& aggregate = CastToDerivedType(transactionInfo.entity());
+            void publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub)
+                const override
+            {
+                const auto& aggregate = CastToDerivedType(transactionInfo.entity());
 
-				// publish aggregate notifications
-				// (notice that this must be raised before embedded transaction notifications in order for cosignatory aggregation to work)
-				auto numCosignatures = aggregate.CosignaturesCount();
-				auto numTransactions = CountTransactions(aggregate);
-				sub.notify(AggregateCosignaturesNotification(
-						aggregate.SignerPublicKey,
-						numTransactions,
-						aggregate.TransactionsPtr(),
-						numCosignatures,
-						aggregate.CosignaturesPtr()));
+                // publish aggregate notifications
+                // (notice that this must be raised before embedded transaction notifications in order for cosignatory aggregation to work)
+                auto numCosignatures = aggregate.CosignaturesCount();
+                auto numTransactions = CountTransactions(aggregate);
+                sub.notify(AggregateCosignaturesNotification(
+                    aggregate.SignerPublicKey,
+                    numTransactions,
+                    aggregate.TransactionsPtr(),
+                    numCosignatures,
+                    aggregate.CosignaturesPtr()));
 
-				sub.notify(AggregateEmbeddedTransactionsNotification(
-						transactionInfo.hash(),
-						aggregate.Version,
-						aggregate.TransactionsHash,
-						numTransactions,
-						aggregate.TransactionsPtr()));
+                sub.notify(AggregateEmbeddedTransactionsNotification(
+                    transactionInfo.hash(),
+                    aggregate.Version,
+                    aggregate.TransactionsHash,
+                    numTransactions,
+                    aggregate.TransactionsPtr()));
 
-				// publish all sub-transaction information
-				for (const auto& subTransaction : aggregate.Transactions()) {
-					// - change source
-					constexpr auto Relative = SourceChangeNotification::SourceChangeType::Relative;
-					sub.notify(SourceChangeNotification(Relative, 0, Relative, 1));
+                // publish all sub-transaction information
+                for (const auto& subTransaction : aggregate.Transactions()) {
+                    // - change source
+                    constexpr auto Relative = SourceChangeNotification::SourceChangeType::Relative;
+                    sub.notify(SourceChangeNotification(Relative, 0, Relative, 1));
 
-					// - signers and entity
-					PublishNotifications(subTransaction, sub);
-					const auto& plugin = m_transactionRegistry.findPlugin(subTransaction.Type)->embeddedPlugin();
-					auto subTransactionAttributes = plugin.attributes();
+                    // - signers and entity
+                    PublishNotifications(subTransaction, sub);
+                    const auto& plugin = m_transactionRegistry.findPlugin(subTransaction.Type)->embeddedPlugin();
+                    auto subTransactionAttributes = plugin.attributes();
 
-					sub.notify(EntityNotification(
-							subTransaction.Network,
-							subTransaction.Type,
-							subTransaction.Version,
-							subTransactionAttributes.MinVersion,
-							subTransactionAttributes.MaxVersion));
+                    sub.notify(EntityNotification(
+                        subTransaction.Network,
+                        subTransaction.Type,
+                        subTransaction.Version,
+                        subTransactionAttributes.MinVersion,
+                        subTransactionAttributes.MaxVersion));
 
-					// - generic sub-transaction notification
-					sub.notify(AggregateEmbeddedTransactionNotification(
-							aggregate.SignerPublicKey,
-							subTransaction,
-							numCosignatures,
-							aggregate.CosignaturesPtr()));
+                    // - generic sub-transaction notification
+                    sub.notify(AggregateEmbeddedTransactionNotification(
+                        aggregate.SignerPublicKey,
+                        subTransaction,
+                        numCosignatures,
+                        aggregate.CosignaturesPtr()));
 
-					// - specific sub-transaction notifications
-					//   (calculateRealSize would have failed if plugin is unknown or not embeddable)
-					PublishContext subContext;
-					subContext.SignerAddress = GetSignerAddress(subTransaction);
-					subContext.BlockHeight = context.BlockHeight;
-					plugin.publish(subTransaction, subContext, sub);
-				}
+                    // - specific sub-transaction notifications
+                    //   (calculateRealSize would have failed if plugin is unknown or not embeddable)
+                    PublishContext subContext;
+                    subContext.SignerAddress = GetSignerAddress(subTransaction);
+                    subContext.BlockHeight = context.BlockHeight;
+                    plugin.publish(subTransaction, subContext, sub);
+                }
 
-				// publish all cosignatory information (as an optimization these are published with the source of the last sub-transaction)
-				const auto* pCosignature = aggregate.CosignaturesPtr();
-				for (auto i = 0u; i < numCosignatures; ++i) {
-					// - notice that all valid cosignatories must have been observed previously as part of either
-					//   (1) sub-transaction execution or (2) composite account setup
-					// - require the cosignatories to sign the aggregate indirectly via the hash of its data
-					sub.notify(InternalPaddingNotification(pCosignature->Version));
-					sub.notify(SignatureNotification(pCosignature->SignerPublicKey, pCosignature->Signature, transactionInfo.hash()));
-					++pCosignature;
-				}
-			}
+                // publish all cosignatory information (as an optimization these are published with the source of the last sub-transaction)
+                const auto* pCosignature = aggregate.CosignaturesPtr();
+                for (auto i = 0u; i < numCosignatures; ++i) {
+                    // - notice that all valid cosignatories must have been observed previously as part of either
+                    //   (1) sub-transaction execution or (2) composite account setup
+                    // - require the cosignatories to sign the aggregate indirectly via the hash of its data
+                    sub.notify(InternalPaddingNotification(pCosignature->Version));
+                    sub.notify(SignatureNotification(pCosignature->SignerPublicKey, pCosignature->Signature, transactionInfo.hash()));
+                    ++pCosignature;
+                }
+            }
 
-			uint32_t embeddedCount(const Transaction& transaction) const override {
-				const auto& aggregate = CastToDerivedType(transaction);
-				const auto& transactions = aggregate.Transactions();
-				return static_cast<uint32_t>(std::distance(transactions.cbegin(), transactions.cend()));
-			}
+            uint32_t embeddedCount(const Transaction& transaction) const override
+            {
+                const auto& aggregate = CastToDerivedType(transaction);
+                const auto& transactions = aggregate.Transactions();
+                return static_cast<uint32_t>(std::distance(transactions.cbegin(), transactions.cend()));
+            }
 
-			RawBuffer dataBuffer(const Transaction& transaction) const override {
-				const auto& aggregate = CastToDerivedType(transaction);
+            RawBuffer dataBuffer(const Transaction& transaction) const override
+            {
+                const auto& aggregate = CastToDerivedType(transaction);
 
-				auto headerSize = VerifiableEntity::Header_Size;
-				return { reinterpret_cast<const uint8_t*>(&aggregate) + headerSize,
-						 sizeof(AggregateTransaction) - headerSize - AggregateTransaction::Footer_Size };
-			}
+                auto headerSize = VerifiableEntity::Header_Size;
+                return { reinterpret_cast<const uint8_t*>(&aggregate) + headerSize,
+                    sizeof(AggregateTransaction) - headerSize - AggregateTransaction::Footer_Size };
+            }
 
-			std::vector<RawBuffer> merkleSupplementaryBuffers(const Transaction& transaction) const override {
-				const auto& aggregate = CastToDerivedType(transaction);
+            std::vector<RawBuffer> merkleSupplementaryBuffers(const Transaction& transaction) const override
+            {
+                const auto& aggregate = CastToDerivedType(transaction);
 
-				std::vector<RawBuffer> buffers;
-				auto numCosignatures = aggregate.CosignaturesCount();
-				const auto* pCosignature = aggregate.CosignaturesPtr();
-				for (auto i = 0u; i < numCosignatures; ++i) {
-					buffers.push_back(pCosignature->SignerPublicKey);
-					++pCosignature;
-				}
+                std::vector<RawBuffer> buffers;
+                auto numCosignatures = aggregate.CosignaturesCount();
+                const auto* pCosignature = aggregate.CosignaturesPtr();
+                for (auto i = 0u; i < numCosignatures; ++i) {
+                    buffers.push_back(pCosignature->SignerPublicKey);
+                    ++pCosignature;
+                }
 
-				return buffers;
-			}
+                return buffers;
+            }
 
-			bool supportsTopLevel() const override {
-				return true;
-			}
+            bool supportsTopLevel() const override
+            {
+                return true;
+            }
 
-			bool supportsEmbedding() const override {
-				return false;
-			}
+            bool supportsEmbedding() const override
+            {
+                return false;
+            }
 
-			const EmbeddedTransactionPlugin& embeddedPlugin() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("aggregate transaction is not embeddable");
-			}
+            const EmbeddedTransactionPlugin& embeddedPlugin() const override
+            {
+                CATAPULT_THROW_RUNTIME_ERROR("aggregate transaction is not embeddable");
+            }
 
-		private:
-			const TransactionRegistry& m_transactionRegistry;
-			utils::TimeSpan m_maxTransactionLifetime;
-			EntityType m_transactionType;
-		};
-	}
+        private:
+            const TransactionRegistry& m_transactionRegistry;
+            utils::TimeSpan m_maxTransactionLifetime;
+            EntityType m_transactionType;
+        };
+    }
 
-	std::unique_ptr<TransactionPlugin> CreateAggregateTransactionPlugin(
-			const TransactionRegistry& transactionRegistry,
-			EntityType transactionType) {
-		return CreateAggregateTransactionPlugin(transactionRegistry, utils::TimeSpan(), transactionType);
-	}
+    std::unique_ptr<TransactionPlugin> CreateAggregateTransactionPlugin(
+        const TransactionRegistry& transactionRegistry,
+        EntityType transactionType)
+    {
+        return CreateAggregateTransactionPlugin(transactionRegistry, utils::TimeSpan(), transactionType);
+    }
 
-	std::unique_ptr<TransactionPlugin> CreateAggregateTransactionPlugin(
-			const TransactionRegistry& transactionRegistry,
-			const utils::TimeSpan& maxTransactionLifetime,
-			EntityType transactionType) {
-		return std::make_unique<AggregateTransactionPlugin>(transactionRegistry, maxTransactionLifetime, transactionType);
-	}
-}}
+    std::unique_ptr<TransactionPlugin> CreateAggregateTransactionPlugin(
+        const TransactionRegistry& transactionRegistry,
+        const utils::TimeSpan& maxTransactionLifetime,
+        EntityType transactionType)
+    {
+        return std::make_unique<AggregateTransactionPlugin>(transactionRegistry, maxTransactionLifetime, transactionType);
+    }
+}
+}

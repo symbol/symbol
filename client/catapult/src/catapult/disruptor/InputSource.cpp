@@ -22,7 +22,8 @@
 #include "InputSource.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 
-namespace catapult { namespace disruptor {
+namespace catapult {
+namespace disruptor {
 
 #define DEFINE_ENUM InputSource
 #define EXPLICIT_VALUE_ENUM
@@ -31,4 +32,5 @@ namespace catapult { namespace disruptor {
 #undef ENUM_LIST
 #undef EXPLICIT_VALUE_ENUM
 #undef DEFINE_ENUM
-}}
+}
+}

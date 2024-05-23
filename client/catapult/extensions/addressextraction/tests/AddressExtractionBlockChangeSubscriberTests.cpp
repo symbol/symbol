@@ -23,25 +23,30 @@
 #include "addressextraction/tests/test/AddressExtractionSubscriberTestContext.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace addressextraction {
+namespace catapult {
+namespace addressextraction {
 
 #define TEST_CLASS AddressExtractionBlockChangeSubscriberTests
 
-	namespace {
-		class TestContext : public test::AddressExtractionSubscriberTestContext<io::BlockChangeSubscriber> {
-		public:
-			TestContext()
-					: AddressExtractionSubscriberTestContext(CreateAddressExtractionBlockChangeSubscriber) {
-			}
-		};
-	}
+    namespace {
+        class TestContext : public test::AddressExtractionSubscriberTestContext<io::BlockChangeSubscriber> {
+        public:
+            TestContext()
+                : AddressExtractionSubscriberTestContext(CreateAddressExtractionBlockChangeSubscriber)
+            {
+            }
+        };
+    }
 
-	TEST(TEST_CLASS, NotifyBlockExtractsTransactionAddresses) {
-		TestContext().assertBlockElementExtractions(
-				[](auto& subscriber, const auto& blockElement) { subscriber.notifyBlock(blockElement); });
-	}
+    TEST(TEST_CLASS, NotifyBlockExtractsTransactionAddresses)
+    {
+        TestContext().assertBlockElementExtractions(
+            [](auto& subscriber, const auto& blockElement) { subscriber.notifyBlock(blockElement); });
+    }
 
-	TEST(TEST_CLASS, NotifyDropBlocksAfterDoesNotExtractTransactionAddresses) {
-		TestContext().assertNoExtractions([](auto& subscriber) { subscriber.notifyDropBlocksAfter(Height(123)); });
-	}
-}}
+    TEST(TEST_CLASS, NotifyDropBlocksAfterDoesNotExtractTransactionAddresses)
+    {
+        TestContext().assertNoExtractions([](auto& subscriber) { subscriber.notifyDropBlocksAfter(Height(123)); });
+    }
+}
+}

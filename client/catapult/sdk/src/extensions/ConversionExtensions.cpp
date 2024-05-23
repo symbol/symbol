@@ -22,21 +22,27 @@
 #include "ConversionExtensions.h"
 #include <cstring>
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	UnresolvedMosaicId CastToUnresolvedMosaicId(MosaicId mosaicId) {
-		return UnresolvedMosaicId(mosaicId.unwrap());
-	}
+    UnresolvedMosaicId CastToUnresolvedMosaicId(MosaicId mosaicId)
+    {
+        return UnresolvedMosaicId(mosaicId.unwrap());
+    }
 
-	MosaicId CastToMosaicId(UnresolvedMosaicId unresolvedMosaicId) {
-		return MosaicId(unresolvedMosaicId.unwrap());
-	}
+    MosaicId CastToMosaicId(UnresolvedMosaicId unresolvedMosaicId)
+    {
+        return MosaicId(unresolvedMosaicId.unwrap());
+    }
 
-	UnresolvedAddress CopyToUnresolvedAddress(const Address& address) {
-		return address.copyTo<UnresolvedAddress>();
-	}
+    UnresolvedAddress CopyToUnresolvedAddress(const Address& address)
+    {
+        return address.copyTo<UnresolvedAddress>();
+    }
 
-	Address CopyToAddress(const UnresolvedAddress& unresolvedAddress) {
-		return unresolvedAddress.copyTo<Address>();
-	}
-}}
+    Address CopyToAddress(const UnresolvedAddress& unresolvedAddress)
+    {
+        return unresolvedAddress.copyTo<Address>();
+    }
+}
+}

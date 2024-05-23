@@ -25,64 +25,72 @@
 #include "catapult/cache_db/UpdateSet.h"
 #include "catapult/deltaset/ConditionalContainer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Mixin that owns a cache database.
-	class CacheDatabaseMixin {
-	protected:
-		/// Creates a mixin around \a config and \a columnFamilyNames with optional \a pruningMode.
-		CacheDatabaseMixin(
-				const CacheConfiguration& config,
-				const std::vector<std::string>& columnFamilyNames,
-				FilterPruningMode pruningMode = FilterPruningMode::Disabled)
-				: m_pDatabase(
-						  config.ShouldUseCacheDatabase ? std::make_unique<CacheDatabase>(CacheDatabaseSettings(
-																  config.CacheDatabaseDirectory,
-																  config.CacheDatabaseConfig,
-																  GetAdjustedColumnFamilyNames(config, columnFamilyNames),
-																  pruningMode))
-														: std::make_unique<CacheDatabase>())
-				, m_containerMode(GetContainerMode(config))
-				, m_hasPatriciaTreeSupport(config.ShouldStorePatriciaTrees) {
-		}
+    /// Mixin that owns a cache database.
+    class CacheDatabaseMixin {
+    protected:
+        /// Creates a mixin around \a config and \a columnFamilyNames with optional \a pruningMode.
+        CacheDatabaseMixin(
+            const CacheConfiguration& config,
+            const std::vector<std::string>& columnFamilyNames,
+            FilterPruningMode pruningMode = FilterPruningMode::Disabled)
+            : m_pDatabase(
+                  config.ShouldUseCacheDatabase ? std::make_unique<CacheDatabase>(CacheDatabaseSettings(
+                                                      config.CacheDatabaseDirectory,
+                                                      config.CacheDatabaseConfig,
+                                                      GetAdjustedColumnFamilyNames(config, columnFamilyNames),
+                                                      pruningMode))
+                                                : std::make_unique<CacheDatabase>())
+            , m_containerMode(GetContainerMode(config))
+            , m_hasPatriciaTreeSupport(config.ShouldStorePatriciaTrees)
+        {
+        }
 
-	protected:
-		/// Returns \c true if patricia tree support is enabled.
-		bool hasPatriciaTreeSupport() const {
-			return m_hasPatriciaTreeSupport;
-		}
+    protected:
+        /// Returns \c true if patricia tree support is enabled.
+        bool hasPatriciaTreeSupport() const
+        {
+            return m_hasPatriciaTreeSupport;
+        }
 
-		/// Gets the database.
-		CacheDatabase& database() {
-			return *m_pDatabase;
-		}
+        /// Gets the database.
+        CacheDatabase& database()
+        {
+            return *m_pDatabase;
+        }
 
-	protected:
-		/// Gets the container mode specified by \a config.
-		static deltaset::ConditionalContainerMode GetContainerMode(const CacheConfiguration& config) {
-			return config.ShouldUseCacheDatabase ? deltaset::ConditionalContainerMode::Storage : deltaset::ConditionalContainerMode::Memory;
-		}
+    protected:
+        /// Gets the container mode specified by \a config.
+        static deltaset::ConditionalContainerMode GetContainerMode(const CacheConfiguration& config)
+        {
+            return config.ShouldUseCacheDatabase ? deltaset::ConditionalContainerMode::Storage : deltaset::ConditionalContainerMode::Memory;
+        }
 
-		/// Flushes the database.
-		void flush() {
-			if (deltaset::ConditionalContainerMode::Storage == m_containerMode)
-				database().flush();
-		}
+        /// Flushes the database.
+        void flush()
+        {
+            if (deltaset::ConditionalContainerMode::Storage == m_containerMode)
+                database().flush();
+        }
 
-	private:
-		static std::vector<std::string> GetAdjustedColumnFamilyNames(
-				const CacheConfiguration& config,
-				const std::vector<std::string>& columnFamilyNames) {
-			auto adjustedColumnFamilyNames = columnFamilyNames;
-			if (config.ShouldStorePatriciaTrees)
-				adjustedColumnFamilyNames.push_back("patricia_tree");
+    private:
+        static std::vector<std::string> GetAdjustedColumnFamilyNames(
+            const CacheConfiguration& config,
+            const std::vector<std::string>& columnFamilyNames)
+        {
+            auto adjustedColumnFamilyNames = columnFamilyNames;
+            if (config.ShouldStorePatriciaTrees)
+                adjustedColumnFamilyNames.push_back("patricia_tree");
 
-			return adjustedColumnFamilyNames;
-		}
+            return adjustedColumnFamilyNames;
+        }
 
-	private:
-		std::unique_ptr<CacheDatabase> m_pDatabase;
-		const deltaset::ConditionalContainerMode m_containerMode;
-		const bool m_hasPatriciaTreeSupport;
-	};
-}}
+    private:
+        std::unique_ptr<CacheDatabase> m_pDatabase;
+        const deltaset::ConditionalContainerMode m_containerMode;
+        const bool m_hasPatriciaTreeSupport;
+    };
+}
+}

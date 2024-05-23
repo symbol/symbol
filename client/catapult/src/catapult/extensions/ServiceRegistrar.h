@@ -25,38 +25,42 @@
 #include <memory>
 #include <string>
 
-namespace catapult { namespace extensions {
-	class ServiceLocator;
-	class ServiceState;
-}}
+namespace catapult {
+namespace extensions {
+    class ServiceLocator;
+    class ServiceState;
+}
+}
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Information about a service registrar.
-	struct ServiceRegistrarInfo {
-		/// Registrar friendly name.
-		std::string Name;
+    /// Information about a service registrar.
+    struct ServiceRegistrarInfo {
+        /// Registrar friendly name.
+        std::string Name;
 
-		/// Phase during which the registrar should be invoked.
-		ServiceRegistrarPhase Phase;
-	};
+        /// Phase during which the registrar should be invoked.
+        ServiceRegistrarPhase Phase;
+    };
 
-	/// Registrar for registering a service.
-	class PLUGIN_API_DEPENDENCY ServiceRegistrar {
-	public:
-		virtual ~ServiceRegistrar() = default;
+    /// Registrar for registering a service.
+    class PLUGIN_API_DEPENDENCY ServiceRegistrar {
+    public:
+        virtual ~ServiceRegistrar() = default;
 
-	public:
-		/// Gets information about the registrar.
-		virtual ServiceRegistrarInfo info() const = 0;
+    public:
+        /// Gets information about the registrar.
+        virtual ServiceRegistrarInfo info() const = 0;
 
-		/// Registers service dependent counters with \a locator.
-		virtual void registerServiceCounters(ServiceLocator& locator) = 0;
+        /// Registers service dependent counters with \a locator.
+        virtual void registerServiceCounters(ServiceLocator& locator) = 0;
 
-		/// Boots and registers dependent services with \a locator given \a state.
-		virtual void registerServices(ServiceLocator& locator, ServiceState& state) = 0;
-	};
+        /// Boots and registers dependent services with \a locator given \a state.
+        virtual void registerServices(ServiceLocator& locator, ServiceState& state) = 0;
+    };
 
 /// Declares a service registrar entry point with \a NAME.
 #define DECLARE_SERVICE_REGISTRAR(NAME) std::unique_ptr<extensions::ServiceRegistrar> Create##NAME##ServiceRegistrar
-}}
+}
+}

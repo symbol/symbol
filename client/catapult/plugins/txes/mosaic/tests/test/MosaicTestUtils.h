@@ -22,34 +22,36 @@
 #pragma once
 #include "src/state/MosaicEntry.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Creates a random mosaic owner.
-	Address CreateRandomOwner();
+    /// Creates a random mosaic owner.
+    Address CreateRandomOwner();
 
-	/// Creates mosaic properties from values: \a flags, \a divisibility, \a duration.
-	model::MosaicProperties CreateMosaicPropertiesFromValues(uint8_t flags, uint8_t divisibility, uint64_t duration);
+    /// Creates mosaic properties from values: \a flags, \a divisibility, \a duration.
+    model::MosaicProperties CreateMosaicPropertiesFromValues(uint8_t flags, uint8_t divisibility, uint64_t duration);
 
-	/// Creates mosaic properties with a custom \a duration.
-	model::MosaicProperties CreateMosaicPropertiesWithDuration(BlockDuration duration);
+    /// Creates mosaic properties with a custom \a duration.
+    model::MosaicProperties CreateMosaicPropertiesWithDuration(BlockDuration duration);
 
-	/// Creates a mosaic definition with \a height.
-	state::MosaicDefinition CreateMosaicDefinition(Height height);
+    /// Creates a mosaic definition with \a height.
+    state::MosaicDefinition CreateMosaicDefinition(Height height);
 
-	/// Creates a mosaic entry with \a id and \a supply.
-	state::MosaicEntry CreateMosaicEntry(MosaicId id, Amount supply);
+    /// Creates a mosaic entry with \a id and \a supply.
+    state::MosaicEntry CreateMosaicEntry(MosaicId id, Amount supply);
 
-	/// Creates a mosaic entry with \a id, \a height and \a supply.
-	state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, Amount supply);
+    /// Creates a mosaic entry with \a id, \a height and \a supply.
+    state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, Amount supply);
 
-	/// Creates a mosaic entry around \a id, \a height, \a owner, \a supply and \a duration.
-	state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, const Address& owner, Amount supply, BlockDuration duration);
+    /// Creates a mosaic entry around \a id, \a height, \a owner, \a supply and \a duration.
+    state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, const Address& owner, Amount supply, BlockDuration duration);
 
-	/// Asserts that actual properties (\a actualProperties) exactly match expected properties (\a expectedProperties).
-	void AssertMosaicDefinitionProperties(
-			const model::MosaicProperties& expectedProperties,
-			const model::MosaicProperties& actualProperties);
+    /// Asserts that actual properties (\a actualProperties) exactly match expected properties (\a expectedProperties).
+    void AssertMosaicDefinitionProperties(
+        const model::MosaicProperties& expectedProperties,
+        const model::MosaicProperties& actualProperties);
 
-	/// Asserts that mosaic entry \a actual is equal to \a expected.
-	void AssertEqual(const state::MosaicEntry& expected, const state::MosaicEntry& actual);
-}}
+    /// Asserts that mosaic entry \a actual is equal to \a expected.
+    void AssertEqual(const state::MosaicEntry& expected, const state::MosaicEntry& actual);
+}
+}

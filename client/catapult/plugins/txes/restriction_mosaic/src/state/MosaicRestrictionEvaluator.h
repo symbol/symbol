@@ -22,8 +22,10 @@
 #pragma once
 #include "MosaicGlobalRestriction.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Evaluates \a value against \a rule.
-	bool EvaluateMosaicRestriction(const MosaicGlobalRestriction::RestrictionRule& rule, uint64_t value);
-}}
+    /// Evaluates \a value against \a rule.
+    bool EvaluateMosaicRestriction(const MosaicGlobalRestriction::RestrictionRule& rule, uint64_t value);
+}
+}

@@ -25,37 +25,41 @@
 #include "NodeIdentity.h"
 #include "Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Combination of an entity range and optional context.
-	template<typename TEntity>
-	struct AnnotatedEntityRange {
-	public:
-		/// Creates a default annotated entity range.
-		AnnotatedEntityRange() = default;
+    /// Combination of an entity range and optional context.
+    template <typename TEntity>
+    struct AnnotatedEntityRange {
+    public:
+        /// Creates a default annotated entity range.
+        AnnotatedEntityRange() = default;
 
-		/// Creates an annotated entity range around \a range without context.
-		AnnotatedEntityRange(EntityRange<TEntity>&& range)
-				: AnnotatedEntityRange(std::move(range), NodeIdentity()) {
-		}
+        /// Creates an annotated entity range around \a range without context.
+        AnnotatedEntityRange(EntityRange<TEntity>&& range)
+            : AnnotatedEntityRange(std::move(range), NodeIdentity())
+        {
+        }
 
-		/// Creates an annotated entity range around \a range and a source identity (\a sourceIdentity).
-		AnnotatedEntityRange(EntityRange<TEntity>&& range, const NodeIdentity& sourceIdentity)
-				: Range(std::move(range))
-				, SourceIdentity(sourceIdentity) {
-		}
+        /// Creates an annotated entity range around \a range and a source identity (\a sourceIdentity).
+        AnnotatedEntityRange(EntityRange<TEntity>&& range, const NodeIdentity& sourceIdentity)
+            : Range(std::move(range))
+            , SourceIdentity(sourceIdentity)
+        {
+        }
 
-	public:
-		/// Entity range.
-		EntityRange<TEntity> Range;
+    public:
+        /// Entity range.
+        EntityRange<TEntity> Range;
 
-		/// Source identity (optional).
-		NodeIdentity SourceIdentity;
-	};
+        /// Source identity (optional).
+        NodeIdentity SourceIdentity;
+    };
 
-	/// Annotated entity range composed of blocks.
-	using AnnotatedBlockRange = AnnotatedEntityRange<Block>;
+    /// Annotated entity range composed of blocks.
+    using AnnotatedBlockRange = AnnotatedEntityRange<Block>;
 
-	/// Annotated entity range composed of transactions.
-	using AnnotatedTransactionRange = AnnotatedEntityRange<Transaction>;
-}}
+    /// Annotated entity range composed of transactions.
+    using AnnotatedTransactionRange = AnnotatedEntityRange<Transaction>;
+}
+}

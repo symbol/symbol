@@ -22,78 +22,84 @@
 #pragma once
 #include <random>
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	// region HighEntropyRandomGenerator
+    // region HighEntropyRandomGenerator
 
-	/// Generator for high entropy random numbers.
-	class HighEntropyRandomGenerator {
-	public:
-		using result_type = uint64_t;
+    /// Generator for high entropy random numbers.
+    class HighEntropyRandomGenerator {
+    public:
+        using result_type = uint64_t;
 
-	public:
-		/// Creates the generator.
-		HighEntropyRandomGenerator();
+    public:
+        /// Creates the generator.
+        HighEntropyRandomGenerator();
 
-		/// Creates the generator using the specified \a token source.
-		explicit HighEntropyRandomGenerator(const std::string& token);
+        /// Creates the generator using the specified \a token source.
+        explicit HighEntropyRandomGenerator(const std::string& token);
 
-	public:
-		/// Gets the mininmum generated value.
-		static constexpr result_type min() {
-			return std::random_device::min();
-		}
+    public:
+        /// Gets the mininmum generated value.
+        static constexpr result_type min()
+        {
+            return std::random_device::min();
+        }
 
-		/// Gets the maximum generated value.
-		static constexpr result_type max() {
-			return (static_cast<uint64_t>(std::random_device::max()) << 32) | std::random_device::max();
-		}
+        /// Gets the maximum generated value.
+        static constexpr result_type max()
+        {
+            return (static_cast<uint64_t>(std::random_device::max()) << 32) | std::random_device::max();
+        }
 
-	public:
-		/// Generates a random value.
-		result_type operator()();
+    public:
+        /// Generates a random value.
+        result_type operator()();
 
-		/// Generates \a count random bytes into \a pOut.
-		void fill(uint8_t* pOut, size_t count);
+        /// Generates \a count random bytes into \a pOut.
+        void fill(uint8_t* pOut, size_t count);
 
-	private:
-		std::random_device m_rd;
-	};
+    private:
+        std::random_device m_rd;
+    };
 
-	// endregion
+    // endregion
 
-	// region LowEntropyRandomGenerator
+    // region LowEntropyRandomGenerator
 
-	/// Generator for low entropy random numbers.
-	class LowEntropyRandomGenerator {
-	public:
-		using result_type = uint64_t;
+    /// Generator for low entropy random numbers.
+    class LowEntropyRandomGenerator {
+    public:
+        using result_type = uint64_t;
 
-	public:
-		/// Creates the generator.
-		LowEntropyRandomGenerator();
+    public:
+        /// Creates the generator.
+        LowEntropyRandomGenerator();
 
-	public:
-		/// Gets the mininmum generated value.
-		static constexpr result_type min() {
-			return std::mt19937_64::min();
-		}
+    public:
+        /// Gets the mininmum generated value.
+        static constexpr result_type min()
+        {
+            return std::mt19937_64::min();
+        }
 
-		/// Gets the maximum generated value.
-		static constexpr result_type max() {
-			return std::mt19937_64::max();
-		}
+        /// Gets the maximum generated value.
+        static constexpr result_type max()
+        {
+            return std::mt19937_64::max();
+        }
 
-	public:
-		/// Generates a random value.
-		result_type operator()();
+    public:
+        /// Generates a random value.
+        result_type operator()();
 
-		/// Generates \a count random bytes into \a pOut.
-		void fill(uint8_t* pOut, size_t count);
+        /// Generates \a count random bytes into \a pOut.
+        void fill(uint8_t* pOut, size_t count);
 
-	private:
-		std::mt19937_64& m_gen;
-	};
+    private:
+        std::mt19937_64& m_gen;
+    };
 
-	// endregion
-}}
+    // endregion
+}
+}

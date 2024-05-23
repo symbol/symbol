@@ -22,19 +22,23 @@
 #include "Validators.h"
 #include "catapult/validators/ValidatorContext.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::HashLockMosaicNotification;
+    using Notification = model::HashLockMosaicNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(HashLockMosaic, Notification)(MosaicId currencyMosaicId, Amount lockedFundsPerAggregate) {
-		return MAKE_STATEFUL_VALIDATOR(
-				HashLockMosaic,
-				([currencyMosaicId, lockedFundsPerAggregate](const Notification& notification, const ValidatorContext& context) {
-					if (lockedFundsPerAggregate != notification.Mosaic.Amount)
-						return Failure_LockHash_Invalid_Mosaic_Amount;
+    DECLARE_STATEFUL_VALIDATOR(HashLockMosaic, Notification)
+    (MosaicId currencyMosaicId, Amount lockedFundsPerAggregate)
+    {
+        return MAKE_STATEFUL_VALIDATOR(
+            HashLockMosaic,
+            ([currencyMosaicId, lockedFundsPerAggregate](const Notification& notification, const ValidatorContext& context) {
+                if (lockedFundsPerAggregate != notification.Mosaic.Amount)
+                    return Failure_LockHash_Invalid_Mosaic_Amount;
 
-					return currencyMosaicId != context.Resolvers.resolve(notification.Mosaic.MosaicId) ? Failure_LockHash_Invalid_Mosaic_Id
-																									   : ValidationResult::Success;
-				}));
-	}
-}}
+                return currencyMosaicId != context.Resolvers.resolve(notification.Mosaic.MosaicId) ? Failure_LockHash_Invalid_Mosaic_Id
+                                                                                                   : ValidationResult::Success;
+            }));
+    }
+}
+}

@@ -23,17 +23,19 @@
 #include "BlockStatisticCache.h"
 #include "catapult/cache/CacheStorageInclude.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Policy for saving and loading block statistic cache data.
-	struct BlockStatisticCacheStorage : public CacheStorageForBasicInsertRemoveCache<BlockStatisticCacheDescriptor> {
-		/// Saves \a statistic to \a output.
-		static void Save(const ValueType& statistic, io::OutputStream& output);
+    /// Policy for saving and loading block statistic cache data.
+    struct BlockStatisticCacheStorage : public CacheStorageForBasicInsertRemoveCache<BlockStatisticCacheDescriptor> {
+        /// Saves \a statistic to \a output.
+        static void Save(const ValueType& statistic, io::OutputStream& output);
 
-		/// Loads a single value from \a input.
-		static state::BlockStatistic Load(io::InputStream& input);
+        /// Loads a single value from \a input.
+        static state::BlockStatistic Load(io::InputStream& input);
 
-		/// Purges \a statistic from \a cacheDelta.
-		static void Purge(const ValueType& statistic, DestinationType& cacheDelta);
-	};
-}}
+        /// Purges \a statistic from \a cacheDelta.
+        static void Purge(const ValueType& statistic, DestinationType& cacheDelta);
+    };
+}
+}

@@ -23,28 +23,32 @@
 #include <string>
 #include <vector>
 
-namespace catapult { namespace utils {
-	class ConfigurationBag;
-}}
+namespace catapult {
+namespace utils {
+    class ConfigurationBag;
+}
+}
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Extensions configuration settings.
-	struct ExtensionsConfiguration {
-	public:
-		/// Named extensions to enable.
-		/// \note Extensions need to registered in deterministic order so that cross extension dependencies can be wired up properly.
-		std::vector<std::string> Names;
+    /// Extensions configuration settings.
+    struct ExtensionsConfiguration {
+    public:
+        /// Named extensions to enable.
+        /// \note Extensions need to registered in deterministic order so that cross extension dependencies can be wired up properly.
+        std::vector<std::string> Names;
 
-	private:
-		ExtensionsConfiguration() = default;
+    private:
+        ExtensionsConfiguration() = default;
 
-	public:
-		/// Creates an uninitialized extensions configuration.
-		static ExtensionsConfiguration Uninitialized();
+    public:
+        /// Creates an uninitialized extensions configuration.
+        static ExtensionsConfiguration Uninitialized();
 
-	public:
-		/// Loads an extensions configuration from \a bag.
-		static ExtensionsConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-	};
-}}
+    public:
+        /// Loads an extensions configuration from \a bag.
+        static ExtensionsConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+    };
+}
+}

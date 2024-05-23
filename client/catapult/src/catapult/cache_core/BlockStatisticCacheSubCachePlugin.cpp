@@ -21,32 +21,37 @@
 
 #include "BlockStatisticCacheSubCachePlugin.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	namespace {
-		class BlockStatisticCacheSummaryCacheStorage : public CacheStorageAdapter<BlockStatisticCache, BlockStatisticCacheStorage> {
-		public:
-			using CacheStorageAdapter<BlockStatisticCache, BlockStatisticCacheStorage>::CacheStorageAdapter;
+    namespace {
+        class BlockStatisticCacheSummaryCacheStorage : public CacheStorageAdapter<BlockStatisticCache, BlockStatisticCacheStorage> {
+        public:
+            using CacheStorageAdapter<BlockStatisticCache, BlockStatisticCacheStorage>::CacheStorageAdapter;
 
-		public:
-			void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override {
-				const auto& delta = cacheDelta.sub<BlockStatisticCache>();
-				io::Write64(output, delta.size());
+        public:
+            void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override
+            {
+                const auto& delta = cacheDelta.sub<BlockStatisticCache>();
+                io::Write64(output, delta.size());
 
-				auto pIterableView = delta.tryMakeIterableView();
-				for (const auto& value : *pIterableView)
-					BlockStatisticCacheStorage::Save(value, output);
+                auto pIterableView = delta.tryMakeIterableView();
+                for (const auto& value : *pIterableView)
+                    BlockStatisticCacheStorage::Save(value, output);
 
-				output.flush();
-			}
-		};
-	}
+                output.flush();
+            }
+        };
+    }
 
-	BlockStatisticCacheSubCachePlugin::BlockStatisticCacheSubCachePlugin(uint64_t historySize)
-			: SubCachePluginAdapter<BlockStatisticCache, BlockStatisticCacheStorage>(std::make_unique<BlockStatisticCache>(historySize)) {
-	}
+    BlockStatisticCacheSubCachePlugin::BlockStatisticCacheSubCachePlugin(uint64_t historySize)
+        : SubCachePluginAdapter<BlockStatisticCache, BlockStatisticCacheStorage>(std::make_unique<BlockStatisticCache>(historySize))
+    {
+    }
 
-	std::unique_ptr<CacheStorage> BlockStatisticCacheSubCachePlugin::createStorage() {
-		return std::make_unique<BlockStatisticCacheSummaryCacheStorage>(cache());
-	}
-}}
+    std::unique_ptr<CacheStorage> BlockStatisticCacheSubCachePlugin::createStorage()
+    {
+        return std::make_unique<BlockStatisticCacheSummaryCacheStorage>(cache());
+    }
+}
+}

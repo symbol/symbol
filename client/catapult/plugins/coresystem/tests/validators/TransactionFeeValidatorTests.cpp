@@ -20,71 +20,81 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/plugins/ValidatorTestUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS TransactionFeeValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(TransactionFee, )
+    DEFINE_COMMON_VALIDATOR_TESTS(TransactionFee, )
 
-	namespace {
-		void AssertValidationResult(ValidationResult expectedResult, uint32_t transactionSize, Amount fee, Amount maxFee) {
-			// Arrange:
-			model::TransactionFeeNotification notification(Address(), transactionSize, fee, maxFee);
-			auto pValidator = CreateTransactionFeeValidator();
+    namespace {
+        void AssertValidationResult(ValidationResult expectedResult, uint32_t transactionSize, Amount fee, Amount maxFee)
+        {
+            // Arrange:
+            model::TransactionFeeNotification notification(Address(), transactionSize, fee, maxFee);
+            auto pValidator = CreateTransactionFeeValidator();
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "size = " << transactionSize << ", fee = " << fee << ", max fee = " << maxFee;
-		}
+            // Assert:
+            EXPECT_EQ(expectedResult, result) << "size = " << transactionSize << ", fee = " << fee << ", max fee = " << maxFee;
+        }
 
-		void AssertValidationResult(ValidationResult expectedResult, uint32_t transactionSize, Amount maxFee) {
-			AssertValidationResult(expectedResult, transactionSize, maxFee, maxFee);
-		}
-	}
+        void AssertValidationResult(ValidationResult expectedResult, uint32_t transactionSize, Amount maxFee)
+        {
+            AssertValidationResult(expectedResult, transactionSize, maxFee, maxFee);
+        }
+    }
 
-	// region fee <= max fee
+    // region fee <= max fee
 
-	TEST(TEST_CLASS, SuccessWhenFeeIsLessThanMaxFee) {
-		AssertValidationResult(ValidationResult::Success, 200, Amount(0), Amount(234));
-		AssertValidationResult(ValidationResult::Success, 300, Amount(123), Amount(234));
-		AssertValidationResult(ValidationResult::Success, 400, Amount(233), Amount(234));
-	}
+    TEST(TEST_CLASS, SuccessWhenFeeIsLessThanMaxFee)
+    {
+        AssertValidationResult(ValidationResult::Success, 200, Amount(0), Amount(234));
+        AssertValidationResult(ValidationResult::Success, 300, Amount(123), Amount(234));
+        AssertValidationResult(ValidationResult::Success, 400, Amount(233), Amount(234));
+    }
 
-	TEST(TEST_CLASS, SuccessWhenFeeIsEqualToMaxFee) {
-		AssertValidationResult(ValidationResult::Success, 200, Amount(234), Amount(234));
-	}
+    TEST(TEST_CLASS, SuccessWhenFeeIsEqualToMaxFee)
+    {
+        AssertValidationResult(ValidationResult::Success, 200, Amount(234), Amount(234));
+    }
 
-	TEST(TEST_CLASS, FailureWhenFeeIsGreaterThanMaxFee) {
-		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 300, Amount(235), Amount(234));
-		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 400, Amount(1000), Amount(234));
-	}
+    TEST(TEST_CLASS, FailureWhenFeeIsGreaterThanMaxFee)
+    {
+        AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 300, Amount(235), Amount(234));
+        AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 400, Amount(1000), Amount(234));
+    }
 
-	// endregion
+    // endregion
 
-	// region max fee multiplier can't overflow
+    // region max fee multiplier can't overflow
 
-	TEST(TEST_CLASS, SuccessWhenMaxFeeMultiplierIsLessThanMax) {
-		AssertValidationResult(ValidationResult::Success, 200, Amount(200ull * 0xFFFF'FFFE));
-		AssertValidationResult(ValidationResult::Success, 300, Amount(300ull * 0xFFFF'FF00));
-		AssertValidationResult(ValidationResult::Success, 400, Amount(400ull * 0xFFFF'FFFE));
-	}
+    TEST(TEST_CLASS, SuccessWhenMaxFeeMultiplierIsLessThanMax)
+    {
+        AssertValidationResult(ValidationResult::Success, 200, Amount(200ull * 0xFFFF'FFFE));
+        AssertValidationResult(ValidationResult::Success, 300, Amount(300ull * 0xFFFF'FF00));
+        AssertValidationResult(ValidationResult::Success, 400, Amount(400ull * 0xFFFF'FFFE));
+    }
 
-	TEST(TEST_CLASS, SuccessWhenMaxFeeMultiplierIsEqualToMax) {
-		AssertValidationResult(ValidationResult::Success, 200, Amount(200ull * 0xFFFF'FFFF));
-		AssertValidationResult(ValidationResult::Success, 300, Amount(300ull * 0xFFFF'FFFF));
-		AssertValidationResult(ValidationResult::Success, 400, Amount(400ull * 0xFFFF'FFFF));
-	}
+    TEST(TEST_CLASS, SuccessWhenMaxFeeMultiplierIsEqualToMax)
+    {
+        AssertValidationResult(ValidationResult::Success, 200, Amount(200ull * 0xFFFF'FFFF));
+        AssertValidationResult(ValidationResult::Success, 300, Amount(300ull * 0xFFFF'FFFF));
+        AssertValidationResult(ValidationResult::Success, 400, Amount(400ull * 0xFFFF'FFFF));
+    }
 
-	TEST(TEST_CLASS, FailureWhenMaxFeeMultiplierIsGreaterThanMax) {
-		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 200, Amount(200ull * 0xFFFF'FFFF + 1));
-		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 300, Amount(300ull * 0x1'0000'FFFF));
-		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 400, Amount(400ull * 0x1'0000'0000));
-	}
+    TEST(TEST_CLASS, FailureWhenMaxFeeMultiplierIsGreaterThanMax)
+    {
+        AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 200, Amount(200ull * 0xFFFF'FFFF + 1));
+        AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 300, Amount(300ull * 0x1'0000'FFFF));
+        AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 400, Amount(400ull * 0x1'0000'0000));
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

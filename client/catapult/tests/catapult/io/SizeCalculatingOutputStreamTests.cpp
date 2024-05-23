@@ -22,44 +22,49 @@
 #include "catapult/io/SizeCalculatingOutputStream.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
 #define TEST_CLASS SizeCalculatingOutputStreamTests
 
-	TEST(TEST_CLASS, SizeOfStreamIsInitiallyZero) {
-		// Act:
-		SizeCalculatingOutputStream stream;
+    TEST(TEST_CLASS, SizeOfStreamIsInitiallyZero)
+    {
+        // Act:
+        SizeCalculatingOutputStream stream;
 
-		// Assert:
-		EXPECT_EQ(0u, stream.size());
-	}
+        // Assert:
+        EXPECT_EQ(0u, stream.size());
+    }
 
-	TEST(TEST_CLASS, WriteIncreasesCalculatedSize) {
-		// Arrange:
-		SizeCalculatingOutputStream stream;
-		uint64_t value = 12345;
+    TEST(TEST_CLASS, WriteIncreasesCalculatedSize)
+    {
+        // Arrange:
+        SizeCalculatingOutputStream stream;
+        uint64_t value = 12345;
 
-		// Act:
-		stream.write(std::vector<uint8_t>(12, 1));
-		stream.write({ reinterpret_cast<uint8_t*>(&value), sizeof(uint64_t) });
-		stream.write(std::array<uint8_t, 17>());
+        // Act:
+        stream.write(std::vector<uint8_t>(12, 1));
+        stream.write({ reinterpret_cast<uint8_t*>(&value), sizeof(uint64_t) });
+        stream.write(std::array<uint8_t, 17>());
 
-		// Assert:
-		EXPECT_EQ(12u + 8 + 17, stream.size());
-	}
+        // Assert:
+        EXPECT_EQ(12u + 8 + 17, stream.size());
+    }
 
-	TEST(TEST_CLASS, FlushDoesNotChangeCalculatedSize) {
-		// Arrange:
-		SizeCalculatingOutputStream stream;
-		stream.write(std::vector<uint8_t>(12, 1));
+    TEST(TEST_CLASS, FlushDoesNotChangeCalculatedSize)
+    {
+        // Arrange:
+        SizeCalculatingOutputStream stream;
+        stream.write(std::vector<uint8_t>(12, 1));
 
-		// Sanity:
-		EXPECT_EQ(12u, stream.size());
+        // Sanity:
+        EXPECT_EQ(12u, stream.size());
 
-		// Act:
-		stream.flush();
+        // Act:
+        stream.flush();
 
-		// Assert:
-		EXPECT_EQ(12u, stream.size());
-	}
-}}
+        // Assert:
+        EXPECT_EQ(12u, stream.size());
+    }
+}
+}

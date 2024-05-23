@@ -24,23 +24,25 @@
 #include "catapult/model/Notifications.h"
 #include "catapult/plugins.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Strongly typed notification observer.
-	template<typename TNotification>
-	class PLUGIN_API_DEPENDENCY NotificationObserverT {
-	public:
-		/// Notification type.
-		using NotificationType = TNotification;
+    /// Strongly typed notification observer.
+    template <typename TNotification>
+    class PLUGIN_API_DEPENDENCY NotificationObserverT {
+    public:
+        /// Notification type.
+        using NotificationType = TNotification;
 
-	public:
-		virtual ~NotificationObserverT() = default;
+    public:
+        virtual ~NotificationObserverT() = default;
 
-	public:
-		/// Gets the observer name.
-		virtual const std::string& name() const = 0;
+    public:
+        /// Gets the observer name.
+        virtual const std::string& name() const = 0;
 
-		/// Notifies the observer with \a notification and observer \a context.
-		virtual void notify(const TNotification& notification, ObserverContext& context) const = 0;
-	};
-}}
+        /// Notifies the observer with \a notification and observer \a context.
+        virtual void notify(const TNotification& notification, ObserverContext& context) const = 0;
+    };
+}
+}

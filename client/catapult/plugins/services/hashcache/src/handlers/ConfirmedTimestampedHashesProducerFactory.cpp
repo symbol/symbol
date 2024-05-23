@@ -20,48 +20,53 @@
 **/
 
 #include "ConfirmedTimestampedHashesProducerFactory.h"
-#include "src/cache/HashCache.h"
 #include "catapult/handlers/BasicProducer.h"
+#include "src/cache/HashCache.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	namespace {
-		class Producer : BasicProducer<state::TimestampedHashRange> {
-		private:
-			using ViewType = cache::LockedCacheView<cache::HashCacheView>;
+    namespace {
+        class Producer : BasicProducer<state::TimestampedHashRange> {
+        private:
+            using ViewType = cache::LockedCacheView<cache::HashCacheView>;
 
-		public:
-			Producer(ViewType&& view, const state::TimestampedHashRange& timestampedHashes)
-					: BasicProducer<state::TimestampedHashRange>(timestampedHashes)
-					, m_pView(std::make_shared<ViewType>(std::move(view))) {
-			}
+        public:
+            Producer(ViewType&& view, const state::TimestampedHashRange& timestampedHashes)
+                : BasicProducer<state::TimestampedHashRange>(timestampedHashes)
+                , m_pView(std::make_shared<ViewType>(std::move(view)))
+            {
+            }
 
-		public:
-			auto operator()() {
-				auto isUnknown = false;
-				const state::TimestampedHash* pNextTimestampedHash = nullptr;
-				while (!isUnknown) {
-					pNextTimestampedHash = next([&view = **m_pView, &isUnknown](const auto& timestampedHash) {
-						if (!view.contains(timestampedHash))
-							isUnknown = true;
+        public:
+            auto operator()()
+            {
+                auto isUnknown = false;
+                const state::TimestampedHash* pNextTimestampedHash = nullptr;
+                while (!isUnknown) {
+                    pNextTimestampedHash = next([&view = **m_pView, &isUnknown](const auto& timestampedHash) {
+                        if (!view.contains(timestampedHash))
+                            isUnknown = true;
 
-						return &timestampedHash;
-					});
+                        return &timestampedHash;
+                    });
 
-					// if nullptr, the producer is depleted
-					if (!pNextTimestampedHash)
-						break;
-				}
+                    // if nullptr, the producer is depleted
+                    if (!pNextTimestampedHash)
+                        break;
+                }
 
-				return pNextTimestampedHash;
-			}
+                return pNextTimestampedHash;
+            }
 
-		private:
-			std::shared_ptr<ViewType> m_pView;
-		};
-	}
+        private:
+            std::shared_ptr<ViewType> m_pView;
+        };
+    }
 
-	ConfirmedTimestampedHashesProducerFactory CreateConfirmedTimestampedHashesProducerFactory(const cache::HashCache& hashCache) {
-		return [&hashCache](const auto& timestampedHashes) { return Producer(hashCache.createView(), timestampedHashes); };
-	}
-}}
+    ConfirmedTimestampedHashesProducerFactory CreateConfirmedTimestampedHashesProducerFactory(const cache::HashCache& hashCache)
+    {
+        return [&hashCache](const auto& timestampedHashes) { return Producer(hashCache.createView(), timestampedHashes); };
+    }
+}
+}

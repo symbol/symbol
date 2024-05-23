@@ -24,69 +24,73 @@
 #include "plugins/txes/namespace/src/types.h"
 #include <vector>
 
-namespace catapult { namespace model {
-	class ResolverContext;
-}}
+namespace catapult {
+namespace model {
+    class ResolverContext;
+}
+}
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Metadata key.
-	class MetadataKey {
-	public:
-		/// Creates a metadata key from \a partialKey.
-		explicit MetadataKey(const model::PartialMetadataKey& partialKey);
+    /// Metadata key.
+    class MetadataKey {
+    public:
+        /// Creates a metadata key from \a partialKey.
+        explicit MetadataKey(const model::PartialMetadataKey& partialKey);
 
-		/// Creates a metadata key from \a partialKey and \a mosaicId target.
-		MetadataKey(const model::PartialMetadataKey& partialKey, MosaicId mosaicId);
+        /// Creates a metadata key from \a partialKey and \a mosaicId target.
+        MetadataKey(const model::PartialMetadataKey& partialKey, MosaicId mosaicId);
 
-		/// Creates a metadata key from \a partialKey and \a namespaceId target.
-		MetadataKey(const model::PartialMetadataKey& partialKey, NamespaceId namespaceId);
+        /// Creates a metadata key from \a partialKey and \a namespaceId target.
+        MetadataKey(const model::PartialMetadataKey& partialKey, NamespaceId namespaceId);
 
-	public:
-		/// Gets the unique (composite) key.
-		const Hash256& uniqueKey() const;
+    public:
+        /// Gets the unique (composite) key.
+        const Hash256& uniqueKey() const;
 
-	public:
-		/// Gets the source address.
-		const Address& sourceAddress() const;
+    public:
+        /// Gets the source address.
+        const Address& sourceAddress() const;
 
-		/// Gets the target address.
-		const Address& targetAddress() const;
+        /// Gets the target address.
+        const Address& targetAddress() const;
 
-		/// Gets the scoped metadata key.
-		uint64_t scopedMetadataKey() const;
+        /// Gets the scoped metadata key.
+        uint64_t scopedMetadataKey() const;
 
-		/// Gets the target id.
-		uint64_t targetId() const;
+        /// Gets the target id.
+        uint64_t targetId() const;
 
-		/// Gets the metadata type.
-		model::MetadataType metadataType() const;
+        /// Gets the metadata type.
+        model::MetadataType metadataType() const;
 
-		/// Gets the mosaic target.
-		MosaicId mosaicTarget() const;
+        /// Gets the mosaic target.
+        MosaicId mosaicTarget() const;
 
-		/// Gets the namespace target.
-		NamespaceId namespaceTarget() const;
+        /// Gets the namespace target.
+        NamespaceId namespaceTarget() const;
 
-	private:
-		void require(model::MetadataType metadataType, const char* name) const;
+    private:
+        void require(model::MetadataType metadataType, const char* name) const;
 
-		Hash256 generateUniqueKey() const;
+        Hash256 generateUniqueKey() const;
 
-	private:
-		model::PartialMetadataKey m_partialKey;
-		uint64_t m_targetId;
-		model::MetadataType m_metadataType;
-		Hash256 m_uniqueKey;
-	};
+    private:
+        model::PartialMetadataKey m_partialKey;
+        uint64_t m_targetId;
+        model::MetadataType m_metadataType;
+        Hash256 m_uniqueKey;
+    };
 
-	/// Merges \a partialKey and \a target into a (resolved) metadata key.
-	/// \note \a target is expected to already be resolved.
-	MetadataKey CreateMetadataKey(const model::PartialMetadataKey& partialKey, const model::MetadataTarget& target);
+    /// Merges \a partialKey and \a target into a (resolved) metadata key.
+    /// \note \a target is expected to already be resolved.
+    MetadataKey CreateMetadataKey(const model::PartialMetadataKey& partialKey, const model::MetadataTarget& target);
 
-	/// Uses \a resolvers to merge \a partialKey and \a target into a (resolved) metadata key.
-	MetadataKey ResolveMetadataKey(
-			const model::UnresolvedPartialMetadataKey& partialKey,
-			const model::MetadataTarget& target,
-			const model::ResolverContext& resolvers);
-}}
+    /// Uses \a resolvers to merge \a partialKey and \a target into a (resolved) metadata key.
+    MetadataKey ResolveMetadataKey(
+        const model::UnresolvedPartialMetadataKey& partialKey,
+        const model::MetadataTarget& target,
+        const model::ResolverContext& resolvers);
+}
+}

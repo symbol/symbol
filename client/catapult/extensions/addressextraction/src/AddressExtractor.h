@@ -23,33 +23,37 @@
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/NotificationPublisher.h"
 
-namespace catapult { namespace model {
-	struct BlockElement;
-	struct TransactionElement;
-}}
+namespace catapult {
+namespace model {
+    struct BlockElement;
+    struct TransactionElement;
+}
+}
 
-namespace catapult { namespace addressextraction {
+namespace catapult {
+namespace addressextraction {
 
-	/// Utility class for extracting addresses.
-	class AddressExtractor {
-	public:
-		/// Creates an extractor around \a pPublisher.
-		explicit AddressExtractor(std::unique_ptr<const model::NotificationPublisher>&& pPublisher);
+    /// Utility class for extracting addresses.
+    class AddressExtractor {
+    public:
+        /// Creates an extractor around \a pPublisher.
+        explicit AddressExtractor(std::unique_ptr<const model::NotificationPublisher>&& pPublisher);
 
-	public:
-		/// Extracts transaction addresses into \a transactionInfo.
-		void extract(model::TransactionInfo& transactionInfo) const;
+    public:
+        /// Extracts transaction addresses into \a transactionInfo.
+        void extract(model::TransactionInfo& transactionInfo) const;
 
-		/// Extracts transaction addresses into \a transactionInfos.
-		void extract(model::TransactionInfosSet& transactionInfos) const;
+        /// Extracts transaction addresses into \a transactionInfos.
+        void extract(model::TransactionInfosSet& transactionInfos) const;
 
-		/// Extracts transaction addresses into \a transactionElement.
-		void extract(model::TransactionElement& transactionElement) const;
+        /// Extracts transaction addresses into \a transactionElement.
+        void extract(model::TransactionElement& transactionElement) const;
 
-		/// Extracts transaction addresses into \a blockElement.
-		void extract(model::BlockElement& blockElement) const;
+        /// Extracts transaction addresses into \a blockElement.
+        void extract(model::BlockElement& blockElement) const;
 
-	private:
-		std::unique_ptr<const model::NotificationPublisher> m_pPublisher;
-	};
-}}
+    private:
+        std::unique_ptr<const model::NotificationPublisher> m_pPublisher;
+    };
+}
+}

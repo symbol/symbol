@@ -22,23 +22,25 @@
 #pragma once
 #include <stdint.h>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Namespace registration types.
-	enum class NamespaceRegistrationType : uint8_t {
-		/// Root namespace.
-		Root,
+    /// Namespace registration types.
+    enum class NamespaceRegistrationType : uint8_t {
+        /// Root namespace.
+        Root,
 
-		/// Child namespace.
-		Child
-	};
+        /// Child namespace.
+        Child
+    };
 
-	/// Alias actions.
-	enum class AliasAction : uint8_t {
-		/// Unlink alias.
-		Unlink,
+    /// Alias actions.
+    enum class AliasAction : uint8_t {
+        /// Unlink alias.
+        Unlink,
 
-		/// Link alias.
-		Link
-	};
-}}
+        /// Link alias.
+        Link
+    };
+}
+}

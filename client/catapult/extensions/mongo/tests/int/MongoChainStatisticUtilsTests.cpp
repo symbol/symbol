@@ -27,87 +27,95 @@
 
 using namespace bsoncxx::builder::stream;
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
 #define TEST_CLASS MongoChainStatisticUtilsTests
 
-	namespace {
-		template<typename TAction>
-		void RunTestWithDatabase(TAction action) {
-			// Arrange:
-			test::PrepareDatabase(test::DatabaseName());
-			auto connection = test::CreateDbConnection();
-			auto database = connection[test::DatabaseName()];
+    namespace {
+        template <typename TAction>
+        void RunTestWithDatabase(TAction action)
+        {
+            // Arrange:
+            test::PrepareDatabase(test::DatabaseName());
+            auto connection = test::CreateDbConnection();
+            auto database = connection[test::DatabaseName()];
 
-			// Act + Assert:
-			action(database);
-		}
+            // Act + Assert:
+            action(database);
+        }
 
-		auto CreateUpdateDocument(int64_t value) {
-			return document() << "$set" << open_document << "value" << value << close_document << finalize;
-		}
-	}
+        auto CreateUpdateDocument(int64_t value)
+        {
+            return document() << "$set" << open_document << "value" << value << close_document << finalize;
+        }
+    }
 
-	TEST(TEST_CLASS, ChainStatisticDocumentIsEmptyWhenNotSet) {
-		// Arrange:
-		RunTestWithDatabase([](auto& database) {
-			// Act:
-			auto doc = GetChainStatisticDocument(database);
+    TEST(TEST_CLASS, ChainStatisticDocumentIsEmptyWhenNotSet)
+    {
+        // Arrange:
+        RunTestWithDatabase([](auto& database) {
+            // Act:
+            auto doc = GetChainStatisticDocument(database);
 
-			// Assert:
-			EXPECT_TRUE(mappers::IsEmptyDocument(doc));
-		});
-	}
+            // Assert:
+            EXPECT_TRUE(mappers::IsEmptyDocument(doc));
+        });
+    }
 
-	TEST(TEST_CLASS, CanSetChainStatisticDocument) {
-		// Arrange:
-		RunTestWithDatabase([](auto& database) {
-			// Act:
-			auto result = TrySetChainStatisticDocument(database, CreateUpdateDocument(12).view());
-			auto doc = GetChainStatisticDocument(database);
+    TEST(TEST_CLASS, CanSetChainStatisticDocument)
+    {
+        // Arrange:
+        RunTestWithDatabase([](auto& database) {
+            // Act:
+            auto result = TrySetChainStatisticDocument(database, CreateUpdateDocument(12).view());
+            auto doc = GetChainStatisticDocument(database);
 
-			// Assert:
-			EXPECT_EQ(1, result.NumUpserted);
-			EXPECT_EQ(0, result.NumModified);
+            // Assert:
+            EXPECT_EQ(1, result.NumUpserted);
+            EXPECT_EQ(0, result.NumModified);
 
-			EXPECT_FALSE(mappers::IsEmptyDocument(doc));
-			EXPECT_EQ(12u, test::GetUint64(doc.view(), "value"));
-		});
-	}
+            EXPECT_FALSE(mappers::IsEmptyDocument(doc));
+            EXPECT_EQ(12u, test::GetUint64(doc.view(), "value"));
+        });
+    }
 
-	TEST(TEST_CLASS, CanUpdateChainStatisticDocument) {
-		// Arrange:
-		RunTestWithDatabase([](auto& database) {
-			TrySetChainStatisticDocument(database, CreateUpdateDocument(12).view());
+    TEST(TEST_CLASS, CanUpdateChainStatisticDocument)
+    {
+        // Arrange:
+        RunTestWithDatabase([](auto& database) {
+            TrySetChainStatisticDocument(database, CreateUpdateDocument(12).view());
 
-			// Act:
-			auto result = TrySetChainStatisticDocument(database, CreateUpdateDocument(15).view());
-			auto doc = GetChainStatisticDocument(database);
+            // Act:
+            auto result = TrySetChainStatisticDocument(database, CreateUpdateDocument(15).view());
+            auto doc = GetChainStatisticDocument(database);
 
-			// Assert:
-			EXPECT_EQ(0, result.NumUpserted);
-			EXPECT_EQ(1, result.NumModified);
+            // Assert:
+            EXPECT_EQ(0, result.NumUpserted);
+            EXPECT_EQ(1, result.NumModified);
 
-			EXPECT_FALSE(mappers::IsEmptyDocument(doc));
-			EXPECT_EQ(15u, test::GetUint64(doc.view(), "value"));
-		});
-	}
+            EXPECT_FALSE(mappers::IsEmptyDocument(doc));
+            EXPECT_EQ(15u, test::GetUint64(doc.view(), "value"));
+        });
+    }
 
-	TEST(TEST_CLASS, CanUpdateChainStatisticDocumentToSameValue) {
-		// Arrange:
-		RunTestWithDatabase([](auto& database) {
-			TrySetChainStatisticDocument(database, CreateUpdateDocument(12).view());
+    TEST(TEST_CLASS, CanUpdateChainStatisticDocumentToSameValue)
+    {
+        // Arrange:
+        RunTestWithDatabase([](auto& database) {
+            TrySetChainStatisticDocument(database, CreateUpdateDocument(12).view());
 
-			// Act:
-			auto result = TrySetChainStatisticDocument(database, CreateUpdateDocument(12).view());
-			auto doc = GetChainStatisticDocument(database);
+            // Act:
+            auto result = TrySetChainStatisticDocument(database, CreateUpdateDocument(12).view());
+            auto doc = GetChainStatisticDocument(database);
 
-			// Assert:
-			EXPECT_EQ(0, result.NumUpserted);
-			EXPECT_EQ(0, result.NumModified);
+            // Assert:
+            EXPECT_EQ(0, result.NumUpserted);
+            EXPECT_EQ(0, result.NumModified);
 
-			EXPECT_FALSE(mappers::IsEmptyDocument(doc));
-			EXPECT_EQ(12u, test::GetUint64(doc.view(), "value"));
-		});
-	}
-}}
+            EXPECT_FALSE(mappers::IsEmptyDocument(doc));
+            EXPECT_EQ(12u, test::GetUint64(doc.view(), "value"));
+        });
+    }
+}
+}

@@ -22,87 +22,96 @@
 #include "mongo/src/mappers/ReceiptMapper.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/mocks/MockReceiptMapper.h"
-#include "tests/test/core/mocks/MockReceipt.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/mocks/MockReceipt.h"
 
-namespace catapult { namespace mongo { namespace mappers {
+namespace catapult {
+namespace mongo {
+    namespace mappers {
 
 #define TEST_CLASS ReceiptMapperTests
 
-	namespace {
-		template<typename TReceipt>
-		auto CreateDbDocument(const TReceipt& receipt) {
-			bson_stream::document builder;
-			StreamReceipt(builder, receipt);
-			return builder << bsoncxx::builder::stream::finalize;
-		}
+        namespace {
+            template <typename TReceipt>
+            auto CreateDbDocument(const TReceipt& receipt)
+            {
+                bson_stream::document builder;
+                StreamReceipt(builder, receipt);
+                return builder << bsoncxx::builder::stream::finalize;
+            }
 
-		auto CreateDbDocument(const mocks::MockReceipt& receipt, const MongoReceiptRegistry& registry) {
-			bson_stream::document builder;
-			StreamReceipt(builder, receipt, registry);
-			return builder << bsoncxx::builder::stream::finalize;
-		}
-	}
+            auto CreateDbDocument(const mocks::MockReceipt& receipt, const MongoReceiptRegistry& registry)
+            {
+                bson_stream::document builder;
+                StreamReceipt(builder, receipt, registry);
+                return builder << bsoncxx::builder::stream::finalize;
+            }
+        }
 
-	// region StreamReceipt
+        // region StreamReceipt
 
-	TEST(TEST_CLASS, CanStreamArtifactExpiryReceipt) {
-		// Arrange:
-		model::ArtifactExpiryReceipt<MosaicId> receipt(model::ReceiptType(), MosaicId(123));
+        TEST(TEST_CLASS, CanStreamArtifactExpiryReceipt)
+        {
+            // Arrange:
+            model::ArtifactExpiryReceipt<MosaicId> receipt(model::ReceiptType(), MosaicId(123));
 
-		// Act:
-		auto document = CreateDbDocument(receipt);
+            // Act:
+            auto document = CreateDbDocument(receipt);
 
-		// Assert:
-		auto view = document.view();
-		EXPECT_EQ(1u, test::GetFieldCount(view));
+            // Assert:
+            auto view = document.view();
+            EXPECT_EQ(1u, test::GetFieldCount(view));
 
-		EXPECT_EQ(123u, test::GetUint64(view, "artifactId"));
-	}
+            EXPECT_EQ(123u, test::GetUint64(view, "artifactId"));
+        }
 
-	// endregion
+        // endregion
 
-	// region ToReceiptDbModel
+        // region ToReceiptDbModel
 
-	TEST(TEST_CLASS, CanStreamRegisteredReceipt) {
-		// Arrange:
-		mocks::MockReceipt receipt;
-		receipt.Version = 5;
-		receipt.Type = mocks::MockReceipt::Receipt_Type;
-		receipt.Payload = { 1, 2, 3 };
-		MongoReceiptRegistry registry;
-		registry.registerPlugin(mocks::CreateMockReceiptMongoPlugin(utils::to_underlying_type(mocks::MockReceipt::Receipt_Type)));
+        TEST(TEST_CLASS, CanStreamRegisteredReceipt)
+        {
+            // Arrange:
+            mocks::MockReceipt receipt;
+            receipt.Version = 5;
+            receipt.Type = mocks::MockReceipt::Receipt_Type;
+            receipt.Payload = { 1, 2, 3 };
+            MongoReceiptRegistry registry;
+            registry.registerPlugin(mocks::CreateMockReceiptMongoPlugin(utils::to_underlying_type(mocks::MockReceipt::Receipt_Type)));
 
-		// Act:
-		auto document = CreateDbDocument(receipt, registry);
+            // Act:
+            auto document = CreateDbDocument(receipt, registry);
 
-		// Assert:
-		auto view = document.view();
-		EXPECT_EQ(3u, test::GetFieldCount(view));
+            // Assert:
+            auto view = document.view();
+            EXPECT_EQ(3u, test::GetFieldCount(view));
 
-		test::AssertEqualReceiptData(receipt, view);
-		EXPECT_EQ(receipt.Payload, test::GetBinaryArray<11>(view, "mock_payload"));
-	}
+            test::AssertEqualReceiptData(receipt, view);
+            EXPECT_EQ(receipt.Payload, test::GetBinaryArray<11>(view, "mock_payload"));
+        }
 
-	TEST(TEST_CLASS, CanStreamUnknownReceipt) {
-		// Arrange:
-		mocks::MockReceipt receipt;
-		receipt.Size = sizeof(mocks::MockReceipt);
-		receipt.Version = 5;
-		receipt.Type = mocks::MockReceipt::Receipt_Type;
-		receipt.Payload = { 1, 2, 3 };
-		MongoReceiptRegistry registry;
+        TEST(TEST_CLASS, CanStreamUnknownReceipt)
+        {
+            // Arrange:
+            mocks::MockReceipt receipt;
+            receipt.Size = sizeof(mocks::MockReceipt);
+            receipt.Version = 5;
+            receipt.Type = mocks::MockReceipt::Receipt_Type;
+            receipt.Payload = { 1, 2, 3 };
+            MongoReceiptRegistry registry;
 
-		// Act:
-		auto document = CreateDbDocument(receipt, registry);
+            // Act:
+            auto document = CreateDbDocument(receipt, registry);
 
-		// Assert:
-		auto view = document.view();
-		EXPECT_EQ(3u, test::GetFieldCount(view));
+            // Assert:
+            auto view = document.view();
+            EXPECT_EQ(3u, test::GetFieldCount(view));
 
-		test::AssertEqualReceiptData(receipt, view);
-		EXPECT_EQ(receipt.Payload, test::GetBinaryArray<11>(view, "bin"));
-	}
+            test::AssertEqualReceiptData(receipt, view);
+            EXPECT_EQ(receipt.Payload, test::GetBinaryArray<11>(view, "bin"));
+        }
 
-	// endregion
-}}}
+        // endregion
+    }
+}
+}

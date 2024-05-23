@@ -22,44 +22,50 @@
 #include "catapult/deltaset/DeltaElements.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace deltaset {
+namespace catapult {
+namespace deltaset {
 
 #define TEST_CLASS DeltaElementsTests
 
-	namespace {
-		using Elements = DeltaElements<std::set<int>>;
-	}
+    namespace {
+        using Elements = DeltaElements<std::set<int>>;
+    }
 
-	TEST(TEST_CLASS, HasChangesReturnsFalseWhenThereAreNoChanges) {
-		// Arrange:
-		std::set<int> empty;
-		Elements elements(empty, empty, empty);
+    TEST(TEST_CLASS, HasChangesReturnsFalseWhenThereAreNoChanges)
+    {
+        // Arrange:
+        std::set<int> empty;
+        Elements elements(empty, empty, empty);
 
-		// Assert:
-		EXPECT_FALSE(elements.HasChanges());
-	}
+        // Assert:
+        EXPECT_FALSE(elements.HasChanges());
+    }
 
-	namespace {
-		void AssertHasChanges(const std::set<int>& added, const std::set<int>& removed, const std::set<int>& copied) {
-			// Arrange:
-			Elements elements(added, removed, copied);
+    namespace {
+        void AssertHasChanges(const std::set<int>& added, const std::set<int>& removed, const std::set<int>& copied)
+        {
+            // Arrange:
+            Elements elements(added, removed, copied);
 
-			// Assert:
-			EXPECT_TRUE(elements.HasChanges());
-		}
-	}
+            // Assert:
+            EXPECT_TRUE(elements.HasChanges());
+        }
+    }
 
-	TEST(TEST_CLASS, HasChangesReturnsTrueWhenAnySetHasChanges) {
-		AssertHasChanges({ 1 }, {}, {});
-		AssertHasChanges({}, { 1 }, {});
-		AssertHasChanges({}, {}, { 1 });
+    TEST(TEST_CLASS, HasChangesReturnsTrueWhenAnySetHasChanges)
+    {
+        AssertHasChanges({ 1 }, {}, {});
+        AssertHasChanges({}, { 1 }, {});
+        AssertHasChanges({}, {}, { 1 });
 
-		AssertHasChanges({ 1 }, { 1 }, {});
-		AssertHasChanges({ 1 }, {}, { 1 });
-		AssertHasChanges({}, { 1 }, { 1 });
-	}
+        AssertHasChanges({ 1 }, { 1 }, {});
+        AssertHasChanges({ 1 }, {}, { 1 });
+        AssertHasChanges({}, { 1 }, { 1 });
+    }
 
-	TEST(TEST_CLASS, HasChangesReturnsTrueWhenAllSetsHaveChanges) {
-		AssertHasChanges({ 1 }, { 1 }, { 1 });
-	}
-}}
+    TEST(TEST_CLASS, HasChangesReturnsTrueWhenAllSetsHaveChanges)
+    {
+        AssertHasChanges({ 1 }, { 1 }, { 1 });
+    }
+}
+}

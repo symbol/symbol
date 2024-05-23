@@ -19,118 +19,124 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "src/observers/Observers.h"
+#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
 #define TEST_CLASS AccountKeyLinkObserverTests
 
-	using ObserverTestContext = test::ObserverTestContextT<test::CoreSystemCacheFactory>;
+    using ObserverTestContext = test::ObserverTestContextT<test::CoreSystemCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(AccountKeyLink, )
+    DEFINE_COMMON_OBSERVER_TESTS(AccountKeyLink, )
 
-	namespace {
-		struct CommitTraits {
-			static constexpr auto Notify_Mode = NotifyMode::Commit;
-			static constexpr auto Create_Link = model::LinkAction::Link;
-			static constexpr auto Remove_Link = model::LinkAction::Unlink;
-		};
+    namespace {
+        struct CommitTraits {
+            static constexpr auto Notify_Mode = NotifyMode::Commit;
+            static constexpr auto Create_Link = model::LinkAction::Link;
+            static constexpr auto Remove_Link = model::LinkAction::Unlink;
+        };
 
-		struct RollbackTraits {
-			static constexpr auto Notify_Mode = NotifyMode::Rollback;
-			// during rollback actions need to be reversed to create or remove link
-			static constexpr auto Create_Link = model::LinkAction::Unlink;
-			static constexpr auto Remove_Link = model::LinkAction::Link;
-		};
-	}
+        struct RollbackTraits {
+            static constexpr auto Notify_Mode = NotifyMode::Rollback;
+            // during rollback actions need to be reversed to create or remove link
+            static constexpr auto Create_Link = model::LinkAction::Unlink;
+            static constexpr auto Remove_Link = model::LinkAction::Link;
+        };
+    }
 
-#define ACCOUNT_LINK_OBSERVER_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Commit) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CommitTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define ACCOUNT_LINK_OBSERVER_TEST(TEST_NAME)                      \
+    template <typename TTraits>                                    \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                \
+    TEST(TEST_CLASS, TEST_NAME##_Commit)                           \
+    {                                                              \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CommitTraits>();   \
+    }                                                              \
+    TEST(TEST_CLASS, TEST_NAME##_Rollback)                         \
+    {                                                              \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); \
+    }                                                              \
+    template <typename TTraits>                                    \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	namespace {
-		template<typename TAction>
-		void RunTwoAccountTest(cache::AccountStateCacheDelta& accountStateCacheDelta, TAction action) {
-			// Arrange:
-			auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
-			auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
+    namespace {
+        template <typename TAction>
+        void RunTwoAccountTest(cache::AccountStateCacheDelta& accountStateCacheDelta, TAction action)
+        {
+            // Arrange:
+            auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+            auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
-			accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(444));
-			accountStateCacheDelta.addAccount(linkedPublicKey, Height(444));
+            accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(444));
+            accountStateCacheDelta.addAccount(linkedPublicKey, Height(444));
 
-			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
-			auto& mainAccountState = mainAccountStateIter.get();
+            auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
+            auto& mainAccountState = mainAccountStateIter.get();
 
-			auto remoteAccountStateIter = accountStateCacheDelta.find(linkedPublicKey);
-			auto& remoteAccountState = remoteAccountStateIter.get();
+            auto remoteAccountStateIter = accountStateCacheDelta.find(linkedPublicKey);
+            auto& remoteAccountState = remoteAccountStateIter.get();
 
-			// Act + Assert:
-			action(mainAccountState, remoteAccountState);
-		}
-	}
+            // Act + Assert:
+            action(mainAccountState, remoteAccountState);
+        }
+    }
 
-	ACCOUNT_LINK_OBSERVER_TEST(ObserverCreatesLink) {
-		// Arrange:
-		auto context = ObserverTestContext(TTraits::Notify_Mode, Height(888));
-		RunTwoAccountTest(
-				context.cache().sub<cache::AccountStateCache>(),
-				[&context](const auto& mainAccountState, const auto& remoteAccountState) {
-					auto mainAccountPublicKey = mainAccountState.PublicKey;
-					auto linkedPublicKey = remoteAccountState.PublicKey;
+    ACCOUNT_LINK_OBSERVER_TEST(ObserverCreatesLink)
+    {
+        // Arrange:
+        auto context = ObserverTestContext(TTraits::Notify_Mode, Height(888));
+        RunTwoAccountTest(
+            context.cache().sub<cache::AccountStateCache>(),
+            [&context](const auto& mainAccountState, const auto& remoteAccountState) {
+                auto mainAccountPublicKey = mainAccountState.PublicKey;
+                auto linkedPublicKey = remoteAccountState.PublicKey;
 
-					auto notification =
-							model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Create_Link);
-					auto pObserver = CreateAccountKeyLinkObserver();
+                auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Create_Link);
+                auto pObserver = CreateAccountKeyLinkObserver();
 
-					// Act:
-					test::ObserveNotification(*pObserver, notification, context);
+                // Act:
+                test::ObserveNotification(*pObserver, notification, context);
 
-					// Assert: link was created
-					EXPECT_EQ(state::AccountType::Main, mainAccountState.AccountType);
-					EXPECT_EQ(linkedPublicKey, state::GetLinkedPublicKey(mainAccountState));
+                // Assert: link was created
+                EXPECT_EQ(state::AccountType::Main, mainAccountState.AccountType);
+                EXPECT_EQ(linkedPublicKey, state::GetLinkedPublicKey(mainAccountState));
 
-					EXPECT_EQ(state::AccountType::Remote, remoteAccountState.AccountType);
-					EXPECT_EQ(mainAccountPublicKey, state::GetLinkedPublicKey(remoteAccountState));
-				});
-	}
+                EXPECT_EQ(state::AccountType::Remote, remoteAccountState.AccountType);
+                EXPECT_EQ(mainAccountPublicKey, state::GetLinkedPublicKey(remoteAccountState));
+            });
+    }
 
-	ACCOUNT_LINK_OBSERVER_TEST(ObserverRemovesLink) {
-		// Arrange:
-		auto context = ObserverTestContext(TTraits::Notify_Mode, Height(888));
-		RunTwoAccountTest(context.cache().sub<cache::AccountStateCache>(), [&context](auto& mainAccountState, auto& remoteAccountState) {
-			auto mainAccountPublicKey = mainAccountState.PublicKey;
-			auto linkedPublicKey = remoteAccountState.PublicKey;
+    ACCOUNT_LINK_OBSERVER_TEST(ObserverRemovesLink)
+    {
+        // Arrange:
+        auto context = ObserverTestContext(TTraits::Notify_Mode, Height(888));
+        RunTwoAccountTest(context.cache().sub<cache::AccountStateCache>(), [&context](auto& mainAccountState, auto& remoteAccountState) {
+            auto mainAccountPublicKey = mainAccountState.PublicKey;
+            auto linkedPublicKey = remoteAccountState.PublicKey;
 
-			mainAccountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
-			mainAccountState.AccountType = state::AccountType::Main;
+            mainAccountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
+            mainAccountState.AccountType = state::AccountType::Main;
 
-			remoteAccountState.SupplementalPublicKeys.linked().set(mainAccountPublicKey);
-			remoteAccountState.AccountType = state::AccountType::Remote;
+            remoteAccountState.SupplementalPublicKeys.linked().set(mainAccountPublicKey);
+            remoteAccountState.AccountType = state::AccountType::Remote;
 
-			auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Remove_Link);
-			auto pObserver = CreateAccountKeyLinkObserver();
+            auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Remove_Link);
+            auto pObserver = CreateAccountKeyLinkObserver();
 
-			// Act:
-			test::ObserveNotification(*pObserver, notification, context);
+            // Act:
+            test::ObserveNotification(*pObserver, notification, context);
 
-			// Assert: link was removed
-			EXPECT_EQ(state::AccountType::Unlinked, mainAccountState.AccountType);
-			EXPECT_EQ(Key(), state::GetLinkedPublicKey(mainAccountState));
+            // Assert: link was removed
+            EXPECT_EQ(state::AccountType::Unlinked, mainAccountState.AccountType);
+            EXPECT_EQ(Key(), state::GetLinkedPublicKey(mainAccountState));
 
-			EXPECT_EQ(state::AccountType::Remote_Unlinked, remoteAccountState.AccountType);
-			EXPECT_EQ(Key(), state::GetLinkedPublicKey(remoteAccountState));
-		});
-	}
-}}
+            EXPECT_EQ(state::AccountType::Remote_Unlinked, remoteAccountState.AccountType);
+            EXPECT_EQ(Key(), state::GetLinkedPublicKey(remoteAccountState));
+        });
+    }
+}
+}

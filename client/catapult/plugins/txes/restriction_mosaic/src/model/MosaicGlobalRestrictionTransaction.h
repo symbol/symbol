@@ -24,49 +24,52 @@
 #include "MosaicRestrictionTypes.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a mosaic global restriction transaction body.
-	template<typename THeader>
-	struct MosaicGlobalRestrictionTransactionBody : public THeader {
-	private:
-		using TransactionType = MosaicGlobalRestrictionTransactionBody<THeader>;
+    /// Binary layout for a mosaic global restriction transaction body.
+    template <typename THeader>
+    struct MosaicGlobalRestrictionTransactionBody : public THeader {
+    private:
+        using TransactionType = MosaicGlobalRestrictionTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Global_Restriction, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Global_Restriction, 1)
 
-	public:
-		/// Identifier of the mosaic being restricted.
-		UnresolvedMosaicId MosaicId;
+    public:
+        /// Identifier of the mosaic being restricted.
+        UnresolvedMosaicId MosaicId;
 
-		/// Identifier of the mosaic providing the restriction key.
-		UnresolvedMosaicId ReferenceMosaicId;
+        /// Identifier of the mosaic providing the restriction key.
+        UnresolvedMosaicId ReferenceMosaicId;
 
-		/// Restriction key relative to the reference mosaic identifier.
-		uint64_t RestrictionKey;
+        /// Restriction key relative to the reference mosaic identifier.
+        uint64_t RestrictionKey;
 
-		/// Previous restriction value.
-		uint64_t PreviousRestrictionValue;
+        /// Previous restriction value.
+        uint64_t PreviousRestrictionValue;
 
-		/// New restriction value.
-		uint64_t NewRestrictionValue;
+        /// New restriction value.
+        uint64_t NewRestrictionValue;
 
-		/// Previous restriction type.
-		MosaicRestrictionType PreviousRestrictionType;
+        /// Previous restriction type.
+        MosaicRestrictionType PreviousRestrictionType;
 
-		/// New restriction type.
-		MosaicRestrictionType NewRestrictionType;
+        /// New restriction type.
+        MosaicRestrictionType NewRestrictionType;
 
-	public:
-		/// Calculates the real size of a mosaic global restriction \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+    public:
+        /// Calculates the real size of a mosaic global restriction \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
+        {
+            return sizeof(TransactionType);
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(MosaicGlobalRestriction)
+    DEFINE_EMBEDDABLE_TRANSACTION(MosaicGlobalRestriction)
 
 #pragma pack(pop)
-}}
+}
+}

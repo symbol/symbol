@@ -21,8 +21,10 @@
 
 #pragma once
 
-namespace catapult { namespace process {
+namespace catapult {
+namespace process {
 
-	/// Pauses until the program receives a termination signal.
-	void WaitForTerminationSignal();
-}}
+    /// Pauses until the program receives a termination signal.
+    void WaitForTerminationSignal();
+}
+}

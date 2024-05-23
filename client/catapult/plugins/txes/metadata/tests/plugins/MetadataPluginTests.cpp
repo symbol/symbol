@@ -19,68 +19,80 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/MetadataPlugin.h"
 #include "src/model/MetadataEntityType.h"
+#include "src/plugins/MetadataPlugin.h"
+#include "tests/TestHarness.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		struct MetadataPluginTraits {
-		public:
-			template<typename TAction>
-			static void RunTestAfterRegistration(TAction action) {
-				// Arrange:
-				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace("catapult.plugins.metadata", utils::ConfigurationBag({ { "", { { "maxValueSize", "10" } } } }));
+    namespace {
+        struct MetadataPluginTraits {
+        public:
+            template <typename TAction>
+            static void RunTestAfterRegistration(TAction action)
+            {
+                // Arrange:
+                auto config = model::BlockchainConfiguration::Uninitialized();
+                config.Plugins.emplace("catapult.plugins.metadata", utils::ConfigurationBag({ { "", { { "maxValueSize", "10" } } } }));
 
-				auto manager = test::CreatePluginManager(config);
-				RegisterMetadataSubsystem(manager);
+                auto manager = test::CreatePluginManager(config);
+                RegisterMetadataSubsystem(manager);
 
-				// Act:
-				action(manager);
-			}
+                // Act:
+                action(manager);
+            }
 
-		public:
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Account_Metadata, model::Entity_Type_Mosaic_Metadata, model::Entity_Type_Namespace_Metadata };
-			}
+        public:
+            static std::vector<model::EntityType> GetTransactionTypes()
+            {
+                return { model::Entity_Type_Account_Metadata, model::Entity_Type_Mosaic_Metadata, model::Entity_Type_Namespace_Metadata };
+            }
 
-			static std::vector<std::string> GetCacheNames() {
-				return { "MetadataCache" };
-			}
+            static std::vector<std::string> GetCacheNames()
+            {
+                return { "MetadataCache" };
+            }
 
-			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
-				return { ionet::PacketType::Metadata_State_Path };
-			}
+            static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes()
+            {
+                return { ionet::PacketType::Metadata_State_Path };
+            }
 
-			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return { ionet::PacketType::Metadata_Infos };
-			}
+            static std::vector<ionet::PacketType> GetDiagnosticPacketTypes()
+            {
+                return { ionet::PacketType::Metadata_Infos };
+            }
 
-			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return { "METADATA C" };
-			}
+            static std::vector<std::string> GetDiagnosticCounterNames()
+            {
+                return { "METADATA C" };
+            }
 
-			static std::vector<std::string> GetStatelessValidatorNames() {
-				return { "MetadataSizesValidator" };
-			}
+            static std::vector<std::string> GetStatelessValidatorNames()
+            {
+                return { "MetadataSizesValidator" };
+            }
 
-			static std::vector<std::string> GetStatefulValidatorNames() {
-				return { "MetadataValueValidator" };
-			}
+            static std::vector<std::string> GetStatefulValidatorNames()
+            {
+                return { "MetadataValueValidator" };
+            }
 
-			static std::vector<std::string> GetObserverNames() {
-				return { "MetadataValueObserver" };
-			}
+            static std::vector<std::string> GetObserverNames()
+            {
+                return { "MetadataValueObserver" };
+            }
 
-			static std::vector<std::string> GetPermanentObserverNames() {
-				return GetObserverNames();
-			}
-		};
-	}
+            static std::vector<std::string> GetPermanentObserverNames()
+            {
+                return GetObserverNames();
+            }
+        };
+    }
 
-	DEFINE_PLUGIN_TESTS(MetadataPluginTests, MetadataPluginTraits)
-}}
+    DEFINE_PLUGIN_TESTS(MetadataPluginTests, MetadataPluginTraits)
+}
+}

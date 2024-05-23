@@ -23,31 +23,33 @@
 #include "catapult/utils/BitwiseEnum.h"
 #include <string>
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	/// Node's role.
-	enum class NodeRoles : uint32_t {
-		/// No roles.
-		None,
+    /// Node's role.
+    enum class NodeRoles : uint32_t {
+        /// No roles.
+        None,
 
-		/// Peer node.
-		Peer = 0x01,
+        /// Peer node.
+        Peer = 0x01,
 
-		/// Api node.
-		Api = 0x02,
+        /// Api node.
+        Api = 0x02,
 
-		/// Voting node.
-		Voting = 0x04,
+        /// Voting node.
+        Voting = 0x04,
 
-		/// IPv4 compatible node.
-		IPv4 = 0x40,
+        /// IPv4 compatible node.
+        IPv4 = 0x40,
 
-		/// IPv6 compatible node.
-		IPv6 = 0x80
-	};
+        /// IPv6 compatible node.
+        IPv6 = 0x80
+    };
 
-	MAKE_BITWISE_ENUM(NodeRoles)
+    MAKE_BITWISE_ENUM(NodeRoles)
 
-	/// Tries to parse \a str into node \a roles.
-	bool TryParseValue(const std::string& str, NodeRoles& roles);
-}}
+    /// Tries to parse \a str into node \a roles.
+    bool TryParseValue(const std::string& str, NodeRoles& roles);
+}
+}

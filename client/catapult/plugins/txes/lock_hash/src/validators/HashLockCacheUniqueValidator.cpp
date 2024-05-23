@@ -20,15 +20,17 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/HashLockInfoCache.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/HashLockInfoCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::HashLockNotification;
+    using Notification = model::HashLockNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(HashLockCacheUnique, [](const Notification& notification, const ValidatorContext& context) {
-		const auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
-		return cache.isActive(notification.Hash, context.Height) ? Failure_LockHash_Hash_Already_Exists : ValidationResult::Success;
-	})
-}}
+    DEFINE_STATEFUL_VALIDATOR(HashLockCacheUnique, [](const Notification& notification, const ValidatorContext& context) {
+        const auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
+        return cache.isActive(notification.Hash, context.Height) ? Failure_LockHash_Hash_Already_Exists : ValidationResult::Success;
+    })
+}
+}

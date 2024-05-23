@@ -23,26 +23,30 @@
 #include "catapult/model/NodeIdentity.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
-	/// Api for retrieving information from a remote node.
-	class RemoteApi {
-	protected:
-		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemoteApi(const model::NodeIdentity& remoteIdentity)
-				: m_remoteIdentity(remoteIdentity) {
-		}
+    /// Api for retrieving information from a remote node.
+    class RemoteApi {
+    protected:
+        /// Creates a remote api for the node with specified \a remoteIdentity.
+        explicit RemoteApi(const model::NodeIdentity& remoteIdentity)
+            : m_remoteIdentity(remoteIdentity)
+        {
+        }
 
-	public:
-		virtual ~RemoteApi() = default;
+    public:
+        virtual ~RemoteApi() = default;
 
-	public:
-		/// Gets the remote identity.
-		const model::NodeIdentity& remoteIdentity() const {
-			return m_remoteIdentity;
-		}
+    public:
+        /// Gets the remote identity.
+        const model::NodeIdentity& remoteIdentity() const
+        {
+            return m_remoteIdentity;
+        }
 
-	private:
-		model::NodeIdentity m_remoteIdentity;
-	};
-}}
+    private:
+        model::NodeIdentity m_remoteIdentity;
+    };
+}
+}

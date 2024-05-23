@@ -21,17 +21,21 @@
 
 #include "Nemesis.h"
 #include "Conversions.h"
-#include "data/NemesisMemoryBlockStorage_data.h"
 #include "catapult/utils/HexParser.h"
+#include "data/NemesisMemoryBlockStorage_data.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	GenerationHashSeed GetNemesisGenerationHashSeed() {
-		constexpr auto Nemesis_Generation_Hash_Seed_String = "57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6";
-		return utils::ParseByteArray<GenerationHashSeed>(Nemesis_Generation_Hash_Seed_String);
-	}
+    GenerationHashSeed GetNemesisGenerationHashSeed()
+    {
+        constexpr auto Nemesis_Generation_Hash_Seed_String = "57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6";
+        return utils::ParseByteArray<GenerationHashSeed>(Nemesis_Generation_Hash_Seed_String);
+    }
 
-	const model::Block& GetNemesisBlock() {
-		return reinterpret_cast<const model::Block&>(MemoryBlockStorage_NemesisBlockData);
-	}
-}}
+    const model::Block& GetNemesisBlock()
+    {
+        return reinterpret_cast<const model::Block&>(MemoryBlockStorage_NemesisBlockData);
+    }
+}
+}

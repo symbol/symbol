@@ -24,29 +24,31 @@
 #include "NetworkIdentifier.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for an entity body.
-	template<typename THeader>
-	struct EntityBody : public THeader {
-	public:
-		/// Entity signer's public key.
-		Key SignerPublicKey;
+    /// Binary layout for an entity body.
+    template <typename THeader>
+    struct EntityBody : public THeader {
+    public:
+        /// Entity signer's public key.
+        Key SignerPublicKey;
 
-		/// Reserved padding to align end of EntityBody on 8-byte boundary.
-		uint32_t EntityBody_Reserved1;
+        /// Reserved padding to align end of EntityBody on 8-byte boundary.
+        uint32_t EntityBody_Reserved1;
 
-		/// Entity version.
-		uint8_t Version;
+        /// Entity version.
+        uint8_t Version;
 
-		/// Entity network.
-		NetworkIdentifier Network;
+        /// Entity network.
+        NetworkIdentifier Network;
 
-		/// Entity type.
-		EntityType Type;
-	};
+        /// Entity type.
+        EntityType Type;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

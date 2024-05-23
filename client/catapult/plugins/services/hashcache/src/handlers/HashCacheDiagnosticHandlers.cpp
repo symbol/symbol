@@ -22,20 +22,23 @@
 #include "HashCacheDiagnosticHandlers.h"
 #include "catapult/handlers/HandlerFactory.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	namespace {
-		struct ConfirmTimestampedHashesTraits {
-			using RequestStructureType = state::TimestampedHash;
+    namespace {
+        struct ConfirmTimestampedHashesTraits {
+            using RequestStructureType = state::TimestampedHash;
 
-			static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
-			static constexpr auto Should_Append_As_Values = true;
-		};
-	}
+            static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
+            static constexpr auto Should_Append_As_Values = true;
+        };
+    }
 
-	void RegisterConfirmTimestampedHashesHandler(
-			ionet::ServerPacketHandlers& handlers,
-			const ConfirmedTimestampedHashesProducerFactory& confirmedTimestampedHashesProducerFactory) {
-		BatchHandlerFactory<ConfirmTimestampedHashesTraits>::RegisterOne(handlers, confirmedTimestampedHashesProducerFactory);
-	}
-}}
+    void RegisterConfirmTimestampedHashesHandler(
+        ionet::ServerPacketHandlers& handlers,
+        const ConfirmedTimestampedHashesProducerFactory& confirmedTimestampedHashesProducerFactory)
+    {
+        BatchHandlerFactory<ConfirmTimestampedHashesTraits>::RegisterOne(handlers, confirmedTimestampedHashesProducerFactory);
+    }
+}
+}

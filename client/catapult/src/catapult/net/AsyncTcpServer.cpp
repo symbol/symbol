@@ -22,204 +22,223 @@
 #include "AsyncTcpServer.h"
 #include "ConnectionSettings.h"
 #include "catapult/ionet/PacketSocket.h"
+#include "catapult/preprocessor.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/Logging.h"
-#include "catapult/preprocessor.h"
 #include <atomic>
 
-namespace catapult { namespace net {
+namespace catapult {
+namespace net {
 
-	namespace {
-		void EnableAddressReuse(boost::asio::ip::tcp::acceptor& acceptor) {
-			acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+    namespace {
+        void EnableAddressReuse(boost::asio::ip::tcp::acceptor& acceptor)
+        {
+            acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 
 #ifndef _WIN32
-			using reuse_port = boost::asio::detail::socket_option::boolean<BOOST_ASIO_OS_DEF(SOL_SOCKET), SO_REUSEPORT>;
-			acceptor.set_option(reuse_port(true));
+            using reuse_port = boost::asio::detail::socket_option::boolean<BOOST_ASIO_OS_DEF(SOL_SOCKET), SO_REUSEPORT>;
+            acceptor.set_option(reuse_port(true));
 #endif
-		}
+        }
 
-		void BindAcceptor(
-				boost::asio::ip::tcp::acceptor& acceptor,
-				const boost::asio::ip::tcp::endpoint& endpoint,
-				bool allowAddressReuse) {
-			acceptor.open(endpoint.protocol());
+        void BindAcceptor(
+            boost::asio::ip::tcp::acceptor& acceptor,
+            const boost::asio::ip::tcp::endpoint& endpoint,
+            bool allowAddressReuse)
+        {
+            acceptor.open(endpoint.protocol());
 
-			if (allowAddressReuse) {
-				CATAPULT_LOG(info) << "configuring AsyncTcpServer to reuse addresses";
-				EnableAddressReuse(acceptor);
-			}
+            if (allowAddressReuse) {
+                CATAPULT_LOG(info) << "configuring AsyncTcpServer to reuse addresses";
+                EnableAddressReuse(acceptor);
+            }
 
-			if (boost::asio::ip::tcp::v6() == endpoint.protocol())
-				acceptor.set_option(boost::asio::ip::v6_only(false));
+            if (boost::asio::ip::tcp::v6() == endpoint.protocol())
+                acceptor.set_option(boost::asio::ip::v6_only(false));
 
-			acceptor.bind(endpoint);
-		}
+            acceptor.bind(endpoint);
+        }
 
-		class DefaultAsyncTcpServer
-				: public AsyncTcpServer
-				, public std::enable_shared_from_this<DefaultAsyncTcpServer> {
-		public:
-			DefaultAsyncTcpServer(
-					thread::IoThreadPool& pool,
-					const boost::asio::ip::tcp::endpoint& endpoint,
-					const AsyncTcpServerSettings& settings)
-					: m_ioContext(pool.ioContext())
-					, m_acceptorStrand(m_ioContext)
-					, m_acceptor(m_ioContext)
-					, m_settings(settings)
-					, m_isStopped(false)
-					, m_hasPendingAccept(false)
-					, m_numCurrentConnections(0)
-					, m_numLifetimeConnections(0) {
-				BindAcceptor(m_acceptor, endpoint, m_settings.AllowAddressReuse);
-				CATAPULT_LOG(info) << "AsyncTcpServer created around " << endpoint;
-			}
+        class DefaultAsyncTcpServer
+            : public AsyncTcpServer,
+              public std::enable_shared_from_this<DefaultAsyncTcpServer> {
+        public:
+            DefaultAsyncTcpServer(
+                thread::IoThreadPool& pool,
+                const boost::asio::ip::tcp::endpoint& endpoint,
+                const AsyncTcpServerSettings& settings)
+                : m_ioContext(pool.ioContext())
+                , m_acceptorStrand(m_ioContext)
+                , m_acceptor(m_ioContext)
+                , m_settings(settings)
+                , m_isStopped(false)
+                , m_hasPendingAccept(false)
+                , m_numCurrentConnections(0)
+                , m_numLifetimeConnections(0)
+            {
+                BindAcceptor(m_acceptor, endpoint, m_settings.AllowAddressReuse);
+                CATAPULT_LOG(info) << "AsyncTcpServer created around " << endpoint;
+            }
 
-			~DefaultAsyncTcpServer() override {
-				shutdown();
-			}
+            ~DefaultAsyncTcpServer() override
+            {
+                shutdown();
+            }
 
-		public:
-			uint32_t numPendingAccepts() const override {
-				return m_hasPendingAccept ? 1 : 0;
-			}
+        public:
+            uint32_t numPendingAccepts() const override
+            {
+                return m_hasPendingAccept ? 1 : 0;
+            }
 
-			uint32_t numCurrentConnections() const override {
-				return m_numCurrentConnections;
-			}
+            uint32_t numCurrentConnections() const override
+            {
+                return m_numCurrentConnections;
+            }
 
-			uint32_t numLifetimeConnections() const override {
-				return m_numLifetimeConnections;
-			}
+            uint32_t numLifetimeConnections() const override
+            {
+                return m_numLifetimeConnections;
+            }
 
-		public:
-			void start() {
-				m_acceptor.listen(m_settings.MaxPendingConnections);
-				tryStartAccept();
+        public:
+            void start()
+            {
+                m_acceptor.listen(m_settings.MaxPendingConnections);
+                tryStartAccept();
 
-				CATAPULT_LOG(trace) << "AsyncTcpServer waiting for threads to enter pending accept state";
-				while (!m_hasPendingAccept) {
-				}
-				CATAPULT_LOG(info) << "AsyncTcpServer spawned pending accept";
-			}
+                CATAPULT_LOG(trace) << "AsyncTcpServer waiting for threads to enter pending accept state";
+                while (!m_hasPendingAccept) {
+                }
+                CATAPULT_LOG(info) << "AsyncTcpServer spawned pending accept";
+            }
 
-			void shutdown() override {
-				bool expectedIsStopped = false;
-				if (!m_isStopped.compare_exchange_strong(expectedIsStopped, true))
-					return;
+            void shutdown() override
+            {
+                bool expectedIsStopped = false;
+                if (!m_isStopped.compare_exchange_strong(expectedIsStopped, true))
+                    return;
 
-				// close the acceptor to prevent new connections and block until the close actually happens
-				CATAPULT_LOG(info) << "AsyncTcpServer stopping";
-				boost::asio::dispatch(m_acceptorStrand, [pThis = shared_from_this()]() { pThis->closeAcceptor(); });
+                // close the acceptor to prevent new connections and block until the close actually happens
+                CATAPULT_LOG(info) << "AsyncTcpServer stopping";
+                boost::asio::dispatch(m_acceptorStrand, [pThis = shared_from_this()]() { pThis->closeAcceptor(); });
 
-				while (m_hasPendingAccept) {
-				}
-				CATAPULT_LOG(info) << "AsyncTcpServer stopped";
-			}
+                while (m_hasPendingAccept) {
+                }
+                CATAPULT_LOG(info) << "AsyncTcpServer stopped";
+            }
 
-		private:
-			void closeAcceptor() {
-				boost::system::error_code ignoredEc;
-				m_acceptor.close(ignoredEc);
-			}
+        private:
+            void closeAcceptor()
+            {
+                boost::system::error_code ignoredEc;
+                m_acceptor.close(ignoredEc);
+            }
 
-			void handleAccept(const ionet::PacketSocketInfo& socketInfo) {
-				// add a destruction hook to the socket and post additional handling to the strand
-				ionet::PacketSocketInfo decoratedSocketInfo(
-						socketInfo.host(),
-						socketInfo.publicKey(),
-						addDestructionHook(socketInfo.socket()));
-				boost::asio::post(m_acceptorStrand, [pThis = shared_from_this(), decoratedSocketInfo]() {
-					pThis->handleAcceptOnStrand(decoratedSocketInfo);
-				});
-			}
+            void handleAccept(const ionet::PacketSocketInfo& socketInfo)
+            {
+                // add a destruction hook to the socket and post additional handling to the strand
+                ionet::PacketSocketInfo decoratedSocketInfo(
+                    socketInfo.host(),
+                    socketInfo.publicKey(),
+                    addDestructionHook(socketInfo.socket()));
+                boost::asio::post(m_acceptorStrand, [pThis = shared_from_this(), decoratedSocketInfo]() {
+                    pThis->handleAcceptOnStrand(decoratedSocketInfo);
+                });
+            }
 
-			void handleAcceptOnStrand(const ionet::PacketSocketInfo& socketInfo) {
-				m_hasPendingAccept = false;
+            void handleAcceptOnStrand(const ionet::PacketSocketInfo& socketInfo)
+            {
+                m_hasPendingAccept = false;
 
-				// if accept had an error, try to start an accept and exit
-				if (!socketInfo) {
-					tryStartAccept();
-					return;
-				}
+                // if accept had an error, try to start an accept and exit
+                if (!socketInfo) {
+                    tryStartAccept();
+                    return;
+                }
 
-				// if accept succeeded, increment connection counters and try to start an accept
-				++m_numLifetimeConnections;
-				++m_numCurrentConnections;
-				tryStartAccept();
+                // if accept succeeded, increment connection counters and try to start an accept
+                ++m_numLifetimeConnections;
+                ++m_numCurrentConnections;
+                tryStartAccept();
 
-				// post the user callback on the thread pool (outside of the strand)
-				boost::asio::post(m_ioContext, [userCallback = m_settings.Accept, socketInfo] { userCallback(socketInfo); });
-			}
+                // post the user callback on the thread pool (outside of the strand)
+                boost::asio::post(m_ioContext, [userCallback = m_settings.Accept, socketInfo] { userCallback(socketInfo); });
+            }
 
-			std::shared_ptr<ionet::PacketSocket> addDestructionHook(const std::shared_ptr<ionet::PacketSocket>& pSocket) {
-				return std::shared_ptr<ionet::PacketSocket>(pSocket.get(), [pSocket, pThis = shared_from_this()](auto* pRawSocket) {
-					if (!pRawSocket)
-						return;
+            std::shared_ptr<ionet::PacketSocket> addDestructionHook(const std::shared_ptr<ionet::PacketSocket>& pSocket)
+            {
+                return std::shared_ptr<ionet::PacketSocket>(pSocket.get(), [pSocket, pThis = shared_from_this()](auto* pRawSocket) {
+                    if (!pRawSocket)
+                        return;
 
-					pRawSocket->close();
+                    pRawSocket->close();
 
-					// if a valid connection was wrapped, decrement the number of current connections and attempt to start a new accept
-					boost::asio::post(pThis->m_acceptorStrand, [pThis] { pThis->handleContextDestructionOnStrand(); });
-				});
-			}
+                    // if a valid connection was wrapped, decrement the number of current connections and attempt to start a new accept
+                    boost::asio::post(pThis->m_acceptorStrand, [pThis] { pThis->handleContextDestructionOnStrand(); });
+                });
+            }
 
-			void handleContextDestructionOnStrand() {
-				--m_numCurrentConnections;
-				tryStartAccept();
-			}
+            void handleContextDestructionOnStrand()
+            {
+                --m_numCurrentConnections;
+                tryStartAccept();
+            }
 
-			// note that aside from start, which blocks, this function is always called from within a strand,
-			// so no additional synchronization is necessary inside
-			void tryStartAccept() {
-				if (m_isStopped) {
-					CATAPULT_LOG(trace) << "bypassing Accept because server is stopping";
-					return;
-				}
+            // note that aside from start, which blocks, this function is always called from within a strand,
+            // so no additional synchronization is necessary inside
+            void tryStartAccept()
+            {
+                if (m_isStopped) {
+                    CATAPULT_LOG(trace) << "bypassing Accept because server is stopping";
+                    return;
+                }
 
-				uint32_t numActiveConnections = numPendingAccepts() + m_numCurrentConnections;
-				uint32_t numOpenConnectionSlots = m_settings.MaxActiveConnections - numActiveConnections;
-				if (numOpenConnectionSlots <= 0) {
-					CATAPULT_LOG(debug) << "bypassing Accept due to limit (numOpenConnectionSlots=" << numOpenConnectionSlots << ")";
-					return;
-				}
+                uint32_t numActiveConnections = numPendingAccepts() + m_numCurrentConnections;
+                uint32_t numOpenConnectionSlots = m_settings.MaxActiveConnections - numActiveConnections;
+                if (numOpenConnectionSlots <= 0) {
+                    CATAPULT_LOG(debug) << "bypassing Accept due to limit (numOpenConnectionSlots=" << numOpenConnectionSlots << ")";
+                    return;
+                }
 
-				if (m_hasPendingAccept) {
-					CATAPULT_LOG(trace) << "bypassing Accept due to current outstanding accept";
-					return;
-				}
+                if (m_hasPendingAccept) {
+                    CATAPULT_LOG(trace) << "bypassing Accept due to current outstanding accept";
+                    return;
+                }
 
-				// start a new accept
-				m_hasPendingAccept = true;
-				auto acceptHandler = [pThis = shared_from_this()](const auto& socketInfo) { pThis->handleAccept(socketInfo); };
-				ionet::Accept(m_ioContext, m_acceptor, m_settings.PacketSocketOptions, acceptHandler);
-			}
+                // start a new accept
+                m_hasPendingAccept = true;
+                auto acceptHandler = [pThis = shared_from_this()](const auto& socketInfo) { pThis->handleAccept(socketInfo); };
+                ionet::Accept(m_ioContext, m_acceptor, m_settings.PacketSocketOptions, acceptHandler);
+            }
 
-		private:
-			boost::asio::io_context& m_ioContext;
-			boost::asio::io_context::strand m_acceptorStrand;
-			boost::asio::ip::tcp::acceptor m_acceptor;
+        private:
+            boost::asio::io_context& m_ioContext;
+            boost::asio::io_context::strand m_acceptorStrand;
+            boost::asio::ip::tcp::acceptor m_acceptor;
 
-			const AsyncTcpServerSettings m_settings;
-			std::atomic_bool m_isStopped;
-			std::atomic_bool m_hasPendingAccept;
-			std::atomic<uint32_t> m_numCurrentConnections;
-			std::atomic<uint32_t> m_numLifetimeConnections;
-		};
-	}
+            const AsyncTcpServerSettings m_settings;
+            std::atomic_bool m_isStopped;
+            std::atomic_bool m_hasPendingAccept;
+            std::atomic<uint32_t> m_numCurrentConnections;
+            std::atomic<uint32_t> m_numLifetimeConnections;
+        };
+    }
 
-	AsyncTcpServerSettings::AsyncTcpServerSettings(const AcceptHandler& accept)
-			: Accept(accept)
-			, PacketSocketOptions(ConnectionSettings().toSocketOptions()) {
-	}
+    AsyncTcpServerSettings::AsyncTcpServerSettings(const AcceptHandler& accept)
+        : Accept(accept)
+        , PacketSocketOptions(ConnectionSettings().toSocketOptions())
+    {
+    }
 
-	std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(
-			thread::IoThreadPool& pool,
-			const boost::asio::ip::tcp::endpoint& endpoint,
-			const AsyncTcpServerSettings& settings) {
-		auto pServer = std::make_shared<DefaultAsyncTcpServer>(pool, endpoint, settings);
-		pServer->start();
-		return PORTABLE_MOVE(pServer);
-	}
-}}
+    std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(
+        thread::IoThreadPool& pool,
+        const boost::asio::ip::tcp::endpoint& endpoint,
+        const AsyncTcpServerSettings& settings)
+    {
+        auto pServer = std::make_shared<DefaultAsyncTcpServer>(pool, endpoint, settings);
+        pServer->start();
+        return PORTABLE_MOVE(pServer);
+    }
+}
+}

@@ -23,12 +23,16 @@
 #include "catapult/cache_tx/PtChangeSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace addressextraction {
-	class AddressExtractor;
-}}
+namespace catapult {
+namespace addressextraction {
+    class AddressExtractor;
+}
+}
 
-namespace catapult { namespace addressextraction {
+namespace catapult {
+namespace addressextraction {
 
-	/// Creates an address extraction partial transactions change subscriber around \a extractor.
-	std::unique_ptr<cache::PtChangeSubscriber> CreateAddressExtractionPtChangeSubscriber(const AddressExtractor& extractor);
-}}
+    /// Creates an address extraction partial transactions change subscriber around \a extractor.
+    std::unique_ptr<cache::PtChangeSubscriber> CreateAddressExtractionPtChangeSubscriber(const AddressExtractor& extractor);
+}
+}

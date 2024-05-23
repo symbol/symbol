@@ -19,38 +19,42 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "plugins/txes/lock_shared/tests/observers/LockStatusAndBalanceObserverTests.h"
 #include "src/model/SecretLockReceiptType.h"
 #include "src/observers/Observers.h"
-#include "plugins/txes/lock_shared/tests/observers/LockStatusAndBalanceObserverTests.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
 #define TEST_CLASS ProofObserverTests
 
-	using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
+    using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(Proof, )
+    DEFINE_COMMON_OBSERVER_TESTS(Proof, )
 
-	namespace {
-		struct SecretTraits {
-		public:
-			using BasicTraits = test::BasicSecretLockInfoTestTraits;
-			using NotificationBuilder = test::ProofNotificationBuilder;
-			using ObserverTestContext = observers::ObserverTestContext;
+    namespace {
+        struct SecretTraits {
+        public:
+            using BasicTraits = test::BasicSecretLockInfoTestTraits;
+            using NotificationBuilder = test::ProofNotificationBuilder;
+            using ObserverTestContext = observers::ObserverTestContext;
 
-			static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Completed;
+            static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Completed;
 
-			static auto CreateObserver() {
-				return CreateProofObserver();
-			}
+            static auto CreateObserver()
+            {
+                return CreateProofObserver();
+            }
 
-			static auto DestinationAccount(const BasicTraits::ValueType& lockInfo) {
-				return lockInfo.RecipientAddress;
-			}
-		};
-	}
+            static auto DestinationAccount(const BasicTraits::ValueType& lockInfo)
+            {
+                return lockInfo.RecipientAddress;
+            }
+        };
+    }
 
-	DEFINE_LOCK_STATUS_OBSERVER_TESTS(SecretTraits)
-}}
+    DEFINE_LOCK_STATUS_OBSERVER_TESTS(SecretTraits)
+}
+}

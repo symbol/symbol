@@ -24,52 +24,59 @@
 #include "catapult/state/AccountBalances.h"
 #include "catapult/validators/ValidatorContext.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	namespace {
-		template<typename TAccountIdentifier>
-		ValidationResult CheckAccount(
-				uint16_t maxMosaics,
-				MosaicId mosaicId,
-				const TAccountIdentifier& accountIdentifier,
-				const ValidatorContext& context) {
-			const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-			auto accountStateIter = accountStateCache.find(accountIdentifier);
-			const auto& balances = accountStateIter.get().Balances;
-			if (balances.get(mosaicId) != Amount())
-				return ValidationResult::Success;
+    namespace {
+        template <typename TAccountIdentifier>
+        ValidationResult CheckAccount(
+            uint16_t maxMosaics,
+            MosaicId mosaicId,
+            const TAccountIdentifier& accountIdentifier,
+            const ValidatorContext& context)
+        {
+            const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+            auto accountStateIter = accountStateCache.find(accountIdentifier);
+            const auto& balances = accountStateIter.get().Balances;
+            if (balances.get(mosaicId) != Amount())
+                return ValidationResult::Success;
 
-			return maxMosaics <= balances.size() ? Failure_Mosaic_Max_Mosaics_Exceeded : ValidationResult::Success;
-		}
-	}
+            return maxMosaics <= balances.size() ? Failure_Mosaic_Max_Mosaics_Exceeded : ValidationResult::Success;
+        }
+    }
 
-	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsBalanceTransfer, model::BalanceTransferNotification)(uint16_t maxMosaics) {
-		using ValidatorType = stateful::FunctionalNotificationValidatorT<model::BalanceTransferNotification>;
-		auto name = "MaxMosaicsBalanceTransferValidator";
-		return std::make_unique<ValidatorType>(
-				name,
-				[maxMosaics](const model::BalanceTransferNotification& notification, const ValidatorContext& context) {
-					if (Amount() == notification.Amount)
-						return ValidationResult::Success;
+    DECLARE_STATEFUL_VALIDATOR(MaxMosaicsBalanceTransfer, model::BalanceTransferNotification)
+    (uint16_t maxMosaics)
+    {
+        using ValidatorType = stateful::FunctionalNotificationValidatorT<model::BalanceTransferNotification>;
+        auto name = "MaxMosaicsBalanceTransferValidator";
+        return std::make_unique<ValidatorType>(
+            name,
+            [maxMosaics](const model::BalanceTransferNotification& notification, const ValidatorContext& context) {
+                if (Amount() == notification.Amount)
+                    return ValidationResult::Success;
 
-					return CheckAccount(
-							maxMosaics,
-							context.Resolvers.resolve(notification.MosaicId),
-							notification.Recipient.resolved(context.Resolvers),
-							context);
-				});
-	}
+                return CheckAccount(
+                    maxMosaics,
+                    context.Resolvers.resolve(notification.MosaicId),
+                    notification.Recipient.resolved(context.Resolvers),
+                    context);
+            });
+    }
 
-	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsSupplyChange, model::MosaicSupplyChangeNotification)(uint16_t maxMosaics) {
-		using ValidatorType = stateful::FunctionalNotificationValidatorT<model::MosaicSupplyChangeNotification>;
-		auto name = "MaxMosaicsSupplyChangeValidator";
-		return std::make_unique<ValidatorType>(
-				name,
-				[maxMosaics](const model::MosaicSupplyChangeNotification& notification, const ValidatorContext& context) {
-					if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
-						return ValidationResult::Success;
+    DECLARE_STATEFUL_VALIDATOR(MaxMosaicsSupplyChange, model::MosaicSupplyChangeNotification)
+    (uint16_t maxMosaics)
+    {
+        using ValidatorType = stateful::FunctionalNotificationValidatorT<model::MosaicSupplyChangeNotification>;
+        auto name = "MaxMosaicsSupplyChangeValidator";
+        return std::make_unique<ValidatorType>(
+            name,
+            [maxMosaics](const model::MosaicSupplyChangeNotification& notification, const ValidatorContext& context) {
+                if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
+                    return ValidationResult::Success;
 
-					return CheckAccount(maxMosaics, context.Resolvers.resolve(notification.MosaicId), notification.Owner, context);
-				});
-	}
-}}
+                return CheckAccount(maxMosaics, context.Resolvers.resolve(notification.MosaicId), notification.Owner, context);
+            });
+    }
+}
+}

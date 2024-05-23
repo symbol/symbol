@@ -22,61 +22,64 @@
 #pragma once
 #include "BasicTransactionsBuilder.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Transactions builder and generator for transfer and secret lock transactions.
-	class SecretLockTransactionsBuilder : public BasicTransactionsBuilder {
-	private:
-		// region descriptors
+    /// Transactions builder and generator for transfer and secret lock transactions.
+    class SecretLockTransactionsBuilder : public BasicTransactionsBuilder {
+    private:
+        // region descriptors
 
-		struct SecretLockDescriptor {
-			size_t SenderId;
-			size_t RecipientId;
-			catapult::Amount Amount;
-			BlockDuration Duration;
-			Hash256 Secret;
-		};
+        struct SecretLockDescriptor {
+            size_t SenderId;
+            size_t RecipientId;
+            catapult::Amount Amount;
+            BlockDuration Duration;
+            Hash256 Secret;
+        };
 
-		struct SecretProofDescriptor {
-			size_t SenderId;
-			size_t RecipientId;
-			std::vector<uint8_t> Proof;
-		};
+        struct SecretProofDescriptor {
+            size_t SenderId;
+            size_t RecipientId;
+            std::vector<uint8_t> Proof;
+        };
 
-		// endregion
+        // endregion
 
-	public:
-		/// Creates a builder around \a accounts.
-		explicit SecretLockTransactionsBuilder(const Accounts& accounts);
+    public:
+        /// Creates a builder around \a accounts.
+        explicit SecretLockTransactionsBuilder(const Accounts& accounts);
 
-	private:
-		// BasicTransactionsBuilder
-		std::unique_ptr<model::Transaction> generate(
-				uint32_t descriptorType,
-				const std::shared_ptr<const void>& pDescriptor,
-				Timestamp deadline) const override;
+    private:
+        // BasicTransactionsBuilder
+        std::unique_ptr<model::Transaction> generate(
+            uint32_t descriptorType,
+            const std::shared_ptr<const void>& pDescriptor,
+            Timestamp deadline) const override;
 
-	public:
-		/// Adds a secret lock from \a senderId to \a recipientId for amount \a transferAmount, specified \a duration and \a proof.
-		std::vector<uint8_t> addSecretLock(
-				size_t senderId,
-				size_t recipientId,
-				Amount transferAmount,
-				BlockDuration duration,
-				const std::vector<uint8_t>& proof);
+    public:
+        /// Adds a secret lock from \a senderId to \a recipientId for amount \a transferAmount, specified \a duration and \a proof.
+        std::vector<uint8_t> addSecretLock(
+            size_t senderId,
+            size_t recipientId,
+            Amount transferAmount,
+            BlockDuration duration,
+            const std::vector<uint8_t>& proof);
 
-		/// Adds a secret lock from \a senderId to \a recipientId for amount \a transferAmount and specified \a duration.
-		std::vector<uint8_t> addSecretLock(size_t senderId, size_t recipientId, Amount transferAmount, BlockDuration duration);
+        /// Adds a secret lock from \a senderId to \a recipientId for amount \a transferAmount and specified \a duration.
+        std::vector<uint8_t> addSecretLock(size_t senderId, size_t recipientId, Amount transferAmount, BlockDuration duration);
 
-		/// Adds a secret proof from \a senderId to \a recipientId using \a proof data.
-		void addSecretProof(size_t senderId, size_t recipientId, const std::vector<uint8_t>& proof);
+        /// Adds a secret proof from \a senderId to \a recipientId using \a proof data.
+        void addSecretProof(size_t senderId, size_t recipientId, const std::vector<uint8_t>& proof);
 
-	private:
-		std::unique_ptr<model::Transaction> createSecretLock(const SecretLockDescriptor& descriptor, Timestamp deadline) const;
+    private:
+        std::unique_ptr<model::Transaction> createSecretLock(const SecretLockDescriptor& descriptor, Timestamp deadline) const;
 
-		std::unique_ptr<model::Transaction> createSecretProof(const SecretProofDescriptor& descriptor, Timestamp deadline) const;
+        std::unique_ptr<model::Transaction> createSecretProof(const SecretProofDescriptor& descriptor, Timestamp deadline) const;
 
-	private:
-		enum class DescriptorType { Secret_Lock = 1, Secret_Proof };
-	};
-}}
+    private:
+        enum class DescriptorType { Secret_Lock = 1,
+            Secret_Proof };
+    };
+}
+}

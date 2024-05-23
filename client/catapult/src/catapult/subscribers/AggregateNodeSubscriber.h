@@ -23,31 +23,36 @@
 #include "BasicAggregateSubscriber.h"
 #include "NodeSubscriber.h"
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	/// Aggregate node subscriber.
-	template<typename TNodeSubscriber = NodeSubscriber>
-	class AggregateNodeSubscriber
-			: public BasicAggregateSubscriber<TNodeSubscriber>
-			, public NodeSubscriber {
-	public:
-		using BasicAggregateSubscriber<TNodeSubscriber>::BasicAggregateSubscriber;
+    /// Aggregate node subscriber.
+    template <typename TNodeSubscriber = NodeSubscriber>
+    class AggregateNodeSubscriber
+        : public BasicAggregateSubscriber<TNodeSubscriber>,
+          public NodeSubscriber {
+    public:
+        using BasicAggregateSubscriber<TNodeSubscriber>::BasicAggregateSubscriber;
 
-	public:
-		void notifyNode(const ionet::Node& node) override {
-			this->forEach([&node](auto& subscriber) { subscriber.notifyNode(node); });
-		}
+    public:
+        void notifyNode(const ionet::Node& node) override
+        {
+            this->forEach([&node](auto& subscriber) { subscriber.notifyNode(node); });
+        }
 
-		bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) override {
-			bool result = true;
-			this->forEach([&result, &identity, serviceId](auto& subscriber) {
-				result = result && subscriber.notifyIncomingNode(identity, serviceId);
-			});
-			return result;
-		}
+        bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) override
+        {
+            bool result = true;
+            this->forEach([&result, &identity, serviceId](auto& subscriber) {
+                result = result && subscriber.notifyIncomingNode(identity, serviceId);
+            });
+            return result;
+        }
 
-		void notifyBan(const model::NodeIdentity& identity, uint32_t reason) override {
-			this->forEach([&identity, reason](auto& subscriber) { subscriber.notifyBan(identity, reason); });
-		}
-	};
-}}
+        void notifyBan(const model::NodeIdentity& identity, uint32_t reason) override
+        {
+            this->forEach([&identity, reason](auto& subscriber) { subscriber.notifyBan(identity, reason); });
+        }
+    };
+}
+}

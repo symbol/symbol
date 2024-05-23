@@ -22,25 +22,31 @@
 #pragma once
 #include "mongo/src/storages/MongoCacheStorage.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Mongo lock info cache storage traits.
-	template<typename TLockInfoTraits>
-	struct MongoLockInfoCacheStorageTraits : public TLockInfoTraits {
-	public:
-		using CacheDeltaType = typename TLockInfoTraits::CacheDeltaType;
-		using KeyType = typename TLockInfoTraits::KeyType;
-		using ModelType = typename TLockInfoTraits::ModelType;
+        /// Mongo lock info cache storage traits.
+        template <typename TLockInfoTraits>
+        struct MongoLockInfoCacheStorageTraits : public TLockInfoTraits {
+        public:
+            using CacheDeltaType = typename TLockInfoTraits::CacheDeltaType;
+            using KeyType = typename TLockInfoTraits::KeyType;
+            using ModelType = typename TLockInfoTraits::ModelType;
 
-	public:
-		/// Maps \a key to a mongo identifier.
-		static auto MapToMongoId(const KeyType& key) {
-			return mappers::ToBinary(key);
-		}
+        public:
+            /// Maps \a key to a mongo identifier.
+            static auto MapToMongoId(const KeyType& key)
+            {
+                return mappers::ToBinary(key);
+            }
 
-		/// Maps \a lockInfo to a mongo document.
-		static auto MapToMongoDocument(const ModelType& lockInfo, model::NetworkIdentifier) {
-			return plugins::ToDbModel(lockInfo);
-		}
-	};
-}}}
+            /// Maps \a lockInfo to a mongo document.
+            static auto MapToMongoDocument(const ModelType& lockInfo, model::NetworkIdentifier)
+            {
+                return plugins::ToDbModel(lockInfo);
+            }
+        };
+    }
+}
+}

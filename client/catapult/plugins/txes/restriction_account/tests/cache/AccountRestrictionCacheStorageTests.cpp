@@ -19,45 +19,51 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/AccountRestrictionCacheStorage.h"
 #include "src/cache/AccountRestrictionCache.h"
+#include "src/cache/AccountRestrictionCacheStorage.h"
 #include "src/model/AccountRestrictionFlags.h"
+#include "tests/TestHarness.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	namespace {
-		struct AccountRestrictionCacheStorageTraits {
-			using StorageType = AccountRestrictionCacheStorage;
-			class CacheType : public AccountRestrictionCache {
-			public:
-				CacheType()
-						: AccountRestrictionCache(CacheConfiguration(), static_cast<model::NetworkIdentifier>(12)) {
-				}
-			};
+    namespace {
+        struct AccountRestrictionCacheStorageTraits {
+            using StorageType = AccountRestrictionCacheStorage;
+            class CacheType : public AccountRestrictionCache {
+            public:
+                CacheType()
+                    : AccountRestrictionCache(CacheConfiguration(), static_cast<model::NetworkIdentifier>(12))
+                {
+                }
+            };
 
-			static auto CreateId(uint8_t id) {
-				return Address{ { id } };
-			}
+            static auto CreateId(uint8_t id)
+            {
+                return Address { { id } };
+            }
 
-			static auto CreateValue(const Address& address) {
-				using ModificationAction = model::AccountRestrictionModificationAction;
+            static auto CreateValue(const Address& address)
+            {
+                using ModificationAction = model::AccountRestrictionModificationAction;
 
-				state::AccountRestrictions restrictions(address);
-				auto& restriction = restrictions.restriction(model::AccountRestrictionFlags::Address);
-				for (auto i = 0u; i < 3; ++i)
-					restriction.allow({ ModificationAction::Add, test::GenerateRandomVector(Address::Size) });
+                state::AccountRestrictions restrictions(address);
+                auto& restriction = restrictions.restriction(model::AccountRestrictionFlags::Address);
+                for (auto i = 0u; i < 3; ++i)
+                    restriction.allow({ ModificationAction::Add, test::GenerateRandomVector(Address::Size) });
 
-				return restrictions;
-			}
+                return restrictions;
+            }
 
-			static void AssertEqual(const state::AccountRestrictions& lhs, const state::AccountRestrictions& rhs) {
-				test::AssertEqual(lhs, rhs);
-			}
-		};
-	}
+            static void AssertEqual(const state::AccountRestrictions& lhs, const state::AccountRestrictions& rhs)
+            {
+                test::AssertEqual(lhs, rhs);
+            }
+        };
+    }
 
-	DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(AccountRestrictionCacheStorageTests, AccountRestrictionCacheStorageTraits)
-}}
+    DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(AccountRestrictionCacheStorageTests, AccountRestrictionCacheStorageTraits)
+}
+}

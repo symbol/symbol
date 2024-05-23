@@ -19,27 +19,33 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/DispatcherService.h"
 #include "src/NetworkPacketWritersService.h"
 #include "src/SchedulerService.h"
 #include "src/SyncService.h"
 #include "src/TasksConfiguration.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace sync { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		const auto& resourcesPath = bootstrapper.resourcesPath();
-		auto tasksConfig = TasksConfiguration::LoadFromPath(resourcesPath);
+namespace catapult {
+namespace sync {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            const auto& resourcesPath = bootstrapper.resourcesPath();
+            auto tasksConfig = TasksConfiguration::LoadFromPath(resourcesPath);
 
-		// register service(s)
-		auto& extensionManager = bootstrapper.extensionManager();
-		extensionManager.addServiceRegistrar(CreateDispatcherServiceRegistrar());
-		extensionManager.addServiceRegistrar(CreateNetworkPacketWritersServiceRegistrar());
-		extensionManager.addServiceRegistrar(CreateSchedulerServiceRegistrar(tasksConfig));
-		extensionManager.addServiceRegistrar(CreateSyncServiceRegistrar());
-	}
-}}}
+            // register service(s)
+            auto& extensionManager = bootstrapper.extensionManager();
+            extensionManager.addServiceRegistrar(CreateDispatcherServiceRegistrar());
+            extensionManager.addServiceRegistrar(CreateNetworkPacketWritersServiceRegistrar());
+            extensionManager.addServiceRegistrar(CreateSchedulerServiceRegistrar(tasksConfig));
+            extensionManager.addServiceRegistrar(CreateSyncServiceRegistrar());
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::sync::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::sync::RegisterExtension(bootstrapper);
 }

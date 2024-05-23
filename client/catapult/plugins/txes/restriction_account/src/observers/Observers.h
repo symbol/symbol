@@ -20,20 +20,25 @@
 **/
 
 #pragma once
-#include "src/model/AccountRestrictionNotifications.h"
 #include "catapult/observers/ObserverTypes.h"
+#include "src/model/AccountRestrictionNotifications.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Observes changes triggered by account address restriction value modification notifications and:
-	/// - adds / deletes account address restriction value to / from cache
-	DECLARE_OBSERVER(AccountAddressRestrictionValueModification, model::ModifyAccountAddressRestrictionValueNotification)();
+    /// Observes changes triggered by account address restriction value modification notifications and:
+    /// - adds / deletes account address restriction value to / from cache
+    DECLARE_OBSERVER(AccountAddressRestrictionValueModification, model::ModifyAccountAddressRestrictionValueNotification)
+    ();
 
-	/// Observes changes triggered by account mosaic restriction value modification notifications and:
-	/// - adds / deletes account mosaic restriction value to / from cache
-	DECLARE_OBSERVER(AccountMosaicRestrictionValueModification, model::ModifyAccountMosaicRestrictionValueNotification)();
+    /// Observes changes triggered by account mosaic restriction value modification notifications and:
+    /// - adds / deletes account mosaic restriction value to / from cache
+    DECLARE_OBSERVER(AccountMosaicRestrictionValueModification, model::ModifyAccountMosaicRestrictionValueNotification)
+    ();
 
-	/// Observes changes triggered by account operation restriction value modification notifications and:
-	/// - adds / deletes account operation restriction value to / from cache
-	DECLARE_OBSERVER(AccountOperationRestrictionValueModification, model::ModifyAccountOperationRestrictionValueNotification)();
-}}
+    /// Observes changes triggered by account operation restriction value modification notifications and:
+    /// - adds / deletes account operation restriction value to / from cache
+    DECLARE_OBSERVER(AccountOperationRestrictionValueModification, model::ModifyAccountOperationRestrictionValueNotification)
+    ();
+}
+}

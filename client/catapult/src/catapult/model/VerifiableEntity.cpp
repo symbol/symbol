@@ -24,28 +24,33 @@
 #include "Block.h"
 #include "Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	std::ostream& operator<<(std::ostream& out, const VerifiableEntity& entity) {
-		out << entity.Type << " (v" << static_cast<uint16_t>(entity.Version) << ") with size " << entity.Size;
-		return out;
-	}
+    std::ostream& operator<<(std::ostream& out, const VerifiableEntity& entity)
+    {
+        out << entity.Type << " (v" << static_cast<uint16_t>(entity.Version) << ") with size " << entity.Size;
+        return out;
+    }
 
-	Address GetSignerAddress(const VerifiableEntity& entity) {
-		return PublicKeyToAddress(entity.SignerPublicKey, entity.Network);
-	}
+    Address GetSignerAddress(const VerifiableEntity& entity)
+    {
+        return PublicKeyToAddress(entity.SignerPublicKey, entity.Network);
+    }
 
-	bool IsSizeValid(const VerifiableEntity& entity, const TransactionRegistry& registry) {
-		if (entity.Size < sizeof(VerifiableEntity))
-			return false;
+    bool IsSizeValid(const VerifiableEntity& entity, const TransactionRegistry& registry)
+    {
+        if (entity.Size < sizeof(VerifiableEntity))
+            return false;
 
-		switch (ToBasicEntityType(entity.Type)) {
-		case BasicEntityType::Block:
-			return IsSizeValid(static_cast<const Block&>(entity), registry);
-		case BasicEntityType::Transaction:
-			return IsSizeValid(static_cast<const Transaction&>(entity), registry);
-		default:
-			return false;
-		}
-	}
-}}
+        switch (ToBasicEntityType(entity.Type)) {
+        case BasicEntityType::Block:
+            return IsSizeValid(static_cast<const Block&>(entity), registry);
+        case BasicEntityType::Transaction:
+            return IsSizeValid(static_cast<const Transaction&>(entity), registry);
+        default:
+            return false;
+        }
+    }
+}
+}

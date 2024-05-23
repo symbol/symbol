@@ -23,60 +23,62 @@
 #include "TransactionBuilder.h"
 #include "plugins/txes/metadata/src/model/MosaicMetadataTransaction.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for a mosaic metadata transaction.
-	class MosaicMetadataBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::MosaicMetadataTransaction;
-		using EmbeddedTransaction = model::EmbeddedMosaicMetadataTransaction;
+    /// Builder for a mosaic metadata transaction.
+    class MosaicMetadataBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::MosaicMetadataTransaction;
+        using EmbeddedTransaction = model::EmbeddedMosaicMetadataTransaction;
 
-	public:
-		/// Creates a mosaic metadata builder for building a mosaic metadata transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		MosaicMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates a mosaic metadata builder for building a mosaic metadata transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        MosaicMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the metadata target address to \a targetAddress.
-		void setTargetAddress(const UnresolvedAddress& targetAddress);
+    public:
+        /// Sets the metadata target address to \a targetAddress.
+        void setTargetAddress(const UnresolvedAddress& targetAddress);
 
-		/// Sets the metadata key scoped to source, target and type to \a scopedMetadataKey.
-		void setScopedMetadataKey(uint64_t scopedMetadataKey);
+        /// Sets the metadata key scoped to source, target and type to \a scopedMetadataKey.
+        void setScopedMetadataKey(uint64_t scopedMetadataKey);
 
-		/// Sets the target mosaic identifier to \a targetMosaicId.
-		void setTargetMosaicId(UnresolvedMosaicId targetMosaicId);
+        /// Sets the target mosaic identifier to \a targetMosaicId.
+        void setTargetMosaicId(UnresolvedMosaicId targetMosaicId);
 
-		/// Sets the change in value size in bytes to \a valueSizeDelta.
-		void setValueSizeDelta(int16_t valueSizeDelta);
+        /// Sets the change in value size in bytes to \a valueSizeDelta.
+        void setValueSizeDelta(int16_t valueSizeDelta);
 
-		/// Sets the difference between existing value and new value to \a value.
-		/// \note When there is no existing value, new value is same this value.
-		/// \note When there is an existing value, new value is calculated as xor(previous-value, value).
-		void setValue(const RawBuffer& value);
+        /// Sets the difference between existing value and new value to \a value.
+        /// \note When there is no existing value, new value is same this value.
+        /// \note When there is an existing value, new value is calculated as xor(previous-value, value).
+        void setValue(const RawBuffer& value);
 
-	public:
-		/// Gets the size of mosaic metadata transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of mosaic metadata transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new mosaic metadata transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new mosaic metadata transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded mosaic metadata transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded mosaic metadata transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		UnresolvedAddress m_targetAddress;
-		uint64_t m_scopedMetadataKey;
-		UnresolvedMosaicId m_targetMosaicId;
-		int16_t m_valueSizeDelta;
-		std::vector<uint8_t> m_value;
-	};
-}}
+    private:
+        UnresolvedAddress m_targetAddress;
+        uint64_t m_scopedMetadataKey;
+        UnresolvedMosaicId m_targetMosaicId;
+        int16_t m_valueSizeDelta;
+        std::vector<uint8_t> m_value;
+    };
+}
+}

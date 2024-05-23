@@ -20,56 +20,60 @@
 **/
 
 #pragma once
-#include "src/state/SecretLockInfoHistory.h"
-#include "plugins/txes/lock_shared/src/cache/LockInfoCacheTypes.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
+#include "plugins/txes/lock_shared/src/cache/LockInfoCacheTypes.h"
+#include "src/state/SecretLockInfoHistory.h"
 
-namespace catapult { namespace cache {
-	class BasicSecretLockInfoCacheDelta;
-	class BasicSecretLockInfoCacheView;
-	struct SecretLockInfoBaseSetDeltaPointers;
-	struct SecretLockInfoBaseSets;
-	class SecretLockInfoCache;
-	class SecretLockInfoCacheDelta;
-	struct SecretLockInfoCacheTypes;
-	class SecretLockInfoCacheView;
-	class SecretLockInfoPatriciaTree;
-	struct SecretLockInfoPrimarySerializer;
-}}
+namespace catapult {
+namespace cache {
+    class BasicSecretLockInfoCacheDelta;
+    class BasicSecretLockInfoCacheView;
+    struct SecretLockInfoBaseSetDeltaPointers;
+    struct SecretLockInfoBaseSets;
+    class SecretLockInfoCache;
+    class SecretLockInfoCacheDelta;
+    struct SecretLockInfoCacheTypes;
+    class SecretLockInfoCacheView;
+    class SecretLockInfoPatriciaTree;
+    struct SecretLockInfoPrimarySerializer;
+}
+}
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Describes a secret lock info cache.
-	struct SecretLockInfoCacheDescriptor {
-	public:
-		static constexpr auto Name = "SecretLockInfoCache";
+    /// Describes a secret lock info cache.
+    struct SecretLockInfoCacheDescriptor {
+    public:
+        static constexpr auto Name = "SecretLockInfoCache";
 
-	public:
-		// key value types
-		using KeyType = Hash256;
-		using ValueType = state::SecretLockInfoHistory;
+    public:
+        // key value types
+        using KeyType = Hash256;
+        using ValueType = state::SecretLockInfoHistory;
 
-		// cache types
-		using CacheType = SecretLockInfoCache;
-		using CacheDeltaType = SecretLockInfoCacheDelta;
-		using CacheViewType = SecretLockInfoCacheView;
+        // cache types
+        using CacheType = SecretLockInfoCache;
+        using CacheDeltaType = SecretLockInfoCacheDelta;
+        using CacheViewType = SecretLockInfoCacheView;
 
-		using Serializer = SecretLockInfoPrimarySerializer;
-		using PatriciaTree = SecretLockInfoPatriciaTree;
+        using Serializer = SecretLockInfoPrimarySerializer;
+        using PatriciaTree = SecretLockInfoPatriciaTree;
 
-	public:
-		/// Gets the key corresponding to \a history.
-		static const auto& GetKeyFromValue(const ValueType& history) {
-			return history.id();
-		}
-	};
+    public:
+        /// Gets the key corresponding to \a history.
+        static const auto& GetKeyFromValue(const ValueType& history)
+        {
+            return history.id();
+        }
+    };
 
-	/// Secret lock info cache types.
-	struct SecretLockInfoCacheTypes : public LockInfoCacheTypes<SecretLockInfoCacheDescriptor> {
-		using CacheReadOnlyType =
-				ReadOnlyArtifactCache<BasicSecretLockInfoCacheView, BasicSecretLockInfoCacheDelta, Hash256, state::SecretLockInfoHistory>;
+    /// Secret lock info cache types.
+    struct SecretLockInfoCacheTypes : public LockInfoCacheTypes<SecretLockInfoCacheDescriptor> {
+        using CacheReadOnlyType = ReadOnlyArtifactCache<BasicSecretLockInfoCacheView, BasicSecretLockInfoCacheDelta, Hash256, state::SecretLockInfoHistory>;
 
-		using BaseSetDeltaPointers = SecretLockInfoBaseSetDeltaPointers;
-		using BaseSets = SecretLockInfoBaseSets;
-	};
-}}
+        using BaseSetDeltaPointers = SecretLockInfoBaseSetDeltaPointers;
+        using BaseSets = SecretLockInfoBaseSets;
+    };
+}
+}

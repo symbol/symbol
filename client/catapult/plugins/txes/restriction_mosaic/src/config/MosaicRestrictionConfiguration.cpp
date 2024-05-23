@@ -23,20 +23,24 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	MosaicRestrictionConfiguration MosaicRestrictionConfiguration::Uninitialized() {
-		return MosaicRestrictionConfiguration();
-	}
+    MosaicRestrictionConfiguration MosaicRestrictionConfiguration::Uninitialized()
+    {
+        return MosaicRestrictionConfiguration();
+    }
 
-	MosaicRestrictionConfiguration MosaicRestrictionConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		MosaicRestrictionConfiguration config;
+    MosaicRestrictionConfiguration MosaicRestrictionConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        MosaicRestrictionConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
-		LOAD_PROPERTY(MaxMosaicRestrictionValues);
+        LOAD_PROPERTY(MaxMosaicRestrictionValues);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 1);
-		return config;
-	}
-}}
+        utils::VerifyBagSizeExact(bag, 1);
+        return config;
+    }
+}
+}

@@ -19,62 +19,73 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/mappers/MultisigEntryMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "tests/test/MultisigMapperTestUtils.h"
+#include "src/mappers/MultisigEntryMapper.h"
 #include "tests/TestHarness.h"
+#include "tests/test/MultisigMapperTestUtils.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
 #define TEST_CLASS MultisigEntryMapperTests
 
-	namespace {
-		void InsertRandom(state::SortedAddressSet& addresses, size_t count) {
-			for (auto i = 0u; i < count; ++i)
-				addresses.insert(test::GenerateRandomByteArray<Address>());
-		}
+        namespace {
+            void InsertRandom(state::SortedAddressSet& addresses, size_t count)
+            {
+                for (auto i = 0u; i < count; ++i)
+                    addresses.insert(test::GenerateRandomByteArray<Address>());
+            }
 
-		state::MultisigEntry CreateMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts) {
-			state::MultisigEntry entry(test::GenerateRandomByteArray<Address>());
-			entry.setMinApproval(12);
-			entry.setMinRemoval(23);
+            state::MultisigEntry CreateMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts)
+            {
+                state::MultisigEntry entry(test::GenerateRandomByteArray<Address>());
+                entry.setMinApproval(12);
+                entry.setMinRemoval(23);
 
-			InsertRandom(entry.cosignatoryAddresses(), numCosignatories);
-			InsertRandom(entry.multisigAddresses(), numMultisigAccounts);
+                InsertRandom(entry.cosignatoryAddresses(), numCosignatories);
+                InsertRandom(entry.multisigAddresses(), numMultisigAccounts);
 
-			return entry;
-		}
+                return entry;
+            }
 
-		void AssertCanMapMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts) {
-			// Arrange:
-			auto entry = CreateMultisigEntry(numCosignatories, numMultisigAccounts);
+            void AssertCanMapMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts)
+            {
+                // Arrange:
+                auto entry = CreateMultisigEntry(numCosignatories, numMultisigAccounts);
 
-			// Act:
-			auto document = ToDbModel(entry);
-			auto documentView = document.view();
+                // Act:
+                auto document = ToDbModel(entry);
+                auto documentView = document.view();
 
-			// Assert:
-			EXPECT_EQ(1u, test::GetFieldCount(documentView));
+                // Assert:
+                EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
-			auto multisigView = documentView["multisig"].get_document().view();
-			test::AssertEqualMultisigData(entry, multisigView);
-		}
-	}
+                auto multisigView = documentView["multisig"].get_document().view();
+                test::AssertEqualMultisigData(entry, multisigView);
+            }
+        }
 
-	TEST(TEST_CLASS, CanMapMultisigEntryWithNeitherCosignatoriesNorMultisigAccounts_ModelToDbModel) {
-		AssertCanMapMultisigEntry(0, 0);
-	}
+        TEST(TEST_CLASS, CanMapMultisigEntryWithNeitherCosignatoriesNorMultisigAccounts_ModelToDbModel)
+        {
+            AssertCanMapMultisigEntry(0, 0);
+        }
 
-	TEST(TEST_CLASS, CanMapMultisigEntryWithCosignatoriesButNoMultisigAccounts_ModelToDbModel) {
-		AssertCanMapMultisigEntry(5, 0);
-	}
+        TEST(TEST_CLASS, CanMapMultisigEntryWithCosignatoriesButNoMultisigAccounts_ModelToDbModel)
+        {
+            AssertCanMapMultisigEntry(5, 0);
+        }
 
-	TEST(TEST_CLASS, CanMapMultisigEntryWithoutCosignatoriesButWithMultisigAccounts_ModelToDbModel) {
-		AssertCanMapMultisigEntry(0, 5);
-	}
+        TEST(TEST_CLASS, CanMapMultisigEntryWithoutCosignatoriesButWithMultisigAccounts_ModelToDbModel)
+        {
+            AssertCanMapMultisigEntry(0, 5);
+        }
 
-	TEST(TEST_CLASS, CanMapMultisigEntryWithCosignatoriesAndWithMultisigAccounts_ModelToDbModel) {
-		AssertCanMapMultisigEntry(4, 5);
-	}
-}}}
+        TEST(TEST_CLASS, CanMapMultisigEntryWithCosignatoriesAndWithMultisigAccounts_ModelToDbModel)
+        {
+            AssertCanMapMultisigEntry(4, 5);
+        }
+    }
+}
+}

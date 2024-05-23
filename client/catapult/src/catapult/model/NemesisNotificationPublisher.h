@@ -23,24 +23,28 @@
 #include "ContainerTypes.h"
 #include "NotificationPublisher.h"
 
-namespace catapult { namespace model {
-	struct BlockchainConfiguration;
-}}
+namespace catapult {
+namespace model {
+    struct BlockchainConfiguration;
+}
+}
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Options to customize behavior of nemesis notification publisher.
-	struct NemesisNotificationPublisherOptions {
-		/// Addresses of accounts to preemptively add.
-		AddressSet SpecialAccountAddresses;
-	};
+    /// Options to customize behavior of nemesis notification publisher.
+    struct NemesisNotificationPublisherOptions {
+        /// Addresses of accounts to preemptively add.
+        AddressSet SpecialAccountAddresses;
+    };
 
-	/// Extracts nemesis notification publisher options from \a config.
-	NemesisNotificationPublisherOptions ExtractNemesisNotificationPublisherOptions(const BlockchainConfiguration& config);
+    /// Extracts nemesis notification publisher options from \a config.
+    NemesisNotificationPublisherOptions ExtractNemesisNotificationPublisherOptions(const BlockchainConfiguration& config);
 
-	/// Creates a nemesis notification publisher around a base notification publisher (\a pPublisher)
-	/// by raising additional notifications based on \a options (held by reference).
-	std::unique_ptr<const NotificationPublisher> CreateNemesisNotificationPublisher(
-			std::unique_ptr<const NotificationPublisher>&& pPublisher,
-			const NemesisNotificationPublisherOptions& options);
-}}
+    /// Creates a nemesis notification publisher around a base notification publisher (\a pPublisher)
+    /// by raising additional notifications based on \a options (held by reference).
+    std::unique_ptr<const NotificationPublisher> CreateNemesisNotificationPublisher(
+        std::unique_ptr<const NotificationPublisher>&& pPublisher,
+        const NemesisNotificationPublisherOptions& options);
+}
+}

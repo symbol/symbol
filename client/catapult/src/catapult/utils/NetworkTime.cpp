@@ -23,28 +23,34 @@
 #include "Casting.h"
 #include <limits>
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	NetworkTime::NetworkTime(const utils::TimeSpan& epochAdjustment)
-			: m_epochAdjustment(epochAdjustment) {
-	}
+    NetworkTime::NetworkTime(const utils::TimeSpan& epochAdjustment)
+        : m_epochAdjustment(epochAdjustment)
+    {
+    }
 
-	Timestamp NetworkTime::now() const {
-		auto nowMillis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-		return Timestamp(static_cast<uint64_t>(nowMillis.count()) - m_epochAdjustment.millis());
-	}
+    Timestamp NetworkTime::now() const
+    {
+        auto nowMillis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+        return Timestamp(static_cast<uint64_t>(nowMillis.count()) - m_epochAdjustment.millis());
+    }
 
-	Timestamp NetworkTime::toNetworkTime(const Timestamp& timestamp) const {
-		if (timestamp.unwrap() < m_epochAdjustment.millis())
-			CATAPULT_THROW_INVALID_ARGUMENT_1("Unix timestamp must be after epoch time", timestamp);
+    Timestamp NetworkTime::toNetworkTime(const Timestamp& timestamp) const
+    {
+        if (timestamp.unwrap() < m_epochAdjustment.millis())
+            CATAPULT_THROW_INVALID_ARGUMENT_1("Unix timestamp must be after epoch time", timestamp);
 
-		return Timestamp(static_cast<uint64_t>(timestamp.unwrap() - m_epochAdjustment.millis()));
-	}
+        return Timestamp(static_cast<uint64_t>(timestamp.unwrap() - m_epochAdjustment.millis()));
+    }
 
-	Timestamp NetworkTime::toUnixTime(const Timestamp& timestamp) const {
-		if (std::numeric_limits<uint64_t>::max() - m_epochAdjustment.millis() < timestamp.unwrap())
-			CATAPULT_THROW_INVALID_ARGUMENT_1("overflow detected in ToUnixTime", timestamp);
+    Timestamp NetworkTime::toUnixTime(const Timestamp& timestamp) const
+    {
+        if (std::numeric_limits<uint64_t>::max() - m_epochAdjustment.millis() < timestamp.unwrap())
+            CATAPULT_THROW_INVALID_ARGUMENT_1("overflow detected in ToUnixTime", timestamp);
 
-		return Timestamp(static_cast<uint64_t>(m_epochAdjustment.millis() + timestamp.unwrap()));
-	}
-}}
+        return Timestamp(static_cast<uint64_t>(m_epochAdjustment.millis() + timestamp.unwrap()));
+    }
+}
+}

@@ -24,46 +24,51 @@
 #include <iosfwd>
 #include <vector>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Pinned voting key.
-	struct PinnedVotingKey {
-	public:
-		static constexpr auto Size = catapult::VotingKey::Size + 2 * sizeof(FinalizationEpoch);
+    /// Pinned voting key.
+    struct PinnedVotingKey {
+    public:
+        static constexpr auto Size = catapult::VotingKey::Size + 2 * sizeof(FinalizationEpoch);
 
-	public:
-		/// Voting key.
-		catapult::VotingKey VotingKey;
+    public:
+        /// Voting key.
+        catapult::VotingKey VotingKey;
 
-		/// Start finalization epoch.
-		FinalizationEpoch StartEpoch;
+        /// Start finalization epoch.
+        FinalizationEpoch StartEpoch;
 
-		/// End finalization epoch.
-		FinalizationEpoch EndEpoch;
+        /// End finalization epoch.
+        FinalizationEpoch EndEpoch;
 
-	public:
-		/// Returns \c true if this root voting key is equal to \a rhs.
-		bool operator==(const PinnedVotingKey& rhs) const {
-			return VotingKey == rhs.VotingKey && StartEpoch == rhs.StartEpoch && EndEpoch == rhs.EndEpoch;
-		}
+    public:
+        /// Returns \c true if this root voting key is equal to \a rhs.
+        bool operator==(const PinnedVotingKey& rhs) const
+        {
+            return VotingKey == rhs.VotingKey && StartEpoch == rhs.StartEpoch && EndEpoch == rhs.EndEpoch;
+        }
 
-		/// Returns \c true if this root voting key is not equal to \a rhs.
-		bool operator!=(const PinnedVotingKey& rhs) const {
-			return !(*this == rhs);
-		}
+        /// Returns \c true if this root voting key is not equal to \a rhs.
+        bool operator!=(const PinnedVotingKey& rhs) const
+        {
+            return !(*this == rhs);
+        }
 
-		/// Insertion operator for outputting \a key to \a out.
-		friend std::ostream& operator<<(std::ostream& out, const PinnedVotingKey& key) {
-			out << key.VotingKey << " @ [" << key.StartEpoch << ", " << key.EndEpoch << "]";
-			return out;
-		}
-	};
+        /// Insertion operator for outputting \a key to \a out.
+        friend std::ostream& operator<<(std::ostream& out, const PinnedVotingKey& key)
+        {
+            out << key.VotingKey << " @ [" << key.StartEpoch << ", " << key.EndEpoch << "]";
+            return out;
+        }
+    };
 
 #pragma pack(pop)
 
-	/// Finds the voting public key in \a pinnedPublicKeys that is active at \a epoch.
-	/// \note Zero key will be returned when no matching voting public key is found.
-	VotingKey FindVotingPublicKeyForEpoch(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationEpoch epoch);
-}}
+    /// Finds the voting public key in \a pinnedPublicKeys that is active at \a epoch.
+    /// \note Zero key will be returned when no matching voting public key is found.
+    VotingKey FindVotingPublicKeyForEpoch(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationEpoch epoch);
+}
+}

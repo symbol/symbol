@@ -23,24 +23,29 @@
 #include "Validators.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	ActiveMosaicView::ActiveMosaicView(const cache::ReadOnlyCatapultCache& cache)
-			: m_cache(cache) {
-	}
+    ActiveMosaicView::ActiveMosaicView(const cache::ReadOnlyCatapultCache& cache)
+        : m_cache(cache)
+    {
+    }
 
-	validators::ValidationResult ActiveMosaicView::tryGet(MosaicId id, Height height, FindIterator& iter) const {
-		// ensure that the mosaic is active
-		const auto& mosaicCache = m_cache.sub<cache::MosaicCache>();
-		iter = mosaicCache.find(id);
-		return !iter.tryGet() || !iter.get().definition().isActive(height) ? Failure_Mosaic_Expired : ValidationResult::Success;
-	}
+    validators::ValidationResult ActiveMosaicView::tryGet(MosaicId id, Height height, FindIterator& iter) const
+    {
+        // ensure that the mosaic is active
+        const auto& mosaicCache = m_cache.sub<cache::MosaicCache>();
+        iter = mosaicCache.find(id);
+        return !iter.tryGet() || !iter.get().definition().isActive(height) ? Failure_Mosaic_Expired : ValidationResult::Success;
+    }
 
-	validators::ValidationResult ActiveMosaicView::tryGet(MosaicId id, Height height, const Address& owner, FindIterator& iter) const {
-		auto result = tryGet(id, height, iter);
-		if (!IsValidationResultSuccess(result))
-			return result;
+    validators::ValidationResult ActiveMosaicView::tryGet(MosaicId id, Height height, const Address& owner, FindIterator& iter) const
+    {
+        auto result = tryGet(id, height, iter);
+        if (!IsValidationResultSuccess(result))
+            return result;
 
-		return iter.get().definition().ownerAddress() != owner ? Failure_Mosaic_Owner_Conflict : ValidationResult::Success;
-	}
-}}
+        return iter.get().definition().ownerAddress() != owner ? Failure_Mosaic_Owner_Conflict : ValidationResult::Success;
+    }
+}
+}

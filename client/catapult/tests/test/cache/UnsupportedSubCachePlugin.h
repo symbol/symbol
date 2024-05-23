@@ -22,127 +22,149 @@
 #pragma once
 #include "catapult/cache/SubCachePlugin.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	// region UnsupportedSubCacheView
+    // region UnsupportedSubCacheView
 
-	/// Unsupported sub cache view.
-	class UnsupportedSubCacheView : public cache::SubCacheView {
-	public:
-		[[noreturn]]
-		const cache::SubCacheViewIdentifier& id() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("id is not supported");
-		}
+    /// Unsupported sub cache view.
+    class UnsupportedSubCacheView : public cache::SubCacheView {
+    public:
+        [[noreturn]]
+        const cache::SubCacheViewIdentifier& id() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("id is not supported");
+        }
 
-		[[noreturn]]
-		const void* get() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("get is not supported");
-		}
+        [[noreturn]]
+        const void* get() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("get is not supported");
+        }
 
-		[[noreturn]]
-		void* get() override {
-			CATAPULT_THROW_RUNTIME_ERROR("get is not supported");
-		}
+        [[noreturn]]
+        void* get() override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("get is not supported");
+        }
 
-		[[noreturn]]
-		bool supportsMerkleRoot() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("supportsMerkleRoot is not supported");
-		}
+        [[noreturn]]
+        bool supportsMerkleRoot() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("supportsMerkleRoot is not supported");
+        }
 
-		[[noreturn]]
-		bool tryGetMerkleRoot(Hash256&) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("tryGetMerkleRoot is not supported");
-		}
+        [[noreturn]]
+        bool tryGetMerkleRoot(Hash256&) const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("tryGetMerkleRoot is not supported");
+        }
 
-		[[noreturn]]
-		bool trySetMerkleRoot(const Hash256&) override {
-			CATAPULT_THROW_RUNTIME_ERROR("trySetMerkleRoot is not supported");
-		}
+        [[noreturn]]
+        bool trySetMerkleRoot(const Hash256&) override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("trySetMerkleRoot is not supported");
+        }
 
-		[[noreturn]]
-		void updateMerkleRoot(Height) override {
-			CATAPULT_THROW_RUNTIME_ERROR("updateMerkleRoot is not supported");
-		}
+        [[noreturn]]
+        void updateMerkleRoot(Height) override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("updateMerkleRoot is not supported");
+        }
 
-		[[noreturn]]
-		void prune(Height) override {
-			CATAPULT_THROW_RUNTIME_ERROR("prune is not supported");
-		}
+        [[noreturn]]
+        void prune(Height) override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("prune is not supported");
+        }
 
-		[[noreturn]]
-		void prune(Timestamp) override {
-			CATAPULT_THROW_RUNTIME_ERROR("prune is not supported");
-		}
+        [[noreturn]]
+        void prune(Timestamp) override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("prune is not supported");
+        }
 
-		[[noreturn]]
-		const void* asReadOnly() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("asReadOnly is not supported");
-		}
-	};
+        [[noreturn]]
+        const void* asReadOnly() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("asReadOnly is not supported");
+        }
+    };
 
-	// endregion
+    // endregion
 
-	// region UnsupportedSubCachePlugin
+    // region UnsupportedSubCachePlugin
 
-	/// Unsupported sub cache plugin.
-	template<typename TCache>
-	class UnsupportedSubCachePlugin : public cache::SubCachePlugin {
-	public:
-		/// Creates an unsupported sub cache plugin.
-		UnsupportedSubCachePlugin()
-				: m_name(TCache::Name) {
-		}
+    /// Unsupported sub cache plugin.
+    template <typename TCache>
+    class UnsupportedSubCachePlugin : public cache::SubCachePlugin {
+    public:
+        /// Creates an unsupported sub cache plugin.
+        UnsupportedSubCachePlugin()
+            : m_name(TCache::Name)
+        {
+        }
 
-	public:
-		const std::string& name() const override {
-			return m_name;
-		}
+    public:
+        const std::string& name() const override
+        {
+            return m_name;
+        }
 
-		size_t id() const override {
-			return TCache::Id;
-		}
+        size_t id() const override
+        {
+            return TCache::Id;
+        }
 
-	public:
-		[[noreturn]]
-		std::unique_ptr<const cache::SubCacheView> createView() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("createView is not supported");
-		}
+    public:
+        [[noreturn]]
+        std::unique_ptr<const cache::SubCacheView> createView() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("createView is not supported");
+        }
 
-		[[noreturn]]
-		std::unique_ptr<cache::SubCacheView> createDelta() override {
-			CATAPULT_THROW_RUNTIME_ERROR("createDelta is not supported");
-		}
+        [[noreturn]]
+        std::unique_ptr<cache::SubCacheView> createDelta() override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("createDelta is not supported");
+        }
 
-		[[noreturn]]
-		std::unique_ptr<cache::DetachedSubCacheView> createDetachedDelta() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("createDetachedDelta is not supported");
-		}
+        [[noreturn]]
+        std::unique_ptr<cache::DetachedSubCacheView> createDetachedDelta() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("createDetachedDelta is not supported");
+        }
 
-		[[noreturn]]
-		void commit() override {
-			CATAPULT_THROW_RUNTIME_ERROR("commit is not supported");
-		}
+        [[noreturn]]
+        void commit() override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("commit is not supported");
+        }
 
-	public:
-		[[noreturn]]
-		const void* get() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("get is not supported");
-		}
+    public:
+        [[noreturn]]
+        const void* get() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("get is not supported");
+        }
 
-	public:
-		[[noreturn]]
-		std::unique_ptr<cache::CacheStorage> createStorage() override {
-			CATAPULT_THROW_RUNTIME_ERROR("createStorage is not supported");
-		}
+    public:
+        [[noreturn]]
+        std::unique_ptr<cache::CacheStorage> createStorage() override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("createStorage is not supported");
+        }
 
-		[[noreturn]]
-		std::unique_ptr<cache::CacheChangesStorage> createChangesStorage() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("createChangesStorage is not supported");
-		}
+        [[noreturn]]
+        std::unique_ptr<cache::CacheChangesStorage> createChangesStorage() const override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("createChangesStorage is not supported");
+        }
 
-	private:
-		std::string m_name;
-	};
+    private:
+        std::string m_name;
+    };
 
-	// endregion
-}}
+    // endregion
+}
+}

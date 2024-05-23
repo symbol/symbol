@@ -19,193 +19,210 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/BaseValue.h"
 #include "catapult/types.h"
+#include "catapult/utils/BaseValue.h"
+#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Convertibility.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
 #define TEST_CLASS BaseValueTests
 
-	namespace {
-		struct TestValue_tag {};
-		using TestValue = BaseValue<uint64_t, TestValue_tag>;
+    namespace {
+        struct TestValue_tag { };
+        using TestValue = BaseValue<uint64_t, TestValue_tag>;
 
-		using AliasedValue = TestValue;
+        using AliasedValue = TestValue;
 
-		struct SameSizeValue_tag {};
-		using SameSizeValue = BaseValue<uint64_t, SameSizeValue_tag>;
-	}
+        struct SameSizeValue_tag { };
+        using SameSizeValue = BaseValue<uint64_t, SameSizeValue_tag>;
+    }
 
-	// region constructor
+    // region constructor
 
-	TEST(TEST_CLASS, DefaultValueIsZeroInitialized) {
-		// Arrange:
-		TestValue value;
+    TEST(TEST_CLASS, DefaultValueIsZeroInitialized)
+    {
+        // Arrange:
+        TestValue value;
 
-		// Act + Assert:
-		EXPECT_EQ(0u, value.unwrap());
-	}
+        // Act + Assert:
+        EXPECT_EQ(0u, value.unwrap());
+    }
 
-	TEST(TEST_CLASS, CanStoreValue) {
-		// Arrange:
-		TestValue value(123);
+    TEST(TEST_CLASS, CanStoreValue)
+    {
+        // Arrange:
+        TestValue value(123);
 
-		// Act + Assert:
-		EXPECT_EQ(123u, value.unwrap());
-	}
+        // Act + Assert:
+        EXPECT_EQ(123u, value.unwrap());
+    }
 
-	TEST(TEST_CLASS, CanStoreValueAsConstexpr) {
-		// Act:
-		constexpr TestValue Const_Data(123);
+    TEST(TEST_CLASS, CanStoreValueAsConstexpr)
+    {
+        // Act:
+        constexpr TestValue Const_Data(123);
 
-		// Assert:
-		EXPECT_EQ(TestValue(123), Const_Data);
-	}
+        // Assert:
+        EXPECT_EQ(TestValue(123), Const_Data);
+    }
 
-	// endregion
+    // endregion
 
-	// region copy + assign
+    // region copy + assign
 
-	TEST(TEST_CLASS, CanCopyAssign) {
-		// Arrange:
-		TestValue value(123);
-		TestValue newValue(642);
+    TEST(TEST_CLASS, CanCopyAssign)
+    {
+        // Arrange:
+        TestValue value(123);
+        TestValue newValue(642);
 
-		// Act:
-		const auto& assignResult = (value = newValue);
+        // Act:
+        const auto& assignResult = (value = newValue);
 
-		// Assert:
-		EXPECT_EQ(642u, newValue.unwrap());
-		EXPECT_EQ(642u, value.unwrap());
-		EXPECT_EQ(&value, &assignResult);
-	}
+        // Assert:
+        EXPECT_EQ(642u, newValue.unwrap());
+        EXPECT_EQ(642u, value.unwrap());
+        EXPECT_EQ(&value, &assignResult);
+    }
 
-	TEST(TEST_CLASS, CanCopyConstruct) {
-		// Act:
-		TestValue value(123);
-		TestValue newValue(value);
+    TEST(TEST_CLASS, CanCopyConstruct)
+    {
+        // Act:
+        TestValue value(123);
+        TestValue newValue(value);
 
-		// Assert:
-		EXPECT_EQ(123u, newValue.unwrap());
-		EXPECT_EQ(123u, value.unwrap());
-	}
+        // Assert:
+        EXPECT_EQ(123u, newValue.unwrap());
+        EXPECT_EQ(123u, value.unwrap());
+    }
 
-	TEST(TEST_CLASS, CanMoveAssign) {
-		// Arrange:
-		TestValue value(123);
-		TestValue newValue(642);
+    TEST(TEST_CLASS, CanMoveAssign)
+    {
+        // Arrange:
+        TestValue value(123);
+        TestValue newValue(642);
 
-		// Act:
-		const auto& assignResult = (newValue = std::move(value));
+        // Act:
+        const auto& assignResult = (newValue = std::move(value));
 
-		// Assert:
-		EXPECT_EQ(123u, newValue.unwrap());
-		EXPECT_EQ(&newValue, &assignResult);
-	}
+        // Assert:
+        EXPECT_EQ(123u, newValue.unwrap());
+        EXPECT_EQ(&newValue, &assignResult);
+    }
 
-	TEST(TEST_CLASS, CanMoveConstruct) {
-		// Act:
-		TestValue value(123);
-		TestValue newValue(std::move(value));
+    TEST(TEST_CLASS, CanMoveConstruct)
+    {
+        // Act:
+        TestValue value(123);
+        TestValue newValue(std::move(value));
 
-		// Assert:
-		EXPECT_EQ(123u, newValue.unwrap());
-	}
+        // Assert:
+        EXPECT_EQ(123u, newValue.unwrap());
+    }
 
-	// endregion
+    // endregion
 
-	// region unwrap
+    // region unwrap
 
-	TEST(TEST_CLASS, CanUnwrapAndRetrieveRawValue) {
-		// Arrange:
-		TestValue value(123);
+    TEST(TEST_CLASS, CanUnwrapAndRetrieveRawValue)
+    {
+        // Arrange:
+        TestValue value(123);
 
-		// Act:
-		auto rawValue = value.unwrap();
+        // Act:
+        auto rawValue = value.unwrap();
 
-		// Assert:
-		EXPECT_EQ(123u, rawValue);
-	}
+        // Assert:
+        EXPECT_EQ(123u, rawValue);
+    }
 
-	// endregion
+    // endregion
 
-	// region comparison operators
+    // region comparison operators
 
-	namespace {
-		std::vector<TestValue> GenerateIncreasingValues() {
-			return { TestValue(123), TestValue(642), TestValue(989) };
-		}
-	}
+    namespace {
+        std::vector<TestValue> GenerateIncreasingValues()
+        {
+            return { TestValue(123), TestValue(642), TestValue(989) };
+        }
+    }
 
-	DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingValues())
+    DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingValues())
 
-	// endregion
+    // endregion
 
-	// region to string
+    // region to string
 
-	TEST(TEST_CLASS, CanOutputBaseValue) {
-		// Arrange:
-		TestValue value1(123);
+    TEST(TEST_CLASS, CanOutputBaseValue)
+    {
+        // Arrange:
+        TestValue value1(123);
 
-		// Act:
-		auto str = test::ToString(value1);
+        // Act:
+        auto str = test::ToString(value1);
 
-		// Assert:
-		EXPECT_EQ("123", str);
-	}
+        // Assert:
+        EXPECT_EQ("123", str);
+    }
 
-	// endregion
+    // endregion
 
-	// region addition and subtraction operators
+    // region addition and subtraction operators
 
-	TEST(TEST_CLASS, CanAddBaseValues) {
-		// Arrange:
-		TestValue value1(123);
-		TestValue value2(234);
+    TEST(TEST_CLASS, CanAddBaseValues)
+    {
+        // Arrange:
+        TestValue value1(123);
+        TestValue value2(234);
 
-		// Act:
-		auto value3 = value1 + value2;
+        // Act:
+        auto value3 = value1 + value2;
 
-		// Assert:
-		EXPECT_EQ(TestValue(123), value1);
-		EXPECT_EQ(TestValue(234), value2);
-		EXPECT_EQ(TestValue(357), value3);
-	}
+        // Assert:
+        EXPECT_EQ(TestValue(123), value1);
+        EXPECT_EQ(TestValue(234), value2);
+        EXPECT_EQ(TestValue(357), value3);
+    }
 
-	TEST(TEST_CLASS, CanSubtractBaseValues) {
-		// Arrange:
-		TestValue value1(543);
-		TestValue value2(123);
+    TEST(TEST_CLASS, CanSubtractBaseValues)
+    {
+        // Arrange:
+        TestValue value1(543);
+        TestValue value2(123);
 
-		// Act:
-		auto value3 = value1 - value2;
+        // Act:
+        auto value3 = value1 - value2;
 
-		// Assert:
-		EXPECT_EQ(TestValue(543), value1);
-		EXPECT_EQ(TestValue(123), value2);
-		EXPECT_EQ(TestValue(420), value3);
-	}
+        // Assert:
+        EXPECT_EQ(TestValue(543), value1);
+        EXPECT_EQ(TestValue(123), value2);
+        EXPECT_EQ(TestValue(420), value3);
+    }
 
-	// endregion
+    // endregion
 
-	// region type convertibility
+    // region type convertibility
 
-	TEST(TEST_CLASS, CanAssignAliasedType) {
-		auto isConvertible = std::is_convertible_v<TestValue, AliasedValue>;
-		EXPECT_TRUE(isConvertible);
-	}
+    TEST(TEST_CLASS, CanAssignAliasedType)
+    {
+        auto isConvertible = std::is_convertible_v<TestValue, AliasedValue>;
+        EXPECT_TRUE(isConvertible);
+    }
 
-	TEST(TEST_CLASS, CannotAssignUsingDifferentType) {
-		auto isConvertible = std::is_convertible_v<TestValue, SameSizeValue>;
-		EXPECT_FALSE(isConvertible);
-	}
+    TEST(TEST_CLASS, CannotAssignUsingDifferentType)
+    {
+        auto isConvertible = std::is_convertible_v<TestValue, SameSizeValue>;
+        EXPECT_FALSE(isConvertible);
+    }
 
-	TEST(TEST_CLASS, CatapultTypesTests) {
-		test::TypeConvertibilityTests::AssertCannotConvertTypes<Timestamp, Amount, Height, Difficulty>();
-	}
+    TEST(TEST_CLASS, CatapultTypesTests)
+    {
+        test::TypeConvertibilityTests::AssertCannotConvertTypes<Timestamp, Amount, Height, Difficulty>();
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

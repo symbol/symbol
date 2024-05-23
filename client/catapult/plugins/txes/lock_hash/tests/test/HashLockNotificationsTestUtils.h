@@ -24,30 +24,35 @@
 #include "src/model/HashLockNotifications.h"
 #include "tests/test/nodeps/Random.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Hash lock notification builder.
-	struct HashLockNotificationBuilder {
-	public:
-		/// Creates hash lock notification builder.
-		HashLockNotificationBuilder() {
-			FillWithRandomData({ reinterpret_cast<uint8_t*>(this), sizeof(HashLockNotificationBuilder) });
-		}
+    /// Hash lock notification builder.
+    struct HashLockNotificationBuilder {
+    public:
+        /// Creates hash lock notification builder.
+        HashLockNotificationBuilder()
+        {
+            FillWithRandomData({ reinterpret_cast<uint8_t*>(this), sizeof(HashLockNotificationBuilder) });
+        }
 
-		/// Creates a notification.
-		auto notification() {
-			return model::HashLockNotification(m_owner, m_mosaic, m_duration, m_hash);
-		}
+        /// Creates a notification.
+        auto notification()
+        {
+            return model::HashLockNotification(m_owner, m_mosaic, m_duration, m_hash);
+        }
 
-		/// Prepares the builder using \a lockInfo.
-		void prepare(const state::HashLockInfo& lockInfo) {
-			m_hash = lockInfo.Hash;
-		}
+        /// Prepares the builder using \a lockInfo.
+        void prepare(const state::HashLockInfo& lockInfo)
+        {
+            m_hash = lockInfo.Hash;
+        }
 
-	private:
-		Address m_owner;
-		model::UnresolvedMosaic m_mosaic;
-		BlockDuration m_duration;
-		Hash256 m_hash;
-	};
-}}
+    private:
+        Address m_owner;
+        model::UnresolvedMosaic m_mosaic;
+        BlockDuration m_duration;
+        Hash256 m_hash;
+    };
+}
+}

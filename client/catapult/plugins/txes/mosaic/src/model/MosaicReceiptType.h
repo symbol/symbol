@@ -28,11 +28,11 @@ namespace model {
 
 #endif
 
-	/// Mosaic expired (transition caused by mosaic lifetime elapsing).
-	DEFINE_RECEIPT_TYPE(ArtifactExpiry, Mosaic, Mosaic_Expired, 1);
+    /// Mosaic expired (transition caused by mosaic lifetime elapsing).
+    DEFINE_RECEIPT_TYPE(ArtifactExpiry, Mosaic, Mosaic_Expired, 1);
 
-	/// Mosaic rental fee.
-	DEFINE_RECEIPT_TYPE(BalanceTransfer, Mosaic, Mosaic_Rental_Fee, 2);
+    /// Mosaic rental fee.
+    DEFINE_RECEIPT_TYPE(BalanceTransfer, Mosaic, Mosaic_Rental_Fee, 2);
 
 #ifndef CUSTOM_RECEIPT_TYPE_DEFINITION
 }

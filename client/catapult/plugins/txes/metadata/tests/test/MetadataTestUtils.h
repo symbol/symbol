@@ -23,50 +23,54 @@
 #include "src/model/MetadataNotifications.h"
 #include "src/state/MetadataKey.h"
 
-namespace catapult { namespace state {
-	class MetadataEntry;
-}}
+namespace catapult {
+namespace state {
+    class MetadataEntry;
+}
+}
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	// region PartialMetadataKey
+    // region PartialMetadataKey
 
-	/// Generates a random partial metadata key.
-	model::PartialMetadataKey GenerateRandomPartialMetadataKey();
+    /// Generates a random partial metadata key.
+    model::PartialMetadataKey GenerateRandomPartialMetadataKey();
 
-	/// Generates a random partial metadata key with \a scopedMetadataKey.
-	model::PartialMetadataKey GenerateRandomPartialMetadataKey(uint64_t scopedMetadataKey);
+    /// Generates a random partial metadata key with \a scopedMetadataKey.
+    model::PartialMetadataKey GenerateRandomPartialMetadataKey(uint64_t scopedMetadataKey);
 
-	// endregion
+    // endregion
 
-	// region MetadataKey
+    // region MetadataKey
 
-	/// Creates a metadata unique key from \a seed.
-	Hash256 CreateMetadataUniqueKeyFromSeed(uint8_t seed);
+    /// Creates a metadata unique key from \a seed.
+    Hash256 CreateMetadataUniqueKeyFromSeed(uint8_t seed);
 
-	/// Generates a random metadata key.
-	state::MetadataKey GenerateRandomMetadataKey();
+    /// Generates a random metadata key.
+    state::MetadataKey GenerateRandomMetadataKey();
 
-	/// Generates a metadata key with \a hash.
-	state::MetadataKey GenerateMetadataKey(const Hash256& hash);
+    /// Generates a metadata key with \a hash.
+    state::MetadataKey GenerateMetadataKey(const Hash256& hash);
 
-	// endregion
+    // endregion
 
-	// region notifications
+    // region notifications
 
-	/// Creates a metadata value notification around \a metadataKey, \a valueSizeDelta, \a valueSize and \a pValue
-	model::MetadataValueNotification CreateMetadataValueNotification(
-			const state::MetadataKey& metadataKey,
-			int16_t valueSizeDelta,
-			uint16_t valueSize,
-			const uint8_t* pValue);
+    /// Creates a metadata value notification around \a metadataKey, \a valueSizeDelta, \a valueSize and \a pValue
+    model::MetadataValueNotification CreateMetadataValueNotification(
+        const state::MetadataKey& metadataKey,
+        int16_t valueSizeDelta,
+        uint16_t valueSize,
+        const uint8_t* pValue);
 
-	// endregion
+    // endregion
 
-	// region asserts
+    // region asserts
 
-	/// Asserts that metadata entry \a actual is equal to \a expected.
-	void AssertEqual(const state::MetadataEntry& expected, const state::MetadataEntry& actual);
+    /// Asserts that metadata entry \a actual is equal to \a expected.
+    void AssertEqual(const state::MetadataEntry& expected, const state::MetadataEntry& actual);
 
-	// endregion
-}}
+    // endregion
+}
+}

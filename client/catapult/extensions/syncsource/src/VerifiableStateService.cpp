@@ -23,27 +23,34 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/handlers/MerkleHandlers.h"
 
-namespace catapult { namespace syncsource {
+namespace catapult {
+namespace syncsource {
 
-	namespace {
-		class VerifiableStateServiceRegistrar : public extensions::ServiceRegistrar {
-		public:
-			extensions::ServiceRegistrarInfo info() const override {
-				return { "VerifiableState", extensions::ServiceRegistrarPhase::Initial };
-			}
+    namespace {
+        class VerifiableStateServiceRegistrar : public extensions::ServiceRegistrar {
+        public:
+            extensions::ServiceRegistrarInfo info() const override
+            {
+                return { "VerifiableState", extensions::ServiceRegistrarPhase::Initial };
+            }
 
-			void registerServiceCounters(extensions::ServiceLocator&) override {
-				// no additional counters
-			}
+            void registerServiceCounters(extensions::ServiceLocator&) override
+            {
+                // no additional counters
+            }
 
-			void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override {
-				// add handlers
-				handlers::RegisterSubCacheMerkleRootsHandler(state.packetHandlers(), state.storage());
-			}
-		};
-	}
+            void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override
+            {
+                // add handlers
+                handlers::RegisterSubCacheMerkleRootsHandler(state.packetHandlers(), state.storage());
+            }
+        };
+    }
 
-	DECLARE_SERVICE_REGISTRAR(VerifiableState)() {
-		return std::make_unique<VerifiableStateServiceRegistrar>();
-	}
-}}
+    DECLARE_SERVICE_REGISTRAR(VerifiableState)
+    ()
+    {
+        return std::make_unique<VerifiableStateServiceRegistrar>();
+    }
+}
+}

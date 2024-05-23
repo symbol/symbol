@@ -23,12 +23,15 @@
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/NodeInteractionResult.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	void IncrementNodeInteraction(ionet::NodeContainer& nodes, const ionet::NodeInteractionResult& result) {
-		if (ionet::NodeInteractionResultCode::Success == result.Code)
-			nodes.modifier().incrementSuccesses(result.Identity);
-		else if (ionet::NodeInteractionResultCode::Failure == result.Code)
-			nodes.modifier().incrementFailures(result.Identity);
-	}
-}}
+    void IncrementNodeInteraction(ionet::NodeContainer& nodes, const ionet::NodeInteractionResult& result)
+    {
+        if (ionet::NodeInteractionResultCode::Success == result.Code)
+            nodes.modifier().incrementSuccesses(result.Identity);
+        else if (ionet::NodeInteractionResultCode::Failure == result.Code)
+            nodes.modifier().incrementFailures(result.Identity);
+    }
+}
+}

@@ -23,45 +23,51 @@
 #include "ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Container of discrete integer validator tests.
-	template<typename TTraits>
-	struct DiscreteIntegerValidatorTests {
-	private:
-		using EnumType = typename TTraits::EnumType;
+    /// Container of discrete integer validator tests.
+    template <typename TTraits>
+    struct DiscreteIntegerValidatorTests {
+    private:
+        using EnumType = typename TTraits::EnumType;
 
-	public:
-		static void AssertSuccessWhenProcessingValidValue() {
-			for (auto value : TTraits::ValidValues())
-				AssertValueValidationResult(validators::ValidationResult::Success, static_cast<EnumType>(value));
-		}
+    public:
+        static void AssertSuccessWhenProcessingValidValue()
+        {
+            for (auto value : TTraits::ValidValues())
+                AssertValueValidationResult(validators::ValidationResult::Success, static_cast<EnumType>(value));
+        }
 
-		static void AssertFailureWhenProcessingInvalidValue() {
-			for (auto value : TTraits::InvalidValues())
-				AssertValueValidationResult(TTraits::Failure_Result, static_cast<EnumType>(value));
-		}
+        static void AssertFailureWhenProcessingInvalidValue()
+        {
+            for (auto value : TTraits::InvalidValues())
+                AssertValueValidationResult(TTraits::Failure_Result, static_cast<EnumType>(value));
+        }
 
-	private:
-		static void AssertValueValidationResult(validators::ValidationResult expectedResult, EnumType value) {
-			// Arrange:
-			auto pValidator = TTraits::CreateValidator();
-			auto notification = TTraits::CreateNotification(value);
+    private:
+        static void AssertValueValidationResult(validators::ValidationResult expectedResult, EnumType value)
+        {
+            // Arrange:
+            auto pValidator = TTraits::CreateValidator();
+            auto notification = TTraits::CreateNotification(value);
 
-			// Act:
-			auto result = ValidateNotification(*pValidator, notification);
+            // Act:
+            auto result = ValidateNotification(*pValidator, notification);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "value " << static_cast<uint64_t>(value);
-		}
-	};
+            // Assert:
+            EXPECT_EQ(expectedResult, result) << "value " << static_cast<uint64_t>(value);
+        }
+    };
 
 #define MAKE_DISCRETE_INTEGER_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { \
-		test::DiscreteIntegerValidatorTests<TRAITS_NAME>::Assert##TEST_NAME(); \
-	}
+    TEST(TEST_CLASS, TEST_NAME)                                                  \
+    {                                                                            \
+        test::DiscreteIntegerValidatorTests<TRAITS_NAME>::Assert##TEST_NAME();   \
+    }
 
-#define DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, TRAITS_NAME) \
-	MAKE_DISCRETE_INTEGER_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, SuccessWhenProcessingValidValue) \
-	MAKE_DISCRETE_INTEGER_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, FailureWhenProcessingInvalidValue)
-}}
+#define DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, TRAITS_NAME)                           \
+    MAKE_DISCRETE_INTEGER_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, SuccessWhenProcessingValidValue) \
+    MAKE_DISCRETE_INTEGER_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, FailureWhenProcessingInvalidValue)
+}
+}

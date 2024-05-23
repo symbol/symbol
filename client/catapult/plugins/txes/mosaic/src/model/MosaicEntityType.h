@@ -28,14 +28,14 @@ namespace model {
 
 #endif
 
-	/// Mosaic definition transaction.
-	DEFINE_TRANSACTION_TYPE(Mosaic, Mosaic_Definition, 0x1);
+    /// Mosaic definition transaction.
+    DEFINE_TRANSACTION_TYPE(Mosaic, Mosaic_Definition, 0x1);
 
-	/// Mosaic supply change transaction.
-	DEFINE_TRANSACTION_TYPE(Mosaic, Mosaic_Supply_Change, 0x2);
+    /// Mosaic supply change transaction.
+    DEFINE_TRANSACTION_TYPE(Mosaic, Mosaic_Supply_Change, 0x2);
 
-	/// Mosaic supply revocation transaction.
-	DEFINE_TRANSACTION_TYPE(Mosaic, Mosaic_Supply_Revocation, 0x3);
+    /// Mosaic supply revocation transaction.
+    DEFINE_TRANSACTION_TYPE(Mosaic, Mosaic_Supply_Revocation, 0x3);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

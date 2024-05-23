@@ -22,23 +22,24 @@
 #include "MosaicDefinitionMapper.h"
 #include "MosaicSupplyChangeMapper.h"
 #include "MosaicSupplyRevocationMapper.h"
-#include "storages/MongoMosaicCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
 #include "mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/mosaic/src/model/MosaicReceiptType.h"
+#include "storages/MongoMosaicCacheStorage.h"
 
-extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
-	using namespace catapult;
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager)
+{
+    using namespace catapult;
 
-	// transaction support
-	manager.addTransactionSupport(mongo::plugins::CreateMosaicDefinitionTransactionMongoPlugin());
-	manager.addTransactionSupport(mongo::plugins::CreateMosaicSupplyChangeTransactionMongoPlugin());
-	manager.addTransactionSupport(mongo::plugins::CreateMosaicSupplyRevocationTransactionMongoPlugin());
+    // transaction support
+    manager.addTransactionSupport(mongo::plugins::CreateMosaicDefinitionTransactionMongoPlugin());
+    manager.addTransactionSupport(mongo::plugins::CreateMosaicSupplyChangeTransactionMongoPlugin());
+    manager.addTransactionSupport(mongo::plugins::CreateMosaicSupplyRevocationTransactionMongoPlugin());
 
-	// cache storage support
-	manager.addStorageSupport(mongo::plugins::CreateMongoMosaicCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+    // cache storage support
+    manager.addStorageSupport(mongo::plugins::CreateMongoMosaicCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 
-	// receipt support
-	manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(model::Receipt_Type_Mosaic_Expired));
-	manager.addReceiptSupport(mongo::CreateBalanceTransferReceiptMongoPlugin(model::Receipt_Type_Mosaic_Rental_Fee));
+    // receipt support
+    manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(model::Receipt_Type_Mosaic_Expired));
+    manager.addReceiptSupport(mongo::CreateBalanceTransferReceiptMongoPlugin(model::Receipt_Type_Mosaic_Rental_Fee));
 }

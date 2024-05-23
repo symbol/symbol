@@ -20,58 +20,63 @@
 **/
 
 #pragma once
-#include "src/state/MosaicRestrictionEntry.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/utils/Hashers.h"
+#include "src/state/MosaicRestrictionEntry.h"
 
-namespace catapult { namespace cache {
-	class BasicMosaicRestrictionCacheDelta;
-	class BasicMosaicRestrictionCacheView;
-	struct MosaicRestrictionBaseSetDeltaPointers;
-	struct MosaicRestrictionBaseSets;
-	class MosaicRestrictionCache;
-	class MosaicRestrictionCacheDelta;
-	class MosaicRestrictionCacheView;
-	struct MosaicRestrictionEntryPrimarySerializer;
-	class MosaicRestrictionPatriciaTree;
-	class ReadOnlyMosaicRestrictionCache;
-}}
+namespace catapult {
+namespace cache {
+    class BasicMosaicRestrictionCacheDelta;
+    class BasicMosaicRestrictionCacheView;
+    struct MosaicRestrictionBaseSetDeltaPointers;
+    struct MosaicRestrictionBaseSets;
+    class MosaicRestrictionCache;
+    class MosaicRestrictionCacheDelta;
+    class MosaicRestrictionCacheView;
+    struct MosaicRestrictionEntryPrimarySerializer;
+    class MosaicRestrictionPatriciaTree;
+    class ReadOnlyMosaicRestrictionCache;
+}
+}
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Describes a mosaic restriction cache.
-	struct MosaicRestrictionCacheDescriptor {
-	public:
-		static constexpr auto Name = "MosaicRestrictionCache";
+    /// Describes a mosaic restriction cache.
+    struct MosaicRestrictionCacheDescriptor {
+    public:
+        static constexpr auto Name = "MosaicRestrictionCache";
 
-	public:
-		// key value types
-		using KeyType = Hash256;
-		using ValueType = state::MosaicRestrictionEntry;
+    public:
+        // key value types
+        using KeyType = Hash256;
+        using ValueType = state::MosaicRestrictionEntry;
 
-		// cache types
-		using CacheType = MosaicRestrictionCache;
-		using CacheDeltaType = MosaicRestrictionCacheDelta;
-		using CacheViewType = MosaicRestrictionCacheView;
+        // cache types
+        using CacheType = MosaicRestrictionCache;
+        using CacheDeltaType = MosaicRestrictionCacheDelta;
+        using CacheViewType = MosaicRestrictionCacheView;
 
-		using Serializer = MosaicRestrictionEntryPrimarySerializer;
-		using PatriciaTree = MosaicRestrictionPatriciaTree;
+        using Serializer = MosaicRestrictionEntryPrimarySerializer;
+        using PatriciaTree = MosaicRestrictionPatriciaTree;
 
-	public:
-		/// Gets the key corresponding to \a entry.
-		static auto GetKeyFromValue(const ValueType& entry) {
-			return entry.uniqueKey();
-		}
-	};
+    public:
+        /// Gets the key corresponding to \a entry.
+        static auto GetKeyFromValue(const ValueType& entry)
+        {
+            return entry.uniqueKey();
+        }
+    };
 
-	/// Mosaic restriction cache types.
-	struct MosaicRestrictionCacheTypes {
-		using PrimaryTypes = MutableUnorderedMapAdapter<MosaicRestrictionCacheDescriptor, utils::ArrayHasher<Hash256>>;
+    /// Mosaic restriction cache types.
+    struct MosaicRestrictionCacheTypes {
+        using PrimaryTypes = MutableUnorderedMapAdapter<MosaicRestrictionCacheDescriptor, utils::ArrayHasher<Hash256>>;
 
-		using CacheReadOnlyType = ReadOnlyMosaicRestrictionCache;
+        using CacheReadOnlyType = ReadOnlyMosaicRestrictionCache;
 
-		using BaseSetDeltaPointers = MosaicRestrictionBaseSetDeltaPointers;
-		using BaseSets = MosaicRestrictionBaseSets;
-	};
-}}
+        using BaseSetDeltaPointers = MosaicRestrictionBaseSetDeltaPointers;
+        using BaseSets = MosaicRestrictionBaseSets;
+    };
+}
+}

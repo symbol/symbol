@@ -21,49 +21,51 @@
 
 #pragma once
 #include "RestrictionValueMap.h"
-#include "src/model/MosaicRestrictionTypes.h"
 #include "catapult/types.h"
+#include "src/model/MosaicRestrictionTypes.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Mosaic restrictions scoped to a mosaic.
-	class MosaicGlobalRestriction {
-	public:
-		/// Single restriction rule.
-		struct RestrictionRule {
-			/// Identifier of the mosaic providing the restriction key.
-			MosaicId ReferenceMosaicId;
+    /// Mosaic restrictions scoped to a mosaic.
+    class MosaicGlobalRestriction {
+    public:
+        /// Single restriction rule.
+        struct RestrictionRule {
+            /// Identifier of the mosaic providing the restriction key.
+            MosaicId ReferenceMosaicId;
 
-			/// Restriction value.
-			uint64_t RestrictionValue;
+            /// Restriction value.
+            uint64_t RestrictionValue;
 
-			/// Restriction type.
-			model::MosaicRestrictionType RestrictionType;
-		};
+            /// Restriction type.
+            model::MosaicRestrictionType RestrictionType;
+        };
 
-	public:
-		/// Creates a restriction around \a mosaicId.
-		explicit MosaicGlobalRestriction(MosaicId mosaicId);
+    public:
+        /// Creates a restriction around \a mosaicId.
+        explicit MosaicGlobalRestriction(MosaicId mosaicId);
 
-	public:
-		/// Gets the mosaic id.
-		MosaicId mosaicId() const;
+    public:
+        /// Gets the mosaic id.
+        MosaicId mosaicId() const;
 
-		/// Gets the number of restriction rules.
-		size_t size() const;
+        /// Gets the number of restriction rules.
+        size_t size() const;
 
-		/// Gets all restriction keys.
-		std::set<uint64_t> keys() const;
+        /// Gets all restriction keys.
+        std::set<uint64_t> keys() const;
 
-	public:
-		/// Tries to get the \a rule associated with \a key.
-		bool tryGet(uint64_t key, RestrictionRule& rule) const;
+    public:
+        /// Tries to get the \a rule associated with \a key.
+        bool tryGet(uint64_t key, RestrictionRule& rule) const;
 
-		/// Sets the \a rule associated with \a key.
-		void set(uint64_t key, const RestrictionRule rule);
+        /// Sets the \a rule associated with \a key.
+        void set(uint64_t key, const RestrictionRule rule);
 
-	public:
-		MosaicId m_mosaicId;
-		RestrictionValueMap<RestrictionRule> m_keyRulePairs;
-	};
-}}
+    public:
+        MosaicId m_mosaicId;
+        RestrictionValueMap<RestrictionRule> m_keyRulePairs;
+    };
+}
+}

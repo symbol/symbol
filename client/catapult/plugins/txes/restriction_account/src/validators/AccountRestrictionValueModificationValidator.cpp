@@ -20,65 +20,69 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/AccountRestrictionCache.h"
-#include "src/state/AccountRestrictionUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/AccountRestrictionCache.h"
+#include "src/state/AccountRestrictionUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	namespace {
-		template<typename TUnresolved>
-		static auto Resolve(const model::ResolverContext& resolvers, const TUnresolved& unresolvedValue) {
-			return resolvers.resolve(unresolvedValue);
-		}
+    namespace {
+        template <typename TUnresolved>
+        static auto Resolve(const model::ResolverContext& resolvers, const TUnresolved& unresolvedValue)
+        {
+            return resolvers.resolve(unresolvedValue);
+        }
 
-		static auto Resolve(const model::ResolverContext&, const model::EntityType& unresolvedValue) {
-			return unresolvedValue;
-		}
+        static auto Resolve(const model::ResolverContext&, const model::EntityType& unresolvedValue)
+        {
+            return unresolvedValue;
+        }
 
-		template<typename TRestrictionValue, typename TNotification>
-		ValidationResult Validate(const TNotification& notification, const ValidatorContext& context) {
-			const auto& address = notification.Address;
-			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
-			if (!cache.contains(address))
-				return ValidationResult::Success;
+        template <typename TRestrictionValue, typename TNotification>
+        ValidationResult Validate(const TNotification& notification, const ValidatorContext& context)
+        {
+            const auto& address = notification.Address;
+            const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
+            if (!cache.contains(address))
+                return ValidationResult::Success;
 
-			auto restrictionsIter = cache.find(address);
-			const auto& restrictions = restrictionsIter.get();
-			auto restrictionFlags = notification.AccountRestrictionDescriptor.directionalRestrictionFlags();
-			const auto& restriction = restrictions.restriction(restrictionFlags);
-			auto operationType = notification.AccountRestrictionDescriptor.operationType();
+            auto restrictionsIter = cache.find(address);
+            const auto& restrictions = restrictionsIter.get();
+            auto restrictionFlags = notification.AccountRestrictionDescriptor.directionalRestrictionFlags();
+            const auto& restriction = restrictions.restriction(restrictionFlags);
+            auto operationType = notification.AccountRestrictionDescriptor.operationType();
 
-			auto modification =
-					model::AccountRestrictionModification{ notification.Action,
-														   state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue)) };
+            auto modification = model::AccountRestrictionModification { notification.Action,
+                state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue)) };
 
-			using OperationType = state::AccountRestrictionOperationType;
-			auto isAllowAndForbidden = OperationType::Allow == operationType && !restriction.canAllow(modification);
-			auto isBlockAndForbidden = OperationType::Block == operationType && !restriction.canBlock(modification);
-			return isAllowAndForbidden || isBlockAndForbidden ? Failure_RestrictionAccount_Invalid_Modification : ValidationResult::Success;
-		}
-	}
+            using OperationType = state::AccountRestrictionOperationType;
+            auto isAllowAndForbidden = OperationType::Allow == operationType && !restriction.canAllow(modification);
+            auto isBlockAndForbidden = OperationType::Block == operationType && !restriction.canBlock(modification);
+            return isAllowAndForbidden || isBlockAndForbidden ? Failure_RestrictionAccount_Invalid_Modification : ValidationResult::Success;
+        }
+    }
 
 #define DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, RESTRICTION_VALUE_TYPE) \
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE( \
-			VALIDATOR_NAME, \
-			NOTIFICATION_TYPE, \
-			([](const NOTIFICATION_TYPE& notification, const ValidatorContext& context) { \
-				return Validate<RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context); \
-			}))
+    DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(                                                                             \
+        VALIDATOR_NAME,                                                                                              \
+        NOTIFICATION_TYPE,                                                                                           \
+        ([](const NOTIFICATION_TYPE& notification, const ValidatorContext& context) {                                \
+            return Validate<RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context);                       \
+        }))
 
-	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(
-			AccountAddressRestrictionValueModification,
-			model::ModifyAccountAddressRestrictionValueNotification,
-			Address)
-	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(
-			AccountMosaicRestrictionValueModification,
-			model::ModifyAccountMosaicRestrictionValueNotification,
-			MosaicId)
-	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(
-			AccountOperationRestrictionValueModification,
-			model::ModifyAccountOperationRestrictionValueNotification,
-			model::EntityType)
-}}
+    DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(
+        AccountAddressRestrictionValueModification,
+        model::ModifyAccountAddressRestrictionValueNotification,
+        Address)
+    DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(
+        AccountMosaicRestrictionValueModification,
+        model::ModifyAccountMosaicRestrictionValueNotification,
+        MosaicId)
+    DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(
+        AccountOperationRestrictionValueModification,
+        model::ModifyAccountOperationRestrictionValueNotification,
+        model::EntityType)
+}
+}

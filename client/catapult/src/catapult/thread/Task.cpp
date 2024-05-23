@@ -22,38 +22,43 @@
 #include "Task.h"
 #include "catapult/exceptions.h"
 
-namespace catapult { namespace thread {
+namespace catapult {
+namespace thread {
 
-	DelayGenerator CreateUniformDelayGenerator(const utils::TimeSpan& delay) {
-		return [delay]() { return delay; };
-	}
+    DelayGenerator CreateUniformDelayGenerator(const utils::TimeSpan& delay)
+    {
+        return [delay]() { return delay; };
+    }
 
-	DelayGenerator CreateIncreasingDelayGenerator(
-			const utils::TimeSpan& minDelay,
-			uint32_t numPhaseOneRounds,
-			const utils::TimeSpan& maxDelay,
-			uint32_t numTransitionRounds) {
-		if (minDelay >= maxDelay)
-			CATAPULT_THROW_INVALID_ARGUMENT_2("minDelay must be less than maxDelay", minDelay, maxDelay);
+    DelayGenerator CreateIncreasingDelayGenerator(
+        const utils::TimeSpan& minDelay,
+        uint32_t numPhaseOneRounds,
+        const utils::TimeSpan& maxDelay,
+        uint32_t numTransitionRounds)
+    {
+        if (minDelay >= maxDelay)
+            CATAPULT_THROW_INVALID_ARGUMENT_2("minDelay must be less than maxDelay", minDelay, maxDelay);
 
-		auto counter = 0u;
-		return [counter, minDelay, numPhaseOneRounds, maxDelay, numTransitionRounds]() mutable {
-			auto round = ++counter;
-			if (round <= numPhaseOneRounds)
-				return minDelay;
+        auto counter = 0u;
+        return [counter, minDelay, numPhaseOneRounds, maxDelay, numTransitionRounds]() mutable {
+            auto round = ++counter;
+            if (round <= numPhaseOneRounds)
+                return minDelay;
 
-			if (round >= numPhaseOneRounds + numTransitionRounds)
-				return maxDelay;
+            if (round >= numPhaseOneRounds + numTransitionRounds)
+                return maxDelay;
 
-			auto increment = (maxDelay.millis() - minDelay.millis()) * (round - numPhaseOneRounds) / numTransitionRounds;
-			return utils::TimeSpan::FromMilliseconds(minDelay.millis() + increment);
-		};
-	}
+            auto increment = (maxDelay.millis() - minDelay.millis()) * (round - numPhaseOneRounds) / numTransitionRounds;
+            return utils::TimeSpan::FromMilliseconds(minDelay.millis() + increment);
+        };
+    }
 
-	Task CreateNamedTask(const std::string& name, const TaskCallback& callback) {
-		Task task;
-		task.Name = name;
-		task.Callback = callback;
-		return task;
-	}
-}}
+    Task CreateNamedTask(const std::string& name, const TaskCallback& callback)
+    {
+        Task task;
+        task.Name = name;
+        task.Callback = callback;
+        return task;
+    }
+}
+}

@@ -24,93 +24,95 @@
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/state/AccountHistory.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Map of addresses to account histories.
-	using AddressAccountHistoryMap = std::unordered_map<Address, state::AccountHistory, utils::ArrayHasher<Address>>;
+    /// Map of addresses to account histories.
+    using AddressAccountHistoryMap = std::unordered_map<Address, state::AccountHistory, utils::ArrayHasher<Address>>;
 
-	/// High value accounts container.
-	class HighValueAccounts {
-	public:
-		/// Creates an empty container.
-		HighValueAccounts();
+    /// High value accounts container.
+    class HighValueAccounts {
+    public:
+        /// Creates an empty container.
+        HighValueAccounts();
 
-		/// Creates a container around \a addresses, \a removedAddresses and \a accountHistories.
-		HighValueAccounts(
-				const model::AddressSet& addresses,
-				const model::AddressSet& removedAddresses,
-				const AddressAccountHistoryMap& accountHistories);
+        /// Creates a container around \a addresses, \a removedAddresses and \a accountHistories.
+        HighValueAccounts(
+            const model::AddressSet& addresses,
+            const model::AddressSet& removedAddresses,
+            const AddressAccountHistoryMap& accountHistories);
 
-		/// Creates a container around \a addresses, \a removedAddresses and \a accountHistories.
-		HighValueAccounts(model::AddressSet&& addresses, model::AddressSet&& removedAddresses, AddressAccountHistoryMap&& accountHistories);
+        /// Creates a container around \a addresses, \a removedAddresses and \a accountHistories.
+        HighValueAccounts(model::AddressSet&& addresses, model::AddressSet&& removedAddresses, AddressAccountHistoryMap&& accountHistories);
 
-	public:
-		/// Gets the high value (harvester eligible) addresses.
-		const model::AddressSet& addresses() const;
+    public:
+        /// Gets the high value (harvester eligible) addresses.
+        const model::AddressSet& addresses() const;
 
-		/// Gets the (removed) high value (harvester eligible) addresses that were once high value but no longer.
-		/// \note This is required for deterministic rollback.
-		const model::AddressSet& removedAddresses() const;
+        /// Gets the (removed) high value (harvester eligible) addresses that were once high value but no longer.
+        /// \note This is required for deterministic rollback.
+        const model::AddressSet& removedAddresses() const;
 
-		/// Gets the high value (voter eligible) account histories.
-		const AddressAccountHistoryMap& accountHistories() const;
+        /// Gets the high value (voter eligible) account histories.
+        const AddressAccountHistoryMap& accountHistories() const;
 
-	private:
-		model::AddressSet m_addresses;
-		model::AddressSet m_removedAddresses;
-		AddressAccountHistoryMap m_accountHistories;
-	};
+    private:
+        model::AddressSet m_addresses;
+        model::AddressSet m_removedAddresses;
+        AddressAccountHistoryMap m_accountHistories;
+    };
 
-	/// High value accounts updater.
-	class HighValueAccountsUpdater {
-	private:
-		using MemorySetType = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
+    /// High value accounts updater.
+    class HighValueAccountsUpdater {
+    private:
+        using MemorySetType = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
 
-	public:
-		/// Creates an updater around \a options and existing \a accounts.
-		HighValueAccountsUpdater(const AccountStateCacheTypes::Options& options, const HighValueAccounts& accounts);
+    public:
+        /// Creates an updater around \a options and existing \a accounts.
+        HighValueAccountsUpdater(const AccountStateCacheTypes::Options& options, const HighValueAccounts& accounts);
 
-	public:
-		/// Gets the height of the update operation.
-		Height height() const;
+    public:
+        /// Gets the height of the update operation.
+        Height height() const;
 
-		/// Gets the (current) high value (harvester eligible) addresses.
-		const model::AddressSet& addresses() const;
+        /// Gets the (current) high value (harvester eligible) addresses.
+        const model::AddressSet& addresses() const;
 
-		/// Gets the (removed) high value (harvester eligible) addresses that were once high value but no longer.
-		/// \note This is required for deterministic rollback.
-		const model::AddressSet& removedAddresses() const;
+        /// Gets the (removed) high value (harvester eligible) addresses that were once high value but no longer.
+        /// \note This is required for deterministic rollback.
+        const model::AddressSet& removedAddresses() const;
 
-		/// Gets the high value (voter eligible) account histories.
-		const AddressAccountHistoryMap& accountHistories() const;
+        /// Gets the high value (voter eligible) account histories.
+        const AddressAccountHistoryMap& accountHistories() const;
 
-	public:
-		/// Sets the \a height of the update operation.
-		void setHeight(Height height);
+    public:
+        /// Sets the \a height of the update operation.
+        void setHeight(Height height);
 
-		/// Sets the removed addresses to \a removedAddresses.
-		void setRemovedAddresses(model::AddressSet&& removedAddresses);
+        /// Sets the removed addresses to \a removedAddresses.
+        void setRemovedAddresses(model::AddressSet&& removedAddresses);
 
-		/// Updates high value accounts based on changes described in \a deltas.
-		void update(const deltaset::DeltaElements<MemorySetType>& deltas);
+        /// Updates high value accounts based on changes described in \a deltas.
+        void update(const deltaset::DeltaElements<MemorySetType>& deltas);
 
-		/// Prunes all balances less than \a height.
-		void prune(Height height);
+        /// Prunes all balances less than \a height.
+        void prune(Height height);
 
-	public:
-		/// Detaches the underlying data associated with this updater and converts it to a high value accounts container.
-		HighValueAccounts detachAccounts();
+    public:
+        /// Detaches the underlying data associated with this updater and converts it to a high value accounts container.
+        HighValueAccounts detachAccounts();
 
-	private:
-		void updateHarvestingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas);
-		void updateVotingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas);
+    private:
+        void updateHarvestingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas);
+        void updateVotingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas);
 
-	private:
-		AccountStateCacheTypes::Options m_options;
-		const model::AddressSet& m_original;
-		model::AddressSet m_current;
-		model::AddressSet m_removed;
-		AddressAccountHistoryMap m_accountHistories;
-		Height m_height;
-	};
-}}
+    private:
+        AccountStateCacheTypes::Options m_options;
+        const model::AddressSet& m_original;
+        model::AddressSet m_current;
+        model::AddressSet m_removed;
+        AddressAccountHistoryMap m_accountHistories;
+        Height m_height;
+    };
+}
+}

@@ -23,43 +23,49 @@
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/tree/PatriciaTreeTests.h"
 
-namespace catapult { namespace tree {
+namespace catapult {
+namespace tree {
 
 #define TEST_CLASS PatriciaTreeRdbIntegrityTests
 
-	namespace {
-		auto DefaultSettings(const std::string& dbDir) {
-			return cache::RocksDatabaseSettings(dbDir, { "default" }, cache::FilterPruningMode::Disabled);
-		}
+    namespace {
+        auto DefaultSettings(const std::string& dbDir)
+        {
+            return cache::RocksDatabaseSettings(dbDir, { "default" }, cache::FilterPruningMode::Disabled);
+        }
 
-		class RocksPatriciaTreeTraits {
-		public:
-			using DataSourceType = cache::PatriciaTreeRdbDataSource;
+        class RocksPatriciaTreeTraits {
+        public:
+            using DataSourceType = cache::PatriciaTreeRdbDataSource;
 
-		public:
-			explicit RocksPatriciaTreeTraits(tree::DataSourceVerbosity)
-					: m_db(DefaultSettings(m_dbDirGuard.name()))
-					, m_container(m_db, 0)
-					, m_dataSource(m_container) {
-			}
+        public:
+            explicit RocksPatriciaTreeTraits(tree::DataSourceVerbosity)
+                : m_db(DefaultSettings(m_dbDirGuard.name()))
+                , m_container(m_db, 0)
+                , m_dataSource(m_container)
+            {
+            }
 
-		public:
-			DataSourceType& dataSource() {
-				return m_dataSource;
-			}
+        public:
+            DataSourceType& dataSource()
+            {
+                return m_dataSource;
+            }
 
-			void verifyDataSourceSize(size_t) const {
-				// note: cannot verify size because setSize is not done anywhere
-			}
+            void verifyDataSourceSize(size_t) const
+            {
+                // note: cannot verify size because setSize is not done anywhere
+            }
 
-		private:
-			// use TempDirectoryGuard to remove db directory without including rocksdb related includes
-			test::TempDirectoryGuard m_dbDirGuard;
-			cache::RocksDatabase m_db;
-			cache::PatriciaTreeContainer m_container;
-			DataSourceType m_dataSource;
-		};
-	}
+        private:
+            // use TempDirectoryGuard to remove db directory without including rocksdb related includes
+            test::TempDirectoryGuard m_dbDirGuard;
+            cache::RocksDatabase m_db;
+            cache::PatriciaTreeContainer m_container;
+            DataSourceType m_dataSource;
+        };
+    }
 
-	DEFINE_PATRICIA_TREE_TESTS(RocksPatriciaTreeTraits)
-}}
+    DEFINE_PATRICIA_TREE_TESTS(RocksPatriciaTreeTraits)
+}
+}

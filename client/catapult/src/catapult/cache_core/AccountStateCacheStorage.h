@@ -25,16 +25,18 @@
 #include "catapult/state/AccountStateSerializer.h"
 #include <vector>
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Policy for saving and loading account state cache data.
-	struct AccountStateCacheStorage
-			: public CacheStorageFromDescriptor<AccountStateCacheDescriptor>
-			, public state::AccountStateSerializer {
-		/// Loads \a accountState into \a cacheDelta.
-		static void LoadInto(const ValueType& accountState, DestinationType& cacheDelta);
+    /// Policy for saving and loading account state cache data.
+    struct AccountStateCacheStorage
+        : public CacheStorageFromDescriptor<AccountStateCacheDescriptor>,
+          public state::AccountStateSerializer {
+        /// Loads \a accountState into \a cacheDelta.
+        static void LoadInto(const ValueType& accountState, DestinationType& cacheDelta);
 
-		/// Purges \a accountState from \a cacheDelta.
-		static void Purge(const ValueType& accountState, DestinationType& cacheDelta);
-	};
-}}
+        /// Purges \a accountState from \a cacheDelta.
+        static void Purge(const ValueType& accountState, DestinationType& cacheDelta);
+    };
+}
+}

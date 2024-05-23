@@ -24,96 +24,105 @@
 #include "Stream.h"
 #include "catapult/utils/MemoryUtils.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	// region WriteBlockElement
+    // region WriteBlockElement
 
-	namespace {
-		void WriteTransactionHashes(OutputStream& outputStream, const std::vector<model::TransactionElement>& transactionElements) {
-			auto numTransactions = static_cast<uint32_t>(transactionElements.size());
-			Write32(outputStream, numTransactions);
-			std::vector<Hash256> hashes(2 * numTransactions);
-			auto iter = hashes.begin();
-			for (const auto& transactionElement : transactionElements) {
-				*iter++ = transactionElement.EntityHash;
-				*iter++ = transactionElement.MerkleComponentHash;
-			}
+    namespace {
+        void WriteTransactionHashes(OutputStream& outputStream, const std::vector<model::TransactionElement>& transactionElements)
+        {
+            auto numTransactions = static_cast<uint32_t>(transactionElements.size());
+            Write32(outputStream, numTransactions);
+            std::vector<Hash256> hashes(2 * numTransactions);
+            auto iter = hashes.begin();
+            for (const auto& transactionElement : transactionElements) {
+                *iter++ = transactionElement.EntityHash;
+                *iter++ = transactionElement.MerkleComponentHash;
+            }
 
-			outputStream.write({ reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size() * Hash256::Size });
-		}
+            outputStream.write({ reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size() * Hash256::Size });
+        }
 
-		void WriteSubCacheMerkleRoots(OutputStream& outputStream, const std::vector<Hash256>& subCacheMerkleRoots) {
-			auto numHashes = static_cast<uint32_t>(subCacheMerkleRoots.size());
-			Write32(outputStream, numHashes);
-			outputStream.write({ reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256::Size });
-		}
-	}
+        void WriteSubCacheMerkleRoots(OutputStream& outputStream, const std::vector<Hash256>& subCacheMerkleRoots)
+        {
+            auto numHashes = static_cast<uint32_t>(subCacheMerkleRoots.size());
+            Write32(outputStream, numHashes);
+            outputStream.write({ reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256::Size });
+        }
+    }
 
-	void WriteBlockElement(const model::BlockElement& blockElement, OutputStream& outputStream) {
-		// 1. write constant size data
-		outputStream.write({ reinterpret_cast<const uint8_t*>(&blockElement.Block), blockElement.Block.Size });
-		outputStream.write(blockElement.EntityHash);
-		outputStream.write(blockElement.GenerationHash);
+    void WriteBlockElement(const model::BlockElement& blockElement, OutputStream& outputStream)
+    {
+        // 1. write constant size data
+        outputStream.write({ reinterpret_cast<const uint8_t*>(&blockElement.Block), blockElement.Block.Size });
+        outputStream.write(blockElement.EntityHash);
+        outputStream.write(blockElement.GenerationHash);
 
-		// 2. write transaction hashes
-		WriteTransactionHashes(outputStream, blockElement.Transactions);
+        // 2. write transaction hashes
+        WriteTransactionHashes(outputStream, blockElement.Transactions);
 
-		// 3. write sub cache merkle roots
-		WriteSubCacheMerkleRoots(outputStream, blockElement.SubCacheMerkleRoots);
-	}
+        // 3. write sub cache merkle roots
+        WriteSubCacheMerkleRoots(outputStream, blockElement.SubCacheMerkleRoots);
+    }
 
-	// endregion
+    // endregion
 
-	// region ReadBlockElement
+    // region ReadBlockElement
 
-	namespace {
-		std::shared_ptr<model::BlockElement> ReadBlockElementImpl(InputStream& inputStream) {
-			// allocate memory for both the element and the block in one shot (Block data is appended)
-			auto size = Read32(inputStream);
-			auto pBackingMemory = utils::MakeUniqueWithSize<uint8_t>(sizeof(model::BlockElement) + size);
+    namespace {
+        std::shared_ptr<model::BlockElement> ReadBlockElementImpl(InputStream& inputStream)
+        {
+            // allocate memory for both the element and the block in one shot (Block data is appended)
+            auto size = Read32(inputStream);
+            auto pBackingMemory = utils::MakeUniqueWithSize<uint8_t>(sizeof(model::BlockElement) + size);
 
-			// read the block data
-			auto pBlockData = pBackingMemory.get() + sizeof(model::BlockElement);
-			reinterpret_cast<uint32_t&>(*pBlockData) = size;
-			inputStream.read({ pBlockData + sizeof(uint32_t), size - sizeof(uint32_t) });
+            // read the block data
+            auto pBlockData = pBackingMemory.get() + sizeof(model::BlockElement);
+            reinterpret_cast<uint32_t&>(*pBlockData) = size;
+            inputStream.read({ pBlockData + sizeof(uint32_t), size - sizeof(uint32_t) });
 
-			// create the block element and transfer ownership from pBackingMemory to pBlockElement
-			auto pBlockElementRaw = new (pBackingMemory.get()) model::BlockElement(*reinterpret_cast<model::Block*>(pBlockData));
-			auto pBlockElement = std::shared_ptr<model::BlockElement>(pBlockElementRaw);
-			pBackingMemory.release();
+            // create the block element and transfer ownership from pBackingMemory to pBlockElement
+            auto pBlockElementRaw = new (pBackingMemory.get()) model::BlockElement(*reinterpret_cast<model::Block*>(pBlockData));
+            auto pBlockElement = std::shared_ptr<model::BlockElement>(pBlockElementRaw);
+            pBackingMemory.release();
 
-			// read metadata
-			inputStream.read(pBlockElement->EntityHash);
-			inputStream.read(pBlockElement->GenerationHash);
-			return pBlockElement;
-		}
+            // read metadata
+            inputStream.read(pBlockElement->EntityHash);
+            inputStream.read(pBlockElement->GenerationHash);
+            return pBlockElement;
+        }
 
-		void ReadTransactionHashes(InputStream& inputStream, model::BlockElement& blockElement) {
-			auto numTransactions = Read32(inputStream);
-			std::vector<Hash256> hashes(2 * numTransactions);
-			inputStream.read({ reinterpret_cast<uint8_t*>(hashes.data()), hashes.size() * Hash256::Size });
+        void ReadTransactionHashes(InputStream& inputStream, model::BlockElement& blockElement)
+        {
+            auto numTransactions = Read32(inputStream);
+            std::vector<Hash256> hashes(2 * numTransactions);
+            inputStream.read({ reinterpret_cast<uint8_t*>(hashes.data()), hashes.size() * Hash256::Size });
 
-			size_t i = 0;
-			for (const auto& transaction : blockElement.Block.Transactions()) {
-				blockElement.Transactions.push_back(model::TransactionElement(transaction));
-				blockElement.Transactions.back().EntityHash = hashes[i++];
-				blockElement.Transactions.back().MerkleComponentHash = hashes[i++];
-			}
-		}
+            size_t i = 0;
+            for (const auto& transaction : blockElement.Block.Transactions()) {
+                blockElement.Transactions.push_back(model::TransactionElement(transaction));
+                blockElement.Transactions.back().EntityHash = hashes[i++];
+                blockElement.Transactions.back().MerkleComponentHash = hashes[i++];
+            }
+        }
 
-		void ReadSubCacheMerkleRoots(InputStream& inputStream, std::vector<Hash256>& subCacheMerkleRoots) {
-			auto numHashes = Read32(inputStream);
-			subCacheMerkleRoots.resize(numHashes);
-			inputStream.read({ reinterpret_cast<uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256::Size });
-		}
-	}
+        void ReadSubCacheMerkleRoots(InputStream& inputStream, std::vector<Hash256>& subCacheMerkleRoots)
+        {
+            auto numHashes = Read32(inputStream);
+            subCacheMerkleRoots.resize(numHashes);
+            inputStream.read({ reinterpret_cast<uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256::Size });
+        }
+    }
 
-	std::shared_ptr<model::BlockElement> ReadBlockElement(InputStream& inputStream) {
-		auto pBlockElement = ReadBlockElementImpl(inputStream);
-		ReadTransactionHashes(inputStream, *pBlockElement);
-		ReadSubCacheMerkleRoots(inputStream, pBlockElement->SubCacheMerkleRoots);
-		return pBlockElement;
-	}
+    std::shared_ptr<model::BlockElement> ReadBlockElement(InputStream& inputStream)
+    {
+        auto pBlockElement = ReadBlockElementImpl(inputStream);
+        ReadTransactionHashes(inputStream, *pBlockElement);
+        ReadSubCacheMerkleRoots(inputStream, pBlockElement->SubCacheMerkleRoots);
+        return pBlockElement;
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -22,24 +22,28 @@
 #pragma once
 #include "catapult/extensions/LocalNodeStateFileStorage.h"
 
-namespace catapult { namespace config {
-	struct NodeConfiguration;
-}}
+namespace catapult {
+namespace config {
+    struct NodeConfiguration;
+}
+}
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Possible state recovery modes.
-	enum class StateRecoveryMode {
-		/// State is consistent.
-		None,
+    /// Possible state recovery modes.
+    enum class StateRecoveryMode {
+        /// State is consistent.
+        None,
 
-		/// State needs to be repaired.
-		Repair,
+        /// State needs to be repaired.
+        Repair,
 
-		/// State needs to be reseeded from scratch.
-		Reseed
-	};
+        /// State needs to be reseeded from scratch.
+        Reseed
+    };
 
-	/// Calculates the state recovery mode given \a config and \a heights.
-	StateRecoveryMode CalculateStateRecoveryMode(const config::NodeConfiguration& config, const extensions::StateHeights& heights);
-}}
+    /// Calculates the state recovery mode given \a config and \a heights.
+    StateRecoveryMode CalculateStateRecoveryMode(const config::NodeConfiguration& config, const extensions::StateHeights& heights);
+}
+}

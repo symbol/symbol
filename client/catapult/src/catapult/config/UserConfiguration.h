@@ -22,42 +22,46 @@
 #pragma once
 #include <string>
 
-namespace catapult { namespace utils {
-	class ConfigurationBag;
-}}
+namespace catapult {
+namespace utils {
+    class ConfigurationBag;
+}
+}
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// User configuration settings.
-	struct UserConfiguration {
-	public:
-		/// \c true if potential delegated harvesters should be automatically detected.
-		bool EnableDelegatedHarvestersAutoDetection;
+    /// User configuration settings.
+    struct UserConfiguration {
+    public:
+        /// \c true if potential delegated harvesters should be automatically detected.
+        bool EnableDelegatedHarvestersAutoDetection;
 
-		/// Seed directory containing nemesis.
-		std::string SeedDirectory;
+        /// Seed directory containing nemesis.
+        std::string SeedDirectory;
 
-		/// Data directory.
-		std::string DataDirectory;
+        /// Data directory.
+        std::string DataDirectory;
 
-		/// Certificate directory.
-		std::string CertificateDirectory;
+        /// Certificate directory.
+        std::string CertificateDirectory;
 
-		/// Voting keys directory.
-		std::string VotingKeysDirectory;
+        /// Voting keys directory.
+        std::string VotingKeysDirectory;
 
-		/// Plugins directory.
-		std::string PluginsDirectory;
+        /// Plugins directory.
+        std::string PluginsDirectory;
 
-	private:
-		UserConfiguration() = default;
+    private:
+        UserConfiguration() = default;
 
-	public:
-		/// Creates an uninitialized user configuration.
-		static UserConfiguration Uninitialized();
+    public:
+        /// Creates an uninitialized user configuration.
+        static UserConfiguration Uninitialized();
 
-	public:
-		/// Loads a user configuration from \a bag.
-		static UserConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-	};
-}}
+    public:
+        /// Loads a user configuration from \a bag.
+        static UserConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+    };
+}
+}

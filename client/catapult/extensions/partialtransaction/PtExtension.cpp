@@ -19,35 +19,41 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/config/ConfigurationFileLoader.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/PtBootstrapperService.h"
 #include "src/PtConfiguration.h"
 #include "src/PtDispatcherService.h"
 #include "src/PtService.h"
 #include "src/PtSyncSourceService.h"
-#include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
 #include <filesystem>
 
-namespace catapult { namespace partialtransaction { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		const auto& resourcesPath = bootstrapper.resourcesPath();
-		auto config = PtConfiguration::LoadFromPath(resourcesPath);
-		auto ptCacheOptions = cache::MemoryCacheOptions(config.CacheMaxResponseSize, config.CacheMaxSize);
-		AddStaticNodesFromPath(bootstrapper, (std::filesystem::path(resourcesPath) / "peers-api.json").generic_string());
+namespace catapult {
+namespace partialtransaction {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            const auto& resourcesPath = bootstrapper.resourcesPath();
+            auto config = PtConfiguration::LoadFromPath(resourcesPath);
+            auto ptCacheOptions = cache::MemoryCacheOptions(config.CacheMaxResponseSize, config.CacheMaxSize);
+            AddStaticNodesFromPath(bootstrapper, (std::filesystem::path(resourcesPath) / "peers-api.json").generic_string());
 
-		// create and register the pt cache (it is optional, so not in server state)
-		auto& extensionManager = bootstrapper.extensionManager();
-		auto& subscriptionManager = bootstrapper.subscriptionManager();
-		extensionManager.addServiceRegistrar(CreatePtBootstrapperServiceRegistrar(
-				[&subscriptionManager, ptCacheOptions]() { return subscriptionManager.createPtCache(ptCacheOptions); }));
+            // create and register the pt cache (it is optional, so not in server state)
+            auto& extensionManager = bootstrapper.extensionManager();
+            auto& subscriptionManager = bootstrapper.subscriptionManager();
+            extensionManager.addServiceRegistrar(CreatePtBootstrapperServiceRegistrar(
+                [&subscriptionManager, ptCacheOptions]() { return subscriptionManager.createPtCache(ptCacheOptions); }));
 
-		// register other services
-		extensionManager.addServiceRegistrar(CreatePtDispatcherServiceRegistrar());
-		extensionManager.addServiceRegistrar(CreatePtSyncSourceServiceRegistrar());
-		extensionManager.addServiceRegistrar(CreatePtServiceRegistrar());
-	}
-}}}
+            // register other services
+            extensionManager.addServiceRegistrar(CreatePtDispatcherServiceRegistrar());
+            extensionManager.addServiceRegistrar(CreatePtSyncSourceServiceRegistrar());
+            extensionManager.addServiceRegistrar(CreatePtServiceRegistrar());
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::partialtransaction::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::partialtransaction::RegisterExtension(bootstrapper);
 }

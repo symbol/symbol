@@ -26,46 +26,51 @@
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 
-namespace catapult { namespace model {
-	struct EmbeddedTransaction;
-	struct Transaction;
-}}
+namespace catapult {
+namespace model {
+    struct EmbeddedTransaction;
+    struct Transaction;
+}
+}
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	/// Typed mongo transaction plugin.
-	template<typename TTransaction>
-	class PLUGIN_API_DEPENDENCY MongoTransactionPluginT {
-	public:
-		virtual ~MongoTransactionPluginT() = default;
+    /// Typed mongo transaction plugin.
+    template <typename TTransaction>
+    class PLUGIN_API_DEPENDENCY MongoTransactionPluginT {
+    public:
+        virtual ~MongoTransactionPluginT() = default;
 
-	public:
-		/// Gets the transaction entity type.
-		virtual model::EntityType type() const = 0;
+    public:
+        /// Gets the transaction entity type.
+        virtual model::EntityType type() const = 0;
 
-		/// Streams \a transaction to \a builder.
-		virtual void streamTransaction(bsoncxx::builder::stream::document& builder, const TTransaction& transaction) const = 0;
-	};
+        /// Streams \a transaction to \a builder.
+        virtual void streamTransaction(bsoncxx::builder::stream::document& builder, const TTransaction& transaction) const = 0;
+    };
 
-	/// Embedded mongo transaction plugin.
-	class PLUGIN_API_DEPENDENCY EmbeddedMongoTransactionPlugin : public MongoTransactionPluginT<model::EmbeddedTransaction> {};
+    /// Embedded mongo transaction plugin.
+    class PLUGIN_API_DEPENDENCY EmbeddedMongoTransactionPlugin : public MongoTransactionPluginT<model::EmbeddedTransaction> { };
 
-	/// Mongo transaction plugin.
-	class PLUGIN_API_DEPENDENCY MongoTransactionPlugin : public MongoTransactionPluginT<model::Transaction> {
-	public:
-		/// Extracts dependent documents from \a transaction given the associated \a metadata.
-		/// \note The document representing the transaction is created separately via the streamTransaction() call.
-		virtual std::vector<bsoncxx::document::value> extractDependentDocuments(
-				const model::Transaction& transaction,
-				const MongoTransactionMetadata& metadata) const = 0;
+    /// Mongo transaction plugin.
+    class PLUGIN_API_DEPENDENCY MongoTransactionPlugin : public MongoTransactionPluginT<model::Transaction> {
+    public:
+        /// Extracts dependent documents from \a transaction given the associated \a metadata.
+        /// \note The document representing the transaction is created separately via the streamTransaction() call.
+        virtual std::vector<bsoncxx::document::value> extractDependentDocuments(
+            const model::Transaction& transaction,
+            const MongoTransactionMetadata& metadata) const
+            = 0;
 
-		/// \c true if this transaction type supports embedding.
-		virtual bool supportsEmbedding() const = 0;
+        /// \c true if this transaction type supports embedding.
+        virtual bool supportsEmbedding() const = 0;
 
-		/// Gets the corresponding embedded plugin if supportsEmbedding() is \c true.
-		virtual const EmbeddedMongoTransactionPlugin& embeddedPlugin() const = 0;
-	};
+        /// Gets the corresponding embedded plugin if supportsEmbedding() is \c true.
+        virtual const EmbeddedMongoTransactionPlugin& embeddedPlugin() const = 0;
+    };
 
-	/// Registry of mongo transaction plugins.
-	class MongoTransactionRegistry : public model::TransactionRegistryT<MongoTransactionPlugin> {};
-}}
+    /// Registry of mongo transaction plugins.
+    class MongoTransactionRegistry : public model::TransactionRegistryT<MongoTransactionPlugin> { };
+}
+}

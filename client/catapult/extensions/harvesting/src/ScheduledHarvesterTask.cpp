@@ -22,33 +22,37 @@
 #include "ScheduledHarvesterTask.h"
 #include "catapult/utils/HexFormatter.h"
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	ScheduledHarvesterTask::ScheduledHarvesterTask(const ScheduledHarvesterTaskOptions& options, std::unique_ptr<Harvester>&& pHarvester)
-			: m_harvestingAllowed(options.HarvestingAllowed)
-			, m_lastBlockElementSupplier(options.LastBlockElementSupplier)
-			, m_timeSupplier(options.TimeSupplier)
-			, m_rangeConsumer(options.RangeConsumer)
-			, m_pHarvester(std::move(pHarvester))
-			, m_pIsAnyHarvestedBlockPending(std::make_shared<std::atomic_bool>(false)) {
-	}
+    ScheduledHarvesterTask::ScheduledHarvesterTask(const ScheduledHarvesterTaskOptions& options, std::unique_ptr<Harvester>&& pHarvester)
+        : m_harvestingAllowed(options.HarvestingAllowed)
+        , m_lastBlockElementSupplier(options.LastBlockElementSupplier)
+        , m_timeSupplier(options.TimeSupplier)
+        , m_rangeConsumer(options.RangeConsumer)
+        , m_pHarvester(std::move(pHarvester))
+        , m_pIsAnyHarvestedBlockPending(std::make_shared<std::atomic_bool>(false))
+    {
+    }
 
-	void ScheduledHarvesterTask::harvest() {
-		if (*m_pIsAnyHarvestedBlockPending || !m_harvestingAllowed())
-			return;
+    void ScheduledHarvesterTask::harvest()
+    {
+        if (*m_pIsAnyHarvestedBlockPending || !m_harvestingAllowed())
+            return;
 
-		auto pLastBlockElement = m_lastBlockElementSupplier();
-		auto pBlock = m_pHarvester->harvest(*pLastBlockElement, m_timeSupplier());
-		if (!pBlock)
-			return;
+        auto pLastBlockElement = m_lastBlockElementSupplier();
+        auto pBlock = m_pHarvester->harvest(*pLastBlockElement, m_timeSupplier());
+        if (!pBlock)
+            return;
 
-		CATAPULT_LOG(info) << "successfully harvested block at " << pBlock->Height << " with signer " << pBlock->SignerPublicKey;
-		*m_pIsAnyHarvestedBlockPending = true;
+        CATAPULT_LOG(info) << "successfully harvested block at " << pBlock->Height << " with signer " << pBlock->SignerPublicKey;
+        *m_pIsAnyHarvestedBlockPending = true;
 
-		// flag needs to be captured as shared_ptr in order to avoid race condition when harvesting service
-		// is shutdown before dispatcher service and block completes processing in interim period
-		m_rangeConsumer(model::BlockRange::FromEntity(std::move(pBlock)), [pIsAnyBlockPending = m_pIsAnyHarvestedBlockPending](auto, auto) {
-			*pIsAnyBlockPending = false;
-		});
-	}
-}}
+        // flag needs to be captured as shared_ptr in order to avoid race condition when harvesting service
+        // is shutdown before dispatcher service and block completes processing in interim period
+        m_rangeConsumer(model::BlockRange::FromEntity(std::move(pBlock)), [pIsAnyBlockPending = m_pIsAnyHarvestedBlockPending](auto, auto) {
+            *pIsAnyBlockPending = false;
+        });
+    }
+}
+}

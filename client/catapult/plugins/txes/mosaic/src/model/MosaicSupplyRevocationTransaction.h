@@ -24,34 +24,37 @@
 #include "catapult/model/Mosaic.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a mosaic supply revocation transaction body.
-	template<typename THeader>
-	struct MosaicSupplyRevocationTransactionBody : public THeader {
-	private:
-		using TransactionType = MosaicSupplyRevocationTransactionBody<THeader>;
+    /// Binary layout for a mosaic supply revocation transaction body.
+    template <typename THeader>
+    struct MosaicSupplyRevocationTransactionBody : public THeader {
+    private:
+        using TransactionType = MosaicSupplyRevocationTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Supply_Revocation, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Supply_Revocation, 1)
 
-	public:
-		/// Address from which tokens should be revoked.
-		UnresolvedAddress SourceAddress;
+    public:
+        /// Address from which tokens should be revoked.
+        UnresolvedAddress SourceAddress;
 
-		/// Revoked mosaic.
-		UnresolvedMosaic Mosaic;
+        /// Revoked mosaic.
+        UnresolvedMosaic Mosaic;
 
-	public:
-		/// Calculates the real size of a mosaic supply revocation \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+    public:
+        /// Calculates the real size of a mosaic supply revocation \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
+        {
+            return sizeof(TransactionType);
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(MosaicSupplyRevocation)
+    DEFINE_EMBEDDABLE_TRANSACTION(MosaicSupplyRevocation)
 
 #pragma pack(pop)
-}}
+}
+}

@@ -23,58 +23,69 @@
 #include "ResolverContext.h"
 #include "catapult/exceptions.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	namespace {
-		UnresolvedAddress Unresolve(const Address& address) {
-			return address.copyTo<UnresolvedAddress>();
-		}
+    namespace {
+        UnresolvedAddress Unresolve(const Address& address)
+        {
+            return address.copyTo<UnresolvedAddress>();
+        }
 
-		UnresolvedMosaicId Unresolve(MosaicId mosaicId) {
-			return UnresolvedMosaicId(mosaicId.unwrap());
-		}
-	}
+        UnresolvedMosaicId Unresolve(MosaicId mosaicId)
+        {
+            return UnresolvedMosaicId(mosaicId.unwrap());
+        }
+    }
 
-	template<typename TUnresolved, typename TResolved>
-	Resolvable<TUnresolved, TResolved>::Resolvable()
-			: m_type(Type::Resolved) {
-	}
+    template <typename TUnresolved, typename TResolved>
+    Resolvable<TUnresolved, TResolved>::Resolvable()
+        : m_type(Type::Resolved)
+    {
+    }
 
-	template<typename TUnresolved, typename TResolved>
-	Resolvable<TUnresolved, TResolved>::Resolvable(const TUnresolved& unresolved)
-			: m_unresolved(unresolved)
-			, m_type(Type::Unresolved) {
-	}
+    template <typename TUnresolved, typename TResolved>
+    Resolvable<TUnresolved, TResolved>::Resolvable(const TUnresolved& unresolved)
+        : m_unresolved(unresolved)
+        , m_type(Type::Unresolved)
+    {
+    }
 
-	template<typename TUnresolved, typename TResolved>
-	Resolvable<TUnresolved, TResolved>::Resolvable(const TResolved& resolved)
-			: m_resolved(resolved)
-			, m_type(Type::Resolved) {
-	}
+    template <typename TUnresolved, typename TResolved>
+    Resolvable<TUnresolved, TResolved>::Resolvable(const TResolved& resolved)
+        : m_resolved(resolved)
+        , m_type(Type::Resolved)
+    {
+    }
 
-	template<typename TUnresolved, typename TResolved>
-	bool Resolvable<TUnresolved, TResolved>::isResolved() const {
-		return Type::Resolved == m_type;
-	}
+    template <typename TUnresolved, typename TResolved>
+    bool Resolvable<TUnresolved, TResolved>::isResolved() const
+    {
+        return Type::Resolved == m_type;
+    }
 
-	template<typename TUnresolved, typename TResolved>
-	TUnresolved Resolvable<TUnresolved, TResolved>::unresolved() const {
-		return isResolved() ? Unresolve(m_resolved) : m_unresolved;
-	}
+    template <typename TUnresolved, typename TResolved>
+    TUnresolved Resolvable<TUnresolved, TResolved>::unresolved() const
+    {
+        return isResolved() ? Unresolve(m_resolved) : m_unresolved;
+    }
 
-	template<typename TUnresolved, typename TResolved>
-	TResolved Resolvable<TUnresolved, TResolved>::resolved() const {
-		if (!isResolved())
-			CATAPULT_THROW_INVALID_ARGUMENT("underlying value is not resolved and requires ResolverContext");
+    template <typename TUnresolved, typename TResolved>
+    TResolved Resolvable<TUnresolved, TResolved>::resolved() const
+    {
+        if (!isResolved())
+            CATAPULT_THROW_INVALID_ARGUMENT("underlying value is not resolved and requires ResolverContext");
 
-		return m_resolved;
-	}
+        return m_resolved;
+    }
 
-	template<typename TUnresolved, typename TResolved>
-	TResolved Resolvable<TUnresolved, TResolved>::resolved(const ResolverContext& resolvers) const {
-		return isResolved() ? m_resolved : resolvers.resolve(m_unresolved);
-	}
+    template <typename TUnresolved, typename TResolved>
+    TResolved Resolvable<TUnresolved, TResolved>::resolved(const ResolverContext& resolvers) const
+    {
+        return isResolved() ? m_resolved : resolvers.resolve(m_unresolved);
+    }
 
-	template class Resolvable<UnresolvedAddress, Address>;
-	template class Resolvable<UnresolvedMosaicId, MosaicId>;
-}}
+    template class Resolvable<UnresolvedAddress, Address>;
+    template class Resolvable<UnresolvedMosaicId, MosaicId>;
+}
+}

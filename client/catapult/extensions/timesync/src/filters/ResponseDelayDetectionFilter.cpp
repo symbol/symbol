@@ -20,12 +20,17 @@
 **/
 
 #include "SynchronizationFilters.h"
-#include "filter_constants.h"
 #include "catapult/utils/ContainerHelpers.h"
+#include "filter_constants.h"
 
-namespace catapult { namespace timesync { namespace filters {
+namespace catapult {
+namespace timesync {
+    namespace filters {
 
-	SynchronizationFilter CreateResponseDelayDetectionFilter() {
-		return [](const auto& sample, auto) { return Tolerated_Duration_Maximum < sample.duration().millis(); };
-	}
-}}}
+        SynchronizationFilter CreateResponseDelayDetectionFilter()
+        {
+            return [](const auto& sample, auto) { return Tolerated_Duration_Maximum < sample.duration().millis(); };
+        }
+    }
+}
+}

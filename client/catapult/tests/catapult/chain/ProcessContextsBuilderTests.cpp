@@ -23,207 +23,222 @@
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/observers/ObserverContext.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
 #define TEST_CLASS ProcessContextsBuilderTests
 
-	namespace {
-		// region test context
+    namespace {
+        // region test context
 
-		struct TestContext {
-		public:
-			TestContext()
-					: Cache(test::CreateCatapultCacheWithMarkerAccount())
-					, ResolverCallPairs(0, 0)
-					, Builder(Height(111), Timestamp(222), { CreateNetworkInfo(), [this](const auto& readOnlyCache) {
-																++ResolverCallPairs.first;
-																if (test::IsMarkedCache(readOnlyCache))
-																	++ResolverCallPairs.second;
+        struct TestContext {
+        public:
+            TestContext()
+                : Cache(test::CreateCatapultCacheWithMarkerAccount())
+                , ResolverCallPairs(0, 0)
+                , Builder(Height(111), Timestamp(222), { CreateNetworkInfo(), [this](const auto& readOnlyCache) {
+                                                            ++ResolverCallPairs.first;
+                                                            if (test::IsMarkedCache(readOnlyCache))
+                                                                ++ResolverCallPairs.second;
 
-																return test::CreateResolverContextXor();
-															} }) {
-			}
+                                                            return test::CreateResolverContextXor();
+                                                        } })
+            {
+            }
 
-		public:
-			cache::CatapultCache Cache;
-			std::pair<size_t, size_t> ResolverCallPairs;
-			ProcessContextsBuilder Builder;
+        public:
+            cache::CatapultCache Cache;
+            std::pair<size_t, size_t> ResolverCallPairs;
+            ProcessContextsBuilder Builder;
 
-		private:
-			static model::NetworkInfo CreateNetworkInfo() {
-				model::NetworkInfo networkInfo;
-				networkInfo.Identifier = static_cast<model::NetworkIdentifier>(33);
-				networkInfo.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(44);
-				return networkInfo;
-			}
-		};
+        private:
+            static model::NetworkInfo CreateNetworkInfo()
+            {
+                model::NetworkInfo networkInfo;
+                networkInfo.Identifier = static_cast<model::NetworkIdentifier>(33);
+                networkInfo.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(44);
+                return networkInfo;
+            }
+        };
 
-		// endregion
-	}
+        // endregion
+    }
 
-	// region buildObserverContext
+    // region buildObserverContext
 
-	namespace {
-		void AssertObserverContext(const TestContext& context, const observers::ObserverContext& observerContext) {
-			// Assert: check basic fields
-			EXPECT_EQ(Height(111), observerContext.Height);
-			EXPECT_EQ(observers::NotifyMode::Commit, observerContext.Mode);
+    namespace {
+        void AssertObserverContext(const TestContext& context, const observers::ObserverContext& observerContext)
+        {
+            // Assert: check basic fields
+            EXPECT_EQ(Height(111), observerContext.Height);
+            EXPECT_EQ(observers::NotifyMode::Commit, observerContext.Mode);
 
-			// - check resolver wiring
-			auto resolveResult = observerContext.Resolvers.resolve(UnresolvedMosaicId(444));
-			EXPECT_EQ(1u, context.ResolverCallPairs.first);
-			EXPECT_EQ(1u, context.ResolverCallPairs.second);
-			EXPECT_EQ(test::CreateResolverContextXor().resolve(UnresolvedMosaicId(444)), resolveResult);
+            // - check resolver wiring
+            auto resolveResult = observerContext.Resolvers.resolve(UnresolvedMosaicId(444));
+            EXPECT_EQ(1u, context.ResolverCallPairs.first);
+            EXPECT_EQ(1u, context.ResolverCallPairs.second);
+            EXPECT_EQ(test::CreateResolverContextXor().resolve(UnresolvedMosaicId(444)), resolveResult);
 
-			// - check cache
-			EXPECT_TRUE(test::IsMarkedCache(observerContext.Cache));
-		}
-	}
+            // - check cache
+            EXPECT_TRUE(test::IsMarkedCache(observerContext.Cache));
+        }
+    }
 
-	TEST(TEST_CLASS, CannotBuildObserverContextWithoutCache) {
-		// Arrange:
-		TestContext context;
+    TEST(TEST_CLASS, CannotBuildObserverContextWithoutCache)
+    {
+        // Arrange:
+        TestContext context;
 
-		// Act + Assert:
-		EXPECT_THROW(context.Builder.buildObserverContext(), catapult_invalid_argument);
-	}
+        // Act + Assert:
+        EXPECT_THROW(context.Builder.buildObserverContext(), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, CannotBuildObserverContextWithCacheView) {
-		// Arrange:
-		TestContext context;
-		auto cacheView = context.Cache.createView();
-		context.Builder.setCache(cacheView);
+    TEST(TEST_CLASS, CannotBuildObserverContextWithCacheView)
+    {
+        // Arrange:
+        TestContext context;
+        auto cacheView = context.Cache.createView();
+        context.Builder.setCache(cacheView);
 
-		// Act + Assert:
-		EXPECT_THROW(context.Builder.buildObserverContext(), catapult_invalid_argument);
-	}
+        // Act + Assert:
+        EXPECT_THROW(context.Builder.buildObserverContext(), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, CanBuildObserverContextWithCacheDelta) {
-		// Arrange:
-		TestContext context;
-		auto cacheDelta = context.Cache.createDelta();
-		context.Builder.setCache(cacheDelta);
+    TEST(TEST_CLASS, CanBuildObserverContextWithCacheDelta)
+    {
+        // Arrange:
+        TestContext context;
+        auto cacheDelta = context.Cache.createDelta();
+        context.Builder.setCache(cacheDelta);
 
-		// Act:
-		auto observerContext = context.Builder.buildObserverContext();
+        // Act:
+        auto observerContext = context.Builder.buildObserverContext();
 
-		// Assert:
-		AssertObserverContext(context, observerContext);
-	}
+        // Assert:
+        AssertObserverContext(context, observerContext);
+    }
 
-	TEST(TEST_CLASS, CanBuildObserverContextWithCacheDeltaAndBlockStatementBuilder) {
-		// Arrange:
-		auto blockStatementBuilder = model::BlockStatementBuilder();
+    TEST(TEST_CLASS, CanBuildObserverContextWithCacheDeltaAndBlockStatementBuilder)
+    {
+        // Arrange:
+        auto blockStatementBuilder = model::BlockStatementBuilder();
 
-		TestContext context;
-		auto cacheDelta = context.Cache.createDelta();
-		context.Builder.setCache(cacheDelta);
-		context.Builder.setBlockStatementBuilder(blockStatementBuilder);
+        TestContext context;
+        auto cacheDelta = context.Cache.createDelta();
+        context.Builder.setCache(cacheDelta);
+        context.Builder.setBlockStatementBuilder(blockStatementBuilder);
 
-		// Act:
-		auto observerContext = context.Builder.buildObserverContext();
+        // Act:
+        auto observerContext = context.Builder.buildObserverContext();
 
-		// Assert:
-		AssertObserverContext(context, observerContext);
+        // Assert:
+        AssertObserverContext(context, observerContext);
 
-		// - check block statement builder
-		observerContext.StatementBuilder().setSource({ 2, 4 });
-		EXPECT_EQ(2u, blockStatementBuilder.source().PrimaryId);
-		EXPECT_EQ(4u, blockStatementBuilder.source().SecondaryId);
-	}
+        // - check block statement builder
+        observerContext.StatementBuilder().setSource({ 2, 4 });
+        EXPECT_EQ(2u, blockStatementBuilder.source().PrimaryId);
+        EXPECT_EQ(4u, blockStatementBuilder.source().SecondaryId);
+    }
 
-	TEST(TEST_CLASS, CanBuildObserverContextWithObserverState) {
-		// Arrange:
-		auto blockStatementBuilder = model::BlockStatementBuilder();
+    TEST(TEST_CLASS, CanBuildObserverContextWithObserverState)
+    {
+        // Arrange:
+        auto blockStatementBuilder = model::BlockStatementBuilder();
 
-		TestContext context;
-		auto cacheDelta = context.Cache.createDelta();
-		context.Builder.setObserverState(observers::ObserverState(cacheDelta, blockStatementBuilder));
+        TestContext context;
+        auto cacheDelta = context.Cache.createDelta();
+        context.Builder.setObserverState(observers::ObserverState(cacheDelta, blockStatementBuilder));
 
-		// Act:
-		auto observerContext = context.Builder.buildObserverContext();
+        // Act:
+        auto observerContext = context.Builder.buildObserverContext();
 
-		// Assert:
-		AssertObserverContext(context, observerContext);
+        // Assert:
+        AssertObserverContext(context, observerContext);
 
-		// - check block statement builder
-		observerContext.StatementBuilder().setSource({ 2, 4 });
-		EXPECT_EQ(2u, blockStatementBuilder.source().PrimaryId);
-		EXPECT_EQ(4u, blockStatementBuilder.source().SecondaryId);
-	}
+        // - check block statement builder
+        observerContext.StatementBuilder().setSource({ 2, 4 });
+        EXPECT_EQ(2u, blockStatementBuilder.source().PrimaryId);
+        EXPECT_EQ(4u, blockStatementBuilder.source().SecondaryId);
+    }
 
-	// endregion
+    // endregion
 
-	// region buildValidatorContext
+    // region buildValidatorContext
 
-	namespace {
-		void AssertValidatorContext(const TestContext& context, const validators::ValidatorContext& validatorContext) {
-			// Assert: check basic fields
-			EXPECT_EQ(Height(111), validatorContext.Height);
-			EXPECT_EQ(Timestamp(222), validatorContext.BlockTime);
-			EXPECT_EQ(static_cast<model::NetworkIdentifier>(33), validatorContext.Network.Identifier);
+    namespace {
+        void AssertValidatorContext(const TestContext& context, const validators::ValidatorContext& validatorContext)
+        {
+            // Assert: check basic fields
+            EXPECT_EQ(Height(111), validatorContext.Height);
+            EXPECT_EQ(Timestamp(222), validatorContext.BlockTime);
+            EXPECT_EQ(static_cast<model::NetworkIdentifier>(33), validatorContext.Network.Identifier);
 
-			// - check resolver wiring
-			auto resolveResult = validatorContext.Resolvers.resolve(UnresolvedMosaicId(444));
-			EXPECT_EQ(1u, context.ResolverCallPairs.first);
-			EXPECT_EQ(1u, context.ResolverCallPairs.second);
-			EXPECT_EQ(test::CreateResolverContextXor().resolve(UnresolvedMosaicId(444)), resolveResult);
+            // - check resolver wiring
+            auto resolveResult = validatorContext.Resolvers.resolve(UnresolvedMosaicId(444));
+            EXPECT_EQ(1u, context.ResolverCallPairs.first);
+            EXPECT_EQ(1u, context.ResolverCallPairs.second);
+            EXPECT_EQ(test::CreateResolverContextXor().resolve(UnresolvedMosaicId(444)), resolveResult);
 
-			// - check cache
-			EXPECT_TRUE(test::IsMarkedCache(validatorContext.Cache));
-		}
-	}
+            // - check cache
+            EXPECT_TRUE(test::IsMarkedCache(validatorContext.Cache));
+        }
+    }
 
-	TEST(TEST_CLASS, CannotBuildValidatorContextWithoutCache) {
-		// Arrange:
-		TestContext context;
+    TEST(TEST_CLASS, CannotBuildValidatorContextWithoutCache)
+    {
+        // Arrange:
+        TestContext context;
 
-		// Act + Assert:
-		EXPECT_THROW(context.Builder.buildValidatorContext(), catapult_invalid_argument);
-	}
+        // Act + Assert:
+        EXPECT_THROW(context.Builder.buildValidatorContext(), catapult_invalid_argument);
+    }
 
-	TEST(TEST_CLASS, CanBuildValidatorContextWithCacheView) {
-		// Arrange:
-		TestContext context;
-		auto cacheView = context.Cache.createView();
-		context.Builder.setCache(cacheView);
+    TEST(TEST_CLASS, CanBuildValidatorContextWithCacheView)
+    {
+        // Arrange:
+        TestContext context;
+        auto cacheView = context.Cache.createView();
+        context.Builder.setCache(cacheView);
 
-		// Act:
-		auto validatorContext = context.Builder.buildValidatorContext();
+        // Act:
+        auto validatorContext = context.Builder.buildValidatorContext();
 
-		// Assert:
-		AssertValidatorContext(context, validatorContext);
-	}
+        // Assert:
+        AssertValidatorContext(context, validatorContext);
+    }
 
-	TEST(TEST_CLASS, CanBuildValidatorContextWithCacheDelta) {
-		// Arrange:
-		TestContext context;
-		auto cacheDelta = context.Cache.createDelta();
-		context.Builder.setCache(cacheDelta);
+    TEST(TEST_CLASS, CanBuildValidatorContextWithCacheDelta)
+    {
+        // Arrange:
+        TestContext context;
+        auto cacheDelta = context.Cache.createDelta();
+        context.Builder.setCache(cacheDelta);
 
-		// Act:
-		auto validatorContext = context.Builder.buildValidatorContext();
+        // Act:
+        auto validatorContext = context.Builder.buildValidatorContext();
 
-		// Assert:
-		AssertValidatorContext(context, validatorContext);
-	}
+        // Assert:
+        AssertValidatorContext(context, validatorContext);
+    }
 
-	TEST(TEST_CLASS, CanBuildValidatorContextWithObserverState) {
-		// Arrange:
-		TestContext context;
-		auto cacheDelta = context.Cache.createDelta();
-		context.Builder.setObserverState(observers::ObserverState(cacheDelta));
+    TEST(TEST_CLASS, CanBuildValidatorContextWithObserverState)
+    {
+        // Arrange:
+        TestContext context;
+        auto cacheDelta = context.Cache.createDelta();
+        context.Builder.setObserverState(observers::ObserverState(cacheDelta));
 
-		// Act:
-		auto validatorContext = context.Builder.buildValidatorContext();
+        // Act:
+        auto validatorContext = context.Builder.buildValidatorContext();
 
-		// Assert:
-		AssertValidatorContext(context, validatorContext);
-	}
+        // Assert:
+        AssertValidatorContext(context, validatorContext);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -22,65 +22,79 @@
 #include "StepIdentifier.h"
 #include "catapult/utils/Casting.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region step identifier
+    // region step identifier
 
-	StepIdentifier::StepIdentifier()
-			: StepIdentifier(FinalizationEpoch(), FinalizationPoint(), FinalizationStage::Prevote) {
-	}
+    StepIdentifier::StepIdentifier()
+        : StepIdentifier(FinalizationEpoch(), FinalizationPoint(), FinalizationStage::Prevote)
+    {
+    }
 
-	StepIdentifier::StepIdentifier(FinalizationEpoch epoch, FinalizationPoint point, FinalizationStage stage)
-			: Epoch(epoch)
-			, PointStage((point.unwrap() << 1) | (utils::to_underlying_type(stage) & 1)) {
-	}
+    StepIdentifier::StepIdentifier(FinalizationEpoch epoch, FinalizationPoint point, FinalizationStage stage)
+        : Epoch(epoch)
+        , PointStage((point.unwrap() << 1) | (utils::to_underlying_type(stage) & 1))
+    {
+    }
 
-	model::FinalizationRound StepIdentifier::Round() const {
-		return { Epoch, FinalizationPoint(PointStage.unwrap() >> 1) };
-	}
+    model::FinalizationRound StepIdentifier::Round() const
+    {
+        return { Epoch, FinalizationPoint(PointStage.unwrap() >> 1) };
+    }
 
-	model::FinalizationStage StepIdentifier::Stage() const {
-		return static_cast<model::FinalizationStage>(PointStage.unwrap() & 1);
-	}
+    model::FinalizationStage StepIdentifier::Stage() const
+    {
+        return static_cast<model::FinalizationStage>(PointStage.unwrap() & 1);
+    }
 
-	bool StepIdentifier::operator==(const StepIdentifier& rhs) const {
-		return Epoch == rhs.Epoch && PointStage == rhs.PointStage;
-	}
+    bool StepIdentifier::operator==(const StepIdentifier& rhs) const
+    {
+        return Epoch == rhs.Epoch && PointStage == rhs.PointStage;
+    }
 
-	bool StepIdentifier::operator!=(const StepIdentifier& rhs) const {
-		return !(*this == rhs);
-	}
+    bool StepIdentifier::operator!=(const StepIdentifier& rhs) const
+    {
+        return !(*this == rhs);
+    }
 
-	bool StepIdentifier::operator<(const StepIdentifier& rhs) const {
-		return Epoch != rhs.Epoch ? Epoch < rhs.Epoch : PointStage < rhs.PointStage;
-	}
+    bool StepIdentifier::operator<(const StepIdentifier& rhs) const
+    {
+        return Epoch != rhs.Epoch ? Epoch < rhs.Epoch : PointStage < rhs.PointStage;
+    }
 
-	bool StepIdentifier::operator<=(const StepIdentifier& rhs) const {
-		return *this < rhs || *this == rhs;
-	}
+    bool StepIdentifier::operator<=(const StepIdentifier& rhs) const
+    {
+        return *this < rhs || *this == rhs;
+    }
 
-	bool StepIdentifier::operator>(const StepIdentifier& rhs) const {
-		return !(*this <= rhs);
-	}
+    bool StepIdentifier::operator>(const StepIdentifier& rhs) const
+    {
+        return !(*this <= rhs);
+    }
 
-	bool StepIdentifier::operator>=(const StepIdentifier& rhs) const {
-		return !(*this < rhs);
-	}
+    bool StepIdentifier::operator>=(const StepIdentifier& rhs) const
+    {
+        return !(*this < rhs);
+    }
 
-	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier) {
-		auto isPrecommit = stepIdentifier.PointStage.unwrap() & 1;
-		out << stepIdentifier.Round() << " " << (isPrecommit ? "precommit" : "prevote");
-		return out;
-	}
+    std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier)
+    {
+        auto isPrecommit = stepIdentifier.PointStage.unwrap() & 1;
+        out << stepIdentifier.Round() << " " << (isPrecommit ? "precommit" : "prevote");
+        return out;
+    }
 
-	// endregion
+    // endregion
 
-	// region StepIdentifierToBmKeyIdentifier
+    // region StepIdentifierToBmKeyIdentifier
 
-	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier) {
-		auto identifier = stepIdentifier.Epoch.unwrap();
-		return { identifier };
-	}
+    crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier)
+    {
+        auto identifier = stepIdentifier.Epoch.unwrap();
+        return { identifier };
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

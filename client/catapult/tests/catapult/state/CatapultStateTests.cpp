@@ -22,18 +22,21 @@
 #include "catapult/state/CatapultState.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS CatapultStateTests
 
-	TEST(TEST_CLASS, CanCreateDefaultState) {
-		// Act:
-		CatapultState state;
+    TEST(TEST_CLASS, CanCreateDefaultState)
+    {
+        // Act:
+        CatapultState state;
 
-		// Assert:
-		EXPECT_EQ(model::ImportanceHeight(0), state.LastRecalculationHeight);
-		EXPECT_EQ(Height(0), state.LastFinalizedHeight);
-		EXPECT_EQ(BlockFeeMultiplier(0), state.DynamicFeeMultiplier);
-		EXPECT_EQ(0u, state.NumTotalTransactions);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(model::ImportanceHeight(0), state.LastRecalculationHeight);
+        EXPECT_EQ(Height(0), state.LastFinalizedHeight);
+        EXPECT_EQ(BlockFeeMultiplier(0), state.DynamicFeeMultiplier);
+        EXPECT_EQ(0u, state.NumTotalTransactions);
+    }
+}
+}

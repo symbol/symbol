@@ -22,11 +22,13 @@
 #include "KeyLinkValidators.h"
 #include "catapult/validators/ValidatorUtils.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::KeyLinkActionNotification;
+    using Notification = model::KeyLinkActionNotification;
 
-	DEFINE_STATELESS_VALIDATOR(KeyLinkAction, [](const Notification& notification) {
-		return ValidateLessThanOrEqual(notification.LinkAction, model::LinkAction::Link, Failure_Core_Invalid_Link_Action);
-	})
-}}
+    DEFINE_STATELESS_VALIDATOR(KeyLinkAction, [](const Notification& notification) {
+        return ValidateLessThanOrEqual(notification.LinkAction, model::LinkAction::Link, Failure_Core_Invalid_Link_Action);
+    })
+}
+}

@@ -19,49 +19,55 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/local/recovery/RepairImportance.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/RawFile.h"
-#include "tests/test/nodeps/Filesystem.h"
+#include "catapult/local/recovery/RepairImportance.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Filesystem.h"
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
 #define TEST_CLASS RepairImportanceTests
 
-	namespace {
-		void RunRepairImportanceTest(consumers::CommitOperationStep commitStep, size_t numExpectedFiles) {
-			// Arrange:
-			test::TempDirectoryGuard tempDir;
-			auto importanceDirectory = std::filesystem::path(tempDir.name()) / "importance";
-			auto importanceWipDirectory = importanceDirectory / "wip";
-			std::filesystem::create_directories(importanceWipDirectory);
+    namespace {
+        void RunRepairImportanceTest(consumers::CommitOperationStep commitStep, size_t numExpectedFiles)
+        {
+            // Arrange:
+            test::TempDirectoryGuard tempDir;
+            auto importanceDirectory = std::filesystem::path(tempDir.name()) / "importance";
+            auto importanceWipDirectory = importanceDirectory / "wip";
+            std::filesystem::create_directories(importanceWipDirectory);
 
-			// - write two files to wip
-			for (auto name : { "foo", "bar" })
-				io::RawFile((importanceWipDirectory / name).generic_string(), io::OpenMode::Read_Write);
+            // - write two files to wip
+            for (auto name : { "foo", "bar" })
+                io::RawFile((importanceWipDirectory / name).generic_string(), io::OpenMode::Read_Write);
 
-			// Sanity:
-			EXPECT_EQ(2u, test::CountFilesAndDirectories(importanceWipDirectory));
+            // Sanity:
+            EXPECT_EQ(2u, test::CountFilesAndDirectories(importanceWipDirectory));
 
-			// Act:
-			RepairImportance(config::CatapultDataDirectory(tempDir.name()), commitStep);
+            // Act:
+            RepairImportance(config::CatapultDataDirectory(tempDir.name()), commitStep);
 
-			// Assert:
-			EXPECT_EQ(1u + numExpectedFiles, test::CountFilesAndDirectories(importanceDirectory));
-			EXPECT_EQ(0u, test::CountFilesAndDirectories(importanceWipDirectory));
-		}
-	}
+            // Assert:
+            EXPECT_EQ(1u + numExpectedFiles, test::CountFilesAndDirectories(importanceDirectory));
+            EXPECT_EQ(0u, test::CountFilesAndDirectories(importanceWipDirectory));
+        }
+    }
 
-	TEST(TEST_CLASS, RepairImportancePurgesWipWhenBlocksWritten) {
-		RunRepairImportanceTest(consumers::CommitOperationStep::Blocks_Written, 0);
-	}
+    TEST(TEST_CLASS, RepairImportancePurgesWipWhenBlocksWritten)
+    {
+        RunRepairImportanceTest(consumers::CommitOperationStep::Blocks_Written, 0);
+    }
 
-	TEST(TEST_CLASS, RepairImportancePurgesWipWhenAllUpdated) {
-		RunRepairImportanceTest(consumers::CommitOperationStep::All_Updated, 0);
-	}
+    TEST(TEST_CLASS, RepairImportancePurgesWipWhenAllUpdated)
+    {
+        RunRepairImportanceTest(consumers::CommitOperationStep::All_Updated, 0);
+    }
 
-	TEST(TEST_CLASS, RepairImportanceCommitsWipWhenStateWritten) {
-		RunRepairImportanceTest(consumers::CommitOperationStep::State_Written, 2);
-	}
-}}
+    TEST(TEST_CLASS, RepairImportanceCommitsWipWhenStateWritten)
+    {
+        RunRepairImportanceTest(consumers::CommitOperationStep::State_Written, 2);
+    }
+}
+}

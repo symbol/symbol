@@ -21,49 +21,55 @@
 
 #pragma once
 #include "Stream.h"
-#include "catapult/utils/MemoryUtils.h"
 #include "catapult/exceptions.h"
+#include "catapult/utils/MemoryUtils.h"
 #include <sstream>
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	/// Adapt a typed buffer to be used as an input stream.
-	template<typename TContainer>
-	class BufferInputStreamAdapter : public InputStream {
-	public:
-		/// Creates an input stream around \a input.
-		explicit BufferInputStreamAdapter(const TContainer& input)
-				: m_input(input)
-				, m_position(0) {
-		}
+    /// Adapt a typed buffer to be used as an input stream.
+    template <typename TContainer>
+    class BufferInputStreamAdapter : public InputStream {
+    public:
+        /// Creates an input stream around \a input.
+        explicit BufferInputStreamAdapter(const TContainer& input)
+            : m_input(input)
+            , m_position(0)
+        {
+        }
 
-	public:
-		/// Gets the read position.
-		size_t position() const {
-			return m_position;
-		}
+    public:
+        /// Gets the read position.
+        size_t position() const
+        {
+            return m_position;
+        }
 
-	public:
-		bool eof() const override {
-			RawBuffer input(m_input);
-			return m_position == input.Size;
-		}
+    public:
+        bool eof() const override
+        {
+            RawBuffer input(m_input);
+            return m_position == input.Size;
+        }
 
-		void read(const MutableRawBuffer& buffer) override {
-			RawBuffer input(m_input);
-			if (buffer.Size + m_position > input.Size) {
-				std::ostringstream out;
-				out << "BufferInputStreamAdapter invalid read (buffer-size = " << buffer.Size << ", position = " << m_position
-					<< ", input-size = " << input.Size << ")";
-				CATAPULT_THROW_FILE_IO_ERROR(out.str().c_str());
-			}
+        void read(const MutableRawBuffer& buffer) override
+        {
+            RawBuffer input(m_input);
+            if (buffer.Size + m_position > input.Size) {
+                std::ostringstream out;
+                out << "BufferInputStreamAdapter invalid read (buffer-size = " << buffer.Size << ", position = " << m_position
+                    << ", input-size = " << input.Size << ")";
+                CATAPULT_THROW_FILE_IO_ERROR(out.str().c_str());
+            }
 
-			utils::memcpy_cond(buffer.pData, input.pData + m_position, buffer.Size);
-			m_position += buffer.Size;
-		}
+            utils::memcpy_cond(buffer.pData, input.pData + m_position, buffer.Size);
+            m_position += buffer.Size;
+        }
 
-	private:
-		const TContainer& m_input;
-		size_t m_position;
-	};
-}}
+    private:
+        const TContainer& m_input;
+        size_t m_position;
+    };
+}
+}

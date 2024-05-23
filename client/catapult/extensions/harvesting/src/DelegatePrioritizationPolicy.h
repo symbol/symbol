@@ -24,44 +24,48 @@
 #include <functional>
 #include <iosfwd>
 
-namespace catapult { namespace cache {
-	class CatapultCache;
-}}
+namespace catapult {
+namespace cache {
+    class CatapultCache;
+}
+}
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	// region DelegatePrioritizationPolicy
+    // region DelegatePrioritizationPolicy
 
-#define DELEGATE_PRIORITIZATION_POLICY_LIST \
-	/* Prioritize older delegates over newer delegates. */ \
-	ENUM_VALUE(Age) \
-\
-	/* Prioritize more important delegates over less important delegates. */ \
-	ENUM_VALUE(Importance)
+#define DELEGATE_PRIORITIZATION_POLICY_LIST                                  \
+    /* Prioritize older delegates over newer delegates. */                   \
+    ENUM_VALUE(Age)                                                          \
+                                                                             \
+    /* Prioritize more important delegates over less important delegates. */ \
+    ENUM_VALUE(Importance)
 
 #define ENUM_VALUE(LABEL) LABEL,
-	/// Possible delegate prioritization policies.
-	enum class DelegatePrioritizationPolicy : uint8_t { DELEGATE_PRIORITIZATION_POLICY_LIST };
+    /// Possible delegate prioritization policies.
+    enum class DelegatePrioritizationPolicy : uint8_t { DELEGATE_PRIORITIZATION_POLICY_LIST };
 #undef ENUM_VALUE
 
-	/// Insertion operator for outputting \a value to \a out.
-	std::ostream& operator<<(std::ostream& out, DelegatePrioritizationPolicy value);
+    /// Insertion operator for outputting \a value to \a out.
+    std::ostream& operator<<(std::ostream& out, DelegatePrioritizationPolicy value);
 
-	/// Tries to parse \a str into connection security \a policy.
-	bool TryParseValue(const std::string& str, DelegatePrioritizationPolicy& policy);
+    /// Tries to parse \a str into connection security \a policy.
+    bool TryParseValue(const std::string& str, DelegatePrioritizationPolicy& policy);
 
-	// endregion
+    // endregion
 
-	// region CreateDelegatePrioritizer
+    // region CreateDelegatePrioritizer
 
-	/// Looks up a prioritization score for an account.
-	using DelegatePrioritizer = std::function<uint64_t(const Key&)>;
+    /// Looks up a prioritization score for an account.
+    using DelegatePrioritizer = std::function<uint64_t(const Key&)>;
 
-	/// Creates a delegate prioritizer for specified \a policy given \a cache and \a primaryAccountPublicKey.
-	DelegatePrioritizer CreateDelegatePrioritizer(
-			DelegatePrioritizationPolicy policy,
-			const cache::CatapultCache& cache,
-			const Key& primaryAccountPublicKey);
+    /// Creates a delegate prioritizer for specified \a policy given \a cache and \a primaryAccountPublicKey.
+    DelegatePrioritizer CreateDelegatePrioritizer(
+        DelegatePrioritizationPolicy policy,
+        const cache::CatapultCache& cache,
+        const Key& primaryAccountPublicKey);
 
-	// endregion
-}}
+    // endregion
+}
+}

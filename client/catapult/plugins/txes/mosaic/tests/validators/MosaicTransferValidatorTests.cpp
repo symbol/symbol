@@ -19,145 +19,165 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
+#include "src/validators/Validators.h"
+#include "tests/TestHarness.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS MosaicTransferValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicTransfer, UnresolvedMosaicId())
+    DEFINE_COMMON_VALIDATOR_TESTS(MosaicTransfer, UnresolvedMosaicId())
 
-	namespace {
-		constexpr auto Currency_Mosaic_Id = UnresolvedMosaicId(2345);
+    namespace {
+        constexpr auto Currency_Mosaic_Id = UnresolvedMosaicId(2345);
 
-		auto CreateCache() {
-			return test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-		}
+        auto CreateCache()
+        {
+            return test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+        }
 
-		model::MosaicProperties CreateMosaicProperties(model::MosaicFlags flags) {
-			return model::MosaicProperties(flags, 0, BlockDuration());
-		}
+        model::MosaicProperties CreateMosaicProperties(model::MosaicFlags flags)
+        {
+            return model::MosaicProperties(flags, 0, BlockDuration());
+        }
 
-		state::MosaicDefinition CreateMosaicDefinition(Height height, const Address& owner, model::MosaicFlags flags) {
-			return state::MosaicDefinition(height, owner, 3, CreateMosaicProperties(flags));
-		}
+        state::MosaicDefinition CreateMosaicDefinition(Height height, const Address& owner, model::MosaicFlags flags)
+        {
+            return state::MosaicDefinition(height, owner, 3, CreateMosaicProperties(flags));
+        }
 
-		state::MosaicEntry CreateMosaicEntry(MosaicId mosaicId, const Address& owner, model::MosaicFlags flags) {
-			auto mosaicDefinition = CreateMosaicDefinition(Height(100), owner, flags);
-			return state::MosaicEntry(mosaicId, mosaicDefinition);
-		}
+        state::MosaicEntry CreateMosaicEntry(MosaicId mosaicId, const Address& owner, model::MosaicFlags flags)
+        {
+            auto mosaicDefinition = CreateMosaicDefinition(Height(100), owner, flags);
+            return state::MosaicEntry(mosaicId, mosaicDefinition);
+        }
 
-		void SeedCacheWithMosaic(cache::CatapultCache& cache, const state::MosaicEntry& mosaicEntry) {
-			auto cacheDelta = cache.createDelta();
-			auto& mosaicCacheDelta = cacheDelta.sub<cache::MosaicCache>();
-			mosaicCacheDelta.insert(mosaicEntry);
-			cache.commit(Height());
-		}
+        void SeedCacheWithMosaic(cache::CatapultCache& cache, const state::MosaicEntry& mosaicEntry)
+        {
+            auto cacheDelta = cache.createDelta();
+            auto& mosaicCacheDelta = cacheDelta.sub<cache::MosaicCache>();
+            mosaicCacheDelta.insert(mosaicEntry);
+            cache.commit(Height());
+        }
 
-		void AssertValidationResult(
-				ValidationResult expectedResult,
-				const cache::CatapultCache& cache,
-				const model::BalanceTransferNotification& notification) {
-			// Arrange:
-			auto pValidator = CreateMosaicTransferValidator(Currency_Mosaic_Id);
+        void AssertValidationResult(
+            ValidationResult expectedResult,
+            const cache::CatapultCache& cache,
+            const model::BalanceTransferNotification& notification)
+        {
+            // Arrange:
+            auto pValidator = CreateMosaicTransferValidator(Currency_Mosaic_Id);
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, cache);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result);
+        }
+    }
 
-	TEST(TEST_CLASS, SuccessWhenValidatingCurrencyMosaicTransfer) {
-		// Arrange:
-		auto notification = model::BalanceTransferNotification(Address(), UnresolvedAddress(), Currency_Mosaic_Id, Amount(123));
-		auto cache = CreateCache();
+    TEST(TEST_CLASS, SuccessWhenValidatingCurrencyMosaicTransfer)
+    {
+        // Arrange:
+        auto notification = model::BalanceTransferNotification(Address(), UnresolvedAddress(), Currency_Mosaic_Id, Amount(123));
+        auto cache = CreateCache();
 
-		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, notification);
-	}
+        // Assert:
+        AssertValidationResult(ValidationResult::Success, cache, notification);
+    }
 
-	namespace {
-		constexpr MosaicId Valid_Mosaic_Id(222);
-		constexpr UnresolvedMosaicId Unresolved_Unknown_Mosaic_Id(444);
+    namespace {
+        constexpr MosaicId Valid_Mosaic_Id(222);
+        constexpr UnresolvedMosaicId Unresolved_Unknown_Mosaic_Id(444);
 
-		auto CreateAndSeedCache(const Address& owner, model::MosaicFlags flags) {
-			// Arrange:
-			auto cache = CreateCache();
-			auto validMosaicEntry = CreateMosaicEntry(Valid_Mosaic_Id, owner, flags);
-			SeedCacheWithMosaic(cache, validMosaicEntry);
+        auto CreateAndSeedCache(const Address& owner, model::MosaicFlags flags)
+        {
+            // Arrange:
+            auto cache = CreateCache();
+            auto validMosaicEntry = CreateMosaicEntry(Valid_Mosaic_Id, owner, flags);
+            SeedCacheWithMosaic(cache, validMosaicEntry);
 
-			auto cacheDelta = cache.createDelta();
-			test::AddMosaicOwner(cacheDelta, Valid_Mosaic_Id, validMosaicEntry.definition().ownerAddress(), Amount());
-			cache.commit(Height());
+            auto cacheDelta = cache.createDelta();
+            test::AddMosaicOwner(cacheDelta, Valid_Mosaic_Id, validMosaicEntry.definition().ownerAddress(), Amount());
+            cache.commit(Height());
 
-			return cache;
-		}
+            return cache;
+        }
 
-		void AssertMosaicsTest(ValidationResult expectedResult, UnresolvedMosaicId mosaicId) {
-			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Address>();
-			auto notification = model::BalanceTransferNotification(owner, UnresolvedAddress(), mosaicId, Amount(123));
-			auto cache = CreateAndSeedCache(owner, model::MosaicFlags::Transferable);
+        void AssertMosaicsTest(ValidationResult expectedResult, UnresolvedMosaicId mosaicId)
+        {
+            // Arrange:
+            auto owner = test::GenerateRandomByteArray<Address>();
+            auto notification = model::BalanceTransferNotification(owner, UnresolvedAddress(), mosaicId, Amount(123));
+            auto cache = CreateAndSeedCache(owner, model::MosaicFlags::Transferable);
 
-			// Assert:
-			AssertValidationResult(expectedResult, cache, notification);
-		}
-	}
+            // Assert:
+            AssertValidationResult(expectedResult, cache, notification);
+        }
+    }
 
-	TEST(TEST_CLASS, FailureWhenValidatingUnknownMosaic) {
-		AssertMosaicsTest(Failure_Mosaic_Expired, Unresolved_Unknown_Mosaic_Id);
-	}
+    TEST(TEST_CLASS, FailureWhenValidatingUnknownMosaic)
+    {
+        AssertMosaicsTest(Failure_Mosaic_Expired, Unresolved_Unknown_Mosaic_Id);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenValidatingKnownMosaic) {
-		AssertMosaicsTest(ValidationResult::Success, test::UnresolveXor(Valid_Mosaic_Id));
-	}
+    TEST(TEST_CLASS, SuccessWhenValidatingKnownMosaic)
+    {
+        AssertMosaicsTest(ValidationResult::Success, test::UnresolveXor(Valid_Mosaic_Id));
+    }
 
-	namespace {
-		enum : uint8_t { None = 0x00, Owner_Is_Sender = 0x01, Owner_Is_Recipient = 0x02 };
+    namespace {
+        enum : uint8_t { None = 0x00,
+            Owner_Is_Sender = 0x01,
+            Owner_Is_Recipient = 0x02 };
 
-		void AssertNonTransferableMosaicsTest(ValidationResult expectedResult, uint8_t notificationFlags) {
-			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Address>();
-			auto cache = CreateAndSeedCache(owner, model::MosaicFlags::None);
+        void AssertNonTransferableMosaicsTest(ValidationResult expectedResult, uint8_t notificationFlags)
+        {
+            // Arrange:
+            auto owner = test::GenerateRandomByteArray<Address>();
+            auto cache = CreateAndSeedCache(owner, model::MosaicFlags::None);
 
-			// - notice that BalanceTransferNotification holds references to sender + recipient
-			auto mosaicId = test::UnresolveXor(Valid_Mosaic_Id);
-			auto notification = model::BalanceTransferNotification(Address(), UnresolvedAddress(), mosaicId, Amount(123));
+            // - notice that BalanceTransferNotification holds references to sender + recipient
+            auto mosaicId = test::UnresolveXor(Valid_Mosaic_Id);
+            auto notification = model::BalanceTransferNotification(Address(), UnresolvedAddress(), mosaicId, Amount(123));
 
-			if (notificationFlags & Owner_Is_Sender)
-				notification.Sender = owner;
+            if (notificationFlags & Owner_Is_Sender)
+                notification.Sender = owner;
 
-			if (notificationFlags & Owner_Is_Recipient) {
-				const auto& recipient = cache.createView().sub<cache::AccountStateCache>().find(owner).get().Address;
-				notification.Recipient = test::UnresolveXor(recipient);
-			}
+            if (notificationFlags & Owner_Is_Recipient) {
+                const auto& recipient = cache.createView().sub<cache::AccountStateCache>().find(owner).get().Address;
+                notification.Recipient = test::UnresolveXor(recipient);
+            }
 
-			// Assert:
-			AssertValidationResult(expectedResult, cache, notification);
-		}
-	}
+            // Assert:
+            AssertValidationResult(expectedResult, cache, notification);
+        }
+    }
 
-	TEST(TEST_CLASS, FailureWhenMosaicIsNonTransferableAndOwnerIsNotParticipant) {
-		AssertNonTransferableMosaicsTest(Failure_Mosaic_Non_Transferable, None);
-	}
+    TEST(TEST_CLASS, FailureWhenMosaicIsNonTransferableAndOwnerIsNotParticipant)
+    {
+        AssertNonTransferableMosaicsTest(Failure_Mosaic_Non_Transferable, None);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenMosaicIsNonTransferableAndOwnerIsSender) {
-		AssertNonTransferableMosaicsTest(ValidationResult::Success, Owner_Is_Sender);
-	}
+    TEST(TEST_CLASS, SuccessWhenMosaicIsNonTransferableAndOwnerIsSender)
+    {
+        AssertNonTransferableMosaicsTest(ValidationResult::Success, Owner_Is_Sender);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenMosaicIsNonTransferableAndOwnerIsRecipient) {
-		AssertNonTransferableMosaicsTest(ValidationResult::Success, Owner_Is_Recipient);
-	}
+    TEST(TEST_CLASS, SuccessWhenMosaicIsNonTransferableAndOwnerIsRecipient)
+    {
+        AssertNonTransferableMosaicsTest(ValidationResult::Success, Owner_Is_Recipient);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenMosaicIsNonTransferableAndOwnerSendsToSelf) {
-		AssertNonTransferableMosaicsTest(ValidationResult::Success, Owner_Is_Recipient | Owner_Is_Sender);
-	}
-}}
+    TEST(TEST_CLASS, SuccessWhenMosaicIsNonTransferableAndOwnerSendsToSelf)
+    {
+        AssertNonTransferableMosaicsTest(ValidationResult::Success, Owner_Is_Recipient | Owner_Is_Sender);
+    }
+}
+}

@@ -20,36 +20,42 @@
 **/
 
 #include "src/config/HashLockConfiguration.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	namespace {
-		struct HashLockConfigurationTraits {
-			using ConfigurationType = HashLockConfiguration;
+    namespace {
+        struct HashLockConfigurationTraits {
+            using ConfigurationType = HashLockConfiguration;
 
-			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return { { "", { { "lockedFundsPerAggregate", "123'000'000" }, { "maxHashLockDuration", "12'345d" } } } };
-			}
+            static utils::ConfigurationBag::ValuesContainer CreateProperties()
+            {
+                return { { "", { { "lockedFundsPerAggregate", "123'000'000" }, { "maxHashLockDuration", "12'345d" } } } };
+            }
 
-			static bool IsSectionOptional(const std::string&) {
-				return false;
-			}
+            static bool IsSectionOptional(const std::string&)
+            {
+                return false;
+            }
 
-			static void AssertZero(const HashLockConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(Amount(), config.LockedFundsPerAggregate);
-				EXPECT_EQ(utils::BlockSpan(), config.MaxHashLockDuration);
-			}
+            static void AssertZero(const HashLockConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(Amount(), config.LockedFundsPerAggregate);
+                EXPECT_EQ(utils::BlockSpan(), config.MaxHashLockDuration);
+            }
 
-			static void AssertCustom(const HashLockConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(Amount(123'000'000), config.LockedFundsPerAggregate);
-				EXPECT_EQ(utils::BlockSpan::FromDays(12'345), config.MaxHashLockDuration);
-			}
-		};
-	}
+            static void AssertCustom(const HashLockConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(Amount(123'000'000), config.LockedFundsPerAggregate);
+                EXPECT_EQ(utils::BlockSpan::FromDays(12'345), config.MaxHashLockDuration);
+            }
+        };
+    }
 
-	DEFINE_CONFIGURATION_TESTS(HashLockConfigurationTests, HashLock)
-}}
+    DEFINE_CONFIGURATION_TESTS(HashLockConfigurationTests, HashLock)
+}
+}

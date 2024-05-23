@@ -23,89 +23,100 @@
 #include "MongoTransactionPlugin.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	/// Factory for creating mongo transaction plugins.
-	class MongoTransactionPluginFactory {
-	private:
-		using TransactionPlugin = MongoTransactionPlugin;
-		using EmbeddedTransactionPlugin = EmbeddedMongoTransactionPlugin;
+    /// Factory for creating mongo transaction plugins.
+    class MongoTransactionPluginFactory {
+    private:
+        using TransactionPlugin = MongoTransactionPlugin;
+        using EmbeddedTransactionPlugin = EmbeddedMongoTransactionPlugin;
 
-	public:
-		/// Creates an embedded transaction plugin around \a streamEmbeddedFunc.
-		template<typename TEmbeddedTransaction, typename TStreamEmbeddedFunc>
-		static std::unique_ptr<EmbeddedTransactionPlugin> CreateEmbedded(TStreamEmbeddedFunc streamEmbeddedFunc) {
-			return std::make_unique<EmbeddedTransactionPluginT<TEmbeddedTransaction>>(streamEmbeddedFunc);
-		}
+    public:
+        /// Creates an embedded transaction plugin around \a streamEmbeddedFunc.
+        template <typename TEmbeddedTransaction, typename TStreamEmbeddedFunc>
+        static std::unique_ptr<EmbeddedTransactionPlugin> CreateEmbedded(TStreamEmbeddedFunc streamEmbeddedFunc)
+        {
+            return std::make_unique<EmbeddedTransactionPluginT<TEmbeddedTransaction>>(streamEmbeddedFunc);
+        }
 
-		/// Creates a transaction plugin that supports embedding around \a streamFunc and \a streamEmbeddedFunc.
-		template<typename TTransaction, typename TEmbeddedTransaction, typename TStreamFunc, typename TStreamEmbeddedFunc>
-		static std::unique_ptr<TransactionPlugin> Create(TStreamFunc streamFunc, TStreamEmbeddedFunc streamEmbeddedFunc) {
-			return std::make_unique<TransactionPluginT<TTransaction, TEmbeddedTransaction>>(streamFunc, streamEmbeddedFunc);
-		}
+        /// Creates a transaction plugin that supports embedding around \a streamFunc and \a streamEmbeddedFunc.
+        template <typename TTransaction, typename TEmbeddedTransaction, typename TStreamFunc, typename TStreamEmbeddedFunc>
+        static std::unique_ptr<TransactionPlugin> Create(TStreamFunc streamFunc, TStreamEmbeddedFunc streamEmbeddedFunc)
+        {
+            return std::make_unique<TransactionPluginT<TTransaction, TEmbeddedTransaction>>(streamFunc, streamEmbeddedFunc);
+        }
 
-	private:
-		template<typename TTransaction, typename TDerivedTransaction, typename TPlugin>
-		class BasicTransactionPluginT : public TPlugin {
-		private:
-			using StreamFunc = consumer<bsoncxx::builder::stream::document&, const TDerivedTransaction&>;
+    private:
+        template <typename TTransaction, typename TDerivedTransaction, typename TPlugin>
+        class BasicTransactionPluginT : public TPlugin {
+        private:
+            using StreamFunc = consumer<bsoncxx::builder::stream::document&, const TDerivedTransaction&>;
 
-		public:
-			explicit BasicTransactionPluginT(const StreamFunc& streamFunc)
-					: m_streamFunc(streamFunc) {
-			}
+        public:
+            explicit BasicTransactionPluginT(const StreamFunc& streamFunc)
+                : m_streamFunc(streamFunc)
+            {
+            }
 
-		public:
-			model::EntityType type() const override {
-				return TDerivedTransaction::Entity_Type;
-			}
+        public:
+            model::EntityType type() const override
+            {
+                return TDerivedTransaction::Entity_Type;
+            }
 
-			void streamTransaction(bsoncxx::builder::stream::document& builder, const TTransaction& transaction) const override {
-				m_streamFunc(builder, static_cast<const TDerivedTransaction&>(transaction));
-			}
+            void streamTransaction(bsoncxx::builder::stream::document& builder, const TTransaction& transaction) const override
+            {
+                m_streamFunc(builder, static_cast<const TDerivedTransaction&>(transaction));
+            }
 
-		private:
-			StreamFunc m_streamFunc;
-		};
+        private:
+            StreamFunc m_streamFunc;
+        };
 
-		template<typename TEmbeddedTransaction>
-		using EmbeddedTransactionPluginT =
-				BasicTransactionPluginT<model::EmbeddedTransaction, TEmbeddedTransaction, EmbeddedTransactionPlugin>;
+        template <typename TEmbeddedTransaction>
+        using EmbeddedTransactionPluginT = BasicTransactionPluginT<model::EmbeddedTransaction, TEmbeddedTransaction, EmbeddedTransactionPlugin>;
 
-		template<typename TTransaction, typename TEmbeddedTransaction>
-		class TransactionPluginT : public BasicTransactionPluginT<model::Transaction, TTransaction, TransactionPlugin> {
-		public:
-			template<typename TStreamFunc, typename TStreamEmbeddedFunc>
-			TransactionPluginT(TStreamFunc streamFunc, TStreamEmbeddedFunc streamEmbeddedFunc)
-					: BasicTransactionPluginT<model::Transaction, TTransaction, TransactionPlugin>(streamFunc)
-					, m_pEmbeddedTransactionPlugin(CreateEmbedded<TEmbeddedTransaction>(streamEmbeddedFunc)) {
-			}
+        template <typename TTransaction, typename TEmbeddedTransaction>
+        class TransactionPluginT : public BasicTransactionPluginT<model::Transaction, TTransaction, TransactionPlugin> {
+        public:
+            template <typename TStreamFunc, typename TStreamEmbeddedFunc>
+            TransactionPluginT(TStreamFunc streamFunc, TStreamEmbeddedFunc streamEmbeddedFunc)
+                : BasicTransactionPluginT<model::Transaction, TTransaction, TransactionPlugin>(streamFunc)
+                , m_pEmbeddedTransactionPlugin(CreateEmbedded<TEmbeddedTransaction>(streamEmbeddedFunc))
+            {
+            }
 
-		public:
-			std::vector<bsoncxx::document::value> extractDependentDocuments(const model::Transaction&, const MongoTransactionMetadata&)
-					const override {
-				// don't support any dependent documents by default
-				return {};
-			}
+        public:
+            std::vector<bsoncxx::document::value> extractDependentDocuments(const model::Transaction&, const MongoTransactionMetadata&)
+                const override
+            {
+                // don't support any dependent documents by default
+                return {};
+            }
 
-			bool supportsEmbedding() const override {
-				return true;
-			}
+            bool supportsEmbedding() const override
+            {
+                return true;
+            }
 
-			const EmbeddedTransactionPlugin& embeddedPlugin() const override {
-				return *m_pEmbeddedTransactionPlugin;
-			}
+            const EmbeddedTransactionPlugin& embeddedPlugin() const override
+            {
+                return *m_pEmbeddedTransactionPlugin;
+            }
 
-		private:
-			std::unique_ptr<EmbeddedTransactionPlugin> m_pEmbeddedTransactionPlugin;
-		};
-	};
+        private:
+            std::unique_ptr<EmbeddedTransactionPlugin> m_pEmbeddedTransactionPlugin;
+        };
+    };
 
 /// Defines a mongo transaction plugin factory for \a NAME transaction using \a STREAM.
-#define DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(NAME, STREAM) \
-	std::unique_ptr<MongoTransactionPlugin> Create##NAME##TransactionMongoPlugin() { \
-		return MongoTransactionPluginFactory::Create<model::NAME##Transaction, model::Embedded##NAME##Transaction>( \
-				STREAM<model::NAME##Transaction>, \
-				STREAM<model::Embedded##NAME##Transaction>); \
-	}
-}}
+#define DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(NAME, STREAM)                                                       \
+    std::unique_ptr<MongoTransactionPlugin> Create##NAME##TransactionMongoPlugin()                                  \
+    {                                                                                                               \
+        return MongoTransactionPluginFactory::Create<model::NAME##Transaction, model::Embedded##NAME##Transaction>( \
+            STREAM<model::NAME##Transaction>,                                                                       \
+            STREAM<model::Embedded##NAME##Transaction>);                                                            \
+    }
+}
+}

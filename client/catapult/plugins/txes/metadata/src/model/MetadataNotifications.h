@@ -23,89 +23,93 @@
 #include "MetadataTypes.h"
 #include "catapult/model/Notifications.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region metadata notification types
+    // region metadata notification types
 
 /// Defines a metadata notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
 #define DEFINE_METADATA_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Metadata, DESCRIPTION, CODE)
 
-	/// Metadata value was received with specified sizes.
-	DEFINE_METADATA_NOTIFICATION(Sizes, 0x0001, Validator);
+    /// Metadata value was received with specified sizes.
+    DEFINE_METADATA_NOTIFICATION(Sizes, 0x0001, Validator);
 
-	/// Metadata value was received.
-	DEFINE_METADATA_NOTIFICATION(Value, 0x0002, All);
+    /// Metadata value was received.
+    DEFINE_METADATA_NOTIFICATION(Value, 0x0002, All);
 
 #undef DEFINE_METADATA_NOTIFICATION
 
-	// endregion
+    // endregion
 
-	// region MetadataSizesNotification
+    // region MetadataSizesNotification
 
-	/// Notification of metadata sizes.
-	struct MetadataSizesNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Metadata_Sizes_Notification;
+    /// Notification of metadata sizes.
+    struct MetadataSizesNotification : public Notification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Metadata_Sizes_Notification;
 
-	public:
-		/// Creates a notification around \a valueSizeDelta and \a valueSize.
-		MetadataSizesNotification(int16_t valueSizeDelta, uint16_t valueSize)
-				: Notification(Notification_Type, sizeof(MetadataSizesNotification))
-				, ValueSizeDelta(valueSizeDelta)
-				, ValueSize(valueSize) {
-		}
+    public:
+        /// Creates a notification around \a valueSizeDelta and \a valueSize.
+        MetadataSizesNotification(int16_t valueSizeDelta, uint16_t valueSize)
+            : Notification(Notification_Type, sizeof(MetadataSizesNotification))
+            , ValueSizeDelta(valueSizeDelta)
+            , ValueSize(valueSize)
+        {
+        }
 
-	public:
-		/// Change in value size in bytes.
-		int16_t ValueSizeDelta;
+    public:
+        /// Change in value size in bytes.
+        int16_t ValueSizeDelta;
 
-		/// Value size in bytes.
-		uint16_t ValueSize;
-	};
+        /// Value size in bytes.
+        uint16_t ValueSize;
+    };
 
-	// endregion
+    // endregion
 
-	// region MetadataValueNotification
+    // region MetadataValueNotification
 
-	/// Notification of metadata value.
-	struct MetadataValueNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Metadata_Value_Notification;
+    /// Notification of metadata value.
+    struct MetadataValueNotification : public Notification {
+    public:
+        /// Matching notification type.
+        static constexpr auto Notification_Type = Metadata_Value_Notification;
 
-	public:
-		/// Creates a notification around \a partialMetadataKey, \a metadataTarget, \a valueSizeDelta, \a valueSize and \a pValue.
-		MetadataValueNotification(
-				const UnresolvedPartialMetadataKey& partialMetadataKey,
-				const model::MetadataTarget& metadataTarget,
-				int16_t valueSizeDelta,
-				uint16_t valueSize,
-				const uint8_t* pValue)
-				: Notification(Notification_Type, sizeof(MetadataValueNotification))
-				, PartialMetadataKey(partialMetadataKey)
-				, MetadataTarget(metadataTarget)
-				, ValueSizeDelta(valueSizeDelta)
-				, ValueSize(valueSize)
-				, ValuePtr(pValue) {
-		}
+    public:
+        /// Creates a notification around \a partialMetadataKey, \a metadataTarget, \a valueSizeDelta, \a valueSize and \a pValue.
+        MetadataValueNotification(
+            const UnresolvedPartialMetadataKey& partialMetadataKey,
+            const model::MetadataTarget& metadataTarget,
+            int16_t valueSizeDelta,
+            uint16_t valueSize,
+            const uint8_t* pValue)
+            : Notification(Notification_Type, sizeof(MetadataValueNotification))
+            , PartialMetadataKey(partialMetadataKey)
+            , MetadataTarget(metadataTarget)
+            , ValueSizeDelta(valueSizeDelta)
+            , ValueSize(valueSize)
+            , ValuePtr(pValue)
+        {
+        }
 
-	public:
-		/// Partial metadata key.
-		UnresolvedPartialMetadataKey PartialMetadataKey;
+    public:
+        /// Partial metadata key.
+        UnresolvedPartialMetadataKey PartialMetadataKey;
 
-		/// Metadata target.
-		model::MetadataTarget MetadataTarget;
+        /// Metadata target.
+        model::MetadataTarget MetadataTarget;
 
-		/// Change in value size in bytes.
-		int16_t ValueSizeDelta;
+        /// Change in value size in bytes.
+        int16_t ValueSizeDelta;
 
-		/// Value size in bytes.
-		uint16_t ValueSize;
+        /// Value size in bytes.
+        uint16_t ValueSize;
 
-		/// Const pointer to the metadata value.
-		const uint8_t* ValuePtr;
-	};
+        /// Const pointer to the metadata value.
+        const uint8_t* ValuePtr;
+    };
 
-	// endregion
-}}
+    // endregion
+}
+}

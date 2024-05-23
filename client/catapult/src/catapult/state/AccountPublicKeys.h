@@ -21,177 +21,179 @@
 
 #pragma once
 #include "catapult/model/PinnedVotingKey.h"
-#include "catapult/utils/BitwiseEnum.h"
 #include "catapult/types.h"
+#include "catapult/utils/BitwiseEnum.h"
 #include <memory>
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Container holding supplemental account public key information.
-	class AccountPublicKeys {
-	public:
-		// region KeyType
+    /// Container holding supplemental account public key information.
+    class AccountPublicKeys {
+    public:
+        // region KeyType
 
-		/// Types of account public keys.
-		enum class KeyType : uint8_t {
-			/// Unset key.
-			Unset = 0x00,
+        /// Types of account public keys.
+        enum class KeyType : uint8_t {
+            /// Unset key.
+            Unset = 0x00,
 
-			/// Linked account public key.
-			/// \note This can be either a remote or main account public key depending on context.
-			Linked = 0x01,
+            /// Linked account public key.
+            /// \note This can be either a remote or main account public key depending on context.
+            Linked = 0x01,
 
-			/// Node public key on which remote is allowed to harvest.
-			Node = 0x02,
+            /// Node public key on which remote is allowed to harvest.
+            Node = 0x02,
 
-			/// VRF public key.
-			VRF = 0x04,
+            /// VRF public key.
+            VRF = 0x04,
 
-			/// All valid keys.
-			All = Linked | Node | VRF
-		};
+            /// All valid keys.
+            All = Linked | Node | VRF
+        };
 
-		// endregion
+        // endregion
 
-		// region PublicKeyAccessor
+        // region PublicKeyAccessor
 
-		/// Accessor for a single public key.
-		template<typename TAccountPublicKey>
-		class PublicKeyAccessor {
-		public:
-			/// Creates unset key.
-			PublicKeyAccessor();
+        /// Accessor for a single public key.
+        template <typename TAccountPublicKey>
+        class PublicKeyAccessor {
+        public:
+            /// Creates unset key.
+            PublicKeyAccessor();
 
-			/// Copy constructor that makes a deep copy of \a accessor.
-			PublicKeyAccessor(const PublicKeyAccessor& accessor);
+            /// Copy constructor that makes a deep copy of \a accessor.
+            PublicKeyAccessor(const PublicKeyAccessor& accessor);
 
-			/// Move constructor that move constructs a key accessor from \a accessor.
-			PublicKeyAccessor(PublicKeyAccessor&& accessor);
+            /// Move constructor that move constructs a key accessor from \a accessor.
+            PublicKeyAccessor(PublicKeyAccessor&& accessor);
 
-		public:
-			/// Assignment operator that makes a deep copy of \a accessor.
-			PublicKeyAccessor& operator=(const PublicKeyAccessor& accessor);
+        public:
+            /// Assignment operator that makes a deep copy of \a accessor.
+            PublicKeyAccessor& operator=(const PublicKeyAccessor& accessor);
 
-			/// Move assignment operator that assigns \a accessor.
-			PublicKeyAccessor& operator=(PublicKeyAccessor&& accessor);
+            /// Move assignment operator that assigns \a accessor.
+            PublicKeyAccessor& operator=(PublicKeyAccessor&& accessor);
 
-		public:
-			/// Returns \c true if the underlying public key is set.
-			explicit operator bool() const;
+        public:
+            /// Returns \c true if the underlying public key is set.
+            explicit operator bool() const;
 
-			/// Gets the underlying public key or a zero key if unset.
-			TAccountPublicKey get() const;
+            /// Gets the underlying public key or a zero key if unset.
+            TAccountPublicKey get() const;
 
-		public:
-			/// Sets the underlying public key to \a key.
-			void set(const TAccountPublicKey& key);
+        public:
+            /// Sets the underlying public key to \a key.
+            void set(const TAccountPublicKey& key);
 
-			/// Unsets the underlying public key.
-			void unset();
+            /// Unsets the underlying public key.
+            void unset();
 
-		private:
-			std::shared_ptr<TAccountPublicKey> m_pKey;
-		};
+        private:
+            std::shared_ptr<TAccountPublicKey> m_pKey;
+        };
 
-		// endregion
+        // endregion
 
-		// region PublicKeysAccessor
+        // region PublicKeysAccessor
 
-		/// Accessor for multiple (pinned) public keys.
-		template<typename TPinnedAccountPublicKey>
-		class PublicKeysAccessor {
-		private:
-			using const_iterator = typename std::vector<TPinnedAccountPublicKey>::const_iterator;
+        /// Accessor for multiple (pinned) public keys.
+        template <typename TPinnedAccountPublicKey>
+        class PublicKeysAccessor {
+        private:
+            using const_iterator = typename std::vector<TPinnedAccountPublicKey>::const_iterator;
 
-		public:
-			/// Creates unset key.
-			PublicKeysAccessor();
+        public:
+            /// Creates unset key.
+            PublicKeysAccessor();
 
-			/// Copy constructor that makes a deep copy of \a accessor.
-			PublicKeysAccessor(const PublicKeysAccessor& accessor);
+            /// Copy constructor that makes a deep copy of \a accessor.
+            PublicKeysAccessor(const PublicKeysAccessor& accessor);
 
-			/// Move constructor that move constructs a key accessor from \a accessor.
-			PublicKeysAccessor(PublicKeysAccessor&& accessor);
+            /// Move constructor that move constructs a key accessor from \a accessor.
+            PublicKeysAccessor(PublicKeysAccessor&& accessor);
 
-		public:
-			/// Assignment operator that makes a deep copy of \a accessor.
-			PublicKeysAccessor& operator=(const PublicKeysAccessor& accessor);
+        public:
+            /// Assignment operator that makes a deep copy of \a accessor.
+            PublicKeysAccessor& operator=(const PublicKeysAccessor& accessor);
 
-			/// Move assignment operator that assigns \a accessor.
-			PublicKeysAccessor& operator=(PublicKeysAccessor&& accessor);
+            /// Move assignment operator that assigns \a accessor.
+            PublicKeysAccessor& operator=(PublicKeysAccessor&& accessor);
 
-		public:
-			/// Gets the number of public keys
-			size_t size() const;
+        public:
+            /// Gets the number of public keys
+            size_t size() const;
 
-			/// Gets the largest finalization epoch for which a public key is associated.
-			FinalizationEpoch upperBound() const;
+            /// Gets the largest finalization epoch for which a public key is associated.
+            FinalizationEpoch upperBound() const;
 
-			/// Returns \c true if a public key is associated with \a epoch.
-			std::pair<size_t, bool> contains(FinalizationEpoch epoch) const;
+            /// Returns \c true if a public key is associated with \a epoch.
+            std::pair<size_t, bool> contains(FinalizationEpoch epoch) const;
 
-			/// Returns \c true if the specified public \a key is exactly contained.
-			bool containsExact(const TPinnedAccountPublicKey& key) const;
+            /// Returns \c true if the specified public \a key is exactly contained.
+            bool containsExact(const TPinnedAccountPublicKey& key) const;
 
-			/// Gets the public key at \a index.
-			const TPinnedAccountPublicKey& get(size_t index) const;
+            /// Gets the public key at \a index.
+            const TPinnedAccountPublicKey& get(size_t index) const;
 
-			/// Gets all public keys.
-			std::vector<TPinnedAccountPublicKey> getAll() const;
+            /// Gets all public keys.
+            std::vector<TPinnedAccountPublicKey> getAll() const;
 
-		public:
-			/// Adds the specified public \a key to the container.
-			void add(const TPinnedAccountPublicKey& key);
+        public:
+            /// Adds the specified public \a key to the container.
+            void add(const TPinnedAccountPublicKey& key);
 
-			/// Removes the underlying public key matching \a key.
-			bool remove(const TPinnedAccountPublicKey& key);
+            /// Removes the underlying public key matching \a key.
+            bool remove(const TPinnedAccountPublicKey& key);
 
-		private:
-			const_iterator findExact(const TPinnedAccountPublicKey& key) const;
+        private:
+            const_iterator findExact(const TPinnedAccountPublicKey& key) const;
 
-		private:
-			std::shared_ptr<std::vector<TPinnedAccountPublicKey>> m_pKeys;
-		};
+        private:
+            std::shared_ptr<std::vector<TPinnedAccountPublicKey>> m_pKeys;
+        };
 
-		// endregion
+        // endregion
 
-	public:
-		/// Gets the mask of set (non-voting) public keys.
-		KeyType mask() const;
+    public:
+        /// Gets the mask of set (non-voting) public keys.
+        KeyType mask() const;
 
-		/// Gets the (const) linked public key accessor.
-		const PublicKeyAccessor<Key>& linked() const;
+        /// Gets the (const) linked public key accessor.
+        const PublicKeyAccessor<Key>& linked() const;
 
-		/// Gets the linked public key accessor.
-		PublicKeyAccessor<Key>& linked();
+        /// Gets the linked public key accessor.
+        PublicKeyAccessor<Key>& linked();
 
-		/// Gets the (const) node public key accessor.
-		const PublicKeyAccessor<Key>& node() const;
+        /// Gets the (const) node public key accessor.
+        const PublicKeyAccessor<Key>& node() const;
 
-		/// Gets the node public key accessor.
-		PublicKeyAccessor<Key>& node();
+        /// Gets the node public key accessor.
+        PublicKeyAccessor<Key>& node();
 
-		/// Gets the (const) vrf public key accessor.
-		const PublicKeyAccessor<Key>& vrf() const;
+        /// Gets the (const) vrf public key accessor.
+        const PublicKeyAccessor<Key>& vrf() const;
 
-		/// Gets the vrf public key accessor.
-		PublicKeyAccessor<Key>& vrf();
+        /// Gets the vrf public key accessor.
+        PublicKeyAccessor<Key>& vrf();
 
-		/// Gets the (const) voting public keys accessor.
-		const PublicKeysAccessor<model::PinnedVotingKey>& voting() const;
+        /// Gets the (const) voting public keys accessor.
+        const PublicKeysAccessor<model::PinnedVotingKey>& voting() const;
 
-		/// Gets the voting public keys accessor.
-		PublicKeysAccessor<model::PinnedVotingKey>& voting();
+        /// Gets the voting public keys accessor.
+        PublicKeysAccessor<model::PinnedVotingKey>& voting();
 
-	private:
-		PublicKeyAccessor<Key> m_linkedPublicKeyAccessor;
-		PublicKeyAccessor<Key> m_nodePublicKeyAccessor;
-		PublicKeyAccessor<Key> m_vrfPublicKeyAccessor;
-		PublicKeysAccessor<model::PinnedVotingKey> m_votingPublicKeysAccessor;
-	};
+    private:
+        PublicKeyAccessor<Key> m_linkedPublicKeyAccessor;
+        PublicKeyAccessor<Key> m_nodePublicKeyAccessor;
+        PublicKeyAccessor<Key> m_vrfPublicKeyAccessor;
+        PublicKeysAccessor<model::PinnedVotingKey> m_votingPublicKeysAccessor;
+    };
 
-	MAKE_BITWISE_ENUM(AccountPublicKeys::KeyType)
+    MAKE_BITWISE_ENUM(AccountPublicKeys::KeyType)
 
-	extern template class AccountPublicKeys::PublicKeyAccessor<Key>;
-	extern template class AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
-}}
+    extern template class AccountPublicKeys::PublicKeyAccessor<Key>;
+    extern template class AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
+}
+}

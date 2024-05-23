@@ -21,51 +21,62 @@
 
 #include "RecoveryStorageAdapter.h"
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	namespace {
-		struct ReadOnlyStorageAdapter : public io::BlockStorage {
-		public:
-			explicit ReadOnlyStorageAdapter(const io::BlockStorage& storage)
-					: m_storage(storage) {
-			}
+    namespace {
+        struct ReadOnlyStorageAdapter : public io::BlockStorage {
+        public:
+            explicit ReadOnlyStorageAdapter(const io::BlockStorage& storage)
+                : m_storage(storage)
+            {
+            }
 
-		public:
-			Height chainHeight() const override {
-				return m_storage.chainHeight();
-			}
+        public:
+            Height chainHeight() const override
+            {
+                return m_storage.chainHeight();
+            }
 
-			model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override {
-				return m_storage.loadHashesFrom(height, maxHashes);
-			}
+            model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override
+            {
+                return m_storage.loadHashesFrom(height, maxHashes);
+            }
 
-			void saveBlock(const model::BlockElement&) override {
-				CATAPULT_THROW_RUNTIME_ERROR("saveBlock unsupported in recovery storage");
-			}
+            void saveBlock(const model::BlockElement&) override
+            {
+                CATAPULT_THROW_RUNTIME_ERROR("saveBlock unsupported in recovery storage");
+            }
 
-			void dropBlocksAfter(Height) override {
-				CATAPULT_THROW_RUNTIME_ERROR("dropBlocksAfter unsupported in recovery storage");
-			}
+            void dropBlocksAfter(Height) override
+            {
+                CATAPULT_THROW_RUNTIME_ERROR("dropBlocksAfter unsupported in recovery storage");
+            }
 
-		public:
-			std::shared_ptr<const model::Block> loadBlock(Height height) const override {
-				return m_storage.loadBlock(height);
-			}
+        public:
+            std::shared_ptr<const model::Block> loadBlock(Height height) const override
+            {
+                return m_storage.loadBlock(height);
+            }
 
-			std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override {
-				return m_storage.loadBlockElement(height);
-			}
+            std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override
+            {
+                return m_storage.loadBlockElement(height);
+            }
 
-			std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override {
-				return m_storage.loadBlockStatementData(height);
-			}
+            std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override
+            {
+                return m_storage.loadBlockStatementData(height);
+            }
 
-		private:
-			const io::BlockStorage& m_storage;
-		};
-	}
+        private:
+            const io::BlockStorage& m_storage;
+        };
+    }
 
-	std::unique_ptr<io::BlockStorage> CreateReadOnlyStorageAdapter(const io::BlockStorage& storage) {
-		return std::make_unique<ReadOnlyStorageAdapter>(storage);
-	}
-}}
+    std::unique_ptr<io::BlockStorage> CreateReadOnlyStorageAdapter(const io::BlockStorage& storage)
+    {
+        return std::make_unique<ReadOnlyStorageAdapter>(storage);
+    }
+}
+}

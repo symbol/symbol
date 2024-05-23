@@ -27,26 +27,27 @@
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/tree/BasePatriciaTree.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	using BasicAccountRestrictionPatriciaTree = tree::BasePatriciaTree<
-			SerializerHashedKeyEncoder<AccountRestrictionCacheDescriptor::Serializer>,
-			PatriciaTreeRdbDataSource,
-			utils::ArrayHasher<Address>>;
+    using BasicAccountRestrictionPatriciaTree = tree::BasePatriciaTree<
+        SerializerHashedKeyEncoder<AccountRestrictionCacheDescriptor::Serializer>,
+        PatriciaTreeRdbDataSource,
+        utils::ArrayHasher<Address>>;
 
-	class AccountRestrictionPatriciaTree : public BasicAccountRestrictionPatriciaTree {
-	public:
-		using BasicAccountRestrictionPatriciaTree::BasicAccountRestrictionPatriciaTree;
-		using Serializer = AccountRestrictionCacheDescriptor::Serializer;
-	};
+    class AccountRestrictionPatriciaTree : public BasicAccountRestrictionPatriciaTree {
+    public:
+        using BasicAccountRestrictionPatriciaTree::BasicAccountRestrictionPatriciaTree;
+        using Serializer = AccountRestrictionCacheDescriptor::Serializer;
+    };
 
-	using AccountRestrictionSingleSetCacheTypesAdapter =
-			SingleSetAndPatriciaTreeCacheTypesAdapter<AccountRestrictionCacheTypes::PrimaryTypes, AccountRestrictionPatriciaTree>;
+    using AccountRestrictionSingleSetCacheTypesAdapter = SingleSetAndPatriciaTreeCacheTypesAdapter<AccountRestrictionCacheTypes::PrimaryTypes, AccountRestrictionPatriciaTree>;
 
-	struct AccountRestrictionBaseSetDeltaPointers : public AccountRestrictionSingleSetCacheTypesAdapter::BaseSetDeltaPointers {};
+    struct AccountRestrictionBaseSetDeltaPointers : public AccountRestrictionSingleSetCacheTypesAdapter::BaseSetDeltaPointers { };
 
-	struct AccountRestrictionBaseSets
-			: public AccountRestrictionSingleSetCacheTypesAdapter::BaseSets<AccountRestrictionBaseSetDeltaPointers> {
-		using AccountRestrictionSingleSetCacheTypesAdapter::BaseSets<AccountRestrictionBaseSetDeltaPointers>::BaseSets;
-	};
-}}
+    struct AccountRestrictionBaseSets
+        : public AccountRestrictionSingleSetCacheTypesAdapter::BaseSets<AccountRestrictionBaseSetDeltaPointers> {
+        using AccountRestrictionSingleSetCacheTypesAdapter::BaseSets<AccountRestrictionBaseSetDeltaPointers>::BaseSets;
+    };
+}
+}

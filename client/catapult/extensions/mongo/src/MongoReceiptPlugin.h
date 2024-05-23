@@ -26,25 +26,29 @@
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 
-namespace catapult { namespace model {
-	struct Receipt;
-}}
+namespace catapult {
+namespace model {
+    struct Receipt;
+}
+}
 
-namespace catapult { namespace mongo {
+namespace catapult {
+namespace mongo {
 
-	/// Mongo receipt plugin.
-	class MongoReceiptPlugin {
-	public:
-		virtual ~MongoReceiptPlugin() = default;
+    /// Mongo receipt plugin.
+    class MongoReceiptPlugin {
+    public:
+        virtual ~MongoReceiptPlugin() = default;
 
-	public:
-		/// Gets the receipt type.
-		virtual model::ReceiptType type() const = 0;
+    public:
+        /// Gets the receipt type.
+        virtual model::ReceiptType type() const = 0;
 
-		/// Streams \a receipt to \a builder.
-		virtual void streamReceipt(bsoncxx::builder::stream::document& builder, const model::Receipt& receipt) const = 0;
-	};
+        /// Streams \a receipt to \a builder.
+        virtual void streamReceipt(bsoncxx::builder::stream::document& builder, const model::Receipt& receipt) const = 0;
+    };
 
-	/// Registry of mongo receipt plugins.
-	class MongoReceiptRegistry : public model::PluginRegistry<MongoReceiptPlugin, model::ReceiptType> {};
-}}
+    /// Registry of mongo receipt plugins.
+    class MongoReceiptRegistry : public model::PluginRegistry<MongoReceiptPlugin, model::ReceiptType> { };
+}
+}

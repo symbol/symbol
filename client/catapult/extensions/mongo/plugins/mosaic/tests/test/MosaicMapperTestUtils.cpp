@@ -20,34 +20,38 @@
 **/
 
 #include "MosaicMapperTestUtils.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
 #include "catapult/utils/Casting.h"
+#include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
+#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		void AssertMosaicProperties(const model::MosaicProperties& properties, const bsoncxx::document::view& dbProperties) {
-			EXPECT_EQ(properties.flags(), static_cast<model::MosaicFlags>(GetUint8(dbProperties, "flags")));
-			EXPECT_EQ(properties.divisibility(), GetUint8(dbProperties, "divisibility"));
-			EXPECT_EQ(properties.duration(), BlockDuration(GetUint64(dbProperties, "duration")));
-		}
-	}
+    namespace {
+        void AssertMosaicProperties(const model::MosaicProperties& properties, const bsoncxx::document::view& dbProperties)
+        {
+            EXPECT_EQ(properties.flags(), static_cast<model::MosaicFlags>(GetUint8(dbProperties, "flags")));
+            EXPECT_EQ(properties.divisibility(), GetUint8(dbProperties, "divisibility"));
+            EXPECT_EQ(properties.duration(), BlockDuration(GetUint64(dbProperties, "duration")));
+        }
+    }
 
-	void AssertEqualMosaicData(const state::MosaicEntry& mosaicEntry, const bsoncxx::document::view& dbMosaicEntry) {
-		EXPECT_EQ(9u, GetFieldCount(dbMosaicEntry));
-		EXPECT_EQ(1u, GetUint32(dbMosaicEntry, "version"));
+    void AssertEqualMosaicData(const state::MosaicEntry& mosaicEntry, const bsoncxx::document::view& dbMosaicEntry)
+    {
+        EXPECT_EQ(9u, GetFieldCount(dbMosaicEntry));
+        EXPECT_EQ(1u, GetUint32(dbMosaicEntry, "version"));
 
-		EXPECT_EQ(mosaicEntry.mosaicId(), MosaicId(GetUint64(dbMosaicEntry, "id")));
-		EXPECT_EQ(mosaicEntry.supply(), Amount(GetUint64(dbMosaicEntry, "supply")));
+        EXPECT_EQ(mosaicEntry.mosaicId(), MosaicId(GetUint64(dbMosaicEntry, "id")));
+        EXPECT_EQ(mosaicEntry.supply(), Amount(GetUint64(dbMosaicEntry, "supply")));
 
-		const auto& definition = mosaicEntry.definition();
-		EXPECT_EQ(definition.startHeight(), Height(GetUint64(dbMosaicEntry, "startHeight")));
-		EXPECT_EQ(definition.ownerAddress(), GetAddressValue(dbMosaicEntry, "ownerAddress"));
-		EXPECT_EQ(definition.revision(), GetUint32(dbMosaicEntry, "revision"));
+        const auto& definition = mosaicEntry.definition();
+        EXPECT_EQ(definition.startHeight(), Height(GetUint64(dbMosaicEntry, "startHeight")));
+        EXPECT_EQ(definition.ownerAddress(), GetAddressValue(dbMosaicEntry, "ownerAddress"));
+        EXPECT_EQ(definition.revision(), GetUint32(dbMosaicEntry, "revision"));
 
-		AssertMosaicProperties(definition.properties(), dbMosaicEntry);
-	}
-}}
+        AssertMosaicProperties(definition.properties(), dbMosaicEntry);
+    }
+}
+}

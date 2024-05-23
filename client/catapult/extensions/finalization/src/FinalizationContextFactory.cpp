@@ -26,25 +26,29 @@
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/VotingSet.h"
 
-namespace catapult { namespace finalization {
+namespace catapult {
+namespace finalization {
 
-	FinalizationContextFactory::FinalizationContextFactory(const FinalizationConfiguration& config, const extensions::ServiceState& state)
-			: m_config(config)
-			, m_accountStateCache(state.cache().sub<cache::AccountStateCache>())
-			, m_blockStorage(state.storage()) {
-	}
+    FinalizationContextFactory::FinalizationContextFactory(const FinalizationConfiguration& config, const extensions::ServiceState& state)
+        : m_config(config)
+        , m_accountStateCache(state.cache().sub<cache::AccountStateCache>())
+        , m_blockStorage(state.storage())
+    {
+    }
 
-	model::FinalizationContext FinalizationContextFactory::create(FinalizationEpoch epoch) const {
-		if (FinalizationEpoch() == epoch)
-			CATAPULT_THROW_INVALID_ARGUMENT("epoch zero is not supported");
+    model::FinalizationContext FinalizationContextFactory::create(FinalizationEpoch epoch) const
+    {
+        if (FinalizationEpoch() == epoch)
+            CATAPULT_THROW_INVALID_ARGUMENT("epoch zero is not supported");
 
-		auto votingSetHeight = model::CalculateVotingSetEndHeight(epoch - FinalizationEpoch(1), m_config.VotingSetGrouping);
-		auto generationHash = m_blockStorage.view().loadBlockElement(votingSetHeight)->GenerationHash;
+        auto votingSetHeight = model::CalculateVotingSetEndHeight(epoch - FinalizationEpoch(1), m_config.VotingSetGrouping);
+        auto generationHash = m_blockStorage.view().loadBlockElement(votingSetHeight)->GenerationHash;
 
-		CATAPULT_LOG(trace) << "creating finalization context for epoch " << epoch << " with grouped height " << votingSetHeight;
+        CATAPULT_LOG(trace) << "creating finalization context for epoch " << epoch << " with grouped height " << votingSetHeight;
 
-		// when constructing FinalizationContext, to prevent possible deadlock, only have a single lock (to AccountStateCache) outstanding
-		auto accountStateCacheView = m_accountStateCache.createView();
-		return model::FinalizationContext(epoch, votingSetHeight, generationHash, m_config, *accountStateCacheView);
-	}
-}}
+        // when constructing FinalizationContext, to prevent possible deadlock, only have a single lock (to AccountStateCache) outstanding
+        auto accountStateCacheView = m_accountStateCache.createView();
+        return model::FinalizationContext(epoch, votingSetHeight, generationHash, m_config, *accountStateCacheView);
+    }
+}
+}

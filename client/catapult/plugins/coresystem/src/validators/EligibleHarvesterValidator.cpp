@@ -24,16 +24,18 @@
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/validators/ValidatorContext.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::BlockNotification;
+    using Notification = model::BlockNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(EligibleHarvester, [](const Notification& notification, const ValidatorContext& context) {
-		if (Height(1) == context.Height)
-			return ValidationResult::Success;
+    DEFINE_STATEFUL_VALIDATOR(EligibleHarvester, [](const Notification& notification, const ValidatorContext& context) {
+        if (Height(1) == context.Height)
+            return ValidationResult::Success;
 
-		cache::ImportanceView view(context.Cache.sub<cache::AccountStateCache>());
-		return view.canHarvest(notification.Harvester, context.Height) ? ValidationResult::Success
-																	   : Failure_Core_Block_Harvester_Ineligible;
-	})
-}}
+        cache::ImportanceView view(context.Cache.sub<cache::AccountStateCache>());
+        return view.canHarvest(notification.Harvester, context.Height) ? ValidationResult::Success
+                                                                       : Failure_Core_Block_Harvester_Ineligible;
+    })
+}
+}

@@ -23,25 +23,27 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Extensions for working with transactions.
-	class TransactionExtensions {
-	public:
-		/// Creates extensions for transactions for the network with the specified generation hash seed (\a generationHashSeed).
-		explicit TransactionExtensions(const GenerationHashSeed& generationHashSeed);
+    /// Extensions for working with transactions.
+    class TransactionExtensions {
+    public:
+        /// Creates extensions for transactions for the network with the specified generation hash seed (\a generationHashSeed).
+        explicit TransactionExtensions(const GenerationHashSeed& generationHashSeed);
 
-	public:
-		/// Hashes the \a transaction.
-		Hash256 hash(const model::Transaction& transaction) const;
+    public:
+        /// Hashes the \a transaction.
+        Hash256 hash(const model::Transaction& transaction) const;
 
-		/// Signs the \a transaction using \a signer private key.
-		void sign(const crypto::KeyPair& signer, model::Transaction& transaction) const;
+        /// Signs the \a transaction using \a signer private key.
+        void sign(const crypto::KeyPair& signer, model::Transaction& transaction) const;
 
-		/// Verifies signature of the \a transaction.
-		bool verify(const model::Transaction& transaction) const;
+        /// Verifies signature of the \a transaction.
+        bool verify(const model::Transaction& transaction) const;
 
-	private:
-		GenerationHashSeed m_generationHashSeed;
-	};
-}}
+    private:
+        GenerationHashSeed m_generationHashSeed;
+    };
+}
+}

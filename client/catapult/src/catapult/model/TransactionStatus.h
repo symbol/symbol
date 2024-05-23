@@ -22,41 +22,46 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Transaction status.
-	struct TransactionStatus {
-	public:
-		/// Creates a TransactionStatus around \a hash, \a deadline and \a status.
-		TransactionStatus(const Hash256& hash, Timestamp deadline, uint32_t status)
-				: Hash(hash)
-				, Deadline(deadline)
-				, Status(status) {
-		}
+    /// Transaction status.
+    struct TransactionStatus {
+    public:
+        /// Creates a TransactionStatus around \a hash, \a deadline and \a status.
+        TransactionStatus(const Hash256& hash, Timestamp deadline, uint32_t status)
+            : Hash(hash)
+            , Deadline(deadline)
+            , Status(status)
+        {
+        }
 
-	public:
-		/// Transaction hash.
-		Hash256 Hash;
+    public:
+        /// Transaction hash.
+        Hash256 Hash;
 
-		/// Deadline.
-		Timestamp Deadline;
+        /// Deadline.
+        Timestamp Deadline;
 
-		/// Raw status code.
-		uint32_t Status;
+        /// Raw status code.
+        uint32_t Status;
 
-	public:
-		/// Returns \c true if this transaction status is equal to \a rhs.
-		bool operator==(const TransactionStatus& rhs) const {
-			return Hash == rhs.Hash;
-		}
+    public:
+        /// Returns \c true if this transaction status is equal to \a rhs.
+        bool operator==(const TransactionStatus& rhs) const
+        {
+            return Hash == rhs.Hash;
+        }
 
-		/// Returns \c true if this transaction status is not equal to \a rhs.
-		bool operator!=(const TransactionStatus& rhs) const {
-			return !(*this == rhs);
-		}
-	};
+        /// Returns \c true if this transaction status is not equal to \a rhs.
+        bool operator!=(const TransactionStatus& rhs) const
+        {
+            return !(*this == rhs);
+        }
+    };
 
 #pragma pack(pop)
-}}
+}
+}

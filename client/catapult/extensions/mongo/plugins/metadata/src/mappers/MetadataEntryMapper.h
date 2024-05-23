@@ -23,8 +23,12 @@
 #include "mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/metadata/src/state/MetadataEntry.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Maps \a metadataEntry to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::MetadataEntry& metadataEntry);
-}}}
+        /// Maps \a metadataEntry to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(const state::MetadataEntry& metadataEntry);
+    }
+}
+}

@@ -27,43 +27,44 @@
 
 namespace catapult {
 namespace api {
-	class ChainApi;
-	class RemoteChainApi;
+    class ChainApi;
+    class RemoteChainApi;
 }
 namespace model {
-	struct BlockchainConfiguration;
+    struct BlockchainConfiguration;
 }
 }
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
-	/// Function signature for delivering a block range to a consumer.
-	using BlockRangeConsumerFunc = consumer<model::BlockRange&&>;
+    /// Function signature for delivering a block range to a consumer.
+    using BlockRangeConsumerFunc = consumer<model::BlockRange&&>;
 
-	/// Function signature for delivering a block range to a consumer with an additional completion handler.
-	using CompletionAwareBlockRangeConsumerFunc =
-			std::function<disruptor::DisruptorElementId(model::AnnotatedBlockRange&&, const disruptor::ProcessingCompleteFunc&)>;
+    /// Function signature for delivering a block range to a consumer with an additional completion handler.
+    using CompletionAwareBlockRangeConsumerFunc = std::function<disruptor::DisruptorElementId(model::AnnotatedBlockRange&&, const disruptor::ProcessingCompleteFunc&)>;
 
-	/// Configuration for customizing a chain synchronizer.
-	struct ChainSynchronizerConfiguration {
-		/// Maximum number of hashes per sync attempt.
-		uint32_t MaxHashesPerSyncAttempt;
+    /// Configuration for customizing a chain synchronizer.
+    struct ChainSynchronizerConfiguration {
+        /// Maximum number of hashes per sync attempt.
+        uint32_t MaxHashesPerSyncAttempt;
 
-		/// Maximum number of blocks per sync attempt.
-		uint32_t MaxBlocksPerSyncAttempt;
+        /// Maximum number of blocks per sync attempt.
+        uint32_t MaxBlocksPerSyncAttempt;
 
-		/// Maximum chain bytes per sync attempt.
-		uint32_t MaxChainBytesPerSyncAttempt;
+        /// Maximum chain bytes per sync attempt.
+        uint32_t MaxChainBytesPerSyncAttempt;
 
-		/// Maximum number of blocks that can be rolled back.
-		uint32_t MaxRollbackBlocks;
-	};
+        /// Maximum number of blocks that can be rolled back.
+        uint32_t MaxRollbackBlocks;
+    };
 
-	/// Creates a chain synchronizer around the specified local chain api (\a pLocalChainApi), blockchain \a config,
-	/// local finalized height supplier (\a localFinalizedHeightSupplier) and block range consumer (\a blockRangeConsumer).
-	RemoteNodeSynchronizer<api::RemoteChainApi> CreateChainSynchronizer(
-			const std::shared_ptr<const api::ChainApi>& pLocalChainApi,
-			const ChainSynchronizerConfiguration& config,
-			const supplier<Height>& localFinalizedHeightSupplier,
-			const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer);
-}}
+    /// Creates a chain synchronizer around the specified local chain api (\a pLocalChainApi), blockchain \a config,
+    /// local finalized height supplier (\a localFinalizedHeightSupplier) and block range consumer (\a blockRangeConsumer).
+    RemoteNodeSynchronizer<api::RemoteChainApi> CreateChainSynchronizer(
+        const std::shared_ptr<const api::ChainApi>& pLocalChainApi,
+        const ChainSynchronizerConfiguration& config,
+        const supplier<Height>& localFinalizedHeightSupplier,
+        const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer);
+}
+}

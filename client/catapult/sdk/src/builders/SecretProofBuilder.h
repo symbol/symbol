@@ -23,54 +23,56 @@
 #include "TransactionBuilder.h"
 #include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for a secret proof transaction.
-	class SecretProofBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::SecretProofTransaction;
-		using EmbeddedTransaction = model::EmbeddedSecretProofTransaction;
+    /// Builder for a secret proof transaction.
+    class SecretProofBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::SecretProofTransaction;
+        using EmbeddedTransaction = model::EmbeddedSecretProofTransaction;
 
-	public:
-		/// Creates a secret proof builder for building a secret proof transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		SecretProofBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates a secret proof builder for building a secret proof transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        SecretProofBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the locked mosaic recipient address to \a recipientAddress.
-		void setRecipientAddress(const UnresolvedAddress& recipientAddress);
+    public:
+        /// Sets the locked mosaic recipient address to \a recipientAddress.
+        void setRecipientAddress(const UnresolvedAddress& recipientAddress);
 
-		/// Sets the secret to \a secret.
-		void setSecret(const Hash256& secret);
+        /// Sets the secret to \a secret.
+        void setSecret(const Hash256& secret);
 
-		/// Sets the hash algorithm to \a hashAlgorithm.
-		void setHashAlgorithm(model::LockHashAlgorithm hashAlgorithm);
+        /// Sets the hash algorithm to \a hashAlgorithm.
+        void setHashAlgorithm(model::LockHashAlgorithm hashAlgorithm);
 
-		/// Sets the proof data to \a proof.
-		void setProof(const RawBuffer& proof);
+        /// Sets the proof data to \a proof.
+        void setProof(const RawBuffer& proof);
 
-	public:
-		/// Gets the size of secret proof transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of secret proof transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new secret proof transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new secret proof transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded secret proof transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded secret proof transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		UnresolvedAddress m_recipientAddress;
-		Hash256 m_secret;
-		model::LockHashAlgorithm m_hashAlgorithm;
-		std::vector<uint8_t> m_proof;
-	};
-}}
+    private:
+        UnresolvedAddress m_recipientAddress;
+        Hash256 m_secret;
+        model::LockHashAlgorithm m_hashAlgorithm;
+        std::vector<uint8_t> m_proof;
+    };
+}
+}

@@ -25,33 +25,36 @@
 #include "catapult/tree/PatriciaTreeSerializer.h"
 #include "catapult/utils/Casting.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	/// Registers a handler in \a handlers that responds with serialized state path produced by querying \a cache.
-	template<typename TPacket, typename TCache>
-	void RegisterStatePathHandler(ionet::ServerPacketHandlers& handlers, const TCache& cache) {
-		handlers.registerHandler(TPacket::Packet_Type, [&cache](const auto& packet, auto& context) {
-			const auto* pRequest = ionet::CoercePacket<TPacket>(&packet);
-			if (!pRequest)
-				return;
+    /// Registers a handler in \a handlers that responds with serialized state path produced by querying \a cache.
+    template <typename TPacket, typename TCache>
+    void RegisterStatePathHandler(ionet::ServerPacketHandlers& handlers, const TCache& cache)
+    {
+        handlers.registerHandler(TPacket::Packet_Type, [&cache](const auto& packet, auto& context) {
+            const auto* pRequest = ionet::CoercePacket<TPacket>(&packet);
+            if (!pRequest)
+                return;
 
-			auto view = cache.createView();
-			std::vector<tree::TreeNode> path;
-			view->tryLookup(pRequest->Key, path);
+            auto view = cache.createView();
+            std::vector<tree::TreeNode> path;
+            view->tryLookup(pRequest->Key, path);
 
-			// serialize path even if lookup failed (to provide proof that key does not exist in state)
-			std::vector<uint8_t> serializedPath;
-			for (const auto& node : path) {
-				auto serializedNode = tree::PatriciaTreeSerializer::SerializeValue(node);
-				const auto* pData = reinterpret_cast<const uint8_t*>(serializedNode.data());
-				serializedPath.insert(serializedPath.end(), pData, pData + serializedNode.size());
-			}
+            // serialize path even if lookup failed (to provide proof that key does not exist in state)
+            std::vector<uint8_t> serializedPath;
+            for (const auto& node : path) {
+                auto serializedNode = tree::PatriciaTreeSerializer::SerializeValue(node);
+                const auto* pData = reinterpret_cast<const uint8_t*>(serializedNode.data());
+                serializedPath.insert(serializedPath.end(), pData, pData + serializedNode.size());
+            }
 
-			auto payloadSize = utils::checked_cast<size_t, uint32_t>(serializedPath.size());
-			auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
-			pResponsePacket->Type = TPacket::Packet_Type;
-			utils::memcpy_cond(pResponsePacket->Data(), serializedPath.data(), serializedPath.size());
-			context.response(ionet::PacketPayload(pResponsePacket));
-		});
-	}
-}}
+            auto payloadSize = utils::checked_cast<size_t, uint32_t>(serializedPath.size());
+            auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
+            pResponsePacket->Type = TPacket::Packet_Type;
+            utils::memcpy_cond(pResponsePacket->Data(), serializedPath.data(), serializedPath.size());
+            context.response(ionet::PacketPayload(pResponsePacket));
+        });
+    }
+}
+}

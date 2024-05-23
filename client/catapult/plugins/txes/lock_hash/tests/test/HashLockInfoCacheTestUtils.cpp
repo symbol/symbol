@@ -22,27 +22,33 @@
 #include "HashLockInfoCacheTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	BasicHashLockInfoTestTraits::ValueType BasicHashLockInfoTestTraits::CreateLockInfo(Height height) {
-		return state::HashLockInfo(
-				GenerateRandomByteArray<Address>(),
-				MosaicId(Random()),
-				Amount(Random()),
-				height,
-				GenerateRandomByteArray<Hash256>());
-	}
+    BasicHashLockInfoTestTraits::ValueType BasicHashLockInfoTestTraits::CreateLockInfo(Height height)
+    {
+        return state::HashLockInfo(
+            GenerateRandomByteArray<Address>(),
+            MosaicId(Random()),
+            Amount(Random()),
+            height,
+            GenerateRandomByteArray<Hash256>());
+    }
 
-	BasicHashLockInfoTestTraits::ValueType BasicHashLockInfoTestTraits::CreateLockInfo() {
-		return CreateLockInfo(test::GenerateRandomValue<Height>());
-	}
+    BasicHashLockInfoTestTraits::ValueType BasicHashLockInfoTestTraits::CreateLockInfo()
+    {
+        return CreateLockInfo(test::GenerateRandomValue<Height>());
+    }
 
-	void BasicHashLockInfoTestTraits::SetKey(ValueType& lockInfo, const KeyType& key) {
-		lockInfo.Hash = key;
-	}
+    void BasicHashLockInfoTestTraits::SetKey(ValueType& lockInfo, const KeyType& key)
+    {
+        lockInfo.Hash = key;
+    }
 
-	void BasicHashLockInfoTestTraits::AssertEqual(const ValueType& lhs, const ValueType& rhs) {
-		test::AssertEqualLockInfo(lhs, rhs);
-		EXPECT_EQ(lhs.Hash, rhs.Hash);
-	}
-}}
+    void BasicHashLockInfoTestTraits::AssertEqual(const ValueType& lhs, const ValueType& rhs)
+    {
+        test::AssertEqualLockInfo(lhs, rhs);
+        EXPECT_EQ(lhs.Hash, rhs.Hash);
+    }
+}
+}

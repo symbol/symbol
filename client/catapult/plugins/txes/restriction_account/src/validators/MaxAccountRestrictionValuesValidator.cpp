@@ -20,60 +20,65 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/AccountRestrictionCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/AccountRestrictionCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	namespace {
-		template<typename TRestrictionValue, typename TNotification>
-		ValidationResult Validate(
-				uint16_t maxAccountRestrictionValues,
-				const TNotification& notification,
-				const ValidatorContext& context) {
-			if (maxAccountRestrictionValues < notification.RestrictionAdditionsCount + notification.RestrictionDeletionsCount)
-				return Failure_RestrictionAccount_Modification_Count_Exceeded;
+    namespace {
+        template <typename TRestrictionValue, typename TNotification>
+        ValidationResult Validate(
+            uint16_t maxAccountRestrictionValues,
+            const TNotification& notification,
+            const ValidatorContext& context)
+        {
+            if (maxAccountRestrictionValues < notification.RestrictionAdditionsCount + notification.RestrictionDeletionsCount)
+                return Failure_RestrictionAccount_Modification_Count_Exceeded;
 
-			const auto& address = notification.Address;
-			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
-			if (!cache.contains(address))
-				return ValidationResult::Success;
+            const auto& address = notification.Address;
+            const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
+            if (!cache.contains(address))
+                return ValidationResult::Success;
 
-			auto restrictionsIter = cache.find(address);
-			const auto& restrictions = restrictionsIter.get();
-			auto restrictionFlags = notification.AccountRestrictionDescriptor.directionalRestrictionFlags();
-			const auto& restriction = restrictions.restriction(restrictionFlags);
+            auto restrictionsIter = cache.find(address);
+            const auto& restrictions = restrictionsIter.get();
+            auto restrictionFlags = notification.AccountRestrictionDescriptor.directionalRestrictionFlags();
+            const auto& restriction = restrictions.restriction(restrictionFlags);
 
-			// note that the AccountRestrictionModificationsValidator will detect underflows
-			auto numValues = restriction.values().size() + notification.RestrictionAdditionsCount - notification.RestrictionDeletionsCount;
-			return maxAccountRestrictionValues < numValues ? Failure_RestrictionAccount_Values_Count_Exceeded : ValidationResult::Success;
-		}
-	}
+            // note that the AccountRestrictionModificationsValidator will detect underflows
+            auto numValues = restriction.values().size() + notification.RestrictionAdditionsCount - notification.RestrictionDeletionsCount;
+            return maxAccountRestrictionValues < numValues ? Failure_RestrictionAccount_Values_Count_Exceeded : ValidationResult::Success;
+        }
+    }
 
 #define DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, ACCOUNT_RESTRICTION_VALUE_TYPE) \
-	DECLARE_STATEFUL_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE)(uint16_t maxAccountRestrictionValues) { \
-		using ValidatorType = stateful::FunctionalNotificationValidatorT<NOTIFICATION_TYPE>; \
-		return std::make_unique<ValidatorType>( \
-				#VALIDATOR_NAME "Validator", \
-				[maxAccountRestrictionValues](const NOTIFICATION_TYPE& notification, const ValidatorContext& context) { \
-					return Validate<ACCOUNT_RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>( \
-							maxAccountRestrictionValues, \
-							notification, \
-							context); \
-				}); \
-	}
+    DECLARE_STATEFUL_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE)                                                          \
+    (uint16_t maxAccountRestrictionValues)                                                                                 \
+    {                                                                                                                      \
+        using ValidatorType = stateful::FunctionalNotificationValidatorT<NOTIFICATION_TYPE>;                               \
+        return std::make_unique<ValidatorType>(                                                                            \
+            #VALIDATOR_NAME "Validator",                                                                                   \
+            [maxAccountRestrictionValues](const NOTIFICATION_TYPE& notification, const ValidatorContext& context) {        \
+                return Validate<ACCOUNT_RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(                                        \
+                    maxAccountRestrictionValues,                                                                           \
+                    notification,                                                                                          \
+                    context);                                                                                              \
+            });                                                                                                            \
+    }
 
-	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
-			MaxAccountAddressRestrictionValues,
-			model::ModifyAccountAddressRestrictionsNotification,
-			UnresolvedAddress)
-	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
-			MaxAccountMosaicRestrictionValues,
-			model::ModifyAccountMosaicRestrictionsNotification,
-			UnresolvedMosaicId)
-	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
-			MaxAccountOperationRestrictionValues,
-			model::ModifyAccountOperationRestrictionsNotification,
-			model::EntityType)
-}}
+    DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
+        MaxAccountAddressRestrictionValues,
+        model::ModifyAccountAddressRestrictionsNotification,
+        UnresolvedAddress)
+    DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
+        MaxAccountMosaicRestrictionValues,
+        model::ModifyAccountMosaicRestrictionsNotification,
+        UnresolvedMosaicId)
+    DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
+        MaxAccountOperationRestrictionValues,
+        model::ModifyAccountOperationRestrictionsNotification,
+        model::EntityType)
+}
+}

@@ -22,15 +22,17 @@
 #pragma once
 #include "catapult/model/KeyLinkSharedTransaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a vrf key link transaction body.
-	template<typename THeader>
-	struct VrfKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Vrf_Key_Link> {};
+    /// Binary layout for a vrf key link transaction body.
+    template <typename THeader>
+    struct VrfKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Vrf_Key_Link> { };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(VrfKeyLink)
+    DEFINE_EMBEDDABLE_TRANSACTION(VrfKeyLink)
 
 #pragma pack(pop)
-}}
+}
+}

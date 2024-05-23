@@ -23,15 +23,19 @@
 #include "catapult/local/ProcessHost.h"
 #include <memory>
 
-namespace catapult { namespace extensions {
-	class ProcessBootstrapper;
-}}
+namespace catapult {
+namespace extensions {
+    class ProcessBootstrapper;
+}
+}
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Represents a broker.
-	class Broker : public ProcessHost {};
+    /// Represents a broker.
+    class Broker : public ProcessHost { };
 
-	/// Creates and boots a broker around the specified bootstrapper (\a pBootstrapper).
-	std::unique_ptr<Broker> CreateBroker(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
-}}
+    /// Creates and boots a broker around the specified bootstrapper (\a pBootstrapper).
+    std::unique_ptr<Broker> CreateBroker(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
+}
+}

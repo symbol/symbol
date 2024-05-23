@@ -25,22 +25,24 @@
 
 namespace catapult {
 namespace extensions {
-	class ProcessBootstrapper;
+    class ProcessBootstrapper;
 }
 namespace model {
-	class ChainScore;
+    class ChainScore;
 }
 }
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Represents a recovery orchestrator.
-	class RecoveryOrchestrator : public ProcessHost {
-	public:
-		/// Gets the current chain score.
-		virtual model::ChainScore score() const = 0;
-	};
+    /// Represents a recovery orchestrator.
+    class RecoveryOrchestrator : public ProcessHost {
+    public:
+        /// Gets the current chain score.
+        virtual model::ChainScore score() const = 0;
+    };
 
-	/// Creates and boots a recovery orchestrator around the specified bootstrapper (\a pBootstrapper).
-	std::unique_ptr<RecoveryOrchestrator> CreateRecoveryOrchestrator(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
-}}
+    /// Creates and boots a recovery orchestrator around the specified bootstrapper (\a pBootstrapper).
+    std::unique_ptr<RecoveryOrchestrator> CreateRecoveryOrchestrator(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
+}
+}

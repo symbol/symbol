@@ -26,48 +26,54 @@
 #include "catapult/io/RawFile.h"
 #include <filesystem>
 
-namespace catapult { namespace consumers {
+namespace catapult {
+namespace consumers {
 
-	namespace {
-		void Write(io::RawFile& file, const model::VerifiableEntity& entity) {
-			file.write({ reinterpret_cast<const uint8_t*>(&entity), entity.Size });
-		}
+    namespace {
+        void Write(io::RawFile& file, const model::VerifiableEntity& entity)
+        {
+            file.write({ reinterpret_cast<const uint8_t*>(&entity), entity.Size });
+        }
 
-		class AuditConsumer {
-		public:
-			explicit AuditConsumer(const std::string& auditDirectory)
-					: m_auditDirectory(auditDirectory)
-					, m_id(0) {
-			}
+        class AuditConsumer {
+        public:
+            explicit AuditConsumer(const std::string& auditDirectory)
+                : m_auditDirectory(auditDirectory)
+                , m_id(0)
+            {
+            }
 
-		public:
-			ConsumerResult operator()(const disruptor::ConsumerInput& input) const {
-				if (input.empty())
-					return Abort(Failure_Consumer_Empty_Input);
+        public:
+            ConsumerResult operator()(const disruptor::ConsumerInput& input) const
+            {
+                if (input.empty())
+                    return Abort(Failure_Consumer_Empty_Input);
 
-				auto filename = (m_auditDirectory / std::to_string(++m_id)).generic_string();
-				io::RawFile file(filename, io::OpenMode::Read_Write, io::LockMode::None);
-				io::Write32(file, utils::to_underlying_type(input.source()));
-				file.write(input.sourceIdentity().PublicKey);
+                auto filename = (m_auditDirectory / std::to_string(++m_id)).generic_string();
+                io::RawFile file(filename, io::OpenMode::Read_Write, io::LockMode::None);
+                io::Write32(file, utils::to_underlying_type(input.source()));
+                file.write(input.sourceIdentity().PublicKey);
 
-				if (input.hasBlocks()) {
-					for (const auto& element : input.blocks())
-						Write(file, element.Block);
-				} else {
-					for (const auto& element : input.transactions())
-						Write(file, element.Transaction);
-				}
+                if (input.hasBlocks()) {
+                    for (const auto& element : input.blocks())
+                        Write(file, element.Block);
+                } else {
+                    for (const auto& element : input.transactions())
+                        Write(file, element.Transaction);
+                }
 
-				return Continue();
-			}
+                return Continue();
+            }
 
-		private:
-			std::filesystem::path m_auditDirectory;
-			mutable size_t m_id;
-		};
-	}
+        private:
+            std::filesystem::path m_auditDirectory;
+            mutable size_t m_id;
+        };
+    }
 
-	disruptor::ConstDisruptorConsumer CreateAuditConsumer(const std::string& auditDirectory) {
-		return AuditConsumer(auditDirectory);
-	}
-}}
+    disruptor::ConstDisruptorConsumer CreateAuditConsumer(const std::string& auditDirectory)
+    {
+        return AuditConsumer(auditDirectory);
+    }
+}
+}

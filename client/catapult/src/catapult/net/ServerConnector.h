@@ -27,46 +27,48 @@
 
 namespace catapult {
 namespace ionet {
-	class Node;
-	class PacketSocket;
-	class PacketSocketInfo;
+    class Node;
+    class PacketSocket;
+    class PacketSocketInfo;
 }
 namespace thread {
-	class IoThreadPool;
+    class IoThreadPool;
 }
 }
 
-namespace catapult { namespace net {
+namespace catapult {
+namespace net {
 
-	/// Establishes connections with external nodes that this (local) node initiates.
-	class ServerConnector {
-	public:
-		/// Callback that is passed the connect result and the connected socket info on success.
-		using ConnectCallback = consumer<PeerConnectCode, const ionet::PacketSocketInfo&>;
+    /// Establishes connections with external nodes that this (local) node initiates.
+    class ServerConnector {
+    public:
+        /// Callback that is passed the connect result and the connected socket info on success.
+        using ConnectCallback = consumer<PeerConnectCode, const ionet::PacketSocketInfo&>;
 
-	public:
-		virtual ~ServerConnector() = default;
+    public:
+        virtual ~ServerConnector() = default;
 
-	public:
-		/// Gets the number of active connections.
-		virtual size_t numActiveConnections() const = 0;
+    public:
+        /// Gets the number of active connections.
+        virtual size_t numActiveConnections() const = 0;
 
-		/// Gets the friendly name of this connector.
-		virtual const std::string& name() const = 0;
+        /// Gets the friendly name of this connector.
+        virtual const std::string& name() const = 0;
 
-	public:
-		/// Attempts to connect to \a node and calls \a callback on completion.
-		virtual void connect(const ionet::Node& node, const ConnectCallback& callback) = 0;
+    public:
+        /// Attempts to connect to \a node and calls \a callback on completion.
+        virtual void connect(const ionet::Node& node, const ConnectCallback& callback) = 0;
 
-		/// Shuts down all connections.
-		virtual void shutdown() = 0;
-	};
+        /// Shuts down all connections.
+        virtual void shutdown() = 0;
+    };
 
-	/// Creates a server connector for a server with specified \a serverPublicKey using \a pool and configured with \a settings.
-	/// Optional friendly \a name can be provided to tag logs.
-	std::shared_ptr<ServerConnector> CreateServerConnector(
-			thread::IoThreadPool& pool,
-			const Key& serverPublicKey,
-			const ConnectionSettings& settings,
-			const char* name = nullptr);
-}}
+    /// Creates a server connector for a server with specified \a serverPublicKey using \a pool and configured with \a settings.
+    /// Optional friendly \a name can be provided to tag logs.
+    std::shared_ptr<ServerConnector> CreateServerConnector(
+        thread::IoThreadPool& pool,
+        const Key& serverPublicKey,
+        const ConnectionSettings& settings,
+        const char* name = nullptr);
+}
+}

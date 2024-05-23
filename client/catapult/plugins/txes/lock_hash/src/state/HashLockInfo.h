@@ -20,37 +20,42 @@
 **/
 
 #pragma once
-#include "plugins/txes/lock_shared/src/state/LockInfo.h"
 #include "catapult/plugins.h"
+#include "plugins/txes/lock_shared/src/state/LockInfo.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Hash lock info.
-	struct PLUGIN_API_DEPENDENCY HashLockInfo : public LockInfo {
-	public:
-		/// Creates a default hash lock info.
-		HashLockInfo()
-				: LockInfo() {
-		}
+    /// Hash lock info.
+    struct PLUGIN_API_DEPENDENCY HashLockInfo : public LockInfo {
+    public:
+        /// Creates a default hash lock info.
+        HashLockInfo()
+            : LockInfo()
+        {
+        }
 
-		/// Creates a hash lock info around \a ownerAddress, \a mosaicId, \a amount, \a endHeight and \a hash.
-		HashLockInfo(
-				const Address& ownerAddress,
-				catapult::MosaicId mosaicId,
-				catapult::Amount amount,
-				Height endHeight,
-				const Hash256& hash)
-				: LockInfo(ownerAddress, mosaicId, amount, endHeight)
-				, Hash(hash) {
-		}
+        /// Creates a hash lock info around \a ownerAddress, \a mosaicId, \a amount, \a endHeight and \a hash.
+        HashLockInfo(
+            const Address& ownerAddress,
+            catapult::MosaicId mosaicId,
+            catapult::Amount amount,
+            Height endHeight,
+            const Hash256& hash)
+            : LockInfo(ownerAddress, mosaicId, amount, endHeight)
+            , Hash(hash)
+        {
+        }
 
-	public:
-		/// Hash.
-		Hash256 Hash;
-	};
+    public:
+        /// Hash.
+        Hash256 Hash;
+    };
 
-	/// Gets the lock identifier for \a lockInfo.
-	inline const Hash256& GetLockIdentifier(const HashLockInfo& lockInfo) {
-		return lockInfo.Hash;
-	}
-}}
+    /// Gets the lock identifier for \a lockInfo.
+    inline const Hash256& GetLockIdentifier(const HashLockInfo& lockInfo)
+    {
+        return lockInfo.Hash;
+    }
+}
+}

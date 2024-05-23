@@ -24,44 +24,46 @@
 #include "NodeIdentity.h"
 #include "catapult/utils/TimeSpan.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Information about a network.
-	struct NetworkInfo {
-	public:
-		/// Creates a default, uninitialized network info.
-		NetworkInfo();
+    /// Information about a network.
+    struct NetworkInfo {
+    public:
+        /// Creates a default, uninitialized network info.
+        NetworkInfo();
 
-		/// Creates a network info around network \a identifier, node equality strategy (\a nodeEqualityStrategy),
-		/// nemesis signer public key (\a nemesisSignerPublicKey), nemesis generation hash seed (\a generationHashSeed)
-		/// and nemesis epoch time adjustment (\a epochAdjustment).
-		NetworkInfo(
-				NetworkIdentifier identifier,
-				NodeIdentityEqualityStrategy nodeEqualityStrategy,
-				const Key& nemesisSignerPublicKey,
-				const catapult::GenerationHashSeed& generationHashSeed,
-				const utils::TimeSpan& epochAdjustment);
+        /// Creates a network info around network \a identifier, node equality strategy (\a nodeEqualityStrategy),
+        /// nemesis signer public key (\a nemesisSignerPublicKey), nemesis generation hash seed (\a generationHashSeed)
+        /// and nemesis epoch time adjustment (\a epochAdjustment).
+        NetworkInfo(
+            NetworkIdentifier identifier,
+            NodeIdentityEqualityStrategy nodeEqualityStrategy,
+            const Key& nemesisSignerPublicKey,
+            const catapult::GenerationHashSeed& generationHashSeed,
+            const utils::TimeSpan& epochAdjustment);
 
-	public:
-		/// Network identifier.
-		NetworkIdentifier Identifier;
+    public:
+        /// Network identifier.
+        NetworkIdentifier Identifier;
 
-		/// Node equality strategy.
-		NodeIdentityEqualityStrategy NodeEqualityStrategy;
+        /// Node equality strategy.
+        NodeIdentityEqualityStrategy NodeEqualityStrategy;
 
-		/// Nemesis public key.
-		Key NemesisSignerPublicKey;
+        /// Nemesis public key.
+        Key NemesisSignerPublicKey;
 
-		/// Nemesis generation hash seed.
-		catapult::GenerationHashSeed GenerationHashSeed;
+        /// Nemesis generation hash seed.
+        catapult::GenerationHashSeed GenerationHashSeed;
 
-		/// Nemesis epoch time adjustment.
-		utils::TimeSpan EpochAdjustment;
-	};
+        /// Nemesis epoch time adjustment.
+        utils::TimeSpan EpochAdjustment;
+    };
 
-	/// Gets the nemesis signer address for \a networkInfo.
-	Address GetNemesisSignerAddress(const NetworkInfo& networkInfo);
+    /// Gets the nemesis signer address for \a networkInfo.
+    Address GetNemesisSignerAddress(const NetworkInfo& networkInfo);
 
-	/// Gets the unique network fingerprint for \a networkInfo.
-	UniqueNetworkFingerprint GetUniqueNetworkFingerprint(const NetworkInfo& networkInfo);
-}}
+    /// Gets the unique network fingerprint for \a networkInfo.
+    UniqueNetworkFingerprint GetUniqueNetworkFingerprint(const NetworkInfo& networkInfo);
+}
+}

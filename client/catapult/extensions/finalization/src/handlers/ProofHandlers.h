@@ -22,18 +22,22 @@
 #pragma once
 #include "catapult/ionet/PacketHandlers.h"
 
-namespace catapult { namespace io {
-	class ProofStorageCache;
-}}
+namespace catapult {
+namespace io {
+    class ProofStorageCache;
+}
+}
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	/// Registers a finalization statistics handler in \a handlers that responds with the current state in \a proofStorage,
-	void RegisterFinalizationStatisticsHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage);
+    /// Registers a finalization statistics handler in \a handlers that responds with the current state in \a proofStorage,
+    void RegisterFinalizationStatisticsHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage);
 
-	/// Registers a finalization proof at epoch handler that responds with a proof in \a proofStorage.
-	void RegisterFinalizationProofAtEpochHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage);
+    /// Registers a finalization proof at epoch handler that responds with a proof in \a proofStorage.
+    void RegisterFinalizationProofAtEpochHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage);
 
-	/// Registers a finalization proof at height handler that responds with a proof in \a proofStorage.
-	void RegisterFinalizationProofAtHeightHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage);
-}}
+    /// Registers a finalization proof at height handler that responds with a proof in \a proofStorage.
+    void RegisterFinalizationProofAtHeightHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage);
+}
+}

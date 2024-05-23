@@ -20,27 +20,30 @@
 **/
 
 #include "Validators.h"
-#include "src/cache/MosaicRestrictionCache.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/MosaicRestrictionCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	namespace {
-		using Notification = model::MosaicRestrictionRequiredNotification;
+    namespace {
+        using Notification = model::MosaicRestrictionRequiredNotification;
 
-		bool GlobalRestrictionExists(const Notification& notification, const ValidatorContext& context) {
-			const auto& cache = context.Cache.sub<cache::MosaicRestrictionCache>();
-			auto entryIter = cache.find(state::CreateMosaicRestrictionEntryKey(context.Resolvers.resolve(notification.MosaicId)));
+        bool GlobalRestrictionExists(const Notification& notification, const ValidatorContext& context)
+        {
+            const auto& cache = context.Cache.sub<cache::MosaicRestrictionCache>();
+            auto entryIter = cache.find(state::CreateMosaicRestrictionEntryKey(context.Resolvers.resolve(notification.MosaicId)));
 
-			// entry must wrap a global restriction because key is created with zero address
-			state::MosaicGlobalRestriction::RestrictionRule rule;
-			return entryIter.tryGet() && entryIter.get().asGlobalRestriction().tryGet(notification.RestrictionKey, rule);
-		}
-	}
+            // entry must wrap a global restriction because key is created with zero address
+            state::MosaicGlobalRestriction::RestrictionRule rule;
+            return entryIter.tryGet() && entryIter.get().asGlobalRestriction().tryGet(notification.RestrictionKey, rule);
+        }
+    }
 
-	DEFINE_STATEFUL_VALIDATOR(MosaicRestrictionRequired, ([](const Notification& notification, const ValidatorContext& context) {
-								  return GlobalRestrictionExists(notification, context)
-												 ? ValidationResult::Success
-												 : Failure_RestrictionMosaic_Unknown_Global_Restriction;
-							  }))
-}}
+    DEFINE_STATEFUL_VALIDATOR(MosaicRestrictionRequired, ([](const Notification& notification, const ValidatorContext& context) {
+        return GlobalRestrictionExists(notification, context)
+            ? ValidationResult::Success
+            : Failure_RestrictionMosaic_Unknown_Global_Restriction;
+    }))
+}
+}

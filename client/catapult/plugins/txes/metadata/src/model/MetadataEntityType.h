@@ -28,14 +28,14 @@ namespace model {
 
 #endif
 
-	/// Account metadata transaction.
-	DEFINE_TRANSACTION_TYPE(Metadata, Account_Metadata, 0x1);
+    /// Account metadata transaction.
+    DEFINE_TRANSACTION_TYPE(Metadata, Account_Metadata, 0x1);
 
-	/// Mosaic metadata transaction.
-	DEFINE_TRANSACTION_TYPE(Metadata, Mosaic_Metadata, 0x2);
+    /// Mosaic metadata transaction.
+    DEFINE_TRANSACTION_TYPE(Metadata, Mosaic_Metadata, 0x2);
 
-	/// Namespace metadata transaction.
-	DEFINE_TRANSACTION_TYPE(Metadata, Namespace_Metadata, 0x3);
+    /// Namespace metadata transaction.
+    DEFINE_TRANSACTION_TYPE(Metadata, Namespace_Metadata, 0x3);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

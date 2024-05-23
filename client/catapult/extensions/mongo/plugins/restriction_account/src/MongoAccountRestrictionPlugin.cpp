@@ -20,16 +20,17 @@
 **/
 
 #include "AccountRestrictionMapper.h"
-#include "storages/MongoAccountRestrictionCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
+#include "storages/MongoAccountRestrictionCacheStorage.h"
 
-extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
-	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountAddressRestrictionTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountMosaicRestrictionTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountOperationRestrictionTransactionMongoPlugin());
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager)
+{
+    // transaction support
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountAddressRestrictionTransactionMongoPlugin());
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountMosaicRestrictionTransactionMongoPlugin());
+    manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountOperationRestrictionTransactionMongoPlugin());
 
-	// cache storage support
-	manager.addStorageSupport(
-			catapult::mongo::plugins::CreateMongoAccountRestrictionCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+    // cache storage support
+    manager.addStorageSupport(
+        catapult::mongo::plugins::CreateMongoAccountRestrictionCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 }

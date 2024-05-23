@@ -20,53 +20,61 @@
 **/
 
 #include "networkheight/src/NetworkHeightConfiguration.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
-namespace catapult { namespace networkheight {
+namespace catapult {
+namespace networkheight {
 
 #define TEST_CLASS NetworkHeightConfigurationTests
 
-	namespace {
-		struct NetworkHeightConfigurationTraits {
-			using ConfigurationType = NetworkHeightConfiguration;
+    namespace {
+        struct NetworkHeightConfigurationTraits {
+            using ConfigurationType = NetworkHeightConfiguration;
 
-			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return { { "networkheight", { { "maxNodes", "123" } } } };
-			}
+            static utils::ConfigurationBag::ValuesContainer CreateProperties()
+            {
+                return { { "networkheight", { { "maxNodes", "123" } } } };
+            }
 
-			static bool IsSectionOptional(const std::string&) {
-				return false;
-			}
+            static bool IsSectionOptional(const std::string&)
+            {
+                return false;
+            }
 
-			static void AssertZero(const NetworkHeightConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(0u, config.MaxNodes);
-			}
+            static void AssertZero(const NetworkHeightConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(0u, config.MaxNodes);
+            }
 
-			static void AssertCustom(const NetworkHeightConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(123u, config.MaxNodes);
-			}
-		};
-	}
+            static void AssertCustom(const NetworkHeightConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(123u, config.MaxNodes);
+            }
+        };
+    }
 
-	DEFINE_CONFIGURATION_TESTS(NetworkHeightConfigurationTests, NetworkHeight)
+    DEFINE_CONFIGURATION_TESTS(NetworkHeightConfigurationTests, NetworkHeight)
 
-	// region file io
+    // region file io
 
-	TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist) {
-		// Act + Assert: attempt to load the config
-		EXPECT_THROW(NetworkHeightConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
-	}
+    TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist)
+    {
+        // Act + Assert: attempt to load the config
+        EXPECT_THROW(NetworkHeightConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
+    }
 
-	TEST(TEST_CLASS, CanLoadConfigFromResourcesDirectory) {
-		// Act: attempt to load from the "real" resources directory
-		auto config = NetworkHeightConfiguration::LoadFromPath("../resources");
+    TEST(TEST_CLASS, CanLoadConfigFromResourcesDirectory)
+    {
+        // Act: attempt to load from the "real" resources directory
+        auto config = NetworkHeightConfiguration::LoadFromPath("../resources");
 
-		// Assert:
-		EXPECT_EQ(5u, config.MaxNodes);
-	}
+        // Assert:
+        EXPECT_EQ(5u, config.MaxNodes);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

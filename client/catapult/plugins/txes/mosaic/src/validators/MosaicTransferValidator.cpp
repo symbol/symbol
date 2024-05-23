@@ -21,56 +21,61 @@
 
 #include "ActiveMosaicView.h"
 #include "Validators.h"
-#include "src/cache/MosaicCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/cache/MosaicCache.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::BalanceTransferNotification;
+    using Notification = model::BalanceTransferNotification;
 
-	namespace {
-		bool IsMosaicOwnerParticipant(
-				const cache::ReadOnlyCatapultCache& cache,
-				const Address& owner,
-				const Notification& notification,
-				const model::ResolverContext& resolvers) {
-			if (owner == notification.Sender.resolved(resolvers))
-				return true;
+    namespace {
+        bool IsMosaicOwnerParticipant(
+            const cache::ReadOnlyCatapultCache& cache,
+            const Address& owner,
+            const Notification& notification,
+            const model::ResolverContext& resolvers)
+        {
+            if (owner == notification.Sender.resolved(resolvers))
+                return true;
 
-			// the owner must exist if the mosaic lookup succeeded
-			const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
-			auto ownerAccountStateIter = accountStateCache.find(owner);
-			return ownerAccountStateIter.get().Address == notification.Recipient.resolved(resolvers);
-		}
-	}
+            // the owner must exist if the mosaic lookup succeeded
+            const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
+            auto ownerAccountStateIter = accountStateCache.find(owner);
+            return ownerAccountStateIter.get().Address == notification.Recipient.resolved(resolvers);
+        }
+    }
 
-	DECLARE_STATEFUL_VALIDATOR(MosaicTransfer, Notification)(UnresolvedMosaicId currencyMosaicId) {
-		return MAKE_STATEFUL_VALIDATOR(
-				MosaicTransfer,
-				[currencyMosaicId](const Notification& notification, const ValidatorContext& context) {
-					// 0. allow currency mosaic id
-					if (currencyMosaicId == notification.MosaicId)
-						return ValidationResult::Success;
+    DECLARE_STATEFUL_VALIDATOR(MosaicTransfer, Notification)
+    (UnresolvedMosaicId currencyMosaicId)
+    {
+        return MAKE_STATEFUL_VALIDATOR(
+            MosaicTransfer,
+            [currencyMosaicId](const Notification& notification, const ValidatorContext& context) {
+                // 0. allow currency mosaic id
+                if (currencyMosaicId == notification.MosaicId)
+                    return ValidationResult::Success;
 
-					// 1. check that the mosaic exists
-					ActiveMosaicView::FindIterator mosaicIter;
-					ActiveMosaicView activeMosaicView(context.Cache);
-					auto result = activeMosaicView.tryGet(context.Resolvers.resolve(notification.MosaicId), context.Height, mosaicIter);
-					if (!IsValidationResultSuccess(result))
-						return result;
+                // 1. check that the mosaic exists
+                ActiveMosaicView::FindIterator mosaicIter;
+                ActiveMosaicView activeMosaicView(context.Cache);
+                auto result = activeMosaicView.tryGet(context.Resolvers.resolve(notification.MosaicId), context.Height, mosaicIter);
+                if (!IsValidationResultSuccess(result))
+                    return result;
 
-					// 2. if it's transferable there's nothing else to check
-					const auto& mosaicEntry = mosaicIter.get();
-					if (mosaicEntry.definition().properties().is(model::MosaicFlags::Transferable))
-						return ValidationResult::Success;
+                // 2. if it's transferable there's nothing else to check
+                const auto& mosaicEntry = mosaicIter.get();
+                if (mosaicEntry.definition().properties().is(model::MosaicFlags::Transferable))
+                    return ValidationResult::Success;
 
-					// 3. if it's NOT transferable then owner must be either sender or recipient
-					if (!IsMosaicOwnerParticipant(context.Cache, mosaicEntry.definition().ownerAddress(), notification, context.Resolvers))
-						return Failure_Mosaic_Non_Transferable;
+                // 3. if it's NOT transferable then owner must be either sender or recipient
+                if (!IsMosaicOwnerParticipant(context.Cache, mosaicEntry.definition().ownerAddress(), notification, context.Resolvers))
+                    return Failure_Mosaic_Non_Transferable;
 
-					return ValidationResult::Success;
-				});
-	}
-}}
+                return ValidationResult::Success;
+            });
+    }
+}
+}

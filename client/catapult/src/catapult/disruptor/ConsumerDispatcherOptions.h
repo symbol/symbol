@@ -22,34 +22,37 @@
 #pragma once
 #include "catapult/utils/FileSize.h"
 
-namespace catapult { namespace disruptor {
+namespace catapult {
+namespace disruptor {
 
-	/// Consumer dispatcher options.
-	struct ConsumerDispatcherOptions {
-	public:
-		/// Creates options around \a dispatcherName and \a disruptorSlotCount.
-		constexpr ConsumerDispatcherOptions(const char* dispatcherName, size_t disruptorSlotCount)
-				: DispatcherName(dispatcherName)
-				, DisruptorSlotCount(disruptorSlotCount)
-				, DisruptorMaxMemorySize(utils::FileSize::FromMegabytes(1024))
-				, ElementTraceInterval(1)
-				, ShouldThrowWhenFull(true) {
-		}
+    /// Consumer dispatcher options.
+    struct ConsumerDispatcherOptions {
+    public:
+        /// Creates options around \a dispatcherName and \a disruptorSlotCount.
+        constexpr ConsumerDispatcherOptions(const char* dispatcherName, size_t disruptorSlotCount)
+            : DispatcherName(dispatcherName)
+            , DisruptorSlotCount(disruptorSlotCount)
+            , DisruptorMaxMemorySize(utils::FileSize::FromMegabytes(1024))
+            , ElementTraceInterval(1)
+            , ShouldThrowWhenFull(true)
+        {
+        }
 
-	public:
-		/// Name of the dispatcher.
-		const char* DispatcherName;
+    public:
+        /// Name of the dispatcher.
+        const char* DispatcherName;
 
-		/// Number of slots in the disruptor circular buffer.
-		size_t DisruptorSlotCount;
+        /// Number of slots in the disruptor circular buffer.
+        size_t DisruptorSlotCount;
 
-		/// Maximum memory of all elements in the disruptor circular buffer.
-		utils::FileSize DisruptorMaxMemorySize;
+        /// Maximum memory of all elements in the disruptor circular buffer.
+        utils::FileSize DisruptorMaxMemorySize;
 
-		/// Multiple of elements at which an element should be traced through queue and completion.
-		size_t ElementTraceInterval;
+        /// Multiple of elements at which an element should be traced through queue and completion.
+        size_t ElementTraceInterval;
 
-		/// \c true if the dispatcher should throw when full, \c false if it should return an error.
-		bool ShouldThrowWhenFull;
-	};
-}}
+        /// \c true if the dispatcher should throw when full, \c false if it should return an error.
+        bool ShouldThrowWhenFull;
+    };
+}
+}

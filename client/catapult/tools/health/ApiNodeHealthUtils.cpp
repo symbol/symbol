@@ -28,318 +28,356 @@
 #include <regex>
 #include <unordered_map>
 
-namespace catapult { namespace tools { namespace health { namespace {
-	// matcher for async_read_until that will match when at least one closing brace has been found
-	// and all opening and closing braces are balanced
-	struct BalancedBraceMatcher {
-	private:
-		using iterator = boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type>;
+namespace catapult {
+namespace tools {
+    namespace health {
+        namespace {
+            // matcher for async_read_until that will match when at least one closing brace has been found
+            // and all opening and closing braces are balanced
+            struct BalancedBraceMatcher {
+            private:
+                using iterator = boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type>;
 
-	public:
-		BalancedBraceMatcher()
-				: m_numUnmatchedOpenBraces(0) {
-		}
+            public:
+                BalancedBraceMatcher()
+                    : m_numUnmatchedOpenBraces(0)
+                {
+                }
 
-	public:
-		std::pair<iterator, bool> operator()(iterator begin, iterator end) {
-			for (auto iter = begin; end != iter; ++iter) {
-				switch (*iter) {
-				case '{':
-					++m_numUnmatchedOpenBraces;
-					break;
+            public:
+                std::pair<iterator, bool> operator()(iterator begin, iterator end)
+                {
+                    for (auto iter = begin; end != iter; ++iter) {
+                        switch (*iter) {
+                        case '{':
+                            ++m_numUnmatchedOpenBraces;
+                            break;
 
-				case '}':
-					if (0 == --m_numUnmatchedOpenBraces)
-						return std::make_pair(iter, true);
+                        case '}':
+                            if (0 == --m_numUnmatchedOpenBraces)
+                                return std::make_pair(iter, true);
 
-					break;
-				}
-			}
+                            break;
+                        }
+                    }
 
-			return std::make_pair(end, false);
-		}
+                    return std::make_pair(end, false);
+                }
 
-	private:
-		size_t m_numUnmatchedOpenBraces;
-	};
-}}}}
+            private:
+                size_t m_numUnmatchedOpenBraces;
+            };
+        }
+    }
+}
+}
 
-namespace boost { namespace asio {
+namespace boost {
+namespace asio {
 
-	// specialization that allows async_read_until to use BalancedBraceMatcher as a matcher
-	template<>
-	struct is_match_condition<catapult::tools::health::BalancedBraceMatcher> : public boost::true_type {};
-}}
+    // specialization that allows async_read_until to use BalancedBraceMatcher as a matcher
+    template <>
+    struct is_match_condition<catapult::tools::health::BalancedBraceMatcher> : public boost::true_type { };
+}
+}
 
-namespace catapult { namespace tools { namespace health {
+namespace catapult {
+namespace tools {
+    namespace health {
 
-	namespace {
-		constexpr uint16_t Rest_Api_Port = 3000;
+        namespace {
+            constexpr uint16_t Rest_Api_Port = 3000;
 
-		bool ShouldAbort(const boost::system::error_code& ec, const std::string& host, const char* operation) {
-			if (!ec)
-				return false;
+            bool ShouldAbort(const boost::system::error_code& ec, const std::string& host, const char* operation)
+            {
+                if (!ec)
+                    return false;
 
-			CATAPULT_LOG(error) << "failed when " << operation << " '" << host << "': " << ec.message();
-			return true;
-		}
+                CATAPULT_LOG(error) << "failed when " << operation << " '" << host << "': " << ec.message();
+                return true;
+            }
 
-		// region SocketConnector
+            // region SocketConnector
 
-		// similar to BasicConnectHandler in PacketSocket but does not require use of strands because it is not cancelable
-		class SocketConnector final {
-		private:
-			using ResolverType = boost::asio::ip::tcp::resolver;
+            // similar to BasicConnectHandler in PacketSocket but does not require use of strands because it is not cancelable
+            class SocketConnector final {
+            private:
+                using ResolverType = boost::asio::ip::tcp::resolver;
 
-		public:
-			SocketConnector(boost::asio::io_context& ioContext, const std::string& host, uint16_t port)
-					: m_socket(ioContext)
-					, m_resolver(ioContext)
-					, m_host(host + ":" + std::to_string(port))
-					, m_query(host, std::to_string(port)) {
-			}
+            public:
+                SocketConnector(boost::asio::io_context& ioContext, const std::string& host, uint16_t port)
+                    : m_socket(ioContext)
+                    , m_resolver(ioContext)
+                    , m_host(host + ":" + std::to_string(port))
+                    , m_query(host, std::to_string(port))
+                {
+                }
 
-		public:
-			thread::future<ionet::ConnectResult> future() {
-				return m_promise.get_future();
-			}
+            public:
+                thread::future<ionet::ConnectResult> future()
+                {
+                    return m_promise.get_future();
+                }
 
-			boost::asio::ip::tcp::socket& socket() {
-				return m_socket;
-			}
+                boost::asio::ip::tcp::socket& socket()
+                {
+                    return m_socket;
+                }
 
-			const std::string& host() const {
-				return m_host;
-			}
+                const std::string& host() const
+                {
+                    return m_host;
+                }
 
-		public:
-			void start() {
+            public:
+                void start()
+                {
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4459) /* declaration of 'query' hides global declaration */
 #endif
-				m_resolver.async_resolve(m_query, [this](const auto& ec, auto iterator) { this->handleResolve(ec, iterator); });
+                    m_resolver.async_resolve(m_query, [this](const auto& ec, auto iterator) { this->handleResolve(ec, iterator); });
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-			}
+                }
 
-		private:
-			void handleResolve(const boost::system::error_code& ec, const ResolverType::iterator& iterator) {
-				if (ShouldAbort(ec, m_host, "resolving address"))
-					return complete(ionet::ConnectResult::Resolve_Error);
+            private:
+                void handleResolve(const boost::system::error_code& ec, const ResolverType::iterator& iterator)
+                {
+                    if (ShouldAbort(ec, m_host, "resolving address"))
+                        return complete(ionet::ConnectResult::Resolve_Error);
 
-				m_endpoint = iterator->endpoint();
-				m_socket.async_connect(m_endpoint, [this](const auto& connectEc) { this->handleConnect(connectEc); });
-			}
+                    m_endpoint = iterator->endpoint();
+                    m_socket.async_connect(m_endpoint, [this](const auto& connectEc) { this->handleConnect(connectEc); });
+                }
 
-			void handleConnect(const boost::system::error_code& ec) {
-				if (ShouldAbort(ec, m_host, "connecting to"))
-					return complete(ionet::ConnectResult::Connect_Error);
+                void handleConnect(const boost::system::error_code& ec)
+                {
+                    if (ShouldAbort(ec, m_host, "connecting to"))
+                        return complete(ionet::ConnectResult::Connect_Error);
 
-				CATAPULT_LOG(info) << "connected to " << m_host << " [" << m_endpoint << "]";
-				complete(ionet::ConnectResult::Connected);
-			}
+                    CATAPULT_LOG(info) << "connected to " << m_host << " [" << m_endpoint << "]";
+                    complete(ionet::ConnectResult::Connected);
+                }
 
-			void complete(ionet::ConnectResult result) {
-				m_promise.set_value(std::move(result));
-			}
+                void complete(ionet::ConnectResult result)
+                {
+                    m_promise.set_value(std::move(result));
+                }
 
-		private:
-			boost::asio::ip::tcp::socket m_socket;
-			ResolverType m_resolver;
+            private:
+                boost::asio::ip::tcp::socket m_socket;
+                ResolverType m_resolver;
 
-			std::string m_host;
-			ResolverType::query m_query;
+                std::string m_host;
+                ResolverType::query m_query;
 
-			boost::asio::ip::tcp::endpoint m_endpoint;
-			thread::promise<ionet::ConnectResult> m_promise;
-		};
+                boost::asio::ip::tcp::endpoint m_endpoint;
+                thread::promise<ionet::ConnectResult> m_promise;
+            };
 
-		// endregion
+            // endregion
 
-		// region MultiHttpGetRetriever
+            // region MultiHttpGetRetriever
 
-		// makes multiple HTTP GET requests to a single node and processes simple JSON results
-		class MultiHttpGetRetriever {
-		public:
-			using ResultType = std::unordered_map<std::string, uint64_t>;
+            // makes multiple HTTP GET requests to a single node and processes simple JSON results
+            class MultiHttpGetRetriever {
+            public:
+                using ResultType = std::unordered_map<std::string, uint64_t>;
 
-			enum class Result { Connection_Error, Read_Error, Write_Error, Success };
+                enum class Result { Connection_Error,
+                    Read_Error,
+                    Write_Error,
+                    Success };
 
-		public:
-			MultiHttpGetRetriever(
-					boost::asio::io_context& ioContext,
-					const std::string& host,
-					uint16_t port,
-					const std::vector<std::string>& apiUris)
-					: m_connector(ioContext, host, port)
-					, m_apiUris(apiUris) {
-			}
+            public:
+                MultiHttpGetRetriever(
+                    boost::asio::io_context& ioContext,
+                    const std::string& host,
+                    uint16_t port,
+                    const std::vector<std::string>& apiUris)
+                    : m_connector(ioContext, host, port)
+                    , m_apiUris(apiUris)
+                {
+                }
 
-		public:
-			thread::future<ResultType> future() {
-				return m_promise.get_future();
-			}
+            public:
+                thread::future<ResultType> future()
+                {
+                    return m_promise.get_future();
+                }
 
-			void start() {
-				m_connector.start();
-				m_connector.future().then([this](auto&& connectResult) {
-					if (ionet::ConnectResult::Connected == connectResult.get())
-						this->writeHttpGetRequest();
-					else
-						this->complete(Result::Connection_Error);
-				});
-			}
+                void start()
+                {
+                    m_connector.start();
+                    m_connector.future().then([this](auto&& connectResult) {
+                        if (ionet::ConnectResult::Connected == connectResult.get())
+                            this->writeHttpGetRequest();
+                        else
+                            this->complete(Result::Connection_Error);
+                    });
+                }
 
-		private:
-			void writeHttpGetRequest() {
-				if (m_apiUris.empty())
-					return complete(Result::Success);
+            private:
+                void writeHttpGetRequest()
+                {
+                    if (m_apiUris.empty())
+                        return complete(Result::Success);
 
-				auto apiUri = m_apiUris.back();
-				m_apiUris.pop_back();
+                    auto apiUri = m_apiUris.back();
+                    m_apiUris.pop_back();
 
-				// create and send an HTTP GET request
-				std::ostream requestStream(&m_request);
-				requestStream << "GET " << apiUri << " HTTP/1.1\r\n"
-							  << "Host: " << m_connector.host() << "\r\n"
-							  << "Accept: */*\r\n\r\n";
+                    // create and send an HTTP GET request
+                    std::ostream requestStream(&m_request);
+                    requestStream << "GET " << apiUri << " HTTP/1.1\r\n"
+                                  << "Host: " << m_connector.host() << "\r\n"
+                                  << "Accept: */*\r\n\r\n";
 
-				boost::asio::async_write(m_connector.socket(), m_request, [this](const auto& ec, auto) {
-					this->handleWriteHttpGetRequest(ec);
-				});
-			}
+                    boost::asio::async_write(m_connector.socket(), m_request, [this](const auto& ec, auto) {
+                        this->handleWriteHttpGetRequest(ec);
+                    });
+                }
 
-			void handleWriteHttpGetRequest(const boost::system::error_code& ec) {
-				if (ShouldAbort(ec, m_connector.host(), "writing to"))
-					return complete(Result::Write_Error);
+                void handleWriteHttpGetRequest(const boost::system::error_code& ec)
+                {
+                    if (ShouldAbort(ec, m_connector.host(), "writing to"))
+                        return complete(Result::Write_Error);
 
-				readHttpGetResponse();
-			}
+                    readHttpGetResponse();
+                }
 
-			void readHttpGetResponse() {
-				boost::asio::async_read_until(m_connector.socket(), m_response, BalancedBraceMatcher(), [this](const auto& ec, auto) {
-					this->handleReadHttpGetResponse(ec);
-				});
-			}
+                void readHttpGetResponse()
+                {
+                    boost::asio::async_read_until(m_connector.socket(), m_response, BalancedBraceMatcher(), [this](const auto& ec, auto) {
+                        this->handleReadHttpGetResponse(ec);
+                    });
+                }
 
-			void handleReadHttpGetResponse(const boost::system::error_code& ec) {
-				if (ShouldAbort(ec, m_connector.host(), "reading from"))
-					return complete(Result::Read_Error);
+                void handleReadHttpGetResponse(const boost::system::error_code& ec)
+                {
+                    if (ShouldAbort(ec, m_connector.host(), "reading from"))
+                        return complete(Result::Read_Error);
 
-				// convert the response to a string and parse out values from it
-				std::ostringstream out;
-				out << &m_response;
-				ParseResponseBody(out.str(), std::string(), m_values);
+                    // convert the response to a string and parse out values from it
+                    std::ostringstream out;
+                    out << &m_response;
+                    ParseResponseBody(out.str(), std::string(), m_values);
 
-				// chain the next HTTP GET request (write will complete successfully if none are left)
-				writeHttpGetRequest();
-			}
+                    // chain the next HTTP GET request (write will complete successfully if none are left)
+                    writeHttpGetRequest();
+                }
 
-		private:
-			void complete(Result result) {
-				if (Result::Success == result) {
-					m_promise.set_value(std::move(m_values));
-					return;
-				}
+            private:
+                void complete(Result result)
+                {
+                    if (Result::Success == result) {
+                        m_promise.set_value(std::move(m_values));
+                        return;
+                    }
 
-				std::ostringstream out;
-				out << "failed processing data from " << m_connector.host() << " with error code " << utils::to_underlying_type(result);
-				m_promise.set_exception(std::make_exception_ptr(catapult_runtime_error(out.str().c_str())));
-			}
+                    std::ostringstream out;
+                    out << "failed processing data from " << m_connector.host() << " with error code " << utils::to_underlying_type(result);
+                    m_promise.set_exception(std::make_exception_ptr(catapult_runtime_error(out.str().c_str())));
+                }
 
-		private:
-			static std::pair<std::string, uint64_t> ParseJsonUint64Value(const std::string& jsonPart) {
-				// match: "height":"12" (with optionally quoted value)
-				std::regex uint64ValueRegexWithQuotes("\"(\\w+)\":\"(\\S+)\"");
-				std::regex uint64ValueRegexWithoutQuotes("\"(\\w+)\":(\\S+)");
+            private:
+                static std::pair<std::string, uint64_t> ParseJsonUint64Value(const std::string& jsonPart)
+                {
+                    // match: "height":"12" (with optionally quoted value)
+                    std::regex uint64ValueRegexWithQuotes("\"(\\w+)\":\"(\\S+)\"");
+                    std::regex uint64ValueRegexWithoutQuotes("\"(\\w+)\":(\\S+)");
 
-				std::smatch uint64ValueMatch;
-				if (!std::regex_match(jsonPart, uint64ValueMatch, uint64ValueRegexWithQuotes))
-					std::regex_match(jsonPart, uint64ValueMatch, uint64ValueRegexWithoutQuotes);
+                    std::smatch uint64ValueMatch;
+                    if (!std::regex_match(jsonPart, uint64ValueMatch, uint64ValueRegexWithQuotes))
+                        std::regex_match(jsonPart, uint64ValueMatch, uint64ValueRegexWithoutQuotes);
 
-				// first part is the name (height)
-				auto name = uint64ValueMatch[1];
+                    // first part is the name (height)
+                    auto name = uint64ValueMatch[1];
 
-				// second part is the value
-				uint64_t value = 0;
-				utils::TryParseValue(uint64ValueMatch[2], value);
+                    // second part is the value
+                    uint64_t value = 0;
+                    utils::TryParseValue(uint64ValueMatch[2], value);
 
-				return std::make_pair(name, value);
-			}
+                    return std::make_pair(name, value);
+                }
 
-			static size_t ParseSubObject(const std::string& response, ResultType& values) {
-				// match: "latestFinalizedBlock":{...}
-				auto colonIndex = response.find_first_of(':');
-				auto prefix = response.substr(1, colonIndex - 2) + "::";
+                static size_t ParseSubObject(const std::string& response, ResultType& values)
+                {
+                    // match: "latestFinalizedBlock":{...}
+                    auto colonIndex = response.find_first_of(':');
+                    auto prefix = response.substr(1, colonIndex - 2) + "::";
 
-				auto openingBraceIndex = response.find_first_of('{');
-				auto closingBraceIndex = response.find_first_of('}', openingBraceIndex);
+                    auto openingBraceIndex = response.find_first_of('{');
+                    auto closingBraceIndex = response.find_first_of('}', openingBraceIndex);
 
-				// subObjectJsonBody must include outer braces
-				auto subObjectJsonBody = response.substr(openingBraceIndex, closingBraceIndex - openingBraceIndex + 1);
-				ParseResponseBody(subObjectJsonBody, prefix, values);
-				return closingBraceIndex;
-			}
+                    // subObjectJsonBody must include outer braces
+                    auto subObjectJsonBody = response.substr(openingBraceIndex, closingBraceIndex - openingBraceIndex + 1);
+                    ParseResponseBody(subObjectJsonBody, prefix, values);
+                    return closingBraceIndex;
+                }
 
-			// dumb parser that only parses integral values
-			static void ParseResponseBody(const std::string& response, const std::string& prefix, ResultType& values) {
-				// match: {(.*)}
-				auto openingBraceIndex = response.find_first_of('{');
-				auto closingBraceIndex = response.find_last_of('}', openingBraceIndex);
-				auto jsonBodyWithoutBraces = response.substr(openingBraceIndex + 1, closingBraceIndex - openingBraceIndex - 1);
+                // dumb parser that only parses integral values
+                static void ParseResponseBody(const std::string& response, const std::string& prefix, ResultType& values)
+                {
+                    // match: {(.*)}
+                    auto openingBraceIndex = response.find_first_of('{');
+                    auto closingBraceIndex = response.find_last_of('}', openingBraceIndex);
+                    auto jsonBodyWithoutBraces = response.substr(openingBraceIndex + 1, closingBraceIndex - openingBraceIndex - 1);
 
-				std::vector<std::string> jsonParts;
-				for (;;) {
-					auto subObjectStart = jsonBodyWithoutBraces.find(":{\"");
-					auto commaIndex = jsonBodyWithoutBraces.find_first_of(',');
-					if (std::string::npos == commaIndex) {
-						if (std::string::npos != jsonBodyWithoutBraces.find(':'))
-							jsonParts.push_back(jsonBodyWithoutBraces);
+                    std::vector<std::string> jsonParts;
+                    for (;;) {
+                        auto subObjectStart = jsonBodyWithoutBraces.find(":{\"");
+                        auto commaIndex = jsonBodyWithoutBraces.find_first_of(',');
+                        if (std::string::npos == commaIndex) {
+                            if (std::string::npos != jsonBodyWithoutBraces.find(':'))
+                                jsonParts.push_back(jsonBodyWithoutBraces);
 
-						break;
-					}
+                            break;
+                        }
 
-					if (subObjectStart < commaIndex)
-						commaIndex = ParseSubObject(jsonBodyWithoutBraces, values);
-					else
-						jsonParts.push_back(jsonBodyWithoutBraces.substr(0, commaIndex));
+                        if (subObjectStart < commaIndex)
+                            commaIndex = ParseSubObject(jsonBodyWithoutBraces, values);
+                        else
+                            jsonParts.push_back(jsonBodyWithoutBraces.substr(0, commaIndex));
 
-					jsonBodyWithoutBraces = jsonBodyWithoutBraces.substr(commaIndex + 1);
-				}
+                        jsonBodyWithoutBraces = jsonBodyWithoutBraces.substr(commaIndex + 1);
+                    }
 
-				for (const auto& jsonPart : jsonParts) {
-					auto parsedKeyValuePair = ParseJsonUint64Value(jsonPart);
-					values.emplace(prefix + parsedKeyValuePair.first, parsedKeyValuePair.second);
-				}
-			}
+                    for (const auto& jsonPart : jsonParts) {
+                        auto parsedKeyValuePair = ParseJsonUint64Value(jsonPart);
+                        values.emplace(prefix + parsedKeyValuePair.first, parsedKeyValuePair.second);
+                    }
+                }
 
-		private:
-			SocketConnector m_connector;
-			std::vector<std::string> m_apiUris;
+            private:
+                SocketConnector m_connector;
+                std::vector<std::string> m_apiUris;
 
-			boost::asio::streambuf m_request;
-			boost::asio::streambuf m_response;
+                boost::asio::streambuf m_request;
+                boost::asio::streambuf m_response;
 
-			ResultType m_values;
-			thread::promise<ResultType> m_promise;
-		};
+                ResultType m_values;
+                thread::promise<ResultType> m_promise;
+            };
 
-		// endregion
-	}
+            // endregion
+        }
 
-	thread::future<api::ChainStatistics> CreateApiNodeChainStatisticsFuture(thread::IoThreadPool& pool, const ionet::Node& node) {
-		auto apiUris = std::vector<std::string>{ "/chain/info" };
-		auto pRetriever = std::make_shared<MultiHttpGetRetriever>(pool.ioContext(), node.endpoint().Host, Rest_Api_Port, apiUris);
-		pRetriever->start();
-		return pRetriever->future().then([pRetriever](auto&& valuesMapFuture) {
-			auto valuesMap = valuesMapFuture.get();
-			api::ChainStatistics chainStatistics;
-			chainStatistics.Height = Height(valuesMap["height"]);
-			chainStatistics.FinalizedHeight = Height(valuesMap["latestFinalizedBlock::height"]);
-			chainStatistics.Score = model::ChainScore(valuesMap["scoreHigh"], valuesMap["scoreLow"]);
-			return chainStatistics;
-		});
-	}
-}}}
+        thread::future<api::ChainStatistics> CreateApiNodeChainStatisticsFuture(thread::IoThreadPool& pool, const ionet::Node& node)
+        {
+            auto apiUris = std::vector<std::string> { "/chain/info" };
+            auto pRetriever = std::make_shared<MultiHttpGetRetriever>(pool.ioContext(), node.endpoint().Host, Rest_Api_Port, apiUris);
+            pRetriever->start();
+            return pRetriever->future().then([pRetriever](auto&& valuesMapFuture) {
+                auto valuesMap = valuesMapFuture.get();
+                api::ChainStatistics chainStatistics;
+                chainStatistics.Height = Height(valuesMap["height"]);
+                chainStatistics.FinalizedHeight = Height(valuesMap["latestFinalizedBlock::height"]);
+                chainStatistics.Score = model::ChainScore(valuesMap["scoreHigh"], valuesMap["scoreLow"]);
+                return chainStatistics;
+            });
+        }
+    }
+}
+}

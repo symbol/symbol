@@ -22,11 +22,13 @@
 #pragma once
 #include "src/state/MosaicRestrictionEntry.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Generates a mosaic restriction entry with \a hash.
-	state::MosaicRestrictionEntry GenerateMosaicRestrictionEntry(const Hash256& hash);
+    /// Generates a mosaic restriction entry with \a hash.
+    state::MosaicRestrictionEntry GenerateMosaicRestrictionEntry(const Hash256& hash);
 
-	/// Asserts that mosaic restriction entry \a actual is equal to \a expected.
-	void AssertEqual(const state::MosaicRestrictionEntry& expected, const state::MosaicRestrictionEntry& actual);
-}}
+    /// Asserts that mosaic restriction entry \a actual is equal to \a expected.
+    void AssertEqual(const state::MosaicRestrictionEntry& expected, const state::MosaicRestrictionEntry& actual);
+}
+}

@@ -25,21 +25,24 @@
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/utils/ArraySet.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for an account metadata transaction body.
-	template<typename THeader>
-	struct AccountMetadataTransactionBody
-			: public BasicMetadataTransactionBody<MetadataTransactionHeader<THeader>, Entity_Type_Account_Metadata> {};
+    /// Binary layout for an account metadata transaction body.
+    template <typename THeader>
+    struct AccountMetadataTransactionBody
+        : public BasicMetadataTransactionBody<MetadataTransactionHeader<THeader>, Entity_Type_Account_Metadata> { };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(AccountMetadata)
+    DEFINE_EMBEDDABLE_TRANSACTION(AccountMetadata)
 
 #pragma pack(pop)
 
-	/// Extracts addresses of additional accounts that must approve \a transaction.
-	inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedAccountMetadataTransaction& transaction) {
-		return { transaction.TargetAddress };
-	}
-}}
+    /// Extracts addresses of additional accounts that must approve \a transaction.
+    inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedAccountMetadataTransaction& transaction)
+    {
+        return { transaction.TargetAddress };
+    }
+}
+}

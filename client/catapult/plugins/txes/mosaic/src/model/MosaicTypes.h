@@ -22,14 +22,16 @@
 #pragma once
 #include <stdint.h>
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	/// Mosaic supply change actions.
-	enum class MosaicSupplyChangeAction : uint8_t {
-		/// Decreases the supply.
-		Decrease,
+    /// Mosaic supply change actions.
+    enum class MosaicSupplyChangeAction : uint8_t {
+        /// Decreases the supply.
+        Decrease,
 
-		/// Increases the supply.
-		Increase
-	};
-}}
+        /// Increases the supply.
+        Increase
+    };
+}
+}

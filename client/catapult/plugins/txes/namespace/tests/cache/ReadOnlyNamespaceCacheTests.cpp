@@ -19,20 +19,23 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/ReadOnlyNamespaceCache.h"
 #include "src/cache/NamespaceCache.h"
+#include "src/cache/ReadOnlyNamespaceCache.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS ReadOnlyNamespaceCacheTests
 
-	TEST(TEST_CLASS, GracePeriodDurationIsExposed) {
-		// Arrange:
-		NamespaceCache originalCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(44) });
+    TEST(TEST_CLASS, GracePeriodDurationIsExposed)
+    {
+        // Arrange:
+        NamespaceCache originalCache(CacheConfiguration(), NamespaceCacheTypes::Options { BlockDuration(44) });
 
-		// Act + Assert:
-		EXPECT_EQ(BlockDuration(44), ReadOnlyNamespaceCache(*originalCache.createView()).gracePeriodDuration());
-		EXPECT_EQ(BlockDuration(44), ReadOnlyNamespaceCache(*originalCache.createDelta()).gracePeriodDuration());
-	}
-}}
+        // Act + Assert:
+        EXPECT_EQ(BlockDuration(44), ReadOnlyNamespaceCache(*originalCache.createView()).gracePeriodDuration());
+        EXPECT_EQ(BlockDuration(44), ReadOnlyNamespaceCache(*originalCache.createDelta()).gracePeriodDuration());
+    }
+}
+}

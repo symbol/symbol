@@ -20,8 +20,8 @@
 **/
 
 #include "CertificateTestUtils.h"
-#include "catapult/utils/HexParser.h"
 #include "catapult/exceptions.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 
 #ifdef __clang__
@@ -37,251 +37,280 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	// region key utils
+    // region key utils
 
-	std::shared_ptr<EVP_PKEY> GenerateRandomCertificateKey() {
-		return GenerateCertificateKey(GenerateKeyPair());
-	}
+    std::shared_ptr<EVP_PKEY> GenerateRandomCertificateKey()
+    {
+        return GenerateCertificateKey(GenerateKeyPair());
+    }
 
-	std::shared_ptr<EVP_PKEY> GenerateCertificateKey(const crypto::KeyPair& keyPair) {
-		auto i = 0u;
-		Key rawPrivateKey;
-		for (auto byte : keyPair.privateKey())
-			rawPrivateKey[i++] = byte;
+    std::shared_ptr<EVP_PKEY> GenerateCertificateKey(const crypto::KeyPair& keyPair)
+    {
+        auto i = 0u;
+        Key rawPrivateKey;
+        for (auto byte : keyPair.privateKey())
+            rawPrivateKey[i++] = byte;
 
-		return std::shared_ptr<EVP_PKEY>(
-				EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, nullptr, rawPrivateKey.data(), rawPrivateKey.size()),
-				EVP_PKEY_free);
-	}
+        return std::shared_ptr<EVP_PKEY>(
+            EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, nullptr, rawPrivateKey.data(), rawPrivateKey.size()),
+            EVP_PKEY_free);
+    }
 
-	// endregion
+    // endregion
 
-	// region certificate store context utils
+    // region certificate store context utils
 
-	void CertificateDeleter::operator()(x509_st* pCertificate) const {
-		X509_free(pCertificate);
-	}
+    void CertificateDeleter::operator()(x509_st* pCertificate) const
+    {
+        X509_free(pCertificate);
+    }
 
-	void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index) {
-		X509_STORE_CTX_set_current_cert(holder.pCertificateStoreContext.get(), holder.Certificates[index]);
-	}
+    void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index)
+    {
+        X509_STORE_CTX_set_current_cert(holder.pCertificateStoreContext.get(), holder.Certificates[index]);
+    }
 
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wused-but-marked-unused"
 #endif
 
-	namespace {
-		struct CertificateStackDeleter {
-			void operator()(STACK_OF(X509) * pStack) const {
-				sk_X509_free(pStack);
-			}
-		};
-	}
+    namespace {
+        struct CertificateStackDeleter {
+            void operator()(STACK_OF(X509) * pStack) const
+            {
+                sk_X509_free(pStack);
+            }
+        };
+    }
 
-	CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(std::vector<CertificatePointer>&& certificates) {
-		CertificateStoreContextHolder holder;
-		auto pCertificateStack = std::unique_ptr<STACK_OF(X509), CertificateStackDeleter>(sk_X509_new_null());
-		if (!pCertificateStack)
-			throw std::bad_alloc();
+    CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(std::vector<CertificatePointer>&& certificates)
+    {
+        CertificateStoreContextHolder holder;
+        auto pCertificateStack = std::unique_ptr<STACK_OF(X509), CertificateStackDeleter>(sk_X509_new_null());
+        if (!pCertificateStack)
+            throw std::bad_alloc();
 
-		for (auto i = 0u; i < certificates.size(); ++i) {
-			auto& pCertificate = certificates[i];
-			holder.Certificates.push_back(pCertificate.get());
+        for (auto i = 0u; i < certificates.size(); ++i) {
+            auto& pCertificate = certificates[i];
+            holder.Certificates.push_back(pCertificate.get());
 
-			// sk_X509_push takes ownership of pCertificate
-			if (!sk_X509_push(pCertificateStack.get(), pCertificate.release()))
-				CATAPULT_THROW_RUNTIME_ERROR("failed to add certificate to stack");
-		}
+            // sk_X509_push takes ownership of pCertificate
+            if (!sk_X509_push(pCertificateStack.get(), pCertificate.release()))
+                CATAPULT_THROW_RUNTIME_ERROR("failed to add certificate to stack");
+        }
 
-		holder.pCertificateStoreContext = std::shared_ptr<X509_STORE_CTX>(X509_STORE_CTX_new(), X509_STORE_CTX_free);
-		if (!holder.pCertificateStoreContext || !X509_STORE_CTX_init(holder.pCertificateStoreContext.get(), nullptr, nullptr, nullptr))
-			CATAPULT_THROW_RUNTIME_ERROR("failed to initialize certificate store context");
+        holder.pCertificateStoreContext = std::shared_ptr<X509_STORE_CTX>(X509_STORE_CTX_new(), X509_STORE_CTX_free);
+        if (!holder.pCertificateStoreContext || !X509_STORE_CTX_init(holder.pCertificateStoreContext.get(), nullptr, nullptr, nullptr))
+            CATAPULT_THROW_RUNTIME_ERROR("failed to initialize certificate store context");
 
-		X509_STORE_CTX_set0_verified_chain(holder.pCertificateStoreContext.get(), pCertificateStack.release());
-		SetActiveCertificate(holder, 0);
-		return holder;
-	}
+        X509_STORE_CTX_set0_verified_chain(holder.pCertificateStoreContext.get(), pCertificateStack.release());
+        SetActiveCertificate(holder, 0);
+        return holder;
+    }
 
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
 
-	// endregion
+    // endregion
 
-	// region CertificateBuilder
+    // region CertificateBuilder
 
-	namespace {
-		void AddTextEntry(X509_NAME& name, const std::string& key, const std::string& value) {
-			if (!X509_NAME_add_entry_by_txt(&name, key.data(), MBSTRING_ASC, reinterpret_cast<const uint8_t*>(value.data()), -1, -1, 0))
-				CATAPULT_THROW_RUNTIME_ERROR_1("failed to add text entry", key);
-		}
+    namespace {
+        void AddTextEntry(X509_NAME& name, const std::string& key, const std::string& value)
+        {
+            if (!X509_NAME_add_entry_by_txt(&name, key.data(), MBSTRING_ASC, reinterpret_cast<const uint8_t*>(value.data()), -1, -1, 0))
+                CATAPULT_THROW_RUNTIME_ERROR_1("failed to add text entry", key);
+        }
 
-		void AddTextEntries(X509_NAME& name, const std::string& country, const std::string& organization, const std::string& commonName) {
-			AddTextEntry(name, "C", country);
-			AddTextEntry(name, "O", organization);
-			AddTextEntry(name, "CN", commonName);
-		}
-	}
+        void AddTextEntries(X509_NAME& name, const std::string& country, const std::string& organization, const std::string& commonName)
+        {
+            AddTextEntry(name, "C", country);
+            AddTextEntry(name, "O", organization);
+            AddTextEntry(name, "CN", commonName);
+        }
+    }
 
-	CertificateBuilder::CertificateBuilder()
-			: m_pKey(nullptr)
-			, m_pCertificate(CertificatePointer(X509_new())) {
-		if (!m_pCertificate)
-			throw std::bad_alloc();
+    CertificateBuilder::CertificateBuilder()
+        : m_pKey(nullptr)
+        , m_pCertificate(CertificatePointer(X509_new()))
+    {
+        if (!m_pCertificate)
+            throw std::bad_alloc();
 
-		// set the version
-		if (!X509_set_version(get(), 0))
-			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate version");
+        // set the version
+        if (!X509_set_version(get(), 0))
+            CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate version");
 
-		// set the serial number
-		if (!ASN1_INTEGER_set(X509_get_serialNumber(get()), 1))
-			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate serial number");
+        // set the serial number
+        if (!ASN1_INTEGER_set(X509_get_serialNumber(get()), 1))
+            CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate serial number");
 
-		// set expiration from now until one year from now
-		if (!X509_gmtime_adj(X509_getm_notBefore(get()), 0) || !X509_gmtime_adj(X509_getm_notAfter(get()), 31536000L))
-			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate expiration");
-	}
+        // set expiration from now until one year from now
+        if (!X509_gmtime_adj(X509_getm_notBefore(get()), 0) || !X509_gmtime_adj(X509_getm_notAfter(get()), 31536000L))
+            CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate expiration");
+    }
 
-	void CertificateBuilder::setSubject(const std::string& country, const std::string& organization, const std::string& commonName) {
-		AddTextEntries(*X509_get_subject_name(get()), country, organization, commonName);
-	}
+    void CertificateBuilder::setSubject(const std::string& country, const std::string& organization, const std::string& commonName)
+    {
+        AddTextEntries(*X509_get_subject_name(get()), country, organization, commonName);
+    }
 
-	void CertificateBuilder::setIssuer(const std::string& country, const std::string& organization, const std::string& commonName) {
-		AddTextEntries(*X509_get_issuer_name(get()), country, organization, commonName);
-	}
+    void CertificateBuilder::setIssuer(const std::string& country, const std::string& organization, const std::string& commonName)
+    {
+        AddTextEntries(*X509_get_issuer_name(get()), country, organization, commonName);
+    }
 
-	void CertificateBuilder::setPublicKey(EVP_PKEY& key) {
-		if (!X509_set_pubkey(get(), &key))
-			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate public key");
+    void CertificateBuilder::setPublicKey(EVP_PKEY& key)
+    {
+        if (!X509_set_pubkey(get(), &key))
+            CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate public key");
 
-		m_pKey = &key;
-	}
+        m_pKey = &key;
+    }
 
-	CertificatePointer CertificateBuilder::build() {
-		return std::move(m_pCertificate);
-	}
+    CertificatePointer CertificateBuilder::build()
+    {
+        return std::move(m_pCertificate);
+    }
 
-	CertificatePointer CertificateBuilder::buildAndSign() {
-		return buildAndSign(*m_pKey);
-	}
+    CertificatePointer CertificateBuilder::buildAndSign()
+    {
+        return buildAndSign(*m_pKey);
+    }
 
-	CertificatePointer CertificateBuilder::buildAndSign(EVP_PKEY& key) {
-		if (0 == X509_sign(get(), &key, EVP_md_null()))
-			CATAPULT_THROW_RUNTIME_ERROR("failed to sign certificate");
+    CertificatePointer CertificateBuilder::buildAndSign(EVP_PKEY& key)
+    {
+        if (0 == X509_sign(get(), &key, EVP_md_null()))
+            CATAPULT_THROW_RUNTIME_ERROR("failed to sign certificate");
 
-		return build();
-	}
+        return build();
+    }
 
-	X509* CertificateBuilder::get() {
-		return m_pCertificate.get();
-	}
+    X509* CertificateBuilder::get()
+    {
+        return m_pCertificate.get();
+    }
 
-	// endregion
+    // endregion
 
-	// region PemCertificate
+    // region PemCertificate
 
-	namespace {
-		struct BioWrapper {
-		public:
-			BioWrapper()
-					: m_pBio(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free)) {
-				if (!m_pBio)
-					throw std::bad_alloc();
-			}
+    namespace {
+        struct BioWrapper {
+        public:
+            BioWrapper()
+                : m_pBio(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free))
+            {
+                if (!m_pBio)
+                    throw std::bad_alloc();
+            }
 
-		public:
-			operator BIO*() const {
-				return m_pBio.get();
-			}
+        public:
+            operator BIO*() const
+            {
+                return m_pBio.get();
+            }
 
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #endif
 
-			std::string toString() const {
-				char* pBioData = nullptr;
-				auto bioSize = static_cast<size_t>(BIO_get_mem_data(m_pBio.get(), &pBioData));
-				return std::string(pBioData, pBioData + bioSize);
-			}
+            std::string toString() const
+            {
+                char* pBioData = nullptr;
+                auto bioSize = static_cast<size_t>(BIO_get_mem_data(m_pBio.get(), &pBioData));
+                return std::string(pBioData, pBioData + bioSize);
+            }
 
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
 
-		private:
-			std::shared_ptr<BIO> m_pBio;
-		};
+        private:
+            std::shared_ptr<BIO> m_pBio;
+        };
 
-		auto GeneratePublicKeyPem(const crypto::KeyPair& keyPair) {
-			BioWrapper bio;
-			auto pKey = GenerateCertificateKey(keyPair);
-			if (!PEM_write_bio_PUBKEY(bio, pKey.get()))
-				CATAPULT_THROW_RUNTIME_ERROR("error writing public key to bio");
+        auto GeneratePublicKeyPem(const crypto::KeyPair& keyPair)
+        {
+            BioWrapper bio;
+            auto pKey = GenerateCertificateKey(keyPair);
+            if (!PEM_write_bio_PUBKEY(bio, pKey.get()))
+                CATAPULT_THROW_RUNTIME_ERROR("error writing public key to bio");
 
-			return bio.toString();
-		}
+            return bio.toString();
+        }
 
-		auto GeneratePrivateKeyPem(const crypto::KeyPair& keyPair) {
-			BioWrapper bio;
-			auto pKey = GenerateCertificateKey(keyPair);
-			if (!PEM_write_bio_PrivateKey(bio, pKey.get(), nullptr, nullptr, 0, nullptr, nullptr))
-				CATAPULT_THROW_RUNTIME_ERROR("error writing private key to bio");
+        auto GeneratePrivateKeyPem(const crypto::KeyPair& keyPair)
+        {
+            BioWrapper bio;
+            auto pKey = GenerateCertificateKey(keyPair);
+            if (!PEM_write_bio_PrivateKey(bio, pKey.get(), nullptr, nullptr, 0, nullptr, nullptr))
+                CATAPULT_THROW_RUNTIME_ERROR("error writing private key to bio");
 
-			return bio.toString();
-		}
+            return bio.toString();
+        }
 
-		auto GeneratePemCertificateChain(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair) {
-			auto pCaKey = GenerateCertificateKey(caKeyPair);
-			CertificateBuilder caCertBuilder;
-			caCertBuilder.setIssuer("XD", "CA", "Ca cert");
-			caCertBuilder.setSubject("XD", "CA", "Ca cert");
-			caCertBuilder.setPublicKey(*pCaKey.get());
-			auto caCert = caCertBuilder.buildAndSign();
+        auto GeneratePemCertificateChain(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair)
+        {
+            auto pCaKey = GenerateCertificateKey(caKeyPair);
+            CertificateBuilder caCertBuilder;
+            caCertBuilder.setIssuer("XD", "CA", "Ca cert");
+            caCertBuilder.setSubject("XD", "CA", "Ca cert");
+            caCertBuilder.setPublicKey(*pCaKey.get());
+            auto caCert = caCertBuilder.buildAndSign();
 
-			auto pNodeKey = GenerateCertificateKey(nodeKeyPair);
-			CertificateBuilder nodeCertBuilder;
-			nodeCertBuilder.setIssuer("XD", "CA", "Ca cert");
-			nodeCertBuilder.setSubject("US", "Symbol", "nijuichi");
-			nodeCertBuilder.setPublicKey(*pNodeKey.get());
-			auto nodeCert = nodeCertBuilder.buildAndSign(*pCaKey.get());
+            auto pNodeKey = GenerateCertificateKey(nodeKeyPair);
+            CertificateBuilder nodeCertBuilder;
+            nodeCertBuilder.setIssuer("XD", "CA", "Ca cert");
+            nodeCertBuilder.setSubject("US", "Symbol", "nijuichi");
+            nodeCertBuilder.setPublicKey(*pNodeKey.get());
+            auto nodeCert = nodeCertBuilder.buildAndSign(*pCaKey.get());
 
-			// write both certs to bio (order matters)
-			BioWrapper bio;
-			if (!PEM_write_bio_X509(bio, nodeCert.get()))
-				CATAPULT_THROW_RUNTIME_ERROR("error writing node cert to bio");
+            // write both certs to bio (order matters)
+            BioWrapper bio;
+            if (!PEM_write_bio_X509(bio, nodeCert.get()))
+                CATAPULT_THROW_RUNTIME_ERROR("error writing node cert to bio");
 
-			if (!PEM_write_bio_X509(bio, caCert.get()))
-				CATAPULT_THROW_RUNTIME_ERROR("error writing CA cert to bio");
+            if (!PEM_write_bio_X509(bio, caCert.get()))
+                CATAPULT_THROW_RUNTIME_ERROR("error writing CA cert to bio");
 
-			return bio.toString();
-		}
-	}
+            return bio.toString();
+        }
+    }
 
-	PemCertificate::PemCertificate()
-			: PemCertificate(GenerateKeyPair(), GenerateKeyPair()) {
-	}
+    PemCertificate::PemCertificate()
+        : PemCertificate(GenerateKeyPair(), GenerateKeyPair())
+    {
+    }
 
-	PemCertificate::PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair)
-			: m_caPublicKey(GeneratePublicKeyPem(caKeyPair))
-			, m_nodePrivateKey(GeneratePrivateKeyPem(nodeKeyPair))
-			, m_pemCertificateChain(GeneratePemCertificateChain(caKeyPair, nodeKeyPair)) {
-	}
+    PemCertificate::PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair)
+        : m_caPublicKey(GeneratePublicKeyPem(caKeyPair))
+        , m_nodePrivateKey(GeneratePrivateKeyPem(nodeKeyPair))
+        , m_pemCertificateChain(GeneratePemCertificateChain(caKeyPair, nodeKeyPair))
+    {
+    }
 
-	const std::string& PemCertificate::caPublicKeyString() const {
-		return m_caPublicKey;
-	}
+    const std::string& PemCertificate::caPublicKeyString() const
+    {
+        return m_caPublicKey;
+    }
 
-	const std::string& PemCertificate::nodePrivateKeyString() const {
-		return m_nodePrivateKey;
-	}
+    const std::string& PemCertificate::nodePrivateKeyString() const
+    {
+        return m_nodePrivateKey;
+    }
 
-	const std::string& PemCertificate::certificateChainString() const {
-		return m_pemCertificateChain;
-	}
+    const std::string& PemCertificate::certificateChainString() const
+    {
+        return m_pemCertificateChain;
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

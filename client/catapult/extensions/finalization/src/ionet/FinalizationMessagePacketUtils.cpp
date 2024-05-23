@@ -22,9 +22,12 @@
 #include "FinalizationMessagePacketUtils.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages) {
-		return PacketPayloadFactory::FromEntities(PacketType::Push_Finalization_Messages, messages);
-	}
-}}
+    PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages)
+    {
+        return PacketPayloadFactory::FromEntities(PacketType::Push_Finalization_Messages, messages);
+    }
+}
+}

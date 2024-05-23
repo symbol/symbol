@@ -19,57 +19,63 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "catapult/model/Address.h"
+#include "src/validators/Validators.h"
+#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS AccountAddressRestrictionNoSelfModificationValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionNoSelfModification, )
+    DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionNoSelfModification, )
 
-	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
-		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
+    namespace {
+        constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+        constexpr auto Del = model::AccountRestrictionModificationAction::Del;
 
-		void AssertValidationResult(
-				ValidationResult expectedResult,
-				const Address& address,
-				model::AccountRestrictionModificationAction action,
-				UnresolvedAddress restrictionValue) {
-			// Arrange:
-			model::ModifyAccountAddressRestrictionValueNotification notification(
-					address,
-					model::AccountRestrictionFlags::Address,
-					restrictionValue,
-					action);
-			auto pValidator = CreateAccountAddressRestrictionNoSelfModificationValidator();
+        void AssertValidationResult(
+            ValidationResult expectedResult,
+            const Address& address,
+            model::AccountRestrictionModificationAction action,
+            UnresolvedAddress restrictionValue)
+        {
+            // Arrange:
+            model::ModifyAccountAddressRestrictionValueNotification notification(
+                address,
+                model::AccountRestrictionFlags::Address,
+                restrictionValue,
+                action);
+            auto pValidator = CreateAccountAddressRestrictionNoSelfModificationValidator();
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, test::CreateEmptyCatapultCache());
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification, test::CreateEmptyCatapultCache());
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result);
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result);
+        }
+    }
 
-	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Add) {
-		auto address = test::GenerateRandomByteArray<Address>();
-		auto unresolvedAddress = test::UnresolveXor(address);
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, address, Add, unresolvedAddress);
-	}
+    TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Add)
+    {
+        auto address = test::GenerateRandomByteArray<Address>();
+        auto unresolvedAddress = test::UnresolveXor(address);
+        AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, address, Add, unresolvedAddress);
+    }
 
-	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Del) {
-		auto address = test::GenerateRandomByteArray<Address>();
-		auto unresolvedAddress = test::UnresolveXor(address);
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, address, Del, unresolvedAddress);
-	}
+    TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Del)
+    {
+        auto address = test::GenerateRandomByteArray<Address>();
+        auto unresolvedAddress = test::UnresolveXor(address);
+        AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, address, Del, unresolvedAddress);
+    }
 
-	TEST(TEST_CLASS, SuccessWhenSignerIsNotValueInModification) {
-		auto address = test::GenerateRandomByteArray<Address>();
-		AssertValidationResult(ValidationResult::Success, address, Add, test::GenerateRandomByteArray<UnresolvedAddress>());
-	}
-}}
+    TEST(TEST_CLASS, SuccessWhenSignerIsNotValueInModification)
+    {
+        auto address = test::GenerateRandomByteArray<Address>();
+        AssertValidationResult(ValidationResult::Success, address, Add, test::GenerateRandomByteArray<UnresolvedAddress>());
+    }
+}
+}

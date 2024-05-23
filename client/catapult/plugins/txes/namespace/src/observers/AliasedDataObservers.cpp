@@ -20,28 +20,31 @@
 **/
 
 #include "Observers.h"
-#include "src/cache/NamespaceCache.h"
 #include "catapult/observers/ObserverUtils.h"
+#include "src/cache/NamespaceCache.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	namespace {
-		template<typename TNotification>
-		void AliasedObserverHandler(const ObserverContext& context, const TNotification& notification) {
-			auto& cache = context.Cache.sub<cache::NamespaceCache>();
+    namespace {
+        template <typename TNotification>
+        void AliasedObserverHandler(const ObserverContext& context, const TNotification& notification)
+        {
+            auto& cache = context.Cache.sub<cache::NamespaceCache>();
 
-			if (ShouldLink(notification.AliasAction, context.Mode))
-				cache.setAlias(notification.NamespaceId, state::NamespaceAlias(notification.AliasedData));
-			else
-				cache.setAlias(notification.NamespaceId, state::NamespaceAlias());
-		}
-	}
+            if (ShouldLink(notification.AliasAction, context.Mode))
+                cache.setAlias(notification.NamespaceId, state::NamespaceAlias(notification.AliasedData));
+            else
+                cache.setAlias(notification.NamespaceId, state::NamespaceAlias());
+        }
+    }
 
-#define DEFINE_ALIASED_DATA_OBSERVER(OBSERVER_NAME, NOTIFICATION) \
-	DEFINE_OBSERVER(OBSERVER_NAME, NOTIFICATION, [](const auto& notification, const ObserverContext& context) { \
-		AliasedObserverHandler(context, notification); \
-	})
+#define DEFINE_ALIASED_DATA_OBSERVER(OBSERVER_NAME, NOTIFICATION)                                               \
+    DEFINE_OBSERVER(OBSERVER_NAME, NOTIFICATION, [](const auto& notification, const ObserverContext& context) { \
+        AliasedObserverHandler(context, notification);                                                          \
+    })
 
-	DEFINE_ALIASED_DATA_OBSERVER(AliasedAddress, model::AliasedAddressNotification)
-	DEFINE_ALIASED_DATA_OBSERVER(AliasedMosaicId, model::AliasedMosaicIdNotification)
-}}
+    DEFINE_ALIASED_DATA_OBSERVER(AliasedAddress, model::AliasedAddressNotification)
+    DEFINE_ALIASED_DATA_OBSERVER(AliasedMosaicId, model::AliasedMosaicIdNotification)
+}
+}

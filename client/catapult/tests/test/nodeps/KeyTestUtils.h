@@ -23,17 +23,19 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/utils/ArraySet.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Generates a random private key.
-	crypto::PrivateKey GenerateRandomPrivateKey();
+    /// Generates a random private key.
+    crypto::PrivateKey GenerateRandomPrivateKey();
 
-	/// Generates a random key pair.
-	crypto::KeyPair GenerateKeyPair();
+    /// Generates a random key pair.
+    crypto::KeyPair GenerateKeyPair();
 
-	/// Copies a given \a keyPair.
-	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair);
+    /// Copies a given \a keyPair.
+    crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair);
 
-	/// Extracts the public keys of \a keyPairs into a key set.
-	utils::KeySet ToKeySet(const std::vector<crypto::KeyPair>& keyPairs);
-}}
+    /// Extracts the public keys of \a keyPairs into a key set.
+    utils::KeySet ToKeySet(const std::vector<crypto::KeyPair>& keyPairs);
+}
+}

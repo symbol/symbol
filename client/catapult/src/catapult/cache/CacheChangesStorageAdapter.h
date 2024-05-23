@@ -24,54 +24,61 @@
 #include "CacheChangesStorage.h"
 #include "catapult/preprocessor.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// CacheChangesStorage implementation that wraps a cache and associated storage traits.
-	template<typename TCache, typename TStorageTraits>
-	class CacheChangesStorageAdapter : public CacheChangesStorage {
-	public:
-		/// Creates an adapter around \a cache.
-		explicit CacheChangesStorageAdapter(TCache& cache)
-				: m_cache(cache) {
-		}
+    /// CacheChangesStorage implementation that wraps a cache and associated storage traits.
+    template <typename TCache, typename TStorageTraits>
+    class CacheChangesStorageAdapter : public CacheChangesStorage {
+    public:
+        /// Creates an adapter around \a cache.
+        explicit CacheChangesStorageAdapter(TCache& cache)
+            : m_cache(cache)
+        {
+        }
 
-	public:
-		size_t id() const override {
-			return TCache::Id;
-		}
+    public:
+        size_t id() const override
+        {
+            return TCache::Id;
+        }
 
-	public:
-		void saveAll(const CacheChanges& changes, io::OutputStream& output) const override {
-			WriteCacheChanges<TStorageTraits>(changes.sub<TCache>(), output);
-		}
+    public:
+        void saveAll(const CacheChanges& changes, io::OutputStream& output) const override
+        {
+            WriteCacheChanges<TStorageTraits>(changes.sub<TCache>(), output);
+        }
 
-		std::unique_ptr<const MemoryCacheChanges> loadAll(io::InputStream& input) const override {
-			auto pMemoryCacheChanges = std::make_unique<MemoryCacheChangesT<typename TCache::CacheValueType>>();
-			ReadCacheChanges<TStorageTraits>(input, *pMemoryCacheChanges);
-			return PORTABLE_MOVE(pMemoryCacheChanges);
-		}
+        std::unique_ptr<const MemoryCacheChanges> loadAll(io::InputStream& input) const override
+        {
+            auto pMemoryCacheChanges = std::make_unique<MemoryCacheChangesT<typename TCache::CacheValueType>>();
+            ReadCacheChanges<TStorageTraits>(input, *pMemoryCacheChanges);
+            return PORTABLE_MOVE(pMemoryCacheChanges);
+        }
 
-		void apply(const CacheChanges& changes) const override {
-			auto delta = m_cache.createDelta();
+        void apply(const CacheChanges& changes) const override
+        {
+            auto delta = m_cache.createDelta();
 
-			auto subCacheChanges = changes.sub<TCache>();
-			for (const auto* pAdded : subCacheChanges.addedElements()) {
-				TStorageTraits::Purge(*pAdded, *delta);
-				TStorageTraits::LoadInto(*pAdded, *delta);
-			}
+            auto subCacheChanges = changes.sub<TCache>();
+            for (const auto* pAdded : subCacheChanges.addedElements()) {
+                TStorageTraits::Purge(*pAdded, *delta);
+                TStorageTraits::LoadInto(*pAdded, *delta);
+            }
 
-			for (const auto* pModified : subCacheChanges.modifiedElements()) {
-				TStorageTraits::Purge(*pModified, *delta);
-				TStorageTraits::LoadInto(*pModified, *delta);
-			}
+            for (const auto* pModified : subCacheChanges.modifiedElements()) {
+                TStorageTraits::Purge(*pModified, *delta);
+                TStorageTraits::LoadInto(*pModified, *delta);
+            }
 
-			for (const auto* pRemoved : subCacheChanges.removedElements())
-				TStorageTraits::Purge(*pRemoved, *delta);
+            for (const auto* pRemoved : subCacheChanges.removedElements())
+                TStorageTraits::Purge(*pRemoved, *delta);
 
-			m_cache.commit();
-		}
+            m_cache.commit();
+        }
 
-	private:
-		TCache& m_cache;
-	};
-}}
+    private:
+        TCache& m_cache;
+    };
+}
+}

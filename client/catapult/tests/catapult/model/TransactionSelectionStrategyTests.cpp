@@ -20,32 +20,36 @@
 **/
 
 #include "catapult/model/TransactionSelectionStrategy.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region parsing
+    // region parsing
 
-	TEST(TEST_CLASS, CanParseValidStrategyValue) {
-		// Arrange:
-		auto assertSuccessfulParse = [](const auto& input, const auto& expectedParsedValue) {
-			test::AssertParse(input, expectedParsedValue, [](const auto& str, auto& parsedValue) {
-				return TryParseValue(str, parsedValue);
-			});
-		};
+    TEST(TEST_CLASS, CanParseValidStrategyValue)
+    {
+        // Arrange:
+        auto assertSuccessfulParse = [](const auto& input, const auto& expectedParsedValue) {
+            test::AssertParse(input, expectedParsedValue, [](const auto& str, auto& parsedValue) {
+                return TryParseValue(str, parsedValue);
+            });
+        };
 
-		// Assert:
-		assertSuccessfulParse("oldest", TransactionSelectionStrategy::Oldest);
-		assertSuccessfulParse("minimize-fee", TransactionSelectionStrategy::Minimize_Fee);
-		assertSuccessfulParse("maximize-fee", TransactionSelectionStrategy::Maximize_Fee);
-	}
+        // Assert:
+        assertSuccessfulParse("oldest", TransactionSelectionStrategy::Oldest);
+        assertSuccessfulParse("minimize-fee", TransactionSelectionStrategy::Minimize_Fee);
+        assertSuccessfulParse("maximize-fee", TransactionSelectionStrategy::Maximize_Fee);
+    }
 
-	TEST(TEST_CLASS, CannotParseInvalidStrategyValue) {
-		test::AssertEnumParseFailure("minimize", TransactionSelectionStrategy::Oldest, [](const auto& str, auto& parsedValue) {
-			return TryParseValue(str, parsedValue);
-		});
-	}
+    TEST(TEST_CLASS, CannotParseInvalidStrategyValue)
+    {
+        test::AssertEnumParseFailure("minimize", TransactionSelectionStrategy::Oldest, [](const auto& str, auto& parsedValue) {
+            return TryParseValue(str, parsedValue);
+        });
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -25,127 +25,133 @@
 #include "SizePrefixedEntity.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	// region Receipt
+    // region Receipt
 
-	/// Binary layout for a receipt entity.
-	struct Receipt : public SizePrefixedEntity {
-		/// Receipt version.
-		uint16_t Version;
+    /// Binary layout for a receipt entity.
+    struct Receipt : public SizePrefixedEntity {
+        /// Receipt version.
+        uint16_t Version;
 
-		/// Receipt type.
-		ReceiptType Type;
-	};
+        /// Receipt type.
+        ReceiptType Type;
+    };
 
-	// endregion
+    // endregion
 
-	// region BalanceTransferReceipt
+    // region BalanceTransferReceipt
 
-	/// Binary layout for a balance transfer receipt.
-	struct BalanceTransferReceipt : public Receipt {
-	public:
-		/// Creates a receipt around \a receiptType, \a senderAddress, \a recipientAddress, \a mosaicId and \a amount.
-		BalanceTransferReceipt(
-				ReceiptType receiptType,
-				const Address& senderAddress,
-				const Address& recipientAddress,
-				catapult::MosaicId mosaicId,
-				catapult::Amount amount)
-				: Mosaic({ mosaicId, amount })
-				, SenderAddress(senderAddress)
-				, RecipientAddress(recipientAddress) {
-			Size = sizeof(BalanceTransferReceipt);
-			Version = 1;
-			Type = receiptType;
-		}
+    /// Binary layout for a balance transfer receipt.
+    struct BalanceTransferReceipt : public Receipt {
+    public:
+        /// Creates a receipt around \a receiptType, \a senderAddress, \a recipientAddress, \a mosaicId and \a amount.
+        BalanceTransferReceipt(
+            ReceiptType receiptType,
+            const Address& senderAddress,
+            const Address& recipientAddress,
+            catapult::MosaicId mosaicId,
+            catapult::Amount amount)
+            : Mosaic({ mosaicId, amount })
+            , SenderAddress(senderAddress)
+            , RecipientAddress(recipientAddress)
+        {
+            Size = sizeof(BalanceTransferReceipt);
+            Version = 1;
+            Type = receiptType;
+        }
 
-	public:
-		/// Mosaic.
-		model::Mosaic Mosaic;
+    public:
+        /// Mosaic.
+        model::Mosaic Mosaic;
 
-		/// Mosaic sender address.
-		Address SenderAddress;
+        /// Mosaic sender address.
+        Address SenderAddress;
 
-		/// Mosaic recipient address.
-		Address RecipientAddress;
-	};
+        /// Mosaic recipient address.
+        Address RecipientAddress;
+    };
 
-	// endregion
+    // endregion
 
-	// region BalanceChangeReceipt
+    // region BalanceChangeReceipt
 
-	/// Binary layout for a balance change receipt.
-	struct BalanceChangeReceipt : public Receipt {
-	public:
-		/// Creates a receipt around \a receiptType, \a targetAddress, \a mosaicId and \a amount.
-		BalanceChangeReceipt(ReceiptType receiptType, const Address& targetAddress, catapult::MosaicId mosaicId, catapult::Amount amount)
-				: Mosaic({ mosaicId, amount })
-				, TargetAddress(targetAddress) {
-			Size = sizeof(BalanceChangeReceipt);
-			Version = 1;
-			Type = receiptType;
-		}
+    /// Binary layout for a balance change receipt.
+    struct BalanceChangeReceipt : public Receipt {
+    public:
+        /// Creates a receipt around \a receiptType, \a targetAddress, \a mosaicId and \a amount.
+        BalanceChangeReceipt(ReceiptType receiptType, const Address& targetAddress, catapult::MosaicId mosaicId, catapult::Amount amount)
+            : Mosaic({ mosaicId, amount })
+            , TargetAddress(targetAddress)
+        {
+            Size = sizeof(BalanceChangeReceipt);
+            Version = 1;
+            Type = receiptType;
+        }
 
-	public:
-		/// Mosaic.
-		model::Mosaic Mosaic;
+    public:
+        /// Mosaic.
+        model::Mosaic Mosaic;
 
-		/// Account address.
-		Address TargetAddress;
-	};
+        /// Account address.
+        Address TargetAddress;
+    };
 
-	// endregion
+    // endregion
 
-	// region InflationReceipt
+    // region InflationReceipt
 
-	/// Binary layout for an inflation receipt.
-	struct InflationReceipt : public Receipt {
-	public:
-		/// Creates a receipt around \a receiptType, \a mosaicId and \a amount.
-		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount)
-				: Mosaic({ mosaicId, amount }) {
-			Size = sizeof(InflationReceipt);
-			Version = 1;
-			Type = receiptType;
-		}
+    /// Binary layout for an inflation receipt.
+    struct InflationReceipt : public Receipt {
+    public:
+        /// Creates a receipt around \a receiptType, \a mosaicId and \a amount.
+        InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount)
+            : Mosaic({ mosaicId, amount })
+        {
+            Size = sizeof(InflationReceipt);
+            Version = 1;
+            Type = receiptType;
+        }
 
-	public:
-		/// Mosaic.
-		model::Mosaic Mosaic;
-	};
+    public:
+        /// Mosaic.
+        model::Mosaic Mosaic;
+    };
 
-	// endregion
+    // endregion
 
-	// region ArtifactExpiryReceipt
+    // region ArtifactExpiryReceipt
 
-	/// Binary layout for an artifact expiry receipt.
-	template<typename TArtifactId>
-	struct ArtifactExpiryReceipt : public Receipt {
-	public:
-		/// Creates a receipt around \a receiptType and \a artifactId.
-		ArtifactExpiryReceipt(ReceiptType receiptType, TArtifactId artifactId)
-				: ArtifactId(artifactId) {
-			Size = sizeof(ArtifactExpiryReceipt);
-			Version = 1;
-			Type = receiptType;
-		}
+    /// Binary layout for an artifact expiry receipt.
+    template <typename TArtifactId>
+    struct ArtifactExpiryReceipt : public Receipt {
+    public:
+        /// Creates a receipt around \a receiptType and \a artifactId.
+        ArtifactExpiryReceipt(ReceiptType receiptType, TArtifactId artifactId)
+            : ArtifactId(artifactId)
+        {
+            Size = sizeof(ArtifactExpiryReceipt);
+            Version = 1;
+            Type = receiptType;
+        }
 
-	public:
-		/// Artifact id.
-		TArtifactId ArtifactId;
-	};
+    public:
+        /// Artifact id.
+        TArtifactId ArtifactId;
+    };
 
-	// endregion
+    // endregion
 
 #pragma pack(pop)
 
 /// Defines constants for a receipt with \a TYPE and \a VERSION.
-#define DEFINE_RECEIPT_CONSTANTS(TYPE, VERSION) \
-	/* Receipt format version. */ \
-	static constexpr uint8_t Current_Version = VERSION; \
-	/* Receipt type. */ \
-	static constexpr ReceiptType Receipt_Type = TYPE;
-}}
+#define DEFINE_RECEIPT_CONSTANTS(TYPE, VERSION)         \
+    /* Receipt format version. */                       \
+    static constexpr uint8_t Current_Version = VERSION; \
+    /* Receipt type. */                                 \
+    static constexpr ReceiptType Receipt_Type = TYPE;
+}
+}

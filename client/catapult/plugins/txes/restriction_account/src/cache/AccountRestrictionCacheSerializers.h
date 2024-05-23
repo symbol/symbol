@@ -21,12 +21,14 @@
 
 #pragma once
 #include "AccountRestrictionCacheTypes.h"
-#include "src/state/AccountRestrictionsSerializer.h"
 #include "catapult/cache/CacheSerializerAdapter.h"
+#include "src/state/AccountRestrictionsSerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Primary serializer for account restriction cache.
-	struct AccountRestrictionsPrimarySerializer
-			: public CacheSerializerAdapter<state::AccountRestrictionsSerializer, AccountRestrictionCacheDescriptor> {};
-}}
+    /// Primary serializer for account restriction cache.
+    struct AccountRestrictionsPrimarySerializer
+        : public CacheSerializerAdapter<state::AccountRestrictionsSerializer, AccountRestrictionCacheDescriptor> { };
+}
+}

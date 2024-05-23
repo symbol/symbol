@@ -23,32 +23,34 @@
 #include "catapult/model/BlockStatementBuilder.h"
 #include "catapult/model/ResolverContext.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Facade on top of a block statement builder that is accessible by observers.
-	class ObserverStatementBuilder {
-	public:
-		/// Creates a default builder.
-		ObserverStatementBuilder();
+    /// Facade on top of a block statement builder that is accessible by observers.
+    class ObserverStatementBuilder {
+    public:
+        /// Creates a default builder.
+        ObserverStatementBuilder();
 
-		/// Creates a builder around \a statementBuilder.
-		ObserverStatementBuilder(model::BlockStatementBuilder& statementBuilder);
+        /// Creates a builder around \a statementBuilder.
+        ObserverStatementBuilder(model::BlockStatementBuilder& statementBuilder);
 
-	public:
-		/// Gets the active source.
-		model::ReceiptSource source() const;
+    public:
+        /// Gets the active source.
+        model::ReceiptSource source() const;
 
-		/// Sets the active \a source.
-		void setSource(const model::ReceiptSource& source);
+        /// Sets the active \a source.
+        void setSource(const model::ReceiptSource& source);
 
-	public:
-		/// Adds \a receipt to this builder.
-		void addReceipt(const model::Receipt& receipt);
+    public:
+        /// Adds \a receipt to this builder.
+        void addReceipt(const model::Receipt& receipt);
 
-	private:
-		model::BlockStatementBuilder* m_pStatementBuilder;
-	};
+    private:
+        model::BlockStatementBuilder* m_pStatementBuilder;
+    };
 
-	/// Binds \a resolverContext to \a statementBuilder.
-	model::ResolverContext Bind(const model::ResolverContext& resolverContext, model::BlockStatementBuilder& statementBuilder);
-}}
+    /// Binds \a resolverContext to \a statementBuilder.
+    model::ResolverContext Bind(const model::ResolverContext& resolverContext, model::BlockStatementBuilder& statementBuilder);
+}
+}

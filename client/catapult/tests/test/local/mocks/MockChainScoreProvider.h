@@ -20,20 +20,24 @@
 **/
 
 #pragma once
-#include "extensions/mongo/src/ChainScoreProvider.h"
 #include "catapult/model/ChainScore.h"
+#include "extensions/mongo/src/ChainScoreProvider.h"
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	/// Mock chain score provider.
-	class MockChainScoreProvider : public mongo::ChainScoreProvider {
-	public:
-		void saveScore(const model::ChainScore&) override {
-			CATAPULT_THROW_RUNTIME_ERROR("not implemented");
-		}
+    /// Mock chain score provider.
+    class MockChainScoreProvider : public mongo::ChainScoreProvider {
+    public:
+        void saveScore(const model::ChainScore&) override
+        {
+            CATAPULT_THROW_RUNTIME_ERROR("not implemented");
+        }
 
-		model::ChainScore loadScore() const override {
-			return model::ChainScore();
-		}
-	};
-}}
+        model::ChainScore loadScore() const override
+        {
+            return model::ChainScore();
+        }
+    };
+}
+}

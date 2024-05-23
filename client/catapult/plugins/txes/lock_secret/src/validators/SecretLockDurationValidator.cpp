@@ -22,7 +22,9 @@
 #include "Validators.h"
 #include "plugins/txes/lock_shared/src/validators/LockDurationValidator.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	DEFINE_LOCK_DURATION_VALIDATOR(SecretLockDuration, model::SecretLockDurationNotification, Failure_LockSecret_Invalid_Duration)
-}}
+    DEFINE_LOCK_DURATION_VALIDATOR(SecretLockDuration, model::SecretLockDurationNotification, Failure_LockSecret_Invalid_Duration)
+}
+}

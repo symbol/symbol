@@ -23,21 +23,23 @@
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Finalization statistics.
-	struct FinalizationStatistics {
-		/// Finalization round.
-		model::FinalizationRound Round;
+    /// Finalization statistics.
+    struct FinalizationStatistics {
+        /// Finalization round.
+        model::FinalizationRound Round;
 
-		/// Finalization height.
-		catapult::Height Height;
+        /// Finalization height.
+        catapult::Height Height;
 
-		/// Finalization hash.
-		Hash256 Hash;
-	};
+        /// Finalization hash.
+        Hash256 Hash;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

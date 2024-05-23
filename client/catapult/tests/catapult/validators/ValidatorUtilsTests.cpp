@@ -22,20 +22,23 @@
 #include "catapult/validators/ValidatorUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS ValidatorUtilsTests
 
-	TEST(TEST_CLASS, ValidateLessThanOrEqualReturnsCorrectValue) {
-		// Arrange:
-		constexpr auto Failure_Result = static_cast<ValidationResult>(12345);
+    TEST(TEST_CLASS, ValidateLessThanOrEqualReturnsCorrectValue)
+    {
+        // Arrange:
+        constexpr auto Failure_Result = static_cast<ValidationResult>(12345);
 
-		// Act + Assert:
-		EXPECT_EQ(ValidationResult::Success, ValidateLessThanOrEqual(0, 101, Failure_Result));
-		EXPECT_EQ(ValidationResult::Success, ValidateLessThanOrEqual(100, 101, Failure_Result));
-		EXPECT_EQ(ValidationResult::Success, ValidateLessThanOrEqual(101, 101, Failure_Result));
+        // Act + Assert:
+        EXPECT_EQ(ValidationResult::Success, ValidateLessThanOrEqual(0, 101, Failure_Result));
+        EXPECT_EQ(ValidationResult::Success, ValidateLessThanOrEqual(100, 101, Failure_Result));
+        EXPECT_EQ(ValidationResult::Success, ValidateLessThanOrEqual(101, 101, Failure_Result));
 
-		EXPECT_EQ(Failure_Result, ValidateLessThanOrEqual(102, 101, Failure_Result));
-		EXPECT_EQ(Failure_Result, ValidateLessThanOrEqual(999, 101, Failure_Result));
-	}
-}}
+        EXPECT_EQ(Failure_Result, ValidateLessThanOrEqual(102, 101, Failure_Result));
+        EXPECT_EQ(Failure_Result, ValidateLessThanOrEqual(999, 101, Failure_Result));
+    }
+}
+}

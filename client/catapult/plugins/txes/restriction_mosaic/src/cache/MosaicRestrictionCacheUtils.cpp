@@ -22,67 +22,70 @@
 #include "MosaicRestrictionCacheUtils.h"
 #include "MosaicRestrictionCacheDelta.h"
 #include "MosaicRestrictionCacheView.h"
-#include "src/state/MosaicRestrictionEvaluator.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/utils/Hashers.h"
+#include "src/state/MosaicRestrictionEvaluator.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	// region GetMosaicGlobalRestrictionResolvedRules
+    // region GetMosaicGlobalRestrictionResolvedRules
 
-	MosaicGlobalRestrictionRuleResolutionResult GetMosaicGlobalRestrictionResolvedRules(
-			const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,
-			MosaicId mosaicId,
-			std::vector<MosaicRestrictionResolvedRule>& resolvedRules) {
-		auto entryIter = restrictionCache.find(state::CreateMosaicRestrictionEntryKey(mosaicId));
-		if (!entryIter.tryGet())
-			return MosaicGlobalRestrictionRuleResolutionResult::No_Rules;
+    MosaicGlobalRestrictionRuleResolutionResult GetMosaicGlobalRestrictionResolvedRules(
+        const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,
+        MosaicId mosaicId,
+        std::vector<MosaicRestrictionResolvedRule>& resolvedRules)
+    {
+        auto entryIter = restrictionCache.find(state::CreateMosaicRestrictionEntryKey(mosaicId));
+        if (!entryIter.tryGet())
+            return MosaicGlobalRestrictionRuleResolutionResult::No_Rules;
 
-		const auto& restriction = entryIter.get().asGlobalRestriction();
-		for (auto key : restriction.keys()) {
-			state::MosaicGlobalRestriction::RestrictionRule rule;
-			restriction.tryGet(key, rule);
+        const auto& restriction = entryIter.get().asGlobalRestriction();
+        for (auto key : restriction.keys()) {
+            state::MosaicGlobalRestriction::RestrictionRule rule;
+            restriction.tryGet(key, rule);
 
-			if (mosaicId == rule.ReferenceMosaicId)
-				return MosaicGlobalRestrictionRuleResolutionResult::Invalid_Rule;
+            if (mosaicId == rule.ReferenceMosaicId)
+                return MosaicGlobalRestrictionRuleResolutionResult::Invalid_Rule;
 
-			resolvedRules.push_back(MosaicRestrictionResolvedRule{ MosaicId() == rule.ReferenceMosaicId ? mosaicId : rule.ReferenceMosaicId,
-																   key,
-																   rule.RestrictionValue,
-																   rule.RestrictionType });
-		}
+            resolvedRules.push_back(MosaicRestrictionResolvedRule { MosaicId() == rule.ReferenceMosaicId ? mosaicId : rule.ReferenceMosaicId,
+                key,
+                rule.RestrictionValue,
+                rule.RestrictionType });
+        }
 
-		return MosaicGlobalRestrictionRuleResolutionResult::Success;
-	}
+        return MosaicGlobalRestrictionRuleResolutionResult::Success;
+    }
 
-	// endregion
+    // endregion
 
-	// region EvaluateMosaicRestrictionResolvedRulesForAddress
+    // region EvaluateMosaicRestrictionResolvedRulesForAddress
 
-	bool EvaluateMosaicRestrictionResolvedRulesForAddress(
-			const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,
-			const Address& address,
-			const std::vector<MosaicRestrictionResolvedRule>& resolvedRules) {
-		std::unordered_map<MosaicId, state::MosaicAddressRestriction, utils::BaseValueHasher<MosaicId>> restrictionCacheSet;
-		for (const auto& resolvedRule : resolvedRules) {
-			auto mosaicId = resolvedRule.MosaicId;
-			auto restrictionIter = restrictionCacheSet.find(mosaicId);
-			if (restrictionCacheSet.cend() == restrictionIter) {
-				auto entryIter = restrictionCache.find(state::CreateMosaicRestrictionEntryKey(mosaicId, address));
-				auto restriction =
-						entryIter.tryGet() ? entryIter.get().asAddressRestriction() : state::MosaicAddressRestriction(mosaicId, address);
-				restrictionIter = restrictionCacheSet.emplace(mosaicId, restriction).first;
-			}
+    bool EvaluateMosaicRestrictionResolvedRulesForAddress(
+        const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,
+        const Address& address,
+        const std::vector<MosaicRestrictionResolvedRule>& resolvedRules)
+    {
+        std::unordered_map<MosaicId, state::MosaicAddressRestriction, utils::BaseValueHasher<MosaicId>> restrictionCacheSet;
+        for (const auto& resolvedRule : resolvedRules) {
+            auto mosaicId = resolvedRule.MosaicId;
+            auto restrictionIter = restrictionCacheSet.find(mosaicId);
+            if (restrictionCacheSet.cend() == restrictionIter) {
+                auto entryIter = restrictionCache.find(state::CreateMosaicRestrictionEntryKey(mosaicId, address));
+                auto restriction = entryIter.tryGet() ? entryIter.get().asAddressRestriction() : state::MosaicAddressRestriction(mosaicId, address);
+                restrictionIter = restrictionCacheSet.emplace(mosaicId, restriction).first;
+            }
 
-			auto evaluateResult = state::EvaluateMosaicRestriction(
-					{ MosaicId(), resolvedRule.RestrictionValue, resolvedRule.RestrictionType },
-					restrictionIter->second.get(resolvedRule.RestrictionKey));
-			if (!evaluateResult)
-				return false;
-		}
+            auto evaluateResult = state::EvaluateMosaicRestriction(
+                { MosaicId(), resolvedRule.RestrictionValue, resolvedRule.RestrictionType },
+                restrictionIter->second.get(resolvedRule.RestrictionKey));
+            if (!evaluateResult)
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

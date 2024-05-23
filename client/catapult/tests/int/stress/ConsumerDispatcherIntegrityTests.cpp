@@ -21,65 +21,69 @@
 
 #include "catapult/disruptor/ConsumerDispatcher.h"
 #include "catapult/utils/HexFormatter.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Logging.h"
-#include "tests/TestHarness.h"
 #include <atomic>
 #include <thread>
 #include <vector>
 
-namespace catapult { namespace disruptor {
+namespace catapult {
+namespace disruptor {
 
 #define TEST_CLASS ConsumerDispatcherIntegrityTests
 
-	namespace {
-		size_t GetAdjustmentDivisor() {
-			return test::GetStressIterationCount() ? 1 : 8;
-		}
-	}
+    namespace {
+        size_t GetAdjustmentDivisor()
+        {
+            return test::GetStressIterationCount() ? 1 : 8;
+        }
+    }
 
-	NO_STRESS_TEST(TEST_CLASS, MultipleConsumersCanProcessAllPushedElements) {
-		// Arrange:
-		test::GlobalLogFilter testLogFilter(utils::LogLevel::info);
-		auto numElementsPerInnerIteration = 1024 / GetAdjustmentDivisor();
-		auto numOuterIterations = 256u * 15 / GetAdjustmentDivisor();
-		auto defaultDisruptorSize = 16 * 1024 / GetAdjustmentDivisor();
-		auto ranges = test::PrepareRanges(1);
+    NO_STRESS_TEST(TEST_CLASS, MultipleConsumersCanProcessAllPushedElements)
+    {
+        // Arrange:
+        test::GlobalLogFilter testLogFilter(utils::LogLevel::info);
+        auto numElementsPerInnerIteration = 1024 / GetAdjustmentDivisor();
+        auto numOuterIterations = 256u * 15 / GetAdjustmentDivisor();
+        auto defaultDisruptorSize = 16 * 1024 / GetAdjustmentDivisor();
+        auto ranges = test::PrepareRanges(1);
 
-		std::atomic<uint64_t> counter1(Difficulty::Min().unwrap());
-		std::atomic<uint64_t> counter2(0);
-		std::atomic<uint64_t> inspectorCounter(0);
-		ConsumerDispatcherOptions options{ "ConsumerDispatcherIntegrityTests", defaultDisruptorSize };
-		options.ElementTraceInterval = numElementsPerInnerIteration * 8;
-		ConsumerDispatcher dispatcher(
-				options,
-				{ [&counter1](auto&) {
-					 ++counter1;
-					 return ConsumerResult::Continue();
-				 },
-				  [&counter2](auto&) {
-					  ++counter2;
-					  return ConsumerResult::Continue();
-				  } },
-				[&inspectorCounter](const auto&, const auto&) { ++inspectorCounter; });
+        std::atomic<uint64_t> counter1(Difficulty::Min().unwrap());
+        std::atomic<uint64_t> counter2(0);
+        std::atomic<uint64_t> inspectorCounter(0);
+        ConsumerDispatcherOptions options { "ConsumerDispatcherIntegrityTests", defaultDisruptorSize };
+        options.ElementTraceInterval = numElementsPerInnerIteration * 8;
+        ConsumerDispatcher dispatcher(
+            options,
+            { [&counter1](auto&) {
+                 ++counter1;
+                 return ConsumerResult::Continue();
+             },
+                [&counter2](auto&) {
+                    ++counter2;
+                    return ConsumerResult::Continue();
+                } },
+            [&inspectorCounter](const auto&, const auto&) { ++inspectorCounter; });
 
-		// Act:
-		for (auto j = 1u; j <= numOuterIterations; ++j) {
-			for (auto i = 0u; i < numElementsPerInnerIteration; ++i) {
-				auto range = model::BlockRange::CopyRange(ranges[0]);
-				dispatcher.processElement(ConsumerInput(std::move(range)));
-			}
+        // Act:
+        for (auto j = 1u; j <= numOuterIterations; ++j) {
+            for (auto i = 0u; i < numElementsPerInnerIteration; ++i) {
+                auto range = model::BlockRange::CopyRange(ranges[0]);
+                dispatcher.processElement(ConsumerInput(std::move(range)));
+            }
 
-			// if the dispatcher is more than half full, wait for the consumers to catch up
-			WAIT_FOR_EXPR(defaultDisruptorSize / 2 > dispatcher.numAddedElements() - inspectorCounter);
-		}
+            // if the dispatcher is more than half full, wait for the consumers to catch up
+            WAIT_FOR_EXPR(defaultDisruptorSize / 2 > dispatcher.numAddedElements() - inspectorCounter);
+        }
 
-		// Assert (counter1 is modified by first consumer, counter2 by the second):
-		auto totalIterationCount = numOuterIterations * numElementsPerInnerIteration;
-		WAIT_FOR_VALUE(totalIterationCount, inspectorCounter);
+        // Assert (counter1 is modified by first consumer, counter2 by the second):
+        auto totalIterationCount = numOuterIterations * numElementsPerInnerIteration;
+        WAIT_FOR_VALUE(totalIterationCount, inspectorCounter);
 
-		EXPECT_EQ(Difficulty::Min().unwrap() + totalIterationCount, counter1);
-		EXPECT_EQ(totalIterationCount, counter2);
-		EXPECT_EQ(totalIterationCount, inspectorCounter);
-	}
-}}
+        EXPECT_EQ(Difficulty::Min().unwrap() + totalIterationCount, counter1);
+        EXPECT_EQ(totalIterationCount, counter2);
+        EXPECT_EQ(totalIterationCount, inspectorCounter);
+    }
+}
+}

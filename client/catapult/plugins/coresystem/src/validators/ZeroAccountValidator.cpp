@@ -23,24 +23,28 @@
 #include "catapult/model/Address.h"
 #include "catapult/model/ResolverContext.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	DECLARE_STATELESS_VALIDATOR(ZeroAddress, model::AccountAddressNotification)(model::NetworkIdentifier networkIdentifier) {
-		using Notification = model::AccountAddressNotification;
+    DECLARE_STATELESS_VALIDATOR(ZeroAddress, model::AccountAddressNotification)
+    (model::NetworkIdentifier networkIdentifier)
+    {
+        using Notification = model::AccountAddressNotification;
 
-		auto zeroAddress = model::PublicKeyToAddress(Key(), networkIdentifier);
-		return MAKE_STATELESS_VALIDATOR_WITH_TYPE(ZeroAddress, Notification, [zeroAddress](const Notification& notification) {
-			// copy Address from unresolved to resolved in order to check it against (resolved) zeroAddress
-			// if it needs to be resolved, it will never match (due to different resolved bit flag)
-			return zeroAddress == notification.Address.resolved(model::ResolverContext()) ? Failure_Core_Zero_Address
-																						  : ValidationResult::Success;
-		});
-	}
+        auto zeroAddress = model::PublicKeyToAddress(Key(), networkIdentifier);
+        return MAKE_STATELESS_VALIDATOR_WITH_TYPE(ZeroAddress, Notification, [zeroAddress](const Notification& notification) {
+            // copy Address from unresolved to resolved in order to check it against (resolved) zeroAddress
+            // if it needs to be resolved, it will never match (due to different resolved bit flag)
+            return zeroAddress == notification.Address.resolved(model::ResolverContext()) ? Failure_Core_Zero_Address
+                                                                                          : ValidationResult::Success;
+        });
+    }
 
-	DEFINE_STATELESS_VALIDATOR_WITH_TYPE(
-			ZeroPublicKey,
-			model::AccountPublicKeyNotification,
-			[](const model::AccountPublicKeyNotification& notification) {
-				return Key() == notification.PublicKey ? Failure_Core_Zero_Public_Key : ValidationResult::Success;
-			})
-}}
+    DEFINE_STATELESS_VALIDATOR_WITH_TYPE(
+        ZeroPublicKey,
+        model::AccountPublicKeyNotification,
+        [](const model::AccountPublicKeyNotification& notification) {
+            return Key() == notification.PublicKey ? Failure_Core_Zero_Public_Key : ValidationResult::Success;
+        })
+}
+}

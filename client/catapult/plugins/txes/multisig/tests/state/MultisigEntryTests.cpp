@@ -20,139 +20,150 @@
 **/
 
 #include "src/state/MultisigEntry.h"
-#include "tests/test/MultisigTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/MultisigTestUtils.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS MultisigEntryTests
 
-	namespace {
-		void AssertSettings(uint8_t expectedMinApproval, uint8_t expectedMinRemoval, const MultisigEntry& entry) {
-			EXPECT_EQ(expectedMinApproval, entry.minApproval());
-			EXPECT_EQ(expectedMinRemoval, entry.minRemoval());
-		}
+    namespace {
+        void AssertSettings(uint8_t expectedMinApproval, uint8_t expectedMinRemoval, const MultisigEntry& entry)
+        {
+            EXPECT_EQ(expectedMinApproval, entry.minApproval());
+            EXPECT_EQ(expectedMinRemoval, entry.minRemoval());
+        }
 
-		void AssertCosignatories(const std::vector<Address>& expectedCosignatories, const MultisigEntry& entry) {
-			test::AssertContents(expectedCosignatories, entry.cosignatoryAddresses());
-		}
+        void AssertCosignatories(const std::vector<Address>& expectedCosignatories, const MultisigEntry& entry)
+        {
+            test::AssertContents(expectedCosignatories, entry.cosignatoryAddresses());
+        }
 
-		void AssertMultisigAccounts(const std::vector<Address>& expectedMultisigAccounts, const MultisigEntry& entry) {
-			test::AssertContents(expectedMultisigAccounts, entry.multisigAddresses());
-		}
-	}
+        void AssertMultisigAccounts(const std::vector<Address>& expectedMultisigAccounts, const MultisigEntry& entry)
+        {
+            test::AssertContents(expectedMultisigAccounts, entry.multisigAddresses());
+        }
+    }
 
-	TEST(TEST_CLASS, CanCreateMultisigEntry) {
-		// Act:
-		auto address = test::GenerateRandomByteArray<Address>();
-		auto entry = MultisigEntry(address);
+    TEST(TEST_CLASS, CanCreateMultisigEntry)
+    {
+        // Act:
+        auto address = test::GenerateRandomByteArray<Address>();
+        auto entry = MultisigEntry(address);
 
-		// Assert:
-		EXPECT_EQ(address, entry.address());
+        // Assert:
+        EXPECT_EQ(address, entry.address());
 
-		AssertSettings(0, 0, entry);
-		AssertCosignatories({}, entry);
-		AssertMultisigAccounts({}, entry);
-	}
+        AssertSettings(0, 0, entry);
+        AssertCosignatories({}, entry);
+        AssertMultisigAccounts({}, entry);
+    }
 
-	TEST(TEST_CLASS, CanChangeSettings) {
-		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
-		auto entry = MultisigEntry(address);
+    TEST(TEST_CLASS, CanChangeSettings)
+    {
+        // Arrange:
+        auto address = test::GenerateRandomByteArray<Address>();
+        auto entry = MultisigEntry(address);
 
-		// Act:
-		entry.setMinApproval(12);
-		entry.setMinRemoval(34);
+        // Act:
+        entry.setMinApproval(12);
+        entry.setMinRemoval(34);
 
-		// Assert:
-		AssertSettings(12, 34, entry);
-		AssertCosignatories({}, entry);
-		AssertMultisigAccounts({}, entry);
-	}
+        // Assert:
+        AssertSettings(12, 34, entry);
+        AssertCosignatories({}, entry);
+        AssertMultisigAccounts({}, entry);
+    }
 
-	TEST(TEST_CLASS, CanAddAndRemoveBothCosignatoriesAndAccounts) {
-		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
-		auto accountAddresses = test::GenerateRandomDataVector<Address>(10);
-		auto entry = MultisigEntry(address);
+    TEST(TEST_CLASS, CanAddAndRemoveBothCosignatoriesAndAccounts)
+    {
+        // Arrange:
+        auto address = test::GenerateRandomByteArray<Address>();
+        auto accountAddresses = test::GenerateRandomDataVector<Address>(10);
+        auto entry = MultisigEntry(address);
 
-		// Act:
-		entry.setMinApproval(55);
-		entry.setMinRemoval(66);
+        // Act:
+        entry.setMinApproval(55);
+        entry.setMinRemoval(66);
 
-		decltype(accountAddresses) expectedCosignatories;
-		for (auto i = 0u; i < 10; ++i)
-			entry.cosignatoryAddresses().insert(accountAddresses[i]);
+        decltype(accountAddresses) expectedCosignatories;
+        for (auto i = 0u; i < 10; ++i)
+            entry.cosignatoryAddresses().insert(accountAddresses[i]);
 
-		for (auto i = 0u; i < 10; i += 2)
-			entry.cosignatoryAddresses().erase(accountAddresses[i]);
+        for (auto i = 0u; i < 10; i += 2)
+            entry.cosignatoryAddresses().erase(accountAddresses[i]);
 
-		for (auto i = 1u; i < 10; i += 2)
-			expectedCosignatories.push_back(accountAddresses[i]);
+        for (auto i = 1u; i < 10; i += 2)
+            expectedCosignatories.push_back(accountAddresses[i]);
 
-		decltype(accountAddresses) expectedMultisigAccounts;
-		for (auto i = 0u; i < 10; ++i)
-			entry.multisigAddresses().insert(accountAddresses[i]);
+        decltype(accountAddresses) expectedMultisigAccounts;
+        for (auto i = 0u; i < 10; ++i)
+            entry.multisigAddresses().insert(accountAddresses[i]);
 
-		for (auto i = 1u; i < 10; i += 2)
-			entry.multisigAddresses().erase(accountAddresses[i]);
+        for (auto i = 1u; i < 10; i += 2)
+            entry.multisigAddresses().erase(accountAddresses[i]);
 
-		for (auto i = 0u; i < 10; i += 2)
-			expectedMultisigAccounts.push_back(accountAddresses[i]);
+        for (auto i = 0u; i < 10; i += 2)
+            expectedMultisigAccounts.push_back(accountAddresses[i]);
 
-		// Assert:
-		AssertSettings(55, 66, entry);
-		AssertCosignatories(expectedCosignatories, entry);
-		AssertMultisigAccounts(expectedMultisigAccounts, entry);
-	}
+        // Assert:
+        AssertSettings(55, 66, entry);
+        AssertCosignatories(expectedCosignatories, entry);
+        AssertMultisigAccounts(expectedMultisigAccounts, entry);
+    }
 
-	TEST(TEST_CLASS, HasCosignatoryReturnsTrueWhenAddressIsCosignatory) {
-		// Arrange:
-		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto entry = MultisigEntry(test::GenerateRandomByteArray<Address>());
+    TEST(TEST_CLASS, HasCosignatoryReturnsTrueWhenAddressIsCosignatory)
+    {
+        // Arrange:
+        auto addresses = test::GenerateRandomDataVector<Address>(10);
+        auto entry = MultisigEntry(test::GenerateRandomByteArray<Address>());
 
-		for (auto i = 0u; i < 10; ++i)
-			entry.cosignatoryAddresses().insert(addresses[i]);
+        for (auto i = 0u; i < 10; ++i)
+            entry.cosignatoryAddresses().insert(addresses[i]);
 
-		// Act + Assert:
-		auto i = 0u;
-		for (const auto& address : addresses) {
-			EXPECT_TRUE(entry.hasCosignatory(address)) << "address " << i;
-			++i;
-		}
-	}
+        // Act + Assert:
+        auto i = 0u;
+        for (const auto& address : addresses) {
+            EXPECT_TRUE(entry.hasCosignatory(address)) << "address " << i;
+            ++i;
+        }
+    }
 
-	TEST(TEST_CLASS, HasCosignatoryReturnsFalseWhenAddressIsMultisig) {
-		// Arrange:
-		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto entry = MultisigEntry(test::GenerateRandomByteArray<Address>());
+    TEST(TEST_CLASS, HasCosignatoryReturnsFalseWhenAddressIsMultisig)
+    {
+        // Arrange:
+        auto addresses = test::GenerateRandomDataVector<Address>(10);
+        auto entry = MultisigEntry(test::GenerateRandomByteArray<Address>());
 
-		for (auto i = 0u; i < 10; ++i) {
-			entry.cosignatoryAddresses().insert(test::GenerateRandomByteArray<Address>());
-			entry.multisigAddresses().insert(addresses[i]);
-		}
+        for (auto i = 0u; i < 10; ++i) {
+            entry.cosignatoryAddresses().insert(test::GenerateRandomByteArray<Address>());
+            entry.multisigAddresses().insert(addresses[i]);
+        }
 
-		// Act + Assert:
-		auto i = 0u;
-		for (const auto& address : addresses) {
-			EXPECT_FALSE(entry.hasCosignatory(address)) << "address " << i;
-			++i;
-		}
-	}
+        // Act + Assert:
+        auto i = 0u;
+        for (const auto& address : addresses) {
+            EXPECT_FALSE(entry.hasCosignatory(address)) << "address " << i;
+            ++i;
+        }
+    }
 
-	TEST(TEST_CLASS, HasCosignatoryReturnsFalseWhenAddressIsOther) {
-		// Arrange:
-		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto entry = MultisigEntry(test::GenerateRandomByteArray<Address>());
+    TEST(TEST_CLASS, HasCosignatoryReturnsFalseWhenAddressIsOther)
+    {
+        // Arrange:
+        auto addresses = test::GenerateRandomDataVector<Address>(10);
+        auto entry = MultisigEntry(test::GenerateRandomByteArray<Address>());
 
-		for (auto i = 0u; i < 10; ++i)
-			entry.cosignatoryAddresses().insert(test::GenerateRandomByteArray<Address>());
+        for (auto i = 0u; i < 10; ++i)
+            entry.cosignatoryAddresses().insert(test::GenerateRandomByteArray<Address>());
 
-		// Act + Assert:
-		auto i = 0u;
-		for (const auto& address : addresses) {
-			EXPECT_FALSE(entry.hasCosignatory(address)) << "address " << i;
-			++i;
-		}
-	}
-}}
+        // Act + Assert:
+        auto i = 0u;
+        for (const auto& address : addresses) {
+            EXPECT_FALSE(entry.hasCosignatory(address)) << "address " << i;
+            ++i;
+        }
+    }
+}
+}

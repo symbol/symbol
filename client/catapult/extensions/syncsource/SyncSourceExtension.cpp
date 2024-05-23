@@ -19,21 +19,27 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/SyncSourceService.h"
 #include "src/VerifiableStateService.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace syncsource { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		// register service(s)
-		auto& extensionManager = bootstrapper.extensionManager();
-		extensionManager.addServiceRegistrar(CreateSyncSourceServiceRegistrar());
+namespace catapult {
+namespace syncsource {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            // register service(s)
+            auto& extensionManager = bootstrapper.extensionManager();
+            extensionManager.addServiceRegistrar(CreateSyncSourceServiceRegistrar());
 
-		if (bootstrapper.config().Blockchain.EnableVerifiableState)
-			extensionManager.addServiceRegistrar(CreateVerifiableStateServiceRegistrar());
-	}
-}}}
+            if (bootstrapper.config().Blockchain.EnableVerifiableState)
+                extensionManager.addServiceRegistrar(CreateVerifiableStateServiceRegistrar());
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::syncsource::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::syncsource::RegisterExtension(bootstrapper);
 }

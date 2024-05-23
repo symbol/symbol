@@ -22,53 +22,59 @@
 #include "catapult/model/ResolverContext.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS ResolverContextTests
 
-	TEST(TEST_CLASS, CanResolveMosaic_DefaultResolver) {
-		// Arrange:
-		ResolverContext context;
+    TEST(TEST_CLASS, CanResolveMosaic_DefaultResolver)
+    {
+        // Arrange:
+        ResolverContext context;
 
-		// Act:
-		auto result = context.resolve(UnresolvedMosaicId(123));
+        // Act:
+        auto result = context.resolve(UnresolvedMosaicId(123));
 
-		// Assert:
-		EXPECT_EQ(MosaicId(123), result);
-	}
+        // Assert:
+        EXPECT_EQ(MosaicId(123), result);
+    }
 
-	TEST(TEST_CLASS, CanResolveAddress_DefaultResolver) {
-		// Arrange:
-		ResolverContext context;
+    TEST(TEST_CLASS, CanResolveAddress_DefaultResolver)
+    {
+        // Arrange:
+        ResolverContext context;
 
-		// Act:
-		auto result = context.resolve(UnresolvedAddress{ { { 123 } } });
+        // Act:
+        auto result = context.resolve(UnresolvedAddress { { { 123 } } });
 
-		// Assert:
-		EXPECT_EQ(Address{ { 123 } }, result);
-	}
+        // Assert:
+        EXPECT_EQ(Address { { 123 } }, result);
+    }
 
-	TEST(TEST_CLASS, CanResolveMosaic_CustomResolver) {
-		// Arrange:
-		ResolverContext context([](auto mosaicId) { return MosaicId(mosaicId.unwrap() + 1); }, [](const auto&) { return Address(); });
+    TEST(TEST_CLASS, CanResolveMosaic_CustomResolver)
+    {
+        // Arrange:
+        ResolverContext context([](auto mosaicId) { return MosaicId(mosaicId.unwrap() + 1); }, [](const auto&) { return Address(); });
 
-		// Act:
-		auto result = context.resolve(UnresolvedMosaicId(123));
+        // Act:
+        auto result = context.resolve(UnresolvedMosaicId(123));
 
-		// Assert:
-		EXPECT_EQ(MosaicId(124), result);
-	}
+        // Assert:
+        EXPECT_EQ(MosaicId(124), result);
+    }
 
-	TEST(TEST_CLASS, CanResolveAddress_CustomResolver) {
-		// Arrange:
-		ResolverContext context(
-				[](const auto&) { return MosaicId(); },
-				[](const auto& address) { return Address{ { static_cast<uint8_t>(address[0] + 1) } }; });
+    TEST(TEST_CLASS, CanResolveAddress_CustomResolver)
+    {
+        // Arrange:
+        ResolverContext context(
+            [](const auto&) { return MosaicId(); },
+            [](const auto& address) { return Address { { static_cast<uint8_t>(address[0] + 1) } }; });
 
-		// Act:
-		auto result = context.resolve(UnresolvedAddress{ { { 123 } } });
+        // Act:
+        auto result = context.resolve(UnresolvedAddress { { { 123 } } });
 
-		// Assert:
-		EXPECT_EQ(Address{ { 124 } }, result);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(Address { { 124 } }, result);
+    }
+}
+}

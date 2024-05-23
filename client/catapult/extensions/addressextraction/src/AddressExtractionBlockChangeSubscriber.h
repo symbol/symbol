@@ -23,12 +23,16 @@
 #include "catapult/io/BlockChangeSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace addressextraction {
-	class AddressExtractor;
-}}
+namespace catapult {
+namespace addressextraction {
+    class AddressExtractor;
+}
+}
 
-namespace catapult { namespace addressextraction {
+namespace catapult {
+namespace addressextraction {
 
-	/// Creates an address extraction block change subscriber around \a extractor.
-	std::unique_ptr<io::BlockChangeSubscriber> CreateAddressExtractionBlockChangeSubscriber(const AddressExtractor& extractor);
-}}
+    /// Creates an address extraction block change subscriber around \a extractor.
+    std::unique_ptr<io::BlockChangeSubscriber> CreateAddressExtractionBlockChangeSubscriber(const AddressExtractor& extractor);
+}
+}

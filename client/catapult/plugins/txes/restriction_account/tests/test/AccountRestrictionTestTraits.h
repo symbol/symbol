@@ -25,156 +25,177 @@
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	// region restriction traits
+    // region restriction traits
 
-	struct BaseAccountAddressRestrictionTraits {
-		using UnresolvedValueType = UnresolvedAddress;
-		using ValueType = Address;
+    struct BaseAccountAddressRestrictionTraits {
+        using UnresolvedValueType = UnresolvedAddress;
+        using ValueType = Address;
 
-		static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::Address;
-		static constexpr auto Restriction_Value_Size = Address::Size;
+        static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::Address;
+        static constexpr auto Restriction_Value_Size = Address::Size;
 
-		static auto RandomUnresolvedValue() {
-			return test::GenerateRandomUnresolvedAddress();
-		}
+        static auto RandomUnresolvedValue()
+        {
+            return test::GenerateRandomUnresolvedAddress();
+        }
 
-		static auto RandomValue() {
-			return test::GenerateRandomByteArray<Address>();
-		}
+        static auto RandomValue()
+        {
+            return test::GenerateRandomByteArray<Address>();
+        }
 
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return test::UnresolveXor(value);
-		}
+        static UnresolvedValueType Unresolve(const ValueType& value)
+        {
+            return test::UnresolveXor(value);
+        }
 
-		static auto FromBuffer(const RawBuffer& buffer) {
-			UnresolvedValueType address;
-			std::memcpy(address.data(), buffer.pData, buffer.Size);
-			return address;
-		}
-	};
+        static auto FromBuffer(const RawBuffer& buffer)
+        {
+            UnresolvedValueType address;
+            std::memcpy(address.data(), buffer.pData, buffer.Size);
+            return address;
+        }
+    };
 
-	struct BaseAccountMosaicRestrictionTraits {
-		using UnresolvedValueType = UnresolvedMosaicId;
-		using ValueType = MosaicId;
+    struct BaseAccountMosaicRestrictionTraits {
+        using UnresolvedValueType = UnresolvedMosaicId;
+        using ValueType = MosaicId;
 
-		static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::MosaicId;
-		static constexpr auto Restriction_Value_Size = sizeof(ValueType);
+        static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::MosaicId;
+        static constexpr auto Restriction_Value_Size = sizeof(ValueType);
 
-		static auto RandomUnresolvedValue() {
-			return test::GenerateRandomValue<UnresolvedValueType>();
-		}
+        static auto RandomUnresolvedValue()
+        {
+            return test::GenerateRandomValue<UnresolvedValueType>();
+        }
 
-		static auto RandomValue() {
-			return test::GenerateRandomValue<ValueType>();
-		}
+        static auto RandomValue()
+        {
+            return test::GenerateRandomValue<ValueType>();
+        }
 
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return test::UnresolveXor(value);
-		}
+        static UnresolvedValueType Unresolve(const ValueType& value)
+        {
+            return test::UnresolveXor(value);
+        }
 
-		static auto FromBuffer(const RawBuffer& buffer) {
-			return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
-		}
-	};
+        static auto FromBuffer(const RawBuffer& buffer)
+        {
+            return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
+        }
+    };
 
-	struct BaseAccountOperationRestrictionTraits {
-		using UnresolvedValueType = model::EntityType;
-		using ValueType = model::EntityType;
+    struct BaseAccountOperationRestrictionTraits {
+        using UnresolvedValueType = model::EntityType;
+        using ValueType = model::EntityType;
 
-		static constexpr auto Restriction_Flags =
-				model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
-		static constexpr auto Restriction_Value_Size = sizeof(ValueType);
+        static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
+        static constexpr auto Restriction_Value_Size = sizeof(ValueType);
 
-		static auto RandomUnresolvedValue() {
-			return static_cast<UnresolvedValueType>(test::RandomByte());
-		}
+        static auto RandomUnresolvedValue()
+        {
+            return static_cast<UnresolvedValueType>(test::RandomByte());
+        }
 
-		static auto RandomValue() {
-			return static_cast<ValueType>(test::RandomByte());
-		}
+        static auto RandomValue()
+        {
+            return static_cast<ValueType>(test::RandomByte());
+        }
 
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return value;
-		}
+        static UnresolvedValueType Unresolve(const ValueType& value)
+        {
+            return value;
+        }
 
-		static auto FromBuffer(const RawBuffer& buffer) {
-			return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
-		}
-	};
+        static auto FromBuffer(const RawBuffer& buffer)
+        {
+            return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
+        }
+    };
 
-	// endregion
+    // endregion
 
-	// region allow/block traits
+    // region allow/block traits
 
-	/// Traits for operation type 'Allow'.
-	struct AllowTraits {
-		/// Given \a restrictionFlags gets the restriction flags including the operation type.
-		static model::AccountRestrictionFlags CompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
-			return restrictionFlags;
-		}
+    /// Traits for operation type 'Allow'.
+    struct AllowTraits {
+        /// Given \a restrictionFlags gets the restriction flags including the operation type.
+        static model::AccountRestrictionFlags CompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags)
+        {
+            return restrictionFlags;
+        }
 
-		/// Given \a restrictionFlags gets the restriction flags including the opposite operation type.
-		static model::AccountRestrictionFlags OppositeCompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
-			return restrictionFlags | model::AccountRestrictionFlags::Block;
-		}
+        /// Given \a restrictionFlags gets the restriction flags including the opposite operation type.
+        static model::AccountRestrictionFlags OppositeCompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags)
+        {
+            return restrictionFlags | model::AccountRestrictionFlags::Block;
+        }
 
-		/// Adds \a value to \a restriction for operation type 'Allow'.
-		static void Add(state::AccountRestriction& restriction, const state::AccountRestriction::RawValue& value) {
-			restriction.allow({ model::AccountRestrictionModificationAction::Add, value });
-		}
-	};
+        /// Adds \a value to \a restriction for operation type 'Allow'.
+        static void Add(state::AccountRestriction& restriction, const state::AccountRestriction::RawValue& value)
+        {
+            restriction.allow({ model::AccountRestrictionModificationAction::Add, value });
+        }
+    };
 
-	/// Traits for operation type 'Block'.
-	struct BlockTraits {
-		/// Given \a restrictionFlags gets the restriction flags including the operation type.
-		static model::AccountRestrictionFlags CompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
-			return restrictionFlags | model::AccountRestrictionFlags::Block;
-		}
+    /// Traits for operation type 'Block'.
+    struct BlockTraits {
+        /// Given \a restrictionFlags gets the restriction flags including the operation type.
+        static model::AccountRestrictionFlags CompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags)
+        {
+            return restrictionFlags | model::AccountRestrictionFlags::Block;
+        }
 
-		/// Given \a restrictionFlags gets the restriction flags including the opposite operation type.
-		static model::AccountRestrictionFlags OppositeCompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
-			return restrictionFlags;
-		}
+        /// Given \a restrictionFlags gets the restriction flags including the opposite operation type.
+        static model::AccountRestrictionFlags OppositeCompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags)
+        {
+            return restrictionFlags;
+        }
 
-		/// Adds \a value to \a restriction for operation type 'Block'.
-		static void Add(state::AccountRestriction& restriction, const state::AccountRestriction::RawValue& value) {
-			restriction.block({ model::AccountRestrictionModificationAction::Add, value });
-		}
-	};
+        /// Adds \a value to \a restriction for operation type 'Block'.
+        static void Add(state::AccountRestriction& restriction, const state::AccountRestriction::RawValue& value)
+        {
+            restriction.block({ model::AccountRestrictionModificationAction::Add, value });
+        }
+    };
 
-	// endregion
+    // endregion
 
-	// region CreateNotification
+    // region CreateNotification
 
-	/// Creates an account restriction value notification around \a address, \a restrictionValue and \a action.
-	template<typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
-	auto CreateAccountRestrictionValueNotification(
-			const Address& address,
-			const typename TRestrictionValueTraits::UnresolvedValueType& restrictionValue,
-			model::AccountRestrictionModificationAction action) {
-		return typename TRestrictionValueTraits::NotificationType(
-				address,
-				TOperationTraits::CompleteAccountRestrictionFlags(TRestrictionValueTraits::Restriction_Flags),
-				restrictionValue,
-				action);
-	}
+    /// Creates an account restriction value notification around \a address, \a restrictionValue and \a action.
+    template <typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
+    auto CreateAccountRestrictionValueNotification(
+        const Address& address,
+        const typename TRestrictionValueTraits::UnresolvedValueType& restrictionValue,
+        model::AccountRestrictionModificationAction action)
+    {
+        return typename TRestrictionValueTraits::NotificationType(
+            address,
+            TOperationTraits::CompleteAccountRestrictionFlags(TRestrictionValueTraits::Restriction_Flags),
+            restrictionValue,
+            action);
+    }
 
-	/// Creates an account restrictions notification around \a address, \a restrictionAdditions and \a restrictionDeletions.
-	template<typename TRestrictionValueTraits, typename TValueType, typename TOperationTraits = AllowTraits>
-	auto CreateAccountRestrictionsNotification(
-			const Address& address,
-			const std::vector<TValueType>& restrictionAdditions,
-			const std::vector<TValueType>& restrictionDeletions) {
-		return typename TRestrictionValueTraits::NotificationType(
-				address,
-				TOperationTraits::CompleteAccountRestrictionFlags(TRestrictionValueTraits::Restriction_Flags),
-				utils::checked_cast<size_t, uint8_t>(restrictionAdditions.size()),
-				restrictionAdditions.data(),
-				utils::checked_cast<size_t, uint8_t>(restrictionDeletions.size()),
-				restrictionDeletions.data());
-	}
+    /// Creates an account restrictions notification around \a address, \a restrictionAdditions and \a restrictionDeletions.
+    template <typename TRestrictionValueTraits, typename TValueType, typename TOperationTraits = AllowTraits>
+    auto CreateAccountRestrictionsNotification(
+        const Address& address,
+        const std::vector<TValueType>& restrictionAdditions,
+        const std::vector<TValueType>& restrictionDeletions)
+    {
+        return typename TRestrictionValueTraits::NotificationType(
+            address,
+            TOperationTraits::CompleteAccountRestrictionFlags(TRestrictionValueTraits::Restriction_Flags),
+            utils::checked_cast<size_t, uint8_t>(restrictionAdditions.size()),
+            restrictionAdditions.data(),
+            utils::checked_cast<size_t, uint8_t>(restrictionDeletions.size()),
+            restrictionDeletions.data());
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

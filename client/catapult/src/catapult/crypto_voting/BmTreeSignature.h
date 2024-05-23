@@ -23,36 +23,38 @@
 #include "VotingKeyPair.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
 #pragma pack(push, 1)
 
-	/// Two-layer Bellare-Miner signature.
-	struct BmTreeSignature {
-	public:
-		/// Parent public key and signature pair.
-		struct ParentPublicKeySignaturePair {
-			/// Public key.
-			VotingKey ParentPublicKey;
+    /// Two-layer Bellare-Miner signature.
+    struct BmTreeSignature {
+    public:
+        /// Parent public key and signature pair.
+        struct ParentPublicKeySignaturePair {
+            /// Public key.
+            VotingKey ParentPublicKey;
 
-			/// Signature.
-			VotingSignature Signature;
-		};
+            /// Signature.
+            VotingSignature Signature;
+        };
 
-	public:
-		/// Root pair.
-		ParentPublicKeySignaturePair Root;
+    public:
+        /// Root pair.
+        ParentPublicKeySignaturePair Root;
 
-		/// Bottom pair.
-		ParentPublicKeySignaturePair Bottom;
+        /// Bottom pair.
+        ParentPublicKeySignaturePair Bottom;
 
-	public:
-		/// Returns \c true if this signature is equal to \a rhs.
-		bool operator==(const BmTreeSignature& rhs) const;
+    public:
+        /// Returns \c true if this signature is equal to \a rhs.
+        bool operator==(const BmTreeSignature& rhs) const;
 
-		/// Returns \c true if this signature is not equal to \a rhs.
-		bool operator!=(const BmTreeSignature& rhs) const;
-	};
+        /// Returns \c true if this signature is not equal to \a rhs.
+        bool operator!=(const BmTreeSignature& rhs) const;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

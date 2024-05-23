@@ -20,34 +20,40 @@
 **/
 
 #include "src/config/MosaicRestrictionConfiguration.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	namespace {
-		struct MosaicRestrictionConfigurationTraits {
-			using ConfigurationType = MosaicRestrictionConfiguration;
+    namespace {
+        struct MosaicRestrictionConfigurationTraits {
+            using ConfigurationType = MosaicRestrictionConfiguration;
 
-			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return { { "", { { "maxMosaicRestrictionValues", "234" } } } };
-			}
+            static utils::ConfigurationBag::ValuesContainer CreateProperties()
+            {
+                return { { "", { { "maxMosaicRestrictionValues", "234" } } } };
+            }
 
-			static bool IsSectionOptional(const std::string&) {
-				return false;
-			}
+            static bool IsSectionOptional(const std::string&)
+            {
+                return false;
+            }
 
-			static void AssertZero(const MosaicRestrictionConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(0u, config.MaxMosaicRestrictionValues);
-			}
+            static void AssertZero(const MosaicRestrictionConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(0u, config.MaxMosaicRestrictionValues);
+            }
 
-			static void AssertCustom(const MosaicRestrictionConfiguration& config) {
-				// Assert:
-				EXPECT_EQ(234u, config.MaxMosaicRestrictionValues);
-			}
-		};
-	}
+            static void AssertCustom(const MosaicRestrictionConfiguration& config)
+            {
+                // Assert:
+                EXPECT_EQ(234u, config.MaxMosaicRestrictionValues);
+            }
+        };
+    }
 
-	DEFINE_CONFIGURATION_TESTS(MosaicRestrictionConfigurationTests, MosaicRestriction)
-}}
+    DEFINE_CONFIGURATION_TESTS(MosaicRestrictionConfigurationTests, MosaicRestriction)
+}
+}

@@ -20,42 +20,46 @@
 **/
 
 #include "syncsource/src/VerifiableStateService.h"
+#include "tests/TestHarness.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace syncsource {
+namespace catapult {
+namespace syncsource {
 
 #define TEST_CLASS VerifiableStateServiceTests
 
-	namespace {
-		struct VerifiableStateServiceTraits {
-			static constexpr auto CreateRegistrar = CreateVerifiableStateServiceRegistrar;
-		};
+    namespace {
+        struct VerifiableStateServiceTraits {
+            static constexpr auto CreateRegistrar = CreateVerifiableStateServiceRegistrar;
+        };
 
-		using TestContext = test::ServiceLocatorTestContext<VerifiableStateServiceTraits>;
-	}
+        using TestContext = test::ServiceLocatorTestContext<VerifiableStateServiceTraits>;
+    }
 
-	// region basic
+    // region basic
 
-	ADD_SERVICE_REGISTRAR_INFO_TEST(VerifiableState, Initial)
+    ADD_SERVICE_REGISTRAR_INFO_TEST(VerifiableState, Initial)
 
-	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
-		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
-	}
+    TEST(TEST_CLASS, NoServicesOrCountersAreRegistered)
+    {
+        test::AssertNoServicesOrCountersAreRegistered<TestContext>();
+    }
 
-	TEST(TEST_CLASS, PacketHandlersAreRegistered) {
-		// Arrange:
-		TestContext context;
+    TEST(TEST_CLASS, PacketHandlersAreRegistered)
+    {
+        // Arrange:
+        TestContext context;
 
-		// Act:
-		context.boot();
-		const auto& handlers = context.testState().state().packetHandlers();
+        // Act:
+        context.boot();
+        const auto& handlers = context.testState().state().packetHandlers();
 
-		// Assert:
-		EXPECT_EQ(1u, handlers.size());
-		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Sub_Cache_Merkle_Roots));
-	}
+        // Assert:
+        EXPECT_EQ(1u, handlers.size());
+        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Sub_Cache_Merkle_Roots));
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

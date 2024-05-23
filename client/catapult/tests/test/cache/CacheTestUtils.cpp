@@ -28,110 +28,125 @@
 #include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/nodeps/Random.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		Key GetSentinelCachePublicKey() {
-			return { { 0xFF, 0xFF, 0xFF, 0xFF } };
-		}
+    namespace {
+        Key GetSentinelCachePublicKey()
+        {
+            return { { 0xFF, 0xFF, 0xFF, 0xFF } };
+        }
 
-		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockchainConfiguration& config) {
-			return { config.Network.Identifier,	 config.ImportanceGrouping, config.VotingSetGrouping, config.MinHarvesterBalance,
-					 config.MaxHarvesterBalance, config.MinVoterBalance,	config.CurrencyMosaicId,  config.HarvestingMosaicId };
-		}
-	}
+        cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockchainConfiguration& config)
+        {
+            return { config.Network.Identifier, config.ImportanceGrouping, config.VotingSetGrouping, config.MinHarvesterBalance,
+                config.MaxHarvesterBalance, config.MinVoterBalance, config.CurrencyMosaicId, config.HarvestingMosaicId };
+        }
+    }
 
-	// region CoreSystemCacheFactory
+    // region CoreSystemCacheFactory
 
-	cache::CatapultCache CoreSystemCacheFactory::Create(const model::BlockchainConfiguration& config) {
-		std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(2);
-		CreateSubCaches(config, subCaches);
-		return cache::CatapultCache(std::move(subCaches));
-	}
+    cache::CatapultCache CoreSystemCacheFactory::Create(const model::BlockchainConfiguration& config)
+    {
+        std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(2);
+        CreateSubCaches(config, subCaches);
+        return cache::CatapultCache(std::move(subCaches));
+    }
 
-	void CoreSystemCacheFactory::CreateSubCaches(
-			const model::BlockchainConfiguration& config,
-			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches) {
-		CreateSubCaches(config, cache::CacheConfiguration(), subCaches);
-	}
+    void CoreSystemCacheFactory::CreateSubCaches(
+        const model::BlockchainConfiguration& config,
+        std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches)
+    {
+        CreateSubCaches(config, cache::CacheConfiguration(), subCaches);
+    }
 
-	void CoreSystemCacheFactory::CreateSubCaches(
-			const model::BlockchainConfiguration& config,
-			const cache::CacheConfiguration& cacheConfig,
-			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches) {
-		using namespace cache;
+    void CoreSystemCacheFactory::CreateSubCaches(
+        const model::BlockchainConfiguration& config,
+        const cache::CacheConfiguration& cacheConfig,
+        std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches)
+    {
+        using namespace cache;
 
-		subCaches[AccountStateCache::Id] = MakeSubCachePluginWithCacheConfiguration<AccountStateCache, AccountStateCacheStorage>(
-				cacheConfig,
-				CreateAccountStateCacheOptions(config));
+        subCaches[AccountStateCache::Id] = MakeSubCachePluginWithCacheConfiguration<AccountStateCache, AccountStateCacheStorage>(
+            cacheConfig,
+            CreateAccountStateCacheOptions(config));
 
-		subCaches[BlockStatisticCache::Id] =
-				MakeConfigurationFreeSubCachePlugin<BlockStatisticCache, BlockStatisticCacheStorage>(config.MaxDifficultyBlocks);
-	}
+        subCaches[BlockStatisticCache::Id] = MakeConfigurationFreeSubCachePlugin<BlockStatisticCache, BlockStatisticCacheStorage>(config.MaxDifficultyBlocks);
+    }
 
-	// endregion
+    // endregion
 
-	// region CreateEmptyCatapultCache
+    // region CreateEmptyCatapultCache
 
-	cache::CatapultCache CreateEmptyCatapultCache() {
-		auto config = model::BlockchainConfiguration::Uninitialized();
-		config.VotingSetGrouping = 1;
-		return CreateEmptyCatapultCache(config);
-	}
+    cache::CatapultCache CreateEmptyCatapultCache()
+    {
+        auto config = model::BlockchainConfiguration::Uninitialized();
+        config.VotingSetGrouping = 1;
+        return CreateEmptyCatapultCache(config);
+    }
 
-	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config) {
-		return CreateEmptyCatapultCache<CoreSystemCacheFactory>(config);
-	}
+    cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config)
+    {
+        return CreateEmptyCatapultCache<CoreSystemCacheFactory>(config);
+    }
 
-	cache::CatapultCache CreateEmptyCatapultCache(
-			const model::BlockchainConfiguration& config,
-			const cache::CacheConfiguration& cacheConfig) {
-		std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(2);
-		CoreSystemCacheFactory::CreateSubCaches(config, cacheConfig, subCaches);
-		return cache::CatapultCache(std::move(subCaches));
-	}
+    cache::CatapultCache CreateEmptyCatapultCache(
+        const model::BlockchainConfiguration& config,
+        const cache::CacheConfiguration& cacheConfig)
+    {
+        std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(2);
+        CoreSystemCacheFactory::CreateSubCaches(config, cacheConfig, subCaches);
+        return cache::CatapultCache(std::move(subCaches));
+    }
 
-	// endregion
+    // endregion
 
-	// region cache marker utils
+    // region cache marker utils
 
-	cache::CatapultCache CreateCatapultCacheWithMarkerAccount() {
-		return CreateCatapultCacheWithMarkerAccount(Height(0));
-	}
+    cache::CatapultCache CreateCatapultCacheWithMarkerAccount()
+    {
+        return CreateCatapultCacheWithMarkerAccount(Height(0));
+    }
 
-	cache::CatapultCache CreateCatapultCacheWithMarkerAccount(Height height) {
-		auto cache = CreateEmptyCatapultCache();
-		AddMarkerAccount(cache);
+    cache::CatapultCache CreateCatapultCacheWithMarkerAccount(Height height)
+    {
+        auto cache = CreateEmptyCatapultCache();
+        AddMarkerAccount(cache);
 
-		auto delta = cache.createDelta();
-		cache.commit(height);
-		return cache;
-	}
+        auto delta = cache.createDelta();
+        cache.commit(height);
+        return cache;
+    }
 
-	void AddMarkerAccount(cache::CatapultCache& cache) {
-		auto delta = cache.createDelta();
-		delta.sub<cache::AccountStateCache>().addAccount(GetSentinelCachePublicKey(), Height(1));
-		cache.commit(Height(1));
-	}
+    void AddMarkerAccount(cache::CatapultCache& cache)
+    {
+        auto delta = cache.createDelta();
+        delta.sub<cache::AccountStateCache>().addAccount(GetSentinelCachePublicKey(), Height(1));
+        cache.commit(Height(1));
+    }
 
-	namespace {
-		template<typename TCache>
-		bool IsMarkedCacheT(TCache& cache, IsMarkedCacheMode mode) {
-			const auto& accountStateCache = cache.template sub<cache::AccountStateCache>();
-			if (IsMarkedCacheMode::Exclusive == mode && 1 != accountStateCache.size())
-				return false;
+    namespace {
+        template <typename TCache>
+        bool IsMarkedCacheT(TCache& cache, IsMarkedCacheMode mode)
+        {
+            const auto& accountStateCache = cache.template sub<cache::AccountStateCache>();
+            if (IsMarkedCacheMode::Exclusive == mode && 1 != accountStateCache.size())
+                return false;
 
-			return accountStateCache.contains(GetSentinelCachePublicKey());
-		}
-	}
+            return accountStateCache.contains(GetSentinelCachePublicKey());
+        }
+    }
 
-	bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache, IsMarkedCacheMode mode) {
-		return IsMarkedCacheT(cache, mode);
-	}
+    bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache, IsMarkedCacheMode mode)
+    {
+        return IsMarkedCacheT(cache, mode);
+    }
 
-	bool IsMarkedCache(const cache::CatapultCacheDelta& cache, IsMarkedCacheMode mode) {
-		return IsMarkedCacheT(cache, mode);
-	}
+    bool IsMarkedCache(const cache::CatapultCacheDelta& cache, IsMarkedCacheMode mode)
+    {
+        return IsMarkedCacheT(cache, mode);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

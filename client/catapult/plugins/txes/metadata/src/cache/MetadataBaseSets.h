@@ -27,25 +27,26 @@
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/tree/BasePatriciaTree.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	using BasicMetadataPatriciaTree = tree::BasePatriciaTree<
-			SerializerHashedKeyEncoder<MetadataCacheDescriptor::Serializer>,
-			PatriciaTreeRdbDataSource,
-			utils::ArrayHasher<Hash256>>;
+    using BasicMetadataPatriciaTree = tree::BasePatriciaTree<
+        SerializerHashedKeyEncoder<MetadataCacheDescriptor::Serializer>,
+        PatriciaTreeRdbDataSource,
+        utils::ArrayHasher<Hash256>>;
 
-	class MetadataPatriciaTree : public BasicMetadataPatriciaTree {
-	public:
-		using BasicMetadataPatriciaTree::BasicMetadataPatriciaTree;
-		using Serializer = MetadataCacheDescriptor::Serializer;
-	};
+    class MetadataPatriciaTree : public BasicMetadataPatriciaTree {
+    public:
+        using BasicMetadataPatriciaTree::BasicMetadataPatriciaTree;
+        using Serializer = MetadataCacheDescriptor::Serializer;
+    };
 
-	using MetadataSingleSetCacheTypesAdapter =
-			SingleSetAndPatriciaTreeCacheTypesAdapter<MetadataCacheTypes::PrimaryTypes, MetadataPatriciaTree>;
+    using MetadataSingleSetCacheTypesAdapter = SingleSetAndPatriciaTreeCacheTypesAdapter<MetadataCacheTypes::PrimaryTypes, MetadataPatriciaTree>;
 
-	struct MetadataBaseSetDeltaPointers : public MetadataSingleSetCacheTypesAdapter::BaseSetDeltaPointers {};
+    struct MetadataBaseSetDeltaPointers : public MetadataSingleSetCacheTypesAdapter::BaseSetDeltaPointers { };
 
-	struct MetadataBaseSets : public MetadataSingleSetCacheTypesAdapter::BaseSets<MetadataBaseSetDeltaPointers> {
-		using MetadataSingleSetCacheTypesAdapter::BaseSets<MetadataBaseSetDeltaPointers>::BaseSets;
-	};
-}}
+    struct MetadataBaseSets : public MetadataSingleSetCacheTypesAdapter::BaseSets<MetadataBaseSetDeltaPointers> {
+        using MetadataSingleSetCacheTypesAdapter::BaseSets<MetadataBaseSetDeltaPointers>::BaseSets;
+    };
+}
+}

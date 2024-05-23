@@ -22,53 +22,57 @@
 #include "tests/catapult/deltaset/test/BaseSetDeltaTests.h"
 #include "tests/catapult/deltaset/test/BaseSetTests.h"
 
-namespace catapult { namespace deltaset {
+namespace catapult {
+namespace deltaset {
 
-	namespace {
-		template<typename TMutabilityTraits>
-		using UnorderedTraits = test::BaseSetTraits<TMutabilityTraits, test::UnorderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
+    namespace {
+        template <typename TMutabilityTraits>
+        using UnorderedTraits = test::BaseSetTraits<TMutabilityTraits, test::UnorderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
-		using UnorderedMutableTraits = UnorderedTraits<test::MutableElementValueTraits>;
-		using UnorderedImmutableTraits = UnorderedTraits<test::ImmutableElementValueTraits>;
-	}
+        using UnorderedMutableTraits = UnorderedTraits<test::MutableElementValueTraits>;
+        using UnorderedImmutableTraits = UnorderedTraits<test::ImmutableElementValueTraits>;
+    }
 
-	// base (mutable)
-	DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMutable)
+    // base (mutable)
+    DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMutable)
 
-	// base (immutable)
-	DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedImmutable)
+    // base (immutable)
+    DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedImmutable)
 
-	// delta (mutable)
-	DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMutable)
+    // delta (mutable)
+    DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMutable)
 
-	// delta (immutable)
-	DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutable)
+    // delta (immutable)
+    DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutable)
 
 /* hasher tests only use unordered delta variants */
 #define TEST_CLASS UnorderedTests
 
-#define MAKE_UNORDERED_TEST(TEST_NAME, TYPE) \
-	TEST(DeltaUnordered##TYPE##Tests, TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::DeltaTraits<deltaset::Unordered##TYPE##Traits>>(); \
-	}
+#define MAKE_UNORDERED_TEST(TEST_NAME, TYPE)                                                             \
+    TEST(DeltaUnordered##TYPE##Tests, TEST_NAME)                                                         \
+    {                                                                                                    \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::DeltaTraits<deltaset::Unordered##TYPE##Traits>>(); \
+    }
 
-#define UNORDERED_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	MAKE_UNORDERED_TEST(TEST_NAME, Mutable) \
-	MAKE_UNORDERED_TEST(TEST_NAME, Immutable) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define UNORDERED_TEST(TEST_NAME)                   \
+    template <typename TTraits>                     \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+    MAKE_UNORDERED_TEST(TEST_NAME, Mutable)         \
+    MAKE_UNORDERED_TEST(TEST_NAME, Immutable)       \
+    template <typename TTraits>                     \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	UNORDERED_TEST(SuppliedHasherIsUsed) {
-		// Arrange:
-		auto pDelta = TTraits::Create();
-		auto element = TTraits::CreateElement("", 0);
+    UNORDERED_TEST(SuppliedHasherIsUsed)
+    {
+        // Arrange:
+        auto pDelta = TTraits::Create();
+        auto element = TTraits::CreateElement("", 0);
 
-		// Act:
-		pDelta->insert(element);
+        // Act:
+        pDelta->insert(element);
 
-		// Assert:
-		EXPECT_LE(1u, TTraits::ToPointer(element)->HasherCallCount);
-	}
-}}
+        // Assert:
+        EXPECT_LE(1u, TTraits::ToPointer(element)->HasherCallCount);
+    }
+}
+}

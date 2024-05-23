@@ -22,32 +22,36 @@
 #include "PluginLoader.h"
 #include "PluginExceptions.h"
 #include "PluginManager.h"
-#include "catapult/utils/Logging.h"
 #include "catapult/functions.h"
+#include "catapult/utils/Logging.h"
 #include <boost/exception_ptr.hpp>
 #include <unordered_map>
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		void LoadPlugin(PluginManager& manager, const PluginModule& module, const char* symbolName) {
-			auto registerSubsystem = module.symbol<decltype(::RegisterSubsystem)*>(symbolName);
+    namespace {
+        void LoadPlugin(PluginManager& manager, const PluginModule& module, const char* symbolName)
+        {
+            auto registerSubsystem = module.symbol<decltype(::RegisterSubsystem)*>(symbolName);
 
-			try {
-				registerSubsystem(manager);
-			} catch (...) {
-				// since the module will be unloaded after this function exits, throw a copy of the exception that
-				// is not dependent on the (soon to be unloaded) module
-				auto exInfo = boost::diagnostic_information(boost::current_exception());
-				CATAPULT_THROW_AND_LOG_0(plugin_load_error, exInfo.c_str());
-			}
-		}
-	}
+            try {
+                registerSubsystem(manager);
+            } catch (...) {
+                // since the module will be unloaded after this function exits, throw a copy of the exception that
+                // is not dependent on the (soon to be unloaded) module
+                auto exInfo = boost::diagnostic_information(boost::current_exception());
+                CATAPULT_THROW_AND_LOG_0(plugin_load_error, exInfo.c_str());
+            }
+        }
+    }
 
-	void LoadPluginByName(PluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name) {
-		CATAPULT_LOG(info) << "registering dynamic plugin " << name;
+    void LoadPluginByName(PluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name)
+    {
+        CATAPULT_LOG(info) << "registering dynamic plugin " << name;
 
-		modules.emplace_back(directory, name);
-		LoadPlugin(manager, modules.back(), "RegisterSubsystem");
-	}
-}}
+        modules.emplace_back(directory, name);
+        LoadPlugin(manager, modules.back(), "RegisterSubsystem");
+    }
+}
+}

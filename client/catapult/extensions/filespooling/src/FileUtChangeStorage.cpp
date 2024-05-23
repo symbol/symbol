@@ -24,40 +24,48 @@
 #include "catapult/io/TransactionInfoSerializer.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
 
-namespace catapult { namespace filespooling {
+namespace catapult {
+namespace filespooling {
 
-	namespace {
-		class FileUtChangeStorage final : public cache::UtChangeSubscriber {
-		public:
-			explicit FileUtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-					: m_pOutputStream(std::move(pOutputStream)) {
-			}
+    namespace {
+        class FileUtChangeStorage final : public cache::UtChangeSubscriber {
+        public:
+            explicit FileUtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
+                : m_pOutputStream(std::move(pOutputStream))
+            {
+            }
 
-		public:
-			void notifyAdds(const TransactionInfos& transactionInfos) override {
-				saveInfos(subscribers::UtChangeOperationType::Add, transactionInfos);
-			}
+        public:
+            void notifyAdds(const TransactionInfos& transactionInfos) override
+            {
+                saveInfos(subscribers::UtChangeOperationType::Add, transactionInfos);
+            }
 
-			void notifyRemoves(const TransactionInfos& transactionInfos) override {
-				saveInfos(subscribers::UtChangeOperationType::Remove, transactionInfos);
-			}
+            void notifyRemoves(const TransactionInfos& transactionInfos) override
+            {
+                saveInfos(subscribers::UtChangeOperationType::Remove, transactionInfos);
+            }
 
-			void flush() override {
-				m_pOutputStream->flush();
-			}
+            void flush() override
+            {
+                m_pOutputStream->flush();
+            }
 
-		private:
-			void saveInfos(subscribers::UtChangeOperationType operationType, const TransactionInfos& transactionInfos) {
-				io::Write8(*m_pOutputStream, utils::to_underlying_type(operationType));
-				io::WriteTransactionInfos(transactionInfos, *m_pOutputStream);
-			}
+        private:
+            void saveInfos(subscribers::UtChangeOperationType operationType, const TransactionInfos& transactionInfos)
+            {
+                io::Write8(*m_pOutputStream, utils::to_underlying_type(operationType));
+                io::WriteTransactionInfos(transactionInfos, *m_pOutputStream);
+            }
 
-		private:
-			std::unique_ptr<io::OutputStream> m_pOutputStream;
-		};
-	}
+        private:
+            std::unique_ptr<io::OutputStream> m_pOutputStream;
+        };
+    }
 
-	std::unique_ptr<cache::UtChangeSubscriber> CreateFileUtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream) {
-		return std::make_unique<FileUtChangeStorage>(std::move(pOutputStream));
-	}
-}}
+    std::unique_ptr<cache::UtChangeSubscriber> CreateFileUtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
+    {
+        return std::make_unique<FileUtChangeStorage>(std::move(pOutputStream));
+    }
+}
+}

@@ -19,73 +19,81 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "catapult/model/VerifiableEntity.h"
+#include "src/validators/Validators.h"
+#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS DeadlineValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(Deadline, utils::TimeSpan::FromSeconds(14))
+    DEFINE_COMMON_VALIDATOR_TESTS(Deadline, utils::TimeSpan::FromSeconds(14))
 
-	namespace {
-		constexpr auto Block_Time = Timestamp(8888);
-		constexpr auto TimeSpanFromHours = utils::TimeSpan::FromHours;
+    namespace {
+        constexpr auto Block_Time = Timestamp(8888);
+        constexpr auto TimeSpanFromHours = utils::TimeSpan::FromHours;
 
-		void AssertValidationResult(ValidationResult expectedResult, Timestamp deadline, const utils::TimeSpan& maxCustomLifetime) {
-			// Arrange:
-			auto cache = test::CreateEmptyCatapultCache();
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto notificationContext = model::NotificationContext(Height(123), test::CreateResolverContextXor());
-			auto validatorContext = ValidatorContext(notificationContext, Block_Time, model::NetworkInfo(), readOnlyCache);
-			auto pValidator = CreateDeadlineValidator(TimeSpanFromHours(2));
+        void AssertValidationResult(ValidationResult expectedResult, Timestamp deadline, const utils::TimeSpan& maxCustomLifetime)
+        {
+            // Arrange:
+            auto cache = test::CreateEmptyCatapultCache();
+            auto cacheView = cache.createView();
+            auto readOnlyCache = cacheView.toReadOnly();
+            auto notificationContext = model::NotificationContext(Height(123), test::CreateResolverContextXor());
+            auto validatorContext = ValidatorContext(notificationContext, Block_Time, model::NetworkInfo(), readOnlyCache);
+            auto pValidator = CreateDeadlineValidator(TimeSpanFromHours(2));
 
-			model::TransactionDeadlineNotification notification(deadline, maxCustomLifetime);
+            model::TransactionDeadlineNotification notification(deadline, maxCustomLifetime);
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, validatorContext);
+            // Act:
+            auto result = test::ValidateNotification(*pValidator, notification, validatorContext);
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "deadline " << deadline << ", maxCustomLifetime " << maxCustomLifetime;
-		}
-	}
+            // Assert:
+            EXPECT_EQ(expectedResult, result) << "deadline " << deadline << ", maxCustomLifetime " << maxCustomLifetime;
+        }
+    }
 
-	// region basic tests
+    // region basic tests
 
-	TEST(TEST_CLASS, FailureWhenTransactionDeadlineIsLessThanBlockTime) {
-		for (auto i = 0u; i < 4; ++i)
-			AssertValidationResult(Failure_Core_Past_Deadline, Block_Time - Timestamp(1), TimeSpanFromHours(i));
-	}
+    TEST(TEST_CLASS, FailureWhenTransactionDeadlineIsLessThanBlockTime)
+    {
+        for (auto i = 0u; i < 4; ++i)
+            AssertValidationResult(Failure_Core_Past_Deadline, Block_Time - Timestamp(1), TimeSpanFromHours(i));
+    }
 
-	TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsEqualToBlockTime) {
-		for (auto i = 0u; i < 4; ++i)
-			AssertValidationResult(ValidationResult::Success, Block_Time, TimeSpanFromHours(i));
-	}
+    TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsEqualToBlockTime)
+    {
+        for (auto i = 0u; i < 4; ++i)
+            AssertValidationResult(ValidationResult::Success, Block_Time, TimeSpanFromHours(i));
+    }
 
-	TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsValid) {
-		for (auto i = 0u; i < 4; ++i)
-			AssertValidationResult(ValidationResult::Success, Block_Time + utils::TimeSpan::FromMinutes(30), TimeSpanFromHours(i));
-	}
+    TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsValid)
+    {
+        for (auto i = 0u; i < 4; ++i)
+            AssertValidationResult(ValidationResult::Success, Block_Time + utils::TimeSpan::FromMinutes(30), TimeSpanFromHours(i));
+    }
 
-	TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsEqualToBlockTimePlusLifetime) {
-		AssertValidationResult(ValidationResult::Success, Block_Time + TimeSpanFromHours(2), utils::TimeSpan());
+    TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsEqualToBlockTimePlusLifetime)
+    {
+        AssertValidationResult(ValidationResult::Success, Block_Time + TimeSpanFromHours(2), utils::TimeSpan());
 
-		for (auto i = 1u; i < 4; ++i)
-			AssertValidationResult(ValidationResult::Success, Block_Time + TimeSpanFromHours(i), TimeSpanFromHours(i));
-	}
+        for (auto i = 1u; i < 4; ++i)
+            AssertValidationResult(ValidationResult::Success, Block_Time + TimeSpanFromHours(i), TimeSpanFromHours(i));
+    }
 
-	TEST(TEST_CLASS, FailureWhenTransactionDeadlineIsGreaterThanBlockTimePlusLifetime) {
-		AssertValidationResult(Failure_Core_Future_Deadline, Block_Time + TimeSpanFromHours(3), utils::TimeSpan());
+    TEST(TEST_CLASS, FailureWhenTransactionDeadlineIsGreaterThanBlockTimePlusLifetime)
+    {
+        AssertValidationResult(Failure_Core_Future_Deadline, Block_Time + TimeSpanFromHours(3), utils::TimeSpan());
 
-		for (auto i = 1u; i < 4; ++i)
-			AssertValidationResult(Failure_Core_Future_Deadline, Block_Time + TimeSpanFromHours(i + 1), TimeSpanFromHours(i));
-	}
+        for (auto i = 1u; i < 4; ++i)
+            AssertValidationResult(Failure_Core_Future_Deadline, Block_Time + TimeSpanFromHours(i + 1), TimeSpanFromHours(i));
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

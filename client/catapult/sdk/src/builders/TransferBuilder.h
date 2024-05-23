@@ -24,50 +24,52 @@
 #include "plugins/txes/transfer/src/model/TransferTransaction.h"
 #include <vector>
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for a transfer transaction.
-	class TransferBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::TransferTransaction;
-		using EmbeddedTransaction = model::EmbeddedTransferTransaction;
+    /// Builder for a transfer transaction.
+    class TransferBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::TransferTransaction;
+        using EmbeddedTransaction = model::EmbeddedTransferTransaction;
 
-	public:
-		/// Creates a transfer builder for building a transfer transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates a transfer builder for building a transfer transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the recipient address to \a recipientAddress.
-		void setRecipientAddress(const UnresolvedAddress& recipientAddress);
+    public:
+        /// Sets the recipient address to \a recipientAddress.
+        void setRecipientAddress(const UnresolvedAddress& recipientAddress);
 
-		/// Adds \a mosaic to attached mosaics.
-		void addMosaic(const model::UnresolvedMosaic& mosaic);
+        /// Adds \a mosaic to attached mosaics.
+        void addMosaic(const model::UnresolvedMosaic& mosaic);
 
-		/// Sets the attached message to \a message.
-		void setMessage(const RawBuffer& message);
+        /// Sets the attached message to \a message.
+        void setMessage(const RawBuffer& message);
 
-	public:
-		/// Gets the size of transfer transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of transfer transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new transfer transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new transfer transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded transfer transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded transfer transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		UnresolvedAddress m_recipientAddress;
-		std::vector<model::UnresolvedMosaic> m_mosaics;
-		std::vector<uint8_t> m_message;
-	};
-}}
+    private:
+        UnresolvedAddress m_recipientAddress;
+        std::vector<model::UnresolvedMosaic> m_mosaics;
+        std::vector<uint8_t> m_message;
+    };
+}
+}

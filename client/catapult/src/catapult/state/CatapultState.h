@@ -22,27 +22,30 @@
 #pragma once
 #include "catapult/model/HeightGrouping.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Stateful catapult information.
-	struct CatapultState {
-	public:
-		/// Creates a start state.
-		CatapultState()
-				: NumTotalTransactions(0) {
-		}
+    /// Stateful catapult information.
+    struct CatapultState {
+    public:
+        /// Creates a start state.
+        CatapultState()
+            : NumTotalTransactions(0)
+        {
+        }
 
-	public:
-		/// Height at which importances were last recalculated.
-		model::ImportanceHeight LastRecalculationHeight;
+    public:
+        /// Height at which importances were last recalculated.
+        model::ImportanceHeight LastRecalculationHeight;
 
-		/// Height of last finalized block.
-		Height LastFinalizedHeight;
+        /// Height of last finalized block.
+        Height LastFinalizedHeight;
 
-		/// Current dynamic fee multiplier.
-		BlockFeeMultiplier DynamicFeeMultiplier;
+        /// Current dynamic fee multiplier.
+        BlockFeeMultiplier DynamicFeeMultiplier;
 
-		/// Total number of confirmed transactions in chain.
-		uint64_t NumTotalTransactions;
-	};
-}}
+        /// Total number of confirmed transactions in chain.
+        uint64_t NumTotalTransactions;
+    };
+}
+}

@@ -27,30 +27,32 @@
 
 namespace catapult {
 namespace config {
-	struct NodeConfiguration;
+    struct NodeConfiguration;
 }
 namespace extensions {
-	class ServiceLocator;
+    class ServiceLocator;
 }
 namespace subscribers {
-	class TransactionStatusSubscriber;
+    class TransactionStatusSubscriber;
 }
 }
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Creates hash check options based on \a cacheDuration and \a nodeConfig.
-	consumers::HashCheckOptions CreateHashCheckOptions(const utils::TimeSpan& cacheDuration, const config::NodeConfiguration& nodeConfig);
+    /// Creates hash check options based on \a cacheDuration and \a nodeConfig.
+    consumers::HashCheckOptions CreateHashCheckOptions(const utils::TimeSpan& cacheDuration, const config::NodeConfiguration& nodeConfig);
 
-	/// Converts \a subscriber to a sink.
-	chain::FailedTransactionSink SubscriberToSink(subscribers::TransactionStatusSubscriber& subscriber);
+    /// Converts \a subscriber to a sink.
+    chain::FailedTransactionSink SubscriberToSink(subscribers::TransactionStatusSubscriber& subscriber);
 
-	/// Adds dispatcher counters with prefix \a counterPrefix to \a locator for a dispatcher named \a dispatcherName.
-	void AddDispatcherCounters(ServiceLocator& locator, const std::string& dispatcherName, const std::string& counterPrefix);
+    /// Adds dispatcher counters with prefix \a counterPrefix to \a locator for a dispatcher named \a dispatcherName.
+    void AddDispatcherCounters(ServiceLocator& locator, const std::string& dispatcherName, const std::string& counterPrefix);
 
-	/// Transaction batch range dispatcher.
-	using TransactionBatchRangeDispatcher = disruptor::BatchRangeDispatcher<model::AnnotatedTransactionRange>;
+    /// Transaction batch range dispatcher.
+    using TransactionBatchRangeDispatcher = disruptor::BatchRangeDispatcher<model::AnnotatedTransactionRange>;
 
-	/// Creates a task with \a name that dispatches all transactions batched in \a dispatcher.
-	thread::Task CreateBatchTransactionTask(TransactionBatchRangeDispatcher& dispatcher, const std::string& name);
-}}
+    /// Creates a task with \a name that dispatches all transactions batched in \a dispatcher.
+    thread::Task CreateBatchTransactionTask(TransactionBatchRangeDispatcher& dispatcher, const std::string& name);
+}
+}

@@ -21,61 +21,69 @@
 
 #include "RateMonitor.h"
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	RateMonitor::RateMonitor(
-			const RateMonitorSettings& settings,
-			const supplier<Timestamp>& timeSupplier,
-			const action& rateExceededHandler)
-			: m_settings(settings)
-			, m_timeSupplier(timeSupplier)
-			, m_rateExceededHandler(rateExceededHandler) {
-	}
+    RateMonitor::RateMonitor(
+        const RateMonitorSettings& settings,
+        const supplier<Timestamp>& timeSupplier,
+        const action& rateExceededHandler)
+        : m_settings(settings)
+        , m_timeSupplier(timeSupplier)
+        , m_rateExceededHandler(rateExceededHandler)
+    {
+    }
 
-	size_t RateMonitor::bucketsSize() const {
-		return m_buckets.size();
-	}
+    size_t RateMonitor::bucketsSize() const
+    {
+        return m_buckets.size();
+    }
 
-	utils::FileSize RateMonitor::totalSize() const {
-		uint64_t totalSize = 0;
-		for (const auto& bucket : m_buckets)
-			totalSize += bucket.TotalSize;
+    utils::FileSize RateMonitor::totalSize() const
+    {
+        uint64_t totalSize = 0;
+        for (const auto& bucket : m_buckets)
+            totalSize += bucket.TotalSize;
 
-		return utils::FileSize::FromBytes(totalSize);
-	}
+        return utils::FileSize::FromBytes(totalSize);
+    }
 
-	void RateMonitor::accept(uint32_t size) {
-		// 1. prune all buckets that end before minRelevantTimestamp
-		//   (buckets that have any overlap with minRelevantTimestamp are preserved)
-		auto time = m_timeSupplier();
-		auto minRelevantTimestamp = utils::SubtractNonNegative(
-				time,
-				utils::TimeSpan::FromMilliseconds((m_settings.NumBuckets - 1) * m_settings.BucketDuration.millis()));
+    void RateMonitor::accept(uint32_t size)
+    {
+        // 1. prune all buckets that end before minRelevantTimestamp
+        //   (buckets that have any overlap with minRelevantTimestamp are preserved)
+        auto time = m_timeSupplier();
+        auto minRelevantTimestamp = utils::SubtractNonNegative(
+            time,
+            utils::TimeSpan::FromMilliseconds((m_settings.NumBuckets - 1) * m_settings.BucketDuration.millis()));
 
-		while (!m_buckets.empty() && endTime(m_buckets.front()) < minRelevantTimestamp)
-			m_buckets.pop_front();
+        while (!m_buckets.empty() && endTime(m_buckets.front()) < minRelevantTimestamp)
+            m_buckets.pop_front();
 
-		// 2. add size observation
-		add(time, size);
+        // 2. add size observation
+        add(time, size);
 
-		// 3. check total size for violation
-		if (totalSize() > m_settings.MaxTotalSize)
-			m_rateExceededHandler();
-	}
+        // 3. check total size for violation
+        if (totalSize() > m_settings.MaxTotalSize)
+            m_rateExceededHandler();
+    }
 
-	void RateMonitor::add(Timestamp time, uint32_t size) {
-		if (!m_buckets.empty()) {
-			auto& currentBucket = m_buckets.back();
-			if (currentBucket.StartTime <= time && time < endTime(currentBucket)) {
-				currentBucket.TotalSize += size;
-				return;
-			}
-		}
+    void RateMonitor::add(Timestamp time, uint32_t size)
+    {
+        if (!m_buckets.empty()) {
+            auto& currentBucket = m_buckets.back();
+            if (currentBucket.StartTime <= time && time < endTime(currentBucket)) {
+                currentBucket.TotalSize += size;
+                return;
+            }
+        }
 
-		m_buckets.push_back({ time, size });
-	}
+        m_buckets.push_back({ time, size });
+    }
 
-	Timestamp RateMonitor::endTime(const Bucket& bucket) const {
-		return bucket.StartTime + m_settings.BucketDuration;
-	}
-}}
+    Timestamp RateMonitor::endTime(const Bucket& bucket) const
+    {
+        return bucket.StartTime + m_settings.BucketDuration;
+    }
+}
+}

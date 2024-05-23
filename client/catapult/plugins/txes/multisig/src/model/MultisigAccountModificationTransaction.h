@@ -24,71 +24,77 @@
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a multisig account modification transaction body.
-	template<typename THeader>
-	struct MultisigAccountModificationTransactionBody : public THeader {
-	private:
-		using TransactionType = MultisigAccountModificationTransactionBody<THeader>;
+    /// Binary layout for a multisig account modification transaction body.
+    template <typename THeader>
+    struct MultisigAccountModificationTransactionBody : public THeader {
+    private:
+        using TransactionType = MultisigAccountModificationTransactionBody<THeader>;
 
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Multisig_Account_Modification, 1)
+    public:
+        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Multisig_Account_Modification, 1)
 
-	public:
-		/// Relative change of the minimal number of cosignatories required when removing an account.
-		int8_t MinRemovalDelta;
+    public:
+        /// Relative change of the minimal number of cosignatories required when removing an account.
+        int8_t MinRemovalDelta;
 
-		/// Relative change of the minimal number of cosignatories required when approving a transaction.
-		int8_t MinApprovalDelta;
+        /// Relative change of the minimal number of cosignatories required when approving a transaction.
+        int8_t MinApprovalDelta;
 
-		/// Number of cosignatory address additions.
-		uint8_t AddressAdditionsCount;
+        /// Number of cosignatory address additions.
+        uint8_t AddressAdditionsCount;
 
-		/// Number of cosignatory address deletions.
-		uint8_t AddressDeletionsCount;
+        /// Number of cosignatory address deletions.
+        uint8_t AddressDeletionsCount;
 
-		/// Reserved padding to align AddressAdditions on 8-byte boundary.
-		uint32_t MultisigAccountModificationTransactionBody_Reserved1;
+        /// Reserved padding to align AddressAdditions on 8-byte boundary.
+        uint32_t MultisigAccountModificationTransactionBody_Reserved1;
 
-		// followed by additions data if AddressAdditionsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressAdditions, UnresolvedAddress)
+        // followed by additions data if AddressAdditionsCount != 0
+        DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressAdditions, UnresolvedAddress)
 
-		// followed by deletions data if AddressDeletionsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressDeletions, UnresolvedAddress)
+        // followed by deletions data if AddressDeletionsCount != 0
+        DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressDeletions, UnresolvedAddress)
 
-	private:
-		template<typename T>
-		static auto* AddressAdditionsPtrT(T& transaction) {
-			return transaction.AddressAdditionsCount ? THeader::PayloadStart(transaction) : nullptr;
-		}
+    private:
+        template <typename T>
+        static auto* AddressAdditionsPtrT(T& transaction)
+        {
+            return transaction.AddressAdditionsCount ? THeader::PayloadStart(transaction) : nullptr;
+        }
 
-		template<typename T>
-		static auto* AddressDeletionsPtrT(T& transaction) {
-			auto* pPayloadStart = THeader::PayloadStart(transaction);
-			return transaction.AddressDeletionsCount && pPayloadStart ? pPayloadStart + transaction.AddressAdditionsCount * Address::Size
-																	  : nullptr;
-		}
+        template <typename T>
+        static auto* AddressDeletionsPtrT(T& transaction)
+        {
+            auto* pPayloadStart = THeader::PayloadStart(transaction);
+            return transaction.AddressDeletionsCount && pPayloadStart ? pPayloadStart + transaction.AddressAdditionsCount * Address::Size
+                                                                      : nullptr;
+        }
 
-	public:
-		/// Calculates the real size of a multisig account modification \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
-			return sizeof(TransactionType) + (transaction.AddressAdditionsCount + transaction.AddressDeletionsCount) * Address::Size;
-		}
-	};
+    public:
+        /// Calculates the real size of a multisig account modification \a transaction.
+        static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept
+        {
+            return sizeof(TransactionType) + (transaction.AddressAdditionsCount + transaction.AddressDeletionsCount) * Address::Size;
+        }
+    };
 
-	DEFINE_EMBEDDABLE_TRANSACTION(MultisigAccountModification)
+    DEFINE_EMBEDDABLE_TRANSACTION(MultisigAccountModification)
 
 #pragma pack(pop)
 
-	/// Extracts addresses of additional accounts that must approve \a transaction.
-	inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMultisigAccountModificationTransaction& transaction) {
-		UnresolvedAddressSet addedCosignatories;
-		for (auto i = 0u; i < transaction.AddressAdditionsCount; ++i)
-			addedCosignatories.insert(transaction.AddressAdditionsPtr()[i]);
+    /// Extracts addresses of additional accounts that must approve \a transaction.
+    inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMultisigAccountModificationTransaction& transaction)
+    {
+        UnresolvedAddressSet addedCosignatories;
+        for (auto i = 0u; i < transaction.AddressAdditionsCount; ++i)
+            addedCosignatories.insert(transaction.AddressAdditionsPtr()[i]);
 
-		return addedCosignatories;
-	}
-}}
+        return addedCosignatories;
+    }
+}
+}

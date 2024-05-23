@@ -23,84 +23,98 @@
 #include "RocksInclude.h"
 #include <cstring>
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	class RocksPruningFilter::RocksPruningFilterImpl final : public rocksdb::CompactionFilter {
-	public:
-		RocksPruningFilterImpl()
-				: m_compactionBoundary(0)
-				, m_numRemoved(0) {
-		}
+    class RocksPruningFilter::RocksPruningFilterImpl final : public rocksdb::CompactionFilter {
+    public:
+        RocksPruningFilterImpl()
+            : m_compactionBoundary(0)
+            , m_numRemoved(0)
+        {
+        }
 
-	public:
-		const char* Name() const override {
-			return "pruning compaction filter";
-		}
+    public:
+        const char* Name() const override
+        {
+            return "pruning compaction filter";
+        }
 
-		// must be thread-safe if compaction_filter is used
-		bool Filter(int, const rocksdb::Slice& key, const rocksdb::Slice&, std::string*, bool*) const override {
-			// 1. assume that key is prepended by filter uint64_t (do not assume specific key type to allow maximum reusability)
-			// 2. skip keys too small to contain filter value (e.g. special 'size' key)
-			if (key.size() < Special_Key_Max_Length)
-				return false;
+        // must be thread-safe if compaction_filter is used
+        bool Filter(int, const rocksdb::Slice& key, const rocksdb::Slice&, std::string*, bool*) const override
+        {
+            // 1. assume that key is prepended by filter uint64_t (do not assume specific key type to allow maximum reusability)
+            // 2. skip keys too small to contain filter value (e.g. special 'size' key)
+            if (key.size() < Special_Key_Max_Length)
+                return false;
 
-			// due to short std::string optimization, std::string data is not guaranteed to be aligned
-			uint64_t value;
-			std::memcpy(&value, key.data(), sizeof(uint64_t));
+            // due to short std::string optimization, std::string data is not guaranteed to be aligned
+            uint64_t value;
+            std::memcpy(&value, key.data(), sizeof(uint64_t));
 
-			if (value < m_compactionBoundary) {
-				++m_numRemoved;
-				return true;
-			}
+            if (value < m_compactionBoundary) {
+                ++m_numRemoved;
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		bool IgnoreSnapshots() const override {
-			return true;
-		}
+        bool IgnoreSnapshots() const override
+        {
+            return true;
+        }
 
-	public:
-		uint64_t pruningBoundary() const {
-			return m_compactionBoundary.load();
-		}
+    public:
+        uint64_t pruningBoundary() const
+        {
+            return m_compactionBoundary.load();
+        }
 
-		size_t numRemoved() const {
-			return m_numRemoved.load();
-		}
+        size_t numRemoved() const
+        {
+            return m_numRemoved.load();
+        }
 
-	public:
-		void setPruningBoundary(uint64_t compactionBoundary) {
-			m_compactionBoundary = compactionBoundary;
-			m_numRemoved = 0;
-		}
+    public:
+        void setPruningBoundary(uint64_t compactionBoundary)
+        {
+            m_compactionBoundary = compactionBoundary;
+            m_numRemoved = 0;
+        }
 
-	private:
-		std::atomic<uint64_t> m_compactionBoundary;
-		mutable std::atomic<size_t> m_numRemoved;
-	};
+    private:
+        std::atomic<uint64_t> m_compactionBoundary;
+        mutable std::atomic<size_t> m_numRemoved;
+    };
 
-	RocksPruningFilter::RocksPruningFilter(FilterPruningMode mode) {
-		if (FilterPruningMode::Enabled == mode)
-			m_pImpl = std::make_unique<RocksPruningFilterImpl>();
-	}
+    RocksPruningFilter::RocksPruningFilter(FilterPruningMode mode)
+    {
+        if (FilterPruningMode::Enabled == mode)
+            m_pImpl = std::make_unique<RocksPruningFilterImpl>();
+    }
 
-	RocksPruningFilter::~RocksPruningFilter() = default;
+    RocksPruningFilter::~RocksPruningFilter() = default;
 
-	rocksdb::CompactionFilter* RocksPruningFilter::compactionFilter() {
-		return m_pImpl.get();
-	}
+    rocksdb::CompactionFilter* RocksPruningFilter::compactionFilter()
+    {
+        return m_pImpl.get();
+    }
 
-	uint64_t RocksPruningFilter::pruningBoundary() const {
-		return m_pImpl ? m_pImpl->pruningBoundary() : 0;
-	}
+    uint64_t RocksPruningFilter::pruningBoundary() const
+    {
+        return m_pImpl ? m_pImpl->pruningBoundary() : 0;
+    }
 
-	size_t RocksPruningFilter::numRemoved() const {
-		return m_pImpl ? m_pImpl->numRemoved() : 0;
-	}
+    size_t RocksPruningFilter::numRemoved() const
+    {
+        return m_pImpl ? m_pImpl->numRemoved() : 0;
+    }
 
-	void RocksPruningFilter::setPruningBoundary(uint64_t compactionBoundary) {
-		if (m_pImpl)
-			m_pImpl->setPruningBoundary(compactionBoundary);
-	}
-}}
+    void RocksPruningFilter::setPruningBoundary(uint64_t compactionBoundary)
+    {
+        if (m_pImpl)
+            m_pImpl->setPruningBoundary(compactionBoundary);
+    }
+}
+}

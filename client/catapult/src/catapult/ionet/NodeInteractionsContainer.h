@@ -20,84 +20,89 @@
 **/
 
 #pragma once
-#include "catapult/utils/TimeSpan.h"
 #include "catapult/functions.h"
+#include "catapult/utils/TimeSpan.h"
 #include <list>
 
-namespace catapult { namespace ionet {
+namespace catapult {
+namespace ionet {
 
-	/// Node interactions.
-	struct NodeInteractions {
-	public:
-		/// Default constructor for node interactions.
-		NodeInteractions()
-				: NodeInteractions(0, 0) {
-		}
+    /// Node interactions.
+    struct NodeInteractions {
+    public:
+        /// Default constructor for node interactions.
+        NodeInteractions()
+            : NodeInteractions(0, 0)
+        {
+        }
 
-		/// Constructs node interactions around \a numSuccesses and \a numFailures.
-		NodeInteractions(uint32_t numSuccesses, uint32_t numFailures)
-				: NumSuccesses(numSuccesses)
-				, NumFailures(numFailures) {
-		}
+        /// Constructs node interactions around \a numSuccesses and \a numFailures.
+        NodeInteractions(uint32_t numSuccesses, uint32_t numFailures)
+            : NumSuccesses(numSuccesses)
+            , NumFailures(numFailures)
+        {
+        }
 
-	public:
-		/// Number of successful interactions.
-		uint32_t NumSuccesses;
+    public:
+        /// Number of successful interactions.
+        uint32_t NumSuccesses;
 
-		/// Number of failed interactions.
-		uint32_t NumFailures;
-	};
+        /// Number of failed interactions.
+        uint32_t NumFailures;
+    };
 
-	/// Node interactions container.
-	class NodeInteractionsContainer {
-	private:
-		struct NodeInteractionsBucket {
-		public:
-			/// Constructs a bucket around \a timestamp.
-			explicit NodeInteractionsBucket(Timestamp timestamp)
-					: CreationTime(timestamp)
-					, NumSuccesses(0)
-					, NumFailures(0) {
-			}
+    /// Node interactions container.
+    class NodeInteractionsContainer {
+    private:
+        struct NodeInteractionsBucket {
+        public:
+            /// Constructs a bucket around \a timestamp.
+            explicit NodeInteractionsBucket(Timestamp timestamp)
+                : CreationTime(timestamp)
+                , NumSuccesses(0)
+                , NumFailures(0)
+            {
+            }
 
-		public:
-			/// Time at which the bucket was created.
-			Timestamp CreationTime;
+        public:
+            /// Time at which the bucket was created.
+            Timestamp CreationTime;
 
-			/// Number of successful interactions.
-			uint32_t NumSuccesses;
+            /// Number of successful interactions.
+            uint32_t NumSuccesses;
 
-			/// Number of failed interactions.
-			uint32_t NumFailures;
-		};
+            /// Number of failed interactions.
+            uint32_t NumFailures;
+        };
 
-	public:
-		/// Maximum duration of an interaction bucket.
-		static utils::TimeSpan BucketDuration();
+    public:
+        /// Maximum duration of an interaction bucket.
+        static utils::TimeSpan BucketDuration();
 
-		/// Maximum duration of an interaction.
-		static utils::TimeSpan InteractionDuration();
+        /// Maximum duration of an interaction.
+        static utils::TimeSpan InteractionDuration();
 
-	public:
-		/// Gets the node interactions at \a timestamp.
-		NodeInteractions interactions(Timestamp timestamp) const;
+    public:
+        /// Gets the node interactions at \a timestamp.
+        NodeInteractions interactions(Timestamp timestamp) const;
 
-	public:
-		/// Increments successful interactions at \a timestamp.
-		void incrementSuccesses(Timestamp timestamp);
+    public:
+        /// Increments successful interactions at \a timestamp.
+        void incrementSuccesses(Timestamp timestamp);
 
-		/// Increments failed interactions at \a timestamp.
-		void incrementFailures(Timestamp timestamp);
+        /// Increments failed interactions at \a timestamp.
+        void incrementFailures(Timestamp timestamp);
 
-		/// Prunes buckets at \a timestamp.
-		void pruneBuckets(Timestamp timestamp);
+        /// Prunes buckets at \a timestamp.
+        void pruneBuckets(Timestamp timestamp);
 
-	private:
-		bool shouldCreateNewBucket(Timestamp timestamp) const;
+    private:
+        bool shouldCreateNewBucket(Timestamp timestamp) const;
 
-		void addInteraction(Timestamp timestamp, const consumer<NodeInteractionsBucket&>& consumer);
+        void addInteraction(Timestamp timestamp, const consumer<NodeInteractionsBucket&>& consumer);
 
-	private:
-		std::list<NodeInteractionsBucket> m_buckets;
-	};
-}}
+    private:
+        std::list<NodeInteractionsBucket> m_buckets;
+    };
+}
+}

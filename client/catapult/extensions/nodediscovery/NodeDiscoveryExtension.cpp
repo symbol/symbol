@@ -19,19 +19,25 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/NodeDiscoveryService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/ionet/NetworkNode.h"
+#include "src/NodeDiscoveryService.h"
 
-namespace catapult { namespace nodediscovery { namespace {
-	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-		auto pLocalNetworkNode = ionet::PackNode(config::ToLocalNode(bootstrapper.config()));
+namespace catapult {
+namespace nodediscovery {
+    namespace {
+        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
+        {
+            auto pLocalNetworkNode = ionet::PackNode(config::ToLocalNode(bootstrapper.config()));
 
-		// register service(s)
-		bootstrapper.extensionManager().addServiceRegistrar(CreateNodeDiscoveryServiceRegistrar(std::move(pLocalNetworkNode)));
-	}
-}}}
+            // register service(s)
+            bootstrapper.extensionManager().addServiceRegistrar(CreateNodeDiscoveryServiceRegistrar(std::move(pLocalNetworkNode)));
+        }
+    }
+}
+}
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
-	catapult::nodediscovery::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
+{
+    catapult::nodediscovery::RegisterExtension(bootstrapper);
 }

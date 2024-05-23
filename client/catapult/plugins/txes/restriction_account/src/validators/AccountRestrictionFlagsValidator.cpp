@@ -22,32 +22,35 @@
 #include "Validators.h"
 #include "src/state/AccountRestrictions.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::AccountRestrictionModificationNotification;
+    using Notification = model::AccountRestrictionModificationNotification;
 
-	namespace {
-		bool IsValidAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
-			auto strippedRestrictionFlags = state::AccountRestrictionDescriptor(restrictionFlags).restrictionFlags();
-			auto directionalRestrictionFlags = state::AccountRestrictionDescriptor(restrictionFlags).directionalRestrictionFlags();
-			switch (strippedRestrictionFlags) {
-			case model::AccountRestrictionFlags::Address:
-				return true;
+    namespace {
+        bool IsValidAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags)
+        {
+            auto strippedRestrictionFlags = state::AccountRestrictionDescriptor(restrictionFlags).restrictionFlags();
+            auto directionalRestrictionFlags = state::AccountRestrictionDescriptor(restrictionFlags).directionalRestrictionFlags();
+            switch (strippedRestrictionFlags) {
+            case model::AccountRestrictionFlags::Address:
+                return true;
 
-			case model::AccountRestrictionFlags::MosaicId:
-				return HasSingleFlag(directionalRestrictionFlags);
+            case model::AccountRestrictionFlags::MosaicId:
+                return HasSingleFlag(directionalRestrictionFlags);
 
-			case model::AccountRestrictionFlags::TransactionType:
-				return HasFlag(model::AccountRestrictionFlags::Outgoing, directionalRestrictionFlags);
+            case model::AccountRestrictionFlags::TransactionType:
+                return HasFlag(model::AccountRestrictionFlags::Outgoing, directionalRestrictionFlags);
 
-			default:
-				return false;
-			}
-		}
-	}
+            default:
+                return false;
+            }
+        }
+    }
 
-	DEFINE_STATELESS_VALIDATOR(AccountRestrictionFlags, [](const Notification& notification) {
-		return IsValidAccountRestrictionFlags(notification.RestrictionFlags) ? ValidationResult::Success
-																			 : Failure_RestrictionAccount_Invalid_Restriction_Flags;
-	})
-}}
+    DEFINE_STATELESS_VALIDATOR(AccountRestrictionFlags, [](const Notification& notification) {
+        return IsValidAccountRestrictionFlags(notification.RestrictionFlags) ? ValidationResult::Success
+                                                                             : Failure_RestrictionAccount_Invalid_Restriction_Flags;
+    })
+}
+}

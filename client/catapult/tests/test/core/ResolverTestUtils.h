@@ -22,17 +22,19 @@
 #pragma once
 #include "catapult/model/ResolverContext.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Creates a resolver context that resolves unresolved mosaic ids by doubling the ids.
-	model::ResolverContext CreateResolverContextWithCustomDoublingMosaicResolver();
+    /// Creates a resolver context that resolves unresolved mosaic ids by doubling the ids.
+    model::ResolverContext CreateResolverContextWithCustomDoublingMosaicResolver();
 
-	/// Creates a resolver context that resolves unresolved mosaic ids and addresses by XORing.
-	model::ResolverContext CreateResolverContextXor();
+    /// Creates a resolver context that resolves unresolved mosaic ids and addresses by XORing.
+    model::ResolverContext CreateResolverContextXor();
 
-	/// Unresolves \a mosaicId by XORing it.
-	UnresolvedMosaicId UnresolveXor(MosaicId mosaicId);
+    /// Unresolves \a mosaicId by XORing it.
+    UnresolvedMosaicId UnresolveXor(MosaicId mosaicId);
 
-	/// Unresolves \a address by XORing it.
-	UnresolvedAddress UnresolveXor(const Address& address);
-}}
+    /// Unresolves \a address by XORing it.
+    UnresolvedAddress UnresolveXor(const Address& address);
+}
+}

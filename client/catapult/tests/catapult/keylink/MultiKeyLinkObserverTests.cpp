@@ -20,122 +20,133 @@
 **/
 
 #include "catapult/keylink/MultiKeyLinkObserver.h"
+#include "tests/TestHarness.h"
 #include "tests/catapult/keylink/test/KeyLinkTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace keylink {
+namespace catapult {
+namespace keylink {
 
 #define TEST_CLASS MultiKeyLinkObserverTests
 
-	// region test utils
+    // region test utils
 
-	namespace {
-		using Notification = model::BasicKeyLinkNotification<model::PinnedVotingKey, static_cast<model::NotificationType>(0)>;
+    namespace {
+        using Notification = model::BasicKeyLinkNotification<model::PinnedVotingKey, static_cast<model::NotificationType>(0)>;
 
-		struct Accessor {
-			static auto& Get(state::AccountState& accountState) {
-				return accountState.SupplementalPublicKeys.voting();
-			}
-		};
+        struct Accessor {
+            static auto& Get(state::AccountState& accountState)
+            {
+                return accountState.SupplementalPublicKeys.voting();
+            }
+        };
 
-		auto CreateKeyLinkObserver(const std::string& name) {
-			return keylink::CreateMultiKeyLinkObserver<Notification, Accessor>(name);
-		}
+        auto CreateKeyLinkObserver(const std::string& name)
+        {
+            return keylink::CreateMultiKeyLinkObserver<Notification, Accessor>(name);
+        }
 
-		auto RunKeyLinkObserverTest(
-				observers::NotifyMode notifyMode,
-				model::LinkAction linkAction,
-				const std::vector<model::PinnedVotingKey>& cacheLinkedPublicKeys,
-				const model::PinnedVotingKey& notificationLinkedPublicKey) {
-			// Arrange:
-			test::AccountObserverTestContext context(notifyMode);
-			auto mainAccountPublicKey = test::AddAccountWithMultiVotingLinks(context.cache(), cacheLinkedPublicKeys);
+        auto RunKeyLinkObserverTest(
+            observers::NotifyMode notifyMode,
+            model::LinkAction linkAction,
+            const std::vector<model::PinnedVotingKey>& cacheLinkedPublicKeys,
+            const model::PinnedVotingKey& notificationLinkedPublicKey)
+        {
+            // Arrange:
+            test::AccountObserverTestContext context(notifyMode);
+            auto mainAccountPublicKey = test::AddAccountWithMultiVotingLinks(context.cache(), cacheLinkedPublicKeys);
 
-			auto pObserver = CreateKeyLinkObserver("");
-			auto notification = Notification(mainAccountPublicKey, notificationLinkedPublicKey, linkAction);
+            auto pObserver = CreateKeyLinkObserver("");
+            auto notification = Notification(mainAccountPublicKey, notificationLinkedPublicKey, linkAction);
 
-			// Act:
-			test::ObserveNotification(*pObserver, notification, context);
+            // Act:
+            test::ObserveNotification(*pObserver, notification, context);
 
-			// Assert:
-			auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
-			return Accessor::Get(accountStateCache.find(mainAccountPublicKey).get()).getAll();
-		}
+            // Assert:
+            auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
+            return Accessor::Get(accountStateCache.find(mainAccountPublicKey).get()).getAll();
+        }
 
-		model::PinnedVotingKey CreatePinnedVotingKey(FinalizationEpoch::ValueType startEpoch, FinalizationEpoch::ValueType endEpoch) {
-			return { test::GenerateRandomByteArray<VotingKey>(), FinalizationEpoch(startEpoch), FinalizationEpoch(endEpoch) };
-		}
-	}
+        model::PinnedVotingKey CreatePinnedVotingKey(FinalizationEpoch::ValueType startEpoch, FinalizationEpoch::ValueType endEpoch)
+        {
+            return { test::GenerateRandomByteArray<VotingKey>(), FinalizationEpoch(startEpoch), FinalizationEpoch(endEpoch) };
+        }
+    }
 
-	// endregion
+    // endregion
 
-	// region name
+    // region name
 
-	TEST(TEST_CLASS, ObserverHasCorrectName) {
-		// Act:
-		auto pObserver = CreateKeyLinkObserver("Foo");
+    TEST(TEST_CLASS, ObserverHasCorrectName)
+    {
+        // Act:
+        auto pObserver = CreateKeyLinkObserver("Foo");
 
-		// Assert:
-		EXPECT_EQ("FooMultiKeyLinkObserver", pObserver->name());
-	}
+        // Assert:
+        EXPECT_EQ("FooMultiKeyLinkObserver", pObserver->name());
+    }
 
-	// endregion
+    // endregion
 
-	// region link
+    // region link
 
-	TEST(TEST_CLASS, LinkCommitAddsLink) {
-		// Arrange:
-		constexpr auto Mode = observers::NotifyMode::Commit;
+    TEST(TEST_CLASS, LinkCommitAddsLink)
+    {
+        // Arrange:
+        constexpr auto Mode = observers::NotifyMode::Commit;
 
-		// Act:
-		auto pinnedVotingKeys = std::vector<model::PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
-		auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Link, { pinnedVotingKeys[0] }, pinnedVotingKeys[1]);
+        // Act:
+        auto pinnedVotingKeys = std::vector<model::PinnedVotingKey> { CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
+        auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Link, { pinnedVotingKeys[0] }, pinnedVotingKeys[1]);
 
-		// Assert:
-		EXPECT_EQ(pinnedVotingKeys, finalPinnedVotingKeys);
-	}
+        // Assert:
+        EXPECT_EQ(pinnedVotingKeys, finalPinnedVotingKeys);
+    }
 
-	TEST(TEST_CLASS, LinkRollbackRemovesLink) {
-		// Arrange:
-		constexpr auto Mode = observers::NotifyMode::Rollback;
+    TEST(TEST_CLASS, LinkRollbackRemovesLink)
+    {
+        // Arrange:
+        constexpr auto Mode = observers::NotifyMode::Rollback;
 
-		// Act:
-		auto pinnedVotingKeys = std::vector<model::PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
-		auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Link, pinnedVotingKeys, pinnedVotingKeys[0]);
+        // Act:
+        auto pinnedVotingKeys = std::vector<model::PinnedVotingKey> { CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
+        auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Link, pinnedVotingKeys, pinnedVotingKeys[0]);
 
-		// Assert:
-		EXPECT_EQ(std::vector<model::PinnedVotingKey>{ pinnedVotingKeys[1] }, finalPinnedVotingKeys);
-	}
+        // Assert:
+        EXPECT_EQ(std::vector<model::PinnedVotingKey> { pinnedVotingKeys[1] }, finalPinnedVotingKeys);
+    }
 
-	// endregion
+    // endregion
 
-	// region unlink
+    // region unlink
 
-	TEST(TEST_CLASS, UnlinkCommitRemovesLink) {
-		// Arrange:
-		constexpr auto Mode = observers::NotifyMode::Commit;
+    TEST(TEST_CLASS, UnlinkCommitRemovesLink)
+    {
+        // Arrange:
+        constexpr auto Mode = observers::NotifyMode::Commit;
 
-		// Act:
-		auto pinnedVotingKeys = std::vector<model::PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
-		auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Unlink, pinnedVotingKeys, pinnedVotingKeys[0]);
+        // Act:
+        auto pinnedVotingKeys = std::vector<model::PinnedVotingKey> { CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
+        auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Unlink, pinnedVotingKeys, pinnedVotingKeys[0]);
 
-		// Assert:
-		EXPECT_EQ(std::vector<model::PinnedVotingKey>{ pinnedVotingKeys[1] }, finalPinnedVotingKeys);
-	}
+        // Assert:
+        EXPECT_EQ(std::vector<model::PinnedVotingKey> { pinnedVotingKeys[1] }, finalPinnedVotingKeys);
+    }
 
-	TEST(TEST_CLASS, UnlinkRollbackAddsLink) {
-		// Arrange:
-		constexpr auto Mode = observers::NotifyMode::Rollback;
+    TEST(TEST_CLASS, UnlinkRollbackAddsLink)
+    {
+        // Arrange:
+        constexpr auto Mode = observers::NotifyMode::Rollback;
 
-		// Act:
-		auto pinnedVotingKeys = std::vector<model::PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
-		auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Unlink, { pinnedVotingKeys[0] }, pinnedVotingKeys[1]);
+        // Act:
+        auto pinnedVotingKeys = std::vector<model::PinnedVotingKey> { CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
+        auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Unlink, { pinnedVotingKeys[0] }, pinnedVotingKeys[1]);
 
-		// Assert:
-		EXPECT_EQ(pinnedVotingKeys, finalPinnedVotingKeys);
-	}
+        // Assert:
+        EXPECT_EQ(pinnedVotingKeys, finalPinnedVotingKeys);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

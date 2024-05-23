@@ -22,14 +22,16 @@
 #pragma once
 #include "catapult/state/CatapultState.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Creates random catapult state.
-	state::CatapultState CreateRandomCatapultState();
+    /// Creates random catapult state.
+    state::CatapultState CreateRandomCatapultState();
 
-	/// Creates deterministic catapult state.
-	state::CatapultState CreateDeterministicCatapultState();
+    /// Creates deterministic catapult state.
+    state::CatapultState CreateDeterministicCatapultState();
 
-	/// Asserts that catapult state \a actual is equal to \a expected with optional \a message.
-	void AssertEqual(const state::CatapultState& expected, const state::CatapultState& actual, const std::string& message = "");
-}}
+    /// Asserts that catapult state \a actual is equal to \a expected with optional \a message.
+    void AssertEqual(const state::CatapultState& expected, const state::CatapultState& actual, const std::string& message = "");
+}
+}

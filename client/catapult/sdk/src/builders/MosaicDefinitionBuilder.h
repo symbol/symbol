@@ -23,55 +23,57 @@
 #include "TransactionBuilder.h"
 #include "plugins/txes/mosaic/src/model/MosaicDefinitionTransaction.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
-	/// Builder for a mosaic definition transaction.
-	class MosaicDefinitionBuilder : public TransactionBuilder {
-	public:
-		using Transaction = model::MosaicDefinitionTransaction;
-		using EmbeddedTransaction = model::EmbeddedMosaicDefinitionTransaction;
+    /// Builder for a mosaic definition transaction.
+    class MosaicDefinitionBuilder : public TransactionBuilder {
+    public:
+        using Transaction = model::MosaicDefinitionTransaction;
+        using EmbeddedTransaction = model::EmbeddedMosaicDefinitionTransaction;
 
-	public:
-		/// Creates a mosaic definition builder for building a mosaic definition transaction from \a signer
-		/// for the network specified by \a networkIdentifier.
-		MosaicDefinitionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+    public:
+        /// Creates a mosaic definition builder for building a mosaic definition transaction from \a signer
+        /// for the network specified by \a networkIdentifier.
+        MosaicDefinitionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-	public:
-		/// Sets the mosaic duration to \a duration.
-		void setDuration(BlockDuration duration);
+    public:
+        /// Sets the mosaic duration to \a duration.
+        void setDuration(BlockDuration duration);
 
-		/// Sets the mosaic nonce to \a nonce.
-		void setNonce(MosaicNonce nonce);
+        /// Sets the mosaic nonce to \a nonce.
+        void setNonce(MosaicNonce nonce);
 
-		/// Sets the mosaic flags to \a flags.
-		void setFlags(model::MosaicFlags flags);
+        /// Sets the mosaic flags to \a flags.
+        void setFlags(model::MosaicFlags flags);
 
-		/// Sets the mosaic divisibility to \a divisibility.
-		void setDivisibility(uint8_t divisibility);
+        /// Sets the mosaic divisibility to \a divisibility.
+        void setDivisibility(uint8_t divisibility);
 
-	public:
-		/// Gets the size of mosaic definition transaction.
-		/// \note This returns size of a normal transaction not embedded transaction.
-		size_t size() const;
+    public:
+        /// Gets the size of mosaic definition transaction.
+        /// \note This returns size of a normal transaction not embedded transaction.
+        size_t size() const;
 
-		/// Builds a new mosaic definition transaction.
-		std::unique_ptr<Transaction> build() const;
+        /// Builds a new mosaic definition transaction.
+        std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded mosaic definition transaction.
-		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+        /// Builds a new embedded mosaic definition transaction.
+        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-	private:
-		template<typename TTransaction>
-		size_t sizeImpl() const;
+    private:
+        template <typename TTransaction>
+        size_t sizeImpl() const;
 
-		template<typename TTransaction>
-		std::unique_ptr<TTransaction> buildImpl() const;
+        template <typename TTransaction>
+        std::unique_ptr<TTransaction> buildImpl() const;
 
-	private:
-		MosaicId m_id;
-		BlockDuration m_duration;
-		MosaicNonce m_nonce;
-		model::MosaicFlags m_flags;
-		uint8_t m_divisibility;
-	};
-}}
+    private:
+        MosaicId m_id;
+        BlockDuration m_duration;
+        MosaicNonce m_nonce;
+        model::MosaicFlags m_flags;
+        uint8_t m_divisibility;
+    };
+}
+}

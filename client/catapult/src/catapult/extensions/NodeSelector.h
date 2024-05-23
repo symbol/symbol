@@ -26,158 +26,166 @@
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/RandomGenerator.h"
 
-namespace catapult { namespace ionet {
-	class NodeContainer;
-}}
+namespace catapult {
+namespace ionet {
+    class NodeContainer;
+}
+}
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	// region ImportanceDescriptor / ImportanceRetriever
+    // region ImportanceDescriptor / ImportanceRetriever
 
-	/// Describes an importance value.
-	struct ImportanceDescriptor {
-		/// Associated importance.
-		catapult::Importance Importance;
+    /// Describes an importance value.
+    struct ImportanceDescriptor {
+        /// Associated importance.
+        catapult::Importance Importance;
 
-		/// Total chain importance.
-		catapult::Importance TotalChainImportance;
-	};
+        /// Total chain importance.
+        catapult::Importance TotalChainImportance;
+    };
 
-	/// Retrieves an importance descriptor given a specified public key.
-	using ImportanceRetriever = std::function<ImportanceDescriptor(const Key&)>;
+    /// Retrieves an importance descriptor given a specified public key.
+    using ImportanceRetriever = std::function<ImportanceDescriptor(const Key&)>;
 
-	// endregion
+    // endregion
 
-	// region WeightedCandidate(s)
+    // region WeightedCandidate(s)
 
-	/// Weighted candidate.
-	struct WeightedCandidate {
-	public:
-		/// Creates a weighted candidate around \a node and \a weight.
-		WeightedCandidate(const ionet::Node& node, uint64_t weight)
-				: Node(node)
-				, Weight(weight) {
-		}
+    /// Weighted candidate.
+    struct WeightedCandidate {
+    public:
+        /// Creates a weighted candidate around \a node and \a weight.
+        WeightedCandidate(const ionet::Node& node, uint64_t weight)
+            : Node(node)
+            , Weight(weight)
+        {
+        }
 
-	public:
-		/// Node.
-		const ionet::Node& Node;
+    public:
+        /// Node.
+        const ionet::Node& Node;
 
-		/// Weight of the node.
-		uint64_t Weight;
-	};
+        /// Weight of the node.
+        uint64_t Weight;
+    };
 
-	using WeightedCandidates = std::vector<WeightedCandidate>;
+    using WeightedCandidates = std::vector<WeightedCandidate>;
 
-	// endregion
+    // endregion
 
-	// region NodeSelectionResult
+    // region NodeSelectionResult
 
-	/// Result of a node selection.
-	struct NodeSelectionResult {
-	public:
-		/// Creates a result.
-		NodeSelectionResult()
-				: RemoveCandidates(model::CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key_And_Host)) {
-		}
+    /// Result of a node selection.
+    struct NodeSelectionResult {
+    public:
+        /// Creates a result.
+        NodeSelectionResult()
+            : RemoveCandidates(model::CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key_And_Host))
+        {
+        }
 
-	public:
-		/// Nodes that should be activatated.
-		ionet::NodeSet AddCandidates;
+    public:
+        /// Nodes that should be activatated.
+        ionet::NodeSet AddCandidates;
 
-		/// Identities of the nodes that should be deactivated.
-		model::NodeIdentitySet RemoveCandidates;
-	};
+        /// Identities of the nodes that should be deactivated.
+        model::NodeIdentitySet RemoveCandidates;
+    };
 
-	// endregion
+    // endregion
 
-	// region NodeAgingConfiguration / NodeSelectionConfiguration
+    // region NodeAgingConfiguration / NodeSelectionConfiguration
 
-	/// Node aging configuration.
-	struct NodeAgingConfiguration {
-		/// Identity of the service for which nodes should be selected.
-		ionet::ServiceIdentifier ServiceId;
+    /// Node aging configuration.
+    struct NodeAgingConfiguration {
+        /// Identity of the service for which nodes should be selected.
+        ionet::ServiceIdentifier ServiceId;
 
-		/// Maximum number of connections (per service).
-		uint32_t MaxConnections;
+        /// Maximum number of connections (per service).
+        uint32_t MaxConnections;
 
-		/// Maximum connection age.
-		uint32_t MaxConnectionAge;
-	};
+        /// Maximum connection age.
+        uint32_t MaxConnectionAge;
+    };
 
-	/// Node selection configuration.
-	struct NodeSelectionConfiguration {
-		/// Identity of the service for which nodes should be selected.
-		ionet::ServiceIdentifier ServiceId;
+    /// Node selection configuration.
+    struct NodeSelectionConfiguration {
+        /// Identity of the service for which nodes should be selected.
+        ionet::ServiceIdentifier ServiceId;
 
-		/// Supported protocols.
-		ionet::IpProtocol SupportedProtocols;
+        /// Supported protocols.
+        ionet::IpProtocol SupportedProtocols;
 
-		/// Required node role.
-		ionet::NodeRoles RequiredRole;
+        /// Required node role.
+        ionet::NodeRoles RequiredRole;
 
-		/// Maximum number of connections (per service).
-		uint32_t MaxConnections;
+        /// Maximum number of connections (per service).
+        uint32_t MaxConnections;
 
-		/// Maximum connection age.
-		uint32_t MaxConnectionAge;
-	};
+        /// Maximum connection age.
+        uint32_t MaxConnectionAge;
+    };
 
-	// endregion
+    // endregion
 
-	// region WeightPolicy / WeightPolicyGenerator
+    // region WeightPolicy / WeightPolicyGenerator
 
-	/// Weight calculation policies.
-	enum class WeightPolicy {
-		/// Weight is calculated using the interaction statistics.
-		Interactions,
+    /// Weight calculation policies.
+    enum class WeightPolicy {
+        /// Weight is calculated using the interaction statistics.
+        Interactions,
 
-		/// Weight is calculated using importance.
-		Importance
-	};
+        /// Weight is calculated using importance.
+        Importance
+    };
 
-	/// Weight policy generator.
-	class WeightPolicyGenerator {
-	public:
-		/// Creates a default weight policy generator.
-		WeightPolicyGenerator()
-				: m_distr(1, 4) {
-		}
+    /// Weight policy generator.
+    class WeightPolicyGenerator {
+    public:
+        /// Creates a default weight policy generator.
+        WeightPolicyGenerator()
+            : m_distr(1, 4)
+        {
+        }
 
-	public:
-		/// Generates the next weight policy.
-		WeightPolicy operator()() {
-			return 4 == static_cast<uint32_t>(m_distr(m_generator)) ? WeightPolicy::Importance : WeightPolicy::Interactions;
-		}
+    public:
+        /// Generates the next weight policy.
+        WeightPolicy operator()()
+        {
+            return 4 == static_cast<uint32_t>(m_distr(m_generator)) ? WeightPolicy::Importance : WeightPolicy::Interactions;
+        }
 
-	private:
-		utils::LowEntropyRandomGenerator m_generator;
-		std::uniform_int_distribution<> m_distr;
-	};
+    private:
+        utils::LowEntropyRandomGenerator m_generator;
+        std::uniform_int_distribution<> m_distr;
+    };
 
-	// endregion
+    // endregion
 
-	/// Calculates the weight from \a interactions or \a importanceSupplier depending on \a weightPolicy.
-	uint32_t CalculateWeight(
-			const ionet::NodeInteractions& interactions,
-			WeightPolicy weightPolicy,
-			const supplier<ImportanceDescriptor>& importanceSupplier);
+    /// Calculates the weight from \a interactions or \a importanceSupplier depending on \a weightPolicy.
+    uint32_t CalculateWeight(
+        const ionet::NodeInteractions& interactions,
+        WeightPolicy weightPolicy,
+        const supplier<ImportanceDescriptor>& importanceSupplier);
 
-	/// Finds at most \a maxCandidates add candidates from container \a candidates given a
-	/// total candidate weight (\a totalCandidateWeight).
-	ionet::NodeSet SelectCandidatesBasedOnWeight(const WeightedCandidates& candidates, uint64_t totalCandidateWeight, size_t maxCandidates);
+    /// Finds at most \a maxCandidates add candidates from container \a candidates given a
+    /// total candidate weight (\a totalCandidateWeight).
+    ionet::NodeSet SelectCandidatesBasedOnWeight(const WeightedCandidates& candidates, uint64_t totalCandidateWeight, size_t maxCandidates);
 
-	/// Selects the subset of \a nodes to activate and deactivate according to \a config and \a importanceRetriever.
-	/// \note This function is intended for management of outgoing connections.
-	NodeSelectionResult SelectNodes(
-			const ionet::NodeContainer& nodes,
-			const NodeSelectionConfiguration& config,
-			const ImportanceRetriever& importanceRetriever);
+    /// Selects the subset of \a nodes to activate and deactivate according to \a config and \a importanceRetriever.
+    /// \note This function is intended for management of outgoing connections.
+    NodeSelectionResult SelectNodes(
+        const ionet::NodeContainer& nodes,
+        const NodeSelectionConfiguration& config,
+        const ImportanceRetriever& importanceRetriever);
 
-	/// Selects the subset of \a nodes to deactivate according to \a config and \a importanceRetriever.
-	/// \note This function is intended for management of incoming connections.
-	model::NodeIdentitySet SelectNodesForRemoval(
-			const ionet::NodeContainer& nodes,
-			const NodeAgingConfiguration& config,
-			const ImportanceRetriever& importanceRetriever);
-}}
+    /// Selects the subset of \a nodes to deactivate according to \a config and \a importanceRetriever.
+    /// \note This function is intended for management of incoming connections.
+    model::NodeIdentitySet SelectNodesForRemoval(
+        const ionet::NodeContainer& nodes,
+        const NodeAgingConfiguration& config,
+        const ImportanceRetriever& importanceRetriever);
+}
+}

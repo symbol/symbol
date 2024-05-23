@@ -23,21 +23,25 @@
 #include "catapult/plugins.h"
 #include <memory>
 
-namespace catapult { namespace model {
-	class TransactionPlugin;
-}}
+namespace catapult {
+namespace model {
+    class TransactionPlugin;
+}
+}
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	/// Creates an account metadata transaction plugin.
-	PLUGIN_API
-	std::unique_ptr<model::TransactionPlugin> CreateAccountMetadataTransactionPlugin();
+    /// Creates an account metadata transaction plugin.
+    PLUGIN_API
+    std::unique_ptr<model::TransactionPlugin> CreateAccountMetadataTransactionPlugin();
 
-	/// Creates a mosaic metadata transaction plugin.
-	PLUGIN_API
-	std::unique_ptr<model::TransactionPlugin> CreateMosaicMetadataTransactionPlugin();
+    /// Creates a mosaic metadata transaction plugin.
+    PLUGIN_API
+    std::unique_ptr<model::TransactionPlugin> CreateMosaicMetadataTransactionPlugin();
 
-	/// Creates a namespace metadata transaction plugin.
-	PLUGIN_API
-	std::unique_ptr<model::TransactionPlugin> CreateNamespaceMetadataTransactionPlugin();
-}}
+    /// Creates a namespace metadata transaction plugin.
+    PLUGIN_API
+    std::unique_ptr<model::TransactionPlugin> CreateNamespaceMetadataTransactionPlugin();
+}
+}

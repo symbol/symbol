@@ -20,57 +20,66 @@
 **/
 
 #pragma once
-#include "catapult/utils/FileSize.h"
 #include "catapult/types.h"
+#include "catapult/utils/FileSize.h"
 #include <memory>
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Delegating proxy around a transactions cache modifier.
-	/// \note This is returned by value by BasicTransactionsCache::modifier in order to allow it to be consistent with other
-	///       modifier functions.
-	template<typename TTransactionInfo, typename TTransactionsCacheModifier>
-	class BasicTransactionsCacheModifierProxy : public utils::MoveOnly {
-	public:
-		/// Creates a transactions cache modifier around \a pModifier.
-		explicit BasicTransactionsCacheModifierProxy(std::unique_ptr<TTransactionsCacheModifier>&& pModifier)
-				: m_pModifier(std::move(pModifier)) {
-		}
+    /// Delegating proxy around a transactions cache modifier.
+    /// \note This is returned by value by BasicTransactionsCache::modifier in order to allow it to be consistent with other
+    ///       modifier functions.
+    template <typename TTransactionInfo, typename TTransactionsCacheModifier>
+    class BasicTransactionsCacheModifierProxy : public utils::MoveOnly {
+    public:
+        /// Creates a transactions cache modifier around \a pModifier.
+        explicit BasicTransactionsCacheModifierProxy(std::unique_ptr<TTransactionsCacheModifier>&& pModifier)
+            : m_pModifier(std::move(pModifier))
+        {
+        }
 
-	public:
-		/// Gets the number of transactions in the cache.
-		size_t size() const {
-			return m_pModifier->size();
-		}
+    public:
+        /// Gets the number of transactions in the cache.
+        size_t size() const
+        {
+            return m_pModifier->size();
+        }
 
-		/// Gets the memory size of all transactions in the cache.
-		utils::FileSize memorySize() const {
-			return modifier().memorySize();
-		}
+        /// Gets the memory size of all transactions in the cache.
+        utils::FileSize memorySize() const
+        {
+            return modifier().memorySize();
+        }
 
-		/// Adds the transaction info (\a transactionInfo) to the cache.
-		/// Returns \c true if the transaction info was successfully added.
-		bool add(const TTransactionInfo& transactionInfo) {
-			return m_pModifier->add(transactionInfo);
-		}
+        /// Adds the transaction info (\a transactionInfo) to the cache.
+        /// Returns \c true if the transaction info was successfully added.
+        bool add(const TTransactionInfo& transactionInfo)
+        {
+            return m_pModifier->add(transactionInfo);
+        }
 
-		/// Removes the transaction identified by \a hash from the cache.
-		TTransactionInfo remove(const Hash256& hash) {
-			return m_pModifier->remove(hash);
-		}
+        /// Removes the transaction identified by \a hash from the cache.
+        TTransactionInfo remove(const Hash256& hash)
+        {
+            return m_pModifier->remove(hash);
+        }
 
-	protected:
-		/// Gets the modifier.
-		TTransactionsCacheModifier& modifier() {
-			return *m_pModifier;
-		}
+    protected:
+        /// Gets the modifier.
+        TTransactionsCacheModifier& modifier()
+        {
+            return *m_pModifier;
+        }
 
-		/// Gets the (const) modifier.
-		const TTransactionsCacheModifier& modifier() const {
-			return *m_pModifier;
-		}
+        /// Gets the (const) modifier.
+        const TTransactionsCacheModifier& modifier() const
+        {
+            return *m_pModifier;
+        }
 
-	private:
-		std::unique_ptr<TTransactionsCacheModifier> m_pModifier;
-	};
-}}
+    private:
+        std::unique_ptr<TTransactionsCacheModifier> m_pModifier;
+    };
+}
+}

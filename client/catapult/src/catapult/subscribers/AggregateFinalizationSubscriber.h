@@ -23,19 +23,22 @@
 #include "BasicAggregateSubscriber.h"
 #include "FinalizationSubscriber.h"
 
-namespace catapult { namespace subscribers {
+namespace catapult {
+namespace subscribers {
 
-	/// Aggregate finalization subscriber.
-	template<typename TFinalizationSubscriber = FinalizationSubscriber>
-	class AggregateFinalizationSubscriber
-			: public BasicAggregateSubscriber<TFinalizationSubscriber>
-			, public FinalizationSubscriber {
-	public:
-		using BasicAggregateSubscriber<TFinalizationSubscriber>::BasicAggregateSubscriber;
+    /// Aggregate finalization subscriber.
+    template <typename TFinalizationSubscriber = FinalizationSubscriber>
+    class AggregateFinalizationSubscriber
+        : public BasicAggregateSubscriber<TFinalizationSubscriber>,
+          public FinalizationSubscriber {
+    public:
+        using BasicAggregateSubscriber<TFinalizationSubscriber>::BasicAggregateSubscriber;
 
-	public:
-		void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
-			this->forEach([&round, height, &hash](auto& subscriber) { subscriber.notifyFinalizedBlock(round, height, hash); });
-		}
-	};
-}}
+    public:
+        void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override
+        {
+            this->forEach([&round, height, &hash](auto& subscriber) { subscriber.notifyFinalizedBlock(round, height, hash); });
+        }
+    };
+}
+}

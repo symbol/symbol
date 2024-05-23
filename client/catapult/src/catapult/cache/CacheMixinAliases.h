@@ -24,34 +24,36 @@
 #include "PatriciaTreeCacheMixins.h"
 #include "catapult/deltaset/DeltaElementsMixin.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Grouping of all basic cache mixins for a single set.
-	template<typename TSet, typename TCacheDescriptor>
-	struct BasicCacheMixins {
-		using Size = SizeMixin<TSet>;
-		using Contains = ContainsMixin<TSet, TCacheDescriptor>;
-		using Iteration = IterationMixin<TSet>;
+    /// Grouping of all basic cache mixins for a single set.
+    template <typename TSet, typename TCacheDescriptor>
+    struct BasicCacheMixins {
+        using Size = SizeMixin<TSet>;
+        using Contains = ContainsMixin<TSet, TCacheDescriptor>;
+        using Iteration = IterationMixin<TSet>;
 
-		using ConstAccessor = ConstAccessorMixin<TSet, TCacheDescriptor>;
-		using MutableAccessor = MutableAccessorMixin<TSet, TCacheDescriptor>;
+        using ConstAccessor = ConstAccessorMixin<TSet, TCacheDescriptor>;
+        using MutableAccessor = MutableAccessorMixin<TSet, TCacheDescriptor>;
 
-		template<typename TValueAdapter>
-		using ConstAccessorWithAdapter = ConstAccessorMixin<TSet, TCacheDescriptor, TValueAdapter>;
+        template <typename TValueAdapter>
+        using ConstAccessorWithAdapter = ConstAccessorMixin<TSet, TCacheDescriptor, TValueAdapter>;
 
-		template<typename TValueAdapter>
-		using MutableAccessorWithAdapter = MutableAccessorMixin<TSet, TCacheDescriptor, TValueAdapter>;
+        template <typename TValueAdapter>
+        using MutableAccessorWithAdapter = MutableAccessorMixin<TSet, TCacheDescriptor, TValueAdapter>;
 
-		using ActivePredicate = ActivePredicateMixin<TSet, TCacheDescriptor>;
-		using BasicInsertRemove = BasicInsertRemoveMixin<TSet, TCacheDescriptor>;
+        using ActivePredicate = ActivePredicateMixin<TSet, TCacheDescriptor>;
+        using BasicInsertRemove = BasicInsertRemoveMixin<TSet, TCacheDescriptor>;
 
-		using DeltaElements = deltaset::DeltaElementsMixin<TSet>;
-	};
+        using DeltaElements = deltaset::DeltaElementsMixin<TSet>;
+    };
 
-	/// Grouping of all basic and patricia tree cache mixins for a single set.
-	template<typename TSet, typename TCacheDescriptor>
-	struct PatriciaTreeCacheMixins : public BasicCacheMixins<TSet, TCacheDescriptor> {
-		using PatriciaTreeView = PatriciaTreeMixin<typename TCacheDescriptor::PatriciaTree>;
-		using PatriciaTreeDelta = PatriciaTreeDeltaMixin<TSet, typename TCacheDescriptor::PatriciaTree::DeltaType>;
-	};
-}}
+    /// Grouping of all basic and patricia tree cache mixins for a single set.
+    template <typename TSet, typename TCacheDescriptor>
+    struct PatriciaTreeCacheMixins : public BasicCacheMixins<TSet, TCacheDescriptor> {
+        using PatriciaTreeView = PatriciaTreeMixin<typename TCacheDescriptor::PatriciaTree>;
+        using PatriciaTreeDelta = PatriciaTreeDeltaMixin<TSet, typename TCacheDescriptor::PatriciaTree::DeltaType>;
+    };
+}
+}

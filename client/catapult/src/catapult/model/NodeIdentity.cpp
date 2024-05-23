@@ -23,83 +23,92 @@
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/Hashers.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
-	// region NodeIdentity
+    // region NodeIdentity
 
-	std::ostream& operator<<(std::ostream& out, const NodeIdentity& identity) {
-		out << identity.PublicKey;
+    std::ostream& operator<<(std::ostream& out, const NodeIdentity& identity)
+    {
+        out << identity.PublicKey;
 
-		// host is resolved, so don't need to check for unprintable characters
-		if (!identity.Host.empty())
-			out << " @ " << identity.Host;
+        // host is resolved, so don't need to check for unprintable characters
+        if (!identity.Host.empty())
+            out << " @ " << identity.Host;
 
-		return out;
-	}
+        return out;
+    }
 
-	// endregion
+    // endregion
 
-	// region NodeIdentityEqualityStrategy
+    // region NodeIdentityEqualityStrategy
 
-	namespace {
-		const std::array<std::pair<const char*, NodeIdentityEqualityStrategy>, 2> String_To_Node_Identity_Equality_Strategy_Pairs{
-			{ { "public-key", NodeIdentityEqualityStrategy::Key }, { "host", NodeIdentityEqualityStrategy::Host } }
-		};
-	}
+    namespace {
+        const std::array<std::pair<const char*, NodeIdentityEqualityStrategy>, 2> String_To_Node_Identity_Equality_Strategy_Pairs {
+            { { "public-key", NodeIdentityEqualityStrategy::Key }, { "host", NodeIdentityEqualityStrategy::Host } }
+        };
+    }
 
-	bool TryParseValue(const std::string& strategyName, NodeIdentityEqualityStrategy& strategy) {
-		return utils::TryParseEnumValue(String_To_Node_Identity_Equality_Strategy_Pairs, strategyName, strategy);
-	}
+    bool TryParseValue(const std::string& strategyName, NodeIdentityEqualityStrategy& strategy)
+    {
+        return utils::TryParseEnumValue(String_To_Node_Identity_Equality_Strategy_Pairs, strategyName, strategy);
+    }
 
-	// endregion
+    // endregion
 
-	// region NodeIdentityEquality
+    // region NodeIdentityEquality
 
-	NodeIdentityEquality::NodeIdentityEquality(NodeIdentityEqualityStrategy strategy)
-			: m_strategy(strategy) {
-	}
+    NodeIdentityEquality::NodeIdentityEquality(NodeIdentityEqualityStrategy strategy)
+        : m_strategy(strategy)
+    {
+    }
 
-	bool NodeIdentityEquality::operator()(const NodeIdentity& lhs, const NodeIdentity& rhs) const {
-		switch (m_strategy) {
-		case NodeIdentityEqualityStrategy::Key:
-			return lhs.PublicKey == rhs.PublicKey;
+    bool NodeIdentityEquality::operator()(const NodeIdentity& lhs, const NodeIdentity& rhs) const
+    {
+        switch (m_strategy) {
+        case NodeIdentityEqualityStrategy::Key:
+            return lhs.PublicKey == rhs.PublicKey;
 
-		case NodeIdentityEqualityStrategy::Host:
-			return lhs.Host == rhs.Host;
+        case NodeIdentityEqualityStrategy::Host:
+            return lhs.Host == rhs.Host;
 
-		default:
-			return lhs.PublicKey == rhs.PublicKey && lhs.Host == rhs.Host;
-		}
-	}
+        default:
+            return lhs.PublicKey == rhs.PublicKey && lhs.Host == rhs.Host;
+        }
+    }
 
-	// endregion
+    // endregion
 
-	// region NodeIdentityHasher
+    // region NodeIdentityHasher
 
-	NodeIdentityHasher::NodeIdentityHasher(NodeIdentityEqualityStrategy strategy)
-			: m_strategy(strategy) {
-	}
+    NodeIdentityHasher::NodeIdentityHasher(NodeIdentityEqualityStrategy strategy)
+        : m_strategy(strategy)
+    {
+    }
 
-	size_t NodeIdentityHasher::operator()(const NodeIdentity& identity) const {
-		switch (m_strategy) {
-		case NodeIdentityEqualityStrategy::Key:
-			return utils::ArrayHasher<Key>()(identity.PublicKey);
+    size_t NodeIdentityHasher::operator()(const NodeIdentity& identity) const
+    {
+        switch (m_strategy) {
+        case NodeIdentityEqualityStrategy::Key:
+            return utils::ArrayHasher<Key>()(identity.PublicKey);
 
-		case NodeIdentityEqualityStrategy::Host:
-			return std::hash<std::string>()(identity.Host);
+        case NodeIdentityEqualityStrategy::Host:
+            return std::hash<std::string>()(identity.Host);
 
-		default:
-			return utils::ArrayHasher<Key>()(identity.PublicKey) ^ std::hash<std::string>()(identity.Host);
-		}
-	}
+        default:
+            return utils::ArrayHasher<Key>()(identity.PublicKey) ^ std::hash<std::string>()(identity.Host);
+        }
+    }
 
-	// endregion
+    // endregion
 
-	// region CreateNodeIdentitySet
+    // region CreateNodeIdentitySet
 
-	NodeIdentitySet CreateNodeIdentitySet(NodeIdentityEqualityStrategy strategy) {
-		return NodeIdentitySet(0, NodeIdentityHasher(strategy), NodeIdentityEquality(strategy));
-	}
+    NodeIdentitySet CreateNodeIdentitySet(NodeIdentityEqualityStrategy strategy)
+    {
+        return NodeIdentitySet(0, NodeIdentityHasher(strategy), NodeIdentityEquality(strategy));
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

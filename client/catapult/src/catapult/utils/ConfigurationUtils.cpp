@@ -22,48 +22,55 @@
 #include "ConfigurationUtils.h"
 #include <cctype>
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	std::string GetIniPropertyName(const char* cppVariableName) {
-		if (!cppVariableName || strlen(cppVariableName) < 2)
-			CATAPULT_THROW_INVALID_ARGUMENT("cpp variable name must be at least two characters");
+    std::string GetIniPropertyName(const char* cppVariableName)
+    {
+        if (!cppVariableName || strlen(cppVariableName) < 2)
+            CATAPULT_THROW_INVALID_ARGUMENT("cpp variable name must be at least two characters");
 
-		auto firstChar = cppVariableName[0];
-		if (!std::isalpha(firstChar))
-			CATAPULT_THROW_INVALID_ARGUMENT("cpp variable name must start with a letter");
+        auto firstChar = cppVariableName[0];
+        if (!std::isalpha(firstChar))
+            CATAPULT_THROW_INVALID_ARGUMENT("cpp variable name must start with a letter");
 
-		// lowercase the first character
-		return static_cast<char>(std::tolower(firstChar)) + std::string(&cppVariableName[1]);
-	}
+        // lowercase the first character
+        return static_cast<char>(std::tolower(firstChar)) + std::string(&cppVariableName[1]);
+    }
 
-	void VerifyBagSizeExact(const ConfigurationBag& bag, size_t expectedSize) {
-		if (expectedSize == bag.size())
-			return;
+    void VerifyBagSizeExact(const ConfigurationBag& bag, size_t expectedSize)
+    {
+        if (expectedSize == bag.size())
+            return;
 
-		constexpr auto Error_Message = "configuration bag has unexpected number of properties (expected, actual)";
-		CATAPULT_THROW_INVALID_ARGUMENT_2(Error_Message, expectedSize, bag.size());
-	}
+        constexpr auto Error_Message = "configuration bag has unexpected number of properties (expected, actual)";
+        CATAPULT_THROW_INVALID_ARGUMENT_2(Error_Message, expectedSize, bag.size());
+    }
 
-	ConfigurationBag ExtractSectionAsBag(const ConfigurationBag& bag, const char* section) {
-		ConfigurationBag::ValuesContainer values;
-		values.emplace("", bag.getAllOrdered<std::string>(section));
-		return ConfigurationBag(std::move(values));
-	}
+    ConfigurationBag ExtractSectionAsBag(const ConfigurationBag& bag, const char* section)
+    {
+        ConfigurationBag::ValuesContainer values;
+        values.emplace("", bag.getAllOrdered<std::string>(section));
+        return ConfigurationBag(std::move(values));
+    }
 
-	std::pair<std::unordered_set<std::string>, size_t> ExtractSectionAsUnorderedSet(const ConfigurationBag& bag, const char* section) {
-		auto pair = ExtractSectionAsOrderedVector(bag, section);
-		return std::make_pair(std::unordered_set<std::string>(pair.first.cbegin(), pair.first.cend()), pair.second);
-	}
+    std::pair<std::unordered_set<std::string>, size_t> ExtractSectionAsUnorderedSet(const ConfigurationBag& bag, const char* section)
+    {
+        auto pair = ExtractSectionAsOrderedVector(bag, section);
+        return std::make_pair(std::unordered_set<std::string>(pair.first.cbegin(), pair.first.cend()), pair.second);
+    }
 
-	std::pair<std::vector<std::string>, size_t> ExtractSectionAsOrderedVector(const ConfigurationBag& bag, const char* section) {
-		auto keyValuePairs = bag.getAllOrdered<bool>(section);
+    std::pair<std::vector<std::string>, size_t> ExtractSectionAsOrderedVector(const ConfigurationBag& bag, const char* section)
+    {
+        auto keyValuePairs = bag.getAllOrdered<bool>(section);
 
-		std::vector<std::string> enabledKeys;
-		for (const auto& pair : keyValuePairs) {
-			if (pair.second)
-				enabledKeys.emplace_back(pair.first);
-		}
+        std::vector<std::string> enabledKeys;
+        for (const auto& pair : keyValuePairs) {
+            if (pair.second)
+                enabledKeys.emplace_back(pair.first);
+        }
 
-		return std::make_pair(std::move(enabledKeys), keyValuePairs.size());
-	}
-}}
+        return std::make_pair(std::move(enabledKeys), keyValuePairs.size());
+    }
+}
+}

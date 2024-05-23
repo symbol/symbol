@@ -22,37 +22,42 @@
 #include "src/cache/HashCacheSerializers.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
 #define TEST_CLASS HashCacheSerializersTests
 
-	namespace {
-		using Serializer = HashCachePrimarySerializer;
+    namespace {
+        using Serializer = HashCachePrimarySerializer;
 
-		static auto GenerateRandomTimestampedHash() {
-			return state::TimestampedHash(test::GenerateRandomValue<Timestamp>(), test::GenerateRandomArray<Cached_Hash_Size>());
-		}
-	}
+        static auto GenerateRandomTimestampedHash()
+        {
+            return state::TimestampedHash(test::GenerateRandomValue<Timestamp>(), test::GenerateRandomArray<Cached_Hash_Size>());
+        }
+    }
 
-	TEST(TEST_CLASS, HashCachePrimarySerializer_SerializeValueReturnsEmptyString) {
-		// Arrange:
-		auto key = GenerateRandomTimestampedHash();
+    TEST(TEST_CLASS, HashCachePrimarySerializer_SerializeValueReturnsEmptyString)
+    {
+        // Arrange:
+        auto key = GenerateRandomTimestampedHash();
 
-		// Act:
-		auto result = Serializer::SerializeValue(key);
+        // Act:
+        auto result = Serializer::SerializeValue(key);
 
-		// Assert:
-		EXPECT_TRUE(result.empty());
-	}
+        // Assert:
+        EXPECT_TRUE(result.empty());
+    }
 
-	TEST(TEST_CLASS, HashCachePrimarySerializer_KeyToBoundaryReturnsTimestamp) {
-		// Arrange:
-		auto key = GenerateRandomTimestampedHash();
+    TEST(TEST_CLASS, HashCachePrimarySerializer_KeyToBoundaryReturnsTimestamp)
+    {
+        // Arrange:
+        auto key = GenerateRandomTimestampedHash();
 
-		// Act:
-		auto result = Serializer::KeyToBoundary(key);
+        // Act:
+        auto result = Serializer::KeyToBoundary(key);
 
-		// Assert:
-		EXPECT_EQ(result, key.Time.unwrap());
-	}
-}}
+        // Assert:
+        EXPECT_EQ(result, key.Time.unwrap());
+    }
+}
+}

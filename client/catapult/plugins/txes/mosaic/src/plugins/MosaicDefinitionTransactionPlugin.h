@@ -24,28 +24,32 @@
 #include "catapult/plugins.h"
 #include <memory>
 
-namespace catapult { namespace model {
-	class TransactionPlugin;
-}}
+namespace catapult {
+namespace model {
+    class TransactionPlugin;
+}
+}
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	/// Mosaic rental fee configuration.
-	struct MosaicRentalFeeConfiguration {
-		/// Currency mosaic id.
-		UnresolvedMosaicId CurrencyMosaicId;
+    /// Mosaic rental fee configuration.
+    struct MosaicRentalFeeConfiguration {
+        /// Currency mosaic id.
+        UnresolvedMosaicId CurrencyMosaicId;
 
-		/// Address of the rental fee sink account.
-		model::HeightDependentAddress SinkAddress;
+        /// Address of the rental fee sink account.
+        model::HeightDependentAddress SinkAddress;
 
-		/// Mosaic rental fee.
-		Amount Fee;
+        /// Mosaic rental fee.
+        Amount Fee;
 
-		/// Public key of the (exempt from fees) nemesis account.
-		Key NemesisSignerPublicKey;
-	};
+        /// Public key of the (exempt from fees) nemesis account.
+        Key NemesisSignerPublicKey;
+    };
 
-	/// Creates a mosaic definition transaction plugin given the rental fee configuration (\a config).
-	PLUGIN_API
-	std::unique_ptr<model::TransactionPlugin> CreateMosaicDefinitionTransactionPlugin(const MosaicRentalFeeConfiguration& config);
-}}
+    /// Creates a mosaic definition transaction plugin given the rental fee configuration (\a config).
+    PLUGIN_API
+    std::unique_ptr<model::TransactionPlugin> CreateMosaicDefinitionTransactionPlugin(const MosaicRentalFeeConfiguration& config);
+}
+}

@@ -24,34 +24,38 @@
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/TransactionSelectionStrategy.h"
 
-namespace catapult { namespace harvesting {
-	class HarvestingUtFacade;
-}}
+namespace catapult {
+namespace harvesting {
+    class HarvestingUtFacade;
+}
+}
 
-namespace catapult { namespace harvesting {
+namespace catapult {
+namespace harvesting {
 
-	/// Information about transactions.
-	struct TransactionsInfo {
-		/// Optimal fee multiplier.
-		BlockFeeMultiplier FeeMultiplier;
+    /// Information about transactions.
+    struct TransactionsInfo {
+        /// Optimal fee multiplier.
+        BlockFeeMultiplier FeeMultiplier;
 
-		/// Transactions (shared pointers) (ordered).
-		model::Transactions Transactions;
+        /// Transactions (shared pointers) (ordered).
+        model::Transactions Transactions;
 
-		/// Transaction hashes (ordered).
-		std::vector<Hash256> TransactionHashes;
+        /// Transaction hashes (ordered).
+        std::vector<Hash256> TransactionHashes;
 
-		/// Aggregate transactions hash.
-		Hash256 TransactionsHash;
-	};
+        /// Aggregate transactions hash.
+        Hash256 TransactionsHash;
+    };
 
-	/// Supplies a transactions info composed of a maximum number of transactions for a block given a harvesting ut facade.
-	using TransactionsInfoSupplier = std::function<TransactionsInfo(HarvestingUtFacade&, uint32_t)>;
+    /// Supplies a transactions info composed of a maximum number of transactions for a block given a harvesting ut facade.
+    using TransactionsInfoSupplier = std::function<TransactionsInfo(HarvestingUtFacade&, uint32_t)>;
 
-	/// Creates a default transactions info supplier around \a utCache for specified transaction \a strategy
-	/// where \a countRetriever returns the total number of transactions contained within a top-level transaction.
-	TransactionsInfoSupplier CreateTransactionsInfoSupplier(
-			model::TransactionSelectionStrategy strategy,
-			const cache::EmbeddedCountRetriever& countRetriever,
-			const cache::ReadWriteUtCache& utCache);
-}}
+    /// Creates a default transactions info supplier around \a utCache for specified transaction \a strategy
+    /// where \a countRetriever returns the total number of transactions contained within a top-level transaction.
+    TransactionsInfoSupplier CreateTransactionsInfoSupplier(
+        model::TransactionSelectionStrategy strategy,
+        const cache::EmbeddedCountRetriever& countRetriever,
+        const cache::ReadWriteUtCache& utCache);
+}
+}

@@ -22,44 +22,47 @@
 #pragma once
 #include "BasicTransactionsBuilder.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Transactions builder and generator for transfer and namespace transactions.
-	class TransactionsBuilder : public BasicTransactionsBuilder {
-	private:
-		// region descriptors
+    /// Transactions builder and generator for transfer and namespace transactions.
+    class TransactionsBuilder : public BasicTransactionsBuilder {
+    private:
+        // region descriptors
 
-		struct NamespaceDescriptor {
-			size_t OwnerId;
-			std::string Name;
-			BlockDuration Duration;
-			size_t AddressAliasId; // optional
-		};
+        struct NamespaceDescriptor {
+            size_t OwnerId;
+            std::string Name;
+            BlockDuration Duration;
+            size_t AddressAliasId; // optional
+        };
 
-		// endregion
+        // endregion
 
-	public:
-		/// Creates a builder around \a accounts.
-		explicit TransactionsBuilder(const Accounts& accounts);
+    public:
+        /// Creates a builder around \a accounts.
+        explicit TransactionsBuilder(const Accounts& accounts);
 
-	private:
-		// BasicTransactionsBuilder
-		std::unique_ptr<model::Transaction> generate(
-				uint32_t descriptorType,
-				const std::shared_ptr<const void>& pDescriptor,
-				Timestamp deadline) const override;
+    private:
+        // BasicTransactionsBuilder
+        std::unique_ptr<model::Transaction> generate(
+            uint32_t descriptorType,
+            const std::shared_ptr<const void>& pDescriptor,
+            Timestamp deadline) const override;
 
-	public:
-		/// Adds a root namespace registration for namespace \a name by \a ownerId for specified \a duration,
-		/// optionally setting an alias for \a aliasId.
-		void addNamespace(size_t ownerId, const std::string& name, BlockDuration duration, size_t aliasId = 0);
+    public:
+        /// Adds a root namespace registration for namespace \a name by \a ownerId for specified \a duration,
+        /// optionally setting an alias for \a aliasId.
+        void addNamespace(size_t ownerId, const std::string& name, BlockDuration duration, size_t aliasId = 0);
 
-	private:
-		std::unique_ptr<model::Transaction> createNamespaceRegistration(const NamespaceDescriptor& descriptor, Timestamp deadline) const;
+    private:
+        std::unique_ptr<model::Transaction> createNamespaceRegistration(const NamespaceDescriptor& descriptor, Timestamp deadline) const;
 
-		std::unique_ptr<model::Transaction> createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline) const;
+        std::unique_ptr<model::Transaction> createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline) const;
 
-	private:
-		enum class DescriptorType { Namespace = 1, Alias };
-	};
-}}
+    private:
+        enum class DescriptorType { Namespace = 1,
+            Alias };
+    };
+}
+}

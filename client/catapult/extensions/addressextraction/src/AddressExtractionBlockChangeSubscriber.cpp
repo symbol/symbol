@@ -22,30 +22,36 @@
 #include "AddressExtractionBlockChangeSubscriber.h"
 #include "AddressExtractor.h"
 
-namespace catapult { namespace addressextraction {
+namespace catapult {
+namespace addressextraction {
 
-	namespace {
-		class AddressExtractionBlockChangeSubscriber : public io::BlockChangeSubscriber {
-		public:
-			explicit AddressExtractionBlockChangeSubscriber(const AddressExtractor& extractor)
-					: m_extractor(extractor) {
-			}
+    namespace {
+        class AddressExtractionBlockChangeSubscriber : public io::BlockChangeSubscriber {
+        public:
+            explicit AddressExtractionBlockChangeSubscriber(const AddressExtractor& extractor)
+                : m_extractor(extractor)
+            {
+            }
 
-		public:
-			void notifyBlock(const model::BlockElement& blockElement) override {
-				m_extractor.extract(const_cast<model::BlockElement&>(blockElement));
-			}
+        public:
+            void notifyBlock(const model::BlockElement& blockElement) override
+            {
+                m_extractor.extract(const_cast<model::BlockElement&>(blockElement));
+            }
 
-			void notifyDropBlocksAfter(Height) override {
-				// nothing to intercept
-			}
+            void notifyDropBlocksAfter(Height) override
+            {
+                // nothing to intercept
+            }
 
-		private:
-			const AddressExtractor& m_extractor;
-		};
-	}
+        private:
+            const AddressExtractor& m_extractor;
+        };
+    }
 
-	std::unique_ptr<io::BlockChangeSubscriber> CreateAddressExtractionBlockChangeSubscriber(const AddressExtractor& extractor) {
-		return std::make_unique<AddressExtractionBlockChangeSubscriber>(extractor);
-	}
-}}
+    std::unique_ptr<io::BlockChangeSubscriber> CreateAddressExtractionBlockChangeSubscriber(const AddressExtractor& extractor)
+    {
+        return std::make_unique<AddressExtractionBlockChangeSubscriber>(extractor);
+    }
+}
+}

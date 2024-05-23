@@ -24,8 +24,10 @@
 #include "catapult/subscribers/FinalizationSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace filespooling {
+namespace catapult {
+namespace filespooling {
 
-	/// Creates a finalization storage around \a pOutputStream.
-	std::unique_ptr<subscribers::FinalizationSubscriber> CreateFileFinalizationStorage(std::unique_ptr<io::OutputStream>&& pOutputStream);
-}}
+    /// Creates a finalization storage around \a pOutputStream.
+    std::unique_ptr<subscribers::FinalizationSubscriber> CreateFileFinalizationStorage(std::unique_ptr<io::OutputStream>&& pOutputStream);
+}
+}

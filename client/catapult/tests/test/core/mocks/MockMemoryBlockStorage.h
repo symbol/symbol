@@ -20,24 +20,26 @@
 **/
 
 #pragma once
-#include "sdk/src/extensions/MemoryBlockStorage.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "sdk/src/extensions/MemoryBlockStorage.h"
 
-namespace catapult { namespace mocks {
+namespace catapult {
+namespace mocks {
 
-	/// Mock memory-based block storage that loads and saves blocks in memory.
-	class MockMemoryBlockStorage : public extensions::MemoryBlockStorage {
-	public:
-		/// Creates a mock memory-based block storage.
-		MockMemoryBlockStorage();
-	};
+    /// Mock memory-based block storage that loads and saves blocks in memory.
+    class MockMemoryBlockStorage : public extensions::MemoryBlockStorage {
+    public:
+        /// Creates a mock memory-based block storage.
+        MockMemoryBlockStorage();
+    };
 
-	/// Creates a memory based block storage composed of \a numBlocks.
-	std::unique_ptr<io::PrunableBlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks);
+    /// Creates a memory based block storage composed of \a numBlocks.
+    std::unique_ptr<io::PrunableBlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks);
 
-	/// Creates a memory based block storage cache composed of \a numBlocks.
-	std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks);
+    /// Creates a memory based block storage cache composed of \a numBlocks.
+    std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks);
 
-	/// Seeds \a storage with \a numBlocks.
-	void SeedStorageWithFixedSizeBlocks(io::BlockStorageCache& storage, uint32_t numBlocks);
-}}
+    /// Seeds \a storage with \a numBlocks.
+    void SeedStorageWithFixedSizeBlocks(io::BlockStorageCache& storage, uint32_t numBlocks);
+}
+}

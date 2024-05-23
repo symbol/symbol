@@ -24,90 +24,97 @@
 #include "catapult/model/BlockUtils.h"
 #include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/SpinLock.h"
+#include "tests/TestHarness.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestConstants.h"
-#include "tests/TestHarness.h"
 #include <filesystem>
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
 #define TEST_CLASS StorageIntegrityTests
 
-	namespace {
-		size_t GetNumIterations() {
-			return test::GetStressIterationCount() ? 10'000 : 500;
-		}
+    namespace {
+        size_t GetNumIterations()
+        {
+            return test::GetStressIterationCount() ? 10'000 : 500;
+        }
 
-		Height GetMaxHeight() {
-			return Height(GetNumIterations() + 1);
-		}
+        Height GetMaxHeight()
+        {
+            return Height(GetNumIterations() + 1);
+        }
 
-		void RunMultithreadedReadWriteTest(size_t numReaders) {
-			// Arrange:
-			// - prepare and create the storage
-			test::TempDirectoryGuard tempDir;
-			test::PrepareStorage(tempDir.name());
+        void RunMultithreadedReadWriteTest(size_t numReaders)
+        {
+            // Arrange:
+            // - prepare and create the storage
+            test::TempDirectoryGuard tempDir;
+            test::PrepareStorage(tempDir.name());
 
-			auto stagingDirectory = std::filesystem::path(tempDir.name()) / "staging";
-			std::filesystem::create_directory(stagingDirectory);
+            auto stagingDirectory = std::filesystem::path(tempDir.name()) / "staging";
+            std::filesystem::create_directory(stagingDirectory);
 
-			BlockStorageCache storage(
-					std::make_unique<FileBlockStorage>(tempDir.name(), test::File_Database_Batch_Size),
-					std::make_unique<FileBlockStorage>(
-							stagingDirectory.generic_string(),
-							test::File_Database_Batch_Size,
-							FileBlockStorageMode::None));
+            BlockStorageCache storage(
+                std::make_unique<FileBlockStorage>(tempDir.name(), test::File_Database_Batch_Size),
+                std::make_unique<FileBlockStorage>(
+                    stagingDirectory.generic_string(),
+                    test::File_Database_Batch_Size,
+                    FileBlockStorageMode::None));
 
-			// - note that there can only ever be a single writer at a time since only one modifier can be outstanding at once
-			std::vector<Height> heights(numReaders);
+            // - note that there can only ever be a single writer at a time since only one modifier can be outstanding at once
+            std::vector<Height> heights(numReaders);
 
-			// Act: set up reader thread(s) that read blocks
-			thread::ThreadGroup threads;
-			for (auto r = 0u; r < numReaders; ++r) {
-				threads.spawn([&, r] {
-					test::StressThreadLogger logger("reader thread " + std::to_string(r));
+            // Act: set up reader thread(s) that read blocks
+            thread::ThreadGroup threads;
+            for (auto r = 0u; r < numReaders; ++r) {
+                threads.spawn([&, r] {
+                    test::StressThreadLogger logger("reader thread " + std::to_string(r));
 
-					while (GetMaxHeight() != heights[r]) {
-						auto view = storage.view();
-						auto pBlock = view.loadBlock(view.chainHeight());
-						heights[r] = pBlock->Height;
-					}
-				});
-			}
+                    while (GetMaxHeight() != heights[r]) {
+                        auto view = storage.view();
+                        auto pBlock = view.loadBlock(view.chainHeight());
+                        heights[r] = pBlock->Height;
+                    }
+                });
+            }
 
-			// - set up a writer thread that writes blocks
-			threads.spawn([&] {
-				test::StressThreadLogger logger("writer thread");
+            // - set up a writer thread that writes blocks
+            threads.spawn([&] {
+                test::StressThreadLogger logger("writer thread");
 
-				for (auto i = 0u; i < GetNumIterations(); ++i) {
-					logger.notifyIteration(i, GetNumIterations());
-					auto pNextBlock = test::GenerateBlockWithTransactions(0, Height(2 + i));
+                for (auto i = 0u; i < GetNumIterations(); ++i) {
+                    logger.notifyIteration(i, GetNumIterations());
+                    auto pNextBlock = test::GenerateBlockWithTransactions(0, Height(2 + i));
 
-					auto modifier = storage.modifier();
-					modifier.saveBlock(test::BlockToBlockElement(*pNextBlock));
-					modifier.commit();
-				}
-			});
+                    auto modifier = storage.modifier();
+                    modifier.saveBlock(test::BlockToBlockElement(*pNextBlock));
+                    modifier.commit();
+                }
+            });
 
-			// - wait for all threads
-			threads.join();
+            // - wait for all threads
+            threads.join();
 
-			// Assert: all readers were able to observe the last height
-			EXPECT_EQ(GetMaxHeight(), storage.view().chainHeight());
+            // Assert: all readers were able to observe the last height
+            EXPECT_EQ(GetMaxHeight(), storage.view().chainHeight());
 
-			for (const auto& height : heights)
-				EXPECT_EQ(GetMaxHeight(), height);
-		}
-	}
+            for (const auto& height : heights)
+                EXPECT_EQ(GetMaxHeight(), height);
+        }
+    }
 
-	NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithSingleReaderSingleWriter) {
-		RunMultithreadedReadWriteTest(1);
-	}
+    NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithSingleReaderSingleWriter)
+    {
+        RunMultithreadedReadWriteTest(1);
+    }
 
-	NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithMultipleReadersSingleWriter) {
-		RunMultithreadedReadWriteTest(test::GetNumDefaultPoolThreads());
-	}
-}}
+    NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithMultipleReadersSingleWriter)
+    {
+        RunMultithreadedReadWriteTest(test::GetNumDefaultPoolThreads());
+    }
+}
+}

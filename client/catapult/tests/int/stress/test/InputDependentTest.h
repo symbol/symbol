@@ -25,43 +25,46 @@
 #include <cctype>
 #include <fstream>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Runs an input dependent test by loading input from \a sourceFilename, parsing each line with \a lineParser
-	/// and passing all parsed lines to \a action.
-	template<typename TLineParser, typename TAction>
-	void RunInputDependentTest(const std::string& sourceFilename, TLineParser lineParser, TAction action) {
-		auto i = 0u;
-		std::ifstream input(sourceFilename);
-		if (!input) {
-			std::ostringstream out;
-			out << "unable to load file '" << sourceFilename << "'";
-			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-		}
+    /// Runs an input dependent test by loading input from \a sourceFilename, parsing each line with \a lineParser
+    /// and passing all parsed lines to \a action.
+    template <typename TLineParser, typename TAction>
+    void RunInputDependentTest(const std::string& sourceFilename, TLineParser lineParser, TAction action)
+    {
+        auto i = 0u;
+        std::ifstream input(sourceFilename);
+        if (!input) {
+            std::ostringstream out;
+            out << "unable to load file '" << sourceFilename << "'";
+            CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+        }
 
-		for (std::string line; getline(input, line);) {
-			if (line.empty() || '#' == line[0])
-				continue;
+        for (std::string line; getline(input, line);) {
+            if (line.empty() || '#' == line[0])
+                continue;
 
-			// - strip all spaces from the string
-			line.erase(std::remove_if(line.begin(), line.end(), [](auto ch) { return std::isspace(ch); }), line.end());
+            // - strip all spaces from the string
+            line.erase(std::remove_if(line.begin(), line.end(), [](auto ch) { return std::isspace(ch); }), line.end());
 
-			// - split the line on colons
-			std::vector<std::string> parts;
-			boost::algorithm::split(parts, line, [](auto ch) { return ':' == ch; });
+            // - split the line on colons
+            std::vector<std::string> parts;
+            boost::algorithm::split(parts, line, [](auto ch) { return ':' == ch; });
 
-			// - parse the line
-			auto result = lineParser(parts);
-			if (!result.second) {
-				FAIL() << "malformed line: " << line;
-				continue;
-			}
+            // - parse the line
+            auto result = lineParser(parts);
+            if (!result.second) {
+                FAIL() << "malformed line: " << line;
+                continue;
+            }
 
-			// Act + Assert:
-			action(result.first);
-			++i;
-		}
+            // Act + Assert:
+            action(result.first);
+            ++i;
+        }
 
-		CATAPULT_LOG(debug) << "executed " << i << " test cases";
-	}
-}}
+        CATAPULT_LOG(debug) << "executed " << i << " test cases";
+    }
+}
+}

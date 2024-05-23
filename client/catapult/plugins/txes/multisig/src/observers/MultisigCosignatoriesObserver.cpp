@@ -22,91 +22,102 @@
 #include "Observers.h"
 #include "src/cache/MultisigCache.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	using Notification = model::MultisigCosignatoriesNotification;
+    using Notification = model::MultisigCosignatoriesNotification;
 
-	namespace {
-		auto GetMultisigEntry(cache::MultisigCacheDelta& multisigCache, const Address& address) {
-			if (!multisigCache.contains(address))
-				multisigCache.insert(state::MultisigEntry(address));
+    namespace {
+        auto GetMultisigEntry(cache::MultisigCacheDelta& multisigCache, const Address& address)
+        {
+            if (!multisigCache.contains(address))
+                multisigCache.insert(state::MultisigEntry(address));
 
-			return multisigCache.find(address);
-		}
+            return multisigCache.find(address);
+        }
 
-		class MultisigAccountFacade {
-		public:
-			MultisigAccountFacade(
-					cache::MultisigCacheDelta& multisigCache,
-					const Address& multisig,
-					const model::ResolverContext& resolvers)
-					: m_multisigCache(multisigCache)
-					, m_multisig(multisig)
-					, m_resolvers(resolvers)
-					, m_multisigIter(GetMultisigEntry(m_multisigCache, m_multisig))
-					, m_multisigEntry(m_multisigIter.get()) {
-			}
+        class MultisigAccountFacade {
+        public:
+            MultisigAccountFacade(
+                cache::MultisigCacheDelta& multisigCache,
+                const Address& multisig,
+                const model::ResolverContext& resolvers)
+                : m_multisigCache(multisigCache)
+                , m_multisig(multisig)
+                , m_resolvers(resolvers)
+                , m_multisigIter(GetMultisigEntry(m_multisigCache, m_multisig))
+                , m_multisigEntry(m_multisigIter.get())
+            {
+            }
 
-			~MultisigAccountFacade() {
-				removeIfEmpty(m_multisigEntry, m_multisig);
-			}
+            ~MultisigAccountFacade()
+            {
+                removeIfEmpty(m_multisigEntry, m_multisig);
+            }
 
-		public:
-			void addCosignatory(const UnresolvedAddress& cosignatory) {
-				addCosignatory(m_resolvers.resolve(cosignatory));
-			}
+        public:
+            void addCosignatory(const UnresolvedAddress& cosignatory)
+            {
+                addCosignatory(m_resolvers.resolve(cosignatory));
+            }
 
-			void removeCosignatory(const UnresolvedAddress& cosignatory) {
-				removeCosignatory(m_resolvers.resolve(cosignatory));
-			}
+            void removeCosignatory(const UnresolvedAddress& cosignatory)
+            {
+                removeCosignatory(m_resolvers.resolve(cosignatory));
+            }
 
-		private:
-			void addCosignatory(const Address& cosignatory) {
-				auto multisigIter = GetMultisigEntry(m_multisigCache, cosignatory);
-				multisigIter.get().multisigAddresses().insert(m_multisig);
-				m_multisigEntry.cosignatoryAddresses().insert(cosignatory);
-			}
+        private:
+            void addCosignatory(const Address& cosignatory)
+            {
+                auto multisigIter = GetMultisigEntry(m_multisigCache, cosignatory);
+                multisigIter.get().multisigAddresses().insert(m_multisig);
+                m_multisigEntry.cosignatoryAddresses().insert(cosignatory);
+            }
 
-			void removeCosignatory(const Address& cosignatory) {
-				m_multisigEntry.cosignatoryAddresses().erase(cosignatory);
+            void removeCosignatory(const Address& cosignatory)
+            {
+                m_multisigEntry.cosignatoryAddresses().erase(cosignatory);
 
-				auto multisigIter = m_multisigCache.find(cosignatory);
-				auto& cosignatoryEntry = multisigIter.get();
-				cosignatoryEntry.multisigAddresses().erase(m_multisig);
+                auto multisigIter = m_multisigCache.find(cosignatory);
+                auto& cosignatoryEntry = multisigIter.get();
+                cosignatoryEntry.multisigAddresses().erase(m_multisig);
 
-				removeIfEmpty(cosignatoryEntry, cosignatory);
-			}
+                removeIfEmpty(cosignatoryEntry, cosignatory);
+            }
 
-			void removeIfEmpty(const state::MultisigEntry& entry, const Address& address) {
-				if (entry.cosignatoryAddresses().empty() && entry.multisigAddresses().empty())
-					m_multisigCache.remove(address);
-			}
+            void removeIfEmpty(const state::MultisigEntry& entry, const Address& address)
+            {
+                if (entry.cosignatoryAddresses().empty() && entry.multisigAddresses().empty())
+                    m_multisigCache.remove(address);
+            }
 
-		private:
-			cache::MultisigCacheDelta& m_multisigCache;
-			const Address& m_multisig;
-			const model::ResolverContext& m_resolvers;
-			cache::MultisigCacheDelta::iterator m_multisigIter;
-			state::MultisigEntry& m_multisigEntry;
-		};
+        private:
+            cache::MultisigCacheDelta& m_multisigCache;
+            const Address& m_multisig;
+            const model::ResolverContext& m_resolvers;
+            cache::MultisigCacheDelta::iterator m_multisigIter;
+            state::MultisigEntry& m_multisigEntry;
+        };
 
-		void AddAll(MultisigAccountFacade& multisigAccountFacade, const UnresolvedAddress* pAddresses, uint8_t count, bool shouldAdd) {
-			for (auto i = 0u; i < count; ++i) {
-				const auto& cosignatory = pAddresses[i];
-				if (shouldAdd)
-					multisigAccountFacade.addCosignatory(cosignatory);
-				else
-					multisigAccountFacade.removeCosignatory(cosignatory);
-			}
-		}
-	}
+        void AddAll(MultisigAccountFacade& multisigAccountFacade, const UnresolvedAddress* pAddresses, uint8_t count, bool shouldAdd)
+        {
+            for (auto i = 0u; i < count; ++i) {
+                const auto& cosignatory = pAddresses[i];
+                if (shouldAdd)
+                    multisigAccountFacade.addCosignatory(cosignatory);
+                else
+                    multisigAccountFacade.removeCosignatory(cosignatory);
+            }
+        }
+    }
 
-	DEFINE_OBSERVER(MultisigCosignatories, Notification, [](const Notification& notification, const ObserverContext& context) {
-		auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Multisig, context.Resolvers);
+    DEFINE_OBSERVER(MultisigCosignatories, Notification, [](const Notification& notification, const ObserverContext& context) {
+        auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+        MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Multisig, context.Resolvers);
 
-		auto isCommitMode = NotifyMode::Commit == context.Mode;
-		AddAll(multisigAccountFacade, notification.AddressAdditionsPtr, notification.AddressAdditionsCount, isCommitMode);
-		AddAll(multisigAccountFacade, notification.AddressDeletionsPtr, notification.AddressDeletionsCount, !isCommitMode);
-	})
-}}
+        auto isCommitMode = NotifyMode::Commit == context.Mode;
+        AddAll(multisigAccountFacade, notification.AddressAdditionsPtr, notification.AddressAdditionsCount, isCommitMode);
+        AddAll(multisigAccountFacade, notification.AddressDeletionsPtr, notification.AddressDeletionsCount, !isCommitMode);
+    })
+}
+}

@@ -19,123 +19,135 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sync/src/DispatcherSyncHandlers.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
-#include "tests/test/nodeps/Filesystem.h"
+#include "sync/src/DispatcherSyncHandlers.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include <filesystem>
 
-namespace catapult { namespace sync {
+namespace catapult {
+namespace sync {
 
 #define TEST_CLASS DispatcherSyncHandlersTests
 
-	// region AddSupplementalDataResiliency - test context
+    // region AddSupplementalDataResiliency - test context
 
-	namespace {
-		class AddSupplementalDataResiliencyTestContext {
-		public:
-			struct Counters {
-				size_t NumPreStateWrittenCalls = 0;
-				size_t NumCommitStepCalls = 0;
-			};
+    namespace {
+        class AddSupplementalDataResiliencyTestContext {
+        public:
+            struct Counters {
+                size_t NumPreStateWrittenCalls = 0;
+                size_t NumCommitStepCalls = 0;
+            };
 
-		public:
-			AddSupplementalDataResiliencyTestContext()
-					: m_dataDirectory(m_tempDir.name())
-					, m_cache({}) {
-				m_syncHandlers.PreStateWritten = [&counters = m_counters](const auto&, auto) { ++counters.NumPreStateWrittenCalls; };
-				m_syncHandlers.CommitStep = [&counters = m_counters](auto) { ++counters.NumCommitStepCalls; };
+        public:
+            AddSupplementalDataResiliencyTestContext()
+                : m_dataDirectory(m_tempDir.name())
+                , m_cache({})
+            {
+                m_syncHandlers.PreStateWritten = [&counters = m_counters](const auto&, auto) { ++counters.NumPreStateWrittenCalls; };
+                m_syncHandlers.CommitStep = [&counters = m_counters](auto) { ++counters.NumCommitStepCalls; };
 
-				AddSupplementalDataResiliency(m_syncHandlers, m_dataDirectory, m_cache, m_score);
-			}
+                AddSupplementalDataResiliency(m_syncHandlers, m_dataDirectory, m_cache, m_score);
+            }
 
-		public:
-			const auto& counters() const {
-				return m_counters;
-			}
+        public:
+            const auto& counters() const
+            {
+                return m_counters;
+            }
 
-			const auto& syncHandlers() const {
-				return m_syncHandlers;
-			}
+            const auto& syncHandlers() const
+            {
+                return m_syncHandlers;
+            }
 
-			std::string supplementalPath(const std::string& directory) const {
-				return m_dataDirectory.dir(directory).file("supplemental.dat");
-			}
+            std::string supplementalPath(const std::string& directory) const
+            {
+                return m_dataDirectory.dir(directory).file("supplemental.dat");
+            }
 
-		public:
-			void runPreStateWrittenTest() {
-				// Act:
-				m_syncHandlers.PreStateWritten(m_cache.createDelta(), Height());
+        public:
+            void runPreStateWrittenTest()
+            {
+                // Act:
+                m_syncHandlers.PreStateWritten(m_cache.createDelta(), Height());
 
-				// Assert:
-				EXPECT_EQ(1u, m_counters.NumPreStateWrittenCalls);
-				EXPECT_TRUE(std::filesystem::exists(supplementalPath("state.tmp")));
-				EXPECT_FALSE(std::filesystem::exists(supplementalPath("state")));
-			}
+                // Assert:
+                EXPECT_EQ(1u, m_counters.NumPreStateWrittenCalls);
+                EXPECT_TRUE(std::filesystem::exists(supplementalPath("state.tmp")));
+                EXPECT_FALSE(std::filesystem::exists(supplementalPath("state")));
+            }
 
-		private:
-			test::TempDirectoryGuard m_tempDir;
-			config::CatapultDataDirectory m_dataDirectory;
-			cache::CatapultCache m_cache;
-			extensions::LocalNodeChainScore m_score;
-			Counters m_counters;
-			consumers::BlockchainSyncHandlers m_syncHandlers;
-		};
-	}
+        private:
+            test::TempDirectoryGuard m_tempDir;
+            config::CatapultDataDirectory m_dataDirectory;
+            cache::CatapultCache m_cache;
+            extensions::LocalNodeChainScore m_score;
+            Counters m_counters;
+            consumers::BlockchainSyncHandlers m_syncHandlers;
+        };
+    }
 
-	// endregion
+    // endregion
 
-	// region AddSupplementalDataResiliency - tests
+    // region AddSupplementalDataResiliency - tests
 
-	TEST(TEST_CLASS, AddSupplementalDataResiliency_PreStateWrittenWritesSupplementalDataToTempDirectory) {
-		// Arrange:
-		AddSupplementalDataResiliencyTestContext context;
+    TEST(TEST_CLASS, AddSupplementalDataResiliency_PreStateWrittenWritesSupplementalDataToTempDirectory)
+    {
+        // Arrange:
+        AddSupplementalDataResiliencyTestContext context;
 
-		// Act + Assert:
-		context.runPreStateWrittenTest();
-	}
+        // Act + Assert:
+        context.runPreStateWrittenTest();
+    }
 
-	namespace {
-		void AssertAddSupplementalDataResiliencyCommitStepDoesNothing(consumers::CommitOperationStep step) {
-			// Arrange:
-			AddSupplementalDataResiliencyTestContext context;
-			context.runPreStateWrittenTest();
+    namespace {
+        void AssertAddSupplementalDataResiliencyCommitStepDoesNothing(consumers::CommitOperationStep step)
+        {
+            // Arrange:
+            AddSupplementalDataResiliencyTestContext context;
+            context.runPreStateWrittenTest();
 
-			// Act:
-			context.syncHandlers().CommitStep(step);
+            // Act:
+            context.syncHandlers().CommitStep(step);
 
-			// Assert:
-			EXPECT_EQ(1u, context.counters().NumPreStateWrittenCalls);
-			EXPECT_EQ(1u, context.counters().NumCommitStepCalls);
-			EXPECT_TRUE(std::filesystem::exists(context.supplementalPath("state.tmp")));
-			EXPECT_FALSE(std::filesystem::exists(context.supplementalPath("state")));
-		}
-	}
+            // Assert:
+            EXPECT_EQ(1u, context.counters().NumPreStateWrittenCalls);
+            EXPECT_EQ(1u, context.counters().NumCommitStepCalls);
+            EXPECT_TRUE(std::filesystem::exists(context.supplementalPath("state.tmp")));
+            EXPECT_FALSE(std::filesystem::exists(context.supplementalPath("state")));
+        }
+    }
 
-	TEST(TEST_CLASS, AddSupplementalDataResiliency_CommitStepDoesNothingWhenOperationIsBlocksWritten) {
-		AssertAddSupplementalDataResiliencyCommitStepDoesNothing(consumers::CommitOperationStep::Blocks_Written);
-	}
+    TEST(TEST_CLASS, AddSupplementalDataResiliency_CommitStepDoesNothingWhenOperationIsBlocksWritten)
+    {
+        AssertAddSupplementalDataResiliencyCommitStepDoesNothing(consumers::CommitOperationStep::Blocks_Written);
+    }
 
-	TEST(TEST_CLASS, AddSupplementalDataResiliency_CommitStepDoesNothingWhenOperationIsStateWritten) {
-		AssertAddSupplementalDataResiliencyCommitStepDoesNothing(consumers::CommitOperationStep::State_Written);
-	}
+    TEST(TEST_CLASS, AddSupplementalDataResiliency_CommitStepDoesNothingWhenOperationIsStateWritten)
+    {
+        AssertAddSupplementalDataResiliencyCommitStepDoesNothing(consumers::CommitOperationStep::State_Written);
+    }
 
-	TEST(TEST_CLASS, AddSupplementalDataResiliency_CommitStepMovesSupplementalDataWhenOperationIsAllUpdated) {
-		// Arrange:
-		AddSupplementalDataResiliencyTestContext context;
-		context.runPreStateWrittenTest();
+    TEST(TEST_CLASS, AddSupplementalDataResiliency_CommitStepMovesSupplementalDataWhenOperationIsAllUpdated)
+    {
+        // Arrange:
+        AddSupplementalDataResiliencyTestContext context;
+        context.runPreStateWrittenTest();
 
-		// Act:
-		context.syncHandlers().CommitStep(consumers::CommitOperationStep::All_Updated);
+        // Act:
+        context.syncHandlers().CommitStep(consumers::CommitOperationStep::All_Updated);
 
-		// Assert:
-		EXPECT_EQ(1u, context.counters().NumPreStateWrittenCalls);
-		EXPECT_EQ(1u, context.counters().NumCommitStepCalls);
-		EXPECT_FALSE(std::filesystem::exists(context.supplementalPath("state.tmp")));
-		EXPECT_TRUE(std::filesystem::exists(context.supplementalPath("state")));
-	}
+        // Assert:
+        EXPECT_EQ(1u, context.counters().NumPreStateWrittenCalls);
+        EXPECT_EQ(1u, context.counters().NumCommitStepCalls);
+        EXPECT_FALSE(std::filesystem::exists(context.supplementalPath("state.tmp")));
+        EXPECT_TRUE(std::filesystem::exists(context.supplementalPath("state")));
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

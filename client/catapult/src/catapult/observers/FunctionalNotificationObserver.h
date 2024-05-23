@@ -23,32 +23,37 @@
 #include "NotificationObserver.h"
 #include "catapult/functions.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Notification observer implementation that wraps a function.
-	template<typename TNotification>
-	class FunctionalNotificationObserverT : public NotificationObserverT<TNotification> {
-	private:
-		using FunctionType = consumer<const TNotification&, ObserverContext&>;
+    /// Notification observer implementation that wraps a function.
+    template <typename TNotification>
+    class FunctionalNotificationObserverT : public NotificationObserverT<TNotification> {
+    private:
+        using FunctionType = consumer<const TNotification&, ObserverContext&>;
 
-	public:
-		/// Creates a functional notification observer around \a func with \a name.
-		FunctionalNotificationObserverT(const std::string& name, const FunctionType& func)
-				: m_name(name)
-				, m_func(func) {
-		}
+    public:
+        /// Creates a functional notification observer around \a func with \a name.
+        FunctionalNotificationObserverT(const std::string& name, const FunctionType& func)
+            : m_name(name)
+            , m_func(func)
+        {
+        }
 
-	public:
-		const std::string& name() const override {
-			return m_name;
-		}
+    public:
+        const std::string& name() const override
+        {
+            return m_name;
+        }
 
-		void notify(const TNotification& notification, ObserverContext& context) const override {
-			return m_func(notification, context);
-		}
+        void notify(const TNotification& notification, ObserverContext& context) const override
+        {
+            return m_func(notification, context);
+        }
 
-	private:
-		std::string m_name;
-		FunctionType m_func;
-	};
-}}
+    private:
+        std::string m_name;
+        FunctionType m_func;
+    };
+}
+}

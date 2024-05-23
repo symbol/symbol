@@ -22,26 +22,30 @@
 #pragma once
 #include <stdint.h>
 
-namespace catapult { namespace utils {
-	class ConfigurationBag;
-}}
+namespace catapult {
+namespace utils {
+    class ConfigurationBag;
+}
+}
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	/// Mosaic restriction plugin configuration settings.
-	struct MosaicRestrictionConfiguration {
-	public:
-		/// Maximum number of mosaic restriction values.
-		uint8_t MaxMosaicRestrictionValues;
+    /// Mosaic restriction plugin configuration settings.
+    struct MosaicRestrictionConfiguration {
+    public:
+        /// Maximum number of mosaic restriction values.
+        uint8_t MaxMosaicRestrictionValues;
 
-	private:
-		MosaicRestrictionConfiguration() = default;
+    private:
+        MosaicRestrictionConfiguration() = default;
 
-	public:
-		/// Creates an uninitialized mosaic restriction configuration.
-		static MosaicRestrictionConfiguration Uninitialized();
+    public:
+        /// Creates an uninitialized mosaic restriction configuration.
+        static MosaicRestrictionConfiguration Uninitialized();
 
-		/// Loads mosaic restriction configuration from \a bag.
-		static MosaicRestrictionConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-	};
-}}
+        /// Loads mosaic restriction configuration from \a bag.
+        static MosaicRestrictionConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+    };
+}
+}

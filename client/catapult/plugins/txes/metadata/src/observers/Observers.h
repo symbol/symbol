@@ -20,12 +20,15 @@
 **/
 
 #pragma once
-#include "src/model/MetadataNotifications.h"
 #include "catapult/observers/ObserverTypes.h"
+#include "src/model/MetadataNotifications.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Observes changes triggered by metadata value notifications and:
-	/// - updates metadata value as appropriate
-	DECLARE_OBSERVER(MetadataValue, model::MetadataValueNotification)();
-}}
+    /// Observes changes triggered by metadata value notifications and:
+    /// - updates metadata value as appropriate
+    DECLARE_OBSERVER(MetadataValue, model::MetadataValueNotification)
+    ();
+}
+}

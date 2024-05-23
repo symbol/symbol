@@ -23,49 +23,57 @@
 #include "PatriciaTreeContainer.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Patricia tree rocksdb-based data source.
-	class PatriciaTreeRdbDataSource {
-	public:
-		/// Creates data source around \a container.
-		explicit PatriciaTreeRdbDataSource(PatriciaTreeContainer& container)
-				: m_container(container) {
-		}
+    /// Patricia tree rocksdb-based data source.
+    class PatriciaTreeRdbDataSource {
+    public:
+        /// Creates data source around \a container.
+        explicit PatriciaTreeRdbDataSource(PatriciaTreeContainer& container)
+            : m_container(container)
+        {
+        }
 
-	public:
-		/// Gets the number of saved nodes.
-		size_t size() {
-			return m_container.size();
-		}
+    public:
+        /// Gets the number of saved nodes.
+        size_t size()
+        {
+            return m_container.size();
+        }
 
-		/// Gets the tree node associated with \a hash.
-		tree::TreeNode get(const Hash256& hash) const {
-			auto iter = m_container.find(hash);
-			if (m_container.cend() == iter)
-				return tree::TreeNode();
+        /// Gets the tree node associated with \a hash.
+        tree::TreeNode get(const Hash256& hash) const
+        {
+            auto iter = m_container.find(hash);
+            if (m_container.cend() == iter)
+                return tree::TreeNode();
 
-			const auto& pair = *iter;
-			return pair.second.copy();
-		}
+            const auto& pair = *iter;
+            return pair.second.copy();
+        }
 
-	public:
-		/// Saves a leaf tree \a node.
-		void set(const tree::LeafTreeNode& node) {
-			set(tree::TreeNode(node));
-		}
+    public:
+        /// Saves a leaf tree \a node.
+        void set(const tree::LeafTreeNode& node)
+        {
+            set(tree::TreeNode(node));
+        }
 
-		/// Saves a branch tree \a node.
-		void set(const tree::BranchTreeNode& node) {
-			set(tree::TreeNode(node));
-		}
+        /// Saves a branch tree \a node.
+        void set(const tree::BranchTreeNode& node)
+        {
+            set(tree::TreeNode(node));
+        }
 
-	private:
-		void set(const tree::TreeNode& node) {
-			m_container.insert(std::make_pair(node.hash(), node.copy()));
-		}
+    private:
+        void set(const tree::TreeNode& node)
+        {
+            m_container.insert(std::make_pair(node.hash(), node.copy()));
+        }
 
-	private:
-		PatriciaTreeContainer& m_container;
-	};
-}}
+    private:
+        PatriciaTreeContainer& m_container;
+    };
+}
+}

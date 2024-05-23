@@ -22,53 +22,60 @@
 #pragma once
 #include <string>
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
 #ifdef SPAMMER_TOOL
 #pragma pack(push, 16)
 #endif
 
-	/// Represents a pair of private key with associated public key.
-	template<typename TTraits>
-	class BasicKeyPair final {
-	public:
-		using PublicKey = typename TTraits::PublicKey;
-		using PrivateKey = typename TTraits::PrivateKey;
+    /// Represents a pair of private key with associated public key.
+    template <typename TTraits>
+    class BasicKeyPair final {
+    public:
+        using PublicKey = typename TTraits::PublicKey;
+        using PrivateKey = typename TTraits::PrivateKey;
 
-	private:
-		explicit BasicKeyPair(PrivateKey&& privateKey)
-				: m_privateKey(std::move(privateKey)) {
-			TTraits::ExtractPublicKeyFromPrivateKey(m_privateKey, m_publicKey);
-		}
+    private:
+        explicit BasicKeyPair(PrivateKey&& privateKey)
+            : m_privateKey(std::move(privateKey))
+        {
+            TTraits::ExtractPublicKeyFromPrivateKey(m_privateKey, m_publicKey);
+        }
 
-	public:
-		/// Creates a key pair from \a privateKey.
-		static auto FromPrivate(PrivateKey&& privateKey) {
-			return BasicKeyPair(std::move(privateKey));
-		}
+    public:
+        /// Creates a key pair from \a privateKey.
+        static auto FromPrivate(PrivateKey&& privateKey)
+        {
+            return BasicKeyPair(std::move(privateKey));
+        }
 
-		/// Creates a key pair from \a privateKey string.
-		static auto FromString(const std::string& privateKey) {
-			return FromPrivate(PrivateKey::FromString(privateKey));
-		}
+        /// Creates a key pair from \a privateKey string.
+        static auto FromString(const std::string& privateKey)
+        {
+            return FromPrivate(PrivateKey::FromString(privateKey));
+        }
 
-	public:
-		/// Gets the private key of the key pair.
-		const auto& privateKey() const {
-			return m_privateKey;
-		}
+    public:
+        /// Gets the private key of the key pair.
+        const auto& privateKey() const
+        {
+            return m_privateKey;
+        }
 
-		/// Gets the public key of the key pair.
-		const auto& publicKey() const {
-			return m_publicKey;
-		}
+        /// Gets the public key of the key pair.
+        const auto& publicKey() const
+        {
+            return m_publicKey;
+        }
 
-	private:
-		PrivateKey m_privateKey;
-		PublicKey m_publicKey;
-	};
+    private:
+        PrivateKey m_privateKey;
+        PublicKey m_publicKey;
+    };
 
 #ifdef SPAMMER_TOOL
 #pragma pack(pop)
 #endif
-}}
+}
+}

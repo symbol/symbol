@@ -20,35 +20,40 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "tests/test/plugins/DiscreteIntegerValidatorTests.h"
 #include "tests/TestHarness.h"
+#include "tests/test/plugins/DiscreteIntegerValidatorTests.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS AliasActionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AliasAction, )
+    DEFINE_COMMON_VALIDATOR_TESTS(AliasAction, )
 
-	namespace {
-		struct AliasActionTraits {
-			using EnumType = model::AliasAction;
+    namespace {
+        struct AliasActionTraits {
+            using EnumType = model::AliasAction;
 
-			static constexpr auto Failure_Result = Failure_Namespace_Alias_Invalid_Action;
-			static constexpr auto CreateValidator = CreateAliasActionValidator;
+            static constexpr auto Failure_Result = Failure_Namespace_Alias_Invalid_Action;
+            static constexpr auto CreateValidator = CreateAliasActionValidator;
 
-			static std::vector<uint8_t> ValidValues() {
-				return { 0x00, 0x01 };
-			}
+            static std::vector<uint8_t> ValidValues()
+            {
+                return { 0x00, 0x01 };
+            }
 
-			static std::vector<uint8_t> InvalidValues() {
-				return { 0x02, 0xFF };
-			}
+            static std::vector<uint8_t> InvalidValues()
+            {
+                return { 0x02, 0xFF };
+            }
 
-			static auto CreateNotification(EnumType value) {
-				return model::AliasLinkNotification(NamespaceId(), value);
-			}
-		};
-	}
+            static auto CreateNotification(EnumType value)
+            {
+                return model::AliasLinkNotification(NamespaceId(), value);
+            }
+        };
+    }
 
-	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, AliasActionTraits)
-}}
+    DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, AliasActionTraits)
+}
+}

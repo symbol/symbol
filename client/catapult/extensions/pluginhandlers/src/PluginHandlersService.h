@@ -22,9 +22,12 @@
 #pragma once
 #include "catapult/extensions/ServiceRegistrar.h"
 
-namespace catapult { namespace pluginhandlers {
+namespace catapult {
+namespace pluginhandlers {
 
-	/// Creates a registrar for a plugin handlers service.
-	/// \note This service is responsible for registering all (non-diagnostic) plugin-defined handlers.
-	DECLARE_SERVICE_REGISTRAR(PluginHandlers)();
-}}
+    /// Creates a registrar for a plugin handlers service.
+    /// \note This service is responsible for registering all (non-diagnostic) plugin-defined handlers.
+    DECLARE_SERVICE_REGISTRAR(PluginHandlers)
+    ();
+}
+}

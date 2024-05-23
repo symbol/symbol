@@ -25,281 +25,309 @@
 #include "src/builders/VotingKeyLinkBuilder.h"
 #include "src/builders/VrfKeyLinkBuilder.h"
 
-namespace catapult { namespace builders {
+namespace catapult {
+namespace builders {
 
 #define TEST_CLASS KeyLinkBuilderTests
 
-	namespace {
-		template<typename TTransaction>
-		auto GetLinkedPublicKey(const TTransaction& transaction) {
-			return transaction.LinkedPublicKey;
-		}
+    namespace {
+        template <typename TTransaction>
+        auto GetLinkedPublicKey(const TTransaction& transaction)
+        {
+            return transaction.LinkedPublicKey;
+        }
 
-		struct AccountKeyLinkTestTraits {
-			using BuilderType = AccountKeyLinkBuilder;
-			using LinkedType = Key;
-			static constexpr auto Transaction_Type = model::Entity_Type_Account_Key_Link;
+        struct AccountKeyLinkTestTraits {
+            using BuilderType = AccountKeyLinkBuilder;
+            using LinkedType = Key;
+            static constexpr auto Transaction_Type = model::Entity_Type_Account_Key_Link;
 
-			static void SetKey(BuilderType& builder, const LinkedType& key) {
-				builder.setLinkedPublicKey(key);
-			}
-		};
+            static void SetKey(BuilderType& builder, const LinkedType& key)
+            {
+                builder.setLinkedPublicKey(key);
+            }
+        };
 
-		struct AccountKeyLinkTransactionTraits {
-			using Regular = test::RegularTransactionTraits<model::AccountKeyLinkTransaction>;
-			using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedAccountKeyLinkTransaction>;
-		};
+        struct AccountKeyLinkTransactionTraits {
+            using Regular = test::RegularTransactionTraits<model::AccountKeyLinkTransaction>;
+            using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedAccountKeyLinkTransaction>;
+        };
 
-		struct NodeKeyLinkTestTraits {
-			using BuilderType = NodeKeyLinkBuilder;
-			using LinkedType = Key;
-			static constexpr auto Transaction_Type = model::Entity_Type_Node_Key_Link;
+        struct NodeKeyLinkTestTraits {
+            using BuilderType = NodeKeyLinkBuilder;
+            using LinkedType = Key;
+            static constexpr auto Transaction_Type = model::Entity_Type_Node_Key_Link;
 
-			static void SetKey(BuilderType& builder, const LinkedType& key) {
-				builder.setLinkedPublicKey(key);
-			}
-		};
+            static void SetKey(BuilderType& builder, const LinkedType& key)
+            {
+                builder.setLinkedPublicKey(key);
+            }
+        };
 
-		struct NodeKeyLinkTransactionTraits {
-			using Regular = test::RegularTransactionTraits<model::NodeKeyLinkTransaction>;
-			using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedNodeKeyLinkTransaction>;
-		};
+        struct NodeKeyLinkTransactionTraits {
+            using Regular = test::RegularTransactionTraits<model::NodeKeyLinkTransaction>;
+            using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedNodeKeyLinkTransaction>;
+        };
 
-		struct VotingKeyLinkTestTraits {
-			using BuilderType = VotingKeyLinkBuilder;
-			using LinkedType = VotingKey;
-			static constexpr auto Transaction_Type = model::Entity_Type_Voting_Key_Link;
+        struct VotingKeyLinkTestTraits {
+            using BuilderType = VotingKeyLinkBuilder;
+            using LinkedType = VotingKey;
+            static constexpr auto Transaction_Type = model::Entity_Type_Voting_Key_Link;
 
-			static void SetKey(BuilderType& builder, const LinkedType& key) {
-				builder.setLinkedPublicKey(key);
-			}
-		};
+            static void SetKey(BuilderType& builder, const LinkedType& key)
+            {
+                builder.setLinkedPublicKey(key);
+            }
+        };
 
-		struct VotingKeyLinkTransactionTraits {
-			using Regular = test::RegularTransactionTraits<model::VotingKeyLinkTransaction>;
-			using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedVotingKeyLinkTransaction>;
-		};
+        struct VotingKeyLinkTransactionTraits {
+            using Regular = test::RegularTransactionTraits<model::VotingKeyLinkTransaction>;
+            using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedVotingKeyLinkTransaction>;
+        };
 
-		struct VrfKeyLinkTestTraits {
-			using BuilderType = VrfKeyLinkBuilder;
-			using LinkedType = Key;
-			static constexpr auto Transaction_Type = model::Entity_Type_Vrf_Key_Link;
+        struct VrfKeyLinkTestTraits {
+            using BuilderType = VrfKeyLinkBuilder;
+            using LinkedType = Key;
+            static constexpr auto Transaction_Type = model::Entity_Type_Vrf_Key_Link;
 
-			static void SetKey(BuilderType& builder, const LinkedType& key) {
-				builder.setLinkedPublicKey(key);
-			}
-		};
+            static void SetKey(BuilderType& builder, const LinkedType& key)
+            {
+                builder.setLinkedPublicKey(key);
+            }
+        };
 
-		struct VrfKeyLinkTransactionTraits {
-			using Regular = test::RegularTransactionTraits<model::VrfKeyLinkTransaction>;
-			using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedVrfKeyLinkTransaction>;
-		};
+        struct VrfKeyLinkTransactionTraits {
+            using Regular = test::RegularTransactionTraits<model::VrfKeyLinkTransaction>;
+            using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedVrfKeyLinkTransaction>;
+        };
 
-		template<typename TExpectedTraits, typename TTransactionTraits>
-		struct KeyLinkTraits : public TExpectedTraits {
-		public:
-			using Builder = typename TExpectedTraits::BuilderType;
-			using TransactionTraits = TTransactionTraits;
+        template <typename TExpectedTraits, typename TTransactionTraits>
+        struct KeyLinkTraits : public TExpectedTraits {
+        public:
+            using Builder = typename TExpectedTraits::BuilderType;
+            using TransactionTraits = TTransactionTraits;
 
-		public:
-			struct TransactionProperties {
-			public:
-				explicit TransactionProperties(model::LinkAction linkAction)
-						: LinkAction(linkAction)
-						, LinkedPublicKey() {
-				}
+        public:
+            struct TransactionProperties {
+            public:
+                explicit TransactionProperties(model::LinkAction linkAction)
+                    : LinkAction(linkAction)
+                    , LinkedPublicKey()
+                {
+                }
 
-			public:
-				model::LinkAction LinkAction;
-				typename TExpectedTraits::LinkedType LinkedPublicKey;
-			};
+            public:
+                model::LinkAction LinkAction;
+                typename TExpectedTraits::LinkedType LinkedPublicKey;
+            };
 
-		public:
-			template<typename TTransaction>
-			static void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
-				EXPECT_EQ(expectedProperties.LinkAction, transaction.LinkAction);
-				EXPECT_EQ(expectedProperties.LinkedPublicKey, GetLinkedPublicKey(transaction));
-			}
-		};
+        public:
+            template <typename TTransaction>
+            static void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction)
+            {
+                EXPECT_EQ(expectedProperties.LinkAction, transaction.LinkAction);
+                EXPECT_EQ(expectedProperties.LinkedPublicKey, GetLinkedPublicKey(transaction));
+            }
+        };
 
-		template<typename TTransactionTraits>
-		struct VotingKeyLinkTraits : public VotingKeyLinkTestTraits {
-		public:
-			using Builder = typename VotingKeyLinkTestTraits::BuilderType;
-			using TransactionTraits = TTransactionTraits;
-			using AssertTraits = KeyLinkTraits<VotingKeyLinkTestTraits, TTransactionTraits>;
+        template <typename TTransactionTraits>
+        struct VotingKeyLinkTraits : public VotingKeyLinkTestTraits {
+        public:
+            using Builder = typename VotingKeyLinkTestTraits::BuilderType;
+            using TransactionTraits = TTransactionTraits;
+            using AssertTraits = KeyLinkTraits<VotingKeyLinkTestTraits, TTransactionTraits>;
 
-		public:
-			struct TransactionProperties : public AssertTraits::TransactionProperties {
-			public:
-				explicit TransactionProperties(model::LinkAction linkAction)
-						: AssertTraits::TransactionProperties(linkAction)
-						, StartEpoch()
-						, EndEpoch() {
-				}
+        public:
+            struct TransactionProperties : public AssertTraits::TransactionProperties {
+            public:
+                explicit TransactionProperties(model::LinkAction linkAction)
+                    : AssertTraits::TransactionProperties(linkAction)
+                    , StartEpoch()
+                    , EndEpoch()
+                {
+                }
 
-			public:
-				FinalizationEpoch StartEpoch;
-				FinalizationEpoch EndEpoch;
-			};
+            public:
+                FinalizationEpoch StartEpoch;
+                FinalizationEpoch EndEpoch;
+            };
 
-		public:
-			template<typename TTransaction>
-			static void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
-				AssertTraits::AssertTransactionProperties(expectedProperties, transaction);
-				EXPECT_EQ(expectedProperties.StartEpoch, transaction.StartEpoch);
-				EXPECT_EQ(expectedProperties.EndEpoch, transaction.EndEpoch);
-			}
-		};
+        public:
+            template <typename TTransaction>
+            static void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction)
+            {
+                AssertTraits::AssertTransactionProperties(expectedProperties, transaction);
+                EXPECT_EQ(expectedProperties.StartEpoch, transaction.StartEpoch);
+                EXPECT_EQ(expectedProperties.EndEpoch, transaction.EndEpoch);
+            }
+        };
 
-		using AccountKeyLinkRegularTraits = KeyLinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Regular>;
-		using AccountKeyLinkEmbeddedTraits = KeyLinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Embedded>;
-		using NodeKeyLinkRegularTraits = KeyLinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Regular>;
-		using NodeKeyLinkEmbeddedTraits = KeyLinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Embedded>;
-		using VrfKeyLinkRegularTraits = KeyLinkTraits<VrfKeyLinkTestTraits, VrfKeyLinkTransactionTraits::Regular>;
-		using VrfKeyLinkEmbeddedTraits = KeyLinkTraits<VrfKeyLinkTestTraits, VrfKeyLinkTransactionTraits::Embedded>;
+        using AccountKeyLinkRegularTraits = KeyLinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Regular>;
+        using AccountKeyLinkEmbeddedTraits = KeyLinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Embedded>;
+        using NodeKeyLinkRegularTraits = KeyLinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Regular>;
+        using NodeKeyLinkEmbeddedTraits = KeyLinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Embedded>;
+        using VrfKeyLinkRegularTraits = KeyLinkTraits<VrfKeyLinkTestTraits, VrfKeyLinkTransactionTraits::Regular>;
+        using VrfKeyLinkEmbeddedTraits = KeyLinkTraits<VrfKeyLinkTestTraits, VrfKeyLinkTransactionTraits::Embedded>;
 
-		using VotingKeyLinkRegularTraits = VotingKeyLinkTraits<VotingKeyLinkTransactionTraits::Regular>;
-		using VotingKeyLinkEmbeddedTraits = VotingKeyLinkTraits<VotingKeyLinkTransactionTraits::Embedded>;
+        using VotingKeyLinkRegularTraits = VotingKeyLinkTraits<VotingKeyLinkTransactionTraits::Regular>;
+        using VotingKeyLinkEmbeddedTraits = VotingKeyLinkTraits<VotingKeyLinkTransactionTraits::Embedded>;
 
-		template<typename TTraits>
-		void AssertCanBuildTransaction(
-				const typename TTraits::TransactionProperties& expectedProperties,
-				const consumer<typename TTraits::Builder&>& buildTransaction) {
-			// Arrange:
-			auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
-			auto signer = test::GenerateRandomByteArray<Key>();
+        template <typename TTraits>
+        void AssertCanBuildTransaction(
+            const typename TTraits::TransactionProperties& expectedProperties,
+            const consumer<typename TTraits::Builder&>& buildTransaction)
+        {
+            // Arrange:
+            auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
+            auto signer = test::GenerateRandomByteArray<Key>();
 
-			// Act:
-			typename TTraits::Builder builder(networkIdentifier, signer);
-			buildTransaction(builder);
-			auto pTransaction = TTraits::TransactionTraits::InvokeBuilder(builder);
+            // Act:
+            typename TTraits::Builder builder(networkIdentifier, signer);
+            buildTransaction(builder);
+            auto pTransaction = TTraits::TransactionTraits::InvokeBuilder(builder);
 
-			// Assert:
-			TTraits::TransactionTraits::CheckBuilderSize(0, builder);
-			TTraits::TransactionTraits::CheckFields(0, *pTransaction);
-			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
-			EXPECT_EQ(1u, pTransaction->Version);
-			EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), pTransaction->Network);
-			EXPECT_EQ(TTraits::Transaction_Type, pTransaction->Type);
+            // Assert:
+            TTraits::TransactionTraits::CheckBuilderSize(0, builder);
+            TTraits::TransactionTraits::CheckFields(0, *pTransaction);
+            EXPECT_EQ(signer, pTransaction->SignerPublicKey);
+            EXPECT_EQ(1u, pTransaction->Version);
+            EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), pTransaction->Network);
+            EXPECT_EQ(TTraits::Transaction_Type, pTransaction->Type);
 
-			TTraits::AssertTransactionProperties(expectedProperties, *pTransaction);
-		}
-	}
+            TTraits::AssertTransactionProperties(expectedProperties, *pTransaction);
+        }
+    }
 
-#define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Account_Regular) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyLinkRegularTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Account_Embedded) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyLinkEmbeddedTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Node_Regular) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkRegularTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Node_Embedded) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkEmbeddedTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Vrf_Regular) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkRegularTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Vrf_Embedded) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkEmbeddedTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Voting_Regular) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define TRAITS_BASED_TEST(TEST_NAME)                                             \
+    template <typename TTraits>                                                  \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                              \
+    TEST(TEST_CLASS, TEST_NAME##_Account_Regular)                                \
+    {                                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyLinkRegularTraits>();  \
+    }                                                                            \
+    TEST(TEST_CLASS, TEST_NAME##_Account_Embedded)                               \
+    {                                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyLinkEmbeddedTraits>(); \
+    }                                                                            \
+    TEST(TEST_CLASS, TEST_NAME##_Node_Regular)                                   \
+    {                                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkRegularTraits>();     \
+    }                                                                            \
+    TEST(TEST_CLASS, TEST_NAME##_Node_Embedded)                                  \
+    {                                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkEmbeddedTraits>();    \
+    }                                                                            \
+    TEST(TEST_CLASS, TEST_NAME##_Vrf_Regular)                                    \
+    {                                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkRegularTraits>();      \
+    }                                                                            \
+    TEST(TEST_CLASS, TEST_NAME##_Vrf_Embedded)                                   \
+    {                                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkEmbeddedTraits>();     \
+    }                                                                            \
+    TEST(TEST_CLASS, TEST_NAME##_Voting_Regular)                                 \
+    {                                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>();   \
+    }                                                                            \
+    TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded)                                \
+    {                                                                            \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>();  \
+    }                                                                            \
+    template <typename TTraits>                                                  \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	// region constructor
+    // region constructor
 
-	TRAITS_BASED_TEST(CanCreateTransaction) {
-		// Arrange:
-		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
+    TRAITS_BASED_TEST(CanCreateTransaction)
+    {
+        // Arrange:
+        auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
 
-		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [](const auto&) {});
-	}
+        // Assert:
+        AssertCanBuildTransaction<TTraits>(expectedProperties, [](const auto&) {});
+    }
 
-	// endregion
+    // endregion
 
-	// region settings
+    // region settings
 
-	TRAITS_BASED_TEST(CanSetLinkedPublicKey) {
-		// Arrange:
-		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
-		test::FillWithRandomData(expectedProperties.LinkedPublicKey);
-		const auto& linkedPublicKey = expectedProperties.LinkedPublicKey;
+    TRAITS_BASED_TEST(CanSetLinkedPublicKey)
+    {
+        // Arrange:
+        auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
+        test::FillWithRandomData(expectedProperties.LinkedPublicKey);
+        const auto& linkedPublicKey = expectedProperties.LinkedPublicKey;
 
-		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [&linkedPublicKey](auto& builder) {
-			TTraits::SetKey(builder, linkedPublicKey);
-		});
-	}
+        // Assert:
+        AssertCanBuildTransaction<TTraits>(expectedProperties, [&linkedPublicKey](auto& builder) {
+            TTraits::SetKey(builder, linkedPublicKey);
+        });
+    }
 
-	TRAITS_BASED_TEST(CanSetAction) {
-		// Arrange:
-		auto expectedProperties = typename TTraits::TransactionProperties(static_cast<model::LinkAction>(0x45));
+    TRAITS_BASED_TEST(CanSetAction)
+    {
+        // Arrange:
+        auto expectedProperties = typename TTraits::TransactionProperties(static_cast<model::LinkAction>(0x45));
 
-		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
-			builder.setLinkAction(static_cast<model::LinkAction>(0x45));
-		});
-	}
+        // Assert:
+        AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+            builder.setLinkAction(static_cast<model::LinkAction>(0x45));
+        });
+    }
 
-	TRAITS_BASED_TEST(CanSetLinkedPublicKeyAndAction) {
-		// Arrange:
-		auto linkAction = static_cast<model::LinkAction>(0x45);
-		auto expectedProperties = typename TTraits::TransactionProperties(linkAction);
-		test::FillWithRandomData(expectedProperties.LinkedPublicKey);
-		const auto& linkedPublicKey = expectedProperties.LinkedPublicKey;
+    TRAITS_BASED_TEST(CanSetLinkedPublicKeyAndAction)
+    {
+        // Arrange:
+        auto linkAction = static_cast<model::LinkAction>(0x45);
+        auto expectedProperties = typename TTraits::TransactionProperties(linkAction);
+        test::FillWithRandomData(expectedProperties.LinkedPublicKey);
+        const auto& linkedPublicKey = expectedProperties.LinkedPublicKey;
 
-		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [linkAction, &linkedPublicKey](auto& builder) {
-			TTraits::SetKey(builder, linkedPublicKey);
-			builder.setLinkAction(linkAction);
-		});
-	}
+        // Assert:
+        AssertCanBuildTransaction<TTraits>(expectedProperties, [linkAction, &linkedPublicKey](auto& builder) {
+            TTraits::SetKey(builder, linkedPublicKey);
+            builder.setLinkAction(linkAction);
+        });
+    }
 
-	// endregion
+    // endregion
 
-	// region voting key link builder tests
+    // region voting key link builder tests
 
-#define VOTING_KEY_LINK_BUILDER_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Voting_Regular) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>(); \
-	} \
-	TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define VOTING_KEY_LINK_BUILDER_TEST(TEST_NAME)                                 \
+    template <typename TTraits>                                                 \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                             \
+    TEST(TEST_CLASS, TEST_NAME##_Voting_Regular)                                \
+    {                                                                           \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>();  \
+    }                                                                           \
+    TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded)                               \
+    {                                                                           \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); \
+    }                                                                           \
+    template <typename TTraits>                                                 \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	VOTING_KEY_LINK_BUILDER_TEST(CanSetStartEpoch) {
-		// Arrange:
-		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
-		expectedProperties.StartEpoch = FinalizationEpoch(0x12345);
+    VOTING_KEY_LINK_BUILDER_TEST(CanSetStartEpoch)
+    {
+        // Arrange:
+        auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
+        expectedProperties.StartEpoch = FinalizationEpoch(0x12345);
 
-		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) { builder.setStartEpoch(FinalizationEpoch(0x12345)); });
-	}
+        // Assert:
+        AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) { builder.setStartEpoch(FinalizationEpoch(0x12345)); });
+    }
 
-	VOTING_KEY_LINK_BUILDER_TEST(CanSetEndEpoch) {
-		// Arrange:
-		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
-		expectedProperties.EndEpoch = FinalizationEpoch(0x54321);
+    VOTING_KEY_LINK_BUILDER_TEST(CanSetEndEpoch)
+    {
+        // Arrange:
+        auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
+        expectedProperties.EndEpoch = FinalizationEpoch(0x54321);
 
-		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) { builder.setEndEpoch(FinalizationEpoch(0x54321)); });
-	}
+        // Assert:
+        AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) { builder.setEndEpoch(FinalizationEpoch(0x54321)); });
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

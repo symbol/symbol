@@ -23,8 +23,12 @@
 #include "mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/mosaic/src/state/MosaicEntry.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Maps a mosaic \a mosaicEntry to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry);
-}}}
+        /// Maps a mosaic \a mosaicEntry to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry);
+    }
+}
+}

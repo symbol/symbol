@@ -26,58 +26,59 @@
 
 namespace catapult {
 namespace extensions {
-	struct LocalNodeStateRef;
+    struct LocalNodeStateRef;
 }
 namespace model {
-	struct Block;
-	struct BlockchainConfiguration;
-	struct BlockElement;
+    struct Block;
+    struct BlockchainConfiguration;
+    struct BlockElement;
 }
 namespace plugins {
-	class PluginManager;
+    class PluginManager;
 }
 namespace subscribers {
-	struct StateChangeInfo;
+    struct StateChangeInfo;
 }
 }
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Notification observer factory.
-	using NotificationObserverFactory = supplier<std::unique_ptr<const observers::NotificationObserver>>;
+    /// Notification observer factory.
+    using NotificationObserverFactory = supplier<std::unique_ptr<const observers::NotificationObserver>>;
 
-	/// Block dependent notification observer factory.
-	using BlockDependentNotificationObserverFactory =
-			std::function<std::unique_ptr<const observers::NotificationObserver>(const model::Block&)>;
+    /// Block dependent notification observer factory.
+    using BlockDependentNotificationObserverFactory = std::function<std::unique_ptr<const observers::NotificationObserver>(const model::Block&)>;
 
-	/// Creates a block dependent notification observer factory that calculates an inflection point from \a lastBlock and \a config.
-	/// Prior to the inflection point, an observer created by \a permanentObserverFactory is returned.
-	/// At and after the inflection point, an observer created by \a transientObserverFactory is returned.
-	BlockDependentNotificationObserverFactory CreateBlockDependentNotificationObserverFactory(
-			const model::Block& lastBlock,
-			const model::BlockchainConfiguration& config,
-			const NotificationObserverFactory& transientObserverFactory,
-			const NotificationObserverFactory& permanentObserverFactory);
+    /// Creates a block dependent notification observer factory that calculates an inflection point from \a lastBlock and \a config.
+    /// Prior to the inflection point, an observer created by \a permanentObserverFactory is returned.
+    /// At and after the inflection point, an observer created by \a transientObserverFactory is returned.
+    BlockDependentNotificationObserverFactory CreateBlockDependentNotificationObserverFactory(
+        const model::Block& lastBlock,
+        const model::BlockchainConfiguration& config,
+        const NotificationObserverFactory& transientObserverFactory,
+        const NotificationObserverFactory& permanentObserverFactory);
 
-	/// Information about each loaded block.
-	struct LoadedBlockStatus {
-		/// Loaded block element.
-		const model::BlockElement& BlockElement;
+    /// Information about each loaded block.
+    struct LoadedBlockStatus {
+        /// Loaded block element.
+        const model::BlockElement& BlockElement;
 
-		/// Chain score after applying the block.
-		const model::ChainScore& ChainScore;
+        /// Chain score after applying the block.
+        const model::ChainScore& ChainScore;
 
-		/// State change information.
-		const subscribers::StateChangeInfo& StateChangeInfo;
-	};
+        /// State change information.
+        const subscribers::StateChangeInfo& StateChangeInfo;
+    };
 
-	/// Loads a blockchain from storage using the supplied observer factory (\a observerFactory) and plugin manager (\a pluginManager)
-	/// and updating \a stateRef starting with the block at \a startHeight.
-	/// Each loaded block and supporting information is passed to \a statusConsumer.
-	model::ChainScore LoadBlockchain(
-			const BlockDependentNotificationObserverFactory& observerFactory,
-			const plugins::PluginManager& pluginManager,
-			const extensions::LocalNodeStateRef& stateRef,
-			Height startHeight,
-			const consumer<LoadedBlockStatus&&>& statusConsumer = consumer<LoadedBlockStatus>());
-}}
+    /// Loads a blockchain from storage using the supplied observer factory (\a observerFactory) and plugin manager (\a pluginManager)
+    /// and updating \a stateRef starting with the block at \a startHeight.
+    /// Each loaded block and supporting information is passed to \a statusConsumer.
+    model::ChainScore LoadBlockchain(
+        const BlockDependentNotificationObserverFactory& observerFactory,
+        const plugins::PluginManager& pluginManager,
+        const extensions::LocalNodeStateRef& stateRef,
+        Height startHeight,
+        const consumer<LoadedBlockStatus&&>& statusConsumer = consumer<LoadedBlockStatus>());
+}
+}

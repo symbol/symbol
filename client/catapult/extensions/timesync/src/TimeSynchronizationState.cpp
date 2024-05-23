@@ -20,43 +20,52 @@
 **/
 
 #include "TimeSynchronizationState.h"
-#include "constants.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/NetworkTime.h"
+#include "constants.h"
 
-namespace catapult { namespace timesync {
+namespace catapult {
+namespace timesync {
 
-	TimeSynchronizationState::TimeSynchronizationState(const utils::TimeSpan& epochAdjustment, uint64_t clockAdjustmentThreshold)
-			: m_epochAdjustment(epochAdjustment)
-			, m_clockAdjustmentThreshold(clockAdjustmentThreshold)
-			, m_offset(0)
-			, m_nodeAge(0) {
-	}
+    TimeSynchronizationState::TimeSynchronizationState(const utils::TimeSpan& epochAdjustment, uint64_t clockAdjustmentThreshold)
+        : m_epochAdjustment(epochAdjustment)
+        , m_clockAdjustmentThreshold(clockAdjustmentThreshold)
+        , m_offset(0)
+        , m_nodeAge(0)
+    {
+    }
 
-	TimeOffset TimeSynchronizationState::offset() const {
-		return TimeOffset(m_offset);
-	}
+    TimeOffset TimeSynchronizationState::offset() const
+    {
+        return TimeOffset(m_offset);
+    }
 
-	uint64_t TimeSynchronizationState::absoluteOffset() const {
-		return static_cast<uint64_t>(std::abs(m_offset));
-	}
+    uint64_t TimeSynchronizationState::absoluteOffset() const
+    {
+        return static_cast<uint64_t>(std::abs(m_offset));
+    }
 
-	TimeOffsetDirection TimeSynchronizationState::offsetDirection() const {
-		return 0 > m_offset ? TimeOffsetDirection::Negative : TimeOffsetDirection::Positive;
-	}
+    TimeOffsetDirection TimeSynchronizationState::offsetDirection() const
+    {
+        return 0 > m_offset ? TimeOffsetDirection::Negative : TimeOffsetDirection::Positive;
+    }
 
-	NodeAge TimeSynchronizationState::nodeAge() const {
-		return NodeAge(m_nodeAge);
-	}
+    NodeAge TimeSynchronizationState::nodeAge() const
+    {
+        return NodeAge(m_nodeAge);
+    }
 
-	Timestamp TimeSynchronizationState::networkTime() const {
-		return Timestamp(utils::NetworkTime(m_epochAdjustment).now().unwrap() + static_cast<uint64_t>(m_offset));
-	}
+    Timestamp TimeSynchronizationState::networkTime() const
+    {
+        return Timestamp(utils::NetworkTime(m_epochAdjustment).now().unwrap() + static_cast<uint64_t>(m_offset));
+    }
 
-	void TimeSynchronizationState::update(TimeOffset offset) {
-		if (m_clockAdjustmentThreshold < static_cast<uint64_t>(std::abs(offset.unwrap())))
-			m_offset = m_offset + offset.unwrap();
+    void TimeSynchronizationState::update(TimeOffset offset)
+    {
+        if (m_clockAdjustmentThreshold < static_cast<uint64_t>(std::abs(offset.unwrap())))
+            m_offset = m_offset + offset.unwrap();
 
-		++m_nodeAge;
-	}
-}}
+        ++m_nodeAge;
+    }
+}
+}

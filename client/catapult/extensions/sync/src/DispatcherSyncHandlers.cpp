@@ -26,32 +26,35 @@
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/LocalNodeStateFileStorage.h"
 
-namespace catapult { namespace sync {
+namespace catapult {
+namespace sync {
 
-	void AddSupplementalDataResiliency(
-			consumers::BlockchainSyncHandlers& syncHandlers,
-			const config::CatapultDataDirectory& dataDirectory,
-			const cache::CatapultCache& cache,
-			const extensions::LocalNodeChainScore& score) {
-		auto preStateWrittenHandler = syncHandlers.PreStateWritten;
+    void AddSupplementalDataResiliency(
+        consumers::BlockchainSyncHandlers& syncHandlers,
+        const config::CatapultDataDirectory& dataDirectory,
+        const cache::CatapultCache& cache,
+        const extensions::LocalNodeChainScore& score)
+    {
+        auto preStateWrittenHandler = syncHandlers.PreStateWritten;
 
-		// can't create any views (or storages) in PreStateWritten handler because cache lock is held by calling code
-		auto pStorages = std::make_shared<decltype(cache.storages())>(cache.storages());
-		syncHandlers.PreStateWritten = [preStateWrittenHandler, pStorages, dataDirectory, &score](const auto& cacheDelta, auto height) {
-			extensions::LocalNodeStateSerializer serializer(dataDirectory.dir("state.tmp"));
-			serializer.save(cacheDelta, *pStorages, score.get(), height);
+        // can't create any views (or storages) in PreStateWritten handler because cache lock is held by calling code
+        auto pStorages = std::make_shared<decltype(cache.storages())>(cache.storages());
+        syncHandlers.PreStateWritten = [preStateWrittenHandler, pStorages, dataDirectory, &score](const auto& cacheDelta, auto height) {
+            extensions::LocalNodeStateSerializer serializer(dataDirectory.dir("state.tmp"));
+            serializer.save(cacheDelta, *pStorages, score.get(), height);
 
-			preStateWrittenHandler(cacheDelta, height);
-		};
+            preStateWrittenHandler(cacheDelta, height);
+        };
 
-		auto commitStepHandler = syncHandlers.CommitStep;
-		syncHandlers.CommitStep = [commitStepHandler, dataDirectory](auto step) {
-			if (consumers::CommitOperationStep::All_Updated == step) {
-				extensions::LocalNodeStateSerializer serializer(dataDirectory.dir("state.tmp"));
-				serializer.moveTo(dataDirectory.dir("state"));
-			}
+        auto commitStepHandler = syncHandlers.CommitStep;
+        syncHandlers.CommitStep = [commitStepHandler, dataDirectory](auto step) {
+            if (consumers::CommitOperationStep::All_Updated == step) {
+                extensions::LocalNodeStateSerializer serializer(dataDirectory.dir("state.tmp"));
+                serializer.moveTo(dataDirectory.dir("state"));
+            }
 
-			commitStepHandler(step);
-		};
-	}
-}}
+            commitStepHandler(step);
+        };
+    }
+}
+}

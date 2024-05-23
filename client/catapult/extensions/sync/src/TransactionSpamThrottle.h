@@ -23,47 +23,51 @@
 #include "catapult/chain/UtUpdater.h"
 #include "catapult/utils/FileSize.h"
 
-namespace catapult { namespace sync {
+namespace catapult {
+namespace sync {
 
-	/// Spam throttle configuration.
-	struct SpamThrottleConfiguration {
-	public:
-		/// Creates a default spam throttle configuration.
-		SpamThrottleConfiguration()
-				: TotalImportance(0)
-				, MaxTransactionsPerBlock(0) {
-		}
+    /// Spam throttle configuration.
+    struct SpamThrottleConfiguration {
+    public:
+        /// Creates a default spam throttle configuration.
+        SpamThrottleConfiguration()
+            : TotalImportance(0)
+            , MaxTransactionsPerBlock(0)
+        {
+        }
 
-		/// Creates a spam throttle configuration around \a maxBoostFee, \a totalImportance, \a maxCacheSize
-		/// and \a maxTransactionsPerBlock.
-		SpamThrottleConfiguration(
-				Amount maxBoostFee,
-				Importance totalImportance,
-				utils::FileSize maxCacheSize,
-				uint32_t maxTransactionsPerBlock)
-				: MaxBoostFee(maxBoostFee)
-				, TotalImportance(totalImportance)
-				, MaxCacheSize(maxCacheSize)
-				, MaxTransactionsPerBlock(maxTransactionsPerBlock) {
-		}
+        /// Creates a spam throttle configuration around \a maxBoostFee, \a totalImportance, \a maxCacheSize
+        /// and \a maxTransactionsPerBlock.
+        SpamThrottleConfiguration(
+            Amount maxBoostFee,
+            Importance totalImportance,
+            utils::FileSize maxCacheSize,
+            uint32_t maxTransactionsPerBlock)
+            : MaxBoostFee(maxBoostFee)
+            , TotalImportance(totalImportance)
+            , MaxCacheSize(maxCacheSize)
+            , MaxTransactionsPerBlock(maxTransactionsPerBlock)
+        {
+        }
 
-	public:
-		/// Max fee for boosting importance.
-		Amount MaxBoostFee;
+    public:
+        /// Max fee for boosting importance.
+        Amount MaxBoostFee;
 
-		/// Total importance of all accounts.
-		Importance TotalImportance;
+        /// Total importance of all accounts.
+        Importance TotalImportance;
 
-		/// Maximum transactions cache size (in bytes).
-		utils::FileSize MaxCacheSize;
+        /// Maximum transactions cache size (in bytes).
+        utils::FileSize MaxCacheSize;
 
-		/// Maximum number of transactions per block (count).
-		uint32_t MaxTransactionsPerBlock;
-	};
+        /// Maximum number of transactions per block (count).
+        uint32_t MaxTransactionsPerBlock;
+    };
 
-	/// Creates a throttle using \a config to filter out transactions that are considered to be spam.
-	/// \a isBonded indicates whether a transaction is bonded or not.
-	chain::UtUpdater::Throttle CreateTransactionSpamThrottle(
-			const SpamThrottleConfiguration& config,
-			const predicate<const model::Transaction&>& isBonded);
-}}
+    /// Creates a throttle using \a config to filter out transactions that are considered to be spam.
+    /// \a isBonded indicates whether a transaction is bonded or not.
+    chain::UtUpdater::Throttle CreateTransactionSpamThrottle(
+        const SpamThrottleConfiguration& config,
+        const predicate<const model::Transaction&>& isBonded);
+}
+}

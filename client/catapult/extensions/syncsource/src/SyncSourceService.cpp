@@ -28,79 +28,90 @@
 #include "catapult/handlers/TransactionHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
-namespace catapult { namespace syncsource {
+namespace catapult {
+namespace syncsource {
 
-	namespace {
-		struct HandlersConfiguration {
-			uint32_t MaxHashes;
-			handlers::PullBlocksHandlerConfiguration BlocksHandlerConfig;
+    namespace {
+        struct HandlersConfiguration {
+            uint32_t MaxHashes;
+            handlers::PullBlocksHandlerConfiguration BlocksHandlerConfig;
 
-			handlers::BlockRangeHandler PushBlockCallback;
-			model::ChainScoreSupplier ChainScoreSupplier;
-			handlers::UtRetriever UtRetriever;
-		};
+            handlers::BlockRangeHandler PushBlockCallback;
+            model::ChainScoreSupplier ChainScoreSupplier;
+            handlers::UtRetriever UtRetriever;
+        };
 
-		void SetConfig(handlers::PullBlocksHandlerConfiguration& blocksHandlerConfig, const config::NodeConfiguration& nodeConfig) {
-			blocksHandlerConfig.MaxBlocks = nodeConfig.MaxBlocksPerSyncAttempt;
-			blocksHandlerConfig.MaxResponseBytes = nodeConfig.MaxChainBytesPerSyncAttempt.bytes32();
-		}
+        void SetConfig(handlers::PullBlocksHandlerConfiguration& blocksHandlerConfig, const config::NodeConfiguration& nodeConfig)
+        {
+            blocksHandlerConfig.MaxBlocks = nodeConfig.MaxBlocksPerSyncAttempt;
+            blocksHandlerConfig.MaxResponseBytes = nodeConfig.MaxChainBytesPerSyncAttempt.bytes32();
+        }
 
-		void SetConfig(HandlersConfiguration& config, const config::NodeConfiguration& nodeConfig) {
-			config.MaxHashes = nodeConfig.MaxHashesPerSyncAttempt;
-			SetConfig(config.BlocksHandlerConfig, nodeConfig);
-		}
+        void SetConfig(HandlersConfiguration& config, const config::NodeConfiguration& nodeConfig)
+        {
+            config.MaxHashes = nodeConfig.MaxHashesPerSyncAttempt;
+            SetConfig(config.BlocksHandlerConfig, nodeConfig);
+        }
 
-		HandlersConfiguration CreateHandlersConfiguration(const extensions::ServiceState& state) {
-			HandlersConfiguration config;
-			SetConfig(config, state.config().Node);
+        HandlersConfiguration CreateHandlersConfiguration(const extensions::ServiceState& state)
+        {
+            HandlersConfiguration config;
+            SetConfig(config, state.config().Node);
 
-			config.PushBlockCallback = extensions::CreateBlockPushEntityCallback(state.hooks());
-			config.ChainScoreSupplier = [&chainScore = state.score()]() { return chainScore.get(); };
-			config.UtRetriever = [&cache = state.utCache()](auto minDeadline, auto minFeeMultiplier, const auto& shortHashes) {
-				return cache.view().unknownTransactions(minDeadline, minFeeMultiplier, shortHashes);
-			};
+            config.PushBlockCallback = extensions::CreateBlockPushEntityCallback(state.hooks());
+            config.ChainScoreSupplier = [&chainScore = state.score()]() { return chainScore.get(); };
+            config.UtRetriever = [&cache = state.utCache()](auto minDeadline, auto minFeeMultiplier, const auto& shortHashes) {
+                return cache.view().unknownTransactions(minDeadline, minFeeMultiplier, shortHashes);
+            };
 
-			return config;
-		}
+            return config;
+        }
 
-		void RegisterAllHandlers(extensions::ServiceState& state) {
-			auto& handlers = state.packetHandlers();
-			const auto& storage = state.storage();
-			const auto& registry = state.pluginManager().transactionRegistry();
-			auto config = CreateHandlersConfiguration(state);
+        void RegisterAllHandlers(extensions::ServiceState& state)
+        {
+            auto& handlers = state.packetHandlers();
+            const auto& storage = state.storage();
+            const auto& registry = state.pluginManager().transactionRegistry();
+            auto config = CreateHandlersConfiguration(state);
 
-			handlers::RegisterPushBlockHandler(handlers, registry, config.PushBlockCallback);
-			handlers::RegisterPullBlockHandler(handlers, storage);
+            handlers::RegisterPushBlockHandler(handlers, registry, config.PushBlockCallback);
+            handlers::RegisterPullBlockHandler(handlers, storage);
 
-			handlers::RegisterChainStatisticsHandler(
-					handlers,
-					storage,
-					config.ChainScoreSupplier,
-					extensions::CreateLocalFinalizedHeightSupplier(state));
-			handlers::RegisterBlockHashesHandler(handlers, storage, config.MaxHashes);
-			handlers::RegisterPullBlocksHandler(handlers, storage, config.BlocksHandlerConfig);
+            handlers::RegisterChainStatisticsHandler(
+                handlers,
+                storage,
+                config.ChainScoreSupplier,
+                extensions::CreateLocalFinalizedHeightSupplier(state));
+            handlers::RegisterBlockHashesHandler(handlers, storage, config.MaxHashes);
+            handlers::RegisterPullBlocksHandler(handlers, storage, config.BlocksHandlerConfig);
 
-			handlers::RegisterPullTransactionsHandler(handlers, config.UtRetriever);
-		}
+            handlers::RegisterPullTransactionsHandler(handlers, config.UtRetriever);
+        }
 
-		class SyncSourceServiceRegistrar : public extensions::ServiceRegistrar {
-		public:
-			extensions::ServiceRegistrarInfo info() const override {
-				return { "SyncSource", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
-			}
+        class SyncSourceServiceRegistrar : public extensions::ServiceRegistrar {
+        public:
+            extensions::ServiceRegistrarInfo info() const override
+            {
+                return { "SyncSource", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
+            }
 
-			void registerServiceCounters(extensions::ServiceLocator&) override {
-				// no additional counters
-			}
+            void registerServiceCounters(extensions::ServiceLocator&) override
+            {
+                // no additional counters
+            }
 
-			void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override {
-				// add handlers
-				RegisterAllHandlers(state);
-			}
-		};
-	}
+            void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override
+            {
+                // add handlers
+                RegisterAllHandlers(state);
+            }
+        };
+    }
 
-	DECLARE_SERVICE_REGISTRAR(SyncSource)() {
-		return std::make_unique<SyncSourceServiceRegistrar>();
-	}
-}}
+    DECLARE_SERVICE_REGISTRAR(SyncSource)
+    ()
+    {
+        return std::make_unique<SyncSourceServiceRegistrar>();
+    }
+}
+}

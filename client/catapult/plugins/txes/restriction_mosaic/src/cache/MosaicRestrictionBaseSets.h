@@ -27,25 +27,26 @@
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/tree/BasePatriciaTree.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	using BasicMosaicRestrictionPatriciaTree = tree::BasePatriciaTree<
-			SerializerHashedKeyEncoder<MosaicRestrictionCacheDescriptor::Serializer>,
-			PatriciaTreeRdbDataSource,
-			utils::ArrayHasher<Hash256>>;
+    using BasicMosaicRestrictionPatriciaTree = tree::BasePatriciaTree<
+        SerializerHashedKeyEncoder<MosaicRestrictionCacheDescriptor::Serializer>,
+        PatriciaTreeRdbDataSource,
+        utils::ArrayHasher<Hash256>>;
 
-	class MosaicRestrictionPatriciaTree : public BasicMosaicRestrictionPatriciaTree {
-	public:
-		using BasicMosaicRestrictionPatriciaTree::BasicMosaicRestrictionPatriciaTree;
-		using Serializer = MosaicRestrictionCacheDescriptor::Serializer;
-	};
+    class MosaicRestrictionPatriciaTree : public BasicMosaicRestrictionPatriciaTree {
+    public:
+        using BasicMosaicRestrictionPatriciaTree::BasicMosaicRestrictionPatriciaTree;
+        using Serializer = MosaicRestrictionCacheDescriptor::Serializer;
+    };
 
-	using MosaicRestrictionSingleSetCacheTypesAdapter =
-			SingleSetAndPatriciaTreeCacheTypesAdapter<MosaicRestrictionCacheTypes::PrimaryTypes, MosaicRestrictionPatriciaTree>;
+    using MosaicRestrictionSingleSetCacheTypesAdapter = SingleSetAndPatriciaTreeCacheTypesAdapter<MosaicRestrictionCacheTypes::PrimaryTypes, MosaicRestrictionPatriciaTree>;
 
-	struct MosaicRestrictionBaseSetDeltaPointers : public MosaicRestrictionSingleSetCacheTypesAdapter::BaseSetDeltaPointers {};
+    struct MosaicRestrictionBaseSetDeltaPointers : public MosaicRestrictionSingleSetCacheTypesAdapter::BaseSetDeltaPointers { };
 
-	struct MosaicRestrictionBaseSets : public MosaicRestrictionSingleSetCacheTypesAdapter::BaseSets<MosaicRestrictionBaseSetDeltaPointers> {
-		using MosaicRestrictionSingleSetCacheTypesAdapter::BaseSets<MosaicRestrictionBaseSetDeltaPointers>::BaseSets;
-	};
-}}
+    struct MosaicRestrictionBaseSets : public MosaicRestrictionSingleSetCacheTypesAdapter::BaseSets<MosaicRestrictionBaseSetDeltaPointers> {
+        using MosaicRestrictionSingleSetCacheTypesAdapter::BaseSets<MosaicRestrictionBaseSetDeltaPointers>::BaseSets;
+    };
+}
+}

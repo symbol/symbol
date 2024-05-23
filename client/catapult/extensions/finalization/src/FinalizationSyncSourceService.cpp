@@ -21,56 +21,64 @@
 
 #include "FinalizationSyncSourceService.h"
 #include "FinalizationBootstrapperService.h"
+#include "catapult/extensions/ServiceState.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/handlers/FinalizationHandlers.h"
 #include "finalization/src/handlers/ProofHandlers.h"
-#include "catapult/extensions/ServiceState.h"
 
-namespace catapult { namespace finalization {
+namespace catapult {
+namespace finalization {
 
-	namespace {
-		class FinalizationSyncSourceServiceRegistrar : public extensions::ServiceRegistrar {
-		public:
-			explicit FinalizationSyncSourceServiceRegistrar(bool enableVoting)
-					: m_enableVoting(enableVoting) {
-			}
+    namespace {
+        class FinalizationSyncSourceServiceRegistrar : public extensions::ServiceRegistrar {
+        public:
+            explicit FinalizationSyncSourceServiceRegistrar(bool enableVoting)
+                : m_enableVoting(enableVoting)
+            {
+            }
 
-		public:
-			extensions::ServiceRegistrarInfo info() const override {
-				return { "FinalizationSyncSource", extensions::ServiceRegistrarPhase::Post_Extended_Range_Consumers };
-			}
+        public:
+            extensions::ServiceRegistrarInfo info() const override
+            {
+                return { "FinalizationSyncSource", extensions::ServiceRegistrarPhase::Post_Extended_Range_Consumers };
+            }
 
-			void registerServiceCounters(extensions::ServiceLocator&) override {
-				// no additional counters
-			}
+            void registerServiceCounters(extensions::ServiceLocator&) override
+            {
+                // no additional counters
+            }
 
-			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
-				const auto& messageAggregator = GetMultiRoundMessageAggregator(locator);
-				const auto& hooks = GetFinalizationServerHooks(locator);
-				const auto& proofStorage = GetProofStorageCache(locator);
+            void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override
+            {
+                const auto& messageAggregator = GetMultiRoundMessageAggregator(locator);
+                const auto& hooks = GetFinalizationServerHooks(locator);
+                const auto& proofStorage = GetProofStorageCache(locator);
 
-				// register handlers
-				auto& packetHandlers = state.packetHandlers();
-				handlers::RegisterFinalizationStatisticsHandler(packetHandlers, proofStorage);
-				handlers::RegisterFinalizationProofAtEpochHandler(packetHandlers, proofStorage);
-				handlers::RegisterFinalizationProofAtHeightHandler(packetHandlers, proofStorage);
+                // register handlers
+                auto& packetHandlers = state.packetHandlers();
+                handlers::RegisterFinalizationStatisticsHandler(packetHandlers, proofStorage);
+                handlers::RegisterFinalizationProofAtEpochHandler(packetHandlers, proofStorage);
+                handlers::RegisterFinalizationProofAtHeightHandler(packetHandlers, proofStorage);
 
-				if (m_enableVoting) {
-					handlers::RegisterPushMessagesHandler(packetHandlers, hooks.messageRangeConsumer());
-					handlers::RegisterPullMessagesHandler(
-							packetHandlers,
-							[&messageAggregator](const auto& roundRange, const auto& shortHashes) {
-								return messageAggregator.view().unknownMessages(roundRange, shortHashes);
-							});
-				}
-			}
+                if (m_enableVoting) {
+                    handlers::RegisterPushMessagesHandler(packetHandlers, hooks.messageRangeConsumer());
+                    handlers::RegisterPullMessagesHandler(
+                        packetHandlers,
+                        [&messageAggregator](const auto& roundRange, const auto& shortHashes) {
+                            return messageAggregator.view().unknownMessages(roundRange, shortHashes);
+                        });
+                }
+            }
 
-		private:
-			bool m_enableVoting;
-		};
-	}
+        private:
+            bool m_enableVoting;
+        };
+    }
 
-	DECLARE_SERVICE_REGISTRAR(FinalizationSyncSource)(bool enableVoting) {
-		return std::make_unique<FinalizationSyncSourceServiceRegistrar>(enableVoting);
-	}
-}}
+    DECLARE_SERVICE_REGISTRAR(FinalizationSyncSource)
+    (bool enableVoting)
+    {
+        return std::make_unique<FinalizationSyncSourceServiceRegistrar>(enableVoting);
+    }
+}
+}

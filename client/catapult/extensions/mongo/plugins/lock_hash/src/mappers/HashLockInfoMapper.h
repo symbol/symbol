@@ -23,8 +23,12 @@
 #include "mongo/src/mappers/MapperInclude.h"
 #include "plugins/txes/lock_hash/src/state/HashLockInfoHistory.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	/// Maps \a history to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::HashLockInfoHistory& history);
-}}}
+        /// Maps \a history to the corresponding db model value.
+        bsoncxx::document::value ToDbModel(const state::HashLockInfoHistory& history);
+    }
+}
+}

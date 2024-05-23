@@ -24,39 +24,43 @@
 #include <memory>
 #include <string>
 
-namespace catapult { namespace model {
-	struct BlockchainConfiguration;
-}}
+namespace catapult {
+namespace model {
+    struct BlockchainConfiguration;
+}
+}
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Local node test state.
-	class LocalNodeTestState {
-	public:
-		/// Creates default state.
-		LocalNodeTestState();
+    /// Local node test state.
+    class LocalNodeTestState {
+    public:
+        /// Creates default state.
+        LocalNodeTestState();
 
-		/// Creates default state around \a config.
-		explicit LocalNodeTestState(const model::BlockchainConfiguration& config);
+        /// Creates default state around \a config.
+        explicit LocalNodeTestState(const model::BlockchainConfiguration& config);
 
-		/// Creates default state around \a cache.
-		explicit LocalNodeTestState(cache::CatapultCache&& cache);
+        /// Creates default state around \a cache.
+        explicit LocalNodeTestState(cache::CatapultCache&& cache);
 
-		/// Creates default state around \a config, \a userDataDirectory and \a cache.
-		LocalNodeTestState(
-				const model::BlockchainConfiguration& config,
-				const std::string& userDataDirectory,
-				cache::CatapultCache&& cache);
+        /// Creates default state around \a config, \a userDataDirectory and \a cache.
+        LocalNodeTestState(
+            const model::BlockchainConfiguration& config,
+            const std::string& userDataDirectory,
+            cache::CatapultCache&& cache);
 
-		/// Destroys the state.
-		~LocalNodeTestState();
+        /// Destroys the state.
+        ~LocalNodeTestState();
 
-	public:
-		/// Gets a state ref.
-		extensions::LocalNodeStateRef ref();
+    public:
+        /// Gets a state ref.
+        extensions::LocalNodeStateRef ref();
 
-	private:
-		struct Impl;
-		std::unique_ptr<Impl> m_pImpl;
-	};
-}}
+    private:
+        struct Impl;
+        std::unique_ptr<Impl> m_pImpl;
+    };
+}
+}

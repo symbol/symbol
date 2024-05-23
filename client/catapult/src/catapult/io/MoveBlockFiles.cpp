@@ -24,30 +24,33 @@
 #include "BlockStorage.h"
 #include "BufferInputStreamAdapter.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
-	void MoveBlockFiles(PrunableBlockStorage& sourceStorage, BlockStorage& destinationStorage, Height startHeight) {
-		if (startHeight < Height(1))
-			CATAPULT_THROW_INVALID_ARGUMENT_1("invalid height passed", startHeight);
+    void MoveBlockFiles(PrunableBlockStorage& sourceStorage, BlockStorage& destinationStorage, Height startHeight)
+    {
+        if (startHeight < Height(1))
+            CATAPULT_THROW_INVALID_ARGUMENT_1("invalid height passed", startHeight);
 
-		if (startHeight <= destinationStorage.chainHeight())
-			destinationStorage.dropBlocksAfter(startHeight - Height(1));
+        if (startHeight <= destinationStorage.chainHeight())
+            destinationStorage.dropBlocksAfter(startHeight - Height(1));
 
-		auto sourceHeight = sourceStorage.chainHeight();
-		for (auto height = startHeight; height <= sourceHeight; height = height + Height(1)) {
-			auto pBlockElement = sourceStorage.loadBlockElement(height);
-			auto blockStatementPair = sourceStorage.loadBlockStatementData(height);
+        auto sourceHeight = sourceStorage.chainHeight();
+        for (auto height = startHeight; height <= sourceHeight; height = height + Height(1)) {
+            auto pBlockElement = sourceStorage.loadBlockElement(height);
+            auto blockStatementPair = sourceStorage.loadBlockStatementData(height);
 
-			if (blockStatementPair.second) {
-				auto pBlockStatement = std::make_shared<model::BlockStatement>();
-				BufferInputStreamAdapter<std::vector<uint8_t>> blockStatementStream(blockStatementPair.first);
-				ReadBlockStatement(blockStatementStream, *pBlockStatement);
-				const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
-			}
+            if (blockStatementPair.second) {
+                auto pBlockStatement = std::make_shared<model::BlockStatement>();
+                BufferInputStreamAdapter<std::vector<uint8_t>> blockStatementStream(blockStatementPair.first);
+                ReadBlockStatement(blockStatementStream, *pBlockStatement);
+                const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
+            }
 
-			destinationStorage.saveBlock(*pBlockElement);
-		}
+            destinationStorage.saveBlock(*pBlockElement);
+        }
 
-		sourceStorage.purge();
-	}
-}}
+        sourceStorage.purge();
+    }
+}
+}

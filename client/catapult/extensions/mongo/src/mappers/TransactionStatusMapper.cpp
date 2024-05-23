@@ -23,12 +23,17 @@
 #include "MapperUtils.h"
 #include "catapult/model/TransactionStatus.h"
 
-namespace catapult { namespace mongo { namespace mappers {
+namespace catapult {
+namespace mongo {
+    namespace mappers {
 
-	bsoncxx::document::value ToDbModel(const model::TransactionStatus& status) {
-		bson_stream::document builder;
-		return builder << "status" << bson_stream::open_document << "hash" << ToBinary(status.Hash) << "code"
-					   << static_cast<int32_t>(status.Status) << "deadline" << ToInt64(status.Deadline) << bson_stream::close_document
-					   << bson_stream::finalize;
-	}
-}}}
+        bsoncxx::document::value ToDbModel(const model::TransactionStatus& status)
+        {
+            bson_stream::document builder;
+            return builder << "status" << bson_stream::open_document << "hash" << ToBinary(status.Hash) << "code"
+                           << static_cast<int32_t>(status.Status) << "deadline" << ToInt64(status.Deadline) << bson_stream::close_document
+                           << bson_stream::finalize;
+        }
+    }
+}
+}

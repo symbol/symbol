@@ -23,85 +23,100 @@
 #include "LocalNodeRequestTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		void AddAdditionalPlugins(config::CatapultConfiguration& config, NonNemesisTransactionPlugins additionalPlugins) {
-			auto& plugins = const_cast<model::BlockchainConfiguration&>(config.Blockchain).Plugins;
-			if (NonNemesisTransactionPlugins::Lock_Secret == additionalPlugins) {
-				plugins.emplace(
-						"catapult.plugins.locksecret",
-						utils::ConfigurationBag(
-								{ { "", { { "maxSecretLockDuration", "1h" }, { "minProofSize", "10" }, { "maxProofSize", "1000" } } } }));
-			}
+    namespace {
+        void AddAdditionalPlugins(config::CatapultConfiguration& config, NonNemesisTransactionPlugins additionalPlugins)
+        {
+            auto& plugins = const_cast<model::BlockchainConfiguration&>(config.Blockchain).Plugins;
+            if (NonNemesisTransactionPlugins::Lock_Secret == additionalPlugins) {
+                plugins.emplace(
+                    "catapult.plugins.locksecret",
+                    utils::ConfigurationBag(
+                        { { "", { { "maxSecretLockDuration", "1h" }, { "minProofSize", "10" }, { "maxProofSize", "1000" } } } }));
+            }
 
-			if (NonNemesisTransactionPlugins::Restriction_Account == additionalPlugins) {
-				plugins.emplace(
-						"catapult.plugins.restrictionaccount",
-						utils::ConfigurationBag({ { "", { { "maxAccountRestrictionValues", "10" } } } }));
-			}
-		}
-	}
+            if (NonNemesisTransactionPlugins::Restriction_Account == additionalPlugins) {
+                plugins.emplace(
+                    "catapult.plugins.restrictionaccount",
+                    utils::ConfigurationBag({ { "", { { "maxAccountRestrictionValues", "10" } } } }));
+            }
+        }
+    }
 
-	PeerLocalNodeTestContext::PeerLocalNodeTestContext(
-			NodeFlag nodeFlag,
-			NonNemesisTransactionPlugins additionalPlugins,
-			const consumer<config::CatapultConfiguration&>& configTransform)
-			: m_context(
-					  nodeFlag | NodeFlag::With_Partner,
-					  {},
-					  [additionalPlugins, configTransform](auto& config) {
-						  AddAdditionalPlugins(config, additionalPlugins);
-						  configTransform(config);
-					  },
-					  "") {
-	}
+    PeerLocalNodeTestContext::PeerLocalNodeTestContext(
+        NodeFlag nodeFlag,
+        NonNemesisTransactionPlugins additionalPlugins,
+        const consumer<config::CatapultConfiguration&>& configTransform)
+        : m_context(
+              nodeFlag | NodeFlag::With_Partner,
+              {},
+              [additionalPlugins, configTransform](auto& config) {
+                  AddAdditionalPlugins(config, additionalPlugins);
+                  configTransform(config);
+              },
+              "")
+    {
+    }
 
-	const Key& PeerLocalNodeTestContext::publicKey() const {
-		return m_context.publicKey();
-	}
+    const Key& PeerLocalNodeTestContext::publicKey() const
+    {
+        return m_context.publicKey();
+    }
 
-	local::LocalNode& PeerLocalNodeTestContext::localNode() const {
-		return m_context.localNode();
-	}
+    local::LocalNode& PeerLocalNodeTestContext::localNode() const
+    {
+        return m_context.localNode();
+    }
 
-	std::string PeerLocalNodeTestContext::dataDirectory() const {
-		return m_context.dataDirectory();
-	}
+    std::string PeerLocalNodeTestContext::dataDirectory() const
+    {
+        return m_context.dataDirectory();
+    }
 
-	PeerLocalNodeStats PeerLocalNodeTestContext::stats() const {
-		return m_context.stats();
-	}
+    PeerLocalNodeStats PeerLocalNodeTestContext::stats() const
+    {
+        return m_context.stats();
+    }
 
-	Height PeerLocalNodeTestContext::height() const {
-		ExternalSourceConnection connection(publicKey());
-		return GetLocalNodeHeightViaApi(connection);
-	}
+    Height PeerLocalNodeTestContext::height() const
+    {
+        ExternalSourceConnection connection(publicKey());
+        return GetLocalNodeHeightViaApi(connection);
+    }
 
-	Height PeerLocalNodeTestContext::loadSavedStateChainHeight() const {
-		return m_context.loadSavedStateChainHeight();
-	}
+    Height PeerLocalNodeTestContext::loadSavedStateChainHeight() const
+    {
+        return m_context.loadSavedStateChainHeight();
+    }
 
-	config::CatapultConfiguration PeerLocalNodeTestContext::createConfig() const {
-		return m_context.createConfig();
-	}
+    config::CatapultConfiguration PeerLocalNodeTestContext::createConfig() const
+    {
+        return m_context.createConfig();
+    }
 
-	void PeerLocalNodeTestContext::waitForHeight(Height height) const {
-		ExternalSourceConnection connection(publicKey());
-		WaitForLocalNodeHeight(connection, height);
-	}
+    void PeerLocalNodeTestContext::waitForHeight(Height height) const
+    {
+        ExternalSourceConnection connection(publicKey());
+        WaitForLocalNodeHeight(connection, height);
+    }
 
-	config::CatapultConfiguration PeerLocalNodeTestContext::prepareFreshDataDirectory(const std::string& directory) const {
-		return m_context.prepareFreshDataDirectory(directory);
-	}
+    config::CatapultConfiguration PeerLocalNodeTestContext::prepareFreshDataDirectory(const std::string& directory) const
+    {
+        return m_context.prepareFreshDataDirectory(directory);
+    }
 
-	void PeerLocalNodeTestContext::assertSingleReaderConnection() const {
-		AssertSingleReaderConnection(stats());
-	}
+    void PeerLocalNodeTestContext::assertSingleReaderConnection() const
+    {
+        AssertSingleReaderConnection(stats());
+    }
 
-	void PeerLocalNodeTestContext::AssertSingleReaderConnection(const PeerLocalNodeStats& stats) {
-		// Assert: the external reader connection is still active
-		EXPECT_EQ(1u, stats.NumActiveReaders);
-		EXPECT_EQ(1u, stats.NumActiveWriters);
-	}
-}}
+    void PeerLocalNodeTestContext::AssertSingleReaderConnection(const PeerLocalNodeStats& stats)
+    {
+        // Assert: the external reader connection is still active
+        EXPECT_EQ(1u, stats.NumActiveReaders);
+        EXPECT_EQ(1u, stats.NumActiveWriters);
+    }
+}
+}

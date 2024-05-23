@@ -20,30 +20,35 @@
 **/
 
 #include "Validators.h"
-#include "src/model/AggregateEntityType.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "src/model/AggregateEntityType.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::EntityNotification;
+    using Notification = model::EntityNotification;
 
-	namespace {
-		constexpr bool IsAggregate(model::EntityType entityType) {
-			return model::Entity_Type_Aggregate_Bonded == entityType || model::Entity_Type_Aggregate_Complete == entityType;
-		}
-	}
+    namespace {
+        constexpr bool IsAggregate(model::EntityType entityType)
+        {
+            return model::Entity_Type_Aggregate_Bonded == entityType || model::Entity_Type_Aggregate_Complete == entityType;
+        }
+    }
 
-	DECLARE_STATEFUL_VALIDATOR(AggregateTransactionVersion, Notification)(Height v2ForkHeight) {
-		return MAKE_STATEFUL_VALIDATOR(
-				AggregateTransactionVersion,
-				([v2ForkHeight](const Notification& notification, const ValidatorContext& context) {
-					if (!IsAggregate(notification.EntityType))
-						return ValidationResult::Success;
+    DECLARE_STATEFUL_VALIDATOR(AggregateTransactionVersion, Notification)
+    (Height v2ForkHeight)
+    {
+        return MAKE_STATEFUL_VALIDATOR(
+            AggregateTransactionVersion,
+            ([v2ForkHeight](const Notification& notification, const ValidatorContext& context) {
+                if (!IsAggregate(notification.EntityType))
+                    return ValidationResult::Success;
 
-					if (context.Height < v2ForkHeight)
-						return 1 == notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V2_Prohibited;
-					else
-						return 2 <= notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V1_Prohibited;
-				}));
-	}
-}}
+                if (context.Height < v2ForkHeight)
+                    return 1 == notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V2_Prohibited;
+                else
+                    return 2 <= notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V1_Prohibited;
+            }));
+    }
+}
+}

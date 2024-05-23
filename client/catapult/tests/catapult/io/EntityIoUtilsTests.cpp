@@ -20,67 +20,73 @@
 **/
 
 #include "catapult/io/EntityIoUtils.h"
-#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 
-namespace catapult { namespace io {
+namespace catapult {
+namespace io {
 
 #define TEST_CLASS EntityIoUtilsTests
 
-	namespace {
-		struct CustomEntity : public model::SizePrefixedEntity {
-			uint64_t Value;
-		};
+    namespace {
+        struct CustomEntity : public model::SizePrefixedEntity {
+            uint64_t Value;
+        };
 
-		std::unique_ptr<CustomEntity> CreateRandomEntity(uint32_t size) {
-			auto pEntity = utils::MakeUniqueWithSize<CustomEntity>(size);
-			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pEntity.get()), size });
-			pEntity->Size = size;
-			return pEntity;
-		}
-	}
+        std::unique_ptr<CustomEntity> CreateRandomEntity(uint32_t size)
+        {
+            auto pEntity = utils::MakeUniqueWithSize<CustomEntity>(size);
+            test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pEntity.get()), size });
+            pEntity->Size = size;
+            return pEntity;
+        }
+    }
 
-	TEST(TEST_CLASS, CanWriteEntity) {
-		// Arrange:
-		auto pEntity = CreateRandomEntity(49);
+    TEST(TEST_CLASS, CanWriteEntity)
+    {
+        // Arrange:
+        auto pEntity = CreateRandomEntity(49);
 
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream(buffer);
+        std::vector<uint8_t> buffer;
+        mocks::MockMemoryStream stream(buffer);
 
-		// Act:
-		WriteEntity(stream, *pEntity);
+        // Act:
+        WriteEntity(stream, *pEntity);
 
-		// Assert: full entity was written
-		ASSERT_EQ(pEntity->Size, buffer.size());
-		EXPECT_EQ_MEMORY(pEntity.get(), buffer.data(), buffer.size());
-	}
+        // Assert: full entity was written
+        ASSERT_EQ(pEntity->Size, buffer.size());
+        EXPECT_EQ_MEMORY(pEntity.get(), buffer.data(), buffer.size());
+    }
 
-	TEST(TEST_CLASS, CanReadEntity) {
-		// Arrange:
-		auto pEntity = CreateRandomEntity(49);
+    TEST(TEST_CLASS, CanReadEntity)
+    {
+        // Arrange:
+        auto pEntity = CreateRandomEntity(49);
 
-		std::vector<uint8_t> buffer(pEntity->Size);
-		std::memcpy(buffer.data(), pEntity.get(), pEntity->Size);
-		mocks::MockMemoryStream stream(buffer);
+        std::vector<uint8_t> buffer(pEntity->Size);
+        std::memcpy(buffer.data(), pEntity.get(), pEntity->Size);
+        mocks::MockMemoryStream stream(buffer);
 
-		// Act:
-		auto pReadEntity = ReadEntity<CustomEntity>(stream);
+        // Act:
+        auto pReadEntity = ReadEntity<CustomEntity>(stream);
 
-		// Assert: full entity was read
-		EXPECT_EQ(*pEntity, *pReadEntity);
-	}
+        // Assert: full entity was read
+        EXPECT_EQ(*pEntity, *pReadEntity);
+    }
 
-	TEST(TEST_CLASS, CannotReadEntityWithInvalidSize) {
-		// Arrange:
-		auto pEntity = CreateRandomEntity(49);
+    TEST(TEST_CLASS, CannotReadEntityWithInvalidSize)
+    {
+        // Arrange:
+        auto pEntity = CreateRandomEntity(49);
 
-		// - indicate entity extends one byte beyond end of stream
-		std::vector<uint8_t> buffer(pEntity->Size);
-		std::memcpy(buffer.data(), pEntity.get(), pEntity->Size);
-		++reinterpret_cast<uint32_t&>(buffer[0]);
-		mocks::MockMemoryStream stream(buffer);
+        // - indicate entity extends one byte beyond end of stream
+        std::vector<uint8_t> buffer(pEntity->Size);
+        std::memcpy(buffer.data(), pEntity.get(), pEntity->Size);
+        ++reinterpret_cast<uint32_t&>(buffer[0]);
+        mocks::MockMemoryStream stream(buffer);
 
-		// Act + Assert:
-		EXPECT_THROW(ReadEntity<CustomEntity>(stream), catapult_runtime_error);
-	}
-}}
+        // Act + Assert:
+        EXPECT_THROW(ReadEntity<CustomEntity>(stream), catapult_runtime_error);
+    }
+}
+}

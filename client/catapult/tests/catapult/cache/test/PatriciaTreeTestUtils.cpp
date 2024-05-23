@@ -21,35 +21,41 @@
 
 #include "PatriciaTreeTestUtils.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		template<typename TTree>
-		void SeedTreeWithFourNodesT(TTree& tree) {
-			tree.set(0x64'6F'00'00, "verb");
-			tree.set(0x64'6F'67'00, "puppy");
-			tree.set(0x64'6F'67'65, "coin");
-			tree.set(0x68'6F'72'73, "stallion");
-		}
-	}
+    namespace {
+        template <typename TTree>
+        void SeedTreeWithFourNodesT(TTree& tree)
+        {
+            tree.set(0x64'6F'00'00, "verb");
+            tree.set(0x64'6F'67'00, "puppy");
+            tree.set(0x64'6F'67'65, "coin");
+            tree.set(0x68'6F'72'73, "stallion");
+        }
+    }
 
-	void SeedTreeWithFourNodes(MemoryPatriciaTree& tree) {
-		SeedTreeWithFourNodesT(tree);
-	}
+    void SeedTreeWithFourNodes(MemoryPatriciaTree& tree)
+    {
+        SeedTreeWithFourNodesT(tree);
+    }
 
-	void SeedTreeWithFourNodes(MemoryBasePatriciaTree& tree) {
-		auto pDeltaTree = tree.rebase();
-		SeedTreeWithFourNodesT(*pDeltaTree);
-		tree.commit();
-	}
+    void SeedTreeWithFourNodes(MemoryBasePatriciaTree& tree)
+    {
+        auto pDeltaTree = tree.rebase();
+        SeedTreeWithFourNodesT(*pDeltaTree);
+        tree.commit();
+    }
 
-	Hash256 CalculateRootHash(const std::vector<std::pair<uint32_t, std::string>>& pairs) {
-		tree::MemoryDataSource dataSource;
-		MemoryPatriciaTree tree(dataSource);
+    Hash256 CalculateRootHash(const std::vector<std::pair<uint32_t, std::string>>& pairs)
+    {
+        tree::MemoryDataSource dataSource;
+        MemoryPatriciaTree tree(dataSource);
 
-		for (const auto& pair : pairs)
-			tree.set(pair.first, pair.second);
+        for (const auto& pair : pairs)
+            tree.set(pair.first, pair.second);
 
-		return tree.root();
-	}
-}}
+        return tree.root();
+    }
+}
+}

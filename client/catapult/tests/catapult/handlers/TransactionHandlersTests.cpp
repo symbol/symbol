@@ -20,6 +20,7 @@
 **/
 
 #include "catapult/handlers/TransactionHandlers.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
@@ -27,148 +28,160 @@
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/PullHandlerTests.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
 #define TEST_CLASS TransactionHandlersTests
 
-	// region PushTransactionsHandler
+    // region PushTransactionsHandler
 
-	namespace {
-		struct PushTransactionsTraits {
-			static constexpr auto Packet_Type = ionet::PacketType::Push_Transactions;
-			static constexpr auto Data_Size = sizeof(mocks::MockTransaction);
+    namespace {
+        struct PushTransactionsTraits {
+            static constexpr auto Packet_Type = ionet::PacketType::Push_Transactions;
+            static constexpr auto Data_Size = sizeof(mocks::MockTransaction);
 
-			static constexpr size_t AdditionalPacketSize(size_t numTransactions) {
-				return numTransactions * (numTransactions + 1) / 2;
-			}
+            static constexpr size_t AdditionalPacketSize(size_t numTransactions)
+            {
+                return numTransactions * (numTransactions + 1) / 2;
+            }
 
-			static void PreparePacket(ionet::ByteBuffer& buffer, size_t count) {
-				auto currentOffset = sizeof(ionet::Packet);
-				for (auto i = 0u; i < count; ++i) {
-					auto size = Data_Size + i + 1;
-					test::SetTransactionAt(buffer, currentOffset, size);
-					currentOffset += size;
-				}
-			}
+            static void PreparePacket(ionet::ByteBuffer& buffer, size_t count)
+            {
+                auto currentOffset = sizeof(ionet::Packet);
+                for (auto i = 0u; i < count; ++i) {
+                    auto size = Data_Size + i + 1;
+                    test::SetTransactionAt(buffer, currentOffset, size);
+                    currentOffset += size;
+                }
+            }
 
-			static auto CreateRegistry() {
-				model::TransactionRegistry registry;
-				registry.registerPlugin(mocks::CreateMockTransactionPlugin());
-				return registry;
-			}
+            static auto CreateRegistry()
+            {
+                model::TransactionRegistry registry;
+                registry.registerPlugin(mocks::CreateMockTransactionPlugin());
+                return registry;
+            }
 
-			static auto RegisterHandler(
-					ionet::ServerPacketHandlers& handlers,
-					const model::TransactionRegistry& registry,
-					const TransactionRangeHandler& rangeHandler) {
-				return RegisterPushTransactionsHandler(handlers, registry, rangeHandler);
-			}
-		};
-	}
+            static auto RegisterHandler(
+                ionet::ServerPacketHandlers& handlers,
+                const model::TransactionRegistry& registry,
+                const TransactionRangeHandler& rangeHandler)
+            {
+                return RegisterPushTransactionsHandler(handlers, registry, rangeHandler);
+            }
+        };
+    }
 
-	DEFINE_PUSH_HANDLER_TESTS(TEST_CLASS, PushTransactions)
+    DEFINE_PUSH_HANDLER_TESTS(TEST_CLASS, PushTransactions)
 
-	// endregion
+    // endregion
 
-	// region PullTransactionsHandler - basic edge case tests
+    // region PullTransactionsHandler - basic edge case tests
 
-	namespace {
-		struct PullTransactionsTraits {
-			static constexpr auto Data_Header_Size = sizeof(Timestamp) + sizeof(BlockFeeMultiplier);
-			static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
-			static constexpr auto Valid_Request_Payload_Size = SizeOf32<utils::ShortHash>();
+    namespace {
+        struct PullTransactionsTraits {
+            static constexpr auto Data_Header_Size = sizeof(Timestamp) + sizeof(BlockFeeMultiplier);
+            static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
+            static constexpr auto Valid_Request_Payload_Size = SizeOf32<utils::ShortHash>();
 
-			using ResponseType = UnconfirmedTransactions;
-			using RetrieverParamType = utils::ShortHashesSet;
+            using ResponseType = UnconfirmedTransactions;
+            using RetrieverParamType = utils::ShortHashesSet;
 
-			using UtRetrieverAdapter = std::function<UnconfirmedTransactions(const utils::ShortHashesSet&)>;
-			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever) {
-				handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](auto, auto, const auto& knownShortHashes) {
-					return utRetriever(knownShortHashes);
-				});
-			}
-		};
+            using UtRetrieverAdapter = std::function<UnconfirmedTransactions(const utils::ShortHashesSet&)>;
+            static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever)
+            {
+                handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](auto, auto, const auto& knownShortHashes) {
+                    return utRetriever(knownShortHashes);
+                });
+            }
+        };
 
-		DEFINE_PULL_HANDLER_EDGE_CASE_TESTS(TEST_CLASS, PullTransactions)
-	}
+        DEFINE_PULL_HANDLER_EDGE_CASE_TESTS(TEST_CLASS, PullTransactions)
+    }
 
-	// endregion
+    // endregion
 
-	// region PullTransactionsHandler - request + response tests
+    // region PullTransactionsHandler - request + response tests
 
-	namespace {
-		class PullTransactionsRequestResponseTraits {
-		public:
-			static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
+    namespace {
+        class PullTransactionsRequestResponseTraits {
+        public:
+            static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
 
 #pragma pack(push, 1)
 
-			struct FilterType {
-			public:
-				Timestamp Deadline;
-				BlockFeeMultiplier FeeMultiplier;
+            struct FilterType {
+            public:
+                Timestamp Deadline;
+                BlockFeeMultiplier FeeMultiplier;
 
-			public:
-				constexpr bool operator==(const FilterType& rhs) const {
-					return Deadline == rhs.Deadline && FeeMultiplier == rhs.FeeMultiplier;
-				}
-			};
+            public:
+                constexpr bool operator==(const FilterType& rhs) const
+                {
+                    return Deadline == rhs.Deadline && FeeMultiplier == rhs.FeeMultiplier;
+                }
+            };
 
 #pragma pack(pop)
 
-			using UtRetrieverAdapter = std::function<UnconfirmedTransactions(const FilterType&, const utils::ShortHashesSet&)>;
-			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever) {
-				handlers::RegisterPullTransactionsHandler(
-						handlers,
-						[utRetriever](auto minDeadline, auto minFeeMultiplier, const auto& knownShortHashes) {
-							return utRetriever(
-									{
-											minDeadline,
-											minFeeMultiplier,
-									},
-									knownShortHashes);
-						});
-			}
+            using UtRetrieverAdapter = std::function<UnconfirmedTransactions(const FilterType&, const utils::ShortHashesSet&)>;
+            static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever)
+            {
+                handlers::RegisterPullTransactionsHandler(
+                    handlers,
+                    [utRetriever](auto minDeadline, auto minFeeMultiplier, const auto& knownShortHashes) {
+                        return utRetriever(
+                            {
+                                minDeadline,
+                                minFeeMultiplier,
+                            },
+                            knownShortHashes);
+                    });
+            }
 
-		public:
-			class PullResponseContext {
-			public:
-				explicit PullResponseContext(size_t numResponseTransactions) {
-					for (uint16_t i = 0u; i < numResponseTransactions; ++i)
-						m_transactions.push_back(mocks::CreateMockTransaction(static_cast<uint16_t>(i + 1)));
-				}
+        public:
+            class PullResponseContext {
+            public:
+                explicit PullResponseContext(size_t numResponseTransactions)
+                {
+                    for (uint16_t i = 0u; i < numResponseTransactions; ++i)
+                        m_transactions.push_back(mocks::CreateMockTransaction(static_cast<uint16_t>(i + 1)));
+                }
 
-			public:
-				const auto& response() const {
-					return m_transactions;
-				}
+            public:
+                const auto& response() const
+                {
+                    return m_transactions;
+                }
 
-				auto responseSize() const {
-					return test::TotalSize(m_transactions);
-				}
+                auto responseSize() const
+                {
+                    return test::TotalSize(m_transactions);
+                }
 
-				void assertPayload(const ionet::PacketPayload& payload) {
-					ASSERT_EQ(m_transactions.size(), payload.buffers().size());
+                void assertPayload(const ionet::PacketPayload& payload)
+                {
+                    ASSERT_EQ(m_transactions.size(), payload.buffers().size());
 
-					auto i = 0u;
-					for (const auto& pExpectedTransaction : m_transactions) {
-						const auto& transaction = reinterpret_cast<const mocks::MockTransaction&>(*payload.buffers()[i++].pData);
-						EXPECT_EQ(*pExpectedTransaction, transaction);
-					}
-				}
+                    auto i = 0u;
+                    for (const auto& pExpectedTransaction : m_transactions) {
+                        const auto& transaction = reinterpret_cast<const mocks::MockTransaction&>(*payload.buffers()[i++].pData);
+                        EXPECT_EQ(*pExpectedTransaction, transaction);
+                    }
+                }
 
-			private:
-				UnconfirmedTransactions m_transactions;
-			};
-		};
-	}
+            private:
+                UnconfirmedTransactions m_transactions;
+            };
+        };
+    }
 
-	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(
-			TEST_CLASS,
-			PullTransactions,
-			test::PullEntitiesHandlerAssertAdapter<PullTransactionsRequestResponseTraits>::AssertFunc)
+    DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(
+        TEST_CLASS,
+        PullTransactions,
+        test::PullEntitiesHandlerAssertAdapter<PullTransactionsRequestResponseTraits>::AssertFunc)
 
-	// endregion
-}}
+    // endregion
+}
+}

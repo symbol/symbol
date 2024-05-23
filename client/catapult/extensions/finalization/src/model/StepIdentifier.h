@@ -24,78 +24,80 @@
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #pragma pack(push, 1)
 
-	// region step identifier
+    // region step identifier
 
-	/// Finalization stages.
-	enum class FinalizationStage : uint32_t {
-		/// Prevote stage.
-		Prevote,
+    /// Finalization stages.
+    enum class FinalizationStage : uint32_t {
+        /// Prevote stage.
+        Prevote,
 
-		/// Precommit stage.
-		Precommit,
+        /// Precommit stage.
+        Precommit,
 
-		/// Number of stages.
-		Count
-	};
+        /// Number of stages.
+        Count
+    };
 
-	/// Finalization step identifier.
-	struct StepIdentifier {
-	public:
-		struct FinalizationPointStage_tag {};
-		using FinalizationPointStage = utils::BaseValue<uint32_t, FinalizationPointStage_tag>;
+    /// Finalization step identifier.
+    struct StepIdentifier {
+    public:
+        struct FinalizationPointStage_tag { };
+        using FinalizationPointStage = utils::BaseValue<uint32_t, FinalizationPointStage_tag>;
 
-	public:
-		/// Creates a default step identifier.
-		StepIdentifier();
+    public:
+        /// Creates a default step identifier.
+        StepIdentifier();
 
-		/// Creates a step identifier from \a epoch, \a point and \a stage.
-		StepIdentifier(FinalizationEpoch epoch, FinalizationPoint point, FinalizationStage stage);
+        /// Creates a step identifier from \a epoch, \a point and \a stage.
+        StepIdentifier(FinalizationEpoch epoch, FinalizationPoint point, FinalizationStage stage);
 
-	public:
-		/// Finalization epoch.
-		FinalizationEpoch Epoch;
+    public:
+        /// Finalization epoch.
+        FinalizationEpoch Epoch;
 
-		/// Finalization point and stage.
-		FinalizationPointStage PointStage;
+        /// Finalization point and stage.
+        FinalizationPointStage PointStage;
 
-	public:
-		/// Gets the finalization round.
-		model::FinalizationRound Round() const;
+    public:
+        /// Gets the finalization round.
+        model::FinalizationRound Round() const;
 
-		/// Gets the finalization stage.
-		model::FinalizationStage Stage() const;
+        /// Gets the finalization stage.
+        model::FinalizationStage Stage() const;
 
-	public:
-		/// Returns \c true if this step identifier is equal to \a rhs.
-		bool operator==(const StepIdentifier& rhs) const;
+    public:
+        /// Returns \c true if this step identifier is equal to \a rhs.
+        bool operator==(const StepIdentifier& rhs) const;
 
-		/// Returns \c true if this step identifier is not equal to \a rhs.
-		bool operator!=(const StepIdentifier& rhs) const;
+        /// Returns \c true if this step identifier is not equal to \a rhs.
+        bool operator!=(const StepIdentifier& rhs) const;
 
-		/// Returns \c true if this step identifier is less than \a rhs.
-		bool operator<(const StepIdentifier& rhs) const;
+        /// Returns \c true if this step identifier is less than \a rhs.
+        bool operator<(const StepIdentifier& rhs) const;
 
-		/// Returns \c true if this step identifier is less than or equal to \a rhs.
-		bool operator<=(const StepIdentifier& rhs) const;
+        /// Returns \c true if this step identifier is less than or equal to \a rhs.
+        bool operator<=(const StepIdentifier& rhs) const;
 
-		/// Returns \c true if this step identifier is greater than \a rhs.
-		bool operator>(const StepIdentifier& rhs) const;
+        /// Returns \c true if this step identifier is greater than \a rhs.
+        bool operator>(const StepIdentifier& rhs) const;
 
-		/// Returns \c true if this step identifier is greater than or equal to \a rhs.
-		bool operator>=(const StepIdentifier& rhs) const;
-	};
+        /// Returns \c true if this step identifier is greater than or equal to \a rhs.
+        bool operator>=(const StepIdentifier& rhs) const;
+    };
 
-	/// Insertion operator for outputting \a stepIdentifier to \a out.
-	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier);
+    /// Insertion operator for outputting \a stepIdentifier to \a out.
+    std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier);
 
-	// endregion
+    // endregion
 
 #pragma pack(pop)
 
-	/// Converts \a stepIdentifier to bm key identifier.
-	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier);
-}}
+    /// Converts \a stepIdentifier to bm key identifier.
+    crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier);
+}
+}

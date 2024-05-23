@@ -20,12 +20,15 @@
 **/
 
 #pragma once
-#include "src/model/AccountLinkNotifications.h"
 #include "catapult/observers/ObserverTypes.h"
+#include "src/model/AccountLinkNotifications.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	/// Observes changes triggered by remote account key link notifications and:
-	/// - links/unlinks remote and main accounts
-	DECLARE_OBSERVER(AccountKeyLink, model::RemoteAccountKeyLinkNotification)();
-}}
+    /// Observes changes triggered by remote account key link notifications and:
+    /// - links/unlinks remote and main accounts
+    DECLARE_OBSERVER(AccountKeyLink, model::RemoteAccountKeyLinkNotification)
+    ();
+}
+}

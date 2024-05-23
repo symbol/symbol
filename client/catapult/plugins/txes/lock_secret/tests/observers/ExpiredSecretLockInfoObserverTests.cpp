@@ -19,317 +19,336 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/SecretLockReceiptType.h"
-#include "src/observers/Observers.h"
 #include "catapult/model/Address.h"
 #include "plugins/txes/lock_shared/tests/observers/ExpiredLockInfoObserverTests.h"
+#include "src/model/SecretLockReceiptType.h"
+#include "src/observers/Observers.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
 #define TEST_CLASS ExpiredSecretLockInfoObserverTests
 
-	namespace {
-		using HeightUnorderedSet = std::unordered_set<Height, utils::BaseValueHasher<Height>>;
-	}
+    namespace {
+        using HeightUnorderedSet = std::unordered_set<Height, utils::BaseValueHasher<Height>>;
+    }
 
-	DEFINE_COMMON_OBSERVER_TESTS(ExpiredSecretLockInfo, HeightUnorderedSet(), HeightUnorderedSet())
+    DEFINE_COMMON_OBSERVER_TESTS(ExpiredSecretLockInfo, HeightUnorderedSet(), HeightUnorderedSet())
 
-	namespace {
-		struct ExpiredSecretLockInfoTraits : public test::BasicSecretLockInfoTestTraits {
-		public:
-			using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
+    namespace {
+        struct ExpiredSecretLockInfoTraits : public test::BasicSecretLockInfoTestTraits {
+        public:
+            using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
 
-			static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Expired;
+            static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Expired;
 
-		public:
-			static auto CreateObserver() {
-				return CreateExpiredSecretLockInfoObserver(HeightUnorderedSet(), HeightUnorderedSet());
-			}
+        public:
+            static auto CreateObserver()
+            {
+                return CreateExpiredSecretLockInfoObserver(HeightUnorderedSet(), HeightUnorderedSet());
+            }
 
-			static auto& SubCache(cache::CatapultCacheDelta& cache) {
-				return cache.sub<cache::SecretLockInfoCache>();
-			}
-		};
+            static auto& SubCache(cache::CatapultCacheDelta& cache)
+            {
+                return cache.sub<cache::SecretLockInfoCache>();
+            }
+        };
 
-		using ObserverTests = ExpiredLockInfoObserverTests<ExpiredSecretLockInfoTraits>;
-		using SeedTuple = ObserverTests::SeedTuple;
+        using ObserverTests = ExpiredLockInfoObserverTests<ExpiredSecretLockInfoTraits>;
+        using SeedTuple = ObserverTests::SeedTuple;
 
-		constexpr auto Harvester_Type = ObserverTests::HarvesterType::Main;
-	}
+        constexpr auto Harvester_Type = ObserverTests::HarvesterType::Main;
+    }
 
-	// region no operation
+    // region no operation
 
-	namespace {
-		// these tests don't stricly require public key instead of address because harvester type is always Main
-		// and public key is only required when harvester type is Remote
+    namespace {
+        // these tests don't stricly require public key instead of address because harvester type is always Main
+        // and public key is only required when harvester type is Remote
 
-		Address ToAddress(const Key& publicKey) {
-			return model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Zero);
-		}
-	}
+        Address ToAddress(const Key& publicKey)
+        {
+            return model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Zero);
+        }
+    }
 
-	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Commit) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+    TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Commit)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		std::vector<SeedTuple> expiringSeeds;
+        std::vector<SeedTuple> expiringSeeds;
 
-		// Act + Assert:
-		ObserverTests::RunBalanceTest(
-				NotifyMode::Commit,
-				Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { blockHarvester, MosaicId(500), Amount(200), Amount() } });
-	}
+        // Act + Assert:
+        ObserverTests::RunBalanceTest(
+            NotifyMode::Commit,
+            Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { blockHarvester, MosaicId(500), Amount(200), Amount() } });
+    }
 
-	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Rollback) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+    TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Rollback)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		std::vector<SeedTuple> expiringSeeds;
+        std::vector<SeedTuple> expiringSeeds;
 
-		// Act + Assert:
-		ObserverTests::RunBalanceTest(
-				NotifyMode::Rollback,
-				Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { blockHarvester, MosaicId(500), Amount(200), Amount() } });
-	}
+        // Act + Assert:
+        ObserverTests::RunBalanceTest(
+            NotifyMode::Rollback,
+            Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { blockHarvester, MosaicId(500), Amount(200), Amount() } });
+    }
 
-	// endregion
+    // endregion
 
-	// region expiration (single)
+    // region expiration (single)
 
-	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Single) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+    TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Single)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		auto address = test::GenerateRandomByteArray<Address>();
-		std::vector<SeedTuple> expiringSeeds{ { address, MosaicId(111), Amount(333), Amount(33) } };
+        auto address = test::GenerateRandomByteArray<Address>();
+        std::vector<SeedTuple> expiringSeeds { { address, MosaicId(111), Amount(333), Amount(33) } };
 
-		// Act + Assert:
-		ObserverTests::RunBalanceTest(
-				NotifyMode::Commit,
-				Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { address, MosaicId(111), Amount(333 + 33), Amount() }, { blockHarvester, MosaicId(500), Amount(200), Amount() } });
-	}
+        // Act + Assert:
+        ObserverTests::RunBalanceTest(
+            NotifyMode::Commit,
+            Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { address, MosaicId(111), Amount(333 + 33), Amount() }, { blockHarvester, MosaicId(500), Amount(200), Amount() } });
+    }
 
-	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Single) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+    TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Single)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		auto address = test::GenerateRandomByteArray<Address>();
-		std::vector<SeedTuple> expiringSeeds{ { address, MosaicId(111), Amount(333), Amount(33) } };
+        auto address = test::GenerateRandomByteArray<Address>();
+        std::vector<SeedTuple> expiringSeeds { { address, MosaicId(111), Amount(333), Amount(33) } };
 
-		// Act + Assert:
-		ObserverTests::RunBalanceTest(
-				NotifyMode::Rollback,
-				Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { address, MosaicId(111), Amount(333 - 33), Amount() }, { blockHarvester, MosaicId(500), Amount(200), Amount() } });
-	}
+        // Act + Assert:
+        ObserverTests::RunBalanceTest(
+            NotifyMode::Rollback,
+            Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { address, MosaicId(111), Amount(333 - 33), Amount() }, { blockHarvester, MosaicId(500), Amount(200), Amount() } });
+    }
 
-	// endregion
+    // endregion
 
-	// region expiration (multiple)
+    // region expiration (multiple)
 
-	namespace {
-		template<typename TSeedTuple = SeedTuple>
-		std::vector<TSeedTuple> CreateExpiringSeedTuplesForMultipleTests(const std::vector<Address>& addresses) {
-			return { { addresses[0], MosaicId(111), Amount(333), Amount(33) },
-					 { addresses[1], MosaicId(222), Amount(222), Amount(88) },
-					 { addresses[2], MosaicId(111), Amount(444), Amount(44) },
-					 { addresses[1], MosaicId(222), Amount(), Amount(22) } };
-		}
-	}
+    namespace {
+        template <typename TSeedTuple = SeedTuple>
+        std::vector<TSeedTuple> CreateExpiringSeedTuplesForMultipleTests(const std::vector<Address>& addresses)
+        {
+            return { { addresses[0], MosaicId(111), Amount(333), Amount(33) },
+                { addresses[1], MosaicId(222), Amount(222), Amount(88) },
+                { addresses[2], MosaicId(111), Amount(444), Amount(44) },
+                { addresses[1], MosaicId(222), Amount(), Amount(22) } };
+        }
+    }
 
-	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Multiple) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+    TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Multiple)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		auto addresses = test::GenerateRandomDataVector<Address>(3);
-		auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests(addresses);
+        auto addresses = test::GenerateRandomDataVector<Address>(3);
+        auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests(addresses);
 
-		// Act + Assert:
-		ObserverTests::RunBalanceTest(
-				NotifyMode::Commit,
-				Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { addresses[0], MosaicId(111), Amount(333 + 33), Amount() },
-				  { addresses[1], MosaicId(222), Amount(222 + 88 + 22), Amount() },
-				  { addresses[2], MosaicId(111), Amount(444 + 44), Amount() },
-				  { blockHarvester, MosaicId(500), Amount(200), Amount() } });
-	}
+        // Act + Assert:
+        ObserverTests::RunBalanceTest(
+            NotifyMode::Commit,
+            Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { addresses[0], MosaicId(111), Amount(333 + 33), Amount() },
+                { addresses[1], MosaicId(222), Amount(222 + 88 + 22), Amount() },
+                { addresses[2], MosaicId(111), Amount(444 + 44), Amount() },
+                { blockHarvester, MosaicId(500), Amount(200), Amount() } });
+    }
 
-	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Multiple) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+    TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Multiple)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		auto addresses = test::GenerateRandomDataVector<Address>(3);
-		auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests(addresses);
+        auto addresses = test::GenerateRandomDataVector<Address>(3);
+        auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests(addresses);
 
-		// Act + Assert:
-		ObserverTests::RunBalanceTest(
-				NotifyMode::Rollback,
-				Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { addresses[0], MosaicId(111), Amount(333 - 33), Amount() },
-				  { addresses[1], MosaicId(222), Amount(222 - 88 - 22), Amount() },
-				  { addresses[2], MosaicId(111), Amount(444 - 44), Amount() },
-				  { blockHarvester, MosaicId(500), Amount(200), Amount() } });
-	}
+        // Act + Assert:
+        ObserverTests::RunBalanceTest(
+            NotifyMode::Rollback,
+            Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { addresses[0], MosaicId(111), Amount(333 - 33), Amount() },
+                { addresses[1], MosaicId(222), Amount(222 - 88 - 22), Amount() },
+                { addresses[2], MosaicId(111), Amount(444 - 44), Amount() },
+                { blockHarvester, MosaicId(500), Amount(200), Amount() } });
+    }
 
-	// endregion
+    // endregion
 
-	// region expiration (skipped, forced)
+    // region expiration (skipped, forced)
 
-	TEST(TEST_CLASS, ObserverDoesNothingWhenExpirationIsNotOfMostRecentLock) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+    TEST(TEST_CLASS, ObserverDoesNothingWhenExpirationIsNotOfMostRecentLock)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		auto addresses = test::GenerateRandomDataVector<Address>(3);
-		auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests(addresses);
+        auto addresses = test::GenerateRandomDataVector<Address>(3);
+        auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests(addresses);
 
-		ObserverTests::BalanceTestOptions options;
-		options.SetFutureExpiration = true; // expiring seeds will have locks expiring at heights 55 and 65
+        ObserverTests::BalanceTestOptions options;
+        options.SetFutureExpiration = true; // expiring seeds will have locks expiring at heights 55 and 65
 
-		// Act + Assert: none of the expiring lock owners are credited (or touched)
-		ObserverTests::RunBalanceTest(
-				NotifyMode::Commit,
-				Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { addresses[0], MosaicId(111), Amount(333), Amount() },
-				  { addresses[1], MosaicId(222), Amount(222), Amount() },
-				  { addresses[2], MosaicId(111), Amount(444), Amount() },
-				  { blockHarvester, MosaicId(500), Amount(200), Amount() } },
-				options);
-	}
+        // Act + Assert: none of the expiring lock owners are credited (or touched)
+        ObserverTests::RunBalanceTest(
+            NotifyMode::Commit,
+            Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { addresses[0], MosaicId(111), Amount(333), Amount() },
+                { addresses[1], MosaicId(222), Amount(222), Amount() },
+                { addresses[2], MosaicId(111), Amount(444), Amount() },
+                { blockHarvester, MosaicId(500), Amount(200), Amount() } },
+            options);
+    }
 
-	TEST(TEST_CLASS, ObserverDoesNothingWhenExpirationIsSkippedAtHeight) {
-		// Arrange:
-		struct CustomExpiredSecretLockInfoTraits : public ExpiredSecretLockInfoTraits {
-		public:
-			static auto CreateObserver() {
-				return CreateExpiredSecretLockInfoObserver(
-						HeightUnorderedSet{ Height(55) }, // context height used in ExpiredLockInfoObserverTests::RunBalanceTest
-						HeightUnorderedSet());
-			}
-		};
+    TEST(TEST_CLASS, ObserverDoesNothingWhenExpirationIsSkippedAtHeight)
+    {
+        // Arrange:
+        struct CustomExpiredSecretLockInfoTraits : public ExpiredSecretLockInfoTraits {
+        public:
+            static auto CreateObserver()
+            {
+                return CreateExpiredSecretLockInfoObserver(
+                    HeightUnorderedSet { Height(55) }, // context height used in ExpiredLockInfoObserverTests::RunBalanceTest
+                    HeightUnorderedSet());
+            }
+        };
 
-		using CustomObserverTests = ExpiredLockInfoObserverTests<CustomExpiredSecretLockInfoTraits>;
-		constexpr auto Custom_Harvester_Type = CustomObserverTests::HarvesterType::Main;
+        using CustomObserverTests = ExpiredLockInfoObserverTests<CustomExpiredSecretLockInfoTraits>;
+        constexpr auto Custom_Harvester_Type = CustomObserverTests::HarvesterType::Main;
 
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		auto addresses = test::GenerateRandomDataVector<Address>(3);
-		auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests<CustomObserverTests::SeedTuple>(addresses);
+        auto addresses = test::GenerateRandomDataVector<Address>(3);
+        auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests<CustomObserverTests::SeedTuple>(addresses);
 
-		CustomObserverTests::BalanceTestOptions options;
-		options.ExpectTouches = false;
+        CustomObserverTests::BalanceTestOptions options;
+        options.ExpectTouches = false;
 
-		// Act + Assert: none of the expiring lock owners are credited (or touched)
-		CustomObserverTests::RunBalanceTest(
-				NotifyMode::Commit,
-				Custom_Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { addresses[0], MosaicId(111), Amount(333), Amount() },
-				  { addresses[1], MosaicId(222), Amount(222), Amount() },
-				  { addresses[2], MosaicId(111), Amount(444), Amount() },
-				  { blockHarvester, MosaicId(500), Amount(200), Amount() } },
-				options);
-	}
+        // Act + Assert: none of the expiring lock owners are credited (or touched)
+        CustomObserverTests::RunBalanceTest(
+            NotifyMode::Commit,
+            Custom_Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { addresses[0], MosaicId(111), Amount(333), Amount() },
+                { addresses[1], MosaicId(222), Amount(222), Amount() },
+                { addresses[2], MosaicId(111), Amount(444), Amount() },
+                { blockHarvester, MosaicId(500), Amount(200), Amount() } },
+            options);
+    }
 
-	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommitWhenExpirationIsNotOfMostRecentLockButForced) {
-		// Arrange:
-		struct CustomExpiredSecretLockInfoTraits : public ExpiredSecretLockInfoTraits {
-		public:
-			static auto CreateObserver() {
-				return CreateExpiredSecretLockInfoObserver(
-						HeightUnorderedSet(),
-						HeightUnorderedSet{ Height(55) }); // context height used in ExpiredLockInfoObserverTests::RunBalanceTest
-			}
-		};
+    TEST(TEST_CLASS, ObserverCreditsAccountsOnCommitWhenExpirationIsNotOfMostRecentLockButForced)
+    {
+        // Arrange:
+        struct CustomExpiredSecretLockInfoTraits : public ExpiredSecretLockInfoTraits {
+        public:
+            static auto CreateObserver()
+            {
+                return CreateExpiredSecretLockInfoObserver(
+                    HeightUnorderedSet(),
+                    HeightUnorderedSet { Height(55) }); // context height used in ExpiredLockInfoObserverTests::RunBalanceTest
+            }
+        };
 
-		using CustomObserverTests = ExpiredLockInfoObserverTests<CustomExpiredSecretLockInfoTraits>;
-		constexpr auto Custom_Harvester_Type = CustomObserverTests::HarvesterType::Main;
+        using CustomObserverTests = ExpiredLockInfoObserverTests<CustomExpiredSecretLockInfoTraits>;
+        constexpr auto Custom_Harvester_Type = CustomObserverTests::HarvesterType::Main;
 
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
-		auto blockHarvester = ToAddress(blockHarvesterPublicKey);
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+        auto blockHarvester = ToAddress(blockHarvesterPublicKey);
 
-		auto addresses = test::GenerateRandomDataVector<Address>(3);
-		auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests<CustomObserverTests::SeedTuple>(addresses);
+        auto addresses = test::GenerateRandomDataVector<Address>(3);
+        auto expiringSeeds = CreateExpiringSeedTuplesForMultipleTests<CustomObserverTests::SeedTuple>(addresses);
 
-		CustomObserverTests::BalanceTestOptions options;
-		options.SetFutureExpiration = true; // expiring seeds will have locks expiring at heights 55 and 65
+        CustomObserverTests::BalanceTestOptions options;
+        options.SetFutureExpiration = true; // expiring seeds will have locks expiring at heights 55 and 65
 
-		// Act + Assert: the expired lock owners are credited despite an old lock expiration
-		CustomObserverTests::RunBalanceTest(
-				NotifyMode::Commit,
-				Custom_Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { addresses[0], MosaicId(111), Amount(333 + 33), Amount() },
-				  { addresses[1], MosaicId(222), Amount(222 + 88 + 22), Amount() },
-				  { addresses[2], MosaicId(111), Amount(444 + 44), Amount() },
-				  { blockHarvester, MosaicId(500), Amount(200), Amount() } },
-				options);
-	}
+        // Act + Assert: the expired lock owners are credited despite an old lock expiration
+        CustomObserverTests::RunBalanceTest(
+            NotifyMode::Commit,
+            Custom_Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { addresses[0], MosaicId(111), Amount(333 + 33), Amount() },
+                { addresses[1], MosaicId(222), Amount(222 + 88 + 22), Amount() },
+                { addresses[2], MosaicId(111), Amount(444 + 44), Amount() },
+                { blockHarvester, MosaicId(500), Amount(200), Amount() } },
+            options);
+    }
 
-	// endregion
+    // endregion
 
-	// region receipts (multiple)
+    // region receipts (multiple)
 
-	TEST(TEST_CLASS, ObserverCreatesReceiptsOnCommit) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+    TEST(TEST_CLASS, ObserverCreatesReceiptsOnCommit)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
 
-		std::vector<SeedTuple> expiringSeeds{ { Address{ { 9 } }, MosaicId(111), Amount(333), Amount(33) },
-											  { Address{ { 4 } }, MosaicId(222), Amount(222), Amount(88) },
-											  { Address{ { 4 } }, MosaicId(111), Amount(444), Amount(33) },
-											  { Address{ { 9 } }, MosaicId(222), Amount(), Amount(22) } };
+        std::vector<SeedTuple> expiringSeeds { { Address { { 9 } }, MosaicId(111), Amount(333), Amount(33) },
+            { Address { { 4 } }, MosaicId(222), Amount(222), Amount(88) },
+            { Address { { 4 } }, MosaicId(111), Amount(444), Amount(33) },
+            { Address { { 9 } }, MosaicId(222), Amount(), Amount(22) } };
 
-		// Act + Assert: notice that receipts are deterministically ordered
-		ObserverTests::RunReceiptTest(
-				NotifyMode::Commit,
-				Harvester_Type,
-				blockHarvesterPublicKey,
-				expiringSeeds,
-				{ { Address{ { 4 } }, MosaicId(111), Amount(), Amount(33) },
-				  { Address{ { 9 } }, MosaicId(111), Amount(), Amount(33) },
-				  { Address{ { 9 } }, MosaicId(222), Amount(), Amount(22) },
-				  { Address{ { 4 } }, MosaicId(222), Amount(), Amount(88) } });
-	}
+        // Act + Assert: notice that receipts are deterministically ordered
+        ObserverTests::RunReceiptTest(
+            NotifyMode::Commit,
+            Harvester_Type,
+            blockHarvesterPublicKey,
+            expiringSeeds,
+            { { Address { { 4 } }, MosaicId(111), Amount(), Amount(33) },
+                { Address { { 9 } }, MosaicId(111), Amount(), Amount(33) },
+                { Address { { 9 } }, MosaicId(222), Amount(), Amount(22) },
+                { Address { { 4 } }, MosaicId(222), Amount(), Amount(88) } });
+    }
 
-	TEST(TEST_CLASS, ObserverDoesNotCreateReceiptsOnRollback) {
-		// Arrange:
-		auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
+    TEST(TEST_CLASS, ObserverDoesNotCreateReceiptsOnRollback)
+    {
+        // Arrange:
+        auto blockHarvesterPublicKey = test::GenerateRandomByteArray<Key>();
 
-		std::vector<SeedTuple> expiringSeeds{ { Address{ { 9 } }, MosaicId(111), Amount(333), Amount(33) },
-											  { Address{ { 1 } }, MosaicId(222), Amount(222), Amount(88) },
-											  { Address{ { 4 } }, MosaicId(111), Amount(444), Amount(44) },
-											  { Address{ { 1 } }, MosaicId(222), Amount(), Amount(22) } };
+        std::vector<SeedTuple> expiringSeeds { { Address { { 9 } }, MosaicId(111), Amount(333), Amount(33) },
+            { Address { { 1 } }, MosaicId(222), Amount(222), Amount(88) },
+            { Address { { 4 } }, MosaicId(111), Amount(444), Amount(44) },
+            { Address { { 1 } }, MosaicId(222), Amount(), Amount(22) } };
 
-		// Act + Assert:
-		ObserverTests::RunReceiptTest(NotifyMode::Rollback, Harvester_Type, blockHarvesterPublicKey, expiringSeeds, {});
-	}
+        // Act + Assert:
+        ObserverTests::RunReceiptTest(NotifyMode::Rollback, Harvester_Type, blockHarvesterPublicKey, expiringSeeds, {});
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -22,15 +22,18 @@
 #include "src/model/NamespaceLifetimeConstraints.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS NamespaceLifetimeConstraintsTests
 
-	TEST(TEST_CLASS, CanCreateNamespaceLifetimeConstraints) {
-		// Act:
-		NamespaceLifetimeConstraints constraints(BlockDuration(123), BlockDuration(234));
+    TEST(TEST_CLASS, CanCreateNamespaceLifetimeConstraints)
+    {
+        // Act:
+        NamespaceLifetimeConstraints constraints(BlockDuration(123), BlockDuration(234));
 
-		// Assert:
-		EXPECT_EQ(BlockDuration(123 + 234), constraints.MaxNamespaceDuration);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(BlockDuration(123 + 234), constraints.MaxNamespaceDuration);
+    }
+}
+}

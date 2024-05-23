@@ -19,30 +19,37 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 #include "mongo/tests/test/MongoPluginTestUtils.h"
+#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		struct MongoTransferPluginTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+        namespace {
+            struct MongoTransferPluginTraits {
+            public:
+                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Transfer };
-			}
+                static std::vector<model::EntityType> GetTransactionTypes()
+                {
+                    return { model::Entity_Type_Transfer };
+                }
 
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return {};
-			}
+                static std::vector<model::ReceiptType> GetReceiptTypes()
+                {
+                    return {};
+                }
 
-			static std::string GetStorageName() {
-				return "{}";
-			}
-		};
-	}
+                static std::string GetStorageName()
+                {
+                    return "{}";
+                }
+            };
+        }
 
-	DEFINE_MONGO_PLUGIN_TESTS(MongoTransferPluginTests, MongoTransferPluginTraits)
-}}}
+        DEFINE_MONGO_PLUGIN_TESTS(MongoTransferPluginTests, MongoTransferPluginTraits)
+    }
+}
+}

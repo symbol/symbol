@@ -23,99 +23,109 @@
 #include "PacketIoTestUtils.h"
 #include "mocks/MockPacketSocket.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Packet socket decorator test suite.
-	template<typename TTraits>
-	struct PacketSocketDecoratorTests {
-	public:
-		static void AssertCanRoundtripPackets() {
-			// Arrange:
-			typename TTraits::TestContextType context;
+    /// Packet socket decorator test suite.
+    template <typename TTraits>
+    struct PacketSocketDecoratorTests {
+    public:
+        static void AssertCanRoundtripPackets()
+        {
+            // Arrange:
+            typename TTraits::TestContextType context;
 
-			// Act + Assert:
-			test::AssertCanRoundtripPackets(*context.pMockPacketSocket, *context.pDecoratedSocket);
-		}
+            // Act + Assert:
+            test::AssertCanRoundtripPackets(*context.pMockPacketSocket, *context.pDecoratedSocket);
+        }
 
-		static void AssertCanRoundtripPacketsWithReadMultiple() {
-			// Arrange:
-			typename TTraits::TestContextType context;
+        static void AssertCanRoundtripPacketsWithReadMultiple()
+        {
+            // Arrange:
+            typename TTraits::TestContextType context;
 
-			// Act + Assert:
-			test::AssertCanRoundtripPackets(*context.pMockPacketSocket, *context.pDecoratedSocket, *context.pDecoratedSocket);
-		}
+            // Act + Assert:
+            test::AssertCanRoundtripPackets(*context.pMockPacketSocket, *context.pDecoratedSocket, *context.pDecoratedSocket);
+        }
 
-		static void AssertCanRoundtripBufferedPackets() {
-			// Arrange:
-			typename TTraits::TestContextType context;
-			context.pMockPacketSocket->enableBufferedIoRoundtrip();
+        static void AssertCanRoundtripBufferedPackets()
+        {
+            // Arrange:
+            typename TTraits::TestContextType context;
+            context.pMockPacketSocket->enableBufferedIoRoundtrip();
 
-			// Act + Assert:
-			test::AssertCanRoundtripPackets(*context.pMockPacketSocket, *context.pDecoratedSocket->buffered());
+            // Act + Assert:
+            test::AssertCanRoundtripPackets(*context.pMockPacketSocket, *context.pDecoratedSocket->buffered());
 
-			// Sanity:
-			EXPECT_EQ(1u, context.pMockPacketSocket->numBufferedCalls());
-		}
+            // Sanity:
+            EXPECT_EQ(1u, context.pMockPacketSocket->numBufferedCalls());
+        }
 
-		static void AssertCanAccessStats() {
-			// Arrange:
-			typename TTraits::TestContextType context;
+        static void AssertCanAccessStats()
+        {
+            // Arrange:
+            typename TTraits::TestContextType context;
 
-			// Act:
-			ionet::PacketSocket::Stats capturedStats;
-			context.pDecoratedSocket->stats([&capturedStats](const auto& stats) { capturedStats = stats; });
+            // Act:
+            ionet::PacketSocket::Stats capturedStats;
+            context.pDecoratedSocket->stats([&capturedStats](const auto& stats) { capturedStats = stats; });
 
-			// Assert: NumUnprocessedBytes is set to call count by MockPacketSocket
-			EXPECT_EQ(1u, context.pMockPacketSocket->numStatsCalls());
-			EXPECT_EQ(1u, capturedStats.NumUnprocessedBytes);
-		}
+            // Assert: NumUnprocessedBytes is set to call count by MockPacketSocket
+            EXPECT_EQ(1u, context.pMockPacketSocket->numStatsCalls());
+            EXPECT_EQ(1u, capturedStats.NumUnprocessedBytes);
+        }
 
-		static void AssertCanWaitForData() {
-			// Arrange:
-			typename TTraits::TestContextType context;
+        static void AssertCanWaitForData()
+        {
+            // Arrange:
+            typename TTraits::TestContextType context;
 
-			// Act:
-			auto numCallbackCalls = 0u;
-			context.pDecoratedSocket->waitForData([&numCallbackCalls]() { ++numCallbackCalls; });
+            // Act:
+            auto numCallbackCalls = 0u;
+            context.pDecoratedSocket->waitForData([&numCallbackCalls]() { ++numCallbackCalls; });
 
-			// Assert:
-			EXPECT_EQ(1u, numCallbackCalls);
-		}
+            // Assert:
+            EXPECT_EQ(1u, numCallbackCalls);
+        }
 
-		static void AssertCanClose() {
-			// Arrange:
-			typename TTraits::TestContextType context;
+        static void AssertCanClose()
+        {
+            // Arrange:
+            typename TTraits::TestContextType context;
 
-			// Act:
-			context.pDecoratedSocket->close();
+            // Act:
+            context.pDecoratedSocket->close();
 
-			// Assert:
-			EXPECT_EQ(1u, context.pMockPacketSocket->numCloseCalls());
-		}
+            // Assert:
+            EXPECT_EQ(1u, context.pMockPacketSocket->numCloseCalls());
+        }
 
-		static void AssertCanAbort() {
-			// Arrange:
-			typename TTraits::TestContextType context;
+        static void AssertCanAbort()
+        {
+            // Arrange:
+            typename TTraits::TestContextType context;
 
-			// Act:
-			context.pDecoratedSocket->abort();
+            // Act:
+            context.pDecoratedSocket->abort();
 
-			// Assert:
-			EXPECT_EQ(1u, context.pMockPacketSocket->numAbortCalls());
-		}
-	};
-}}
+            // Assert:
+            EXPECT_EQ(1u, context.pMockPacketSocket->numAbortCalls());
+        }
+    };
+}
+}
 
-#define MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, TEST_NAME) \
-	TEST(TEST_CLASS, PREFIX##TEST_NAME) { \
-		test::PacketSocketDecoratorTests<TRAITS_NAME>::Assert##TEST_NAME(); \
-	}
+#define MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, TEST_NAME)   \
+    TEST(TEST_CLASS, PREFIX##TEST_NAME)                                     \
+    {                                                                       \
+        test::PacketSocketDecoratorTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+    }
 
-#define DEFINE_PACKET_SOCKET_DECORATOR_TESTS(TRAITS_NAME, PREFIX) \
-	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanRoundtripPackets) \
-	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanRoundtripPacketsWithReadMultiple) \
-	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanRoundtripBufferedPackets) \
-	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanAccessStats) \
-	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanWaitForData) \
-	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanClose) \
-	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanAbort)
+#define DEFINE_PACKET_SOCKET_DECORATOR_TESTS(TRAITS_NAME, PREFIX)                               \
+    MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanRoundtripPackets)                 \
+    MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanRoundtripPacketsWithReadMultiple) \
+    MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanRoundtripBufferedPackets)         \
+    MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanAccessStats)                      \
+    MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanWaitForData)                      \
+    MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanClose)                            \
+    MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanAbort)

@@ -22,42 +22,48 @@
 #pragma once
 #include <utility>
 
-namespace catapult { namespace io {
-	class InputStream;
-	class OutputStream;
-}}
+namespace catapult {
+namespace io {
+    class InputStream;
+    class OutputStream;
+}
+}
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Defines types for cache storage given a cache descriptor.
-	template<typename TDescriptor>
-	struct CacheStorageFromDescriptor {
-		/// Cache view type.
-		using SourceType = typename TDescriptor::CacheViewType;
+    /// Defines types for cache storage given a cache descriptor.
+    template <typename TDescriptor>
+    struct CacheStorageFromDescriptor {
+        /// Cache view type.
+        using SourceType = typename TDescriptor::CacheViewType;
 
-		/// Cache delta type.
-		using DestinationType = typename TDescriptor::CacheDeltaType;
+        /// Cache delta type.
+        using DestinationType = typename TDescriptor::CacheDeltaType;
 
-		/// Cache key type.
-		using KeyType = typename TDescriptor::KeyType;
+        /// Cache key type.
+        using KeyType = typename TDescriptor::KeyType;
 
-		/// Cache value type.
-		using ValueType = typename TDescriptor::ValueType;
-	};
+        /// Cache value type.
+        using ValueType = typename TDescriptor::ValueType;
+    };
 
-	/// Defines cache storage for cache with basic insert remove support.
-	template<typename TDescriptor>
-	struct CacheStorageForBasicInsertRemoveCache : public CacheStorageFromDescriptor<TDescriptor> {
-		/// Loads \a value into \a cacheDelta.
-		static void LoadInto(const typename TDescriptor::ValueType& value, typename TDescriptor::CacheDeltaType& cacheDelta) {
-			cacheDelta.insert(value);
-		}
+    /// Defines cache storage for cache with basic insert remove support.
+    template <typename TDescriptor>
+    struct CacheStorageForBasicInsertRemoveCache : public CacheStorageFromDescriptor<TDescriptor> {
+        /// Loads \a value into \a cacheDelta.
+        static void LoadInto(const typename TDescriptor::ValueType& value, typename TDescriptor::CacheDeltaType& cacheDelta)
+        {
+            cacheDelta.insert(value);
+        }
 
-		/// Purges \a value from \a cacheDelta.
-		static void Purge(const typename TDescriptor::ValueType& value, typename TDescriptor::CacheDeltaType& cacheDelta) {
-			auto key = TDescriptor::GetKeyFromValue(value);
-			if (cacheDelta.contains(key))
-				cacheDelta.remove(key);
-		}
-	};
-}}
+        /// Purges \a value from \a cacheDelta.
+        static void Purge(const typename TDescriptor::ValueType& value, typename TDescriptor::CacheDeltaType& cacheDelta)
+        {
+            auto key = TDescriptor::GetKeyFromValue(value);
+            if (cacheDelta.contains(key))
+                cacheDelta.remove(key);
+        }
+    };
+}
+}

@@ -24,12 +24,14 @@
 #include <string>
 #include <vector>
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
-	/// Converts an \a entropy value to a BIP39 mnemonic.
-	std::string Bip39EntropyToMnemonic(const std::vector<uint8_t>& entropy);
+    /// Converts an \a entropy value to a BIP39 mnemonic.
+    std::string Bip39EntropyToMnemonic(const std::vector<uint8_t>& entropy);
 
-	/// Converts a BIP39 \a mnemonic and \a password to \a seed bytes.
-	/// \note Seed bytes can be used with BIP32.
-	Hash512 Bip39MnemonicToSeed(const std::string& mnemonic, const std::string& password);
-}}
+    /// Converts a BIP39 \a mnemonic and \a password to \a seed bytes.
+    /// \note Seed bytes can be used with BIP32.
+    Hash512 Bip39MnemonicToSeed(const std::string& mnemonic, const std::string& password);
+}
+}

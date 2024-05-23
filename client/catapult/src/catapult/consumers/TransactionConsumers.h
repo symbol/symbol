@@ -29,49 +29,53 @@
 #include "catapult/model/EntityInfo.h"
 #include "catapult/validators/ParallelValidationPolicy.h"
 
-namespace catapult { namespace model {
-	class NotificationPublisher;
-}}
+namespace catapult {
+namespace model {
+    class NotificationPublisher;
+}
+}
 
-namespace catapult { namespace consumers {
+namespace catapult {
+namespace consumers {
 
-	/// Creates a consumer that calculates hashes of all entities using \a transactionRegistry for the network with the specified
-	/// generation hash seed (\a generationHashSeed).
-	disruptor::TransactionConsumer CreateTransactionHashCalculatorConsumer(
-			const GenerationHashSeed& generationHashSeed,
-			const model::TransactionRegistry& transactionRegistry);
+    /// Creates a consumer that calculates hashes of all entities using \a transactionRegistry for the network with the specified
+    /// generation hash seed (\a generationHashSeed).
+    disruptor::TransactionConsumer CreateTransactionHashCalculatorConsumer(
+        const GenerationHashSeed& generationHashSeed,
+        const model::TransactionRegistry& transactionRegistry);
 
-	/// Creates a consumer that checks entities for previous processing based on their hash.
-	/// \a timeSupplier is used for generating timestamps and \a options specifies additional cache options.
-	/// \a knownHashPredicate returns \c true for known hashes.
-	disruptor::TransactionConsumer CreateTransactionHashCheckConsumer(
-			const chain::TimeSupplier& timeSupplier,
-			const HashCheckOptions& options,
-			const chain::KnownHashPredicate& knownHashPredicate);
+    /// Creates a consumer that checks entities for previous processing based on their hash.
+    /// \a timeSupplier is used for generating timestamps and \a options specifies additional cache options.
+    /// \a knownHashPredicate returns \c true for known hashes.
+    disruptor::TransactionConsumer CreateTransactionHashCheckConsumer(
+        const chain::TimeSupplier& timeSupplier,
+        const HashCheckOptions& options,
+        const chain::KnownHashPredicate& knownHashPredicate);
 
-	/// Creates a consumer that runs stateless validation using \a pValidationPolicy and calls \a failedTransactionSink for each failure.
-	disruptor::TransactionConsumer CreateTransactionStatelessValidationConsumer(
-			const std::shared_ptr<const validators::ParallelValidationPolicy>& pValidationPolicy,
-			const chain::FailedTransactionSink& failedTransactionSink);
+    /// Creates a consumer that runs stateless validation using \a pValidationPolicy and calls \a failedTransactionSink for each failure.
+    disruptor::TransactionConsumer CreateTransactionStatelessValidationConsumer(
+        const std::shared_ptr<const validators::ParallelValidationPolicy>& pValidationPolicy,
+        const chain::FailedTransactionSink& failedTransactionSink);
 
-	/// Creates a consumer that runs batch signature validation using \a pPublisher and \a pool for the network with the specified
-	/// generation hash seed (\a generationHashSeed) and calls \a failedTransactionSink for each failure.
-	/// \a randomFiller is used to generate random bytes.
-	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
-			const GenerationHashSeed& generationHashSeed,
-			const crypto::RandomFiller& randomFiller,
-			const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
-			thread::IoThreadPool& pool,
-			const chain::FailedTransactionSink& failedTransactionSink);
+    /// Creates a consumer that runs batch signature validation using \a pPublisher and \a pool for the network with the specified
+    /// generation hash seed (\a generationHashSeed) and calls \a failedTransactionSink for each failure.
+    /// \a randomFiller is used to generate random bytes.
+    disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
+        const GenerationHashSeed& generationHashSeed,
+        const crypto::RandomFiller& randomFiller,
+        const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
+        thread::IoThreadPool& pool,
+        const chain::FailedTransactionSink& failedTransactionSink);
 
-	/// Prototype for a function that is called with new transactions.
-	using NewTransactionsProcessor = std::function<chain::BatchUpdateResult(TransactionInfos&&)>;
+    /// Prototype for a function that is called with new transactions.
+    using NewTransactionsProcessor = std::function<chain::BatchUpdateResult(TransactionInfos&&)>;
 
-	/// Creates a consumer that calls \a newTransactionsProcessor with all new transactions that will conditionally ban based on
-	/// \a minTransactionFailuresCountForBan and \a minTransactionFailuresPercentForBan.
-	/// \note This consumer must be last because it destroys the input.
-	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(
-			uint32_t minTransactionFailuresCountForBan,
-			uint32_t minTransactionFailuresPercentForBan,
-			const NewTransactionsProcessor& newTransactionsProcessor);
-}}
+    /// Creates a consumer that calls \a newTransactionsProcessor with all new transactions that will conditionally ban based on
+    /// \a minTransactionFailuresCountForBan and \a minTransactionFailuresPercentForBan.
+    /// \note This consumer must be last because it destroys the input.
+    disruptor::DisruptorConsumer CreateNewTransactionsConsumer(
+        uint32_t minTransactionFailuresCountForBan,
+        uint32_t minTransactionFailuresPercentForBan,
+        const NewTransactionsProcessor& newTransactionsProcessor);
+}
+}

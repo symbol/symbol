@@ -30,14 +30,14 @@ namespace extensions {
 /// Defines an extension validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_EXTENSION_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Extension, DESCRIPTION, CODE, None)
 
-	/// Validation failed because the partial transaction was pruned from the temporal cache.
-	DEFINE_EXTENSION_RESULT(Partial_Transaction_Cache_Prune, 1);
+    /// Validation failed because the partial transaction was pruned from the temporal cache.
+    DEFINE_EXTENSION_RESULT(Partial_Transaction_Cache_Prune, 1);
 
-	/// Validation failed because the partial transaction was pruned from the temporal cache due to its dependency being removed.
-	DEFINE_EXTENSION_RESULT(Partial_Transaction_Dependency_Removed, 2);
+    /// Validation failed because the partial transaction was pruned from the temporal cache due to its dependency being removed.
+    DEFINE_EXTENSION_RESULT(Partial_Transaction_Dependency_Removed, 2);
 
-	/// Validation failed because socket read rate limit was exceeded.
-	DEFINE_EXTENSION_RESULT(Read_Rate_Limit_Exceeded, 3);
+    /// Validation failed because socket read rate limit was exceeded.
+    DEFINE_EXTENSION_RESULT(Read_Rate_Limit_Exceeded, 3);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }

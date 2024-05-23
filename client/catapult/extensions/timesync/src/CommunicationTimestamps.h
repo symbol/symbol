@@ -22,40 +22,45 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace timesync {
+namespace catapult {
+namespace timesync {
 
 #pragma pack(push, 1)
 
-	/// Represents the network timestamps for sending and receiving a time synchronization request / response.
-	struct CommunicationTimestamps {
-	public:
-		/// Creates default communication timestamps.
-		CommunicationTimestamps() = default;
+    /// Represents the network timestamps for sending and receiving a time synchronization request / response.
+    struct CommunicationTimestamps {
+    public:
+        /// Creates default communication timestamps.
+        CommunicationTimestamps() = default;
 
-		/// Creates communication timestamps around \a sendTimestamp and \a receiveTimestamp.
-		CommunicationTimestamps(Timestamp sendTimestamp, Timestamp receiveTimestamp)
-				: SendTimestamp(sendTimestamp)
-				, ReceiveTimestamp(receiveTimestamp) {
-		}
+        /// Creates communication timestamps around \a sendTimestamp and \a receiveTimestamp.
+        CommunicationTimestamps(Timestamp sendTimestamp, Timestamp receiveTimestamp)
+            : SendTimestamp(sendTimestamp)
+            , ReceiveTimestamp(receiveTimestamp)
+        {
+        }
 
-	public:
-		/// Returns \c true if these communication timestamps are equal to \a rhs.
-		constexpr bool operator==(const CommunicationTimestamps& rhs) const {
-			return SendTimestamp == rhs.SendTimestamp && ReceiveTimestamp == rhs.ReceiveTimestamp;
-		}
+    public:
+        /// Returns \c true if these communication timestamps are equal to \a rhs.
+        constexpr bool operator==(const CommunicationTimestamps& rhs) const
+        {
+            return SendTimestamp == rhs.SendTimestamp && ReceiveTimestamp == rhs.ReceiveTimestamp;
+        }
 
-		/// Returns \c true if these communication timestamps are not equal to \a rhs.
-		constexpr bool operator!=(const CommunicationTimestamps& rhs) const {
-			return !(*this == rhs);
-		}
+        /// Returns \c true if these communication timestamps are not equal to \a rhs.
+        constexpr bool operator!=(const CommunicationTimestamps& rhs) const
+        {
+            return !(*this == rhs);
+        }
 
-	public:
-		/// Time when the request/response was sent.
-		Timestamp SendTimestamp;
+    public:
+        /// Time when the request/response was sent.
+        Timestamp SendTimestamp;
 
-		/// Time when the request/response was received.
-		Timestamp ReceiveTimestamp;
-	};
+        /// Time when the request/response was received.
+        Timestamp ReceiveTimestamp;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

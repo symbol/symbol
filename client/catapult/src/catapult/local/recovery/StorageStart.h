@@ -22,12 +22,16 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace io {
-	class BlockStorage;
-}}
+namespace catapult {
+namespace io {
+    class BlockStorage;
+}
+}
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Gets the starting height of \a storage.
-	Height FindStartHeight(const io::BlockStorage& storage);
-}}
+    /// Gets the starting height of \a storage.
+    Height FindStartHeight(const io::BlockStorage& storage);
+}
+}

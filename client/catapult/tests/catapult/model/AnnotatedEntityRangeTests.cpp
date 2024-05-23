@@ -20,49 +20,54 @@
 **/
 
 #include "catapult/model/AnnotatedEntityRange.h"
-#include "tests/test/core/BlockTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/BlockTestUtils.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS AnnotatedEntityRangeTests
 
-	TEST(TEST_CLASS, CanCreateDefaultRange) {
-		// Act:
-		auto annotatedRange = AnnotatedEntityRange<Block>();
+    TEST(TEST_CLASS, CanCreateDefaultRange)
+    {
+        // Act:
+        auto annotatedRange = AnnotatedEntityRange<Block>();
 
-		// Assert:
-		EXPECT_TRUE(annotatedRange.Range.empty());
-		EXPECT_EQ(Key(), annotatedRange.SourceIdentity.PublicKey);
-		EXPECT_EQ("", annotatedRange.SourceIdentity.Host);
-	}
+        // Assert:
+        EXPECT_TRUE(annotatedRange.Range.empty());
+        EXPECT_EQ(Key(), annotatedRange.SourceIdentity.PublicKey);
+        EXPECT_EQ("", annotatedRange.SourceIdentity.Host);
+    }
 
-	TEST(TEST_CLASS, CanCreateAroundRange) {
-		// Arrange:
-		auto range = test::CreateBlockEntityRange(3);
-		const auto* pRangeData = range.data();
+    TEST(TEST_CLASS, CanCreateAroundRange)
+    {
+        // Arrange:
+        auto range = test::CreateBlockEntityRange(3);
+        const auto* pRangeData = range.data();
 
-		// Act:
-		auto annotatedRange = AnnotatedEntityRange<Block>(std::move(range));
+        // Act:
+        auto annotatedRange = AnnotatedEntityRange<Block>(std::move(range));
 
-		// Assert:
-		EXPECT_EQ(pRangeData, annotatedRange.Range.data());
-		EXPECT_EQ(Key(), annotatedRange.SourceIdentity.PublicKey);
-		EXPECT_EQ("", annotatedRange.SourceIdentity.Host);
-	}
+        // Assert:
+        EXPECT_EQ(pRangeData, annotatedRange.Range.data());
+        EXPECT_EQ(Key(), annotatedRange.SourceIdentity.PublicKey);
+        EXPECT_EQ("", annotatedRange.SourceIdentity.Host);
+    }
 
-	TEST(TEST_CLASS, CanCreateAroundRangeAndContext) {
-		// Arrange:
-		auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
-		auto range = test::CreateBlockEntityRange(3);
-		const auto* pRangeData = range.data();
+    TEST(TEST_CLASS, CanCreateAroundRangeAndContext)
+    {
+        // Arrange:
+        auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
+        auto range = test::CreateBlockEntityRange(3);
+        const auto* pRangeData = range.data();
 
-		// Act:
-		auto annotatedRange = AnnotatedEntityRange<Block>(std::move(range), { sourcePublicKey, "11.22.33.44" });
+        // Act:
+        auto annotatedRange = AnnotatedEntityRange<Block>(std::move(range), { sourcePublicKey, "11.22.33.44" });
 
-		// Assert:
-		EXPECT_EQ(pRangeData, annotatedRange.Range.data());
-		EXPECT_EQ(sourcePublicKey, annotatedRange.SourceIdentity.PublicKey);
-		EXPECT_EQ("11.22.33.44", annotatedRange.SourceIdentity.Host);
-	}
-}}
+        // Assert:
+        EXPECT_EQ(pRangeData, annotatedRange.Range.data());
+        EXPECT_EQ(sourcePublicKey, annotatedRange.SourceIdentity.PublicKey);
+        EXPECT_EQ("11.22.33.44", annotatedRange.SourceIdentity.Host);
+    }
+}
+}

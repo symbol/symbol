@@ -23,32 +23,37 @@
 #include "NotificationValidator.h"
 #include <functional>
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	/// Notification validator that wraps a function.
-	template<typename TNotification, typename... TArgs>
-	class FunctionalNotificationValidatorT : public NotificationValidatorT<TNotification, TArgs...> {
-	private:
-		using FunctionType = std::function<ValidationResult(const TNotification&, TArgs&&...)>;
+    /// Notification validator that wraps a function.
+    template <typename TNotification, typename... TArgs>
+    class FunctionalNotificationValidatorT : public NotificationValidatorT<TNotification, TArgs...> {
+    private:
+        using FunctionType = std::function<ValidationResult(const TNotification&, TArgs&&...)>;
 
-	public:
-		/// Creates a functional notification validator around \a func with \a name.
-		FunctionalNotificationValidatorT(const std::string& name, const FunctionType& func)
-				: m_name(name)
-				, m_func(func) {
-		}
+    public:
+        /// Creates a functional notification validator around \a func with \a name.
+        FunctionalNotificationValidatorT(const std::string& name, const FunctionType& func)
+            : m_name(name)
+            , m_func(func)
+        {
+        }
 
-	public:
-		const std::string& name() const override {
-			return m_name;
-		}
+    public:
+        const std::string& name() const override
+        {
+            return m_name;
+        }
 
-		ValidationResult validate(const TNotification& notification, TArgs&&... args) const override {
-			return m_func(notification, std::forward<TArgs>(args)...);
-		}
+        ValidationResult validate(const TNotification& notification, TArgs&&... args) const override
+        {
+            return m_func(notification, std::forward<TArgs>(args)...);
+        }
 
-	private:
-		std::string m_name;
-		FunctionType m_func;
-	};
-}}
+    private:
+        std::string m_name;
+        FunctionType m_func;
+    };
+}
+}

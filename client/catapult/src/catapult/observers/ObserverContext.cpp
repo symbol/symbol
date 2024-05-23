@@ -22,9 +22,10 @@
 #include "ObserverContext.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
-	// region NotifyMode
+    // region NotifyMode
 
 #define DEFINE_ENUM NotifyMode
 #define ENUM_LIST NOTIFY_MODE_LIST
@@ -32,47 +33,54 @@ namespace catapult { namespace observers {
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
-	// endregion
+    // endregion
 
-	// region ObserverState
+    // region ObserverState
 
-	ObserverState::ObserverState(cache::CatapultCacheDelta& cache)
-			: Cache(cache)
-			, pBlockStatementBuilder(nullptr) {
-	}
+    ObserverState::ObserverState(cache::CatapultCacheDelta& cache)
+        : Cache(cache)
+        , pBlockStatementBuilder(nullptr)
+    {
+    }
 
-	ObserverState::ObserverState(cache::CatapultCacheDelta& cache, model::BlockStatementBuilder& blockStatementBuilder)
-			: Cache(cache)
-			, pBlockStatementBuilder(&blockStatementBuilder) {
-	}
+    ObserverState::ObserverState(cache::CatapultCacheDelta& cache, model::BlockStatementBuilder& blockStatementBuilder)
+        : Cache(cache)
+        , pBlockStatementBuilder(&blockStatementBuilder)
+    {
+    }
 
-	// endregion
+    // endregion
 
-	// region ObserverContext
+    // region ObserverContext
 
-	namespace {
-		model::ResolverContext BindConditional(
-				const model::ResolverContext& resolvers,
-				model::BlockStatementBuilder* pBlockStatementBuilder) {
-			return pBlockStatementBuilder ? Bind(resolvers, *pBlockStatementBuilder) : resolvers;
-		}
+    namespace {
+        model::ResolverContext BindConditional(
+            const model::ResolverContext& resolvers,
+            model::BlockStatementBuilder* pBlockStatementBuilder)
+        {
+            return pBlockStatementBuilder ? Bind(resolvers, *pBlockStatementBuilder) : resolvers;
+        }
 
-		ObserverStatementBuilder CreateObserverStatementBuilder(model::BlockStatementBuilder* pBlockStatementBuilder) {
-			return pBlockStatementBuilder ? ObserverStatementBuilder(*pBlockStatementBuilder) : ObserverStatementBuilder();
-		}
-	}
+        ObserverStatementBuilder CreateObserverStatementBuilder(model::BlockStatementBuilder* pBlockStatementBuilder)
+        {
+            return pBlockStatementBuilder ? ObserverStatementBuilder(*pBlockStatementBuilder) : ObserverStatementBuilder();
+        }
+    }
 
-	ObserverContext::ObserverContext(const model::NotificationContext& notificationContext, const ObserverState& state, NotifyMode mode)
-			: NotificationContext(notificationContext.Height, BindConditional(notificationContext.Resolvers, state.pBlockStatementBuilder))
-			, Cache(state.Cache)
-			, Mode(mode)
-			, UndecoratedResolvers(notificationContext.Resolvers)
-			, m_statementBuilder(CreateObserverStatementBuilder(state.pBlockStatementBuilder)) {
-	}
+    ObserverContext::ObserverContext(const model::NotificationContext& notificationContext, const ObserverState& state, NotifyMode mode)
+        : NotificationContext(notificationContext.Height, BindConditional(notificationContext.Resolvers, state.pBlockStatementBuilder))
+        , Cache(state.Cache)
+        , Mode(mode)
+        , UndecoratedResolvers(notificationContext.Resolvers)
+        , m_statementBuilder(CreateObserverStatementBuilder(state.pBlockStatementBuilder))
+    {
+    }
 
-	ObserverStatementBuilder& ObserverContext::StatementBuilder() {
-		return m_statementBuilder;
-	}
+    ObserverStatementBuilder& ObserverContext::StatementBuilder()
+    {
+        return m_statementBuilder;
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -20,41 +20,45 @@
 **/
 
 #include "src/state/MetadataEntry.h"
-#include "tests/test/MetadataTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/MetadataTestUtils.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS MetadataEntryTests
 
-	TEST(TEST_CLASS, CanCreateMetadataEntry) {
-		// Arrange:
-		auto key = MetadataKey(test::GenerateRandomPartialMetadataKey());
+    TEST(TEST_CLASS, CanCreateMetadataEntry)
+    {
+        // Arrange:
+        auto key = MetadataKey(test::GenerateRandomPartialMetadataKey());
 
-		// Act:
-		auto entry = MetadataEntry(key);
+        // Act:
+        auto entry = MetadataEntry(key);
 
-		// Assert:
-		EXPECT_EQ(key.uniqueKey(), entry.key().uniqueKey());
-		EXPECT_EQ(&entry.value(), &const_cast<const MetadataEntry&>(entry).value());
-	}
+        // Assert:
+        EXPECT_EQ(key.uniqueKey(), entry.key().uniqueKey());
+        EXPECT_EQ(&entry.value(), &const_cast<const MetadataEntry&>(entry).value());
+    }
 
-	TEST(TEST_CLASS, CanChangeMetadataEntryValue) {
-		// Arrange:
-		std::vector<uint8_t> buffer{ 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
-		auto key = MetadataKey(test::GenerateRandomPartialMetadataKey());
-		auto entry = MetadataEntry(key);
+    TEST(TEST_CLASS, CanChangeMetadataEntryValue)
+    {
+        // Arrange:
+        std::vector<uint8_t> buffer { 0x9A, 0xC7, 0x33, 0x18, 0xA7, 0xB0, 0x36 };
+        auto key = MetadataKey(test::GenerateRandomPartialMetadataKey());
+        auto entry = MetadataEntry(key);
 
-		// Act:
-		entry.value().update(buffer);
-		const auto& valueMutable = entry.value();
-		const auto& valueConst = const_cast<const MetadataEntry&>(entry).value();
+        // Act:
+        entry.value().update(buffer);
+        const auto& valueMutable = entry.value();
+        const auto& valueConst = const_cast<const MetadataEntry&>(entry).value();
 
-		// Assert:
-		ASSERT_EQ(7u, valueMutable.size());
-		EXPECT_EQ_MEMORY(buffer.data(), valueMutable.data(), buffer.size());
+        // Assert:
+        ASSERT_EQ(7u, valueMutable.size());
+        EXPECT_EQ_MEMORY(buffer.data(), valueMutable.data(), buffer.size());
 
-		ASSERT_EQ(7u, valueConst.size());
-		EXPECT_EQ_MEMORY(buffer.data(), valueConst.data(), buffer.size());
-	}
-}}
+        ASSERT_EQ(7u, valueConst.size());
+        EXPECT_EQ_MEMORY(buffer.data(), valueConst.data(), buffer.size());
+    }
+}
+}

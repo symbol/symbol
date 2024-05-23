@@ -20,21 +20,23 @@
 **/
 
 #pragma once
-#include "timesync/src/CommunicationTimestamps.h"
 #include "catapult/ionet/Packet.h"
+#include "timesync/src/CommunicationTimestamps.h"
 
-namespace catapult { namespace api {
+namespace catapult {
+namespace api {
 
 #pragma pack(push, 1)
 
-	/// Network time response.
-	struct NetworkTimePacket : public ionet::Packet {
-	public:
-		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Time_Sync_Network_Time;
+    /// Network time response.
+    struct NetworkTimePacket : public ionet::Packet {
+    public:
+        static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Time_Sync_Network_Time;
 
-		/// Communication timestamps.
-		timesync::CommunicationTimestamps CommunicationTimestamps;
-	};
+        /// Communication timestamps.
+        timesync::CommunicationTimestamps CommunicationTimestamps;
+    };
 
 #pragma pack(pop)
-}}
+}
+}

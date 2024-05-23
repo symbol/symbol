@@ -23,17 +23,19 @@
 #include "catapult/crypto/KeyPair.h"
 #include <vector>
 
-namespace catapult { namespace tools {
+namespace catapult {
+namespace tools {
 
-	/// Generates a random key pair.
-	crypto::KeyPair GenerateRandomKeyPair();
+    /// Generates a random key pair.
+    crypto::KeyPair GenerateRandomKeyPair();
 
-	/// Gets the deterministic key pair derived from \a baseKey and \a keyId.
-	crypto::KeyPair GetDeterministicKeyPair(const Key& baseKey, uint64_t keyId);
+    /// Gets the deterministic key pair derived from \a baseKey and \a keyId.
+    crypto::KeyPair GetDeterministicKeyPair(const Key& baseKey, uint64_t keyId);
 
-	/// Copies a given \a keyPair.
-	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair);
+    /// Copies a given \a keyPair.
+    crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair);
 
-	/// Generate \a count deterministic addresses.
-	std::vector<Address> PrepareAddresses(size_t count);
-}}
+    /// Generate \a count deterministic addresses.
+    std::vector<Address> PrepareAddresses(size_t count);
+}
+}

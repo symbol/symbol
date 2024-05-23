@@ -23,22 +23,26 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
-namespace catapult { namespace config {
+namespace catapult {
+namespace config {
 
-	SecretLockConfiguration SecretLockConfiguration::Uninitialized() {
-		return SecretLockConfiguration();
-	}
+    SecretLockConfiguration SecretLockConfiguration::Uninitialized()
+    {
+        return SecretLockConfiguration();
+    }
 
-	SecretLockConfiguration SecretLockConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		SecretLockConfiguration config;
+    SecretLockConfiguration SecretLockConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
+    {
+        SecretLockConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
-		LOAD_PROPERTY(MaxSecretLockDuration);
-		LOAD_PROPERTY(MinProofSize);
-		LOAD_PROPERTY(MaxProofSize);
+        LOAD_PROPERTY(MaxSecretLockDuration);
+        LOAD_PROPERTY(MinProofSize);
+        LOAD_PROPERTY(MaxProofSize);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 3);
-		return config;
-	}
-}}
+        utils::VerifyBagSizeExact(bag, 3);
+        return config;
+    }
+}
+}

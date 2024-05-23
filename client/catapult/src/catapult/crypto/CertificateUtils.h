@@ -24,20 +24,22 @@
 
 struct x509_st;
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	/// Information about a certificate.
-	struct CertificateInfo {
-		/// Certificate subject.
-		std::string Subject;
+    /// Information about a certificate.
+    struct CertificateInfo {
+        /// Certificate subject.
+        std::string Subject;
 
-		/// Certificate public key.
-		Key PublicKey;
-	};
+        /// Certificate public key.
+        Key PublicKey;
+    };
 
-	/// Tries to extract information about \a certificate into \a certificateInfo.
-	bool TryParseCertificate(const x509_st& certificate, CertificateInfo& certificateInfo);
+    /// Tries to extract information about \a certificate into \a certificateInfo.
+    bool TryParseCertificate(const x509_st& certificate, CertificateInfo& certificateInfo);
 
-	/// Returns \c true if self-signed \a certificate signature is correct.
-	bool VerifySelfSigned(x509_st& certificate);
-}}
+    /// Returns \c true if self-signed \a certificate signature is correct.
+    bool VerifySelfSigned(x509_st& certificate);
+}
+}

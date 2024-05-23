@@ -22,25 +22,27 @@
 #pragma once
 #include "TimeSpan.h"
 
-namespace catapult { namespace utils {
+namespace catapult {
+namespace utils {
 
-	/// Network time, which is set to zero in the nemesis block and increases as time advances.
-	class NetworkTime {
-	public:
-		/// Creates network time around \a epochAdjustment, which is relative to unix timestamp epoch (1970-01-01 00:00:00 UTC).
-		explicit NetworkTime(const utils::TimeSpan& epochAdjustment);
+    /// Network time, which is set to zero in the nemesis block and increases as time advances.
+    class NetworkTime {
+    public:
+        /// Creates network time around \a epochAdjustment, which is relative to unix timestamp epoch (1970-01-01 00:00:00 UTC).
+        explicit NetworkTime(const utils::TimeSpan& epochAdjustment);
 
-	public:
-		/// Gets the current network time.
-		Timestamp now() const;
+    public:
+        /// Gets the current network time.
+        Timestamp now() const;
 
-		/// Given a unix \a timestamp, returns the corresponding network timestamp that the unix timestamp represents.
-		Timestamp toNetworkTime(const Timestamp& timestamp) const;
+        /// Given a unix \a timestamp, returns the corresponding network timestamp that the unix timestamp represents.
+        Timestamp toNetworkTime(const Timestamp& timestamp) const;
 
-		/// Given a network \a timestamp, returns the corresponding unix timestamp that the network timestamp represents.
-		Timestamp toUnixTime(const Timestamp& timestamp) const;
+        /// Given a network \a timestamp, returns the corresponding unix timestamp that the network timestamp represents.
+        Timestamp toUnixTime(const Timestamp& timestamp) const;
 
-	private:
-		utils::TimeSpan m_epochAdjustment;
-	};
-}}
+    private:
+        utils::TimeSpan m_epochAdjustment;
+    };
+}
+}

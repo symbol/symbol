@@ -22,112 +22,123 @@
 #include "src/state/NamespaceAlias.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
 #define TEST_CLASS NamespaceAliasTests
 
-	namespace {
-		void AssertMosaicAlias(const NamespaceAlias& alias, MosaicId mosaicId) {
-			// Assert:
-			EXPECT_EQ(AliasType::Mosaic, alias.type());
-			EXPECT_EQ(mosaicId, alias.mosaicId());
-			EXPECT_THROW(alias.address(), catapult_runtime_error);
-		}
+    namespace {
+        void AssertMosaicAlias(const NamespaceAlias& alias, MosaicId mosaicId)
+        {
+            // Assert:
+            EXPECT_EQ(AliasType::Mosaic, alias.type());
+            EXPECT_EQ(mosaicId, alias.mosaicId());
+            EXPECT_THROW(alias.address(), catapult_runtime_error);
+        }
 
-		void AssertAddressAlias(const NamespaceAlias& alias, const Address& address) {
-			// Assert:
-			EXPECT_EQ(AliasType::Address, alias.type());
-			EXPECT_THROW(alias.mosaicId(), catapult_runtime_error);
-			EXPECT_EQ(address, alias.address());
-		}
-	}
+        void AssertAddressAlias(const NamespaceAlias& alias, const Address& address)
+        {
+            // Assert:
+            EXPECT_EQ(AliasType::Address, alias.type());
+            EXPECT_THROW(alias.mosaicId(), catapult_runtime_error);
+            EXPECT_EQ(address, alias.address());
+        }
+    }
 
-	// region constructor
+    // region constructor
 
-	TEST(TEST_CLASS, CanCreateUnsetNamespaceAlias) {
-		// Act:
-		NamespaceAlias alias;
+    TEST(TEST_CLASS, CanCreateUnsetNamespaceAlias)
+    {
+        // Act:
+        NamespaceAlias alias;
 
-		// Assert:
-		EXPECT_EQ(AliasType::None, alias.type());
-		EXPECT_THROW(alias.mosaicId(), catapult_runtime_error);
-		EXPECT_THROW(alias.address(), catapult_runtime_error);
-	}
+        // Assert:
+        EXPECT_EQ(AliasType::None, alias.type());
+        EXPECT_THROW(alias.mosaicId(), catapult_runtime_error);
+        EXPECT_THROW(alias.address(), catapult_runtime_error);
+    }
 
-	TEST(TEST_CLASS, CanCreateMosaicNamespaceAlias) {
-		// Act:
-		NamespaceAlias alias(MosaicId(245));
+    TEST(TEST_CLASS, CanCreateMosaicNamespaceAlias)
+    {
+        // Act:
+        NamespaceAlias alias(MosaicId(245));
 
-		// Assert:
-		AssertMosaicAlias(alias, MosaicId(245));
-	}
+        // Assert:
+        AssertMosaicAlias(alias, MosaicId(245));
+    }
 
-	TEST(TEST_CLASS, CanCreateAddressNamespaceAlias) {
-		// Act:
-		auto address = test::GenerateRandomByteArray<Address>();
-		NamespaceAlias alias(address);
+    TEST(TEST_CLASS, CanCreateAddressNamespaceAlias)
+    {
+        // Act:
+        auto address = test::GenerateRandomByteArray<Address>();
+        NamespaceAlias alias(address);
 
-		// Assert:
-		AssertAddressAlias(alias, address);
-	}
+        // Assert:
+        AssertAddressAlias(alias, address);
+    }
 
-	// endregion
+    // endregion
 
-	// region copy constructor
+    // region copy constructor
 
-	TEST(TEST_CLASS, CanCopyMosaicNamespaceAlias) {
-		// Arrange:
-		NamespaceAlias originalAlias(MosaicId(245));
+    TEST(TEST_CLASS, CanCopyMosaicNamespaceAlias)
+    {
+        // Arrange:
+        NamespaceAlias originalAlias(MosaicId(245));
 
-		// Act:
-		NamespaceAlias alias(originalAlias);
+        // Act:
+        NamespaceAlias alias(originalAlias);
 
-		// Assert:
-		AssertMosaicAlias(alias, MosaicId(245));
-	}
+        // Assert:
+        AssertMosaicAlias(alias, MosaicId(245));
+    }
 
-	TEST(TEST_CLASS, CanCopyAddressNamespaceAlias) {
-		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
-		NamespaceAlias originalAlias(address);
+    TEST(TEST_CLASS, CanCopyAddressNamespaceAlias)
+    {
+        // Arrange:
+        auto address = test::GenerateRandomByteArray<Address>();
+        NamespaceAlias originalAlias(address);
 
-		// Act:
-		NamespaceAlias alias(originalAlias);
+        // Act:
+        NamespaceAlias alias(originalAlias);
 
-		// Assert:
-		AssertAddressAlias(alias, address);
-	}
+        // Assert:
+        AssertAddressAlias(alias, address);
+    }
 
-	// endregion
+    // endregion
 
-	// region assignment operator
+    // region assignment operator
 
-	TEST(TEST_CLASS, CanAssignMosaicNamespaceAlias) {
-		// Arrange:
-		NamespaceAlias originalAlias(MosaicId(245));
+    TEST(TEST_CLASS, CanAssignMosaicNamespaceAlias)
+    {
+        // Arrange:
+        NamespaceAlias originalAlias(MosaicId(245));
 
-		// Act:
-		NamespaceAlias alias;
-		const auto& result = (alias = originalAlias);
+        // Act:
+        NamespaceAlias alias;
+        const auto& result = (alias = originalAlias);
 
-		// Assert:
-		EXPECT_EQ(&alias, &result);
-		AssertMosaicAlias(alias, MosaicId(245));
-	}
+        // Assert:
+        EXPECT_EQ(&alias, &result);
+        AssertMosaicAlias(alias, MosaicId(245));
+    }
 
-	TEST(TEST_CLASS, CanAssignAddressNamespaceAlias) {
-		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
-		NamespaceAlias originalAlias(address);
+    TEST(TEST_CLASS, CanAssignAddressNamespaceAlias)
+    {
+        // Arrange:
+        auto address = test::GenerateRandomByteArray<Address>();
+        NamespaceAlias originalAlias(address);
 
-		// Act:
-		NamespaceAlias alias;
-		const auto& result = (alias = originalAlias);
+        // Act:
+        NamespaceAlias alias;
+        const auto& result = (alias = originalAlias);
 
-		// Assert:
-		EXPECT_EQ(&alias, &result);
-		AssertAddressAlias(alias, address);
-	}
+        // Assert:
+        EXPECT_EQ(&alias, &result);
+        AssertAddressAlias(alias, address);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}

@@ -23,29 +23,31 @@
 #include "RootNamespaceHistory.h"
 #include "catapult/io/Stream.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	/// Policy for saving and loading root namespace history data without historical information.
-	struct RootNamespaceHistoryNonHistoricalSerializer {
-		/// Serialized state version.
-		static constexpr uint16_t State_Version = 1;
+    /// Policy for saving and loading root namespace history data without historical information.
+    struct RootNamespaceHistoryNonHistoricalSerializer {
+        /// Serialized state version.
+        static constexpr uint16_t State_Version = 1;
 
-		/// Saves \a history to \a output.
-		static void Save(const RootNamespaceHistory& history, io::OutputStream& output);
+        /// Saves \a history to \a output.
+        static void Save(const RootNamespaceHistory& history, io::OutputStream& output);
 
-		/// Loads a single value from \a input.
-		static RootNamespaceHistory Load(io::InputStream& input);
-	};
+        /// Loads a single value from \a input.
+        static RootNamespaceHistory Load(io::InputStream& input);
+    };
 
-	/// Policy for saving and loading root namespace history data.
-	struct RootNamespaceHistorySerializer {
-		/// Serialized state version.
-		static constexpr uint16_t State_Version = 1;
+    /// Policy for saving and loading root namespace history data.
+    struct RootNamespaceHistorySerializer {
+        /// Serialized state version.
+        static constexpr uint16_t State_Version = 1;
 
-		/// Saves \a history to \a output.
-		static void Save(const RootNamespaceHistory& history, io::OutputStream& output);
+        /// Saves \a history to \a output.
+        static void Save(const RootNamespaceHistory& history, io::OutputStream& output);
 
-		/// Loads a single value from \a input.
-		static RootNamespaceHistory Load(io::InputStream& input);
-	};
-}}
+        /// Loads a single value from \a input.
+        static RootNamespaceHistory Load(io::InputStream& input);
+    };
+}
+}

@@ -22,24 +22,26 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Default (well known) namespace id used in tests (`cat`).
-	/// \note Cannot use type NamespaceId because it is defined in plugin.
-	constexpr uint64_t Default_Namespace_Id(0xB149'7F5F'BA65'1B4F);
+    /// Default (well known) namespace id used in tests (`cat`).
+    /// \note Cannot use type NamespaceId because it is defined in plugin.
+    constexpr uint64_t Default_Namespace_Id(0xB149'7F5F'BA65'1B4F);
 
-	/// Default (well known) currency mosaic id used in tests (`currency`).
-	constexpr MosaicId Default_Currency_Mosaic_Id(0x664E'D36A'3138'66F5);
+    /// Default (well known) currency mosaic id used in tests (`currency`).
+    constexpr MosaicId Default_Currency_Mosaic_Id(0x664E'D36A'3138'66F5);
 
-	/// Default (well known) harvesting mosaic id used in tests (`harvest`).
-	constexpr MosaicId Default_Harvesting_Mosaic_Id(0x4C09'8BA4'39F8'D1C4);
+    /// Default (well known) harvesting mosaic id used in tests (`harvest`).
+    constexpr MosaicId Default_Harvesting_Mosaic_Id(0x4C09'8BA4'39F8'D1C4);
 
-	/// Default total chain importance used for scaling block target calculation.
-	constexpr Importance Default_Total_Chain_Importance(8'999'999'998);
+    /// Default total chain importance used for scaling block target calculation.
+    constexpr Importance Default_Total_Chain_Importance(8'999'999'998);
 
-	/// File database batch size used in tests.
-	constexpr uint32_t File_Database_Batch_Size = 100;
+    /// File database batch size used in tests.
+    constexpr uint32_t File_Database_Batch_Size = 100;
 
-	/// Network generation hash seed string used by deterministic tests.
-	constexpr auto Deterministic_Network_Generation_Hash_Seed_String = "070D67A92D441EAAD25AB5C78F1F68628BE33EAA1DEBEDBE14D4FBE8F4DC326E";
-}}
+    /// Network generation hash seed string used by deterministic tests.
+    constexpr auto Deterministic_Network_Generation_Hash_Seed_String = "070D67A92D441EAAD25AB5C78F1F68628BE33EAA1DEBEDBE14D4FBE8F4DC326E";
+}
+}

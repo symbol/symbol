@@ -24,51 +24,58 @@
 #include "catapult/observers/NotificationObserver.h"
 #include "tests/test/core/ResolverTestUtils.h"
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	// region CreateObserverContext
+    // region CreateObserverContext
 
-	/// Creates an observer context around \a state at \a height with specified \a mode.
-	inline observers::ObserverContext CreateObserverContext(
-			const observers::ObserverState& state,
-			Height height,
-			observers::NotifyMode mode) {
-		return observers::ObserverContext(model::NotificationContext(height, CreateResolverContextXor()), state, mode);
-	}
+    /// Creates an observer context around \a state at \a height with specified \a mode.
+    inline observers::ObserverContext CreateObserverContext(
+        const observers::ObserverState& state,
+        Height height,
+        observers::NotifyMode mode)
+    {
+        return observers::ObserverContext(model::NotificationContext(height, CreateResolverContextXor()), state, mode);
+    }
 
-	/// Creates an observer context around \a cache at \a height with specified \a mode.
-	inline observers::ObserverContext CreateObserverContext(cache::CatapultCacheDelta& cache, Height height, observers::NotifyMode mode) {
-		return CreateObserverContext(observers::ObserverState(cache), height, mode);
-	}
+    /// Creates an observer context around \a cache at \a height with specified \a mode.
+    inline observers::ObserverContext CreateObserverContext(cache::CatapultCacheDelta& cache, Height height, observers::NotifyMode mode)
+    {
+        return CreateObserverContext(observers::ObserverState(cache), height, mode);
+    }
 
-	// endregion
+    // endregion
 
-	// region ObserveNotification
+    // region ObserveNotification
 
-	/// Observes \a notification with \a observer using \a context.
-	template<typename TNotification>
-	void ObserveNotification(
-			const observers::NotificationObserverT<TNotification>& observer,
-			const TNotification& notification,
-			observers::ObserverContext& context) {
-		observer.notify(notification, context);
-	}
+    /// Observes \a notification with \a observer using \a context.
+    template <typename TNotification>
+    void ObserveNotification(
+        const observers::NotificationObserverT<TNotification>& observer,
+        const TNotification& notification,
+        observers::ObserverContext& context)
+    {
+        observer.notify(notification, context);
+    }
 
-	/// Observes \a notification with \a observer using \a context.
-	template<typename TNotification, typename TCacheFactory>
-	void ObserveNotification(
-			const observers::NotificationObserverT<TNotification>& observer,
-			const TNotification& notification,
-			ObserverTestContextT<TCacheFactory>& context) {
-		ObserveNotification(observer, notification, context.observerContext());
-	}
+    /// Observes \a notification with \a observer using \a context.
+    template <typename TNotification, typename TCacheFactory>
+    void ObserveNotification(
+        const observers::NotificationObserverT<TNotification>& observer,
+        const TNotification& notification,
+        ObserverTestContextT<TCacheFactory>& context)
+    {
+        ObserveNotification(observer, notification, context.observerContext());
+    }
 
-	// endregion
+    // endregion
 
 /// Defines common observer tests for an observer with \a NAME.
-#define DEFINE_COMMON_OBSERVER_TESTS(NAME, ...) \
-	TEST(NAME##ObserverTests, CanCreate##NAME##Observer) { \
-		auto pObserver = Create##NAME##Observer(__VA_ARGS__); \
-		EXPECT_EQ(#NAME "Observer", pObserver->name()); \
-	}
-}}
+#define DEFINE_COMMON_OBSERVER_TESTS(NAME, ...)               \
+    TEST(NAME##ObserverTests, CanCreate##NAME##Observer)      \
+    {                                                         \
+        auto pObserver = Create##NAME##Observer(__VA_ARGS__); \
+        EXPECT_EQ(#NAME "Observer", pObserver->name());       \
+    }
+}
+}

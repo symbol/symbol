@@ -26,16 +26,21 @@
 
 using namespace catapult::mongo::mappers;
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult {
+namespace mongo {
+    namespace plugins {
 
-	namespace {
-		template<typename TTransaction>
-		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
-			builder << "nonce" << ToInt32(transaction.Nonce) << "id" << ToInt64(transaction.Id) << "flags"
-					<< utils::to_underlying_type(transaction.Flags) << "divisibility" << transaction.Divisibility << "duration"
-					<< ToInt64(transaction.Duration);
-		}
-	}
+        namespace {
+            template <typename TTransaction>
+            void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction)
+            {
+                builder << "nonce" << ToInt32(transaction.Nonce) << "id" << ToInt64(transaction.Id) << "flags"
+                        << utils::to_underlying_type(transaction.Flags) << "divisibility" << transaction.Divisibility << "duration"
+                        << ToInt64(transaction.Duration);
+            }
+        }
 
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(MosaicDefinition, StreamTransaction)
-}}}
+        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(MosaicDefinition, StreamTransaction)
+    }
+}
+}

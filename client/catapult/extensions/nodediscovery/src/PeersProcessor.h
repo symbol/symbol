@@ -20,45 +20,49 @@
 **/
 
 #pragma once
+#include "catapult/functions.h"
 #include "catapult/ionet/NodeSet.h"
 #include "catapult/net/NodeRequestResult.h"
-#include "catapult/functions.h"
 
-namespace catapult { namespace ionet {
-	class NodeContainer;
-}}
+namespace catapult {
+namespace ionet {
+    class NodeContainer;
+}
+}
 
-namespace catapult { namespace nodediscovery {
+namespace catapult {
+namespace nodediscovery {
 
-	/// Processes peers received from a partner node.
-	class PeersProcessor {
-	private:
-		using NodeConsumer = consumer<const ionet::Node&>;
-		using NodePingRequestInitiator = consumer<const ionet::Node&, const consumer<net::NodeRequestResult, const ionet::Node&>&>;
+    /// Processes peers received from a partner node.
+    class PeersProcessor {
+    private:
+        using NodeConsumer = consumer<const ionet::Node&>;
+        using NodePingRequestInitiator = consumer<const ionet::Node&, const consumer<net::NodeRequestResult, const ionet::Node&>&>;
 
-	public:
-		/// Creates a processor around the server public key (\a serverPublicKey), the set of known nodes (\a nodeContainer),
-		/// a service for pinging other nodes (\a pingRequesInitiator), the network fingerprint (\a networkFingerprint)
-		/// and a consumer that should be called when new partner nodes are discovered (\a newPartnerNodeConsumer).
-		PeersProcessor(
-				const Key& serverPublicKey,
-				const ionet::NodeContainer& nodeContainer,
-				const NodePingRequestInitiator& pingRequestInitiator,
-				const model::UniqueNetworkFingerprint& networkFingerprint,
-				const NodeConsumer& newPartnerNodeConsumer);
+    public:
+        /// Creates a processor around the server public key (\a serverPublicKey), the set of known nodes (\a nodeContainer),
+        /// a service for pinging other nodes (\a pingRequesInitiator), the network fingerprint (\a networkFingerprint)
+        /// and a consumer that should be called when new partner nodes are discovered (\a newPartnerNodeConsumer).
+        PeersProcessor(
+            const Key& serverPublicKey,
+            const ionet::NodeContainer& nodeContainer,
+            const NodePingRequestInitiator& pingRequestInitiator,
+            const model::UniqueNetworkFingerprint& networkFingerprint,
+            const NodeConsumer& newPartnerNodeConsumer);
 
-	public:
-		/// Processes all candidate nodes (\a candidateNodes) and forwards newly discovered partner nodes.
-		void process(const ionet::NodeSet& candidateNodes) const;
+    public:
+        /// Processes all candidate nodes (\a candidateNodes) and forwards newly discovered partner nodes.
+        void process(const ionet::NodeSet& candidateNodes) const;
 
-	private:
-		void process(const ionet::Node& candidateNode) const;
+    private:
+        void process(const ionet::Node& candidateNode) const;
 
-	private:
-		const Key& m_serverPublicKey;
-		const ionet::NodeContainer& m_nodeContainer;
-		NodePingRequestInitiator m_pingRequestInitiator;
-		model::UniqueNetworkFingerprint m_networkFingerprint;
-		NodeConsumer m_newPartnerNodeConsumer;
-	};
-}}
+    private:
+        const Key& m_serverPublicKey;
+        const ionet::NodeContainer& m_nodeContainer;
+        NodePingRequestInitiator m_pingRequestInitiator;
+        model::UniqueNetworkFingerprint m_networkFingerprint;
+        NodeConsumer m_newPartnerNodeConsumer;
+    };
+}
+}

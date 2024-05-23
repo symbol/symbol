@@ -21,21 +21,24 @@
 
 #include "Validators.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
-	using Notification = model::ModifyAccountOperationRestrictionsNotification;
+    using Notification = model::ModifyAccountOperationRestrictionsNotification;
 
-	namespace {
-		bool AreAllAccountRestrictionValuesValid(const model::EntityType* pEntityTypes, size_t numEntityTypes) {
-			return std::all_of(pEntityTypes, pEntityTypes + numEntityTypes, [](auto entityType) {
-				return model::BasicEntityType::Transaction == model::ToBasicEntityType(entityType);
-			});
-		}
-	}
+    namespace {
+        bool AreAllAccountRestrictionValuesValid(const model::EntityType* pEntityTypes, size_t numEntityTypes)
+        {
+            return std::all_of(pEntityTypes, pEntityTypes + numEntityTypes, [](auto entityType) {
+                return model::BasicEntityType::Transaction == model::ToBasicEntityType(entityType);
+            });
+        }
+    }
 
-	DEFINE_STATELESS_VALIDATOR(AccountOperationRestrictionModificationValues, [](const Notification& notification) {
-		return AreAllAccountRestrictionValuesValid(notification.RestrictionAdditionsPtr, notification.RestrictionAdditionsCount)
-					   ? ValidationResult::Success
-					   : Failure_RestrictionAccount_Invalid_Value;
-	})
-}}
+    DEFINE_STATELESS_VALIDATOR(AccountOperationRestrictionModificationValues, [](const Notification& notification) {
+        return AreAllAccountRestrictionValuesValid(notification.RestrictionAdditionsPtr, notification.RestrictionAdditionsCount)
+            ? ValidationResult::Success
+            : Failure_RestrictionAccount_Invalid_Value;
+    })
+}
+}

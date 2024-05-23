@@ -22,9 +22,12 @@
 #include "VotingKeyPair.h"
 #include "catapult/crypto/KeyPair.h"
 
-namespace catapult { namespace crypto {
+namespace catapult {
+namespace crypto {
 
-	void VotingKeyPairTraits::ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey) {
-		publicKey = KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(privateKey)).publicKey().copyTo<VotingKey>();
-	}
-}}
+    void VotingKeyPairTraits::ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey)
+    {
+        publicKey = KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(privateKey)).publicKey().copyTo<VotingKey>();
+    }
+}
+}

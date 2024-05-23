@@ -22,14 +22,18 @@
 #include "TimestampedHash.h"
 #include "catapult/utils/HexFormatter.h"
 
-namespace catapult { namespace state {
+namespace catapult {
+namespace state {
 
-	RawBuffer SerializeKey(const TimestampedHash& timestampedHash) {
-		return { reinterpret_cast<const uint8_t*>(&timestampedHash), sizeof(timestampedHash) };
-	}
+    RawBuffer SerializeKey(const TimestampedHash& timestampedHash)
+    {
+        return { reinterpret_cast<const uint8_t*>(&timestampedHash), sizeof(timestampedHash) };
+    }
 
-	std::ostream& operator<<(std::ostream& out, const TimestampedHash& timestampedHash) {
-		out << utils::HexFormat(timestampedHash.Hash) << " @ " << timestampedHash.Time;
-		return out;
-	}
-}}
+    std::ostream& operator<<(std::ostream& out, const TimestampedHash& timestampedHash)
+    {
+        out << utils::HexFormat(timestampedHash.Hash) << " @ " << timestampedHash.Time;
+        return out;
+    }
+}
+}

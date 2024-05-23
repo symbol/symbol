@@ -22,8 +22,8 @@
 #pragma once
 #include "RocksPruningFilter.h"
 #include "catapult/config/NodeConfiguration.h"
-#include "catapult/utils/FileSize.h"
 #include "catapult/types.h"
+#include "catapult/utils/FileSize.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -36,146 +36,149 @@ class Slice;
 class WriteBatch;
 }
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	// region RdbDataIterator
+    // region RdbDataIterator
 
-	/// Iterator adapter, allowing existence check on keys and data retrieval.
-	class RdbDataIterator {
-	private:
-		enum class StorageStrategy { Allocate, Do_Not_Allocate };
+    /// Iterator adapter, allowing existence check on keys and data retrieval.
+    class RdbDataIterator {
+    private:
+        enum class StorageStrategy { Allocate,
+            Do_Not_Allocate };
 
-		explicit RdbDataIterator(StorageStrategy storageStrategy);
+        explicit RdbDataIterator(StorageStrategy storageStrategy);
 
-	public:
-		/// Creates an iterator.
-		RdbDataIterator();
+    public:
+        /// Creates an iterator.
+        RdbDataIterator();
 
-		/// Destroys an iterator.
-		~RdbDataIterator();
+        /// Destroys an iterator.
+        ~RdbDataIterator();
 
-	public:
-		/// Move constructor.
-		RdbDataIterator(RdbDataIterator&&);
+    public:
+        /// Move constructor.
+        RdbDataIterator(RdbDataIterator&&);
 
-		/// Move assignment operator.
-		RdbDataIterator& operator=(RdbDataIterator&&);
+        /// Move assignment operator.
+        RdbDataIterator& operator=(RdbDataIterator&&);
 
-	public:
-		/// Iterator representing no match.
-		static RdbDataIterator End();
+    public:
+        /// Iterator representing no match.
+        static RdbDataIterator End();
 
-	public:
-		/// Returns \c true if this iterator and \a rhs are equal.
-		bool operator==(const RdbDataIterator& rhs) const;
+    public:
+        /// Returns \c true if this iterator and \a rhs are equal.
+        bool operator==(const RdbDataIterator& rhs) const;
 
-		/// Returns \c true if this iterator and \a rhs are not equal.
-		bool operator!=(const RdbDataIterator& rhs) const;
+        /// Returns \c true if this iterator and \a rhs are not equal.
+        bool operator!=(const RdbDataIterator& rhs) const;
 
-	public:
-		/// Gets the storage associated with iterator.
-		rocksdb::PinnableSlice& storage() const;
+    public:
+        /// Gets the storage associated with iterator.
+        rocksdb::PinnableSlice& storage() const;
 
-		/// Sets the \a found flag indicating whether or not this iterator contains data.
-		void setFound(bool found);
+        /// Sets the \a found flag indicating whether or not this iterator contains data.
+        void setFound(bool found);
 
-		/// Gets the storage as a raw buffer.
-		RawBuffer buffer() const;
+        /// Gets the storage as a raw buffer.
+        RawBuffer buffer() const;
 
-	private:
-		struct Impl;
-		std::shared_ptr<Impl> m_pImpl;
-		bool m_isFound;
-	};
+    private:
+        struct Impl;
+        std::shared_ptr<Impl> m_pImpl;
+        bool m_isFound;
+    };
 
-	// endregion
+    // endregion
 
-	// region RocksDatabaseSettings
+    // region RocksDatabaseSettings
 
-	/// RocksDb settings.
-	struct RocksDatabaseSettings {
-	public:
-		/// Creates default database settings.
-		RocksDatabaseSettings();
+    /// RocksDb settings.
+    struct RocksDatabaseSettings {
+    public:
+        /// Creates default database settings.
+        RocksDatabaseSettings();
 
-		/// Creates database settings around \a databaseDirectory, column family names (\a columnFamilyNames) and \a pruningMode.
-		RocksDatabaseSettings(
-				const std::string& databaseDirectory,
-				const std::vector<std::string>& columnFamilyNames,
-				FilterPruningMode pruningMode);
+        /// Creates database settings around \a databaseDirectory, column family names (\a columnFamilyNames) and \a pruningMode.
+        RocksDatabaseSettings(
+            const std::string& databaseDirectory,
+            const std::vector<std::string>& columnFamilyNames,
+            FilterPruningMode pruningMode);
 
-		/// Creates database settings around \a databaseDirectory, \a databaseConfig, column family names (\a columnFamilyNames)
-		/// and \a pruningMode.
-		RocksDatabaseSettings(
-				const std::string& databaseDirectory,
-				const config::NodeConfiguration::CacheDatabaseSubConfiguration& databaseConfig,
-				const std::vector<std::string>& columnFamilyNames,
-				FilterPruningMode pruningMode);
+        /// Creates database settings around \a databaseDirectory, \a databaseConfig, column family names (\a columnFamilyNames)
+        /// and \a pruningMode.
+        RocksDatabaseSettings(
+            const std::string& databaseDirectory,
+            const config::NodeConfiguration::CacheDatabaseSubConfiguration& databaseConfig,
+            const std::vector<std::string>& columnFamilyNames,
+            FilterPruningMode pruningMode);
 
-	public:
-		/// Database directory.
-		const std::string DatabaseDirectory;
+    public:
+        /// Database directory.
+        const std::string DatabaseDirectory;
 
-		/// Database configuration.
-		const config::NodeConfiguration::CacheDatabaseSubConfiguration DatabaseConfig;
+        /// Database configuration.
+        const config::NodeConfiguration::CacheDatabaseSubConfiguration DatabaseConfig;
 
-		/// Names of database columns.
-		const std::vector<std::string> ColumnFamilyNames;
+        /// Names of database columns.
+        const std::vector<std::string> ColumnFamilyNames;
 
-		/// Database pruning mode.
-		const FilterPruningMode PruningMode;
-	};
+        /// Database pruning mode.
+        const FilterPruningMode PruningMode;
+    };
 
-	// endregion
+    // endregion
 
-	// region RocksDatabase
+    // region RocksDatabase
 
-	/// RocksDb-backed database.
-	class RocksDatabase {
-	public:
-		/// Creates an empty database.
-		RocksDatabase();
+    /// RocksDb-backed database.
+    class RocksDatabase {
+    public:
+        /// Creates an empty database.
+        RocksDatabase();
 
-		/// Creates database around \a settings.
-		explicit RocksDatabase(const RocksDatabaseSettings& settings);
+        /// Creates database around \a settings.
+        explicit RocksDatabase(const RocksDatabaseSettings& settings);
 
-		/// Destroys database.
-		~RocksDatabase();
+        /// Destroys database.
+        ~RocksDatabase();
 
-	public:
-		/// Gets the database column family names.
-		const std::vector<std::string>& columnFamilyNames() const;
+    public:
+        /// Gets the database column family names.
+        const std::vector<std::string>& columnFamilyNames() const;
 
-		/// Returns \c true if pruning is enabled.
-		bool canPrune() const;
+        /// Returns \c true if pruning is enabled.
+        bool canPrune() const;
 
-	public:
-		/// Gets the value associated with \a key from \a columnId and sets \a result.
-		void get(size_t columnId, const rocksdb::Slice& key, RdbDataIterator& result);
+    public:
+        /// Gets the value associated with \a key from \a columnId and sets \a result.
+        void get(size_t columnId, const rocksdb::Slice& key, RdbDataIterator& result);
 
-		/// Puts the \a value associated with \a key in \a columnId.
-		void put(size_t columnId, const rocksdb::Slice& key, const std::string& value);
+        /// Puts the \a value associated with \a key in \a columnId.
+        void put(size_t columnId, const rocksdb::Slice& key, const std::string& value);
 
-		/// Deletes the value associated with \a key from \a columnId.
-		void del(size_t columnId, const rocksdb::Slice& key);
+        /// Deletes the value associated with \a key from \a columnId.
+        void del(size_t columnId, const rocksdb::Slice& key);
 
-		/// Prunes elements from \a columnId below \a boundary. Returns number of pruned elements.
-		size_t prune(size_t columnId, uint64_t boundary);
+        /// Prunes elements from \a columnId below \a boundary. Returns number of pruned elements.
+        size_t prune(size_t columnId, uint64_t boundary);
 
-		/// Finalize batched operations.
-		void flush();
+        /// Finalize batched operations.
+        void flush();
 
-	private:
-		void saveIfBatchFull();
+    private:
+        void saveIfBatchFull();
 
-	private:
-		const RocksDatabaseSettings m_settings;
-		RocksPruningFilter m_pruningFilter;
-		std::unique_ptr<rocksdb::WriteBatch> m_pWriteBatch;
+    private:
+        const RocksDatabaseSettings m_settings;
+        RocksPruningFilter m_pruningFilter;
+        std::unique_ptr<rocksdb::WriteBatch> m_pWriteBatch;
 
-		std::unique_ptr<rocksdb::DB> m_pDb;
-		std::vector<rocksdb::ColumnFamilyHandle*> m_handles;
-	};
+        std::unique_ptr<rocksdb::DB> m_pDb;
+        std::vector<rocksdb::ColumnFamilyHandle*> m_handles;
+    };
 
-	// endregion
-}}
+    // endregion
+}
+}

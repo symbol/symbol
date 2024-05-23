@@ -23,22 +23,26 @@
 #include <boost/log/sinks.hpp>
 #include <boost/phoenix.hpp>
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	namespace {
-		// define attributes used in filtering
-		BOOST_LOG_ATTRIBUTE_KEYWORD(loglevel_tag, utils::log::LogLevelTraits::Name, utils::log::LogLevelTraits::Type)
-	}
+    namespace {
+        // define attributes used in filtering
+        BOOST_LOG_ATTRIBUTE_KEYWORD(loglevel_tag, utils::log::LogLevelTraits::Name, utils::log::LogLevelTraits::Type)
+    }
 
-	GlobalLogFilter::GlobalLogFilter(utils::LogLevel level) {
-		auto filter = boost::phoenix::bind([level](const auto& levelRef) { return *levelRef >= level; }, loglevel_tag.or_throw());
+    GlobalLogFilter::GlobalLogFilter(utils::LogLevel level)
+    {
+        auto filter = boost::phoenix::bind([level](const auto& levelRef) { return *levelRef >= level; }, loglevel_tag.or_throw());
 
-		auto pCore = boost::log::core::get();
-		pCore->set_filter(filter);
-	}
+        auto pCore = boost::log::core::get();
+        pCore->set_filter(filter);
+    }
 
-	GlobalLogFilter::~GlobalLogFilter() {
-		auto pCore = boost::log::core::get();
-		pCore->reset_filter();
-	}
-}}
+    GlobalLogFilter::~GlobalLogFilter()
+    {
+        auto pCore = boost::log::core::get();
+        pCore->reset_filter();
+    }
+}
+}

@@ -21,21 +21,25 @@
 
 #pragma once
 
-namespace catapult { namespace io {
-	class OutputStream;
-}}
+namespace catapult {
+namespace io {
+    class OutputStream;
+}
+}
 
-namespace catapult { namespace test {
+namespace catapult {
+namespace test {
 
-	/// Writes random ut change into \a outputStream.
-	void WriteRandomUtChange(io::OutputStream& outputStream);
+    /// Writes random ut change into \a outputStream.
+    void WriteRandomUtChange(io::OutputStream& outputStream);
 
-	/// Writes random pt change into \a outputStream.
-	void WriteRandomPtChange(io::OutputStream& outputStream);
+    /// Writes random pt change into \a outputStream.
+    void WriteRandomPtChange(io::OutputStream& outputStream);
 
-	/// Writes random finalization into \a outputStream.
-	void WriteRandomFinalization(io::OutputStream& outputStream);
+    /// Writes random finalization into \a outputStream.
+    void WriteRandomFinalization(io::OutputStream& outputStream);
 
-	/// Writes random transaction status into \a outputStream.
-	void WriteRandomTransactionStatus(io::OutputStream& outputStream);
-}}
+    /// Writes random transaction status into \a outputStream.
+    void WriteRandomTransactionStatus(io::OutputStream& outputStream);
+}
+}

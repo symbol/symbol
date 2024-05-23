@@ -19,91 +19,103 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/AccountRestrictionPlugin.h"
 #include "src/model/AccountRestrictionEntityType.h"
+#include "src/plugins/AccountRestrictionPlugin.h"
+#include "tests/TestHarness.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		struct AccountRestrictionPluginTraits {
-		public:
-			template<typename TAction>
-			static void RunTestAfterRegistration(TAction action) {
-				// Arrange:
-				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace(
-						"catapult.plugins.restrictionaccount",
-						utils::ConfigurationBag({ { "", { { "maxAccountRestrictionValues", "10" } } } }));
+    namespace {
+        struct AccountRestrictionPluginTraits {
+        public:
+            template <typename TAction>
+            static void RunTestAfterRegistration(TAction action)
+            {
+                // Arrange:
+                auto config = model::BlockchainConfiguration::Uninitialized();
+                config.Plugins.emplace(
+                    "catapult.plugins.restrictionaccount",
+                    utils::ConfigurationBag({ { "", { { "maxAccountRestrictionValues", "10" } } } }));
 
-				auto manager = test::CreatePluginManager(config);
-				RegisterAccountRestrictionSubsystem(manager);
+                auto manager = test::CreatePluginManager(config);
+                RegisterAccountRestrictionSubsystem(manager);
 
-				// Act:
-				action(manager);
-			}
+                // Act:
+                action(manager);
+            }
 
-		public:
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Account_Address_Restriction,
-						 model::Entity_Type_Account_Mosaic_Restriction,
-						 model::Entity_Type_Account_Operation_Restriction };
-			}
+        public:
+            static std::vector<model::EntityType> GetTransactionTypes()
+            {
+                return { model::Entity_Type_Account_Address_Restriction,
+                    model::Entity_Type_Account_Mosaic_Restriction,
+                    model::Entity_Type_Account_Operation_Restriction };
+            }
 
-			static std::vector<std::string> GetCacheNames() {
-				return { "AccountRestrictionCache" };
-			}
+            static std::vector<std::string> GetCacheNames()
+            {
+                return { "AccountRestrictionCache" };
+            }
 
-			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
-				return { ionet::PacketType::Account_Restrictions_State_Path };
-			}
+            static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes()
+            {
+                return { ionet::PacketType::Account_Restrictions_State_Path };
+            }
 
-			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return { ionet::PacketType::Account_Restrictions_Infos };
-			}
+            static std::vector<ionet::PacketType> GetDiagnosticPacketTypes()
+            {
+                return { ionet::PacketType::Account_Restrictions_Infos };
+            }
 
-			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return { "ACCTREST C" };
-			}
+            static std::vector<std::string> GetDiagnosticCounterNames()
+            {
+                return { "ACCTREST C" };
+            }
 
-			static std::vector<std::string> GetStatelessValidatorNames() {
-				return { "AccountRestrictionFlagsValidator",
+            static std::vector<std::string> GetStatelessValidatorNames()
+            {
+                return { "AccountRestrictionFlagsValidator",
 
-						 "AccountOperationRestrictionModificationValuesValidator" };
-			}
+                    "AccountOperationRestrictionModificationValuesValidator" };
+            }
 
-			static std::vector<std::string> GetStatefulValidatorNames() {
-				return { "AccountAddressRestrictionRedundantModificationValidator",
-						 "AccountAddressRestrictionValueModificationValidator",
-						 "MaxAccountAddressRestrictionValuesValidator",
-						 "AddressInteractionValidator",
-						 "AccountAddressRestrictionNoSelfModificationValidator",
+            static std::vector<std::string> GetStatefulValidatorNames()
+            {
+                return { "AccountAddressRestrictionRedundantModificationValidator",
+                    "AccountAddressRestrictionValueModificationValidator",
+                    "MaxAccountAddressRestrictionValuesValidator",
+                    "AddressInteractionValidator",
+                    "AccountAddressRestrictionNoSelfModificationValidator",
 
-						 "AccountMosaicRestrictionRedundantModificationValidator",
-						 "AccountMosaicRestrictionValueModificationValidator",
-						 "MaxAccountMosaicRestrictionValuesValidator",
-						 "MosaicRecipientValidator",
+                    "AccountMosaicRestrictionRedundantModificationValidator",
+                    "AccountMosaicRestrictionValueModificationValidator",
+                    "MaxAccountMosaicRestrictionValuesValidator",
+                    "MosaicRecipientValidator",
 
-						 "AccountOperationRestrictionRedundantModificationValidator",
-						 "AccountOperationRestrictionValueModificationValidator",
-						 "MaxAccountOperationRestrictionValuesValidator",
-						 "OperationRestrictionValidator",
-						 "AccountOperationRestrictionNoSelfBlockingValidator" };
-			}
+                    "AccountOperationRestrictionRedundantModificationValidator",
+                    "AccountOperationRestrictionValueModificationValidator",
+                    "MaxAccountOperationRestrictionValuesValidator",
+                    "OperationRestrictionValidator",
+                    "AccountOperationRestrictionNoSelfBlockingValidator" };
+            }
 
-			static std::vector<std::string> GetObserverNames() {
-				return { "AccountAddressRestrictionValueModificationObserver",
-						 "AccountMosaicRestrictionValueModificationObserver",
-						 "AccountOperationRestrictionValueModificationObserver" };
-			}
+            static std::vector<std::string> GetObserverNames()
+            {
+                return { "AccountAddressRestrictionValueModificationObserver",
+                    "AccountMosaicRestrictionValueModificationObserver",
+                    "AccountOperationRestrictionValueModificationObserver" };
+            }
 
-			static std::vector<std::string> GetPermanentObserverNames() {
-				return GetObserverNames();
-			}
-		};
-	}
+            static std::vector<std::string> GetPermanentObserverNames()
+            {
+                return GetObserverNames();
+            }
+        };
+    }
 
-	DEFINE_PLUGIN_TESTS(AccountRestrictionPluginTests, AccountRestrictionPluginTraits)
-}}
+    DEFINE_PLUGIN_TESTS(AccountRestrictionPluginTests, AccountRestrictionPluginTraits)
+}
+}

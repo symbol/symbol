@@ -26,45 +26,49 @@
 
 namespace catapult {
 namespace model {
-	struct BlockchainConfiguration;
-	struct BlockElement;
-	struct BlockStatement;
+    struct BlockchainConfiguration;
+    struct BlockElement;
+    struct BlockStatement;
 }
 namespace plugins {
-	class PluginManager;
+    class PluginManager;
 }
 }
 
-namespace catapult { namespace tools { namespace nemgen {
+namespace catapult {
+namespace tools {
+    namespace nemgen {
 
-	/// Information about block execution dependent hashes.
-	struct BlockExecutionHashesInfo {
-		/// Number of voting eligible accounts.
-		uint32_t VotingEligibleAccountsCount;
+        /// Information about block execution dependent hashes.
+        struct BlockExecutionHashesInfo {
+            /// Number of voting eligible accounts.
+            uint32_t VotingEligibleAccountsCount;
 
-		/// Number of harvesting eligible accounts.
-		uint64_t HarvestingEligibleAccountsCount;
+            /// Number of harvesting eligible accounts.
+            uint64_t HarvestingEligibleAccountsCount;
 
-		/// Total balance eligible for voting.
-		Amount TotalVotingBalance;
+            /// Total balance eligible for voting.
+            Amount TotalVotingBalance;
 
-		/// Block receipts hash.
-		Hash256 ReceiptsHash;
+            /// Block receipts hash.
+            Hash256 ReceiptsHash;
 
-		/// Block state hash.
-		Hash256 StateHash;
+            /// Block state hash.
+            Hash256 StateHash;
 
-		/// Block component sub cache merkle roots.
-		std::vector<Hash256> SubCacheMerkleRoots;
+            /// Block component sub cache merkle roots.
+            std::vector<Hash256> SubCacheMerkleRoots;
 
-		/// Block statement.
-		std::unique_ptr<model::BlockStatement> pBlockStatement;
-	};
+            /// Block statement.
+            std::unique_ptr<model::BlockStatement> pBlockStatement;
+        };
 
-	/// Calculates the block execution dependent hashes after executing nemesis \a blockElement for network configured with \a config
-	/// and \a pluginManager.
-	BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
-			const model::BlockElement& blockElement,
-			const model::BlockchainConfiguration& config,
-			plugins::PluginManager& pluginManager);
-}}}
+        /// Calculates the block execution dependent hashes after executing nemesis \a blockElement for network configured with \a config
+        /// and \a pluginManager.
+        BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
+            const model::BlockElement& blockElement,
+            const model::BlockchainConfiguration& config,
+            plugins::PluginManager& pluginManager);
+    }
+}
+}

@@ -20,95 +20,100 @@
 **/
 
 #include "AccountRestrictionTransactionPlugin.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 #include "src/model/AccountAddressRestrictionTransaction.h"
 #include "src/model/AccountMosaicRestrictionTransaction.h"
 #include "src/model/AccountOperationRestrictionTransaction.h"
 #include "src/model/AccountRestrictionNotifications.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 
-namespace catapult { namespace plugins {
+namespace catapult {
+namespace plugins {
 
-	namespace {
-		struct AddressTraits {
-			using UnresolvedValueType = UnresolvedAddress;
-			using ResolvedValueType = Address;
-			using ModifyAccountRestrictionsNotification = ModifyAccountAddressRestrictionsNotification;
-			using ModifyAccountRestrictionValueNotification = ModifyAccountAddressRestrictionValueNotification;
-		};
+    namespace {
+        struct AddressTraits {
+            using UnresolvedValueType = UnresolvedAddress;
+            using ResolvedValueType = Address;
+            using ModifyAccountRestrictionsNotification = ModifyAccountAddressRestrictionsNotification;
+            using ModifyAccountRestrictionValueNotification = ModifyAccountAddressRestrictionValueNotification;
+        };
 
-		struct MosaicTraits {
-			using UnresolvedValueType = UnresolvedMosaicId;
-			using ResolvedValueType = MosaicId;
-			using ModifyAccountRestrictionsNotification = ModifyAccountMosaicRestrictionsNotification;
-			using ModifyAccountRestrictionValueNotification = ModifyAccountMosaicRestrictionValueNotification;
-		};
+        struct MosaicTraits {
+            using UnresolvedValueType = UnresolvedMosaicId;
+            using ResolvedValueType = MosaicId;
+            using ModifyAccountRestrictionsNotification = ModifyAccountMosaicRestrictionsNotification;
+            using ModifyAccountRestrictionValueNotification = ModifyAccountMosaicRestrictionValueNotification;
+        };
 
-		struct OperationTraits {
-			using UnresolvedValueType = EntityType;
-			using ResolvedValueType = EntityType;
-			using ModifyAccountRestrictionsNotification = ModifyAccountOperationRestrictionsNotification;
-			using ModifyAccountRestrictionValueNotification = ModifyAccountOperationRestrictionValueNotification;
-		};
+        struct OperationTraits {
+            using UnresolvedValueType = EntityType;
+            using ResolvedValueType = EntityType;
+            using ModifyAccountRestrictionsNotification = ModifyAccountOperationRestrictionsNotification;
+            using ModifyAccountRestrictionValueNotification = ModifyAccountOperationRestrictionValueNotification;
+        };
 
-		template<typename TValueNotification, typename TTransaction, typename TResolvedValue>
-		void RaiseValueNotifications(
-				NotificationSubscriber& sub,
-				const TTransaction& transaction,
-				const PublishContext& context,
-				const TResolvedValue* pValues,
-				uint8_t numValues,
-				AccountRestrictionModificationAction action) {
-			for (auto i = 0u; i < numValues; ++i)
-				sub.notify(TValueNotification(context.SignerAddress, transaction.RestrictionFlags, pValues[i], action));
-		}
+        template <typename TValueNotification, typename TTransaction, typename TResolvedValue>
+        void RaiseValueNotifications(
+            NotificationSubscriber& sub,
+            const TTransaction& transaction,
+            const PublishContext& context,
+            const TResolvedValue* pValues,
+            uint8_t numValues,
+            AccountRestrictionModificationAction action)
+        {
+            for (auto i = 0u; i < numValues; ++i)
+                sub.notify(TValueNotification(context.SignerAddress, transaction.RestrictionFlags, pValues[i], action));
+        }
 
-		template<typename TTraits>
-		class Publisher {
-		public:
-			template<typename TTransaction>
-			static void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-				sub.notify(InternalPaddingNotification(transaction.AccountRestrictionTransactionBody_Reserved1));
-				sub.notify(AccountRestrictionModificationNotification(
-						transaction.RestrictionFlags,
-						transaction.RestrictionAdditionsCount,
-						transaction.RestrictionDeletionsCount));
-				sub.notify(CreateAccountRestrictionModificationsNotification<TTransaction>(transaction, context));
+        template <typename TTraits>
+        class Publisher {
+        public:
+            template <typename TTransaction>
+            static void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+            {
+                sub.notify(InternalPaddingNotification(transaction.AccountRestrictionTransactionBody_Reserved1));
+                sub.notify(AccountRestrictionModificationNotification(
+                    transaction.RestrictionFlags,
+                    transaction.RestrictionAdditionsCount,
+                    transaction.RestrictionDeletionsCount));
+                sub.notify(CreateAccountRestrictionModificationsNotification<TTransaction>(transaction, context));
 
-				using ValueNotification = typename TTraits::ModifyAccountRestrictionValueNotification;
-				RaiseValueNotifications<ValueNotification>(
-						sub,
-						transaction,
-						context,
-						transaction.RestrictionAdditionsPtr(),
-						transaction.RestrictionAdditionsCount,
-						AccountRestrictionModificationAction::Add);
-				RaiseValueNotifications<ValueNotification>(
-						sub,
-						transaction,
-						context,
-						transaction.RestrictionDeletionsPtr(),
-						transaction.RestrictionDeletionsCount,
-						AccountRestrictionModificationAction::Del);
-			}
+                using ValueNotification = typename TTraits::ModifyAccountRestrictionValueNotification;
+                RaiseValueNotifications<ValueNotification>(
+                    sub,
+                    transaction,
+                    context,
+                    transaction.RestrictionAdditionsPtr(),
+                    transaction.RestrictionAdditionsCount,
+                    AccountRestrictionModificationAction::Add);
+                RaiseValueNotifications<ValueNotification>(
+                    sub,
+                    transaction,
+                    context,
+                    transaction.RestrictionDeletionsPtr(),
+                    transaction.RestrictionDeletionsCount,
+                    AccountRestrictionModificationAction::Del);
+            }
 
-		private:
-			template<typename TTransaction>
-			static auto CreateAccountRestrictionModificationsNotification(const TTransaction& transaction, const PublishContext& context) {
-				return typename TTraits::ModifyAccountRestrictionsNotification(
-						context.SignerAddress,
-						transaction.RestrictionFlags,
-						transaction.RestrictionAdditionsCount,
-						transaction.RestrictionAdditionsPtr(),
-						transaction.RestrictionDeletionsCount,
-						transaction.RestrictionDeletionsPtr());
-			}
-		};
-	}
+        private:
+            template <typename TTransaction>
+            static auto CreateAccountRestrictionModificationsNotification(const TTransaction& transaction, const PublishContext& context)
+            {
+                return typename TTraits::ModifyAccountRestrictionsNotification(
+                    context.SignerAddress,
+                    transaction.RestrictionFlags,
+                    transaction.RestrictionAdditionsCount,
+                    transaction.RestrictionAdditionsPtr(),
+                    transaction.RestrictionDeletionsCount,
+                    transaction.RestrictionDeletionsPtr());
+            }
+        };
+    }
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountAddressRestriction, Default, Publisher<AddressTraits>::Publish)
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountMosaicRestriction, Default, Publisher<MosaicTraits>::Publish)
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountOperationRestriction, Default, Publisher<OperationTraits>::Publish)
-}}
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountAddressRestriction, Default, Publisher<AddressTraits>::Publish)
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountMosaicRestriction, Default, Publisher<MosaicTraits>::Publish)
+    DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountOperationRestriction, Default, Publisher<OperationTraits>::Publish)
+}
+}

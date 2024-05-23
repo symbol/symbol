@@ -20,63 +20,68 @@
 **/
 
 #pragma once
-#include "finalization/src/io/ProofStorage.h"
-#include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/extensions/BasicServerHooks.h"
 #include "catapult/extensions/ServiceRegistrar.h"
 #include "catapult/handlers/HandlerTypes.h"
+#include "finalization/src/io/ProofStorage.h"
+#include "finalization/src/model/FinalizationMessage.h"
 
 namespace catapult {
 namespace chain {
-	class MultiRoundMessageAggregator;
+    class MultiRoundMessageAggregator;
 }
 namespace finalization {
-	struct FinalizationConfiguration;
+    struct FinalizationConfiguration;
 }
 namespace io {
-	class ProofStorageCache;
+    class ProofStorageCache;
 }
 }
 
-namespace catapult { namespace finalization {
+namespace catapult {
+namespace finalization {
 
-	// region FinalizationServerHooks
+    // region FinalizationServerHooks
 
-	/// Hooks for the finalization subsystem.
-	class FinalizationServerHooks {
-	public:
-		/// Sets the message range \a consumer.
-		void setMessageRangeConsumer(const handlers::RangeHandler<model::FinalizationMessage>& consumer) {
-			extensions::SetOnce(m_messageRangeConsumer, consumer);
-		}
+    /// Hooks for the finalization subsystem.
+    class FinalizationServerHooks {
+    public:
+        /// Sets the message range \a consumer.
+        void setMessageRangeConsumer(const handlers::RangeHandler<model::FinalizationMessage>& consumer)
+        {
+            extensions::SetOnce(m_messageRangeConsumer, consumer);
+        }
 
-	public:
-		/// Gets the message range consumer.
-		const auto& messageRangeConsumer() const {
-			return extensions::Require(m_messageRangeConsumer);
-		}
+    public:
+        /// Gets the message range consumer.
+        const auto& messageRangeConsumer() const
+        {
+            return extensions::Require(m_messageRangeConsumer);
+        }
 
-	private:
-		handlers::RangeHandler<model::FinalizationMessage> m_messageRangeConsumer;
-	};
+    private:
+        handlers::RangeHandler<model::FinalizationMessage> m_messageRangeConsumer;
+    };
 
-	// endregion
+    // endregion
 
-	/// Creates a registrar for a finalization bootstrapper service around \a config and \a pProofStorage.
-	/// \note This service is responsible for registering root finalization services.
-	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapper)
-	(const FinalizationConfiguration& config, std::unique_ptr<io::ProofStorage>&& pProofStorage);
+    /// Creates a registrar for a finalization bootstrapper service around \a config and \a pProofStorage.
+    /// \note This service is responsible for registering root finalization services.
+    DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapper)
+    (const FinalizationConfiguration& config, std::unique_ptr<io::ProofStorage>&& pProofStorage);
 
-	/// Creates a registrar for a finalization bootstrapper (phase two) service.
-	/// \note This service is required to prevent a circular service dependency.
-	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapperPhaseTwo)();
+    /// Creates a registrar for a finalization bootstrapper (phase two) service.
+    /// \note This service is required to prevent a circular service dependency.
+    DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapperPhaseTwo)
+    ();
 
-	/// Gets the multi round message aggregator stored in \a locator.
-	chain::MultiRoundMessageAggregator& GetMultiRoundMessageAggregator(const extensions::ServiceLocator& locator);
+    /// Gets the multi round message aggregator stored in \a locator.
+    chain::MultiRoundMessageAggregator& GetMultiRoundMessageAggregator(const extensions::ServiceLocator& locator);
 
-	/// Gets the finalization server hooks stored in \a locator.
-	FinalizationServerHooks& GetFinalizationServerHooks(const extensions::ServiceLocator& locator);
+    /// Gets the finalization server hooks stored in \a locator.
+    FinalizationServerHooks& GetFinalizationServerHooks(const extensions::ServiceLocator& locator);
 
-	/// Gets the proof storage cache stored in \a locator.
-	io::ProofStorageCache& GetProofStorageCache(const extensions::ServiceLocator& locator);
-}}
+    /// Gets the proof storage cache stored in \a locator.
+    io::ProofStorageCache& GetProofStorageCache(const extensions::ServiceLocator& locator);
+}
+}

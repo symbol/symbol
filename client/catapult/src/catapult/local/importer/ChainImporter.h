@@ -23,15 +23,19 @@
 #include "catapult/local/ProcessHost.h"
 #include <memory>
 
-namespace catapult { namespace extensions {
-	class ProcessBootstrapper;
-}}
+namespace catapult {
+namespace extensions {
+    class ProcessBootstrapper;
+}
+}
 
-namespace catapult { namespace local {
+namespace catapult {
+namespace local {
 
-	/// Represents a chain importer.
-	class ChainImporter : public ProcessHost {};
+    /// Represents a chain importer.
+    class ChainImporter : public ProcessHost { };
 
-	/// Creates and boots a chain importer around the specified bootstrapper (\a pBootstrapper).
-	std::unique_ptr<ChainImporter> CreateChainImporter(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
-}}
+    /// Creates and boots a chain importer around the specified bootstrapper (\a pBootstrapper).
+    std::unique_ptr<ChainImporter> CreateChainImporter(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
+}
+}

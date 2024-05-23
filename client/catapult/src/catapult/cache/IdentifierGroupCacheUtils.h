@@ -21,67 +21,73 @@
 
 #pragma once
 #include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/utils/IdentifierGroup.h"
 #include "catapult/types.h"
+#include "catapult/utils/IdentifierGroup.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Adds \a identifier with grouping \a key to \a groupedSet.
-	template<typename TGroupedSet, typename TGroupingKey, typename TIdentifier>
-	void AddIdentifierWithGroup(TGroupedSet& groupedSet, const TGroupingKey& key, const TIdentifier& identifier) {
-		if (!groupedSet.contains(key))
-			groupedSet.insert(typename TGroupedSet::ElementType(key));
+    /// Adds \a identifier with grouping \a key to \a groupedSet.
+    template <typename TGroupedSet, typename TGroupingKey, typename TIdentifier>
+    void AddIdentifierWithGroup(TGroupedSet& groupedSet, const TGroupingKey& key, const TIdentifier& identifier)
+    {
+        if (!groupedSet.contains(key))
+            groupedSet.insert(typename TGroupedSet::ElementType(key));
 
-		auto groupIter = groupedSet.find(key);
-		auto* pGroup = groupIter.get();
-		pGroup->add(identifier);
-	}
+        auto groupIter = groupedSet.find(key);
+        auto* pGroup = groupIter.get();
+        pGroup->add(identifier);
+    }
 
-	/// Calls \a action for each value in \a set with grouping \a key according to \a groupedSet.
-	template<typename TSet, typename TGroupedSet, typename TGroupingKey, typename TAction>
-	void ForEachIdentifierWithGroup(TSet& set, const TGroupedSet& groupedSet, const TGroupingKey& key, TAction action) {
-		auto groupIter = groupedSet.find(key);
-		const auto* pGroup = groupIter.get();
-		if (!pGroup)
-			return;
+    /// Calls \a action for each value in \a set with grouping \a key according to \a groupedSet.
+    template <typename TSet, typename TGroupedSet, typename TGroupingKey, typename TAction>
+    void ForEachIdentifierWithGroup(TSet& set, const TGroupedSet& groupedSet, const TGroupingKey& key, TAction action)
+    {
+        auto groupIter = groupedSet.find(key);
+        const auto* pGroup = groupIter.get();
+        if (!pGroup)
+            return;
 
-		for (const auto& identifier : pGroup->identifiers()) {
-			auto valueIter = set.find(identifier);
-			auto* pValue = valueIter.get();
-			if (pValue)
-				action(*pValue);
-		}
-	}
+        for (const auto& identifier : pGroup->identifiers()) {
+            auto valueIter = set.find(identifier);
+            auto* pValue = valueIter.get();
+            if (pValue)
+                action(*pValue);
+        }
+    }
 
-	/// Removes \a identifier with grouping \a key from \a groupedSet.
-	template<typename TGroupedSet, typename TGroupingKey, typename TIdentifier>
-	void RemoveIdentifierWithGroup(TGroupedSet& groupedSet, const TGroupingKey& key, const TIdentifier& identifier) {
-		auto groupIter = groupedSet.find(key);
-		auto* pGroup = groupIter.get();
-		if (!pGroup)
-			return;
+    /// Removes \a identifier with grouping \a key from \a groupedSet.
+    template <typename TGroupedSet, typename TGroupingKey, typename TIdentifier>
+    void RemoveIdentifierWithGroup(TGroupedSet& groupedSet, const TGroupingKey& key, const TIdentifier& identifier)
+    {
+        auto groupIter = groupedSet.find(key);
+        auto* pGroup = groupIter.get();
+        if (!pGroup)
+            return;
 
-		pGroup->remove(identifier);
-		if (pGroup->empty())
-			groupedSet.remove(key);
-	}
+        pGroup->remove(identifier);
+        if (pGroup->empty())
+            groupedSet.remove(key);
+    }
 
-	/// Finds identifiers of all values in \a set (with grouped view \a groupedSet) that are deactivating at \a height.
-	template<typename TSet, typename TGroupedSet, typename TIdentifiers = typename TGroupedSet::ElementType::Identifiers>
-	TIdentifiers FindDeactivatingIdentifiersAtHeight(const TSet& set, const TGroupedSet& groupedSet, Height height) {
-		auto groupIter = groupedSet.find(height);
-		const auto* pGroup = groupIter.get();
-		if (!pGroup)
-			return {};
+    /// Finds identifiers of all values in \a set (with grouped view \a groupedSet) that are deactivating at \a height.
+    template <typename TSet, typename TGroupedSet, typename TIdentifiers = typename TGroupedSet::ElementType::Identifiers>
+    TIdentifiers FindDeactivatingIdentifiersAtHeight(const TSet& set, const TGroupedSet& groupedSet, Height height)
+    {
+        auto groupIter = groupedSet.find(height);
+        const auto* pGroup = groupIter.get();
+        if (!pGroup)
+            return {};
 
-		TIdentifiers identifiers;
-		for (const auto& identifier : pGroup->identifiers()) {
-			auto valueIter = set.find(identifier);
-			auto* pValue = valueIter.get();
-			if (pValue && !pValue->isActive(height) && pValue->isActive(height - Height(1)))
-				identifiers.emplace(identifier);
-		}
+        TIdentifiers identifiers;
+        for (const auto& identifier : pGroup->identifiers()) {
+            auto valueIter = set.find(identifier);
+            auto* pValue = valueIter.get();
+            if (pValue && !pValue->isActive(height) && pValue->isActive(height - Height(1)))
+                identifiers.emplace(identifier);
+        }
 
-		return identifiers;
-	}
-}}
+        return identifiers;
+    }
+}
+}

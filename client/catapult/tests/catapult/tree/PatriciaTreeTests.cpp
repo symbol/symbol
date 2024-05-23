@@ -19,37 +19,42 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/tree/PatriciaTree.h"
-#include "catapult/tree/MemoryDataSource.h"
 #include "tests/test/tree/PatriciaTreeTests.h"
+#include "catapult/tree/MemoryDataSource.h"
+#include "catapult/tree/PatriciaTree.h"
 
-namespace catapult { namespace tree {
+namespace catapult {
+namespace tree {
 
 #define TEST_CLASS PatriciaTreeTests
 
-	namespace {
-		class MemoryTraits {
-		public:
-			using DataSourceType = MemoryDataSource;
+    namespace {
+        class MemoryTraits {
+        public:
+            using DataSourceType = MemoryDataSource;
 
-		public:
-			explicit MemoryTraits(DataSourceVerbosity verbosity)
-					: m_dataSource(verbosity) {
-			}
+        public:
+            explicit MemoryTraits(DataSourceVerbosity verbosity)
+                : m_dataSource(verbosity)
+            {
+            }
 
-		public:
-			DataSourceType& dataSource() {
-				return m_dataSource;
-			}
+        public:
+            DataSourceType& dataSource()
+            {
+                return m_dataSource;
+            }
 
-			void verifyDataSourceSize(size_t expectedSize) const {
-				EXPECT_EQ(expectedSize, m_dataSource.size());
-			}
+            void verifyDataSourceSize(size_t expectedSize) const
+            {
+                EXPECT_EQ(expectedSize, m_dataSource.size());
+            }
 
-		private:
-			DataSourceType m_dataSource;
-		};
-	}
+        private:
+            DataSourceType m_dataSource;
+        };
+    }
 
-	DEFINE_PATRICIA_TREE_TESTS(MemoryTraits)
-}}
+    DEFINE_PATRICIA_TREE_TESTS(MemoryTraits)
+}
+}

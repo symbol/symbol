@@ -20,35 +20,40 @@
 **/
 
 #include "src/validators/KeyLinkValidators.h"
-#include "tests/test/plugins/DiscreteIntegerValidatorTests.h"
 #include "tests/TestHarness.h"
+#include "tests/test/plugins/DiscreteIntegerValidatorTests.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #define TEST_CLASS KeyLinkActionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(KeyLinkAction, )
+    DEFINE_COMMON_VALIDATOR_TESTS(KeyLinkAction, )
 
-	namespace {
-		struct KeyLinkActionTraits {
-			using EnumType = model::LinkAction;
+    namespace {
+        struct KeyLinkActionTraits {
+            using EnumType = model::LinkAction;
 
-			static constexpr auto Failure_Result = Failure_Core_Invalid_Link_Action;
-			static constexpr auto CreateValidator = CreateKeyLinkActionValidator;
+            static constexpr auto Failure_Result = Failure_Core_Invalid_Link_Action;
+            static constexpr auto CreateValidator = CreateKeyLinkActionValidator;
 
-			static std::vector<uint8_t> ValidValues() {
-				return { 0x00, 0x01 };
-			}
+            static std::vector<uint8_t> ValidValues()
+            {
+                return { 0x00, 0x01 };
+            }
 
-			static std::vector<uint8_t> InvalidValues() {
-				return { 0x02, 0xFF };
-			}
+            static std::vector<uint8_t> InvalidValues()
+            {
+                return { 0x02, 0xFF };
+            }
 
-			static auto CreateNotification(EnumType value) {
-				return model::KeyLinkActionNotification(value);
-			}
-		};
-	}
+            static auto CreateNotification(EnumType value)
+            {
+                return model::KeyLinkActionNotification(value);
+            }
+        };
+    }
 
-	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, KeyLinkActionTraits)
-}}
+    DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, KeyLinkActionTraits)
+}
+}

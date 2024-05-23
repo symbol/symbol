@@ -21,13 +21,15 @@
 
 #pragma once
 #include "MultisigCacheTypes.h"
-#include "src/state/MultisigEntrySerializer.h"
 #include "catapult/cache/CacheStorageInclude.h"
+#include "src/state/MultisigEntrySerializer.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Policy for saving and loading multisig cache data.
-	struct MultisigCacheStorage
-			: public CacheStorageForBasicInsertRemoveCache<MultisigCacheDescriptor>
-			, public state::MultisigEntrySerializer {};
-}}
+    /// Policy for saving and loading multisig cache data.
+    struct MultisigCacheStorage
+        : public CacheStorageForBasicInsertRemoveCache<MultisigCacheDescriptor>,
+          public state::MultisigEntrySerializer { };
+}
+}

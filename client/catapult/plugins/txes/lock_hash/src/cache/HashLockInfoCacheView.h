@@ -24,18 +24,20 @@
 #include "HashLockInfoCacheSerializers.h"
 #include "plugins/txes/lock_shared/src/cache/LockInfoCacheView.h"
 
-namespace catapult { namespace cache {
+namespace catapult {
+namespace cache {
 
-	/// Basic view on top of the hash lock info cache.
-	class BasicHashLockInfoCacheView : public BasicLockInfoCacheView<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes> {
-	public:
-		using BasicLockInfoCacheView<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes>::BasicLockInfoCacheView;
-	};
+    /// Basic view on top of the hash lock info cache.
+    class BasicHashLockInfoCacheView : public BasicLockInfoCacheView<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes> {
+    public:
+        using BasicLockInfoCacheView<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes>::BasicLockInfoCacheView;
+    };
 
-	/// View on top of the hash lock info cache.
-	class HashLockInfoCacheView
-			: public LockInfoCacheView<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes, BasicHashLockInfoCacheView> {
-	public:
-		using LockInfoCacheView<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes, BasicHashLockInfoCacheView>::LockInfoCacheView;
-	};
-}}
+    /// View on top of the hash lock info cache.
+    class HashLockInfoCacheView
+        : public LockInfoCacheView<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes, BasicHashLockInfoCacheView> {
+    public:
+        using LockInfoCacheView<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes, BasicHashLockInfoCacheView>::LockInfoCacheView;
+    };
+}
+}

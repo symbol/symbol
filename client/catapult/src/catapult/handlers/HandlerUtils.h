@@ -28,89 +28,95 @@
 #include "catapult/utils/ShortHash.h"
 #include <functional>
 
-namespace catapult { namespace handlers {
+namespace catapult {
+namespace handlers {
 
-	namespace detail {
-		/// Parses a pull request \a packet.
-		template<typename TRequest>
-		TRequest ParsePullRequest(const ionet::Packet& packet) {
-			using FilterType = typename TRequest::FilterType;
-			using HashType = typename TRequest::HashType;
+    namespace detail {
+        /// Parses a pull request \a packet.
+        template <typename TRequest>
+        TRequest ParsePullRequest(const ionet::Packet& packet)
+        {
+            using FilterType = typename TRequest::FilterType;
+            using HashType = typename TRequest::HashType;
 
-			// packet is guaranteed to have correct type because this function is only called for matching packets by ServerPacketHandlers
-			auto dataSize = ionet::CalculatePacketDataSize(packet);
-			if (dataSize < sizeof(FilterType))
-				return TRequest();
+            // packet is guaranteed to have correct type because this function is only called for matching packets by ServerPacketHandlers
+            auto dataSize = ionet::CalculatePacketDataSize(packet);
+            if (dataSize < sizeof(FilterType))
+                return TRequest();
 
-			// data is prepended with filter value
-			TRequest request;
-			request.FilterValue = reinterpret_cast<const FilterType&>(*packet.Data());
-			dataSize -= sizeof(FilterType);
+            // data is prepended with filter value
+            TRequest request;
+            request.FilterValue = reinterpret_cast<const FilterType&>(*packet.Data());
+            dataSize -= sizeof(FilterType);
 
-			// followed by short hashes
-			const auto* pHashDataStart = packet.Data() + sizeof(FilterType);
-			auto numHashes = ionet::CountFixedSizeStructures<HashType>({ pHashDataStart, dataSize });
-			if (0 == numHashes && 0 != dataSize)
-				return TRequest();
+            // followed by short hashes
+            const auto* pHashDataStart = packet.Data() + sizeof(FilterType);
+            auto numHashes = ionet::CountFixedSizeStructures<HashType>({ pHashDataStart, dataSize });
+            if (0 == numHashes && 0 != dataSize)
+                return TRequest();
 
-			TRequest::SetAll(request, reinterpret_cast<const HashType*>(pHashDataStart), numHashes);
-			request.IsValid = true;
-			return request;
-		}
-	}
+            TRequest::SetAll(request, reinterpret_cast<const HashType*>(pHashDataStart), numHashes);
+            request.IsValid = true;
+            return request;
+        }
+    }
 
-	/// Creates a push handler that forwards a received entity range to \a rangeHandler
-	/// given a transaction \a registry composed of supported transaction types.
-	template<typename TEntity>
-	auto CreatePushEntityHandler(const model::TransactionRegistry& registry, const RangeHandler<TEntity>& rangeHandler) {
-		return [rangeHandler, &registry](const ionet::Packet& packet, const auto& context) {
-			auto range = ionet::ExtractEntitiesFromPacket<TEntity>(packet, [&registry](const auto& entity) {
-				return IsSizeValid(entity, registry);
-			});
-			if (range.empty()) {
-				CATAPULT_LOG(warning) << "rejecting empty range: " << packet;
-				return;
-			}
+    /// Creates a push handler that forwards a received entity range to \a rangeHandler
+    /// given a transaction \a registry composed of supported transaction types.
+    template <typename TEntity>
+    auto CreatePushEntityHandler(const model::TransactionRegistry& registry, const RangeHandler<TEntity>& rangeHandler)
+    {
+        return [rangeHandler, &registry](const ionet::Packet& packet, const auto& context) {
+            auto range = ionet::ExtractEntitiesFromPacket<TEntity>(packet, [&registry](const auto& entity) {
+                return IsSizeValid(entity, registry);
+            });
+            if (range.empty()) {
+                CATAPULT_LOG(warning) << "rejecting empty range: " << packet;
+                return;
+            }
 
-			CATAPULT_LOG(trace) << "received valid " << packet;
-			rangeHandler({ std::move(range), { context.key(), context.host() } });
-		};
-	}
+            CATAPULT_LOG(trace) << "received valid " << packet;
+            rangeHandler({ std::move(range), { context.key(), context.host() } });
+        };
+    }
 
-	/// Provides a pull entities handler implementation that allows filtering by TFilterValue and short hashes.
-	template<typename TFilterValue>
-	struct PullEntitiesHandler {
-	private:
-		struct ParsedPullRequest {
-		public:
-			using FilterType = TFilterValue;
-			using HashType = utils::ShortHash;
+    /// Provides a pull entities handler implementation that allows filtering by TFilterValue and short hashes.
+    template <typename TFilterValue>
+    struct PullEntitiesHandler {
+    private:
+        struct ParsedPullRequest {
+        public:
+            using FilterType = TFilterValue;
+            using HashType = utils::ShortHash;
 
-		public:
-			bool IsValid = false;
-			TFilterValue FilterValue;
-			utils::ShortHashesSet ShortHashes;
+        public:
+            bool IsValid = false;
+            TFilterValue FilterValue;
+            utils::ShortHashesSet ShortHashes;
 
-		public:
-			static void SetAll(ParsedPullRequest& request, const utils::ShortHash* pShortHash, size_t count) {
-				request.ShortHashes.reserve(count);
-				for (auto i = 0u; i < count; ++i, ++pShortHash)
-					request.ShortHashes.insert(*pShortHash);
-			}
-		};
+        public:
+            static void SetAll(ParsedPullRequest& request, const utils::ShortHash* pShortHash, size_t count)
+            {
+                request.ShortHashes.reserve(count);
+                for (auto i = 0u; i < count; ++i, ++pShortHash)
+                    request.ShortHashes.insert(*pShortHash);
+            }
+        };
 
-	public:
-		/// Creates a handler around \a entitiesRetriever that responds with packets of type \a packetType.
-		template<typename TEntitiesRetriever>
-		static auto Create(ionet::PacketType packetType, TEntitiesRetriever entitiesRetriever) {
-			return [packetType, entitiesRetriever](const auto& packet, auto& context) {
-				auto request = detail::ParsePullRequest<ParsedPullRequest>(packet);
-				if (!request.IsValid)
-					return;
+    public:
+        /// Creates a handler around \a entitiesRetriever that responds with packets of type \a packetType.
+        template <typename TEntitiesRetriever>
+        static auto Create(ionet::PacketType packetType, TEntitiesRetriever entitiesRetriever)
+        {
+            return [packetType, entitiesRetriever](const auto& packet, auto& context) {
+                auto request = detail::ParsePullRequest<ParsedPullRequest>(packet);
+                if (!request.IsValid)
+                    return;
 
-				auto entities = entitiesRetriever(request.FilterValue, request.ShortHashes);
-				context.response(ionet::PacketPayloadFactory::FromEntities(packetType, entities));
-			};
-		}
-	};
-}}
+                auto entities = entitiesRetriever(request.FilterValue, request.ShortHashes);
+                context.response(ionet::PacketPayloadFactory::FromEntities(packetType, entities));
+            };
+        }
+    };
+}
+}

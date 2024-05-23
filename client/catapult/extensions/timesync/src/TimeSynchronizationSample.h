@@ -25,61 +25,63 @@
 #include "catapult/utils/TimeSpan.h"
 #include <set>
 
-namespace catapult { namespace timesync {
+namespace catapult {
+namespace timesync {
 
-	/// Represents a sample in the time synchronization process.
-	class TimeSynchronizationSample {
-	public:
-		/// Creates a default time synchronization sample.
-		TimeSynchronizationSample();
+    /// Represents a sample in the time synchronization process.
+    class TimeSynchronizationSample {
+    public:
+        /// Creates a default time synchronization sample.
+        TimeSynchronizationSample();
 
-		/// Creates a time synchronization sample around \a identityKey, \a localTimestamps and \a remoteTimestamps.
-		/// \a localTimestamps (\a remoteTimestamps) are the timestamps at which the local (remote) node sent and received
-		/// a request and a response.
-		TimeSynchronizationSample(
-				const Key& identityKey,
-				const CommunicationTimestamps& localTimestamps,
-				const CommunicationTimestamps& remoteTimestamps);
+        /// Creates a time synchronization sample around \a identityKey, \a localTimestamps and \a remoteTimestamps.
+        /// \a localTimestamps (\a remoteTimestamps) are the timestamps at which the local (remote) node sent and received
+        /// a request and a response.
+        TimeSynchronizationSample(
+            const Key& identityKey,
+            const CommunicationTimestamps& localTimestamps,
+            const CommunicationTimestamps& remoteTimestamps);
 
-	public:
-		/// Gets the identity key.
-		const Key& identityKey() const;
+    public:
+        /// Gets the identity key.
+        const Key& identityKey() const;
 
-		/// Gets the local timestamps.
-		const CommunicationTimestamps& localTimestamps() const;
+        /// Gets the local timestamps.
+        const CommunicationTimestamps& localTimestamps() const;
 
-		/// Gets the remote timestamps.
-		const CommunicationTimestamps& remoteTimestamps() const;
+        /// Gets the remote timestamps.
+        const CommunicationTimestamps& remoteTimestamps() const;
 
-	public:
-		/// Gets the duration of the complete cycle.
-		utils::TimeSpan duration() const;
+    public:
+        /// Gets the duration of the complete cycle.
+        utils::TimeSpan duration() const;
 
-		/// Gets the local duration.
-		int64_t localDuration() const;
+        /// Gets the local duration.
+        int64_t localDuration() const;
 
-		/// Gets the remote duration.
-		int64_t remoteDuration() const;
+        /// Gets the remote duration.
+        int64_t remoteDuration() const;
 
-		/// Gets the offset of the local node's network time relative to the remote node's network time.
-		int64_t timeOffsetToRemote() const;
+        /// Gets the offset of the local node's network time relative to the remote node's network time.
+        int64_t timeOffsetToRemote() const;
 
-	public:
-		/// Returns \c true if this time synchronization sample is less than \a rhs.
-		bool operator<(const TimeSynchronizationSample& rhs) const;
+    public:
+        /// Returns \c true if this time synchronization sample is less than \a rhs.
+        bool operator<(const TimeSynchronizationSample& rhs) const;
 
-		/// Returns \c true if this time synchronization sample is equal to \a rhs.
-		bool operator==(const TimeSynchronizationSample& rhs) const;
+        /// Returns \c true if this time synchronization sample is equal to \a rhs.
+        bool operator==(const TimeSynchronizationSample& rhs) const;
 
-		/// Returns \c true if this time synchronization sample is not equal to \a rhs.
-		bool operator!=(const TimeSynchronizationSample& rhs) const;
+        /// Returns \c true if this time synchronization sample is not equal to \a rhs.
+        bool operator!=(const TimeSynchronizationSample& rhs) const;
 
-	private:
-		Key m_identityKey;
-		CommunicationTimestamps m_localTimestamps;
-		CommunicationTimestamps m_remoteTimestamps;
-	};
+    private:
+        Key m_identityKey;
+        CommunicationTimestamps m_localTimestamps;
+        CommunicationTimestamps m_remoteTimestamps;
+    };
 
-	/// Ordered set of time synchronization samples.
-	using TimeSynchronizationSamples = std::set<TimeSynchronizationSample>;
-}}
+    /// Ordered set of time synchronization samples.
+    using TimeSynchronizationSamples = std::set<TimeSynchronizationSample>;
+}
+}

@@ -20,298 +20,315 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "tests/TestHarness.h"
 #include "tests/test/MosaicRestrictionCacheTestUtils.h"
 #include "tests/test/MosaicRestrictionTestTraits.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
-#include "tests/TestHarness.h"
 
-namespace catapult { namespace observers {
+namespace catapult {
+namespace observers {
 
 #define TEST_CLASS MosaicRestrictionModificationObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicGlobalRestrictionCommitModification, )
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicGlobalRestrictionRollbackModification, )
-
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicAddressRestrictionCommitModification, )
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicAddressRestrictionRollbackModification, )
-
-	// region traits
-
-	namespace {
-		using ObserverTestContext = test::ObserverTestContextT<test::MosaicRestrictionCacheFactory>;
-
-		enum class InitializationScheme { Unset, Set };
-
-		template<typename TTestTraits>
-		class BasicTraits : public TTestTraits {
-		public:
-			typename TTestTraits::NotificationType createNotification(uint64_t key, uint64_t value, InitializationScheme scheme) {
-				if (InitializationScheme::Unset == scheme)
-					return this->createDeleteNotification(key);
-				else
-					return this->createAddNotification(key, value);
-			}
-
-			void addRestrictionWithValueToCache(cache::MosaicRestrictionCacheDelta& restrictionCache, uint64_t key, uint64_t value) {
-				this->addRestrictionWithValuesToCache(restrictionCache, { std::make_pair(key, value) });
-			}
-
-		private:
-			TTestTraits m_traits;
-		};
-
-		using GlobalCommitNotification = model::MosaicGlobalRestrictionModificationNewValueNotification;
-		using GlobalRollbackNotification = model::MosaicGlobalRestrictionModificationPreviousValueNotification;
-		using AddressCommitNotification = model::MosaicAddressRestrictionModificationNewValueNotification;
-		using AddressRollbackNotification = model::MosaicAddressRestrictionModificationPreviousValueNotification;
-
-		class GlobalCommitTraits : public BasicTraits<test::MosaicGlobalRestrictionTestTraits<GlobalCommitNotification>> {
-		public:
-			static constexpr auto Execute_Mode = NotifyMode::Commit;
-			static constexpr auto Bypass_Mode = NotifyMode::Rollback;
-
-			static constexpr auto CreateObserver = CreateMosaicGlobalRestrictionCommitModificationObserver;
-		};
-
-		class GlobalRollbackTraits : public BasicTraits<test::MosaicGlobalRestrictionTestTraits<GlobalRollbackNotification>> {
-		public:
-			static constexpr auto Execute_Mode = NotifyMode::Rollback;
-			static constexpr auto Bypass_Mode = NotifyMode::Commit;
-
-			static constexpr auto CreateObserver = CreateMosaicGlobalRestrictionRollbackModificationObserver;
-		};
-
-		class AddressCommitTraits : public BasicTraits<test::MosaicAddressRestrictionTestTraits<AddressCommitNotification>> {
-		public:
-			static constexpr auto Execute_Mode = NotifyMode::Commit;
-			static constexpr auto Bypass_Mode = NotifyMode::Rollback;
-
-			static constexpr auto CreateObserver = CreateMosaicAddressRestrictionCommitModificationObserver;
-		};
-
-		class AddressRollbackTraits : public BasicTraits<test::MosaicAddressRestrictionTestTraits<AddressRollbackNotification>> {
-		public:
-			static constexpr auto Execute_Mode = NotifyMode::Rollback;
-			static constexpr auto Bypass_Mode = NotifyMode::Commit;
-
-			static constexpr auto CreateObserver = CreateMosaicAddressRestrictionRollbackModificationObserver;
-		};
-	}
-
-#define RESTRICTION_TYPE_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(MosaicGlobalRestrictionCommitModificationObserverTests, TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalCommitTraits>(); \
-	} \
-	TEST(MosaicGlobalRestrictionRollbackModificationObserverTests, TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalRollbackTraits>(); \
-	} \
-	TEST(MosaicAddressRestrictionCommitModificationObserverTests, TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressCommitTraits>(); \
-	} \
-	TEST(MosaicAddressRestrictionRollbackModificationObserverTests, TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressRollbackTraits>(); \
-	} \
-	template<typename TTraits> \
-	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-
-	// endregion
-
-	// region cache does not contain entry
-
-	RESTRICTION_TYPE_BASED_TEST(OppositeNotificationModeBypassesChangesWhenCacheDoesNotContainEntry) {
-		// Arrange:
-		TTraits traits;
-		ObserverTestContext context(TTraits::Bypass_Mode);
-		const auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
-
-		auto pObserver = TTraits::CreateObserver();
-		auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
-
-		// Sanity:
-		EXPECT_EQ(0u, restrictionCache.size());
+    DEFINE_COMMON_OBSERVER_TESTS(MosaicGlobalRestrictionCommitModification, )
+    DEFINE_COMMON_OBSERVER_TESTS(MosaicGlobalRestrictionRollbackModification, )
+
+    DEFINE_COMMON_OBSERVER_TESTS(MosaicAddressRestrictionCommitModification, )
+    DEFINE_COMMON_OBSERVER_TESTS(MosaicAddressRestrictionRollbackModification, )
+
+    // region traits
+
+    namespace {
+        using ObserverTestContext = test::ObserverTestContextT<test::MosaicRestrictionCacheFactory>;
+
+        enum class InitializationScheme { Unset,
+            Set };
+
+        template <typename TTestTraits>
+        class BasicTraits : public TTestTraits {
+        public:
+            typename TTestTraits::NotificationType createNotification(uint64_t key, uint64_t value, InitializationScheme scheme)
+            {
+                if (InitializationScheme::Unset == scheme)
+                    return this->createDeleteNotification(key);
+                else
+                    return this->createAddNotification(key, value);
+            }
+
+            void addRestrictionWithValueToCache(cache::MosaicRestrictionCacheDelta& restrictionCache, uint64_t key, uint64_t value)
+            {
+                this->addRestrictionWithValuesToCache(restrictionCache, { std::make_pair(key, value) });
+            }
+
+        private:
+            TTestTraits m_traits;
+        };
+
+        using GlobalCommitNotification = model::MosaicGlobalRestrictionModificationNewValueNotification;
+        using GlobalRollbackNotification = model::MosaicGlobalRestrictionModificationPreviousValueNotification;
+        using AddressCommitNotification = model::MosaicAddressRestrictionModificationNewValueNotification;
+        using AddressRollbackNotification = model::MosaicAddressRestrictionModificationPreviousValueNotification;
+
+        class GlobalCommitTraits : public BasicTraits<test::MosaicGlobalRestrictionTestTraits<GlobalCommitNotification>> {
+        public:
+            static constexpr auto Execute_Mode = NotifyMode::Commit;
+            static constexpr auto Bypass_Mode = NotifyMode::Rollback;
+
+            static constexpr auto CreateObserver = CreateMosaicGlobalRestrictionCommitModificationObserver;
+        };
+
+        class GlobalRollbackTraits : public BasicTraits<test::MosaicGlobalRestrictionTestTraits<GlobalRollbackNotification>> {
+        public:
+            static constexpr auto Execute_Mode = NotifyMode::Rollback;
+            static constexpr auto Bypass_Mode = NotifyMode::Commit;
+
+            static constexpr auto CreateObserver = CreateMosaicGlobalRestrictionRollbackModificationObserver;
+        };
+
+        class AddressCommitTraits : public BasicTraits<test::MosaicAddressRestrictionTestTraits<AddressCommitNotification>> {
+        public:
+            static constexpr auto Execute_Mode = NotifyMode::Commit;
+            static constexpr auto Bypass_Mode = NotifyMode::Rollback;
+
+            static constexpr auto CreateObserver = CreateMosaicAddressRestrictionCommitModificationObserver;
+        };
+
+        class AddressRollbackTraits : public BasicTraits<test::MosaicAddressRestrictionTestTraits<AddressRollbackNotification>> {
+        public:
+            static constexpr auto Execute_Mode = NotifyMode::Rollback;
+            static constexpr auto Bypass_Mode = NotifyMode::Commit;
+
+            static constexpr auto CreateObserver = CreateMosaicAddressRestrictionRollbackModificationObserver;
+        };
+    }
+
+#define RESTRICTION_TYPE_BASED_TEST(TEST_NAME)                                 \
+    template <typename TTraits>                                                \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                            \
+    TEST(MosaicGlobalRestrictionCommitModificationObserverTests, TEST_NAME)    \
+    {                                                                          \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalCommitTraits>();         \
+    }                                                                          \
+    TEST(MosaicGlobalRestrictionRollbackModificationObserverTests, TEST_NAME)  \
+    {                                                                          \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalRollbackTraits>();       \
+    }                                                                          \
+    TEST(MosaicAddressRestrictionCommitModificationObserverTests, TEST_NAME)   \
+    {                                                                          \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressCommitTraits>();        \
+    }                                                                          \
+    TEST(MosaicAddressRestrictionRollbackModificationObserverTests, TEST_NAME) \
+    {                                                                          \
+        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressRollbackTraits>();      \
+    }                                                                          \
+    template <typename TTraits>                                                \
+    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+    // endregion
+
+    // region cache does not contain entry
+
+    RESTRICTION_TYPE_BASED_TEST(OppositeNotificationModeBypassesChangesWhenCacheDoesNotContainEntry)
+    {
+        // Arrange:
+        TTraits traits;
+        ObserverTestContext context(TTraits::Bypass_Mode);
+        const auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context);
+        auto pObserver = TTraits::CreateObserver();
+        auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
 
-		// Assert:
-		EXPECT_EQ(0u, restrictionCache.size());
-	}
+        // Sanity:
+        EXPECT_EQ(0u, restrictionCache.size());
 
-	RESTRICTION_TYPE_BASED_TEST(CanAddNewRestrictionWhenCacheDoesNotContainEntry) {
-		// Arrange:
-		TTraits traits;
-		ObserverTestContext context(TTraits::Execute_Mode);
-		const auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context);
 
-		auto pObserver = TTraits::CreateObserver();
-		auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
+        // Assert:
+        EXPECT_EQ(0u, restrictionCache.size());
+    }
 
-		// Sanity:
-		EXPECT_EQ(0u, restrictionCache.size());
+    RESTRICTION_TYPE_BASED_TEST(CanAddNewRestrictionWhenCacheDoesNotContainEntry)
+    {
+        // Arrange:
+        TTraits traits;
+        ObserverTestContext context(TTraits::Execute_Mode);
+        const auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context);
+        auto pObserver = TTraits::CreateObserver();
+        auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
 
-		// Assert:
-		EXPECT_EQ(1u, restrictionCache.size());
+        // Sanity:
+        EXPECT_EQ(0u, restrictionCache.size());
 
-		auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
-		ASSERT_TRUE(!!restrictionEntryIter.tryGet());
-		traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(123, 456) });
-	}
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context);
 
-	// endregion
+        // Assert:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-	// region cache contains entry but not rule
+        auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
+        ASSERT_TRUE(!!restrictionEntryIter.tryGet());
+        traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(123, 456) });
+    }
 
-	RESTRICTION_TYPE_BASED_TEST(OppositeNotificationModeBypassesChangesWhenCacheContainsEntryButNotRule) {
-		// Arrange:
-		TTraits traits;
-		ObserverTestContext context(TTraits::Bypass_Mode);
-		auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
+    // endregion
 
-		auto pObserver = TTraits::CreateObserver();
-		auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
-		traits.addRestrictionWithValueToCache(restrictionCache, 234, 888);
+    // region cache contains entry but not rule
 
-		// Sanity:
-		EXPECT_EQ(1u, restrictionCache.size());
+    RESTRICTION_TYPE_BASED_TEST(OppositeNotificationModeBypassesChangesWhenCacheContainsEntryButNotRule)
+    {
+        // Arrange:
+        TTraits traits;
+        ObserverTestContext context(TTraits::Bypass_Mode);
+        auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context);
+        auto pObserver = TTraits::CreateObserver();
+        auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
+        traits.addRestrictionWithValueToCache(restrictionCache, 234, 888);
 
-		// Assert:
-		EXPECT_EQ(1u, restrictionCache.size());
+        // Sanity:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-		auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
-		ASSERT_TRUE(!!restrictionEntryIter.tryGet());
-		traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(234, 888) });
-	}
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context);
 
-	RESTRICTION_TYPE_BASED_TEST(CanAddNewRestrictionWhenCacheContainsEntryButNotRule) {
-		// Arrange:
-		TTraits traits;
-		ObserverTestContext context(TTraits::Execute_Mode);
-		auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
+        // Assert:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-		auto pObserver = TTraits::CreateObserver();
-		auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
-		traits.addRestrictionWithValueToCache(restrictionCache, 234, 888);
+        auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
+        ASSERT_TRUE(!!restrictionEntryIter.tryGet());
+        traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(234, 888) });
+    }
 
-		// Sanity:
-		EXPECT_EQ(1u, restrictionCache.size());
+    RESTRICTION_TYPE_BASED_TEST(CanAddNewRestrictionWhenCacheContainsEntryButNotRule)
+    {
+        // Arrange:
+        TTraits traits;
+        ObserverTestContext context(TTraits::Execute_Mode);
+        auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context);
+        auto pObserver = TTraits::CreateObserver();
+        auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
+        traits.addRestrictionWithValueToCache(restrictionCache, 234, 888);
+
+        // Sanity:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-		// Assert:
-		EXPECT_EQ(1u, restrictionCache.size());
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context);
 
-		auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
-		ASSERT_TRUE(!!restrictionEntryIter.tryGet());
-		traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(234, 888), std::make_pair(123, 456) });
-	}
+        // Assert:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-	// endregion
+        auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
+        ASSERT_TRUE(!!restrictionEntryIter.tryGet());
+        traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(234, 888), std::make_pair(123, 456) });
+    }
 
-	// region cache contains entry and rule
+    // endregion
 
-	RESTRICTION_TYPE_BASED_TEST(OppositeNotificationModeBypassesChangesWhenCacheContainsEntryAndRule) {
-		// Arrange:
-		TTraits traits;
-		ObserverTestContext context(TTraits::Bypass_Mode);
-		auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
+    // region cache contains entry and rule
 
-		auto pObserver = TTraits::CreateObserver();
-		auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
-		traits.addRestrictionWithValueToCache(restrictionCache, 123, 111);
+    RESTRICTION_TYPE_BASED_TEST(OppositeNotificationModeBypassesChangesWhenCacheContainsEntryAndRule)
+    {
+        // Arrange:
+        TTraits traits;
+        ObserverTestContext context(TTraits::Bypass_Mode);
+        auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
 
-		// Sanity:
-		EXPECT_EQ(1u, restrictionCache.size());
+        auto pObserver = TTraits::CreateObserver();
+        auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
+        traits.addRestrictionWithValueToCache(restrictionCache, 123, 111);
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context);
+        // Sanity:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-		// Assert:
-		EXPECT_EQ(1u, restrictionCache.size());
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context);
 
-		auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
-		ASSERT_TRUE(!!restrictionEntryIter.tryGet());
-		traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(123, 111) });
-	}
+        // Assert:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-	RESTRICTION_TYPE_BASED_TEST(CanModifyExistingRestrictionWhenCacheContainsEntryAndRule) {
-		// Arrange:
-		TTraits traits;
-		ObserverTestContext context(TTraits::Execute_Mode);
-		auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
+        auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
+        ASSERT_TRUE(!!restrictionEntryIter.tryGet());
+        traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(123, 111) });
+    }
 
-		auto pObserver = TTraits::CreateObserver();
-		auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
-		traits.addRestrictionWithValueToCache(restrictionCache, 123, 111);
+    RESTRICTION_TYPE_BASED_TEST(CanModifyExistingRestrictionWhenCacheContainsEntryAndRule)
+    {
+        // Arrange:
+        TTraits traits;
+        ObserverTestContext context(TTraits::Execute_Mode);
+        auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
 
-		// Sanity:
-		EXPECT_EQ(1u, restrictionCache.size());
+        auto pObserver = TTraits::CreateObserver();
+        auto notification = traits.createNotification(123, 456, InitializationScheme::Set);
+        traits.addRestrictionWithValueToCache(restrictionCache, 123, 111);
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context);
+        // Sanity:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-		// Assert:
-		EXPECT_EQ(1u, restrictionCache.size());
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context);
 
-		auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
-		ASSERT_TRUE(!!restrictionEntryIter.tryGet());
-		traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(123, 456) });
-	}
+        // Assert:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-	RESTRICTION_TYPE_BASED_TEST(CanDeleteExistingRestrictionWhenCacheContainsEntryAndRule) {
-		// Arrange:
-		TTraits traits;
-		ObserverTestContext context(TTraits::Execute_Mode);
-		auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
+        auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
+        ASSERT_TRUE(!!restrictionEntryIter.tryGet());
+        traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(123, 456) });
+    }
 
-		auto pObserver = TTraits::CreateObserver();
-		auto notification = traits.createNotification(123, 0, InitializationScheme::Unset);
-		traits.addRestrictionWithValuesToCache(restrictionCache, { std::make_pair(123, 111), std::make_pair(246, 222) });
+    RESTRICTION_TYPE_BASED_TEST(CanDeleteExistingRestrictionWhenCacheContainsEntryAndRule)
+    {
+        // Arrange:
+        TTraits traits;
+        ObserverTestContext context(TTraits::Execute_Mode);
+        auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
 
-		// Sanity:
-		EXPECT_EQ(1u, restrictionCache.size());
+        auto pObserver = TTraits::CreateObserver();
+        auto notification = traits.createNotification(123, 0, InitializationScheme::Unset);
+        traits.addRestrictionWithValuesToCache(restrictionCache, { std::make_pair(123, 111), std::make_pair(246, 222) });
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context);
+        // Sanity:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-		// Assert:
-		EXPECT_EQ(1u, restrictionCache.size());
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context);
 
-		auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
-		ASSERT_TRUE(!!restrictionEntryIter.tryGet());
-		traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(246, 222) });
-	}
+        // Assert:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-	RESTRICTION_TYPE_BASED_TEST(CanDeleteExistingEntryWhenCacheContainsEntryAndRule) {
-		// Arrange:
-		TTraits traits;
-		ObserverTestContext context(TTraits::Execute_Mode);
-		auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
+        auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
+        ASSERT_TRUE(!!restrictionEntryIter.tryGet());
+        traits.assertEqual(restrictionEntryIter.get(), { std::make_pair(246, 222) });
+    }
 
-		auto pObserver = TTraits::CreateObserver();
-		auto notification = traits.createNotification(123, 0, InitializationScheme::Unset);
-		traits.addRestrictionWithValueToCache(restrictionCache, 123, 111);
+    RESTRICTION_TYPE_BASED_TEST(CanDeleteExistingEntryWhenCacheContainsEntryAndRule)
+    {
+        // Arrange:
+        TTraits traits;
+        ObserverTestContext context(TTraits::Execute_Mode);
+        auto& restrictionCache = context.cache().sub<cache::MosaicRestrictionCache>();
 
-		// Sanity:
-		EXPECT_EQ(1u, restrictionCache.size());
+        auto pObserver = TTraits::CreateObserver();
+        auto notification = traits.createNotification(123, 0, InitializationScheme::Unset);
+        traits.addRestrictionWithValueToCache(restrictionCache, 123, 111);
 
-		// Act:
-		test::ObserveNotification(*pObserver, notification, context);
+        // Sanity:
+        EXPECT_EQ(1u, restrictionCache.size());
 
-		// Assert:
-		EXPECT_EQ(0u, restrictionCache.size());
+        // Act:
+        test::ObserveNotification(*pObserver, notification, context);
 
-		auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
-		EXPECT_FALSE(!!restrictionEntryIter.tryGet());
-	}
+        // Assert:
+        EXPECT_EQ(0u, restrictionCache.size());
 
-	// endregion
-}}
+        auto restrictionEntryIter = restrictionCache.find(traits.uniqueKey());
+        EXPECT_FALSE(!!restrictionEntryIter.tryGet());
+    }
+
+    // endregion
+}
+}

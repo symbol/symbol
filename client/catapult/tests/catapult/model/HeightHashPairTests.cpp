@@ -21,57 +21,63 @@
 
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Equality.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #define TEST_CLASS HeightHashPairTests
 
-	// region equality operators
+    // region equality operators
 
-	namespace {
-		std::unordered_set<std::string> GetEqualTags() {
-			return { "default", "copy" };
-		}
+    namespace {
+        std::unordered_set<std::string> GetEqualTags()
+        {
+            return { "default", "copy" };
+        }
 
-		std::unordered_map<std::string, HeightHashPair> GenerateEqualityInstanceMap() {
-			auto hash1 = test::GenerateRandomByteArray<Hash256>();
-			auto hash2 = test::GenerateRandomByteArray<Hash256>();
+        std::unordered_map<std::string, HeightHashPair> GenerateEqualityInstanceMap()
+        {
+            auto hash1 = test::GenerateRandomByteArray<Hash256>();
+            auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
-			return { { "default", { Height(123), hash1 } },
-					 { "copy", { Height(123), hash1 } },
+            return { { "default", { Height(123), hash1 } },
+                { "copy", { Height(123), hash1 } },
 
-					 { "diff-height", { Height(345), hash1 } },
-					 { "diff-hash", { Height(123), hash2 } },
-					 { "diff-height-hash", { Height(345), hash2 } } };
-		}
-	}
+                { "diff-height", { Height(345), hash1 } },
+                { "diff-hash", { Height(123), hash2 } },
+                { "diff-height-hash", { Height(345), hash2 } } };
+        }
+    }
 
-	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
-		test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
-	}
+    TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues)
+    {
+        test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
+    }
 
-	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
-		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
-	}
+    TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues)
+    {
+        test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
+    }
 
-	// endregion
+    // endregion
 
-	// region to string
+    // region to string
 
-	TEST(TEST_CLASS, CanOutputHeightHashPair) {
-		// Arrange:
-		auto heightHashPair =
-				HeightHashPair{ Height(123),
-								utils::ParseByteArray<Hash256>("7FC169546CB19DD9C71918D66BD4A251CEF0956B1C9CC022E4127400E8FA7AFF") };
+    TEST(TEST_CLASS, CanOutputHeightHashPair)
+    {
+        // Arrange:
+        auto heightHashPair = HeightHashPair { Height(123),
+            utils::ParseByteArray<Hash256>("7FC169546CB19DD9C71918D66BD4A251CEF0956B1C9CC022E4127400E8FA7AFF") };
 
-		// Act:
-		auto str = test::ToString(heightHashPair);
+        // Act:
+        auto str = test::ToString(heightHashPair);
 
-		// Assert:
-		EXPECT_EQ("7FC169546CB19DD9C71918D66BD4A251CEF0956B1C9CC022E4127400E8FA7AFF @ 123", str);
-	}
+        // Assert:
+        EXPECT_EQ("7FC169546CB19DD9C71918D66BD4A251CEF0956B1C9CC022E4127400E8FA7AFF @ 123", str);
+    }
 
-	// endregion
-}}
+    // endregion
+}
+}
