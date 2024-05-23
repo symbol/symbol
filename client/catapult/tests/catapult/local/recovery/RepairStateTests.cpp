@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/local/recovery/RepairState.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/io/PodIoUtils.h"
-#include "catapult/local/recovery/RepairState.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
 #include "catapult/utils/Casting.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

@@ -22,9 +22,9 @@
 #pragma once
 #include "traits/Traits.h"
 #include <ostream>
+#include <string>
 #include <stddef.h>
 #include <stdint.h>
-#include <string>
 
 namespace catapult {
 namespace utils {

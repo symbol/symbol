@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/SubscriberOperationTypes.h"
 #include "filespooling/src/FilePtChangeStorage.h"
+#include "catapult/subscribers/SubscriberOperationTypes.h"
 #include "filespooling/tests/test/FileTransactionsChangeStorageContext.h"
 #include "filespooling/tests/test/StorageTransactionInfoTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"

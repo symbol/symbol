@@ -20,10 +20,10 @@
 **/
 
 #include "AggregateCosignatoriesNotificationPublisher.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/WeakCosignedTransactionInfo.h"
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/WeakCosignedTransactionInfo.h"
 
 namespace catapult {
 namespace chain {

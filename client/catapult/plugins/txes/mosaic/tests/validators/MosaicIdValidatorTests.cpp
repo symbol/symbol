@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/IntegerMath.h"
 #include "src/model/MosaicIdGenerator.h"
 #include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/IntegerMath.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

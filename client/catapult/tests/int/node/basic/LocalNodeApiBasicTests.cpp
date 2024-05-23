@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/extensions/ServiceLocator.h"
-#include "tests/TestHarness.h"
 #include "tests/int/node/test/LocalNodeBasicTests.h"
 #include "tests/int/node/test/LocalNodeTestContext.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

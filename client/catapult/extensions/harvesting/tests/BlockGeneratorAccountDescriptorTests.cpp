@@ -20,9 +20,9 @@
 **/
 
 #include "harvesting/src/BlockGeneratorAccountDescriptor.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

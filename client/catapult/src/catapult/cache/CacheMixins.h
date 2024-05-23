@@ -24,11 +24,11 @@
 #include "catapult/deltaset/BaseSetDelta.h"
 #include "catapult/deltaset/BaseSetDeltaIterationView.h"
 #include "catapult/deltaset/BaseSetIterationView.h"
-#include "catapult/functions.h"
-#include "catapult/types.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/IdentifierGroup.h"
+#include "catapult/functions.h"
+#include "catapult/types.h"
 
 namespace catapult {
 namespace cache {

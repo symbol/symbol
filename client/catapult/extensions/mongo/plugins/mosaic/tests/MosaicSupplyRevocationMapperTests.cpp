@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/MosaicSupplyRevocationMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
+#include "plugins/txes/mosaic/src/model/MosaicSupplyRevocationTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
-#include "plugins/txes/mosaic/src/model/MosaicSupplyRevocationTransaction.h"
-#include "src/MosaicSupplyRevocationMapper.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

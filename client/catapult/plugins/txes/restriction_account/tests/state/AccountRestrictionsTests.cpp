@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/EntityType.h"
 #include "src/state/AccountRestrictions.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/EntityType.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

@@ -21,8 +21,8 @@
 
 #pragma once
 #include "FinalizationConfiguration.h"
-#include "catapult/model/FinalizationRound.h"
 #include "finalization/src/model/FinalizationContext.h"
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult {
 namespace cache {

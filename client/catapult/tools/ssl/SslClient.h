@@ -21,9 +21,9 @@
 
 #pragma once
 #include "CertificateDirectoryGenerator.h"
+#include "tools/ToolThreadUtils.h"
 #include "catapult/api/ChainApi.h"
 #include "catapult/ionet/Node.h"
-#include "tools/ToolThreadUtils.h"
 #include <boost/asio/ssl.hpp>
 
 namespace catapult {

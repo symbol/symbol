@@ -20,10 +20,10 @@
 **/
 
 #include "NodeKeyLinkTransactionPlugin.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
 #include "src/model/AccountLinkNotifications.h"
 #include "src/model/NodeKeyLinkTransaction.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

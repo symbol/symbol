@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/ionet/NetworkNode.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace ionet {

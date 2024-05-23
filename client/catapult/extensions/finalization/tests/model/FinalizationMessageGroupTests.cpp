@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/MemoryUtils.h"
 #include "finalization/src/model/FinalizationMessageGroup.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

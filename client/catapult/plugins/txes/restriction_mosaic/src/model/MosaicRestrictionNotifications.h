@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/Notifications.h"
 #include "src/model/MosaicRestrictionTypes.h"
+#include "catapult/model/Notifications.h"
 
 namespace catapult {
 namespace model {

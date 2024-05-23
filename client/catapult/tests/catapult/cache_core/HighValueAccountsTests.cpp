@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/cache_core/HighValueAccounts.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

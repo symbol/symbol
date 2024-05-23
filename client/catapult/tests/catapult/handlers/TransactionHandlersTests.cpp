@@ -20,7 +20,6 @@
 **/
 
 #include "catapult/handlers/TransactionHandlers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
@@ -28,6 +27,7 @@
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/PullHandlerTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

@@ -21,9 +21,9 @@
 
 #pragma once
 #include "NemesisFundingState.h"
-#include "catapult/functions.h"
 #include "catapult/model/NemesisNotificationPublisher.h"
 #include "catapult/observers/ObserverTypes.h"
+#include "catapult/functions.h"
 
 namespace catapult {
 namespace cache {

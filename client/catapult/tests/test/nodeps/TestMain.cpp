@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/crypto/OpensslInit.h"
-#include "catapult/preprocessor.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/version/version.h"
+#include "catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 #include <thread>
 

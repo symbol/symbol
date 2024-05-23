@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/Casting.h"
 #include "src/model/MosaicProperties.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/Casting.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

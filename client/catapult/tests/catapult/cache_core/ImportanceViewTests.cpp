@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/ImportanceView.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkIdentifier.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/ImportanceViewTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
+#include "tests/TestHarness.h"
 
 using catapult::model::ConvertToImportanceHeight;
 using catapult::model::ImportanceHeight;

@@ -21,9 +21,9 @@
 
 #include "catapult/state/TimestampedHash.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

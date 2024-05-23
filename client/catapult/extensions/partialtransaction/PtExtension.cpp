@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/PtBootstrapperService.h"
 #include "src/PtConfiguration.h"
 #include "src/PtDispatcherService.h"
 #include "src/PtService.h"
 #include "src/PtSyncSourceService.h"
+#include "catapult/config/ConfigurationFileLoader.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include <filesystem>
 
 namespace catapult {

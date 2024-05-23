@@ -20,10 +20,10 @@
 **/
 
 #include "RemoteFinalizationApi.h"
+#include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/api/RemoteRequestDispatcher.h"
 #include "catapult/ionet/PacketEntityUtils.h"
 #include "catapult/ionet/PacketPayloadBuilder.h"
-#include "finalization/src/model/FinalizationMessage.h"
 
 namespace catapult {
 namespace api {

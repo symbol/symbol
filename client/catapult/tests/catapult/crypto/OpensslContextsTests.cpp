@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/AesDecrypt.h"
 #include "catapult/crypto/OpensslContexts.h"
-#include "tests/TestHarness.h"
+#include "catapult/crypto/AesDecrypt.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push

@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/CommitStepHandler.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/IndexFile.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

@@ -19,19 +19,19 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Address.h"
-#include "catapult/utils/IntegerMath.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/plugins/AggregateTransactionPlugin.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "src/model/AggregateNotifications.h"
 #include "src/model/AggregateTransaction.h"
-#include "src/plugins/AggregateTransactionPlugin.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/Address.h"
+#include "catapult/utils/IntegerMath.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

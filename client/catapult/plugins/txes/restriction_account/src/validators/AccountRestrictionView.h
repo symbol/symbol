@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
-#include "catapult/validators/ValidationResult.h"
 #include "src/cache/AccountRestrictionCache.h"
 #include "src/state/AccountRestrictionUtils.h"
+#include "catapult/validators/ValidationResult.h"
+#include "catapult/types.h"
 
 namespace catapult {
 namespace cache {

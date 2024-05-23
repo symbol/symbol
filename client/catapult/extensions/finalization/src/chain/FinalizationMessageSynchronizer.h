@@ -20,11 +20,11 @@
 **/
 
 #pragma once
+#include "finalization/src/handlers/FinalizationHandlerTypes.h"
+#include "finalization/src/model/FinalizationRoundRange.h"
 #include "catapult/chain/RemoteNodeSynchronizer.h"
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/model/RangeTypes.h"
-#include "finalization/src/handlers/FinalizationHandlerTypes.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
 
 namespace catapult {
 namespace api {

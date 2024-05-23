@@ -20,8 +20,8 @@
 **/
 
 #include "AddressTestUtils.h"
-#include "catapult/model/Address.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "catapult/model/Address.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult {

@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/cache_tx/AggregateUtCache.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/other/mocks/MockUtChangeSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

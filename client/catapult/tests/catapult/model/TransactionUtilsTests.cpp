@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NotificationPublisher.h"
-#include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionUtils.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/NotificationPublisher.h"
+#include "catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

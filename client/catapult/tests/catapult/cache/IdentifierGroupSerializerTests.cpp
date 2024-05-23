@@ -22,8 +22,8 @@
 #include "catapult/cache/IdentifierGroupSerializer.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/IdentifierGroup.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/SerializerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

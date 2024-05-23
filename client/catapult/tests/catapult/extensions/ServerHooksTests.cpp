@@ -20,11 +20,11 @@
 **/
 
 #include "catapult/extensions/ServerHooks.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/other/ConsumerHandlerTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

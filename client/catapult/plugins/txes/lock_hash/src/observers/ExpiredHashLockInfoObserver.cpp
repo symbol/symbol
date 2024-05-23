@@ -20,11 +20,11 @@
 **/
 
 #include "Observers.h"
-#include "catapult/cache_core/AccountStateCacheUtils.h"
-#include "catapult/observers/ObserverUtils.h"
-#include "plugins/txes/lock_shared/src/observers/ExpiredLockInfoObserver.h"
 #include "src/cache/HashLockInfoCache.h"
 #include "src/model/HashLockReceiptType.h"
+#include "plugins/txes/lock_shared/src/observers/ExpiredLockInfoObserver.h"
+#include "catapult/cache_core/AccountStateCacheUtils.h"
+#include "catapult/observers/ObserverUtils.h"
 
 namespace catapult {
 namespace observers {

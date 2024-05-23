@@ -22,8 +22,8 @@
 #pragma once
 #include <algorithm>
 #include <set>
-#include <stdint.h>
 #include <vector>
+#include <stdint.h>
 
 namespace catapult {
 namespace state {

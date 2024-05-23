@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/storages/MongoAccountRestrictionCacheStorage.h"
 #include "mongo/src/mappers/MapperUtils.h"
+#include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"
-#include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
 #include "plugins/txes/restriction_account/tests/test/AccountRestrictionCacheTestUtils.h"
-#include "src/storages/MongoAccountRestrictionCacheStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/AccountRestrictionsMapperTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;
 

@@ -20,14 +20,14 @@
 **/
 
 #pragma once
+#include "plugins/txes/metadata/src/state/MetadataKey.h"
+#include "plugins/txes/namespace/src/types.h"
 #include "catapult/ionet/PackedNodeInfo.h"
 #include "catapult/model/CacheEntryInfo.h"
 #include "catapult/model/DiagnosticCounterValue.h"
 #include "catapult/model/RangeTypes.h"
 #include "catapult/state/TimestampedHash.h"
 #include "catapult/thread/Future.h"
-#include "plugins/txes/metadata/src/state/MetadataKey.h"
-#include "plugins/txes/namespace/src/types.h"
 
 namespace catapult {
 namespace ionet {

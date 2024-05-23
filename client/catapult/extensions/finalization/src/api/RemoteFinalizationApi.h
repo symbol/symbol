@@ -20,12 +20,12 @@
 **/
 
 #pragma once
+#include "finalization/src/model/FinalizationMessage.h"
+#include "finalization/src/model/FinalizationRoundRange.h"
 #include "catapult/api/RemoteApi.h"
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/model/RangeTypes.h"
 #include "catapult/thread/Future.h"
-#include "finalization/src/model/FinalizationMessage.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
 
 namespace catapult {
 namespace ionet {

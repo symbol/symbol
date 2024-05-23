@@ -19,11 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/local/server/NemesisBlockNotifier.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/plugins/PluginManager.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -34,6 +33,7 @@
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

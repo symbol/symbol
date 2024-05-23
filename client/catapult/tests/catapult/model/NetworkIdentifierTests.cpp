@@ -21,9 +21,9 @@
 
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

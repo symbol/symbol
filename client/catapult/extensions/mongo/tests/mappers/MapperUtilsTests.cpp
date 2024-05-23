@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/model/EmbeddedTransaction.h"
 #include "catapult/model/Receipt.h"
 #include "catapult/model/VerifiableEntity.h"
-#include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 #include <bsoncxx/exception/exception.hpp>

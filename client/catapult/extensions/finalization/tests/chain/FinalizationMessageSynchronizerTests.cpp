@@ -22,8 +22,8 @@
 #include "finalization/src/chain/FinalizationMessageSynchronizer.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockFinalizationApi.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/EntitiesSynchronizerTestUtils.h"
+#include "tests/TestHarness.h"
 
 #define DEFINE_MODEL_BINARY_EQUALITY(NAMESPACE, TYPENAME)                          \
 	namespace catapult {                                                           \

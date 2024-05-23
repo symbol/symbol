@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "unbondedpruning/src/HashLockUtils.h"
+#include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/NotificationSubscriber.h"
-#include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
-#include "unbondedpruning/src/HashLockUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace unbondedpruning {

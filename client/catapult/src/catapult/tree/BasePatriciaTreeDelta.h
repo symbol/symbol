@@ -22,8 +22,8 @@
 #pragma once
 #include "PatriciaTree.h"
 #include "ReadThroughMemoryDataSource.h"
-#include "catapult/exceptions.h"
 #include "catapult/utils/HexFormatter.h"
+#include "catapult/exceptions.h"
 #include <unordered_map>
 #include <unordered_set>
 

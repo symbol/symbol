@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/subscribers/UtChangeReader.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/TransactionInfoSerializer.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "catapult/subscribers/UtChangeReader.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockUtChangeSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace subscribers {

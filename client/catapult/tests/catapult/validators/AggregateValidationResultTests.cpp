@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/validators/AggregateValidationResult.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/ValidationResultTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

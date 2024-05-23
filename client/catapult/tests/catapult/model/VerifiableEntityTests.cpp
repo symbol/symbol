@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Address.h"
 #include "catapult/model/VerifiableEntity.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/Address.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Alignment.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

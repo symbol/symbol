@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/net/ServerConnector.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/ServerConnector.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/CertificateLocator.h"

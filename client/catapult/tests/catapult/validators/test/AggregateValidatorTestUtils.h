@@ -21,11 +21,11 @@
 
 #pragma once
 #include "MockTaggedBreadcrumbValidator.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/other/mocks/MockNotificationValidator.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

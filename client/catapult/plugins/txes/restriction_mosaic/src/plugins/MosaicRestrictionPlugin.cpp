@@ -22,13 +22,13 @@
 #include "MosaicRestrictionPlugin.h"
 #include "MosaicAddressRestrictionTransactionPlugin.h"
 #include "MosaicGlobalRestrictionTransactionPlugin.h"
-#include "catapult/plugins/CacheHandlers.h"
-#include "catapult/plugins/PluginManager.h"
 #include "src/cache/MosaicRestrictionCache.h"
 #include "src/cache/MosaicRestrictionCacheStorage.h"
 #include "src/config/MosaicRestrictionConfiguration.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
+#include "catapult/plugins/CacheHandlers.h"
+#include "catapult/plugins/PluginManager.h"
 
 namespace catapult {
 namespace plugins {

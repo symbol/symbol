@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CatapultCache.h"
 #include "catapult/plugins/PluginManager.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "tests/TestHarness.h"
+#include "catapult/cache/CatapultCache.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace plugins {

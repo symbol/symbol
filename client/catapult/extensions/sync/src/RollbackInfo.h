@@ -22,9 +22,9 @@
 #pragma once
 #include "RollbackStats.h"
 #include "catapult/chain/ChainFunctions.h"
-#include "catapult/types.h"
 #include "catapult/utils/SpinReaderWriterLock.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/types.h"
 #include <vector>
 
 namespace catapult {

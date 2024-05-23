@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "catapult/utils/Logging.h"
 #include "catapult/exceptions.h"
 #include "catapult/functions.h"
-#include "catapult/utils/Logging.h"
 #include "tests/TestHarness.h"
 #include <atomic>
 #include <chrono>

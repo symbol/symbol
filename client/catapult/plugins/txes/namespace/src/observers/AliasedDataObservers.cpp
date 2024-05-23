@@ -20,8 +20,8 @@
 **/
 
 #include "Observers.h"
-#include "catapult/observers/ObserverUtils.h"
 #include "src/cache/NamespaceCache.h"
+#include "catapult/observers/ObserverUtils.h"
 
 namespace catapult {
 namespace observers {

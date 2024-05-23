@@ -20,10 +20,10 @@
 **/
 
 #pragma once
+#include "src/state/MetadataEntry.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/utils/Hashers.h"
-#include "src/state/MetadataEntry.h"
 
 namespace catapult {
 namespace cache {

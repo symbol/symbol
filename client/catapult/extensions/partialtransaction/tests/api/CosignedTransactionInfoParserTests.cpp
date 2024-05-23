@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/PacketPayloadBuilder.h"
 #include "partialtransaction/src/api/CosignedTransactionInfoParser.h"
-#include "tests/TestHarness.h"
+#include "catapult/ionet/PacketPayloadBuilder.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace api {

@@ -24,12 +24,12 @@
 #include "catapult/model/BlockUtils.h"
 #include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/SpinLock.h"
-#include "tests/TestHarness.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace catapult {

@@ -20,8 +20,8 @@
 **/
 
 #include "finalization/src/io/AggregateProofStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace io {

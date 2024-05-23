@@ -19,17 +19,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "sync/src/TransactionSpamThrottle.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/HeightGrouping.h"
-#include "sync/src/TransactionSpamThrottle.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace sync {

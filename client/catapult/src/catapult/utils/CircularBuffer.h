@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include <stddef.h>
 #include <vector>
+#include <stddef.h>
 
 namespace catapult {
 namespace utils {

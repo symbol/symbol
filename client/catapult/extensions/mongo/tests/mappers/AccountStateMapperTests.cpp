@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "mongo/src/mappers/AccountStateMapper.h"
 #include "catapult/model/Mosaic.h"
 #include "catapult/state/AccountState.h"
-#include "mongo/src/mappers/AccountStateMapper.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
+#include "tests/TestHarness.h"
 #include <mongocxx/client.hpp>
 
 namespace catapult {

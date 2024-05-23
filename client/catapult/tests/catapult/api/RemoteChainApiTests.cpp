@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/api/ChainPackets.h"
 #include "catapult/api/RemoteChainApi.h"
+#include "catapult/api/ChainPackets.h"
 #include "catapult/model/TransactionPlugin.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace api {

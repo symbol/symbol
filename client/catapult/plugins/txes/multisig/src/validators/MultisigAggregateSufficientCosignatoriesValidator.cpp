@@ -20,10 +20,10 @@
 **/
 
 #include "Validators.h"
+#include "src/cache/MultisigCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "catapult/validators/ValidatorContext.h"
-#include "src/cache/MultisigCache.h"
 
 namespace catapult {
 namespace validators {

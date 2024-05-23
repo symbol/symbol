@@ -26,10 +26,10 @@
 #include "finalization/src/model/FinalizationProofUtils.h"
 #include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace finalization {

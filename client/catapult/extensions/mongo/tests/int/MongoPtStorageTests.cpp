@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Cosignature.h"
 #include "mongo/src/MongoPtStorage.h"
+#include "catapult/model/Cosignature.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionStorageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;
 

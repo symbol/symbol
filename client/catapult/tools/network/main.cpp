@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/ToolMain.h"
+#include "tools/KeyValueOutputBuilder.h"
+#include "tools/NetworkCensusTool.h"
+#include "tools/ToolThreadUtils.h"
 #include "catapult/api/RemoteNodeApi.h"
 #include "catapult/extensions/RemoteDiagnosticApi.h"
 #include "catapult/utils/Functional.h"
-#include "tools/KeyValueOutputBuilder.h"
-#include "tools/NetworkCensusTool.h"
-#include "tools/ToolMain.h"
-#include "tools/ToolThreadUtils.h"
 #include <algorithm>
 #include <cctype>
 

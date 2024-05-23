@@ -20,9 +20,9 @@
 **/
 
 #include "src/state/RootNamespaceHistorySerializer.h"
-#include "tests/TestHarness.h"
 #include "tests/test/RootNamespaceHistoryLoadTests.h"
 #include "tests/test/core/SerializerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

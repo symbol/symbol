@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/local/server/NodeUtils.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
-#include "catapult/local/server/NodeUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

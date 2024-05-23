@@ -22,6 +22,12 @@
 #include "FinalizationService.h"
 #include "FinalizationBootstrapperService.h"
 #include "FinalizationContextFactory.h"
+#include "finalization/src/api/RemoteFinalizationApi.h"
+#include "finalization/src/api/RemoteProofApi.h"
+#include "finalization/src/chain/FinalizationMessageSynchronizer.h"
+#include "finalization/src/chain/FinalizationProofSynchronizer.h"
+#include "finalization/src/chain/FinalizationProofVerifier.h"
+#include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
@@ -30,12 +36,6 @@
 #include "catapult/extensions/SynchronizerTaskCallbacks.h"
 #include "catapult/net/PacketWriters.h"
 #include "catapult/thread/MultiServicePool.h"
-#include "finalization/src/api/RemoteFinalizationApi.h"
-#include "finalization/src/api/RemoteProofApi.h"
-#include "finalization/src/chain/FinalizationMessageSynchronizer.h"
-#include "finalization/src/chain/FinalizationProofSynchronizer.h"
-#include "finalization/src/chain/FinalizationProofVerifier.h"
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
 
 namespace catapult {
 namespace finalization {

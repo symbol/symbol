@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/NetworkHeightConfiguration.h"
 #include "src/NetworkHeightService.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult {
 namespace networkheight {

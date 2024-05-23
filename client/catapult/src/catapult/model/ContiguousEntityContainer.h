@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "catapult/utils/IntegerMath.h"
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
-#include "catapult/utils/IntegerMath.h"
 
 namespace catapult {
 namespace model {

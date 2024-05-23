@@ -20,11 +20,11 @@
 **/
 
 #include "StorageTestUtils.h"
+#include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/io/FileBlockStorage.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/model/EntityHasher.h"
-#include "sdk/src/extensions/BlockExtensions.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"

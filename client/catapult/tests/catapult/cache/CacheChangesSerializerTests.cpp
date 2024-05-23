@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/cache/CacheChangesSerializer.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/cache/test/ByteVectorCacheChanges.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

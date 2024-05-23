@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/AccountLinkMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/account_link/src/model/AccountKeyLinkTransaction.h"
 #include "plugins/txes/account_link/src/model/NodeKeyLinkTransaction.h"
-#include "src/AccountLinkMapper.h"
+#include "mongo/tests/test/MapperTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

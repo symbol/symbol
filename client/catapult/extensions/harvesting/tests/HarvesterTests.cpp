@@ -19,6 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "harvesting/src/Harvester.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/model/Address.h"
@@ -26,8 +27,6 @@
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/model/TransactionPlugin.h"
-#include "harvesting/src/Harvester.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -35,6 +34,7 @@
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/Waits.h"
+#include "tests/TestHarness.h"
 
 using catapult::crypto::KeyPair;
 

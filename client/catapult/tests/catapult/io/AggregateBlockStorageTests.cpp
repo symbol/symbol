@@ -20,11 +20,11 @@
 **/
 
 #include "catapult/io/AggregateBlockStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/test/core/mocks/MockBlockStorage.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace io {

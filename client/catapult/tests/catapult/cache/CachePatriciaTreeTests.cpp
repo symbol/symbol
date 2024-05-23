@@ -22,9 +22,9 @@
 #include "catapult/cache/CachePatriciaTree.h"
 #include "catapult/cache_db/RocksInclude.h"
 #include "catapult/tree/BasePatriciaTree.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/cache/test/PatriciaTreeTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

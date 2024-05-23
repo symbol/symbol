@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tests/TestHarness.h"
 #include "tests/int/node/stress/test/LocalNodeSyncIntegrityTestUtils.h"
 #include "tests/int/node/stress/test/TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

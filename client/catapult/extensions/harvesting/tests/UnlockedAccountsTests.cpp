@@ -20,9 +20,9 @@
 **/
 
 #include "harvesting/src/UnlockedAccounts.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

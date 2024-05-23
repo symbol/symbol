@@ -21,11 +21,11 @@
 
 #include "ConsumerTestUtils.h"
 #include "ConsumerInputFactory.h"
-#include "catapult/model/EntityHasher.h"
 #include "sdk/src/extensions/BlockExtensions.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/EntityHasher.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/other/DisruptorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

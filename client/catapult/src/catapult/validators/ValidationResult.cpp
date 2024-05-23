@@ -49,6 +49,9 @@ namespace validators {
 				CASE_WELL_KNOWN_RESULT(Failure);
 
 // custom plugin results
+#include "src/catapult/chain/ChainResults.h"
+#include "src/catapult/consumers/ConsumerResults.h"
+#include "src/catapult/extensions/Results.h"
 #include "plugins/coresystem/src/validators/Results.h"
 #include "plugins/services/hashcache/src/validators/Results.h"
 #include "plugins/services/signature/src/validators/Results.h"
@@ -63,9 +66,6 @@ namespace validators {
 #include "plugins/txes/restriction_account/src/validators/Results.h"
 #include "plugins/txes/restriction_mosaic/src/validators/Results.h"
 #include "plugins/txes/transfer/src/validators/Results.h"
-#include "src/catapult/chain/ChainResults.h"
-#include "src/catapult/consumers/ConsumerResults.h"
-#include "src/catapult/extensions/Results.h"
 			}
 
 			return nullptr;

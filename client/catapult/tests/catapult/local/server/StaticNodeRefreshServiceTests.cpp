@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/PacketSocket.h"
 #include "catapult/local/server/StaticNodeRefreshService.h"
-#include "tests/TestHarness.h"
+#include "catapult/ionet/PacketSocket.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/net/RemoteAcceptServer.h"
 #include "tests/test/net/SocketTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

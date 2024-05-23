@@ -20,9 +20,9 @@
 **/
 
 #include "LocalNodeNemesisHashTestUtils.h"
+#include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
 #include "catapult/model/BlockStatementBuilder.h"
 #include "catapult/model/BlockUtils.h"
-#include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/nodeps/TestConstants.h"

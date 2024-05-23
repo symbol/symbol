@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/SubscriberOperationTypes.h"
 #include "filespooling/src/FileBlockChangeStorage.h"
-#include "tests/TestHarness.h"
+#include "catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/BufferReader.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace filespooling {

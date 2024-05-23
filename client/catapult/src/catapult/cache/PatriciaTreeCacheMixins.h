@@ -21,8 +21,8 @@
 
 #pragma once
 #include "PatriciaTreeUtils.h"
-#include "catapult/exceptions.h"
 #include "catapult/utils/HexFormatter.h"
+#include "catapult/exceptions.h"
 
 namespace catapult {
 namespace cache {

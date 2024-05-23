@@ -22,8 +22,8 @@
 #pragma once
 #include "AccountRestrictionFlags.h"
 #include "AccountRestrictionModification.h"
-#include "catapult/model/Notifications.h"
 #include "src/state/AccountRestrictionDescriptor.h"
+#include "catapult/model/Notifications.h"
 
 namespace catapult {
 namespace model {

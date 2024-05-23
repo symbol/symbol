@@ -19,18 +19,18 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/cache/HashCache.h"
+#include "src/validators/Validators.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/validators/ValidatorContext.h"
-#include "src/cache/HashCache.h"
-#include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
 #include "tests/test/HashCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 using namespace catapult::cache;

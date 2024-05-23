@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
 #include "catapult/model/NodeIdentity.h"
+#include "catapult/functions.h"
 
 namespace catapult {
 namespace ionet {

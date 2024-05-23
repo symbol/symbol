@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/cache/ChunkedDataLoader.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/cache/test/CacheSerializationTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

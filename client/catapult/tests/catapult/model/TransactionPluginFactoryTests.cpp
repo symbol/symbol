@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/model/TransactionPluginFactory.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

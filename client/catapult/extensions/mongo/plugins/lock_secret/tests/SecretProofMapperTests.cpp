@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
-#include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
-#include "plugins/txes/lock_secret/tests/test/SecretLockTransactionUtils.h"
 #include "src/SecretProofMapper.h"
+#include "mongo/src/mappers/MapperUtils.h"
+#include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "plugins/txes/lock_secret/tests/test/SecretLockTransactionUtils.h"
 #include "tests/test/SecretLockMapperTestUtils.h"
 
 namespace catapult {

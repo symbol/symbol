@@ -21,14 +21,14 @@
 
 #include "TransferPlugin.h"
 #include "TransferTransactionPlugin.h"
+#include "src/config/TransferConfiguration.h"
+#include "src/observers/Observers.h"
+#include "src/validators/Validators.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/plugins/PluginManager.h"
-#include "src/config/TransferConfiguration.h"
-#include "src/observers/Observers.h"
-#include "src/validators/Validators.h"
 
 namespace catapult {
 namespace plugins {

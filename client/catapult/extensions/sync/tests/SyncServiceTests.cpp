@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ServerHooks.h"
 #include "sync/src/SyncService.h"
-#include "tests/TestHarness.h"
+#include "catapult/extensions/ServerHooks.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace sync {

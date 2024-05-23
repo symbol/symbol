@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/local/broker/Broker.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/local/broker/test/BrokerTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/MessageIngestionTestContext.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

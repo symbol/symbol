@@ -20,8 +20,8 @@
 **/
 
 #include "src/handlers/HashCacheDiagnosticHandlers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/plugins/BatchHandlerTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

@@ -20,15 +20,15 @@
 **/
 
 #include "MapperTestUtils.h"
+#include "mongo/src/MongoTransactionMetadata.h"
+#include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Receipt.h"
 #include "catapult/state/AccountState.h"
-#include "mongo/src/MongoTransactionMetadata.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/TestHarness.h"
 #include <bsoncxx/types.hpp>
 
 namespace catapult {

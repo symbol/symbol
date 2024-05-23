@@ -25,8 +25,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include <dlfcn.h>
 #include <stdexcept>
+#include <dlfcn.h>
 #endif
 
 namespace catapult {

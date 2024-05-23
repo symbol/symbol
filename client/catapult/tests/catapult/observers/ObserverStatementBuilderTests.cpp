@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/observers/ObserverStatementBuilder.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/ResolverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

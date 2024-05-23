@@ -20,11 +20,11 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/AliasTestUtils.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

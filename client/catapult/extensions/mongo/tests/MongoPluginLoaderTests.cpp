@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/plugins/PluginExceptions.h"
-#include "catapult/utils/ExceptionLogging.h"
 #include "mongo/src/MongoPluginLoader.h"
 #include "mongo/src/MongoPluginManager.h"
+#include "catapult/plugins/PluginExceptions.h"
+#include "catapult/utils/ExceptionLogging.h"
 #include "mongo/tests/test/MongoTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <mongocxx/instance.hpp>
 
 namespace catapult {

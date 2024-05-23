@@ -20,11 +20,11 @@
 **/
 
 #pragma once
+#include "src/state/MosaicEntry.h"
 #include "catapult/cache/CacheDatabaseMixin.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/IdentifierGroup.h"
-#include "src/state/MosaicEntry.h"
 
 namespace catapult {
 namespace cache {

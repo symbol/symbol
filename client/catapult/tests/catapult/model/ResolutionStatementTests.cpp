@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/Hashes.h"
 #include "catapult/model/ResolutionStatement.h"
-#include "tests/TestHarness.h"
+#include "catapult/crypto/Hashes.h"
 #include "tests/test/core/AddressTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

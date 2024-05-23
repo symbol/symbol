@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/NemesisNotificationPublisher.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/core/mocks/MockNotificationPublisher.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

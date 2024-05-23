@@ -20,9 +20,9 @@
 **/
 
 #include "MosaicEntryMapper.h"
-#include "catapult/utils/Casting.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/mosaic/src/state/MosaicEntry.h"
+#include "catapult/utils/Casting.h"
 
 using namespace catapult::mongo::mappers;
 

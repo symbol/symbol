@@ -21,8 +21,8 @@
 
 #pragma once
 #include <boost/asio.hpp>
-#include <stdint.h>
 #include <vector>
+#include <stdint.h>
 
 namespace boost {
 namespace asio {

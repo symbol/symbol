@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/TimeSpan.h"
-#include "src/cache/HashCache.h"
 #include "src/handlers/ConfirmedTimestampedHashesProducerFactory.h"
-#include "tests/TestHarness.h"
+#include "src/cache/HashCache.h"
+#include "catapult/utils/TimeSpan.h"
 #include "tests/test/core/EntityTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

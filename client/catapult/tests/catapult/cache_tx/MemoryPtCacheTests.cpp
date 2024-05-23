@@ -22,10 +22,10 @@
 #include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/Cosignature.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/cache_tx/test/TransactionCacheTests.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

@@ -21,8 +21,8 @@
 
 #include "mongo/src/mappers/HashMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/HashTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

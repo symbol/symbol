@@ -23,6 +23,7 @@
 #include "BatchPeersRequestor.h"
 #include "NodePingRequestor.h"
 #include "PeersProcessor.h"
+#include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/NodeInteractionUtils.h"
@@ -32,7 +33,6 @@
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/subscribers/NodeSubscriber.h"
-#include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
 
 namespace catapult {
 namespace nodediscovery {

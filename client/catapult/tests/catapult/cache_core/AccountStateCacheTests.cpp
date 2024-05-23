@@ -22,7 +22,6 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/Casting.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
@@ -30,6 +29,7 @@
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

@@ -25,8 +25,8 @@
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace chain {

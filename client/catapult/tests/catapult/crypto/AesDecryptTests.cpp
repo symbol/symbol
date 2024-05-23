@@ -21,9 +21,9 @@
 
 #include "catapult/crypto/AesDecrypt.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/TestHarness.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace crypto {

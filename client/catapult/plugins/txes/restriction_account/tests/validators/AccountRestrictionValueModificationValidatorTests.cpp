@@ -21,9 +21,9 @@
 
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

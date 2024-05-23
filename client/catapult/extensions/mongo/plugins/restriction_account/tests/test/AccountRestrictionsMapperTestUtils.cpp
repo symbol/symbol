@@ -21,8 +21,8 @@
 
 #include "AccountRestrictionsMapperTestUtils.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
 #include "plugins/txes/restriction_account/src/state/AccountRestrictions.h"
+#include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

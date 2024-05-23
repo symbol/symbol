@@ -21,9 +21,9 @@
 
 #pragma once
 #include "catapult/cache_core/AccountStateCache.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

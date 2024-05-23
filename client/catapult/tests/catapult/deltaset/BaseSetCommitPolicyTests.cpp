@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/deltaset/BaseSetCommitPolicy.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"
 #include "tests/test/other/UpdateSetTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace deltaset {

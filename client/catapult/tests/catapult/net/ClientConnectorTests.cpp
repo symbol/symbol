@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/ClientConnector.h"
+#include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"

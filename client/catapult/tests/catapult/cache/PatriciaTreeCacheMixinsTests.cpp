@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/cache/PatriciaTreeCacheMixins.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/cache/test/PatriciaTreeTestUtils.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

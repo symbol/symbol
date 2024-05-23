@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/model/HashLockNotifications.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
-#include "src/model/HashLockNotifications.h"
 
 namespace catapult {
 namespace observers {

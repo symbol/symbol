@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
 #include "catapult/model/Elements.h"
+#include "catapult/functions.h"
 #include <vector>
 
 namespace catapult {

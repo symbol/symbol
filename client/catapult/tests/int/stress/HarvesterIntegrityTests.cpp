@@ -19,6 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "extensions/harvesting/src/Harvester.h"
+#include "extensions/harvesting/src/HarvesterBlockGenerator.h"
+#include "extensions/harvesting/src/HarvestingUtFacadeFactory.h"
+#include "plugins/services/hashcache/src/cache/HashCacheStorage.h"
+#include "plugins/services/hashcache/src/plugins/MemoryHashCacheSystem.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
@@ -27,12 +32,6 @@
 #include "catapult/model/EntityHasher.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/thread/ThreadGroup.h"
-#include "extensions/harvesting/src/Harvester.h"
-#include "extensions/harvesting/src/HarvesterBlockGenerator.h"
-#include "extensions/harvesting/src/HarvestingUtFacadeFactory.h"
-#include "plugins/services/hashcache/src/cache/HashCacheStorage.h"
-#include "plugins/services/hashcache/src/plugins/MemoryHashCacheSystem.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
@@ -41,6 +40,7 @@
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

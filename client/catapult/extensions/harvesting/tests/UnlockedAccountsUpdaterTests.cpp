@@ -19,17 +19,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "harvesting/src/UnlockedAccountsUpdater.h"
+#include "harvesting/src/UnlockedAccounts.h"
+#include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "catapult/io/FileQueue.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "harvesting/src/UnlockedAccounts.h"
-#include "harvesting/src/UnlockedAccountsUpdater.h"
-#include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

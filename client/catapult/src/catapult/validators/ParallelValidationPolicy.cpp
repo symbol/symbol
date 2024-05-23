@@ -25,8 +25,8 @@
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/ParallelFor.h"
 #include "catapult/utils/Logging.h"
-#include <algorithm>
 #include <boost/asio/io_context.hpp>
+#include <algorithm>
 
 namespace catapult {
 namespace validators {

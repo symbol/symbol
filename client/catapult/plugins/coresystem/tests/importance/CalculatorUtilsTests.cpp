@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/importance/CalculatorUtils.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/state/AccountActivityBuckets.h"
 #include "catapult/state/AccountState.h"
-#include "src/importance/CalculatorUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

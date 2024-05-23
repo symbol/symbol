@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/HeightGrouping.h"
 #include "catapult/model/VotingSet.h"
+#include "catapult/model/HeightGrouping.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

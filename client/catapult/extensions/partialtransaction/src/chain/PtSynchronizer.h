@@ -20,10 +20,10 @@
 **/
 
 #pragma once
+#include "partialtransaction/src/PtTypes.h"
 #include "catapult/chain/ChainFunctions.h"
 #include "catapult/chain/RemoteNodeSynchronizer.h"
 #include "catapult/model/CosignedTransactionInfo.h"
-#include "partialtransaction/src/PtTypes.h"
 
 namespace catapult {
 namespace api {

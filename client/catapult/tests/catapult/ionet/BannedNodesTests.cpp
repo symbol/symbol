@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/NodeConfiguration.h"
 #include "catapult/ionet/BannedNodes.h"
-#include "tests/TestHarness.h"
+#include "catapult/config/NodeConfiguration.h"
 #include "tests/test/nodeps/TimeSupplier.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace ionet {

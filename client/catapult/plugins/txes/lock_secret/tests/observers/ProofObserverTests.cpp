@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/lock_shared/tests/observers/LockStatusAndBalanceObserverTests.h"
 #include "src/model/SecretLockReceiptType.h"
 #include "src/observers/Observers.h"
+#include "plugins/txes/lock_shared/tests/observers/LockStatusAndBalanceObserverTests.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 

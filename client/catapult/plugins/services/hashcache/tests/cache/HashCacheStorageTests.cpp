@@ -20,8 +20,8 @@
 **/
 
 #include "src/cache/HashCacheStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

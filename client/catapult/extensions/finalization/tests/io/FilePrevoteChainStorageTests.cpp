@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/FileBlockStorage.h"
 #include "finalization/src/io/FilePrevoteChainStorage.h"
-#include "tests/TestHarness.h"
+#include "catapult/io/FileBlockStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 #include <fstream>
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/Transaction.h"
 #include "mongo/src/MongoTransactionPlugin.h"
+#include "catapult/model/Transaction.h"
 #include "tests/test/plugins/SharedTransactionPluginTests.h"
 
 namespace catapult {

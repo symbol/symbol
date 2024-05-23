@@ -22,8 +22,8 @@
 #include "catapult/extensions/NodeInteractionUtils.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/NodeInteractionResult.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

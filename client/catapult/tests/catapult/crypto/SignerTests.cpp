@@ -22,10 +22,10 @@
 #include "catapult/crypto/Signer.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
-#include "tests/TestHarness.h"
 #include "tests/test/crypto/CurveUtils.h"
 #include "tests/test/crypto/SignVerifyTests.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 #include <numeric>
 
 namespace catapult {

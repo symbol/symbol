@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MapperTestUtils.h"
 #include "src/mappers/MosaicRestrictionEntryMapper.h"
-#include "tests/TestHarness.h"
+#include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/MosaicRestrictionEntryMapperTestUtils.h"
+#include "tests/TestHarness.h"
 #include <set>
 
 namespace catapult {

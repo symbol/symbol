@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/config/ValidateConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace config {

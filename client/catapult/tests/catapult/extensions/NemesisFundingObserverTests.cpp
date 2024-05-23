@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/extensions/NemesisFundingObserver.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

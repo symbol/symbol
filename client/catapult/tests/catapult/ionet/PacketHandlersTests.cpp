@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/ionet/PacketHandlers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
+#include "tests/TestHarness.h"
 #include <memory>
 
 namespace catapult {

@@ -22,9 +22,9 @@
 #include "finalization/src/api/RemoteFinalizationApi.h"
 #include "finalization/src/model/FinalizationMessage.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace api {

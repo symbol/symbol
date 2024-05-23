@@ -19,17 +19,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/NemesisBlockLoader.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/extensions/NemesisBlockLoader.h"
-#include "tests/TestHarness.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nemesis/NemesisTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

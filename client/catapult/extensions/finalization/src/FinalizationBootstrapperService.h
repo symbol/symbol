@@ -20,11 +20,11 @@
 **/
 
 #pragma once
+#include "finalization/src/io/ProofStorage.h"
+#include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/extensions/BasicServerHooks.h"
 #include "catapult/extensions/ServiceRegistrar.h"
 #include "catapult/handlers/HandlerTypes.h"
-#include "finalization/src/io/ProofStorage.h"
-#include "finalization/src/model/FinalizationMessage.h"
 
 namespace catapult {
 namespace chain {

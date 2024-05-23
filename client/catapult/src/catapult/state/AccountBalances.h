@@ -21,9 +21,9 @@
 
 #pragma once
 #include "CompactMosaicMap.h"
+#include "catapult/utils/Hashers.h"
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
-#include "catapult/utils/Hashers.h"
 #include <unordered_map>
 
 namespace catapult {

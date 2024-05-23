@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
 #include "catapult/ionet/NetworkNode.h"
 #include "catapult/utils/Functional.h"
-#include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

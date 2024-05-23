@@ -20,11 +20,11 @@
 **/
 
 #include "catapult/io/FileBlockStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockStorageTests.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace catapult {

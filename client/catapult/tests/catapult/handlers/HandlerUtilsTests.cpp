@@ -22,9 +22,9 @@
 #include "catapult/handlers/HandlerUtils.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/TransactionPlugin.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

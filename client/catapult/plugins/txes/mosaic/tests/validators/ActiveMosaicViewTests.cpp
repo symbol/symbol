@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/model/BlockchainConfiguration.h"
 #include "src/validators/ActiveMosaicView.h"
 #include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
+#include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "catapult/utils/BitwiseEnum.h"
 #include "catapult/functions.h"
 #include "catapult/types.h"
-#include "catapult/utils/BitwiseEnum.h"
 
 namespace catapult {
 namespace extensions {

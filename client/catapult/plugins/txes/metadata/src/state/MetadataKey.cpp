@@ -21,9 +21,9 @@
 
 #include "MetadataKey.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/exceptions.h"
 #include "catapult/model/ResolverContext.h"
 #include "catapult/utils/Casting.h"
+#include "catapult/exceptions.h"
 
 namespace catapult {
 namespace state {

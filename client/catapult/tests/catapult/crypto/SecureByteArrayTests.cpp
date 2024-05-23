@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/crypto/SecureByteArray.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace crypto {

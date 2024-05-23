@@ -21,8 +21,8 @@
 
 #pragma once
 #include "StrandOwnerLifetimeExtender.h"
-#include "catapult/functions.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/functions.h"
 #include <boost/asio/steady_timer.hpp>
 #include <memory>
 

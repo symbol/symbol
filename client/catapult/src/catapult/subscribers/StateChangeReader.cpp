@@ -24,9 +24,9 @@
 #include "StateChangeSubscriber.h"
 #include "SubscriberOperationTypes.h"
 #include "catapult/cache/CacheChangesStorage.h"
-#include "catapult/exceptions.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/Stream.h"
+#include "catapult/exceptions.h"
 
 namespace catapult {
 namespace subscribers {

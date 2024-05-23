@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/exceptions.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/Stream.h"
+#include "catapult/exceptions.h"
 
 namespace catapult {
 namespace cache {

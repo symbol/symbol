@@ -21,9 +21,9 @@
 
 #include "catapult/chain/CompareChains.h"
 #include "catapult/model/BlockUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/chain/test/MockChainApi.h"
 #include "tests/test/core/HashTestUtils.h"
+#include "tests/TestHarness.h"
 
 using catapult::mocks::MockChainApi;
 using catapult::model::ChainScore;

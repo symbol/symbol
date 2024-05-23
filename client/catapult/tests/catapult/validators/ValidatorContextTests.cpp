@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/validators/ValidatorContext.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

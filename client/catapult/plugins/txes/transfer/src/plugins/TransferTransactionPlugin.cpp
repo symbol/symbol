@@ -20,10 +20,10 @@
 **/
 
 #include "TransferTransactionPlugin.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
 #include "src/model/TransferNotifications.h"
 #include "src/model/TransferTransaction.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

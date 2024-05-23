@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "packetserver/src/NetworkPacketReadersService.h"
 #include "catapult/handlers/BasicProducer.h"
 #include "catapult/handlers/HandlerFactory.h"
-#include "packetserver/src/NetworkPacketReadersService.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/NetworkTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace packetserver {

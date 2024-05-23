@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/state/MosaicRestrictionEntry.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/model/NetworkIdentifier.h"
-#include "src/state/MosaicRestrictionEntry.h"
 
 namespace catapult {
 namespace cache {

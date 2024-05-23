@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/io/PodIoUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace io {

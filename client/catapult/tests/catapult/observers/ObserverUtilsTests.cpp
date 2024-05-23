@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/CatapultCacheBuilder.h"
 #include "catapult/observers/ObserverUtils.h"
-#include "tests/TestHarness.h"
+#include "catapult/cache/CatapultCacheBuilder.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/NotificationTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

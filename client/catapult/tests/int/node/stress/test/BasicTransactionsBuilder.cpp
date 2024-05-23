@@ -20,9 +20,9 @@
 **/
 
 #include "BasicTransactionsBuilder.h"
-#include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
+#include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nodeps/Nemesis.h"
 

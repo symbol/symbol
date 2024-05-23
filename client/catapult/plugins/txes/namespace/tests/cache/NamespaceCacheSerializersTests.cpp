@@ -20,10 +20,10 @@
 **/
 
 #include "src/cache/NamespaceCacheSerializers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/core/BufferReader.h"
 #include "tests/test/core/SerializerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

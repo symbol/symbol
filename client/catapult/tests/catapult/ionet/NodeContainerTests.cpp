@@ -21,10 +21,10 @@
 
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/NodeInteractionResult.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/test/nodeps/TimeSupplier.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace ionet {

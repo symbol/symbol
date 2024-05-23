@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/ionet/NodeInteractionsContainer.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace ionet {

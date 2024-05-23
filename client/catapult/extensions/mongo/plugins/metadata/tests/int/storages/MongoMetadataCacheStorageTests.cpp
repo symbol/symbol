@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/storages/MongoMetadataCacheStorage.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/metadata/tests/test/MetadataCacheTestUtils.h"
 #include "plugins/txes/metadata/tests/test/MetadataTestUtils.h"
-#include "src/storages/MongoMetadataCacheStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MetadataMapperTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;
 

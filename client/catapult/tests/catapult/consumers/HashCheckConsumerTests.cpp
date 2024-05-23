@@ -21,11 +21,11 @@
 
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/consumers/TransactionConsumers.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/test/nodeps/TimeSupplier.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace consumers {

@@ -20,8 +20,8 @@
 **/
 
 #include "finalization/src/model/FinalizationStatistics.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Alignment.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

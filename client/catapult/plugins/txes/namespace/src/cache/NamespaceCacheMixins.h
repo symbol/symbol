@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/deltaset/BaseSetDelta.h"
 #include "src/state/NamespaceEntry.h"
 #include "src/state/RootNamespaceHistory.h"
+#include "catapult/deltaset/BaseSetDelta.h"
 #include <numeric>
 
 namespace catapult {

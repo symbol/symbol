@@ -21,8 +21,8 @@
 
 #include "FileLock.h"
 #include "catapult/utils/Logging.h"
-#include <fcntl.h>
 #include <thread>
+#include <fcntl.h>
 
 #ifdef _MSC_VER
 #include <windows.h>

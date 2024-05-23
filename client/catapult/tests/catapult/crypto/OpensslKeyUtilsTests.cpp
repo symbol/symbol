@@ -21,10 +21,10 @@
 
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/TestHarness.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 #include <fstream>
 
 #ifdef __clang__

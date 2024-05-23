@@ -20,8 +20,8 @@
 **/
 
 #include "sync/src/TasksConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace sync {

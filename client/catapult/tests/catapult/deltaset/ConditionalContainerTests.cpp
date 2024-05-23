@@ -22,8 +22,8 @@
 #include "catapult/deltaset/ConditionalContainer.h"
 #include "catapult/deltaset/OrderedSet.h"
 #include "catapult/utils/ContainerHelpers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/DeltaElementsTestUtils.h"
+#include "tests/TestHarness.h"
 #include <unordered_set>
 
 namespace catapult {

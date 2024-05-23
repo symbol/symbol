@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "src/builders/MosaicSupplyChangeBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult {
 namespace builders {

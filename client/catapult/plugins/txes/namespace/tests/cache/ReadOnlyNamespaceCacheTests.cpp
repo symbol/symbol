@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/NamespaceCache.h"
 #include "src/cache/ReadOnlyNamespaceCache.h"
+#include "src/cache/NamespaceCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

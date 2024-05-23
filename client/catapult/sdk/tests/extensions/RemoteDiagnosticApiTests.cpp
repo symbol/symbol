@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/extensions/RemoteDiagnosticApi.h"
 #include "catapult/handlers/DiagnosticHandlers.h"
 #include "catapult/ionet/Packet.h"
-#include "src/extensions/RemoteDiagnosticApi.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

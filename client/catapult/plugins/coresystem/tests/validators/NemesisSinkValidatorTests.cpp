@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/validators/Validators.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/validators/ValidatorContext.h"
-#include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

@@ -21,16 +21,16 @@
 
 #include "FinalizationMessageProcessingService.h"
 #include "FinalizationBootstrapperService.h"
+#include "finalization/src/FinalizationConfiguration.h"
+#include "finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "finalization/src/ionet/FinalizationMessagePacketUtils.h"
+#include "finalization/src/model/FinalizationRoundRange.h"
 #include "catapult/consumers/RecentHashCache.h"
 #include "catapult/extensions/DispatcherUtils.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/extensions/ServiceUtils.h"
 #include "catapult/thread/MultiServicePool.h"
 #include "catapult/utils/ThrottleLogger.h"
-#include "finalization/src/FinalizationConfiguration.h"
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "finalization/src/ionet/FinalizationMessagePacketUtils.h"
-#include "finalization/src/model/FinalizationRoundRange.h"
 
 namespace catapult {
 namespace finalization {

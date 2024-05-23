@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "finalization/src/FinalizationConfiguration.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
-#include "finalization/src/FinalizationConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace finalization {

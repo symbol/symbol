@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/TimeSynchronizationConfiguration.h"
 #include "src/TimeSynchronizationService.h"
 #include "src/TimeSynchronizationState.h"
 #include "src/constants.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult {
 namespace timesync {

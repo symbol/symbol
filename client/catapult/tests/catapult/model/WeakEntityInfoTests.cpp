@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Block.h"
 #include "catapult/model/WeakEntityInfo.h"
+#include "catapult/model/Block.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

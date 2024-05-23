@@ -22,9 +22,9 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/io/FileQueue.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace catapult {

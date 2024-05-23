@@ -23,13 +23,13 @@
 #include "BlockStatementTestUtils.h"
 #include "BlockStorageTestUtils.h"
 #include "BlockTestUtils.h"
-#include "catapult/constants.h"
-#include "catapult/io/BlockStatementSerializer.h"
-#include "catapult/model/BlockUtils.h"
 #include "mocks/MockMemoryBlockStorage.h"
 #include "mocks/MockMemoryStream.h"
-#include "tests/TestHarness.h"
+#include "catapult/io/BlockStatementSerializer.h"
+#include "catapult/model/BlockUtils.h"
+#include "catapult/constants.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/TestHarness.h"
 #include <numeric>
 
 namespace catapult {

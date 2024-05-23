@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/WeakCosignedTransactionInfo.h"
 #include "partialtransaction/src/chain/AggregateCosignatoriesNotificationPublisher.h"
-#include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/WeakCosignedTransactionInfo.h"
+#include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

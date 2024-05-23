@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/Hashes.h"
 #include "src/state/MosaicRestrictionEntry.h"
-#include "tests/TestHarness.h"
+#include "catapult/crypto/Hashes.h"
 #include "tests/test/MosaicRestrictionTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

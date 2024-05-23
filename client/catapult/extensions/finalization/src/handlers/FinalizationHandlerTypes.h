@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/handlers/HandlerTypes.h"
 #include "finalization/src/model/FinalizationMessage.h"
+#include "catapult/handlers/HandlerTypes.h"
 
 namespace catapult {
 namespace handlers {

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/net/PacketWriters.h"
 #include "catapult/ionet/BufferedPacketIo.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/PacketWriters.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/TimeSpan.h"
 #include "tests/catapult/net/test/ConnectionContainerTestUtils.h"

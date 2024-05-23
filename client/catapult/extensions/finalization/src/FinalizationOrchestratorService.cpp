@@ -24,6 +24,9 @@
 #include "FinalizationConfiguration.h"
 #include "FinalizationContextFactory.h"
 #include "VotingStatusFile.h"
+#include "finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "finalization/src/io/FilePrevoteChainStorage.h"
+#include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -31,9 +34,6 @@
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/io/FileStream.h"
 #include "catapult/model/VotingSet.h"
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "finalization/src/io/FilePrevoteChainStorage.h"
-#include "finalization/src/io/ProofStorageCache.h"
 
 namespace catapult {
 namespace finalization {

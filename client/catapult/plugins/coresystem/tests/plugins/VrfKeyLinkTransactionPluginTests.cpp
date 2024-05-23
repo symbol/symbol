@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/plugins/VrfKeyLinkTransactionPlugin.h"
 #include "src/model/KeyLinkNotifications.h"
 #include "src/model/VrfKeyLinkTransaction.h"
-#include "src/plugins/VrfKeyLinkTransactionPlugin.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

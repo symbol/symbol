@@ -22,9 +22,9 @@
 #pragma once
 #include "MetadataEntityType.h"
 #include "MetadataSharedTransaction.h"
+#include "plugins/txes/namespace/src/types.h"
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/utils/ArraySet.h"
-#include "plugins/txes/namespace/src/types.h"
 
 namespace catapult {
 namespace model {

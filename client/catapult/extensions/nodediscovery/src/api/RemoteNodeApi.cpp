@@ -20,8 +20,8 @@
 **/
 
 #include "RemoteNodeApi.h"
-#include "catapult/api/RemoteRequestDispatcher.h"
 #include "nodediscovery/src/NodePingUtils.h"
+#include "catapult/api/RemoteRequestDispatcher.h"
 
 namespace catapult {
 namespace api {

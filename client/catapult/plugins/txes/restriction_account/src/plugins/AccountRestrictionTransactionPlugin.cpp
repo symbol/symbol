@@ -20,12 +20,12 @@
 **/
 
 #include "AccountRestrictionTransactionPlugin.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
 #include "src/model/AccountAddressRestrictionTransaction.h"
 #include "src/model/AccountMosaicRestrictionTransaction.h"
 #include "src/model/AccountOperationRestrictionTransaction.h"
 #include "src/model/AccountRestrictionNotifications.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

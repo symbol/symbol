@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/consumers/ReclaimMemoryInspector.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/consumers/test/ConsumerInputFactory.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace consumers {

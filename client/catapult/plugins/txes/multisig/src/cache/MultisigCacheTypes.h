@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/state/MultisigEntry.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/utils/Hashers.h"
-#include "src/state/MultisigEntry.h"
 
 namespace catapult {
 namespace cache {

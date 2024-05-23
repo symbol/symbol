@@ -23,10 +23,10 @@
 #include "Harvester.h"
 #include "catapult/chain/ChainFunctions.h"
 #include "catapult/disruptor/DisruptorTypes.h"
-#include "catapult/functions.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/EntityInfo.h"
 #include "catapult/model/RangeTypes.h"
+#include "catapult/functions.h"
 
 namespace catapult {
 namespace harvesting {

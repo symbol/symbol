@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/types.h"
 #include "catapult/utils/BaseValue.h"
-#include "tests/TestHarness.h"
+#include "catapult/types.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Convertibility.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace utils {

@@ -20,9 +20,9 @@
 **/
 
 #include "SslClient.h"
+#include "tools/ToolNetworkUtils.h"
 #include "catapult/api/RemoteChainApi.h"
 #include "catapult/thread/FutureUtils.h"
-#include "tools/ToolNetworkUtils.h"
 
 namespace catapult {
 namespace tools {

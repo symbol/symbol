@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/cache_tx/ShortHashPair.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

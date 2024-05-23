@@ -21,8 +21,8 @@
 
 #pragma once
 #include "Results.h"
-#include "catapult/validators/ValidatorTypes.h"
 #include "src/model/KeyLinkNotifications.h"
+#include "catapult/validators/ValidatorTypes.h"
 
 namespace catapult {
 namespace validators {

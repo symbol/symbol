@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "harvesting/src/HarvestingObservers.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
-#include "harvesting/src/HarvestingObservers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/plugins/ObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

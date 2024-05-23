@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/plugins/lock_shared/tests/mappers/LockInfoMapperTests.h"
 #include "src/mappers/SecretLockInfoMapper.h"
-#include "tests/TestHarness.h"
+#include "mongo/plugins/lock_shared/tests/mappers/LockInfoMapperTests.h"
 #include "tests/test/MongoSecretLockInfoTestTraits.h"
 #include "tests/test/SecretLockMapperTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "src/validators/AccountRestrictionView.h"
 #include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
+#include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

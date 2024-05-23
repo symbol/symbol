@@ -19,17 +19,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "finalization/src/FinalizationMessageProcessingService.h"
+#include "finalization/src/FinalizationConfiguration.h"
+#include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "finalization/src/FinalizationConfiguration.h"
-#include "finalization/src/FinalizationMessageProcessingService.h"
-#include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace finalization {

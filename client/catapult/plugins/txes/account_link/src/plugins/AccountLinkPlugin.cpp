@@ -22,11 +22,11 @@
 #include "AccountLinkPlugin.h"
 #include "AccountKeyLinkTransactionPlugin.h"
 #include "NodeKeyLinkTransactionPlugin.h"
+#include "src/observers/Observers.h"
+#include "src/validators/Validators.h"
 #include "catapult/keylink/KeyLinkObserver.h"
 #include "catapult/keylink/KeyLinkValidator.h"
 #include "catapult/plugins/PluginManager.h"
-#include "src/observers/Observers.h"
-#include "src/validators/Validators.h"
 
 namespace catapult {
 namespace plugins {

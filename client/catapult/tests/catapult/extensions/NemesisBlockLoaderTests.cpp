@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
+#include "sdk/src/extensions/BlockExtensions.h"
+#include "plugins/coresystem/src/observers/Observers.h"
+#include "plugins/coresystem/src/validators/Validators.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
-#include "plugins/coresystem/src/observers/Observers.h"
-#include "plugins/coresystem/src/validators/Validators.h"
-#include "sdk/src/extensions/BlockExtensions.h"
 #include "tests/test/cache/BalanceTransfers.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"

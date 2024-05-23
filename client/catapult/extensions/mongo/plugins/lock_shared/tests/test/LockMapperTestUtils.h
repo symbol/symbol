@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "plugins/txes/lock_shared/src/state/LockInfo.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "plugins/txes/lock_shared/src/state/LockInfo.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/client.hpp>
 

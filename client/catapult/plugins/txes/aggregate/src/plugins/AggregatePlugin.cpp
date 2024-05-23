@@ -21,10 +21,10 @@
 
 #include "AggregatePlugin.h"
 #include "AggregateTransactionPlugin.h"
-#include "catapult/plugins/PluginManager.h"
 #include "src/config/AggregateConfiguration.h"
 #include "src/model/AggregateEntityType.h"
 #include "src/validators/Validators.h"
+#include "catapult/plugins/PluginManager.h"
 
 namespace catapult {
 namespace plugins {

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/HarvestingConfiguration.h"
 #include "src/HarvestingService.h"
 #include "src/ValidateHarvestingConfiguration.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult {
 namespace harvesting {

@@ -22,11 +22,11 @@
 #include "catapult/cache/CacheStorageAdapter.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/SubCachePluginAdapter.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/cache/test/CacheSerializationTestUtils.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/cache/UnsupportedSubCachePlugin.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

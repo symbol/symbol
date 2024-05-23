@@ -21,8 +21,8 @@
 
 #pragma once
 #include "RestrictionValueMap.h"
-#include "catapult/types.h"
 #include "src/model/MosaicRestrictionTypes.h"
+#include "catapult/types.h"
 
 namespace catapult {
 namespace state {

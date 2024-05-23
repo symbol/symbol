@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/Node.h"
 #include "timesync/src/TimeSynchronizationSample.h"
+#include "catapult/ionet/Node.h"
 #include <vector>
 
 namespace catapult {

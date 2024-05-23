@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/MetadataCache.h"
 #include "src/cache/MetadataCacheStorage.h"
-#include "tests/TestHarness.h"
+#include "src/cache/MetadataCache.h"
 #include "tests/test/MetadataTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

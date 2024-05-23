@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/api/RemoteRequestDispatcher.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace api {

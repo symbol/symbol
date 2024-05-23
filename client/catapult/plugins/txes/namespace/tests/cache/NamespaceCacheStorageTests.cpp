@@ -20,9 +20,9 @@
 **/
 
 #include "src/cache/NamespaceCacheStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/RootNamespaceHistoryLoadTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

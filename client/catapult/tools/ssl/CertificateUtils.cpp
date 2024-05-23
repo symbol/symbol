@@ -20,9 +20,9 @@
 **/
 
 #include "CertificateUtils.h"
-#include "catapult/exceptions.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
+#include "catapult/exceptions.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push

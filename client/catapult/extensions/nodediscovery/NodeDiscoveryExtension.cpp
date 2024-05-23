@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/NodeDiscoveryService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/ionet/NetworkNode.h"
-#include "src/NodeDiscoveryService.h"
 
 namespace catapult {
 namespace nodediscovery {

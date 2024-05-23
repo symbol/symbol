@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/constants.h"
 #include "catapult/model/EntityRange.h"
+#include "catapult/constants.h"
 #include "catapult/types.h"
 
 namespace catapult {

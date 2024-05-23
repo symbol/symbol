@@ -22,9 +22,9 @@
 #include "catapult/ionet/PacketPayloadBuilder.h"
 #include "catapult/model/VerifiableEntity.h"
 #include "catapult/utils/Functional.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace ionet {

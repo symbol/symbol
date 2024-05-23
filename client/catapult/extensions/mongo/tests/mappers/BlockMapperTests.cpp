@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "mongo/src/mappers/BlockMapper.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/FinalizationRound.h"
-#include "mongo/src/mappers/BlockMapper.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoReceiptTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

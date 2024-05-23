@@ -21,8 +21,8 @@
 
 #pragma once
 #include "CompactArrayStack.h"
-#include "catapult/functions.h"
 #include "catapult/model/HeightGrouping.h"
+#include "catapult/functions.h"
 
 namespace catapult {
 namespace state {

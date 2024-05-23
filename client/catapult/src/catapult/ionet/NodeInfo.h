@@ -22,8 +22,8 @@
 #pragma once
 #include "NodeInteractionResultCode.h"
 #include "NodeInteractionsContainer.h"
-#include "catapult/types.h"
 #include "catapult/utils/Hashers.h"
+#include "catapult/types.h"
 #include <unordered_set>
 #include <vector>
 

@@ -20,9 +20,9 @@
 **/
 
 #include "MongoAccountStateCacheStorage.h"
-#include "catapult/cache_core/AccountStateCache.h"
 #include "mongo/src/mappers/AccountStateMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
+#include "catapult/cache_core/AccountStateCache.h"
 
 using namespace bsoncxx::builder::stream;
 

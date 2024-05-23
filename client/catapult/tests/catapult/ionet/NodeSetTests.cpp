@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/ionet/NodeSet.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace ionet {

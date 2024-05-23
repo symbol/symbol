@@ -26,12 +26,12 @@
 #include "catapult/extensions/PluginUtils.h"
 #include "catapult/io/FilesystemUtils.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

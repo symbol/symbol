@@ -21,8 +21,8 @@
 
 #pragma once
 #include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/types.h"
 #include "catapult/utils/IdentifierGroup.h"
+#include "catapult/types.h"
 
 namespace catapult {
 namespace cache {

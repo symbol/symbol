@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/api/ChainPackets.h"
 #include "catapult/handlers/DiagnosticHandlers.h"
+#include "catapult/api/ChainPackets.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/NodeInteractionResult.h"
 #include "catapult/ionet/PackedNodeInfo.h"

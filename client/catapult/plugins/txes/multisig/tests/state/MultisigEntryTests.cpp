@@ -20,8 +20,8 @@
 **/
 
 #include "src/state/MultisigEntry.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MultisigTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

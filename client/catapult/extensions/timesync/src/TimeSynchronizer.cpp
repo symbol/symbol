@@ -20,11 +20,11 @@
 **/
 
 #include "TimeSynchronizer.h"
+#include "constants.h"
+#include "timesync/src/filters/filter_constants.h"
 #include "catapult/cache_core/AccountStateCacheView.h"
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/utils/Functional.h"
-#include "constants.h"
-#include "timesync/src/filters/filter_constants.h"
 #include <cmath>
 
 namespace catapult {

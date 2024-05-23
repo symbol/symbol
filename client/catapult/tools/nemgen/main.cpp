@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/ToolMain.h"
 #include "AdditionalTransactions.h"
 #include "BlockGenerator.h"
 #include "BlockSaver.h"
 #include "NemesisConfigurationLoader.h"
 #include "NemesisExecutionHasher.h"
-#include "catapult/io/RawFile.h"
-#include "tools/ToolConfigurationUtils.h"
-#include "tools/ToolMain.h"
 #include "tools/plugins/PluginLoader.h"
+#include "tools/ToolConfigurationUtils.h"
+#include "catapult/io/RawFile.h"
 
 namespace catapult {
 namespace tools {

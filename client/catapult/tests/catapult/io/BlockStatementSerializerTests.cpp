@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/io/BlockStatementSerializer.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace io {

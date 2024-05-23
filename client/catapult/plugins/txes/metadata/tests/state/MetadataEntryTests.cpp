@@ -20,8 +20,8 @@
 **/
 
 #include "src/state/MetadataEntry.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MetadataTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

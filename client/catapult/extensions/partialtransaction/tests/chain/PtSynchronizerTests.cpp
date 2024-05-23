@@ -21,8 +21,8 @@
 
 #include "partialtransaction/src/chain/PtSynchronizer.h"
 #include "partialtransaction/tests/test/mocks/MockPtApi.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/EntitiesSynchronizerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace chain {

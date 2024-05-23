@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/exceptions.h"
 #include "catapult/utils/DiagnosticCounter.h"
+#include "catapult/exceptions.h"
 #include <memory>
 #include <unordered_map>
 #include <vector>

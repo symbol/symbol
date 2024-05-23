@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/crypto/CatapultCertificateProcessor.h"
-#include "tests/TestHarness.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
+#include "tests/TestHarness.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push

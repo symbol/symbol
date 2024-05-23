@@ -21,13 +21,13 @@
 
 #include "MongoTestUtils.h"
 #include "MapperTestUtils.h"
-#include "catapult/state/AccountState.h"
 #include "mongo/src/MongoBulkWriter.h"
 #include "mongo/src/MongoPluginLoader.h"
 #include "mongo/src/MongoStorageContext.h"
 #include "mongo/src/MongoTransactionMetadata.h"
 #include "mongo/src/MongoTransactionPlugin.h"
 #include "mongo/src/mappers/MapperUtils.h"
+#include "catapult/state/AccountState.h"
 #include "mongo/tests/test/mocks/MockTransactionMapper.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include <mongocxx/client.hpp>

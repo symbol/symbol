@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
 #include "catapult/ionet/NodeSet.h"
 #include "catapult/net/NodeRequestResult.h"
+#include "catapult/functions.h"
 
 namespace catapult {
 namespace ionet {

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
 #include "catapult/utils/FileSize.h"
+#include "catapult/types.h"
 #include <memory>
 
 namespace catapult {

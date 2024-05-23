@@ -20,12 +20,12 @@
 **/
 
 #include "MemoryHashCacheSystem.h"
-#include "catapult/observers/ObserverUtils.h"
-#include "catapult/plugins/PluginManager.h"
 #include "src/cache/HashCacheStorage.h"
 #include "src/handlers/HashCacheDiagnosticHandlers.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
+#include "catapult/observers/ObserverUtils.h"
+#include "catapult/plugins/PluginManager.h"
 
 namespace catapult {
 namespace plugins {

@@ -22,8 +22,8 @@
 #include "catapult/model/SizePrefixedEntityContainer.h"
 #include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

@@ -20,12 +20,12 @@
 **/
 
 #include "NodeDiscoveryHandlers.h"
+#include "nodediscovery/src/NodePingUtils.h"
 #include "catapult/handlers/BasicProducer.h"
 #include "catapult/handlers/HandlerFactory.h"
 #include "catapult/ionet/NetworkNode.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/utils/HexFormatter.h"
-#include "nodediscovery/src/NodePingUtils.h"
 
 namespace catapult {
 namespace handlers {

@@ -21,9 +21,9 @@
 
 #pragma once
 #include "NamespaceCacheTypes.h"
+#include "src/state/RootNamespaceHistorySerializer.h"
 #include "catapult/cache/CacheSerializerAdapter.h"
 #include "catapult/cache/IdentifierGroupSerializer.h"
-#include "src/state/RootNamespaceHistorySerializer.h"
 
 namespace catapult {
 namespace cache {

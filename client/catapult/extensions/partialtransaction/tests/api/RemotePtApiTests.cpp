@@ -20,10 +20,10 @@
 **/
 
 #include "partialtransaction/src/api/RemotePtApi.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace api {

@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/storages/MongoNamespaceCacheStorage.h"
+#include "src/mappers/NamespaceDescriptor.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MongoHistoricalCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/namespace/tests/test/NamespaceCacheTestUtils.h"
 #include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
-#include "src/mappers/NamespaceDescriptor.h"
-#include "src/storages/MongoNamespaceCacheStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceMapperTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;
 

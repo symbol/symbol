@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
-#include "tests/TestHarness.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

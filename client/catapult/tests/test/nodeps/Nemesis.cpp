@@ -21,8 +21,8 @@
 
 #include "Nemesis.h"
 #include "Conversions.h"
-#include "catapult/utils/HexParser.h"
 #include "data/NemesisMemoryBlockStorage_data.h"
+#include "catapult/utils/HexParser.h"
 
 namespace catapult {
 namespace test {

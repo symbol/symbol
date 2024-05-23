@@ -20,9 +20,9 @@
 **/
 
 #include "BufferedFileStream.h"
-#include "catapult/exceptions.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/exceptions.h"
 
 namespace catapult {
 namespace io {

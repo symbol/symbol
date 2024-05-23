@@ -21,8 +21,8 @@
 
 #include "nodediscovery/src/NodePingRequestor.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/BriefServerRequestorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace nodediscovery {

@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/consumers/UndoBlock.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/chain/BlockExecutor.h"
-#include "catapult/consumers/UndoBlock.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/mocks/MockEntityObserver.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace consumers {

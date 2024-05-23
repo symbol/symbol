@@ -20,8 +20,8 @@
 **/
 
 #include "AccountRestrictionMapper.h"
-#include "mongo/src/MongoPluginManager.h"
 #include "storages/MongoAccountRestrictionCacheStorage.h"
+#include "mongo/src/MongoPluginManager.h"
 
 extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support

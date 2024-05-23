@@ -21,8 +21,8 @@
 
 #include "finalization/src/model/FinalizationProofUtils.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/EntityTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

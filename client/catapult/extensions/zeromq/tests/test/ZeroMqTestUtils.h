@@ -20,15 +20,15 @@
 **/
 
 #pragma once
+#include "zeromq/src/ZeroMqEntityPublisher.h"
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/TransactionRegistry.h"
-#include "catapult/types.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/TimeSpan.h"
-#include "tests/TestHarness.h"
+#include "catapult/types.h"
 #include "tests/test/core/mocks/MockTransaction.h"
-#include "zeromq/src/ZeroMqEntityPublisher.h"
+#include "tests/TestHarness.h"
 #include <unordered_set>
 #include <vector>
 

@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
 #include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
+#include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

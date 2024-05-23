@@ -21,9 +21,9 @@
 
 #include "catapult/model/EntityInfo.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

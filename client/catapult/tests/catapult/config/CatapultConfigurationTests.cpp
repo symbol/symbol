@@ -24,11 +24,11 @@
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace catapult {

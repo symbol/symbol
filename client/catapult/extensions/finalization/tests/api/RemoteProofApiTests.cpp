@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/api/FinalizationPackets.h"
 #include "finalization/src/api/RemoteProofApi.h"
+#include "finalization/src/api/FinalizationPackets.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace api {

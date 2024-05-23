@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/plugins/MosaicGlobalRestrictionTransactionPlugin.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "src/model/MosaicGlobalRestrictionTransaction.h"
 #include "src/model/MosaicRestrictionNotifications.h"
-#include "src/plugins/MosaicGlobalRestrictionTransactionPlugin.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

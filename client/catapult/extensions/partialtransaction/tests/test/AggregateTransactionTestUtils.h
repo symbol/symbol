@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/Hashers.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
+#include "catapult/utils/Hashers.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include <unordered_map>
 

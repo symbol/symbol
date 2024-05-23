@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/BlockStorageCache.h"
 #include "finalization/src/chain/FinalizationProofSynchronizer.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "catapult/io/BlockStorageCache.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofApi.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace chain {

@@ -20,10 +20,10 @@
 **/
 
 #include "HashLockMapper.h"
+#include "storages/MongoHashLockInfoCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
 #include "mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
-#include "storages/MongoHashLockInfoCacheStorage.h"
 
 extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support

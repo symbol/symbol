@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/plugins/PluginModule.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace plugins {

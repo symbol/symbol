@@ -22,8 +22,8 @@
 #pragma once
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
-#include <gtest/gtest.h>
 #include <sstream>
+#include <gtest/gtest.h>
 
 namespace catapult {
 namespace test {

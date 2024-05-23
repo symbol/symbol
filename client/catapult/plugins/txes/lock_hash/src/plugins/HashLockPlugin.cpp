@@ -20,14 +20,14 @@
 **/
 
 #include "HashLockPlugin.h"
-#include "catapult/plugins/CacheHandlers.h"
-#include "catapult/plugins/PluginManager.h"
 #include "src/cache/HashLockInfoCache.h"
 #include "src/config/HashLockConfiguration.h"
 #include "src/model/HashLockReceiptType.h"
 #include "src/observers/Observers.h"
 #include "src/plugins/HashLockTransactionPlugin.h"
 #include "src/validators/Validators.h"
+#include "catapult/plugins/CacheHandlers.h"
+#include "catapult/plugins/PluginManager.h"
 
 namespace catapult {
 namespace plugins {

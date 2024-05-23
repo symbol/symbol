@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
+#include "src/plugins/HashLockTransactionPlugin.h"
 #include "src/model/HashLockNotifications.h"
 #include "src/model/HashLockTransaction.h"
-#include "src/plugins/HashLockTransactionPlugin.h"
+#include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/utils/MemoryUtils.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

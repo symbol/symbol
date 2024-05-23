@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/io/BlockStorageCache.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockStorageTests.h"
 #include "tests/test/nodeps/LockTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace io {

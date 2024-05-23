@@ -21,10 +21,10 @@
 
 #include "catapult/model/CacheEntryInfo.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

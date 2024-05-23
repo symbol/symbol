@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/deltaset/BaseSetFindIterator.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace deltaset {

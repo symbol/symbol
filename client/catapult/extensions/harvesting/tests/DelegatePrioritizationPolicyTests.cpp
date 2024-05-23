@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "harvesting/src/DelegatePrioritizationPolicy.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "harvesting/src/DelegatePrioritizationPolicy.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

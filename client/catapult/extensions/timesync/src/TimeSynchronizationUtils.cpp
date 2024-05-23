@@ -24,6 +24,7 @@
 #include "TimeSynchronizationConfiguration.h"
 #include "TimeSynchronizationState.h"
 #include "TimeSynchronizer.h"
+#include "constants.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/ImportanceView.h"
@@ -31,7 +32,6 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/ionet/NodeContainer.h"
-#include "constants.h"
 
 namespace catapult {
 namespace timesync {

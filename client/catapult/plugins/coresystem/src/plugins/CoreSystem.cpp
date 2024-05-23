@@ -22,6 +22,10 @@
 #include "CoreSystem.h"
 #include "VotingKeyLinkTransactionPlugin.h"
 #include "VrfKeyLinkTransactionPlugin.h"
+#include "src/importance/StorageImportanceCalculatorFactory.h"
+#include "src/observers/Observers.h"
+#include "src/validators/KeyLinkValidators.h"
+#include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
@@ -34,10 +38,6 @@
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
-#include "src/importance/StorageImportanceCalculatorFactory.h"
-#include "src/observers/Observers.h"
-#include "src/validators/KeyLinkValidators.h"
-#include "src/validators/Validators.h"
 
 namespace catapult {
 namespace plugins {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/DiagnosticsService.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult {
 namespace diagnostics {

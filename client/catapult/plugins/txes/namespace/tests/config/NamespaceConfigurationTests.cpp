@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/config/NamespaceConfiguration.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/utils/HexParser.h"
-#include "src/config/NamespaceConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace config {

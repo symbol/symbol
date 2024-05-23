@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "sync/src/NetworkPacketWritersService.h"
 #include "catapult/api/ChainPackets.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
-#include "sync/src/NetworkPacketWritersService.h"
-#include "tests/TestHarness.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace sync {

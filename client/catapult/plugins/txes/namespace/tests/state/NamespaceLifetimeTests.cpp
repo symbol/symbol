@@ -20,8 +20,8 @@
 **/
 
 #include "src/state/NamespaceLifetime.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 #include <limits>
 
 namespace catapult {

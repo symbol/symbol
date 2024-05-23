@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/MosaicRestrictionCache.h"
 #include "src/cache/MosaicRestrictionCacheStorage.h"
+#include "src/cache/MosaicRestrictionCache.h"
 #include "src/model/MosaicRestrictionTypes.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MosaicRestrictionTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

@@ -28,11 +28,11 @@
 #include "catapult/crypto/OpensslInit.h"
 #include "catapult/crypto/OpensslMemory.h"
 #include "catapult/io/FileLock.h"
-#include "catapult/preprocessor.h"
 #include "catapult/thread/ThreadInfo.h"
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/version/version.h"
+#include "catapult/preprocessor.h"
 #include <iostream>
 
 namespace catapult {

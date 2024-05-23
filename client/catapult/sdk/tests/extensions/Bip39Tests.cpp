@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/HexParser.h"
 #include "src/extensions/Bip39.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

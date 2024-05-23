@@ -23,8 +23,8 @@
 #include "BaseSetDefaultTraits.h"
 #include "BaseSetFindIterator.h"
 #include "DeltaElements.h"
-#include "catapult/exceptions.h"
 #include "catapult/utils/NonCopyable.h"
+#include "catapult/exceptions.h"
 #include <memory>
 #include <type_traits>
 #include <unordered_map>

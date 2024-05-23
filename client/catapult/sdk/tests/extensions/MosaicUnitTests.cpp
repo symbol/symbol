@@ -20,8 +20,8 @@
 **/
 
 #include "src/extensions/MosaicUnit.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Comparison.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

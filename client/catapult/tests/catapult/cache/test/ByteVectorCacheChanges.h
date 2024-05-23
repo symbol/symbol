@@ -22,8 +22,8 @@
 #pragma once
 #include "catapult/cache/CacheChanges.h"
 #include "catapult/io/PodIoUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

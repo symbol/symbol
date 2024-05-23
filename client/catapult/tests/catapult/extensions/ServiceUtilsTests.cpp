@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/ServiceUtils.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/ServerHooks.h"
 #include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

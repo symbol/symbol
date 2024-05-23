@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/model/ChainScore.h"
 #include "extensions/mongo/src/ChainScoreProvider.h"
+#include "catapult/model/ChainScore.h"
 
 namespace catapult {
 namespace mocks {

@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/AccountRestrictionCache.h"
 #include "src/cache/AccountRestrictionCacheStorage.h"
+#include "src/cache/AccountRestrictionCache.h"
 #include "src/model/AccountRestrictionFlags.h"
-#include "tests/TestHarness.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

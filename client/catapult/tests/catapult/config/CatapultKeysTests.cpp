@@ -20,11 +20,11 @@
 **/
 
 #include "catapult/config/CatapultKeys.h"
-#include "tests/TestHarness.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace config {

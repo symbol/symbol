@@ -19,6 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/ToolMain.h"
+#include "tools/plugins/PluginLoader.h"
+#include "tools/ToolConfigurationUtils.h"
+#include "tools/ToolThreadUtils.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/extensions/BlockExtensions.h"
 #include "catapult/io/BlockStatementSerializer.h"
@@ -29,10 +33,6 @@
 #include "catapult/model/EntityHasher.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/ParallelFor.h"
-#include "tools/ToolConfigurationUtils.h"
-#include "tools/ToolMain.h"
-#include "tools/ToolThreadUtils.h"
-#include "tools/plugins/PluginLoader.h"
 #include <thread>
 
 namespace catapult {

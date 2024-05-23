@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/api/ChainPackets.h"
 #include "catapult/handlers/MerkleHandlers.h"
-#include "tests/TestHarness.h"
+#include "catapult/api/ChainPackets.h"
 #include "tests/catapult/handlers/test/HeightRequestHandlerTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

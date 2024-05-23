@@ -20,9 +20,9 @@
 **/
 
 #include "src/importance/ActivityObserverUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace importance {

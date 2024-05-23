@@ -21,8 +21,8 @@
 
 #pragma once
 #include "RootNamespace.h"
-#include "catapult/plugins.h"
 #include "catapult/utils/Functional.h"
+#include "catapult/plugins.h"
 #include <boost/optional.hpp>
 #include <list>
 #include <set>

@@ -22,13 +22,13 @@
 #pragma once
 #include "HeightDependentAddress.h"
 #include "NetworkInfo.h"
-#include "catapult/types.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/TimeSpan.h"
-#include <stdint.h>
+#include "catapult/types.h"
 #include <unordered_map>
+#include <stdint.h>
 
 namespace catapult {
 namespace model {

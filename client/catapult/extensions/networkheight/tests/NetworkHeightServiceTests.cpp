@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "networkheight/src/NetworkHeightService.h"
 #include "networkheight/src/NetworkChainHeight.h"
 #include "networkheight/src/NetworkHeightConfiguration.h"
-#include "networkheight/src/NetworkHeightService.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace networkheight {

@@ -21,9 +21,9 @@
 
 #include "Address.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/exceptions.h"
 #include "catapult/utils/Base32.h"
 #include "catapult/utils/Casting.h"
+#include "catapult/exceptions.h"
 
 namespace catapult {
 namespace model {

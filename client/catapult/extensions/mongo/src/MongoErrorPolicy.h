@@ -21,8 +21,8 @@
 
 #pragma once
 #include "catapult/utils/NonCopyable.h"
-#include <stdint.h>
 #include <string>
+#include <stdint.h>
 
 namespace catapult {
 namespace mongo {

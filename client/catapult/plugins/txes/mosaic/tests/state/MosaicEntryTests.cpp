@@ -20,8 +20,8 @@
 **/
 
 #include "src/state/MosaicEntry.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MosaicTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

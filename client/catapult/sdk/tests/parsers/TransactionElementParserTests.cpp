@@ -20,8 +20,8 @@
 **/
 
 #include "src/parsers/TransactionElementParser.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace parsers {

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/PacketPayload.h"
 #include "finalization/src/model/FinalizationMessage.h"
+#include "catapult/ionet/PacketPayload.h"
 #include <vector>
 
 namespace catapult {

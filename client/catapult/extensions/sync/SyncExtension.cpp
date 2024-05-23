@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/ProcessBootstrapper.h"
 #include "src/DispatcherService.h"
 #include "src/NetworkPacketWritersService.h"
 #include "src/SchedulerService.h"
 #include "src/SyncService.h"
 #include "src/TasksConfiguration.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult {
 namespace sync {

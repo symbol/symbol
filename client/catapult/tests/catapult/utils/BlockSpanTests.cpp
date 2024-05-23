@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/utils/BlockSpan.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace utils {

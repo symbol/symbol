@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "plugins/txes/namespace/src/state/RootNamespace.h"
-#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "src/mappers/NamespaceDescriptorMapper.h"
-#include "tests/TestHarness.h"
+#include "mongo/src/mappers/MapperUtils.h"
+#include "plugins/txes/namespace/src/state/RootNamespace.h"
+#include "mongo/tests/test/MapperTestUtils.h"
+#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/test/NamespaceMapperTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

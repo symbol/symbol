@@ -21,8 +21,8 @@
 
 #pragma once
 #include "constants.h"
-#include "timesync/src/filters/AggregateSynchronizationFilter.h"
 #include "types.h"
+#include "timesync/src/filters/AggregateSynchronizationFilter.h"
 
 namespace catapult {
 namespace cache {

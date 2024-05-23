@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include <stddef.h>
 #include <unordered_set>
+#include <stddef.h>
 
 namespace catapult {
 namespace utils {

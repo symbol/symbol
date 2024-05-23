@@ -22,9 +22,9 @@
 #include "IoThreadPool.h"
 #include "ThreadGroup.h"
 #include "ThreadInfo.h"
-#include "catapult/exceptions.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/exceptions.h"
 #include <boost/asio.hpp>
 
 namespace catapult {

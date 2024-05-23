@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/model/FinalizationRound.h"
 #include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
+#include "catapult/model/FinalizationRound.h"
 #include <memory>
 
 namespace catapult {

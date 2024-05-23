@@ -19,12 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/local/recovery/MultiBlockLoader.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
-#include "catapult/local/recovery/MultiBlockLoader.h"
 #include "catapult/subscribers/StateChangeInfo.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -36,6 +35,7 @@
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/mocks/MockBlockHeightCapturingNotificationObserver.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

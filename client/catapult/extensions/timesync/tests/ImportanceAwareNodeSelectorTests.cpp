@@ -19,18 +19,18 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "timesync/src/ImportanceAwareNodeSelector.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/NodeInfo.h"
 #include "catapult/utils/ArraySet.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/ImportanceViewTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/Waits.h"
 #include "tests/test/other/NodeSelectorTestUtils.h"
-#include "timesync/src/ImportanceAwareNodeSelector.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace timesync {

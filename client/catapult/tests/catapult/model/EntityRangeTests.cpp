@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/model/EntityRange.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

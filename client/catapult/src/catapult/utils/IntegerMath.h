@@ -21,8 +21,8 @@
 
 #pragma once
 #include <limits>
-#include <stdint.h>
 #include <type_traits>
+#include <stdint.h>
 
 namespace catapult {
 namespace utils {

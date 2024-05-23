@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
 #include "timesync/src/TimeSynchronizationSample.h"
 #include "timesync/src/types.h"
+#include "catapult/functions.h"
 
 namespace catapult {
 namespace timesync {

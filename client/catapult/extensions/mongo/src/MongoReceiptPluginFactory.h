@@ -21,9 +21,9 @@
 
 #pragma once
 #include "MongoReceiptPlugin.h"
-#include "catapult/functions.h"
-#include "catapult/model/Receipt.h"
 #include "mappers/ReceiptMapper.h"
+#include "catapult/model/Receipt.h"
+#include "catapult/functions.h"
 
 namespace catapult {
 namespace mongo {

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/constants.h"
-#include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "src/builders/MosaicDefinitionBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
+#include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
+#include "catapult/constants.h"
 
 namespace catapult {
 namespace builders {

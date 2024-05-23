@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/plugins/NodeKeyLinkTransactionPlugin.h"
 #include "src/model/AccountLinkNotifications.h"
 #include "src/model/NodeKeyLinkTransaction.h"
-#include "src/plugins/NodeKeyLinkTransactionPlugin.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

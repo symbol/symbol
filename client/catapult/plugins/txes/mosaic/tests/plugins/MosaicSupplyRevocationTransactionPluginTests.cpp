@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/HexParser.h"
+#include "src/plugins/MosaicSupplyRevocationTransactionPlugin.h"
 #include "src/model/MosaicFlags.h"
 #include "src/model/MosaicSupplyRevocationTransaction.h"
-#include "src/plugins/MosaicSupplyRevocationTransactionPlugin.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

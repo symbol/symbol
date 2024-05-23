@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/Functional.h"
 #include "partialtransaction/src/handlers/PtHandlers.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/Functional.h"
 #include "tests/test/core/PushHandlerTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/PullHandlerTests.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::partialtransaction;
 

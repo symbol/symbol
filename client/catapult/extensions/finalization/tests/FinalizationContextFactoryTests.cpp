@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCache.h"
 #include "finalization/src/FinalizationContextFactory.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace finalization {

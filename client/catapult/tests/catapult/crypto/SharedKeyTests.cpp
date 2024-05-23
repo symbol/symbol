@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/crypto/SharedKey.h"
 #include "catapult/crypto/CryptoUtils.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/crypto/SharedKey.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace crypto {

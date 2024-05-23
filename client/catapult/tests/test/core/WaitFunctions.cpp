@@ -21,8 +21,8 @@
 
 #include "WaitFunctions.h"
 #include "tests/test/nodeps/Waits.h"
-#include <boost/asio.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <boost/asio.hpp>
 
 namespace catapult {
 namespace test {

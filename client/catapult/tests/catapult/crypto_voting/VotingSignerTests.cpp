@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/crypto_voting/VotingSigner.h"
-#include "tests/TestHarness.h"
 #include "tests/test/crypto/CurveUtils.h"
 #include "tests/test/crypto/SignVerifyTests.h"
+#include "tests/TestHarness.h"
 #include <numeric>
 
 namespace catapult {

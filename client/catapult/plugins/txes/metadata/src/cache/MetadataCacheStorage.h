@@ -21,8 +21,8 @@
 
 #pragma once
 #include "MetadataCacheTypes.h"
-#include "catapult/cache/CacheStorageInclude.h"
 #include "src/state/MetadataEntrySerializer.h"
+#include "catapult/cache/CacheStorageInclude.h"
 
 namespace catapult {
 namespace cache {

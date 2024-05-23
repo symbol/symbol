@@ -22,12 +22,12 @@
 #include "BlockTestUtils.h"
 #include "BlockStatementTestUtils.h"
 #include "EntityTestUtils.h"
+#include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/utils/HexParser.h"
-#include "sdk/src/extensions/BlockExtensions.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

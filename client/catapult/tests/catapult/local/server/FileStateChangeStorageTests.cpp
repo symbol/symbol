@@ -22,10 +22,10 @@
 #include "catapult/local/server/FileStateChangeStorage.h"
 #include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BufferReader.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

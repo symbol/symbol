@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/plugins/AddressAliasTransactionPlugin.h"
 #include "src/model/AddressAliasTransaction.h"
 #include "src/model/AliasNotifications.h"
 #include "src/model/NamespaceNotifications.h"
-#include "src/plugins/AddressAliasTransactionPlugin.h"
-#include "tests/TestHarness.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

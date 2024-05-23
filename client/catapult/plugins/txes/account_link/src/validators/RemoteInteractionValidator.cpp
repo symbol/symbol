@@ -20,10 +20,10 @@
 **/
 
 #include "Validators.h"
+#include "src/model/AccountKeyLinkTransaction.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/state/AccountState.h"
 #include "catapult/validators/ValidatorContext.h"
-#include "src/model/AccountKeyLinkTransaction.h"
 #include <algorithm>
 
 namespace catapult {

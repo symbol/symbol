@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/NodeConfiguration.h"
 #include "catapult/extensions/ConfigurationUtils.h"
+#include "catapult/config/NodeConfiguration.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

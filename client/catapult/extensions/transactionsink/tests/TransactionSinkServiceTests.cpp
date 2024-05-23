@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tests/TestHarness.h"
+#include "transactionsink/src/TransactionSinkService.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
-#include "transactionsink/src/TransactionSinkService.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace transactionsink {

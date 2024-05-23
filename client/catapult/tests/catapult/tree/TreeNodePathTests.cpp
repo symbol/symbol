@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/tree/TreeNodePath.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace tree {

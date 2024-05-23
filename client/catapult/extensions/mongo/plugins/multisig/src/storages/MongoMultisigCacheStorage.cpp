@@ -20,9 +20,9 @@
 **/
 
 #include "MongoMultisigCacheStorage.h"
+#include "src/mappers/MultisigEntryMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/multisig/src/cache/MultisigCache.h"
-#include "src/mappers/MultisigEntryMapper.h"
 
 using namespace bsoncxx::builder::stream;
 

@@ -20,8 +20,8 @@
 **/
 
 #include "src/builders/TransactionBuilder.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/TestHarness.h"
 #include <numeric>
 
 namespace catapult {

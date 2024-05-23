@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/ionet/RateMonitor.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/TimeSupplier.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace ionet {

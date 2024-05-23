@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/tree/PatriciaTreeSerializer.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/SerializerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace tree {

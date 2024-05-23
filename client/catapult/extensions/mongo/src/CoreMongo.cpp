@@ -21,10 +21,10 @@
 
 #include "CoreMongo.h"
 #include "MongoPluginManager.h"
-#include "catapult/model/BlockchainConfiguration.h"
 #include "mappers/KeyLinkTransactionMapper.h"
-#include "mongo/src/MongoReceiptPluginFactory.h"
 #include "storages/MongoAccountStateCacheStorage.h"
+#include "mongo/src/MongoReceiptPluginFactory.h"
+#include "catapult/model/BlockchainConfiguration.h"
 
 namespace catapult {
 namespace mongo {

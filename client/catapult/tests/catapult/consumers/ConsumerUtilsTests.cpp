@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/ConsumerResults.h"
 #include "catapult/consumers/ConsumerUtils.h"
+#include "catapult/consumers/ConsumerResults.h"
 #include "catapult/disruptor/ConsumerInput.h"
 #include "catapult/ionet/NodeInteractionResult.h"
 #include "catapult/validators/ValidationResult.h"

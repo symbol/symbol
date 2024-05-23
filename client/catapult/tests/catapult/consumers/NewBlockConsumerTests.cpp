@@ -20,11 +20,11 @@
 **/
 
 #include "catapult/consumers/BlockConsumers.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/consumers/test/ConsumerInputFactory.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
+#include "tests/TestHarness.h"
 
 using catapult::disruptor::ConsumerInput;
 using catapult::disruptor::InputSource;

@@ -19,6 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "sync/src/DispatcherService.h"
+#include "sdk/src/extensions/TransactionExtensions.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/disruptor/ConsumerDispatcher.h"
@@ -26,9 +28,6 @@
 #include "catapult/model/BlockUtils.h"
 #include "catapult/plugins/PluginLoader.h"
 #include "catapult/preprocessor.h"
-#include "sdk/src/extensions/TransactionExtensions.h"
-#include "sync/src/DispatcherService.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -38,6 +37,7 @@
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/test/other/mocks/MockNotificationValidator.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 using ValidationResult = catapult::validators::ValidationResult;

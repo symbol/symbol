@@ -20,9 +20,9 @@
 **/
 
 #include "pluginhandlers/src/PluginHandlersService.h"
-#include "tests/TestHarness.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace pluginhandlers {

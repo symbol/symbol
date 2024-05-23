@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/extensions/ServerHooksUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

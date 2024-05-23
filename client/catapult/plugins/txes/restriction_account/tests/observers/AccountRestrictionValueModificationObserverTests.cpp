@@ -20,9 +20,9 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/observers/ObserverTypes.h"
 #include "src/model/MultisigNotifications.h"
+#include "catapult/observers/ObserverTypes.h"
 
 namespace catapult {
 namespace observers {

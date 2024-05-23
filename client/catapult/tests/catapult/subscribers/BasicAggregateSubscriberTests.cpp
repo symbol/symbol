@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/subscribers/BasicAggregateSubscriber.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/subscribers/test/AggregateSubscriberTestContext.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace subscribers {

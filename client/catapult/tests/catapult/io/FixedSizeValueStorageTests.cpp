@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/constants.h"
-#include "catapult/io/BufferedFileStream.h"
 #include "catapult/io/FixedSizeValueStorage.h"
-#include "tests/TestHarness.h"
+#include "catapult/io/BufferedFileStream.h"
+#include "catapult/constants.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;

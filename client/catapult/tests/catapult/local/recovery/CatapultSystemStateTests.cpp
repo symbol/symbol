@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/local/recovery/CatapultSystemState.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/io/RawFile.h"
-#include "catapult/local/recovery/CatapultSystemState.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

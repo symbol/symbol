@@ -20,9 +20,9 @@
 **/
 
 #include "MongoMosaicRestrictionCacheStorage.h"
+#include "src/mappers/MosaicRestrictionEntryMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/restriction_mosaic/src/cache/MosaicRestrictionCache.h"
-#include "src/mappers/MosaicRestrictionEntryMapper.h"
 
 using namespace bsoncxx::builder::stream;
 

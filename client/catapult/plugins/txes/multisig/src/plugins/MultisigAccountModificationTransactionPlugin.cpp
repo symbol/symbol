@@ -20,10 +20,10 @@
 **/
 
 #include "MultisigAccountModificationTransactionPlugin.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
 #include "src/model/MultisigAccountModificationTransaction.h"
 #include "src/model/MultisigNotifications.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

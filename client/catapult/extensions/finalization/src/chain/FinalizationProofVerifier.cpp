@@ -22,10 +22,10 @@
 #include "FinalizationProofVerifier.h"
 #include "RoundContext.h"
 #include "RoundMessageAggregator.h"
-#include "catapult/utils/MacroBasedEnumIncludes.h"
 #include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
 #include "finalization/src/model/FinalizationProof.h"
+#include "catapult/utils/MacroBasedEnumIncludes.h"
 
 namespace catapult {
 namespace chain {

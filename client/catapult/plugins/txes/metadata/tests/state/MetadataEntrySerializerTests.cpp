@@ -20,9 +20,9 @@
 **/
 
 #include "src/state/MetadataEntrySerializer.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MetadataTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

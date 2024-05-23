@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/cache/RelockableDetachedCatapultCache.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

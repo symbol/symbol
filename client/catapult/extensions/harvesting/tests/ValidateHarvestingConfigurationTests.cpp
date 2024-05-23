@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/ConfigurationBag.h"
-#include "harvesting/src/HarvestingConfiguration.h"
 #include "harvesting/src/ValidateHarvestingConfiguration.h"
+#include "harvesting/src/HarvestingConfiguration.h"
+#include "catapult/utils/ConfigurationBag.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

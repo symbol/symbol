@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/WeakCosignedTransactionInfo.h"
-#include "catapult/plugins/PluginManager.h"
 #include "partialtransaction/src/chain/PtValidator.h"
-#include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 #include "plugins/txes/aggregate/src/validators/Results.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/WeakCosignedTransactionInfo.h"
+#include "catapult/plugins/PluginManager.h"
+#include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
 #include "tests/test/other/mocks/MockCapturingNotificationValidator.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::validators;
 

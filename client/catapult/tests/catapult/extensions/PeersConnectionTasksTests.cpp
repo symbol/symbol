@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/ionet/NodeInteractionResult.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

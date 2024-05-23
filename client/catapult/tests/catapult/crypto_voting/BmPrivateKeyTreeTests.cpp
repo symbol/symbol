@@ -21,10 +21,10 @@
 
 #include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/utils/RandomGenerator.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/crypto_voting/test/BmTreeTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace crypto {

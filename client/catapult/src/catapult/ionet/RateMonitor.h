@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/functions.h"
 #include <deque>
 
 namespace catapult {

@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/AccountStateCache.h"
 #include "src/importance/ImportanceCalculator.h"
 #include "src/observers/Observers.h"
-#include "tests/TestHarness.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

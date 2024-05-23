@@ -21,8 +21,8 @@
 
 #include "tests/test/cache/DeltaElementsMixinTests.h"
 #include "catapult/deltaset/DeltaElementsMixin.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace deltaset {

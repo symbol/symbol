@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "nodediscovery/src/NodePingUtils.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/Packet.h"
-#include "nodediscovery/src/NodePingUtils.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace nodediscovery {

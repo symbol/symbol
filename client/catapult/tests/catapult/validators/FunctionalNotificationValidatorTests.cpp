@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/validators/FunctionalNotificationValidator.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ParamsCapture.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

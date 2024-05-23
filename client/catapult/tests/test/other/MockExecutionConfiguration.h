@@ -28,10 +28,10 @@
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/validators/ValidatorContext.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
+#include "tests/TestHarness.h"
 #include <unordered_map>
 
 namespace catapult {

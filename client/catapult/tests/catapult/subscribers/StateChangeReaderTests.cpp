@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/preprocessor.h"
 #include "catapult/subscribers/StateChangeReader.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "tests/TestHarness.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace subscribers {

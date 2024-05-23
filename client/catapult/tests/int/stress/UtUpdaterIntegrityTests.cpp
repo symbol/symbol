@@ -19,18 +19,18 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/chain/UtUpdater.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/chain/UtUpdater.h"
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/thread/ThreadGroup.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace chain {

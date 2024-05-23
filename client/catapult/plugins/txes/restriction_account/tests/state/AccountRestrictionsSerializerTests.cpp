@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/EntityType.h"
-#include "src/state/AccountRestrictionUtils.h"
 #include "src/state/AccountRestrictionsSerializer.h"
-#include "tests/TestHarness.h"
+#include "src/state/AccountRestrictionUtils.h"
+#include "catapult/model/EntityType.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/core/SerializerOrderingTests.h"
 #include "tests/test/core/SerializerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

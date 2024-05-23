@@ -20,15 +20,15 @@
 **/
 
 #include "NemesisTestUtils.h"
+#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
+#include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
-#include "plugins/txes/mosaic/src/cache/MosaicCache.h"
-#include "plugins/txes/namespace/src/cache/NamespaceCache.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

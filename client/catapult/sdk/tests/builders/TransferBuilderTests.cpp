@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto/Hashes.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "src/builders/TransferBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "src/extensions/ConversionExtensions.h"
 #include "src/extensions/IdGenerator.h"
+#include "catapult/crypto/Hashes.h"
 #include <map>
 
 namespace catapult {

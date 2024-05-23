@@ -21,8 +21,8 @@
 
 #include "catapult/cache_db/RdbColumnContainer.h"
 #include "catapult/cache_db/RocksInclude.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/cache_db/test/RdbTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

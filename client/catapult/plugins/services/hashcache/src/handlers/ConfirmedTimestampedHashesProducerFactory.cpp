@@ -20,8 +20,8 @@
 **/
 
 #include "ConfirmedTimestampedHashesProducerFactory.h"
-#include "catapult/handlers/BasicProducer.h"
 #include "src/cache/HashCache.h"
+#include "catapult/handlers/BasicProducer.h"
 
 namespace catapult {
 namespace handlers {

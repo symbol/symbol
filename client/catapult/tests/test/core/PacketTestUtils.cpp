@@ -21,8 +21,8 @@
 
 #include "PacketTestUtils.h"
 #include "BlockTestUtils.h"
-#include "catapult/model/Block.h"
 #include "mocks/MockTransaction.h"
+#include "catapult/model/Block.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult {

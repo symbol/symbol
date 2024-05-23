@@ -21,9 +21,9 @@
 
 #include "ActiveMosaicView.h"
 #include "Validators.h"
+#include "src/cache/MosaicCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/validators/ValidatorContext.h"
-#include "src/cache/MosaicCache.h"
 
 namespace catapult {
 namespace validators {

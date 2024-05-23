@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
 #include "src/model/MosaicProperties.h"
+#include "catapult/types.h"
 
 namespace catapult {
 namespace state {

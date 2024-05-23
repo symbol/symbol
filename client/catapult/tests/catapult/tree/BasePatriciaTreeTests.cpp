@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/tree/BasePatriciaTree.h"
-#include "tests/TestHarness.h"
 #include "tests/test/tree/PassThroughEncoder.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace tree {

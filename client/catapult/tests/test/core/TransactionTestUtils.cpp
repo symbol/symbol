@@ -21,12 +21,12 @@
 
 #include "TransactionTestUtils.h"
 #include "EntityTestUtils.h"
+#include "sdk/src/extensions/TransactionExtensions.h"
+#include "mocks/MockTransaction.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/VerifiableEntity.h"
-#include "catapult/preprocessor.h"
 #include "catapult/utils/HexParser.h"
-#include "mocks/MockTransaction.h"
-#include "sdk/src/extensions/TransactionExtensions.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include <memory>

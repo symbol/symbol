@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tests/TestHarness.h"
-#include "zeromq/src/ZeroMqEntityPublisher.h"
 #include "zeromq/src/ZeroMqFinalizationSubscriber.h"
+#include "zeromq/src/ZeroMqEntityPublisher.h"
 #include "zeromq/tests/test/ZeroMqTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace zeromq {

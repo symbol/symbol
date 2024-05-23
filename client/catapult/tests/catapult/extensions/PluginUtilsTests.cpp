@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/extensions/PluginUtils.h"
-#include "catapult/model/Transaction.h"
 #include "plugins/coresystem/src/validators/Results.h"
+#include "catapult/config/CatapultConfiguration.h"
+#include "catapult/model/Transaction.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"

@@ -20,11 +20,11 @@
 **/
 
 #include "MosaicAliasTransactionPlugin.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
 #include "src/model/AliasNotifications.h"
 #include "src/model/MosaicAliasTransaction.h"
 #include "src/model/NamespaceNotifications.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

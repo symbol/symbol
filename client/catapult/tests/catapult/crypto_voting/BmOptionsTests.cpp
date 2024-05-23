@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/crypto_voting/BmOptions.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Alignment.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace crypto {

@@ -21,8 +21,8 @@
 
 #include "SecretLockMapperTestUtils.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
 #include "plugins/txes/lock_secret/src/state/SecretLockInfo.h"
+#include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
 
 using namespace catapult::mongo::mappers;

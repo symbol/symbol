@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/validators/Validators.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/InvalidMerkleHashBuilder.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/utils/IntegerMath.h"
-#include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

@@ -20,8 +20,8 @@
 **/
 
 #include "Accounts.h"
-#include "catapult/exceptions.h"
 #include "catapult/model/Address.h"
+#include "catapult/exceptions.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 

@@ -23,12 +23,12 @@
 #include "FutureUtils.h"
 #include "IoThreadPool.h"
 #include "StrandOwnerLifetimeExtender.h"
-#include "catapult/exceptions.h"
-#include "catapult/preprocessor.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/WeakContainer.h"
-#include <boost/asio.hpp>
+#include "catapult/exceptions.h"
+#include "catapult/preprocessor.h"
 #include <boost/asio/steady_timer.hpp>
+#include <boost/asio.hpp>
 
 namespace catapult {
 namespace thread {

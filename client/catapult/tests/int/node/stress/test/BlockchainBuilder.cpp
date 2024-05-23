@@ -20,13 +20,13 @@
 **/
 
 #include "BlockchainBuilder.h"
+#include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/io/FileBlockStorage.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/preprocessor.h"
-#include "sdk/src/extensions/BlockExtensions.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"

@@ -20,11 +20,11 @@
 **/
 
 #include "MetadataTestUtils.h"
+#include "src/state/MetadataEntry.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/utils/Casting.h"
-#include "src/state/MetadataEntry.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/ResolverTestUtils.h"
+#include "tests/TestHarness.h"
 #include <numeric>
 
 namespace catapult {

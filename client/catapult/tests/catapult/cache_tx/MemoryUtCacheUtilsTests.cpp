@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/cache_tx/MemoryUtCacheUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/UtTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

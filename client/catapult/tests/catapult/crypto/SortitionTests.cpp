@@ -21,8 +21,8 @@
 
 #include "catapult/crypto/Sortition.h"
 #include "catapult/utils/Functional.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace crypto {

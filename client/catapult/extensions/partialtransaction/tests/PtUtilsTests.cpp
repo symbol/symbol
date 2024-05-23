@@ -21,8 +21,8 @@
 
 #include "partialtransaction/src/PtUtils.h"
 #include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace partialtransaction {

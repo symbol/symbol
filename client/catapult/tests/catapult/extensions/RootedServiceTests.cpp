@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/extensions/RootedService.h"
-#include "tests/TestHarness.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

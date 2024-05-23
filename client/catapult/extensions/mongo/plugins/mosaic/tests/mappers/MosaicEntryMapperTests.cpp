@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
-#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "src/mappers/MosaicEntryMapper.h"
-#include "tests/TestHarness.h"
+#include "mongo/src/mappers/MapperUtils.h"
+#include "plugins/txes/mosaic/src/state/MosaicEntry.h"
+#include "mongo/tests/test/MapperTestUtils.h"
+#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/test/MosaicMapperTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

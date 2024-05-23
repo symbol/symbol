@@ -20,11 +20,11 @@
 **/
 
 #include "Validators.h"
+#include "src/cache/MultisigCache.h"
 #include "catapult/utils/Functional.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/RawBuffer.h"
 #include "catapult/validators/ValidatorContext.h"
-#include "src/cache/MultisigCache.h"
 #include <limits>
 
 namespace catapult {

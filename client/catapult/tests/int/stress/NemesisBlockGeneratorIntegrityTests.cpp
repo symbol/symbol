@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/NetworkIdentifier.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/BlockUtils.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "tests/int/stress/test/EntityDump.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 

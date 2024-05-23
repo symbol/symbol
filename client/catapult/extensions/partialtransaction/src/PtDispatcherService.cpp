@@ -22,6 +22,10 @@
 #include "PtDispatcherService.h"
 #include "PtBootstrapperService.h"
 #include "PtUtils.h"
+#include "partialtransaction/src/chain/PtUpdater.h"
+#include "partialtransaction/src/chain/PtValidator.h"
+#include "partialtransaction/src/handlers/CosignatureHandlers.h"
+#include "partialtransaction/src/handlers/PtHandlers.h"
 #include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/chain/TransactionUpdateResultUtils.h"
 #include "catapult/consumers/RecentHashCache.h"
@@ -34,10 +38,6 @@
 #include "catapult/extensions/ServiceUtils.h"
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/thread/MultiServicePool.h"
-#include "partialtransaction/src/chain/PtUpdater.h"
-#include "partialtransaction/src/chain/PtValidator.h"
-#include "partialtransaction/src/handlers/CosignatureHandlers.h"
-#include "partialtransaction/src/handlers/PtHandlers.h"
 
 using namespace catapult::consumers;
 using namespace catapult::disruptor;

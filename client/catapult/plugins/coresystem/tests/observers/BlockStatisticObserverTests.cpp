@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/BlockStatisticCache.h"
 #include "src/observers/Observers.h"
-#include "tests/TestHarness.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/NodeContainer.h"
 #include "catapult/local/server/NodeContainerSubscriberAdapter.h"
-#include "tests/TestHarness.h"
+#include "catapult/ionet/NodeContainer.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

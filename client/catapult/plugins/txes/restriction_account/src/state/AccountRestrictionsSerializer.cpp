@@ -20,8 +20,8 @@
 **/
 
 #include "AccountRestrictionsSerializer.h"
-#include "catapult/io/PodIoUtils.h"
 #include "src/state/AccountRestrictions.h"
+#include "catapult/io/PodIoUtils.h"
 
 namespace catapult {
 namespace state {

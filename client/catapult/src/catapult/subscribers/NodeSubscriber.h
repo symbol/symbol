@@ -21,9 +21,9 @@
 
 #pragma once
 #include "catapult/ionet/NodeInfo.h"
+#include "catapult/validators/ValidationResult.h"
 #include "catapult/plugins.h"
 #include "catapult/types.h"
-#include "catapult/validators/ValidationResult.h"
 
 namespace catapult {
 namespace ionet {

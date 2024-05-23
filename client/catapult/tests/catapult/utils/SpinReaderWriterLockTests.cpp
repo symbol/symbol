@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/utils/SpinReaderWriterLock.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/LockTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace utils {

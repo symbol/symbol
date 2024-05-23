@@ -20,8 +20,8 @@
 **/
 
 #include "MetadataMapperTestUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
 #include "plugins/txes/metadata/src/state/MetadataEntry.h"
+#include "mongo/tests/test/MapperTestUtils.h"
 
 namespace catapult {
 namespace test {

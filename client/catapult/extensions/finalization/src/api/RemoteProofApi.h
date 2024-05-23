@@ -20,10 +20,10 @@
 **/
 
 #pragma once
-#include "catapult/api/RemoteApi.h"
-#include "catapult/thread/Future.h"
 #include "finalization/src/model/FinalizationProof.h"
 #include "finalization/src/model/FinalizationStatistics.h"
+#include "catapult/api/RemoteApi.h"
+#include "catapult/thread/Future.h"
 
 namespace catapult {
 namespace ionet {

@@ -21,8 +21,8 @@
 
 #include "catapult/io/FileQueue.h"
 #include "catapult/io/IndexFile.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace catapult {

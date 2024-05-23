@@ -21,10 +21,10 @@
 
 #include "finalization/src/handlers/FinalizationHandlers.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/PushHandlerTestUtils.h"
 #include "tests/test/plugins/PullHandlerTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

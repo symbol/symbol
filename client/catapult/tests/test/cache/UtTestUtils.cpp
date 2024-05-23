@@ -22,9 +22,9 @@
 #include "UtTestUtils.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/model/EntityRange.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

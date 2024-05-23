@@ -21,8 +21,8 @@
 
 #include "catapult/state/CompactMosaicMap.h"
 #include "catapult/utils/Casting.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
+#include "tests/TestHarness.h"
 #include <unordered_map>
 
 namespace catapult {

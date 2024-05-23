@@ -23,8 +23,8 @@
 #include "catapult/ionet/IoTypes.h"
 #include "catapult/ionet/PacketSocketOptions.h"
 #include "catapult/ionet/SocketOperationCode.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketTestUtils.h"
+#include "tests/TestHarness.h"
 #include <functional>
 #include <thread>
 

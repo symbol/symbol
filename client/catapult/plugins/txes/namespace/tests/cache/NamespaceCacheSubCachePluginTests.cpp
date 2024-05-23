@@ -20,11 +20,11 @@
 **/
 
 #include "src/cache/NamespaceCacheSubCachePlugin.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/cache/SummaryAwareCacheStoragePluginTests.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

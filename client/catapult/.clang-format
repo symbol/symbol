@@ -15,3 +15,114 @@ WhitespaceSensitiveMacros:
   - BOOST_PP_STRINGIZE
   - NS_SWIFT_NAME
   - CF_SWIFT_NAME
+
+# custom include rules
+
+SortIncludes:    CaseSensitive
+IncludeBlocks:   Preserve
+IncludeCategories:
+# NOTE, rules are processed IN ORDER
+# '[A-Za-z0-9_]' is used everywhere
+
+  - Regex:           '^"tools/ToolMain.h"'
+    Priority:        1
+    SortPriority:    0
+
+  - Regex:           '^"[A-Za-z0-9_]*\.h"'
+    Priority:        10
+    SortPriority:    0
+
+# sdk - should be used only in tests, this is based on current settings, but probably we should move sdk/ includes below catapult/ includes?
+  - Regex:           '^"sdk/'
+    Priority:        20
+    SortPriority:    0
+  - Regex:           '^"src/[A-Za-z0-9_]*/'
+    Priority:        21
+    SortPriority:    0
+# handle tools here, nested before non-nested
+  - Regex:           '^"tools/[A-Za-z0-9_]*/'
+    Priority:        22
+    SortPriority:    0
+  - Regex:           '^"tools/'
+    Priority:        23
+    SortPriority:    0
+
+# priority 30 is left for a later general rule
+
+# MIND: both following rules have priorities that inject them into proper places
+  - Regex:           '^"(plugins|mongo|sdk)/.*tests/'
+    Priority:        61
+    SortPriority:    0
+  - Regex:           '^"(plugins|mongo)/'
+    Priority:        42
+    SortPriority:    0
+
+# "local" includes
+  - Regex:           '^"[A-Za-z0-9_]*/src/'
+    Priority:        41
+    SortPriority:    0
+
+# nested before top-level
+  - Regex:           '^"catapult/[^/]*/'
+    Priority:        50
+    SortPriority:    0
+  - Regex:           '^"catapult/[A-Za-z0-9_]*\.h"'
+    Priority:        51
+    SortPriority:    0
+    CaseSensitive:   false
+
+
+# 'local' test includes first, nested tests/test before top-level tests/foo.h
+  - Regex:           '^".+/tests/test/'
+    Priority:        60
+    SortPriority:    0
+
+  - Regex:           '^"tests/.*/test/'
+    Priority:        62
+    SortPriority:    0
+  - Regex:           '^"tests/(test|bench)/'
+    Priority:        63
+    SortPriority:    0
+  - Regex:           '^"tests/[A-Za-z0-9_]*\.h"'
+    Priority:        64
+    SortPriority:    0
+
+# possibly "local" include, move it above 'src' includes (MIND priority)
+# note: this needs to be after "tests" not to early match "tests/Foo.h"
+  - Regex:           '^"[A-Za-z0-9_]*/'
+    Priority:        30
+    SortPriority:    0
+
+  - Regex:           '".*'
+    Priority:        70
+    SortPriority:    0
+
+# cpp libs
+  - Regex:           '^<(boost|mongocxx|bsoncxx|rocksdb|benchmark)/[A-Za-z0-9_]*/'
+    Priority:        80
+    SortPriority:    0
+  - Regex:           '^<(boost|mongocxx|bsoncxx|rocksdb|benchmark)/'
+    Priority:        81
+    SortPriority:    0
+
+# cpp includes before c includes
+  - Regex:           '^<[A-Za-z0-9_]*>'
+    Priority:        90
+    SortPriority:    0
+  - Regex:           '^<[A-Za-z0-9_]*/[A-Za-z0-9_]*\.h>'
+    Priority:        91
+    SortPriority:    0
+# don't let windows.h reorder
+  - Regex:           '^<windows\.h>'
+    Priority:        92
+    SortPriority:    0
+  - Regex:           '^<[A-Za-z0-9_]*\.h>'
+    Priority:        93
+    SortPriority:    0
+
+  - Regex:           '.*'
+    Priority:        100
+    SortPriority:    0
+    CaseSensitive:   false
+IncludeIsMainRegex: '(Tests|IntegrityTests)?$'
+IncludeIsMainSourceRegex: ''

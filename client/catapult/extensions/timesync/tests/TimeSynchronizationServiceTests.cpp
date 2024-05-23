@@ -19,10 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "timesync/src/TimeSynchronizationService.h"
+#include "timesync/src/TimeSynchronizationConfiguration.h"
+#include "timesync/src/TimeSynchronizationState.h"
+#include "timesync/src/api/TimeSyncPackets.h"
+#include "timesync/src/types.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "tests/TestHarness.h"
+#include "timesync/tests/test/TimeSynchronizationCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
@@ -30,12 +35,7 @@
 #include "tests/test/net/BriefServerRequestorTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include "tests/test/nodeps//Waits.h"
-#include "timesync/src/TimeSynchronizationConfiguration.h"
-#include "timesync/src/TimeSynchronizationService.h"
-#include "timesync/src/TimeSynchronizationState.h"
-#include "timesync/src/api/TimeSyncPackets.h"
-#include "timesync/src/types.h"
-#include "timesync/tests/test/TimeSynchronizationCacheTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace timesync {

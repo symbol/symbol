@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/constants.h"
-#include "catapult/utils/MemoryUtils.h"
+#include "src/plugins/NamespaceRegistrationTransactionPlugin.h"
 #include "src/model/NamespaceNotifications.h"
 #include "src/model/NamespaceRegistrationTransaction.h"
-#include "src/plugins/NamespaceRegistrationTransactionPlugin.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/MemoryUtils.h"
+#include "catapult/constants.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/MemoryUtils.h"
+#include "src/plugins/AccountRestrictionTransactionPlugin.h"
 #include "src/model/AccountAddressRestrictionTransaction.h"
 #include "src/model/AccountMosaicRestrictionTransaction.h"
 #include "src/model/AccountOperationRestrictionTransaction.h"
 #include "src/model/AccountRestrictionNotifications.h"
-#include "src/plugins/AccountRestrictionTransactionPlugin.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

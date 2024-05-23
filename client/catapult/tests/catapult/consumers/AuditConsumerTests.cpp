@@ -22,10 +22,10 @@
 #include "catapult/consumers/AuditConsumer.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/RawFile.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 using catapult::disruptor::ConsumerInput;

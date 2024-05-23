@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/Node.h"
 #include "catapult/subscribers/AggregateNodeSubscriber.h"
-#include "tests/TestHarness.h"
+#include "catapult/ionet/Node.h"
 #include "tests/catapult/subscribers/test/AggregateSubscriberTestContext.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace subscribers {

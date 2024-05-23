@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/extensions/IdGenerator.h"
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
 #include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
-#include "src/extensions/IdGenerator.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

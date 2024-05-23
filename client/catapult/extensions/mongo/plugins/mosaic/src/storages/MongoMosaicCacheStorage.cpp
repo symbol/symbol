@@ -20,9 +20,9 @@
 **/
 
 #include "MongoMosaicCacheStorage.h"
+#include "src/mappers/MosaicEntryMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/mosaic/src/cache/MosaicCache.h"
-#include "src/mappers/MosaicEntryMapper.h"
 
 using namespace bsoncxx::builder::stream;
 

@@ -21,8 +21,8 @@
 
 #include "mongo/src/MongoReceiptPluginFactory.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockReceipt.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

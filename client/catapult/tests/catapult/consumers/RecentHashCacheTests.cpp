@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/consumers/RecentHashCache.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/TimeSupplier.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace consumers {

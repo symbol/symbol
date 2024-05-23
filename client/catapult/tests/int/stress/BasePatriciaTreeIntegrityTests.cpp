@@ -23,10 +23,10 @@
 #include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/StackTimer.h"
-#include "tests/TestHarness.h"
 #include "tests/int/stress/test/InputDependentTest.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

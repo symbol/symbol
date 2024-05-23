@@ -23,8 +23,8 @@
 #include "catapult/utils/traits/Traits.h"
 #include <algorithm>
 #include <iosfwd>
-#include <stdint.h>
 #include <vector>
+#include <stdint.h>
 
 namespace catapult {
 namespace tree {

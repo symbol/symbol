@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/functions.h"
 #include <list>
 
 namespace catapult {

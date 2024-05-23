@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/BufferedFileStream.h"
 #include "harvesting/src/UnlockedAccountsStorage.h"
 #include "harvesting/src/UnlockedFileQueueConsumer.h"
+#include "catapult/io/BufferedFileStream.h"
 #include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace catapult {

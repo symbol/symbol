@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/chain/BlockExecutor.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/chain/BlockExecutor.h"
 #include "catapult/model/Block.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/other/mocks/MockEntityObserver.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace chain {

@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/MosaicAddressRestrictionMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
+#include "plugins/txes/restriction_mosaic/src/model/MosaicAddressRestrictionTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
-#include "plugins/txes/restriction_mosaic/src/model/MosaicAddressRestrictionTransaction.h"
-#include "src/MosaicAddressRestrictionMapper.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

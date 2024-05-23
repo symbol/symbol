@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Address.h"
+#include "src/plugins/AccountKeyLinkTransactionPlugin.h"
 #include "src/model/AccountKeyLinkTransaction.h"
 #include "src/model/AccountLinkNotifications.h"
-#include "src/plugins/AccountKeyLinkTransactionPlugin.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/Address.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

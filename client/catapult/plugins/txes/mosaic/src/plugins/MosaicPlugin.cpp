@@ -23,16 +23,16 @@
 #include "MosaicDefinitionTransactionPlugin.h"
 #include "MosaicSupplyChangeTransactionPlugin.h"
 #include "MosaicSupplyRevocationTransactionPlugin.h"
-#include "catapult/observers/ObserverUtils.h"
-#include "catapult/observers/RentalFeeObserver.h"
-#include "catapult/plugins/CacheHandlers.h"
-#include "catapult/plugins/PluginManager.h"
 #include "src/cache/MosaicCache.h"
 #include "src/cache/MosaicCacheStorage.h"
 #include "src/config/MosaicConfiguration.h"
 #include "src/model/MosaicReceiptType.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
+#include "catapult/observers/ObserverUtils.h"
+#include "catapult/observers/RentalFeeObserver.h"
+#include "catapult/plugins/CacheHandlers.h"
+#include "catapult/plugins/PluginManager.h"
 
 namespace catapult {
 namespace plugins {

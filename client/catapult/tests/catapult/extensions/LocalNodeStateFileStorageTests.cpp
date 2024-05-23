@@ -19,6 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/LocalNodeStateFileStorage.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/SupplementalData.h"
 #include "catapult/cache_core/AccountStateCache.h"
@@ -28,11 +29,9 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/consumers/BlockchainSyncHandlers.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/extensions/LocalNodeStateFileStorage.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/StateTestUtils.h"
@@ -41,6 +40,7 @@
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

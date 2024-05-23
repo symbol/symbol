@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/plugins/VotingKeyLinkTransactionPlugin.h"
 #include "src/model/KeyLinkNotifications.h"
 #include "src/model/VotingKeyLinkTransaction.h"
-#include "src/plugins/VotingKeyLinkTransactionPlugin.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

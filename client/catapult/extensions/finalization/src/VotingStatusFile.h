@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/io/RawFile.h"
 #include "finalization/src/chain/FinalizationOrchestrator.h"
+#include "catapult/io/RawFile.h"
 
 namespace catapult {
 namespace finalization {

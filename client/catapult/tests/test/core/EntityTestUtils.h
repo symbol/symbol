@@ -22,8 +22,8 @@
 #pragma once
 #include "catapult/model/EntityRange.h"
 #include "catapult/model/VerifiableEntity.h"
-#include "catapult/preprocessor.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 #include <memory>
 #include <vector>

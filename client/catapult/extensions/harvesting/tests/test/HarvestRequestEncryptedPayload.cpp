@@ -21,10 +21,10 @@
 
 #include "HarvestRequestEncryptedPayload.h"
 #include "catapult/io/BufferedFileStream.h"
-#include "tests/TestHarness.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Random.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

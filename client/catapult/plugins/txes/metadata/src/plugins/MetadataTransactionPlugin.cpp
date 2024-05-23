@@ -20,14 +20,14 @@
 **/
 
 #include "MetadataTransactionPlugin.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/model/TransactionPluginFactory.h"
-#include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
 #include "src/model/AccountMetadataTransaction.h"
 #include "src/model/MetadataNotifications.h"
 #include "src/model/MosaicMetadataTransaction.h"
 #include "src/model/NamespaceMetadataTransaction.h"
+#include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
+#include "catapult/model/Address.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
 using namespace catapult::model;
 

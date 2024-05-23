@@ -22,8 +22,8 @@
 #pragma once
 #include "catapult/api/ApiTypes.h"
 #include "catapult/utils/Casting.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

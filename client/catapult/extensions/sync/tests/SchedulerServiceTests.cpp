@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/Scheduler.h"
 #include "sync/src/SchedulerService.h"
 #include "sync/src/TasksConfiguration.h"
-#include "tests/TestHarness.h"
+#include "catapult/thread/Scheduler.h"
 #include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace sync {

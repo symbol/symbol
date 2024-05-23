@@ -21,8 +21,8 @@
 
 #pragma once
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

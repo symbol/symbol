@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_tx/MemoryPtCache.h"
-#include "partialtransaction/src/PtBootstrapperService.h"
 #include "partialtransaction/src/PtService.h"
-#include "tests/TestHarness.h"
+#include "partialtransaction/src/PtBootstrapperService.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/net/RemoteAcceptServer.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace partialtransaction {

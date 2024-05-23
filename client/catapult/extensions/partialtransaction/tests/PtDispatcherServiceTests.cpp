@@ -19,18 +19,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "partialtransaction/src/PtDispatcherService.h"
+#include "partialtransaction/src/PtBootstrapperService.h"
+#include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
+#include "plugins/txes/aggregate/src/validators/Results.h"
 #include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/consumers/ConsumerResults.h"
 #include "catapult/disruptor/ConsumerDispatcher.h"
 #include "catapult/ionet/BroadcastUtils.h"
 #include "catapult/model/EntityHasher.h"
-#include "partialtransaction/src/PtBootstrapperService.h"
-#include "partialtransaction/src/PtDispatcherService.h"
 #include "partialtransaction/tests/test/AggregateTransactionTestUtils.h"
-#include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
-#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
-#include "plugins/txes/aggregate/src/validators/Results.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -38,6 +37,7 @@
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace partialtransaction {

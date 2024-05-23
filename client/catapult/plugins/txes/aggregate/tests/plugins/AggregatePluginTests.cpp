@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/AggregateEntityType.h"
 #include "src/plugins/AggregatePlugin.h"
-#include "tests/TestHarness.h"
+#include "src/model/AggregateEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace plugins {

@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/ToolMain.h"
+#include "tools/AccountTool.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
-#include "tools/AccountTool.h"
-#include "tools/ToolMain.h"
 
 namespace catapult {
 namespace tools {

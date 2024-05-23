@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "mongo/src/storages/MongoAccountStateCacheStorage.h"
+#include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/src/storages/MongoAccountStateCacheStorage.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;
 

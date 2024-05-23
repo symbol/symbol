@@ -20,9 +20,9 @@
 **/
 
 #include "src/state/Namespace.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

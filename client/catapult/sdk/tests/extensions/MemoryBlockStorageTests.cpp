@@ -20,8 +20,8 @@
 **/
 
 #include "src/extensions/MemoryBlockStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockStorageTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

@@ -25,10 +25,10 @@
 #include "utils/HexFormatter.h"
 #include "utils/Logging.h"
 #include "utils/NonCopyable.h"
-#include <atomic>
 #include <boost/exception/exception.hpp>
 #include <boost/exception/info.hpp>
 #include <boost/throw_exception.hpp>
+#include <atomic>
 #include <exception>
 
 namespace catapult {

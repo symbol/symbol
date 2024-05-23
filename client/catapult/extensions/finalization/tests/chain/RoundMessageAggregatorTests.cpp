@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/MemoryUtils.h"
-#include "finalization/src/chain/RoundContext.h"
 #include "finalization/src/chain/RoundMessageAggregator.h"
+#include "finalization/src/chain/RoundContext.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/TestHarness.h"
 

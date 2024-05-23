@@ -23,7 +23,6 @@
 #include "catapult/extensions/Results.h"
 #include "catapult/net/ConnectionContainer.h"
 #include "catapult/net/PeerConnectResult.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
@@ -32,6 +31,7 @@
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
+#include "tests/TestHarness.h"
 #include <boost/asio/ssl.hpp>
 
 namespace catapult {

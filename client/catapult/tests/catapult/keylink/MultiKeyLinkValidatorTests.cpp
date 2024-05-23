@@ -21,10 +21,10 @@
 
 #include "catapult/keylink/MultiKeyLinkValidator.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/keylink/test/KeyLinkTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace keylink {

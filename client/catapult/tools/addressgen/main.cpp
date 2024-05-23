@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/ToolMain.h"
 #include "MultiAddressMatcher.h"
+#include "tools/AccountTool.h"
+#include "tools/ToolThreadUtils.h"
 #include "catapult/crypto/SecureRandomGenerator.h"
 #include "catapult/extensions/Bip32.h"
 #include "catapult/extensions/Bip39.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/SpinLock.h"
-#include "tools/AccountTool.h"
-#include "tools/ToolMain.h"
-#include "tools/ToolThreadUtils.h"
 #include <boost/asio.hpp>
 #include <thread>
 

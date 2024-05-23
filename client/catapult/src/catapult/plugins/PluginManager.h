@@ -30,10 +30,10 @@
 #include "catapult/model/TransactionPlugin.h"
 #include "catapult/observers/DemuxObserverBuilder.h"
 #include "catapult/observers/ObserverTypes.h"
-#include "catapult/plugins.h"
 #include "catapult/utils/DiagnosticCounter.h"
 #include "catapult/validators/DemuxValidatorBuilder.h"
 #include "catapult/validators/ValidatorTypes.h"
+#include "catapult/plugins.h"
 
 namespace catapult {
 namespace plugins {

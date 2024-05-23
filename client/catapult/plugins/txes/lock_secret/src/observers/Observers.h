@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/model/SecretLockNotifications.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
-#include "src/model/SecretLockNotifications.h"
 
 namespace catapult {
 namespace observers {

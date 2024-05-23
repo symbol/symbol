@@ -20,12 +20,12 @@
 **/
 
 #pragma once
-#include "catapult/io/PodIoUtils.h"
 #include "finalization/src/io/ProofStorage.h"
 #include "finalization/src/model/FinalizationProofUtils.h"
+#include "catapult/io/PodIoUtils.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace catapult {

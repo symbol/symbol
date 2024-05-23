@@ -19,20 +19,20 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "zeromq/src/ZeroMqEntityPublisher.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
+#include "zeromq/src/PackedFinalizedBlockHeader.h"
+#include "zeromq/src/PublisherUtils.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionStatus.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
-#include "tests/TestHarness.h"
+#include "zeromq/tests/test/ZeroMqTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
-#include "zeromq/src/PackedFinalizedBlockHeader.h"
-#include "zeromq/src/PublisherUtils.h"
-#include "zeromq/src/ZeroMqEntityPublisher.h"
-#include "zeromq/tests/test/ZeroMqTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace zeromq {

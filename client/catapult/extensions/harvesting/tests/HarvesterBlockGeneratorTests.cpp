@@ -19,17 +19,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "harvesting/src/HarvesterBlockGenerator.h"
+#include "harvesting/src/HarvestingUtFacadeFactory.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/TransactionPlugin.h"
-#include "harvesting/src/HarvesterBlockGenerator.h"
-#include "harvesting/src/HarvestingUtFacadeFactory.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/MockExecutionConfiguration.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

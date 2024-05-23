@@ -20,9 +20,9 @@
 **/
 
 #include "MetadataEntrySerializer.h"
-#include "catapult/exceptions.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/utils/Casting.h"
+#include "catapult/exceptions.h"
 
 namespace catapult {
 namespace state {

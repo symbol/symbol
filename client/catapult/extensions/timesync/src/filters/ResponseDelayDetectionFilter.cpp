@@ -20,8 +20,8 @@
 **/
 
 #include "SynchronizationFilters.h"
-#include "catapult/utils/ContainerHelpers.h"
 #include "filter_constants.h"
+#include "catapult/utils/ContainerHelpers.h"
 
 namespace catapult {
 namespace timesync {

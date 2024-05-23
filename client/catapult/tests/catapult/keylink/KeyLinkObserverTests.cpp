@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/keylink/KeyLinkObserver.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/keylink/test/KeyLinkTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace keylink {

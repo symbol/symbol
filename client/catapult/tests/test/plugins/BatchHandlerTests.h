@@ -22,8 +22,8 @@
 #pragma once
 #include "BasicBatchHandlerTests.h"
 #include "catapult/handlers/BasicProducer.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/EntityTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

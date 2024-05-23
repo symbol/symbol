@@ -22,9 +22,9 @@
 #include "finalization/src/model/FinalizationProof.h"
 #include "finalization/src/model/FinalizationProofUtils.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

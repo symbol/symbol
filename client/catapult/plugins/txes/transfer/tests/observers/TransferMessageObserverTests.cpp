@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/observers/Observers.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/IndexFile.h"
-#include "src/observers/Observers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

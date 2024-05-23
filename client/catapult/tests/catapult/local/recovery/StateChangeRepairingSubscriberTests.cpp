@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/local/recovery/StateChangeRepairingSubscriber.h"
+#include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/subscribers/StateChangeInfo.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SimpleCache.h"

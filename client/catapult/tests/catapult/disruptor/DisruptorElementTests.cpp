@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/disruptor/DisruptorElement.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/disruptor/test/ConsumerInputTestUtils.h"
 #include "tests/test/other/DisruptorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace disruptor {

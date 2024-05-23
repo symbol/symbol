@@ -21,8 +21,8 @@
 
 #include "catapult/api/LocalChainApi.h"
 #include "catapult/model/EntityHasher.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace api {

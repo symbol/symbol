@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/FileQueue.h"
-#include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
-#include "tests/TestHarness.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

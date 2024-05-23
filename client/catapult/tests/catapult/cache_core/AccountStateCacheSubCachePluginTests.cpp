@@ -21,11 +21,11 @@
 
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SummaryAwareCacheStoragePluginTests.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

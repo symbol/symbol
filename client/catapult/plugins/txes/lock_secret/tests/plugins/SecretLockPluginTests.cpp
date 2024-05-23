@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/SecretLockEntityType.h"
 #include "src/plugins/SecretLockPlugin.h"
-#include "tests/TestHarness.h"
+#include "src/model/SecretLockEntityType.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace plugins {

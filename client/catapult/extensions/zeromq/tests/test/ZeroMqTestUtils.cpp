@@ -20,16 +20,16 @@
 **/
 
 #include "ZeroMqTestUtils.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
+#include "zeromq/src/PackedFinalizedBlockHeader.h"
+#include "zeromq/src/PublisherUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/model/Transaction.h"
 #include "catapult/model/TransactionStatus.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/TestHarness.h"
-#include "zeromq/src/PackedFinalizedBlockHeader.h"
-#include "zeromq/src/PublisherUtils.h"
 
 namespace catapult {
 namespace test {

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
-#include "catapult/utils/CheckedArray.h"
 #include "plugins/txes/namespace/src/model/NamespaceConstants.h"
+#include "catapult/utils/CheckedArray.h"
+#include "catapult/types.h"
 
 namespace catapult {
 namespace extensions {

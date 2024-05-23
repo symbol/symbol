@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/plugins/PluginExceptions.h"
 #include "catapult/plugins/PluginLoader.h"
+#include "catapult/plugins/PluginExceptions.h"
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/utils/ExceptionLogging.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace plugins {

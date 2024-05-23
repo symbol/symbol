@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/subscribers/FinalizationReader.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/FinalizationTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace subscribers {

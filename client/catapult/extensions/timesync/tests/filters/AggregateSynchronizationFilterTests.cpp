@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tests/TestHarness.h"
 #include "timesync/src/filters/AggregateSynchronizationFilter.h"
 #include "timesync/src/filters/SynchronizationFilters.h"
 #include "timesync/tests/test/TimeSynchronizationTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace timesync {

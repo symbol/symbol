@@ -24,8 +24,8 @@
 #include "finalization/src/model/FinalizationRoundRange.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/LockTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace chain {

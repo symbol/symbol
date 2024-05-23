@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Address.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/Address.h"
 #include "tests/int/node/stress/test/ExpiryTestUtils.h"
 #include "tests/int/node/stress/test/LocalNodeSyncIntegrityTestUtils.h"
 #include "tests/int/node/stress/test/SecretLockTransactionsBuilder.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

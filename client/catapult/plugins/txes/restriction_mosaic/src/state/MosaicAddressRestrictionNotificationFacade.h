@@ -21,8 +21,8 @@
 
 #pragma once
 #include "MosaicRestrictionEntry.h"
-#include "catapult/model/ResolverContext.h"
 #include "src/model/MosaicRestrictionNotifications.h"
+#include "catapult/model/ResolverContext.h"
 
 namespace catapult {
 namespace state {

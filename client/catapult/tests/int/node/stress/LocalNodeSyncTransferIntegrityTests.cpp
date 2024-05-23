@@ -20,12 +20,12 @@
 **/
 
 #include "sdk/src/extensions/BlockExtensions.h"
-#include "tests/TestHarness.h"
 #include "tests/int/node/stress/test/LocalNodeSyncIntegrityTestUtils.h"
 #include "tests/int/node/stress/test/TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

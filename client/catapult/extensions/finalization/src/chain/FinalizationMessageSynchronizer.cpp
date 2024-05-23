@@ -20,9 +20,9 @@
 **/
 
 #include "FinalizationMessageSynchronizer.h"
+#include "finalization/src/api/RemoteFinalizationApi.h"
 #include "catapult/chain/EntitiesSynchronizer.h"
 #include "catapult/model/NodeIdentity.h"
-#include "finalization/src/api/RemoteFinalizationApi.h"
 
 namespace catapult {
 namespace chain {

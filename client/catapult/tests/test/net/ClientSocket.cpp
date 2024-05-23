@@ -21,8 +21,8 @@
 
 #include "ClientSocket.h"
 #include "SocketTestUtils.h"
-#include "catapult/exceptions.h"
 #include "catapult/thread/StrandOwnerLifetimeExtender.h"
+#include "catapult/exceptions.h"
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/steady_timer.hpp>
 

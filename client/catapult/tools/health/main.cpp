@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/ToolMain.h"
 #include "ApiNodeHealthUtils.h"
+#include "tools/NetworkCensusTool.h"
+#include "tools/ToolThreadUtils.h"
 #include "catapult/api/RemoteChainApi.h"
 #include "catapult/extensions/RemoteDiagnosticApi.h"
 #include "catapult/utils/DiagnosticCounterId.h"
 #include "catapult/utils/Functional.h"
-#include "tools/NetworkCensusTool.h"
-#include "tools/ToolMain.h"
-#include "tools/ToolThreadUtils.h"
 
 namespace catapult {
 namespace tools {

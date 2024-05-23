@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/consumers/InputUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
+#include "tests/TestHarness.h"
 
 using catapult::disruptor::ConsumerInput;
 

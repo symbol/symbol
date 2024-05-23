@@ -20,9 +20,9 @@
 **/
 
 #include "Validators.h"
-#include "catapult/validators/ValidatorContext.h"
 #include "src/cache/MultisigCache.h"
 #include "src/cache/MultisigCacheUtils.h"
+#include "catapult/validators/ValidatorContext.h"
 
 namespace catapult {
 namespace validators {

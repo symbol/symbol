@@ -23,10 +23,10 @@
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/PacketWriters.h"
 #include "catapult/thread/TimedCallback.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

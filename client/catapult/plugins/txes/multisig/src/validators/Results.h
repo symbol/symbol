@@ -21,8 +21,8 @@
 
 #pragma once
 #ifndef CUSTOM_RESULT_DEFINITION
-#include "catapult/validators/ValidationResult.h"
 #include "plugins/txes/aggregate/src/validators/Results.h"
+#include "catapult/validators/ValidationResult.h"
 
 namespace catapult {
 namespace validators {

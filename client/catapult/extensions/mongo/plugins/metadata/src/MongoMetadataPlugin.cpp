@@ -22,8 +22,8 @@
 #include "AccountMetadataMapper.h"
 #include "MosaicMetadataMapper.h"
 #include "NamespaceMetadataMapper.h"
-#include "mongo/src/MongoPluginManager.h"
 #include "storages/MongoMetadataCacheStorage.h"
+#include "mongo/src/MongoPluginManager.h"
 
 extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support

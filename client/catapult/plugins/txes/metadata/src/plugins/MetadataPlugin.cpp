@@ -21,13 +21,13 @@
 
 #include "MetadataPlugin.h"
 #include "MetadataTransactionPlugin.h"
-#include "catapult/plugins/CacheHandlers.h"
-#include "catapult/plugins/PluginManager.h"
 #include "src/cache/MetadataCache.h"
 #include "src/cache/MetadataCacheStorage.h"
 #include "src/config/MetadataConfiguration.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
+#include "catapult/plugins/CacheHandlers.h"
+#include "catapult/plugins/PluginManager.h"
 
 namespace catapult {
 namespace plugins {

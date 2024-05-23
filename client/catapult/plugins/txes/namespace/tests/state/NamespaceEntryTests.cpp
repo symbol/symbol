@@ -20,8 +20,8 @@
 **/
 
 #include "src/state/NamespaceEntry.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

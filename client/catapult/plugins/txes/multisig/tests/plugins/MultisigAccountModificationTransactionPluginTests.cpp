@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/MemoryUtils.h"
+#include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
 #include "src/model/MultisigAccountModificationTransaction.h"
 #include "src/model/MultisigNotifications.h"
-#include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 #include <random>
 
 using namespace catapult::model;

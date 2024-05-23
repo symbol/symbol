@@ -19,14 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/BlockStatisticCache.h"
-#include "catapult/config/CatapultDataDirectory.h"
-#include "harvesting/src/HarvestingConfiguration.h"
 #include "harvesting/src/HarvestingService.h"
+#include "harvesting/src/HarvestingConfiguration.h"
 #include "harvesting/src/UnlockedAccounts.h"
 #include "harvesting/src/UnlockedAccountsStorage.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/HandlersTrustedHostTests.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
@@ -34,6 +33,7 @@
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/Functional.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

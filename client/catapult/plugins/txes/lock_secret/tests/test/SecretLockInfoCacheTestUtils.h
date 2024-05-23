@@ -20,12 +20,12 @@
 **/
 
 #pragma once
-#include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
 #include "src/cache/SecretLockInfoCache.h"
 #include "src/cache/SecretLockInfoCacheStorage.h"
 #include "src/cache/SecretLockInfoCacheTypes.h"
-#include "tests/TestHarness.h"
+#include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

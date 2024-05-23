@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/crypto/SecureRandomGenerator.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/RandomnessTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace crypto {

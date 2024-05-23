@@ -19,23 +19,23 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
-#include "catapult/io/FileStream.h"
+#include "finalization/src/FinalizationOrchestratorService.h"
 #include "finalization/src/FinalizationBootstrapperService.h"
 #include "finalization/src/FinalizationConfiguration.h"
-#include "finalization/src/FinalizationOrchestratorService.h"
 #include "finalization/src/VotingStatusFile.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
+#include "catapult/io/FileStream.h"
 #include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
-#include "tests/TestHarness.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TimeSupplier.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace finalization {

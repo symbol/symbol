@@ -20,8 +20,8 @@
 **/
 
 #include "Validators.h"
-#include "catapult/validators/ValidatorUtils.h"
 #include "src/model/LockHashUtils.h"
+#include "catapult/validators/ValidatorUtils.h"
 
 namespace catapult {
 namespace validators {

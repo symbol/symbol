@@ -20,12 +20,12 @@
 **/
 
 #include "src/cache/MosaicCache.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

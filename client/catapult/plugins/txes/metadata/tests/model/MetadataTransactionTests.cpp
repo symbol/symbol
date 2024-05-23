@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/MemoryUtils.h"
 #include "src/model/AccountMetadataTransaction.h"
 #include "src/model/MetadataTypes.h"
 #include "src/model/MosaicMetadataTransaction.h"
 #include "src/model/NamespaceMetadataTransaction.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

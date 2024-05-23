@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/ToolMain.h"
 #include "SslClient.h"
+#include "tools/ToolConfigurationUtils.h"
 #include "catapult/config/ConfigurationFileLoader.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
-#include "tools/ToolConfigurationUtils.h"
-#include "tools/ToolMain.h"
 
 namespace catapult {
 namespace tools {

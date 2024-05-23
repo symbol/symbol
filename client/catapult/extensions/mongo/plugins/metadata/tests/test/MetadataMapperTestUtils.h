@@ -20,12 +20,12 @@
 **/
 
 #pragma once
-#include "catapult/utils/MemoryUtils.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
 #include "plugins/txes/namespace/src/types.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/MemoryUtils.h"
+#include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/nodeps/Random.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/plugins/PluginManager.h"
 #include "partialtransaction/src/chain/JointValidator.h"
-#include "tests/TestHarness.h"
+#include "catapult/plugins/PluginManager.h"
 #include "tests/test/other/mocks/MockCapturingNotificationValidator.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::validators;
 

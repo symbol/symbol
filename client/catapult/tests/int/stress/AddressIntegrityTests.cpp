@@ -22,9 +22,9 @@
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/utils/HexFormatter.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 

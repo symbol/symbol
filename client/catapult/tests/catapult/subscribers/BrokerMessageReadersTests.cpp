@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/io/PodIoUtils.h"
 #include "catapult/subscribers/BrokerMessageReaders.h"
-#include "tests/TestHarness.h"
+#include "catapult/io/PodIoUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace subscribers {

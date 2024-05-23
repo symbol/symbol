@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include <vector>
 #include <stddef.h>
 #include <stdint.h>
-#include <vector>
 
 namespace catapult {
 namespace io {

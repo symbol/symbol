@@ -21,9 +21,9 @@
 
 #include "catapult/cache/SynchronizedCache.h"
 #include "catapult/thread/Future.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/nodeps/LockTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

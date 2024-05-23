@@ -21,10 +21,10 @@
 
 #include "SecretLockMapper.h"
 #include "SecretProofMapper.h"
+#include "storages/MongoSecretLockInfoCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
 #include "mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/lock_secret/src/model/SecretLockReceiptType.h"
-#include "storages/MongoSecretLockInfoCacheStorage.h"
 
 extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support

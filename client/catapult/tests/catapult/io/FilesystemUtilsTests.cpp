@@ -21,8 +21,8 @@
 
 #include "catapult/io/FilesystemUtils.h"
 #include "catapult/io/RawFile.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 
 namespace catapult {

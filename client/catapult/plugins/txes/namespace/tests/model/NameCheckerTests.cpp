@@ -20,8 +20,8 @@
 **/
 
 #include "src/model/NameChecker.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

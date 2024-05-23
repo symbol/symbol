@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/thread/Future.h"
 #include "timesync/src/CommunicationTimestamps.h"
+#include "catapult/thread/Future.h"
 
 namespace catapult {
 namespace ionet {

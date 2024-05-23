@@ -19,12 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "nodediscovery/src/NodeDiscoveryService.h"
 #include "catapult/ionet/NetworkNode.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/ServerConnector.h"
-#include "nodediscovery/src/NodeDiscoveryService.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
@@ -36,6 +35,7 @@
 #include "tests/test/net/mocks/MockPacketWriters.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace nodediscovery {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/ChainScore.h"
 #include "mongo/src/ApiStateChangeSubscriber.h"
+#include "catapult/model/ChainScore.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

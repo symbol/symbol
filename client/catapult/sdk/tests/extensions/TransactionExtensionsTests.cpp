@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/HexParser.h"
-#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "src/extensions/TransactionExtensions.h"
-#include "tests/TestHarness.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

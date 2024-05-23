@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/net/PeerConnectResult.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockPacketSocket.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace net {

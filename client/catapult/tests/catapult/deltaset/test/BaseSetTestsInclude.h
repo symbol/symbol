@@ -27,8 +27,8 @@
 #include "catapult/deltaset/BaseSetDelta.h"
 #include "catapult/deltaset/OrderedSet.h"
 #include "catapult/utils/traits/StlTraits.h"
-#include "tests/TestHarness.h"
 #include "tests/test/other/TestElement.h"
+#include "tests/TestHarness.h"
 #include <set>
 #include <unordered_map>
 #include <unordered_set>

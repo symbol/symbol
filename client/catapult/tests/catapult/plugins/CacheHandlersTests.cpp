@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/plugins/CacheHandlers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace plugins {

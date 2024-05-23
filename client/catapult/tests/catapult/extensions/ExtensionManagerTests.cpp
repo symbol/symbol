@@ -23,11 +23,11 @@
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/thread/MultiServicePool.h"
 #include "catapult/utils/NetworkTime.h"
-#include "tests/TestHarness.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/other/ConsumerHandlerTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

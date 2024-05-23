@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/model/BlockStatementBuilder.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/AddressTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

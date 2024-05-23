@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache_core/BlockStatisticCache.h"
-#include "harvesting/src/Harvester.h"
 #include "harvesting/src/ScheduledHarvesterTask.h"
-#include "tests/TestHarness.h"
+#include "harvesting/src/Harvester.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 
 using catapult::crypto::KeyPair;
 

@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
 #include "catapult/model/NotificationPublisher.h"
+#include "catapult/functions.h"
 
 #ifdef _MSC_VER
 #pragma warning(push)

@@ -22,10 +22,10 @@
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/utils/TimeSpan.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace consumers {

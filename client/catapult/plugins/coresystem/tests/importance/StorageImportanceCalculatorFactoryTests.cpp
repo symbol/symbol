@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/importance/StorageImportanceCalculatorFactory.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/model/BlockchainConfiguration.h"
-#include "src/importance/StorageImportanceCalculatorFactory.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace importance {

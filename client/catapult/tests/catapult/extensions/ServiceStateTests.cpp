@@ -19,14 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/ServiceState.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/thread/MultiServicePool.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/LocalTestUtils.h"
@@ -36,6 +35,7 @@
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace extensions {

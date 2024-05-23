@@ -21,8 +21,8 @@
 
 #include "catapult/config/ConfigurationFileLoader.h"
 #include "catapult/utils/ConfigurationUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 #include <filesystem>
 #include <fstream>
 

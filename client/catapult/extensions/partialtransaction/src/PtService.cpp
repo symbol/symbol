@@ -21,6 +21,8 @@
 
 #include "PtService.h"
 #include "PtBootstrapperService.h"
+#include "partialtransaction/src/api/RemotePtApi.h"
+#include "partialtransaction/src/chain/PtSynchronizer.h"
 #include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
@@ -30,8 +32,6 @@
 #include "catapult/extensions/SynchronizerTaskCallbacks.h"
 #include "catapult/net/PacketWriters.h"
 #include "catapult/thread/MultiServicePool.h"
-#include "partialtransaction/src/api/RemotePtApi.h"
-#include "partialtransaction/src/chain/PtSynchronizer.h"
 
 namespace catapult {
 namespace partialtransaction {

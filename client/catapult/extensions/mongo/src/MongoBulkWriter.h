@@ -21,20 +21,20 @@
 
 #pragma once
 #include "BulkWriteResult.h"
-#include "catapult/exceptions.h"
 #include "catapult/model/Elements.h"
 #include "catapult/state/AccountState.h"
 #include "catapult/thread/FutureUtils.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/ParallelFor.h"
-#include "catapult/types.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/exceptions.h"
+#include "catapult/types.h"
 #include <boost/asio/io_context.hpp>
-#include <bsoncxx/json.hpp>
-#include <mongocxx/client.hpp>
 #include <mongocxx/config/version.hpp>
 #include <mongocxx/exception/bulk_write_exception.hpp>
+#include <bsoncxx/json.hpp>
+#include <mongocxx/client.hpp>
 #include <mongocxx/pool.hpp>
 #include <unordered_set>
 

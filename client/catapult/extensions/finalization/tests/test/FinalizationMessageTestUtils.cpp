@@ -23,12 +23,12 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/model/BlockUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/Random.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

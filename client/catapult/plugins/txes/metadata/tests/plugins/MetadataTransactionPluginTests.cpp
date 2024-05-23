@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/MemoryUtils.h"
-#include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
+#include "src/plugins/MetadataTransactionPlugin.h"
 #include "src/model/AccountMetadataTransaction.h"
 #include "src/model/MetadataNotifications.h"
 #include "src/model/MosaicMetadataTransaction.h"
 #include "src/model/NamespaceMetadataTransaction.h"
-#include "src/plugins/MetadataTransactionPlugin.h"
-#include "tests/TestHarness.h"
+#include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 

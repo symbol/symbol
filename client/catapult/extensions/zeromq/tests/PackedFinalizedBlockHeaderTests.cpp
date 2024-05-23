@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "tests/TestHarness.h"
-#include "tests/test/nodeps/Alignment.h"
 #include "zeromq/src/PackedFinalizedBlockHeader.h"
+#include "tests/test/nodeps/Alignment.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace zeromq {

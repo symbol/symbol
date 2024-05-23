@@ -19,17 +19,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/subscribers/SubscriptionManager.h"
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/model/ChainScore.h"
-#include "catapult/subscribers/SubscriptionManager.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/subscribers/test/UnsupportedSubscribers.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace subscribers {

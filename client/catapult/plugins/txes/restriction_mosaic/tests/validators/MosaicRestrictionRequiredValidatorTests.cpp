@@ -20,9 +20,9 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MosaicRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

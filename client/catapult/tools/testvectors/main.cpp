@@ -19,6 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "tools/ToolMain.h"
 #include "catapult/crypto/AesDecrypt.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/SharedKey.h"
@@ -28,7 +29,6 @@
 #include "catapult/model/Address.h"
 #include "catapult/model/MosaicIdGenerator.h"
 #include "catapult/utils/HexParser.h"
-#include "tools/ToolMain.h"
 #ifdef _MSC_VER
 #include <boost/config/compiler/visualc.hpp>
 #endif

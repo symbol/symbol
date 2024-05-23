@@ -21,8 +21,8 @@
 
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/RawFile.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace config {

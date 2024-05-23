@@ -20,9 +20,9 @@
 **/
 
 #include "TimeSynchronizationState.h"
+#include "constants.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/NetworkTime.h"
-#include "constants.h"
 
 namespace catapult {
 namespace timesync {

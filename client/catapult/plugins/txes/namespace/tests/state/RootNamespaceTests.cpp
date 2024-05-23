@@ -20,9 +20,9 @@
 **/
 
 #include "src/state/RootNamespace.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 #include <unordered_set>
 
 namespace catapult {

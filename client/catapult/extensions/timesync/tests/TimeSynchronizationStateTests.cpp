@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/NetworkTime.h"
-#include "tests/TestHarness.h"
-#include "tests/test/nodeps/Waits.h"
 #include "timesync/src/TimeSynchronizationState.h"
+#include "catapult/utils/NetworkTime.h"
+#include "tests/test/nodeps/Waits.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace timesync {

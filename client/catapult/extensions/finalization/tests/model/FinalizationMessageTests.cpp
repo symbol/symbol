@@ -19,10 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/src/model/FinalizationMessage.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
@@ -30,6 +29,7 @@
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

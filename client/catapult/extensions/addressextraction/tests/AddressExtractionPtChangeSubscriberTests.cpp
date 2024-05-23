@@ -21,8 +21,8 @@
 
 #include "addressextraction/src/AddressExtractionPtChangeSubscriber.h"
 #include "addressextraction/tests/test/AddressExtractionSubscriberTestContext.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace addressextraction {

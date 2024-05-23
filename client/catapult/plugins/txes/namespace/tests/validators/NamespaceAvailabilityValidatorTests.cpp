@@ -23,10 +23,10 @@
 #include "src/model/NamespaceConstants.h"
 #include "src/model/NamespaceLifetimeConstraints.h"
 #include "src/validators/Validators.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace validators {

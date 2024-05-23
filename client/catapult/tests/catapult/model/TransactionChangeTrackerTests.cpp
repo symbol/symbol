@@ -21,8 +21,8 @@
 
 #include "catapult/model/TransactionChangeTracker.h"
 #include "catapult/utils/ArraySet.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

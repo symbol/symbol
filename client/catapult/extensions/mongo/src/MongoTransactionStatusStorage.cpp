@@ -21,10 +21,10 @@
 
 #include "MongoTransactionStatusStorage.h"
 #include "MongoBulkWriter.h"
-#include "catapult/model/TransactionStatus.h"
-#include "catapult/utils/SpinLock.h"
 #include "mappers/MapperUtils.h"
 #include "mappers/TransactionStatusMapper.h"
+#include "catapult/model/TransactionStatus.h"
+#include "catapult/utils/SpinLock.h"
 #include <mongocxx/client.hpp>
 
 using namespace bsoncxx::builder::stream;

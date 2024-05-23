@@ -22,9 +22,9 @@
 #pragma once
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/plugins/PluginManager.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/TestHarness.h"
 #include <string>
 
 namespace catapult {

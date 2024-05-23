@@ -23,8 +23,8 @@
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/observers/ReverseNotificationObserverAdapter.h"
-#include "catapult/preprocessor.h"
 #include "catapult/validators/NotificationValidatorAdapter.h"
+#include "catapult/preprocessor.h"
 
 namespace catapult {
 namespace extensions {

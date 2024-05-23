@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/io/FileProofStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "finalization/src/io/FileProofStorage.h"
 #include "finalization/tests/test/ProofStorageTests.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace io {

@@ -19,21 +19,21 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/Elements.h"
-#include "catapult/model/EntityInfo.h"
-#include "catapult/state/AccountState.h"
-#include "catapult/utils/StackLogger.h"
 #include "mongo/src/MongoBulkWriter.h"
 #include "mongo/src/MongoTransactionPlugin.h"
 #include "mongo/src/mappers/AccountStateMapper.h"
 #include "mongo/src/mappers/TransactionMapper.h"
+#include "catapult/model/Elements.h"
+#include "catapult/model/EntityInfo.h"
+#include "catapult/state/AccountState.h"
+#include "catapult/utils/StackLogger.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/TestHarness.h"
 #include <mongocxx/pool.hpp>
 
 using namespace bsoncxx::builder::stream;

@@ -21,9 +21,9 @@
 
 #include "catapult/io/BufferedFileStream.h"
 #include "catapult/utils/Casting.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/io/test/StreamTests.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace io {

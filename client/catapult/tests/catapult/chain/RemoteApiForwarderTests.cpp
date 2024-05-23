@@ -21,9 +21,9 @@
 
 #include "catapult/chain/RemoteApiForwarder.h"
 #include "catapult/ionet/NodeInteractionResult.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace chain {

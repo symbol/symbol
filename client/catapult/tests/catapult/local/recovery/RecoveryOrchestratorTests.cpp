@@ -19,6 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/local/recovery/RecoveryOrchestrator.h"
 #include "catapult/cache/SupplementalDataStorage.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
@@ -27,11 +28,9 @@
 #include "catapult/extensions/LocalNodeStateFileStorage.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/local/recovery/RecoveryOrchestrator.h"
 #include "catapult/local/server/FileStateChangeStorage.h"
 #include "catapult/model/Address.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/FinalizationTestUtils.h"
 #include "tests/test/core/StateTestUtils.h"
@@ -48,6 +47,7 @@
 #include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/test/other/mocks/MockBlockHeightCapturingNotificationObserver.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace local {

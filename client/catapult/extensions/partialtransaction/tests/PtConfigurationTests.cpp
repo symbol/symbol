@@ -20,8 +20,8 @@
 **/
 
 #include "partialtransaction/src/PtConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace partialtransaction {

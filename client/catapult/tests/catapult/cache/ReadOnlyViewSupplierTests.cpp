@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/cache/ReadOnlyViewSupplier.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/SimpleCache.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

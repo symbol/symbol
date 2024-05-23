@@ -24,8 +24,8 @@
 #include "traits/Traits.h"
 #include <array>
 #include <iostream>
-#include <stdint.h>
 #include <vector>
+#include <stdint.h>
 
 namespace catapult {
 namespace utils {

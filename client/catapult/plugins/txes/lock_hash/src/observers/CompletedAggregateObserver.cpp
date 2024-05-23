@@ -20,10 +20,10 @@
 **/
 
 #include "Observers.h"
-#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
-#include "plugins/txes/lock_shared/src/observers/LockStatusAccountBalanceObserver.h"
 #include "src/cache/HashLockInfoCache.h"
 #include "src/model/HashLockReceiptType.h"
+#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
+#include "plugins/txes/lock_shared/src/observers/LockStatusAccountBalanceObserver.h"
 
 namespace catapult {
 namespace observers {

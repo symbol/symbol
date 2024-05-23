@@ -22,9 +22,9 @@
 #include "MosaicRestrictionCacheUtils.h"
 #include "MosaicRestrictionCacheDelta.h"
 #include "MosaicRestrictionCacheView.h"
+#include "src/state/MosaicRestrictionEvaluator.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/utils/Hashers.h"
-#include "src/state/MosaicRestrictionEvaluator.h"
 
 namespace catapult {
 namespace cache {

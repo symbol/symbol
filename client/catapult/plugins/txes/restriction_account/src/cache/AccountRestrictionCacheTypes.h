@@ -20,10 +20,10 @@
 **/
 
 #pragma once
+#include "src/state/AccountRestrictions.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/utils/Hashers.h"
-#include "src/state/AccountRestrictions.h"
 
 namespace catapult {
 namespace cache {

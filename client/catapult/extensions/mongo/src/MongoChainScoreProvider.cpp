@@ -21,8 +21,8 @@
 
 #include "MongoChainScoreProvider.h"
 #include "MongoChainStatisticUtils.h"
-#include "catapult/model/ChainScore.h"
 #include "mappers/MapperUtils.h"
+#include "catapult/model/ChainScore.h"
 
 using namespace bsoncxx::builder::stream;
 

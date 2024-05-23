@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "catapult/functions.h"
 #include "catapult/utils/NonCopyable.h"
+#include "catapult/functions.h"
 #include <future>
 #include <memory>
 #include <mutex>

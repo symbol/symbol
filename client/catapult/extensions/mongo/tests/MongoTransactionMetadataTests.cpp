@@ -20,10 +20,10 @@
 **/
 
 #include "mongo/src/MongoTransactionMetadata.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

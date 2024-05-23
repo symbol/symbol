@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
-#include "plugins/txes/metadata/src/model/NamespaceMetadataTransaction.h"
 #include "src/NamespaceMetadataMapper.h"
-#include "tests/TestHarness.h"
+#include "plugins/txes/metadata/src/model/NamespaceMetadataTransaction.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/MetadataMapperTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

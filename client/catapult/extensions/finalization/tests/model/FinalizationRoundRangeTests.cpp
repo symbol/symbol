@@ -20,9 +20,9 @@
 **/
 
 #include "finalization/src/model/FinalizationRoundRange.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Equality.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

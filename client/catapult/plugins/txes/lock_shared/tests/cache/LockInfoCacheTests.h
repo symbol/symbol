@@ -21,11 +21,11 @@
 
 #pragma once
 #include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
 #include "tests/test/cache/CachePruneTests.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

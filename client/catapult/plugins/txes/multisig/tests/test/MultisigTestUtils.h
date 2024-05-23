@@ -20,13 +20,13 @@
 **/
 
 #pragma once
+#include "src/model/MultisigAccountModificationTransaction.h"
+#include "src/model/MultisigNotifications.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/utils/HexFormatter.h"
-#include "src/model/MultisigAccountModificationTransaction.h"
-#include "src/model/MultisigNotifications.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/ResolverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

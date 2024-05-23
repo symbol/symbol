@@ -21,8 +21,8 @@
 
 #pragma once
 #include "FinalizationMessageTestUtils.h"
-#include "catapult/cache/CatapultCache.h"
 #include "finalization/src/FinalizationBootstrapperService.h"
+#include "catapult/cache/CatapultCache.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 
 namespace catapult {

@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "src/model/MosaicNotifications.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
-#include "src/model/MosaicNotifications.h"
 
 namespace catapult {
 namespace model {

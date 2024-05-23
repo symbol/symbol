@@ -21,12 +21,12 @@
 
 #include "finalization/src/FinalizationService.h"
 #include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/net/RemoteAcceptServer.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace finalization {

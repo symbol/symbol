@@ -21,8 +21,8 @@
 
 #pragma once
 #include "catapult/cache/CacheConfiguration.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

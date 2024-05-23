@@ -20,8 +20,8 @@
 **/
 
 #include "src/state/RootNamespaceHistory.h"
-#include "tests/TestHarness.h"
 #include "tests/test/NamespaceTestUtils.h"
+#include "tests/TestHarness.h"
 #include <unordered_set>
 
 namespace catapult {

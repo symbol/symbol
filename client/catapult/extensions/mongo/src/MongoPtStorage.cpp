@@ -21,10 +21,10 @@
 
 #include "MongoPtStorage.h"
 #include "MongoTransactionStorage.h"
-#include "catapult/model/Cosignature.h"
-#include "catapult/utils/HexFormatter.h"
 #include "mappers/MapperUtils.h"
 #include "mappers/TransactionMapper.h"
+#include "catapult/model/Cosignature.h"
+#include "catapult/utils/HexFormatter.h"
 #include <unordered_map>
 
 using namespace bsoncxx::builder::stream;

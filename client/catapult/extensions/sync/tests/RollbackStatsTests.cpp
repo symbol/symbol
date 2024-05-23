@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/NetworkTime.h"
 #include "sync/src/RollbackStats.h"
+#include "catapult/utils/NetworkTime.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

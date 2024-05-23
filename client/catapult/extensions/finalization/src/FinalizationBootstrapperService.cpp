@@ -21,16 +21,16 @@
 
 #include "FinalizationBootstrapperService.h"
 #include "FinalizationContextFactory.h"
-#include "catapult/extensions/ConfigurationUtils.h"
-#include "catapult/extensions/ServiceLocator.h"
-#include "catapult/extensions/ServiceState.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/subscribers/FinalizationSubscriber.h"
 #include "finalization/src/chain/FinalizationPatchingSubscriber.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/AggregateProofStorage.h"
 #include "finalization/src/io/FilePrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "catapult/extensions/ConfigurationUtils.h"
+#include "catapult/extensions/ServiceLocator.h"
+#include "catapult/extensions/ServiceState.h"
+#include "catapult/io/BlockStorageCache.h"
+#include "catapult/subscribers/FinalizationSubscriber.h"
 
 namespace catapult {
 namespace finalization {

@@ -19,14 +19,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/Scheduler.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/WaitFunctions.h"
+#include "tests/TestHarness.h"
 #include <boost/asio/steady_timer.hpp>
 #include <thread>
 

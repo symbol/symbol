@@ -20,9 +20,9 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
-#include "catapult/utils/Hashers.h"
 #include "finalization/src/FinalizationConfiguration.h"
+#include "catapult/utils/Hashers.h"
+#include "catapult/types.h"
 #include <unordered_map>
 
 namespace catapult {

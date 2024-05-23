@@ -19,23 +19,23 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/BlockUtils.h"
-#include "catapult/model/EntityHasher.h"
 #include "mongo/src/MongoBlockStorage.h"
 #include "mongo/src/MongoBulkWriter.h"
 #include "mongo/src/MongoChainStatisticUtils.h"
 #include "mongo/src/MongoReceiptPlugin.h"
 #include "mongo/src/MongoTransactionMetadata.h"
+#include "catapult/model/BlockUtils.h"
+#include "catapult/model/EntityHasher.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoReceiptTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "mongo/tests/test/mocks/MockReceiptMapper.h"
 #include "mongo/tests/test/mocks/MockTransactionMapper.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/mocks/MockReceipt.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/TestHarness.h"
 
 using namespace bsoncxx::builder::stream;
 

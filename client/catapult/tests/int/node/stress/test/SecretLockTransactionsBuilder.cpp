@@ -20,10 +20,10 @@
 **/
 
 #include "SecretLockTransactionsBuilder.h"
-#include "catapult/crypto/Hashes.h"
 #include "sdk/src/builders/SecretLockBuilder.h"
 #include "sdk/src/builders/SecretProofBuilder.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "catapult/crypto/Hashes.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/test/nodeps/TestConstants.h"
 

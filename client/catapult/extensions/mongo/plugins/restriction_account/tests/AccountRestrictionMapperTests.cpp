@@ -19,16 +19,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/MemoryUtils.h"
+#include "src/AccountRestrictionMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/restriction_account/src/model/AccountAddressRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountMosaicRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountOperationRestrictionTransaction.h"
-#include "src/AccountRestrictionMapper.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/MemoryUtils.h"
+#include "mongo/tests/test/MapperTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

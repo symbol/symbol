@@ -21,8 +21,8 @@
 
 #pragma once
 #include "catapult/model/PinnedVotingKey.h"
-#include "catapult/types.h"
 #include "catapult/utils/BitwiseEnum.h"
+#include "catapult/types.h"
 #include <memory>
 
 namespace catapult {

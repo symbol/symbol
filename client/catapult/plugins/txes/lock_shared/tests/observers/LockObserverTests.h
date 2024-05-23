@@ -20,12 +20,12 @@
 **/
 
 #pragma once
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/observers/ObserverContext.h"
 #include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

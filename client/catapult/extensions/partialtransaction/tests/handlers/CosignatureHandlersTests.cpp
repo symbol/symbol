@@ -20,8 +20,8 @@
 **/
 
 #include "partialtransaction/src/handlers/CosignatureHandlers.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PushHandlerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

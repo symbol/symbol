@@ -20,10 +20,10 @@
 **/
 
 #include "src/state/MosaicEntrySerializer.h"
-#include "tests/TestHarness.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

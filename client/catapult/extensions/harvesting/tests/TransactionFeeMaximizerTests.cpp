@@ -20,8 +20,8 @@
 **/
 
 #include "harvesting/src/TransactionFeeMaximizer.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace harvesting {

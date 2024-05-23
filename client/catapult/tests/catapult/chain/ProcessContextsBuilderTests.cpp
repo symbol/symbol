@@ -23,9 +23,9 @@
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/observers/ObserverContext.h"
 #include "catapult/validators/ValidatorContext.h"
-#include "tests/TestHarness.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace chain {

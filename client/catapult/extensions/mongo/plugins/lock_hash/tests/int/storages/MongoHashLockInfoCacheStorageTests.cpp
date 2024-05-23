@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/storages/MongoHashLockInfoCacheStorage.h"
 #include "mongo/plugins/lock_shared/tests/int/storages/MongoLockInfoCacheStorageTestTraits.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "plugins/txes/lock_hash/tests/test/HashLockInfoCacheTestUtils.h"
-#include "src/storages/MongoHashLockInfoCacheStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/HashLockMapperTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace mongo {

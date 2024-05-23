@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/api/FinalizationPackets.h"
 #include "finalization/src/handlers/ProofHandlers.h"
+#include "finalization/src/api/FinalizationPackets.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace handlers {

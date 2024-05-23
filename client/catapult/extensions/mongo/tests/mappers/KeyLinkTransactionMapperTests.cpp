@@ -21,10 +21,10 @@
 
 #include "mongo/src/mappers/KeyLinkTransactionMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/coresystem/src/model/VotingKeyLinkTransaction.h"
 #include "plugins/coresystem/src/model/VrfKeyLinkTransaction.h"
+#include "mongo/tests/test/MapperTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {

@@ -22,8 +22,8 @@
 #pragma once
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/EntityInfo.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Pointers.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace test {

@@ -20,9 +20,9 @@
 **/
 
 #include "catapult/observers/FunctionalNotificationObserver.h"
-#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace observers {

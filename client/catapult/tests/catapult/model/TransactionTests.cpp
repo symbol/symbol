@@ -21,10 +21,10 @@
 
 #include "catapult/model/Transaction.h"
 #include "catapult/preprocessor.h"
-#include "tests/TestHarness.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Alignment.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace model {

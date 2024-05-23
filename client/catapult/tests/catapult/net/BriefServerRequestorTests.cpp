@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/net/BriefServerRequestor.h"
 #include "catapult/api/ChainPackets.h"
 #include "catapult/api/RemoteChainApi.h"
-#include "catapult/net/BriefServerRequestor.h"
 #include "catapult/preprocessor.h"
-#include "tests/TestHarness.h"
 #include "tests/test/net/BriefServerRequestorTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace net {

@@ -20,9 +20,9 @@
 **/
 
 #include "Validators.h"
-#include "catapult/utils/Hashers.h"
 #include "src/model/NameChecker.h"
 #include "src/model/NamespaceIdGenerator.h"
+#include "catapult/utils/Hashers.h"
 
 namespace catapult {
 namespace validators {

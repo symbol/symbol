@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/HexFormatter.h"
 #include "src/state/MultisigEntrySerializer.h"
-#include "tests/TestHarness.h"
+#include "catapult/utils/HexFormatter.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/SerializerOrderingTests.h"
 #include "tests/test/core/SerializerTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace state {

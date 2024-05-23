@@ -21,11 +21,11 @@
 
 #include "RoundMessageAggregator.h"
 #include "RoundContext.h"
+#include "finalization/src/model/FinalizationContext.h"
+#include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/model/HeightGrouping.h"
 #include "catapult/model/VotingSet.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
-#include "finalization/src/model/FinalizationContext.h"
-#include "finalization/src/model/FinalizationMessage.h"
 #include <unordered_map>
 
 namespace catapult {

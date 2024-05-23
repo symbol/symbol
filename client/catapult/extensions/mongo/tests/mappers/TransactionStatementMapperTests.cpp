@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/TransactionStatement.h"
 #include "mongo/src/mappers/TransactionStatementMapper.h"
+#include "catapult/model/TransactionStatement.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoReceiptTestUtils.h"
 #include "mongo/tests/test/mocks/MockReceiptMapper.h"

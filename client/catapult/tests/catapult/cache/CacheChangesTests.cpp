@@ -21,9 +21,9 @@
 
 #include "catapult/cache/CacheChanges.h"
 #include "catapult/cache/CatapultCacheBuilder.h"
-#include "tests/TestHarness.h"
 #include "tests/catapult/cache/test/ByteVectorCacheChanges.h"
 #include "tests/catapult/cache/test/DeltasAwareCache.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace cache {

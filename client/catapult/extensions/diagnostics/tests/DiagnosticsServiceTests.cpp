@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/DiagnosticCounterValue.h"
 #include "diagnostics/src/DiagnosticsService.h"
-#include "tests/TestHarness.h"
+#include "catapult/model/DiagnosticCounterValue.h"
 #include "tests/test/core/HandlersTrustedHostTests.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/TestHarness.h"
 
 namespace catapult {
 namespace diagnostics {
