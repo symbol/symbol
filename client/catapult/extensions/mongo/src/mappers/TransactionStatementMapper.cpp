@@ -25,40 +25,38 @@
 
 namespace catapult {
 namespace mongo {
-    namespace mappers {
+	namespace mappers {
 
-        namespace {
-            void StreamReceipts(
-                bson_stream::document& builder,
-                const model::TransactionStatement& statement,
-                const MongoReceiptRegistry& receiptRegistry)
-            {
-                auto receiptsArray = builder << "receipts" << bson_stream::open_array;
-                for (auto i = 0u; i < statement.size(); ++i) {
-                    const auto& receipt = statement.receiptAt(i);
-                    bsoncxx::builder::stream::document receiptBuilder;
-                    StreamReceipt(receiptBuilder, receipt, receiptRegistry);
-                    receiptsArray << receiptBuilder;
-                }
+		namespace {
+			void StreamReceipts(
+				bson_stream::document& builder,
+				const model::TransactionStatement& statement,
+				const MongoReceiptRegistry& receiptRegistry) {
+				auto receiptsArray = builder << "receipts" << bson_stream::open_array;
+				for (auto i = 0u; i < statement.size(); ++i) {
+					const auto& receipt = statement.receiptAt(i);
+					bsoncxx::builder::stream::document receiptBuilder;
+					StreamReceipt(receiptBuilder, receipt, receiptRegistry);
+					receiptsArray << receiptBuilder;
+				}
 
-                receiptsArray << bson_stream::close_array;
-            }
-        }
+				receiptsArray << bson_stream::close_array;
+			}
+		}
 
-        bsoncxx::document::value ToDbModel(
-            Height height,
-            const model::TransactionStatement& statement,
-            const MongoReceiptRegistry& receiptRegistry)
-        {
-            bson_stream::document builder;
-            auto doc = builder << "statement" << bson_stream::open_document << "height" << ToInt64(height) << "source"
-                               << bson_stream::open_document << "primaryId" << static_cast<int32_t>(statement.source().PrimaryId)
-                               << "secondaryId" << static_cast<int32_t>(statement.source().SecondaryId) << bson_stream::close_document;
+		bsoncxx::document::value ToDbModel(
+			Height height,
+			const model::TransactionStatement& statement,
+			const MongoReceiptRegistry& receiptRegistry) {
+			bson_stream::document builder;
+			auto doc = builder << "statement" << bson_stream::open_document << "height" << ToInt64(height) << "source"
+							   << bson_stream::open_document << "primaryId" << static_cast<int32_t>(statement.source().PrimaryId)
+							   << "secondaryId" << static_cast<int32_t>(statement.source().SecondaryId) << bson_stream::close_document;
 
-            StreamReceipts(builder, statement, receiptRegistry);
-            doc << bson_stream::close_document;
-            return builder << bson_stream::finalize;
-        }
-    }
+			StreamReceipts(builder, statement, receiptRegistry);
+			doc << bson_stream::close_document;
+			return builder << bson_stream::finalize;
+		}
+	}
 }
 }

@@ -27,17 +27,16 @@
 namespace catapult {
 namespace subscribers {
 
-    void ReadNextFinalization(io::InputStream& inputStream, FinalizationSubscriber& subscriber)
-    {
-        Hash256 hash;
-        inputStream.read(hash);
+	void ReadNextFinalization(io::InputStream& inputStream, FinalizationSubscriber& subscriber) {
+		Hash256 hash;
+		inputStream.read(hash);
 
-        model::FinalizationRound round;
-        inputStream.read({ reinterpret_cast<uint8_t*>(&round), sizeof(model::FinalizationRound) });
+		model::FinalizationRound round;
+		inputStream.read({ reinterpret_cast<uint8_t*>(&round), sizeof(model::FinalizationRound) });
 
-        auto height = io::Read<Height>(inputStream);
+		auto height = io::Read<Height>(inputStream);
 
-        subscriber.notifyFinalizedBlock(round, height, hash);
-    }
+		subscriber.notifyFinalizedBlock(round, height, hash);
+	}
 }
 }

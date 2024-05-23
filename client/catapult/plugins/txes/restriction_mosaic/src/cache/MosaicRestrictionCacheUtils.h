@@ -25,52 +25,52 @@
 namespace catapult {
 namespace cache {
 
-    // region GetMosaicGlobalRestrictionResolvedRules
+	// region GetMosaicGlobalRestrictionResolvedRules
 
-    /// Result of mosaic global restriction rule resolution.
-    enum class MosaicGlobalRestrictionRuleResolutionResult {
-        /// All rules are valid and have been resolved.
-        Success,
+	/// Result of mosaic global restriction rule resolution.
+	enum class MosaicGlobalRestrictionRuleResolutionResult {
+		/// All rules are valid and have been resolved.
+		Success,
 
-        /// No rules are set.
-        No_Rules,
+		/// No rules are set.
+		No_Rules,
 
-        /// At least one rule is invalid.
-        Invalid_Rule
-    };
+		/// At least one rule is invalid.
+		Invalid_Rule
+	};
 
-    /// Resolved mosaic restriction rule.
-    struct MosaicRestrictionResolvedRule {
-        /// Identifier of the mosaic providing the restriction key.
-        catapult::MosaicId MosaicId;
+	/// Resolved mosaic restriction rule.
+	struct MosaicRestrictionResolvedRule {
+		/// Identifier of the mosaic providing the restriction key.
+		catapult::MosaicId MosaicId;
 
-        /// Restriction key.
-        uint64_t RestrictionKey;
+		/// Restriction key.
+		uint64_t RestrictionKey;
 
-        /// Restriction value.
-        uint64_t RestrictionValue;
+		/// Restriction value.
+		uint64_t RestrictionValue;
 
-        /// Restriction type.
-        model::MosaicRestrictionType RestrictionType;
-    };
+		/// Restriction type.
+		model::MosaicRestrictionType RestrictionType;
+	};
 
-    /// Gets the (resolved) global restriction rules for the mosaic identified by \a mosaicId using \a restrictionCache
-    /// and inserts resolved rules into \a resolvedRules.
-    MosaicGlobalRestrictionRuleResolutionResult GetMosaicGlobalRestrictionResolvedRules(
-        const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,
-        MosaicId mosaicId,
-        std::vector<MosaicRestrictionResolvedRule>& resolvedRules);
+	/// Gets the (resolved) global restriction rules for the mosaic identified by \a mosaicId using \a restrictionCache
+	/// and inserts resolved rules into \a resolvedRules.
+	MosaicGlobalRestrictionRuleResolutionResult GetMosaicGlobalRestrictionResolvedRules(
+		const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,
+		MosaicId mosaicId,
+		std::vector<MosaicRestrictionResolvedRule>& resolvedRules);
 
-    // endregion
+	// endregion
 
-    // region EvaluateMosaicRestrictionResolvedRulesForAddress
+	// region EvaluateMosaicRestrictionResolvedRulesForAddress
 
-    /// Evaluates all resolved rules (\a resolvedRules) for the account identified by \a address using \a restrictionCache.
-    bool EvaluateMosaicRestrictionResolvedRulesForAddress(
-        const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,
-        const Address& address,
-        const std::vector<MosaicRestrictionResolvedRule>& resolvedRules);
+	/// Evaluates all resolved rules (\a resolvedRules) for the account identified by \a address using \a restrictionCache.
+	bool EvaluateMosaicRestrictionResolvedRulesForAddress(
+		const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,
+		const Address& address,
+		const std::vector<MosaicRestrictionResolvedRule>& resolvedRules);
 
-    // endregion
+	// endregion
 }
 }

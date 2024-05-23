@@ -35,45 +35,43 @@
 namespace catapult {
 namespace cache {
 
-    /// Writes serialized cache \a changes into \a outputStream.
-    template <typename TSerializer, typename TCacheDelta, typename TValue>
-    void WriteCacheChanges(const SingleCacheChangesT<TCacheDelta, TValue>& changes, io::OutputStream& outputStream)
-    {
-        auto writeAllFrom = [&outputStream](const auto& source) {
-            for (const auto* pValue : source)
-                TSerializer::Save(*pValue, outputStream);
-        };
+	/// Writes serialized cache \a changes into \a outputStream.
+	template <typename TSerializer, typename TCacheDelta, typename TValue>
+	void WriteCacheChanges(const SingleCacheChangesT<TCacheDelta, TValue>& changes, io::OutputStream& outputStream) {
+		auto writeAllFrom = [&outputStream](const auto& source) {
+			for (const auto* pValue : source)
+				TSerializer::Save(*pValue, outputStream);
+		};
 
-        const auto& addedElements = changes.addedElements();
-        const auto& removedElements = changes.removedElements();
-        const auto& modifiedElements = changes.modifiedElements();
+		const auto& addedElements = changes.addedElements();
+		const auto& removedElements = changes.removedElements();
+		const auto& modifiedElements = changes.modifiedElements();
 
-        io::Write64(outputStream, addedElements.size());
-        io::Write64(outputStream, removedElements.size());
-        io::Write64(outputStream, modifiedElements.size());
+		io::Write64(outputStream, addedElements.size());
+		io::Write64(outputStream, removedElements.size());
+		io::Write64(outputStream, modifiedElements.size());
 
-        writeAllFrom(addedElements);
-        writeAllFrom(removedElements);
-        writeAllFrom(modifiedElements);
-    }
+		writeAllFrom(addedElements);
+		writeAllFrom(removedElements);
+		writeAllFrom(modifiedElements);
+	}
 
-    /// Reads serialized cache \a changes from \a inputStream.
-    template <typename TSerializer, typename TValue>
-    void ReadCacheChanges(io::InputStream& inputStream, MemoryCacheChangesT<TValue>& changes)
-    {
-        auto readAllInto = [&inputStream](auto& dest, auto count) {
-            for (auto i = 0u; i < count; ++i)
-                dest.push_back(TSerializer::Load(inputStream));
-        };
+	/// Reads serialized cache \a changes from \a inputStream.
+	template <typename TSerializer, typename TValue>
+	void ReadCacheChanges(io::InputStream& inputStream, MemoryCacheChangesT<TValue>& changes) {
+		auto readAllInto = [&inputStream](auto& dest, auto count) {
+			for (auto i = 0u; i < count; ++i)
+				dest.push_back(TSerializer::Load(inputStream));
+		};
 
-        auto numAdded = io::Read64(inputStream);
-        auto numRemoved = io::Read64(inputStream);
-        auto numCopied = io::Read64(inputStream);
+		auto numAdded = io::Read64(inputStream);
+		auto numRemoved = io::Read64(inputStream);
+		auto numCopied = io::Read64(inputStream);
 
-        readAllInto(changes.Added, numAdded);
-        readAllInto(changes.Removed, numRemoved);
-        readAllInto(changes.Copied, numCopied);
-    }
+		readAllInto(changes.Added, numAdded);
+		readAllInto(changes.Removed, numRemoved);
+		readAllInto(changes.Copied, numCopied);
+	}
 
 }
 }

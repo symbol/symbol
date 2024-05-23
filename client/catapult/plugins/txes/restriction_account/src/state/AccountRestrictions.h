@@ -26,57 +26,56 @@
 namespace catapult {
 namespace state {
 
-    /// Account restrictions.
-    class PLUGIN_API_DEPENDENCY AccountRestrictions {
-    private:
-        using RestrictionsMap = std::map<model::AccountRestrictionFlags, AccountRestriction>;
-        using const_iterator = RestrictionsMap::const_iterator;
+	/// Account restrictions.
+	class PLUGIN_API_DEPENDENCY AccountRestrictions {
+	private:
+		using RestrictionsMap = std::map<model::AccountRestrictionFlags, AccountRestriction>;
+		using const_iterator = RestrictionsMap::const_iterator;
 
-    public:
-        /// Creates account restrictions around \a address.
-        explicit AccountRestrictions(const Address& address);
+	public:
+		/// Creates account restrictions around \a address.
+		explicit AccountRestrictions(const Address& address);
 
-    public:
-        /// Gets the account address.
-        const Address& address() const;
+	public:
+		/// Gets the account address.
+		const Address& address() const;
 
-        /// Gets the number of possible account restrictions.
-        size_t size() const;
+		/// Gets the number of possible account restrictions.
+		size_t size() const;
 
-        /// Returns \c true if no restrictions are set.
-        bool isEmpty() const;
+		/// Returns \c true if no restrictions are set.
+		bool isEmpty() const;
 
-    public:
-        /// Gets the const account restriction specified by \a restrictionFlags.
-        const AccountRestriction& restriction(model::AccountRestrictionFlags restrictionFlags) const;
+	public:
+		/// Gets the const account restriction specified by \a restrictionFlags.
+		const AccountRestriction& restriction(model::AccountRestrictionFlags restrictionFlags) const;
 
-        /// Gets the account restriction specified by \a restrictionFlags.
-        AccountRestriction& restriction(model::AccountRestrictionFlags restrictionFlags);
+		/// Gets the account restriction specified by \a restrictionFlags.
+		AccountRestriction& restriction(model::AccountRestrictionFlags restrictionFlags);
 
-    public:
-        /// Gets a const iterator to the first account restriction.
-        const_iterator begin() const;
+	public:
+		/// Gets a const iterator to the first account restriction.
+		const_iterator begin() const;
 
-        /// Gets a const iterator to the element following the last account restriction.
-        const_iterator end() const;
+		/// Gets a const iterator to the element following the last account restriction.
+		const_iterator end() const;
 
-    private:
-        void addRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize);
+	private:
+		void addRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize);
 
-    private:
-        template <typename TRestrictionsMap, typename TAccountRestriction>
-        static TAccountRestriction& restriction(TRestrictionsMap& restrictionsMap, model::AccountRestrictionFlags restrictionFlags)
-        {
-            auto iter = restrictionsMap.find(AccountRestrictionDescriptor(restrictionFlags).directionalRestrictionFlags());
-            if (restrictionsMap.cend() == iter)
-                CATAPULT_THROW_INVALID_ARGUMENT_1("unknown account restriction flags", utils::to_underlying_type(restrictionFlags));
+	private:
+		template <typename TRestrictionsMap, typename TAccountRestriction>
+		static TAccountRestriction& restriction(TRestrictionsMap& restrictionsMap, model::AccountRestrictionFlags restrictionFlags) {
+			auto iter = restrictionsMap.find(AccountRestrictionDescriptor(restrictionFlags).directionalRestrictionFlags());
+			if (restrictionsMap.cend() == iter)
+				CATAPULT_THROW_INVALID_ARGUMENT_1("unknown account restriction flags", utils::to_underlying_type(restrictionFlags));
 
-            return iter->second;
-        }
+			return iter->second;
+		}
 
-    private:
-        Address m_address;
-        RestrictionsMap m_restrictions;
-    };
+	private:
+		Address m_address;
+		RestrictionsMap m_restrictions;
+	};
 }
 }

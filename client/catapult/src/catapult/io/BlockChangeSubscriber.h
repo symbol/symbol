@@ -25,17 +25,17 @@
 namespace catapult {
 namespace io {
 
-    /// Block change subscriber.
-    class PLUGIN_API_DEPENDENCY BlockChangeSubscriber {
-    public:
-        virtual ~BlockChangeSubscriber() = default;
+	/// Block change subscriber.
+	class PLUGIN_API_DEPENDENCY BlockChangeSubscriber {
+	public:
+		virtual ~BlockChangeSubscriber() = default;
 
-    public:
-        /// Indicates \a blockElement was saved.
-        virtual void notifyBlock(const model::BlockElement& blockElement) = 0;
+	public:
+		/// Indicates \a blockElement was saved.
+		virtual void notifyBlock(const model::BlockElement& blockElement) = 0;
 
-        /// Indicates all blocks after \a height were invalidated.
-        virtual void notifyDropBlocksAfter(Height height) = 0;
-    };
+		/// Indicates all blocks after \a height were invalidated.
+		virtual void notifyDropBlocksAfter(Height height) = 0;
+	};
 }
 }

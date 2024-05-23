@@ -30,28 +30,26 @@ namespace crypto {
 
 #define OPTIONS_FIELDS FIELD(StartKeyIdentifier) FIELD(EndKeyIdentifier)
 
-    TEST(TEST_CLASS, OptionsHasExpectedSize)
-    {
-        // Arrange:
-        auto expectedSize = 0u;
+	TEST(TEST_CLASS, OptionsHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(BmOptions::X)>();
-        OPTIONS_FIELDS
+		OPTIONS_FIELDS
 #undef FIELD
 
-        // Assert:
-        EXPECT_EQ(expectedSize, sizeof(BmOptions));
-        EXPECT_EQ(16u, sizeof(BmOptions));
-    }
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(BmOptions));
+		EXPECT_EQ(16u, sizeof(BmOptions));
+	}
 
-    TEST(TEST_CLASS, OptionsHasProperAlignment)
-    {
+	TEST(TEST_CLASS, OptionsHasProperAlignment) {
 #define FIELD(X) EXPECT_ALIGNED(BmOptions, X);
-        OPTIONS_FIELDS
+		OPTIONS_FIELDS
 #undef FIELD
 
-        EXPECT_EQ(0u, sizeof(BmOptions) % 8);
-    }
+		EXPECT_EQ(0u, sizeof(BmOptions) % 8);
+	}
 
 #undef OPTIONS_FIELDS
 }

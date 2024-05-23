@@ -26,28 +26,27 @@
 namespace catapult {
 namespace test {
 
-    void AssertEqualMetadataEntry(const state::MetadataEntry& metadataEntry, const bsoncxx::document::view& dbMetadataEntry)
-    {
-        const auto& key = metadataEntry.key();
-        const auto& value = metadataEntry.value();
-        EXPECT_EQ(value.empty() ? 8u : 9u, GetFieldCount(dbMetadataEntry));
-        EXPECT_EQ(1u, GetUint32(dbMetadataEntry, "version"));
+	void AssertEqualMetadataEntry(const state::MetadataEntry& metadataEntry, const bsoncxx::document::view& dbMetadataEntry) {
+		const auto& key = metadataEntry.key();
+		const auto& value = metadataEntry.value();
+		EXPECT_EQ(value.empty() ? 8u : 9u, GetFieldCount(dbMetadataEntry));
+		EXPECT_EQ(1u, GetUint32(dbMetadataEntry, "version"));
 
-        auto compositeHash = metadataEntry.key().uniqueKey();
-        EXPECT_EQ(compositeHash, GetHashValue(dbMetadataEntry, "compositeHash"));
+		auto compositeHash = metadataEntry.key().uniqueKey();
+		EXPECT_EQ(compositeHash, GetHashValue(dbMetadataEntry, "compositeHash"));
 
-        EXPECT_EQ(key.sourceAddress(), GetAddressValue(dbMetadataEntry, "sourceAddress"));
-        EXPECT_EQ(key.targetAddress(), GetAddressValue(dbMetadataEntry, "targetAddress"));
-        EXPECT_EQ(key.scopedMetadataKey(), GetUint64(dbMetadataEntry, "scopedMetadataKey"));
-        EXPECT_EQ(key.targetId(), GetUint64(dbMetadataEntry, "targetId"));
-        EXPECT_EQ(key.metadataType(), static_cast<model::MetadataType>(GetUint8(dbMetadataEntry, "metadataType")));
+		EXPECT_EQ(key.sourceAddress(), GetAddressValue(dbMetadataEntry, "sourceAddress"));
+		EXPECT_EQ(key.targetAddress(), GetAddressValue(dbMetadataEntry, "targetAddress"));
+		EXPECT_EQ(key.scopedMetadataKey(), GetUint64(dbMetadataEntry, "scopedMetadataKey"));
+		EXPECT_EQ(key.targetId(), GetUint64(dbMetadataEntry, "targetId"));
+		EXPECT_EQ(key.metadataType(), static_cast<model::MetadataType>(GetUint8(dbMetadataEntry, "metadataType")));
 
-        EXPECT_EQ(value.size(), GetUint32(dbMetadataEntry, "valueSize"));
-        if (!value.empty()) {
-            auto dbValue = dbMetadataEntry["value"].get_binary();
-            ASSERT_EQ(value.size(), dbValue.size);
-            EXPECT_EQ_MEMORY(value.data(), dbValue.bytes, value.size());
-        }
-    }
+		EXPECT_EQ(value.size(), GetUint32(dbMetadataEntry, "valueSize"));
+		if (!value.empty()) {
+			auto dbValue = dbMetadataEntry["value"].get_binary();
+			ASSERT_EQ(value.size(), dbValue.size);
+			EXPECT_EQ_MEMORY(value.data(), dbValue.bytes, value.size());
+		}
+	}
 }
 }

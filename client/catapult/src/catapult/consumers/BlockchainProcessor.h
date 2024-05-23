@@ -27,67 +27,64 @@
 
 namespace catapult {
 namespace cache {
-    class ReadOnlyCatapultCache;
+	class ReadOnlyCatapultCache;
 }
 namespace chain {
-    struct ObserverState;
+	struct ObserverState;
 }
 }
 
 namespace catapult {
 namespace consumers {
 
-    /// Tuple composed of a block, a hash and a generation hash.
-    class WeakBlockInfo : public model::WeakEntityInfoT<model::Block> {
-    public:
-        /// Creates a block info.
-        constexpr WeakBlockInfo()
-            : m_pGenerationHash(nullptr)
-        {
-        }
+	/// Tuple composed of a block, a hash and a generation hash.
+	class WeakBlockInfo : public model::WeakEntityInfoT<model::Block> {
+	public:
+		/// Creates a block info.
+		constexpr WeakBlockInfo()
+			: m_pGenerationHash(nullptr) {
+		}
 
-        /// Creates a block info around \a blockElement.
-        constexpr explicit WeakBlockInfo(const model::BlockElement& blockElement)
-            : WeakEntityInfoT(blockElement.Block, blockElement.EntityHash)
-            , m_pGenerationHash(&blockElement.GenerationHash)
-        {
-        }
+		/// Creates a block info around \a blockElement.
+		constexpr explicit WeakBlockInfo(const model::BlockElement& blockElement)
+			: WeakEntityInfoT(blockElement.Block, blockElement.EntityHash)
+			, m_pGenerationHash(&blockElement.GenerationHash) {
+		}
 
-    public:
-        /// Gets the generation hash.
-        constexpr const GenerationHash& generationHash() const
-        {
-            return *m_pGenerationHash;
-        }
+	public:
+		/// Gets the generation hash.
+		constexpr const GenerationHash& generationHash() const {
+			return *m_pGenerationHash;
+		}
 
-    private:
-        const GenerationHash* m_pGenerationHash;
-    };
+	private:
+		const GenerationHash* m_pGenerationHash;
+	};
 
-    /// Function signature for validating, executing and updating a partial blockchain given a parent block info
-    /// and updating a cache.
-    using BlockchainProcessor = std::function<validators::ValidationResult(const WeakBlockInfo&, disruptor::BlockElements&, observers::ObserverState&)>;
+	/// Function signature for validating, executing and updating a partial blockchain given a parent block info
+	/// and updating a cache.
+	using BlockchainProcessor = std::function<validators::ValidationResult(const WeakBlockInfo&, disruptor::BlockElements&, observers::ObserverState&)>;
 
-    /// Predicate for determining whether or not two blocks form a hit.
-    using BlockHitPredicate = predicate<const model::Block&, const model::Block&, const GenerationHash&>;
+	/// Predicate for determining whether or not two blocks form a hit.
+	using BlockHitPredicate = predicate<const model::Block&, const model::Block&, const GenerationHash&>;
 
-    /// Factory for creating a predicate for determining whether or not two blocks form a hit.
-    using BlockHitPredicateFactory = std::function<BlockHitPredicate(const cache::ReadOnlyCatapultCache&)>;
+	/// Factory for creating a predicate for determining whether or not two blocks form a hit.
+	using BlockHitPredicateFactory = std::function<BlockHitPredicate(const cache::ReadOnlyCatapultCache&)>;
 
-    /// Possible receipt validation modes.
-    enum class ReceiptValidationMode {
-        /// Disabled, skip validation of receipts.
-        Disabled,
+	/// Possible receipt validation modes.
+	enum class ReceiptValidationMode {
+		/// Disabled, skip validation of receipts.
+		Disabled,
 
-        /// Enabled, generate and validate receipts.
-        Enabled
-    };
+		/// Enabled, generate and validate receipts.
+		Enabled
+	};
 
-    /// Creates a blockchain processor around the specified block hit predicate factory (\a blockHitPredicateFactory)
-    /// and batch entity processor (\a batchEntityProcessor) with \a receiptValidationMode.
-    BlockchainProcessor CreateBlockchainProcessor(
-        const BlockHitPredicateFactory& blockHitPredicateFactory,
-        const chain::BatchEntityProcessor& batchEntityProcessor,
-        ReceiptValidationMode receiptValidationMode);
+	/// Creates a blockchain processor around the specified block hit predicate factory (\a blockHitPredicateFactory)
+	/// and batch entity processor (\a batchEntityProcessor) with \a receiptValidationMode.
+	BlockchainProcessor CreateBlockchainProcessor(
+		const BlockHitPredicateFactory& blockHitPredicateFactory,
+		const chain::BatchEntityProcessor& batchEntityProcessor,
+		ReceiptValidationMode receiptValidationMode);
 }
 }

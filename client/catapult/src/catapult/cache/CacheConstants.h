@@ -25,24 +25,24 @@
 namespace catapult {
 namespace cache {
 
-    /// Cache ids for well-known caches.
-    enum class CacheId : uint32_t {
-        AccountState,
-        BlockStatistic,
-        Hash,
-        Namespace,
-        Mosaic,
-        Multisig,
-        HashLockInfo,
-        SecretLockInfo,
-        AccountRestriction,
-        MosaicRestriction,
-        Metadata
-    };
+	/// Cache ids for well-known caches.
+	enum class CacheId : uint32_t {
+		AccountState,
+		BlockStatistic,
+		Hash,
+		Namespace,
+		Mosaic,
+		Multisig,
+		HashLockInfo,
+		SecretLockInfo,
+		AccountRestriction,
+		MosaicRestriction,
+		Metadata
+	};
 
 /// Defines cache constants for a cache with \a NAME.
 #define DEFINE_CACHE_CONSTANTS(NAME)                                       \
-    static constexpr size_t Id = utils::to_underlying_type(CacheId::NAME); \
-    static constexpr auto Name = #NAME "Cache";
+	static constexpr size_t Id = utils::to_underlying_type(CacheId::NAME); \
+	static constexpr auto Name = #NAME "Cache";
 }
 }

@@ -26,53 +26,53 @@
 
 namespace catapult {
 namespace tools {
-    namespace addressgen {
+	namespace addressgen {
 
-        /// Collection of address search patterns that are used to match against private keys.
-        class MultiAddressMatcher {
-        public:
-            /// Creates a matcher for the network identified by \a networkIdentifier.
-            explicit MultiAddressMatcher(model::NetworkIdentifier networkIdentifier);
+		/// Collection of address search patterns that are used to match against private keys.
+		class MultiAddressMatcher {
+		public:
+			/// Creates a matcher for the network identified by \a networkIdentifier.
+			explicit MultiAddressMatcher(model::NetworkIdentifier networkIdentifier);
 
-        public:
-            /// Returns \c true when all search patterns have been matched.
-            bool isComplete() const;
+		public:
+			/// Returns \c true when all search patterns have been matched.
+			bool isComplete() const;
 
-        public:
-            /// Adds a new search \a pattern.
-            void addSearchPattern(const std::string& pattern);
+		public:
+			/// Adds a new search \a pattern.
+			void addSearchPattern(const std::string& pattern);
 
-            /// Attempts to match \a candidateKeyPair against a preregistered search pattern.
-            std::pair<const crypto::KeyPair*, bool> accept(crypto::KeyPair&& candidateKeyPair);
+			/// Attempts to match \a candidateKeyPair against a preregistered search pattern.
+			std::pair<const crypto::KeyPair*, bool> accept(crypto::KeyPair&& candidateKeyPair);
 
-        private:
-            struct CandidateDescriptor {
-            public:
-                CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::KeyPair&& keyPair);
+		private:
+			struct CandidateDescriptor {
+			public:
+				CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::KeyPair&& keyPair);
 
-            public:
-                crypto::KeyPair KeyPair;
-                std::string AddressString;
-            };
+			public:
+				crypto::KeyPair KeyPair;
+				std::string AddressString;
+			};
 
-            struct SearchDescriptor {
-            public:
-                bool IsComplete() const;
+			struct SearchDescriptor {
+			public:
+				bool IsComplete() const;
 
-            public:
-                std::string SearchString;
+			public:
+				std::string SearchString;
 
-                bool MatchStart = false;
-                bool MatchEnd = false;
-                size_t BestMatchSize = 0;
+				bool MatchStart = false;
+				bool MatchEnd = false;
+				size_t BestMatchSize = 0;
 
-                std::unique_ptr<crypto::KeyPair> pBestKeyPair;
-            };
+				std::unique_ptr<crypto::KeyPair> pBestKeyPair;
+			};
 
-        private:
-            model::NetworkIdentifier m_networkIdentifier;
-            std::list<SearchDescriptor> m_descriptors;
-        };
-    }
+		private:
+			model::NetworkIdentifier m_networkIdentifier;
+			std::list<SearchDescriptor> m_descriptors;
+		};
+	}
 }
 }

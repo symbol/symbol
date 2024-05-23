@@ -27,119 +27,112 @@ namespace extensions {
 
 #define TEST_CLASS BasicServerHooksTests
 
-    using BasicFunc = supplier<int>;
+	using BasicFunc = supplier<int>;
 
-    // region SetOnce
+	// region SetOnce
 
-    TEST(TEST_CLASS, SetOnceSetsDestWhenDestIsUnset)
-    {
-        // Arrange:
-        BasicFunc dest;
-        BasicFunc source = []() { return 123; };
+	TEST(TEST_CLASS, SetOnceSetsDestWhenDestIsUnset) {
+		// Arrange:
+		BasicFunc dest;
+		BasicFunc source = []() { return 123; };
 
-        // Act:
-        SetOnce(dest, source);
+		// Act:
+		SetOnce(dest, source);
 
-        // Assert:
-        ASSERT_TRUE(!!dest);
-        EXPECT_EQ(123, dest());
-    }
+		// Assert:
+		ASSERT_TRUE(!!dest);
+		EXPECT_EQ(123, dest());
+	}
 
-    TEST(TEST_CLASS, SetOnceThrowsWhenDestIsSet)
-    {
-        // Arrange:
-        BasicFunc dest = []() { return 123; };
-        BasicFunc source = []() { return 987; };
+	TEST(TEST_CLASS, SetOnceThrowsWhenDestIsSet) {
+		// Arrange:
+		BasicFunc dest = []() { return 123; };
+		BasicFunc source = []() { return 987; };
 
-        // Act + Assert:
-        EXPECT_THROW(SetOnce(dest, source), catapult_invalid_argument);
+		// Act + Assert:
+		EXPECT_THROW(SetOnce(dest, source), catapult_invalid_argument);
 
-        // Assert:
-        ASSERT_TRUE(!!dest);
-        EXPECT_EQ(123, dest());
-    }
+		// Assert:
+		ASSERT_TRUE(!!dest);
+		EXPECT_EQ(123, dest());
+	}
 
-    // endregion
+	// endregion
 
-    // region Require
+	// region Require
 
-    TEST(TEST_CLASS, RequireReturnsFuncWhenFuncIsSet)
-    {
-        // Act:
-        auto func = Require(BasicFunc([]() { return 123; }));
+	TEST(TEST_CLASS, RequireReturnsFuncWhenFuncIsSet) {
+		// Act:
+		auto func = Require(BasicFunc([]() { return 123; }));
 
-        // Assert:
-        ASSERT_TRUE(!!func);
-        EXPECT_EQ(123, func());
-    }
+		// Assert:
+		ASSERT_TRUE(!!func);
+		EXPECT_EQ(123, func());
+	}
 
-    TEST(TEST_CLASS, RequireThrowsWhenFuncIsNotSet)
-    {
-        EXPECT_THROW(Require(BasicFunc()), catapult_invalid_argument);
-    }
+	TEST(TEST_CLASS, RequireThrowsWhenFuncIsNotSet) {
+		EXPECT_THROW(Require(BasicFunc()), catapult_invalid_argument);
+	}
 
-    // endregion
+	// endregion
 
-    // region AggregateConsumers
+	// region AggregateConsumers
 
-    TEST(TEST_CLASS, CanAggregateZeroConsumers)
-    {
-        // Act:
-        auto consumer = AggregateConsumers<catapult::consumer<const int&>>({});
-        ASSERT_TRUE(!!consumer);
+	TEST(TEST_CLASS, CanAggregateZeroConsumers) {
+		// Act:
+		auto consumer = AggregateConsumers<catapult::consumer<const int&>>({});
+		ASSERT_TRUE(!!consumer);
 
-        // Assert: no exception
-        consumer(7);
-    }
+		// Assert: no exception
+		consumer(7);
+	}
 
-    TEST(TEST_CLASS, CanAggregateSingleConsumer)
-    {
-        // Arrange:
-        std::vector<const int*> breadcrumbs;
+	TEST(TEST_CLASS, CanAggregateSingleConsumer) {
+		// Arrange:
+		std::vector<const int*> breadcrumbs;
 
-        // Act:
-        auto consumer = AggregateConsumers<catapult::consumer<const int&>>(
-            { [&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back(&sentinel); } });
+		// Act:
+		auto consumer = AggregateConsumers<catapult::consumer<const int&>>(
+			{ [&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back(&sentinel); } });
 
-        ASSERT_TRUE(!!consumer);
+		ASSERT_TRUE(!!consumer);
 
-        // - call the consumer
-        int sentinel = 11;
-        consumer(sentinel);
+		// - call the consumer
+		int sentinel = 11;
+		consumer(sentinel);
 
-        // Assert:
-        ASSERT_EQ(1u, breadcrumbs.size());
-        EXPECT_EQ(&sentinel, breadcrumbs[0]);
-    }
+		// Assert:
+		ASSERT_EQ(1u, breadcrumbs.size());
+		EXPECT_EQ(&sentinel, breadcrumbs[0]);
+	}
 
-    TEST(TEST_CLASS, CanAggregateMultipleConsumers)
-    {
-        // Arrange:
-        struct Breadcrumb {
-            const int* pData;
-            size_t Id;
-        };
-        std::vector<Breadcrumb> breadcrumbs;
+	TEST(TEST_CLASS, CanAggregateMultipleConsumers) {
+		// Arrange:
+		struct Breadcrumb {
+			const int* pData;
+			size_t Id;
+		};
+		std::vector<Breadcrumb> breadcrumbs;
 
-        // Act:
-        auto consumer = AggregateConsumers<catapult::consumer<const int&>>(
-            { [&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 1 }); },
-                [&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 2 }); } });
+		// Act:
+		auto consumer = AggregateConsumers<catapult::consumer<const int&>>(
+			{ [&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 1 }); },
+				[&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 2 }); } });
 
-        ASSERT_TRUE(!!consumer);
+		ASSERT_TRUE(!!consumer);
 
-        // - call the consumer
-        int sentinel = 11;
-        consumer(sentinel);
+		// - call the consumer
+		int sentinel = 11;
+		consumer(sentinel);
 
-        // Assert:
-        ASSERT_EQ(2u, breadcrumbs.size());
-        for (auto i = 0u; i < breadcrumbs.size(); ++i) {
-            EXPECT_EQ(&sentinel, breadcrumbs[i].pData) << "at " << i;
-            EXPECT_EQ(i + 1u, breadcrumbs[i].Id) << "at " << i;
-        }
-    }
+		// Assert:
+		ASSERT_EQ(2u, breadcrumbs.size());
+		for (auto i = 0u; i < breadcrumbs.size(); ++i) {
+			EXPECT_EQ(&sentinel, breadcrumbs[i].pData) << "at " << i;
+			EXPECT_EQ(i + 1u, breadcrumbs[i].Id) << "at " << i;
+		}
+	}
 
-    // endregion
+	// endregion
 }
 }

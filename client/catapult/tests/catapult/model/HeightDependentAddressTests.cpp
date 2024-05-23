@@ -27,89 +27,84 @@ namespace model {
 
 #define TEST_CLASS HeightDependentAddressTests
 
-    TEST(TEST_CLASS, CanCreateEmptyAddress)
-    {
-        // Arrange:
-        auto heightDependentAddress = HeightDependentAddress();
+	TEST(TEST_CLASS, CanCreateEmptyAddress) {
+		// Arrange:
+		auto heightDependentAddress = HeightDependentAddress();
 
-        // Act + Assert:
-        for (auto height : std::initializer_list<Height::ValueType> { 0, 1, 99, 100, 101, 140, 141, 142 })
-            EXPECT_EQ(Address(), heightDependentAddress.get(Height(height))) << "height " << height;
-    }
+		// Act + Assert:
+		for (auto height : std::initializer_list<Height::ValueType> { 0, 1, 99, 100, 101, 140, 141, 142 })
+			EXPECT_EQ(Address(), heightDependentAddress.get(Height(height))) << "height " << height;
+	}
 
-    TEST(TEST_CLASS, CanCreateAddressAroundSingleValue)
-    {
-        // Arrange:
-        auto addresses = test::GenerateRandomDataVector<Address>(1);
-        auto heightDependentAddress = HeightDependentAddress(addresses[0]);
+	TEST(TEST_CLASS, CanCreateAddressAroundSingleValue) {
+		// Arrange:
+		auto addresses = test::GenerateRandomDataVector<Address>(1);
+		auto heightDependentAddress = HeightDependentAddress(addresses[0]);
 
-        // Act + Assert:
-        for (auto height : std::initializer_list<Height::ValueType> { 0, 1, 99, 100, 101, 140, 141, 142 })
-            EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
-    }
+		// Act + Assert:
+		for (auto height : std::initializer_list<Height::ValueType> { 0, 1, 99, 100, 101, 140, 141, 142 })
+			EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
+	}
 
-    TEST(TEST_CLASS, CanCreateAddressAroundMultipleValues)
-    {
-        // Arrange:
-        auto addresses = test::GenerateRandomDataVector<Address>(3);
-        auto heightDependentAddress = HeightDependentAddress(addresses[0]);
+	TEST(TEST_CLASS, CanCreateAddressAroundMultipleValues) {
+		// Arrange:
+		auto addresses = test::GenerateRandomDataVector<Address>(3);
+		auto heightDependentAddress = HeightDependentAddress(addresses[0]);
 
-        std::vector<bool> trySetResults(2);
-        trySetResults[0] = heightDependentAddress.trySet(addresses[1], Height(100));
-        trySetResults[1] = heightDependentAddress.trySet(addresses[2], Height(141));
+		std::vector<bool> trySetResults(2);
+		trySetResults[0] = heightDependentAddress.trySet(addresses[1], Height(100));
+		trySetResults[1] = heightDependentAddress.trySet(addresses[2], Height(141));
 
-        // Sanity:
-        EXPECT_EQ(std::vector<bool>({ true, true }), trySetResults);
+		// Sanity:
+		EXPECT_EQ(std::vector<bool>({ true, true }), trySetResults);
 
-        // Act + Assert:
-        for (auto height : std::initializer_list<Height::ValueType> { 1, 99 })
-            EXPECT_EQ(addresses[1], heightDependentAddress.get(Height(height))) << "height " << height;
+		// Act + Assert:
+		for (auto height : std::initializer_list<Height::ValueType> { 1, 99 })
+			EXPECT_EQ(addresses[1], heightDependentAddress.get(Height(height))) << "height " << height;
 
-        for (auto height : std::initializer_list<Height::ValueType> { 100, 101, 140 })
-            EXPECT_EQ(addresses[2], heightDependentAddress.get(Height(height))) << "height " << height;
+		for (auto height : std::initializer_list<Height::ValueType> { 100, 101, 140 })
+			EXPECT_EQ(addresses[2], heightDependentAddress.get(Height(height))) << "height " << height;
 
-        for (auto height : std::initializer_list<Height::ValueType> { 0, 141, 142 })
-            EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
-    }
+		for (auto height : std::initializer_list<Height::ValueType> { 0, 141, 142 })
+			EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
+	}
 
-    TEST(TEST_CLASS, CanCreateAddressAroundMultipleValuesIgnoringZeroHeights)
-    {
-        // Arrange:
-        auto addresses = test::GenerateRandomDataVector<Address>(5);
-        auto heightDependentAddress = HeightDependentAddress(addresses[0]);
+	TEST(TEST_CLASS, CanCreateAddressAroundMultipleValuesIgnoringZeroHeights) {
+		// Arrange:
+		auto addresses = test::GenerateRandomDataVector<Address>(5);
+		auto heightDependentAddress = HeightDependentAddress(addresses[0]);
 
-        std::vector<bool> trySetResults(4);
-        trySetResults[0] = heightDependentAddress.trySet(addresses[1], Height(0));
-        trySetResults[1] = heightDependentAddress.trySet(addresses[2], Height(100));
-        trySetResults[2] = heightDependentAddress.trySet(addresses[3], Height(0));
-        trySetResults[3] = heightDependentAddress.trySet(addresses[4], Height(141));
+		std::vector<bool> trySetResults(4);
+		trySetResults[0] = heightDependentAddress.trySet(addresses[1], Height(0));
+		trySetResults[1] = heightDependentAddress.trySet(addresses[2], Height(100));
+		trySetResults[2] = heightDependentAddress.trySet(addresses[3], Height(0));
+		trySetResults[3] = heightDependentAddress.trySet(addresses[4], Height(141));
 
-        // Sanity:
-        EXPECT_EQ(std::vector<bool>({ false, true, false, true }), trySetResults);
+		// Sanity:
+		EXPECT_EQ(std::vector<bool>({ false, true, false, true }), trySetResults);
 
-        // Act + Assert:
-        for (auto height : std::initializer_list<Height::ValueType> { 1, 99 })
-            EXPECT_EQ(addresses[2], heightDependentAddress.get(Height(height))) << "height " << height;
+		// Act + Assert:
+		for (auto height : std::initializer_list<Height::ValueType> { 1, 99 })
+			EXPECT_EQ(addresses[2], heightDependentAddress.get(Height(height))) << "height " << height;
 
-        for (auto height : std::initializer_list<Height::ValueType> { 100, 101, 140 })
-            EXPECT_EQ(addresses[4], heightDependentAddress.get(Height(height))) << "height " << height;
+		for (auto height : std::initializer_list<Height::ValueType> { 100, 101, 140 })
+			EXPECT_EQ(addresses[4], heightDependentAddress.get(Height(height))) << "height " << height;
 
-        for (auto height : std::initializer_list<Height::ValueType> { 0, 141, 142 })
-            EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
-    }
+		for (auto height : std::initializer_list<Height::ValueType> { 0, 141, 142 })
+			EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
+	}
 
-    TEST(TEST_CLASS, CannotCreateAddressAroundMultipleValuesOutOfOrder)
-    {
-        // Arrange:
-        auto addresses = test::GenerateRandomDataVector<Address>(3);
-        auto heightDependentAddress = HeightDependentAddress(addresses[0]);
-        auto trySetResult1 = heightDependentAddress.trySet(addresses[1], Height(141));
+	TEST(TEST_CLASS, CannotCreateAddressAroundMultipleValuesOutOfOrder) {
+		// Arrange:
+		auto addresses = test::GenerateRandomDataVector<Address>(3);
+		auto heightDependentAddress = HeightDependentAddress(addresses[0]);
+		auto trySetResult1 = heightDependentAddress.trySet(addresses[1], Height(141));
 
-        // Sanity:
-        EXPECT_TRUE(trySetResult1);
+		// Sanity:
+		EXPECT_TRUE(trySetResult1);
 
-        // Act + Assert:
-        EXPECT_THROW(heightDependentAddress.trySet(addresses[2], Height(100)), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(heightDependentAddress.trySet(addresses[2], Height(100)), catapult_invalid_argument);
+	}
 }
 }

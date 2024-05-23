@@ -30,28 +30,28 @@
 namespace catapult {
 namespace test {
 
-    /// Basic traits for a secret lock info.
-    struct BasicSecretLockInfoTestTraits : public cache::SecretLockInfoCacheDescriptor {
-        using HistoryType = cache::SecretLockInfoCacheDescriptor::ValueType;
-        using LockInfoType = HistoryType::ValueType;
-        using ValueType = LockInfoType;
+	/// Basic traits for a secret lock info.
+	struct BasicSecretLockInfoTestTraits : public cache::SecretLockInfoCacheDescriptor {
+		using HistoryType = cache::SecretLockInfoCacheDescriptor::ValueType;
+		using LockInfoType = HistoryType::ValueType;
+		using ValueType = LockInfoType;
 
-        static constexpr auto ToKey = cache::SecretLockInfoCacheDescriptor::GetKeyFromValue;
+		static constexpr auto ToKey = cache::SecretLockInfoCacheDescriptor::GetKeyFromValue;
 
-        /// Creates a secret lock info with given \a height.
-        static ValueType CreateLockInfo(Height height);
+		/// Creates a secret lock info with given \a height.
+		static ValueType CreateLockInfo(Height height);
 
-        /// Creates a random secret lock info.
-        static ValueType CreateLockInfo();
+		/// Creates a random secret lock info.
+		static ValueType CreateLockInfo();
 
-        /// Sets the \a key of the \a lockInfo.
-        static void SetKey(ValueType& lockInfo, const KeyType& key);
+		/// Sets the \a key of the \a lockInfo.
+		static void SetKey(ValueType& lockInfo, const KeyType& key);
 
-        /// Asserts that the secret lock infos \a lhs and \a rhs are equal.
-        static void AssertEqual(const ValueType& lhs, const ValueType& rhs);
-    };
+		/// Asserts that the secret lock infos \a lhs and \a rhs are equal.
+		static void AssertEqual(const ValueType& lhs, const ValueType& rhs);
+	};
 
-    /// Cache factory for creating a catapult cache containing lock secret cache.
-    using SecretLockInfoCacheFactory = LockInfoCacheFactory<cache::SecretLockInfoCacheDescriptor, cache::SecretLockInfoCacheStorage>;
+	/// Cache factory for creating a catapult cache containing lock secret cache.
+	using SecretLockInfoCacheFactory = LockInfoCacheFactory<cache::SecretLockInfoCacheDescriptor, cache::SecretLockInfoCacheStorage>;
 }
 }

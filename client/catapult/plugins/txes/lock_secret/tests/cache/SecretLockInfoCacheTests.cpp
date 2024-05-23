@@ -29,14 +29,14 @@ namespace cache {
 
 #define TEST_CLASS SecretLockInfoCacheTests
 
-    namespace {
-        struct SecretTraits : public test::BasicSecretLockInfoTestTraits {
-            using ValueType = state::SecretLockInfoHistory;
-        };
-    }
+	namespace {
+		struct SecretTraits : public test::BasicSecretLockInfoTestTraits {
+			using ValueType = state::SecretLockInfoHistory;
+		};
+	}
 
-    DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, LockInfoCacheDeltaModificationPolicy<SecretTraits>, )
+	DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, LockInfoCacheDeltaModificationPolicy<SecretTraits>, )
 
-    DEFINE_CACHE_PRUNE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, )
+	DEFINE_CACHE_PRUNE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, )
 }
 }

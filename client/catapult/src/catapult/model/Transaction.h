@@ -26,7 +26,7 @@
 
 namespace catapult {
 namespace model {
-    class TransactionRegistry;
+	class TransactionRegistry;
 }
 }
 
@@ -35,56 +35,56 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Binary layout for a transaction.
-    struct PLUGIN_API_DEPENDENCY Transaction : public VerifiableEntity {
-        /// Maximum transaction fee paid for confirmation.
-        /// \note Actual fee paid is dependent on containing block.
-        Amount MaxFee;
+	/// Binary layout for a transaction.
+	struct PLUGIN_API_DEPENDENCY Transaction : public VerifiableEntity {
+		/// Maximum transaction fee paid for confirmation.
+		/// \note Actual fee paid is dependent on containing block.
+		Amount MaxFee;
 
-        /// Transaction deadline.
-        Timestamp Deadline;
-    };
+		/// Transaction deadline.
+		Timestamp Deadline;
+	};
 
-    // Transaction Layout:
-    // * SizePrefixedEntity
-    //   0x00:  (4) Size
-    // * VerifiableEntity
-    //   0x04:  (4) VerifiableEntityHeader_Reserved1
-    //   0x08: (64) Signature
-    // * EntityBody
-    //   0x48: (32) SignerPublicKey
-    //   0x68:  (4) EntityBody_Reserved1
-    //   0x6C:  (1) Version
-    //   0x6D:  (1) Network
-    //   0x6E:  (2) Type
-    // * Transaction
-    //   0x70:  (8) MaxFee
-    //   0x78:  (8) Deadline
-    //   0x80:  (*) Transaction Data
+	// Transaction Layout:
+	// * SizePrefixedEntity
+	//   0x00:  (4) Size
+	// * VerifiableEntity
+	//   0x04:  (4) VerifiableEntityHeader_Reserved1
+	//   0x08: (64) Signature
+	// * EntityBody
+	//   0x48: (32) SignerPublicKey
+	//   0x68:  (4) EntityBody_Reserved1
+	//   0x6C:  (1) Version
+	//   0x6D:  (1) Network
+	//   0x6E:  (2) Type
+	// * Transaction
+	//   0x70:  (8) MaxFee
+	//   0x78:  (8) Deadline
+	//   0x80:  (*) Transaction Data
 
 #pragma pack(pop)
 
-    /// Checks the real size of \a transaction against its reported size and returns \c true if the sizes match.
-    /// \a registry contains all known transaction types.
-    bool IsSizeValid(const Transaction& transaction, const TransactionRegistry& registry);
+	/// Checks the real size of \a transaction against its reported size and returns \c true if the sizes match.
+	/// \a registry contains all known transaction types.
+	bool IsSizeValid(const Transaction& transaction, const TransactionRegistry& registry);
 
-    // region macros
+	// region macros
 
 /// Defines constants for a transaction with \a TYPE and \a VERSION.
 #define DEFINE_TRANSACTION_CONSTANTS(TYPE, VERSION)     \
-    /* Transaction format version. */                   \
-    static constexpr uint8_t Current_Version = VERSION; \
-    /* Transaction type. */                             \
-    static constexpr EntityType Entity_Type = TYPE;
+	/* Transaction format version. */                   \
+	static constexpr uint8_t Current_Version = VERSION; \
+	/* Transaction type. */                             \
+	static constexpr EntityType Entity_Type = TYPE;
 
 /// Defines \a NAME (\a TYPE typed) variable data accessors around a similarly named templated untyped data accessor.
 #define DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS
 
 /// Defines a transaction with \a NAME that supports embedding.
 #define DEFINE_EMBEDDABLE_TRANSACTION(NAME)                                                            \
-    struct Embedded##NAME##Transaction : public NAME##TransactionBody<model::EmbeddedTransaction> { }; \
-    struct NAME##Transaction : public NAME##TransactionBody<model::Transaction> { };
+	struct Embedded##NAME##Transaction : public NAME##TransactionBody<model::EmbeddedTransaction> { }; \
+	struct NAME##Transaction : public NAME##TransactionBody<model::Transaction> { };
 
-    // endregion
+	// endregion
 }
 }

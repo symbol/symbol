@@ -28,32 +28,29 @@ namespace validators {
 
 #define TEST_CLASS MosaicRestrictionTypeValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionType, )
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionType, )
 
-    namespace {
-        struct MosaicRestrictionTypeTraits {
-            using EnumType = model::MosaicRestrictionType;
+	namespace {
+		struct MosaicRestrictionTypeTraits {
+			using EnumType = model::MosaicRestrictionType;
 
-            static constexpr auto Failure_Result = Failure_RestrictionMosaic_Invalid_Restriction_Type;
-            static constexpr auto CreateValidator = CreateMosaicRestrictionTypeValidator;
+			static constexpr auto Failure_Result = Failure_RestrictionMosaic_Invalid_Restriction_Type;
+			static constexpr auto CreateValidator = CreateMosaicRestrictionTypeValidator;
 
-            static std::vector<uint8_t> ValidValues()
-            {
-                return { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
-            }
+			static std::vector<uint8_t> ValidValues() {
+				return { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
+			}
 
-            static std::vector<uint8_t> InvalidValues()
-            {
-                return { 0x07, 0xFF };
-            }
+			static std::vector<uint8_t> InvalidValues() {
+				return { 0x07, 0xFF };
+			}
 
-            static auto CreateNotification(EnumType value)
-            {
-                return model::MosaicRestrictionTypeNotification(value);
-            }
-        };
-    }
+			static auto CreateNotification(EnumType value) {
+				return model::MosaicRestrictionTypeNotification(value);
+			}
+		};
+	}
 
-    DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, MosaicRestrictionTypeTraits)
+	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, MosaicRestrictionTypeTraits)
 }
 }

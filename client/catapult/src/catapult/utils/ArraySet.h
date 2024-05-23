@@ -29,53 +29,51 @@
 namespace catapult {
 namespace utils {
 
-    /// Functor for hashing an array pointer.
-    template <typename TArray>
-    struct ArrayPointerHasher {
-        size_t operator()(const TArray* pArray) const
-        {
-            return ArrayHasher<TArray>()(*pArray);
-        }
-    };
+	/// Functor for hashing an array pointer.
+	template <typename TArray>
+	struct ArrayPointerHasher {
+		size_t operator()(const TArray* pArray) const {
+			return ArrayHasher<TArray>()(*pArray);
+		}
+	};
 
-    /// Functor for comparing two array pointers.
-    template <typename TArray>
-    struct ArrayPointerEquality {
-        bool operator()(const TArray* pLhs, const TArray* pRhs) const
-        {
-            return *pLhs == *pRhs;
-        }
-    };
+	/// Functor for comparing two array pointers.
+	template <typename TArray>
+	struct ArrayPointerEquality {
+		bool operator()(const TArray* pLhs, const TArray* pRhs) const {
+			return *pLhs == *pRhs;
+		}
+	};
 
-    /// Unordered set of arrays.
-    template <typename TArray>
-    using ArraySet = std::unordered_set<TArray, ArrayHasher<TArray>>;
+	/// Unordered set of arrays.
+	template <typename TArray>
+	using ArraySet = std::unordered_set<TArray, ArrayHasher<TArray>>;
 
-    /// Unordered set of array pointers.
-    template <typename TArray>
-    using ArrayPointerSet = std::unordered_set<const TArray*, ArrayPointerHasher<TArray>, ArrayPointerEquality<TArray>>;
+	/// Unordered set of array pointers.
+	template <typename TArray>
+	using ArrayPointerSet = std::unordered_set<const TArray*, ArrayPointerHasher<TArray>, ArrayPointerEquality<TArray>>;
 
-    /// Unordered map of array pointers to flags.
-    template <typename TArray>
-    using ArrayPointerFlagMap = std::unordered_map<const TArray*, bool, ArrayPointerHasher<TArray>, ArrayPointerEquality<TArray>>;
+	/// Unordered map of array pointers to flags.
+	template <typename TArray>
+	using ArrayPointerFlagMap = std::unordered_map<const TArray*, bool, ArrayPointerHasher<TArray>, ArrayPointerEquality<TArray>>;
 
-    // region well known array sets
+	// region well known array sets
 
-    /// Hash set.
-    using HashSet = ArraySet<Hash256>;
+	/// Hash set.
+	using HashSet = ArraySet<Hash256>;
 
-    /// Key set.
-    using KeySet = ArraySet<Key>;
+	/// Key set.
+	using KeySet = ArraySet<Key>;
 
-    /// Sorted key set.
-    using SortedKeySet = std::set<Key>;
+	/// Sorted key set.
+	using SortedKeySet = std::set<Key>;
 
-    /// Hash pointer set.
-    using HashPointerSet = ArrayPointerSet<Hash256>;
+	/// Hash pointer set.
+	using HashPointerSet = ArrayPointerSet<Hash256>;
 
-    /// Key pointer set.
-    using KeyPointerSet = ArrayPointerSet<Key>;
+	/// Key pointer set.
+	using KeyPointerSet = ArrayPointerSet<Key>;
 
-    // endregion
+	// endregion
 }
 }

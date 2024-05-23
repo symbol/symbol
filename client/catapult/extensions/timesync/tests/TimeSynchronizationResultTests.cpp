@@ -27,15 +27,14 @@ namespace timesync {
 
 #define TEST_CLASS TimeSynchronizationResultTests
 
-    TEST(TEST_CLASS, CanCreateTimeSynchronizationResult)
-    {
-        // Act:
-        TimeSynchronizationResult result(Timestamp(123), 234, -345);
+	TEST(TEST_CLASS, CanCreateTimeSynchronizationResult) {
+		// Act:
+		TimeSynchronizationResult result(Timestamp(123), 234, -345);
 
-        // Assert:
-        EXPECT_EQ(Timestamp(123), result.Timestamp);
-        EXPECT_EQ(234, result.CurrentOffset);
-        EXPECT_EQ(-345, result.Change);
-    }
+		// Assert:
+		EXPECT_EQ(Timestamp(123), result.Timestamp);
+		EXPECT_EQ(234, result.CurrentOffset);
+		EXPECT_EQ(-345, result.Change);
+	}
 }
 }

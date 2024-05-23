@@ -24,22 +24,20 @@
 namespace catapult {
 namespace cache {
 
-    std::string KeyAddressPairSerializer::SerializeValue(const ValueType& value)
-    {
-        io::StringOutputStream output(sizeof(Key) + sizeof(Address));
-        output.write(value.first);
-        output.write(value.second);
-        return output.str();
-    }
+	std::string KeyAddressPairSerializer::SerializeValue(const ValueType& value) {
+		io::StringOutputStream output(sizeof(Key) + sizeof(Address));
+		output.write(value.first);
+		output.write(value.second);
+		return output.str();
+	}
 
-    KeyAddressPairSerializer::ValueType KeyAddressPairSerializer::DeserializeValue(const RawBuffer& buffer)
-    {
-        io::BufferInputStreamAdapter<RawBuffer> input(buffer);
+	KeyAddressPairSerializer::ValueType KeyAddressPairSerializer::DeserializeValue(const RawBuffer& buffer) {
+		io::BufferInputStreamAdapter<RawBuffer> input(buffer);
 
-        ValueType value;
-        input.read(value.first);
-        input.read(value.second);
-        return value;
-    }
+		ValueType value;
+		input.read(value.first);
+		input.read(value.second);
+		return value;
+	}
 }
 }

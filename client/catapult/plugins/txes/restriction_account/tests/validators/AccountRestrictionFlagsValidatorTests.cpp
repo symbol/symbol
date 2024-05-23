@@ -28,68 +28,61 @@ namespace validators {
 
 #define TEST_CLASS AccountRestrictionFlagsValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(AccountRestrictionFlags, )
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountRestrictionFlags, )
 
-    namespace {
-        void AssertValidationResult(ValidationResult expectedResult, model::AccountRestrictionFlags restrictionFlags)
-        {
-            // Arrange:
-            model::AccountRestrictionModificationNotification notification(restrictionFlags, 0, 0);
-            auto pValidator = CreateAccountRestrictionFlagsValidator();
+	namespace {
+		void AssertValidationResult(ValidationResult expectedResult, model::AccountRestrictionFlags restrictionFlags) {
+			// Arrange:
+			model::AccountRestrictionModificationNotification notification(restrictionFlags, 0, 0);
+			auto pValidator = CreateAccountRestrictionFlagsValidator();
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "notification with restriction flags " << utils::to_underlying_type(restrictionFlags);
-        }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "notification with restriction flags " << utils::to_underlying_type(restrictionFlags);
+		}
 
-        void AssertValidTypes(const std::vector<model::AccountRestrictionFlags>& restrictionFlagsContainer)
-        {
-            for (auto restrictionFlags : restrictionFlagsContainer) {
-                AssertValidationResult(ValidationResult::Success, restrictionFlags);
-                AssertValidationResult(ValidationResult::Success, restrictionFlags | model::AccountRestrictionFlags::Block);
-            }
-        }
+		void AssertValidTypes(const std::vector<model::AccountRestrictionFlags>& restrictionFlagsContainer) {
+			for (auto restrictionFlags : restrictionFlagsContainer) {
+				AssertValidationResult(ValidationResult::Success, restrictionFlags);
+				AssertValidationResult(ValidationResult::Success, restrictionFlags | model::AccountRestrictionFlags::Block);
+			}
+		}
 
-        void AssertInvalidTypes(const std::vector<model::AccountRestrictionFlags>& restrictionFlagsContainer)
-        {
-            constexpr auto Invalid_Type = Failure_RestrictionAccount_Invalid_Restriction_Flags;
-            for (auto restrictionFlags : restrictionFlagsContainer) {
-                AssertValidationResult(Invalid_Type, restrictionFlags);
-                AssertValidationResult(Invalid_Type, restrictionFlags | model::AccountRestrictionFlags::Block);
-            }
-        }
-    }
+		void AssertInvalidTypes(const std::vector<model::AccountRestrictionFlags>& restrictionFlagsContainer) {
+			constexpr auto Invalid_Type = Failure_RestrictionAccount_Invalid_Restriction_Flags;
+			for (auto restrictionFlags : restrictionFlagsContainer) {
+				AssertValidationResult(Invalid_Type, restrictionFlags);
+				AssertValidationResult(Invalid_Type, restrictionFlags | model::AccountRestrictionFlags::Block);
+			}
+		}
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithKnownAccountRestrictionFlags)
-    {
-        AssertValidTypes({ model::AccountRestrictionFlags::Address,
-            model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing,
-            model::AccountRestrictionFlags::MosaicId,
-            model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing });
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithKnownAccountRestrictionFlags) {
+		AssertValidTypes({ model::AccountRestrictionFlags::Address,
+			model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing,
+			model::AccountRestrictionFlags::MosaicId,
+			model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing });
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithUnknownAccountRestrictionFlags)
-    {
-        AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Flags, model::AccountRestrictionFlags::Sentinel);
-        AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Flags, static_cast<model::AccountRestrictionFlags>(0x10));
-    }
+	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithUnknownAccountRestrictionFlags) {
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Flags, model::AccountRestrictionFlags::Sentinel);
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Flags, static_cast<model::AccountRestrictionFlags>(0x10));
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithNoFlagsSet)
-    {
-        AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Flags, static_cast<model::AccountRestrictionFlags>(0));
-    }
+	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithNoFlagsSet) {
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Flags, static_cast<model::AccountRestrictionFlags>(0));
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMultipleFlagsSet)
-    {
-        AssertInvalidTypes({ model::AccountRestrictionFlags::MosaicId | model::AccountRestrictionFlags::Outgoing,
-            model::AccountRestrictionFlags::TransactionType,
-            static_cast<model::AccountRestrictionFlags>(3),
-            static_cast<model::AccountRestrictionFlags>(3) | model::AccountRestrictionFlags::Outgoing,
-            static_cast<model::AccountRestrictionFlags>(7),
-            static_cast<model::AccountRestrictionFlags>(7) | model::AccountRestrictionFlags::Outgoing,
-            static_cast<model::AccountRestrictionFlags>(0xFF) });
-    }
+	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMultipleFlagsSet) {
+		AssertInvalidTypes({ model::AccountRestrictionFlags::MosaicId | model::AccountRestrictionFlags::Outgoing,
+			model::AccountRestrictionFlags::TransactionType,
+			static_cast<model::AccountRestrictionFlags>(3),
+			static_cast<model::AccountRestrictionFlags>(3) | model::AccountRestrictionFlags::Outgoing,
+			static_cast<model::AccountRestrictionFlags>(7),
+			static_cast<model::AccountRestrictionFlags>(7) | model::AccountRestrictionFlags::Outgoing,
+			static_cast<model::AccountRestrictionFlags>(0xFF) });
+	}
 }
 }

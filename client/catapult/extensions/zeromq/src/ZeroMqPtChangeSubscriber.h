@@ -25,14 +25,14 @@
 
 namespace catapult {
 namespace zeromq {
-    class ZeroMqEntityPublisher;
+	class ZeroMqEntityPublisher;
 }
 }
 
 namespace catapult {
 namespace zeromq {
 
-    /// Creates a zeromq partial transactions subscriber around an entity \a publisher.
-    std::unique_ptr<cache::PtChangeSubscriber> CreateZeroMqPtChangeSubscriber(ZeroMqEntityPublisher& publisher);
+	/// Creates a zeromq partial transactions subscriber around an entity \a publisher.
+	std::unique_ptr<cache::PtChangeSubscriber> CreateZeroMqPtChangeSubscriber(ZeroMqEntityPublisher& publisher);
 }
 }

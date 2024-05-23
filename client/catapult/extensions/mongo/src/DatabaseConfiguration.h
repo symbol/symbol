@@ -27,47 +27,47 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace mongo {
 
-    /// Database configuration settings.
-    struct DatabaseConfiguration {
-    public:
-        /// Database uri.
-        std::string DatabaseUri;
+	/// Database configuration settings.
+	struct DatabaseConfiguration {
+	public:
+		/// Database uri.
+		std::string DatabaseUri;
 
-        /// Database name.
-        std::string DatabaseName;
+		/// Database name.
+		std::string DatabaseName;
 
-        /// Maximum number of database writer threads.
-        uint32_t MaxWriterThreads;
+		/// Maximum number of database writer threads.
+		uint32_t MaxWriterThreads;
 
-        /// Maximum number of heights to drop at once.
-        uint32_t MaxDropBatchSize;
+		/// Maximum number of heights to drop at once.
+		uint32_t MaxDropBatchSize;
 
-        /// Write timeout.
-        utils::TimeSpan WriteTimeout;
+		/// Write timeout.
+		utils::TimeSpan WriteTimeout;
 
-        /// Named database plugins to enable.
-        std::unordered_set<std::string> Plugins;
+		/// Named database plugins to enable.
+		std::unordered_set<std::string> Plugins;
 
-    private:
-        DatabaseConfiguration() = default;
+	private:
+		DatabaseConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized database configuration.
-        static DatabaseConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized database configuration.
+		static DatabaseConfiguration Uninitialized();
 
-    public:
-        /// Loads a database configuration from \a bag.
-        static DatabaseConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	public:
+		/// Loads a database configuration from \a bag.
+		static DatabaseConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
-        /// Loads a database configuration from \a resourcesPath.
-        static DatabaseConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
-    };
+		/// Loads a database configuration from \a resourcesPath.
+		static DatabaseConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
+	};
 }
 }

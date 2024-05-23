@@ -26,21 +26,21 @@
 namespace catapult {
 namespace tools {
 
-    /// Adds 'resources' option to \a optionsBuilder.
-    void AddResourcesOption(OptionsBuilder& optionsBuilder);
+	/// Adds 'resources' option to \a optionsBuilder.
+	void AddResourcesOption(OptionsBuilder& optionsBuilder);
 
-    /// Gets the 'resources' option value from \a options.
-    std::string GetResourcesOptionValue(const Options& options);
+	/// Gets the 'resources' option value from \a options.
+	std::string GetResourcesOptionValue(const Options& options);
 
-    /// Loads the configuration from \a resourcesPath.
-    config::CatapultConfiguration LoadConfiguration(const std::string& resourcesPath);
+	/// Loads the configuration from \a resourcesPath.
+	config::CatapultConfiguration LoadConfiguration(const std::string& resourcesPath);
 
-    /// Loads optional api peers configuration from \a resourcesPath for network \a networkFingerprint.
-    std::vector<ionet::Node> LoadOptionalApiPeers(
-        const std::string& resourcesPath,
-        const model::UniqueNetworkFingerprint& networkFingerprint);
+	/// Loads optional api peers configuration from \a resourcesPath for network \a networkFingerprint.
+	std::vector<ionet::Node> LoadOptionalApiPeers(
+		const std::string& resourcesPath,
+		const model::UniqueNetworkFingerprint& networkFingerprint);
 
-    /// Loads p2p peers configuration from \a resourcesPath for network \a networkFingerprint.
-    std::vector<ionet::Node> LoadPeers(const std::string& resourcesPath, const model::UniqueNetworkFingerprint& networkFingerprint);
+	/// Loads p2p peers configuration from \a resourcesPath for network \a networkFingerprint.
+	std::vector<ionet::Node> LoadPeers(const std::string& resourcesPath, const model::UniqueNetworkFingerprint& networkFingerprint);
 }
 }

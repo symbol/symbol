@@ -27,62 +27,57 @@
 namespace catapult {
 namespace extensions {
 
-    namespace {
-        [[noreturn]]
-        void ThrowInvalidFqn(const char* reason, const RawString& name)
-        {
-            std::ostringstream out;
-            out << "fully qualified id is invalid due to " << reason << " (" << name << ")";
-            CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-        }
+	namespace {
+		[[noreturn]]
+		void ThrowInvalidFqn(const char* reason, const RawString& name) {
+			std::ostringstream out;
+			out << "fully qualified id is invalid due to " << reason << " (" << name << ")";
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
 
-        RawString ExtractPartName(const RawString& name, size_t start, size_t size)
-        {
-            if (0 == size)
-                ThrowInvalidFqn("empty part", name);
+		RawString ExtractPartName(const RawString& name, size_t start, size_t size) {
+			if (0 == size)
+				ThrowInvalidFqn("empty part", name);
 
-            RawString partName(&name.pData[start], size);
-            if (!model::IsValidName(reinterpret_cast<const uint8_t*>(partName.pData), partName.Size))
-                ThrowInvalidFqn("invalid part name", name);
+			RawString partName(&name.pData[start], size);
+			if (!model::IsValidName(reinterpret_cast<const uint8_t*>(partName.pData), partName.Size))
+				ThrowInvalidFqn("invalid part name", name);
 
-            return partName;
-        }
+			return partName;
+		}
 
-        template <typename TProcessor>
-        size_t Split(const RawString& name, TProcessor processor)
-        {
-            auto start = 0u;
-            for (auto index = 0u; index < name.Size; ++index) {
-                if ('.' != name.pData[index])
-                    continue;
+		template <typename TProcessor>
+		size_t Split(const RawString& name, TProcessor processor) {
+			auto start = 0u;
+			for (auto index = 0u; index < name.Size; ++index) {
+				if ('.' != name.pData[index])
+					continue;
 
-                processor(start, index - start);
-                start = index + 1;
-            }
+				processor(start, index - start);
+				start = index + 1;
+			}
 
-            return start;
-        }
-    }
+			return start;
+		}
+	}
 
-    UnresolvedMosaicId GenerateMosaicAliasId(const RawString& name)
-    {
-        auto namespacePath = GenerateNamespacePath(name);
-        auto namespaceId = namespacePath[namespacePath.size() - 1];
-        return UnresolvedMosaicId(namespaceId.unwrap());
-    }
+	UnresolvedMosaicId GenerateMosaicAliasId(const RawString& name) {
+		auto namespacePath = GenerateNamespacePath(name);
+		auto namespaceId = namespacePath[namespacePath.size() - 1];
+		return UnresolvedMosaicId(namespaceId.unwrap());
+	}
 
-    std::vector<NamespaceId> GenerateNamespacePath(const RawString& name)
-    {
-        auto namespaceId = Namespace_Base_Id;
-        std::vector<NamespaceId> path;
-        auto start = Split(name, [&name, &namespaceId, &path](auto substringStart, auto size) {
-            namespaceId = model::GenerateNamespaceId(namespaceId, ExtractPartName(name, substringStart, size));
-            path.push_back(namespaceId);
-        });
+	std::vector<NamespaceId> GenerateNamespacePath(const RawString& name) {
+		auto namespaceId = Namespace_Base_Id;
+		std::vector<NamespaceId> path;
+		auto start = Split(name, [&name, &namespaceId, &path](auto substringStart, auto size) {
+			namespaceId = model::GenerateNamespaceId(namespaceId, ExtractPartName(name, substringStart, size));
+			path.push_back(namespaceId);
+		});
 
-        namespaceId = model::GenerateNamespaceId(namespaceId, ExtractPartName(name, start, name.Size - start));
-        path.push_back(namespaceId);
-        return path;
-    }
+		namespaceId = model::GenerateNamespaceId(namespaceId, ExtractPartName(name, start, name.Size - start));
+		path.push_back(namespaceId);
+		return path;
+	}
 }
 }

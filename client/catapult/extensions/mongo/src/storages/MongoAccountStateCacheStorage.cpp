@@ -28,36 +28,33 @@ using namespace bsoncxx::builder::stream;
 
 namespace catapult {
 namespace mongo {
-    namespace storages {
+	namespace storages {
 
-        namespace {
-            struct AccountStateCacheTraits {
-                using CacheType = cache::AccountStateCache;
-                using CacheDeltaType = cache::AccountStateCacheDelta;
-                using KeyType = Address;
-                using ModelType = state::AccountState;
+		namespace {
+			struct AccountStateCacheTraits {
+				using CacheType = cache::AccountStateCache;
+				using CacheDeltaType = cache::AccountStateCacheDelta;
+				using KeyType = Address;
+				using ModelType = state::AccountState;
 
-                static constexpr auto Collection_Name = "accounts";
-                static constexpr auto Id_Property_Name = "account.address";
+				static constexpr auto Collection_Name = "accounts";
+				static constexpr auto Id_Property_Name = "account.address";
 
-                static auto GetId(const ModelType& accountState)
-                {
-                    return accountState.Address;
-                }
+				static auto GetId(const ModelType& accountState) {
+					return accountState.Address;
+				}
 
-                static auto MapToMongoId(const Address& address)
-                {
-                    return mappers::ToBinary(address);
-                }
+				static auto MapToMongoId(const Address& address) {
+					return mappers::ToBinary(address);
+				}
 
-                static auto MapToMongoDocument(const state::AccountState& accountState, model::NetworkIdentifier)
-                {
-                    return mappers::ToDbModel(accountState);
-                }
-            };
-        }
+				static auto MapToMongoDocument(const state::AccountState& accountState, model::NetworkIdentifier) {
+					return mappers::ToDbModel(accountState);
+				}
+			};
+		}
 
-        DEFINE_MONGO_FLAT_CACHE_STORAGE(AccountState, AccountStateCacheTraits)
-    }
+		DEFINE_MONGO_FLAT_CACHE_STORAGE(AccountState, AccountStateCacheTraits)
+	}
 }
 }

@@ -29,60 +29,56 @@ namespace model {
 
 #define TEST_CLASS VrfKeyLinkTransactionTests
 
-    // region size + alignment + properties
+	// region size + alignment + properties
 
 #define TRANSACTION_FIELDS FIELD(LinkedPublicKey) FIELD(LinkAction)
 
-    namespace {
-        template <typename T>
-        void AssertTransactionHasExpectedSize(size_t baseSize)
-        {
-            // Arrange:
-            auto expectedSize = baseSize;
+	namespace {
+		template <typename T>
+		void AssertTransactionHasExpectedSize(size_t baseSize) {
+			// Arrange:
+			auto expectedSize = baseSize;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
-            TRANSACTION_FIELDS
+			TRANSACTION_FIELDS
 #undef FIELD
 
-            // Assert:
-            EXPECT_EQ(expectedSize, sizeof(T));
-            EXPECT_EQ(baseSize + 33u, sizeof(T));
-        }
+			// Assert:
+			EXPECT_EQ(expectedSize, sizeof(T));
+			EXPECT_EQ(baseSize + 33u, sizeof(T));
+		}
 
-        template <typename T>
-        void AssertTransactionHasProperAlignment()
-        {
+		template <typename T>
+		void AssertTransactionHasProperAlignment() {
 #define FIELD(X) EXPECT_ALIGNED(T, X);
-            TRANSACTION_FIELDS
+			TRANSACTION_FIELDS
 #undef FIELD
-        }
+		}
 
-        template <typename T>
-        void AssertTransactionHasExpectedProperties()
-        {
-            // Assert:
-            EXPECT_EQ(Entity_Type_Vrf_Key_Link, T::Entity_Type);
-            EXPECT_EQ(1u, T::Current_Version);
-        }
-    }
+		template <typename T>
+		void AssertTransactionHasExpectedProperties() {
+			// Assert:
+			EXPECT_EQ(Entity_Type_Vrf_Key_Link, T::Entity_Type);
+			EXPECT_EQ(1u, T::Current_Version);
+		}
+	}
 
 #undef TRANSACTION_FIELDS
 
-    ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(VrfKeyLink)
+	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(VrfKeyLink)
 
-    // endregion
+	// endregion
 
-    TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues)
-    {
-        // Arrange:
-        VrfKeyLinkTransaction transaction;
-        transaction.Size = 0;
+	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
+		// Arrange:
+		VrfKeyLinkTransaction transaction;
+		transaction.Size = 0;
 
-        // Act:
-        auto realSize = VrfKeyLinkTransaction::CalculateRealSize(transaction);
+		// Act:
+		auto realSize = VrfKeyLinkTransaction::CalculateRealSize(transaction);
 
-        // Assert:
-        EXPECT_EQ(sizeof(VrfKeyLinkTransaction), realSize);
-    }
+		// Assert:
+		EXPECT_EQ(sizeof(VrfKeyLinkTransaction), realSize);
+	}
 }
 }

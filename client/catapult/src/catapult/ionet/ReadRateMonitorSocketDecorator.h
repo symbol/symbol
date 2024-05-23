@@ -26,19 +26,19 @@
 
 namespace catapult {
 namespace ionet {
-    class PacketSocket;
-    struct RateMonitorSettings;
+	class PacketSocket;
+	struct RateMonitorSettings;
 }
 }
 
 namespace catapult {
 namespace ionet {
 
-    /// Adds read rate monitoring to a packet socket (\a pSocket) given \a settings, \a timeSupplier and \a rateExceededHandler.
-    std::shared_ptr<PacketSocket> AddReadRateMonitor(
-        const std::shared_ptr<PacketSocket>& pSocket,
-        const RateMonitorSettings& settings,
-        const supplier<Timestamp>& timeSupplier,
-        const action& rateExceededHandler);
+	/// Adds read rate monitoring to a packet socket (\a pSocket) given \a settings, \a timeSupplier and \a rateExceededHandler.
+	std::shared_ptr<PacketSocket> AddReadRateMonitor(
+		const std::shared_ptr<PacketSocket>& pSocket,
+		const RateMonitorSettings& settings,
+		const supplier<Timestamp>& timeSupplier,
+		const action& rateExceededHandler);
 }
 }

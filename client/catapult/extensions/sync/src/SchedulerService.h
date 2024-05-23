@@ -24,16 +24,16 @@
 
 namespace catapult {
 namespace sync {
-    struct TasksConfiguration;
+	struct TasksConfiguration;
 }
 }
 
 namespace catapult {
 namespace sync {
 
-    /// Creates a registrar for a scheduler service around \a config
-    /// \note This service is responsible for executing scheduled tasks.
-    DECLARE_SERVICE_REGISTRAR(Scheduler)
-    (const TasksConfiguration& config);
+	/// Creates a registrar for a scheduler service around \a config
+	/// \note This service is responsible for executing scheduled tasks.
+	DECLARE_SERVICE_REGISTRAR(Scheduler)
+	(const TasksConfiguration& config);
 }
 }

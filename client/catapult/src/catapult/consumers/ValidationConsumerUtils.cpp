@@ -26,75 +26,72 @@
 namespace catapult {
 namespace consumers {
 
-    namespace {
-        template <typename TExtractAndProcess>
-        auto MakeValidationConsumer(TExtractAndProcess extractAndProcess)
-        {
-            return [extractAndProcess](auto& elements) {
-                if (elements.empty())
-                    return Abort(Failure_Consumer_Empty_Input);
+	namespace {
+		template <typename TExtractAndProcess>
+		auto MakeValidationConsumer(TExtractAndProcess extractAndProcess) {
+			return [extractAndProcess](auto& elements) {
+				if (elements.empty())
+					return Abort(Failure_Consumer_Empty_Input);
 
-                auto result = extractAndProcess(elements);
-                if (IsValidationResultSuccess(result))
-                    return Continue();
+				auto result = extractAndProcess(elements);
+				if (IsValidationResultSuccess(result))
+					return Continue();
 
-                CATAPULT_LOG_LEVEL(validators::MapToLogLevel(result)) << "validation consumer failed: " << result;
-                return Abort(result, disruptor::ConsumerResultSeverity::Fatal);
-            };
-        }
-    }
+				CATAPULT_LOG_LEVEL(validators::MapToLogLevel(result)) << "validation consumer failed: " << result;
+				return Abort(result, disruptor::ConsumerResultSeverity::Fatal);
+			};
+		}
+	}
 
-    disruptor::ConstBlockConsumer MakeBlockValidationConsumer(
-        const RequiresValidationPredicate& requiresValidationPredicate,
-        const std::function<validators::ValidationResult(const model::WeakEntityInfos&)>& process)
-    {
-        return MakeValidationConsumer([requiresValidationPredicate, process](const auto& elements) {
-            model::WeakEntityInfos entityInfos;
-            ExtractMatchingEntityInfos(elements, entityInfos, requiresValidationPredicate);
+	disruptor::ConstBlockConsumer MakeBlockValidationConsumer(
+		const RequiresValidationPredicate& requiresValidationPredicate,
+		const std::function<validators::ValidationResult(const model::WeakEntityInfos&)>& process) {
+		return MakeValidationConsumer([requiresValidationPredicate, process](const auto& elements) {
+			model::WeakEntityInfos entityInfos;
+			ExtractMatchingEntityInfos(elements, entityInfos, requiresValidationPredicate);
 
-            return process(entityInfos);
-        });
-    }
+			return process(entityInfos);
+		});
+	}
 
-    disruptor::TransactionConsumer MakeTransactionValidationConsumer(
-        const chain::FailedTransactionSink& failedTransactionSink,
-        const std::function<std::vector<validators::ValidationResult>(model::WeakEntityInfos&)>& process)
-    {
-        return MakeValidationConsumer([failedTransactionSink, process](auto& elements) {
-            model::WeakEntityInfos entityInfos;
-            std::vector<size_t> entityInfoElementIndexes;
-            ExtractEntityInfos(elements, entityInfos, entityInfoElementIndexes);
+	disruptor::TransactionConsumer MakeTransactionValidationConsumer(
+		const chain::FailedTransactionSink& failedTransactionSink,
+		const std::function<std::vector<validators::ValidationResult>(model::WeakEntityInfos&)>& process) {
+		return MakeValidationConsumer([failedTransactionSink, process](auto& elements) {
+			model::WeakEntityInfos entityInfos;
+			std::vector<size_t> entityInfoElementIndexes;
+			ExtractEntityInfos(elements, entityInfos, entityInfoElementIndexes);
 
-            auto results = process(entityInfos);
+			auto results = process(entityInfos);
 
-            auto numSkippedElements = 0u;
-            auto aggregateResult = validators::ValidationResult::Success;
-            for (auto i = 0u; i < results.size(); ++i) {
-                auto result = results[i];
-                validators::AggregateValidationResult(aggregateResult, result);
-                if (IsValidationResultSuccess(result))
-                    continue;
+			auto numSkippedElements = 0u;
+			auto aggregateResult = validators::ValidationResult::Success;
+			for (auto i = 0u; i < results.size(); ++i) {
+				auto result = results[i];
+				validators::AggregateValidationResult(aggregateResult, result);
+				if (IsValidationResultSuccess(result))
+					continue;
 
-                // notice that ExtractEntityInfos ignores skipped elements, so finding the index in elements for a
-                // corresponding entityInfo requires an additional hop through entityInfoElementIndexes
-                auto& element = elements[entityInfoElementIndexes[i]];
-                element.ResultSeverity = disruptor::ConsumerResultSeverity::Neutral;
-                ++numSkippedElements;
+				// notice that ExtractEntityInfos ignores skipped elements, so finding the index in elements for a
+				// corresponding entityInfo requires an additional hop through entityInfoElementIndexes
+				auto& element = elements[entityInfoElementIndexes[i]];
+				element.ResultSeverity = disruptor::ConsumerResultSeverity::Neutral;
+				++numSkippedElements;
 
-                // only forward failure (not neutral) results
-                if (IsValidationResultFailure(result)) {
-                    element.ResultSeverity = disruptor::ConsumerResultSeverity::Failure;
-                    failedTransactionSink(element.Transaction, element.EntityHash, result);
-                }
-            }
+				// only forward failure (not neutral) results
+				if (IsValidationResultFailure(result)) {
+					element.ResultSeverity = disruptor::ConsumerResultSeverity::Failure;
+					failedTransactionSink(element.Transaction, element.EntityHash, result);
+				}
+			}
 
-            // abort if an element failed
-            if (0 == numSkippedElements)
-                return validators::ValidationResult::Success;
+			// abort if an element failed
+			if (0 == numSkippedElements)
+				return validators::ValidationResult::Success;
 
-            CATAPULT_LOG(trace) << "all " << numSkippedElements << " transaction(s) skipped in Transaction validation consumer";
-            return aggregateResult;
-        });
-    }
+			CATAPULT_LOG(trace) << "all " << numSkippedElements << " transaction(s) skipped in Transaction validation consumer";
+			return aggregateResult;
+		});
+	}
 }
 }

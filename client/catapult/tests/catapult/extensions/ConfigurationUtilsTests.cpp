@@ -28,19 +28,18 @@ namespace extensions {
 
 #define TEST_CLASS ConfigurationUtilsTests
 
-    TEST(TEST_CLASS, CanExtractUtCacheOptionsFromNodeConfiguration)
-    {
-        // Arrange:
-        auto config = config::NodeConfiguration::Uninitialized();
-        config.UnconfirmedTransactionsCacheMaxResponseSize = utils::FileSize::FromKilobytes(4);
-        config.UnconfirmedTransactionsCacheMaxSize = utils::FileSize::FromBytes(234);
+	TEST(TEST_CLASS, CanExtractUtCacheOptionsFromNodeConfiguration) {
+		// Arrange:
+		auto config = config::NodeConfiguration::Uninitialized();
+		config.UnconfirmedTransactionsCacheMaxResponseSize = utils::FileSize::FromKilobytes(4);
+		config.UnconfirmedTransactionsCacheMaxSize = utils::FileSize::FromBytes(234);
 
-        // Act:
-        auto options = GetUtCacheOptions(config);
+		// Act:
+		auto options = GetUtCacheOptions(config);
 
-        // Assert:
-        EXPECT_EQ(utils::FileSize::FromKilobytes(4), options.MaxResponseSize);
-        EXPECT_EQ(utils::FileSize::FromBytes(234), options.MaxCacheSize);
-    }
+		// Assert:
+		EXPECT_EQ(utils::FileSize::FromKilobytes(4), options.MaxResponseSize);
+		EXPECT_EQ(utils::FileSize::FromBytes(234), options.MaxCacheSize);
+	}
 }
 }

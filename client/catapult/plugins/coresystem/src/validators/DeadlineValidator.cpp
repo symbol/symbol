@@ -26,29 +26,27 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::TransactionDeadlineNotification;
+	using Notification = model::TransactionDeadlineNotification;
 
-    namespace {
-        auto ValidateTransactionDeadline(Timestamp timestamp, Timestamp deadline, const utils::TimeSpan& maxTransactionLifetime)
-        {
-            if (timestamp > deadline)
-                return Failure_Core_Past_Deadline;
+	namespace {
+		auto ValidateTransactionDeadline(Timestamp timestamp, Timestamp deadline, const utils::TimeSpan& maxTransactionLifetime) {
+			if (timestamp > deadline)
+				return Failure_Core_Past_Deadline;
 
-            return deadline > timestamp + maxTransactionLifetime ? Failure_Core_Future_Deadline : ValidationResult::Success;
-        }
-    }
+			return deadline > timestamp + maxTransactionLifetime ? Failure_Core_Future_Deadline : ValidationResult::Success;
+		}
+	}
 
-    DECLARE_STATEFUL_VALIDATOR(Deadline, Notification)
-    (const utils::TimeSpan& maxTransactionLifetime)
-    {
-        return MAKE_STATEFUL_VALIDATOR(
-            Deadline,
-            [maxTransactionLifetime](const Notification& notification, const ValidatorContext& context) {
-                return ValidateTransactionDeadline(
-                    context.BlockTime,
-                    notification.Deadline,
-                    utils::TimeSpan() == notification.MaxLifetime ? maxTransactionLifetime : notification.MaxLifetime);
-            });
-    }
+	DECLARE_STATEFUL_VALIDATOR(Deadline, Notification)
+	(const utils::TimeSpan& maxTransactionLifetime) {
+		return MAKE_STATEFUL_VALIDATOR(
+			Deadline,
+			[maxTransactionLifetime](const Notification& notification, const ValidatorContext& context) {
+				return ValidateTransactionDeadline(
+					context.BlockTime,
+					notification.Deadline,
+					utils::TimeSpan() == notification.MaxLifetime ? maxTransactionLifetime : notification.MaxLifetime);
+			});
+	}
 }
 }

@@ -28,14 +28,14 @@ namespace api {
 
 #pragma pack(push, 1)
 
-    /// Network time response.
-    struct NetworkTimePacket : public ionet::Packet {
-    public:
-        static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Time_Sync_Network_Time;
+	/// Network time response.
+	struct NetworkTimePacket : public ionet::Packet {
+	public:
+		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Time_Sync_Network_Time;
 
-        /// Communication timestamps.
-        timesync::CommunicationTimestamps CommunicationTimestamps;
-    };
+		/// Communication timestamps.
+		timesync::CommunicationTimestamps CommunicationTimestamps;
+	};
 
 #pragma pack(pop)
 }

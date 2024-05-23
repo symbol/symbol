@@ -28,15 +28,14 @@ namespace state {
 
 #define TEST_CLASS HashLockInfoTests
 
-    namespace {
-        struct HashLockInfoTraits {
-            static void SetLockIdentifier(HashLockInfo& lockInfo, const Hash256& hash)
-            {
-                lockInfo.Hash = hash;
-            }
-        };
-    }
+	namespace {
+		struct HashLockInfoTraits {
+			static void SetLockIdentifier(HashLockInfo& lockInfo, const Hash256& hash) {
+				lockInfo.Hash = hash;
+			}
+		};
+	}
 
-    DEFINE_LOCK_INFO_TESTS(HashLockInfo)
+	DEFINE_LOCK_INFO_TESTS(HashLockInfo)
 }
 }

@@ -27,25 +27,25 @@
 namespace catapult {
 namespace state {
 
-    /// Metadata entry.
-    class PLUGIN_API_DEPENDENCY MetadataEntry {
-    public:
-        /// Creates an entry around \a key.
-        explicit MetadataEntry(const MetadataKey& key);
+	/// Metadata entry.
+	class PLUGIN_API_DEPENDENCY MetadataEntry {
+	public:
+		/// Creates an entry around \a key.
+		explicit MetadataEntry(const MetadataKey& key);
 
-    public:
-        /// Gets the metadata key.
-        const MetadataKey& key() const;
+	public:
+		/// Gets the metadata key.
+		const MetadataKey& key() const;
 
-        /// Gets the (const) metadata value.
-        const MetadataValue& value() const;
+		/// Gets the (const) metadata value.
+		const MetadataValue& value() const;
 
-        /// Gets the metadata value.
-        MetadataValue& value();
+		/// Gets the metadata value.
+		MetadataValue& value();
 
-    private:
-        MetadataKey m_key;
-        MetadataValue m_value;
-    };
+	private:
+		MetadataKey m_key;
+		MetadataValue m_value;
+	};
 }
 }

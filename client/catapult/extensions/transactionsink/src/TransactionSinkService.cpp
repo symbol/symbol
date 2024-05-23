@@ -28,35 +28,31 @@
 namespace catapult {
 namespace transactionsink {
 
-    namespace {
-        class TransactionSinkServiceRegistrar : public extensions::ServiceRegistrar {
-        public:
-            extensions::ServiceRegistrarInfo info() const override
-            {
-                return { "TransactionSink", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
-            }
+	namespace {
+		class TransactionSinkServiceRegistrar : public extensions::ServiceRegistrar {
+		public:
+			extensions::ServiceRegistrarInfo info() const override {
+				return { "TransactionSink", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
+			}
 
-            void registerServiceCounters(extensions::ServiceLocator&) override
-            {
-                // no additional counters
-            }
+			void registerServiceCounters(extensions::ServiceLocator&) override {
+				// no additional counters
+			}
 
-            void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override
-            {
-                // add handlers
-                auto pushTransactionsCallback = CreateTransactionPushEntityCallback(state.hooks());
-                handlers::RegisterPushTransactionsHandler(
-                    state.packetHandlers(),
-                    state.pluginManager().transactionRegistry(),
-                    pushTransactionsCallback);
-            }
-        };
-    }
+			void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override {
+				// add handlers
+				auto pushTransactionsCallback = CreateTransactionPushEntityCallback(state.hooks());
+				handlers::RegisterPushTransactionsHandler(
+					state.packetHandlers(),
+					state.pluginManager().transactionRegistry(),
+					pushTransactionsCallback);
+			}
+		};
+	}
 
-    DECLARE_SERVICE_REGISTRAR(TransactionSink)
-    ()
-    {
-        return std::make_unique<TransactionSinkServiceRegistrar>();
-    }
+	DECLARE_SERVICE_REGISTRAR(TransactionSink)
+	() {
+		return std::make_unique<TransactionSinkServiceRegistrar>();
+	}
 }
 }

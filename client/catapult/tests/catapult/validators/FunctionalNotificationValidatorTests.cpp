@@ -28,52 +28,49 @@ namespace validators {
 
 #define TEST_CLASS FunctionalNotificationValidatorTests
 
-    using NotificationType = model::AccountPublicKeyNotification;
+	using NotificationType = model::AccountPublicKeyNotification;
 
-    TEST(TEST_CLASS, HasCorrectName)
-    {
-        // Act:
-        FunctionalNotificationValidatorT<NotificationType> validator("Foo", [](const auto&) { return ValidationResult::Success; });
+	TEST(TEST_CLASS, HasCorrectName) {
+		// Act:
+		FunctionalNotificationValidatorT<NotificationType> validator("Foo", [](const auto&) { return ValidationResult::Success; });
 
-        // Assert:
-        EXPECT_EQ("Foo", validator.name());
-    }
+		// Assert:
+		EXPECT_EQ("Foo", validator.name());
+	}
 
-    namespace {
-        struct ValidateParams {
-        public:
-            ValidateParams(const NotificationType& notification, int context)
-                : pNotification(&notification)
-                , Context(context)
-            {
-            }
+	namespace {
+		struct ValidateParams {
+		public:
+			ValidateParams(const NotificationType& notification, int context)
+				: pNotification(&notification)
+				, Context(context) {
+			}
 
-        public:
-            const NotificationType* pNotification;
-            int Context;
-        };
-    }
+		public:
+			const NotificationType* pNotification;
+			int Context;
+		};
+	}
 
-    TEST(TEST_CLASS, ValidateDelegatesToFunction)
-    {
-        // Arrange:
-        test::ParamsCapture<ValidateParams> capture;
-        FunctionalNotificationValidatorT<NotificationType, int> validator("Foo", [&](const auto& notification, auto context) {
-            capture.push(notification, context);
-            return ValidationResult::Success;
-        });
+	TEST(TEST_CLASS, ValidateDelegatesToFunction) {
+		// Arrange:
+		test::ParamsCapture<ValidateParams> capture;
+		FunctionalNotificationValidatorT<NotificationType, int> validator("Foo", [&](const auto& notification, auto context) {
+			capture.push(notification, context);
+			return ValidationResult::Success;
+		});
 
-        // Act:
-        auto publicKey = test::GenerateRandomByteArray<Key>();
-        model::AccountPublicKeyNotification notification(publicKey);
-        auto result = validator.validate(notification, 7);
+		// Act:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		model::AccountPublicKeyNotification notification(publicKey);
+		auto result = validator.validate(notification, 7);
 
-        // Assert:
-        EXPECT_EQ(ValidationResult::Success, result);
+		// Assert:
+		EXPECT_EQ(ValidationResult::Success, result);
 
-        ASSERT_EQ(1u, capture.params().size());
-        EXPECT_EQ(&notification, capture.params()[0].pNotification);
-        EXPECT_EQ(7, capture.params()[0].Context);
-    }
+		ASSERT_EQ(1u, capture.params().size());
+		EXPECT_EQ(&notification, capture.params()[0].pNotification);
+		EXPECT_EQ(7, capture.params()[0].Context);
+	}
 }
 }

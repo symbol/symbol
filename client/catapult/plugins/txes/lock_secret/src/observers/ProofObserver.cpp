@@ -27,27 +27,25 @@
 namespace catapult {
 namespace observers {
 
-    using Notification = model::ProofPublicationNotification;
+	using Notification = model::ProofPublicationNotification;
 
-    namespace {
-        struct SecretTraits {
-        public:
-            using CacheType = cache::SecretLockInfoCache;
-            using Notification = observers::Notification;
-            static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Completed;
+	namespace {
+		struct SecretTraits {
+		public:
+			using CacheType = cache::SecretLockInfoCache;
+			using Notification = observers::Notification;
+			static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Completed;
 
-            static auto NotificationToKey(const Notification& notification, const model::ResolverContext& resolvers)
-            {
-                return model::CalculateSecretLockInfoHash(notification.Secret, resolvers.resolve(notification.Recipient));
-            }
+			static auto NotificationToKey(const Notification& notification, const model::ResolverContext& resolvers) {
+				return model::CalculateSecretLockInfoHash(notification.Secret, resolvers.resolve(notification.Recipient));
+			}
 
-            static auto DestinationAccount(const state::SecretLockInfo& lockInfo)
-            {
-                return lockInfo.RecipientAddress;
-            }
-        };
-    }
+			static auto DestinationAccount(const state::SecretLockInfo& lockInfo) {
+				return lockInfo.RecipientAddress;
+			}
+		};
+	}
 
-    DEFINE_OBSERVER(Proof, Notification, &LockStatusAccountBalanceObserver<SecretTraits>)
+	DEFINE_OBSERVER(Proof, Notification, &LockStatusAccountBalanceObserver<SecretTraits>)
 }
 }

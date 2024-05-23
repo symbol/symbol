@@ -29,40 +29,38 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the multisig cache view.
-    using MultisigCacheViewMixins = PatriciaTreeCacheMixins<MultisigCacheTypes::PrimaryTypes::BaseSetType, MultisigCacheDescriptor>;
+	/// Mixins used by the multisig cache view.
+	using MultisigCacheViewMixins = PatriciaTreeCacheMixins<MultisigCacheTypes::PrimaryTypes::BaseSetType, MultisigCacheDescriptor>;
 
-    /// Basic view on top of the multisig cache.
-    class BasicMultisigCacheView
-        : public utils::MoveOnly,
-          public MultisigCacheViewMixins::Size,
-          public MultisigCacheViewMixins::Contains,
-          public MultisigCacheViewMixins::Iteration,
-          public MultisigCacheViewMixins::ConstAccessor,
-          public MultisigCacheViewMixins::PatriciaTreeView {
-    public:
-        using ReadOnlyView = MultisigCacheTypes::CacheReadOnlyType;
+	/// Basic view on top of the multisig cache.
+	class BasicMultisigCacheView
+		: public utils::MoveOnly,
+		  public MultisigCacheViewMixins::Size,
+		  public MultisigCacheViewMixins::Contains,
+		  public MultisigCacheViewMixins::Iteration,
+		  public MultisigCacheViewMixins::ConstAccessor,
+		  public MultisigCacheViewMixins::PatriciaTreeView {
+	public:
+		using ReadOnlyView = MultisigCacheTypes::CacheReadOnlyType;
 
-    public:
-        /// Creates a view around \a multisigSets.
-        explicit BasicMultisigCacheView(const MultisigCacheTypes::BaseSets& multisigSets)
-            : MultisigCacheViewMixins::Size(multisigSets.Primary)
-            , MultisigCacheViewMixins::Contains(multisigSets.Primary)
-            , MultisigCacheViewMixins::Iteration(multisigSets.Primary)
-            , MultisigCacheViewMixins::ConstAccessor(multisigSets.Primary)
-            , MultisigCacheViewMixins::PatriciaTreeView(multisigSets.PatriciaTree.get())
-        {
-        }
-    };
+	public:
+		/// Creates a view around \a multisigSets.
+		explicit BasicMultisigCacheView(const MultisigCacheTypes::BaseSets& multisigSets)
+			: MultisigCacheViewMixins::Size(multisigSets.Primary)
+			, MultisigCacheViewMixins::Contains(multisigSets.Primary)
+			, MultisigCacheViewMixins::Iteration(multisigSets.Primary)
+			, MultisigCacheViewMixins::ConstAccessor(multisigSets.Primary)
+			, MultisigCacheViewMixins::PatriciaTreeView(multisigSets.PatriciaTree.get()) {
+		}
+	};
 
-    /// View on top of the multisig cache.
-    class MultisigCacheView : public ReadOnlyViewSupplier<BasicMultisigCacheView> {
-    public:
-        /// Creates a view around \a multisigSets.
-        explicit MultisigCacheView(const MultisigCacheTypes::BaseSets& multisigSets)
-            : ReadOnlyViewSupplier(multisigSets)
-        {
-        }
-    };
+	/// View on top of the multisig cache.
+	class MultisigCacheView : public ReadOnlyViewSupplier<BasicMultisigCacheView> {
+	public:
+		/// Creates a view around \a multisigSets.
+		explicit MultisigCacheView(const MultisigCacheTypes::BaseSets& multisigSets)
+			: ReadOnlyViewSupplier(multisigSets) {
+		}
+	};
 }
 }

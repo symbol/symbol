@@ -27,28 +27,28 @@
 namespace catapult {
 namespace test {
 
-    /// Parameters passed to ionet::PacketIo::ReadCallback.
-    struct PacketIoReadCallbackParams {
-        /// \c true if the packet is valid.
-        bool IsPacketValid;
+	/// Parameters passed to ionet::PacketIo::ReadCallback.
+	struct PacketIoReadCallbackParams {
+		/// \c true if the packet is valid.
+		bool IsPacketValid;
 
-        /// Read operation code.
-        ionet::SocketOperationCode ReadCode;
+		/// Read operation code.
+		ionet::SocketOperationCode ReadCode;
 
-        /// Copy of packet bytes.
-        std::vector<uint8_t> ReadPacketBytes;
-    };
+		/// Copy of packet bytes.
+		std::vector<uint8_t> ReadPacketBytes;
+	};
 
-    /// Creates a PacketIo read callback that captures the last parameters in \a capture.
-    ionet::PacketIo::ReadCallback CreateReadCaptureCallback(PacketIoReadCallbackParams& capture);
+	/// Creates a PacketIo read callback that captures the last parameters in \a capture.
+	ionet::PacketIo::ReadCallback CreateReadCaptureCallback(PacketIoReadCallbackParams& capture);
 
-    /// Creates a PacketIo read callback that captures all parameters in \a captures.
-    ionet::PacketIo::ReadCallback CreateReadCaptureCallback(std::vector<PacketIoReadCallbackParams>& captures);
+	/// Creates a PacketIo read callback that captures all parameters in \a captures.
+	ionet::PacketIo::ReadCallback CreateReadCaptureCallback(std::vector<PacketIoReadCallbackParams>& captures);
 
-    /// Asserts that packets can be written to and read from \a io using \a mockIo to capture writes.
-    void AssertCanRoundtripPackets(mocks::MockPacketIo& mockIo, ionet::PacketIo& io);
+	/// Asserts that packets can be written to and read from \a io using \a mockIo to capture writes.
+	void AssertCanRoundtripPackets(mocks::MockPacketIo& mockIo, ionet::PacketIo& io);
 
-    /// Asserts that packets can be written to \a io and read from \a reader using \a mockIo to capture writes.
-    void AssertCanRoundtripPackets(mocks::MockPacketIo& mockIo, ionet::PacketIo& io, ionet::BatchPacketReader& reader);
+	/// Asserts that packets can be written to \a io and read from \a reader using \a mockIo to capture writes.
+	void AssertCanRoundtripPackets(mocks::MockPacketIo& mockIo, ionet::PacketIo& io, ionet::BatchPacketReader& reader);
 }
 }

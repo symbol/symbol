@@ -25,37 +25,37 @@
 namespace catapult {
 namespace crypto {
 
-    /// Two-layer Bellare-Miner private key tree key identifier.
-    struct BmKeyIdentifier {
-    public:
-        /// Invalid identifier.
-        static constexpr uint64_t Invalid_Id = 0xFFFF'FFFF'FFFF'FFFF;
+	/// Two-layer Bellare-Miner private key tree key identifier.
+	struct BmKeyIdentifier {
+	public:
+		/// Invalid identifier.
+		static constexpr uint64_t Invalid_Id = 0xFFFF'FFFF'FFFF'FFFF;
 
-    public:
-        /// Key id.
-        uint64_t KeyId;
+	public:
+		/// Key id.
+		uint64_t KeyId;
 
-    public:
-        /// Returns \c true if this key identifier is equal to \a rhs.
-        bool operator==(const BmKeyIdentifier& rhs) const;
+	public:
+		/// Returns \c true if this key identifier is equal to \a rhs.
+		bool operator==(const BmKeyIdentifier& rhs) const;
 
-        /// Returns \c true if this key identifier is not equal to \a rhs.
-        bool operator!=(const BmKeyIdentifier& rhs) const;
+		/// Returns \c true if this key identifier is not equal to \a rhs.
+		bool operator!=(const BmKeyIdentifier& rhs) const;
 
-        /// Returns \c true if this key identifier is less than \a rhs.
-        bool operator<(const BmKeyIdentifier& rhs) const;
+		/// Returns \c true if this key identifier is less than \a rhs.
+		bool operator<(const BmKeyIdentifier& rhs) const;
 
-        /// Returns \c true if this key identifier is less than or equal to \a rhs.
-        bool operator<=(const BmKeyIdentifier& rhs) const;
+		/// Returns \c true if this key identifier is less than or equal to \a rhs.
+		bool operator<=(const BmKeyIdentifier& rhs) const;
 
-        /// Returns \c true if this key identifier is greater than \a rhs.
-        bool operator>(const BmKeyIdentifier& rhs) const;
+		/// Returns \c true if this key identifier is greater than \a rhs.
+		bool operator>(const BmKeyIdentifier& rhs) const;
 
-        /// Returns \c true if this key identifier is greater than or equal to \a rhs.
-        bool operator>=(const BmKeyIdentifier& rhs) const;
-    };
+		/// Returns \c true if this key identifier is greater than or equal to \a rhs.
+		bool operator>=(const BmKeyIdentifier& rhs) const;
+	};
 
-    /// Insertion operator for outputting \a keyIdentifier to \a out.
-    std::ostream& operator<<(std::ostream& out, const BmKeyIdentifier& keyIdentifier);
+	/// Insertion operator for outputting \a keyIdentifier to \a out.
+	std::ostream& operator<<(std::ostream& out, const BmKeyIdentifier& keyIdentifier);
 }
 }

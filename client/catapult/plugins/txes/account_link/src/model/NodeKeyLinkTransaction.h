@@ -28,11 +28,11 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Binary layout for a node key link transaction body.
-    template <typename THeader>
-    struct NodeKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Node_Key_Link> { };
+	/// Binary layout for a node key link transaction body.
+	template <typename THeader>
+	struct NodeKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Node_Key_Link> { };
 
-    DEFINE_EMBEDDABLE_TRANSACTION(NodeKeyLink)
+	DEFINE_EMBEDDABLE_TRANSACTION(NodeKeyLink)
 
 #pragma pack(pop)
 }

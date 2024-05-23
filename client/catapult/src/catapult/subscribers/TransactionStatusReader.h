@@ -23,17 +23,17 @@
 
 namespace catapult {
 namespace io {
-    class InputStream;
+	class InputStream;
 }
 namespace subscribers {
-    class TransactionStatusSubscriber;
+	class TransactionStatusSubscriber;
 }
 }
 
 namespace catapult {
 namespace subscribers {
 
-    /// Reads next transaction status from \a inputStream and forwards it to \a subscriber.
-    void ReadNextTransactionStatus(io::InputStream& inputStream, TransactionStatusSubscriber& subscriber);
+	/// Reads next transaction status from \a inputStream and forwards it to \a subscriber.
+	void ReadNextTransactionStatus(io::InputStream& inputStream, TransactionStatusSubscriber& subscriber);
 }
 }

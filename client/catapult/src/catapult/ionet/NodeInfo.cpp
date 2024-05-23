@@ -32,107 +32,93 @@ namespace ionet {
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
-    namespace {
-        template <typename TIterator>
-        auto* FindByIdentifier(TIterator begin, TIterator end, ServiceIdentifier serviceId)
-        {
-            auto iter = std::find_if(begin, end, [serviceId](const auto& pair) { return serviceId == pair.first; });
+	namespace {
+		template <typename TIterator>
+		auto* FindByIdentifier(TIterator begin, TIterator end, ServiceIdentifier serviceId) {
+			auto iter = std::find_if(begin, end, [serviceId](const auto& pair) { return serviceId == pair.first; });
 
-            return end == iter ? nullptr : &iter->second;
-        }
-    }
+			return end == iter ? nullptr : &iter->second;
+		}
+	}
 
-    NodeInfo::NodeInfo(NodeSource source)
-        : m_source(source)
-    {
-    }
+	NodeInfo::NodeInfo(NodeSource source)
+		: m_source(source) {
+	}
 
-    NodeSource NodeInfo::source() const
-    {
-        return m_source;
-    }
+	NodeSource NodeInfo::source() const {
+		return m_source;
+	}
 
-    NodeInteractions NodeInfo::interactions(Timestamp timestamp) const
-    {
-        return m_interactions.interactions(timestamp);
-    }
+	NodeInteractions NodeInfo::interactions(Timestamp timestamp) const {
+		return m_interactions.interactions(timestamp);
+	}
 
-    size_t NodeInfo::numConnectionStates() const
-    {
-        return m_connectionStates.size();
-    }
+	size_t NodeInfo::numConnectionStates() const {
+		return m_connectionStates.size();
+	}
 
-    NodeInfo::ServiceIdentifiers NodeInfo::services() const
-    {
-        ServiceIdentifiers serviceIds;
-        for (const auto& pair : m_connectionStates)
-            serviceIds.insert(pair.first);
+	NodeInfo::ServiceIdentifiers NodeInfo::services() const {
+		ServiceIdentifiers serviceIds;
+		for (const auto& pair : m_connectionStates)
+			serviceIds.insert(pair.first);
 
-        return serviceIds;
-    }
+		return serviceIds;
+	}
 
-    bool NodeInfo::hasActiveConnection() const
-    {
-        return std::any_of(m_connectionStates.cbegin(), m_connectionStates.cend(), [](const auto& pair) { return 0 != pair.second.Age; });
-    }
+	bool NodeInfo::hasActiveConnection() const {
+		return std::any_of(m_connectionStates.cbegin(), m_connectionStates.cend(), [](const auto& pair) { return 0 != pair.second.Age; });
+	}
 
-    const ConnectionState* NodeInfo::getConnectionState(ServiceIdentifier serviceId) const
-    {
-        return FindByIdentifier(m_connectionStates.cbegin(), m_connectionStates.cend(), serviceId);
-    }
+	const ConnectionState* NodeInfo::getConnectionState(ServiceIdentifier serviceId) const {
+		return FindByIdentifier(m_connectionStates.cbegin(), m_connectionStates.cend(), serviceId);
+	}
 
-    void NodeInfo::source(NodeSource source)
-    {
-        m_source = source;
-    }
+	void NodeInfo::source(NodeSource source) {
+		m_source = source;
+	}
 
-    void NodeInfo::incrementSuccesses(Timestamp timestamp)
-    {
-        m_interactions.incrementSuccesses(timestamp);
-        m_interactions.pruneBuckets(timestamp);
-    }
+	void NodeInfo::incrementSuccesses(Timestamp timestamp) {
+		m_interactions.incrementSuccesses(timestamp);
+		m_interactions.pruneBuckets(timestamp);
+	}
 
-    void NodeInfo::incrementFailures(Timestamp timestamp)
-    {
-        m_interactions.incrementFailures(timestamp);
-        m_interactions.pruneBuckets(timestamp);
-    }
+	void NodeInfo::incrementFailures(Timestamp timestamp) {
+		m_interactions.incrementFailures(timestamp);
+		m_interactions.pruneBuckets(timestamp);
+	}
 
-    ConnectionState& NodeInfo::provisionConnectionState(ServiceIdentifier serviceId)
-    {
-        auto* pConnectionState = FindByIdentifier(m_connectionStates.begin(), m_connectionStates.end(), serviceId);
-        if (pConnectionState)
-            return *pConnectionState;
+	ConnectionState& NodeInfo::provisionConnectionState(ServiceIdentifier serviceId) {
+		auto* pConnectionState = FindByIdentifier(m_connectionStates.begin(), m_connectionStates.end(), serviceId);
+		if (pConnectionState)
+			return *pConnectionState;
 
-        m_connectionStates.emplace_back(serviceId, ConnectionState());
-        return m_connectionStates.back().second;
-    }
+		m_connectionStates.emplace_back(serviceId, ConnectionState());
+		return m_connectionStates.back().second;
+	}
 
-    void NodeInfo::clearAge(ServiceIdentifier serviceId)
-    {
-        auto* pConnectionState = FindByIdentifier(m_connectionStates.begin(), m_connectionStates.end(), serviceId);
-        if (!pConnectionState)
-            return;
+	void NodeInfo::clearAge(ServiceIdentifier serviceId) {
+		auto* pConnectionState = FindByIdentifier(m_connectionStates.begin(), m_connectionStates.end(), serviceId);
+		if (!pConnectionState)
+			return;
 
-        pConnectionState->Age = 0;
-    }
+		pConnectionState->Age = 0;
+	}
 
-    void NodeInfo::updateBan(ServiceIdentifier serviceId, uint32_t maxConnectionBanAge, uint32_t numConsecutiveFailuresBeforeBanning)
-    {
-        auto* pConnectionState = FindByIdentifier(m_connectionStates.begin(), m_connectionStates.end(), serviceId);
-        if (!pConnectionState)
-            return;
+	void NodeInfo::updateBan(ServiceIdentifier serviceId, uint32_t maxConnectionBanAge, uint32_t numConsecutiveFailuresBeforeBanning) {
+		auto* pConnectionState = FindByIdentifier(m_connectionStates.begin(), m_connectionStates.end(), serviceId);
+		if (!pConnectionState)
+			return;
 
-        if (pConnectionState->BanAge == maxConnectionBanAge)
-            pConnectionState->NumConsecutiveFailures = 0;
+		if (pConnectionState->BanAge == maxConnectionBanAge)
+			pConnectionState->NumConsecutiveFailures = 0;
 
-        // increase the ban age if currently banned; otherwise, clear the ban
-        // clearing needs to be done separately from above in case a banned node is selected and connected
-        // (which will reduce NumConsecutiveFailures but not BanAge)
-        if (pConnectionState->NumConsecutiveFailures >= numConsecutiveFailuresBeforeBanning)
-            ++pConnectionState->BanAge;
-        else
-            pConnectionState->BanAge = 0;
-    }
+		// increase the ban age if currently banned; otherwise, clear the ban
+		// clearing needs to be done separately from above in case a banned node is selected and connected
+		// (which will reduce NumConsecutiveFailures but not BanAge)
+		if (pConnectionState->NumConsecutiveFailures >= numConsecutiveFailuresBeforeBanning)
+			++pConnectionState->BanAge;
+		else
+			pConnectionState->BanAge = 0;
+	}
 }
 }

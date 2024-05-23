@@ -28,35 +28,35 @@ namespace api {
 
 #pragma pack(push, 1)
 
-    /// Finalization statistics response.
-    struct FinalizationStatisticsResponse : public ionet::Packet {
-        static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Statistics;
+	/// Finalization statistics response.
+	struct FinalizationStatisticsResponse : public ionet::Packet {
+		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Statistics;
 
-        /// Finalization round.
-        model::FinalizationRound Round;
+		/// Finalization round.
+		model::FinalizationRound Round;
 
-        /// Finalization height.
-        catapult::Height Height;
+		/// Finalization height.
+		catapult::Height Height;
 
-        /// Finalization hash.
-        Hash256 Hash;
-    };
+		/// Finalization hash.
+		Hash256 Hash;
+	};
 
-    /// Request packet for a proof at a finalization epoch.
-    struct ProofAtEpochRequest : public ionet::Packet {
-        static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Proof_At_Epoch;
+	/// Request packet for a proof at a finalization epoch.
+	struct ProofAtEpochRequest : public ionet::Packet {
+		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Proof_At_Epoch;
 
-        /// Requested finalization proof epoch.
-        FinalizationEpoch Epoch;
-    };
+		/// Requested finalization proof epoch.
+		FinalizationEpoch Epoch;
+	};
 
-    /// Request packet for a proof at a finalization height.
-    struct ProofAtHeightRequest : public ionet::Packet {
-        static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Proof_At_Height;
+	/// Request packet for a proof at a finalization height.
+	struct ProofAtHeightRequest : public ionet::Packet {
+		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Proof_At_Height;
 
-        /// Requested finalization proof height.
-        catapult::Height Height;
-    };
+		/// Requested finalization proof height.
+		catapult::Height Height;
+	};
 
 #pragma pack(pop)
 }

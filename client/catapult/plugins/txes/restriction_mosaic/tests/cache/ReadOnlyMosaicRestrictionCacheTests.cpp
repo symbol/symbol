@@ -28,15 +28,14 @@ namespace cache {
 
 #define TEST_CLASS ReadOnlyMosaicRestrictionCacheTests
 
-    TEST(TEST_CLASS, NetworkIdentifierIsExposed)
-    {
-        // Arrange:
-        auto networkIdentifier = static_cast<model::NetworkIdentifier>(19);
-        MosaicRestrictionCache originalCache(CacheConfiguration(), networkIdentifier);
+	TEST(TEST_CLASS, NetworkIdentifierIsExposed) {
+		// Arrange:
+		auto networkIdentifier = static_cast<model::NetworkIdentifier>(19);
+		MosaicRestrictionCache originalCache(CacheConfiguration(), networkIdentifier);
 
-        // Act + Assert:
-        EXPECT_EQ(networkIdentifier, ReadOnlyMosaicRestrictionCache(*originalCache.createView()).networkIdentifier());
-        EXPECT_EQ(networkIdentifier, ReadOnlyMosaicRestrictionCache(*originalCache.createDelta()).networkIdentifier());
-    }
+		// Act + Assert:
+		EXPECT_EQ(networkIdentifier, ReadOnlyMosaicRestrictionCache(*originalCache.createView()).networkIdentifier());
+		EXPECT_EQ(networkIdentifier, ReadOnlyMosaicRestrictionCache(*originalCache.createDelta()).networkIdentifier());
+	}
 }
 }

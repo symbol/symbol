@@ -28,51 +28,50 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MosaicGlobalRestrictionMapperTests
 
-        namespace {
-            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicGlobalRestriction, )
-        }
+		namespace {
+			DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicGlobalRestriction, )
+		}
 
-        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Global_Restriction)
+		DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Global_Restriction)
 
-        // region streamTransaction
+		// region streamTransaction
 
-        PLUGIN_TEST(CanMapMosaicGlobalRestrictionTransaction)
-        {
-            // Arrange:
-            typename TTraits::TransactionType transaction;
-            transaction.MosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
-            transaction.ReferenceMosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
-            transaction.RestrictionKey = test::Random();
-            transaction.PreviousRestrictionValue = test::Random();
-            transaction.PreviousRestrictionType = static_cast<model::MosaicRestrictionType>(test::RandomByte());
-            transaction.NewRestrictionValue = test::Random();
-            transaction.NewRestrictionType = static_cast<model::MosaicRestrictionType>(test::RandomByte());
+		PLUGIN_TEST(CanMapMosaicGlobalRestrictionTransaction) {
+			// Arrange:
+			typename TTraits::TransactionType transaction;
+			transaction.MosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
+			transaction.ReferenceMosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
+			transaction.RestrictionKey = test::Random();
+			transaction.PreviousRestrictionValue = test::Random();
+			transaction.PreviousRestrictionType = static_cast<model::MosaicRestrictionType>(test::RandomByte());
+			transaction.NewRestrictionValue = test::Random();
+			transaction.NewRestrictionType = static_cast<model::MosaicRestrictionType>(test::RandomByte());
 
-            auto pPlugin = TTraits::CreatePlugin();
+			auto pPlugin = TTraits::CreatePlugin();
 
-            // Act:
-            mappers::bson_stream::document builder;
-            pPlugin->streamTransaction(builder, transaction);
-            auto view = builder.view();
+			// Act:
+			mappers::bson_stream::document builder;
+			pPlugin->streamTransaction(builder, transaction);
+			auto view = builder.view();
 
-            // Assert:
-            auto previousRestrictionType = static_cast<model::MosaicRestrictionType>(test::GetUint8(view, "previousRestrictionType"));
-            auto newRestrictionType = static_cast<model::MosaicRestrictionType>(test::GetUint8(view, "newRestrictionType"));
-            EXPECT_EQ(7u, test::GetFieldCount(view));
-            EXPECT_EQ(transaction.MosaicId, UnresolvedMosaicId(test::GetUint64(view, "mosaicId")));
-            EXPECT_EQ(transaction.ReferenceMosaicId, UnresolvedMosaicId(test::GetUint64(view, "referenceMosaicId")));
-            EXPECT_EQ(transaction.RestrictionKey, test::GetUint64(view, "restrictionKey"));
-            EXPECT_EQ(transaction.PreviousRestrictionValue, test::GetUint64(view, "previousRestrictionValue"));
-            EXPECT_EQ(transaction.PreviousRestrictionType, previousRestrictionType);
-            EXPECT_EQ(transaction.NewRestrictionValue, test::GetUint64(view, "newRestrictionValue"));
-            EXPECT_EQ(transaction.NewRestrictionType, newRestrictionType);
-        }
+			// Assert:
+			auto previousRestrictionType = static_cast<model::MosaicRestrictionType>(test::GetUint8(view, "previousRestrictionType"));
+			auto newRestrictionType = static_cast<model::MosaicRestrictionType>(test::GetUint8(view, "newRestrictionType"));
+			EXPECT_EQ(7u, test::GetFieldCount(view));
+			EXPECT_EQ(transaction.MosaicId, UnresolvedMosaicId(test::GetUint64(view, "mosaicId")));
+			EXPECT_EQ(transaction.ReferenceMosaicId, UnresolvedMosaicId(test::GetUint64(view, "referenceMosaicId")));
+			EXPECT_EQ(transaction.RestrictionKey, test::GetUint64(view, "restrictionKey"));
+			EXPECT_EQ(transaction.PreviousRestrictionValue, test::GetUint64(view, "previousRestrictionValue"));
+			EXPECT_EQ(transaction.PreviousRestrictionType, previousRestrictionType);
+			EXPECT_EQ(transaction.NewRestrictionValue, test::GetUint64(view, "newRestrictionValue"));
+			EXPECT_EQ(transaction.NewRestrictionType, newRestrictionType);
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

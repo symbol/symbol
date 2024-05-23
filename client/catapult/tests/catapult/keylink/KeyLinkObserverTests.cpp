@@ -30,114 +30,106 @@ namespace keylink {
 
 #define TEST_CLASS KeyLinkObserverTests
 
-    // region test utils
+	// region test utils
 
-    namespace {
-        using Notification = model::BasicKeyLinkNotification<Key, static_cast<model::NotificationType>(0)>;
+	namespace {
+		using Notification = model::BasicKeyLinkNotification<Key, static_cast<model::NotificationType>(0)>;
 
-        struct Accessor {
-            static auto& Get(state::AccountState& accountState)
-            {
-                return accountState.SupplementalPublicKeys.linked();
-            }
-        };
+		struct Accessor {
+			static auto& Get(state::AccountState& accountState) {
+				return accountState.SupplementalPublicKeys.linked();
+			}
+		};
 
-        auto CreateKeyLinkObserver(const std::string& name)
-        {
-            return keylink::CreateKeyLinkObserver<Notification, Accessor>(name);
-        }
+		auto CreateKeyLinkObserver(const std::string& name) {
+			return keylink::CreateKeyLinkObserver<Notification, Accessor>(name);
+		}
 
-        auto RunKeyLinkObserverTest(
-            observers::NotifyMode notifyMode,
-            model::LinkAction linkAction,
-            const Key& cacheLinkedPublicKey,
-            const Key& notificationLinkedPublicKey)
-        {
-            // Arrange:
-            test::AccountObserverTestContext context(notifyMode);
-            auto mainAccountPublicKey = test::AddAccountWithLink(context.cache(), cacheLinkedPublicKey);
+		auto RunKeyLinkObserverTest(
+			observers::NotifyMode notifyMode,
+			model::LinkAction linkAction,
+			const Key& cacheLinkedPublicKey,
+			const Key& notificationLinkedPublicKey) {
+			// Arrange:
+			test::AccountObserverTestContext context(notifyMode);
+			auto mainAccountPublicKey = test::AddAccountWithLink(context.cache(), cacheLinkedPublicKey);
 
-            auto pObserver = CreateKeyLinkObserver("");
-            auto notification = Notification(mainAccountPublicKey, notificationLinkedPublicKey, linkAction);
+			auto pObserver = CreateKeyLinkObserver("");
+			auto notification = Notification(mainAccountPublicKey, notificationLinkedPublicKey, linkAction);
 
-            // Act:
-            test::ObserveNotification(*pObserver, notification, context);
+			// Act:
+			test::ObserveNotification(*pObserver, notification, context);
 
-            // Assert:
-            auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
-            return Accessor::Get(accountStateCache.find(mainAccountPublicKey).get()).get();
-        }
-    }
+			// Assert:
+			auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
+			return Accessor::Get(accountStateCache.find(mainAccountPublicKey).get()).get();
+		}
+	}
 
-    // endregion
+	// endregion
 
-    // region name
+	// region name
 
-    TEST(TEST_CLASS, ObserverHasCorrectName)
-    {
-        // Act:
-        auto pObserver = CreateKeyLinkObserver("Foo");
+	TEST(TEST_CLASS, ObserverHasCorrectName) {
+		// Act:
+		auto pObserver = CreateKeyLinkObserver("Foo");
 
-        // Assert:
-        EXPECT_EQ("FooKeyLinkObserver", pObserver->name());
-    }
+		// Assert:
+		EXPECT_EQ("FooKeyLinkObserver", pObserver->name());
+	}
 
-    // endregion
+	// endregion
 
-    // region link
+	// region link
 
-    TEST(TEST_CLASS, LinkCommitSetsLink)
-    {
-        // Act:
-        auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
-        auto finalLinkedPublicKey = RunKeyLinkObserverTest(observers::NotifyMode::Commit, model::LinkAction::Link, Key(), notificationLinkedPublicKey);
+	TEST(TEST_CLASS, LinkCommitSetsLink) {
+		// Act:
+		auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
+		auto finalLinkedPublicKey = RunKeyLinkObserverTest(observers::NotifyMode::Commit, model::LinkAction::Link, Key(), notificationLinkedPublicKey);
 
-        // Assert:
-        EXPECT_EQ(notificationLinkedPublicKey, finalLinkedPublicKey);
-    }
+		// Assert:
+		EXPECT_EQ(notificationLinkedPublicKey, finalLinkedPublicKey);
+	}
 
-    TEST(TEST_CLASS, LinkRollbackUnsetsLink)
-    {
-        // Act:
-        auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
-        auto finalLinkedPublicKey = RunKeyLinkObserverTest(
-            observers::NotifyMode::Rollback,
-            model::LinkAction::Link,
-            notificationLinkedPublicKey,
-            notificationLinkedPublicKey);
+	TEST(TEST_CLASS, LinkRollbackUnsetsLink) {
+		// Act:
+		auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
+		auto finalLinkedPublicKey = RunKeyLinkObserverTest(
+			observers::NotifyMode::Rollback,
+			model::LinkAction::Link,
+			notificationLinkedPublicKey,
+			notificationLinkedPublicKey);
 
-        // Assert:
-        EXPECT_EQ(Key(), finalLinkedPublicKey);
-    }
+		// Assert:
+		EXPECT_EQ(Key(), finalLinkedPublicKey);
+	}
 
-    // endregion
+	// endregion
 
-    // region unlink
+	// region unlink
 
-    TEST(TEST_CLASS, UnlinkCommitUnsetsLink)
-    {
-        // Act:
-        auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
-        auto finalLinkedPublicKey = RunKeyLinkObserverTest(
-            observers::NotifyMode::Commit,
-            model::LinkAction::Unlink,
-            notificationLinkedPublicKey,
-            notificationLinkedPublicKey);
+	TEST(TEST_CLASS, UnlinkCommitUnsetsLink) {
+		// Act:
+		auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
+		auto finalLinkedPublicKey = RunKeyLinkObserverTest(
+			observers::NotifyMode::Commit,
+			model::LinkAction::Unlink,
+			notificationLinkedPublicKey,
+			notificationLinkedPublicKey);
 
-        // Assert:
-        EXPECT_EQ(Key(), finalLinkedPublicKey);
-    }
+		// Assert:
+		EXPECT_EQ(Key(), finalLinkedPublicKey);
+	}
 
-    TEST(TEST_CLASS, UnlinkRollbackSetsLink)
-    {
-        // Act:
-        auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
-        auto finalLinkedPublicKey = RunKeyLinkObserverTest(observers::NotifyMode::Rollback, model::LinkAction::Unlink, Key(), notificationLinkedPublicKey);
+	TEST(TEST_CLASS, UnlinkRollbackSetsLink) {
+		// Act:
+		auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
+		auto finalLinkedPublicKey = RunKeyLinkObserverTest(observers::NotifyMode::Rollback, model::LinkAction::Unlink, Key(), notificationLinkedPublicKey);
 
-        // Assert:
-        EXPECT_EQ(notificationLinkedPublicKey, finalLinkedPublicKey);
-    }
+		// Assert:
+		EXPECT_EQ(notificationLinkedPublicKey, finalLinkedPublicKey);
+	}
 
-    // endregion
+	// endregion
 }
 }

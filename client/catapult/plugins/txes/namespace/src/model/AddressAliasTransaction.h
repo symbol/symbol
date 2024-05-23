@@ -30,34 +30,33 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Binary layout for an address alias transaction body.
-    template <typename THeader>
-    struct AddressAliasTransactionBody : public THeader {
-    private:
-        using TransactionType = AddressAliasTransactionBody<THeader>;
+	/// Binary layout for an address alias transaction body.
+	template <typename THeader>
+	struct AddressAliasTransactionBody : public THeader {
+	private:
+		using TransactionType = AddressAliasTransactionBody<THeader>;
 
-    public:
-        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Alias_Address, 1)
+	public:
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Alias_Address, 1)
 
-    public:
-        /// Identifier of the namespace that will become an alias.
-        catapult::NamespaceId NamespaceId;
+	public:
+		/// Identifier of the namespace that will become an alias.
+		catapult::NamespaceId NamespaceId;
 
-        /// Aliased address.
-        catapult::Address Address;
+		/// Aliased address.
+		catapult::Address Address;
 
-        /// Alias action.
-        model::AliasAction AliasAction;
+		/// Alias action.
+		model::AliasAction AliasAction;
 
-    public:
-        /// Calculates the real size of address alias \a transaction.
-        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
-        {
-            return sizeof(TransactionType);
-        }
-    };
+	public:
+		/// Calculates the real size of address alias \a transaction.
+		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
+			return sizeof(TransactionType);
+		}
+	};
 
-    DEFINE_EMBEDDABLE_TRANSACTION(AddressAlias)
+	DEFINE_EMBEDDABLE_TRANSACTION(AddressAlias)
 
 #pragma pack(pop)
 }

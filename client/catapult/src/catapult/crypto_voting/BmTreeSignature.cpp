@@ -24,14 +24,12 @@
 namespace catapult {
 namespace crypto {
 
-    bool BmTreeSignature::operator==(const BmTreeSignature& rhs) const
-    {
-        return 0 == std::memcmp(this, &rhs, sizeof(BmTreeSignature));
-    }
+	bool BmTreeSignature::operator==(const BmTreeSignature& rhs) const {
+		return 0 == std::memcmp(this, &rhs, sizeof(BmTreeSignature));
+	}
 
-    bool BmTreeSignature::operator!=(const BmTreeSignature& rhs) const
-    {
-        return !(*this == rhs);
-    }
+	bool BmTreeSignature::operator!=(const BmTreeSignature& rhs) const {
+		return !(*this == rhs);
+	}
 }
 }

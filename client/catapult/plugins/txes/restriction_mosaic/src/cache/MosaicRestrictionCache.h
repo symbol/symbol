@@ -28,20 +28,19 @@
 namespace catapult {
 namespace cache {
 
-    /// Cache composed of mosaic restriction information.
-    using BasicMosaicRestrictionCache = BasicCache<MosaicRestrictionCacheDescriptor, MosaicRestrictionCacheTypes::BaseSets, model::NetworkIdentifier>;
+	/// Cache composed of mosaic restriction information.
+	using BasicMosaicRestrictionCache = BasicCache<MosaicRestrictionCacheDescriptor, MosaicRestrictionCacheTypes::BaseSets, model::NetworkIdentifier>;
 
-    /// Synchronized cache composed of mosaic restriction information.
-    class MosaicRestrictionCache : public SynchronizedCache<BasicMosaicRestrictionCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(MosaicRestriction)
+	/// Synchronized cache composed of mosaic restriction information.
+	class MosaicRestrictionCache : public SynchronizedCache<BasicMosaicRestrictionCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(MosaicRestriction)
 
-    public:
-        /// Creates a cache around \a config and \a networkIdentifier.
-        MosaicRestrictionCache(const CacheConfiguration& config, model::NetworkIdentifier networkIdentifier)
-            : SynchronizedCache<BasicMosaicRestrictionCache>(BasicMosaicRestrictionCache(config, std::move(networkIdentifier)))
-        {
-        }
-    };
+	public:
+		/// Creates a cache around \a config and \a networkIdentifier.
+		MosaicRestrictionCache(const CacheConfiguration& config, model::NetworkIdentifier networkIdentifier)
+			: SynchronizedCache<BasicMosaicRestrictionCache>(BasicMosaicRestrictionCache(config, std::move(networkIdentifier))) {
+		}
+	};
 }
 }

@@ -29,61 +29,58 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS AccountLinkMapperTests
 
-        namespace {
-            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(AccountKeyLink, Account)
-            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NodeKeyLink, Node)
-        }
+		namespace {
+			DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(AccountKeyLink, Account)
+			DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NodeKeyLink, Node)
+		}
 
-        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Account, _Account, model::Entity_Type_Account_Key_Link)
-        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Node, _Node, model::Entity_Type_Node_Key_Link)
+		DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Account, _Account, model::Entity_Type_Account_Key_Link)
+		DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Node, _Node, model::Entity_Type_Node_Key_Link)
 
 #undef PLUGIN_TEST
 
 #define PLUGIN_TEST_ENTRY(NAME, TEST_NAME)                               \
-    TEST(TEST_CLASS, TEST_NAME##_##NAME##_Regular)                       \
-    {                                                                    \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NAME##RegularTraits>();  \
-    }                                                                    \
-    TEST(TEST_CLASS, TEST_NAME##_##NAME##_Embedded)                      \
-    {                                                                    \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NAME##EmbeddedTraits>(); \
-    }
+	TEST(TEST_CLASS, TEST_NAME##_##NAME##_Regular) {                     \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NAME##RegularTraits>();  \
+	}                                                                    \
+	TEST(TEST_CLASS, TEST_NAME##_##NAME##_Embedded) {                    \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NAME##EmbeddedTraits>(); \
+	}
 
 #define PLUGIN_TEST(TEST_NAME)                      \
-    template <typename TTraits>                     \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-    PLUGIN_TEST_ENTRY(Account, TEST_NAME)           \
-    PLUGIN_TEST_ENTRY(Node, TEST_NAME)              \
-    template <typename TTraits>                     \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template <typename TTraits>                     \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	PLUGIN_TEST_ENTRY(Account, TEST_NAME)           \
+	PLUGIN_TEST_ENTRY(Node, TEST_NAME)              \
+	template <typename TTraits>                     \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-        // region streamTransaction
+		// region streamTransaction
 
-        PLUGIN_TEST(CanMapLinkTransaction)
-        {
-            // Arrange:
-            typename TTraits::TransactionType transaction;
-            transaction.LinkAction = model::LinkAction::Unlink;
-            test::FillWithRandomData(transaction.LinkedPublicKey);
+		PLUGIN_TEST(CanMapLinkTransaction) {
+			// Arrange:
+			typename TTraits::TransactionType transaction;
+			transaction.LinkAction = model::LinkAction::Unlink;
+			test::FillWithRandomData(transaction.LinkedPublicKey);
 
-            auto pPlugin = TTraits::CreatePlugin();
+			auto pPlugin = TTraits::CreatePlugin();
 
-            // Act:
-            mappers::bson_stream::document builder;
-            pPlugin->streamTransaction(builder, transaction);
-            auto view = builder.view();
+			// Act:
+			mappers::bson_stream::document builder;
+			pPlugin->streamTransaction(builder, transaction);
+			auto view = builder.view();
 
-            // Assert:
-            EXPECT_EQ(2u, test::GetFieldCount(view));
-            EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
-            EXPECT_EQ(transaction.LinkedPublicKey, test::GetKeyValue(view, "linkedPublicKey"));
-        }
+			// Assert:
+			EXPECT_EQ(2u, test::GetFieldCount(view));
+			EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
+			EXPECT_EQ(transaction.LinkedPublicKey, test::GetKeyValue(view, "linkedPublicKey"));
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

@@ -25,25 +25,24 @@
 namespace catapult {
 namespace cache {
 
-    /// Options for customizing the behavior of a memory based cache.
-    class MemoryCacheOptions {
-    public:
-        /// Creates default options.
-        constexpr MemoryCacheOptions() = default;
+	/// Options for customizing the behavior of a memory based cache.
+	class MemoryCacheOptions {
+	public:
+		/// Creates default options.
+		constexpr MemoryCacheOptions() = default;
 
-        /// Creates options with custom \a maxResponseSize and \a maxCacheSize.
-        constexpr MemoryCacheOptions(utils::FileSize maxResponseSize, utils::FileSize maxCacheSize)
-            : MaxResponseSize(maxResponseSize)
-            , MaxCacheSize(maxCacheSize)
-        {
-        }
+		/// Creates options with custom \a maxResponseSize and \a maxCacheSize.
+		constexpr MemoryCacheOptions(utils::FileSize maxResponseSize, utils::FileSize maxCacheSize)
+			: MaxResponseSize(maxResponseSize)
+			, MaxCacheSize(maxCacheSize) {
+		}
 
-    public:
-        /// Maximum response size.
-        utils::FileSize MaxResponseSize;
+	public:
+		/// Maximum response size.
+		utils::FileSize MaxResponseSize;
 
-        /// Maximum size of the cache.
-        utils::FileSize MaxCacheSize;
-    };
+		/// Maximum size of the cache.
+		utils::FileSize MaxCacheSize;
+	};
 }
 }

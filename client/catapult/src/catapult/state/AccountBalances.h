@@ -29,54 +29,54 @@
 namespace catapult {
 namespace state {
 
-    /// Container holding account balance information.
-    class AccountBalances {
-    public:
-        /// Creates empty account balances.
-        AccountBalances();
+	/// Container holding account balance information.
+	class AccountBalances {
+	public:
+		/// Creates empty account balances.
+		AccountBalances();
 
-        /// Copy constructor that makes a deep copy of \a accountBalances.
-        AccountBalances(const AccountBalances& accountBalances);
+		/// Copy constructor that makes a deep copy of \a accountBalances.
+		AccountBalances(const AccountBalances& accountBalances);
 
-        /// Move constructor that move constructs an account balances from \a accountBalances.
-        AccountBalances(AccountBalances&& accountBalances);
+		/// Move constructor that move constructs an account balances from \a accountBalances.
+		AccountBalances(AccountBalances&& accountBalances);
 
-    public:
-        /// Assignment operator that makes a deep copy of \a accountBalances.
-        AccountBalances& operator=(const AccountBalances& accountBalances);
+	public:
+		/// Assignment operator that makes a deep copy of \a accountBalances.
+		AccountBalances& operator=(const AccountBalances& accountBalances);
 
-        /// Move assignment operator that assigns \a accountBalances.
-        AccountBalances& operator=(AccountBalances&& accountBalances);
+		/// Move assignment operator that assigns \a accountBalances.
+		AccountBalances& operator=(AccountBalances&& accountBalances);
 
-    public:
-        /// Gets the number of mosaics owned.
-        size_t size() const;
+	public:
+		/// Gets the number of mosaics owned.
+		size_t size() const;
 
-        /// Gets a const iterator to the first element of the underlying set.
-        CompactMosaicMap::const_iterator begin() const;
+		/// Gets a const iterator to the first element of the underlying set.
+		CompactMosaicMap::const_iterator begin() const;
 
-        /// Gets a const iterator to the element following the last element of the underlying set.
-        CompactMosaicMap::const_iterator end() const;
+		/// Gets a const iterator to the element following the last element of the underlying set.
+		CompactMosaicMap::const_iterator end() const;
 
-        /// Gets the optimized mosaic id.
-        MosaicId optimizedMosaicId() const;
+		/// Gets the optimized mosaic id.
+		MosaicId optimizedMosaicId() const;
 
-        /// Gets the balance of the given mosaic (\a mosaicId).
-        Amount get(MosaicId mosaicId) const;
+		/// Gets the balance of the given mosaic (\a mosaicId).
+		Amount get(MosaicId mosaicId) const;
 
-    public:
-        /// Adds \a amount funds to a given mosaic (\a mosaicId).
-        AccountBalances& credit(MosaicId mosaicId, Amount amount);
+	public:
+		/// Adds \a amount funds to a given mosaic (\a mosaicId).
+		AccountBalances& credit(MosaicId mosaicId, Amount amount);
 
-        /// Subtracts \a amount funds from a given mosaic (\a mosaicId).
-        AccountBalances& debit(MosaicId mosaicId, Amount amount);
+		/// Subtracts \a amount funds from a given mosaic (\a mosaicId).
+		AccountBalances& debit(MosaicId mosaicId, Amount amount);
 
-        /// Optimizes access of the mosaic with \a id.
-        void optimize(MosaicId id);
+		/// Optimizes access of the mosaic with \a id.
+		void optimize(MosaicId id);
 
-    private:
-        CompactMosaicMap m_balances;
-        MosaicId m_optimizedMosaicId;
-    };
+	private:
+		CompactMosaicMap m_balances;
+		MosaicId m_optimizedMosaicId;
+	};
 }
 }

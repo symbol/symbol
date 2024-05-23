@@ -31,89 +31,82 @@
 namespace catapult {
 namespace extensions {
 
-    BlockExtensions::BlockExtensions(const GenerationHashSeed& generationHashSeed)
-        : m_generationHashSeed(generationHashSeed)
-        , m_calculateTransactionEntityHash(
-              [generationHashSeed](const auto& transaction) { return model::CalculateHash(transaction, generationHashSeed); })
-        , m_calculateTransactionMerkleComponentHash([](const auto&, const auto& entityHash) { return entityHash; })
-    {
-    }
+	BlockExtensions::BlockExtensions(const GenerationHashSeed& generationHashSeed)
+		: m_generationHashSeed(generationHashSeed)
+		, m_calculateTransactionEntityHash(
+			  [generationHashSeed](const auto& transaction) { return model::CalculateHash(transaction, generationHashSeed); })
+		, m_calculateTransactionMerkleComponentHash([](const auto&, const auto& entityHash) { return entityHash; }) {
+	}
 
-    BlockExtensions::BlockExtensions(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
-        : m_generationHashSeed(generationHashSeed)
-        , m_calculateTransactionEntityHash([generationHashSeed, &transactionRegistry](const auto& transaction) {
-            const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
-            return model::CalculateHash(transaction, generationHashSeed, plugin.dataBuffer(transaction));
-        })
-        , m_calculateTransactionMerkleComponentHash([&transactionRegistry](const auto& transaction, const auto& entityHash) {
-            return model::CalculateMerkleComponentHash(transaction, entityHash, transactionRegistry);
-        })
-    {
-    }
+	BlockExtensions::BlockExtensions(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
+		: m_generationHashSeed(generationHashSeed)
+		, m_calculateTransactionEntityHash([generationHashSeed, &transactionRegistry](const auto& transaction) {
+			const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
+			return model::CalculateHash(transaction, generationHashSeed, plugin.dataBuffer(transaction));
+		})
+		, m_calculateTransactionMerkleComponentHash([&transactionRegistry](const auto& transaction, const auto& entityHash) {
+			return model::CalculateMerkleComponentHash(transaction, entityHash, transactionRegistry);
+		}) {
+	}
 
-    void BlockExtensions::updateBlockTransactionsHash(model::Block& block) const
-    {
-        calculateBlockTransactionsHash(block, block.TransactionsHash);
-    }
+	void BlockExtensions::updateBlockTransactionsHash(model::Block& block) const {
+		calculateBlockTransactionsHash(block, block.TransactionsHash);
+	}
 
-    void BlockExtensions::calculateBlockTransactionsHash(const model::Block& block, Hash256& blockTransactionsHash) const
-    {
-        crypto::MerkleHashBuilder builder;
-        for (const auto& transaction : block.Transactions()) {
-            auto transactionHash = m_calculateTransactionEntityHash(transaction);
-            auto merkleComponentHash = m_calculateTransactionMerkleComponentHash(transaction, transactionHash);
-            builder.update(merkleComponentHash);
-        }
+	void BlockExtensions::calculateBlockTransactionsHash(const model::Block& block, Hash256& blockTransactionsHash) const {
+		crypto::MerkleHashBuilder builder;
+		for (const auto& transaction : block.Transactions()) {
+			auto transactionHash = m_calculateTransactionEntityHash(transaction);
+			auto merkleComponentHash = m_calculateTransactionMerkleComponentHash(transaction, transactionHash);
+			builder.update(merkleComponentHash);
+		}
 
-        builder.final(blockTransactionsHash);
-    }
+		builder.final(blockTransactionsHash);
+	}
 
-    void BlockExtensions::signFullBlock(const crypto::KeyPair& signer, model::Block& block) const
-    {
-        // calculate the block transactions hash
-        updateBlockTransactionsHash(block);
+	void BlockExtensions::signFullBlock(const crypto::KeyPair& signer, model::Block& block) const {
+		// calculate the block transactions hash
+		updateBlockTransactionsHash(block);
 
-        // sign the block
-        model::SignBlockHeader(signer, block);
-    }
+		// sign the block
+		model::SignBlockHeader(signer, block);
+	}
 
-    VerifyFullBlockResult BlockExtensions::verifyFullBlock(const model::Block& block) const
-    {
-        // check block header signature
-        if (!model::VerifyBlockHeaderSignature(block))
-            return VerifyFullBlockResult::Invalid_Block_Signature;
+	VerifyFullBlockResult BlockExtensions::verifyFullBlock(const model::Block& block) const {
+		// check block header signature
+		if (!model::VerifyBlockHeaderSignature(block))
+			return VerifyFullBlockResult::Invalid_Block_Signature;
 
-        // check block transactions hash
-        Hash256 expectedBlockTransactionsHash;
-        calculateBlockTransactionsHash(block, expectedBlockTransactionsHash);
-        if (expectedBlockTransactionsHash != block.TransactionsHash)
-            return VerifyFullBlockResult::Invalid_Block_Transactions_Hash;
+		// check block transactions hash
+		Hash256 expectedBlockTransactionsHash;
+		calculateBlockTransactionsHash(block, expectedBlockTransactionsHash);
+		if (expectedBlockTransactionsHash != block.TransactionsHash)
+			return VerifyFullBlockResult::Invalid_Block_Transactions_Hash;
 
-        // check transaction signatures
-        TransactionExtensions transactionExtensions(m_generationHashSeed);
-        for (const auto& transaction : block.Transactions()) {
-            if (!transactionExtensions.verify(transaction))
-                return VerifyFullBlockResult::Invalid_Transaction_Signature;
-        }
+		// check transaction signatures
+		TransactionExtensions transactionExtensions(m_generationHashSeed);
+		for (const auto& transaction : block.Transactions()) {
+			if (!transactionExtensions.verify(transaction))
+				return VerifyFullBlockResult::Invalid_Transaction_Signature;
+		}
 
-        return VerifyFullBlockResult::Success;
-    }
+		return VerifyFullBlockResult::Success;
+	}
 
-    model::BlockElement BlockExtensions::convertBlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) const
-    {
-        model::BlockElement blockElement(block);
-        blockElement.EntityHash = model::CalculateHash(block);
-        blockElement.GenerationHash = generationHash;
+	model::BlockElement BlockExtensions::convertBlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) const {
+		model::BlockElement blockElement(block);
+		blockElement.EntityHash = model::CalculateHash(block);
+		blockElement.GenerationHash = generationHash;
 
-        for (const auto& transaction : block.Transactions()) {
-            blockElement.Transactions.push_back(model::TransactionElement(transaction));
+		for (const auto& transaction : block.Transactions()) {
+			blockElement.Transactions.push_back(model::TransactionElement(transaction));
 
-            auto& transactionElement = blockElement.Transactions.back();
-            transactionElement.EntityHash = m_calculateTransactionEntityHash(transaction);
-            transactionElement.MerkleComponentHash = m_calculateTransactionMerkleComponentHash(transaction, transactionElement.EntityHash);
-        }
+			auto& transactionElement = blockElement.Transactions.back();
+			transactionElement.EntityHash = m_calculateTransactionEntityHash(transaction);
+			transactionElement.MerkleComponentHash = m_calculateTransactionMerkleComponentHash(transaction, transactionElement.EntityHash);
+		}
 
-        return blockElement;
-    }
+		return blockElement;
+	}
 }
 }

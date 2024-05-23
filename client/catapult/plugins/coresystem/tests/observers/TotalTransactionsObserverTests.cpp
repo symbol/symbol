@@ -29,47 +29,44 @@ namespace observers {
 
 #define TEST_CLASS TotalTransactionsObserverTests
 
-    DEFINE_COMMON_OBSERVER_TESTS(TotalTransactions, )
+	DEFINE_COMMON_OBSERVER_TESTS(TotalTransactions, )
 
-    namespace {
-        constexpr size_t Current_Height = 10;
+	namespace {
+		constexpr size_t Current_Height = 10;
 
-        model::BlockNotification CreateBlockNotification(uint32_t numTransactions)
-        {
-            auto notification = test::CreateBlockNotification();
-            notification.NumTransactions = numTransactions;
-            return notification;
-        }
-    }
+		model::BlockNotification CreateBlockNotification(uint32_t numTransactions) {
+			auto notification = test::CreateBlockNotification();
+			notification.NumTransactions = numTransactions;
+			return notification;
+		}
+	}
 
-    TEST(TEST_CLASS, ObserverIncrementsTotalNumberOfTransactionsInModeCommit)
-    {
-        // Arrange:
-        test::ObserverTestContext context(NotifyMode::Commit, Height(Current_Height + 1));
-        context.state().NumTotalTransactions = 123;
-        auto pObserver = CreateTotalTransactionsObserver();
-        auto notification = CreateBlockNotification(1123);
+	TEST(TEST_CLASS, ObserverIncrementsTotalNumberOfTransactionsInModeCommit) {
+		// Arrange:
+		test::ObserverTestContext context(NotifyMode::Commit, Height(Current_Height + 1));
+		context.state().NumTotalTransactions = 123;
+		auto pObserver = CreateTotalTransactionsObserver();
+		auto notification = CreateBlockNotification(1123);
 
-        // Act:
-        ObserveNotification(*pObserver, notification, context);
+		// Act:
+		ObserveNotification(*pObserver, notification, context);
 
-        // Assert:
-        EXPECT_EQ(1246u, context.state().NumTotalTransactions);
-    }
+		// Assert:
+		EXPECT_EQ(1246u, context.state().NumTotalTransactions);
+	}
 
-    TEST(TEST_CLASS, ObserverDecrementsTotalNumberOfTransactionsInModeRollback)
-    {
-        // Arrange:
-        test::ObserverTestContext context(NotifyMode::Rollback, Height(Current_Height + 1));
-        context.state().NumTotalTransactions = 1246;
-        auto pObserver = CreateTotalTransactionsObserver();
-        auto notification = CreateBlockNotification(1123);
+	TEST(TEST_CLASS, ObserverDecrementsTotalNumberOfTransactionsInModeRollback) {
+		// Arrange:
+		test::ObserverTestContext context(NotifyMode::Rollback, Height(Current_Height + 1));
+		context.state().NumTotalTransactions = 1246;
+		auto pObserver = CreateTotalTransactionsObserver();
+		auto notification = CreateBlockNotification(1123);
 
-        // Act:
-        ObserveNotification(*pObserver, notification, context);
+		// Act:
+		ObserveNotification(*pObserver, notification, context);
 
-        // Assert:
-        EXPECT_EQ(123u, context.state().NumTotalTransactions);
-    }
+		// Assert:
+		EXPECT_EQ(123u, context.state().NumTotalTransactions);
+	}
 }
 }

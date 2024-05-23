@@ -34,75 +34,71 @@ namespace partialtransaction {
 
 #define TEST_CLASS PtServiceTests
 
-    namespace {
-        struct PtServiceTraits {
-            static constexpr auto Counter_Name = "PT WRITERS";
-            static constexpr auto Num_Expected_Services = 3u; // writers (1) + dependent services (2)
-            static constexpr auto CreateRegistrar = CreatePtServiceRegistrar;
+	namespace {
+		struct PtServiceTraits {
+			static constexpr auto Counter_Name = "PT WRITERS";
+			static constexpr auto Num_Expected_Services = 3u; // writers (1) + dependent services (2)
+			static constexpr auto CreateRegistrar = CreatePtServiceRegistrar;
 
-            static auto GetWriters(const extensions::ServiceLocator& locator)
-            {
-                return locator.service<net::PacketWriters>("pt.writers");
-            }
-        };
+			static auto GetWriters(const extensions::ServiceLocator& locator) {
+				return locator.service<net::PacketWriters>("pt.writers");
+			}
+		};
 
-        class TestContext : public test::ServiceLocatorTestContext<PtServiceTraits> {
-        public:
-            TestContext()
-            {
-                // Arrange: register service dependencies
-                auto pBootstrapperRegistrar = CreatePtBootstrapperServiceRegistrar(
-                    []() { return std::make_unique<cache::MemoryPtCacheProxy>(cache::MemoryCacheOptions()); });
-                pBootstrapperRegistrar->registerServices(locator(), testState().state());
+		class TestContext : public test::ServiceLocatorTestContext<PtServiceTraits> {
+		public:
+			TestContext() {
+				// Arrange: register service dependencies
+				auto pBootstrapperRegistrar = CreatePtBootstrapperServiceRegistrar(
+					[]() { return std::make_unique<cache::MemoryPtCacheProxy>(cache::MemoryCacheOptions()); });
+				pBootstrapperRegistrar->registerServices(locator(), testState().state());
 
-                // - register hook dependencies
-                GetPtServerHooks(locator()).setCosignedTransactionInfosConsumer([](auto&&) {});
-            }
-        };
+				// - register hook dependencies
+				GetPtServerHooks(locator()).setCosignedTransactionInfosConsumer([](auto&&) {});
+			}
+		};
 
-        struct Mixin {
-            using TraitsType = PtServiceTraits;
-            using TestContextType = TestContext;
-        };
-    }
+		struct Mixin {
+			using TraitsType = PtServiceTraits;
+			using TestContextType = TestContext;
+		};
+	}
 
-    ADD_SERVICE_REGISTRAR_INFO_TEST(Pt, Post_Extended_Range_Consumers)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(Pt, Post_Extended_Range_Consumers)
 
-    ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanBootService)
-    ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanShutdownService)
-    ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanConnectToExternalServer)
-    ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, WritersAreRegisteredInBannedNodeIdentitySink)
+	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanBootService)
+	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanShutdownService)
+	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanConnectToExternalServer)
+	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, WritersAreRegisteredInBannedNodeIdentitySink)
 
-    // region packetIoPickers
+	// region packetIoPickers
 
-    TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers)
-    {
-        // Arrange: create a (tcp) server
-        test::RemoteAcceptServer server;
-        server.start();
+	TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers) {
+		// Arrange: create a (tcp) server
+		test::RemoteAcceptServer server;
+		server.start();
 
-        // Act: create and boot the service
-        TestContext context;
-        context.boot();
-        auto pickers = context.testState().state().packetIoPickers();
+		// Act: create and boot the service
+		TestContext context;
+		context.boot();
+		auto pickers = context.testState().state().packetIoPickers();
 
-        // - get the packet writers and attempt to connect to the server
-        test::ConnectToLocalHost(*PtServiceTraits::GetWriters(context.locator()), server.caPublicKey());
+		// - get the packet writers and attempt to connect to the server
+		test::ConnectToLocalHost(*PtServiceTraits::GetWriters(context.locator()), server.caPublicKey());
 
-        // Assert: the writers are registered with role `Api`
-        EXPECT_EQ(0u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Peer).size());
-        EXPECT_EQ(1u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Api).size());
-    }
+		// Assert: the writers are registered with role `Api`
+		EXPECT_EQ(0u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Peer).size());
+		EXPECT_EQ(1u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Api).size());
+	}
 
-    // endregion
+	// endregion
 
-    // region tasks
+	// region tasks
 
-    TEST(TEST_CLASS, TasksAreRegistered)
-    {
-        test::AssertRegisteredTasks(TestContext(), { "connect peers task for service Pt", "pull partial transactions task" });
-    }
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { "connect peers task for service Pt", "pull partial transactions task" });
+	}
 
-    // endregion
+	// endregion
 }
 }

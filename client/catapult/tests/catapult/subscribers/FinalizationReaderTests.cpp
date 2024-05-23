@@ -30,36 +30,34 @@ namespace subscribers {
 
 #define TEST_CLASS FinalizationReaderTests
 
-    namespace {
-        void AssertEqual(
-            const test::FinalizationNotification& expected,
-            const mocks::FinalizationSubscriberFinalizedBlockParams& actual,
-            const std::string& message)
-        {
-            EXPECT_EQ(expected.Round, actual.Round) << message;
-            EXPECT_EQ(expected.Height, actual.Height) << message;
-            EXPECT_EQ(expected.Hash, actual.Hash) << message;
-        }
-    }
+	namespace {
+		void AssertEqual(
+			const test::FinalizationNotification& expected,
+			const mocks::FinalizationSubscriberFinalizedBlockParams& actual,
+			const std::string& message) {
+			EXPECT_EQ(expected.Round, actual.Round) << message;
+			EXPECT_EQ(expected.Height, actual.Height) << message;
+			EXPECT_EQ(expected.Hash, actual.Hash) << message;
+		}
+	}
 
-    TEST(TEST_CLASS, CanReadSingle)
-    {
-        // Arrange:
-        auto notification = test::GenerateRandomFinalizationNotification();
+	TEST(TEST_CLASS, CanReadSingle) {
+		// Arrange:
+		auto notification = test::GenerateRandomFinalizationNotification();
 
-        std::vector<uint8_t> buffer;
-        mocks::MockMemoryStream stream(buffer);
-        test::WriteFinalizationNotification(stream, notification);
-        stream.seek(0);
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
+		test::WriteFinalizationNotification(stream, notification);
+		stream.seek(0);
 
-        mocks::MockFinalizationSubscriber subscriber;
+		mocks::MockFinalizationSubscriber subscriber;
 
-        // Act:
-        ReadNextFinalization(stream, subscriber);
+		// Act:
+		ReadNextFinalization(stream, subscriber);
 
-        // Assert:
-        ASSERT_EQ(1u, subscriber.finalizedBlockParams().params().size());
-        AssertEqual(notification, subscriber.finalizedBlockParams().params()[0], "at 0");
-    }
+		// Assert:
+		ASSERT_EQ(1u, subscriber.finalizedBlockParams().params().size());
+		AssertEqual(notification, subscriber.finalizedBlockParams().params()[0], "at 0");
+	}
 }
 }

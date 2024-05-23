@@ -27,74 +27,74 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace config {
 
-    /// Basic logger configuration settings.
-    struct BasicLoggerConfiguration {
-        /// Log sink type.
-        utils::LogSinkType SinkType;
+	/// Basic logger configuration settings.
+	struct BasicLoggerConfiguration {
+		/// Log sink type.
+		utils::LogSinkType SinkType;
 
-        /// Log level.
-        utils::LogLevel Level;
+		/// Log level.
+		utils::LogLevel Level;
 
-        /// Custom component log levels.
-        std::unordered_map<std::string, utils::LogLevel> ComponentLevels;
-    };
+		/// Custom component log levels.
+		std::unordered_map<std::string, utils::LogLevel> ComponentLevels;
+	};
 
-    /// Console logger configuration settings.
-    struct ConsoleLoggerConfiguration : public BasicLoggerConfiguration {
-        /// Console color mode.
-        utils::LogColorMode ColorMode;
-    };
+	/// Console logger configuration settings.
+	struct ConsoleLoggerConfiguration : public BasicLoggerConfiguration {
+		/// Console color mode.
+		utils::LogColorMode ColorMode;
+	};
 
-    /// File logger configuration settings.
-    struct FileLoggerConfiguration : public BasicLoggerConfiguration {
-        /// Log file directory.
-        std::string Directory;
+	/// File logger configuration settings.
+	struct FileLoggerConfiguration : public BasicLoggerConfiguration {
+		/// Log file directory.
+		std::string Directory;
 
-        /// Log file pattern.
-        std::string FilePattern;
+		/// Log file pattern.
+		std::string FilePattern;
 
-        /// File rotation size.
-        utils::FileSize RotationSize;
+		/// File rotation size.
+		utils::FileSize RotationSize;
 
-        /// Maximum size of all log files.
-        utils::FileSize MaxTotalSize;
+		/// Maximum size of all log files.
+		utils::FileSize MaxTotalSize;
 
-        /// Minimum size of free disk space in order to create log files.
-        utils::FileSize MinFreeSpace;
-    };
+		/// Minimum size of free disk space in order to create log files.
+		utils::FileSize MinFreeSpace;
+	};
 
-    /// Logging configuration settings.
-    struct LoggingConfiguration {
-    public:
-        /// Console logger settings.
-        ConsoleLoggerConfiguration Console;
+	/// Logging configuration settings.
+	struct LoggingConfiguration {
+	public:
+		/// Console logger settings.
+		ConsoleLoggerConfiguration Console;
 
-        /// File logger settings.
-        FileLoggerConfiguration File;
+		/// File logger settings.
+		FileLoggerConfiguration File;
 
-    private:
-        LoggingConfiguration() = default;
+	private:
+		LoggingConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized logging configuration.
-        static LoggingConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized logging configuration.
+		static LoggingConfiguration Uninitialized();
 
-    public:
-        /// Loads a logging configuration from \a bag.
-        static LoggingConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+	public:
+		/// Loads a logging configuration from \a bag.
+		static LoggingConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 
-    /// Maps console logger configuration (\a config) to console logger options.
-    utils::BasicLoggerOptions GetConsoleLoggerOptions(const ConsoleLoggerConfiguration& config);
+	/// Maps console logger configuration (\a config) to console logger options.
+	utils::BasicLoggerOptions GetConsoleLoggerOptions(const ConsoleLoggerConfiguration& config);
 
-    /// Maps file logger configuration (\a config) to file logger options.
-    utils::FileLoggerOptions GetFileLoggerOptions(const FileLoggerConfiguration& config);
+	/// Maps file logger configuration (\a config) to file logger options.
+	utils::FileLoggerOptions GetFileLoggerOptions(const FileLoggerConfiguration& config);
 }
 }

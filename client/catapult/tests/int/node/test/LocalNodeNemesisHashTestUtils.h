@@ -25,30 +25,30 @@
 
 namespace catapult {
 namespace config {
-    class CatapultConfiguration;
+	class CatapultConfiguration;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Type of nemesis storage.
-    enum class NemesisStorageDisposition {
-        /// Nemesis in seed directory.
-        Seed,
+	/// Type of nemesis storage.
+	enum class NemesisStorageDisposition {
+		/// Nemesis in seed directory.
+		Seed,
 
-        /// Nemesis in data directory.
-        Data
-    };
+		/// Nemesis in data directory.
+		Data
+	};
 
-    /// Updates the nemesis block in the \a destination directory with \a disposition by setting an appropriate receipts hash.
-    void SetNemesisReceiptsHash(const std::string& destination, NemesisStorageDisposition disposition);
+	/// Updates the nemesis block in the \a destination directory with \a disposition by setting an appropriate receipts hash.
+	void SetNemesisReceiptsHash(const std::string& destination, NemesisStorageDisposition disposition);
 
-    /// Updates the nemesis block in the \a destination directory with \a disposition by setting an appropriate state hash
-    /// in accordance with \a config.
-    void SetNemesisStateHash(
-        const std::string& destination,
-        NemesisStorageDisposition disposition,
-        const config::CatapultConfiguration& config);
+	/// Updates the nemesis block in the \a destination directory with \a disposition by setting an appropriate state hash
+	/// in accordance with \a config.
+	void SetNemesisStateHash(
+		const std::string& destination,
+		NemesisStorageDisposition disposition,
+		const config::CatapultConfiguration& config);
 }
 }

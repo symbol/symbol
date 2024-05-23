@@ -27,80 +27,80 @@
 
 namespace boost {
 namespace asio {
-    namespace ssl {
-        class context;
-        class verify_context;
-    }
+	namespace ssl {
+		class context;
+		class verify_context;
+	}
 }
 }
 
 namespace catapult {
 namespace ionet {
 
-    /// Context passed to ssl verify context predicate.
-    class PacketSocketSslVerifyContext {
-    public:
-        /// Creates a default context.
-        PacketSocketSslVerifyContext();
+	/// Context passed to ssl verify context predicate.
+	class PacketSocketSslVerifyContext {
+	public:
+		/// Creates a default context.
+		PacketSocketSslVerifyContext();
 
-        /// Creates a context around \a preverified, \a verifyContext and \a publicKey.
-        PacketSocketSslVerifyContext(bool preverified, boost::asio::ssl::verify_context& verifyContext, Key& publicKey);
+		/// Creates a context around \a preverified, \a verifyContext and \a publicKey.
+		PacketSocketSslVerifyContext(bool preverified, boost::asio::ssl::verify_context& verifyContext, Key& publicKey);
 
-    public:
-        /// Gets the preverified status.
-        bool preverified() const;
+	public:
+		/// Gets the preverified status.
+		bool preverified() const;
 
-        /// Gets the asio verify context.
-        boost::asio::ssl::verify_context& asioVerifyContext();
+		/// Gets the asio verify context.
+		boost::asio::ssl::verify_context& asioVerifyContext();
 
-        /// Gets the public key.
-        const Key& publicKey() const;
+		/// Gets the public key.
+		const Key& publicKey() const;
 
-        /// Sets the public key to \a publicKey.
-        void setPublicKey(const Key& publicKey);
+		/// Sets the public key to \a publicKey.
+		void setPublicKey(const Key& publicKey);
 
-    private:
-        bool m_preverified;
-        boost::asio::ssl::verify_context* m_pVerifyContext;
-        Key* m_pPublicKey;
-        Key m_publicKeyBacking;
-    };
+	private:
+		bool m_preverified;
+		boost::asio::ssl::verify_context* m_pVerifyContext;
+		Key* m_pPublicKey;
+		Key m_publicKeyBacking;
+	};
 
-    /// Packet socket ssl options.
-    struct PacketSocketSslOptions {
-        /// Supplies an ssl context.
-        supplier<boost::asio::ssl::context&> ContextSupplier;
+	/// Packet socket ssl options.
+	struct PacketSocketSslOptions {
+		/// Supplies an ssl context.
+		supplier<boost::asio::ssl::context&> ContextSupplier;
 
-        /// Callback used to verify ssl certificates.
-        supplier<predicate<PacketSocketSslVerifyContext&>> VerifyCallbackSupplier;
-    };
+		/// Callback used to verify ssl certificates.
+		supplier<predicate<PacketSocketSslVerifyContext&>> VerifyCallbackSupplier;
+	};
 
-    /// Packet socket options.
-    struct PacketSocketOptions {
-        /// Handshake timeout when accepting an incoming connection.
-        /// \note Timeouts are applied at higher levels when making an outgoing connection.
-        utils::TimeSpan AcceptHandshakeTimeout;
+	/// Packet socket options.
+	struct PacketSocketOptions {
+		/// Handshake timeout when accepting an incoming connection.
+		/// \note Timeouts are applied at higher levels when making an outgoing connection.
+		utils::TimeSpan AcceptHandshakeTimeout;
 
-        /// Initial working buffer size.
-        size_t WorkingBufferSize;
+		/// Initial working buffer size.
+		size_t WorkingBufferSize;
 
-        /// Working buffer sensitivity.
-        size_t WorkingBufferSensitivity;
+		/// Working buffer sensitivity.
+		size_t WorkingBufferSensitivity;
 
-        /// Maximum packet data size.
-        size_t MaxPacketDataSize;
+		/// Maximum packet data size.
+		size_t MaxPacketDataSize;
 
-        /// Outgoing connection protocols.
-        IpProtocol OutgoingProtocols;
+		/// Outgoing connection protocols.
+		IpProtocol OutgoingProtocols;
 
-        /// Ssl options.
-        PacketSocketSslOptions SslOptions;
-    };
+		/// Ssl options.
+		PacketSocketSslOptions SslOptions;
+	};
 
-    /// Creates an ssl context supplier given the specified certificates in \a certificateDirectory.
-    supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const std::filesystem::path& certificateDirectory);
+	/// Creates an ssl context supplier given the specified certificates in \a certificateDirectory.
+	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const std::filesystem::path& certificateDirectory);
 
-    /// Creates an ssl verify callback supplier.
-    supplier<predicate<PacketSocketSslVerifyContext&>> CreateSslVerifyCallbackSupplier();
+	/// Creates an ssl verify callback supplier.
+	supplier<predicate<PacketSocketSslVerifyContext&>> CreateSslVerifyCallbackSupplier();
 }
 }

@@ -26,53 +26,51 @@
 namespace catapult {
 namespace state {
 
-    namespace {
-        bool Evaluate(const MosaicGlobalRestriction::RestrictionRule& rule, uint64_t value, bool& isValidRule)
-        {
-            isValidRule = true;
-            switch (rule.RestrictionType) {
-            case model::MosaicRestrictionType::EQ:
-                return rule.RestrictionValue == value;
+	namespace {
+		bool Evaluate(const MosaicGlobalRestriction::RestrictionRule& rule, uint64_t value, bool& isValidRule) {
+			isValidRule = true;
+			switch (rule.RestrictionType) {
+			case model::MosaicRestrictionType::EQ:
+				return rule.RestrictionValue == value;
 
-            case model::MosaicRestrictionType::NE:
-                return rule.RestrictionValue != value;
+			case model::MosaicRestrictionType::NE:
+				return rule.RestrictionValue != value;
 
-            case model::MosaicRestrictionType::LT:
-                return rule.RestrictionValue > value;
+			case model::MosaicRestrictionType::LT:
+				return rule.RestrictionValue > value;
 
-            case model::MosaicRestrictionType::LE:
-                return rule.RestrictionValue >= value;
+			case model::MosaicRestrictionType::LE:
+				return rule.RestrictionValue >= value;
 
-            case model::MosaicRestrictionType::GT:
-                return rule.RestrictionValue < value;
+			case model::MosaicRestrictionType::GT:
+				return rule.RestrictionValue < value;
 
-            case model::MosaicRestrictionType::GE:
-                return rule.RestrictionValue <= value;
+			case model::MosaicRestrictionType::GE:
+				return rule.RestrictionValue <= value;
 
-            default:
-                break;
-            }
+			default:
+				break;
+			}
 
-            isValidRule = false;
-            return false;
-        }
-    }
+			isValidRule = false;
+			return false;
+		}
+	}
 
-    bool EvaluateMosaicRestriction(const MosaicGlobalRestriction::RestrictionRule& rule, uint64_t value)
-    {
-        bool isValidRule;
-        auto evaluateResult = Evaluate(rule, value, isValidRule);
+	bool EvaluateMosaicRestriction(const MosaicGlobalRestriction::RestrictionRule& rule, uint64_t value) {
+		bool isValidRule;
+		auto evaluateResult = Evaluate(rule, value, isValidRule);
 
-        if (!isValidRule) {
-            CATAPULT_LOG(error) << "cannot evaluate mosaic restriction rule with unsupported type "
-                                << static_cast<uint16_t>(rule.RestrictionType);
-            return false;
-        }
+		if (!isValidRule) {
+			CATAPULT_LOG(error) << "cannot evaluate mosaic restriction rule with unsupported type "
+								<< static_cast<uint16_t>(rule.RestrictionType);
+			return false;
+		}
 
-        // if unset value, only NE should match
-        // otherwise, use result of evaluation
-        return MosaicAddressRestriction::Sentinel_Removal_Value == value ? model::MosaicRestrictionType::NE == rule.RestrictionType
-                                                                         : evaluateResult;
-    }
+		// if unset value, only NE should match
+		// otherwise, use result of evaluation
+		return MosaicAddressRestriction::Sentinel_Removal_Value == value ? model::MosaicRestrictionType::NE == rule.RestrictionType
+																		 : evaluateResult;
+	}
 }
 }

@@ -26,23 +26,21 @@
 namespace catapult {
 namespace config {
 
-    ExtensionsConfiguration ExtensionsConfiguration::Uninitialized()
-    {
-        return ExtensionsConfiguration();
-    }
+	ExtensionsConfiguration ExtensionsConfiguration::Uninitialized() {
+		return ExtensionsConfiguration();
+	}
 
-    ExtensionsConfiguration ExtensionsConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        ExtensionsConfiguration config;
+	ExtensionsConfiguration ExtensionsConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		ExtensionsConfiguration config;
 
-        if (0 == bag.size())
-            CATAPULT_THROW_AND_LOG_0(utils::property_not_found_error, "required extensions section is missing");
+		if (0 == bag.size())
+			CATAPULT_THROW_AND_LOG_0(utils::property_not_found_error, "required extensions section is missing");
 
-        auto extensionsPair = utils::ExtractSectionAsOrderedVector(bag, "extensions");
-        config.Names = extensionsPair.first;
+		auto extensionsPair = utils::ExtractSectionAsOrderedVector(bag, "extensions");
+		config.Names = extensionsPair.first;
 
-        utils::VerifyBagSizeExact(bag, extensionsPair.second);
-        return config;
-    }
+		utils::VerifyBagSizeExact(bag, extensionsPair.second);
+		return config;
+	}
 }
 }

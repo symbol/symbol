@@ -27,57 +27,53 @@ namespace state {
 
 #define TEST_CLASS AccountRestrictionDescriptorTests
 
-    namespace {
-        constexpr auto Outgoing_Address = model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing;
-    }
+	namespace {
+		constexpr auto Outgoing_Address = model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing;
+	}
 
-    TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_Allow)
-    {
-        // Act:
-        AccountRestrictionDescriptor restrictionDescriptor(model::AccountRestrictionFlags::Address);
+	TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_Allow) {
+		// Act:
+		AccountRestrictionDescriptor restrictionDescriptor(model::AccountRestrictionFlags::Address);
 
-        // Assert:
-        EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.directionalRestrictionFlags());
-        EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.restrictionFlags());
-        EXPECT_EQ(AccountRestrictionOperationType::Allow, restrictionDescriptor.operationType());
-        EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.raw());
-    }
+		// Assert:
+		EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.directionalRestrictionFlags());
+		EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.restrictionFlags());
+		EXPECT_EQ(AccountRestrictionOperationType::Allow, restrictionDescriptor.operationType());
+		EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.raw());
+	}
 
-    TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_Block)
-    {
-        // Act:
-        auto restrictionFlags = model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Block;
-        AccountRestrictionDescriptor restrictionDescriptor(restrictionFlags);
+	TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_Block) {
+		// Act:
+		auto restrictionFlags = model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Block;
+		AccountRestrictionDescriptor restrictionDescriptor(restrictionFlags);
 
-        // Assert:
-        EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.directionalRestrictionFlags());
-        EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.restrictionFlags());
-        EXPECT_EQ(AccountRestrictionOperationType::Block, restrictionDescriptor.operationType());
-        EXPECT_EQ(model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Block, restrictionDescriptor.raw());
-    }
+		// Assert:
+		EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.directionalRestrictionFlags());
+		EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.restrictionFlags());
+		EXPECT_EQ(AccountRestrictionOperationType::Block, restrictionDescriptor.operationType());
+		EXPECT_EQ(model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Block, restrictionDescriptor.raw());
+	}
 
-    TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_OutgoingAllow)
-    {
-        // Act:
-        AccountRestrictionDescriptor restrictionDescriptor(Outgoing_Address);
+	TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_OutgoingAllow) {
+		// Act:
+		AccountRestrictionDescriptor restrictionDescriptor(Outgoing_Address);
 
-        // Assert:
-        EXPECT_EQ(Outgoing_Address, restrictionDescriptor.directionalRestrictionFlags());
-        EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.restrictionFlags());
-        EXPECT_EQ(AccountRestrictionOperationType::Allow, restrictionDescriptor.operationType());
-        EXPECT_EQ(Outgoing_Address, restrictionDescriptor.raw());
-    }
+		// Assert:
+		EXPECT_EQ(Outgoing_Address, restrictionDescriptor.directionalRestrictionFlags());
+		EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.restrictionFlags());
+		EXPECT_EQ(AccountRestrictionOperationType::Allow, restrictionDescriptor.operationType());
+		EXPECT_EQ(Outgoing_Address, restrictionDescriptor.raw());
+	}
 
-    TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_OutgoingBlock)
-    {
-        // Act:
-        AccountRestrictionDescriptor restrictionDescriptor(Outgoing_Address | model::AccountRestrictionFlags::Block);
+	TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_OutgoingBlock) {
+		// Act:
+		AccountRestrictionDescriptor restrictionDescriptor(Outgoing_Address | model::AccountRestrictionFlags::Block);
 
-        // Assert:
-        EXPECT_EQ(Outgoing_Address, restrictionDescriptor.directionalRestrictionFlags());
-        EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.restrictionFlags());
-        EXPECT_EQ(AccountRestrictionOperationType::Block, restrictionDescriptor.operationType());
-        EXPECT_EQ(Outgoing_Address | model::AccountRestrictionFlags::Block, restrictionDescriptor.raw());
-    }
+		// Assert:
+		EXPECT_EQ(Outgoing_Address, restrictionDescriptor.directionalRestrictionFlags());
+		EXPECT_EQ(model::AccountRestrictionFlags::Address, restrictionDescriptor.restrictionFlags());
+		EXPECT_EQ(AccountRestrictionOperationType::Block, restrictionDescriptor.operationType());
+		EXPECT_EQ(Outgoing_Address | model::AccountRestrictionFlags::Block, restrictionDescriptor.raw());
+	}
 }
 }

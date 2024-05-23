@@ -30,44 +30,41 @@ DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT
 namespace catapult {
 namespace config {
 
-    NamespaceConfiguration NamespaceConfiguration::Uninitialized()
-    {
-        return NamespaceConfiguration();
-    }
+	NamespaceConfiguration NamespaceConfiguration::Uninitialized() {
+		return NamespaceConfiguration();
+	}
 
-    NamespaceConfiguration NamespaceConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        NamespaceConfiguration config;
+	NamespaceConfiguration NamespaceConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		NamespaceConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
 
-        LOAD_PROPERTY(MaxNameSize);
-        LOAD_PROPERTY(MaxChildNamespaces);
-        LOAD_PROPERTY(MaxNamespaceDepth);
+		LOAD_PROPERTY(MaxNameSize);
+		LOAD_PROPERTY(MaxChildNamespaces);
+		LOAD_PROPERTY(MaxNamespaceDepth);
 
-        LOAD_PROPERTY(MinNamespaceDuration);
-        LOAD_PROPERTY(MaxNamespaceDuration);
-        LOAD_PROPERTY(NamespaceGracePeriodDuration);
-        LOAD_PROPERTY(ReservedRootNamespaceNames);
+		LOAD_PROPERTY(MinNamespaceDuration);
+		LOAD_PROPERTY(MaxNamespaceDuration);
+		LOAD_PROPERTY(NamespaceGracePeriodDuration);
+		LOAD_PROPERTY(ReservedRootNamespaceNames);
 
-        LOAD_PROPERTY(NamespaceRentalFeeSinkAddressV1);
-        LOAD_PROPERTY(NamespaceRentalFeeSinkAddress);
-        LOAD_PROPERTY(RootNamespaceRentalFeePerBlock);
-        LOAD_PROPERTY(ChildNamespaceRentalFee);
+		LOAD_PROPERTY(NamespaceRentalFeeSinkAddressV1);
+		LOAD_PROPERTY(NamespaceRentalFeeSinkAddress);
+		LOAD_PROPERTY(RootNamespaceRentalFeePerBlock);
+		LOAD_PROPERTY(ChildNamespaceRentalFee);
 
 #undef LOAD_PROPERTY
 
-        utils::VerifyBagSizeExact(bag, 11);
-        return config;
-    }
+		utils::VerifyBagSizeExact(bag, 11);
+		return config;
+	}
 
-    model::HeightDependentAddress GetNamespaceRentalFeeSinkAddress(
-        const NamespaceConfiguration& config,
-        const model::BlockchainConfiguration& blockchainConfig)
-    {
-        model::HeightDependentAddress sinkAddress(config.NamespaceRentalFeeSinkAddress);
-        sinkAddress.trySet(config.NamespaceRentalFeeSinkAddressV1, blockchainConfig.ForkHeights.TreasuryReissuance);
-        return sinkAddress;
-    }
+	model::HeightDependentAddress GetNamespaceRentalFeeSinkAddress(
+		const NamespaceConfiguration& config,
+		const model::BlockchainConfiguration& blockchainConfig) {
+		model::HeightDependentAddress sinkAddress(config.NamespaceRentalFeeSinkAddress);
+		sinkAddress.trySet(config.NamespaceRentalFeeSinkAddressV1, blockchainConfig.ForkHeights.TreasuryReissuance);
+		return sinkAddress;
+	}
 }
 }

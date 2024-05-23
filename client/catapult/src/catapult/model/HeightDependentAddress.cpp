@@ -25,38 +25,34 @@
 namespace catapult {
 namespace model {
 
-    HeightDependentAddress::HeightDependentAddress()
-        : HeightDependentAddress(Address())
-    {
-    }
+	HeightDependentAddress::HeightDependentAddress()
+		: HeightDependentAddress(Address()) {
+	}
 
-    HeightDependentAddress::HeightDependentAddress(const Address& address)
-        : m_defaultAddress(address)
-    {
-    }
+	HeightDependentAddress::HeightDependentAddress(const Address& address)
+		: m_defaultAddress(address) {
+	}
 
-    bool HeightDependentAddress::trySet(const Address& address, Height endHeight)
-    {
-        if (Height() == endHeight)
-            return false;
+	bool HeightDependentAddress::trySet(const Address& address, Height endHeight) {
+		if (Height() == endHeight)
+			return false;
 
-        if (!m_addresses.empty() && m_addresses.back().second >= endHeight)
-            CATAPULT_THROW_INVALID_ARGUMENT("height dependent address overrides must be set with increasing end heights");
+		if (!m_addresses.empty() && m_addresses.back().second >= endHeight)
+			CATAPULT_THROW_INVALID_ARGUMENT("height dependent address overrides must be set with increasing end heights");
 
-        m_addresses.emplace_back(address, endHeight);
-        return true;
-    }
+		m_addresses.emplace_back(address, endHeight);
+		return true;
+	}
 
-    Address HeightDependentAddress::get(Height height) const
-    {
-        if (height >= Height(1)) {
-            for (const auto& pair : m_addresses) {
-                if (height < pair.second)
-                    return pair.first;
-            }
-        }
+	Address HeightDependentAddress::get(Height height) const {
+		if (height >= Height(1)) {
+			for (const auto& pair : m_addresses) {
+				if (height < pair.second)
+					return pair.first;
+			}
+		}
 
-        return m_defaultAddress;
-    }
+		return m_defaultAddress;
+	}
 }
 }

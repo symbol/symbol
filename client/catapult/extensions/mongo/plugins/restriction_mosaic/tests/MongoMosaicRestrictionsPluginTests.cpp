@@ -25,31 +25,28 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct MongoMosaicRestrictionPluginTraits {
-            public:
-                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+		namespace {
+			struct MongoMosaicRestrictionPluginTraits {
+			public:
+				static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-                static std::vector<model::EntityType> GetTransactionTypes()
-                {
-                    return { model::Entity_Type_Mosaic_Address_Restriction, model::Entity_Type_Mosaic_Global_Restriction };
-                }
+				static std::vector<model::EntityType> GetTransactionTypes() {
+					return { model::Entity_Type_Mosaic_Address_Restriction, model::Entity_Type_Mosaic_Global_Restriction };
+				}
 
-                static std::vector<model::ReceiptType> GetReceiptTypes()
-                {
-                    return {};
-                }
+				static std::vector<model::ReceiptType> GetReceiptTypes() {
+					return {};
+				}
 
-                static std::string GetStorageName()
-                {
-                    return "{ MosaicRestrictionCache }";
-                }
-            };
-        }
+				static std::string GetStorageName() {
+					return "{ MosaicRestrictionCache }";
+				}
+			};
+		}
 
-        DEFINE_MONGO_PLUGIN_TESTS(MongoMosaicRestrictionPluginTests, MongoMosaicRestrictionPluginTraits)
-    }
+		DEFINE_MONGO_PLUGIN_TESTS(MongoMosaicRestrictionPluginTests, MongoMosaicRestrictionPluginTraits)
+	}
 }
 }

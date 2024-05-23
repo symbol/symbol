@@ -29,156 +29,143 @@ namespace builders {
 
 #define TEST_CLASS MosaicDefinitionBuilderTests
 
-    namespace {
-        using RegularTraits = test::RegularTransactionTraits<model::MosaicDefinitionTransaction>;
-        using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedMosaicDefinitionTransaction>;
+	namespace {
+		using RegularTraits = test::RegularTransactionTraits<model::MosaicDefinitionTransaction>;
+		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedMosaicDefinitionTransaction>;
 
-        struct TransactionProperties {
-        public:
-            TransactionProperties()
-                : Flags(model::MosaicFlags::None)
-                , Divisibility(0)
-            {
-            }
+		struct TransactionProperties {
+		public:
+			TransactionProperties()
+				: Flags(model::MosaicFlags::None)
+				, Divisibility(0) {
+			}
 
-        public:
-            model::MosaicFlags Flags;
-            uint8_t Divisibility;
-            BlockDuration Duration;
-            catapult::MosaicNonce MosaicNonce;
-        };
+		public:
+			model::MosaicFlags Flags;
+			uint8_t Divisibility;
+			BlockDuration Duration;
+			catapult::MosaicNonce MosaicNonce;
+		};
 
-        template <typename TTransaction>
-        void AssertMosaicDefinitionName(const TTransaction& transaction, MosaicNonce nonce)
-        {
-            // Assert: id matches
-            auto expectedId = model::GenerateMosaicId(model::GetSignerAddress(transaction), nonce);
-            EXPECT_EQ(expectedId, transaction.Id);
-        }
+		template <typename TTransaction>
+		void AssertMosaicDefinitionName(const TTransaction& transaction, MosaicNonce nonce) {
+			// Assert: id matches
+			auto expectedId = model::GenerateMosaicId(model::GetSignerAddress(transaction), nonce);
+			EXPECT_EQ(expectedId, transaction.Id);
+		}
 
-        template <typename TTransaction>
-        void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction)
-        {
-            EXPECT_EQ(expectedProperties.Flags, transaction.Flags);
-            EXPECT_EQ(expectedProperties.Divisibility, transaction.Divisibility);
-            EXPECT_EQ(expectedProperties.Duration, transaction.Duration);
+		template <typename TTransaction>
+		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
+			EXPECT_EQ(expectedProperties.Flags, transaction.Flags);
+			EXPECT_EQ(expectedProperties.Divisibility, transaction.Divisibility);
+			EXPECT_EQ(expectedProperties.Duration, transaction.Duration);
 
-            AssertMosaicDefinitionName(transaction, expectedProperties.MosaicNonce);
-        }
+			AssertMosaicDefinitionName(transaction, expectedProperties.MosaicNonce);
+		}
 
-        template <typename TTraits>
-        void AssertCanBuildTransaction(
-            size_t propertiesSize,
-            const TransactionProperties& expectedProperties,
-            const consumer<MosaicDefinitionBuilder&>& buildTransaction)
-        {
-            // Arrange:
-            auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
-            auto signer = test::GenerateRandomByteArray<Key>();
+		template <typename TTraits>
+		void AssertCanBuildTransaction(
+			size_t propertiesSize,
+			const TransactionProperties& expectedProperties,
+			const consumer<MosaicDefinitionBuilder&>& buildTransaction) {
+			// Arrange:
+			auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
+			auto signer = test::GenerateRandomByteArray<Key>();
 
-            // Act:
-            MosaicDefinitionBuilder builder(networkIdentifier, signer);
-            buildTransaction(builder);
-            auto pTransaction = TTraits::InvokeBuilder(builder);
+			// Act:
+			MosaicDefinitionBuilder builder(networkIdentifier, signer);
+			buildTransaction(builder);
+			auto pTransaction = TTraits::InvokeBuilder(builder);
 
-            // Assert:
-            TTraits::CheckBuilderSize(propertiesSize, builder);
-            TTraits::CheckFields(propertiesSize, *pTransaction);
-            EXPECT_EQ(signer, pTransaction->SignerPublicKey);
-            EXPECT_EQ(1u, pTransaction->Version);
-            EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), pTransaction->Network);
-            EXPECT_EQ(model::Entity_Type_Mosaic_Definition, pTransaction->Type);
+			// Assert:
+			TTraits::CheckBuilderSize(propertiesSize, builder);
+			TTraits::CheckFields(propertiesSize, *pTransaction);
+			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
+			EXPECT_EQ(1u, pTransaction->Version);
+			EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), pTransaction->Network);
+			EXPECT_EQ(model::Entity_Type_Mosaic_Definition, pTransaction->Type);
 
-            AssertTransactionProperties(expectedProperties, *pTransaction);
-        }
-    }
+			AssertTransactionProperties(expectedProperties, *pTransaction);
+		}
+	}
 
 #define TRAITS_BASED_TEST(TEST_NAME)                               \
-    template <typename TTraits>                                    \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                \
-    TEST(TEST_CLASS, TEST_NAME##_Regular)                          \
-    {                                                              \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>();  \
-    }                                                              \
-    TEST(TEST_CLASS, TEST_NAME##_Embedded)                         \
-    {                                                              \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
-    }                                                              \
-    template <typename TTraits>                                    \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template <typename TTraits>                                    \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) {                        \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>();  \
+	}                                                              \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) {                       \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	}                                                              \
+	template <typename TTraits>                                    \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-    // region constructor
+	// region constructor
 
-    TRAITS_BASED_TEST(CanCreateTransaction)
-    {
-        AssertCanBuildTransaction<TTraits>(0, TransactionProperties(), [](const auto&) {});
-    }
+	TRAITS_BASED_TEST(CanCreateTransaction) {
+		AssertCanBuildTransaction<TTraits>(0, TransactionProperties(), [](const auto&) {});
+	}
 
-    // endregion
+	// endregion
 
-    // region properties
+	// region properties
 
-    namespace {
-        template <typename TTraits>
-        void AssertCanSetFlags(model::MosaicFlags expectedFlags, const consumer<MosaicDefinitionBuilder&>& buildTransaction)
-        {
-            // Arrange:
-            auto expectedProperties = TransactionProperties();
-            expectedProperties.Flags = expectedFlags;
+	namespace {
+		template <typename TTraits>
+		void AssertCanSetFlags(model::MosaicFlags expectedFlags, const consumer<MosaicDefinitionBuilder&>& buildTransaction) {
+			// Arrange:
+			auto expectedProperties = TransactionProperties();
+			expectedProperties.Flags = expectedFlags;
 
-            // Assert:
-            AssertCanBuildTransaction<TTraits>(0, expectedProperties, buildTransaction);
-        }
-    }
+			// Assert:
+			AssertCanBuildTransaction<TTraits>(0, expectedProperties, buildTransaction);
+		}
+	}
 
-    TRAITS_BASED_TEST(CanSetFlags_Single)
-    {
-        AssertCanSetFlags<TTraits>(model::MosaicFlags::Transferable, [](auto& builder) {
-            builder.setFlags(model::MosaicFlags::Transferable);
-        });
-    }
+	TRAITS_BASED_TEST(CanSetFlags_Single) {
+		AssertCanSetFlags<TTraits>(model::MosaicFlags::Transferable, [](auto& builder) {
+			builder.setFlags(model::MosaicFlags::Transferable);
+		});
+	}
 
-    TRAITS_BASED_TEST(CanSetFlags_All)
-    {
-        AssertCanSetFlags<TTraits>(model::MosaicFlags::All, [](auto& builder) { builder.setFlags(model::MosaicFlags::All); });
-    }
+	TRAITS_BASED_TEST(CanSetFlags_All) {
+		AssertCanSetFlags<TTraits>(model::MosaicFlags::All, [](auto& builder) { builder.setFlags(model::MosaicFlags::All); });
+	}
 
-    TRAITS_BASED_TEST(CanSetDivisibility)
-    {
-        // Arrange:
-        auto expectedProperties = TransactionProperties();
-        expectedProperties.Divisibility = 0xA5;
+	TRAITS_BASED_TEST(CanSetDivisibility) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Divisibility = 0xA5;
 
-        // Assert:
-        AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) { builder.setDivisibility(0xA5); });
-    }
+		// Assert:
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) { builder.setDivisibility(0xA5); });
+	}
 
-    TRAITS_BASED_TEST(CanSetDuration)
-    {
-        // Arrange:
-        auto expectedProperties = TransactionProperties();
-        expectedProperties.Duration = BlockDuration(1234);
+	TRAITS_BASED_TEST(CanSetDuration) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Duration = BlockDuration(1234);
 
-        // Assert:
-        AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) { builder.setDuration(BlockDuration(1234)); });
-    }
+		// Assert:
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) { builder.setDuration(BlockDuration(1234)); });
+	}
 
-    // endregion
+	// endregion
 
-    // region nonce
+	// region nonce
 
-    TRAITS_BASED_TEST(CanSetNonce)
-    {
-        // Arrange:
-        auto expectedProperties = TransactionProperties();
-        expectedProperties.MosaicNonce = test::GenerateRandomValue<MosaicNonce>();
+	TRAITS_BASED_TEST(CanSetNonce) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.MosaicNonce = test::GenerateRandomValue<MosaicNonce>();
 
-        // Assert:
-        AssertCanBuildTransaction<TTraits>(0, expectedProperties, [nonce = expectedProperties.MosaicNonce](auto& builder) {
-            builder.setNonce(nonce);
-        });
-    }
+		// Assert:
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [nonce = expectedProperties.MosaicNonce](auto& builder) {
+			builder.setNonce(nonce);
+		});
+	}
 
-    // endregion
+	// endregion
 }
 }

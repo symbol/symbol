@@ -29,46 +29,46 @@
 namespace catapult {
 namespace io {
 
-    /// File-based proof storage.
-    class FileProofStorage final : public ProofStorage {
-    public:
-        /// Creates a file-based proof storage, where proofs will be stored inside \a dataDirectory
-        /// with a file database batch size of \a fileDatabaseBatchSize
-        FileProofStorage(const std::string& dataDirectory, uint32_t fileDatabaseBatchSize);
+	/// File-based proof storage.
+	class FileProofStorage final : public ProofStorage {
+	public:
+		/// Creates a file-based proof storage, where proofs will be stored inside \a dataDirectory
+		/// with a file database batch size of \a fileDatabaseBatchSize
+		FileProofStorage(const std::string& dataDirectory, uint32_t fileDatabaseBatchSize);
 
-    public:
-        model::FinalizationStatistics statistics() const override;
-        std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const override;
-        std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override;
-        void saveProof(const model::FinalizationProof& proof) override;
+	public:
+		model::FinalizationStatistics statistics() const override;
+		std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const override;
+		std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override;
+		void saveProof(const model::FinalizationProof& proof) override;
 
-    private:
-        std::shared_ptr<const model::FinalizationProof> loadClosestProof(Height height) const;
+	private:
+		std::shared_ptr<const model::FinalizationProof> loadClosestProof(Height height) const;
 
-    private:
-        class FinalizationIndexFile {
-        public:
-            explicit FinalizationIndexFile(const std::string& filename, LockMode lockMode = LockMode::File);
+	private:
+		class FinalizationIndexFile {
+		public:
+			explicit FinalizationIndexFile(const std::string& filename, LockMode lockMode = LockMode::File);
 
-        public:
-            bool exists() const;
+		public:
+			bool exists() const;
 
-            model::FinalizationStatistics get() const;
+			model::FinalizationStatistics get() const;
 
-        public:
-            void set(const model::FinalizationStatistics& finalizationStatistics);
+		public:
+			void set(const model::FinalizationStatistics& finalizationStatistics);
 
-        private:
-            RawFile open(OpenMode mode) const;
+		private:
+			RawFile open(OpenMode mode) const;
 
-        private:
-            std::string m_filename;
-            LockMode m_lockMode;
-        };
+		private:
+			std::string m_filename;
+			LockMode m_lockMode;
+		};
 
-    private:
-        FileDatabase m_database;
-        FinalizationIndexFile m_indexFile;
-    };
+	private:
+		FileDatabase m_database;
+		FinalizationIndexFile m_indexFile;
+	};
 }
 }

@@ -33,130 +33,122 @@ namespace cache {
 
 #define TEST_CLASS AccountStateCacheStorageTests
 
-    namespace {
-        struct AccountStateCacheStorageTraits {
-        private:
-            static constexpr auto Default_Cache_Options = test::CreateDefaultAccountStateCacheOptions();
+	namespace {
+		struct AccountStateCacheStorageTraits {
+		private:
+			static constexpr auto Default_Cache_Options = test::CreateDefaultAccountStateCacheOptions();
 
-        public:
-            using StorageType = AccountStateCacheStorage;
-            class CacheType : public AccountStateCache {
-            public:
-                CacheType()
-                    : AccountStateCache(CacheConfiguration(), Default_Cache_Options)
-                {
-                }
-            };
+		public:
+			using StorageType = AccountStateCacheStorage;
+			class CacheType : public AccountStateCache {
+			public:
+				CacheType()
+					: AccountStateCache(CacheConfiguration(), Default_Cache_Options) {
+				}
+			};
 
-            static auto CreateId(uint8_t id)
-            {
-                return Address { { id } };
-            }
+			static auto CreateId(uint8_t id) {
+				return Address { { id } };
+			}
 
-            static auto CreateValue(const Address& address)
-            {
-                state::AccountState accountState(address, Height(111));
-                test::RandomFillAccountData(0, accountState, 123);
-                return accountState;
-            }
+			static auto CreateValue(const Address& address) {
+				state::AccountState accountState(address, Height(111));
+				test::RandomFillAccountData(0, accountState, 123);
+				return accountState;
+			}
 
-            static void AssertEqual(state::AccountState& lhs, const state::AccountState& rhs)
-            {
-                // Arrange: cache automatically optimizes added account state, so update to match expected
-                lhs.Balances.optimize(Default_Cache_Options.CurrencyMosaicId);
+			static void AssertEqual(state::AccountState& lhs, const state::AccountState& rhs) {
+				// Arrange: cache automatically optimizes added account state, so update to match expected
+				lhs.Balances.optimize(Default_Cache_Options.CurrencyMosaicId);
 
-                // Assert: the loaded cache value is correct
-                EXPECT_EQ(123u, rhs.Balances.size());
-                test::AssertEqual(lhs, rhs);
-            }
-        };
-    }
+				// Assert: the loaded cache value is correct
+				EXPECT_EQ(123u, rhs.Balances.size());
+				test::AssertEqual(lhs, rhs);
+			}
+		};
+	}
 
-    TEST(TEST_CLASS, CanLoadValueIntoCache)
-    {
-        test::BasicInsertRemoveCacheStorageTests<AccountStateCacheStorageTraits>::AssertCanLoadValueIntoCache();
-    }
+	TEST(TEST_CLASS, CanLoadValueIntoCache) {
+		test::BasicInsertRemoveCacheStorageTests<AccountStateCacheStorageTraits>::AssertCanLoadValueIntoCache();
+	}
 
-    TEST(TEST_CLASS, CanPurgeNonexistentValueFromCache)
-    {
-        test::BasicInsertRemoveCacheStorageTests<AccountStateCacheStorageTraits>::AssertCanPurgeNonexistentValueFromCache();
-    }
+	TEST(TEST_CLASS, CanPurgeNonexistentValueFromCache) {
+		test::BasicInsertRemoveCacheStorageTests<AccountStateCacheStorageTraits>::AssertCanPurgeNonexistentValueFromCache();
+	}
 
-    TEST(TEST_CLASS, CanPurgeValueWithAddressFromCache)
-    {
-        // Arrange:
-        auto publicKey = test::GenerateRandomByteArray<Key>();
-        auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Testnet);
-        auto otherAddress = test::GenerateRandomAddress();
+	TEST(TEST_CLASS, CanPurgeValueWithAddressFromCache) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Testnet);
+		auto otherAddress = test::GenerateRandomAddress();
 
-        // - add two accounts one of which will be purged
-        AccountStateCacheStorageTraits::CacheType cache;
-        {
-            auto delta = cache.createDelta();
-            delta->addAccount(address, Height(111));
-            delta->addAccount(otherAddress, Height(111));
-            cache.commit();
-        }
+		// - add two accounts one of which will be purged
+		AccountStateCacheStorageTraits::CacheType cache;
+		{
+			auto delta = cache.createDelta();
+			delta->addAccount(address, Height(111));
+			delta->addAccount(otherAddress, Height(111));
+			cache.commit();
+		}
 
-        // Sanity:
-        EXPECT_TRUE(cache.createView()->contains(address));
-        EXPECT_FALSE(cache.createView()->contains(publicKey));
-        EXPECT_TRUE(cache.createView()->contains(otherAddress));
+		// Sanity:
+		EXPECT_TRUE(cache.createView()->contains(address));
+		EXPECT_FALSE(cache.createView()->contains(publicKey));
+		EXPECT_TRUE(cache.createView()->contains(otherAddress));
 
-        // Act:
-        {
-            state::AccountState accountState(address, Height(111));
-            accountState.PublicKey = publicKey;
-            accountState.PublicKeyHeight = Height(224);
+		// Act:
+		{
+			state::AccountState accountState(address, Height(111));
+			accountState.PublicKey = publicKey;
+			accountState.PublicKeyHeight = Height(224);
 
-            auto delta = cache.createDelta();
-            AccountStateCacheStorageTraits::StorageType::Purge(accountState, *delta);
-            cache.commit();
-        }
+			auto delta = cache.createDelta();
+			AccountStateCacheStorageTraits::StorageType::Purge(accountState, *delta);
+			cache.commit();
+		}
 
-        // Assert:
-        EXPECT_FALSE(cache.createView()->contains(address));
-        EXPECT_FALSE(cache.createView()->contains(publicKey));
-        EXPECT_TRUE(cache.createView()->contains(otherAddress));
-    }
+		// Assert:
+		EXPECT_FALSE(cache.createView()->contains(address));
+		EXPECT_FALSE(cache.createView()->contains(publicKey));
+		EXPECT_TRUE(cache.createView()->contains(otherAddress));
+	}
 
-    TEST(TEST_CLASS, CanPurgeValueWithAddressAndPublicKeyFromCache)
-    {
-        // Arrange:
-        auto publicKey = test::GenerateRandomByteArray<Key>();
-        auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Testnet);
-        auto otherAddress = test::GenerateRandomAddress();
+	TEST(TEST_CLASS, CanPurgeValueWithAddressAndPublicKeyFromCache) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Testnet);
+		auto otherAddress = test::GenerateRandomAddress();
 
-        // - add two accounts one of which will be purged
-        AccountStateCacheStorageTraits::CacheType cache;
-        {
-            auto delta = cache.createDelta();
-            delta->addAccount(address, Height(111));
-            delta->addAccount(publicKey, Height(224));
-            delta->addAccount(otherAddress, Height(111));
-            cache.commit();
-        }
+		// - add two accounts one of which will be purged
+		AccountStateCacheStorageTraits::CacheType cache;
+		{
+			auto delta = cache.createDelta();
+			delta->addAccount(address, Height(111));
+			delta->addAccount(publicKey, Height(224));
+			delta->addAccount(otherAddress, Height(111));
+			cache.commit();
+		}
 
-        // Sanity:
-        EXPECT_TRUE(cache.createView()->contains(address));
-        EXPECT_TRUE(cache.createView()->contains(publicKey));
-        EXPECT_TRUE(cache.createView()->contains(otherAddress));
+		// Sanity:
+		EXPECT_TRUE(cache.createView()->contains(address));
+		EXPECT_TRUE(cache.createView()->contains(publicKey));
+		EXPECT_TRUE(cache.createView()->contains(otherAddress));
 
-        // Act:
-        {
-            state::AccountState accountState(address, Height(111));
-            accountState.PublicKey = publicKey;
-            accountState.PublicKeyHeight = Height(224);
+		// Act:
+		{
+			state::AccountState accountState(address, Height(111));
+			accountState.PublicKey = publicKey;
+			accountState.PublicKeyHeight = Height(224);
 
-            auto delta = cache.createDelta();
-            AccountStateCacheStorageTraits::StorageType::Purge(accountState, *delta);
-            cache.commit();
-        }
+			auto delta = cache.createDelta();
+			AccountStateCacheStorageTraits::StorageType::Purge(accountState, *delta);
+			cache.commit();
+		}
 
-        // Assert:
-        EXPECT_FALSE(cache.createView()->contains(address));
-        EXPECT_FALSE(cache.createView()->contains(publicKey));
-        EXPECT_TRUE(cache.createView()->contains(otherAddress));
-    }
+		// Assert:
+		EXPECT_FALSE(cache.createView()->contains(address));
+		EXPECT_FALSE(cache.createView()->contains(publicKey));
+		EXPECT_TRUE(cache.createView()->contains(otherAddress));
+	}
 }
 }

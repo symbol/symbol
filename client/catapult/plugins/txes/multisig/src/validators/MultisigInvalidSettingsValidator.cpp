@@ -30,35 +30,35 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MultisigSettingsNotification;
+	using Notification = model::MultisigSettingsNotification;
 
-    DEFINE_STATEFUL_VALIDATOR(MultisigInvalidSettings, [](const Notification& notification, const ValidatorContext& context) {
-        const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-        auto multisigIter = multisigCache.find(notification.Multisig);
+	DEFINE_STATEFUL_VALIDATOR(MultisigInvalidSettings, [](const Notification& notification, const ValidatorContext& context) {
+		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+		auto multisigIter = multisigCache.find(notification.Multisig);
 
-        if (!multisigIter.tryGet()) {
-            // since the MultisigInvalidCosignatoriesValidator and the MultisigCosignatoriesObserver ran before
-            // this validator, the only scenario in which the multisig account cannot be found in the multisig cache
-            // is that the observer removed the last cosignatory reverting the multisig account to a normal accounts
+		if (!multisigIter.tryGet()) {
+			// since the MultisigInvalidCosignatoriesValidator and the MultisigCosignatoriesObserver ran before
+			// this validator, the only scenario in which the multisig account cannot be found in the multisig cache
+			// is that the observer removed the last cosignatory reverting the multisig account to a normal accounts
 
-            // MinRemovalDelta and MinApprovalDelta are both expected to be -1 in this case
-            if (-1 != notification.MinRemovalDelta || -1 != notification.MinApprovalDelta)
-                return Failure_Multisig_Min_Setting_Out_Of_Range;
+			// MinRemovalDelta and MinApprovalDelta are both expected to be -1 in this case
+			if (-1 != notification.MinRemovalDelta || -1 != notification.MinApprovalDelta)
+				return Failure_Multisig_Min_Setting_Out_Of_Range;
 
-            return ValidationResult::Success;
-        }
+			return ValidationResult::Success;
+		}
 
-        const auto& multisigEntry = multisigIter.get();
-        int64_t newMinRemoval = static_cast<int64_t>(multisigEntry.minRemoval()) + notification.MinRemovalDelta;
-        int64_t newMinApproval = static_cast<int64_t>(multisigEntry.minApproval()) + notification.MinApprovalDelta;
-        if (1 > newMinRemoval || 1 > newMinApproval)
-            return Failure_Multisig_Min_Setting_Out_Of_Range;
+		const auto& multisigEntry = multisigIter.get();
+		int64_t newMinRemoval = static_cast<int64_t>(multisigEntry.minRemoval()) + notification.MinRemovalDelta;
+		int64_t newMinApproval = static_cast<int64_t>(multisigEntry.minApproval()) + notification.MinApprovalDelta;
+		if (1 > newMinRemoval || 1 > newMinApproval)
+			return Failure_Multisig_Min_Setting_Out_Of_Range;
 
-        auto maxValue = static_cast<int64_t>(multisigEntry.cosignatoryAddresses().size());
-        if (newMinRemoval > maxValue || newMinApproval > maxValue)
-            return Failure_Multisig_Min_Setting_Larger_Than_Num_Cosignatories;
+		auto maxValue = static_cast<int64_t>(multisigEntry.cosignatoryAddresses().size());
+		if (newMinRemoval > maxValue || newMinApproval > maxValue)
+			return Failure_Multisig_Min_Setting_Larger_Than_Num_Cosignatories;
 
-        return ValidationResult::Success;
-    })
+		return ValidationResult::Success;
+	})
 }
 }

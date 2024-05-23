@@ -26,58 +26,57 @@
 
 namespace catapult {
 namespace cache {
-    class BasicMultisigCacheDelta;
-    class BasicMultisigCacheView;
-    struct MultisigBaseSetDeltaPointers;
-    struct MultisigBaseSets;
-    class MultisigCache;
-    class MultisigCacheDelta;
-    class MultisigCacheView;
-    struct MultisigEntryPrimarySerializer;
-    class MultisigPatriciaTree;
+	class BasicMultisigCacheDelta;
+	class BasicMultisigCacheView;
+	struct MultisigBaseSetDeltaPointers;
+	struct MultisigBaseSets;
+	class MultisigCache;
+	class MultisigCacheDelta;
+	class MultisigCacheView;
+	struct MultisigEntryPrimarySerializer;
+	class MultisigPatriciaTree;
 
-    template <typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
-    class ReadOnlyArtifactCache;
+	template <typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
+	class ReadOnlyArtifactCache;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// Describes a multisig cache.
-    struct MultisigCacheDescriptor {
-    public:
-        static constexpr auto Name = "MultisigCache";
+	/// Describes a multisig cache.
+	struct MultisigCacheDescriptor {
+	public:
+		static constexpr auto Name = "MultisigCache";
 
-    public:
-        // key value types
-        using KeyType = Address;
-        using ValueType = state::MultisigEntry;
+	public:
+		// key value types
+		using KeyType = Address;
+		using ValueType = state::MultisigEntry;
 
-        // cache types
-        using CacheType = MultisigCache;
-        using CacheDeltaType = MultisigCacheDelta;
-        using CacheViewType = MultisigCacheView;
+		// cache types
+		using CacheType = MultisigCache;
+		using CacheDeltaType = MultisigCacheDelta;
+		using CacheViewType = MultisigCacheView;
 
-        using Serializer = MultisigEntryPrimarySerializer;
-        using PatriciaTree = MultisigPatriciaTree;
+		using Serializer = MultisigEntryPrimarySerializer;
+		using PatriciaTree = MultisigPatriciaTree;
 
-    public:
-        /// Gets the key corresponding to \a entry.
-        static const auto& GetKeyFromValue(const ValueType& entry)
-        {
-            return entry.address();
-        }
-    };
+	public:
+		/// Gets the key corresponding to \a entry.
+		static const auto& GetKeyFromValue(const ValueType& entry) {
+			return entry.address();
+		}
+	};
 
-    /// Multisig cache types.
-    struct MultisigCacheTypes {
-        using PrimaryTypes = MutableUnorderedMapAdapter<MultisigCacheDescriptor, utils::ArrayHasher<Address>>;
+	/// Multisig cache types.
+	struct MultisigCacheTypes {
+		using PrimaryTypes = MutableUnorderedMapAdapter<MultisigCacheDescriptor, utils::ArrayHasher<Address>>;
 
-        using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMultisigCacheView, BasicMultisigCacheDelta, Address, state::MultisigEntry>;
+		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMultisigCacheView, BasicMultisigCacheDelta, Address, state::MultisigEntry>;
 
-        using BaseSetDeltaPointers = MultisigBaseSetDeltaPointers;
-        using BaseSets = MultisigBaseSets;
-    };
+		using BaseSetDeltaPointers = MultisigBaseSetDeltaPointers;
+		using BaseSets = MultisigBaseSets;
+	};
 }
 }

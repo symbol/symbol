@@ -26,35 +26,33 @@
 namespace catapult {
 namespace observers {
 
-    /// Returns \c true if \a action and \a notifyMode indicate that a link should be made.
-    template <typename TAction>
-    constexpr bool ShouldLink(TAction action, NotifyMode notifyMode)
-    {
-        return NotifyMode::Commit == notifyMode ? TAction::Link == action : TAction::Unlink == action;
-    }
+	/// Returns \c true if \a action and \a notifyMode indicate that a link should be made.
+	template <typename TAction>
+	constexpr bool ShouldLink(TAction action, NotifyMode notifyMode) {
+		return NotifyMode::Commit == notifyMode ? TAction::Link == action : TAction::Unlink == action;
+	}
 
-    /// Creates a block-based cache touch observer with \a name that touches the cache at every block height taking into account
-    /// \a gracePeriod and creates a receipt of type \a receiptType for all deactivating elements.
-    template <typename TCache>
-    NotificationObserverPointerT<model::BlockNotification> CreateCacheBlockTouchObserver(
-        const std::string& name,
-        model::ReceiptType receiptType,
-        BlockDuration gracePeriod = BlockDuration())
-    {
-        using ObserverType = FunctionalNotificationObserverT<model::BlockNotification>;
-        return std::make_unique<ObserverType>(name + "TouchObserver", [receiptType, gracePeriod](const auto&, auto& context) {
-            auto touchHeight = Height(context.Height.unwrap() + gracePeriod.unwrap());
-            auto& cache = context.Cache.template sub<TCache>();
-            auto expiryIds = cache.touch(touchHeight);
+	/// Creates a block-based cache touch observer with \a name that touches the cache at every block height taking into account
+	/// \a gracePeriod and creates a receipt of type \a receiptType for all deactivating elements.
+	template <typename TCache>
+	NotificationObserverPointerT<model::BlockNotification> CreateCacheBlockTouchObserver(
+		const std::string& name,
+		model::ReceiptType receiptType,
+		BlockDuration gracePeriod = BlockDuration()) {
+		using ObserverType = FunctionalNotificationObserverT<model::BlockNotification>;
+		return std::make_unique<ObserverType>(name + "TouchObserver", [receiptType, gracePeriod](const auto&, auto& context) {
+			auto touchHeight = Height(context.Height.unwrap() + gracePeriod.unwrap());
+			auto& cache = context.Cache.template sub<TCache>();
+			auto expiryIds = cache.touch(touchHeight);
 
-            if (NotifyMode::Rollback == context.Mode)
-                return;
+			if (NotifyMode::Rollback == context.Mode)
+				return;
 
-            // sort expiry ids because receipts must be generated deterministically
-            std::set<typename decltype(expiryIds)::value_type> orderedExpiryIds(expiryIds.cbegin(), expiryIds.cend());
-            for (auto id : orderedExpiryIds)
-                context.StatementBuilder().addReceipt(model::ArtifactExpiryReceipt<decltype(id)>(receiptType, id));
-        });
-    }
+			// sort expiry ids because receipts must be generated deterministically
+			std::set<typename decltype(expiryIds)::value_type> orderedExpiryIds(expiryIds.cbegin(), expiryIds.cend());
+			for (auto id : orderedExpiryIds)
+				context.StatementBuilder().addReceipt(model::ArtifactExpiryReceipt<decltype(id)>(receiptType, id));
+		});
+	}
 }
 }

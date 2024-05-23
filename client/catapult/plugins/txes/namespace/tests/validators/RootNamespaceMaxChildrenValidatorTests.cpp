@@ -31,61 +31,57 @@ namespace validators {
 
 #define TEST_CLASS RootNamespaceMaxChildrenValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceMaxChildren, 123)
+	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceMaxChildren, 123)
 
-    namespace {
-        auto CreateAndSeedCache()
-        {
-            auto cache = test::NamespaceCacheFactory::Create();
-            {
-                auto cacheDelta = cache.createDelta();
-                auto& namespaceCacheDelta = cacheDelta.sub<cache::NamespaceCache>();
-                auto rootOwner = test::CreateRandomOwner();
+	namespace {
+		auto CreateAndSeedCache() {
+			auto cache = test::NamespaceCacheFactory::Create();
+			{
+				auto cacheDelta = cache.createDelta();
+				auto& namespaceCacheDelta = cacheDelta.sub<cache::NamespaceCache>();
+				auto rootOwner = test::CreateRandomOwner();
 
-                namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), rootOwner, test::CreateLifetime(10, 20)));
-                namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
-                namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36, 49 })));
-                namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 37 })));
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), rootOwner, test::CreateLifetime(10, 20)));
+				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
+				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36, 49 })));
+				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 37 })));
 
-                // Sanity:
-                test::AssertCacheContents(namespaceCacheDelta, { 25, 36, 49, 37 });
+				// Sanity:
+				test::AssertCacheContents(namespaceCacheDelta, { 25, 36, 49, 37 });
 
-                cache.commit(Height());
-            }
+				cache.commit(Height());
+			}
 
-            return cache;
-        }
+			return cache;
+		}
 
-        void RunTest(ValidationResult expectedResult, const model::ChildNamespaceNotification& notification, uint16_t maxChildren)
-        {
-            // Arrange:
-            auto cache = CreateAndSeedCache();
-            auto pValidator = CreateRootNamespaceMaxChildrenValidator(maxChildren);
+		void RunTest(ValidationResult expectedResult, const model::ChildNamespaceNotification& notification, uint16_t maxChildren) {
+			// Arrange:
+			auto cache = CreateAndSeedCache();
+			auto pValidator = CreateRootNamespaceMaxChildrenValidator(maxChildren);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "maxChildren " << maxChildren;
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "maxChildren " << maxChildren;
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenMaxChildrenIsExceeded)
-    {
-        // Act: root with id 25 has 3 children
-        auto notification = model::ChildNamespaceNotification(Address(), NamespaceId(26), NamespaceId(25));
-        RunTest(Failure_Namespace_Max_Children_Exceeded, notification, 1);
-        RunTest(Failure_Namespace_Max_Children_Exceeded, notification, 2);
-        RunTest(Failure_Namespace_Max_Children_Exceeded, notification, 3);
-    }
+	TEST(TEST_CLASS, FailureWhenMaxChildrenIsExceeded) {
+		// Act: root with id 25 has 3 children
+		auto notification = model::ChildNamespaceNotification(Address(), NamespaceId(26), NamespaceId(25));
+		RunTest(Failure_Namespace_Max_Children_Exceeded, notification, 1);
+		RunTest(Failure_Namespace_Max_Children_Exceeded, notification, 2);
+		RunTest(Failure_Namespace_Max_Children_Exceeded, notification, 3);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenMaxChildrenIsNotExceeded)
-    {
-        // Act: root with id 25 has 3 children
-        auto notification = model::ChildNamespaceNotification(Address(), NamespaceId(26), NamespaceId(25));
-        RunTest(ValidationResult::Success, notification, 4);
-        RunTest(ValidationResult::Success, notification, 5);
-        RunTest(ValidationResult::Success, notification, 123);
-    }
+	TEST(TEST_CLASS, SuccessWhenMaxChildrenIsNotExceeded) {
+		// Act: root with id 25 has 3 children
+		auto notification = model::ChildNamespaceNotification(Address(), NamespaceId(26), NamespaceId(25));
+		RunTest(ValidationResult::Success, notification, 4);
+		RunTest(ValidationResult::Success, notification, 5);
+		RunTest(ValidationResult::Success, notification, 123);
+	}
 }
 }

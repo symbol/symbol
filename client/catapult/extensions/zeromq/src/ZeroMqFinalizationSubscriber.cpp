@@ -26,28 +26,25 @@
 namespace catapult {
 namespace zeromq {
 
-    namespace {
-        class ZeroMqFinalizationSubscriber : public subscribers::FinalizationSubscriber {
-        public:
-            explicit ZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher)
-                : m_publisher(publisher)
-            {
-            }
+	namespace {
+		class ZeroMqFinalizationSubscriber : public subscribers::FinalizationSubscriber {
+		public:
+			explicit ZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher)
+				: m_publisher(publisher) {
+			}
 
-        public:
-            void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override
-            {
-                m_publisher.publishFinalizedBlock({ round, height, hash });
-            }
+		public:
+			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
+				m_publisher.publishFinalizedBlock({ round, height, hash });
+			}
 
-        private:
-            ZeroMqEntityPublisher& m_publisher;
-        };
-    }
+		private:
+			ZeroMqEntityPublisher& m_publisher;
+		};
+	}
 
-    std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher)
-    {
-        return std::make_unique<ZeroMqFinalizationSubscriber>(publisher);
-    }
+	std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher) {
+		return std::make_unique<ZeroMqFinalizationSubscriber>(publisher);
+	}
 }
 }

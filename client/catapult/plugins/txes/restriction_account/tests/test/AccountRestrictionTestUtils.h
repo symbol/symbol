@@ -25,22 +25,22 @@
 
 namespace catapult {
 namespace state {
-    class AccountRestrictions;
+	class AccountRestrictions;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Collects all available account restriction flags.
-    std::vector<model::AccountRestrictionFlags> CollectAccountRestrictionFlags();
+	/// Collects all available account restriction flags.
+	std::vector<model::AccountRestrictionFlags> CollectAccountRestrictionFlags();
 
-    /// Creates random account restrictions around \a operationType and \a valuesSizes.
-    state::AccountRestrictions CreateAccountRestrictions(
-        state::AccountRestrictionOperationType operationType,
-        const std::vector<size_t>& valuesSizes);
+	/// Creates random account restrictions around \a operationType and \a valuesSizes.
+	state::AccountRestrictions CreateAccountRestrictions(
+		state::AccountRestrictionOperationType operationType,
+		const std::vector<size_t>& valuesSizes);
 
-    /// Asserts that account restrictions \a actual is equal to \a expected.
-    void AssertEqual(const state::AccountRestrictions& expected, const state::AccountRestrictions& actual);
+	/// Asserts that account restrictions \a actual is equal to \a expected.
+	void AssertEqual(const state::AccountRestrictions& expected, const state::AccountRestrictions& actual);
 }
 }

@@ -25,7 +25,7 @@
 namespace catapult {
 namespace model {
 
-    /// Generates a mosaic id given \a owner and \a nonce.
-    MosaicId GenerateMosaicId(const Address& owner, MosaicNonce nonce) noexcept;
+	/// Generates a mosaic id given \a owner and \a nonce.
+	MosaicId GenerateMosaicId(const Address& owner, MosaicNonce nonce) noexcept;
 }
 }

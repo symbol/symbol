@@ -30,93 +30,84 @@ namespace validators {
 
 #define TEST_CLASS MosaicDivisibilityValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(MosaicDivisibility, 0)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicDivisibility, 0)
 
-    namespace {
-        void AddMosaic(cache::CatapultCache& cache, const Address& owner, MosaicId mosaicId, uint8_t divisibility)
-        {
-            auto properties = model::MosaicProperties(model::MosaicFlags::None, divisibility, BlockDuration());
-            auto definition = state::MosaicDefinition(Height(50), owner, 3, properties);
-            auto mosaicEntry = state::MosaicEntry(mosaicId, definition);
+	namespace {
+		void AddMosaic(cache::CatapultCache& cache, const Address& owner, MosaicId mosaicId, uint8_t divisibility) {
+			auto properties = model::MosaicProperties(model::MosaicFlags::None, divisibility, BlockDuration());
+			auto definition = state::MosaicDefinition(Height(50), owner, 3, properties);
+			auto mosaicEntry = state::MosaicEntry(mosaicId, definition);
 
-            auto delta = cache.createDelta();
-            delta.sub<cache::MosaicCache>().insert(mosaicEntry);
-            cache.commit(Height());
-        }
+			auto delta = cache.createDelta();
+			delta.sub<cache::MosaicCache>().insert(mosaicEntry);
+			cache.commit(Height());
+		}
 
-        void AssertDivisibilityValidationResult(
-            ValidationResult expectedResult,
-            uint8_t initialDivisibility,
-            uint8_t notificationDivisibility,
-            uint8_t maxDivisibility)
-        {
-            // Arrange:
-            auto pValidator = CreateMosaicDivisibilityValidator(maxDivisibility);
+		void AssertDivisibilityValidationResult(
+			ValidationResult expectedResult,
+			uint8_t initialDivisibility,
+			uint8_t notificationDivisibility,
+			uint8_t maxDivisibility) {
+			// Arrange:
+			auto pValidator = CreateMosaicDivisibilityValidator(maxDivisibility);
 
-            auto owner = test::CreateRandomOwner();
-            auto mosaicId = MosaicId(123);
-            auto properties = model::MosaicProperties(model::MosaicFlags::None, notificationDivisibility, BlockDuration());
-            auto notification = model::MosaicDefinitionNotification(owner, mosaicId, properties);
+			auto owner = test::CreateRandomOwner();
+			auto mosaicId = MosaicId(123);
+			auto properties = model::MosaicProperties(model::MosaicFlags::None, notificationDivisibility, BlockDuration());
+			auto notification = model::MosaicDefinitionNotification(owner, mosaicId, properties);
 
-            auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-            if (0 < initialDivisibility)
-                AddMosaic(cache, owner, mosaicId, initialDivisibility);
+			auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+			if (0 < initialDivisibility)
+				AddMosaic(cache, owner, mosaicId, initialDivisibility);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "initial " << static_cast<uint32_t>(initialDivisibility) << ", notification "
-                                              << static_cast<uint32_t>(notificationDivisibility) << ", max "
-                                              << static_cast<uint32_t>(maxDivisibility);
-        }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "initial " << static_cast<uint32_t>(initialDivisibility) << ", notification "
+											  << static_cast<uint32_t>(notificationDivisibility) << ", max "
+											  << static_cast<uint32_t>(maxDivisibility);
+		}
 
-        void AssertDivisibilityValidationResultRange(const consumer<uint8_t>& assertStep)
-        {
-            for (auto divisibility : std::initializer_list<uint8_t> { 0, 5, 9 })
-                assertStep(divisibility);
-        }
-    }
+		void AssertDivisibilityValidationResultRange(const consumer<uint8_t>& assertStep) {
+			for (auto divisibility : std::initializer_list<uint8_t> { 0, 5, 9 })
+				assertStep(divisibility);
+		}
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityLessThanMax_New)
-    {
-        AssertDivisibilityValidationResultRange(
-            [](auto divisibility) { AssertDivisibilityValidationResult(ValidationResult::Success, 0, divisibility, 10); });
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityLessThanMax_New) {
+		AssertDivisibilityValidationResultRange(
+			[](auto divisibility) { AssertDivisibilityValidationResult(ValidationResult::Success, 0, divisibility, 10); });
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityLessThanMax_Existing)
-    {
-        AssertDivisibilityValidationResultRange(
-            [](auto divisibility) { AssertDivisibilityValidationResult(ValidationResult::Success, 3, 3 ^ divisibility, 10); });
+	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityLessThanMax_Existing) {
+		AssertDivisibilityValidationResultRange(
+			[](auto divisibility) { AssertDivisibilityValidationResult(ValidationResult::Success, 3, 3 ^ divisibility, 10); });
 
-        // following is valid even though notification divisibility is greater than max divisibility because 10 ^ 11 == 1 < 10
-        AssertDivisibilityValidationResult(ValidationResult::Success, 10, 11, 10);
-    }
+		// following is valid even though notification divisibility is greater than max divisibility because 10 ^ 11 == 1 < 10
+		AssertDivisibilityValidationResult(ValidationResult::Success, 10, 11, 10);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityEqualToMax_New)
-    {
-        AssertDivisibilityValidationResult(ValidationResult::Success, 0, 10, 10);
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityEqualToMax_New) {
+		AssertDivisibilityValidationResult(ValidationResult::Success, 0, 10, 10);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityEqualToMax_Existing)
-    {
-        AssertDivisibilityValidationResultRange([](auto divisibility) {
-            AssertDivisibilityValidationResult(ValidationResult::Success, static_cast<uint8_t>(10 ^ divisibility), divisibility, 10);
-        });
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityEqualToMax_Existing) {
+		AssertDivisibilityValidationResultRange([](auto divisibility) {
+			AssertDivisibilityValidationResult(ValidationResult::Success, static_cast<uint8_t>(10 ^ divisibility), divisibility, 10);
+		});
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingDivisibilityGreaterThanMax_New)
-    {
-        AssertDivisibilityValidationResultRange([](auto divisibility) {
-            AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 0, static_cast<uint8_t>(11 + divisibility), 10);
-        });
-    }
+	TEST(TEST_CLASS, FailureWhenValidatingDivisibilityGreaterThanMax_New) {
+		AssertDivisibilityValidationResultRange([](auto divisibility) {
+			AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 0, static_cast<uint8_t>(11 + divisibility), 10);
+		});
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingDivisibilityGreaterThanMax_Existing)
-    {
-        AssertDivisibilityValidationResultRange([](auto divisibility) {
-            AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 3, static_cast<uint8_t>(3 ^ (11 + divisibility)), 10);
-        });
-    }
+	TEST(TEST_CLASS, FailureWhenValidatingDivisibilityGreaterThanMax_Existing) {
+		AssertDivisibilityValidationResultRange([](auto divisibility) {
+			AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 3, static_cast<uint8_t>(3 ^ (11 + divisibility)), 10);
+		});
+	}
 }
 }

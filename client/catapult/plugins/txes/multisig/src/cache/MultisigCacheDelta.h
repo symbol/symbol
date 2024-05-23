@@ -29,52 +29,50 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the multisig cache delta.
-    using MultisigCacheDeltaMixins = PatriciaTreeCacheMixins<MultisigCacheTypes::PrimaryTypes::BaseSetDeltaType, MultisigCacheDescriptor>;
+	/// Mixins used by the multisig cache delta.
+	using MultisigCacheDeltaMixins = PatriciaTreeCacheMixins<MultisigCacheTypes::PrimaryTypes::BaseSetDeltaType, MultisigCacheDescriptor>;
 
-    /// Basic delta on top of the multisig cache.
-    class BasicMultisigCacheDelta
-        : public utils::MoveOnly,
-          public MultisigCacheDeltaMixins::Size,
-          public MultisigCacheDeltaMixins::Contains,
-          public MultisigCacheDeltaMixins::ConstAccessor,
-          public MultisigCacheDeltaMixins::MutableAccessor,
-          public MultisigCacheDeltaMixins::PatriciaTreeDelta,
-          public MultisigCacheDeltaMixins::BasicInsertRemove,
-          public MultisigCacheDeltaMixins::DeltaElements {
-    public:
-        using ReadOnlyView = MultisigCacheTypes::CacheReadOnlyType;
+	/// Basic delta on top of the multisig cache.
+	class BasicMultisigCacheDelta
+		: public utils::MoveOnly,
+		  public MultisigCacheDeltaMixins::Size,
+		  public MultisigCacheDeltaMixins::Contains,
+		  public MultisigCacheDeltaMixins::ConstAccessor,
+		  public MultisigCacheDeltaMixins::MutableAccessor,
+		  public MultisigCacheDeltaMixins::PatriciaTreeDelta,
+		  public MultisigCacheDeltaMixins::BasicInsertRemove,
+		  public MultisigCacheDeltaMixins::DeltaElements {
+	public:
+		using ReadOnlyView = MultisigCacheTypes::CacheReadOnlyType;
 
-    public:
-        /// Creates a delta around \a multisigSets.
-        explicit BasicMultisigCacheDelta(const MultisigCacheTypes::BaseSetDeltaPointers& multisigSets)
-            : MultisigCacheDeltaMixins::Size(*multisigSets.pPrimary)
-            , MultisigCacheDeltaMixins::Contains(*multisigSets.pPrimary)
-            , MultisigCacheDeltaMixins::ConstAccessor(*multisigSets.pPrimary)
-            , MultisigCacheDeltaMixins::MutableAccessor(*multisigSets.pPrimary)
-            , MultisigCacheDeltaMixins::PatriciaTreeDelta(*multisigSets.pPrimary, multisigSets.pPatriciaTree)
-            , MultisigCacheDeltaMixins::BasicInsertRemove(*multisigSets.pPrimary)
-            , MultisigCacheDeltaMixins::DeltaElements(*multisigSets.pPrimary)
-            , m_pMultisigEntries(multisigSets.pPrimary)
-        {
-        }
+	public:
+		/// Creates a delta around \a multisigSets.
+		explicit BasicMultisigCacheDelta(const MultisigCacheTypes::BaseSetDeltaPointers& multisigSets)
+			: MultisigCacheDeltaMixins::Size(*multisigSets.pPrimary)
+			, MultisigCacheDeltaMixins::Contains(*multisigSets.pPrimary)
+			, MultisigCacheDeltaMixins::ConstAccessor(*multisigSets.pPrimary)
+			, MultisigCacheDeltaMixins::MutableAccessor(*multisigSets.pPrimary)
+			, MultisigCacheDeltaMixins::PatriciaTreeDelta(*multisigSets.pPrimary, multisigSets.pPatriciaTree)
+			, MultisigCacheDeltaMixins::BasicInsertRemove(*multisigSets.pPrimary)
+			, MultisigCacheDeltaMixins::DeltaElements(*multisigSets.pPrimary)
+			, m_pMultisigEntries(multisigSets.pPrimary) {
+		}
 
-    public:
-        using MultisigCacheDeltaMixins::ConstAccessor::find;
-        using MultisigCacheDeltaMixins::MutableAccessor::find;
+	public:
+		using MultisigCacheDeltaMixins::ConstAccessor::find;
+		using MultisigCacheDeltaMixins::MutableAccessor::find;
 
-    private:
-        MultisigCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pMultisigEntries;
-    };
+	private:
+		MultisigCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pMultisigEntries;
+	};
 
-    /// Delta on top of the multisig cache.
-    class MultisigCacheDelta : public ReadOnlyViewSupplier<BasicMultisigCacheDelta> {
-    public:
-        /// Creates a delta around \a multisigSets.
-        explicit MultisigCacheDelta(const MultisigCacheTypes::BaseSetDeltaPointers& multisigSets)
-            : ReadOnlyViewSupplier(multisigSets)
-        {
-        }
-    };
+	/// Delta on top of the multisig cache.
+	class MultisigCacheDelta : public ReadOnlyViewSupplier<BasicMultisigCacheDelta> {
+	public:
+		/// Creates a delta around \a multisigSets.
+		explicit MultisigCacheDelta(const MultisigCacheTypes::BaseSetDeltaPointers& multisigSets)
+			: ReadOnlyViewSupplier(multisigSets) {
+		}
+	};
 }
 }

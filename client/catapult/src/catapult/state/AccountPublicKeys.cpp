@@ -27,260 +27,232 @@ namespace state {
 #define PUBLIC_KEY_ACCESSOR_T AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>
 #define PUBLIC_KEYS_ACCESSOR_T AccountPublicKeys::PublicKeysAccessor<TPinnedAccountPublicKey>
 
-    // region PublicKeyAccessor
+	// region PublicKeyAccessor
 
-    template <typename TAccountPublicKey>
-    PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor() = default;
+	template <typename TAccountPublicKey>
+	PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor() = default;
 
-    template <typename TAccountPublicKey>
-    PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor(const PublicKeyAccessor& accessor)
-    {
-        *this = accessor;
-    }
+	template <typename TAccountPublicKey>
+	PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor(const PublicKeyAccessor& accessor) {
+		*this = accessor;
+	}
 
-    template <typename TAccountPublicKey>
-    PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor(PublicKeyAccessor&&) = default;
+	template <typename TAccountPublicKey>
+	PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor(PublicKeyAccessor&&) = default;
 
-    template <typename TAccountPublicKey>
-    PUBLIC_KEY_ACCESSOR_T& PUBLIC_KEY_ACCESSOR_T::operator=(const PublicKeyAccessor& accessor)
-    {
-        if (accessor.m_pKey)
-            m_pKey = std::make_shared<TAccountPublicKey>(*accessor.m_pKey);
-        else
-            m_pKey.reset();
+	template <typename TAccountPublicKey>
+	PUBLIC_KEY_ACCESSOR_T& PUBLIC_KEY_ACCESSOR_T::operator=(const PublicKeyAccessor& accessor) {
+		if (accessor.m_pKey)
+			m_pKey = std::make_shared<TAccountPublicKey>(*accessor.m_pKey);
+		else
+			m_pKey.reset();
 
-        return *this;
-    }
+		return *this;
+	}
 
-    template <typename TAccountPublicKey>
-    PUBLIC_KEY_ACCESSOR_T& PUBLIC_KEY_ACCESSOR_T::operator=(PublicKeyAccessor&&) = default;
+	template <typename TAccountPublicKey>
+	PUBLIC_KEY_ACCESSOR_T& PUBLIC_KEY_ACCESSOR_T::operator=(PublicKeyAccessor&&) = default;
 
-    template <typename TAccountPublicKey>
-    PUBLIC_KEY_ACCESSOR_T::operator bool() const
-    {
-        return m_pKey && TAccountPublicKey() != *m_pKey;
-    }
+	template <typename TAccountPublicKey>
+	PUBLIC_KEY_ACCESSOR_T::operator bool() const {
+		return m_pKey && TAccountPublicKey() != *m_pKey;
+	}
 
-    template <typename TAccountPublicKey>
-    TAccountPublicKey PUBLIC_KEY_ACCESSOR_T::get() const
-    {
-        return m_pKey ? *m_pKey : TAccountPublicKey();
-    }
+	template <typename TAccountPublicKey>
+	TAccountPublicKey PUBLIC_KEY_ACCESSOR_T::get() const {
+		return m_pKey ? *m_pKey : TAccountPublicKey();
+	}
 
-    template <typename TAccountPublicKey>
-    void PUBLIC_KEY_ACCESSOR_T::set(const TAccountPublicKey& key)
-    {
-        if (m_pKey)
-            CATAPULT_THROW_INVALID_ARGUMENT("must call unset before resetting key with value");
+	template <typename TAccountPublicKey>
+	void PUBLIC_KEY_ACCESSOR_T::set(const TAccountPublicKey& key) {
+		if (m_pKey)
+			CATAPULT_THROW_INVALID_ARGUMENT("must call unset before resetting key with value");
 
-        m_pKey = std::make_shared<TAccountPublicKey>(key);
-    }
+		m_pKey = std::make_shared<TAccountPublicKey>(key);
+	}
 
-    template <typename TAccountPublicKey>
-    void PUBLIC_KEY_ACCESSOR_T::unset()
-    {
-        m_pKey.reset();
-    }
+	template <typename TAccountPublicKey>
+	void PUBLIC_KEY_ACCESSOR_T::unset() {
+		m_pKey.reset();
+	}
 
-    template class AccountPublicKeys::PublicKeyAccessor<Key>;
+	template class AccountPublicKeys::PublicKeyAccessor<Key>;
 
-    // endregion
+	// endregion
 
-    // region PublicKeysAccessor
+	// region PublicKeysAccessor
 
-    template <typename TPinnedAccountPublicKey>
-    PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor() = default;
+	template <typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor() = default;
 
-    template <typename TPinnedAccountPublicKey>
-    PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor(const PublicKeysAccessor& accessor)
-    {
-        *this = accessor;
-    }
+	template <typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor(const PublicKeysAccessor& accessor) {
+		*this = accessor;
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor(PublicKeysAccessor&&) = default;
+	template <typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor(PublicKeysAccessor&&) = default;
 
-    template <typename TPinnedAccountPublicKey>
-    PUBLIC_KEYS_ACCESSOR_T& PUBLIC_KEYS_ACCESSOR_T::operator=(const PublicKeysAccessor& accessor)
-    {
-        if (accessor.m_pKeys)
-            m_pKeys = std::make_shared<std::vector<TPinnedAccountPublicKey>>(*accessor.m_pKeys);
-        else
-            m_pKeys.reset();
+	template <typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T& PUBLIC_KEYS_ACCESSOR_T::operator=(const PublicKeysAccessor& accessor) {
+		if (accessor.m_pKeys)
+			m_pKeys = std::make_shared<std::vector<TPinnedAccountPublicKey>>(*accessor.m_pKeys);
+		else
+			m_pKeys.reset();
 
-        return *this;
-    }
+		return *this;
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    PUBLIC_KEYS_ACCESSOR_T& PUBLIC_KEYS_ACCESSOR_T::operator=(PublicKeysAccessor&&) = default;
+	template <typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T& PUBLIC_KEYS_ACCESSOR_T::operator=(PublicKeysAccessor&&) = default;
 
-    template <typename TPinnedAccountPublicKey>
-    size_t PUBLIC_KEYS_ACCESSOR_T::size() const
-    {
-        return m_pKeys ? m_pKeys->size() : 0;
-    }
+	template <typename TPinnedAccountPublicKey>
+	size_t PUBLIC_KEYS_ACCESSOR_T::size() const {
+		return m_pKeys ? m_pKeys->size() : 0;
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    FinalizationEpoch PUBLIC_KEYS_ACCESSOR_T::upperBound() const
-    {
-        return m_pKeys ? m_pKeys->back().EndEpoch : FinalizationEpoch();
-    }
+	template <typename TPinnedAccountPublicKey>
+	FinalizationEpoch PUBLIC_KEYS_ACCESSOR_T::upperBound() const {
+		return m_pKeys ? m_pKeys->back().EndEpoch : FinalizationEpoch();
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    std::pair<size_t, bool> PUBLIC_KEYS_ACCESSOR_T::contains(FinalizationEpoch epoch) const
-    {
-        if (!m_pKeys)
-            return std::make_pair(std::numeric_limits<size_t>::max(), false);
+	template <typename TPinnedAccountPublicKey>
+	std::pair<size_t, bool> PUBLIC_KEYS_ACCESSOR_T::contains(FinalizationEpoch epoch) const {
+		if (!m_pKeys)
+			return std::make_pair(std::numeric_limits<size_t>::max(), false);
 
-        auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [epoch](const auto& key) {
-            return key.StartEpoch <= epoch && epoch <= key.EndEpoch;
-        });
-        return m_pKeys->cend() == iter ? std::make_pair(std::numeric_limits<size_t>::max(), false)
-                                       : std::make_pair(static_cast<size_t>(std::distance(m_pKeys->cbegin(), iter)), true);
-    }
+		auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [epoch](const auto& key) {
+			return key.StartEpoch <= epoch && epoch <= key.EndEpoch;
+		});
+		return m_pKeys->cend() == iter ? std::make_pair(std::numeric_limits<size_t>::max(), false)
+									   : std::make_pair(static_cast<size_t>(std::distance(m_pKeys->cbegin(), iter)), true);
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    bool PUBLIC_KEYS_ACCESSOR_T::containsExact(const TPinnedAccountPublicKey& key) const
-    {
-        return m_pKeys && m_pKeys->cend() != findExact(key);
-    }
+	template <typename TPinnedAccountPublicKey>
+	bool PUBLIC_KEYS_ACCESSOR_T::containsExact(const TPinnedAccountPublicKey& key) const {
+		return m_pKeys && m_pKeys->cend() != findExact(key);
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    const TPinnedAccountPublicKey& PUBLIC_KEYS_ACCESSOR_T::get(size_t index) const
-    {
-        return (*m_pKeys)[index];
-    }
+	template <typename TPinnedAccountPublicKey>
+	const TPinnedAccountPublicKey& PUBLIC_KEYS_ACCESSOR_T::get(size_t index) const {
+		return (*m_pKeys)[index];
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    std::vector<TPinnedAccountPublicKey> PUBLIC_KEYS_ACCESSOR_T::getAll() const
-    {
-        return m_pKeys ? *m_pKeys : std::vector<TPinnedAccountPublicKey>();
-    }
+	template <typename TPinnedAccountPublicKey>
+	std::vector<TPinnedAccountPublicKey> PUBLIC_KEYS_ACCESSOR_T::getAll() const {
+		return m_pKeys ? *m_pKeys : std::vector<TPinnedAccountPublicKey>();
+	}
 
-    namespace {
-        template <typename TPinnedAccountPublicKey>
-        bool ContainsEpoch(const TPinnedAccountPublicKey& key, FinalizationEpoch epoch)
-        {
-            return key.StartEpoch <= epoch && epoch <= key.EndEpoch;
-        }
+	namespace {
+		template <typename TPinnedAccountPublicKey>
+		bool ContainsEpoch(const TPinnedAccountPublicKey& key, FinalizationEpoch epoch) {
+			return key.StartEpoch <= epoch && epoch <= key.EndEpoch;
+		}
 
-        template <typename TPinnedAccountPublicKey>
-        void EnsureNoOverlap(const std::vector<TPinnedAccountPublicKey>& keys, const TPinnedAccountPublicKey& key)
-        {
-            auto anyOverlap = std::any_of(keys.cbegin(), keys.cend(), [&key](const auto& existingKey) {
-                return ContainsEpoch(key, existingKey.StartEpoch) || ContainsEpoch(key, existingKey.EndEpoch)
-                    || ContainsEpoch(existingKey, key.StartEpoch);
-            });
+		template <typename TPinnedAccountPublicKey>
+		void EnsureNoOverlap(const std::vector<TPinnedAccountPublicKey>& keys, const TPinnedAccountPublicKey& key) {
+			auto anyOverlap = std::any_of(keys.cbegin(), keys.cend(), [&key](const auto& existingKey) {
+				return ContainsEpoch(key, existingKey.StartEpoch) || ContainsEpoch(key, existingKey.EndEpoch)
+					|| ContainsEpoch(existingKey, key.StartEpoch);
+			});
 
-            if (!anyOverlap)
-                return;
+			if (!anyOverlap)
+				return;
 
-            std::ostringstream out;
-            out << "cannot add key with overlapping epoch " << key << std::endl
-                << "existing keys:" << std::endl;
-            for (const auto& existingKey : keys)
-                out << " - " << existingKey << std::endl;
+			std::ostringstream out;
+			out << "cannot add key with overlapping epoch " << key << std::endl
+				<< "existing keys:" << std::endl;
+			for (const auto& existingKey : keys)
+				out << " - " << existingKey << std::endl;
 
-            CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-        }
-    }
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    void PUBLIC_KEYS_ACCESSOR_T::add(const TPinnedAccountPublicKey& key)
-    {
-        if (!m_pKeys)
-            m_pKeys = std::make_shared<std::vector<TPinnedAccountPublicKey>>();
+	template <typename TPinnedAccountPublicKey>
+	void PUBLIC_KEYS_ACCESSOR_T::add(const TPinnedAccountPublicKey& key) {
+		if (!m_pKeys)
+			m_pKeys = std::make_shared<std::vector<TPinnedAccountPublicKey>>();
 
-        EnsureNoOverlap(*m_pKeys, key);
+		EnsureNoOverlap(*m_pKeys, key);
 
-        // use an insertion sort to keep keys in deterministic order for serialization
-        auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [&key](const auto& existingKey) {
-            return existingKey.StartEpoch > key.EndEpoch;
-        });
-        m_pKeys->insert(iter, key);
-    }
+		// use an insertion sort to keep keys in deterministic order for serialization
+		auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [&key](const auto& existingKey) {
+			return existingKey.StartEpoch > key.EndEpoch;
+		});
+		m_pKeys->insert(iter, key);
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    bool PUBLIC_KEYS_ACCESSOR_T::remove(const TPinnedAccountPublicKey& key)
-    {
-        if (!m_pKeys)
-            return false;
+	template <typename TPinnedAccountPublicKey>
+	bool PUBLIC_KEYS_ACCESSOR_T::remove(const TPinnedAccountPublicKey& key) {
+		if (!m_pKeys)
+			return false;
 
-        auto iter = findExact(key);
-        if (m_pKeys->cend() == iter)
-            return false;
+		auto iter = findExact(key);
+		if (m_pKeys->cend() == iter)
+			return false;
 
-        m_pKeys->erase(iter);
-        if (m_pKeys->empty())
-            m_pKeys.reset();
+		m_pKeys->erase(iter);
+		if (m_pKeys->empty())
+			m_pKeys.reset();
 
-        return true;
-    }
+		return true;
+	}
 
-    template <typename TPinnedAccountPublicKey>
-    typename PUBLIC_KEYS_ACCESSOR_T::const_iterator PUBLIC_KEYS_ACCESSOR_T::findExact(const TPinnedAccountPublicKey& key) const
-    {
-        return std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [&key](const auto& existingKey) {
-            return key.VotingKey == existingKey.VotingKey && key.StartEpoch == existingKey.StartEpoch
-                && key.EndEpoch == existingKey.EndEpoch;
-        });
-    }
+	template <typename TPinnedAccountPublicKey>
+	typename PUBLIC_KEYS_ACCESSOR_T::const_iterator PUBLIC_KEYS_ACCESSOR_T::findExact(const TPinnedAccountPublicKey& key) const {
+		return std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [&key](const auto& existingKey) {
+			return key.VotingKey == existingKey.VotingKey && key.StartEpoch == existingKey.StartEpoch
+				&& key.EndEpoch == existingKey.EndEpoch;
+		});
+	}
 
-    template class AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
+	template class AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
 
-    // endregion
+	// endregion
 
-    // region AccountPublicKeys
+	// region AccountPublicKeys
 
-    AccountPublicKeys::KeyType AccountPublicKeys::mask() const
-    {
-        auto keyType = KeyType::Unset;
-        keyType |= m_linkedPublicKeyAccessor ? KeyType::Linked : KeyType::Unset;
-        keyType |= m_nodePublicKeyAccessor ? KeyType::Node : KeyType::Unset;
-        keyType |= m_vrfPublicKeyAccessor ? KeyType::VRF : KeyType::Unset;
-        return keyType;
-    }
+	AccountPublicKeys::KeyType AccountPublicKeys::mask() const {
+		auto keyType = KeyType::Unset;
+		keyType |= m_linkedPublicKeyAccessor ? KeyType::Linked : KeyType::Unset;
+		keyType |= m_nodePublicKeyAccessor ? KeyType::Node : KeyType::Unset;
+		keyType |= m_vrfPublicKeyAccessor ? KeyType::VRF : KeyType::Unset;
+		return keyType;
+	}
 
-    const AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::linked() const
-    {
-        return m_linkedPublicKeyAccessor;
-    }
+	const AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::linked() const {
+		return m_linkedPublicKeyAccessor;
+	}
 
-    AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::linked()
-    {
-        return m_linkedPublicKeyAccessor;
-    }
+	AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::linked() {
+		return m_linkedPublicKeyAccessor;
+	}
 
-    const AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::node() const
-    {
-        return m_nodePublicKeyAccessor;
-    }
+	const AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::node() const {
+		return m_nodePublicKeyAccessor;
+	}
 
-    AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::node()
-    {
-        return m_nodePublicKeyAccessor;
-    }
+	AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::node() {
+		return m_nodePublicKeyAccessor;
+	}
 
-    const AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::vrf() const
-    {
-        return m_vrfPublicKeyAccessor;
-    }
+	const AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::vrf() const {
+		return m_vrfPublicKeyAccessor;
+	}
 
-    AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::vrf()
-    {
-        return m_vrfPublicKeyAccessor;
-    }
+	AccountPublicKeys::PublicKeyAccessor<Key>& AccountPublicKeys::vrf() {
+		return m_vrfPublicKeyAccessor;
+	}
 
-    const AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() const
-    {
-        return m_votingPublicKeysAccessor;
-    }
+	const AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() const {
+		return m_votingPublicKeysAccessor;
+	}
 
-    AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting()
-    {
-        return m_votingPublicKeysAccessor;
-    }
+	AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() {
+		return m_votingPublicKeysAccessor;
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -26,64 +26,64 @@
 namespace catapult {
 namespace model {
 
-    // region NetworkIdentifier
+	// region NetworkIdentifier
 
 /// \note The lower 3 bits must be cleared because they are used for different purposes, e.g. resolvers.
 #define NETWORK_IDENTIFIER_LIST                                               \
-    /* Default (zero) identifier that does not identify any known network. */ \
-    ENUM_VALUE(Zero, 0)                                                       \
+	/* Default (zero) identifier that does not identify any known network. */ \
+	ENUM_VALUE(Zero, 0)                                                       \
                                                                               \
-    /* Main network identifier. */                                            \
-    ENUM_VALUE(Mainnet, 0x68)                                                 \
+	/* Main network identifier. */                                            \
+	ENUM_VALUE(Mainnet, 0x68)                                                 \
                                                                               \
-    /* Test network identifier. */                                            \
-    ENUM_VALUE(Testnet, 0x98)
+	/* Test network identifier. */                                            \
+	ENUM_VALUE(Testnet, 0x98)
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
-    /// Possible network identifiers.
-    enum class NetworkIdentifier : uint8_t { NETWORK_IDENTIFIER_LIST };
+	/// Possible network identifiers.
+	enum class NetworkIdentifier : uint8_t { NETWORK_IDENTIFIER_LIST };
 #undef ENUM_VALUE
 
-    /// Insertion operator for outputting \a value to \a out.
-    std::ostream& operator<<(std::ostream& out, NetworkIdentifier value);
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, NetworkIdentifier value);
 
-    /// Tries to parse \a networkName into a network identifier (\a networkIdentifier).
-    bool TryParseValue(const std::string& networkName, NetworkIdentifier& networkIdentifier);
+	/// Tries to parse \a networkName into a network identifier (\a networkIdentifier).
+	bool TryParseValue(const std::string& networkName, NetworkIdentifier& networkIdentifier);
 
-    // endregion
+	// endregion
 
-    // region UniqueNetworkFingerprint
+	// region UniqueNetworkFingerprint
 
-    /// Globally unique network fingerprint.
-    struct UniqueNetworkFingerprint {
-    public:
-        /// Creates default fingerprint.
-        UniqueNetworkFingerprint();
+	/// Globally unique network fingerprint.
+	struct UniqueNetworkFingerprint {
+	public:
+		/// Creates default fingerprint.
+		UniqueNetworkFingerprint();
 
-        /// Creates fingerprint around \a identifier.
-        explicit UniqueNetworkFingerprint(NetworkIdentifier identifier);
+		/// Creates fingerprint around \a identifier.
+		explicit UniqueNetworkFingerprint(NetworkIdentifier identifier);
 
-        /// Creates fingerprint around \a identifier and \a generationHashSeed.
-        UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHashSeed& generationHashSeed);
+		/// Creates fingerprint around \a identifier and \a generationHashSeed.
+		UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHashSeed& generationHashSeed);
 
-    public:
-        /// Network identifier.
-        NetworkIdentifier Identifier;
+	public:
+		/// Network identifier.
+		NetworkIdentifier Identifier;
 
-        /// Nemesis generation hash seed.
-        catapult::GenerationHashSeed GenerationHashSeed;
+		/// Nemesis generation hash seed.
+		catapult::GenerationHashSeed GenerationHashSeed;
 
-    public:
-        /// Returns \c true if this fingerprint is equal to \a rhs.
-        bool operator==(const UniqueNetworkFingerprint& rhs) const;
+	public:
+		/// Returns \c true if this fingerprint is equal to \a rhs.
+		bool operator==(const UniqueNetworkFingerprint& rhs) const;
 
-        /// Returns \c true if this fingerprint is not equal to \a rhs.
-        bool operator!=(const UniqueNetworkFingerprint& rhs) const;
-    };
+		/// Returns \c true if this fingerprint is not equal to \a rhs.
+		bool operator!=(const UniqueNetworkFingerprint& rhs) const;
+	};
 
-    /// Insertion operator for outputting \a fingerprint to \a out.
-    std::ostream& operator<<(std::ostream& out, const UniqueNetworkFingerprint& fingerprint);
+	/// Insertion operator for outputting \a fingerprint to \a out.
+	std::ostream& operator<<(std::ostream& out, const UniqueNetworkFingerprint& fingerprint);
 
-    // endregion
+	// endregion
 }
 }

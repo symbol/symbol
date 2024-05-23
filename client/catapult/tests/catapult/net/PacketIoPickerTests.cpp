@@ -30,48 +30,43 @@ namespace net {
 
 #define TEST_CLASS PacketIoPickerTests
 
-    namespace {
-        const auto Default_Timeout = []() { return utils::TimeSpan::FromMinutes(1); }();
+	namespace {
+		const auto Default_Timeout = []() { return utils::TimeSpan::FromMinutes(1); }();
 
-        void AssertPickMultiple(size_t numAvailable, size_t numRequested, size_t expectedNumReturned, size_t expectedNumPicks)
-        {
-            // Arrange:
-            mocks::MockPacketIoPicker picker(numAvailable);
+		void AssertPickMultiple(size_t numAvailable, size_t numRequested, size_t expectedNumReturned, size_t expectedNumPicks) {
+			// Arrange:
+			mocks::MockPacketIoPicker picker(numAvailable);
 
-            // Act:
-            auto packetIos = PickMultiple(picker, numRequested, Default_Timeout);
+			// Act:
+			auto packetIos = PickMultiple(picker, numRequested, Default_Timeout);
 
-            // Assert:
-            EXPECT_EQ(expectedNumReturned, packetIos.size());
-            for (auto i = 0u; i < packetIos.size(); ++i)
-                EXPECT_EQ(std::to_string(i + 1), packetIos[i].node().metadata().Name) << "packetIo at " << i;
+			// Assert:
+			EXPECT_EQ(expectedNumReturned, packetIos.size());
+			for (auto i = 0u; i < packetIos.size(); ++i)
+				EXPECT_EQ(std::to_string(i + 1), packetIos[i].node().metadata().Name) << "packetIo at " << i;
 
-            auto i = 0u;
-            EXPECT_EQ(expectedNumPicks, picker.durations().size());
-            for (const auto& duration : picker.durations())
-                EXPECT_EQ(Default_Timeout, duration) << "duration at " << i++;
-        }
-    }
+			auto i = 0u;
+			EXPECT_EQ(expectedNumPicks, picker.durations().size());
+			for (const auto& duration : picker.durations())
+				EXPECT_EQ(Default_Timeout, duration) << "duration at " << i++;
+		}
+	}
 
-    TEST(TEST_CLASS, PickMultipleReturnsZeroIosWhenZeroAreRequested)
-    {
-        AssertPickMultiple(5, 0, 0, 0);
-    }
+	TEST(TEST_CLASS, PickMultipleReturnsZeroIosWhenZeroAreRequested) {
+		AssertPickMultiple(5, 0, 0, 0);
+	}
 
-    TEST(TEST_CLASS, PickMultipleReturnsZeroIosWhenZeroAreAvailable)
-    {
-        AssertPickMultiple(0, 5, 0, 1);
-    }
+	TEST(TEST_CLASS, PickMultipleReturnsZeroIosWhenZeroAreAvailable) {
+		AssertPickMultiple(0, 5, 0, 1);
+	}
 
-    TEST(TEST_CLASS, PickMultipleReturnsAllIosWhenRequestedIsGreaterThanAvailable)
-    {
-        AssertPickMultiple(3, 5, 3, 4);
-    }
+	TEST(TEST_CLASS, PickMultipleReturnsAllIosWhenRequestedIsGreaterThanAvailable) {
+		AssertPickMultiple(3, 5, 3, 4);
+	}
 
-    TEST(TEST_CLASS, PickMultipleReturnsRequestedIosWhenActualIsAtLeastRequested)
-    {
-        AssertPickMultiple(5, 5, 5, 5);
-        AssertPickMultiple(9, 5, 5, 5);
-    }
+	TEST(TEST_CLASS, PickMultipleReturnsRequestedIosWhenActualIsAtLeastRequested) {
+		AssertPickMultiple(5, 5, 5, 5);
+		AssertPickMultiple(9, 5, 5, 5);
+	}
 }
 }

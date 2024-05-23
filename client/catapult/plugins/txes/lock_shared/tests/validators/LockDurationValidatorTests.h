@@ -26,59 +26,53 @@
 namespace catapult {
 namespace validators {
 
-    /// Lock duration validator test suite.
-    template <typename TTraits>
-    struct LockDurationTests {
-    public:
-        static void AssertFailureWhenDurationIsZero()
-        {
-            // Act + Assert:
-            AssertDurationValidator(TTraits::Failure_Result, BlockDuration(0));
-        }
+	/// Lock duration validator test suite.
+	template <typename TTraits>
+	struct LockDurationTests {
+	public:
+		static void AssertFailureWhenDurationIsZero() {
+			// Act + Assert:
+			AssertDurationValidator(TTraits::Failure_Result, BlockDuration(0));
+		}
 
-        static void AssertFailureWhenDurationIsGreaterThanMaxDurationSetting()
-        {
-            // Act + Assert:
-            for (auto duration : { BlockDuration(1), BlockDuration(100) })
-                AssertDurationValidator(TTraits::Failure_Result, MaxDuration() + duration);
-        }
+		static void AssertFailureWhenDurationIsGreaterThanMaxDurationSetting() {
+			// Act + Assert:
+			for (auto duration : { BlockDuration(1), BlockDuration(100) })
+				AssertDurationValidator(TTraits::Failure_Result, MaxDuration() + duration);
+		}
 
-        static void AssertSuccessWhenDurationIsLessThanOrEqualToMaxDurationSetting()
-        {
-            // Act + Assert:
-            for (auto duration : { MaxDuration() - BlockDuration(1), BlockDuration(10), BlockDuration(1), BlockDuration(0) })
-                AssertDurationValidator(ValidationResult::Success, MaxDuration() - duration);
-        }
+		static void AssertSuccessWhenDurationIsLessThanOrEqualToMaxDurationSetting() {
+			// Act + Assert:
+			for (auto duration : { MaxDuration() - BlockDuration(1), BlockDuration(10), BlockDuration(1), BlockDuration(0) })
+				AssertDurationValidator(ValidationResult::Success, MaxDuration() - duration);
+		}
 
-    private:
-        static constexpr BlockDuration MaxDuration()
-        {
-            return BlockDuration(100);
-        }
+	private:
+		static constexpr BlockDuration MaxDuration() {
+			return BlockDuration(100);
+		}
 
-        static void AssertDurationValidator(ValidationResult expectedResult, BlockDuration notificationDuration)
-        {
-            // Arrange:
-            typename TTraits::NotificationType notification(notificationDuration);
-            auto pValidator = TTraits::CreateValidator(MaxDuration());
+		static void AssertDurationValidator(ValidationResult expectedResult, BlockDuration notificationDuration) {
+			// Arrange:
+			typename TTraits::NotificationType notification(notificationDuration);
+			auto pValidator = TTraits::CreateValidator(MaxDuration());
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "duration " << notification.Duration;
-        }
-    };
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "duration " << notification.Duration;
+		}
+	};
 }
 }
 
 #define MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, TEST_NAME) \
-    TEST(TEST_CLASS, TEST_NAME)                              \
-    {                                                        \
-        LockDurationTests<TRAITS_NAME>::Assert##TEST_NAME(); \
-    }
+	TEST(TEST_CLASS, TEST_NAME) {                            \
+		LockDurationTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_DURATION_VALIDATOR_TESTS(TRAITS_NAME)                                              \
-    MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, FailureWhenDurationIsZero)                          \
-    MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, FailureWhenDurationIsGreaterThanMaxDurationSetting) \
-    MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, SuccessWhenDurationIsLessThanOrEqualToMaxDurationSetting)
+	MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, FailureWhenDurationIsZero)                          \
+	MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, FailureWhenDurationIsGreaterThanMaxDurationSetting) \
+	MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, SuccessWhenDurationIsLessThanOrEqualToMaxDurationSetting)

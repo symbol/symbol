@@ -25,11 +25,10 @@
 namespace catapult {
 namespace validators {
 
-    /// Validates that \a value is less than or equal to \a maxValue and returns \a failureResult on failure.
-    template <typename TValue>
-    constexpr ValidationResult ValidateLessThanOrEqual(TValue value, TValue maxValue, ValidationResult failureResult)
-    {
-        return value <= maxValue ? ValidationResult::Success : failureResult;
-    }
+	/// Validates that \a value is less than or equal to \a maxValue and returns \a failureResult on failure.
+	template <typename TValue>
+	constexpr ValidationResult ValidateLessThanOrEqual(TValue value, TValue maxValue, ValidationResult failureResult) {
+		return value <= maxValue ? ValidationResult::Success : failureResult;
+	}
 }
 }

@@ -24,50 +24,42 @@
 namespace catapult {
 namespace crypto {
 
-    namespace {
-        bool IsIdLessThan(uint64_t lhs, uint64_t rhs)
-        {
-            if (lhs == rhs || BmKeyIdentifier::Invalid_Id == rhs)
-                return false;
+	namespace {
+		bool IsIdLessThan(uint64_t lhs, uint64_t rhs) {
+			if (lhs == rhs || BmKeyIdentifier::Invalid_Id == rhs)
+				return false;
 
-            return BmKeyIdentifier::Invalid_Id == lhs || lhs < rhs;
-        }
-    }
+			return BmKeyIdentifier::Invalid_Id == lhs || lhs < rhs;
+		}
+	}
 
-    bool BmKeyIdentifier::operator==(const BmKeyIdentifier& rhs) const
-    {
-        return KeyId == rhs.KeyId;
-    }
+	bool BmKeyIdentifier::operator==(const BmKeyIdentifier& rhs) const {
+		return KeyId == rhs.KeyId;
+	}
 
-    bool BmKeyIdentifier::operator!=(const BmKeyIdentifier& rhs) const
-    {
-        return !(*this == rhs);
-    }
+	bool BmKeyIdentifier::operator!=(const BmKeyIdentifier& rhs) const {
+		return !(*this == rhs);
+	}
 
-    bool BmKeyIdentifier::operator<(const BmKeyIdentifier& rhs) const
-    {
-        return IsIdLessThan(KeyId, rhs.KeyId);
-    }
+	bool BmKeyIdentifier::operator<(const BmKeyIdentifier& rhs) const {
+		return IsIdLessThan(KeyId, rhs.KeyId);
+	}
 
-    bool BmKeyIdentifier::operator<=(const BmKeyIdentifier& rhs) const
-    {
-        return *this < rhs || *this == rhs;
-    }
+	bool BmKeyIdentifier::operator<=(const BmKeyIdentifier& rhs) const {
+		return *this < rhs || *this == rhs;
+	}
 
-    bool BmKeyIdentifier::operator>(const BmKeyIdentifier& rhs) const
-    {
-        return !(*this <= rhs);
-    }
+	bool BmKeyIdentifier::operator>(const BmKeyIdentifier& rhs) const {
+		return !(*this <= rhs);
+	}
 
-    bool BmKeyIdentifier::operator>=(const BmKeyIdentifier& rhs) const
-    {
-        return !(*this < rhs);
-    }
+	bool BmKeyIdentifier::operator>=(const BmKeyIdentifier& rhs) const {
+		return !(*this < rhs);
+	}
 
-    std::ostream& operator<<(std::ostream& out, const BmKeyIdentifier& keyIdentifier)
-    {
-        out << "(" << keyIdentifier.KeyId << ")";
-        return out;
-    }
+	std::ostream& operator<<(std::ostream& out, const BmKeyIdentifier& keyIdentifier) {
+		out << "(" << keyIdentifier.KeyId << ")";
+		return out;
+	}
 }
 }

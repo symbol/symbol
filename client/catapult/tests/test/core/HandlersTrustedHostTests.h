@@ -27,68 +27,63 @@
 namespace catapult {
 namespace test {
 
-    /// Handlers trusted host test suite.
-    template <typename TTestContext>
-    struct HandlersTrustedHostTests {
-    public:
-        static void AssertHandlersAreOnlyAccessibleToTrustedHosts(ionet::PacketType packetType)
-        {
-            // Arrange:
-            TTestContext context;
-            const_cast<config::NodeConfiguration&>(context.testState().state().config().Node).TrustedHosts = { "foo.bar" };
+	/// Handlers trusted host test suite.
+	template <typename TTestContext>
+	struct HandlersTrustedHostTests {
+	public:
+		static void AssertHandlersAreOnlyAccessibleToTrustedHosts(ionet::PacketType packetType) {
+			// Arrange:
+			TTestContext context;
+			const_cast<config::NodeConfiguration&>(context.testState().state().config().Node).TrustedHosts = { "foo.bar" };
 
-            // Act:
-            context.boot();
-            const auto& packetHandlers = context.testState().state().packetHandlers();
+			// Act:
+			context.boot();
+			const auto& packetHandlers = context.testState().state().packetHandlers();
 
-            // Assert: service-registered handler has custom host filtering
-            EXPECT_TRUE(CanProcessPacketFromHost(packetHandlers, packetType, "foo.bar"));
-            EXPECT_FALSE(CanProcessPacketFromHost(packetHandlers, packetType, "foo.baz"));
-        }
+			// Assert: service-registered handler has custom host filtering
+			EXPECT_TRUE(CanProcessPacketFromHost(packetHandlers, packetType, "foo.bar"));
+			EXPECT_FALSE(CanProcessPacketFromHost(packetHandlers, packetType, "foo.baz"));
+		}
 
-        static void AssertTrustedHostsFilterIsClearedAfterAllHandlersAreRegistered()
-        {
-            // Arrange:
-            TTestContext context;
-            const_cast<config::NodeConfiguration&>(context.testState().state().config().Node).TrustedHosts = { "foo.bar" };
+		static void AssertTrustedHostsFilterIsClearedAfterAllHandlersAreRegistered() {
+			// Arrange:
+			TTestContext context;
+			const_cast<config::NodeConfiguration&>(context.testState().state().config().Node).TrustedHosts = { "foo.bar" };
 
-            // Act:
-            context.boot();
-            const auto& packetHandlers = context.testState().state().packetHandlers();
+			// Act:
+			context.boot();
+			const auto& packetHandlers = context.testState().state().packetHandlers();
 
-            // - register a new handler after the service was booted
-            constexpr auto Zero_Packet_Type = static_cast<ionet::PacketType>(0);
-            const_cast<ionet::ServerPacketHandlers&>(packetHandlers).registerHandler(Zero_Packet_Type, [](const auto&, const auto&) {});
+			// - register a new handler after the service was booted
+			constexpr auto Zero_Packet_Type = static_cast<ionet::PacketType>(0);
+			const_cast<ionet::ServerPacketHandlers&>(packetHandlers).registerHandler(Zero_Packet_Type, [](const auto&, const auto&) {});
 
-            // Assert: external-registered handler has no custom host filtering
-            EXPECT_TRUE(CanProcessPacketFromHost(packetHandlers, Zero_Packet_Type, "foo.bar"));
-            EXPECT_TRUE(CanProcessPacketFromHost(packetHandlers, Zero_Packet_Type, "foo.baz"));
-        }
+			// Assert: external-registered handler has no custom host filtering
+			EXPECT_TRUE(CanProcessPacketFromHost(packetHandlers, Zero_Packet_Type, "foo.bar"));
+			EXPECT_TRUE(CanProcessPacketFromHost(packetHandlers, Zero_Packet_Type, "foo.baz"));
+		}
 
-    private:
-        static bool CanProcessPacketFromHost(
-            const ionet::ServerPacketHandlers& packetHandlers,
-            ionet::PacketType packetType,
-            const std::string& hostname)
-        {
-            // prepare a packet
-            auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
-            pPacket->Type = packetType;
+	private:
+		static bool CanProcessPacketFromHost(
+			const ionet::ServerPacketHandlers& packetHandlers,
+			ionet::PacketType packetType,
+			const std::string& hostname) {
+			// prepare a packet
+			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
+			pPacket->Type = packetType;
 
-            // attempt to process
-            ionet::ServerPacketHandlerContext handlerContext({}, hostname);
-            return packetHandlers.process(*pPacket, handlerContext);
-        }
-    };
+			// attempt to process
+			ionet::ServerPacketHandlerContext handlerContext({}, hostname);
+			return packetHandlers.process(*pPacket, handlerContext);
+		}
+	};
 
 #define ADD_HANDLERS_TRUSTED_HOSTS_TESTS(TEST_CONTEXT, PACKET_TYPE)                                                     \
-    TEST(TEST_CLASS, HandlersAreOnlyAccessibleToTrustedHosts)                                                           \
-    {                                                                                                                   \
-        test::HandlersTrustedHostTests<TEST_CONTEXT>::AssertHandlersAreOnlyAccessibleToTrustedHosts(PACKET_TYPE);       \
-    }                                                                                                                   \
-    TEST(TEST_CLASS, TrustedHostsFilterIsClearedAfterAllHandlersAreRegistered)                                          \
-    {                                                                                                                   \
-        test::HandlersTrustedHostTests<TEST_CONTEXT>::AssertTrustedHostsFilterIsClearedAfterAllHandlersAreRegistered(); \
-    }
+	TEST(TEST_CLASS, HandlersAreOnlyAccessibleToTrustedHosts) {                                                         \
+		test::HandlersTrustedHostTests<TEST_CONTEXT>::AssertHandlersAreOnlyAccessibleToTrustedHosts(PACKET_TYPE);       \
+	}                                                                                                                   \
+	TEST(TEST_CLASS, TrustedHostsFilterIsClearedAfterAllHandlersAreRegistered) {                                        \
+		test::HandlersTrustedHostTests<TEST_CONTEXT>::AssertTrustedHostsFilterIsClearedAfterAllHandlersAreRegistered(); \
+	}
 }
 }

@@ -25,32 +25,32 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace networkheight {
 
-    /// Network height configuration settings.
-    struct NetworkHeightConfiguration {
-    public:
-        /// Number of nodes that this node should communicate with during network height detection.
-        uint8_t MaxNodes;
+	/// Network height configuration settings.
+	struct NetworkHeightConfiguration {
+	public:
+		/// Number of nodes that this node should communicate with during network height detection.
+		uint8_t MaxNodes;
 
-    private:
-        NetworkHeightConfiguration() = default;
+	private:
+		NetworkHeightConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized network height configuration.
-        static NetworkHeightConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized network height configuration.
+		static NetworkHeightConfiguration Uninitialized();
 
-    public:
-        /// Loads a network height configuration from \a bag.
-        static NetworkHeightConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	public:
+		/// Loads a network height configuration from \a bag.
+		static NetworkHeightConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
-        /// Loads a network height configuration from \a resourcesPath.
-        static NetworkHeightConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
-    };
+		/// Loads a network height configuration from \a resourcesPath.
+		static NetworkHeightConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
+	};
 }
 }

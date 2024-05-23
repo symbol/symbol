@@ -26,25 +26,25 @@
 namespace catapult {
 namespace test {
 
-    /// Asserts that the specified \a payload is a thin wrapper around the specified \a packet.
-    void AssertPacketPayload(const ionet::Packet& packet, const ionet::PacketPayload& payload);
+	/// Asserts that the specified \a payload is a thin wrapper around the specified \a packet.
+	void AssertPacketPayload(const ionet::Packet& packet, const ionet::PacketPayload& payload);
 
-    /// Asserts that \a payload is unset.
-    void AssertPacketPayloadUnset(const ionet::PacketPayload& payload);
+	/// Asserts that \a payload is unset.
+	void AssertPacketPayloadUnset(const ionet::PacketPayload& payload);
 
-    /// Asserts that \a payload has a header with size (\a expectedSize) and type (\a expectedType).
-    void AssertPacketHeader(const ionet::PacketPayload& payload, size_t expectedSize, ionet::PacketType expectedType);
+	/// Asserts that \a payload has a header with size (\a expectedSize) and type (\a expectedType).
+	void AssertPacketHeader(const ionet::PacketPayload& payload, size_t expectedSize, ionet::PacketType expectedType);
 
-    /// Asserts that \a handlerContext does not have a response.
-    void AssertNoResponse(const ionet::ServerPacketHandlerContext& handlerContext);
+	/// Asserts that \a handlerContext does not have a response.
+	void AssertNoResponse(const ionet::ServerPacketHandlerContext& handlerContext);
 
-    /// Asserts that \a handlerContext has a response payload header with size (\a expectedSize) and type (\a expectedType).
-    void AssertPacketHeader(const ionet::ServerPacketHandlerContext& handlerContext, size_t expectedSize, ionet::PacketType expectedType);
+	/// Asserts that \a handlerContext has a response payload header with size (\a expectedSize) and type (\a expectedType).
+	void AssertPacketHeader(const ionet::ServerPacketHandlerContext& handlerContext, size_t expectedSize, ionet::PacketType expectedType);
 
-    /// Asserts that \a handlerContext has a response with a single buffer and returns the buffer.
-    const uint8_t* GetSingleBufferData(const ionet::ServerPacketHandlerContext& handlerContext);
+	/// Asserts that \a handlerContext has a response with a single buffer and returns the buffer.
+	const uint8_t* GetSingleBufferData(const ionet::ServerPacketHandlerContext& handlerContext);
 
-    /// Asserts that \a expectedPayload is equal to \a payload.
-    void AssertEqualPayload(const ionet::PacketPayload& expectedPayload, const ionet::PacketPayload& payload);
+	/// Asserts that \a expectedPayload is equal to \a payload.
+	void AssertEqualPayload(const ionet::PacketPayload& expectedPayload, const ionet::PacketPayload& payload);
 }
 }

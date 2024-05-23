@@ -25,31 +25,29 @@
 namespace catapult {
 namespace test {
 
-    /// Unsupported state change subscriber.
-    template <typename TKey, typename TValue>
-    class UnsupportedSerializer {
-    public:
-        /// Serializes \a element to string.
-        [[noreturn]]
-        static std::string SerializeValue(const TValue&)
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("unsupported method: SerializeValue");
-        }
+	/// Unsupported state change subscriber.
+	template <typename TKey, typename TValue>
+	class UnsupportedSerializer {
+	public:
+		/// Serializes \a element to string.
+		[[noreturn]]
+		static std::string SerializeValue(const TValue&) {
+			CATAPULT_THROW_RUNTIME_ERROR("unsupported method: SerializeValue");
+		}
 
-        /// Deserializes value from \a buffer.
+		/// Deserializes value from \a buffer.
 #ifndef _MSC_VER
-        [[noreturn]]
+		[[noreturn]]
 #endif
-        static TValue DeserializeValue(const RawBuffer&)
-        {
+		static TValue DeserializeValue(const RawBuffer&) {
 #ifdef _MSC_VER
-            // force msvc to not inline
-            volatile bool shouldThrow = true;
-            if (!shouldThrow)
-                return TValue();
+			// force msvc to not inline
+			volatile bool shouldThrow = true;
+			if (!shouldThrow)
+				return TValue();
 #endif
-            CATAPULT_THROW_RUNTIME_ERROR("unsupported method: DeserializeValue");
-        }
-    };
+			CATAPULT_THROW_RUNTIME_ERROR("unsupported method: DeserializeValue");
+		}
+	};
 }
 }

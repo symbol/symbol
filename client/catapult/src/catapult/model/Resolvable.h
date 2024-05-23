@@ -24,56 +24,56 @@
 
 namespace catapult {
 namespace model {
-    class ResolverContext;
+	class ResolverContext;
 }
 }
 
 namespace catapult {
 namespace model {
 
-    /// Allows unified handling of unresolved and resolved types.
-    /// \note Single parameter constructors are not explicit in order to allow this class to be a stand-in for those types.
-    template <typename TUnresolved, typename TResolved>
-    class Resolvable {
-    private:
-        enum class Type { Unresolved,
-            Resolved };
+	/// Allows unified handling of unresolved and resolved types.
+	/// \note Single parameter constructors are not explicit in order to allow this class to be a stand-in for those types.
+	template <typename TUnresolved, typename TResolved>
+	class Resolvable {
+	private:
+		enum class Type { Unresolved,
+			Resolved };
 
-    public:
-        /// Creates a default resolvable.
-        Resolvable();
+	public:
+		/// Creates a default resolvable.
+		Resolvable();
 
-        /// Creates a resolvable around \a unresolved value.
-        Resolvable(const TUnresolved& unresolved);
+		/// Creates a resolvable around \a unresolved value.
+		Resolvable(const TUnresolved& unresolved);
 
-        /// Creates a resolvable around \a resolved value.
-        Resolvable(const TResolved& resolved);
+		/// Creates a resolvable around \a resolved value.
+		Resolvable(const TResolved& resolved);
 
-    public:
-        /// Returns \c true if the underlying value is resolved.
-        bool isResolved() const;
+	public:
+		/// Returns \c true if the underlying value is resolved.
+		bool isResolved() const;
 
-        /// Gets an unresolved representation of the underlying value.
-        TUnresolved unresolved() const;
+		/// Gets an unresolved representation of the underlying value.
+		TUnresolved unresolved() const;
 
-        /// Gets a resolved representation of the underlying value if and only if isResolved returns \c true.
-        TResolved resolved() const;
+		/// Gets a resolved representation of the underlying value if and only if isResolved returns \c true.
+		TResolved resolved() const;
 
-        /// Gets a resolved representation of the underlying value using \a resolvers.
-        TResolved resolved(const ResolverContext& resolvers) const;
+		/// Gets a resolved representation of the underlying value using \a resolvers.
+		TResolved resolved(const ResolverContext& resolvers) const;
 
-    private:
-        TUnresolved m_unresolved;
-        TResolved m_resolved;
-        Type m_type;
-    };
+	private:
+		TUnresolved m_unresolved;
+		TResolved m_resolved;
+		Type m_type;
+	};
 
-    /// Resolvable address.
-    using ResolvableAddress = Resolvable<UnresolvedAddress, Address>;
-    extern template class Resolvable<UnresolvedAddress, Address>;
+	/// Resolvable address.
+	using ResolvableAddress = Resolvable<UnresolvedAddress, Address>;
+	extern template class Resolvable<UnresolvedAddress, Address>;
 
-    /// Resolvable mosaic id.
-    using ResolvableMosaicId = Resolvable<UnresolvedMosaicId, MosaicId>;
-    extern template class Resolvable<UnresolvedMosaicId, MosaicId>;
+	/// Resolvable mosaic id.
+	using ResolvableMosaicId = Resolvable<UnresolvedMosaicId, MosaicId>;
+	extern template class Resolvable<UnresolvedMosaicId, MosaicId>;
 }
 }

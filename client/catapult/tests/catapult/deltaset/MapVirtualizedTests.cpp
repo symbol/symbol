@@ -25,19 +25,19 @@
 namespace catapult {
 namespace deltaset {
 
-    namespace {
-        // to emulate storage virtualization, use two separate sets (ordered and unordered)
-        template <typename TMutabilityTraits, typename TElement = test::SetElementType<TMutabilityTraits>>
-        using MapVirtualizedTraits = test::BaseSetTraits<
-            TMutabilityTraits,
-            MapStorageTraits<
-                std::map<std::pair<std::string, unsigned int>, TElement>,
-                test::TestElementToKeyConverter<TElement>,
-                std::unordered_map<std::pair<std::string, unsigned int>, TElement, test::MapKeyHasher>>>;
+	namespace {
+		// to emulate storage virtualization, use two separate sets (ordered and unordered)
+		template <typename TMutabilityTraits, typename TElement = test::SetElementType<TMutabilityTraits>>
+		using MapVirtualizedTraits = test::BaseSetTraits<
+			TMutabilityTraits,
+			MapStorageTraits<
+				std::map<std::pair<std::string, unsigned int>, TElement>,
+				test::TestElementToKeyConverter<TElement>,
+				std::unordered_map<std::pair<std::string, unsigned int>, TElement, test::MapKeyHasher>>>;
 
-        using MapVirtualizedMutableTraits = MapVirtualizedTraits<test::MutableElementValueTraits>;
-        using MapVirtualizedImmutableTraits = MapVirtualizedTraits<test::ImmutableElementValueTraits>;
-    }
+		using MapVirtualizedMutableTraits = MapVirtualizedTraits<test::MutableElementValueTraits>;
+		using MapVirtualizedImmutableTraits = MapVirtualizedTraits<test::ImmutableElementValueTraits>;
+	}
 
 // iteration is not supported by virtualized sets
 #undef DEFINE_BASE_SET_ITERATION_TESTS
@@ -45,16 +45,16 @@ namespace deltaset {
 #define DEFINE_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS)
 #define DEFINE_BASE_SET_DELTA_ITERATION_TESTS(TEST_CLASS, TRAITS)
 
-    // base (mutable)
-    DEFINE_MUTABLE_BASE_SET_TESTS_FOR(MapVirtualizedMutable)
+	// base (mutable)
+	DEFINE_MUTABLE_BASE_SET_TESTS_FOR(MapVirtualizedMutable)
 
-    // base (immutable)
-    DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(MapVirtualizedImmutable)
+	// base (immutable)
+	DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(MapVirtualizedImmutable)
 
-    // delta (mutable)
-    DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(MapVirtualizedMutable)
+	// delta (mutable)
+	DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(MapVirtualizedMutable)
 
-    // delta (immutable)
-    DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(MapVirtualizedImmutable)
+	// delta (immutable)
+	DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(MapVirtualizedImmutable)
 }
 }

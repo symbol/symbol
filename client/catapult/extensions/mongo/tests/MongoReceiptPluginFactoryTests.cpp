@@ -29,190 +29,178 @@ namespace mongo {
 
 #define TEST_CLASS MongoReceiptPluginFactoryTests
 
-    namespace {
-        constexpr auto Mock_Receipt_Type = static_cast<model::ReceiptType>(0xFFFF);
+	namespace {
+		constexpr auto Mock_Receipt_Type = static_cast<model::ReceiptType>(0xFFFF);
 
-        void Stream(bsoncxx::builder::stream::document& builder, const mocks::MockReceipt& receipt)
-        {
-            builder << "version0" << static_cast<int32_t>(receipt.Version);
-        }
+		void Stream(bsoncxx::builder::stream::document& builder, const mocks::MockReceipt& receipt) {
+			builder << "version0" << static_cast<int32_t>(receipt.Version);
+		}
 
-        static auto CreatePlugin()
-        {
-            return MongoReceiptPluginFactory::Create<mocks::MockReceipt>(mocks::MockReceipt::Receipt_Type, Stream);
-        }
-    }
+		static auto CreatePlugin() {
+			return MongoReceiptPluginFactory::Create<mocks::MockReceipt>(mocks::MockReceipt::Receipt_Type, Stream);
+		}
+	}
 
-    // region basic
+	// region basic
 
-    TEST(TEST_CLASS, CanCreatePlugin)
-    {
-        // Act:
-        auto pPlugin = CreatePlugin();
+	TEST(TEST_CLASS, CanCreatePlugin) {
+		// Act:
+		auto pPlugin = CreatePlugin();
 
-        // Assert:
-        EXPECT_EQ(Mock_Receipt_Type, pPlugin->type());
-    }
+		// Assert:
+		EXPECT_EQ(Mock_Receipt_Type, pPlugin->type());
+	}
 
-    TEST(TEST_CLASS, CanStreamReceipt)
-    {
-        // Arrange:
-        auto pPlugin = CreatePlugin();
-        bsoncxx::builder::stream::document builder;
+	TEST(TEST_CLASS, CanStreamReceipt) {
+		// Arrange:
+		auto pPlugin = CreatePlugin();
+		bsoncxx::builder::stream::document builder;
 
-        mocks::MockReceipt receipt;
-        receipt.Version = 0x57;
+		mocks::MockReceipt receipt;
+		receipt.Version = 0x57;
 
-        // Act:
-        pPlugin->streamReceipt(builder, receipt);
-        auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
+		// Act:
+		pPlugin->streamReceipt(builder, receipt);
+		auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
 
-        // Assert:
-        auto view = dbReceipt.view();
-        EXPECT_EQ(1u, test::GetFieldCount(view));
+		// Assert:
+		auto view = dbReceipt.view();
+		EXPECT_EQ(1u, test::GetFieldCount(view));
 
-        EXPECT_EQ(0x57u, test::GetUint32(view, "version0"));
-    }
+		EXPECT_EQ(0x57u, test::GetUint32(view, "version0"));
+	}
 
-    // endregion
+	// endregion
 
-    // region balance transfer
+	// region balance transfer
 
-    TEST(TEST_CLASS, CreateBalanceTransferReceiptMongoPluginRespectsSuppliedType)
-    {
-        // Act:
-        auto pPlugin = CreateBalanceTransferReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
+	TEST(TEST_CLASS, CreateBalanceTransferReceiptMongoPluginRespectsSuppliedType) {
+		// Act:
+		auto pPlugin = CreateBalanceTransferReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
 
-        // Assert:
-        EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
-    }
+		// Assert:
+		EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
+	}
 
-    TEST(TEST_CLASS, CanStreamBalanceTransferReceipt)
-    {
-        // Arrange:
-        auto pPlugin = CreateBalanceTransferReceiptMongoPlugin(model::ReceiptType());
-        bsoncxx::builder::stream::document builder;
+	TEST(TEST_CLASS, CanStreamBalanceTransferReceipt) {
+		// Arrange:
+		auto pPlugin = CreateBalanceTransferReceiptMongoPlugin(model::ReceiptType());
+		bsoncxx::builder::stream::document builder;
 
-        model::BalanceTransferReceipt receipt(
-            model::ReceiptType(),
-            test::GenerateRandomByteArray<Address>(),
-            test::GenerateRandomByteArray<Address>(),
-            MosaicId(234),
-            Amount(345));
+		model::BalanceTransferReceipt receipt(
+			model::ReceiptType(),
+			test::GenerateRandomByteArray<Address>(),
+			test::GenerateRandomByteArray<Address>(),
+			MosaicId(234),
+			Amount(345));
 
-        // Act:
-        pPlugin->streamReceipt(builder, receipt);
-        auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
+		// Act:
+		pPlugin->streamReceipt(builder, receipt);
+		auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
 
-        // Assert:
-        auto view = dbReceipt.view();
-        EXPECT_EQ(4u, test::GetFieldCount(view));
+		// Assert:
+		auto view = dbReceipt.view();
+		EXPECT_EQ(4u, test::GetFieldCount(view));
 
-        EXPECT_EQ(receipt.Mosaic.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
-        EXPECT_EQ(receipt.Mosaic.Amount, Amount(test::GetUint64(view, "amount")));
-        EXPECT_EQ(receipt.SenderAddress, test::GetAddressValue(view, "senderAddress"));
-        EXPECT_EQ(receipt.RecipientAddress, test::GetAddressValue(view, "recipientAddress"));
-    }
+		EXPECT_EQ(receipt.Mosaic.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
+		EXPECT_EQ(receipt.Mosaic.Amount, Amount(test::GetUint64(view, "amount")));
+		EXPECT_EQ(receipt.SenderAddress, test::GetAddressValue(view, "senderAddress"));
+		EXPECT_EQ(receipt.RecipientAddress, test::GetAddressValue(view, "recipientAddress"));
+	}
 
-    // endregion
+	// endregion
 
-    // region balance change
+	// region balance change
 
-    TEST(TEST_CLASS, CreateBalanceChangeReceiptMongoPluginRespectsSuppliedType)
-    {
-        // Act:
-        auto pPlugin = CreateBalanceChangeReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
+	TEST(TEST_CLASS, CreateBalanceChangeReceiptMongoPluginRespectsSuppliedType) {
+		// Act:
+		auto pPlugin = CreateBalanceChangeReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
 
-        // Assert:
-        EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
-    }
+		// Assert:
+		EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
+	}
 
-    TEST(TEST_CLASS, CanStreamBalanceChangeReceipt)
-    {
-        // Arrange:
-        auto pPlugin = CreateBalanceChangeReceiptMongoPlugin(model::ReceiptType());
-        bsoncxx::builder::stream::document builder;
+	TEST(TEST_CLASS, CanStreamBalanceChangeReceipt) {
+		// Arrange:
+		auto pPlugin = CreateBalanceChangeReceiptMongoPlugin(model::ReceiptType());
+		bsoncxx::builder::stream::document builder;
 
-        model::BalanceChangeReceipt receipt(model::ReceiptType(), test::GenerateRandomByteArray<Address>(), MosaicId(234), Amount(345));
+		model::BalanceChangeReceipt receipt(model::ReceiptType(), test::GenerateRandomByteArray<Address>(), MosaicId(234), Amount(345));
 
-        // Act:
-        pPlugin->streamReceipt(builder, receipt);
-        auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
+		// Act:
+		pPlugin->streamReceipt(builder, receipt);
+		auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
 
-        // Assert:
-        auto view = dbReceipt.view();
-        EXPECT_EQ(3u, test::GetFieldCount(view));
+		// Assert:
+		auto view = dbReceipt.view();
+		EXPECT_EQ(3u, test::GetFieldCount(view));
 
-        EXPECT_EQ(receipt.Mosaic.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
-        EXPECT_EQ(receipt.Mosaic.Amount, Amount(test::GetUint64(view, "amount")));
-        EXPECT_EQ(receipt.TargetAddress, test::GetAddressValue(view, "targetAddress"));
-    }
+		EXPECT_EQ(receipt.Mosaic.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
+		EXPECT_EQ(receipt.Mosaic.Amount, Amount(test::GetUint64(view, "amount")));
+		EXPECT_EQ(receipt.TargetAddress, test::GetAddressValue(view, "targetAddress"));
+	}
 
-    // endregion
+	// endregion
 
-    // region inflation
+	// region inflation
 
-    TEST(TEST_CLASS, CreateInflationReceiptMongoPluginRespectsSuppliedType)
-    {
-        // Act:
-        auto pPlugin = CreateInflationReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
+	TEST(TEST_CLASS, CreateInflationReceiptMongoPluginRespectsSuppliedType) {
+		// Act:
+		auto pPlugin = CreateInflationReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
 
-        // Assert:
-        EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
-    }
+		// Assert:
+		EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
+	}
 
-    TEST(TEST_CLASS, CanStreamInflationReceipt)
-    {
-        // Arrange:
-        auto pPlugin = CreateInflationReceiptMongoPlugin(model::ReceiptType());
-        bsoncxx::builder::stream::document builder;
+	TEST(TEST_CLASS, CanStreamInflationReceipt) {
+		// Arrange:
+		auto pPlugin = CreateInflationReceiptMongoPlugin(model::ReceiptType());
+		bsoncxx::builder::stream::document builder;
 
-        model::InflationReceipt receipt(model::ReceiptType(), MosaicId(234), Amount(345));
+		model::InflationReceipt receipt(model::ReceiptType(), MosaicId(234), Amount(345));
 
-        // Act:
-        pPlugin->streamReceipt(builder, receipt);
-        auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
+		// Act:
+		pPlugin->streamReceipt(builder, receipt);
+		auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
 
-        // Assert:
-        auto view = dbReceipt.view();
-        EXPECT_EQ(2u, test::GetFieldCount(view));
+		// Assert:
+		auto view = dbReceipt.view();
+		EXPECT_EQ(2u, test::GetFieldCount(view));
 
-        EXPECT_EQ(receipt.Mosaic.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
-        EXPECT_EQ(receipt.Mosaic.Amount, Amount(test::GetUint64(view, "amount")));
-    }
+		EXPECT_EQ(receipt.Mosaic.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
+		EXPECT_EQ(receipt.Mosaic.Amount, Amount(test::GetUint64(view, "amount")));
+	}
 
-    // endregion
+	// endregion
 
-    // region artifact expiry
+	// region artifact expiry
 
-    TEST(TEST_CLASS, CreateArtifactExpiryReceiptMongoPluginRespectsSuppliedType)
-    {
-        // Act:
-        auto pPlugin = CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(static_cast<model::ReceiptType>(1234));
+	TEST(TEST_CLASS, CreateArtifactExpiryReceiptMongoPluginRespectsSuppliedType) {
+		// Act:
+		auto pPlugin = CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(static_cast<model::ReceiptType>(1234));
 
-        // Assert:
-        EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
-    }
+		// Assert:
+		EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
+	}
 
-    TEST(TEST_CLASS, CanStreamArtifactExpiryReceipt)
-    {
-        // Arrange:
-        auto pPlugin = CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(model::ReceiptType());
-        bsoncxx::builder::stream::document builder;
+	TEST(TEST_CLASS, CanStreamArtifactExpiryReceipt) {
+		// Arrange:
+		auto pPlugin = CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(model::ReceiptType());
+		bsoncxx::builder::stream::document builder;
 
-        model::ArtifactExpiryReceipt<MosaicId> receipt(model::ReceiptType(), MosaicId(234));
+		model::ArtifactExpiryReceipt<MosaicId> receipt(model::ReceiptType(), MosaicId(234));
 
-        // Act:
-        pPlugin->streamReceipt(builder, receipt);
-        auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
+		// Act:
+		pPlugin->streamReceipt(builder, receipt);
+		auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
 
-        // Assert:
-        auto view = dbReceipt.view();
-        EXPECT_EQ(1u, test::GetFieldCount(view));
+		// Assert:
+		auto view = dbReceipt.view();
+		EXPECT_EQ(1u, test::GetFieldCount(view));
 
-        EXPECT_EQ(receipt.ArtifactId, MosaicId(test::GetUint64(view, "artifactId")));
-    }
+		EXPECT_EQ(receipt.ArtifactId, MosaicId(test::GetUint64(view, "artifactId")));
+	}
 
-    // endregion
+	// endregion
 }
 }

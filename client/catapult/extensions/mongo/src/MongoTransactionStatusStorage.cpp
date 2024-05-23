@@ -32,69 +32,64 @@ using namespace bsoncxx::builder::stream;
 namespace catapult {
 namespace mongo {
 
-    namespace {
-        constexpr auto Collection_Name = "transactionStatuses";
+	namespace {
+		constexpr auto Collection_Name = "transactionStatuses";
 
-        auto CreateFilter(const std::string& fieldName)
-        {
-            return [fieldName](const auto& status) {
-                auto filter = document() << fieldName << open_document << "$eq" << mongo::mappers::ToBinary(status.Hash) << close_document
-                                         << finalize;
-                return filter;
-            };
-        }
+		auto CreateFilter(const std::string& fieldName) {
+			return [fieldName](const auto& status) {
+				auto filter = document() << fieldName << open_document << "$eq" << mongo::mappers::ToBinary(status.Hash) << close_document
+										 << finalize;
+				return filter;
+			};
+		}
 
-        class MongoTransactionStatusStorage final : public subscribers::TransactionStatusSubscriber {
-        public:
-            MongoTransactionStatusStorage(MongoStorageContext& context)
-                : m_context(context)
-                , m_database(m_context.createDatabaseConnection())
-                , m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name))
-            {
-            }
+		class MongoTransactionStatusStorage final : public subscribers::TransactionStatusSubscriber {
+		public:
+			MongoTransactionStatusStorage(MongoStorageContext& context)
+				: m_context(context)
+				, m_database(m_context.createDatabaseConnection())
+				, m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name)) {
+			}
 
-        public:
-            void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override
-            {
-                utils::SpinLockGuard guard(m_lock);
-                m_transactionStatuses.emplace_back(hash, transaction.Deadline, status);
-            }
+		public:
+			void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override {
+				utils::SpinLockGuard guard(m_lock);
+				m_transactionStatuses.emplace_back(hash, transaction.Deadline, status);
+			}
 
-            void flush() override
-            {
-                decltype(m_transactionStatuses) transactionStatuses;
-                {
-                    utils::SpinLockGuard guard(m_lock);
-                    transactionStatuses = std::move(m_transactionStatuses);
-                }
+			void flush() override {
+				decltype(m_transactionStatuses) transactionStatuses;
+				{
+					utils::SpinLockGuard guard(m_lock);
+					transactionStatuses = std::move(m_transactionStatuses);
+				}
 
-                if (transactionStatuses.empty())
-                    return;
+				if (transactionStatuses.empty())
+					return;
 
-                // upsert into transaction statuses collection
-                auto results = m_context.bulkWriter()
-                                   .bulkUpsert(
-                                       Collection_Name,
-                                       transactionStatuses,
-                                       [](const auto& status, auto) { return mappers::ToDbModel(status); },
-                                       CreateFilter("status.hash"))
-                                   .get();
-                auto aggregateUpsert = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-                m_errorPolicy.checkUpserted(transactionStatuses.size(), aggregateUpsert, "transaction statuses");
-            }
+				// upsert into transaction statuses collection
+				auto results = m_context.bulkWriter()
+								   .bulkUpsert(
+									   Collection_Name,
+									   transactionStatuses,
+									   [](const auto& status, auto) { return mappers::ToDbModel(status); },
+									   CreateFilter("status.hash"))
+								   .get();
+				auto aggregateUpsert = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+				m_errorPolicy.checkUpserted(transactionStatuses.size(), aggregateUpsert, "transaction statuses");
+			}
 
-        private:
-            MongoStorageContext& m_context;
-            MongoDatabase m_database;
-            MongoErrorPolicy m_errorPolicy;
-            std::vector<model::TransactionStatus> m_transactionStatuses;
-            utils::SpinLock m_lock;
-        };
-    }
+		private:
+			MongoStorageContext& m_context;
+			MongoDatabase m_database;
+			MongoErrorPolicy m_errorPolicy;
+			std::vector<model::TransactionStatus> m_transactionStatuses;
+			utils::SpinLock m_lock;
+		};
+	}
 
-    std::unique_ptr<subscribers::TransactionStatusSubscriber> CreateMongoTransactionStatusStorage(MongoStorageContext& context)
-    {
-        return std::make_unique<MongoTransactionStatusStorage>(context);
-    }
+	std::unique_ptr<subscribers::TransactionStatusSubscriber> CreateMongoTransactionStatusStorage(MongoStorageContext& context) {
+		return std::make_unique<MongoTransactionStatusStorage>(context);
+	}
 }
 }

@@ -25,31 +25,28 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct MongoMetadataPluginTraits {
-            public:
-                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+		namespace {
+			struct MongoMetadataPluginTraits {
+			public:
+				static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-                static std::vector<model::EntityType> GetTransactionTypes()
-                {
-                    return { model::Entity_Type_Account_Metadata, model::Entity_Type_Mosaic_Metadata, model::Entity_Type_Namespace_Metadata };
-                }
+				static std::vector<model::EntityType> GetTransactionTypes() {
+					return { model::Entity_Type_Account_Metadata, model::Entity_Type_Mosaic_Metadata, model::Entity_Type_Namespace_Metadata };
+				}
 
-                static std::vector<model::ReceiptType> GetReceiptTypes()
-                {
-                    return {};
-                }
+				static std::vector<model::ReceiptType> GetReceiptTypes() {
+					return {};
+				}
 
-                static std::string GetStorageName()
-                {
-                    return "{ MetadataCache }";
-                }
-            };
-        }
+				static std::string GetStorageName() {
+					return "{ MetadataCache }";
+				}
+			};
+		}
 
-        DEFINE_MONGO_PLUGIN_TESTS(MongoMetadataPluginTests, MongoMetadataPluginTraits)
-    }
+		DEFINE_MONGO_PLUGIN_TESTS(MongoMetadataPluginTests, MongoMetadataPluginTraits)
+	}
 }
 }

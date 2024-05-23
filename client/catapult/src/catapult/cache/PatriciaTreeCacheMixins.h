@@ -27,97 +27,87 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixin for adding patricia tree support to a cache.
-    template <typename TTree>
-    class PatriciaTreeMixin {
-    public:
-        /// Creates a mixin around \a pTree.
-        explicit PatriciaTreeMixin(const TTree* pTree)
-            : m_pTree(pTree)
-        {
-        }
+	/// Mixin for adding patricia tree support to a cache.
+	template <typename TTree>
+	class PatriciaTreeMixin {
+	public:
+		/// Creates a mixin around \a pTree.
+		explicit PatriciaTreeMixin(const TTree* pTree)
+			: m_pTree(pTree) {
+		}
 
-    public:
-        /// Returns \c true if merkle root is supported.
-        bool supportsMerkleRoot() const
-        {
-            return !!m_pTree;
-        }
+	public:
+		/// Returns \c true if merkle root is supported.
+		bool supportsMerkleRoot() const {
+			return !!m_pTree;
+		}
 
-        /// Tries to get the merkle root if supported.
-        std::pair<Hash256, bool> tryGetMerkleRoot() const
-        {
-            return m_pTree ? std::make_pair(m_pTree->root(), true) : std::make_pair(Hash256(), false);
-        }
+		/// Tries to get the merkle root if supported.
+		std::pair<Hash256, bool> tryGetMerkleRoot() const {
+			return m_pTree ? std::make_pair(m_pTree->root(), true) : std::make_pair(Hash256(), false);
+		}
 
-        /// Tries to find the value associated with \a key in the tree and stores proof of existence or not in \a nodePath.
-        std::pair<Hash256, bool> tryLookup(const typename TTree::KeyType& key, std::vector<tree::TreeNode>& nodePath) const
-        {
-            return m_pTree ? m_pTree->lookup(key, nodePath) : std::make_pair(Hash256(), false);
-        }
+		/// Tries to find the value associated with \a key in the tree and stores proof of existence or not in \a nodePath.
+		std::pair<Hash256, bool> tryLookup(const typename TTree::KeyType& key, std::vector<tree::TreeNode>& nodePath) const {
+			return m_pTree ? m_pTree->lookup(key, nodePath) : std::make_pair(Hash256(), false);
+		}
 
-    private:
-        const TTree* m_pTree;
-    };
+	private:
+		const TTree* m_pTree;
+	};
 
-    /// Mixin for adding patricia tree support to a delta cache.
-    template <typename TSet, typename TTree>
-    class PatriciaTreeDeltaMixin {
-    public:
-        /// Creates a mixin around delta \a set and \a pTree.
-        PatriciaTreeDeltaMixin(TSet& set, const std::shared_ptr<TTree>& pTree)
-            : m_set(set)
-            , m_pTree(pTree)
-            , m_nextGenerationId(m_set.generationId())
-        {
-        }
+	/// Mixin for adding patricia tree support to a delta cache.
+	template <typename TSet, typename TTree>
+	class PatriciaTreeDeltaMixin {
+	public:
+		/// Creates a mixin around delta \a set and \a pTree.
+		PatriciaTreeDeltaMixin(TSet& set, const std::shared_ptr<TTree>& pTree)
+			: m_set(set)
+			, m_pTree(pTree)
+			, m_nextGenerationId(m_set.generationId()) {
+		}
 
-    public:
-        /// Returns \c true if merkle root is supported.
-        bool supportsMerkleRoot() const
-        {
-            return !!m_pTree;
-        }
+	public:
+		/// Returns \c true if merkle root is supported.
+		bool supportsMerkleRoot() const {
+			return !!m_pTree;
+		}
 
-        /// Tries to get the merkle root if supported.
-        std::pair<Hash256, bool> tryGetMerkleRoot() const
-        {
-            return m_pTree ? std::make_pair(m_pTree->root(), true) : std::make_pair(Hash256(), false);
-        }
+		/// Tries to get the merkle root if supported.
+		std::pair<Hash256, bool> tryGetMerkleRoot() const {
+			return m_pTree ? std::make_pair(m_pTree->root(), true) : std::make_pair(Hash256(), false);
+		}
 
-        /// Recalculates the merkle root given the specified chain \a height if supported.
-        void updateMerkleRoot(Height height)
-        {
-            if (!m_pTree)
-                return;
+		/// Recalculates the merkle root given the specified chain \a height if supported.
+		void updateMerkleRoot(Height height) {
+			if (!m_pTree)
+				return;
 
-            ApplyDeltasToTree(*m_pTree, m_set, m_nextGenerationId, height);
-            setApplyCheckpoint();
-        }
+			ApplyDeltasToTree(*m_pTree, m_set, m_nextGenerationId, height);
+			setApplyCheckpoint();
+		}
 
-        /// Sets the merkle root (\a merkleRoot) if supported.
-        /// \note There must not be any pending changes.
-        void setMerkleRoot(const Hash256& merkleRoot)
-        {
-            if (!m_pTree)
-                CATAPULT_THROW_RUNTIME_ERROR_1("cannot set merkle root", merkleRoot);
+		/// Sets the merkle root (\a merkleRoot) if supported.
+		/// \note There must not be any pending changes.
+		void setMerkleRoot(const Hash256& merkleRoot) {
+			if (!m_pTree)
+				CATAPULT_THROW_RUNTIME_ERROR_1("cannot set merkle root", merkleRoot);
 
-            m_pTree->reset(merkleRoot);
-            setApplyCheckpoint();
-        }
+			m_pTree->reset(merkleRoot);
+			setApplyCheckpoint();
+		}
 
-    private:
-        void setApplyCheckpoint()
-        {
-            m_set.incrementGenerationId();
-            m_nextGenerationId = m_set.generationId();
-            m_pTree->setCheckpoint();
-        }
+	private:
+		void setApplyCheckpoint() {
+			m_set.incrementGenerationId();
+			m_nextGenerationId = m_set.generationId();
+			m_pTree->setCheckpoint();
+		}
 
-    private:
-        TSet& m_set;
-        std::shared_ptr<TTree> m_pTree;
-        uint32_t m_nextGenerationId;
-    };
+	private:
+		TSet& m_set;
+		std::shared_ptr<TTree> m_pTree;
+		uint32_t m_nextGenerationId;
+	};
 }
 }

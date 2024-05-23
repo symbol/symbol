@@ -23,14 +23,14 @@
 
 namespace catapult {
 namespace config {
-    class CatapultConfiguration;
+	class CatapultConfiguration;
 }
 }
 
 namespace catapult {
 namespace config {
 
-    /// Validates \a config and throws an exception if it is invalid.
-    void ValidateConfiguration(const CatapultConfiguration& config);
+	/// Validates \a config and throws an exception if it is invalid.
+	void ValidateConfiguration(const CatapultConfiguration& config);
 }
 }

@@ -29,34 +29,33 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Binary layout for a hash lock transaction body.
-    template <typename THeader>
-    struct HashLockTransactionBody : public THeader {
-    private:
-        using TransactionType = HashLockTransactionBody<THeader>;
+	/// Binary layout for a hash lock transaction body.
+	template <typename THeader>
+	struct HashLockTransactionBody : public THeader {
+	private:
+		using TransactionType = HashLockTransactionBody<THeader>;
 
-    public:
-        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Hash_Lock, 1)
+	public:
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Hash_Lock, 1)
 
-    public:
-        /// Transaction mosaic.
-        UnresolvedMosaic Mosaic;
+	public:
+		/// Transaction mosaic.
+		UnresolvedMosaic Mosaic;
 
-        /// Number of blocks for which a lock should be valid.
-        BlockDuration Duration;
+		/// Number of blocks for which a lock should be valid.
+		BlockDuration Duration;
 
-        /// Lock hash.
-        Hash256 Hash;
+		/// Lock hash.
+		Hash256 Hash;
 
-    public:
-        /// Calculates the real size of hash lock \a transaction.
-        static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept
-        {
-            return sizeof(TransactionType);
-        }
-    };
+	public:
+		/// Calculates the real size of hash lock \a transaction.
+		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
+			return sizeof(TransactionType);
+		}
+	};
 
-    DEFINE_EMBEDDABLE_TRANSACTION(HashLock)
+	DEFINE_EMBEDDABLE_TRANSACTION(HashLock)
 
 #pragma pack(pop)
 }

@@ -27,14 +27,14 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::TransactionNotification;
+	using Notification = model::TransactionNotification;
 
-    DEFINE_STATEFUL_VALIDATOR(RemoteSender, [](const Notification& notification, const ValidatorContext& context) {
-        const auto& cache = context.Cache.sub<cache::AccountStateCache>();
-        auto accountStateIter = cache.find(notification.Sender);
-        return accountStateIter.tryGet() && state::IsRemote(accountStateIter.get().AccountType)
-            ? Failure_AccountLink_Remote_Account_Signer_Prohibited
-            : ValidationResult::Success;
-    })
+	DEFINE_STATEFUL_VALIDATOR(RemoteSender, [](const Notification& notification, const ValidatorContext& context) {
+		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
+		auto accountStateIter = cache.find(notification.Sender);
+		return accountStateIter.tryGet() && state::IsRemote(accountStateIter.get().AccountType)
+			? Failure_AccountLink_Remote_Account_Signer_Prohibited
+			: ValidationResult::Success;
+	})
 }
 }

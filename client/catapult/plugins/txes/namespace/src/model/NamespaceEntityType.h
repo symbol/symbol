@@ -28,14 +28,14 @@ namespace model {
 
 #endif
 
-    /// Namespace registration transaction.
-    DEFINE_TRANSACTION_TYPE(Namespace, Namespace_Registration, 0x1);
+	/// Namespace registration transaction.
+	DEFINE_TRANSACTION_TYPE(Namespace, Namespace_Registration, 0x1);
 
-    /// Address alias transaction.
-    DEFINE_TRANSACTION_TYPE(Namespace, Alias_Address, 0x2);
+	/// Address alias transaction.
+	DEFINE_TRANSACTION_TYPE(Namespace, Alias_Address, 0x2);
 
-    /// Mosaic alias transaction.
-    DEFINE_TRANSACTION_TYPE(Namespace, Alias_Mosaic, 0x3);
+	/// Mosaic alias transaction.
+	DEFINE_TRANSACTION_TYPE(Namespace, Alias_Mosaic, 0x3);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

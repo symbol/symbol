@@ -30,75 +30,65 @@
 namespace catapult {
 namespace test {
 
-    /// Unsupported block change subscriber.
-    class UnsupportedBlockChangeSubscriber : public io::BlockChangeSubscriber {
-    public:
-        void notifyBlock(const model::BlockElement&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyBlock - not supported in mock");
-        }
+	/// Unsupported block change subscriber.
+	class UnsupportedBlockChangeSubscriber : public io::BlockChangeSubscriber {
+	public:
+		void notifyBlock(const model::BlockElement&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyBlock - not supported in mock");
+		}
 
-        void notifyDropBlocksAfter(Height) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyDropBlocksAfter - not supported in mock");
-        }
-    };
+		void notifyDropBlocksAfter(Height) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyDropBlocksAfter - not supported in mock");
+		}
+	};
 
-    /// Unsupported finalization subscriber.
-    class UnsupportedFinalizationSubscriber : public subscribers::FinalizationSubscriber {
-    public:
-        void notifyFinalizedBlock(const model::FinalizationRound&, Height, const Hash256&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyFinalizedBlock - not supported in mock");
-        }
-    };
+	/// Unsupported finalization subscriber.
+	class UnsupportedFinalizationSubscriber : public subscribers::FinalizationSubscriber {
+	public:
+		void notifyFinalizedBlock(const model::FinalizationRound&, Height, const Hash256&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyFinalizedBlock - not supported in mock");
+		}
+	};
 
-    /// Unsupported node subscriber.
-    class UnsupportedNodeSubscriber : public subscribers::NodeSubscriber {
-    public:
-        void notifyNode(const ionet::Node&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyNode - not supported in mock");
-        }
+	/// Unsupported node subscriber.
+	class UnsupportedNodeSubscriber : public subscribers::NodeSubscriber {
+	public:
+		void notifyNode(const ionet::Node&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyNode - not supported in mock");
+		}
 
-        bool notifyIncomingNode(const model::NodeIdentity&, ionet::ServiceIdentifier) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyIncomingNode - not supported in mock");
-        }
+		bool notifyIncomingNode(const model::NodeIdentity&, ionet::ServiceIdentifier) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyIncomingNode - not supported in mock");
+		}
 
-        void notifyBan(const model::NodeIdentity&, uint32_t) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyBan - not supported in mock");
-        }
-    };
+		void notifyBan(const model::NodeIdentity&, uint32_t) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyBan - not supported in mock");
+		}
+	};
 
-    /// Unsupported state change subscriber.
-    class UnsupportedStateChangeSubscriber : public subscribers::StateChangeSubscriber {
-    public:
-        void notifyScoreChange(const model::ChainScore&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyScoreChange - not supported in mock");
-        }
+	/// Unsupported state change subscriber.
+	class UnsupportedStateChangeSubscriber : public subscribers::StateChangeSubscriber {
+	public:
+		void notifyScoreChange(const model::ChainScore&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyScoreChange - not supported in mock");
+		}
 
-        void notifyStateChange(const subscribers::StateChangeInfo&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyStateChange - not supported in mock");
-        }
-    };
+		void notifyStateChange(const subscribers::StateChangeInfo&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyStateChange - not supported in mock");
+		}
+	};
 
-    /// Unsupported transaction status subscriber.
-    template <UnsupportedFlushBehavior FlushBehavior>
-    class UnsupportedTransactionStatusSubscriber : public subscribers::TransactionStatusSubscriber {
-    public:
-        void notifyStatus(const model::Transaction&, const Hash256&, uint32_t) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyStatus - not supported in mock");
-        }
+	/// Unsupported transaction status subscriber.
+	template <UnsupportedFlushBehavior FlushBehavior>
+	class UnsupportedTransactionStatusSubscriber : public subscribers::TransactionStatusSubscriber {
+	public:
+		void notifyStatus(const model::Transaction&, const Hash256&, uint32_t) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyStatus - not supported in mock");
+		}
 
-        void flush() override
-        {
-            FlushInvoker<FlushBehavior>::Flush();
-        }
-    };
+		void flush() override {
+			FlushInvoker<FlushBehavior>::Flush();
+		}
+	};
 }
 }

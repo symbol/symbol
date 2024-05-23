@@ -26,27 +26,25 @@
 namespace catapult {
 namespace cache {
 
-    namespace {
-        struct HashCacheStorageTraits {
-            using ValueType = state::TimestampedHash;
-            static constexpr auto Value_Size = sizeof(Timestamp) + sizeof(ValueType::HashType);
+	namespace {
+		struct HashCacheStorageTraits {
+			using ValueType = state::TimestampedHash;
+			static constexpr auto Value_Size = sizeof(Timestamp) + sizeof(ValueType::HashType);
 
-            using StorageType = HashCacheStorage;
-            class CacheType : public HashCache {
-            public:
-                CacheType()
-                    : HashCache(CacheConfiguration(), utils::TimeSpan::FromHours(32))
-                {
-                }
-            };
+			using StorageType = HashCacheStorage;
+			class CacheType : public HashCache {
+			public:
+				CacheType()
+					: HashCache(CacheConfiguration(), utils::TimeSpan::FromHours(32)) {
+				}
+			};
 
-            static auto CreateValue(uint8_t id)
-            {
-                return ValueType(Timestamp(id), Hash256 { { id } });
-            }
-        };
-    }
+			static auto CreateValue(uint8_t id) {
+				return ValueType(Timestamp(id), Hash256 { { id } });
+			}
+		};
+	}
 
-    DEFINE_CONTAINS_ONLY_CACHE_STORAGE_TESTS(HashCacheStorageTests, HashCacheStorageTraits)
+	DEFINE_CONTAINS_ONLY_CACHE_STORAGE_TESTS(HashCacheStorageTests, HashCacheStorageTraits)
 }
 }

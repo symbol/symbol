@@ -26,123 +26,122 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace sync {
 
-    // region UniformTaskConfiguration
+	// region UniformTaskConfiguration
 
-    /// Uniform task configuration settings.
-    struct UniformTaskConfiguration {
-    public:
-        /// Delay until the first execution of the task.
-        utils::TimeSpan StartDelay;
+	/// Uniform task configuration settings.
+	struct UniformTaskConfiguration {
+	public:
+		/// Delay until the first execution of the task.
+		utils::TimeSpan StartDelay;
 
-        /// Delay until subsequent executions of the task.
-        utils::TimeSpan RepeatDelay;
+		/// Delay until subsequent executions of the task.
+		utils::TimeSpan RepeatDelay;
 
-    private:
-        UniformTaskConfiguration() = default;
+	private:
+		UniformTaskConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized task configuration.
-        static UniformTaskConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized task configuration.
+		static UniformTaskConfiguration Uninitialized();
 
-    public:
-        /// Loads a task configuration from \a bag.
-        static UniformTaskConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+	public:
+		/// Loads a task configuration from \a bag.
+		static UniformTaskConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 
-    // endregion
+	// endregion
 
-    // region DeceleratingTaskConfiguration
+	// region DeceleratingTaskConfiguration
 
-    /// Decelerating task configuration settings.
-    struct DeceleratingTaskConfiguration {
-    public:
-        /// Delay until the first execution of the task.
-        utils::TimeSpan StartDelay;
+	/// Decelerating task configuration settings.
+	struct DeceleratingTaskConfiguration {
+	public:
+		/// Delay until the first execution of the task.
+		utils::TimeSpan StartDelay;
 
-        /// Minimum delay between task executions.
-        utils::TimeSpan MinDelay;
+		/// Minimum delay between task executions.
+		utils::TimeSpan MinDelay;
 
-        /// Maximum delay between task executions.
-        utils::TimeSpan MaxDelay;
+		/// Maximum delay between task executions.
+		utils::TimeSpan MaxDelay;
 
-        /// Number of rounds before deceleration starts.
-        uint32_t NumPhaseOneRounds;
+		/// Number of rounds before deceleration starts.
+		uint32_t NumPhaseOneRounds;
 
-        /// Number of transition rounds from minimum to maximum delay.
-        uint32_t NumTransitionRounds;
+		/// Number of transition rounds from minimum to maximum delay.
+		uint32_t NumTransitionRounds;
 
-    private:
-        DeceleratingTaskConfiguration() = default;
+	private:
+		DeceleratingTaskConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized task configuration.
-        static DeceleratingTaskConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized task configuration.
+		static DeceleratingTaskConfiguration Uninitialized();
 
-    public:
-        /// Loads a task configuration from \a bag.
-        static DeceleratingTaskConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+	public:
+		/// Loads a task configuration from \a bag.
+		static DeceleratingTaskConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 
-    // endregion
+	// endregion
 
-    /// Tasks configuration settings.
-    struct TasksConfiguration {
-    public:
-        /// Supported task types.
-        enum class TaskType {
-            /// Task that is scheduled with constant intervals.
-            Uniform,
+	/// Tasks configuration settings.
+	struct TasksConfiguration {
+	public:
+		/// Supported task types.
+		enum class TaskType {
+			/// Task that is scheduled with constant intervals.
+			Uniform,
 
-            /// Task that is scheduled with increasing intervals.
-            Decelerating
-        };
+			/// Task that is scheduled with increasing intervals.
+			Decelerating
+		};
 
-        /// Task configuration that is a union of all supported task configurations.
-        struct TaskConfiguration {
-        public:
-            /// Type of task.
-            TasksConfiguration::TaskType TaskType;
+		/// Task configuration that is a union of all supported task configurations.
+		struct TaskConfiguration {
+		public:
+			/// Type of task.
+			TasksConfiguration::TaskType TaskType;
 
-            union {
-                /// Configuration when task type is uniform.
-                UniformTaskConfiguration Uniform;
+			union {
+				/// Configuration when task type is uniform.
+				UniformTaskConfiguration Uniform;
 
-                /// Configuration when task type is decelerating.
-                DeceleratingTaskConfiguration Decelerating;
-            };
+				/// Configuration when task type is decelerating.
+				DeceleratingTaskConfiguration Decelerating;
+			};
 
-        public:
-            /// Creates an empty task configuration.
-            TaskConfiguration()
-                : Uniform(UniformTaskConfiguration::Uninitialized())
-            {
-            }
-        };
+		public:
+			/// Creates an empty task configuration.
+			TaskConfiguration()
+				: Uniform(UniformTaskConfiguration::Uninitialized()) {
+			}
+		};
 
-    public:
-        /// Map of task names to task configurations.
-        std::unordered_map<std::string, TaskConfiguration> Tasks;
+	public:
+		/// Map of task names to task configurations.
+		std::unordered_map<std::string, TaskConfiguration> Tasks;
 
-    private:
-        TasksConfiguration() = default;
+	private:
+		TasksConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized tasks configuration.
-        static TasksConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized tasks configuration.
+		static TasksConfiguration Uninitialized();
 
-    public:
-        /// Loads a tasks configuration from \a bag.
-        static TasksConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	public:
+		/// Loads a tasks configuration from \a bag.
+		static TasksConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
-        /// Loads a tasks configuration from \a resourcesPath.
-        static TasksConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
-    };
+		/// Loads a tasks configuration from \a resourcesPath.
+		static TasksConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
+	};
 }
 }

@@ -26,115 +26,100 @@
 namespace catapult {
 namespace mocks {
 
-    /// Mock packet socket for use in decorator tests.
-    class MockPacketSocket
-        : public ionet::PacketSocket,
-          public MockPacketIo {
-    public:
-        /// Creates a socket.
-        MockPacketSocket()
-            : m_numStatsCalls(0)
-            , m_numCloseCalls(0)
-            , m_numAbortCalls(0)
-            , m_numBufferedCalls(0)
-            , m_pBufferedIo(std::make_shared<MockPacketIo>())
-        {
-        }
+	/// Mock packet socket for use in decorator tests.
+	class MockPacketSocket
+		: public ionet::PacketSocket,
+		  public MockPacketIo {
+	public:
+		/// Creates a socket.
+		MockPacketSocket()
+			: m_numStatsCalls(0)
+			, m_numCloseCalls(0)
+			, m_numAbortCalls(0)
+			, m_numBufferedCalls(0)
+			, m_pBufferedIo(std::make_shared<MockPacketIo>()) {
+		}
 
-    public:
-        /// Number of times stats was called.
-        size_t numStatsCalls() const
-        {
-            return m_numStatsCalls;
-        }
+	public:
+		/// Number of times stats was called.
+		size_t numStatsCalls() const {
+			return m_numStatsCalls;
+		}
 
-        /// Number of times close was called.
-        size_t numCloseCalls() const
-        {
-            return m_numCloseCalls;
-        }
+		/// Number of times close was called.
+		size_t numCloseCalls() const {
+			return m_numCloseCalls;
+		}
 
-        /// Number of times abort was called.
-        size_t numAbortCalls() const
-        {
-            return m_numAbortCalls;
-        }
+		/// Number of times abort was called.
+		size_t numAbortCalls() const {
+			return m_numAbortCalls;
+		}
 
-        /// Number of times buffered was called.
-        size_t numBufferedCalls() const
-        {
-            return m_numBufferedCalls;
-        }
+		/// Number of times buffered was called.
+		size_t numBufferedCalls() const {
+			return m_numBufferedCalls;
+		}
 
-    public:
-        /// Underlying mock packet io.
-        auto mockBufferedIo()
-        {
-            return m_pBufferedIo;
-        }
+	public:
+		/// Underlying mock packet io.
+		auto mockBufferedIo() {
+			return m_pBufferedIo;
+		}
 
-        /// Configures buffered io to support a roundtrip operation.
-        void enableBufferedIoRoundtrip()
-        {
-            // allow a write / read roundtrip so the buffered roundtrip test will pass
-            m_pBufferedIo->queueWrite(ionet::SocketOperationCode::Success);
-            m_pBufferedIo->queueRead(ionet::SocketOperationCode::Success, [](const auto* pWrittenPacket) {
-                auto pWrittenPacketCopy = utils::MakeSharedWithSize<ionet::Packet>(pWrittenPacket->Size);
-                std::memcpy(static_cast<void*>(pWrittenPacketCopy.get()), pWrittenPacket, pWrittenPacket->Size);
-                return pWrittenPacketCopy;
-            });
-        }
+		/// Configures buffered io to support a roundtrip operation.
+		void enableBufferedIoRoundtrip() {
+			// allow a write / read roundtrip so the buffered roundtrip test will pass
+			m_pBufferedIo->queueWrite(ionet::SocketOperationCode::Success);
+			m_pBufferedIo->queueRead(ionet::SocketOperationCode::Success, [](const auto* pWrittenPacket) {
+				auto pWrittenPacketCopy = utils::MakeSharedWithSize<ionet::Packet>(pWrittenPacket->Size);
+				std::memcpy(static_cast<void*>(pWrittenPacketCopy.get()), pWrittenPacket, pWrittenPacket->Size);
+				return pWrittenPacketCopy;
+			});
+		}
 
-    public:
-        void write(const ionet::PacketPayload& payload, const WriteCallback& callback) override
-        {
-            MockPacketIo::write(payload, callback);
-        }
+	public:
+		void write(const ionet::PacketPayload& payload, const WriteCallback& callback) override {
+			MockPacketIo::write(payload, callback);
+		}
 
-        void read(const ReadCallback& callback) override
-        {
-            MockPacketIo::read(callback);
-        }
+		void read(const ReadCallback& callback) override {
+			MockPacketIo::read(callback);
+		}
 
-        void readMultiple(const ReadCallback& callback) override
-        {
-            MockPacketIo::readMultiple(callback);
-        }
+		void readMultiple(const ReadCallback& callback) override {
+			MockPacketIo::readMultiple(callback);
+		}
 
-    public:
-        void stats(const StatsCallback& callback) override
-        {
-            callback({ true, ++m_numStatsCalls });
-        }
+	public:
+		void stats(const StatsCallback& callback) override {
+			callback({ true, ++m_numStatsCalls });
+		}
 
-        void waitForData(const WaitForDataCallback& callback) override
-        {
-            callback();
-        }
+		void waitForData(const WaitForDataCallback& callback) override {
+			callback();
+		}
 
-        void close() override
-        {
-            ++m_numCloseCalls;
-        }
+		void close() override {
+			++m_numCloseCalls;
+		}
 
-        void abort() override
-        {
-            ++m_numAbortCalls;
-        }
+		void abort() override {
+			++m_numAbortCalls;
+		}
 
-        std::shared_ptr<PacketIo> buffered() override
-        {
-            ++m_numBufferedCalls;
-            return m_pBufferedIo;
-        }
+		std::shared_ptr<PacketIo> buffered() override {
+			++m_numBufferedCalls;
+			return m_pBufferedIo;
+		}
 
-    private:
-        size_t m_numStatsCalls;
-        size_t m_numCloseCalls;
-        size_t m_numAbortCalls;
-        size_t m_numBufferedCalls;
+	private:
+		size_t m_numStatsCalls;
+		size_t m_numCloseCalls;
+		size_t m_numAbortCalls;
+		size_t m_numBufferedCalls;
 
-        std::shared_ptr<MockPacketIo> m_pBufferedIo;
-    };
+		std::shared_ptr<MockPacketIo> m_pBufferedIo;
+	};
 }
 }

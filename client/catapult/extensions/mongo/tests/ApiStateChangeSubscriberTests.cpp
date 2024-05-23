@@ -28,121 +28,110 @@ namespace mongo {
 
 #define TEST_CLASS ApiStateChangeSubscriberTests
 
-    namespace {
-        // region basic mocks
+	namespace {
+		// region basic mocks
 
-        class MockChainScoreProvider : public ChainScoreProvider {
-        public:
-            const auto& capturedScores() const
-            {
-                return m_scores;
-            }
+		class MockChainScoreProvider : public ChainScoreProvider {
+		public:
+			const auto& capturedScores() const {
+				return m_scores;
+			}
 
-        public:
-            void saveScore(const model::ChainScore& chainScore) override
-            {
-                m_scores.push_back(chainScore);
-            }
+		public:
+			void saveScore(const model::ChainScore& chainScore) override {
+				m_scores.push_back(chainScore);
+			}
 
-        private:
-            std::vector<model::ChainScore> m_scores;
-        };
+		private:
+			std::vector<model::ChainScore> m_scores;
+		};
 
-        class MockExternalCacheStorage : public ExternalCacheStorage {
-        public:
-            MockExternalCacheStorage()
-                : ExternalCacheStorage("MockExternalCacheStorage", std::numeric_limits<size_t>::max())
-            {
-            }
+		class MockExternalCacheStorage : public ExternalCacheStorage {
+		public:
+			MockExternalCacheStorage()
+				: ExternalCacheStorage("MockExternalCacheStorage", std::numeric_limits<size_t>::max()) {
+			}
 
-        public:
-            const auto& capturedChanges() const
-            {
-                return m_capturedChanges;
-            }
+		public:
+			const auto& capturedChanges() const {
+				return m_capturedChanges;
+			}
 
-        public:
-            void saveDelta(const cache::CacheChanges& changes) override
-            {
-                m_capturedChanges.push_back(&changes);
-            }
+		public:
+			void saveDelta(const cache::CacheChanges& changes) override {
+				m_capturedChanges.push_back(&changes);
+			}
 
-        private:
-            std::vector<const cache::CacheChanges*> m_capturedChanges;
-        };
+		private:
+			std::vector<const cache::CacheChanges*> m_capturedChanges;
+		};
 
-        // endregion
+		// endregion
 
-        // region test context
+		// region test context
 
-        class TestContext {
-        public:
-            TestContext()
-                : m_pChainScoreProvider(std::make_unique<MockChainScoreProvider>())
-                , m_pChainScoreProviderRaw(m_pChainScoreProvider.get())
-                , m_pExternalCacheStorage(std::make_unique<MockExternalCacheStorage>())
-                , m_pExternalCacheStorageRaw(m_pExternalCacheStorage.get())
-                , m_subscriber(std::move(m_pChainScoreProvider), std::move(m_pExternalCacheStorage))
-            {
-            }
+		class TestContext {
+		public:
+			TestContext()
+				: m_pChainScoreProvider(std::make_unique<MockChainScoreProvider>())
+				, m_pChainScoreProviderRaw(m_pChainScoreProvider.get())
+				, m_pExternalCacheStorage(std::make_unique<MockExternalCacheStorage>())
+				, m_pExternalCacheStorageRaw(m_pExternalCacheStorage.get())
+				, m_subscriber(std::move(m_pChainScoreProvider), std::move(m_pExternalCacheStorage)) {
+			}
 
-        public:
-            auto& chainScoreProvider()
-            {
-                return *m_pChainScoreProviderRaw;
-            }
+		public:
+			auto& chainScoreProvider() {
+				return *m_pChainScoreProviderRaw;
+			}
 
-            auto& externalCacheStorage()
-            {
-                return *m_pExternalCacheStorageRaw;
-            }
+			auto& externalCacheStorage() {
+				return *m_pExternalCacheStorageRaw;
+			}
 
-            auto& subscriber()
-            {
-                return m_subscriber;
-            }
+			auto& subscriber() {
+				return m_subscriber;
+			}
 
-        private:
-            std::unique_ptr<MockChainScoreProvider> m_pChainScoreProvider; // notice that this is moved into m_subscriber
-            MockChainScoreProvider* m_pChainScoreProviderRaw;
-            std::unique_ptr<MockExternalCacheStorage> m_pExternalCacheStorage; // notice that this is moved into m_subscriber
-            MockExternalCacheStorage* m_pExternalCacheStorageRaw;
-            ApiStateChangeSubscriber m_subscriber;
-        };
+		private:
+			std::unique_ptr<MockChainScoreProvider> m_pChainScoreProvider; // notice that this is moved into m_subscriber
+			MockChainScoreProvider* m_pChainScoreProviderRaw;
+			std::unique_ptr<MockExternalCacheStorage> m_pExternalCacheStorage; // notice that this is moved into m_subscriber
+			MockExternalCacheStorage* m_pExternalCacheStorageRaw;
+			ApiStateChangeSubscriber m_subscriber;
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    TEST(TEST_CLASS, NotifyScoreChangeForwardsToChainScoreProvider)
-    {
-        // Arrange:
-        TestContext context;
-        auto chainScore = model::ChainScore(123, 435);
+	TEST(TEST_CLASS, NotifyScoreChangeForwardsToChainScoreProvider) {
+		// Arrange:
+		TestContext context;
+		auto chainScore = model::ChainScore(123, 435);
 
-        // Act:
-        context.subscriber().notifyScoreChange(chainScore);
+		// Act:
+		context.subscriber().notifyScoreChange(chainScore);
 
-        // Assert:
-        ASSERT_EQ(1u, context.chainScoreProvider().capturedScores().size());
-        EXPECT_EQ(chainScore, context.chainScoreProvider().capturedScores()[0]);
+		// Assert:
+		ASSERT_EQ(1u, context.chainScoreProvider().capturedScores().size());
+		EXPECT_EQ(chainScore, context.chainScoreProvider().capturedScores()[0]);
 
-        EXPECT_TRUE(context.externalCacheStorage().capturedChanges().empty());
-    }
+		EXPECT_TRUE(context.externalCacheStorage().capturedChanges().empty());
+	}
 
-    TEST(TEST_CLASS, NotifyStateChangeForwardsToExternalCacheStorage)
-    {
-        // Arrange:
-        TestContext context;
-        auto stateChangeInfo = subscribers::StateChangeInfo(cache::CacheChanges({}), model::ChainScore::Delta(435), Height(123));
+	TEST(TEST_CLASS, NotifyStateChangeForwardsToExternalCacheStorage) {
+		// Arrange:
+		TestContext context;
+		auto stateChangeInfo = subscribers::StateChangeInfo(cache::CacheChanges({}), model::ChainScore::Delta(435), Height(123));
 
-        // Act:
-        context.subscriber().notifyStateChange(stateChangeInfo);
+		// Act:
+		context.subscriber().notifyStateChange(stateChangeInfo);
 
-        // Assert:
-        EXPECT_TRUE(context.chainScoreProvider().capturedScores().empty());
+		// Assert:
+		EXPECT_TRUE(context.chainScoreProvider().capturedScores().empty());
 
-        ASSERT_EQ(1u, context.externalCacheStorage().capturedChanges().size());
-        EXPECT_EQ(&stateChangeInfo.CacheChanges, context.externalCacheStorage().capturedChanges()[0]);
-    }
+		ASSERT_EQ(1u, context.externalCacheStorage().capturedChanges().size());
+		EXPECT_EQ(&stateChangeInfo.CacheChanges, context.externalCacheStorage().capturedChanges()[0]);
+	}
 }
 }

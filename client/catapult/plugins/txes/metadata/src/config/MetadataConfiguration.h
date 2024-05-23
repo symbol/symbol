@@ -24,28 +24,28 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace config {
 
-    /// Metadata plugin configuration settings.
-    struct MetadataConfiguration {
-    public:
-        /// Maximum metadata value size.
-        uint16_t MaxValueSize;
+	/// Metadata plugin configuration settings.
+	struct MetadataConfiguration {
+	public:
+		/// Maximum metadata value size.
+		uint16_t MaxValueSize;
 
-    private:
-        MetadataConfiguration() = default;
+	private:
+		MetadataConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized metadata configuration.
-        static MetadataConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized metadata configuration.
+		static MetadataConfiguration Uninitialized();
 
-        /// Loads metadata configuration from \a bag.
-        static MetadataConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+		/// Loads metadata configuration from \a bag.
+		static MetadataConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 }
 }

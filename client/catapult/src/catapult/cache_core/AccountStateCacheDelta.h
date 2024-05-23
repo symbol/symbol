@@ -31,188 +31,186 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the account state cache delta.
-    struct AccountStateCacheDeltaMixins {
-    public:
-        using KeyLookupAdapter = AccountStateCacheTypes::ComposedLookupAdapter<AccountStateCacheTypes::ComposableBaseSetDeltas>;
+	/// Mixins used by the account state cache delta.
+	struct AccountStateCacheDeltaMixins {
+	public:
+		using KeyLookupAdapter = AccountStateCacheTypes::ComposedLookupAdapter<AccountStateCacheTypes::ComposableBaseSetDeltas>;
 
-    private:
-        using AddressMixins = PatriciaTreeCacheMixins<AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType, AccountStateCacheDescriptor>;
-        using KeyMixins = BasicCacheMixins<KeyLookupAdapter, KeyLookupAdapter>;
+	private:
+		using AddressMixins = PatriciaTreeCacheMixins<AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType, AccountStateCacheDescriptor>;
+		using KeyMixins = BasicCacheMixins<KeyLookupAdapter, KeyLookupAdapter>;
 
-    public:
-        using Size = AddressMixins::Size;
-        using ContainsAddress = AddressMixins::Contains;
-        using ContainsKey = ContainsMixin<
-            AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaType,
-            AccountStateCacheTypes::KeyLookupMapTypesDescriptor>;
-        using ConstAccessorAddress = AddressMixins::ConstAccessor;
-        using ConstAccessorKey = KeyMixins::ConstAccessor;
-        using MutableAccessorAddress = AddressMixins::MutableAccessor;
-        using MutableAccessorKey = KeyMixins::MutableAccessor;
-        using PatriciaTreeDelta = AddressMixins::PatriciaTreeDelta;
-        using DeltaElements = AddressMixins::DeltaElements;
+	public:
+		using Size = AddressMixins::Size;
+		using ContainsAddress = AddressMixins::Contains;
+		using ContainsKey = ContainsMixin<
+			AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaType,
+			AccountStateCacheTypes::KeyLookupMapTypesDescriptor>;
+		using ConstAccessorAddress = AddressMixins::ConstAccessor;
+		using ConstAccessorKey = KeyMixins::ConstAccessor;
+		using MutableAccessorAddress = AddressMixins::MutableAccessor;
+		using MutableAccessorKey = KeyMixins::MutableAccessor;
+		using PatriciaTreeDelta = AddressMixins::PatriciaTreeDelta;
+		using DeltaElements = AddressMixins::DeltaElements;
 
-        // no mutable key accessor because address-to-key pairs are immutable
-    };
+		// no mutable key accessor because address-to-key pairs are immutable
+	};
 
-    /// Basic delta on top of the account state cache.
-    class BasicAccountStateCacheDelta
-        : public utils::MoveOnly,
-          public AccountStateCacheDeltaMixins::Size,
-          public AccountStateCacheDeltaMixins::ContainsAddress,
-          public AccountStateCacheDeltaMixins::ContainsKey,
-          public AccountStateCacheDeltaMixins::ConstAccessorAddress,
-          public AccountStateCacheDeltaMixins::ConstAccessorKey,
-          public AccountStateCacheDeltaMixins::PatriciaTreeDelta,
-          public AccountStateCacheDeltaMixins::DeltaElements {
-    public:
-        using ReadOnlyView = ReadOnlyAccountStateCache;
+	/// Basic delta on top of the account state cache.
+	class BasicAccountStateCacheDelta
+		: public utils::MoveOnly,
+		  public AccountStateCacheDeltaMixins::Size,
+		  public AccountStateCacheDeltaMixins::ContainsAddress,
+		  public AccountStateCacheDeltaMixins::ContainsKey,
+		  public AccountStateCacheDeltaMixins::ConstAccessorAddress,
+		  public AccountStateCacheDeltaMixins::ConstAccessorKey,
+		  public AccountStateCacheDeltaMixins::PatriciaTreeDelta,
+		  public AccountStateCacheDeltaMixins::DeltaElements {
+	public:
+		using ReadOnlyView = ReadOnlyAccountStateCache;
 
-        /// Specifies commit removals behavior.
-        enum class CommitRemovalsMode {
-            /// Public key removals automaticaly clear linked addresses.
-            Linked,
+		/// Specifies commit removals behavior.
+		enum class CommitRemovalsMode {
+			/// Public key removals automaticaly clear linked addresses.
+			Linked,
 
-            /// Public key removals do not automatically clear linked addresses.
-            Unlinked
-        };
+			/// Public key removals do not automatically clear linked addresses.
+			Unlinked
+		};
 
-    public:
-        /// Creates a delta around \a accountStateSets, \a options and \a highValueAccounts.
-        BasicAccountStateCacheDelta(
-            const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
-            const AccountStateCacheTypes::Options& options,
-            const HighValueAccounts& highValueAccounts);
+	public:
+		/// Creates a delta around \a accountStateSets, \a options and \a highValueAccounts.
+		BasicAccountStateCacheDelta(
+			const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
+			const AccountStateCacheTypes::Options& options,
+			const HighValueAccounts& highValueAccounts);
 
-    private:
-        BasicAccountStateCacheDelta(
-            const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
-            const AccountStateCacheTypes::Options& options,
-            const HighValueAccounts& highValueAccounts,
-            std::unique_ptr<AccountStateCacheDeltaMixins::KeyLookupAdapter>&& pKeyLookupAdapter);
+	private:
+		BasicAccountStateCacheDelta(
+			const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
+			const AccountStateCacheTypes::Options& options,
+			const HighValueAccounts& highValueAccounts,
+			std::unique_ptr<AccountStateCacheDeltaMixins::KeyLookupAdapter>&& pKeyLookupAdapter);
 
-    public:
-        using AccountStateCacheDeltaMixins::ContainsAddress::contains;
-        using AccountStateCacheDeltaMixins::ContainsKey::contains;
+	public:
+		using AccountStateCacheDeltaMixins::ContainsAddress::contains;
+		using AccountStateCacheDeltaMixins::ContainsKey::contains;
 
-        using AccountStateCacheDeltaMixins::ConstAccessorAddress::find;
-        using AccountStateCacheDeltaMixins::ConstAccessorKey::find;
+		using AccountStateCacheDeltaMixins::ConstAccessorAddress::find;
+		using AccountStateCacheDeltaMixins::ConstAccessorKey::find;
 
-    public:
-        /// Gets the network identifier.
-        model::NetworkIdentifier networkIdentifier() const;
+	public:
+		/// Gets the network identifier.
+		model::NetworkIdentifier networkIdentifier() const;
 
-        /// Gets the network importance grouping.
-        uint64_t importanceGrouping() const;
+		/// Gets the network importance grouping.
+		uint64_t importanceGrouping() const;
 
-        /// Gets the minimum harvester balance.
-        Amount minHarvesterBalance() const;
+		/// Gets the minimum harvester balance.
+		Amount minHarvesterBalance() const;
 
-        /// Gets the maximum harvester balance.
-        Amount maxHarvesterBalance() const;
+		/// Gets the maximum harvester balance.
+		Amount maxHarvesterBalance() const;
 
-        /// Gets the harvesting mosaic id.
-        MosaicId harvestingMosaicId() const;
+		/// Gets the harvesting mosaic id.
+		MosaicId harvestingMosaicId() const;
 
-    public:
-        /// Finds the cache value identified by \a address.
-        AccountStateCacheDeltaMixins::MutableAccessorAddress::iterator find(const Address& address);
+	public:
+		/// Finds the cache value identified by \a address.
+		AccountStateCacheDeltaMixins::MutableAccessorAddress::iterator find(const Address& address);
 
-        /// Finds the cache value identified by \a key.
-        AccountStateCacheDeltaMixins::MutableAccessorKey::iterator find(const Key& key);
+		/// Finds the cache value identified by \a key.
+		AccountStateCacheDeltaMixins::MutableAccessorKey::iterator find(const Key& key);
 
-    public:
-        /// If not present, adds an account to the cache with the specified \a address at \a height.
-        void addAccount(const Address& address, Height height);
+	public:
+		/// If not present, adds an account to the cache with the specified \a address at \a height.
+		void addAccount(const Address& address, Height height);
 
-        /// If not present, adds an account to the cache with the specified public key (\a publicKey) at \a height.
-        void addAccount(const Key& publicKey, Height height);
+		/// If not present, adds an account to the cache with the specified public key (\a publicKey) at \a height.
+		void addAccount(const Key& publicKey, Height height);
 
-        /// If not present, adds an account to the cache using information in \a accountState.
-        void addAccount(const state::AccountState& accountState);
+		/// If not present, adds an account to the cache using information in \a accountState.
+		void addAccount(const state::AccountState& accountState);
 
-    public:
-        /// If \a height matches the height at which account was added, queues removal of account's \a address
-        /// information from the cache, therefore queuing complete removal of the account from the cache.
-        void queueRemove(const Address& address, Height height);
+	public:
+		/// If \a height matches the height at which account was added, queues removal of account's \a address
+		/// information from the cache, therefore queuing complete removal of the account from the cache.
+		void queueRemove(const Address& address, Height height);
 
-        /// If \a height matches the height at which account was added, queues removal of account's \a publicKey
-        /// information from the cache.
-        void queueRemove(const Key& publicKey, Height height);
+		/// If \a height matches the height at which account was added, queues removal of account's \a publicKey
+		/// information from the cache.
+		void queueRemove(const Key& publicKey, Height height);
 
-        /// Clears any queued removals for \a address at \a height
-        void clearRemove(const Address& address, Height height);
+		/// Clears any queued removals for \a address at \a height
+		void clearRemove(const Address& address, Height height);
 
-        /// Clears any queued removals for \a publicKey at \a height.
-        void clearRemove(const Key& publicKey, Height height);
+		/// Clears any queued removals for \a publicKey at \a height.
+		void clearRemove(const Key& publicKey, Height height);
 
-        /// Commits all queued removals with behavior specified by \a mode.
-        void commitRemovals(CommitRemovalsMode mode = CommitRemovalsMode::Linked);
+		/// Commits all queued removals with behavior specified by \a mode.
+		void commitRemovals(CommitRemovalsMode mode = CommitRemovalsMode::Linked);
 
-    public:
-        /// Gets all (updated) high value accounts.
-        const HighValueAccountsUpdater& highValueAccounts() const;
+	public:
+		/// Gets all (updated) high value accounts.
+		const HighValueAccountsUpdater& highValueAccounts() const;
 
-        /// Updates high value accounts at \a height.
-        void updateHighValueAccounts(Height height);
+		/// Updates high value accounts at \a height.
+		void updateHighValueAccounts(Height height);
 
-        /// Processes removed high value accounts at \a height.
-        void processHighValueRemovedAccounts(model::ImportanceHeight importanceHeight);
+		/// Processes removed high value accounts at \a height.
+		void processHighValueRemovedAccounts(model::ImportanceHeight importanceHeight);
 
-        /// Detaches high value accounts from this delta.
-        HighValueAccounts detachHighValueAccounts();
+		/// Detaches high value accounts from this delta.
+		HighValueAccounts detachHighValueAccounts();
 
-        /// Prunes the cache at \a height.
-        void prune(Height height);
+		/// Prunes the cache at \a height.
+		void prune(Height height);
 
-    private:
-        Address getAddress(const Key& publicKey);
+	private:
+		Address getAddress(const Key& publicKey);
 
-        void remove(const Address& address, Height height);
-        void remove(const Key& publicKey, Height height, CommitRemovalsMode mode);
+		void remove(const Address& address, Height height);
+		void remove(const Key& publicKey, Height height, CommitRemovalsMode mode);
 
-    private:
-        // height is first component for a nicer equals
-        template <typename TArray>
-        using ArrayHeightPair = std::pair<Height, TArray>;
+	private:
+		// height is first component for a nicer equals
+		template <typename TArray>
+		using ArrayHeightPair = std::pair<Height, TArray>;
 
-        template <typename TArray>
-        struct ArrayHeightPairHasher {
-            size_t operator()(const ArrayHeightPair<TArray>& arrayHeightPair) const
-            {
-                return Hasher(arrayHeightPair.second);
-            }
+		template <typename TArray>
+		struct ArrayHeightPairHasher {
+			size_t operator()(const ArrayHeightPair<TArray>& arrayHeightPair) const {
+				return Hasher(arrayHeightPair.second);
+			}
 
-            utils::ArrayHasher<TArray> Hasher;
-        };
+			utils::ArrayHasher<TArray> Hasher;
+		};
 
-        template <typename TArray>
-        using QueuedRemovalSet = std::unordered_set<ArrayHeightPair<TArray>, ArrayHeightPairHasher<TArray>>;
+		template <typename TArray>
+		using QueuedRemovalSet = std::unordered_set<ArrayHeightPair<TArray>, ArrayHeightPairHasher<TArray>>;
 
-    private:
-        AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pStateByAddress;
-        AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaPointerType m_pKeyToAddress;
+	private:
+		AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pStateByAddress;
+		AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaPointerType m_pKeyToAddress;
 
-        const AccountStateCacheTypes::Options& m_options;
-        std::unique_ptr<AccountStateCacheDeltaMixins::KeyLookupAdapter> m_pKeyLookupAdapter;
-        HighValueAccountsUpdater m_highValueAccountsUpdater;
+		const AccountStateCacheTypes::Options& m_options;
+		std::unique_ptr<AccountStateCacheDeltaMixins::KeyLookupAdapter> m_pKeyLookupAdapter;
+		HighValueAccountsUpdater m_highValueAccountsUpdater;
 
-        QueuedRemovalSet<Address> m_queuedRemoveByAddress;
-        QueuedRemovalSet<Key> m_queuedRemoveByPublicKey;
-    };
+		QueuedRemovalSet<Address> m_queuedRemoveByAddress;
+		QueuedRemovalSet<Key> m_queuedRemoveByPublicKey;
+	};
 
-    /// Delta on top of the account state cache.
-    class AccountStateCacheDelta : public ReadOnlyViewSupplier<BasicAccountStateCacheDelta> {
-    public:
-        /// Creates a delta around \a accountStateSets, \a options and \a highValueAccounts.
-        AccountStateCacheDelta(
-            const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
-            const AccountStateCacheTypes::Options& options,
-            const HighValueAccounts& highValueAccounts)
-            : ReadOnlyViewSupplier(accountStateSets, options, highValueAccounts)
-        {
-        }
-    };
+	/// Delta on top of the account state cache.
+	class AccountStateCacheDelta : public ReadOnlyViewSupplier<BasicAccountStateCacheDelta> {
+	public:
+		/// Creates a delta around \a accountStateSets, \a options and \a highValueAccounts.
+		AccountStateCacheDelta(
+			const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
+			const AccountStateCacheTypes::Options& options,
+			const HighValueAccounts& highValueAccounts)
+			: ReadOnlyViewSupplier(accountStateSets, options, highValueAccounts) {
+		}
+	};
 }
 }

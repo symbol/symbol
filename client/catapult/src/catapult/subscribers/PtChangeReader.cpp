@@ -30,45 +30,42 @@
 namespace catapult {
 namespace subscribers {
 
-    namespace {
-        void ForwardTransactionInfos(
-            io::InputStream& inputStream,
-            cache::PtChangeSubscriber& subscriber,
-            PtChangeOperationType operationType)
-        {
-            model::TransactionInfosSet transactionInfos;
-            io::ReadTransactionInfos(inputStream, transactionInfos);
-            if (PtChangeOperationType::Add_Partials == operationType)
-                subscriber.notifyAddPartials(transactionInfos);
-            else
-                subscriber.notifyRemovePartials(transactionInfos);
-        }
+	namespace {
+		void ForwardTransactionInfos(
+			io::InputStream& inputStream,
+			cache::PtChangeSubscriber& subscriber,
+			PtChangeOperationType operationType) {
+			model::TransactionInfosSet transactionInfos;
+			io::ReadTransactionInfos(inputStream, transactionInfos);
+			if (PtChangeOperationType::Add_Partials == operationType)
+				subscriber.notifyAddPartials(transactionInfos);
+			else
+				subscriber.notifyRemovePartials(transactionInfos);
+		}
 
-        void ForwardCosignature(io::InputStream& inputStream, cache::PtChangeSubscriber& subscriber)
-        {
-            model::Cosignature cosignature;
-            model::TransactionInfo transactionInfo;
+		void ForwardCosignature(io::InputStream& inputStream, cache::PtChangeSubscriber& subscriber) {
+			model::Cosignature cosignature;
+			model::TransactionInfo transactionInfo;
 
-            inputStream.read({ reinterpret_cast<uint8_t*>(&cosignature), sizeof(model::Cosignature) });
-            io::ReadTransactionInfo(inputStream, transactionInfo);
+			inputStream.read({ reinterpret_cast<uint8_t*>(&cosignature), sizeof(model::Cosignature) });
+			io::ReadTransactionInfo(inputStream, transactionInfo);
 
-            subscriber.notifyAddCosignature(transactionInfo, cosignature);
-        }
-    }
+			subscriber.notifyAddCosignature(transactionInfo, cosignature);
+		}
+	}
 
-    void ReadNextPtChange(io::InputStream& inputStream, cache::PtChangeSubscriber& subscriber)
-    {
-        auto operationType = static_cast<PtChangeOperationType>(io::Read8(inputStream));
+	void ReadNextPtChange(io::InputStream& inputStream, cache::PtChangeSubscriber& subscriber) {
+		auto operationType = static_cast<PtChangeOperationType>(io::Read8(inputStream));
 
-        switch (operationType) {
-        case PtChangeOperationType::Add_Partials:
-        case PtChangeOperationType::Remove_Partials:
-            return ForwardTransactionInfos(inputStream, subscriber, operationType);
-        case PtChangeOperationType::Add_Cosignature:
-            return ForwardCosignature(inputStream, subscriber);
-        }
+		switch (operationType) {
+		case PtChangeOperationType::Add_Partials:
+		case PtChangeOperationType::Remove_Partials:
+			return ForwardTransactionInfos(inputStream, subscriber, operationType);
+		case PtChangeOperationType::Add_Cosignature:
+			return ForwardCosignature(inputStream, subscriber);
+		}
 
-        CATAPULT_THROW_INVALID_ARGUMENT_1("invalid pt change operation type", static_cast<uint16_t>(operationType));
-    }
+		CATAPULT_THROW_INVALID_ARGUMENT_1("invalid pt change operation type", static_cast<uint16_t>(operationType));
+	}
 }
 }

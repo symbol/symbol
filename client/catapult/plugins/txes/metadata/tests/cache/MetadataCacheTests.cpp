@@ -30,69 +30,63 @@ namespace cache {
 
 #define TEST_CLASS MetadataCacheTests
 
-    // region mixin traits based tests
+	// region mixin traits based tests
 
-    namespace {
-        struct MetadataCacheMixinTraits {
-            class CacheType : public MetadataCache {
-            public:
-                CacheType()
-                    : MetadataCache(CacheConfiguration())
-                {
-                }
-            };
+	namespace {
+		struct MetadataCacheMixinTraits {
+			class CacheType : public MetadataCache {
+			public:
+				CacheType()
+					: MetadataCache(CacheConfiguration()) {
+				}
+			};
 
-            using IdType = Hash256;
-            using ValueType = state::MetadataEntry;
+			using IdType = Hash256;
+			using ValueType = state::MetadataEntry;
 
-            static uint8_t GetRawId(const IdType& id)
-            {
-                return id[0];
-            }
+			static uint8_t GetRawId(const IdType& id) {
+				return id[0];
+			}
 
-            static IdType GetId(const ValueType& entry)
-            {
-                return entry.key().uniqueKey();
-            }
+			static IdType GetId(const ValueType& entry) {
+				return entry.key().uniqueKey();
+			}
 
-            static IdType MakeId(uint8_t id)
-            {
-                return IdType { { id } };
-            }
+			static IdType MakeId(uint8_t id) {
+				return IdType { { id } };
+			}
 
-            static ValueType CreateWithId(uint8_t id)
-            {
-                return state::MetadataEntry(test::GenerateMetadataKey(MakeId(id)));
-            }
-        };
+			static ValueType CreateWithId(uint8_t id) {
+				return state::MetadataEntry(test::GenerateMetadataKey(MakeId(id)));
+			}
+		};
 
-        struct MetadataCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
-            static void Modify(MetadataCacheDelta& delta, const state::MetadataEntry& entry)
-            {
-                auto& entryFromCache = delta.find(entry.key().uniqueKey()).get();
+		struct MetadataCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
+			static void Modify(MetadataCacheDelta& delta, const state::MetadataEntry& entry) {
+				auto& entryFromCache = delta.find(entry.key().uniqueKey()).get();
 
-                std::vector<uint8_t> valueBuffer { 0x9A, 0xC7, 0x33 };
-                entryFromCache.value().update(valueBuffer);
-            }
-        };
-    }
+				std::vector<uint8_t> valueBuffer { 0x9A, 0xC7, 0x33 };
+				entryFromCache.value().update(valueBuffer);
+			}
+		};
+	}
 
-    DEFINE_CACHE_CONTAINS_TESTS(MetadataCacheMixinTraits, ViewAccessor, _View)
-    DEFINE_CACHE_CONTAINS_TESTS(MetadataCacheMixinTraits, DeltaAccessor, _Delta)
+	DEFINE_CACHE_CONTAINS_TESTS(MetadataCacheMixinTraits, ViewAccessor, _View)
+	DEFINE_CACHE_CONTAINS_TESTS(MetadataCacheMixinTraits, DeltaAccessor, _Delta)
 
-    DEFINE_CACHE_ITERATION_TESTS(MetadataCacheMixinTraits, ViewAccessor, _View)
+	DEFINE_CACHE_ITERATION_TESTS(MetadataCacheMixinTraits, ViewAccessor, _View)
 
-    DEFINE_CACHE_ACCESSOR_TESTS(MetadataCacheMixinTraits, ViewAccessor, MutableAccessor, _ViewMutable)
-    DEFINE_CACHE_ACCESSOR_TESTS(MetadataCacheMixinTraits, ViewAccessor, ConstAccessor, _ViewConst)
-    DEFINE_CACHE_ACCESSOR_TESTS(MetadataCacheMixinTraits, DeltaAccessor, MutableAccessor, _DeltaMutable)
-    DEFINE_CACHE_ACCESSOR_TESTS(MetadataCacheMixinTraits, DeltaAccessor, ConstAccessor, _DeltaConst)
+	DEFINE_CACHE_ACCESSOR_TESTS(MetadataCacheMixinTraits, ViewAccessor, MutableAccessor, _ViewMutable)
+	DEFINE_CACHE_ACCESSOR_TESTS(MetadataCacheMixinTraits, ViewAccessor, ConstAccessor, _ViewConst)
+	DEFINE_CACHE_ACCESSOR_TESTS(MetadataCacheMixinTraits, DeltaAccessor, MutableAccessor, _DeltaMutable)
+	DEFINE_CACHE_ACCESSOR_TESTS(MetadataCacheMixinTraits, DeltaAccessor, ConstAccessor, _DeltaConst)
 
-    DEFINE_CACHE_MUTATION_TESTS(MetadataCacheMixinTraits, DeltaAccessor, _Delta)
+	DEFINE_CACHE_MUTATION_TESTS(MetadataCacheMixinTraits, DeltaAccessor, _Delta)
 
-    DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MetadataCacheMixinTraits, MetadataCacheDeltaModificationPolicy, _Delta)
+	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MetadataCacheMixinTraits, MetadataCacheDeltaModificationPolicy, _Delta)
 
-    DEFINE_CACHE_BASIC_TESTS(MetadataCacheMixinTraits, )
+	DEFINE_CACHE_BASIC_TESTS(MetadataCacheMixinTraits, )
 
-    // endregion
+	// endregion
 }
 }

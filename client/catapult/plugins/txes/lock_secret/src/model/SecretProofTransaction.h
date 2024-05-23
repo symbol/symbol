@@ -29,47 +29,45 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Binary layout for a secret proof transaction body.
-    template <typename THeader>
-    struct SecretProofTransactionBody : public THeader {
-    private:
-        using TransactionType = SecretProofTransactionBody<THeader>;
+	/// Binary layout for a secret proof transaction body.
+	template <typename THeader>
+	struct SecretProofTransactionBody : public THeader {
+	private:
+		using TransactionType = SecretProofTransactionBody<THeader>;
 
-    public:
-        DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Secret_Proof, 1)
+	public:
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Secret_Proof, 1)
 
-    public:
-        /// Locked mosaic recipient address.
-        UnresolvedAddress RecipientAddress;
+	public:
+		/// Locked mosaic recipient address.
+		UnresolvedAddress RecipientAddress;
 
-        /// Secret.
-        Hash256 Secret;
+		/// Secret.
+		Hash256 Secret;
 
-        /// Proof size in bytes.
-        uint16_t ProofSize;
+		/// Proof size in bytes.
+		uint16_t ProofSize;
 
-        /// Hash algorithm.
-        LockHashAlgorithm HashAlgorithm;
+		/// Hash algorithm.
+		LockHashAlgorithm HashAlgorithm;
 
-        // followed by proof data if ProofSize != 0
-        DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Proof, uint8_t)
+		// followed by proof data if ProofSize != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Proof, uint8_t)
 
-    private:
-        template <typename T>
-        static auto* ProofPtrT(T& transaction)
-        {
-            return transaction.ProofSize ? THeader::PayloadStart(transaction) : nullptr;
-        }
+	private:
+		template <typename T>
+		static auto* ProofPtrT(T& transaction) {
+			return transaction.ProofSize ? THeader::PayloadStart(transaction) : nullptr;
+		}
 
-    public:
-        /// Calculates the real size of secret proof \a transaction.
-        static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept
-        {
-            return sizeof(TransactionType) + transaction.ProofSize;
-        }
-    };
+	public:
+		/// Calculates the real size of secret proof \a transaction.
+		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
+			return sizeof(TransactionType) + transaction.ProofSize;
+		}
+	};
 
-    DEFINE_EMBEDDABLE_TRANSACTION(SecretProof)
+	DEFINE_EMBEDDABLE_TRANSACTION(SecretProof)
 
 #pragma pack(pop)
 }

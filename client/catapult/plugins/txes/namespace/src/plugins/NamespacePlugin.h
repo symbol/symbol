@@ -24,15 +24,15 @@
 
 namespace catapult {
 namespace plugins {
-    class PluginManager;
+	class PluginManager;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Registers namespace support with \a manager.
-    PLUGIN_API
-    void RegisterNamespaceSubsystem(PluginManager& manager);
+	/// Registers namespace support with \a manager.
+	PLUGIN_API
+	void RegisterNamespaceSubsystem(PluginManager& manager);
 }
 }

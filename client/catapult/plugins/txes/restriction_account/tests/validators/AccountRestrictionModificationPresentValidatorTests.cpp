@@ -28,47 +28,42 @@ namespace validators {
 
 #define TEST_CLASS AccountRestrictionModificationPresentValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(AccountRestrictionModificationPresent, )
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountRestrictionModificationPresent, )
 
-    namespace {
-        void AssertValidationResult(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions)
-        {
-            // Arrange:
-            auto restrictionFlags = model::AccountRestrictionFlags::Address;
-            model::AccountRestrictionModificationNotification notification(restrictionFlags, numAdditions, numDeletions);
-            auto pValidator = CreateAccountRestrictionModificationPresentValidator();
+	namespace {
+		void AssertValidationResult(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions) {
+			// Arrange:
+			auto restrictionFlags = model::AccountRestrictionFlags::Address;
+			model::AccountRestrictionModificationNotification notification(restrictionFlags, numAdditions, numDeletions);
+			auto pValidator = CreateAccountRestrictionModificationPresentValidator();
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "notification with " << static_cast<uint16_t>(numAdditions) << " addition modifications"
-                                              << " and " << static_cast<uint16_t>(numDeletions) << " deletion modifications";
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "notification with " << static_cast<uint16_t>(numAdditions) << " addition modifications"
+											  << " and " << static_cast<uint16_t>(numDeletions) << " deletion modifications";
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithNoModifications)
-    {
-        AssertValidationResult(Failure_RestrictionAccount_No_Modifications, 0, 0);
-    }
+	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithNoModifications) {
+		AssertValidationResult(Failure_RestrictionAccount_No_Modifications, 0, 0);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithAdditionModifications)
-    {
-        AssertValidationResult(ValidationResult::Success, 1, 0);
-        AssertValidationResult(ValidationResult::Success, 5, 0);
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithAdditionModifications) {
+		AssertValidationResult(ValidationResult::Success, 1, 0);
+		AssertValidationResult(ValidationResult::Success, 5, 0);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithDeletionModifications)
-    {
-        AssertValidationResult(ValidationResult::Success, 0, 1);
-        AssertValidationResult(ValidationResult::Success, 0, 5);
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithDeletionModifications) {
+		AssertValidationResult(ValidationResult::Success, 0, 1);
+		AssertValidationResult(ValidationResult::Success, 0, 5);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithAdditionAndDeletionModifications)
-    {
-        AssertValidationResult(ValidationResult::Success, 1, 1);
-        AssertValidationResult(ValidationResult::Success, 2, 5);
-        AssertValidationResult(ValidationResult::Success, 5, 1);
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithAdditionAndDeletionModifications) {
+		AssertValidationResult(ValidationResult::Success, 1, 1);
+		AssertValidationResult(ValidationResult::Success, 2, 5);
+		AssertValidationResult(ValidationResult::Success, 5, 1);
+	}
 }
 }

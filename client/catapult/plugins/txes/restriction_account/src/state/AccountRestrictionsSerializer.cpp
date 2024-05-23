@@ -26,52 +26,50 @@
 namespace catapult {
 namespace state {
 
-    void AccountRestrictionsSerializer::Save(const AccountRestrictions& restrictions, io::OutputStream& output)
-    {
-        output.write(restrictions.address());
+	void AccountRestrictionsSerializer::Save(const AccountRestrictions& restrictions, io::OutputStream& output) {
+		output.write(restrictions.address());
 
-        auto numRestrictions = static_cast<uint64_t>(
-            std::count_if(restrictions.begin(), restrictions.end(), [](const auto& pair) { return !pair.second.values().empty(); }));
+		auto numRestrictions = static_cast<uint64_t>(
+			std::count_if(restrictions.begin(), restrictions.end(), [](const auto& pair) { return !pair.second.values().empty(); }));
 
-        io::Write64(output, numRestrictions);
-        for (const auto& pair : restrictions) {
-            const auto& restriction = pair.second;
-            if (restriction.values().empty())
-                continue;
+		io::Write64(output, numRestrictions);
+		for (const auto& pair : restrictions) {
+			const auto& restriction = pair.second;
+			if (restriction.values().empty())
+				continue;
 
-            io::Write16(output, utils::to_underlying_type(restriction.descriptor().raw()));
-            io::Write64(output, restriction.values().size());
-            for (const auto& value : restriction.values())
-                output.write(value);
-        }
-    }
+			io::Write16(output, utils::to_underlying_type(restriction.descriptor().raw()));
+			io::Write64(output, restriction.values().size());
+			for (const auto& value : restriction.values())
+				output.write(value);
+		}
+	}
 
-    AccountRestrictions AccountRestrictionsSerializer::Load(io::InputStream& input)
-    {
-        Address address;
-        input.read(address);
+	AccountRestrictions AccountRestrictionsSerializer::Load(io::InputStream& input) {
+		Address address;
+		input.read(address);
 
-        AccountRestrictions restrictions(address);
+		AccountRestrictions restrictions(address);
 
-        auto numRestrictions = io::Read64(input);
-        for (auto i = 0u; i < numRestrictions; ++i) {
-            auto restrictionFlags = static_cast<model::AccountRestrictionFlags>(io::Read16(input));
-            auto restrictionDescriptor = state::AccountRestrictionDescriptor(restrictionFlags);
-            auto& restriction = restrictions.restriction(restrictionDescriptor.directionalRestrictionFlags());
+		auto numRestrictions = io::Read64(input);
+		for (auto i = 0u; i < numRestrictions; ++i) {
+			auto restrictionFlags = static_cast<model::AccountRestrictionFlags>(io::Read16(input));
+			auto restrictionDescriptor = state::AccountRestrictionDescriptor(restrictionFlags);
+			auto& restriction = restrictions.restriction(restrictionDescriptor.directionalRestrictionFlags());
 
-            AccountRestriction::RawValue value(restriction.valueSize());
-            auto numValues = io::Read64(input);
-            for (auto j = 0u; j < numValues; ++j) {
-                input.read(value);
-                model::AccountRestrictionModification modification { model::AccountRestrictionModificationAction::Add, value };
-                if (AccountRestrictionOperationType::Allow == restrictionDescriptor.operationType())
-                    restriction.allow(modification);
-                else
-                    restriction.block(modification);
-            }
-        }
+			AccountRestriction::RawValue value(restriction.valueSize());
+			auto numValues = io::Read64(input);
+			for (auto j = 0u; j < numValues; ++j) {
+				input.read(value);
+				model::AccountRestrictionModification modification { model::AccountRestrictionModificationAction::Add, value };
+				if (AccountRestrictionOperationType::Allow == restrictionDescriptor.operationType())
+					restriction.allow(modification);
+				else
+					restriction.block(modification);
+			}
+		}
 
-        return restrictions;
-    }
+		return restrictions;
+	}
 }
 }

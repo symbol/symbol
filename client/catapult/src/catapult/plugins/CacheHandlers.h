@@ -28,51 +28,50 @@
 namespace catapult {
 namespace plugins {
 
-    /// Utility class for registering cache-dependent handlers.
-    template <typename TCacheDescriptor>
-    class CacheHandlers {
-    public:
-        /// Registers all cache handlers in \a pluginManager for cache with specified facility code.
-        template <model::FacilityCode FacilityCode>
-        static void Register(PluginManager& pluginManager)
-        {
-            using KeyType = typename TCacheDescriptor::KeyType;
-            using CacheType = typename TCacheDescriptor::CacheType;
-            using CachePacketTypes = CachePacketTypesT<FacilityCode>;
+	/// Utility class for registering cache-dependent handlers.
+	template <typename TCacheDescriptor>
+	class CacheHandlers {
+	public:
+		/// Registers all cache handlers in \a pluginManager for cache with specified facility code.
+		template <model::FacilityCode FacilityCode>
+		static void Register(PluginManager& pluginManager) {
+			using KeyType = typename TCacheDescriptor::KeyType;
+			using CacheType = typename TCacheDescriptor::CacheType;
+			using CachePacketTypes = CachePacketTypesT<FacilityCode>;
 
-            pluginManager.addHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-                using PacketType = StatePathRequestPacket<CachePacketTypes::State_Path, KeyType>;
-                handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<CacheType>());
-            });
+			pluginManager.addHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
+				using PacketType = StatePathRequestPacket<CachePacketTypes::State_Path, KeyType>;
+				handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<CacheType>());
+			});
 
-            pluginManager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-                using RequestTraits = BatchHandlerFactoryTraits<CachePacketTypes::Diagnostic_Infos, KeyType>;
-                handlers::BatchHandlerFactory<RequestTraits>::RegisterOne(
-                    handlers,
-                    handlers::CacheEntryInfosProducerFactory<TCacheDescriptor>::Create(cache.sub<CacheType>()));
-            });
-        }
+			pluginManager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
+				using RequestTraits = BatchHandlerFactoryTraits<CachePacketTypes::Diagnostic_Infos, KeyType>;
+				handlers::BatchHandlerFactory<RequestTraits>::RegisterOne(
+					handlers,
+					handlers::CacheEntryInfosProducerFactory<TCacheDescriptor>::Create(cache.sub<CacheType>()));
+			});
+		}
 
-    private:
-        template <model::FacilityCode FacilityCode>
-        struct CachePacketTypesT {
-            static constexpr auto State_Path = static_cast<ionet::PacketType>(0x200 + utils::to_underlying_type(FacilityCode));
-            static constexpr auto Diagnostic_Infos = static_cast<ionet::PacketType>(0x400 + utils::to_underlying_type(FacilityCode));
-        };
+	private:
+		template <model::FacilityCode FacilityCode>
+		struct CachePacketTypesT {
+			static constexpr auto State_Path = static_cast<ionet::PacketType>(0x200 + utils::to_underlying_type(FacilityCode));
+			static constexpr auto Diagnostic_Infos = static_cast<ionet::PacketType>(0x400 + utils::to_underlying_type(FacilityCode));
+		};
 
-        template <ionet::PacketType PacketType, typename TCacheKey>
-        struct StatePathRequestPacket : public ionet::Packet {
-            static constexpr ionet::PacketType Packet_Type = PacketType;
+		template <ionet::PacketType PacketType, typename TCacheKey>
+		struct StatePathRequestPacket : public ionet::Packet {
+			static constexpr ionet::PacketType Packet_Type = PacketType;
 
-            TCacheKey Key;
-        };
+			TCacheKey Key;
+		};
 
-        template <ionet::PacketType PacketType, typename TCacheKey>
-        struct BatchHandlerFactoryTraits {
-            static constexpr ionet::PacketType Packet_Type = PacketType;
+		template <ionet::PacketType PacketType, typename TCacheKey>
+		struct BatchHandlerFactoryTraits {
+			static constexpr ionet::PacketType Packet_Type = PacketType;
 
-            using RequestStructureType = TCacheKey;
-        };
-    };
+			using RequestStructureType = TCacheKey;
+		};
+	};
 }
 }

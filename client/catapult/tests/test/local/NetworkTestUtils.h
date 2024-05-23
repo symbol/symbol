@@ -27,27 +27,27 @@
 
 namespace boost {
 namespace asio {
-    class io_context;
+	class io_context;
 }
 }
 
 namespace catapult {
 namespace net {
-    class PacketWriters;
+	class PacketWriters;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Creates a connection to localhost on \a port configured using \a ioContext.
-    std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(boost::asio::io_context& ioContext, unsigned short port);
+	/// Creates a connection to localhost on \a port configured using \a ioContext.
+	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(boost::asio::io_context& ioContext, unsigned short port);
 
-    /// Creates a connection to localhost configured with server public key \a serverPublicKey
-    /// using \a packetWriters.
-    void ConnectToLocalHost(net::PacketWriters& packetWriters, const Key& serverPublicKey);
+	/// Creates a connection to localhost configured with server public key \a serverPublicKey
+	/// using \a packetWriters.
+	void ConnectToLocalHost(net::PacketWriters& packetWriters, const Key& serverPublicKey);
 
-    /// Starts an async read on \a io that fills \a buffer using \a ioContext.
-    void AsyncReadIntoBuffer(boost::asio::io_context& ioContext, ionet::PacketSocket& io, ionet::ByteBuffer& buffer);
+	/// Starts an async read on \a io that fills \a buffer using \a ioContext.
+	void AsyncReadIntoBuffer(boost::asio::io_context& ioContext, ionet::PacketSocket& io, ionet::ByteBuffer& buffer);
 }
 }

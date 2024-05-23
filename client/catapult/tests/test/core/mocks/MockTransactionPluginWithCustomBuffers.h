@@ -25,21 +25,21 @@
 namespace catapult {
 namespace mocks {
 
-    /// Offset buffer range.
-    struct OffsetRange {
-        /// Start offset (inclusive).
-        size_t Start;
+	/// Offset buffer range.
+	struct OffsetRange {
+		/// Start offset (inclusive).
+		size_t Start;
 
-        /// End offset (exclusive).
-        size_t End;
-    };
+		/// End offset (exclusive).
+		size_t End;
+	};
 
-    /// Extracts a raw buffer \a range from \a pVoid.
-    RawBuffer ExtractBuffer(const OffsetRange& range, const void* pVoid);
+	/// Extracts a raw buffer \a range from \a pVoid.
+	RawBuffer ExtractBuffer(const OffsetRange& range, const void* pVoid);
 
-    /// Creates a (mock) transaction plugin with custom buffers around \a dataRange and \a supplementalRanges.
-    std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPluginWithCustomBuffers(
-        const OffsetRange& dataRange,
-        const std::vector<OffsetRange>& supplementalRanges);
+	/// Creates a (mock) transaction plugin with custom buffers around \a dataRange and \a supplementalRanges.
+	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPluginWithCustomBuffers(
+		const OffsetRange& dataRange,
+		const std::vector<OffsetRange>& supplementalRanges);
 }
 }

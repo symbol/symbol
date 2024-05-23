@@ -27,17 +27,17 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS SecretLockInfoMapperTests
 
-        namespace {
-            struct SecretLockInfoMapperTraits : public test::MongoSecretLockInfoTestTraits {
-                static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
-            };
-        }
+		namespace {
+			struct SecretLockInfoMapperTraits : public test::MongoSecretLockInfoTestTraits {
+				static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
+			};
+		}
 
-        DEFINE_LOCK_INFO_MAPPER_TESTS(SecretLockInfoMapperTraits)
-    }
+		DEFINE_LOCK_INFO_MAPPER_TESTS(SecretLockInfoMapperTraits)
+	}
 }
 }

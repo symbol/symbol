@@ -26,8 +26,8 @@
 namespace catapult {
 namespace model {
 
-    /// Registry of transaction plugins.
-    template <typename TPlugin>
-    class TransactionRegistryT : public PluginRegistry<TPlugin, EntityType> { };
+	/// Registry of transaction plugins.
+	template <typename TPlugin>
+	class TransactionRegistryT : public PluginRegistry<TPlugin, EntityType> { };
 }
 }

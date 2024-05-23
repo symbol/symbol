@@ -31,16 +31,15 @@ using namespace catapult::model;
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        template <typename TTransaction>
-        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
-        {
-            sub.notify(NamespaceRequiredNotification(context.SignerAddress, transaction.NamespaceId));
-            sub.notify(AliasLinkNotification(transaction.NamespaceId, transaction.AliasAction));
-            sub.notify(AliasedAddressNotification(transaction.NamespaceId, transaction.AliasAction, transaction.Address));
-        }
-    }
+	namespace {
+		template <typename TTransaction>
+		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
+			sub.notify(NamespaceRequiredNotification(context.SignerAddress, transaction.NamespaceId));
+			sub.notify(AliasLinkNotification(transaction.NamespaceId, transaction.AliasAction));
+			sub.notify(AliasedAddressNotification(transaction.NamespaceId, transaction.AliasAction, transaction.Address));
+		}
+	}
 
-    DEFINE_TRANSACTION_PLUGIN_FACTORY(AddressAlias, Default, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(AddressAlias, Default, Publish)
 }
 }

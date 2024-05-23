@@ -26,88 +26,86 @@
 
 namespace catapult {
 namespace cache {
-    class ReadOnlyCatapultCache;
+	class ReadOnlyCatapultCache;
 }
 namespace state {
-    struct CatapultState;
+	struct CatapultState;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// Delta on top of a catapult cache.
-    class CatapultCacheDelta {
-    public:
-        /// Disposition of delta.
-        enum class Disposition {
-            /// Delta can be used to modify the underlying cache.
-            Attached,
+	/// Delta on top of a catapult cache.
+	class CatapultCacheDelta {
+	public:
+		/// Disposition of delta.
+		enum class Disposition {
+			/// Delta can be used to modify the underlying cache.
+			Attached,
 
-            /// Delta is detached and cannot be used to modify the underlying cache.
-            Detached
-        };
+			/// Delta is detached and cannot be used to modify the underlying cache.
+			Detached
+		};
 
-    public:
-        /// Creates a locked catapult cache delta from \a disposition, \a dependentState and \a subViews.
-        CatapultCacheDelta(
-            Disposition disposition,
-            state::CatapultState& dependentState,
-            std::vector<std::unique_ptr<SubCacheView>>&& subViews);
+	public:
+		/// Creates a locked catapult cache delta from \a disposition, \a dependentState and \a subViews.
+		CatapultCacheDelta(
+			Disposition disposition,
+			state::CatapultState& dependentState,
+			std::vector<std::unique_ptr<SubCacheView>>&& subViews);
 
-        /// Destroys the delta.
-        ~CatapultCacheDelta();
+		/// Destroys the delta.
+		~CatapultCacheDelta();
 
-    public:
-        // make this class move only (the definitions are in the source file in order to allow forward declarations)
-        CatapultCacheDelta(CatapultCacheDelta&&);
-        CatapultCacheDelta& operator=(CatapultCacheDelta&&);
+	public:
+		// make this class move only (the definitions are in the source file in order to allow forward declarations)
+		CatapultCacheDelta(CatapultCacheDelta&&);
+		CatapultCacheDelta& operator=(CatapultCacheDelta&&);
 
-    public:
-        /// Gets a specific sub cache delta view.
-        template <typename TCache>
-        const typename TCache::CacheDeltaType& sub() const
-        {
-            return *static_cast<const typename TCache::CacheDeltaType*>(m_subViews[TCache::Id]->get());
-        }
+	public:
+		/// Gets a specific sub cache delta view.
+		template <typename TCache>
+		const typename TCache::CacheDeltaType& sub() const {
+			return *static_cast<const typename TCache::CacheDeltaType*>(m_subViews[TCache::Id]->get());
+		}
 
-        /// Gets a specific sub cache delta view.
-        template <typename TCache>
-        typename TCache::CacheDeltaType& sub()
-        {
-            return *static_cast<typename TCache::CacheDeltaType*>(m_subViews[TCache::Id]->get());
-        }
+		/// Gets a specific sub cache delta view.
+		template <typename TCache>
+		typename TCache::CacheDeltaType& sub() {
+			return *static_cast<typename TCache::CacheDeltaType*>(m_subViews[TCache::Id]->get());
+		}
 
-    public:
-        /// Gets the delta disposition.
-        Disposition disposition() const;
+	public:
+		/// Gets the delta disposition.
+		Disposition disposition() const;
 
-        /// Gets the (const) dependent catapult state.
-        const state::CatapultState& dependentState() const;
+		/// Gets the (const) dependent catapult state.
+		const state::CatapultState& dependentState() const;
 
-        /// Gets the dependent catapult state.
-        state::CatapultState& dependentState();
+		/// Gets the dependent catapult state.
+		state::CatapultState& dependentState();
 
-        /// Calculates the cache state hash given \a height.
-        StateHashInfo calculateStateHash(Height height) const;
+		/// Calculates the cache state hash given \a height.
+		StateHashInfo calculateStateHash(Height height) const;
 
-        /// Sets the merkle roots for all sub caches (\a subCacheMerkleRoots).
-        void setSubCacheMerkleRoots(const std::vector<Hash256>& subCacheMerkleRoots);
+		/// Sets the merkle roots for all sub caches (\a subCacheMerkleRoots).
+		void setSubCacheMerkleRoots(const std::vector<Hash256>& subCacheMerkleRoots);
 
-        /// Prunes the cache at \a height.
-        void prune(Height height);
+		/// Prunes the cache at \a height.
+		void prune(Height height);
 
-        /// Prunes the cache at \a time.
-        void prune(Timestamp time);
+		/// Prunes the cache at \a time.
+		void prune(Timestamp time);
 
-    public:
-        /// Creates a read-only view of this delta.
-        ReadOnlyCatapultCache toReadOnly() const;
+	public:
+		/// Creates a read-only view of this delta.
+		ReadOnlyCatapultCache toReadOnly() const;
 
-    private:
-        Disposition m_disposition;
-        state::CatapultState* m_pDependentState; // use a pointer to allow move assignment
-        std::vector<std::unique_ptr<SubCacheView>> m_subViews;
-    };
+	private:
+		Disposition m_disposition;
+		state::CatapultState* m_pDependentState; // use a pointer to allow move assignment
+		std::vector<std::unique_ptr<SubCacheView>> m_subViews;
+	};
 }
 }

@@ -25,9 +25,8 @@
 namespace catapult {
 namespace extensions {
 
-    cache::MemoryCacheOptions GetUtCacheOptions(const config::NodeConfiguration& config)
-    {
-        return cache::MemoryCacheOptions(config.UnconfirmedTransactionsCacheMaxResponseSize, config.UnconfirmedTransactionsCacheMaxSize);
-    }
+	cache::MemoryCacheOptions GetUtCacheOptions(const config::NodeConfiguration& config) {
+		return cache::MemoryCacheOptions(config.UnconfirmedTransactionsCacheMaxResponseSize, config.UnconfirmedTransactionsCacheMaxSize);
+	}
 }
 }

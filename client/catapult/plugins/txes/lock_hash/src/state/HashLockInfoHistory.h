@@ -26,10 +26,10 @@
 namespace catapult {
 namespace state {
 
-    /// Hash lock info history.
-    struct PLUGIN_API_DEPENDENCY HashLockInfoHistory : public LockInfoHistory<HashLockInfo> {
-    public:
-        using LockInfoHistory<HashLockInfo>::LockInfoHistory;
-    };
+	/// Hash lock info history.
+	struct PLUGIN_API_DEPENDENCY HashLockInfoHistory : public LockInfoHistory<HashLockInfo> {
+	public:
+		using LockInfoHistory<HashLockInfo>::LockInfoHistory;
+	};
 }
 }

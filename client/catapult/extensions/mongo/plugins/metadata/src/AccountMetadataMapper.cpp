@@ -28,22 +28,21 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            template <typename TTransaction>
-            void Stream(bson_stream::document& builder, const TTransaction& transaction)
-            {
-                builder << "targetAddress" << ToBinary(transaction.TargetAddress) << "scopedMetadataKey"
-                        << static_cast<int64_t>(transaction.ScopedMetadataKey) << "valueSizeDelta" << transaction.ValueSizeDelta << "valueSize"
-                        << transaction.ValueSize;
+		namespace {
+			template <typename TTransaction>
+			void Stream(bson_stream::document& builder, const TTransaction& transaction) {
+				builder << "targetAddress" << ToBinary(transaction.TargetAddress) << "scopedMetadataKey"
+						<< static_cast<int64_t>(transaction.ScopedMetadataKey) << "valueSizeDelta" << transaction.ValueSizeDelta << "valueSize"
+						<< transaction.ValueSize;
 
-                if (0 < transaction.ValueSize)
-                    builder << "value" << ToBinary(transaction.ValuePtr(), transaction.ValueSize);
-            }
-        }
+				if (0 < transaction.ValueSize)
+					builder << "value" << ToBinary(transaction.ValuePtr(), transaction.ValueSize);
+			}
+		}
 
-        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountMetadata, Stream)
-    }
+		DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountMetadata, Stream)
+	}
 }
 }

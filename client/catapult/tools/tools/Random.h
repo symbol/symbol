@@ -27,13 +27,13 @@
 namespace catapult {
 namespace tools {
 
-    /// Generates a uint64_t random number.
-    uint64_t Random();
+	/// Generates a uint64_t random number.
+	uint64_t Random();
 
-    /// Generates a uint8_t random number.
-    uint8_t RandomByte();
+	/// Generates a uint8_t random number.
+	uint8_t RandomByte();
 
-    /// Generates random vector data of \a size.
-    std::vector<uint8_t> GenerateRandomVector(size_t size);
+	/// Generates random vector data of \a size.
+	std::vector<uint8_t> GenerateRandomVector(size_t size);
 }
 }

@@ -25,43 +25,43 @@
 
 namespace catapult {
 namespace tools {
-    namespace ssl {
+	namespace ssl {
 
-        /// Certificate chain scenarios.
-        enum class ScenarioId : uint16_t {
-            /// Valid certificate chain.
-            Valid_Certificate_Chain,
+		/// Certificate chain scenarios.
+		enum class ScenarioId : uint16_t {
+			/// Valid certificate chain.
+			Valid_Certificate_Chain,
 
-            /// Malformed node certificate signature.
-            Malformed_Node_Certificate_Signature,
+			/// Malformed node certificate signature.
+			Malformed_Node_Certificate_Signature,
 
-            /// Malformed CA certificate signature.
-            Malformed_Ca_Certificate_Signature,
+			/// Malformed CA certificate signature.
+			Malformed_Ca_Certificate_Signature,
 
-            /// Single-level self-signed certificate.
-            Single_Self_Signed_Ca_Certificate,
+			/// Single-level self-signed certificate.
+			Single_Self_Signed_Ca_Certificate,
 
-            /// Two-level certificate chain with both certificates using the same key.
-            Two_Level_Certificate_Chain_With_Same_Key,
+			/// Two-level certificate chain with both certificates using the same key.
+			Two_Level_Certificate_Chain_With_Same_Key,
 
-            /// Valid three-level certificate chain.
-            Three_Level_Certificate_Chain,
+			/// Valid three-level certificate chain.
+			Three_Level_Certificate_Chain,
 
-            /// Expired node certificate.
-            Expired_Node_Certificate,
+			/// Expired node certificate.
+			Expired_Node_Certificate,
 
-            /// Expired CA certificate.
-            Expired_Ca_Certificate,
+			/// Expired CA certificate.
+			Expired_Ca_Certificate,
 
-            /// No peer certificate.
-            No_Peer_Certificate,
+			/// No peer certificate.
+			No_Peer_Certificate,
 
-            /// Sentinel value.
-            Max_Value
-        };
+			/// Sentinel value.
+			Max_Value
+		};
 
-        /// Generate certificates for \a scenarioId using \a caKeyPair inside \a certificateDirectory.
-        void GenerateCertificateDirectory(crypto::KeyPair&& caKeyPair, const std::string& certificateDirectory, ScenarioId scenarioId);
-    }
+		/// Generate certificates for \a scenarioId using \a caKeyPair inside \a certificateDirectory.
+		void GenerateCertificateDirectory(crypto::KeyPair&& caKeyPair, const std::string& certificateDirectory, ScenarioId scenarioId);
+	}
 }
 }

@@ -27,56 +27,49 @@
 namespace catapult {
 namespace extensions {
 
-    ExtensionManager::ExtensionManager()
-    {
-        for (const auto& pluginName : { "catapult.plugins.coresystem", "catapult.plugins.signature" })
-            m_systemPluginNames.push_back(pluginName);
-    }
+	ExtensionManager::ExtensionManager() {
+		for (const auto& pluginName : { "catapult.plugins.coresystem", "catapult.plugins.signature" })
+			m_systemPluginNames.push_back(pluginName);
+	}
 
-    void ExtensionManager::registerSystemPlugin(const std::string& name)
-    {
-        m_systemPluginNames.push_back(name);
-    }
+	void ExtensionManager::registerSystemPlugin(const std::string& name) {
+		m_systemPluginNames.push_back(name);
+	}
 
-    void ExtensionManager::setNetworkTimeSupplier(const NetworkTimeSupplier& supplier)
-    {
-        SetOnce(m_networkTimeSupplier, supplier);
-    }
+	void ExtensionManager::setNetworkTimeSupplier(const NetworkTimeSupplier& supplier) {
+		SetOnce(m_networkTimeSupplier, supplier);
+	}
 
-    void ExtensionManager::addServiceRegistrar(std::unique_ptr<ServiceRegistrar>&& pServiceRegistrar)
-    {
-        m_serviceRegistrars.push_back(std::move(pServiceRegistrar));
-    }
+	void ExtensionManager::addServiceRegistrar(std::unique_ptr<ServiceRegistrar>&& pServiceRegistrar) {
+		m_serviceRegistrars.push_back(std::move(pServiceRegistrar));
+	}
 
-    const std::vector<std::string>& ExtensionManager::systemPluginNames() const
-    {
-        return m_systemPluginNames;
-    }
+	const std::vector<std::string>& ExtensionManager::systemPluginNames() const {
+		return m_systemPluginNames;
+	}
 
-    ExtensionManager::NetworkTimeSupplier ExtensionManager::networkTimeSupplier(const utils::TimeSpan& epochAdjustment) const
-    {
-        return m_networkTimeSupplier ? m_networkTimeSupplier : [epochAdjustment]() { return utils::NetworkTime(epochAdjustment).now(); };
-    }
+	ExtensionManager::NetworkTimeSupplier ExtensionManager::networkTimeSupplier(const utils::TimeSpan& epochAdjustment) const {
+		return m_networkTimeSupplier ? m_networkTimeSupplier : [epochAdjustment]() { return utils::NetworkTime(epochAdjustment).now(); };
+	}
 
-    void ExtensionManager::registerServices(ServiceLocator& locator, ServiceState& state)
-    {
-        // sort the registrars based on their annnounced phases
-        std::sort(m_serviceRegistrars.begin(), m_serviceRegistrars.end(), [](const auto& pLhs, const auto& pRhs) {
-            return utils::to_underlying_type(pLhs->info().Phase) < utils::to_underlying_type(pRhs->info().Phase);
-        });
+	void ExtensionManager::registerServices(ServiceLocator& locator, ServiceState& state) {
+		// sort the registrars based on their annnounced phases
+		std::sort(m_serviceRegistrars.begin(), m_serviceRegistrars.end(), [](const auto& pLhs, const auto& pRhs) {
+			return utils::to_underlying_type(pLhs->info().Phase) < utils::to_underlying_type(pRhs->info().Phase);
+		});
 
-        // register counters first
-        for (const auto& pRegistrar : m_serviceRegistrars)
-            pRegistrar->registerServiceCounters(locator);
+		// register counters first
+		for (const auto& pRegistrar : m_serviceRegistrars)
+			pRegistrar->registerServiceCounters(locator);
 
-        // register services second
-        for (const auto& pRegistrar : m_serviceRegistrars) {
-            CATAPULT_LOG(debug) << "registering " << pRegistrar->info().Name << " services";
-            pRegistrar->registerServices(locator, state);
-        }
+		// register services second
+		for (const auto& pRegistrar : m_serviceRegistrars) {
+			CATAPULT_LOG(debug) << "registering " << pRegistrar->info().Name << " services";
+			pRegistrar->registerServices(locator, state);
+		}
 
-        // services are registered, no need to keep registrars around
-        m_serviceRegistrars.clear();
-    }
+		// services are registered, no need to keep registrars around
+		m_serviceRegistrars.clear();
+	}
 }
 }

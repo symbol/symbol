@@ -27,30 +27,28 @@
 namespace catapult {
 namespace crypto {
 
-    /// Cryptographically secure generator for random numbers.
-    class SecureRandomGenerator {
-    public:
-        using result_type = uint64_t;
+	/// Cryptographically secure generator for random numbers.
+	class SecureRandomGenerator {
+	public:
+		using result_type = uint64_t;
 
-    public:
-        /// Gets the mininmum generated value.
-        static constexpr result_type min()
-        {
-            return std::numeric_limits<result_type>::min();
-        }
+	public:
+		/// Gets the mininmum generated value.
+		static constexpr result_type min() {
+			return std::numeric_limits<result_type>::min();
+		}
 
-        /// Gets the maximum generated value.
-        static constexpr result_type max()
-        {
-            return std::numeric_limits<result_type>::max();
-        }
+		/// Gets the maximum generated value.
+		static constexpr result_type max() {
+			return std::numeric_limits<result_type>::max();
+		}
 
-    public:
-        /// Generates a random value.
-        result_type operator()();
+	public:
+		/// Generates a random value.
+		result_type operator()();
 
-        /// Generates \a count random bytes into \a pOut.
-        void fill(uint8_t* pOut, size_t count);
-    };
+		/// Generates \a count random bytes into \a pOut.
+		void fill(uint8_t* pOut, size_t count);
+	};
 }
 }

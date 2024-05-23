@@ -25,55 +25,46 @@
 namespace catapult {
 namespace state {
 
-    AccountRestrictions::AccountRestrictions(const Address& address)
-        : m_address(address)
-    {
-        constexpr auto Outgoing = model::AccountRestrictionFlags::Outgoing;
+	AccountRestrictions::AccountRestrictions(const Address& address)
+		: m_address(address) {
+		constexpr auto Outgoing = model::AccountRestrictionFlags::Outgoing;
 
-        addRestriction(model::AccountRestrictionFlags::Address, Address::Size);
-        addRestriction(model::AccountRestrictionFlags::MosaicId, sizeof(MosaicId));
-        addRestriction(model::AccountRestrictionFlags::Address | Outgoing, Address::Size);
-        addRestriction(model::AccountRestrictionFlags::TransactionType | Outgoing, sizeof(model::EntityType));
-    }
+		addRestriction(model::AccountRestrictionFlags::Address, Address::Size);
+		addRestriction(model::AccountRestrictionFlags::MosaicId, sizeof(MosaicId));
+		addRestriction(model::AccountRestrictionFlags::Address | Outgoing, Address::Size);
+		addRestriction(model::AccountRestrictionFlags::TransactionType | Outgoing, sizeof(model::EntityType));
+	}
 
-    const Address& AccountRestrictions::address() const
-    {
-        return m_address;
-    }
+	const Address& AccountRestrictions::address() const {
+		return m_address;
+	}
 
-    size_t AccountRestrictions::size() const
-    {
-        return m_restrictions.size();
-    }
+	size_t AccountRestrictions::size() const {
+		return m_restrictions.size();
+	}
 
-    bool AccountRestrictions::isEmpty() const
-    {
-        return std::all_of(begin(), end(), [](const auto& pair) { return pair.second.values().empty(); });
-    }
+	bool AccountRestrictions::isEmpty() const {
+		return std::all_of(begin(), end(), [](const auto& pair) { return pair.second.values().empty(); });
+	}
 
-    const AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionFlags restrictionFlags) const
-    {
-        return restriction<const RestrictionsMap, const AccountRestriction>(m_restrictions, restrictionFlags);
-    }
+	const AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionFlags restrictionFlags) const {
+		return restriction<const RestrictionsMap, const AccountRestriction>(m_restrictions, restrictionFlags);
+	}
 
-    AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionFlags restrictionFlags)
-    {
-        return restriction<RestrictionsMap, AccountRestriction>(m_restrictions, restrictionFlags);
-    }
+	AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionFlags restrictionFlags) {
+		return restriction<RestrictionsMap, AccountRestriction>(m_restrictions, restrictionFlags);
+	}
 
-    AccountRestrictions::const_iterator AccountRestrictions::begin() const
-    {
-        return m_restrictions.cbegin();
-    }
+	AccountRestrictions::const_iterator AccountRestrictions::begin() const {
+		return m_restrictions.cbegin();
+	}
 
-    AccountRestrictions::const_iterator AccountRestrictions::end() const
-    {
-        return m_restrictions.cend();
-    }
+	AccountRestrictions::const_iterator AccountRestrictions::end() const {
+		return m_restrictions.cend();
+	}
 
-    void AccountRestrictions::addRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize)
-    {
-        m_restrictions.emplace(restrictionFlags, AccountRestriction(restrictionFlags, restrictionValueSize));
-    }
+	void AccountRestrictions::addRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize) {
+		m_restrictions.emplace(restrictionFlags, AccountRestriction(restrictionFlags, restrictionValueSize));
+	}
 }
 }

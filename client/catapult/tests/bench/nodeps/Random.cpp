@@ -26,19 +26,16 @@
 namespace catapult {
 namespace bench {
 
-    uint64_t Random()
-    {
-        return utils::LowEntropyRandomGenerator()();
-    }
+	uint64_t Random() {
+		return utils::LowEntropyRandomGenerator()();
+	}
 
-    uint8_t RandomByte()
-    {
-        return static_cast<uint8_t>(Random());
-    }
+	uint8_t RandomByte() {
+		return static_cast<uint8_t>(Random());
+	}
 
-    void FillWithRandomData(const MutableRawBuffer& dataBuffer)
-    {
-        std::generate_n(dataBuffer.pData, dataBuffer.Size, RandomByte);
-    }
+	void FillWithRandomData(const MutableRawBuffer& dataBuffer) {
+		std::generate_n(dataBuffer.pData, dataBuffer.Size, RandomByte);
+	}
 }
 }

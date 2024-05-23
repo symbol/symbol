@@ -25,22 +25,21 @@
 namespace catapult {
 namespace local {
 
-    Height FindStartHeight(const io::BlockStorage& storage)
-    {
-        // load block to trigger exception if block at chain height does not exist
-        auto height = storage.chainHeight();
-        storage.loadBlock(height);
+	Height FindStartHeight(const io::BlockStorage& storage) {
+		// load block to trigger exception if block at chain height does not exist
+		auto height = storage.chainHeight();
+		storage.loadBlock(height);
 
-        while (height != Height(1)) {
-            try {
-                storage.loadBlock(height - Height(1));
-                height = height - Height(1);
-            } catch (const catapult_file_io_error&) {
-                break;
-            }
-        }
+		while (height != Height(1)) {
+			try {
+				storage.loadBlock(height - Height(1));
+				height = height - Height(1);
+			} catch (const catapult_file_io_error&) {
+				break;
+			}
+		}
 
-        return height;
-    }
+		return height;
+	}
 }
 }

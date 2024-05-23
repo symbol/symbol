@@ -26,49 +26,49 @@
 namespace catapult {
 namespace builders {
 
-    /// Builder for an address alias transaction.
-    class AddressAliasBuilder : public TransactionBuilder {
-    public:
-        using Transaction = model::AddressAliasTransaction;
-        using EmbeddedTransaction = model::EmbeddedAddressAliasTransaction;
+	/// Builder for an address alias transaction.
+	class AddressAliasBuilder : public TransactionBuilder {
+	public:
+		using Transaction = model::AddressAliasTransaction;
+		using EmbeddedTransaction = model::EmbeddedAddressAliasTransaction;
 
-    public:
-        /// Creates an address alias builder for building an address alias transaction from \a signer
-        /// for the network specified by \a networkIdentifier.
-        AddressAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+	public:
+		/// Creates an address alias builder for building an address alias transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		AddressAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-    public:
-        /// Sets the identifier of the namespace that will become an alias to \a namespaceId.
-        void setNamespaceId(NamespaceId namespaceId);
+	public:
+		/// Sets the identifier of the namespace that will become an alias to \a namespaceId.
+		void setNamespaceId(NamespaceId namespaceId);
 
-        /// Sets the aliased address to \a address.
-        void setAddress(const Address& address);
+		/// Sets the aliased address to \a address.
+		void setAddress(const Address& address);
 
-        /// Sets the alias action to \a aliasAction.
-        void setAliasAction(model::AliasAction aliasAction);
+		/// Sets the alias action to \a aliasAction.
+		void setAliasAction(model::AliasAction aliasAction);
 
-    public:
-        /// Gets the size of address alias transaction.
-        /// \note This returns size of a normal transaction not embedded transaction.
-        size_t size() const;
+	public:
+		/// Gets the size of address alias transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
 
-        /// Builds a new address alias transaction.
-        std::unique_ptr<Transaction> build() const;
+		/// Builds a new address alias transaction.
+		std::unique_ptr<Transaction> build() const;
 
-        /// Builds a new embedded address alias transaction.
-        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+		/// Builds a new embedded address alias transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-    private:
-        template <typename TTransaction>
-        size_t sizeImpl() const;
+	private:
+		template <typename TTransaction>
+		size_t sizeImpl() const;
 
-        template <typename TTransaction>
-        std::unique_ptr<TTransaction> buildImpl() const;
+		template <typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
-    private:
-        NamespaceId m_namespaceId;
-        Address m_address;
-        model::AliasAction m_aliasAction;
-    };
+	private:
+		NamespaceId m_namespaceId;
+		Address m_address;
+		model::AliasAction m_aliasAction;
+	};
 }
 }

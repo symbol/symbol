@@ -29,42 +29,40 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the mosaic cache view.
-    struct MosaicCacheViewMixins : public PatriciaTreeCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetType, MosaicCacheDescriptor> { };
+	/// Mixins used by the mosaic cache view.
+	struct MosaicCacheViewMixins : public PatriciaTreeCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetType, MosaicCacheDescriptor> { };
 
-    /// Basic view on top of the mosaic cache.
-    class BasicMosaicCacheView
-        : public utils::MoveOnly,
-          public MosaicCacheViewMixins::Size,
-          public MosaicCacheViewMixins::Contains,
-          public MosaicCacheViewMixins::Iteration,
-          public MosaicCacheViewMixins::ConstAccessor,
-          public MosaicCacheDeltaMixins::PatriciaTreeView,
-          public MosaicCacheViewMixins::ActivePredicate {
-    public:
-        using ReadOnlyView = MosaicCacheTypes::CacheReadOnlyType;
+	/// Basic view on top of the mosaic cache.
+	class BasicMosaicCacheView
+		: public utils::MoveOnly,
+		  public MosaicCacheViewMixins::Size,
+		  public MosaicCacheViewMixins::Contains,
+		  public MosaicCacheViewMixins::Iteration,
+		  public MosaicCacheViewMixins::ConstAccessor,
+		  public MosaicCacheDeltaMixins::PatriciaTreeView,
+		  public MosaicCacheViewMixins::ActivePredicate {
+	public:
+		using ReadOnlyView = MosaicCacheTypes::CacheReadOnlyType;
 
-    public:
-        /// Creates a view around \a mosaicSets.
-        explicit BasicMosaicCacheView(const MosaicCacheTypes::BaseSets& mosaicSets)
-            : MosaicCacheViewMixins::Size(mosaicSets.Primary)
-            , MosaicCacheViewMixins::Contains(mosaicSets.Primary)
-            , MosaicCacheViewMixins::Iteration(mosaicSets.Primary)
-            , MosaicCacheViewMixins::ConstAccessor(mosaicSets.Primary)
-            , MosaicCacheViewMixins::PatriciaTreeView(mosaicSets.PatriciaTree.get())
-            , MosaicCacheViewMixins::ActivePredicate(mosaicSets.Primary)
-        {
-        }
-    };
+	public:
+		/// Creates a view around \a mosaicSets.
+		explicit BasicMosaicCacheView(const MosaicCacheTypes::BaseSets& mosaicSets)
+			: MosaicCacheViewMixins::Size(mosaicSets.Primary)
+			, MosaicCacheViewMixins::Contains(mosaicSets.Primary)
+			, MosaicCacheViewMixins::Iteration(mosaicSets.Primary)
+			, MosaicCacheViewMixins::ConstAccessor(mosaicSets.Primary)
+			, MosaicCacheViewMixins::PatriciaTreeView(mosaicSets.PatriciaTree.get())
+			, MosaicCacheViewMixins::ActivePredicate(mosaicSets.Primary) {
+		}
+	};
 
-    /// View on top of the mosaic cache.
-    class MosaicCacheView : public ReadOnlyViewSupplier<BasicMosaicCacheView> {
-    public:
-        /// Creates a view around \a mosaicSets.
-        explicit MosaicCacheView(const MosaicCacheTypes::BaseSets& mosaicSets)
-            : ReadOnlyViewSupplier(mosaicSets)
-        {
-        }
-    };
+	/// View on top of the mosaic cache.
+	class MosaicCacheView : public ReadOnlyViewSupplier<BasicMosaicCacheView> {
+	public:
+		/// Creates a view around \a mosaicSets.
+		explicit MosaicCacheView(const MosaicCacheTypes::BaseSets& mosaicSets)
+			: ReadOnlyViewSupplier(mosaicSets) {
+		}
+	};
 }
 }

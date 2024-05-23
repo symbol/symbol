@@ -24,37 +24,31 @@
 namespace catapult {
 namespace state {
 
-    MosaicGlobalRestriction::MosaicGlobalRestriction(MosaicId mosaicId)
-        : m_mosaicId(mosaicId)
-    {
-    }
+	MosaicGlobalRestriction::MosaicGlobalRestriction(MosaicId mosaicId)
+		: m_mosaicId(mosaicId) {
+	}
 
-    MosaicId MosaicGlobalRestriction::mosaicId() const
-    {
-        return m_mosaicId;
-    }
+	MosaicId MosaicGlobalRestriction::mosaicId() const {
+		return m_mosaicId;
+	}
 
-    size_t MosaicGlobalRestriction::size() const
-    {
-        return m_keyRulePairs.size();
-    }
+	size_t MosaicGlobalRestriction::size() const {
+		return m_keyRulePairs.size();
+	}
 
-    std::set<uint64_t> MosaicGlobalRestriction::keys() const
-    {
-        return m_keyRulePairs.keys();
-    }
+	std::set<uint64_t> MosaicGlobalRestriction::keys() const {
+		return m_keyRulePairs.keys();
+	}
 
-    bool MosaicGlobalRestriction::tryGet(uint64_t key, RestrictionRule& rule) const
-    {
-        return m_keyRulePairs.tryGet(key, rule);
-    }
+	bool MosaicGlobalRestriction::tryGet(uint64_t key, RestrictionRule& rule) const {
+		return m_keyRulePairs.tryGet(key, rule);
+	}
 
-    void MosaicGlobalRestriction::set(uint64_t key, const RestrictionRule rule)
-    {
-        if (model::MosaicRestrictionType::NONE == rule.RestrictionType)
-            m_keyRulePairs.remove(key);
-        else
-            m_keyRulePairs.set(key, rule);
-    }
+	void MosaicGlobalRestriction::set(uint64_t key, const RestrictionRule rule) {
+		if (model::MosaicRestrictionType::NONE == rule.RestrictionType)
+			m_keyRulePairs.remove(key);
+		else
+			m_keyRulePairs.set(key, rule);
+	}
 }
 }

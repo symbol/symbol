@@ -28,27 +28,24 @@
 namespace catapult {
 namespace test {
 
-    Accounts::Accounts(size_t numAccounts)
-    {
-        if (0 == numAccounts)
-            CATAPULT_THROW_INVALID_ARGUMENT("must create at least one account");
+	Accounts::Accounts(size_t numAccounts) {
+		if (0 == numAccounts)
+			CATAPULT_THROW_INVALID_ARGUMENT("must create at least one account");
 
-        m_keyPairs.push_back(crypto::KeyPair::FromString(Test_Network_Private_Keys[0]));
-        for (auto i = 0u; i < numAccounts - 1; ++i)
-            m_keyPairs.push_back(GenerateKeyPair());
-    }
+		m_keyPairs.push_back(crypto::KeyPair::FromString(Test_Network_Private_Keys[0]));
+		for (auto i = 0u; i < numAccounts - 1; ++i)
+			m_keyPairs.push_back(GenerateKeyPair());
+	}
 
-    Address Accounts::getAddress(size_t id) const
-    {
-        return model::PublicKeyToAddress(getKeyPair(id).publicKey(), model::NetworkIdentifier::Testnet);
-    }
+	Address Accounts::getAddress(size_t id) const {
+		return model::PublicKeyToAddress(getKeyPair(id).publicKey(), model::NetworkIdentifier::Testnet);
+	}
 
-    const crypto::KeyPair& Accounts::getKeyPair(size_t id) const
-    {
-        if (id >= m_keyPairs.size())
-            CATAPULT_THROW_INVALID_ARGUMENT_1("invalid account id", id);
+	const crypto::KeyPair& Accounts::getKeyPair(size_t id) const {
+		if (id >= m_keyPairs.size())
+			CATAPULT_THROW_INVALID_ARGUMENT_1("invalid account id", id);
 
-        return m_keyPairs[id];
-    }
+		return m_keyPairs[id];
+	}
 }
 }

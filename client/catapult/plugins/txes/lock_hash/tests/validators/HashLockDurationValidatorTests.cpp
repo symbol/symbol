@@ -28,21 +28,20 @@ namespace validators {
 
 #define TEST_CLASS HashLockDurationValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(HashLockDuration, BlockDuration(0))
+	DEFINE_COMMON_VALIDATOR_TESTS(HashLockDuration, BlockDuration(0))
 
-    namespace {
-        struct HashTraits {
-        public:
-            using NotificationType = model::HashLockDurationNotification;
-            static constexpr auto Failure_Result = Failure_LockHash_Invalid_Duration;
+	namespace {
+		struct HashTraits {
+		public:
+			using NotificationType = model::HashLockDurationNotification;
+			static constexpr auto Failure_Result = Failure_LockHash_Invalid_Duration;
 
-            static auto CreateValidator(BlockDuration maxDuration)
-            {
-                return CreateHashLockDurationValidator(maxDuration);
-            }
-        };
-    }
+			static auto CreateValidator(BlockDuration maxDuration) {
+				return CreateHashLockDurationValidator(maxDuration);
+			}
+		};
+	}
 
-    DEFINE_DURATION_VALIDATOR_TESTS(HashTraits)
+	DEFINE_DURATION_VALIDATOR_TESTS(HashTraits)
 }
 }

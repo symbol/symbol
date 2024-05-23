@@ -24,29 +24,29 @@
 
 namespace catapult {
 namespace io {
-    class OutputStream;
+	class OutputStream;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Represents a finalization notification.
-    struct FinalizationNotification {
-        /// Round.
-        model::FinalizationRound Round;
+	/// Represents a finalization notification.
+	struct FinalizationNotification {
+		/// Round.
+		model::FinalizationRound Round;
 
-        /// Block height.
-        catapult::Height Height;
+		/// Block height.
+		catapult::Height Height;
 
-        /// Block hash.
-        Hash256 Hash;
-    };
+		/// Block hash.
+		Hash256 Hash;
+	};
 
-    /// Generates a random finalization notification.
-    FinalizationNotification GenerateRandomFinalizationNotification();
+	/// Generates a random finalization notification.
+	FinalizationNotification GenerateRandomFinalizationNotification();
 
-    /// Writes \a notification to \a outputStream.
-    void WriteFinalizationNotification(io::OutputStream& outputStream, const FinalizationNotification& notification);
+	/// Writes \a notification to \a outputStream.
+	void WriteFinalizationNotification(io::OutputStream& outputStream, const FinalizationNotification& notification);
 }
 }

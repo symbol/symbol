@@ -27,10 +27,10 @@
 namespace catapult {
 namespace mongo {
 
-    /// Upserts the chain statistic document in \a database with \a upsertDoc.
-    BulkWriteResult TrySetChainStatisticDocument(mongocxx::database& database, const bsoncxx::document::view& upsertDoc);
+	/// Upserts the chain statistic document in \a database with \a upsertDoc.
+	BulkWriteResult TrySetChainStatisticDocument(mongocxx::database& database, const bsoncxx::document::view& upsertDoc);
 
-    /// Gets the chain statistic document from \a database.
-    bsoncxx::document::value GetChainStatisticDocument(const mongocxx::database& database);
+	/// Gets the chain statistic document from \a database.
+	bsoncxx::document::value GetChainStatisticDocument(const mongocxx::database& database);
 }
 }

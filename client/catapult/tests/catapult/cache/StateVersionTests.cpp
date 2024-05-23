@@ -28,50 +28,47 @@ namespace cache {
 
 #define TEST_CLASS StateVersionTests
 
-    namespace {
-        struct MockTraits {
-            static constexpr uint16_t State_Version = 42;
-        };
-    }
+	namespace {
+		struct MockTraits {
+			static constexpr uint16_t State_Version = 42;
+		};
+	}
 
-    TEST(TEST_CLASS, WriteAppendsVersionToOutput)
-    {
-        // Arrange:
-        std::vector<uint8_t> buffer;
-        mocks::MockMemoryStream outputStream(buffer);
+	TEST(TEST_CLASS, WriteAppendsVersionToOutput) {
+		// Arrange:
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream outputStream(buffer);
 
-        // Act:
-        StateVersion<MockTraits>::Write(outputStream);
+		// Act:
+		StateVersion<MockTraits>::Write(outputStream);
 
-        // Assert:
-        EXPECT_EQ(0u, outputStream.numFlushes());
-        ASSERT_EQ(sizeof(uint16_t), buffer.size());
-        EXPECT_EQ(MockTraits::State_Version, reinterpret_cast<const uint16_t&>(buffer[0]));
-    }
+		// Assert:
+		EXPECT_EQ(0u, outputStream.numFlushes());
+		ASSERT_EQ(sizeof(uint16_t), buffer.size());
+		EXPECT_EQ(MockTraits::State_Version, reinterpret_cast<const uint16_t&>(buffer[0]));
+	}
 
-    TEST(TEST_CLASS, ReadAndCheckFailsWhenVersionIsIncorrect)
-    {
-        // Arrange:
-        std::vector<uint8_t> buffer(sizeof(uint16_t));
-        reinterpret_cast<uint16_t&>(buffer[0]) = MockTraits::State_Version ^ 0xFFFF;
-        mocks::MockMemoryStream inputStream(buffer);
+	TEST(TEST_CLASS, ReadAndCheckFailsWhenVersionIsIncorrect) {
+		// Arrange:
+		std::vector<uint8_t> buffer(sizeof(uint16_t));
+		reinterpret_cast<uint16_t&>(buffer[0]) = MockTraits::State_Version ^ 0xFFFF;
+		mocks::MockMemoryStream inputStream(buffer);
 
-        // Act + Assert:
-        EXPECT_THROW(StateVersion<MockTraits>::ReadAndCheck(inputStream), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(StateVersion<MockTraits>::ReadAndCheck(inputStream), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, ReadAndCheckSucceedsWhenVersionIsCorrect)
-    {
-        // Arrange:
-        std::vector<uint8_t> buffer(sizeof(uint16_t));
-        reinterpret_cast<uint16_t&>(buffer[0]) = MockTraits::State_Version;
-        mocks::MockMemoryStream inputStream(buffer);
+	TEST(TEST_CLASS, ReadAndCheckSucceedsWhenVersionIsCorrect) {
+		// Arrange:
+		std::vector<uint8_t> buffer(sizeof(uint16_t));
+		reinterpret_cast<uint16_t&>(buffer[0]) = MockTraits::State_Version;
+		mocks::MockMemoryStream inputStream(buffer);
 
-        // Act:
-        StateVersion<MockTraits>::ReadAndCheck(inputStream);
+		// Act:
+		StateVersion<MockTraits>::ReadAndCheck(inputStream);
 
-        // Assert:
-        EXPECT_EQ(sizeof(uint16_t), inputStream.position());
-    }
+		// Assert:
+		EXPECT_EQ(sizeof(uint16_t), inputStream.position());
+	}
 }
 }

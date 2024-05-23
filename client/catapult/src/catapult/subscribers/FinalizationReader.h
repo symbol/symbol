@@ -23,17 +23,17 @@
 
 namespace catapult {
 namespace io {
-    class InputStream;
+	class InputStream;
 }
 namespace subscribers {
-    class FinalizationSubscriber;
+	class FinalizationSubscriber;
 }
 }
 
 namespace catapult {
 namespace subscribers {
 
-    /// Reads next finalization from \a inputStream and forwards it to \a subscriber.
-    void ReadNextFinalization(io::InputStream& inputStream, FinalizationSubscriber& subscriber);
+	/// Reads next finalization from \a inputStream and forwards it to \a subscriber.
+	void ReadNextFinalization(io::InputStream& inputStream, FinalizationSubscriber& subscriber);
 }
 }

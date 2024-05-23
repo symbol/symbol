@@ -28,64 +28,59 @@
 namespace catapult {
 namespace api {
 
-    namespace {
-        // region traits
+	namespace {
+		// region traits
 
-        struct MessagesTraits {
-        public:
-            using ResultType = model::FinalizationMessageRange;
-            static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
-            static constexpr auto Friendly_Name = "pull finalization messages";
+		struct MessagesTraits {
+		public:
+			using ResultType = model::FinalizationMessageRange;
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
+			static constexpr auto Friendly_Name = "pull finalization messages";
 
-            static auto CreateRequestPacketPayload(
-                const model::FinalizationRoundRange& roundRange,
-                model::ShortHashRange&& knownShortHashes)
-            {
-                ionet::PacketPayloadBuilder builder(Packet_Type);
-                builder.appendValue(roundRange);
-                builder.appendRange(std::move(knownShortHashes));
-                return builder.build();
-            }
+			static auto CreateRequestPacketPayload(
+				const model::FinalizationRoundRange& roundRange,
+				model::ShortHashRange&& knownShortHashes) {
+				ionet::PacketPayloadBuilder builder(Packet_Type);
+				builder.appendValue(roundRange);
+				builder.appendRange(std::move(knownShortHashes));
+				return builder.build();
+			}
 
-        public:
-            bool tryParseResult(const ionet::Packet& packet, ResultType& result) const
-            {
-                result = ionet::ExtractEntitiesFromPacket<model::FinalizationMessage>(
-                    packet,
-                    model::IsSizeValidT<model::FinalizationMessage>);
-                return !result.empty() || sizeof(ionet::PacketHeader) == packet.Size;
-            }
-        };
+		public:
+			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
+				result = ionet::ExtractEntitiesFromPacket<model::FinalizationMessage>(
+					packet,
+					model::IsSizeValidT<model::FinalizationMessage>);
+				return !result.empty() || sizeof(ionet::PacketHeader) == packet.Size;
+			}
+		};
 
-        // endregion
+		// endregion
 
-        class DefaultRemoteFinalizationApi : public RemoteFinalizationApi {
-        private:
-            template <typename TTraits>
-            using FutureType = thread::future<typename TTraits::ResultType>;
+		class DefaultRemoteFinalizationApi : public RemoteFinalizationApi {
+		private:
+			template <typename TTraits>
+			using FutureType = thread::future<typename TTraits::ResultType>;
 
-        public:
-            DefaultRemoteFinalizationApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity)
-                : RemoteFinalizationApi(remoteIdentity)
-                , m_impl(io)
-            {
-            }
+		public:
+			DefaultRemoteFinalizationApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity)
+				: RemoteFinalizationApi(remoteIdentity)
+				, m_impl(io) {
+			}
 
-        public:
-            FutureType<MessagesTraits> messages(const model::FinalizationRoundRange& roundRange, model::ShortHashRange&& knownShortHashes)
-                const override
-            {
-                return m_impl.dispatch(MessagesTraits(), roundRange, std::move(knownShortHashes));
-            }
+		public:
+			FutureType<MessagesTraits> messages(const model::FinalizationRoundRange& roundRange, model::ShortHashRange&& knownShortHashes)
+				const override {
+				return m_impl.dispatch(MessagesTraits(), roundRange, std::move(knownShortHashes));
+			}
 
-        private:
-            mutable RemoteRequestDispatcher m_impl;
-        };
-    }
+		private:
+			mutable RemoteRequestDispatcher m_impl;
+		};
+	}
 
-    std::unique_ptr<RemoteFinalizationApi> CreateRemoteFinalizationApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity)
-    {
-        return std::make_unique<DefaultRemoteFinalizationApi>(io, remoteIdentity);
-    }
+	std::unique_ptr<RemoteFinalizationApi> CreateRemoteFinalizationApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity) {
+		return std::make_unique<DefaultRemoteFinalizationApi>(io, remoteIdentity);
+	}
 }
 }

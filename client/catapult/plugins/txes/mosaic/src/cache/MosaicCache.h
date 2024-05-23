@@ -28,20 +28,19 @@
 namespace catapult {
 namespace cache {
 
-    /// Cache composed of mosaic information.
-    using BasicMosaicCache = BasicCache<MosaicCacheDescriptor, MosaicCacheTypes::BaseSets>;
+	/// Cache composed of mosaic information.
+	using BasicMosaicCache = BasicCache<MosaicCacheDescriptor, MosaicCacheTypes::BaseSets>;
 
-    /// Synchronized cache composed of mosaic information.
-    class MosaicCache : public SynchronizedCache<BasicMosaicCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(Mosaic)
+	/// Synchronized cache composed of mosaic information.
+	class MosaicCache : public SynchronizedCache<BasicMosaicCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(Mosaic)
 
-    public:
-        /// Creates a cache around \a config.
-        explicit MosaicCache(const CacheConfiguration& config)
-            : SynchronizedCache<BasicMosaicCache>(BasicMosaicCache(config))
-        {
-        }
-    };
+	public:
+		/// Creates a cache around \a config.
+		explicit MosaicCache(const CacheConfiguration& config)
+			: SynchronizedCache<BasicMosaicCache>(BasicMosaicCache(config)) {
+		}
+	};
 }
 }

@@ -25,24 +25,24 @@
 
 namespace catapult {
 namespace model {
-    struct Transaction;
+	struct Transaction;
 }
 namespace mongo {
-    struct MongoTransactionMetadata;
-    class MongoTransactionRegistry;
+	struct MongoTransactionMetadata;
+	class MongoTransactionRegistry;
 }
 }
 
 namespace catapult {
 namespace mongo {
-    namespace mappers {
+	namespace mappers {
 
-        /// Maps \a transaction with \a metadata to representative db documents using \a transactionRegistry for mapping
-        /// derived transaction types.
-        std::vector<bsoncxx::document::value> ToDbDocuments(
-            const model::Transaction& transaction,
-            const MongoTransactionMetadata& metadata,
-            const MongoTransactionRegistry& transactionRegistry);
-    }
+		/// Maps \a transaction with \a metadata to representative db documents using \a transactionRegistry for mapping
+		/// derived transaction types.
+		std::vector<bsoncxx::document::value> ToDbDocuments(
+			const model::Transaction& transaction,
+			const MongoTransactionMetadata& metadata,
+			const MongoTransactionRegistry& transactionRegistry);
+	}
 }
 }

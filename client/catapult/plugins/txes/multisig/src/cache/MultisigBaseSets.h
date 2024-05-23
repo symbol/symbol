@@ -30,23 +30,23 @@
 namespace catapult {
 namespace cache {
 
-    using BasicMultisigPatriciaTree = tree::BasePatriciaTree<
-        SerializerHashedKeyEncoder<MultisigCacheDescriptor::Serializer>,
-        PatriciaTreeRdbDataSource,
-        utils::ArrayHasher<Key>>;
+	using BasicMultisigPatriciaTree = tree::BasePatriciaTree<
+		SerializerHashedKeyEncoder<MultisigCacheDescriptor::Serializer>,
+		PatriciaTreeRdbDataSource,
+		utils::ArrayHasher<Key>>;
 
-    class MultisigPatriciaTree : public BasicMultisigPatriciaTree {
-    public:
-        using BasicMultisigPatriciaTree::BasicMultisigPatriciaTree;
-        using Serializer = MultisigCacheDescriptor::Serializer;
-    };
+	class MultisigPatriciaTree : public BasicMultisigPatriciaTree {
+	public:
+		using BasicMultisigPatriciaTree::BasicMultisigPatriciaTree;
+		using Serializer = MultisigCacheDescriptor::Serializer;
+	};
 
-    using MultisigSingleSetCacheTypesAdapter = SingleSetAndPatriciaTreeCacheTypesAdapter<MultisigCacheTypes::PrimaryTypes, MultisigPatriciaTree>;
+	using MultisigSingleSetCacheTypesAdapter = SingleSetAndPatriciaTreeCacheTypesAdapter<MultisigCacheTypes::PrimaryTypes, MultisigPatriciaTree>;
 
-    struct MultisigBaseSetDeltaPointers : public MultisigSingleSetCacheTypesAdapter::BaseSetDeltaPointers { };
+	struct MultisigBaseSetDeltaPointers : public MultisigSingleSetCacheTypesAdapter::BaseSetDeltaPointers { };
 
-    struct MultisigBaseSets : public MultisigSingleSetCacheTypesAdapter::BaseSets<MultisigBaseSetDeltaPointers> {
-        using MultisigSingleSetCacheTypesAdapter::BaseSets<MultisigBaseSetDeltaPointers>::BaseSets;
-    };
+	struct MultisigBaseSets : public MultisigSingleSetCacheTypesAdapter::BaseSets<MultisigBaseSetDeltaPointers> {
+		using MultisigSingleSetCacheTypesAdapter::BaseSets<MultisigBaseSetDeltaPointers>::BaseSets;
+	};
 }
 }

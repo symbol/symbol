@@ -26,26 +26,26 @@
 
 namespace catapult {
 namespace model {
-    template <typename TEntity>
-    struct EntityInfoComparer;
+	template <typename TEntity>
+	struct EntityInfoComparer;
 
-    template <typename TEntity>
-    struct EntityInfoHasher;
-    struct Transaction;
-    struct TransactionInfo;
+	template <typename TEntity>
+	struct EntityInfoHasher;
+	struct Transaction;
+	struct TransactionInfo;
 }
 }
 
 namespace catapult {
 namespace model {
 
-    /// Unordered set of addresses.
-    using AddressSet = std::unordered_set<Address, utils::ArrayHasher<Address>>;
+	/// Unordered set of addresses.
+	using AddressSet = std::unordered_set<Address, utils::ArrayHasher<Address>>;
 
-    /// Unordered set of unresolved addresses.
-    using UnresolvedAddressSet = std::unordered_set<UnresolvedAddress, utils::ArrayHasher<UnresolvedAddress>>;
+	/// Unordered set of unresolved addresses.
+	using UnresolvedAddressSet = std::unordered_set<UnresolvedAddress, utils::ArrayHasher<UnresolvedAddress>>;
 
-    /// Unordered set of transaction infos.
-    using TransactionInfosSet = std::unordered_set<TransactionInfo, EntityInfoHasher<const Transaction>, EntityInfoComparer<const Transaction>>;
+	/// Unordered set of transaction infos.
+	using TransactionInfosSet = std::unordered_set<TransactionInfo, EntityInfoHasher<const Transaction>, EntityInfoComparer<const Transaction>>;
 }
 }

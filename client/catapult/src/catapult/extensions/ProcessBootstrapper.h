@@ -31,73 +31,73 @@
 namespace catapult {
 namespace extensions {
 
-    /// Possible process dispositions.
-    enum class ProcessDisposition {
-        /// Production process.
-        Production,
+	/// Possible process dispositions.
+	enum class ProcessDisposition {
+		/// Production process.
+		Production,
 
-        /// Recovery process.
-        Recovery
-    };
+		/// Recovery process.
+		Recovery
+	};
 
-    /// Process bootstrapper.
-    class PLUGIN_API_DEPENDENCY ProcessBootstrapper {
-    public:
-        /// Creates a process bootstrapper around \a config, \a resourcesPath, \a disposition and \a servicePoolName.
-        ProcessBootstrapper(
-            const config::CatapultConfiguration& config,
-            const std::string& resourcesPath,
-            ProcessDisposition disposition,
-            const std::string& servicePoolName);
+	/// Process bootstrapper.
+	class PLUGIN_API_DEPENDENCY ProcessBootstrapper {
+	public:
+		/// Creates a process bootstrapper around \a config, \a resourcesPath, \a disposition and \a servicePoolName.
+		ProcessBootstrapper(
+			const config::CatapultConfiguration& config,
+			const std::string& resourcesPath,
+			ProcessDisposition disposition,
+			const std::string& servicePoolName);
 
-    public:
-        /// Gets the configuration.
-        const config::CatapultConfiguration& config() const;
+	public:
+		/// Gets the configuration.
+		const config::CatapultConfiguration& config() const;
 
-        /// Gets the resources path.
-        const std::string& resourcesPath() const;
+		/// Gets the resources path.
+		const std::string& resourcesPath() const;
 
-        /// Gets the process disposition.
-        ProcessDisposition disposition() const;
+		/// Gets the process disposition.
+		ProcessDisposition disposition() const;
 
-        /// Gets the static (pretrusted) nodes.
-        const std::vector<ionet::Node>& staticNodes() const;
+		/// Gets the static (pretrusted) nodes.
+		const std::vector<ionet::Node>& staticNodes() const;
 
-    public:
-        /// Gets the multiservice pool.
-        thread::MultiServicePool& pool();
+	public:
+		/// Gets the multiservice pool.
+		thread::MultiServicePool& pool();
 
-        /// Gets the extension manager.
-        ExtensionManager& extensionManager();
+		/// Gets the extension manager.
+		ExtensionManager& extensionManager();
 
-        /// Gets the subscription manager.
-        subscribers::SubscriptionManager& subscriptionManager();
+		/// Gets the subscription manager.
+		subscribers::SubscriptionManager& subscriptionManager();
 
-        /// Gets the plugin manager.
-        plugins::PluginManager& pluginManager();
+		/// Gets the plugin manager.
+		plugins::PluginManager& pluginManager();
 
-    public:
-        /// Loads all configured extensions.
-        void loadExtensions();
+	public:
+		/// Loads all configured extensions.
+		void loadExtensions();
 
-        /// Adds static \a nodes to the bootstrapper.
-        void addStaticNodes(const std::vector<ionet::Node>& nodes);
+		/// Adds static \a nodes to the bootstrapper.
+		void addStaticNodes(const std::vector<ionet::Node>& nodes);
 
-    private:
-        config::CatapultConfiguration m_config;
-        std::string m_resourcesPath;
-        ProcessDisposition m_disposition;
-        std::unique_ptr<thread::MultiServicePool> m_pMultiServicePool;
-        std::vector<plugins::PluginModule> m_extensionModules;
+	private:
+		config::CatapultConfiguration m_config;
+		std::string m_resourcesPath;
+		ProcessDisposition m_disposition;
+		std::unique_ptr<thread::MultiServicePool> m_pMultiServicePool;
+		std::vector<plugins::PluginModule> m_extensionModules;
 
-        ExtensionManager m_extensionManager;
-        subscribers::SubscriptionManager m_subscriptionManager;
-        plugins::PluginManager m_pluginManager;
-        std::vector<ionet::Node> m_nodes;
-    };
+		ExtensionManager m_extensionManager;
+		subscribers::SubscriptionManager m_subscriptionManager;
+		plugins::PluginManager m_pluginManager;
+		std::vector<ionet::Node> m_nodes;
+	};
 
-    /// Adds static nodes from \a path to \a bootstrapper.
-    void AddStaticNodesFromPath(ProcessBootstrapper& bootstrapper, const std::string& path);
+	/// Adds static nodes from \a path to \a bootstrapper.
+	void AddStaticNodesFromPath(ProcessBootstrapper& bootstrapper, const std::string& path);
 }
 }
 

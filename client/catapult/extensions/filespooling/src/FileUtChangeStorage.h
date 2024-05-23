@@ -27,7 +27,7 @@
 namespace catapult {
 namespace filespooling {
 
-    /// Creates an unconfirmed transactions change storage around \a pOutputStream.
-    std::unique_ptr<cache::UtChangeSubscriber> CreateFileUtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream);
+	/// Creates an unconfirmed transactions change storage around \a pOutputStream.
+	std::unique_ptr<cache::UtChangeSubscriber> CreateFileUtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream);
 }
 }

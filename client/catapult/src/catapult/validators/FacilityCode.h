@@ -28,36 +28,36 @@ namespace validators {
 
 #define COPY_FACILITY_CODE(FACILITY_NAME) FACILITY_NAME = utils::to_underlying_type(model::FacilityCode::FACILITY_NAME)
 
-    /// Possible validation facility codes.
-    enum class FacilityCode : uint8_t {
-        COPY_FACILITY_CODE(AccountLink),
-        COPY_FACILITY_CODE(Aggregate),
-        COPY_FACILITY_CODE(Core),
-        COPY_FACILITY_CODE(LockHash),
-        COPY_FACILITY_CODE(LockSecret),
-        COPY_FACILITY_CODE(Metadata),
-        COPY_FACILITY_CODE(Mosaic),
-        COPY_FACILITY_CODE(Multisig),
-        COPY_FACILITY_CODE(Namespace),
-        COPY_FACILITY_CODE(RestrictionAccount),
-        COPY_FACILITY_CODE(RestrictionMosaic),
-        COPY_FACILITY_CODE(Transfer),
+	/// Possible validation facility codes.
+	enum class FacilityCode : uint8_t {
+		COPY_FACILITY_CODE(AccountLink),
+		COPY_FACILITY_CODE(Aggregate),
+		COPY_FACILITY_CODE(Core),
+		COPY_FACILITY_CODE(LockHash),
+		COPY_FACILITY_CODE(LockSecret),
+		COPY_FACILITY_CODE(Metadata),
+		COPY_FACILITY_CODE(Mosaic),
+		COPY_FACILITY_CODE(Multisig),
+		COPY_FACILITY_CODE(Namespace),
+		COPY_FACILITY_CODE(RestrictionAccount),
+		COPY_FACILITY_CODE(RestrictionMosaic),
+		COPY_FACILITY_CODE(Transfer),
 
-        /// Chain facility code.
-        Chain = 0xFF,
+		/// Chain facility code.
+		Chain = 0xFF,
 
-        /// Consumer facility code.
-        Consumer = 0xFE,
+		/// Consumer facility code.
+		Consumer = 0xFE,
 
-        /// Extension facility code.
-        Extension = 0x45,
+		/// Extension facility code.
+		Extension = 0x45,
 
-        /// Hash facility code.
-        Hash = 0x49,
+		/// Hash facility code.
+		Hash = 0x49,
 
-        /// Signature facility code.
-        Signature = 0x53
-    };
+		/// Signature facility code.
+		Signature = 0x53
+	};
 
 #undef COPY_FACILITY_CODE
 }

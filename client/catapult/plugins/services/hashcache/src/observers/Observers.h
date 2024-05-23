@@ -26,8 +26,8 @@
 namespace catapult {
 namespace observers {
 
-    /// Observes transaction hashes.
-    DECLARE_OBSERVER(TransactionHash, model::TransactionNotification)
-    ();
+	/// Observes transaction hashes.
+	DECLARE_OBSERVER(TransactionHash, model::TransactionNotification)
+	();
 }
 }

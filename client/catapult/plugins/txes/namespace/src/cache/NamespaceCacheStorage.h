@@ -27,15 +27,15 @@
 namespace catapult {
 namespace cache {
 
-    /// Policy for saving and loading namespace cache data.
-    struct NamespaceCacheStorage
-        : public CacheStorageFromDescriptor<NamespaceCacheDescriptor>,
-          public state::RootNamespaceHistorySerializer {
-        /// Loads \a history into \a cacheDelta.
-        static void LoadInto(const ValueType& history, DestinationType& cacheDelta);
+	/// Policy for saving and loading namespace cache data.
+	struct NamespaceCacheStorage
+		: public CacheStorageFromDescriptor<NamespaceCacheDescriptor>,
+		  public state::RootNamespaceHistorySerializer {
+		/// Loads \a history into \a cacheDelta.
+		static void LoadInto(const ValueType& history, DestinationType& cacheDelta);
 
-        /// Purges \a history from \a cacheDelta.
-        static void Purge(const ValueType& history, DestinationType& cacheDelta);
-    };
+		/// Purges \a history from \a cacheDelta.
+		static void Purge(const ValueType& history, DestinationType& cacheDelta);
+	};
 }
 }

@@ -26,23 +26,20 @@
 namespace catapult {
 namespace cache {
 
-    ReadOnlyMosaicRestrictionCache::ReadOnlyMosaicRestrictionCache(const BasicMosaicRestrictionCacheView& cache)
-        : ReadOnlyMosaicRestrictionArtifactCache(cache)
-        , m_pCache(&cache)
-        , m_pCacheDelta(nullptr)
-    {
-    }
+	ReadOnlyMosaicRestrictionCache::ReadOnlyMosaicRestrictionCache(const BasicMosaicRestrictionCacheView& cache)
+		: ReadOnlyMosaicRestrictionArtifactCache(cache)
+		, m_pCache(&cache)
+		, m_pCacheDelta(nullptr) {
+	}
 
-    ReadOnlyMosaicRestrictionCache::ReadOnlyMosaicRestrictionCache(const BasicMosaicRestrictionCacheDelta& cache)
-        : ReadOnlyMosaicRestrictionArtifactCache(cache)
-        , m_pCache(nullptr)
-        , m_pCacheDelta(&cache)
-    {
-    }
+	ReadOnlyMosaicRestrictionCache::ReadOnlyMosaicRestrictionCache(const BasicMosaicRestrictionCacheDelta& cache)
+		: ReadOnlyMosaicRestrictionArtifactCache(cache)
+		, m_pCache(nullptr)
+		, m_pCacheDelta(&cache) {
+	}
 
-    model::NetworkIdentifier ReadOnlyMosaicRestrictionCache::networkIdentifier() const
-    {
-        return m_pCache ? m_pCache->networkIdentifier() : m_pCacheDelta->networkIdentifier();
-    }
+	model::NetworkIdentifier ReadOnlyMosaicRestrictionCache::networkIdentifier() const {
+		return m_pCache ? m_pCache->networkIdentifier() : m_pCacheDelta->networkIdentifier();
+	}
 }
 }

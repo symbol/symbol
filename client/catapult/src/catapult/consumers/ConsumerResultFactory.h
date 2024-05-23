@@ -27,46 +27,41 @@
 namespace catapult {
 namespace consumers {
 
-    /// Creates a continuation consumer result.
-    constexpr disruptor::ConsumerResult Continue()
-    {
-        return disruptor::ConsumerResult::Continue();
-    }
+	/// Creates a continuation consumer result.
+	constexpr disruptor::ConsumerResult Continue() {
+		return disruptor::ConsumerResult::Continue();
+	}
 
-    /// Creates an aborted consumer result around \a validationResult with \a severity.
-    constexpr disruptor::ConsumerResult Abort(validators::ValidationResult validationResult, disruptor::ConsumerResultSeverity severity)
-    {
-        return disruptor::ConsumerResult::Abort(utils::to_underlying_type(validationResult), severity);
-    }
+	/// Creates an aborted consumer result around \a validationResult with \a severity.
+	constexpr disruptor::ConsumerResult Abort(validators::ValidationResult validationResult, disruptor::ConsumerResultSeverity severity) {
+		return disruptor::ConsumerResult::Abort(utils::to_underlying_type(validationResult), severity);
+	}
 
-    /// Creates an aborted consumer result around \a validationResult.
-    constexpr disruptor::ConsumerResult Abort(validators::ValidationResult validationResult)
-    {
-        auto validationResultSeverity = validators::GetSeverity(validationResult);
-        switch (validationResultSeverity) {
-        case validators::ResultSeverity::Failure:
-            return Abort(validationResult, disruptor::ConsumerResultSeverity::Failure);
+	/// Creates an aborted consumer result around \a validationResult.
+	constexpr disruptor::ConsumerResult Abort(validators::ValidationResult validationResult) {
+		auto validationResultSeverity = validators::GetSeverity(validationResult);
+		switch (validationResultSeverity) {
+		case validators::ResultSeverity::Failure:
+			return Abort(validationResult, disruptor::ConsumerResultSeverity::Failure);
 
-        case validators::ResultSeverity::Neutral:
-            return Abort(validationResult, disruptor::ConsumerResultSeverity::Neutral);
+		case validators::ResultSeverity::Neutral:
+			return Abort(validationResult, disruptor::ConsumerResultSeverity::Neutral);
 
-        default:
-            return Abort(validationResult, disruptor::ConsumerResultSeverity::Success);
-        }
-    }
+		default:
+			return Abort(validationResult, disruptor::ConsumerResultSeverity::Success);
+		}
+	}
 
-    /// Creates a completed success consumer result.
-    constexpr disruptor::ConsumerResult CompleteSuccess()
-    {
-        auto code = utils::to_underlying_type(validators::ValidationResult::Success);
-        return disruptor::ConsumerResult::Complete(code, disruptor::ConsumerResultSeverity::Success);
-    }
+	/// Creates a completed success consumer result.
+	constexpr disruptor::ConsumerResult CompleteSuccess() {
+		auto code = utils::to_underlying_type(validators::ValidationResult::Success);
+		return disruptor::ConsumerResult::Complete(code, disruptor::ConsumerResultSeverity::Success);
+	}
 
-    /// Creates a completed neutral consumer result.
-    constexpr disruptor::ConsumerResult CompleteNeutral()
-    {
-        auto code = utils::to_underlying_type(validators::ValidationResult::Neutral);
-        return disruptor::ConsumerResult::Complete(code, disruptor::ConsumerResultSeverity::Neutral);
-    }
+	/// Creates a completed neutral consumer result.
+	constexpr disruptor::ConsumerResult CompleteNeutral() {
+		auto code = utils::to_underlying_type(validators::ValidationResult::Neutral);
+		return disruptor::ConsumerResult::Complete(code, disruptor::ConsumerResultSeverity::Neutral);
+	}
 }
 }

@@ -27,24 +27,24 @@
 
 namespace catapult {
 namespace config {
-    class CatapultDirectory;
+	class CatapultDirectory;
 }
 }
 
 namespace catapult {
 namespace harvesting {
 
-    /// Decrypts \a publicKeyPrefixedEncryptedPayload using \a encryptionKeyPair.
-    std::pair<BlockGeneratorAccountDescriptor, bool> TryDecryptBlockGeneratorAccountDescriptor(
-        const RawBuffer& publicKeyPrefixedEncryptedPayload,
-        const crypto::KeyPair& encryptionKeyPair);
+	/// Decrypts \a publicKeyPrefixedEncryptedPayload using \a encryptionKeyPair.
+	std::pair<BlockGeneratorAccountDescriptor, bool> TryDecryptBlockGeneratorAccountDescriptor(
+		const RawBuffer& publicKeyPrefixedEncryptedPayload,
+		const crypto::KeyPair& encryptionKeyPair);
 
-    /// Reads (encrypted) harvest requests, with heights no greater than \a maxHeight, from \a directory,
-    /// validates using \a encryptionKeyPair and forwards to \a processDescriptor.
-    void UnlockedFileQueueConsumer(
-        const config::CatapultDirectory& directory,
-        Height maxHeight,
-        const crypto::KeyPair& encryptionKeyPair,
-        const consumer<const HarvestRequest&, BlockGeneratorAccountDescriptor&&>& processDescriptor);
+	/// Reads (encrypted) harvest requests, with heights no greater than \a maxHeight, from \a directory,
+	/// validates using \a encryptionKeyPair and forwards to \a processDescriptor.
+	void UnlockedFileQueueConsumer(
+		const config::CatapultDirectory& directory,
+		Height maxHeight,
+		const crypto::KeyPair& encryptionKeyPair,
+		const consumer<const HarvestRequest&, BlockGeneratorAccountDescriptor&&>& processDescriptor);
 }
 }

@@ -29,36 +29,36 @@
 
 namespace catapult {
 namespace ionet {
-    class PacketIo;
-    class PacketSocket;
-    class PacketSocketInfo;
+	class PacketIo;
+	class PacketSocket;
+	class PacketSocketInfo;
 }
 namespace thread {
-    class IoThreadPool;
+	class IoThreadPool;
 }
 }
 
 namespace catapult {
 namespace net {
 
-    /// Manages a collection of connections that receive data from external nodes.
-    class PacketReaders : public AcceptedConnectionContainer {
-    public:
-        /// Gets the number of active readers.
-        virtual size_t numActiveReaders() const = 0;
+	/// Manages a collection of connections that receive data from external nodes.
+	class PacketReaders : public AcceptedConnectionContainer {
+	public:
+		/// Gets the number of active readers.
+		virtual size_t numActiveReaders() const = 0;
 
-    public:
-        /// Shuts down all connections.
-        virtual void shutdown() = 0;
-    };
+	public:
+		/// Shuts down all connections.
+		virtual void shutdown() = 0;
+	};
 
-    /// Creates a packet readers container for a server with specified \a serverPublicKey using \a pool and \a handlers,
-    /// configured with \a settings and allowing \a maxConnectionsPerIdentity.
-    std::shared_ptr<PacketReaders> CreatePacketReaders(
-        thread::IoThreadPool& pool,
-        const ionet::ServerPacketHandlers& handlers,
-        const Key& serverPublicKey,
-        const ConnectionSettings& settings,
-        uint32_t maxConnectionsPerIdentity);
+	/// Creates a packet readers container for a server with specified \a serverPublicKey using \a pool and \a handlers,
+	/// configured with \a settings and allowing \a maxConnectionsPerIdentity.
+	std::shared_ptr<PacketReaders> CreatePacketReaders(
+		thread::IoThreadPool& pool,
+		const ionet::ServerPacketHandlers& handlers,
+		const Key& serverPublicKey,
+		const ConnectionSettings& settings,
+		uint32_t maxConnectionsPerIdentity);
 }
 }

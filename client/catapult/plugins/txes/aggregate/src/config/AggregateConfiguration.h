@@ -24,42 +24,42 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace config {
 
-    /// Aggregate plugin configuration settings.
-    struct AggregateConfiguration {
-    public:
-        /// Maximum number of transactions per aggregate.
-        uint32_t MaxTransactionsPerAggregate;
+	/// Aggregate plugin configuration settings.
+	struct AggregateConfiguration {
+	public:
+		/// Maximum number of transactions per aggregate.
+		uint32_t MaxTransactionsPerAggregate;
 
-        /// Maximum number of cosignatures per aggregate.
-        uint8_t MaxCosignaturesPerAggregate;
+		/// Maximum number of cosignatures per aggregate.
+		uint8_t MaxCosignaturesPerAggregate;
 
-        /// \c true if cosignatures must exactly match component signers.
-        /// \c false if cosignatures should be validated externally.
-        bool EnableStrictCosignatureCheck;
+		/// \c true if cosignatures must exactly match component signers.
+		/// \c false if cosignatures should be validated externally.
+		bool EnableStrictCosignatureCheck;
 
-        /// \c true if bonded aggregates should be allowed.
-        /// \c false if bonded aggregates should be rejected.
-        bool EnableBondedAggregateSupport;
+		/// \c true if bonded aggregates should be allowed.
+		/// \c false if bonded aggregates should be rejected.
+		bool EnableBondedAggregateSupport;
 
-        /// Maximum lifetime a bonded transaction can have before it expires.
-        utils::TimeSpan MaxBondedTransactionLifetime;
+		/// Maximum lifetime a bonded transaction can have before it expires.
+		utils::TimeSpan MaxBondedTransactionLifetime;
 
-    private:
-        AggregateConfiguration() = default;
+	private:
+		AggregateConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized aggregate configuration.
-        static AggregateConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized aggregate configuration.
+		static AggregateConfiguration Uninitialized();
 
-        /// Loads an aggregate configuration from \a bag.
-        static AggregateConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+		/// Loads an aggregate configuration from \a bag.
+		static AggregateConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 }
 }

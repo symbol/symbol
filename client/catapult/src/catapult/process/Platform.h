@@ -24,7 +24,7 @@
 namespace catapult {
 namespace process {
 
-    /// Sets the platform specific settings.
-    void PlatformSettings();
+	/// Sets the platform specific settings.
+	void PlatformSettings();
 }
 }

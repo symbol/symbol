@@ -26,62 +26,57 @@
 namespace catapult {
 namespace utils {
 
-    namespace {
-        class OutputWriter {
-        public:
-            OutputWriter(std::ostream& out)
-                : m_out(out)
-                , m_hasOutput(false)
-            {
-            }
+	namespace {
+		class OutputWriter {
+		public:
+			OutputWriter(std::ostream& out)
+				: m_out(out)
+				, m_hasOutput(false) {
+			}
 
-        public:
-            void write(uint64_t value, const char* postfix)
-            {
-                if (m_hasOutput)
-                    m_out << " ";
+		public:
+			void write(uint64_t value, const char* postfix) {
+				if (m_hasOutput)
+					m_out << " ";
 
-                m_out << value << postfix;
-                m_hasOutput = true;
-            }
+				m_out << value << postfix;
+				m_hasOutput = true;
+			}
 
-            void writeNonzero(uint64_t value, const char* postfix)
-            {
-                if (0 == value)
-                    return;
+			void writeNonzero(uint64_t value, const char* postfix) {
+				if (0 == value)
+					return;
 
-                write(value, postfix);
-            }
+				write(value, postfix);
+			}
 
-            void writeIfEmpty(uint64_t value, const char* postfix)
-            {
-                if (m_hasOutput)
-                    return;
+			void writeIfEmpty(uint64_t value, const char* postfix) {
+				if (m_hasOutput)
+					return;
 
-                write(value, postfix);
-            }
+				write(value, postfix);
+			}
 
-        private:
-            std::ostream& m_out;
-            bool m_hasOutput;
-        };
-    }
+		private:
+			std::ostream& m_out;
+			bool m_hasOutput;
+		};
+	}
 
-    std::ostream& operator<<(std::ostream& out, const FileSize& fileSize)
-    {
-        // calculate components
-        auto remainder = fileSize.bytes();
-        auto bytes = DivideAndGetRemainder<uint64_t>(remainder, 1024);
-        auto kilobytes = DivideAndGetRemainder<uint64_t>(remainder, 1024);
-        auto megabytes = remainder;
+	std::ostream& operator<<(std::ostream& out, const FileSize& fileSize) {
+		// calculate components
+		auto remainder = fileSize.bytes();
+		auto bytes = DivideAndGetRemainder<uint64_t>(remainder, 1024);
+		auto kilobytes = DivideAndGetRemainder<uint64_t>(remainder, 1024);
+		auto megabytes = remainder;
 
-        // output as [0MB][ ][0KB][ ][0B]
-        OutputWriter writer(out);
-        writer.writeNonzero(megabytes, "MB");
-        writer.writeNonzero(kilobytes, "KB");
-        writer.writeNonzero(bytes, "B");
-        writer.writeIfEmpty(0, "B"); // if file size is 0, output "0B"
-        return out;
-    }
+		// output as [0MB][ ][0KB][ ][0B]
+		OutputWriter writer(out);
+		writer.writeNonzero(megabytes, "MB");
+		writer.writeNonzero(kilobytes, "KB");
+		writer.writeNonzero(bytes, "B");
+		writer.writeIfEmpty(0, "B"); // if file size is 0, output "0B"
+		return out;
+	}
 }
 }

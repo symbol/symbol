@@ -26,10 +26,10 @@
 namespace catapult {
 namespace model {
 
-    /// Calculates \a hashAlgorithm hash of \a data.
-    Hash256 CalculateHash(LockHashAlgorithm hashAlgorithm, const RawBuffer& data);
+	/// Calculates \a hashAlgorithm hash of \a data.
+	Hash256 CalculateHash(LockHashAlgorithm hashAlgorithm, const RawBuffer& data);
 
-    /// Calculates the secret lock info hash from \a secret and \a recipient.
-    Hash256 CalculateSecretLockInfoHash(const Hash256& secret, const Address& recipient);
+	/// Calculates the secret lock info hash from \a secret and \a recipient.
+	Hash256 CalculateSecretLockInfoHash(const Hash256& secret, const Address& recipient);
 }
 }

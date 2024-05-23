@@ -28,18 +28,17 @@ namespace utils {
 
 #define TEST_CLASS RandomGeneratorTests
 
-    namespace {
-        class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
-        public:
-            HighEntropyRandomGeneratorCustomToken()
-                : HighEntropyRandomGenerator("/dev/urandom")
-            {
-            }
-        };
-    }
+	namespace {
+		class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
+		public:
+			HighEntropyRandomGeneratorCustomToken()
+				: HighEntropyRandomGenerator("/dev/urandom") {
+			}
+		};
+	}
 
-    DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGenerator)
-    DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGeneratorCustomToken)
-    DEFINE_RANDOMNESS_UINT64_TESTS(LowEntropyRandomGenerator)
+	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGenerator)
+	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGeneratorCustomToken)
+	DEFINE_RANDOMNESS_UINT64_TESTS(LowEntropyRandomGenerator)
 }
 }

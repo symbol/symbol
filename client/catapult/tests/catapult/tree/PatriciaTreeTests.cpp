@@ -28,33 +28,30 @@ namespace tree {
 
 #define TEST_CLASS PatriciaTreeTests
 
-    namespace {
-        class MemoryTraits {
-        public:
-            using DataSourceType = MemoryDataSource;
+	namespace {
+		class MemoryTraits {
+		public:
+			using DataSourceType = MemoryDataSource;
 
-        public:
-            explicit MemoryTraits(DataSourceVerbosity verbosity)
-                : m_dataSource(verbosity)
-            {
-            }
+		public:
+			explicit MemoryTraits(DataSourceVerbosity verbosity)
+				: m_dataSource(verbosity) {
+			}
 
-        public:
-            DataSourceType& dataSource()
-            {
-                return m_dataSource;
-            }
+		public:
+			DataSourceType& dataSource() {
+				return m_dataSource;
+			}
 
-            void verifyDataSourceSize(size_t expectedSize) const
-            {
-                EXPECT_EQ(expectedSize, m_dataSource.size());
-            }
+			void verifyDataSourceSize(size_t expectedSize) const {
+				EXPECT_EQ(expectedSize, m_dataSource.size());
+			}
 
-        private:
-            DataSourceType m_dataSource;
-        };
-    }
+		private:
+			DataSourceType m_dataSource;
+		};
+	}
 
-    DEFINE_PATRICIA_TREE_TESTS(MemoryTraits)
+	DEFINE_PATRICIA_TREE_TESTS(MemoryTraits)
 }
 }

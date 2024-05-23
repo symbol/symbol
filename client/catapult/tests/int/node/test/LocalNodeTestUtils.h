@@ -33,160 +33,157 @@
 namespace catapult {
 namespace test {
 
-    /// Gets the local node port.
-    inline unsigned short GetLocalNodePort()
-    {
-        return GetLocalHostPort();
-    }
+	/// Gets the local node port.
+	inline unsigned short GetLocalNodePort() {
+		return GetLocalHostPort();
+	}
 
-    /// Possible node flags.
-    enum class NodeFlag {
-        /// Node with a single (self) peer.
-        Regular = utils::to_underlying_type(LocalNodeFlags::None),
+	/// Possible node flags.
+	enum class NodeFlag {
+		/// Node with a single (self) peer.
+		Regular = utils::to_underlying_type(LocalNodeFlags::None),
 
-        /// Node with auto harvesting.
-        Auto_Harvest = utils::to_underlying_type(LocalNodeFlags::Should_Auto_Harvest),
+		/// Node with auto harvesting.
+		Auto_Harvest = utils::to_underlying_type(LocalNodeFlags::Should_Auto_Harvest),
 
-        /// Node with custom peers.
-        Custom_Peers = 4,
+		/// Node with custom peers.
+		Custom_Peers = 4,
 
-        /// Node with a partner node.
-        With_Partner = 8,
+		/// Node with a partner node.
+		With_Partner = 8,
 
-        /// Simulated api node.
-        Simulated_Api = 16,
+		/// Simulated api node.
+		Simulated_Api = 16,
 
-        /// Node supporting verifiable receipts.
-        Verify_Receipts = 32,
+		/// Node supporting verifiable receipts.
+		Verify_Receipts = 32,
 
-        /// Node supporting cache database storage.
-        Cache_Database_Storage = 64,
+		/// Node supporting cache database storage.
+		Cache_Database_Storage = 64,
 
-        /// Node supporting verifiable state.
-        Verify_State = 128 | Cache_Database_Storage,
+		/// Node supporting verifiable state.
+		Verify_State = 128 | Cache_Database_Storage,
 
-        /// Node that should not be booted implicitly.
-        Require_Explicit_Boot = 256,
+		/// Node that should not be booted implicitly.
+		Require_Explicit_Boot = 256,
 
-        /// Node supporting auto sync cleanup.
-        Auto_Sync_Cleanup = 512,
+		/// Node supporting auto sync cleanup.
+		Auto_Sync_Cleanup = 512,
 
-        /// Bypass seed directory and prepare data directory directly.
-        Bypass_Seed = 1024
-    };
+		/// Bypass seed directory and prepare data directory directly.
+		Bypass_Seed = 1024
+	};
 
-    MAKE_BITWISE_ENUM(NodeFlag)
+	MAKE_BITWISE_ENUM(NodeFlag)
 
-    // region counter -> stats adapter
+	// region counter -> stats adapter
 
-    /// Basic statistics about a local node.
-    struct BasicLocalNodeStats {
-        /// Number of active packet readers.
-        uint64_t NumActiveReaders;
+	/// Basic statistics about a local node.
+	struct BasicLocalNodeStats {
+		/// Number of active packet readers.
+		uint64_t NumActiveReaders;
 
-        /// Number of active packet writers.
-        uint64_t NumActiveWriters;
+		/// Number of active packet writers.
+		uint64_t NumActiveWriters;
 
-        /// Number of scheduled tasks.
-        uint64_t NumScheduledTasks;
+		/// Number of scheduled tasks.
+		uint64_t NumScheduledTasks;
 
-        /// Number of block elements added to the disruptor.
-        uint64_t NumAddedBlockElements;
+		/// Number of block elements added to the disruptor.
+		uint64_t NumAddedBlockElements;
 
-        /// Number of active block elements in the disruptor.
-        uint64_t NumActiveBlockElements;
+		/// Number of active block elements in the disruptor.
+		uint64_t NumActiveBlockElements;
 
-        /// Number of transaction elements added to the disruptor.
-        uint64_t NumAddedTransactionElements;
-    };
+		/// Number of transaction elements added to the disruptor.
+		uint64_t NumAddedTransactionElements;
+	};
 
-    /// Statistics about a local p2p node.
-    struct PeerLocalNodeStats : public BasicLocalNodeStats {
-        /// Number of unlocked accounts.
-        uint64_t NumUnlockedAccounts;
-    };
+	/// Statistics about a local p2p node.
+	struct PeerLocalNodeStats : public BasicLocalNodeStats {
+		/// Number of unlocked accounts.
+		uint64_t NumUnlockedAccounts;
+	};
 
-    /// Returns \c true if \a counters contains a counter with \a name.
-    bool HasCounter(const local::LocalNodeCounterValues& counters, const std::string& name);
+	/// Returns \c true if \a counters contains a counter with \a name.
+	bool HasCounter(const local::LocalNodeCounterValues& counters, const std::string& name);
 
-    /// Gets the value of the counter with \a name in \a counters.
-    uint64_t GetCounterValue(const local::LocalNodeCounterValues& counters, const std::string& name);
+	/// Gets the value of the counter with \a name in \a counters.
+	uint64_t GetCounterValue(const local::LocalNodeCounterValues& counters, const std::string& name);
 
-    /// Extracts all basic statistics from \a counters.
-    BasicLocalNodeStats CountersToBasicLocalNodeStats(const local::LocalNodeCounterValues& counters);
+	/// Extracts all basic statistics from \a counters.
+	BasicLocalNodeStats CountersToBasicLocalNodeStats(const local::LocalNodeCounterValues& counters);
 
-    /// Extracts all basic and peer statistics from \a counters.
-    PeerLocalNodeStats CountersToPeerLocalNodeStats(const local::LocalNodeCounterValues& counters);
+	/// Extracts all basic and peer statistics from \a counters.
+	PeerLocalNodeStats CountersToPeerLocalNodeStats(const local::LocalNodeCounterValues& counters);
 
-    // endregion
+	// endregion
 
-    // region partner nodes
+	// region partner nodes
 
-    /// Creates a local partner node with \a publicKey.
-    ionet::Node CreateLocalPartnerNode(const Key& publicKey);
+	/// Creates a local partner node with \a publicKey.
+	ionet::Node CreateLocalPartnerNode(const Key& publicKey);
 
-    /// Boots a local partner node around \a config with \a keys and specified \a nodeFlag.
-    std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
-        config::CatapultConfiguration&& config,
-        const config::CatapultKeys& keys,
-        NodeFlag nodeFlag);
+	/// Boots a local partner node around \a config with \a keys and specified \a nodeFlag.
+	std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
+		config::CatapultConfiguration&& config,
+		const config::CatapultKeys& keys,
+		NodeFlag nodeFlag);
 
-    /// Prepares catapult configuration (\a config) by  updating setings to be compatible with \a nodeFlag.
-    void PrepareCatapultConfiguration(config::CatapultConfiguration& config, NodeFlag nodeFlag);
+	/// Prepares catapult configuration (\a config) by  updating setings to be compatible with \a nodeFlag.
+	void PrepareCatapultConfiguration(config::CatapultConfiguration& config, NodeFlag nodeFlag);
 
-    /// Prepares catapult configuration (\a config) by adding plugins and extensions (via \a addNodeExtensions)
-    /// and updating setings to be compatible with \a nodeFlag.
-    template <typename TAddNodeExtensions>
-    void PrepareCatapultConfiguration(config::CatapultConfiguration& config, TAddNodeExtensions addNodeExtensions, NodeFlag nodeFlag)
-    {
-        PrepareCatapultConfiguration(config, nodeFlag);
+	/// Prepares catapult configuration (\a config) by adding plugins and extensions (via \a addNodeExtensions)
+	/// and updating setings to be compatible with \a nodeFlag.
+	template <typename TAddNodeExtensions>
+	void PrepareCatapultConfiguration(config::CatapultConfiguration& config, TAddNodeExtensions addNodeExtensions, NodeFlag nodeFlag) {
+		PrepareCatapultConfiguration(config, nodeFlag);
 
-        // in order for the nemesis block to be processed, at least the transfer plugin needs to be loaded
-        AddNemesisPluginExtensions(const_cast<model::BlockchainConfiguration&>(config.Blockchain));
-        addNodeExtensions(const_cast<config::ExtensionsConfiguration&>(config.Extensions));
-    }
+		// in order for the nemesis block to be processed, at least the transfer plugin needs to be loaded
+		AddNemesisPluginExtensions(const_cast<model::BlockchainConfiguration&>(config.Blockchain));
+		addNodeExtensions(const_cast<config::ExtensionsConfiguration&>(config.Extensions));
+	}
 
-    // endregion
+	// endregion
 
-    // region connection tests
+	// region connection tests
 
-    /// Asserts that the local node cannot be connected to on \a port.
-    template <typename TTestContext>
-    void AssertConnectionError(unsigned short port)
-    {
-        // Arrange: boot a local node
-        TTestContext context(NodeFlag::Regular);
+	/// Asserts that the local node cannot be connected to on \a port.
+	template <typename TTestContext>
+	void AssertConnectionError(unsigned short port) {
+		// Arrange: boot a local node
+		TTestContext context(NodeFlag::Regular);
 
-        // Act: attempt to connect to the node
-        auto result = ionet::ConnectResult::Connected;
-        std::atomic_bool isConnectionAttemptComplete(false);
-        auto pPool = CreateStartedIoThreadPool(1);
-        auto options = CreatePacketSocketOptions();
-        auto endpoint = CreateLocalHostNodeEndpoint(port);
-        auto clientKeyPair = GenerateKeyPair();
-        ionet::Connect(pPool->ioContext(), options, endpoint, [&](auto connectResult, const auto&) {
-            CATAPULT_LOG(debug) << "connection attempt completed with " << connectResult;
-            result = connectResult;
-            isConnectionAttemptComplete = true;
-        });
-        WAIT_FOR(isConnectionAttemptComplete);
+		// Act: attempt to connect to the node
+		auto result = ionet::ConnectResult::Connected;
+		std::atomic_bool isConnectionAttemptComplete(false);
+		auto pPool = CreateStartedIoThreadPool(1);
+		auto options = CreatePacketSocketOptions();
+		auto endpoint = CreateLocalHostNodeEndpoint(port);
+		auto clientKeyPair = GenerateKeyPair();
+		ionet::Connect(pPool->ioContext(), options, endpoint, [&](auto connectResult, const auto&) {
+			CATAPULT_LOG(debug) << "connection attempt completed with " << connectResult;
+			result = connectResult;
+			isConnectionAttemptComplete = true;
+		});
+		WAIT_FOR(isConnectionAttemptComplete);
 
-        // Assert: the connection could not be established
-        EXPECT_EQ(ionet::ConnectResult::Connect_Error, result);
-    }
+		// Assert: the connection could not be established
+		EXPECT_EQ(ionet::ConnectResult::Connect_Error, result);
+	}
 
-    /// Represents an external connection.
-    struct ExternalConnection {
-        /// Connection thread pool.
-        std::unique_ptr<thread::IoThreadPool> pPool;
+	/// Represents an external connection.
+	struct ExternalConnection {
+		/// Connection thread pool.
+		std::unique_ptr<thread::IoThreadPool> pPool;
 
-        /// Connection io.
-        std::shared_ptr<ionet::PacketIo> pIo;
-    };
+		/// Connection io.
+		std::shared_ptr<ionet::PacketIo> pIo;
+	};
 
-    /// Creates an external connection to the local node on \a port.
-    ExternalConnection CreateExternalConnection(unsigned short port);
+	/// Creates an external connection to the local node on \a port.
+	ExternalConnection CreateExternalConnection(unsigned short port);
 
-    // endregion
+	// endregion
 }
 }

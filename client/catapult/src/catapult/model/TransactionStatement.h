@@ -26,32 +26,32 @@
 namespace catapult {
 namespace model {
 
-    /// Collection of receipts scoped to a transaction.
-    class TransactionStatement {
-    public:
-        /// Creates a statement around \a source.
-        explicit TransactionStatement(const ReceiptSource& source);
+	/// Collection of receipts scoped to a transaction.
+	class TransactionStatement {
+	public:
+		/// Creates a statement around \a source.
+		explicit TransactionStatement(const ReceiptSource& source);
 
-    public:
-        /// Gets the statement source.
-        const ReceiptSource& source() const;
+	public:
+		/// Gets the statement source.
+		const ReceiptSource& source() const;
 
-        /// Gets the number of attached receipts.
-        size_t size() const;
+		/// Gets the number of attached receipts.
+		size_t size() const;
 
-        /// Gets the receipt at \a index.
-        const Receipt& receiptAt(size_t index) const;
+		/// Gets the receipt at \a index.
+		const Receipt& receiptAt(size_t index) const;
 
-        /// Calculates a unique hash for this statement.
-        Hash256 hash() const;
+		/// Calculates a unique hash for this statement.
+		Hash256 hash() const;
 
-    public:
-        /// Adds \a receipt to this transaction statement.
-        void addReceipt(const Receipt& receipt);
+	public:
+		/// Adds \a receipt to this transaction statement.
+		void addReceipt(const Receipt& receipt);
 
-    private:
-        ReceiptSource m_source;
-        std::vector<std::unique_ptr<Receipt>> m_receipts;
-    };
+	private:
+		ReceiptSource m_source;
+		std::vector<std::unique_ptr<Receipt>> m_receipts;
+	};
 }
 }

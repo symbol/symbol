@@ -23,17 +23,17 @@
 
 namespace catapult {
 namespace cache {
-    class PtChangeSubscriber;
+	class PtChangeSubscriber;
 }
 namespace io {
-    class InputStream;
+	class InputStream;
 }
 }
 
 namespace catapult {
 namespace subscribers {
 
-    /// Reads next partial transactions change from \a inputStream and forwards it to \a subscriber.
-    void ReadNextPtChange(io::InputStream& inputStream, cache::PtChangeSubscriber& subscriber);
+	/// Reads next partial transactions change from \a inputStream and forwards it to \a subscriber.
+	void ReadNextPtChange(io::InputStream& inputStream, cache::PtChangeSubscriber& subscriber);
 }
 }

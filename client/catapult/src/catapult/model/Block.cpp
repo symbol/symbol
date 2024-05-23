@@ -26,52 +26,46 @@
 namespace catapult {
 namespace model {
 
-    namespace {
-        uint32_t GetBlockFooterSize(EntityType type)
-        {
-            return IsImportanceBlock(type) ? 0 : PaddedBlockFooter::Footer_Size;
-        }
-    }
+	namespace {
+		uint32_t GetBlockFooterSize(EntityType type) {
+			return IsImportanceBlock(type) ? 0 : PaddedBlockFooter::Footer_Size;
+		}
+	}
 
-    bool IsImportanceBlock(EntityType type)
-    {
-        return Entity_Type_Block_Nemesis == type || Entity_Type_Block_Importance == type;
-    }
+	bool IsImportanceBlock(EntityType type) {
+		return Entity_Type_Block_Nemesis == type || Entity_Type_Block_Importance == type;
+	}
 
-    uint32_t GetBlockHeaderSize(EntityType type)
-    {
-        return sizeof(BlockHeader) + (IsImportanceBlock(type) ? sizeof(ImportanceBlockFooter) : sizeof(PaddedBlockFooter));
-    }
+	uint32_t GetBlockHeaderSize(EntityType type) {
+		return sizeof(BlockHeader) + (IsImportanceBlock(type) ? sizeof(ImportanceBlockFooter) : sizeof(PaddedBlockFooter));
+	}
 
-    RawBuffer GetBlockHeaderDataBuffer(const BlockHeader& header)
-    {
-        return { reinterpret_cast<const uint8_t*>(&header) + VerifiableEntity::Header_Size,
-            GetBlockHeaderSize(header.Type) - VerifiableEntity::Header_Size - GetBlockFooterSize(header.Type) };
-    }
+	RawBuffer GetBlockHeaderDataBuffer(const BlockHeader& header) {
+		return { reinterpret_cast<const uint8_t*>(&header) + VerifiableEntity::Header_Size,
+			GetBlockHeaderSize(header.Type) - VerifiableEntity::Header_Size - GetBlockFooterSize(header.Type) };
+	}
 
-    size_t GetTransactionPayloadSize(const BlockHeader& header)
-    {
-        return header.Size - GetBlockHeaderSize(header.Type);
-    }
+	size_t GetTransactionPayloadSize(const BlockHeader& header) {
+		return header.Size - GetBlockHeaderSize(header.Type);
+	}
 
-    bool IsSizeValid(const Block& block, const TransactionRegistry& registry)
-    {
-        if (block.Size < sizeof(VerifiableEntity) || block.Size < GetBlockHeaderSize(block.Type)) {
-            CATAPULT_LOG(warning) << block.Type << " block failed size validation with size " << block.Size;
-            return false;
-        }
+	bool IsSizeValid(const Block& block, const TransactionRegistry& registry) {
+		if (block.Size < sizeof(VerifiableEntity) || block.Size < GetBlockHeaderSize(block.Type)) {
+			CATAPULT_LOG(warning) << block.Type << " block failed size validation with size " << block.Size;
+			return false;
+		}
 
-        auto transactions = block.Transactions(EntityContainerErrorPolicy::Suppress);
-        auto areAllTransactionsValid = std::all_of(transactions.cbegin(), transactions.cend(), [&registry](const auto& transaction) {
-            return IsSizeValid(transaction, registry);
-        });
+		auto transactions = block.Transactions(EntityContainerErrorPolicy::Suppress);
+		auto areAllTransactionsValid = std::all_of(transactions.cbegin(), transactions.cend(), [&registry](const auto& transaction) {
+			return IsSizeValid(transaction, registry);
+		});
 
-        if (areAllTransactionsValid && !transactions.hasError())
-            return true;
+		if (areAllTransactionsValid && !transactions.hasError())
+			return true;
 
-        CATAPULT_LOG(warning) << "block transactions failed size validation (valid sizes? " << areAllTransactionsValid << ", errors? "
-                              << transactions.hasError() << ")";
-        return false;
-    }
+		CATAPULT_LOG(warning) << "block transactions failed size validation (valid sizes? " << areAllTransactionsValid << ", errors? "
+							  << transactions.hasError() << ")";
+		return false;
+	}
 }
 }

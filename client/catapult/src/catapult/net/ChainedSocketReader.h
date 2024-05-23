@@ -27,47 +27,47 @@
 
 namespace catapult {
 namespace ionet {
-    class PacketSocket;
+	class PacketSocket;
 }
 namespace model {
-    struct NodeIdentity;
+	struct NodeIdentity;
 }
 }
 
 namespace catapult {
 namespace net {
 
-    /// Reader that chains reads from a socket (it initiates the next read upon the successful completion
-    /// of the current read).
-    class ChainedSocketReader {
-    public:
-        virtual ~ChainedSocketReader() = default;
+	/// Reader that chains reads from a socket (it initiates the next read upon the successful completion
+	/// of the current read).
+	class ChainedSocketReader {
+	public:
+		virtual ~ChainedSocketReader() = default;
 
-    public:
-        /// Callback that is called when the read chain is broken.
-        using CompletionHandler = consumer<ionet::SocketOperationCode>;
+	public:
+		/// Callback that is called when the read chain is broken.
+		using CompletionHandler = consumer<ionet::SocketOperationCode>;
 
-    public:
-        /// Starts reading.
-        virtual void start() = 0;
+	public:
+		/// Starts reading.
+		virtual void start() = 0;
 
-        /// Stops reading.
-        virtual void stop() = 0;
-    };
+		/// Stops reading.
+		virtual void stop() = 0;
+	};
 
-    /// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a default completion
-    /// handler given reader \a identity.
-    std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
-        const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
-        const ionet::ServerPacketHandlers& serverHandlers,
-        const model::NodeIdentity& identity);
+	/// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a default completion
+	/// handler given reader \a identity.
+	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
+		const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
+		const ionet::ServerPacketHandlers& serverHandlers,
+		const model::NodeIdentity& identity);
 
-    /// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a custom completion
-    /// handler (\a completionHandler) given reader \a identity.
-    std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
-        const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
-        const ionet::ServerPacketHandlers& serverHandlers,
-        const model::NodeIdentity& identity,
-        const ChainedSocketReader::CompletionHandler& completionHandler);
+	/// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a custom completion
+	/// handler (\a completionHandler) given reader \a identity.
+	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
+		const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
+		const ionet::ServerPacketHandlers& serverHandlers,
+		const model::NodeIdentity& identity,
+		const ChainedSocketReader::CompletionHandler& completionHandler);
 }
 }

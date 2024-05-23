@@ -28,75 +28,65 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        struct HashLockPluginTraits {
-        public:
-            template <typename TAction>
-            static void RunTestAfterRegistration(TAction action)
-            {
-                // Arrange:
-                auto config = model::BlockchainConfiguration::Uninitialized();
-                config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1);
-                config.Plugins.emplace(
-                    "catapult.plugins.lockhash",
-                    utils::ConfigurationBag(
-                        { { "", { { "lockedFundsPerAggregate", "10'000'000" }, { "maxHashLockDuration", "2d" } } } }));
+	namespace {
+		struct HashLockPluginTraits {
+		public:
+			template <typename TAction>
+			static void RunTestAfterRegistration(TAction action) {
+				// Arrange:
+				auto config = model::BlockchainConfiguration::Uninitialized();
+				config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1);
+				config.Plugins.emplace(
+					"catapult.plugins.lockhash",
+					utils::ConfigurationBag(
+						{ { "", { { "lockedFundsPerAggregate", "10'000'000" }, { "maxHashLockDuration", "2d" } } } }));
 
-                auto manager = test::CreatePluginManager(config);
-                RegisterHashLockSubsystem(manager);
+				auto manager = test::CreatePluginManager(config);
+				RegisterHashLockSubsystem(manager);
 
-                // Act:
-                action(manager);
-            }
+				// Act:
+				action(manager);
+			}
 
-        public:
-            static std::vector<model::EntityType> GetTransactionTypes()
-            {
-                return { model::Entity_Type_Hash_Lock };
-            }
+		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return { model::Entity_Type_Hash_Lock };
+			}
 
-            static std::vector<std::string> GetCacheNames()
-            {
-                return { "HashLockInfoCache" };
-            }
+			static std::vector<std::string> GetCacheNames() {
+				return { "HashLockInfoCache" };
+			}
 
-            static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes()
-            {
-                return { ionet::PacketType::Hash_Lock_State_Path };
-            }
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Hash_Lock_State_Path };
+			}
 
-            static std::vector<ionet::PacketType> GetDiagnosticPacketTypes()
-            {
-                return { ionet::PacketType::Hash_Lock_Infos };
-            }
+			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
+				return { ionet::PacketType::Hash_Lock_Infos };
+			}
 
-            static std::vector<std::string> GetDiagnosticCounterNames()
-            {
-                return { "HASHLOCK C" };
-            }
+			static std::vector<std::string> GetDiagnosticCounterNames() {
+				return { "HASHLOCK C" };
+			}
 
-            static std::vector<std::string> GetStatelessValidatorNames()
-            {
-                return { "HashLockDurationValidator" };
-            }
+			static std::vector<std::string> GetStatelessValidatorNames() {
+				return { "HashLockDurationValidator" };
+			}
 
-            static std::vector<std::string> GetStatefulValidatorNames()
-            {
-                return { "AggregateHashPresentValidator", "HashLockCacheUniqueValidator", "HashLockMosaicValidator" };
-            }
+			static std::vector<std::string> GetStatefulValidatorNames() {
+				return { "AggregateHashPresentValidator", "HashLockCacheUniqueValidator", "HashLockMosaicValidator" };
+			}
 
-            static std::vector<std::string> GetObserverNames()
-            {
-                return { "HashLockObserver", "ExpiredHashLockInfoObserver", "CompletedAggregateObserver" };
-            }
+			static std::vector<std::string> GetObserverNames() {
+				return { "HashLockObserver", "ExpiredHashLockInfoObserver", "CompletedAggregateObserver" };
+			}
 
-            static std::vector<std::string> GetPermanentObserverNames()
-            {
-                return GetObserverNames();
-            }
-        };
-    }
+			static std::vector<std::string> GetPermanentObserverNames() {
+				return GetObserverNames();
+			}
+		};
+	}
 
-    DEFINE_PLUGIN_TESTS(HashLockPluginTests, HashLockPluginTraits)
+	DEFINE_PLUGIN_TESTS(HashLockPluginTests, HashLockPluginTraits)
 }
 }

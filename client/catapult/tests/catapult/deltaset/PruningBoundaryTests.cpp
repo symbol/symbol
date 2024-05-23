@@ -27,23 +27,21 @@ namespace deltaset {
 
 #define TEST_CLASS PruningBoundaryTests
 
-    TEST(TEST_CLASS, CanCreateUnsetPruningBoundary)
-    {
-        // Act:
-        PruningBoundary<int> boundary;
+	TEST(TEST_CLASS, CanCreateUnsetPruningBoundary) {
+		// Act:
+		PruningBoundary<int> boundary;
 
-        // Assert:
-        EXPECT_FALSE(boundary.isSet());
-    }
+		// Assert:
+		EXPECT_FALSE(boundary.isSet());
+	}
 
-    TEST(TEST_CLASS, CanCreatePruningBoundaryWithValue)
-    {
-        // Act:
-        PruningBoundary<int> boundary(17);
+	TEST(TEST_CLASS, CanCreatePruningBoundaryWithValue) {
+		// Act:
+		PruningBoundary<int> boundary(17);
 
-        // Assert:
-        EXPECT_TRUE(boundary.isSet());
-        EXPECT_EQ(17, boundary.value());
-    }
+		// Assert:
+		EXPECT_TRUE(boundary.isSet());
+		EXPECT_EQ(17, boundary.value());
+	}
 }
 }

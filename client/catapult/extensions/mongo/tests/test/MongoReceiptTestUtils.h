@@ -28,139 +28,131 @@
 
 namespace catapult {
 namespace mocks {
-    struct MockReceipt;
+	struct MockReceipt;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Generates \a numStatements transaction statements.
-    std::shared_ptr<model::BlockStatement> GenerateRandomOptionalStatement(size_t numStatements);
+	/// Generates \a numStatements transaction statements.
+	std::shared_ptr<model::BlockStatement> GenerateRandomOptionalStatement(size_t numStatements);
 
-    /// Calculates merkle tree from \a transactionElements.
-    std::vector<Hash256> CalculateMerkleTree(const std::vector<model::TransactionElement>& transactionElements);
+	/// Calculates merkle tree from \a transactionElements.
+	std::vector<Hash256> CalculateMerkleTree(const std::vector<model::TransactionElement>& transactionElements);
 
-    /// Calculates merkle tree from \a blockStatement using only the transaction statements.
-    std::vector<Hash256> CalculateMerkleTreeFromTransactionStatements(const model::BlockStatement& blockStatement);
+	/// Calculates merkle tree from \a blockStatement using only the transaction statements.
+	std::vector<Hash256> CalculateMerkleTreeFromTransactionStatements(const model::BlockStatement& blockStatement);
 
-    /// Verifies that model \a source is equal to db entity (\a sourceView); \a message is used to output additional information.
-    void AssertEqualSource(const model::ReceiptSource& source, const bsoncxx::document::view& sourceView, const std::string& message = "");
+	/// Verifies that model \a source is equal to db entity (\a sourceView); \a message is used to output additional information.
+	void AssertEqualSource(const model::ReceiptSource& source, const bsoncxx::document::view& sourceView, const std::string& message = "");
 
-    /// Verifies that model \a receipt is equal to db entity (\a receiptView); \a message is used to output additional information.
-    void AssertEqualReceipt(const mocks::MockReceipt& receipt, const bsoncxx::document::view& receiptView, const std::string& message = "");
+	/// Verifies that model \a receipt is equal to db entity (\a receiptView); \a message is used to output additional information.
+	void AssertEqualReceipt(const mocks::MockReceipt& receipt, const bsoncxx::document::view& receiptView, const std::string& message = "");
 
-    /// Verifies that model transaction \a statement at \a height is equal to db entity (\a statementView) and that the db entity has
-    /// \a expectedFieldCount fields; \a index is used to output additional information.
-    void AssertEqualTransactionStatement(
-        const model::TransactionStatement& statement,
-        Height height,
-        const bsoncxx::document::view& statementView,
-        size_t expectedFieldCount,
-        size_t index);
+	/// Verifies that model transaction \a statement at \a height is equal to db entity (\a statementView) and that the db entity has
+	/// \a expectedFieldCount fields; \a index is used to output additional information.
+	void AssertEqualTransactionStatement(
+		const model::TransactionStatement& statement,
+		Height height,
+		const bsoncxx::document::view& statementView,
+		size_t expectedFieldCount,
+		size_t index);
 
-    /// Verifies that model address resolution \a statement at \a height is equal to db entity (\a statementView)
-    /// and that the db entity has \a expectedFieldCount fields; \a index is used to output additional information.
-    void AssertEqualAddressResolutionStatement(
-        const model::AddressResolutionStatement& statement,
-        Height height,
-        const bsoncxx::document::view& statementView,
-        size_t expectedFieldCount,
-        size_t index);
+	/// Verifies that model address resolution \a statement at \a height is equal to db entity (\a statementView)
+	/// and that the db entity has \a expectedFieldCount fields; \a index is used to output additional information.
+	void AssertEqualAddressResolutionStatement(
+		const model::AddressResolutionStatement& statement,
+		Height height,
+		const bsoncxx::document::view& statementView,
+		size_t expectedFieldCount,
+		size_t index);
 
-    /// Verifies that model mosaic resolution \a statement at \a height is equal to db entity (\a statementView)
-    /// and that the db entity has \a expectedFieldCount fields; \a index is used to output additional information.
-    void AssertEqualMosaicResolutionStatement(
-        const model::MosaicResolutionStatement& statement,
-        Height height,
-        const bsoncxx::document::view& statementView,
-        size_t expectedFieldCount,
-        size_t index);
+	/// Verifies that model mosaic resolution \a statement at \a height is equal to db entity (\a statementView)
+	/// and that the db entity has \a expectedFieldCount fields; \a index is used to output additional information.
+	void AssertEqualMosaicResolutionStatement(
+		const model::MosaicResolutionStatement& statement,
+		Height height,
+		const bsoncxx::document::view& statementView,
+		size_t expectedFieldCount,
+		size_t index);
 
-    // region traits
+	// region traits
 
-    /// Address resolution traits used in tests.
-    struct AddressResolutionTraits {
-    public:
-        /// Resolution statement type.
-        using ResolutionStatementType = model::AddressResolutionStatement;
+	/// Address resolution traits used in tests.
+	struct AddressResolutionTraits {
+	public:
+		/// Resolution statement type.
+		using ResolutionStatementType = model::AddressResolutionStatement;
 
-        /// Unresolved type.
-        using UnresolvedType = UnresolvedAddress;
+		/// Unresolved type.
+		using UnresolvedType = UnresolvedAddress;
 
-        /// Resolved type.
-        using ResolvedType = Address;
+		/// Resolved type.
+		using ResolvedType = Address;
 
-    public:
-        /// Creates an unresolved type around \a i.
-        static auto CreateUnresolved(uint8_t i)
-        {
-            return UnresolvedAddress { { { static_cast<uint8_t>(i + 1) } } };
-        }
+	public:
+		/// Creates an unresolved type around \a i.
+		static auto CreateUnresolved(uint8_t i) {
+			return UnresolvedAddress { { { static_cast<uint8_t>(i + 1) } } };
+		}
 
-        /// Creates a resolved type around \a i.
-        static auto CreateResolved(uint8_t i)
-        {
-            return Address { { static_cast<uint8_t>(i + 10) } };
-        }
+		/// Creates a resolved type around \a i.
+		static auto CreateResolved(uint8_t i) {
+			return Address { { static_cast<uint8_t>(i + 10) } };
+		}
 
-        /// Gets the unresolved value from \a view.
-        static auto GetUnresolved(const bsoncxx::document::view& view)
-        {
-            return test::GetUnresolvedAddressValue(view, "unresolved");
-        }
+		/// Gets the unresolved value from \a view.
+		static auto GetUnresolved(const bsoncxx::document::view& view) {
+			return test::GetUnresolvedAddressValue(view, "unresolved");
+		}
 
-        /// Gets the resolved value from \a view.
-        static auto GetResolved(const bsoncxx::document::view& view)
-        {
-            return test::GetAddressValue(view, "resolved");
-        }
+		/// Gets the resolved value from \a view.
+		static auto GetResolved(const bsoncxx::document::view& view) {
+			return test::GetAddressValue(view, "resolved");
+		}
 
-    public:
-        static constexpr auto AssertResolutionStatement = AssertEqualAddressResolutionStatement;
-    };
+	public:
+		static constexpr auto AssertResolutionStatement = AssertEqualAddressResolutionStatement;
+	};
 
-    /// Mosaic resolution traits used in tests.
-    struct MosaicResolutionTraits {
-    public:
-        /// Resolution statement type.
-        using ResolutionStatementType = model::MosaicResolutionStatement;
+	/// Mosaic resolution traits used in tests.
+	struct MosaicResolutionTraits {
+	public:
+		/// Resolution statement type.
+		using ResolutionStatementType = model::MosaicResolutionStatement;
 
-        /// Unresolved type.
-        using UnresolvedType = UnresolvedMosaicId;
+		/// Unresolved type.
+		using UnresolvedType = UnresolvedMosaicId;
 
-        /// Resolved type.
-        using ResolvedType = MosaicId;
+		/// Resolved type.
+		using ResolvedType = MosaicId;
 
-    public:
-        /// Creates an unresolved type around \a i.
-        static auto CreateUnresolved(uint8_t i)
-        {
-            return UnresolvedMosaicId(static_cast<uint8_t>(i + 1));
-        }
+	public:
+		/// Creates an unresolved type around \a i.
+		static auto CreateUnresolved(uint8_t i) {
+			return UnresolvedMosaicId(static_cast<uint8_t>(i + 1));
+		}
 
-        /// Creates a resolved type around \a i.
-        static auto CreateResolved(uint8_t i)
-        {
-            return MosaicId(static_cast<uint8_t>(i + 10));
-        }
+		/// Creates a resolved type around \a i.
+		static auto CreateResolved(uint8_t i) {
+			return MosaicId(static_cast<uint8_t>(i + 10));
+		}
 
-        /// Gets the unresolved value from \a view.
-        static auto GetUnresolved(const bsoncxx::document::view& view)
-        {
-            return UnresolvedMosaicId(test::GetUint64(view, "unresolved"));
-        }
+		/// Gets the unresolved value from \a view.
+		static auto GetUnresolved(const bsoncxx::document::view& view) {
+			return UnresolvedMosaicId(test::GetUint64(view, "unresolved"));
+		}
 
-        /// Gets the resolved value from \a view.
-        static auto GetResolved(const bsoncxx::document::view& view)
-        {
-            return MosaicId(test::GetUint64(view, "resolved"));
-        }
+		/// Gets the resolved value from \a view.
+		static auto GetResolved(const bsoncxx::document::view& view) {
+			return MosaicId(test::GetUint64(view, "resolved"));
+		}
 
-    public:
-        static constexpr auto AssertResolutionStatement = AssertEqualMosaicResolutionStatement;
-    };
+	public:
+		static constexpr auto AssertResolutionStatement = AssertEqualMosaicResolutionStatement;
+	};
 
-    // endregion
+	// endregion
 }
 }

@@ -32,111 +32,105 @@ namespace subscribers {
 
 #define TEST_CLASS AggregatePtChangeSubscriberTests
 
-    namespace {
-        using UnsupportedPtChangeSubscriber = test::UnsupportedPtChangeSubscriber<test::UnsupportedFlushBehavior::Throw>;
+	namespace {
+		using UnsupportedPtChangeSubscriber = test::UnsupportedPtChangeSubscriber<test::UnsupportedFlushBehavior::Throw>;
 
-        template <typename TPtChangeSubscriber>
-        using TestContext = test::AggregateSubscriberTestContext<TPtChangeSubscriber, AggregatePtChangeSubscriber<TPtChangeSubscriber>>;
-    }
+		template <typename TPtChangeSubscriber>
+		using TestContext = test::AggregateSubscriberTestContext<TPtChangeSubscriber, AggregatePtChangeSubscriber<TPtChangeSubscriber>>;
+	}
 
-    TEST(TEST_CLASS, NotifyAddPartialsForwardsToAllSubscribers)
-    {
-        // Arrange:
-        DEFINE_MOCK_INFOS_CAPTURE(PtChangeSubscriber, notifyAddPartials);
+	TEST(TEST_CLASS, NotifyAddPartialsForwardsToAllSubscribers) {
+		// Arrange:
+		DEFINE_MOCK_INFOS_CAPTURE(PtChangeSubscriber, notifyAddPartials);
 
-        TestContext<MockPtChangeSubscriber> context;
-        auto transactionInfos = test::CopyTransactionInfosToSet(test::CreateTransactionInfos(3));
+		TestContext<MockPtChangeSubscriber> context;
+		auto transactionInfos = test::CopyTransactionInfosToSet(test::CreateTransactionInfos(3));
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().notifyAddPartials(transactionInfos);
+		// Act:
+		context.aggregate().notifyAddPartials(transactionInfos);
 
-        // Assert:
-        test::AssertInfosDelegation(context, transactionInfos);
-    }
+		// Assert:
+		test::AssertInfosDelegation(context, transactionInfos);
+	}
 
-    TEST(TEST_CLASS, NotifyAddCosignatureForwardsToAllSubscribers)
-    {
-        // Arrange:
-        class MockPtChangeSubscriber : public UnsupportedPtChangeSubscriber {
-        public:
-            struct Param {
-                Param(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature)
-                    : ParentTransactionInfo(parentTransactionInfo)
-                    , Cosignature(cosignature)
-                {
-                }
+	TEST(TEST_CLASS, NotifyAddCosignatureForwardsToAllSubscribers) {
+		// Arrange:
+		class MockPtChangeSubscriber : public UnsupportedPtChangeSubscriber {
+		public:
+			struct Param {
+				Param(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature)
+					: ParentTransactionInfo(parentTransactionInfo)
+					, Cosignature(cosignature) {
+				}
 
-                const model::TransactionInfo& ParentTransactionInfo;
-                const model::Cosignature& Cosignature;
-            };
+				const model::TransactionInfo& ParentTransactionInfo;
+				const model::Cosignature& Cosignature;
+			};
 
-        public:
-            void notifyAddCosignature(const model::TransactionInfo& parentInfo, const model::Cosignature& cosignature) override
-            {
-                CapturedParams.emplace_back(parentInfo, cosignature);
-            }
+		public:
+			void notifyAddCosignature(const model::TransactionInfo& parentInfo, const model::Cosignature& cosignature) override {
+				CapturedParams.emplace_back(parentInfo, cosignature);
+			}
 
-        public:
-            std::vector<Param> CapturedParams;
-        };
+		public:
+			std::vector<Param> CapturedParams;
+		};
 
-        TestContext<MockPtChangeSubscriber> context;
-        auto transactionInfo = test::CreateRandomTransactionInfo();
-        auto cosignature = test::CreateRandomDetachedCosignature();
+		TestContext<MockPtChangeSubscriber> context;
+		auto transactionInfo = test::CreateRandomTransactionInfo();
+		auto cosignature = test::CreateRandomDetachedCosignature();
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().notifyAddCosignature(transactionInfo, cosignature);
+		// Act:
+		context.aggregate().notifyAddCosignature(transactionInfo, cosignature);
 
-        // Assert:
-        auto i = 0u;
-        for (const auto* pSubscriber : context.subscribers()) {
-            auto message = "subscriber at " + std::to_string(i++);
-            const auto& capturedParams = pSubscriber->CapturedParams;
-            ASSERT_EQ(1u, capturedParams.size()) << message;
-            EXPECT_EQ(&transactionInfo, &capturedParams[0].ParentTransactionInfo) << message;
-            EXPECT_EQ(&cosignature, &capturedParams[0].Cosignature) << message;
-        }
-    }
+		// Assert:
+		auto i = 0u;
+		for (const auto* pSubscriber : context.subscribers()) {
+			auto message = "subscriber at " + std::to_string(i++);
+			const auto& capturedParams = pSubscriber->CapturedParams;
+			ASSERT_EQ(1u, capturedParams.size()) << message;
+			EXPECT_EQ(&transactionInfo, &capturedParams[0].ParentTransactionInfo) << message;
+			EXPECT_EQ(&cosignature, &capturedParams[0].Cosignature) << message;
+		}
+	}
 
-    TEST(TEST_CLASS, NotifyRemovePartialsForwardsToAllSubscribers)
-    {
-        // Arrange:
-        DEFINE_MOCK_INFOS_CAPTURE(PtChangeSubscriber, notifyRemovePartials);
+	TEST(TEST_CLASS, NotifyRemovePartialsForwardsToAllSubscribers) {
+		// Arrange:
+		DEFINE_MOCK_INFOS_CAPTURE(PtChangeSubscriber, notifyRemovePartials);
 
-        TestContext<MockPtChangeSubscriber> context;
-        auto transactionInfos = test::CopyTransactionInfosToSet(test::CreateTransactionInfos(3));
+		TestContext<MockPtChangeSubscriber> context;
+		auto transactionInfos = test::CopyTransactionInfosToSet(test::CreateTransactionInfos(3));
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().notifyRemovePartials(transactionInfos);
+		// Act:
+		context.aggregate().notifyRemovePartials(transactionInfos);
 
-        // Assert:
-        test::AssertInfosDelegation(context, transactionInfos);
-    }
+		// Assert:
+		test::AssertInfosDelegation(context, transactionInfos);
+	}
 
-    TEST(TEST_CLASS, FlushForwardsToAllSubscribers)
-    {
-        // Arrange:
-        DEFINE_MOCK_FLUSH_CAPTURE(PtChangeSubscriber);
+	TEST(TEST_CLASS, FlushForwardsToAllSubscribers) {
+		// Arrange:
+		DEFINE_MOCK_FLUSH_CAPTURE(PtChangeSubscriber);
 
-        TestContext<MockPtChangeSubscriber> context;
+		TestContext<MockPtChangeSubscriber> context;
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().flush();
+		// Act:
+		context.aggregate().flush();
 
-        // Assert:
-        test::AssertFlushDelegation(context);
-    }
+		// Assert:
+		test::AssertFlushDelegation(context);
+	}
 }
 }

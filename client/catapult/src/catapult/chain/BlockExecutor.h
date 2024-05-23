@@ -26,42 +26,41 @@
 
 namespace catapult {
 namespace model {
-    struct Block;
+	struct Block;
 }
 }
 
 namespace catapult {
 namespace chain {
 
-    /// Block execution context.
-    struct BlockExecutionContext {
-    public:
-        /// Creates a block execution context around \a observer, \a resolvers and \a state.
-        BlockExecutionContext(
-            const observers::EntityObserver& observer,
-            const model::ResolverContext& resolvers,
-            observers::ObserverState& state)
-            : Observer(observer)
-            , Resolvers(resolvers)
-            , State(state)
-        {
-        }
+	/// Block execution context.
+	struct BlockExecutionContext {
+	public:
+		/// Creates a block execution context around \a observer, \a resolvers and \a state.
+		BlockExecutionContext(
+			const observers::EntityObserver& observer,
+			const model::ResolverContext& resolvers,
+			observers::ObserverState& state)
+			: Observer(observer)
+			, Resolvers(resolvers)
+			, State(state) {
+		}
 
-    public:
-        /// Observer to execute the block.
-        const observers::EntityObserver& Observer;
+	public:
+		/// Observer to execute the block.
+		const observers::EntityObserver& Observer;
 
-        /// Alias resolvers.
-        const model::ResolverContext& Resolvers;
+		/// Alias resolvers.
+		const model::ResolverContext& Resolvers;
 
-        /// State to update during observation.
-        observers::ObserverState& State;
-    };
+		/// State to update during observation.
+		observers::ObserverState& State;
+	};
 
-    /// Executes \a blockElement using the specified execution context (\a executionContext).
-    void ExecuteBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext);
+	/// Executes \a blockElement using the specified execution context (\a executionContext).
+	void ExecuteBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext);
 
-    /// Rollbacks \a blockElement using the specified execution context (\a executionContext).
-    void RollbackBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext);
+	/// Rollbacks \a blockElement using the specified execution context (\a executionContext).
+	void RollbackBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext);
 }
 }

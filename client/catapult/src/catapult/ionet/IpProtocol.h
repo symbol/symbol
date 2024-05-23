@@ -25,27 +25,27 @@
 namespace catapult {
 namespace ionet {
 
-    /// IP protocols.
-    enum class IpProtocol : uint8_t {
-        /// No protocols.
-        None = 0x00,
+	/// IP protocols.
+	enum class IpProtocol : uint8_t {
+		/// No protocols.
+		None = 0x00,
 
-        /// IPv4.
-        IPv4 = 0x01,
+		/// IPv4.
+		IPv4 = 0x01,
 
-        /// IPv6.
-        IPv6 = 0x02,
+		/// IPv6.
+		IPv6 = 0x02,
 
-        /// All protocols.
-        All = 0xFF
-    };
+		/// All protocols.
+		All = 0xFF
+	};
 
-    MAKE_BITWISE_ENUM(IpProtocol)
+	MAKE_BITWISE_ENUM(IpProtocol)
 
-    /// Map \a roles to IP protocols.
-    IpProtocol MapNodeRolesToIpProtocols(NodeRoles roles);
+	/// Map \a roles to IP protocols.
+	IpProtocol MapNodeRolesToIpProtocols(NodeRoles roles);
 
-    /// Returns \c true if \a roles supports any protocol in \a protocols.
-    bool HasAnyProtocol(IpProtocol protocols, NodeRoles roles);
+	/// Returns \c true if \a roles supports any protocol in \a protocols.
+	bool HasAnyProtocol(IpProtocol protocols, NodeRoles roles);
 }
 }

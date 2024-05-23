@@ -31,86 +31,79 @@ namespace subscribers {
 
 #define TEST_CLASS BlockChangeReaderTests
 
-    namespace {
-        constexpr auto Empty_Block_Element_Size = sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter) + 2 * (Hash256::Size + sizeof(uint32_t));
+	namespace {
+		constexpr auto Empty_Block_Element_Size = sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter) + 2 * (Hash256::Size + sizeof(uint32_t));
 
-        std::vector<uint8_t> CreateSerializedDataBuffer(BlockChangeOperationType operationType, Height height)
-        {
-            std::vector<uint8_t> buffer(1 + sizeof(Height));
-            buffer[0] = utils::to_underlying_type(operationType);
-            std::memcpy(&buffer[1], &height, sizeof(Height));
-            return buffer;
-        }
+		std::vector<uint8_t> CreateSerializedDataBuffer(BlockChangeOperationType operationType, Height height) {
+			std::vector<uint8_t> buffer(1 + sizeof(Height));
+			buffer[0] = utils::to_underlying_type(operationType);
+			std::memcpy(&buffer[1], &height, sizeof(Height));
+			return buffer;
+		}
 
-        std::vector<uint8_t> CreateSerializedDataBuffer(const model::Block& block, bool includeStatements)
-        {
-            std::vector<uint8_t> buffer(1 + Empty_Block_Element_Size + 1 + (includeStatements ? 3 * sizeof(uint32_t) : 0), 0);
-            buffer[0] = utils::to_underlying_type(BlockChangeOperationType::Block);
-            std::memcpy(&buffer[1], &block, block.Size);
-            buffer[1 + Empty_Block_Element_Size] = includeStatements ? 0xFF : 0;
-            return buffer;
-        }
+		std::vector<uint8_t> CreateSerializedDataBuffer(const model::Block& block, bool includeStatements) {
+			std::vector<uint8_t> buffer(1 + Empty_Block_Element_Size + 1 + (includeStatements ? 3 * sizeof(uint32_t) : 0), 0);
+			buffer[0] = utils::to_underlying_type(BlockChangeOperationType::Block);
+			std::memcpy(&buffer[1], &block, block.Size);
+			buffer[1 + Empty_Block_Element_Size] = includeStatements ? 0xFF : 0;
+			return buffer;
+		}
 
-        void AssertCanReadSingleBlockChange(bool includeStatements)
-        {
-            // Arrange:
-            auto pBlock = test::GenerateEmptyRandomBlock();
-            auto buffer = CreateSerializedDataBuffer(*pBlock, includeStatements);
+		void AssertCanReadSingleBlockChange(bool includeStatements) {
+			// Arrange:
+			auto pBlock = test::GenerateEmptyRandomBlock();
+			auto buffer = CreateSerializedDataBuffer(*pBlock, includeStatements);
 
-            mocks::MockMemoryStream stream(buffer);
-            mocks::MockBlockChangeSubscriber subscriber;
+			mocks::MockMemoryStream stream(buffer);
+			mocks::MockBlockChangeSubscriber subscriber;
 
-            // Act:
-            ReadNextBlockChange(stream, subscriber);
+			// Act:
+			ReadNextBlockChange(stream, subscriber);
 
-            // Assert:
-            ASSERT_EQ(1u, subscriber.blockElements().size());
-            EXPECT_EQ(0u, subscriber.dropBlocksAfterHeights().size());
+			// Assert:
+			ASSERT_EQ(1u, subscriber.blockElements().size());
+			EXPECT_EQ(0u, subscriber.dropBlocksAfterHeights().size());
 
-            const auto& readBlockElement = *subscriber.copiedBlockElements()[0];
-            EXPECT_EQ(*pBlock, readBlockElement.Block);
-            EXPECT_EQ(includeStatements, !!readBlockElement.OptionalStatement);
-        }
-    }
+			const auto& readBlockElement = *subscriber.copiedBlockElements()[0];
+			EXPECT_EQ(*pBlock, readBlockElement.Block);
+			EXPECT_EQ(includeStatements, !!readBlockElement.OptionalStatement);
+		}
+	}
 
-    TEST(TEST_CLASS, CanReadSingleBlockChange_BlockWithoutStatements)
-    {
-        AssertCanReadSingleBlockChange(false);
-    }
+	TEST(TEST_CLASS, CanReadSingleBlockChange_BlockWithoutStatements) {
+		AssertCanReadSingleBlockChange(false);
+	}
 
-    TEST(TEST_CLASS, CanReadSingleBlockChange_BlockWithStatements)
-    {
-        AssertCanReadSingleBlockChange(true);
-    }
+	TEST(TEST_CLASS, CanReadSingleBlockChange_BlockWithStatements) {
+		AssertCanReadSingleBlockChange(true);
+	}
 
-    TEST(TEST_CLASS, CanReadSingleDropBlocksAfterChange)
-    {
-        // Arrange:
-        auto buffer = CreateSerializedDataBuffer(BlockChangeOperationType::Drop_Blocks_After, Height(987));
+	TEST(TEST_CLASS, CanReadSingleDropBlocksAfterChange) {
+		// Arrange:
+		auto buffer = CreateSerializedDataBuffer(BlockChangeOperationType::Drop_Blocks_After, Height(987));
 
-        mocks::MockMemoryStream stream(buffer);
-        mocks::MockBlockChangeSubscriber subscriber;
+		mocks::MockMemoryStream stream(buffer);
+		mocks::MockBlockChangeSubscriber subscriber;
 
-        // Act:
-        ReadNextBlockChange(stream, subscriber);
+		// Act:
+		ReadNextBlockChange(stream, subscriber);
 
-        // Assert:
-        EXPECT_EQ(0u, subscriber.blockElements().size());
-        ASSERT_EQ(1u, subscriber.dropBlocksAfterHeights().size());
+		// Assert:
+		EXPECT_EQ(0u, subscriber.blockElements().size());
+		ASSERT_EQ(1u, subscriber.dropBlocksAfterHeights().size());
 
-        EXPECT_EQ(Height(987), subscriber.dropBlocksAfterHeights()[0]);
-    }
+		EXPECT_EQ(Height(987), subscriber.dropBlocksAfterHeights()[0]);
+	}
 
-    TEST(TEST_CLASS, CannotReadSingleUnknownOperationType)
-    {
-        // Arrange:
-        auto buffer = CreateSerializedDataBuffer(static_cast<BlockChangeOperationType>(123), Height(987));
+	TEST(TEST_CLASS, CannotReadSingleUnknownOperationType) {
+		// Arrange:
+		auto buffer = CreateSerializedDataBuffer(static_cast<BlockChangeOperationType>(123), Height(987));
 
-        mocks::MockMemoryStream stream(buffer);
-        mocks::MockBlockChangeSubscriber subscriber;
+		mocks::MockMemoryStream stream(buffer);
+		mocks::MockBlockChangeSubscriber subscriber;
 
-        // Act + Assert:
-        EXPECT_THROW(ReadNextBlockChange(stream, subscriber), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(ReadNextBlockChange(stream, subscriber), catapult_invalid_argument);
+	}
 }
 }

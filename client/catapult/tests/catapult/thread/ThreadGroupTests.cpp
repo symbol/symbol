@@ -27,98 +27,92 @@ namespace thread {
 
 #define TEST_CLASS ThreadGroupTests
 
-    namespace {
-        void SpawnThree(ThreadGroup& threads, std::atomic<size_t>& value)
-        {
-            threads.spawn([&value]() {
-                test::Pause();
-                value += 1;
-            });
+	namespace {
+		void SpawnThree(ThreadGroup& threads, std::atomic<size_t>& value) {
+			threads.spawn([&value]() {
+				test::Pause();
+				value += 1;
+			});
 
-            threads.spawn([&value]() { value += 2; });
+			threads.spawn([&value]() { value += 2; });
 
-            threads.spawn([&value]() {
-                test::Pause();
-                value += 3;
-            });
-        }
-    }
+			threads.spawn([&value]() {
+				test::Pause();
+				value += 3;
+			});
+		}
+	}
 
-    TEST(TEST_CLASS, CanCreateEmpty)
-    {
-        // Act:
-        ThreadGroup threads;
+	TEST(TEST_CLASS, CanCreateEmpty) {
+		// Act:
+		ThreadGroup threads;
 
-        // Assert:
-        EXPECT_EQ(0u, threads.size());
-    }
+		// Assert:
+		EXPECT_EQ(0u, threads.size());
+	}
 
-    TEST(TEST_CLASS, CanSpawnThreads)
-    {
-        // Arrange:
-        std::atomic<size_t> value(0);
-        {
-            ThreadGroup threads;
+	TEST(TEST_CLASS, CanSpawnThreads) {
+		// Arrange:
+		std::atomic<size_t> value(0);
+		{
+			ThreadGroup threads;
 
-            // Act:
-            SpawnThree(threads, value);
-            WAIT_FOR_VALUE(2u, value);
+			// Act:
+			SpawnThree(threads, value);
+			WAIT_FOR_VALUE(2u, value);
 
-            // Assert:
-            EXPECT_EQ(3u, threads.size());
-            EXPECT_EQ(2u, value);
-        }
+			// Assert:
+			EXPECT_EQ(3u, threads.size());
+			EXPECT_EQ(2u, value);
+		}
 
-        // Assert: destructor joins threads
-        WAIT_FOR_VALUE(6u, value);
-    }
+		// Assert: destructor joins threads
+		WAIT_FOR_VALUE(6u, value);
+	}
 
-    TEST(TEST_CLASS, CanJoinThreads)
-    {
-        // Arrange:
-        std::atomic<size_t> value(0);
-        ThreadGroup threads;
-        SpawnThree(threads, value);
+	TEST(TEST_CLASS, CanJoinThreads) {
+		// Arrange:
+		std::atomic<size_t> value(0);
+		ThreadGroup threads;
+		SpawnThree(threads, value);
 
-        // Act:
-        threads.join();
+		// Act:
+		threads.join();
 
-        // Assert:
-        EXPECT_EQ(3u, threads.size());
-        EXPECT_EQ(6u, value);
-    }
+		// Assert:
+		EXPECT_EQ(3u, threads.size());
+		EXPECT_EQ(6u, value);
+	}
 
-    TEST(TEST_CLASS, CanJoinThreadsMultipleTimes)
-    {
-        // Arrange:
-        std::atomic<size_t> value(0);
-        ThreadGroup threads;
-        SpawnThree(threads, value);
+	TEST(TEST_CLASS, CanJoinThreadsMultipleTimes) {
+		// Arrange:
+		std::atomic<size_t> value(0);
+		ThreadGroup threads;
+		SpawnThree(threads, value);
 
-        // Act:
-        threads.join();
-        threads.join();
-        threads.join();
+		// Act:
+		threads.join();
+		threads.join();
+		threads.join();
 
-        // Assert:
-        EXPECT_EQ(3u, threads.size());
-        EXPECT_EQ(6u, value);
-    }
+		// Assert:
+		EXPECT_EQ(3u, threads.size());
+		EXPECT_EQ(6u, value);
+	}
 
-    TEST(TEST_CLASS, CanJoinThreadsAfterSomeHaveCompleted)
-    {
-        // Arrange:
-        std::atomic<size_t> value(0);
-        ThreadGroup threads;
-        SpawnThree(threads, value);
+	TEST(TEST_CLASS, CanJoinThreadsAfterSomeHaveCompleted) {
+		// Arrange:
+		std::atomic<size_t> value(0);
+		ThreadGroup threads;
+		SpawnThree(threads, value);
 
-        // Act:
-        WAIT_FOR_VALUE(2u, value);
-        threads.join();
+		// Act:
+		WAIT_FOR_VALUE(2u, value);
+		threads.join();
 
-        // Assert:
-        EXPECT_EQ(3u, threads.size());
-        EXPECT_EQ(6u, value);
-    }
+		// Assert:
+		EXPECT_EQ(3u, threads.size());
+		EXPECT_EQ(6u, value);
+	}
 }
 }

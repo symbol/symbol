@@ -27,17 +27,17 @@
 namespace catapult {
 namespace cache {
 
-    /// Basic delta on top of the hash lock info cache.
-    class BasicHashLockInfoCacheDelta : public BasicLockInfoCacheDelta<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes> {
-    public:
-        using BasicLockInfoCacheDelta<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes>::BasicLockInfoCacheDelta;
-    };
+	/// Basic delta on top of the hash lock info cache.
+	class BasicHashLockInfoCacheDelta : public BasicLockInfoCacheDelta<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes> {
+	public:
+		using BasicLockInfoCacheDelta<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes>::BasicLockInfoCacheDelta;
+	};
 
-    /// Delta on top of the hash lock info cache.
-    class HashLockInfoCacheDelta
-        : public LockInfoCacheDelta<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes, BasicHashLockInfoCacheDelta> {
-    public:
-        using LockInfoCacheDelta<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes, BasicHashLockInfoCacheDelta>::LockInfoCacheDelta;
-    };
+	/// Delta on top of the hash lock info cache.
+	class HashLockInfoCacheDelta
+		: public LockInfoCacheDelta<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes, BasicHashLockInfoCacheDelta> {
+	public:
+		using LockInfoCacheDelta<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes, BasicHashLockInfoCacheDelta>::LockInfoCacheDelta;
+	};
 }
 }

@@ -28,73 +28,73 @@
 namespace catapult {
 namespace state {
 
-    // region MosaicRestrictionEntry
+	// region MosaicRestrictionEntry
 
-    /// Mosaic restriction entry.
-    class PLUGIN_API_DEPENDENCY MosaicRestrictionEntry {
-    public:
-        /// Type of entry.
-        enum class EntryType : uint8_t {
-            /// Address restriction.
-            Address,
+	/// Mosaic restriction entry.
+	class PLUGIN_API_DEPENDENCY MosaicRestrictionEntry {
+	public:
+		/// Type of entry.
+		enum class EntryType : uint8_t {
+			/// Address restriction.
+			Address,
 
-            /// Global (mosaic) restriction.
-            Global
-        };
+			/// Global (mosaic) restriction.
+			Global
+		};
 
-    public:
-        /// Creates an entry around address \a restriction.
-        explicit MosaicRestrictionEntry(const MosaicAddressRestriction& restriction);
+	public:
+		/// Creates an entry around address \a restriction.
+		explicit MosaicRestrictionEntry(const MosaicAddressRestriction& restriction);
 
-        /// Creates an entry around global \a restriction.
-        explicit MosaicRestrictionEntry(const MosaicGlobalRestriction& restriction);
+		/// Creates an entry around global \a restriction.
+		explicit MosaicRestrictionEntry(const MosaicGlobalRestriction& restriction);
 
-        /// Copy constructor that makes a copy of \a entry.
-        MosaicRestrictionEntry(const MosaicRestrictionEntry& entry);
+		/// Copy constructor that makes a copy of \a entry.
+		MosaicRestrictionEntry(const MosaicRestrictionEntry& entry);
 
-    public:
-        /// Assignment operator that makes a copy of \a entry.
-        MosaicRestrictionEntry& operator=(const MosaicRestrictionEntry& entry);
+	public:
+		/// Assignment operator that makes a copy of \a entry.
+		MosaicRestrictionEntry& operator=(const MosaicRestrictionEntry& entry);
 
-    public:
-        /// Gets the entry type.
-        EntryType entryType() const;
+	public:
+		/// Gets the entry type.
+		EntryType entryType() const;
 
-        /// Gets the unique (composite) key.
-        const Hash256& uniqueKey() const;
+		/// Gets the unique (composite) key.
+		const Hash256& uniqueKey() const;
 
-    public:
-        /// Gets a const address restriction interface to this entry.
-        const MosaicAddressRestriction& asAddressRestriction() const;
+	public:
+		/// Gets a const address restriction interface to this entry.
+		const MosaicAddressRestriction& asAddressRestriction() const;
 
-        /// Gets an address restriction interface to this entry.
-        MosaicAddressRestriction& asAddressRestriction();
+		/// Gets an address restriction interface to this entry.
+		MosaicAddressRestriction& asAddressRestriction();
 
-        /// Gets a const global restriction interface to this entry.
-        const MosaicGlobalRestriction& asGlobalRestriction() const;
+		/// Gets a const global restriction interface to this entry.
+		const MosaicGlobalRestriction& asGlobalRestriction() const;
 
-        /// Gets a global restriction interface to this entry.
-        MosaicGlobalRestriction& asGlobalRestriction();
+		/// Gets a global restriction interface to this entry.
+		MosaicGlobalRestriction& asGlobalRestriction();
 
-    private:
-        Hash256 generateUniqueKey() const;
+	private:
+		Hash256 generateUniqueKey() const;
 
-    private:
-        std::shared_ptr<MosaicAddressRestriction> m_pAddressRestriction;
-        std::shared_ptr<MosaicGlobalRestriction> m_pGlobalRestriction;
-        Hash256 m_uniqueKey;
-    };
+	private:
+		std::shared_ptr<MosaicAddressRestriction> m_pAddressRestriction;
+		std::shared_ptr<MosaicGlobalRestriction> m_pGlobalRestriction;
+		Hash256 m_uniqueKey;
+	};
 
-    // endregion
+	// endregion
 
-    // region CreateMosaicRestrictionEntryKey
+	// region CreateMosaicRestrictionEntryKey
 
-    /// Creates a mosaic restriction entry key from its component parts (\a mosaicId).
-    Hash256 CreateMosaicRestrictionEntryKey(MosaicId mosaicId);
+	/// Creates a mosaic restriction entry key from its component parts (\a mosaicId).
+	Hash256 CreateMosaicRestrictionEntryKey(MosaicId mosaicId);
 
-    /// Creates a mosaic restriction entry key from its component parts (\a mosaicId and \a address).
-    Hash256 CreateMosaicRestrictionEntryKey(MosaicId mosaicId, const Address& address);
+	/// Creates a mosaic restriction entry key from its component parts (\a mosaicId and \a address).
+	Hash256 CreateMosaicRestrictionEntryKey(MosaicId mosaicId, const Address& address);
 
-    // endregion
+	// endregion
 }
 }

@@ -27,40 +27,39 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Finalization round range.
-    struct FinalizationRoundRange {
-    public:
-        /// Creates a default range.
-        constexpr FinalizationRoundRange() = default;
+	/// Finalization round range.
+	struct FinalizationRoundRange {
+	public:
+		/// Creates a default range.
+		constexpr FinalizationRoundRange() = default;
 
-        /// Creates a range from \a min to \a max.
-        constexpr FinalizationRoundRange(const FinalizationRound& min, const FinalizationRound& max)
-            : Min(min)
-            , Max(max)
-        {
-        }
+		/// Creates a range from \a min to \a max.
+		constexpr FinalizationRoundRange(const FinalizationRound& min, const FinalizationRound& max)
+			: Min(min)
+			, Max(max) {
+		}
 
-    public:
-        /// Minimum round.
-        FinalizationRound Min;
+	public:
+		/// Minimum round.
+		FinalizationRound Min;
 
-        /// Maximum round.
-        FinalizationRound Max;
+		/// Maximum round.
+		FinalizationRound Max;
 
-    public:
-        /// Returns \c true if this range is equal to \a rhs.
-        bool operator==(const FinalizationRoundRange& rhs) const;
+	public:
+		/// Returns \c true if this range is equal to \a rhs.
+		bool operator==(const FinalizationRoundRange& rhs) const;
 
-        /// Returns \c true if this range is not equal to \a rhs.
-        bool operator!=(const FinalizationRoundRange& rhs) const;
-    };
+		/// Returns \c true if this range is not equal to \a rhs.
+		bool operator!=(const FinalizationRoundRange& rhs) const;
+	};
 
 #pragma pack(pop)
 
-    /// Insertion operator for outputting \a roundRange to \a out.
-    std::ostream& operator<<(std::ostream& out, const FinalizationRoundRange& roundRange);
+	/// Insertion operator for outputting \a roundRange to \a out.
+	std::ostream& operator<<(std::ostream& out, const FinalizationRoundRange& roundRange);
 
-    /// Returns \c true if \a round is contained in \a roundRange, inclusive.
-    bool IsInRange(const FinalizationRoundRange& roundRange, const FinalizationRound& round);
+	/// Returns \c true if \a round is contained in \a roundRange, inclusive.
+	bool IsInRange(const FinalizationRoundRange& roundRange, const FinalizationRound& round);
 }
 }

@@ -27,18 +27,18 @@
 namespace catapult {
 namespace observers {
 
-    /// Weakly typed entity observer.
-    /// \note This intended to be used only for execution-only situations (e.g. block loading and rollback).
-    class EntityObserver {
-    public:
-        virtual ~EntityObserver() = default;
+	/// Weakly typed entity observer.
+	/// \note This intended to be used only for execution-only situations (e.g. block loading and rollback).
+	class EntityObserver {
+	public:
+		virtual ~EntityObserver() = default;
 
-    public:
-        /// Gets the observer name.
-        virtual const std::string& name() const = 0;
+	public:
+		/// Gets the observer name.
+		virtual const std::string& name() const = 0;
 
-        /// Notifies the observer with \a entityInfo to process and contextual observer information (\a context).
-        virtual void notify(const model::WeakEntityInfo& entityInfo, ObserverContext& context) const = 0;
-    };
+		/// Notifies the observer with \a entityInfo to process and contextual observer information (\a context).
+		virtual void notify(const model::WeakEntityInfo& entityInfo, ObserverContext& context) const = 0;
+	};
 }
 }

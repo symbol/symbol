@@ -27,58 +27,57 @@
 
 namespace catapult {
 namespace cache {
-    class BasicMetadataCacheDelta;
-    class BasicMetadataCacheView;
-    struct MetadataBaseSetDeltaPointers;
-    struct MetadataBaseSets;
-    class MetadataCache;
-    class MetadataCacheDelta;
-    class MetadataCacheView;
-    struct MetadataEntryPrimarySerializer;
-    class MetadataPatriciaTree;
+	class BasicMetadataCacheDelta;
+	class BasicMetadataCacheView;
+	struct MetadataBaseSetDeltaPointers;
+	struct MetadataBaseSets;
+	class MetadataCache;
+	class MetadataCacheDelta;
+	class MetadataCacheView;
+	struct MetadataEntryPrimarySerializer;
+	class MetadataPatriciaTree;
 
-    template <typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
-    class ReadOnlyArtifactCache;
+	template <typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
+	class ReadOnlyArtifactCache;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// Describes a metadata cache.
-    struct MetadataCacheDescriptor {
-    public:
-        static constexpr auto Name = "MetadataCache";
+	/// Describes a metadata cache.
+	struct MetadataCacheDescriptor {
+	public:
+		static constexpr auto Name = "MetadataCache";
 
-    public:
-        // key value types
-        using KeyType = Hash256;
-        using ValueType = state::MetadataEntry;
+	public:
+		// key value types
+		using KeyType = Hash256;
+		using ValueType = state::MetadataEntry;
 
-        // cache types
-        using CacheType = MetadataCache;
-        using CacheDeltaType = MetadataCacheDelta;
-        using CacheViewType = MetadataCacheView;
+		// cache types
+		using CacheType = MetadataCache;
+		using CacheDeltaType = MetadataCacheDelta;
+		using CacheViewType = MetadataCacheView;
 
-        using Serializer = MetadataEntryPrimarySerializer;
-        using PatriciaTree = MetadataPatriciaTree;
+		using Serializer = MetadataEntryPrimarySerializer;
+		using PatriciaTree = MetadataPatriciaTree;
 
-    public:
-        /// Gets the key corresponding to \a entry.
-        static const auto& GetKeyFromValue(const ValueType& entry)
-        {
-            return entry.key().uniqueKey();
-        }
-    };
+	public:
+		/// Gets the key corresponding to \a entry.
+		static const auto& GetKeyFromValue(const ValueType& entry) {
+			return entry.key().uniqueKey();
+		}
+	};
 
-    /// Metadata cache types.
-    struct MetadataCacheTypes {
-        using PrimaryTypes = MutableUnorderedMapAdapter<MetadataCacheDescriptor, utils::ArrayHasher<Hash256>>;
+	/// Metadata cache types.
+	struct MetadataCacheTypes {
+		using PrimaryTypes = MutableUnorderedMapAdapter<MetadataCacheDescriptor, utils::ArrayHasher<Hash256>>;
 
-        using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMetadataCacheView, BasicMetadataCacheDelta, Hash256, state::MetadataEntry>;
+		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMetadataCacheView, BasicMetadataCacheDelta, Hash256, state::MetadataEntry>;
 
-        using BaseSetDeltaPointers = MetadataBaseSetDeltaPointers;
-        using BaseSets = MetadataBaseSets;
-    };
+		using BaseSetDeltaPointers = MetadataBaseSetDeltaPointers;
+		using BaseSets = MetadataBaseSets;
+	};
 }
 }

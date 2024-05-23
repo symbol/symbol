@@ -30,79 +30,74 @@
 namespace catapult {
 namespace sync {
 
-    namespace {
-        Importance GetEffectiveImportance(Amount fee, Importance importance, const SpamThrottleConfiguration& config)
-        {
-            // maxImportanceBoost <= 9 * 10 ^ 7, so maxImportanceBoost * maxFee should not overflow
-            uint64_t maxImportanceBoost = config.TotalImportance.unwrap() / 100u;
-            Amount maxFee = std::min(config.MaxBoostFee, fee);
-            uint64_t attemptedImportanceBoost = maxImportanceBoost * maxFee.unwrap() / config.MaxBoostFee.unwrap();
-            return importance + Importance(attemptedImportanceBoost);
-        }
+	namespace {
+		Importance GetEffectiveImportance(Amount fee, Importance importance, const SpamThrottleConfiguration& config) {
+			// maxImportanceBoost <= 9 * 10 ^ 7, so maxImportanceBoost * maxFee should not overflow
+			uint64_t maxImportanceBoost = config.TotalImportance.unwrap() / 100u;
+			Amount maxFee = std::min(config.MaxBoostFee, fee);
+			uint64_t attemptedImportanceBoost = maxImportanceBoost * maxFee.unwrap() / config.MaxBoostFee.unwrap();
+			return importance + Importance(attemptedImportanceBoost);
+		}
 
-        size_t GetMaxTransactionsWeight(size_t cacheSize, size_t maxCacheSize, Importance effectiveImportance, Importance totalImportance)
-        {
-            auto slotsLeft = static_cast<double>(maxCacheSize - cacheSize);
-            auto scaleFactor = std::exp(-3.0 * utils::to_ratio(cacheSize, maxCacheSize));
-            auto importancePercentage = utils::to_ratio(effectiveImportance.unwrap(), totalImportance.unwrap());
+		size_t GetMaxTransactionsWeight(size_t cacheSize, size_t maxCacheSize, Importance effectiveImportance, Importance totalImportance) {
+			auto slotsLeft = static_cast<double>(maxCacheSize - cacheSize);
+			auto scaleFactor = std::exp(-3.0 * utils::to_ratio(cacheSize, maxCacheSize));
+			auto importancePercentage = utils::to_ratio(effectiveImportance.unwrap(), totalImportance.unwrap());
 
-            // the value 100 is empirical and thus has no special meaning
-            return static_cast<size_t>(scaleFactor * importancePercentage * 100.0 * slotsLeft);
-        }
+			// the value 100 is empirical and thus has no special meaning
+			return static_cast<size_t>(scaleFactor * importancePercentage * 100.0 * slotsLeft);
+		}
 
-        class TransactionSpamThrottle {
-        private:
-            using TransactionSource = chain::UtUpdater::TransactionSource;
+		class TransactionSpamThrottle {
+		private:
+			using TransactionSource = chain::UtUpdater::TransactionSource;
 
-        public:
-            TransactionSpamThrottle(const SpamThrottleConfiguration& config, const predicate<const model::Transaction&>& isBonded)
-                : m_config(config)
-                , m_isBonded(isBonded)
-            {
-            }
+		public:
+			TransactionSpamThrottle(const SpamThrottleConfiguration& config, const predicate<const model::Transaction&>& isBonded)
+				: m_config(config)
+				, m_isBonded(isBonded) {
+			}
 
-        public:
-            bool operator()(const model::TransactionInfo& transactionInfo, const chain::UtUpdater::ThrottleContext& context) const
-            {
-                // always reject if cache is completely full
-                auto cacheMemorySize = context.TransactionsCache.memorySize();
-                if (cacheMemorySize >= m_config.MaxCacheSize)
-                    return true;
+		public:
+			bool operator()(const model::TransactionInfo& transactionInfo, const chain::UtUpdater::ThrottleContext& context) const {
+				// always reject if cache is completely full
+				auto cacheMemorySize = context.TransactionsCache.memorySize();
+				if (cacheMemorySize >= m_config.MaxCacheSize)
+					return true;
 
-                // do not apply throttle unless cache contains more transactions than can fit in a single block
-                auto cacheSize = context.TransactionsCache.size();
-                if (m_config.MaxTransactionsPerBlock > cacheSize)
-                    return false;
+				// do not apply throttle unless cache contains more transactions than can fit in a single block
+				auto cacheSize = context.TransactionsCache.size();
+				if (m_config.MaxTransactionsPerBlock > cacheSize)
+					return false;
 
-                // bonded transactions and transactions originating from reverted blocks do not get rejected
-                if (m_isBonded(*transactionInfo.pEntity) || TransactionSource::Reverted == context.TransactionSource)
-                    return false;
+				// bonded transactions and transactions originating from reverted blocks do not get rejected
+				if (m_isBonded(*transactionInfo.pEntity) || TransactionSource::Reverted == context.TransactionSource)
+					return false;
 
-                const auto& signer = transactionInfo.pEntity->SignerPublicKey;
-                auto readOnlyAccountStateCache = context.UnconfirmedCatapultCache.sub<cache::AccountStateCache>();
-                cache::ImportanceView importanceView(readOnlyAccountStateCache);
-                auto importance = importanceView.getAccountImportanceOrDefault(signer, context.CacheHeight);
-                auto effectiveImportance = GetEffectiveImportance(transactionInfo.pEntity->MaxFee, importance, m_config);
-                auto maxTransactionsWeight = GetMaxTransactionsWeight(
-                    cacheMemorySize.bytes(),
-                    m_config.MaxCacheSize.bytes(),
-                    effectiveImportance,
-                    m_config.TotalImportance);
-                auto usedWeight = context.TransactionsCache.memorySizeForAccount(signer).bytes();
-                return usedWeight + transactionInfo.pEntity->Size >= maxTransactionsWeight;
-            }
+				const auto& signer = transactionInfo.pEntity->SignerPublicKey;
+				auto readOnlyAccountStateCache = context.UnconfirmedCatapultCache.sub<cache::AccountStateCache>();
+				cache::ImportanceView importanceView(readOnlyAccountStateCache);
+				auto importance = importanceView.getAccountImportanceOrDefault(signer, context.CacheHeight);
+				auto effectiveImportance = GetEffectiveImportance(transactionInfo.pEntity->MaxFee, importance, m_config);
+				auto maxTransactionsWeight = GetMaxTransactionsWeight(
+					cacheMemorySize.bytes(),
+					m_config.MaxCacheSize.bytes(),
+					effectiveImportance,
+					m_config.TotalImportance);
+				auto usedWeight = context.TransactionsCache.memorySizeForAccount(signer).bytes();
+				return usedWeight + transactionInfo.pEntity->Size >= maxTransactionsWeight;
+			}
 
-        private:
-            SpamThrottleConfiguration m_config;
-            predicate<const model::Transaction&> m_isBonded;
-        };
-    }
+		private:
+			SpamThrottleConfiguration m_config;
+			predicate<const model::Transaction&> m_isBonded;
+		};
+	}
 
-    chain::UtUpdater::Throttle CreateTransactionSpamThrottle(
-        const SpamThrottleConfiguration& config,
-        const predicate<const model::Transaction&>& isBonded)
-    {
-        return TransactionSpamThrottle(config, isBonded);
-    }
+	chain::UtUpdater::Throttle CreateTransactionSpamThrottle(
+		const SpamThrottleConfiguration& config,
+		const predicate<const model::Transaction&>& isBonded) {
+		return TransactionSpamThrottle(config, isBonded);
+	}
 }
 }

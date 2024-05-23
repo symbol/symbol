@@ -25,16 +25,16 @@
 namespace catapult {
 namespace model {
 
-    /// Lock secret hash algorithm.
-    enum class LockHashAlgorithm : uint8_t {
-        /// Input is hashed using Sha-3-256.
-        Op_Sha3_256,
+	/// Lock secret hash algorithm.
+	enum class LockHashAlgorithm : uint8_t {
+		/// Input is hashed using Sha-3-256.
+		Op_Sha3_256,
 
-        /// Input is hashed twice: first with SHA-256 and then with RIPEMD-160.
-        Op_Hash_160,
+		/// Input is hashed twice: first with SHA-256 and then with RIPEMD-160.
+		Op_Hash_160,
 
-        /// Input is hashed twice with SHA-256.
-        Op_Hash_256
-    };
+		/// Input is hashed twice with SHA-256.
+		Op_Hash_256
+	};
 }
 }

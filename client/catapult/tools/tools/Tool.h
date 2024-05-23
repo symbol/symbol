@@ -25,23 +25,21 @@
 namespace catapult {
 namespace tools {
 
-    /// Interface for the tools.
-    class Tool : public CommandParser {
-    public:
-        /// Tool should return true if command line parser should allow unregistered options.
-        virtual inline bool allowUnregisteredOptions() const
-        {
-            return false;
-        }
+	/// Interface for the tools.
+	class Tool : public CommandParser {
+	public:
+		/// Tool should return true if command line parser should allow unregistered options.
+		virtual inline bool allowUnregisteredOptions() const {
+			return false;
+		}
 
-        /// Tool should return sub command parser.
-        virtual inline CommandParser* subCommandParser(const Options&) const
-        {
-            return nullptr;
-        }
+		/// Tool should return sub command parser.
+		virtual inline CommandParser* subCommandParser(const Options&) const {
+			return nullptr;
+		}
 
-        /// Run the tool passing \a options collected from the command line.
-        virtual int run(const Options& options) = 0;
-    };
+		/// Run the tool passing \a options collected from the command line.
+		virtual int run(const Options& options) = 0;
+	};
 }
 }

@@ -25,55 +25,47 @@
 namespace catapult {
 namespace state {
 
-    NamespaceAlias::NamespaceAlias()
-        : m_type(AliasType::None)
-    {
-    }
+	NamespaceAlias::NamespaceAlias()
+		: m_type(AliasType::None) {
+	}
 
-    NamespaceAlias::NamespaceAlias(MosaicId mosaicId)
-        : m_type(AliasType::Mosaic)
-        , m_mosaicId(mosaicId)
-    {
-    }
+	NamespaceAlias::NamespaceAlias(MosaicId mosaicId)
+		: m_type(AliasType::Mosaic)
+		, m_mosaicId(mosaicId) {
+	}
 
-    NamespaceAlias::NamespaceAlias(const Address& address)
-        : m_type(AliasType::Address)
-        , m_address(address)
-    {
-    }
+	NamespaceAlias::NamespaceAlias(const Address& address)
+		: m_type(AliasType::Address)
+		, m_address(address) {
+	}
 
-    NamespaceAlias::NamespaceAlias(const NamespaceAlias& alias)
-        : m_type(alias.m_type)
-        , m_address(alias.m_address)
-    {
-    }
+	NamespaceAlias::NamespaceAlias(const NamespaceAlias& alias)
+		: m_type(alias.m_type)
+		, m_address(alias.m_address) {
+	}
 
-    NamespaceAlias& NamespaceAlias::operator=(const NamespaceAlias& alias)
-    {
-        m_type = alias.m_type;
-        m_address = alias.m_address;
-        return *this;
-    }
+	NamespaceAlias& NamespaceAlias::operator=(const NamespaceAlias& alias) {
+		m_type = alias.m_type;
+		m_address = alias.m_address;
+		return *this;
+	}
 
-    AliasType NamespaceAlias::type() const
-    {
-        return m_type;
-    }
+	AliasType NamespaceAlias::type() const {
+		return m_type;
+	}
 
-    MosaicId NamespaceAlias::mosaicId() const
-    {
-        if (AliasType::Mosaic != m_type)
-            CATAPULT_THROW_RUNTIME_ERROR("NamespaceAlias::mosaicId called with invalid type");
+	MosaicId NamespaceAlias::mosaicId() const {
+		if (AliasType::Mosaic != m_type)
+			CATAPULT_THROW_RUNTIME_ERROR("NamespaceAlias::mosaicId called with invalid type");
 
-        return m_mosaicId;
-    }
+		return m_mosaicId;
+	}
 
-    const Address& NamespaceAlias::address() const
-    {
-        if (AliasType::Address != m_type)
-            CATAPULT_THROW_RUNTIME_ERROR("NamespaceAlias::address called with invalid type");
+	const Address& NamespaceAlias::address() const {
+		if (AliasType::Address != m_type)
+			CATAPULT_THROW_RUNTIME_ERROR("NamespaceAlias::address called with invalid type");
 
-        return m_address;
-    }
+		return m_address;
+	}
 }
 }

@@ -26,64 +26,64 @@
 namespace catapult {
 namespace test {
 
-    // region TempDirectoryGuard
+	// region TempDirectoryGuard
 
-    /// Uses RAII to delete a test directory.
-    class TempDirectoryGuard final {
-    public:
-        /// Guards a default test directory.
-        TempDirectoryGuard();
+	/// Uses RAII to delete a test directory.
+	class TempDirectoryGuard final {
+	public:
+		/// Guards a default test directory.
+		TempDirectoryGuard();
 
-        /// Guards the directory with the specified name (\a directoryName).
-        explicit TempDirectoryGuard(const std::string& directoryName);
+		/// Guards the directory with the specified name (\a directoryName).
+		explicit TempDirectoryGuard(const std::string& directoryName);
 
-        /// Deletes the guarded directory.
-        ~TempDirectoryGuard();
+		/// Deletes the guarded directory.
+		~TempDirectoryGuard();
 
-    private:
-        // add a second parameter to disambiguate construction around string literal
-        TempDirectoryGuard(const std::filesystem::path& directoryPath, bool);
+	private:
+		// add a second parameter to disambiguate construction around string literal
+		TempDirectoryGuard(const std::filesystem::path& directoryPath, bool);
 
-    public:
-        /// Gets the name of the guarded directory.
-        std::string name() const;
+	public:
+		/// Gets the name of the guarded directory.
+		std::string name() const;
 
-    private:
-        bool exists() const;
+	private:
+		bool exists() const;
 
-    public:
-        /// Gets the default temp directory name.
-        static std::string DefaultName();
+	public:
+		/// Gets the default temp directory name.
+		static std::string DefaultName();
 
-    private:
-        std::filesystem::path m_directoryPath;
-    };
+	private:
+		std::filesystem::path m_directoryPath;
+	};
 
-    // endregion
+	// endregion
 
-    // region TempFileGuard
+	// region TempFileGuard
 
-    /// Uses RAII to delete a test file.
-    class TempFileGuard {
-    public:
-        /// Guards the file with the specified \a name.
-        explicit TempFileGuard(const std::string& name);
+	/// Uses RAII to delete a test file.
+	class TempFileGuard {
+	public:
+		/// Guards the file with the specified \a name.
+		explicit TempFileGuard(const std::string& name);
 
-    public:
-        /// Gets the name of the guarded file.
-        std::string name() const;
+	public:
+		/// Gets the name of the guarded file.
+		std::string name() const;
 
-    private:
-        std::string m_name;
-        TempDirectoryGuard m_directoryGuard;
-    };
+	private:
+		std::string m_name;
+		TempDirectoryGuard m_directoryGuard;
+	};
 
-    // endregion
+	// endregion
 
-    /// Gets the explicit directory for a plugin test.
-    std::string GetExplicitPluginsDirectory();
+	/// Gets the explicit directory for a plugin test.
+	std::string GetExplicitPluginsDirectory();
 
-    /// Counts the number of files and directories in \a directoryPath.
-    size_t CountFilesAndDirectories(const std::filesystem::path& directoryPath);
+	/// Counts the number of files and directories in \a directoryPath.
+	size_t CountFilesAndDirectories(const std::filesystem::path& directoryPath);
 }
 }

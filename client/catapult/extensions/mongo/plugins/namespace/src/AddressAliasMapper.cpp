@@ -28,18 +28,17 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            template <typename TTransaction>
-            void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction)
-            {
-                builder << "namespaceId" << ToInt64(transaction.NamespaceId) << "aliasAction"
-                        << utils::to_underlying_type(transaction.AliasAction) << "address" << ToBinary(transaction.Address);
-            }
-        }
+		namespace {
+			template <typename TTransaction>
+			void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
+				builder << "namespaceId" << ToInt64(transaction.NamespaceId) << "aliasAction"
+						<< utils::to_underlying_type(transaction.AliasAction) << "address" << ToBinary(transaction.Address);
+			}
+		}
 
-        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AddressAlias, StreamTransaction)
-    }
+		DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AddressAlias, StreamTransaction)
+	}
 }
 }

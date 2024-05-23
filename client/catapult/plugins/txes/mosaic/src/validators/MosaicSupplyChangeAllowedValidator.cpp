@@ -27,38 +27,37 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MosaicSupplyChangeNotification;
+	using Notification = model::MosaicSupplyChangeNotification;
 
-    DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, Notification)
-    (Amount maxAtomicUnits)
-    {
-        return MAKE_STATEFUL_VALIDATOR(
-            MosaicSupplyChangeAllowed,
-            [maxAtomicUnits](const Notification& notification, const ValidatorContext& context) {
-                // notice that RequiredMosaicValidator will run first, so both mosaic and owning account must exist
-                auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-                const auto& cache = context.Cache.sub<cache::MosaicCache>();
-                auto mosaicIter = cache.find(mosaicId);
-                const auto& mosaicEntry = mosaicIter.get();
+	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, Notification)
+	(Amount maxAtomicUnits) {
+		return MAKE_STATEFUL_VALIDATOR(
+			MosaicSupplyChangeAllowed,
+			[maxAtomicUnits](const Notification& notification, const ValidatorContext& context) {
+				// notice that RequiredMosaicValidator will run first, so both mosaic and owning account must exist
+				auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+				const auto& cache = context.Cache.sub<cache::MosaicCache>();
+				auto mosaicIter = cache.find(mosaicId);
+				const auto& mosaicEntry = mosaicIter.get();
 
-                const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-                auto accountStateIter = accountStateCache.find(notification.Owner);
-                auto ownerAmount = accountStateIter.get().Balances.get(mosaicId);
+				const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+				auto accountStateIter = accountStateCache.find(notification.Owner);
+				auto ownerAmount = accountStateIter.get().Balances.get(mosaicId);
 
-                // only allow an "immutable" supply to change if the owner owns full supply
-                const auto& properties = mosaicEntry.definition().properties();
-                if (!properties.is(model::MosaicFlags::Supply_Mutable) && ownerAmount != mosaicEntry.supply())
-                    return Failure_Mosaic_Supply_Immutable;
+				// only allow an "immutable" supply to change if the owner owns full supply
+				const auto& properties = mosaicEntry.definition().properties();
+				if (!properties.is(model::MosaicFlags::Supply_Mutable) && ownerAmount != mosaicEntry.supply())
+					return Failure_Mosaic_Supply_Immutable;
 
-                if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
-                    return ownerAmount < notification.Delta ? Failure_Mosaic_Supply_Negative : ValidationResult::Success;
+				if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
+					return ownerAmount < notification.Delta ? Failure_Mosaic_Supply_Negative : ValidationResult::Success;
 
-                // check that new supply does not overflow and is not too large
-                auto initialSupply = mosaicEntry.supply();
-                auto newSupply = mosaicEntry.supply() + notification.Delta;
-                return newSupply < initialSupply || newSupply > maxAtomicUnits ? Failure_Mosaic_Supply_Exceeded
-                                                                               : ValidationResult::Success;
-            });
-    }
+				// check that new supply does not overflow and is not too large
+				auto initialSupply = mosaicEntry.supply();
+				auto newSupply = mosaicEntry.supply() + notification.Delta;
+				return newSupply < initialSupply || newSupply > maxAtomicUnits ? Failure_Mosaic_Supply_Exceeded
+																			   : ValidationResult::Success;
+			});
+	}
 }
 }

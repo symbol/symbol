@@ -33,104 +33,98 @@ namespace mongo {
 
 #define TEST_CLASS MongoPluginManagerTests
 
-    namespace {
-        template <typename TAction>
-        void RunPluginManagerTest(model::NetworkIdentifier networkIdentifier, TAction action)
-        {
-            // Arrange:
-            // - windows requires the caller to explicitly create a mongocxx instance before certain operations
-            //   like creating a mongocxx::pool (via MongoStorageContext)
-            mongocxx::instance::current();
-            MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr, MongoErrorPolicy::Mode::Strict);
+	namespace {
+		template <typename TAction>
+		void RunPluginManagerTest(model::NetworkIdentifier networkIdentifier, TAction action) {
+			// Arrange:
+			// - windows requires the caller to explicitly create a mongocxx instance before certain operations
+			//   like creating a mongocxx::pool (via MongoStorageContext)
+			mongocxx::instance::current();
+			MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr, MongoErrorPolicy::Mode::Strict);
 
-            MongoPluginManager manager(mongoContext, networkIdentifier);
+			MongoPluginManager manager(mongoContext, networkIdentifier);
 
-            // Act + Assert:
-            action(manager, mongoContext);
-        }
+			// Act + Assert:
+			action(manager, mongoContext);
+		}
 
-        template <typename TAction>
-        void RunPluginManagerTest(TAction action)
-        {
-            RunPluginManagerTest(model::NetworkIdentifier::Zero, [action](auto& manager, const auto&) { action(manager); });
-        }
-    }
+		template <typename TAction>
+		void RunPluginManagerTest(TAction action) {
+			RunPluginManagerTest(model::NetworkIdentifier::Zero, [action](auto& manager, const auto&) { action(manager); });
+		}
+	}
 
-    // region basic
+	// region basic
 
-    TEST(TEST_CLASS, CanCreateManager)
-    {
-        // Arrange:
-        RunPluginManagerTest(static_cast<model::NetworkIdentifier>(17), [](const auto& manager, const auto& mongoContext) {
-            // Assert:
-            EXPECT_EQ(&mongoContext, &manager.mongoContext());
-            EXPECT_EQ(static_cast<model::NetworkIdentifier>(17), manager.networkIdentifier());
-        });
-    }
+	TEST(TEST_CLASS, CanCreateManager) {
+		// Arrange:
+		RunPluginManagerTest(static_cast<model::NetworkIdentifier>(17), [](const auto& manager, const auto& mongoContext) {
+			// Assert:
+			EXPECT_EQ(&mongoContext, &manager.mongoContext());
+			EXPECT_EQ(static_cast<model::NetworkIdentifier>(17), manager.networkIdentifier());
+		});
+	}
 
-    // endregion
+	// endregion
 
-    // region tx plugins
+	// region tx plugins
 
-    TEST(TEST_CLASS, CanRegisterCustomTransactions)
-    {
-        // Arrange:
-        RunPluginManagerTest([](auto& manager) {
-            // Act:
-            for (auto i : { 7, 9, 4 })
-                manager.addTransactionSupport(mocks::CreateMockTransactionMongoPlugin(static_cast<model::EntityType>(i)));
+	TEST(TEST_CLASS, CanRegisterCustomTransactions) {
+		// Arrange:
+		RunPluginManagerTest([](auto& manager) {
+			// Act:
+			for (auto i : { 7, 9, 4 })
+				manager.addTransactionSupport(mocks::CreateMockTransactionMongoPlugin(static_cast<model::EntityType>(i)));
 
-            // Assert:
-            EXPECT_EQ(3u, manager.transactionRegistry().size());
+			// Assert:
+			EXPECT_EQ(3u, manager.transactionRegistry().size());
 
-            for (auto i : { 7, 9, 4 }) {
-                auto entityType = static_cast<model::EntityType>(i);
-                EXPECT_TRUE(!!manager.transactionRegistry().findPlugin(entityType)) << "type " << i;
-            }
-        });
-    }
+			for (auto i : { 7, 9, 4 }) {
+				auto entityType = static_cast<model::EntityType>(i);
+				EXPECT_TRUE(!!manager.transactionRegistry().findPlugin(entityType)) << "type " << i;
+			}
+		});
+	}
 
-    // endregion
+	// endregion
 
-    // region receipt plugins
+	// region receipt plugins
 
-    TEST(TEST_CLASS, CanRegisterCustomReceipts)
-    {
-        // Arrange:
-        RunPluginManagerTest([](auto& manager) {
-            // Act:
-            for (auto i : { 7, 9, 4 })
-                manager.addReceiptSupport(mocks::CreateMockReceiptMongoPlugin(i));
+	TEST(TEST_CLASS, CanRegisterCustomReceipts) {
+		// Arrange:
+		RunPluginManagerTest([](auto& manager) {
+			// Act:
+			for (auto i : { 7, 9, 4 })
+				manager.addReceiptSupport(mocks::CreateMockReceiptMongoPlugin(i));
 
-            // Assert:
-            EXPECT_EQ(3u, manager.receiptRegistry().size());
+			// Assert:
+			EXPECT_EQ(3u, manager.receiptRegistry().size());
 
-            for (auto i : { 7, 9, 4 }) {
-                auto receiptType = static_cast<model::ReceiptType>(i);
-                EXPECT_TRUE(!!manager.receiptRegistry().findPlugin(receiptType)) << "type " << i;
-            }
-        });
-    }
+			for (auto i : { 7, 9, 4 }) {
+				auto receiptType = static_cast<model::ReceiptType>(i);
+				EXPECT_TRUE(!!manager.receiptRegistry().findPlugin(receiptType)) << "type " << i;
+			}
+		});
+	}
 
-    // endregion
+	// endregion
 
-    // region external storage plugins
+	// region external storage plugins
 
-    TEST(TEST_CLASS, CanBuildStorageWithMultipleSubStorages)
-    {
-        // Arrange:
-        RunPluginManagerTest([](auto& manager) {
-            // Act:
-            manager.addStorageSupport(std::make_unique<mocks::MockExternalCacheStorage<3>>());
-            manager.addStorageSupport(std::make_unique<mocks::MockExternalCacheStorage<6>>());
-            manager.addStorageSupport(std::make_unique<mocks::MockExternalCacheStorage<4>>());
-            auto pStorage = manager.createStorage();
+	TEST(TEST_CLASS, CanBuildStorageWithMultipleSubStorages) {
+		// Arrange:
+		RunPluginManagerTest([](auto& manager) {
+			// Act:
+			manager.addStorageSupport(std::make_unique<mocks::MockExternalCacheStorage<3>>());
+			manager.addStorageSupport(std::make_unique<mocks::MockExternalCacheStorage<6>>());
+			manager.addStorageSupport(std::make_unique<mocks::MockExternalCacheStorage<4>>());
+			auto pStorage = manager.createStorage();
 
-            // Assert:
-            EXPECT_EQ("{ SimpleCache, SimpleCache, SimpleCache }", pStorage->name());
-        });
-    }
+			// Assert:
+			EXPECT_EQ("{ SimpleCache, SimpleCache, SimpleCache }", pStorage->name());
+		});
+	}
 
-    // endregion
+	// endregion
 }
 }

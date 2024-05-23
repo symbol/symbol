@@ -24,14 +24,14 @@
 
 namespace catapult {
 namespace config {
-    struct NodeConfiguration;
+	struct NodeConfiguration;
 }
 }
 
 namespace catapult {
 namespace extensions {
 
-    /// Extracts unconfirmed transactions cache options from \a config.
-    cache::MemoryCacheOptions GetUtCacheOptions(const config::NodeConfiguration& config);
+	/// Extracts unconfirmed transactions cache options from \a config.
+	cache::MemoryCacheOptions GetUtCacheOptions(const config::NodeConfiguration& config);
 }
 }

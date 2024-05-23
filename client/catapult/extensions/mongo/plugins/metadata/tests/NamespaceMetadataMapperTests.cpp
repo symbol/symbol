@@ -27,30 +27,28 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS NamespaceMetadataMapperTests
 
-        namespace {
-            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NamespaceMetadata, )
-        }
+		namespace {
+			DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NamespaceMetadata, )
+		}
 
-        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Namespace_Metadata)
+		DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Namespace_Metadata)
 
-        // region streamTransaction
+		// region streamTransaction
 
-        PLUGIN_TEST(CanMapNamespaceMetadataTransaction_ZeroValueSize)
-        {
-            test::AssertCanMapTransaction<TTraits, test::NamespaceMetadataTestTraits>(0);
-        }
+		PLUGIN_TEST(CanMapNamespaceMetadataTransaction_ZeroValueSize) {
+			test::AssertCanMapTransaction<TTraits, test::NamespaceMetadataTestTraits>(0);
+		}
 
-        PLUGIN_TEST(CanMapMosaicMetadataTransaction_NonzeroValueSize)
-        {
-            for (auto valueSize : { 1u, 8u, 123u, 257u })
-                test::AssertCanMapTransaction<TTraits, test::NamespaceMetadataTestTraits>(static_cast<uint16_t>(valueSize));
-        }
+		PLUGIN_TEST(CanMapMosaicMetadataTransaction_NonzeroValueSize) {
+			for (auto valueSize : { 1u, 8u, 123u, 257u })
+				test::AssertCanMapTransaction<TTraits, test::NamespaceMetadataTestTraits>(static_cast<uint16_t>(valueSize));
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

@@ -31,77 +31,72 @@ namespace validators {
 
 #define TEST_CLASS PublicKeyValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(PublicKey, )
+	DEFINE_COMMON_VALIDATOR_TESTS(PublicKey, )
 
-    namespace {
-        constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0xC8);
+	namespace {
+		constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0xC8);
 
-        template <typename TIdentifier>
-        void AddAccount(cache::CatapultCache& cache, const TIdentifier& identifier)
-        {
-            auto cacheDelta = cache.createDelta();
-            cacheDelta.sub<cache::AccountStateCache>().addAccount(identifier, Height(1));
-            cache.commit(Height(1));
-        }
+		template <typename TIdentifier>
+		void AddAccount(cache::CatapultCache& cache, const TIdentifier& identifier) {
+			auto cacheDelta = cache.createDelta();
+			cacheDelta.sub<cache::AccountStateCache>().addAccount(identifier, Height(1));
+			cache.commit(Height(1));
+		}
 
-        void AssertValidationResult(ValidationResult expectedResult, const Key& publicKey, const cache::CatapultCache& cache)
-        {
-            auto networkInfo = model::NetworkInfo();
-            networkInfo.Identifier = Network_Identifier;
+		void AssertValidationResult(ValidationResult expectedResult, const Key& publicKey, const cache::CatapultCache& cache) {
+			auto networkInfo = model::NetworkInfo();
+			networkInfo.Identifier = Network_Identifier;
 
-            auto cacheView = cache.createView();
-            auto readOnlyCache = cacheView.toReadOnly();
+			auto cacheView = cache.createView();
+			auto readOnlyCache = cacheView.toReadOnly();
 
-            auto validatorContext = test::CreateValidatorContext(Height(1), networkInfo, readOnlyCache);
+			auto validatorContext = test::CreateValidatorContext(Height(1), networkInfo, readOnlyCache);
 
-            auto pValidator = CreatePublicKeyValidator();
-            model::AccountPublicKeyNotification notification(publicKey);
+			auto pValidator = CreatePublicKeyValidator();
+			model::AccountPublicKeyNotification notification(publicKey);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, validatorContext);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, validatorContext);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
+	}
 
-    TEST(TEST_CLASS, SuccessWhenPublicKeyAddressIsUnknown)
-    {
-        // Arrange:
-        auto publicKey = test::GenerateRandomByteArray<Key>();
+	TEST(TEST_CLASS, SuccessWhenPublicKeyAddressIsUnknown) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
 
-        auto cache = test::CreateEmptyCatapultCache();
-        AddAccount(cache, publicKey);
+		auto cache = test::CreateEmptyCatapultCache();
+		AddAccount(cache, publicKey);
 
-        // Act + Assert:
-        AssertValidationResult(ValidationResult::Success, test::GenerateRandomByteArray<Key>(), std::move(cache));
-    }
+		// Act + Assert:
+		AssertValidationResult(ValidationResult::Success, test::GenerateRandomByteArray<Key>(), std::move(cache));
+	}
 
-    TEST(TEST_CLASS, SuccessWhenPublicKeyAddressIsKnownWithoutPublicKey)
-    {
-        // Arrange:
-        auto publicKey = test::GenerateRandomByteArray<Key>();
-        auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+	TEST(TEST_CLASS, SuccessWhenPublicKeyAddressIsKnownWithoutPublicKey) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
 
-        auto cache = test::CreateEmptyCatapultCache();
-        AddAccount(cache, address);
+		auto cache = test::CreateEmptyCatapultCache();
+		AddAccount(cache, address);
 
-        // Act + Assert:
-        AssertValidationResult(ValidationResult::Success, publicKey, std::move(cache));
-    }
+		// Act + Assert:
+		AssertValidationResult(ValidationResult::Success, publicKey, std::move(cache));
+	}
 
-    TEST(TEST_CLASS, SuccessWhenPublicKeyAddressIsKnownWithMatchingPublicKey)
-    {
-        // Arrange:
-        auto publicKey = test::GenerateRandomByteArray<Key>();
+	TEST(TEST_CLASS, SuccessWhenPublicKeyAddressIsKnownWithMatchingPublicKey) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
 
-        auto cache = test::CreateEmptyCatapultCache();
-        AddAccount(cache, publicKey);
+		auto cache = test::CreateEmptyCatapultCache();
+		AddAccount(cache, publicKey);
 
-        // Act + Assert:
-        AssertValidationResult(ValidationResult::Success, publicKey, std::move(cache));
-    }
+		// Act + Assert:
+		AssertValidationResult(ValidationResult::Success, publicKey, std::move(cache));
+	}
 
-    // NOTE: failure case is omitted because it requires a RIPEMD160 collision
+	// NOTE: failure case is omitted because it requires a RIPEMD160 collision
 }
 }

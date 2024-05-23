@@ -30,48 +30,44 @@ using namespace bsoncxx::builder::stream;
 namespace catapult {
 namespace mongo {
 
-    namespace {
-        constexpr auto Collection_Name = "finalizedBlocks";
+	namespace {
+		constexpr auto Collection_Name = "finalizedBlocks";
 
-        auto CreateFilter(const model::FinalizationRound& round)
-        {
-            auto filter = document() << "block.finalizationEpoch" << mongo::mappers::ToInt32(round.Epoch) << "block.finalizationPoint"
-                                     << mongo::mappers::ToInt32(round.Point) << finalize;
-            return filter;
-        }
+		auto CreateFilter(const model::FinalizationRound& round) {
+			auto filter = document() << "block.finalizationEpoch" << mongo::mappers::ToInt32(round.Epoch) << "block.finalizationPoint"
+									 << mongo::mappers::ToInt32(round.Point) << finalize;
+			return filter;
+		}
 
-        class MongoFinalizationStorage final : public subscribers::FinalizationSubscriber {
-        public:
-            MongoFinalizationStorage(MongoStorageContext& context)
-                : m_context(context)
-                , m_database(m_context.createDatabaseConnection())
-                , m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name))
-            {
-            }
+		class MongoFinalizationStorage final : public subscribers::FinalizationSubscriber {
+		public:
+			MongoFinalizationStorage(MongoStorageContext& context)
+				: m_context(context)
+				, m_database(m_context.createDatabaseConnection())
+				, m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name)) {
+			}
 
-        public:
-            void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override
-            {
-                auto blocks = m_database[Collection_Name];
-                auto dbFinalizedBlock = mappers::ToDbModel(round, height, hash);
+		public:
+			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
+				auto blocks = m_database[Collection_Name];
+				auto dbFinalizedBlock = mappers::ToDbModel(round, height, hash);
 
-                mongocxx::options::replace replace_op;
-                replace_op.upsert(true);
+				mongocxx::options::replace replace_op;
+				replace_op.upsert(true);
 
-                auto result = blocks.replace_one(CreateFilter(round), dbFinalizedBlock.view(), replace_op).value().result();
-                m_errorPolicy.checkUpserted(1, BulkWriteResult(result), "finalized block");
-            }
+				auto result = blocks.replace_one(CreateFilter(round), dbFinalizedBlock.view(), replace_op).value().result();
+				m_errorPolicy.checkUpserted(1, BulkWriteResult(result), "finalized block");
+			}
 
-        private:
-            MongoStorageContext& m_context;
-            MongoDatabase m_database;
-            MongoErrorPolicy m_errorPolicy;
-        };
-    }
+		private:
+			MongoStorageContext& m_context;
+			MongoDatabase m_database;
+			MongoErrorPolicy m_errorPolicy;
+		};
+	}
 
-    std::unique_ptr<subscribers::FinalizationSubscriber> CreateMongoFinalizationStorage(MongoStorageContext& context)
-    {
-        return std::make_unique<MongoFinalizationStorage>(context);
-    }
+	std::unique_ptr<subscribers::FinalizationSubscriber> CreateMongoFinalizationStorage(MongoStorageContext& context) {
+		return std::make_unique<MongoFinalizationStorage>(context);
+	}
 }
 }

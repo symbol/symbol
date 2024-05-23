@@ -27,8 +27,8 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Binary layout for an account operation restriction transaction body.
-    DEFINE_ACCOUNT_RESTRICTION_TRANSACTION(Operation, Operation, EntityType)
+	/// Binary layout for an account operation restriction transaction body.
+	DEFINE_ACCOUNT_RESTRICTION_TRANSACTION(Operation, Operation, EntityType)
 
 #pragma pack(pop)
 }

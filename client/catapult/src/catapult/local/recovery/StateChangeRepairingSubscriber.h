@@ -25,19 +25,19 @@
 
 namespace catapult {
 namespace cache {
-    class CatapultCache;
+	class CatapultCache;
 }
 namespace extensions {
-    class LocalNodeChainScore;
+	class LocalNodeChainScore;
 }
 }
 
 namespace catapult {
 namespace local {
 
-    /// Creates state change repairing subscriber around \a cache and \a localNodeScore.
-    std::unique_ptr<subscribers::StateChangeSubscriber> CreateStateChangeRepairingSubscriber(
-        cache::CatapultCache& cache,
-        extensions::LocalNodeChainScore& localNodeScore);
+	/// Creates state change repairing subscriber around \a cache and \a localNodeScore.
+	std::unique_ptr<subscribers::StateChangeSubscriber> CreateStateChangeRepairingSubscriber(
+		cache::CatapultCache& cache,
+		extensions::LocalNodeChainScore& localNodeScore);
 }
 }

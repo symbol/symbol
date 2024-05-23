@@ -28,74 +28,69 @@
 namespace catapult {
 namespace utils {
 
-    /// Simple RAII class that logs scope messages.
-    class StackLogger {
-    public:
-        /// Constructs a logger with \a message and log \a level.
-        StackLogger(const char* message, LogLevel level)
-            : m_message(message)
-            , m_level(level)
-        {
-            CATAPULT_LOG_LEVEL(m_level) << "pushing scope '" << m_message << "'";
-        }
+	/// Simple RAII class that logs scope messages.
+	class StackLogger {
+	public:
+		/// Constructs a logger with \a message and log \a level.
+		StackLogger(const char* message, LogLevel level)
+			: m_message(message)
+			, m_level(level) {
+			CATAPULT_LOG_LEVEL(m_level) << "pushing scope '" << m_message << "'";
+		}
 
-        /// Destructor.
-        ~StackLogger()
-        {
-            auto elapsedMillis = m_timer.millis();
-            CATAPULT_LOG_LEVEL(m_level) << "popping scope '" << m_message << "' (" << elapsedMillis << "ms)";
-        }
+		/// Destructor.
+		~StackLogger() {
+			auto elapsedMillis = m_timer.millis();
+			CATAPULT_LOG_LEVEL(m_level) << "popping scope '" << m_message << "' (" << elapsedMillis << "ms)";
+		}
 
-    private:
-        const char* m_message;
-        LogLevel m_level;
-        StackTimer m_timer;
-    };
+	private:
+		const char* m_message;
+		LogLevel m_level;
+		StackTimer m_timer;
+	};
 
-    /// Simple RAII class that logs slow operation messages.
-    class SlowOperationLogger {
-    public:
-        /// Constructs a logger with \a message and log \a level for messages longer than \a threshold.
-        SlowOperationLogger(const char* message, LogLevel level, const TimeSpan& threshold = TimeSpan::FromSeconds(1))
-            : m_message(message)
-            , m_level(level)
-            , m_threshold(threshold)
-        {
-        }
+	/// Simple RAII class that logs slow operation messages.
+	class SlowOperationLogger {
+	public:
+		/// Constructs a logger with \a message and log \a level for messages longer than \a threshold.
+		SlowOperationLogger(const char* message, LogLevel level, const TimeSpan& threshold = TimeSpan::FromSeconds(1))
+			: m_message(message)
+			, m_level(level)
+			, m_threshold(threshold) {
+		}
 
-        /// Destructor.
-        ~SlowOperationLogger()
-        {
-            auto elapsedMillis = m_timer.millis();
-            if (TimeSpan::FromMilliseconds(elapsedMillis) <= m_threshold)
-                return;
+		/// Destructor.
+		~SlowOperationLogger() {
+			auto elapsedMillis = m_timer.millis();
+			if (TimeSpan::FromMilliseconds(elapsedMillis) <= m_threshold)
+				return;
 
-            std::ostringstream out;
-            out << "slow operation detected: '" << m_message << "' (" << elapsedMillis << "ms)";
-            for (auto i = 0u; i < m_subOperations.size(); ++i) {
-                const auto& pair = m_subOperations[i];
-                auto endMillis = (i == m_subOperations.size() - 1) ? elapsedMillis : m_subOperations[i + 1].second;
+			std::ostringstream out;
+			out << "slow operation detected: '" << m_message << "' (" << elapsedMillis << "ms)";
+			for (auto i = 0u; i < m_subOperations.size(); ++i) {
+				const auto& pair = m_subOperations[i];
+				auto endMillis = (i == m_subOperations.size() - 1) ? elapsedMillis : m_subOperations[i + 1].second;
 
-                out << std::endl
-                    << " + " << pair.second << "ms: '" << pair.first << "' (" << endMillis - pair.second << "ms)";
-            }
+				out << std::endl
+					<< " + " << pair.second << "ms: '" << pair.first << "' (" << endMillis - pair.second << "ms)";
+			}
 
-            CATAPULT_LOG_LEVEL(m_level) << out.str();
-        }
+			CATAPULT_LOG_LEVEL(m_level) << out.str();
+		}
 
-    public:
-        /// Adds a sub operation with \a name for tracking.
-        void addSubOperation(const char* name)
-        {
-            m_subOperations.emplace_back(name, m_timer.millis());
-        }
+	public:
+		/// Adds a sub operation with \a name for tracking.
+		void addSubOperation(const char* name) {
+			m_subOperations.emplace_back(name, m_timer.millis());
+		}
 
-    private:
-        const char* m_message;
-        LogLevel m_level;
-        TimeSpan m_threshold;
-        StackTimer m_timer;
-        std::vector<std::pair<const char*, uint64_t>> m_subOperations;
-    };
+	private:
+		const char* m_message;
+		LogLevel m_level;
+		TimeSpan m_threshold;
+		StackTimer m_timer;
+		std::vector<std::pair<const char*, uint64_t>> m_subOperations;
+	};
 }
 }

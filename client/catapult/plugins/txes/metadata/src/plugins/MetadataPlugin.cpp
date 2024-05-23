@@ -32,37 +32,35 @@
 namespace catapult {
 namespace plugins {
 
-    void RegisterMetadataSubsystem(PluginManager& manager)
-    {
-        manager.addTransactionSupport(CreateAccountMetadataTransactionPlugin());
-        manager.addTransactionSupport(CreateMosaicMetadataTransactionPlugin());
-        manager.addTransactionSupport(CreateNamespaceMetadataTransactionPlugin());
+	void RegisterMetadataSubsystem(PluginManager& manager) {
+		manager.addTransactionSupport(CreateAccountMetadataTransactionPlugin());
+		manager.addTransactionSupport(CreateMosaicMetadataTransactionPlugin());
+		manager.addTransactionSupport(CreateNamespaceMetadataTransactionPlugin());
 
-        manager.addCacheSupport<cache::MetadataCacheStorage>(
-            std::make_unique<cache::MetadataCache>(manager.cacheConfig(cache::MetadataCache::Name)));
+		manager.addCacheSupport<cache::MetadataCacheStorage>(
+			std::make_unique<cache::MetadataCache>(manager.cacheConfig(cache::MetadataCache::Name)));
 
-        using CacheHandlers = CacheHandlers<cache::MetadataCacheDescriptor>;
-        CacheHandlers::Register<model::FacilityCode::Metadata>(manager);
+		using CacheHandlers = CacheHandlers<cache::MetadataCacheDescriptor>;
+		CacheHandlers::Register<model::FacilityCode::Metadata>(manager);
 
-        manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
-            counters.emplace_back(utils::DiagnosticCounterId("METADATA C"), [&cache]() {
-                return cache.sub<cache::MetadataCache>().createView()->size();
-            });
-        });
+		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
+			counters.emplace_back(utils::DiagnosticCounterId("METADATA C"), [&cache]() {
+				return cache.sub<cache::MetadataCache>().createView()->size();
+			});
+		});
 
-        auto config = model::LoadPluginConfiguration<config::MetadataConfiguration>(manager.config(), "catapult.plugins.metadata");
-        manager.addStatelessValidatorHook([maxValueSize = config.MaxValueSize](auto& builder) {
-            builder.add(validators::CreateMetadataSizesValidator(maxValueSize));
-        });
+		auto config = model::LoadPluginConfiguration<config::MetadataConfiguration>(manager.config(), "catapult.plugins.metadata");
+		manager.addStatelessValidatorHook([maxValueSize = config.MaxValueSize](auto& builder) {
+			builder.add(validators::CreateMetadataSizesValidator(maxValueSize));
+		});
 
-        manager.addStatefulValidatorHook([](auto& builder) { builder.add(validators::CreateMetadataValueValidator()); });
+		manager.addStatefulValidatorHook([](auto& builder) { builder.add(validators::CreateMetadataValueValidator()); });
 
-        manager.addObserverHook([](auto& builder) { builder.add(observers::CreateMetadataValueObserver()); });
-    }
+		manager.addObserverHook([](auto& builder) { builder.add(observers::CreateMetadataValueObserver()); });
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
-{
-    catapult::plugins::RegisterMetadataSubsystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+	catapult::plugins::RegisterMetadataSubsystem(manager);
 }

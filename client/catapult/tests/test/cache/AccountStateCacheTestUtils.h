@@ -26,53 +26,51 @@
 namespace catapult {
 namespace test {
 
-    /// Creates account state cache options for use in tests with \a currencyMosaicId and \a harvestingMosaicId.
-    constexpr cache::AccountStateCacheTypes::Options CreateDefaultAccountStateCacheOptions(
-        MosaicId currencyMosaicId,
-        MosaicId harvestingMosaicId)
-    {
-        return { model::NetworkIdentifier::Testnet,
-            333,
-            222,
-            Amount(),
-            Amount(std::numeric_limits<Amount::ValueType>::max()),
-            Amount(),
-            currencyMosaicId,
-            harvestingMosaicId };
-    }
+	/// Creates account state cache options for use in tests with \a currencyMosaicId and \a harvestingMosaicId.
+	constexpr cache::AccountStateCacheTypes::Options CreateDefaultAccountStateCacheOptions(
+		MosaicId currencyMosaicId,
+		MosaicId harvestingMosaicId) {
+		return { model::NetworkIdentifier::Testnet,
+			333,
+			222,
+			Amount(),
+			Amount(std::numeric_limits<Amount::ValueType>::max()),
+			Amount(),
+			currencyMosaicId,
+			harvestingMosaicId };
+	}
 
-    /// Creates default account state cache options for use in tests.
-    constexpr cache::AccountStateCacheTypes::Options CreateDefaultAccountStateCacheOptions()
-    {
-        return CreateDefaultAccountStateCacheOptions(MosaicId(1111), MosaicId(2222));
-    }
+	/// Creates default account state cache options for use in tests.
+	constexpr cache::AccountStateCacheTypes::Options CreateDefaultAccountStateCacheOptions() {
+		return CreateDefaultAccountStateCacheOptions(MosaicId(1111), MosaicId(2222));
+	}
 
-    /// Creates an account history given the specified height and balance pairs (\a balancePairs).
-    state::AccountHistory CreateAccountHistory(const std::vector<std::pair<Height, Amount>>& balancePairs);
+	/// Creates an account history given the specified height and balance pairs (\a balancePairs).
+	state::AccountHistory CreateAccountHistory(const std::vector<std::pair<Height, Amount>>& balancePairs);
 
-    /// Balance seed data for generating an address account history map.
-    using AddressBalanceHistorySeeds = std::vector<std::pair<Address, std::vector<std::pair<Height, Amount>>>>;
+	/// Balance seed data for generating an address account history map.
+	using AddressBalanceHistorySeeds = std::vector<std::pair<Address, std::vector<std::pair<Height, Amount>>>>;
 
-    /// Generates an address account history map from balance \a seeds.
-    cache::AddressAccountHistoryMap GenerateAccountHistories(const AddressBalanceHistorySeeds& seeds);
+	/// Generates an address account history map from balance \a seeds.
+	cache::AddressAccountHistoryMap GenerateAccountHistories(const AddressBalanceHistorySeeds& seeds);
 
-    /// Adds random accounts to \a delta with specified \a balances of \a mosaicId.
-    std::vector<Address> AddAccountsWithBalances(
-        cache::AccountStateCacheDelta& delta,
-        MosaicId mosaicId,
-        const std::vector<Amount>& balances);
+	/// Adds random accounts to \a delta with specified \a balances of \a mosaicId.
+	std::vector<Address> AddAccountsWithBalances(
+		cache::AccountStateCacheDelta& delta,
+		MosaicId mosaicId,
+		const std::vector<Amount>& balances);
 
-    /// Adds random accounts to \a delta with specified \a balances of \a mosaicId and overlapping voting key lifetimes.
-    /// \note Accounts will have voting key lifetimes of [(10, 60), (20, 70) ...]
-    std::vector<Address> AddAccountsWithBalancesAndOverlappingVotingKeyLifetimes(
-        cache::AccountStateCacheDelta& delta,
-        MosaicId mosaicId,
-        const std::vector<Amount>& balances);
+	/// Adds random accounts to \a delta with specified \a balances of \a mosaicId and overlapping voting key lifetimes.
+	/// \note Accounts will have voting key lifetimes of [(10, 60), (20, 70) ...]
+	std::vector<Address> AddAccountsWithBalancesAndOverlappingVotingKeyLifetimes(
+		cache::AccountStateCacheDelta& delta,
+		MosaicId mosaicId,
+		const std::vector<Amount>& balances);
 
-    /// Asserts that \a expected and \a actual are equal.
-    void AssertEqual(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
+	/// Asserts that \a expected and \a actual are equal.
+	void AssertEqual(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
 
-    /// Asserts that \a expected and \a actual have equal balance histories only.
-    void AssertEqualBalanceHistoryOnly(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
+	/// Asserts that \a expected and \a actual have equal balance histories only.
+	void AssertEqualBalanceHistoryOnly(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
 }
 }

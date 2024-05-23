@@ -30,89 +30,83 @@
 namespace catapult {
 namespace handlers {
 
-    void RegisterNodeDiscoveryPushPingHandler(
-        ionet::ServerPacketHandlers& handlers,
-        const model::UniqueNetworkFingerprint& networkFingerprint,
-        const NodeConsumer& nodeConsumer)
-    {
-        handlers.registerHandler(
-            ionet::PacketType::Node_Discovery_Push_Ping,
-            [networkFingerprint, nodeConsumer](const auto& packet, const auto& context) {
-                ionet::Node node;
-                if (!nodediscovery::TryParseNodePacket(packet, node))
-                    return;
+	void RegisterNodeDiscoveryPushPingHandler(
+		ionet::ServerPacketHandlers& handlers,
+		const model::UniqueNetworkFingerprint& networkFingerprint,
+		const NodeConsumer& nodeConsumer) {
+		handlers.registerHandler(
+			ionet::PacketType::Node_Discovery_Push_Ping,
+			[networkFingerprint, nodeConsumer](const auto& packet, const auto& context) {
+				ionet::Node node;
+				if (!nodediscovery::TryParseNodePacket(packet, node))
+					return;
 
-                if (!nodediscovery::IsNodeCompatible(node, networkFingerprint, context.key())) {
-                    CATAPULT_LOG(warning) << "ignoring ping packet for incompatible node (identity = " << node.identity()
-                                          << ", network = " << node.metadata().NetworkFingerprint << ")";
-                    return;
-                }
+				if (!nodediscovery::IsNodeCompatible(node, networkFingerprint, context.key())) {
+					CATAPULT_LOG(warning) << "ignoring ping packet for incompatible node (identity = " << node.identity()
+										  << ", network = " << node.metadata().NetworkFingerprint << ")";
+					return;
+				}
 
-                auto identity = model::NodeIdentity { node.identity().PublicKey, context.host() };
-                auto endpoint = node.endpoint();
+				auto identity = model::NodeIdentity { node.identity().PublicKey, context.host() };
+				auto endpoint = node.endpoint();
 
-                if (endpoint.Host.empty()) {
-                    endpoint.Host = identity.Host;
-                    CATAPULT_LOG(debug) << "auto detected host '" << endpoint.Host << "' for " << identity;
-                }
+				if (endpoint.Host.empty()) {
+					endpoint.Host = identity.Host;
+					CATAPULT_LOG(debug) << "auto detected host '" << endpoint.Host << "' for " << identity;
+				}
 
-                node = ionet::Node(identity, endpoint, node.metadata());
-                CATAPULT_LOG(debug) << "processing ping from " << node;
-                nodeConsumer(node);
-            });
-    }
+				node = ionet::Node(identity, endpoint, node.metadata());
+				CATAPULT_LOG(debug) << "processing ping from " << node;
+				nodeConsumer(node);
+			});
+	}
 
-    void RegisterNodeDiscoveryPullPingHandler(
-        ionet::ServerPacketHandlers& handlers,
-        const std::shared_ptr<const ionet::NetworkNode>& pLocalNode)
-    {
-        handlers.registerHandler(ionet::PacketType::Node_Discovery_Pull_Ping, [pLocalNode](const auto& packet, auto& context) {
-            if (!IsPacketValid(packet, ionet::PacketType::Node_Discovery_Pull_Ping))
-                return;
+	void RegisterNodeDiscoveryPullPingHandler(
+		ionet::ServerPacketHandlers& handlers,
+		const std::shared_ptr<const ionet::NetworkNode>& pLocalNode) {
+		handlers.registerHandler(ionet::PacketType::Node_Discovery_Pull_Ping, [pLocalNode](const auto& packet, auto& context) {
+			if (!IsPacketValid(packet, ionet::PacketType::Node_Discovery_Pull_Ping))
+				return;
 
-            context.response(ionet::PacketPayloadFactory::FromEntity(ionet::PacketType::Node_Discovery_Pull_Ping, pLocalNode));
-        });
-    }
+			context.response(ionet::PacketPayloadFactory::FromEntity(ionet::PacketType::Node_Discovery_Pull_Ping, pLocalNode));
+		});
+	}
 
-    void RegisterNodeDiscoveryPushPeersHandler(ionet::ServerPacketHandlers& handlers, const NodesConsumer& nodesConsumer)
-    {
-        handlers.registerHandler(ionet::PacketType::Node_Discovery_Push_Peers, [nodesConsumer](const auto& packet, const auto&) {
-            ionet::NodeSet nodes;
-            if (!nodediscovery::TryParseNodesPacket(packet, nodes) || nodes.empty())
-                return;
+	void RegisterNodeDiscoveryPushPeersHandler(ionet::ServerPacketHandlers& handlers, const NodesConsumer& nodesConsumer) {
+		handlers.registerHandler(ionet::PacketType::Node_Discovery_Push_Peers, [nodesConsumer](const auto& packet, const auto&) {
+			ionet::NodeSet nodes;
+			if (!nodediscovery::TryParseNodesPacket(packet, nodes) || nodes.empty())
+				return;
 
-            // nodes are not checked for compatibility here because they are being forwarded from a potentially malicious node
-            // (incompatible nodes will be filtered out later by ping push handler)
-            nodesConsumer(nodes);
-        });
-    }
+			// nodes are not checked for compatibility here because they are being forwarded from a potentially malicious node
+			// (incompatible nodes will be filtered out later by ping push handler)
+			nodesConsumer(nodes);
+		});
+	}
 
-    namespace {
-        struct NodeDiscoveryPullPeersTraits {
-            static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Peers;
+	namespace {
+		struct NodeDiscoveryPullPeersTraits {
+			static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Peers;
 
-            class Producer : BasicProducer<ionet::NodeSet> {
-            public:
-                explicit Producer(const ionet::NodeSet& nodes)
-                    : BasicProducer<ionet::NodeSet>(nodes)
-                {
-                }
+			class Producer : BasicProducer<ionet::NodeSet> {
+			public:
+				explicit Producer(const ionet::NodeSet& nodes)
+					: BasicProducer<ionet::NodeSet>(nodes) {
+				}
 
-                auto operator()()
-                {
-                    return next([](const auto& node) { return utils::UniqueToShared(ionet::PackNode(node)); });
-                }
-            };
-        };
-    }
+				auto operator()() {
+					return next([](const auto& node) { return utils::UniqueToShared(ionet::PackNode(node)); });
+				}
+			};
+		};
+	}
 
-    void RegisterNodeDiscoveryPullPeersHandler(ionet::ServerPacketHandlers& handlers, const NodesSupplier& nodesSupplier)
-    {
-        handlers::BatchHandlerFactory<NodeDiscoveryPullPeersTraits>::RegisterZero(handlers, [nodesSupplier]() {
-            auto pNodes = std::make_unique<ionet::NodeSet>(nodesSupplier()); // used by producer by reference
-            auto producer = NodeDiscoveryPullPeersTraits::Producer(*pNodes);
-            return [pNodes = std::move(pNodes), producer]() mutable { return producer(); };
-        });
-    }
+	void RegisterNodeDiscoveryPullPeersHandler(ionet::ServerPacketHandlers& handlers, const NodesSupplier& nodesSupplier) {
+		handlers::BatchHandlerFactory<NodeDiscoveryPullPeersTraits>::RegisterZero(handlers, [nodesSupplier]() {
+			auto pNodes = std::make_unique<ionet::NodeSet>(nodesSupplier()); // used by producer by reference
+			auto producer = NodeDiscoveryPullPeersTraits::Producer(*pNodes);
+			return [pNodes = std::move(pNodes), producer]() mutable { return producer(); };
+		});
+	}
 }
 }

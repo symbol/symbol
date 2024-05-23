@@ -33,122 +33,115 @@ namespace subscribers {
 
 #define TEST_CLASS PtChangeReaderTests
 
-    namespace {
-        void Write(
-            io::OutputStream& outputStream,
-            PtChangeOperationType operationType,
-            const std::vector<model::TransactionInfo>& transactionInfos)
-        {
-            io::Write8(outputStream, utils::to_underlying_type(operationType));
-            io::Write32(outputStream, static_cast<uint32_t>(transactionInfos.size()));
-            for (const auto& transactionInfo : transactionInfos)
-                io::WriteTransactionInfo(transactionInfo, outputStream);
-        }
+	namespace {
+		void Write(
+			io::OutputStream& outputStream,
+			PtChangeOperationType operationType,
+			const std::vector<model::TransactionInfo>& transactionInfos) {
+			io::Write8(outputStream, utils::to_underlying_type(operationType));
+			io::Write32(outputStream, static_cast<uint32_t>(transactionInfos.size()));
+			for (const auto& transactionInfo : transactionInfos)
+				io::WriteTransactionInfo(transactionInfo, outputStream);
+		}
 
-        void RunCanReadPtChangeTest(
-            PtChangeOperationType operationType,
-            size_t numTransactionInfos,
-            const consumer<const std::vector<model::TransactionInfo>&, const mocks::MockPtChangeSubscriber&>& assertSubscriber)
-        {
-            // Arrange:
-            auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(numTransactionInfos);
+		void RunCanReadPtChangeTest(
+			PtChangeOperationType operationType,
+			size_t numTransactionInfos,
+			const consumer<const std::vector<model::TransactionInfo>&, const mocks::MockPtChangeSubscriber&>& assertSubscriber) {
+			// Arrange:
+			auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(numTransactionInfos);
 
-            std::vector<uint8_t> buffer;
-            mocks::MockMemoryStream stream(buffer);
-            Write(stream, operationType, transactionInfos);
-            stream.seek(0);
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream stream(buffer);
+			Write(stream, operationType, transactionInfos);
+			stream.seek(0);
 
-            mocks::MockPtChangeSubscriber subscriber;
+			mocks::MockPtChangeSubscriber subscriber;
 
-            // Act:
-            ReadNextPtChange(stream, subscriber);
+			// Act:
+			ReadNextPtChange(stream, subscriber);
 
-            // Assert:
-            assertSubscriber(transactionInfos, subscriber);
-            EXPECT_EQ(0u, subscriber.flushInfos().size());
-        }
-    }
+			// Assert:
+			assertSubscriber(transactionInfos, subscriber);
+			EXPECT_EQ(0u, subscriber.flushInfos().size());
+		}
+	}
 
-    TEST(TEST_CLASS, CanReadAddPartialsChange)
-    {
-        // Act:
-        RunCanReadPtChangeTest(PtChangeOperationType::Add_Partials, 7, [](const auto& transactionInfos, const auto& subscriber) {
-            // Assert:
-            ASSERT_EQ(transactionInfos.size(), subscriber.addedInfos().size());
-            EXPECT_EQ(0u, subscriber.removedInfos().size());
-            EXPECT_EQ(0u, subscriber.addedCosignatureInfos().size());
+	TEST(TEST_CLASS, CanReadAddPartialsChange) {
+		// Act:
+		RunCanReadPtChangeTest(PtChangeOperationType::Add_Partials, 7, [](const auto& transactionInfos, const auto& subscriber) {
+			// Assert:
+			ASSERT_EQ(transactionInfos.size(), subscriber.addedInfos().size());
+			EXPECT_EQ(0u, subscriber.removedInfos().size());
+			EXPECT_EQ(0u, subscriber.addedCosignatureInfos().size());
 
-            test::AssertEquivalent(transactionInfos, subscriber.addedInfos(), "added");
-        });
-    }
+			test::AssertEquivalent(transactionInfos, subscriber.addedInfos(), "added");
+		});
+	}
 
-    TEST(TEST_CLASS, CanReadRemovePartialsChange)
-    {
-        // Act:
-        RunCanReadPtChangeTest(PtChangeOperationType::Remove_Partials, 7, [](const auto& transactionInfos, const auto& subscriber) {
-            // Assert:
-            EXPECT_EQ(0u, subscriber.addedInfos().size());
-            ASSERT_EQ(transactionInfos.size(), subscriber.removedInfos().size());
-            EXPECT_EQ(0u, subscriber.addedCosignatureInfos().size());
+	TEST(TEST_CLASS, CanReadRemovePartialsChange) {
+		// Act:
+		RunCanReadPtChangeTest(PtChangeOperationType::Remove_Partials, 7, [](const auto& transactionInfos, const auto& subscriber) {
+			// Assert:
+			EXPECT_EQ(0u, subscriber.addedInfos().size());
+			ASSERT_EQ(transactionInfos.size(), subscriber.removedInfos().size());
+			EXPECT_EQ(0u, subscriber.addedCosignatureInfos().size());
 
-            test::AssertEquivalent(transactionInfos, subscriber.removedInfos(), "removed");
-        });
-    }
+			test::AssertEquivalent(transactionInfos, subscriber.removedInfos(), "removed");
+		});
+	}
 
-    TEST(TEST_CLASS, CanReadZeroChanges)
-    {
-        // Act:
-        RunCanReadPtChangeTest(PtChangeOperationType::Add_Partials, 0, [](const auto&, const auto& subscriber) {
-            // Assert:
-            EXPECT_EQ(0u, subscriber.addedInfos().size());
-            EXPECT_EQ(0u, subscriber.removedInfos().size());
-            EXPECT_EQ(0u, subscriber.addedCosignatureInfos().size());
-        });
-    }
+	TEST(TEST_CLASS, CanReadZeroChanges) {
+		// Act:
+		RunCanReadPtChangeTest(PtChangeOperationType::Add_Partials, 0, [](const auto&, const auto& subscriber) {
+			// Assert:
+			EXPECT_EQ(0u, subscriber.addedInfos().size());
+			EXPECT_EQ(0u, subscriber.removedInfos().size());
+			EXPECT_EQ(0u, subscriber.addedCosignatureInfos().size());
+		});
+	}
 
-    TEST(TEST_CLASS, CanReadCosignature)
-    {
-        // Arrange:
-        auto cosignature = test::CreateRandomDetachedCosignature();
-        auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(1);
+	TEST(TEST_CLASS, CanReadCosignature) {
+		// Arrange:
+		auto cosignature = test::CreateRandomDetachedCosignature();
+		auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(1);
 
-        std::vector<uint8_t> buffer;
-        mocks::MockMemoryStream stream(buffer);
-        io::Write8(stream, utils::to_underlying_type(PtChangeOperationType::Add_Cosignature));
-        stream.write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
-        io::WriteTransactionInfo(*transactionInfos.cbegin(), stream);
-        stream.seek(0);
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
+		io::Write8(stream, utils::to_underlying_type(PtChangeOperationType::Add_Cosignature));
+		stream.write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
+		io::WriteTransactionInfo(*transactionInfos.cbegin(), stream);
+		stream.seek(0);
 
-        mocks::MockPtChangeSubscriber subscriber;
+		mocks::MockPtChangeSubscriber subscriber;
 
-        // Act:
-        ReadNextPtChange(stream, subscriber);
+		// Act:
+		ReadNextPtChange(stream, subscriber);
 
-        // Assert:
-        EXPECT_EQ(0u, subscriber.addedInfos().size());
-        EXPECT_EQ(0u, subscriber.removedInfos().size());
-        ASSERT_EQ(1u, subscriber.addedCosignatureInfos().size());
+		// Assert:
+		EXPECT_EQ(0u, subscriber.addedInfos().size());
+		EXPECT_EQ(0u, subscriber.removedInfos().size());
+		ASSERT_EQ(1u, subscriber.addedCosignatureInfos().size());
 
-        const auto& cosignatureInfo = subscriber.addedCosignatureInfos()[0];
-        test::AssertCosignature(cosignature, cosignatureInfo.second);
-        test::AssertEqual(*transactionInfos.cbegin(), *cosignatureInfo.first);
+		const auto& cosignatureInfo = subscriber.addedCosignatureInfos()[0];
+		test::AssertCosignature(cosignature, cosignatureInfo.second);
+		test::AssertEqual(*transactionInfos.cbegin(), *cosignatureInfo.first);
 
-        EXPECT_EQ(0u, subscriber.flushInfos().size());
-    }
+		EXPECT_EQ(0u, subscriber.flushInfos().size());
+	}
 
-    TEST(TEST_CLASS, ReadThrowsWhenChangeOperationTypeIsInvalid)
-    {
-        // Arrange:
-        std::vector<uint8_t> buffer;
-        mocks::MockMemoryStream stream(buffer);
-        io::Write8(stream, 0xFF);
-        io::Write32(stream, 0);
-        stream.seek(0);
+	TEST(TEST_CLASS, ReadThrowsWhenChangeOperationTypeIsInvalid) {
+		// Arrange:
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
+		io::Write8(stream, 0xFF);
+		io::Write32(stream, 0);
+		stream.seek(0);
 
-        mocks::MockPtChangeSubscriber subscriber;
+		mocks::MockPtChangeSubscriber subscriber;
 
-        // Act + Assert:
-        EXPECT_THROW(ReadNextPtChange(stream, subscriber), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(ReadNextPtChange(stream, subscriber), catapult_invalid_argument);
+	}
 }
 }

@@ -25,34 +25,30 @@
 namespace catapult {
 namespace test {
 
-    /// Basic map descriptor used in cache_db tests.
-    template <typename TKey, typename TValue>
-    struct BasicMapDescriptor {
-    public:
-        using KeyType = TKey;
-        using ValueType = TValue;
-        using StorageType = std::pair<const KeyType, ValueType>;
+	/// Basic map descriptor used in cache_db tests.
+	template <typename TKey, typename TValue>
+	struct BasicMapDescriptor {
+	public:
+		using KeyType = TKey;
+		using ValueType = TValue;
+		using StorageType = std::pair<const KeyType, ValueType>;
 
-    public:
-        static const auto& GetKeyFromValue(const ValueType& value)
-        {
-            return value.KeyCopy;
-        }
+	public:
+		static const auto& GetKeyFromValue(const ValueType& value) {
+			return value.KeyCopy;
+		}
 
-        static const auto& ToKey(const StorageType& element)
-        {
-            return element.first;
-        }
+		static const auto& ToKey(const StorageType& element) {
+			return element.first;
+		}
 
-        static const auto& ToValue(const StorageType& element)
-        {
-            return element.second;
-        }
+		static const auto& ToValue(const StorageType& element) {
+			return element.second;
+		}
 
-        static auto ToStorage(const ValueType& value)
-        {
-            return StorageType(GetKeyFromValue(value), value);
-        }
-    };
+		static auto ToStorage(const ValueType& value) {
+			return StorageType(GetKeyFromValue(value), value);
+		}
+	};
 }
 }

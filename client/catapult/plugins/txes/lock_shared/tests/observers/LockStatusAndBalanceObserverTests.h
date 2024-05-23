@@ -27,124 +27,118 @@
 namespace catapult {
 namespace observers {
 
-    /// Test suite for observers using LockStatusAccountBalanceObserver helper.
-    template <typename TTraits>
-    struct LockStatusObserverTests {
-    private:
-        static void AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit(Amount initialAmount)
-        {
-            // Arrange:
-            auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit);
+	/// Test suite for observers using LockStatusAccountBalanceObserver helper.
+	template <typename TTraits>
+	struct LockStatusObserverTests {
+	private:
+		static void AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit(Amount initialAmount) {
+			// Arrange:
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit);
 
-            // Act:
-            RunTest(std::move(observerContext),
-                initialAmount,
-                Amount(100),
-                [&](const auto& accountState, const auto& originalLockInfo, const auto& lockInfoHistory, const auto& statement) {
-                    // Assert: status and balance
-                    EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
-                    ASSERT_EQ(1u, lockInfoHistory.historyDepth());
+			// Act:
+			RunTest(std::move(observerContext),
+				initialAmount,
+				Amount(100),
+				[&](const auto& accountState, const auto& originalLockInfo, const auto& lockInfoHistory, const auto& statement) {
+					// Assert: status and balance
+					EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
+					ASSERT_EQ(1u, lockInfoHistory.historyDepth());
 
-                    const auto& lockInfo = lockInfoHistory.back();
-                    EXPECT_EQ(state::LockStatus::Used, lockInfo.Status);
-                    EXPECT_EQ(initialAmount + Amount(100), accountState.Balances.get(lockInfo.MosaicId));
+					const auto& lockInfo = lockInfoHistory.back();
+					EXPECT_EQ(state::LockStatus::Used, lockInfo.Status);
+					EXPECT_EQ(initialAmount + Amount(100), accountState.Balances.get(lockInfo.MosaicId));
 
-                    // - check receipt
-                    ASSERT_EQ(1u, statement.TransactionStatements.size());
+					// - check receipt
+					ASSERT_EQ(1u, statement.TransactionStatements.size());
 
-                    const auto& receiptPair = *statement.TransactionStatements.find(model::ReceiptSource());
-                    ASSERT_EQ(1u, receiptPair.second.size());
+					const auto& receiptPair = *statement.TransactionStatements.find(model::ReceiptSource());
+					ASSERT_EQ(1u, receiptPair.second.size());
 
-                    const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
-                    ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
-                    EXPECT_EQ(1u, receipt.Version);
-                    EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
-                    EXPECT_EQ(originalLockInfo.MosaicId, receipt.Mosaic.MosaicId);
-                    EXPECT_EQ(originalLockInfo.Amount, receipt.Mosaic.Amount);
-                    EXPECT_EQ(accountState.Address, receipt.TargetAddress);
-                });
-        }
+					const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
+					ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
+					EXPECT_EQ(1u, receipt.Version);
+					EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
+					EXPECT_EQ(originalLockInfo.MosaicId, receipt.Mosaic.MosaicId);
+					EXPECT_EQ(originalLockInfo.Amount, receipt.Mosaic.Amount);
+					EXPECT_EQ(accountState.Address, receipt.TargetAddress);
+				});
+		}
 
-    public:
-        static void AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit()
-        {
-            AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit(Amount(0));
-        }
+	public:
+		static void AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit() {
+			AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit(Amount(0));
+		}
 
-        static void AssertObserverSetsStatusToUsedAndCreditsToExistingBalanceOnCommit()
-        {
-            AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit(Amount(100));
-        }
+		static void AssertObserverSetsStatusToUsedAndCreditsToExistingBalanceOnCommit() {
+			AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit(Amount(100));
+		}
 
-        static void AssertObserverSetsStatusToUnusedAndDebitsBalanceOnRollback()
-        {
-            // Arrange:
-            auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Rollback);
+		static void AssertObserverSetsStatusToUnusedAndDebitsBalanceOnRollback() {
+			// Arrange:
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Rollback);
 
-            // Act:
-            RunTest(std::move(observerContext),
-                Amount(1000),
-                Amount(100),
-                [&](const auto& accountState, const auto& originalLockInfo, const auto& lockInfoHistory, const auto& statement) {
-                    // Assert: status and balance
-                    EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
-                    ASSERT_EQ(1u, lockInfoHistory.historyDepth());
+			// Act:
+			RunTest(std::move(observerContext),
+				Amount(1000),
+				Amount(100),
+				[&](const auto& accountState, const auto& originalLockInfo, const auto& lockInfoHistory, const auto& statement) {
+					// Assert: status and balance
+					EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
+					ASSERT_EQ(1u, lockInfoHistory.historyDepth());
 
-                    const auto& lockInfo = lockInfoHistory.back();
-                    EXPECT_EQ(state::LockStatus::Unused, lockInfo.Status);
-                    EXPECT_EQ(Amount(900), accountState.Balances.get(originalLockInfo.MosaicId));
+					const auto& lockInfo = lockInfoHistory.back();
+					EXPECT_EQ(state::LockStatus::Unused, lockInfo.Status);
+					EXPECT_EQ(Amount(900), accountState.Balances.get(originalLockInfo.MosaicId));
 
-                    ASSERT_EQ(0u, statement.TransactionStatements.size());
-                });
-        }
+					ASSERT_EQ(0u, statement.TransactionStatements.size());
+				});
+		}
 
-    private:
-        template <typename TCheckCacheFunc>
-        static void RunTest(
-            typename TTraits::ObserverTestContext&& observerContext,
-            Amount initialAmount,
-            Amount lockAmount,
-            TCheckCacheFunc checkCache)
-        {
-            // Arrange:
-            auto pObserver = TTraits::CreateObserver();
+	private:
+		template <typename TCheckCacheFunc>
+		static void RunTest(
+			typename TTraits::ObserverTestContext&& observerContext,
+			Amount initialAmount,
+			Amount lockAmount,
+			TCheckCacheFunc checkCache) {
+			// Arrange:
+			auto pObserver = TTraits::CreateObserver();
 
-            auto originalLockInfo = TTraits::BasicTraits::CreateLockInfo();
-            originalLockInfo.Amount = lockAmount;
-            originalLockInfo.Status = static_cast<state::LockStatus>(77); // status should be updated by observer
+			auto originalLockInfo = TTraits::BasicTraits::CreateLockInfo();
+			originalLockInfo.Amount = lockAmount;
+			originalLockInfo.Status = static_cast<state::LockStatus>(77); // status should be updated by observer
 
-            auto& accountStateCacheDelta = observerContext.cache().template sub<cache::AccountStateCache>();
-            auto accountIdentifier = TTraits::DestinationAccount(originalLockInfo);
-            accountStateCacheDelta.addAccount(accountIdentifier, Height(1));
-            auto& accountState = accountStateCacheDelta.find(accountIdentifier).get();
+			auto& accountStateCacheDelta = observerContext.cache().template sub<cache::AccountStateCache>();
+			auto accountIdentifier = TTraits::DestinationAccount(originalLockInfo);
+			accountStateCacheDelta.addAccount(accountIdentifier, Height(1));
+			auto& accountState = accountStateCacheDelta.find(accountIdentifier).get();
 
-            auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::BasicTraits::CacheType>();
-            lockInfoCacheDelta.insert(originalLockInfo);
-            if (Amount(0) != initialAmount)
-                accountState.Balances.credit(originalLockInfo.MosaicId, initialAmount);
+			auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::BasicTraits::CacheType>();
+			lockInfoCacheDelta.insert(originalLockInfo);
+			if (Amount(0) != initialAmount)
+				accountState.Balances.credit(originalLockInfo.MosaicId, initialAmount);
 
-            // Act:
-            typename TTraits::NotificationBuilder notificationBuilder;
-            notificationBuilder.prepare(originalLockInfo);
+			// Act:
+			typename TTraits::NotificationBuilder notificationBuilder;
+			notificationBuilder.prepare(originalLockInfo);
 
-            auto notification = notificationBuilder.notification();
-            test::ObserveNotification(*pObserver, notification, observerContext);
+			auto notification = notificationBuilder.notification();
+			test::ObserveNotification(*pObserver, notification, observerContext);
 
-            // Assert
-            const auto& lockInfoHistory = lockInfoCacheDelta.find(GetLockIdentifier(originalLockInfo)).get();
-            checkCache(accountState, originalLockInfo, lockInfoHistory, *observerContext.statementBuilder().build());
-        }
-    };
+			// Assert
+			const auto& lockInfoHistory = lockInfoCacheDelta.find(GetLockIdentifier(originalLockInfo)).get();
+			checkCache(accountState, originalLockInfo, lockInfoHistory, *observerContext.statementBuilder().build());
+		}
+	};
 }
 }
 
 #define MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, TEST_NAME)     \
-    TEST(TEST_CLASS, TEST_NAME)                                    \
-    {                                                              \
-        LockStatusObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); \
-    }
+	TEST(TEST_CLASS, TEST_NAME) {                                  \
+		LockStatusObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_STATUS_OBSERVER_TESTS(TRAITS_NAME)                                                       \
-    MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, ObserverSetsStatusToUsedAndCreditsBalanceOnCommit)           \
-    MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, ObserverSetsStatusToUsedAndCreditsToExistingBalanceOnCommit) \
-    MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, ObserverSetsStatusToUnusedAndDebitsBalanceOnRollback)
+	MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, ObserverSetsStatusToUsedAndCreditsBalanceOnCommit)           \
+	MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, ObserverSetsStatusToUsedAndCreditsToExistingBalanceOnCommit) \
+	MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, ObserverSetsStatusToUnusedAndDebitsBalanceOnRollback)

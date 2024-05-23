@@ -24,100 +24,89 @@
 namespace catapult {
 namespace state {
 
-    namespace {
-        static constexpr bool IsZero(Amount amount)
-        {
-            return Amount(0) == amount;
-        }
-    }
+	namespace {
+		static constexpr bool IsZero(Amount amount) {
+			return Amount(0) == amount;
+		}
+	}
 
-    AccountBalances::AccountBalances() = default;
+	AccountBalances::AccountBalances() = default;
 
-    AccountBalances::AccountBalances(const AccountBalances& accountBalances)
-    {
-        *this = accountBalances;
-    }
+	AccountBalances::AccountBalances(const AccountBalances& accountBalances) {
+		*this = accountBalances;
+	}
 
-    AccountBalances::AccountBalances(AccountBalances&& accountBalances) = default;
+	AccountBalances::AccountBalances(AccountBalances&& accountBalances) = default;
 
-    AccountBalances& AccountBalances::operator=(const AccountBalances& accountBalances)
-    {
-        m_optimizedMosaicId = accountBalances.optimizedMosaicId();
-        m_balances.optimize(m_optimizedMosaicId);
-        for (const auto& pair : accountBalances)
-            m_balances.insert(pair);
+	AccountBalances& AccountBalances::operator=(const AccountBalances& accountBalances) {
+		m_optimizedMosaicId = accountBalances.optimizedMosaicId();
+		m_balances.optimize(m_optimizedMosaicId);
+		for (const auto& pair : accountBalances)
+			m_balances.insert(pair);
 
-        return *this;
-    }
+		return *this;
+	}
 
-    AccountBalances& AccountBalances::operator=(AccountBalances&& accountBalances) = default;
+	AccountBalances& AccountBalances::operator=(AccountBalances&& accountBalances) = default;
 
-    size_t AccountBalances::size() const
-    {
-        return m_balances.size();
-    }
+	size_t AccountBalances::size() const {
+		return m_balances.size();
+	}
 
-    CompactMosaicMap::const_iterator AccountBalances::begin() const
-    {
-        return m_balances.begin();
-    }
+	CompactMosaicMap::const_iterator AccountBalances::begin() const {
+		return m_balances.begin();
+	}
 
-    CompactMosaicMap::const_iterator AccountBalances::end() const
-    {
-        return m_balances.end();
-    }
+	CompactMosaicMap::const_iterator AccountBalances::end() const {
+		return m_balances.end();
+	}
 
-    MosaicId AccountBalances::optimizedMosaicId() const
-    {
-        return m_optimizedMosaicId;
-    }
+	MosaicId AccountBalances::optimizedMosaicId() const {
+		return m_optimizedMosaicId;
+	}
 
-    Amount AccountBalances::get(MosaicId mosaicId) const
-    {
-        auto iter = m_balances.find(mosaicId);
-        return m_balances.end() == iter ? Amount(0) : iter->second;
-    }
+	Amount AccountBalances::get(MosaicId mosaicId) const {
+		auto iter = m_balances.find(mosaicId);
+		return m_balances.end() == iter ? Amount(0) : iter->second;
+	}
 
-    AccountBalances& AccountBalances::credit(MosaicId mosaicId, Amount amount)
-    {
-        if (IsZero(amount))
-            return *this;
+	AccountBalances& AccountBalances::credit(MosaicId mosaicId, Amount amount) {
+		if (IsZero(amount))
+			return *this;
 
-        auto iter = m_balances.find(mosaicId);
-        if (m_balances.end() == iter)
-            m_balances.insert(std::make_pair(mosaicId, amount));
-        else
-            iter->second = iter->second + amount;
+		auto iter = m_balances.find(mosaicId);
+		if (m_balances.end() == iter)
+			m_balances.insert(std::make_pair(mosaicId, amount));
+		else
+			iter->second = iter->second + amount;
 
-        return *this;
-    }
+		return *this;
+	}
 
-    AccountBalances& AccountBalances::debit(MosaicId mosaicId, Amount amount)
-    {
-        if (IsZero(amount))
-            return *this;
+	AccountBalances& AccountBalances::debit(MosaicId mosaicId, Amount amount) {
+		if (IsZero(amount))
+			return *this;
 
-        auto iter = m_balances.find(mosaicId);
-        auto hasZeroBalance = m_balances.end() == iter;
-        if (hasZeroBalance || amount > iter->second) {
-            auto currentBalance = hasZeroBalance ? Amount(0) : iter->second;
-            std::ostringstream out;
-            out << "debit amount (" << amount << ") is greater than current balance (" << currentBalance << ") for mosaic "
-                << utils::HexFormat(mosaicId);
-            CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-        }
+		auto iter = m_balances.find(mosaicId);
+		auto hasZeroBalance = m_balances.end() == iter;
+		if (hasZeroBalance || amount > iter->second) {
+			auto currentBalance = hasZeroBalance ? Amount(0) : iter->second;
+			std::ostringstream out;
+			out << "debit amount (" << amount << ") is greater than current balance (" << currentBalance << ") for mosaic "
+				<< utils::HexFormat(mosaicId);
+			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
+		}
 
-        iter->second = iter->second - amount;
-        if (IsZero(iter->second))
-            m_balances.erase(mosaicId);
+		iter->second = iter->second - amount;
+		if (IsZero(iter->second))
+			m_balances.erase(mosaicId);
 
-        return *this;
-    }
+		return *this;
+	}
 
-    void AccountBalances::optimize(MosaicId id)
-    {
-        m_balances.optimize(id);
-        m_optimizedMosaicId = id;
-    }
+	void AccountBalances::optimize(MosaicId id) {
+		m_balances.optimize(id);
+		m_optimizedMosaicId = id;
+	}
 }
 }

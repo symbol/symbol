@@ -27,59 +27,56 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        // region ToDbModel
+		// region ToDbModel
 
-        namespace {
-            void StreamAddressRestriction(bson_stream::document& builder, const state::MosaicAddressRestriction& addressRestriction)
-            {
-                builder << "mosaicId" << ToInt64(addressRestriction.mosaicId()) << "targetAddress" << ToBinary(addressRestriction.address());
+		namespace {
+			void StreamAddressRestriction(bson_stream::document& builder, const state::MosaicAddressRestriction& addressRestriction) {
+				builder << "mosaicId" << ToInt64(addressRestriction.mosaicId()) << "targetAddress" << ToBinary(addressRestriction.address());
 
-                auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
-                for (auto key : addressRestriction.keys()) {
-                    restrictionArray << bson_stream::open_document << "key" << static_cast<int64_t>(key) << "value"
-                                     << static_cast<int64_t>(addressRestriction.get(key)) << bson_stream::close_document;
-                }
+				auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
+				for (auto key : addressRestriction.keys()) {
+					restrictionArray << bson_stream::open_document << "key" << static_cast<int64_t>(key) << "value"
+									 << static_cast<int64_t>(addressRestriction.get(key)) << bson_stream::close_document;
+				}
 
-                restrictionArray << bson_stream::close_array;
-            }
+				restrictionArray << bson_stream::close_array;
+			}
 
-            void StreamGlobalRestriction(bson_stream::document& builder, const state::MosaicGlobalRestriction& globalRestriction)
-            {
-                builder << "mosaicId" << ToInt64(globalRestriction.mosaicId());
+			void StreamGlobalRestriction(bson_stream::document& builder, const state::MosaicGlobalRestriction& globalRestriction) {
+				builder << "mosaicId" << ToInt64(globalRestriction.mosaicId());
 
-                auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
-                for (auto key : globalRestriction.keys()) {
-                    state::MosaicGlobalRestriction::RestrictionRule rule;
-                    globalRestriction.tryGet(key, rule);
-                    restrictionArray << bson_stream::open_document << "key" << static_cast<int64_t>(key) << "restriction"
-                                     << bson_stream::open_document << "referenceMosaicId" << ToInt64(rule.ReferenceMosaicId)
-                                     << "restrictionValue" << static_cast<int64_t>(rule.RestrictionValue) << "restrictionType"
-                                     << utils::to_underlying_type(rule.RestrictionType) << bson_stream::close_document
-                                     << bson_stream::close_document;
-                }
+				auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
+				for (auto key : globalRestriction.keys()) {
+					state::MosaicGlobalRestriction::RestrictionRule rule;
+					globalRestriction.tryGet(key, rule);
+					restrictionArray << bson_stream::open_document << "key" << static_cast<int64_t>(key) << "restriction"
+									 << bson_stream::open_document << "referenceMosaicId" << ToInt64(rule.ReferenceMosaicId)
+									 << "restrictionValue" << static_cast<int64_t>(rule.RestrictionValue) << "restrictionType"
+									 << utils::to_underlying_type(rule.RestrictionType) << bson_stream::close_document
+									 << bson_stream::close_document;
+				}
 
-                restrictionArray << bson_stream::close_array;
-            }
-        }
+				restrictionArray << bson_stream::close_array;
+			}
+		}
 
-        bsoncxx::document::value ToDbModel(const state::MosaicRestrictionEntry& restrictionEntry)
-        {
-            bson_stream::document builder;
-            auto doc = builder << "mosaicRestrictionEntry" << bson_stream::open_document << "version" << 1 << "compositeHash"
-                               << ToBinary(restrictionEntry.uniqueKey()) << "entryType"
-                               << utils::to_underlying_type(restrictionEntry.entryType());
+		bsoncxx::document::value ToDbModel(const state::MosaicRestrictionEntry& restrictionEntry) {
+			bson_stream::document builder;
+			auto doc = builder << "mosaicRestrictionEntry" << bson_stream::open_document << "version" << 1 << "compositeHash"
+							   << ToBinary(restrictionEntry.uniqueKey()) << "entryType"
+							   << utils::to_underlying_type(restrictionEntry.entryType());
 
-            if (state::MosaicRestrictionEntry::EntryType::Address == restrictionEntry.entryType())
-                StreamAddressRestriction(builder, restrictionEntry.asAddressRestriction());
-            else
-                StreamGlobalRestriction(builder, restrictionEntry.asGlobalRestriction());
+			if (state::MosaicRestrictionEntry::EntryType::Address == restrictionEntry.entryType())
+				StreamAddressRestriction(builder, restrictionEntry.asAddressRestriction());
+			else
+				StreamGlobalRestriction(builder, restrictionEntry.asGlobalRestriction());
 
-            return doc << bson_stream::close_document << bson_stream::finalize;
-        }
+			return doc << bson_stream::close_document << bson_stream::finalize;
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

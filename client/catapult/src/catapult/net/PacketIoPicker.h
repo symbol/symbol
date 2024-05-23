@@ -25,26 +25,26 @@
 
 namespace catapult {
 namespace utils {
-    class TimeSpan;
+	class TimeSpan;
 }
 }
 
 namespace catapult {
 namespace net {
 
-    /// Interface for picking packet io pairs.
-    class PLUGIN_API_DEPENDENCY PacketIoPicker {
-    public:
-        virtual ~PacketIoPicker() = default;
+	/// Interface for picking packet io pairs.
+	class PLUGIN_API_DEPENDENCY PacketIoPicker {
+	public:
+		virtual ~PacketIoPicker() = default;
 
-    public:
-        /// Retrieves a packet io pair around an active connection or an empty pair if no connections are available.
-        /// After \a ioDuration elapses, the connection will timeout.
-        virtual ionet::NodePacketIoPair pickOne(const utils::TimeSpan& ioDuration) = 0;
-    };
+	public:
+		/// Retrieves a packet io pair around an active connection or an empty pair if no connections are available.
+		/// After \a ioDuration elapses, the connection will timeout.
+		virtual ionet::NodePacketIoPair pickOne(const utils::TimeSpan& ioDuration) = 0;
+	};
 
-    /// Retrieves io interfaces to at most \a numRequested connections from \a picker.
-    /// After \a ioDuration elapses, the connections will timeout.
-    std::vector<ionet::NodePacketIoPair> PickMultiple(PacketIoPicker& picker, size_t numRequested, const utils::TimeSpan& ioDuration);
+	/// Retrieves io interfaces to at most \a numRequested connections from \a picker.
+	/// After \a ioDuration elapses, the connections will timeout.
+	std::vector<ionet::NodePacketIoPair> PickMultiple(PacketIoPicker& picker, size_t numRequested, const utils::TimeSpan& ioDuration);
 }
 }

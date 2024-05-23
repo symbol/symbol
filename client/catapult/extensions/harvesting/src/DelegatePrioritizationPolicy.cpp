@@ -30,7 +30,7 @@
 namespace catapult {
 namespace harvesting {
 
-    // region DelegatePrioritizationPolicy
+	// region DelegatePrioritizationPolicy
 
 #define DEFINE_ENUM DelegatePrioritizationPolicy
 #define ENUM_LIST DELEGATE_PRIORITIZATION_POLICY_LIST
@@ -38,62 +38,58 @@ namespace harvesting {
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
-    namespace {
-        const std::array<std::pair<const char*, DelegatePrioritizationPolicy>, 2> String_To_Delegate_Prioritization_Policy_Pairs {
-            { { "Age", DelegatePrioritizationPolicy::Age }, { "Importance", DelegatePrioritizationPolicy::Importance } }
-        };
-    }
+	namespace {
+		const std::array<std::pair<const char*, DelegatePrioritizationPolicy>, 2> String_To_Delegate_Prioritization_Policy_Pairs {
+			{ { "Age", DelegatePrioritizationPolicy::Age }, { "Importance", DelegatePrioritizationPolicy::Importance } }
+		};
+	}
 
-    bool TryParseValue(const std::string& str, DelegatePrioritizationPolicy& policy)
-    {
-        return utils::TryParseEnumValue(String_To_Delegate_Prioritization_Policy_Pairs, str, policy);
-    }
+	bool TryParseValue(const std::string& str, DelegatePrioritizationPolicy& policy) {
+		return utils::TryParseEnumValue(String_To_Delegate_Prioritization_Policy_Pairs, str, policy);
+	}
 
-    // endregion
+	// endregion
 
-    // region CreateDelegatePrioritizer
+	// region CreateDelegatePrioritizer
 
-    namespace {
-        DelegatePrioritizer CreateAgePrioritizer()
-        {
-            return [](const auto&) {
-                // use natural order
-                return 0;
-            };
-        }
+	namespace {
+		DelegatePrioritizer CreateAgePrioritizer() {
+			return [](const auto&) {
+				// use natural order
+				return 0;
+			};
+		}
 
-        DelegatePrioritizer CreateImportancePrioritizer(const cache::CatapultCache& cache, const Key& primaryAccountPublicKey)
-        {
-            return [&cache, primaryAccountPublicKey](const auto& delegatePublicKey) {
-                // prevent primary account from getting pruned
-                if (primaryAccountPublicKey == delegatePublicKey)
-                    return std::numeric_limits<uint64_t>::max();
+		DelegatePrioritizer CreateImportancePrioritizer(const cache::CatapultCache& cache, const Key& primaryAccountPublicKey) {
+			return [&cache, primaryAccountPublicKey](const auto& delegatePublicKey) {
+				// prevent primary account from getting pruned
+				if (primaryAccountPublicKey == delegatePublicKey)
+					return std::numeric_limits<uint64_t>::max();
 
-                auto cacheView = cache.createView();
-                auto height = cacheView.height() + Height(1); // harvesting *next* block
-                auto readOnlyAccountStateCache = cache::ReadOnlyAccountStateCache(cacheView.sub<cache::AccountStateCache>());
-                cache::ImportanceView view(readOnlyAccountStateCache);
-                return view.getAccountImportanceOrDefault(delegatePublicKey, height).unwrap();
-            };
-        }
-    }
+				auto cacheView = cache.createView();
+				auto height = cacheView.height() + Height(1); // harvesting *next* block
+				auto readOnlyAccountStateCache = cache::ReadOnlyAccountStateCache(cacheView.sub<cache::AccountStateCache>());
+				cache::ImportanceView view(readOnlyAccountStateCache);
+				return view.getAccountImportanceOrDefault(delegatePublicKey, height).unwrap();
+			};
+		}
+	}
 
-    DelegatePrioritizer CreateDelegatePrioritizer(
-        DelegatePrioritizationPolicy policy,
-        const cache::CatapultCache& cache,
-        const Key& primaryAccountPublicKey)
-    {
-        switch (policy) {
-        case DelegatePrioritizationPolicy::Age:
-            return CreateAgePrioritizer();
+	DelegatePrioritizer CreateDelegatePrioritizer(
+		DelegatePrioritizationPolicy policy,
+		const cache::CatapultCache& cache,
+		const Key& primaryAccountPublicKey) {
+		switch (policy) {
+		case DelegatePrioritizationPolicy::Age:
+			return CreateAgePrioritizer();
 
-        case DelegatePrioritizationPolicy::Importance:
-            return CreateImportancePrioritizer(cache, primaryAccountPublicKey);
-        }
+		case DelegatePrioritizationPolicy::Importance:
+			return CreateImportancePrioritizer(cache, primaryAccountPublicKey);
+		}
 
-        CATAPULT_THROW_INVALID_ARGUMENT_1("cannot create delegate prioritizer for unknown policy", static_cast<uint16_t>(policy));
-    }
+		CATAPULT_THROW_INVALID_ARGUMENT_1("cannot create delegate prioritizer for unknown policy", static_cast<uint16_t>(policy));
+	}
 
-    // endregion
+	// endregion
 }
 }

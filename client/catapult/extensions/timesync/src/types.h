@@ -25,12 +25,12 @@
 namespace catapult {
 namespace timesync {
 
-    /// Time offset.
-    struct TimeOffset_tag { };
-    using TimeOffset = utils::BaseValue<int64_t, TimeOffset_tag>;
+	/// Time offset.
+	struct TimeOffset_tag { };
+	using TimeOffset = utils::BaseValue<int64_t, TimeOffset_tag>;
 
-    /// Node age.
-    struct NodeAge_tag { };
-    using NodeAge = utils::BaseValue<int64_t, NodeAge_tag>;
+	/// Node age.
+	struct NodeAge_tag { };
+	using NodeAge = utils::BaseValue<int64_t, NodeAge_tag>;
 }
 }

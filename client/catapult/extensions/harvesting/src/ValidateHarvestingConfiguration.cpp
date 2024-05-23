@@ -27,20 +27,18 @@
 namespace catapult {
 namespace harvesting {
 
-    namespace {
-        bool IsHarvesterPrivateKeyValid(bool enableAutoHarvesting, const std::string& privateKey)
-        {
-            return crypto::Ed25519Utils::IsValidPrivateKeyString(privateKey) || (!enableAutoHarvesting && privateKey.empty());
-        }
-    }
+	namespace {
+		bool IsHarvesterPrivateKeyValid(bool enableAutoHarvesting, const std::string& privateKey) {
+			return crypto::Ed25519Utils::IsValidPrivateKeyString(privateKey) || (!enableAutoHarvesting && privateKey.empty());
+		}
+	}
 
-    void ValidateHarvestingConfiguration(const HarvestingConfiguration& config)
-    {
-        if (!IsHarvesterPrivateKeyValid(config.EnableAutoHarvesting, config.HarvesterSigningPrivateKey))
-            CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvesterSigningPrivateKey must be a valid private key");
+	void ValidateHarvestingConfiguration(const HarvestingConfiguration& config) {
+		if (!IsHarvesterPrivateKeyValid(config.EnableAutoHarvesting, config.HarvesterSigningPrivateKey))
+			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvesterSigningPrivateKey must be a valid private key");
 
-        if (!IsHarvesterPrivateKeyValid(config.EnableAutoHarvesting, config.HarvesterVrfPrivateKey))
-            CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvesterVrfPrivateKey must be a valid private key");
-    }
+		if (!IsHarvesterPrivateKeyValid(config.EnableAutoHarvesting, config.HarvesterVrfPrivateKey))
+			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvesterVrfPrivateKey must be a valid private key");
+	}
 }
 }

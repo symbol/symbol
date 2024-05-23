@@ -27,43 +27,37 @@
 namespace catapult {
 namespace extensions {
 
-    namespace {
-        constexpr bool IsAggregateType(model::EntityType entityType)
-        {
-            return model::Entity_Type_Aggregate_Bonded == entityType || model::Entity_Type_Aggregate_Complete == entityType;
-        }
+	namespace {
+		constexpr bool IsAggregateType(model::EntityType entityType) {
+			return model::Entity_Type_Aggregate_Bonded == entityType || model::Entity_Type_Aggregate_Complete == entityType;
+		}
 
-        RawBuffer TransactionDataBuffer(const model::Transaction& transaction)
-        {
-            const auto* pData = reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size;
-            size_t size = IsAggregateType(transaction.Type) ? sizeof(model::AggregateTransaction) - model::Transaction::Header_Size
-                    - model::AggregateTransaction::Footer_Size
-                                                            : transaction.Size - model::Transaction::Header_Size;
-            return { pData, size };
-        }
-    }
+		RawBuffer TransactionDataBuffer(const model::Transaction& transaction) {
+			const auto* pData = reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size;
+			size_t size = IsAggregateType(transaction.Type) ? sizeof(model::AggregateTransaction) - model::Transaction::Header_Size
+					- model::AggregateTransaction::Footer_Size
+															: transaction.Size - model::Transaction::Header_Size;
+			return { pData, size };
+		}
+	}
 
-    TransactionExtensions::TransactionExtensions(const GenerationHashSeed& generationHashSeed)
-        : m_generationHashSeed(generationHashSeed)
-    {
-    }
+	TransactionExtensions::TransactionExtensions(const GenerationHashSeed& generationHashSeed)
+		: m_generationHashSeed(generationHashSeed) {
+	}
 
-    Hash256 TransactionExtensions::hash(const model::Transaction& transaction) const
-    {
-        return model::CalculateHash(transaction, m_generationHashSeed, TransactionDataBuffer(transaction));
-    }
+	Hash256 TransactionExtensions::hash(const model::Transaction& transaction) const {
+		return model::CalculateHash(transaction, m_generationHashSeed, TransactionDataBuffer(transaction));
+	}
 
-    void TransactionExtensions::sign(const crypto::KeyPair& signer, model::Transaction& transaction) const
-    {
-        crypto::Sign(signer, { m_generationHashSeed, TransactionDataBuffer(transaction) }, transaction.Signature);
-    }
+	void TransactionExtensions::sign(const crypto::KeyPair& signer, model::Transaction& transaction) const {
+		crypto::Sign(signer, { m_generationHashSeed, TransactionDataBuffer(transaction) }, transaction.Signature);
+	}
 
-    bool TransactionExtensions::verify(const model::Transaction& transaction) const
-    {
-        return crypto::Verify(
-            transaction.SignerPublicKey,
-            { m_generationHashSeed, TransactionDataBuffer(transaction) },
-            transaction.Signature);
-    }
+	bool TransactionExtensions::verify(const model::Transaction& transaction) const {
+		return crypto::Verify(
+			transaction.SignerPublicKey,
+			{ m_generationHashSeed, TransactionDataBuffer(transaction) },
+			transaction.Signature);
+	}
 }
 }

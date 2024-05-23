@@ -26,53 +26,53 @@
 
 namespace catapult {
 namespace cache {
-    class ImportanceView;
+	class ImportanceView;
 }
 namespace ionet {
-    class NodeContainerView;
+	class NodeContainerView;
 }
 }
 
 namespace catapult {
 namespace timesync {
 
-    /// Node selector that selects nodes according to the importance of the account used to boot the node.
-    class ImportanceAwareNodeSelector {
-    public:
-        using NodeSelector = std::function<ionet::NodeSet(extensions::WeightedCandidates&, uint64_t, size_t)>;
+	/// Node selector that selects nodes according to the importance of the account used to boot the node.
+	class ImportanceAwareNodeSelector {
+	public:
+		using NodeSelector = std::function<ionet::NodeSet(extensions::WeightedCandidates&, uint64_t, size_t)>;
 
-    public:
-        /// Creates a selector that can pick up to \a maxNodes nodes with a minimum importance of \a minImportance
-        /// that have active connections with service id \a serviceId.
-        ImportanceAwareNodeSelector(ionet::ServiceIdentifier serviceId, uint8_t maxNodes, Importance minImportance);
+	public:
+		/// Creates a selector that can pick up to \a maxNodes nodes with a minimum importance of \a minImportance
+		/// that have active connections with service id \a serviceId.
+		ImportanceAwareNodeSelector(ionet::ServiceIdentifier serviceId, uint8_t maxNodes, Importance minImportance);
 
-        /// Creates a selector around a custom \a selector that can pick up to \a maxNodes nodes with
-        /// a minimum importance of \a minImportance that have active connections with service id \a serviceId.
-        ImportanceAwareNodeSelector(
-            ionet::ServiceIdentifier serviceId,
-            uint8_t maxNodes,
-            Importance minImportance,
-            const NodeSelector& selector);
+		/// Creates a selector around a custom \a selector that can pick up to \a maxNodes nodes with
+		/// a minimum importance of \a minImportance that have active connections with service id \a serviceId.
+		ImportanceAwareNodeSelector(
+			ionet::ServiceIdentifier serviceId,
+			uint8_t maxNodes,
+			Importance minImportance,
+			const NodeSelector& selector);
 
-    public:
-        /// Selects nodes from \a nodeContainerView that have a minimum importance at \a height according to \a importanceView.
-        ionet::NodeSet selectNodes(
-            const cache::ImportanceView& importanceView,
-            const ionet::NodeContainerView& nodeContainerView,
-            Height height) const;
+	public:
+		/// Selects nodes from \a nodeContainerView that have a minimum importance at \a height according to \a importanceView.
+		ionet::NodeSet selectNodes(
+			const cache::ImportanceView& importanceView,
+			const ionet::NodeContainerView& nodeContainerView,
+			Height height) const;
 
-    private:
-        std::pair<Importance, bool> isCandidate(
-            const cache::ImportanceView& importanceView,
-            const ionet::Node& node,
-            const ionet::NodeInfo& nodeInfo,
-            Height height) const;
+	private:
+		std::pair<Importance, bool> isCandidate(
+			const cache::ImportanceView& importanceView,
+			const ionet::Node& node,
+			const ionet::NodeInfo& nodeInfo,
+			Height height) const;
 
-    private:
-        ionet::ServiceIdentifier m_serviceId;
-        uint8_t m_maxNodes;
-        Importance m_minImportance;
-        NodeSelector m_selector;
-    };
+	private:
+		ionet::ServiceIdentifier m_serviceId;
+		uint8_t m_maxNodes;
+		Importance m_minImportance;
+		NodeSelector m_selector;
+	};
 }
 }

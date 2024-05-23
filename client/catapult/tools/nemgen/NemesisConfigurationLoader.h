@@ -24,13 +24,13 @@
 
 namespace catapult {
 namespace tools {
-    namespace nemgen {
+	namespace nemgen {
 
-        /// Loads nemesis configuration from \a configPath.
-        NemesisConfiguration LoadNemesisConfiguration(const std::string& configPath);
+		/// Loads nemesis configuration from \a configPath.
+		NemesisConfiguration LoadNemesisConfiguration(const std::string& configPath);
 
-        /// Logs and validates nemesis \a config.
-        bool LogAndValidateNemesisConfiguration(const NemesisConfiguration& config);
-    }
+		/// Logs and validates nemesis \a config.
+		bool LogAndValidateNemesisConfiguration(const NemesisConfiguration& config);
+	}
 }
 }

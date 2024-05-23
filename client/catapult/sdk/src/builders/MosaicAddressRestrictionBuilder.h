@@ -26,57 +26,57 @@
 namespace catapult {
 namespace builders {
 
-    /// Builder for a mosaic address restriction transaction.
-    class MosaicAddressRestrictionBuilder : public TransactionBuilder {
-    public:
-        using Transaction = model::MosaicAddressRestrictionTransaction;
-        using EmbeddedTransaction = model::EmbeddedMosaicAddressRestrictionTransaction;
+	/// Builder for a mosaic address restriction transaction.
+	class MosaicAddressRestrictionBuilder : public TransactionBuilder {
+	public:
+		using Transaction = model::MosaicAddressRestrictionTransaction;
+		using EmbeddedTransaction = model::EmbeddedMosaicAddressRestrictionTransaction;
 
-    public:
-        /// Creates a mosaic address restriction builder for building a mosaic address restriction transaction from \a signer
-        /// for the network specified by \a networkIdentifier.
-        MosaicAddressRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+	public:
+		/// Creates a mosaic address restriction builder for building a mosaic address restriction transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		MosaicAddressRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-    public:
-        /// Sets the identifier of the mosaic to which the restriction applies to \a mosaicId.
-        void setMosaicId(UnresolvedMosaicId mosaicId);
+	public:
+		/// Sets the identifier of the mosaic to which the restriction applies to \a mosaicId.
+		void setMosaicId(UnresolvedMosaicId mosaicId);
 
-        /// Sets the restriction key to \a restrictionKey.
-        void setRestrictionKey(uint64_t restrictionKey);
+		/// Sets the restriction key to \a restrictionKey.
+		void setRestrictionKey(uint64_t restrictionKey);
 
-        /// Sets the previous restriction value to \a previousRestrictionValue.
-        void setPreviousRestrictionValue(uint64_t previousRestrictionValue);
+		/// Sets the previous restriction value to \a previousRestrictionValue.
+		void setPreviousRestrictionValue(uint64_t previousRestrictionValue);
 
-        /// Sets the new restriction value to \a newRestrictionValue.
-        void setNewRestrictionValue(uint64_t newRestrictionValue);
+		/// Sets the new restriction value to \a newRestrictionValue.
+		void setNewRestrictionValue(uint64_t newRestrictionValue);
 
-        /// Sets the address being restricted to \a targetAddress.
-        void setTargetAddress(const UnresolvedAddress& targetAddress);
+		/// Sets the address being restricted to \a targetAddress.
+		void setTargetAddress(const UnresolvedAddress& targetAddress);
 
-    public:
-        /// Gets the size of mosaic address restriction transaction.
-        /// \note This returns size of a normal transaction not embedded transaction.
-        size_t size() const;
+	public:
+		/// Gets the size of mosaic address restriction transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
 
-        /// Builds a new mosaic address restriction transaction.
-        std::unique_ptr<Transaction> build() const;
+		/// Builds a new mosaic address restriction transaction.
+		std::unique_ptr<Transaction> build() const;
 
-        /// Builds a new embedded mosaic address restriction transaction.
-        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+		/// Builds a new embedded mosaic address restriction transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-    private:
-        template <typename TTransaction>
-        size_t sizeImpl() const;
+	private:
+		template <typename TTransaction>
+		size_t sizeImpl() const;
 
-        template <typename TTransaction>
-        std::unique_ptr<TTransaction> buildImpl() const;
+		template <typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
-    private:
-        UnresolvedMosaicId m_mosaicId;
-        uint64_t m_restrictionKey;
-        uint64_t m_previousRestrictionValue;
-        uint64_t m_newRestrictionValue;
-        UnresolvedAddress m_targetAddress;
-    };
+	private:
+		UnresolvedMosaicId m_mosaicId;
+		uint64_t m_restrictionKey;
+		uint64_t m_previousRestrictionValue;
+		uint64_t m_newRestrictionValue;
+		UnresolvedAddress m_targetAddress;
+	};
 }
 }

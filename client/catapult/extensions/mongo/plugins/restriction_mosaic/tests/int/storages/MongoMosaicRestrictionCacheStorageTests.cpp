@@ -32,122 +32,111 @@ using namespace bsoncxx::builder::stream;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MongoMosaicRestrictionCacheStorageTests
 
-        namespace {
-            struct BasicMosaicRestrictionCacheTraits {
-            public:
-                using CacheType = cache::MosaicRestrictionCache;
-                using ModelType = state::MosaicRestrictionEntry;
+		namespace {
+			struct BasicMosaicRestrictionCacheTraits {
+			public:
+				using CacheType = cache::MosaicRestrictionCache;
+				using ModelType = state::MosaicRestrictionEntry;
 
-                static constexpr auto Collection_Name = "mosaicRestrictions";
-                static constexpr auto Primary_Document_Name = "mosaicRestrictionEntry";
-                static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
-                static constexpr auto CreateCacheStorage = CreateMongoMosaicRestrictionCacheStorage;
+				static constexpr auto Collection_Name = "mosaicRestrictions";
+				static constexpr auto Primary_Document_Name = "mosaicRestrictionEntry";
+				static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
+				static constexpr auto CreateCacheStorage = CreateMongoMosaicRestrictionCacheStorage;
 
-            public:
-                static cache::CatapultCache CreateCache()
-                {
-                    return test::MosaicRestrictionCacheFactory::Create();
-                }
+			public:
+				static cache::CatapultCache CreateCache() {
+					return test::MosaicRestrictionCacheFactory::Create();
+				}
 
-                static void Add(cache::CatapultCacheDelta& delta, const ModelType& restrictionEntry)
-                {
-                    auto& restrictionCacheDelta = delta.sub<cache::MosaicRestrictionCache>();
-                    restrictionCacheDelta.insert(restrictionEntry);
-                }
+				static void Add(cache::CatapultCacheDelta& delta, const ModelType& restrictionEntry) {
+					auto& restrictionCacheDelta = delta.sub<cache::MosaicRestrictionCache>();
+					restrictionCacheDelta.insert(restrictionEntry);
+				}
 
-                static void Remove(cache::CatapultCacheDelta& delta, const ModelType& restrictionEntry)
-                {
-                    auto& restrictionCacheDelta = delta.sub<cache::MosaicRestrictionCache>();
-                    restrictionCacheDelta.remove(restrictionEntry.uniqueKey());
-                }
+				static void Remove(cache::CatapultCacheDelta& delta, const ModelType& restrictionEntry) {
+					auto& restrictionCacheDelta = delta.sub<cache::MosaicRestrictionCache>();
+					restrictionCacheDelta.remove(restrictionEntry.uniqueKey());
+				}
 
-                static auto GetFindFilter(const ModelType& restrictionEntry)
-                {
-                    return document() << std::string(Primary_Document_Name) + ".compositeHash"
-                                      << mappers::ToBinary(restrictionEntry.uniqueKey()) << finalize;
-                }
-            };
+				static auto GetFindFilter(const ModelType& restrictionEntry) {
+					return document() << std::string(Primary_Document_Name) + ".compositeHash"
+									  << mappers::ToBinary(restrictionEntry.uniqueKey()) << finalize;
+				}
+			};
 
-            struct MosaicAddressRestrictionCacheTraits : public BasicMosaicRestrictionCacheTraits {
-            public:
-                static ModelType GenerateRandomElement(uint32_t id)
-                {
-                    MosaicId mosaicId(id);
-                    Address address;
-                    std::memcpy(address.data(), &id, sizeof(id));
+			struct MosaicAddressRestrictionCacheTraits : public BasicMosaicRestrictionCacheTraits {
+			public:
+				static ModelType GenerateRandomElement(uint32_t id) {
+					MosaicId mosaicId(id);
+					Address address;
+					std::memcpy(address.data(), &id, sizeof(id));
 
-                    auto restrictionEntry = state::MosaicRestrictionEntry(state::MosaicAddressRestriction(mosaicId, address));
-                    restrictionEntry.asAddressRestriction().set(test::Random(), test::Random());
-                    return restrictionEntry;
-                }
+					auto restrictionEntry = state::MosaicRestrictionEntry(state::MosaicAddressRestriction(mosaicId, address));
+					restrictionEntry.asAddressRestriction().set(test::Random(), test::Random());
+					return restrictionEntry;
+				}
 
-                static void Mutate(cache::CatapultCacheDelta& delta, ModelType& restrictionEntry)
-                {
-                    // update expected
-                    auto key = test::Random();
-                    auto value = test::Random();
-                    restrictionEntry.asAddressRestriction().set(key, value);
+				static void Mutate(cache::CatapultCacheDelta& delta, ModelType& restrictionEntry) {
+					// update expected
+					auto key = test::Random();
+					auto value = test::Random();
+					restrictionEntry.asAddressRestriction().set(key, value);
 
-                    // update cache
-                    auto& restrictionCacheDelta = delta.sub<cache::MosaicRestrictionCache>();
-                    auto& restrictionEntryFromCache = restrictionCacheDelta.find(restrictionEntry.uniqueKey()).get();
-                    restrictionEntryFromCache.asAddressRestriction().set(key, value);
-                }
+					// update cache
+					auto& restrictionCacheDelta = delta.sub<cache::MosaicRestrictionCache>();
+					auto& restrictionEntryFromCache = restrictionCacheDelta.find(restrictionEntry.uniqueKey()).get();
+					restrictionEntryFromCache.asAddressRestriction().set(key, value);
+				}
 
-                static void AssertEqual(const ModelType& restrictionEntry, const bsoncxx::document::view& view)
-                {
-                    auto dbRestrictionEntry = view[Primary_Document_Name].get_document().view();
-                    test::MosaicAddressRestrictionTestTraits::AssertEqualRestriction(restrictionEntry, dbRestrictionEntry);
-                }
-            };
+				static void AssertEqual(const ModelType& restrictionEntry, const bsoncxx::document::view& view) {
+					auto dbRestrictionEntry = view[Primary_Document_Name].get_document().view();
+					test::MosaicAddressRestrictionTestTraits::AssertEqualRestriction(restrictionEntry, dbRestrictionEntry);
+				}
+			};
 
-            struct MosaicGlobalRestrictionCacheTraits : public BasicMosaicRestrictionCacheTraits {
-            public:
-                static ModelType GenerateRandomElement(uint32_t id)
-                {
-                    MosaicId mosaicId(id);
+			struct MosaicGlobalRestrictionCacheTraits : public BasicMosaicRestrictionCacheTraits {
+			public:
+				static ModelType GenerateRandomElement(uint32_t id) {
+					MosaicId mosaicId(id);
 
-                    auto restrictionEntry = state::MosaicRestrictionEntry(state::MosaicGlobalRestriction(mosaicId));
-                    restrictionEntry.asGlobalRestriction().set(test::Random(), CreateRandomRestrictionRule());
-                    return restrictionEntry;
-                }
+					auto restrictionEntry = state::MosaicRestrictionEntry(state::MosaicGlobalRestriction(mosaicId));
+					restrictionEntry.asGlobalRestriction().set(test::Random(), CreateRandomRestrictionRule());
+					return restrictionEntry;
+				}
 
-                static void Mutate(cache::CatapultCacheDelta& delta, ModelType& restrictionEntry)
-                {
-                    // update expected
-                    auto key = test::Random();
-                    auto rule = CreateRandomRestrictionRule();
-                    restrictionEntry.asGlobalRestriction().set(key, rule);
+				static void Mutate(cache::CatapultCacheDelta& delta, ModelType& restrictionEntry) {
+					// update expected
+					auto key = test::Random();
+					auto rule = CreateRandomRestrictionRule();
+					restrictionEntry.asGlobalRestriction().set(key, rule);
 
-                    // update cache
-                    auto& restrictionCacheDelta = delta.sub<cache::MosaicRestrictionCache>();
-                    auto& restrictionEntryFromCache = restrictionCacheDelta.find(restrictionEntry.uniqueKey()).get();
-                    restrictionEntryFromCache.asGlobalRestriction().set(key, rule);
-                }
+					// update cache
+					auto& restrictionCacheDelta = delta.sub<cache::MosaicRestrictionCache>();
+					auto& restrictionEntryFromCache = restrictionCacheDelta.find(restrictionEntry.uniqueKey()).get();
+					restrictionEntryFromCache.asGlobalRestriction().set(key, rule);
+				}
 
-                static void AssertEqual(const ModelType& restrictionEntry, const bsoncxx::document::view& view)
-                {
-                    auto dbRestrictionEntry = view[Primary_Document_Name].get_document().view();
-                    test::MosaicGlobalRestrictionTestTraits::AssertEqualRestriction(restrictionEntry, dbRestrictionEntry);
-                }
+				static void AssertEqual(const ModelType& restrictionEntry, const bsoncxx::document::view& view) {
+					auto dbRestrictionEntry = view[Primary_Document_Name].get_document().view();
+					test::MosaicGlobalRestrictionTestTraits::AssertEqualRestriction(restrictionEntry, dbRestrictionEntry);
+				}
 
-            private:
-                static state::MosaicGlobalRestriction::RestrictionRule CreateRandomRestrictionRule()
-                {
-                    auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
-                    auto restrictionValue = test::Random();
-                    auto restrictionType = static_cast<model::MosaicRestrictionType>(test::RandomByte() | 1);
-                    return state::MosaicGlobalRestriction::RestrictionRule { referenceMosaicId, restrictionValue, restrictionType };
-                }
-            };
-        }
+			private:
+				static state::MosaicGlobalRestriction::RestrictionRule CreateRandomRestrictionRule() {
+					auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
+					auto restrictionValue = test::Random();
+					auto restrictionType = static_cast<model::MosaicRestrictionType>(test::RandomByte() | 1);
+					return state::MosaicGlobalRestriction::RestrictionRule { referenceMosaicId, restrictionValue, restrictionType };
+				}
+			};
+		}
 
-        DEFINE_FLAT_CACHE_STORAGE_TESTS(MosaicAddressRestrictionCacheTraits, _Address)
-        DEFINE_FLAT_CACHE_STORAGE_TESTS(MosaicGlobalRestrictionCacheTraits, _Global)
-    }
+		DEFINE_FLAT_CACHE_STORAGE_TESTS(MosaicAddressRestrictionCacheTraits, _Address)
+		DEFINE_FLAT_CACHE_STORAGE_TESTS(MosaicGlobalRestrictionCacheTraits, _Global)
+	}
 }
 }

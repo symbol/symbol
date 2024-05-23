@@ -29,49 +29,46 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Finalization message group.
-    struct FinalizationMessageGroup : public SizePrefixedEntity {
-    private:
-        template <typename T>
-        static auto* HashesPtrT(T& messageGroup)
-        {
-            return messageGroup.HashesCount ? PayloadStart(messageGroup) : nullptr;
-        }
+	/// Finalization message group.
+	struct FinalizationMessageGroup : public SizePrefixedEntity {
+	private:
+		template <typename T>
+		static auto* HashesPtrT(T& messageGroup) {
+			return messageGroup.HashesCount ? PayloadStart(messageGroup) : nullptr;
+		}
 
-        template <typename T>
-        static auto* SignaturesPtrT(T& messageGroup)
-        {
-            auto* pPayloadStart = PayloadStart(messageGroup);
-            return messageGroup.SignaturesCount && pPayloadStart ? pPayloadStart + messageGroup.HashesCount * Hash256::Size : nullptr;
-        }
+		template <typename T>
+		static auto* SignaturesPtrT(T& messageGroup) {
+			auto* pPayloadStart = PayloadStart(messageGroup);
+			return messageGroup.SignaturesCount && pPayloadStart ? pPayloadStart + messageGroup.HashesCount * Hash256::Size : nullptr;
+		}
 
-    public:
-        /// Number of hashes.
-        uint32_t HashesCount;
+	public:
+		/// Number of hashes.
+		uint32_t HashesCount;
 
-        /// Number of signatures.
-        uint32_t SignaturesCount;
+		/// Number of signatures.
+		uint32_t SignaturesCount;
 
-        /// Message stage.
-        FinalizationStage Stage;
+		/// Message stage.
+		FinalizationStage Stage;
 
-        /// Block height corresponding to the the first hash.
-        catapult::Height Height;
+		/// Block height corresponding to the the first hash.
+		catapult::Height Height;
 
-        // followed by hashes data if HashesCount != 0
-        DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS(Hashes, Hash256)
+		// followed by hashes data if HashesCount != 0
+		DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS(Hashes, Hash256)
 
-        // followed by signature data if SignaturesCount != 0
-        DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS(Signatures, crypto::BmTreeSignature)
+		// followed by signature data if SignaturesCount != 0
+		DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS(Signatures, crypto::BmTreeSignature)
 
-    public:
-        /// Calculates the real size of finalization message group (\a messageGroup).
-        static constexpr uint64_t CalculateRealSize(const FinalizationMessageGroup& messageGroup) noexcept
-        {
-            return sizeof(FinalizationMessageGroup) + messageGroup.HashesCount * Hash256::Size
-                + messageGroup.SignaturesCount * sizeof(crypto::BmTreeSignature);
-        }
-    };
+	public:
+		/// Calculates the real size of finalization message group (\a messageGroup).
+		static constexpr uint64_t CalculateRealSize(const FinalizationMessageGroup& messageGroup) noexcept {
+			return sizeof(FinalizationMessageGroup) + messageGroup.HashesCount * Hash256::Size
+				+ messageGroup.SignaturesCount * sizeof(crypto::BmTreeSignature);
+		}
+	};
 
 #pragma pack(pop)
 }

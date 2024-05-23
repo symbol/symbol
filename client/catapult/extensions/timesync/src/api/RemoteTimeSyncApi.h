@@ -25,24 +25,24 @@
 
 namespace catapult {
 namespace ionet {
-    class PacketIo;
+	class PacketIo;
 }
 }
 
 namespace catapult {
 namespace api {
 
-    /// Api for retrieving communication timestamps from a remote node.
-    class RemoteTimeSyncApi {
-    public:
-        virtual ~RemoteTimeSyncApi() = default;
+	/// Api for retrieving communication timestamps from a remote node.
+	class RemoteTimeSyncApi {
+	public:
+		virtual ~RemoteTimeSyncApi() = default;
 
-    public:
-        /// Gets the communication timestamps from a remote node.
-        virtual thread::future<timesync::CommunicationTimestamps> networkTime() const = 0;
-    };
+	public:
+		/// Gets the communication timestamps from a remote node.
+		virtual thread::future<timesync::CommunicationTimestamps> networkTime() const = 0;
+	};
 
-    /// Creates a time sync api for interacting with a remote node with the specified \a io.
-    std::unique_ptr<RemoteTimeSyncApi> CreateRemoteTimeSyncApi(ionet::PacketIo& io);
+	/// Creates a time sync api for interacting with a remote node with the specified \a io.
+	std::unique_ptr<RemoteTimeSyncApi> CreateRemoteTimeSyncApi(ionet::PacketIo& io);
 }
 }

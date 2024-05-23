@@ -26,25 +26,22 @@
 namespace catapult {
 namespace test {
 
-    /// Creates a plugin manager around \a config and \a userConfig.
-    inline plugins::PluginManager CreatePluginManager(
-        const model::BlockchainConfiguration& config,
-        const config::UserConfiguration& userConfig)
-    {
-        return plugins::PluginManager(config, plugins::StorageConfiguration(), userConfig, config::InflationConfiguration::Uninitialized());
-    }
+	/// Creates a plugin manager around \a config and \a userConfig.
+	inline plugins::PluginManager CreatePluginManager(
+		const model::BlockchainConfiguration& config,
+		const config::UserConfiguration& userConfig) {
+		return plugins::PluginManager(config, plugins::StorageConfiguration(), userConfig, config::InflationConfiguration::Uninitialized());
+	}
 
-    /// Creates a plugin manager around \a config.
-    inline plugins::PluginManager CreatePluginManager(const model::BlockchainConfiguration& config)
-    {
-        auto userConfig = config::UserConfiguration::Uninitialized();
-        return CreatePluginManager(config, userConfig);
-    }
+	/// Creates a plugin manager around \a config.
+	inline plugins::PluginManager CreatePluginManager(const model::BlockchainConfiguration& config) {
+		auto userConfig = config::UserConfiguration::Uninitialized();
+		return CreatePluginManager(config, userConfig);
+	}
 
-    /// Creates a default plugin manager.
-    inline plugins::PluginManager CreatePluginManager()
-    {
-        return CreatePluginManager(model::BlockchainConfiguration::Uninitialized());
-    }
+	/// Creates a default plugin manager.
+	inline plugins::PluginManager CreatePluginManager() {
+		return CreatePluginManager(model::BlockchainConfiguration::Uninitialized());
+	}
 }
 }

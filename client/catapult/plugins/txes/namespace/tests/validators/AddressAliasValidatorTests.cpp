@@ -31,57 +31,53 @@ namespace validators {
 
 #define TEST_CLASS AddressAliasValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(AddressAlias, )
+	DEFINE_COMMON_VALIDATOR_TESTS(AddressAlias, )
 
-    namespace {
-        template <typename TAccountIdentifier>
-        auto CreateAndSeedCache(const TAccountIdentifier& accountIdentifier)
-        {
-            auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-            {
-                auto cacheDelta = cache.createDelta();
-                auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-                accountStateCacheDelta.addAccount(accountIdentifier, Height());
-                cache.commit(Height());
-            }
+	namespace {
+		template <typename TAccountIdentifier>
+		auto CreateAndSeedCache(const TAccountIdentifier& accountIdentifier) {
+			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+			{
+				auto cacheDelta = cache.createDelta();
+				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+				accountStateCacheDelta.addAccount(accountIdentifier, Height());
+				cache.commit(Height());
+			}
 
-            return cache;
-        }
+			return cache;
+		}
 
-        void RunAddressAliasTest(ValidationResult expectedResult, const Address& cacheAddress, const Address& notificationAddress)
-        {
-            // Arrange:
-            auto cache = CreateAndSeedCache(cacheAddress);
+		void RunAddressAliasTest(ValidationResult expectedResult, const Address& cacheAddress, const Address& notificationAddress) {
+			// Arrange:
+			auto cache = CreateAndSeedCache(cacheAddress);
 
-            auto pValidator = CreateAddressAliasValidator();
-            auto notification = model::AliasedAddressNotification(NamespaceId(), model::AliasAction::Link, notificationAddress);
+			auto pValidator = CreateAddressAliasValidator();
+			auto notification = model::AliasedAddressNotification(NamespaceId(), model::AliasAction::Link, notificationAddress);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenAccountIsNotKnown)
-    {
-        // Arrange:
-        auto address = test::GenerateRandomByteArray<Address>();
-        auto unknownAddress = address;
-        unknownAddress[0] ^= 0xFF;
+	TEST(TEST_CLASS, FailureWhenAccountIsNotKnown) {
+		// Arrange:
+		auto address = test::GenerateRandomByteArray<Address>();
+		auto unknownAddress = address;
+		unknownAddress[0] ^= 0xFF;
 
-        // Act + Assert:
-        RunAddressAliasTest(Failure_Namespace_Alias_Invalid_Address, address, unknownAddress);
-    }
+		// Act + Assert:
+		RunAddressAliasTest(Failure_Namespace_Alias_Invalid_Address, address, unknownAddress);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenAccountIsKnown)
-    {
-        // Arrange:
-        auto address = test::GenerateRandomByteArray<Address>();
+	TEST(TEST_CLASS, SuccessWhenAccountIsKnown) {
+		// Arrange:
+		auto address = test::GenerateRandomByteArray<Address>();
 
-        // Act + Assert:
-        RunAddressAliasTest(ValidationResult::Success, address, address);
-    }
+		// Act + Assert:
+		RunAddressAliasTest(ValidationResult::Success, address, address);
+	}
 }
 }

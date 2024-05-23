@@ -30,226 +30,218 @@
 namespace catapult {
 namespace observers {
 
-    /// Lock observer test suite.
-    template <typename TTraits>
-    struct LockObserverTests {
-    private:
-        using NotificationType = typename TTraits::NotificationType;
-        using LockInfoType = typename TTraits::ValueType;
+	/// Lock observer test suite.
+	template <typename TTraits>
+	struct LockObserverTests {
+	private:
+		using NotificationType = typename TTraits::NotificationType;
+		using LockInfoType = typename TTraits::ValueType;
 
-        static constexpr auto Default_Height = Height(888);
+		static constexpr auto Default_Height = Height(888);
 
-    public:
-        // region commit
+	public:
+		// region commit
 
-        static void AssertObserverAddsInfoOnCommit()
-        {
-            // Arrange:
-            auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit, Default_Height);
-            auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
+		static void AssertObserverAddsInfoOnCommit() {
+			// Arrange:
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit, Default_Height);
+			auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
 
-            typename TTraits::NotificationBuilder notificationBuilder;
-            auto notification = notificationBuilder.notification();
+			typename TTraits::NotificationBuilder notificationBuilder;
+			auto notification = notificationBuilder.notification();
 
-            // Act:
-            auto pObserver = TTraits::CreateObserver();
-            test::ObserveNotification(*pObserver, notification, observerContext);
+			// Act:
+			auto pObserver = TTraits::CreateObserver();
+			test::ObserveNotification(*pObserver, notification, observerContext);
 
-            // Assert: lock info was added to cache
-            EXPECT_EQ(1u, lockInfoCacheDelta.size());
+			// Assert: lock info was added to cache
+			EXPECT_EQ(1u, lockInfoCacheDelta.size());
 
-            const auto& key = TTraits::ToKey(notification);
-            ASSERT_TRUE(lockInfoCacheDelta.contains(key));
+			const auto& key = TTraits::ToKey(notification);
+			ASSERT_TRUE(lockInfoCacheDelta.contains(key));
 
-            const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
-            EXPECT_EQ(key, lockInfoHistory.id());
-            ASSERT_EQ(1u, lockInfoHistory.historyDepth());
+			const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
+			EXPECT_EQ(key, lockInfoHistory.id());
+			ASSERT_EQ(1u, lockInfoHistory.historyDepth());
 
-            AssertLockInfo(notification, lockInfoHistory.back());
-            AssertStatement(notification, *observerContext.statementBuilder().build());
-        }
+			AssertLockInfo(notification, lockInfoHistory.back());
+			AssertStatement(notification, *observerContext.statementBuilder().build());
+		}
 
-        static void AssertObserverCanAddToHistoryWhenInfoIsInactive()
-        {
-            // Arrange:
-            auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit, Default_Height);
-            auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
+		static void AssertObserverCanAddToHistoryWhenInfoIsInactive() {
+			// Arrange:
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit, Default_Height);
+			auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
 
-            auto lockInfo = TTraits::CreateLockInfo();
-            lockInfo.Status = state::LockStatus::Used;
-            lockInfo.EndHeight = Height(1000);
-            lockInfoCacheDelta.insert(lockInfo);
+			auto lockInfo = TTraits::CreateLockInfo();
+			lockInfo.Status = state::LockStatus::Used;
+			lockInfo.EndHeight = Height(1000);
+			lockInfoCacheDelta.insert(lockInfo);
 
-            typename TTraits::NotificationBuilder notificationBuilder;
-            notificationBuilder.prepare(lockInfo);
-            auto notification = notificationBuilder.notification();
+			typename TTraits::NotificationBuilder notificationBuilder;
+			notificationBuilder.prepare(lockInfo);
+			auto notification = notificationBuilder.notification();
 
-            // Act:
-            auto pObserver = TTraits::CreateObserver();
-            test::ObserveNotification(*pObserver, notification, observerContext);
+			// Act:
+			auto pObserver = TTraits::CreateObserver();
+			test::ObserveNotification(*pObserver, notification, observerContext);
 
-            // Assert: lock info was added to cache and history size is two
-            EXPECT_EQ(1u, lockInfoCacheDelta.size());
+			// Assert: lock info was added to cache and history size is two
+			EXPECT_EQ(1u, lockInfoCacheDelta.size());
 
-            const auto& key = TTraits::ToKey(notification);
-            ASSERT_TRUE(lockInfoCacheDelta.contains(key));
+			const auto& key = TTraits::ToKey(notification);
+			ASSERT_TRUE(lockInfoCacheDelta.contains(key));
 
-            const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
-            EXPECT_EQ(key, lockInfoHistory.id());
-            ASSERT_EQ(2u, lockInfoHistory.historyDepth());
+			const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
+			EXPECT_EQ(key, lockInfoHistory.id());
+			ASSERT_EQ(2u, lockInfoHistory.historyDepth());
 
-            AssertLockInfo(notification, lockInfoHistory.back());
-            AssertStatement(notification, *observerContext.statementBuilder().build());
-        }
+			AssertLockInfo(notification, lockInfoHistory.back());
+			AssertStatement(notification, *observerContext.statementBuilder().build());
+		}
 
-        // please note:
-        // * this should be prevented by validators, so does not need to be prohibited by the observer
-        // * this behavior simplifies workaround for SkipSecretLockUniquenessChecks fork
-        static void AssertObserverCanAddToHistoryWhenInfoIsActive()
-        {
-            // Arrange:
-            auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit, Default_Height);
-            auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
+		// please note:
+		// * this should be prevented by validators, so does not need to be prohibited by the observer
+		// * this behavior simplifies workaround for SkipSecretLockUniquenessChecks fork
+		static void AssertObserverCanAddToHistoryWhenInfoIsActive() {
+			// Arrange:
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit, Default_Height);
+			auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
 
-            auto lockInfo = TTraits::CreateLockInfo();
-            lockInfo.Status = state::LockStatus::Unused;
-            lockInfo.EndHeight = Height(1000);
-            lockInfoCacheDelta.insert(lockInfo);
+			auto lockInfo = TTraits::CreateLockInfo();
+			lockInfo.Status = state::LockStatus::Unused;
+			lockInfo.EndHeight = Height(1000);
+			lockInfoCacheDelta.insert(lockInfo);
 
-            typename TTraits::NotificationBuilder notificationBuilder;
-            notificationBuilder.prepare(lockInfo);
-            auto notification = notificationBuilder.notification();
+			typename TTraits::NotificationBuilder notificationBuilder;
+			notificationBuilder.prepare(lockInfo);
+			auto notification = notificationBuilder.notification();
 
-            // Act:
-            auto pObserver = TTraits::CreateObserver();
-            test::ObserveNotification(*pObserver, notification, observerContext);
+			// Act:
+			auto pObserver = TTraits::CreateObserver();
+			test::ObserveNotification(*pObserver, notification, observerContext);
 
-            // Assert: lock info was added to cache and history size is two
-            EXPECT_EQ(1u, lockInfoCacheDelta.size());
+			// Assert: lock info was added to cache and history size is two
+			EXPECT_EQ(1u, lockInfoCacheDelta.size());
 
-            const auto& key = TTraits::ToKey(notification);
-            ASSERT_TRUE(lockInfoCacheDelta.contains(key));
+			const auto& key = TTraits::ToKey(notification);
+			ASSERT_TRUE(lockInfoCacheDelta.contains(key));
 
-            const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
-            EXPECT_EQ(key, lockInfoHistory.id());
-            ASSERT_EQ(2u, lockInfoHistory.historyDepth());
+			const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
+			EXPECT_EQ(key, lockInfoHistory.id());
+			ASSERT_EQ(2u, lockInfoHistory.historyDepth());
 
-            AssertLockInfo(notification, lockInfoHistory.back());
-            AssertStatement(notification, *observerContext.statementBuilder().build());
-        }
+			AssertLockInfo(notification, lockInfoHistory.back());
+			AssertStatement(notification, *observerContext.statementBuilder().build());
+		}
 
-    private:
-        static void AssertLockInfo(const NotificationType& notification, const LockInfoType& lockInfo)
-        {
-            EXPECT_EQ(notification.Owner, lockInfo.OwnerAddress);
-            EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(lockInfo.MosaicId));
-            EXPECT_EQ(notification.Mosaic.Amount, lockInfo.Amount);
-            EXPECT_EQ(Default_Height + Height(notification.Duration.unwrap()), lockInfo.EndHeight);
+	private:
+		static void AssertLockInfo(const NotificationType& notification, const LockInfoType& lockInfo) {
+			EXPECT_EQ(notification.Owner, lockInfo.OwnerAddress);
+			EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(lockInfo.MosaicId));
+			EXPECT_EQ(notification.Mosaic.Amount, lockInfo.Amount);
+			EXPECT_EQ(Default_Height + Height(notification.Duration.unwrap()), lockInfo.EndHeight);
 
-            TTraits::AssertAddedLockInfo(lockInfo, notification);
-        }
+			TTraits::AssertAddedLockInfo(lockInfo, notification);
+		}
 
-        static void AssertStatement(const NotificationType& notification, const model::BlockStatement& statement)
-        {
-            ASSERT_EQ(1u, statement.TransactionStatements.size());
+		static void AssertStatement(const NotificationType& notification, const model::BlockStatement& statement) {
+			ASSERT_EQ(1u, statement.TransactionStatements.size());
 
-            const auto& receiptPair = *statement.TransactionStatements.find(model::ReceiptSource());
-            ASSERT_EQ(1u, receiptPair.second.size());
+			const auto& receiptPair = *statement.TransactionStatements.find(model::ReceiptSource());
+			ASSERT_EQ(1u, receiptPair.second.size());
 
-            const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
-            ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
-            EXPECT_EQ(1u, receipt.Version);
-            EXPECT_EQ(TTraits::Debit_Receipt_Type, receipt.Type);
-            EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(receipt.Mosaic.MosaicId));
-            EXPECT_EQ(notification.Mosaic.Amount, receipt.Mosaic.Amount);
-            EXPECT_EQ(notification.Owner, receipt.TargetAddress);
-        }
+			const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
+			ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
+			EXPECT_EQ(1u, receipt.Version);
+			EXPECT_EQ(TTraits::Debit_Receipt_Type, receipt.Type);
+			EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(receipt.Mosaic.MosaicId));
+			EXPECT_EQ(notification.Mosaic.Amount, receipt.Mosaic.Amount);
+			EXPECT_EQ(notification.Owner, receipt.TargetAddress);
+		}
 
-        // endregion
+		// endregion
 
-    public:
-        // region rollback
+	public:
+		// region rollback
 
-        static void AssertObserverRemovesInfoOnRollbackWhenHistoryDepthIsOne()
-        {
-            // Arrange:
-            auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Rollback, Default_Height);
-            auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
+		static void AssertObserverRemovesInfoOnRollbackWhenHistoryDepthIsOne() {
+			// Arrange:
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Rollback, Default_Height);
+			auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
 
-            auto lockInfo = TTraits::CreateLockInfo();
-            lockInfo.Status = state::LockStatus::Used;
-            lockInfo.EndHeight = Height(1000);
-            lockInfoCacheDelta.insert(lockInfo);
+			auto lockInfo = TTraits::CreateLockInfo();
+			lockInfo.Status = state::LockStatus::Used;
+			lockInfo.EndHeight = Height(1000);
+			lockInfoCacheDelta.insert(lockInfo);
 
-            typename TTraits::NotificationBuilder notificationBuilder;
-            notificationBuilder.prepare(lockInfo);
-            auto notification = notificationBuilder.notification();
+			typename TTraits::NotificationBuilder notificationBuilder;
+			notificationBuilder.prepare(lockInfo);
+			auto notification = notificationBuilder.notification();
 
-            // Act:
-            auto pObserver = TTraits::CreateObserver();
-            test::ObserveNotification(*pObserver, notification, observerContext);
+			// Act:
+			auto pObserver = TTraits::CreateObserver();
+			test::ObserveNotification(*pObserver, notification, observerContext);
 
-            // Assert: lock info was removed
-            EXPECT_EQ(0u, lockInfoCacheDelta.size());
+			// Assert: lock info was removed
+			EXPECT_EQ(0u, lockInfoCacheDelta.size());
 
-            auto pStatement = observerContext.statementBuilder().build();
-            ASSERT_EQ(0u, pStatement->TransactionStatements.size());
-        }
+			auto pStatement = observerContext.statementBuilder().build();
+			ASSERT_EQ(0u, pStatement->TransactionStatements.size());
+		}
 
-        static void AssertObserverRemovesInfoOnRollbackWhenHistoryDepthIsGreaterThanOne()
-        {
-            // Arrange:
-            auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Rollback, Default_Height);
-            auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
+		static void AssertObserverRemovesInfoOnRollbackWhenHistoryDepthIsGreaterThanOne() {
+			// Arrange:
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Rollback, Default_Height);
+			auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::CacheType>();
 
-            auto lockInfo = TTraits::CreateLockInfo();
-            lockInfo.Status = state::LockStatus::Used;
-            lockInfo.EndHeight = Height(1000);
-            lockInfoCacheDelta.insert(lockInfo);
+			auto lockInfo = TTraits::CreateLockInfo();
+			lockInfo.Status = state::LockStatus::Used;
+			lockInfo.EndHeight = Height(1000);
+			lockInfoCacheDelta.insert(lockInfo);
 
-            auto lockInfo2 = lockInfo;
-            lockInfo2.EndHeight = Height(900);
-            lockInfoCacheDelta.insert(lockInfo2);
+			auto lockInfo2 = lockInfo;
+			lockInfo2.EndHeight = Height(900);
+			lockInfoCacheDelta.insert(lockInfo2);
 
-            typename TTraits::NotificationBuilder notificationBuilder;
-            notificationBuilder.prepare(lockInfo);
-            auto notification = notificationBuilder.notification();
+			typename TTraits::NotificationBuilder notificationBuilder;
+			notificationBuilder.prepare(lockInfo);
+			auto notification = notificationBuilder.notification();
 
-            // Act:
-            auto pObserver = TTraits::CreateObserver();
-            test::ObserveNotification(*pObserver, notification, observerContext);
+			// Act:
+			auto pObserver = TTraits::CreateObserver();
+			test::ObserveNotification(*pObserver, notification, observerContext);
 
-            // Assert: lock info was removed
-            EXPECT_EQ(1u, lockInfoCacheDelta.size());
+			// Assert: lock info was removed
+			EXPECT_EQ(1u, lockInfoCacheDelta.size());
 
-            const auto& key = TTraits::ToKey(notification);
-            ASSERT_TRUE(lockInfoCacheDelta.contains(key));
+			const auto& key = TTraits::ToKey(notification);
+			ASSERT_TRUE(lockInfoCacheDelta.contains(key));
 
-            const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
-            EXPECT_EQ(key, lockInfoHistory.id());
-            ASSERT_EQ(1u, lockInfoHistory.historyDepth());
+			const auto& lockInfoHistory = lockInfoCacheDelta.find(key).get();
+			EXPECT_EQ(key, lockInfoHistory.id());
+			ASSERT_EQ(1u, lockInfoHistory.historyDepth());
 
-            TTraits::AssertEqual(lockInfo, lockInfoHistory.back());
+			TTraits::AssertEqual(lockInfo, lockInfoHistory.back());
 
-            auto pStatement = observerContext.statementBuilder().build();
-            ASSERT_EQ(0u, pStatement->TransactionStatements.size());
-        }
-    };
+			auto pStatement = observerContext.statementBuilder().build();
+			ASSERT_EQ(0u, pStatement->TransactionStatements.size());
+		}
+	};
 
-    // endregion
+	// endregion
 }
 }
 
 #define MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, TEST_NAME)      \
-    TEST(TEST_CLASS, TEST_NAME)                              \
-    {                                                        \
-        LockObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); \
-    }
+	TEST(TEST_CLASS, TEST_NAME) {                            \
+		LockObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_OBSERVER_TESTS(TRAITS_NAME)                                              \
-    MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverAddsInfoOnCommit)                           \
-    MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCanAddToHistoryWhenInfoIsInactive)          \
-    MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCanAddToHistoryWhenInfoIsActive)            \
+	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverAddsInfoOnCommit)                           \
+	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCanAddToHistoryWhenInfoIsInactive)          \
+	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCanAddToHistoryWhenInfoIsActive)            \
                                                                                              \
-    MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverRemovesInfoOnRollbackWhenHistoryDepthIsOne) \
-    MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverRemovesInfoOnRollbackWhenHistoryDepthIsGreaterThanOne)
+	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverRemovesInfoOnRollbackWhenHistoryDepthIsOne) \
+	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverRemovesInfoOnRollbackWhenHistoryDepthIsGreaterThanOne)

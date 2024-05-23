@@ -25,27 +25,25 @@
 namespace catapult {
 namespace io {
 
-    void PurgeDirectory(const std::string& directory)
-    {
-        if (!std::filesystem::exists(directory))
-            return;
+	void PurgeDirectory(const std::string& directory) {
+		if (!std::filesystem::exists(directory))
+			return;
 
-        auto begin = std::filesystem::directory_iterator(directory);
-        auto end = std::filesystem::directory_iterator();
-        for (auto iter = begin; end != iter; ++iter)
-            std::filesystem::remove_all(iter->path());
-    }
+		auto begin = std::filesystem::directory_iterator(directory);
+		auto end = std::filesystem::directory_iterator();
+		for (auto iter = begin; end != iter; ++iter)
+			std::filesystem::remove_all(iter->path());
+	}
 
-    void MoveAllFiles(const std::string& sourceDirectory, const std::string& destDirectory)
-    {
-        auto begin = std::filesystem::directory_iterator(sourceDirectory);
-        auto end = std::filesystem::directory_iterator();
-        for (auto iter = begin; iter != end; ++iter) {
-            if (!iter->is_regular_file())
-                continue;
+	void MoveAllFiles(const std::string& sourceDirectory, const std::string& destDirectory) {
+		auto begin = std::filesystem::directory_iterator(sourceDirectory);
+		auto end = std::filesystem::directory_iterator();
+		for (auto iter = begin; iter != end; ++iter) {
+			if (!iter->is_regular_file())
+				continue;
 
-            std::filesystem::rename(iter->path(), destDirectory / iter->path().filename());
-        }
-    }
+			std::filesystem::rename(iter->path(), destDirectory / iter->path().filename());
+		}
+	}
 }
 }

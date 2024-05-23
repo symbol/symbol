@@ -26,15 +26,15 @@
 
 namespace catapult {
 namespace model {
-    class TransactionPlugin;
+	class TransactionPlugin;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Creates a mosaic supply revocation transaction plugin given the nemesis address (\a nemesisAddress).
-    PLUGIN_API
-    std::unique_ptr<model::TransactionPlugin> CreateMosaicSupplyRevocationTransactionPlugin(const Address& nemesisAddress);
+	/// Creates a mosaic supply revocation transaction plugin given the nemesis address (\a nemesisAddress).
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateMosaicSupplyRevocationTransactionPlugin(const Address& nemesisAddress);
 }
 }

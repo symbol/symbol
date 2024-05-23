@@ -26,14 +26,14 @@
 namespace catapult {
 namespace cache {
 
-    /// RocksDb-backed cache database.
-    using CacheDatabase = RocksDatabase;
+	/// RocksDb-backed cache database.
+	using CacheDatabase = RocksDatabase;
 
-    /// RocksDb-backed cache database settings.
-    using CacheDatabaseSettings = RocksDatabaseSettings;
+	/// RocksDb-backed cache database settings.
+	using CacheDatabaseSettings = RocksDatabaseSettings;
 
-    /// RocksDb-backed cache database container view.
-    template <typename TDescriptor>
-    using CacheContainerView = RdbTypedColumnContainer<TDescriptor>;
+	/// RocksDb-backed cache database container view.
+	template <typename TDescriptor>
+	using CacheContainerView = RdbTypedColumnContainer<TDescriptor>;
 }
 }

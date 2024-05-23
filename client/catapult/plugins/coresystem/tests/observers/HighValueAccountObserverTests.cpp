@@ -31,111 +31,101 @@ namespace observers {
 
 #define TEST_CLASS HighValueAccountObserverTests
 
-    // region name
+	// region name
 
-    // due to mode-dependent naming, don't use DEFINE_COMMON_OBSERVER_TESTS
+	// due to mode-dependent naming, don't use DEFINE_COMMON_OBSERVER_TESTS
 
-    namespace {
-        void AssertObserverName(const std::string& expectedName, NotifyMode mode)
-        {
-            // Act:
-            auto pObserver = CreateHighValueAccountObserver(mode);
+	namespace {
+		void AssertObserverName(const std::string& expectedName, NotifyMode mode) {
+			// Act:
+			auto pObserver = CreateHighValueAccountObserver(mode);
 
-            // Assert:
-            EXPECT_EQ(expectedName, pObserver->name());
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedName, pObserver->name());
+		}
+	}
 
-    TEST(TEST_CLASS, CanCreateHighValueAccountObserver_Commit)
-    {
-        AssertObserverName("HighValueAccountCommitObserver", NotifyMode::Commit);
-    }
+	TEST(TEST_CLASS, CanCreateHighValueAccountObserver_Commit) {
+		AssertObserverName("HighValueAccountCommitObserver", NotifyMode::Commit);
+	}
 
-    TEST(TEST_CLASS, CanCreateHighValueAccountObserver_Rollback)
-    {
-        AssertObserverName("HighValueAccountRollbackObserver", NotifyMode::Rollback);
-    }
+	TEST(TEST_CLASS, CanCreateHighValueAccountObserver_Rollback) {
+		AssertObserverName("HighValueAccountRollbackObserver", NotifyMode::Rollback);
+	}
 
-    // endregion
+	// endregion
 
-    // region notify
+	// region notify
 
-    namespace {
-        constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
-        constexpr auto Min_Harvester_Balance = Amount(1'000'000);
+	namespace {
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+		constexpr auto Min_Harvester_Balance = Amount(1'000'000);
 
-        class TestContext : public test::AccountObserverTestContext {
-        public:
-            explicit TestContext(NotifyMode notifyMode)
-                : test::AccountObserverTestContext(notifyMode, Height(123), CreateBlockchainConfiguration())
-            {
-            }
+		class TestContext : public test::AccountObserverTestContext {
+		public:
+			explicit TestContext(NotifyMode notifyMode)
+				: test::AccountObserverTestContext(notifyMode, Height(123), CreateBlockchainConfiguration()) {
+			}
 
-        public:
-            const auto& highValueAddresses()
-            {
-                return cache().sub<cache::AccountStateCache>().highValueAccounts().addresses();
-            }
+		public:
+			const auto& highValueAddresses() {
+				return cache().sub<cache::AccountStateCache>().highValueAccounts().addresses();
+			}
 
-        public:
-            void addAccount(const Address& address, Amount balance)
-            {
-                auto& accountStateCache = cache().sub<cache::AccountStateCache>();
-                accountStateCache.addAccount(address, Height(123));
+		public:
+			void addAccount(const Address& address, Amount balance) {
+				auto& accountStateCache = cache().sub<cache::AccountStateCache>();
+				accountStateCache.addAccount(address, Height(123));
 
-                auto accountStateIter = accountStateCache.find(address);
-                accountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, balance);
-            }
+				auto accountStateIter = accountStateCache.find(address);
+				accountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, balance);
+			}
 
-        private:
-            static model::BlockchainConfiguration CreateBlockchainConfiguration()
-            {
-                auto config = model::BlockchainConfiguration::Uninitialized();
-                config.HarvestingMosaicId = Harvesting_Mosaic_Id;
-                config.MinHarvesterBalance = Min_Harvester_Balance;
-                return config;
-            }
-        };
+		private:
+			static model::BlockchainConfiguration CreateBlockchainConfiguration() {
+				auto config = model::BlockchainConfiguration::Uninitialized();
+				config.HarvestingMosaicId = Harvesting_Mosaic_Id;
+				config.MinHarvesterBalance = Min_Harvester_Balance;
+				return config;
+			}
+		};
 
-        template <typename TCheckAddresses>
-        void RunTest(NotifyMode contextMode, NotifyMode observerMode, TCheckAddresses checkAddresses)
-        {
-            // Arrange:
-            auto addresses = test::GenerateRandomAddresses(3);
-            TestContext context(contextMode);
+		template <typename TCheckAddresses>
+		void RunTest(NotifyMode contextMode, NotifyMode observerMode, TCheckAddresses checkAddresses) {
+			// Arrange:
+			auto addresses = test::GenerateRandomAddresses(3);
+			TestContext context(contextMode);
 
-            context.addAccount(addresses[0], Min_Harvester_Balance);
-            context.addAccount(addresses[1], Min_Harvester_Balance - Amount(1));
-            context.addAccount(addresses[2], Min_Harvester_Balance + Amount(1));
+			context.addAccount(addresses[0], Min_Harvester_Balance);
+			context.addAccount(addresses[1], Min_Harvester_Balance - Amount(1));
+			context.addAccount(addresses[2], Min_Harvester_Balance + Amount(1));
 
-            auto pObserver = CreateHighValueAccountObserver(observerMode);
+			auto pObserver = CreateHighValueAccountObserver(observerMode);
 
-            // Act:
-            test::ObserveNotification(*pObserver, test::CreateBlockNotification(), context);
+			// Act:
+			test::ObserveNotification(*pObserver, test::CreateBlockNotification(), context);
 
-            // Assert:
-            checkAddresses(addresses, context.highValueAddresses());
-        }
-    }
+			// Assert:
+			checkAddresses(addresses, context.highValueAddresses());
+		}
+	}
 
-    TEST(TEST_CLASS, HighValueAccountsAreUpdatedWhenModeMatches)
-    {
-        // Act:
-        RunTest(NotifyMode::Commit, NotifyMode::Commit, [](const auto& originalAddresses, const auto& highValueAddresses) {
-            // Assert: modes match, so high value accounts should be updated
-            EXPECT_EQ(model::AddressSet({ originalAddresses[0], originalAddresses[2] }), highValueAddresses);
-        });
-    }
+	TEST(TEST_CLASS, HighValueAccountsAreUpdatedWhenModeMatches) {
+		// Act:
+		RunTest(NotifyMode::Commit, NotifyMode::Commit, [](const auto& originalAddresses, const auto& highValueAddresses) {
+			// Assert: modes match, so high value accounts should be updated
+			EXPECT_EQ(model::AddressSet({ originalAddresses[0], originalAddresses[2] }), highValueAddresses);
+		});
+	}
 
-    TEST(TEST_CLASS, HighValueAccountsAreNotUpdatedWhenModeDoesNotMatch)
-    {
-        // Act:
-        RunTest(NotifyMode::Commit, NotifyMode::Rollback, [](const auto&, const auto& highValueAddresses) {
-            // Assert: modes don't match, so high value accounts should be unchanged
-            EXPECT_EQ(model::AddressSet(), highValueAddresses);
-        });
-    }
+	TEST(TEST_CLASS, HighValueAccountsAreNotUpdatedWhenModeDoesNotMatch) {
+		// Act:
+		RunTest(NotifyMode::Commit, NotifyMode::Rollback, [](const auto&, const auto& highValueAddresses) {
+			// Assert: modes don't match, so high value accounts should be unchanged
+			EXPECT_EQ(model::AddressSet(), highValueAddresses);
+		});
+	}
 
-    // endregion
+	// endregion
 }
 }

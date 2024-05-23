@@ -28,56 +28,56 @@
 
 namespace catapult {
 namespace harvesting {
-    class BlockGeneratorAccountDescriptor;
+	class BlockGeneratorAccountDescriptor;
 }
 }
 
 namespace catapult {
 namespace harvesting {
 
-    /// Unlocked accounts storage.
-    class UnlockedAccountsStorage {
-    private:
-        using IdentityToEncryptedPayloadMap = std::map<HarvestRequestIdentifier, std::vector<uint8_t>>;
+	/// Unlocked accounts storage.
+	class UnlockedAccountsStorage {
+	private:
+		using IdentityToEncryptedPayloadMap = std::map<HarvestRequestIdentifier, std::vector<uint8_t>>;
 
-        // "request" refers to pair of request identifier and encrypted payload
-        using IdentityRequestPair = IdentityToEncryptedPayloadMap::value_type;
-        using RequestToHarvesterMap = std::map<IdentityRequestPair, Key>;
+		// "request" refers to pair of request identifier and encrypted payload
+		using IdentityRequestPair = IdentityToEncryptedPayloadMap::value_type;
+		using RequestToHarvesterMap = std::map<IdentityRequestPair, Key>;
 
-    public:
-        /// Creates unlocked accounts storage around \a filename.
-        explicit UnlockedAccountsStorage(const std::string& filename);
+	public:
+		/// Creates unlocked accounts storage around \a filename.
+		explicit UnlockedAccountsStorage(const std::string& filename);
 
-    public:
-        /// Returns \c true if this storage contains a request identified by \a requestIdentifier.
-        bool contains(const HarvestRequestIdentifier& requestIdentifier);
+	public:
+		/// Returns \c true if this storage contains a request identified by \a requestIdentifier.
+		bool contains(const HarvestRequestIdentifier& requestIdentifier);
 
-    public:
-        /// Adds harvest request identified by \a requestIdentifier with encrypted payload (\a encryptedPayload)
-        /// and associated \a harvesterPublicKey.
-        void add(const HarvestRequestIdentifier& requestIdentifier, const RawBuffer& encryptedPayload, const Key& harvesterPublicKey);
+	public:
+		/// Adds harvest request identified by \a requestIdentifier with encrypted payload (\a encryptedPayload)
+		/// and associated \a harvesterPublicKey.
+		void add(const HarvestRequestIdentifier& requestIdentifier, const RawBuffer& encryptedPayload, const Key& harvesterPublicKey);
 
-        /// Removes harvest request identified by \a requestIdentifier.
-        void remove(const HarvestRequestIdentifier& requestIdentifier);
+		/// Removes harvest request identified by \a requestIdentifier.
+		void remove(const HarvestRequestIdentifier& requestIdentifier);
 
-        /// Saves harvest requests that pass \a filter.
-        void save(const predicate<const Key&>& filter) const;
+		/// Saves harvest requests that pass \a filter.
+		void save(const predicate<const Key&>& filter) const;
 
-        /// Loads harvest requests using \a encryptionKeyPair and forwards to \a processDescriptor.
-        void load(const crypto::KeyPair& encryptionKeyPair, const consumer<BlockGeneratorAccountDescriptor&&>& processDescriptor);
+		/// Loads harvest requests using \a encryptionKeyPair and forwards to \a processDescriptor.
+		void load(const crypto::KeyPair& encryptionKeyPair, const consumer<BlockGeneratorAccountDescriptor&&>& processDescriptor);
 
-    private:
-        void addRequest(
-            const HarvestRequestIdentifier& requestIdentifier,
-            const std::vector<uint8_t>& encryptedPayload,
-            const Key& harvesterPublicKey);
+	private:
+		void addRequest(
+			const HarvestRequestIdentifier& requestIdentifier,
+			const std::vector<uint8_t>& encryptedPayload,
+			const Key& harvesterPublicKey);
 
-        bool tryRemoveRequest(const HarvestRequestIdentifier& requestIdentifier);
+		bool tryRemoveRequest(const HarvestRequestIdentifier& requestIdentifier);
 
-    private:
-        std::string m_filename;
-        IdentityToEncryptedPayloadMap m_identityToEncryptedPayloadMap;
-        RequestToHarvesterMap m_requestToHarvesterMap;
-    };
+	private:
+		std::string m_filename;
+		IdentityToEncryptedPayloadMap m_identityToEncryptedPayloadMap;
+		RequestToHarvesterMap m_requestToHarvesterMap;
+	};
 }
 }

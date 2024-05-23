@@ -28,33 +28,30 @@ namespace validators {
 
 #define TEST_CLASS ZeroInternalPaddingValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(ZeroInternalPadding, )
+	DEFINE_COMMON_VALIDATOR_TESTS(ZeroInternalPadding, )
 
-    namespace {
-        void AssertValidationResult(ValidationResult expectedResult, uint64_t padding)
-        {
-            // Arrange:
-            model::InternalPaddingNotification notification(padding);
-            auto pValidator = CreateZeroInternalPaddingValidator();
+	namespace {
+		void AssertValidationResult(ValidationResult expectedResult, uint64_t padding) {
+			// Arrange:
+			model::InternalPaddingNotification notification(padding);
+			auto pValidator = CreateZeroInternalPaddingValidator();
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "padding = " << padding;
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "padding = " << padding;
+		}
+	}
 
-    TEST(TEST_CLASS, SuccessWhenPaddingIsZero)
-    {
-        AssertValidationResult(ValidationResult::Success, 0);
-    }
+	TEST(TEST_CLASS, SuccessWhenPaddingIsZero) {
+		AssertValidationResult(ValidationResult::Success, 0);
+	}
 
-    TEST(TEST_CLASS, FailureWhenPaddingIsNonzero)
-    {
-        AssertValidationResult(Failure_Core_Nonzero_Internal_Padding, 1);
-        AssertValidationResult(Failure_Core_Nonzero_Internal_Padding, 987);
-        AssertValidationResult(Failure_Core_Nonzero_Internal_Padding, static_cast<uint64_t>(1) << 32);
-    }
+	TEST(TEST_CLASS, FailureWhenPaddingIsNonzero) {
+		AssertValidationResult(Failure_Core_Nonzero_Internal_Padding, 1);
+		AssertValidationResult(Failure_Core_Nonzero_Internal_Padding, 987);
+		AssertValidationResult(Failure_Core_Nonzero_Internal_Padding, static_cast<uint64_t>(1) << 32);
+	}
 }
 }

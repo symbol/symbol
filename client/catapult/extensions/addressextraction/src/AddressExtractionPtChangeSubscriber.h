@@ -25,14 +25,14 @@
 
 namespace catapult {
 namespace addressextraction {
-    class AddressExtractor;
+	class AddressExtractor;
 }
 }
 
 namespace catapult {
 namespace addressextraction {
 
-    /// Creates an address extraction partial transactions change subscriber around \a extractor.
-    std::unique_ptr<cache::PtChangeSubscriber> CreateAddressExtractionPtChangeSubscriber(const AddressExtractor& extractor);
+	/// Creates an address extraction partial transactions change subscriber around \a extractor.
+	std::unique_ptr<cache::PtChangeSubscriber> CreateAddressExtractionPtChangeSubscriber(const AddressExtractor& extractor);
 }
 }

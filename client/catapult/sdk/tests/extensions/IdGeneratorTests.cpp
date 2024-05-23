@@ -30,153 +30,136 @@ namespace extensions {
 
 #define TEST_CLASS IdGeneratorTests
 
-    // region basic (shared) tests
+	// region basic (shared) tests
 
-    namespace {
-        template <typename TGenerator>
-        void AssertDifferentNamesProduceDifferentResults(TGenerator generator)
-        {
-            // Assert:
-            for (const auto name : { "bloodyrookie.alice", "cat.nekot", "bloodyrookie.token", "bloody_rookie.token" })
-                EXPECT_NE(generator("cat.token"), generator(name)) << "cat.token vs " << name;
-        }
+	namespace {
+		template <typename TGenerator>
+		void AssertDifferentNamesProduceDifferentResults(TGenerator generator) {
+			// Assert:
+			for (const auto name : { "bloodyrookie.alice", "cat.nekot", "bloodyrookie.token", "bloody_rookie.token" })
+				EXPECT_NE(generator("cat.token"), generator(name)) << "cat.token vs " << name;
+		}
 
-        template <typename TGenerator>
-        void AssertNamesWithUppercaseCharactersAreRejected(TGenerator generator)
-        {
-            // Act + Assert:
-            for (const auto name : { "CAT.token", "CAT.TOKEN", "cat.TOKEN", "cAt.ToKeN", "CaT.tOkEn" })
-                EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
-        }
+		template <typename TGenerator>
+		void AssertNamesWithUppercaseCharactersAreRejected(TGenerator generator) {
+			// Act + Assert:
+			for (const auto name : { "CAT.token", "CAT.TOKEN", "cat.TOKEN", "cAt.ToKeN", "CaT.tOkEn" })
+				EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
+		}
 
-        template <typename TGenerator>
-        void AssertImproperQualifiedNamesAreRejected(TGenerator generator)
-        {
-            // Act + Assert:
-            for (const auto name : { ".", "..", "...", ".a", "b.", "a..b", ".a.b", "b.a." })
-                EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
-        }
+		template <typename TGenerator>
+		void AssertImproperQualifiedNamesAreRejected(TGenerator generator) {
+			// Act + Assert:
+			for (const auto name : { ".", "..", "...", ".a", "b.", "a..b", ".a.b", "b.a." })
+				EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
+		}
 
-        template <typename TGenerator>
-        void AssertImproperPartNamesAreRejected(TGenerator generator)
-        {
-            // Act + Assert:
-            for (const auto name : { "alpha.bet@.zeta", "a!pha.beta.zeta", "alpha.beta.ze^a" })
-                EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
-        }
+		template <typename TGenerator>
+		void AssertImproperPartNamesAreRejected(TGenerator generator) {
+			// Act + Assert:
+			for (const auto name : { "alpha.bet@.zeta", "a!pha.beta.zeta", "alpha.beta.ze^a" })
+				EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
+		}
 
-        template <typename TGenerator>
-        void AssertEmptyStringIsRejected(TGenerator generator)
-        {
-            // Act + Assert:
-            EXPECT_THROW(generator(""), catapult_invalid_argument) << "empty string";
-        }
-    }
+		template <typename TGenerator>
+		void AssertEmptyStringIsRejected(TGenerator generator) {
+			// Act + Assert:
+			EXPECT_THROW(generator(""), catapult_invalid_argument) << "empty string";
+		}
+	}
 
-#define ADD_BASIC_TESTS(PREFIX, GENERATOR)                           \
-    TEST(TEST_CLASS, PREFIX##_DifferentNamesProduceDifferentResults) \
-    {                                                                \
-        AssertDifferentNamesProduceDifferentResults(GENERATOR);      \
-    }                                                                \
-    TEST(TEST_CLASS, PREFIX##_RejectsNamesWithUppercaseCharacters)   \
-    {                                                                \
-        AssertNamesWithUppercaseCharactersAreRejected(GENERATOR);    \
-    }                                                                \
-    TEST(TEST_CLASS, PREFIX##_RejectsImproperQualifiedNames)         \
-    {                                                                \
-        AssertImproperQualifiedNamesAreRejected(GENERATOR);          \
-    }                                                                \
-    TEST(TEST_CLASS, PREFIX##_RejectsImproperPartNames)              \
-    {                                                                \
-        AssertImproperPartNamesAreRejected(GENERATOR);               \
-    }                                                                \
-    TEST(TEST_CLASS, PREFIX##_RejectsEmptyString)                    \
-    {                                                                \
-        AssertEmptyStringIsRejected(GENERATOR);                      \
-    }
+#define ADD_BASIC_TESTS(PREFIX, GENERATOR)                             \
+	TEST(TEST_CLASS, PREFIX##_DifferentNamesProduceDifferentResults) { \
+		AssertDifferentNamesProduceDifferentResults(GENERATOR);        \
+	}                                                                  \
+	TEST(TEST_CLASS, PREFIX##_RejectsNamesWithUppercaseCharacters) {   \
+		AssertNamesWithUppercaseCharactersAreRejected(GENERATOR);      \
+	}                                                                  \
+	TEST(TEST_CLASS, PREFIX##_RejectsImproperQualifiedNames) {         \
+		AssertImproperQualifiedNamesAreRejected(GENERATOR);            \
+	}                                                                  \
+	TEST(TEST_CLASS, PREFIX##_RejectsImproperPartNames) {              \
+		AssertImproperPartNamesAreRejected(GENERATOR);                 \
+	}                                                                  \
+	TEST(TEST_CLASS, PREFIX##_RejectsEmptyString) {                    \
+		AssertEmptyStringIsRejected(GENERATOR);                        \
+	}
 
-    // endregion
+	// endregion
 
-    // region GenerateMosaicAliasId
+	// region GenerateMosaicAliasId
 
-    TEST(TEST_CLASS, GenerateMosaicAliasId_GeneratesCorrectWellKnownId)
-    {
-        // Arrange:
-        constexpr auto Known_Mosaic_Alias_Id = UnresolvedMosaicId(0xA029'E100'621B'2E33ULL);
+	TEST(TEST_CLASS, GenerateMosaicAliasId_GeneratesCorrectWellKnownId) {
+		// Arrange:
+		constexpr auto Known_Mosaic_Alias_Id = UnresolvedMosaicId(0xA029'E100'621B'2E33ULL);
 
-        // Assert:
-        EXPECT_EQ(Known_Mosaic_Alias_Id, GenerateMosaicAliasId("cat.token"));
-    }
+		// Assert:
+		EXPECT_EQ(Known_Mosaic_Alias_Id, GenerateMosaicAliasId("cat.token"));
+	}
 
-    TEST(TEST_CLASS, GenerateMosaicAliasId_SupportsMultiLevelMosaics)
-    {
-        // Arrange:
-        auto namespaceId = model::GenerateNamespaceId(model::GenerateNamespaceId(model::GenerateRootNamespaceId("foo"), "bar"), "baz");
-        auto expected = model::GenerateNamespaceId(namespaceId, "xyz");
+	TEST(TEST_CLASS, GenerateMosaicAliasId_SupportsMultiLevelMosaics) {
+		// Arrange:
+		auto namespaceId = model::GenerateNamespaceId(model::GenerateNamespaceId(model::GenerateRootNamespaceId("foo"), "bar"), "baz");
+		auto expected = model::GenerateNamespaceId(namespaceId, "xyz");
 
-        // Assert:
-        EXPECT_EQ(UnresolvedMosaicId(expected.unwrap()), GenerateMosaicAliasId("foo.bar.baz.xyz"));
-    }
+		// Assert:
+		EXPECT_EQ(UnresolvedMosaicId(expected.unwrap()), GenerateMosaicAliasId("foo.bar.baz.xyz"));
+	}
 
-    TEST(TEST_CLASS, GenerateMosaicAliasId_CanGenerateIdFromTopLevelNamespace)
-    {
-        for (const auto name : { "cat", "token", "alpha" })
-            EXPECT_NE(UnresolvedMosaicId(), GenerateMosaicAliasId(name)) << "name " << name;
-    }
+	TEST(TEST_CLASS, GenerateMosaicAliasId_CanGenerateIdFromTopLevelNamespace) {
+		for (const auto name : { "cat", "token", "alpha" })
+			EXPECT_NE(UnresolvedMosaicId(), GenerateMosaicAliasId(name)) << "name " << name;
+	}
 
-    namespace {
-        UnresolvedMosaicId GenerateMosaicIdAdapter(const RawString& namespaceName)
-        {
-            // Act:
-            return GenerateMosaicAliasId(namespaceName);
-        }
-    }
+	namespace {
+		UnresolvedMosaicId GenerateMosaicIdAdapter(const RawString& namespaceName) {
+			// Act:
+			return GenerateMosaicAliasId(namespaceName);
+		}
+	}
 
-    ADD_BASIC_TESTS(GenerateMosaicId, GenerateMosaicIdAdapter)
+	ADD_BASIC_TESTS(GenerateMosaicId, GenerateMosaicIdAdapter)
 
-    // endregion
+	// endregion
 
-    // region GenerateNamespacePath
+	// region GenerateNamespacePath
 
-    TEST(TEST_CLASS, GenerateNamespacePath_GeneratesCorrectWellKnownRootPath)
-    {
-        // Act:
-        auto path = GenerateNamespacePath("cat");
+	TEST(TEST_CLASS, GenerateNamespacePath_GeneratesCorrectWellKnownRootPath) {
+		// Act:
+		auto path = GenerateNamespacePath("cat");
 
-        // Assert:
-        EXPECT_EQ(1u, path.size());
-        EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), path[0]);
-    }
+		// Assert:
+		EXPECT_EQ(1u, path.size());
+		EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), path[0]);
+	}
 
-    TEST(TEST_CLASS, GenerateNamespacePath_GeneratesCorrectWellKnownNamespace)
-    {
-        // Arrange:
-        constexpr auto Known_Namespace_Id = NamespaceId(0xA029'E100'621B'2E33ULL);
+	TEST(TEST_CLASS, GenerateNamespacePath_GeneratesCorrectWellKnownNamespace) {
+		// Arrange:
+		constexpr auto Known_Namespace_Id = NamespaceId(0xA029'E100'621B'2E33ULL);
 
-        // Act:
-        auto path = GenerateNamespacePath("cat.token");
+		// Act:
+		auto path = GenerateNamespacePath("cat.token");
 
-        // Assert:
-        EXPECT_EQ(2u, path.size());
-        EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), path[0]);
-        EXPECT_EQ(Known_Namespace_Id, path[1]);
-    }
+		// Assert:
+		EXPECT_EQ(2u, path.size());
+		EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), path[0]);
+		EXPECT_EQ(Known_Namespace_Id, path[1]);
+	}
 
-    TEST(TEST_CLASS, GenerateNamespacePath_SupportsMultiLevelNamespaces)
-    {
-        // Arrange:
-        std::vector<NamespaceId> expected;
-        expected.push_back(model::GenerateRootNamespaceId("foo"));
-        expected.push_back(model::GenerateNamespaceId(expected[0], "bar"));
-        expected.push_back(model::GenerateNamespaceId(expected[1], "baz"));
-        expected.push_back(model::GenerateNamespaceId(expected[2], "xyz"));
+	TEST(TEST_CLASS, GenerateNamespacePath_SupportsMultiLevelNamespaces) {
+		// Arrange:
+		std::vector<NamespaceId> expected;
+		expected.push_back(model::GenerateRootNamespaceId("foo"));
+		expected.push_back(model::GenerateNamespaceId(expected[0], "bar"));
+		expected.push_back(model::GenerateNamespaceId(expected[1], "baz"));
+		expected.push_back(model::GenerateNamespaceId(expected[2], "xyz"));
 
-        // Assert:
-        EXPECT_EQ(expected, GenerateNamespacePath("foo.bar.baz.xyz"));
-    }
+		// Assert:
+		EXPECT_EQ(expected, GenerateNamespacePath("foo.bar.baz.xyz"));
+	}
 
-    ADD_BASIC_TESTS(GenerateNamespacePath, GenerateNamespacePath)
+	ADD_BASIC_TESTS(GenerateNamespacePath, GenerateNamespacePath)
 
-    // endregion
+	// endregion
 }
 }

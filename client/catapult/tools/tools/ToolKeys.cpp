@@ -28,58 +28,52 @@
 namespace catapult {
 namespace tools {
 
-    namespace {
-        void NextKey(Key& key)
-        {
-            Hash256 hash;
-            crypto::Sha3_256(key, hash);
-            std::copy(hash.cbegin(), hash.cend(), key.begin());
-        }
+	namespace {
+		void NextKey(Key& key) {
+			Hash256 hash;
+			crypto::Sha3_256(key, hash);
+			std::copy(hash.cbegin(), hash.cend(), key.begin());
+		}
 
-        auto GetDeterministicKey(const Key& baseKey, uint64_t keyId)
-        {
-            auto privateKey = baseKey;
-            *reinterpret_cast<uint64_t*>(privateKey.data()) = keyId;
+		auto GetDeterministicKey(const Key& baseKey, uint64_t keyId) {
+			auto privateKey = baseKey;
+			*reinterpret_cast<uint64_t*>(privateKey.data()) = keyId;
 
-            Hash256 hash;
-            crypto::Sha3_256(privateKey, hash);
-            std::copy(hash.cbegin(), hash.cend(), privateKey.begin());
-            return privateKey;
-        }
-    }
+			Hash256 hash;
+			crypto::Sha3_256(privateKey, hash);
+			std::copy(hash.cbegin(), hash.cend(), privateKey.begin());
+			return privateKey;
+		}
+	}
 
-    crypto::KeyPair GenerateRandomKeyPair()
-    {
-        return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate(RandomByte));
-    }
+	crypto::KeyPair GenerateRandomKeyPair() {
+		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate(RandomByte));
+	}
 
-    crypto::KeyPair GetDeterministicKeyPair(const Key& baseKey, uint64_t keyId)
-    {
-        auto key = GetDeterministicKey(baseKey, keyId);
-        return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(key));
-    }
+	crypto::KeyPair GetDeterministicKeyPair(const Key& baseKey, uint64_t keyId) {
+		auto key = GetDeterministicKey(baseKey, keyId);
+		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(key));
+	}
 
-    crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair)
-    {
-        return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(keyPair.privateKey()));
-    }
+	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair) {
+		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(keyPair.privateKey()));
+	}
 
-    std::vector<Address> PrepareAddresses(size_t count)
-    {
-        std::vector<Address> addresses;
-        auto seedKey = Key();
+	std::vector<Address> PrepareAddresses(size_t count) {
+		std::vector<Address> addresses;
+		auto seedKey = Key();
 
-        addresses.reserve(count);
-        while (count != addresses.size()) {
-            NextKey(seedKey);
-            auto address = model::PublicKeyToAddress(seedKey, model::NetworkIdentifier::Testnet);
+		addresses.reserve(count);
+		while (count != addresses.size()) {
+			NextKey(seedKey);
+			auto address = model::PublicKeyToAddress(seedKey, model::NetworkIdentifier::Testnet);
 
-            // just to have addresses starting with 'SA'
-            if (0 == (address[1] & 0xF8))
-                addresses.push_back(address);
-        }
+			// just to have addresses starting with 'SA'
+			if (0 == (address[1] & 0xF8))
+				addresses.push_back(address);
+		}
 
-        return addresses;
-    }
+		return addresses;
+	}
 }
 }

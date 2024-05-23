@@ -28,52 +28,46 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        struct AccountLinkPluginTraits : public test::EmptyPluginTraits {
-        public:
-            template <typename TAction>
-            static void RunTestAfterRegistration(TAction action)
-            {
-                // Arrange:
-                auto manager = test::CreatePluginManager();
-                RegisterAccountLinkSubsystem(manager);
+	namespace {
+		struct AccountLinkPluginTraits : public test::EmptyPluginTraits {
+		public:
+			template <typename TAction>
+			static void RunTestAfterRegistration(TAction action) {
+				// Arrange:
+				auto manager = test::CreatePluginManager();
+				RegisterAccountLinkSubsystem(manager);
 
-                // Act:
-                action(manager);
-            }
+				// Act:
+				action(manager);
+			}
 
-        public:
-            static std::vector<model::EntityType> GetTransactionTypes()
-            {
-                return { model::Entity_Type_Account_Key_Link, model::Entity_Type_Node_Key_Link };
-            }
+		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return { model::Entity_Type_Account_Key_Link, model::Entity_Type_Node_Key_Link };
+			}
 
-            static std::vector<std::string> GetStatelessValidatorNames()
-            {
-                return {};
-            }
+			static std::vector<std::string> GetStatelessValidatorNames() {
+				return {};
+			}
 
-            static std::vector<std::string> GetStatefulValidatorNames()
-            {
-                return { "AccountKeyLinkValidator",
-                    "NewRemoteAccountAvailabilityValidator",
-                    "RemoteSenderValidator",
-                    "RemoteInteractionValidator",
-                    "NodeKeyLinkValidator" };
-            }
+			static std::vector<std::string> GetStatefulValidatorNames() {
+				return { "AccountKeyLinkValidator",
+					"NewRemoteAccountAvailabilityValidator",
+					"RemoteSenderValidator",
+					"RemoteInteractionValidator",
+					"NodeKeyLinkValidator" };
+			}
 
-            static std::vector<std::string> GetObserverNames()
-            {
-                return { "AccountKeyLinkObserver", "NodeKeyLinkObserver" };
-            }
+			static std::vector<std::string> GetObserverNames() {
+				return { "AccountKeyLinkObserver", "NodeKeyLinkObserver" };
+			}
 
-            static std::vector<std::string> GetPermanentObserverNames()
-            {
-                return GetObserverNames();
-            }
-        };
-    }
+			static std::vector<std::string> GetPermanentObserverNames() {
+				return GetObserverNames();
+			}
+		};
+	}
 
-    DEFINE_PLUGIN_TESTS(AccountLinkPluginTests, AccountLinkPluginTraits)
+	DEFINE_PLUGIN_TESTS(AccountLinkPluginTests, AccountLinkPluginTraits)
 }
 }

@@ -25,6 +25,6 @@
 namespace catapult {
 namespace validators {
 
-    DEFINE_LOCK_DURATION_VALIDATOR(SecretLockDuration, model::SecretLockDurationNotification, Failure_LockSecret_Invalid_Duration)
+	DEFINE_LOCK_DURATION_VALIDATOR(SecretLockDuration, model::SecretLockDurationNotification, Failure_LockSecret_Invalid_Duration)
 }
 }

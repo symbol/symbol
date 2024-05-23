@@ -25,20 +25,20 @@
 namespace catapult {
 namespace model {
 
-    /// Strategy for selecting transactions.
-    enum class TransactionSelectionStrategy {
-        /// Choose oldest transactions.
-        /// \note This strategy is preferred for high TPS networks.
-        Oldest,
+	/// Strategy for selecting transactions.
+	enum class TransactionSelectionStrategy {
+		/// Choose oldest transactions.
+		/// \note This strategy is preferred for high TPS networks.
+		Oldest,
 
-        /// Choose transactions with lowest fees.
-        Minimize_Fee,
+		/// Choose transactions with lowest fees.
+		Minimize_Fee,
 
-        /// Choose transactions with highest fees.
-        Maximize_Fee
-    };
+		/// Choose transactions with highest fees.
+		Maximize_Fee
+	};
 
-    /// Tries to parse \a strategyName into a transaction selection \a strategy.
-    bool TryParseValue(const std::string& strategyName, TransactionSelectionStrategy& strategy);
+	/// Tries to parse \a strategyName into a transaction selection \a strategy.
+	bool TryParseValue(const std::string& strategyName, TransactionSelectionStrategy& strategy);
 }
 }

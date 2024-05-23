@@ -26,54 +26,53 @@
 
 namespace catapult {
 namespace cache {
-    class BasicHashLockInfoCacheDelta;
-    class BasicHashLockInfoCacheView;
-    struct HashLockInfoBaseSetDeltaPointers;
-    struct HashLockInfoBaseSets;
-    class HashLockInfoCache;
-    class HashLockInfoCacheDelta;
-    struct HashLockInfoCacheTypes;
-    class HashLockInfoCacheView;
-    class HashLockInfoPatriciaTree;
-    struct HashLockInfoPrimarySerializer;
+	class BasicHashLockInfoCacheDelta;
+	class BasicHashLockInfoCacheView;
+	struct HashLockInfoBaseSetDeltaPointers;
+	struct HashLockInfoBaseSets;
+	class HashLockInfoCache;
+	class HashLockInfoCacheDelta;
+	struct HashLockInfoCacheTypes;
+	class HashLockInfoCacheView;
+	class HashLockInfoPatriciaTree;
+	struct HashLockInfoPrimarySerializer;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// Describes a hash lock info cache.
-    struct HashLockInfoCacheDescriptor {
-    public:
-        static constexpr auto Name = "HashLockInfoCache";
+	/// Describes a hash lock info cache.
+	struct HashLockInfoCacheDescriptor {
+	public:
+		static constexpr auto Name = "HashLockInfoCache";
 
-    public:
-        // key value types
-        using KeyType = Hash256;
-        using ValueType = state::HashLockInfoHistory;
+	public:
+		// key value types
+		using KeyType = Hash256;
+		using ValueType = state::HashLockInfoHistory;
 
-        // cache types
-        using CacheType = HashLockInfoCache;
-        using CacheDeltaType = HashLockInfoCacheDelta;
-        using CacheViewType = HashLockInfoCacheView;
+		// cache types
+		using CacheType = HashLockInfoCache;
+		using CacheDeltaType = HashLockInfoCacheDelta;
+		using CacheViewType = HashLockInfoCacheView;
 
-        using Serializer = HashLockInfoPrimarySerializer;
-        using PatriciaTree = HashLockInfoPatriciaTree;
+		using Serializer = HashLockInfoPrimarySerializer;
+		using PatriciaTree = HashLockInfoPatriciaTree;
 
-    public:
-        /// Gets the key corresponding to \a history.
-        static const auto& GetKeyFromValue(const ValueType& history)
-        {
-            return history.id();
-        }
-    };
+	public:
+		/// Gets the key corresponding to \a history.
+		static const auto& GetKeyFromValue(const ValueType& history) {
+			return history.id();
+		}
+	};
 
-    /// Hash lock info cache types.
-    struct HashLockInfoCacheTypes : public LockInfoCacheTypes<HashLockInfoCacheDescriptor> {
-        using CacheReadOnlyType = ReadOnlyArtifactCache<BasicHashLockInfoCacheView, BasicHashLockInfoCacheDelta, Hash256, state::HashLockInfoHistory>;
+	/// Hash lock info cache types.
+	struct HashLockInfoCacheTypes : public LockInfoCacheTypes<HashLockInfoCacheDescriptor> {
+		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicHashLockInfoCacheView, BasicHashLockInfoCacheDelta, Hash256, state::HashLockInfoHistory>;
 
-        using BaseSetDeltaPointers = HashLockInfoBaseSetDeltaPointers;
-        using BaseSets = HashLockInfoBaseSets;
-    };
+		using BaseSetDeltaPointers = HashLockInfoBaseSetDeltaPointers;
+		using BaseSets = HashLockInfoBaseSets;
+	};
 }
 }

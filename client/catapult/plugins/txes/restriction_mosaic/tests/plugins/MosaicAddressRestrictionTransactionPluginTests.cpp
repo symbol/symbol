@@ -34,70 +34,68 @@ namespace plugins {
 
 #define TEST_CLASS MosaicAddressRestrictionTransactionPluginTests
 
-    // region test utils
+	// region test utils
 
-    namespace {
-        DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicAddressRestriction, 1, 1, )
-    }
+	namespace {
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicAddressRestriction, 1, 1, )
+	}
 
-    DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Address_Restriction)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Address_Restriction)
 
-    // endregion
+	// endregion
 
-    // region publish
+	// region publish
 
-    PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder)
-    {
-        // Arrange:
-        typename TTraits::TransactionType transaction;
-        test::FillWithRandomData(transaction);
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
 
-        // Act + Assert:
-        test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
-            transaction,
-            { MosaicRequiredNotification::Notification_Type,
-                MosaicRestrictionRequiredNotification::Notification_Type,
-                MosaicAddressRestrictionModificationPreviousValueNotification::Notification_Type,
-                MosaicAddressRestrictionModificationNewValueNotification::Notification_Type });
-    }
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+			transaction,
+			{ MosaicRequiredNotification::Notification_Type,
+				MosaicRestrictionRequiredNotification::Notification_Type,
+				MosaicAddressRestrictionModificationPreviousValueNotification::Notification_Type,
+				MosaicAddressRestrictionModificationNewValueNotification::Notification_Type });
+	}
 
-    PLUGIN_TEST(CanPublishAllNotifications)
-    {
-        // Arrange:
-        typename TTraits::TransactionType transaction;
-        test::FillWithRandomData(transaction);
+	PLUGIN_TEST(CanPublishAllNotifications) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
 
-        typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
-        builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-            EXPECT_TRUE(notification.Owner.isResolved());
-            EXPECT_FALSE(notification.MosaicId.isResolved());
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
+			EXPECT_TRUE(notification.Owner.isResolved());
+			EXPECT_FALSE(notification.MosaicId.isResolved());
 
-            EXPECT_EQ(GetSignerAddress(transaction), notification.Owner.resolved());
-            EXPECT_EQ(transaction.MosaicId, notification.MosaicId.unresolved());
-            EXPECT_EQ(0x04u, notification.PropertyFlagMask);
-        });
-        builder.template addExpectation<MosaicRestrictionRequiredNotification>([&transaction](const auto& notification) {
-            EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-            EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
-        });
-        builder.template addExpectation<MosaicAddressRestrictionModificationPreviousValueNotification>(
-            [&transaction](const auto& notification) {
-                EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-                EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
-                EXPECT_EQ(transaction.TargetAddress, notification.TargetAddress);
-                EXPECT_EQ(transaction.PreviousRestrictionValue, notification.RestrictionValue);
-            });
-        builder.template addExpectation<MosaicAddressRestrictionModificationNewValueNotification>([&transaction](const auto& notification) {
-            EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-            EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
-            EXPECT_EQ(transaction.TargetAddress, notification.TargetAddress);
-            EXPECT_EQ(transaction.NewRestrictionValue, notification.RestrictionValue);
-        });
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Owner.resolved());
+			EXPECT_EQ(transaction.MosaicId, notification.MosaicId.unresolved());
+			EXPECT_EQ(0x04u, notification.PropertyFlagMask);
+		});
+		builder.template addExpectation<MosaicRestrictionRequiredNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+			EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
+		});
+		builder.template addExpectation<MosaicAddressRestrictionModificationPreviousValueNotification>(
+			[&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+				EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
+				EXPECT_EQ(transaction.TargetAddress, notification.TargetAddress);
+				EXPECT_EQ(transaction.PreviousRestrictionValue, notification.RestrictionValue);
+			});
+		builder.template addExpectation<MosaicAddressRestrictionModificationNewValueNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+			EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
+			EXPECT_EQ(transaction.TargetAddress, notification.TargetAddress);
+			EXPECT_EQ(transaction.NewRestrictionValue, notification.RestrictionValue);
+		});
 
-        // Act + Assert:
-        builder.runTest(transaction);
-    }
+		// Act + Assert:
+		builder.runTest(transaction);
+	}
 
-    // endregion
+	// endregion
 }
 }

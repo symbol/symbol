@@ -24,62 +24,62 @@
 
 namespace catapult {
 namespace model {
-    class TransactionRegistry;
+	class TransactionRegistry;
 }
 }
 
 namespace catapult {
 namespace extensions {
 
-    /// Possible results of verifying a full block.
-    enum class VerifyFullBlockResult {
-        /// Block is valid.
-        Success,
+	/// Possible results of verifying a full block.
+	enum class VerifyFullBlockResult {
+		/// Block is valid.
+		Success,
 
-        /// Block signature is invalid.
-        Invalid_Block_Signature,
+		/// Block signature is invalid.
+		Invalid_Block_Signature,
 
-        /// Block transactions hash is invalid.
-        Invalid_Block_Transactions_Hash,
+		/// Block transactions hash is invalid.
+		Invalid_Block_Transactions_Hash,
 
-        /// Transaction signature is invalid.
-        Invalid_Transaction_Signature
-    };
+		/// Transaction signature is invalid.
+		Invalid_Transaction_Signature
+	};
 
-    /// Extensions for working with blocks.
-    class BlockExtensions {
-    public:
-        /// Creates extensions for blocks containing only basic transactions for the network with the specified
-        /// generation hash seed (\a generationHashSeed).
-        explicit BlockExtensions(const GenerationHashSeed& generationHashSeed);
+	/// Extensions for working with blocks.
+	class BlockExtensions {
+	public:
+		/// Creates extensions for blocks containing only basic transactions for the network with the specified
+		/// generation hash seed (\a generationHashSeed).
+		explicit BlockExtensions(const GenerationHashSeed& generationHashSeed);
 
-        /// Creates extensions for blocks containing transactions registered in \a transactionRegistry for the network with the specified
-        /// generation hash seed (\a generationHashSeed).
-        BlockExtensions(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry);
+		/// Creates extensions for blocks containing transactions registered in \a transactionRegistry for the network with the specified
+		/// generation hash seed (\a generationHashSeed).
+		BlockExtensions(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry);
 
-    public:
-        /// Calculates and updates the block transactions hash of \a block.
-        /// \note This function requires a full block and will calculate all transaction hashes.
-        void updateBlockTransactionsHash(model::Block& block) const;
+	public:
+		/// Calculates and updates the block transactions hash of \a block.
+		/// \note This function requires a full block and will calculate all transaction hashes.
+		void updateBlockTransactionsHash(model::Block& block) const;
 
-        /// Calculates the block transactions hash of \a block into \a blockTransactionsHash.
-        /// \note This function requires a full block and will calculate all transaction hashes.
-        void calculateBlockTransactionsHash(const model::Block& block, Hash256& blockTransactionsHash) const;
+		/// Calculates the block transactions hash of \a block into \a blockTransactionsHash.
+		/// \note This function requires a full block and will calculate all transaction hashes.
+		void calculateBlockTransactionsHash(const model::Block& block, Hash256& blockTransactionsHash) const;
 
-        /// Cryptographically signs a full \a block with \a signer.
-        void signFullBlock(const crypto::KeyPair& signer, model::Block& block) const;
+		/// Cryptographically signs a full \a block with \a signer.
+		void signFullBlock(const crypto::KeyPair& signer, model::Block& block) const;
 
-        /// Cryptographically verifies a full \a block by checking all signatures and hashes.
-        VerifyFullBlockResult verifyFullBlock(const model::Block& block) const;
+		/// Cryptographically verifies a full \a block by checking all signatures and hashes.
+		VerifyFullBlockResult verifyFullBlock(const model::Block& block) const;
 
-        /// Converts \a block to a block element with the specified block generation hash (\a generationHash).
-        /// \note This function requires a full block and will calculate all block and transaction hashes.
-        model::BlockElement convertBlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) const;
+		/// Converts \a block to a block element with the specified block generation hash (\a generationHash).
+		/// \note This function requires a full block and will calculate all block and transaction hashes.
+		model::BlockElement convertBlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) const;
 
-    private:
-        GenerationHashSeed m_generationHashSeed;
-        std::function<Hash256(const model::Transaction&)> m_calculateTransactionEntityHash;
-        std::function<Hash256(const model::Transaction&, const Hash256&)> m_calculateTransactionMerkleComponentHash;
-    };
+	private:
+		GenerationHashSeed m_generationHashSeed;
+		std::function<Hash256(const model::Transaction&)> m_calculateTransactionEntityHash;
+		std::function<Hash256(const model::Transaction&, const Hash256&)> m_calculateTransactionMerkleComponentHash;
+	};
 }
 }

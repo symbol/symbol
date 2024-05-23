@@ -26,66 +26,66 @@
 
 namespace catapult {
 namespace model {
-    struct BlockchainConfiguration;
+	struct BlockchainConfiguration;
 }
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace config {
 
-    /// Namespace plugin configuration settings.
-    struct NamespaceConfiguration {
-    public:
-        /// Maximum namespace name size.
-        uint8_t MaxNameSize;
+	/// Namespace plugin configuration settings.
+	struct NamespaceConfiguration {
+	public:
+		/// Maximum namespace name size.
+		uint8_t MaxNameSize;
 
-        /// Maximum number of children for a root namespace.
-        uint16_t MaxChildNamespaces;
+		/// Maximum number of children for a root namespace.
+		uint16_t MaxChildNamespaces;
 
-        /// Maximum namespace depth.
-        uint8_t MaxNamespaceDepth;
+		/// Maximum namespace depth.
+		uint8_t MaxNamespaceDepth;
 
-        /// Minimum namespace duration.
-        utils::BlockSpan MinNamespaceDuration;
+		/// Minimum namespace duration.
+		utils::BlockSpan MinNamespaceDuration;
 
-        /// Maximum namespace duration.
-        utils::BlockSpan MaxNamespaceDuration;
+		/// Maximum namespace duration.
+		utils::BlockSpan MaxNamespaceDuration;
 
-        /// Grace period during which time only the previous owner can renew an expired namespace.
-        utils::BlockSpan NamespaceGracePeriodDuration;
+		/// Grace period during which time only the previous owner can renew an expired namespace.
+		utils::BlockSpan NamespaceGracePeriodDuration;
 
-        /// Reserved root namespaces that cannot be claimed.
-        std::unordered_set<std::string> ReservedRootNamespaceNames;
+		/// Reserved root namespaces that cannot be claimed.
+		std::unordered_set<std::string> ReservedRootNamespaceNames;
 
-        /// Address of the namespace rental fee sink account (V1).
-        Address NamespaceRentalFeeSinkAddressV1;
+		/// Address of the namespace rental fee sink account (V1).
+		Address NamespaceRentalFeeSinkAddressV1;
 
-        /// Address of the namespace rental fee sink account (latest).
-        Address NamespaceRentalFeeSinkAddress;
+		/// Address of the namespace rental fee sink account (latest).
+		Address NamespaceRentalFeeSinkAddress;
 
-        /// Root namespace rental fee per block.
-        Amount RootNamespaceRentalFeePerBlock;
+		/// Root namespace rental fee per block.
+		Amount RootNamespaceRentalFeePerBlock;
 
-        /// Child namespace rental fee.
-        Amount ChildNamespaceRentalFee;
+		/// Child namespace rental fee.
+		Amount ChildNamespaceRentalFee;
 
-    private:
-        NamespaceConfiguration() = default;
+	private:
+		NamespaceConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized namespace configuration.
-        static NamespaceConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized namespace configuration.
+		static NamespaceConfiguration Uninitialized();
 
-        /// Loads a namespace configuration from \a bag.
-        static NamespaceConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+		/// Loads a namespace configuration from \a bag.
+		static NamespaceConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 
-    /// Gets the namespace rental fee sink address from \a config and \a blockchainConfig.
-    model::HeightDependentAddress GetNamespaceRentalFeeSinkAddress(
-        const NamespaceConfiguration& config,
-        const model::BlockchainConfiguration& blockchainConfig);
+	/// Gets the namespace rental fee sink address from \a config and \a blockchainConfig.
+	model::HeightDependentAddress GetNamespaceRentalFeeSinkAddress(
+		const NamespaceConfiguration& config,
+		const model::BlockchainConfiguration& blockchainConfig);
 }
 }

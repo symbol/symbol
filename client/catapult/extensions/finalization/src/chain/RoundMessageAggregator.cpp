@@ -37,173 +37,161 @@ namespace chain {
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
-    namespace {
-        // region utils
+	namespace {
+		// region utils
 
-        using MessageKey = std::pair<VotingKey, bool>;
+		using MessageKey = std::pair<VotingKey, bool>;
 
-        struct MessageDescriptor {
-            std::shared_ptr<const model::FinalizationMessage> pMessage;
-            Hash256 Hash;
-            utils::ShortHash ShortHash;
-        };
+		struct MessageDescriptor {
+			std::shared_ptr<const model::FinalizationMessage> pMessage;
+			Hash256 Hash;
+			utils::ShortHash ShortHash;
+		};
 
-        MessageDescriptor CreateMessageDescriptor(const std::shared_ptr<const model::FinalizationMessage>& pMessage)
-        {
-            MessageDescriptor descriptor;
-            descriptor.pMessage = pMessage;
-            descriptor.Hash = model::CalculateMessageHash(*descriptor.pMessage);
-            descriptor.ShortHash = utils::ToShortHash(descriptor.Hash);
-            return descriptor;
-        }
+		MessageDescriptor CreateMessageDescriptor(const std::shared_ptr<const model::FinalizationMessage>& pMessage) {
+			MessageDescriptor descriptor;
+			descriptor.pMessage = pMessage;
+			descriptor.Hash = model::CalculateMessageHash(*descriptor.pMessage);
+			descriptor.ShortHash = utils::ToShortHash(descriptor.Hash);
+			return descriptor;
+		}
 
-        struct MessageKeyHasher {
-            size_t operator()(const MessageKey& pair) const
-            {
-                return utils::ArrayHasher<VotingKey>()(pair.first);
-            }
-        };
+		struct MessageKeyHasher {
+			size_t operator()(const MessageKey& pair) const {
+				return utils::ArrayHasher<VotingKey>()(pair.first);
+			}
+		};
 
-        uint64_t CalculateWeightedThreshold(const model::FinalizationContext& finalizationContext)
-        {
-            return finalizationContext.weight().unwrap() * finalizationContext.config().Threshold / finalizationContext.config().Size;
-        }
+		uint64_t CalculateWeightedThreshold(const model::FinalizationContext& finalizationContext) {
+			return finalizationContext.weight().unwrap() * finalizationContext.config().Threshold / finalizationContext.config().Size;
+		}
 
-        bool IsPrevote(const model::FinalizationMessage& message)
-        {
-            return model::FinalizationStage::Prevote == message.StepIdentifier.Stage();
-        }
+		bool IsPrevote(const model::FinalizationMessage& message) {
+			return model::FinalizationStage::Prevote == message.StepIdentifier.Stage();
+		}
 
-        // endregion
+		// endregion
 
-        // region DefaultRoundMessageAggregator
+		// region DefaultRoundMessageAggregator
 
-        class DefaultRoundMessageAggregator : public RoundMessageAggregator {
-        public:
-            explicit DefaultRoundMessageAggregator(const model::FinalizationContext& finalizationContext)
-                : m_finalizationContext(finalizationContext)
-                , m_maxResponseSize(m_finalizationContext.config().MessageSynchronizationMaxResponseSize.bytes())
-                , m_roundContext(m_finalizationContext.weight().unwrap(), CalculateWeightedThreshold(m_finalizationContext))
-            {
-            }
+		class DefaultRoundMessageAggregator : public RoundMessageAggregator {
+		public:
+			explicit DefaultRoundMessageAggregator(const model::FinalizationContext& finalizationContext)
+				: m_finalizationContext(finalizationContext)
+				, m_maxResponseSize(m_finalizationContext.config().MessageSynchronizationMaxResponseSize.bytes())
+				, m_roundContext(m_finalizationContext.weight().unwrap(), CalculateWeightedThreshold(m_finalizationContext)) {
+			}
 
-        public:
-            size_t size() const override
-            {
-                return m_messages.size();
-            }
+		public:
+			size_t size() const override {
+				return m_messages.size();
+			}
 
-            const model::FinalizationContext& finalizationContext() const override
-            {
-                return m_finalizationContext;
-            }
+			const model::FinalizationContext& finalizationContext() const override {
+				return m_finalizationContext;
+			}
 
-            const RoundContext& roundContext() const override
-            {
-                return m_roundContext;
-            }
+			const RoundContext& roundContext() const override {
+				return m_roundContext;
+			}
 
-            model::ShortHashRange shortHashes() const override
-            {
-                auto shortHashes = model::EntityRange<utils::ShortHash>::PrepareFixed(m_messages.size());
-                auto shortHashesIter = shortHashes.begin();
-                for (const auto& messagePair : m_messages)
-                    *shortHashesIter++ = messagePair.second.ShortHash;
+			model::ShortHashRange shortHashes() const override {
+				auto shortHashes = model::EntityRange<utils::ShortHash>::PrepareFixed(m_messages.size());
+				auto shortHashesIter = shortHashes.begin();
+				for (const auto& messagePair : m_messages)
+					*shortHashesIter++ = messagePair.second.ShortHash;
 
-                return shortHashes;
-            }
+				return shortHashes;
+			}
 
-            RoundMessageAggregator::UnknownMessages unknownMessages(const utils::ShortHashesSet& knownShortHashes) const override
-            {
-                uint64_t totalSize = 0;
-                UnknownMessages messages;
-                for (const auto& messagePair : m_messages) {
-                    const auto& pMessage = messagePair.second.pMessage;
-                    auto iter = knownShortHashes.find(messagePair.second.ShortHash);
-                    if (knownShortHashes.cend() == iter) {
-                        totalSize += pMessage->Size;
-                        if (totalSize > m_maxResponseSize)
-                            return messages;
+			RoundMessageAggregator::UnknownMessages unknownMessages(const utils::ShortHashesSet& knownShortHashes) const override {
+				uint64_t totalSize = 0;
+				UnknownMessages messages;
+				for (const auto& messagePair : m_messages) {
+					const auto& pMessage = messagePair.second.pMessage;
+					auto iter = knownShortHashes.find(messagePair.second.ShortHash);
+					if (knownShortHashes.cend() == iter) {
+						totalSize += pMessage->Size;
+						if (totalSize > m_maxResponseSize)
+							return messages;
 
-                        messages.push_back(pMessage);
-                    }
-                }
+						messages.push_back(pMessage);
+					}
+				}
 
-                return messages;
-            }
+				return messages;
+			}
 
-        public:
-            RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) override
-            {
-                auto maxHashesPerPoint = m_finalizationContext.config().MaxHashesPerPoint;
-                CATAPULT_LOG(trace) << "received message at " << pMessage->StepIdentifier << " with " << pMessage->HashesCount
-                                    << " hashes (max " << maxHashesPerPoint << ")";
+		public:
+			RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) override {
+				auto maxHashesPerPoint = m_finalizationContext.config().MaxHashesPerPoint;
+				CATAPULT_LOG(trace) << "received message at " << pMessage->StepIdentifier << " with " << pMessage->HashesCount
+									<< " hashes (max " << maxHashesPerPoint << ")";
 
-                if (0 == pMessage->HashesCount || pMessage->HashesCount > maxHashesPerPoint)
-                    return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
+				if (0 == pMessage->HashesCount || pMessage->HashesCount > maxHashesPerPoint)
+					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 
-                auto isPrevote = IsPrevote(*pMessage);
-                auto lastHashHeight = pMessage->Height + Height(pMessage->HashesCount - 1);
+				auto isPrevote = IsPrevote(*pMessage);
+				auto lastHashHeight = pMessage->Height + Height(pMessage->HashesCount - 1);
 
-                // only consider messages that have at least one hash at or after the epoch height
-                if (m_finalizationContext.height() > lastHashHeight)
-                    return RoundMessageAggregatorAddResult::Failure_Invalid_Height;
+				// only consider messages that have at least one hash at or after the epoch height
+				if (m_finalizationContext.height() > lastHashHeight)
+					return RoundMessageAggregatorAddResult::Failure_Invalid_Height;
 
-                if (isPrevote) {
-                    auto votingSetGrouping = m_finalizationContext.config().VotingSetGrouping;
-                    auto previousEpoch = pMessage->StepIdentifier.Epoch - FinalizationEpoch(1);
-                    auto epochMinHeight = model::CalculateVotingSetEndHeight(previousEpoch, votingSetGrouping);
-                    auto epochMaxHeight = model::CalculateVotingSetEndHeight(pMessage->StepIdentifier.Epoch, votingSetGrouping);
+				if (isPrevote) {
+					auto votingSetGrouping = m_finalizationContext.config().VotingSetGrouping;
+					auto previousEpoch = pMessage->StepIdentifier.Epoch - FinalizationEpoch(1);
+					auto epochMinHeight = model::CalculateVotingSetEndHeight(previousEpoch, votingSetGrouping);
+					auto epochMaxHeight = model::CalculateVotingSetEndHeight(pMessage->StepIdentifier.Epoch, votingSetGrouping);
 
-                    if (pMessage->Height < epochMinHeight || lastHashHeight > epochMaxHeight)
-                        return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
-                } else {
-                    if (1 != pMessage->HashesCount)
-                        return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
-                }
+					if (pMessage->Height < epochMinHeight || lastHashHeight > epochMaxHeight)
+						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
+				} else {
+					if (1 != pMessage->HashesCount)
+						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
+				}
 
-                auto messageKey = std::make_pair(pMessage->Signature.Root.ParentPublicKey, isPrevote);
-                auto messageIter = m_messages.find(messageKey);
-                if (m_messages.cend() != messageIter) {
-                    return messageIter->second.Hash == model::CalculateMessageHash(*pMessage)
-                        ? RoundMessageAggregatorAddResult::Neutral_Redundant
-                        : RoundMessageAggregatorAddResult::Failure_Conflicting;
-                }
+				auto messageKey = std::make_pair(pMessage->Signature.Root.ParentPublicKey, isPrevote);
+				auto messageIter = m_messages.find(messageKey);
+				if (m_messages.cend() != messageIter) {
+					return messageIter->second.Hash == model::CalculateMessageHash(*pMessage)
+						? RoundMessageAggregatorAddResult::Neutral_Redundant
+						: RoundMessageAggregatorAddResult::Failure_Conflicting;
+				}
 
-                auto processResultPair = model::ProcessMessage(*pMessage, m_finalizationContext);
-                if (model::ProcessMessageResult::Success != processResultPair.first) {
-                    CATAPULT_LOG(warning) << "rejecting finalization message with result " << processResultPair.first;
-                    return RoundMessageAggregatorAddResult::Failure_Processing;
-                }
+				auto processResultPair = model::ProcessMessage(*pMessage, m_finalizationContext);
+				if (model::ProcessMessageResult::Success != processResultPair.first) {
+					CATAPULT_LOG(warning) << "rejecting finalization message with result " << processResultPair.first;
+					return RoundMessageAggregatorAddResult::Failure_Processing;
+				}
 
-                CATAPULT_LOG(trace) << "processing message for epoch " << m_finalizationContext.epoch() << " with weight "
-                                    << processResultPair.second << std::endl
-                                    << *pMessage;
+				CATAPULT_LOG(trace) << "processing message for epoch " << m_finalizationContext.epoch() << " with weight "
+									<< processResultPair.second << std::endl
+									<< *pMessage;
 
-                m_messages.emplace(messageKey, CreateMessageDescriptor(pMessage));
+				m_messages.emplace(messageKey, CreateMessageDescriptor(pMessage));
 
-                if (isPrevote) {
-                    m_roundContext.acceptPrevote(pMessage->Height, pMessage->HashesPtr(), pMessage->HashesCount, processResultPair.second);
-                    return RoundMessageAggregatorAddResult::Success_Prevote;
-                } else {
-                    m_roundContext.acceptPrecommit(pMessage->Height, *pMessage->HashesPtr(), processResultPair.second);
-                    return RoundMessageAggregatorAddResult::Success_Precommit;
-                }
-            }
+				if (isPrevote) {
+					m_roundContext.acceptPrevote(pMessage->Height, pMessage->HashesPtr(), pMessage->HashesCount, processResultPair.second);
+					return RoundMessageAggregatorAddResult::Success_Prevote;
+				} else {
+					m_roundContext.acceptPrecommit(pMessage->Height, *pMessage->HashesPtr(), processResultPair.second);
+					return RoundMessageAggregatorAddResult::Success_Precommit;
+				}
+			}
 
-        private:
-            model::FinalizationContext m_finalizationContext;
-            uint64_t m_maxResponseSize;
-            chain::RoundContext m_roundContext;
-            std::unordered_map<MessageKey, MessageDescriptor, MessageKeyHasher> m_messages;
-        };
+		private:
+			model::FinalizationContext m_finalizationContext;
+			uint64_t m_maxResponseSize;
+			chain::RoundContext m_roundContext;
+			std::unordered_map<MessageKey, MessageDescriptor, MessageKeyHasher> m_messages;
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    std::unique_ptr<RoundMessageAggregator> CreateRoundMessageAggregator(const model::FinalizationContext& finalizationContext)
-    {
-        return std::make_unique<DefaultRoundMessageAggregator>(finalizationContext);
-    }
+	std::unique_ptr<RoundMessageAggregator> CreateRoundMessageAggregator(const model::FinalizationContext& finalizationContext) {
+		return std::make_unique<DefaultRoundMessageAggregator>(finalizationContext);
+	}
 }
 }

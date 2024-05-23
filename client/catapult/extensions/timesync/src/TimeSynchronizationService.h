@@ -24,17 +24,17 @@
 
 namespace catapult {
 namespace timesync {
-    struct TimeSynchronizationConfiguration;
-    class TimeSynchronizationState;
+	struct TimeSynchronizationConfiguration;
+	class TimeSynchronizationState;
 }
 }
 
 namespace catapult {
 namespace timesync {
 
-    /// Creates a registrar for a time synchronization service around \a timeSyncConfig and \a pTimeSyncState.
-    /// \note This service is responsible for synchronizing the network time among nodes.
-    DECLARE_SERVICE_REGISTRAR(TimeSynchronization)
-    (const TimeSynchronizationConfiguration& timeSyncConfig, const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState);
+	/// Creates a registrar for a time synchronization service around \a timeSyncConfig and \a pTimeSyncState.
+	/// \note This service is responsible for synchronizing the network time among nodes.
+	DECLARE_SERVICE_REGISTRAR(TimeSynchronization)
+	(const TimeSynchronizationConfiguration& timeSyncConfig, const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState);
 }
 }

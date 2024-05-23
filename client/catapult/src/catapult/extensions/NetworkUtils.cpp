@@ -29,124 +29,119 @@
 namespace catapult {
 namespace extensions {
 
-    // region GetRateMonitorSettings
+	// region GetRateMonitorSettings
 
-    ionet::RateMonitorSettings GetRateMonitorSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig)
-    {
-        ionet::RateMonitorSettings rateMonitorSettings;
-        rateMonitorSettings.NumBuckets = banConfig.NumReadRateMonitoringBuckets;
-        rateMonitorSettings.BucketDuration = banConfig.ReadRateMonitoringBucketDuration;
-        rateMonitorSettings.MaxTotalSize = banConfig.MaxReadRateMonitoringTotalSize;
-        return rateMonitorSettings;
-    }
+	ionet::RateMonitorSettings GetRateMonitorSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig) {
+		ionet::RateMonitorSettings rateMonitorSettings;
+		rateMonitorSettings.NumBuckets = banConfig.NumReadRateMonitoringBuckets;
+		rateMonitorSettings.BucketDuration = banConfig.ReadRateMonitoringBucketDuration;
+		rateMonitorSettings.MaxTotalSize = banConfig.MaxReadRateMonitoringTotalSize;
+		return rateMonitorSettings;
+	}
 
-    // endregion
+	// endregion
 
-    // region GetConnectionSettings / UpdateAsyncTcpServerSettings
+	// region GetConnectionSettings / UpdateAsyncTcpServerSettings
 
-    net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config)
-    {
-        net::ConnectionSettings settings;
-        settings.NetworkIdentifier = config.Blockchain.Network.Identifier;
-        settings.NodeIdentityEqualityStrategy = config.Blockchain.Network.NodeEqualityStrategy;
+	net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config) {
+		net::ConnectionSettings settings;
+		settings.NetworkIdentifier = config.Blockchain.Network.Identifier;
+		settings.NodeIdentityEqualityStrategy = config.Blockchain.Network.NodeEqualityStrategy;
 
-        settings.Timeout = config.Node.ConnectTimeout;
-        settings.SocketWorkingBufferSize = config.Node.SocketWorkingBufferSize;
-        settings.SocketWorkingBufferSensitivity = config.Node.SocketWorkingBufferSensitivity;
-        settings.MaxPacketDataSize = config.Node.MaxPacketDataSize;
-        settings.OutgoingProtocols = ionet::MapNodeRolesToIpProtocols(config.Node.Local.Roles);
+		settings.Timeout = config.Node.ConnectTimeout;
+		settings.SocketWorkingBufferSize = config.Node.SocketWorkingBufferSize;
+		settings.SocketWorkingBufferSensitivity = config.Node.SocketWorkingBufferSensitivity;
+		settings.MaxPacketDataSize = config.Node.MaxPacketDataSize;
+		settings.OutgoingProtocols = ionet::MapNodeRolesToIpProtocols(config.Node.Local.Roles);
 
-        settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(config.User.CertificateDirectory);
-        settings.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
-        return settings;
-    }
+		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(config.User.CertificateDirectory);
+		settings.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
+		return settings;
+	}
 
-    void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::CatapultConfiguration& config)
-    {
-        settings.PacketSocketOptions = GetConnectionSettings(config).toSocketOptions();
-        settings.AllowAddressReuse = config.Node.EnableAddressReuse;
+	void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::CatapultConfiguration& config) {
+		settings.PacketSocketOptions = GetConnectionSettings(config).toSocketOptions();
+		settings.AllowAddressReuse = config.Node.EnableAddressReuse;
 
-        const auto& connectionsConfig = config.Node.IncomingConnections;
-        settings.MaxActiveConnections = connectionsConfig.MaxConnections;
-        settings.MaxPendingConnections = connectionsConfig.BacklogSize;
-    }
+		const auto& connectionsConfig = config.Node.IncomingConnections;
+		settings.MaxActiveConnections = connectionsConfig.MaxConnections;
+		settings.MaxPendingConnections = connectionsConfig.BacklogSize;
+	}
 
-    // endregion
+	// endregion
 
-    // region BootServer
+	// region BootServer
 
-    namespace {
-        struct BootServerState {
-        public:
-            BootServerState(
-                unsigned short port,
-                ionet::ServiceIdentifier serviceId,
-                subscribers::NodeSubscriber& nodeSubscriber,
-                net::AcceptedConnectionContainer& acceptor)
-                : Port(port)
-                , ServiceId(serviceId)
-                , NodeSubscriber(nodeSubscriber)
-                , Acceptor(acceptor)
-            {
-            }
+	namespace {
+		struct BootServerState {
+		public:
+			BootServerState(
+				unsigned short port,
+				ionet::ServiceIdentifier serviceId,
+				subscribers::NodeSubscriber& nodeSubscriber,
+				net::AcceptedConnectionContainer& acceptor)
+				: Port(port)
+				, ServiceId(serviceId)
+				, NodeSubscriber(nodeSubscriber)
+				, Acceptor(acceptor) {
+			}
 
-        public:
-            unsigned short Port;
-            ionet::ServiceIdentifier ServiceId;
-            subscribers::NodeSubscriber& NodeSubscriber;
-            net::AcceptedConnectionContainer& Acceptor;
-        };
-    }
+		public:
+			unsigned short Port;
+			ionet::ServiceIdentifier ServiceId;
+			subscribers::NodeSubscriber& NodeSubscriber;
+			net::AcceptedConnectionContainer& Acceptor;
+		};
+	}
 
-    std::shared_ptr<net::AsyncTcpServer> BootServer(
-        thread::MultiServicePool::ServiceGroup& serviceGroup,
-        unsigned short port,
-        ionet::ServiceIdentifier serviceId,
-        const config::CatapultConfiguration& config,
-        const supplier<Timestamp>& timeSupplier,
-        subscribers::NodeSubscriber& nodeSubscriber,
-        net::AcceptedConnectionContainer& acceptor)
-    {
-        auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.Node.ListenInterface), port);
-        BootServerState bootServerState(port, serviceId, nodeSubscriber, acceptor);
-        auto rateMonitorSettings = GetRateMonitorSettings(config.Node.Banning);
+	std::shared_ptr<net::AsyncTcpServer> BootServer(
+		thread::MultiServicePool::ServiceGroup& serviceGroup,
+		unsigned short port,
+		ionet::ServiceIdentifier serviceId,
+		const config::CatapultConfiguration& config,
+		const supplier<Timestamp>& timeSupplier,
+		subscribers::NodeSubscriber& nodeSubscriber,
+		net::AcceptedConnectionContainer& acceptor) {
+		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.Node.ListenInterface), port);
+		BootServerState bootServerState(port, serviceId, nodeSubscriber, acceptor);
+		auto rateMonitorSettings = GetRateMonitorSettings(config.Node.Banning);
 
-        auto serverSettings = net::AsyncTcpServerSettings([bootServerState, rateMonitorSettings, timeSupplier](const auto& socketInfo) {
-            auto pCurrentNodeIdentity = std::make_shared<model::NodeIdentity>();
-            pCurrentNodeIdentity->Host = socketInfo.host();
+		auto serverSettings = net::AsyncTcpServerSettings([bootServerState, rateMonitorSettings, timeSupplier](const auto& socketInfo) {
+			auto pCurrentNodeIdentity = std::make_shared<model::NodeIdentity>();
+			pCurrentNodeIdentity->Host = socketInfo.host();
 
-            auto rateExceededHandler = [bootServerState, pCurrentNodeIdentity]() {
-                bootServerState.NodeSubscriber.notifyBan(
-                    *pCurrentNodeIdentity,
-                    utils::to_underlying_type(Failure_Extension_Read_Rate_Limit_Exceeded));
-                bootServerState.Acceptor.closeOne(*pCurrentNodeIdentity);
-            };
-            ionet::PacketSocketInfo decoratedSocketInfo(
-                socketInfo.host(),
-                socketInfo.publicKey(),
-                ionet::AddReadRateMonitor(socketInfo.socket(), rateMonitorSettings, timeSupplier, rateExceededHandler));
+			auto rateExceededHandler = [bootServerState, pCurrentNodeIdentity]() {
+				bootServerState.NodeSubscriber.notifyBan(
+					*pCurrentNodeIdentity,
+					utils::to_underlying_type(Failure_Extension_Read_Rate_Limit_Exceeded));
+				bootServerState.Acceptor.closeOne(*pCurrentNodeIdentity);
+			};
+			ionet::PacketSocketInfo decoratedSocketInfo(
+				socketInfo.host(),
+				socketInfo.publicKey(),
+				ionet::AddReadRateMonitor(socketInfo.socket(), rateMonitorSettings, timeSupplier, rateExceededHandler));
 
-            bootServerState.Acceptor.accept(decoratedSocketInfo, [bootServerState, pCurrentNodeIdentity](const auto& connectResult) {
-                // on accept failure, only host (not identity key) is known
-                CATAPULT_LOG(info) << "accept result to local node port " << bootServerState.Port << " from " << pCurrentNodeIdentity->Host
-                                   << ": " << connectResult.Code;
+			bootServerState.Acceptor.accept(decoratedSocketInfo, [bootServerState, pCurrentNodeIdentity](const auto& connectResult) {
+				// on accept failure, only host (not identity key) is known
+				CATAPULT_LOG(info) << "accept result to local node port " << bootServerState.Port << " from " << pCurrentNodeIdentity->Host
+								   << ": " << connectResult.Code;
 
-                if (net::PeerConnectCode::Accepted != connectResult.Code)
-                    return false;
+				if (net::PeerConnectCode::Accepted != connectResult.Code)
+					return false;
 
-                *pCurrentNodeIdentity = connectResult.Identity;
-                if (bootServerState.NodeSubscriber.notifyIncomingNode(connectResult.Identity, bootServerState.ServiceId))
-                    return true;
+				*pCurrentNodeIdentity = connectResult.Identity;
+				if (bootServerState.NodeSubscriber.notifyIncomingNode(connectResult.Identity, bootServerState.ServiceId))
+					return true;
 
-                bootServerState.Acceptor.closeOne(connectResult.Identity);
-                return false;
-            });
-        });
+				bootServerState.Acceptor.closeOne(connectResult.Identity);
+				return false;
+			});
+		});
 
-        UpdateAsyncTcpServerSettings(serverSettings, config);
-        return serviceGroup.pushService(net::CreateAsyncTcpServer, endpoint, serverSettings);
-    }
+		UpdateAsyncTcpServerSettings(serverSettings, config);
+		return serviceGroup.pushService(net::CreateAsyncTcpServer, endpoint, serverSettings);
+	}
 
-    // endregion
+	// endregion
 }
 }

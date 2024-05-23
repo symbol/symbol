@@ -29,53 +29,50 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the mosaic restriction cache view.
-    using MosaicRestrictionCacheViewMixins = PatriciaTreeCacheMixins<MosaicRestrictionCacheTypes::PrimaryTypes::BaseSetType, MosaicRestrictionCacheDescriptor>;
+	/// Mixins used by the mosaic restriction cache view.
+	using MosaicRestrictionCacheViewMixins = PatriciaTreeCacheMixins<MosaicRestrictionCacheTypes::PrimaryTypes::BaseSetType, MosaicRestrictionCacheDescriptor>;
 
-    /// Basic view on top of the mosaic restriction cache.
-    class BasicMosaicRestrictionCacheView
-        : public utils::MoveOnly,
-          public MosaicRestrictionCacheViewMixins::Size,
-          public MosaicRestrictionCacheViewMixins::Contains,
-          public MosaicRestrictionCacheViewMixins::Iteration,
-          public MosaicRestrictionCacheViewMixins::ConstAccessor,
-          public MosaicRestrictionCacheViewMixins::PatriciaTreeView {
-    public:
-        using ReadOnlyView = MosaicRestrictionCacheTypes::CacheReadOnlyType;
+	/// Basic view on top of the mosaic restriction cache.
+	class BasicMosaicRestrictionCacheView
+		: public utils::MoveOnly,
+		  public MosaicRestrictionCacheViewMixins::Size,
+		  public MosaicRestrictionCacheViewMixins::Contains,
+		  public MosaicRestrictionCacheViewMixins::Iteration,
+		  public MosaicRestrictionCacheViewMixins::ConstAccessor,
+		  public MosaicRestrictionCacheViewMixins::PatriciaTreeView {
+	public:
+		using ReadOnlyView = MosaicRestrictionCacheTypes::CacheReadOnlyType;
 
-    public:
-        /// Creates a view around \a restrictionSets and \a networkIdentifier.
-        BasicMosaicRestrictionCacheView(
-            const MosaicRestrictionCacheTypes::BaseSets& restrictionSets,
-            model::NetworkIdentifier networkIdentifier)
-            : MosaicRestrictionCacheViewMixins::Size(restrictionSets.Primary)
-            , MosaicRestrictionCacheViewMixins::Contains(restrictionSets.Primary)
-            , MosaicRestrictionCacheViewMixins::Iteration(restrictionSets.Primary)
-            , MosaicRestrictionCacheViewMixins::ConstAccessor(restrictionSets.Primary)
-            , MosaicRestrictionCacheViewMixins::PatriciaTreeView(restrictionSets.PatriciaTree.get())
-            , m_networkIdentifier(networkIdentifier)
-        {
-        }
+	public:
+		/// Creates a view around \a restrictionSets and \a networkIdentifier.
+		BasicMosaicRestrictionCacheView(
+			const MosaicRestrictionCacheTypes::BaseSets& restrictionSets,
+			model::NetworkIdentifier networkIdentifier)
+			: MosaicRestrictionCacheViewMixins::Size(restrictionSets.Primary)
+			, MosaicRestrictionCacheViewMixins::Contains(restrictionSets.Primary)
+			, MosaicRestrictionCacheViewMixins::Iteration(restrictionSets.Primary)
+			, MosaicRestrictionCacheViewMixins::ConstAccessor(restrictionSets.Primary)
+			, MosaicRestrictionCacheViewMixins::PatriciaTreeView(restrictionSets.PatriciaTree.get())
+			, m_networkIdentifier(networkIdentifier) {
+		}
 
-    public:
-        /// Gets the network identifier.
-        model::NetworkIdentifier networkIdentifier() const
-        {
-            return m_networkIdentifier;
-        }
+	public:
+		/// Gets the network identifier.
+		model::NetworkIdentifier networkIdentifier() const {
+			return m_networkIdentifier;
+		}
 
-    private:
-        model::NetworkIdentifier m_networkIdentifier;
-    };
+	private:
+		model::NetworkIdentifier m_networkIdentifier;
+	};
 
-    /// View on top of the mosaic restriction cache.
-    class MosaicRestrictionCacheView : public ReadOnlyViewSupplier<BasicMosaicRestrictionCacheView> {
-    public:
-        /// Creates a view around \a restrictionSets and \a networkIdentifier.
-        MosaicRestrictionCacheView(const MosaicRestrictionCacheTypes::BaseSets& restrictionSets, model::NetworkIdentifier networkIdentifier)
-            : ReadOnlyViewSupplier(restrictionSets, networkIdentifier)
-        {
-        }
-    };
+	/// View on top of the mosaic restriction cache.
+	class MosaicRestrictionCacheView : public ReadOnlyViewSupplier<BasicMosaicRestrictionCacheView> {
+	public:
+		/// Creates a view around \a restrictionSets and \a networkIdentifier.
+		MosaicRestrictionCacheView(const MosaicRestrictionCacheTypes::BaseSets& restrictionSets, model::NetworkIdentifier networkIdentifier)
+			: ReadOnlyViewSupplier(restrictionSets, networkIdentifier) {
+		}
+	};
 }
 }

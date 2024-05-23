@@ -31,85 +31,85 @@
 namespace catapult {
 namespace test {
 
-    /// Single use builder used to build a single block or blockchain from transactions.
-    class BlockchainBuilder {
-    public:
-        using Blocks = std::vector<std::shared_ptr<model::Block>>;
-        using BlockReceiptsHashCalculator = std::function<Hash256(const model::Block&)>;
+	/// Single use builder used to build a single block or blockchain from transactions.
+	class BlockchainBuilder {
+	public:
+		using Blocks = std::vector<std::shared_ptr<model::Block>>;
+		using BlockReceiptsHashCalculator = std::function<Hash256(const model::Block&)>;
 
-    public:
-        /// Creates a builder around \a accounts and \a stateHashCalculator.
-        BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator);
+	public:
+		/// Creates a builder around \a accounts and \a stateHashCalculator.
+		BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator);
 
-        /// Creates a builder around \a accounts, \a stateHashCalculator and \a config.
-        BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator, const model::BlockchainConfiguration& config);
+		/// Creates a builder around \a accounts, \a stateHashCalculator and \a config.
+		BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator, const model::BlockchainConfiguration& config);
 
-        /// Creates a builder around \a accounts, \a stateHashCalculator, \a config and explicit \a resourcesPath.
-        BlockchainBuilder(
-            const Accounts& accounts,
-            StateHashCalculator& stateHashCalculator,
-            const model::BlockchainConfiguration& config,
-            const std::string& resourcesPath);
+		/// Creates a builder around \a accounts, \a stateHashCalculator, \a config and explicit \a resourcesPath.
+		BlockchainBuilder(
+			const Accounts& accounts,
+			StateHashCalculator& stateHashCalculator,
+			const model::BlockchainConfiguration& config,
+			const std::string& resourcesPath);
 
-    private:
-        BlockchainBuilder(
-            const Accounts& accounts,
-            StateHashCalculator& stateHashCalculator,
-            const model::BlockchainConfiguration& config,
-            const std::string& resourcesPath,
-            bool isChained);
+	private:
+		BlockchainBuilder(
+			const Accounts& accounts,
+			StateHashCalculator& stateHashCalculator,
+			const model::BlockchainConfiguration& config,
+			const std::string& resourcesPath,
+			bool isChained);
 
-    public:
-        /// Sets the time between blocks to \a blockTimeInterval.
-        void setBlockTimeInterval(utils::TimeSpan blockTimeInterval);
+	public:
+		/// Sets the time between blocks to \a blockTimeInterval.
+		void setBlockTimeInterval(utils::TimeSpan blockTimeInterval);
 
-        /// Sets a custom block receipts hash calculator (\a blockReceiptsHashCalculator).
-        void setBlockReceiptsHashCalculator(const BlockReceiptsHashCalculator& blockReceiptsHashCalculator);
+		/// Sets a custom block receipts hash calculator (\a blockReceiptsHashCalculator).
+		void setBlockReceiptsHashCalculator(const BlockReceiptsHashCalculator& blockReceiptsHashCalculator);
 
-        /// Creates a new builder starting at this builder's terminal block.
-        BlockchainBuilder createChainedBuilder();
+		/// Creates a new builder starting at this builder's terminal block.
+		BlockchainBuilder createChainedBuilder();
 
-        /// Creates a new builder starting at this builder's terminal block with a different
-        /// state hash calculator (\a stateHashCalculator).
-        BlockchainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator) const;
+		/// Creates a new builder starting at this builder's terminal block with a different
+		/// state hash calculator (\a stateHashCalculator).
+		BlockchainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator) const;
 
-        /// Creates a new builder with a different state hash calculator (\a stateHashCalculator) starting at the supplied \a block.
-        BlockchainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const;
+		/// Creates a new builder with a different state hash calculator (\a stateHashCalculator) starting at the supplied \a block.
+		BlockchainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const;
 
-    public:
-        /// Builds a single block with transactions from \a transactionsGenerator.
-        std::unique_ptr<model::Block> asSingleBlock(const TransactionsGenerator& transactionsGenerator);
+	public:
+		/// Builds a single block with transactions from \a transactionsGenerator.
+		std::unique_ptr<model::Block> asSingleBlock(const TransactionsGenerator& transactionsGenerator);
 
-        /// Builds a blockchain with transactions from \a transactionsGenerator.
-        Blocks asBlockchain(const TransactionsGenerator& transactionsGenerator);
+		/// Builds a blockchain with transactions from \a transactionsGenerator.
+		Blocks asBlockchain(const TransactionsGenerator& transactionsGenerator);
 
-    private:
-        void pushDifficulty(const model::Block& block);
+	private:
+		void pushDifficulty(const model::Block& block);
 
-        std::unique_ptr<model::Block> createBlock(
-            const model::PreviousBlockContext& context,
-            Timestamp timestamp,
-            const model::Transactions& transactions);
+		std::unique_ptr<model::Block> createBlock(
+			const model::PreviousBlockContext& context,
+			Timestamp timestamp,
+			const model::Transactions& transactions);
 
-        crypto::KeyPair findBlockSigner(const model::PreviousBlockContext& context, Timestamp timestamp, Difficulty difficulty);
+		crypto::KeyPair findBlockSigner(const model::PreviousBlockContext& context, Timestamp timestamp, Difficulty difficulty);
 
-    private:
-        static std::shared_ptr<const model::BlockElement> ToSharedBlockElement(const model::Block& block);
+	private:
+		static std::shared_ptr<const model::BlockElement> ToSharedBlockElement(const model::Block& block);
 
-    private:
-        // pointers instead of references to allow copy
-        const Accounts* m_pAccounts;
-        StateHashCalculator* m_pStateHashCalculator;
+	private:
+		// pointers instead of references to allow copy
+		const Accounts* m_pAccounts;
+		StateHashCalculator* m_pStateHashCalculator;
 
-        std::shared_ptr<const model::BlockElement> m_pParentBlockElement;
-        std::shared_ptr<const model::BlockElement> m_pTailBlockElement;
-        std::shared_ptr<const model::Block> m_pNemesisBlock; // only used to extend block lifetime
-        std::set<state::BlockStatistic> m_statistics;
-        Hash256 m_previousImportanceBlockHash;
+		std::shared_ptr<const model::BlockElement> m_pParentBlockElement;
+		std::shared_ptr<const model::BlockElement> m_pTailBlockElement;
+		std::shared_ptr<const model::Block> m_pNemesisBlock; // only used to extend block lifetime
+		std::set<state::BlockStatistic> m_statistics;
+		Hash256 m_previousImportanceBlockHash;
 
-        utils::TimeSpan m_blockTimeInterval;
-        BlockReceiptsHashCalculator m_blockReceiptsHashCalculator;
-        model::BlockchainConfiguration m_config;
-    };
+		utils::TimeSpan m_blockTimeInterval;
+		BlockReceiptsHashCalculator m_blockReceiptsHashCalculator;
+		model::BlockchainConfiguration m_config;
+	};
 }
 }

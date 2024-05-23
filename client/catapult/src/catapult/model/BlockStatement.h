@@ -27,31 +27,31 @@
 namespace catapult {
 namespace model {
 
-    /// Collection of statements scoped to a block.
-    struct BlockStatement {
-        /// Transaction statements.
-        std::map<ReceiptSource, TransactionStatement> TransactionStatements;
+	/// Collection of statements scoped to a block.
+	struct BlockStatement {
+		/// Transaction statements.
+		std::map<ReceiptSource, TransactionStatement> TransactionStatements;
 
-        /// Address resolution statements.
-        std::map<UnresolvedAddress, AddressResolutionStatement> AddressResolutionStatements;
+		/// Address resolution statements.
+		std::map<UnresolvedAddress, AddressResolutionStatement> AddressResolutionStatements;
 
-        /// Mosaic resolution statements.
-        std::map<UnresolvedMosaicId, MosaicResolutionStatement> MosaicResolutionStatements;
-    };
+		/// Mosaic resolution statements.
+		std::map<UnresolvedMosaicId, MosaicResolutionStatement> MosaicResolutionStatements;
+	};
 
-    /// Calculates the merkle hash for \a statement.
-    Hash256 CalculateMerkleHash(const BlockStatement& statement);
+	/// Calculates the merkle hash for \a statement.
+	Hash256 CalculateMerkleHash(const BlockStatement& statement);
 
-    /// Calculates the merkle tree for \a statement.
-    std::vector<Hash256> CalculateMerkleTree(const BlockStatement& statement);
+	/// Calculates the merkle tree for \a statement.
+	std::vector<Hash256> CalculateMerkleTree(const BlockStatement& statement);
 
-    /// Counts the total number of statements in \a statement.
-    size_t CountTotalStatements(const BlockStatement& statement);
+	/// Counts the total number of statements in \a statement.
+	size_t CountTotalStatements(const BlockStatement& statement);
 
-    /// Creates a deep copy of \a source into \a destination.
-    void DeepCopyTo(BlockStatement& destination, const BlockStatement& source);
+	/// Creates a deep copy of \a source into \a destination.
+	void DeepCopyTo(BlockStatement& destination, const BlockStatement& source);
 
-    /// Creates a deep copy of \a source into \a destination excluding receipts with primary source id greater than \a maxSourcePrimaryId.
-    void DeepCopyTo(BlockStatement& destination, const BlockStatement& source, uint32_t maxSourcePrimaryId);
+	/// Creates a deep copy of \a source into \a destination excluding receipts with primary source id greater than \a maxSourcePrimaryId.
+	void DeepCopyTo(BlockStatement& destination, const BlockStatement& source, uint32_t maxSourcePrimaryId);
 }
 }

@@ -29,44 +29,40 @@
 namespace catapult {
 namespace test {
 
-    /// Converts an arbitrary pointer (\a pVoid) to a const void pointer.
-    template <typename T>
-    const void* AsVoidPointer(T* pVoid)
-    {
-        return reinterpret_cast<const void*>(const_cast<const T*>(pVoid));
-    }
+	/// Converts an arbitrary pointer (\a pVoid) to a const void pointer.
+	template <typename T>
+	const void* AsVoidPointer(T* pVoid) {
+		return reinterpret_cast<const void*>(const_cast<const T*>(pVoid));
+	}
 
-    /// Converts an arbitrary pointer (\a pData) to a const byte pointer.
-    template <typename T>
-    const uint8_t* AsBytePointer(const T* pData)
-    {
-        return reinterpret_cast<const uint8_t*>(pData);
-    }
+	/// Converts an arbitrary pointer (\a pData) to a const byte pointer.
+	template <typename T>
+	const uint8_t* AsBytePointer(const T* pData) {
+		return reinterpret_cast<const uint8_t*>(pData);
+	}
 
-    /// Converts a binary buffer \a data to a hex string.
-    std::string ToHexString(const std::vector<uint8_t>& data);
+	/// Converts a binary buffer \a data to a hex string.
+	std::string ToHexString(const std::vector<uint8_t>& data);
 
-    /// Converts a hex string (\a hexString) to a vector.
-    std::vector<uint8_t> HexStringToVector(const std::string& hexString);
+	/// Converts a hex string (\a hexString) to a vector.
+	std::vector<uint8_t> HexStringToVector(const std::string& hexString);
 
-    /// Converts \a value to a string and returns the result.
-    template <typename T>
-    std::string ToString(const T& value)
-    {
-        std::stringstream out;
-        out << value;
-        return out.str();
-    }
+	/// Converts \a value to a string and returns the result.
+	template <typename T>
+	std::string ToString(const T& value) {
+		std::stringstream out;
+		out << value;
+		return out.str();
+	}
 
-    /// Converts an unordered set of \a pointers to values.
-    template <typename T>
-    auto PointersToValues(const std::unordered_set<T*>& pointers)
-    {
-        std::unordered_set<std::remove_cv_t<T>> values;
-        for (const auto* pValue : pointers)
-            values.insert(*pValue);
+	/// Converts an unordered set of \a pointers to values.
+	template <typename T>
+	auto PointersToValues(const std::unordered_set<T*>& pointers) {
+		std::unordered_set<std::remove_cv_t<T>> values;
+		for (const auto* pValue : pointers)
+			values.insert(*pValue);
 
-        return values;
-    }
+		return values;
+	}
 }
 }

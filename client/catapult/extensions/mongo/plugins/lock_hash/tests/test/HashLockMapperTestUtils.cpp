@@ -30,12 +30,11 @@ using namespace catapult::mongo::mappers;
 namespace catapult {
 namespace test {
 
-    void AssertEqualLockInfoData(const state::HashLockInfo& lockInfo, const bsoncxx::document::view& dbLockInfo)
-    {
-        EXPECT_EQ(6u + 1, GetFieldCount(dbLockInfo));
-        AssertEqualBaseLockInfoData(lockInfo, dbLockInfo);
+	void AssertEqualLockInfoData(const state::HashLockInfo& lockInfo, const bsoncxx::document::view& dbLockInfo) {
+		EXPECT_EQ(6u + 1, GetFieldCount(dbLockInfo));
+		AssertEqualBaseLockInfoData(lockInfo, dbLockInfo);
 
-        EXPECT_EQ(lockInfo.Hash, GetHashValue(dbLockInfo, "hash"));
-    }
+		EXPECT_EQ(lockInfo.Hash, GetHashValue(dbLockInfo, "hash"));
+	}
 }
 }

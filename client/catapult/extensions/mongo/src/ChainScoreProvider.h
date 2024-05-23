@@ -27,23 +27,22 @@
 
 namespace catapult {
 namespace model {
-    class ChainScore;
+	class ChainScore;
 }
 }
 
 namespace catapult {
 namespace mongo {
 
-    /// Interface for saving api chain score.
-    class ChainScoreProvider {
-    public:
-        virtual ~ChainScoreProvider()
-        {
-        }
+	/// Interface for saving api chain score.
+	class ChainScoreProvider {
+	public:
+		virtual ~ChainScoreProvider() {
+		}
 
-    public:
-        /// Save score (\a chainScore).
-        virtual void saveScore(const model::ChainScore& chainScore) = 0;
-    };
+	public:
+		/// Save score (\a chainScore).
+		virtual void saveScore(const model::ChainScore& chainScore) = 0;
+	};
 }
 }

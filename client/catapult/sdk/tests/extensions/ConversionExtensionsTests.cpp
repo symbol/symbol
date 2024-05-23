@@ -27,52 +27,48 @@ namespace extensions {
 
 #define TEST_CLASS ConversionExtensionTests
 
-    TEST(TEST_CLASS, CanCastMosaicIdToUnresolvedMosaicId)
-    {
-        // Arrange:
-        auto mosaicId = MosaicId(248);
+	TEST(TEST_CLASS, CanCastMosaicIdToUnresolvedMosaicId) {
+		// Arrange:
+		auto mosaicId = MosaicId(248);
 
-        // Act:
-        auto unresolvedMosaicId = CastToUnresolvedMosaicId(mosaicId);
+		// Act:
+		auto unresolvedMosaicId = CastToUnresolvedMosaicId(mosaicId);
 
-        // Assert:
-        EXPECT_EQ(UnresolvedMosaicId(248), unresolvedMosaicId);
-    }
+		// Assert:
+		EXPECT_EQ(UnresolvedMosaicId(248), unresolvedMosaicId);
+	}
 
-    TEST(TEST_CLASS, CanCastUnresolvedMosaicIdToMosaicId)
-    {
-        // Arrange:
-        auto unresolvedMosaicId = UnresolvedMosaicId(248);
+	TEST(TEST_CLASS, CanCastUnresolvedMosaicIdToMosaicId) {
+		// Arrange:
+		auto unresolvedMosaicId = UnresolvedMosaicId(248);
 
-        // Act:
-        auto mosaicId = CastToMosaicId(unresolvedMosaicId);
+		// Act:
+		auto mosaicId = CastToMosaicId(unresolvedMosaicId);
 
-        // Assert:
-        EXPECT_EQ(MosaicId(248), mosaicId);
-    }
+		// Assert:
+		EXPECT_EQ(MosaicId(248), mosaicId);
+	}
 
-    TEST(TEST_CLASS, CanCopyAddressToUnresolvedAddress)
-    {
-        // Arrange:
-        auto address = test::GenerateRandomByteArray<Address>();
+	TEST(TEST_CLASS, CanCopyAddressToUnresolvedAddress) {
+		// Arrange:
+		auto address = test::GenerateRandomByteArray<Address>();
 
-        // Act:
-        auto unresolvedAddress = CopyToUnresolvedAddress(address);
+		// Act:
+		auto unresolvedAddress = CopyToUnresolvedAddress(address);
 
-        // Assert:
-        EXPECT_EQ_MEMORY(address.data(), unresolvedAddress.data(), address.size());
-    }
+		// Assert:
+		EXPECT_EQ_MEMORY(address.data(), unresolvedAddress.data(), address.size());
+	}
 
-    TEST(TEST_CLASS, CanCopyUnresolvedAddressToAddress)
-    {
-        // Arrange:
-        auto unresolvedAddress = CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>());
+	TEST(TEST_CLASS, CanCopyUnresolvedAddressToAddress) {
+		// Arrange:
+		auto unresolvedAddress = CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>());
 
-        // Act:
-        auto address = CopyToAddress(unresolvedAddress);
+		// Act:
+		auto address = CopyToAddress(unresolvedAddress);
 
-        // Assert:
-        EXPECT_EQ_MEMORY(unresolvedAddress.data(), address.data(), unresolvedAddress.size());
-    }
+		// Assert:
+		EXPECT_EQ_MEMORY(unresolvedAddress.data(), address.data(), unresolvedAddress.size());
+	}
 }
 }

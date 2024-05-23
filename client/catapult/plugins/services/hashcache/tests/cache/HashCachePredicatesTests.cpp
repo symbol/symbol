@@ -29,49 +29,46 @@ namespace cache {
 
 #define TEST_CLASS HashCachePredicatesTests
 
-    namespace {
-        Hash256 PopulateHashCache(CatapultCache& cache)
-        {
-            auto delta = cache.createDelta();
-            auto& hashCacheDelta = delta.sub<HashCache>();
+	namespace {
+		Hash256 PopulateHashCache(CatapultCache& cache) {
+			auto delta = cache.createDelta();
+			auto& hashCacheDelta = delta.sub<HashCache>();
 
-            for (auto i = 0u; i < 5; ++i)
-                hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
+			for (auto i = 0u; i < 5; ++i)
+				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 
-            auto hash = test::GenerateRandomByteArray<Hash256>();
-            hashCacheDelta.insert(state::TimestampedHash(Timestamp(5), hash));
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+			hashCacheDelta.insert(state::TimestampedHash(Timestamp(5), hash));
 
-            for (auto i = 6u; i < 10; ++i)
-                hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
+			for (auto i = 6u; i < 10; ++i)
+				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 
-            cache.commit(Height());
-            return hash;
-        }
-    }
+			cache.commit(Height());
+			return hash;
+		}
+	}
 
-    // region HashCacheContains
+	// region HashCacheContains
 
-    TEST(TEST_CLASS, HashCacheContains_ReturnsTrueWhenElementIsContainedInHashCache)
-    {
-        // Arrange:
-        auto cache = test::HashCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-        auto hash = PopulateHashCache(cache);
+	TEST(TEST_CLASS, HashCacheContains_ReturnsTrueWhenElementIsContainedInHashCache) {
+		// Arrange:
+		auto cache = test::HashCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+		auto hash = PopulateHashCache(cache);
 
-        // Act + Assert:
-        EXPECT_TRUE(HashCacheContains(cache, Timestamp(5), hash));
-    }
+		// Act + Assert:
+		EXPECT_TRUE(HashCacheContains(cache, Timestamp(5), hash));
+	}
 
-    TEST(TEST_CLASS, HashCacheContains_ReturnsFalseWhenElementIsNotContainedInHashCache)
-    {
-        // Arrange:
-        auto cache = test::HashCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-        auto hash = PopulateHashCache(cache);
+	TEST(TEST_CLASS, HashCacheContains_ReturnsFalseWhenElementIsNotContainedInHashCache) {
+		// Arrange:
+		auto cache = test::HashCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+		auto hash = PopulateHashCache(cache);
 
-        // Act + Assert:
-        EXPECT_FALSE(HashCacheContains(cache, Timestamp(6), hash));
-        EXPECT_FALSE(HashCacheContains(cache, Timestamp(5), test::GenerateRandomByteArray<Hash256>()));
-    }
+		// Act + Assert:
+		EXPECT_FALSE(HashCacheContains(cache, Timestamp(6), hash));
+		EXPECT_FALSE(HashCacheContains(cache, Timestamp(5), test::GenerateRandomByteArray<Hash256>()));
+	}
 
-    // endregion
+	// endregion
 }
 }

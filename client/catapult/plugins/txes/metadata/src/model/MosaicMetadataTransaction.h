@@ -30,26 +30,25 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Metadata transaction header with mosaic id target.
-    template <typename THeader>
-    struct MosaicMetadataTransactionHeader : public MetadataTransactionHeader<THeader> {
-        /// Target mosaic identifier.
-        UnresolvedMosaicId TargetMosaicId;
-    };
+	/// Metadata transaction header with mosaic id target.
+	template <typename THeader>
+	struct MosaicMetadataTransactionHeader : public MetadataTransactionHeader<THeader> {
+		/// Target mosaic identifier.
+		UnresolvedMosaicId TargetMosaicId;
+	};
 
-    /// Binary layout for a mosaic metadata transaction body.
-    template <typename THeader>
-    struct MosaicMetadataTransactionBody
-        : public BasicMetadataTransactionBody<MosaicMetadataTransactionHeader<THeader>, Entity_Type_Mosaic_Metadata> { };
+	/// Binary layout for a mosaic metadata transaction body.
+	template <typename THeader>
+	struct MosaicMetadataTransactionBody
+		: public BasicMetadataTransactionBody<MosaicMetadataTransactionHeader<THeader>, Entity_Type_Mosaic_Metadata> { };
 
-    DEFINE_EMBEDDABLE_TRANSACTION(MosaicMetadata)
+	DEFINE_EMBEDDABLE_TRANSACTION(MosaicMetadata)
 
 #pragma pack(pop)
 
-    /// Extracts addresses of additional accounts that must approve \a transaction.
-    inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMosaicMetadataTransaction& transaction)
-    {
-        return { transaction.TargetAddress };
-    }
+	/// Extracts addresses of additional accounts that must approve \a transaction.
+	inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMosaicMetadataTransaction& transaction) {
+		return { transaction.TargetAddress };
+	}
 }
 }

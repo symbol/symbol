@@ -28,49 +28,45 @@ namespace ionet {
 
 #define TEST_CLASS NodeSetTests
 
-    namespace {
-        NodeMetadata CreateMetadata(model::NetworkIdentifier networkIdentifier)
-        {
-            return NodeMetadata(model::UniqueNetworkFingerprint(networkIdentifier));
-        }
+	namespace {
+		NodeMetadata CreateMetadata(model::NetworkIdentifier networkIdentifier) {
+			return NodeMetadata(model::UniqueNetworkFingerprint(networkIdentifier));
+		}
 
-        std::unordered_map<std::string, Node> GenerateEqualityInstanceMap()
-        {
-            auto key1 = test::GenerateRandomByteArray<Key>();
-            auto key2 = test::GenerateRandomByteArray<Key>();
-            return {
-                { "default", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
-                { "copy", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
-                { "diff-key", { { key2, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
-                { "diff-host", { { key1, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
-                { "diff-key-host", { { key2, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
-                { "diff-endpoint", { { key1, "11.22.33.44" }, { "alice.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
-                { "diff-metadata", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mainnet) } }
-            };
-        }
-    }
+		std::unordered_map<std::string, Node> GenerateEqualityInstanceMap() {
+			auto key1 = test::GenerateRandomByteArray<Key>();
+			auto key2 = test::GenerateRandomByteArray<Key>();
+			return {
+				{ "default", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "copy", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-key", { { key2, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-host", { { key1, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-key-host", { { key2, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-endpoint", { { key1, "11.22.33.44" }, { "alice.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-metadata", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mainnet) } }
+			};
+		}
+	}
 
-    TEST(TEST_CLASS, NodeEquality_OperatorEqualReturnsTrueForEqualObjects)
-    {
-        std::unordered_set<std::string> equalityTags { "default", "copy", "diff-endpoint", "diff-metadata" };
-        test::AssertEqualReturnsTrueForEqualObjects<Node>(
-            "default",
-            GenerateEqualityInstanceMap(),
-            equalityTags,
-            [](const auto& lhs, const auto& rhs) { return NodeEquality()(lhs, rhs); });
-    }
+	TEST(TEST_CLASS, NodeEquality_OperatorEqualReturnsTrueForEqualObjects) {
+		std::unordered_set<std::string> equalityTags { "default", "copy", "diff-endpoint", "diff-metadata" };
+		test::AssertEqualReturnsTrueForEqualObjects<Node>(
+			"default",
+			GenerateEqualityInstanceMap(),
+			equalityTags,
+			[](const auto& lhs, const auto& rhs) { return NodeEquality()(lhs, rhs); });
+	}
 
-    TEST(TEST_CLASS, NodeHasher_OperatorEqualReturnsTrueForEqualObjects)
-    {
-        std::unordered_set<std::string> equalityTags { "default", "copy", "diff-endpoint", "diff-metadata" };
-        test::AssertEqualReturnsTrueForEqualObjects<Node>(
-            "default",
-            GenerateEqualityInstanceMap(),
-            equalityTags,
-            [](const auto& lhs, const auto& rhs) {
-                auto hasher = NodeHasher();
-                return hasher(lhs) == hasher(rhs);
-            });
-    }
+	TEST(TEST_CLASS, NodeHasher_OperatorEqualReturnsTrueForEqualObjects) {
+		std::unordered_set<std::string> equalityTags { "default", "copy", "diff-endpoint", "diff-metadata" };
+		test::AssertEqualReturnsTrueForEqualObjects<Node>(
+			"default",
+			GenerateEqualityInstanceMap(),
+			equalityTags,
+			[](const auto& lhs, const auto& rhs) {
+				auto hasher = NodeHasher();
+				return hasher(lhs) == hasher(rhs);
+			});
+	}
 }
 }

@@ -25,14 +25,13 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::EntityNotification;
+	using Notification = model::EntityNotification;
 
-    DECLARE_STATELESS_VALIDATOR(Network, Notification)
-    (model::NetworkIdentifier networkIdentifier)
-    {
-        return MAKE_STATELESS_VALIDATOR(Network, [networkIdentifier](const Notification& notification) {
-            return networkIdentifier == notification.NetworkIdentifier ? ValidationResult::Success : Failure_Core_Wrong_Network;
-        });
-    }
+	DECLARE_STATELESS_VALIDATOR(Network, Notification)
+	(model::NetworkIdentifier networkIdentifier) {
+		return MAKE_STATELESS_VALIDATOR(Network, [networkIdentifier](const Notification& notification) {
+			return networkIdentifier == notification.NetworkIdentifier ? ValidationResult::Success : Failure_Core_Wrong_Network;
+		});
+	}
 }
 }

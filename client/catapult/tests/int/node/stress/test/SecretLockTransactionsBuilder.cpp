@@ -30,109 +30,102 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
-    }
+	namespace {
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
+	}
 
-    // region ctor
+	// region ctor
 
-    SecretLockTransactionsBuilder::SecretLockTransactionsBuilder(const Accounts& accounts)
-        : BasicTransactionsBuilder(accounts)
-    {
-    }
+	SecretLockTransactionsBuilder::SecretLockTransactionsBuilder(const Accounts& accounts)
+		: BasicTransactionsBuilder(accounts) {
+	}
 
-    // endregion
+	// endregion
 
-    // region generate
+	// region generate
 
-    std::unique_ptr<model::Transaction> SecretLockTransactionsBuilder::generate(
-        uint32_t descriptorType,
-        const std::shared_ptr<const void>& pDescriptor,
-        Timestamp deadline) const
-    {
-        switch (static_cast<DescriptorType>(descriptorType)) {
-        case DescriptorType::Secret_Lock:
-            return createSecretLock(CastToDescriptor<SecretLockDescriptor>(pDescriptor), deadline);
+	std::unique_ptr<model::Transaction> SecretLockTransactionsBuilder::generate(
+		uint32_t descriptorType,
+		const std::shared_ptr<const void>& pDescriptor,
+		Timestamp deadline) const {
+		switch (static_cast<DescriptorType>(descriptorType)) {
+		case DescriptorType::Secret_Lock:
+			return createSecretLock(CastToDescriptor<SecretLockDescriptor>(pDescriptor), deadline);
 
-        case DescriptorType::Secret_Proof:
-            return createSecretProof(CastToDescriptor<SecretProofDescriptor>(pDescriptor), deadline);
-        }
+		case DescriptorType::Secret_Proof:
+			return createSecretProof(CastToDescriptor<SecretProofDescriptor>(pDescriptor), deadline);
+		}
 
-        return nullptr;
-    }
+		return nullptr;
+	}
 
-    // endregion
+	// endregion
 
-    // region add / create
+	// region add / create
 
-    std::vector<uint8_t> SecretLockTransactionsBuilder::addSecretLock(
-        size_t senderId,
-        size_t recipientId,
-        Amount transferAmount,
-        BlockDuration duration,
-        const std::vector<uint8_t>& proof)
-    {
-        Hash256 secret;
-        crypto::Sha3_256(proof, secret);
+	std::vector<uint8_t> SecretLockTransactionsBuilder::addSecretLock(
+		size_t senderId,
+		size_t recipientId,
+		Amount transferAmount,
+		BlockDuration duration,
+		const std::vector<uint8_t>& proof) {
+		Hash256 secret;
+		crypto::Sha3_256(proof, secret);
 
-        auto descriptor = SecretLockDescriptor { senderId, recipientId, transferAmount, duration, secret };
-        add(DescriptorType::Secret_Lock, descriptor);
-        return proof;
-    }
+		auto descriptor = SecretLockDescriptor { senderId, recipientId, transferAmount, duration, secret };
+		add(DescriptorType::Secret_Lock, descriptor);
+		return proof;
+	}
 
-    std::vector<uint8_t> SecretLockTransactionsBuilder::addSecretLock(
-        size_t senderId,
-        size_t recipientId,
-        Amount transferAmount,
-        BlockDuration duration)
-    {
-        return addSecretLock(senderId, recipientId, transferAmount, duration, test::GenerateRandomVector(25));
-    }
+	std::vector<uint8_t> SecretLockTransactionsBuilder::addSecretLock(
+		size_t senderId,
+		size_t recipientId,
+		Amount transferAmount,
+		BlockDuration duration) {
+		return addSecretLock(senderId, recipientId, transferAmount, duration, test::GenerateRandomVector(25));
+	}
 
-    void SecretLockTransactionsBuilder::addSecretProof(size_t senderId, size_t recipientId, const std::vector<uint8_t>& proof)
-    {
-        auto descriptor = SecretProofDescriptor { senderId, recipientId, proof };
-        add(DescriptorType::Secret_Proof, descriptor);
-    }
+	void SecretLockTransactionsBuilder::addSecretProof(size_t senderId, size_t recipientId, const std::vector<uint8_t>& proof) {
+		auto descriptor = SecretProofDescriptor { senderId, recipientId, proof };
+		add(DescriptorType::Secret_Proof, descriptor);
+	}
 
-    std::unique_ptr<model::Transaction> SecretLockTransactionsBuilder::createSecretLock(
-        const SecretLockDescriptor& descriptor,
-        Timestamp deadline) const
-    {
-        const auto& senderKeyPair = accounts().getKeyPair(descriptor.SenderId);
-        auto recipientAddress = extensions::CopyToUnresolvedAddress(accounts().getAddress(descriptor.RecipientId));
+	std::unique_ptr<model::Transaction> SecretLockTransactionsBuilder::createSecretLock(
+		const SecretLockDescriptor& descriptor,
+		Timestamp deadline) const {
+		const auto& senderKeyPair = accounts().getKeyPair(descriptor.SenderId);
+		auto recipientAddress = extensions::CopyToUnresolvedAddress(accounts().getAddress(descriptor.RecipientId));
 
-        builders::SecretLockBuilder builder(Network_Identifier, senderKeyPair.publicKey());
-        builder.setMosaic({ extensions::CastToUnresolvedMosaicId(Default_Currency_Mosaic_Id), descriptor.Amount });
-        builder.setDuration(descriptor.Duration);
-        builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256);
-        builder.setSecret(descriptor.Secret);
-        builder.setRecipientAddress(recipientAddress);
-        auto pTransaction = builder.build();
+		builders::SecretLockBuilder builder(Network_Identifier, senderKeyPair.publicKey());
+		builder.setMosaic({ extensions::CastToUnresolvedMosaicId(Default_Currency_Mosaic_Id), descriptor.Amount });
+		builder.setDuration(descriptor.Duration);
+		builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256);
+		builder.setSecret(descriptor.Secret);
+		builder.setRecipientAddress(recipientAddress);
+		auto pTransaction = builder.build();
 
-        return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
-    }
+		return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
+	}
 
-    std::unique_ptr<model::Transaction> SecretLockTransactionsBuilder::createSecretProof(
-        const SecretProofDescriptor& descriptor,
-        Timestamp deadline) const
-    {
-        const auto& senderKeyPair = accounts().getKeyPair(descriptor.SenderId);
-        auto recipientAddress = extensions::CopyToUnresolvedAddress(accounts().getAddress(descriptor.RecipientId));
+	std::unique_ptr<model::Transaction> SecretLockTransactionsBuilder::createSecretProof(
+		const SecretProofDescriptor& descriptor,
+		Timestamp deadline) const {
+		const auto& senderKeyPair = accounts().getKeyPair(descriptor.SenderId);
+		auto recipientAddress = extensions::CopyToUnresolvedAddress(accounts().getAddress(descriptor.RecipientId));
 
-        Hash256 secret;
-        crypto::Sha3_256(descriptor.Proof, secret);
+		Hash256 secret;
+		crypto::Sha3_256(descriptor.Proof, secret);
 
-        builders::SecretProofBuilder builder(Network_Identifier, senderKeyPair.publicKey());
-        builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256);
-        builder.setSecret(secret);
-        builder.setRecipientAddress(recipientAddress);
-        builder.setProof(descriptor.Proof);
-        auto pTransaction = builder.build();
+		builders::SecretProofBuilder builder(Network_Identifier, senderKeyPair.publicKey());
+		builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256);
+		builder.setSecret(secret);
+		builder.setRecipientAddress(recipientAddress);
+		builder.setProof(descriptor.Proof);
+		auto pTransaction = builder.build();
 
-        return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
-    }
+		return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
+	}
 
-    // endregion
+	// endregion
 }
 }

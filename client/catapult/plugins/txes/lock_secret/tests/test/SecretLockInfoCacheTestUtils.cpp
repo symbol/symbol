@@ -25,37 +25,33 @@
 namespace catapult {
 namespace test {
 
-    BasicSecretLockInfoTestTraits::ValueType BasicSecretLockInfoTestTraits::CreateLockInfo(Height height)
-    {
-        state::SecretLockInfo lockInfo(
-            GenerateRandomByteArray<Address>(),
-            MosaicId(Random()),
-            Amount(Random()),
-            height,
-            static_cast<model::LockHashAlgorithm>(RandomByte()),
-            GenerateRandomByteArray<Hash256>(),
-            GenerateRandomByteArray<Address>());
-        lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
-        return lockInfo;
-    }
+	BasicSecretLockInfoTestTraits::ValueType BasicSecretLockInfoTestTraits::CreateLockInfo(Height height) {
+		state::SecretLockInfo lockInfo(
+			GenerateRandomByteArray<Address>(),
+			MosaicId(Random()),
+			Amount(Random()),
+			height,
+			static_cast<model::LockHashAlgorithm>(RandomByte()),
+			GenerateRandomByteArray<Hash256>(),
+			GenerateRandomByteArray<Address>());
+		lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
+		return lockInfo;
+	}
 
-    BasicSecretLockInfoTestTraits::ValueType BasicSecretLockInfoTestTraits::CreateLockInfo()
-    {
-        return CreateLockInfo(test::GenerateRandomValue<Height>());
-    }
+	BasicSecretLockInfoTestTraits::ValueType BasicSecretLockInfoTestTraits::CreateLockInfo() {
+		return CreateLockInfo(test::GenerateRandomValue<Height>());
+	}
 
-    void BasicSecretLockInfoTestTraits::SetKey(ValueType& lockInfo, const KeyType& key)
-    {
-        lockInfo.CompositeHash = key;
-    }
+	void BasicSecretLockInfoTestTraits::SetKey(ValueType& lockInfo, const KeyType& key) {
+		lockInfo.CompositeHash = key;
+	}
 
-    void BasicSecretLockInfoTestTraits::AssertEqual(const ValueType& lhs, const ValueType& rhs)
-    {
-        test::AssertEqualLockInfo(lhs, rhs);
-        EXPECT_EQ(lhs.HashAlgorithm, rhs.HashAlgorithm);
-        EXPECT_EQ(lhs.Secret, rhs.Secret);
-        EXPECT_EQ(lhs.RecipientAddress, rhs.RecipientAddress);
-        EXPECT_EQ(lhs.CompositeHash, rhs.CompositeHash);
-    }
+	void BasicSecretLockInfoTestTraits::AssertEqual(const ValueType& lhs, const ValueType& rhs) {
+		test::AssertEqualLockInfo(lhs, rhs);
+		EXPECT_EQ(lhs.HashAlgorithm, rhs.HashAlgorithm);
+		EXPECT_EQ(lhs.Secret, rhs.Secret);
+		EXPECT_EQ(lhs.RecipientAddress, rhs.RecipientAddress);
+		EXPECT_EQ(lhs.CompositeHash, rhs.CompositeHash);
+	}
 }
 }

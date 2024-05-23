@@ -26,41 +26,37 @@
 namespace catapult {
 namespace config {
 
-    namespace {
-        struct MultisigConfigurationTraits {
-            using ConfigurationType = MultisigConfiguration;
+	namespace {
+		struct MultisigConfigurationTraits {
+			using ConfigurationType = MultisigConfiguration;
 
-            static utils::ConfigurationBag::ValuesContainer CreateProperties()
-            {
-                return {
-                    { "",
-                        { { "maxMultisigDepth", "159" }, { "maxCosignatoriesPerAccount", "23" }, { "maxCosignedAccountsPerAccount", "77" } } }
-                };
-            }
+			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
+				return {
+					{ "",
+						{ { "maxMultisigDepth", "159" }, { "maxCosignatoriesPerAccount", "23" }, { "maxCosignedAccountsPerAccount", "77" } } }
+				};
+			}
 
-            static bool IsSectionOptional(const std::string&)
-            {
-                return false;
-            }
+			static bool IsSectionOptional(const std::string&) {
+				return false;
+			}
 
-            static void AssertZero(const MultisigConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(0u, config.MaxMultisigDepth);
-                EXPECT_EQ(0u, config.MaxCosignatoriesPerAccount);
-                EXPECT_EQ(0u, config.MaxCosignedAccountsPerAccount);
-            }
+			static void AssertZero(const MultisigConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(0u, config.MaxMultisigDepth);
+				EXPECT_EQ(0u, config.MaxCosignatoriesPerAccount);
+				EXPECT_EQ(0u, config.MaxCosignedAccountsPerAccount);
+			}
 
-            static void AssertCustom(const MultisigConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(159u, config.MaxMultisigDepth);
-                EXPECT_EQ(23u, config.MaxCosignatoriesPerAccount);
-                EXPECT_EQ(77u, config.MaxCosignedAccountsPerAccount);
-            }
-        };
-    }
+			static void AssertCustom(const MultisigConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(159u, config.MaxMultisigDepth);
+				EXPECT_EQ(23u, config.MaxCosignatoriesPerAccount);
+				EXPECT_EQ(77u, config.MaxCosignedAccountsPerAccount);
+			}
+		};
+	}
 
-    DEFINE_CONFIGURATION_TESTS(MultisigConfigurationTests, Multisig)
+	DEFINE_CONFIGURATION_TESTS(MultisigConfigurationTests, Multisig)
 }
 }

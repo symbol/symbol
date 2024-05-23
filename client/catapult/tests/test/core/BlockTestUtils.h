@@ -30,83 +30,83 @@
 namespace catapult {
 namespace test {
 
-    /// Hash string of the deterministic block.
-    constexpr auto Deterministic_Block_Hash_String = "9BD39C9B32C280B871487FF7B17C87F2A01C27971110D69EAC02892EB5F08D6B";
+	/// Hash string of the deterministic block.
+	constexpr auto Deterministic_Block_Hash_String = "9BD39C9B32C280B871487FF7B17C87F2A01C27971110D69EAC02892EB5F08D6B";
 
-    // region TestBlockTransactions
+	// region TestBlockTransactions
 
-    /// Container of transactions for seeding a test block.
-    class TestBlockTransactions {
-    public:
-        /// Creates block transactions from const \a transactions.
-        TestBlockTransactions(const ConstTransactions& transactions);
+	/// Container of transactions for seeding a test block.
+	class TestBlockTransactions {
+	public:
+		/// Creates block transactions from const \a transactions.
+		TestBlockTransactions(const ConstTransactions& transactions);
 
-        /// Creates block transactions from mutable \a transactions.
-        TestBlockTransactions(const MutableTransactions& transactions);
+		/// Creates block transactions from mutable \a transactions.
+		TestBlockTransactions(const MutableTransactions& transactions);
 
-        /// Creates \a numTransactions (random) block transactions.
-        TestBlockTransactions(size_t numTransactions);
+		/// Creates \a numTransactions (random) block transactions.
+		TestBlockTransactions(size_t numTransactions);
 
-    public:
-        /// Gets the transactions.
-        const ConstTransactions& get() const;
+	public:
+		/// Gets the transactions.
+		const ConstTransactions& get() const;
 
-    private:
-        ConstTransactions m_transactions;
-    };
+	private:
+		ConstTransactions m_transactions;
+	};
 
-    // endregion
+	// endregion
 
-    // region Block factory functions
+	// region Block factory functions
 
-    /// Generates an empty block with random signer and no transactions.
-    std::unique_ptr<model::Block> GenerateEmptyRandomBlock();
+	/// Generates an empty block with random signer and no transactions.
+	std::unique_ptr<model::Block> GenerateEmptyRandomBlock();
 
-    /// Generates an importance block with random signer and \a transactions.
-    std::unique_ptr<model::Block> GenerateImportanceBlockWithTransactions(const TestBlockTransactions& transactions);
+	/// Generates an importance block with random signer and \a transactions.
+	std::unique_ptr<model::Block> GenerateImportanceBlockWithTransactions(const TestBlockTransactions& transactions);
 
-    /// Generates a block with random signer and \a transactions.
-    std::unique_ptr<model::Block> GenerateBlockWithTransactions(const TestBlockTransactions& transactions);
+	/// Generates a block with random signer and \a transactions.
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const TestBlockTransactions& transactions);
 
-    /// Generates a block with a given \a signer and \a transactions.
-    std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const TestBlockTransactions& transactions);
+	/// Generates a block with a given \a signer and \a transactions.
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const TestBlockTransactions& transactions);
 
-    /// Generates a block with \a numTransactions transactions at \a height.
-    std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height);
+	/// Generates a block with \a numTransactions transactions at \a height.
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height);
 
-    /// Generates a block with \a numTransactions transactions at \a height and \a timestamp.
-    std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height, Timestamp timestamp);
+	/// Generates a block with \a numTransactions transactions at \a height and \a timestamp.
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height, Timestamp timestamp);
 
-    /// Generates a predefined block, i.e. this function will always return the same block.
-    std::unique_ptr<model::Block> GenerateDeterministicBlock();
+	/// Generates a predefined block, i.e. this function will always return the same block.
+	std::unique_ptr<model::Block> GenerateDeterministicBlock();
 
-    // endregion
+	// endregion
 
-    /// Creates a buffer containing \a numBlocks random blocks (all with no transactions).
-    std::vector<uint8_t> CreateRandomBlockBuffer(size_t numBlocks);
+	/// Creates a buffer containing \a numBlocks random blocks (all with no transactions).
+	std::vector<uint8_t> CreateRandomBlockBuffer(size_t numBlocks);
 
-    /// Copies \a blocks into an entity range.
-    model::BlockRange CreateEntityRange(const std::vector<const model::Block*>& blocks);
+	/// Copies \a blocks into an entity range.
+	model::BlockRange CreateEntityRange(const std::vector<const model::Block*>& blocks);
 
-    /// Creates a block entity range composed of \a numBlocks blocks.
-    model::BlockRange CreateBlockEntityRange(size_t numBlocks);
+	/// Creates a block entity range composed of \a numBlocks blocks.
+	model::BlockRange CreateBlockEntityRange(size_t numBlocks);
 
-    /// Creates \a count ranges of blocks with \a increment additional blocks in each range.
-    std::vector<model::BlockRange> PrepareRanges(size_t count, size_t increment = 0);
+	/// Creates \a count ranges of blocks with \a increment additional blocks in each range.
+	std::vector<model::BlockRange> PrepareRanges(size_t count, size_t increment = 0);
 
-    /// Counts the number of transactions in \a block.
-    size_t CountTransactions(const model::Block& block);
+	/// Counts the number of transactions in \a block.
+	size_t CountTransactions(const model::Block& block);
 
-    /// Converts \a block to a block element.
-    model::BlockElement BlockToBlockElement(const model::Block& block);
+	/// Converts \a block to a block element.
+	model::BlockElement BlockToBlockElement(const model::Block& block);
 
-    /// Converts \a block to a block element with specified generation hash seed (\a generationHashSeed).
-    model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHashSeed& generationHashSeed);
+	/// Converts \a block to a block element with specified generation hash seed (\a generationHashSeed).
+	model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHashSeed& generationHashSeed);
 
-    /// Converts \a block with \a hash to a block element.
-    model::BlockElement BlockToBlockElement(const model::Block& block, const Hash256& hash);
+	/// Converts \a block with \a hash to a block element.
+	model::BlockElement BlockToBlockElement(const model::Block& block, const Hash256& hash);
 
-    /// Verifies that block elements \a expectedBlockElement and \a blockElement are equivalent.
-    void AssertEqual(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement);
+	/// Verifies that block elements \a expectedBlockElement and \a blockElement are equivalent.
+	void AssertEqual(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement);
 }
 }

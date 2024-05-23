@@ -31,18 +31,17 @@ namespace io {
 
 #define TEST_CLASS FileLockTests
 
-    namespace {
-        struct LockPolicy {
-            using LockType = FileLock;
+	namespace {
+		struct LockPolicy {
+			using LockType = FileLock;
 
-            static auto ExclusiveLock(LockType& lock)
-            {
-                return std::make_unique<std::lock_guard<LockType>>(lock);
-            }
-        };
-    }
+			static auto ExclusiveLock(LockType& lock) {
+				return std::make_unique<std::lock_guard<LockType>>(lock);
+			}
+		};
+	}
 
-    DEFINE_BASIC_LOCK_TESTS(TEST_CLASS, TempFileGuard("test.lock").name())
+	DEFINE_BASIC_LOCK_TESTS(TEST_CLASS, TempFileGuard("test.lock").name())
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -50,72 +49,69 @@ namespace io {
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-    TEST(TEST_CLASS, LockFileIsNotRemovedWhenProcessExits)
-    {
-        // Arrange:
-        TempFileGuard guard("test.lock");
+	TEST(TEST_CLASS, LockFileIsNotRemovedWhenProcessExits) {
+		// Arrange:
+		TempFileGuard guard("test.lock");
 
-        // Act: create a lock, but don't let the process run the dtor
-        ASSERT_DEATH(
-            {
-                FileLock lock(guard.name());
-                lock.lock();
-                _exit(1);
-            },
-            "");
+		// Act: create a lock, but don't let the process run the dtor
+		ASSERT_DEATH(
+			{
+				FileLock lock(guard.name());
+				lock.lock();
+				_exit(1);
+			},
+			"");
 
-        // Assert:
-        EXPECT_TRUE(std::filesystem::exists(guard.name()));
-    }
+		// Assert:
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
+	}
 
-    TEST(TEST_CLASS, LockFileCanBeRemovedAfterOriginalProcessExits)
-    {
-        // Arrange:
-        TempFileGuard guard("test.lock");
+	TEST(TEST_CLASS, LockFileCanBeRemovedAfterOriginalProcessExits) {
+		// Arrange:
+		TempFileGuard guard("test.lock");
 
-        // - create a lock, but don't let the process run the dtor
-        ASSERT_DEATH(
-            {
-                FileLock lock(guard.name());
-                lock.lock();
-                _exit(1);
-            },
-            "");
+		// - create a lock, but don't let the process run the dtor
+		ASSERT_DEATH(
+			{
+				FileLock lock(guard.name());
+				lock.lock();
+				_exit(1);
+			},
+			"");
 
-        // Sanity:
-        EXPECT_TRUE(std::filesystem::exists(guard.name()));
+		// Sanity:
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
 
-        // Act:
-        std::filesystem::remove(guard.name());
+		// Act:
+		std::filesystem::remove(guard.name());
 
-        // Assert:
-        EXPECT_FALSE(std::filesystem::exists(guard.name()));
-    }
+		// Assert:
+		EXPECT_FALSE(std::filesystem::exists(guard.name()));
+	}
 
-    TEST(TEST_CLASS, LockFileCannotBeAcquiredFromOtherProcess)
-    {
-        // Arrange: it seems arrange is executed in both parent and child process
-        // so try_lock() is used to avoid locking the child in an infinite loop
-        TempFileGuard guard("test.lock");
-        FileLock lock(guard.name());
-        lock.try_lock();
+	TEST(TEST_CLASS, LockFileCannotBeAcquiredFromOtherProcess) {
+		// Arrange: it seems arrange is executed in both parent and child process
+		// so try_lock() is used to avoid locking the child in an infinite loop
+		TempFileGuard guard("test.lock");
+		FileLock lock(guard.name());
+		lock.try_lock();
 
-        // Sanity:
-        ASSERT_TRUE(std::filesystem::exists(guard.name()));
+		// Sanity:
+		ASSERT_TRUE(std::filesystem::exists(guard.name()));
 
-        // Act: create a new process, that tries to acquire same lock
-        ASSERT_EXIT(
-            {
-                FileLock descendantLock(guard.name());
-                auto isLockAcquired = descendantLock.try_lock();
-                exit(isLockAcquired ? 123 : 0);
-            },
-            ::testing::ExitedWithCode(0),
-            "");
+		// Act: create a new process, that tries to acquire same lock
+		ASSERT_EXIT(
+			{
+				FileLock descendantLock(guard.name());
+				auto isLockAcquired = descendantLock.try_lock();
+				exit(isLockAcquired ? 123 : 0);
+			},
+			::testing::ExitedWithCode(0),
+			"");
 
-        // Assert:
-        EXPECT_TRUE(std::filesystem::exists(guard.name()));
-    }
+		// Assert:
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
+	}
 
 #ifdef __clang__
 #pragma clang diagnostic pop

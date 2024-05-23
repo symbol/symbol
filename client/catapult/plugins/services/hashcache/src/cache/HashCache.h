@@ -27,39 +27,36 @@
 namespace catapult {
 namespace cache {
 
-    using HashBasicCache = BasicCache<HashCacheDescriptor, HashCacheTypes::BaseSets, HashCacheTypes::Options>;
+	using HashBasicCache = BasicCache<HashCacheDescriptor, HashCacheTypes::BaseSets, HashCacheTypes::Options>;
 
-    /// Cache composed of timestamped hashes of (transaction) elements.
-    /// \note The cache can be pruned according to the retention time.
-    class BasicHashCache : public HashBasicCache {
-    public:
-        /// Creates a cache around \a config with the specified retention time (\a retentionTime).
-        BasicHashCache(const CacheConfiguration& config, const utils::TimeSpan& retentionTime)
-            // hash cache should always be excluded from state hash calculation
-            : HashBasicCache(DisablePatriciaTreeStorage(config), HashCacheTypes::Options { retentionTime })
-        {
-        }
+	/// Cache composed of timestamped hashes of (transaction) elements.
+	/// \note The cache can be pruned according to the retention time.
+	class BasicHashCache : public HashBasicCache {
+	public:
+		/// Creates a cache around \a config with the specified retention time (\a retentionTime).
+		BasicHashCache(const CacheConfiguration& config, const utils::TimeSpan& retentionTime)
+			// hash cache should always be excluded from state hash calculation
+			: HashBasicCache(DisablePatriciaTreeStorage(config), HashCacheTypes::Options { retentionTime }) {
+		}
 
-    private:
-        static CacheConfiguration DisablePatriciaTreeStorage(const CacheConfiguration& config)
-        {
-            auto configCopy = config;
-            configCopy.ShouldStorePatriciaTrees = false;
-            return configCopy;
-        }
-    };
+	private:
+		static CacheConfiguration DisablePatriciaTreeStorage(const CacheConfiguration& config) {
+			auto configCopy = config;
+			configCopy.ShouldStorePatriciaTrees = false;
+			return configCopy;
+		}
+	};
 
-    /// Synchronized cache composed of timestamped hashes of (transaction) elements.
-    class HashCache : public SynchronizedCache<BasicHashCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(Hash)
+	/// Synchronized cache composed of timestamped hashes of (transaction) elements.
+	class HashCache : public SynchronizedCache<BasicHashCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(Hash)
 
-    public:
-        /// Creates a cache around \a config with the specified retention time (\a retentionTime).
-        HashCache(const CacheConfiguration& config, const utils::TimeSpan& retentionTime)
-            : SynchronizedCache<BasicHashCache>(BasicHashCache(config, retentionTime))
-        {
-        }
-    };
+	public:
+		/// Creates a cache around \a config with the specified retention time (\a retentionTime).
+		HashCache(const CacheConfiguration& config, const utils::TimeSpan& retentionTime)
+			: SynchronizedCache<BasicHashCache>(BasicHashCache(config, retentionTime)) {
+		}
+	};
 }
 }

@@ -26,102 +26,89 @@
 namespace catapult {
 namespace state {
 
-    // region MosaicRestrictionEntry
+	// region MosaicRestrictionEntry
 
-    MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicAddressRestriction& restriction)
-        : m_pAddressRestriction(std::make_shared<MosaicAddressRestriction>(restriction))
-        , m_uniqueKey(generateUniqueKey())
-    {
-    }
+	MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicAddressRestriction& restriction)
+		: m_pAddressRestriction(std::make_shared<MosaicAddressRestriction>(restriction))
+		, m_uniqueKey(generateUniqueKey()) {
+	}
 
-    MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicGlobalRestriction& restriction)
-        : m_pGlobalRestriction(std::make_shared<MosaicGlobalRestriction>(restriction))
-        , m_uniqueKey(generateUniqueKey())
-    {
-    }
+	MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicGlobalRestriction& restriction)
+		: m_pGlobalRestriction(std::make_shared<MosaicGlobalRestriction>(restriction))
+		, m_uniqueKey(generateUniqueKey()) {
+	}
 
-    MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicRestrictionEntry& entry)
-    {
-        *this = entry;
-    }
+	MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicRestrictionEntry& entry) {
+		*this = entry;
+	}
 
-    MosaicRestrictionEntry& MosaicRestrictionEntry::operator=(const MosaicRestrictionEntry& entry)
-    {
-        m_pAddressRestriction = entry.m_pAddressRestriction ? std::make_shared<MosaicAddressRestriction>(*entry.m_pAddressRestriction) : nullptr;
-        m_pGlobalRestriction = entry.m_pGlobalRestriction ? std::make_shared<MosaicGlobalRestriction>(*entry.m_pGlobalRestriction) : nullptr;
-        m_uniqueKey = entry.m_uniqueKey;
+	MosaicRestrictionEntry& MosaicRestrictionEntry::operator=(const MosaicRestrictionEntry& entry) {
+		m_pAddressRestriction = entry.m_pAddressRestriction ? std::make_shared<MosaicAddressRestriction>(*entry.m_pAddressRestriction) : nullptr;
+		m_pGlobalRestriction = entry.m_pGlobalRestriction ? std::make_shared<MosaicGlobalRestriction>(*entry.m_pGlobalRestriction) : nullptr;
+		m_uniqueKey = entry.m_uniqueKey;
 
-        return *this;
-    }
+		return *this;
+	}
 
-    MosaicRestrictionEntry::EntryType MosaicRestrictionEntry::entryType() const
-    {
-        return m_pAddressRestriction ? EntryType::Address : EntryType::Global;
-    }
+	MosaicRestrictionEntry::EntryType MosaicRestrictionEntry::entryType() const {
+		return m_pAddressRestriction ? EntryType::Address : EntryType::Global;
+	}
 
-    const Hash256& MosaicRestrictionEntry::uniqueKey() const
-    {
-        return m_uniqueKey;
-    }
+	const Hash256& MosaicRestrictionEntry::uniqueKey() const {
+		return m_uniqueKey;
+	}
 
-    const MosaicAddressRestriction& MosaicRestrictionEntry::asAddressRestriction() const
-    {
-        if (!m_pAddressRestriction)
-            CATAPULT_THROW_RUNTIME_ERROR("entry is not an address restriction");
+	const MosaicAddressRestriction& MosaicRestrictionEntry::asAddressRestriction() const {
+		if (!m_pAddressRestriction)
+			CATAPULT_THROW_RUNTIME_ERROR("entry is not an address restriction");
 
-        return *m_pAddressRestriction;
-    }
+		return *m_pAddressRestriction;
+	}
 
-    MosaicAddressRestriction& MosaicRestrictionEntry::asAddressRestriction()
-    {
-        if (!m_pAddressRestriction)
-            CATAPULT_THROW_RUNTIME_ERROR("entry is not an address restriction");
+	MosaicAddressRestriction& MosaicRestrictionEntry::asAddressRestriction() {
+		if (!m_pAddressRestriction)
+			CATAPULT_THROW_RUNTIME_ERROR("entry is not an address restriction");
 
-        return *m_pAddressRestriction;
-    }
+		return *m_pAddressRestriction;
+	}
 
-    const MosaicGlobalRestriction& MosaicRestrictionEntry::asGlobalRestriction() const
-    {
-        if (!m_pGlobalRestriction)
-            CATAPULT_THROW_RUNTIME_ERROR("entry is not an global restriction");
+	const MosaicGlobalRestriction& MosaicRestrictionEntry::asGlobalRestriction() const {
+		if (!m_pGlobalRestriction)
+			CATAPULT_THROW_RUNTIME_ERROR("entry is not an global restriction");
 
-        return *m_pGlobalRestriction;
-    }
+		return *m_pGlobalRestriction;
+	}
 
-    MosaicGlobalRestriction& MosaicRestrictionEntry::asGlobalRestriction()
-    {
-        if (!m_pGlobalRestriction)
-            CATAPULT_THROW_RUNTIME_ERROR("entry is not an global restriction");
+	MosaicGlobalRestriction& MosaicRestrictionEntry::asGlobalRestriction() {
+		if (!m_pGlobalRestriction)
+			CATAPULT_THROW_RUNTIME_ERROR("entry is not an global restriction");
 
-        return *m_pGlobalRestriction;
-    }
+		return *m_pGlobalRestriction;
+	}
 
-    Hash256 MosaicRestrictionEntry::generateUniqueKey() const
-    {
-        return m_pAddressRestriction ? CreateMosaicRestrictionEntryKey(m_pAddressRestriction->mosaicId(), m_pAddressRestriction->address())
-                                     : CreateMosaicRestrictionEntryKey(m_pGlobalRestriction->mosaicId());
-    }
+	Hash256 MosaicRestrictionEntry::generateUniqueKey() const {
+		return m_pAddressRestriction ? CreateMosaicRestrictionEntryKey(m_pAddressRestriction->mosaicId(), m_pAddressRestriction->address())
+									 : CreateMosaicRestrictionEntryKey(m_pGlobalRestriction->mosaicId());
+	}
 
-    // endregion
+	// endregion
 
-    // region CreateMosaicRestrictionEntryKey
+	// region CreateMosaicRestrictionEntryKey
 
-    Hash256 CreateMosaicRestrictionEntryKey(MosaicId mosaicId)
-    {
-        return CreateMosaicRestrictionEntryKey(mosaicId, Address());
-    }
+	Hash256 CreateMosaicRestrictionEntryKey(MosaicId mosaicId) {
+		return CreateMosaicRestrictionEntryKey(mosaicId, Address());
+	}
 
-    Hash256 CreateMosaicRestrictionEntryKey(MosaicId mosaicId, const Address& address)
-    {
-        crypto::Sha3_256_Builder builder;
-        builder.update({ reinterpret_cast<const uint8_t*>(&mosaicId), sizeof(MosaicId) });
-        builder.update(address);
+	Hash256 CreateMosaicRestrictionEntryKey(MosaicId mosaicId, const Address& address) {
+		crypto::Sha3_256_Builder builder;
+		builder.update({ reinterpret_cast<const uint8_t*>(&mosaicId), sizeof(MosaicId) });
+		builder.update(address);
 
-        Hash256 uniqueKey;
-        builder.final(uniqueKey);
-        return uniqueKey;
-    }
+		Hash256 uniqueKey;
+		builder.final(uniqueKey);
+		return uniqueKey;
+	}
 
-    // endregion
+	// endregion
 }
 }

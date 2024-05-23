@@ -40,239 +40,223 @@ namespace local {
 
 #define TEST_CLASS NemesisBlockNotifierTests
 
-    namespace {
-        // region TestContext
+	namespace {
+		// region TestContext
 
-        class TestContext {
-        public:
-            explicit TestContext(uint32_t numBlocks)
-                : m_pPluginManager(test::CreatePluginManagerWithRealPlugins(CreateBlockchainConfiguration()))
-                , m_cache(m_pPluginManager->createCache())
-                , m_pStorage(mocks::CreateMemoryBlockStorageCache(numBlocks))
-                , m_notifier(m_pPluginManager->config(), m_cache, *m_pStorage, *m_pPluginManager)
-            {
-            }
+		class TestContext {
+		public:
+			explicit TestContext(uint32_t numBlocks)
+				: m_pPluginManager(test::CreatePluginManagerWithRealPlugins(CreateBlockchainConfiguration()))
+				, m_cache(m_pPluginManager->createCache())
+				, m_pStorage(mocks::CreateMemoryBlockStorageCache(numBlocks))
+				, m_notifier(m_pPluginManager->config(), m_cache, *m_pStorage, *m_pPluginManager) {
+			}
 
-        public:
-            auto& notifier()
-            {
-                return m_notifier;
-            }
+		public:
+			auto& notifier() {
+				return m_notifier;
+			}
 
-        public:
-            auto nemesisEntityHash()
-            {
-                return m_pStorage->view().loadBlockElement(Height(1))->EntityHash;
-            }
+		public:
+			auto nemesisEntityHash() {
+				return m_pStorage->view().loadBlockElement(Height(1))->EntityHash;
+			}
 
-        public:
-            void addRandomAccountToCache()
-            {
-                auto cacheDelta = m_cache.createDelta();
-                cacheDelta.sub<cache::AccountStateCache>().addAccount(test::GenerateRandomByteArray<Key>(), Height(1));
-                m_cache.commit(Height());
-            }
+		public:
+			void addRandomAccountToCache() {
+				auto cacheDelta = m_cache.createDelta();
+				cacheDelta.sub<cache::AccountStateCache>().addAccount(test::GenerateRandomByteArray<Key>(), Height(1));
+				m_cache.commit(Height());
+			}
 
-            auto reseedNemesisWithStatement()
-            {
-                auto modifier = m_pStorage->modifier();
-                modifier.dropBlocksAfter(Height(0));
+			auto reseedNemesisWithStatement() {
+				auto modifier = m_pStorage->modifier();
+				modifier.dropBlocksAfter(Height(0));
 
-                model::Block block;
-                block.Size = sizeof(model::BlockHeader);
-                block.Height = Height(1);
-                auto blockElement = test::BlockToBlockElement(block);
-                blockElement.OptionalStatement = test::GenerateRandomStatements({ 3, 1, 2 });
-                modifier.saveBlock(blockElement);
-                modifier.commit();
+				model::Block block;
+				block.Size = sizeof(model::BlockHeader);
+				block.Height = Height(1);
+				auto blockElement = test::BlockToBlockElement(block);
+				blockElement.OptionalStatement = test::GenerateRandomStatements({ 3, 1, 2 });
+				modifier.saveBlock(blockElement);
+				modifier.commit();
 
-                return blockElement.OptionalStatement;
-            }
+				return blockElement.OptionalStatement;
+			}
 
-        private:
-            static model::BlockchainConfiguration CreateBlockchainConfiguration()
-            {
-                return test::CreateCatapultConfigurationWithNemesisPluginExtensions("").Blockchain;
-            }
+		private:
+			static model::BlockchainConfiguration CreateBlockchainConfiguration() {
+				return test::CreateCatapultConfigurationWithNemesisPluginExtensions("").Blockchain;
+			}
 
-        private:
-            std::shared_ptr<plugins::PluginManager> m_pPluginManager;
-            cache::CatapultCache m_cache;
-            std::unique_ptr<io::BlockStorageCache> m_pStorage;
-            NemesisBlockNotifier m_notifier;
-        };
+		private:
+			std::shared_ptr<plugins::PluginManager> m_pPluginManager;
+			cache::CatapultCache m_cache;
+			std::unique_ptr<io::BlockStorageCache> m_pStorage;
+			NemesisBlockNotifier m_notifier;
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    // region block change notifications
+	// region block change notifications
 
-    TEST(TEST_CLASS, BlockChangeNotificationsAreNotRaisedWhenPreviousExecutionIsDetected)
-    {
-        // Arrange:
-        TestContext context(2);
-        context.addRandomAccountToCache();
-        mocks::MockBlockChangeSubscriber subscriber;
+	TEST(TEST_CLASS, BlockChangeNotificationsAreNotRaisedWhenPreviousExecutionIsDetected) {
+		// Arrange:
+		TestContext context(2);
+		context.addRandomAccountToCache();
+		mocks::MockBlockChangeSubscriber subscriber;
 
-        // Act:
-        EXPECT_THROW(context.notifier().raise(subscriber), catapult_runtime_error);
+		// Act:
+		EXPECT_THROW(context.notifier().raise(subscriber), catapult_runtime_error);
 
-        // Assert:
-        const auto& capturedBlockElements = subscriber.copiedBlockElements();
-        EXPECT_EQ(0u, capturedBlockElements.size());
-    }
+		// Assert:
+		const auto& capturedBlockElements = subscriber.copiedBlockElements();
+		EXPECT_EQ(0u, capturedBlockElements.size());
+	}
 
-    TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected_WithoutStatement)
-    {
-        // Arrange:
-        TestContext context(2);
-        mocks::MockBlockChangeSubscriber subscriber;
+	TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected_WithoutStatement) {
+		// Arrange:
+		TestContext context(2);
+		mocks::MockBlockChangeSubscriber subscriber;
 
-        // Act:
-        context.notifier().raise(subscriber);
+		// Act:
+		context.notifier().raise(subscriber);
 
-        // Assert:
-        const auto& capturedBlockElements = subscriber.copiedBlockElements();
-        ASSERT_EQ(1u, capturedBlockElements.size());
-        EXPECT_EQ(Height(1), capturedBlockElements[0]->Block.Height);
+		// Assert:
+		const auto& capturedBlockElements = subscriber.copiedBlockElements();
+		ASSERT_EQ(1u, capturedBlockElements.size());
+		EXPECT_EQ(Height(1), capturedBlockElements[0]->Block.Height);
 
-        EXPECT_FALSE(capturedBlockElements[0]->OptionalStatement);
-    }
+		EXPECT_FALSE(capturedBlockElements[0]->OptionalStatement);
+	}
 
-    TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected_WithStatement)
-    {
-        // Arrange:
-        TestContext context(2);
-        auto pBlockStatement = context.reseedNemesisWithStatement();
-        mocks::MockBlockChangeSubscriber subscriber;
+	TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected_WithStatement) {
+		// Arrange:
+		TestContext context(2);
+		auto pBlockStatement = context.reseedNemesisWithStatement();
+		mocks::MockBlockChangeSubscriber subscriber;
 
-        // Act:
-        context.notifier().raise(subscriber);
+		// Act:
+		context.notifier().raise(subscriber);
 
-        // Assert:
-        const auto& capturedBlockElements = subscriber.copiedBlockElements();
-        ASSERT_EQ(1u, capturedBlockElements.size());
-        EXPECT_EQ(Height(1), capturedBlockElements[0]->Block.Height);
+		// Assert:
+		const auto& capturedBlockElements = subscriber.copiedBlockElements();
+		ASSERT_EQ(1u, capturedBlockElements.size());
+		EXPECT_EQ(Height(1), capturedBlockElements[0]->Block.Height);
 
-        ASSERT_TRUE(capturedBlockElements[0]->OptionalStatement);
-        test::AssertEqual(*pBlockStatement, *capturedBlockElements[0]->OptionalStatement);
-    }
+		ASSERT_TRUE(capturedBlockElements[0]->OptionalStatement);
+		test::AssertEqual(*pBlockStatement, *capturedBlockElements[0]->OptionalStatement);
+	}
 
-    // endregion
+	// endregion
 
-    // region finalization notifications
+	// region finalization notifications
 
-    TEST(TEST_CLASS, FinalizationNotificationsAreNotRaisedWhenPreviousExecutionIsDetected)
-    {
-        // Arrange:
-        TestContext context(2);
-        context.addRandomAccountToCache();
-        mocks::MockFinalizationSubscriber subscriber;
+	TEST(TEST_CLASS, FinalizationNotificationsAreNotRaisedWhenPreviousExecutionIsDetected) {
+		// Arrange:
+		TestContext context(2);
+		context.addRandomAccountToCache();
+		mocks::MockFinalizationSubscriber subscriber;
 
-        // Act:
-        EXPECT_THROW(context.notifier().raise(subscriber), catapult_runtime_error);
+		// Act:
+		EXPECT_THROW(context.notifier().raise(subscriber), catapult_runtime_error);
 
-        // Assert:
-        EXPECT_EQ(0u, subscriber.finalizedBlockParams().params().size());
-    }
+		// Assert:
+		EXPECT_EQ(0u, subscriber.finalizedBlockParams().params().size());
+	}
 
-    TEST(TEST_CLASS, FinalizationNotificationsAreRaisedWhenPreviousExecutionIsNotDetected)
-    {
-        // Arrange:
-        TestContext context(2);
-        mocks::MockFinalizationSubscriber subscriber;
+	TEST(TEST_CLASS, FinalizationNotificationsAreRaisedWhenPreviousExecutionIsNotDetected) {
+		// Arrange:
+		TestContext context(2);
+		mocks::MockFinalizationSubscriber subscriber;
 
-        // Act:
-        context.notifier().raise(subscriber);
+		// Act:
+		context.notifier().raise(subscriber);
 
-        // Assert:
-        ASSERT_EQ(1u, subscriber.finalizedBlockParams().params().size());
+		// Assert:
+		ASSERT_EQ(1u, subscriber.finalizedBlockParams().params().size());
 
-        const auto& subscriberParams = subscriber.finalizedBlockParams().params()[0];
-        EXPECT_EQ(model::FinalizationRound({ FinalizationEpoch(1), FinalizationPoint(1) }), subscriberParams.Round);
-        EXPECT_EQ(Height(1), subscriberParams.Height);
-        EXPECT_EQ(context.nemesisEntityHash(), subscriberParams.Hash);
-    }
+		const auto& subscriberParams = subscriber.finalizedBlockParams().params()[0];
+		EXPECT_EQ(model::FinalizationRound({ FinalizationEpoch(1), FinalizationPoint(1) }), subscriberParams.Round);
+		EXPECT_EQ(Height(1), subscriberParams.Height);
+		EXPECT_EQ(context.nemesisEntityHash(), subscriberParams.Hash);
+	}
 
-    // endregion
+	// endregion
 
-    // region state change notifications
+	// region state change notifications
 
-    namespace {
-        model::AddressSet GetAddedAccountAddresses(const cache::CacheChanges& cacheChanges)
-        {
-            model::AddressSet addresses;
-            auto accountStateCacheChanges = cacheChanges.sub<cache::AccountStateCache>();
-            for (const auto* pAccountState : accountStateCacheChanges.addedElements())
-                addresses.insert(pAccountState->Address);
+	namespace {
+		model::AddressSet GetAddedAccountAddresses(const cache::CacheChanges& cacheChanges) {
+			model::AddressSet addresses;
+			auto accountStateCacheChanges = cacheChanges.sub<cache::AccountStateCache>();
+			for (const auto* pAccountState : accountStateCacheChanges.addedElements())
+				addresses.insert(pAccountState->Address);
 
-            return addresses;
-        }
+			return addresses;
+		}
 
-        bool ContainsAddress(const model::AddressSet& addresses, const Address& address)
-        {
-            return addresses.cend() != addresses.find(address);
-        }
+		bool ContainsAddress(const model::AddressSet& addresses, const Address& address) {
+			return addresses.cend() != addresses.find(address);
+		}
 
-        bool ContainsModifiedPrivate(const model::AddressSet& addresses, const char* privateKeyString)
-        {
-            return ContainsAddress(addresses, test::RawPrivateKeyToAddress(privateKeyString));
-        }
-    }
+		bool ContainsModifiedPrivate(const model::AddressSet& addresses, const char* privateKeyString) {
+			return ContainsAddress(addresses, test::RawPrivateKeyToAddress(privateKeyString));
+		}
+	}
 
-    TEST(TEST_CLASS, StateChangeNotificationsAreNotRaisedWhenPreviousExecutionIsDetected)
-    {
-        // Arrange:
-        TestContext context(2);
-        context.addRandomAccountToCache();
-        mocks::MockStateChangeSubscriber subscriber;
+	TEST(TEST_CLASS, StateChangeNotificationsAreNotRaisedWhenPreviousExecutionIsDetected) {
+		// Arrange:
+		TestContext context(2);
+		context.addRandomAccountToCache();
+		mocks::MockStateChangeSubscriber subscriber;
 
-        // Act:
-        EXPECT_THROW(context.notifier().raise(subscriber), catapult_runtime_error);
+		// Act:
+		EXPECT_THROW(context.notifier().raise(subscriber), catapult_runtime_error);
 
-        // Assert:
-        EXPECT_EQ(0u, subscriber.numScoreChanges());
-        EXPECT_EQ(0u, subscriber.numStateChanges());
-    }
+		// Assert:
+		EXPECT_EQ(0u, subscriber.numScoreChanges());
+		EXPECT_EQ(0u, subscriber.numStateChanges());
+	}
 
-    TEST(TEST_CLASS, StateChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected)
-    {
-        // Arrange:
-        TestContext context(2);
-        mocks::MockStateChangeSubscriber subscriber;
+	TEST(TEST_CLASS, StateChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected) {
+		// Arrange:
+		TestContext context(2);
+		mocks::MockStateChangeSubscriber subscriber;
 
-        // - register consumer because CatapultCacheDelta wrapped by CacheChanges is temporary and will be out of scope below
-        model::AddressSet addedAddresses;
-        subscriber.setCacheChangesConsumer(
-            [&addedAddresses](const auto& cacheChanges) { addedAddresses = GetAddedAccountAddresses(cacheChanges); });
+		// - register consumer because CatapultCacheDelta wrapped by CacheChanges is temporary and will be out of scope below
+		model::AddressSet addedAddresses;
+		subscriber.setCacheChangesConsumer(
+			[&addedAddresses](const auto& cacheChanges) { addedAddresses = GetAddedAccountAddresses(cacheChanges); });
 
-        // Act:
-        context.notifier().raise(subscriber);
+		// Act:
+		context.notifier().raise(subscriber);
 
-        // Assert:
-        ASSERT_EQ(1u, subscriber.numScoreChanges());
-        ASSERT_EQ(1u, subscriber.numStateChanges());
+		// Assert:
+		ASSERT_EQ(1u, subscriber.numScoreChanges());
+		ASSERT_EQ(1u, subscriber.numStateChanges());
 
-        const auto& chainScore = subscriber.lastChainScore();
-        EXPECT_EQ(model::ChainScore(1), chainScore);
+		const auto& chainScore = subscriber.lastChainScore();
+		EXPECT_EQ(model::ChainScore(1), chainScore);
 
-        const auto& stateChangeInfo = subscriber.lastStateChangeInfo();
-        EXPECT_EQ(model::ChainScore::Delta(1), stateChangeInfo.ScoreDelta);
-        EXPECT_EQ(Height(1), stateChangeInfo.Height);
+		const auto& stateChangeInfo = subscriber.lastStateChangeInfo();
+		EXPECT_EQ(model::ChainScore::Delta(1), stateChangeInfo.ScoreDelta);
+		EXPECT_EQ(Height(1), stateChangeInfo.Height);
 
-        // - check account state changes
-        EXPECT_EQ(3u + CountOf(test::Test_Network_Private_Keys), addedAddresses.size());
+		// - check account state changes
+		EXPECT_EQ(3u + CountOf(test::Test_Network_Private_Keys), addedAddresses.size());
 
-        // - check nemesis and rental fee sinks
-        EXPECT_TRUE(ContainsModifiedPrivate(addedAddresses, test::Test_Network_Nemesis_Private_Key));
-        EXPECT_TRUE(ContainsAddress(addedAddresses, model::StringToAddress(test::Namespace_Rental_Fee_Sink_Address)));
-        EXPECT_TRUE(ContainsAddress(addedAddresses, model::StringToAddress(test::Mosaic_Rental_Fee_Sink_Address)));
+		// - check nemesis and rental fee sinks
+		EXPECT_TRUE(ContainsModifiedPrivate(addedAddresses, test::Test_Network_Nemesis_Private_Key));
+		EXPECT_TRUE(ContainsAddress(addedAddresses, model::StringToAddress(test::Namespace_Rental_Fee_Sink_Address)));
+		EXPECT_TRUE(ContainsAddress(addedAddresses, model::StringToAddress(test::Mosaic_Rental_Fee_Sink_Address)));
 
-        // - check recipient accounts
-        for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys)
-            EXPECT_TRUE(ContainsModifiedPrivate(addedAddresses, pRecipientPrivateKeyString)) << pRecipientPrivateKeyString;
-    }
+		// - check recipient accounts
+		for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys)
+			EXPECT_TRUE(ContainsModifiedPrivate(addedAddresses, pRecipientPrivateKeyString)) << pRecipientPrivateKeyString;
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -25,16 +25,16 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::TransactionFeeNotification;
+	using Notification = model::TransactionFeeNotification;
 
-    DEFINE_STATELESS_VALIDATOR(TransactionFee, [](const Notification& notification) {
-        if (notification.Fee > notification.MaxFee)
-            return Failure_Core_Invalid_Transaction_Fee;
+	DEFINE_STATELESS_VALIDATOR(TransactionFee, [](const Notification& notification) {
+		if (notification.Fee > notification.MaxFee)
+			return Failure_Core_Invalid_Transaction_Fee;
 
-        constexpr auto Max_Raw_Block_Fee_Multiplier = static_cast<uint64_t>(std::numeric_limits<BlockFeeMultiplier::ValueType>::max());
-        return notification.MaxFee.unwrap() > Max_Raw_Block_Fee_Multiplier * notification.TransactionSize
-            ? Failure_Core_Invalid_Transaction_Fee
-            : ValidationResult::Success;
-    })
+		constexpr auto Max_Raw_Block_Fee_Multiplier = static_cast<uint64_t>(std::numeric_limits<BlockFeeMultiplier::ValueType>::max());
+		return notification.MaxFee.unwrap() > Max_Raw_Block_Fee_Multiplier * notification.TransactionSize
+			? Failure_Core_Invalid_Transaction_Fee
+			: ValidationResult::Success;
+	})
 }
 }

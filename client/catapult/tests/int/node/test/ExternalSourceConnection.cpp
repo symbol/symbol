@@ -38,63 +38,56 @@
 namespace catapult {
 namespace test {
 
-    ExternalSourceConnection::ExternalSourceConnection(const Key& key)
-        : ExternalSourceConnection(CreateLocalHostNode(key, GetLocalHostPort()))
-    {
-    }
+	ExternalSourceConnection::ExternalSourceConnection(const Key& key)
+		: ExternalSourceConnection(CreateLocalHostNode(key, GetLocalHostPort())) {
+	}
 
-    ExternalSourceConnection::ExternalSourceConnection(const ionet::Node& node)
-        : m_pPool(CreateStartedIoThreadPool(1))
-        , m_caKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
-        , m_tempDirectoryGuard(ToString(m_caKeyPair.publicKey()))
-        , m_pConnector(net::CreateServerConnector(*m_pPool, m_caKeyPair.publicKey(), createConnectionSettings(), "external source"))
-        , m_localNode(node)
-    {
-    }
+	ExternalSourceConnection::ExternalSourceConnection(const ionet::Node& node)
+		: m_pPool(CreateStartedIoThreadPool(1))
+		, m_caKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
+		, m_tempDirectoryGuard(ToString(m_caKeyPair.publicKey()))
+		, m_pConnector(net::CreateServerConnector(*m_pPool, m_caKeyPair.publicKey(), createConnectionSettings(), "external source"))
+		, m_localNode(node) {
+	}
 
-    std::shared_ptr<ionet::PacketIo> ExternalSourceConnection::io() const
-    {
-        return m_pIo;
-    }
+	std::shared_ptr<ionet::PacketIo> ExternalSourceConnection::io() const {
+		return m_pIo;
+	}
 
-    void ExternalSourceConnection::connect(const consumer<const std::shared_ptr<ionet::PacketSocket>&>& onConnect)
-    {
-        m_pConnector->connect(m_localNode, [&pIo = m_pIo, onConnect](auto connectCode, const auto& socketInfo) {
-            // save pIo in a member to tie the lifetime of the connection to the lifetime of the owning ExternalSourceConnection
-            pIo = socketInfo.socket();
-            if (net::PeerConnectCode::Accepted == connectCode)
-                onConnect(socketInfo.socket());
-        });
-    }
+	void ExternalSourceConnection::connect(const consumer<const std::shared_ptr<ionet::PacketSocket>&>& onConnect) {
+		m_pConnector->connect(m_localNode, [&pIo = m_pIo, onConnect](auto connectCode, const auto& socketInfo) {
+			// save pIo in a member to tie the lifetime of the connection to the lifetime of the owning ExternalSourceConnection
+			pIo = socketInfo.socket();
+			if (net::PeerConnectCode::Accepted == connectCode)
+				onConnect(socketInfo.socket());
+		});
+	}
 
-    void ExternalSourceConnection::apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect)
-    {
-        connect([onConnect](const auto& pPacketIo) {
-            auto pRemoteApi = CreateLifetimeExtendedApi(api::CreateRemoteChainApi, pPacketIo, model::NodeIdentity(), CreateTransactionRegistry());
-            onConnect(pRemoteApi);
-        });
-    }
+	void ExternalSourceConnection::apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect) {
+		connect([onConnect](const auto& pPacketIo) {
+			auto pRemoteApi = CreateLifetimeExtendedApi(api::CreateRemoteChainApi, pPacketIo, model::NodeIdentity(), CreateTransactionRegistry());
+			onConnect(pRemoteApi);
+		});
+	}
 
-    net::ConnectionSettings ExternalSourceConnection::createConnectionSettings()
-    {
-        GenerateCertificateDirectory(m_tempDirectoryGuard.name(), PemCertificate(m_caKeyPair, GenerateKeyPair()));
+	net::ConnectionSettings ExternalSourceConnection::createConnectionSettings() {
+		GenerateCertificateDirectory(m_tempDirectoryGuard.name(), PemCertificate(m_caKeyPair, GenerateKeyPair()));
 
-        auto settings = CreateConnectionSettings();
-        settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_tempDirectoryGuard.name());
-        settings.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
-        return settings;
-    }
+		auto settings = CreateConnectionSettings();
+		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_tempDirectoryGuard.name());
+		settings.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
+		return settings;
+	}
 
-    model::TransactionRegistry ExternalSourceConnection::CreateTransactionRegistry()
-    {
-        auto registry = model::TransactionRegistry();
-        registry.registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin(plugins::MosaicRentalFeeConfiguration()));
-        registry.registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
-        registry.registerPlugin(plugins::CreateMosaicAliasTransactionPlugin());
-        registry.registerPlugin(plugins::CreateNamespaceRegistrationTransactionPlugin(plugins::NamespaceRentalFeeConfiguration()));
-        registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
-        registry.registerPlugin(plugins::CreateVrfKeyLinkTransactionPlugin());
-        return registry;
-    }
+	model::TransactionRegistry ExternalSourceConnection::CreateTransactionRegistry() {
+		auto registry = model::TransactionRegistry();
+		registry.registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin(plugins::MosaicRentalFeeConfiguration()));
+		registry.registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
+		registry.registerPlugin(plugins::CreateMosaicAliasTransactionPlugin());
+		registry.registerPlugin(plugins::CreateNamespaceRegistrationTransactionPlugin(plugins::NamespaceRentalFeeConfiguration()));
+		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
+		registry.registerPlugin(plugins::CreateVrfKeyLinkTransactionPlugin());
+		return registry;
+	}
 }
 }

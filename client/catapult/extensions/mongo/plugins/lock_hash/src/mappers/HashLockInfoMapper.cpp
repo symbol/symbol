@@ -26,25 +26,23 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            class HashLockInfoMapperTraits {
-            public:
-                using LockInfoType = state::HashLockInfo;
+		namespace {
+			class HashLockInfoMapperTraits {
+			public:
+				using LockInfoType = state::HashLockInfo;
 
-            public:
-                static void StreamLockInfo(bson_stream::document& builder, const state::HashLockInfo& lockInfo)
-                {
-                    builder << "hash" << ToBinary(lockInfo.Hash);
-                }
-            };
-        }
+			public:
+				static void StreamLockInfo(bson_stream::document& builder, const state::HashLockInfo& lockInfo) {
+					builder << "hash" << ToBinary(lockInfo.Hash);
+				}
+			};
+		}
 
-        bsoncxx::document::value ToDbModel(const state::HashLockInfoHistory& history)
-        {
-            return LockInfoMapper<HashLockInfoMapperTraits>::ToDbModel(history.back());
-        }
-    }
+		bsoncxx::document::value ToDbModel(const state::HashLockInfoHistory& history) {
+			return LockInfoMapper<HashLockInfoMapperTraits>::ToDbModel(history.back());
+		}
+	}
 }
 }

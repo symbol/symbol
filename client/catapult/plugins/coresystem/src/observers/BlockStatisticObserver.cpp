@@ -27,36 +27,35 @@
 namespace catapult {
 namespace observers {
 
-    DECLARE_OBSERVER(BlockStatistic, model::BlockNotification)
-    (uint32_t maxDifficultyBlocks, BlockFeeMultiplier defaultDynamicFeeMultiplier)
-    {
-        return MAKE_OBSERVER(
-            BlockStatistic,
-            model::BlockNotification,
-            ([maxDifficultyBlocks,
-                 defaultDynamicFeeMultiplier](const model::BlockNotification& notification, ObserverContext& context) {
-                auto statistic = state::BlockStatistic(
-                    context.Height,
-                    notification.Timestamp,
-                    notification.Difficulty,
-                    notification.FeeMultiplier);
-                auto& cache = context.Cache.sub<cache::BlockStatisticCache>();
+	DECLARE_OBSERVER(BlockStatistic, model::BlockNotification)
+	(uint32_t maxDifficultyBlocks, BlockFeeMultiplier defaultDynamicFeeMultiplier) {
+		return MAKE_OBSERVER(
+			BlockStatistic,
+			model::BlockNotification,
+			([maxDifficultyBlocks,
+				 defaultDynamicFeeMultiplier](const model::BlockNotification& notification, ObserverContext& context) {
+				auto statistic = state::BlockStatistic(
+					context.Height,
+					notification.Timestamp,
+					notification.Difficulty,
+					notification.FeeMultiplier);
+				auto& cache = context.Cache.sub<cache::BlockStatisticCache>();
 
-                auto effectiveHeight = context.Height;
-                if (NotifyMode::Commit == context.Mode) {
-                    cache.insert(statistic);
-                } else {
-                    cache.remove(statistic);
-                    effectiveHeight = effectiveHeight - Height(1);
-                }
+				auto effectiveHeight = context.Height;
+				if (NotifyMode::Commit == context.Mode) {
+					cache.insert(statistic);
+				} else {
+					cache.remove(statistic);
+					effectiveHeight = effectiveHeight - Height(1);
+				}
 
-                auto statistics = cache.statistics(effectiveHeight, maxDifficultyBlocks);
-                context.Cache.dependentState().DynamicFeeMultiplier = state::CalculateDynamicFeeMultiplier(
-                    statistics.begin(),
-                    statistics.end(),
-                    maxDifficultyBlocks,
-                    defaultDynamicFeeMultiplier);
-            }));
-    }
+				auto statistics = cache.statistics(effectiveHeight, maxDifficultyBlocks);
+				context.Cache.dependentState().DynamicFeeMultiplier = state::CalculateDynamicFeeMultiplier(
+					statistics.begin(),
+					statistics.end(),
+					maxDifficultyBlocks,
+					defaultDynamicFeeMultiplier);
+			}));
+	}
 }
 }

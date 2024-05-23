@@ -27,9 +27,9 @@
 namespace catapult {
 namespace ionet {
 
-    using FinalizationMessages = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
+	using FinalizationMessages = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
 
-    /// Creates a payload around \a messages for broadcasting.
-    PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages);
+	/// Creates a payload around \a messages for broadcasting.
+	PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages);
 }
 }

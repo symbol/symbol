@@ -25,151 +25,133 @@
 namespace catapult {
 namespace state {
 
-    namespace {
-        void AddAllIds(std::set<NamespaceId>& ids, const RootNamespace::Children& children)
-        {
-            for (const auto& pair : children)
-                ids.insert(pair.first);
-        }
+	namespace {
+		void AddAllIds(std::set<NamespaceId>& ids, const RootNamespace::Children& children) {
+			for (const auto& pair : children)
+				ids.insert(pair.first);
+		}
 
-        void RemoveAllIds(std::set<NamespaceId>& ids, const RootNamespace::Children& children)
-        {
-            for (const auto& pair : children)
-                ids.erase(pair.first);
-        }
-    }
+		void RemoveAllIds(std::set<NamespaceId>& ids, const RootNamespace::Children& children) {
+			for (const auto& pair : children)
+				ids.erase(pair.first);
+		}
+	}
 
-    RootNamespaceHistory::RootNamespaceHistory(NamespaceId id)
-        : m_id(id)
-    {
-    }
+	RootNamespaceHistory::RootNamespaceHistory(NamespaceId id)
+		: m_id(id) {
+	}
 
-    RootNamespaceHistory::RootNamespaceHistory(const RootNamespaceHistory& history)
-        : RootNamespaceHistory(history.m_id)
-    {
-        if (history.empty())
-            return;
+	RootNamespaceHistory::RootNamespaceHistory(const RootNamespaceHistory& history)
+		: RootNamespaceHistory(history.m_id) {
+		if (history.empty())
+			return;
 
-        const RootNamespace* pPreviousRoot = nullptr;
-        std::shared_ptr<RootNamespace::Children> pChildren;
-        for (const auto& root : history) {
-            if (!pPreviousRoot || !root.canExtend(*pPreviousRoot))
-                pChildren = std::make_shared<RootNamespace::Children>(root.children());
+		const RootNamespace* pPreviousRoot = nullptr;
+		std::shared_ptr<RootNamespace::Children> pChildren;
+		for (const auto& root : history) {
+			if (!pPreviousRoot || !root.canExtend(*pPreviousRoot))
+				pChildren = std::make_shared<RootNamespace::Children>(root.children());
 
-            m_rootHistory.emplace_back(root.id(), root.ownerAddress(), root.lifetime(), pChildren);
-            m_rootHistory.back().setAlias(root.id(), root.alias(root.id()));
+			m_rootHistory.emplace_back(root.id(), root.ownerAddress(), root.lifetime(), pChildren);
+			m_rootHistory.back().setAlias(root.id(), root.alias(root.id()));
 
-            pPreviousRoot = &root;
-        }
-    }
+			pPreviousRoot = &root;
+		}
+	}
 
-    NamespaceId RootNamespaceHistory::id() const
-    {
-        return m_id;
-    }
+	NamespaceId RootNamespaceHistory::id() const {
+		return m_id;
+	}
 
-    bool RootNamespaceHistory::empty() const
-    {
-        return m_rootHistory.empty();
-    }
+	bool RootNamespaceHistory::empty() const {
+		return m_rootHistory.empty();
+	}
 
-    size_t RootNamespaceHistory::historyDepth() const
-    {
-        return m_rootHistory.size();
-    }
+	size_t RootNamespaceHistory::historyDepth() const {
+		return m_rootHistory.size();
+	}
 
-    size_t RootNamespaceHistory::activeOwnerHistoryDepth() const
-    {
-        if (m_rootHistory.empty())
-            return 0;
+	size_t RootNamespaceHistory::activeOwnerHistoryDepth() const {
+		if (m_rootHistory.empty())
+			return 0;
 
-        auto historyDepth = 0u;
-        const auto* pNextRoot = &m_rootHistory.back();
-        for (auto iter = m_rootHistory.crbegin(); m_rootHistory.crend() != iter; ++iter) {
-            if (!pNextRoot->canExtend(*iter))
-                break;
+		auto historyDepth = 0u;
+		const auto* pNextRoot = &m_rootHistory.back();
+		for (auto iter = m_rootHistory.crbegin(); m_rootHistory.crend() != iter; ++iter) {
+			if (!pNextRoot->canExtend(*iter))
+				break;
 
-            pNextRoot = &*iter;
-            ++historyDepth;
-        }
+			pNextRoot = &*iter;
+			++historyDepth;
+		}
 
-        return historyDepth;
-    }
+		return historyDepth;
+	}
 
-    size_t RootNamespaceHistory::numActiveRootChildren() const
-    {
-        return m_rootHistory.empty() ? 0 : back().size();
-    }
+	size_t RootNamespaceHistory::numActiveRootChildren() const {
+		return m_rootHistory.empty() ? 0 : back().size();
+	}
 
-    size_t RootNamespaceHistory::numAllHistoricalChildren() const
-    {
-        return utils::Sum(m_rootHistory, [](const auto& rootNamespace) { return rootNamespace.size(); });
-    }
+	size_t RootNamespaceHistory::numAllHistoricalChildren() const {
+		return utils::Sum(m_rootHistory, [](const auto& rootNamespace) { return rootNamespace.size(); });
+	}
 
-    void RootNamespaceHistory::push_back(const Address& owner, const NamespaceLifetime& lifetime)
-    {
-        auto newRootNamespace = RootNamespace(m_id, owner, lifetime);
+	void RootNamespaceHistory::push_back(const Address& owner, const NamespaceLifetime& lifetime) {
+		auto newRootNamespace = RootNamespace(m_id, owner, lifetime);
 
-        if (!empty()) {
-            const auto& previousRootNamespace = back();
-            if (newRootNamespace.canExtend(previousRootNamespace)) {
-                // since it is the same owner, inherit all children and aliases (child aliases are migrated automatically with children)
-                m_rootHistory.push_back(previousRootNamespace.renew(lifetime));
-                m_rootHistory.back().setAlias(previousRootNamespace.id(), previousRootNamespace.alias(previousRootNamespace.id()));
-                return;
-            }
-        }
+		if (!empty()) {
+			const auto& previousRootNamespace = back();
+			if (newRootNamespace.canExtend(previousRootNamespace)) {
+				// since it is the same owner, inherit all children and aliases (child aliases are migrated automatically with children)
+				m_rootHistory.push_back(previousRootNamespace.renew(lifetime));
+				m_rootHistory.back().setAlias(previousRootNamespace.id(), previousRootNamespace.alias(previousRootNamespace.id()));
+				return;
+			}
+		}
 
-        m_rootHistory.push_back(newRootNamespace);
-    }
+		m_rootHistory.push_back(newRootNamespace);
+	}
 
-    void RootNamespaceHistory::pop_back()
-    {
-        m_rootHistory.pop_back();
-    }
+	void RootNamespaceHistory::pop_back() {
+		m_rootHistory.pop_back();
+	}
 
-    const RootNamespace& RootNamespaceHistory::back() const
-    {
-        return m_rootHistory.back();
-    }
+	const RootNamespace& RootNamespaceHistory::back() const {
+		return m_rootHistory.back();
+	}
 
-    RootNamespace& RootNamespaceHistory::back()
-    {
-        return m_rootHistory.back();
-    }
+	RootNamespace& RootNamespaceHistory::back() {
+		return m_rootHistory.back();
+	}
 
-    std::set<NamespaceId> RootNamespaceHistory::prune(Height height)
-    {
-        std::set<NamespaceId> ids;
-        for (auto iter = m_rootHistory.begin(); m_rootHistory.end() != iter;) {
-            if (iter->lifetime().End <= height) {
-                AddAllIds(ids, iter->children());
-                iter = m_rootHistory.erase(iter);
-            } else {
-                RemoveAllIds(ids, iter->children());
-                ++iter;
-            }
-        }
+	std::set<NamespaceId> RootNamespaceHistory::prune(Height height) {
+		std::set<NamespaceId> ids;
+		for (auto iter = m_rootHistory.begin(); m_rootHistory.end() != iter;) {
+			if (iter->lifetime().End <= height) {
+				AddAllIds(ids, iter->children());
+				iter = m_rootHistory.erase(iter);
+			} else {
+				RemoveAllIds(ids, iter->children());
+				++iter;
+			}
+		}
 
-        if (m_rootHistory.empty())
-            ids.insert(m_id);
+		if (m_rootHistory.empty())
+			ids.insert(m_id);
 
-        return ids;
-    }
+		return ids;
+	}
 
-    std::list<RootNamespace>::const_iterator RootNamespaceHistory::begin() const
-    {
-        return m_rootHistory.cbegin();
-    }
+	std::list<RootNamespace>::const_iterator RootNamespaceHistory::begin() const {
+		return m_rootHistory.cbegin();
+	}
 
-    std::list<RootNamespace>::const_iterator RootNamespaceHistory::end() const
-    {
-        return m_rootHistory.cend();
-    }
+	std::list<RootNamespace>::const_iterator RootNamespaceHistory::end() const {
+		return m_rootHistory.cend();
+	}
 
-    bool RootNamespaceHistory::isActive(Height height) const
-    {
-        return !empty() && back().lifetime().isActive(height);
-    }
+	bool RootNamespaceHistory::isActive(Height height) const {
+		return !empty() && back().lifetime().isActive(height);
+	}
 }
 }

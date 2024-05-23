@@ -27,64 +27,64 @@
 namespace catapult {
 namespace state {
 
-    /// Stack of account activity buckets.
-    class AccountActivityBuckets {
-    public:
-        /// Temporal activity information excluding height.
-        struct HeightDetachedActivityBucket {
-            /// Total fees paid by account.
-            Amount TotalFeesPaid;
+	/// Stack of account activity buckets.
+	class AccountActivityBuckets {
+	public:
+		/// Temporal activity information excluding height.
+		struct HeightDetachedActivityBucket {
+			/// Total fees paid by account.
+			Amount TotalFeesPaid;
 
-            /// Number of times account has been used as a beneficiary.
-            uint32_t BeneficiaryCount = 0;
+			/// Number of times account has been used as a beneficiary.
+			uint32_t BeneficiaryCount = 0;
 
-            /// Optional user defined score component.
-            uint64_t RawScore = 0;
-        };
+			/// Optional user defined score component.
+			uint64_t RawScore = 0;
+		};
 
-        /// Temporal activity information including height.
-        struct ActivityBucket : public HeightDetachedActivityBucket {
-            /// Activity start height.
-            model::ImportanceHeight StartHeight;
-        };
+		/// Temporal activity information including height.
+		struct ActivityBucket : public HeightDetachedActivityBucket {
+			/// Activity start height.
+			model::ImportanceHeight StartHeight;
+		};
 
-    private:
-        using ActivityBucketStack = CompactArrayStack<ActivityBucket, Activity_Bucket_History_Size>;
+	private:
+		using ActivityBucketStack = CompactArrayStack<ActivityBucket, Activity_Bucket_History_Size>;
 
-    public:
-        /// Returns \c true when no buckets are present.
-        bool empty() const;
+	public:
+		/// Returns \c true when no buckets are present.
+		bool empty() const;
 
-        /// Gets the activity bucket at \a height.
-        ActivityBucket get(model::ImportanceHeight height) const;
+		/// Gets the activity bucket at \a height.
+		ActivityBucket get(model::ImportanceHeight height) const;
 
-    public:
-        /// Updates the bucket at \a height by passing its components to \a consumer.
-        /// \note This will create a new bucket if one does not exist at \a height.
-        void update(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer);
+	public:
+		/// Updates the bucket at \a height by passing its components to \a consumer.
+		/// \note This will create a new bucket if one does not exist at \a height.
+		void update(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer);
 
-        /// Tries to update the bucket at \a height by passing its components to \a consumer.
-        /// \note This will never create a new bucket.
-        bool tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer);
+		/// Tries to update the bucket at \a height by passing its components to \a consumer.
+		/// \note This will never create a new bucket.
+		bool tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer);
 
-        /// Pushes an empty bucket.
-        void push();
+		/// Pushes an empty bucket.
+		void push();
 
-        /// Pops the current bucket.
-        void pop();
+		/// Pops the current bucket.
+		void pop();
 
-    public:
-        /// Gets a const iterator to the first element of the underlying container.
-        ActivityBucketStack::const_iterator begin() const;
+	public:
+		/// Gets a const iterator to the first element of the underlying container.
+		ActivityBucketStack::const_iterator begin() const;
 
-        /// Gets a const iterator to the element following the last element of the underlying container.
-        ActivityBucketStack::const_iterator end() const;
+		/// Gets a const iterator to the element following the last element of the underlying container.
+		ActivityBucketStack::const_iterator end() const;
 
-    private:
-        bool tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer, bool shouldCreateNewBucket);
+	private:
+		bool tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer, bool shouldCreateNewBucket);
 
-    private:
-        ActivityBucketStack m_buckets;
-    };
+	private:
+		ActivityBucketStack m_buckets;
+	};
 }
 }

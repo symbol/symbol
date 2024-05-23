@@ -23,24 +23,24 @@
 
 namespace catapult {
 namespace model {
-    struct BlockElement;
+	struct BlockElement;
 }
 namespace tools {
-    namespace nemgen {
-        struct NemesisConfiguration;
-    }
+	namespace nemgen {
+		struct NemesisConfiguration;
+	}
 }
 }
 
 namespace catapult {
 namespace tools {
-    namespace nemgen {
+	namespace nemgen {
 
-        /// Saves nemesis \a blockElement according to \a config.
-        void SaveNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config);
+		/// Saves nemesis \a blockElement according to \a config.
+		void SaveNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config);
 
-        /// Finalizes nemesis \a blockElement according to \a config.
-        void FinalizeNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config);
-    }
+		/// Finalizes nemesis \a blockElement according to \a config.
+		void FinalizeNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config);
+	}
 }
 }

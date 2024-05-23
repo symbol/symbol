@@ -25,33 +25,30 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct MongoAccountRestrictionPluginTraits {
-            public:
-                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+		namespace {
+			struct MongoAccountRestrictionPluginTraits {
+			public:
+				static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-                static std::vector<model::EntityType> GetTransactionTypes()
-                {
-                    return { model::Entity_Type_Account_Address_Restriction,
-                        model::Entity_Type_Account_Mosaic_Restriction,
-                        model::Entity_Type_Account_Operation_Restriction };
-                }
+				static std::vector<model::EntityType> GetTransactionTypes() {
+					return { model::Entity_Type_Account_Address_Restriction,
+						model::Entity_Type_Account_Mosaic_Restriction,
+						model::Entity_Type_Account_Operation_Restriction };
+				}
 
-                static std::vector<model::ReceiptType> GetReceiptTypes()
-                {
-                    return {};
-                }
+				static std::vector<model::ReceiptType> GetReceiptTypes() {
+					return {};
+				}
 
-                static std::string GetStorageName()
-                {
-                    return "{ AccountRestrictionCache }";
-                }
-            };
-        }
+				static std::string GetStorageName() {
+					return "{ AccountRestrictionCache }";
+				}
+			};
+		}
 
-        DEFINE_MONGO_PLUGIN_TESTS(MongoAccountRestrictionPluginTests, MongoAccountRestrictionPluginTraits)
-    }
+		DEFINE_MONGO_PLUGIN_TESTS(MongoAccountRestrictionPluginTests, MongoAccountRestrictionPluginTraits)
+	}
 }
 }

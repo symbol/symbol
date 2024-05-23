@@ -34,129 +34,121 @@ namespace validators {
 
 #define TEST_CLASS RemoteInteractionValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(RemoteInteraction, )
+	DEFINE_COMMON_VALIDATOR_TESTS(RemoteInteraction, )
 
-    namespace {
-        void AddAccount(cache::CatapultCache& cache, const Address& address, state::AccountType accountType)
-        {
-            auto cacheDelta = cache.createDelta();
-            auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+	namespace {
+		void AddAccount(cache::CatapultCache& cache, const Address& address, state::AccountType accountType) {
+			auto cacheDelta = cache.createDelta();
+			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-            accountStateCacheDelta.addAccount(address, Height(1));
-            auto accountStateIter = accountStateCacheDelta.find(address);
-            auto& accountState = accountStateIter.get();
-            accountState.AccountType = accountType;
+			accountStateCacheDelta.addAccount(address, Height(1));
+			auto accountStateIter = accountStateCacheDelta.find(address);
+			auto& accountState = accountStateIter.get();
+			accountState.AccountType = accountType;
 
-            cache.commit(Height(1));
-        }
+			cache.commit(Height(1));
+		}
 
-        void AssertValidation(
-            ValidationResult expectedResult,
-            const Address& address,
-            state::AccountType accountType,
-            std::vector<Address> additionalCacheAddresses,
-            model::EntityType transactionType,
-            const model::UnresolvedAddressSet& participantsByAddress)
-        {
-            // Arrange:
-            auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-            AddAccount(cache, address, accountType);
-            for (const auto& additionalAddress : additionalCacheAddresses)
-                AddAccount(cache, additionalAddress, state::AccountType::Main);
+		void AssertValidation(
+			ValidationResult expectedResult,
+			const Address& address,
+			state::AccountType accountType,
+			std::vector<Address> additionalCacheAddresses,
+			model::EntityType transactionType,
+			const model::UnresolvedAddressSet& participantsByAddress) {
+			// Arrange:
+			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+			AddAccount(cache, address, accountType);
+			for (const auto& additionalAddress : additionalCacheAddresses)
+				AddAccount(cache, additionalAddress, state::AccountType::Main);
 
-            auto pValidator = CreateRemoteInteractionValidator();
-            auto notification = model::AddressInteractionNotification(Address(), transactionType, participantsByAddress);
+			auto pValidator = CreateRemoteInteractionValidator();
+			auto notification = model::AddressInteractionNotification(Address(), transactionType, participantsByAddress);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
 
-        void AssertValidation(
-            ValidationResult expectedResult,
-            const Address& address,
-            state::AccountType accountType,
-            model::EntityType transactionType,
-            const model::UnresolvedAddressSet& participantsByAddress)
-        {
-            AssertValidation(expectedResult, address, accountType, {}, transactionType, participantsByAddress);
-        }
-    }
+		void AssertValidation(
+			ValidationResult expectedResult,
+			const Address& address,
+			state::AccountType accountType,
+			model::EntityType transactionType,
+			const model::UnresolvedAddressSet& participantsByAddress) {
+			AssertValidation(expectedResult, address, accountType, {}, transactionType, participantsByAddress);
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_SingleParticipant)
-    {
-        // Arrange:
-        constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
+	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_SingleParticipant) {
+		// Arrange:
+		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
-        auto address = test::GenerateRandomByteArray<Address>();
+		auto address = test::GenerateRandomByteArray<Address>();
 
-        // Assert:
-        AssertValidation(
-            Failure,
-            address,
-            state::AccountType::Remote,
-            static_cast<model::EntityType>(0x4123),
-            { test::UnresolveXor(address) });
-    }
+		// Assert:
+		AssertValidation(
+			Failure,
+			address,
+			state::AccountType::Remote,
+			static_cast<model::EntityType>(0x4123),
+			{ test::UnresolveXor(address) });
+	}
 
-    TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_MultipleParticipants)
-    {
-        // Arrange:
-        constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
+	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_MultipleParticipants) {
+		// Arrange:
+		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
-        auto address = test::GenerateRandomByteArray<Address>();
-        auto additionalParticipants = test::GenerateRandomDataVector<Address>(2);
+		auto address = test::GenerateRandomByteArray<Address>();
+		auto additionalParticipants = test::GenerateRandomDataVector<Address>(2);
 
-        // Assert:
-        AssertValidation(
-            Failure,
-            address,
-            state::AccountType::Remote,
-            additionalParticipants,
-            static_cast<model::EntityType>(0x4123),
-            { test::UnresolveXor(additionalParticipants[0]),
-                test::UnresolveXor(address),
-                test::UnresolveXor(additionalParticipants[1]) });
-    }
+		// Assert:
+		AssertValidation(
+			Failure,
+			address,
+			state::AccountType::Remote,
+			additionalParticipants,
+			static_cast<model::EntityType>(0x4123),
+			{ test::UnresolveXor(additionalParticipants[0]),
+				test::UnresolveXor(address),
+				test::UnresolveXor(additionalParticipants[1]) });
+	}
 
-    TEST(TEST_CLASS, SuccessWhenAccountIsRemoteAndTransactionHasTypeAccountLink)
-    {
-        // Arrange:
-        constexpr auto Transaction_Type = model::AccountKeyLinkTransaction::Entity_Type;
-        constexpr auto Success = ValidationResult::Success;
+	TEST(TEST_CLASS, SuccessWhenAccountIsRemoteAndTransactionHasTypeAccountLink) {
+		// Arrange:
+		constexpr auto Transaction_Type = model::AccountKeyLinkTransaction::Entity_Type;
+		constexpr auto Success = ValidationResult::Success;
 
-        auto address = test::GenerateRandomByteArray<Address>();
+		auto address = test::GenerateRandomByteArray<Address>();
 
-        // Assert:
-        AssertValidation(Success, address, state::AccountType::Remote, Transaction_Type, { test::UnresolveXor(address) });
-    }
+		// Assert:
+		AssertValidation(Success, address, state::AccountType::Remote, Transaction_Type, { test::UnresolveXor(address) });
+	}
 
-    TEST(TEST_CLASS, SuccessWhenParticipantIsUnknown)
-    {
-        // Arrange:
-        constexpr auto Transaction_Type = static_cast<model::EntityType>(0x4123);
-        constexpr auto Success = ValidationResult::Success;
+	TEST(TEST_CLASS, SuccessWhenParticipantIsUnknown) {
+		// Arrange:
+		constexpr auto Transaction_Type = static_cast<model::EntityType>(0x4123);
+		constexpr auto Success = ValidationResult::Success;
 
-        auto address = test::GenerateRandomByteArray<Address>();
-        auto participantAddress = test::GenerateRandomByteArray<Address>();
+		auto address = test::GenerateRandomByteArray<Address>();
+		auto participantAddress = test::GenerateRandomByteArray<Address>();
 
-        // Assert:
-        AssertValidation(Success, address, state::AccountType::Remote, Transaction_Type, { test::UnresolveXor(participantAddress) });
-    }
+		// Assert:
+		AssertValidation(Success, address, state::AccountType::Remote, Transaction_Type, { test::UnresolveXor(participantAddress) });
+	}
 
-    TEST(TEST_CLASS, SuccessWhenAccountIsNotRemote)
-    {
-        // Arrange:
-        constexpr auto Transaction_Type = static_cast<model::EntityType>(0x4123);
-        constexpr auto Success = ValidationResult::Success;
+	TEST(TEST_CLASS, SuccessWhenAccountIsNotRemote) {
+		// Arrange:
+		constexpr auto Transaction_Type = static_cast<model::EntityType>(0x4123);
+		constexpr auto Success = ValidationResult::Success;
 
-        auto address = test::GenerateRandomByteArray<Address>();
+		auto address = test::GenerateRandomByteArray<Address>();
 
-        // Assert:
-        AssertValidation(Success, address, state::AccountType::Main, Transaction_Type, { test::UnresolveXor(address) });
-        AssertValidation(Success, address, state::AccountType::Unlinked, Transaction_Type, { test::UnresolveXor(address) });
-    }
+		// Assert:
+		AssertValidation(Success, address, state::AccountType::Main, Transaction_Type, { test::UnresolveXor(address) });
+		AssertValidation(Success, address, state::AccountType::Unlinked, Transaction_Type, { test::UnresolveXor(address) });
+	}
 }
 }

@@ -26,47 +26,47 @@
 
 namespace catapult {
 namespace cache {
-    class AccountStateCacheView;
-    class ImportanceView;
+	class AccountStateCacheView;
+	class ImportanceView;
 }
 }
 
 namespace catapult {
 namespace timesync {
 
-    /// Time synchronizer that synchronizes local time with the network.
-    class TimeSynchronizer {
-    public:
-        /// Creates a time synchronizer around \a filter, \a totalChainImportance and \a warningThresholdMillis.
-        TimeSynchronizer(
-            const filters::AggregateSynchronizationFilter& filter,
-            Importance totalChainImportance,
-            int64_t warningThresholdMillis = Warning_Threshold_Millis);
+	/// Time synchronizer that synchronizes local time with the network.
+	class TimeSynchronizer {
+	public:
+		/// Creates a time synchronizer around \a filter, \a totalChainImportance and \a warningThresholdMillis.
+		TimeSynchronizer(
+			const filters::AggregateSynchronizationFilter& filter,
+			Importance totalChainImportance,
+			int64_t warningThresholdMillis = Warning_Threshold_Millis);
 
-    public:
-        /// Calculates a time offset from \a samples using \a accountStateCacheView, \a height and \a nodeAge.
-        TimeOffset calculateTimeOffset(
-            const cache::AccountStateCacheView& accountStateCacheView,
-            Height height,
-            TimeSynchronizationSamples&& samples,
-            NodeAge nodeAge);
+	public:
+		/// Calculates a time offset from \a samples using \a accountStateCacheView, \a height and \a nodeAge.
+		TimeOffset calculateTimeOffset(
+			const cache::AccountStateCacheView& accountStateCacheView,
+			Height height,
+			TimeSynchronizationSamples&& samples,
+			NodeAge nodeAge);
 
-    private:
-        Importance::ValueType sumImportances(
-            const cache::ImportanceView& importanceView,
-            Height height,
-            const TimeSynchronizationSamples& samples);
+	private:
+		Importance::ValueType sumImportances(
+			const cache::ImportanceView& importanceView,
+			Height height,
+			const TimeSynchronizationSamples& samples);
 
-        double sumScaledOffsets(
-            const cache::ImportanceView& importanceView,
-            Height height,
-            const TimeSynchronizationSamples& samples,
-            double scaling);
+		double sumScaledOffsets(
+			const cache::ImportanceView& importanceView,
+			Height height,
+			const TimeSynchronizationSamples& samples,
+			double scaling);
 
-    private:
-        filters::AggregateSynchronizationFilter m_filter;
-        Importance m_totalChainImportance;
-        int64_t m_warningThresholdMillis;
-    };
+	private:
+		filters::AggregateSynchronizationFilter m_filter;
+		Importance m_totalChainImportance;
+		int64_t m_warningThresholdMillis;
+	};
 }
 }

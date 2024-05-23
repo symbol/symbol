@@ -26,127 +26,115 @@
 namespace catapult {
 namespace thread {
 
-    /// Provides a way to access the result of an asynchronous operation.
-    template <typename T>
-    class future : public utils::MoveOnly {
-    public:
-        /// Creates a default future.
-        future() = default;
+	/// Provides a way to access the result of an asynchronous operation.
+	template <typename T>
+	class future : public utils::MoveOnly {
+	public:
+		/// Creates a default future.
+		future() = default;
 
-        /// Constructs a future around a shared state (\a pState).
-        explicit future(const std::shared_ptr<detail::shared_state<T>>& pState)
-            : m_pState(pState)
-        {
-        }
+		/// Constructs a future around a shared state (\a pState).
+		explicit future(const std::shared_ptr<detail::shared_state<T>>& pState)
+			: m_pState(pState) {
+		}
 
-    public:
-        /// Returns \c true if this future is valid.
-        bool valid()
-        {
-            return !!m_pState;
-        }
+	public:
+		/// Returns \c true if this future is valid.
+		bool valid() {
+			return !!m_pState;
+		}
 
-        /// Returns \c true if this future has completed and get will not block.
-        bool is_ready() const
-        {
-            return m_pState->is_ready();
-        }
+		/// Returns \c true if this future has completed and get will not block.
+		bool is_ready() const {
+			return m_pState->is_ready();
+		}
 
-        /// Gets the result of this future and blocks until the result is available.
-        T get()
-        {
-            return m_pState->get();
-        }
+		/// Gets the result of this future and blocks until the result is available.
+		T get() {
+			return m_pState->get();
+		}
 
-        /// Configures \a continuation to run at the completion of this future.
-        template <typename TContinuation, typename TResultType = std::invoke_result_t<TContinuation, future<T>&&>>
-        auto then(TContinuation continuation)
-        {
-            if constexpr (!std::is_same_v<TResultType, void>) {
-                auto pResultState = std::make_shared<detail::shared_state<TResultType>>();
-                m_pState->set_continuation([pResultState, continuation](const auto& pState) {
-                    try {
-                        pResultState->set_value(continuation(future<T>(pState)));
-                    } catch (...) {
-                        pResultState->set_exception(std::current_exception());
-                    }
-                });
+		/// Configures \a continuation to run at the completion of this future.
+		template <typename TContinuation, typename TResultType = std::invoke_result_t<TContinuation, future<T>&&>>
+		auto then(TContinuation continuation) {
+			if constexpr (!std::is_same_v<TResultType, void>) {
+				auto pResultState = std::make_shared<detail::shared_state<TResultType>>();
+				m_pState->set_continuation([pResultState, continuation](const auto& pState) {
+					try {
+						pResultState->set_value(continuation(future<T>(pState)));
+					} catch (...) {
+						pResultState->set_exception(std::current_exception());
+					}
+				});
 
-                return future<TResultType>(pResultState);
-            } else {
-                return then([continuation](auto&& nextFuture) {
-                    continuation(std::move(nextFuture));
-                    return true;
-                });
-            }
-        }
+				return future<TResultType>(pResultState);
+			} else {
+				return then([continuation](auto&& nextFuture) {
+					continuation(std::move(nextFuture));
+					return true;
+				});
+			}
+		}
 
-    private:
-        std::shared_ptr<detail::shared_state<T>> m_pState;
-    };
+	private:
+		std::shared_ptr<detail::shared_state<T>> m_pState;
+	};
 
-    /// Stores the result of an asynchronous operation.
-    template <typename T>
-    class promise : public utils::MoveOnly {
-    public:
-        /// Constructs a promise.
-        promise()
-            : m_pState(std::make_shared<detail::shared_state<T>>())
-            , m_pIsFutureCreated(std::make_unique<std::atomic_flag>())
-        {
-            m_pIsFutureCreated->clear(std::memory_order_release);
-        }
+	/// Stores the result of an asynchronous operation.
+	template <typename T>
+	class promise : public utils::MoveOnly {
+	public:
+		/// Constructs a promise.
+		promise()
+			: m_pState(std::make_shared<detail::shared_state<T>>())
+			, m_pIsFutureCreated(std::make_unique<std::atomic_flag>()) {
+			m_pIsFutureCreated->clear(std::memory_order_release);
+		}
 
-    public:
-        /// Returns \c true if this promise is valid.
-        bool valid()
-        {
-            return !!m_pState;
-        }
+	public:
+		/// Returns \c true if this promise is valid.
+		bool valid() {
+			return !!m_pState;
+		}
 
-        /// Gets a future associated with this promise.
-        future<T> get_future()
-        {
-            if (m_pIsFutureCreated->test_and_set(std::memory_order_acquire))
-                throw std::future_error(std::future_errc::future_already_retrieved);
+		/// Gets a future associated with this promise.
+		future<T> get_future() {
+			if (m_pIsFutureCreated->test_and_set(std::memory_order_acquire))
+				throw std::future_error(std::future_errc::future_already_retrieved);
 
-            return future<T>(m_pState);
-        }
+			return future<T>(m_pState);
+		}
 
-    public:
-        /// Sets the result of this promise to \a value.
-        void set_value(T&& value)
-        {
-            m_pState->set_value(std::move(value));
-        }
+	public:
+		/// Sets the result of this promise to \a value.
+		void set_value(T&& value) {
+			m_pState->set_value(std::move(value));
+		}
 
-        /// Sets the result of this promise to \a pException.
-        void set_exception(std::exception_ptr pException)
-        {
-            m_pState->set_exception(pException);
-        }
+		/// Sets the result of this promise to \a pException.
+		void set_exception(std::exception_ptr pException) {
+			m_pState->set_exception(pException);
+		}
 
-    private:
-        std::shared_ptr<detail::shared_state<T>> m_pState;
-        std::unique_ptr<std::atomic_flag> m_pIsFutureCreated;
-    };
+	private:
+		std::shared_ptr<detail::shared_state<T>> m_pState;
+		std::unique_ptr<std::atomic_flag> m_pIsFutureCreated;
+	};
 
-    /// Produces a future that is ready immediately and holds the given \a value.
-    template <typename T>
-    future<T> make_ready_future(T&& value)
-    {
-        auto pState = std::make_shared<detail::shared_state<T>>();
-        pState->set_value(std::move(value));
-        return future<T>(pState);
-    }
+	/// Produces a future that is ready immediately and holds the given \a value.
+	template <typename T>
+	future<T> make_ready_future(T&& value) {
+		auto pState = std::make_shared<detail::shared_state<T>>();
+		pState->set_value(std::move(value));
+		return future<T>(pState);
+	}
 
-    /// Produces a future that is ready immediately and holds the given exception (\a ex).
-    template <typename T, typename E>
-    future<T> make_exceptional_future(E ex)
-    {
-        auto pState = std::make_shared<detail::shared_state<T>>();
-        pState->set_exception(std::make_exception_ptr(ex));
-        return future<T>(pState);
-    }
+	/// Produces a future that is ready immediately and holds the given exception (\a ex).
+	template <typename T, typename E>
+	future<T> make_exceptional_future(E ex) {
+		auto pState = std::make_shared<detail::shared_state<T>>();
+		pState->set_exception(std::make_exception_ptr(ex));
+		return future<T>(pState);
+	}
 }
 }

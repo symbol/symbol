@@ -26,26 +26,26 @@
 
 namespace catapult {
 namespace model {
-    class InflationCalculator;
+	class InflationCalculator;
 }
 }
 
 namespace catapult {
 namespace observers {
 
-    /// Observes changes triggered by mosaic definition notifications and:
-    /// - creates mosaics
-    DECLARE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification)
-    ();
+	/// Observes changes triggered by mosaic definition notifications and:
+	/// - creates mosaics
+	DECLARE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification)
+	();
 
-    /// Observes changes triggered by mosaic supply change notifications and:
-    /// - increases or decreases supply
-    DECLARE_OBSERVER(MosaicSupplyChange, model::MosaicSupplyChangeNotification)
-    ();
+	/// Observes changes triggered by mosaic supply change notifications and:
+	/// - increases or decreases supply
+	DECLARE_OBSERVER(MosaicSupplyChange, model::MosaicSupplyChangeNotification)
+	();
 
-    /// Observes block notifications and:
-    /// - increases or decreases the supply of the currency mosaic (\a currencyMosaicId) given the inflation \a calculator
-    DECLARE_OBSERVER(MosaicSupplyInflation, model::BlockNotification)
-    (MosaicId currencyMosaicId, const model::InflationCalculator& calculator);
+	/// Observes block notifications and:
+	/// - increases or decreases the supply of the currency mosaic (\a currencyMosaicId) given the inflation \a calculator
+	DECLARE_OBSERVER(MosaicSupplyInflation, model::BlockNotification)
+	(MosaicId currencyMosaicId, const model::InflationCalculator& calculator);
 }
 }

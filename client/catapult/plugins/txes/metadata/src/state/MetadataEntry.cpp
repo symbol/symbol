@@ -24,24 +24,20 @@
 namespace catapult {
 namespace state {
 
-    MetadataEntry::MetadataEntry(const MetadataKey& key)
-        : m_key(key)
-    {
-    }
+	MetadataEntry::MetadataEntry(const MetadataKey& key)
+		: m_key(key) {
+	}
 
-    const MetadataKey& MetadataEntry::key() const
-    {
-        return m_key;
-    }
+	const MetadataKey& MetadataEntry::key() const {
+		return m_key;
+	}
 
-    const MetadataValue& MetadataEntry::value() const
-    {
-        return m_value;
-    }
+	const MetadataValue& MetadataEntry::value() const {
+		return m_value;
+	}
 
-    MetadataValue& MetadataEntry::value()
-    {
-        return m_value;
-    }
+	MetadataValue& MetadataEntry::value() {
+		return m_value;
+	}
 }
 }

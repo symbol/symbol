@@ -26,23 +26,22 @@
 namespace catapult {
 namespace model {
 
-    /// Contextual information associated with a notification.
-    /// \note This is passed to both stateful validators and observers.
-    struct NotificationContext {
-    public:
-        /// Creates a notification context around \a height and \a resolvers.
-        NotificationContext(catapult::Height height, const model::ResolverContext& resolvers)
-            : Height(height)
-            , Resolvers(resolvers)
-        {
-        }
+	/// Contextual information associated with a notification.
+	/// \note This is passed to both stateful validators and observers.
+	struct NotificationContext {
+	public:
+		/// Creates a notification context around \a height and \a resolvers.
+		NotificationContext(catapult::Height height, const model::ResolverContext& resolvers)
+			: Height(height)
+			, Resolvers(resolvers) {
+		}
 
-    public:
-        /// Current height.
-        const catapult::Height Height;
+	public:
+		/// Current height.
+		const catapult::Height Height;
 
-        /// Alias resolvers.
-        const model::ResolverContext Resolvers;
-    };
+		/// Alias resolvers.
+		const model::ResolverContext Resolvers;
+	};
 }
 }

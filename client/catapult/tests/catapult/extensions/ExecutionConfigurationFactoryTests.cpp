@@ -28,43 +28,42 @@ namespace extensions {
 
 #define TEST_CLASS ExecutionConfigurationFactoryTests
 
-    TEST(TEST_CLASS, CanCreateExecutionConfiguration)
-    {
-        // Act:
-        auto pPluginManager = test::CreateDefaultPluginManagerWithRealPlugins();
-        auto config = CreateExecutionConfiguration(*pPluginManager);
+	TEST(TEST_CLASS, CanCreateExecutionConfiguration) {
+		// Act:
+		auto pPluginManager = test::CreateDefaultPluginManagerWithRealPlugins();
+		auto config = CreateExecutionConfiguration(*pPluginManager);
 
-        // Assert:
-        EXPECT_EQ(model::NetworkIdentifier::Testnet, config.Network.Identifier);
-        EXPECT_TRUE(!!config.pObserver);
-        EXPECT_TRUE(!!config.pValidator);
-        EXPECT_TRUE(!!config.pNotificationPublisher);
-        EXPECT_TRUE(!!config.ResolverContextFactory);
+		// Assert:
+		EXPECT_EQ(model::NetworkIdentifier::Testnet, config.Network.Identifier);
+		EXPECT_TRUE(!!config.pObserver);
+		EXPECT_TRUE(!!config.pValidator);
+		EXPECT_TRUE(!!config.pNotificationPublisher);
+		EXPECT_TRUE(!!config.ResolverContextFactory);
 
-        // - notice that only observers and validators registered in CreateDefaultPluginManagerWithRealPlugins are present
-        std::vector<std::string> expectedObserverNames { "SourceChangeObserver", "AccountAddressObserver",
-            "AccountPublicKeyObserver", "BalanceDebitObserver",
-            "BalanceTransferObserver", "BeneficiaryObserver",
-            "TransactionFeeActivityObserver", "HarvestFeeObserver",
-            "TotalTransactionsObserver", "VrfKeyLinkObserver",
-            "VotingMultiKeyLinkObserver", "HighValueAccountCommitObserver",
-            "RecalculateImportancesObserver", "HighValueAccountRollbackObserver",
-            "BlockStatisticObserver" };
-        EXPECT_EQ(expectedObserverNames, config.pObserver->names());
+		// - notice that only observers and validators registered in CreateDefaultPluginManagerWithRealPlugins are present
+		std::vector<std::string> expectedObserverNames { "SourceChangeObserver", "AccountAddressObserver",
+			"AccountPublicKeyObserver", "BalanceDebitObserver",
+			"BalanceTransferObserver", "BeneficiaryObserver",
+			"TransactionFeeActivityObserver", "HarvestFeeObserver",
+			"TotalTransactionsObserver", "VrfKeyLinkObserver",
+			"VotingMultiKeyLinkObserver", "HighValueAccountCommitObserver",
+			"RecalculateImportancesObserver", "HighValueAccountRollbackObserver",
+			"BlockStatisticObserver" };
+		EXPECT_EQ(expectedObserverNames, config.pObserver->names());
 
-        std::vector<std::string> expectedValidatorNames { "AddressValidator",
-            "PublicKeyValidator",
-            "DeadlineValidator",
-            "NemesisSinkValidator",
-            "EligibleHarvesterValidator",
-            "BalanceDebitValidator",
-            "BalanceTransferValidator",
-            "ImportanceBlockValidator",
+		std::vector<std::string> expectedValidatorNames { "AddressValidator",
+			"PublicKeyValidator",
+			"DeadlineValidator",
+			"NemesisSinkValidator",
+			"EligibleHarvesterValidator",
+			"BalanceDebitValidator",
+			"BalanceTransferValidator",
+			"ImportanceBlockValidator",
 
-            // key link transactions
-            "VrfKeyLinkValidator",
-            "VotingMultiKeyLinkValidator" };
-        EXPECT_EQ(expectedValidatorNames, config.pValidator->names());
-    }
+			// key link transactions
+			"VrfKeyLinkValidator",
+			"VotingMultiKeyLinkValidator" };
+		EXPECT_EQ(expectedValidatorNames, config.pValidator->names());
+	}
 }
 }

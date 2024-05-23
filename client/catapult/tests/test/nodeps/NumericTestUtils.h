@@ -26,22 +26,20 @@
 namespace catapult {
 namespace test {
 
-    /// Sets the specified \a value to the maximum value allowed by its type.
-    template <typename T>
-    void SetMaxValue(T& value)
-    {
-        value = std::numeric_limits<T>::max();
-    }
+	/// Sets the specified \a value to the maximum value allowed by its type.
+	template <typename T>
+	void SetMaxValue(T& value) {
+		value = std::numeric_limits<T>::max();
+	}
 
-    /// Creates a copy of \a data and XORs all its bytes.
-    template <size_t N>
-    std::array<uint8_t, N> CopyAndXorArray(const std::array<uint8_t, N>& data)
-    {
-        std::array<uint8_t, N> copy;
-        for (auto i = 0u; i < N; ++i)
-            copy[i] = data[i] ^ 0xFFu;
+	/// Creates a copy of \a data and XORs all its bytes.
+	template <size_t N>
+	std::array<uint8_t, N> CopyAndXorArray(const std::array<uint8_t, N>& data) {
+		std::array<uint8_t, N> copy;
+		for (auto i = 0u; i < N; ++i)
+			copy[i] = data[i] ^ 0xFFu;
 
-        return copy;
-    }
+		return copy;
+	}
 }
 }

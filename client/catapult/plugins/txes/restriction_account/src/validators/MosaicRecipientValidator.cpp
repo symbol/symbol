@@ -27,16 +27,16 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::BalanceTransferNotification;
+	using Notification = model::BalanceTransferNotification;
 
-    DEFINE_STATEFUL_VALIDATOR(MosaicRecipient, [](const Notification& notification, const ValidatorContext& context) {
-        AccountRestrictionView view(context.Cache);
-        if (!view.initialize(notification.Recipient.resolved(context.Resolvers)))
-            return ValidationResult::Success;
+	DEFINE_STATEFUL_VALIDATOR(MosaicRecipient, [](const Notification& notification, const ValidatorContext& context) {
+		AccountRestrictionView view(context.Cache);
+		if (!view.initialize(notification.Recipient.resolved(context.Resolvers)))
+			return ValidationResult::Success;
 
-        auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-        auto isTransferAllowed = view.isAllowed(model::AccountRestrictionFlags::MosaicId, mosaicId);
-        return isTransferAllowed ? ValidationResult::Success : Failure_RestrictionAccount_Mosaic_Transfer_Prohibited;
-    })
+		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+		auto isTransferAllowed = view.isAllowed(model::AccountRestrictionFlags::MosaicId, mosaicId);
+		return isTransferAllowed ? ValidationResult::Success : Failure_RestrictionAccount_Mosaic_Transfer_Prohibited;
+	})
 }
 }

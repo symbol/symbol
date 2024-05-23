@@ -26,51 +26,51 @@
 
 namespace catapult {
 namespace model {
-    struct BlockchainConfiguration;
+	struct BlockchainConfiguration;
 }
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace config {
 
-    /// Mosaic plugin configuration settings.
-    struct MosaicConfiguration {
-    public:
-        /// Maximum number of mosaics that an account can own.
-        uint16_t MaxMosaicsPerAccount;
+	/// Mosaic plugin configuration settings.
+	struct MosaicConfiguration {
+	public:
+		/// Maximum number of mosaics that an account can own.
+		uint16_t MaxMosaicsPerAccount;
 
-        /// Maximum mosaic duration.
-        utils::BlockSpan MaxMosaicDuration;
+		/// Maximum mosaic duration.
+		utils::BlockSpan MaxMosaicDuration;
 
-        /// Maximum mosaic divisibility.
-        uint8_t MaxMosaicDivisibility;
+		/// Maximum mosaic divisibility.
+		uint8_t MaxMosaicDivisibility;
 
-        /// Address of the mosaic rental fee sink account (V1).
-        Address MosaicRentalFeeSinkAddressV1;
+		/// Address of the mosaic rental fee sink account (V1).
+		Address MosaicRentalFeeSinkAddressV1;
 
-        /// Address of the mosaic rental fee sink account (latest).
-        Address MosaicRentalFeeSinkAddress;
+		/// Address of the mosaic rental fee sink account (latest).
+		Address MosaicRentalFeeSinkAddress;
 
-        /// Mosaic rental fee.
-        Amount MosaicRentalFee;
+		/// Mosaic rental fee.
+		Amount MosaicRentalFee;
 
-    private:
-        MosaicConfiguration() = default;
+	private:
+		MosaicConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized mosaic configuration.
-        static MosaicConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized mosaic configuration.
+		static MosaicConfiguration Uninitialized();
 
-        /// Loads a mosaic configuration from \a bag.
-        static MosaicConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+		/// Loads a mosaic configuration from \a bag.
+		static MosaicConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 
-    /// Gets the mosaic rental fee sink address from \a config and \a blockchainConfig.
-    model::HeightDependentAddress GetMosaicRentalFeeSinkAddress(
-        const MosaicConfiguration& config,
-        const model::BlockchainConfiguration& blockchainConfig);
+	/// Gets the mosaic rental fee sink address from \a config and \a blockchainConfig.
+	model::HeightDependentAddress GetMosaicRentalFeeSinkAddress(
+		const MosaicConfiguration& config,
+		const model::BlockchainConfiguration& blockchainConfig);
 }
 }

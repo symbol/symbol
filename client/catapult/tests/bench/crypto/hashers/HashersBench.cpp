@@ -25,72 +25,69 @@
 
 namespace catapult {
 namespace crypto {
-    namespace {
-        // region traits
+	namespace {
+		// region traits
 
-        struct Ripemd160_Traits {
-            using HashType = Hash160;
-            static constexpr auto HashFunc = Ripemd160;
-        };
+		struct Ripemd160_Traits {
+			using HashType = Hash160;
+			static constexpr auto HashFunc = Ripemd160;
+		};
 
-        struct Bitcoin160_Traits {
-            using HashType = Hash160;
-            static constexpr auto HashFunc = Bitcoin160;
-        };
+		struct Bitcoin160_Traits {
+			using HashType = Hash160;
+			static constexpr auto HashFunc = Bitcoin160;
+		};
 
-        struct Sha256Double_Traits {
-            using HashType = Hash256;
-            static constexpr auto HashFunc = Sha256Double;
-        };
+		struct Sha256Double_Traits {
+			using HashType = Hash256;
+			static constexpr auto HashFunc = Sha256Double;
+		};
 
-        struct Sha512_Traits {
-            using HashType = Hash512;
-            static constexpr auto HashFunc = Sha512;
-        };
+		struct Sha512_Traits {
+			using HashType = Hash512;
+			static constexpr auto HashFunc = Sha512;
+		};
 
-        struct Sha3_256_Traits {
-            using HashType = Hash256;
-            static constexpr auto HashFunc = Sha3_256;
-        };
+		struct Sha3_256_Traits {
+			using HashType = Hash256;
+			static constexpr auto HashFunc = Sha3_256;
+		};
 
-        // endregion
+		// endregion
 
-        template <typename TTraits>
-        void BenchmarkHasher(benchmark::State& state)
-        {
-            std::vector<uint8_t> buffer(static_cast<size_t>(state.range(0)));
-            typename TTraits::HashType hash;
-            for (auto _ : state) {
-                state.PauseTiming();
-                bench::FillWithRandomData(buffer);
-                state.ResumeTiming();
+		template <typename TTraits>
+		void BenchmarkHasher(benchmark::State& state) {
+			std::vector<uint8_t> buffer(static_cast<size_t>(state.range(0)));
+			typename TTraits::HashType hash;
+			for (auto _ : state) {
+				state.PauseTiming();
+				bench::FillWithRandomData(buffer);
+				state.ResumeTiming();
 
-                TTraits::HashFunc(buffer, hash);
-            }
+				TTraits::HashFunc(buffer, hash);
+			}
 
-            state.SetBytesProcessed(static_cast<int64_t>(buffer.size()) * state.iterations());
-        }
+			state.SetBytesProcessed(static_cast<int64_t>(buffer.size()) * state.iterations());
+		}
 
-        void AddDefaultArguments(benchmark::internal::Benchmark& benchmark)
-        {
-            for (auto arg : { 256, 1024, 4096, 16384 })
-                benchmark.UseRealTime()->Arg(arg);
-        }
-    }
+		void AddDefaultArguments(benchmark::internal::Benchmark& benchmark) {
+			for (auto arg : { 256, 1024, 4096, 16384 })
+				benchmark.UseRealTime()->Arg(arg);
+		}
+	}
 }
 }
 
 #define REGISTER_BENCHMARK(BENCH_NAME) benchmark::RegisterBenchmark(#BENCH_NAME, BENCH_NAME)
 
 #define CATAPULT_REGISTER_HASHER_BENCHMARK(TRAITS_NAME) \
-    catapult::crypto::AddDefaultArguments(*REGISTER_BENCHMARK(catapult::crypto::BenchmarkHasher<catapult::crypto::TRAITS_NAME>))
+	catapult::crypto::AddDefaultArguments(*REGISTER_BENCHMARK(catapult::crypto::BenchmarkHasher<catapult::crypto::TRAITS_NAME>))
 
 void RegisterTests();
-void RegisterTests()
-{
-    CATAPULT_REGISTER_HASHER_BENCHMARK(Ripemd160_Traits);
-    CATAPULT_REGISTER_HASHER_BENCHMARK(Bitcoin160_Traits);
-    CATAPULT_REGISTER_HASHER_BENCHMARK(Sha256Double_Traits);
-    CATAPULT_REGISTER_HASHER_BENCHMARK(Sha512_Traits);
-    CATAPULT_REGISTER_HASHER_BENCHMARK(Sha3_256_Traits);
+void RegisterTests() {
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Ripemd160_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Bitcoin160_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha256Double_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha512_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha3_256_Traits);
 }

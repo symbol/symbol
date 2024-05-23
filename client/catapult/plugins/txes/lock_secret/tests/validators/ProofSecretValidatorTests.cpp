@@ -30,142 +30,127 @@ namespace validators {
 
 #define TEST_CLASS ProofSecretValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(ProofSecret, 0, 0)
+	DEFINE_COMMON_VALIDATOR_TESTS(ProofSecret, 0, 0)
 
-    namespace {
-        struct NotificationBuilder {
-        public:
-            NotificationBuilder(model::LockHashAlgorithm algorithm = model::LockHashAlgorithm::Op_Sha3_256)
-                : m_algorithm(algorithm)
-            {
-                setProofSize(50);
-                test::FillWithRandomData(m_secret);
-            }
+	namespace {
+		struct NotificationBuilder {
+		public:
+			NotificationBuilder(model::LockHashAlgorithm algorithm = model::LockHashAlgorithm::Op_Sha3_256)
+				: m_algorithm(algorithm) {
+				setProofSize(50);
+				test::FillWithRandomData(m_secret);
+			}
 
-        public:
-            auto notification()
-            {
-                return model::ProofSecretNotification(m_algorithm, m_secret, m_proof);
-            }
+		public:
+			auto notification() {
+				return model::ProofSecretNotification(m_algorithm, m_secret, m_proof);
+			}
 
-            void setProofSize(size_t proofSize)
-            {
-                m_proof.resize(proofSize);
-                test::FillWithRandomData(m_proof);
-            }
+			void setProofSize(size_t proofSize) {
+				m_proof.resize(proofSize);
+				test::FillWithRandomData(m_proof);
+			}
 
-            void setValidHash()
-            {
-                m_secret = model::CalculateHash(m_algorithm, m_proof);
-            }
+			void setValidHash() {
+				m_secret = model::CalculateHash(m_algorithm, m_proof);
+			}
 
-        private:
-            model::LockHashAlgorithm m_algorithm;
-            std::vector<uint8_t> m_proof;
-            Hash256 m_secret;
-        };
+		private:
+			model::LockHashAlgorithm m_algorithm;
+			std::vector<uint8_t> m_proof;
+			Hash256 m_secret;
+		};
 
-        auto CreateDefaultProofSecretValidator()
-        {
-            return CreateProofSecretValidator(10, 100);
-        }
+		auto CreateDefaultProofSecretValidator() {
+			return CreateProofSecretValidator(10, 100);
+		}
 
-        void AssertFailureIfHashAlgorithmIsNotSupported(model::LockHashAlgorithm lockHashAlgorithm)
-        {
-            // Arrange:
-            NotificationBuilder notificationBuilder(lockHashAlgorithm);
-            auto pValidator = CreateDefaultProofSecretValidator();
+		void AssertFailureIfHashAlgorithmIsNotSupported(model::LockHashAlgorithm lockHashAlgorithm) {
+			// Arrange:
+			NotificationBuilder notificationBuilder(lockHashAlgorithm);
+			auto pValidator = CreateDefaultProofSecretValidator();
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
 
-            // Assert:
-            EXPECT_EQ(Failure_LockSecret_Invalid_Hash_Algorithm, result)
-                << "hash algorithm: " << utils::to_underlying_type(lockHashAlgorithm);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(Failure_LockSecret_Invalid_Hash_Algorithm, result)
+				<< "hash algorithm: " << utils::to_underlying_type(lockHashAlgorithm);
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenHashAlgorithmIsNotSupported)
-    {
-        using model::LockHashAlgorithm;
+	TEST(TEST_CLASS, FailureWhenHashAlgorithmIsNotSupported) {
+		using model::LockHashAlgorithm;
 
-        // Assert:
-        auto unsupportedAlgorithm = static_cast<LockHashAlgorithm>(utils::to_underlying_type(LockHashAlgorithm::Op_Hash_256) + 1);
-        AssertFailureIfHashAlgorithmIsNotSupported(unsupportedAlgorithm);
-    }
+		// Assert:
+		auto unsupportedAlgorithm = static_cast<LockHashAlgorithm>(utils::to_underlying_type(LockHashAlgorithm::Op_Hash_256) + 1);
+		AssertFailureIfHashAlgorithmIsNotSupported(unsupportedAlgorithm);
+	}
 
-    TEST(TEST_CLASS, FailureWhenSecretDoesNotMatchProof)
-    {
-        NotificationBuilder notificationBuilder;
-        auto pValidator = CreateDefaultProofSecretValidator();
+	TEST(TEST_CLASS, FailureWhenSecretDoesNotMatchProof) {
+		NotificationBuilder notificationBuilder;
+		auto pValidator = CreateDefaultProofSecretValidator();
 
-        // Act:
-        auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
+		// Act:
+		auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
 
-        // Assert:
-        EXPECT_EQ(Failure_LockSecret_Secret_Mismatch, result);
-    }
+		// Assert:
+		EXPECT_EQ(Failure_LockSecret_Secret_Mismatch, result);
+	}
 
-    namespace {
-        void AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm algorithm)
-        {
-            // Arrange:
-            NotificationBuilder notificationBuilder(algorithm);
-            notificationBuilder.setValidHash();
-            auto pValidator = CreateDefaultProofSecretValidator();
+	namespace {
+		void AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm algorithm) {
+			// Arrange:
+			NotificationBuilder notificationBuilder(algorithm);
+			notificationBuilder.setValidHash();
+			auto pValidator = CreateDefaultProofSecretValidator();
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
 
-            // Assert:
-            EXPECT_EQ(ValidationResult::Success, result);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(ValidationResult::Success, result);
+		}
+	}
 
-    TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Sha3)
-    {
-        AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Sha3_256);
-    }
+	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Sha3) {
+		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Sha3_256);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Bitcoin160)
-    {
-        AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_160);
-    }
+	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Bitcoin160) {
+		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_160);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Sha256Double)
-    {
-        AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_256);
-    }
+	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Sha256Double) {
+		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_256);
+	}
 
-    namespace {
-        void AssertProofSize(ValidationResult expectedResult, size_t proofSize)
-        {
-            // Arrange:
-            NotificationBuilder notificationBuilder;
-            notificationBuilder.setProofSize(proofSize);
-            notificationBuilder.setValidHash();
-            auto pValidator = CreateDefaultProofSecretValidator();
+	namespace {
+		void AssertProofSize(ValidationResult expectedResult, size_t proofSize) {
+			// Arrange:
+			NotificationBuilder notificationBuilder;
+			notificationBuilder.setProofSize(proofSize);
+			notificationBuilder.setValidHash();
+			auto pValidator = CreateDefaultProofSecretValidator();
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "proof size: " << proofSize;
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "proof size: " << proofSize;
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenProofIsOutOfBounds)
-    {
-        // Assert: minimum size is 10, maximum is 100, so all should fail
-        for (auto proofSize : { 3u, 9u, 101u, 105u })
-            AssertProofSize(Failure_LockSecret_Proof_Size_Out_Of_Bounds, proofSize);
-    }
+	TEST(TEST_CLASS, FailureWhenProofIsOutOfBounds) {
+		// Assert: minimum size is 10, maximum is 100, so all should fail
+		for (auto proofSize : { 3u, 9u, 101u, 105u })
+			AssertProofSize(Failure_LockSecret_Proof_Size_Out_Of_Bounds, proofSize);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenProofIsWithinBounds)
-    {
-        // Assert: minimum size is 10, maximum is 100, so all should succeed
-        for (auto proofSize : { 10u, 40u, 100u })
-            AssertProofSize(ValidationResult::Success, proofSize);
-    }
+	TEST(TEST_CLASS, SuccessWhenProofIsWithinBounds) {
+		// Assert: minimum size is 10, maximum is 100, so all should succeed
+		for (auto proofSize : { 10u, 40u, 100u })
+			AssertProofSize(ValidationResult::Success, proofSize);
+	}
 }
 }

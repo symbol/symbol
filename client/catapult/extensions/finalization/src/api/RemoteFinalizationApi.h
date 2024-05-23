@@ -29,32 +29,31 @@
 
 namespace catapult {
 namespace ionet {
-    class PacketIo;
+	class PacketIo;
 }
 }
 
 namespace catapult {
 namespace api {
 
-    /// Api for retrieving finalization information from a remote node.
-    class RemoteFinalizationApi : public RemoteApi {
-    protected:
-        /// Creates a remote api for the node with specified \a remoteIdentity.
-        explicit RemoteFinalizationApi(const model::NodeIdentity& remoteIdentity)
-            : RemoteApi(remoteIdentity)
-        {
-        }
+	/// Api for retrieving finalization information from a remote node.
+	class RemoteFinalizationApi : public RemoteApi {
+	protected:
+		/// Creates a remote api for the node with specified \a remoteIdentity.
+		explicit RemoteFinalizationApi(const model::NodeIdentity& remoteIdentity)
+			: RemoteApi(remoteIdentity) {
+		}
 
-    public:
-        /// Gets all finalization messages from the remote with a finalization round in \a roundRange
-        /// excluding those with hashes in \a knownShortHashes.
-        virtual thread::future<model::FinalizationMessageRange> messages(
-            const model::FinalizationRoundRange& roundRange,
-            model::ShortHashRange&& knownShortHashes) const
-            = 0;
-    };
+	public:
+		/// Gets all finalization messages from the remote with a finalization round in \a roundRange
+		/// excluding those with hashes in \a knownShortHashes.
+		virtual thread::future<model::FinalizationMessageRange> messages(
+			const model::FinalizationRoundRange& roundRange,
+			model::ShortHashRange&& knownShortHashes) const
+			= 0;
+	};
 
-    /// Creates a finalization api for interacting with a remote node with the specified \a io and \a remoteIdentity.
-    std::unique_ptr<RemoteFinalizationApi> CreateRemoteFinalizationApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity);
+	/// Creates a finalization api for interacting with a remote node with the specified \a io and \a remoteIdentity.
+	std::unique_ptr<RemoteFinalizationApi> CreateRemoteFinalizationApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity);
 }
 }

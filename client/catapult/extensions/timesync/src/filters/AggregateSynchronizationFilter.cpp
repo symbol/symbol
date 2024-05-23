@@ -25,33 +25,30 @@
 
 namespace catapult {
 namespace timesync {
-    namespace filters {
+	namespace filters {
 
-        AggregateSynchronizationFilter::AggregateSynchronizationFilter(const std::vector<SynchronizationFilter>& filters)
-            : m_filters(filters)
-        {
-        }
+		AggregateSynchronizationFilter::AggregateSynchronizationFilter(const std::vector<SynchronizationFilter>& filters)
+			: m_filters(filters) {
+		}
 
-        size_t AggregateSynchronizationFilter::size() const
-        {
-            return m_filters.size();
-        }
+		size_t AggregateSynchronizationFilter::size() const {
+			return m_filters.size();
+		}
 
-        void AggregateSynchronizationFilter::operator()(TimeSynchronizationSamples& samples, NodeAge nodeAge)
-        {
-            utils::map_erase_if(samples, [&filters = m_filters, nodeAge](const auto& sample) {
-                return std::any_of(filters.cbegin(), filters.cend(), [&sample, nodeAge](const auto& filter) {
-                    return filter(sample, nodeAge);
-                });
-            });
+		void AggregateSynchronizationFilter::operator()(TimeSynchronizationSamples& samples, NodeAge nodeAge) {
+			utils::map_erase_if(samples, [&filters = m_filters, nodeAge](const auto& sample) {
+				return std::any_of(filters.cbegin(), filters.cend(), [&sample, nodeAge](const auto& filter) {
+					return filter(sample, nodeAge);
+				});
+			});
 
-            // alpha trim on both ends
-            auto samplesToDiscardAtBothEnds = static_cast<size_t>(static_cast<double>(samples.size()) * Alpha / 2.0);
-            for (auto i = 0u; i < samplesToDiscardAtBothEnds; ++i) {
-                samples.erase(samples.cbegin());
-                samples.erase(--samples.cend());
-            }
-        }
-    }
+			// alpha trim on both ends
+			auto samplesToDiscardAtBothEnds = static_cast<size_t>(static_cast<double>(samples.size()) * Alpha / 2.0);
+			for (auto i = 0u; i < samplesToDiscardAtBothEnds; ++i) {
+				samples.erase(samples.cbegin());
+				samples.erase(--samples.cend());
+			}
+		}
+	}
 }
 }

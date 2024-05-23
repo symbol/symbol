@@ -29,16 +29,15 @@ namespace io {
 
 #define TEST_CLASS FileProofStorageTests
 
-    namespace {
-        struct FileProofStorageTraits {
+	namespace {
+		struct FileProofStorageTraits {
 
-            static std::unique_ptr<ProofStorage> CreateStorage(const std::string& destination)
-            {
-                return std::make_unique<FileProofStorage>(destination, test::File_Database_Batch_Size);
-            }
-        };
-    }
+			static std::unique_ptr<ProofStorage> CreateStorage(const std::string& destination) {
+				return std::make_unique<FileProofStorage>(destination, test::File_Database_Batch_Size);
+			}
+		};
+	}
 
-    DEFINE_PROOF_STORAGE_TESTS(FileProofStorageTraits)
+	DEFINE_PROOF_STORAGE_TESTS(FileProofStorageTraits)
 }
 }

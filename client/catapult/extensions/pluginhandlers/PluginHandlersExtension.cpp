@@ -24,17 +24,15 @@
 
 namespace catapult {
 namespace pluginhandlers {
-    namespace {
-        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
-        {
-            // register service(s)
-            bootstrapper.extensionManager().addServiceRegistrar(CreatePluginHandlersServiceRegistrar());
-        }
-    }
+	namespace {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			// register service(s)
+			bootstrapper.extensionManager().addServiceRegistrar(CreatePluginHandlersServiceRegistrar());
+		}
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
-{
-    catapult::pluginhandlers::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+	catapult::pluginhandlers::RegisterExtension(bootstrapper);
 }

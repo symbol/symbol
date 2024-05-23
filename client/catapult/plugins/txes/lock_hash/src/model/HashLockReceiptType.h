@@ -28,14 +28,14 @@ namespace model {
 
 #endif
 
-    /// Hash lock creation.
-    DEFINE_RECEIPT_TYPE(BalanceDebit, LockHash, LockHash_Created, 1);
+	/// Hash lock creation.
+	DEFINE_RECEIPT_TYPE(BalanceDebit, LockHash, LockHash_Created, 1);
 
-    /// Hash lock completion.
-    DEFINE_RECEIPT_TYPE(BalanceCredit, LockHash, LockHash_Completed, 2);
+	/// Hash lock completion.
+	DEFINE_RECEIPT_TYPE(BalanceCredit, LockHash, LockHash_Completed, 2);
 
-    /// Hash lock expiration.
-    DEFINE_RECEIPT_TYPE(BalanceCredit, LockHash, LockHash_Expired, 3);
+	/// Hash lock expiration.
+	DEFINE_RECEIPT_TYPE(BalanceCredit, LockHash, LockHash_Expired, 3);
 
 #ifndef CUSTOM_RECEIPT_TYPE_DEFINITION
 }

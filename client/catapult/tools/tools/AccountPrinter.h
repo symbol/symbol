@@ -26,45 +26,45 @@
 namespace catapult {
 namespace tools {
 
-    /// Printer that prints account identifiers.
-    class AccountPrinter {
-    public:
-        virtual ~AccountPrinter() = default;
+	/// Printer that prints account identifiers.
+	class AccountPrinter {
+	public:
+		virtual ~AccountPrinter() = default;
 
-    public:
-        /// Sets the current network to the network with friendly name \a networkName.
-        virtual void setNetwork(const std::string& networkName) = 0;
+	public:
+		/// Sets the current network to the network with friendly name \a networkName.
+		virtual void setNetwork(const std::string& networkName) = 0;
 
-    public:
-        /// Prints \a address.
-        virtual void print(const Address& address) = 0;
+	public:
+		/// Prints \a address.
+		virtual void print(const Address& address) = 0;
 
-        /// Prints \a publicKey.
-        virtual void print(const Key& publicKey) = 0;
+		/// Prints \a publicKey.
+		virtual void print(const Key& publicKey) = 0;
 
-        /// Prints \a keyPair.
-        virtual void print(const crypto::KeyPair& keyPair) = 0;
+		/// Prints \a keyPair.
+		virtual void print(const crypto::KeyPair& keyPair) = 0;
 
-        /// Prints \a mnemonic and \a keyPair.
-        virtual void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) = 0;
-    };
+		/// Prints \a mnemonic and \a keyPair.
+		virtual void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) = 0;
+	};
 
-    /// Supported account printer formats.
-    enum class AccountPrinterFormat {
-        /// Pretty format.
-        Pretty,
+	/// Supported account printer formats.
+	enum class AccountPrinterFormat {
+		/// Pretty format.
+		Pretty,
 
-        /// CSV format.
-        Csv
-    };
+		/// CSV format.
+		Csv
+	};
 
-    /// Parses \a str into an account printer format.
-    AccountPrinterFormat ParseAccountPrinterFormat(const std::string& str);
+	/// Parses \a str into an account printer format.
+	AccountPrinterFormat ParseAccountPrinterFormat(const std::string& str);
 
-    /// Creates an account printer with \a format around \a out.
-    std::unique_ptr<AccountPrinter> CreateAccountPrinter(std::ostream& out, AccountPrinterFormat format);
+	/// Creates an account printer with \a format around \a out.
+	std::unique_ptr<AccountPrinter> CreateAccountPrinter(std::ostream& out, AccountPrinterFormat format);
 
-    /// Creates an aggregate account printer around \a printers.
-    std::unique_ptr<AccountPrinter> CreateAggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers);
+	/// Creates an aggregate account printer around \a printers.
+	std::unique_ptr<AccountPrinter> CreateAggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers);
 }
 }

@@ -29,67 +29,62 @@ namespace io {
 
 #define TEST_CLASS IndexFileIntegrityTests
 
-    namespace {
-        uint64_t GetNumIterations()
-        {
-            return test::GetStressIterationCount() ? 15'000 : 1'500;
-        }
+	namespace {
+		uint64_t GetNumIterations() {
+			return test::GetStressIterationCount() ? 15'000 : 1'500;
+		}
 
-        uint64_t ReadIndexFileValue(const std::string& indexFilename)
-        {
-            IndexFile indexFile(indexFilename, LockMode::None);
-            return indexFile.get();
-        }
+		uint64_t ReadIndexFileValue(const std::string& indexFilename) {
+			IndexFile indexFile(indexFilename, LockMode::None);
+			return indexFile.get();
+		}
 
-        void AssertMixedOperationsDoNotCauseCrash(const consumer<IndexFile&, uint64_t>& operation)
-        {
-            // Arrange:
-            test::TempFileGuard tempFile("foo.dat");
-            {
-                // - guarantee the existence of the file
-                IndexFile indexFile(tempFile.name());
-                indexFile.increment();
-            }
+		void AssertMixedOperationsDoNotCauseCrash(const consumer<IndexFile&, uint64_t>& operation) {
+			// Arrange:
+			test::TempFileGuard tempFile("foo.dat");
+			{
+				// - guarantee the existence of the file
+				IndexFile indexFile(tempFile.name());
+				indexFile.increment();
+			}
 
-            // Act: writer thread
-            thread::ThreadGroup threads;
-            threads.spawn([&tempFile, operation] {
-                for (auto i = 0u; i < GetNumIterations(); ++i) {
-                    IndexFile indexFile(tempFile.name(), LockMode::None);
-                    operation(indexFile, i + 1);
-                }
-            });
+			// Act: writer thread
+			thread::ThreadGroup threads;
+			threads.spawn([&tempFile, operation] {
+				for (auto i = 0u; i < GetNumIterations(); ++i) {
+					IndexFile indexFile(tempFile.name(), LockMode::None);
+					operation(indexFile, i + 1);
+				}
+			});
 
-            // - reader thread
-            uint64_t lastValue = 0;
-            bool isAnyDecreasing = false;
-            threads.spawn([&tempFile, &lastValue, &isAnyDecreasing] {
-                for (auto i = 0u; i < GetNumIterations(); ++i) {
-                    auto value = ReadIndexFileValue(tempFile.name());
-                    if (lastValue > value)
-                        isAnyDecreasing = true;
+			// - reader thread
+			uint64_t lastValue = 0;
+			bool isAnyDecreasing = false;
+			threads.spawn([&tempFile, &lastValue, &isAnyDecreasing] {
+				for (auto i = 0u; i < GetNumIterations(); ++i) {
+					auto value = ReadIndexFileValue(tempFile.name());
+					if (lastValue > value)
+						isAnyDecreasing = true;
 
-                    lastValue = value;
-                }
-            });
+					lastValue = value;
+				}
+			});
 
-            // - wait for all threads
-            threads.join();
+			// - wait for all threads
+			threads.join();
 
-            // Assert:
-            EXPECT_FALSE(isAnyDecreasing);
-            EXPECT_LE(GetNumIterations(), ReadIndexFileValue(tempFile.name()));
-        }
-    }
+			// Assert:
+			EXPECT_FALSE(isAnyDecreasing);
+			EXPECT_LE(GetNumIterations(), ReadIndexFileValue(tempFile.name()));
+		}
+	}
 
-    TEST(TEST_CLASS, GetAndSetFromDifferentThreadsDoNotCauseCrash)
-    {
-        AssertMixedOperationsDoNotCauseCrash([](auto& indexFile, auto i) { indexFile.set(i); });
-    }
+	TEST(TEST_CLASS, GetAndSetFromDifferentThreadsDoNotCauseCrash) {
+		AssertMixedOperationsDoNotCauseCrash([](auto& indexFile, auto i) { indexFile.set(i); });
+	}
 
-    TEST(TEST_CLASS, GetAndIncrementFromDifferentThreadsDoNotCauseCrash)
-    {
-        AssertMixedOperationsDoNotCauseCrash([](auto& indexFile, auto) { indexFile.increment(); });
-    }
+	TEST(TEST_CLASS, GetAndIncrementFromDifferentThreadsDoNotCauseCrash) {
+		AssertMixedOperationsDoNotCauseCrash([](auto& indexFile, auto) { indexFile.increment(); });
+	}
 }
 }

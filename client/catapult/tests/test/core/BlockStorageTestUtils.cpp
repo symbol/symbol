@@ -27,46 +27,42 @@
 namespace catapult {
 namespace test {
 
-    void SeedBlocks(io::BlockStorage& storage, Height startHeight, Height endHeight)
-    {
-        for (auto height = startHeight; height <= endHeight; height = height + Height(1)) {
-            auto pBlock = GenerateBlockWithTransactions(5, height);
-            auto blockElement = BlockToBlockElement(*pBlock);
-            blockElement.EntityHash = Hash256();
-            blockElement.EntityHash[Hash256::Size - 1] = static_cast<uint8_t>(height.unwrap());
-            storage.saveBlock(blockElement);
-        }
-    }
+	void SeedBlocks(io::BlockStorage& storage, Height startHeight, Height endHeight) {
+		for (auto height = startHeight; height <= endHeight; height = height + Height(1)) {
+			auto pBlock = GenerateBlockWithTransactions(5, height);
+			auto blockElement = BlockToBlockElement(*pBlock);
+			blockElement.EntityHash = Hash256();
+			blockElement.EntityHash[Hash256::Size - 1] = static_cast<uint8_t>(height.unwrap());
+			storage.saveBlock(blockElement);
+		}
+	}
 
-    void SeedBlocks(io::BlockStorage& storage, size_t numBlocks)
-    {
-        SeedBlocks(storage, Height(2), Height(numBlocks));
-    }
+	void SeedBlocks(io::BlockStorage& storage, size_t numBlocks) {
+		SeedBlocks(storage, Height(2), Height(numBlocks));
+	}
 
-    model::BlockElement CreateBlockElementForSaveTests(const model::Block& block)
-    {
-        // Arrange: create a block element with a random hash
-        auto blockElement = BlockToBlockElement(block, GenerateRandomByteArray<Hash256>());
-        blockElement.GenerationHash = GenerateRandomByteArray<GenerationHash>();
+	model::BlockElement CreateBlockElementForSaveTests(const model::Block& block) {
+		// Arrange: create a block element with a random hash
+		auto blockElement = BlockToBlockElement(block, GenerateRandomByteArray<Hash256>());
+		blockElement.GenerationHash = GenerateRandomByteArray<GenerationHash>();
 
-        // - give the first transaction a random hash too (the random hash should be saved)
-        blockElement.Transactions[0].EntityHash = GenerateRandomByteArray<Hash256>();
-        return blockElement;
-    }
+		// - give the first transaction a random hash too (the random hash should be saved)
+		blockElement.Transactions[0].EntityHash = GenerateRandomByteArray<Hash256>();
+		return blockElement;
+	}
 
-    std::shared_ptr<const model::BlockElement> LoadBlockElementWithStatements(const io::BlockStorage& storage, Height height)
-    {
-        auto pBlockElement = storage.loadBlockElement(height);
-        auto blockStatementPair = storage.loadBlockStatementData(height);
+	std::shared_ptr<const model::BlockElement> LoadBlockElementWithStatements(const io::BlockStorage& storage, Height height) {
+		auto pBlockElement = storage.loadBlockElement(height);
+		auto blockStatementPair = storage.loadBlockStatementData(height);
 
-        if (blockStatementPair.second) {
-            auto pBlockStatement = std::make_shared<model::BlockStatement>();
-            io::BufferInputStreamAdapter<std::vector<uint8_t>> blockStatementStream(blockStatementPair.first);
-            io::ReadBlockStatement(blockStatementStream, *pBlockStatement);
-            const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
-        }
+		if (blockStatementPair.second) {
+			auto pBlockStatement = std::make_shared<model::BlockStatement>();
+			io::BufferInputStreamAdapter<std::vector<uint8_t>> blockStatementStream(blockStatementPair.first);
+			io::ReadBlockStatement(blockStatementStream, *pBlockStatement);
+			const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
+		}
 
-        return pBlockElement;
-    }
+		return pBlockElement;
+	}
 }
 }

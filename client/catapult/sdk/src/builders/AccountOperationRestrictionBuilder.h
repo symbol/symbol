@@ -27,49 +27,49 @@
 namespace catapult {
 namespace builders {
 
-    /// Builder for an account operation restriction transaction.
-    class AccountOperationRestrictionBuilder : public TransactionBuilder {
-    public:
-        using Transaction = model::AccountOperationRestrictionTransaction;
-        using EmbeddedTransaction = model::EmbeddedAccountOperationRestrictionTransaction;
+	/// Builder for an account operation restriction transaction.
+	class AccountOperationRestrictionBuilder : public TransactionBuilder {
+	public:
+		using Transaction = model::AccountOperationRestrictionTransaction;
+		using EmbeddedTransaction = model::EmbeddedAccountOperationRestrictionTransaction;
 
-    public:
-        /// Creates an account operation restriction builder for building an account operation restriction transaction from \a signer
-        /// for the network specified by \a networkIdentifier.
-        AccountOperationRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+	public:
+		/// Creates an account operation restriction builder for building an account operation restriction transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		AccountOperationRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-    public:
-        /// Sets the account restriction flags to \a restrictionFlags.
-        void setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags);
+	public:
+		/// Sets the account restriction flags to \a restrictionFlags.
+		void setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags);
 
-        /// Adds \a restrictionAddition to account restriction additions.
-        void addRestrictionAddition(model::EntityType restrictionAddition);
+		/// Adds \a restrictionAddition to account restriction additions.
+		void addRestrictionAddition(model::EntityType restrictionAddition);
 
-        /// Adds \a restrictionDeletion to account restriction deletions.
-        void addRestrictionDeletion(model::EntityType restrictionDeletion);
+		/// Adds \a restrictionDeletion to account restriction deletions.
+		void addRestrictionDeletion(model::EntityType restrictionDeletion);
 
-    public:
-        /// Gets the size of account operation restriction transaction.
-        /// \note This returns size of a normal transaction not embedded transaction.
-        size_t size() const;
+	public:
+		/// Gets the size of account operation restriction transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
 
-        /// Builds a new account operation restriction transaction.
-        std::unique_ptr<Transaction> build() const;
+		/// Builds a new account operation restriction transaction.
+		std::unique_ptr<Transaction> build() const;
 
-        /// Builds a new embedded account operation restriction transaction.
-        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+		/// Builds a new embedded account operation restriction transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-    private:
-        template <typename TTransaction>
-        size_t sizeImpl() const;
+	private:
+		template <typename TTransaction>
+		size_t sizeImpl() const;
 
-        template <typename TTransaction>
-        std::unique_ptr<TTransaction> buildImpl() const;
+		template <typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
-    private:
-        model::AccountRestrictionFlags m_restrictionFlags;
-        std::vector<model::EntityType> m_restrictionAdditions;
-        std::vector<model::EntityType> m_restrictionDeletions;
-    };
+	private:
+		model::AccountRestrictionFlags m_restrictionFlags;
+		std::vector<model::EntityType> m_restrictionAdditions;
+		std::vector<model::EntityType> m_restrictionDeletions;
+	};
 }
 }

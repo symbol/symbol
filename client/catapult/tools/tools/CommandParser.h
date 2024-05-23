@@ -25,17 +25,17 @@
 namespace catapult {
 namespace tools {
 
-    /// Interface for command line parsing.
-    class CommandParser {
-    public:
-        virtual ~CommandParser() = default;
+	/// Interface for command line parsing.
+	class CommandParser {
+	public:
+		virtual ~CommandParser() = default;
 
-    public:
-        /// Gets the name of the command.
-        virtual std::string name() const = 0;
+	public:
+		/// Gets the name of the command.
+		virtual std::string name() const = 0;
 
-        /// Prepare named (\a optionsBuilder) and \a positional options of the tool.
-        virtual void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional& positional) = 0;
-    };
+		/// Prepare named (\a optionsBuilder) and \a positional options of the tool.
+		virtual void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional& positional) = 0;
+	};
 }
 }

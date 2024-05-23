@@ -35,81 +35,76 @@ namespace model {
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
-    std::ostream& operator<<(std::ostream& out, const FinalizationMessage& message)
-    {
-        out << "message for " << message.StepIdentifier << " at " << message.Height << " from " << message.Signature.Root.ParentPublicKey;
+	std::ostream& operator<<(std::ostream& out, const FinalizationMessage& message) {
+		out << "message for " << message.StepIdentifier << " at " << message.Height << " from " << message.Signature.Root.ParentPublicKey;
 
-        for (auto i = 0u; i < message.HashesCount; ++i)
-            out << std::endl
-                << " + " << message.HashesPtr()[i] << " @ " << message.Height + Height(i);
+		for (auto i = 0u; i < message.HashesCount; ++i)
+			out << std::endl
+				<< " + " << message.HashesPtr()[i] << " @ " << message.Height + Height(i);
 
-        return out;
-    }
+		return out;
+	}
 
-    namespace {
-        RawBuffer ToBuffer(const FinalizationMessage& message)
-        {
-            return { reinterpret_cast<const uint8_t*>(&message) + FinalizationMessage::Header_Size,
-                message.Size - FinalizationMessage::Header_Size };
-        }
-    }
+	namespace {
+		RawBuffer ToBuffer(const FinalizationMessage& message) {
+			return { reinterpret_cast<const uint8_t*>(&message) + FinalizationMessage::Header_Size,
+				message.Size - FinalizationMessage::Header_Size };
+		}
+	}
 
-    Hash256 CalculateMessageHash(const FinalizationMessage& message)
-    {
-        Hash256 messageHash;
-        crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(&message), message.Size }, messageHash);
-        return messageHash;
-    }
+	Hash256 CalculateMessageHash(const FinalizationMessage& message) {
+		Hash256 messageHash;
+		crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(&message), message.Size }, messageHash);
+		return messageHash;
+	}
 
-    std::unique_ptr<FinalizationMessage> PrepareMessage(
-        crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
-        const StepIdentifier& stepIdentifier,
-        Height height,
-        const HashRange& hashes)
-    {
-        // 1. check if message can be signed
-        auto keyIdentifier = StepIdentifierToBmKeyIdentifier(stepIdentifier);
-        if (!bmPrivateKeyTree.canSign(keyIdentifier))
-            return nullptr;
+	std::unique_ptr<FinalizationMessage> PrepareMessage(
+		crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
+		const StepIdentifier& stepIdentifier,
+		Height height,
+		const HashRange& hashes) {
+		// 1. check if message can be signed
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(stepIdentifier);
+		if (!bmPrivateKeyTree.canSign(keyIdentifier))
+			return nullptr;
 
-        // 2. create message and copy hashes
-        auto numHashes = static_cast<uint32_t>(hashes.size());
-        uint32_t messageSize = SizeOf32<FinalizationMessage>() + numHashes * static_cast<uint32_t>(Hash256::Size);
+		// 2. create message and copy hashes
+		auto numHashes = static_cast<uint32_t>(hashes.size());
+		uint32_t messageSize = SizeOf32<FinalizationMessage>() + numHashes * static_cast<uint32_t>(Hash256::Size);
 
-        auto pMessage = utils::MakeUniqueWithSize<FinalizationMessage>(messageSize);
-        pMessage->Size = messageSize;
-        pMessage->FinalizationMessage_Reserved1 = 0;
-        pMessage->Version = FinalizationMessage::Current_Version;
-        pMessage->HashesCount = numHashes;
-        pMessage->StepIdentifier = stepIdentifier;
-        pMessage->Height = height;
+		auto pMessage = utils::MakeUniqueWithSize<FinalizationMessage>(messageSize);
+		pMessage->Size = messageSize;
+		pMessage->FinalizationMessage_Reserved1 = 0;
+		pMessage->Version = FinalizationMessage::Current_Version;
+		pMessage->HashesCount = numHashes;
+		pMessage->StepIdentifier = stepIdentifier;
+		pMessage->Height = height;
 
-        auto* pHash = pMessage->HashesPtr();
-        for (const auto& hash : hashes)
-            *pHash++ = hash;
+		auto* pHash = pMessage->HashesPtr();
+		for (const auto& hash : hashes)
+			*pHash++ = hash;
 
-        // 3. sign
-        pMessage->Signature = bmPrivateKeyTree.sign(keyIdentifier, ToBuffer(*pMessage));
-        return pMessage;
-    }
+		// 3. sign
+		pMessage->Signature = bmPrivateKeyTree.sign(keyIdentifier, ToBuffer(*pMessage));
+		return pMessage;
+	}
 
-    std::pair<ProcessMessageResult, size_t> ProcessMessage(const FinalizationMessage& message, const FinalizationContext& context)
-    {
-        auto accountView = context.lookup(message.Signature.Root.ParentPublicKey);
-        if (Amount() == accountView.Weight)
-            return std::make_pair(ProcessMessageResult::Failure_Voter, 0);
+	std::pair<ProcessMessageResult, size_t> ProcessMessage(const FinalizationMessage& message, const FinalizationContext& context) {
+		auto accountView = context.lookup(message.Signature.Root.ParentPublicKey);
+		if (Amount() == accountView.Weight)
+			return std::make_pair(ProcessMessageResult::Failure_Voter, 0);
 
-        if (0 != message.FinalizationMessage_Reserved1)
-            return std::make_pair(ProcessMessageResult::Failure_Padding, 0);
+		if (0 != message.FinalizationMessage_Reserved1)
+			return std::make_pair(ProcessMessageResult::Failure_Padding, 0);
 
-        if (FinalizationMessage::Current_Version != message.Version)
-            return std::make_pair(ProcessMessageResult::Failure_Version, 0);
+		if (FinalizationMessage::Current_Version != message.Version)
+			return std::make_pair(ProcessMessageResult::Failure_Version, 0);
 
-        auto keyIdentifier = StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
-        if (!crypto::Verify(message.Signature, keyIdentifier, ToBuffer(message)))
-            return std::make_pair(ProcessMessageResult::Failure_Signature, 0);
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
+		if (!crypto::Verify(message.Signature, keyIdentifier, ToBuffer(message)))
+			return std::make_pair(ProcessMessageResult::Failure_Signature, 0);
 
-        return std::make_pair(ProcessMessageResult::Success, accountView.Weight.unwrap());
-    }
+		return std::make_pair(ProcessMessageResult::Success, accountView.Weight.unwrap());
+	}
 }
 }

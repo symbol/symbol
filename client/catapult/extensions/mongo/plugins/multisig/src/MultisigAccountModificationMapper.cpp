@@ -28,28 +28,26 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            void StreamAddresses(bson_stream::document& builder, const std::string& name, const UnresolvedAddress* pAddresses, uint8_t count)
-            {
-                auto addressesArray = builder << name << bson_stream::open_array;
-                for (auto i = 0u; i < count; ++i)
-                    addressesArray << ToBinary(pAddresses[i]);
+		namespace {
+			void StreamAddresses(bson_stream::document& builder, const std::string& name, const UnresolvedAddress* pAddresses, uint8_t count) {
+				auto addressesArray = builder << name << bson_stream::open_array;
+				for (auto i = 0u; i < count; ++i)
+					addressesArray << ToBinary(pAddresses[i]);
 
-                addressesArray << bson_stream::close_array;
-            }
+				addressesArray << bson_stream::close_array;
+			}
 
-            template <typename TTransaction>
-            void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction)
-            {
-                builder << "minRemovalDelta" << transaction.MinRemovalDelta << "minApprovalDelta" << transaction.MinApprovalDelta;
-                StreamAddresses(builder, "addressAdditions", transaction.AddressAdditionsPtr(), transaction.AddressAdditionsCount);
-                StreamAddresses(builder, "addressDeletions", transaction.AddressDeletionsPtr(), transaction.AddressDeletionsCount);
-            }
-        }
+			template <typename TTransaction>
+			void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
+				builder << "minRemovalDelta" << transaction.MinRemovalDelta << "minApprovalDelta" << transaction.MinApprovalDelta;
+				StreamAddresses(builder, "addressAdditions", transaction.AddressAdditionsPtr(), transaction.AddressAdditionsCount);
+				StreamAddresses(builder, "addressDeletions", transaction.AddressDeletionsPtr(), transaction.AddressDeletionsCount);
+			}
+		}
 
-        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(MultisigAccountModification, StreamTransaction)
-    }
+		DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(MultisigAccountModification, StreamTransaction)
+	}
 }
 }

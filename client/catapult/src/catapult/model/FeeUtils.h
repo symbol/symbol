@@ -24,17 +24,17 @@
 
 namespace catapult {
 namespace model {
-    struct Transaction;
+	struct Transaction;
 }
 }
 
 namespace catapult {
 namespace model {
 
-    /// Calculates the fee for \a transaction contained in block with \a feeMultiplier.
-    Amount CalculateTransactionFee(BlockFeeMultiplier feeMultiplier, const Transaction& transaction);
+	/// Calculates the fee for \a transaction contained in block with \a feeMultiplier.
+	Amount CalculateTransactionFee(BlockFeeMultiplier feeMultiplier, const Transaction& transaction);
 
-    /// Calculates the maximum fee multiplier for \a transaction.
-    BlockFeeMultiplier CalculateTransactionMaxFeeMultiplier(const Transaction& transaction);
+	/// Calculates the maximum fee multiplier for \a transaction.
+	BlockFeeMultiplier CalculateTransactionMaxFeeMultiplier(const Transaction& transaction);
 }
 }

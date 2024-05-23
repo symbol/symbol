@@ -25,35 +25,35 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace partialtransaction {
 
-    /// Partial transactions configuration settings.
-    struct PtConfiguration {
-    public:
-        /// Maximum size of a partial transactions response.
-        utils::FileSize CacheMaxResponseSize;
+	/// Partial transactions configuration settings.
+	struct PtConfiguration {
+	public:
+		/// Maximum size of a partial transactions response.
+		utils::FileSize CacheMaxResponseSize;
 
-        /// Maximum size of the partial transactions cache.
-        utils::FileSize CacheMaxSize;
+		/// Maximum size of the partial transactions cache.
+		utils::FileSize CacheMaxSize;
 
-    private:
-        PtConfiguration() = default;
+	private:
+		PtConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized partial transactions configuration.
-        static PtConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized partial transactions configuration.
+		static PtConfiguration Uninitialized();
 
-    public:
-        /// Loads a partial transactions configuration from \a bag.
-        static PtConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	public:
+		/// Loads a partial transactions configuration from \a bag.
+		static PtConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
-        /// Loads a partial transactions configuration from \a resourcesPath.
-        static PtConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
-    };
+		/// Loads a partial transactions configuration from \a resourcesPath.
+		static PtConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
+	};
 }
 }

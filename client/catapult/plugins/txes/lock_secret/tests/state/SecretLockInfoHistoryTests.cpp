@@ -29,18 +29,17 @@ namespace state {
 
 #define TEST_CLASS SecretLockInfoHistoryTests
 
-    namespace {
-        struct SecretLockInfoHistoryTraits {
-            static auto CreateLockInfo(Height endHeight, const Hash256& hash)
-            {
-                auto lockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
-                lockInfo.EndHeight = endHeight;
-                lockInfo.CompositeHash = hash;
-                return lockInfo;
-            }
-        };
-    }
+	namespace {
+		struct SecretLockInfoHistoryTraits {
+			static auto CreateLockInfo(Height endHeight, const Hash256& hash) {
+				auto lockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
+				lockInfo.EndHeight = endHeight;
+				lockInfo.CompositeHash = hash;
+				return lockInfo;
+			}
+		};
+	}
 
-    DEFINE_LOCK_INFO_HISTORY_TESTS(SecretLockInfoHistory)
+	DEFINE_LOCK_INFO_HISTORY_TESTS(SecretLockInfoHistory)
 }
 }

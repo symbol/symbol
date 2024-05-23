@@ -30,37 +30,36 @@ using namespace catapult::model;
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        template <typename TTransaction>
-        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
-        {
-            auto padding = transaction.TransferTransactionBody_Reserved1 << 8 | transaction.TransferTransactionBody_Reserved2;
-            sub.notify(InternalPaddingNotification(padding));
-            sub.notify(AccountAddressNotification(transaction.RecipientAddress));
-            sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, { transaction.RecipientAddress }));
+	namespace {
+		template <typename TTransaction>
+		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
+			auto padding = transaction.TransferTransactionBody_Reserved1 << 8 | transaction.TransferTransactionBody_Reserved2;
+			sub.notify(InternalPaddingNotification(padding));
+			sub.notify(AccountAddressNotification(transaction.RecipientAddress));
+			sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, { transaction.RecipientAddress }));
 
-            const auto* pMosaics = transaction.MosaicsPtr();
-            for (auto i = 0u; i < transaction.MosaicsCount; ++i) {
-                sub.notify(BalanceTransferNotification(
-                    context.SignerAddress,
-                    transaction.RecipientAddress,
-                    pMosaics[i].MosaicId,
-                    pMosaics[i].Amount));
-            }
+			const auto* pMosaics = transaction.MosaicsPtr();
+			for (auto i = 0u; i < transaction.MosaicsCount; ++i) {
+				sub.notify(BalanceTransferNotification(
+					context.SignerAddress,
+					transaction.RecipientAddress,
+					pMosaics[i].MosaicId,
+					pMosaics[i].Amount));
+			}
 
-            if (transaction.MessageSize) {
-                sub.notify(TransferMessageNotification(
-                    transaction.SignerPublicKey,
-                    transaction.RecipientAddress,
-                    transaction.MessageSize,
-                    transaction.MessagePtr()));
-            }
+			if (transaction.MessageSize) {
+				sub.notify(TransferMessageNotification(
+					transaction.SignerPublicKey,
+					transaction.RecipientAddress,
+					transaction.MessageSize,
+					transaction.MessagePtr()));
+			}
 
-            if (transaction.MosaicsCount)
-                sub.notify(TransferMosaicsNotification(transaction.MosaicsCount, pMosaics));
-        }
-    }
+			if (transaction.MosaicsCount)
+				sub.notify(TransferMosaicsNotification(transaction.MosaicsCount, pMosaics));
+		}
+	}
 
-    DEFINE_TRANSACTION_PLUGIN_FACTORY(Transfer, Default, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(Transfer, Default, Publish)
 }
 }

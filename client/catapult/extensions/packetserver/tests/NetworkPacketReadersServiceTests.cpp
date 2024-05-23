@@ -33,197 +33,189 @@ namespace packetserver {
 
 #define TEST_CLASS NetworkPacketReadersServiceTests
 
-    namespace {
-        constexpr auto Counter_Name = "READERS";
-        constexpr auto Service_Name = "readers";
+	namespace {
+		constexpr auto Counter_Name = "READERS";
+		constexpr auto Service_Name = "readers";
 
-        struct NetworkPacketReadersServiceTraits {
-            static constexpr auto CreateRegistrar = CreateNetworkPacketReadersServiceRegistrar;
-        };
+		struct NetworkPacketReadersServiceTraits {
+			static constexpr auto CreateRegistrar = CreateNetworkPacketReadersServiceRegistrar;
+		};
 
-        using TestContext = test::ServiceLocatorTestContext<NetworkPacketReadersServiceTraits>;
-    }
+		using TestContext = test::ServiceLocatorTestContext<NetworkPacketReadersServiceTraits>;
+	}
 
-    ADD_SERVICE_REGISTRAR_INFO_TEST(NetworkPacketReaders, Post_Packet_Handlers)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(NetworkPacketReaders, Post_Packet_Handlers)
 
-    // region boot + shutdown
+	// region boot + shutdown
 
-    TEST(TEST_CLASS, CanBootService)
-    {
-        // Arrange:
-        TestContext context;
+	TEST(TEST_CLASS, CanBootService) {
+		// Arrange:
+		TestContext context;
 
-        // Act:
-        context.boot();
+		// Act:
+		context.boot();
 
-        // Assert:
-        EXPECT_EQ(1u, context.locator().numServices());
-        EXPECT_EQ(1u, context.locator().counters().size());
+		// Assert:
+		EXPECT_EQ(1u, context.locator().numServices());
+		EXPECT_EQ(1u, context.locator().counters().size());
 
-        EXPECT_TRUE(!!context.locator().service<net::PacketReaders>(Service_Name));
-        EXPECT_EQ(0u, context.counter(Counter_Name));
-    }
+		EXPECT_TRUE(!!context.locator().service<net::PacketReaders>(Service_Name));
+		EXPECT_EQ(0u, context.counter(Counter_Name));
+	}
 
-    TEST(TEST_CLASS, CanShutdownService)
-    {
-        // Arrange:
-        TestContext context;
+	TEST(TEST_CLASS, CanShutdownService) {
+		// Arrange:
+		TestContext context;
 
-        // Act:
-        context.boot();
-        context.shutdown();
+		// Act:
+		context.boot();
+		context.shutdown();
 
-        // Assert:
-        EXPECT_EQ(1u, context.locator().numServices());
-        EXPECT_EQ(1u, context.locator().counters().size());
+		// Assert:
+		EXPECT_EQ(1u, context.locator().numServices());
+		EXPECT_EQ(1u, context.locator().counters().size());
 
-        EXPECT_FALSE(!!context.locator().service<net::PacketReaders>(Service_Name));
-        EXPECT_EQ(static_cast<uint64_t>(extensions::ServiceLocator::Sentinel_Counter_Value), context.counter(Counter_Name));
-    }
+		EXPECT_FALSE(!!context.locator().service<net::PacketReaders>(Service_Name));
+		EXPECT_EQ(static_cast<uint64_t>(extensions::ServiceLocator::Sentinel_Counter_Value), context.counter(Counter_Name));
+	}
 
-    // endregion
+	// endregion
 
-    // region connections
+	// region connections
 
-    TEST(TEST_CLASS, CanAcceptExternalConnection)
-    {
-        // Arrange:
-        TestContext context;
-        context.boot();
+	TEST(TEST_CLASS, CanAcceptExternalConnection) {
+		// Arrange:
+		TestContext context;
+		context.boot();
 
-        // - connect to the server as a reader
-        auto pPool = test::CreateStartedIoThreadPool();
-        auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort());
+		// - connect to the server as a reader
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort());
 
-        // - wait for a single connection
-        WAIT_FOR_ONE_EXPR(context.counter(Counter_Name));
+		// - wait for a single connection
+		WAIT_FOR_ONE_EXPR(context.counter(Counter_Name));
 
-        // Assert: a single connection was accepted
-        EXPECT_EQ(1u, context.counter(Counter_Name));
-    }
+		// Assert: a single connection was accepted
+		EXPECT_EQ(1u, context.counter(Counter_Name));
+	}
 
-    // endregion
+	// endregion
 
-    // region handlers
+	// region handlers
 
-    namespace {
-        struct SquaresTraits {
-            using RequestStructureType = uint64_t;
+	namespace {
+		struct SquaresTraits {
+			using RequestStructureType = uint64_t;
 
-            static constexpr auto Packet_Type = static_cast<ionet::PacketType>(25);
-            static constexpr auto Should_Append_As_Values = true;
+			static constexpr auto Packet_Type = static_cast<ionet::PacketType>(25);
+			static constexpr auto Should_Append_As_Values = true;
 
-            class Producer : public handlers::BasicProducer<model::EntityRange<uint64_t>> {
-            public:
-                using BasicProducer<model::EntityRange<uint64_t>>::BasicProducer;
+			class Producer : public handlers::BasicProducer<model::EntityRange<uint64_t>> {
+			public:
+				using BasicProducer<model::EntityRange<uint64_t>>::BasicProducer;
 
-            public:
-                auto operator()()
-                {
-                    return next([](auto value) {
-                        // 1. square the value
-                        // 2. return a shared_ptr because a pointer is expected to be returned
-                        return std::make_shared<uint64_t>(value * value);
-                    });
-                }
-            };
-        };
+			public:
+				auto operator()() {
+					return next([](auto value) {
+						// 1. square the value
+						// 2. return a shared_ptr because a pointer is expected to be returned
+						return std::make_shared<uint64_t>(value * value);
+					});
+				}
+			};
+		};
 
-        std::shared_ptr<ionet::Packet> GenerateSquaresRequestPacket()
-        {
-            auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(3 * sizeof(uint64_t));
-            pPacket->Type = SquaresTraits::Packet_Type;
+		std::shared_ptr<ionet::Packet> GenerateSquaresRequestPacket() {
+			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(3 * sizeof(uint64_t));
+			pPacket->Type = SquaresTraits::Packet_Type;
 
-            auto* pData = reinterpret_cast<uint64_t*>(pPacket->Data());
-            pData[0] = 3;
-            pData[1] = 8;
-            pData[2] = 5;
-            return pPacket;
-        }
-    }
+			auto* pData = reinterpret_cast<uint64_t*>(pPacket->Data());
+			pData[0] = 3;
+			pData[1] = 8;
+			pData[2] = 5;
+			return pPacket;
+		}
+	}
 
-    TEST(TEST_CLASS, CanBootServiceWithArbitraryHandlers)
-    {
-        // Arrange:
-        TestContext context;
-        auto& packetHandlers = context.testState().state().packetHandlers();
+	TEST(TEST_CLASS, CanBootServiceWithArbitraryHandlers) {
+		// Arrange:
+		TestContext context;
+		auto& packetHandlers = context.testState().state().packetHandlers();
 
-        // - register a single handler
-        handlers::BatchHandlerFactory<SquaresTraits>::RegisterOne(packetHandlers, [](const auto& values) {
-            return SquaresTraits::Producer(values);
-        });
+		// - register a single handler
+		handlers::BatchHandlerFactory<SquaresTraits>::RegisterOne(packetHandlers, [](const auto& values) {
+			return SquaresTraits::Producer(values);
+		});
 
-        context.boot();
+		context.boot();
 
-        // - connect to the server as a reader
-        auto pPool = test::CreateStartedIoThreadPool();
-        auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort());
+		// - connect to the server as a reader
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort());
 
-        // - wait for a single connection
-        WAIT_FOR_ONE_EXPR(context.counter(Counter_Name));
+		// - wait for a single connection
+		WAIT_FOR_ONE_EXPR(context.counter(Counter_Name));
 
-        // Act: send a simple squares request
-        ionet::ByteBuffer packetBuffer;
-        auto pRequestPacket = GenerateSquaresRequestPacket();
-        pIo->write(ionet::PacketPayload(pRequestPacket), [&ioContext = pPool->ioContext(), &io = *pIo, &packetBuffer](auto) {
-            test::AsyncReadIntoBuffer(ioContext, io, packetBuffer);
-        });
+		// Act: send a simple squares request
+		ionet::ByteBuffer packetBuffer;
+		auto pRequestPacket = GenerateSquaresRequestPacket();
+		pIo->write(ionet::PacketPayload(pRequestPacket), [&ioContext = pPool->ioContext(), &io = *pIo, &packetBuffer](auto) {
+			test::AsyncReadIntoBuffer(ioContext, io, packetBuffer);
+		});
 
-        pPool->join();
+		pPool->join();
 
-        // Assert: the requested squared values should have been returned
-        auto pResponsePacket = reinterpret_cast<const ionet::PacketHeader*>(packetBuffer.data());
-        ASSERT_TRUE(!!pResponsePacket);
-        ASSERT_EQ(sizeof(ionet::PacketHeader) + 3 * sizeof(uint64_t), pResponsePacket->Size);
-        EXPECT_EQ(SquaresTraits::Packet_Type, pResponsePacket->Type);
+		// Assert: the requested squared values should have been returned
+		auto pResponsePacket = reinterpret_cast<const ionet::PacketHeader*>(packetBuffer.data());
+		ASSERT_TRUE(!!pResponsePacket);
+		ASSERT_EQ(sizeof(ionet::PacketHeader) + 3 * sizeof(uint64_t), pResponsePacket->Size);
+		EXPECT_EQ(SquaresTraits::Packet_Type, pResponsePacket->Type);
 
-        const auto* pData = reinterpret_cast<const uint64_t*>(packetBuffer.data() + sizeof(ionet::PacketHeader));
-        EXPECT_EQ(9u, pData[0]);
-        EXPECT_EQ(64u, pData[1]);
-        EXPECT_EQ(25u, pData[2]);
-    }
+		const auto* pData = reinterpret_cast<const uint64_t*>(packetBuffer.data() + sizeof(ionet::PacketHeader));
+		EXPECT_EQ(9u, pData[0]);
+		EXPECT_EQ(64u, pData[1]);
+		EXPECT_EQ(25u, pData[2]);
+	}
 
-    // endregion
+	// endregion
 
-    // region bannedNodeIdentitySink
+	// region bannedNodeIdentitySink
 
-    TEST(TEST_CLASS, ReadersAreRegisteredInBannedNodeIdentitySink)
-    {
-        // Arrange:
-        TestContext context;
-        context.boot();
-        auto sink = context.testState().state().hooks().bannedNodeIdentitySink();
+	TEST(TEST_CLASS, ReadersAreRegisteredInBannedNodeIdentitySink) {
+		// Arrange:
+		TestContext context;
+		context.boot();
+		auto sink = context.testState().state().hooks().bannedNodeIdentitySink();
 
-        // - connect to the server as a reader
-        auto pPool = test::CreateStartedIoThreadPool();
-        auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort());
+		// - connect to the server as a reader
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort());
 
-        // Sanity: a single connection was accepted
-        WAIT_FOR_ONE_EXPR(context.counter(Counter_Name));
+		// Sanity: a single connection was accepted
+		WAIT_FOR_ONE_EXPR(context.counter(Counter_Name));
 
-        // - figure out the identity of the connected reader
-        auto pReaders = context.locator().service<net::PacketReaders>(Service_Name);
-        auto clientPublicKey = pReaders->identities().cbegin()->PublicKey;
+		// - figure out the identity of the connected reader
+		auto pReaders = context.locator().service<net::PacketReaders>(Service_Name);
+		auto clientPublicKey = pReaders->identities().cbegin()->PublicKey;
 
-        // Act: trigger the sink, which should close the connection
-        sink(model::NodeIdentity { clientPublicKey, "" });
+		// Act: trigger the sink, which should close the connection
+		sink(model::NodeIdentity { clientPublicKey, "" });
 
-        // - wait for the test to complete
-        pPool->join();
+		// - wait for the test to complete
+		pPool->join();
 
-        // Assert: the connection was closed
-        EXPECT_EQ(0u, context.counter(Counter_Name));
-    }
+		// Assert: the connection was closed
+		EXPECT_EQ(0u, context.counter(Counter_Name));
+	}
 
-    // endregion
+	// endregion
 
-    // region tasks
+	// region tasks
 
-    TEST(TEST_CLASS, TasksAreRegistered)
-    {
-        test::AssertRegisteredTasks(TestContext(), { "age peers task for service Readers" });
-    }
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { "age peers task for service Readers" });
+	}
 
-    // endregion
+	// endregion
 }
 }

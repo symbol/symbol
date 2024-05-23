@@ -31,231 +31,214 @@ namespace cache {
 
 #define TEST_CLASS CachePatriciaTreeTests
 
-    namespace {
-        using DatabaseBasePatriciaTree = tree::BasePatriciaTree<SerializerPlainKeyEncoder<test::MemoryPatriciaTreeSimpleSerializer>, PatriciaTreeRdbDataSource>;
-    }
+	namespace {
+		using DatabaseBasePatriciaTree = tree::BasePatriciaTree<SerializerPlainKeyEncoder<test::MemoryPatriciaTreeSimpleSerializer>, PatriciaTreeRdbDataSource>;
+	}
 
-    // region disabled
+	// region disabled
 
-    TEST(TEST_CLASS, Disabled_GetReturnsNullptr)
-    {
-        // Arrange:
-        CacheDatabase database;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(false, database, 1);
+	TEST(TEST_CLASS, Disabled_GetReturnsNullptr) {
+		// Arrange:
+		CacheDatabase database;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(false, database, 1);
 
-        // Act + Assert:
-        EXPECT_FALSE(!!tree.get());
-    }
+		// Act + Assert:
+		EXPECT_FALSE(!!tree.get());
+	}
 
-    TEST(TEST_CLASS, Disabled_RebaseReturnsNullptr)
-    {
-        // Arrange:
-        CacheDatabase database;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(false, database, 1);
+	TEST(TEST_CLASS, Disabled_RebaseReturnsNullptr) {
+		// Arrange:
+		CacheDatabase database;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(false, database, 1);
 
-        // Act:
-        auto pDeltaTree = tree.rebase();
+		// Act:
+		auto pDeltaTree = tree.rebase();
 
-        // Act + Assert:
-        EXPECT_FALSE(!!pDeltaTree);
-    }
+		// Act + Assert:
+		EXPECT_FALSE(!!pDeltaTree);
+	}
 
-    TEST(TEST_CLASS, Disabled_RebaseDetachedReturnsNullptr)
-    {
-        // Arrange:
-        CacheDatabase database;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(false, database, 1);
+	TEST(TEST_CLASS, Disabled_RebaseDetachedReturnsNullptr) {
+		// Arrange:
+		CacheDatabase database;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(false, database, 1);
 
-        // Act:
-        auto pDeltaTree = tree.rebaseDetached();
+		// Act:
+		auto pDeltaTree = tree.rebaseDetached();
 
-        // Act + Assert:
-        EXPECT_FALSE(!!pDeltaTree);
-    }
+		// Act + Assert:
+		EXPECT_FALSE(!!pDeltaTree);
+	}
 
-    TEST(TEST_CLASS, Disabled_CommitHasNoEffect)
-    {
-        // Arrange:
-        CacheDatabase database;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(false, database, 1);
+	TEST(TEST_CLASS, Disabled_CommitHasNoEffect) {
+		// Arrange:
+		CacheDatabase database;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(false, database, 1);
 
-        // Act + Assert: no exception
-        tree.commit();
-    }
+		// Act + Assert: no exception
+		tree.commit();
+	}
 
-    // endregion
+	// endregion
 
-    // region enabled
+	// region enabled
 
-    namespace {
-        class CacheDatabaseHolder {
-        public:
-            CacheDatabaseHolder()
-                : m_database(CacheDatabaseSettings(m_dbDirGuard.name(), { "default", "patricia_tree" }, FilterPruningMode::Disabled))
-            {
-            }
+	namespace {
+		class CacheDatabaseHolder {
+		public:
+			CacheDatabaseHolder()
+				: m_database(CacheDatabaseSettings(m_dbDirGuard.name(), { "default", "patricia_tree" }, FilterPruningMode::Disabled)) {
+			}
 
-        public:
-            CacheDatabase& database()
-            {
-                return m_database;
-            }
+		public:
+			CacheDatabase& database() {
+				return m_database;
+			}
 
-        private:
-            test::TempDirectoryGuard m_dbDirGuard;
-            CacheDatabase m_database;
-        };
-    }
+		private:
+			test::TempDirectoryGuard m_dbDirGuard;
+			CacheDatabase m_database;
+		};
+	}
 
-    TEST(TEST_CLASS, Enabled_GetReturnsValidPointer)
-    {
-        // Arrange:
-        CacheDatabaseHolder holder;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
+	TEST(TEST_CLASS, Enabled_GetReturnsValidPointer) {
+		// Arrange:
+		CacheDatabaseHolder holder;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
 
-        // Act + Assert:
-        EXPECT_TRUE(!!tree.get());
-    }
+		// Act + Assert:
+		EXPECT_TRUE(!!tree.get());
+	}
 
-    TEST(TEST_CLASS, Enabled_RebaseReturnsValidPointer)
-    {
-        // Arrange:
-        CacheDatabaseHolder holder;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
+	TEST(TEST_CLASS, Enabled_RebaseReturnsValidPointer) {
+		// Arrange:
+		CacheDatabaseHolder holder;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
 
-        // Act:
-        auto pDeltaTree = tree.rebase();
+		// Act:
+		auto pDeltaTree = tree.rebase();
 
-        // Act + Assert:
-        EXPECT_TRUE(!!pDeltaTree);
-    }
+		// Act + Assert:
+		EXPECT_TRUE(!!pDeltaTree);
+	}
 
-    TEST(TEST_CLASS, Enabled_RebaseDetachedReturnsValidPointer)
-    {
-        // Arrange:
-        CacheDatabaseHolder holder;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
+	TEST(TEST_CLASS, Enabled_RebaseDetachedReturnsValidPointer) {
+		// Arrange:
+		CacheDatabaseHolder holder;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
 
-        // Act:
-        auto pDeltaTree = tree.rebaseDetached();
+		// Act:
+		auto pDeltaTree = tree.rebaseDetached();
 
-        // Act + Assert:
-        EXPECT_TRUE(!!pDeltaTree);
-    }
+		// Act + Assert:
+		EXPECT_TRUE(!!pDeltaTree);
+	}
 
-    TEST(TEST_CLASS, Enabled_CommitHasEffect)
-    {
-        // Arrange:
-        CacheDatabaseHolder holder;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
+	TEST(TEST_CLASS, Enabled_CommitHasEffect) {
+		// Arrange:
+		CacheDatabaseHolder holder;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
 
-        // Act + Assert: exception because no outstanding delta
-        EXPECT_THROW(tree.commit(), catapult_runtime_error);
-    }
+		// Act + Assert: exception because no outstanding delta
+		EXPECT_THROW(tree.commit(), catapult_runtime_error);
+	}
 
-    // endregion
+	// endregion
 
-    // region enabled - root hash
+	// region enabled - root hash
 
-    namespace {
-        std::string HashToString(const Hash256& hash)
-        {
-            return std::string(reinterpret_cast<const char*>(hash.data()), hash.size());
-        }
-    }
+	namespace {
+		std::string HashToString(const Hash256& hash) {
+			return std::string(reinterpret_cast<const char*>(hash.data()), hash.size());
+		}
+	}
 
-    TEST(TEST_CLASS, Enabled_CanInitializeWithNoRootHashInDb)
-    {
-        // Arrange:
-        CacheDatabaseHolder holder;
+	TEST(TEST_CLASS, Enabled_CanInitializeWithNoRootHashInDb) {
+		// Arrange:
+		CacheDatabaseHolder holder;
 
-        // Act:
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
+		// Act:
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
 
-        // Assert:
-        ASSERT_TRUE(!!tree.get());
-        EXPECT_EQ(Hash256(), tree.get()->root());
-    }
+		// Assert:
+		ASSERT_TRUE(!!tree.get());
+		EXPECT_EQ(Hash256(), tree.get()->root());
+	}
 
-    TEST(TEST_CLASS, Enabled_CanInitializeWithEmptyTreeInDb)
-    {
-        // Arrange: empty tree means stored root hash == 0
-        CacheDatabaseHolder holder;
-        holder.database().put(1, "root", HashToString(Hash256()));
+	TEST(TEST_CLASS, Enabled_CanInitializeWithEmptyTreeInDb) {
+		// Arrange: empty tree means stored root hash == 0
+		CacheDatabaseHolder holder;
+		holder.database().put(1, "root", HashToString(Hash256()));
 
-        // Act:
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
+		// Act:
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
 
-        // Assert:
-        ASSERT_TRUE(!!tree.get());
-        EXPECT_EQ(Hash256(), tree.get()->root());
-    }
+		// Assert:
+		ASSERT_TRUE(!!tree.get());
+		EXPECT_EQ(Hash256(), tree.get()->root());
+	}
 
-    TEST(TEST_CLASS, Enabled_CanInitializeWithRootHashInDb)
-    {
-        // Arrange:
-        CacheDatabaseHolder holder;
+	TEST(TEST_CLASS, Enabled_CanInitializeWithRootHashInDb) {
+		// Arrange:
+		CacheDatabaseHolder holder;
 
-        tree::LeafTreeNode leafNode(tree::TreeNodePath(0x01'23'4A'B6'78), test::GenerateRandomByteArray<Hash256>());
-        auto rootHash = leafNode.hash();
-        auto serializedLeafNode = tree::PatriciaTreeSerializer::SerializeValue(tree::TreeNode(leafNode));
+		tree::LeafTreeNode leafNode(tree::TreeNodePath(0x01'23'4A'B6'78), test::GenerateRandomByteArray<Hash256>());
+		auto rootHash = leafNode.hash();
+		auto serializedLeafNode = tree::PatriciaTreeSerializer::SerializeValue(tree::TreeNode(leafNode));
 
-        holder.database().put(1, "root", HashToString(rootHash));
-        holder.database().put(1, HashToString(rootHash), serializedLeafNode);
+		holder.database().put(1, "root", HashToString(rootHash));
+		holder.database().put(1, HashToString(rootHash), serializedLeafNode);
 
-        // Act:
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
+		// Act:
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
 
-        // Assert:
-        ASSERT_TRUE(!!tree.get());
-        EXPECT_NE(Hash256(), tree.get()->root());
-        EXPECT_EQ(rootHash, tree.get()->root());
-    }
+		// Assert:
+		ASSERT_TRUE(!!tree.get());
+		EXPECT_NE(Hash256(), tree.get()->root());
+		EXPECT_EQ(rootHash, tree.get()->root());
+	}
 
-    TEST(TEST_CLASS, Enabled_CannotInitializeWithUnknownRootHashInDb)
-    {
-        // Arrange:
-        CacheDatabaseHolder holder;
+	TEST(TEST_CLASS, Enabled_CannotInitializeWithUnknownRootHashInDb) {
+		// Arrange:
+		CacheDatabaseHolder holder;
 
-        auto rootHash = test::GenerateRandomByteArray<Hash256>();
-        holder.database().put(1, "root", HashToString(rootHash));
+		auto rootHash = test::GenerateRandomByteArray<Hash256>();
+		holder.database().put(1, "root", HashToString(rootHash));
 
-        // Act + Assert:
-        EXPECT_THROW(CachePatriciaTree<DatabaseBasePatriciaTree>(true, holder.database(), 1), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(CachePatriciaTree<DatabaseBasePatriciaTree>(true, holder.database(), 1), catapult_runtime_error);
+	}
 
-    namespace {
-        template <typename T>
-        void ReadValue(RocksDatabase& database, const std::string& key, T& value)
-        {
-            RdbDataIterator iter;
-            database.get(1, key, iter);
-            ASSERT_NE(RdbDataIterator::End(), iter);
+	namespace {
+		template <typename T>
+		void ReadValue(RocksDatabase& database, const std::string& key, T& value) {
+			RdbDataIterator iter;
+			database.get(1, key, iter);
+			ASSERT_NE(RdbDataIterator::End(), iter);
 
-            const auto& buffer = iter.buffer();
-            ASSERT_EQ(sizeof(T), buffer.Size);
-            value = reinterpret_cast<const T&>(*buffer.pData);
-        }
-    }
+			const auto& buffer = iter.buffer();
+			ASSERT_EQ(sizeof(T), buffer.Size);
+			value = reinterpret_cast<const T&>(*buffer.pData);
+		}
+	}
 
-    TEST(TEST_CLASS, Enabled_CommitSavesRootHash)
-    {
-        // Arrange:
-        CacheDatabaseHolder holder;
-        CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
+	TEST(TEST_CLASS, Enabled_CommitSavesRootHash) {
+		// Arrange:
+		CacheDatabaseHolder holder;
+		CachePatriciaTree<DatabaseBasePatriciaTree> tree(true, holder.database(), 1);
 
-        // Act:
-        auto pDeltaTree = tree.rebase();
-        pDeltaTree->set(0x01'23'4A'B6, "alpha");
-        pDeltaTree->set(0x01'23'4A'99, "beta");
-        tree.commit();
+		// Act:
+		auto pDeltaTree = tree.rebase();
+		pDeltaTree->set(0x01'23'4A'B6, "alpha");
+		pDeltaTree->set(0x01'23'4A'99, "beta");
+		tree.commit();
 
-        // Assert:
-        Hash256 rootHash;
-        ReadValue(holder.database(), "root", rootHash);
-        EXPECT_EQ(tree.get()->root(), rootHash);
-    }
+		// Assert:
+		Hash256 rootHash;
+		ReadValue(holder.database(), "root", rootHash);
+		EXPECT_EQ(tree.get()->root(), rootHash);
+	}
 
-    // endregion
+	// endregion
 }
 }

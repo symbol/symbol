@@ -29,87 +29,81 @@
 namespace catapult {
 namespace utils {
 
-    /// Basic raw buffer that is composed of a pointer and a size.
-    template <typename T>
-    class BasicRawBuffer {
-    public:
-        /// Creates an empty buffer.
-        constexpr BasicRawBuffer()
-            : BasicRawBuffer(nullptr, 0)
-        {
-        }
+	/// Basic raw buffer that is composed of a pointer and a size.
+	template <typename T>
+	class BasicRawBuffer {
+	public:
+		/// Creates an empty buffer.
+		constexpr BasicRawBuffer()
+			: BasicRawBuffer(nullptr, 0) {
+		}
 
-        /// Creates a buffer around the entire contents of \a container.
-        template <
-            typename TContainer,
-            // disable when copy/move constructors should be used
-            typename X = std::enable_if_t<!traits::is_base_of_ignore_reference_v<BasicRawBuffer, TContainer>>,
-            // disable when other constructors are better match
-            typename Y = std::enable_if_t<!std::is_scalar_v<TContainer>>>
-        BasicRawBuffer(TContainer&& container)
-            : BasicRawBuffer(container.data(), container.size())
-        {
-        }
+		/// Creates a buffer around the entire contents of \a container.
+		template <
+			typename TContainer,
+			// disable when copy/move constructors should be used
+			typename X = std::enable_if_t<!traits::is_base_of_ignore_reference_v<BasicRawBuffer, TContainer>>,
+			// disable when other constructors are better match
+			typename Y = std::enable_if_t<!std::is_scalar_v<TContainer>>>
+		BasicRawBuffer(TContainer&& container)
+			: BasicRawBuffer(container.data(), container.size()) {
+		}
 
-        /// Creates buffer around \a pRawBuffer pointer and \a size.
-        constexpr BasicRawBuffer(T* pRawBuffer, size_t size)
-            : pData(pRawBuffer)
-            , Size(size)
-        {
-        }
+		/// Creates buffer around \a pRawBuffer pointer and \a size.
+		constexpr BasicRawBuffer(T* pRawBuffer, size_t size)
+			: pData(pRawBuffer)
+			, Size(size) {
+		}
 
-    public:
-        /// Data pointer.
-        T* pData;
+	public:
+		/// Data pointer.
+		T* pData;
 
-        /// Data size.
-        size_t Size;
-    };
+		/// Data size.
+		size_t Size;
+	};
 
-    /// Const binary buffer.
-    using RawBuffer = BasicRawBuffer<const uint8_t>;
+	/// Const binary buffer.
+	using RawBuffer = BasicRawBuffer<const uint8_t>;
 
-    /// Mutable binary buffer.
-    using MutableRawBuffer = BasicRawBuffer<uint8_t>;
+	/// Mutable binary buffer.
+	using MutableRawBuffer = BasicRawBuffer<uint8_t>;
 
-    /// Const string buffer.
-    class RawString : public BasicRawBuffer<const char> {
-    public:
-        using BasicRawBuffer<const char>::BasicRawBuffer;
+	/// Const string buffer.
+	class RawString : public BasicRawBuffer<const char> {
+	public:
+		using BasicRawBuffer<const char>::BasicRawBuffer;
 
-    public:
-        /// Creates an empty string buffer.
-        constexpr RawString()
-            : BasicRawBuffer()
-        {
-        }
+	public:
+		/// Creates an empty string buffer.
+		constexpr RawString()
+			: BasicRawBuffer() {
+		}
 
-        /// Creates a string buffer around a NUL-terminated string (\a str).
-        RawString(const char* str);
-    };
+		/// Creates a string buffer around a NUL-terminated string (\a str).
+		RawString(const char* str);
+	};
 
-    /// Mutable string buffer.
-    class MutableRawString : public BasicRawBuffer<char> {
-    public:
-        using BasicRawBuffer<char>::BasicRawBuffer;
+	/// Mutable string buffer.
+	class MutableRawString : public BasicRawBuffer<char> {
+	public:
+		using BasicRawBuffer<char>::BasicRawBuffer;
 
-    public:
-        /// Creates an empty mutable string buffer.
-        constexpr MutableRawString()
-            : BasicRawBuffer()
-        {
-        }
+	public:
+		/// Creates an empty mutable string buffer.
+		constexpr MutableRawString()
+			: BasicRawBuffer() {
+		}
 
-        /// Creates a mutable string buffer around \a str.
-        MutableRawString(std::string& str);
-    };
+		/// Creates a mutable string buffer around \a str.
+		MutableRawString(std::string& str);
+	};
 
-    /// Insertion operator for outputting \a str to \a out.
-    template <typename T, typename X = std::enable_if_t<std::is_same_v<char, typename std::remove_const_t<T>>>>
-    std::ostream& operator<<(std::ostream& out, const BasicRawBuffer<T>& str)
-    {
-        out.write(str.pData, static_cast<std::streamsize>(str.Size));
-        return out;
-    }
+	/// Insertion operator for outputting \a str to \a out.
+	template <typename T, typename X = std::enable_if_t<std::is_same_v<char, typename std::remove_const_t<T>>>>
+	std::ostream& operator<<(std::ostream& out, const BasicRawBuffer<T>& str) {
+		out.write(str.pData, static_cast<std::streamsize>(str.Size));
+		return out;
+	}
 }
 }

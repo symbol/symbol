@@ -29,66 +29,63 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            constexpr auto Root_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Root);
-            constexpr auto Child_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Child);
+		namespace {
+			constexpr auto Root_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Root);
+			constexpr auto Child_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Child);
 
-            using Path = state::Namespace::Path;
+			using Path = state::Namespace::Path;
 
-            void StreamDescriptorMetadata(bson_stream::document& builder, const NamespaceDescriptor& descriptor)
-            {
-                builder << "meta" << bson_stream::open_document << "latest" << descriptor.IsLatest << "index"
-                        << static_cast<int32_t>(descriptor.Index) << bson_stream::close_document;
-            }
+			void StreamDescriptorMetadata(bson_stream::document& builder, const NamespaceDescriptor& descriptor) {
+				builder << "meta" << bson_stream::open_document << "latest" << descriptor.IsLatest << "index"
+						<< static_cast<int32_t>(descriptor.Index) << bson_stream::close_document;
+			}
 
-            void StreamAlias(bson_stream::document& builder, const state::NamespaceAlias& alias)
-            {
-                builder << "alias" << bson_stream::open_document << "type" << utils::to_underlying_type(alias.type());
+			void StreamAlias(bson_stream::document& builder, const state::NamespaceAlias& alias) {
+				builder << "alias" << bson_stream::open_document << "type" << utils::to_underlying_type(alias.type());
 
-                switch (alias.type()) {
-                case state::AliasType::Mosaic:
-                    builder << "mosaicId" << ToInt64(alias.mosaicId());
-                    break;
+				switch (alias.type()) {
+				case state::AliasType::Mosaic:
+					builder << "mosaicId" << ToInt64(alias.mosaicId());
+					break;
 
-                case state::AliasType::Address:
-                    builder << "address" << ToBinary(alias.address());
-                    break;
+				case state::AliasType::Address:
+					builder << "address" << ToBinary(alias.address());
+					break;
 
-                default:
-                    break;
-                }
+				default:
+					break;
+				}
 
-                builder << bson_stream::close_document;
-            }
-        }
+				builder << bson_stream::close_document;
+			}
+		}
 
-        // region ToDbModel
+		// region ToDbModel
 
-        bsoncxx::document::value ToDbModel(const NamespaceDescriptor& descriptor)
-        {
-            const auto& path = descriptor.Path;
-            const auto& root = *descriptor.pRoot;
-            auto depth = path.size();
-            bson_stream::document builder;
-            StreamDescriptorMetadata(builder, descriptor);
-            builder << "namespace" << bson_stream::open_document << "version" << 1 << "registrationType"
-                    << (descriptor.IsRoot() ? Root_Type : Child_Type) << "depth" << static_cast<int32_t>(path.size());
+		bsoncxx::document::value ToDbModel(const NamespaceDescriptor& descriptor) {
+			const auto& path = descriptor.Path;
+			const auto& root = *descriptor.pRoot;
+			auto depth = path.size();
+			bson_stream::document builder;
+			StreamDescriptorMetadata(builder, descriptor);
+			builder << "namespace" << bson_stream::open_document << "version" << 1 << "registrationType"
+					<< (descriptor.IsRoot() ? Root_Type : Child_Type) << "depth" << static_cast<int32_t>(path.size());
 
-            for (auto i = 0u; i < depth; ++i)
-                builder << "level" + std::to_string(i) << ToInt64(path[i]);
+			for (auto i = 0u; i < depth; ++i)
+				builder << "level" + std::to_string(i) << ToInt64(path[i]);
 
-            StreamAlias(builder, descriptor.Alias);
+			StreamAlias(builder, descriptor.Alias);
 
-            builder << "parentId" << ToInt64(descriptor.IsRoot() ? Namespace_Base_Id : path[path.size() - 2]) << "ownerAddress"
-                    << ToBinary(descriptor.OwnerAddress) << "startHeight" << ToInt64(root.lifetime().Start) << "endHeight"
-                    << ToInt64(root.lifetime().End) << bson_stream::close_document;
+			builder << "parentId" << ToInt64(descriptor.IsRoot() ? Namespace_Base_Id : path[path.size() - 2]) << "ownerAddress"
+					<< ToBinary(descriptor.OwnerAddress) << "startHeight" << ToInt64(root.lifetime().Start) << "endHeight"
+					<< ToInt64(root.lifetime().End) << bson_stream::close_document;
 
-            return builder << bson_stream::finalize;
-        }
+			return builder << bson_stream::finalize;
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

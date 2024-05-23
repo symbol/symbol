@@ -30,110 +30,99 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS NamespaceDescriptorMapperTests
 
-        namespace {
-            using Path = state::Namespace::Path;
+		namespace {
+			using Path = state::Namespace::Path;
 
-            struct NoAliasTraits {
-                static auto CreateAlias()
-                {
-                    return state::NamespaceAlias();
-                }
-            };
+			struct NoAliasTraits {
+				static auto CreateAlias() {
+					return state::NamespaceAlias();
+				}
+			};
 
-            struct MosaicAliasTraits {
-                static auto CreateAlias()
-                {
-                    return state::NamespaceAlias(test::GenerateRandomValue<MosaicId>());
-                }
-            };
+			struct MosaicAliasTraits {
+				static auto CreateAlias() {
+					return state::NamespaceAlias(test::GenerateRandomValue<MosaicId>());
+				}
+			};
 
-            struct AddressAliasTraits {
-                static auto CreateAlias()
-                {
-                    return state::NamespaceAlias(test::GenerateRandomByteArray<Address>());
-                }
-            };
-        }
+			struct AddressAliasTraits {
+				static auto CreateAlias() {
+					return state::NamespaceAlias(test::GenerateRandomByteArray<Address>());
+				}
+			};
+		}
 
 #define ALIAS_TRAITS_BASED_TEST(TEST_NAME)                             \
-    template <typename TTraits>                                        \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                    \
-    TEST(TEST_CLASS, TEST_NAME)                                        \
-    {                                                                  \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NoAliasTraits>();      \
-    }                                                                  \
-    TEST(TEST_CLASS, TEST_NAME##_MosaicAlias)                          \
-    {                                                                  \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicAliasTraits>();  \
-    }                                                                  \
-    TEST(TEST_CLASS, TEST_NAME##_AddressAlias)                         \
-    {                                                                  \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressAliasTraits>(); \
-    }                                                                  \
-    template <typename TTraits>                                        \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template <typename TTraits>                                        \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                    \
+	TEST(TEST_CLASS, TEST_NAME) {                                      \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NoAliasTraits>();      \
+	}                                                                  \
+	TEST(TEST_CLASS, TEST_NAME##_MosaicAlias) {                        \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicAliasTraits>();  \
+	}                                                                  \
+	TEST(TEST_CLASS, TEST_NAME##_AddressAlias) {                       \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressAliasTraits>(); \
+	}                                                                  \
+	template <typename TTraits>                                        \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-        // region ToDbModel
+		// region ToDbModel
 
-        namespace {
-            enum class NamespaceStatus { Latest,
-                Old };
+		namespace {
+			enum class NamespaceStatus { Latest,
+				Old };
 
-            NamespaceDescriptor CreateNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias)
-            {
-                Path path;
-                for (auto i = 0u; i < depth; ++i)
-                    path.push_back(test::GenerateRandomValue<NamespaceId>());
+			NamespaceDescriptor CreateNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias) {
+				Path path;
+				for (auto i = 0u; i < depth; ++i)
+					path.push_back(test::GenerateRandomValue<NamespaceId>());
 
-                auto owner = test::CreateRandomOwner();
-                auto pRoot = std::make_shared<state::RootNamespace>(path[0], owner, state::NamespaceLifetime(Height(123), Height(234)));
-                return NamespaceDescriptor(path, alias, pRoot, test::GenerateRandomAddress(), 321, NamespaceStatus::Latest == status);
-            }
+				auto owner = test::CreateRandomOwner();
+				auto pRoot = std::make_shared<state::RootNamespace>(path[0], owner, state::NamespaceLifetime(Height(123), Height(234)));
+				return NamespaceDescriptor(path, alias, pRoot, test::GenerateRandomAddress(), 321, NamespaceStatus::Latest == status);
+			}
 
-            void AssertCanMapNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias)
-            {
-                // Arrange:
-                auto descriptor = CreateNamespaceDescriptor(depth, status, alias);
+			void AssertCanMapNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias) {
+				// Arrange:
+				auto descriptor = CreateNamespaceDescriptor(depth, status, alias);
 
-                // Act:
-                auto document = ToDbModel(descriptor);
-                auto documentView = document.view();
+				// Act:
+				auto document = ToDbModel(descriptor);
+				auto documentView = document.view();
 
-                // Assert:
-                EXPECT_EQ(2u, test::GetFieldCount(documentView));
+				// Assert:
+				EXPECT_EQ(2u, test::GetFieldCount(documentView));
 
-                auto metaView = documentView["meta"].get_document().view();
-                EXPECT_EQ(2u, test::GetFieldCount(metaView));
-                test::AssertEqualNamespaceMetadata(descriptor, metaView);
+				auto metaView = documentView["meta"].get_document().view();
+				EXPECT_EQ(2u, test::GetFieldCount(metaView));
+				test::AssertEqualNamespaceMetadata(descriptor, metaView);
 
-                auto namespaceView = documentView["namespace"].get_document().view();
-                test::AssertEqualNamespaceData(descriptor, namespaceView);
-            }
-        }
+				auto namespaceView = documentView["namespace"].get_document().view();
+				test::AssertEqualNamespaceData(descriptor, namespaceView);
+			}
+		}
 
-        ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth1)
-        {
-            AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Old, TTraits::CreateAlias());
-            AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Latest, TTraits::CreateAlias());
-        }
+		ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth1) {
+			AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Old, TTraits::CreateAlias());
+			AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Latest, TTraits::CreateAlias());
+		}
 
-        ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth2)
-        {
-            AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Old, TTraits::CreateAlias());
-            AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Latest, TTraits::CreateAlias());
-        }
+		ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth2) {
+			AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Old, TTraits::CreateAlias());
+			AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Latest, TTraits::CreateAlias());
+		}
 
-        ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth3)
-        {
-            AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Old, TTraits::CreateAlias());
-            AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Latest, TTraits::CreateAlias());
-        }
+		ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth3) {
+			AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Old, TTraits::CreateAlias());
+			AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Latest, TTraits::CreateAlias());
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

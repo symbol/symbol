@@ -24,10 +24,10 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Creates a mongo account restriction cache storage around \a database, \a bulkWriter and \a networkIdentifier.
-        DECLARE_MONGO_CACHE_STORAGE(AccountRestriction);
-    }
+		/// Creates a mongo account restriction cache storage around \a database, \a bulkWriter and \a networkIdentifier.
+		DECLARE_MONGO_CACHE_STORAGE(AccountRestriction);
+	}
 }
 }

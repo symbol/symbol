@@ -27,7 +27,7 @@
 namespace catapult {
 namespace cache {
 
-    /// Primary serializer for metadata cache.
-    struct MetadataEntryPrimarySerializer : public CacheSerializerAdapter<state::MetadataEntrySerializer, MetadataCacheDescriptor> { };
+	/// Primary serializer for metadata cache.
+	struct MetadataEntryPrimarySerializer : public CacheSerializerAdapter<state::MetadataEntrySerializer, MetadataCacheDescriptor> { };
 }
 }

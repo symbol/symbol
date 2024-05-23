@@ -26,34 +26,34 @@
 
 namespace catapult {
 namespace model {
-    class TransactionRegistry;
+	class TransactionRegistry;
 }
 namespace tools {
-    namespace nemgen {
-        struct NemesisConfiguration;
-        struct NemesisExecutionHashesDescriptor;
-    }
+	namespace nemgen {
+		struct NemesisConfiguration;
+		struct NemesisExecutionHashesDescriptor;
+	}
 }
 }
 
 namespace catapult {
 namespace tools {
-    namespace nemgen {
+	namespace nemgen {
 
-        /// Creates a nemesis block containing the specified additional transactions (\a additionalTransactions) given \a config.
-        std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config, model::Transactions&& additionalTransactions);
+		/// Creates a nemesis block containing the specified additional transactions (\a additionalTransactions) given \a config.
+		std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config, model::Transactions&& additionalTransactions);
 
-        /// Updates a nemesis \a block given \a config and \a executionHashesDescriptor.
-        Hash256 UpdateNemesisBlock(
-            const NemesisConfiguration& config,
-            model::Block& block,
-            NemesisExecutionHashesDescriptor& executionHashesDescriptor);
+		/// Updates a nemesis \a block given \a config and \a executionHashesDescriptor.
+		Hash256 UpdateNemesisBlock(
+			const NemesisConfiguration& config,
+			model::Block& block,
+			NemesisExecutionHashesDescriptor& executionHashesDescriptor);
 
-        /// Wraps a block element around \a block given \a config and \a transactionRegistry.
-        model::BlockElement CreateNemesisBlockElement(
-            const NemesisConfiguration& config,
-            const model::TransactionRegistry& transactionRegistry,
-            const model::Block& block);
-    }
+		/// Wraps a block element around \a block given \a config and \a transactionRegistry.
+		model::BlockElement CreateNemesisBlockElement(
+			const NemesisConfiguration& config,
+			const model::TransactionRegistry& transactionRegistry,
+			const model::Block& block);
+	}
 }
 }

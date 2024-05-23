@@ -24,30 +24,26 @@
 namespace catapult {
 namespace cache {
 
-    BasicHashCacheDelta::BasicHashCacheDelta(const HashCacheTypes::BaseSetDeltaPointers& hashSets, const HashCacheTypes::Options& options)
-        : HashCacheDeltaMixins::Size(*hashSets.pPrimary)
-        , HashCacheDeltaMixins::Contains(*hashSets.pPrimary)
-        , HashCacheDeltaMixins::BasicInsertRemove(*hashSets.pPrimary)
-        , HashCacheDeltaMixins::DeltaElements(*hashSets.pPrimary)
-        , m_pOrderedDelta(hashSets.pPrimary)
-        , m_retentionTime(options.RetentionTime)
-    {
-    }
+	BasicHashCacheDelta::BasicHashCacheDelta(const HashCacheTypes::BaseSetDeltaPointers& hashSets, const HashCacheTypes::Options& options)
+		: HashCacheDeltaMixins::Size(*hashSets.pPrimary)
+		, HashCacheDeltaMixins::Contains(*hashSets.pPrimary)
+		, HashCacheDeltaMixins::BasicInsertRemove(*hashSets.pPrimary)
+		, HashCacheDeltaMixins::DeltaElements(*hashSets.pPrimary)
+		, m_pOrderedDelta(hashSets.pPrimary)
+		, m_retentionTime(options.RetentionTime) {
+	}
 
-    utils::TimeSpan BasicHashCacheDelta::retentionTime() const
-    {
-        return m_retentionTime;
-    }
+	utils::TimeSpan BasicHashCacheDelta::retentionTime() const {
+		return m_retentionTime;
+	}
 
-    deltaset::PruningBoundary<BasicHashCacheDelta::ValueType> BasicHashCacheDelta::pruningBoundary() const
-    {
-        return m_pruningBoundary;
-    }
+	deltaset::PruningBoundary<BasicHashCacheDelta::ValueType> BasicHashCacheDelta::pruningBoundary() const {
+		return m_pruningBoundary;
+	}
 
-    void BasicHashCacheDelta::prune(Timestamp timestamp)
-    {
-        auto pruneTime = SubtractNonNegative(timestamp, m_retentionTime);
-        m_pruningBoundary = ValueType(pruneTime);
-    }
+	void BasicHashCacheDelta::prune(Timestamp timestamp) {
+		auto pruneTime = SubtractNonNegative(timestamp, m_retentionTime);
+		m_pruningBoundary = ValueType(pruneTime);
+	}
 }
 }

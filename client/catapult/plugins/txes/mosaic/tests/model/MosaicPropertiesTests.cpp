@@ -30,69 +30,63 @@ namespace model {
 
 #define TEST_CLASS MosaicPropertiesTests
 
-    // region ctor
+	// region ctor
 
-    TEST(TEST_CLASS, CanCreateDefaultMosaicProperties)
-    {
-        // Act:
-        MosaicProperties properties;
+	TEST(TEST_CLASS, CanCreateDefaultMosaicProperties) {
+		// Act:
+		MosaicProperties properties;
 
-        // Assert:
-        EXPECT_EQ(MosaicFlags::None, properties.flags());
-        EXPECT_EQ(0u, properties.divisibility());
-        EXPECT_EQ(BlockDuration(), properties.duration());
+		// Assert:
+		EXPECT_EQ(MosaicFlags::None, properties.flags());
+		EXPECT_EQ(0u, properties.divisibility());
+		EXPECT_EQ(BlockDuration(), properties.duration());
 
-        for (auto flag = 1u; flag < utils::to_underlying_type(MosaicFlags::All); flag <<= 1)
-            EXPECT_FALSE(properties.is(static_cast<MosaicFlags>(flag))) << "flag " << flag;
-    }
+		for (auto flag = 1u; flag < utils::to_underlying_type(MosaicFlags::All); flag <<= 1)
+			EXPECT_FALSE(properties.is(static_cast<MosaicFlags>(flag))) << "flag " << flag;
+	}
 
-    TEST(TEST_CLASS, CanCreateMosaicPropertiesAroundValues)
-    {
-        // Act:
-        MosaicProperties properties(MosaicFlags::Supply_Mutable | MosaicFlags::Restrictable, 5, BlockDuration(234));
+	TEST(TEST_CLASS, CanCreateMosaicPropertiesAroundValues) {
+		// Act:
+		MosaicProperties properties(MosaicFlags::Supply_Mutable | MosaicFlags::Restrictable, 5, BlockDuration(234));
 
-        // Assert:
-        EXPECT_EQ(MosaicFlags::Supply_Mutable | MosaicFlags::Restrictable, properties.flags());
-        EXPECT_EQ(5u, properties.divisibility());
-        EXPECT_EQ(BlockDuration(234), properties.duration());
+		// Assert:
+		EXPECT_EQ(MosaicFlags::Supply_Mutable | MosaicFlags::Restrictable, properties.flags());
+		EXPECT_EQ(5u, properties.divisibility());
+		EXPECT_EQ(BlockDuration(234), properties.duration());
 
-        for (auto flag = 1u; flag < utils::to_underlying_type(MosaicFlags::All); flag <<= 1)
-            EXPECT_EQ(!!(flag & 0x05), properties.is(static_cast<MosaicFlags>(flag))) << "flag " << flag;
-    }
+		for (auto flag = 1u; flag < utils::to_underlying_type(MosaicFlags::All); flag <<= 1)
+			EXPECT_EQ(!!(flag & 0x05), properties.is(static_cast<MosaicFlags>(flag))) << "flag " << flag;
+	}
 
-    // endregion
+	// endregion
 
-    // region equality operators
+	// region equality operators
 
-    namespace {
-        std::unordered_set<std::string> GetEqualTags()
-        {
-            return { "default", "copy" };
-        }
+	namespace {
+		std::unordered_set<std::string> GetEqualTags() {
+			return { "default", "copy" };
+		}
 
-        std::unordered_map<std::string, MosaicProperties> GenerateEqualityInstanceMap()
-        {
-            return { { "default", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
-                { "copy", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
+		std::unordered_map<std::string, MosaicProperties> GenerateEqualityInstanceMap() {
+			return { { "default", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
+				{ "copy", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
 
-                { "diff[0]", test::CreateMosaicPropertiesFromValues(1, 7, 5) },
-                { "diff[1]", test::CreateMosaicPropertiesFromValues(2, 9, 5) },
-                { "diff[2]", test::CreateMosaicPropertiesFromValues(2, 7, 6) },
-                { "reverse", test::CreateMosaicPropertiesFromValues(5, 7, 2) },
-                { "diff-all", test::CreateMosaicPropertiesFromValues(1, 8, 6) } };
-        }
-    }
+				{ "diff[0]", test::CreateMosaicPropertiesFromValues(1, 7, 5) },
+				{ "diff[1]", test::CreateMosaicPropertiesFromValues(2, 9, 5) },
+				{ "diff[2]", test::CreateMosaicPropertiesFromValues(2, 7, 6) },
+				{ "reverse", test::CreateMosaicPropertiesFromValues(5, 7, 2) },
+				{ "diff-all", test::CreateMosaicPropertiesFromValues(1, 8, 6) } };
+		}
+	}
 
-    TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues)
-    {
-        test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
-    }
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
+		test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
+	}
 
-    TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues)
-    {
-        test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
-    }
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
+	}
 
-    // endregion
+	// endregion
 }
 }

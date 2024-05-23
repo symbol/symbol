@@ -24,15 +24,15 @@
 
 namespace catapult {
 namespace plugins {
-    class PluginManager;
+	class PluginManager;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Registers account link support with \a manager.
-    PLUGIN_API
-    void RegisterAccountLinkSubsystem(PluginManager& manager);
+	/// Registers account link support with \a manager.
+	PLUGIN_API
+	void RegisterAccountLinkSubsystem(PluginManager& manager);
 }
 }

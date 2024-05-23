@@ -28,87 +28,81 @@ namespace model {
 
 #define TEST_CLASS TransactionRegistryTests
 
-    // region basic
+	// region basic
 
-    TEST(TEST_CLASS, NoPluginsAreInitiallyRegistered)
-    {
-        // Act:
-        TransactionRegistry registry;
+	TEST(TEST_CLASS, NoPluginsAreInitiallyRegistered) {
+		// Act:
+		TransactionRegistry registry;
 
-        // Assert:
-        EXPECT_EQ(0u, registry.size());
-    }
+		// Assert:
+		EXPECT_EQ(0u, registry.size());
+	}
 
-    // endregion
+	// endregion
 
-    // region registerPlugin
+	// region registerPlugin
 
-    TEST(TEST_CLASS, CanRegisterPlugin)
-    {
-        // Act:
-        TransactionRegistry registry;
-        registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124)));
+	TEST(TEST_CLASS, CanRegisterPlugin) {
+		// Act:
+		TransactionRegistry registry;
+		registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124)));
 
-        // Assert:
-        EXPECT_EQ(1u, registry.size());
-    }
+		// Assert:
+		EXPECT_EQ(1u, registry.size());
+	}
 
-    TEST(TEST_CLASS, CanRegisterMultiplePlugin)
-    {
-        // Act:
-        TransactionRegistry registry;
-        for (auto i : { 123, 7, 222 })
-            registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
+	TEST(TEST_CLASS, CanRegisterMultiplePlugin) {
+		// Act:
+		TransactionRegistry registry;
+		for (auto i : { 123, 7, 222 })
+			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
-        // Assert:
-        EXPECT_EQ(3u, registry.size());
-    }
+		// Assert:
+		EXPECT_EQ(3u, registry.size());
+	}
 
-    TEST(TEST_CLASS, CannotRegisterMultiplePluginsWithSameType)
-    {
-        // Arrange:
-        TransactionRegistry registry;
-        registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124)));
+	TEST(TEST_CLASS, CannotRegisterMultiplePluginsWithSameType) {
+		// Arrange:
+		TransactionRegistry registry;
+		registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124)));
 
-        // Act + Assert:
-        EXPECT_THROW(
-            registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124))),
-            catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(
+			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124))),
+			catapult_invalid_argument);
+	}
 
-    // endregion
+	// endregion
 
-    // region findPlugin
+	// region findPlugin
 
-    TEST(TEST_CLASS, CanFindRegistedPlugin)
-    {
-        // Arrange:
-        TransactionRegistry registry;
-        for (auto i : { 123, 7, 222 })
-            registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
+	TEST(TEST_CLASS, CanFindRegistedPlugin) {
+		// Arrange:
+		TransactionRegistry registry;
+		for (auto i : { 123, 7, 222 })
+			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
-        // Act:
-        const auto* pPlugin = registry.findPlugin(static_cast<EntityType>(7));
+		// Act:
+		const auto* pPlugin = registry.findPlugin(static_cast<EntityType>(7));
 
-        // Assert:
-        ASSERT_TRUE(!!pPlugin);
-        EXPECT_EQ(static_cast<EntityType>(7), pPlugin->type());
-    }
+		// Assert:
+		ASSERT_TRUE(!!pPlugin);
+		EXPECT_EQ(static_cast<EntityType>(7), pPlugin->type());
+	}
 
-    TEST(TEST_CLASS, CannotFindUnregistedPlugin)
-    {
-        // Arrange:
-        TransactionRegistry registry;
-        for (auto i : { 123, 7, 222 })
-            registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
+	TEST(TEST_CLASS, CannotFindUnregistedPlugin) {
+		// Arrange:
+		TransactionRegistry registry;
+		for (auto i : { 123, 7, 222 })
+			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
-        // Act:
-        const auto* pPlugin = registry.findPlugin(static_cast<EntityType>(8));
+		// Act:
+		const auto* pPlugin = registry.findPlugin(static_cast<EntityType>(8));
 
-        // Assert:
-        EXPECT_FALSE(!!pPlugin);
-    }
+		// Assert:
+		EXPECT_FALSE(!!pPlugin);
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -28,36 +28,31 @@
 namespace catapult {
 namespace test {
 
-    bool CacheSerializationTestEntry::operator==(const CacheSerializationTestEntry& rhs) const
-    {
-        return Alpha == rhs.Alpha && Beta == rhs.Beta && Gamma == rhs.Gamma;
-    }
+	bool CacheSerializationTestEntry::operator==(const CacheSerializationTestEntry& rhs) const {
+		return Alpha == rhs.Alpha && Beta == rhs.Beta && Gamma == rhs.Gamma;
+	}
 
-    CacheSerializationTestEntry CacheSerializationTestEntryLoaderTraits::Load(io::InputStream& input)
-    {
-        CacheSerializationTestEntry entry;
-        input.read({ reinterpret_cast<uint8_t*>(&entry), sizeof(CacheSerializationTestEntry) });
-        return entry;
-    }
+	CacheSerializationTestEntry CacheSerializationTestEntryLoaderTraits::Load(io::InputStream& input) {
+		CacheSerializationTestEntry entry;
+		input.read({ reinterpret_cast<uint8_t*>(&entry), sizeof(CacheSerializationTestEntry) });
+		return entry;
+	}
 
-    void CacheSerializationTestEntryLoaderTraits::LoadInto(const CacheSerializationTestEntry& entry, DestinationType& destination)
-    {
-        destination.push_back(entry);
-    }
+	void CacheSerializationTestEntryLoaderTraits::LoadInto(const CacheSerializationTestEntry& entry, DestinationType& destination) {
+		destination.push_back(entry);
+	}
 
-    std::vector<CacheSerializationTestEntry> GenerateRandomCacheSerializationTestEntries(size_t count)
-    {
-        return GenerateRandomDataVector<CacheSerializationTestEntry>(count);
-    }
+	std::vector<CacheSerializationTestEntry> GenerateRandomCacheSerializationTestEntries(size_t count) {
+		return GenerateRandomDataVector<CacheSerializationTestEntry>(count);
+	}
 
-    std::vector<uint8_t> CopyCacheSerializationTestEntriesToStreamBuffer(const std::vector<CacheSerializationTestEntry>& entries)
-    {
-        auto numHeaderBytes = sizeof(uint64_t);
-        uint64_t numBytes = numHeaderBytes + entries.size() * sizeof(CacheSerializationTestEntry);
-        std::vector<uint8_t> buffer(numBytes);
-        reinterpret_cast<uint64_t&>(buffer[0]) = entries.size();
-        utils::memcpy_cond(buffer.data() + numHeaderBytes, entries.data(), numBytes - numHeaderBytes);
-        return buffer;
-    }
+	std::vector<uint8_t> CopyCacheSerializationTestEntriesToStreamBuffer(const std::vector<CacheSerializationTestEntry>& entries) {
+		auto numHeaderBytes = sizeof(uint64_t);
+		uint64_t numBytes = numHeaderBytes + entries.size() * sizeof(CacheSerializationTestEntry);
+		std::vector<uint8_t> buffer(numBytes);
+		reinterpret_cast<uint64_t&>(buffer[0]) = entries.size();
+		utils::memcpy_cond(buffer.data() + numHeaderBytes, entries.data(), numBytes - numHeaderBytes);
+		return buffer;
+	}
 }
 }

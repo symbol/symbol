@@ -25,14 +25,14 @@
 
 namespace catapult {
 namespace state {
-    class MosaicEntry;
+	class MosaicEntry;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Verifies that db mosaic entry (\a dbMosaicEntry) and model mosaic entry (\a mosaicEntry) are equivalent.
-    void AssertEqualMosaicData(const state::MosaicEntry& mosaicEntry, const bsoncxx::document::view& dbMosaicEntry);
+	/// Verifies that db mosaic entry (\a dbMosaicEntry) and model mosaic entry (\a mosaicEntry) are equivalent.
+	void AssertEqualMosaicData(const state::MosaicEntry& mosaicEntry, const bsoncxx::document::view& dbMosaicEntry);
 }
 }

@@ -31,109 +31,103 @@ namespace filespooling {
 
 #define TEST_CLASS FilePtChangeStorageTests
 
-    namespace {
-        // region test context
+	namespace {
+		// region test context
 
-        struct SubscriberTraits {
-            using SubscriberType = cache::PtChangeSubscriber;
-            using OperationType = subscribers::PtChangeOperationType;
+		struct SubscriberTraits {
+			using SubscriberType = cache::PtChangeSubscriber;
+			using OperationType = subscribers::PtChangeOperationType;
 
-            static constexpr auto Create = CreateFilePtChangeStorage;
-        };
+			static constexpr auto Create = CreateFilePtChangeStorage;
+		};
 
-        class FilePtChangeStorageContext : public test::FileTransactionsChangeStorageContext<SubscriberTraits> {
-        public:
-            void assertCosignature(const model::Cosignature& expectedCosignature, const model::TransactionInfo& expectedTransactionInfo)
-            {
-                model::Cosignature cosignature;
-                model::TransactionInfo transactionInfo;
+		class FilePtChangeStorageContext : public test::FileTransactionsChangeStorageContext<SubscriberTraits> {
+		public:
+			void assertCosignature(const model::Cosignature& expectedCosignature, const model::TransactionInfo& expectedTransactionInfo) {
+				model::Cosignature cosignature;
+				model::TransactionInfo transactionInfo;
 
-                auto inputStream = createInputStream();
-                auto operationType = static_cast<OperationType>(io::Read8(inputStream));
-                inputStream.read({ reinterpret_cast<uint8_t*>(&cosignature), sizeof(model::Cosignature) });
-                io::ReadTransactionInfo(inputStream, transactionInfo);
+				auto inputStream = createInputStream();
+				auto operationType = static_cast<OperationType>(io::Read8(inputStream));
+				inputStream.read({ reinterpret_cast<uint8_t*>(&cosignature), sizeof(model::Cosignature) });
+				io::ReadTransactionInfo(inputStream, transactionInfo);
 
-                EXPECT_EQ(subscribers::PtChangeOperationType::Add_Cosignature, operationType);
-                test::AssertCosignature(expectedCosignature, cosignature);
-                test::AssertEqual(expectedTransactionInfo, transactionInfo);
-            }
-        };
+				EXPECT_EQ(subscribers::PtChangeOperationType::Add_Cosignature, operationType);
+				test::AssertCosignature(expectedCosignature, cosignature);
+				test::AssertEqual(expectedTransactionInfo, transactionInfo);
+			}
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    TEST(TEST_CLASS, NotifyAddPartialsSavesNotifications)
-    {
-        // Arrange:
-        FilePtChangeStorageContext context;
-        auto transactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
+	TEST(TEST_CLASS, NotifyAddPartialsSavesNotifications) {
+		// Arrange:
+		FilePtChangeStorageContext context;
+		auto transactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
 
-        // Act:
-        context.subscriber().notifyAddPartials(transactionInfos);
+		// Act:
+		context.subscriber().notifyAddPartials(transactionInfos);
 
-        // Assert:
-        context.assertFileContents({ { subscribers::PtChangeOperationType::Add_Partials, std::cref(transactionInfos) } });
-        context.assertNumFlushes(0);
-    }
+		// Assert:
+		context.assertFileContents({ { subscribers::PtChangeOperationType::Add_Partials, std::cref(transactionInfos) } });
+		context.assertNumFlushes(0);
+	}
 
-    TEST(TEST_CLASS, NotifyRemovePartialsSavesNotifications)
-    {
-        // Arrange:
-        FilePtChangeStorageContext context;
-        auto transactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
+	TEST(TEST_CLASS, NotifyRemovePartialsSavesNotifications) {
+		// Arrange:
+		FilePtChangeStorageContext context;
+		auto transactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
 
-        // Act:
-        context.subscriber().notifyRemovePartials(transactionInfos);
+		// Act:
+		context.subscriber().notifyRemovePartials(transactionInfos);
 
-        // Assert:
-        context.assertFileContents({ { subscribers::PtChangeOperationType::Remove_Partials, std::cref(transactionInfos) } });
-        context.assertNumFlushes(0);
-    }
+		// Assert:
+		context.assertFileContents({ { subscribers::PtChangeOperationType::Remove_Partials, std::cref(transactionInfos) } });
+		context.assertNumFlushes(0);
+	}
 
-    TEST(TEST_CLASS, BothNotifyAddPartialsAndNotifyRemovePartialsSaveNotifications)
-    {
-        // Arrange:
-        FilePtChangeStorageContext context;
-        auto addedTransactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
-        auto removedTransactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(4);
+	TEST(TEST_CLASS, BothNotifyAddPartialsAndNotifyRemovePartialsSaveNotifications) {
+		// Arrange:
+		FilePtChangeStorageContext context;
+		auto addedTransactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
+		auto removedTransactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(4);
 
-        // Act:
-        context.subscriber().notifyAddPartials(addedTransactionInfos);
-        context.subscriber().notifyRemovePartials(removedTransactionInfos);
+		// Act:
+		context.subscriber().notifyAddPartials(addedTransactionInfos);
+		context.subscriber().notifyRemovePartials(removedTransactionInfos);
 
-        // Assert:
-        context.assertFileContents({ { subscribers::PtChangeOperationType::Add_Partials, std::cref(addedTransactionInfos) },
-            { subscribers::PtChangeOperationType::Remove_Partials, std::cref(removedTransactionInfos) } });
-        context.assertNumFlushes(0);
-    }
+		// Assert:
+		context.assertFileContents({ { subscribers::PtChangeOperationType::Add_Partials, std::cref(addedTransactionInfos) },
+			{ subscribers::PtChangeOperationType::Remove_Partials, std::cref(removedTransactionInfos) } });
+		context.assertNumFlushes(0);
+	}
 
-    TEST(TEST_CLASS, NotifyAddCosignatureSavesCosignature)
-    {
-        // Arrange:
-        FilePtChangeStorageContext context;
-        auto cosignature = test::CreateRandomDetachedCosignature();
-        auto transactionInfo = test::CreateRandomTransactionInfo();
-        transactionInfo.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
+	TEST(TEST_CLASS, NotifyAddCosignatureSavesCosignature) {
+		// Arrange:
+		FilePtChangeStorageContext context;
+		auto cosignature = test::CreateRandomDetachedCosignature();
+		auto transactionInfo = test::CreateRandomTransactionInfo();
+		transactionInfo.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 
-        // Act:
-        context.subscriber().notifyAddCosignature(transactionInfo, cosignature);
+		// Act:
+		context.subscriber().notifyAddCosignature(transactionInfo, cosignature);
 
-        // Assert:
-        context.assertCosignature(cosignature, transactionInfo);
-        context.assertNumFlushes(0);
-    }
+		// Assert:
+		context.assertCosignature(cosignature, transactionInfo);
+		context.assertNumFlushes(0);
+	}
 
-    TEST(TEST_CLASS, FlushFlushesUnderlyingStream)
-    {
-        // Arrange:
-        FilePtChangeStorageContext context;
+	TEST(TEST_CLASS, FlushFlushesUnderlyingStream) {
+		// Arrange:
+		FilePtChangeStorageContext context;
 
-        // Act:
-        context.subscriber().flush();
+		// Act:
+		context.subscriber().flush();
 
-        // Assert:
-        context.assertEmptyBuffer();
-        context.assertNumFlushes(1);
-    }
+		// Assert:
+		context.assertEmptyBuffer();
+		context.assertNumFlushes(1);
+	}
 }
 }

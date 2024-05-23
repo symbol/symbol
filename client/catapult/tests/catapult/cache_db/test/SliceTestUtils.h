@@ -25,7 +25,7 @@
 namespace catapult {
 namespace test {
 
-    /// Wraps \a value into a slice.
-    rocksdb::Slice ToSlice(const uint64_t& value);
+	/// Wraps \a value into a slice.
+	rocksdb::Slice ToSlice(const uint64_t& value);
 }
 }

@@ -24,62 +24,62 @@
 
 namespace catapult {
 namespace thread {
-    class IoThreadPool;
+	class IoThreadPool;
 }
 }
 
 namespace catapult {
 namespace net {
 
-    using AcceptHandler = consumer<const ionet::PacketSocketInfo&>;
+	using AcceptHandler = consumer<const ionet::PacketSocketInfo&>;
 
-    /// Settings used to configure AsyncTcpServer behavior.
-    struct AsyncTcpServerSettings {
-    public:
-        /// Creates a structure with a preconfigured accept handler (\a accept).
-        explicit AsyncTcpServerSettings(const AcceptHandler& accept);
+	/// Settings used to configure AsyncTcpServer behavior.
+	struct AsyncTcpServerSettings {
+	public:
+		/// Creates a structure with a preconfigured accept handler (\a accept).
+		explicit AsyncTcpServerSettings(const AcceptHandler& accept);
 
-    public:
-        /// Accept handler (must be set via constructor).
-        const AcceptHandler Accept;
+	public:
+		/// Accept handler (must be set via constructor).
+		const AcceptHandler Accept;
 
-        /// Packet socket options.
-        ionet::PacketSocketOptions PacketSocketOptions;
+		/// Packet socket options.
+		ionet::PacketSocketOptions PacketSocketOptions;
 
-        /// Maximum number of pending connections (backlog size).
-        uint16_t MaxPendingConnections = 100;
+		/// Maximum number of pending connections (backlog size).
+		uint16_t MaxPendingConnections = 100;
 
-        /// Maximum number of active connections.
-        uint32_t MaxActiveConnections = 25;
+		/// Maximum number of active connections.
+		uint32_t MaxActiveConnections = 25;
 
-        /// \c true if the server should reuse ports already in use.
-        bool AllowAddressReuse = false;
-    };
+		/// \c true if the server should reuse ports already in use.
+		bool AllowAddressReuse = false;
+	};
 
-    /// Async TCP server.
-    class AsyncTcpServer {
-    public:
-        virtual ~AsyncTcpServer() = default;
+	/// Async TCP server.
+	class AsyncTcpServer {
+	public:
+		virtual ~AsyncTcpServer() = default;
 
-    public:
-        /// Number of asynchronously started (but not completed) socket accepts.
-        virtual uint32_t numPendingAccepts() const = 0;
+	public:
+		/// Number of asynchronously started (but not completed) socket accepts.
+		virtual uint32_t numPendingAccepts() const = 0;
 
-        /// Current number of active connections.
-        virtual uint32_t numCurrentConnections() const = 0;
+		/// Current number of active connections.
+		virtual uint32_t numCurrentConnections() const = 0;
 
-        /// Total number of connections during the server's lifetime.
-        virtual uint32_t numLifetimeConnections() const = 0;
+		/// Total number of connections during the server's lifetime.
+		virtual uint32_t numLifetimeConnections() const = 0;
 
-    public:
-        /// Shuts down the server.
-        virtual void shutdown() = 0;
-    };
+	public:
+		/// Shuts down the server.
+		virtual void shutdown() = 0;
+	};
 
-    /// Creates an async tcp server listening on \a endpoint with the specified \a settings using the specified thread \a pool.
-    std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(
-        thread::IoThreadPool& pool,
-        const boost::asio::ip::tcp::endpoint& endpoint,
-        const AsyncTcpServerSettings& settings);
+	/// Creates an async tcp server listening on \a endpoint with the specified \a settings using the specified thread \a pool.
+	std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(
+		thread::IoThreadPool& pool,
+		const boost::asio::ip::tcp::endpoint& endpoint,
+		const AsyncTcpServerSettings& settings);
 }
 }

@@ -31,67 +31,63 @@ namespace validators {
 
 #define TEST_CLASS MosaicIdValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(MosaicId, )
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicId, )
 
-    TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicId)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto pValidator = CreateMosaicIdValidator();
-        auto notification = model::MosaicNonceNotification(owner, MosaicNonce(), MosaicId());
+	TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicId) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto pValidator = CreateMosaicIdValidator();
+		auto notification = model::MosaicNonceNotification(owner, MosaicNonce(), MosaicId());
 
-        // Act:
-        auto result = test::ValidateNotification(*pValidator, notification);
+		// Act:
+		auto result = test::ValidateNotification(*pValidator, notification);
 
-        // Assert:
-        EXPECT_EQ(Failure_Mosaic_Invalid_Id, result);
-    }
+		// Assert:
+		EXPECT_EQ(Failure_Mosaic_Invalid_Id, result);
+	}
 
-    // region nonce and id consistency
+	// region nonce and id consistency
 
-    namespace {
-        auto CreateMosaicNonceIdNotification(const Address& owner)
-        {
-            auto nonce = test::GenerateRandomValue<MosaicNonce>();
-            auto mosaicId = model::GenerateMosaicId(owner, nonce);
-            return model::MosaicNonceNotification(owner, nonce, mosaicId);
-        }
-    }
+	namespace {
+		auto CreateMosaicNonceIdNotification(const Address& owner) {
+			auto nonce = test::GenerateRandomValue<MosaicNonce>();
+			auto mosaicId = model::GenerateMosaicId(owner, nonce);
+			return model::MosaicNonceNotification(owner, nonce, mosaicId);
+		}
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMatchingId)
-    {
-        // Arrange: note that CreateMosaicNonceIdNotification creates proper mosaic id
-        auto owner = test::CreateRandomOwner();
-        auto pValidator = CreateMosaicIdValidator();
-        auto notification = CreateMosaicNonceIdNotification(owner);
+	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMatchingId) {
+		// Arrange: note that CreateMosaicNonceIdNotification creates proper mosaic id
+		auto owner = test::CreateRandomOwner();
+		auto pValidator = CreateMosaicIdValidator();
+		auto notification = CreateMosaicNonceIdNotification(owner);
 
-        // Act:
-        auto result = test::ValidateNotification(*pValidator, notification);
+		// Act:
+		auto result = test::ValidateNotification(*pValidator, notification);
 
-        // Assert:
-        EXPECT_EQ(ValidationResult::Success, result);
-    }
+		// Assert:
+		EXPECT_EQ(ValidationResult::Success, result);
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMismatchedId)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto pValidator = CreateMosaicIdValidator();
+	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMismatchedId) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto pValidator = CreateMosaicIdValidator();
 
-        for (auto i = 0u; i < utils::GetNumBits<uint64_t>(); ++i) {
-            // - note that CreateMosaicNonceIdNotification creates proper mosaic id
-            auto notification = CreateMosaicNonceIdNotification(owner);
-            auto mutatedId = notification.MosaicId.unwrap() ^ (1ull << i);
-            notification.MosaicId = MosaicId(mutatedId);
+		for (auto i = 0u; i < utils::GetNumBits<uint64_t>(); ++i) {
+			// - note that CreateMosaicNonceIdNotification creates proper mosaic id
+			auto notification = CreateMosaicNonceIdNotification(owner);
+			auto mutatedId = notification.MosaicId.unwrap() ^ (1ull << i);
+			notification.MosaicId = MosaicId(mutatedId);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification);
 
-            // Assert:
-            EXPECT_EQ(Failure_Mosaic_Id_Mismatch, result) << i;
-        }
-    }
+			// Assert:
+			EXPECT_EQ(Failure_Mosaic_Id_Mismatch, result) << i;
+		}
+	}
 
-    // endregion
+	// endregion
 }
 }

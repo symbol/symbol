@@ -27,27 +27,25 @@
 namespace catapult {
 namespace test {
 
-    void AddAccount(
-        cache::AccountStateCacheDelta& delta,
-        const Key& publicKey,
-        Importance importance,
-        model::ImportanceHeight importanceHeight)
-    {
-        delta.addAccount(publicKey, Height(100));
-        auto& accountState = delta.find(publicKey).get();
-        accountState.ImportanceSnapshots.set(importance, importanceHeight);
-    }
+	void AddAccount(
+		cache::AccountStateCacheDelta& delta,
+		const Key& publicKey,
+		Importance importance,
+		model::ImportanceHeight importanceHeight) {
+		delta.addAccount(publicKey, Height(100));
+		auto& accountState = delta.find(publicKey).get();
+		accountState.ImportanceSnapshots.set(importance, importanceHeight);
+	}
 
-    void AddNode(ionet::NodeContainer& container, const Key& identityKey, const std::string& nodeName)
-    {
-        auto modifier = container.modifier();
-        auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), nodeName);
-        metadata.Roles = ionet::NodeRoles::Peer;
+	void AddNode(ionet::NodeContainer& container, const Key& identityKey, const std::string& nodeName) {
+		auto modifier = container.modifier();
+		auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), nodeName);
+		metadata.Roles = ionet::NodeRoles::Peer;
 
-        auto identity = model::NodeIdentity { identityKey, "fake-host-from-time-synchronization-cache-test-utils" };
-        ionet::Node node(identity, CreateLocalHostNodeEndpoint(), metadata);
-        modifier.add(node, ionet::NodeSource::Dynamic);
-        modifier.provisionConnectionState(ionet::ServiceIdentifier(0x53594E43), identity).Age = 5;
-    }
+		auto identity = model::NodeIdentity { identityKey, "fake-host-from-time-synchronization-cache-test-utils" };
+		ionet::Node node(identity, CreateLocalHostNodeEndpoint(), metadata);
+		modifier.add(node, ionet::NodeSource::Dynamic);
+		modifier.provisionConnectionState(ionet::ServiceIdentifier(0x53594E43), identity).Age = 5;
+	}
 }
 }

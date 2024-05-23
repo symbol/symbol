@@ -30,51 +30,51 @@
 namespace catapult {
 namespace io {
 
-    /// File block storage modes.
-    enum class FileBlockStorageMode {
-        /// Maintain hash-based index.
-        Hash_Index,
+	/// File block storage modes.
+	enum class FileBlockStorageMode {
+		/// Maintain hash-based index.
+		Hash_Index,
 
-        /// None.
-        None
-    };
+		/// None.
+		None
+	};
 
-    /// File-based block storage.
-    class FileBlockStorage final : public PrunableBlockStorage {
-    public:
-        /// Creates a file-based block storage, where blocks will be stored inside \a dataDirectory
-        /// with a file database batch size of \a fileDatabaseBatchSize and specified storage \a mode.
-        FileBlockStorage(
-            const std::string& dataDirectory,
-            uint32_t fileDatabaseBatchSize,
-            FileBlockStorageMode mode = FileBlockStorageMode::Hash_Index);
+	/// File-based block storage.
+	class FileBlockStorage final : public PrunableBlockStorage {
+	public:
+		/// Creates a file-based block storage, where blocks will be stored inside \a dataDirectory
+		/// with a file database batch size of \a fileDatabaseBatchSize and specified storage \a mode.
+		FileBlockStorage(
+			const std::string& dataDirectory,
+			uint32_t fileDatabaseBatchSize,
+			FileBlockStorageMode mode = FileBlockStorageMode::Hash_Index);
 
-    public:
-        // LightBlockStorage
-        Height chainHeight() const override;
-        model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override;
-        void saveBlock(const model::BlockElement& blockElement) override;
-        void dropBlocksAfter(Height height) override;
+	public:
+		// LightBlockStorage
+		Height chainHeight() const override;
+		model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override;
+		void saveBlock(const model::BlockElement& blockElement) override;
+		void dropBlocksAfter(Height height) override;
 
-        // BlockStorage
-        std::shared_ptr<const model::Block> loadBlock(Height height) const override;
-        std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override;
-        std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override;
+		// BlockStorage
+		std::shared_ptr<const model::Block> loadBlock(Height height) const override;
+		std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override;
+		std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override;
 
-        // PrunableBlockStorage
-        void purge() override;
+		// PrunableBlockStorage
+		void purge() override;
 
-    private:
-        void requireHeight(Height height, const char* description) const;
+	private:
+		void requireHeight(Height height, const char* description) const;
 
-    private:
-        std::string m_dataDirectory;
-        FileBlockStorageMode m_mode;
-        FileDatabase m_blockDatabase;
-        FileDatabase m_statementDatabase;
+	private:
+		std::string m_dataDirectory;
+		FileBlockStorageMode m_mode;
+		FileDatabase m_blockDatabase;
+		FileDatabase m_statementDatabase;
 
-        HashFile m_hashFile;
-        IndexFile m_indexFile;
-    };
+		HashFile m_hashFile;
+		IndexFile m_indexFile;
+	};
 }
 }

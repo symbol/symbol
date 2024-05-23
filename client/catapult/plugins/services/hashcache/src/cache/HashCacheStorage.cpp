@@ -26,18 +26,16 @@
 namespace catapult {
 namespace cache {
 
-    void HashCacheStorage::Save(const ValueType& timestampedHash, io::OutputStream& output)
-    {
-        io::Write(output, timestampedHash.Time);
-        output.write(timestampedHash.Hash);
-    }
+	void HashCacheStorage::Save(const ValueType& timestampedHash, io::OutputStream& output) {
+		io::Write(output, timestampedHash.Time);
+		output.write(timestampedHash.Hash);
+	}
 
-    state::TimestampedHash HashCacheStorage::Load(io::InputStream& input)
-    {
-        state::TimestampedHash timestampedHash;
-        io::Read(input, timestampedHash.Time);
-        input.read(timestampedHash.Hash);
-        return timestampedHash;
-    }
+	state::TimestampedHash HashCacheStorage::Load(io::InputStream& input) {
+		state::TimestampedHash timestampedHash;
+		io::Read(input, timestampedHash.Time);
+		input.read(timestampedHash.Hash);
+		return timestampedHash;
+	}
 }
 }

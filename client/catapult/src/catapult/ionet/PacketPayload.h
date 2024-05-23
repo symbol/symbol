@@ -27,41 +27,41 @@
 namespace catapult {
 namespace ionet {
 
-    /// Packet payload that can be written.
-    class PacketPayload {
-    public:
-        /// Creates a default (empty) packet payload.
-        PacketPayload();
+	/// Packet payload that can be written.
+	class PacketPayload {
+	public:
+		/// Creates a default (empty) packet payload.
+		PacketPayload();
 
-        /// Creates a data-less packet payload with the specified \a type.
-        explicit PacketPayload(PacketType type);
+		/// Creates a data-less packet payload with the specified \a type.
+		explicit PacketPayload(PacketType type);
 
-        /// Creates a packet payload around a single shared packet (\a pPacket).
-        explicit PacketPayload(const std::shared_ptr<const Packet>& pPacket);
+		/// Creates a packet payload around a single shared packet (\a pPacket).
+		explicit PacketPayload(const std::shared_ptr<const Packet>& pPacket);
 
-    public:
-        /// Returns \c true if this packet payload is unset.
-        bool unset() const;
+	public:
+		/// Returns \c true if this packet payload is unset.
+		bool unset() const;
 
-        /// Packet header.
-        const PacketHeader& header() const;
+		/// Packet header.
+		const PacketHeader& header() const;
 
-        /// Packet data.
-        const std::vector<RawBuffer>& buffers() const;
+		/// Packet data.
+		const std::vector<RawBuffer>& buffers() const;
 
-    public:
-        /// Merges a packet (\a pPacket) and a packet \a payload into a new packet payload.
-        static PacketPayload Merge(const std::shared_ptr<const Packet>& pPacket, const PacketPayload& payload);
+	public:
+		/// Merges a packet (\a pPacket) and a packet \a payload into a new packet payload.
+		static PacketPayload Merge(const std::shared_ptr<const Packet>& pPacket, const PacketPayload& payload);
 
-    private:
-        PacketHeader m_header;
-        std::vector<RawBuffer> m_buffers;
+	private:
+		PacketHeader m_header;
+		std::vector<RawBuffer> m_buffers;
 
-        // the backing data
-        std::vector<std::shared_ptr<const void>> m_entities;
+		// the backing data
+		std::vector<std::shared_ptr<const void>> m_entities;
 
-    private:
-        friend class PacketPayloadBuilder;
-    };
+	private:
+		friend class PacketPayloadBuilder;
+	};
 }
 }

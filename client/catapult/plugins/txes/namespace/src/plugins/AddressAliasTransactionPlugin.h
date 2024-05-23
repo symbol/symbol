@@ -25,15 +25,15 @@
 
 namespace catapult {
 namespace model {
-    class TransactionPlugin;
+	class TransactionPlugin;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Creates an address alias transaction plugin.
-    PLUGIN_API
-    std::unique_ptr<model::TransactionPlugin> CreateAddressAliasTransactionPlugin();
+	/// Creates an address alias transaction plugin.
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateAddressAliasTransactionPlugin();
 }
 }

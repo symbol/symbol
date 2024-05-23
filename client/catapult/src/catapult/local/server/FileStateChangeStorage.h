@@ -28,21 +28,21 @@
 
 namespace catapult {
 namespace cache {
-    class CacheChangesStorage;
+	class CacheChangesStorage;
 }
 }
 
 namespace catapult {
 namespace local {
 
-    /// Vector of cache changes storage unique pointers.
-    using CacheChangesStorages = std::vector<std::unique_ptr<const cache::CacheChangesStorage>>;
+	/// Vector of cache changes storage unique pointers.
+	using CacheChangesStorages = std::vector<std::unique_ptr<const cache::CacheChangesStorage>>;
 
-    /// Creates a state change storage around \a pOutputStream using \a cacheChangesStoragesSupplier for creating storages
-    /// used for serialization.
-    /// \note Supplier is used because cache changes storages are not available when this storage is created.
-    std::unique_ptr<subscribers::StateChangeSubscriber> CreateFileStateChangeStorage(
-        std::unique_ptr<io::OutputStream>&& pOutputStream,
-        const supplier<CacheChangesStorages>& cacheChangesStoragesSupplier);
+	/// Creates a state change storage around \a pOutputStream using \a cacheChangesStoragesSupplier for creating storages
+	/// used for serialization.
+	/// \note Supplier is used because cache changes storages are not available when this storage is created.
+	std::unique_ptr<subscribers::StateChangeSubscriber> CreateFileStateChangeStorage(
+		std::unique_ptr<io::OutputStream>&& pOutputStream,
+		const supplier<CacheChangesStorages>& cacheChangesStoragesSupplier);
 }
 }

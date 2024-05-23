@@ -28,37 +28,34 @@ namespace extensions {
 
 #define TEST_CLASS MemoryBlockStorageTests
 
-    namespace {
-        struct MemoryTraits {
-            struct Guard {
-                std::string name() const
-                {
-                    return std::string();
-                }
-            };
-            using StorageType = MemoryBlockStorage;
+	namespace {
+		struct MemoryTraits {
+			struct Guard {
+				std::string name() const {
+					return std::string();
+				}
+			};
+			using StorageType = MemoryBlockStorage;
 
-            static std::unique_ptr<StorageType> OpenStorage(const std::string&)
-            {
-                // load and copy the nemesis into storage
-                auto nemesisBlockElement = test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHashSeed());
-                return std::make_unique<StorageType>(nemesisBlockElement);
-            }
+			static std::unique_ptr<StorageType> OpenStorage(const std::string&) {
+				// load and copy the nemesis into storage
+				auto nemesisBlockElement = test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHashSeed());
+				return std::make_unique<StorageType>(nemesisBlockElement);
+			}
 
-            static std::unique_ptr<StorageType> PrepareStorage(const std::string& destination, Height height = Height())
-            {
-                auto pStorage = OpenStorage(destination);
+			static std::unique_ptr<StorageType> PrepareStorage(const std::string& destination, Height height = Height()) {
+				auto pStorage = OpenStorage(destination);
 
-                // set storage height to `height - 1` because next block saved will be at `height`
-                if (Height() != height)
-                    pStorage->dropBlocksAfter(height - Height(1));
+				// set storage height to `height - 1` because next block saved will be at `height`
+				if (Height() != height)
+					pStorage->dropBlocksAfter(height - Height(1));
 
-                return pStorage;
-            }
-        };
-    }
+				return pStorage;
+			}
+		};
+	}
 
-    DEFINE_BLOCK_STORAGE_TESTS(MemoryTraits)
-    DEFINE_PRUNABLE_BLOCK_STORAGE_TESTS(MemoryTraits)
+	DEFINE_BLOCK_STORAGE_TESTS(MemoryTraits)
+	DEFINE_PRUNABLE_BLOCK_STORAGE_TESTS(MemoryTraits)
 }
 }

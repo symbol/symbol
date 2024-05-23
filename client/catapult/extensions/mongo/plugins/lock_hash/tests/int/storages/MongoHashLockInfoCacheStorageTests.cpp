@@ -28,39 +28,36 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MongoHashLockInfoCacheStorageTests
 
-        namespace {
-            struct HashLockCacheTraits {
-                using CacheType = cache::HashLockInfoCache;
-                using ModelType = state::HashLockInfo;
+		namespace {
+			struct HashLockCacheTraits {
+				using CacheType = cache::HashLockInfoCache;
+				using ModelType = state::HashLockInfo;
 
-                static constexpr auto Collection_Name = "hashLocks";
-                static constexpr auto Id_Property_Name = "hash";
+				static constexpr auto Collection_Name = "hashLocks";
+				static constexpr auto Id_Property_Name = "hash";
 
-                static constexpr auto CreateCacheStorage = CreateMongoHashLockInfoCacheStorage;
-                static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
+				static constexpr auto CreateCacheStorage = CreateMongoHashLockInfoCacheStorage;
+				static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
 
-                static auto GetId(const ModelType& lockInfo)
-                {
-                    return lockInfo.Hash;
-                }
+				static auto GetId(const ModelType& lockInfo) {
+					return lockInfo.Hash;
+				}
 
-                static cache::CatapultCache CreateCache()
-                {
-                    return test::HashLockInfoCacheFactory::Create();
-                }
+				static cache::CatapultCache CreateCache() {
+					return test::HashLockInfoCacheFactory::Create();
+				}
 
-                static ModelType GenerateRandomElement(uint32_t id)
-                {
-                    return test::BasicHashLockInfoTestTraits::CreateLockInfo(Height(id));
-                }
-            };
-        }
+				static ModelType GenerateRandomElement(uint32_t id) {
+					return test::BasicHashLockInfoTestTraits::CreateLockInfo(Height(id));
+				}
+			};
+		}
 
-        DEFINE_FLAT_CACHE_STORAGE_TESTS(MongoLockInfoCacheStorageTestTraits<HashLockCacheTraits>, )
-    }
+		DEFINE_FLAT_CACHE_STORAGE_TESTS(MongoLockInfoCacheStorageTestTraits<HashLockCacheTraits>, )
+	}
 }
 }

@@ -30,28 +30,28 @@
 namespace catapult {
 namespace test {
 
-    /// Basic traits for a hash lock info.
-    struct BasicHashLockInfoTestTraits : public cache::HashLockInfoCacheDescriptor {
-        using HistoryType = cache::HashLockInfoCacheDescriptor::ValueType;
-        using LockInfoType = HistoryType::ValueType;
-        using ValueType = LockInfoType;
+	/// Basic traits for a hash lock info.
+	struct BasicHashLockInfoTestTraits : public cache::HashLockInfoCacheDescriptor {
+		using HistoryType = cache::HashLockInfoCacheDescriptor::ValueType;
+		using LockInfoType = HistoryType::ValueType;
+		using ValueType = LockInfoType;
 
-        static constexpr auto ToKey = cache::HashLockInfoCacheDescriptor::GetKeyFromValue;
+		static constexpr auto ToKey = cache::HashLockInfoCacheDescriptor::GetKeyFromValue;
 
-        /// Creates a hash lock info with given \a height.
-        static ValueType CreateLockInfo(Height height);
+		/// Creates a hash lock info with given \a height.
+		static ValueType CreateLockInfo(Height height);
 
-        /// Creates a random hash lock info.
-        static ValueType CreateLockInfo();
+		/// Creates a random hash lock info.
+		static ValueType CreateLockInfo();
 
-        /// Sets the \a key of the \a lockInfo.
-        static void SetKey(ValueType& lockInfo, const KeyType& key);
+		/// Sets the \a key of the \a lockInfo.
+		static void SetKey(ValueType& lockInfo, const KeyType& key);
 
-        /// Asserts that the hash lock infos \a lhs and \a rhs are equal.
-        static void AssertEqual(const ValueType& lhs, const ValueType& rhs);
-    };
+		/// Asserts that the hash lock infos \a lhs and \a rhs are equal.
+		static void AssertEqual(const ValueType& lhs, const ValueType& rhs);
+	};
 
-    /// Cache factory for creating a catapult cache containing lock hash cache.
-    using HashLockInfoCacheFactory = LockInfoCacheFactory<cache::HashLockInfoCacheDescriptor, cache::HashLockInfoCacheStorage>;
+	/// Cache factory for creating a catapult cache containing lock hash cache.
+	using HashLockInfoCacheFactory = LockInfoCacheFactory<cache::HashLockInfoCacheDescriptor, cache::HashLockInfoCacheStorage>;
 }
 }

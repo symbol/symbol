@@ -25,7 +25,7 @@
 namespace catapult {
 namespace test {
 
-    /// Adds the group order to \a scalar.
-    void ScalarAddGroupOrder(uint8_t* scalar);
+	/// Adds the group order to \a scalar.
+	void ScalarAddGroupOrder(uint8_t* scalar);
 }
 }

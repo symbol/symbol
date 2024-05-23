@@ -27,50 +27,46 @@
 namespace catapult {
 namespace validators {
 
-    /// Notification subscriber that validates notifications.
-    class ValidatingNotificationSubscriber : public model::NotificationSubscriber {
-    public:
-        /// Creates a validating notification subscriber around \a validator.
-        explicit ValidatingNotificationSubscriber(const stateless::NotificationValidator& validator)
-            : m_validator(validator)
-            , m_result(ValidationResult::Success)
-        {
-        }
+	/// Notification subscriber that validates notifications.
+	class ValidatingNotificationSubscriber : public model::NotificationSubscriber {
+	public:
+		/// Creates a validating notification subscriber around \a validator.
+		explicit ValidatingNotificationSubscriber(const stateless::NotificationValidator& validator)
+			: m_validator(validator)
+			, m_result(ValidationResult::Success) {
+		}
 
-    public:
-        /// Gets the aggregate validation result.
-        ValidationResult result() const
-        {
-            return m_result;
-        }
+	public:
+		/// Gets the aggregate validation result.
+		ValidationResult result() const {
+			return m_result;
+		}
 
-    public:
-        /// Sets a notification type exclusion \a filter.
-        void setExclusionFilter(const predicate<model::NotificationType>& filter)
-        {
-            m_exclusionFilter = filter;
-        }
+	public:
+		/// Sets a notification type exclusion \a filter.
+		void setExclusionFilter(const predicate<model::NotificationType>& filter) {
+			m_exclusionFilter = filter;
+		}
 
-    public:
-        void notify(const model::Notification& notification) override
-        {
-            if (!IsSet(notification.Type, model::NotificationChannel::Validator))
-                return;
+	public:
+		void notify(const model::Notification& notification) override {
+			if (!IsSet(notification.Type, model::NotificationChannel::Validator))
+				return;
 
-            if (IsValidationResultFailure(m_result))
-                return;
+			if (IsValidationResultFailure(m_result))
+				return;
 
-            if (m_exclusionFilter && m_exclusionFilter(notification.Type))
-                return;
+			if (m_exclusionFilter && m_exclusionFilter(notification.Type))
+				return;
 
-            auto result = m_validator.validate(notification);
-            AggregateValidationResult(m_result, result);
-        }
+			auto result = m_validator.validate(notification);
+			AggregateValidationResult(m_result, result);
+		}
 
-    private:
-        const stateless::NotificationValidator& m_validator;
-        ValidationResult m_result;
-        predicate<model::NotificationType> m_exclusionFilter;
-    };
+	private:
+		const stateless::NotificationValidator& m_validator;
+		ValidationResult m_result;
+		predicate<model::NotificationType> m_exclusionFilter;
+	};
 }
 }

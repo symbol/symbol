@@ -25,16 +25,15 @@
 namespace catapult {
 namespace harvesting {
 
-    void PreserveAllAccounts(
-        cache::AccountStateCacheDelta& accountStateCacheDelta,
-        const HarvestingAffectedAccounts& accounts,
-        Height height)
-    {
-        for (const auto& addressPair : accounts.Addresses)
-            accountStateCacheDelta.clearRemove(addressPair.first, height);
+	void PreserveAllAccounts(
+		cache::AccountStateCacheDelta& accountStateCacheDelta,
+		const HarvestingAffectedAccounts& accounts,
+		Height height) {
+		for (const auto& addressPair : accounts.Addresses)
+			accountStateCacheDelta.clearRemove(addressPair.first, height);
 
-        for (const auto& publicKeyPair : accounts.PublicKeys)
-            accountStateCacheDelta.clearRemove(publicKeyPair.first, height);
-    }
+		for (const auto& publicKeyPair : accounts.PublicKeys)
+			accountStateCacheDelta.clearRemove(publicKeyPair.first, height);
+	}
 }
 }

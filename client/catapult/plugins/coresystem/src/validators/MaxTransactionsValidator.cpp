@@ -24,17 +24,16 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::BlockNotification;
+	using Notification = model::BlockNotification;
 
-    DECLARE_STATELESS_VALIDATOR(MaxTransactions, Notification)
-    (uint32_t maxTransactions)
-    {
-        return MAKE_STATELESS_VALIDATOR(MaxTransactions, [maxTransactions](const Notification& notification) {
-            // skip validation for nemesis
-            return model::Entity_Type_Block_Nemesis == notification.BlockType || notification.NumTransactions <= maxTransactions
-                ? ValidationResult::Success
-                : Failure_Core_Too_Many_Transactions;
-        });
-    }
+	DECLARE_STATELESS_VALIDATOR(MaxTransactions, Notification)
+	(uint32_t maxTransactions) {
+		return MAKE_STATELESS_VALIDATOR(MaxTransactions, [maxTransactions](const Notification& notification) {
+			// skip validation for nemesis
+			return model::Entity_Type_Block_Nemesis == notification.BlockType || notification.NumTransactions <= maxTransactions
+				? ValidationResult::Success
+				: Failure_Core_Too_Many_Transactions;
+		});
+	}
 }
 }

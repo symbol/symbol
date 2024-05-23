@@ -26,15 +26,14 @@
 namespace catapult {
 namespace extensions {
 
-    chain::ExecutionConfiguration CreateExecutionConfiguration(const plugins::PluginManager& pluginManager)
-    {
-        chain::ExecutionConfiguration executionConfig;
-        executionConfig.Network = pluginManager.config().Network;
-        executionConfig.pObserver = pluginManager.createObserver();
-        executionConfig.pValidator = pluginManager.createStatefulValidator();
-        executionConfig.pNotificationPublisher = pluginManager.createNotificationPublisher();
-        executionConfig.ResolverContextFactory = [&pluginManager](const auto& cache) { return pluginManager.createResolverContext(cache); };
-        return executionConfig;
-    }
+	chain::ExecutionConfiguration CreateExecutionConfiguration(const plugins::PluginManager& pluginManager) {
+		chain::ExecutionConfiguration executionConfig;
+		executionConfig.Network = pluginManager.config().Network;
+		executionConfig.pObserver = pluginManager.createObserver();
+		executionConfig.pValidator = pluginManager.createStatefulValidator();
+		executionConfig.pNotificationPublisher = pluginManager.createNotificationPublisher();
+		executionConfig.ResolverContextFactory = [&pluginManager](const auto& cache) { return pluginManager.createResolverContext(cache); };
+		return executionConfig;
+	}
 }
 }

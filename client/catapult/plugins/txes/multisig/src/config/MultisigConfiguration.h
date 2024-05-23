@@ -24,34 +24,34 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace config {
 
-    /// Multisig plugin configuration settings.
-    struct MultisigConfiguration {
-    public:
-        /// Maximum number of multisig levels.
-        uint8_t MaxMultisigDepth;
+	/// Multisig plugin configuration settings.
+	struct MultisigConfiguration {
+	public:
+		/// Maximum number of multisig levels.
+		uint8_t MaxMultisigDepth;
 
-        /// Maximum number of cosignatories per account.
-        uint32_t MaxCosignatoriesPerAccount;
+		/// Maximum number of cosignatories per account.
+		uint32_t MaxCosignatoriesPerAccount;
 
-        /// Maximum number of accounts a single account can cosign.
-        uint32_t MaxCosignedAccountsPerAccount;
+		/// Maximum number of accounts a single account can cosign.
+		uint32_t MaxCosignedAccountsPerAccount;
 
-    private:
-        MultisigConfiguration() = default;
+	private:
+		MultisigConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized multisig configuration.
-        static MultisigConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized multisig configuration.
+		static MultisigConfiguration Uninitialized();
 
-        /// Loads a multisig configuration from \a bag.
-        static MultisigConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+		/// Loads a multisig configuration from \a bag.
+		static MultisigConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 }
 }

@@ -25,18 +25,16 @@
 
 namespace catapult {
 namespace networkheight {
-    namespace {
-        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
-        {
-            // register service(s)
-            auto config = NetworkHeightConfiguration::LoadFromPath(bootstrapper.resourcesPath());
-            bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkHeightServiceRegistrar(config));
-        }
-    }
+	namespace {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			// register service(s)
+			auto config = NetworkHeightConfiguration::LoadFromPath(bootstrapper.resourcesPath());
+			bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkHeightServiceRegistrar(config));
+		}
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
-{
-    catapult::networkheight::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+	catapult::networkheight::RegisterExtension(bootstrapper);
 }

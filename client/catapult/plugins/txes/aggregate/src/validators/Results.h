@@ -30,32 +30,32 @@ namespace validators {
 /// Defines an aggregate validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_AGGREGATE_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Aggregate, DESCRIPTION, CODE, None)
 
-    /// Validation failed because aggregate has too many transactions.
-    DEFINE_AGGREGATE_RESULT(Too_Many_Transactions, 1);
+	/// Validation failed because aggregate has too many transactions.
+	DEFINE_AGGREGATE_RESULT(Too_Many_Transactions, 1);
 
-    /// Validation failed because aggregate does not have any transactions.
-    DEFINE_AGGREGATE_RESULT(No_Transactions, 2);
+	/// Validation failed because aggregate does not have any transactions.
+	DEFINE_AGGREGATE_RESULT(No_Transactions, 2);
 
-    /// Validation failed because aggregate has too many cosignatures.
-    DEFINE_AGGREGATE_RESULT(Too_Many_Cosignatures, 3);
+	/// Validation failed because aggregate has too many cosignatures.
+	DEFINE_AGGREGATE_RESULT(Too_Many_Cosignatures, 3);
 
-    /// Validation failed because redundant cosignatures are present.
-    DEFINE_AGGREGATE_RESULT(Redundant_Cosignatures, 4);
+	/// Validation failed because redundant cosignatures are present.
+	DEFINE_AGGREGATE_RESULT(Redundant_Cosignatures, 4);
 
-    /// Validation failed because at least one cosignatory is ineligible.
-    DEFINE_AGGREGATE_RESULT(Ineligible_Cosignatories, 5);
+	/// Validation failed because at least one cosignatory is ineligible.
+	DEFINE_AGGREGATE_RESULT(Ineligible_Cosignatories, 5);
 
-    /// Validation failed because at least one required cosignature is missing.
-    DEFINE_AGGREGATE_RESULT(Missing_Cosignatures, 6);
+	/// Validation failed because at least one required cosignature is missing.
+	DEFINE_AGGREGATE_RESULT(Missing_Cosignatures, 6);
 
-    /// Validation failed because the aggregate transactions hash does not match the calculated value.
-    DEFINE_AGGREGATE_RESULT(Transactions_Hash_Mismatch, 7);
+	/// Validation failed because the aggregate transactions hash does not match the calculated value.
+	DEFINE_AGGREGATE_RESULT(Transactions_Hash_Mismatch, 7);
 
-    /// Validation failed because V1 aggregate transactions are prohibited (at and after fork height).
-    DEFINE_AGGREGATE_RESULT(V1_Prohibited, 8);
+	/// Validation failed because V1 aggregate transactions are prohibited (at and after fork height).
+	DEFINE_AGGREGATE_RESULT(V1_Prohibited, 8);
 
-    /// Validation failed because V2 aggregate transactions are prohibited (before fork height).
-    DEFINE_AGGREGATE_RESULT(V2_Prohibited, 9);
+	/// Validation failed because V2 aggregate transactions are prohibited (before fork height).
+	DEFINE_AGGREGATE_RESULT(V2_Prohibited, 9);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }

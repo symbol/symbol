@@ -28,179 +28,163 @@
 namespace catapult {
 namespace config {
 
-    // region CatapultDirectory
+	// region CatapultDirectory
 
-    /// Catapult directory.
-    class CatapultDirectory {
-    public:
-        /// Creates a directory around \a directory.
-        explicit CatapultDirectory(const std::filesystem::path& directory)
-            : m_directory(directory)
-        {
-        }
+	/// Catapult directory.
+	class CatapultDirectory {
+	public:
+		/// Creates a directory around \a directory.
+		explicit CatapultDirectory(const std::filesystem::path& directory)
+			: m_directory(directory) {
+		}
 
-    public:
-        /// Gets the directory path (as string).
-        std::string str() const
-        {
-            return m_directory.generic_string();
-        }
+	public:
+		/// Gets the directory path (as string).
+		std::string str() const {
+			return m_directory.generic_string();
+		}
 
-        /// Gets the directory path (as filesystem::path).
-        const std::filesystem::path& path() const
-        {
-            return m_directory;
-        }
+		/// Gets the directory path (as filesystem::path).
+		const std::filesystem::path& path() const {
+			return m_directory;
+		}
 
-        /// Gets the path for the file with \a name.
-        std::string file(const std::string& name) const
-        {
-            return (m_directory / name).generic_string();
-        }
+		/// Gets the path for the file with \a name.
+		std::string file(const std::string& name) const {
+			return (m_directory / name).generic_string();
+		}
 
-        /// Gets the directory with \a name.
-        CatapultDirectory dir(const std::string& name) const
-        {
-            return CatapultDirectory(m_directory / name);
-        }
+		/// Gets the directory with \a name.
+		CatapultDirectory dir(const std::string& name) const {
+			return CatapultDirectory(m_directory / name);
+		}
 
-    public:
-        /// Returns \c true if directory exits.
-        bool exists() const;
+	public:
+		/// Returns \c true if directory exits.
+		bool exists() const;
 
-        /// Creates this directory in a filesystem.
-        void create() const;
+		/// Creates this directory in a filesystem.
+		void create() const;
 
-        /// Creates all directories on the path to this directory in a filesystem.
-        void createAll() const;
+		/// Creates all directories on the path to this directory in a filesystem.
+		void createAll() const;
 
-    private:
-        std::filesystem::path m_directory;
-    };
+	private:
+		std::filesystem::path m_directory;
+	};
 
-    // endregion
+	// endregion
 
-    // region CatapultStorageDirectory
+	// region CatapultStorageDirectory
 
-    /// Catapult storage directory.
-    class CatapultStorageDirectory {
-    public:
-        /// Creates a storage directory around \a directory and \a identifier
-        template <typename TIdentifier>
-        CatapultStorageDirectory(const std::filesystem::path& directory, TIdentifier identifier)
-            : m_directory(directory)
-            , m_identifier(identifier.unwrap())
-        {
-        }
+	/// Catapult storage directory.
+	class CatapultStorageDirectory {
+	public:
+		/// Creates a storage directory around \a directory and \a identifier
+		template <typename TIdentifier>
+		CatapultStorageDirectory(const std::filesystem::path& directory, TIdentifier identifier)
+			: m_directory(directory)
+			, m_identifier(identifier.unwrap()) {
+		}
 
-    public:
-        /// Gets the directory path (as string).
-        std::string str() const
-        {
-            return m_directory.str();
-        }
+	public:
+		/// Gets the directory path (as string).
+		std::string str() const {
+			return m_directory.str();
+		}
 
-        /// Gets the path for a storage file with \a extension.
-        std::string storageFile(const std::string& extension) const
-        {
-            std::ostringstream buffer;
-            buffer << std::setfill('0') << std::setw(5) << (m_identifier % Files_Per_Storage_Directory);
-            buffer << extension;
+		/// Gets the path for a storage file with \a extension.
+		std::string storageFile(const std::string& extension) const {
+			std::ostringstream buffer;
+			buffer << std::setfill('0') << std::setw(5) << (m_identifier % Files_Per_Storage_Directory);
+			buffer << extension;
 
-            return m_directory.file(buffer.str());
-        }
+			return m_directory.file(buffer.str());
+		}
 
-        /// Gets the path for an index file built around \a prefix and \a extension.
-        std::string indexFile(const std::string& prefix, const std::string& extension) const
-        {
-            return m_directory.file(prefix + extension);
-        }
+		/// Gets the path for an index file built around \a prefix and \a extension.
+		std::string indexFile(const std::string& prefix, const std::string& extension) const {
+			return m_directory.file(prefix + extension);
+		}
 
-    private:
-        CatapultDirectory m_directory;
-        uint64_t m_identifier;
-    };
+	private:
+		CatapultDirectory m_directory;
+		uint64_t m_identifier;
+	};
 
-    // endregion
+	// endregion
 
-    // region CatapultDataDirectory
+	// region CatapultDataDirectory
 
-    /// Catapult data directory.
-    class CatapultDataDirectory {
-    public:
-        /// Creates a data directory around \a directory.
-        explicit CatapultDataDirectory(const std::filesystem::path& directory)
-            : m_directory(directory)
-        {
-        }
+	/// Catapult data directory.
+	class CatapultDataDirectory {
+	public:
+		/// Creates a data directory around \a directory.
+		explicit CatapultDataDirectory(const std::filesystem::path& directory)
+			: m_directory(directory) {
+		}
 
-    public:
-        /// Gets the root data directory.
-        CatapultDirectory rootDir() const
-        {
-            return CatapultDirectory(m_directory);
-        }
+	public:
+		/// Gets the root data directory.
+		CatapultDirectory rootDir() const {
+			return CatapultDirectory(m_directory);
+		}
 
-        /// Gets the directory with \a name.
-        CatapultDirectory dir(const std::string& name) const
-        {
-            return CatapultDirectory(m_directory / name);
-        }
+		/// Gets the directory with \a name.
+		CatapultDirectory dir(const std::string& name) const {
+			return CatapultDirectory(m_directory / name);
+		}
 
-        /// Gets the spooling directory with \a name.
-        CatapultDirectory spoolDir(const std::string& name) const
-        {
-            return CatapultDirectory(m_directory / "spool" / name);
-        }
+		/// Gets the spooling directory with \a name.
+		CatapultDirectory spoolDir(const std::string& name) const {
+			return CatapultDirectory(m_directory / "spool" / name);
+		}
 
-        /// Gets the storage directory built around \a identifier.
-        template <typename TIdentifier>
-        CatapultStorageDirectory storageDir(TIdentifier identifier)
-        {
-            std::ostringstream buffer;
-            buffer << std::setfill('0') << std::setw(5) << (identifier.unwrap() / Files_Per_Storage_Directory);
-            auto subDirectory = m_directory / buffer.str();
-            return CatapultStorageDirectory(subDirectory, identifier);
-        }
+		/// Gets the storage directory built around \a identifier.
+		template <typename TIdentifier>
+		CatapultStorageDirectory storageDir(TIdentifier identifier) {
+			std::ostringstream buffer;
+			buffer << std::setfill('0') << std::setw(5) << (identifier.unwrap() / Files_Per_Storage_Directory);
+			auto subDirectory = m_directory / buffer.str();
+			return CatapultStorageDirectory(subDirectory, identifier);
+		}
 
-    private:
-        std::filesystem::path m_directory;
-    };
+	private:
+		std::filesystem::path m_directory;
+	};
 
-    // endregion
+	// endregion
 
-    // region CatapultDataDirectoryPreparer
+	// region CatapultDataDirectoryPreparer
 
-    /// Catapult data directory factory that automatically creates subdirectories.
-    class CatapultDataDirectoryPreparer {
-    public:
-        /// Creates a data directory around \a directory.
-        static CatapultDataDirectory Prepare(const std::filesystem::path& directory)
-        {
-            CatapultDirectory(directory / "importance" / "wip").createAll();
-            CatapultDirectory(directory / "spool").create();
-            return CatapultDataDirectory(directory);
-        }
-    };
+	/// Catapult data directory factory that automatically creates subdirectories.
+	class CatapultDataDirectoryPreparer {
+	public:
+		/// Creates a data directory around \a directory.
+		static CatapultDataDirectory Prepare(const std::filesystem::path& directory) {
+			CatapultDirectory(directory / "importance" / "wip").createAll();
+			CatapultDirectory(directory / "spool").create();
+			return CatapultDataDirectory(directory);
+		}
+	};
 
-    // endregion
+	// endregion
 
-    // region CatapultStorageDirectoryPreparer
+	// region CatapultStorageDirectoryPreparer
 
-    /// Catapult storage directory factory that creates subdirectories.
-    class CatapultStorageDirectoryPreparer {
-    public:
-        /// Creates a storage directory around \a directory and \a identifier.
-        template <typename TIdentifier>
-        static CatapultStorageDirectory Prepare(const std::filesystem::path& directory, TIdentifier identifier)
-        {
-            CatapultDataDirectory dataDirectory(directory);
-            auto storageDirectory = dataDirectory.storageDir(identifier);
-            CatapultDirectory(storageDirectory.str()).create();
-            return storageDirectory;
-        }
-    };
+	/// Catapult storage directory factory that creates subdirectories.
+	class CatapultStorageDirectoryPreparer {
+	public:
+		/// Creates a storage directory around \a directory and \a identifier.
+		template <typename TIdentifier>
+		static CatapultStorageDirectory Prepare(const std::filesystem::path& directory, TIdentifier identifier) {
+			CatapultDataDirectory dataDirectory(directory);
+			auto storageDirectory = dataDirectory.storageDir(identifier);
+			CatapultDirectory(storageDirectory.str()).create();
+			return storageDirectory;
+		}
+	};
 
-    // endregion
+	// endregion
 }
 }

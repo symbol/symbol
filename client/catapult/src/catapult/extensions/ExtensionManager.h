@@ -28,50 +28,50 @@
 
 namespace catapult {
 namespace cache {
-    class CatapultCache;
+	class CatapultCache;
 }
 namespace utils {
-    class TimeSpan;
+	class TimeSpan;
 }
 }
 
 namespace catapult {
 namespace extensions {
 
-    /// Manager for registering extensions.
-    class ExtensionManager {
-    public:
-        /// Supplier that returns the network time.
-        using NetworkTimeSupplier = supplier<Timestamp>;
+	/// Manager for registering extensions.
+	class ExtensionManager {
+	public:
+		/// Supplier that returns the network time.
+		using NetworkTimeSupplier = supplier<Timestamp>;
 
-    public:
-        /// Creates a manager.
-        ExtensionManager();
+	public:
+		/// Creates a manager.
+		ExtensionManager();
 
-    public:
-        /// Registers a system plugin with \a name.
-        void registerSystemPlugin(const std::string& name);
+	public:
+		/// Registers a system plugin with \a name.
+		void registerSystemPlugin(const std::string& name);
 
-        /// Registers a network time \a supplier.
-        void setNetworkTimeSupplier(const NetworkTimeSupplier& supplier);
+		/// Registers a network time \a supplier.
+		void setNetworkTimeSupplier(const NetworkTimeSupplier& supplier);
 
-        /// Adds a service registrar (\a pServiceRegistrar).
-        void addServiceRegistrar(std::unique_ptr<ServiceRegistrar>&& pServiceRegistrar);
+		/// Adds a service registrar (\a pServiceRegistrar).
+		void addServiceRegistrar(std::unique_ptr<ServiceRegistrar>&& pServiceRegistrar);
 
-    public:
-        /// Gets the system plugin names.
-        const std::vector<std::string>& systemPluginNames() const;
+	public:
+		/// Gets the system plugin names.
+		const std::vector<std::string>& systemPluginNames() const;
 
-        /// Gets the network time supplier given \a epochAdjustment.
-        NetworkTimeSupplier networkTimeSupplier(const utils::TimeSpan& epochAdjustment) const;
+		/// Gets the network time supplier given \a epochAdjustment.
+		NetworkTimeSupplier networkTimeSupplier(const utils::TimeSpan& epochAdjustment) const;
 
-        /// Registers all services by forwarding \a locator and \a state.
-        void registerServices(ServiceLocator& locator, ServiceState& state);
+		/// Registers all services by forwarding \a locator and \a state.
+		void registerServices(ServiceLocator& locator, ServiceState& state);
 
-    private:
-        std::vector<std::string> m_systemPluginNames;
-        NetworkTimeSupplier m_networkTimeSupplier;
-        std::vector<std::unique_ptr<ServiceRegistrar>> m_serviceRegistrars;
-    };
+	private:
+		std::vector<std::string> m_systemPluginNames;
+		NetworkTimeSupplier m_networkTimeSupplier;
+		std::vector<std::unique_ptr<ServiceRegistrar>> m_serviceRegistrars;
+	};
 }
 }

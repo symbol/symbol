@@ -25,16 +25,16 @@
 namespace catapult {
 namespace model {
 
-    /// Calculates the voting set start height for \a epoch given \a grouping.
-    /// \note This is the first height that is included in the specified epoch.
-    Height CalculateVotingSetStartHeight(FinalizationEpoch epoch, uint64_t grouping);
+	/// Calculates the voting set start height for \a epoch given \a grouping.
+	/// \note This is the first height that is included in the specified epoch.
+	Height CalculateVotingSetStartHeight(FinalizationEpoch epoch, uint64_t grouping);
 
-    /// Calculates the voting set end height for \a epoch given \a grouping.
-    /// \note This is the last height that is included in the specified epoch.
-    /// \note This is the grouped height that should be used with the next epoch.
-    Height CalculateVotingSetEndHeight(FinalizationEpoch epoch, uint64_t grouping);
+	/// Calculates the voting set end height for \a epoch given \a grouping.
+	/// \note This is the last height that is included in the specified epoch.
+	/// \note This is the grouped height that should be used with the next epoch.
+	Height CalculateVotingSetEndHeight(FinalizationEpoch epoch, uint64_t grouping);
 
-    /// Calculates the finalization epoch for \a height given \a grouping.
-    FinalizationEpoch CalculateFinalizationEpochForHeight(Height height, uint64_t grouping);
+	/// Calculates the finalization epoch for \a height given \a grouping.
+	FinalizationEpoch CalculateFinalizationEpochForHeight(Height height, uint64_t grouping);
 }
 }

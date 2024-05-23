@@ -24,11 +24,11 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Creates a mongo secret proof transaction plugin.
-        PLUGIN_API
-        std::unique_ptr<MongoTransactionPlugin> CreateSecretProofTransactionMongoPlugin();
-    }
+		/// Creates a mongo secret proof transaction plugin.
+		PLUGIN_API
+		std::unique_ptr<MongoTransactionPlugin> CreateSecretProofTransactionMongoPlugin();
+	}
 }
 }

@@ -25,25 +25,23 @@
 namespace catapult {
 namespace ionet {
 
-    /// Equality object for Node.
-    struct NodeEquality {
-        /// Returns \c true if \a lhs and \a rhs are equal.
-        bool operator()(const Node& lhs, const Node& rhs) const
-        {
-            return model::NodeIdentityEquality(model::NodeIdentityEqualityStrategy::Key_And_Host)(lhs.identity(), rhs.identity());
-        }
-    };
+	/// Equality object for Node.
+	struct NodeEquality {
+		/// Returns \c true if \a lhs and \a rhs are equal.
+		bool operator()(const Node& lhs, const Node& rhs) const {
+			return model::NodeIdentityEquality(model::NodeIdentityEqualityStrategy::Key_And_Host)(lhs.identity(), rhs.identity());
+		}
+	};
 
-    /// Hasher object for Node.
-    struct NodeHasher {
-        /// Hashes \a node.
-        size_t operator()(const Node& node) const
-        {
-            return model::NodeIdentityHasher(model::NodeIdentityEqualityStrategy::Key_And_Host)(node.identity());
-        }
-    };
+	/// Hasher object for Node.
+	struct NodeHasher {
+		/// Hashes \a node.
+		size_t operator()(const Node& node) const {
+			return model::NodeIdentityHasher(model::NodeIdentityEqualityStrategy::Key_And_Host)(node.identity());
+		}
+	};
 
-    /// Unordered set of nodes.
-    using NodeSet = std::unordered_set<Node, NodeHasher, NodeEquality>;
+	/// Unordered set of nodes.
+	using NodeSet = std::unordered_set<Node, NodeHasher, NodeEquality>;
 }
 }

@@ -25,74 +25,69 @@
 namespace catapult {
 namespace utils {
 
-    /// Gets a value indicating whether or not \a ch is a directory separator.
-    constexpr bool IsDirectorySeparator(char ch)
-    {
+	/// Gets a value indicating whether or not \a ch is a directory separator.
+	constexpr bool IsDirectorySeparator(char ch) {
 #ifdef _WIN32
-        return '\\' == ch || '/' == ch;
+		return '\\' == ch || '/' == ch;
 #else
-        return '/' == ch;
+		return '/' == ch;
 #endif
-    }
+	}
 
-    /// Advances \a str to its end (the \c NUL terminator).
-    constexpr const char* AdvanceToEnd(const char* str)
-    {
-        const auto* pEnd = str;
-        while (*pEnd != '\0')
-            ++pEnd;
-        return pEnd;
-    }
+	/// Advances \a str to its end (the \c NUL terminator).
+	constexpr const char* AdvanceToEnd(const char* str) {
+		const auto* pEnd = str;
+		while (*pEnd != '\0')
+			++pEnd;
+		return pEnd;
+	}
 
-    /// Extracts the filename part from \a fullPath.
-    /// e.g. ExtractFilename("cat/bar/baz/foo.cpp") == "foo.cpp"
-    constexpr const char* ExtractFilename(const char* fullPath)
-    {
-        const auto* pEnd = AdvanceToEnd(fullPath);
-        for (const auto* pCh = pEnd - 1; pCh >= fullPath; --pCh) {
-            if (IsDirectorySeparator(*pCh))
-                return pCh + 1;
-        }
+	/// Extracts the filename part from \a fullPath.
+	/// e.g. ExtractFilename("cat/bar/baz/foo.cpp") == "foo.cpp"
+	constexpr const char* ExtractFilename(const char* fullPath) {
+		const auto* pEnd = AdvanceToEnd(fullPath);
+		for (const auto* pCh = pEnd - 1; pCh >= fullPath; --pCh) {
+			if (IsDirectorySeparator(*pCh))
+				return pCh + 1;
+		}
 
-        return fullPath;
-    }
+		return fullPath;
+	}
 
-    /// Extracts the last directory and filename from \a fullPath.
-    /// e.g. ExtractDirectoryAndFilename("cat/baz/bar/foo.cpp") == "bar/foo.cpp"
-    constexpr const char* ExtractDirectoryAndFilename(const char* fullPath)
-    {
-        const auto* pEnd = ExtractFilename(fullPath);
+	/// Extracts the last directory and filename from \a fullPath.
+	/// e.g. ExtractDirectoryAndFilename("cat/baz/bar/foo.cpp") == "bar/foo.cpp"
+	constexpr const char* ExtractDirectoryAndFilename(const char* fullPath) {
+		const auto* pEnd = ExtractFilename(fullPath);
 
-        // skip consecutive directory separators
-        const auto* pCh = pEnd - 1;
-        for (; pCh >= fullPath; --pCh) {
-            if (!IsDirectorySeparator(*pCh))
-                break;
-        }
+		// skip consecutive directory separators
+		const auto* pCh = pEnd - 1;
+		for (; pCh >= fullPath; --pCh) {
+			if (!IsDirectorySeparator(*pCh))
+				break;
+		}
 
-        // find next directory separator
-        for (; pCh >= fullPath; --pCh) {
-            if (IsDirectorySeparator(*pCh))
-                return pCh + 1;
-        }
+		// find next directory separator
+		for (; pCh >= fullPath; --pCh) {
+			if (IsDirectorySeparator(*pCh))
+				return pCh + 1;
+		}
 
-        return fullPath;
-    }
+		return fullPath;
+	}
 
-    /// Extracts the last directory name from \a fullPath.
-    /// e.g. ExtractLastDirectoryName("cat/baz/bar/foo.cpp") == "bar"
-    constexpr RawString ExtractDirectoryName(const char* fullPath)
-    {
-        const auto* pDirectoryName = ExtractDirectoryAndFilename(fullPath);
-        const auto* pEnd = ExtractFilename(fullPath);
+	/// Extracts the last directory name from \a fullPath.
+	/// e.g. ExtractLastDirectoryName("cat/baz/bar/foo.cpp") == "bar"
+	constexpr RawString ExtractDirectoryName(const char* fullPath) {
+		const auto* pDirectoryName = ExtractDirectoryAndFilename(fullPath);
+		const auto* pEnd = ExtractFilename(fullPath);
 
-        const auto* pCh = pDirectoryName;
-        for (; pCh < pEnd; ++pCh) {
-            if (IsDirectorySeparator(*pCh))
-                break;
-        }
+		const auto* pCh = pDirectoryName;
+		for (; pCh < pEnd; ++pCh) {
+			if (IsDirectorySeparator(*pCh))
+				break;
+		}
 
-        return { pDirectoryName, static_cast<size_t>(pCh - pDirectoryName) };
-    }
+		return { pDirectoryName, static_cast<size_t>(pCh - pDirectoryName) };
+	}
 }
 }

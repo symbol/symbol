@@ -25,14 +25,14 @@
 
 namespace catapult {
 namespace zeromq {
-    class ZeroMqEntityPublisher;
+	class ZeroMqEntityPublisher;
 }
 }
 
 namespace catapult {
 namespace zeromq {
 
-    /// Creates a zeromq finalization subscriber around an entity \a publisher.
-    std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher);
+	/// Creates a zeromq finalization subscriber around an entity \a publisher.
+	std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher);
 }
 }

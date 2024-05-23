@@ -30,145 +30,136 @@
 namespace catapult {
 namespace test {
 
-    // region push
+	// region push
 
-    std::shared_ptr<ionet::PacketIo> PushPayload(ExternalSourceConnection& connection, const ionet::PacketPayload& payload)
-    {
-        CATAPULT_LOG(debug) << " >>>> starting push";
-        std::atomic_bool isWriteFinished(false);
-        connection.connect([&isWriteFinished, &payload](const auto& pPacketSocket) {
-            auto pBufferedIo = pPacketSocket->buffered();
+	std::shared_ptr<ionet::PacketIo> PushPayload(ExternalSourceConnection& connection, const ionet::PacketPayload& payload) {
+		CATAPULT_LOG(debug) << " >>>> starting push";
+		std::atomic_bool isWriteFinished(false);
+		connection.connect([&isWriteFinished, &payload](const auto& pPacketSocket) {
+			auto pBufferedIo = pPacketSocket->buffered();
 
-            CATAPULT_LOG(debug) << "writing entity";
-            pBufferedIo->write(payload, [&isWriteFinished](auto code) {
-                CATAPULT_LOG(debug) << "write result: " << code;
-                isWriteFinished = true;
-            });
+			CATAPULT_LOG(debug) << "writing entity";
+			pBufferedIo->write(payload, [&isWriteFinished](auto code) {
+				CATAPULT_LOG(debug) << "write result: " << code;
+				isWriteFinished = true;
+			});
 
-            // perform a chain statistics (request / response) to ensure socket is not closed until ssl handshake is completed
-            api::CreateRemoteChainApiWithoutRegistry(*pBufferedIo)->chainStatistics().then([](auto&& chainStatisticsFuture) {
-                try {
-                    CATAPULT_LOG(debug) << "received height from remote after pushing payload: " << chainStatisticsFuture.get().Height;
-                } catch (const api::catapult_api_error& ex) {
-                    CATAPULT_LOG(warning) << "could not receive height from remote after pushing payload: " << ex.what();
-                }
-            });
-        });
+			// perform a chain statistics (request / response) to ensure socket is not closed until ssl handshake is completed
+			api::CreateRemoteChainApiWithoutRegistry(*pBufferedIo)->chainStatistics().then([](auto&& chainStatisticsFuture) {
+				try {
+					CATAPULT_LOG(debug) << "received height from remote after pushing payload: " << chainStatisticsFuture.get().Height;
+				} catch (const api::catapult_api_error& ex) {
+					CATAPULT_LOG(warning) << "could not receive height from remote after pushing payload: " << ex.what();
+				}
+			});
+		});
 
-        WAIT_FOR(isWriteFinished);
+		WAIT_FOR(isWriteFinished);
 
-        CATAPULT_LOG(debug) << " <<< push finished";
-        return connection.io();
-    }
+		CATAPULT_LOG(debug) << " <<< push finished";
+		return connection.io();
+	}
 
-    namespace {
-        crypto::KeyPair GetNemesisAccountKeyPair()
-        {
-            return crypto::KeyPair::FromString(Test_Network_Private_Keys[4]); // use a nemesis account
-        }
+	namespace {
+		crypto::KeyPair GetNemesisAccountKeyPair() {
+			return crypto::KeyPair::FromString(Test_Network_Private_Keys[4]); // use a nemesis account
+		}
 
-        model::PreviousBlockContext LoadNemesisPreviousBlockContext()
-        {
-            mocks::MockMemoryBlockStorage storage;
-            auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
-            return model::PreviousBlockContext(*pNemesisBlockElement);
-        }
+		model::PreviousBlockContext LoadNemesisPreviousBlockContext() {
+			mocks::MockMemoryBlockStorage storage;
+			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
+			return model::PreviousBlockContext(*pNemesisBlockElement);
+		}
 
-        std::shared_ptr<model::Block> CreateBlock()
-        {
-            constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
-            auto signer = GetNemesisAccountKeyPair();
-            auto context = LoadNemesisPreviousBlockContext();
+		std::shared_ptr<model::Block> CreateBlock() {
+			constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
+			auto signer = GetNemesisAccountKeyPair();
+			auto context = LoadNemesisPreviousBlockContext();
 
-            // ImportanceGrouping is 1
-            auto entityType = model::Entity_Type_Block_Importance;
-            auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signer.publicKey(), model::Transactions());
-            pBlock->Timestamp = context.Timestamp + Timestamp(60000);
+			// ImportanceGrouping is 1
+			auto entityType = model::Entity_Type_Block_Importance;
+			auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signer.publicKey(), model::Transactions());
+			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
 
-            auto vrfKeyPair = LookupVrfKeyPair(signer.publicKey());
-            auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
-            pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+			auto vrfKeyPair = LookupVrfKeyPair(signer.publicKey());
+			auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
+			pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
 
-            auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
-            blockFooter.HarvestingEligibleAccountsCount = CountOf(Test_Network_Vrf_Private_Keys);
-            blockFooter.PreviousImportanceBlockHash = context.BlockHash;
+			auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+			blockFooter.HarvestingEligibleAccountsCount = CountOf(Test_Network_Vrf_Private_Keys);
+			blockFooter.PreviousImportanceBlockHash = context.BlockHash;
 
-            extensions::BlockExtensions(GetDefaultGenerationHashSeed()).signFullBlock(signer, *pBlock);
-            return PORTABLE_MOVE(pBlock);
-        }
-    }
+			extensions::BlockExtensions(GetDefaultGenerationHashSeed()).signFullBlock(signer, *pBlock);
+			return PORTABLE_MOVE(pBlock);
+		}
+	}
 
-    std::shared_ptr<ionet::PacketIo> PushValidBlock(ExternalSourceConnection& connection)
-    {
-        auto pBlock = CreateBlock();
-        return PushEntity(connection, ionet::PacketType::Push_Block, pBlock);
-    }
+	std::shared_ptr<ionet::PacketIo> PushValidBlock(ExternalSourceConnection& connection) {
+		auto pBlock = CreateBlock();
+		return PushEntity(connection, ionet::PacketType::Push_Block, pBlock);
+	}
 
-    std::shared_ptr<ionet::PacketIo> PushValidTransaction(ExternalSourceConnection& connection)
-    {
-        auto signer = GetNemesisAccountKeyPair();
-        auto context = LoadNemesisPreviousBlockContext();
+	std::shared_ptr<ionet::PacketIo> PushValidTransaction(ExternalSourceConnection& connection) {
+		auto signer = GetNemesisAccountKeyPair();
+		auto context = LoadNemesisPreviousBlockContext();
 
-        auto recipient = test::GenerateRandomUnresolvedAddress();
-        auto pTransaction = CreateUnsignedTransferTransaction(signer.publicKey(), recipient, Amount(10000));
-        pTransaction->MaxFee = Amount(10 * pTransaction->Size);
-        pTransaction->Deadline = context.Timestamp + Timestamp(120000);
-        extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signer, *pTransaction);
+		auto recipient = test::GenerateRandomUnresolvedAddress();
+		auto pTransaction = CreateUnsignedTransferTransaction(signer.publicKey(), recipient, Amount(10000));
+		pTransaction->MaxFee = Amount(10 * pTransaction->Size);
+		pTransaction->Deadline = context.Timestamp + Timestamp(120000);
+		extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signer, *pTransaction);
 
-        return PushEntity(connection, ionet::PacketType::Push_Transactions, std::shared_ptr<model::Transaction>(std::move(pTransaction)));
-    }
+		return PushEntity(connection, ionet::PacketType::Push_Transactions, std::shared_ptr<model::Transaction>(std::move(pTransaction)));
+	}
 
-    // endregion
+	// endregion
 
-    // region height
+	// region height
 
-    namespace {
-        constexpr auto Long_Wait_Seconds = 15u;
-    }
+	namespace {
+		constexpr auto Long_Wait_Seconds = 15u;
+	}
 
-    Height GetLocalNodeHeightViaApi(ExternalSourceConnection& connection)
-    {
-        struct ChainStatisticsResult {
-        public:
-            ChainStatisticsResult()
-                : IsHeightReceived(false)
-            {
-            }
+	Height GetLocalNodeHeightViaApi(ExternalSourceConnection& connection) {
+		struct ChainStatisticsResult {
+		public:
+			ChainStatisticsResult()
+				: IsHeightReceived(false) {
+			}
 
-        public:
-            catapult::Height Height;
-            std::atomic_bool IsHeightReceived;
-        };
+		public:
+			catapult::Height Height;
+			std::atomic_bool IsHeightReceived;
+		};
 
-        auto pChainStatisticsResult = std::make_shared<ChainStatisticsResult>();
-        connection.apiCall([pChainStatisticsResult](const auto& pRemoteChainApi) {
-            pRemoteChainApi->chainStatistics().then([pChainStatisticsResult](auto&& chainStatisticsFuture) {
-                pChainStatisticsResult->Height = chainStatisticsFuture.get().Height;
-                pChainStatisticsResult->IsHeightReceived = true;
-            });
-        });
+		auto pChainStatisticsResult = std::make_shared<ChainStatisticsResult>();
+		connection.apiCall([pChainStatisticsResult](const auto& pRemoteChainApi) {
+			pRemoteChainApi->chainStatistics().then([pChainStatisticsResult](auto&& chainStatisticsFuture) {
+				pChainStatisticsResult->Height = chainStatisticsFuture.get().Height;
+				pChainStatisticsResult->IsHeightReceived = true;
+			});
+		});
 
-        WAIT_FOR_VALUE_SECONDS(true, pChainStatisticsResult->IsHeightReceived, Long_Wait_Seconds);
-        return Height(pChainStatisticsResult->Height);
-    }
+		WAIT_FOR_VALUE_SECONDS(true, pChainStatisticsResult->IsHeightReceived, Long_Wait_Seconds);
+		return Height(pChainStatisticsResult->Height);
+	}
 
-    void WaitForLocalNodeHeight(ExternalSourceConnection& connection, Height height)
-    {
-        // use exponential backoff to reduce log noise
-        auto sleepMs = 100;
-        supplier<Height> heightSupplierWithBackoff = [&connection, desiredHeight = height, &sleepMs]() {
-            auto currentHeight = GetLocalNodeHeightViaApi(connection);
-            if (desiredHeight != currentHeight) {
-                Sleep(sleepMs);
-                sleepMs *= 2;
-            }
+	void WaitForLocalNodeHeight(ExternalSourceConnection& connection, Height height) {
+		// use exponential backoff to reduce log noise
+		auto sleepMs = 100;
+		supplier<Height> heightSupplierWithBackoff = [&connection, desiredHeight = height, &sleepMs]() {
+			auto currentHeight = GetLocalNodeHeightViaApi(connection);
+			if (desiredHeight != currentHeight) {
+				Sleep(sleepMs);
+				sleepMs *= 2;
+			}
 
-            return currentHeight;
-        };
+			return currentHeight;
+		};
 
-        WAIT_FOR_VALUE_EXPR_SECONDS(height, heightSupplierWithBackoff(), Long_Wait_Seconds);
-    }
+		WAIT_FOR_VALUE_EXPR_SECONDS(height, heightSupplierWithBackoff(), Long_Wait_Seconds);
+	}
 
-    // endregion
+	// endregion
 }
 }

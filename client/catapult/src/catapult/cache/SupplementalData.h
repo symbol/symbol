@@ -26,13 +26,13 @@
 namespace catapult {
 namespace cache {
 
-    /// Chain supplemental data.
-    struct SupplementalData {
-        /// Catapult state.
-        state::CatapultState State;
+	/// Chain supplemental data.
+	struct SupplementalData {
+		/// Catapult state.
+		state::CatapultState State;
 
-        /// Chain score.
-        model::ChainScore ChainScore;
-    };
+		/// Chain score.
+		model::ChainScore ChainScore;
+	};
 }
 }

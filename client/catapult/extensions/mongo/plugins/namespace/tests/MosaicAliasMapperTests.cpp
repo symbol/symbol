@@ -28,41 +28,40 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MosaicAliasMapperTests
 
-        namespace {
-            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicAlias, )
-        }
+		namespace {
+			DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicAlias, )
+		}
 
-        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Alias_Mosaic)
+		DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Alias_Mosaic)
 
-        // region streamTransaction
+		// region streamTransaction
 
-        PLUGIN_TEST(CanMapMosaicAliasTransaction)
-        {
-            // Arrange:
-            typename TTraits::TransactionType transaction;
-            transaction.NamespaceId = NamespaceId(753);
-            transaction.AliasAction = model::AliasAction::Unlink;
-            transaction.MosaicId = MosaicId(286);
+		PLUGIN_TEST(CanMapMosaicAliasTransaction) {
+			// Arrange:
+			typename TTraits::TransactionType transaction;
+			transaction.NamespaceId = NamespaceId(753);
+			transaction.AliasAction = model::AliasAction::Unlink;
+			transaction.MosaicId = MosaicId(286);
 
-            auto pPlugin = TTraits::CreatePlugin();
+			auto pPlugin = TTraits::CreatePlugin();
 
-            // Act:
-            mappers::bson_stream::document builder;
-            pPlugin->streamTransaction(builder, transaction);
-            auto view = builder.view();
+			// Act:
+			mappers::bson_stream::document builder;
+			pPlugin->streamTransaction(builder, transaction);
+			auto view = builder.view();
 
-            // Assert:
-            EXPECT_EQ(3u, test::GetFieldCount(view));
-            EXPECT_EQ(753u, test::GetUint64(view, "namespaceId"));
-            EXPECT_EQ(model::AliasAction::Unlink, static_cast<model::AliasAction>(test::GetUint32(view, "aliasAction")));
-            EXPECT_EQ(286u, test::GetUint64(view, "mosaicId"));
-        }
+			// Assert:
+			EXPECT_EQ(3u, test::GetFieldCount(view));
+			EXPECT_EQ(753u, test::GetUint64(view, "namespaceId"));
+			EXPECT_EQ(model::AliasAction::Unlink, static_cast<model::AliasAction>(test::GetUint32(view, "aliasAction")));
+			EXPECT_EQ(286u, test::GetUint64(view, "mosaicId"));
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

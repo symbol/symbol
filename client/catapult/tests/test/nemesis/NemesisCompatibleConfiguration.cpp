@@ -26,84 +26,75 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        model::BlockchainConfiguration CreateBlockchainConfiguration()
-        {
-            auto config = CreatePrototypicalBlockchainConfiguration();
-            AddNemesisPluginExtensions(config);
-            return config;
-        }
-    }
+	namespace {
+		model::BlockchainConfiguration CreateBlockchainConfiguration() {
+			auto config = CreatePrototypicalBlockchainConfiguration();
+			AddNemesisPluginExtensions(config);
+			return config;
+		}
+	}
 
-    void AddNemesisPluginExtensions(model::BlockchainConfiguration& config)
-    {
-        config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
-        config.Plugins.emplace(
-            "catapult.plugins.mosaic",
-            utils::ConfigurationBag({ { "",
-                { { "maxMosaicsPerAccount", "123" },
-                    { "maxMosaicDuration", "456d" },
-                    { "maxMosaicDivisibility", "6" },
+	void AddNemesisPluginExtensions(model::BlockchainConfiguration& config) {
+		config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
+		config.Plugins.emplace(
+			"catapult.plugins.mosaic",
+			utils::ConfigurationBag({ { "",
+				{ { "maxMosaicsPerAccount", "123" },
+					{ "maxMosaicDuration", "456d" },
+					{ "maxMosaicDivisibility", "6" },
 
-                    { "mosaicRentalFeeSinkAddressV1", Mosaic_Rental_Fee_Sink_Address },
-                    { "mosaicRentalFeeSinkAddress", Mosaic_Rental_Fee_Sink_Address },
-                    { "mosaicRentalFee", "500" } } } }));
-        config.Plugins.emplace(
-            "catapult.plugins.namespace",
-            utils::ConfigurationBag({ { "",
-                { { "maxNameSize", "64" },
-                    { "maxChildNamespaces", "100" },
-                    { "maxNamespaceDepth", "3" },
+					{ "mosaicRentalFeeSinkAddressV1", Mosaic_Rental_Fee_Sink_Address },
+					{ "mosaicRentalFeeSinkAddress", Mosaic_Rental_Fee_Sink_Address },
+					{ "mosaicRentalFee", "500" } } } }));
+		config.Plugins.emplace(
+			"catapult.plugins.namespace",
+			utils::ConfigurationBag({ { "",
+				{ { "maxNameSize", "64" },
+					{ "maxChildNamespaces", "100" },
+					{ "maxNamespaceDepth", "3" },
 
-                    { "minNamespaceDuration", "1m" },
-                    { "maxNamespaceDuration", "365d" },
-                    { "namespaceGracePeriodDuration", "1h" },
-                    { "reservedRootNamespaceNames", "cat" },
+					{ "minNamespaceDuration", "1m" },
+					{ "maxNamespaceDuration", "365d" },
+					{ "namespaceGracePeriodDuration", "1h" },
+					{ "reservedRootNamespaceNames", "cat" },
 
-                    { "namespaceRentalFeeSinkAddressV1", Namespace_Rental_Fee_Sink_Address },
-                    { "namespaceRentalFeeSinkAddress", Namespace_Rental_Fee_Sink_Address },
-                    { "rootNamespaceRentalFeePerBlock", "10" },
-                    { "childNamespaceRentalFee", "10000" } } } }));
-    }
+					{ "namespaceRentalFeeSinkAddressV1", Namespace_Rental_Fee_Sink_Address },
+					{ "namespaceRentalFeeSinkAddress", Namespace_Rental_Fee_Sink_Address },
+					{ "rootNamespaceRentalFeePerBlock", "10" },
+					{ "childNamespaceRentalFee", "10000" } } } }));
+	}
 
-    namespace {
-        void AddPluginExtensions(config::ExtensionsConfiguration& config, const std::unordered_set<std::string>& extensionNames)
-        {
-            for (const auto& extensionName : extensionNames)
-                config.Names.emplace_back("extension." + extensionName);
-        }
+	namespace {
+		void AddPluginExtensions(config::ExtensionsConfiguration& config, const std::unordered_set<std::string>& extensionNames) {
+			for (const auto& extensionName : extensionNames)
+				config.Names.emplace_back("extension." + extensionName);
+		}
 
-        void AddCommonPluginExtensions(config::ExtensionsConfiguration& config)
-        {
-            // finalization is needed because int tests are run with 0 == MaxRollbackBlocks
-            AddPluginExtensions(config, { "diagnostics", "finalization", "packetserver", "sync", "transactionsink" });
-        }
-    }
+		void AddCommonPluginExtensions(config::ExtensionsConfiguration& config) {
+			// finalization is needed because int tests are run with 0 == MaxRollbackBlocks
+			AddPluginExtensions(config, { "diagnostics", "finalization", "packetserver", "sync", "transactionsink" });
+		}
+	}
 
-    void AddApiPluginExtensions(config::ExtensionsConfiguration& config)
-    {
-        AddCommonPluginExtensions(config);
-    }
+	void AddApiPluginExtensions(config::ExtensionsConfiguration& config) {
+		AddCommonPluginExtensions(config);
+	}
 
-    void AddPeerPluginExtensions(config::ExtensionsConfiguration& config)
-    {
-        AddCommonPluginExtensions(config);
-        AddPluginExtensions(config, { "harvesting", "syncsource" });
-    }
+	void AddPeerPluginExtensions(config::ExtensionsConfiguration& config) {
+		AddCommonPluginExtensions(config);
+		AddPluginExtensions(config, { "harvesting", "syncsource" });
+	}
 
-    void AddSimplePartnerPluginExtensions(config::ExtensionsConfiguration& config)
-    {
-        AddPluginExtensions(config, { "finalization", "packetserver", "sync", "syncsource" });
-    }
+	void AddSimplePartnerPluginExtensions(config::ExtensionsConfiguration& config) {
+		AddPluginExtensions(config, { "finalization", "packetserver", "sync", "syncsource" });
+	}
 
-    void AddRecoveryPluginExtensions(config::ExtensionsConfiguration& config)
-    {
-        AddPluginExtensions(config, {});
-    }
+	void AddRecoveryPluginExtensions(config::ExtensionsConfiguration& config) {
+		AddPluginExtensions(config, {});
+	}
 
-    config::CatapultConfiguration CreateCatapultConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory)
-    {
-        return CreatePrototypicalCatapultConfiguration(CreateBlockchainConfiguration(), dataDirectory);
-    }
+	config::CatapultConfiguration CreateCatapultConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory) {
+		return CreatePrototypicalCatapultConfiguration(CreateBlockchainConfiguration(), dataDirectory);
+	}
 }
 }

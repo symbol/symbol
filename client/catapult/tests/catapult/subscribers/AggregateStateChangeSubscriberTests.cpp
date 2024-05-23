@@ -31,78 +31,74 @@ namespace subscribers {
 
 #define TEST_CLASS AggregateStateChangeSubscriberTests
 
-    namespace {
-        using UnsupportedStateChangeSubscriber = test::UnsupportedStateChangeSubscriber;
+	namespace {
+		using UnsupportedStateChangeSubscriber = test::UnsupportedStateChangeSubscriber;
 
-        template <typename TStateChangeSubscriber>
-        using TestContext = test::AggregateSubscriberTestContext<TStateChangeSubscriber, AggregateStateChangeSubscriber<TStateChangeSubscriber>>;
-    }
+		template <typename TStateChangeSubscriber>
+		using TestContext = test::AggregateSubscriberTestContext<TStateChangeSubscriber, AggregateStateChangeSubscriber<TStateChangeSubscriber>>;
+	}
 
-    TEST(TEST_CLASS, NotifyScoreChangeForwardsToAllSubscribers)
-    {
-        // Arrange:
-        class MockStateChangeSubscriber : public UnsupportedStateChangeSubscriber {
-        public:
-            std::vector<const model::ChainScore*> Scores;
+	TEST(TEST_CLASS, NotifyScoreChangeForwardsToAllSubscribers) {
+		// Arrange:
+		class MockStateChangeSubscriber : public UnsupportedStateChangeSubscriber {
+		public:
+			std::vector<const model::ChainScore*> Scores;
 
-        public:
-            void notifyScoreChange(const model::ChainScore& chainScore) override
-            {
-                Scores.push_back(&chainScore);
-            }
-        };
+		public:
+			void notifyScoreChange(const model::ChainScore& chainScore) override {
+				Scores.push_back(&chainScore);
+			}
+		};
 
-        TestContext<MockStateChangeSubscriber> context;
-        model::ChainScore chainScore;
+		TestContext<MockStateChangeSubscriber> context;
+		model::ChainScore chainScore;
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().notifyScoreChange(chainScore);
+		// Act:
+		context.aggregate().notifyScoreChange(chainScore);
 
-        // Assert:
-        auto i = 0u;
-        for (const auto* pSubscriber : context.subscribers()) {
-            auto message = "subscriber at " + std::to_string(i++);
-            ASSERT_EQ(1u, pSubscriber->Scores.size()) << message;
-            EXPECT_EQ(&chainScore, pSubscriber->Scores[0]) << message;
-        }
-    }
+		// Assert:
+		auto i = 0u;
+		for (const auto* pSubscriber : context.subscribers()) {
+			auto message = "subscriber at " + std::to_string(i++);
+			ASSERT_EQ(1u, pSubscriber->Scores.size()) << message;
+			EXPECT_EQ(&chainScore, pSubscriber->Scores[0]) << message;
+		}
+	}
 
-    TEST(TEST_CLASS, NotifyStateChangeForwardsToAllSubscribers)
-    {
-        // Arrange:
-        class MockStateChangeSubscriber : public UnsupportedStateChangeSubscriber {
-        public:
-            std::vector<const StateChangeInfo*> StateChangeInfos;
+	TEST(TEST_CLASS, NotifyStateChangeForwardsToAllSubscribers) {
+		// Arrange:
+		class MockStateChangeSubscriber : public UnsupportedStateChangeSubscriber {
+		public:
+			std::vector<const StateChangeInfo*> StateChangeInfos;
 
-        public:
-            void notifyStateChange(const StateChangeInfo& info) override
-            {
-                StateChangeInfos.push_back(&info);
-            }
-        };
+		public:
+			void notifyStateChange(const StateChangeInfo& info) override {
+				StateChangeInfos.push_back(&info);
+			}
+		};
 
-        TestContext<MockStateChangeSubscriber> context;
+		TestContext<MockStateChangeSubscriber> context;
 
-        auto cache = test::CreateEmptyCatapultCache();
-        auto cacheDelta = cache.createDelta();
-        StateChangeInfo stateChangeInfo { cache::CacheChanges(cacheDelta), model::ChainScore::Delta(), Height(444) };
+		auto cache = test::CreateEmptyCatapultCache();
+		auto cacheDelta = cache.createDelta();
+		StateChangeInfo stateChangeInfo { cache::CacheChanges(cacheDelta), model::ChainScore::Delta(), Height(444) };
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().notifyStateChange(stateChangeInfo);
+		// Act:
+		context.aggregate().notifyStateChange(stateChangeInfo);
 
-        // Assert:
-        auto i = 0u;
-        for (const auto* pSubscriber : context.subscribers()) {
-            auto message = "subscriber at " + std::to_string(i++);
-            ASSERT_EQ(1u, pSubscriber->StateChangeInfos.size()) << message;
-            EXPECT_EQ(&stateChangeInfo, pSubscriber->StateChangeInfos[0]) << message;
-        }
-    }
+		// Assert:
+		auto i = 0u;
+		for (const auto* pSubscriber : context.subscribers()) {
+			auto message = "subscriber at " + std::to_string(i++);
+			ASSERT_EQ(1u, pSubscriber->StateChangeInfos.size()) << message;
+			EXPECT_EQ(&stateChangeInfo, pSubscriber->StateChangeInfos[0]) << message;
+		}
+	}
 }
 }

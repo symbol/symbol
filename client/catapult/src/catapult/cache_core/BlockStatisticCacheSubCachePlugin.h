@@ -27,14 +27,14 @@
 namespace catapult {
 namespace cache {
 
-    /// Specialized block statistic cache sub cache plugin.
-    class BlockStatisticCacheSubCachePlugin : public SubCachePluginAdapter<BlockStatisticCache, BlockStatisticCacheStorage> {
-    public:
-        /// Creates a plugin around \a historySize.
-        explicit BlockStatisticCacheSubCachePlugin(uint64_t historySize);
+	/// Specialized block statistic cache sub cache plugin.
+	class BlockStatisticCacheSubCachePlugin : public SubCachePluginAdapter<BlockStatisticCache, BlockStatisticCacheStorage> {
+	public:
+		/// Creates a plugin around \a historySize.
+		explicit BlockStatisticCacheSubCachePlugin(uint64_t historySize);
 
-    public:
-        std::unique_ptr<CacheStorage> createStorage() override;
-    };
+	public:
+		std::unique_ptr<CacheStorage> createStorage() override;
+	};
 }
 }

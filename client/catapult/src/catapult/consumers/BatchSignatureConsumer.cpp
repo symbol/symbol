@@ -31,157 +31,147 @@
 namespace catapult {
 namespace consumers {
 
-    namespace {
-        class SignatureCapturingNotificationSubscriber : public model::NotificationSubscriber {
-        public:
-            explicit SignatureCapturingNotificationSubscriber(const GenerationHashSeed& generationHashSeed)
-                : m_generationHashSeed(generationHashSeed)
-                , m_entityIndex(0)
-            {
-            }
+	namespace {
+		class SignatureCapturingNotificationSubscriber : public model::NotificationSubscriber {
+		public:
+			explicit SignatureCapturingNotificationSubscriber(const GenerationHashSeed& generationHashSeed)
+				: m_generationHashSeed(generationHashSeed)
+				, m_entityIndex(0) {
+			}
 
-        public:
-            const auto& notificationToEntityIndexMap() const
-            {
-                return m_notificationToEntityIndexMap;
-            }
+		public:
+			const auto& notificationToEntityIndexMap() const {
+				return m_notificationToEntityIndexMap;
+			}
 
-            const auto& inputs() const
-            {
-                return m_inputs;
-            }
+			const auto& inputs() const {
+				return m_inputs;
+			}
 
-        public:
-            void next()
-            {
-                ++m_entityIndex;
-            }
+		public:
+			void next() {
+				++m_entityIndex;
+			}
 
-        public:
-            void notify(const model::Notification& notification) override
-            {
-                if (model::SignatureNotification::Notification_Type != notification.Type)
-                    return;
+		public:
+			void notify(const model::Notification& notification) override {
+				if (model::SignatureNotification::Notification_Type != notification.Type)
+					return;
 
-                m_notificationToEntityIndexMap.push_back(m_entityIndex);
-                add(static_cast<const model::SignatureNotification&>(notification));
-            }
+				m_notificationToEntityIndexMap.push_back(m_entityIndex);
+				add(static_cast<const model::SignatureNotification&>(notification));
+			}
 
-        private:
-            void add(const model::SignatureNotification& notification)
-            {
-                std::vector<RawBuffer> buffers;
-                if (model::SignatureNotification::ReplayProtectionMode::Enabled == notification.DataReplayProtectionMode)
-                    buffers.push_back(m_generationHashSeed);
+		private:
+			void add(const model::SignatureNotification& notification) {
+				std::vector<RawBuffer> buffers;
+				if (model::SignatureNotification::ReplayProtectionMode::Enabled == notification.DataReplayProtectionMode)
+					buffers.push_back(m_generationHashSeed);
 
-                buffers.push_back(notification.Data);
+				buffers.push_back(notification.Data);
 
-                m_inputs.push_back({ notification.SignerPublicKey, buffers, notification.Signature });
-            }
+				m_inputs.push_back({ notification.SignerPublicKey, buffers, notification.Signature });
+			}
 
-        private:
-            const GenerationHashSeed& m_generationHashSeed;
-            size_t m_entityIndex;
-            std::vector<size_t> m_notificationToEntityIndexMap;
-            std::vector<crypto::SignatureInput> m_inputs;
-        };
+		private:
+			const GenerationHashSeed& m_generationHashSeed;
+			size_t m_entityIndex;
+			std::vector<size_t> m_notificationToEntityIndexMap;
+			std::vector<crypto::SignatureInput> m_inputs;
+		};
 
-        std::unique_ptr<SignatureCapturingNotificationSubscriber> ExtractAllSignatureNotifications(
-            const GenerationHashSeed& generationHashSeed,
-            const model::NotificationPublisher& publisher,
-            const model::WeakEntityInfos& entityInfos)
-        {
-            auto pSub = std::make_unique<SignatureCapturingNotificationSubscriber>(generationHashSeed);
-            for (const auto& entityInfo : entityInfos) {
-                publisher.publish(entityInfo, *pSub);
-                pSub->next();
-            }
+		std::unique_ptr<SignatureCapturingNotificationSubscriber> ExtractAllSignatureNotifications(
+			const GenerationHashSeed& generationHashSeed,
+			const model::NotificationPublisher& publisher,
+			const model::WeakEntityInfos& entityInfos) {
+			auto pSub = std::make_unique<SignatureCapturingNotificationSubscriber>(generationHashSeed);
+			for (const auto& entityInfo : entityInfos) {
+				publisher.publish(entityInfo, *pSub);
+				pSub->next();
+			}
 
-            return pSub;
-        }
+			return pSub;
+		}
 
-        std::vector<validators::ValidationResult> MapNotificationResultsToEntityResults(
-            size_t numEntities,
-            const std::vector<size_t>& notificationToEntityIndexMap,
-            const std::vector<validators::ValidationResult>& notificationResults)
-        {
-            std::vector<validators::ValidationResult> entityResults(numEntities, validators::ValidationResult::Success);
-            for (auto i = 0u; i < notificationResults.size(); ++i) {
-                if (IsValidationResultFailure(notificationResults[i]))
-                    entityResults[notificationToEntityIndexMap[i]] = notificationResults[i];
-            }
+		std::vector<validators::ValidationResult> MapNotificationResultsToEntityResults(
+			size_t numEntities,
+			const std::vector<size_t>& notificationToEntityIndexMap,
+			const std::vector<validators::ValidationResult>& notificationResults) {
+			std::vector<validators::ValidationResult> entityResults(numEntities, validators::ValidationResult::Success);
+			for (auto i = 0u; i < notificationResults.size(); ++i) {
+				if (IsValidationResultFailure(notificationResults[i]))
+					entityResults[notificationToEntityIndexMap[i]] = notificationResults[i];
+			}
 
-            return entityResults;
-        }
-    }
+			return entityResults;
+		}
+	}
 
-    disruptor::ConstBlockConsumer CreateBlockBatchSignatureConsumer(
-        const GenerationHashSeed& generationHashSeed,
-        const crypto::RandomFiller& randomFiller,
-        const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
-        thread::IoThreadPool& pool,
-        const RequiresValidationPredicate& requiresValidationPredicate)
-    {
-        return MakeBlockValidationConsumer(
-            requiresValidationPredicate,
-            [&pool, generationHashSeed, randomFiller, pPublisher](const auto& entityInfos) {
-                // find all signature notifications
-                auto inputs = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos)->inputs();
+	disruptor::ConstBlockConsumer CreateBlockBatchSignatureConsumer(
+		const GenerationHashSeed& generationHashSeed,
+		const crypto::RandomFiller& randomFiller,
+		const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
+		thread::IoThreadPool& pool,
+		const RequiresValidationPredicate& requiresValidationPredicate) {
+		return MakeBlockValidationConsumer(
+			requiresValidationPredicate,
+			[&pool, generationHashSeed, randomFiller, pPublisher](const auto& entityInfos) {
+				// find all signature notifications
+				auto inputs = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos)->inputs();
 
-                // process signatures in batches
-                std::atomic<validators::ValidationResult> aggregateResult(validators::ValidationResult::Success);
-                auto partitionCallback = [&randomFiller, &aggregateResult](auto itBegin, auto itEnd, auto, auto) {
-                    auto count = static_cast<size_t>(std::distance(itBegin, itEnd));
-                    if (!VerifyMultiShortCircuit(randomFiller, &*itBegin, count))
-                        validators::AggregateValidationResult(aggregateResult, Failure_Consumer_Batch_Signature_Not_Verifiable);
-                };
+				// process signatures in batches
+				std::atomic<validators::ValidationResult> aggregateResult(validators::ValidationResult::Success);
+				auto partitionCallback = [&randomFiller, &aggregateResult](auto itBegin, auto itEnd, auto, auto) {
+					auto count = static_cast<size_t>(std::distance(itBegin, itEnd));
+					if (!VerifyMultiShortCircuit(randomFiller, &*itBegin, count))
+						validators::AggregateValidationResult(aggregateResult, Failure_Consumer_Batch_Signature_Not_Verifiable);
+				};
 
-                thread::ParallelForPartition(pool.ioContext(), inputs, pool.numWorkerThreads(), partitionCallback).get();
-                return aggregateResult.load();
-            });
-    }
+				thread::ParallelForPartition(pool.ioContext(), inputs, pool.numWorkerThreads(), partitionCallback).get();
+				return aggregateResult.load();
+			});
+	}
 
-    disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
-        const GenerationHashSeed& generationHashSeed,
-        const crypto::RandomFiller& randomFiller,
-        const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
-        thread::IoThreadPool& pool,
-        const chain::FailedTransactionSink& failedTransactionSink)
-    {
-        return MakeTransactionValidationConsumer(
-            failedTransactionSink,
-            [&pool, generationHashSeed, randomFiller, pPublisher](const auto& entityInfos) {
-                // find all signature notifications
-                auto pSub = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos);
+	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
+		const GenerationHashSeed& generationHashSeed,
+		const crypto::RandomFiller& randomFiller,
+		const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
+		thread::IoThreadPool& pool,
+		const chain::FailedTransactionSink& failedTransactionSink) {
+		return MakeTransactionValidationConsumer(
+			failedTransactionSink,
+			[&pool, generationHashSeed, randomFiller, pPublisher](const auto& entityInfos) {
+				// find all signature notifications
+				auto pSub = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos);
 
-                // process signatures in batches
-                // note: store notification (not entity) results because it's possible for an entity to be split across partitions,
-                //       which would lead to a write data race (of same data) from multiple threads
-                std::vector<validators::ValidationResult> notificationResults(
-                    pSub->inputs().size(),
-                    validators::ValidationResult::Success);
-                auto partitionCallback = [&randomFiller, &notificationResults](auto itBegin, auto itEnd, auto startIndex, auto) {
-                    auto count = static_cast<size_t>(std::distance(itBegin, itEnd));
-                    auto partitionResultsPair = VerifyMulti(randomFiller, &*itBegin, count);
-                    if (partitionResultsPair.second)
-                        return;
+				// process signatures in batches
+				// note: store notification (not entity) results because it's possible for an entity to be split across partitions,
+				//       which would lead to a write data race (of same data) from multiple threads
+				std::vector<validators::ValidationResult> notificationResults(
+					pSub->inputs().size(),
+					validators::ValidationResult::Success);
+				auto partitionCallback = [&randomFiller, &notificationResults](auto itBegin, auto itEnd, auto startIndex, auto) {
+					auto count = static_cast<size_t>(std::distance(itBegin, itEnd));
+					auto partitionResultsPair = VerifyMulti(randomFiller, &*itBegin, count);
+					if (partitionResultsPair.second)
+						return;
 
-                    auto index = startIndex;
-                    for (auto result : partitionResultsPair.first) {
-                        if (!result)
-                            notificationResults[index] = Failure_Consumer_Batch_Signature_Not_Verifiable;
+					auto index = startIndex;
+					for (auto result : partitionResultsPair.first) {
+						if (!result)
+							notificationResults[index] = Failure_Consumer_Batch_Signature_Not_Verifiable;
 
-                        ++index;
-                    }
-                };
+						++index;
+					}
+				};
 
-                thread::ParallelForPartition(pool.ioContext(), pSub->inputs(), pool.numWorkerThreads(), partitionCallback).get();
+				thread::ParallelForPartition(pool.ioContext(), pSub->inputs(), pool.numWorkerThreads(), partitionCallback).get();
 
-                return MapNotificationResultsToEntityResults(
-                    entityInfos.size(),
-                    pSub->notificationToEntityIndexMap(),
-                    notificationResults);
-            });
-    }
+				return MapNotificationResultsToEntityResults(
+					entityInfos.size(),
+					pSub->notificationToEntityIndexMap(),
+					notificationResults);
+			});
+	}
 }
 }

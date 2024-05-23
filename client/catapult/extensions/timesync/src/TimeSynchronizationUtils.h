@@ -29,39 +29,39 @@
 
 namespace catapult {
 namespace extensions {
-    class ServiceState;
+	class ServiceState;
 }
 namespace timesync {
-    struct TimeSynchronizationConfiguration;
-    class TimeSynchronizationState;
-    class TimeSynchronizer;
+	struct TimeSynchronizationConfiguration;
+	class TimeSynchronizationState;
+	class TimeSynchronizer;
 }
 }
 
 namespace catapult {
 namespace timesync {
 
-    /// Time synchronization request result pair.
-    using TimeSyncRequestResultPair = std::pair<net::NodeRequestResult, CommunicationTimestamps>;
+	/// Time synchronization request result pair.
+	using TimeSyncRequestResultPair = std::pair<net::NodeRequestResult, CommunicationTimestamps>;
 
-    /// Prototype for a time synchronization result supplier.
-    using TimeSyncResultSupplier = std::function<thread::future<TimeSyncRequestResultPair>(const ionet::Node&)>;
+	/// Prototype for a time synchronization result supplier.
+	using TimeSyncResultSupplier = std::function<thread::future<TimeSyncRequestResultPair>(const ionet::Node&)>;
 
-    /// Gets the time synchronization samples derived from communication timestamps retrieved from \a nodes using \a resultSupplier
-    /// and \a networkTimeSupplier.
-    thread::future<TimeSynchronizationSamples> RetrieveSamples(
-        const ionet::NodeSet& nodes,
-        const TimeSyncResultSupplier& resultSupplier,
-        const extensions::ExtensionManager::NetworkTimeSupplier& networkTimeSupplier);
+	/// Gets the time synchronization samples derived from communication timestamps retrieved from \a nodes using \a resultSupplier
+	/// and \a networkTimeSupplier.
+	thread::future<TimeSynchronizationSamples> RetrieveSamples(
+		const ionet::NodeSet& nodes,
+		const TimeSyncResultSupplier& resultSupplier,
+		const extensions::ExtensionManager::NetworkTimeSupplier& networkTimeSupplier);
 
-    /// Creates a time synchronization task around \a timeSynchronizer, \a timeSyncConfig, \a resultSupplier, \a state,
-    /// \a timeSyncState and \a networkTimeSupplier.
-    thread::Task CreateTimeSyncTask(
-        TimeSynchronizer& timeSynchronizer,
-        const TimeSynchronizationConfiguration& timeSyncConfig,
-        const TimeSyncResultSupplier& resultSupplier,
-        const extensions::ServiceState& state,
-        TimeSynchronizationState& timeSyncState,
-        const extensions::ExtensionManager::NetworkTimeSupplier& networkTimeSupplier);
+	/// Creates a time synchronization task around \a timeSynchronizer, \a timeSyncConfig, \a resultSupplier, \a state,
+	/// \a timeSyncState and \a networkTimeSupplier.
+	thread::Task CreateTimeSyncTask(
+		TimeSynchronizer& timeSynchronizer,
+		const TimeSynchronizationConfiguration& timeSyncConfig,
+		const TimeSyncResultSupplier& resultSupplier,
+		const extensions::ServiceState& state,
+		TimeSynchronizationState& timeSyncState,
+		const extensions::ExtensionManager::NetworkTimeSupplier& networkTimeSupplier);
 }
 }

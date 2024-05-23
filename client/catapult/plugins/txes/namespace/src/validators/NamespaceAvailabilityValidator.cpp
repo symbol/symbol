@@ -27,35 +27,34 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::RootNamespaceNotification;
+	using Notification = model::RootNamespaceNotification;
 
-    namespace {
-        constexpr bool IsEternal(const state::NamespaceLifetime& lifetime)
-        {
-            return Height(std::numeric_limits<Height::ValueType>::max()) == lifetime.End;
-        }
-    }
+	namespace {
+		constexpr bool IsEternal(const state::NamespaceLifetime& lifetime) {
+			return Height(std::numeric_limits<Height::ValueType>::max()) == lifetime.End;
+		}
+	}
 
-    DEFINE_STATEFUL_VALIDATOR(RootNamespaceAvailability, [](const Notification& notification, const ValidatorContext& context) {
-        const auto& cache = context.Cache.sub<cache::NamespaceCache>();
-        auto height = context.Height;
+	DEFINE_STATEFUL_VALIDATOR(RootNamespaceAvailability, [](const Notification& notification, const ValidatorContext& context) {
+		const auto& cache = context.Cache.sub<cache::NamespaceCache>();
+		auto height = context.Height;
 
-        if (Height(1) != height && Eternal_Artifact_Duration == notification.Duration)
-            return Failure_Namespace_Eternal_After_Nemesis_Block;
+		if (Height(1) != height && Eternal_Artifact_Duration == notification.Duration)
+			return Failure_Namespace_Eternal_After_Nemesis_Block;
 
-        auto namespaceIter = cache.find(notification.NamespaceId);
-        if (!namespaceIter.tryGet())
-            return ValidationResult::Success;
+		auto namespaceIter = cache.find(notification.NamespaceId);
+		if (!namespaceIter.tryGet())
+			return ValidationResult::Success;
 
-        const auto& root = namespaceIter.get().root();
-        if (IsEternal(root.lifetime()) || Eternal_Artifact_Duration == notification.Duration)
-            return Failure_Namespace_Invalid_Duration;
+		const auto& root = namespaceIter.get().root();
+		if (IsEternal(root.lifetime()) || Eternal_Artifact_Duration == notification.Duration)
+			return Failure_Namespace_Invalid_Duration;
 
-        // if grace period after expiration has passed, any signer can claim the namespace
-        if (!root.lifetime().isActive(height))
-            return ValidationResult::Success;
+		// if grace period after expiration has passed, any signer can claim the namespace
+		if (!root.lifetime().isActive(height))
+			return ValidationResult::Success;
 
-        return root.ownerAddress() == notification.Owner ? ValidationResult::Success : Failure_Namespace_Owner_Conflict;
-    })
+		return root.ownerAddress() == notification.Owner ? ValidationResult::Success : Failure_Namespace_Owner_Conflict;
+	})
 }
 }

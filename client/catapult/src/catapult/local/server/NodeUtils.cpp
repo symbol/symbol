@@ -26,53 +26,48 @@
 namespace catapult {
 namespace local {
 
-    // region ValidateNodes / AddLocalNode
+	// region ValidateNodes / AddLocalNode
 
-    namespace {
-        void CheckString(const std::string& str, const char* name)
-        {
-            if (str.size() <= std::numeric_limits<uint8_t>::max())
-                return;
+	namespace {
+		void CheckString(const std::string& str, const char* name) {
+			if (str.size() <= std::numeric_limits<uint8_t>::max())
+				return;
 
-            std::ostringstream out;
-            out << name << " is too long (" << str << ")";
-            CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-        }
+			std::ostringstream out;
+			out << name << " is too long (" << str << ")";
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
 
-        void ValidateNode(const ionet::Node& node)
-        {
-            CheckString(node.endpoint().Host, "host");
-            CheckString(node.metadata().Name, "name");
-        }
-    }
+		void ValidateNode(const ionet::Node& node) {
+			CheckString(node.endpoint().Host, "host");
+			CheckString(node.metadata().Name, "name");
+		}
+	}
 
-    void ValidateNodes(const std::vector<ionet::Node>& nodes)
-    {
-        for (const auto& node : nodes)
-            ValidateNode(node);
-    }
+	void ValidateNodes(const std::vector<ionet::Node>& nodes) {
+		for (const auto& node : nodes)
+			ValidateNode(node);
+	}
 
-    void AddLocalNode(ionet::NodeContainer& nodes, const config::CatapultConfiguration& config)
-    {
-        auto localNode = config::ToLocalNode(config);
-        ValidateNode(localNode);
-        nodes.modifier().add(localNode, ionet::NodeSource::Local);
-    }
+	void AddLocalNode(ionet::NodeContainer& nodes, const config::CatapultConfiguration& config) {
+		auto localNode = config::ToLocalNode(config);
+		ValidateNode(localNode);
+		nodes.modifier().add(localNode, ionet::NodeSource::Local);
+	}
 
-    // endregion
+	// endregion
 
-    // region GetBanSettings
+	// region GetBanSettings
 
-    ionet::BanSettings GetBanSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig)
-    {
-        ionet::BanSettings banSettings;
-        banSettings.DefaultBanDuration = banConfig.DefaultBanDuration;
-        banSettings.MaxBanDuration = banConfig.MaxBanDuration;
-        banSettings.KeepAliveDuration = banConfig.KeepAliveDuration;
-        banSettings.MaxBannedNodes = banConfig.MaxBannedNodes;
-        return banSettings;
-    }
+	ionet::BanSettings GetBanSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig) {
+		ionet::BanSettings banSettings;
+		banSettings.DefaultBanDuration = banConfig.DefaultBanDuration;
+		banSettings.MaxBanDuration = banConfig.MaxBanDuration;
+		banSettings.KeepAliveDuration = banConfig.KeepAliveDuration;
+		banSettings.MaxBannedNodes = banConfig.MaxBannedNodes;
+		return banSettings;
+	}
 
-    // endregion
+	// endregion
 }
 }

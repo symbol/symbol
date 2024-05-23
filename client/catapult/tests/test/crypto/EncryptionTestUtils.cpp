@@ -39,57 +39,54 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        void Prepend(std::vector<uint8_t>& buffer, RawBuffer prefix)
-        {
-            buffer.resize(buffer.size() + prefix.Size);
-            std::memmove(buffer.data() + prefix.Size, buffer.data(), buffer.size() - prefix.Size);
+	namespace {
+		void Prepend(std::vector<uint8_t>& buffer, RawBuffer prefix) {
+			buffer.resize(buffer.size() + prefix.Size);
+			std::memmove(buffer.data() + prefix.Size, buffer.data(), buffer.size() - prefix.Size);
 
-            std::memcpy(buffer.data(), prefix.pData, prefix.Size);
-        }
-    }
+			std::memcpy(buffer.data(), prefix.pData, prefix.Size);
+		}
+	}
 
-    void AesGcmEncrypt(
-        const crypto::SharedKey& encryptionKey,
-        const crypto::AesGcm256::IV& iv,
-        const RawBuffer& input,
-        std::vector<uint8_t>& output)
-    {
-        // encrypt input into output
-        output.resize(input.Size);
-        auto outputSize = static_cast<int>(output.size());
-        utils::memcpy_cond(output.data(), input.pData, input.Size);
+	void AesGcmEncrypt(
+		const crypto::SharedKey& encryptionKey,
+		const crypto::AesGcm256::IV& iv,
+		const RawBuffer& input,
+		std::vector<uint8_t>& output) {
+		// encrypt input into output
+		output.resize(input.Size);
+		auto outputSize = static_cast<int>(output.size());
+		utils::memcpy_cond(output.data(), input.pData, input.Size);
 
-        crypto::OpensslCipherContext cipherContext;
-        cipherContext.dispatch(EVP_EncryptInit_ex, EVP_aes_256_gcm(), nullptr, encryptionKey.data(), iv.data());
+		crypto::OpensslCipherContext cipherContext;
+		cipherContext.dispatch(EVP_EncryptInit_ex, EVP_aes_256_gcm(), nullptr, encryptionKey.data(), iv.data());
 
-        if (0 != outputSize)
-            cipherContext.dispatch(EVP_EncryptUpdate, output.data(), &outputSize, output.data(), outputSize);
+		if (0 != outputSize)
+			cipherContext.dispatch(EVP_EncryptUpdate, output.data(), &outputSize, output.data(), outputSize);
 
-        cipherContext.dispatch(EVP_EncryptFinal_ex, output.data() + outputSize, &outputSize);
+		cipherContext.dispatch(EVP_EncryptFinal_ex, output.data() + outputSize, &outputSize);
 
-        // get tag
-        crypto::AesGcm256::Tag tag;
-        cipherContext.dispatch(EVP_CIPHER_CTX_ctrl, EVP_CTRL_GCM_GET_TAG, 16, tag.data());
+		// get tag
+		crypto::AesGcm256::Tag tag;
+		cipherContext.dispatch(EVP_CIPHER_CTX_ctrl, EVP_CTRL_GCM_GET_TAG, 16, tag.data());
 
-        // tag || iv || data
-        Prepend(output, iv);
-        Prepend(output, tag);
-    }
+		// tag || iv || data
+		Prepend(output, iv);
+		Prepend(output, tag);
+	}
 
-    std::vector<uint8_t> GenerateEphemeralAndEncrypt(const RawBuffer& clearText, const Key& recipientPublicKey)
-    {
-        auto ephemeralKeyPair = test::GenerateKeyPair();
-        auto sharedKey = DeriveSharedKey(ephemeralKeyPair, recipientPublicKey);
-        auto iv = GenerateRandomByteArray<crypto::AesGcm256::IV>();
+	std::vector<uint8_t> GenerateEphemeralAndEncrypt(const RawBuffer& clearText, const Key& recipientPublicKey) {
+		auto ephemeralKeyPair = test::GenerateKeyPair();
+		auto sharedKey = DeriveSharedKey(ephemeralKeyPair, recipientPublicKey);
+		auto iv = GenerateRandomByteArray<crypto::AesGcm256::IV>();
 
-        std::vector<uint8_t> encrypted;
-        AesGcmEncrypt(sharedKey, iv, clearText, encrypted);
+		std::vector<uint8_t> encrypted;
+		AesGcmEncrypt(sharedKey, iv, clearText, encrypted);
 
-        std::vector<uint8_t> publicKeyPrefixedEncryptedPayload(Key::Size + encrypted.size());
-        std::memcpy(publicKeyPrefixedEncryptedPayload.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
-        std::memcpy(publicKeyPrefixedEncryptedPayload.data() + Key::Size, encrypted.data(), encrypted.size());
-        return publicKeyPrefixedEncryptedPayload;
-    }
+		std::vector<uint8_t> publicKeyPrefixedEncryptedPayload(Key::Size + encrypted.size());
+		std::memcpy(publicKeyPrefixedEncryptedPayload.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
+		std::memcpy(publicKeyPrefixedEncryptedPayload.data() + Key::Size, encrypted.data(), encrypted.size());
+		return publicKeyPrefixedEncryptedPayload;
+	}
 }
 }

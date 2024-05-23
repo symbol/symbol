@@ -29,198 +29,179 @@ namespace state {
 
 #define TEST_CLASS AccountRestrictionsTests
 
-    namespace {
-        constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+	namespace {
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 
-        struct AccountAddressRestrictionTraits {
-            using ValueType = Address;
+		struct AccountAddressRestrictionTraits {
+			using ValueType = Address;
 
-            static constexpr model::AccountRestrictionFlags AccountRestrictionFlags()
-            {
-                return model::AccountRestrictionFlags::Address;
-            }
-        };
+			static constexpr model::AccountRestrictionFlags AccountRestrictionFlags() {
+				return model::AccountRestrictionFlags::Address;
+			}
+		};
 
-        struct AccountAddressOutgoingRestrictionTraits {
-            using ValueType = Address;
+		struct AccountAddressOutgoingRestrictionTraits {
+			using ValueType = Address;
 
-            static constexpr model::AccountRestrictionFlags AccountRestrictionFlags()
-            {
-                return model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing;
-            }
-        };
+			static constexpr model::AccountRestrictionFlags AccountRestrictionFlags() {
+				return model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing;
+			}
+		};
 
-        struct AccountMosaicRestrictionTraits {
-            using ValueType = MosaicId;
+		struct AccountMosaicRestrictionTraits {
+			using ValueType = MosaicId;
 
-            static constexpr model::AccountRestrictionFlags AccountRestrictionFlags()
-            {
-                return model::AccountRestrictionFlags::MosaicId;
-            }
-        };
+			static constexpr model::AccountRestrictionFlags AccountRestrictionFlags() {
+				return model::AccountRestrictionFlags::MosaicId;
+			}
+		};
 
-        struct AccountOperationRestrictionTraits {
-            using ValueType = model::EntityType;
+		struct AccountOperationRestrictionTraits {
+			using ValueType = model::EntityType;
 
-            static constexpr model::AccountRestrictionFlags AccountRestrictionFlags()
-            {
-                return model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
-            }
-        };
+			static constexpr model::AccountRestrictionFlags AccountRestrictionFlags() {
+				return model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
+			}
+		};
 
-        std::vector<model::AccountRestrictionFlags> CollectAccountRestrictionFlags(const AccountRestrictions& restrictions)
-        {
-            std::vector<model::AccountRestrictionFlags> types;
-            for (const auto& restriction : restrictions)
-                types.push_back(restriction.first);
+		std::vector<model::AccountRestrictionFlags> CollectAccountRestrictionFlags(const AccountRestrictions& restrictions) {
+			std::vector<model::AccountRestrictionFlags> types;
+			for (const auto& restriction : restrictions)
+				types.push_back(restriction.first);
 
-            return types;
-        }
+			return types;
+		}
 
-        void AssertIsEmpty(const std::vector<size_t>& valueSizes, bool expectedResult)
-        {
-            // Arrange:
-            auto restrictions = test::CreateAccountRestrictions(AccountRestrictionOperationType::Allow, valueSizes);
+		void AssertIsEmpty(const std::vector<size_t>& valueSizes, bool expectedResult) {
+			// Arrange:
+			auto restrictions = test::CreateAccountRestrictions(AccountRestrictionOperationType::Allow, valueSizes);
 
-            // Act + Assert:
-            EXPECT_EQ(expectedResult, restrictions.isEmpty());
-        }
-    }
+			// Act + Assert:
+			EXPECT_EQ(expectedResult, restrictions.isEmpty());
+		}
+	}
 
 #define ACCOUNT_RESTRICTION_TRAITS_BASED_TEST(TEST_NAME)                                    \
-    template <typename TTraits>                                                             \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                         \
-    TEST(TEST_CLASS, TEST_NAME##_Address)                                                   \
-    {                                                                                       \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>();         \
-    }                                                                                       \
-    TEST(TEST_CLASS, TEST_NAME##_AddressOutgoing)                                           \
-    {                                                                                       \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressOutgoingRestrictionTraits>(); \
-    }                                                                                       \
-    TEST(TEST_CLASS, TEST_NAME##_Mosaic)                                                    \
-    {                                                                                       \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>();          \
-    }                                                                                       \
-    TEST(TEST_CLASS, TEST_NAME##_Operation)                                                 \
-    {                                                                                       \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>();       \
-    }                                                                                       \
-    template <typename TTraits>                                                             \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template <typename TTraits>                                                             \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                         \
+	TEST(TEST_CLASS, TEST_NAME##_Address) {                                                 \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>();         \
+	}                                                                                       \
+	TEST(TEST_CLASS, TEST_NAME##_AddressOutgoing) {                                         \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressOutgoingRestrictionTraits>(); \
+	}                                                                                       \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) {                                                  \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>();          \
+	}                                                                                       \
+	TEST(TEST_CLASS, TEST_NAME##_Operation) {                                               \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>();       \
+	}                                                                                       \
+	template <typename TTraits>                                                             \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-    TEST(TEST_CLASS, CanCreateAccountRestrictions)
-    {
-        // Arrange:
-        auto address = test::GenerateRandomByteArray<Address>();
+	TEST(TEST_CLASS, CanCreateAccountRestrictions) {
+		// Arrange:
+		auto address = test::GenerateRandomByteArray<Address>();
 
-        // Act:
-        AccountRestrictions restrictions(address);
+		// Act:
+		AccountRestrictions restrictions(address);
 
-        // Assert:
-        EXPECT_EQ(address, restrictions.address());
-        EXPECT_EQ(4u, restrictions.size());
-    }
+		// Assert:
+		EXPECT_EQ(address, restrictions.address());
+		EXPECT_EQ(4u, restrictions.size());
+	}
 
-    TEST(TEST_CLASS, CanCreateAccountRestrictionsWithDifferentAccountRestrictionOperationTypes)
-    {
-        // Arrange:
-        AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
-        auto& addressRestriction = restrictions.restriction(model::AccountRestrictionFlags::Address);
-        auto& mosaicRestriction = restrictions.restriction(model::AccountRestrictionFlags::MosaicId);
+	TEST(TEST_CLASS, CanCreateAccountRestrictionsWithDifferentAccountRestrictionOperationTypes) {
+		// Arrange:
+		AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
+		auto& addressRestriction = restrictions.restriction(model::AccountRestrictionFlags::Address);
+		auto& mosaicRestriction = restrictions.restriction(model::AccountRestrictionFlags::MosaicId);
 
-        // Act:
-        addressRestriction.block({ Add, test::GenerateRandomVector(Address::Size) });
-        mosaicRestriction.allow({ Add, test::GenerateRandomVector(sizeof(MosaicId)) });
+		// Act:
+		addressRestriction.block({ Add, test::GenerateRandomVector(Address::Size) });
+		mosaicRestriction.allow({ Add, test::GenerateRandomVector(sizeof(MosaicId)) });
 
-        // Assert:
-        EXPECT_EQ(1u, addressRestriction.values().size());
-        EXPECT_EQ(AccountRestrictionOperationType::Block, addressRestriction.descriptor().operationType());
+		// Assert:
+		EXPECT_EQ(1u, addressRestriction.values().size());
+		EXPECT_EQ(AccountRestrictionOperationType::Block, addressRestriction.descriptor().operationType());
 
-        EXPECT_EQ(1u, mosaicRestriction.values().size());
-        EXPECT_EQ(AccountRestrictionOperationType::Allow, mosaicRestriction.descriptor().operationType());
-    }
+		EXPECT_EQ(1u, mosaicRestriction.values().size());
+		EXPECT_EQ(AccountRestrictionOperationType::Allow, mosaicRestriction.descriptor().operationType());
+	}
 
-    TEST(TEST_CLASS, IsEmptyReturnsTrueWhenNoAccountRestrictionHasValues)
-    {
-        AssertIsEmpty({ 0, 0, 0, 0 }, true);
-    }
+	TEST(TEST_CLASS, IsEmptyReturnsTrueWhenNoAccountRestrictionHasValues) {
+		AssertIsEmpty({ 0, 0, 0, 0 }, true);
+	}
 
-    TEST(TEST_CLASS, IsEmptyReturnsFalseWhenAtLeastOneAccountRestrictionHasAtLeastOneValue)
-    {
-        AssertIsEmpty({ 1, 0, 0, 0 }, false);
-        AssertIsEmpty({ 0, 1, 0, 0 }, false);
-        AssertIsEmpty({ 0, 0, 1, 0 }, false);
-        AssertIsEmpty({ 0, 0, 0, 1 }, false);
+	TEST(TEST_CLASS, IsEmptyReturnsFalseWhenAtLeastOneAccountRestrictionHasAtLeastOneValue) {
+		AssertIsEmpty({ 1, 0, 0, 0 }, false);
+		AssertIsEmpty({ 0, 1, 0, 0 }, false);
+		AssertIsEmpty({ 0, 0, 1, 0 }, false);
+		AssertIsEmpty({ 0, 0, 0, 1 }, false);
 
-        AssertIsEmpty({ 5, 0, 0, 0 }, false);
-        AssertIsEmpty({ 0, 5, 0, 0 }, false);
-        AssertIsEmpty({ 0, 0, 5, 0 }, false);
-        AssertIsEmpty({ 0, 0, 0, 5 }, false);
+		AssertIsEmpty({ 5, 0, 0, 0 }, false);
+		AssertIsEmpty({ 0, 5, 0, 0 }, false);
+		AssertIsEmpty({ 0, 0, 5, 0 }, false);
+		AssertIsEmpty({ 0, 0, 0, 5 }, false);
 
-        AssertIsEmpty({ 20, 17, 13, 9 }, false);
-    }
+		AssertIsEmpty({ 20, 17, 13, 9 }, false);
+	}
 
-    TEST(TEST_CLASS, CanIterateThroughAccountRestrictions)
-    {
-        // Arrange:
-        AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
+	TEST(TEST_CLASS, CanIterateThroughAccountRestrictions) {
+		// Arrange:
+		AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
 
-        // Act:
-        auto flagsContainer = CollectAccountRestrictionFlags(restrictions);
+		// Act:
+		auto flagsContainer = CollectAccountRestrictionFlags(restrictions);
 
-        // Assert:
-        std::vector<model::AccountRestrictionFlags> expectedFlagsContainer {
-            model::AccountRestrictionFlags::Address,
-            model::AccountRestrictionFlags::MosaicId,
-            model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing,
-            model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing
-        };
-        EXPECT_EQ(expectedFlagsContainer, flagsContainer);
-    }
+		// Assert:
+		std::vector<model::AccountRestrictionFlags> expectedFlagsContainer {
+			model::AccountRestrictionFlags::Address,
+			model::AccountRestrictionFlags::MosaicId,
+			model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing,
+			model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing
+		};
+		EXPECT_EQ(expectedFlagsContainer, flagsContainer);
+	}
 
-    ACCOUNT_RESTRICTION_TRAITS_BASED_TEST(RestrictionReturnsCorrectAccountRestrictionWhenAccountRestrictionFlagsAreKnown)
-    {
-        // Arrange:
-        AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
+	ACCOUNT_RESTRICTION_TRAITS_BASED_TEST(RestrictionReturnsCorrectAccountRestrictionWhenAccountRestrictionFlagsAreKnown) {
+		// Arrange:
+		AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
 
-        // Act:
-        auto& restriction = restrictions.restriction(TTraits::AccountRestrictionFlags());
+		// Act:
+		auto& restriction = restrictions.restriction(TTraits::AccountRestrictionFlags());
 
-        // Assert:
-        EXPECT_EQ(TTraits::AccountRestrictionFlags(), restriction.descriptor().directionalRestrictionFlags());
-    }
+		// Assert:
+		EXPECT_EQ(TTraits::AccountRestrictionFlags(), restriction.descriptor().directionalRestrictionFlags());
+	}
 
-    TEST(TEST_CLASS, RestrictionThrowsWhenAccountRestrictionFlagsAreUnknown)
-    {
-        // Arrange:
-        AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
+	TEST(TEST_CLASS, RestrictionThrowsWhenAccountRestrictionFlagsAreUnknown) {
+		// Arrange:
+		AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
 
-        // Act + Assert:
-        EXPECT_THROW(restrictions.restriction(model::AccountRestrictionFlags::Sentinel), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(restrictions.restriction(model::AccountRestrictionFlags::Sentinel), catapult_invalid_argument);
+	}
 
-    ACCOUNT_RESTRICTION_TRAITS_BASED_TEST(RestrictionReturnsCorrectAccountRestrictionWhenAccountRestrictionFlagsAreKnown_Const)
-    {
-        // Arrange:
-        AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
+	ACCOUNT_RESTRICTION_TRAITS_BASED_TEST(RestrictionReturnsCorrectAccountRestrictionWhenAccountRestrictionFlagsAreKnown_Const) {
+		// Arrange:
+		AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
 
-        // Act:
-        auto& restriction = const_cast<const AccountRestrictions&>(restrictions).restriction(TTraits::AccountRestrictionFlags());
+		// Act:
+		auto& restriction = const_cast<const AccountRestrictions&>(restrictions).restriction(TTraits::AccountRestrictionFlags());
 
-        // Assert:
-        EXPECT_EQ(TTraits::AccountRestrictionFlags(), restriction.descriptor().directionalRestrictionFlags());
-    }
+		// Assert:
+		EXPECT_EQ(TTraits::AccountRestrictionFlags(), restriction.descriptor().directionalRestrictionFlags());
+	}
 
-    TEST(TEST_CLASS, RestrictionThrowsWhenAccountRestrictionFlagsAreUnknown_Const)
-    {
-        // Arrange:
-        AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
+	TEST(TEST_CLASS, RestrictionThrowsWhenAccountRestrictionFlagsAreUnknown_Const) {
+		// Arrange:
+		AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
 
-        // Act + Assert:
-        EXPECT_THROW(
-            const_cast<const AccountRestrictions&>(restrictions).restriction(model::AccountRestrictionFlags::Sentinel),
-            catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(
+			const_cast<const AccountRestrictions&>(restrictions).restriction(model::AccountRestrictionFlags::Sentinel),
+			catapult_invalid_argument);
+	}
 }
 }

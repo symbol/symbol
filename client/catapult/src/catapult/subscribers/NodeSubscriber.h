@@ -27,30 +27,30 @@
 
 namespace catapult {
 namespace ionet {
-    class Node;
+	class Node;
 }
 namespace model {
-    struct NodeIdentity;
+	struct NodeIdentity;
 }
 }
 
 namespace catapult {
 namespace subscribers {
 
-    /// Node subscriber.
-    class PLUGIN_API_DEPENDENCY NodeSubscriber {
-    public:
-        virtual ~NodeSubscriber() = default;
+	/// Node subscriber.
+	class PLUGIN_API_DEPENDENCY NodeSubscriber {
+	public:
+		virtual ~NodeSubscriber() = default;
 
-    public:
-        /// Indicates a new \a node was found.
-        virtual void notifyNode(const ionet::Node& node) = 0;
+	public:
+		/// Indicates a new \a node was found.
+		virtual void notifyNode(const ionet::Node& node) = 0;
 
-        /// Indicates a new incoming connection for node with \a identity connected to \a serviceId.
-        virtual bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) = 0;
+		/// Indicates a new incoming connection for node with \a identity connected to \a serviceId.
+		virtual bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) = 0;
 
-        /// Indicates node with \a identity is banned due to \a reason.
-        virtual void notifyBan(const model::NodeIdentity& identity, uint32_t reason) = 0;
-    };
+		/// Indicates node with \a identity is banned due to \a reason.
+		virtual void notifyBan(const model::NodeIdentity& identity, uint32_t reason) = 0;
+	};
 }
 }

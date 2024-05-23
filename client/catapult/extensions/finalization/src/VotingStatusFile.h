@@ -26,24 +26,24 @@
 namespace catapult {
 namespace finalization {
 
-    /// File containing finalization voting status.
-    class VotingStatusFile final {
-    public:
-        /// Creates a file with name \a filename.
-        explicit VotingStatusFile(const std::string& filename);
+	/// File containing finalization voting status.
+	class VotingStatusFile final {
+	public:
+		/// Creates a file with name \a filename.
+		explicit VotingStatusFile(const std::string& filename);
 
-    public:
-        /// Loads the current status.
-        chain::VotingStatus load() const;
+	public:
+		/// Loads the current status.
+		chain::VotingStatus load() const;
 
-        /// Saves \a status.
-        void save(const chain::VotingStatus& status);
+		/// Saves \a status.
+		void save(const chain::VotingStatus& status);
 
-    private:
-        io::RawFile open(io::OpenMode mode) const;
+	private:
+		io::RawFile open(io::OpenMode mode) const;
 
-    private:
-        std::string m_filename;
-    };
+	private:
+		std::string m_filename;
+	};
 }
 }

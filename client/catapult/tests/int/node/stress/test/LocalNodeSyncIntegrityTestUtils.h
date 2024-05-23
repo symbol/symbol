@@ -28,94 +28,94 @@
 namespace catapult {
 namespace test {
 
-    // region test context
+	// region test context
 
-    /// Test context for running tests with state hash disabled.
-    class StateHashDisabledTestContext : public PeerLocalNodeTestContext {
-    public:
-        /// Creates a test context around \a additionalPlugins and \a configTransform.
-        explicit StateHashDisabledTestContext(
-            NonNemesisTransactionPlugins additionalPlugins = NonNemesisTransactionPlugins::None,
-            const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
+	/// Test context for running tests with state hash disabled.
+	class StateHashDisabledTestContext : public PeerLocalNodeTestContext {
+	public:
+		/// Creates a test context around \a additionalPlugins and \a configTransform.
+		explicit StateHashDisabledTestContext(
+			NonNemesisTransactionPlugins additionalPlugins = NonNemesisTransactionPlugins::None,
+			const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
 
-    public:
-        /// Creates a state hash calculator.
-        StateHashCalculator createStateHashCalculator() const;
-    };
+	public:
+		/// Creates a state hash calculator.
+		StateHashCalculator createStateHashCalculator() const;
+	};
 
-    /// Test context for running tests with state hash enabled.
-    class StateHashEnabledTestContext : public PeerLocalNodeTestContext {
-    public:
-        /// Creates a test context around \a additionalPlugins and \a configTransform.
-        explicit StateHashEnabledTestContext(
-            NonNemesisTransactionPlugins additionalPlugins = NonNemesisTransactionPlugins::None,
-            const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
+	/// Test context for running tests with state hash enabled.
+	class StateHashEnabledTestContext : public PeerLocalNodeTestContext {
+	public:
+		/// Creates a test context around \a additionalPlugins and \a configTransform.
+		explicit StateHashEnabledTestContext(
+			NonNemesisTransactionPlugins additionalPlugins = NonNemesisTransactionPlugins::None,
+			const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
 
-    public:
-        /// Creates a state hash calculator.
-        StateHashCalculator createStateHashCalculator() const;
+	public:
+		/// Creates a state hash calculator.
+		StateHashCalculator createStateHashCalculator() const;
 
-    private:
-        TempDirectoryGuard m_stateHashCalculationDir;
-    };
+	private:
+		TempDirectoryGuard m_stateHashCalculationDir;
+	};
 
-    // endregion
+	// endregion
 
-    // region non-assert test utils
+	// region non-assert test utils
 
-    /// Gets the state hash corresponding to the local node wrapped by \a context.
-    Hash256 GetStateHash(const PeerLocalNodeTestContext& context);
+	/// Gets the state hash corresponding to the local node wrapped by \a context.
+	Hash256 GetStateHash(const PeerLocalNodeTestContext& context);
 
-    /// Seeds \a stateHashCalculator with \a blocks.
-    void SeedStateHashCalculator(StateHashCalculator& stateHashCalculator, const BlockchainBuilder::Blocks& blocks);
+	/// Seeds \a stateHashCalculator with \a blocks.
+	void SeedStateHashCalculator(StateHashCalculator& stateHashCalculator, const BlockchainBuilder::Blocks& blocks);
 
-    /// Waits for the local node wrapped by \a context to reach \a height with \a numExpectedBlockElements block elements
-    /// and \a numTerminalReaders terminal readers.
-    void WaitForHeightAndElements(
-        const PeerLocalNodeTestContext& context,
-        Height height,
-        uint32_t numExpectedBlockElements,
-        uint32_t numTerminalReaders);
+	/// Waits for the local node wrapped by \a context to reach \a height with \a numExpectedBlockElements block elements
+	/// and \a numTerminalReaders terminal readers.
+	void WaitForHeightAndElements(
+		const PeerLocalNodeTestContext& context,
+		Height height,
+		uint32_t numExpectedBlockElements,
+		uint32_t numTerminalReaders);
 
-    // endregion
+	// endregion
 
-    // region state hash asserts
+	// region state hash asserts
 
-    /// Asserts that every hash in \a hashes is zero and \a numExpected hashes are provided with optional \a message.
-    void AssertAllZero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message = "");
+	/// Asserts that every hash in \a hashes is zero and \a numExpected hashes are provided with optional \a message.
+	void AssertAllZero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message = "");
 
-    /// Asserts that every hash in \a hashesPair is zero and \a numExpected hashes are provided in each part.
-    void AssertAllZero(const std::pair<std::vector<Hash256>, std::vector<Hash256>>& hashes, size_t numExpected);
+	/// Asserts that every hash in \a hashesPair is zero and \a numExpected hashes are provided in each part.
+	void AssertAllZero(const std::pair<std::vector<Hash256>, std::vector<Hash256>>& hashes, size_t numExpected);
 
-    /// Asserts that every hash in \a hashes is nonzero and \a numExpected hashes are provided with optional \a message.
-    void AssertAllNonzero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message = "");
+	/// Asserts that every hash in \a hashes is nonzero and \a numExpected hashes are provided with optional \a message.
+	void AssertAllNonzero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message = "");
 
-    /// Asserts that every hash in \a hashes is unique.
-    void AssertUnique(const std::vector<Hash256>& hashes);
+	/// Asserts that every hash in \a hashes is unique.
+	void AssertUnique(const std::vector<Hash256>& hashes);
 
-    // endregion
+	// endregion
 
-    // region state asserts
+	// region state asserts
 
-    /// Expected balance.
-    struct ExpectedBalance {
-        /// Account identifier.
-        size_t AccountShortId;
+	/// Expected balance.
+	struct ExpectedBalance {
+		/// Account identifier.
+		size_t AccountShortId;
 
-        /// Expected account balance.
-        Amount Balance;
-    };
+		/// Expected account balance.
+		Amount Balance;
+	};
 
-    /// Asserts that \a cache has currency balances as specified in \a expectedBalances using
-    /// \a accounts to convert account identifiers to addresses.
-    void AssertCurrencyBalances(
-        const Accounts& accounts,
-        const cache::CatapultCache& cache,
-        const std::vector<ExpectedBalance>& expectedBalances);
+	/// Asserts that \a cache has currency balances as specified in \a expectedBalances using
+	/// \a accounts to convert account identifiers to addresses.
+	void AssertCurrencyBalances(
+		const Accounts& accounts,
+		const cache::CatapultCache& cache,
+		const std::vector<ExpectedBalance>& expectedBalances);
 
-    /// Asserts that \a localNode has \a numExpectedNamespaces namespace cache entries.
-    void AssertNamespaceCount(const local::LocalNode& localNode, size_t numExpectedNamespaces);
+	/// Asserts that \a localNode has \a numExpectedNamespaces namespace cache entries.
+	void AssertNamespaceCount(const local::LocalNode& localNode, size_t numExpectedNamespaces);
 
-    // endregion
+	// endregion
 }
 }

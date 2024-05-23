@@ -29,91 +29,79 @@ namespace model {
 
 #define TEST_CLASS NamespaceIdGeneratorTests
 
-    namespace {
-        template <typename TGenerator>
-        void AssertDifferentNamesProduceDifferentIds(TGenerator generator)
-        {
-            // Assert:
-            for (const auto name : { "jeff", "bloodyrookie", "cat.token", "catx" })
-                EXPECT_NE(generator("cat"), generator(name)) << "cat vs " << name;
-        }
+	namespace {
+		template <typename TGenerator>
+		void AssertDifferentNamesProduceDifferentIds(TGenerator generator) {
+			// Assert:
+			for (const auto name : { "jeff", "bloodyrookie", "cat.token", "catx" })
+				EXPECT_NE(generator("cat"), generator(name)) << "cat vs " << name;
+		}
 
-        template <typename TGenerator>
-        void AssertDifferentlyCasedNamesProduceDifferentIds(TGenerator generator)
-        {
-            // Assert:
-            for (const auto name : { "CAT", "Cat", "cAt", "CaT" })
-                EXPECT_NE(generator("cat"), generator(name)) << "cat vs " << name;
-        }
+		template <typename TGenerator>
+		void AssertDifferentlyCasedNamesProduceDifferentIds(TGenerator generator) {
+			// Assert:
+			for (const auto name : { "CAT", "Cat", "cAt", "CaT" })
+				EXPECT_NE(generator("cat"), generator(name)) << "cat vs " << name;
+		}
 
-        template <typename TGenerator>
-        void AssertDifferentParentNamespaceIdsProduceDifferentIds(TGenerator generator)
-        {
-            // Assert:
-            for (auto i = 1u; i <= 5; ++i)
-                EXPECT_NE(generator(NamespaceId()), generator(NamespaceId(i))) << "ns root vs ns " << i;
-        }
-    }
+		template <typename TGenerator>
+		void AssertDifferentParentNamespaceIdsProduceDifferentIds(TGenerator generator) {
+			// Assert:
+			for (auto i = 1u; i <= 5; ++i)
+				EXPECT_NE(generator(NamespaceId()), generator(NamespaceId(i))) << "ns root vs ns " << i;
+		}
+	}
 
-    // region GenerateRootNamespaceId
+	// region GenerateRootNamespaceId
 
-    TEST(TEST_CLASS, GenerateRootNamespaceId_GeneratesCorrectWellKnownIds)
-    {
-        EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), GenerateRootNamespaceId("cat"));
-    }
+	TEST(TEST_CLASS, GenerateRootNamespaceId_GeneratesCorrectWellKnownIds) {
+		EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), GenerateRootNamespaceId("cat"));
+	}
 
-    TEST(TEST_CLASS, GenerateRootNamespaceId_DifferentNamesProduceDifferentIds)
-    {
-        AssertDifferentNamesProduceDifferentIds(GenerateRootNamespaceId);
-    }
+	TEST(TEST_CLASS, GenerateRootNamespaceId_DifferentNamesProduceDifferentIds) {
+		AssertDifferentNamesProduceDifferentIds(GenerateRootNamespaceId);
+	}
 
-    TEST(TEST_CLASS, GenerateRootNamespaceId_NamesAreCaseSensitive)
-    {
-        AssertDifferentlyCasedNamesProduceDifferentIds(GenerateRootNamespaceId);
-    }
+	TEST(TEST_CLASS, GenerateRootNamespaceId_NamesAreCaseSensitive) {
+		AssertDifferentlyCasedNamesProduceDifferentIds(GenerateRootNamespaceId);
+	}
 
-    // endregion
+	// endregion
 
-    // region GenerateNamespaceId
+	// region GenerateNamespaceId
 
-    TEST(TEST_CLASS, GenerateNamespaceId_GeneratesCorrectWellKnownIds)
-    {
-        EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), GenerateNamespaceId(NamespaceId(), "cat"));
-    }
+	TEST(TEST_CLASS, GenerateNamespaceId_GeneratesCorrectWellKnownIds) {
+		EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), GenerateNamespaceId(NamespaceId(), "cat"));
+	}
 
-    TEST(TEST_CLASS, GenerateNamespaceId_DifferentNamesProduceDifferentIds)
-    {
-        AssertDifferentNamesProduceDifferentIds([](const auto& name) { return GenerateNamespaceId(NamespaceId(), name); });
-    }
+	TEST(TEST_CLASS, GenerateNamespaceId_DifferentNamesProduceDifferentIds) {
+		AssertDifferentNamesProduceDifferentIds([](const auto& name) { return GenerateNamespaceId(NamespaceId(), name); });
+	}
 
-    TEST(TEST_CLASS, GenerateNamespaceId_NamesAreCaseSensitive)
-    {
-        AssertDifferentlyCasedNamesProduceDifferentIds([](const auto& name) { return GenerateNamespaceId(NamespaceId(), name); });
-    }
+	TEST(TEST_CLASS, GenerateNamespaceId_NamesAreCaseSensitive) {
+		AssertDifferentlyCasedNamesProduceDifferentIds([](const auto& name) { return GenerateNamespaceId(NamespaceId(), name); });
+	}
 
-    TEST(TEST_CLASS, GenerateNamespaceId_DifferentParentNamespaceIdsProduceDifferentIds)
-    {
-        AssertDifferentParentNamespaceIdsProduceDifferentIds([](const auto& nsId) { return GenerateNamespaceId(nsId, "cat"); });
-    }
+	TEST(TEST_CLASS, GenerateNamespaceId_DifferentParentNamespaceIdsProduceDifferentIds) {
+		AssertDifferentParentNamespaceIdsProduceDifferentIds([](const auto& nsId) { return GenerateNamespaceId(nsId, "cat"); });
+	}
 
-    TEST(TEST_CLASS, GenerateNamespaceId_CanGenerateRootNamespaceIds)
-    {
-        for (const auto name : { "jeff", "bloodyrookie", "cat.token", "catx" })
-            EXPECT_EQ(GenerateRootNamespaceId(name), GenerateNamespaceId(NamespaceId(), name)) << "ns: " << name;
-    }
+	TEST(TEST_CLASS, GenerateNamespaceId_CanGenerateRootNamespaceIds) {
+		for (const auto name : { "jeff", "bloodyrookie", "cat.token", "catx" })
+			EXPECT_EQ(GenerateRootNamespaceId(name), GenerateNamespaceId(NamespaceId(), name)) << "ns: " << name;
+	}
 
-    TEST(TEST_CLASS, GenerateNamespaceId_HasHighestBitSet)
-    {
-        for (auto i = 0u; i < 1000; ++i) {
-            // Act:
-            auto name = test::GenerateRandomString(13);
-            auto id = GenerateRootNamespaceId(name);
+	TEST(TEST_CLASS, GenerateNamespaceId_HasHighestBitSet) {
+		for (auto i = 0u; i < 1000; ++i) {
+			// Act:
+			auto name = test::GenerateRandomString(13);
+			auto id = GenerateRootNamespaceId(name);
 
-            // Assert:
-            EXPECT_EQ(1u, id.unwrap() >> 63) << name;
-        }
-    }
+			// Assert:
+			EXPECT_EQ(1u, id.unwrap() >> 63) << name;
+		}
+	}
 
-    // endregion
+	// endregion
 }
 }

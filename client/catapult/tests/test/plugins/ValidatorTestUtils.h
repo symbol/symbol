@@ -28,68 +28,62 @@
 namespace catapult {
 namespace test {
 
-    // region CreateValidatorContext
+	// region CreateValidatorContext
 
-    /// Creates a validator context around \a height, \a network and \a cache.
-    inline validators::ValidatorContext CreateValidatorContext(
-        Height height,
-        const model::NetworkInfo& network,
-        const cache::ReadOnlyCatapultCache& cache)
-    {
-        return validators::ValidatorContext(model::NotificationContext(height, CreateResolverContextXor()), Timestamp(0), network, cache);
-    }
+	/// Creates a validator context around \a height, \a network and \a cache.
+	inline validators::ValidatorContext CreateValidatorContext(
+		Height height,
+		const model::NetworkInfo& network,
+		const cache::ReadOnlyCatapultCache& cache) {
+		return validators::ValidatorContext(model::NotificationContext(height, CreateResolverContextXor()), Timestamp(0), network, cache);
+	}
 
-    /// Creates a validator context around \a height and \a cache.
-    inline validators::ValidatorContext CreateValidatorContext(Height height, const cache::ReadOnlyCatapultCache& cache)
-    {
-        return CreateValidatorContext(height, model::NetworkInfo(), cache);
-    }
+	/// Creates a validator context around \a height and \a cache.
+	inline validators::ValidatorContext CreateValidatorContext(Height height, const cache::ReadOnlyCatapultCache& cache) {
+		return CreateValidatorContext(height, model::NetworkInfo(), cache);
+	}
 
-    // endregion
+	// endregion
 
-    // region ValidateNotification
+	// region ValidateNotification
 
-    /// Validates \a notification with \a validator.
-    template <typename TNotification>
-    validators::ValidationResult ValidateNotification(
-        const validators::stateless::NotificationValidatorT<TNotification>& validator,
-        const TNotification& notification)
-    {
-        return validator.validate(notification);
-    }
+	/// Validates \a notification with \a validator.
+	template <typename TNotification>
+	validators::ValidationResult ValidateNotification(
+		const validators::stateless::NotificationValidatorT<TNotification>& validator,
+		const TNotification& notification) {
+		return validator.validate(notification);
+	}
 
-    /// Validates \a notification with \a validator using \a context.
-    template <typename TNotification>
-    validators::ValidationResult ValidateNotification(
-        const validators::stateful::NotificationValidatorT<TNotification>& validator,
-        const TNotification& notification,
-        const validators::ValidatorContext& context)
-    {
-        return validator.validate(notification, context);
-    }
+	/// Validates \a notification with \a validator using \a context.
+	template <typename TNotification>
+	validators::ValidationResult ValidateNotification(
+		const validators::stateful::NotificationValidatorT<TNotification>& validator,
+		const TNotification& notification,
+		const validators::ValidatorContext& context) {
+		return validator.validate(notification, context);
+	}
 
-    /// Validates \a notification with \a validator using \a cache at \a height.
-    template <typename TNotification>
-    validators::ValidationResult ValidateNotification(
-        const validators::stateful::NotificationValidatorT<TNotification>& validator,
-        const TNotification& notification,
-        const cache::CatapultCache& cache,
-        Height height = Height(1))
-    {
-        auto cacheView = cache.createView();
-        auto readOnlyCache = cacheView.toReadOnly();
-        auto context = CreateValidatorContext(height, readOnlyCache);
-        return validator.validate(notification, context);
-    }
+	/// Validates \a notification with \a validator using \a cache at \a height.
+	template <typename TNotification>
+	validators::ValidationResult ValidateNotification(
+		const validators::stateful::NotificationValidatorT<TNotification>& validator,
+		const TNotification& notification,
+		const cache::CatapultCache& cache,
+		Height height = Height(1)) {
+		auto cacheView = cache.createView();
+		auto readOnlyCache = cacheView.toReadOnly();
+		auto context = CreateValidatorContext(height, readOnlyCache);
+		return validator.validate(notification, context);
+	}
 
-    // endregion
+	// endregion
 
 /// Defines common validator tests for a validator with \a NAME.
 #define DEFINE_COMMON_VALIDATOR_TESTS(NAME, ...)                \
-    TEST(NAME##ValidatorTests, CanCreate##NAME##Validator)      \
-    {                                                           \
-        auto pValidator = Create##NAME##Validator(__VA_ARGS__); \
-        EXPECT_EQ(#NAME "Validator", pValidator->name());       \
-    }
+	TEST(NAME##ValidatorTests, CanCreate##NAME##Validator) {    \
+		auto pValidator = Create##NAME##Validator(__VA_ARGS__); \
+		EXPECT_EQ(#NAME "Validator", pValidator->name());       \
+	}
 }
 }

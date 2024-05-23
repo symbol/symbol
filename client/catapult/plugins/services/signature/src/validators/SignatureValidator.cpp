@@ -25,21 +25,20 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::SignatureNotification;
+	using Notification = model::SignatureNotification;
 
-    DECLARE_STATELESS_VALIDATOR(Signature, Notification)
-    (const GenerationHashSeed& generationHashSeed)
-    {
-        return MAKE_STATELESS_VALIDATOR(Signature, [generationHashSeed](const Notification& notification) {
-            auto isVerified = Notification::ReplayProtectionMode::Enabled == notification.DataReplayProtectionMode
-                ? crypto::Verify(
-                      notification.SignerPublicKey,
-                      { generationHashSeed, notification.Data },
-                      notification.Signature)
-                : crypto::Verify(notification.SignerPublicKey, notification.Data, notification.Signature);
+	DECLARE_STATELESS_VALIDATOR(Signature, Notification)
+	(const GenerationHashSeed& generationHashSeed) {
+		return MAKE_STATELESS_VALIDATOR(Signature, [generationHashSeed](const Notification& notification) {
+			auto isVerified = Notification::ReplayProtectionMode::Enabled == notification.DataReplayProtectionMode
+				? crypto::Verify(
+					  notification.SignerPublicKey,
+					  { generationHashSeed, notification.Data },
+					  notification.Signature)
+				: crypto::Verify(notification.SignerPublicKey, notification.Data, notification.Signature);
 
-            return isVerified ? ValidationResult::Success : Failure_Signature_Not_Verifiable;
-        });
-    }
+			return isVerified ? ValidationResult::Success : Failure_Signature_Not_Verifiable;
+		});
+	}
 }
 }

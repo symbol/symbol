@@ -29,74 +29,74 @@
 namespace catapult {
 namespace observers {
 
-    // region NotifyMode
+	// region NotifyMode
 
 #define NOTIFY_MODE_LIST   \
-    /* Execute actions. */ \
-    ENUM_VALUE(Commit)     \
+	/* Execute actions. */ \
+	ENUM_VALUE(Commit)     \
                            \
-    /* Reverse actions. */ \
-    ENUM_VALUE(Rollback)
+	/* Reverse actions. */ \
+	ENUM_VALUE(Rollback)
 
 #define ENUM_VALUE(LABEL) LABEL,
-    /// Enumeration of possible notification modes.
-    enum class NotifyMode { NOTIFY_MODE_LIST };
+	/// Enumeration of possible notification modes.
+	enum class NotifyMode { NOTIFY_MODE_LIST };
 #undef ENUM_VALUE
 
-    /// Insertion operator for outputting \a value to \a out.
-    std::ostream& operator<<(std::ostream& out, NotifyMode value);
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, NotifyMode value);
 
-    // endregion
+	// endregion
 
-    // region ObserverState
+	// region ObserverState
 
-    /// Block independent mutable state passed to all observers.
-    struct ObserverState {
-    public:
-        /// Creates an observer state around \a cache.
-        explicit ObserverState(cache::CatapultCacheDelta& cache);
+	/// Block independent mutable state passed to all observers.
+	struct ObserverState {
+	public:
+		/// Creates an observer state around \a cache.
+		explicit ObserverState(cache::CatapultCacheDelta& cache);
 
-        /// Creates an observer state around \a cache and \a blockStatementBuilder.
-        ObserverState(cache::CatapultCacheDelta& cache, model::BlockStatementBuilder& blockStatementBuilder);
+		/// Creates an observer state around \a cache and \a blockStatementBuilder.
+		ObserverState(cache::CatapultCacheDelta& cache, model::BlockStatementBuilder& blockStatementBuilder);
 
-    public:
-        /// Catapult cache.
-        cache::CatapultCacheDelta& Cache;
+	public:
+		/// Catapult cache.
+		cache::CatapultCacheDelta& Cache;
 
-        /// Optional block statement builder.
-        model::BlockStatementBuilder* pBlockStatementBuilder;
-    };
+		/// Optional block statement builder.
+		model::BlockStatementBuilder* pBlockStatementBuilder;
+	};
 
-    // endregion
+	// endregion
 
-    // region ObserverContext
+	// region ObserverContext
 
-    /// Context passed to all the observers.
-    struct ObserverContext : public model::NotificationContext {
-    public:
-        /// Creates an observer context around \a notificationContext, \a state and \a mode.
-        /// \note \a state is const to enable more consise code even though it only contains non-const references.
-        ObserverContext(const model::NotificationContext& notificationContext, const ObserverState& state, NotifyMode mode);
+	/// Context passed to all the observers.
+	struct ObserverContext : public model::NotificationContext {
+	public:
+		/// Creates an observer context around \a notificationContext, \a state and \a mode.
+		/// \note \a state is const to enable more consise code even though it only contains non-const references.
+		ObserverContext(const model::NotificationContext& notificationContext, const ObserverState& state, NotifyMode mode);
 
-    public:
-        /// Catapult cache.
-        cache::CatapultCacheDelta& Cache;
+	public:
+		/// Catapult cache.
+		cache::CatapultCacheDelta& Cache;
 
-        /// Notification mode.
-        const NotifyMode Mode;
+		/// Notification mode.
+		const NotifyMode Mode;
 
-        /// Original (undecorated) alias resolvers from the notification context.
-        /// \note These are used during undo to avoid adding resolutions.
-        const model::ResolverContext UndecoratedResolvers;
+		/// Original (undecorated) alias resolvers from the notification context.
+		/// \note These are used during undo to avoid adding resolutions.
+		const model::ResolverContext UndecoratedResolvers;
 
-    public:
-        /// Statement builder.
-        ObserverStatementBuilder& StatementBuilder();
+	public:
+		/// Statement builder.
+		ObserverStatementBuilder& StatementBuilder();
 
-    private:
-        ObserverStatementBuilder m_statementBuilder;
-    };
+	private:
+		ObserverStatementBuilder m_statementBuilder;
+	};
 
-    // endregion
+	// endregion
 }
 }

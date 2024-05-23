@@ -35,17 +35,15 @@
 namespace catapult {
 namespace crypto {
 
-    SecureRandomGenerator::result_type SecureRandomGenerator::operator()()
-    {
-        SecureRandomGenerator::result_type result = 0;
-        fill(reinterpret_cast<uint8_t*>(&result), sizeof(SecureRandomGenerator::result_type));
-        return result;
-    }
+	SecureRandomGenerator::result_type SecureRandomGenerator::operator()() {
+		SecureRandomGenerator::result_type result = 0;
+		fill(reinterpret_cast<uint8_t*>(&result), sizeof(SecureRandomGenerator::result_type));
+		return result;
+	}
 
-    void SecureRandomGenerator::fill(uint8_t* pOut, size_t count)
-    {
-        if (!RAND_bytes(pOut, static_cast<int>(count)))
-            CATAPULT_THROW_RUNTIME_ERROR("unable to generate secure random numbers");
-    }
+	void SecureRandomGenerator::fill(uint8_t* pOut, size_t count) {
+		if (!RAND_bytes(pOut, static_cast<int>(count)))
+			CATAPULT_THROW_RUNTIME_ERROR("unable to generate secure random numbers");
+	}
 }
 }

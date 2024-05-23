@@ -24,21 +24,19 @@
 namespace catapult {
 namespace test {
 
-    supplier<Timestamp> CreateTimeSupplierFromMilliseconds(const std::vector<uint32_t>& rawTimestamps, uint32_t multiplier)
-    {
-        size_t index = 0;
-        return [rawTimestamps, multiplier, index]() mutable {
-            auto timestamp = Timestamp(rawTimestamps[index] * multiplier);
-            if (index + 1 < rawTimestamps.size())
-                ++index;
+	supplier<Timestamp> CreateTimeSupplierFromMilliseconds(const std::vector<uint32_t>& rawTimestamps, uint32_t multiplier) {
+		size_t index = 0;
+		return [rawTimestamps, multiplier, index]() mutable {
+			auto timestamp = Timestamp(rawTimestamps[index] * multiplier);
+			if (index + 1 < rawTimestamps.size())
+				++index;
 
-            return timestamp;
-        };
-    }
+			return timestamp;
+		};
+	}
 
-    supplier<Timestamp> CreateTimeSupplierFromSeconds(const std::vector<uint32_t>& rawTimestampsInSeconds)
-    {
-        return CreateTimeSupplierFromMilliseconds(rawTimestampsInSeconds, 1000);
-    }
+	supplier<Timestamp> CreateTimeSupplierFromSeconds(const std::vector<uint32_t>& rawTimestampsInSeconds) {
+		return CreateTimeSupplierFromMilliseconds(rawTimestampsInSeconds, 1000);
+	}
 }
 }

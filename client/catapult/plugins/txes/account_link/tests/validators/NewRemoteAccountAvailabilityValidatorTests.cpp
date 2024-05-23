@@ -31,77 +31,69 @@ namespace validators {
 
 #define TEST_CLASS NewRemoteAccountAvailabilityValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(NewRemoteAccountAvailability, )
+	DEFINE_COMMON_VALIDATOR_TESTS(NewRemoteAccountAvailability, )
 
-    namespace {
-        cache::CatapultCache CreateCache(const Key& publicKey, state::AccountType accountType)
-        {
-            auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-            auto cacheDelta = cache.createDelta();
-            auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-            accountStateCacheDelta.addAccount(publicKey, Height(1));
-            accountStateCacheDelta.find(publicKey).get().AccountType = accountType;
-            cache.commit(Height(1));
-            return cache;
-        }
+	namespace {
+		cache::CatapultCache CreateCache(const Key& publicKey, state::AccountType accountType) {
+			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+			auto cacheDelta = cache.createDelta();
+			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+			accountStateCacheDelta.addAccount(publicKey, Height(1));
+			accountStateCacheDelta.find(publicKey).get().AccountType = accountType;
+			cache.commit(Height(1));
+			return cache;
+		}
 
-        void AssertValidation(ValidationResult expectedResult, const cache::CatapultCache& cache, const Key& publicKey)
-        {
-            // Arrange:
-            auto pValidator = CreateNewRemoteAccountAvailabilityValidator();
-            auto notification = model::NewRemoteAccountNotification(publicKey);
+		void AssertValidation(ValidationResult expectedResult, const cache::CatapultCache& cache, const Key& publicKey) {
+			// Arrange:
+			auto pValidator = CreateNewRemoteAccountAvailabilityValidator();
+			auto notification = model::NewRemoteAccountNotification(publicKey);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
 
-        void AssertFailsWhenAccountExistsWithType(state::AccountType accountType)
-        {
-            // Arrange:
-            auto publicKey = test::GenerateRandomByteArray<Key>();
-            auto cache = CreateCache(publicKey, accountType);
+		void AssertFailsWhenAccountExistsWithType(state::AccountType accountType) {
+			// Arrange:
+			auto publicKey = test::GenerateRandomByteArray<Key>();
+			auto cache = CreateCache(publicKey, accountType);
 
-            // Act + Assert:
-            AssertValidation(Failure_AccountLink_Remote_Account_Ineligible, cache, publicKey);
-        }
-    }
+			// Act + Assert:
+			AssertValidation(Failure_AccountLink_Remote_Account_Ineligible, cache, publicKey);
+		}
+	}
 
-    TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeUnlinked)
-    {
-        AssertFailsWhenAccountExistsWithType(state::AccountType::Unlinked);
-    }
+	TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeUnlinked) {
+		AssertFailsWhenAccountExistsWithType(state::AccountType::Unlinked);
+	}
 
-    TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeMain)
-    {
-        AssertFailsWhenAccountExistsWithType(state::AccountType::Main);
-    }
+	TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeMain) {
+		AssertFailsWhenAccountExistsWithType(state::AccountType::Main);
+	}
 
-    TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeRemote)
-    {
-        AssertFailsWhenAccountExistsWithType(state::AccountType::Remote);
-    }
+	TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeRemote) {
+		AssertFailsWhenAccountExistsWithType(state::AccountType::Remote);
+	}
 
-    TEST(TEST_CLASS, SucceedsWhenAccountDoesNotExist)
-    {
-        // Arrange:
-        auto publicKey = test::GenerateRandomByteArray<Key>();
-        auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+	TEST(TEST_CLASS, SucceedsWhenAccountDoesNotExist) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 
-        // Act + Assert:
-        AssertValidation(ValidationResult::Success, cache, publicKey);
-    }
+		// Act + Assert:
+		AssertValidation(ValidationResult::Success, cache, publicKey);
+	}
 
-    TEST(TEST_CLASS, SucceedsWhenAccountExistsAndHasTypeRemoteUnlinked)
-    {
-        // Arrange:
-        auto publicKey = test::GenerateRandomByteArray<Key>();
-        auto cache = CreateCache(publicKey, state::AccountType::Remote_Unlinked);
+	TEST(TEST_CLASS, SucceedsWhenAccountExistsAndHasTypeRemoteUnlinked) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto cache = CreateCache(publicKey, state::AccountType::Remote_Unlinked);
 
-        // Act + Assert:
-        AssertValidation(ValidationResult::Success, cache, publicKey);
-    }
+		// Act + Assert:
+		AssertValidation(ValidationResult::Success, cache, publicKey);
+	}
 }
 }

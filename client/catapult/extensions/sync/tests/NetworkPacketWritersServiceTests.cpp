@@ -31,179 +31,172 @@ namespace sync {
 
 #define TEST_CLASS NetworkPacketWritersServiceTests
 
-    namespace {
-        struct NetworkPacketWritersServiceTraits {
-            static constexpr auto Counter_Name = "WRITERS";
-            static constexpr auto Num_Expected_Services = 1u;
+	namespace {
+		struct NetworkPacketWritersServiceTraits {
+			static constexpr auto Counter_Name = "WRITERS";
+			static constexpr auto Num_Expected_Services = 1u;
 
-            static constexpr auto GetWriters = GetPacketWriters;
-            static constexpr auto CreateRegistrar = CreateNetworkPacketWritersServiceRegistrar;
-        };
+			static constexpr auto GetWriters = GetPacketWriters;
+			static constexpr auto CreateRegistrar = CreateNetworkPacketWritersServiceRegistrar;
+		};
 
-        using TestContext = test::ServiceLocatorTestContext<NetworkPacketWritersServiceTraits>;
+		using TestContext = test::ServiceLocatorTestContext<NetworkPacketWritersServiceTraits>;
 
-        struct Mixin {
-            using TraitsType = NetworkPacketWritersServiceTraits;
-            using TestContextType = TestContext;
-        };
-    }
+		struct Mixin {
+			using TraitsType = NetworkPacketWritersServiceTraits;
+			using TestContextType = TestContext;
+		};
+	}
 
-    ADD_SERVICE_REGISTRAR_INFO_TEST(NetworkPacketWriters, Initial)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(NetworkPacketWriters, Initial)
 
-    DEFINE_PACKET_WRITERS_SERVICE_TESTS(TEST_CLASS, Mixin)
+	DEFINE_PACKET_WRITERS_SERVICE_TESTS(TEST_CLASS, Mixin)
 
-    // region packetIoPickers
+	// region packetIoPickers
 
-    TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers)
-    {
-        // Arrange: create a (tcp) server
-        test::RemoteAcceptServer server;
-        server.start();
+	TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers) {
+		// Arrange: create a (tcp) server
+		test::RemoteAcceptServer server;
+		server.start();
 
-        // Act: create and boot the service
-        TestContext context;
-        context.boot();
-        auto pickers = context.testState().state().packetIoPickers();
+		// Act: create and boot the service
+		TestContext context;
+		context.boot();
+		auto pickers = context.testState().state().packetIoPickers();
 
-        // - get the packet writers and attempt to connect to the server
-        test::ConnectToLocalHost(*GetPacketWriters(context.locator()), server.caPublicKey());
+		// - get the packet writers and attempt to connect to the server
+		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), server.caPublicKey());
 
-        // Assert: the writers are registered with role `Peer`
-        EXPECT_EQ(1u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Peer).size());
-        EXPECT_EQ(0u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Api).size());
-    }
+		// Assert: the writers are registered with role `Peer`
+		EXPECT_EQ(1u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Peer).size());
+		EXPECT_EQ(0u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Api).size());
+	}
 
-    // endregion
+	// endregion
 
-    // region packetPayloadSink
+	// region packetPayloadSink
 
-    TEST(TEST_CLASS, PacketPayloadsAreBroadcastViaWriters)
-    {
-        // Arrange: create a (tcp) server
-        test::RemoteAcceptServer server;
-        ionet::ByteBuffer packetBuffer;
-        server.start([&ioContext = server.ioContext(), &packetBuffer](const auto& pServerSocket) {
-            // read the packet and copy it into packetBuffer
-            test::AsyncReadIntoBuffer(ioContext, *pServerSocket, packetBuffer);
-        });
+	TEST(TEST_CLASS, PacketPayloadsAreBroadcastViaWriters) {
+		// Arrange: create a (tcp) server
+		test::RemoteAcceptServer server;
+		ionet::ByteBuffer packetBuffer;
+		server.start([&ioContext = server.ioContext(), &packetBuffer](const auto& pServerSocket) {
+			// read the packet and copy it into packetBuffer
+			test::AsyncReadIntoBuffer(ioContext, *pServerSocket, packetBuffer);
+		});
 
-        // - create and boot the service
-        TestContext context;
-        context.boot();
-        auto sink = context.testState().state().hooks().packetPayloadSink();
+		// - create and boot the service
+		TestContext context;
+		context.boot();
+		auto sink = context.testState().state().hooks().packetPayloadSink();
 
-        // - get the packet writers and attempt to connect to the server
-        test::ConnectToLocalHost(*GetPacketWriters(context.locator()), server.caPublicKey());
+		// - get the packet writers and attempt to connect to the server
+		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), server.caPublicKey());
 
-        // Sanity: a single connection was accepted
-        EXPECT_EQ(1u, context.counter(NetworkPacketWritersServiceTraits::Counter_Name));
+		// Sanity: a single connection was accepted
+		EXPECT_EQ(1u, context.counter(NetworkPacketWritersServiceTraits::Counter_Name));
 
-        // Act: broadcast a (transaction) payload to the server
-        auto pTransaction = std::shared_ptr<const model::Transaction>(test::GenerateRandomTransaction());
-        sink(ionet::PacketPayloadFactory::FromEntity(ionet::PacketType::Undefined, pTransaction));
+		// Act: broadcast a (transaction) payload to the server
+		auto pTransaction = std::shared_ptr<const model::Transaction>(test::GenerateRandomTransaction());
+		sink(ionet::PacketPayloadFactory::FromEntity(ionet::PacketType::Undefined, pTransaction));
 
-        // - wait for the test to complete
-        server.join();
+		// - wait for the test to complete
+		server.join();
 
-        // Assert: the server received the broadcasted entity
-        ASSERT_FALSE(packetBuffer.empty());
-        EXPECT_EQ(*pTransaction, test::CoercePacketToEntity<model::Transaction>(packetBuffer));
-    }
+		// Assert: the server received the broadcasted entity
+		ASSERT_FALSE(packetBuffer.empty());
+		EXPECT_EQ(*pTransaction, test::CoercePacketToEntity<model::Transaction>(packetBuffer));
+	}
 
-    // endregion
+	// endregion
 
-    // region remoteChainHeightsRetriever
+	// region remoteChainHeightsRetriever
 
-    namespace {
-        using PacketSockets = std::vector<std::shared_ptr<ionet::PacketSocket>>;
+	namespace {
+		using PacketSockets = std::vector<std::shared_ptr<ionet::PacketSocket>>;
 
-        void EstablishConnections(
-            size_t numConnections,
-            boost::asio::io_context& ioContext,
-            const TestContext& context,
-            PacketSockets& serverSockets)
-        {
-            // Arrange:
-            auto pWriters = GetPacketWriters(context.locator());
+		void EstablishConnections(
+			size_t numConnections,
+			boost::asio::io_context& ioContext,
+			const TestContext& context,
+			PacketSockets& serverSockets) {
+			// Arrange:
+			auto pWriters = GetPacketWriters(context.locator());
 
-            // - connect to the desired number of peers
-            test::TcpAcceptor acceptor(ioContext);
-            for (auto i = 0u; i < numConnections; ++i) {
-                // - connect to nodes with different identities
-                test::RemoteAcceptServer server;
-                ionet::Node node({ server.caPublicKey(), std::to_string(i) }, test::CreateLocalHostNodeEndpoint(), ionet::NodeMetadata());
+			// - connect to the desired number of peers
+			test::TcpAcceptor acceptor(ioContext);
+			for (auto i = 0u; i < numConnections; ++i) {
+				// - connect to nodes with different identities
+				test::RemoteAcceptServer server;
+				ionet::Node node({ server.caPublicKey(), std::to_string(i) }, test::CreateLocalHostNodeEndpoint(), ionet::NodeMetadata());
 
-                std::atomic<size_t> numCallbacks(0);
-                server.start(acceptor, [&](const auto& pSocket) {
-                    serverSockets.push_back(pSocket);
-                    ++numCallbacks;
-                });
+				std::atomic<size_t> numCallbacks(0);
+				server.start(acceptor, [&](const auto& pSocket) {
+					serverSockets.push_back(pSocket);
+					++numCallbacks;
+				});
 
-                pWriters->connect(node, [&](auto) {
-                    ++numCallbacks;
-                    return true;
-                });
+				pWriters->connect(node, [&](auto) {
+					++numCallbacks;
+					return true;
+				});
 
-                // - wait for both connections to complete
-                WAIT_FOR_VALUE(2u, numCallbacks);
-            }
+				// - wait for both connections to complete
+				WAIT_FOR_VALUE(2u, numCallbacks);
+			}
 
-            // - wait for all connections
-            EXPECT_EQ(numConnections, context.counter(NetworkPacketWritersServiceTraits::Counter_Name));
-        }
+			// - wait for all connections
+			EXPECT_EQ(numConnections, context.counter(NetworkPacketWritersServiceTraits::Counter_Name));
+		}
 
-        void AssertReturnedHeights(size_t numHeightPeers, size_t numConnections, const std::vector<Height>& expectedHeights)
-        {
-            // Arrange:
-            TestContext context;
-            context.boot();
+		void AssertReturnedHeights(size_t numHeightPeers, size_t numConnections, const std::vector<Height>& expectedHeights) {
+			// Arrange:
+			TestContext context;
+			context.boot();
 
-            auto retriever = context.testState().state().hooks().remoteChainHeightsRetriever();
+			auto retriever = context.testState().state().hooks().remoteChainHeightsRetriever();
 
-            // - connect to the desired number of peers
-            auto pPool = test::CreateStartedIoThreadPool();
-            PacketSockets serverSockets;
-            EstablishConnections(numConnections, pPool->ioContext(), context, serverSockets);
-            CATAPULT_LOG(debug) << "established " << numConnections << " connection(s)";
+			// - connect to the desired number of peers
+			auto pPool = test::CreateStartedIoThreadPool();
+			PacketSockets serverSockets;
+			EstablishConnections(numConnections, pPool->ioContext(), context, serverSockets);
+			CATAPULT_LOG(debug) << "established " << numConnections << " connection(s)";
 
-            // Act: pick connections to height peers
-            auto heightsFuture = retriever(numHeightPeers);
+			// Act: pick connections to height peers
+			auto heightsFuture = retriever(numHeightPeers);
 
-            // - write the heights to the server sockets
-            //   (this must be after the connections are picked in order to prevent unexpected data errors)
-            auto i = 1u;
-            for (const auto& pSocket : serverSockets) {
-                auto pPacket = ionet::CreateSharedPacket<api::ChainStatisticsResponse>();
-                pPacket->Height = Height(i + (0 == i % 2 ? 100u : 0));
-                pSocket->write(ionet::PacketPayload(pPacket), [](auto) {});
-                ++i;
-            }
+			// - write the heights to the server sockets
+			//   (this must be after the connections are picked in order to prevent unexpected data errors)
+			auto i = 1u;
+			for (const auto& pSocket : serverSockets) {
+				auto pPacket = ionet::CreateSharedPacket<api::ChainStatisticsResponse>();
+				pPacket->Height = Height(i + (0 == i % 2 ? 100u : 0));
+				pSocket->write(ionet::PacketPayload(pPacket), [](auto) {});
+				++i;
+			}
 
-            // - wait for the heights
-            auto heights = heightsFuture.get();
+			// - wait for the heights
+			auto heights = heightsFuture.get();
 
-            // Assert:
-            EXPECT_EQ(expectedHeights, heights) << "numHeightPeers " << numHeightPeers << ", numConnections " << numConnections;
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedHeights, heights) << "numHeightPeers " << numHeightPeers << ", numConnections " << numConnections;
+		}
+	}
 
-    TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsEmptyHeightVectorWhenNoPacketIosAreAvailable)
-    {
-        AssertReturnedHeights(3, 0, {});
-    }
+	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsEmptyHeightVectorWhenNoPacketIosAreAvailable) {
+		AssertReturnedHeights(3, 0, {});
+	}
 
-    TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsLessThanNumPeersHeightsWhenNotEnoughPacketIosAreAvailable)
-    {
-        AssertReturnedHeights(3, 1, { { Height(1) } });
-        AssertReturnedHeights(3, 2, { { Height(1), Height(102) } });
-    }
+	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsLessThanNumPeersHeightsWhenNotEnoughPacketIosAreAvailable) {
+		AssertReturnedHeights(3, 1, { { Height(1) } });
+		AssertReturnedHeights(3, 2, { { Height(1), Height(102) } });
+	}
 
-    TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsNumPeersHeightsWhenEnoughPacketIosAreAvailable)
-    {
-        AssertReturnedHeights(3, 3, { { Height(1), Height(102), Height(3) } });
-        AssertReturnedHeights(3, 10, { { Height(1), Height(102), Height(3) } });
-    }
+	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsNumPeersHeightsWhenEnoughPacketIosAreAvailable) {
+		AssertReturnedHeights(3, 3, { { Height(1), Height(102), Height(3) } });
+		AssertReturnedHeights(3, 10, { { Height(1), Height(102), Height(3) } });
+	}
 
-    // endregion
+	// endregion
 }
 }

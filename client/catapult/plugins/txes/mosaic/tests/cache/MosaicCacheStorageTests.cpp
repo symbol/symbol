@@ -28,36 +28,32 @@
 namespace catapult {
 namespace cache {
 
-    namespace {
-        struct MosaicCacheStorageTraits {
-            using StorageType = MosaicCacheStorage;
-            class CacheType : public MosaicCache {
-            public:
-                CacheType()
-                    : MosaicCache(CacheConfiguration())
-                {
-                }
-            };
+	namespace {
+		struct MosaicCacheStorageTraits {
+			using StorageType = MosaicCacheStorage;
+			class CacheType : public MosaicCache {
+			public:
+				CacheType()
+					: MosaicCache(CacheConfiguration()) {
+				}
+			};
 
-            static auto CreateId(uint8_t id)
-            {
-                return MosaicId(id);
-            }
+			static auto CreateId(uint8_t id) {
+				return MosaicId(id);
+			}
 
-            static auto CreateValue(MosaicId id)
-            {
-                auto properties = test::CreateMosaicPropertiesWithDuration(BlockDuration(37));
-                auto definition = state::MosaicDefinition(Height(11), test::CreateRandomOwner(), 3, properties);
-                return state::MosaicEntry(id, definition);
-            }
+			static auto CreateValue(MosaicId id) {
+				auto properties = test::CreateMosaicPropertiesWithDuration(BlockDuration(37));
+				auto definition = state::MosaicDefinition(Height(11), test::CreateRandomOwner(), 3, properties);
+				return state::MosaicEntry(id, definition);
+			}
 
-            static void AssertEqual(const state::MosaicEntry& lhs, const state::MosaicEntry& rhs)
-            {
-                test::AssertEqual(lhs, rhs);
-            }
-        };
-    }
+			static void AssertEqual(const state::MosaicEntry& lhs, const state::MosaicEntry& rhs) {
+				test::AssertEqual(lhs, rhs);
+			}
+		};
+	}
 
-    DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MosaicCacheStorageTests, MosaicCacheStorageTraits)
+	DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MosaicCacheStorageTests, MosaicCacheStorageTraits)
 }
 }

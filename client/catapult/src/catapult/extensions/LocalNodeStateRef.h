@@ -23,51 +23,50 @@
 
 namespace catapult {
 namespace cache {
-    class CatapultCache;
+	class CatapultCache;
 }
 namespace config {
-    class CatapultConfiguration;
+	class CatapultConfiguration;
 }
 namespace extensions {
-    class LocalNodeChainScore;
+	class LocalNodeChainScore;
 }
 namespace io {
-    class BlockStorageCache;
+	class BlockStorageCache;
 }
 }
 
 namespace catapult {
 namespace extensions {
 
-    /// Reference to a local node's basic state.
-    struct LocalNodeStateRef {
-    public:
-        /// Creates a local node state ref referencing state composed of
-        /// \a config, \a cache, \a storage and \a score.
-        LocalNodeStateRef(
-            const config::CatapultConfiguration& config,
-            cache::CatapultCache& cache,
-            io::BlockStorageCache& storage,
-            LocalNodeChainScore& score)
-            : Config(config)
-            , Cache(cache)
-            , Storage(storage)
-            , Score(score)
-        {
-        }
+	/// Reference to a local node's basic state.
+	struct LocalNodeStateRef {
+	public:
+		/// Creates a local node state ref referencing state composed of
+		/// \a config, \a cache, \a storage and \a score.
+		LocalNodeStateRef(
+			const config::CatapultConfiguration& config,
+			cache::CatapultCache& cache,
+			io::BlockStorageCache& storage,
+			LocalNodeChainScore& score)
+			: Config(config)
+			, Cache(cache)
+			, Storage(storage)
+			, Score(score) {
+		}
 
-    public:
-        /// Catapult configuration.
-        const config::CatapultConfiguration& Config;
+	public:
+		/// Catapult configuration.
+		const config::CatapultConfiguration& Config;
 
-        /// Local node cache.
-        cache::CatapultCache& Cache;
+		/// Local node cache.
+		cache::CatapultCache& Cache;
 
-        /// Local node storage.
-        io::BlockStorageCache& Storage;
+		/// Local node storage.
+		io::BlockStorageCache& Storage;
 
-        /// Local node score.
-        LocalNodeChainScore& Score;
-    };
+		/// Local node score.
+		LocalNodeChainScore& Score;
+	};
 }
 }

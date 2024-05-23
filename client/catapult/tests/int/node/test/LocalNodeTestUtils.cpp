@@ -26,113 +26,103 @@
 namespace catapult {
 namespace test {
 
-    // region counter -> stats adapter
+	// region counter -> stats adapter
 
-    namespace {
-        bool HasName(const local::LocalNodeCounterValue& counter, const std::string& name)
-        {
-            return name == counter.id().name();
-        }
+	namespace {
+		bool HasName(const local::LocalNodeCounterValue& counter, const std::string& name) {
+			return name == counter.id().name();
+		}
 
-        void CountersToBasicLocalNodeStats(const local::LocalNodeCounterValues& counters, BasicLocalNodeStats& stats)
-        {
-            stats.NumActiveReaders = GetCounterValue(counters, "READERS");
-            stats.NumActiveWriters = GetCounterValue(counters, "WRITERS");
-            stats.NumScheduledTasks = GetCounterValue(counters, "TASKS");
-            stats.NumAddedBlockElements = GetCounterValue(counters, "BLK ELEM TOT");
-            stats.NumActiveBlockElements = GetCounterValue(counters, "BLK ELEM ACT");
-            stats.NumAddedTransactionElements = GetCounterValue(counters, "TX ELEM TOT");
-        }
-    }
+		void CountersToBasicLocalNodeStats(const local::LocalNodeCounterValues& counters, BasicLocalNodeStats& stats) {
+			stats.NumActiveReaders = GetCounterValue(counters, "READERS");
+			stats.NumActiveWriters = GetCounterValue(counters, "WRITERS");
+			stats.NumScheduledTasks = GetCounterValue(counters, "TASKS");
+			stats.NumAddedBlockElements = GetCounterValue(counters, "BLK ELEM TOT");
+			stats.NumActiveBlockElements = GetCounterValue(counters, "BLK ELEM ACT");
+			stats.NumAddedTransactionElements = GetCounterValue(counters, "TX ELEM TOT");
+		}
+	}
 
-    bool HasCounter(const local::LocalNodeCounterValues& counters, const std::string& name)
-    {
-        return std::any_of(counters.cbegin(), counters.cend(), [&name](const auto& counter) { return HasName(counter, name); });
-    }
+	bool HasCounter(const local::LocalNodeCounterValues& counters, const std::string& name) {
+		return std::any_of(counters.cbegin(), counters.cend(), [&name](const auto& counter) { return HasName(counter, name); });
+	}
 
-    uint64_t GetCounterValue(const local::LocalNodeCounterValues& counters, const std::string& name)
-    {
-        for (const auto& counter : counters) {
-            if (HasName(counter, name))
-                return counter.value();
-        }
+	uint64_t GetCounterValue(const local::LocalNodeCounterValues& counters, const std::string& name) {
+		for (const auto& counter : counters) {
+			if (HasName(counter, name))
+				return counter.value();
+		}
 
-        CATAPULT_THROW_INVALID_ARGUMENT_1("could not find counter with name", name);
-    }
+		CATAPULT_THROW_INVALID_ARGUMENT_1("could not find counter with name", name);
+	}
 
-    BasicLocalNodeStats CountersToBasicLocalNodeStats(const local::LocalNodeCounterValues& counters)
-    {
-        BasicLocalNodeStats stats;
-        CountersToBasicLocalNodeStats(counters, stats);
-        return stats;
-    }
+	BasicLocalNodeStats CountersToBasicLocalNodeStats(const local::LocalNodeCounterValues& counters) {
+		BasicLocalNodeStats stats;
+		CountersToBasicLocalNodeStats(counters, stats);
+		return stats;
+	}
 
-    PeerLocalNodeStats CountersToPeerLocalNodeStats(const local::LocalNodeCounterValues& counters)
-    {
-        PeerLocalNodeStats stats;
-        CountersToBasicLocalNodeStats(counters, stats);
-        stats.NumUnlockedAccounts = GetCounterValue(counters, "UNLKED ACCTS");
-        return stats;
-    }
+	PeerLocalNodeStats CountersToPeerLocalNodeStats(const local::LocalNodeCounterValues& counters) {
+		PeerLocalNodeStats stats;
+		CountersToBasicLocalNodeStats(counters, stats);
+		stats.NumUnlockedAccounts = GetCounterValue(counters, "UNLKED ACCTS");
+		return stats;
+	}
 
-    // endregion
+	// endregion
 
-    // region partner nodes
+	// region partner nodes
 
-    ionet::Node CreateLocalPartnerNode(const Key& publicKey)
-    {
-        auto endpoint = CreateLocalHostNodeEndpoint(static_cast<unsigned short>(GetLocalHostPort() + 10));
-        auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), "PARTNER");
-        metadata.Roles = ionet::NodeRoles::IPv4 | ionet::NodeRoles::Api | ionet::NodeRoles::Peer;
-        return ionet::Node({ publicKey, "127.0.0.1" }, endpoint, metadata);
-    }
+	ionet::Node CreateLocalPartnerNode(const Key& publicKey) {
+		auto endpoint = CreateLocalHostNodeEndpoint(static_cast<unsigned short>(GetLocalHostPort() + 10));
+		auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), "PARTNER");
+		metadata.Roles = ionet::NodeRoles::IPv4 | ionet::NodeRoles::Api | ionet::NodeRoles::Peer;
+		return ionet::Node({ publicKey, "127.0.0.1" }, endpoint, metadata);
+	}
 
-    std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
-        config::CatapultConfiguration&& config,
-        const config::CatapultKeys& keys,
-        NodeFlag nodeFlag)
-    {
-        // partner node is a P2P node on offset ports
-        const_cast<uint16_t&>(config.Node.Port) = static_cast<uint16_t>(config.Node.Port + 10);
+	std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
+		config::CatapultConfiguration&& config,
+		const config::CatapultKeys& keys,
+		NodeFlag nodeFlag) {
+		// partner node is a P2P node on offset ports
+		const_cast<uint16_t&>(config.Node.Port) = static_cast<uint16_t>(config.Node.Port + 10);
 
-        // make additional configuration modifications
-        PrepareCatapultConfiguration(config, AddSimplePartnerPluginExtensions, nodeFlag);
+		// make additional configuration modifications
+		PrepareCatapultConfiguration(config, AddSimplePartnerPluginExtensions, nodeFlag);
 
-        const auto& resourcesPath = config.User.DataDirectory + "/resources";
-        auto disposition = extensions::ProcessDisposition::Production;
-        auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(std::move(config), resourcesPath, disposition, "Partner");
-        pBootstrapper->loadExtensions();
+		const auto& resourcesPath = config.User.DataDirectory + "/resources";
+		auto disposition = extensions::ProcessDisposition::Production;
+		auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(std::move(config), resourcesPath, disposition, "Partner");
+		pBootstrapper->loadExtensions();
 
-        return local::CreateLocalNode(keys, std::move(pBootstrapper));
-    }
+		return local::CreateLocalNode(keys, std::move(pBootstrapper));
+	}
 
-    void PrepareCatapultConfiguration(config::CatapultConfiguration& config, NodeFlag nodeFlag)
-    {
-        if (HasFlag(NodeFlag::Cache_Database_Storage, nodeFlag))
-            const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
+	void PrepareCatapultConfiguration(config::CatapultConfiguration& config, NodeFlag nodeFlag) {
+		if (HasFlag(NodeFlag::Cache_Database_Storage, nodeFlag))
+			const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
 
-        if (HasFlag(NodeFlag::Verify_Receipts, nodeFlag))
-            const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableReceipts = true;
+		if (HasFlag(NodeFlag::Verify_Receipts, nodeFlag))
+			const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableReceipts = true;
 
-        if (HasFlag(NodeFlag::Verify_State, nodeFlag))
-            const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableState = true;
+		if (HasFlag(NodeFlag::Verify_State, nodeFlag))
+			const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableState = true;
 
-        if (HasFlag(NodeFlag::Auto_Sync_Cleanup, nodeFlag))
-            const_cast<config::NodeConfiguration&>(config.Node).EnableAutoSyncCleanup = true;
-    }
+		if (HasFlag(NodeFlag::Auto_Sync_Cleanup, nodeFlag))
+			const_cast<config::NodeConfiguration&>(config.Node).EnableAutoSyncCleanup = true;
+	}
 
-    // endregion
+	// endregion
 
-    // region connection tests
+	// region connection tests
 
-    ExternalConnection CreateExternalConnection(unsigned short port)
-    {
-        ExternalConnection connection;
-        connection.pPool = CreateStartedIoThreadPool(1);
-        connection.pIo = ConnectToLocalHost(connection.pPool->ioContext(), port);
-        return connection;
-    }
+	ExternalConnection CreateExternalConnection(unsigned short port) {
+		ExternalConnection connection;
+		connection.pPool = CreateStartedIoThreadPool(1);
+		connection.pIo = ConnectToLocalHost(connection.pPool->ioContext(), port);
+		return connection;
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -29,91 +29,85 @@
 namespace catapult {
 namespace consumers {
 
-    namespace {
-        class BlockHashCalculatorConsumer {
-        public:
-            BlockHashCalculatorConsumer(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
-                : m_generationHashSeed(generationHashSeed)
-                , m_transactionRegistry(transactionRegistry)
-            {
-            }
+	namespace {
+		class BlockHashCalculatorConsumer {
+		public:
+			BlockHashCalculatorConsumer(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
+				: m_generationHashSeed(generationHashSeed)
+				, m_transactionRegistry(transactionRegistry) {
+			}
 
-        public:
-            ConsumerResult operator()(BlockElements& elements) const
-            {
-                if (elements.empty())
-                    return Abort(Failure_Consumer_Empty_Input);
+		public:
+			ConsumerResult operator()(BlockElements& elements) const {
+				if (elements.empty())
+					return Abort(Failure_Consumer_Empty_Input);
 
-                for (auto& element : elements) {
-                    // note that disruptor input elements have been extracted from a packet (or created within this
-                    // process), so their sizes have already been validated
-                    crypto::MerkleHashBuilder transactionsHashBuilder;
-                    for (const auto& transaction : element.Block.Transactions()) {
-                        model::TransactionElement transactionElement(transaction);
-                        model::UpdateHashes(m_transactionRegistry, m_generationHashSeed, transactionElement);
-                        element.Transactions.push_back(transactionElement);
+				for (auto& element : elements) {
+					// note that disruptor input elements have been extracted from a packet (or created within this
+					// process), so their sizes have already been validated
+					crypto::MerkleHashBuilder transactionsHashBuilder;
+					for (const auto& transaction : element.Block.Transactions()) {
+						model::TransactionElement transactionElement(transaction);
+						model::UpdateHashes(m_transactionRegistry, m_generationHashSeed, transactionElement);
+						element.Transactions.push_back(transactionElement);
 
-                        transactionsHashBuilder.update(transactionElement.MerkleComponentHash);
-                    }
+						transactionsHashBuilder.update(transactionElement.MerkleComponentHash);
+					}
 
-                    Hash256 transactionsHash;
-                    transactionsHashBuilder.final(transactionsHash);
-                    if (element.Block.TransactionsHash != transactionsHash)
-                        return Abort(Failure_Consumer_Block_Transactions_Hash_Mismatch);
+					Hash256 transactionsHash;
+					transactionsHashBuilder.final(transactionsHash);
+					if (element.Block.TransactionsHash != transactionsHash)
+						return Abort(Failure_Consumer_Block_Transactions_Hash_Mismatch);
 
-                    element.EntityHash = model::CalculateHash(element.Block);
-                }
+					element.EntityHash = model::CalculateHash(element.Block);
+				}
 
-                return Continue();
-            }
+				return Continue();
+			}
 
-        private:
-            GenerationHashSeed m_generationHashSeed;
-            const model::TransactionRegistry& m_transactionRegistry;
-        };
-    }
+		private:
+			GenerationHashSeed m_generationHashSeed;
+			const model::TransactionRegistry& m_transactionRegistry;
+		};
+	}
 
-    disruptor::BlockConsumer CreateBlockHashCalculatorConsumer(
-        const GenerationHashSeed& generationHashSeed,
-        const model::TransactionRegistry& transactionRegistry)
-    {
-        return BlockHashCalculatorConsumer(generationHashSeed, transactionRegistry);
-    }
+	disruptor::BlockConsumer CreateBlockHashCalculatorConsumer(
+		const GenerationHashSeed& generationHashSeed,
+		const model::TransactionRegistry& transactionRegistry) {
+		return BlockHashCalculatorConsumer(generationHashSeed, transactionRegistry);
+	}
 
-    namespace {
-        class TransactionHashCalculatorConsumer {
-        public:
-            TransactionHashCalculatorConsumer(
-                const GenerationHashSeed& generationHashSeed,
-                const model::TransactionRegistry& transactionRegistry)
-                : m_generationHashSeed(generationHashSeed)
-                , m_transactionRegistry(transactionRegistry)
-            {
-            }
+	namespace {
+		class TransactionHashCalculatorConsumer {
+		public:
+			TransactionHashCalculatorConsumer(
+				const GenerationHashSeed& generationHashSeed,
+				const model::TransactionRegistry& transactionRegistry)
+				: m_generationHashSeed(generationHashSeed)
+				, m_transactionRegistry(transactionRegistry) {
+			}
 
-        public:
-            ConsumerResult operator()(TransactionElements& elements) const
-            {
-                if (elements.empty())
-                    return Abort(Failure_Consumer_Empty_Input);
+		public:
+			ConsumerResult operator()(TransactionElements& elements) const {
+				if (elements.empty())
+					return Abort(Failure_Consumer_Empty_Input);
 
-                for (auto& element : elements)
-                    model::UpdateHashes(m_transactionRegistry, m_generationHashSeed, element);
+				for (auto& element : elements)
+					model::UpdateHashes(m_transactionRegistry, m_generationHashSeed, element);
 
-                return Continue();
-            }
+				return Continue();
+			}
 
-        private:
-            GenerationHashSeed m_generationHashSeed;
-            const model::TransactionRegistry& m_transactionRegistry;
-        };
-    }
+		private:
+			GenerationHashSeed m_generationHashSeed;
+			const model::TransactionRegistry& m_transactionRegistry;
+		};
+	}
 
-    disruptor::TransactionConsumer CreateTransactionHashCalculatorConsumer(
-        const GenerationHashSeed& generationHashSeed,
-        const model::TransactionRegistry& transactionRegistry)
-    {
-        return TransactionHashCalculatorConsumer(generationHashSeed, transactionRegistry);
-    }
+	disruptor::TransactionConsumer CreateTransactionHashCalculatorConsumer(
+		const GenerationHashSeed& generationHashSeed,
+		const model::TransactionRegistry& transactionRegistry) {
+		return TransactionHashCalculatorConsumer(generationHashSeed, transactionRegistry);
+	}
 }
 }

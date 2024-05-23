@@ -29,43 +29,39 @@ using namespace bsoncxx::builder::stream;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct NamespaceCacheTraits {
-                using CacheType = cache::NamespaceCache;
-                using CacheDeltaType = cache::NamespaceCacheDelta;
-                using KeyType = NamespaceId;
-                using ModelType = NamespaceDescriptor;
-                using IdContainerType = std::unordered_set<KeyType, utils::BaseValueHasher<KeyType>>;
-                using ElementContainerType = std::unordered_set<const state::RootNamespaceHistory*>;
+		namespace {
+			struct NamespaceCacheTraits {
+				using CacheType = cache::NamespaceCache;
+				using CacheDeltaType = cache::NamespaceCacheDelta;
+				using KeyType = NamespaceId;
+				using ModelType = NamespaceDescriptor;
+				using IdContainerType = std::unordered_set<KeyType, utils::BaseValueHasher<KeyType>>;
+				using ElementContainerType = std::unordered_set<const state::RootNamespaceHistory*>;
 
-                static constexpr auto Collection_Name = "namespaces";
-                static constexpr auto Id_Property_Name = "namespace.level0";
+				static constexpr auto Collection_Name = "namespaces";
+				static constexpr auto Id_Property_Name = "namespace.level0";
 
-                static auto GetId(const state::RootNamespaceHistory& history)
-                {
-                    return history.id();
-                }
+				static auto GetId(const state::RootNamespaceHistory& history) {
+					return history.id();
+				}
 
-                static auto MapToMongoId(NamespaceId id)
-                {
-                    return mappers::ToInt64(id);
-                }
+				static auto MapToMongoId(NamespaceId id) {
+					return mappers::ToInt64(id);
+				}
 
-                static auto MapToMongoDocument(const ModelType& descriptor)
-                {
-                    return plugins::ToDbModel(descriptor);
-                }
+				static auto MapToMongoDocument(const ModelType& descriptor) {
+					return plugins::ToDbModel(descriptor);
+				}
 
-                static auto MapToMongoModels(const state::RootNamespaceHistory& history, model::NetworkIdentifier)
-                {
-                    return NamespaceDescriptorsFromHistory(history);
-                }
-            };
-        }
+				static auto MapToMongoModels(const state::RootNamespaceHistory& history, model::NetworkIdentifier) {
+					return NamespaceDescriptorsFromHistory(history);
+				}
+			};
+		}
 
-        DEFINE_MONGO_HISTORICAL_CACHE_STORAGE(Namespace, NamespaceCacheTraits)
-    }
+		DEFINE_MONGO_HISTORICAL_CACHE_STORAGE(Namespace, NamespaceCacheTraits)
+	}
 }
 }

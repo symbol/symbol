@@ -28,33 +28,32 @@
 namespace catapult {
 namespace observers {
 
-    /// Notification observer for processing a generic Notification.
-    using NotificationObserver = NotificationObserverT<model::Notification>;
+	/// Notification observer for processing a generic Notification.
+	using NotificationObserver = NotificationObserverT<model::Notification>;
 
-    /// Notification observer (unique) pointer.
-    template <typename TNotification>
-    using NotificationObserverPointerT = std::unique_ptr<const NotificationObserverT<TNotification>>;
+	/// Notification observer (unique) pointer.
+	template <typename TNotification>
+	using NotificationObserverPointerT = std::unique_ptr<const NotificationObserverT<TNotification>>;
 
-    /// Aggregate notification observer for processing a generic Notification.
-    using AggregateNotificationObserver = AggregateNotificationObserverT<model::Notification>;
+	/// Aggregate notification observer for processing a generic Notification.
+	using AggregateNotificationObserver = AggregateNotificationObserverT<model::Notification>;
 
-    /// Aggregate notification observer (unique) pointer.
-    template <typename TNotification>
-    using AggregateNotificationObserverPointerT = std::unique_ptr<const AggregateNotificationObserverT<TNotification>>;
+	/// Aggregate notification observer (unique) pointer.
+	template <typename TNotification>
+	using AggregateNotificationObserverPointerT = std::unique_ptr<const AggregateNotificationObserverT<TNotification>>;
 
 /// Declares an observer with \a NAME for notifications of type \a NOTIFICATION_TYPE.
 #define DECLARE_OBSERVER(NAME, NOTIFICATION_TYPE) observers::NotificationObserverPointerT<NOTIFICATION_TYPE> Create##NAME##Observer
 
 /// Makes a functional observer with \a NAME for notifications of type \a NOTIFICATION_TYPE around \a HANDLER.
 #define MAKE_OBSERVER(NAME, NOTIFICATION_TYPE, HANDLER) \
-    std::make_unique<observers::FunctionalNotificationObserverT<NOTIFICATION_TYPE>>(#NAME "Observer", HANDLER)
+	std::make_unique<observers::FunctionalNotificationObserverT<NOTIFICATION_TYPE>>(#NAME "Observer", HANDLER)
 
 /// Defines a functional observer with \a NAME for notifications of type \a NOTIFICATION_TYPE around \a HANDLER.
 #define DEFINE_OBSERVER(NAME, NOTIFICATION_TYPE, HANDLER)       \
-    DECLARE_OBSERVER(NAME, NOTIFICATION_TYPE)                   \
-    ()                                                          \
-    {                                                           \
-        return MAKE_OBSERVER(NAME, NOTIFICATION_TYPE, HANDLER); \
-    }
+	DECLARE_OBSERVER(NAME, NOTIFICATION_TYPE)                   \
+	() {                                                        \
+		return MAKE_OBSERVER(NAME, NOTIFICATION_TYPE, HANDLER); \
+	}
 }
 }

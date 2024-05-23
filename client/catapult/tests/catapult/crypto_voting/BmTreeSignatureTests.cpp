@@ -29,115 +29,106 @@ namespace crypto {
 
 #define TEST_CLASS BmTreeSignatureTests
 
-    // region size + alignment (BmTreeSignature::ParentPublicKeySignaturePair)
+	// region size + alignment (BmTreeSignature::ParentPublicKeySignaturePair)
 
 #define PUBLIC_KEY_SIGNATURE_PAIR_FIELDS FIELD(ParentPublicKey) FIELD(Signature)
 
-    TEST(TEST_CLASS, ParentPublicKeySignaturePairHasExpectedSize)
-    {
-        // Arrange:
-        auto expectedSize = 0u;
+	TEST(TEST_CLASS, ParentPublicKeySignaturePairHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(BmTreeSignature::ParentPublicKeySignaturePair::X)>();
-        PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
+		PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
 #undef FIELD
 
-        // Assert:
-        EXPECT_EQ(expectedSize, sizeof(BmTreeSignature::ParentPublicKeySignaturePair));
-        EXPECT_EQ(96u, sizeof(BmTreeSignature::ParentPublicKeySignaturePair));
-    }
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(BmTreeSignature::ParentPublicKeySignaturePair));
+		EXPECT_EQ(96u, sizeof(BmTreeSignature::ParentPublicKeySignaturePair));
+	}
 
-    TEST(TEST_CLASS, ParentPublicKeySignaturePairHasProperAlignment)
-    {
+	TEST(TEST_CLASS, ParentPublicKeySignaturePairHasProperAlignment) {
 #define FIELD(X) EXPECT_ALIGNED(BmTreeSignature::ParentPublicKeySignaturePair, X);
-        PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
+		PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
 #undef FIELD
 
-        EXPECT_EQ(0u, sizeof(BmTreeSignature::ParentPublicKeySignaturePair) % 8);
-    }
+		EXPECT_EQ(0u, sizeof(BmTreeSignature::ParentPublicKeySignaturePair) % 8);
+	}
 
 #undef PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
 
-    // endregion
+	// endregion
 
-    // region size + alignment (BmTreeSignature)
+	// region size + alignment (BmTreeSignature)
 
 #define TREE_SIGNATURE_FIELDS FIELD(Root) FIELD(Bottom)
 
-    TEST(TEST_CLASS, TreeSignatureHasExpectedSize)
-    {
-        // Arrange:
-        auto expectedSize = 0u;
+	TEST(TEST_CLASS, TreeSignatureHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(BmTreeSignature::X)>();
-        TREE_SIGNATURE_FIELDS
+		TREE_SIGNATURE_FIELDS
 #undef FIELD
 
-        // Assert:
-        EXPECT_EQ(expectedSize, sizeof(BmTreeSignature));
-        EXPECT_EQ(192u, sizeof(BmTreeSignature));
-    }
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(BmTreeSignature));
+		EXPECT_EQ(192u, sizeof(BmTreeSignature));
+	}
 
-    TEST(TEST_CLASS, TreeSignatureHasProperAlignment)
-    {
+	TEST(TEST_CLASS, TreeSignatureHasProperAlignment) {
 #define FIELD(X) EXPECT_ALIGNED(BmTreeSignature, X);
-        TREE_SIGNATURE_FIELDS
+		TREE_SIGNATURE_FIELDS
 #undef FIELD
 
-        EXPECT_EQ(0u, sizeof(BmTreeSignature) % 8);
-    }
+		EXPECT_EQ(0u, sizeof(BmTreeSignature) % 8);
+	}
 
 #undef TREE_SIGNATURE_FIELDS
 
-    // endregion
+	// endregion
 
-    // region operators (BmTreeSignature)
+	// region operators (BmTreeSignature)
 
-    namespace {
-        void MutatePair(BmTreeSignature::ParentPublicKeySignaturePair& pair, uint8_t flags)
-        {
-            if (flags & 1)
-                pair.ParentPublicKey[0] = 1;
+	namespace {
+		void MutatePair(BmTreeSignature::ParentPublicKeySignaturePair& pair, uint8_t flags) {
+			if (flags & 1)
+				pair.ParentPublicKey[0] = 1;
 
-            if (flags & 2)
-                pair.Signature[0] = 1;
-        }
+			if (flags & 2)
+				pair.Signature[0] = 1;
+		}
 
-        BmTreeSignature GenerateTreeSignature(uint8_t flags)
-        {
-            auto signature = BmTreeSignature();
-            MutatePair(signature.Root, flags & 3);
-            MutatePair(signature.Bottom, (flags >> 2) & 3);
-            return signature;
-        }
+		BmTreeSignature GenerateTreeSignature(uint8_t flags) {
+			auto signature = BmTreeSignature();
+			MutatePair(signature.Root, flags & 3);
+			MutatePair(signature.Bottom, (flags >> 2) & 3);
+			return signature;
+		}
 
-        std::vector<BmTreeSignature> GenerateIncreasingTreeSignatureValues()
-        {
-            std::vector<BmTreeSignature> signatures;
-            for (auto flags = 0u; flags < 16; ++flags)
-                signatures.push_back(GenerateTreeSignature(static_cast<uint8_t>(flags)));
+		std::vector<BmTreeSignature> GenerateIncreasingTreeSignatureValues() {
+			std::vector<BmTreeSignature> signatures;
+			for (auto flags = 0u; flags < 16; ++flags)
+				signatures.push_back(GenerateTreeSignature(static_cast<uint8_t>(flags)));
 
-            return signatures;
-        }
+			return signatures;
+		}
 
-        auto& Format(std::ostream& out, const BmTreeSignature::ParentPublicKeySignaturePair& pair)
-        {
-            out << static_cast<int>(pair.ParentPublicKey[0]) << "," << static_cast<int>(pair.Signature[0]);
-            return out;
-        }
+		auto& Format(std::ostream& out, const BmTreeSignature::ParentPublicKeySignaturePair& pair) {
+			out << static_cast<int>(pair.ParentPublicKey[0]) << "," << static_cast<int>(pair.Signature[0]);
+			return out;
+		}
 
-        std::string SignatureToString(const BmTreeSignature& signature)
-        {
-            std::stringstream out;
-            out << "signature{ ";
-            Format(out, signature.Root) << ";";
-            Format(out, signature.Bottom) << " }";
-            return out.str();
-        }
-    }
+		std::string SignatureToString(const BmTreeSignature& signature) {
+			std::stringstream out;
+			out << "signature{ ";
+			Format(out, signature.Root) << ";";
+			Format(out, signature.Bottom) << " }";
+			return out.str();
+		}
+	}
 
-    DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER(TEST_CLASS, GenerateIncreasingTreeSignatureValues(), SignatureToString)
+	DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER(TEST_CLASS, GenerateIncreasingTreeSignatureValues(), SignatureToString)
 
-    // endregion
+	// endregion
 }
 }

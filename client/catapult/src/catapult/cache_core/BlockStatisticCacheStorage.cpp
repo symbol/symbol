@@ -26,36 +26,33 @@
 namespace catapult {
 namespace cache {
 
-    void BlockStatisticCacheStorage::Save(const ValueType& statistic, io::OutputStream& output)
-    {
-        io::Write(output, statistic.Height);
-        io::Write(output, statistic.Timestamp);
-        io::Write(output, statistic.Difficulty);
-        io::Write(output, statistic.FeeMultiplier);
-    }
+	void BlockStatisticCacheStorage::Save(const ValueType& statistic, io::OutputStream& output) {
+		io::Write(output, statistic.Height);
+		io::Write(output, statistic.Timestamp);
+		io::Write(output, statistic.Difficulty);
+		io::Write(output, statistic.FeeMultiplier);
+	}
 
-    state::BlockStatistic BlockStatisticCacheStorage::Load(io::InputStream& input)
-    {
-        state::BlockStatistic statistic;
-        io::Read(input, statistic.Height);
-        io::Read(input, statistic.Timestamp);
-        io::Read(input, statistic.Difficulty);
-        io::Read(input, statistic.FeeMultiplier);
-        return statistic;
-    }
+	state::BlockStatistic BlockStatisticCacheStorage::Load(io::InputStream& input) {
+		state::BlockStatistic statistic;
+		io::Read(input, statistic.Height);
+		io::Read(input, statistic.Timestamp);
+		io::Read(input, statistic.Difficulty);
+		io::Read(input, statistic.FeeMultiplier);
+		return statistic;
+	}
 
-    void BlockStatisticCacheStorage::Purge(const ValueType& statistic, DestinationType& cacheDelta)
-    {
-        if (!cacheDelta.contains(statistic))
-            return;
+	void BlockStatisticCacheStorage::Purge(const ValueType& statistic, DestinationType& cacheDelta) {
+		if (!cacheDelta.contains(statistic))
+			return;
 
-        // in order to purge `statistic` from the cache, all infos with larger heights must be purged first
-        auto maxHeight = statistic.Height;
-        while (cacheDelta.contains(state::BlockStatistic(maxHeight + Height(1))))
-            maxHeight = maxHeight + Height(1);
+		// in order to purge `statistic` from the cache, all infos with larger heights must be purged first
+		auto maxHeight = statistic.Height;
+		while (cacheDelta.contains(state::BlockStatistic(maxHeight + Height(1))))
+			maxHeight = maxHeight + Height(1);
 
-        for (auto height = maxHeight; statistic.Height <= height; height = height - Height(1))
-            cacheDelta.remove(height);
-    }
+		for (auto height = maxHeight; statistic.Height <= height; height = height - Height(1))
+			cacheDelta.remove(height);
+	}
 }
 }

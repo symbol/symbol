@@ -24,17 +24,16 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::EntityNotification;
+	using Notification = model::EntityNotification;
 
-    namespace {
-        auto ValidateEntityVersion(const Notification& notification)
-        {
-            return notification.EntityVersion > notification.MaxVersion || notification.EntityVersion < notification.MinVersion
-                ? Failure_Core_Invalid_Version
-                : ValidationResult::Success;
-        }
-    }
+	namespace {
+		auto ValidateEntityVersion(const Notification& notification) {
+			return notification.EntityVersion > notification.MaxVersion || notification.EntityVersion < notification.MinVersion
+				? Failure_Core_Invalid_Version
+				: ValidationResult::Success;
+		}
+	}
 
-    DEFINE_STATELESS_VALIDATOR(EntityVersion, ValidateEntityVersion)
+	DEFINE_STATELESS_VALIDATOR(EntityVersion, ValidateEntityVersion)
 }
 }

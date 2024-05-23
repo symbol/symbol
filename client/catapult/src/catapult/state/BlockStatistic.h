@@ -26,75 +26,68 @@
 namespace catapult {
 namespace state {
 
-    /// Represents detailed information about a block statistic
-    /// including the block height and the block timestamp.
-    struct BlockStatistic {
-    public:
-        /// Creates a default block statistic.
-        constexpr BlockStatistic()
-            : BlockStatistic(catapult::Height(0))
-        {
-        }
+	/// Represents detailed information about a block statistic
+	/// including the block height and the block timestamp.
+	struct BlockStatistic {
+	public:
+		/// Creates a default block statistic.
+		constexpr BlockStatistic()
+			: BlockStatistic(catapult::Height(0)) {
+		}
 
-        /// Creates a block statistic from \a height.
-        constexpr explicit BlockStatistic(catapult::Height height)
-            : BlockStatistic(height, catapult::Timestamp(0), catapult::Difficulty(0), BlockFeeMultiplier(0))
-        {
-        }
+		/// Creates a block statistic from \a height.
+		constexpr explicit BlockStatistic(catapult::Height height)
+			: BlockStatistic(height, catapult::Timestamp(0), catapult::Difficulty(0), BlockFeeMultiplier(0)) {
+		}
 
-        /// Creates a block statistic from \a block.
-        constexpr explicit BlockStatistic(const model::Block& block)
-            : BlockStatistic(block.Height, block.Timestamp, block.Difficulty, block.FeeMultiplier)
-        {
-        }
+		/// Creates a block statistic from \a block.
+		constexpr explicit BlockStatistic(const model::Block& block)
+			: BlockStatistic(block.Height, block.Timestamp, block.Difficulty, block.FeeMultiplier) {
+		}
 
-        /// Creates a block statistic from \a height, \a timestamp, \a difficulty and \a feeMultiplier.
-        constexpr BlockStatistic(
-            catapult::Height height,
-            catapult::Timestamp timestamp,
-            catapult::Difficulty difficulty,
-            BlockFeeMultiplier feeMultiplier)
-            : Height(height)
-            , Timestamp(timestamp)
-            , Difficulty(difficulty)
-            , FeeMultiplier(feeMultiplier)
-        {
-        }
+		/// Creates a block statistic from \a height, \a timestamp, \a difficulty and \a feeMultiplier.
+		constexpr BlockStatistic(
+			catapult::Height height,
+			catapult::Timestamp timestamp,
+			catapult::Difficulty difficulty,
+			BlockFeeMultiplier feeMultiplier)
+			: Height(height)
+			, Timestamp(timestamp)
+			, Difficulty(difficulty)
+			, FeeMultiplier(feeMultiplier) {
+		}
 
-    public:
-        /// Block height.
-        catapult::Height Height;
+	public:
+		/// Block height.
+		catapult::Height Height;
 
-        /// Block timestamp.
-        catapult::Timestamp Timestamp;
+		/// Block timestamp.
+		catapult::Timestamp Timestamp;
 
-        /// Block difficulty.
-        catapult::Difficulty Difficulty;
+		/// Block difficulty.
+		catapult::Difficulty Difficulty;
 
-        /// Block fee multiplier.
-        BlockFeeMultiplier FeeMultiplier;
+		/// Block fee multiplier.
+		BlockFeeMultiplier FeeMultiplier;
 
-    public:
-        /// Returns \c true if this block statistic is less than \a rhs.
-        constexpr bool operator<(const BlockStatistic& rhs) const
-        {
-            return Height < rhs.Height;
-        }
+	public:
+		/// Returns \c true if this block statistic is less than \a rhs.
+		constexpr bool operator<(const BlockStatistic& rhs) const {
+			return Height < rhs.Height;
+		}
 
-        /// Returns \c true if this block statistic is equal to \a rhs.
-        constexpr bool operator==(const BlockStatistic& rhs) const
-        {
-            return Height == rhs.Height;
-        }
+		/// Returns \c true if this block statistic is equal to \a rhs.
+		constexpr bool operator==(const BlockStatistic& rhs) const {
+			return Height == rhs.Height;
+		}
 
-        /// Returns \c true if this block statistic is not equal to \a rhs.
-        constexpr bool operator!=(const BlockStatistic& rhs) const
-        {
-            return Height != rhs.Height;
-        }
-    };
+		/// Returns \c true if this block statistic is not equal to \a rhs.
+		constexpr bool operator!=(const BlockStatistic& rhs) const {
+			return Height != rhs.Height;
+		}
+	};
 
-    /// Insertion operator for outputting \a statistic to \a out.
-    std::ostream& operator<<(std::ostream& out, const BlockStatistic& statistic);
+	/// Insertion operator for outputting \a statistic to \a out.
+	std::ostream& operator<<(std::ostream& out, const BlockStatistic& statistic);
 }
 }

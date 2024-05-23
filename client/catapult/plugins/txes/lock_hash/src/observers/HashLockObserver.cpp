@@ -27,28 +27,27 @@
 namespace catapult {
 namespace observers {
 
-    using Notification = model::HashLockNotification;
+	using Notification = model::HashLockNotification;
 
-    namespace {
-        auto CreateLockInfo(const Address& owner, MosaicId mosaicId, Height endHeight, const Notification& notification)
-        {
-            return state::HashLockInfo(owner, mosaicId, notification.Mosaic.Amount, endHeight, notification.Hash);
-        }
-    }
+	namespace {
+		auto CreateLockInfo(const Address& owner, MosaicId mosaicId, Height endHeight, const Notification& notification) {
+			return state::HashLockInfo(owner, mosaicId, notification.Mosaic.Amount, endHeight, notification.Hash);
+		}
+	}
 
-    DEFINE_OBSERVER(HashLock, Notification, [](const Notification& notification, ObserverContext& context) {
-        auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
-        if (NotifyMode::Commit == context.Mode) {
-            auto endHeight = context.Height + Height(notification.Duration.unwrap());
-            auto mosaicId = context.Resolvers.resolve(notification.Mosaic.MosaicId);
-            cache.insert(CreateLockInfo(notification.Owner, mosaicId, endHeight, notification));
+	DEFINE_OBSERVER(HashLock, Notification, [](const Notification& notification, ObserverContext& context) {
+		auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
+		if (NotifyMode::Commit == context.Mode) {
+			auto endHeight = context.Height + Height(notification.Duration.unwrap());
+			auto mosaicId = context.Resolvers.resolve(notification.Mosaic.MosaicId);
+			cache.insert(CreateLockInfo(notification.Owner, mosaicId, endHeight, notification));
 
-            auto receiptType = model::Receipt_Type_LockHash_Created;
-            model::BalanceChangeReceipt receipt(receiptType, notification.Owner, mosaicId, notification.Mosaic.Amount);
-            context.StatementBuilder().addReceipt(receipt);
-        } else {
-            cache.remove(notification.Hash);
-        }
-    })
+			auto receiptType = model::Receipt_Type_LockHash_Created;
+			model::BalanceChangeReceipt receipt(receiptType, notification.Owner, mosaicId, notification.Mosaic.Amount);
+			context.StatementBuilder().addReceipt(receipt);
+		} else {
+			cache.remove(notification.Hash);
+		}
+	})
 }
 }

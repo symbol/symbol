@@ -28,19 +28,18 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            template <typename TTransaction>
-            void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction)
-            {
-                builder << "hashAlgorithm" << utils::to_underlying_type(transaction.HashAlgorithm) << "secret" << ToBinary(transaction.Secret)
-                        << "recipientAddress" << ToBinary(transaction.RecipientAddress) << "proof"
-                        << ToBinary(transaction.ProofPtr(), transaction.ProofSize);
-            }
-        }
+		namespace {
+			template <typename TTransaction>
+			void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
+				builder << "hashAlgorithm" << utils::to_underlying_type(transaction.HashAlgorithm) << "secret" << ToBinary(transaction.Secret)
+						<< "recipientAddress" << ToBinary(transaction.RecipientAddress) << "proof"
+						<< ToBinary(transaction.ProofPtr(), transaction.ProofSize);
+			}
+		}
 
-        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(SecretProof, StreamTransaction)
-    }
+		DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(SecretProof, StreamTransaction)
+	}
 }
 }

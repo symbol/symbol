@@ -25,61 +25,55 @@
 namespace catapult {
 namespace crypto {
 
-    AggregateBmPrivateKeyTree::AggregateBmPrivateKeyTree(const PrivateKeyTreeFactory& factory)
-        : m_factory(factory)
-        , m_pTree(m_factory())
-    {
-    }
+	AggregateBmPrivateKeyTree::AggregateBmPrivateKeyTree(const PrivateKeyTreeFactory& factory)
+		: m_factory(factory)
+		, m_pTree(m_factory()) {
+	}
 
-    const AggregateBmPrivateKeyTree::BmPublicKey& AggregateBmPrivateKeyTree::rootPublicKey() const
-    {
-        return m_pTree->rootPublicKey();
-    }
+	const AggregateBmPrivateKeyTree::BmPublicKey& AggregateBmPrivateKeyTree::rootPublicKey() const {
+		return m_pTree->rootPublicKey();
+	}
 
-    const BmOptions& AggregateBmPrivateKeyTree::options() const
-    {
-        return m_pTree->options();
-    }
+	const BmOptions& AggregateBmPrivateKeyTree::options() const {
+		return m_pTree->options();
+	}
 
-    bool AggregateBmPrivateKeyTree::canSign(const BmKeyIdentifier& keyIdentifier)
-    {
-        while (m_pTree && m_pTree->options().EndKeyIdentifier < keyIdentifier) {
-            auto oldEndKeyIdentifier = m_pTree->options().EndKeyIdentifier;
-            m_pTree->wipe(oldEndKeyIdentifier);
-            m_pTree = m_factory();
-            if (!m_pTree)
-                break;
+	bool AggregateBmPrivateKeyTree::canSign(const BmKeyIdentifier& keyIdentifier) {
+		while (m_pTree && m_pTree->options().EndKeyIdentifier < keyIdentifier) {
+			auto oldEndKeyIdentifier = m_pTree->options().EndKeyIdentifier;
+			m_pTree->wipe(oldEndKeyIdentifier);
+			m_pTree = m_factory();
+			if (!m_pTree)
+				break;
 
-            auto newStartKeyIdentifier = m_pTree->options().StartKeyIdentifier;
-            if (oldEndKeyIdentifier >= newStartKeyIdentifier) {
-                std::ostringstream out;
-                out << "PrivateKeyTreeFactory returned overlapping tree, previous end " << oldEndKeyIdentifier << ", new start "
-                    << newStartKeyIdentifier;
-                CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-            }
-        }
+			auto newStartKeyIdentifier = m_pTree->options().StartKeyIdentifier;
+			if (oldEndKeyIdentifier >= newStartKeyIdentifier) {
+				std::ostringstream out;
+				out << "PrivateKeyTreeFactory returned overlapping tree, previous end " << oldEndKeyIdentifier << ", new start "
+					<< newStartKeyIdentifier;
+				CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
+			}
+		}
 
-        return m_pTree && m_pTree->canSign(keyIdentifier);
-    }
+		return m_pTree && m_pTree->canSign(keyIdentifier);
+	}
 
-    namespace {
-        BmKeyIdentifier Decrease(const BmKeyIdentifier& keyIdentifier)
-        {
-            return { keyIdentifier.KeyId - 1 };
-        }
-    }
+	namespace {
+		BmKeyIdentifier Decrease(const BmKeyIdentifier& keyIdentifier) {
+			return { keyIdentifier.KeyId - 1 };
+		}
+	}
 
-    BmTreeSignature AggregateBmPrivateKeyTree::sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer)
-    {
-        if (!canSign(keyIdentifier))
-            CATAPULT_THROW_INVALID_ARGUMENT_1("sign called with invalid key identifier", keyIdentifier);
+	BmTreeSignature AggregateBmPrivateKeyTree::sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
+		if (!canSign(keyIdentifier))
+			CATAPULT_THROW_INVALID_ARGUMENT_1("sign called with invalid key identifier", keyIdentifier);
 
-        auto signature = m_pTree->sign(keyIdentifier, dataBuffer);
+		auto signature = m_pTree->sign(keyIdentifier, dataBuffer);
 
-        if (keyIdentifier != m_pTree->options().StartKeyIdentifier)
-            m_pTree->wipe(Decrease(keyIdentifier));
+		if (keyIdentifier != m_pTree->options().StartKeyIdentifier)
+			m_pTree->wipe(Decrease(keyIdentifier));
 
-        return signature;
-    }
+		return signature;
+	}
 }
 }

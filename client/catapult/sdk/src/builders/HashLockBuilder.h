@@ -26,49 +26,49 @@
 namespace catapult {
 namespace builders {
 
-    /// Builder for a hash lock transaction.
-    class HashLockBuilder : public TransactionBuilder {
-    public:
-        using Transaction = model::HashLockTransaction;
-        using EmbeddedTransaction = model::EmbeddedHashLockTransaction;
+	/// Builder for a hash lock transaction.
+	class HashLockBuilder : public TransactionBuilder {
+	public:
+		using Transaction = model::HashLockTransaction;
+		using EmbeddedTransaction = model::EmbeddedHashLockTransaction;
 
-    public:
-        /// Creates a hash lock builder for building a hash lock transaction from \a signer
-        /// for the network specified by \a networkIdentifier.
-        HashLockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+	public:
+		/// Creates a hash lock builder for building a hash lock transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		HashLockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-    public:
-        /// Sets the lock mosaic to \a mosaic.
-        void setMosaic(const model::UnresolvedMosaic& mosaic);
+	public:
+		/// Sets the lock mosaic to \a mosaic.
+		void setMosaic(const model::UnresolvedMosaic& mosaic);
 
-        /// Sets the number of blocks for which a lock should be valid to \a duration.
-        void setDuration(BlockDuration duration);
+		/// Sets the number of blocks for which a lock should be valid to \a duration.
+		void setDuration(BlockDuration duration);
 
-        /// Sets the lock hash to \a hash.
-        void setHash(const Hash256& hash);
+		/// Sets the lock hash to \a hash.
+		void setHash(const Hash256& hash);
 
-    public:
-        /// Gets the size of hash lock transaction.
-        /// \note This returns size of a normal transaction not embedded transaction.
-        size_t size() const;
+	public:
+		/// Gets the size of hash lock transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
 
-        /// Builds a new hash lock transaction.
-        std::unique_ptr<Transaction> build() const;
+		/// Builds a new hash lock transaction.
+		std::unique_ptr<Transaction> build() const;
 
-        /// Builds a new embedded hash lock transaction.
-        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+		/// Builds a new embedded hash lock transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-    private:
-        template <typename TTransaction>
-        size_t sizeImpl() const;
+	private:
+		template <typename TTransaction>
+		size_t sizeImpl() const;
 
-        template <typename TTransaction>
-        std::unique_ptr<TTransaction> buildImpl() const;
+		template <typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
-    private:
-        model::UnresolvedMosaic m_mosaic;
-        BlockDuration m_duration;
-        Hash256 m_hash;
-    };
+	private:
+		model::UnresolvedMosaic m_mosaic;
+		BlockDuration m_duration;
+		Hash256 m_hash;
+	};
 }
 }

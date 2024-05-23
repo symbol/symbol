@@ -28,35 +28,35 @@
 namespace catapult {
 namespace chain {
 
-    /// Configuration for creating contexts for executing entities.
-    struct ExecutionContextConfiguration {
-    private:
-        using ResolverContextFactoryFunc = std::function<model::ResolverContext(const cache::ReadOnlyCatapultCache&)>;
+	/// Configuration for creating contexts for executing entities.
+	struct ExecutionContextConfiguration {
+	private:
+		using ResolverContextFactoryFunc = std::function<model::ResolverContext(const cache::ReadOnlyCatapultCache&)>;
 
-    public:
-        /// Network info.
-        model::NetworkInfo Network;
+	public:
+		/// Network info.
+		model::NetworkInfo Network;
 
-        /// Resolver context factory.
-        ResolverContextFactoryFunc ResolverContextFactory;
-    };
+		/// Resolver context factory.
+		ResolverContextFactoryFunc ResolverContextFactory;
+	};
 
-    /// Configuration for executing entities.
-    struct ExecutionConfiguration : public ExecutionContextConfiguration {
-    private:
-        using ObserverPointer = std::shared_ptr<const observers::AggregateNotificationObserver>;
-        using ValidatorPointer = std::shared_ptr<const validators::stateful::AggregateNotificationValidator>;
-        using PublisherPointer = std::shared_ptr<const model::NotificationPublisher>;
+	/// Configuration for executing entities.
+	struct ExecutionConfiguration : public ExecutionContextConfiguration {
+	private:
+		using ObserverPointer = std::shared_ptr<const observers::AggregateNotificationObserver>;
+		using ValidatorPointer = std::shared_ptr<const validators::stateful::AggregateNotificationValidator>;
+		using PublisherPointer = std::shared_ptr<const model::NotificationPublisher>;
 
-    public:
-        /// Observer.
-        ObserverPointer pObserver;
+	public:
+		/// Observer.
+		ObserverPointer pObserver;
 
-        /// Stateful validator.
-        ValidatorPointer pValidator;
+		/// Stateful validator.
+		ValidatorPointer pValidator;
 
-        /// Notification publisher.
-        PublisherPointer pNotificationPublisher;
-    };
+		/// Notification publisher.
+		PublisherPointer pNotificationPublisher;
+	};
 }
 }

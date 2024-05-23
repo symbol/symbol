@@ -28,285 +28,268 @@ namespace disruptor {
 
 #define TEST_CLASS BatchRangeDispatcherTests
 
-    namespace {
-        constexpr auto Default_Equality_Strategy = model::NodeIdentityEqualityStrategy::Key_And_Host;
+	namespace {
+		constexpr auto Default_Equality_Strategy = model::NodeIdentityEqualityStrategy::Key_And_Host;
 
-        using BatchBlockRangeDispatcher = BatchRangeDispatcher<model::AnnotatedBlockRange>;
+		using BatchBlockRangeDispatcher = BatchRangeDispatcher<model::AnnotatedBlockRange>;
 
-        // region SourceToRangeMap
+		// region SourceToRangeMap
 
-        class SourceToRangeMap {
-        public:
-            using MapType = std::map<std::tuple<InputSource, Key, std::string>, model::BlockRange>;
+		class SourceToRangeMap {
+		public:
+			using MapType = std::map<std::tuple<InputSource, Key, std::string>, model::BlockRange>;
 
-        public:
-            SourceToRangeMap()
-                : m_size(0)
-            {
-            }
+		public:
+			SourceToRangeMap()
+				: m_size(0) {
+			}
 
-        public:
-            size_t size() const
-            {
-                return m_size;
-            }
+		public:
+			size_t size() const {
+				return m_size;
+			}
 
-            const auto& get() const
-            {
-                return m_map;
-            }
+			const auto& get() const {
+				return m_map;
+			}
 
-        public:
-            void insert(ConsumerInput&& input)
-            {
-                // Sanity:
-                auto key = std::make_tuple(input.source(), input.sourceIdentity().PublicKey, input.sourceIdentity().Host);
-                auto iter = m_map.find(key);
-                EXPECT_EQ(m_map.cend(), iter) << "unexpected entry for " << input.source() << ", " << input.sourceIdentity();
+		public:
+			void insert(ConsumerInput&& input) {
+				// Sanity:
+				auto key = std::make_tuple(input.source(), input.sourceIdentity().PublicKey, input.sourceIdentity().Host);
+				auto iter = m_map.find(key);
+				EXPECT_EQ(m_map.cend(), iter) << "unexpected entry for " << input.source() << ", " << input.sourceIdentity();
 
-                // Act:
-                m_map.emplace(key, input.detachBlockRange());
-                ++m_size;
-            }
+				// Act:
+				m_map.emplace(key, input.detachBlockRange());
+				++m_size;
+			}
 
-        private:
-            std::atomic<size_t> m_size;
-            MapType m_map;
-        };
+		private:
+			std::atomic<size_t> m_size;
+			MapType m_map;
+		};
 
-        // endregion
+		// endregion
 
-        template <typename TTestFunc>
-        void RunTestWithConsumerDispatcher(TTestFunc test)
-        {
-            // Arrange:
-            SourceToRangeMap inputs;
-            auto inputCaptureConsumer = [&inputs](auto&& input) {
-                inputs.insert(std::move(input));
-                return ConsumerResult::Continue();
-            };
+		template <typename TTestFunc>
+		void RunTestWithConsumerDispatcher(TTestFunc test) {
+			// Arrange:
+			SourceToRangeMap inputs;
+			auto inputCaptureConsumer = [&inputs](auto&& input) {
+				inputs.insert(std::move(input));
+				return ConsumerResult::Continue();
+			};
 
-            ConsumerDispatcher dispatcher({ "BatchDispatcherTests", 16u }, { inputCaptureConsumer });
+			ConsumerDispatcher dispatcher({ "BatchDispatcherTests", 16u }, { inputCaptureConsumer });
 
-            // Act:
-            test(dispatcher, inputs);
-        }
-    }
+			// Act:
+			test(dispatcher, inputs);
+		}
+	}
 
-    // region empty / queue
+	// region empty / queue
 
-    TEST(TEST_CLASS, BatchDispatcherIsInitiallyEmpty)
-    {
-        // Arrange:
-        RunTestWithConsumerDispatcher([](auto& dispatcher, const auto&) {
-            // Act:
-            BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
+	TEST(TEST_CLASS, BatchDispatcherIsInitiallyEmpty) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto&) {
+			// Act:
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
 
-            // Assert:
-            EXPECT_TRUE(batchDispatcher.empty());
-        });
-    }
+			// Assert:
+			EXPECT_TRUE(batchDispatcher.empty());
+		});
+	}
 
-    TEST(TEST_CLASS, CanQueueSingleRange)
-    {
-        // Arrange:
-        RunTestWithConsumerDispatcher([](auto& dispatcher, const auto&) {
-            BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
+	TEST(TEST_CLASS, CanQueueSingleRange) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto&) {
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
 
-            // Act:
-            batchDispatcher.queue(test::CreateBlockEntityRange(7), InputSource::Local);
+			// Act:
+			batchDispatcher.queue(test::CreateBlockEntityRange(7), InputSource::Local);
 
-            // Assert:
-            EXPECT_FALSE(batchDispatcher.empty());
-        });
-    }
+			// Assert:
+			EXPECT_FALSE(batchDispatcher.empty());
+		});
+	}
 
-    // endregion
+	// endregion
 
-    // region dispatch
+	// region dispatch
 
-    TEST(TEST_CLASS, DispatchWhenEmptyHasNoEffect)
-    {
-        // Arrange:
-        RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-            BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
+	TEST(TEST_CLASS, DispatchWhenEmptyHasNoEffect) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
 
-            // Act:
-            batchDispatcher.dispatch();
+			// Act:
+			batchDispatcher.dispatch();
 
-            // Assert:
-            EXPECT_TRUE(batchDispatcher.empty());
-            EXPECT_EQ(0u, dispatcher.numAddedElements());
-            EXPECT_EQ(0u, inputs.size());
-        });
-    }
+			// Assert:
+			EXPECT_TRUE(batchDispatcher.empty());
+			EXPECT_EQ(0u, dispatcher.numAddedElements());
+			EXPECT_EQ(0u, inputs.size());
+		});
+	}
 
-    namespace {
-        model::BlockRange CreateBlockEntityRange(size_t numBlocks, Height height)
-        {
-            auto range = test::CreateBlockEntityRange(numBlocks);
+	namespace {
+		model::BlockRange CreateBlockEntityRange(size_t numBlocks, Height height) {
+			auto range = test::CreateBlockEntityRange(numBlocks);
 
-            auto i = 0u;
-            for (auto& block : range)
-                block.Height = height + Height(i++);
+			auto i = 0u;
+			for (auto& block : range)
+				block.Height = height + Height(i++);
 
-            return range;
-        }
+			return range;
+		}
 
-        void AssertNumForwardedInputs(
-            const ConsumerDispatcher& dispatcher,
-            const BatchBlockRangeDispatcher& batchDispatcher,
-            const SourceToRangeMap& inputs,
-            size_t numExpectedInputs)
-        {
-            // Assert:
-            EXPECT_TRUE(batchDispatcher.empty());
-            EXPECT_EQ(numExpectedInputs, dispatcher.numAddedElements());
+		void AssertNumForwardedInputs(
+			const ConsumerDispatcher& dispatcher,
+			const BatchBlockRangeDispatcher& batchDispatcher,
+			const SourceToRangeMap& inputs,
+			size_t numExpectedInputs) {
+			// Assert:
+			EXPECT_TRUE(batchDispatcher.empty());
+			EXPECT_EQ(numExpectedInputs, dispatcher.numAddedElements());
 
-            // - wait for processing to finish
-            WAIT_FOR_VALUE_EXPR(numExpectedInputs, inputs.size());
-            EXPECT_EQ(numExpectedInputs, inputs.size());
-        }
+			// - wait for processing to finish
+			WAIT_FOR_VALUE_EXPR(numExpectedInputs, inputs.size());
+			EXPECT_EQ(numExpectedInputs, inputs.size());
+		}
 
-        void AssertDispatchedInput(
-            const SourceToRangeMap& inputs,
-            InputSource expectedSource,
-            const std::vector<Height::ValueType>& expectedHeights,
-            const Key& expectedSourcePublicKey = Key(),
-            const std::string& expectedSourceHost = std::string())
-        {
-            // Arrange:
-            auto iter = inputs.get().find(std::make_tuple(expectedSource, expectedSourcePublicKey, expectedSourceHost));
-            ASSERT_NE(inputs.get().cend(), iter) << "no entry for (source = " << expectedSource
-                                                 << ", publicKey = " << expectedSourcePublicKey << ", host = " << expectedSourceHost << ")";
-            const auto& entry = *iter;
+		void AssertDispatchedInput(
+			const SourceToRangeMap& inputs,
+			InputSource expectedSource,
+			const std::vector<Height::ValueType>& expectedHeights,
+			const Key& expectedSourcePublicKey = Key(),
+			const std::string& expectedSourceHost = std::string()) {
+			// Arrange:
+			auto iter = inputs.get().find(std::make_tuple(expectedSource, expectedSourcePublicKey, expectedSourceHost));
+			ASSERT_NE(inputs.get().cend(), iter) << "no entry for (source = " << expectedSource
+												 << ", publicKey = " << expectedSourcePublicKey << ", host = " << expectedSourceHost << ")";
+			const auto& entry = *iter;
 
-            std::vector<Height::ValueType> heights;
-            for (const auto& block : entry.second)
-                heights.push_back(block.Height.unwrap());
+			std::vector<Height::ValueType> heights;
+			for (const auto& block : entry.second)
+				heights.push_back(block.Height.unwrap());
 
-            // Assert:
-            EXPECT_EQ(expectedSource, std::get<0>(entry.first));
-            EXPECT_EQ(expectedSourcePublicKey, std::get<1>(entry.first));
-            EXPECT_EQ(expectedSourceHost, std::get<2>(entry.first));
-            EXPECT_EQ(expectedHeights, heights);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedSource, std::get<0>(entry.first));
+			EXPECT_EQ(expectedSourcePublicKey, std::get<1>(entry.first));
+			EXPECT_EQ(expectedSourceHost, std::get<2>(entry.first));
+			EXPECT_EQ(expectedHeights, heights);
+		}
+	}
 
-    TEST(TEST_CLASS, DispatchCanForwardSingleQueuedRange)
-    {
-        // Arrange:
-        RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-            BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
-            batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
+	TEST(TEST_CLASS, DispatchCanForwardSingleQueuedRange) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
+			batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
 
-            // Act:
-            batchDispatcher.dispatch();
+			// Act:
+			batchDispatcher.dispatch();
 
-            // Assert:
-            AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 1);
+			// Assert:
+			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 1);
 
-            AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8 });
-        });
-    }
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8 });
+		});
+	}
 
-    TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromSameSource)
-    {
-        // Arrange:
-        RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-            BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
-            batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
-            batchDispatcher.queue(CreateBlockEntityRange(2, Height(10)), InputSource::Local);
-            batchDispatcher.queue(CreateBlockEntityRange(4, Height(7)), InputSource::Local);
+	TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromSameSource) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
+			batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
+			batchDispatcher.queue(CreateBlockEntityRange(2, Height(10)), InputSource::Local);
+			batchDispatcher.queue(CreateBlockEntityRange(4, Height(7)), InputSource::Local);
 
-            // Act:
-            batchDispatcher.dispatch();
+			// Act:
+			batchDispatcher.dispatch();
 
-            // Assert:
-            AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 1);
+			// Assert:
+			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 1);
 
-            AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 10, 11, 7, 8, 9, 10 });
-        });
-    }
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 10, 11, 7, 8, 9, 10 });
+		});
+	}
 
-    TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromDifferentSourcesWithSameIdentity)
-    {
-        // Arrange:
-        RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-            BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
-            batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
-            batchDispatcher.queue(CreateBlockEntityRange(2, Height(10)), InputSource::Remote_Push);
-            batchDispatcher.queue(CreateBlockEntityRange(4, Height(7)), InputSource::Local);
-            batchDispatcher.queue(CreateBlockEntityRange(1, Height(50)), InputSource::Remote_Pull);
+	TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromDifferentSourcesWithSameIdentity) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
+			batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
+			batchDispatcher.queue(CreateBlockEntityRange(2, Height(10)), InputSource::Remote_Push);
+			batchDispatcher.queue(CreateBlockEntityRange(4, Height(7)), InputSource::Local);
+			batchDispatcher.queue(CreateBlockEntityRange(1, Height(50)), InputSource::Remote_Pull);
 
-            // Act:
-            batchDispatcher.dispatch();
+			// Act:
+			batchDispatcher.dispatch();
 
-            // Assert:
-            AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 3);
+			// Assert:
+			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 3);
 
-            AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 });
-            AssertDispatchedInput(inputs, InputSource::Remote_Pull, { 50 });
-            AssertDispatchedInput(inputs, InputSource::Remote_Push, { 10, 11 });
-        });
-    }
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 });
+			AssertDispatchedInput(inputs, InputSource::Remote_Pull, { 50 });
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 10, 11 });
+		});
+	}
 
-    namespace {
-        std::vector<Key> QueueVariedBlockRanges(BatchBlockRangeDispatcher& batchDispatcher)
-        {
-            auto keys = test::GenerateRandomDataVector<Key>(3);
-            batchDispatcher.queue({ CreateBlockEntityRange(3, Height(6)), { keys[1], "a" } }, InputSource::Local);
-            batchDispatcher.queue({ CreateBlockEntityRange(2, Height(10)), { keys[2], "a" } }, InputSource::Remote_Push);
-            batchDispatcher.queue({ CreateBlockEntityRange(4, Height(7)), { keys[1], "a" } }, InputSource::Local);
-            batchDispatcher.queue({ CreateBlockEntityRange(1, Height(50)), { keys[1], "a" } }, InputSource::Remote_Pull);
-            batchDispatcher.queue({ CreateBlockEntityRange(2, Height(70)), { keys[0], "a" } }, InputSource::Remote_Push);
-            batchDispatcher.queue({ CreateBlockEntityRange(3, Height(20)), { keys[2], "b" } }, InputSource::Remote_Push);
-            batchDispatcher.queue({ CreateBlockEntityRange(2, Height(60)), { keys[2], "a" } }, InputSource::Remote_Push);
-            return keys;
-        }
-    }
+	namespace {
+		std::vector<Key> QueueVariedBlockRanges(BatchBlockRangeDispatcher& batchDispatcher) {
+			auto keys = test::GenerateRandomDataVector<Key>(3);
+			batchDispatcher.queue({ CreateBlockEntityRange(3, Height(6)), { keys[1], "a" } }, InputSource::Local);
+			batchDispatcher.queue({ CreateBlockEntityRange(2, Height(10)), { keys[2], "a" } }, InputSource::Remote_Push);
+			batchDispatcher.queue({ CreateBlockEntityRange(4, Height(7)), { keys[1], "a" } }, InputSource::Local);
+			batchDispatcher.queue({ CreateBlockEntityRange(1, Height(50)), { keys[1], "a" } }, InputSource::Remote_Pull);
+			batchDispatcher.queue({ CreateBlockEntityRange(2, Height(70)), { keys[0], "a" } }, InputSource::Remote_Push);
+			batchDispatcher.queue({ CreateBlockEntityRange(3, Height(20)), { keys[2], "b" } }, InputSource::Remote_Push);
+			batchDispatcher.queue({ CreateBlockEntityRange(2, Height(60)), { keys[2], "a" } }, InputSource::Remote_Push);
+			return keys;
+		}
+	}
 
-    TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromDifferentSourcesAndDifferentIdentities)
-    {
-        // Arrange:
-        RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-            BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
-            auto keys = QueueVariedBlockRanges(batchDispatcher);
+	TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromDifferentSourcesAndDifferentIdentities) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher, Default_Equality_Strategy);
+			auto keys = QueueVariedBlockRanges(batchDispatcher);
 
-            // Act:
-            batchDispatcher.dispatch();
+			// Act:
+			batchDispatcher.dispatch();
 
-            // Assert:
-            AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 5);
+			// Assert:
+			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 5);
 
-            AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 }, keys[1], "a");
-            AssertDispatchedInput(inputs, InputSource::Remote_Push, { 10, 11, 60, 61 }, keys[2], "a");
-            AssertDispatchedInput(inputs, InputSource::Remote_Pull, { 50 }, keys[1], "a");
-            AssertDispatchedInput(inputs, InputSource::Remote_Push, { 70, 71 }, keys[0], "a");
-            AssertDispatchedInput(inputs, InputSource::Remote_Push, { 20, 21, 22 }, keys[2], "b");
-        });
-    }
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 }, keys[1], "a");
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 10, 11, 60, 61 }, keys[2], "a");
+			AssertDispatchedInput(inputs, InputSource::Remote_Pull, { 50 }, keys[1], "a");
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 70, 71 }, keys[0], "a");
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 20, 21, 22 }, keys[2], "b");
+		});
+	}
 
-    TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromDifferentSourcesAndDifferentIdentities_CustomEqualityStrategy)
-    {
-        // Arrange:
-        RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-            BatchBlockRangeDispatcher batchDispatcher(dispatcher, model::NodeIdentityEqualityStrategy::Key);
-            auto keys = QueueVariedBlockRanges(batchDispatcher);
+	TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromDifferentSourcesAndDifferentIdentities_CustomEqualityStrategy) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher, model::NodeIdentityEqualityStrategy::Key);
+			auto keys = QueueVariedBlockRanges(batchDispatcher);
 
-            // Act:
-            batchDispatcher.dispatch();
+			// Act:
+			batchDispatcher.dispatch();
 
-            // Assert:
-            AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 4);
+			// Assert:
+			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 4);
 
-            AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 }, keys[1], "a");
-            AssertDispatchedInput(inputs, InputSource::Remote_Push, { 10, 11, 20, 21, 22, 60, 61 }, keys[2], "a");
-            AssertDispatchedInput(inputs, InputSource::Remote_Pull, { 50 }, keys[1], "a");
-            AssertDispatchedInput(inputs, InputSource::Remote_Push, { 70, 71 }, keys[0], "a");
-        });
-    }
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 }, keys[1], "a");
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 10, 11, 20, 21, 22, 60, 61 }, keys[2], "a");
+			AssertDispatchedInput(inputs, InputSource::Remote_Pull, { 50 }, keys[1], "a");
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 70, 71 }, keys[0], "a");
+		});
+	}
 
-    // endregion
+	// endregion
 }
 }

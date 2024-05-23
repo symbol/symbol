@@ -28,39 +28,36 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MongoSecretLockInfoCacheStorageTests
 
-        namespace {
-            struct SecretLockCacheTraits {
-                using CacheType = cache::SecretLockInfoCache;
-                using ModelType = state::SecretLockInfo;
+		namespace {
+			struct SecretLockCacheTraits {
+				using CacheType = cache::SecretLockInfoCache;
+				using ModelType = state::SecretLockInfo;
 
-                static constexpr auto Collection_Name = "secretLocks";
-                static constexpr auto Id_Property_Name = "compositeHash";
+				static constexpr auto Collection_Name = "secretLocks";
+				static constexpr auto Id_Property_Name = "compositeHash";
 
-                static constexpr auto CreateCacheStorage = CreateMongoSecretLockInfoCacheStorage;
-                static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
+				static constexpr auto CreateCacheStorage = CreateMongoSecretLockInfoCacheStorage;
+				static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
 
-                static auto GetId(const ModelType& lockInfo)
-                {
-                    return lockInfo.CompositeHash;
-                }
+				static auto GetId(const ModelType& lockInfo) {
+					return lockInfo.CompositeHash;
+				}
 
-                static cache::CatapultCache CreateCache()
-                {
-                    return test::SecretLockInfoCacheFactory::Create();
-                }
+				static cache::CatapultCache CreateCache() {
+					return test::SecretLockInfoCacheFactory::Create();
+				}
 
-                static ModelType GenerateRandomElement(uint32_t id)
-                {
-                    return test::BasicSecretLockInfoTestTraits::CreateLockInfo(Height(id));
-                }
-            };
-        }
+				static ModelType GenerateRandomElement(uint32_t id) {
+					return test::BasicSecretLockInfoTestTraits::CreateLockInfo(Height(id));
+				}
+			};
+		}
 
-        DEFINE_FLAT_CACHE_STORAGE_TESTS(MongoLockInfoCacheStorageTestTraits<SecretLockCacheTraits>, )
-    }
+		DEFINE_FLAT_CACHE_STORAGE_TESTS(MongoLockInfoCacheStorageTestTraits<SecretLockCacheTraits>, )
+	}
 }
 }

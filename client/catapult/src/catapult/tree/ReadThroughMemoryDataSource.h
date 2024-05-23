@@ -25,62 +25,55 @@
 namespace catapult {
 namespace tree {
 
-    /// Patricia tree memory data source that reads through but does not write through.
-    template <typename TBackingDataSource>
-    class ReadThroughMemoryDataSource {
-    public:
-        /// Creates a data source around \a backingDataSource with specified \a verbosity.
-        explicit ReadThroughMemoryDataSource(
-            const TBackingDataSource& backingDataSource,
-            DataSourceVerbosity verbosity = DataSourceVerbosity::Off)
-            : m_backingDataSource(backingDataSource)
-            , m_memoryDataSource(verbosity)
-        {
-        }
+	/// Patricia tree memory data source that reads through but does not write through.
+	template <typename TBackingDataSource>
+	class ReadThroughMemoryDataSource {
+	public:
+		/// Creates a data source around \a backingDataSource with specified \a verbosity.
+		explicit ReadThroughMemoryDataSource(
+			const TBackingDataSource& backingDataSource,
+			DataSourceVerbosity verbosity = DataSourceVerbosity::Off)
+			: m_backingDataSource(backingDataSource)
+			, m_memoryDataSource(verbosity) {
+		}
 
-    public:
-        /// Gets the number of saved nodes in the in memory cache.
-        size_t size() const
-        {
-            return m_memoryDataSource.size();
-        }
+	public:
+		/// Gets the number of saved nodes in the in memory cache.
+		size_t size() const {
+			return m_memoryDataSource.size();
+		}
 
-    public:
-        /// Gets the tree node associated with \a hash.
-        TreeNode get(const Hash256& hash) const
-        {
-            auto node = m_memoryDataSource.get(hash);
-            return !node.empty() ? std::move(node) : m_backingDataSource.get(hash);
-        }
+	public:
+		/// Gets the tree node associated with \a hash.
+		TreeNode get(const Hash256& hash) const {
+			auto node = m_memoryDataSource.get(hash);
+			return !node.empty() ? std::move(node) : m_backingDataSource.get(hash);
+		}
 
-        /// Gets all nodes in memory and passes them to \a consumer.
-        void forEach(const consumer<const TreeNode&>& consumer) const
-        {
-            m_memoryDataSource.forEach(consumer);
-        }
+		/// Gets all nodes in memory and passes them to \a consumer.
+		void forEach(const consumer<const TreeNode&>& consumer) const {
+			m_memoryDataSource.forEach(consumer);
+		}
 
-    public:
-        /// Saves a leaf tree \a node.
-        void set(const LeafTreeNode& node)
-        {
-            m_memoryDataSource.set(node);
-        }
+	public:
+		/// Saves a leaf tree \a node.
+		void set(const LeafTreeNode& node) {
+			m_memoryDataSource.set(node);
+		}
 
-        /// Saves a branch tree \a node.
-        void set(const BranchTreeNode& node)
-        {
-            m_memoryDataSource.set(node);
-        }
+		/// Saves a branch tree \a node.
+		void set(const BranchTreeNode& node) {
+			m_memoryDataSource.set(node);
+		}
 
-        /// Clears all cached memory nodes.
-        void clear()
-        {
-            m_memoryDataSource.clear();
-        }
+		/// Clears all cached memory nodes.
+		void clear() {
+			m_memoryDataSource.clear();
+		}
 
-    private:
-        const TBackingDataSource& m_backingDataSource;
-        MemoryDataSource m_memoryDataSource;
-    };
+	private:
+		const TBackingDataSource& m_backingDataSource;
+		MemoryDataSource m_memoryDataSource;
+	};
 }
 }

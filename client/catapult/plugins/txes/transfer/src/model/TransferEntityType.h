@@ -28,8 +28,8 @@ namespace model {
 
 #endif
 
-    /// Transfer transaction.
-    DEFINE_TRANSACTION_TYPE(Transfer, Transfer, 0x1);
+	/// Transfer transaction.
+	DEFINE_TRANSACTION_TYPE(Transfer, Transfer, 0x1);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

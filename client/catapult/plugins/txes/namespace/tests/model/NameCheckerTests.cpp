@@ -28,65 +28,57 @@ namespace model {
 
 #define TEST_CLASS NameCheckerTests
 
-    namespace {
-        bool IsValidName(const std::string& str)
-        {
-            return model::IsValidName(reinterpret_cast<const uint8_t*>(str.data()), str.size());
-        }
-    }
+	namespace {
+		bool IsValidName(const std::string& str) {
+			return model::IsValidName(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+		}
+	}
 
-    TEST(TEST_CLASS, NameIsValidWhenAllCharactersAreAlphaNumeric_Random)
-    {
-        // Arrange:
-        auto name = test::GenerateValidName(7);
+	TEST(TEST_CLASS, NameIsValidWhenAllCharactersAreAlphaNumeric_Random) {
+		// Arrange:
+		auto name = test::GenerateValidName(7);
 
-        // Assert:
-        EXPECT_TRUE(IsValidName(name));
-    }
+		// Assert:
+		EXPECT_TRUE(IsValidName(name));
+	}
 
-    TEST(TEST_CLASS, NameIsInvalidWhenNoCharactersAreAlphaNumeric_Random)
-    {
-        // Arrange:
-        auto name = test::GenerateValidName(7);
-        for (auto& ch : name)
-            ch = static_cast<char>(ch ^ 0xFF);
+	TEST(TEST_CLASS, NameIsInvalidWhenNoCharactersAreAlphaNumeric_Random) {
+		// Arrange:
+		auto name = test::GenerateValidName(7);
+		for (auto& ch : name)
+			ch = static_cast<char>(ch ^ 0xFF);
 
-        // Assert:
-        EXPECT_FALSE(IsValidName(name));
-    }
+		// Assert:
+		EXPECT_FALSE(IsValidName(name));
+	}
 
-    TEST(TEST_CLASS, NameIsInvalidWhenSingleCharactersIsNotAlphaNumeric_Random)
-    {
-        // Arrange:
-        auto name = test::GenerateValidName(7);
-        name[3] = static_cast<char>(name[3] ^ 0xFF);
+	TEST(TEST_CLASS, NameIsInvalidWhenSingleCharactersIsNotAlphaNumeric_Random) {
+		// Arrange:
+		auto name = test::GenerateValidName(7);
+		name[3] = static_cast<char>(name[3] ^ 0xFF);
 
-        // Assert:
-        EXPECT_FALSE(IsValidName(name));
-    }
+		// Assert:
+		EXPECT_FALSE(IsValidName(name));
+	}
 
-    TEST(TEST_CLASS, NameIsValidWhenAllCharactersAreAlphaNumeric)
-    {
-        for (const auto& name : { "a", "be", "cat", "doom" })
-            EXPECT_TRUE(IsValidName(name));
-    }
+	TEST(TEST_CLASS, NameIsValidWhenAllCharactersAreAlphaNumeric) {
+		for (const auto& name : { "a", "be", "cat", "doom" })
+			EXPECT_TRUE(IsValidName(name));
+	}
 
-    TEST(TEST_CLASS, NameIsValidWhenItContainsSeparator)
-    {
-        for (const auto& name : { "al-ce", "al_ce", "alice-", "alice_" })
-            EXPECT_TRUE(IsValidName(name));
-    }
+	TEST(TEST_CLASS, NameIsValidWhenItContainsSeparator) {
+		for (const auto& name : { "al-ce", "al_ce", "alice-", "alice_" })
+			EXPECT_TRUE(IsValidName(name));
+	}
 
-    TEST(TEST_CLASS, NameIsInvalidWhenItStartsWithSeparator)
-    {
-        for (const auto& name : { "-alice", "_alice" })
-            EXPECT_FALSE(IsValidName(name));
-    }
+	TEST(TEST_CLASS, NameIsInvalidWhenItStartsWithSeparator) {
+		for (const auto& name : { "-alice", "_alice" })
+			EXPECT_FALSE(IsValidName(name));
+	}
 
-    TEST(TEST_CLASS, NameIsInvalidWhenItContainsInvalidCharacters)
-    {
-        for (const auto& name : { "al.ce", "alIce", "al ce", "al@ce", "al#ce" })
-            EXPECT_FALSE(IsValidName(name));
-    }
+	TEST(TEST_CLASS, NameIsInvalidWhenItContainsInvalidCharacters) {
+		for (const auto& name : { "al.ce", "alIce", "al ce", "al@ce", "al#ce" })
+			EXPECT_FALSE(IsValidName(name));
+	}
 }
 }

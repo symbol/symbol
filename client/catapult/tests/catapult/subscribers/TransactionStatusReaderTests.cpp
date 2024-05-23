@@ -30,38 +30,36 @@ namespace subscribers {
 
 #define TEST_CLASS TransactionStatusReaderTests
 
-    namespace {
-        void AssertEqual(
-            const test::TransactionStatusNotification& expected,
-            const mocks::TransactionStatusSubscriberStatusParams& actual,
-            const std::string& message)
-        {
-            EXPECT_EQ(*expected.pTransaction, *actual.pTransactionCopy) << message;
-            EXPECT_EQ(expected.Hash, actual.HashCopy) << message;
-            EXPECT_EQ(expected.Status, actual.Status) << message;
-        }
-    }
+	namespace {
+		void AssertEqual(
+			const test::TransactionStatusNotification& expected,
+			const mocks::TransactionStatusSubscriberStatusParams& actual,
+			const std::string& message) {
+			EXPECT_EQ(*expected.pTransaction, *actual.pTransactionCopy) << message;
+			EXPECT_EQ(expected.Hash, actual.HashCopy) << message;
+			EXPECT_EQ(expected.Status, actual.Status) << message;
+		}
+	}
 
-    TEST(TEST_CLASS, CanReadSingle)
-    {
-        // Arrange:
-        auto notification = test::GenerateRandomTransactionStatusNotification(141);
+	TEST(TEST_CLASS, CanReadSingle) {
+		// Arrange:
+		auto notification = test::GenerateRandomTransactionStatusNotification(141);
 
-        std::vector<uint8_t> buffer;
-        mocks::MockMemoryStream stream(buffer);
-        test::WriteTransactionStatusNotification(stream, notification);
-        stream.seek(0);
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
+		test::WriteTransactionStatusNotification(stream, notification);
+		stream.seek(0);
 
-        mocks::MockTransactionStatusSubscriber subscriber;
+		mocks::MockTransactionStatusSubscriber subscriber;
 
-        // Act:
-        ReadNextTransactionStatus(stream, subscriber);
+		// Act:
+		ReadNextTransactionStatus(stream, subscriber);
 
-        // Assert:
-        ASSERT_EQ(1u, subscriber.numNotifies());
-        AssertEqual(notification, subscriber.params()[0], "at 0");
+		// Assert:
+		ASSERT_EQ(1u, subscriber.numNotifies());
+		AssertEqual(notification, subscriber.params()[0], "at 0");
 
-        EXPECT_EQ(0u, subscriber.numFlushes());
-    }
+		EXPECT_EQ(0u, subscriber.numFlushes());
+	}
 }
 }

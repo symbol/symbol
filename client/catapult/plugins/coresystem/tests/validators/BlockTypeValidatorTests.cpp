@@ -28,82 +28,76 @@ namespace validators {
 
 #define TEST_CLASS BlockTypeValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(BlockType, 123)
+	DEFINE_COMMON_VALIDATOR_TESTS(BlockType, 123)
 
-    namespace {
-        void AssertValidationResult(
-            ValidationResult expectedResult,
-            uint64_t importanceGrouping,
-            model::EntityType blockType,
-            Height blockHeight)
-        {
-            // Arrange:
-            auto notification = model::BlockTypeNotification(blockType, blockHeight);
-            auto pValidator = CreateBlockTypeValidator(importanceGrouping);
+	namespace {
+		void AssertValidationResult(
+			ValidationResult expectedResult,
+			uint64_t importanceGrouping,
+			model::EntityType blockType,
+			Height blockHeight) {
+			// Arrange:
+			auto notification = model::BlockTypeNotification(blockType, blockHeight);
+			auto pValidator = CreateBlockTypeValidator(importanceGrouping);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "importanceGrouping = " << importanceGrouping << ", blockType = " << blockType
-                                              << ", blockHeight = " << blockHeight;
-        }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "importanceGrouping = " << importanceGrouping << ", blockType = " << blockType
+											  << ", blockHeight = " << blockHeight;
+		}
 
-        void AssertValidationResultMultiple(model::EntityType successBlockType, uint64_t importanceGrouping, Height blockHeight)
-        {
-            // Arrange:
-            auto blockTypes = std::initializer_list<model::EntityType> { model::Entity_Type_Block_Nemesis,
-                model::Entity_Type_Block_Normal,
-                model::Entity_Type_Block_Importance,
-                model::Entity_Type_Voting_Key_Link };
+		void AssertValidationResultMultiple(model::EntityType successBlockType, uint64_t importanceGrouping, Height blockHeight) {
+			// Arrange:
+			auto blockTypes = std::initializer_list<model::EntityType> { model::Entity_Type_Block_Nemesis,
+				model::Entity_Type_Block_Normal,
+				model::Entity_Type_Block_Importance,
+				model::Entity_Type_Voting_Key_Link };
 
-            for (auto blockType : blockTypes) {
-                auto expectedResult = successBlockType == blockType ? ValidationResult::Success : Failure_Core_Unexpected_Block_Type;
+			for (auto blockType : blockTypes) {
+				auto expectedResult = successBlockType == blockType ? ValidationResult::Success : Failure_Core_Unexpected_Block_Type;
 
-                // Act + Assert:
-                AssertValidationResult(expectedResult, importanceGrouping, blockType, blockHeight);
-            }
-        }
-    }
+				// Act + Assert:
+				AssertValidationResult(expectedResult, importanceGrouping, blockType, blockHeight);
+			}
+		}
+	}
 
-    // region validation
+	// region validation
 
-    TEST(TEST_CLASS, HeightZero_MustBeImportanceBlock)
-    {
-        AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 50, Height(0));
+	TEST(TEST_CLASS, HeightZero_MustBeImportanceBlock) {
+		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 50, Height(0));
 
-        AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 123, Height(0));
-    }
+		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 123, Height(0));
+	}
 
-    TEST(TEST_CLASS, HeightOne_MustBeNemesisBlock)
-    {
-        AssertValidationResultMultiple(model::Entity_Type_Block_Nemesis, 50, Height(1));
+	TEST(TEST_CLASS, HeightOne_MustBeNemesisBlock) {
+		AssertValidationResultMultiple(model::Entity_Type_Block_Nemesis, 50, Height(1));
 
-        AssertValidationResultMultiple(model::Entity_Type_Block_Nemesis, 123, Height(1));
-    }
+		AssertValidationResultMultiple(model::Entity_Type_Block_Nemesis, 123, Height(1));
+	}
 
-    TEST(TEST_CLASS, HeightImportanceGrouping_MustBeImportanceBlock)
-    {
-        AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 50, Height(150));
-        AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 50, Height(300));
+	TEST(TEST_CLASS, HeightImportanceGrouping_MustBeImportanceBlock) {
+		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 50, Height(150));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 50, Height(300));
 
-        AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 123, Height(123));
-        AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 123, Height(246));
-    }
+		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 123, Height(123));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 123, Height(246));
+	}
 
-    TEST(TEST_CLASS, HeightNotImportanceGrouping_MustBeNormalBlock)
-    {
-        AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(25));
-        AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(49));
-        AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(51));
-        AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(75));
+	TEST(TEST_CLASS, HeightNotImportanceGrouping_MustBeNormalBlock) {
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(25));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(49));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(51));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(75));
 
-        AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(100));
-        AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(122));
-        AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(124));
-        AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(200));
-    }
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(100));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(122));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(124));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(200));
+	}
 
-    // endregion
+	// endregion
 }
 }

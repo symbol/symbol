@@ -27,17 +27,17 @@
 namespace catapult {
 namespace validators {
 
-    /// Weakly typed stateless entity validator.
-    class StatelessEntityValidator {
-    public:
-        virtual ~StatelessEntityValidator() = default;
+	/// Weakly typed stateless entity validator.
+	class StatelessEntityValidator {
+	public:
+		virtual ~StatelessEntityValidator() = default;
 
-    public:
-        /// Gets the validator name.
-        virtual const std::string& name() const = 0;
+	public:
+		/// Gets the validator name.
+		virtual const std::string& name() const = 0;
 
-        /// Validates a single \a entityInfo with contextual information \a args.
-        virtual ValidationResult validate(const model::WeakEntityInfo& entityInfo) const = 0;
-    };
+		/// Validates a single \a entityInfo with contextual information \a args.
+		virtual ValidationResult validate(const model::WeakEntityInfo& entityInfo) const = 0;
+	};
 }
 }

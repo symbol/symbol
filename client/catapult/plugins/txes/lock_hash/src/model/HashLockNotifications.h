@@ -25,82 +25,80 @@
 namespace catapult {
 namespace model {
 
-    // region hash lock notification types
+	// region hash lock notification types
 
 /// Defines a hash lock notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
 #define DEFINE_HASH_LOCK_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, LockHash, DESCRIPTION, CODE)
 
-    /// Hash lock duration.
-    DEFINE_HASH_LOCK_NOTIFICATION(Hash_Duration, 0x0001, Validator);
+	/// Hash lock duration.
+	DEFINE_HASH_LOCK_NOTIFICATION(Hash_Duration, 0x0001, Validator);
 
-    /// Hash lock mosaic.
-    DEFINE_HASH_LOCK_NOTIFICATION(Mosaic, 0x0002, Validator);
+	/// Hash lock mosaic.
+	DEFINE_HASH_LOCK_NOTIFICATION(Mosaic, 0x0002, Validator);
 
-    /// Hash lock creation.
-    DEFINE_HASH_LOCK_NOTIFICATION(Hash, 0x0003, All);
+	/// Hash lock creation.
+	DEFINE_HASH_LOCK_NOTIFICATION(Hash, 0x0003, All);
 
 #undef DEFINE_HASH_LOCK_NOTIFICATION
 
-    // endregion
+	// endregion
 
-    // region HashLockMosaicNotification
+	// region HashLockMosaicNotification
 
-    /// Notification of a hash lock mosaic.
-    struct HashLockMosaicNotification : public Notification {
-    public:
-        /// Matching notification type.
-        static constexpr auto Notification_Type = LockHash_Mosaic_Notification;
+	/// Notification of a hash lock mosaic.
+	struct HashLockMosaicNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = LockHash_Mosaic_Notification;
 
-    public:
-        /// Creates a notification around \a mosaic.
-        explicit HashLockMosaicNotification(UnresolvedMosaic mosaic)
-            : Notification(Notification_Type, sizeof(HashLockMosaicNotification))
-            , Mosaic(mosaic)
-        {
-        }
+	public:
+		/// Creates a notification around \a mosaic.
+		explicit HashLockMosaicNotification(UnresolvedMosaic mosaic)
+			: Notification(Notification_Type, sizeof(HashLockMosaicNotification))
+			, Mosaic(mosaic) {
+		}
 
-    public:
-        /// Locked mosaic.
-        UnresolvedMosaic Mosaic;
-    };
+	public:
+		/// Locked mosaic.
+		UnresolvedMosaic Mosaic;
+	};
 
-    // endregion
+	// endregion
 
-    // region HashLockDurationNotification
+	// region HashLockDurationNotification
 
-    /// Notification of a hash lock duration.
-    struct HashLockDurationNotification : public BaseLockDurationNotification<HashLockDurationNotification> {
-    public:
-        /// Matching notification type.
-        static constexpr auto Notification_Type = LockHash_Hash_Duration_Notification;
+	/// Notification of a hash lock duration.
+	struct HashLockDurationNotification : public BaseLockDurationNotification<HashLockDurationNotification> {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = LockHash_Hash_Duration_Notification;
 
-    public:
-        using BaseLockDurationNotification<HashLockDurationNotification>::BaseLockDurationNotification;
-    };
+	public:
+		using BaseLockDurationNotification<HashLockDurationNotification>::BaseLockDurationNotification;
+	};
 
-    // endregion
+	// endregion
 
-    // region HashLockNotification
+	// region HashLockNotification
 
-    /// Notification of a hash lock.
-    struct HashLockNotification : public BaseLockNotification<HashLockNotification> {
-    public:
-        /// Matching notification type.
-        static constexpr auto Notification_Type = LockHash_Hash_Notification;
+	/// Notification of a hash lock.
+	struct HashLockNotification : public BaseLockNotification<HashLockNotification> {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = LockHash_Hash_Notification;
 
-    public:
-        /// Creates hash lock notification around \a owner, \a mosaic, \a duration and \a hash.
-        HashLockNotification(const Address& owner, const UnresolvedMosaic& mosaic, BlockDuration duration, const Hash256& hash)
-            : BaseLockNotification(owner, mosaic, duration)
-            , Hash(hash)
-        {
-        }
+	public:
+		/// Creates hash lock notification around \a owner, \a mosaic, \a duration and \a hash.
+		HashLockNotification(const Address& owner, const UnresolvedMosaic& mosaic, BlockDuration duration, const Hash256& hash)
+			: BaseLockNotification(owner, mosaic, duration)
+			, Hash(hash) {
+		}
 
-    public:
-        /// Hash.
-        const Hash256& Hash;
-    };
+	public:
+		/// Hash.
+		const Hash256& Hash;
+	};
 
-    // endregion
+	// endregion
 }
 }

@@ -26,32 +26,32 @@
 namespace catapult {
 namespace disruptor {
 
-    /// Typed disruptor consumer function.
-    template <typename TInput>
-    using DisruptorConsumerT = std::function<ConsumerResult(TInput&)>;
+	/// Typed disruptor consumer function.
+	template <typename TInput>
+	using DisruptorConsumerT = std::function<ConsumerResult(TInput&)>;
 
-    /// Disruptor consumer function.
-    using DisruptorConsumer = DisruptorConsumerT<ConsumerInput>;
+	/// Disruptor consumer function.
+	using DisruptorConsumer = DisruptorConsumerT<ConsumerInput>;
 
-    /// Const disruptor consumer function.
-    using ConstDisruptorConsumer = DisruptorConsumerT<const ConsumerInput>;
+	/// Const disruptor consumer function.
+	using ConstDisruptorConsumer = DisruptorConsumerT<const ConsumerInput>;
 
-    /// Block disruptor consumer function.
-    using BlockConsumer = DisruptorConsumerT<BlockElements>;
+	/// Block disruptor consumer function.
+	using BlockConsumer = DisruptorConsumerT<BlockElements>;
 
-    /// Const block disruptor consumer function.
-    using ConstBlockConsumer = DisruptorConsumerT<const BlockElements>;
+	/// Const block disruptor consumer function.
+	using ConstBlockConsumer = DisruptorConsumerT<const BlockElements>;
 
-    /// Transaction disruptor consumer function.
-    using TransactionConsumer = DisruptorConsumerT<TransactionElements>;
+	/// Transaction disruptor consumer function.
+	using TransactionConsumer = DisruptorConsumerT<TransactionElements>;
 
-    /// Const transaction disruptor consumer function.
-    using ConstTransactionConsumer = DisruptorConsumerT<const TransactionElements>;
+	/// Const transaction disruptor consumer function.
+	using ConstTransactionConsumer = DisruptorConsumerT<const TransactionElements>;
 
-    /// Maps \a blockConsumers to disruptor consumers so that they can be used to create a ConsumerDispatcher.
-    std::vector<DisruptorConsumer> DisruptorConsumersFromBlockConsumers(const std::vector<BlockConsumer>& blockConsumers);
+	/// Maps \a blockConsumers to disruptor consumers so that they can be used to create a ConsumerDispatcher.
+	std::vector<DisruptorConsumer> DisruptorConsumersFromBlockConsumers(const std::vector<BlockConsumer>& blockConsumers);
 
-    /// Maps \a transactionConsumers to disruptor consumers so that they can be used to create a ConsumerDispatcher.
-    std::vector<DisruptorConsumer> DisruptorConsumersFromTransactionConsumers(const std::vector<TransactionConsumer>& transactionConsumers);
+	/// Maps \a transactionConsumers to disruptor consumers so that they can be used to create a ConsumerDispatcher.
+	std::vector<DisruptorConsumer> DisruptorConsumersFromTransactionConsumers(const std::vector<TransactionConsumer>& transactionConsumers);
 }
 }

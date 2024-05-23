@@ -26,39 +26,32 @@
 namespace catapult {
 namespace state {
 
-    Height MosaicDefinition::startHeight() const
-    {
-        return m_startHeight;
-    }
+	Height MosaicDefinition::startHeight() const {
+		return m_startHeight;
+	}
 
-    const Address& MosaicDefinition::ownerAddress() const
-    {
-        return m_ownerAddress;
-    }
+	const Address& MosaicDefinition::ownerAddress() const {
+		return m_ownerAddress;
+	}
 
-    uint32_t MosaicDefinition::revision() const
-    {
-        return m_revision;
-    }
+	uint32_t MosaicDefinition::revision() const {
+		return m_revision;
+	}
 
-    const model::MosaicProperties& MosaicDefinition::properties() const
-    {
-        return m_properties;
-    }
+	const model::MosaicProperties& MosaicDefinition::properties() const {
+		return m_properties;
+	}
 
-    bool MosaicDefinition::isEternal() const
-    {
-        return Eternal_Artifact_Duration == m_properties.duration();
-    }
+	bool MosaicDefinition::isEternal() const {
+		return Eternal_Artifact_Duration == m_properties.duration();
+	}
 
-    bool MosaicDefinition::isActive(Height height) const
-    {
-        return isEternal() || (height < Height(m_startHeight.unwrap() + m_properties.duration().unwrap()) && height >= m_startHeight);
-    }
+	bool MosaicDefinition::isActive(Height height) const {
+		return isEternal() || (height < Height(m_startHeight.unwrap() + m_properties.duration().unwrap()) && height >= m_startHeight);
+	}
 
-    bool MosaicDefinition::isExpired(Height height) const
-    {
-        return !isEternal() && m_startHeight + Height(m_properties.duration().unwrap()) <= height;
-    }
+	bool MosaicDefinition::isExpired(Height height) const {
+		return !isEternal() && m_startHeight + Height(m_properties.duration().unwrap()) <= height;
+	}
 }
 }

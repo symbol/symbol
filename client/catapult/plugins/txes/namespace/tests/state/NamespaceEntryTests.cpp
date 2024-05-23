@@ -28,76 +28,71 @@ namespace state {
 
 #define TEST_CLASS NamespaceEntryTests
 
-    // region basic
+	// region basic
 
-    TEST(TEST_CLASS, CanCreateUninitializedNamespaceEntry)
-    {
-        // Act + Assert: no exceptions
-        NamespaceEntry();
-    }
+	TEST(TEST_CLASS, CanCreateUninitializedNamespaceEntry) {
+		// Act + Assert: no exceptions
+		NamespaceEntry();
+	}
 
-    // endregion
+	// endregion
 
-    // region compatible
+	// region compatible
 
-    TEST(TEST_CLASS, CanCreateNamespaceEntryAroundRoot)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-        auto ns = Namespace(test::CreatePath({ 123 }));
+	TEST(TEST_CLASS, CanCreateNamespaceEntryAroundRoot) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
+		auto ns = Namespace(test::CreatePath({ 123 }));
 
-        // Act:
-        auto entry = NamespaceEntry(ns, root);
+		// Act:
+		auto entry = NamespaceEntry(ns, root);
 
-        // Assert:
-        EXPECT_EQ(ns, entry.ns());
-        EXPECT_EQ(root, entry.root());
-        EXPECT_TRUE(entry.ns().isRoot());
-    }
+		// Assert:
+		EXPECT_EQ(ns, entry.ns());
+		EXPECT_EQ(root, entry.root());
+		EXPECT_TRUE(entry.ns().isRoot());
+	}
 
-    TEST(TEST_CLASS, CanCreateNamespaceEntryAroundChild)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-        auto ns = Namespace(test::CreatePath({ 123, 234, 456 }));
+	TEST(TEST_CLASS, CanCreateNamespaceEntryAroundChild) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
+		auto ns = Namespace(test::CreatePath({ 123, 234, 456 }));
 
-        // Act:
-        auto entry = NamespaceEntry(ns, root);
+		// Act:
+		auto entry = NamespaceEntry(ns, root);
 
-        // Assert:
-        EXPECT_EQ(ns, entry.ns());
-        EXPECT_EQ(root, entry.root());
-        EXPECT_FALSE(entry.ns().isRoot());
-    }
+		// Assert:
+		EXPECT_EQ(ns, entry.ns());
+		EXPECT_EQ(root, entry.root());
+		EXPECT_FALSE(entry.ns().isRoot());
+	}
 
-    // endregion
+	// endregion
 
-    // region incompatible
+	// region incompatible
 
-    TEST(TEST_CLASS, CannotCreateNamespaceEntryAroundIncompatibleRoot)
-    {
-        // Arrange: root.id() != ns.rootId()
-        auto owner = test::CreateRandomOwner();
-        auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-        auto ns = Namespace(test::CreatePath({ 124 }));
+	TEST(TEST_CLASS, CannotCreateNamespaceEntryAroundIncompatibleRoot) {
+		// Arrange: root.id() != ns.rootId()
+		auto owner = test::CreateRandomOwner();
+		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
+		auto ns = Namespace(test::CreatePath({ 124 }));
 
-        // Act + Assert:
-        EXPECT_THROW(NamespaceEntry(ns, root), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(NamespaceEntry(ns, root), catapult_invalid_argument);
+	}
 
-    TEST(TEST_CLASS, CannotCreateNamespaceEntryAroundIncompatibleChild)
-    {
-        // Arrange: root.id() != ns.rootId()
-        auto owner = test::CreateRandomOwner();
-        auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-        auto ns = Namespace(test::CreatePath({ 124, 234, 456 }));
+	TEST(TEST_CLASS, CannotCreateNamespaceEntryAroundIncompatibleChild) {
+		// Arrange: root.id() != ns.rootId()
+		auto owner = test::CreateRandomOwner();
+		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
+		auto ns = Namespace(test::CreatePath({ 124, 234, 456 }));
 
-        // Act + Assert:
-        EXPECT_THROW(NamespaceEntry(ns, root), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(NamespaceEntry(ns, root), catapult_invalid_argument);
+	}
 
-    // endregion
+	// endregion
 }
 }

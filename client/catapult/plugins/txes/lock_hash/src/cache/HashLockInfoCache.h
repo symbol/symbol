@@ -28,20 +28,19 @@
 namespace catapult {
 namespace cache {
 
-    /// Cache composed of hash lock info information.
-    using BasicHashLockInfoCache = BasicCache<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes::BaseSets>;
+	/// Cache composed of hash lock info information.
+	using BasicHashLockInfoCache = BasicCache<HashLockInfoCacheDescriptor, HashLockInfoCacheTypes::BaseSets>;
 
-    /// Synchronized cache composed of hash lock info information.
-    class HashLockInfoCache : public SynchronizedCache<BasicHashLockInfoCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(HashLockInfo)
+	/// Synchronized cache composed of hash lock info information.
+	class HashLockInfoCache : public SynchronizedCache<BasicHashLockInfoCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(HashLockInfo)
 
-    public:
-        /// Creates a cache around \a config.
-        explicit HashLockInfoCache(const CacheConfiguration& config)
-            : SynchronizedCache<BasicHashLockInfoCache>(BasicHashLockInfoCache(config))
-        {
-        }
-    };
+	public:
+		/// Creates a cache around \a config.
+		explicit HashLockInfoCache(const CacheConfiguration& config)
+			: SynchronizedCache<BasicHashLockInfoCache>(BasicHashLockInfoCache(config)) {
+		}
+	};
 }
 }

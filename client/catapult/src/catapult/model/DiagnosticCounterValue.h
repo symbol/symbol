@@ -27,14 +27,14 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Diagnostic counter value.
-    struct DiagnosticCounterValue {
-        /// Counter id.
-        uint64_t Id;
+	/// Diagnostic counter value.
+	struct DiagnosticCounterValue {
+		/// Counter id.
+		uint64_t Id;
 
-        /// Counter value.
-        uint64_t Value;
-    };
+		/// Counter value.
+		uint64_t Value;
+	};
 
 #pragma pack(pop)
 }

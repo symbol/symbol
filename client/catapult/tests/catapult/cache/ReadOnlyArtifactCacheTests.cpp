@@ -28,161 +28,152 @@ namespace cache {
 
 #define TEST_CLASS ReadOnlyArtifactCacheTests
 
-    using ReadOnlyArtifactCacheType = ReadOnlyArtifactCache<test::BasicSimpleCacheView, test::BasicSimpleCacheDelta, uint64_t, uint64_t>;
+	using ReadOnlyArtifactCacheType = ReadOnlyArtifactCache<test::BasicSimpleCacheView, test::BasicSimpleCacheDelta, uint64_t, uint64_t>;
 
-    namespace {
-        template <typename TAssertFunc>
-        void RunReadOnlyViewTest(TAssertFunc assertFunc)
-        {
-            // Arrange:
-            test::SimpleCache cache;
-            {
-                auto cacheDelta = cache.createDelta();
-                cacheDelta->increment(); // committed
-                cacheDelta->increment();
-                cache.commit();
-                cacheDelta->increment(); // uncommitted
-                cacheDelta->increment();
-            }
+	namespace {
+		template <typename TAssertFunc>
+		void RunReadOnlyViewTest(TAssertFunc assertFunc) {
+			// Arrange:
+			test::SimpleCache cache;
+			{
+				auto cacheDelta = cache.createDelta();
+				cacheDelta->increment(); // committed
+				cacheDelta->increment();
+				cache.commit();
+				cacheDelta->increment(); // uncommitted
+				cacheDelta->increment();
+			}
 
-            // Act:
-            auto cacheView = cache.createView();
-            ReadOnlyArtifactCacheType readOnlyCache(*cacheView);
+			// Act:
+			auto cacheView = cache.createView();
+			ReadOnlyArtifactCacheType readOnlyCache(*cacheView);
 
-            // Assert:
-            EXPECT_EQ(2u, readOnlyCache.size());
-            assertFunc(readOnlyCache);
-        }
+			// Assert:
+			EXPECT_EQ(2u, readOnlyCache.size());
+			assertFunc(readOnlyCache);
+		}
 
-        template <typename TAssertFunc>
-        void RunReadOnlyDeltaTest(TAssertFunc assertFunc)
-        {
-            // Arrange:
-            test::SimpleCache cache;
-            auto cacheDelta = cache.createDelta();
-            cacheDelta->increment(); // committed
-            cacheDelta->increment();
-            cache.commit();
-            cacheDelta->increment(); // uncommitted
-            cacheDelta->increment();
+		template <typename TAssertFunc>
+		void RunReadOnlyDeltaTest(TAssertFunc assertFunc) {
+			// Arrange:
+			test::SimpleCache cache;
+			auto cacheDelta = cache.createDelta();
+			cacheDelta->increment(); // committed
+			cacheDelta->increment();
+			cache.commit();
+			cacheDelta->increment(); // uncommitted
+			cacheDelta->increment();
 
-            // Act:
-            ReadOnlyArtifactCacheType readOnlyCache(*cacheDelta);
+			// Act:
+			ReadOnlyArtifactCacheType readOnlyCache(*cacheDelta);
 
-            // Assert:
-            EXPECT_EQ(4u, readOnlyCache.size());
-            assertFunc(readOnlyCache);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(4u, readOnlyCache.size());
+			assertFunc(readOnlyCache);
+		}
+	}
 
-    // region contains
+	// region contains
 
-    TEST(TEST_CLASS, ReadOnlyViewOnlyContainsCommittedElements)
-    {
-        RunReadOnlyViewTest([](const auto& readOnlyCache) {
-            EXPECT_TRUE(readOnlyCache.contains(1));
-            EXPECT_TRUE(readOnlyCache.contains(2));
-            EXPECT_FALSE(readOnlyCache.contains(3));
-            EXPECT_FALSE(readOnlyCache.contains(4));
-            EXPECT_FALSE(readOnlyCache.contains(5));
-        });
-    }
+	TEST(TEST_CLASS, ReadOnlyViewOnlyContainsCommittedElements) {
+		RunReadOnlyViewTest([](const auto& readOnlyCache) {
+			EXPECT_TRUE(readOnlyCache.contains(1));
+			EXPECT_TRUE(readOnlyCache.contains(2));
+			EXPECT_FALSE(readOnlyCache.contains(3));
+			EXPECT_FALSE(readOnlyCache.contains(4));
+			EXPECT_FALSE(readOnlyCache.contains(5));
+		});
+	}
 
-    TEST(TEST_CLASS, ReadOnlyDeltaContainsBothCommittedAndUncommittedElements)
-    {
-        RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
-            EXPECT_TRUE(readOnlyCache.contains(1));
-            EXPECT_TRUE(readOnlyCache.contains(2));
-            EXPECT_TRUE(readOnlyCache.contains(3));
-            EXPECT_TRUE(readOnlyCache.contains(4));
-            EXPECT_FALSE(readOnlyCache.contains(5));
-        });
-    }
+	TEST(TEST_CLASS, ReadOnlyDeltaContainsBothCommittedAndUncommittedElements) {
+		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
+			EXPECT_TRUE(readOnlyCache.contains(1));
+			EXPECT_TRUE(readOnlyCache.contains(2));
+			EXPECT_TRUE(readOnlyCache.contains(3));
+			EXPECT_TRUE(readOnlyCache.contains(4));
+			EXPECT_FALSE(readOnlyCache.contains(5));
+		});
+	}
 
-    // endregion
+	// endregion
 
-    // region find
+	// region find
 
-    TEST(TEST_CLASS, ReadOnlyViewCanAccessCommittedElementsViaGet)
-    {
-        RunReadOnlyViewTest([](const auto& readOnlyCache) {
-            EXPECT_EQ(1u, readOnlyCache.find(1).get());
-            EXPECT_EQ(4u, readOnlyCache.find(2).get());
-        });
-    }
+	TEST(TEST_CLASS, ReadOnlyViewCanAccessCommittedElementsViaGet) {
+		RunReadOnlyViewTest([](const auto& readOnlyCache) {
+			EXPECT_EQ(1u, readOnlyCache.find(1).get());
+			EXPECT_EQ(4u, readOnlyCache.find(2).get());
+		});
+	}
 
-    TEST(TEST_CLASS, ReadOnlyViewCannotAccessUncommittedElementsViaGet)
-    {
-        RunReadOnlyViewTest([](const auto& readOnlyCache) {
-            EXPECT_THROW(readOnlyCache.find(3).get(), catapult_out_of_range);
-            EXPECT_THROW(readOnlyCache.find(4).get(), catapult_out_of_range);
-        });
-    }
+	TEST(TEST_CLASS, ReadOnlyViewCannotAccessUncommittedElementsViaGet) {
+		RunReadOnlyViewTest([](const auto& readOnlyCache) {
+			EXPECT_THROW(readOnlyCache.find(3).get(), catapult_out_of_range);
+			EXPECT_THROW(readOnlyCache.find(4).get(), catapult_out_of_range);
+		});
+	}
 
-    TEST(TEST_CLASS, ReadOnlyDeltaCanAccessBothCommittedAndUncommittedElementsViaGet)
-    {
-        RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
-            EXPECT_EQ(1u, readOnlyCache.find(1).get());
-            EXPECT_EQ(4u, readOnlyCache.find(2).get());
-            EXPECT_EQ(9u, readOnlyCache.find(3).get());
-            EXPECT_EQ(16u, readOnlyCache.find(4).get());
-        });
-    }
+	TEST(TEST_CLASS, ReadOnlyDeltaCanAccessBothCommittedAndUncommittedElementsViaGet) {
+		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
+			EXPECT_EQ(1u, readOnlyCache.find(1).get());
+			EXPECT_EQ(4u, readOnlyCache.find(2).get());
+			EXPECT_EQ(9u, readOnlyCache.find(3).get());
+			EXPECT_EQ(16u, readOnlyCache.find(4).get());
+		});
+	}
 
-    // endregion
+	// endregion
 
-    // region isActive
+	// region isActive
 
-    TEST(TEST_CLASS, ReadOnlyViewCanDetermineWhetherOrNotArtifactIsActive)
-    {
-        RunReadOnlyViewTest([](const auto& readOnlyCache) {
-            // Assert: { 1, 2 } committed
-            // - height 2 (ids % 2 are active)
-            EXPECT_FALSE(readOnlyCache.isActive(1, Height(2)));
-            EXPECT_TRUE(readOnlyCache.isActive(2, Height(2)));
-            EXPECT_FALSE(readOnlyCache.isActive(3, Height(2)));
-            EXPECT_FALSE(readOnlyCache.isActive(4, Height(2)));
-            EXPECT_FALSE(readOnlyCache.isActive(5, Height(2)));
+	TEST(TEST_CLASS, ReadOnlyViewCanDetermineWhetherOrNotArtifactIsActive) {
+		RunReadOnlyViewTest([](const auto& readOnlyCache) {
+			// Assert: { 1, 2 } committed
+			// - height 2 (ids % 2 are active)
+			EXPECT_FALSE(readOnlyCache.isActive(1, Height(2)));
+			EXPECT_TRUE(readOnlyCache.isActive(2, Height(2)));
+			EXPECT_FALSE(readOnlyCache.isActive(3, Height(2)));
+			EXPECT_FALSE(readOnlyCache.isActive(4, Height(2)));
+			EXPECT_FALSE(readOnlyCache.isActive(5, Height(2)));
 
-            // - height 1 (ids % 1 are active)
-            EXPECT_TRUE(readOnlyCache.isActive(1, Height(1)));
-            EXPECT_TRUE(readOnlyCache.isActive(2, Height(1)));
-            EXPECT_FALSE(readOnlyCache.isActive(3, Height(1)));
-            EXPECT_FALSE(readOnlyCache.isActive(4, Height(1)));
-            EXPECT_FALSE(readOnlyCache.isActive(5, Height(1)));
+			// - height 1 (ids % 1 are active)
+			EXPECT_TRUE(readOnlyCache.isActive(1, Height(1)));
+			EXPECT_TRUE(readOnlyCache.isActive(2, Height(1)));
+			EXPECT_FALSE(readOnlyCache.isActive(3, Height(1)));
+			EXPECT_FALSE(readOnlyCache.isActive(4, Height(1)));
+			EXPECT_FALSE(readOnlyCache.isActive(5, Height(1)));
 
-            // - height 3 (ids % 3 are active)
-            EXPECT_FALSE(readOnlyCache.isActive(2, Height(3)));
-            EXPECT_FALSE(readOnlyCache.isActive(3, Height(3)));
-            EXPECT_FALSE(readOnlyCache.isActive(4, Height(3)));
-        });
-    }
+			// - height 3 (ids % 3 are active)
+			EXPECT_FALSE(readOnlyCache.isActive(2, Height(3)));
+			EXPECT_FALSE(readOnlyCache.isActive(3, Height(3)));
+			EXPECT_FALSE(readOnlyCache.isActive(4, Height(3)));
+		});
+	}
 
-    TEST(TEST_CLASS, ReadOnlyDeltaCanDetermineWhetherOrNotArtifactIsActive)
-    {
-        RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
-            // Assert: { 1, 2 } committed, { 3, 4 } uncommitted
-            // - height 2 (ids % 2 are active)
-            EXPECT_FALSE(readOnlyCache.isActive(1, Height(2)));
-            EXPECT_TRUE(readOnlyCache.isActive(2, Height(2)));
-            EXPECT_FALSE(readOnlyCache.isActive(3, Height(2)));
-            EXPECT_TRUE(readOnlyCache.isActive(4, Height(2)));
-            EXPECT_FALSE(readOnlyCache.isActive(5, Height(2)));
+	TEST(TEST_CLASS, ReadOnlyDeltaCanDetermineWhetherOrNotArtifactIsActive) {
+		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
+			// Assert: { 1, 2 } committed, { 3, 4 } uncommitted
+			// - height 2 (ids % 2 are active)
+			EXPECT_FALSE(readOnlyCache.isActive(1, Height(2)));
+			EXPECT_TRUE(readOnlyCache.isActive(2, Height(2)));
+			EXPECT_FALSE(readOnlyCache.isActive(3, Height(2)));
+			EXPECT_TRUE(readOnlyCache.isActive(4, Height(2)));
+			EXPECT_FALSE(readOnlyCache.isActive(5, Height(2)));
 
-            // - height 1 (ids % 1 are active)
-            EXPECT_TRUE(readOnlyCache.isActive(1, Height(1)));
-            EXPECT_TRUE(readOnlyCache.isActive(2, Height(1)));
-            EXPECT_TRUE(readOnlyCache.isActive(3, Height(1)));
-            EXPECT_TRUE(readOnlyCache.isActive(4, Height(1)));
-            EXPECT_FALSE(readOnlyCache.isActive(5, Height(1)));
+			// - height 1 (ids % 1 are active)
+			EXPECT_TRUE(readOnlyCache.isActive(1, Height(1)));
+			EXPECT_TRUE(readOnlyCache.isActive(2, Height(1)));
+			EXPECT_TRUE(readOnlyCache.isActive(3, Height(1)));
+			EXPECT_TRUE(readOnlyCache.isActive(4, Height(1)));
+			EXPECT_FALSE(readOnlyCache.isActive(5, Height(1)));
 
-            // - height 3 (ids % 3 are active)
-            EXPECT_FALSE(readOnlyCache.isActive(2, Height(3)));
-            EXPECT_TRUE(readOnlyCache.isActive(3, Height(3)));
-            EXPECT_FALSE(readOnlyCache.isActive(4, Height(3)));
-        });
-    }
+			// - height 3 (ids % 3 are active)
+			EXPECT_FALSE(readOnlyCache.isActive(2, Height(3)));
+			EXPECT_TRUE(readOnlyCache.isActive(3, Height(3)));
+			EXPECT_FALSE(readOnlyCache.isActive(4, Height(3)));
+		});
+	}
 
-    // endregion
+	// endregion
 }
 }

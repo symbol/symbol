@@ -29,41 +29,41 @@ class CompactionFilter;
 namespace catapult {
 namespace cache {
 
-    /// Possible modes of rocks pruning filter.
-    enum class FilterPruningMode {
-        /// Disabled, skip allocation of underlying filter implementation.
-        Disabled,
+	/// Possible modes of rocks pruning filter.
+	enum class FilterPruningMode {
+		/// Disabled, skip allocation of underlying filter implementation.
+		Disabled,
 
-        /// Enabled, allocate underlying filter implementation.
-        Enabled
-    };
+		/// Enabled, allocate underlying filter implementation.
+		Enabled
+	};
 
-    /// Rocks pruning filter.
-    class RocksPruningFilter final {
-    public:
-        /// Creates rocks pruning filter with optional \a pruningMode.
-        explicit RocksPruningFilter(FilterPruningMode pruningMode = FilterPruningMode::Disabled);
+	/// Rocks pruning filter.
+	class RocksPruningFilter final {
+	public:
+		/// Creates rocks pruning filter with optional \a pruningMode.
+		explicit RocksPruningFilter(FilterPruningMode pruningMode = FilterPruningMode::Disabled);
 
-        /// Destroys rocks pruning filter.
-        ~RocksPruningFilter();
+		/// Destroys rocks pruning filter.
+		~RocksPruningFilter();
 
-    public:
-        /// Gets the underlying compaction filter.
-        rocksdb::CompactionFilter* compactionFilter();
+	public:
+		/// Gets the underlying compaction filter.
+		rocksdb::CompactionFilter* compactionFilter();
 
-        /// Gets the pruning boundary.
-        uint64_t pruningBoundary() const;
+		/// Gets the pruning boundary.
+		uint64_t pruningBoundary() const;
 
-        /// Gets the number of pruned entries since last prune.
-        size_t numRemoved() const;
+		/// Gets the number of pruned entries since last prune.
+		size_t numRemoved() const;
 
-    public:
-        /// Sets the pruning boundary.
-        void setPruningBoundary(uint64_t pruningBoundary);
+	public:
+		/// Sets the pruning boundary.
+		void setPruningBoundary(uint64_t pruningBoundary);
 
-    private:
-        class RocksPruningFilterImpl;
-        std::unique_ptr<RocksPruningFilterImpl> m_pImpl;
-    };
+	private:
+		class RocksPruningFilterImpl;
+		std::unique_ptr<RocksPruningFilterImpl> m_pImpl;
+	};
 }
 }

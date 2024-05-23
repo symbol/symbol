@@ -25,49 +25,46 @@
 namespace catapult {
 namespace test {
 
-    /// Seeds \a storage with blocks starting at \a startHeight ending at \a endHeight inclusive.
-    void SeedBlocks(io::BlockStorage& storage, Height startHeight, Height endHeight);
+	/// Seeds \a storage with blocks starting at \a startHeight ending at \a endHeight inclusive.
+	void SeedBlocks(io::BlockStorage& storage, Height startHeight, Height endHeight);
 
-    /// Seeds \a storage with \a numBlocks blocks (storage will contain blocks with heights 1 - numBlocks).
-    void SeedBlocks(io::BlockStorage& storage, size_t numBlocks);
+	/// Seeds \a storage with \a numBlocks blocks (storage will contain blocks with heights 1 - numBlocks).
+	void SeedBlocks(io::BlockStorage& storage, size_t numBlocks);
 
-    /// Creates block element from \a block with a random transaction hash.
-    model::BlockElement CreateBlockElementForSaveTests(const model::Block& block);
+	/// Creates block element from \a block with a random transaction hash.
+	model::BlockElement CreateBlockElementForSaveTests(const model::Block& block);
 
-    /// Loads the block element at \a height along with its statements from \a storage.
-    std::shared_ptr<const model::BlockElement> LoadBlockElementWithStatements(const io::BlockStorage& storage, Height height);
+	/// Loads the block element at \a height along with its statements from \a storage.
+	std::shared_ptr<const model::BlockElement> LoadBlockElementWithStatements(const io::BlockStorage& storage, Height height);
 
-    // region PrepareStorageWithBlocks
+	// region PrepareStorageWithBlocks
 
-    /// Context for holding storage and optional storage guard.
-    template <typename TTraits>
-    struct StorageContextT {
-        std::unique_ptr<typename TTraits::Guard> pTempDirectoryGuard;
-        std::unique_ptr<typename TTraits::StorageType> pStorage;
+	/// Context for holding storage and optional storage guard.
+	template <typename TTraits>
+	struct StorageContextT {
+		std::unique_ptr<typename TTraits::Guard> pTempDirectoryGuard;
+		std::unique_ptr<typename TTraits::StorageType> pStorage;
 
-    public:
-        typename TTraits::StorageType& operator*()
-        {
-            return *pStorage;
-        }
+	public:
+		typename TTraits::StorageType& operator*() {
+			return *pStorage;
+		}
 
-        typename TTraits::StorageType* operator->()
-        {
-            return pStorage.get();
-        }
-    };
+		typename TTraits::StorageType* operator->() {
+			return pStorage.get();
+		}
+	};
 
-    /// Prepares storage context by seeding storage with \a numBlocks
-    template <typename TTraits>
-    auto PrepareStorageWithBlocks(size_t numBlocks)
-    {
-        StorageContextT<TTraits> context;
-        context.pTempDirectoryGuard = std::make_unique<typename TTraits::Guard>();
-        context.pStorage = TTraits::PrepareStorage(context.pTempDirectoryGuard->name());
-        SeedBlocks(*context.pStorage, numBlocks);
-        return context;
-    }
+	/// Prepares storage context by seeding storage with \a numBlocks
+	template <typename TTraits>
+	auto PrepareStorageWithBlocks(size_t numBlocks) {
+		StorageContextT<TTraits> context;
+		context.pTempDirectoryGuard = std::make_unique<typename TTraits::Guard>();
+		context.pStorage = TTraits::PrepareStorage(context.pTempDirectoryGuard->name());
+		SeedBlocks(*context.pStorage, numBlocks);
+		return context;
+	}
 
-    // endregion
+	// endregion
 }
 }

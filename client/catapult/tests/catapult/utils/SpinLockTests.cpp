@@ -25,17 +25,16 @@
 namespace catapult {
 namespace utils {
 
-    namespace {
-        struct LockPolicy {
-            using LockType = SpinLock;
+	namespace {
+		struct LockPolicy {
+			using LockType = SpinLock;
 
-            static auto ExclusiveLock(LockType& lock)
-            {
-                return std::make_unique<std::lock_guard<LockType>>(lock);
-            }
-        };
-    }
+			static auto ExclusiveLock(LockType& lock) {
+				return std::make_unique<std::lock_guard<LockType>>(lock);
+			}
+		};
+	}
 
-    DEFINE_BASIC_LOCK_TESTS(SpinLockTests, )
+	DEFINE_BASIC_LOCK_TESTS(SpinLockTests, )
 }
 }

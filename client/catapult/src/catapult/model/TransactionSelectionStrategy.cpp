@@ -25,17 +25,16 @@
 namespace catapult {
 namespace model {
 
-    namespace {
-        const std::array<std::pair<const char*, TransactionSelectionStrategy>, 3> String_To_Transaction_Selection_Strategy_Pairs {
-            { { "oldest", TransactionSelectionStrategy::Oldest },
-                { "minimize-fee", TransactionSelectionStrategy::Minimize_Fee },
-                { "maximize-fee", TransactionSelectionStrategy::Maximize_Fee } }
-        };
-    }
+	namespace {
+		const std::array<std::pair<const char*, TransactionSelectionStrategy>, 3> String_To_Transaction_Selection_Strategy_Pairs {
+			{ { "oldest", TransactionSelectionStrategy::Oldest },
+				{ "minimize-fee", TransactionSelectionStrategy::Minimize_Fee },
+				{ "maximize-fee", TransactionSelectionStrategy::Maximize_Fee } }
+		};
+	}
 
-    bool TryParseValue(const std::string& strategyName, TransactionSelectionStrategy& strategy)
-    {
-        return utils::TryParseEnumValue(String_To_Transaction_Selection_Strategy_Pairs, strategyName, strategy);
-    }
+	bool TryParseValue(const std::string& strategyName, TransactionSelectionStrategy& strategy) {
+		return utils::TryParseEnumValue(String_To_Transaction_Selection_Strategy_Pairs, strategyName, strategy);
+	}
 }
 }

@@ -26,54 +26,49 @@
 namespace catapult {
 namespace extensions {
 
-    /// Chain score stored by the local node.
-    /// \note This score is synchronized by a reader writer lock.
-    class LocalNodeChainScore {
-    public:
-        /// Creates a default local node chain score.
-        LocalNodeChainScore() = default;
+	/// Chain score stored by the local node.
+	/// \note This score is synchronized by a reader writer lock.
+	class LocalNodeChainScore {
+	public:
+		/// Creates a default local node chain score.
+		LocalNodeChainScore() = default;
 
-        /// Creates a local node chain score around \a score.
-        explicit LocalNodeChainScore(const model::ChainScore& score)
-            : m_score(score)
-        {
-        }
+		/// Creates a local node chain score around \a score.
+		explicit LocalNodeChainScore(const model::ChainScore& score)
+			: m_score(score) {
+		}
 
-    public:
-        /// Gets the current chain score.
-        model::ChainScore get() const
-        {
-            auto readLock = m_lock.acquireReader();
-            return m_score;
-        }
+	public:
+		/// Gets the current chain score.
+		model::ChainScore get() const {
+			auto readLock = m_lock.acquireReader();
+			return m_score;
+		}
 
-        /// Sets the current chain score to \a score.
-        void set(const model::ChainScore& score)
-        {
-            auto writeLock = m_lock.acquireWriter();
-            m_score = score;
-        }
+		/// Sets the current chain score to \a score.
+		void set(const model::ChainScore& score) {
+			auto writeLock = m_lock.acquireWriter();
+			m_score = score;
+		}
 
-    public:
-        /// Adds \a rhs to this chain score.
-        LocalNodeChainScore& operator+=(const model::ChainScore& rhs)
-        {
-            auto writeLock = m_lock.acquireWriter();
-            m_score += rhs;
-            return *this;
-        }
+	public:
+		/// Adds \a rhs to this chain score.
+		LocalNodeChainScore& operator+=(const model::ChainScore& rhs) {
+			auto writeLock = m_lock.acquireWriter();
+			m_score += rhs;
+			return *this;
+		}
 
-        /// Adds \a rhs to this chain score.
-        LocalNodeChainScore& operator+=(model::ChainScore::Delta rhs)
-        {
-            auto writeLock = m_lock.acquireWriter();
-            m_score += rhs;
-            return *this;
-        }
+		/// Adds \a rhs to this chain score.
+		LocalNodeChainScore& operator+=(model::ChainScore::Delta rhs) {
+			auto writeLock = m_lock.acquireWriter();
+			m_score += rhs;
+			return *this;
+		}
 
-    private:
-        model::ChainScore m_score;
-        mutable utils::SpinReaderWriterLock m_lock;
-    };
+	private:
+		model::ChainScore m_score;
+		mutable utils::SpinReaderWriterLock m_lock;
+	};
 }
 }

@@ -26,45 +26,42 @@
 namespace catapult {
 namespace config {
 
-    namespace {
-        constexpr const char* Section_Name = "inflation";
-        constexpr const char* Expected_Prefix = "starting-at-height-";
+	namespace {
+		constexpr const char* Section_Name = "inflation";
+		constexpr const char* Expected_Prefix = "starting-at-height-";
 
-        bool GetHeightFromKey(const std::string& key, Height& height)
-        {
-            if (0 != key.find(Expected_Prefix))
-                return false;
+		bool GetHeightFromKey(const std::string& key, Height& height) {
+			if (0 != key.find(Expected_Prefix))
+				return false;
 
-            return utils::TryParseValue(key.substr(std::strlen(Expected_Prefix)), height);
-        }
-    }
+			return utils::TryParseValue(key.substr(std::strlen(Expected_Prefix)), height);
+		}
+	}
 
-    InflationConfiguration InflationConfiguration::Uninitialized()
-    {
-        return InflationConfiguration();
-    }
+	InflationConfiguration InflationConfiguration::Uninitialized() {
+		return InflationConfiguration();
+	}
 
-    InflationConfiguration InflationConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        if (0 == bag.size())
-            CATAPULT_THROW_AND_LOG_0(utils::property_not_found_error, "required inflation section is missing");
+	InflationConfiguration InflationConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		if (0 == bag.size())
+			CATAPULT_THROW_AND_LOG_0(utils::property_not_found_error, "required inflation section is missing");
 
-        InflationConfiguration config;
-        auto lastHeight = Height();
-        Height height;
-        auto inflationMap = bag.getAllOrdered<uint64_t>(Section_Name);
-        for (const auto& pair : inflationMap) {
-            if (!GetHeightFromKey(pair.first, height)) {
-                auto message = "property could not be parsed";
-                CATAPULT_THROW_AND_LOG_2(utils::property_malformed_error, message, std::string(Section_Name), pair.first);
-            }
+		InflationConfiguration config;
+		auto lastHeight = Height();
+		Height height;
+		auto inflationMap = bag.getAllOrdered<uint64_t>(Section_Name);
+		for (const auto& pair : inflationMap) {
+			if (!GetHeightFromKey(pair.first, height)) {
+				auto message = "property could not be parsed";
+				CATAPULT_THROW_AND_LOG_2(utils::property_malformed_error, message, std::string(Section_Name), pair.first);
+			}
 
-            config.InflationCalculator.add(height, Amount(pair.second));
-            lastHeight = height;
-        }
+			config.InflationCalculator.add(height, Amount(pair.second));
+			lastHeight = height;
+		}
 
-        utils::VerifyBagSizeExact(bag, config.InflationCalculator.size());
-        return config;
-    }
+		utils::VerifyBagSizeExact(bag, config.InflationCalculator.size());
+		return config;
+	}
 }
 }

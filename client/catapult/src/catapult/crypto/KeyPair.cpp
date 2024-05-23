@@ -25,28 +25,25 @@
 namespace catapult {
 namespace crypto {
 
-    // region Ed25519KeyPairTraits
+	// region Ed25519KeyPairTraits
 
-    void Ed25519KeyPairTraits::ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey)
-    {
-        ed25519_publickey(privateKey.data(), publicKey.data());
-    }
+	void Ed25519KeyPairTraits::ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey) {
+		ed25519_publickey(privateKey.data(), publicKey.data());
+	}
 
-    // endregion
+	// endregion
 
-    // region Ed25519Utils
+	// region Ed25519Utils
 
-    utils::ContainerHexFormatter<Key::const_iterator> Ed25519Utils::FormatPrivateKey(const PrivateKey& key)
-    {
-        return utils::HexFormat(key.begin(), key.end());
-    }
+	utils::ContainerHexFormatter<Key::const_iterator> Ed25519Utils::FormatPrivateKey(const PrivateKey& key) {
+		return utils::HexFormat(key.begin(), key.end());
+	}
 
-    bool Ed25519Utils::IsValidPrivateKeyString(const std::string& str)
-    {
-        Key key;
-        return utils::TryParseHexStringIntoContainer(str.data(), str.size(), key);
-    }
+	bool Ed25519Utils::IsValidPrivateKeyString(const std::string& str) {
+		Key key;
+		return utils::TryParseHexStringIntoContainer(str.data(), str.size(), key);
+	}
 
-    // endregion
+	// endregion
 }
 }

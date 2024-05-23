@@ -29,74 +29,70 @@ namespace model {
 
 #define TEST_CLASS ReceiptSourceTests
 
-    // region size + alignment
+	// region size + alignment
 
 #define RECEIPT_SOURCE_FIELDS FIELD(PrimaryId) FIELD(SecondaryId)
 
-    TEST(TEST_CLASS, ReceiptSourceHasExpectedSize)
-    {
-        // Arrange:
-        auto expectedSize = 0u;
+	TEST(TEST_CLASS, ReceiptSourceHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(ReceiptSource::X)>();
-        RECEIPT_SOURCE_FIELDS
+		RECEIPT_SOURCE_FIELDS
 #undef FIELD
 
-        // Assert:
-        EXPECT_EQ(expectedSize, sizeof(ReceiptSource));
-        EXPECT_EQ(8u, sizeof(ReceiptSource));
-    }
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(ReceiptSource));
+		EXPECT_EQ(8u, sizeof(ReceiptSource));
+	}
 
-    TEST(TEST_CLASS, ReceiptSourceHasProperAlignment) {
+	TEST(TEST_CLASS, ReceiptSourceHasProperAlignment) {
 #define FIELD(X) EXPECT_ALIGNED(ReceiptSource, X);
-        RECEIPT_SOURCE_FIELDS
+		RECEIPT_SOURCE_FIELDS
 #undef FIELD
-    }
+	}
 
 #undef RECEIPT_SOURCE_FIELDS
 
-    // endregion
+	// endregion
 
-    // region constructor
+	// region constructor
 
-    TEST(TEST_CLASS, CanCreateDefaultReceiptSource)
-    {
-        // Act:
-        ReceiptSource source;
+	TEST(TEST_CLASS, CanCreateDefaultReceiptSource) {
+		// Act:
+		ReceiptSource source;
 
-        // Assert:
-        EXPECT_EQ(0u, source.PrimaryId);
-        EXPECT_EQ(0u, source.SecondaryId);
-    }
+		// Assert:
+		EXPECT_EQ(0u, source.PrimaryId);
+		EXPECT_EQ(0u, source.SecondaryId);
+	}
 
-    TEST(TEST_CLASS, CanCreateReceiptSourceAroundSourceIds)
-    {
-        // Act:
-        ReceiptSource source(17, 25);
+	TEST(TEST_CLASS, CanCreateReceiptSourceAroundSourceIds) {
+		// Act:
+		ReceiptSource source(17, 25);
 
-        // Assert:
-        EXPECT_EQ(17u, source.PrimaryId);
-        EXPECT_EQ(25u, source.SecondaryId);
-    }
+		// Assert:
+		EXPECT_EQ(17u, source.PrimaryId);
+		EXPECT_EQ(25u, source.SecondaryId);
+	}
 
-    // endregion
+	// endregion
 
-    // region operators
+	// region operators
 
-    TEST(TEST_CLASS, OperatorLessThanReturnsTrueForSmallerValuesAndFalseOtherwise)
-    {
-        // Arrange:
-        std::vector<ReceiptSource> sources { { 11, 15 }, { 11, 16 }, { 12, 0 }, { 77, 77 }, { 88, 99 } };
+	TEST(TEST_CLASS, OperatorLessThanReturnsTrueForSmallerValuesAndFalseOtherwise) {
+		// Arrange:
+		std::vector<ReceiptSource> sources { { 11, 15 }, { 11, 16 }, { 12, 0 }, { 77, 77 }, { 88, 99 } };
 
-        // Assert:
-        test::AssertLessThanOperatorForEqualValues<ReceiptSource>({ 11, 15 }, { 11, 15 });
-        test::AssertOperatorBehaviorForIncreasingValues(sources, std::less<>(), [](const auto& source) {
-            std::ostringstream out;
-            out << "(" << source.PrimaryId << "," << source.SecondaryId << ")";
-            return out.str();
-        });
-    }
+		// Assert:
+		test::AssertLessThanOperatorForEqualValues<ReceiptSource>({ 11, 15 }, { 11, 15 });
+		test::AssertOperatorBehaviorForIncreasingValues(sources, std::less<>(), [](const auto& source) {
+			std::ostringstream out;
+			out << "(" << source.PrimaryId << "," << source.SecondaryId << ")";
+			return out.str();
+		});
+	}
 
-    // endregion
+	// endregion
 }
 }

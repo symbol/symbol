@@ -30,208 +30,191 @@ namespace validators {
 
 #define TEST_CLASS MosaicRestrictionModificationValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(MosaicGlobalRestrictionModification, )
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicGlobalRestrictionModification, )
 
-    DEFINE_COMMON_VALIDATOR_TESTS(MosaicAddressRestrictionModification, )
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicAddressRestrictionModification, )
 
-    // region traits
+	// region traits
 
-    namespace {
-        enum class InitializationScheme { Unset,
-            Match,
-            Other };
+	namespace {
+		enum class InitializationScheme { Unset,
+			Match,
+			Other };
 
-        template <typename TTestTraits>
-        class BasicTraits {
-        public:
-            using NotificationType = typename TTestTraits::NotificationType;
+		template <typename TTestTraits>
+		class BasicTraits {
+		public:
+			using NotificationType = typename TTestTraits::NotificationType;
 
-        protected:
-            const TTestTraits& testTraits() const
-            {
-                return m_traits;
-            }
+		protected:
+			const TTestTraits& testTraits() const {
+				return m_traits;
+			}
 
-        public:
-            NotificationType createNotification(uint64_t key, uint64_t value, InitializationScheme scheme)
-            {
-                if (InitializationScheme::Unset == scheme)
-                    return m_traits.createDeleteNotification(key);
-                else
-                    return m_traits.createAddNotification(key, value);
-            }
+		public:
+			NotificationType createNotification(uint64_t key, uint64_t value, InitializationScheme scheme) {
+				if (InitializationScheme::Unset == scheme)
+					return m_traits.createDeleteNotification(key);
+				else
+					return m_traits.createAddNotification(key, value);
+			}
 
-            void addRestrictionWithValueToCache(cache::MosaicRestrictionCacheDelta& restrictionCache, uint64_t key, uint64_t value)
-            {
-                m_traits.addRestrictionWithValuesToCache(restrictionCache, { std::make_pair(key, value) });
-            }
+			void addRestrictionWithValueToCache(cache::MosaicRestrictionCacheDelta& restrictionCache, uint64_t key, uint64_t value) {
+				m_traits.addRestrictionWithValuesToCache(restrictionCache, { std::make_pair(key, value) });
+			}
 
-        private:
-            TTestTraits m_traits;
-        };
+		private:
+			TTestTraits m_traits;
+		};
 
-        using GlobalTestTraits = test::MosaicGlobalRestrictionTestTraits<model::MosaicGlobalRestrictionModificationPreviousValueNotification>;
-        using AddressTestTraits = test::MosaicAddressRestrictionTestTraits<model::MosaicAddressRestrictionModificationPreviousValueNotification>;
+		using GlobalTestTraits = test::MosaicGlobalRestrictionTestTraits<model::MosaicGlobalRestrictionModificationPreviousValueNotification>;
+		using AddressTestTraits = test::MosaicAddressRestrictionTestTraits<model::MosaicAddressRestrictionModificationPreviousValueNotification>;
 
-        class GlobalTraits : public BasicTraits<GlobalTestTraits> {
-        public:
-            static constexpr auto CreateValidator = CreateMosaicGlobalRestrictionModificationValidator;
-        };
+		class GlobalTraits : public BasicTraits<GlobalTestTraits> {
+		public:
+			static constexpr auto CreateValidator = CreateMosaicGlobalRestrictionModificationValidator;
+		};
 
-        class GlobalTraitsNonzeroReference : public BasicTraits<GlobalTestTraits> {
-        public:
-            static constexpr auto CreateValidator = CreateMosaicGlobalRestrictionModificationValidator;
+		class GlobalTraitsNonzeroReference : public BasicTraits<GlobalTestTraits> {
+		public:
+			static constexpr auto CreateValidator = CreateMosaicGlobalRestrictionModificationValidator;
 
-        public:
-            NotificationType createNotification(uint64_t key, uint64_t value, InitializationScheme scheme)
-            {
-                // set the reference mosaic id to a nonzero value
-                auto notification = BasicTraits<GlobalTestTraits>::createNotification(key, value, scheme);
-                notification.ReferenceMosaicId = testTraits().referenceMosaicId();
-                return notification;
-            }
-        };
+		public:
+			NotificationType createNotification(uint64_t key, uint64_t value, InitializationScheme scheme) {
+				// set the reference mosaic id to a nonzero value
+				auto notification = BasicTraits<GlobalTestTraits>::createNotification(key, value, scheme);
+				notification.ReferenceMosaicId = testTraits().referenceMosaicId();
+				return notification;
+			}
+		};
 
-        class AddressTraits : public BasicTraits<AddressTestTraits> {
-        public:
-            static constexpr auto CreateValidator = CreateMosaicAddressRestrictionModificationValidator;
-        };
-    }
+		class AddressTraits : public BasicTraits<AddressTestTraits> {
+		public:
+			static constexpr auto CreateValidator = CreateMosaicAddressRestrictionModificationValidator;
+		};
+	}
 
-#define RESTRICTION_TYPE_BASED_TEST(TEST_NAME)                                            \
-    template <typename TTraits>                                                           \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                       \
-    TEST(MosaicGlobalRestrictionModificationValidatorTests, TEST_NAME)                    \
-    {                                                                                     \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalTraits>();                          \
-    }                                                                                     \
-    TEST(MosaicGlobalRestrictionModificationValidatorTests, TEST_NAME##_NonzeroReference) \
-    {                                                                                     \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalTraitsNonzeroReference>();          \
-    }                                                                                     \
-    TEST(MosaicAddressRestrictionModificationValidatorTests, TEST_NAME)                   \
-    {                                                                                     \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>();                         \
-    }                                                                                     \
-    template <typename TTraits>                                                           \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define RESTRICTION_TYPE_BASED_TEST(TEST_NAME)                                              \
+	template <typename TTraits>                                                             \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                         \
+	TEST(MosaicGlobalRestrictionModificationValidatorTests, TEST_NAME) {                    \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalTraits>();                            \
+	}                                                                                       \
+	TEST(MosaicGlobalRestrictionModificationValidatorTests, TEST_NAME##_NonzeroReference) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalTraitsNonzeroReference>();            \
+	}                                                                                       \
+	TEST(MosaicAddressRestrictionModificationValidatorTests, TEST_NAME) {                   \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>();                           \
+	}                                                                                       \
+	template <typename TTraits>                                                             \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-    // endregion
+	// endregion
 
-    // region cache does not contain entry
+	// region cache does not contain entry
 
-    namespace {
-        template <typename TTraits>
-        void RunCacheDoesNotContainEntryTest(ValidationResult expectedResult, InitializationScheme scheme)
-        {
-            // Arrange:
-            TTraits traits;
+	namespace {
+		template <typename TTraits>
+		void RunCacheDoesNotContainEntryTest(ValidationResult expectedResult, InitializationScheme scheme) {
+			// Arrange:
+			TTraits traits;
 
-            auto pValidator = TTraits::CreateValidator();
-            auto notification = traits.createNotification(123, 444, scheme);
-            auto cache = test::MosaicRestrictionCacheFactory::Create();
+			auto pValidator = TTraits::CreateValidator();
+			auto notification = traits.createNotification(123, 444, scheme);
+			auto cache = test::MosaicRestrictionCacheFactory::Create();
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
+	}
 
-    RESTRICTION_TYPE_BASED_TEST(SuccessWhenCacheDoesNotContainEntryAndNotificationIsUnset)
-    {
-        RunCacheDoesNotContainEntryTest<TTraits>(ValidationResult::Success, InitializationScheme::Unset);
-    }
+	RESTRICTION_TYPE_BASED_TEST(SuccessWhenCacheDoesNotContainEntryAndNotificationIsUnset) {
+		RunCacheDoesNotContainEntryTest<TTraits>(ValidationResult::Success, InitializationScheme::Unset);
+	}
 
-    RESTRICTION_TYPE_BASED_TEST(FailureWhenCacheDoesNotContainEntryAndNotificationIsSet)
-    {
-        RunCacheDoesNotContainEntryTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Must_Be_Zero, InitializationScheme::Match);
-    }
+	RESTRICTION_TYPE_BASED_TEST(FailureWhenCacheDoesNotContainEntryAndNotificationIsSet) {
+		RunCacheDoesNotContainEntryTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Must_Be_Zero, InitializationScheme::Match);
+	}
 
-    // endregion
+	// endregion
 
-    // region cache contains entry but not rule
+	// region cache contains entry but not rule
 
-    namespace {
-        template <typename TTraits>
-        void RunCacheContainsEntryButNotRuleTest(ValidationResult expectedResult, InitializationScheme scheme)
-        {
-            // Arrange:
-            TTraits traits;
+	namespace {
+		template <typename TTraits>
+		void RunCacheContainsEntryButNotRuleTest(ValidationResult expectedResult, InitializationScheme scheme) {
+			// Arrange:
+			TTraits traits;
 
-            auto pValidator = TTraits::CreateValidator();
-            auto notification = traits.createNotification(123, 444, scheme);
-            auto cache = test::MosaicRestrictionCacheFactory::Create();
-            {
-                auto delta = cache.createDelta();
-                traits.addRestrictionWithValueToCache(delta.sub<cache::MosaicRestrictionCache>(), 124, 555);
-                cache.commit(Height());
-            }
+			auto pValidator = TTraits::CreateValidator();
+			auto notification = traits.createNotification(123, 444, scheme);
+			auto cache = test::MosaicRestrictionCacheFactory::Create();
+			{
+				auto delta = cache.createDelta();
+				traits.addRestrictionWithValueToCache(delta.sub<cache::MosaicRestrictionCache>(), 124, 555);
+				cache.commit(Height());
+			}
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
+	}
 
-    RESTRICTION_TYPE_BASED_TEST(SuccessWhenCacheContainsEntryButNotRuleAndNotificationIsUnset)
-    {
-        RunCacheContainsEntryButNotRuleTest<TTraits>(ValidationResult::Success, InitializationScheme::Unset);
-    }
+	RESTRICTION_TYPE_BASED_TEST(SuccessWhenCacheContainsEntryButNotRuleAndNotificationIsUnset) {
+		RunCacheContainsEntryButNotRuleTest<TTraits>(ValidationResult::Success, InitializationScheme::Unset);
+	}
 
-    RESTRICTION_TYPE_BASED_TEST(SuccessWhenCacheContainsEntryButNotRuleAndNotificationIsSet)
-    {
-        RunCacheContainsEntryButNotRuleTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Must_Be_Zero, InitializationScheme::Match);
-    }
+	RESTRICTION_TYPE_BASED_TEST(SuccessWhenCacheContainsEntryButNotRuleAndNotificationIsSet) {
+		RunCacheContainsEntryButNotRuleTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Must_Be_Zero, InitializationScheme::Match);
+	}
 
-    // endregion
+	// endregion
 
-    // region cache contains entry and rule
+	// region cache contains entry and rule
 
-    namespace {
-        template <typename TTraits>
-        void RunCacheModificationTest(ValidationResult expectedResult, InitializationScheme scheme)
-        {
-            // Arrange:
-            TTraits traits;
+	namespace {
+		template <typename TTraits>
+		void RunCacheModificationTest(ValidationResult expectedResult, InitializationScheme scheme) {
+			// Arrange:
+			TTraits traits;
 
-            auto pValidator = TTraits::CreateValidator();
-            auto notification = traits.createNotification(123, 444, scheme);
-            auto cache = test::MosaicRestrictionCacheFactory::Create();
-            {
-                uint64_t value = InitializationScheme::Match == scheme ? 444 : 222;
+			auto pValidator = TTraits::CreateValidator();
+			auto notification = traits.createNotification(123, 444, scheme);
+			auto cache = test::MosaicRestrictionCacheFactory::Create();
+			{
+				uint64_t value = InitializationScheme::Match == scheme ? 444 : 222;
 
-                auto delta = cache.createDelta();
-                traits.addRestrictionWithValueToCache(delta.sub<cache::MosaicRestrictionCache>(), 123, value);
-                cache.commit(Height());
-            }
+				auto delta = cache.createDelta();
+				traits.addRestrictionWithValueToCache(delta.sub<cache::MosaicRestrictionCache>(), 123, value);
+				cache.commit(Height());
+			}
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
+	}
 
-    RESTRICTION_TYPE_BASED_TEST(SuccessWhenCacheEntryContainsEntryAndRuleAndNotificationIsMatch)
-    {
-        RunCacheModificationTest<TTraits>(ValidationResult::Success, InitializationScheme::Match);
-    }
+	RESTRICTION_TYPE_BASED_TEST(SuccessWhenCacheEntryContainsEntryAndRuleAndNotificationIsMatch) {
+		RunCacheModificationTest<TTraits>(ValidationResult::Success, InitializationScheme::Match);
+	}
 
-    RESTRICTION_TYPE_BASED_TEST(FailureWhenCacheEntryContainsEntryAndRuleAndNotificationIsUnset)
-    {
-        RunCacheModificationTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Mismatch, InitializationScheme::Unset);
-    }
+	RESTRICTION_TYPE_BASED_TEST(FailureWhenCacheEntryContainsEntryAndRuleAndNotificationIsUnset) {
+		RunCacheModificationTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Mismatch, InitializationScheme::Unset);
+	}
 
-    RESTRICTION_TYPE_BASED_TEST(FailureWhenCacheEntryContainsEntryAndRuleAndNotificationIsOther)
-    {
-        RunCacheModificationTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Mismatch, InitializationScheme::Other);
-    }
+	RESTRICTION_TYPE_BASED_TEST(FailureWhenCacheEntryContainsEntryAndRuleAndNotificationIsOther) {
+		RunCacheModificationTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Mismatch, InitializationScheme::Other);
+	}
 
-    // endregion
+	// endregion
 }
 }

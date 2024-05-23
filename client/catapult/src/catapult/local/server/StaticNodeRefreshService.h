@@ -25,16 +25,16 @@
 
 namespace catapult {
 namespace ionet {
-    class Node;
+	class Node;
 }
 }
 
 namespace catapult {
 namespace local {
 
-    /// Creates a registrar for a static node refresh service for \a staticNodes.
-    /// \note This service is responsible for (re)connecting to static nodes.
-    DECLARE_SERVICE_REGISTRAR(StaticNodeRefresh)
-    (const std::vector<ionet::Node>& staticNodes);
+	/// Creates a registrar for a static node refresh service for \a staticNodes.
+	/// \note This service is responsible for (re)connecting to static nodes.
+	DECLARE_SERVICE_REGISTRAR(StaticNodeRefresh)
+	(const std::vector<ionet::Node>& staticNodes);
 }
 }

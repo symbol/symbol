@@ -26,27 +26,27 @@
 namespace catapult {
 namespace state {
 
-    /// Metadata value.
-    class MetadataValue {
-    public:
-        /// Returns \c true if the value empty.
-        bool empty() const;
+	/// Metadata value.
+	class MetadataValue {
+	public:
+		/// Returns \c true if the value empty.
+		bool empty() const;
 
-        /// Gets the size of the value.
-        size_t size() const;
+		/// Gets the size of the value.
+		size_t size() const;
 
-        /// Gets a pointer to the value data.
-        const uint8_t* data() const;
+		/// Gets a pointer to the value data.
+		const uint8_t* data() const;
 
-    public:
-        /// Determines if \a count bytes can be trimmed after applying \a buffer.
-        bool canTrim(const RawBuffer& buffer, size_t count) const;
+	public:
+		/// Determines if \a count bytes can be trimmed after applying \a buffer.
+		bool canTrim(const RawBuffer& buffer, size_t count) const;
 
-        /// Updates the value with \a buffer.
-        void update(const RawBuffer& buffer);
+		/// Updates the value with \a buffer.
+		void update(const RawBuffer& buffer);
 
-    private:
-        std::vector<uint8_t> m_buffer;
-    };
+	private:
+		std::vector<uint8_t> m_buffer;
+	};
 }
 }

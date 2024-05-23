@@ -24,82 +24,72 @@
 namespace catapult {
 namespace builders {
 
-    AccountMetadataBuilder::AccountMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-        : TransactionBuilder(networkIdentifier, signer)
-        , m_targetAddress()
-        , m_scopedMetadataKey()
-        , m_valueSizeDelta()
-        , m_value()
-    {
-    }
+	AccountMetadataBuilder::AccountMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+		: TransactionBuilder(networkIdentifier, signer)
+		, m_targetAddress()
+		, m_scopedMetadataKey()
+		, m_valueSizeDelta()
+		, m_value() {
+	}
 
-    void AccountMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress)
-    {
-        m_targetAddress = targetAddress;
-    }
+	void AccountMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
+		m_targetAddress = targetAddress;
+	}
 
-    void AccountMetadataBuilder::setScopedMetadataKey(uint64_t scopedMetadataKey)
-    {
-        m_scopedMetadataKey = scopedMetadataKey;
-    }
+	void AccountMetadataBuilder::setScopedMetadataKey(uint64_t scopedMetadataKey) {
+		m_scopedMetadataKey = scopedMetadataKey;
+	}
 
-    void AccountMetadataBuilder::setValueSizeDelta(int16_t valueSizeDelta)
-    {
-        m_valueSizeDelta = valueSizeDelta;
-    }
+	void AccountMetadataBuilder::setValueSizeDelta(int16_t valueSizeDelta) {
+		m_valueSizeDelta = valueSizeDelta;
+	}
 
-    void AccountMetadataBuilder::setValue(const RawBuffer& value)
-    {
-        if (0 == value.Size)
-            CATAPULT_THROW_INVALID_ARGUMENT("argument `value` cannot be empty");
+	void AccountMetadataBuilder::setValue(const RawBuffer& value) {
+		if (0 == value.Size)
+			CATAPULT_THROW_INVALID_ARGUMENT("argument `value` cannot be empty");
 
-        if (!m_value.empty())
-            CATAPULT_THROW_RUNTIME_ERROR("`value` field already set");
+		if (!m_value.empty())
+			CATAPULT_THROW_RUNTIME_ERROR("`value` field already set");
 
-        m_value.resize(value.Size);
-        m_value.assign(value.pData, value.pData + value.Size);
-    }
+		m_value.resize(value.Size);
+		m_value.assign(value.pData, value.pData + value.Size);
+	}
 
-    size_t AccountMetadataBuilder::size() const
-    {
-        return sizeImpl<Transaction>();
-    }
+	size_t AccountMetadataBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
 
-    std::unique_ptr<AccountMetadataBuilder::Transaction> AccountMetadataBuilder::build() const
-    {
-        return buildImpl<Transaction>();
-    }
+	std::unique_ptr<AccountMetadataBuilder::Transaction> AccountMetadataBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
 
-    std::unique_ptr<AccountMetadataBuilder::EmbeddedTransaction> AccountMetadataBuilder::buildEmbedded() const
-    {
-        return buildImpl<EmbeddedTransaction>();
-    }
+	std::unique_ptr<AccountMetadataBuilder::EmbeddedTransaction> AccountMetadataBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
+	}
 
-    template <typename TransactionType>
-    size_t AccountMetadataBuilder::sizeImpl() const
-    {
-        // calculate transaction size
-        auto size = sizeof(TransactionType);
-        size += m_value.size();
-        return size;
-    }
+	template <typename TransactionType>
+	size_t AccountMetadataBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		size += m_value.size();
+		return size;
+	}
 
-    template <typename TransactionType>
-    std::unique_ptr<TransactionType> AccountMetadataBuilder::buildImpl() const
-    {
-        // 1. allocate, zero (header), set model::Transaction fields
-        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+	template <typename TransactionType>
+	std::unique_ptr<TransactionType> AccountMetadataBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-        // 2. set fixed transaction fields
-        pTransaction->TargetAddress = m_targetAddress;
-        pTransaction->ScopedMetadataKey = m_scopedMetadataKey;
-        pTransaction->ValueSizeDelta = m_valueSizeDelta;
-        pTransaction->ValueSize = utils::checked_cast<size_t, uint16_t>(m_value.size());
+		// 2. set fixed transaction fields
+		pTransaction->TargetAddress = m_targetAddress;
+		pTransaction->ScopedMetadataKey = m_scopedMetadataKey;
+		pTransaction->ValueSizeDelta = m_valueSizeDelta;
+		pTransaction->ValueSize = utils::checked_cast<size_t, uint16_t>(m_value.size());
 
-        // 3. set transaction attachments
-        std::copy(m_value.cbegin(), m_value.cend(), pTransaction->ValuePtr());
+		// 3. set transaction attachments
+		std::copy(m_value.cbegin(), m_value.cend(), pTransaction->ValuePtr());
 
-        return pTransaction;
-    }
+		return pTransaction;
+	}
 }
 }

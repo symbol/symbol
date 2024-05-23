@@ -29,103 +29,94 @@
 namespace catapult {
 namespace builders {
 
-    using TransactionType = model::AggregateTransaction;
+	using TransactionType = model::AggregateTransaction;
 
-    namespace {
-        uint32_t CalculateAggregatePayloadSize(const std::vector<AggregateTransactionBuilder::EmbeddedTransactionPointer>& transactions)
-        {
-            uint32_t size = 0;
-            for (const auto& pTransaction : transactions)
-                size += pTransaction->Size + utils::GetPaddingSize(pTransaction->Size, 8);
+	namespace {
+		uint32_t CalculateAggregatePayloadSize(const std::vector<AggregateTransactionBuilder::EmbeddedTransactionPointer>& transactions) {
+			uint32_t size = 0;
+			for (const auto& pTransaction : transactions)
+				size += pTransaction->Size + utils::GetPaddingSize(pTransaction->Size, 8);
 
-            return size;
-        }
-    }
+			return size;
+		}
+	}
 
-    AggregateTransactionBuilder::AggregateTransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-        : TransactionBuilder(networkIdentifier, signer)
-    {
-    }
+	AggregateTransactionBuilder::AggregateTransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+		: TransactionBuilder(networkIdentifier, signer) {
+	}
 
-    void AggregateTransactionBuilder::addTransaction(AggregateTransactionBuilder::EmbeddedTransactionPointer&& pTransaction)
-    {
-        m_transactions.push_back(std::move(pTransaction));
-    }
+	void AggregateTransactionBuilder::addTransaction(AggregateTransactionBuilder::EmbeddedTransactionPointer&& pTransaction) {
+		m_transactions.push_back(std::move(pTransaction));
+	}
 
-    size_t AggregateTransactionBuilder::size() const
-    {
-        return sizeof(TransactionType) + CalculateAggregatePayloadSize(m_transactions);
-    }
+	size_t AggregateTransactionBuilder::size() const {
+		return sizeof(TransactionType) + CalculateAggregatePayloadSize(m_transactions);
+	}
 
-    std::unique_ptr<TransactionType> AggregateTransactionBuilder::build() const
-    {
-        // 1. allocate, zero (header), set model::Transaction fields
-        auto pTransaction = createTransaction<TransactionType>(size());
+	std::unique_ptr<TransactionType> AggregateTransactionBuilder::build() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(size());
 
-        // 2. set transaction fields
-        auto payloadSize = CalculateAggregatePayloadSize(m_transactions);
-        pTransaction->Type = model::Entity_Type_Aggregate_Bonded;
-        pTransaction->PayloadSize = payloadSize;
+		// 2. set transaction fields
+		auto payloadSize = CalculateAggregatePayloadSize(m_transactions);
+		pTransaction->Type = model::Entity_Type_Aggregate_Bonded;
+		pTransaction->PayloadSize = payloadSize;
 
-        crypto::MerkleHashBuilder transactionsHashBuilder(m_transactions.size());
+		crypto::MerkleHashBuilder transactionsHashBuilder(m_transactions.size());
 
-        auto* pData = reinterpret_cast<uint8_t*>(pTransaction->TransactionsPtr());
-        for (const auto& pEmbeddedTransaction : m_transactions) {
-            std::memcpy(pData, pEmbeddedTransaction.get(), pEmbeddedTransaction->Size);
+		auto* pData = reinterpret_cast<uint8_t*>(pTransaction->TransactionsPtr());
+		for (const auto& pEmbeddedTransaction : m_transactions) {
+			std::memcpy(pData, pEmbeddedTransaction.get(), pEmbeddedTransaction->Size);
 
-            Hash256 transactionHash;
-            crypto::Sha3_256({ pData, pEmbeddedTransaction->Size }, transactionHash);
-            transactionsHashBuilder.update(transactionHash);
+			Hash256 transactionHash;
+			crypto::Sha3_256({ pData, pEmbeddedTransaction->Size }, transactionHash);
+			transactionsHashBuilder.update(transactionHash);
 
-            pData += pEmbeddedTransaction->Size;
+			pData += pEmbeddedTransaction->Size;
 
-            auto paddingSize = utils::GetPaddingSize(pEmbeddedTransaction->Size, 8);
-            std::memset(static_cast<void*>(pData), 0, paddingSize);
-            pData += paddingSize;
-        }
+			auto paddingSize = utils::GetPaddingSize(pEmbeddedTransaction->Size, 8);
+			std::memset(static_cast<void*>(pData), 0, paddingSize);
+			pData += paddingSize;
+		}
 
-        transactionsHashBuilder.final(pTransaction->TransactionsHash);
-        return pTransaction;
-    }
+		transactionsHashBuilder.final(pTransaction->TransactionsHash);
+		return pTransaction;
+	}
 
-    namespace {
-        RawBuffer TransactionDataBuffer(const TransactionType& transaction)
-        {
-            return { reinterpret_cast<const uint8_t*>(&transaction) + TransactionType::Header_Size,
-                sizeof(TransactionType) - TransactionType::Header_Size - TransactionType::Footer_Size };
-        }
-    }
+	namespace {
+		RawBuffer TransactionDataBuffer(const TransactionType& transaction) {
+			return { reinterpret_cast<const uint8_t*>(&transaction) + TransactionType::Header_Size,
+				sizeof(TransactionType) - TransactionType::Header_Size - TransactionType::Footer_Size };
+		}
+	}
 
-    AggregateCosignatureAppender::AggregateCosignatureAppender(
-        const GenerationHashSeed& generationHashSeed,
-        std::unique_ptr<TransactionType>&& pAggregateTransaction)
-        : m_generationHashSeed(generationHashSeed)
-        , m_pAggregateTransaction(std::move(pAggregateTransaction))
-    {
-    }
+	AggregateCosignatureAppender::AggregateCosignatureAppender(
+		const GenerationHashSeed& generationHashSeed,
+		std::unique_ptr<TransactionType>&& pAggregateTransaction)
+		: m_generationHashSeed(generationHashSeed)
+		, m_pAggregateTransaction(std::move(pAggregateTransaction)) {
+	}
 
-    void AggregateCosignatureAppender::cosign(const crypto::KeyPair& cosignatory)
-    {
-        if (m_cosignatures.empty()) {
-            m_pAggregateTransaction->Type = model::Entity_Type_Aggregate_Complete;
-            m_transactionHash = model::CalculateHash(*m_pAggregateTransaction, m_generationHashSeed, TransactionDataBuffer(*m_pAggregateTransaction));
-        }
+	void AggregateCosignatureAppender::cosign(const crypto::KeyPair& cosignatory) {
+		if (m_cosignatures.empty()) {
+			m_pAggregateTransaction->Type = model::Entity_Type_Aggregate_Complete;
+			m_transactionHash = model::CalculateHash(*m_pAggregateTransaction, m_generationHashSeed, TransactionDataBuffer(*m_pAggregateTransaction));
+		}
 
-        model::Cosignature cosignature { cosignatory.publicKey(), {} };
-        crypto::Sign(cosignatory, m_transactionHash, cosignature.Signature);
-        m_cosignatures.push_back(cosignature);
-    }
+		model::Cosignature cosignature { cosignatory.publicKey(), {} };
+		crypto::Sign(cosignatory, m_transactionHash, cosignature.Signature);
+		m_cosignatures.push_back(cosignature);
+	}
 
-    std::unique_ptr<TransactionType> AggregateCosignatureAppender::build() const
-    {
-        auto cosignaturesSize = sizeof(model::Cosignature) * m_cosignatures.size();
-        auto size = m_pAggregateTransaction->Size + static_cast<uint32_t>(cosignaturesSize);
-        auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(size);
+	std::unique_ptr<TransactionType> AggregateCosignatureAppender::build() const {
+		auto cosignaturesSize = sizeof(model::Cosignature) * m_cosignatures.size();
+		auto size = m_pAggregateTransaction->Size + static_cast<uint32_t>(cosignaturesSize);
+		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(size);
 
-        std::memcpy(static_cast<void*>(pTransaction.get()), m_pAggregateTransaction.get(), m_pAggregateTransaction->Size);
-        pTransaction->Size = size;
-        std::memcpy(static_cast<void*>(pTransaction->CosignaturesPtr()), m_cosignatures.data(), cosignaturesSize);
-        return pTransaction;
-    }
+		std::memcpy(static_cast<void*>(pTransaction.get()), m_pAggregateTransaction.get(), m_pAggregateTransaction->Size);
+		pTransaction->Size = size;
+		std::memcpy(static_cast<void*>(pTransaction->CosignaturesPtr()), m_cosignatures.data(), cosignaturesSize);
+		return pTransaction;
+	}
 }
 }

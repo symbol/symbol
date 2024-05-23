@@ -27,28 +27,26 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        struct SignatureSystemTraits : public test::EmptyPluginTraits {
-        public:
-            template <typename TAction>
-            static void RunTestAfterRegistration(TAction action)
-            {
-                // Arrange:
-                auto manager = test::CreatePluginManager();
-                RegisterSignatureSystem(manager);
+	namespace {
+		struct SignatureSystemTraits : public test::EmptyPluginTraits {
+		public:
+			template <typename TAction>
+			static void RunTestAfterRegistration(TAction action) {
+				// Arrange:
+				auto manager = test::CreatePluginManager();
+				RegisterSignatureSystem(manager);
 
-                // Act:
-                action(manager);
-            }
+				// Act:
+				action(manager);
+			}
 
-        public:
-            static std::vector<std::string> GetStatelessValidatorNames()
-            {
-                return { "SignatureValidator" };
-            }
-        };
-    }
+		public:
+			static std::vector<std::string> GetStatelessValidatorNames() {
+				return { "SignatureValidator" };
+			}
+		};
+	}
 
-    DEFINE_PLUGIN_TESTS(SignatureSystemTests, SignatureSystemTraits)
+	DEFINE_PLUGIN_TESTS(SignatureSystemTests, SignatureSystemTraits)
 }
 }

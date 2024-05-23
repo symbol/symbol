@@ -26,6 +26,6 @@
 namespace catapult {
 namespace cache {
 
-    DEFINE_LOCK_INFO_CACHE_SERIALIZERS(HashLockInfo)
+	DEFINE_LOCK_INFO_CACHE_SERIALIZERS(HashLockInfo)
 }
 }

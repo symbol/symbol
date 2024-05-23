@@ -26,37 +26,37 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MetadataValueNotification;
+	using Notification = model::MetadataValueNotification;
 
-    DEFINE_STATEFUL_VALIDATOR(MetadataValue, ([](const Notification& notification, const ValidatorContext& context) {
-        auto& cache = context.Cache.sub<cache::MetadataCache>();
+	DEFINE_STATEFUL_VALIDATOR(MetadataValue, ([](const Notification& notification, const ValidatorContext& context) {
+		auto& cache = context.Cache.sub<cache::MetadataCache>();
 
-        auto metadataKey = state::ResolveMetadataKey(
-            notification.PartialMetadataKey,
-            notification.MetadataTarget,
-            context.Resolvers);
-        auto metadataIter = cache.find(metadataKey.uniqueKey());
-        if (!metadataIter.tryGet()) {
-            return notification.ValueSizeDelta == notification.ValueSize
-                ? ValidationResult::Success
-                : Failure_Metadata_Value_Size_Delta_Mismatch;
-        }
+		auto metadataKey = state::ResolveMetadataKey(
+			notification.PartialMetadataKey,
+			notification.MetadataTarget,
+			context.Resolvers);
+		auto metadataIter = cache.find(metadataKey.uniqueKey());
+		if (!metadataIter.tryGet()) {
+			return notification.ValueSizeDelta == notification.ValueSize
+				? ValidationResult::Success
+				: Failure_Metadata_Value_Size_Delta_Mismatch;
+		}
 
-        const auto& metadataValue = metadataIter.get().value();
-        auto expectedCacheValueSize = notification.ValueSize;
-        if (notification.ValueSizeDelta > 0)
-            expectedCacheValueSize = static_cast<uint16_t>(expectedCacheValueSize - notification.ValueSizeDelta);
+		const auto& metadataValue = metadataIter.get().value();
+		auto expectedCacheValueSize = notification.ValueSize;
+		if (notification.ValueSizeDelta > 0)
+			expectedCacheValueSize = static_cast<uint16_t>(expectedCacheValueSize - notification.ValueSizeDelta);
 
-        if (expectedCacheValueSize != metadataValue.size())
-            return Failure_Metadata_Value_Size_Delta_Mismatch;
+		if (expectedCacheValueSize != metadataValue.size())
+			return Failure_Metadata_Value_Size_Delta_Mismatch;
 
-        if (notification.ValueSizeDelta >= 0)
-            return ValidationResult::Success;
+		if (notification.ValueSizeDelta >= 0)
+			return ValidationResult::Success;
 
-        auto requiredTrimCount = static_cast<uint16_t>(-notification.ValueSizeDelta);
-        return metadataValue.canTrim({ notification.ValuePtr, notification.ValueSize }, requiredTrimCount)
-            ? ValidationResult::Success
-            : Failure_Metadata_Value_Change_Irreversible;
-    }))
+		auto requiredTrimCount = static_cast<uint16_t>(-notification.ValueSizeDelta);
+		return metadataValue.canTrim({ notification.ValuePtr, notification.ValueSize }, requiredTrimCount)
+			? ValidationResult::Success
+			: Failure_Metadata_Value_Change_Irreversible;
+	}))
 }
 }

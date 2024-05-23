@@ -28,28 +28,25 @@ namespace extensions {
 
 #define TEST_CLASS MemoryStreamTests
 
-    namespace {
-        class MemoryStreamContext {
-        public:
-            explicit MemoryStreamContext(const char*)
-            {
-            }
+	namespace {
+		class MemoryStreamContext {
+		public:
+			explicit MemoryStreamContext(const char*) {
+			}
 
-            auto outputStream()
-            {
-                return std::make_unique<MemoryStream>(m_buffer);
-            }
+			auto outputStream() {
+				return std::make_unique<MemoryStream>(m_buffer);
+			}
 
-            auto inputStream()
-            {
-                return std::make_unique<MemoryStream>(m_buffer);
-            }
+			auto inputStream() {
+				return std::make_unique<MemoryStream>(m_buffer);
+			}
 
-        private:
-            std::vector<uint8_t> m_buffer;
-        };
-    }
+		private:
+			std::vector<uint8_t> m_buffer;
+		};
+	}
 
-    DEFINE_SEEKABLE_STREAM_TESTS(MemoryStreamContext)
+	DEFINE_SEEKABLE_STREAM_TESTS(MemoryStreamContext)
 }
 }

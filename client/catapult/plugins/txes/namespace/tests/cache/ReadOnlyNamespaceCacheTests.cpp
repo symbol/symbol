@@ -28,14 +28,13 @@ namespace cache {
 
 #define TEST_CLASS ReadOnlyNamespaceCacheTests
 
-    TEST(TEST_CLASS, GracePeriodDurationIsExposed)
-    {
-        // Arrange:
-        NamespaceCache originalCache(CacheConfiguration(), NamespaceCacheTypes::Options { BlockDuration(44) });
+	TEST(TEST_CLASS, GracePeriodDurationIsExposed) {
+		// Arrange:
+		NamespaceCache originalCache(CacheConfiguration(), NamespaceCacheTypes::Options { BlockDuration(44) });
 
-        // Act + Assert:
-        EXPECT_EQ(BlockDuration(44), ReadOnlyNamespaceCache(*originalCache.createView()).gracePeriodDuration());
-        EXPECT_EQ(BlockDuration(44), ReadOnlyNamespaceCache(*originalCache.createDelta()).gracePeriodDuration());
-    }
+		// Act + Assert:
+		EXPECT_EQ(BlockDuration(44), ReadOnlyNamespaceCache(*originalCache.createView()).gracePeriodDuration());
+		EXPECT_EQ(BlockDuration(44), ReadOnlyNamespaceCache(*originalCache.createDelta()).gracePeriodDuration());
+	}
 }
 }

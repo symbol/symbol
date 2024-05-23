@@ -27,48 +27,46 @@
 namespace catapult {
 namespace state {
 
-    // region Save
+	// region Save
 
-    void MetadataEntrySerializer::Save(const MetadataEntry& entry, io::OutputStream& output)
-    {
-        const auto& key = entry.key();
-        output.write(key.sourceAddress());
-        output.write(key.targetAddress());
-        io::Write64(output, key.scopedMetadataKey());
-        io::Write64(output, key.targetId());
-        io::Write8(output, utils::to_underlying_type(key.metadataType()));
+	void MetadataEntrySerializer::Save(const MetadataEntry& entry, io::OutputStream& output) {
+		const auto& key = entry.key();
+		output.write(key.sourceAddress());
+		output.write(key.targetAddress());
+		io::Write64(output, key.scopedMetadataKey());
+		io::Write64(output, key.targetId());
+		io::Write8(output, utils::to_underlying_type(key.metadataType()));
 
-        const auto& value = entry.value();
-        io::Write16(output, static_cast<uint16_t>(value.size()));
-        output.write(value);
-    }
+		const auto& value = entry.value();
+		io::Write16(output, static_cast<uint16_t>(value.size()));
+		output.write(value);
+	}
 
-    // endregion
+	// endregion
 
-    // region Load
+	// region Load
 
-    MetadataEntry MetadataEntrySerializer::Load(io::InputStream& input)
-    {
-        // 1. read partial key
-        model::PartialMetadataKey partialKey;
-        input.read(partialKey.SourceAddress);
-        input.read(partialKey.TargetAddress);
-        partialKey.ScopedMetadataKey = io::Read64(input);
+	MetadataEntry MetadataEntrySerializer::Load(io::InputStream& input) {
+		// 1. read partial key
+		model::PartialMetadataKey partialKey;
+		input.read(partialKey.SourceAddress);
+		input.read(partialKey.TargetAddress);
+		partialKey.ScopedMetadataKey = io::Read64(input);
 
-        // 2. read target information and create entry (note that only resolved values are serialized)
-        auto targetId = io::Read64(input);
-        auto metadataType = static_cast<model::MetadataType>(io::Read8(input));
-        MetadataEntry entry(CreateMetadataKey(partialKey, { metadataType, targetId }));
+		// 2. read target information and create entry (note that only resolved values are serialized)
+		auto targetId = io::Read64(input);
+		auto metadataType = static_cast<model::MetadataType>(io::Read8(input));
+		MetadataEntry entry(CreateMetadataKey(partialKey, { metadataType, targetId }));
 
-        // 3. read and set value
-        auto valueSize = io::Read16(input);
-        std::vector<uint8_t> valueBuffer(valueSize);
-        input.read(valueBuffer);
-        entry.value().update(valueBuffer);
+		// 3. read and set value
+		auto valueSize = io::Read16(input);
+		std::vector<uint8_t> valueBuffer(valueSize);
+		input.read(valueBuffer);
+		entry.value().update(valueBuffer);
 
-        return entry;
-    }
+		return entry;
+	}
 
-    // endregion
+	// endregion
 }
 }

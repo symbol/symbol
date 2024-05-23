@@ -26,7 +26,7 @@
 namespace catapult {
 namespace handlers {
 
-    /// Prototype for a function that processes a range of finalization messages.
-    using MessageRangeHandler = RangeHandler<model::FinalizationMessage>;
+	/// Prototype for a function that processes a range of finalization messages.
+	using MessageRangeHandler = RangeHandler<model::FinalizationMessage>;
 }
 }

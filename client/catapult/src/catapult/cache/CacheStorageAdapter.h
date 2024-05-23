@@ -28,70 +28,63 @@
 namespace catapult {
 namespace cache {
 
-    /// CacheStorage implementation that wraps a cache and associated storage traits.
-    template <typename TCache, typename TStorageTraits>
-    class CacheStorageAdapter : public CacheStorage {
-    public:
-        /// Creates an adapter around \a cache.
-        explicit CacheStorageAdapter(TCache& cache)
-            : m_cache(cache)
-            , m_name(TCache::Name)
-        {
-        }
+	/// CacheStorage implementation that wraps a cache and associated storage traits.
+	template <typename TCache, typename TStorageTraits>
+	class CacheStorageAdapter : public CacheStorage {
+	public:
+		/// Creates an adapter around \a cache.
+		explicit CacheStorageAdapter(TCache& cache)
+			: m_cache(cache)
+			, m_name(TCache::Name) {
+		}
 
-    public:
-        const std::string& name() const override
-        {
-            return m_name;
-        }
+	public:
+		const std::string& name() const override {
+			return m_name;
+		}
 
-    public:
-        void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const override
-        {
-            const auto& view = cacheView.sub<TCache>();
-            io::Write64(output, view.size());
+	public:
+		void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const override {
+			const auto& view = cacheView.sub<TCache>();
+			io::Write64(output, view.size());
 
-            auto pIterableView = view.tryMakeIterableView();
-            for (const auto& element : *pIterableView)
-                SaveValue(element, output);
+			auto pIterableView = view.tryMakeIterableView();
+			for (const auto& element : *pIterableView)
+				SaveValue(element, output);
 
-            output.flush();
-        }
+			output.flush();
+		}
 
-        void saveSummary(const CatapultCacheDelta&, io::OutputStream&) const override
-        {
-            CATAPULT_THROW_INVALID_ARGUMENT("CacheStorageAdapter does not support saveSummary");
-        }
+		void saveSummary(const CatapultCacheDelta&, io::OutputStream&) const override {
+			CATAPULT_THROW_INVALID_ARGUMENT("CacheStorageAdapter does not support saveSummary");
+		}
 
-        void loadAll(io::InputStream& input, size_t batchSize) override
-        {
-            auto delta = m_cache.createDelta();
+		void loadAll(io::InputStream& input, size_t batchSize) override {
+			auto delta = m_cache.createDelta();
 
-            ChunkedDataLoader<TStorageTraits> loader(input);
-            while (loader.hasNext()) {
-                loader.next(batchSize, *delta);
-                m_cache.commit();
-            }
-        }
+			ChunkedDataLoader<TStorageTraits> loader(input);
+			while (loader.hasNext()) {
+				loader.next(batchSize, *delta);
+				m_cache.commit();
+			}
+		}
 
-    private:
-        // assume pair indicates maps and only forward value to save
+	private:
+		// assume pair indicates maps and only forward value to save
 
-        template <typename T>
-        static void SaveValue(const T& value, io::OutputStream& output)
-        {
-            TStorageTraits::Save(value, output);
-        }
+		template <typename T>
+		static void SaveValue(const T& value, io::OutputStream& output) {
+			TStorageTraits::Save(value, output);
+		}
 
-        template <typename T1, typename T2>
-        static void SaveValue(const std::pair<T1, T2>& pair, io::OutputStream& output)
-        {
-            TStorageTraits::Save(pair.second, output);
-        }
+		template <typename T1, typename T2>
+		static void SaveValue(const std::pair<T1, T2>& pair, io::OutputStream& output) {
+			TStorageTraits::Save(pair.second, output);
+		}
 
-    private:
-        TCache& m_cache;
-        std::string m_name;
-    };
+	private:
+		TCache& m_cache;
+		std::string m_name;
+	};
 }
 }

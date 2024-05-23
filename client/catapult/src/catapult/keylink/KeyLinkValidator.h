@@ -26,31 +26,30 @@
 namespace catapult {
 namespace keylink {
 
-    /// Creates a stateful key link validator with \a name that validates:
-    /// - no link exists when linking
-    /// - matching link exists when unlinking
-    template <typename TNotification, typename TAccessor>
-    validators::stateful::NotificationValidatorPointerT<TNotification> CreateKeyLinkValidator(const std::string& name)
-    {
-        using ValidatorType = validators::stateful::FunctionalNotificationValidatorT<TNotification>;
-        return std::make_unique<ValidatorType>(
-            name + "KeyLinkValidator",
-            [](const TNotification& notification, const validators::ValidatorContext& context) {
-                const auto& cache = context.Cache.sub<cache::AccountStateCache>();
-                auto accountStateIter = cache.find(notification.MainAccountPublicKey);
-                const auto& accountState = accountStateIter.get();
+	/// Creates a stateful key link validator with \a name that validates:
+	/// - no link exists when linking
+	/// - matching link exists when unlinking
+	template <typename TNotification, typename TAccessor>
+	validators::stateful::NotificationValidatorPointerT<TNotification> CreateKeyLinkValidator(const std::string& name) {
+		using ValidatorType = validators::stateful::FunctionalNotificationValidatorT<TNotification>;
+		return std::make_unique<ValidatorType>(
+			name + "KeyLinkValidator",
+			[](const TNotification& notification, const validators::ValidatorContext& context) {
+				const auto& cache = context.Cache.sub<cache::AccountStateCache>();
+				auto accountStateIter = cache.find(notification.MainAccountPublicKey);
+				const auto& accountState = accountStateIter.get();
 
-                const auto& publicKeyAccessor = TAccessor::Get(accountState);
-                if (model::LinkAction::Link == notification.LinkAction) {
-                    if (publicKeyAccessor)
-                        return TAccessor::Failure_Link_Already_Exists;
-                } else {
-                    if (!publicKeyAccessor || notification.LinkedPublicKey != publicKeyAccessor.get())
-                        return TAccessor::Failure_Inconsistent_Unlink_Data;
-                }
+				const auto& publicKeyAccessor = TAccessor::Get(accountState);
+				if (model::LinkAction::Link == notification.LinkAction) {
+					if (publicKeyAccessor)
+						return TAccessor::Failure_Link_Already_Exists;
+				} else {
+					if (!publicKeyAccessor || notification.LinkedPublicKey != publicKeyAccessor.get())
+						return TAccessor::Failure_Inconsistent_Unlink_Data;
+				}
 
-                return validators::ValidationResult::Success;
-            });
-    }
+				return validators::ValidationResult::Success;
+			});
+	}
 }
 }

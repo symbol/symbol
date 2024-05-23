@@ -35,92 +35,87 @@
 namespace catapult {
 namespace timesync {
 
-    namespace {
-        constexpr auto Service_Group = "timesync";
-        constexpr auto Requestor_Service_Name = "timesync.requestor";
-        constexpr auto Synchronizer_Service_Name = "timesync.synchronizer";
-        constexpr auto State_Service_Name = "timesync.state";
+	namespace {
+		constexpr auto Service_Group = "timesync";
+		constexpr auto Requestor_Service_Name = "timesync.requestor";
+		constexpr auto Synchronizer_Service_Name = "timesync.synchronizer";
+		constexpr auto State_Service_Name = "timesync.state";
 
-        using NetworkTimeSupplier = extensions::ExtensionManager::NetworkTimeSupplier;
+		using NetworkTimeSupplier = extensions::ExtensionManager::NetworkTimeSupplier;
 
-        class TimeSynchronizationServiceRegistrar : public extensions::ServiceRegistrar {
-        public:
-            TimeSynchronizationServiceRegistrar(
-                const TimeSynchronizationConfiguration& timeSyncConfig,
-                const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState)
-                : m_timeSyncConfig(timeSyncConfig)
-                , m_pTimeSyncState(pTimeSyncState)
-            {
-            }
+		class TimeSynchronizationServiceRegistrar : public extensions::ServiceRegistrar {
+		public:
+			TimeSynchronizationServiceRegistrar(
+				const TimeSynchronizationConfiguration& timeSyncConfig,
+				const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState)
+				: m_timeSyncConfig(timeSyncConfig)
+				, m_pTimeSyncState(pTimeSyncState) {
+			}
 
-        public:
-            extensions::ServiceRegistrarInfo info() const override
-            {
-                return { "TimeSynchronization", extensions::ServiceRegistrarPhase::Post_Packet_Io_Pickers };
-            }
+		public:
+			extensions::ServiceRegistrarInfo info() const override {
+				return { "TimeSynchronization", extensions::ServiceRegistrarPhase::Post_Packet_Io_Pickers };
+			}
 
-            void registerServiceCounters(extensions::ServiceLocator& locator) override
-            {
-                auto addStateCounter = [&locator](const auto& counterName, auto supplier) {
-                    locator.registerServiceCounter<TimeSynchronizationState>(State_Service_Name, counterName, supplier);
-                };
-                addStateCounter("TS OFFSET ABS", [](const auto& state) { return state.absoluteOffset(); });
-                addStateCounter("TS OFFSET DIR", [](const auto& state) { return utils::to_underlying_type(state.offsetDirection()); });
-                addStateCounter("TS NODE AGE", [](const auto& state) { return static_cast<uint64_t>(state.nodeAge().unwrap()); });
+			void registerServiceCounters(extensions::ServiceLocator& locator) override {
+				auto addStateCounter = [&locator](const auto& counterName, auto supplier) {
+					locator.registerServiceCounter<TimeSynchronizationState>(State_Service_Name, counterName, supplier);
+				};
+				addStateCounter("TS OFFSET ABS", [](const auto& state) { return state.absoluteOffset(); });
+				addStateCounter("TS OFFSET DIR", [](const auto& state) { return utils::to_underlying_type(state.offsetDirection()); });
+				addStateCounter("TS NODE AGE", [](const auto& state) { return static_cast<uint64_t>(state.nodeAge().unwrap()); });
 
-                auto addRequestorCounter = [&locator](const auto& counterName, auto supplier) {
-                    locator.registerServiceCounter<NodeNetworkTimeRequestor>(Requestor_Service_Name, counterName, supplier);
-                };
-                addRequestorCounter("TS TOTAL REQ", [](const auto& requestor) { return requestor.numTotalRequests(); });
-            }
+				auto addRequestorCounter = [&locator](const auto& counterName, auto supplier) {
+					locator.registerServiceCounter<NodeNetworkTimeRequestor>(Requestor_Service_Name, counterName, supplier);
+				};
+				addRequestorCounter("TS TOTAL REQ", [](const auto& requestor) { return requestor.numTotalRequests(); });
+			}
 
-            void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override
-            {
-                // create filters
-                std::vector<filters::SynchronizationFilter> filters { filters::CreateReversedTimestampsFilter(),
-                    filters::CreateResponseDelayDetectionFilter(),
-                    filters::CreateClampingFilter() };
+			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				// create filters
+				std::vector<filters::SynchronizationFilter> filters { filters::CreateReversedTimestampsFilter(),
+					filters::CreateResponseDelayDetectionFilter(),
+					filters::CreateClampingFilter() };
 
-                // register services
-                auto connectionSettings = extensions::GetConnectionSettings(state.config());
-                auto pServiceGroup = state.pool().pushServiceGroup(Service_Group);
-                auto pNodeNetworkTimeRequestor = pServiceGroup->pushService(CreateNodeNetworkTimeRequestor, locator.keys().caPublicKey(), connectionSettings);
+				// register services
+				auto connectionSettings = extensions::GetConnectionSettings(state.config());
+				auto pServiceGroup = state.pool().pushServiceGroup(Service_Group);
+				auto pNodeNetworkTimeRequestor = pServiceGroup->pushService(CreateNodeNetworkTimeRequestor, locator.keys().caPublicKey(), connectionSettings);
 
-                locator.registerService(Requestor_Service_Name, pNodeNetworkTimeRequestor);
+				locator.registerService(Requestor_Service_Name, pNodeNetworkTimeRequestor);
 
-                auto pTimeSynchronizer = std::make_shared<TimeSynchronizer>(
-                    filters::AggregateSynchronizationFilter(filters),
-                    state.config().Blockchain.TotalChainImportance);
-                locator.registerRootedService(Synchronizer_Service_Name, pTimeSynchronizer);
+				auto pTimeSynchronizer = std::make_shared<TimeSynchronizer>(
+					filters::AggregateSynchronizationFilter(filters),
+					state.config().Blockchain.TotalChainImportance);
+				locator.registerRootedService(Synchronizer_Service_Name, pTimeSynchronizer);
 
-                locator.registerRootedService(State_Service_Name, m_pTimeSyncState);
+				locator.registerRootedService(State_Service_Name, m_pTimeSyncState);
 
-                // set handler
-                handlers::RegisterTimeSyncNetworkTimeHandler(state.packetHandlers(), state.timeSupplier());
+				// set handler
+				handlers::RegisterTimeSyncNetworkTimeHandler(state.packetHandlers(), state.timeSupplier());
 
-                // add task
-                auto sampleSupplier = [&requestor = *pNodeNetworkTimeRequestor](const auto& node) {
-                    return net::BeginRequestFuture(requestor, node);
-                };
-                state.tasks().push_back(CreateTimeSyncTask(
-                    *pTimeSynchronizer,
-                    m_timeSyncConfig,
-                    sampleSupplier,
-                    state,
-                    *m_pTimeSyncState,
-                    state.timeSupplier()));
-            }
+				// add task
+				auto sampleSupplier = [&requestor = *pNodeNetworkTimeRequestor](const auto& node) {
+					return net::BeginRequestFuture(requestor, node);
+				};
+				state.tasks().push_back(CreateTimeSyncTask(
+					*pTimeSynchronizer,
+					m_timeSyncConfig,
+					sampleSupplier,
+					state,
+					*m_pTimeSyncState,
+					state.timeSupplier()));
+			}
 
-        private:
-            TimeSynchronizationConfiguration m_timeSyncConfig;
-            std::shared_ptr<TimeSynchronizationState> m_pTimeSyncState;
-        };
-    }
+		private:
+			TimeSynchronizationConfiguration m_timeSyncConfig;
+			std::shared_ptr<TimeSynchronizationState> m_pTimeSyncState;
+		};
+	}
 
-    DECLARE_SERVICE_REGISTRAR(TimeSynchronization)
-    (const TimeSynchronizationConfiguration& timeSyncConfig, const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState)
-    {
-        return std::make_unique<TimeSynchronizationServiceRegistrar>(timeSyncConfig, pTimeSyncState);
-    }
+	DECLARE_SERVICE_REGISTRAR(TimeSynchronization)
+	(const TimeSynchronizationConfiguration& timeSyncConfig, const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState) {
+		return std::make_unique<TimeSynchronizationServiceRegistrar>(timeSyncConfig, pTimeSyncState);
+	}
 }
 }

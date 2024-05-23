@@ -38,122 +38,114 @@
 namespace catapult {
 namespace process {
 
-    namespace {
-        // region initialization utils
+	namespace {
+		// region initialization utils
 
-        config::CatapultConfiguration LoadConfiguration(int argc, const char** argv, const std::string& extensionsHost)
-        {
-            auto resourcesPath = GetResourcesPath(argc, argv);
-            std::cout << "loading resources from " << resourcesPath << std::endl;
-            return config::CatapultConfiguration::LoadFromPath(resourcesPath, extensionsHost);
-        }
+		config::CatapultConfiguration LoadConfiguration(int argc, const char** argv, const std::string& extensionsHost) {
+			auto resourcesPath = GetResourcesPath(argc, argv);
+			std::cout << "loading resources from " << resourcesPath << std::endl;
+			return config::CatapultConfiguration::LoadFromPath(resourcesPath, extensionsHost);
+		}
 
-        std::unique_ptr<utils::LogFilter> CreateLogFilter(const config::BasicLoggerConfiguration& config)
-        {
-            auto pFilter = std::make_unique<utils::LogFilter>(config.Level);
-            for (const auto& pair : config.ComponentLevels)
-                pFilter->setLevel(pair.first.c_str(), pair.second);
+		std::unique_ptr<utils::LogFilter> CreateLogFilter(const config::BasicLoggerConfiguration& config) {
+			auto pFilter = std::make_unique<utils::LogFilter>(config.Level);
+			for (const auto& pair : config.ComponentLevels)
+				pFilter->setLevel(pair.first.c_str(), pair.second);
 
-            return pFilter;
-        }
+			return pFilter;
+		}
 
-        std::shared_ptr<void> SetupLogging(const std::string& host, const config::LoggingConfiguration& config)
-        {
-            auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
+		std::shared_ptr<void> SetupLogging(const std::string& host, const config::LoggingConfiguration& config) {
+			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
 
-            pBootstrapper->addFileLogger(config::GetFileLoggerOptions(config.File), *CreateLogFilter(config.File));
+			pBootstrapper->addFileLogger(config::GetFileLoggerOptions(config.File), *CreateLogFilter(config.File));
 
-            // log version only to file before initializing console
-            std::ostringstream versionStream;
-            versionStream << "catapult " << host << std::endl;
-            version::WriteVersionInformation(versionStream);
-            CATAPULT_LOG(important) << versionStream.str();
+			// log version only to file before initializing console
+			std::ostringstream versionStream;
+			versionStream << "catapult " << host << std::endl;
+			version::WriteVersionInformation(versionStream);
+			CATAPULT_LOG(important) << versionStream.str();
 
-            pBootstrapper->addConsoleLogger(config::GetConsoleLoggerOptions(config.Console), *CreateLogFilter(config.Console));
-            return PORTABLE_MOVE(pBootstrapper);
-        }
+			pBootstrapper->addConsoleLogger(config::GetConsoleLoggerOptions(config.Console), *CreateLogFilter(config.Console));
+			return PORTABLE_MOVE(pBootstrapper);
+		}
 
-        [[noreturn]]
-        void TerminateHandler() noexcept
-        {
-            // 1. if termination is caused by an exception, log it
-            if (std::current_exception()) {
-                CATAPULT_LOG(fatal) << std::endl
-                                    << "thread: " << thread::GetThreadName() << std::endl
-                                    << UNHANDLED_EXCEPTION_MESSAGE("running local node");
-            }
+		[[noreturn]]
+		void TerminateHandler() noexcept {
+			// 1. if termination is caused by an exception, log it
+			if (std::current_exception()) {
+				CATAPULT_LOG(fatal) << std::endl
+									<< "thread: " << thread::GetThreadName() << std::endl
+									<< UNHANDLED_EXCEPTION_MESSAGE("running local node");
+			}
 
-            // 2. flush the log and abort
-            utils::CatapultLogFlush();
-            std::abort();
-        }
+			// 2. flush the log and abort
+			utils::CatapultLogFlush();
+			std::abort();
+		}
 
-        // endregion
+		// endregion
 
-        void Run(config::CatapultConfiguration&& config, ProcessOptions processOptions, const CreateProcessHost& createProcessHost)
-        {
-            auto catapultKeys = config::CatapultKeys(config.User.CertificateDirectory);
+		void Run(config::CatapultConfiguration&& config, ProcessOptions processOptions, const CreateProcessHost& createProcessHost) {
+			auto catapultKeys = config::CatapultKeys(config.User.CertificateDirectory);
 
-            CATAPULT_LOG(important) << "booting process with keys:" << std::endl
-                                    << " -   CA " << catapultKeys.caPublicKey() << std::endl
-                                    << " - NODE " << catapultKeys.nodeKeyPair().publicKey();
-            auto pProcessHost = createProcessHost(std::move(config), catapultKeys);
+			CATAPULT_LOG(important) << "booting process with keys:" << std::endl
+									<< " -   CA " << catapultKeys.caPublicKey() << std::endl
+									<< " - NODE " << catapultKeys.nodeKeyPair().publicKey();
+			auto pProcessHost = createProcessHost(std::move(config), catapultKeys);
 
-            if (ProcessOptions::Exit_After_Termination_Signal == processOptions)
-                WaitForTerminationSignal();
+			if (ProcessOptions::Exit_After_Termination_Signal == processOptions)
+				WaitForTerminationSignal();
 
-            CATAPULT_LOG(important) << "SHUTTING DOWN PROCESS";
-            pProcessHost.reset();
-        }
-    }
+			CATAPULT_LOG(important) << "SHUTTING DOWN PROCESS";
+			pProcessHost.reset();
+		}
+	}
 
-    std::filesystem::path GetResourcesPath(int argc, const char** argv)
-    {
-        return std::filesystem::path(argc > 1 ? argv[1] : "..") / "resources";
-    }
+	std::filesystem::path GetResourcesPath(int argc, const char** argv) {
+		return std::filesystem::path(argc > 1 ? argv[1] : "..") / "resources";
+	}
 
-    int ProcessMain(int argc, const char** argv, const std::string& host, const CreateProcessHost& createProcessHost)
-    {
-        return ProcessMain(argc, argv, host, ProcessOptions::Exit_After_Termination_Signal, createProcessHost);
-    }
+	int ProcessMain(int argc, const char** argv, const std::string& host, const CreateProcessHost& createProcessHost) {
+		return ProcessMain(argc, argv, host, ProcessOptions::Exit_After_Termination_Signal, createProcessHost);
+	}
 
-    int ProcessMain(
-        int argc,
-        const char** argv,
-        const std::string& host,
-        ProcessOptions processOptions,
-        const CreateProcessHost& createProcessHost)
-    {
-        std::set_terminate(&TerminateHandler);
-        thread::SetThreadName(host + " catapult");
-        version::WriteVersionInformation(std::cout);
+	int ProcessMain(
+		int argc,
+		const char** argv,
+		const std::string& host,
+		ProcessOptions processOptions,
+		const CreateProcessHost& createProcessHost) {
+		std::set_terminate(&TerminateHandler);
+		thread::SetThreadName(host + " catapult");
+		version::WriteVersionInformation(std::cout);
 
-        // 1. setup OpenSSL
-        auto pOpensslContext = crypto::SetupOpensslCryptoFunctions();
-        crypto::SetupOpensslMemoryFunctions();
+		// 1. setup OpenSSL
+		auto pOpensslContext = crypto::SetupOpensslCryptoFunctions();
+		crypto::SetupOpensslMemoryFunctions();
 
-        // 2. load and validate the configuration
-        auto config = LoadConfiguration(argc, argv, host);
-        ValidateConfiguration(config);
+		// 2. load and validate the configuration
+		auto config = LoadConfiguration(argc, argv, host);
+		ValidateConfiguration(config);
 
-        // 3. initialize logging
-        auto pLoggingGuard = SetupLogging(host, config.Logging);
+		// 3. initialize logging
+		auto pLoggingGuard = SetupLogging(host, config.Logging);
 
-        // 4. check instance
-        std::filesystem::path lockFilePath = config.User.DataDirectory;
-        lockFilePath /= host + ".lock";
-        io::FileLock instanceLock(lockFilePath.generic_string());
-        if (!instanceLock.try_lock()) {
-            CATAPULT_LOG(fatal) << "could not acquire instance lock " << lockFilePath;
-            return -3;
-        }
+		// 4. check instance
+		std::filesystem::path lockFilePath = config.User.DataDirectory;
+		lockFilePath /= host + ".lock";
+		io::FileLock instanceLock(lockFilePath.generic_string());
+		if (!instanceLock.try_lock()) {
+			CATAPULT_LOG(fatal) << "could not acquire instance lock " << lockFilePath;
+			return -3;
+		}
 
-        // 5. platform specific settings
-        PlatformSettings();
+		// 5. platform specific settings
+		PlatformSettings();
 
-        // 6. run the server
-        Run(std::move(config), processOptions, createProcessHost);
-        return 0;
-    }
+		// 6. run the server
+		Run(std::move(config), processOptions, createProcessHost);
+		return 0;
+	}
 }
 }

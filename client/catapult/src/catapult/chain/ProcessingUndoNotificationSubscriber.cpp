@@ -24,45 +24,41 @@
 namespace catapult {
 namespace chain {
 
-    ProcessingUndoNotificationSubscriber::ProcessingUndoNotificationSubscriber(
-        const observers::NotificationObserver& observer,
-        observers::ObserverContext& observerContext)
-        : m_observer(observer)
-        , m_observerContext(observerContext)
-    {
-    }
+	ProcessingUndoNotificationSubscriber::ProcessingUndoNotificationSubscriber(
+		const observers::NotificationObserver& observer,
+		observers::ObserverContext& observerContext)
+		: m_observer(observer)
+		, m_observerContext(observerContext) {
+	}
 
-    void ProcessingUndoNotificationSubscriber::undo()
-    {
-        auto undoMode = observers::NotifyMode::Commit == m_observerContext.Mode ? observers::NotifyMode::Rollback : observers::NotifyMode::Commit;
-        auto undoObserverContext = observers::ObserverContext(
-            model::NotificationContext(m_observerContext.Height, m_observerContext.UndecoratedResolvers),
-            observers::ObserverState(m_observerContext.Cache),
-            undoMode);
-        for (auto iter = m_notificationBuffers.crbegin(); m_notificationBuffers.crend() != iter; ++iter) {
-            const auto* pNotification = reinterpret_cast<const model::Notification*>(iter->data());
-            m_observer.notify(*pNotification, undoObserverContext);
-        }
+	void ProcessingUndoNotificationSubscriber::undo() {
+		auto undoMode = observers::NotifyMode::Commit == m_observerContext.Mode ? observers::NotifyMode::Rollback : observers::NotifyMode::Commit;
+		auto undoObserverContext = observers::ObserverContext(
+			model::NotificationContext(m_observerContext.Height, m_observerContext.UndecoratedResolvers),
+			observers::ObserverState(m_observerContext.Cache),
+			undoMode);
+		for (auto iter = m_notificationBuffers.crbegin(); m_notificationBuffers.crend() != iter; ++iter) {
+			const auto* pNotification = reinterpret_cast<const model::Notification*>(iter->data());
+			m_observer.notify(*pNotification, undoObserverContext);
+		}
 
-        m_notificationBuffers.clear();
-    }
+		m_notificationBuffers.clear();
+	}
 
-    void ProcessingUndoNotificationSubscriber::notify(const model::Notification& notification)
-    {
-        if (notification.Size < sizeof(model::Notification))
-            CATAPULT_THROW_INVALID_ARGUMENT("cannot process notification with incorrect size");
+	void ProcessingUndoNotificationSubscriber::notify(const model::Notification& notification) {
+		if (notification.Size < sizeof(model::Notification))
+			CATAPULT_THROW_INVALID_ARGUMENT("cannot process notification with incorrect size");
 
-        observe(notification);
-    }
+		observe(notification);
+	}
 
-    void ProcessingUndoNotificationSubscriber::observe(const model::Notification& notification)
-    {
-        if (!IsSet(notification.Type, model::NotificationChannel::Observer))
-            return;
+	void ProcessingUndoNotificationSubscriber::observe(const model::Notification& notification) {
+		if (!IsSet(notification.Type, model::NotificationChannel::Observer))
+			return;
 
-        // don't actually execute, just store a copy of the notification buffer
-        const auto* pData = reinterpret_cast<const uint8_t*>(&notification);
-        m_notificationBuffers.emplace_back(pData, pData + notification.Size);
-    }
+		// don't actually execute, just store a copy of the notification buffer
+		const auto* pData = reinterpret_cast<const uint8_t*>(&notification);
+		m_notificationBuffers.emplace_back(pData, pData + notification.Size);
+	}
 }
 }

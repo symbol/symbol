@@ -28,34 +28,34 @@
 namespace catapult {
 namespace cache {
 
-    /// Primary serializer for namespace cache.
-    struct RootNamespaceHistoryPrimarySerializer
-        : public CacheSerializerAdapter<state::RootNamespaceHistorySerializer, NamespaceCacheDescriptor> { };
+	/// Primary serializer for namespace cache.
+	struct RootNamespaceHistoryPrimarySerializer
+		: public CacheSerializerAdapter<state::RootNamespaceHistorySerializer, NamespaceCacheDescriptor> { };
 
-    /// Primary serializer for namespace cache for patricia tree hashes.
-    /// \note This serializer excludes historical namespaces.
-    struct RootNamespaceHistoryPatriciaTreeSerializer
-        : public CacheSerializerAdapter<state::RootNamespaceHistoryNonHistoricalSerializer, NamespaceCacheDescriptor> { };
+	/// Primary serializer for namespace cache for patricia tree hashes.
+	/// \note This serializer excludes historical namespaces.
+	struct RootNamespaceHistoryPatriciaTreeSerializer
+		: public CacheSerializerAdapter<state::RootNamespaceHistoryNonHistoricalSerializer, NamespaceCacheDescriptor> { };
 
-    /// Serializer for namespace flat map sub cache.
-    struct NamespaceFlatMapTypesSerializer {
-    private:
-        using KeyType = NamespaceId;
-        using ValueType = state::Namespace;
+	/// Serializer for namespace flat map sub cache.
+	struct NamespaceFlatMapTypesSerializer {
+	private:
+		using KeyType = NamespaceId;
+		using ValueType = state::Namespace;
 
-    public:
-        /// Serialized state version.
-        static constexpr uint16_t State_Version = 1;
+	public:
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
 
-    public:
-        /// Serializes \a element to string.
-        static std::string SerializeValue(const ValueType& value);
+	public:
+		/// Serializes \a element to string.
+		static std::string SerializeValue(const ValueType& value);
 
-        /// Deserializes value from \a buffer.
-        static ValueType DeserializeValue(const RawBuffer& buffer);
-    };
+		/// Deserializes value from \a buffer.
+		static ValueType DeserializeValue(const RawBuffer& buffer);
+	};
 
-    /// Serializer for namespace cache height grouped elements.
-    struct NamespaceHeightGroupingSerializer : public IdentifierGroupSerializer<NamespaceCacheTypes::HeightGroupingTypesDescriptor> { };
+	/// Serializer for namespace cache height grouped elements.
+	struct NamespaceHeightGroupingSerializer : public IdentifierGroupSerializer<NamespaceCacheTypes::HeightGroupingTypesDescriptor> { };
 }
 }

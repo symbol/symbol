@@ -27,43 +27,39 @@
 namespace catapult {
 namespace cache {
 
-    /// Patricia tree column descriptor.
-    struct PatriciaTreeColumnDescriptor {
-    public:
-        using KeyType = Hash256;
-        using ValueType = tree::TreeNode;
-        using StorageType = std::pair<const KeyType, ValueType>;
+	/// Patricia tree column descriptor.
+	struct PatriciaTreeColumnDescriptor {
+	public:
+		using KeyType = Hash256;
+		using ValueType = tree::TreeNode;
+		using StorageType = std::pair<const KeyType, ValueType>;
 
-    public:
-        /// Gets the key corresponding to \a treeNode.
-        static const auto& GetKeyFromValue(const ValueType& treeNode)
-        {
-            return treeNode.hash();
-        }
+	public:
+		/// Gets the key corresponding to \a treeNode.
+		static const auto& GetKeyFromValue(const ValueType& treeNode) {
+			return treeNode.hash();
+		}
 
-        /// Converts a value type (\a treeNode) to a storage type.
-        static auto ToStorage(const ValueType& treeNode)
-        {
-            return StorageType(GetKeyFromValue(treeNode), treeNode.copy());
-        }
+		/// Converts a value type (\a treeNode) to a storage type.
+		static auto ToStorage(const ValueType& treeNode) {
+			return StorageType(GetKeyFromValue(treeNode), treeNode.copy());
+		}
 
-        /// Converts a storage type (\a element) to a key type.
-        static const auto& ToKey(const StorageType& element)
-        {
-            return element.first;
-        }
+		/// Converts a storage type (\a element) to a key type.
+		static const auto& ToKey(const StorageType& element) {
+			return element.first;
+		}
 
-        /// Converts a storage type (\a element) to a value type.
-        static const auto& ToValue(const StorageType& element)
-        {
-            return element.second;
-        }
+		/// Converts a storage type (\a element) to a value type.
+		static const auto& ToValue(const StorageType& element) {
+			return element.second;
+		}
 
-    public:
-        using Serializer = tree::PatriciaTreeSerializer;
-    };
+	public:
+		using Serializer = tree::PatriciaTreeSerializer;
+	};
 
-    /// Patricia tree typed container.
-    using PatriciaTreeContainer = cache::RdbTypedColumnContainer<PatriciaTreeColumnDescriptor>;
+	/// Patricia tree typed container.
+	using PatriciaTreeContainer = cache::RdbTypedColumnContainer<PatriciaTreeColumnDescriptor>;
 }
 }

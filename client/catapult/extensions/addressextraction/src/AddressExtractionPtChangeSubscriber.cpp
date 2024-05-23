@@ -25,43 +25,37 @@
 namespace catapult {
 namespace addressextraction {
 
-    namespace {
-        class AddressExtractionPtChangeSubscriber : public cache::PtChangeSubscriber {
-        public:
-            explicit AddressExtractionPtChangeSubscriber(const AddressExtractor& extractor)
-                : m_extractor(extractor)
-            {
-            }
+	namespace {
+		class AddressExtractionPtChangeSubscriber : public cache::PtChangeSubscriber {
+		public:
+			explicit AddressExtractionPtChangeSubscriber(const AddressExtractor& extractor)
+				: m_extractor(extractor) {
+			}
 
-        public:
-            void notifyAddPartials(const TransactionInfos& transactionInfos) override
-            {
-                m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
-            }
+		public:
+			void notifyAddPartials(const TransactionInfos& transactionInfos) override {
+				m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
+			}
 
-            void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature&) override
-            {
-                m_extractor.extract(const_cast<model::TransactionInfo&>(parentTransactionInfo));
-            }
+			void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature&) override {
+				m_extractor.extract(const_cast<model::TransactionInfo&>(parentTransactionInfo));
+			}
 
-            void notifyRemovePartials(const TransactionInfos& transactionInfos) override
-            {
-                m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
-            }
+			void notifyRemovePartials(const TransactionInfos& transactionInfos) override {
+				m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
+			}
 
-            void flush() override
-            {
-                // nothing to intercept
-            }
+			void flush() override {
+				// nothing to intercept
+			}
 
-        private:
-            const AddressExtractor& m_extractor;
-        };
-    }
+		private:
+			const AddressExtractor& m_extractor;
+		};
+	}
 
-    std::unique_ptr<cache::PtChangeSubscriber> CreateAddressExtractionPtChangeSubscriber(const AddressExtractor& extractor)
-    {
-        return std::make_unique<AddressExtractionPtChangeSubscriber>(extractor);
-    }
+	std::unique_ptr<cache::PtChangeSubscriber> CreateAddressExtractionPtChangeSubscriber(const AddressExtractor& extractor) {
+		return std::make_unique<AddressExtractionPtChangeSubscriber>(extractor);
+	}
 }
 }

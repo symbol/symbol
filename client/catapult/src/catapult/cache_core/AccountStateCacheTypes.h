@@ -30,182 +30,177 @@
 
 namespace catapult {
 namespace cache {
-    struct AccountStateBaseSetDeltaPointers;
-    struct AccountStateBaseSets;
-    class AccountStateCache;
-    class AccountStateCacheDelta;
-    class AccountStateCacheView;
-    class AccountStatePatriciaTree;
-    struct AccountStatePrimarySerializer;
-    class BasicAccountStateCacheDelta;
-    class BasicAccountStateCacheView;
-    struct KeyAddressPairSerializer;
-    class ReadOnlyAccountStateCache;
+	struct AccountStateBaseSetDeltaPointers;
+	struct AccountStateBaseSets;
+	class AccountStateCache;
+	class AccountStateCacheDelta;
+	class AccountStateCacheView;
+	class AccountStatePatriciaTree;
+	struct AccountStatePrimarySerializer;
+	class BasicAccountStateCacheDelta;
+	class BasicAccountStateCacheView;
+	struct KeyAddressPairSerializer;
+	class ReadOnlyAccountStateCache;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// Describes an account state cache.
-    struct AccountStateCacheDescriptor {
-    public:
-        static constexpr auto Name = "AccountStateCache:Address";
+	/// Describes an account state cache.
+	struct AccountStateCacheDescriptor {
+	public:
+		static constexpr auto Name = "AccountStateCache:Address";
 
-    public:
-        // key value types
-        using KeyType = Address;
-        using ValueType = state::AccountState;
+	public:
+		// key value types
+		using KeyType = Address;
+		using ValueType = state::AccountState;
 
-        // cache types
-        using CacheType = AccountStateCache;
-        using CacheDeltaType = AccountStateCacheDelta;
-        using CacheViewType = AccountStateCacheView;
+		// cache types
+		using CacheType = AccountStateCache;
+		using CacheDeltaType = AccountStateCacheDelta;
+		using CacheViewType = AccountStateCacheView;
 
-        using Serializer = AccountStatePrimarySerializer;
-        using PatriciaTree = AccountStatePatriciaTree;
+		using Serializer = AccountStatePrimarySerializer;
+		using PatriciaTree = AccountStatePatriciaTree;
 
-    public:
-        /// Gets the key corresponding to \a accountState.
-        static auto GetKeyFromValue(const ValueType& accountState)
-        {
-            return accountState.Address;
-        }
-    };
+	public:
+		/// Gets the key corresponding to \a accountState.
+		static auto GetKeyFromValue(const ValueType& accountState) {
+			return accountState.Address;
+		}
+	};
 
-    /// AccountState cache types.
-    struct AccountStateCacheTypes {
-    public:
-        using CacheReadOnlyType = ReadOnlyAccountStateCache;
+	/// AccountState cache types.
+	struct AccountStateCacheTypes {
+	public:
+		using CacheReadOnlyType = ReadOnlyAccountStateCache;
 
-        /// Custom sub view options.
-        struct Options {
-            /// Network identifier.
-            model::NetworkIdentifier NetworkIdentifier;
+		/// Custom sub view options.
+		struct Options {
+			/// Network identifier.
+			model::NetworkIdentifier NetworkIdentifier;
 
-            /// Importance grouping.
-            uint64_t ImportanceGrouping;
+			/// Importance grouping.
+			uint64_t ImportanceGrouping;
 
-            /// Voting set grouping.
-            uint64_t VotingSetGrouping;
+			/// Voting set grouping.
+			uint64_t VotingSetGrouping;
 
-            /// Minimum harvester balance.
-            /// \note This doubles as the minimum balance of tracked high value accounts.
-            Amount MinHarvesterBalance;
+			/// Minimum harvester balance.
+			/// \note This doubles as the minimum balance of tracked high value accounts.
+			Amount MinHarvesterBalance;
 
-            /// Maximum harvester balance.
-            Amount MaxHarvesterBalance;
+			/// Maximum harvester balance.
+			Amount MaxHarvesterBalance;
 
-            /// Minimum voter balance.
-            /// \note This doubles as the minimum balance of tracked high value accounts with balances.
-            Amount MinVoterBalance;
+			/// Minimum voter balance.
+			/// \note This doubles as the minimum balance of tracked high value accounts with balances.
+			Amount MinVoterBalance;
 
-            /// Mosaic id used as primary chain currency.
-            MosaicId CurrencyMosaicId;
+			/// Mosaic id used as primary chain currency.
+			MosaicId CurrencyMosaicId;
 
-            /// Mosaic id used to provide harvesting ability.
-            MosaicId HarvestingMosaicId;
-        };
+			/// Mosaic id used to provide harvesting ability.
+			MosaicId HarvestingMosaicId;
+		};
 
-        // region secondary descriptors
+		// region secondary descriptors
 
-    public:
-        /// Describes a key-based interface on top of an account state cache.
-        struct KeyLookupMapTypesDescriptor {
-        public:
-            using KeyType = Key;
-            using ValueType = std::pair<Key, Address>;
-            using Serializer = KeyAddressPairSerializer;
+	public:
+		/// Describes a key-based interface on top of an account state cache.
+		struct KeyLookupMapTypesDescriptor {
+		public:
+			using KeyType = Key;
+			using ValueType = std::pair<Key, Address>;
+			using Serializer = KeyAddressPairSerializer;
 
-        public:
-            static auto GetKeyFromValue(const ValueType& pair)
-            {
-                return pair.first;
-            }
-        };
+		public:
+			static auto GetKeyFromValue(const ValueType& pair) {
+				return pair.first;
+			}
+		};
 
-        // endregion
+		// endregion
 
-        // region other adapters
+		// region other adapters
 
-    public:
-        /// Adapter for a dual lookup.
-        /// \note This allows use of mixins.
-        template <typename TSets>
-        class ComposedLookupAdapter {
-        public:
-            static constexpr auto Name = TSets::Name;
+	public:
+		/// Adapter for a dual lookup.
+		/// \note This allows use of mixins.
+		template <typename TSets>
+		class ComposedLookupAdapter {
+		public:
+			static constexpr auto Name = TSets::Name;
 
-        private:
-            using SetOneType = typename TSets::SetOneType;
-            using SetTwoType = typename TSets::SetTwoType;
+		private:
+			using SetOneType = typename TSets::SetOneType;
+			using SetTwoType = typename TSets::SetTwoType;
 
-        public:
-            using KeyType = typename SetOneType::KeyType;
-            using ValueType = typename SetTwoType::ElementType;
+		public:
+			using KeyType = typename SetOneType::KeyType;
+			using ValueType = typename SetTwoType::ElementType;
 
-        public:
-            ComposedLookupAdapter(const SetOneType& set1, SetTwoType& set2)
-                : m_set1(set1)
-                , m_set2(set2)
-            {
-            }
+		public:
+			ComposedLookupAdapter(const SetOneType& set1, SetTwoType& set2)
+				: m_set1(set1)
+				, m_set2(set2) {
+			}
 
-        public:
-            using FindIterator = typename TSets::FindIterator;
-            using FindConstIterator = typename TSets::FindConstIterator;
+		public:
+			using FindIterator = typename TSets::FindIterator;
+			using FindConstIterator = typename TSets::FindConstIterator;
 
-        public:
-            FindConstIterator find(const KeyType& key) const
-            {
-                auto setOneIter = m_set1.find(key);
-                const auto* pPair = setOneIter.get();
-                return pPair ? utils::as_const(m_set2).find(pPair->second) : FindConstIterator();
-            }
+		public:
+			FindConstIterator find(const KeyType& key) const {
+				auto setOneIter = m_set1.find(key);
+				const auto* pPair = setOneIter.get();
+				return pPair ? utils::as_const(m_set2).find(pPair->second) : FindConstIterator();
+			}
 
-            FindIterator find(const KeyType& key)
-            {
-                auto setOneIter = m_set1.find(key);
-                const auto* pPair = setOneIter.get();
-                return pPair ? m_set2.find(pPair->second) : FindIterator();
-            }
+			FindIterator find(const KeyType& key) {
+				auto setOneIter = m_set1.find(key);
+				const auto* pPair = setOneIter.get();
+				return pPair ? m_set2.find(pPair->second) : FindIterator();
+			}
 
-        private:
-            const SetOneType& m_set1;
-            SetTwoType& m_set2;
-        };
+		private:
+			const SetOneType& m_set1;
+			SetTwoType& m_set2;
+		};
 
-        // endregion
+		// endregion
 
-    public:
-        using PrimaryTypes = MutableUnorderedMapAdapter<AccountStateCacheDescriptor, utils::ArrayHasher<Address>>;
-        using KeyLookupMapTypes = ImmutableUnorderedMapAdapter<KeyLookupMapTypesDescriptor, utils::ArrayHasher<Key>>;
+	public:
+		using PrimaryTypes = MutableUnorderedMapAdapter<AccountStateCacheDescriptor, utils::ArrayHasher<Address>>;
+		using KeyLookupMapTypes = ImmutableUnorderedMapAdapter<KeyLookupMapTypesDescriptor, utils::ArrayHasher<Key>>;
 
-    public:
-        // workaround for VS truncation
-        struct ComposableBaseSets {
-            static constexpr auto Name = "AccountStateCache:Key";
+	public:
+		// workaround for VS truncation
+		struct ComposableBaseSets {
+			static constexpr auto Name = "AccountStateCache:Key";
 
-            using SetOneType = const KeyLookupMapTypes::BaseSetType;
-            using SetTwoType = const PrimaryTypes::BaseSetType;
+			using SetOneType = const KeyLookupMapTypes::BaseSetType;
+			using SetTwoType = const PrimaryTypes::BaseSetType;
 
-            using FindIterator = SetTwoType::FindConstIterator;
-            using FindConstIterator = SetTwoType::FindConstIterator;
-        };
+			using FindIterator = SetTwoType::FindConstIterator;
+			using FindConstIterator = SetTwoType::FindConstIterator;
+		};
 
-        struct ComposableBaseSetDeltas {
-            static constexpr auto Name = "AccountStateCache:Key";
+		struct ComposableBaseSetDeltas {
+			static constexpr auto Name = "AccountStateCache:Key";
 
-            using SetOneType = const KeyLookupMapTypes::BaseSetDeltaType;
-            using SetTwoType = PrimaryTypes::BaseSetDeltaType;
+			using SetOneType = const KeyLookupMapTypes::BaseSetDeltaType;
+			using SetTwoType = PrimaryTypes::BaseSetDeltaType;
 
-            using FindIterator = SetTwoType::FindIterator;
-            using FindConstIterator = SetTwoType::FindConstIterator;
-        };
+			using FindIterator = SetTwoType::FindIterator;
+			using FindConstIterator = SetTwoType::FindConstIterator;
+		};
 
-    public:
-        using BaseSetDeltaPointers = AccountStateBaseSetDeltaPointers;
-        using BaseSets = AccountStateBaseSets;
-    };
+	public:
+		using BaseSetDeltaPointers = AccountStateBaseSetDeltaPointers;
+		using BaseSets = AccountStateBaseSets;
+	};
 }
 }

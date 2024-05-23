@@ -28,46 +28,41 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        template <typename TCache, typename TAccountIdentifier>
-        void AssertBalancesT(const TCache& cache, const TAccountIdentifier& accountIdentifier, const BalanceTransfers& expectedBalances)
-        {
-            // Assert:
-            auto accountStateIter = cache.find(accountIdentifier);
-            ASSERT_TRUE(!!accountStateIter.tryGet()) << accountIdentifier;
+	namespace {
+		template <typename TCache, typename TAccountIdentifier>
+		void AssertBalancesT(const TCache& cache, const TAccountIdentifier& accountIdentifier, const BalanceTransfers& expectedBalances) {
+			// Assert:
+			auto accountStateIter = cache.find(accountIdentifier);
+			ASSERT_TRUE(!!accountStateIter.tryGet()) << accountIdentifier;
 
-            const auto& accountState = accountStateIter.get();
-            EXPECT_EQ(expectedBalances.size(), accountState.Balances.size());
-            for (const auto& expectedBalance : expectedBalances) {
-                CATAPULT_LOG(debug) << expectedBalance.MosaicId << " " << expectedBalance.Amount;
-                EXPECT_EQ(expectedBalance.Amount, accountState.Balances.get(expectedBalance.MosaicId))
-                    << "mosaic " << expectedBalance.MosaicId;
-            }
-        }
-    }
+			const auto& accountState = accountStateIter.get();
+			EXPECT_EQ(expectedBalances.size(), accountState.Balances.size());
+			for (const auto& expectedBalance : expectedBalances) {
+				CATAPULT_LOG(debug) << expectedBalance.MosaicId << " " << expectedBalance.Amount;
+				EXPECT_EQ(expectedBalance.Amount, accountState.Balances.get(expectedBalance.MosaicId))
+					<< "mosaic " << expectedBalance.MosaicId;
+			}
+		}
+	}
 
-    void AssertBalances(const cache::CatapultCacheDelta& cache, const Key& publicKey, const BalanceTransfers& expectedBalances)
-    {
-        // Assert:
-        AssertBalancesT(cache.sub<cache::AccountStateCache>(), publicKey, expectedBalances);
-    }
+	void AssertBalances(const cache::CatapultCacheDelta& cache, const Key& publicKey, const BalanceTransfers& expectedBalances) {
+		// Assert:
+		AssertBalancesT(cache.sub<cache::AccountStateCache>(), publicKey, expectedBalances);
+	}
 
-    void AssertBalances(const cache::CatapultCacheDelta& cache, const Address& address, const BalanceTransfers& expectedBalances)
-    {
-        // Assert:
-        AssertBalancesT(cache.sub<cache::AccountStateCache>(), address, expectedBalances);
-    }
+	void AssertBalances(const cache::CatapultCacheDelta& cache, const Address& address, const BalanceTransfers& expectedBalances) {
+		// Assert:
+		AssertBalancesT(cache.sub<cache::AccountStateCache>(), address, expectedBalances);
+	}
 
-    void AssertBalances(const cache::AccountStateCacheDelta& cache, const Key& publicKey, const BalanceTransfers& expectedBalances)
-    {
-        // Assert:
-        AssertBalancesT(cache, publicKey, expectedBalances);
-    }
+	void AssertBalances(const cache::AccountStateCacheDelta& cache, const Key& publicKey, const BalanceTransfers& expectedBalances) {
+		// Assert:
+		AssertBalancesT(cache, publicKey, expectedBalances);
+	}
 
-    void AssertBalances(const cache::AccountStateCacheView& cache, const Key& publicKey, const BalanceTransfers& expectedBalances)
-    {
-        // Assert:
-        AssertBalancesT(cache, publicKey, expectedBalances);
-    }
+	void AssertBalances(const cache::AccountStateCacheView& cache, const Key& publicKey, const BalanceTransfers& expectedBalances) {
+		// Assert:
+		AssertBalancesT(cache, publicKey, expectedBalances);
+	}
 }
 }

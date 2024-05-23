@@ -25,15 +25,15 @@
 
 namespace catapult {
 namespace model {
-    class TransactionPlugin;
+	class TransactionPlugin;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Creates a vrf key link transaction plugin.
-    PLUGIN_API
-    std::unique_ptr<model::TransactionPlugin> CreateVrfKeyLinkTransactionPlugin();
+	/// Creates a vrf key link transaction plugin.
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateVrfKeyLinkTransactionPlugin();
 }
 }

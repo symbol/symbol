@@ -24,71 +24,61 @@
 namespace catapult {
 namespace builders {
 
-    VotingKeyLinkBuilder::VotingKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-        : TransactionBuilder(networkIdentifier, signer)
-        , m_linkedPublicKey()
-        , m_startEpoch()
-        , m_endEpoch()
-        , m_linkAction()
-    {
-    }
+	VotingKeyLinkBuilder::VotingKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+		: TransactionBuilder(networkIdentifier, signer)
+		, m_linkedPublicKey()
+		, m_startEpoch()
+		, m_endEpoch()
+		, m_linkAction() {
+	}
 
-    void VotingKeyLinkBuilder::setLinkedPublicKey(const VotingKey& linkedPublicKey)
-    {
-        m_linkedPublicKey = linkedPublicKey;
-    }
+	void VotingKeyLinkBuilder::setLinkedPublicKey(const VotingKey& linkedPublicKey) {
+		m_linkedPublicKey = linkedPublicKey;
+	}
 
-    void VotingKeyLinkBuilder::setStartEpoch(FinalizationEpoch startEpoch)
-    {
-        m_startEpoch = startEpoch;
-    }
+	void VotingKeyLinkBuilder::setStartEpoch(FinalizationEpoch startEpoch) {
+		m_startEpoch = startEpoch;
+	}
 
-    void VotingKeyLinkBuilder::setEndEpoch(FinalizationEpoch endEpoch)
-    {
-        m_endEpoch = endEpoch;
-    }
+	void VotingKeyLinkBuilder::setEndEpoch(FinalizationEpoch endEpoch) {
+		m_endEpoch = endEpoch;
+	}
 
-    void VotingKeyLinkBuilder::setLinkAction(model::LinkAction linkAction)
-    {
-        m_linkAction = linkAction;
-    }
+	void VotingKeyLinkBuilder::setLinkAction(model::LinkAction linkAction) {
+		m_linkAction = linkAction;
+	}
 
-    size_t VotingKeyLinkBuilder::size() const
-    {
-        return sizeImpl<Transaction>();
-    }
+	size_t VotingKeyLinkBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
 
-    std::unique_ptr<VotingKeyLinkBuilder::Transaction> VotingKeyLinkBuilder::build() const
-    {
-        return buildImpl<Transaction>();
-    }
+	std::unique_ptr<VotingKeyLinkBuilder::Transaction> VotingKeyLinkBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
 
-    std::unique_ptr<VotingKeyLinkBuilder::EmbeddedTransaction> VotingKeyLinkBuilder::buildEmbedded() const
-    {
-        return buildImpl<EmbeddedTransaction>();
-    }
+	std::unique_ptr<VotingKeyLinkBuilder::EmbeddedTransaction> VotingKeyLinkBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
+	}
 
-    template <typename TransactionType>
-    size_t VotingKeyLinkBuilder::sizeImpl() const
-    {
-        // calculate transaction size
-        auto size = sizeof(TransactionType);
-        return size;
-    }
+	template <typename TransactionType>
+	size_t VotingKeyLinkBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		return size;
+	}
 
-    template <typename TransactionType>
-    std::unique_ptr<TransactionType> VotingKeyLinkBuilder::buildImpl() const
-    {
-        // 1. allocate, zero (header), set model::Transaction fields
-        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+	template <typename TransactionType>
+	std::unique_ptr<TransactionType> VotingKeyLinkBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-        // 2. set fixed transaction fields
-        pTransaction->LinkedPublicKey = m_linkedPublicKey;
-        pTransaction->StartEpoch = m_startEpoch;
-        pTransaction->EndEpoch = m_endEpoch;
-        pTransaction->LinkAction = m_linkAction;
+		// 2. set fixed transaction fields
+		pTransaction->LinkedPublicKey = m_linkedPublicKey;
+		pTransaction->StartEpoch = m_startEpoch;
+		pTransaction->EndEpoch = m_endEpoch;
+		pTransaction->LinkAction = m_linkAction;
 
-        return pTransaction;
-    }
+		return pTransaction;
+	}
 }
 }

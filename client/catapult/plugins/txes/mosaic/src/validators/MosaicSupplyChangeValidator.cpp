@@ -24,20 +24,19 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MosaicSupplyChangeNotification;
+	using Notification = model::MosaicSupplyChangeNotification;
 
-    namespace {
-        constexpr bool IsValidAction(model::MosaicSupplyChangeAction action)
-        {
-            return action <= model::MosaicSupplyChangeAction::Increase;
-        }
-    }
+	namespace {
+		constexpr bool IsValidAction(model::MosaicSupplyChangeAction action) {
+			return action <= model::MosaicSupplyChangeAction::Increase;
+		}
+	}
 
-    DEFINE_STATELESS_VALIDATOR(MosaicSupplyChange, [](const Notification& notification) {
-        if (!IsValidAction(notification.Action))
-            return Failure_Mosaic_Invalid_Supply_Change_Action;
+	DEFINE_STATELESS_VALIDATOR(MosaicSupplyChange, [](const Notification& notification) {
+		if (!IsValidAction(notification.Action))
+			return Failure_Mosaic_Invalid_Supply_Change_Action;
 
-        return Amount() == notification.Delta ? Failure_Mosaic_Invalid_Supply_Change_Amount : ValidationResult::Success;
-    })
+		return Amount() == notification.Delta ? Failure_Mosaic_Invalid_Supply_Change_Amount : ValidationResult::Success;
+	})
 }
 }

@@ -31,62 +31,57 @@
 namespace catapult {
 namespace test {
 
-    /// Cache factory for creating a catapult cache composed of account restriction cache and core caches.
-    struct AccountRestrictionCacheFactory {
-    private:
-        static auto CreateSubCachesWithAccountRestrictionCache(model::NetworkIdentifier networkIdentifier)
-        {
-            auto cacheId = cache::AccountRestrictionCache::Id;
-            std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
-            subCaches[cacheId] = MakeSubCachePlugin<cache::AccountRestrictionCache, cache::AccountRestrictionCacheStorage>(networkIdentifier);
-            return subCaches;
-        }
+	/// Cache factory for creating a catapult cache composed of account restriction cache and core caches.
+	struct AccountRestrictionCacheFactory {
+	private:
+		static auto CreateSubCachesWithAccountRestrictionCache(model::NetworkIdentifier networkIdentifier) {
+			auto cacheId = cache::AccountRestrictionCache::Id;
+			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
+			subCaches[cacheId] = MakeSubCachePlugin<cache::AccountRestrictionCache, cache::AccountRestrictionCacheStorage>(networkIdentifier);
+			return subCaches;
+		}
 
-    public:
-        /// Creates an empty catapult cache around default configuration.
-        static cache::CatapultCache Create()
-        {
-            return Create(model::BlockchainConfiguration::Uninitialized());
-        }
+	public:
+		/// Creates an empty catapult cache around default configuration.
+		static cache::CatapultCache Create() {
+			return Create(model::BlockchainConfiguration::Uninitialized());
+		}
 
-        /// Creates an empty catapult cache around \a config.
-        static cache::CatapultCache Create(const model::BlockchainConfiguration& config)
-        {
-            auto subCaches = CreateSubCachesWithAccountRestrictionCache(config.Network.Identifier);
-            CoreSystemCacheFactory::CreateSubCaches(config, subCaches);
-            return cache::CatapultCache(std::move(subCaches));
-        }
-    };
+		/// Creates an empty catapult cache around \a config.
+		static cache::CatapultCache Create(const model::BlockchainConfiguration& config) {
+			auto subCaches = CreateSubCachesWithAccountRestrictionCache(config.Network.Identifier);
+			CoreSystemCacheFactory::CreateSubCaches(config, subCaches);
+			return cache::CatapultCache(std::move(subCaches));
+		}
+	};
 
-    // region PopulateCache
+	// region PopulateCache
 
-    /// Populates \a delta with \a address and \a values.
-    template <typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
-    void PopulateCache(
-        cache::CatapultCacheDelta& delta,
-        const Address& address,
-        const std::vector<typename TRestrictionValueTraits::ValueType>& values)
-    {
-        auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
-        restrictionCacheDelta.insert(state::AccountRestrictions(address));
-        auto& restrictions = restrictionCacheDelta.find(address).get();
-        auto& restriction = restrictions.restriction(TRestrictionValueTraits::Restriction_Flags);
-        for (const auto& value : values)
-            TOperationTraits::Add(restriction, state::ToVector(value));
-    }
+	/// Populates \a delta with \a address and \a values.
+	template <typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
+	void PopulateCache(
+		cache::CatapultCacheDelta& delta,
+		const Address& address,
+		const std::vector<typename TRestrictionValueTraits::ValueType>& values) {
+		auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
+		restrictionCacheDelta.insert(state::AccountRestrictions(address));
+		auto& restrictions = restrictionCacheDelta.find(address).get();
+		auto& restriction = restrictions.restriction(TRestrictionValueTraits::Restriction_Flags);
+		for (const auto& value : values)
+			TOperationTraits::Add(restriction, state::ToVector(value));
+	}
 
-    /// Populates \a cache with \a address and \a values.
-    template <typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
-    void PopulateCache(
-        cache::CatapultCache& cache,
-        const Address& address,
-        const std::vector<typename TRestrictionValueTraits::ValueType>& values)
-    {
-        auto delta = cache.createDelta();
-        PopulateCache<TRestrictionValueTraits, TOperationTraits>(delta, address, values);
-        cache.commit(Height(1));
-    }
+	/// Populates \a cache with \a address and \a values.
+	template <typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
+	void PopulateCache(
+		cache::CatapultCache& cache,
+		const Address& address,
+		const std::vector<typename TRestrictionValueTraits::ValueType>& values) {
+		auto delta = cache.createDelta();
+		PopulateCache<TRestrictionValueTraits, TOperationTraits>(delta, address, values);
+		cache.commit(Height(1));
+	}
 
-    // endregion
+	// endregion
 }
 }

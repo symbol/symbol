@@ -26,36 +26,36 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::AggregateCosignaturesNotification;
+	using Notification = model::AggregateCosignaturesNotification;
 
-    DEFINE_STATELESS_VALIDATOR(StrictAggregateCosignatures, [](const Notification& notification) {
-        // collect all cosignatories (initially set used flag to false)
-        utils::ArrayPointerFlagMap<Key> cosignatories;
-        cosignatories.emplace(&notification.SignerPublicKey, false);
-        const auto* pCosignature = notification.CosignaturesPtr;
-        for (auto i = 0u; i < notification.CosignaturesCount; ++i) {
-            cosignatories.emplace(&pCosignature->SignerPublicKey, false);
-            ++pCosignature;
-        }
+	DEFINE_STATELESS_VALIDATOR(StrictAggregateCosignatures, [](const Notification& notification) {
+		// collect all cosignatories (initially set used flag to false)
+		utils::ArrayPointerFlagMap<Key> cosignatories;
+		cosignatories.emplace(&notification.SignerPublicKey, false);
+		const auto* pCosignature = notification.CosignaturesPtr;
+		for (auto i = 0u; i < notification.CosignaturesCount; ++i) {
+			cosignatories.emplace(&pCosignature->SignerPublicKey, false);
+			++pCosignature;
+		}
 
-        // check all transaction signers and mark cosignatories as used
-        // notice that ineligible cosignatories must dominate missing cosignatures in order for cosignatory aggregation to work
-        auto hasMissingCosignatures = false;
-        const auto* pTransaction = notification.TransactionsPtr;
-        for (auto i = 0u; i < notification.TransactionsCount; ++i) {
-            auto iter = cosignatories.find(&pTransaction->SignerPublicKey);
-            if (cosignatories.cend() == iter)
-                hasMissingCosignatures = true;
-            else
-                iter->second = true;
+		// check all transaction signers and mark cosignatories as used
+		// notice that ineligible cosignatories must dominate missing cosignatures in order for cosignatory aggregation to work
+		auto hasMissingCosignatures = false;
+		const auto* pTransaction = notification.TransactionsPtr;
+		for (auto i = 0u; i < notification.TransactionsCount; ++i) {
+			auto iter = cosignatories.find(&pTransaction->SignerPublicKey);
+			if (cosignatories.cend() == iter)
+				hasMissingCosignatures = true;
+			else
+				iter->second = true;
 
-            pTransaction = model::AdvanceNext(pTransaction);
-        }
+			pTransaction = model::AdvanceNext(pTransaction);
+		}
 
-        // only return success if all cosignatories are used
-        return std::all_of(cosignatories.cbegin(), cosignatories.cend(), [](const auto& pair) { return pair.second; })
-            ? hasMissingCosignatures ? Failure_Aggregate_Missing_Cosignatures : ValidationResult::Success
-            : Failure_Aggregate_Ineligible_Cosignatories;
-    })
+		// only return success if all cosignatories are used
+		return std::all_of(cosignatories.cbegin(), cosignatories.cend(), [](const auto& pair) { return pair.second; })
+			? hasMissingCosignatures ? Failure_Aggregate_Missing_Cosignatures : ValidationResult::Success
+			: Failure_Aggregate_Ineligible_Cosignatories;
+	})
 }
 }

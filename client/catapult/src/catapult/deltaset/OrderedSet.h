@@ -27,47 +27,45 @@
 namespace catapult {
 namespace deltaset {
 
-    /// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
-    template <typename TSet, typename X = decltype((*reinterpret_cast<TSet*>(1)).lower_bound(typename TSet::value_type()))>
-    void PruneBaseSet(TSet& elements, const PruningBoundary<typename TSet::value_type>& pruningBoundary)
-    {
-        auto iter = elements.lower_bound(pruningBoundary.value());
-        elements.erase(elements.cbegin(), iter);
-    }
+	/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
+	template <typename TSet, typename X = decltype((*reinterpret_cast<TSet*>(1)).lower_bound(typename TSet::value_type()))>
+	void PruneBaseSet(TSet& elements, const PruningBoundary<typename TSet::value_type>& pruningBoundary) {
+		auto iter = elements.lower_bound(pruningBoundary.value());
+		elements.erase(elements.cbegin(), iter);
+	}
 
-    namespace detail {
-        template <typename T>
-        using OrderedSetType = std::set<std::remove_const_t<typename T::ElementType>, std::less<typename T::ElementType>>;
+	namespace detail {
+		template <typename T>
+		using OrderedSetType = std::set<std::remove_const_t<typename T::ElementType>, std::less<typename T::ElementType>>;
 
-        /// Policy for committing changes to an ordered set.
-        template <typename TSetTraits>
-        struct OrderedSetCommitPolicy {
-            template <typename TPruningBoundary>
-            static void Update(
-                typename TSetTraits::SetType& elements,
-                const DeltaElements<typename TSetTraits::MemorySetType>& deltas,
-                const TPruningBoundary& pruningBoundary)
-            {
-                UpdateSet<typename TSetTraits::KeyTraits>(elements, deltas);
+		/// Policy for committing changes to an ordered set.
+		template <typename TSetTraits>
+		struct OrderedSetCommitPolicy {
+			template <typename TPruningBoundary>
+			static void Update(
+				typename TSetTraits::SetType& elements,
+				const DeltaElements<typename TSetTraits::MemorySetType>& deltas,
+				const TPruningBoundary& pruningBoundary) {
+				UpdateSet<typename TSetTraits::KeyTraits>(elements, deltas);
 
-                if (pruningBoundary.isSet())
-                    PruneBaseSet(elements, pruningBoundary);
-            }
-        };
-    }
+				if (pruningBoundary.isSet())
+					PruneBaseSet(elements, pruningBoundary);
+			}
+		};
+	}
 
-    /// Base set with ordered keys.
-    template <typename TElementTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TElementTraits>>>
-    class OrderedSet : public BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>> {
-    private:
-        using BaseType = BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>>;
+	/// Base set with ordered keys.
+	template <typename TElementTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TElementTraits>>>
+	class OrderedSet : public BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>> {
+	private:
+		using BaseType = BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>>;
 
-    public:
-        using BaseType::BaseType;
-    };
+	public:
+		using BaseType::BaseType;
+	};
 
-    /// Delta on top of a base set with ordered keys.
-    template <typename TElementTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TElementTraits>>>
-    using OrderedSetDelta = BaseSetDelta<TElementTraits, TStorageTraits>;
+	/// Delta on top of a base set with ordered keys.
+	template <typename TElementTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TElementTraits>>>
+	using OrderedSetDelta = BaseSetDelta<TElementTraits, TStorageTraits>;
 }
 }

@@ -25,26 +25,24 @@
 namespace catapult {
 namespace model {
 
-    size_t GetMessageGroupPayloadSize(const FinalizationProofHeader& header)
-    {
-        return header.Size - sizeof(FinalizationProofHeader);
-    }
+	size_t GetMessageGroupPayloadSize(const FinalizationProofHeader& header) {
+		return header.Size - sizeof(FinalizationProofHeader);
+	}
 
-    bool IsSizeValid(const FinalizationProof& proof)
-    {
-        if (proof.Size < sizeof(FinalizationProofHeader)) {
-            CATAPULT_LOG(warning) << "proof failed size validation with size " << proof.Size;
-            return false;
-        }
+	bool IsSizeValid(const FinalizationProof& proof) {
+		if (proof.Size < sizeof(FinalizationProofHeader)) {
+			CATAPULT_LOG(warning) << "proof failed size validation with size " << proof.Size;
+			return false;
+		}
 
-        auto messageGroups = proof.MessageGroups(EntityContainerErrorPolicy::Suppress);
-        auto areAllMessageGroupsValid = std::all_of(messageGroups.cbegin(), messageGroups.cend(), IsSizeValidT<FinalizationMessageGroup>);
-        if (areAllMessageGroupsValid && !messageGroups.hasError())
-            return true;
+		auto messageGroups = proof.MessageGroups(EntityContainerErrorPolicy::Suppress);
+		auto areAllMessageGroupsValid = std::all_of(messageGroups.cbegin(), messageGroups.cend(), IsSizeValidT<FinalizationMessageGroup>);
+		if (areAllMessageGroupsValid && !messageGroups.hasError())
+			return true;
 
-        CATAPULT_LOG(warning) << "proof message groups failed size validation (valid sizes? " << areAllMessageGroupsValid << ", errors? "
-                              << messageGroups.hasError() << ")";
-        return false;
-    }
+		CATAPULT_LOG(warning) << "proof message groups failed size validation (valid sizes? " << areAllMessageGroupsValid << ", errors? "
+							  << messageGroups.hasError() << ")";
+		return false;
+	}
 }
 }

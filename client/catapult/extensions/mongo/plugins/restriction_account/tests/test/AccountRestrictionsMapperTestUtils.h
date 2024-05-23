@@ -24,20 +24,20 @@
 
 namespace catapult {
 namespace state {
-    class AccountRestriction;
-    class AccountRestrictions;
+	class AccountRestriction;
+	class AccountRestrictions;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Verifies that db restriction values (\a dbRestrictionValues) are equivalent to values of model \a restriction.
-    void AssertRestrictionValues(const state::AccountRestriction& restriction, const bsoncxx::document::view& dbRestrictionValues);
+	/// Verifies that db restriction values (\a dbRestrictionValues) are equivalent to values of model \a restriction.
+	void AssertRestrictionValues(const state::AccountRestriction& restriction, const bsoncxx::document::view& dbRestrictionValues);
 
-    /// Verifies that db account restrictions (\a dbAccountRestrictions) are equivalent to model \a restrictions.
-    void AssertEqualAccountRestrictionsData(
-        const state::AccountRestrictions& restrictions,
-        const bsoncxx::document::view& dbAccountRestrictions);
+	/// Verifies that db account restrictions (\a dbAccountRestrictions) are equivalent to model \a restrictions.
+	void AssertEqualAccountRestrictionsData(
+		const state::AccountRestrictions& restrictions,
+		const bsoncxx::document::view& dbAccountRestrictions);
 }
 }

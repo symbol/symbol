@@ -29,65 +29,65 @@
 namespace catapult {
 namespace crypto {
 
-    /// Two-layer Bellare-Miner private key tree.
-    class BmPrivateKeyTree {
-    private:
-        using BmKeyPair = VotingKeyPair;
+	/// Two-layer Bellare-Miner private key tree.
+	class BmPrivateKeyTree {
+	private:
+		using BmKeyPair = VotingKeyPair;
 
-    private:
-        BmPrivateKeyTree(io::SeekableStream& storage, const BmOptions& options);
+	private:
+		BmPrivateKeyTree(io::SeekableStream& storage, const BmOptions& options);
 
-    public:
-        /// Move constructor.
-        BmPrivateKeyTree(BmPrivateKeyTree&& tree);
+	public:
+		/// Move constructor.
+		BmPrivateKeyTree(BmPrivateKeyTree&& tree);
 
-    public:
-        /// Destroys the tree.
-        ~BmPrivateKeyTree();
+	public:
+		/// Destroys the tree.
+		~BmPrivateKeyTree();
 
-    public:
-        /// Creates a tree around \a storage.
-        static BmPrivateKeyTree FromStream(io::SeekableStream& storage);
+	public:
+		/// Creates a tree around \a storage.
+		static BmPrivateKeyTree FromStream(io::SeekableStream& storage);
 
-        /// Creates a tree around \a keyPair, \a storage and \a options.
-        static BmPrivateKeyTree Create(BmKeyPair&& keyPair, io::SeekableStream& storage, const BmOptions& options);
+		/// Creates a tree around \a keyPair, \a storage and \a options.
+		static BmPrivateKeyTree Create(BmKeyPair&& keyPair, io::SeekableStream& storage, const BmOptions& options);
 
-    public:
-        /// Gets the root public key.
-        const decltype(BmTreeSignature::Root.ParentPublicKey)& rootPublicKey() const;
+	public:
+		/// Gets the root public key.
+		const decltype(BmTreeSignature::Root.ParentPublicKey)& rootPublicKey() const;
 
-        /// Gets the options.
-        const BmOptions& options() const;
+		/// Gets the options.
+		const BmOptions& options() const;
 
-        /// Returns \c true if can sign at \a keyIdentifier.
-        bool canSign(const BmKeyIdentifier& keyIdentifier) const;
+		/// Returns \c true if can sign at \a keyIdentifier.
+		bool canSign(const BmKeyIdentifier& keyIdentifier) const;
 
-        /// Creates the signature for \a dataBuffer at \a keyIdentifier.
-        BmTreeSignature sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
+		/// Creates the signature for \a dataBuffer at \a keyIdentifier.
+		BmTreeSignature sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
 
-        /// Wipes all keys up to and including \a keyIdentifier.
-        void wipe(const BmKeyIdentifier& keyIdentifier);
+		/// Wipes all keys up to and including \a keyIdentifier.
+		void wipe(const BmKeyIdentifier& keyIdentifier);
 
-    private:
-        class Level;
+	private:
+		class Level;
 
-    private:
-        bool check(const BmKeyIdentifier& keyIdentifier, const BmKeyIdentifier& referenceKeyIdentifier) const;
-        size_t levelOffset(size_t depth) const;
+	private:
+		bool check(const BmKeyIdentifier& keyIdentifier, const BmKeyIdentifier& referenceKeyIdentifier) const;
+		size_t levelOffset(size_t depth) const;
 
-        void createLevel(size_t depth, BmKeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier);
-        void wipe(size_t depth, uint64_t identifier);
+		void createLevel(size_t depth, BmKeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier);
+		void wipe(size_t depth, uint64_t identifier);
 
-    private:
-        io::SeekableStream& m_storage;
-        BmOptions m_options;
+	private:
+		io::SeekableStream& m_storage;
+		BmOptions m_options;
 
-        std::array<std::unique_ptr<Level>, 2> m_levels;
-        BmKeyIdentifier m_lastKeyIdentifier;
-        BmKeyIdentifier m_lastWipeKeyIdentifier;
-    };
+		std::array<std::unique_ptr<Level>, 2> m_levels;
+		BmKeyIdentifier m_lastKeyIdentifier;
+		BmKeyIdentifier m_lastWipeKeyIdentifier;
+	};
 
-    /// Verifies \a signature of \a buffer at \a keyIdentifier.
-    bool Verify(const BmTreeSignature& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer);
+	/// Verifies \a signature of \a buffer at \a keyIdentifier.
+	bool Verify(const BmTreeSignature& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer);
 }
 }

@@ -30,18 +30,17 @@ using namespace catapult::model;
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        template <typename TTransaction>
-        void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub)
-        {
-            sub.notify(KeyLinkActionNotification(transaction.LinkAction));
-            sub.notify(VotingKeyLinkNotification(
-                transaction.SignerPublicKey,
-                { transaction.LinkedPublicKey, transaction.StartEpoch, transaction.EndEpoch },
-                transaction.LinkAction));
-        }
-    }
+	namespace {
+		template <typename TTransaction>
+		void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
+			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
+			sub.notify(VotingKeyLinkNotification(
+				transaction.SignerPublicKey,
+				{ transaction.LinkedPublicKey, transaction.StartEpoch, transaction.EndEpoch },
+				transaction.LinkAction));
+		}
+	}
 
-    DEFINE_TRANSACTION_PLUGIN_FACTORY(VotingKeyLink, Default, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(VotingKeyLink, Default, Publish)
 }
 }

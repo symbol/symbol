@@ -31,64 +31,62 @@ using namespace catapult::model;
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        template <typename TTransaction>
-        static void PublishBalanceTransfer(
-            const NamespaceRentalFeeConfiguration& config,
-            const TTransaction& transaction,
-            const PublishContext& context,
-            NotificationSubscriber& sub)
-        {
-            // a. sink account notification
-            auto sinkAddress = config.SinkAddress.get(context.BlockHeight);
-            sub.notify(AccountAddressNotification(sinkAddress));
+	namespace {
+		template <typename TTransaction>
+		static void PublishBalanceTransfer(
+			const NamespaceRentalFeeConfiguration& config,
+			const TTransaction& transaction,
+			const PublishContext& context,
+			NotificationSubscriber& sub) {
+			// a. sink account notification
+			auto sinkAddress = config.SinkAddress.get(context.BlockHeight);
+			sub.notify(AccountAddressNotification(sinkAddress));
 
-            // b. exempt the nemesis account
-            if (config.NemesisSignerPublicKey == transaction.SignerPublicKey)
-                return;
+			// b. exempt the nemesis account
+			if (config.NemesisSignerPublicKey == transaction.SignerPublicKey)
+				return;
 
-            auto rentalFee = config.ChildFee;
-            if (transaction.IsRootRegistration()) {
-                // c. don't charge fees for eternal namespaces
-                if (Eternal_Artifact_Duration == transaction.Duration)
-                    return;
+			auto rentalFee = config.ChildFee;
+			if (transaction.IsRootRegistration()) {
+				// c. don't charge fees for eternal namespaces
+				if (Eternal_Artifact_Duration == transaction.Duration)
+					return;
 
-                rentalFee = Amount(config.RootFeePerBlock.unwrap() * transaction.Duration.unwrap());
-            }
+				rentalFee = Amount(config.RootFeePerBlock.unwrap() * transaction.Duration.unwrap());
+			}
 
-            sub.notify(BalanceTransferNotification(
-                context.SignerAddress,
-                sinkAddress,
-                config.CurrencyMosaicId,
-                rentalFee,
-                BalanceTransferNotification::AmountType::Dynamic));
-            sub.notify(NamespaceRentalFeeNotification(context.SignerAddress, sinkAddress, config.CurrencyMosaicId, rentalFee));
-        }
+			sub.notify(BalanceTransferNotification(
+				context.SignerAddress,
+				sinkAddress,
+				config.CurrencyMosaicId,
+				rentalFee,
+				BalanceTransferNotification::AmountType::Dynamic));
+			sub.notify(NamespaceRentalFeeNotification(context.SignerAddress, sinkAddress, config.CurrencyMosaicId, rentalFee));
+		}
 
-        template <typename TTransaction>
-        auto CreatePublisher(const NamespaceRentalFeeConfiguration& config)
-        {
-            return [config](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-                // 1. rental fee charge
-                PublishBalanceTransfer(config, transaction, context, sub);
+		template <typename TTransaction>
+		auto CreatePublisher(const NamespaceRentalFeeConfiguration& config) {
+			return [config](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
+				// 1. rental fee charge
+				PublishBalanceTransfer(config, transaction, context, sub);
 
-                // 2. registration notifications
-                sub.notify(NamespaceRegistrationNotification(transaction.RegistrationType));
-                auto parentId = Namespace_Base_Id;
-                if (transaction.IsRootRegistration()) {
-                    using Notification = RootNamespaceNotification;
-                    sub.notify(Notification(context.SignerAddress, transaction.Id, transaction.Duration));
-                } else {
-                    using Notification = ChildNamespaceNotification;
-                    sub.notify(Notification(context.SignerAddress, transaction.Id, transaction.ParentId));
-                    parentId = transaction.ParentId;
-                }
+				// 2. registration notifications
+				sub.notify(NamespaceRegistrationNotification(transaction.RegistrationType));
+				auto parentId = Namespace_Base_Id;
+				if (transaction.IsRootRegistration()) {
+					using Notification = RootNamespaceNotification;
+					sub.notify(Notification(context.SignerAddress, transaction.Id, transaction.Duration));
+				} else {
+					using Notification = ChildNamespaceNotification;
+					sub.notify(Notification(context.SignerAddress, transaction.Id, transaction.ParentId));
+					parentId = transaction.ParentId;
+				}
 
-                sub.notify(NamespaceNameNotification(transaction.Id, parentId, transaction.NameSize, transaction.NamePtr()));
-            };
-        }
-    }
+				sub.notify(NamespaceNameNotification(transaction.Id, parentId, transaction.NameSize, transaction.NamePtr()));
+			};
+		}
+	}
 
-    DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(NamespaceRegistration, Default, CreatePublisher, NamespaceRentalFeeConfiguration)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(NamespaceRegistration, Default, CreatePublisher, NamespaceRentalFeeConfiguration)
 }
 }

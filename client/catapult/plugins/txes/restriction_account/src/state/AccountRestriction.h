@@ -27,53 +27,53 @@
 namespace catapult {
 namespace state {
 
-    /// Account restriction.
-    class AccountRestriction {
-    public:
-        /// Raw restriction value.
-        using RawValue = std::vector<uint8_t>;
+	/// Account restriction.
+	class AccountRestriction {
+	public:
+		/// Raw restriction value.
+		using RawValue = std::vector<uint8_t>;
 
-    public:
-        /// Creates an account restriction around \a restrictionFlags and \a restrictionValueSize.
-        AccountRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize);
+	public:
+		/// Creates an account restriction around \a restrictionFlags and \a restrictionValueSize.
+		AccountRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize);
 
-    public:
-        /// Gets the restriction descriptor.
-        const AccountRestrictionDescriptor& descriptor() const;
+	public:
+		/// Gets the restriction descriptor.
+		const AccountRestrictionDescriptor& descriptor() const;
 
-        /// Gets the restriction value size.
-        size_t valueSize() const;
+		/// Gets the restriction value size.
+		size_t valueSize() const;
 
-        /// Gets the values.
-        const std::set<std::vector<uint8_t>>& values() const;
+		/// Gets the values.
+		const std::set<std::vector<uint8_t>>& values() const;
 
-    public:
-        /// Returns \c true if \a value is known.
-        bool contains(const std::vector<uint8_t>& value) const;
+	public:
+		/// Returns \c true if \a value is known.
+		bool contains(const std::vector<uint8_t>& value) const;
 
-        /// Returns \c true if \a modification can be applied to the allowed values.
-        bool canAllow(const model::AccountRestrictionModification& modification) const;
+		/// Returns \c true if \a modification can be applied to the allowed values.
+		bool canAllow(const model::AccountRestrictionModification& modification) const;
 
-        /// Returns \c true if \a modification can be applied to the blocked values.
-        bool canBlock(const model::AccountRestrictionModification& modification) const;
+		/// Returns \c true if \a modification can be applied to the blocked values.
+		bool canBlock(const model::AccountRestrictionModification& modification) const;
 
-    public:
-        /// Applies \a modification to the allowed values.
-        void allow(const model::AccountRestrictionModification& modification);
+	public:
+		/// Applies \a modification to the allowed values.
+		void allow(const model::AccountRestrictionModification& modification);
 
-        /// Applies \a modification to the the blocked values.
-        void block(const model::AccountRestrictionModification& modification);
+		/// Applies \a modification to the the blocked values.
+		void block(const model::AccountRestrictionModification& modification);
 
-    private:
-        bool isOperationAllowed(const model::AccountRestrictionModification& modification, AccountRestrictionOperationType operationType)
-            const;
+	private:
+		bool isOperationAllowed(const model::AccountRestrictionModification& modification, AccountRestrictionOperationType operationType)
+			const;
 
-        void update(const model::AccountRestrictionModification& modification);
+		void update(const model::AccountRestrictionModification& modification);
 
-    private:
-        AccountRestrictionDescriptor m_restrictionDescriptor;
-        size_t m_restrictionValueSize;
-        std::set<RawValue> m_values;
-    };
+	private:
+		AccountRestrictionDescriptor m_restrictionDescriptor;
+		size_t m_restrictionValueSize;
+		std::set<RawValue> m_values;
+	};
 }
 }

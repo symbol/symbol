@@ -26,33 +26,30 @@
 namespace catapult {
 namespace tools {
 
-    /// Options builder.
-    using OptionsBuilder = boost::program_options::options_description_easy_init;
+	/// Options builder.
+	using OptionsBuilder = boost::program_options::options_description_easy_init;
 
-    /// Definition of positional arguments.
-    using OptionsPositional = boost::program_options::positional_options_description;
+	/// Definition of positional arguments.
+	using OptionsPositional = boost::program_options::positional_options_description;
 
-    /// Provides access to parsed options.
-    using Options = boost::program_options::variables_map;
+	/// Provides access to parsed options.
+	using Options = boost::program_options::variables_map;
 
-    /// Helper wrapper to simplify defining values with no specified storage.
-    template <typename TValue>
-    auto OptionsValue()
-    {
-        return boost::program_options::value<TValue>();
-    }
+	/// Helper wrapper to simplify defining values with no specified storage.
+	template <typename TValue>
+	auto OptionsValue() {
+		return boost::program_options::value<TValue>();
+	}
 
-    /// Helper wrapper to simplify defining values where \a value is used as storage.
-    template <typename TValue>
-    auto OptionsValue(TValue& value)
-    {
-        return boost::program_options::value<TValue>(&value);
-    }
+	/// Helper wrapper to simplify defining values where \a value is used as storage.
+	template <typename TValue>
+	auto OptionsValue(TValue& value) {
+		return boost::program_options::value<TValue>(&value);
+	}
 
-    /// Helper wrapper to simplify defining toggle values.
-    inline auto OptionsSwitch()
-    {
-        return boost::program_options::bool_switch();
-    }
+	/// Helper wrapper to simplify defining toggle values.
+	inline auto OptionsSwitch() {
+		return boost::program_options::bool_switch();
+	}
 }
 }

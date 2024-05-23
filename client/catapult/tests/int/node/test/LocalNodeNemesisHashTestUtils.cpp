@@ -30,67 +30,64 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        std::vector<uint32_t> GetMosaicSupplyChangePrimarySourceIds(const model::Block& block)
-        {
-            uint32_t transactionIndex = 0;
-            std::vector<uint32_t> primarySourceIds;
-            for (const auto& transaction : block.Transactions()) {
-                if (model::Entity_Type_Mosaic_Supply_Change == transaction.Type)
-                    primarySourceIds.push_back(transactionIndex + 1); // transaction sources are 1-based
+	namespace {
+		std::vector<uint32_t> GetMosaicSupplyChangePrimarySourceIds(const model::Block& block) {
+			uint32_t transactionIndex = 0;
+			std::vector<uint32_t> primarySourceIds;
+			for (const auto& transaction : block.Transactions()) {
+				if (model::Entity_Type_Mosaic_Supply_Change == transaction.Type)
+					primarySourceIds.push_back(transactionIndex + 1); // transaction sources are 1-based
 
-                ++transactionIndex;
-            }
+				++transactionIndex;
+			}
 
-            if (2u != primarySourceIds.size())
-                CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis block has unexpected number of mosaic supply changes", primarySourceIds.size());
+			if (2u != primarySourceIds.size())
+				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis block has unexpected number of mosaic supply changes", primarySourceIds.size());
 
-            return primarySourceIds;
-        }
-    }
+			return primarySourceIds;
+		}
+	}
 
-    void SetNemesisReceiptsHash(const std::string& destination, NemesisStorageDisposition disposition)
-    {
-        // calculate the receipts hash (default nemesis block has zeroed receipts hash)
-        auto modify = NemesisStorageDisposition::Seed == disposition ? ModifySeedNemesis : ModifyNemesis;
-        modify(destination, [](auto& nemesisBlock, const auto&) {
-            model::BlockStatementBuilder blockStatementBuilder;
+	void SetNemesisReceiptsHash(const std::string& destination, NemesisStorageDisposition disposition) {
+		// calculate the receipts hash (default nemesis block has zeroed receipts hash)
+		auto modify = NemesisStorageDisposition::Seed == disposition ? ModifySeedNemesis : ModifyNemesis;
+		modify(destination, [](auto& nemesisBlock, const auto&) {
+			model::BlockStatementBuilder blockStatementBuilder;
 
-            // 1. add harvest fee receipt
-            auto totalFee = model::CalculateBlockTransactionsInfo(nemesisBlock).TotalFee;
+			// 1. add harvest fee receipt
+			auto totalFee = model::CalculateBlockTransactionsInfo(nemesisBlock).TotalFee;
 
-            auto feeMosaicId = Default_Currency_Mosaic_Id;
-            model::BalanceChangeReceipt receipt(
-                model::Receipt_Type_Harvest_Fee,
-                model::GetSignerAddress(nemesisBlock),
-                feeMosaicId,
-                totalFee);
-            blockStatementBuilder.addReceipt(receipt);
+			auto feeMosaicId = Default_Currency_Mosaic_Id;
+			model::BalanceChangeReceipt receipt(
+				model::Receipt_Type_Harvest_Fee,
+				model::GetSignerAddress(nemesisBlock),
+				feeMosaicId,
+				totalFee);
+			blockStatementBuilder.addReceipt(receipt);
 
-            // 2. add mosaic aliases (supply tx first uses alias, block mosaic order is deterministic)
-            auto aliasFirstUsedPrimarySourceIds = GetMosaicSupplyChangePrimarySourceIds(nemesisBlock);
-            blockStatementBuilder.setSource({ aliasFirstUsedPrimarySourceIds[0], 0 });
-            blockStatementBuilder.addResolution(UnresolvedMosaicId(0x85BBEA6CC462B244), feeMosaicId);
+			// 2. add mosaic aliases (supply tx first uses alias, block mosaic order is deterministic)
+			auto aliasFirstUsedPrimarySourceIds = GetMosaicSupplyChangePrimarySourceIds(nemesisBlock);
+			blockStatementBuilder.setSource({ aliasFirstUsedPrimarySourceIds[0], 0 });
+			blockStatementBuilder.addResolution(UnresolvedMosaicId(0x85BBEA6CC462B244), feeMosaicId);
 
-            blockStatementBuilder.setSource({ aliasFirstUsedPrimarySourceIds[1], 0 });
-            blockStatementBuilder.addResolution(UnresolvedMosaicId(0x941299B2B7E1291C), Default_Harvesting_Mosaic_Id);
+			blockStatementBuilder.setSource({ aliasFirstUsedPrimarySourceIds[1], 0 });
+			blockStatementBuilder.addResolution(UnresolvedMosaicId(0x941299B2B7E1291C), Default_Harvesting_Mosaic_Id);
 
-            // 3. calculate the block receipts hash
-            auto pStatement = blockStatementBuilder.build();
-            nemesisBlock.ReceiptsHash = model::CalculateMerkleHash(*pStatement);
-        });
-    }
+			// 3. calculate the block receipts hash
+			auto pStatement = blockStatementBuilder.build();
+			nemesisBlock.ReceiptsHash = model::CalculateMerkleHash(*pStatement);
+		});
+	}
 
-    void SetNemesisStateHash(
-        const std::string& destination,
-        NemesisStorageDisposition disposition,
-        const config::CatapultConfiguration& config)
-    {
-        // calculate the state hash (default nemesis block has zeroed state hash)
-        auto modify = NemesisStorageDisposition::Seed == disposition ? ModifySeedNemesis : ModifyNemesis;
-        modify(destination, [&config](auto& nemesisBlock, const auto& nemesisBlockElement) {
-            nemesisBlock.StateHash = CalculateNemesisStateHash(nemesisBlockElement, config);
-        });
-    }
+	void SetNemesisStateHash(
+		const std::string& destination,
+		NemesisStorageDisposition disposition,
+		const config::CatapultConfiguration& config) {
+		// calculate the state hash (default nemesis block has zeroed state hash)
+		auto modify = NemesisStorageDisposition::Seed == disposition ? ModifySeedNemesis : ModifyNemesis;
+		modify(destination, [&config](auto& nemesisBlock, const auto& nemesisBlockElement) {
+			nemesisBlock.StateHash = CalculateNemesisStateHash(nemesisBlockElement, config);
+		});
+	}
 }
 }

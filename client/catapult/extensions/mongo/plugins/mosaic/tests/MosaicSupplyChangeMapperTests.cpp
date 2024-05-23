@@ -28,41 +28,40 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MosaicSupplyChangeMapperTests
 
-        namespace {
-            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicSupplyChange, )
-        }
+		namespace {
+			DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicSupplyChange, )
+		}
 
-        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Supply_Change)
+		DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Supply_Change)
 
-        // region streamTransaction
+		// region streamTransaction
 
-        PLUGIN_TEST(CanMapSupplyChangeTransaction)
-        {
-            // Arrange:
-            typename TTraits::TransactionType transaction;
-            transaction.MosaicId = UnresolvedMosaicId(753);
-            transaction.Action = model::MosaicSupplyChangeAction::Increase;
-            transaction.Delta = Amount(12349876);
+		PLUGIN_TEST(CanMapSupplyChangeTransaction) {
+			// Arrange:
+			typename TTraits::TransactionType transaction;
+			transaction.MosaicId = UnresolvedMosaicId(753);
+			transaction.Action = model::MosaicSupplyChangeAction::Increase;
+			transaction.Delta = Amount(12349876);
 
-            auto pPlugin = TTraits::CreatePlugin();
+			auto pPlugin = TTraits::CreatePlugin();
 
-            // Act:
-            mappers::bson_stream::document builder;
-            pPlugin->streamTransaction(builder, transaction);
-            auto view = builder.view();
+			// Act:
+			mappers::bson_stream::document builder;
+			pPlugin->streamTransaction(builder, transaction);
+			auto view = builder.view();
 
-            // Assert:
-            EXPECT_EQ(3u, test::GetFieldCount(view));
-            EXPECT_EQ(753u, test::GetUint64(view, "mosaicId"));
-            EXPECT_EQ(model::MosaicSupplyChangeAction::Increase, static_cast<model::MosaicSupplyChangeAction>(test::GetUint32(view, "action")));
-            EXPECT_EQ(12349876u, test::GetUint64(view, "delta"));
-        }
+			// Assert:
+			EXPECT_EQ(3u, test::GetFieldCount(view));
+			EXPECT_EQ(753u, test::GetUint64(view, "mosaicId"));
+			EXPECT_EQ(model::MosaicSupplyChangeAction::Increase, static_cast<model::MosaicSupplyChangeAction>(test::GetUint32(view, "action")));
+			EXPECT_EQ(12349876u, test::GetUint64(view, "delta"));
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

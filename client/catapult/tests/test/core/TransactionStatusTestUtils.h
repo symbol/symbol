@@ -24,29 +24,29 @@
 
 namespace catapult {
 namespace io {
-    class OutputStream;
+	class OutputStream;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Represents a transaction status notification.
-    struct TransactionStatusNotification {
-        /// Transaction.
-        std::unique_ptr<model::Transaction> pTransaction;
+	/// Represents a transaction status notification.
+	struct TransactionStatusNotification {
+		/// Transaction.
+		std::unique_ptr<model::Transaction> pTransaction;
 
-        /// Transaction hash.
-        Hash256 Hash;
+		/// Transaction hash.
+		Hash256 Hash;
 
-        /// Transaction status.
-        uint32_t Status;
-    };
+		/// Transaction status.
+		uint32_t Status;
+	};
 
-    /// Generates a random transaction status notification for a transaction with size \a transactionSize.
-    TransactionStatusNotification GenerateRandomTransactionStatusNotification(uint32_t transactionSize);
+	/// Generates a random transaction status notification for a transaction with size \a transactionSize.
+	TransactionStatusNotification GenerateRandomTransactionStatusNotification(uint32_t transactionSize);
 
-    /// Writes \a notification to \a outputStream.
-    void WriteTransactionStatusNotification(io::OutputStream& outputStream, const TransactionStatusNotification& notification);
+	/// Writes \a notification to \a outputStream.
+	void WriteTransactionStatusNotification(io::OutputStream& outputStream, const TransactionStatusNotification& notification);
 }
 }

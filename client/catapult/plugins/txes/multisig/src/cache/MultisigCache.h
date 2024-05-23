@@ -28,20 +28,19 @@
 namespace catapult {
 namespace cache {
 
-    /// Cache composed of multisig information.
-    using BasicMultisigCache = BasicCache<MultisigCacheDescriptor, MultisigCacheTypes::BaseSets>;
+	/// Cache composed of multisig information.
+	using BasicMultisigCache = BasicCache<MultisigCacheDescriptor, MultisigCacheTypes::BaseSets>;
 
-    /// Synchronized cache composed of multisig information.
-    class MultisigCache : public SynchronizedCache<BasicMultisigCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(Multisig)
+	/// Synchronized cache composed of multisig information.
+	class MultisigCache : public SynchronizedCache<BasicMultisigCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(Multisig)
 
-    public:
-        /// Creates a cache around \a config.
-        explicit MultisigCache(const CacheConfiguration& config)
-            : SynchronizedCache<BasicMultisigCache>(BasicMultisigCache(config))
-        {
-        }
-    };
+	public:
+		/// Creates a cache around \a config.
+		explicit MultisigCache(const CacheConfiguration& config)
+			: SynchronizedCache<BasicMultisigCache>(BasicMultisigCache(config)) {
+		}
+	};
 }
 }

@@ -30,22 +30,22 @@
 namespace catapult {
 namespace validators {
 
-    /// Strongly typed notification validator.
-    template <typename TNotification, typename... TArgs>
-    class PLUGIN_API_DEPENDENCY NotificationValidatorT {
-    public:
-        /// Notification type.
-        using NotificationType = TNotification;
+	/// Strongly typed notification validator.
+	template <typename TNotification, typename... TArgs>
+	class PLUGIN_API_DEPENDENCY NotificationValidatorT {
+	public:
+		/// Notification type.
+		using NotificationType = TNotification;
 
-    public:
-        virtual ~NotificationValidatorT() = default;
+	public:
+		virtual ~NotificationValidatorT() = default;
 
-    public:
-        /// Gets the validator name.
-        virtual const std::string& name() const = 0;
+	public:
+		/// Gets the validator name.
+		virtual const std::string& name() const = 0;
 
-        /// Validates a single \a notification with contextual information \a args.
-        virtual ValidationResult validate(const TNotification& notification, TArgs&&... args) const = 0;
-    };
+		/// Validates a single \a notification with contextual information \a args.
+		virtual ValidationResult validate(const TNotification& notification, TArgs&&... args) const = 0;
+	};
 }
 }

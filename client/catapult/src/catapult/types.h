@@ -30,42 +30,42 @@ namespace catapult {
 // region byte arrays (ex address)
 
 struct Signature_tag {
-    static constexpr size_t Size = 64;
+	static constexpr size_t Size = 64;
 };
 using Signature = utils::ByteArray<Signature_tag>;
 
 struct Key_tag {
-    static constexpr size_t Size = 32;
+	static constexpr size_t Size = 32;
 };
 using Key = utils::ByteArray<Key_tag>;
 
 struct VotingKey_tag {
-    static constexpr size_t Size = 32;
+	static constexpr size_t Size = 32;
 };
 using VotingKey = utils::ByteArray<VotingKey_tag>;
 
 struct Hash512_tag {
-    static constexpr size_t Size = 64;
+	static constexpr size_t Size = 64;
 };
 using Hash512 = utils::ByteArray<Hash512_tag>;
 
 struct Hash256_tag {
-    static constexpr size_t Size = 32;
+	static constexpr size_t Size = 32;
 };
 using Hash256 = utils::ByteArray<Hash256_tag>;
 
 struct Hash160_tag {
-    static constexpr size_t Size = 20;
+	static constexpr size_t Size = 20;
 };
 using Hash160 = utils::ByteArray<Hash160_tag>;
 
 struct GenerationHash_tag {
-    static constexpr size_t Size = 32;
+	static constexpr size_t Size = 32;
 };
 using GenerationHash = utils::ByteArray<GenerationHash_tag>;
 
 struct GenerationHashSeed_tag {
-    static constexpr size_t Size = 32;
+	static constexpr size_t Size = 32;
 };
 using GenerationHashSeed = utils::ByteArray<GenerationHashSeed_tag>;
 
@@ -74,12 +74,12 @@ using GenerationHashSeed = utils::ByteArray<GenerationHashSeed_tag>;
 // region byte arrays (address)
 
 struct Address_tag {
-    static constexpr size_t Size = 24;
+	static constexpr size_t Size = 24;
 };
 using Address = utils::ByteArray<Address_tag>;
 
 struct UnresolvedAddress_tag {
-    static constexpr size_t Size = 24;
+	static constexpr size_t Size = 24;
 };
 using UnresolvedAddress = utils::ByteArray<UnresolvedAddress_tag>;
 
@@ -116,9 +116,9 @@ using BlockFeeMultiplier = utils::BaseValue<uint32_t, BlockFeeMultiplier_tag>;
 
 struct Difficulty_tag {
 public:
-    static constexpr uint64_t Default_Value = 100'000'000'000'000;
-    static constexpr uint64_t Min_Value = Default_Value / 10;
-    static constexpr uint64_t Max_Value = Default_Value * 10;
+	static constexpr uint64_t Default_Value = 100'000'000'000'000;
+	static constexpr uint64_t Min_Value = Default_Value / 10;
+	static constexpr uint64_t Max_Value = Default_Value * 10;
 };
 using Difficulty = utils::ClampedBaseValue<uint64_t, Difficulty_tag>;
 
@@ -134,15 +134,13 @@ using utils::RawString;
 
 /// Gets the size of the specified array.
 template <typename T, size_t N>
-constexpr size_t CountOf(T const (&)[N]) noexcept
-{
-    return N;
+constexpr size_t CountOf(T const (&)[N]) noexcept {
+	return N;
 }
 
 /// Gets the size of the specified type as an unsigned 32 bit value.
 template <typename T>
-constexpr uint32_t SizeOf32()
-{
-    return static_cast<uint32_t>(sizeof(T));
+constexpr uint32_t SizeOf32() {
+	return static_cast<uint32_t>(sizeof(T));
 }
 }

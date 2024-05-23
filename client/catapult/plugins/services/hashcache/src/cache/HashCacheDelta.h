@@ -28,49 +28,48 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the hash cache delta.
-    using HashCacheDeltaMixins = BasicCacheMixins<HashCacheTypes::PrimaryTypes::BaseSetDeltaType, HashCacheDescriptor>;
+	/// Mixins used by the hash cache delta.
+	using HashCacheDeltaMixins = BasicCacheMixins<HashCacheTypes::PrimaryTypes::BaseSetDeltaType, HashCacheDescriptor>;
 
-    /// Basic delta on top of the hash cache.
-    class BasicHashCacheDelta
-        : public utils::MoveOnly,
-          public HashCacheDeltaMixins::Size,
-          public HashCacheDeltaMixins::Contains,
-          public HashCacheDeltaMixins::BasicInsertRemove,
-          public HashCacheDeltaMixins::DeltaElements {
-    public:
-        using ReadOnlyView = HashCacheTypes::CacheReadOnlyType;
-        using ValueType = HashCacheDescriptor::ValueType;
+	/// Basic delta on top of the hash cache.
+	class BasicHashCacheDelta
+		: public utils::MoveOnly,
+		  public HashCacheDeltaMixins::Size,
+		  public HashCacheDeltaMixins::Contains,
+		  public HashCacheDeltaMixins::BasicInsertRemove,
+		  public HashCacheDeltaMixins::DeltaElements {
+	public:
+		using ReadOnlyView = HashCacheTypes::CacheReadOnlyType;
+		using ValueType = HashCacheDescriptor::ValueType;
 
-    public:
-        /// Creates a delta around \a hashSets and \a options.
-        BasicHashCacheDelta(const HashCacheTypes::BaseSetDeltaPointers& hashSets, const HashCacheTypes::Options& options);
+	public:
+		/// Creates a delta around \a hashSets and \a options.
+		BasicHashCacheDelta(const HashCacheTypes::BaseSetDeltaPointers& hashSets, const HashCacheTypes::Options& options);
 
-    public:
-        /// Gets the retention time for the cache.
-        utils::TimeSpan retentionTime() const;
+	public:
+		/// Gets the retention time for the cache.
+		utils::TimeSpan retentionTime() const;
 
-        /// Gets the pruning boundary that is used during commit.
-        deltaset::PruningBoundary<ValueType> pruningBoundary() const;
+		/// Gets the pruning boundary that is used during commit.
+		deltaset::PruningBoundary<ValueType> pruningBoundary() const;
 
-    public:
-        /// Removes all timestamped hashes that have timestamps prior to the given \a timestamp minus the retention time.
-        void prune(Timestamp timestamp);
+	public:
+		/// Removes all timestamped hashes that have timestamps prior to the given \a timestamp minus the retention time.
+		void prune(Timestamp timestamp);
 
-    private:
-        HashCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pOrderedDelta;
-        utils::TimeSpan m_retentionTime;
-        deltaset::PruningBoundary<ValueType> m_pruningBoundary;
-    };
+	private:
+		HashCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pOrderedDelta;
+		utils::TimeSpan m_retentionTime;
+		deltaset::PruningBoundary<ValueType> m_pruningBoundary;
+	};
 
-    /// Delta on top of the hash cache.
-    class HashCacheDelta : public ReadOnlyViewSupplier<BasicHashCacheDelta> {
-    public:
-        /// Creates a delta around \a hashSets and \a options.
-        HashCacheDelta(const HashCacheTypes::BaseSetDeltaPointers& hashSets, const HashCacheTypes::Options& options)
-            : ReadOnlyViewSupplier(hashSets, options)
-        {
-        }
-    };
+	/// Delta on top of the hash cache.
+	class HashCacheDelta : public ReadOnlyViewSupplier<BasicHashCacheDelta> {
+	public:
+		/// Creates a delta around \a hashSets and \a options.
+		HashCacheDelta(const HashCacheTypes::BaseSetDeltaPointers& hashSets, const HashCacheTypes::Options& options)
+			: ReadOnlyViewSupplier(hashSets, options) {
+		}
+	};
 }
 }

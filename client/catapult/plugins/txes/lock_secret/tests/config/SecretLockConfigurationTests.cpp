@@ -26,38 +26,34 @@
 namespace catapult {
 namespace config {
 
-    namespace {
-        struct SecretLockConfigurationTraits {
-            using ConfigurationType = SecretLockConfiguration;
+	namespace {
+		struct SecretLockConfigurationTraits {
+			using ConfigurationType = SecretLockConfiguration;
 
-            static utils::ConfigurationBag::ValuesContainer CreateProperties()
-            {
-                return { { "", { { "maxSecretLockDuration", "23'456d" }, { "minProofSize", "42" }, { "maxProofSize", "1234" } } } };
-            }
+			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
+				return { { "", { { "maxSecretLockDuration", "23'456d" }, { "minProofSize", "42" }, { "maxProofSize", "1234" } } } };
+			}
 
-            static bool IsSectionOptional(const std::string&)
-            {
-                return false;
-            }
+			static bool IsSectionOptional(const std::string&) {
+				return false;
+			}
 
-            static void AssertZero(const SecretLockConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(utils::BlockSpan(), config.MaxSecretLockDuration);
-                EXPECT_EQ(0u, config.MinProofSize);
-                EXPECT_EQ(0u, config.MaxProofSize);
-            }
+			static void AssertZero(const SecretLockConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(utils::BlockSpan(), config.MaxSecretLockDuration);
+				EXPECT_EQ(0u, config.MinProofSize);
+				EXPECT_EQ(0u, config.MaxProofSize);
+			}
 
-            static void AssertCustom(const SecretLockConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(utils::BlockSpan::FromDays(23'456), config.MaxSecretLockDuration);
-                EXPECT_EQ(42u, config.MinProofSize);
-                EXPECT_EQ(1234u, config.MaxProofSize);
-            }
-        };
-    }
+			static void AssertCustom(const SecretLockConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(utils::BlockSpan::FromDays(23'456), config.MaxSecretLockDuration);
+				EXPECT_EQ(42u, config.MinProofSize);
+				EXPECT_EQ(1234u, config.MaxProofSize);
+			}
+		};
+	}
 
-    DEFINE_CONFIGURATION_TESTS(SecretLockConfigurationTests, SecretLock)
+	DEFINE_CONFIGURATION_TESTS(SecretLockConfigurationTests, SecretLock)
 }
 }

@@ -26,23 +26,23 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::ProofPublicationNotification;
+	using Notification = model::ProofPublicationNotification;
 
-    DEFINE_STATEFUL_VALIDATOR(Proof, [](const Notification& notification, const ValidatorContext& context) {
-        const auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
-        auto key = model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient));
-        if (!cache.contains(key))
-            return Failure_LockSecret_Unknown_Composite_Key;
+	DEFINE_STATEFUL_VALIDATOR(Proof, [](const Notification& notification, const ValidatorContext& context) {
+		const auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
+		auto key = model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient));
+		if (!cache.contains(key))
+			return Failure_LockSecret_Unknown_Composite_Key;
 
-        if (!cache.isActive(key, context.Height))
-            return Failure_LockSecret_Inactive_Secret;
+		if (!cache.isActive(key, context.Height))
+			return Failure_LockSecret_Inactive_Secret;
 
-        auto lockInfoIter = cache.find(key);
-        const auto& lockInfo = lockInfoIter.get().back();
-        if (lockInfo.HashAlgorithm != notification.HashAlgorithm)
-            return Failure_LockSecret_Hash_Algorithm_Mismatch;
+		auto lockInfoIter = cache.find(key);
+		const auto& lockInfo = lockInfoIter.get().back();
+		if (lockInfo.HashAlgorithm != notification.HashAlgorithm)
+			return Failure_LockSecret_Hash_Algorithm_Mismatch;
 
-        return ValidationResult::Success;
-    })
+		return ValidationResult::Success;
+	})
 }
 }

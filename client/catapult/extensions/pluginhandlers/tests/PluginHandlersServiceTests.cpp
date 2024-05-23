@@ -29,49 +29,47 @@ namespace pluginhandlers {
 
 #define TEST_CLASS PluginHandlersServiceTests
 
-    namespace {
-        struct PluginHandlersServiceTraits {
-            static constexpr auto CreateRegistrar = CreatePluginHandlersServiceRegistrar;
-        };
+	namespace {
+		struct PluginHandlersServiceTraits {
+			static constexpr auto CreateRegistrar = CreatePluginHandlersServiceRegistrar;
+		};
 
-        using TestContext = test::ServiceLocatorTestContext<PluginHandlersServiceTraits>;
-    }
+		using TestContext = test::ServiceLocatorTestContext<PluginHandlersServiceTraits>;
+	}
 
-    ADD_SERVICE_REGISTRAR_INFO_TEST(PluginHandlers, Initial)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(PluginHandlers, Initial)
 
-    TEST(TEST_CLASS, NoServicesOrCountersAreRegistered)
-    {
-        test::AssertNoServicesOrCountersAreRegistered<TestContext>();
-    }
+	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
+		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
+	}
 
-    TEST(TEST_CLASS, PacketHandlersAreRegistered)
-    {
-        // Arrange:
-        struct HookCapture {
-            const ionet::ServerPacketHandlers* pHandlers;
-            const cache::CatapultCache* pCache;
-        };
+	TEST(TEST_CLASS, PacketHandlersAreRegistered) {
+		// Arrange:
+		struct HookCapture {
+			const ionet::ServerPacketHandlers* pHandlers;
+			const cache::CatapultCache* pCache;
+		};
 
-        HookCapture capture;
-        TestContext context;
-        context.testState().pluginManager().addHandlerHook([&capture](auto& handlers, const auto& cache) {
-            // - capture params and register a handler
-            capture.pHandlers = &handlers;
-            capture.pCache = &cache;
-            handlers.registerHandler(ionet::PacketType::Chain_Statistics, [](const auto&, const auto&) {});
-        });
+		HookCapture capture;
+		TestContext context;
+		context.testState().pluginManager().addHandlerHook([&capture](auto& handlers, const auto& cache) {
+			// - capture params and register a handler
+			capture.pHandlers = &handlers;
+			capture.pCache = &cache;
+			handlers.registerHandler(ionet::PacketType::Chain_Statistics, [](const auto&, const auto&) {});
+		});
 
-        // Act:
-        context.boot();
-        const auto& packetHandlers = context.testState().state().packetHandlers();
+		// Act:
+		context.boot();
+		const auto& packetHandlers = context.testState().state().packetHandlers();
 
-        // Assert:
-        EXPECT_EQ(1u, packetHandlers.size());
-        EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Chain_Statistics)); // the handler hook registered above
+		// Assert:
+		EXPECT_EQ(1u, packetHandlers.size());
+		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Chain_Statistics)); // the handler hook registered above
 
-        // - correct params were forwarded to callback
-        EXPECT_EQ(&packetHandlers, capture.pHandlers);
-        EXPECT_EQ(&context.testState().state().cache(), capture.pCache);
-    }
+		// - correct params were forwarded to callback
+		EXPECT_EQ(&packetHandlers, capture.pHandlers);
+		EXPECT_EQ(&context.testState().state().cache(), capture.pCache);
+	}
 }
 }

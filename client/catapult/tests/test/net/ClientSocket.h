@@ -27,71 +27,71 @@
 namespace catapult {
 namespace test {
 
-    /// Wraps a client, non packet-based socket.
-    class ClientSocket {
-    public:
-        /// Connect options.
-        enum class ConnectOptions {
-            /// Normal connect behavior.
-            Normal,
+	/// Wraps a client, non packet-based socket.
+	class ClientSocket {
+	public:
+		/// Connect options.
+		enum class ConnectOptions {
+			/// Normal connect behavior.
+			Normal,
 
-            /// Abort connection immediately after connect.
-            Abort,
+			/// Abort connection immediately after connect.
+			Abort,
 
-            /// Skip handshake after connect.
-            Skip_Handshake,
+			/// Skip handshake after connect.
+			Skip_Handshake,
 
-            /// Connect using an IPv6 address.
-            IPv6
-        };
+			/// Connect using an IPv6 address.
+			IPv6
+		};
 
-    public:
-        virtual ~ClientSocket() = default;
+	public:
+		virtual ~ClientSocket() = default;
 
-    public:
-        /// Connects to the (localhost) server with \a options.
-        virtual thread::future<ClientSocket*> connect(ConnectOptions options = ConnectOptions::Normal) = 0;
+	public:
+		/// Connects to the (localhost) server with \a options.
+		virtual thread::future<ClientSocket*> connect(ConnectOptions options = ConnectOptions::Normal) = 0;
 
-        /// Connects to the (localhost) server at \a port with \a options.
-        virtual thread::future<ClientSocket*> connect(unsigned short port, ConnectOptions options = ConnectOptions::Normal) = 0;
+		/// Connects to the (localhost) server at \a port with \a options.
+		virtual thread::future<ClientSocket*> connect(unsigned short port, ConnectOptions options = ConnectOptions::Normal) = 0;
 
-        /// Reads a buffer from this socket into \a receiveBuffer.
-        virtual thread::future<size_t> read(ionet::ByteBuffer& receiveBuffer) = 0;
+		/// Reads a buffer from this socket into \a receiveBuffer.
+		virtual thread::future<size_t> read(ionet::ByteBuffer& receiveBuffer) = 0;
 
-        /// Writes \a sendBuffer to this \a socket.
-        virtual thread::future<size_t> write(const ionet::ByteBuffer& sendBuffer) = 0;
+		/// Writes \a sendBuffer to this \a socket.
+		virtual thread::future<size_t> write(const ionet::ByteBuffer& sendBuffer) = 0;
 
-        /// Writes all buffers in \a sendBuffers to this socket with an optional delay (\a delayMillis) between writes.
-        virtual thread::future<size_t> write(const std::vector<ionet::ByteBuffer>& sendBuffers, size_t delayMillis = 10) = 0;
+		/// Writes all buffers in \a sendBuffers to this socket with an optional delay (\a delayMillis) between writes.
+		virtual thread::future<size_t> write(const std::vector<ionet::ByteBuffer>& sendBuffers, size_t delayMillis = 10) = 0;
 
-        /// Delays execution of \a continuation by \a delayMillis milliseconds.
-        virtual void delay(const action& continuation, size_t delayMillis) = 0;
+		/// Delays execution of \a continuation by \a delayMillis milliseconds.
+		virtual void delay(const action& continuation, size_t delayMillis) = 0;
 
-        /// Shuts down the client socket.
-        virtual void shutdown() = 0;
+		/// Shuts down the client socket.
+		virtual void shutdown() = 0;
 
-        /// Aborts the client socket.
-        virtual void abort() = 0;
-    };
+		/// Aborts the client socket.
+		virtual void abort() = 0;
+	};
 
-    /// Creates a client socket around \a ioContext.
-    std::shared_ptr<ClientSocket> CreateClientSocket(boost::asio::io_context& ioContext);
+	/// Creates a client socket around \a ioContext.
+	std::shared_ptr<ClientSocket> CreateClientSocket(boost::asio::io_context& ioContext);
 
-    /// Spawns a task on \a ioContext that connects to the (localhost) server.
-    std::shared_ptr<ClientSocket> AddClientConnectionTask(boost::asio::io_context& ioContext);
+	/// Spawns a task on \a ioContext that connects to the (localhost) server.
+	std::shared_ptr<ClientSocket> AddClientConnectionTask(boost::asio::io_context& ioContext);
 
-    /// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket.
-    std::shared_ptr<ClientSocket> AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer);
+	/// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket.
+	std::shared_ptr<ClientSocket> AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer);
 
-    /// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket. Sets the \a readComplete to \c true.
-    std::shared_ptr<ClientSocket> AddClientReadBufferTaskWithWait(
-        boost::asio::io_context& ioContext,
-        ionet::ByteBuffer& receiveBuffer,
-        std::atomic_bool& readComplete);
+	/// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket. Sets the \a readComplete to \c true.
+	std::shared_ptr<ClientSocket> AddClientReadBufferTaskWithWait(
+		boost::asio::io_context& ioContext,
+		ionet::ByteBuffer& receiveBuffer,
+		std::atomic_bool& readComplete);
 
-    /// Spawns a task on \a ioContext that writes all \a sendBuffers to a client socket.
-    std::shared_ptr<ClientSocket> AddClientWriteBuffersTask(
-        boost::asio::io_context& ioContext,
-        const std::vector<ionet::ByteBuffer>& sendBuffers);
+	/// Spawns a task on \a ioContext that writes all \a sendBuffers to a client socket.
+	std::shared_ptr<ClientSocket> AddClientWriteBuffersTask(
+		boost::asio::io_context& ioContext,
+		const std::vector<ionet::ByteBuffer>& sendBuffers);
 }
 }

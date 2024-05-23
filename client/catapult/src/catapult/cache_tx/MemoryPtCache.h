@@ -32,92 +32,92 @@
 
 namespace catapult {
 namespace cache {
-    class PtData;
+	class PtData;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    using PtDataContainer = std::unordered_map<Hash256, PtData, utils::ArrayHasher<Hash256>>;
+	using PtDataContainer = std::unordered_map<Hash256, PtData, utils::ArrayHasher<Hash256>>;
 
-    /// Read only view on top of partial transactions cache.
-    class MemoryPtCacheView {
-    private:
-        using UnknownTransactionInfos = std::vector<model::CosignedTransactionInfo>;
+	/// Read only view on top of partial transactions cache.
+	class MemoryPtCacheView {
+	private:
+		using UnknownTransactionInfos = std::vector<model::CosignedTransactionInfo>;
 
-    public:
-        /// Creates a view around around a maximum response size (\a maxResponseSize), current cache size (\a cacheSize)
-        /// and a partial transaction data container (\a transactionDataContainer) with lock context \a readLock.
-        MemoryPtCacheView(
-            utils::FileSize maxResponseSize,
-            utils::FileSize cacheSize,
-            const PtDataContainer& transactionDataContainer,
-            utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
+	public:
+		/// Creates a view around around a maximum response size (\a maxResponseSize), current cache size (\a cacheSize)
+		/// and a partial transaction data container (\a transactionDataContainer) with lock context \a readLock.
+		MemoryPtCacheView(
+			utils::FileSize maxResponseSize,
+			utils::FileSize cacheSize,
+			const PtDataContainer& transactionDataContainer,
+			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
 
-    public:
-        /// Gets the number of partial transactions in the cache.
-        size_t size() const;
+	public:
+		/// Gets the number of partial transactions in the cache.
+		size_t size() const;
 
-        /// Gets the memory size of all partial transactions in the cache.
-        /// \note Size of detached cosignatures is not included.
-        utils::FileSize memorySize() const;
+		/// Gets the memory size of all partial transactions in the cache.
+		/// \note Size of detached cosignatures is not included.
+		utils::FileSize memorySize() const;
 
-        /// Finds a partial transaction in the cache with associated \a hash or returns \c nullptr if no such transaction exists.
-        model::WeakCosignedTransactionInfo find(const Hash256& hash) const;
+		/// Finds a partial transaction in the cache with associated \a hash or returns \c nullptr if no such transaction exists.
+		model::WeakCosignedTransactionInfo find(const Hash256& hash) const;
 
-        /// Gets a range of short hash pairs of all transactions in the cache.
-        /// \note Each short hash pair consists of the first 4 bytes of the transaction hash and the first 4 bytes of the cosignature hash.
-        ShortHashPairRange shortHashPairs() const;
+		/// Gets a range of short hash pairs of all transactions in the cache.
+		/// \note Each short hash pair consists of the first 4 bytes of the transaction hash and the first 4 bytes of the cosignature hash.
+		ShortHashPairRange shortHashPairs() const;
 
-        /// Gets a vector of all unknown transaction infos in the cache that have a deadline at least \a minDeadline
-        /// and do not have a short hash pair in \a knownShortHashPairs.
-        UnknownTransactionInfos unknownTransactions(Timestamp minDeadline, const ShortHashPairMap& knownShortHashPairs) const;
+		/// Gets a vector of all unknown transaction infos in the cache that have a deadline at least \a minDeadline
+		/// and do not have a short hash pair in \a knownShortHashPairs.
+		UnknownTransactionInfos unknownTransactions(Timestamp minDeadline, const ShortHashPairMap& knownShortHashPairs) const;
 
-    private:
-        utils::FileSize m_maxResponseSize;
-        utils::FileSize m_cacheSize;
-        const PtDataContainer& m_transactionDataContainer;
-        utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
-    };
+	private:
+		utils::FileSize m_maxResponseSize;
+		utils::FileSize m_cacheSize;
+		const PtDataContainer& m_transactionDataContainer;
+		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
+	};
 
-    /// Interface (read write) for caching partial transactions.
-    class ReadWritePtCache : public PtCache {
-    public:
-        /// Gets a read only view based on this cache.
-        virtual MemoryPtCacheView view() const = 0;
-    };
+	/// Interface (read write) for caching partial transactions.
+	class ReadWritePtCache : public PtCache {
+	public:
+		/// Gets a read only view based on this cache.
+		virtual MemoryPtCacheView view() const = 0;
+	};
 
-    /// Cache for all partial transactions.
-    class MemoryPtCache : public ReadWritePtCache {
-    public:
-        using CacheWriteOnlyInterface = PtCache;
-        using CacheReadWriteInterface = ReadWritePtCache;
+	/// Cache for all partial transactions.
+	class MemoryPtCache : public ReadWritePtCache {
+	public:
+		using CacheWriteOnlyInterface = PtCache;
+		using CacheReadWriteInterface = ReadWritePtCache;
 
-    public:
-        /// Creates a partial transactions cache around \a options.
-        explicit MemoryPtCache(const MemoryCacheOptions& options);
+	public:
+		/// Creates a partial transactions cache around \a options.
+		explicit MemoryPtCache(const MemoryCacheOptions& options);
 
-        /// Destroys a partial transactions cache.
-        ~MemoryPtCache() override;
+		/// Destroys a partial transactions cache.
+		~MemoryPtCache() override;
 
-    public:
-        MemoryPtCacheView view() const override;
+	public:
+		MemoryPtCacheView view() const override;
 
-        PtCacheModifierProxy modifier() override;
+		PtCacheModifierProxy modifier() override;
 
-    private:
-        struct Impl;
+	private:
+		struct Impl;
 
-    private:
-        MemoryCacheOptions m_options;
-        std::unique_ptr<Impl> m_pImpl;
-        mutable utils::SpinReaderWriterLock m_lock;
-    };
+	private:
+		MemoryCacheOptions m_options;
+		std::unique_ptr<Impl> m_pImpl;
+		mutable utils::SpinReaderWriterLock m_lock;
+	};
 
-    /// Delegating proxy around a MemoryPtCache.
-    class MemoryPtCacheProxy : public MemoryCacheProxy<MemoryPtCache> {
-        using MemoryCacheProxy<MemoryPtCache>::MemoryCacheProxy;
-    };
+	/// Delegating proxy around a MemoryPtCache.
+	class MemoryPtCacheProxy : public MemoryCacheProxy<MemoryPtCache> {
+		using MemoryCacheProxy<MemoryPtCache>::MemoryCacheProxy;
+	};
 }
 }

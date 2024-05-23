@@ -24,50 +24,41 @@
 namespace catapult {
 namespace model {
 
-    bool FinalizationRound::operator==(const FinalizationRound& rhs) const
-    {
-        return Epoch == rhs.Epoch && Point == rhs.Point;
-    }
+	bool FinalizationRound::operator==(const FinalizationRound& rhs) const {
+		return Epoch == rhs.Epoch && Point == rhs.Point;
+	}
 
-    bool FinalizationRound::operator!=(const FinalizationRound& rhs) const
-    {
-        return !(*this == rhs);
-    }
+	bool FinalizationRound::operator!=(const FinalizationRound& rhs) const {
+		return !(*this == rhs);
+	}
 
-    bool FinalizationRound::operator<(const FinalizationRound& rhs) const
-    {
-        return Epoch != rhs.Epoch ? Epoch < rhs.Epoch : Point < rhs.Point;
-    }
+	bool FinalizationRound::operator<(const FinalizationRound& rhs) const {
+		return Epoch != rhs.Epoch ? Epoch < rhs.Epoch : Point < rhs.Point;
+	}
 
-    bool FinalizationRound::operator<=(const FinalizationRound& rhs) const
-    {
-        return *this < rhs || *this == rhs;
-    }
+	bool FinalizationRound::operator<=(const FinalizationRound& rhs) const {
+		return *this < rhs || *this == rhs;
+	}
 
-    bool FinalizationRound::operator>(const FinalizationRound& rhs) const
-    {
-        return !(*this <= rhs);
-    }
+	bool FinalizationRound::operator>(const FinalizationRound& rhs) const {
+		return !(*this <= rhs);
+	}
 
-    bool FinalizationRound::operator>=(const FinalizationRound& rhs) const
-    {
-        return !(*this < rhs);
-    }
+	bool FinalizationRound::operator>=(const FinalizationRound& rhs) const {
+		return !(*this < rhs);
+	}
 
-    FinalizationRound FinalizationRound::operator+(FinalizationPoint point) const
-    {
-        return { Epoch, Point + point };
-    }
+	FinalizationRound FinalizationRound::operator+(FinalizationPoint point) const {
+		return { Epoch, Point + point };
+	}
 
-    FinalizationRound FinalizationRound::operator-(FinalizationPoint point) const
-    {
-        return { Epoch, Point - point };
-    }
+	FinalizationRound FinalizationRound::operator-(FinalizationPoint point) const {
+		return { Epoch, Point - point };
+	}
 
-    std::ostream& operator<<(std::ostream& out, const FinalizationRound& round)
-    {
-        out << "(" << round.Epoch << ", " << round.Point << ")";
-        return out;
-    }
+	std::ostream& operator<<(std::ostream& out, const FinalizationRound& round) {
+		out << "(" << round.Epoch << ", " << round.Point << ")";
+		return out;
+	}
 }
 }

@@ -24,15 +24,15 @@
 namespace catapult {
 namespace observers {
 
-    DEFINE_OBSERVER(
-        TotalTransactions,
-        model::BlockNotification,
-        [](const model::BlockNotification& notification, const ObserverContext& context) {
-            auto& numTotalTransactions = context.Cache.dependentState().NumTotalTransactions;
-            if (NotifyMode::Commit == context.Mode)
-                numTotalTransactions += notification.NumTransactions;
-            else
-                numTotalTransactions -= notification.NumTransactions;
-        })
+	DEFINE_OBSERVER(
+		TotalTransactions,
+		model::BlockNotification,
+		[](const model::BlockNotification& notification, const ObserverContext& context) {
+			auto& numTotalTransactions = context.Cache.dependentState().NumTotalTransactions;
+			if (NotifyMode::Commit == context.Mode)
+				numTotalTransactions += notification.NumTransactions;
+			else
+				numTotalTransactions -= notification.NumTransactions;
+		})
 }
 }

@@ -25,51 +25,48 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Lock info mapper test suite.
-        template <typename TLockInfoTraits>
-        class LockInfoMapperTests {
-        private:
-            static void AssertEqualLockMetadata(const bsoncxx::document::view& dbMetadata)
-            {
-                EXPECT_EQ(0u, test::GetFieldCount(dbMetadata));
-            }
+		/// Lock info mapper test suite.
+		template <typename TLockInfoTraits>
+		class LockInfoMapperTests {
+		private:
+			static void AssertEqualLockMetadata(const bsoncxx::document::view& dbMetadata) {
+				EXPECT_EQ(0u, test::GetFieldCount(dbMetadata));
+			}
 
-        public:
-            static void AssertCanMapLockInfo_ModelToDbModel()
-            {
-                // Arrange:
-                auto lockInfo1 = TLockInfoTraits::CreateLockInfo(Height(123));
-                lockInfo1.Status = state::LockStatus::Used;
+		public:
+			static void AssertCanMapLockInfo_ModelToDbModel() {
+				// Arrange:
+				auto lockInfo1 = TLockInfoTraits::CreateLockInfo(Height(123));
+				lockInfo1.Status = state::LockStatus::Used;
 
-                auto lockInfo2 = lockInfo1;
-                lockInfo2.EndHeight = lockInfo1.EndHeight + Height(10);
-                lockInfo2.Status = state::LockStatus::Unused;
+				auto lockInfo2 = lockInfo1;
+				lockInfo2.EndHeight = lockInfo1.EndHeight + Height(10);
+				lockInfo2.Status = state::LockStatus::Unused;
 
-                auto history = typename TLockInfoTraits::HistoryType(GetLockIdentifier(lockInfo1));
-                history.push_back(lockInfo1);
-                history.push_back(lockInfo2);
+				auto history = typename TLockInfoTraits::HistoryType(GetLockIdentifier(lockInfo1));
+				history.push_back(lockInfo1);
+				history.push_back(lockInfo2);
 
-                // Act:
-                auto document = ToDbModel(history);
-                auto view = document.view();
+				// Act:
+				auto document = ToDbModel(history);
+				auto view = document.view();
 
-                // Assert: only the most recent lock info is mapped
-                EXPECT_EQ(1u, test::GetFieldCount(view));
+				// Assert: only the most recent lock info is mapped
+				EXPECT_EQ(1u, test::GetFieldCount(view));
 
-                auto lockInfoView = view["lock"].get_document().view();
-                TLockInfoTraits::AssertEqualLockInfoData(lockInfo2, lockInfoView);
-            }
-        };
-    }
+				auto lockInfoView = view["lock"].get_document().view();
+				TLockInfoTraits::AssertEqualLockInfoData(lockInfo2, lockInfoView);
+			}
+		};
+	}
 }
 }
 
 #define MAKE_LOCK_INFO_MAPPER_TEST(TRAITS, TEST_NAME)     \
-    TEST(TEST_CLASS, TEST_NAME)                           \
-    {                                                     \
-        LockInfoMapperTests<TRAITS>::Assert##TEST_NAME(); \
-    }
+	TEST(TEST_CLASS, TEST_NAME) {                         \
+		LockInfoMapperTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_INFO_MAPPER_TESTS(TRAITS) MAKE_LOCK_INFO_MAPPER_TEST(TRAITS, CanMapLockInfo_ModelToDbModel)

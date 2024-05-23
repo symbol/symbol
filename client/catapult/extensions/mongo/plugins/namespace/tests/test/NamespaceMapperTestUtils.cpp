@@ -31,48 +31,46 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        constexpr auto Root_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Root);
-        constexpr auto Child_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Child);
-    }
+	namespace {
+		constexpr auto Root_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Root);
+		constexpr auto Child_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Child);
+	}
 
-    void AssertEqualNamespaceMetadata(const mongo::plugins::NamespaceDescriptor& descriptor, const bsoncxx::document::view& dbMetadata)
-    {
-        EXPECT_EQ(descriptor.IsLatest, dbMetadata["latest"].get_bool().value);
-        EXPECT_EQ(descriptor.Index, GetUint32(dbMetadata, "index"));
-    }
+	void AssertEqualNamespaceMetadata(const mongo::plugins::NamespaceDescriptor& descriptor, const bsoncxx::document::view& dbMetadata) {
+		EXPECT_EQ(descriptor.IsLatest, dbMetadata["latest"].get_bool().value);
+		EXPECT_EQ(descriptor.Index, GetUint32(dbMetadata, "index"));
+	}
 
-    void AssertEqualNamespaceData(const mongo::plugins::NamespaceDescriptor& descriptor, const bsoncxx::document::view& dbNamespace)
-    {
-        auto depth = descriptor.Path.size();
-        EXPECT_EQ(8u + depth, GetFieldCount(dbNamespace));
-        EXPECT_EQ(1u, GetUint32(dbNamespace, "version"));
+	void AssertEqualNamespaceData(const mongo::plugins::NamespaceDescriptor& descriptor, const bsoncxx::document::view& dbNamespace) {
+		auto depth = descriptor.Path.size();
+		EXPECT_EQ(8u + depth, GetFieldCount(dbNamespace));
+		EXPECT_EQ(1u, GetUint32(dbNamespace, "version"));
 
-        auto isRoot = 1 == depth;
-        EXPECT_EQ(isRoot ? Root_Type : Child_Type, GetUint32(dbNamespace, "registrationType"));
-        EXPECT_EQ(depth, GetUint32(dbNamespace, "depth"));
+		auto isRoot = 1 == depth;
+		EXPECT_EQ(isRoot ? Root_Type : Child_Type, GetUint32(dbNamespace, "registrationType"));
+		EXPECT_EQ(depth, GetUint32(dbNamespace, "depth"));
 
-        for (auto level = 0u; level < depth; ++level)
-            EXPECT_EQ(descriptor.Path[level], NamespaceId(GetUint64(dbNamespace, "level" + std::to_string(level)))) << "level " << level;
+		for (auto level = 0u; level < depth; ++level)
+			EXPECT_EQ(descriptor.Path[level], NamespaceId(GetUint64(dbNamespace, "level" + std::to_string(level)))) << "level " << level;
 
-        EXPECT_EQ(isRoot ? Namespace_Base_Id : descriptor.Path[depth - 2], NamespaceId(GetUint64(dbNamespace, "parentId")));
-        EXPECT_EQ(descriptor.OwnerAddress, GetAddressValue(dbNamespace, "ownerAddress"));
-        EXPECT_EQ(descriptor.pRoot->lifetime().Start, Height(GetUint64(dbNamespace, "startHeight")));
-        EXPECT_EQ(descriptor.pRoot->lifetime().End, Height(GetUint64(dbNamespace, "endHeight")));
+		EXPECT_EQ(isRoot ? Namespace_Base_Id : descriptor.Path[depth - 2], NamespaceId(GetUint64(dbNamespace, "parentId")));
+		EXPECT_EQ(descriptor.OwnerAddress, GetAddressValue(dbNamespace, "ownerAddress"));
+		EXPECT_EQ(descriptor.pRoot->lifetime().Start, Height(GetUint64(dbNamespace, "startHeight")));
+		EXPECT_EQ(descriptor.pRoot->lifetime().End, Height(GetUint64(dbNamespace, "endHeight")));
 
-        auto dbAlias = dbNamespace["alias"].get_document().view();
-        EXPECT_EQ(descriptor.Alias.type(), static_cast<state::AliasType>(GetUint32(dbAlias, "type")));
+		auto dbAlias = dbNamespace["alias"].get_document().view();
+		EXPECT_EQ(descriptor.Alias.type(), static_cast<state::AliasType>(GetUint32(dbAlias, "type")));
 
-        if (state::AliasType::None == descriptor.Alias.type()) {
-            EXPECT_EQ(1u, test::GetFieldCount(dbAlias));
-            return;
-        }
+		if (state::AliasType::None == descriptor.Alias.type()) {
+			EXPECT_EQ(1u, test::GetFieldCount(dbAlias));
+			return;
+		}
 
-        EXPECT_EQ(2u, test::GetFieldCount(dbAlias));
-        if (state::AliasType::Mosaic == descriptor.Alias.type())
-            EXPECT_EQ(descriptor.Alias.mosaicId(), MosaicId(GetUint64(dbAlias, "mosaicId")));
-        else
-            EXPECT_EQ(descriptor.Alias.address(), GetAddressValue(dbAlias, "address"));
-    }
+		EXPECT_EQ(2u, test::GetFieldCount(dbAlias));
+		if (state::AliasType::Mosaic == descriptor.Alias.type())
+			EXPECT_EQ(descriptor.Alias.mosaicId(), MosaicId(GetUint64(dbAlias, "mosaicId")));
+		else
+			EXPECT_EQ(descriptor.Alias.address(), GetAddressValue(dbAlias, "address"));
+	}
 }
 }

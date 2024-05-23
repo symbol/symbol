@@ -25,39 +25,36 @@
 namespace catapult {
 namespace importance {
 
-    namespace {
-        class RestoreImportanceCalculator final : public ImportanceCalculator {
-        public:
-            void recalculate(ImportanceRollbackMode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
-                const override
-            {
-                const auto& highValueAccounts = cache.highValueAccounts();
+	namespace {
+		class RestoreImportanceCalculator final : public ImportanceCalculator {
+		public:
+			void recalculate(ImportanceRollbackMode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
+				const override {
+				const auto& highValueAccounts = cache.highValueAccounts();
 
-                PopAll(cache, highValueAccounts.addresses());
-                PopAll(cache, highValueAccounts.removedAddresses());
+				PopAll(cache, highValueAccounts.addresses());
+				PopAll(cache, highValueAccounts.removedAddresses());
 
-                CATAPULT_LOG(debug) << "restored importances at height " << importanceHeight;
-            }
+				CATAPULT_LOG(debug) << "restored importances at height " << importanceHeight;
+			}
 
-        private:
-            static void PopAll(cache::AccountStateCacheDelta& cache, const model::AddressSet& addresses)
-            {
-                for (const auto& address : addresses) {
-                    auto accountStateIter = cache.find(address);
-                    if (!accountStateIter.tryGet())
-                        continue;
+		private:
+			static void PopAll(cache::AccountStateCacheDelta& cache, const model::AddressSet& addresses) {
+				for (const auto& address : addresses) {
+					auto accountStateIter = cache.find(address);
+					if (!accountStateIter.tryGet())
+						continue;
 
-                    auto& accountState = accountStateIter.get();
-                    accountState.ImportanceSnapshots.pop();
-                    accountState.ActivityBuckets.pop();
-                }
-            }
-        };
-    }
+					auto& accountState = accountStateIter.get();
+					accountState.ImportanceSnapshots.pop();
+					accountState.ActivityBuckets.pop();
+				}
+			}
+		};
+	}
 
-    std::unique_ptr<ImportanceCalculator> CreateRestoreImportanceCalculator()
-    {
-        return std::make_unique<RestoreImportanceCalculator>();
-    }
+	std::unique_ptr<ImportanceCalculator> CreateRestoreImportanceCalculator() {
+		return std::make_unique<RestoreImportanceCalculator>();
+	}
 }
 }

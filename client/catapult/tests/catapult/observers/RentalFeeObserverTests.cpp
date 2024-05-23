@@ -28,91 +28,85 @@ namespace observers {
 
 #define TEST_CLASS RentalFeeObserverTests
 
-    namespace {
-        using ObserverTestContext = test::ObserverTestContextT<test::CoreSystemCacheFactory>;
+	namespace {
+		using ObserverTestContext = test::ObserverTestContextT<test::CoreSystemCacheFactory>;
 
-        constexpr auto Default_Receipt_Type = static_cast<model::ReceiptType>(0x1234);
+		constexpr auto Default_Receipt_Type = static_cast<model::ReceiptType>(0x1234);
 
-        struct MockRentalFeeNotification : public model::BasicBalanceNotification<MockRentalFeeNotification> {
-        public:
-            static constexpr auto Notification_Type = static_cast<model::NotificationType>(0xFFFF'FFFF);
+		struct MockRentalFeeNotification : public model::BasicBalanceNotification<MockRentalFeeNotification> {
+		public:
+			static constexpr auto Notification_Type = static_cast<model::NotificationType>(0xFFFF'FFFF);
 
-        public:
-            MockRentalFeeNotification(
-                const Address& sender,
-                const UnresolvedAddress& recipient,
-                UnresolvedMosaicId mosaicId,
-                catapult::Amount amount)
-                : BasicBalanceNotification(sender, mosaicId, amount)
-                , Recipient(recipient)
-            {
-            }
+		public:
+			MockRentalFeeNotification(
+				const Address& sender,
+				const UnresolvedAddress& recipient,
+				UnresolvedMosaicId mosaicId,
+				catapult::Amount amount)
+				: BasicBalanceNotification(sender, mosaicId, amount)
+				, Recipient(recipient) {
+			}
 
-        public:
-            model::ResolvableAddress Recipient;
-        };
+		public:
+			model::ResolvableAddress Recipient;
+		};
 
-        auto CreateMockRentalFeeObserver()
-        {
-            return observers::CreateRentalFeeObserver<MockRentalFeeNotification>("Test", Default_Receipt_Type);
-        }
+		auto CreateMockRentalFeeObserver() {
+			return observers::CreateRentalFeeObserver<MockRentalFeeNotification>("Test", Default_Receipt_Type);
+		}
 
-        template <typename TAssert>
-        void RunObserverTest(observers::NotifyMode mode, TAssert assertContext)
-        {
-            // Arrange: create observer and notification
-            auto pObserver = CreateMockRentalFeeObserver();
-            auto sender = test::GenerateRandomByteArray<Address>();
-            auto recipient = test::GenerateRandomByteArray<Address>();
-            MockRentalFeeNotification notification(sender, test::UnresolveXor(recipient), test::UnresolveXor(MosaicId(345)), Amount(123));
+		template <typename TAssert>
+		void RunObserverTest(observers::NotifyMode mode, TAssert assertContext) {
+			// Arrange: create observer and notification
+			auto pObserver = CreateMockRentalFeeObserver();
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto recipient = test::GenerateRandomByteArray<Address>();
+			MockRentalFeeNotification notification(sender, test::UnresolveXor(recipient), test::UnresolveXor(MosaicId(345)), Amount(123));
 
-            ObserverTestContext context(mode, Height(888));
-            context.state().DynamicFeeMultiplier = BlockFeeMultiplier(999);
+			ObserverTestContext context(mode, Height(888));
+			context.state().DynamicFeeMultiplier = BlockFeeMultiplier(999);
 
-            // Act:
-            test::ObserveNotification(*pObserver, notification, context);
+			// Act:
+			test::ObserveNotification(*pObserver, notification, context);
 
-            // Assert:
-            assertContext(context, sender, recipient);
-        }
-    }
+			// Assert:
+			assertContext(context, sender, recipient);
+		}
+	}
 
-    TEST(TEST_CLASS, CanCreateObserver)
-    {
-        // Act:
-        auto pObserver = CreateMockRentalFeeObserver();
+	TEST(TEST_CLASS, CanCreateObserver) {
+		// Act:
+		auto pObserver = CreateMockRentalFeeObserver();
 
-        // Assert:
-        EXPECT_EQ("TestRentalFeeObserver", pObserver->name());
-    }
+		// Assert:
+		EXPECT_EQ("TestRentalFeeObserver", pObserver->name());
+	}
 
-    TEST(TEST_CLASS, AddsReceiptOnCommit)
-    {
-        RunObserverTest(observers::NotifyMode::Commit, [](auto& context, const auto& sender, const auto& recipient) {
-            // Assert:
-            auto pStatement = context.statementBuilder().build();
-            ASSERT_EQ(1u, pStatement->TransactionStatements.size());
-            const auto& receiptPair = *pStatement->TransactionStatements.find(model::ReceiptSource());
-            ASSERT_EQ(1u, receiptPair.second.size());
+	TEST(TEST_CLASS, AddsReceiptOnCommit) {
+		RunObserverTest(observers::NotifyMode::Commit, [](auto& context, const auto& sender, const auto& recipient) {
+			// Assert:
+			auto pStatement = context.statementBuilder().build();
+			ASSERT_EQ(1u, pStatement->TransactionStatements.size());
+			const auto& receiptPair = *pStatement->TransactionStatements.find(model::ReceiptSource());
+			ASSERT_EQ(1u, receiptPair.second.size());
 
-            const auto& receipt = static_cast<const model::BalanceTransferReceipt&>(receiptPair.second.receiptAt(0));
-            ASSERT_EQ(sizeof(model::BalanceTransferReceipt), receipt.Size);
-            EXPECT_EQ(1u, receipt.Version);
-            EXPECT_EQ(Default_Receipt_Type, receipt.Type);
-            EXPECT_EQ(MosaicId(345), receipt.Mosaic.MosaicId);
-            EXPECT_EQ(Amount(123 * 999), receipt.Mosaic.Amount);
-            EXPECT_EQ(sender, receipt.SenderAddress);
-            EXPECT_EQ(recipient, receipt.RecipientAddress);
-        });
-    }
+			const auto& receipt = static_cast<const model::BalanceTransferReceipt&>(receiptPair.second.receiptAt(0));
+			ASSERT_EQ(sizeof(model::BalanceTransferReceipt), receipt.Size);
+			EXPECT_EQ(1u, receipt.Version);
+			EXPECT_EQ(Default_Receipt_Type, receipt.Type);
+			EXPECT_EQ(MosaicId(345), receipt.Mosaic.MosaicId);
+			EXPECT_EQ(Amount(123 * 999), receipt.Mosaic.Amount);
+			EXPECT_EQ(sender, receipt.SenderAddress);
+			EXPECT_EQ(recipient, receipt.RecipientAddress);
+		});
+	}
 
-    TEST(TEST_CLASS, DoesNotAddReceiptOnRollback)
-    {
-        RunObserverTest(observers::NotifyMode::Rollback, [](auto& context, const auto&, const auto&) {
-            // Assert:
-            auto pStatement = context.statementBuilder().build();
-            ASSERT_EQ(0u, pStatement->TransactionStatements.size());
-        });
-    }
+	TEST(TEST_CLASS, DoesNotAddReceiptOnRollback) {
+		RunObserverTest(observers::NotifyMode::Rollback, [](auto& context, const auto&, const auto&) {
+			// Assert:
+			auto pStatement = context.statementBuilder().build();
+			ASSERT_EQ(0u, pStatement->TransactionStatements.size());
+		});
+	}
 }
 }

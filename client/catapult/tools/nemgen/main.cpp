@@ -31,107 +31,101 @@
 
 namespace catapult {
 namespace tools {
-    namespace nemgen {
-        namespace {
-            void WriteToFile(const std::string& filePath, const std::string& content)
-            {
-                io::RawFile file(filePath, io::OpenMode::Read_Write);
-                file.write({ reinterpret_cast<const uint8_t*>(content.data()), content.size() });
-            }
+	namespace nemgen {
+		namespace {
+			void WriteToFile(const std::string& filePath, const std::string& content) {
+				io::RawFile file(filePath, io::OpenMode::Read_Write);
+				file.write({ reinterpret_cast<const uint8_t*>(content.data()), content.size() });
+			}
 
-            bool IsExtensionEnabled(const config::ExtensionsConfiguration& extensionsConfig, const std::string& name)
-            {
-                const auto& names = extensionsConfig.Names;
-                return names.cend() != std::find(names.cbegin(), names.cend(), name);
-            }
+			bool IsExtensionEnabled(const config::ExtensionsConfiguration& extensionsConfig, const std::string& name) {
+				const auto& names = extensionsConfig.Names;
+				return names.cend() != std::find(names.cbegin(), names.cend(), name);
+			}
 
-            class NemGenTool : public Tool {
-            public:
-                std::string name() const override
-                {
-                    return "Nemesis Block Generator Tool";
-                }
+			class NemGenTool : public Tool {
+			public:
+				std::string name() const override {
+					return "Nemesis Block Generator Tool";
+				}
 
-                void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override
-                {
-                    AddResourcesOption(optionsBuilder);
+				void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
+					AddResourcesOption(optionsBuilder);
 
-                    optionsBuilder(
-                        "nemesisProperties,p",
-                        OptionsValue<std::string>(m_nemesisPropertiesFilePath),
-                        "path to the nemesis properties file");
+					optionsBuilder(
+						"nemesisProperties,p",
+						OptionsValue<std::string>(m_nemesisPropertiesFilePath),
+						"path to the nemesis properties file");
 
-                    optionsBuilder(
-                        "summary,s",
-                        OptionsValue<std::string>(m_summaryFilePath),
-                        "path to summary output file (default: <bindir>/summary.txt)");
+					optionsBuilder(
+						"summary,s",
+						OptionsValue<std::string>(m_summaryFilePath),
+						"path to summary output file (default: <bindir>/summary.txt)");
 
-                    optionsBuilder("no-summary,n", OptionsSwitch(), "don't generate summary file");
+					optionsBuilder("no-summary,n", OptionsSwitch(), "don't generate summary file");
 
-                    optionsBuilder(
-                        "useTemporaryCacheDatabase,t",
-                        OptionsSwitch(),
-                        "true if a temporary cache database should be created and destroyed");
-                }
+					optionsBuilder(
+						"useTemporaryCacheDatabase,t",
+						OptionsSwitch(),
+						"true if a temporary cache database should be created and destroyed");
+				}
 
-                int run(const Options& options) override
-                {
-                    // 1. load config and disable loading of user certificates during block generation
-                    auto config = LoadConfiguration(GetResourcesOptionValue(options));
-                    const_cast<bool&>(config.User.EnableDelegatedHarvestersAutoDetection) = false;
+				int run(const Options& options) override {
+					// 1. load config and disable loading of user certificates during block generation
+					auto config = LoadConfiguration(GetResourcesOptionValue(options));
+					const_cast<bool&>(config.User.EnableDelegatedHarvestersAutoDetection) = false;
 
-                    auto nemesisConfig = LoadNemesisConfiguration(m_nemesisPropertiesFilePath);
-                    if (!LogAndValidateNemesisConfiguration(nemesisConfig))
-                        return -1;
+					auto nemesisConfig = LoadNemesisConfiguration(m_nemesisPropertiesFilePath);
+					if (!LogAndValidateNemesisConfiguration(nemesisConfig))
+						return -1;
 
-                    // 2. load transaction plugins
-                    auto databaseCleanupMode = options["useTemporaryCacheDatabase"].as<bool>() ? plugins::CacheDatabaseCleanupMode::Purge
-                                                                                               : plugins::CacheDatabaseCleanupMode::None;
-                    plugins::PluginLoader pluginLoader(config, databaseCleanupMode);
-                    pluginLoader.loadAll();
+					// 2. load transaction plugins
+					auto databaseCleanupMode = options["useTemporaryCacheDatabase"].as<bool>() ? plugins::CacheDatabaseCleanupMode::Purge
+																							   : plugins::CacheDatabaseCleanupMode::None;
+					plugins::PluginLoader pluginLoader(config, databaseCleanupMode);
+					pluginLoader.loadAll();
 
-                    // 3. create the nemesis block element
-                    auto additionalTransactions = LoadAndValidateAdditionalTransactions(nemesisConfig, *pluginLoader.createNotificationPublisher());
-                    auto pBlock = CreateNemesisBlock(nemesisConfig, std::move(additionalTransactions));
-                    auto blockElement = CreateNemesisBlockElement(nemesisConfig, pluginLoader.transactionRegistry(), *pBlock);
-                    auto executionHashesDescriptor = CalculateAndLogNemesisExecutionHashes(blockElement, config, pluginLoader.manager());
-                    if (!options["no-summary"].as<bool>()) {
-                        if (m_summaryFilePath.empty())
-                            m_summaryFilePath = nemesisConfig.BinDirectory + "/summary.txt";
+					// 3. create the nemesis block element
+					auto additionalTransactions = LoadAndValidateAdditionalTransactions(nemesisConfig, *pluginLoader.createNotificationPublisher());
+					auto pBlock = CreateNemesisBlock(nemesisConfig, std::move(additionalTransactions));
+					auto blockElement = CreateNemesisBlockElement(nemesisConfig, pluginLoader.transactionRegistry(), *pBlock);
+					auto executionHashesDescriptor = CalculateAndLogNemesisExecutionHashes(blockElement, config, pluginLoader.manager());
+					if (!options["no-summary"].as<bool>()) {
+						if (m_summaryFilePath.empty())
+							m_summaryFilePath = nemesisConfig.BinDirectory + "/summary.txt";
 
-                        WriteToFile(m_summaryFilePath, executionHashesDescriptor.Summary);
-                    }
+						WriteToFile(m_summaryFilePath, executionHashesDescriptor.Summary);
+					}
 
-                    // 4. update block with result of execution
-                    CATAPULT_LOG(info) << "*** Nemesis Summary ***" << std::endl
-                                       << executionHashesDescriptor.Summary;
-                    blockElement.EntityHash = UpdateNemesisBlock(nemesisConfig, *pBlock, executionHashesDescriptor);
-                    blockElement.SubCacheMerkleRoots = executionHashesDescriptor.SubCacheMerkleRoots;
-                    if (config.Blockchain.EnableVerifiableReceipts)
-                        blockElement.OptionalStatement = std::move(executionHashesDescriptor.pBlockStatement);
+					// 4. update block with result of execution
+					CATAPULT_LOG(info) << "*** Nemesis Summary ***" << std::endl
+									   << executionHashesDescriptor.Summary;
+					blockElement.EntityHash = UpdateNemesisBlock(nemesisConfig, *pBlock, executionHashesDescriptor);
+					blockElement.SubCacheMerkleRoots = executionHashesDescriptor.SubCacheMerkleRoots;
+					if (config.Blockchain.EnableVerifiableReceipts)
+						blockElement.OptionalStatement = std::move(executionHashesDescriptor.pBlockStatement);
 
-                    // 5. save the nemesis block element
-                    SaveNemesisBlockElement(blockElement, nemesisConfig);
+					// 5. save the nemesis block element
+					SaveNemesisBlockElement(blockElement, nemesisConfig);
 
-                    if (IsExtensionEnabled(config.Extensions, "extension.finalization")) {
-                        CATAPULT_LOG(info) << "finalizing nemesis to storage";
-                        FinalizeNemesisBlockElement(blockElement, nemesisConfig);
-                    }
+					if (IsExtensionEnabled(config.Extensions, "extension.finalization")) {
+						CATAPULT_LOG(info) << "finalizing nemesis to storage";
+						FinalizeNemesisBlockElement(blockElement, nemesisConfig);
+					}
 
-                    return 0;
-                }
+					return 0;
+				}
 
-            private:
-                std::string m_nemesisPropertiesFilePath;
-                std::string m_summaryFilePath;
-            };
-        }
-    }
+			private:
+				std::string m_nemesisPropertiesFilePath;
+				std::string m_summaryFilePath;
+			};
+		}
+	}
 }
 }
 
-int main(int argc, const char** argv)
-{
-    catapult::tools::nemgen::NemGenTool nemGenTool;
-    return catapult::tools::ToolMain(argc, argv, nemGenTool);
+int main(int argc, const char** argv) {
+	catapult::tools::nemgen::NemGenTool nemGenTool;
+	return catapult::tools::ToolMain(argc, argv, nemGenTool);
 }

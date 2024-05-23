@@ -30,94 +30,89 @@
 
 namespace catapult {
 namespace tools {
-    namespace ssl {
-        namespace {
-            auto GetHarvestingKeyPair(const std::filesystem::path& resourcesPath)
-            {
-                auto bag = utils::ConfigurationBag::FromPath((resourcesPath / "resources" / "config-harvesting.properties").generic_string());
-                std::string harvesterSigningPrivateKey;
-                utils::LoadIniProperty(bag, "harvesting", "HarvesterSigningPrivateKey", harvesterSigningPrivateKey);
-                return crypto::KeyPair::FromString(harvesterSigningPrivateKey);
-            }
+	namespace ssl {
+		namespace {
+			auto GetHarvestingKeyPair(const std::filesystem::path& resourcesPath) {
+				auto bag = utils::ConfigurationBag::FromPath((resourcesPath / "resources" / "config-harvesting.properties").generic_string());
+				std::string harvesterSigningPrivateKey;
+				utils::LoadIniProperty(bag, "harvesting", "HarvesterSigningPrivateKey", harvesterSigningPrivateKey);
+				return crypto::KeyPair::FromString(harvesterSigningPrivateKey);
+			}
 
-            class SslTool : public Tool {
-            public:
-                std::string name() const override
-                {
-                    return "SSL Test Tool";
-                }
+			class SslTool : public Tool {
+			public:
+				std::string name() const override {
+					return "SSL Test Tool";
+				}
 
-                void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override
-                {
-                    AddResourcesOption(optionsBuilder);
+				void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
+					AddResourcesOption(optionsBuilder);
 
-                    optionsBuilder(
-                        "scenario",
-                        OptionsValue<uint16_t>()->default_value(0),
-                        "test scenario id\n"
-                        " 0 - valid certificate chain,\n"
-                        " 1 - malformed node certificate signature,\n"
-                        " 2 - malformed CA certificate signature,\n"
-                        " 3 - single self-signed CA certificate,\n"
-                        " 4 - two-level certificate chain with same key,\n"
-                        " 5 - three-level certificate chain,\n"
-                        " 6 - expired node certificate,\n"
-                        " 7 - expired CA certificate,\n"
-                        " 8 - no peer certificate");
-                    optionsBuilder(
-                        "tempCertificateDirectory,t",
-                        OptionsValue<std::string>(m_tempCertificateDirectory),
-                        "directory with generated certificate files (will be wiped)");
+					optionsBuilder(
+						"scenario",
+						OptionsValue<uint16_t>()->default_value(0),
+						"test scenario id\n"
+						" 0 - valid certificate chain,\n"
+						" 1 - malformed node certificate signature,\n"
+						" 2 - malformed CA certificate signature,\n"
+						" 3 - single self-signed CA certificate,\n"
+						" 4 - two-level certificate chain with same key,\n"
+						" 5 - three-level certificate chain,\n"
+						" 6 - expired node certificate,\n"
+						" 7 - expired CA certificate,\n"
+						" 8 - no peer certificate");
+					optionsBuilder(
+						"tempCertificateDirectory,t",
+						OptionsValue<std::string>(m_tempCertificateDirectory),
+						"directory with generated certificate files (will be wiped)");
 
-                    optionsBuilder("host,s", OptionsValue<std::string>(m_host)->default_value("127.0.0.1"), "ssl host");
-                    optionsBuilder("port,p", OptionsValue<uint16_t>(m_port)->default_value(7900), "ssl port");
+					optionsBuilder("host,s", OptionsValue<std::string>(m_host)->default_value("127.0.0.1"), "ssl host");
+					optionsBuilder("port,p", OptionsValue<uint16_t>(m_port)->default_value(7900), "ssl port");
 
-                    optionsBuilder("expected", OptionsValue<std::string>(m_expectedResult), "expected result (failure|success)");
-                }
+					optionsBuilder("expected", OptionsValue<std::string>(m_expectedResult), "expected result (failure|success)");
+				}
 
-                int run(const Options& options) override
-                {
-                    auto pPool = CreateStartedThreadPool(2);
+				int run(const Options& options) override {
+					auto pPool = CreateStartedThreadPool(2);
 
-                    auto scenarioId = static_cast<ScenarioId>(options["scenario"].as<uint16_t>());
-                    if (scenarioId >= ScenarioId::Max_Value)
-                        CATAPULT_THROW_RUNTIME_ERROR_1("invalid value of scenario id", utils::to_underlying_type(scenarioId));
+					auto scenarioId = static_cast<ScenarioId>(options["scenario"].as<uint16_t>());
+					if (scenarioId >= ScenarioId::Max_Value)
+						CATAPULT_THROW_RUNTIME_ERROR_1("invalid value of scenario id", utils::to_underlying_type(scenarioId));
 
-                    // note: harvester key will be used to generate CA certificate
-                    auto keyPair = GetHarvestingKeyPair(GetResourcesOptionValue(options));
-                    bool isSuccess = true;
-                    try {
-                        SslClient sslClient(*pPool, std::move(keyPair), m_tempCertificateDirectory, scenarioId);
-                        auto chainStatistics = sslClient.connect(ionet::NodeEndpoint { m_host, m_port });
+					// note: harvester key will be used to generate CA certificate
+					auto keyPair = GetHarvestingKeyPair(GetResourcesOptionValue(options));
+					bool isSuccess = true;
+					try {
+						SslClient sslClient(*pPool, std::move(keyPair), m_tempCertificateDirectory, scenarioId);
+						auto chainStatistics = sslClient.connect(ionet::NodeEndpoint { m_host, m_port });
 
-                        CATAPULT_LOG(info) << " height: " << chainStatistics.Height;
-                        CATAPULT_LOG(info) << "  score: " << chainStatistics.Score;
+						CATAPULT_LOG(info) << " height: " << chainStatistics.Height;
+						CATAPULT_LOG(info) << "  score: " << chainStatistics.Score;
 
-                        pPool->join();
-                    } catch (const std::exception& e) {
-                        CATAPULT_LOG(fatal) << "exception occured: " << e.what();
+						pPool->join();
+					} catch (const std::exception& e) {
+						CATAPULT_LOG(fatal) << "exception occured: " << e.what();
 
-                        isSuccess = false;
-                    }
+						isSuccess = false;
+					}
 
-                    // 'not' because we want to return 0 on success
-                    auto expectedSuccess = "success" == m_expectedResult;
-                    return expectedSuccess != isSuccess;
-                }
+					// 'not' because we want to return 0 on success
+					auto expectedSuccess = "success" == m_expectedResult;
+					return expectedSuccess != isSuccess;
+				}
 
-            private:
-                std::string m_tempCertificateDirectory;
-                std::string m_host;
-                uint16_t m_port;
-                std::string m_expectedResult;
-            };
-        }
-    }
+			private:
+				std::string m_tempCertificateDirectory;
+				std::string m_host;
+				uint16_t m_port;
+				std::string m_expectedResult;
+			};
+		}
+	}
 }
 }
 
-int main(int argc, const char** argv)
-{
-    catapult::tools::ssl::SslTool tool;
-    return catapult::tools::ToolMain(argc, argv, tool);
+int main(int argc, const char** argv) {
+	catapult::tools::ssl::SslTool tool;
+	return catapult::tools::ToolMain(argc, argv, tool);
 }

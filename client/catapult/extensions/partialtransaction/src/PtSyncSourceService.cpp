@@ -30,45 +30,41 @@
 namespace catapult {
 namespace partialtransaction {
 
-    namespace {
-        class PtSyncSourceServiceRegistrar : public extensions::ServiceRegistrar {
-        public:
-            extensions::ServiceRegistrarInfo info() const override
-            {
-                return { "PtSyncSource", extensions::ServiceRegistrarPhase::Post_Extended_Range_Consumers };
-            }
+	namespace {
+		class PtSyncSourceServiceRegistrar : public extensions::ServiceRegistrar {
+		public:
+			extensions::ServiceRegistrarInfo info() const override {
+				return { "PtSyncSource", extensions::ServiceRegistrarPhase::Post_Extended_Range_Consumers };
+			}
 
-            void registerServiceCounters(extensions::ServiceLocator&) override
-            {
-                // no additional counters
-            }
+			void registerServiceCounters(extensions::ServiceLocator&) override {
+				// no additional counters
+			}
 
-            void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override
-            {
-                const auto& ptCache = GetMemoryPtCache(locator);
-                const auto& hooks = GetPtServerHooks(locator);
+			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				const auto& ptCache = GetMemoryPtCache(locator);
+				const auto& hooks = GetPtServerHooks(locator);
 
-                // register handlers
-                handlers::RegisterPushPartialTransactionsHandler(
-                    state.packetHandlers(),
-                    state.pluginManager().transactionRegistry(),
-                    hooks.ptRangeConsumer());
+				// register handlers
+				handlers::RegisterPushPartialTransactionsHandler(
+					state.packetHandlers(),
+					state.pluginManager().transactionRegistry(),
+					hooks.ptRangeConsumer());
 
-                handlers::RegisterPullPartialTransactionInfosHandler(
-                    state.packetHandlers(),
-                    [&ptCache](auto minDeadline, const auto& shortHashPairs) {
-                        return ptCache.view().unknownTransactions(minDeadline, shortHashPairs);
-                    });
+				handlers::RegisterPullPartialTransactionInfosHandler(
+					state.packetHandlers(),
+					[&ptCache](auto minDeadline, const auto& shortHashPairs) {
+						return ptCache.view().unknownTransactions(minDeadline, shortHashPairs);
+					});
 
-                handlers::RegisterPushCosignaturesHandler(state.packetHandlers(), hooks.cosignatureRangeConsumer());
-            }
-        };
-    }
+				handlers::RegisterPushCosignaturesHandler(state.packetHandlers(), hooks.cosignatureRangeConsumer());
+			}
+		};
+	}
 
-    DECLARE_SERVICE_REGISTRAR(PtSyncSource)
-    ()
-    {
-        return std::make_unique<PtSyncSourceServiceRegistrar>();
-    }
+	DECLARE_SERVICE_REGISTRAR(PtSyncSource)
+	() {
+		return std::make_unique<PtSyncSourceServiceRegistrar>();
+	}
 }
 }

@@ -25,14 +25,14 @@
 namespace catapult {
 namespace model {
 
-    /// Notification subscriber.
-    class PLUGIN_API_DEPENDENCY NotificationSubscriber {
-    public:
-        virtual ~NotificationSubscriber() = default;
+	/// Notification subscriber.
+	class PLUGIN_API_DEPENDENCY NotificationSubscriber {
+	public:
+		virtual ~NotificationSubscriber() = default;
 
-    public:
-        /// Notifies the subscriber of \a notification.
-        virtual void notify(const Notification& notification) = 0;
-    };
+	public:
+		/// Notifies the subscriber of \a notification.
+		virtual void notify(const Notification& notification) = 0;
+	};
 }
 }

@@ -25,14 +25,14 @@
 namespace catapult {
 namespace local {
 
-    /// Catapult process host.
-    class ProcessHost : public utils::NonCopyable {
-    public:
-        virtual ~ProcessHost() = default;
+	/// Catapult process host.
+	class ProcessHost : public utils::NonCopyable {
+	public:
+		virtual ~ProcessHost() = default;
 
-    public:
-        /// Shuts down the process host.
-        virtual void shutdown() = 0;
-    };
+	public:
+		/// Shuts down the process host.
+		virtual void shutdown() = 0;
+	};
 }
 }

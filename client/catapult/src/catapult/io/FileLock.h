@@ -27,38 +27,38 @@
 namespace catapult {
 namespace io {
 
-    /// Lock based on an underlying lock file.
-    class FileLock : public utils::NonCopyable {
-    public:
-        /// Implementation dependent type of file descriptor.
-        /// \note Windows version is using void* instead of HANDLE to avoid including windows.h
+	/// Lock based on an underlying lock file.
+	class FileLock : public utils::NonCopyable {
+	public:
+		/// Implementation dependent type of file descriptor.
+		/// \note Windows version is using void* instead of HANDLE to avoid including windows.h
 #ifdef _MSC_VER
-        using FdType = void*;
+		using FdType = void*;
 #else
-        using FdType = int;
+		using FdType = int;
 #endif
 
-    public:
-        /// Creates a lock file with path \a lockFilePath.
-        explicit FileLock(const std::string& lockFilePath);
+	public:
+		/// Creates a lock file with path \a lockFilePath.
+		explicit FileLock(const std::string& lockFilePath);
 
-        /// Releases the lock file.
-        ~FileLock();
+		/// Releases the lock file.
+		~FileLock();
 
-    public:
-        /// Blocks until a lock can be obtained for the current execution agent.
-        void lock();
+	public:
+		/// Blocks until a lock can be obtained for the current execution agent.
+		void lock();
 
-        /// Attempts to acquire the lock for the current execution agent without blocking.
-        bool try_lock();
+		/// Attempts to acquire the lock for the current execution agent without blocking.
+		bool try_lock();
 
-        /// Releases the lock held by the execution agent. Throws no exceptions.
-        void unlock() noexcept;
+		/// Releases the lock held by the execution agent. Throws no exceptions.
+		void unlock() noexcept;
 
-    private:
-        std::string m_lockFilePath;
-        utils::SpinLock m_spinLock;
-        FdType m_fd;
-    };
+	private:
+		std::string m_lockFilePath;
+		utils::SpinLock m_spinLock;
+		FdType m_fd;
+	};
 }
 }

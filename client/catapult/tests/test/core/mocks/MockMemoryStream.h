@@ -25,47 +25,47 @@
 namespace catapult {
 namespace mocks {
 
-    // region MockMemoryStream
+	// region MockMemoryStream
 
-    /// Memory-based implementation of input and output stream.
-    class MockMemoryStream final : public extensions::MemoryStream {
-    public:
-        /// Creates a memory stream around \a buffer.
-        explicit MockMemoryStream(std::vector<uint8_t>& buffer);
+	/// Memory-based implementation of input and output stream.
+	class MockMemoryStream final : public extensions::MemoryStream {
+	public:
+		/// Creates a memory stream around \a buffer.
+		explicit MockMemoryStream(std::vector<uint8_t>& buffer);
 
-    public:
-        void flush() override;
+	public:
+		void flush() override;
 
-    public:
-        /// Gets the number of times flush was invoked.
-        size_t numFlushes() const;
+	public:
+		/// Gets the number of times flush was invoked.
+		size_t numFlushes() const;
 
-    private:
-        size_t m_flushCount;
-    };
+	private:
+		size_t m_flushCount;
+	};
 
-    // endregion
+	// endregion
 
-    // region MockSeekableMemoryStream
+	// region MockSeekableMemoryStream
 
-    /// Memory-based implementation of seekable input and output stream.
-    class MockSeekableMemoryStream : public extensions::MemoryStream {
-    public:
-        /// Creates an empty memory stream.
-        MockSeekableMemoryStream();
+	/// Memory-based implementation of seekable input and output stream.
+	class MockSeekableMemoryStream : public extensions::MemoryStream {
+	public:
+		/// Creates an empty memory stream.
+		MockSeekableMemoryStream();
 
-    public:
-        /// Gets the underlying buffer.
-        const std::vector<uint8_t>& buffer() const;
+	public:
+		/// Gets the underlying buffer.
+		const std::vector<uint8_t>& buffer() const;
 
-    public:
-        /// Copies the contents of this stream into \a dest.
-        void copyTo(MockSeekableMemoryStream& dest) const;
+	public:
+		/// Copies the contents of this stream into \a dest.
+		void copyTo(MockSeekableMemoryStream& dest) const;
 
-    private:
-        std::vector<uint8_t> m_buffer;
-    };
+	private:
+		std::vector<uint8_t> m_buffer;
+	};
 
-    // endregion
+	// endregion
 }
 }

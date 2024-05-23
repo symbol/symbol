@@ -28,114 +28,109 @@
 namespace catapult {
 namespace test {
 
-    // region FinalizationBootstrapperServiceTestUtils
+	// region FinalizationBootstrapperServiceTestUtils
 
-    /// Helpers for initializing the bootstrapper service.
-    class FinalizationBootstrapperServiceTestUtils {
-    public:
-        /// Number of expected bootstrapper services.
-        static constexpr auto Num_Bootstrapper_Services = 4u;
+	/// Helpers for initializing the bootstrapper service.
+	class FinalizationBootstrapperServiceTestUtils {
+	public:
+		/// Number of expected bootstrapper services.
+		static constexpr auto Num_Bootstrapper_Services = 4u;
 
-        /// Types of accounts registered by CreateCache.
-        enum class VoterType : uint32_t { Small,
-            Large1,
-            Ineligible,
-            Large2 };
+		/// Types of accounts registered by CreateCache.
+		enum class VoterType : uint32_t { Small,
+			Large1,
+			Ineligible,
+			Large2 };
 
-    public:
-        /// Creates an empty catapult cache with all required sub caches.
-        static cache::CatapultCache CreateCache();
+	public:
+		/// Creates an empty catapult cache with all required sub caches.
+		static cache::CatapultCache CreateCache();
 
-        /// Creates a catapult cache with all required sub caches and seed accounts.
-        /// \note \a keyPairDescriptors is updated with account information.
-        static cache::CatapultCache CreateCache(std::vector<AccountKeyPairDescriptor>& keyPairDescriptors);
+		/// Creates a catapult cache with all required sub caches and seed accounts.
+		/// \note \a keyPairDescriptors is updated with account information.
+		static cache::CatapultCache CreateCache(std::vector<AccountKeyPairDescriptor>& keyPairDescriptors);
 
-    public:
-        /// Registers the bootstrapper service with \a locator given \a state.
-        static void Register(extensions::ServiceLocator& locator, extensions::ServiceState& state);
+	public:
+		/// Registers the bootstrapper service with \a locator given \a state.
+		static void Register(extensions::ServiceLocator& locator, extensions::ServiceState& state);
 
-        /// Registers the bootstrapper service with \a locator given \a state and \a pProofStorage.
-        static void Register(
-            extensions::ServiceLocator& locator,
-            extensions::ServiceState& state,
-            std::unique_ptr<io::ProofStorage>&& pProofStorage);
-    };
+		/// Registers the bootstrapper service with \a locator given \a state and \a pProofStorage.
+		static void Register(
+			extensions::ServiceLocator& locator,
+			extensions::ServiceState& state,
+			std::unique_ptr<io::ProofStorage>&& pProofStorage);
+	};
 
-    // endregion
+	// endregion
 
-    // region MessageRangeConsumerDependentServiceLocatorTestContext
+	// region MessageRangeConsumerDependentServiceLocatorTestContext
 
-    /// Test context to use for a service dependent on the bootstrap service and a valid message range consumer.
-    template <typename TTraits>
-    class MessageRangeConsumerDependentServiceLocatorTestContext : public ServiceLocatorTestContext<TTraits> {
-    private:
-        using BaseTestContext = ServiceLocatorTestContext<TTraits>;
-        using TestUtils = FinalizationBootstrapperServiceTestUtils;
+	/// Test context to use for a service dependent on the bootstrap service and a valid message range consumer.
+	template <typename TTraits>
+	class MessageRangeConsumerDependentServiceLocatorTestContext : public ServiceLocatorTestContext<TTraits> {
+	private:
+		using BaseTestContext = ServiceLocatorTestContext<TTraits>;
+		using TestUtils = FinalizationBootstrapperServiceTestUtils;
 
-    public:
-        MessageRangeConsumerDependentServiceLocatorTestContext()
-            : BaseTestContext(TestUtils::CreateCache())
-        {
-            // Arrange: register service dependencies
-            TestUtils::Register(BaseTestContext::locator(), BaseTestContext::testState().state());
+	public:
+		MessageRangeConsumerDependentServiceLocatorTestContext()
+			: BaseTestContext(TestUtils::CreateCache()) {
+			// Arrange: register service dependencies
+			TestUtils::Register(BaseTestContext::locator(), BaseTestContext::testState().state());
 
-            // - register hook dependencies
-            auto& hooks = finalization::GetFinalizationServerHooks(BaseTestContext::locator());
-            hooks.setMessageRangeConsumer([](auto&&) {});
-        }
-    };
+			// - register hook dependencies
+			auto& hooks = finalization::GetFinalizationServerHooks(BaseTestContext::locator());
+			hooks.setMessageRangeConsumer([](auto&&) {});
+		}
+	};
 
-    // endregion
+	// endregion
 
-    // region VoterSeededCacheDependentServiceLocatorTestContext
+	// region VoterSeededCacheDependentServiceLocatorTestContext
 
-    /// Test context to use for a service dependent on the bootstrap service and a cache seeded with representative accounts.
-    template <typename TTraits>
-    class VoterSeededCacheDependentServiceLocatorTestContext : public ServiceLocatorTestContext<TTraits> {
-    private:
-        using KeyPairDescriptors = std::vector<AccountKeyPairDescriptor>;
-        using TestUtils = FinalizationBootstrapperServiceTestUtils;
+	/// Test context to use for a service dependent on the bootstrap service and a cache seeded with representative accounts.
+	template <typename TTraits>
+	class VoterSeededCacheDependentServiceLocatorTestContext : public ServiceLocatorTestContext<TTraits> {
+	private:
+		using KeyPairDescriptors = std::vector<AccountKeyPairDescriptor>;
+		using TestUtils = FinalizationBootstrapperServiceTestUtils;
 
-    public:
-        /// Creates the test context.
-        VoterSeededCacheDependentServiceLocatorTestContext()
-            : VoterSeededCacheDependentServiceLocatorTestContext(std::make_unique<KeyPairDescriptors>())
-        {
-        }
+	public:
+		/// Creates the test context.
+		VoterSeededCacheDependentServiceLocatorTestContext()
+			: VoterSeededCacheDependentServiceLocatorTestContext(std::make_unique<KeyPairDescriptors>()) {
+		}
 
-    private:
-        VoterSeededCacheDependentServiceLocatorTestContext(std::unique_ptr<KeyPairDescriptors>&& pKeyPairDescriptors)
-            : ServiceLocatorTestContext<TTraits>(TestUtils::CreateCache(*pKeyPairDescriptors))
-            , m_keyPairDescriptors(std::move(*pKeyPairDescriptors))
-        {
-        }
+	private:
+		VoterSeededCacheDependentServiceLocatorTestContext(std::unique_ptr<KeyPairDescriptors>&& pKeyPairDescriptors)
+			: ServiceLocatorTestContext<TTraits>(TestUtils::CreateCache(*pKeyPairDescriptors))
+			, m_keyPairDescriptors(std::move(*pKeyPairDescriptors)) {
+		}
 
-    protected:
-        /// Gets the key pair descriptor for the account specified by \a voterType.
-        const AccountKeyPairDescriptor& keyPairDescriptor(TestUtils::VoterType voterType) const
-        {
-            return m_keyPairDescriptors[utils::to_underlying_type(voterType)];
-        }
+	protected:
+		/// Gets the key pair descriptor for the account specified by \a voterType.
+		const AccountKeyPairDescriptor& keyPairDescriptor(TestUtils::VoterType voterType) const {
+			return m_keyPairDescriptors[utils::to_underlying_type(voterType)];
+		}
 
-    public:
-        /// Creates a valid finalization message with \a stepIdentifier and one \a hash at \a height for the account
-        /// specified by \a voterType.
-        std::shared_ptr<model::FinalizationMessage> createMessage(
-            TestUtils::VoterType voterType,
-            const model::StepIdentifier& stepIdentifier,
-            Height height,
-            const Hash256& hash) const
-        {
-            auto pMessage = CreateMessage(stepIdentifier, hash);
-            pMessage->Height = height;
-            SignMessage(*pMessage, keyPairDescriptor(voterType).VotingKeyPair);
-            return PORTABLE_MOVE(pMessage);
-        }
+	public:
+		/// Creates a valid finalization message with \a stepIdentifier and one \a hash at \a height for the account
+		/// specified by \a voterType.
+		std::shared_ptr<model::FinalizationMessage> createMessage(
+			TestUtils::VoterType voterType,
+			const model::StepIdentifier& stepIdentifier,
+			Height height,
+			const Hash256& hash) const {
+			auto pMessage = CreateMessage(stepIdentifier, hash);
+			pMessage->Height = height;
+			SignMessage(*pMessage, keyPairDescriptor(voterType).VotingKeyPair);
+			return PORTABLE_MOVE(pMessage);
+		}
 
-    private:
-        KeyPairDescriptors m_keyPairDescriptors;
-    };
+	private:
+		KeyPairDescriptors m_keyPairDescriptors;
+	};
 
-    // endregion
+	// endregion
 }
 }

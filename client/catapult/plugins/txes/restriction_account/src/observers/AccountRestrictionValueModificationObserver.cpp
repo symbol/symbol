@@ -27,64 +27,60 @@
 namespace catapult {
 namespace observers {
 
-    namespace {
-        model::AccountRestrictionModificationAction InvertModificationAction(
-            model::AccountRestrictionModificationAction modificationAction)
-        {
-            return model::AccountRestrictionModificationAction::Add == modificationAction
-                ? model::AccountRestrictionModificationAction::Del
-                : model::AccountRestrictionModificationAction::Add;
-        }
+	namespace {
+		model::AccountRestrictionModificationAction InvertModificationAction(
+			model::AccountRestrictionModificationAction modificationAction) {
+			return model::AccountRestrictionModificationAction::Add == modificationAction
+				? model::AccountRestrictionModificationAction::Del
+				: model::AccountRestrictionModificationAction::Add;
+		}
 
-        template <typename TUnresolved>
-        static auto Resolve(const model::ResolverContext& resolvers, const TUnresolved& unresolvedValue)
-        {
-            return resolvers.resolve(unresolvedValue);
-        }
+		template <typename TUnresolved>
+		static auto Resolve(const model::ResolverContext& resolvers, const TUnresolved& unresolvedValue) {
+			return resolvers.resolve(unresolvedValue);
+		}
 
-        static auto Resolve(const model::ResolverContext&, const model::EntityType& unresolvedValue)
-        {
-            return unresolvedValue;
-        }
+		static auto Resolve(const model::ResolverContext&, const model::EntityType& unresolvedValue) {
+			return unresolvedValue;
+		}
 
-        template <typename TNotification>
-        void ObserveNotification(const TNotification& notification, const ObserverContext& context)
-        {
-            auto& restrictionCache = context.Cache.sub<cache::AccountRestrictionCache>();
-            const auto& address = notification.Address;
+		template <typename TNotification>
+		void ObserveNotification(const TNotification& notification, const ObserverContext& context) {
+			auto& restrictionCache = context.Cache.sub<cache::AccountRestrictionCache>();
+			const auto& address = notification.Address;
 
-            auto restrictionsIter = restrictionCache.find(address);
-            if (!restrictionsIter.tryGet()) {
-                restrictionCache.insert(state::AccountRestrictions(address));
-                restrictionsIter = restrictionCache.find(address);
-            }
+			auto restrictionsIter = restrictionCache.find(address);
+			if (!restrictionsIter.tryGet()) {
+				restrictionCache.insert(state::AccountRestrictions(address));
+				restrictionsIter = restrictionCache.find(address);
+			}
 
-            auto& restrictions = restrictionsIter.get();
-            auto& restriction = restrictions.restriction(notification.AccountRestrictionDescriptor.directionalRestrictionFlags());
-            auto modificationAction = NotifyMode::Commit == context.Mode ? notification.Action : InvertModificationAction(notification.Action);
-            auto resolvedRawValue = state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue));
-            model::AccountRestrictionModification rawModification { modificationAction, resolvedRawValue };
+			auto& restrictions = restrictionsIter.get();
+			auto& restriction = restrictions.restriction(notification.AccountRestrictionDescriptor.directionalRestrictionFlags());
+			auto modificationAction = NotifyMode::Commit == context.Mode ? notification.Action : InvertModificationAction(notification.Action);
+			auto resolvedRawValue = state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue));
+			model::AccountRestrictionModification rawModification { modificationAction, resolvedRawValue };
 
-            if (state::AccountRestrictionOperationType::Allow == notification.AccountRestrictionDescriptor.operationType())
-                restriction.allow(rawModification);
-            else
-                restriction.block(rawModification);
+			if (state::AccountRestrictionOperationType::Allow == notification.AccountRestrictionDescriptor.operationType())
+				restriction.allow(rawModification);
+			else
+				restriction.block(rawModification);
 
-            if (restrictions.isEmpty())
-                restrictionCache.remove(address);
-        }
-    }
+			if (restrictions.isEmpty())
+				restrictionCache.remove(address);
+		}
+	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(RESTRICTION_VALUE_NAME)                                             \
-    DEFINE_OBSERVER(                                                                                                         \
-        Account##RESTRICTION_VALUE_NAME##Modification,                                                                       \
-        model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification,                                                          \
-        [](const model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification& notification, const ObserverContext& context) { \
-            ObserveNotification<model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification>(notification, context);          \
-        })
+	DEFINE_OBSERVER(                                                                                                         \
+		Account##RESTRICTION_VALUE_NAME##Modification,                                                                       \
+		model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification,                                                          \
+		[](const model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification& notification, const ObserverContext& context) { \
+			ObserveNotification<model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification>(notification, context);          \
+		})
 
-    DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(AddressRestrictionValue)
-    DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(MosaicRestrictionValue)
-    DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(OperationRestrictionValue)
+	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(AddressRestrictionValue)
+	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(MosaicRestrictionValue)
+	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(OperationRestrictionValue)
 }
 }

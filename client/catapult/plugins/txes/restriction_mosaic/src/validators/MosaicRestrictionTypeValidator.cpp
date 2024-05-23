@@ -25,13 +25,13 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MosaicRestrictionTypeNotification;
+	using Notification = model::MosaicRestrictionTypeNotification;
 
-    DEFINE_STATELESS_VALIDATOR(MosaicRestrictionType, [](const Notification& notification) {
-        return ValidateLessThanOrEqual(
-            notification.RestrictionType,
-            model::MosaicRestrictionType::GE,
-            Failure_RestrictionMosaic_Invalid_Restriction_Type);
-    })
+	DEFINE_STATELESS_VALIDATOR(MosaicRestrictionType, [](const Notification& notification) {
+		return ValidateLessThanOrEqual(
+			notification.RestrictionType,
+			model::MosaicRestrictionType::GE,
+			Failure_RestrictionMosaic_Invalid_Restriction_Type);
+	})
 }
 }

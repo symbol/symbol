@@ -28,58 +28,53 @@
 namespace catapult {
 namespace cache {
 
-    using NamespaceBasicCache = BasicCache<NamespaceCacheDescriptor, NamespaceCacheTypes::BaseSets, NamespaceCacheTypes::Options, const NamespaceSizes&>;
+	using NamespaceBasicCache = BasicCache<NamespaceCacheDescriptor, NamespaceCacheTypes::BaseSets, NamespaceCacheTypes::Options, const NamespaceSizes&>;
 
-    /// Cache composed of namespace information.
-    class BasicNamespaceCache : public NamespaceBasicCache {
-    public:
-        /// Creates a cache around \a config and \a options.
-        BasicNamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
-            : BasicNamespaceCache(config, options, std::make_unique<NamespaceSizes>())
-        {
-        }
+	/// Cache composed of namespace information.
+	class BasicNamespaceCache : public NamespaceBasicCache {
+	public:
+		/// Creates a cache around \a config and \a options.
+		BasicNamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
+			: BasicNamespaceCache(config, options, std::make_unique<NamespaceSizes>()) {
+		}
 
-    private:
-        BasicNamespaceCache(
-            const CacheConfiguration& config,
-            const NamespaceCacheTypes::Options& options,
-            std::unique_ptr<NamespaceSizes>&& pSizes)
-            : NamespaceBasicCache(config, NamespaceCacheTypes::Options(options), *pSizes)
-            , m_pSizes(std::move(pSizes))
-        {
-        }
+	private:
+		BasicNamespaceCache(
+			const CacheConfiguration& config,
+			const NamespaceCacheTypes::Options& options,
+			std::unique_ptr<NamespaceSizes>&& pSizes)
+			: NamespaceBasicCache(config, NamespaceCacheTypes::Options(options), *pSizes)
+			, m_pSizes(std::move(pSizes)) {
+		}
 
-    public:
-        /// Initializes the cache with \a activeSize and \a deepSize.
-        void init(size_t activeSize, size_t deepSize)
-        {
-            *m_pSizes = { activeSize, deepSize };
-        }
+	public:
+		/// Initializes the cache with \a activeSize and \a deepSize.
+		void init(size_t activeSize, size_t deepSize) {
+			*m_pSizes = { activeSize, deepSize };
+		}
 
-        /// Commits all pending changes to the underlying storage.
-        /// \note This hides NamespaceBasicCache::commit.
-        void commit(const CacheDeltaType& delta)
-        {
-            NamespaceBasicCache::commit(delta);
-            *m_pSizes = { delta.activeSize(), delta.deepSize() };
-        }
+		/// Commits all pending changes to the underlying storage.
+		/// \note This hides NamespaceBasicCache::commit.
+		void commit(const CacheDeltaType& delta) {
+			NamespaceBasicCache::commit(delta);
+			*m_pSizes = { delta.activeSize(), delta.deepSize() };
+		}
 
-    private:
-        // unique pointer to allow reference to be valid after moves of this cache
-        std::unique_ptr<NamespaceSizes> m_pSizes;
-    };
+	private:
+		// unique pointer to allow reference to be valid after moves of this cache
+		std::unique_ptr<NamespaceSizes> m_pSizes;
+	};
 
-    /// Synchronized cache composed of namespace information.
-    class NamespaceCache : public SynchronizedCacheWithInit<BasicNamespaceCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(Namespace)
+	/// Synchronized cache composed of namespace information.
+	class NamespaceCache : public SynchronizedCacheWithInit<BasicNamespaceCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(Namespace)
 
-    public:
-        /// Creates a cache around \a config and options.
-        NamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
-            : SynchronizedCacheWithInit<BasicNamespaceCache>(BasicNamespaceCache(config, options))
-        {
-        }
-    };
+	public:
+		/// Creates a cache around \a config and options.
+		NamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
+			: SynchronizedCacheWithInit<BasicNamespaceCache>(BasicNamespaceCache(config, options)) {
+		}
+	};
 }
 }

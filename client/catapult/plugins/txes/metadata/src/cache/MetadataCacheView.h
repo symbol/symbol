@@ -29,40 +29,38 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the metadata cache view.
-    using MetadataCacheViewMixins = PatriciaTreeCacheMixins<MetadataCacheTypes::PrimaryTypes::BaseSetType, MetadataCacheDescriptor>;
+	/// Mixins used by the metadata cache view.
+	using MetadataCacheViewMixins = PatriciaTreeCacheMixins<MetadataCacheTypes::PrimaryTypes::BaseSetType, MetadataCacheDescriptor>;
 
-    /// Basic view on top of the metadata cache.
-    class BasicMetadataCacheView
-        : public utils::MoveOnly,
-          public MetadataCacheViewMixins::Size,
-          public MetadataCacheViewMixins::Contains,
-          public MetadataCacheViewMixins::Iteration,
-          public MetadataCacheViewMixins::ConstAccessor,
-          public MetadataCacheViewMixins::PatriciaTreeView {
-    public:
-        using ReadOnlyView = MetadataCacheTypes::CacheReadOnlyType;
+	/// Basic view on top of the metadata cache.
+	class BasicMetadataCacheView
+		: public utils::MoveOnly,
+		  public MetadataCacheViewMixins::Size,
+		  public MetadataCacheViewMixins::Contains,
+		  public MetadataCacheViewMixins::Iteration,
+		  public MetadataCacheViewMixins::ConstAccessor,
+		  public MetadataCacheViewMixins::PatriciaTreeView {
+	public:
+		using ReadOnlyView = MetadataCacheTypes::CacheReadOnlyType;
 
-    public:
-        /// Creates a view around \a metadataSets.
-        explicit BasicMetadataCacheView(const MetadataCacheTypes::BaseSets& metadataSets)
-            : MetadataCacheViewMixins::Size(metadataSets.Primary)
-            , MetadataCacheViewMixins::Contains(metadataSets.Primary)
-            , MetadataCacheViewMixins::Iteration(metadataSets.Primary)
-            , MetadataCacheViewMixins::ConstAccessor(metadataSets.Primary)
-            , MetadataCacheViewMixins::PatriciaTreeView(metadataSets.PatriciaTree.get())
-        {
-        }
-    };
+	public:
+		/// Creates a view around \a metadataSets.
+		explicit BasicMetadataCacheView(const MetadataCacheTypes::BaseSets& metadataSets)
+			: MetadataCacheViewMixins::Size(metadataSets.Primary)
+			, MetadataCacheViewMixins::Contains(metadataSets.Primary)
+			, MetadataCacheViewMixins::Iteration(metadataSets.Primary)
+			, MetadataCacheViewMixins::ConstAccessor(metadataSets.Primary)
+			, MetadataCacheViewMixins::PatriciaTreeView(metadataSets.PatriciaTree.get()) {
+		}
+	};
 
-    /// View on top of the metadata cache.
-    class MetadataCacheView : public ReadOnlyViewSupplier<BasicMetadataCacheView> {
-    public:
-        /// Creates a view around \a metadataSets.
-        explicit MetadataCacheView(const MetadataCacheTypes::BaseSets& metadataSets)
-            : ReadOnlyViewSupplier(metadataSets)
-        {
-        }
-    };
+	/// View on top of the metadata cache.
+	class MetadataCacheView : public ReadOnlyViewSupplier<BasicMetadataCacheView> {
+	public:
+		/// Creates a view around \a metadataSets.
+		explicit MetadataCacheView(const MetadataCacheTypes::BaseSets& metadataSets)
+			: ReadOnlyViewSupplier(metadataSets) {
+		}
+	};
 }
 }

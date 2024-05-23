@@ -27,16 +27,15 @@
 namespace catapult {
 namespace test {
 
-    /// Cache factory for creating a catapult cache composed of only the hash cache.
-    struct HashCacheFactory {
-        /// Creates an empty catapult cache around \a config.
-        static cache::CatapultCache Create(const model::BlockchainConfiguration& config)
-        {
-            auto cacheId = cache::HashCache::Id;
-            std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
-            subCaches[cacheId] = MakeSubCachePlugin<cache::HashCache, cache::HashCacheStorage>(CalculateTransactionCacheDuration(config));
-            return cache::CatapultCache(std::move(subCaches));
-        }
-    };
+	/// Cache factory for creating a catapult cache composed of only the hash cache.
+	struct HashCacheFactory {
+		/// Creates an empty catapult cache around \a config.
+		static cache::CatapultCache Create(const model::BlockchainConfiguration& config) {
+			auto cacheId = cache::HashCache::Id;
+			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
+			subCaches[cacheId] = MakeSubCachePlugin<cache::HashCache, cache::HashCacheStorage>(CalculateTransactionCacheDuration(config));
+			return cache::CatapultCache(std::move(subCaches));
+		}
+	};
 }
 }

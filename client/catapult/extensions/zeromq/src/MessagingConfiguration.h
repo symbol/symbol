@@ -24,35 +24,35 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace zeromq {
 
-    /// Messaging configuration settings.
-    struct MessagingConfiguration {
-    public:
-        /// Network interface on which to listen.
-        std::string ListenInterface;
+	/// Messaging configuration settings.
+	struct MessagingConfiguration {
+	public:
+		/// Network interface on which to listen.
+		std::string ListenInterface;
 
-        /// Subscriber port.
-        unsigned short SubscriberPort;
+		/// Subscriber port.
+		unsigned short SubscriberPort;
 
-    private:
-        MessagingConfiguration() = default;
+	private:
+		MessagingConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized messaging configuration.
-        static MessagingConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized messaging configuration.
+		static MessagingConfiguration Uninitialized();
 
-    public:
-        /// Loads a messaging configuration from \a bag.
-        static MessagingConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	public:
+		/// Loads a messaging configuration from \a bag.
+		static MessagingConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
-        /// Loads a messaging configuration from \a resourcesPath.
-        static MessagingConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
-    };
+		/// Loads a messaging configuration from \a resourcesPath.
+		static MessagingConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
+	};
 }
 }

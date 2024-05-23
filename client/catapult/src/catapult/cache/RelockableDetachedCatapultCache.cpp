@@ -26,80 +26,70 @@
 namespace catapult {
 namespace cache {
 
-    namespace {
-        // this wrapper is needed because CatapultCacheDetachedDelta / LockableCacheDelta is not assignable
-        // due to a const& member variable
-        class DetachedDeltaWrapper {
-        public:
-            explicit DetachedDeltaWrapper(CatapultCacheDetachedDelta&& detachedDelta)
-                : m_detachedDelta(std::move(detachedDelta))
-            {
-            }
+	namespace {
+		// this wrapper is needed because CatapultCacheDetachedDelta / LockableCacheDelta is not assignable
+		// due to a const& member variable
+		class DetachedDeltaWrapper {
+		public:
+			explicit DetachedDeltaWrapper(CatapultCacheDetachedDelta&& detachedDelta)
+				: m_detachedDelta(std::move(detachedDelta)) {
+			}
 
-        public:
-            auto tryLock()
-            {
-                return m_detachedDelta.tryLock();
-            }
+		public:
+			auto tryLock() {
+				return m_detachedDelta.tryLock();
+			}
 
-        private:
-            CatapultCacheDetachedDelta m_detachedDelta;
-        };
-    }
+		private:
+			CatapultCacheDetachedDelta m_detachedDelta;
+		};
+	}
 
-    class RelockableDetachedCatapultCache::Impl final {
-    public:
-        explicit Impl(const CatapultCache& catapultCache)
-            : m_catapultCache(catapultCache)
-        {
-            rebaseAndLock();
-        }
+	class RelockableDetachedCatapultCache::Impl final {
+	public:
+		explicit Impl(const CatapultCache& catapultCache)
+			: m_catapultCache(catapultCache) {
+			rebaseAndLock();
+		}
 
-    public:
-        Height height() const
-        {
-            return m_cacheHeight;
-        }
+	public:
+		Height height() const {
+			return m_cacheHeight;
+		}
 
-        std::unique_ptr<CatapultCacheDelta> getAndTryLock()
-        {
-            return m_pLockableUnconfirmedCatapultCache->tryLock();
-        }
+		std::unique_ptr<CatapultCacheDelta> getAndTryLock() {
+			return m_pLockableUnconfirmedCatapultCache->tryLock();
+		}
 
-        std::unique_ptr<CatapultCacheDelta> rebaseAndLock()
-        {
-            auto detachableDelta = m_catapultCache.createDetachableDelta();
-            m_cacheHeight = detachableDelta.height();
-            m_pLockableUnconfirmedCatapultCache = std::make_unique<DetachedDeltaWrapper>(detachableDelta.detach());
-            return m_pLockableUnconfirmedCatapultCache->tryLock();
-        }
+		std::unique_ptr<CatapultCacheDelta> rebaseAndLock() {
+			auto detachableDelta = m_catapultCache.createDetachableDelta();
+			m_cacheHeight = detachableDelta.height();
+			m_pLockableUnconfirmedCatapultCache = std::make_unique<DetachedDeltaWrapper>(detachableDelta.detach());
+			return m_pLockableUnconfirmedCatapultCache->tryLock();
+		}
 
-    private:
-        const CatapultCache& m_catapultCache;
-        Height m_cacheHeight;
-        std::unique_ptr<DetachedDeltaWrapper> m_pLockableUnconfirmedCatapultCache;
-    };
+	private:
+		const CatapultCache& m_catapultCache;
+		Height m_cacheHeight;
+		std::unique_ptr<DetachedDeltaWrapper> m_pLockableUnconfirmedCatapultCache;
+	};
 
-    RelockableDetachedCatapultCache::RelockableDetachedCatapultCache(const CatapultCache& catapultCache)
-        : m_pImpl(std::make_unique<Impl>(catapultCache))
-    {
-    }
+	RelockableDetachedCatapultCache::RelockableDetachedCatapultCache(const CatapultCache& catapultCache)
+		: m_pImpl(std::make_unique<Impl>(catapultCache)) {
+	}
 
-    RelockableDetachedCatapultCache::~RelockableDetachedCatapultCache() = default;
+	RelockableDetachedCatapultCache::~RelockableDetachedCatapultCache() = default;
 
-    Height RelockableDetachedCatapultCache::height() const
-    {
-        return m_pImpl->height();
-    }
+	Height RelockableDetachedCatapultCache::height() const {
+		return m_pImpl->height();
+	}
 
-    std::unique_ptr<CatapultCacheDelta> RelockableDetachedCatapultCache::getAndTryLock()
-    {
-        return m_pImpl->getAndTryLock();
-    }
+	std::unique_ptr<CatapultCacheDelta> RelockableDetachedCatapultCache::getAndTryLock() {
+		return m_pImpl->getAndTryLock();
+	}
 
-    std::unique_ptr<CatapultCacheDelta> RelockableDetachedCatapultCache::rebaseAndLock()
-    {
-        return m_pImpl->rebaseAndLock();
-    }
+	std::unique_ptr<CatapultCacheDelta> RelockableDetachedCatapultCache::rebaseAndLock() {
+		return m_pImpl->rebaseAndLock();
+	}
 }
 }

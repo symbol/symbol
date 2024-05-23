@@ -27,49 +27,49 @@
 namespace catapult {
 namespace builders {
 
-    /// Builder for an account address restriction transaction.
-    class AccountAddressRestrictionBuilder : public TransactionBuilder {
-    public:
-        using Transaction = model::AccountAddressRestrictionTransaction;
-        using EmbeddedTransaction = model::EmbeddedAccountAddressRestrictionTransaction;
+	/// Builder for an account address restriction transaction.
+	class AccountAddressRestrictionBuilder : public TransactionBuilder {
+	public:
+		using Transaction = model::AccountAddressRestrictionTransaction;
+		using EmbeddedTransaction = model::EmbeddedAccountAddressRestrictionTransaction;
 
-    public:
-        /// Creates an account address restriction builder for building an account address restriction transaction from \a signer
-        /// for the network specified by \a networkIdentifier.
-        AccountAddressRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+	public:
+		/// Creates an account address restriction builder for building an account address restriction transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		AccountAddressRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-    public:
-        /// Sets the account restriction flags to \a restrictionFlags.
-        void setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags);
+	public:
+		/// Sets the account restriction flags to \a restrictionFlags.
+		void setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags);
 
-        /// Adds \a restrictionAddition to account restriction additions.
-        void addRestrictionAddition(const UnresolvedAddress& restrictionAddition);
+		/// Adds \a restrictionAddition to account restriction additions.
+		void addRestrictionAddition(const UnresolvedAddress& restrictionAddition);
 
-        /// Adds \a restrictionDeletion to account restriction deletions.
-        void addRestrictionDeletion(const UnresolvedAddress& restrictionDeletion);
+		/// Adds \a restrictionDeletion to account restriction deletions.
+		void addRestrictionDeletion(const UnresolvedAddress& restrictionDeletion);
 
-    public:
-        /// Gets the size of account address restriction transaction.
-        /// \note This returns size of a normal transaction not embedded transaction.
-        size_t size() const;
+	public:
+		/// Gets the size of account address restriction transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
 
-        /// Builds a new account address restriction transaction.
-        std::unique_ptr<Transaction> build() const;
+		/// Builds a new account address restriction transaction.
+		std::unique_ptr<Transaction> build() const;
 
-        /// Builds a new embedded account address restriction transaction.
-        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+		/// Builds a new embedded account address restriction transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-    private:
-        template <typename TTransaction>
-        size_t sizeImpl() const;
+	private:
+		template <typename TTransaction>
+		size_t sizeImpl() const;
 
-        template <typename TTransaction>
-        std::unique_ptr<TTransaction> buildImpl() const;
+		template <typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
-    private:
-        model::AccountRestrictionFlags m_restrictionFlags;
-        std::vector<UnresolvedAddress> m_restrictionAdditions;
-        std::vector<UnresolvedAddress> m_restrictionDeletions;
-    };
+	private:
+		model::AccountRestrictionFlags m_restrictionFlags;
+		std::vector<UnresolvedAddress> m_restrictionAdditions;
+		std::vector<UnresolvedAddress> m_restrictionDeletions;
+	};
 }
 }

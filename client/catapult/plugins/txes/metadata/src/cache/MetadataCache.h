@@ -28,20 +28,19 @@
 namespace catapult {
 namespace cache {
 
-    /// Cache composed of metadata information.
-    using BasicMetadataCache = BasicCache<MetadataCacheDescriptor, MetadataCacheTypes::BaseSets>;
+	/// Cache composed of metadata information.
+	using BasicMetadataCache = BasicCache<MetadataCacheDescriptor, MetadataCacheTypes::BaseSets>;
 
-    /// Synchronized cache composed of metadata information.
-    class MetadataCache : public SynchronizedCache<BasicMetadataCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(Metadata)
+	/// Synchronized cache composed of metadata information.
+	class MetadataCache : public SynchronizedCache<BasicMetadataCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(Metadata)
 
-    public:
-        /// Creates a cache around \a config.
-        explicit MetadataCache(const CacheConfiguration& config)
-            : SynchronizedCache<BasicMetadataCache>(BasicMetadataCache(config))
-        {
-        }
-    };
+	public:
+		/// Creates a cache around \a config.
+		explicit MetadataCache(const CacheConfiguration& config)
+			: SynchronizedCache<BasicMetadataCache>(BasicMetadataCache(config)) {
+		}
+	};
 }
 }

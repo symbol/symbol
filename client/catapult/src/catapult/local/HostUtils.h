@@ -28,32 +28,31 @@
 
 namespace catapult {
 namespace extensions {
-    class ProcessBootstrapper;
+	class ProcessBootstrapper;
 }
 }
 
 namespace catapult {
 namespace local {
 
-    /// Creates and boots a host with \a args.
-    template <typename THost, typename... TArgs>
-    std::unique_ptr<THost> CreateAndBootHost(TArgs&&... args)
-    {
-        // create and boot the host
-        auto pHost = std::make_unique<THost>(std::forward<TArgs>(args)...);
-        try {
-            pHost->boot();
-        } catch (const std::exception& ex) {
-            // log the exception and rethrow as a new exception in case the exception source is a dynamic plugin
-            // (this avoids a potential crash in the calling code, which would occur if the host destructor unloads the source plugin)
-            CATAPULT_LOG(fatal) << UNHANDLED_EXCEPTION_MESSAGE("boot");
-            CATAPULT_THROW_RUNTIME_ERROR(ex.what());
-        }
+	/// Creates and boots a host with \a args.
+	template <typename THost, typename... TArgs>
+	std::unique_ptr<THost> CreateAndBootHost(TArgs&&... args) {
+		// create and boot the host
+		auto pHost = std::make_unique<THost>(std::forward<TArgs>(args)...);
+		try {
+			pHost->boot();
+		} catch (const std::exception& ex) {
+			// log the exception and rethrow as a new exception in case the exception source is a dynamic plugin
+			// (this avoids a potential crash in the calling code, which would occur if the host destructor unloads the source plugin)
+			CATAPULT_LOG(fatal) << UNHANDLED_EXCEPTION_MESSAGE("boot");
+			CATAPULT_THROW_RUNTIME_ERROR(ex.what());
+		}
 
-        return pHost;
-    }
+		return pHost;
+	}
 
-    /// Loads all plugins using \a bootstrapper.
-    std::vector<plugins::PluginModule> LoadAllPlugins(extensions::ProcessBootstrapper& bootstrapper);
+	/// Loads all plugins using \a bootstrapper.
+	std::vector<plugins::PluginModule> LoadAllPlugins(extensions::ProcessBootstrapper& bootstrapper);
 }
 }

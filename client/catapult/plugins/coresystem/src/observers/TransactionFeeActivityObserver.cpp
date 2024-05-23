@@ -25,19 +25,19 @@
 namespace catapult {
 namespace observers {
 
-    DEFINE_OBSERVER(
-        TransactionFeeActivity,
-        model::TransactionFeeNotification,
-        ([](const model::TransactionFeeNotification& notification, ObserverContext& context) {
-            auto fee = notification.Fee;
-            if (Amount() == fee)
-                return;
+	DEFINE_OBSERVER(
+		TransactionFeeActivity,
+		model::TransactionFeeNotification,
+		([](const model::TransactionFeeNotification& notification, ObserverContext& context) {
+			auto fee = notification.Fee;
+			if (Amount() == fee)
+				return;
 
-            importance::UpdateActivity(
-                notification.Sender,
-                context,
-                [fee](auto& bucket) { bucket.TotalFeesPaid = bucket.TotalFeesPaid + fee; },
-                [fee](auto& bucket) { bucket.TotalFeesPaid = bucket.TotalFeesPaid - fee; });
-        }))
+			importance::UpdateActivity(
+				notification.Sender,
+				context,
+				[fee](auto& bucket) { bucket.TotalFeesPaid = bucket.TotalFeesPaid + fee; },
+				[fee](auto& bucket) { bucket.TotalFeesPaid = bucket.TotalFeesPaid - fee; });
+		}))
 }
 }

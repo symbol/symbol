@@ -30,48 +30,43 @@
 namespace catapult {
 namespace config {
 
-    namespace {
+	namespace {
 #ifdef _WIN32
-        bool CreateDirectory(const std::filesystem::path& directory)
-        {
-            std::error_code ec;
-            std::filesystem::create_directory(directory, ec);
-            return !ec;
-        }
+		bool CreateDirectory(const std::filesystem::path& directory) {
+			std::error_code ec;
+			std::filesystem::create_directory(directory, ec);
+			return !ec;
+		}
 #else
-        bool CreateDirectory(const std::filesystem::path& directory)
-        {
-            return !mkdir(directory.generic_string().c_str(), 0700);
-        }
+		bool CreateDirectory(const std::filesystem::path& directory) {
+			return !mkdir(directory.generic_string().c_str(), 0700);
+		}
 #endif
-    }
+	}
 
-    bool CatapultDirectory::exists() const
-    {
-        return std::filesystem::is_directory(m_directory);
-    }
+	bool CatapultDirectory::exists() const {
+		return std::filesystem::is_directory(m_directory);
+	}
 
-    void CatapultDirectory::create() const
-    {
-        if (exists())
-            return;
+	void CatapultDirectory::create() const {
+		if (exists())
+			return;
 
-        if (!CreateDirectory(m_directory))
-            CATAPULT_THROW_RUNTIME_ERROR_1("couldn't create directory", m_directory.generic_string());
-    }
+		if (!CreateDirectory(m_directory))
+			CATAPULT_THROW_RUNTIME_ERROR_1("couldn't create directory", m_directory.generic_string());
+	}
 
-    void CatapultDirectory::createAll() const
-    {
-        std::filesystem::path currentDirectory;
+	void CatapultDirectory::createAll() const {
+		std::filesystem::path currentDirectory;
 
-        for (const auto& part : m_directory) {
-            if (currentDirectory.empty())
-                currentDirectory = part;
-            else
-                currentDirectory /= part;
+		for (const auto& part : m_directory) {
+			if (currentDirectory.empty())
+				currentDirectory = part;
+			else
+				currentDirectory /= part;
 
-            CatapultDirectory(currentDirectory).create();
-        }
-    }
+			CatapultDirectory(currentDirectory).create();
+		}
+	}
 }
 }

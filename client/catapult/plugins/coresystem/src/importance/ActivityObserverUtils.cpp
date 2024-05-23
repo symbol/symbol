@@ -26,19 +26,18 @@
 namespace catapult {
 namespace importance {
 
-    void UpdateActivity(
-        const Address& address,
-        const observers::ObserverContext& context,
-        const ActivityBucketConsumer& commitAction,
-        const ActivityBucketConsumer& rollbackAction)
-    {
-        auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-        auto accountStateIter = accountStateCache.find(address);
+	void UpdateActivity(
+		const Address& address,
+		const observers::ObserverContext& context,
+		const ActivityBucketConsumer& commitAction,
+		const ActivityBucketConsumer& rollbackAction) {
+		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+		auto accountStateIter = accountStateCache.find(address);
 
-        auto& activityBuckets = accountStateIter.get().ActivityBuckets;
-        auto importanceHeight = model::ConvertToImportanceHeight(context.Height, accountStateCache.importanceGrouping());
+		auto& activityBuckets = accountStateIter.get().ActivityBuckets;
+		auto importanceHeight = model::ConvertToImportanceHeight(context.Height, accountStateCache.importanceGrouping());
 
-        activityBuckets.tryUpdate(importanceHeight, observers::NotifyMode::Commit == context.Mode ? commitAction : rollbackAction);
-    }
+		activityBuckets.tryUpdate(importanceHeight, observers::NotifyMode::Commit == context.Mode ? commitAction : rollbackAction);
+	}
 }
 }

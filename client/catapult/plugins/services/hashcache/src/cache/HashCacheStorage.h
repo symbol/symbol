@@ -26,13 +26,13 @@
 namespace catapult {
 namespace cache {
 
-    /// Policy for saving and loading hash cache data.
-    struct HashCacheStorage : public CacheStorageForBasicInsertRemoveCache<HashCacheDescriptor> {
-        /// Saves \a timestampedHash to \a output.
-        static void Save(const ValueType& timestampedHash, io::OutputStream& output);
+	/// Policy for saving and loading hash cache data.
+	struct HashCacheStorage : public CacheStorageForBasicInsertRemoveCache<HashCacheDescriptor> {
+		/// Saves \a timestampedHash to \a output.
+		static void Save(const ValueType& timestampedHash, io::OutputStream& output);
 
-        /// Loads a single value from \a input.
-        static state::TimestampedHash Load(io::InputStream& input);
-    };
+		/// Loads a single value from \a input.
+		static state::TimestampedHash Load(io::InputStream& input);
+	};
 }
 }

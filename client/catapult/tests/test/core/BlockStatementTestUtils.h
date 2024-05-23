@@ -26,25 +26,25 @@
 namespace catapult {
 namespace test {
 
-    /// Constraints for generating random statements.
-    enum class RandomStatementsConstraints {
-        /// No constraints.
-        None,
+	/// Constraints for generating random statements.
+	enum class RandomStatementsConstraints {
+		/// No constraints.
+		None,
 
-        /// Enforce transaction statement ordering.
-        /// \note Resolution statement entries are always ordered.
-        Order
-    };
+		/// Enforce transaction statement ordering.
+		/// \note Resolution statement entries are always ordered.
+		Order
+	};
 
-    /// Generates random block statements with statements described by \a numStatements according to \a constraints.
-    std::unique_ptr<model::BlockStatement> GenerateRandomStatements(
-        const std::vector<size_t>& numStatements,
-        RandomStatementsConstraints constraints = RandomStatementsConstraints::None);
+	/// Generates random block statements with statements described by \a numStatements according to \a constraints.
+	std::unique_ptr<model::BlockStatement> GenerateRandomStatements(
+		const std::vector<size_t>& numStatements,
+		RandomStatementsConstraints constraints = RandomStatementsConstraints::None);
 
-    /// Serializes \a blockStatement.
-    std::vector<uint8_t> SerializeBlockStatement(const model::BlockStatement& blockStatement);
+	/// Serializes \a blockStatement.
+	std::vector<uint8_t> SerializeBlockStatement(const model::BlockStatement& blockStatement);
 
-    /// Verifies that block statements \a expectedBlockStatement and \a blockStatement are equivalent.
-    void AssertEqual(const model::BlockStatement& expectedBlockStatement, const model::BlockStatement& blockStatement);
+	/// Verifies that block statements \a expectedBlockStatement and \a blockStatement are equivalent.
+	void AssertEqual(const model::BlockStatement& expectedBlockStatement, const model::BlockStatement& blockStatement);
 }
 }

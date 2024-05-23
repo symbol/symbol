@@ -30,76 +30,70 @@
 namespace catapult {
 namespace mocks {
 
-    /// Transaction status subscriber status params.
-    struct TransactionStatusSubscriberStatusParams {
-    public:
-        /// Creates params around \a transaction, \a hash and \a status.
-        TransactionStatusSubscriberStatusParams(const model::Transaction& transaction, const Hash256& hash, uint32_t status)
-            : Transaction(transaction)
-            , pTransactionCopy(test::CopyEntity(transaction))
-            , Hash(hash)
-            , HashCopy(hash)
-            , Status(status)
-        {
-        }
+	/// Transaction status subscriber status params.
+	struct TransactionStatusSubscriberStatusParams {
+	public:
+		/// Creates params around \a transaction, \a hash and \a status.
+		TransactionStatusSubscriberStatusParams(const model::Transaction& transaction, const Hash256& hash, uint32_t status)
+			: Transaction(transaction)
+			, pTransactionCopy(test::CopyEntity(transaction))
+			, Hash(hash)
+			, HashCopy(hash)
+			, Status(status) {
+		}
 
-    public:
-        /// Reference to the transaction.
-        const model::Transaction& Transaction;
+	public:
+		/// Reference to the transaction.
+		const model::Transaction& Transaction;
 
-        /// Copy of the transaction.
-        std::unique_ptr<model::Transaction> pTransactionCopy;
+		/// Copy of the transaction.
+		std::unique_ptr<model::Transaction> pTransactionCopy;
 
-        /// Reference to the transaction hash.
-        const Hash256& Hash;
+		/// Reference to the transaction hash.
+		const Hash256& Hash;
 
-        /// Copy of the transaction hash.
-        Hash256 HashCopy;
+		/// Copy of the transaction hash.
+		Hash256 HashCopy;
 
-        /// Transaction status.
-        uint32_t Status;
-    };
+		/// Transaction status.
+		uint32_t Status;
+	};
 
-    /// Mock transaction status subscriber implementation.
-    class MockTransactionStatusSubscriber
-        : public subscribers::TransactionStatusSubscriber,
-          public test::ParamsCapture<TransactionStatusSubscriberStatusParams> {
-    public:
-        /// Creates a subscriber.
-        MockTransactionStatusSubscriber()
-            : m_numNotifies(0)
-            , m_numFlushes(0)
-        {
-        }
+	/// Mock transaction status subscriber implementation.
+	class MockTransactionStatusSubscriber
+		: public subscribers::TransactionStatusSubscriber,
+		  public test::ParamsCapture<TransactionStatusSubscriberStatusParams> {
+	public:
+		/// Creates a subscriber.
+		MockTransactionStatusSubscriber()
+			: m_numNotifies(0)
+			, m_numFlushes(0) {
+		}
 
-    public:
-        /// Gets the number of notifyStatus calls.
-        size_t numNotifies() const
-        {
-            return m_numNotifies;
-        }
+	public:
+		/// Gets the number of notifyStatus calls.
+		size_t numNotifies() const {
+			return m_numNotifies;
+		}
 
-        /// Gets the number of flush calls.
-        size_t numFlushes() const
-        {
-            return m_numFlushes;
-        }
+		/// Gets the number of flush calls.
+		size_t numFlushes() const {
+			return m_numFlushes;
+		}
 
-    public:
-        void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override
-        {
-            push(transaction, hash, status);
-            ++m_numNotifies;
-        }
+	public:
+		void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override {
+			push(transaction, hash, status);
+			++m_numNotifies;
+		}
 
-        void flush() override
-        {
-            ++m_numFlushes;
-        }
+		void flush() override {
+			++m_numFlushes;
+		}
 
-    private:
-        std::atomic<size_t> m_numNotifies;
-        std::atomic<size_t> m_numFlushes;
-    };
+	private:
+		std::atomic<size_t> m_numNotifies;
+		std::atomic<size_t> m_numFlushes;
+	};
 }
 }

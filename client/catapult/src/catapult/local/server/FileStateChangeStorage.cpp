@@ -29,63 +29,57 @@
 namespace catapult {
 namespace local {
 
-    namespace {
-        void WriteChainScore(io::OutputStream& outputStream, const model::ChainScore& chainScore)
-        {
-            auto rawChainScore = chainScore.toArray();
-            io::Write64(outputStream, rawChainScore[0]);
-            io::Write64(outputStream, rawChainScore[1]);
-        }
+	namespace {
+		void WriteChainScore(io::OutputStream& outputStream, const model::ChainScore& chainScore) {
+			auto rawChainScore = chainScore.toArray();
+			io::Write64(outputStream, rawChainScore[0]);
+			io::Write64(outputStream, rawChainScore[1]);
+		}
 
-        class FileStateChangeStorage final : public subscribers::StateChangeSubscriber {
-        public:
-            FileStateChangeStorage(
-                std::unique_ptr<io::OutputStream>&& pOutputStream,
-                const supplier<CacheChangesStorages>& cacheChangesStoragesSupplier)
-                : m_pOutputStream(std::move(pOutputStream))
-                , m_cacheChangesStoragesSupplier(cacheChangesStoragesSupplier)
-            {
-            }
+		class FileStateChangeStorage final : public subscribers::StateChangeSubscriber {
+		public:
+			FileStateChangeStorage(
+				std::unique_ptr<io::OutputStream>&& pOutputStream,
+				const supplier<CacheChangesStorages>& cacheChangesStoragesSupplier)
+				: m_pOutputStream(std::move(pOutputStream))
+				, m_cacheChangesStoragesSupplier(cacheChangesStoragesSupplier) {
+			}
 
-        public:
-            void notifyScoreChange(const model::ChainScore& chainScore) override
-            {
-                write(subscribers::StateChangeOperationType::Score_Change);
+		public:
+			void notifyScoreChange(const model::ChainScore& chainScore) override {
+				write(subscribers::StateChangeOperationType::Score_Change);
 
-                WriteChainScore(*m_pOutputStream, chainScore);
-                m_pOutputStream->flush();
-            }
+				WriteChainScore(*m_pOutputStream, chainScore);
+				m_pOutputStream->flush();
+			}
 
-            void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override
-            {
-                write(subscribers::StateChangeOperationType::State_Change);
+			void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override {
+				write(subscribers::StateChangeOperationType::State_Change);
 
-                io::Write(*m_pOutputStream, stateChangeInfo.ScoreDelta);
-                io::Write(*m_pOutputStream, stateChangeInfo.Height);
+				io::Write(*m_pOutputStream, stateChangeInfo.ScoreDelta);
+				io::Write(*m_pOutputStream, stateChangeInfo.Height);
 
-                for (const auto& pStorage : m_cacheChangesStoragesSupplier())
-                    pStorage->saveAll(stateChangeInfo.CacheChanges, *m_pOutputStream);
+				for (const auto& pStorage : m_cacheChangesStoragesSupplier())
+					pStorage->saveAll(stateChangeInfo.CacheChanges, *m_pOutputStream);
 
-                m_pOutputStream->flush();
-            }
+				m_pOutputStream->flush();
+			}
 
-        private:
-            void write(subscribers::StateChangeOperationType operationType)
-            {
-                io::Write8(*m_pOutputStream, utils::to_underlying_type(operationType));
-            }
+		private:
+			void write(subscribers::StateChangeOperationType operationType) {
+				io::Write8(*m_pOutputStream, utils::to_underlying_type(operationType));
+			}
 
-        private:
-            std::unique_ptr<io::OutputStream> m_pOutputStream;
-            supplier<CacheChangesStorages> m_cacheChangesStoragesSupplier;
-        };
-    }
+		private:
+			std::unique_ptr<io::OutputStream> m_pOutputStream;
+			supplier<CacheChangesStorages> m_cacheChangesStoragesSupplier;
+		};
+	}
 
-    std::unique_ptr<subscribers::StateChangeSubscriber> CreateFileStateChangeStorage(
-        std::unique_ptr<io::OutputStream>&& pOutputStream,
-        const supplier<CacheChangesStorages>& cacheChangesStoragesSupplier)
-    {
-        return std::make_unique<FileStateChangeStorage>(std::move(pOutputStream), cacheChangesStoragesSupplier);
-    }
+	std::unique_ptr<subscribers::StateChangeSubscriber> CreateFileStateChangeStorage(
+		std::unique_ptr<io::OutputStream>&& pOutputStream,
+		const supplier<CacheChangesStorages>& cacheChangesStoragesSupplier) {
+		return std::make_unique<FileStateChangeStorage>(std::move(pOutputStream), cacheChangesStoragesSupplier);
+	}
 }
 }

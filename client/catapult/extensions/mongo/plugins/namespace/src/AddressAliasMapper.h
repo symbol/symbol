@@ -24,11 +24,11 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Creates a mongo address alias transaction plugin.
-        PLUGIN_API
-        std::unique_ptr<MongoTransactionPlugin> CreateAddressAliasTransactionMongoPlugin();
-    }
+		/// Creates a mongo address alias transaction plugin.
+		PLUGIN_API
+		std::unique_ptr<MongoTransactionPlugin> CreateAddressAliasTransactionMongoPlugin();
+	}
 }
 }

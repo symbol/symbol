@@ -30,109 +30,100 @@
 namespace catapult {
 namespace disruptor {
 
-    /// Batches entity ranges for processing by a ConsumerDispatcher.
-    template <typename TAnnotatedEntityRange>
-    class BatchRangeDispatcher {
-    private:
-        using EntityRange = decltype(TAnnotatedEntityRange::Range);
+	/// Batches entity ranges for processing by a ConsumerDispatcher.
+	template <typename TAnnotatedEntityRange>
+	class BatchRangeDispatcher {
+	private:
+		using EntityRange = decltype(TAnnotatedEntityRange::Range);
 
-        // region RangeGroupKey
+		// region RangeGroupKey
 
-        struct RangeGroupKey {
-            model::NodeIdentity SourceIdentity;
-            InputSource Source;
-        };
+		struct RangeGroupKey {
+			model::NodeIdentity SourceIdentity;
+			InputSource Source;
+		};
 
-        class RangeGroupKeyEquality {
-        public:
-            explicit RangeGroupKeyEquality(model::NodeIdentityEqualityStrategy strategy)
-                : m_equality(strategy)
-            {
-            }
+		class RangeGroupKeyEquality {
+		public:
+			explicit RangeGroupKeyEquality(model::NodeIdentityEqualityStrategy strategy)
+				: m_equality(strategy) {
+			}
 
-        public:
-            bool operator()(const RangeGroupKey& lhs, const RangeGroupKey& rhs) const
-            {
-                return m_equality(lhs.SourceIdentity, rhs.SourceIdentity) && lhs.Source == rhs.Source;
-            }
+		public:
+			bool operator()(const RangeGroupKey& lhs, const RangeGroupKey& rhs) const {
+				return m_equality(lhs.SourceIdentity, rhs.SourceIdentity) && lhs.Source == rhs.Source;
+			}
 
-        private:
-            model::NodeIdentityEquality m_equality;
-        };
+		private:
+			model::NodeIdentityEquality m_equality;
+		};
 
-        class RangeGroupKeyHasher {
-        public:
-            explicit RangeGroupKeyHasher(model::NodeIdentityEqualityStrategy strategy)
-                : m_hasher(strategy)
-            {
-            }
+		class RangeGroupKeyHasher {
+		public:
+			explicit RangeGroupKeyHasher(model::NodeIdentityEqualityStrategy strategy)
+				: m_hasher(strategy) {
+			}
 
-        public:
-            size_t operator()(const RangeGroupKey& key) const
-            {
-                return m_hasher(key.SourceIdentity);
-            }
+		public:
+			size_t operator()(const RangeGroupKey& key) const {
+				return m_hasher(key.SourceIdentity);
+			}
 
-        private:
-            model::NodeIdentityHasher m_hasher;
-        };
+		private:
+			model::NodeIdentityHasher m_hasher;
+		};
 
-        // endregion
+		// endregion
 
-        using GroupedRangesMap = std::unordered_map<RangeGroupKey, std::vector<EntityRange>, RangeGroupKeyHasher, RangeGroupKeyEquality>;
+		using GroupedRangesMap = std::unordered_map<RangeGroupKey, std::vector<EntityRange>, RangeGroupKeyHasher, RangeGroupKeyEquality>;
 
-    public:
-        /// Creates a batch range dispatcher around \a dispatcher with specified \a equalityStrategy.
-        BatchRangeDispatcher(ConsumerDispatcher& dispatcher, model::NodeIdentityEqualityStrategy equalityStrategy)
-            : m_dispatcher(dispatcher)
-            , m_equalityStrategy(equalityStrategy)
-            , m_rangesMap(CreateGroupedRangesMap(m_equalityStrategy))
-        {
-        }
+	public:
+		/// Creates a batch range dispatcher around \a dispatcher with specified \a equalityStrategy.
+		BatchRangeDispatcher(ConsumerDispatcher& dispatcher, model::NodeIdentityEqualityStrategy equalityStrategy)
+			: m_dispatcher(dispatcher)
+			, m_equalityStrategy(equalityStrategy)
+			, m_rangesMap(CreateGroupedRangesMap(m_equalityStrategy)) {
+		}
 
-    public:
-        /// Returns \c true if no ranges are currently queued.
-        bool empty() const
-        {
-            utils::SpinLockGuard guard(m_lock);
-            return m_rangesMap.empty();
-        }
+	public:
+		/// Returns \c true if no ranges are currently queued.
+		bool empty() const {
+			utils::SpinLockGuard guard(m_lock);
+			return m_rangesMap.empty();
+		}
 
-    public:
-        /// Queues processing of \a range from \a source.
-        void queue(TAnnotatedEntityRange&& range, InputSource source)
-        {
-            utils::SpinLockGuard guard(m_lock);
-            m_rangesMap[{ range.SourceIdentity, source }].push_back(std::move(range.Range));
-        }
+	public:
+		/// Queues processing of \a range from \a source.
+		void queue(TAnnotatedEntityRange&& range, InputSource source) {
+			utils::SpinLockGuard guard(m_lock);
+			m_rangesMap[{ range.SourceIdentity, source }].push_back(std::move(range.Range));
+		}
 
-        /// Dispatches all queued elements to the underlying dispatcher.
-        void dispatch()
-        {
-            auto rangesMap = CreateGroupedRangesMap(m_equalityStrategy);
+		/// Dispatches all queued elements to the underlying dispatcher.
+		void dispatch() {
+			auto rangesMap = CreateGroupedRangesMap(m_equalityStrategy);
 
-            {
-                utils::SpinLockGuard guard(m_lock);
-                rangesMap = std::move(m_rangesMap);
-            }
+			{
+				utils::SpinLockGuard guard(m_lock);
+				rangesMap = std::move(m_rangesMap);
+			}
 
-            for (auto& pair : rangesMap) {
-                auto mergedRange = EntityRange::MergeRanges(std::move(pair.second));
-                m_dispatcher.processElement(ConsumerInput({ std::move(mergedRange), pair.first.SourceIdentity }, pair.first.Source));
-            }
-        }
+			for (auto& pair : rangesMap) {
+				auto mergedRange = EntityRange::MergeRanges(std::move(pair.second));
+				m_dispatcher.processElement(ConsumerInput({ std::move(mergedRange), pair.first.SourceIdentity }, pair.first.Source));
+			}
+		}
 
-    private:
-        static GroupedRangesMap CreateGroupedRangesMap(model::NodeIdentityEqualityStrategy equalityStrategy)
-        {
-            return GroupedRangesMap(0, RangeGroupKeyHasher(equalityStrategy), RangeGroupKeyEquality(equalityStrategy));
-        }
+	private:
+		static GroupedRangesMap CreateGroupedRangesMap(model::NodeIdentityEqualityStrategy equalityStrategy) {
+			return GroupedRangesMap(0, RangeGroupKeyHasher(equalityStrategy), RangeGroupKeyEquality(equalityStrategy));
+		}
 
-    private:
-        ConsumerDispatcher& m_dispatcher;
-        model::NodeIdentityEqualityStrategy m_equalityStrategy;
-        GroupedRangesMap m_rangesMap;
-        mutable utils::SpinLock m_lock;
-    };
+	private:
+		ConsumerDispatcher& m_dispatcher;
+		model::NodeIdentityEqualityStrategy m_equalityStrategy;
+		GroupedRangesMap m_rangesMap;
+		mutable utils::SpinLock m_lock;
+	};
 }
 }

@@ -28,31 +28,30 @@
 namespace catapult {
 namespace validators {
 
-    /// Contextual information passed to stateful validators.
-    struct PLUGIN_API_DEPENDENCY ValidatorContext : public model::NotificationContext {
-    public:
-        /// Creates a validator context around \a notificationContext, \a blockTime, \a network and \a cache.
-        ValidatorContext(
-            const model::NotificationContext& notificationContext,
-            Timestamp blockTime,
-            const model::NetworkInfo& network,
-            const cache::ReadOnlyCatapultCache& cache)
-            : NotificationContext(notificationContext.Height, notificationContext.Resolvers)
-            , BlockTime(blockTime)
-            , Network(network)
-            , Cache(cache)
-        {
-        }
+	/// Contextual information passed to stateful validators.
+	struct PLUGIN_API_DEPENDENCY ValidatorContext : public model::NotificationContext {
+	public:
+		/// Creates a validator context around \a notificationContext, \a blockTime, \a network and \a cache.
+		ValidatorContext(
+			const model::NotificationContext& notificationContext,
+			Timestamp blockTime,
+			const model::NetworkInfo& network,
+			const cache::ReadOnlyCatapultCache& cache)
+			: NotificationContext(notificationContext.Height, notificationContext.Resolvers)
+			, BlockTime(blockTime)
+			, Network(network)
+			, Cache(cache) {
+		}
 
-    public:
-        /// Current block time.
-        const Timestamp BlockTime;
+	public:
+		/// Current block time.
+		const Timestamp BlockTime;
 
-        /// Network info.
-        const model::NetworkInfo Network;
+		/// Network info.
+		const model::NetworkInfo Network;
 
-        /// Catapult cache.
-        const cache::ReadOnlyCatapultCache& Cache;
-    };
+		/// Catapult cache.
+		const cache::ReadOnlyCatapultCache& Cache;
+	};
 }
 }

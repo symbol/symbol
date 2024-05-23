@@ -28,52 +28,51 @@ namespace ionet {
 
 #pragma pack(push, 1)
 
-    /// Information about a catapult node that is propagated through the network.
-    struct NetworkNode {
-        /// Size of the node.
-        uint32_t Size;
+	/// Information about a catapult node that is propagated through the network.
+	struct NetworkNode {
+		/// Size of the node.
+		uint32_t Size;
 
-        /// Version.
-        NodeVersion Version;
+		/// Version.
+		NodeVersion Version;
 
-        /// Unique node identifier (public key).
-        Key IdentityKey;
+		/// Unique node identifier (public key).
+		Key IdentityKey;
 
-        /// Network generation hash seed.
-        GenerationHashSeed NetworkGenerationHashSeed;
+		/// Network generation hash seed.
+		GenerationHashSeed NetworkGenerationHashSeed;
 
-        /// Role(s).
-        NodeRoles Roles;
+		/// Role(s).
+		NodeRoles Roles;
 
-        /// Port.
-        uint16_t Port;
+		/// Port.
+		uint16_t Port;
 
-        /// Network identifier.
-        model::NetworkIdentifier NetworkIdentifier;
+		/// Network identifier.
+		model::NetworkIdentifier NetworkIdentifier;
 
-        /// Size of the host in bytes.
-        uint8_t HostSize;
+		/// Size of the host in bytes.
+		uint8_t HostSize;
 
-        /// Size of the friendly name in bytes.
-        uint8_t FriendlyNameSize;
+		/// Size of the friendly name in bytes.
+		uint8_t FriendlyNameSize;
 
-        // followed by host if HostSize != 0
-        // followed by friendly name if FriendlyNameSize != 0
+		// followed by host if HostSize != 0
+		// followed by friendly name if FriendlyNameSize != 0
 
-    public:
-        /// Calculates the real size of \a node.
-        static constexpr uint64_t CalculateRealSize(const NetworkNode& node) noexcept
-        {
-            return sizeof(NetworkNode) + node.HostSize + node.FriendlyNameSize;
-        }
-    };
+	public:
+		/// Calculates the real size of \a node.
+		static constexpr uint64_t CalculateRealSize(const NetworkNode& node) noexcept {
+			return sizeof(NetworkNode) + node.HostSize + node.FriendlyNameSize;
+		}
+	};
 
 #pragma pack(pop)
 
-    /// Packs \a node model into a network node.
-    std::unique_ptr<NetworkNode> PackNode(const Node& node);
+	/// Packs \a node model into a network node.
+	std::unique_ptr<NetworkNode> PackNode(const Node& node);
 
-    /// Unpacks a network node (\a networkNode) into a node model.
-    Node UnpackNode(const NetworkNode& networkNode);
+	/// Unpacks a network node (\a networkNode) into a node model.
+	Node UnpackNode(const NetworkNode& networkNode);
 }
 }

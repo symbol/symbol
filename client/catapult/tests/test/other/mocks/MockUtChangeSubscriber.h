@@ -26,43 +26,39 @@
 namespace catapult {
 namespace mocks {
 
-    /// Mock unconfirmed transactions change subscriber flush params.
-    struct UtFlushInfo {
-    public:
-        /// Number of added transaction infos.
-        size_t NumAdds;
+	/// Mock unconfirmed transactions change subscriber flush params.
+	struct UtFlushInfo {
+	public:
+		/// Number of added transaction infos.
+		size_t NumAdds;
 
-        /// Number of removed transaction infos.
-        size_t NumRemoves;
+		/// Number of removed transaction infos.
+		size_t NumRemoves;
 
-    public:
-        /// Returns \c true if this flush info is equal to \a rhs.
-        constexpr bool operator==(const UtFlushInfo& rhs) const
-        {
-            return NumAdds == rhs.NumAdds && NumRemoves == rhs.NumRemoves;
-        }
-    };
+	public:
+		/// Returns \c true if this flush info is equal to \a rhs.
+		constexpr bool operator==(const UtFlushInfo& rhs) const {
+			return NumAdds == rhs.NumAdds && NumRemoves == rhs.NumRemoves;
+		}
+	};
 
-    /// Mock unconfirmed transactions change subscriber.
-    class MockUtChangeSubscriber : public test::MockTransactionsChangeSubscriber<cache::UtChangeSubscriber, UtFlushInfo> {
-    public:
-        void notifyAdds(const TransactionInfos& transactionInfos) override
-        {
-            for (const auto& transactionInfo : transactionInfos)
-                m_addedInfos.push_back(transactionInfo.copy());
-        }
+	/// Mock unconfirmed transactions change subscriber.
+	class MockUtChangeSubscriber : public test::MockTransactionsChangeSubscriber<cache::UtChangeSubscriber, UtFlushInfo> {
+	public:
+		void notifyAdds(const TransactionInfos& transactionInfos) override {
+			for (const auto& transactionInfo : transactionInfos)
+				m_addedInfos.push_back(transactionInfo.copy());
+		}
 
-        void notifyRemoves(const TransactionInfos& transactionInfos) override
-        {
-            for (const auto& transactionInfo : transactionInfos)
-                m_removedInfos.push_back(transactionInfo.copy());
-        }
+		void notifyRemoves(const TransactionInfos& transactionInfos) override {
+			for (const auto& transactionInfo : transactionInfos)
+				m_removedInfos.push_back(transactionInfo.copy());
+		}
 
-    private:
-        UtFlushInfo createFlushInfo() const override
-        {
-            return { m_addedInfos.size(), m_removedInfos.size() };
-        }
-    };
+	private:
+		UtFlushInfo createFlushInfo() const override {
+			return { m_addedInfos.size(), m_removedInfos.size() };
+		}
+	};
 }
 }

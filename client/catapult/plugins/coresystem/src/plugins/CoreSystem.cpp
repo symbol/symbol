@@ -42,204 +42,194 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        // region caches
+	namespace {
+		// region caches
 
-        cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockchainConfiguration& config)
-        {
-            return { config.Network.Identifier, config.ImportanceGrouping, config.VotingSetGrouping, config.MinHarvesterBalance,
-                config.MaxHarvesterBalance, config.MinVoterBalance, config.CurrencyMosaicId, config.HarvestingMosaicId };
-        }
+		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockchainConfiguration& config) {
+			return { config.Network.Identifier, config.ImportanceGrouping, config.VotingSetGrouping, config.MinHarvesterBalance,
+				config.MaxHarvesterBalance, config.MinVoterBalance, config.CurrencyMosaicId, config.HarvestingMosaicId };
+		}
 
-        void AddAccountStateCache(PluginManager& manager, const model::BlockchainConfiguration& config)
-        {
-            using namespace catapult::cache;
+		void AddAccountStateCache(PluginManager& manager, const model::BlockchainConfiguration& config) {
+			using namespace catapult::cache;
 
-            auto cacheConfig = manager.cacheConfig(AccountStateCache::Name);
-            auto cacheOptions = CreateAccountStateCacheOptions(config);
-            manager.addCacheSupport(std::make_unique<AccountStateCacheSubCachePlugin>(cacheConfig, cacheOptions));
+			auto cacheConfig = manager.cacheConfig(AccountStateCache::Name);
+			auto cacheOptions = CreateAccountStateCacheOptions(config);
+			manager.addCacheSupport(std::make_unique<AccountStateCacheSubCachePlugin>(cacheConfig, cacheOptions));
 
-            using CacheHandlers = CacheHandlers<cache::AccountStateCacheDescriptor>;
-            CacheHandlers::Register<model::FacilityCode::Core>(manager);
+			using CacheHandlers = CacheHandlers<cache::AccountStateCacheDescriptor>;
+			CacheHandlers::Register<model::FacilityCode::Core>(manager);
 
-            manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
-                counters.emplace_back(utils::DiagnosticCounterId("ACNTST C"), [&cache]() {
-                    return cache.sub<AccountStateCache>().createView()->size();
-                });
-                counters.emplace_back(utils::DiagnosticCounterId("ACNTST C HVA"), [&cache]() {
-                    return cache.sub<AccountStateCache>().createView()->highValueAccounts().addresses().size();
-                });
-            });
-        }
+			manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
+				counters.emplace_back(utils::DiagnosticCounterId("ACNTST C"), [&cache]() {
+					return cache.sub<AccountStateCache>().createView()->size();
+				});
+				counters.emplace_back(utils::DiagnosticCounterId("ACNTST C HVA"), [&cache]() {
+					return cache.sub<AccountStateCache>().createView()->highValueAccounts().addresses().size();
+				});
+			});
+		}
 
-        void AddBlockStatisticCache(PluginManager& manager, const model::BlockchainConfiguration& config)
-        {
-            using namespace catapult::cache;
+		void AddBlockStatisticCache(PluginManager& manager, const model::BlockchainConfiguration& config) {
+			using namespace catapult::cache;
 
-            manager.addCacheSupport(std::make_unique<BlockStatisticCacheSubCachePlugin>(config.MaxDifficultyBlocks));
+			manager.addCacheSupport(std::make_unique<BlockStatisticCacheSubCachePlugin>(config.MaxDifficultyBlocks));
 
-            manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
-                counters.emplace_back(utils::DiagnosticCounterId("BLKDIF C"), [&cache]() {
-                    return cache.sub<BlockStatisticCache>().createView()->size();
-                });
-            });
-        }
+			manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
+				counters.emplace_back(utils::DiagnosticCounterId("BLKDIF C"), [&cache]() {
+					return cache.sub<BlockStatisticCache>().createView()->size();
+				});
+			});
+		}
 
-        // endregion
+		// endregion
 
-        // region observers
+		// region observers
 
-        auto CreateRecalculateImportancesObserver(
-            const model::BlockchainConfiguration& config,
-            const config::CatapultDirectory& directory)
-        {
-            auto pCommitCalculator = importance::CreateImportanceCalculator(config);
-            auto pRollbackCalculator = importance::CreateRestoreImportanceCalculator();
+		auto CreateRecalculateImportancesObserver(
+			const model::BlockchainConfiguration& config,
+			const config::CatapultDirectory& directory) {
+			auto pCommitCalculator = importance::CreateImportanceCalculator(config);
+			auto pRollbackCalculator = importance::CreateRestoreImportanceCalculator();
 
-            if (0 == config.MaxRollbackBlocks) {
-                // enable deep rollbacks
-                importance::StorageImportanceCalculatorFactory calculatorFactory(config);
-                pCommitCalculator = calculatorFactory.createWriteCalculator(std::move(pCommitCalculator), directory.dir("wip"));
-                pRollbackCalculator = calculatorFactory.createReadCalculator(std::move(pRollbackCalculator), directory);
-            }
+			if (0 == config.MaxRollbackBlocks) {
+				// enable deep rollbacks
+				importance::StorageImportanceCalculatorFactory calculatorFactory(config);
+				pCommitCalculator = calculatorFactory.createWriteCalculator(std::move(pCommitCalculator), directory.dir("wip"));
+				pRollbackCalculator = calculatorFactory.createReadCalculator(std::move(pRollbackCalculator), directory);
+			}
 
-            return observers::CreateRecalculateImportancesObserver(std::move(pCommitCalculator), std::move(pRollbackCalculator));
-        }
+			return observers::CreateRecalculateImportancesObserver(std::move(pCommitCalculator), std::move(pRollbackCalculator));
+		}
 
-        // endregion
+		// endregion
 
-        // region key link registrations
+		// region key link registrations
 
-        struct BasicKeyAccessor {
-            static constexpr auto Failure_Link_Already_Exists = validators::Failure_Core_Link_Already_Exists;
-            static constexpr auto Failure_Inconsistent_Unlink_Data = validators::Failure_Core_Inconsistent_Unlink_Data;
-            static constexpr auto Failure_Too_Many_Links = validators::Failure_Core_Too_Many_Links;
-        };
+		struct BasicKeyAccessor {
+			static constexpr auto Failure_Link_Already_Exists = validators::Failure_Core_Link_Already_Exists;
+			static constexpr auto Failure_Inconsistent_Unlink_Data = validators::Failure_Core_Inconsistent_Unlink_Data;
+			static constexpr auto Failure_Too_Many_Links = validators::Failure_Core_Too_Many_Links;
+		};
 
-        struct VrfKeyAccessor : public BasicKeyAccessor {
-            template <typename TAccountState>
-            static auto& Get(TAccountState& accountState)
-            {
-                return accountState.SupplementalPublicKeys.vrf();
-            }
-        };
+		struct VrfKeyAccessor : public BasicKeyAccessor {
+			template <typename TAccountState>
+			static auto& Get(TAccountState& accountState) {
+				return accountState.SupplementalPublicKeys.vrf();
+			}
+		};
 
-        struct VotingKeyAccessor : public BasicKeyAccessor {
-            template <typename TAccountState>
-            static auto& Get(TAccountState& accountState)
-            {
-                return accountState.SupplementalPublicKeys.voting();
-            }
-        };
+		struct VotingKeyAccessor : public BasicKeyAccessor {
+			template <typename TAccountState>
+			static auto& Get(TAccountState& accountState) {
+				return accountState.SupplementalPublicKeys.voting();
+			}
+		};
 
-        void RegisterVrfKeyLinkTransaction(PluginManager& manager)
-        {
-            manager.addTransactionSupport(CreateVrfKeyLinkTransactionPlugin());
+		void RegisterVrfKeyLinkTransaction(PluginManager& manager) {
+			manager.addTransactionSupport(CreateVrfKeyLinkTransactionPlugin());
 
-            manager.addStatefulValidatorHook([](auto& builder) {
-                builder.add(keylink::CreateKeyLinkValidator<model::VrfKeyLinkNotification, VrfKeyAccessor>("Vrf"));
-            });
+			manager.addStatefulValidatorHook([](auto& builder) {
+				builder.add(keylink::CreateKeyLinkValidator<model::VrfKeyLinkNotification, VrfKeyAccessor>("Vrf"));
+			});
 
-            manager.addObserverHook([](auto& builder) {
-                builder.add(keylink::CreateKeyLinkObserver<model::VrfKeyLinkNotification, VrfKeyAccessor>("Vrf"));
-            });
-        }
+			manager.addObserverHook([](auto& builder) {
+				builder.add(keylink::CreateKeyLinkObserver<model::VrfKeyLinkNotification, VrfKeyAccessor>("Vrf"));
+			});
+		}
 
-        void RegisterVotingKeyLinkTransaction(PluginManager& manager)
-        {
-            const auto& config = manager.config();
+		void RegisterVotingKeyLinkTransaction(PluginManager& manager) {
+			const auto& config = manager.config();
 
-            manager.addTransactionSupport(CreateVotingKeyLinkTransactionPlugin());
+			manager.addTransactionSupport(CreateVotingKeyLinkTransactionPlugin());
 
-            manager.addStatelessValidatorHook([&config](auto& builder) {
-                builder.add(validators::CreateVotingKeyLinkRangeValidator(config.MinVotingKeyLifetime, config.MaxVotingKeyLifetime));
-            });
+			manager.addStatelessValidatorHook([&config](auto& builder) {
+				builder.add(validators::CreateVotingKeyLinkRangeValidator(config.MinVotingKeyLifetime, config.MaxVotingKeyLifetime));
+			});
 
-            manager.addStatefulValidatorHook([&config](auto& builder) {
-                builder.add(keylink::CreateMultiKeyLinkValidator<model::VotingKeyLinkNotification, VotingKeyAccessor>(
-                    "Voting",
-                    config.MaxVotingKeysPerAccount));
-            });
+			manager.addStatefulValidatorHook([&config](auto& builder) {
+				builder.add(keylink::CreateMultiKeyLinkValidator<model::VotingKeyLinkNotification, VotingKeyAccessor>(
+					"Voting",
+					config.MaxVotingKeysPerAccount));
+			});
 
-            manager.addObserverHook([](auto& builder) {
-                builder.add(keylink::CreateMultiKeyLinkObserver<model::VotingKeyLinkNotification, VotingKeyAccessor>("Voting"));
-            });
-        }
+			manager.addObserverHook([](auto& builder) {
+				builder.add(keylink::CreateMultiKeyLinkObserver<model::VotingKeyLinkNotification, VotingKeyAccessor>("Voting"));
+			});
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 
-    void RegisterCoreSystem(PluginManager& manager)
-    {
-        const auto& config = manager.config();
+	void RegisterCoreSystem(PluginManager& manager) {
+		const auto& config = manager.config();
 
-        AddAccountStateCache(manager, config);
-        AddBlockStatisticCache(manager, config);
+		AddAccountStateCache(manager, config);
+		AddBlockStatisticCache(manager, config);
 
-        manager.addStatelessValidatorHook([&config](auto& builder) {
-            builder.add(validators::CreateZeroAddressValidator(config.Network.Identifier))
-                .add(validators::CreateZeroPublicKeyValidator())
-                .add(validators::CreateMaxTransactionsValidator(config.MaxTransactionsPerBlock))
-                .add(validators::CreateNetworkValidator(config.Network.Identifier))
-                .add(validators::CreateEntityVersionValidator())
-                .add(validators::CreateTransactionFeeValidator())
-                .add(validators::CreateKeyLinkActionValidator())
-                .add(validators::CreateZeroInternalPaddingValidator())
-                .add(validators::CreateBlockTypeValidator(config.ImportanceGrouping));
-        });
+		manager.addStatelessValidatorHook([&config](auto& builder) {
+			builder.add(validators::CreateZeroAddressValidator(config.Network.Identifier))
+				.add(validators::CreateZeroPublicKeyValidator())
+				.add(validators::CreateMaxTransactionsValidator(config.MaxTransactionsPerBlock))
+				.add(validators::CreateNetworkValidator(config.Network.Identifier))
+				.add(validators::CreateEntityVersionValidator())
+				.add(validators::CreateTransactionFeeValidator())
+				.add(validators::CreateKeyLinkActionValidator())
+				.add(validators::CreateZeroInternalPaddingValidator())
+				.add(validators::CreateBlockTypeValidator(config.ImportanceGrouping));
+		});
 
-        manager.addStatefulValidatorHook([&config](auto& builder) {
-            builder.add(validators::CreateAddressValidator())
-                .add(validators::CreatePublicKeyValidator())
-                .add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
-                .add(validators::CreateNemesisSinkValidator(
-                    config.ForkHeights.TreasuryReissuance,
-                    config.TreasuryReissuanceTransactionSignatures))
-                .add(validators::CreateEligibleHarvesterValidator())
-                .add(validators::CreateBalanceDebitValidator())
-                .add(validators::CreateBalanceTransferValidator())
-                .add(validators::CreateImportanceBlockValidator(
-                    config.ForkHeights.TotalVotingBalanceCalculationFix,
-                    config.VotingSetGrouping));
-        });
+		manager.addStatefulValidatorHook([&config](auto& builder) {
+			builder.add(validators::CreateAddressValidator())
+				.add(validators::CreatePublicKeyValidator())
+				.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
+				.add(validators::CreateNemesisSinkValidator(
+					config.ForkHeights.TreasuryReissuance,
+					config.TreasuryReissuanceTransactionSignatures))
+				.add(validators::CreateEligibleHarvesterValidator())
+				.add(validators::CreateBalanceDebitValidator())
+				.add(validators::CreateBalanceTransferValidator())
+				.add(validators::CreateImportanceBlockValidator(
+					config.ForkHeights.TotalVotingBalanceCalculationFix,
+					config.VotingSetGrouping));
+		});
 
-        auto harvestFeeOptions = observers::HarvestFeeOptions { config.CurrencyMosaicId,
-            config.HarvestBeneficiaryPercentage,
-            config.HarvestNetworkPercentage,
-            model::GetHarvestNetworkFeeSinkAddress(config) };
-        const auto& calculator = manager.inflationConfig().InflationCalculator;
-        manager.addObserverHook([harvestFeeOptions, &calculator](auto& builder) {
-            builder.add(observers::CreateSourceChangeObserver())
-                .add(observers::CreateAccountAddressObserver())
-                .add(observers::CreateAccountPublicKeyObserver())
-                .add(observers::CreateBalanceDebitObserver())
-                .add(observers::CreateBalanceTransferObserver())
-                .add(observers::CreateBeneficiaryObserver())
-                .add(observers::CreateTransactionFeeActivityObserver())
-                .add(observers::CreateHarvestFeeObserver(harvestFeeOptions, calculator))
-                .add(observers::CreateTotalTransactionsObserver());
-        });
+		auto harvestFeeOptions = observers::HarvestFeeOptions { config.CurrencyMosaicId,
+			config.HarvestBeneficiaryPercentage,
+			config.HarvestNetworkPercentage,
+			model::GetHarvestNetworkFeeSinkAddress(config) };
+		const auto& calculator = manager.inflationConfig().InflationCalculator;
+		manager.addObserverHook([harvestFeeOptions, &calculator](auto& builder) {
+			builder.add(observers::CreateSourceChangeObserver())
+				.add(observers::CreateAccountAddressObserver())
+				.add(observers::CreateAccountPublicKeyObserver())
+				.add(observers::CreateBalanceDebitObserver())
+				.add(observers::CreateBalanceTransferObserver())
+				.add(observers::CreateBeneficiaryObserver())
+				.add(observers::CreateTransactionFeeActivityObserver())
+				.add(observers::CreateHarvestFeeObserver(harvestFeeOptions, calculator))
+				.add(observers::CreateTotalTransactionsObserver());
+		});
 
-        auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
-        manager.addTransientObserverHook([&config, dataDirectory](auto& builder) {
-            // important:
-            // HighValueAccountObserver and RecalculateImportancesObserver are both triggered by BlockNotification and must execute
-            // AFTER all state changes.
-            // Since transient observers are guaranteed to not cause any state changes, the aforementioned observers can be safely
-            // registered as transient observers independent of any transient observers registered by other plugins.
-            builder.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Commit))
-                .add(CreateRecalculateImportancesObserver(config, dataDirectory.dir("importance")))
-                .add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Rollback))
-                .add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier));
-        });
+		auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
+		manager.addTransientObserverHook([&config, dataDirectory](auto& builder) {
+			// important:
+			// HighValueAccountObserver and RecalculateImportancesObserver are both triggered by BlockNotification and must execute
+			// AFTER all state changes.
+			// Since transient observers are guaranteed to not cause any state changes, the aforementioned observers can be safely
+			// registered as transient observers independent of any transient observers registered by other plugins.
+			builder.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Commit))
+				.add(CreateRecalculateImportancesObserver(config, dataDirectory.dir("importance")))
+				.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Rollback))
+				.add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier));
+		});
 
-        RegisterVrfKeyLinkTransaction(manager);
-        RegisterVotingKeyLinkTransaction(manager);
-    }
+		RegisterVrfKeyLinkTransaction(manager);
+		RegisterVotingKeyLinkTransaction(manager);
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
-{
-    catapult::plugins::RegisterCoreSystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+	catapult::plugins::RegisterCoreSystem(manager);
 }

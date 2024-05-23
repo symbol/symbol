@@ -25,30 +25,28 @@
 namespace catapult {
 namespace cache {
 
-    /// Policy for saving and loading lock info cache data.
-    template <typename TDescriptor, typename TLockInfoSerializer>
-    struct LockInfoCacheStorage
-        : public CacheStorageFromDescriptor<TDescriptor>,
-          public TLockInfoSerializer {
-    public:
-        /// Loads \a history into \a cacheDelta.
-        static void LoadInto(const typename TDescriptor::ValueType& history, typename TDescriptor::CacheDeltaType& cacheDelta)
-        {
-            for (const auto& lockInfo : history)
-                cacheDelta.insert(lockInfo);
-        }
+	/// Policy for saving and loading lock info cache data.
+	template <typename TDescriptor, typename TLockInfoSerializer>
+	struct LockInfoCacheStorage
+		: public CacheStorageFromDescriptor<TDescriptor>,
+		  public TLockInfoSerializer {
+	public:
+		/// Loads \a history into \a cacheDelta.
+		static void LoadInto(const typename TDescriptor::ValueType& history, typename TDescriptor::CacheDeltaType& cacheDelta) {
+			for (const auto& lockInfo : history)
+				cacheDelta.insert(lockInfo);
+		}
 
-        /// Purges \a history from \a cacheDelta.
-        static void Purge(const typename TDescriptor::ValueType& history, typename TDescriptor::CacheDeltaType& cacheDelta)
-        {
-            while (cacheDelta.contains(history.id()))
-                cacheDelta.remove(history.id());
-        }
-    };
+		/// Purges \a history from \a cacheDelta.
+		static void Purge(const typename TDescriptor::ValueType& history, typename TDescriptor::CacheDeltaType& cacheDelta) {
+			while (cacheDelta.contains(history.id()))
+				cacheDelta.remove(history.id());
+		}
+	};
 }
 }
 
 /// Defines lock info cache storage for \a LOCK_INFO.
 #define DEFINE_LOCK_INFO_CACHE_STORAGE(LOCK_INFO)             \
-    /* Policy for saving and loading lock info cache data. */ \
-    struct LOCK_INFO##CacheStorage : public LockInfoCacheStorage<LOCK_INFO##CacheDescriptor, state::LOCK_INFO##HistorySerializer> { };
+	/* Policy for saving and loading lock info cache data. */ \
+	struct LOCK_INFO##CacheStorage : public LockInfoCacheStorage<LOCK_INFO##CacheDescriptor, state::LOCK_INFO##HistorySerializer> { };

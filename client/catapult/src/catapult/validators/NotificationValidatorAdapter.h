@@ -25,36 +25,36 @@
 
 namespace catapult {
 namespace model {
-    class TransactionRegistry;
+	class TransactionRegistry;
 }
 }
 
 namespace catapult {
 namespace validators {
 
-    /// Stateless notification validator to entity validator adapter.
-    class NotificationValidatorAdapter : public StatelessEntityValidator {
-    private:
-        using NotificationValidatorPointer = std::unique_ptr<const stateless::NotificationValidator>;
-        using NotificationPublisherPointer = std::unique_ptr<const model::NotificationPublisher>;
+	/// Stateless notification validator to entity validator adapter.
+	class NotificationValidatorAdapter : public StatelessEntityValidator {
+	private:
+		using NotificationValidatorPointer = std::unique_ptr<const stateless::NotificationValidator>;
+		using NotificationPublisherPointer = std::unique_ptr<const model::NotificationPublisher>;
 
-    public:
-        /// Creates a new adapter around \a pValidator and \a pPublisher.
-        NotificationValidatorAdapter(NotificationValidatorPointer&& pValidator, NotificationPublisherPointer&& pPublisher);
+	public:
+		/// Creates a new adapter around \a pValidator and \a pPublisher.
+		NotificationValidatorAdapter(NotificationValidatorPointer&& pValidator, NotificationPublisherPointer&& pPublisher);
 
-    public:
-        /// Sets a notification type exclusion \a filter.
-        void setExclusionFilter(const predicate<model::NotificationType>& filter);
+	public:
+		/// Sets a notification type exclusion \a filter.
+		void setExclusionFilter(const predicate<model::NotificationType>& filter);
 
-    public:
-        const std::string& name() const override;
+	public:
+		const std::string& name() const override;
 
-        ValidationResult validate(const model::WeakEntityInfo& entityInfo) const override;
+		ValidationResult validate(const model::WeakEntityInfo& entityInfo) const override;
 
-    private:
-        NotificationValidatorPointer m_pValidator;
-        NotificationPublisherPointer m_pPublisher;
-        predicate<model::NotificationType> m_exclusionFilter;
-    };
+	private:
+		NotificationValidatorPointer m_pValidator;
+		NotificationPublisherPointer m_pPublisher;
+		predicate<model::NotificationType> m_exclusionFilter;
+	};
 }
 }

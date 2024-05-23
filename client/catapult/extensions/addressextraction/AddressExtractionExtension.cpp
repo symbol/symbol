@@ -28,28 +28,26 @@
 
 namespace catapult {
 namespace addressextraction {
-    namespace {
-        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
-        {
-            auto pAddressExtractor = std::make_shared<AddressExtractor>(bootstrapper.pluginManager().createNotificationPublisher());
+	namespace {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			auto pAddressExtractor = std::make_shared<AddressExtractor>(bootstrapper.pluginManager().createNotificationPublisher());
 
-            // add a dummy service for extending service lifetimes
-            bootstrapper.extensionManager().addServiceRegistrar(extensions::CreateRootedServiceRegistrar(
-                pAddressExtractor,
-                "addressextraction.extractor",
-                extensions::ServiceRegistrarPhase::Initial));
+			// add a dummy service for extending service lifetimes
+			bootstrapper.extensionManager().addServiceRegistrar(extensions::CreateRootedServiceRegistrar(
+				pAddressExtractor,
+				"addressextraction.extractor",
+				extensions::ServiceRegistrarPhase::Initial));
 
-            // register subscriber
-            auto& subscriptionManager = bootstrapper.subscriptionManager();
-            subscriptionManager.addBlockChangeSubscriber(CreateAddressExtractionBlockChangeSubscriber(*pAddressExtractor));
-            subscriptionManager.addUtChangeSubscriber(CreateAddressExtractionUtChangeSubscriber(*pAddressExtractor));
-            subscriptionManager.addPtChangeSubscriber(CreateAddressExtractionPtChangeSubscriber(*pAddressExtractor));
-        }
-    }
+			// register subscriber
+			auto& subscriptionManager = bootstrapper.subscriptionManager();
+			subscriptionManager.addBlockChangeSubscriber(CreateAddressExtractionBlockChangeSubscriber(*pAddressExtractor));
+			subscriptionManager.addUtChangeSubscriber(CreateAddressExtractionUtChangeSubscriber(*pAddressExtractor));
+			subscriptionManager.addPtChangeSubscriber(CreateAddressExtractionPtChangeSubscriber(*pAddressExtractor));
+		}
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
-{
-    catapult::addressextraction::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+	catapult::addressextraction::RegisterExtension(bootstrapper);
 }

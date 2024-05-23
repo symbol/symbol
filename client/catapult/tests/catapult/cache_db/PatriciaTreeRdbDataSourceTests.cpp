@@ -28,58 +28,52 @@ namespace cache {
 
 #define TEST_CLASS PatriciaTreeRdbDataSourceTests
 
-    namespace {
-        auto DefaultSettings(const std::string& dbName)
-        {
-            // use 0 size to force flush after every write
-            return RocksDatabaseSettings(dbName, { "default" }, FilterPruningMode::Disabled);
-        }
+	namespace {
+		auto DefaultSettings(const std::string& dbName) {
+			// use 0 size to force flush after every write
+			return RocksDatabaseSettings(dbName, { "default" }, FilterPruningMode::Disabled);
+		}
 
-        class RocksDataSourceWrapper {
-        public:
-            RocksDataSourceWrapper()
-                : m_db(DefaultSettings(m_dbDirGuard.name()))
-                , m_container(m_db, 0)
-                , m_dataSource(m_container)
-            {
-                m_container.setSize(0);
-            }
+		class RocksDataSourceWrapper {
+		public:
+			RocksDataSourceWrapper()
+				: m_db(DefaultSettings(m_dbDirGuard.name()))
+				, m_container(m_db, 0)
+				, m_dataSource(m_container) {
+				m_container.setSize(0);
+			}
 
-        public:
-            size_t size()
-            {
-                return m_dataSource.size();
-            }
+		public:
+			size_t size() {
+				return m_dataSource.size();
+			}
 
-            tree::TreeNode get(const Hash256& hash)
-            {
-                return m_dataSource.get(hash);
-            }
+			tree::TreeNode get(const Hash256& hash) {
+				return m_dataSource.get(hash);
+			}
 
-            void set(const tree::BranchTreeNode& node)
-            {
-                m_dataSource.set(node);
-                m_container.setSize(size() + 1);
-            }
+			void set(const tree::BranchTreeNode& node) {
+				m_dataSource.set(node);
+				m_container.setSize(size() + 1);
+			}
 
-            void set(const tree::LeafTreeNode& node)
-            {
-                m_dataSource.set(node);
-                m_container.setSize(size() + 1);
-            }
+			void set(const tree::LeafTreeNode& node) {
+				m_dataSource.set(node);
+				m_container.setSize(size() + 1);
+			}
 
-        private:
-            test::TempDirectoryGuard m_dbDirGuard;
-            RocksDatabase m_db;
-            PatriciaTreeContainer m_container;
-            PatriciaTreeRdbDataSource m_dataSource;
-        };
+		private:
+			test::TempDirectoryGuard m_dbDirGuard;
+			RocksDatabase m_db;
+			PatriciaTreeContainer m_container;
+			PatriciaTreeRdbDataSource m_dataSource;
+		};
 
-        struct RocksDataSourceTraits {
-            using DataSourceType = RocksDataSourceWrapper;
-        };
-    }
+		struct RocksDataSourceTraits {
+			using DataSourceType = RocksDataSourceWrapper;
+		};
+	}
 
-    DEFINE_PATRICIA_TREE_DATA_SOURCE_TESTS(RocksDataSourceTraits)
+	DEFINE_PATRICIA_TREE_DATA_SOURCE_TESTS(RocksDataSourceTraits)
 }
 }

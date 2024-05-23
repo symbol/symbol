@@ -27,76 +27,68 @@
 namespace catapult {
 namespace ionet {
 
-    PacketSocketSslVerifyContext::PacketSocketSslVerifyContext()
-        : m_preverified(false)
-        , m_pVerifyContext(nullptr)
-        , m_pPublicKey(&m_publicKeyBacking)
-    {
-    }
+	PacketSocketSslVerifyContext::PacketSocketSslVerifyContext()
+		: m_preverified(false)
+		, m_pVerifyContext(nullptr)
+		, m_pPublicKey(&m_publicKeyBacking) {
+	}
 
-    PacketSocketSslVerifyContext::PacketSocketSslVerifyContext(
-        bool preverified,
-        boost::asio::ssl::verify_context& verifyContext,
-        Key& publicKey)
-        : m_preverified(preverified)
-        , m_pVerifyContext(&verifyContext)
-        , m_pPublicKey(&publicKey)
-    {
-    }
+	PacketSocketSslVerifyContext::PacketSocketSslVerifyContext(
+		bool preverified,
+		boost::asio::ssl::verify_context& verifyContext,
+		Key& publicKey)
+		: m_preverified(preverified)
+		, m_pVerifyContext(&verifyContext)
+		, m_pPublicKey(&publicKey) {
+	}
 
-    bool PacketSocketSslVerifyContext::preverified() const
-    {
-        return m_preverified;
-    }
+	bool PacketSocketSslVerifyContext::preverified() const {
+		return m_preverified;
+	}
 
-    boost::asio::ssl::verify_context& PacketSocketSslVerifyContext::asioVerifyContext()
-    {
-        return *m_pVerifyContext;
-    }
+	boost::asio::ssl::verify_context& PacketSocketSslVerifyContext::asioVerifyContext() {
+		return *m_pVerifyContext;
+	}
 
-    const Key& PacketSocketSslVerifyContext::publicKey() const
-    {
-        return *m_pPublicKey;
-    }
+	const Key& PacketSocketSslVerifyContext::publicKey() const {
+		return *m_pPublicKey;
+	}
 
-    void PacketSocketSslVerifyContext::setPublicKey(const Key& publicKey)
-    {
-        *m_pPublicKey = publicKey;
-    }
+	void PacketSocketSslVerifyContext::setPublicKey(const Key& publicKey) {
+		*m_pPublicKey = publicKey;
+	}
 
-    supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const std::filesystem::path& certificateDirectory)
-    {
-        auto pSslContext = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13);
-        pSslContext->set_options(
-            boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3 | boost::asio::ssl::context::no_tlsv1
-            | boost::asio::ssl::context::no_tlsv1_1 | boost::asio::ssl::context::no_tlsv1_2 | SSL_OP_CIPHER_SERVER_PREFERENCE);
+	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const std::filesystem::path& certificateDirectory) {
+		auto pSslContext = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13);
+		pSslContext->set_options(
+			boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3 | boost::asio::ssl::context::no_tlsv1
+			| boost::asio::ssl::context::no_tlsv1_1 | boost::asio::ssl::context::no_tlsv1_2 | SSL_OP_CIPHER_SERVER_PREFERENCE);
 
-        if (!SSL_CTX_set_num_tickets(pSslContext->native_handle(), 0))
-            CATAPULT_THROW_RUNTIME_ERROR("failed to set the number of server tickets");
+		if (!SSL_CTX_set_num_tickets(pSslContext->native_handle(), 0))
+			CATAPULT_THROW_RUNTIME_ERROR("failed to set the number of server tickets");
 
-        pSslContext->use_certificate_chain_file((certificateDirectory / "node.full.crt.pem").generic_string());
-        pSslContext->use_private_key_file((certificateDirectory / "node.key.pem").generic_string(), boost::asio::ssl::context::pem);
+		pSslContext->use_certificate_chain_file((certificateDirectory / "node.full.crt.pem").generic_string());
+		pSslContext->use_private_key_file((certificateDirectory / "node.key.pem").generic_string(), boost::asio::ssl::context::pem);
 
-        std::array<int, 1> curves { NID_X25519 };
-        SSL_CTX_set1_groups(pSslContext->native_handle(), curves.data(), static_cast<long>(curves.size()));
+		std::array<int, 1> curves { NID_X25519 };
+		SSL_CTX_set1_groups(pSslContext->native_handle(), curves.data(), static_cast<long>(curves.size()));
 
-        return [pSslContext]() -> boost::asio::ssl::context& { return *pSslContext; };
-    }
+		return [pSslContext]() -> boost::asio::ssl::context& { return *pSslContext; };
+	}
 
-    supplier<predicate<PacketSocketSslVerifyContext&>> CreateSslVerifyCallbackSupplier()
-    {
-        return []() {
-            crypto::CatapultCertificateProcessor processor;
-            return [processor](auto& verifyContext) mutable {
-                if (!processor.verify(verifyContext.preverified(), *verifyContext.asioVerifyContext().native_handle()))
-                    return false;
+	supplier<predicate<PacketSocketSslVerifyContext&>> CreateSslVerifyCallbackSupplier() {
+		return []() {
+			crypto::CatapultCertificateProcessor processor;
+			return [processor](auto& verifyContext) mutable {
+				if (!processor.verify(verifyContext.preverified(), *verifyContext.asioVerifyContext().native_handle()))
+					return false;
 
-                if (processor.size() > 0)
-                    verifyContext.setPublicKey(processor.certificate(0).PublicKey);
+				if (processor.size() > 0)
+					verifyContext.setPublicKey(processor.certificate(0).PublicKey);
 
-                return true;
-            };
-        };
-    }
+				return true;
+			};
+		};
+	}
 }
 }

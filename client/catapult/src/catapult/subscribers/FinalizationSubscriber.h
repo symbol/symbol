@@ -27,14 +27,14 @@
 namespace catapult {
 namespace subscribers {
 
-    /// Finalization subscriber.
-    class PLUGIN_API_DEPENDENCY FinalizationSubscriber {
-    public:
-        virtual ~FinalizationSubscriber() = default;
+	/// Finalization subscriber.
+	class PLUGIN_API_DEPENDENCY FinalizationSubscriber {
+	public:
+		virtual ~FinalizationSubscriber() = default;
 
-    public:
-        /// Indicates a finalized block with \a height and \a hash at finalization \a round.
-        virtual void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) = 0;
-    };
+	public:
+		/// Indicates a finalized block with \a height and \a hash at finalization \a round.
+		virtual void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) = 0;
+	};
 }
 }

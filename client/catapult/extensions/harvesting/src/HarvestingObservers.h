@@ -26,25 +26,25 @@
 namespace catapult {
 namespace harvesting {
 
-    /// Reference counted account identifiers.
-    template <typename TAccountIdentifier>
-    using RefCountedAccountIdentifiers = std::unordered_map<TAccountIdentifier, size_t, utils::ArrayHasher<TAccountIdentifier>>;
+	/// Reference counted account identifiers.
+	template <typename TAccountIdentifier>
+	using RefCountedAccountIdentifiers = std::unordered_map<TAccountIdentifier, size_t, utils::ArrayHasher<TAccountIdentifier>>;
 
-    /// Identifiers of accounts processed by harvesting account observers.
-    struct HarvestingAffectedAccounts {
-        /// Affected addresses.
-        RefCountedAccountIdentifiers<Address> Addresses;
+	/// Identifiers of accounts processed by harvesting account observers.
+	struct HarvestingAffectedAccounts {
+		/// Affected addresses.
+		RefCountedAccountIdentifiers<Address> Addresses;
 
-        /// Affected public keys.
-        RefCountedAccountIdentifiers<Key> PublicKeys;
-    };
+		/// Affected public keys.
+		RefCountedAccountIdentifiers<Key> PublicKeys;
+	};
 
-    /// Observes account address changes and stores active addresses in \a accounts.
-    DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)
-    (HarvestingAffectedAccounts& accounts);
+	/// Observes account address changes and stores active addresses in \a accounts.
+	DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)
+	(HarvestingAffectedAccounts& accounts);
 
-    /// Observes account public key changes and stores active public keys in \a accounts.
-    DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)
-    (HarvestingAffectedAccounts& accounts);
+	/// Observes account public key changes and stores active public keys in \a accounts.
+	DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)
+	(HarvestingAffectedAccounts& accounts);
 }
 }

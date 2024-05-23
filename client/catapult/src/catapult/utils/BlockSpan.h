@@ -26,111 +26,96 @@
 namespace catapult {
 namespace utils {
 
-    /// Represents a block duration.
-    class BlockSpan final {
-    private:
-        constexpr explicit BlockSpan(uint64_t minutes)
-            : m_minutes(minutes)
-        {
-        }
+	/// Represents a block duration.
+	class BlockSpan final {
+	private:
+		constexpr explicit BlockSpan(uint64_t minutes)
+			: m_minutes(minutes) {
+		}
 
-    public:
-        /// Creates a default (zero) block span.
-        constexpr BlockSpan()
-            : BlockSpan(0)
-        {
-        }
+	public:
+		/// Creates a default (zero) block span.
+		constexpr BlockSpan()
+			: BlockSpan(0) {
+		}
 
-    public:
-        /// Creates a block span from the given number of \a minutes.
-        static constexpr BlockSpan FromMinutes(uint64_t minutes)
-        {
-            return BlockSpan(minutes);
-        }
+	public:
+		/// Creates a block span from the given number of \a minutes.
+		static constexpr BlockSpan FromMinutes(uint64_t minutes) {
+			return BlockSpan(minutes);
+		}
 
-        /// Creates a block span from the given number of \a hours.
-        static constexpr BlockSpan FromHours(uint64_t hours)
-        {
-            return FromMinutes(hours * 60);
-        }
+		/// Creates a block span from the given number of \a hours.
+		static constexpr BlockSpan FromHours(uint64_t hours) {
+			return FromMinutes(hours * 60);
+		}
 
-        /// Creates a block span from the given number of \a days.
-        static constexpr BlockSpan FromDays(uint64_t days)
-        {
-            return FromHours(days * 24);
-        }
+		/// Creates a block span from the given number of \a days.
+		static constexpr BlockSpan FromDays(uint64_t days) {
+			return FromHours(days * 24);
+		}
 
-    public:
-        /// Gets the number of minutes.
-        constexpr uint64_t minutes() const
-        {
-            return m_minutes;
-        }
+	public:
+		/// Gets the number of minutes.
+		constexpr uint64_t minutes() const {
+			return m_minutes;
+		}
 
-        /// Gets the number of hours.
-        constexpr uint64_t hours() const
-        {
-            return m_minutes / 60;
-        }
+		/// Gets the number of hours.
+		constexpr uint64_t hours() const {
+			return m_minutes / 60;
+		}
 
-        /// Gets the number of days.
-        constexpr uint64_t days() const
-        {
-            return hours() / 24;
-        }
+		/// Gets the number of days.
+		constexpr uint64_t days() const {
+			return hours() / 24;
+		}
 
-        /// Gets the approximate number of blocks given the generation target time (\a generationTargetTime).
-        BlockDuration blocks(const TimeSpan& generationTargetTime) const
-        {
-            auto millisPerMinute = TimeSpan::FromMinutes(1).millis();
-            if (m_minutes > std::numeric_limits<uint64_t>::max() / millisPerMinute)
-                CATAPULT_THROW_RUNTIME_ERROR_1("overflow while calculating blocks from minutes", m_minutes);
+		/// Gets the approximate number of blocks given the generation target time (\a generationTargetTime).
+		BlockDuration blocks(const TimeSpan& generationTargetTime) const {
+			auto millisPerMinute = TimeSpan::FromMinutes(1).millis();
+			if (m_minutes > std::numeric_limits<uint64_t>::max() / millisPerMinute)
+				CATAPULT_THROW_RUNTIME_ERROR_1("overflow while calculating blocks from minutes", m_minutes);
 
-            return BlockDuration(m_minutes * millisPerMinute / generationTargetTime.millis());
-        }
+			return BlockDuration(m_minutes * millisPerMinute / generationTargetTime.millis());
+		}
 
-    public:
-        /// Returns \c true if this block span is equal to \a rhs.
-        constexpr bool operator==(const BlockSpan& rhs) const
-        {
-            return m_minutes == rhs.m_minutes;
-        }
+	public:
+		/// Returns \c true if this block span is equal to \a rhs.
+		constexpr bool operator==(const BlockSpan& rhs) const {
+			return m_minutes == rhs.m_minutes;
+		}
 
-        /// Returns \c true if this block span is not equal to \a rhs.
-        constexpr bool operator!=(const BlockSpan& rhs) const
-        {
-            return !(*this == rhs);
-        }
+		/// Returns \c true if this block span is not equal to \a rhs.
+		constexpr bool operator!=(const BlockSpan& rhs) const {
+			return !(*this == rhs);
+		}
 
-        /// Returns \c true if this block span is greater than or equal to \a rhs.
-        constexpr bool operator>=(const BlockSpan& rhs) const
-        {
-            return m_minutes >= rhs.m_minutes;
-        }
+		/// Returns \c true if this block span is greater than or equal to \a rhs.
+		constexpr bool operator>=(const BlockSpan& rhs) const {
+			return m_minutes >= rhs.m_minutes;
+		}
 
-        /// Returns \c true if this block span is greater than \a rhs.
-        constexpr bool operator>(const BlockSpan& rhs) const
-        {
-            return m_minutes > rhs.m_minutes;
-        }
+		/// Returns \c true if this block span is greater than \a rhs.
+		constexpr bool operator>(const BlockSpan& rhs) const {
+			return m_minutes > rhs.m_minutes;
+		}
 
-        /// Returns \c true if this block span is less than or equal to \a rhs.
-        constexpr bool operator<=(const BlockSpan& rhs) const
-        {
-            return m_minutes <= rhs.m_minutes;
-        }
+		/// Returns \c true if this block span is less than or equal to \a rhs.
+		constexpr bool operator<=(const BlockSpan& rhs) const {
+			return m_minutes <= rhs.m_minutes;
+		}
 
-        /// Returns \c true if this block span is less than \a rhs.
-        constexpr bool operator<(const BlockSpan& rhs) const
-        {
-            return m_minutes < rhs.m_minutes;
-        }
+		/// Returns \c true if this block span is less than \a rhs.
+		constexpr bool operator<(const BlockSpan& rhs) const {
+			return m_minutes < rhs.m_minutes;
+		}
 
-    private:
-        uint64_t m_minutes;
-    };
+	private:
+		uint64_t m_minutes;
+	};
 
-    /// Insertion operator for outputting \a blockSpan to \a out.
-    std::ostream& operator<<(std::ostream& out, const BlockSpan& blockSpan);
+	/// Insertion operator for outputting \a blockSpan to \a out.
+	std::ostream& operator<<(std::ostream& out, const BlockSpan& blockSpan);
 }
 }

@@ -25,10 +25,10 @@
 namespace catapult {
 namespace test {
 
-    /// Gets the nemesis generation hash seed.
-    GenerationHashSeed GetNemesisGenerationHashSeed();
+	/// Gets the nemesis generation hash seed.
+	GenerationHashSeed GetNemesisGenerationHashSeed();
 
-    /// Gets the nemesis block.
-    const model::Block& GetNemesisBlock();
+	/// Gets the nemesis block.
+	const model::Block& GetNemesisBlock();
 }
 }

@@ -28,41 +28,39 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the block statistic cache view.
-    struct BlockStatisticCacheViewMixins
-        : public BasicCacheMixins<BlockStatisticCacheTypes::PrimaryTypes::BaseSetType, BlockStatisticCacheDescriptor> {
-        using BlockStatisticRange = BlockStatisticRangeMixin<BlockStatisticCacheTypes::PrimaryTypes::BaseSetType>;
-    };
+	/// Mixins used by the block statistic cache view.
+	struct BlockStatisticCacheViewMixins
+		: public BasicCacheMixins<BlockStatisticCacheTypes::PrimaryTypes::BaseSetType, BlockStatisticCacheDescriptor> {
+		using BlockStatisticRange = BlockStatisticRangeMixin<BlockStatisticCacheTypes::PrimaryTypes::BaseSetType>;
+	};
 
-    /// Basic view on top of the block statistic cache.
-    class BasicBlockStatisticCacheView
-        : public utils::MoveOnly,
-          public BlockStatisticCacheViewMixins::Size,
-          public BlockStatisticCacheViewMixins::Contains,
-          public BlockStatisticCacheViewMixins::Iteration,
-          public BlockStatisticCacheViewMixins::BlockStatisticRange {
-    public:
-        using ReadOnlyView = BlockStatisticCacheTypes::CacheReadOnlyType;
+	/// Basic view on top of the block statistic cache.
+	class BasicBlockStatisticCacheView
+		: public utils::MoveOnly,
+		  public BlockStatisticCacheViewMixins::Size,
+		  public BlockStatisticCacheViewMixins::Contains,
+		  public BlockStatisticCacheViewMixins::Iteration,
+		  public BlockStatisticCacheViewMixins::BlockStatisticRange {
+	public:
+		using ReadOnlyView = BlockStatisticCacheTypes::CacheReadOnlyType;
 
-    public:
-        /// Creates a view around \a statisticSets and \a options.
-        BasicBlockStatisticCacheView(const BlockStatisticCacheTypes::BaseSets& statisticSets, const BlockStatisticCacheTypes::Options&)
-            : BlockStatisticCacheViewMixins::Size(statisticSets.Primary)
-            , BlockStatisticCacheViewMixins::Contains(statisticSets.Primary)
-            , BlockStatisticCacheViewMixins::Iteration(statisticSets.Primary)
-            , BlockStatisticCacheViewMixins::BlockStatisticRange(statisticSets.Primary)
-        {
-        }
-    };
+	public:
+		/// Creates a view around \a statisticSets and \a options.
+		BasicBlockStatisticCacheView(const BlockStatisticCacheTypes::BaseSets& statisticSets, const BlockStatisticCacheTypes::Options&)
+			: BlockStatisticCacheViewMixins::Size(statisticSets.Primary)
+			, BlockStatisticCacheViewMixins::Contains(statisticSets.Primary)
+			, BlockStatisticCacheViewMixins::Iteration(statisticSets.Primary)
+			, BlockStatisticCacheViewMixins::BlockStatisticRange(statisticSets.Primary) {
+		}
+	};
 
-    /// View on top of the block statistic cache.
-    class BlockStatisticCacheView : public ReadOnlyViewSupplier<BasicBlockStatisticCacheView> {
-    public:
-        /// Creates a view around \a statisticSets and \a options.
-        BlockStatisticCacheView(const BlockStatisticCacheTypes::BaseSets& statisticSets, const BlockStatisticCacheTypes::Options& options)
-            : ReadOnlyViewSupplier(statisticSets, options)
-        {
-        }
-    };
+	/// View on top of the block statistic cache.
+	class BlockStatisticCacheView : public ReadOnlyViewSupplier<BasicBlockStatisticCacheView> {
+	public:
+		/// Creates a view around \a statisticSets and \a options.
+		BlockStatisticCacheView(const BlockStatisticCacheTypes::BaseSets& statisticSets, const BlockStatisticCacheTypes::Options& options)
+			: ReadOnlyViewSupplier(statisticSets, options) {
+		}
+	};
 }
 }

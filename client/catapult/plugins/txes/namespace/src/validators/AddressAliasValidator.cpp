@@ -26,13 +26,13 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::AliasedAddressNotification;
+	using Notification = model::AliasedAddressNotification;
 
-    DEFINE_STATEFUL_VALIDATOR(AddressAlias, [](const Notification& notification, const ValidatorContext& context) {
-        const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-        auto accountStateIter = accountStateCache.find(notification.AliasedData);
+	DEFINE_STATEFUL_VALIDATOR(AddressAlias, [](const Notification& notification, const ValidatorContext& context) {
+		const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+		auto accountStateIter = accountStateCache.find(notification.AliasedData);
 
-        return accountStateIter.tryGet() ? ValidationResult::Success : Failure_Namespace_Alias_Invalid_Address;
-    })
+		return accountStateIter.tryGet() ? ValidationResult::Success : Failure_Namespace_Alias_Invalid_Address;
+	})
 }
 }

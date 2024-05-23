@@ -26,17 +26,15 @@
 namespace catapult {
 namespace config {
 
-    TransferConfiguration TransferConfiguration::Uninitialized()
-    {
-        return TransferConfiguration();
-    }
+	TransferConfiguration TransferConfiguration::Uninitialized() {
+		return TransferConfiguration();
+	}
 
-    TransferConfiguration TransferConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        TransferConfiguration config;
-        utils::LoadIniProperty(bag, "", "MaxMessageSize", config.MaxMessageSize);
-        utils::VerifyBagSizeExact(bag, 1);
-        return config;
-    }
+	TransferConfiguration TransferConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		TransferConfiguration config;
+		utils::LoadIniProperty(bag, "", "MaxMessageSize", config.MaxMessageSize);
+		utils::VerifyBagSizeExact(bag, 1);
+		return config;
+	}
 }
 }

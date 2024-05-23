@@ -27,9 +27,9 @@
 namespace catapult {
 namespace model {
 
-    /// Creates a finalization proof from \a statistics and \a messages.
-    std::unique_ptr<FinalizationProof> CreateFinalizationProof(
-        const FinalizationStatistics& statistics,
-        const std::vector<std::shared_ptr<const FinalizationMessage>>& messages);
+	/// Creates a finalization proof from \a statistics and \a messages.
+	std::unique_ptr<FinalizationProof> CreateFinalizationProof(
+		const FinalizationStatistics& statistics,
+		const std::vector<std::shared_ptr<const FinalizationMessage>>& messages);
 }
 }

@@ -24,45 +24,37 @@
 namespace catapult {
 namespace mongo {
 
-    MongoPluginManager::MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier)
-        : m_mongoContext(mongoContext)
-        , m_networkIdentifier(networkIdentifier)
-    {
-    }
+	MongoPluginManager::MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier)
+		: m_mongoContext(mongoContext)
+		, m_networkIdentifier(networkIdentifier) {
+	}
 
-    MongoStorageContext& MongoPluginManager::mongoContext() const
-    {
-        return m_mongoContext;
-    }
+	MongoStorageContext& MongoPluginManager::mongoContext() const {
+		return m_mongoContext;
+	}
 
-    model::NetworkIdentifier MongoPluginManager::networkIdentifier() const
-    {
-        return m_networkIdentifier;
-    }
+	model::NetworkIdentifier MongoPluginManager::networkIdentifier() const {
+		return m_networkIdentifier;
+	}
 
-    void MongoPluginManager::addTransactionSupport(std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin)
-    {
-        m_transactionRegistry.registerPlugin(std::move(pTransactionPlugin));
-    }
+	void MongoPluginManager::addTransactionSupport(std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin) {
+		m_transactionRegistry.registerPlugin(std::move(pTransactionPlugin));
+	}
 
-    void MongoPluginManager::addReceiptSupport(std::unique_ptr<MongoReceiptPlugin>&& pReceiptPlugin)
-    {
-        m_receiptRegistry.registerPlugin(std::move(pReceiptPlugin));
-    }
+	void MongoPluginManager::addReceiptSupport(std::unique_ptr<MongoReceiptPlugin>&& pReceiptPlugin) {
+		m_receiptRegistry.registerPlugin(std::move(pReceiptPlugin));
+	}
 
-    const MongoTransactionRegistry& MongoPluginManager::transactionRegistry() const
-    {
-        return m_transactionRegistry;
-    }
+	const MongoTransactionRegistry& MongoPluginManager::transactionRegistry() const {
+		return m_transactionRegistry;
+	}
 
-    const MongoReceiptRegistry& MongoPluginManager::receiptRegistry() const
-    {
-        return m_receiptRegistry;
-    }
+	const MongoReceiptRegistry& MongoPluginManager::receiptRegistry() const {
+		return m_receiptRegistry;
+	}
 
-    std::unique_ptr<ExternalCacheStorage> MongoPluginManager::createStorage()
-    {
-        return m_storageBuilder.build();
-    }
+	std::unique_ptr<ExternalCacheStorage> MongoPluginManager::createStorage() {
+		return m_storageBuilder.build();
+	}
 }
 }

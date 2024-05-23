@@ -24,92 +24,85 @@
 
 namespace catapult {
 namespace tools {
-    namespace addressgen {
+	namespace addressgen {
 
-        namespace {
-            void PopFront(std::string& str)
-            {
-                str = str.substr(1);
-            }
-        }
+		namespace {
+			void PopFront(std::string& str) {
+				str = str.substr(1);
+			}
+		}
 
-        MultiAddressMatcher::MultiAddressMatcher(model::NetworkIdentifier networkIdentifier)
-            : m_networkIdentifier(networkIdentifier)
-        {
-        }
+		MultiAddressMatcher::MultiAddressMatcher(model::NetworkIdentifier networkIdentifier)
+			: m_networkIdentifier(networkIdentifier) {
+		}
 
-        bool MultiAddressMatcher::isComplete() const
-        {
-            return std::all_of(m_descriptors.cbegin(), m_descriptors.cend(), [](const auto& descriptor) { return descriptor.IsComplete(); });
-        }
+		bool MultiAddressMatcher::isComplete() const {
+			return std::all_of(m_descriptors.cbegin(), m_descriptors.cend(), [](const auto& descriptor) { return descriptor.IsComplete(); });
+		}
 
-        void MultiAddressMatcher::addSearchPattern(const std::string& pattern)
-        {
-            SearchDescriptor descriptor;
-            descriptor.SearchString = pattern;
+		void MultiAddressMatcher::addSearchPattern(const std::string& pattern) {
+			SearchDescriptor descriptor;
+			descriptor.SearchString = pattern;
 
-            if ('^' == pattern[0]) {
-                descriptor.MatchStart = true;
-                PopFront(descriptor.SearchString);
-            } else if ('$' == pattern.back()) {
-                descriptor.MatchEnd = true;
-                descriptor.SearchString.pop_back();
-            }
+			if ('^' == pattern[0]) {
+				descriptor.MatchStart = true;
+				PopFront(descriptor.SearchString);
+			} else if ('$' == pattern.back()) {
+				descriptor.MatchEnd = true;
+				descriptor.SearchString.pop_back();
+			}
 
-            m_descriptors.push_back(std::move(descriptor));
-        }
+			m_descriptors.push_back(std::move(descriptor));
+		}
 
-        std::pair<const crypto::KeyPair*, bool> MultiAddressMatcher::accept(crypto::KeyPair&& candidateKeyPair)
-        {
-            auto candidateDescriptor = CandidateDescriptor(m_networkIdentifier, std::move(candidateKeyPair));
-            const auto& addressString = candidateDescriptor.AddressString;
+		std::pair<const crypto::KeyPair*, bool> MultiAddressMatcher::accept(crypto::KeyPair&& candidateKeyPair) {
+			auto candidateDescriptor = CandidateDescriptor(m_networkIdentifier, std::move(candidateKeyPair));
+			const auto& addressString = candidateDescriptor.AddressString;
 
-            const crypto::KeyPair* pBetterKeyPair = nullptr;
-            for (auto& descriptor : m_descriptors) {
-                auto searchString = descriptor.SearchString;
-                while (!searchString.empty() && (searchString.size() > descriptor.BestMatchSize || !descriptor.pBestKeyPair)) {
-                    auto matchIndex = addressString.find(searchString);
-                    auto isMatch = std::string::npos != matchIndex;
-                    if (descriptor.MatchStart)
-                        isMatch = 0 == matchIndex;
-                    else if (descriptor.MatchEnd)
-                        isMatch = matchIndex + searchString.size() == addressString.size();
+			const crypto::KeyPair* pBetterKeyPair = nullptr;
+			for (auto& descriptor : m_descriptors) {
+				auto searchString = descriptor.SearchString;
+				while (!searchString.empty() && (searchString.size() > descriptor.BestMatchSize || !descriptor.pBestKeyPair)) {
+					auto matchIndex = addressString.find(searchString);
+					auto isMatch = std::string::npos != matchIndex;
+					if (descriptor.MatchStart)
+						isMatch = 0 == matchIndex;
+					else if (descriptor.MatchEnd)
+						isMatch = matchIndex + searchString.size() == addressString.size();
 
-                    if (isMatch) {
-                        if (!searchString.empty()) {
-                            CATAPULT_LOG(info) << "searching for '" << descriptor.SearchString << "' found " << addressString << " ("
-                                               << searchString.size() << "/" << descriptor.SearchString.size() << ")";
-                        }
+					if (isMatch) {
+						if (!searchString.empty()) {
+							CATAPULT_LOG(info) << "searching for '" << descriptor.SearchString << "' found " << addressString << " ("
+											   << searchString.size() << "/" << descriptor.SearchString.size() << ")";
+						}
 
-                        descriptor.BestMatchSize = searchString.size();
-                        descriptor.pBestKeyPair = std::make_unique<crypto::KeyPair>(std::move(candidateDescriptor.KeyPair));
+						descriptor.BestMatchSize = searchString.size();
+						descriptor.pBestKeyPair = std::make_unique<crypto::KeyPair>(std::move(candidateDescriptor.KeyPair));
 
-                        if (descriptor.IsComplete())
-                            return std::make_pair(descriptor.pBestKeyPair.get(), true);
+						if (descriptor.IsComplete())
+							return std::make_pair(descriptor.pBestKeyPair.get(), true);
 
-                        pBetterKeyPair = descriptor.pBestKeyPair.get();
-                    }
+						pBetterKeyPair = descriptor.pBestKeyPair.get();
+					}
 
-                    if (descriptor.MatchEnd)
-                        PopFront(searchString);
-                    else
-                        searchString.pop_back();
-                }
-            }
+					if (descriptor.MatchEnd)
+						PopFront(searchString);
+					else
+						searchString.pop_back();
+				}
+			}
 
-            return std::make_pair(pBetterKeyPair, false);
-        }
+			return std::make_pair(pBetterKeyPair, false);
+		}
 
-        MultiAddressMatcher::CandidateDescriptor::CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::KeyPair&& keyPair)
-            : KeyPair(std::move(keyPair))
-            , AddressString(model::AddressToString(model::PublicKeyToAddress(KeyPair.publicKey(), networkIdentifier)))
-        {
-        }
+		MultiAddressMatcher::CandidateDescriptor::CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::KeyPair&& keyPair)
+			: KeyPair(std::move(keyPair))
+			, AddressString(model::AddressToString(model::PublicKeyToAddress(KeyPair.publicKey(), networkIdentifier))) {
+		}
 
-        bool MultiAddressMatcher::SearchDescriptor::IsComplete() const
-        {
-            return SearchString.size() == BestMatchSize && !!pBestKeyPair;
-        }
-    }
+		bool MultiAddressMatcher::SearchDescriptor::IsComplete() const {
+			return SearchString.size() == BestMatchSize && !!pBestKeyPair;
+		}
+	}
 }
 }

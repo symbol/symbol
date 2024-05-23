@@ -27,55 +27,52 @@
 namespace catapult {
 namespace cache {
 
-    /// Possible patricia tree storage modes.
-    enum class PatriciaTreeStorageMode {
-        /// Patricia tree storage should be disabled.
-        Disabled,
+	/// Possible patricia tree storage modes.
+	enum class PatriciaTreeStorageMode {
+		/// Patricia tree storage should be disabled.
+		Disabled,
 
-        /// Patricia tree storage should be enabled.
-        Enabled
-    };
+		/// Patricia tree storage should be enabled.
+		Enabled
+	};
 
-    /// Cache configuration.
-    struct CacheConfiguration {
-    public:
-        /// Creates a default cache configuration.
-        CacheConfiguration()
-            : ShouldUseCacheDatabase(false)
-            , ShouldStorePatriciaTrees(false)
-        {
-        }
+	/// Cache configuration.
+	struct CacheConfiguration {
+	public:
+		/// Creates a default cache configuration.
+		CacheConfiguration()
+			: ShouldUseCacheDatabase(false)
+			, ShouldStorePatriciaTrees(false) {
+		}
 
-        /// Creates a cache configuration around \a databaseDirectory and specified patricia tree storage \a mode.
-        CacheConfiguration(const std::string& databaseDirectory, PatriciaTreeStorageMode mode)
-            : CacheConfiguration(databaseDirectory, config::NodeConfiguration::CacheDatabaseSubConfiguration(), mode)
-        {
-        }
+		/// Creates a cache configuration around \a databaseDirectory and specified patricia tree storage \a mode.
+		CacheConfiguration(const std::string& databaseDirectory, PatriciaTreeStorageMode mode)
+			: CacheConfiguration(databaseDirectory, config::NodeConfiguration::CacheDatabaseSubConfiguration(), mode) {
+		}
 
-        /// Creates a cache configuration around \a databaseDirectory, \a databaseConfig and specified patricia tree storage \a mode.
-        CacheConfiguration(
-            const std::string& databaseDirectory,
-            const config::NodeConfiguration::CacheDatabaseSubConfiguration& databaseConfig,
-            PatriciaTreeStorageMode mode)
-            : ShouldUseCacheDatabase(true)
-            , CacheDatabaseDirectory(databaseDirectory)
-            , CacheDatabaseConfig(databaseConfig)
-            , ShouldStorePatriciaTrees(PatriciaTreeStorageMode::Enabled == mode)
-        {
-        }
+		/// Creates a cache configuration around \a databaseDirectory, \a databaseConfig and specified patricia tree storage \a mode.
+		CacheConfiguration(
+			const std::string& databaseDirectory,
+			const config::NodeConfiguration::CacheDatabaseSubConfiguration& databaseConfig,
+			PatriciaTreeStorageMode mode)
+			: ShouldUseCacheDatabase(true)
+			, CacheDatabaseDirectory(databaseDirectory)
+			, CacheDatabaseConfig(databaseConfig)
+			, ShouldStorePatriciaTrees(PatriciaTreeStorageMode::Enabled == mode) {
+		}
 
-    public:
-        /// \c true if a cache database should be used, \c false otherwise.
-        bool ShouldUseCacheDatabase;
+	public:
+		/// \c true if a cache database should be used, \c false otherwise.
+		bool ShouldUseCacheDatabase;
 
-        /// Base directory to use for storing cache database.
-        std::string CacheDatabaseDirectory;
+		/// Base directory to use for storing cache database.
+		std::string CacheDatabaseDirectory;
 
-        /// Cache database configuration.
-        config::NodeConfiguration::CacheDatabaseSubConfiguration CacheDatabaseConfig;
+		/// Cache database configuration.
+		config::NodeConfiguration::CacheDatabaseSubConfiguration CacheDatabaseConfig;
 
-        /// \c true if patricia trees should be stored, \c false otherwise.
-        bool ShouldStorePatriciaTrees;
-    };
+		/// \c true if patricia trees should be stored, \c false otherwise.
+		bool ShouldStorePatriciaTrees;
+	};
 }
 }

@@ -28,99 +28,89 @@ namespace observers {
 
 #define TEST_CLASS SourceChangeObserverTests
 
-    DEFINE_COMMON_OBSERVER_TESTS(SourceChange, )
+	DEFINE_COMMON_OBSERVER_TESTS(SourceChange, )
 
-    // region rollback
+	// region rollback
 
-    namespace {
-        using SourceChangeType = model::SourceChangeNotification::SourceChangeType;
+	namespace {
+		using SourceChangeType = model::SourceChangeNotification::SourceChangeType;
 
-        void AssertRollbackDoesNotChangeObserverSource(SourceChangeType primaryChangeType, SourceChangeType secondaryChangeType)
-        {
-            // Arrange:
-            auto pObserver = CreateSourceChangeObserver();
-            auto notification = model::SourceChangeNotification(primaryChangeType, 10, secondaryChangeType, 5);
+		void AssertRollbackDoesNotChangeObserverSource(SourceChangeType primaryChangeType, SourceChangeType secondaryChangeType) {
+			// Arrange:
+			auto pObserver = CreateSourceChangeObserver();
+			auto notification = model::SourceChangeNotification(primaryChangeType, 10, secondaryChangeType, 5);
 
-            test::ObserverTestContext context(NotifyMode::Rollback);
-            context.statementBuilder().setSource({ 15, 22 });
+			test::ObserverTestContext context(NotifyMode::Rollback);
+			context.statementBuilder().setSource({ 15, 22 });
 
-            // Act:
-            test::ObserveNotification(*pObserver, notification, context);
+			// Act:
+			test::ObserveNotification(*pObserver, notification, context);
 
-            // Assert:
-            const auto& source = context.statementBuilder().source();
-            EXPECT_EQ(15u, source.PrimaryId);
-            EXPECT_EQ(22u, source.SecondaryId);
-        }
-    }
+			// Assert:
+			const auto& source = context.statementBuilder().source();
+			EXPECT_EQ(15u, source.PrimaryId);
+			EXPECT_EQ(22u, source.SecondaryId);
+		}
+	}
 
-    TEST(TEST_CLASS, RollbackRelativeRelativeDoesNotChangeObserverSource)
-    {
-        AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Relative, SourceChangeType::Relative);
-    }
+	TEST(TEST_CLASS, RollbackRelativeRelativeDoesNotChangeObserverSource) {
+		AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Relative, SourceChangeType::Relative);
+	}
 
-    TEST(TEST_CLASS, RollbackAbsoluteRelativeDoesNotChangeObserverSource)
-    {
-        AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Absolute, SourceChangeType::Relative);
-    }
+	TEST(TEST_CLASS, RollbackAbsoluteRelativeDoesNotChangeObserverSource) {
+		AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Absolute, SourceChangeType::Relative);
+	}
 
-    TEST(TEST_CLASS, RollbackRelativeAbsoluteDoesNotChangeObserverSource)
-    {
-        AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Relative, SourceChangeType::Absolute);
-    }
+	TEST(TEST_CLASS, RollbackRelativeAbsoluteDoesNotChangeObserverSource) {
+		AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Relative, SourceChangeType::Absolute);
+	}
 
-    TEST(TEST_CLASS, RollbackAbsoluteAbsoluteDoesNotChangeObserverSource)
-    {
-        AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Absolute, SourceChangeType::Absolute);
-    }
+	TEST(TEST_CLASS, RollbackAbsoluteAbsoluteDoesNotChangeObserverSource) {
+		AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Absolute, SourceChangeType::Absolute);
+	}
 
-    // endregion
+	// endregion
 
-    // region commit
+	// region commit
 
-    namespace {
-        void AssertCommitChangesObserverSource(
-            SourceChangeType primaryChangeType,
-            SourceChangeType secondaryChangeType,
-            const model::ReceiptSource& expectedSource)
-        {
-            // Arrange:
-            auto pObserver = CreateSourceChangeObserver();
-            auto notification = model::SourceChangeNotification(primaryChangeType, 10, secondaryChangeType, 5);
+	namespace {
+		void AssertCommitChangesObserverSource(
+			SourceChangeType primaryChangeType,
+			SourceChangeType secondaryChangeType,
+			const model::ReceiptSource& expectedSource) {
+			// Arrange:
+			auto pObserver = CreateSourceChangeObserver();
+			auto notification = model::SourceChangeNotification(primaryChangeType, 10, secondaryChangeType, 5);
 
-            test::ObserverTestContext context(NotifyMode::Commit);
-            context.statementBuilder().setSource({ 15, 22 });
+			test::ObserverTestContext context(NotifyMode::Commit);
+			context.statementBuilder().setSource({ 15, 22 });
 
-            // Act:
-            test::ObserveNotification(*pObserver, notification, context);
+			// Act:
+			test::ObserveNotification(*pObserver, notification, context);
 
-            // Assert:
-            const auto& source = context.statementBuilder().source();
-            EXPECT_EQ(expectedSource.PrimaryId, source.PrimaryId);
-            EXPECT_EQ(expectedSource.SecondaryId, source.SecondaryId);
-        }
-    }
+			// Assert:
+			const auto& source = context.statementBuilder().source();
+			EXPECT_EQ(expectedSource.PrimaryId, source.PrimaryId);
+			EXPECT_EQ(expectedSource.SecondaryId, source.SecondaryId);
+		}
+	}
 
-    TEST(TEST_CLASS, CommitRelativeRelativeChangesObserverSource)
-    {
-        AssertCommitChangesObserverSource(SourceChangeType::Relative, SourceChangeType::Relative, { 15 + 10, 22 + 5 });
-    }
+	TEST(TEST_CLASS, CommitRelativeRelativeChangesObserverSource) {
+		AssertCommitChangesObserverSource(SourceChangeType::Relative, SourceChangeType::Relative, { 15 + 10, 22 + 5 });
+	}
 
-    TEST(TEST_CLASS, CommitAbsoluteRelativeChangesObserverSource)
-    {
-        AssertCommitChangesObserverSource(SourceChangeType::Absolute, SourceChangeType::Relative, { 10, 22 + 5 });
-    }
+	TEST(TEST_CLASS, CommitAbsoluteRelativeChangesObserverSource) {
+		AssertCommitChangesObserverSource(SourceChangeType::Absolute, SourceChangeType::Relative, { 10, 22 + 5 });
+	}
 
-    TEST(TEST_CLASS, CommitRelativeAbsoluteChangesObserverSource)
-    {
-        AssertCommitChangesObserverSource(SourceChangeType::Relative, SourceChangeType::Absolute, { 15 + 10, 5 });
-    }
+	TEST(TEST_CLASS, CommitRelativeAbsoluteChangesObserverSource) {
+		AssertCommitChangesObserverSource(SourceChangeType::Relative, SourceChangeType::Absolute, { 15 + 10, 5 });
+	}
 
-    TEST(TEST_CLASS, CommitAbsoluteAbsoluteChangesObserverSource)
-    {
-        AssertCommitChangesObserverSource(SourceChangeType::Absolute, SourceChangeType::Absolute, { 10, 5 });
-    }
+	TEST(TEST_CLASS, CommitAbsoluteAbsoluteChangesObserverSource) {
+		AssertCommitChangesObserverSource(SourceChangeType::Absolute, SourceChangeType::Absolute, { 10, 5 });
+	}
 
-    // endregion
+	// endregion
 }
 }

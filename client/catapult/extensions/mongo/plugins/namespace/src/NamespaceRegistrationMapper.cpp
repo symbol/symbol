@@ -28,27 +28,26 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            template <typename TTransaction>
-            void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction)
-            {
-                if (0 == transaction.NameSize)
-                    CATAPULT_THROW_RUNTIME_ERROR("cannot map namespace registration transaction without name");
+		namespace {
+			template <typename TTransaction>
+			void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
+				if (0 == transaction.NameSize)
+					CATAPULT_THROW_RUNTIME_ERROR("cannot map namespace registration transaction without name");
 
-                builder << "registrationType" << utils::to_underlying_type(transaction.RegistrationType);
+				builder << "registrationType" << utils::to_underlying_type(transaction.RegistrationType);
 
-                if (transaction.IsRootRegistration())
-                    builder << "duration" << ToInt64(transaction.Duration);
-                else
-                    builder << "parentId" << ToInt64(transaction.ParentId);
+				if (transaction.IsRootRegistration())
+					builder << "duration" << ToInt64(transaction.Duration);
+				else
+					builder << "parentId" << ToInt64(transaction.ParentId);
 
-                builder << "id" << ToInt64(transaction.Id) << "name" << ToBinary(transaction.NamePtr(), transaction.NameSize);
-            }
-        }
+				builder << "id" << ToInt64(transaction.Id) << "name" << ToBinary(transaction.NamePtr(), transaction.NameSize);
+			}
+		}
 
-        DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(NamespaceRegistration, StreamTransaction)
-    }
+		DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(NamespaceRegistration, StreamTransaction)
+	}
 }
 }

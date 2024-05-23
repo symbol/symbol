@@ -24,15 +24,15 @@
 
 namespace catapult {
 namespace io {
-    class BlockStorage;
-    class PrunableBlockStorage;
+	class BlockStorage;
+	class PrunableBlockStorage;
 }
 }
 
 namespace catapult {
 namespace io {
 
-    /// Moves block files starting at \a startHeight from \a sourceStorage to \a destinationStorage.
-    void MoveBlockFiles(PrunableBlockStorage& sourceStorage, BlockStorage& destinationStorage, Height startHeight);
+	/// Moves block files starting at \a startHeight from \a sourceStorage to \a destinationStorage.
+	void MoveBlockFiles(PrunableBlockStorage& sourceStorage, BlockStorage& destinationStorage, Height startHeight);
 }
 }

@@ -27,130 +27,122 @@
 namespace catapult {
 namespace disruptor {
 
-    /// Position within disruptor components.
-    using PositionType = uint64_t;
+	/// Position within disruptor components.
+	using PositionType = uint64_t;
 
-    /// Id of a disruptor element.
-    using DisruptorElementId = uint64_t;
+	/// Id of a disruptor element.
+	using DisruptorElementId = uint64_t;
 
-    /// Optional code that can provide additional consumer completion information.
-    using CompletionCode = uint32_t;
+	/// Optional code that can provide additional consumer completion information.
+	using CompletionCode = uint32_t;
 
-    /// Completion status.
-    enum class CompletionStatus : uint8_t {
-        /// Processing of the entity was aborted by a consumer.
-        Aborted,
+	/// Completion status.
+	enum class CompletionStatus : uint8_t {
+		/// Processing of the entity was aborted by a consumer.
+		Aborted,
 
-        /// Processing of the entity is ongoing.
-        Normal,
+		/// Processing of the entity is ongoing.
+		Normal,
 
-        /// Processing of the entity was completed and the entity was consumed.
-        Consumed
-    };
+		/// Processing of the entity was completed and the entity was consumed.
+		Consumed
+	};
 
-    /// Consumer result severity.
-    /// \note Non-success results mean that processing was aborted.
-    enum class ConsumerResultSeverity : uint8_t {
-        /// Neutral result.
-        Neutral,
+	/// Consumer result severity.
+	/// \note Non-success results mean that processing was aborted.
+	enum class ConsumerResultSeverity : uint8_t {
+		/// Neutral result.
+		Neutral,
 
-        /// Success result.
-        Success,
+		/// Success result.
+		Success,
 
-        /// Failure result.
-        Failure,
+		/// Failure result.
+		Failure,
 
-        /// Fatal result.
-        Fatal
-    };
+		/// Fatal result.
+		Fatal
+	};
 
-    /// Result of a consumer operation.
-    struct ConsumerResult {
-    public:
-        /// Creates a default result.
-        constexpr ConsumerResult()
-            : ConsumerResult(disruptor::CompletionStatus::Normal, 0, ConsumerResultSeverity::Success)
-        {
-        }
+	/// Result of a consumer operation.
+	struct ConsumerResult {
+	public:
+		/// Creates a default result.
+		constexpr ConsumerResult()
+			: ConsumerResult(disruptor::CompletionStatus::Normal, 0, ConsumerResultSeverity::Success) {
+		}
 
-    private:
-        constexpr ConsumerResult(disruptor::CompletionStatus status, disruptor::CompletionCode code, ConsumerResultSeverity severity)
-            : CompletionStatus(status)
-            , CompletionCode(code)
-            , ResultSeverity(severity)
-        {
-        }
+	private:
+		constexpr ConsumerResult(disruptor::CompletionStatus status, disruptor::CompletionCode code, ConsumerResultSeverity severity)
+			: CompletionStatus(status)
+			, CompletionCode(code)
+			, ResultSeverity(severity) {
+		}
 
-    public:
-        /// Completion status.
-        disruptor::CompletionStatus CompletionStatus;
+	public:
+		/// Completion status.
+		disruptor::CompletionStatus CompletionStatus;
 
-        /// Optional code that can provide additional consumer completion information.
-        disruptor::CompletionCode CompletionCode;
+		/// Optional code that can provide additional consumer completion information.
+		disruptor::CompletionCode CompletionCode;
 
-        /// Consumer result severity.
-        ConsumerResultSeverity ResultSeverity;
+		/// Consumer result severity.
+		ConsumerResultSeverity ResultSeverity;
 
-    public:
-        /// Creates a consumer result indicating that processing should be aborted.
-        static constexpr ConsumerResult Abort()
-        {
-            return Abort(0, ConsumerResultSeverity::Failure);
-        }
+	public:
+		/// Creates a consumer result indicating that processing should be aborted.
+		static constexpr ConsumerResult Abort() {
+			return Abort(0, ConsumerResultSeverity::Failure);
+		}
 
-        /// Creates a consumer result indicating that processing should be aborted with the specified \a code and \a severity.
-        static constexpr ConsumerResult Abort(disruptor::CompletionCode code, ConsumerResultSeverity severity)
-        {
-            return ConsumerResult(CompletionStatus::Aborted, code, severity);
-        }
+		/// Creates a consumer result indicating that processing should be aborted with the specified \a code and \a severity.
+		static constexpr ConsumerResult Abort(disruptor::CompletionCode code, ConsumerResultSeverity severity) {
+			return ConsumerResult(CompletionStatus::Aborted, code, severity);
+		}
 
-        /// Creates a consumer result indicating that processing should continue.
-        static constexpr ConsumerResult Continue()
-        {
-            return {};
-        }
+		/// Creates a consumer result indicating that processing should continue.
+		static constexpr ConsumerResult Continue() {
+			return {};
+		}
 
-        /// Creates a consumer result indicating that processing has completed with the specified \a code and \a severity.
-        static constexpr ConsumerResult Complete(disruptor::CompletionCode code, ConsumerResultSeverity severity)
-        {
-            return ConsumerResult(CompletionStatus::Consumed, code, severity);
-        }
-    };
+		/// Creates a consumer result indicating that processing has completed with the specified \a code and \a severity.
+		static constexpr ConsumerResult Complete(disruptor::CompletionCode code, ConsumerResultSeverity severity) {
+			return ConsumerResult(CompletionStatus::Consumed, code, severity);
+		}
+	};
 
-    /// Extended consumer result passed to completion callback.
-    struct ConsumerCompletionResult : public ConsumerResult {
-    public:
-        /// Creates a default result.
-        constexpr ConsumerCompletionResult()
-            : FinalConsumerPosition(std::numeric_limits<PositionType>::max())
-        {
-        }
+	/// Extended consumer result passed to completion callback.
+	struct ConsumerCompletionResult : public ConsumerResult {
+	public:
+		/// Creates a default result.
+		constexpr ConsumerCompletionResult()
+			: FinalConsumerPosition(std::numeric_limits<PositionType>::max()) {
+		}
 
-    public:
-        /// Position of the final consumer processing the entity.
-        PositionType FinalConsumerPosition;
-    };
+	public:
+		/// Position of the final consumer processing the entity.
+		PositionType FinalConsumerPosition;
+	};
 
-    /// Function signature for signaling that processing finished.
-    using ProcessingCompleteFunc = consumer<DisruptorElementId, const ConsumerCompletionResult&>;
+	/// Function signature for signaling that processing finished.
+	using ProcessingCompleteFunc = consumer<DisruptorElementId, const ConsumerCompletionResult&>;
 
-    /// Processing element for a transaction unassociated with a block composed of a transaction and metadata.
-    struct FreeTransactionElement : public model::TransactionElement {
-        /// Creates a transaction element around \a transaction.
-        explicit FreeTransactionElement(const model::Transaction& transaction)
-            : model::TransactionElement(transaction)
-            , ResultSeverity(ConsumerResultSeverity::Success)
-        {
-        }
+	/// Processing element for a transaction unassociated with a block composed of a transaction and metadata.
+	struct FreeTransactionElement : public model::TransactionElement {
+		/// Creates a transaction element around \a transaction.
+		explicit FreeTransactionElement(const model::Transaction& transaction)
+			: model::TransactionElement(transaction)
+			, ResultSeverity(ConsumerResultSeverity::Success) {
+		}
 
-        /// Consumer result severity.
-        ConsumerResultSeverity ResultSeverity;
-    };
+		/// Consumer result severity.
+		ConsumerResultSeverity ResultSeverity;
+	};
 
-    /// Container of BlockElement.
-    using BlockElements = std::vector<model::BlockElement>;
+	/// Container of BlockElement.
+	using BlockElements = std::vector<model::BlockElement>;
 
-    /// Container of FreeTransactionElement.
-    using TransactionElements = std::vector<FreeTransactionElement>;
+	/// Container of FreeTransactionElement.
+	using TransactionElements = std::vector<FreeTransactionElement>;
 }
 }

@@ -25,10 +25,10 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Maps \a history to the corresponding db model value.
-        bsoncxx::document::value ToDbModel(const state::HashLockInfoHistory& history);
-    }
+		/// Maps \a history to the corresponding db model value.
+		bsoncxx::document::value ToDbModel(const state::HashLockInfoHistory& history);
+	}
 }
 }

@@ -26,73 +26,66 @@
 namespace catapult {
 namespace extensions {
 
-    supplier<model::HeightHashPair> CreateLocalFinalizedHeightHashPairSupplier(const ServiceState& state)
-    {
-        auto maxRollbackBlocks = state.config().Blockchain.MaxRollbackBlocks;
-        if (0 == maxRollbackBlocks)
-            return state.hooks().localFinalizedHeightHashPairSupplier();
+	supplier<model::HeightHashPair> CreateLocalFinalizedHeightHashPairSupplier(const ServiceState& state) {
+		auto maxRollbackBlocks = state.config().Blockchain.MaxRollbackBlocks;
+		if (0 == maxRollbackBlocks)
+			return state.hooks().localFinalizedHeightHashPairSupplier();
 
-        return [&storage = state.storage(), maxRollbackBlocks]() {
-            auto storageView = storage.view();
-            auto chainHeight = storageView.chainHeight();
-            auto finalizedHeight = chainHeight.unwrap() <= maxRollbackBlocks ? Height(1) : Height(chainHeight.unwrap() - maxRollbackBlocks);
-            return model::HeightHashPair { finalizedHeight, storageView.loadBlockElement(finalizedHeight)->EntityHash };
-        };
-    }
+		return [&storage = state.storage(), maxRollbackBlocks]() {
+			auto storageView = storage.view();
+			auto chainHeight = storageView.chainHeight();
+			auto finalizedHeight = chainHeight.unwrap() <= maxRollbackBlocks ? Height(1) : Height(chainHeight.unwrap() - maxRollbackBlocks);
+			return model::HeightHashPair { finalizedHeight, storageView.loadBlockElement(finalizedHeight)->EntityHash };
+		};
+	}
 
-    supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state)
-    {
-        auto heightHashPairSupplier = CreateLocalFinalizedHeightHashPairSupplier(state);
-        return [heightHashPairSupplier]() { return heightHashPairSupplier().Height; };
-    }
+	supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state) {
+		auto heightHashPairSupplier = CreateLocalFinalizedHeightHashPairSupplier(state);
+		return [heightHashPairSupplier]() { return heightHashPairSupplier().Height; };
+	}
 
-    supplier<model::HeightHashPair> CreateNetworkFinalizedHeightHashPairSupplier(const ServiceState& state)
-    {
-        auto maxRollbackBlocks = state.config().Blockchain.MaxRollbackBlocks;
-        return 0 == maxRollbackBlocks ? state.hooks().networkFinalizedHeightHashPairSupplier()
-                                      : CreateLocalFinalizedHeightHashPairSupplier(state);
-    }
+	supplier<model::HeightHashPair> CreateNetworkFinalizedHeightHashPairSupplier(const ServiceState& state) {
+		auto maxRollbackBlocks = state.config().Blockchain.MaxRollbackBlocks;
+		return 0 == maxRollbackBlocks ? state.hooks().networkFinalizedHeightHashPairSupplier()
+									  : CreateLocalFinalizedHeightHashPairSupplier(state);
+	}
 
-    SelectorSettings CreateOutgoingSelectorSettings(
-        const ServiceState& state,
-        ionet::ServiceIdentifier serviceId,
-        ionet::NodeRoles requiredRole)
-    {
-        return SelectorSettings(
-            state.cache(),
-            state.config().Blockchain.TotalChainImportance,
-            state.nodes(),
-            serviceId,
-            MapNodeRolesToIpProtocols(state.config().Node.Local.Roles),
-            requiredRole,
-            state.config().Node.OutgoingConnections);
-    }
+	SelectorSettings CreateOutgoingSelectorSettings(
+		const ServiceState& state,
+		ionet::ServiceIdentifier serviceId,
+		ionet::NodeRoles requiredRole) {
+		return SelectorSettings(
+			state.cache(),
+			state.config().Blockchain.TotalChainImportance,
+			state.nodes(),
+			serviceId,
+			MapNodeRolesToIpProtocols(state.config().Node.Local.Roles),
+			requiredRole,
+			state.config().Node.OutgoingConnections);
+	}
 
-    SelectorSettings CreateIncomingSelectorSettings(const ServiceState& state, ionet::ServiceIdentifier serviceId)
-    {
-        return SelectorSettings(
-            state.cache(),
-            state.config().Blockchain.TotalChainImportance,
-            state.nodes(),
-            serviceId,
-            state.config().Node.IncomingConnections);
-    }
+	SelectorSettings CreateIncomingSelectorSettings(const ServiceState& state, ionet::ServiceIdentifier serviceId) {
+		return SelectorSettings(
+			state.cache(),
+			state.config().Blockchain.TotalChainImportance,
+			state.nodes(),
+			serviceId,
+			state.config().Node.IncomingConnections);
+	}
 
-    namespace {
-        Timestamp LoadLastBlockTimestamp(const io::BlockStorageCache& storage)
-        {
-            auto storageView = storage.view();
-            auto chainHeight = storageView.chainHeight();
-            return storageView.loadBlock(chainHeight)->Timestamp;
-        }
-    }
+	namespace {
+		Timestamp LoadLastBlockTimestamp(const io::BlockStorageCache& storage) {
+			auto storageView = storage.view();
+			auto chainHeight = storageView.chainHeight();
+			return storageView.loadBlock(chainHeight)->Timestamp;
+		}
+	}
 
-    predicate<> CreateShouldProcessTransactionsPredicate(const ServiceState& state)
-    {
-        auto maxTimeBehind = state.config().Node.MaxTimeBehindPullTransactionsStart;
-        return [maxTimeBehind, &storage = state.storage(), timeSupplier = state.timeSupplier()]() {
-            return LoadLastBlockTimestamp(storage) + maxTimeBehind >= timeSupplier();
-        };
-    }
+	predicate<> CreateShouldProcessTransactionsPredicate(const ServiceState& state) {
+		auto maxTimeBehind = state.config().Node.MaxTimeBehindPullTransactionsStart;
+		return [maxTimeBehind, &storage = state.storage(), timeSupplier = state.timeSupplier()]() {
+			return LoadLastBlockTimestamp(storage) + maxTimeBehind >= timeSupplier();
+		};
+	}
 }
 }

@@ -27,29 +27,27 @@
 namespace catapult {
 namespace mongo {
 
-    /// Aggregate for saving cache data to external storage.
-    class AggregateExternalCacheStorage : public ExternalCacheStorage {
-    public:
-        /// Container of sub cache storages.
-        using StorageContainer = std::vector<std::unique_ptr<ExternalCacheStorage>>;
+	/// Aggregate for saving cache data to external storage.
+	class AggregateExternalCacheStorage : public ExternalCacheStorage {
+	public:
+		/// Container of sub cache storages.
+		using StorageContainer = std::vector<std::unique_ptr<ExternalCacheStorage>>;
 
-    public:
-        /// Creates an aggregate around \a storages.
-        explicit AggregateExternalCacheStorage(StorageContainer&& storages)
-            : ExternalCacheStorage(utils::ReduceNames(utils::ExtractNames(storages)), 0)
-            , m_storages(std::move(storages))
-        {
-        }
+	public:
+		/// Creates an aggregate around \a storages.
+		explicit AggregateExternalCacheStorage(StorageContainer&& storages)
+			: ExternalCacheStorage(utils::ReduceNames(utils::ExtractNames(storages)), 0)
+			, m_storages(std::move(storages)) {
+		}
 
-    public:
-        void saveDelta(const cache::CacheChanges& changes) override
-        {
-            for (const auto& pStorage : m_storages)
-                pStorage->saveDelta(changes);
-        }
+	public:
+		void saveDelta(const cache::CacheChanges& changes) override {
+			for (const auto& pStorage : m_storages)
+				pStorage->saveDelta(changes);
+		}
 
-    private:
-        StorageContainer m_storages;
-    };
+	private:
+		StorageContainer m_storages;
+	};
 }
 }

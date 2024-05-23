@@ -26,36 +26,36 @@
 
 namespace catapult {
 namespace model {
-    struct Block;
+	struct Block;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Gets the test nemesis block key pairs.
-    std::vector<crypto::KeyPair> GetNemesisKeyPairs();
+	/// Gets the test nemesis block key pairs.
+	std::vector<crypto::KeyPair> GetNemesisKeyPairs();
 
-    /// Block with additional metadata.
-    struct BlockWithAttributes {
-    public:
-        /// Block.
-        std::unique_ptr<model::Block> pBlock;
+	/// Block with additional metadata.
+	struct BlockWithAttributes {
+	public:
+		/// Block.
+		std::unique_ptr<model::Block> pBlock;
 
-        /// Ids of senders
-        std::vector<size_t> SenderIds;
+		/// Ids of senders
+		std::vector<size_t> SenderIds;
 
-        /// Amounts of currency in transactions.
-        std::vector<Amount> Amounts;
-    };
+		/// Amounts of currency in transactions.
+		std::vector<Amount> Amounts;
+	};
 
-    /// Creates a random block at \a height using \a rng as a random source
-    /// with transactions from \a nemesisKeyPairs to \a recipientAddress and optional \a timeSpacing.
-    BlockWithAttributes CreateBlock(
-        const std::vector<crypto::KeyPair>& nemesisKeyPairs,
-        const Address& recipientAddress,
-        std::mt19937_64& rng,
-        uint64_t height,
-        const utils::TimeSpan& timeSpacing = utils::TimeSpan::FromMinutes(3));
+	/// Creates a random block at \a height using \a rng as a random source
+	/// with transactions from \a nemesisKeyPairs to \a recipientAddress and optional \a timeSpacing.
+	BlockWithAttributes CreateBlock(
+		const std::vector<crypto::KeyPair>& nemesisKeyPairs,
+		const Address& recipientAddress,
+		std::mt19937_64& rng,
+		uint64_t height,
+		const utils::TimeSpan& timeSpacing = utils::TimeSpan::FromMinutes(3));
 }
 }

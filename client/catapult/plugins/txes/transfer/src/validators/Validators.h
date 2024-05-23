@@ -27,14 +27,14 @@
 namespace catapult {
 namespace validators {
 
-    /// Validator that applies to transfer message notifications and validates that:
-    /// - messages have a maximum message size of \a maxMessageSize
-    DECLARE_STATELESS_VALIDATOR(TransferMessage, model::TransferMessageNotification)
-    (uint16_t maxMessageSize);
+	/// Validator that applies to transfer message notifications and validates that:
+	/// - messages have a maximum message size of \a maxMessageSize
+	DECLARE_STATELESS_VALIDATOR(TransferMessage, model::TransferMessageNotification)
+	(uint16_t maxMessageSize);
 
-    /// Validator that applies to transfer mosaics notifications and validates that:
-    /// - mosaics are ordered
-    DECLARE_STATELESS_VALIDATOR(TransferMosaics, model::TransferMosaicsNotification)
-    ();
+	/// Validator that applies to transfer mosaics notifications and validates that:
+	/// - mosaics are ordered
+	DECLARE_STATELESS_VALIDATOR(TransferMosaics, model::TransferMosaicsNotification)
+	();
 }
 }

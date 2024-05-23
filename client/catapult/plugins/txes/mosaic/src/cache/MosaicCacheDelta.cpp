@@ -27,58 +27,53 @@
 namespace catapult {
 namespace cache {
 
-    namespace {
-        using MosaicByIdMap = MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType;
-        using HeightBasedMosaicIdsMap = MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType;
+	namespace {
+		using MosaicByIdMap = MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType;
+		using HeightBasedMosaicIdsMap = MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType;
 
-        Height GetExpiryHeight(const state::MosaicDefinition& definition)
-        {
-            return Height(definition.startHeight().unwrap() + definition.properties().duration().unwrap());
-        }
+		Height GetExpiryHeight(const state::MosaicDefinition& definition) {
+			return Height(definition.startHeight().unwrap() + definition.properties().duration().unwrap());
+		}
 
-        void UpdateExpiryMap(HeightBasedMosaicIdsMap& mosaicIdsByExpiryHeight, const state::MosaicEntry& entry)
-        {
-            // in case the mosaic is not eternal, update the expiry height based mosaic ids map
-            const auto& definition = entry.definition();
-            if (definition.isEternal())
-                return;
+		void UpdateExpiryMap(HeightBasedMosaicIdsMap& mosaicIdsByExpiryHeight, const state::MosaicEntry& entry) {
+			// in case the mosaic is not eternal, update the expiry height based mosaic ids map
+			const auto& definition = entry.definition();
+			if (definition.isEternal())
+				return;
 
-            AddIdentifierWithGroup(mosaicIdsByExpiryHeight, GetExpiryHeight(definition), entry.mosaicId());
-        }
-    }
+			AddIdentifierWithGroup(mosaicIdsByExpiryHeight, GetExpiryHeight(definition), entry.mosaicId());
+		}
+	}
 
-    BasicMosaicCacheDelta::BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets)
-        : MosaicCacheDeltaMixins::Size(*mosaicSets.pPrimary)
-        , MosaicCacheDeltaMixins::Contains(*mosaicSets.pPrimary)
-        , MosaicCacheDeltaMixins::ConstAccessor(*mosaicSets.pPrimary)
-        , MosaicCacheDeltaMixins::MutableAccessor(*mosaicSets.pPrimary)
-        , MosaicCacheDeltaMixins::PatriciaTreeDelta(*mosaicSets.pPrimary, mosaicSets.pPatriciaTree)
-        , MosaicCacheDeltaMixins::ActivePredicate(*mosaicSets.pPrimary)
-        , MosaicCacheDeltaMixins::BasicInsertRemove(*mosaicSets.pPrimary)
-        , MosaicCacheDeltaMixins::Touch(*mosaicSets.pPrimary, *mosaicSets.pHeightGrouping)
-        , MosaicCacheDeltaMixins::DeltaElements(*mosaicSets.pPrimary)
-        , m_pEntryById(mosaicSets.pPrimary)
-        , m_pMosaicIdsByExpiryHeight(mosaicSets.pHeightGrouping)
-    {
-    }
+	BasicMosaicCacheDelta::BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets)
+		: MosaicCacheDeltaMixins::Size(*mosaicSets.pPrimary)
+		, MosaicCacheDeltaMixins::Contains(*mosaicSets.pPrimary)
+		, MosaicCacheDeltaMixins::ConstAccessor(*mosaicSets.pPrimary)
+		, MosaicCacheDeltaMixins::MutableAccessor(*mosaicSets.pPrimary)
+		, MosaicCacheDeltaMixins::PatriciaTreeDelta(*mosaicSets.pPrimary, mosaicSets.pPatriciaTree)
+		, MosaicCacheDeltaMixins::ActivePredicate(*mosaicSets.pPrimary)
+		, MosaicCacheDeltaMixins::BasicInsertRemove(*mosaicSets.pPrimary)
+		, MosaicCacheDeltaMixins::Touch(*mosaicSets.pPrimary, *mosaicSets.pHeightGrouping)
+		, MosaicCacheDeltaMixins::DeltaElements(*mosaicSets.pPrimary)
+		, m_pEntryById(mosaicSets.pPrimary)
+		, m_pMosaicIdsByExpiryHeight(mosaicSets.pHeightGrouping) {
+	}
 
-    void BasicMosaicCacheDelta::insert(const state::MosaicEntry& entry)
-    {
-        MosaicCacheDeltaMixins::BasicInsertRemove::insert(entry);
-        UpdateExpiryMap(*m_pMosaicIdsByExpiryHeight, entry);
-    }
+	void BasicMosaicCacheDelta::insert(const state::MosaicEntry& entry) {
+		MosaicCacheDeltaMixins::BasicInsertRemove::insert(entry);
+		UpdateExpiryMap(*m_pMosaicIdsByExpiryHeight, entry);
+	}
 
-    void BasicMosaicCacheDelta::remove(MosaicId mosaicId)
-    {
-        auto iter = m_pEntryById->find(mosaicId);
-        const auto* pEntry = iter.get();
-        if (!!pEntry) {
-            const auto& definition = pEntry->definition();
-            if (!definition.isEternal())
-                RemoveIdentifierWithGroup(*m_pMosaicIdsByExpiryHeight, GetExpiryHeight(definition), mosaicId);
-        }
+	void BasicMosaicCacheDelta::remove(MosaicId mosaicId) {
+		auto iter = m_pEntryById->find(mosaicId);
+		const auto* pEntry = iter.get();
+		if (!!pEntry) {
+			const auto& definition = pEntry->definition();
+			if (!definition.isEternal())
+				RemoveIdentifierWithGroup(*m_pMosaicIdsByExpiryHeight, GetExpiryHeight(definition), mosaicId);
+		}
 
-        MosaicCacheDeltaMixins::BasicInsertRemove::remove(mosaicId);
-    }
+		MosaicCacheDeltaMixins::BasicInsertRemove::remove(mosaicId);
+	}
 }
 }

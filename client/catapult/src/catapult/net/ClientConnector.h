@@ -27,47 +27,47 @@
 
 namespace catapult {
 namespace ionet {
-    class PacketSocket;
-    class PacketSocketInfo;
+	class PacketSocket;
+	class PacketSocketInfo;
 }
 namespace thread {
-    class IoThreadPool;
+	class IoThreadPool;
 }
 }
 
 namespace catapult {
 namespace net {
 
-    /// Accepts connections that are initiated by external nodes to this (local) node.
-    class ClientConnector {
-    public:
-        /// Callback that is passed the accept result as well as the client socket and public key (on success).
-        using AcceptCallback = consumer<PeerConnectCode, const std::shared_ptr<ionet::PacketSocket>&, const Key&>;
+	/// Accepts connections that are initiated by external nodes to this (local) node.
+	class ClientConnector {
+	public:
+		/// Callback that is passed the accept result as well as the client socket and public key (on success).
+		using AcceptCallback = consumer<PeerConnectCode, const std::shared_ptr<ionet::PacketSocket>&, const Key&>;
 
-    public:
-        virtual ~ClientConnector() = default;
+	public:
+		virtual ~ClientConnector() = default;
 
-    public:
-        /// Gets the number of active connections.
-        virtual size_t numActiveConnections() const = 0;
+	public:
+		/// Gets the number of active connections.
+		virtual size_t numActiveConnections() const = 0;
 
-        /// Gets the friendly name of this connector.
-        virtual const std::string& name() const = 0;
+		/// Gets the friendly name of this connector.
+		virtual const std::string& name() const = 0;
 
-    public:
-        /// Accepts a connection represented by \a acceptedSocketInfo and calls \a callback on completion.
-        virtual void accept(const ionet::PacketSocketInfo& acceptedSocketInfo, const AcceptCallback& callback) = 0;
+	public:
+		/// Accepts a connection represented by \a acceptedSocketInfo and calls \a callback on completion.
+		virtual void accept(const ionet::PacketSocketInfo& acceptedSocketInfo, const AcceptCallback& callback) = 0;
 
-        /// Shuts down all connections.
-        virtual void shutdown() = 0;
-    };
+		/// Shuts down all connections.
+		virtual void shutdown() = 0;
+	};
 
-    /// Creates a client connector for a server with specified \a serverPublicKey using \a pool and configured with \a settings.
-    /// Optional friendly \a name can be provided to tag logs.
-    std::shared_ptr<ClientConnector> CreateClientConnector(
-        thread::IoThreadPool& pool,
-        const Key& serverPublicKey,
-        const ConnectionSettings& settings,
-        const char* name = nullptr);
+	/// Creates a client connector for a server with specified \a serverPublicKey using \a pool and configured with \a settings.
+	/// Optional friendly \a name can be provided to tag logs.
+	std::shared_ptr<ClientConnector> CreateClientConnector(
+		thread::IoThreadPool& pool,
+		const Key& serverPublicKey,
+		const ConnectionSettings& settings,
+		const char* name = nullptr);
 }
 }

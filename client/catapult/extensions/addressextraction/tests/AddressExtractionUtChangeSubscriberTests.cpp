@@ -28,31 +28,27 @@ namespace addressextraction {
 
 #define TEST_CLASS AddressExtractionUtChangeSubscriberTests
 
-    namespace {
-        class TestContext : public test::AddressExtractionSubscriberTestContext<cache::UtChangeSubscriber> {
-        public:
-            TestContext()
-                : AddressExtractionSubscriberTestContext(CreateAddressExtractionUtChangeSubscriber)
-            {
-            }
-        };
-    }
+	namespace {
+		class TestContext : public test::AddressExtractionSubscriberTestContext<cache::UtChangeSubscriber> {
+		public:
+			TestContext()
+				: AddressExtractionSubscriberTestContext(CreateAddressExtractionUtChangeSubscriber) {
+			}
+		};
+	}
 
-    TEST(TEST_CLASS, NotifyAddsExtractsTransactionAddresses)
-    {
-        TestContext().assertTransactionInfosExtractions(
-            [](auto& subscriber, const auto& transactionInfos) { subscriber.notifyAdds(transactionInfos); });
-    }
+	TEST(TEST_CLASS, NotifyAddsExtractsTransactionAddresses) {
+		TestContext().assertTransactionInfosExtractions(
+			[](auto& subscriber, const auto& transactionInfos) { subscriber.notifyAdds(transactionInfos); });
+	}
 
-    TEST(TEST_CLASS, NotifyRemovesExtractsTransactionAddresses)
-    {
-        TestContext().assertTransactionInfosExtractions(
-            [](auto& subscriber, const auto& transactionInfos) { subscriber.notifyRemoves(transactionInfos); });
-    }
+	TEST(TEST_CLASS, NotifyRemovesExtractsTransactionAddresses) {
+		TestContext().assertTransactionInfosExtractions(
+			[](auto& subscriber, const auto& transactionInfos) { subscriber.notifyRemoves(transactionInfos); });
+	}
 
-    TEST(TEST_CLASS, FlushDoesNotExtractTransactionAddresses)
-    {
-        TestContext().assertNoExtractions([](auto& subscriber) { subscriber.flush(); });
-    }
+	TEST(TEST_CLASS, FlushDoesNotExtractTransactionAddresses) {
+		TestContext().assertNoExtractions([](auto& subscriber) { subscriber.flush(); });
+	}
 }
 }

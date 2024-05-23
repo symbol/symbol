@@ -25,27 +25,23 @@
 namespace catapult {
 namespace model {
 
-    ResolverContext::ResolverContext()
-        : ResolverContext(
-              [](auto mosaicId) { return MosaicId(mosaicId.unwrap()); },
-              [](const auto& address) { return address.template copyTo<Address>(); })
-    {
-    }
+	ResolverContext::ResolverContext()
+		: ResolverContext(
+			  [](auto mosaicId) { return MosaicId(mosaicId.unwrap()); },
+			  [](const auto& address) { return address.template copyTo<Address>(); }) {
+	}
 
-    ResolverContext::ResolverContext(const MosaicResolver& mosaicResolver, const AddressResolver& addressResolver)
-        : m_mosaicResolver(mosaicResolver)
-        , m_addressResolver(addressResolver)
-    {
-    }
+	ResolverContext::ResolverContext(const MosaicResolver& mosaicResolver, const AddressResolver& addressResolver)
+		: m_mosaicResolver(mosaicResolver)
+		, m_addressResolver(addressResolver) {
+	}
 
-    MosaicId ResolverContext::resolve(UnresolvedMosaicId mosaicId) const
-    {
-        return m_mosaicResolver(mosaicId);
-    }
+	MosaicId ResolverContext::resolve(UnresolvedMosaicId mosaicId) const {
+		return m_mosaicResolver(mosaicId);
+	}
 
-    Address ResolverContext::resolve(const UnresolvedAddress& address) const
-    {
-        return m_addressResolver(address);
-    }
+	Address ResolverContext::resolve(const UnresolvedAddress& address) const {
+		return m_addressResolver(address);
+	}
 }
 }

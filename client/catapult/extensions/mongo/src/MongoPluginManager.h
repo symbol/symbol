@@ -30,50 +30,49 @@
 namespace catapult {
 namespace mongo {
 
-    /// Manager for registering mongo plugins.
-    class PLUGIN_API_DEPENDENCY MongoPluginManager {
-    public:
-        /// Creates a new plugin manager around \a mongoContext and \a networkIdentifier.
-        MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier);
+	/// Manager for registering mongo plugins.
+	class PLUGIN_API_DEPENDENCY MongoPluginManager {
+	public:
+		/// Creates a new plugin manager around \a mongoContext and \a networkIdentifier.
+		MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier);
 
-    public:
-        /// Gets the mongo storage context.
-        MongoStorageContext& mongoContext() const;
+	public:
+		/// Gets the mongo storage context.
+		MongoStorageContext& mongoContext() const;
 
-        /// Gets the network idenfifier.
-        model::NetworkIdentifier networkIdentifier() const;
+		/// Gets the network idenfifier.
+		model::NetworkIdentifier networkIdentifier() const;
 
-    public:
-        /// Adds support for a transaction described by \a pTransactionPlugin.
-        void addTransactionSupport(std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin);
+	public:
+		/// Adds support for a transaction described by \a pTransactionPlugin.
+		void addTransactionSupport(std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin);
 
-        /// Adds support for a receipt described by \a pReceiptPlugin.
-        void addReceiptSupport(std::unique_ptr<MongoReceiptPlugin>&& pReceiptPlugin);
+		/// Adds support for a receipt described by \a pReceiptPlugin.
+		void addReceiptSupport(std::unique_ptr<MongoReceiptPlugin>&& pReceiptPlugin);
 
-        /// Adds support for an external cache storage described by \a pStorage.
-        template <typename TStorage>
-        void addStorageSupport(std::unique_ptr<TStorage>&& pStorage)
-        {
-            m_storageBuilder.add(std::move(pStorage));
-        }
+		/// Adds support for an external cache storage described by \a pStorage.
+		template <typename TStorage>
+		void addStorageSupport(std::unique_ptr<TStorage>&& pStorage) {
+			m_storageBuilder.add(std::move(pStorage));
+		}
 
-    public:
-        /// Gets the transaction registry.
-        const MongoTransactionRegistry& transactionRegistry() const;
+	public:
+		/// Gets the transaction registry.
+		const MongoTransactionRegistry& transactionRegistry() const;
 
-        /// Gets the receipt registry.
-        const MongoReceiptRegistry& receiptRegistry() const;
+		/// Gets the receipt registry.
+		const MongoReceiptRegistry& receiptRegistry() const;
 
-        /// Creates an external cache storage.
-        std::unique_ptr<ExternalCacheStorage> createStorage();
+		/// Creates an external cache storage.
+		std::unique_ptr<ExternalCacheStorage> createStorage();
 
-    private:
-        MongoStorageContext& m_mongoContext;
-        model::NetworkIdentifier m_networkIdentifier;
-        MongoTransactionRegistry m_transactionRegistry;
-        MongoReceiptRegistry m_receiptRegistry;
-        ExternalCacheStorageBuilder m_storageBuilder;
-    };
+	private:
+		MongoStorageContext& m_mongoContext;
+		model::NetworkIdentifier m_networkIdentifier;
+		MongoTransactionRegistry m_transactionRegistry;
+		MongoReceiptRegistry m_receiptRegistry;
+		ExternalCacheStorageBuilder m_storageBuilder;
+	};
 }
 }
 

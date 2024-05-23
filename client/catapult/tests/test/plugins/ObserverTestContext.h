@@ -30,88 +30,78 @@
 namespace catapult {
 namespace test {
 
-    /// Observer test context that wraps an observer context.
-    template <typename TCacheFactory>
-    class ObserverTestContextT {
-    public:
-        /// Creates a test context around \a mode.
-        explicit ObserverTestContextT(observers::NotifyMode mode)
-            : ObserverTestContextT(mode, Height(444))
-        {
-        }
+	/// Observer test context that wraps an observer context.
+	template <typename TCacheFactory>
+	class ObserverTestContextT {
+	public:
+		/// Creates a test context around \a mode.
+		explicit ObserverTestContextT(observers::NotifyMode mode)
+			: ObserverTestContextT(mode, Height(444)) {
+		}
 
-        /// Creates a test context around \a mode and \a height.
-        ObserverTestContextT(observers::NotifyMode mode, Height height)
-            : ObserverTestContextT(mode, height, model::BlockchainConfiguration::Uninitialized())
-        {
-        }
+		/// Creates a test context around \a mode and \a height.
+		ObserverTestContextT(observers::NotifyMode mode, Height height)
+			: ObserverTestContextT(mode, height, model::BlockchainConfiguration::Uninitialized()) {
+		}
 
-        /// Creates a test context around \a mode, \a height and \a config.
-        ObserverTestContextT(observers::NotifyMode mode, Height height, const model::BlockchainConfiguration& config)
-            : m_cache(TCacheFactory::Create(config))
-            , m_cacheDelta(m_cache.createDelta())
-            , m_context(
-                  model::NotificationContext(height, CreateResolverContextXor()),
-                  observers::ObserverState(m_cacheDelta, m_blockStatementBuilder),
-                  mode)
-        {
-        }
+		/// Creates a test context around \a mode, \a height and \a config.
+		ObserverTestContextT(observers::NotifyMode mode, Height height, const model::BlockchainConfiguration& config)
+			: m_cache(TCacheFactory::Create(config))
+			, m_cacheDelta(m_cache.createDelta())
+			, m_context(
+				  model::NotificationContext(height, CreateResolverContextXor()),
+				  observers::ObserverState(m_cacheDelta, m_blockStatementBuilder),
+				  mode) {
+		}
 
-    public:
-        /// Gets the observer context.
-        observers::ObserverContext& observerContext()
-        {
-            return m_context;
-        }
+	public:
+		/// Gets the observer context.
+		observers::ObserverContext& observerContext() {
+			return m_context;
+		}
 
-        /// Gets the catapult cache delta.
-        const cache::CatapultCacheDelta& cache() const
-        {
-            return m_cacheDelta;
-        }
+		/// Gets the catapult cache delta.
+		const cache::CatapultCacheDelta& cache() const {
+			return m_cacheDelta;
+		}
 
-        /// Gets the catapult cache delta.
-        cache::CatapultCacheDelta& cache()
-        {
-            return m_cacheDelta;
-        }
+		/// Gets the catapult cache delta.
+		cache::CatapultCacheDelta& cache() {
+			return m_cacheDelta;
+		}
 
-        /// Gets the catapult state.
-        const state::CatapultState& state() const
-        {
-            return m_cacheDelta.dependentState();
-        }
+		/// Gets the catapult state.
+		const state::CatapultState& state() const {
+			return m_cacheDelta.dependentState();
+		}
 
-        /// Gets the catapult state.
-        state::CatapultState& state()
-        {
-            return m_cacheDelta.dependentState();
-        }
+		/// Gets the catapult state.
+		state::CatapultState& state() {
+			return m_cacheDelta.dependentState();
+		}
 
-        /// Gets the block statement builder.
-        model::BlockStatementBuilder& statementBuilder()
-        {
-            return m_blockStatementBuilder;
-        }
+		/// Gets the block statement builder.
+		model::BlockStatementBuilder& statementBuilder() {
+			return m_blockStatementBuilder;
+		}
 
-    public:
-        /// Commits all changes to the underlying cache.
-        void commitCacheChanges()
-        {
-            m_cache.commit(Height());
-        }
+	public:
+		/// Commits all changes to the underlying cache.
+		void commitCacheChanges() {
+			m_cache.commit(Height());
+		}
 
-    private:
-        cache::CatapultCache m_cache;
-        cache::CatapultCacheDelta m_cacheDelta;
-        model::BlockStatementBuilder m_blockStatementBuilder;
+	private:
+		cache::CatapultCache m_cache;
+		cache::CatapultCacheDelta m_cacheDelta;
+		model::BlockStatementBuilder m_blockStatementBuilder;
 
-        observers::ObserverContext m_context;
-    };
+		observers::ObserverContext m_context;
+	};
 
-    /// Default observer test context that wraps a cache composed of core caches only.
-    class ObserverTestContext : public ObserverTestContextT<CoreSystemCacheFactory> {
-        using ObserverTestContextT::ObserverTestContextT;
-    };
+	/// Default observer test context that wraps a cache composed of core caches only.
+	class ObserverTestContext : public ObserverTestContextT<CoreSystemCacheFactory> {
+		using ObserverTestContextT::ObserverTestContextT;
+	};
 }
 }

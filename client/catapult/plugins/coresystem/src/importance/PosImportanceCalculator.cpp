@@ -33,92 +33,88 @@
 namespace catapult {
 namespace importance {
 
-    namespace {
-        class PosImportanceCalculator final : public ImportanceCalculator {
-        public:
-            explicit PosImportanceCalculator(const model::BlockchainConfiguration& config)
-                : m_config(config)
-            {
-            }
+	namespace {
+		class PosImportanceCalculator final : public ImportanceCalculator {
+		public:
+			explicit PosImportanceCalculator(const model::BlockchainConfiguration& config)
+				: m_config(config) {
+			}
 
-        public:
-            void recalculate(ImportanceRollbackMode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
-                const override
-            {
-                utils::StackLogger stopwatch("PosImportanceCalculator::recalculate", utils::LogLevel::debug);
+		public:
+			void recalculate(ImportanceRollbackMode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
+				const override {
+				utils::StackLogger stopwatch("PosImportanceCalculator::recalculate", utils::LogLevel::debug);
 
-                // 1. get high value accounts (notice two step lookup because only const iteration is supported)
-                const auto& highValueAccounts = cache.highValueAccounts();
-                const auto& highValueAddresses = highValueAccounts.addresses();
-                std::vector<AccountSummary> accountSummaries;
-                accountSummaries.reserve(highValueAddresses.size());
+				// 1. get high value accounts (notice two step lookup because only const iteration is supported)
+				const auto& highValueAccounts = cache.highValueAccounts();
+				const auto& highValueAddresses = highValueAccounts.addresses();
+				std::vector<AccountSummary> accountSummaries;
+				accountSummaries.reserve(highValueAddresses.size());
 
-                // 2. calculate sums
-                auto importanceGrouping = m_config.ImportanceGrouping;
-                ImportanceCalculationContext context;
-                auto mosaicId = m_config.HarvestingMosaicId;
-                for (const auto& address : highValueAddresses) {
-                    auto accountStateIter = cache.find(address);
-                    auto& accountState = accountStateIter.get();
-                    const auto& activityBuckets = accountState.ActivityBuckets;
-                    auto accountActivitySummary = SummarizeAccountActivity(importanceHeight, importanceGrouping, activityBuckets);
-                    accountSummaries.push_back(AccountSummary(accountActivitySummary, accountState));
-                    context.ActiveHarvestingMosaics = context.ActiveHarvestingMosaics + accountState.Balances.get(mosaicId);
-                    context.TotalBeneficiaryCount += accountActivitySummary.BeneficiaryCount;
-                    context.TotalFeesPaid = context.TotalFeesPaid + accountActivitySummary.TotalFeesPaid;
-                }
+				// 2. calculate sums
+				auto importanceGrouping = m_config.ImportanceGrouping;
+				ImportanceCalculationContext context;
+				auto mosaicId = m_config.HarvestingMosaicId;
+				for (const auto& address : highValueAddresses) {
+					auto accountStateIter = cache.find(address);
+					auto& accountState = accountStateIter.get();
+					const auto& activityBuckets = accountState.ActivityBuckets;
+					auto accountActivitySummary = SummarizeAccountActivity(importanceHeight, importanceGrouping, activityBuckets);
+					accountSummaries.push_back(AccountSummary(accountActivitySummary, accountState));
+					context.ActiveHarvestingMosaics = context.ActiveHarvestingMosaics + accountState.Balances.get(mosaicId);
+					context.TotalBeneficiaryCount += accountActivitySummary.BeneficiaryCount;
+					context.TotalFeesPaid = context.TotalFeesPaid + accountActivitySummary.TotalFeesPaid;
+				}
 
-                // 3. calculate importance parts
-                Importance totalActivityImportance;
-                for (auto& accountSummary : accountSummaries) {
-                    CalculateImportances(accountSummary, context, m_config);
-                    totalActivityImportance = totalActivityImportance + accountSummary.ActivityImportance;
-                }
+				// 3. calculate importance parts
+				Importance totalActivityImportance;
+				for (auto& accountSummary : accountSummaries) {
+					CalculateImportances(accountSummary, context, m_config);
+					totalActivityImportance = totalActivityImportance + accountSummary.ActivityImportance;
+				}
 
-                // 4. calculate the final importance
-                auto targetActivityImportanceRaw = m_config.TotalChainImportance.unwrap() * m_config.ImportanceActivityPercentage / 100;
-                for (auto& accountSummary : accountSummaries) {
-                    auto importance = calculateFinalImportance(accountSummary, totalActivityImportance, targetActivityImportanceRaw);
-                    auto& accountState = *accountSummary.pAccountState;
-                    FinalizeAccountActivity(importanceHeight, importance, accountState.ActivityBuckets);
-                    auto effectiveImportance = model::ImportanceHeight(1) == importanceHeight
-                        ? importance
-                        : Importance(std::min(importance.unwrap(), accountSummary.ActivitySummary.PreviousImportance.unwrap()));
-                    accountSummary.pAccountState->ImportanceSnapshots.set(effectiveImportance, importanceHeight);
-                }
+				// 4. calculate the final importance
+				auto targetActivityImportanceRaw = m_config.TotalChainImportance.unwrap() * m_config.ImportanceActivityPercentage / 100;
+				for (auto& accountSummary : accountSummaries) {
+					auto importance = calculateFinalImportance(accountSummary, totalActivityImportance, targetActivityImportanceRaw);
+					auto& accountState = *accountSummary.pAccountState;
+					FinalizeAccountActivity(importanceHeight, importance, accountState.ActivityBuckets);
+					auto effectiveImportance = model::ImportanceHeight(1) == importanceHeight
+						? importance
+						: Importance(std::min(importance.unwrap(), accountSummary.ActivitySummary.PreviousImportance.unwrap()));
+					accountSummary.pAccountState->ImportanceSnapshots.set(effectiveImportance, importanceHeight);
+				}
 
-                CATAPULT_LOG(debug) << "recalculated importances (" << highValueAddresses.size() << " / " << cache.size() << " eligible)"
-                                    << " at height " << importanceHeight;
+				CATAPULT_LOG(debug) << "recalculated importances (" << highValueAddresses.size() << " / " << cache.size() << " eligible)"
+									<< " at height " << importanceHeight;
 
-                // 5. disable collection of activity for the removed accounts
-                cache.processHighValueRemovedAccounts(importanceHeight);
-            }
+				// 5. disable collection of activity for the removed accounts
+				cache.processHighValueRemovedAccounts(importanceHeight);
+			}
 
-        private:
-            Importance calculateFinalImportance(
-                const AccountSummary& accountSummary,
-                Importance totalActivityImportance,
-                Importance::ValueType targetActivityImportanceRaw) const
-            {
-                if (Importance() == totalActivityImportance) {
-                    return 0 < m_config.ImportanceActivityPercentage
-                        ? Importance(
-                              accountSummary.StakeImportance.unwrap() * 100 / (100 - m_config.ImportanceActivityPercentage))
-                        : accountSummary.StakeImportance;
-                }
+		private:
+			Importance calculateFinalImportance(
+				const AccountSummary& accountSummary,
+				Importance totalActivityImportance,
+				Importance::ValueType targetActivityImportanceRaw) const {
+				if (Importance() == totalActivityImportance) {
+					return 0 < m_config.ImportanceActivityPercentage
+						? Importance(
+							  accountSummary.StakeImportance.unwrap() * 100 / (100 - m_config.ImportanceActivityPercentage))
+						: accountSummary.StakeImportance;
+				}
 
-                auto numerator = accountSummary.ActivityImportance.unwrap() * targetActivityImportanceRaw;
-                return accountSummary.StakeImportance + Importance(numerator / totalActivityImportance.unwrap());
-            }
+				auto numerator = accountSummary.ActivityImportance.unwrap() * targetActivityImportanceRaw;
+				return accountSummary.StakeImportance + Importance(numerator / totalActivityImportance.unwrap());
+			}
 
-        private:
-            const model::BlockchainConfiguration m_config;
-        };
-    }
+		private:
+			const model::BlockchainConfiguration m_config;
+		};
+	}
 
-    std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockchainConfiguration& config)
-    {
-        return std::make_unique<PosImportanceCalculator>(config);
-    }
+	std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockchainConfiguration& config) {
+		return std::make_unique<PosImportanceCalculator>(config);
+	}
 }
 }

@@ -27,180 +27,180 @@
 
 namespace catapult {
 namespace tree {
-    class TreeNode;
+	class TreeNode;
 }
 }
 
 namespace catapult {
 namespace tree {
 
-    // region LeafTreeNode
+	// region LeafTreeNode
 
-    /// Represents a leaf tree node.
-    class LeafTreeNode {
-    public:
-        /// Creates a leaf node with \a path and \a value.
-        LeafTreeNode(const TreeNodePath& path, const Hash256& value);
+	/// Represents a leaf tree node.
+	class LeafTreeNode {
+	public:
+		/// Creates a leaf node with \a path and \a value.
+		LeafTreeNode(const TreeNodePath& path, const Hash256& value);
 
-    private:
-        LeafTreeNode();
+	private:
+		LeafTreeNode();
 
-    public:
-        /// Gets the node path.
-        const TreeNodePath& path() const;
+	public:
+		/// Gets the node path.
+		const TreeNodePath& path() const;
 
-        /// Gets the node \a value.
-        const Hash256& value() const;
+		/// Gets the node \a value.
+		const Hash256& value() const;
 
-        /// Gets the hash representation of this node.
-        const Hash256& hash() const;
+		/// Gets the hash representation of this node.
+		const Hash256& hash() const;
 
-    private:
-        TreeNodePath m_path;
-        Hash256 m_value;
-        Hash256 m_hash;
+	private:
+		TreeNodePath m_path;
+		Hash256 m_value;
+		Hash256 m_hash;
 
-    private:
-        friend class TreeNode;
-    };
+	private:
+		friend class TreeNode;
+	};
 
-    // endregion
+	// endregion
 
-    // region BranchTreeNode
+	// region BranchTreeNode
 
-    /// Represents a branch tree node.
-    class BranchTreeNode {
-    public:
-        /// Maximum number of branch links.
-        static constexpr size_t Max_Links = 16;
+	/// Represents a branch tree node.
+	class BranchTreeNode {
+	public:
+		/// Maximum number of branch links.
+		static constexpr size_t Max_Links = 16;
 
-    public:
-        /// Creates a branch node with \a path.
-        explicit BranchTreeNode(const TreeNodePath& path);
+	public:
+		/// Creates a branch node with \a path.
+		explicit BranchTreeNode(const TreeNodePath& path);
 
-    private:
-        BranchTreeNode();
+	private:
+		BranchTreeNode();
 
-    public:
-        /// Gets the node path.
-        const TreeNodePath& path() const;
+	public:
+		/// Gets the node path.
+		const TreeNodePath& path() const;
 
-        /// Gets the number of links set in this node.
-        size_t numLinks() const;
+		/// Gets the number of links set in this node.
+		size_t numLinks() const;
 
-        /// Returns \c true if this branch has a link at \a index.
-        bool hasLink(size_t index) const;
+		/// Returns \c true if this branch has a link at \a index.
+		bool hasLink(size_t index) const;
 
-        /// Returns \c true if this branch has a linked node at \a index.
-        /// \note Linked nodes are loaded on demand. Accordingly, if a node has a link, it might not have a linked node.
-        bool hasLinkedNode(size_t index) const;
+		/// Returns \c true if this branch has a linked node at \a index.
+		/// \note Linked nodes are loaded on demand. Accordingly, if a node has a link, it might not have a linked node.
+		bool hasLinkedNode(size_t index) const;
 
-        /// Gets the branch link at \a index.
-        const Hash256& link(size_t index) const;
+		/// Gets the branch link at \a index.
+		const Hash256& link(size_t index) const;
 
-        /// Gets a copy of the linked node at \a index or \c nullptr if no linked node is present.
-        TreeNode linkedNode(size_t index) const;
+		/// Gets a copy of the linked node at \a index or \c nullptr if no linked node is present.
+		TreeNode linkedNode(size_t index) const;
 
-        /// Gets the index of the highest set link.
-        uint8_t highestLinkIndex() const;
+		/// Gets the index of the highest set link.
+		uint8_t highestLinkIndex() const;
 
-        /// Gets the hash representation of this node.
-        const Hash256& hash() const;
+		/// Gets the hash representation of this node.
+		const Hash256& hash() const;
 
-    public:
-        /// Sets the branch node \a path.
-        void setPath(const TreeNodePath& path);
+	public:
+		/// Sets the branch node \a path.
+		void setPath(const TreeNodePath& path);
 
-        /// Sets the branch \a link at \a index.
-        void setLink(const Hash256& link, size_t index);
+		/// Sets the branch \a link at \a index.
+		void setLink(const Hash256& link, size_t index);
 
-        /// Sets the branch link at \a index to \a node.
-        void setLink(const TreeNode& node, size_t index);
+		/// Sets the branch link at \a index to \a node.
+		void setLink(const TreeNode& node, size_t index);
 
-        /// Clears the branch link at \a index.
-        void clearLink(size_t index);
+		/// Clears the branch link at \a index.
+		void clearLink(size_t index);
 
-        /// Compacts all links by replacing node links with hash links.
-        void compactLinks();
+		/// Compacts all links by replacing node links with hash links.
+		void compactLinks();
 
-    private:
-        void setLink(size_t index);
+	private:
+		void setLink(size_t index);
 
-    private:
-        TreeNodePath m_path;
-        std::array<Hash256, BranchTreeNode::Max_Links> m_links;
-        std::array<std::shared_ptr<const TreeNode>, BranchTreeNode::Max_Links> m_linkedNodes; // shared_ptr to allow copying
-        std::bitset<BranchTreeNode::Max_Links> m_linkSet;
-        mutable Hash256 m_hash;
-        mutable bool m_isDirty;
+	private:
+		TreeNodePath m_path;
+		std::array<Hash256, BranchTreeNode::Max_Links> m_links;
+		std::array<std::shared_ptr<const TreeNode>, BranchTreeNode::Max_Links> m_linkedNodes; // shared_ptr to allow copying
+		std::bitset<BranchTreeNode::Max_Links> m_linkSet;
+		mutable Hash256 m_hash;
+		mutable bool m_isDirty;
 
-    private:
-        friend class TreeNode;
-    };
+	private:
+		friend class TreeNode;
+	};
 
-    // endregion
+	// endregion
 
-    // region TreeNode
+	// region TreeNode
 
-    /// Represents a tree node.
-    class TreeNode : public utils::MoveOnly {
-    public:
-        /// Creates an empty tree node.
-        TreeNode();
+	/// Represents a tree node.
+	class TreeNode : public utils::MoveOnly {
+	public:
+		/// Creates an empty tree node.
+		TreeNode();
 
-        /// Creates a tree node from a leaf \a node.
-        explicit TreeNode(const LeafTreeNode& node);
+		/// Creates a tree node from a leaf \a node.
+		explicit TreeNode(const LeafTreeNode& node);
 
-        /// Creates a tree node from a branch \a node.
-        explicit TreeNode(const BranchTreeNode& node);
+		/// Creates a tree node from a branch \a node.
+		explicit TreeNode(const BranchTreeNode& node);
 
-    public:
-        /// Returns \c true if this node represents an empty node.
-        bool empty() const;
+	public:
+		/// Returns \c true if this node represents an empty node.
+		bool empty() const;
 
-        /// Returns \c true if this node represents a branch node.
-        bool isBranch() const;
+		/// Returns \c true if this node represents a branch node.
+		bool isBranch() const;
 
-        /// Returns \c true if this node represents a leaf node.
-        bool isLeaf() const;
+		/// Returns \c true if this node represents a leaf node.
+		bool isLeaf() const;
 
-    public:
-        /// Gets the node path.
-        const TreeNodePath& path() const;
+	public:
+		/// Gets the node path.
+		const TreeNodePath& path() const;
 
-        /// Gets the hash representation of this node.
-        const Hash256& hash() const;
+		/// Gets the hash representation of this node.
+		const Hash256& hash() const;
 
-    public:
-        /// Sets the node \a path.
-        void setPath(const TreeNodePath& path);
+	public:
+		/// Sets the node \a path.
+		void setPath(const TreeNodePath& path);
 
-    public:
-        /// Gets a leaf node interface to this node.
-        const LeafTreeNode& asLeafNode() const;
+	public:
+		/// Gets a leaf node interface to this node.
+		const LeafTreeNode& asLeafNode() const;
 
-        /// Gets a branch node interface to this node.
-        const BranchTreeNode& asBranchNode() const;
+		/// Gets a branch node interface to this node.
+		const BranchTreeNode& asBranchNode() const;
 
-    public:
-        /// Creates a copy of this node.
-        TreeNode copy() const;
+	public:
+		/// Creates a copy of this node.
+		TreeNode copy() const;
 
-    private:
-        enum class TreeNodeType { Empty,
-            Leaf,
-            Branch };
+	private:
+		enum class TreeNodeType { Empty,
+			Leaf,
+			Branch };
 
-    private:
-        LeafTreeNode m_leafNode;
-        BranchTreeNode m_branchNode;
-        TreeNodeType m_treeNodeType;
+	private:
+		LeafTreeNode m_leafNode;
+		BranchTreeNode m_branchNode;
+		TreeNodeType m_treeNodeType;
 
-        // used to return references from path() and hash() when type is Empty
-        TreeNodePath m_emptyPath;
-        Hash256 m_emptyHash;
-    };
+		// used to return references from path() and hash() when type is Empty
+		TreeNodePath m_emptyPath;
+		Hash256 m_emptyHash;
+	};
 
-    // endregion
+	// endregion
 }
 }

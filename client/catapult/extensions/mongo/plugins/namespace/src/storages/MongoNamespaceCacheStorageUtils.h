@@ -25,21 +25,21 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
-        struct NamespaceDescriptor;
-    }
+	namespace plugins {
+		struct NamespaceDescriptor;
+	}
 }
 namespace state {
-    class RootNamespaceHistory;
+	class RootNamespaceHistory;
 }
 }
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Converts the root namespace \a history into a vector of namespace descriptors.
-        std::vector<NamespaceDescriptor> NamespaceDescriptorsFromHistory(const state::RootNamespaceHistory& history);
-    }
+		/// Converts the root namespace \a history into a vector of namespace descriptors.
+		std::vector<NamespaceDescriptor> NamespaceDescriptorsFromHistory(const state::RootNamespaceHistory& history);
+	}
 }
 }

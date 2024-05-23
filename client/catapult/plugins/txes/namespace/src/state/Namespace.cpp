@@ -25,53 +25,44 @@
 namespace catapult {
 namespace state {
 
-    Namespace::Namespace(const Path& path)
-        : m_path(path)
-    {
-        if (m_path.empty())
-            CATAPULT_THROW_OUT_OF_RANGE("path cannot be empty");
-    }
+	Namespace::Namespace(const Path& path)
+		: m_path(path) {
+		if (m_path.empty())
+			CATAPULT_THROW_OUT_OF_RANGE("path cannot be empty");
+	}
 
-    NamespaceId Namespace::id() const
-    {
-        return m_path[m_path.size() - 1];
-    }
+	NamespaceId Namespace::id() const {
+		return m_path[m_path.size() - 1];
+	}
 
-    NamespaceId Namespace::parentId() const
-    {
-        return 1 == m_path.size() ? Namespace_Base_Id : m_path[m_path.size() - 2];
-    }
+	NamespaceId Namespace::parentId() const {
+		return 1 == m_path.size() ? Namespace_Base_Id : m_path[m_path.size() - 2];
+	}
 
-    NamespaceId Namespace::rootId() const
-    {
-        return m_path[0];
-    }
+	NamespaceId Namespace::rootId() const {
+		return m_path[0];
+	}
 
-    bool Namespace::isRoot() const
-    {
-        return 1 == m_path.size();
-    }
+	bool Namespace::isRoot() const {
+		return 1 == m_path.size();
+	}
 
-    const Namespace::Path& Namespace::path() const
-    {
-        return m_path;
-    }
+	const Namespace::Path& Namespace::path() const {
+		return m_path;
+	}
 
-    Namespace Namespace::createChild(NamespaceId id) const
-    {
-        Path childPath = m_path;
-        childPath.push_back(id);
-        return Namespace(childPath);
-    }
+	Namespace Namespace::createChild(NamespaceId id) const {
+		Path childPath = m_path;
+		childPath.push_back(id);
+		return Namespace(childPath);
+	}
 
-    bool Namespace::operator==(const Namespace& rhs) const
-    {
-        return m_path == rhs.m_path;
-    }
+	bool Namespace::operator==(const Namespace& rhs) const {
+		return m_path == rhs.m_path;
+	}
 
-    bool Namespace::operator!=(const Namespace& rhs) const
-    {
-        return !(*this == rhs);
-    }
+	bool Namespace::operator!=(const Namespace& rhs) const {
+		return !(*this == rhs);
+	}
 }
 }

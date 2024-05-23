@@ -27,8 +27,8 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Binary layout for an account mosaic restriction transaction body.
-    DEFINE_ACCOUNT_RESTRICTION_TRANSACTION(Mosaic, Mosaic, UnresolvedMosaicId)
+	/// Binary layout for an account mosaic restriction transaction body.
+	DEFINE_ACCOUNT_RESTRICTION_TRANSACTION(Mosaic, Mosaic, UnresolvedMosaicId)
 
 #pragma pack(pop)
 }

@@ -28,96 +28,88 @@ namespace cache {
 
 #define TEST_CLASS CatapultCacheBuilderTests
 
-    namespace {
-        template <size_t CacheId>
-        class CustomSubCachePluginAdapter : public SubCachePluginAdapter<test::SimpleCacheT<CacheId>, test::SimpleCacheStorageTraits> {
-        public:
-            using SubCachePluginAdapter<test::SimpleCacheT<CacheId>, test::SimpleCacheStorageTraits>::SubCachePluginAdapter;
-        };
+	namespace {
+		template <size_t CacheId>
+		class CustomSubCachePluginAdapter : public SubCachePluginAdapter<test::SimpleCacheT<CacheId>, test::SimpleCacheStorageTraits> {
+		public:
+			using SubCachePluginAdapter<test::SimpleCacheT<CacheId>, test::SimpleCacheStorageTraits>::SubCachePluginAdapter;
+		};
 
-        template <size_t CacheId>
-        void AddSubCacheWithId(CatapultCacheBuilder& builder)
-        {
-            builder.add<test::SimpleCacheStorageTraits>(std::make_unique<test::SimpleCacheT<CacheId>>());
-        }
+		template <size_t CacheId>
+		void AddSubCacheWithId(CatapultCacheBuilder& builder) {
+			builder.add<test::SimpleCacheStorageTraits>(std::make_unique<test::SimpleCacheT<CacheId>>());
+		}
 
-        template <size_t CacheId>
-        void AddSubCachePluginWithId(CatapultCacheBuilder& builder)
-        {
-            builder.add(std::make_unique<CustomSubCachePluginAdapter<CacheId>>(std::make_unique<test::SimpleCacheT<CacheId>>()));
-        }
+		template <size_t CacheId>
+		void AddSubCachePluginWithId(CatapultCacheBuilder& builder) {
+			builder.add(std::make_unique<CustomSubCachePluginAdapter<CacheId>>(std::make_unique<test::SimpleCacheT<CacheId>>()));
+		}
 
-        size_t GetNumSubCaches(const CatapultCache& cache)
-        {
-            return cache.storages().size();
-        }
-    }
+		size_t GetNumSubCaches(const CatapultCache& cache) {
+			return cache.storages().size();
+		}
+	}
 
-    TEST(TEST_CLASS, CanCreateEmptyCatapultCache)
-    {
-        // Arrange:
-        CatapultCacheBuilder builder;
+	TEST(TEST_CLASS, CanCreateEmptyCatapultCache) {
+		// Arrange:
+		CatapultCacheBuilder builder;
 
-        // Act:
-        auto cache = builder.build();
+		// Act:
+		auto cache = builder.build();
 
-        // Assert:
-        EXPECT_EQ(0u, GetNumSubCaches(cache));
-    }
+		// Assert:
+		EXPECT_EQ(0u, GetNumSubCaches(cache));
+	}
 
-    TEST(TEST_CLASS, CanCreateCatapultCacheWithSingleSubCache_DefaultPlugin)
-    {
-        // Arrange:
-        CatapultCacheBuilder builder;
-        AddSubCacheWithId<2>(builder);
+	TEST(TEST_CLASS, CanCreateCatapultCacheWithSingleSubCache_DefaultPlugin) {
+		// Arrange:
+		CatapultCacheBuilder builder;
+		AddSubCacheWithId<2>(builder);
 
-        // Act:
-        auto cache = builder.build();
+		// Act:
+		auto cache = builder.build();
 
-        // Assert:
-        EXPECT_EQ(1u, GetNumSubCaches(cache));
-    }
+		// Assert:
+		EXPECT_EQ(1u, GetNumSubCaches(cache));
+	}
 
-    TEST(TEST_CLASS, CanCreateCatapultCacheWithSingleSubCache_CustomPlugin)
-    {
-        // Arrange:
-        CatapultCacheBuilder builder;
-        AddSubCachePluginWithId<2>(builder);
+	TEST(TEST_CLASS, CanCreateCatapultCacheWithSingleSubCache_CustomPlugin) {
+		// Arrange:
+		CatapultCacheBuilder builder;
+		AddSubCachePluginWithId<2>(builder);
 
-        // Act:
-        auto cache = builder.build();
+		// Act:
+		auto cache = builder.build();
 
-        // Assert:
-        EXPECT_EQ(1u, GetNumSubCaches(cache));
-    }
+		// Assert:
+		EXPECT_EQ(1u, GetNumSubCaches(cache));
+	}
 
-    TEST(TEST_CLASS, CanCreateCatapultCacheWithMultipleSubCaches)
-    {
-        // Arrange:
-        CatapultCacheBuilder builder;
-        AddSubCacheWithId<2>(builder);
-        AddSubCachePluginWithId<6>(builder);
-        AddSubCacheWithId<4>(builder);
-        AddSubCachePluginWithId<8>(builder);
+	TEST(TEST_CLASS, CanCreateCatapultCacheWithMultipleSubCaches) {
+		// Arrange:
+		CatapultCacheBuilder builder;
+		AddSubCacheWithId<2>(builder);
+		AddSubCachePluginWithId<6>(builder);
+		AddSubCacheWithId<4>(builder);
+		AddSubCachePluginWithId<8>(builder);
 
-        // Act:
-        auto cache = builder.build();
+		// Act:
+		auto cache = builder.build();
 
-        // Assert:
-        EXPECT_EQ(4u, GetNumSubCaches(cache));
-    }
+		// Assert:
+		EXPECT_EQ(4u, GetNumSubCaches(cache));
+	}
 
-    TEST(TEST_CLASS, CannotAddMultipleSubCachesWithSameId)
-    {
-        // Arrange:
-        CatapultCacheBuilder builder;
-        AddSubCacheWithId<2>(builder);
-        AddSubCacheWithId<6>(builder);
-        AddSubCacheWithId<4>(builder);
+	TEST(TEST_CLASS, CannotAddMultipleSubCachesWithSameId) {
+		// Arrange:
+		CatapultCacheBuilder builder;
+		AddSubCacheWithId<2>(builder);
+		AddSubCacheWithId<6>(builder);
+		AddSubCacheWithId<4>(builder);
 
-        // Act + Assert:
-        EXPECT_THROW(AddSubCacheWithId<6>(builder), catapult_invalid_argument);
-        EXPECT_THROW(AddSubCachePluginWithId<6>(builder), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(AddSubCacheWithId<6>(builder), catapult_invalid_argument);
+		EXPECT_THROW(AddSubCachePluginWithId<6>(builder), catapult_invalid_argument);
+	}
 }
 }

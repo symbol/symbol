@@ -26,33 +26,33 @@ namespace catapult {
 namespace ionet {
 
 #define SOCKET_OPERATION_CODE_LIST                             \
-    /* Socket operation succeeded. */                          \
-    ENUM_VALUE(Success)                                        \
+	/* Socket operation succeeded. */                          \
+	ENUM_VALUE(Success)                                        \
                                                                \
-    /* Socket was closed. */                                   \
-    ENUM_VALUE(Closed)                                         \
+	/* Socket was closed. */                                   \
+	ENUM_VALUE(Closed)                                         \
                                                                \
-    /* Socket produced a read error. */                        \
-    ENUM_VALUE(Read_Error)                                     \
+	/* Socket produced a read error. */                        \
+	ENUM_VALUE(Read_Error)                                     \
                                                                \
-    /* Socket produced a write error. */                       \
-    ENUM_VALUE(Write_Error)                                    \
+	/* Socket produced a write error. */                       \
+	ENUM_VALUE(Write_Error)                                    \
                                                                \
-    /* Socket produced malformed data. */                      \
-    ENUM_VALUE(Malformed_Data)                                 \
+	/* Socket produced malformed data. */                      \
+	ENUM_VALUE(Malformed_Data)                                 \
                                                                \
-    /* Socket produced a security error. */                    \
-    ENUM_VALUE(Security_Error)                                 \
+	/* Socket produced a security error. */                    \
+	ENUM_VALUE(Security_Error)                                 \
                                                                \
-    /* Socket operation completed due to insufficient data. */ \
-    ENUM_VALUE(Insufficient_Data)
+	/* Socket operation completed due to insufficient data. */ \
+	ENUM_VALUE(Insufficient_Data)
 
 #define ENUM_VALUE(LABEL) LABEL,
-    /// Enumeration of socket operation results.
-    enum class SocketOperationCode { SOCKET_OPERATION_CODE_LIST };
+	/// Enumeration of socket operation results.
+	enum class SocketOperationCode { SOCKET_OPERATION_CODE_LIST };
 #undef ENUM_VALUE
 
-    /// Insertion operator for outputting \a value to \a out.
-    std::ostream& operator<<(std::ostream& out, SocketOperationCode value);
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, SocketOperationCode value);
 }
 }

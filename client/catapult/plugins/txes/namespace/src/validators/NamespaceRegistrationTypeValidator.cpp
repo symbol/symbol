@@ -25,13 +25,13 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::NamespaceRegistrationNotification;
+	using Notification = model::NamespaceRegistrationNotification;
 
-    DEFINE_STATELESS_VALIDATOR(NamespaceRegistrationType, [](const Notification& notification) {
-        return ValidateLessThanOrEqual(
-            notification.RegistrationType,
-            model::NamespaceRegistrationType::Child,
-            Failure_Namespace_Invalid_Registration_Type);
-    })
+	DEFINE_STATELESS_VALIDATOR(NamespaceRegistrationType, [](const Notification& notification) {
+		return ValidateLessThanOrEqual(
+			notification.RegistrationType,
+			model::NamespaceRegistrationType::Child,
+			Failure_Namespace_Invalid_Registration_Type);
+	})
 }
 }

@@ -27,48 +27,42 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        struct MemoryHashCacheSystemTraits : public test::EmptyPluginTraits {
-        public:
-            template <typename TAction>
-            static void RunTestAfterRegistration(TAction action)
-            {
-                // Arrange:
-                auto manager = test::CreatePluginManager();
-                RegisterMemoryHashCacheSystem(manager);
+	namespace {
+		struct MemoryHashCacheSystemTraits : public test::EmptyPluginTraits {
+		public:
+			template <typename TAction>
+			static void RunTestAfterRegistration(TAction action) {
+				// Arrange:
+				auto manager = test::CreatePluginManager();
+				RegisterMemoryHashCacheSystem(manager);
 
-                // Act:
-                action(manager);
-            }
+				// Act:
+				action(manager);
+			}
 
-        public:
-            static std::vector<std::string> GetCacheNames()
-            {
-                return { "HashCache" };
-            }
+		public:
+			static std::vector<std::string> GetCacheNames() {
+				return { "HashCache" };
+			}
 
-            static std::vector<ionet::PacketType> GetDiagnosticPacketTypes()
-            {
-                return { ionet::PacketType::Confirm_Timestamped_Hashes };
-            }
+			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
+				return { ionet::PacketType::Confirm_Timestamped_Hashes };
+			}
 
-            static std::vector<std::string> GetDiagnosticCounterNames()
-            {
-                return { "HASH C" };
-            }
+			static std::vector<std::string> GetDiagnosticCounterNames() {
+				return { "HASH C" };
+			}
 
-            static std::vector<std::string> GetStatefulValidatorNames()
-            {
-                return { "UniqueTransactionHashValidator" };
-            }
+			static std::vector<std::string> GetStatefulValidatorNames() {
+				return { "UniqueTransactionHashValidator" };
+			}
 
-            static std::vector<std::string> GetObserverNames()
-            {
-                return { "TransactionHashObserver" };
-            }
-        };
-    }
+			static std::vector<std::string> GetObserverNames() {
+				return { "TransactionHashObserver" };
+			}
+		};
+	}
 
-    DEFINE_PLUGIN_TESTS(MemoryHashCacheSystemTests, MemoryHashCacheSystemTraits)
+	DEFINE_PLUGIN_TESTS(MemoryHashCacheSystemTests, MemoryHashCacheSystemTraits)
 }
 }

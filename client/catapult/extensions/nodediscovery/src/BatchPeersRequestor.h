@@ -28,23 +28,23 @@
 namespace catapult {
 namespace nodediscovery {
 
-    /// Creates a batch peers requestor.
-    class BatchPeersRequestor {
-    private:
-        using NodesConsumer = consumer<const ionet::NodeSet&>;
-        using RemoteApiResults = std::vector<ionet::NodeInteractionResult>;
+	/// Creates a batch peers requestor.
+	class BatchPeersRequestor {
+	private:
+		using NodesConsumer = consumer<const ionet::NodeSet&>;
+		using RemoteApiResults = std::vector<ionet::NodeInteractionResult>;
 
-    public:
-        /// Creates a requestor around \a packetIoPickers, which is used to find partners. Forwards found nodes to \a nodesConsumer.
-        BatchPeersRequestor(const net::PacketIoPickerContainer& packetIoPickers, const NodesConsumer& nodesConsumer);
+	public:
+		/// Creates a requestor around \a packetIoPickers, which is used to find partners. Forwards found nodes to \a nodesConsumer.
+		BatchPeersRequestor(const net::PacketIoPickerContainer& packetIoPickers, const NodesConsumer& nodesConsumer);
 
-    public:
-        /// Finds and forwards peers of peers within the specified \a timeout.
-        thread::future<RemoteApiResults> findPeersOfPeers(const utils::TimeSpan& timeout) const;
+	public:
+		/// Finds and forwards peers of peers within the specified \a timeout.
+		thread::future<RemoteApiResults> findPeersOfPeers(const utils::TimeSpan& timeout) const;
 
-    private:
-        net::PacketIoPickerContainer m_packetIoPickers; // held by value because packet io pickers is tied to ServiceState
-        NodesConsumer m_nodesConsumer;
-    };
+	private:
+		net::PacketIoPickerContainer m_packetIoPickers; // held by value because packet io pickers is tied to ServiceState
+		NodesConsumer m_nodesConsumer;
+	};
 }
 }

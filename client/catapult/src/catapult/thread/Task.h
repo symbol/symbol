@@ -28,50 +28,50 @@
 namespace catapult {
 namespace thread {
 
-    /// Result of a task.
-    enum class TaskResult {
-        /// Task should repeat.
-        Continue,
+	/// Result of a task.
+	enum class TaskResult {
+		/// Task should repeat.
+		Continue,
 
-        /// Task should not repeat.
-        Break
-    };
+		/// Task should not repeat.
+		Break
+	};
 
-    /// Task callback that is invoked by the scheduler.
-    using TaskCallback = supplier<thread::future<TaskResult>>;
+	/// Task callback that is invoked by the scheduler.
+	using TaskCallback = supplier<thread::future<TaskResult>>;
 
-    /// Supplier that generates delays.
-    using DelayGenerator = supplier<utils::TimeSpan>;
+	/// Supplier that generates delays.
+	using DelayGenerator = supplier<utils::TimeSpan>;
 
-    /// Task that can be dispatched to a scheduler.
-    struct Task {
-        /// Delay until the first execution of the task.
-        utils::TimeSpan StartDelay;
+	/// Task that can be dispatched to a scheduler.
+	struct Task {
+		/// Delay until the first execution of the task.
+		utils::TimeSpan StartDelay;
 
-        /// Generates the delay until the next execution of the task.
-        DelayGenerator NextDelay;
+		/// Generates the delay until the next execution of the task.
+		DelayGenerator NextDelay;
 
-        /// Callback associated with the task.
-        TaskCallback Callback;
+		/// Callback associated with the task.
+		TaskCallback Callback;
 
-        /// Friendly name of the task (optional).
-        std::string Name;
-    };
+		/// Friendly name of the task (optional).
+		std::string Name;
+	};
 
-    /// Creates a uniform delay generator that always returns \a delay.
-    DelayGenerator CreateUniformDelayGenerator(const utils::TimeSpan& delay);
+	/// Creates a uniform delay generator that always returns \a delay.
+	DelayGenerator CreateUniformDelayGenerator(const utils::TimeSpan& delay);
 
-    /// Creates a three-phase increasing delay generator:
-    /// - phase 1: \a minDelay for \a numPhaseOneRounds rounds
-    /// - phase 2: delay is linearly increased from \a minDelay to \a maxDelay over \a numTransitionRounds rounds
-    /// - phase 3: \a maxDelay for all other rounds
-    DelayGenerator CreateIncreasingDelayGenerator(
-        const utils::TimeSpan& minDelay,
-        uint32_t numPhaseOneRounds,
-        const utils::TimeSpan& maxDelay,
-        uint32_t numTransitionRounds);
+	/// Creates a three-phase increasing delay generator:
+	/// - phase 1: \a minDelay for \a numPhaseOneRounds rounds
+	/// - phase 2: delay is linearly increased from \a minDelay to \a maxDelay over \a numTransitionRounds rounds
+	/// - phase 3: \a maxDelay for all other rounds
+	DelayGenerator CreateIncreasingDelayGenerator(
+		const utils::TimeSpan& minDelay,
+		uint32_t numPhaseOneRounds,
+		const utils::TimeSpan& maxDelay,
+		uint32_t numTransitionRounds);
 
-    /// Creates an unscheduled task with \a name and \a callback.
-    Task CreateNamedTask(const std::string& name, const TaskCallback& callback);
+	/// Creates an unscheduled task with \a name and \a callback.
+	Task CreateNamedTask(const std::string& name, const TaskCallback& callback);
 }
 }

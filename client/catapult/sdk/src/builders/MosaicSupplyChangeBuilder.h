@@ -26,49 +26,49 @@
 namespace catapult {
 namespace builders {
 
-    /// Builder for a mosaic supply change transaction.
-    class MosaicSupplyChangeBuilder : public TransactionBuilder {
-    public:
-        using Transaction = model::MosaicSupplyChangeTransaction;
-        using EmbeddedTransaction = model::EmbeddedMosaicSupplyChangeTransaction;
+	/// Builder for a mosaic supply change transaction.
+	class MosaicSupplyChangeBuilder : public TransactionBuilder {
+	public:
+		using Transaction = model::MosaicSupplyChangeTransaction;
+		using EmbeddedTransaction = model::EmbeddedMosaicSupplyChangeTransaction;
 
-    public:
-        /// Creates a mosaic supply change builder for building a mosaic supply change transaction from \a signer
-        /// for the network specified by \a networkIdentifier.
-        MosaicSupplyChangeBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+	public:
+		/// Creates a mosaic supply change builder for building a mosaic supply change transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		MosaicSupplyChangeBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
-    public:
-        /// Sets the affected mosaic identifier to \a mosaicId.
-        void setMosaicId(UnresolvedMosaicId mosaicId);
+	public:
+		/// Sets the affected mosaic identifier to \a mosaicId.
+		void setMosaicId(UnresolvedMosaicId mosaicId);
 
-        /// Sets the change amount to \a delta.
-        void setDelta(Amount delta);
+		/// Sets the change amount to \a delta.
+		void setDelta(Amount delta);
 
-        /// Sets the supply change action to \a action.
-        void setAction(model::MosaicSupplyChangeAction action);
+		/// Sets the supply change action to \a action.
+		void setAction(model::MosaicSupplyChangeAction action);
 
-    public:
-        /// Gets the size of mosaic supply change transaction.
-        /// \note This returns size of a normal transaction not embedded transaction.
-        size_t size() const;
+	public:
+		/// Gets the size of mosaic supply change transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
 
-        /// Builds a new mosaic supply change transaction.
-        std::unique_ptr<Transaction> build() const;
+		/// Builds a new mosaic supply change transaction.
+		std::unique_ptr<Transaction> build() const;
 
-        /// Builds a new embedded mosaic supply change transaction.
-        std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+		/// Builds a new embedded mosaic supply change transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
-    private:
-        template <typename TTransaction>
-        size_t sizeImpl() const;
+	private:
+		template <typename TTransaction>
+		size_t sizeImpl() const;
 
-        template <typename TTransaction>
-        std::unique_ptr<TTransaction> buildImpl() const;
+		template <typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
-    private:
-        UnresolvedMosaicId m_mosaicId;
-        Amount m_delta;
-        model::MosaicSupplyChangeAction m_action;
-    };
+	private:
+		UnresolvedMosaicId m_mosaicId;
+		Amount m_delta;
+		model::MosaicSupplyChangeAction m_action;
+	};
 }
 }

@@ -29,85 +29,77 @@ namespace config {
 
 #define TEST_CLASS PeersConfigurationTests
 
-    namespace {
-        constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0x25);
-        constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
+	namespace {
+		constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0x25);
+		constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 
-        auto GetNetworkFingerprint()
-        {
-            return model::UniqueNetworkFingerprint(
-                Network_Identifier,
-                utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String));
-        }
+		auto GetNetworkFingerprint() {
+			return model::UniqueNetworkFingerprint(
+				Network_Identifier,
+				utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String));
+		}
 
-        void AssertIdentity(const model::NodeIdentity& identity, const Key& identityKey, const std::string& host)
-        {
-            EXPECT_EQ(identityKey, identity.PublicKey);
-            EXPECT_EQ(host, identity.Host);
-        }
+		void AssertIdentity(const model::NodeIdentity& identity, const Key& identityKey, const std::string& host) {
+			EXPECT_EQ(identityKey, identity.PublicKey);
+			EXPECT_EQ(host, identity.Host);
+		}
 
-        void AssertEndpoint(const ionet::NodeEndpoint& endpoint, const std::string& host, int port)
-        {
-            EXPECT_EQ(host, endpoint.Host);
-            EXPECT_EQ(port, endpoint.Port);
-        }
+		void AssertEndpoint(const ionet::NodeEndpoint& endpoint, const std::string& host, int port) {
+			EXPECT_EQ(host, endpoint.Host);
+			EXPECT_EQ(port, endpoint.Port);
+		}
 
-        void AssertMetadata(const ionet::NodeMetadata& metadata, const std::string& name, ionet::NodeRoles roles)
-        {
-            auto expectedGenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
+		void AssertMetadata(const ionet::NodeMetadata& metadata, const std::string& name, ionet::NodeRoles roles) {
+			auto expectedGenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
 
-            EXPECT_EQ(name, metadata.Name);
-            EXPECT_EQ(Network_Identifier, metadata.NetworkFingerprint.Identifier);
-            EXPECT_EQ(expectedGenerationHashSeed, metadata.NetworkFingerprint.GenerationHashSeed);
-            EXPECT_EQ(ionet::NodeVersion(), metadata.Version);
-            EXPECT_EQ(roles, metadata.Roles);
-        }
-    }
+			EXPECT_EQ(name, metadata.Name);
+			EXPECT_EQ(Network_Identifier, metadata.NetworkFingerprint.Identifier);
+			EXPECT_EQ(expectedGenerationHashSeed, metadata.NetworkFingerprint.GenerationHashSeed);
+			EXPECT_EQ(ionet::NodeVersion(), metadata.Version);
+			EXPECT_EQ(roles, metadata.Roles);
+		}
+	}
 
-    // region failure
+	// region failure
 
-    TEST(TEST_CLASS, ConfigFileRequiresKnownPeers)
-    {
-        // Arrange:
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, ConfigFileRequiresKnownPeers) {
+		// Arrange:
+		std::stringstream stream;
+		stream << R"({
 		})";
 
-        // Act + Assert:
-        EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, PeersEntryMustBeArray)
-    {
-        // Arrange:
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, PeersEntryMustBeArray) {
+		// Arrange:
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":false
 		})";
 
-        // Act + Assert:
-        EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, PeersEntriesMustBeValid)
-    {
-        // Arrange:
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, PeersEntriesMustBeValid) {
+		// Arrange:
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":[
 				{}
 			]
 		})";
 
-        // Act + Assert:
-        EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, AllRequiredLeafPropertiesMustBePresent)
-    {
-        // Arrange: missing endpoint.port
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, AllRequiredLeafPropertiesMustBePresent) {
+		// Arrange: missing endpoint.port
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
@@ -117,15 +109,14 @@ namespace config {
 			]
 		})";
 
-        // Act + Assert:
-        EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, AllRequiredPropertiesMustBePresent)
-    {
-        // Arrange: missing endpoint
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, AllRequiredPropertiesMustBePresent) {
+		// Arrange: missing endpoint
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
@@ -134,15 +125,14 @@ namespace config {
 			]
 		})";
 
-        // Act + Assert:
-        EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, NodeRolesMustBeValid)
-    {
-        // Arrange:
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, NodeRolesMustBeValid) {
+		// Arrange:
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
@@ -152,32 +142,30 @@ namespace config {
 			]
 		})";
 
-        // Act + Assert:
-        EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
+	}
 
-    // endregion
+	// endregion
 
-    TEST(TEST_CLASS, CanParseMinimalConfiguration)
-    {
-        // Arrange:
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, CanParseMinimalConfiguration) {
+		// Arrange:
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":[]
 		})";
 
-        // Act:
-        auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
+		// Act:
+		auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
 
-        // Assert:
-        EXPECT_EQ(0u, nodes.size());
-    }
+		// Assert:
+		EXPECT_EQ(0u, nodes.size());
+	}
 
-    TEST(TEST_CLASS, CanParseKnownPeers)
-    {
-        // Arrange:
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, CanParseKnownPeers) {
+		// Arrange:
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
@@ -187,25 +175,24 @@ namespace config {
 			]
 		})";
 
-        // Act:
-        auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
+		// Act:
+		auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
 
-        // Assert:
-        ASSERT_EQ(1u, nodes.size());
-        auto expectedKey = utils::ParseByteArray<Key>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
+		// Assert:
+		ASSERT_EQ(1u, nodes.size());
+		auto expectedKey = utils::ParseByteArray<Key>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
 
-        const auto& node = *nodes.cbegin();
-        AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
-        AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
-        AssertMetadata(node.metadata(), "bob", ionet::NodeRoles::Api);
-        EXPECT_EQ("bob @ bob.nem.ninja:12345", test::ToString(node));
-    }
+		const auto& node = *nodes.cbegin();
+		AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
+		AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
+		AssertMetadata(node.metadata(), "bob", ionet::NodeRoles::Api);
+		EXPECT_EQ("bob @ bob.nem.ninja:12345", test::ToString(node));
+	}
 
-    TEST(TEST_CLASS, CanParseKnownPeersWithoutNames)
-    {
-        // Arrange:
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, CanParseKnownPeersWithoutNames) {
+		// Arrange:
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":[
 				{
 					"publicKey":"1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751",
@@ -215,27 +202,26 @@ namespace config {
 			]
 		})";
 
-        // Act:
-        auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
+		// Act:
+		auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
 
-        // Assert:
-        ASSERT_EQ(1u, nodes.size());
-        auto expectedKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
+		// Assert:
+		ASSERT_EQ(1u, nodes.size());
+		auto expectedKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 
-        const auto& node = *nodes.cbegin();
-        AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
-        AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
-        AssertMetadata(node.metadata(), "", ionet::NodeRoles::Peer);
+		const auto& node = *nodes.cbegin();
+		AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
+		AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
+		AssertMetadata(node.metadata(), "", ionet::NodeRoles::Peer);
 
-        auto expectedAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UI";
-        EXPECT_EQ(std::string(expectedAddress) + " @ bob.nem.ninja:12345", test::ToString(node));
-    }
+		auto expectedAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UI";
+		EXPECT_EQ(std::string(expectedAddress) + " @ bob.nem.ninja:12345", test::ToString(node));
+	}
 
-    TEST(TEST_CLASS, CanParseMultipleKnownPeers)
-    {
-        // Arrange:
-        std::stringstream stream;
-        stream << R"({
+	TEST(TEST_CLASS, CanParseMultipleKnownPeers) {
+		// Arrange:
+		std::stringstream stream;
+		stream << R"({
 			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
@@ -250,46 +236,45 @@ namespace config {
 			]
 		})";
 
-        // Act:
-        auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
+		// Act:
+		auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
 
-        // Assert:
-        ASSERT_EQ(2u, nodes.size());
-        auto iter = nodes.cbegin();
-        {
-            const auto& node = *iter++;
-            auto expectedKey = utils::ParseByteArray<Key>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
+		// Assert:
+		ASSERT_EQ(2u, nodes.size());
+		auto iter = nodes.cbegin();
+		{
+			const auto& node = *iter++;
+			auto expectedKey = utils::ParseByteArray<Key>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
 
-            AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
-            AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
-            AssertMetadata(node.metadata(), "bob", ionet::NodeRoles::Peer);
-            EXPECT_EQ("bob @ bob.nem.ninja:12345", test::ToString(node));
-        }
+			AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
+			AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
+			AssertMetadata(node.metadata(), "bob", ionet::NodeRoles::Peer);
+			EXPECT_EQ("bob @ bob.nem.ninja:12345", test::ToString(node));
+		}
 
-        {
-            const auto& node = *iter++;
-            auto expectedKey = utils::ParseByteArray<Key>("FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321");
+		{
+			const auto& node = *iter++;
+			auto expectedKey = utils::ParseByteArray<Key>("FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321");
 
-            AssertIdentity(node.identity(), expectedKey, "123.456.789.1011");
-            AssertEndpoint(node.endpoint(), "123.456.789.1011", 5432);
-            AssertMetadata(node.metadata(), "foobar", ionet::NodeRoles::Api);
-            EXPECT_EQ("foobar @ 123.456.789.1011:5432", test::ToString(node));
-        }
-    }
+			AssertIdentity(node.identity(), expectedKey, "123.456.789.1011");
+			AssertEndpoint(node.endpoint(), "123.456.789.1011", 5432);
+			AssertMetadata(node.metadata(), "foobar", ionet::NodeRoles::Api);
+			EXPECT_EQ("foobar @ 123.456.789.1011:5432", test::ToString(node));
+		}
+	}
 
-    TEST(TEST_CLASS, CanLoadPeersFromResourcesDirectory)
-    {
-        // Arrange: attempt to load from the "real" resources directory
-        auto resourcesPath = std::filesystem::path("../resources");
-        for (const auto filename : { "peers-p2p.json", "peers-api.json" }) {
-            CATAPULT_LOG(debug) << "parsing peers from " << filename;
+	TEST(TEST_CLASS, CanLoadPeersFromResourcesDirectory) {
+		// Arrange: attempt to load from the "real" resources directory
+		auto resourcesPath = std::filesystem::path("../resources");
+		for (const auto filename : { "peers-p2p.json", "peers-api.json" }) {
+			CATAPULT_LOG(debug) << "parsing peers from " << filename;
 
-            // Act:
-            auto peers = LoadPeersFromPath((resourcesPath / filename).generic_string(), GetNetworkFingerprint());
+			// Act:
+			auto peers = LoadPeersFromPath((resourcesPath / filename).generic_string(), GetNetworkFingerprint());
 
-            // Assert:
-            EXPECT_FALSE(peers.empty());
-        }
-    }
+			// Assert:
+			EXPECT_FALSE(peers.empty());
+		}
+	}
 }
 }

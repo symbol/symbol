@@ -30,67 +30,65 @@
 namespace catapult {
 namespace net {
 
-    /// Settings used to configure connections.
-    struct ConnectionSettings {
-    public:
-        /// Creates default settings.
-        ConnectionSettings()
-            : NetworkIdentifier(model::NetworkIdentifier::Zero)
-            , NodeIdentityEqualityStrategy(model::NodeIdentityEqualityStrategy::Key)
-            , Timeout(utils::TimeSpan::FromSeconds(10))
-            , SocketWorkingBufferSize(utils::FileSize::FromKilobytes(4))
-            , SocketWorkingBufferSensitivity(0) // memory reclamation disabled
-            , MaxPacketDataSize(utils::FileSize::FromBytes(Default_Max_Packet_Data_Size))
-            , OutgoingProtocols(ionet::IpProtocol::IPv4)
-            , AllowIncomingSelfConnections(true)
-            , AllowOutgoingSelfConnections(false)
-        {
-        }
+	/// Settings used to configure connections.
+	struct ConnectionSettings {
+	public:
+		/// Creates default settings.
+		ConnectionSettings()
+			: NetworkIdentifier(model::NetworkIdentifier::Zero)
+			, NodeIdentityEqualityStrategy(model::NodeIdentityEqualityStrategy::Key)
+			, Timeout(utils::TimeSpan::FromSeconds(10))
+			, SocketWorkingBufferSize(utils::FileSize::FromKilobytes(4))
+			, SocketWorkingBufferSensitivity(0) // memory reclamation disabled
+			, MaxPacketDataSize(utils::FileSize::FromBytes(Default_Max_Packet_Data_Size))
+			, OutgoingProtocols(ionet::IpProtocol::IPv4)
+			, AllowIncomingSelfConnections(true)
+			, AllowOutgoingSelfConnections(false) {
+		}
 
-    public:
-        /// Network identifier.
-        model::NetworkIdentifier NetworkIdentifier;
+	public:
+		/// Network identifier.
+		model::NetworkIdentifier NetworkIdentifier;
 
-        /// Node identity equality strategy.
-        model::NodeIdentityEqualityStrategy NodeIdentityEqualityStrategy;
+		/// Node identity equality strategy.
+		model::NodeIdentityEqualityStrategy NodeIdentityEqualityStrategy;
 
-        /// Connection timeout.
-        utils::TimeSpan Timeout;
+		/// Connection timeout.
+		utils::TimeSpan Timeout;
 
-        /// Socket working buffer size.
-        utils::FileSize SocketWorkingBufferSize;
+		/// Socket working buffer size.
+		utils::FileSize SocketWorkingBufferSize;
 
-        /// Socket working buffer sensitivity.
-        size_t SocketWorkingBufferSensitivity;
+		/// Socket working buffer sensitivity.
+		size_t SocketWorkingBufferSensitivity;
 
-        /// Maximum packet data size.
-        utils::FileSize MaxPacketDataSize;
+		/// Maximum packet data size.
+		utils::FileSize MaxPacketDataSize;
 
-        /// Outgoing connection protocols.
-        ionet::IpProtocol OutgoingProtocols;
+		/// Outgoing connection protocols.
+		ionet::IpProtocol OutgoingProtocols;
 
-        /// Allows incoming self connections when \c true.
-        bool AllowIncomingSelfConnections;
+		/// Allows incoming self connections when \c true.
+		bool AllowIncomingSelfConnections;
 
-        /// Allows outgoing self connections when \c true.
-        bool AllowOutgoingSelfConnections;
+		/// Allows outgoing self connections when \c true.
+		bool AllowOutgoingSelfConnections;
 
-        /// Ssl options.
-        ionet::PacketSocketSslOptions SslOptions;
+		/// Ssl options.
+		ionet::PacketSocketSslOptions SslOptions;
 
-    public:
-        /// Gets the packet socket options represented by the configured settings.
-        ionet::PacketSocketOptions toSocketOptions() const
-        {
-            ionet::PacketSocketOptions options;
-            options.AcceptHandshakeTimeout = Timeout;
-            options.WorkingBufferSize = SocketWorkingBufferSize.bytes();
-            options.WorkingBufferSensitivity = SocketWorkingBufferSensitivity;
-            options.MaxPacketDataSize = MaxPacketDataSize.bytes();
-            options.OutgoingProtocols = OutgoingProtocols;
-            options.SslOptions = SslOptions;
-            return options;
-        }
-    };
+	public:
+		/// Gets the packet socket options represented by the configured settings.
+		ionet::PacketSocketOptions toSocketOptions() const {
+			ionet::PacketSocketOptions options;
+			options.AcceptHandshakeTimeout = Timeout;
+			options.WorkingBufferSize = SocketWorkingBufferSize.bytes();
+			options.WorkingBufferSensitivity = SocketWorkingBufferSensitivity;
+			options.MaxPacketDataSize = MaxPacketDataSize.bytes();
+			options.OutgoingProtocols = OutgoingProtocols;
+			options.SslOptions = SslOptions;
+			return options;
+		}
+	};
 }
 }

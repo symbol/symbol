@@ -28,19 +28,18 @@ namespace zeromq {
 
 #define TEST_CLASS PublisherUtilsTests
 
-    TEST(TEST_CLASS, CanCreateTopic)
-    {
-        // Arrange:
-        TransactionMarker marker = TransactionMarker(0x37);
-        auto address = test::GenerateRandomUnresolvedAddress();
+	TEST(TEST_CLASS, CanCreateTopic) {
+		// Arrange:
+		TransactionMarker marker = TransactionMarker(0x37);
+		auto address = test::GenerateRandomUnresolvedAddress();
 
-        // Act:
-        auto topic = CreateTopic(marker, address);
+		// Act:
+		auto topic = CreateTopic(marker, address);
 
-        // Assert:
-        ASSERT_EQ(Address::Size + 1, topic.size());
-        EXPECT_EQ(marker, TransactionMarker(topic[0]));
-        EXPECT_EQ_MEMORY(address.data(), topic.data() + 1, Address::Size);
-    }
+		// Assert:
+		ASSERT_EQ(Address::Size + 1, topic.size());
+		EXPECT_EQ(marker, TransactionMarker(topic[0]));
+		EXPECT_EQ_MEMORY(address.data(), topic.data() + 1, Address::Size);
+	}
 }
 }

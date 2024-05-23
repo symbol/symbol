@@ -24,11 +24,11 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Creates a mongo multisig account modification transaction plugin.
-        PLUGIN_API
-        std::unique_ptr<MongoTransactionPlugin> CreateMultisigAccountModificationTransactionMongoPlugin();
-    }
+		/// Creates a mongo multisig account modification transaction plugin.
+		PLUGIN_API
+		std::unique_ptr<MongoTransactionPlugin> CreateMultisigAccountModificationTransactionMongoPlugin();
+	}
 }
 }

@@ -27,32 +27,32 @@
 
 namespace catapult {
 namespace ionet {
-    class BatchPacketReader;
-    class PacketIo;
+	class BatchPacketReader;
+	class PacketIo;
 }
 }
 
 namespace catapult {
 namespace ionet {
 
-    /// Reads and consumes packets from a socket.
-    class SocketReader {
-    public:
-        using ReadCallback = consumer<SocketOperationCode>;
+	/// Reads and consumes packets from a socket.
+	class SocketReader {
+	public:
+		using ReadCallback = consumer<SocketOperationCode>;
 
-    public:
-        virtual ~SocketReader() = default;
+	public:
+		virtual ~SocketReader() = default;
 
-    public:
-        /// Reads and consumes one or more packets and calls \a callback on completion.
-        virtual void read(const ReadCallback& callback) = 0;
-    };
+	public:
+		/// Reads and consumes one or more packets and calls \a callback on completion.
+		virtual void read(const ReadCallback& callback) = 0;
+	};
 
-    /// Creates a socket packet reader around \a pReader, \a pWriter and \a handlers given a reader \a identity.
-    std::unique_ptr<SocketReader> CreateSocketReader(
-        const std::shared_ptr<BatchPacketReader>& pReader,
-        const std::shared_ptr<PacketIo>& pWriter,
-        const ServerPacketHandlers& handlers,
-        const model::NodeIdentity& identity);
+	/// Creates a socket packet reader around \a pReader, \a pWriter and \a handlers given a reader \a identity.
+	std::unique_ptr<SocketReader> CreateSocketReader(
+		const std::shared_ptr<BatchPacketReader>& pReader,
+		const std::shared_ptr<PacketIo>& pWriter,
+		const ServerPacketHandlers& handlers,
+		const model::NodeIdentity& identity);
 }
 }

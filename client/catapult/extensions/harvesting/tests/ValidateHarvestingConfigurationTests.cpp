@@ -29,65 +29,58 @@ namespace harvesting {
 
 #define TEST_CLASS ValidateHarvestingConfigurationTests
 
-    namespace {
-        // the public / private key is invalid because it contains a non hex char ('G')
-        const char* Invalid_Key = "3485D98EFD7EB07ADAFCFD1A157D89DE2G96A95E780813C0258AF3F5F84ED8CB";
-        const char* Valid_Key = "3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB";
+	namespace {
+		// the public / private key is invalid because it contains a non hex char ('G')
+		const char* Invalid_Key = "3485D98EFD7EB07ADAFCFD1A157D89DE2G96A95E780813C0258AF3F5F84ED8CB";
+		const char* Valid_Key = "3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB";
 
-        HarvestingConfiguration CreateHarvestingConfiguration(
-            const std::string& harvesterSigningPrivateKey,
-            const std::string& harvesterVrfPrivateKey,
-            bool enableAutoHarvesting)
-        {
-            auto harvestingConfig = HarvestingConfiguration::Uninitialized();
-            harvestingConfig.HarvesterSigningPrivateKey = harvesterSigningPrivateKey;
-            harvestingConfig.HarvesterVrfPrivateKey = harvesterVrfPrivateKey;
-            harvestingConfig.EnableAutoHarvesting = enableAutoHarvesting;
-            return harvestingConfig;
-        }
+		HarvestingConfiguration CreateHarvestingConfiguration(
+			const std::string& harvesterSigningPrivateKey,
+			const std::string& harvesterVrfPrivateKey,
+			bool enableAutoHarvesting) {
+			auto harvestingConfig = HarvestingConfiguration::Uninitialized();
+			harvestingConfig.HarvesterSigningPrivateKey = harvesterSigningPrivateKey;
+			harvestingConfig.HarvesterVrfPrivateKey = harvesterVrfPrivateKey;
+			harvestingConfig.EnableAutoHarvesting = enableAutoHarvesting;
+			return harvestingConfig;
+		}
 
-        void AssertInvalidHarvestingConfiguration(const HarvestingConfiguration& harvestingConfig)
-        {
-            EXPECT_THROW(ValidateHarvestingConfiguration(harvestingConfig), utils::property_malformed_error);
-        }
+		void AssertInvalidHarvestingConfiguration(const HarvestingConfiguration& harvestingConfig) {
+			EXPECT_THROW(ValidateHarvestingConfiguration(harvestingConfig), utils::property_malformed_error);
+		}
 
-        void AssertValidHarvestingConfiguration(const HarvestingConfiguration& harvestingConfig)
-        {
-            EXPECT_NO_THROW(ValidateHarvestingConfiguration(harvestingConfig));
-        }
-    }
+		void AssertValidHarvestingConfiguration(const HarvestingConfiguration& harvestingConfig) {
+			EXPECT_NO_THROW(ValidateHarvestingConfiguration(harvestingConfig));
+		}
+	}
 
-    // region harvester (signing|vrf) private key
+	// region harvester (signing|vrf) private key
 
-    TEST(TEST_CLASS, ValidationFailsWhenAnyHarvesterPrivateKeyIsInvalid)
-    {
-        AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Invalid_Key, Valid_Key, true));
-        AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Invalid_Key, Valid_Key, false));
+	TEST(TEST_CLASS, ValidationFailsWhenAnyHarvesterPrivateKeyIsInvalid) {
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Invalid_Key, Valid_Key, true));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Invalid_Key, Valid_Key, false));
 
-        AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Invalid_Key, true));
-        AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Invalid_Key, false));
-    }
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Invalid_Key, true));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Invalid_Key, false));
+	}
 
-    TEST(TEST_CLASS, ValidationFailsWhenAnyHarvesterPrivateKeyIsUnspecifiedAndAutoHarvestingIsEnabled)
-    {
-        AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration("", Valid_Key, true));
-        AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, "", true));
-        AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration("", "", true));
-    }
+	TEST(TEST_CLASS, ValidationFailsWhenAnyHarvesterPrivateKeyIsUnspecifiedAndAutoHarvestingIsEnabled) {
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration("", Valid_Key, true));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, "", true));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration("", "", true));
+	}
 
-    TEST(TEST_CLASS, ValidationSucceedsWhenAllHarvesterPrivateKeysAreValid)
-    {
-        AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, true));
-        AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, false));
-    }
+	TEST(TEST_CLASS, ValidationSucceedsWhenAllHarvesterPrivateKeysAreValid) {
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, true));
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, false));
+	}
 
-    TEST(TEST_CLASS, ValidationSucceedsWhenAnyHarvesterPrivateKeyIsUnspecifiedAndAutoHarvestingIsDisabled)
-    {
-        AssertValidHarvestingConfiguration(CreateHarvestingConfiguration("", Valid_Key, false));
-        AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, "", false));
-        AssertValidHarvestingConfiguration(CreateHarvestingConfiguration("", "", false));
-    }
+	TEST(TEST_CLASS, ValidationSucceedsWhenAnyHarvesterPrivateKeyIsUnspecifiedAndAutoHarvestingIsDisabled) {
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration("", Valid_Key, false));
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, "", false));
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration("", "", false));
+	}
 
-    // endregion
+	// endregion
 }
 }

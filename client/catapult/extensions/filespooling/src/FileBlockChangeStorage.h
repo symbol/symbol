@@ -27,7 +27,7 @@
 namespace catapult {
 namespace filespooling {
 
-    /// Creates a block change storage around \a pOutputStream.
-    std::unique_ptr<io::BlockChangeSubscriber> CreateFileBlockChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream);
+	/// Creates a block change storage around \a pOutputStream.
+	std::unique_ptr<io::BlockChangeSubscriber> CreateFileBlockChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream);
 }
 }

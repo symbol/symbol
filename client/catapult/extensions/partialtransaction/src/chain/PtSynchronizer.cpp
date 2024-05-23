@@ -26,50 +26,46 @@
 namespace catapult {
 namespace chain {
 
-    namespace {
-        struct PtTraits {
-        public:
-            using RemoteApiType = api::RemotePtApi;
-            static constexpr auto Name = "partial transactions";
+	namespace {
+		struct PtTraits {
+		public:
+			using RemoteApiType = api::RemotePtApi;
+			static constexpr auto Name = "partial transactions";
 
-        public:
-            PtTraits(
-                const TimeSupplier& timeSupplier,
-                const partialtransaction::ShortHashPairsSupplier& shortHashPairsSupplier,
-                const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer)
-                : m_timeSupplier(timeSupplier)
-                , m_shortHashPairsSupplier(shortHashPairsSupplier)
-                , m_transactionInfosConsumer(transactionInfosConsumer)
-            {
-            }
+		public:
+			PtTraits(
+				const TimeSupplier& timeSupplier,
+				const partialtransaction::ShortHashPairsSupplier& shortHashPairsSupplier,
+				const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer)
+				: m_timeSupplier(timeSupplier)
+				, m_shortHashPairsSupplier(shortHashPairsSupplier)
+				, m_transactionInfosConsumer(transactionInfosConsumer) {
+			}
 
-        public:
-            thread::future<partialtransaction::CosignedTransactionInfos> apiCall(const RemoteApiType& api) const
-            {
-                return api.transactionInfos(m_timeSupplier(), m_shortHashPairsSupplier());
-            }
+		public:
+			thread::future<partialtransaction::CosignedTransactionInfos> apiCall(const RemoteApiType& api) const {
+				return api.transactionInfos(m_timeSupplier(), m_shortHashPairsSupplier());
+			}
 
-            void consume(partialtransaction::CosignedTransactionInfos&& transactionInfos, const model::NodeIdentity&) const
-            {
-                m_transactionInfosConsumer(std::move(transactionInfos));
-            }
+			void consume(partialtransaction::CosignedTransactionInfos&& transactionInfos, const model::NodeIdentity&) const {
+				m_transactionInfosConsumer(std::move(transactionInfos));
+			}
 
-        private:
-            TimeSupplier m_timeSupplier;
-            partialtransaction::ShortHashPairsSupplier m_shortHashPairsSupplier;
-            partialtransaction::CosignedTransactionInfosConsumer m_transactionInfosConsumer;
-        };
-    }
+		private:
+			TimeSupplier m_timeSupplier;
+			partialtransaction::ShortHashPairsSupplier m_shortHashPairsSupplier;
+			partialtransaction::CosignedTransactionInfosConsumer m_transactionInfosConsumer;
+		};
+	}
 
-    RemoteNodeSynchronizer<api::RemotePtApi> CreatePtSynchronizer(
-        const TimeSupplier& timeSupplier,
-        const partialtransaction::ShortHashPairsSupplier& shortHashPairsSupplier,
-        const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer,
-        const predicate<>& shouldExecute)
-    {
-        auto traits = PtTraits(timeSupplier, shortHashPairsSupplier, transactionInfosConsumer);
-        auto pSynchronizer = std::make_shared<EntitiesSynchronizer<PtTraits>>(std::move(traits));
-        return CreateConditionalRemoteNodeSynchronizer(pSynchronizer, shouldExecute);
-    }
+	RemoteNodeSynchronizer<api::RemotePtApi> CreatePtSynchronizer(
+		const TimeSupplier& timeSupplier,
+		const partialtransaction::ShortHashPairsSupplier& shortHashPairsSupplier,
+		const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer,
+		const predicate<>& shouldExecute) {
+		auto traits = PtTraits(timeSupplier, shortHashPairsSupplier, transactionInfosConsumer);
+		auto pSynchronizer = std::make_shared<EntitiesSynchronizer<PtTraits>>(std::move(traits));
+		return CreateConditionalRemoteNodeSynchronizer(pSynchronizer, shouldExecute);
+	}
 }
 }

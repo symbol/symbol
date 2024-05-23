@@ -27,55 +27,51 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Cosignature attached to an aggregate transaction.
-    struct Cosignature {
-    public:
-        /// Creates a default cosignature.
-        Cosignature()
-            : Version(0)
-        {
-        }
+	/// Cosignature attached to an aggregate transaction.
+	struct Cosignature {
+	public:
+		/// Creates a default cosignature.
+		Cosignature()
+			: Version(0) {
+		}
 
-        /// Creates a cosignature around \a signerPublicKey and \a signature.
-        Cosignature(const Key& signerPublicKey, const catapult::Signature& signature)
-            : Version(0)
-            , SignerPublicKey(signerPublicKey)
-            , Signature(signature)
-        {
-        }
+		/// Creates a cosignature around \a signerPublicKey and \a signature.
+		Cosignature(const Key& signerPublicKey, const catapult::Signature& signature)
+			: Version(0)
+			, SignerPublicKey(signerPublicKey)
+			, Signature(signature) {
+		}
 
-    public:
-        /// Version.
-        uint64_t Version;
+	public:
+		/// Version.
+		uint64_t Version;
 
-        /// Cosignatory public key.
-        Key SignerPublicKey;
+		/// Cosignatory public key.
+		Key SignerPublicKey;
 
-        /// Cosignatory signature.
-        catapult::Signature Signature;
-    };
+		/// Cosignatory signature.
+		catapult::Signature Signature;
+	};
 
-    /// Cosignature detached from an aggregate transaction.
-    struct DetachedCosignature : public Cosignature {
-    public:
-        /// Creates a detached cosignature around \a signerPublicKey, \a signature and \a parentHash.
-        DetachedCosignature(const Key& signerPublicKey, const catapult::Signature& signature, const Hash256& parentHash)
-            : Cosignature(signerPublicKey, signature)
-            , ParentHash(parentHash)
-        {
-        }
+	/// Cosignature detached from an aggregate transaction.
+	struct DetachedCosignature : public Cosignature {
+	public:
+		/// Creates a detached cosignature around \a signerPublicKey, \a signature and \a parentHash.
+		DetachedCosignature(const Key& signerPublicKey, const catapult::Signature& signature, const Hash256& parentHash)
+			: Cosignature(signerPublicKey, signature)
+			, ParentHash(parentHash) {
+		}
 
-        /// Creates a detached cosignature around \a cosignature and \a parentHash.
-        DetachedCosignature(const Cosignature& cosignature, const Hash256& parentHash)
-            : Cosignature(cosignature)
-            , ParentHash(parentHash)
-        {
-        }
+		/// Creates a detached cosignature around \a cosignature and \a parentHash.
+		DetachedCosignature(const Cosignature& cosignature, const Hash256& parentHash)
+			: Cosignature(cosignature)
+			, ParentHash(parentHash) {
+		}
 
-    public:
-        /// Hash of the aggregate transaction that is signed by this cosignature.
-        Hash256 ParentHash;
-    };
+	public:
+		/// Hash of the aggregate transaction that is signed by this cosignature.
+		Hash256 ParentHash;
+	};
 
 #pragma pack(pop)
 }

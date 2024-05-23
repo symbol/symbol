@@ -29,60 +29,56 @@
 namespace catapult {
 namespace cache {
 
-    using BasicMosaicPatriciaTree = tree::BasePatriciaTree<
-        SerializerHashedKeyEncoder<MosaicCacheDescriptor::Serializer>,
-        PatriciaTreeRdbDataSource,
-        utils::BaseValueHasher<MosaicId>>;
+	using BasicMosaicPatriciaTree = tree::BasePatriciaTree<
+		SerializerHashedKeyEncoder<MosaicCacheDescriptor::Serializer>,
+		PatriciaTreeRdbDataSource,
+		utils::BaseValueHasher<MosaicId>>;
 
-    class MosaicPatriciaTree : public BasicMosaicPatriciaTree {
-    public:
-        using BasicMosaicPatriciaTree::BasicMosaicPatriciaTree;
-        using Serializer = MosaicCacheDescriptor::Serializer;
-    };
+	class MosaicPatriciaTree : public BasicMosaicPatriciaTree {
+	public:
+		using BasicMosaicPatriciaTree::BasicMosaicPatriciaTree;
+		using Serializer = MosaicCacheDescriptor::Serializer;
+	};
 
-    struct MosaicBaseSetDeltaPointers {
-        MosaicCacheTypes::PrimaryTypes::BaseSetDeltaPointerType pPrimary;
-        MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaPointerType pHeightGrouping;
-        std::shared_ptr<MosaicPatriciaTree::DeltaType> pPatriciaTree;
-    };
+	struct MosaicBaseSetDeltaPointers {
+		MosaicCacheTypes::PrimaryTypes::BaseSetDeltaPointerType pPrimary;
+		MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaPointerType pHeightGrouping;
+		std::shared_ptr<MosaicPatriciaTree::DeltaType> pPatriciaTree;
+	};
 
-    struct MosaicBaseSets : public CacheDatabaseMixin {
-    public:
-        /// Indicates the set is not ordered.
-        using IsOrderedSet = std::false_type;
+	struct MosaicBaseSets : public CacheDatabaseMixin {
+	public:
+		/// Indicates the set is not ordered.
+		using IsOrderedSet = std::false_type;
 
-    public:
-        explicit MosaicBaseSets(const CacheConfiguration& config)
-            : CacheDatabaseMixin(config, { "default", "height_grouping" })
-            , Primary(GetContainerMode(config), database(), 0)
-            , HeightGrouping(GetContainerMode(config), database(), 1)
-            , PatriciaTree(hasPatriciaTreeSupport(), database(), 2)
-        {
-        }
+	public:
+		explicit MosaicBaseSets(const CacheConfiguration& config)
+			: CacheDatabaseMixin(config, { "default", "height_grouping" })
+			, Primary(GetContainerMode(config), database(), 0)
+			, HeightGrouping(GetContainerMode(config), database(), 1)
+			, PatriciaTree(hasPatriciaTreeSupport(), database(), 2) {
+		}
 
-    public:
-        MosaicCacheTypes::PrimaryTypes::BaseSetType Primary;
-        MosaicCacheTypes::HeightGroupingTypes::BaseSetType HeightGrouping;
-        CachePatriciaTree<MosaicPatriciaTree> PatriciaTree;
+	public:
+		MosaicCacheTypes::PrimaryTypes::BaseSetType Primary;
+		MosaicCacheTypes::HeightGroupingTypes::BaseSetType HeightGrouping;
+		CachePatriciaTree<MosaicPatriciaTree> PatriciaTree;
 
-    public:
-        MosaicBaseSetDeltaPointers rebase()
-        {
-            return { Primary.rebase(), HeightGrouping.rebase(), PatriciaTree.rebase() };
-        }
+	public:
+		MosaicBaseSetDeltaPointers rebase() {
+			return { Primary.rebase(), HeightGrouping.rebase(), PatriciaTree.rebase() };
+		}
 
-        MosaicBaseSetDeltaPointers rebaseDetached() const
-        {
-            return { Primary.rebaseDetached(), HeightGrouping.rebaseDetached(), PatriciaTree.rebaseDetached() };
-        }
+		MosaicBaseSetDeltaPointers rebaseDetached() const {
+			return { Primary.rebaseDetached(), HeightGrouping.rebaseDetached(), PatriciaTree.rebaseDetached() };
+		}
 
-        void commit()
-        {
-            Primary.commit();
-            HeightGrouping.commit();
-            PatriciaTree.commit();
-            flush();
-        }
-    };
+		void commit() {
+			Primary.commit();
+			HeightGrouping.commit();
+			PatriciaTree.commit();
+			flush();
+		}
+	};
 }
 }

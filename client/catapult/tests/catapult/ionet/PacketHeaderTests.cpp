@@ -28,57 +28,53 @@ namespace ionet {
 
 #define TEST_CLASS PacketHeaderTests
 
-    // region IsPacketDataSizeValid
+	// region IsPacketDataSizeValid
 
-    TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsFalseWhenPacketSizeIsTooSmall)
-    {
-        // Arrange:
-        for (auto size : std::initializer_list<uint32_t> { 0, sizeof(PacketHeader) / 2, sizeof(PacketHeader) - 1 }) {
-            auto header = PacketHeader { size, PacketType::Undefined };
+	TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsFalseWhenPacketSizeIsTooSmall) {
+		// Arrange:
+		for (auto size : std::initializer_list<uint32_t> { 0, sizeof(PacketHeader) / 2, sizeof(PacketHeader) - 1 }) {
+			auto header = PacketHeader { size, PacketType::Undefined };
 
-            // Act + Assert:
-            EXPECT_FALSE(IsPacketDataSizeValid(header, 1234)) << size;
-        }
-    }
+			// Act + Assert:
+			EXPECT_FALSE(IsPacketDataSizeValid(header, 1234)) << size;
+		}
+	}
 
-    TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsTrueWhenPacketSizeIsInAllowableRange)
-    {
-        // Arrange:
-        for (auto size : std::initializer_list<uint32_t> { 0, 789, 1234 }) {
-            auto header = PacketHeader { SizeOf32<PacketHeader>() + size, PacketType::Undefined };
+	TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsTrueWhenPacketSizeIsInAllowableRange) {
+		// Arrange:
+		for (auto size : std::initializer_list<uint32_t> { 0, 789, 1234 }) {
+			auto header = PacketHeader { SizeOf32<PacketHeader>() + size, PacketType::Undefined };
 
-            // Act + Assert:
-            EXPECT_TRUE(IsPacketDataSizeValid(header, 1234)) << size;
-        }
-    }
+			// Act + Assert:
+			EXPECT_TRUE(IsPacketDataSizeValid(header, 1234)) << size;
+		}
+	}
 
-    TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsFalseWhenPacketSizeIsTooLarge)
-    {
-        // Arrange:
-        for (auto size : std::initializer_list<uint32_t> { 1235, 9999, std::numeric_limits<uint32_t>::max() }) {
-            auto header = PacketHeader { SizeOf32<PacketHeader>() + size, PacketType::Undefined };
+	TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsFalseWhenPacketSizeIsTooLarge) {
+		// Arrange:
+		for (auto size : std::initializer_list<uint32_t> { 1235, 9999, std::numeric_limits<uint32_t>::max() }) {
+			auto header = PacketHeader { SizeOf32<PacketHeader>() + size, PacketType::Undefined };
 
-            // Act + Assert:
-            EXPECT_FALSE(IsPacketDataSizeValid(header, 1234)) << size;
-        }
-    }
+			// Act + Assert:
+			EXPECT_FALSE(IsPacketDataSizeValid(header, 1234)) << size;
+		}
+	}
 
-    // endregion
+	// endregion
 
-    // region to string
+	// region to string
 
-    TEST(TEST_CLASS, CanOutputPacketHeader)
-    {
-        // Arrange:
-        auto header = PacketHeader { 572, PacketType::Push_Block };
+	TEST(TEST_CLASS, CanOutputPacketHeader) {
+		// Arrange:
+		auto header = PacketHeader { 572, PacketType::Push_Block };
 
-        // Act:
-        auto str = test::ToString(header);
+		// Act:
+		auto str = test::ToString(header);
 
-        // Assert:
-        EXPECT_EQ("packet Push_Block with size 572", str);
-    }
+		// Assert:
+		EXPECT_EQ("packet Push_Block with size 572", str);
+	}
 
-    // endregion
+	// endregion
 }
 }

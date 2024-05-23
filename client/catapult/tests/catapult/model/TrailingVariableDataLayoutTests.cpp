@@ -31,94 +31,87 @@ namespace model {
 
 #define TEST_CLASS TrailingVariableDataLayoutTests
 
-    // region MosaicContainer
+	// region MosaicContainer
 
-    namespace {
+	namespace {
 #pragma pack(push, 1)
 
-        struct MosaicContainer : public TrailingVariableDataLayout<MosaicContainer, Mosaic> {
-        public:
-            // fixed size header
-            uint16_t MosaicsCount;
+		struct MosaicContainer : public TrailingVariableDataLayout<MosaicContainer, Mosaic> {
+		public:
+			// fixed size header
+			uint16_t MosaicsCount;
 
-        public:
-            const Mosaic* MosaicsPtr() const
-            {
-                return MosaicsCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
-            }
+		public:
+			const Mosaic* MosaicsPtr() const {
+				return MosaicsCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
+			}
 
-            Mosaic* MosaicsPtr()
-            {
-                return MosaicsCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
-            }
+			Mosaic* MosaicsPtr() {
+				return MosaicsCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
+			}
 
-        public:
-            static constexpr uint64_t CalculateRealSize(const MosaicContainer& container) noexcept
-            {
-                return sizeof(MosaicContainer) + container.MosaicsCount * sizeof(Mosaic);
-            }
-        };
+		public:
+			static constexpr uint64_t CalculateRealSize(const MosaicContainer& container) noexcept {
+				return sizeof(MosaicContainer) + container.MosaicsCount * sizeof(Mosaic);
+			}
+		};
 
 #pragma pack(pop)
-    }
+	}
 
-    // endregion
+	// endregion
 
-    // region size + alignment
+	// region size + alignment
 
 #define LAYOUT_FIELDS FIELD(Size)
 
-    TEST(TEST_CLASS, LayoutHasExpectedSize)
-    {
-        // Arrange:
-        using Layout = TrailingVariableDataLayout<MosaicContainer, Mosaic>;
-        auto expectedSize = 0u;
+	TEST(TEST_CLASS, LayoutHasExpectedSize) {
+		// Arrange:
+		using Layout = TrailingVariableDataLayout<MosaicContainer, Mosaic>;
+		auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(Layout::X)>();
-        LAYOUT_FIELDS
+		LAYOUT_FIELDS
 #undef FIELD
 
-        // Assert:
-        EXPECT_EQ(expectedSize, sizeof(Layout));
-        EXPECT_EQ(4u, sizeof(Layout));
-    }
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(Layout));
+		EXPECT_EQ(4u, sizeof(Layout));
+	}
 
-    TEST(TEST_CLASS, LayoutHasProperAlignment)
-    {
-        using Layout = TrailingVariableDataLayout<MosaicContainer, Mosaic>;
+	TEST(TEST_CLASS, LayoutHasProperAlignment) {
+		using Layout = TrailingVariableDataLayout<MosaicContainer, Mosaic>;
 
 #define FIELD(X) EXPECT_ALIGNED(Layout, X);
-        LAYOUT_FIELDS
+		LAYOUT_FIELDS
 #undef FIELD
-    }
+	}
 
 #undef LAYOUT_FIELDS
 
-    // endregion
+	// endregion
 
-    // region attachment pointer tests
+	// region attachment pointer tests
 
-    namespace {
-        struct MosaicContainerTraits {
-            static auto GenerateEntityWithAttachments(uint16_t count)
-            {
-                uint32_t entitySize = SizeOf32<MosaicContainer>() + count * SizeOf32<Mosaic>();
-                auto pContainer = utils::MakeUniqueWithSize<MosaicContainer>(entitySize);
-                pContainer->Size = entitySize;
-                pContainer->MosaicsCount = count;
-                return pContainer;
-            }
+	namespace {
+		struct MosaicContainerTraits {
+			static auto GenerateEntityWithAttachments(uint16_t count) {
+				uint32_t entitySize = SizeOf32<MosaicContainer>() + count * SizeOf32<Mosaic>();
+				auto pContainer = utils::MakeUniqueWithSize<MosaicContainer>(entitySize);
+				pContainer->Size = entitySize;
+				pContainer->MosaicsCount = count;
+				return pContainer;
+			}
 
-            template <typename TEntity>
-            static auto GetAttachmentPointer(TEntity& entity)
-            {
-                return entity.MosaicsPtr();
-            }
-        };
-    }
+			template <typename TEntity>
+			static auto GetAttachmentPointer(TEntity& entity) {
+				return entity.MosaicsPtr();
+			}
+		};
+	}
 
-    DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, MosaicContainerTraits) // MosaicsPtr
+	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, MosaicContainerTraits) // MosaicsPtr
 
-    // endregion
+	// endregion
 }
 }

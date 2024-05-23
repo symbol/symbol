@@ -25,36 +25,36 @@
 
 namespace catapult {
 namespace cache {
-    class CatapultCache;
+	class CatapultCache;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// Relockable detached catapult cache.
-    class RelockableDetachedCatapultCache {
-    public:
-        /// Creates a relockable detached catapult cache around \a catapultCache.
-        explicit RelockableDetachedCatapultCache(const CatapultCache& catapultCache);
+	/// Relockable detached catapult cache.
+	class RelockableDetachedCatapultCache {
+	public:
+		/// Creates a relockable detached catapult cache around \a catapultCache.
+		explicit RelockableDetachedCatapultCache(const CatapultCache& catapultCache);
 
-        /// Destroys the relockable detached catapult cache.
-        ~RelockableDetachedCatapultCache();
+		/// Destroys the relockable detached catapult cache.
+		~RelockableDetachedCatapultCache();
 
-    public:
-        /// Gets the current cache height.
-        Height height() const;
+	public:
+		/// Gets the current cache height.
+		Height height() const;
 
-        /// Gets the last (detached) catapult cache delta and locks it.
-        /// \note If locking fails, \c nullptr is returned.
-        std::unique_ptr<CatapultCacheDelta> getAndTryLock();
+		/// Gets the last (detached) catapult cache delta and locks it.
+		/// \note If locking fails, \c nullptr is returned.
+		std::unique_ptr<CatapultCacheDelta> getAndTryLock();
 
-        /// Rebases and locks the (detached) catapult cache delta.
-        std::unique_ptr<CatapultCacheDelta> rebaseAndLock();
+		/// Rebases and locks the (detached) catapult cache delta.
+		std::unique_ptr<CatapultCacheDelta> rebaseAndLock();
 
-    private:
-        class Impl;
-        std::unique_ptr<Impl> m_pImpl;
-    };
+	private:
+		class Impl;
+		std::unique_ptr<Impl> m_pImpl;
+	};
 }
 }

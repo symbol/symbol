@@ -28,8 +28,8 @@ namespace model {
 
 #endif
 
-    /// Multisig account modification transaction.
-    DEFINE_TRANSACTION_TYPE(Multisig, Multisig_Account_Modification, 0x1);
+	/// Multisig account modification transaction.
+	DEFINE_TRANSACTION_TYPE(Multisig, Multisig_Account_Modification, 0x1);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

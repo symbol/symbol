@@ -31,53 +31,51 @@ namespace subscribers {
 
 #define TEST_CLASS AggregateBlockChangeSubscriberTests
 
-    namespace {
-        using UnsupportedBlockChangeSubscriber = test::UnsupportedBlockChangeSubscriber;
+	namespace {
+		using UnsupportedBlockChangeSubscriber = test::UnsupportedBlockChangeSubscriber;
 
-        template <typename TBlockChangeSubscriber>
-        using TestContext = test::AggregateSubscriberTestContext<TBlockChangeSubscriber, AggregateBlockChangeSubscriber<TBlockChangeSubscriber>>;
-    }
+		template <typename TBlockChangeSubscriber>
+		using TestContext = test::AggregateSubscriberTestContext<TBlockChangeSubscriber, AggregateBlockChangeSubscriber<TBlockChangeSubscriber>>;
+	}
 
-    TEST(TEST_CLASS, NotifyBlockForwardsToAllSubscribers)
-    {
-        // Arrange:
-        TestContext<mocks::MockBlockChangeSubscriber> context;
-        auto pBlock = test::GenerateEmptyRandomBlock();
-        auto pBlockElement = std::make_shared<model::BlockElement>(*pBlock);
+	TEST(TEST_CLASS, NotifyBlockForwardsToAllSubscribers) {
+		// Arrange:
+		TestContext<mocks::MockBlockChangeSubscriber> context;
+		auto pBlock = test::GenerateEmptyRandomBlock();
+		auto pBlockElement = std::make_shared<model::BlockElement>(*pBlock);
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().notifyBlock(*pBlockElement);
+		// Act:
+		context.aggregate().notifyBlock(*pBlockElement);
 
-        // Assert:
-        auto i = 0u;
-        for (const auto* pSubscriber : context.subscribers()) {
-            auto message = "subscriber at " + std::to_string(i++);
-            ASSERT_EQ(1u, pSubscriber->blockElements().size()) << message;
-            EXPECT_EQ(pBlockElement.get(), pSubscriber->blockElements()[0]) << message;
-        }
-    }
+		// Assert:
+		auto i = 0u;
+		for (const auto* pSubscriber : context.subscribers()) {
+			auto message = "subscriber at " + std::to_string(i++);
+			ASSERT_EQ(1u, pSubscriber->blockElements().size()) << message;
+			EXPECT_EQ(pBlockElement.get(), pSubscriber->blockElements()[0]) << message;
+		}
+	}
 
-    TEST(TEST_CLASS, NotifyDropBlocksAfterForwardsToAllSubscribers)
-    {
-        // Arrange:
-        TestContext<mocks::MockBlockChangeSubscriber> context;
+	TEST(TEST_CLASS, NotifyDropBlocksAfterForwardsToAllSubscribers) {
+		// Arrange:
+		TestContext<mocks::MockBlockChangeSubscriber> context;
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().notifyDropBlocksAfter(Height(553));
+		// Act:
+		context.aggregate().notifyDropBlocksAfter(Height(553));
 
-        // Assert:
-        auto i = 0u;
-        for (const auto* pSubscriber : context.subscribers()) {
-            auto message = "subscriber at " + std::to_string(i++);
-            ASSERT_EQ(1u, pSubscriber->dropBlocksAfterHeights().size()) << message;
-            EXPECT_EQ(Height(553), pSubscriber->dropBlocksAfterHeights()[0]) << message;
-        }
-    }
+		// Assert:
+		auto i = 0u;
+		for (const auto* pSubscriber : context.subscribers()) {
+			auto message = "subscriber at " + std::to_string(i++);
+			ASSERT_EQ(1u, pSubscriber->dropBlocksAfterHeights().size()) << message;
+			EXPECT_EQ(Height(553), pSubscriber->dropBlocksAfterHeights()[0]) << message;
+		}
+	}
 }
 }

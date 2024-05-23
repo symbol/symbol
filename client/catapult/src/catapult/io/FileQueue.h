@@ -28,59 +28,59 @@
 namespace catapult {
 namespace io {
 
-    /// File based queue writer where each message is represented by a file (with incrementing names) in a directory.
-    /// \note Each call to flush will additionally create a new file.
-    class FileQueueWriter final : public OutputStream {
-    public:
-        /// Creates a file queue writer around \a directory.
-        explicit FileQueueWriter(const std::string& directory);
+	/// File based queue writer where each message is represented by a file (with incrementing names) in a directory.
+	/// \note Each call to flush will additionally create a new file.
+	class FileQueueWriter final : public OutputStream {
+	public:
+		/// Creates a file queue writer around \a directory.
+		explicit FileQueueWriter(const std::string& directory);
 
-        /// Creates a file queue writer around \a directory containing a (writer) index file (\a indexFilename).
-        FileQueueWriter(const std::string& directory, const std::string& indexFilename);
+		/// Creates a file queue writer around \a directory containing a (writer) index file (\a indexFilename).
+		FileQueueWriter(const std::string& directory, const std::string& indexFilename);
 
-    public:
-        void write(const RawBuffer& buffer) override;
-        void flush() override;
+	public:
+		void write(const RawBuffer& buffer) override;
+		void flush() override;
 
-    private:
-        std::filesystem::path m_directory;
-        IndexFile m_indexFile;
-        uint64_t m_indexValue;
-        std::unique_ptr<BufferedOutputFileStream> m_pOutputStream;
-    };
+	private:
+		std::filesystem::path m_directory;
+		IndexFile m_indexFile;
+		uint64_t m_indexValue;
+		std::unique_ptr<BufferedOutputFileStream> m_pOutputStream;
+	};
 
-    /// File based queue reader where each message is represented by a file (with incrementing names) in a directory.
-    class FileQueueReader final {
-    public:
-        /// Creates a file queue reader around \a directory.
-        explicit FileQueueReader(const std::string& directory);
+	/// File based queue reader where each message is represented by a file (with incrementing names) in a directory.
+	class FileQueueReader final {
+	public:
+		/// Creates a file queue reader around \a directory.
+		explicit FileQueueReader(const std::string& directory);
 
-        /// Creates a file queue reader around \a directory containing (reader and writer) index files
-        /// (\a readerIndexFilename, \a writerIndexFilename).
-        FileQueueReader(const std::string& directory, const std::string& readerIndexFilename, const std::string& writerIndexFilename);
+		/// Creates a file queue reader around \a directory containing (reader and writer) index files
+		/// (\a readerIndexFilename, \a writerIndexFilename).
+		FileQueueReader(const std::string& directory, const std::string& readerIndexFilename, const std::string& writerIndexFilename);
 
-    public:
-        /// Gets the number of pending messages.
-        size_t pending() const;
+	public:
+		/// Gets the number of pending messages.
+		size_t pending() const;
 
-    public:
-        /// Tries to read the next message and forwards it to \a consumer if successful.
-        bool tryReadNextMessage(const consumer<const std::vector<uint8_t>&>& consumer);
+	public:
+		/// Tries to read the next message and forwards it to \a consumer if successful.
+		bool tryReadNextMessage(const consumer<const std::vector<uint8_t>&>& consumer);
 
-        /// Tries to read the next message and forwards it to \a predicate if successful.
-        /// When \a predicate returns \c false, processing is stopped and message is not consumed.
-        bool tryReadNextMessageConditional(const predicate<const std::vector<uint8_t>&>& predicate);
+		/// Tries to read the next message and forwards it to \a predicate if successful.
+		/// When \a predicate returns \c false, processing is stopped and message is not consumed.
+		bool tryReadNextMessageConditional(const predicate<const std::vector<uint8_t>&>& predicate);
 
-        /// Skips at most the next \a count messages.
-        void skip(uint32_t count);
+		/// Skips at most the next \a count messages.
+		void skip(uint32_t count);
 
-    private:
-        bool process(const predicate<const std::string&>& processFilename);
+	private:
+		bool process(const predicate<const std::string&>& processFilename);
 
-    private:
-        std::filesystem::path m_directory;
-        IndexFile m_readerIndexFile;
-        IndexFile m_writerIndexFile;
-    };
+	private:
+		std::filesystem::path m_directory;
+		IndexFile m_readerIndexFile;
+		IndexFile m_writerIndexFile;
+	};
 }
 }

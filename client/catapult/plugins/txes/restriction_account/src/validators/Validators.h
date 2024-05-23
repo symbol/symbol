@@ -28,69 +28,69 @@ namespace catapult {
 namespace validators {
 
 #define DECLARE_SHARED_VALIDATORS(VALUE_NAME)                                                                                         \
-    /* Validator that applies to account restriction notifications and validates that: */                                             \
-    /* - there is no redundant restriction modification */                                                                            \
-    DECLARE_STATEFUL_VALIDATOR(                                                                                                       \
-        Account##VALUE_NAME##RestrictionRedundantModification,                                                                        \
-        model::ModifyAccount##VALUE_NAME##RestrictionsNotification)                                                                   \
-    ();                                                                                                                               \
+	/* Validator that applies to account restriction notifications and validates that: */                                             \
+	/* - there is no redundant restriction modification */                                                                            \
+	DECLARE_STATEFUL_VALIDATOR(                                                                                                       \
+		Account##VALUE_NAME##RestrictionRedundantModification,                                                                        \
+		model::ModifyAccount##VALUE_NAME##RestrictionsNotification)                                                                   \
+	();                                                                                                                               \
                                                                                                                                       \
-    /* Validator that applies to account restriction value notifications and validates that: */                                       \
-    /* - add modification does not add a known value */                                                                               \
-    /* - delete modification does not delete an unknown value */                                                                      \
-    DECLARE_STATEFUL_VALIDATOR(                                                                                                       \
-        Account##VALUE_NAME##RestrictionValueModification,                                                                            \
-        model::ModifyAccount##VALUE_NAME##RestrictionValueNotification)                                                               \
-    ();                                                                                                                               \
+	/* Validator that applies to account restriction value notifications and validates that: */                                       \
+	/* - add modification does not add a known value */                                                                               \
+	/* - delete modification does not delete an unknown value */                                                                      \
+	DECLARE_STATEFUL_VALIDATOR(                                                                                                       \
+		Account##VALUE_NAME##RestrictionValueModification,                                                                            \
+		model::ModifyAccount##VALUE_NAME##RestrictionValueNotification)                                                               \
+	();                                                                                                                               \
                                                                                                                                       \
-    /* Validator that applies to account restriction notifications and validates that: */                                             \
-    /* - the maximum number of modifications (\a maxAccountRestrictionValues) is not exceeded */                                      \
-    /* - the maximum number of account restriction values (\a maxAccountRestrictionValues) is not exeeded */                          \
-    DECLARE_STATEFUL_VALIDATOR(MaxAccount##VALUE_NAME##RestrictionValues, model::ModifyAccount##VALUE_NAME##RestrictionsNotification) \
-    (uint16_t maxAccountRestrictionValues);
+	/* Validator that applies to account restriction notifications and validates that: */                                             \
+	/* - the maximum number of modifications (\a maxAccountRestrictionValues) is not exceeded */                                      \
+	/* - the maximum number of account restriction values (\a maxAccountRestrictionValues) is not exeeded */                          \
+	DECLARE_STATEFUL_VALIDATOR(MaxAccount##VALUE_NAME##RestrictionValues, model::ModifyAccount##VALUE_NAME##RestrictionsNotification) \
+	(uint16_t maxAccountRestrictionValues);
 
-    DECLARE_SHARED_VALIDATORS(Address)
-    DECLARE_SHARED_VALIDATORS(Mosaic)
-    DECLARE_SHARED_VALIDATORS(Operation)
+	DECLARE_SHARED_VALIDATORS(Address)
+	DECLARE_SHARED_VALIDATORS(Mosaic)
+	DECLARE_SHARED_VALIDATORS(Operation)
 
-    /// Validator that applies to account restriction modification notifications and validates that:
-    /// - restriction flags are known
-    DECLARE_STATELESS_VALIDATOR(AccountRestrictionFlags, model::AccountRestrictionModificationNotification)
-    ();
+	/// Validator that applies to account restriction modification notifications and validates that:
+	/// - restriction flags are known
+	DECLARE_STATELESS_VALIDATOR(AccountRestrictionFlags, model::AccountRestrictionModificationNotification)
+	();
 
-    /// Validator that applies to account restriction modification notifications and validates that:
-    /// - there is at least one restriction modification
-    DECLARE_STATELESS_VALIDATOR(AccountRestrictionModificationPresent, model::AccountRestrictionModificationNotification)
-    ();
+	/// Validator that applies to account restriction modification notifications and validates that:
+	/// - there is at least one restriction modification
+	DECLARE_STATELESS_VALIDATOR(AccountRestrictionModificationPresent, model::AccountRestrictionModificationNotification)
+	();
 
-    /// Validator that applies to account address restriction value notifications and validates that:
-    /// - modification value is valid
-    DECLARE_STATEFUL_VALIDATOR(AccountAddressRestrictionNoSelfModification, model::ModifyAccountAddressRestrictionValueNotification)
-    ();
+	/// Validator that applies to account address restriction value notifications and validates that:
+	/// - modification value is valid
+	DECLARE_STATEFUL_VALIDATOR(AccountAddressRestrictionNoSelfModification, model::ModifyAccountAddressRestrictionValueNotification)
+	();
 
-    /// Validator that applies to address interaction notifications and validates that:
-    /// - the source address is allowed to interact with all participant addresses
-    DECLARE_STATEFUL_VALIDATOR(AddressInteraction, model::AddressInteractionNotification)
-    ();
+	/// Validator that applies to address interaction notifications and validates that:
+	/// - the source address is allowed to interact with all participant addresses
+	DECLARE_STATEFUL_VALIDATOR(AddressInteraction, model::AddressInteractionNotification)
+	();
 
-    /// Validator that applies to balance transfer notifications and validates that:
-    /// - the mosaic is allowed to be transferred to the recipient
-    DECLARE_STATEFUL_VALIDATOR(MosaicRecipient, model::BalanceTransferNotification)
-    ();
+	/// Validator that applies to balance transfer notifications and validates that:
+	/// - the mosaic is allowed to be transferred to the recipient
+	DECLARE_STATEFUL_VALIDATOR(MosaicRecipient, model::BalanceTransferNotification)
+	();
 
-    /// Validator that applies to account transaction restriction notifications and validates that:
-    /// - all transaction modification values are valid
-    DECLARE_STATELESS_VALIDATOR(AccountOperationRestrictionModificationValues, model::ModifyAccountOperationRestrictionsNotification)
-    ();
+	/// Validator that applies to account transaction restriction notifications and validates that:
+	/// - all transaction modification values are valid
+	DECLARE_STATELESS_VALIDATOR(AccountOperationRestrictionModificationValues, model::ModifyAccountOperationRestrictionsNotification)
+	();
 
-    /// Validator that applies to transaction notifications and validates that:
-    /// - the signer is allowed to initiate a transaction of the specified transaction type
-    DECLARE_STATEFUL_VALIDATOR(OperationRestriction, model::TransactionNotification)
-    ();
+	/// Validator that applies to transaction notifications and validates that:
+	/// - the signer is allowed to initiate a transaction of the specified transaction type
+	DECLARE_STATEFUL_VALIDATOR(OperationRestriction, model::TransactionNotification)
+	();
 
-    /// Validator that applies to account transaction restriction notifications and validates that:
-    /// - account operation restriction transactions are not blocked
-    DECLARE_STATEFUL_VALIDATOR(AccountOperationRestrictionNoSelfBlocking, model::ModifyAccountOperationRestrictionValueNotification)
-    ();
+	/// Validator that applies to account transaction restriction notifications and validates that:
+	/// - account operation restriction transactions are not blocked
+	DECLARE_STATEFUL_VALIDATOR(AccountOperationRestrictionNoSelfBlocking, model::ModifyAccountOperationRestrictionValueNotification)
+	();
 }
 }

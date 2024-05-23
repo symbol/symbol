@@ -26,25 +26,23 @@
 namespace catapult {
 namespace handlers {
 
-    namespace {
-        auto CreatePushCosignaturesHandler(const CosignatureRangeHandler& rangeHandler)
-        {
-            return [rangeHandler](const ionet::Packet& packet, const auto& context) {
-                auto range = ionet::ExtractFixedSizeStructuresFromPacket<model::DetachedCosignature>(packet);
-                if (range.empty()) {
-                    CATAPULT_LOG(warning) << "rejecting empty range: " << packet;
-                    return;
-                }
+	namespace {
+		auto CreatePushCosignaturesHandler(const CosignatureRangeHandler& rangeHandler) {
+			return [rangeHandler](const ionet::Packet& packet, const auto& context) {
+				auto range = ionet::ExtractFixedSizeStructuresFromPacket<model::DetachedCosignature>(packet);
+				if (range.empty()) {
+					CATAPULT_LOG(warning) << "rejecting empty range: " << packet;
+					return;
+				}
 
-                CATAPULT_LOG(trace) << "received valid " << packet;
-                rangeHandler({ std::move(range), { context.key(), context.host() } });
-            };
-        }
-    }
+				CATAPULT_LOG(trace) << "received valid " << packet;
+				rangeHandler({ std::move(range), { context.key(), context.host() } });
+			};
+		}
+	}
 
-    void RegisterPushCosignaturesHandler(ionet::ServerPacketHandlers& handlers, const CosignatureRangeHandler& cosignatureRangeHandler)
-    {
-        handlers.registerHandler(ionet::PacketType::Push_Detached_Cosignatures, CreatePushCosignaturesHandler(cosignatureRangeHandler));
-    }
+	void RegisterPushCosignaturesHandler(ionet::ServerPacketHandlers& handlers, const CosignatureRangeHandler& cosignatureRangeHandler) {
+		handlers.registerHandler(ionet::PacketType::Push_Detached_Cosignatures, CreatePushCosignaturesHandler(cosignatureRangeHandler));
+	}
 }
 }

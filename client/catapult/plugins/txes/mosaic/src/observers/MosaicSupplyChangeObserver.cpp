@@ -26,33 +26,32 @@
 namespace catapult {
 namespace observers {
 
-    using Notification = model::MosaicSupplyChangeNotification;
+	using Notification = model::MosaicSupplyChangeNotification;
 
-    namespace {
-        constexpr bool ShouldIncrease(NotifyMode mode, model::MosaicSupplyChangeAction action)
-        {
-            return (NotifyMode::Commit == mode && model::MosaicSupplyChangeAction::Increase == action)
-                || (NotifyMode::Rollback == mode && model::MosaicSupplyChangeAction::Decrease == action);
-        }
-    }
+	namespace {
+		constexpr bool ShouldIncrease(NotifyMode mode, model::MosaicSupplyChangeAction action) {
+			return (NotifyMode::Commit == mode && model::MosaicSupplyChangeAction::Increase == action)
+				|| (NotifyMode::Rollback == mode && model::MosaicSupplyChangeAction::Decrease == action);
+		}
+	}
 
-    DEFINE_OBSERVER(MosaicSupplyChange, Notification, [](const Notification& notification, const ObserverContext& context) {
-        auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-        auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-        auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
+	DEFINE_OBSERVER(MosaicSupplyChange, Notification, [](const Notification& notification, const ObserverContext& context) {
+		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+		auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
 
-        auto accountStateIter = accountStateCache.find(notification.Owner);
-        auto& accountState = accountStateIter.get();
+		auto accountStateIter = accountStateCache.find(notification.Owner);
+		auto& accountState = accountStateIter.get();
 
-        auto mosaicIter = mosaicCache.find(mosaicId);
-        auto& mosaicEntry = mosaicIter.get();
-        if (ShouldIncrease(context.Mode, notification.Action)) {
-            accountState.Balances.credit(mosaicId, notification.Delta);
-            mosaicEntry.increaseSupply(notification.Delta);
-        } else {
-            accountState.Balances.debit(mosaicId, notification.Delta);
-            mosaicEntry.decreaseSupply(notification.Delta);
-        }
-    })
+		auto mosaicIter = mosaicCache.find(mosaicId);
+		auto& mosaicEntry = mosaicIter.get();
+		if (ShouldIncrease(context.Mode, notification.Action)) {
+			accountState.Balances.credit(mosaicId, notification.Delta);
+			mosaicEntry.increaseSupply(notification.Delta);
+		} else {
+			accountState.Balances.debit(mosaicId, notification.Delta);
+			mosaicEntry.decreaseSupply(notification.Delta);
+		}
+	})
 }
 }

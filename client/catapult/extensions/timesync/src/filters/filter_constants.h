@@ -25,25 +25,25 @@
 
 namespace catapult {
 namespace timesync {
-    namespace filters {
+	namespace filters {
 
-        /// Start value for the maximum tolerated deviation in ms.
-        constexpr auto Tolerated_Deviation_Start = utils::TimeSpan::FromMinutes(120);
+		/// Start value for the maximum tolerated deviation in ms.
+		constexpr auto Tolerated_Deviation_Start = utils::TimeSpan::FromMinutes(120);
 
-        /// Minimum value for the maximum tolerated deviation in ms.
-        constexpr auto Tolerated_Deviation_Minimum = utils::TimeSpan::FromMinutes(1);
+		/// Minimum value for the maximum tolerated deviation in ms.
+		constexpr auto Tolerated_Deviation_Minimum = utils::TimeSpan::FromMinutes(1);
 
-        /// Value that indicates after which round the decay starts.
-        constexpr int64_t Start_Decay_After_Round = 5;
+		/// Value that indicates after which round the decay starts.
+		constexpr int64_t Start_Decay_After_Round = 5;
 
-        /// Value that indicates the speed of the decay.
-        constexpr double Decay_Strength = 0.3;
+		/// Value that indicates the speed of the decay.
+		constexpr double Decay_Strength = 0.3;
 
-        /// Value that indicates the percentage of the samples is discarded.
-        constexpr double Alpha = 0.4;
+		/// Value that indicates the percentage of the samples is discarded.
+		constexpr double Alpha = 0.4;
 
-        /// Maximum time in ms that a response to a time sync request may take.
-        constexpr int64_t Tolerated_Duration_Maximum = 1000;
-    }
+		/// Maximum time in ms that a response to a time sync request may take.
+		constexpr int64_t Tolerated_Duration_Maximum = 1000;
+	}
 }
 }

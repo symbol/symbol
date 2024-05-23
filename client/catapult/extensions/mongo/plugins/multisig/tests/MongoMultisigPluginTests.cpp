@@ -25,31 +25,28 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct MongoMultisigPluginTraits {
-            public:
-                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+		namespace {
+			struct MongoMultisigPluginTraits {
+			public:
+				static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-                static std::vector<model::EntityType> GetTransactionTypes()
-                {
-                    return { model::Entity_Type_Multisig_Account_Modification };
-                }
+				static std::vector<model::EntityType> GetTransactionTypes() {
+					return { model::Entity_Type_Multisig_Account_Modification };
+				}
 
-                static std::vector<model::ReceiptType> GetReceiptTypes()
-                {
-                    return {};
-                }
+				static std::vector<model::ReceiptType> GetReceiptTypes() {
+					return {};
+				}
 
-                static std::string GetStorageName()
-                {
-                    return "{ MultisigCache }";
-                }
-            };
-        }
+				static std::string GetStorageName() {
+					return "{ MultisigCache }";
+				}
+			};
+		}
 
-        DEFINE_MONGO_PLUGIN_TESTS(MongoMultisigPluginTests, MongoMultisigPluginTraits)
-    }
+		DEFINE_MONGO_PLUGIN_TESTS(MongoMultisigPluginTests, MongoMultisigPluginTraits)
+	}
 }
 }

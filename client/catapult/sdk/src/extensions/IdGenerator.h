@@ -27,10 +27,10 @@
 namespace catapult {
 namespace extensions {
 
-    /// Generates a mosaic id given mosaic alias \a name.
-    UnresolvedMosaicId GenerateMosaicAliasId(const RawString& name);
+	/// Generates a mosaic id given mosaic alias \a name.
+	UnresolvedMosaicId GenerateMosaicAliasId(const RawString& name);
 
-    /// Parses a unified namespace \a name into a path.
-    std::vector<NamespaceId> GenerateNamespacePath(const RawString& name);
+	/// Parses a unified namespace \a name into a path.
+	std::vector<NamespaceId> GenerateNamespacePath(const RawString& name);
 }
 }

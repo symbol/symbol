@@ -25,33 +25,30 @@
 namespace catapult {
 namespace harvesting {
 
-    namespace {
-        Amount CalculateTotalFee(const FeePolicy& policy)
-        {
-            return Amount(policy.FeeMultiplier.unwrap() * policy.BaseFee.unwrap());
-        }
-    }
+	namespace {
+		Amount CalculateTotalFee(const FeePolicy& policy) {
+			return Amount(policy.FeeMultiplier.unwrap() * policy.BaseFee.unwrap());
+		}
+	}
 
-    const FeePolicy& TransactionFeeMaximizer::best() const
-    {
-        return m_best;
-    }
+	const FeePolicy& TransactionFeeMaximizer::best() const {
+		return m_best;
+	}
 
-    void TransactionFeeMaximizer::apply(const model::TransactionInfo& transactionInfo)
-    {
-        auto lastFeeMultiplier = m_current.FeeMultiplier;
+	void TransactionFeeMaximizer::apply(const model::TransactionInfo& transactionInfo) {
+		auto lastFeeMultiplier = m_current.FeeMultiplier;
 
-        const auto& transaction = *transactionInfo.pEntity;
-        m_current.FeeMultiplier = model::CalculateTransactionMaxFeeMultiplier(transaction);
-        m_current.BaseFee = m_current.BaseFee + model::CalculateTransactionFee(BlockFeeMultiplier(1), transaction);
-        ++m_current.NumTransactions;
+		const auto& transaction = *transactionInfo.pEntity;
+		m_current.FeeMultiplier = model::CalculateTransactionMaxFeeMultiplier(transaction);
+		m_current.BaseFee = m_current.BaseFee + model::CalculateTransactionFee(BlockFeeMultiplier(1), transaction);
+		++m_current.NumTransactions;
 
-        if (0 != m_best.NumTransactions && lastFeeMultiplier < m_current.FeeMultiplier)
-            CATAPULT_THROW_INVALID_ARGUMENT("applied transactions must be sorted by fee multiplier");
+		if (0 != m_best.NumTransactions && lastFeeMultiplier < m_current.FeeMultiplier)
+			CATAPULT_THROW_INVALID_ARGUMENT("applied transactions must be sorted by fee multiplier");
 
-        // when total fee amounts are equal, prefer more transactions
-        if (CalculateTotalFee(m_best) <= CalculateTotalFee(m_current))
-            m_best = m_current;
-    }
+		// when total fee amounts are equal, prefer more transactions
+		if (CalculateTotalFee(m_best) <= CalculateTotalFee(m_current))
+			m_best = m_current;
+	}
 }
 }

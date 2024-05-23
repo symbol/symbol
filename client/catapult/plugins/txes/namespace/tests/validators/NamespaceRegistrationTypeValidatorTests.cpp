@@ -28,32 +28,29 @@ namespace validators {
 
 #define TEST_CLASS NamespaceRegistrationTypeValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(NamespaceRegistrationType, )
+	DEFINE_COMMON_VALIDATOR_TESTS(NamespaceRegistrationType, )
 
-    namespace {
-        struct NamespaceRegistrationTypeTraits {
-            using EnumType = model::NamespaceRegistrationType;
+	namespace {
+		struct NamespaceRegistrationTypeTraits {
+			using EnumType = model::NamespaceRegistrationType;
 
-            static constexpr auto Failure_Result = Failure_Namespace_Invalid_Registration_Type;
-            static constexpr auto CreateValidator = CreateNamespaceRegistrationTypeValidator;
+			static constexpr auto Failure_Result = Failure_Namespace_Invalid_Registration_Type;
+			static constexpr auto CreateValidator = CreateNamespaceRegistrationTypeValidator;
 
-            static std::vector<uint8_t> ValidValues()
-            {
-                return { 0x00, 0x01 };
-            }
+			static std::vector<uint8_t> ValidValues() {
+				return { 0x00, 0x01 };
+			}
 
-            static std::vector<uint8_t> InvalidValues()
-            {
-                return { 0x02, 0xFF };
-            }
+			static std::vector<uint8_t> InvalidValues() {
+				return { 0x02, 0xFF };
+			}
 
-            static auto CreateNotification(EnumType value)
-            {
-                return model::NamespaceRegistrationNotification(value);
-            }
-        };
-    }
+			static auto CreateNotification(EnumType value) {
+				return model::NamespaceRegistrationNotification(value);
+			}
+		};
+	}
 
-    DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, NamespaceRegistrationTypeTraits)
+	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, NamespaceRegistrationTypeTraits)
 }
 }

@@ -24,25 +24,25 @@
 
 namespace catapult {
 namespace ionet {
-    class NodeContainerView;
-    struct Packet;
+	class NodeContainerView;
+	struct Packet;
 }
 }
 
 namespace catapult {
 namespace nodediscovery {
 
-    /// Tries to parse \a packet into \a node.
-    bool TryParseNodePacket(const ionet::Packet& packet, ionet::Node& node);
+	/// Tries to parse \a packet into \a node.
+	bool TryParseNodePacket(const ionet::Packet& packet, ionet::Node& node);
 
-    /// Tries to parse \a packet into \a nodes.
-    bool TryParseNodesPacket(const ionet::Packet& packet, ionet::NodeSet& nodes);
+	/// Tries to parse \a packet into \a nodes.
+	bool TryParseNodesPacket(const ionet::Packet& packet, ionet::NodeSet& nodes);
 
-    /// Determines if \a node is compatible with expected network (\a networkFingerprint) and identity (\a identityKey).
-    bool IsNodeCompatible(const ionet::Node& node, const model::UniqueNetworkFingerprint& networkFingerprint, const Key& identityKey);
+	/// Determines if \a node is compatible with expected network (\a networkFingerprint) and identity (\a identityKey).
+	bool IsNodeCompatible(const ionet::Node& node, const model::UniqueNetworkFingerprint& networkFingerprint, const Key& identityKey);
 
-    /// Filters \a nodes by returning all nodes not contained in \a view.
-    /// \note \a nodes is expected to be the result of a peers request and, thus, will not have identity host set.
-    ionet::NodeSet SelectUnknownNodes(const ionet::NodeContainerView& view, const ionet::NodeSet& nodes);
+	/// Filters \a nodes by returning all nodes not contained in \a view.
+	/// \note \a nodes is expected to be the result of a peers request and, thus, will not have identity host set.
+	ionet::NodeSet SelectUnknownNodes(const ionet::NodeContainerView& view, const ionet::NodeSet& nodes);
 }
 }

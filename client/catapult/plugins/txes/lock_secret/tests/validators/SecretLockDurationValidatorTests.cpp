@@ -28,21 +28,20 @@ namespace validators {
 
 #define TEST_CLASS SecretLockDurationValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(SecretLockDuration, BlockDuration(0))
+	DEFINE_COMMON_VALIDATOR_TESTS(SecretLockDuration, BlockDuration(0))
 
-    namespace {
-        struct SecretTraits {
-        public:
-            using NotificationType = model::SecretLockDurationNotification;
-            static constexpr auto Failure_Result = Failure_LockSecret_Invalid_Duration;
+	namespace {
+		struct SecretTraits {
+		public:
+			using NotificationType = model::SecretLockDurationNotification;
+			static constexpr auto Failure_Result = Failure_LockSecret_Invalid_Duration;
 
-            static auto CreateValidator(BlockDuration maxDuration)
-            {
-                return CreateSecretLockDurationValidator(maxDuration);
-            }
-        };
-    }
+			static auto CreateValidator(BlockDuration maxDuration) {
+				return CreateSecretLockDurationValidator(maxDuration);
+			}
+		};
+	}
 
-    DEFINE_DURATION_VALIDATOR_TESTS(SecretTraits)
+	DEFINE_DURATION_VALIDATOR_TESTS(SecretTraits)
 }
 }

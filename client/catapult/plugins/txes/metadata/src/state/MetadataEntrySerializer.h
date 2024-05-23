@@ -26,16 +26,16 @@
 namespace catapult {
 namespace state {
 
-    /// Policy for saving and loading metadata entry data.
-    struct MetadataEntrySerializer {
-        /// Serialized state version.
-        static constexpr uint16_t State_Version = 1;
+	/// Policy for saving and loading metadata entry data.
+	struct MetadataEntrySerializer {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
 
-        /// Saves \a entry to \a output.
-        static void Save(const MetadataEntry& entry, io::OutputStream& output);
+		/// Saves \a entry to \a output.
+		static void Save(const MetadataEntry& entry, io::OutputStream& output);
 
-        /// Loads a single value from \a input.
-        static MetadataEntry Load(io::InputStream& input);
-    };
+		/// Loads a single value from \a input.
+		static MetadataEntry Load(io::InputStream& input);
+	};
 }
 }

@@ -30,58 +30,51 @@
 namespace catapult {
 namespace test {
 
-    struct LocalNodeTestState::Impl {
-    public:
-        Impl(config::CatapultConfiguration&& config, cache::CatapultCache&& cache)
-            : m_config(std::move(config))
-            , m_cache(std::move(cache))
-            , m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>())
-        {
-        }
+	struct LocalNodeTestState::Impl {
+	public:
+		Impl(config::CatapultConfiguration&& config, cache::CatapultCache&& cache)
+			: m_config(std::move(config))
+			, m_cache(std::move(cache))
+			, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>()) {
+		}
 
-    public:
-        extensions::LocalNodeStateRef ref()
-        {
-            return extensions::LocalNodeStateRef(m_config, m_cache, m_storage, m_score);
-        }
+	public:
+		extensions::LocalNodeStateRef ref() {
+			return extensions::LocalNodeStateRef(m_config, m_cache, m_storage, m_score);
+		}
 
-    private:
-        config::CatapultConfiguration m_config;
-        cache::CatapultCache m_cache;
-        io::BlockStorageCache m_storage;
-        extensions::LocalNodeChainScore m_score;
-    };
+	private:
+		config::CatapultConfiguration m_config;
+		cache::CatapultCache m_cache;
+		io::BlockStorageCache m_storage;
+		extensions::LocalNodeChainScore m_score;
+	};
 
-    LocalNodeTestState::LocalNodeTestState()
-        : LocalNodeTestState(CreateEmptyCatapultCache())
-    {
-    }
+	LocalNodeTestState::LocalNodeTestState()
+		: LocalNodeTestState(CreateEmptyCatapultCache()) {
+	}
 
-    LocalNodeTestState::LocalNodeTestState(const model::BlockchainConfiguration& config)
-        : LocalNodeTestState(config, "", CreateEmptyCatapultCache(config))
-    {
-    }
+	LocalNodeTestState::LocalNodeTestState(const model::BlockchainConfiguration& config)
+		: LocalNodeTestState(config, "", CreateEmptyCatapultCache(config)) {
+	}
 
-    LocalNodeTestState::LocalNodeTestState(cache::CatapultCache&& cache)
-        : m_pImpl(std::make_unique<Impl>(CreatePrototypicalCatapultConfiguration(), std::move(cache)))
-    {
-    }
+	LocalNodeTestState::LocalNodeTestState(cache::CatapultCache&& cache)
+		: m_pImpl(std::make_unique<Impl>(CreatePrototypicalCatapultConfiguration(), std::move(cache))) {
+	}
 
-    LocalNodeTestState::LocalNodeTestState(
-        const model::BlockchainConfiguration& config,
-        const std::string& userDataDirectory,
-        cache::CatapultCache&& cache)
-        : m_pImpl(std::make_unique<Impl>(
-              CreatePrototypicalCatapultConfiguration(model::BlockchainConfiguration(config), userDataDirectory),
-              std::move(cache)))
-    {
-    }
+	LocalNodeTestState::LocalNodeTestState(
+		const model::BlockchainConfiguration& config,
+		const std::string& userDataDirectory,
+		cache::CatapultCache&& cache)
+		: m_pImpl(std::make_unique<Impl>(
+			  CreatePrototypicalCatapultConfiguration(model::BlockchainConfiguration(config), userDataDirectory),
+			  std::move(cache))) {
+	}
 
-    LocalNodeTestState::~LocalNodeTestState() = default;
+	LocalNodeTestState::~LocalNodeTestState() = default;
 
-    extensions::LocalNodeStateRef LocalNodeTestState::ref()
-    {
-        return m_pImpl->ref();
-    }
+	extensions::LocalNodeStateRef LocalNodeTestState::ref() {
+		return m_pImpl->ref();
+	}
 }
 }

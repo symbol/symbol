@@ -28,34 +28,32 @@ namespace model {
 
 #define TEST_CLASS ContainerTypesTests
 
-    TEST(TEST_CLASS, CanCopyAddressSet)
-    {
-        // Arrange:
-        AddressSet addresses;
-        for (auto i = 0u; i < 3u; ++i)
-            addresses.insert(test::GenerateRandomAddress());
+	TEST(TEST_CLASS, CanCopyAddressSet) {
+		// Arrange:
+		AddressSet addresses;
+		for (auto i = 0u; i < 3u; ++i)
+			addresses.insert(test::GenerateRandomAddress());
 
-        // Act:
-        auto copy = addresses;
+		// Act:
+		auto copy = addresses;
 
-        // Assert:
-        EXPECT_EQ(addresses, addresses);
-        EXPECT_EQ(addresses, copy);
-    }
+		// Assert:
+		EXPECT_EQ(addresses, addresses);
+		EXPECT_EQ(addresses, copy);
+	}
 
-    TEST(TEST_CLASS, CanCopyUnresolvedAddressSet)
-    {
-        // Arrange:
-        UnresolvedAddressSet addresses;
-        for (auto i = 0u; i < 3u; ++i)
-            addresses.insert(test::GenerateRandomUnresolvedAddress());
+	TEST(TEST_CLASS, CanCopyUnresolvedAddressSet) {
+		// Arrange:
+		UnresolvedAddressSet addresses;
+		for (auto i = 0u; i < 3u; ++i)
+			addresses.insert(test::GenerateRandomUnresolvedAddress());
 
-        // Act:
-        auto copy = addresses;
+		// Act:
+		auto copy = addresses;
 
-        // Assert:
-        EXPECT_EQ(addresses, addresses);
-        EXPECT_EQ(addresses, copy);
-    }
+		// Assert:
+		EXPECT_EQ(addresses, addresses);
+		EXPECT_EQ(addresses, copy);
+	}
 }
 }

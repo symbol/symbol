@@ -26,59 +26,54 @@
 namespace catapult {
 namespace api {
 
-    namespace {
-        // region traits
+	namespace {
+		// region traits
 
-        struct NetworkTimeTraits {
-        public:
-            using ResultType = timesync::CommunicationTimestamps;
-            static constexpr auto Packet_Type = ionet::PacketType::Time_Sync_Network_Time;
-            static constexpr auto Friendly_Name = "network time";
+		struct NetworkTimeTraits {
+		public:
+			using ResultType = timesync::CommunicationTimestamps;
+			static constexpr auto Packet_Type = ionet::PacketType::Time_Sync_Network_Time;
+			static constexpr auto Friendly_Name = "network time";
 
-            static auto CreateRequestPacketPayload()
-            {
-                return ionet::PacketPayload(Packet_Type);
-            }
+			static auto CreateRequestPacketPayload() {
+				return ionet::PacketPayload(Packet_Type);
+			}
 
-        public:
-            bool tryParseResult(const ionet::Packet& packet, ResultType& result) const
-            {
-                const auto* pResponse = ionet::CoercePacket<api::NetworkTimePacket>(&packet);
-                if (!pResponse)
-                    return false;
+		public:
+			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
+				const auto* pResponse = ionet::CoercePacket<api::NetworkTimePacket>(&packet);
+				if (!pResponse)
+					return false;
 
-                result = pResponse->CommunicationTimestamps;
-                return true;
-            }
-        };
+				result = pResponse->CommunicationTimestamps;
+				return true;
+			}
+		};
 
-        // endregion
+		// endregion
 
-        class DefaultRemoteTimeSyncApi : public RemoteTimeSyncApi {
-        private:
-            template <typename TTraits>
-            using FutureType = thread::future<typename TTraits::ResultType>;
+		class DefaultRemoteTimeSyncApi : public RemoteTimeSyncApi {
+		private:
+			template <typename TTraits>
+			using FutureType = thread::future<typename TTraits::ResultType>;
 
-        public:
-            explicit DefaultRemoteTimeSyncApi(ionet::PacketIo& io)
-                : m_impl(io)
-            {
-            }
+		public:
+			explicit DefaultRemoteTimeSyncApi(ionet::PacketIo& io)
+				: m_impl(io) {
+			}
 
-        public:
-            FutureType<NetworkTimeTraits> networkTime() const override
-            {
-                return m_impl.dispatch(NetworkTimeTraits());
-            }
+		public:
+			FutureType<NetworkTimeTraits> networkTime() const override {
+				return m_impl.dispatch(NetworkTimeTraits());
+			}
 
-        private:
-            mutable RemoteRequestDispatcher m_impl;
-        };
-    }
+		private:
+			mutable RemoteRequestDispatcher m_impl;
+		};
+	}
 
-    std::unique_ptr<RemoteTimeSyncApi> CreateRemoteTimeSyncApi(ionet::PacketIo& io)
-    {
-        return std::make_unique<DefaultRemoteTimeSyncApi>(io);
-    }
+	std::unique_ptr<RemoteTimeSyncApi> CreateRemoteTimeSyncApi(ionet::PacketIo& io) {
+		return std::make_unique<DefaultRemoteTimeSyncApi>(io);
+	}
 }
 }

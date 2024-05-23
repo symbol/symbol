@@ -27,74 +27,67 @@
 namespace catapult {
 namespace cache {
 
-    /// Serializer for identifier group elements.
-    template <typename TDescriptor>
-    class IdentifierGroupSerializer {
-    private:
-        using KeyType = typename TDescriptor::KeyType;
-        using ValueType = typename TDescriptor::ValueType; // this is expected to be IdentifierGroup
+	/// Serializer for identifier group elements.
+	template <typename TDescriptor>
+	class IdentifierGroupSerializer {
+	private:
+		using KeyType = typename TDescriptor::KeyType;
+		using ValueType = typename TDescriptor::ValueType; // this is expected to be IdentifierGroup
 
-    public:
-        /// Serializes \a value to string.
-        static std::string SerializeValue(const ValueType& value)
-        {
-            io::StringOutputStream output(Size(value));
+	public:
+		/// Serializes \a value to string.
+		static std::string SerializeValue(const ValueType& value) {
+			io::StringOutputStream output(Size(value));
 
-            io::Write(output, value.key());
-            io::Write64(output, static_cast<uint64_t>(value.size()));
-            for (const auto& identifier : value.identifiers())
-                Write(output, identifier);
+			io::Write(output, value.key());
+			io::Write64(output, static_cast<uint64_t>(value.size()));
+			for (const auto& identifier : value.identifiers())
+				Write(output, identifier);
 
-            return output.str();
-        }
+			return output.str();
+		}
 
-        /// Deserializes value from \a buffer.
-        static ValueType DeserializeValue(const RawBuffer& buffer)
-        {
-            io::BufferInputStreamAdapter<RawBuffer> input(buffer);
-            auto key = io::Read<typename ValueType::GroupingKeyType>(input);
-            ValueType value(key);
+		/// Deserializes value from \a buffer.
+		static ValueType DeserializeValue(const RawBuffer& buffer) {
+			io::BufferInputStreamAdapter<RawBuffer> input(buffer);
+			auto key = io::Read<typename ValueType::GroupingKeyType>(input);
+			ValueType value(key);
 
-            auto size = io::Read64(input);
-            for (auto i = 0u; i < size; ++i) {
-                typename ValueType::Identifiers::key_type identifier;
-                Read(input, identifier);
-                value.add(identifier);
-            }
+			auto size = io::Read64(input);
+			for (auto i = 0u; i < size; ++i) {
+				typename ValueType::Identifiers::key_type identifier;
+				Read(input, identifier);
+				value.add(identifier);
+			}
 
-            return value;
-        }
+			return value;
+		}
 
-    private:
-        template <typename T>
-        static void Read(io::InputStream& input, T& value)
-        {
-            io::Read(input, value);
-        }
+	private:
+		template <typename T>
+		static void Read(io::InputStream& input, T& value) {
+			io::Read(input, value);
+		}
 
-        template <typename TTag>
-        static void Read(io::InputStream& input, utils::ByteArray<TTag>& value)
-        {
-            input.read(value);
-        }
+		template <typename TTag>
+		static void Read(io::InputStream& input, utils::ByteArray<TTag>& value) {
+			input.read(value);
+		}
 
-        template <typename T>
-        static void Write(io::OutputStream& input, const T& value)
-        {
-            io::Write(input, value);
-        }
+		template <typename T>
+		static void Write(io::OutputStream& input, const T& value) {
+			io::Write(input, value);
+		}
 
-        template <typename TTag>
-        static void Write(io::OutputStream& input, const utils::ByteArray<TTag>& value)
-        {
-            input.write(value);
-        }
+		template <typename TTag>
+		static void Write(io::OutputStream& input, const utils::ByteArray<TTag>& value) {
+			input.write(value);
+		}
 
-    private:
-        static size_t Size(const ValueType& value)
-        {
-            return sizeof(KeyType) + value.identifiers().size() * sizeof(ValueType);
-        }
-    };
+	private:
+		static size_t Size(const ValueType& value) {
+			return sizeof(KeyType) + value.identifiers().size() * sizeof(ValueType);
+		}
+	};
 }
 }

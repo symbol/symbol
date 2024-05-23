@@ -25,10 +25,10 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Maps \a restrictions to the corresponding db model value.
-        bsoncxx::document::value ToDbModel(const state::AccountRestrictions& restrictions);
-    }
+		/// Maps \a restrictions to the corresponding db model value.
+		bsoncxx::document::value ToDbModel(const state::AccountRestrictions& restrictions);
+	}
 }
 }

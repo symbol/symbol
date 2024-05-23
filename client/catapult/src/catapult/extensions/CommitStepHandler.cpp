@@ -26,21 +26,20 @@
 namespace catapult {
 namespace extensions {
 
-    consumers::BlockchainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory)
-    {
-        return [dataDirectory](auto step) {
-            io::IndexFile(dataDirectory.rootDir().file("commit_step.dat")).set(utils::to_underlying_type(step));
+	consumers::BlockchainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory) {
+		return [dataDirectory](auto step) {
+			io::IndexFile(dataDirectory.rootDir().file("commit_step.dat")).set(utils::to_underlying_type(step));
 
-            if (consumers::CommitOperationStep::All_Updated != step)
-                return;
+			if (consumers::CommitOperationStep::All_Updated != step)
+				return;
 
-            auto stateChangeDirectory = dataDirectory.spoolDir("state_change");
-            auto syncIndexWriterFile = io::IndexFile(stateChangeDirectory.file("index_server.dat"));
-            if (!syncIndexWriterFile.exists())
-                return;
+			auto stateChangeDirectory = dataDirectory.spoolDir("state_change");
+			auto syncIndexWriterFile = io::IndexFile(stateChangeDirectory.file("index_server.dat"));
+			if (!syncIndexWriterFile.exists())
+				return;
 
-            io::IndexFile(stateChangeDirectory.file("index.dat")).set(syncIndexWriterFile.get());
-        };
-    }
+			io::IndexFile(stateChangeDirectory.file("index.dat")).set(syncIndexWriterFile.get());
+		};
+	}
 }
 }

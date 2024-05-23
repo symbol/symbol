@@ -26,49 +26,43 @@
 namespace catapult {
 namespace io {
 
-    IndexFile::IndexFile(const std::string& filename, LockMode lockMode)
-        : m_filename(filename)
-        , m_lockMode(lockMode)
-    {
-    }
+	IndexFile::IndexFile(const std::string& filename, LockMode lockMode)
+		: m_filename(filename)
+		, m_lockMode(lockMode) {
+	}
 
-    bool IndexFile::exists() const
-    {
-        return std::filesystem::is_regular_file(m_filename);
-    }
+	bool IndexFile::exists() const {
+		return std::filesystem::is_regular_file(m_filename);
+	}
 
-    uint64_t IndexFile::get() const
-    {
-        auto indexFile = open(OpenMode::Read_Only);
-        return 8 == indexFile.size() ? Read64(indexFile) : 0;
-    }
+	uint64_t IndexFile::get() const {
+		auto indexFile = open(OpenMode::Read_Only);
+		return 8 == indexFile.size() ? Read64(indexFile) : 0;
+	}
 
-    void IndexFile::set(uint64_t value)
-    {
-        auto indexFile = open(OpenMode::Read_Append);
-        indexFile.seek(0);
-        Write64(indexFile, value);
-    }
+	void IndexFile::set(uint64_t value) {
+		auto indexFile = open(OpenMode::Read_Append);
+		indexFile.seek(0);
+		Write64(indexFile, value);
+	}
 
-    uint64_t IndexFile::increment()
-    {
-        if (!exists()) {
-            set(0);
-            return 0;
-        }
+	uint64_t IndexFile::increment() {
+		if (!exists()) {
+			set(0);
+			return 0;
+		}
 
-        auto indexFile = open(OpenMode::Read_Append);
-        auto value = Read64(indexFile);
-        ++value;
+		auto indexFile = open(OpenMode::Read_Append);
+		auto value = Read64(indexFile);
+		++value;
 
-        indexFile.seek(0);
-        Write64(indexFile, value);
-        return value;
-    }
+		indexFile.seek(0);
+		Write64(indexFile, value);
+		return value;
+	}
 
-    RawFile IndexFile::open(OpenMode mode) const
-    {
-        return RawFile(m_filename, mode, m_lockMode);
-    }
+	RawFile IndexFile::open(OpenMode mode) const {
+		return RawFile(m_filename, mode, m_lockMode);
+	}
 }
 }

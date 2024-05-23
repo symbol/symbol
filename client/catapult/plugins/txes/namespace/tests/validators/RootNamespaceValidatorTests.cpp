@@ -29,62 +29,55 @@ namespace validators {
 
 #define TEST_CLASS RootNamespaceValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(RootNamespace, BlockDuration(), BlockDuration())
+	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespace, BlockDuration(), BlockDuration())
 
-    // region duration
+	// region duration
 
-    namespace {
-        void AssertDurationValidationResult(
-            ValidationResult expectedResult,
-            BlockDuration::ValueType duration,
-            BlockDuration::ValueType minDuration,
-            BlockDuration::ValueType maxDuration)
-        {
-            // Arrange:
-            auto pValidator = CreateRootNamespaceValidator(BlockDuration(minDuration), BlockDuration(maxDuration));
-            auto notification = model::RootNamespaceNotification(Address(), NamespaceId(), BlockDuration(duration));
+	namespace {
+		void AssertDurationValidationResult(
+			ValidationResult expectedResult,
+			BlockDuration::ValueType duration,
+			BlockDuration::ValueType minDuration,
+			BlockDuration::ValueType maxDuration) {
+			// Arrange:
+			auto pValidator = CreateRootNamespaceValidator(BlockDuration(minDuration), BlockDuration(maxDuration));
+			auto notification = model::RootNamespaceNotification(Address(), NamespaceId(), BlockDuration(duration));
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "duration " << duration << ", minDuration " << minDuration << ", maxDuration "
-                                              << maxDuration;
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "duration " << duration << ", minDuration " << minDuration << ", maxDuration "
+											  << maxDuration;
+		}
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingRootNamespaceEternalDuration)
-    {
-        AssertDurationValidationResult(ValidationResult::Success, Eternal_Artifact_Duration.unwrap(), 111, 12345);
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingRootNamespaceEternalDuration) {
+		AssertDurationValidationResult(ValidationResult::Success, Eternal_Artifact_Duration.unwrap(), 111, 12345);
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingRootNamespaceWithDurationLessThanMinDuration)
-    {
-        AssertDurationValidationResult(Failure_Namespace_Invalid_Duration, 1, 111, 12345);
-        AssertDurationValidationResult(Failure_Namespace_Invalid_Duration, 100, 111, 12345);
-    }
+	TEST(TEST_CLASS, FailureWhenValidatingRootNamespaceWithDurationLessThanMinDuration) {
+		AssertDurationValidationResult(Failure_Namespace_Invalid_Duration, 1, 111, 12345);
+		AssertDurationValidationResult(Failure_Namespace_Invalid_Duration, 100, 111, 12345);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingRootNamespaceWithDurationEqualToMinDuration)
-    {
-        AssertDurationValidationResult(ValidationResult::Success, 111, 111, 12345);
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingRootNamespaceWithDurationEqualToMinDuration) {
+		AssertDurationValidationResult(ValidationResult::Success, 111, 111, 12345);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingRootNamespaceBetweenMinDurationAndMaxDuration)
-    {
-        AssertDurationValidationResult(ValidationResult::Success, 999, 111, 12345);
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingRootNamespaceBetweenMinDurationAndMaxDuration) {
+		AssertDurationValidationResult(ValidationResult::Success, 999, 111, 12345);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingRootNamespaceWithMaxDuration)
-    {
-        AssertDurationValidationResult(ValidationResult::Success, 12345, 111, 12345);
-    }
+	TEST(TEST_CLASS, SuccessWhenValidatingRootNamespaceWithMaxDuration) {
+		AssertDurationValidationResult(ValidationResult::Success, 12345, 111, 12345);
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingRootNamespaceWithDurationGreaterThanMaxDuration)
-    {
-        AssertDurationValidationResult(Failure_Namespace_Invalid_Duration, 12346, 111, 12345);
-        AssertDurationValidationResult(Failure_Namespace_Invalid_Duration, 55555, 111, 12345);
-    }
+	TEST(TEST_CLASS, FailureWhenValidatingRootNamespaceWithDurationGreaterThanMaxDuration) {
+		AssertDurationValidationResult(Failure_Namespace_Invalid_Duration, 12346, 111, 12345);
+		AssertDurationValidationResult(Failure_Namespace_Invalid_Duration, 55555, 111, 12345);
+	}
 
-    // endregion
+	// endregion
 }
 }

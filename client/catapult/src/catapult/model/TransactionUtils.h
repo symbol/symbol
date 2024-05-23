@@ -24,15 +24,15 @@
 
 namespace catapult {
 namespace model {
-    class NotificationPublisher;
-    struct Transaction;
+	class NotificationPublisher;
+	struct Transaction;
 }
 }
 
 namespace catapult {
 namespace model {
 
-    /// Extracts all addresses that are involved in \a transaction using \a notificationPublisher.
-    UnresolvedAddressSet ExtractAddresses(const Transaction& transaction, const NotificationPublisher& notificationPublisher);
+	/// Extracts all addresses that are involved in \a transaction using \a notificationPublisher.
+	UnresolvedAddressSet ExtractAddresses(const Transaction& transaction, const NotificationPublisher& notificationPublisher);
 }
 }

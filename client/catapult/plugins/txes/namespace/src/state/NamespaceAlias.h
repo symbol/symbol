@@ -25,54 +25,54 @@
 namespace catapult {
 namespace state {
 
-    /// Possible alias types.
-    enum class AliasType : uint8_t {
-        /// No alias.
-        None,
+	/// Possible alias types.
+	enum class AliasType : uint8_t {
+		/// No alias.
+		None,
 
-        /// Mosaic id alias.
-        Mosaic,
+		/// Mosaic id alias.
+		Mosaic,
 
-        /// Account address alias.
-        Address
-    };
+		/// Account address alias.
+		Address
+	};
 
-    /// Namespace alias.
-    class NamespaceAlias {
-    public:
-        /// Creates an unset namespace alias.
-        NamespaceAlias();
+	/// Namespace alias.
+	class NamespaceAlias {
+	public:
+		/// Creates an unset namespace alias.
+		NamespaceAlias();
 
-        /// Creates a namespace alias around \a mosaicId.
-        explicit NamespaceAlias(MosaicId mosaicId);
+		/// Creates a namespace alias around \a mosaicId.
+		explicit NamespaceAlias(MosaicId mosaicId);
 
-        /// Creates a namespace alias around \a address.
-        explicit NamespaceAlias(const Address& address);
+		/// Creates a namespace alias around \a address.
+		explicit NamespaceAlias(const Address& address);
 
-        /// Copy constructor that makes a copy of \a alias.
-        NamespaceAlias(const NamespaceAlias& alias);
+		/// Copy constructor that makes a copy of \a alias.
+		NamespaceAlias(const NamespaceAlias& alias);
 
-    public:
-        /// Assignment operator that makes a copy of \a alias.
-        NamespaceAlias& operator=(const NamespaceAlias& alias);
+	public:
+		/// Assignment operator that makes a copy of \a alias.
+		NamespaceAlias& operator=(const NamespaceAlias& alias);
 
-    public:
-        /// Gets the type of alias.
-        AliasType type() const;
+	public:
+		/// Gets the type of alias.
+		AliasType type() const;
 
-        /// Gets the mosaic alias.
-        MosaicId mosaicId() const;
+		/// Gets the mosaic alias.
+		MosaicId mosaicId() const;
 
-        /// Gets the address alias.
-        const Address& address() const;
+		/// Gets the address alias.
+		const Address& address() const;
 
-    private:
-        AliasType m_type;
+	private:
+		AliasType m_type;
 
-        union {
-            MosaicId m_mosaicId;
-            Address m_address;
-        };
-    };
+		union {
+			MosaicId m_mosaicId;
+			Address m_address;
+		};
+	};
 }
 }

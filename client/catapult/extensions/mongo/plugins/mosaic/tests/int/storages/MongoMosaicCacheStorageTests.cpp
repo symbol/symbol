@@ -32,67 +32,60 @@ using namespace bsoncxx::builder::stream;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MongoMosaicCacheStorageTests
 
-        namespace {
-            struct MosaicCacheTraits {
-                using CacheType = cache::MosaicCache;
-                using ModelType = state::MosaicEntry;
+		namespace {
+			struct MosaicCacheTraits {
+				using CacheType = cache::MosaicCache;
+				using ModelType = state::MosaicEntry;
 
-                static constexpr auto Collection_Name = "mosaics";
-                static constexpr auto Primary_Document_Name = "mosaic";
-                static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
-                static constexpr auto CreateCacheStorage = CreateMongoMosaicCacheStorage;
+				static constexpr auto Collection_Name = "mosaics";
+				static constexpr auto Primary_Document_Name = "mosaic";
+				static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
+				static constexpr auto CreateCacheStorage = CreateMongoMosaicCacheStorage;
 
-                static cache::CatapultCache CreateCache()
-                {
-                    return test::MosaicCacheFactory::Create();
-                }
+				static cache::CatapultCache CreateCache() {
+					return test::MosaicCacheFactory::Create();
+				}
 
-                static ModelType GenerateRandomElement(uint32_t id)
-                {
-                    auto owner = test::CreateRandomOwner();
-                    return test::CreateMosaicEntry(MosaicId(id), Height(345), owner, Amount(456), BlockDuration(567));
-                }
+				static ModelType GenerateRandomElement(uint32_t id) {
+					auto owner = test::CreateRandomOwner();
+					return test::CreateMosaicEntry(MosaicId(id), Height(345), owner, Amount(456), BlockDuration(567));
+				}
 
-                static void Add(cache::CatapultCacheDelta& delta, const ModelType& mosaicEntry)
-                {
-                    auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
-                    mosaicCacheDelta.insert(mosaicEntry);
-                }
+				static void Add(cache::CatapultCacheDelta& delta, const ModelType& mosaicEntry) {
+					auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
+					mosaicCacheDelta.insert(mosaicEntry);
+				}
 
-                static void Remove(cache::CatapultCacheDelta& delta, const ModelType& mosaicEntry)
-                {
-                    auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
-                    mosaicCacheDelta.remove(mosaicEntry.mosaicId());
-                }
+				static void Remove(cache::CatapultCacheDelta& delta, const ModelType& mosaicEntry) {
+					auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
+					mosaicCacheDelta.remove(mosaicEntry.mosaicId());
+				}
 
-                static void Mutate(cache::CatapultCacheDelta& delta, ModelType& mosaicEntry)
-                {
-                    // update expected
-                    mosaicEntry.increaseSupply(Amount(1));
+				static void Mutate(cache::CatapultCacheDelta& delta, ModelType& mosaicEntry) {
+					// update expected
+					mosaicEntry.increaseSupply(Amount(1));
 
-                    // update cache
-                    auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
-                    auto& mosaicEntryFromCache = mosaicCacheDelta.find(mosaicEntry.mosaicId()).get();
-                    mosaicEntryFromCache.increaseSupply(Amount(1));
-                }
+					// update cache
+					auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
+					auto& mosaicEntryFromCache = mosaicCacheDelta.find(mosaicEntry.mosaicId()).get();
+					mosaicEntryFromCache.increaseSupply(Amount(1));
+				}
 
-                static auto GetFindFilter(const ModelType& mosaicEntry)
-                {
-                    return document() << std::string(Primary_Document_Name) + ".id" << mappers::ToInt64(mosaicEntry.mosaicId()) << finalize;
-                }
+				static auto GetFindFilter(const ModelType& mosaicEntry) {
+					return document() << std::string(Primary_Document_Name) + ".id" << mappers::ToInt64(mosaicEntry.mosaicId()) << finalize;
+				}
 
-                static void AssertEqual(const ModelType& mosaicEntry, const bsoncxx::document::view& view)
-                {
-                    test::AssertEqualMosaicData(mosaicEntry, view[Primary_Document_Name].get_document().view());
-                }
-            };
-        }
+				static void AssertEqual(const ModelType& mosaicEntry, const bsoncxx::document::view& view) {
+					test::AssertEqualMosaicData(mosaicEntry, view[Primary_Document_Name].get_document().view());
+				}
+			};
+		}
 
-        DEFINE_FLAT_CACHE_STORAGE_TESTS(MosaicCacheTraits, )
-    }
+		DEFINE_FLAT_CACHE_STORAGE_TESTS(MosaicCacheTraits, )
+	}
 }
 }

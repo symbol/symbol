@@ -24,13 +24,12 @@
 #include "mongo/src/MongoPluginManager.h"
 #include "storages/MongoMosaicRestrictionCacheStorage.h"
 
-extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager)
-{
-    // transaction support
-    manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicAddressRestrictionTransactionMongoPlugin());
-    manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicGlobalRestrictionTransactionMongoPlugin());
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
+	// transaction support
+	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicAddressRestrictionTransactionMongoPlugin());
+	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicGlobalRestrictionTransactionMongoPlugin());
 
-    // cache storage support
-    manager.addStorageSupport(
-        catapult::mongo::plugins::CreateMongoMosaicRestrictionCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+	// cache storage support
+	manager.addStorageSupport(
+		catapult::mongo::plugins::CreateMongoMosaicRestrictionCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 }

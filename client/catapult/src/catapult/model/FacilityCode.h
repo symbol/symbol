@@ -30,44 +30,44 @@ namespace model {
 #pragma GCC diagnostic ignored "-Wshadow" // FacilityCode::Mosaic shadows model::Mosaic
 #endif
 
-    /// Possible facility codes.
-    enum class FacilityCode : uint8_t {
-        /// Account link facility code.
-        AccountLink = 0x4C,
+	/// Possible facility codes.
+	enum class FacilityCode : uint8_t {
+		/// Account link facility code.
+		AccountLink = 0x4C,
 
-        /// Aggregate facility code.
-        Aggregate = 0x41,
+		/// Aggregate facility code.
+		Aggregate = 0x41,
 
-        /// Core facility code.
-        Core = 0x43,
+		/// Core facility code.
+		Core = 0x43,
 
-        /// Lock hash facility code.
-        LockHash = 0x48,
+		/// Lock hash facility code.
+		LockHash = 0x48,
 
-        /// Lock secret facility code.
-        LockSecret = 0x52,
+		/// Lock secret facility code.
+		LockSecret = 0x52,
 
-        /// Metadata facility code.
-        Metadata = 0x44,
+		/// Metadata facility code.
+		Metadata = 0x44,
 
-        /// Mosaic facility code.
-        Mosaic = 0x4D,
+		/// Mosaic facility code.
+		Mosaic = 0x4D,
 
-        /// Multisig facility code.
-        Multisig = 0x55,
+		/// Multisig facility code.
+		Multisig = 0x55,
 
-        /// Namespace facility code.
-        Namespace = 0x4E,
+		/// Namespace facility code.
+		Namespace = 0x4E,
 
-        /// Account restriction facility code.
-        RestrictionAccount = 0x50,
+		/// Account restriction facility code.
+		RestrictionAccount = 0x50,
 
-        /// Mosaic restriction facility code.
-        RestrictionMosaic = 0x51,
+		/// Mosaic restriction facility code.
+		RestrictionMosaic = 0x51,
 
-        /// Transfer facility code.
-        Transfer = 0x54
-    };
+		/// Transfer facility code.
+		Transfer = 0x54
+	};
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop

@@ -27,58 +27,52 @@
 namespace catapult {
 namespace test {
 
-    StateHashCalculator::StateHashCalculator()
-        : m_stateVerificationMode(StateVerificationMode::Disabled)
-        , m_config(CreateUninitializedCatapultConfiguration())
-        , m_catapultCache({})
-        , m_isDirty(false)
-    {
-    }
+	StateHashCalculator::StateHashCalculator()
+		: m_stateVerificationMode(StateVerificationMode::Disabled)
+		, m_config(CreateUninitializedCatapultConfiguration())
+		, m_catapultCache({})
+		, m_isDirty(false) {
+	}
 
-    StateHashCalculator::StateHashCalculator(const config::CatapultConfiguration& config)
-        : m_stateVerificationMode(StateVerificationMode::Enabled)
-        , m_config(config)
-        , m_pPluginManager(CreatePluginManagerWithRealPlugins(m_config))
-        , m_catapultCache(m_pPluginManager->createCache())
-        , m_isDirty(false)
-    {
-    }
+	StateHashCalculator::StateHashCalculator(const config::CatapultConfiguration& config)
+		: m_stateVerificationMode(StateVerificationMode::Enabled)
+		, m_config(config)
+		, m_pPluginManager(CreatePluginManagerWithRealPlugins(m_config))
+		, m_catapultCache(m_pPluginManager->createCache())
+		, m_isDirty(false) {
+	}
 
-    const std::string& StateHashCalculator::dataDirectory() const
-    {
-        return m_config.User.DataDirectory;
-    }
+	const std::string& StateHashCalculator::dataDirectory() const {
+		return m_config.User.DataDirectory;
+	}
 
-    const config::CatapultConfiguration& StateHashCalculator::config() const
-    {
-        return m_config;
-    }
+	const config::CatapultConfiguration& StateHashCalculator::config() const {
+		return m_config;
+	}
 
-    Hash256 StateHashCalculator::execute(const model::Block& block)
-    {
-        if (StateVerificationMode::Disabled == m_stateVerificationMode || m_isDirty)
-            return Hash256();
+	Hash256 StateHashCalculator::execute(const model::Block& block) {
+		if (StateVerificationMode::Disabled == m_stateVerificationMode || m_isDirty)
+			return Hash256();
 
-        Hash256 blockStateHash;
-        auto cacheDelta = m_catapultCache.createDelta();
-        try {
-            blockStateHash = CalculateBlockStateHash(block, cacheDelta, *m_pPluginManager);
-        } catch (const catapult_runtime_error&) {
-            // if state is invalid (e.g. negative balance), zero out state hash and bypass subsequent state hash calculations
-            CATAPULT_LOG(debug) << "block state hash calculation failed at height " << block.Height
-                                << ", marking block and remaining chain as dirty";
-            blockStateHash = Hash256();
-            m_isDirty = true;
-        }
+		Hash256 blockStateHash;
+		auto cacheDelta = m_catapultCache.createDelta();
+		try {
+			blockStateHash = CalculateBlockStateHash(block, cacheDelta, *m_pPluginManager);
+		} catch (const catapult_runtime_error&) {
+			// if state is invalid (e.g. negative balance), zero out state hash and bypass subsequent state hash calculations
+			CATAPULT_LOG(debug) << "block state hash calculation failed at height " << block.Height
+								<< ", marking block and remaining chain as dirty";
+			blockStateHash = Hash256();
+			m_isDirty = true;
+		}
 
-        m_catapultCache.commit(block.Height);
+		m_catapultCache.commit(block.Height);
 
-        return blockStateHash;
-    }
+		return blockStateHash;
+	}
 
-    void StateHashCalculator::updateStateHash(model::Block& block)
-    {
-        block.StateHash = execute(block);
-    }
+	void StateHashCalculator::updateStateHash(model::Block& block) {
+		block.StateHash = execute(block);
+	}
 }
 }

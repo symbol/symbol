@@ -26,72 +26,68 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        void InsertRandomValues(
-            state::AccountRestriction& restriction,
-            state::AccountRestrictionOperationType operationType,
-            size_t count)
-        {
-            constexpr auto Add = model::AccountRestrictionModificationAction::Add;
-            while (restriction.values().size() < count) {
-                model::AccountRestrictionModification modification { Add, test::GenerateRandomVector(restriction.valueSize()) };
-                if (state::AccountRestrictionOperationType::Allow == operationType)
-                    restriction.allow(modification);
-                else
-                    restriction.block(modification);
-            }
-        }
-    }
+	namespace {
+		void InsertRandomValues(
+			state::AccountRestriction& restriction,
+			state::AccountRestrictionOperationType operationType,
+			size_t count) {
+			constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+			while (restriction.values().size() < count) {
+				model::AccountRestrictionModification modification { Add, test::GenerateRandomVector(restriction.valueSize()) };
+				if (state::AccountRestrictionOperationType::Allow == operationType)
+					restriction.allow(modification);
+				else
+					restriction.block(modification);
+			}
+		}
+	}
 
-    std::vector<model::AccountRestrictionFlags> CollectAccountRestrictionFlags()
-    {
-        std::vector<model::AccountRestrictionFlags> restrictionFlagsContainer;
-        state::AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
-        for (auto& pair : restrictions)
-            restrictionFlagsContainer.push_back(pair.first);
+	std::vector<model::AccountRestrictionFlags> CollectAccountRestrictionFlags() {
+		std::vector<model::AccountRestrictionFlags> restrictionFlagsContainer;
+		state::AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
+		for (auto& pair : restrictions)
+			restrictionFlagsContainer.push_back(pair.first);
 
-        return restrictionFlagsContainer;
-    }
+		return restrictionFlagsContainer;
+	}
 
-    state::AccountRestrictions CreateAccountRestrictions(
-        state::AccountRestrictionOperationType operationType,
-        const std::vector<size_t>& valuesSizes)
-    {
-        state::AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
-        if (valuesSizes.size() != restrictions.size())
-            CATAPULT_THROW_INVALID_ARGUMENT_2("values size mismatch", valuesSizes.size(), restrictions.size());
+	state::AccountRestrictions CreateAccountRestrictions(
+		state::AccountRestrictionOperationType operationType,
+		const std::vector<size_t>& valuesSizes) {
+		state::AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
+		if (valuesSizes.size() != restrictions.size())
+			CATAPULT_THROW_INVALID_ARGUMENT_2("values size mismatch", valuesSizes.size(), restrictions.size());
 
-        auto i = 0u;
-        auto restrictionFlagsContainer = CollectAccountRestrictionFlags();
-        for (auto restrictionFlags : restrictionFlagsContainer) {
-            auto& restriction = restrictions.restriction(restrictionFlags);
-            InsertRandomValues(restriction, operationType, valuesSizes[i++]);
-        }
+		auto i = 0u;
+		auto restrictionFlagsContainer = CollectAccountRestrictionFlags();
+		for (auto restrictionFlags : restrictionFlagsContainer) {
+			auto& restriction = restrictions.restriction(restrictionFlags);
+			InsertRandomValues(restriction, operationType, valuesSizes[i++]);
+		}
 
-        // Sanity:
-        i = 0;
-        for (auto restrictionFlags : restrictionFlagsContainer) {
-            EXPECT_EQ(valuesSizes[i], restrictions.restriction(restrictionFlags).values().size());
-            ++i;
-        }
+		// Sanity:
+		i = 0;
+		for (auto restrictionFlags : restrictionFlagsContainer) {
+			EXPECT_EQ(valuesSizes[i], restrictions.restriction(restrictionFlags).values().size());
+			++i;
+		}
 
-        return restrictions;
-    }
+		return restrictions;
+	}
 
-    void AssertEqual(const state::AccountRestrictions& expected, const state::AccountRestrictions& actual)
-    {
-        EXPECT_EQ(expected.address(), actual.address());
-        EXPECT_EQ(expected.size(), actual.size());
+	void AssertEqual(const state::AccountRestrictions& expected, const state::AccountRestrictions& actual) {
+		EXPECT_EQ(expected.address(), actual.address());
+		EXPECT_EQ(expected.size(), actual.size());
 
-        for (const auto& pair : expected) {
-            const auto& expectedAccountRestriction = pair.second;
-            auto restrictionFlags = expectedAccountRestriction.descriptor().directionalRestrictionFlags();
-            const auto& restriction = actual.restriction(restrictionFlags);
+		for (const auto& pair : expected) {
+			const auto& expectedAccountRestriction = pair.second;
+			auto restrictionFlags = expectedAccountRestriction.descriptor().directionalRestrictionFlags();
+			const auto& restriction = actual.restriction(restrictionFlags);
 
-            EXPECT_EQ(expectedAccountRestriction.descriptor().raw(), restriction.descriptor().raw());
-            EXPECT_EQ(expectedAccountRestriction.valueSize(), restriction.valueSize());
-            EXPECT_EQ(expectedAccountRestriction.values(), restriction.values());
-        }
-    }
+			EXPECT_EQ(expectedAccountRestriction.descriptor().raw(), restriction.descriptor().raw());
+			EXPECT_EQ(expectedAccountRestriction.valueSize(), restriction.valueSize());
+			EXPECT_EQ(expectedAccountRestriction.values(), restriction.values());
+		}
+	}
 }
 }

@@ -24,34 +24,32 @@
 namespace catapult {
 namespace deltaset {
 
-    /// Slim wrapper around changed elements.
-    template <typename TSet>
-    struct DeltaElements {
-    public:
-        /// Creates new delta elements from \a addedElements, \a removedElements and \a copiedElements.
-        constexpr DeltaElements(const TSet& addedElements, const TSet& removedElements, const TSet& copiedElements)
-            : Added(addedElements)
-            , Removed(removedElements)
-            , Copied(copiedElements)
-        {
-        }
+	/// Slim wrapper around changed elements.
+	template <typename TSet>
+	struct DeltaElements {
+	public:
+		/// Creates new delta elements from \a addedElements, \a removedElements and \a copiedElements.
+		constexpr DeltaElements(const TSet& addedElements, const TSet& removedElements, const TSet& copiedElements)
+			: Added(addedElements)
+			, Removed(removedElements)
+			, Copied(copiedElements) {
+		}
 
-    public:
-        /// Returns \c true if there are any pending changes.
-        bool HasChanges() const
-        {
-            return !(Added.empty() && Copied.empty() && Removed.empty());
-        }
+	public:
+		/// Returns \c true if there are any pending changes.
+		bool HasChanges() const {
+			return !(Added.empty() && Copied.empty() && Removed.empty());
+		}
 
-    public:
-        /// Added elements.
-        const TSet& Added;
+	public:
+		/// Added elements.
+		const TSet& Added;
 
-        /// Removed elements.
-        const TSet& Removed;
+		/// Removed elements.
+		const TSet& Removed;
 
-        /// Copied elements.
-        const TSet& Copied;
-    };
+		/// Copied elements.
+		const TSet& Copied;
+	};
 }
 }

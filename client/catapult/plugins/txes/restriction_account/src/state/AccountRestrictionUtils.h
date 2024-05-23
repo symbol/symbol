@@ -28,20 +28,18 @@
 namespace catapult {
 namespace state {
 
-    /// Converts \a value to a vector.
-    template <typename T>
-    auto ToVector(T value)
-    {
-        std::vector<uint8_t> vec(sizeof(T));
-        reinterpret_cast<T&>(vec[0]) = value;
-        return vec;
-    }
+	/// Converts \a value to a vector.
+	template <typename T>
+	auto ToVector(T value) {
+		std::vector<uint8_t> vec(sizeof(T));
+		reinterpret_cast<T&>(vec[0]) = value;
+		return vec;
+	}
 
-    /// Converts an array (\a value) to a vector.
-    template <size_t N>
-    auto ToVector(const std::array<uint8_t, N>& value)
-    {
-        return std::vector<uint8_t>(value.cbegin(), value.cend());
-    }
+	/// Converts an array (\a value) to a vector.
+	template <size_t N>
+	auto ToVector(const std::array<uint8_t, N>& value) {
+		return std::vector<uint8_t>(value.cbegin(), value.cend());
+	}
 }
 }

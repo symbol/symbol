@@ -25,74 +25,67 @@
 namespace catapult {
 namespace chain {
 
-    ProcessingNotificationSubscriber::ProcessingNotificationSubscriber(
-        const validators::stateful::NotificationValidator& validator,
-        const validators::ValidatorContext& validatorContext,
-        const observers::NotificationObserver& observer,
-        observers::ObserverContext& observerContext)
-        : m_validator(validator)
-        , m_validatorContext(validatorContext)
-        , m_observer(observer)
-        , m_observerContext(observerContext)
-        , m_undoNotificationSubscriber(m_observer, m_observerContext)
-        , m_aggregateResult(validators::ValidationResult::Success)
-        , m_isUndoEnabled(false)
-    {
-    }
+	ProcessingNotificationSubscriber::ProcessingNotificationSubscriber(
+		const validators::stateful::NotificationValidator& validator,
+		const validators::ValidatorContext& validatorContext,
+		const observers::NotificationObserver& observer,
+		observers::ObserverContext& observerContext)
+		: m_validator(validator)
+		, m_validatorContext(validatorContext)
+		, m_observer(observer)
+		, m_observerContext(observerContext)
+		, m_undoNotificationSubscriber(m_observer, m_observerContext)
+		, m_aggregateResult(validators::ValidationResult::Success)
+		, m_isUndoEnabled(false) {
+	}
 
-    validators::ValidationResult ProcessingNotificationSubscriber::result() const
-    {
-        return m_aggregateResult;
-    }
+	validators::ValidationResult ProcessingNotificationSubscriber::result() const {
+		return m_aggregateResult;
+	}
 
-    void ProcessingNotificationSubscriber::enableUndo()
-    {
-        m_isUndoEnabled = true;
-    }
+	void ProcessingNotificationSubscriber::enableUndo() {
+		m_isUndoEnabled = true;
+	}
 
-    void ProcessingNotificationSubscriber::undo()
-    {
-        if (!m_isUndoEnabled)
-            CATAPULT_THROW_RUNTIME_ERROR("cannot undo because undo is not enabled");
+	void ProcessingNotificationSubscriber::undo() {
+		if (!m_isUndoEnabled)
+			CATAPULT_THROW_RUNTIME_ERROR("cannot undo because undo is not enabled");
 
-        m_undoNotificationSubscriber.undo();
-    }
+		m_undoNotificationSubscriber.undo();
+	}
 
-    void ProcessingNotificationSubscriber::notify(const model::Notification& notification)
-    {
-        if (notification.Size < sizeof(model::Notification))
-            CATAPULT_THROW_INVALID_ARGUMENT("cannot process notification with incorrect size");
+	void ProcessingNotificationSubscriber::notify(const model::Notification& notification) {
+		if (notification.Size < sizeof(model::Notification))
+			CATAPULT_THROW_INVALID_ARGUMENT("cannot process notification with incorrect size");
 
-        if (!IsValidationResultSuccess(m_aggregateResult))
-            return;
+		if (!IsValidationResultSuccess(m_aggregateResult))
+			return;
 
-        validate(notification);
-        if (!IsValidationResultSuccess(m_aggregateResult))
-            return;
+		validate(notification);
+		if (!IsValidationResultSuccess(m_aggregateResult))
+			return;
 
-        observe(notification);
-    }
+		observe(notification);
+	}
 
-    void ProcessingNotificationSubscriber::validate(const model::Notification& notification)
-    {
-        if (!IsSet(notification.Type, model::NotificationChannel::Validator))
-            return;
+	void ProcessingNotificationSubscriber::validate(const model::Notification& notification) {
+		if (!IsSet(notification.Type, model::NotificationChannel::Validator))
+			return;
 
-        auto result = m_validator.validate(notification, m_validatorContext);
-        AggregateValidationResult(m_aggregateResult, result);
-    }
+		auto result = m_validator.validate(notification, m_validatorContext);
+		AggregateValidationResult(m_aggregateResult, result);
+	}
 
-    void ProcessingNotificationSubscriber::observe(const model::Notification& notification)
-    {
-        if (!IsSet(notification.Type, model::NotificationChannel::Observer))
-            return;
+	void ProcessingNotificationSubscriber::observe(const model::Notification& notification) {
+		if (!IsSet(notification.Type, model::NotificationChannel::Observer))
+			return;
 
-        m_observer.notify(notification, m_observerContext);
+		m_observer.notify(notification, m_observerContext);
 
-        if (!m_isUndoEnabled)
-            return;
+		if (!m_isUndoEnabled)
+			return;
 
-        m_undoNotificationSubscriber.notify(notification);
-    }
+		m_undoNotificationSubscriber.notify(notification);
+	}
 }
 }

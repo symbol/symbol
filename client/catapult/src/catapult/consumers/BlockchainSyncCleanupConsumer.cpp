@@ -27,14 +27,13 @@
 namespace catapult {
 namespace consumers {
 
-    disruptor::ConstDisruptorConsumer CreateBlockchainSyncCleanupConsumer(const std::string& dataDirectory)
-    {
-        auto stateChangeDirectory = config::CatapultDataDirectory(dataDirectory).spoolDir("state_change").str();
-        return [stateChangeDirectory](const auto&) {
-            // skip next *two* messages because subscriber creates two files during sync (score change and state change)
-            io::FileQueueReader(stateChangeDirectory, "index_server_r.dat", "index_server.dat").skip(2);
-            return Continue();
-        };
-    }
+	disruptor::ConstDisruptorConsumer CreateBlockchainSyncCleanupConsumer(const std::string& dataDirectory) {
+		auto stateChangeDirectory = config::CatapultDataDirectory(dataDirectory).spoolDir("state_change").str();
+		return [stateChangeDirectory](const auto&) {
+			// skip next *two* messages because subscriber creates two files during sync (score change and state change)
+			io::FileQueueReader(stateChangeDirectory, "index_server_r.dat", "index_server.dat").skip(2);
+			return Continue();
+		};
+	}
 }
 }

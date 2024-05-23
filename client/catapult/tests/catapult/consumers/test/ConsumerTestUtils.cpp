@@ -30,120 +30,108 @@
 namespace catapult {
 namespace test {
 
-    // region CreateBlockElements
+	// region CreateBlockElements
 
-    BlockElementsInputFacade CreateBlockElements(size_t numBlocks)
-    {
-        return BlockElementsInputFacade(CreateConsumerInputWithBlocks(numBlocks, disruptor::InputSource::Unknown));
-    }
+	BlockElementsInputFacade CreateBlockElements(size_t numBlocks) {
+		return BlockElementsInputFacade(CreateConsumerInputWithBlocks(numBlocks, disruptor::InputSource::Unknown));
+	}
 
-    BlockElementsInputFacade CreateBlockElements(const std::vector<const model::Block*>& blocks)
-    {
-        return BlockElementsInputFacade(CreateConsumerInputFromBlocks(blocks));
-    }
+	BlockElementsInputFacade CreateBlockElements(const std::vector<const model::Block*>& blocks) {
+		return BlockElementsInputFacade(CreateConsumerInputFromBlocks(blocks));
+	}
 
-    // endregion
+	// endregion
 
-    // region CreateTransactionElements
+	// region CreateTransactionElements
 
-    TransactionElementsInputFacade CreateTransactionElements(size_t numTransactions)
-    {
-        return TransactionElementsInputFacade(CreateConsumerInputWithTransactions(numTransactions, disruptor::InputSource::Unknown));
-    }
+	TransactionElementsInputFacade CreateTransactionElements(size_t numTransactions) {
+		return TransactionElementsInputFacade(CreateConsumerInputWithTransactions(numTransactions, disruptor::InputSource::Unknown));
+	}
 
-    TransactionElementsInputFacade CreateTransactionElements(const std::vector<const model::Transaction*>& transactions)
-    {
-        return TransactionElementsInputFacade(CreateConsumerInputFromTransactions(transactions));
-    }
+	TransactionElementsInputFacade CreateTransactionElements(const std::vector<const model::Transaction*>& transactions) {
+		return TransactionElementsInputFacade(CreateConsumerInputFromTransactions(transactions));
+	}
 
-    // endregion
+	// endregion
 
-    // region LinkBlocks
+	// region LinkBlocks
 
-    void LinkBlocks(const model::Block& parentBlock, model::Block& childBlock)
-    {
-        childBlock.Height = parentBlock.Height + Height(1);
-        childBlock.Timestamp = parentBlock.Timestamp + Timestamp(1);
-        childBlock.PreviousBlockHash = model::CalculateHash(parentBlock);
-    }
+	void LinkBlocks(const model::Block& parentBlock, model::Block& childBlock) {
+		childBlock.Height = parentBlock.Height + Height(1);
+		childBlock.Timestamp = parentBlock.Timestamp + Timestamp(1);
+		childBlock.PreviousBlockHash = model::CalculateHash(parentBlock);
+	}
 
-    void LinkBlocks(Height chainHeight, disruptor::BlockElements& blockElements)
-    {
-        auto blockExtensions = extensions::BlockExtensions(GetDefaultGenerationHashSeed());
-        auto* pParentBlock = const_cast<model::Block*>(&blockElements[0].Block);
-        blockExtensions.updateBlockTransactionsHash(*pParentBlock);
-        pParentBlock->Height = chainHeight;
-        pParentBlock->Timestamp = static_cast<Timestamp>(chainHeight.unwrap() * 2);
+	void LinkBlocks(Height chainHeight, disruptor::BlockElements& blockElements) {
+		auto blockExtensions = extensions::BlockExtensions(GetDefaultGenerationHashSeed());
+		auto* pParentBlock = const_cast<model::Block*>(&blockElements[0].Block);
+		blockExtensions.updateBlockTransactionsHash(*pParentBlock);
+		pParentBlock->Height = chainHeight;
+		pParentBlock->Timestamp = static_cast<Timestamp>(chainHeight.unwrap() * 2);
 
-        for (auto i = 1u; i < blockElements.size(); ++i) {
-            auto& block = const_cast<model::Block&>(blockElements[i].Block);
-            blockExtensions.updateBlockTransactionsHash(block);
-            LinkBlocks(*pParentBlock, block);
-            pParentBlock = &block;
-        }
-    }
+		for (auto i = 1u; i < blockElements.size(); ++i) {
+			auto& block = const_cast<model::Block&>(blockElements[i].Block);
+			blockExtensions.updateBlockTransactionsHash(block);
+			LinkBlocks(*pParentBlock, block);
+			pParentBlock = &block;
+		}
+	}
 
-    // endregion
+	// endregion
 
-    // region ConsumerResult Assertions
+	// region ConsumerResult Assertions
 
-    void AssertConsumed(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult)
-    {
-        auto expectedSeverity = validators::ValidationResult::Success == validationResult ? disruptor::ConsumerResultSeverity::Success
-                                                                                          : disruptor::ConsumerResultSeverity::Neutral;
-        EXPECT_EQ(disruptor::CompletionStatus::Consumed, result.CompletionStatus);
-        EXPECT_EQ(validationResult, static_cast<validators::ValidationResult>(result.CompletionCode));
-        EXPECT_EQ(expectedSeverity, result.ResultSeverity);
-    }
+	void AssertConsumed(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult) {
+		auto expectedSeverity = validators::ValidationResult::Success == validationResult ? disruptor::ConsumerResultSeverity::Success
+																						  : disruptor::ConsumerResultSeverity::Neutral;
+		EXPECT_EQ(disruptor::CompletionStatus::Consumed, result.CompletionStatus);
+		EXPECT_EQ(validationResult, static_cast<validators::ValidationResult>(result.CompletionCode));
+		EXPECT_EQ(expectedSeverity, result.ResultSeverity);
+	}
 
-    void AssertAborted(
-        const disruptor::ConsumerResult& result,
-        validators::ValidationResult validationResult,
-        disruptor::ConsumerResultSeverity severity)
-    {
-        EXPECT_EQ(disruptor::CompletionStatus::Aborted, result.CompletionStatus);
-        EXPECT_EQ(validationResult, static_cast<validators::ValidationResult>(result.CompletionCode));
-        EXPECT_EQ(severity, result.ResultSeverity);
-    }
+	void AssertAborted(
+		const disruptor::ConsumerResult& result,
+		validators::ValidationResult validationResult,
+		disruptor::ConsumerResultSeverity severity) {
+		EXPECT_EQ(disruptor::CompletionStatus::Aborted, result.CompletionStatus);
+		EXPECT_EQ(validationResult, static_cast<validators::ValidationResult>(result.CompletionCode));
+		EXPECT_EQ(severity, result.ResultSeverity);
+	}
 
-    // endregion
+	// endregion
 
-    // region AssertPassthroughForEmptyInput
+	// region AssertPassthroughForEmptyInput
 
-    namespace {
-        template <typename TConsumer, typename TInput>
-        void AssertPassthroughForEmptyInput(const TConsumer& consumer, TInput&& input)
-        {
-            // Sanity:
-            EXPECT_TRUE(input.empty());
+	namespace {
+		template <typename TConsumer, typename TInput>
+		void AssertPassthroughForEmptyInput(const TConsumer& consumer, TInput&& input) {
+			// Sanity:
+			EXPECT_TRUE(input.empty());
 
-            // Act:
-            auto result = consumer(input);
+			// Act:
+			auto result = consumer(input);
 
-            // Assert:
-            test::AssertAborted(result, consumers::Failure_Consumer_Empty_Input, disruptor::ConsumerResultSeverity::Failure);
-            EXPECT_TRUE(input.empty());
-        }
-    }
+			// Assert:
+			test::AssertAborted(result, consumers::Failure_Consumer_Empty_Input, disruptor::ConsumerResultSeverity::Failure);
+			EXPECT_TRUE(input.empty());
+		}
+	}
 
-    void AssertPassthroughForEmptyInput(const disruptor::BlockConsumer& consumer)
-    {
-        // Assert:
-        AssertPassthroughForEmptyInput(consumer, disruptor::BlockElements());
-    }
+	void AssertPassthroughForEmptyInput(const disruptor::BlockConsumer& consumer) {
+		// Assert:
+		AssertPassthroughForEmptyInput(consumer, disruptor::BlockElements());
+	}
 
-    void AssertPassthroughForEmptyInput(const disruptor::TransactionConsumer& consumer)
-    {
-        // Assert:
-        AssertPassthroughForEmptyInput(consumer, disruptor::TransactionElements());
-    }
+	void AssertPassthroughForEmptyInput(const disruptor::TransactionConsumer& consumer) {
+		// Assert:
+		AssertPassthroughForEmptyInput(consumer, disruptor::TransactionElements());
+	}
 
-    void AssertPassthroughForEmptyInput(const disruptor::DisruptorConsumer& consumer)
-    {
-        // Assert:
-        AssertPassthroughForEmptyInput(consumer, disruptor::ConsumerInput());
-    }
+	void AssertPassthroughForEmptyInput(const disruptor::DisruptorConsumer& consumer) {
+		// Assert:
+		AssertPassthroughForEmptyInput(consumer, disruptor::ConsumerInput());
+	}
 
-    // endregion
+	// endregion
 }
 }

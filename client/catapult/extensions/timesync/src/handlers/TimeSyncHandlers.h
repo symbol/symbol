@@ -26,9 +26,9 @@
 namespace catapult {
 namespace handlers {
 
-    /// Registers a time sync network time handler in \a handlers that responds with communication timestamps using \a networkTimeSupplier.
-    void RegisterTimeSyncNetworkTimeHandler(
-        ionet::ServerPacketHandlers& handlers,
-        const extensions::ExtensionManager::NetworkTimeSupplier& networkTimeSupplier);
+	/// Registers a time sync network time handler in \a handlers that responds with communication timestamps using \a networkTimeSupplier.
+	void RegisterTimeSyncNetworkTimeHandler(
+		ionet::ServerPacketHandlers& handlers,
+		const extensions::ExtensionManager::NetworkTimeSupplier& networkTimeSupplier);
 }
 }

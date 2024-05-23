@@ -29,38 +29,35 @@
 namespace catapult {
 namespace mongo {
 
-    namespace {
-        plugins::PluginModule::Scope GetSymbolScope()
-        {
+	namespace {
+		plugins::PluginModule::Scope GetSymbolScope() {
 #ifdef STRICT_SYMBOL_VISIBILITY
-            // MemoryCacheChanges<X> typeinfos need to be merged between mongo and non-mongo plugins
-            return plugins::PluginModule::Scope::Global;
+			// MemoryCacheChanges<X> typeinfos need to be merged between mongo and non-mongo plugins
+			return plugins::PluginModule::Scope::Global;
 #else
-            return plugins::PluginModule::Scope::Local;
+			return plugins::PluginModule::Scope::Local;
 #endif
-        }
+		}
 
-        void LoadPlugin(MongoPluginManager& manager, const plugins::PluginModule& module, const char* symbolName)
-        {
-            auto registerSubsystem = module.symbol<decltype(::RegisterMongoSubsystem)*>(symbolName);
+		void LoadPlugin(MongoPluginManager& manager, const plugins::PluginModule& module, const char* symbolName) {
+			auto registerSubsystem = module.symbol<decltype(::RegisterMongoSubsystem)*>(symbolName);
 
-            try {
-                registerSubsystem(manager);
-            } catch (...) {
-                // since the module will be unloaded after this function exits, throw a copy of the exception that
-                // is not dependent on the (soon to be unloaded) module
-                auto exInfo = boost::diagnostic_information(boost::current_exception());
-                CATAPULT_THROW_AND_LOG_0(plugins::plugin_load_error, exInfo.c_str());
-            }
-        }
-    }
+			try {
+				registerSubsystem(manager);
+			} catch (...) {
+				// since the module will be unloaded after this function exits, throw a copy of the exception that
+				// is not dependent on the (soon to be unloaded) module
+				auto exInfo = boost::diagnostic_information(boost::current_exception());
+				CATAPULT_THROW_AND_LOG_0(plugins::plugin_load_error, exInfo.c_str());
+			}
+		}
+	}
 
-    void LoadPluginByName(MongoPluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name)
-    {
-        CATAPULT_LOG(info) << "registering dynamic mongo plugin " << name;
+	void LoadPluginByName(MongoPluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name) {
+		CATAPULT_LOG(info) << "registering dynamic mongo plugin " << name;
 
-        modules.emplace_back(directory, name, GetSymbolScope());
-        LoadPlugin(manager, modules.back(), "RegisterMongoSubsystem");
-    }
+		modules.emplace_back(directory, name, GetSymbolScope());
+		LoadPlugin(manager, modules.back(), "RegisterMongoSubsystem");
+	}
 }
 }

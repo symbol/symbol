@@ -29,36 +29,33 @@
 namespace catapult {
 namespace extensions {
 
-    /// Creates a sink that pushes entities using a service identified by \a serviceName in \a locator.
-    template <typename TSink>
-    TSink CreatePushEntitySink(const extensions::ServiceLocator& locator, const std::string& serviceName)
-    {
-        return [&locator, serviceName](const auto& entities) {
-            auto payload = ionet::CreateBroadcastPayload(entities);
-            if (sizeof(ionet::PacketHeader) == payload.header().Size)
-                return;
+	/// Creates a sink that pushes entities using a service identified by \a serviceName in \a locator.
+	template <typename TSink>
+	TSink CreatePushEntitySink(const extensions::ServiceLocator& locator, const std::string& serviceName) {
+		return [&locator, serviceName](const auto& entities) {
+			auto payload = ionet::CreateBroadcastPayload(entities);
+			if (sizeof(ionet::PacketHeader) == payload.header().Size)
+				return;
 
-            locator.service<net::PacketWriters>(serviceName)->broadcast(payload);
-        };
-    }
+			locator.service<net::PacketWriters>(serviceName)->broadcast(payload);
+		};
+	}
 
-    /// Creates a sink that pushes entities using \a packetType and a service identified by \a serviceName in \a locator.
-    template <typename TSink>
-    TSink CreatePushEntitySink(const extensions::ServiceLocator& locator, const std::string& serviceName, ionet::PacketType packetType)
-    {
-        return [&locator, serviceName, packetType](const auto& entities) {
-            auto payload = ionet::CreateBroadcastPayload(entities, packetType);
-            if (sizeof(ionet::PacketHeader) == payload.header().Size)
-                return;
+	/// Creates a sink that pushes entities using \a packetType and a service identified by \a serviceName in \a locator.
+	template <typename TSink>
+	TSink CreatePushEntitySink(const extensions::ServiceLocator& locator, const std::string& serviceName, ionet::PacketType packetType) {
+		return [&locator, serviceName, packetType](const auto& entities) {
+			auto payload = ionet::CreateBroadcastPayload(entities, packetType);
+			if (sizeof(ionet::PacketHeader) == payload.header().Size)
+				return;
 
-            locator.service<net::PacketWriters>(serviceName)->broadcast(payload);
-        };
-    }
+			locator.service<net::PacketWriters>(serviceName)->broadcast(payload);
+		};
+	}
 
-    /// Creates a sink that closes the propagated node identity in \a container.
-    inline BannedNodeIdentitySink CreateCloseConnectionSink(net::ConnectionContainer& container)
-    {
-        return [&container](const auto& identity) { container.closeOne(identity); };
-    }
+	/// Creates a sink that closes the propagated node identity in \a container.
+	inline BannedNodeIdentitySink CreateCloseConnectionSink(net::ConnectionContainer& container) {
+		return [&container](const auto& identity) { container.closeOne(identity); };
+	}
 }
 }

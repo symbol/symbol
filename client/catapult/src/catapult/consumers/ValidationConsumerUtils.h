@@ -27,18 +27,18 @@
 namespace catapult {
 namespace consumers {
 
-    // functions in this file are used to implement validation consumers and are tested indirectly through those implementations
+	// functions in this file are used to implement validation consumers and are tested indirectly through those implementations
 
-    /// Makes a block validation consumer that forwards all entity infos to \a process for validation.
-    /// Validation will only be performed for entities for which \a requiresValidationPredicate returns \c true.
-    disruptor::ConstBlockConsumer MakeBlockValidationConsumer(
-        const RequiresValidationPredicate& requiresValidationPredicate,
-        const std::function<validators::ValidationResult(const model::WeakEntityInfos&)>& process);
+	/// Makes a block validation consumer that forwards all entity infos to \a process for validation.
+	/// Validation will only be performed for entities for which \a requiresValidationPredicate returns \c true.
+	disruptor::ConstBlockConsumer MakeBlockValidationConsumer(
+		const RequiresValidationPredicate& requiresValidationPredicate,
+		const std::function<validators::ValidationResult(const model::WeakEntityInfos&)>& process);
 
-    /// Makes a transaction validation consumer that forwards all entity infos to \a process for validation.
-    /// Each failure is forwarded to \a failedTransactionSink.
-    disruptor::TransactionConsumer MakeTransactionValidationConsumer(
-        const chain::FailedTransactionSink& failedTransactionSink,
-        const std::function<std::vector<validators::ValidationResult>(model::WeakEntityInfos&)>& process);
+	/// Makes a transaction validation consumer that forwards all entity infos to \a process for validation.
+	/// Each failure is forwarded to \a failedTransactionSink.
+	disruptor::TransactionConsumer MakeTransactionValidationConsumer(
+		const chain::FailedTransactionSink& failedTransactionSink,
+		const std::function<std::vector<validators::ValidationResult>(model::WeakEntityInfos&)>& process);
 }
 }

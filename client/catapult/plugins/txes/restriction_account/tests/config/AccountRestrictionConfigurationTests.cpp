@@ -26,34 +26,30 @@
 namespace catapult {
 namespace config {
 
-    namespace {
-        struct AccountRestrictionConfigurationTraits {
-            using ConfigurationType = AccountRestrictionConfiguration;
+	namespace {
+		struct AccountRestrictionConfigurationTraits {
+			using ConfigurationType = AccountRestrictionConfiguration;
 
-            static utils::ConfigurationBag::ValuesContainer CreateProperties()
-            {
-                return { { "", { { "maxAccountRestrictionValues", "1234" } } } };
-            }
+			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
+				return { { "", { { "maxAccountRestrictionValues", "1234" } } } };
+			}
 
-            static bool IsSectionOptional(const std::string&)
-            {
-                return false;
-            }
+			static bool IsSectionOptional(const std::string&) {
+				return false;
+			}
 
-            static void AssertZero(const AccountRestrictionConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(0u, config.MaxAccountRestrictionValues);
-            }
+			static void AssertZero(const AccountRestrictionConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(0u, config.MaxAccountRestrictionValues);
+			}
 
-            static void AssertCustom(const AccountRestrictionConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(1234u, config.MaxAccountRestrictionValues);
-            }
-        };
-    }
+			static void AssertCustom(const AccountRestrictionConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(1234u, config.MaxAccountRestrictionValues);
+			}
+		};
+	}
 
-    DEFINE_CONFIGURATION_TESTS(AccountRestrictionConfigurationTests, AccountRestriction)
+	DEFINE_CONFIGURATION_TESTS(AccountRestrictionConfigurationTests, AccountRestriction)
 }
 }

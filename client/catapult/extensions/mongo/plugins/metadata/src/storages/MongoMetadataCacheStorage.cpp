@@ -28,26 +28,24 @@ using namespace bsoncxx::builder::stream;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct MetadataCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MetadataCacheDescriptor> {
-                static constexpr auto Collection_Name = "metadata";
-                static constexpr auto Id_Property_Name = "metadataEntry.compositeHash";
+		namespace {
+			struct MetadataCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MetadataCacheDescriptor> {
+				static constexpr auto Collection_Name = "metadata";
+				static constexpr auto Id_Property_Name = "metadataEntry.compositeHash";
 
-                static auto MapToMongoId(const KeyType& key)
-                {
-                    return mappers::ToBinary(key);
-                }
+				static auto MapToMongoId(const KeyType& key) {
+					return mappers::ToBinary(key);
+				}
 
-                static auto MapToMongoDocument(const ModelType& metadataEntry, model::NetworkIdentifier)
-                {
-                    return plugins::ToDbModel(metadataEntry);
-                }
-            };
-        }
+				static auto MapToMongoDocument(const ModelType& metadataEntry, model::NetworkIdentifier) {
+					return plugins::ToDbModel(metadataEntry);
+				}
+			};
+		}
 
-        DEFINE_MONGO_FLAT_CACHE_STORAGE(Metadata, MetadataCacheTraits)
-    }
+		DEFINE_MONGO_FLAT_CACHE_STORAGE(Metadata, MetadataCacheTraits)
+	}
 }
 }

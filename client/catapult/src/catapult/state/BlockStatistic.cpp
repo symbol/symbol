@@ -24,11 +24,10 @@
 namespace catapult {
 namespace state {
 
-    std::ostream& operator<<(std::ostream& out, const BlockStatistic& statistic)
-    {
-        out << "height = " << statistic.Height << ", timestamp = " << statistic.Timestamp << ", difficulty = " << statistic.Difficulty
-            << ", feeMultiplier = " << statistic.FeeMultiplier;
-        return out;
-    }
+	std::ostream& operator<<(std::ostream& out, const BlockStatistic& statistic) {
+		out << "height = " << statistic.Height << ", timestamp = " << statistic.Timestamp << ", difficulty = " << statistic.Difficulty
+			<< ", feeMultiplier = " << statistic.FeeMultiplier;
+		return out;
+	}
 }
 }

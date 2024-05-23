@@ -28,55 +28,49 @@ namespace local {
 
 #define TEST_CLASS StateRecoveryModeTests
 
-    namespace {
-        StateRecoveryMode CalculateStateRecoveryMode(
-            Height::ValueType cacheHeight,
-            Height::ValueType storageHeight,
-            bool enableCacheDatabaseStorage)
-        {
-            // Arrange:
-            auto config = config::NodeConfiguration::Uninitialized();
-            config.EnableCacheDatabaseStorage = enableCacheDatabaseStorage;
+	namespace {
+		StateRecoveryMode CalculateStateRecoveryMode(
+			Height::ValueType cacheHeight,
+			Height::ValueType storageHeight,
+			bool enableCacheDatabaseStorage) {
+			// Arrange:
+			auto config = config::NodeConfiguration::Uninitialized();
+			config.EnableCacheDatabaseStorage = enableCacheDatabaseStorage;
 
-            // Act:
-            return local::CalculateStateRecoveryMode(config, { Height(cacheHeight), Height(storageHeight) });
-        }
-    }
+			// Act:
+			return local::CalculateStateRecoveryMode(config, { Height(cacheHeight), Height(storageHeight) });
+		}
+	}
 
-    TEST(TEST_CLASS, NoneWhenCacheAndStorageHeightsAreEqual)
-    {
-        EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(1, 1, false));
-        EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(1, 1, true));
+	TEST(TEST_CLASS, NoneWhenCacheAndStorageHeightsAreEqual) {
+		EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(1, 1, false));
+		EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(1, 1, true));
 
-        EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(10, 10, false));
-        EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(10, 10, true));
-    }
+		EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(10, 10, false));
+		EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(10, 10, true));
+	}
 
-    TEST(TEST_CLASS, ReseedWhenCacheHeightIsOneAndStorageHeightIsGreaterThanOne)
-    {
-        EXPECT_EQ(StateRecoveryMode::Reseed, CalculateStateRecoveryMode(1, 10, false));
-        EXPECT_EQ(StateRecoveryMode::Reseed, CalculateStateRecoveryMode(1, 10, true));
-    }
+	TEST(TEST_CLASS, ReseedWhenCacheHeightIsOneAndStorageHeightIsGreaterThanOne) {
+		EXPECT_EQ(StateRecoveryMode::Reseed, CalculateStateRecoveryMode(1, 10, false));
+		EXPECT_EQ(StateRecoveryMode::Reseed, CalculateStateRecoveryMode(1, 10, true));
+	}
 
-    TEST(TEST_CLASS, ExceptionWhenCacheHeightIsGreaterThanStorageHeight)
-    {
-        EXPECT_THROW(CalculateStateRecoveryMode(10, 9, false), catapult_invalid_argument);
-        EXPECT_THROW(CalculateStateRecoveryMode(10, 9, true), catapult_invalid_argument);
+	TEST(TEST_CLASS, ExceptionWhenCacheHeightIsGreaterThanStorageHeight) {
+		EXPECT_THROW(CalculateStateRecoveryMode(10, 9, false), catapult_invalid_argument);
+		EXPECT_THROW(CalculateStateRecoveryMode(10, 9, true), catapult_invalid_argument);
 
-        EXPECT_THROW(CalculateStateRecoveryMode(10, 1, false), catapult_invalid_argument);
-        EXPECT_THROW(CalculateStateRecoveryMode(10, 1, true), catapult_invalid_argument);
-    }
+		EXPECT_THROW(CalculateStateRecoveryMode(10, 1, false), catapult_invalid_argument);
+		EXPECT_THROW(CalculateStateRecoveryMode(10, 1, true), catapult_invalid_argument);
+	}
 
-    TEST(TEST_CLASS, RepairWhenCacheHeightIsGreaterThanOneAndLessThanStorageHeight_CacheDatabaseDisabled)
-    {
-        EXPECT_EQ(StateRecoveryMode::Repair, CalculateStateRecoveryMode(2, 10, false));
-        EXPECT_EQ(StateRecoveryMode::Repair, CalculateStateRecoveryMode(9, 10, false));
-    }
+	TEST(TEST_CLASS, RepairWhenCacheHeightIsGreaterThanOneAndLessThanStorageHeight_CacheDatabaseDisabled) {
+		EXPECT_EQ(StateRecoveryMode::Repair, CalculateStateRecoveryMode(2, 10, false));
+		EXPECT_EQ(StateRecoveryMode::Repair, CalculateStateRecoveryMode(9, 10, false));
+	}
 
-    TEST(TEST_CLASS, NoneWhenCacheHeightIsGreaterThanOneAndLessThanStorageHeight_CacheDatabaseEnabled)
-    {
-        EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(2, 10, true));
-        EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(9, 10, true));
-    }
+	TEST(TEST_CLASS, NoneWhenCacheHeightIsGreaterThanOneAndLessThanStorageHeight_CacheDatabaseEnabled) {
+		EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(2, 10, true));
+		EXPECT_EQ(StateRecoveryMode::None, CalculateStateRecoveryMode(9, 10, true));
+	}
 }
 }

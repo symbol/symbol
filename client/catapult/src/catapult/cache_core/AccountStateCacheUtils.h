@@ -25,24 +25,24 @@
 
 namespace catapult {
 namespace cache {
-    class AccountStateCacheDelta;
-    class ReadOnlyAccountStateCache;
+	class AccountStateCacheDelta;
+	class ReadOnlyAccountStateCache;
 }
 namespace state {
-    struct AccountState;
+	struct AccountState;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// Forwards account state or linked account state found in \a cache associated with \a address to \a action.
-    void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Address& address, const consumer<state::AccountState&>& action);
+	/// Forwards account state or linked account state found in \a cache associated with \a address to \a action.
+	void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Address& address, const consumer<state::AccountState&>& action);
 
-    /// Forwards account state or linked account state found in \a cache associated with \a address to \a action.
-    void ProcessForwardedAccountState(
-        const ReadOnlyAccountStateCache& cache,
-        const Address& address,
-        const consumer<const state::AccountState&>& action);
+	/// Forwards account state or linked account state found in \a cache associated with \a address to \a action.
+	void ProcessForwardedAccountState(
+		const ReadOnlyAccountStateCache& cache,
+		const Address& address,
+		const consumer<const state::AccountState&>& action);
 }
 }

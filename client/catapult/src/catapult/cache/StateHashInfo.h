@@ -26,13 +26,13 @@
 namespace catapult {
 namespace cache {
 
-    /// Information about a cache state hash.
-    struct StateHashInfo {
-        /// State hash.
-        Hash256 StateHash;
+	/// Information about a cache state hash.
+	struct StateHashInfo {
+		/// State hash.
+		Hash256 StateHash;
 
-        /// Component sub cache merkle roots.
-        std::vector<Hash256> SubCacheMerkleRoots;
-    };
+		/// Component sub cache merkle roots.
+		std::vector<Hash256> SubCacheMerkleRoots;
+	};
 }
 }

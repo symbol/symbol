@@ -25,14 +25,14 @@
 namespace catapult {
 namespace tree {
 
-    /// Serializer for patricia tree.
-    struct PatriciaTreeSerializer {
-    public:
-        /// Serializes \a value to string.
-        static std::string SerializeValue(const tree::TreeNode& value);
+	/// Serializer for patricia tree.
+	struct PatriciaTreeSerializer {
+	public:
+		/// Serializes \a value to string.
+		static std::string SerializeValue(const tree::TreeNode& value);
 
-        /// Deserializes tree node from \a buffer.
-        static tree::TreeNode DeserializeValue(const RawBuffer& buffer);
-    };
+		/// Deserializes tree node from \a buffer.
+		static tree::TreeNode DeserializeValue(const RawBuffer& buffer);
+	};
 }
 }

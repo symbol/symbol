@@ -62,7 +62,7 @@
 #endif
 
 #if defined(powerpc) || defined(__PPC__) || defined(__ppc__) || defined(_ARCH_PPC) || defined(__powerpc__) || defined(__powerpc) \
-    || defined(POWERPC) || defined(_M_PPC)
+	|| defined(POWERPC) || defined(_M_PPC)
 #define CPU_PPC
 #if defined(_ARCH_PWR7)
 #define CPU_POWER7
@@ -83,7 +83,7 @@
 
 /* 64 bit cpu */
 #if defined(CPU_X86_64) || defined(CPU_IA64) || defined(CPU_SPARC64) || defined(__64BIT__) || defined(__LP64__) || defined(_LP64) \
-    || (defined(_MIPS_SZLONG) && (_MIPS_SZLONG == 64))
+	|| (defined(_MIPS_SZLONG) && (_MIPS_SZLONG == 64))
 #define CPU_64BITS
 #endif
 

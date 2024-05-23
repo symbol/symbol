@@ -29,81 +29,78 @@ struct MAY_ALIAS evp_md_ctx_st;
 namespace catapult {
 namespace crypto {
 
-    // region OpensslDigestContext
+	// region OpensslDigestContext
 
-    /// Wrapper for openssl digest context.
-    class alignas(32) OpensslDigestContext {
-    private:
-        using context_type = evp_md_ctx_st;
+	/// Wrapper for openssl digest context.
+	class alignas(32) OpensslDigestContext {
+	private:
+		using context_type = evp_md_ctx_st;
 
-    public:
-        /// Creates a new context.
-        OpensslDigestContext();
+	public:
+		/// Creates a new context.
+		OpensslDigestContext();
 
-        /// Destroys the context.
-        ~OpensslDigestContext();
+		/// Destroys the context.
+		~OpensslDigestContext();
 
-    public:
-        /// Dispatches an openssl digest call to \a func with \a args.
-        template <typename TFunc, typename... TArgs>
-        void dispatch(TFunc func, TArgs&&... args)
-        {
-            auto result = func(get(), std::forward<TArgs>(args)...);
+	public:
+		/// Dispatches an openssl digest call to \a func with \a args.
+		template <typename TFunc, typename... TArgs>
+		void dispatch(TFunc func, TArgs&&... args) {
+			auto result = func(get(), std::forward<TArgs>(args)...);
 
-            if (!result)
-                CATAPULT_THROW_RUNTIME_ERROR_1("openssl digest operation failed ", result);
-        }
+			if (!result)
+				CATAPULT_THROW_RUNTIME_ERROR_1("openssl digest operation failed ", result);
+		}
 
-    private:
-        context_type* get();
-        void reset();
+	private:
+		context_type* get();
+		void reset();
 
-    private:
-        uint8_t m_buffer[256];
-    };
+	private:
+		uint8_t m_buffer[256];
+	};
 
-    // endregion
+	// endregion
 
-    // region OpensslCipherContext
+	// region OpensslCipherContext
 
-    /// Wrapper for openssl cipher context.
-    class alignas(32) OpensslCipherContext {
-    private:
-        using context_type = evp_cipher_ctx_st;
+	/// Wrapper for openssl cipher context.
+	class alignas(32) OpensslCipherContext {
+	private:
+		using context_type = evp_cipher_ctx_st;
 
-    public:
-        /// Creates a new context.
-        OpensslCipherContext();
+	public:
+		/// Creates a new context.
+		OpensslCipherContext();
 
-        /// Destroys the context.
-        ~OpensslCipherContext();
+		/// Destroys the context.
+		~OpensslCipherContext();
 
-    public:
-        /// Dispatches an openssl cipher call to \a func with \a args.
-        template <typename TFunc, typename... TArgs>
-        void dispatch(TFunc func, TArgs&&... args)
-        {
-            auto result = func(get(), std::forward<TArgs>(args)...);
+	public:
+		/// Dispatches an openssl cipher call to \a func with \a args.
+		template <typename TFunc, typename... TArgs>
+		void dispatch(TFunc func, TArgs&&... args) {
+			auto result = func(get(), std::forward<TArgs>(args)...);
 
-            if (!result)
-                CATAPULT_THROW_RUNTIME_ERROR_1("openssl cipher operation failed ", result);
-        }
+			if (!result)
+				CATAPULT_THROW_RUNTIME_ERROR_1("openssl cipher operation failed ", result);
+		}
 
-        /// Tries to dispatch an openssl cipher call to \a func with \a args.
-        template <typename TFunc, typename... TArgs>
-        bool tryDispatch(TFunc func, TArgs&&... args)
-        {
-            return !!func(get(), std::forward<TArgs>(args)...);
-        }
+		/// Tries to dispatch an openssl cipher call to \a func with \a args.
+		template <typename TFunc, typename... TArgs>
+		bool tryDispatch(TFunc func, TArgs&&... args) {
+			return !!func(get(), std::forward<TArgs>(args)...);
+		}
 
-    private:
-        context_type* get();
-        void reset();
+	private:
+		context_type* get();
+		void reset();
 
-    private:
-        uint8_t m_buffer[512];
-    };
+	private:
+		uint8_t m_buffer[512];
+	};
 
-    // endregion
+	// endregion
 }
 }

@@ -24,71 +24,62 @@
 namespace catapult {
 namespace builders {
 
-    AccountAddressRestrictionBuilder::AccountAddressRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-        : TransactionBuilder(networkIdentifier, signer)
-        , m_restrictionFlags()
-        , m_restrictionAdditions()
-        , m_restrictionDeletions()
-    {
-    }
+	AccountAddressRestrictionBuilder::AccountAddressRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+		: TransactionBuilder(networkIdentifier, signer)
+		, m_restrictionFlags()
+		, m_restrictionAdditions()
+		, m_restrictionDeletions() {
+	}
 
-    void AccountAddressRestrictionBuilder::setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags)
-    {
-        m_restrictionFlags = restrictionFlags;
-    }
+	void AccountAddressRestrictionBuilder::setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
+		m_restrictionFlags = restrictionFlags;
+	}
 
-    void AccountAddressRestrictionBuilder::addRestrictionAddition(const UnresolvedAddress& restrictionAddition)
-    {
-        m_restrictionAdditions.push_back(restrictionAddition);
-    }
+	void AccountAddressRestrictionBuilder::addRestrictionAddition(const UnresolvedAddress& restrictionAddition) {
+		m_restrictionAdditions.push_back(restrictionAddition);
+	}
 
-    void AccountAddressRestrictionBuilder::addRestrictionDeletion(const UnresolvedAddress& restrictionDeletion)
-    {
-        m_restrictionDeletions.push_back(restrictionDeletion);
-    }
+	void AccountAddressRestrictionBuilder::addRestrictionDeletion(const UnresolvedAddress& restrictionDeletion) {
+		m_restrictionDeletions.push_back(restrictionDeletion);
+	}
 
-    size_t AccountAddressRestrictionBuilder::size() const
-    {
-        return sizeImpl<Transaction>();
-    }
+	size_t AccountAddressRestrictionBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
 
-    std::unique_ptr<AccountAddressRestrictionBuilder::Transaction> AccountAddressRestrictionBuilder::build() const
-    {
-        return buildImpl<Transaction>();
-    }
+	std::unique_ptr<AccountAddressRestrictionBuilder::Transaction> AccountAddressRestrictionBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
 
-    std::unique_ptr<AccountAddressRestrictionBuilder::EmbeddedTransaction> AccountAddressRestrictionBuilder::buildEmbedded() const
-    {
-        return buildImpl<EmbeddedTransaction>();
-    }
+	std::unique_ptr<AccountAddressRestrictionBuilder::EmbeddedTransaction> AccountAddressRestrictionBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
+	}
 
-    template <typename TransactionType>
-    size_t AccountAddressRestrictionBuilder::sizeImpl() const
-    {
-        // calculate transaction size
-        auto size = sizeof(TransactionType);
-        size += m_restrictionAdditions.size() * sizeof(UnresolvedAddress);
-        size += m_restrictionDeletions.size() * sizeof(UnresolvedAddress);
-        return size;
-    }
+	template <typename TransactionType>
+	size_t AccountAddressRestrictionBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		size += m_restrictionAdditions.size() * sizeof(UnresolvedAddress);
+		size += m_restrictionDeletions.size() * sizeof(UnresolvedAddress);
+		return size;
+	}
 
-    template <typename TransactionType>
-    std::unique_ptr<TransactionType> AccountAddressRestrictionBuilder::buildImpl() const
-    {
-        // 1. allocate, zero (header), set model::Transaction fields
-        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+	template <typename TransactionType>
+	std::unique_ptr<TransactionType> AccountAddressRestrictionBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-        // 2. set fixed transaction fields
-        pTransaction->RestrictionFlags = m_restrictionFlags;
-        pTransaction->RestrictionAdditionsCount = utils::checked_cast<size_t, uint8_t>(m_restrictionAdditions.size());
-        pTransaction->RestrictionDeletionsCount = utils::checked_cast<size_t, uint8_t>(m_restrictionDeletions.size());
-        pTransaction->AccountRestrictionTransactionBody_Reserved1 = 0;
+		// 2. set fixed transaction fields
+		pTransaction->RestrictionFlags = m_restrictionFlags;
+		pTransaction->RestrictionAdditionsCount = utils::checked_cast<size_t, uint8_t>(m_restrictionAdditions.size());
+		pTransaction->RestrictionDeletionsCount = utils::checked_cast<size_t, uint8_t>(m_restrictionDeletions.size());
+		pTransaction->AccountRestrictionTransactionBody_Reserved1 = 0;
 
-        // 3. set transaction attachments
-        std::copy(m_restrictionAdditions.cbegin(), m_restrictionAdditions.cend(), pTransaction->RestrictionAdditionsPtr());
-        std::copy(m_restrictionDeletions.cbegin(), m_restrictionDeletions.cend(), pTransaction->RestrictionDeletionsPtr());
+		// 3. set transaction attachments
+		std::copy(m_restrictionAdditions.cbegin(), m_restrictionAdditions.cend(), pTransaction->RestrictionAdditionsPtr());
+		std::copy(m_restrictionDeletions.cbegin(), m_restrictionDeletions.cend(), pTransaction->RestrictionDeletionsPtr());
 
-        return pTransaction;
-    }
+		return pTransaction;
+	}
 }
 }

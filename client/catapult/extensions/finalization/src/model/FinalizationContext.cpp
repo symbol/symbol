@@ -25,84 +25,75 @@
 namespace catapult {
 namespace model {
 
-    namespace {
-        bool Contains(const AddressSet& addresses, const Address& address)
-        {
-            return addresses.cend() != addresses.find(address);
-        }
-    }
+	namespace {
+		bool Contains(const AddressSet& addresses, const Address& address) {
+			return addresses.cend() != addresses.find(address);
+		}
+	}
 
-    FinalizationContext::FinalizationContext(
-        FinalizationEpoch epoch,
-        Height height,
-        const GenerationHash& generationHash,
-        const finalization::FinalizationConfiguration& config,
-        const cache::AccountStateCacheView& accountStateCacheView)
-        : m_epoch(epoch)
-        , m_height(height)
-        , m_generationHash(generationHash)
-        , m_config(config)
-    {
-        const auto& highValueAccounts = accountStateCacheView.highValueAccounts();
-        for (const auto& accountHistoryPair : highValueAccounts.accountHistories()) {
-            const auto& accountHistory = accountHistoryPair.second;
-            auto balance = accountHistory.balance().get(m_height);
-            if (Amount() == balance)
-                continue;
+	FinalizationContext::FinalizationContext(
+		FinalizationEpoch epoch,
+		Height height,
+		const GenerationHash& generationHash,
+		const finalization::FinalizationConfiguration& config,
+		const cache::AccountStateCacheView& accountStateCacheView)
+		: m_epoch(epoch)
+		, m_height(height)
+		, m_generationHash(generationHash)
+		, m_config(config) {
+		const auto& highValueAccounts = accountStateCacheView.highValueAccounts();
+		for (const auto& accountHistoryPair : highValueAccounts.accountHistories()) {
+			const auto& accountHistory = accountHistoryPair.second;
+			auto balance = accountHistory.balance().get(m_height);
+			if (Amount() == balance)
+				continue;
 
-            auto effectiveVotingPublicKey = FindVotingPublicKeyForEpoch(accountHistory.votingPublicKeys().get(m_height), m_epoch);
-            if (VotingKey() == effectiveVotingPublicKey)
-                continue;
+			auto effectiveVotingPublicKey = FindVotingPublicKeyForEpoch(accountHistory.votingPublicKeys().get(m_height), m_epoch);
+			if (VotingKey() == effectiveVotingPublicKey)
+				continue;
 
-            const auto& address = accountHistoryPair.first;
-            if (config.TreasuryReissuanceEpoch <= epoch && Contains(config.TreasuryReissuanceEpochIneligibleVoterAddresses, address)) {
-                CATAPULT_LOG(info) << "excluding voting account " << address << " from voting set at epoch "
-                                   << config.TreasuryReissuanceEpoch;
-                continue;
-            }
+			const auto& address = accountHistoryPair.first;
+			if (config.TreasuryReissuanceEpoch <= epoch && Contains(config.TreasuryReissuanceEpochIneligibleVoterAddresses, address)) {
+				CATAPULT_LOG(info) << "excluding voting account " << address << " from voting set at epoch "
+								   << config.TreasuryReissuanceEpoch;
+				continue;
+			}
 
-            auto accountView = FinalizationAccountView();
-            accountView.Weight = balance;
+			auto accountView = FinalizationAccountView();
+			accountView.Weight = balance;
 
-            m_accounts.emplace(effectiveVotingPublicKey, accountView);
-            m_weight = m_weight + balance;
-        }
-    }
+			m_accounts.emplace(effectiveVotingPublicKey, accountView);
+			m_weight = m_weight + balance;
+		}
+	}
 
-    FinalizationEpoch FinalizationContext::epoch() const
-    {
-        return m_epoch;
-    }
+	FinalizationEpoch FinalizationContext::epoch() const {
+		return m_epoch;
+	}
 
-    Height FinalizationContext::height() const
-    {
-        return m_height;
-    }
+	Height FinalizationContext::height() const {
+		return m_height;
+	}
 
-    const GenerationHash& FinalizationContext::generationHash() const
-    {
-        return m_generationHash;
-    }
+	const GenerationHash& FinalizationContext::generationHash() const {
+		return m_generationHash;
+	}
 
-    const finalization::FinalizationConfiguration& FinalizationContext::config() const
-    {
-        return m_config;
-    }
+	const finalization::FinalizationConfiguration& FinalizationContext::config() const {
+		return m_config;
+	}
 
-    Amount FinalizationContext::weight() const
-    {
-        return m_weight;
-    }
+	Amount FinalizationContext::weight() const {
+		return m_weight;
+	}
 
-    bool FinalizationContext::isEligibleVoter(const VotingKey& votingPublicKey) const
-    {
-        return Amount() != lookup(votingPublicKey).Weight;
-    }
+	bool FinalizationContext::isEligibleVoter(const VotingKey& votingPublicKey) const {
+		return Amount() != lookup(votingPublicKey).Weight;
+	}
 
-    FinalizationAccountView FinalizationContext::lookup(const VotingKey& votingPublicKey) const
-    {
-        auto iter = m_accounts.find(votingPublicKey);
-        return m_accounts.cend() == iter ? FinalizationAccountView() : iter->second;
-    }
+	FinalizationAccountView FinalizationContext::lookup(const VotingKey& votingPublicKey) const {
+		auto iter = m_accounts.find(votingPublicKey);
+		return m_accounts.cend() == iter ? FinalizationAccountView() : iter->second;
+	}
 }
 }

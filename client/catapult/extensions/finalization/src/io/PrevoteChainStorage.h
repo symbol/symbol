@@ -26,42 +26,42 @@
 
 namespace catapult {
 namespace io {
-    class BlockStorageView;
+	class BlockStorageView;
 }
 }
 
 namespace catapult {
 namespace io {
 
-    /// Describes a prevote chain.
-    struct PrevoteChainDescriptor {
-        /// Prevote round.
-        model::FinalizationRound Round;
+	/// Describes a prevote chain.
+	struct PrevoteChainDescriptor {
+		/// Prevote round.
+		model::FinalizationRound Round;
 
-        /// Block height corresponding to the the first prevote hash.
-        catapult::Height Height;
+		/// Block height corresponding to the the first prevote hash.
+		catapult::Height Height;
 
-        /// Number of prevote hashes.
-        size_t HashesCount;
-    };
+		/// Number of prevote hashes.
+		size_t HashesCount;
+	};
 
-    /// Storage for prevote chains.
-    class PrevoteChainStorage {
-    public:
-        virtual ~PrevoteChainStorage() = default;
+	/// Storage for prevote chains.
+	class PrevoteChainStorage {
+	public:
+		virtual ~PrevoteChainStorage() = default;
 
-    public:
-        /// Returns \c true if backed up chain for \a round contains \a heightHashPair.
-        virtual bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const = 0;
+	public:
+		/// Returns \c true if backed up chain for \a round contains \a heightHashPair.
+		virtual bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const = 0;
 
-        /// Loads backed up chain for \a round up to \a maxHeight.
-        virtual model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const = 0;
+		/// Loads backed up chain for \a round up to \a maxHeight.
+		virtual model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const = 0;
 
-        /// Backs up prevote chain, specified by \a descriptor, stored in \a blockStorageView.
-        virtual void save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor) = 0;
+		/// Backs up prevote chain, specified by \a descriptor, stored in \a blockStorageView.
+		virtual void save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor) = 0;
 
-        /// Removes backed up chain for \a round.
-        virtual void remove(const model::FinalizationRound& round) = 0;
-    };
+		/// Removes backed up chain for \a round.
+		virtual void remove(const model::FinalizationRound& round) = 0;
+	};
 }
 }

@@ -25,31 +25,28 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct MongoAccountLinkPluginTraits {
-            public:
-                static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
+		namespace {
+			struct MongoAccountLinkPluginTraits {
+			public:
+				static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
-                static std::vector<model::EntityType> GetTransactionTypes()
-                {
-                    return { model::Entity_Type_Account_Key_Link, model::Entity_Type_Node_Key_Link };
-                }
+				static std::vector<model::EntityType> GetTransactionTypes() {
+					return { model::Entity_Type_Account_Key_Link, model::Entity_Type_Node_Key_Link };
+				}
 
-                static std::vector<model::ReceiptType> GetReceiptTypes()
-                {
-                    return {};
-                }
+				static std::vector<model::ReceiptType> GetReceiptTypes() {
+					return {};
+				}
 
-                static std::string GetStorageName()
-                {
-                    return "{}";
-                }
-            };
-        }
+				static std::string GetStorageName() {
+					return "{}";
+				}
+			};
+		}
 
-        DEFINE_MONGO_PLUGIN_TESTS(MongoAccountLinkPluginTests, MongoAccountLinkPluginTraits)
-    }
+		DEFINE_MONGO_PLUGIN_TESTS(MongoAccountLinkPluginTests, MongoAccountLinkPluginTraits)
+	}
 }
 }

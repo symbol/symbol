@@ -24,42 +24,35 @@
 namespace catapult {
 namespace harvesting {
 
-    namespace {
-        crypto::KeyPair CreateZeroKeyPair()
-        {
-            return crypto::KeyPair::FromPrivate(crypto::PrivateKey());
-        }
-    }
+	namespace {
+		crypto::KeyPair CreateZeroKeyPair() {
+			return crypto::KeyPair::FromPrivate(crypto::PrivateKey());
+		}
+	}
 
-    BlockGeneratorAccountDescriptor::BlockGeneratorAccountDescriptor()
-        : BlockGeneratorAccountDescriptor(CreateZeroKeyPair(), CreateZeroKeyPair())
-    {
-    }
+	BlockGeneratorAccountDescriptor::BlockGeneratorAccountDescriptor()
+		: BlockGeneratorAccountDescriptor(CreateZeroKeyPair(), CreateZeroKeyPair()) {
+	}
 
-    BlockGeneratorAccountDescriptor::BlockGeneratorAccountDescriptor(crypto::KeyPair&& signingKeyPair, crypto::KeyPair&& vrfKeyPair)
-        : m_signingKeyPair(std::move(signingKeyPair))
-        , m_vrfKeyPair(std::move(vrfKeyPair))
-    {
-    }
+	BlockGeneratorAccountDescriptor::BlockGeneratorAccountDescriptor(crypto::KeyPair&& signingKeyPair, crypto::KeyPair&& vrfKeyPair)
+		: m_signingKeyPair(std::move(signingKeyPair))
+		, m_vrfKeyPair(std::move(vrfKeyPair)) {
+	}
 
-    const crypto::KeyPair& BlockGeneratorAccountDescriptor::signingKeyPair() const
-    {
-        return m_signingKeyPair;
-    }
+	const crypto::KeyPair& BlockGeneratorAccountDescriptor::signingKeyPair() const {
+		return m_signingKeyPair;
+	}
 
-    const crypto::KeyPair& BlockGeneratorAccountDescriptor::vrfKeyPair() const
-    {
-        return m_vrfKeyPair;
-    }
+	const crypto::KeyPair& BlockGeneratorAccountDescriptor::vrfKeyPair() const {
+		return m_vrfKeyPair;
+	}
 
-    bool BlockGeneratorAccountDescriptor::operator==(const BlockGeneratorAccountDescriptor& rhs) const
-    {
-        return m_signingKeyPair.publicKey() == rhs.m_signingKeyPair.publicKey() && m_vrfKeyPair.publicKey() == rhs.m_vrfKeyPair.publicKey();
-    }
+	bool BlockGeneratorAccountDescriptor::operator==(const BlockGeneratorAccountDescriptor& rhs) const {
+		return m_signingKeyPair.publicKey() == rhs.m_signingKeyPair.publicKey() && m_vrfKeyPair.publicKey() == rhs.m_vrfKeyPair.publicKey();
+	}
 
-    bool BlockGeneratorAccountDescriptor::operator!=(const BlockGeneratorAccountDescriptor& rhs) const
-    {
-        return !(*this == rhs);
-    }
+	bool BlockGeneratorAccountDescriptor::operator!=(const BlockGeneratorAccountDescriptor& rhs) const {
+		return !(*this == rhs);
+	}
 }
 }

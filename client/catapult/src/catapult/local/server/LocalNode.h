@@ -27,84 +27,81 @@
 
 namespace catapult {
 namespace cache {
-    class CatapultCache;
+	class CatapultCache;
 }
 namespace config {
-    class CatapultKeys;
+	class CatapultKeys;
 }
 namespace extensions {
-    class ProcessBootstrapper;
+	class ProcessBootstrapper;
 }
 namespace ionet {
-    class NodeContainerView;
+	class NodeContainerView;
 }
 namespace model {
-    class ChainScore;
+	class ChainScore;
 }
 }
 
 namespace catapult {
 namespace local {
 
-    // region LocalNodeCounterValue(s)
+	// region LocalNodeCounterValue(s)
 
-    /// Local node counter value.
-    /// \note This is a constant value unlike utils::DiagnosticCounter.
-    class LocalNodeCounterValue {
-    public:
-        /// Creates a counter value from \a counter.
-        explicit LocalNodeCounterValue(const utils::DiagnosticCounter& counter)
-            : m_id(counter.id())
-            , m_value(counter.value())
-        {
-        }
+	/// Local node counter value.
+	/// \note This is a constant value unlike utils::DiagnosticCounter.
+	class LocalNodeCounterValue {
+	public:
+		/// Creates a counter value from \a counter.
+		explicit LocalNodeCounterValue(const utils::DiagnosticCounter& counter)
+			: m_id(counter.id())
+			, m_value(counter.value()) {
+		}
 
-    public:
-        /// Gets the counter id.
-        const utils::DiagnosticCounterId& id() const
-        {
-            return m_id;
-        }
+	public:
+		/// Gets the counter id.
+		const utils::DiagnosticCounterId& id() const {
+			return m_id;
+		}
 
-        /// Gets the counter value.
-        uint64_t value() const
-        {
-            return m_value;
-        }
+		/// Gets the counter value.
+		uint64_t value() const {
+			return m_value;
+		}
 
-    private:
-        utils::DiagnosticCounterId m_id;
-        uint64_t m_value;
-    };
+	private:
+		utils::DiagnosticCounterId m_id;
+		uint64_t m_value;
+	};
 
-    /// Container of local node counter values.
-    using LocalNodeCounterValues = std::vector<LocalNodeCounterValue>;
+	/// Container of local node counter values.
+	using LocalNodeCounterValues = std::vector<LocalNodeCounterValue>;
 
-    // endregion
+	// endregion
 
-    // region LocalNode
+	// region LocalNode
 
-    /// Represents a local node.
-    class LocalNode : public ProcessHost {
-    public:
-        /// Gets the current cache.
-        virtual const cache::CatapultCache& cache() const = 0;
+	/// Represents a local node.
+	class LocalNode : public ProcessHost {
+	public:
+		/// Gets the current cache.
+		virtual const cache::CatapultCache& cache() const = 0;
 
-        /// Gets the current chain score.
-        virtual model::ChainScore score() const = 0;
+		/// Gets the current chain score.
+		virtual model::ChainScore score() const = 0;
 
-        /// Gets the current node counters.
-        virtual LocalNodeCounterValues counters() const = 0;
+		/// Gets the current node counters.
+		virtual LocalNodeCounterValues counters() const = 0;
 
-        /// Gets the current nodes.
-        virtual ionet::NodeContainerView nodes() const = 0;
-    };
+		/// Gets the current nodes.
+		virtual ionet::NodeContainerView nodes() const = 0;
+	};
 
-    /// Creates and boots a local node around the specified \a keys and bootstrapper (\a pBootstrapper).
-    std::unique_ptr<LocalNode> CreateLocalNode(
-        const config::CatapultKeys& keys,
-        std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
+	/// Creates and boots a local node around the specified \a keys and bootstrapper (\a pBootstrapper).
+	std::unique_ptr<LocalNode> CreateLocalNode(
+		const config::CatapultKeys& keys,
+		std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
 
-    // endregion
+	// endregion
 }
 }

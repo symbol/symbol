@@ -28,26 +28,24 @@ using namespace bsoncxx::builder::stream;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct MultisigCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MultisigCacheDescriptor> {
-                static constexpr auto Collection_Name = "multisigs";
-                static constexpr auto Id_Property_Name = "multisig.accountAddress";
+		namespace {
+			struct MultisigCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MultisigCacheDescriptor> {
+				static constexpr auto Collection_Name = "multisigs";
+				static constexpr auto Id_Property_Name = "multisig.accountAddress";
 
-                static auto MapToMongoId(const KeyType& key)
-                {
-                    return mappers::ToBinary(key);
-                }
+				static auto MapToMongoId(const KeyType& key) {
+					return mappers::ToBinary(key);
+				}
 
-                static auto MapToMongoDocument(const ModelType& entry, model::NetworkIdentifier)
-                {
-                    return plugins::ToDbModel(entry);
-                }
-            };
-        }
+				static auto MapToMongoDocument(const ModelType& entry, model::NetworkIdentifier) {
+					return plugins::ToDbModel(entry);
+				}
+			};
+		}
 
-        DEFINE_MONGO_FLAT_CACHE_STORAGE(Multisig, MultisigCacheTraits)
-    }
+		DEFINE_MONGO_FLAT_CACHE_STORAGE(Multisig, MultisigCacheTraits)
+	}
 }
 }

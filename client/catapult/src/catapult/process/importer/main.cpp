@@ -28,21 +28,20 @@ namespace {
 constexpr auto Process_Name = "recovery";
 }
 
-int main(int argc, const char** argv)
-{
-    using namespace catapult;
+int main(int argc, const char** argv) {
+	using namespace catapult;
 
-    auto processOptions = process::ProcessOptions::Exit_After_Process_Host_Creation;
-    return process::ProcessMain(argc, argv, Process_Name, processOptions, [argc, argv](auto&& config, const auto&) {
-        // create bootstrapper
-        auto resourcesPath = process::GetResourcesPath(argc, argv).generic_string();
-        auto disposition = extensions::ProcessDisposition::Production;
-        auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(config, resourcesPath, disposition, Process_Name);
+	auto processOptions = process::ProcessOptions::Exit_After_Process_Host_Creation;
+	return process::ProcessMain(argc, argv, Process_Name, processOptions, [argc, argv](auto&& config, const auto&) {
+		// create bootstrapper
+		auto resourcesPath = process::GetResourcesPath(argc, argv).generic_string();
+		auto disposition = extensions::ProcessDisposition::Production;
+		auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(config, resourcesPath, disposition, Process_Name);
 
-        // register extension(s)
-        pBootstrapper->loadExtensions();
+		// register extension(s)
+		pBootstrapper->loadExtensions();
 
-        // create the local node
-        return local::CreateChainImporter(std::move(pBootstrapper));
-    });
+		// create the local node
+		return local::CreateChainImporter(std::move(pBootstrapper));
+	});
 }

@@ -38,14 +38,13 @@ namespace bmp = boost::math::policies;
 namespace catapult {
 namespace crypto {
 
-    using Policy = bmp::policy<bmp::discrete_quantile<bmp::integer_round_up>>;
-    using Binomial = bm::binomial_distribution<double, Policy>;
+	using Policy = bmp::policy<bmp::discrete_quantile<bmp::integer_round_up>>;
+	using Binomial = bm::binomial_distribution<double, Policy>;
 
-    uint64_t InverseCdf(double n, double successRate, double hit)
-    {
-        // note: quantile actually returns integer value.
-        return static_cast<uint64_t>(quantile(Binomial(n, successRate), hit));
-    }
+	uint64_t InverseCdf(double n, double successRate, double hit) {
+		// note: quantile actually returns integer value.
+		return static_cast<uint64_t>(quantile(Binomial(n, successRate), hit));
+	}
 
 #ifdef _MSC_VER
 #define BSWAP64(VAL) _byteswap_uint64(VAL)
@@ -53,18 +52,17 @@ namespace crypto {
 #define BSWAP64(VAL) __builtin_bswap64(VAL)
 #endif
 
-    uint64_t Sortition(const Hash512& sortitionVrfHash, uint64_t tau, Amount stake, Amount totalPower)
-    {
-        // 1. calculate hit - bswap, to treat it as big-endian
-        uint64_t num;
-        std::memcpy(&num, sortitionVrfHash.data(), sizeof(uint64_t));
-        num = BSWAP64(num);
-        auto hit = static_cast<double>(num) / std::pow(2.0, 64);
+	uint64_t Sortition(const Hash512& sortitionVrfHash, uint64_t tau, Amount stake, Amount totalPower) {
+		// 1. calculate hit - bswap, to treat it as big-endian
+		uint64_t num;
+		std::memcpy(&num, sortitionVrfHash.data(), sizeof(uint64_t));
+		num = BSWAP64(num);
+		auto hit = static_cast<double>(num) / std::pow(2.0, 64);
 
-        // 2. calculate number of votes
-        auto rate = utils::to_ratio(tau, totalPower.unwrap());
-        auto numVotes = InverseCdf(static_cast<double>(stake.unwrap()), rate, hit);
-        return numVotes;
-    }
+		// 2. calculate number of votes
+		auto rate = utils::to_ratio(tau, totalPower.unwrap());
+		auto numVotes = InverseCdf(static_cast<double>(stake.unwrap()), rate, hit);
+		return numVotes;
+	}
 }
 }

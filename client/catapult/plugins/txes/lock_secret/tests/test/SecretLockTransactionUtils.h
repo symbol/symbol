@@ -25,17 +25,16 @@
 namespace catapult {
 namespace test {
 
-    /// Creates a random secret proof transaction based on \a TTraits with proof of \a proofSize bytes.
-    template <typename TTraits>
-    auto CreateRandomSecretProofTransaction(uint16_t proofSize)
-    {
-        using TransactionType = typename TTraits::TransactionType;
-        uint32_t entitySize = SizeOf32<TransactionType>() + proofSize;
-        auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
-        test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
-        pTransaction->Size = entitySize;
-        pTransaction->ProofSize = proofSize;
-        return pTransaction;
-    }
+	/// Creates a random secret proof transaction based on \a TTraits with proof of \a proofSize bytes.
+	template <typename TTraits>
+	auto CreateRandomSecretProofTransaction(uint16_t proofSize) {
+		using TransactionType = typename TTraits::TransactionType;
+		uint32_t entitySize = SizeOf32<TransactionType>() + proofSize;
+		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
+		pTransaction->Size = entitySize;
+		pTransaction->ProofSize = proofSize;
+		return pTransaction;
+	}
 }
 }

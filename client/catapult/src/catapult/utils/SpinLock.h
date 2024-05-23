@@ -27,42 +27,38 @@
 namespace catapult {
 namespace utils {
 
-    /// Simple spin lock implemented by using an atomic.
-    /// Note that function naming allows this to be used as a Lockable type
-    /// (http://en.cppreference.com/w/cpp/concept/Lockable).
-    class SpinLock {
-    public:
-        /// Creates an unlocked lock.
-        SpinLock()
-        {
-            unlock();
-        }
+	/// Simple spin lock implemented by using an atomic.
+	/// Note that function naming allows this to be used as a Lockable type
+	/// (http://en.cppreference.com/w/cpp/concept/Lockable).
+	class SpinLock {
+	public:
+		/// Creates an unlocked lock.
+		SpinLock() {
+			unlock();
+		}
 
-    public:
-        /// Blocks until a lock can be obtained for the current execution agent.
-        inline void lock()
-        {
-            while (!try_lock())
-                std::this_thread::yield();
-        }
+	public:
+		/// Blocks until a lock can be obtained for the current execution agent.
+		inline void lock() {
+			while (!try_lock())
+				std::this_thread::yield();
+		}
 
-        /// Attempts to acquire the lock for the current execution agent without blocking.
-        inline bool try_lock()
-        {
-            return !m_isLocked.test_and_set(std::memory_order_acquire);
-        }
+		/// Attempts to acquire the lock for the current execution agent without blocking.
+		inline bool try_lock() {
+			return !m_isLocked.test_and_set(std::memory_order_acquire);
+		}
 
-        /// Releases the lock held by the execution agent. Throws no exceptions.
-        inline void unlock() noexcept
-        {
-            m_isLocked.clear(std::memory_order_release);
-        }
+		/// Releases the lock held by the execution agent. Throws no exceptions.
+		inline void unlock() noexcept {
+			m_isLocked.clear(std::memory_order_release);
+		}
 
-    private:
-        std::atomic_flag m_isLocked;
-    };
+	private:
+		std::atomic_flag m_isLocked;
+	};
 
-    /// Spin lock guard.
-    using SpinLockGuard = std::lock_guard<SpinLock>;
+	/// Spin lock guard.
+	using SpinLockGuard = std::lock_guard<SpinLock>;
 }
 }

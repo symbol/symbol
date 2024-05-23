@@ -26,22 +26,22 @@
 
 namespace catapult {
 namespace ionet {
-    class NodeContainer;
+	class NodeContainer;
 }
 }
 
 namespace catapult {
 namespace local {
 
-    /// Adapts \a nodes to a node subscriber given \a localNetworks.
-    std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
-        ionet::NodeContainer& nodes,
-        const std::unordered_set<std::string>& localNetworks);
+	/// Adapts \a nodes to a node subscriber given \a localNetworks.
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
+		ionet::NodeContainer& nodes,
+		const std::unordered_set<std::string>& localNetworks);
 
-    /// Adapts \a nodes to a node subscriber given \a localNetworks and \a bannedNodeIdentitySink.
-    std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
-        ionet::NodeContainer& nodes,
-        const std::unordered_set<std::string>& localNetworks,
-        const extensions::BannedNodeIdentitySink& bannedNodeIdentitySink);
+	/// Adapts \a nodes to a node subscriber given \a localNetworks and \a bannedNodeIdentitySink.
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
+		ionet::NodeContainer& nodes,
+		const std::unordered_set<std::string>& localNetworks,
+		const extensions::BannedNodeIdentitySink& bannedNodeIdentitySink);
 }
 }

@@ -27,52 +27,48 @@
 namespace catapult {
 namespace test {
 
-    /// Tests for a summary aware cache storage plugin.
-    template <typename TTraits>
-    class SummaryAwareCacheStoragePluginTests {
-    public:
-        static void AssertCanCreateCacheStorageViaPluginForFullStorage()
-        {
-            // Assert:
-            AssertCanCreateStorageViaPlugin(cache::CacheConfiguration(), TTraits::Base_Name);
-        }
+	/// Tests for a summary aware cache storage plugin.
+	template <typename TTraits>
+	class SummaryAwareCacheStoragePluginTests {
+	public:
+		static void AssertCanCreateCacheStorageViaPluginForFullStorage() {
+			// Assert:
+			AssertCanCreateStorageViaPlugin(cache::CacheConfiguration(), TTraits::Base_Name);
+		}
 
-        static void AssertCanCreateCacheStorageViaPluginForSummaryStorage()
-        {
-            // Arrange: use TempDirectoryGuard  to remove db directory without including rocksdb related includes
-            test::TempDirectoryGuard dbDirGuard;
+		static void AssertCanCreateCacheStorageViaPluginForSummaryStorage() {
+			// Arrange: use TempDirectoryGuard  to remove db directory without including rocksdb related includes
+			test::TempDirectoryGuard dbDirGuard;
 
-            auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
-            cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromMegabytes(5);
-            auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), cacheDatabaseConfig, cache::PatriciaTreeStorageMode::Disabled);
+			auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+			cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromMegabytes(5);
+			auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), cacheDatabaseConfig, cache::PatriciaTreeStorageMode::Disabled);
 
-            // Assert:
-            AssertCanCreateStorageViaPlugin(cacheConfig, std::string(TTraits::Base_Name) + "_summary");
-        }
+			// Assert:
+			AssertCanCreateStorageViaPlugin(cacheConfig, std::string(TTraits::Base_Name) + "_summary");
+		}
 
-    private:
-        static void AssertCanCreateStorageViaPlugin(const cache::CacheConfiguration& config, const std::string& expectedStorageName)
-        {
-            // Arrange:
-            typename TTraits::PluginType plugin(config);
+	private:
+		static void AssertCanCreateStorageViaPlugin(const cache::CacheConfiguration& config, const std::string& expectedStorageName) {
+			// Arrange:
+			typename TTraits::PluginType plugin(config);
 
-            // Act:
-            auto pStorage = plugin.createStorage();
+			// Act:
+			auto pStorage = plugin.createStorage();
 
-            // Assert:
-            ASSERT_TRUE(!!pStorage);
-            EXPECT_EQ(expectedStorageName, pStorage->name());
-        }
-    };
+			// Assert:
+			ASSERT_TRUE(!!pStorage);
+			EXPECT_EQ(expectedStorageName, pStorage->name());
+		}
+	};
 
 #define MAKE_SUMMARY_AWARE_CACHE_STORAGE_PLUGIN_TEST(TRAITS, TEST_NAME)         \
-    TEST(TEST_CLASS, TEST_NAME)                                                 \
-    {                                                                           \
-        test::SummaryAwareCacheStoragePluginTests<TRAITS>::Assert##TEST_NAME(); \
-    }
+	TEST(TEST_CLASS, TEST_NAME) {                                               \
+		test::SummaryAwareCacheStoragePluginTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_SUMMARY_AWARE_CACHE_STORAGE_PLUGIN_TESTS(TRAITS)                                        \
-    MAKE_SUMMARY_AWARE_CACHE_STORAGE_PLUGIN_TEST(TRAITS, CanCreateCacheStorageViaPluginForFullStorage) \
-    MAKE_SUMMARY_AWARE_CACHE_STORAGE_PLUGIN_TEST(TRAITS, CanCreateCacheStorageViaPluginForSummaryStorage)
+	MAKE_SUMMARY_AWARE_CACHE_STORAGE_PLUGIN_TEST(TRAITS, CanCreateCacheStorageViaPluginForFullStorage) \
+	MAKE_SUMMARY_AWARE_CACHE_STORAGE_PLUGIN_TEST(TRAITS, CanCreateCacheStorageViaPluginForSummaryStorage)
 }
 }

@@ -33,58 +33,56 @@ namespace plugins {
 
 #define TEST_CLASS SecretProofTransactionPluginTests
 
-    // region test utils
+	// region test utils
 
-    namespace {
-        DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof, 1, 1, )
-    }
+	namespace {
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof, 1, 1, )
+	}
 
-    DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Secret_Proof)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Secret_Proof)
 
-    // endregion
+	// endregion
 
-    // region publish
+	// region publish
 
-    PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder)
-    {
-        // Arrange:
-        typename TTraits::TransactionType transaction;
-        test::FillWithRandomData(transaction);
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
 
-        // Act + Assert:
-        test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
-            transaction,
-            { SecretLockHashAlgorithmNotification::Notification_Type,
-                ProofSecretNotification::Notification_Type,
-                ProofPublicationNotification::Notification_Type });
-    }
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+			transaction,
+			{ SecretLockHashAlgorithmNotification::Notification_Type,
+				ProofSecretNotification::Notification_Type,
+				ProofPublicationNotification::Notification_Type });
+	}
 
-    PLUGIN_TEST(CanPublishAllNotifications)
-    {
-        // Arrange:
-        auto pTransaction = test::CreateRandomSecretProofTransaction<TTraits>(123);
+	PLUGIN_TEST(CanPublishAllNotifications) {
+		// Arrange:
+		auto pTransaction = test::CreateRandomSecretProofTransaction<TTraits>(123);
 
-        const auto& transaction = *pTransaction;
-        typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
-        builder.template addExpectation<SecretLockHashAlgorithmNotification>(
-            [&transaction](const auto& notification) { EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm); });
-        builder.template addExpectation<ProofSecretNotification>([&transaction](const auto& notification) {
-            EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
-            EXPECT_EQ(transaction.Secret, notification.Secret);
-            ASSERT_EQ(transaction.ProofSize, notification.Proof.Size);
-            EXPECT_EQ_MEMORY(transaction.ProofPtr(), notification.Proof.pData, notification.Proof.Size);
-        });
-        builder.template addExpectation<ProofPublicationNotification>([&transaction](const auto& notification) {
-            EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
-            EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
-            EXPECT_EQ(transaction.Secret, notification.Secret);
-            EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
-        });
+		const auto& transaction = *pTransaction;
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		builder.template addExpectation<SecretLockHashAlgorithmNotification>(
+			[&transaction](const auto& notification) { EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm); });
+		builder.template addExpectation<ProofSecretNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
+			EXPECT_EQ(transaction.Secret, notification.Secret);
+			ASSERT_EQ(transaction.ProofSize, notification.Proof.Size);
+			EXPECT_EQ_MEMORY(transaction.ProofPtr(), notification.Proof.pData, notification.Proof.Size);
+		});
+		builder.template addExpectation<ProofPublicationNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
+			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
+			EXPECT_EQ(transaction.Secret, notification.Secret);
+			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
+		});
 
-        // Act + Assert:
-        builder.runTest(transaction);
-    }
+		// Act + Assert:
+		builder.runTest(transaction);
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -24,29 +24,29 @@
 
 namespace catapult {
 namespace utils {
-    class ConfigurationBag;
+	class ConfigurationBag;
 }
 }
 
 namespace catapult {
 namespace config {
 
-    /// Inflation configuration settings.
-    struct InflationConfiguration {
-    public:
-        /// Inflation calculator.
-        model::InflationCalculator InflationCalculator;
+	/// Inflation configuration settings.
+	struct InflationConfiguration {
+	public:
+		/// Inflation calculator.
+		model::InflationCalculator InflationCalculator;
 
-    private:
-        InflationConfiguration() = default;
+	private:
+		InflationConfiguration() = default;
 
-    public:
-        /// Creates an uninitialized inflation configuration.
-        static InflationConfiguration Uninitialized();
+	public:
+		/// Creates an uninitialized inflation configuration.
+		static InflationConfiguration Uninitialized();
 
-    public:
-        /// Loads an inflation configuration from \a bag.
-        static InflationConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-    };
+	public:
+		/// Loads an inflation configuration from \a bag.
+		static InflationConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
 }
 }

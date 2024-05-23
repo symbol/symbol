@@ -24,21 +24,21 @@
 
 namespace catapult {
 namespace config {
-    class CatapultDataDirectory;
+	class CatapultDataDirectory;
 }
 namespace extensions {
-    class LocalNodeChainScore;
+	class LocalNodeChainScore;
 }
 }
 
 namespace catapult {
 namespace sync {
 
-    /// Updates \a syncHandlers to support supplemental data resiliency given \a dataDirectory, \a cache and \a score.
-    void AddSupplementalDataResiliency(
-        consumers::BlockchainSyncHandlers& syncHandlers,
-        const config::CatapultDataDirectory& dataDirectory,
-        const cache::CatapultCache& cache,
-        const extensions::LocalNodeChainScore& score);
+	/// Updates \a syncHandlers to support supplemental data resiliency given \a dataDirectory, \a cache and \a score.
+	void AddSupplementalDataResiliency(
+		consumers::BlockchainSyncHandlers& syncHandlers,
+		const config::CatapultDataDirectory& dataDirectory,
+		const cache::CatapultCache& cache,
+		const extensions::LocalNodeChainScore& score);
 }
 }

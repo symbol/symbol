@@ -24,12 +24,11 @@
 
 namespace catapult {
 namespace timesync {
-    namespace filters {
+	namespace filters {
 
-        SynchronizationFilter CreateReversedTimestampsFilter()
-        {
-            return [](const auto& sample, auto) { return sample.localDuration() < 0 || sample.remoteDuration() < 0; };
-        }
-    }
+		SynchronizationFilter CreateReversedTimestampsFilter() {
+			return [](const auto& sample, auto) { return sample.localDuration() < 0 || sample.remoteDuration() < 0; };
+		}
+	}
 }
 }

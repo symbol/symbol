@@ -26,22 +26,21 @@
 namespace catapult {
 namespace keylink {
 
-    /// Creates a key link observer with \a name that links/unlinks target key.
-    template <typename TNotification, typename TAccessor>
-    observers::NotificationObserverPointerT<TNotification> CreateKeyLinkObserver(const std::string& name)
-    {
-        using ObserverType = observers::FunctionalNotificationObserverT<TNotification>;
-        return std::make_unique<ObserverType>(name + "KeyLinkObserver", [](const auto& notification, auto& context) {
-            auto& cache = context.Cache.template sub<cache::AccountStateCache>();
-            auto accountStateIter = cache.find(notification.MainAccountPublicKey);
-            auto& accountState = accountStateIter.get();
+	/// Creates a key link observer with \a name that links/unlinks target key.
+	template <typename TNotification, typename TAccessor>
+	observers::NotificationObserverPointerT<TNotification> CreateKeyLinkObserver(const std::string& name) {
+		using ObserverType = observers::FunctionalNotificationObserverT<TNotification>;
+		return std::make_unique<ObserverType>(name + "KeyLinkObserver", [](const auto& notification, auto& context) {
+			auto& cache = context.Cache.template sub<cache::AccountStateCache>();
+			auto accountStateIter = cache.find(notification.MainAccountPublicKey);
+			auto& accountState = accountStateIter.get();
 
-            auto& publicKeyAccessor = TAccessor::Get(accountState);
-            if (observers::ShouldLink(notification.LinkAction, context.Mode))
-                publicKeyAccessor.set(notification.LinkedPublicKey);
-            else
-                publicKeyAccessor.unset();
-        });
-    }
+			auto& publicKeyAccessor = TAccessor::Get(accountState);
+			if (observers::ShouldLink(notification.LinkAction, context.Mode))
+				publicKeyAccessor.set(notification.LinkedPublicKey);
+			else
+				publicKeyAccessor.unset();
+		});
+	}
 }
 }

@@ -27,6 +27,6 @@
 namespace catapult {
 namespace cache {
 
-    DEFINE_LOCK_INFO_CACHE_STORAGE(SecretLockInfo)
+	DEFINE_LOCK_INFO_CACHE_STORAGE(SecretLockInfo)
 }
 }

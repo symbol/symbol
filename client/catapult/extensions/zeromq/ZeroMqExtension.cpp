@@ -32,34 +32,32 @@
 
 namespace catapult {
 namespace zeromq {
-    namespace {
-        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
-        {
-            auto config = MessagingConfiguration::LoadFromPath(bootstrapper.resourcesPath());
-            auto pZeroEntityPublisher = std::make_shared<ZeroMqEntityPublisher>(
-                config.ListenInterface,
-                config.SubscriberPort,
-                bootstrapper.pluginManager().createNotificationPublisher());
+	namespace {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			auto config = MessagingConfiguration::LoadFromPath(bootstrapper.resourcesPath());
+			auto pZeroEntityPublisher = std::make_shared<ZeroMqEntityPublisher>(
+				config.ListenInterface,
+				config.SubscriberPort,
+				bootstrapper.pluginManager().createNotificationPublisher());
 
-            // add a dummy service for extending service lifetimes
-            bootstrapper.extensionManager().addServiceRegistrar(extensions::CreateRootedServiceRegistrar(
-                pZeroEntityPublisher,
-                "zeromq.publisher",
-                extensions::ServiceRegistrarPhase::Initial));
+			// add a dummy service for extending service lifetimes
+			bootstrapper.extensionManager().addServiceRegistrar(extensions::CreateRootedServiceRegistrar(
+				pZeroEntityPublisher,
+				"zeromq.publisher",
+				extensions::ServiceRegistrarPhase::Initial));
 
-            // register subscriptions
-            auto& subscriptionManager = bootstrapper.subscriptionManager();
-            subscriptionManager.addBlockChangeSubscriber(CreateZeroMqBlockChangeSubscriber(*pZeroEntityPublisher));
-            subscriptionManager.addPtChangeSubscriber(CreateZeroMqPtChangeSubscriber(*pZeroEntityPublisher));
-            subscriptionManager.addUtChangeSubscriber(CreateZeroMqUtChangeSubscriber(*pZeroEntityPublisher));
-            subscriptionManager.addFinalizationSubscriber(CreateZeroMqFinalizationSubscriber(*pZeroEntityPublisher));
-            subscriptionManager.addTransactionStatusSubscriber(CreateZeroMqTransactionStatusSubscriber(*pZeroEntityPublisher));
-        }
-    }
+			// register subscriptions
+			auto& subscriptionManager = bootstrapper.subscriptionManager();
+			subscriptionManager.addBlockChangeSubscriber(CreateZeroMqBlockChangeSubscriber(*pZeroEntityPublisher));
+			subscriptionManager.addPtChangeSubscriber(CreateZeroMqPtChangeSubscriber(*pZeroEntityPublisher));
+			subscriptionManager.addUtChangeSubscriber(CreateZeroMqUtChangeSubscriber(*pZeroEntityPublisher));
+			subscriptionManager.addFinalizationSubscriber(CreateZeroMqFinalizationSubscriber(*pZeroEntityPublisher));
+			subscriptionManager.addTransactionStatusSubscriber(CreateZeroMqTransactionStatusSubscriber(*pZeroEntityPublisher));
+		}
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
-{
-    catapult::zeromq::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+	catapult::zeromq::RegisterExtension(bootstrapper);
 }

@@ -30,110 +30,103 @@
 namespace catapult {
 namespace model {
 
-    using TransactionType = SecretProofTransaction;
+	using TransactionType = SecretProofTransaction;
 
 #define TEST_CLASS SecretProofTransactionTests
 
-    // region size + alignment + properties
+	// region size + alignment + properties
 
 #define TRANSACTION_FIELDS FIELD(RecipientAddress) FIELD(Secret) FIELD(ProofSize) FIELD(HashAlgorithm)
 
-    namespace {
-        template <typename T>
-        void AssertTransactionHasExpectedSize(size_t baseSize)
-        {
-            // Arrange:
-            auto expectedSize = baseSize;
+	namespace {
+		template <typename T>
+		void AssertTransactionHasExpectedSize(size_t baseSize) {
+			// Arrange:
+			auto expectedSize = baseSize;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
-            TRANSACTION_FIELDS
+			TRANSACTION_FIELDS
 #undef FIELD
 
-            // Assert:
-            EXPECT_EQ(expectedSize, sizeof(T));
-            EXPECT_EQ(baseSize + 59u, sizeof(T));
-        }
+			// Assert:
+			EXPECT_EQ(expectedSize, sizeof(T));
+			EXPECT_EQ(baseSize + 59u, sizeof(T));
+		}
 
-        template <typename T>
-        void AssertTransactionHasProperAlignment()
-        {
+		template <typename T>
+		void AssertTransactionHasProperAlignment() {
 #define FIELD(X) EXPECT_ALIGNED(T, X);
-            TRANSACTION_FIELDS
+			TRANSACTION_FIELDS
 #undef FIELD
-        }
+		}
 
-        template <typename T>
-        void AssertTransactionHasExpectedProperties()
-        {
-            // Assert:
-            EXPECT_EQ(Entity_Type_Secret_Proof, T::Entity_Type);
-            EXPECT_EQ(1u, T::Current_Version);
-        }
-    }
+		template <typename T>
+		void AssertTransactionHasExpectedProperties() {
+			// Assert:
+			EXPECT_EQ(Entity_Type_Secret_Proof, T::Entity_Type);
+			EXPECT_EQ(1u, T::Current_Version);
+		}
+	}
 
 #undef TRANSACTION_FIELDS
 
-    ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(SecretProof)
+	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(SecretProof)
 
-    // endregion
+	// endregion
 
-    // region data pointers
+	// region data pointers
 
-    namespace {
-        struct SecretProofTransactionTraits {
-            static auto GenerateEntityWithAttachments(uint16_t proofSize)
-            {
-                uint32_t entitySize = SizeOf32<TransactionType>() + proofSize;
-                auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
-                pTransaction->Size = entitySize;
-                pTransaction->ProofSize = proofSize;
-                return pTransaction;
-            }
+	namespace {
+		struct SecretProofTransactionTraits {
+			static auto GenerateEntityWithAttachments(uint16_t proofSize) {
+				uint32_t entitySize = SizeOf32<TransactionType>() + proofSize;
+				auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
+				pTransaction->Size = entitySize;
+				pTransaction->ProofSize = proofSize;
+				return pTransaction;
+			}
 
-            template <typename TEntity>
-            static auto GetAttachmentPointer(TEntity& entity)
-            {
-                return entity.ProofPtr();
-            }
-        };
-    }
+			template <typename TEntity>
+			static auto GetAttachmentPointer(TEntity& entity) {
+				return entity.ProofPtr();
+			}
+		};
+	}
 
-    DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, SecretProofTransactionTraits)
+	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, SecretProofTransactionTraits)
 
-    // endregion
+	// endregion
 
-    // region CalculateRealSize
+	// region CalculateRealSize
 
-    TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues)
-    {
-        // Arrange:
-        TransactionType transaction;
-        transaction.Size = 0;
-        transaction.ProofSize = 100;
+	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
+		// Arrange:
+		TransactionType transaction;
+		transaction.Size = 0;
+		transaction.ProofSize = 100;
 
-        // Act:
-        auto realSize = TransactionType::CalculateRealSize(transaction);
+		// Act:
+		auto realSize = TransactionType::CalculateRealSize(transaction);
 
-        // Assert:
-        EXPECT_EQ(sizeof(TransactionType) + 100, realSize);
-    }
+		// Assert:
+		EXPECT_EQ(sizeof(TransactionType) + 100, realSize);
+	}
 
-    TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues)
-    {
-        // Arrange:
-        TransactionType transaction;
-        test::SetMaxValue(transaction.Size);
-        test::SetMaxValue(transaction.ProofSize);
+	TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues) {
+		// Arrange:
+		TransactionType transaction;
+		test::SetMaxValue(transaction.Size);
+		test::SetMaxValue(transaction.ProofSize);
 
-        // Act:
-        auto realSize = TransactionType::CalculateRealSize(transaction);
+		// Act:
+		auto realSize = TransactionType::CalculateRealSize(transaction);
 
-        // Assert:
-        ASSERT_EQ(0xFFFFFFFF, transaction.Size);
-        EXPECT_EQ(sizeof(TransactionType) + 0xFFFF, realSize);
-        EXPECT_GT(0xFFFFFFFF, realSize);
-    }
+		// Assert:
+		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
+		EXPECT_EQ(sizeof(TransactionType) + 0xFFFF, realSize);
+		EXPECT_GT(0xFFFFFFFF, realSize);
+	}
 
-    // endregion
+	// endregion
 }
 }

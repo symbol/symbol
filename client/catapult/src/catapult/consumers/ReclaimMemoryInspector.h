@@ -25,7 +25,7 @@
 namespace catapult {
 namespace consumers {
 
-    /// Creates an inspector that reclaims memory.
-    disruptor::DisruptorInspector CreateReclaimMemoryInspector();
+	/// Creates an inspector that reclaims memory.
+	disruptor::DisruptorInspector CreateReclaimMemoryInspector();
 }
 }

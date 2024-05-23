@@ -28,64 +28,62 @@
 namespace catapult {
 namespace test {
 
-    /// Unzips a vector of \a pairs into a pair of vectors.
-    template <typename T>
-    std::pair<std::vector<T>, std::vector<T>> Unzip(const std::vector<std::pair<T, T>>& pairs)
-    {
-        std::pair<std::vector<T>, std::vector<T>> result;
-        for (const auto& pair : pairs) {
-            result.first.emplace_back(pair.first);
-            result.second.emplace_back(pair.second);
-        }
+	/// Unzips a vector of \a pairs into a pair of vectors.
+	template <typename T>
+	std::pair<std::vector<T>, std::vector<T>> Unzip(const std::vector<std::pair<T, T>>& pairs) {
+		std::pair<std::vector<T>, std::vector<T>> result;
+		for (const auto& pair : pairs) {
+			result.first.emplace_back(pair.first);
+			result.second.emplace_back(pair.second);
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    /// Result of PushTransferBlocks.
-    struct TransferBlocksResult {
-        /// Terminal builder.
-        BlockchainBuilder Builder;
+	/// Result of PushTransferBlocks.
+	struct TransferBlocksResult {
+		/// Terminal builder.
+		BlockchainBuilder Builder;
 
-        /// All pushed blocks.
-        BlockchainBuilder::Blocks AllBlocks;
+		/// All pushed blocks.
+		BlockchainBuilder::Blocks AllBlocks;
 
-        /// Number of pushed chain parts.
-        uint32_t NumAliveChains;
-    };
+		/// Number of pushed chain parts.
+		uint32_t NumAliveChains;
+	};
 
-    /// Pushes \a numTotalBlocks blocks to the network using \a context, \a connection, \a accounts and \a builder.
-    template <typename TTestContext>
-    TransferBlocksResult PushTransferBlocks(
-        TTestContext& context,
-        ExternalSourceConnection& connection,
-        const Accounts& accounts,
-        BlockchainBuilder& builder,
-        size_t numTotalBlocks)
-    {
-        BlockchainBuilder::Blocks allBlocks;
-        auto numAliveChains = 0u;
-        auto numRemainingBlocks = numTotalBlocks;
-        for (;;) {
-            auto numBlocks = std::min<size_t>(50, numRemainingBlocks);
-            TransactionsBuilder transactionsBuilder(accounts);
-            for (auto i = 0u; i < numBlocks; ++i)
-                transactionsBuilder.addTransfer(0, 1, Amount(1));
+	/// Pushes \a numTotalBlocks blocks to the network using \a context, \a connection, \a accounts and \a builder.
+	template <typename TTestContext>
+	TransferBlocksResult PushTransferBlocks(
+		TTestContext& context,
+		ExternalSourceConnection& connection,
+		const Accounts& accounts,
+		BlockchainBuilder& builder,
+		size_t numTotalBlocks) {
+		BlockchainBuilder::Blocks allBlocks;
+		auto numAliveChains = 0u;
+		auto numRemainingBlocks = numTotalBlocks;
+		for (;;) {
+			auto numBlocks = std::min<size_t>(50, numRemainingBlocks);
+			TransactionsBuilder transactionsBuilder(accounts);
+			for (auto i = 0u; i < numBlocks; ++i)
+				transactionsBuilder.addTransfer(0, 1, Amount(1));
 
-            auto blocks = builder.asBlockchain(transactionsBuilder);
-            auto pIo = PushEntities(connection, ionet::PacketType::Push_Block, blocks);
+			auto blocks = builder.asBlockchain(transactionsBuilder);
+			auto pIo = PushEntities(connection, ionet::PacketType::Push_Block, blocks);
 
-            numRemainingBlocks -= numBlocks;
-            ++numAliveChains;
-            allBlocks.insert(allBlocks.end(), blocks.cbegin(), blocks.cend());
+			numRemainingBlocks -= numBlocks;
+			++numAliveChains;
+			allBlocks.insert(allBlocks.end(), blocks.cbegin(), blocks.cend());
 
-            WaitForHeightAndElements(context, Height(2 + numTotalBlocks - numRemainingBlocks), 1 + numAliveChains, 1);
-            if (0 == numRemainingBlocks)
-                break;
+			WaitForHeightAndElements(context, Height(2 + numTotalBlocks - numRemainingBlocks), 1 + numAliveChains, 1);
+			if (0 == numRemainingBlocks)
+				break;
 
-            builder = builder.createChainedBuilder();
-        }
+			builder = builder.createChainedBuilder();
+		}
 
-        return TransferBlocksResult { builder, allBlocks, numAliveChains };
-    }
+		return TransferBlocksResult { builder, allBlocks, numAliveChains };
+	}
 }
 }

@@ -28,14 +28,14 @@ namespace model {
 
 #endif
 
-    /// Address account restriction transaction.
-    DEFINE_TRANSACTION_TYPE(RestrictionAccount, Account_Address_Restriction, 0x1);
+	/// Address account restriction transaction.
+	DEFINE_TRANSACTION_TYPE(RestrictionAccount, Account_Address_Restriction, 0x1);
 
-    /// Mosaic account restriction transaction.
-    DEFINE_TRANSACTION_TYPE(RestrictionAccount, Account_Mosaic_Restriction, 0x2);
+	/// Mosaic account restriction transaction.
+	DEFINE_TRANSACTION_TYPE(RestrictionAccount, Account_Mosaic_Restriction, 0x2);
 
-    /// Operation account restriction transaction.
-    DEFINE_TRANSACTION_TYPE(RestrictionAccount, Account_Operation_Restriction, 0x3);
+	/// Operation account restriction transaction.
+	DEFINE_TRANSACTION_TYPE(RestrictionAccount, Account_Operation_Restriction, 0x3);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

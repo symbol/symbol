@@ -28,31 +28,26 @@ namespace ionet {
 
 #define TEST_CLASS BufferedPacketIoTests
 
-    namespace {
-        std::shared_ptr<PacketIo> Transform(const std::shared_ptr<PacketSocket>& pSocket)
-        {
-            return pSocket->buffered();
-        }
-    }
+	namespace {
+		std::shared_ptr<PacketIo> Transform(const std::shared_ptr<PacketSocket>& pSocket) {
+			return pSocket->buffered();
+		}
+	}
 
-    TEST(TEST_CLASS, WriteCanWriteMultipleConsecutivePayloads)
-    {
-        test::AssertWriteCanWriteMultipleConsecutivePayloads(Transform);
-    }
+	TEST(TEST_CLASS, WriteCanWriteMultipleConsecutivePayloads) {
+		test::AssertWriteCanWriteMultipleConsecutivePayloads(Transform);
+	}
 
-    TEST(TEST_CLASS, WriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving)
-    {
-        test::AssertWriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving(Transform);
-    }
+	TEST(TEST_CLASS, WriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving) {
+		test::AssertWriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving(Transform);
+	}
 
-    TEST(TEST_CLASS, ReadCanReadMultipleConsecutivePayloads)
-    {
-        test::AssertReadCanReadMultipleConsecutivePayloads(Transform);
-    }
+	TEST(TEST_CLASS, ReadCanReadMultipleConsecutivePayloads) {
+		test::AssertReadCanReadMultipleConsecutivePayloads(Transform);
+	}
 
-    TEST(TEST_CLASS, ReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving)
-    {
-        test::AssertReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving(Transform);
-    }
+	TEST(TEST_CLASS, ReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving) {
+		test::AssertReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving(Transform);
+	}
 }
 }

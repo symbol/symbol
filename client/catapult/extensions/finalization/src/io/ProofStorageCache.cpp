@@ -24,67 +24,58 @@
 namespace catapult {
 namespace io {
 
-    // region ProofStorageView
+	// region ProofStorageView
 
-    ProofStorageView::ProofStorageView(const ProofStorage& storage, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
-        : m_storage(storage)
-        , m_readLock(std::move(readLock))
-    {
-    }
+	ProofStorageView::ProofStorageView(const ProofStorage& storage, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+		: m_storage(storage)
+		, m_readLock(std::move(readLock)) {
+	}
 
-    model::FinalizationStatistics ProofStorageView::statistics() const
-    {
-        return m_storage.statistics();
-    }
+	model::FinalizationStatistics ProofStorageView::statistics() const {
+		return m_storage.statistics();
+	}
 
-    std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(FinalizationEpoch epoch) const
-    {
-        return m_storage.loadProof(epoch);
-    }
+	std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(FinalizationEpoch epoch) const {
+		return m_storage.loadProof(epoch);
+	}
 
-    std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(Height height) const
-    {
-        return m_storage.loadProof(height);
-    }
+	std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(Height height) const {
+		return m_storage.loadProof(height);
+	}
 
-    // endregion
+	// endregion
 
-    // region ProofStorageModifier
+	// region ProofStorageModifier
 
-    ProofStorageModifier::ProofStorageModifier(ProofStorage& storage, utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
-        : m_storage(storage)
-        , m_writeLock(std::move(writeLock))
-    {
-    }
+	ProofStorageModifier::ProofStorageModifier(ProofStorage& storage, utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
+		: m_storage(storage)
+		, m_writeLock(std::move(writeLock)) {
+	}
 
-    void ProofStorageModifier::saveProof(const model::FinalizationProof& proof)
-    {
-        m_storage.saveProof(proof);
-    }
+	void ProofStorageModifier::saveProof(const model::FinalizationProof& proof) {
+		m_storage.saveProof(proof);
+	}
 
-    // endregion
+	// endregion
 
-    // region ProofStorageCache
+	// region ProofStorageCache
 
-    ProofStorageCache::ProofStorageCache(std::unique_ptr<ProofStorage>&& pStorage)
-        : m_pStorage(std::move(pStorage))
-    {
-    }
+	ProofStorageCache::ProofStorageCache(std::unique_ptr<ProofStorage>&& pStorage)
+		: m_pStorage(std::move(pStorage)) {
+	}
 
-    ProofStorageCache::~ProofStorageCache() = default;
+	ProofStorageCache::~ProofStorageCache() = default;
 
-    ProofStorageView ProofStorageCache::view() const
-    {
-        auto readLock = m_lock.acquireReader();
-        return ProofStorageView(*m_pStorage, std::move(readLock));
-    }
+	ProofStorageView ProofStorageCache::view() const {
+		auto readLock = m_lock.acquireReader();
+		return ProofStorageView(*m_pStorage, std::move(readLock));
+	}
 
-    ProofStorageModifier ProofStorageCache::modifier()
-    {
-        auto writeLock = m_lock.acquireWriter();
-        return ProofStorageModifier(*m_pStorage, std::move(writeLock));
-    }
+	ProofStorageModifier ProofStorageCache::modifier() {
+		auto writeLock = m_lock.acquireWriter();
+		return ProofStorageModifier(*m_pStorage, std::move(writeLock));
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -24,11 +24,11 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        /// Creates a mongo mosaic supply change transaction plugin.
-        PLUGIN_API
-        std::unique_ptr<MongoTransactionPlugin> CreateMosaicSupplyChangeTransactionMongoPlugin();
-    }
+		/// Creates a mongo mosaic supply change transaction plugin.
+		PLUGIN_API
+		std::unique_ptr<MongoTransactionPlugin> CreateMosaicSupplyChangeTransactionMongoPlugin();
+	}
 }
 }

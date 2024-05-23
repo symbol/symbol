@@ -27,17 +27,17 @@
 namespace catapult {
 namespace cache {
 
-    /// Basic view on top of the secret lock info cache.
-    class BasicSecretLockInfoCacheView : public BasicLockInfoCacheView<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes> {
-    public:
-        using BasicLockInfoCacheView<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes>::BasicLockInfoCacheView;
-    };
+	/// Basic view on top of the secret lock info cache.
+	class BasicSecretLockInfoCacheView : public BasicLockInfoCacheView<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes> {
+	public:
+		using BasicLockInfoCacheView<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes>::BasicLockInfoCacheView;
+	};
 
-    /// View on top of the secret lock info cache.
-    class SecretLockInfoCacheView
-        : public LockInfoCacheView<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes, BasicSecretLockInfoCacheView> {
-    public:
-        using LockInfoCacheView<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes, BasicSecretLockInfoCacheView>::LockInfoCacheView;
-    };
+	/// View on top of the secret lock info cache.
+	class SecretLockInfoCacheView
+		: public LockInfoCacheView<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes, BasicSecretLockInfoCacheView> {
+	public:
+		using LockInfoCacheView<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes, BasicSecretLockInfoCacheView>::LockInfoCacheView;
+	};
 }
 }

@@ -27,34 +27,31 @@
 namespace catapult {
 namespace disruptor {
 
-    /// Container for disruptor barriers.
-    class DisruptorBarriers {
-    public:
-        /// Creates \a levelsCount barriers with consecutive levels.
-        explicit DisruptorBarriers(size_t levelsCount);
+	/// Container for disruptor barriers.
+	class DisruptorBarriers {
+	public:
+		/// Creates \a levelsCount barriers with consecutive levels.
+		explicit DisruptorBarriers(size_t levelsCount);
 
-    public:
-        /// Gets the number of barriers.
-        inline size_t size() const
-        {
-            return m_barriers.size();
-        }
+	public:
+		/// Gets the number of barriers.
+		inline size_t size() const {
+			return m_barriers.size();
+		}
 
-        /// Gets the (const) barrier at a given \a level.
-        inline const DisruptorBarrier& operator[](size_t level) const
-        {
-            return *m_barriers[level];
-        }
+		/// Gets the (const) barrier at a given \a level.
+		inline const DisruptorBarrier& operator[](size_t level) const {
+			return *m_barriers[level];
+		}
 
-        /// Gets the barrier at a given \a level.
-        inline DisruptorBarrier& operator[](size_t level)
-        {
-            return *m_barriers[level];
-        }
+		/// Gets the barrier at a given \a level.
+		inline DisruptorBarrier& operator[](size_t level) {
+			return *m_barriers[level];
+		}
 
-    private:
-        /// Holds all barriers (barrier level is an index).
-        std::vector<std::unique_ptr<DisruptorBarrier>> m_barriers;
-    };
+	private:
+		/// Holds all barriers (barrier level is an index).
+		std::vector<std::unique_ptr<DisruptorBarrier>> m_barriers;
+	};
 }
 }

@@ -24,94 +24,81 @@
 namespace catapult {
 namespace timesync {
 
-    namespace {
-        constexpr int64_t ToSigned(Timestamp timestamp)
-        {
-            return static_cast<int64_t>(timestamp.unwrap());
-        }
-    }
+	namespace {
+		constexpr int64_t ToSigned(Timestamp timestamp) {
+			return static_cast<int64_t>(timestamp.unwrap());
+		}
+	}
 
-    TimeSynchronizationSample::TimeSynchronizationSample()
-        : m_identityKey()
-        , m_localTimestamps()
-        , m_remoteTimestamps()
-    {
-    }
+	TimeSynchronizationSample::TimeSynchronizationSample()
+		: m_identityKey()
+		, m_localTimestamps()
+		, m_remoteTimestamps() {
+	}
 
-    TimeSynchronizationSample::TimeSynchronizationSample(
-        const Key& identityKey,
-        const CommunicationTimestamps& localTimestamps,
-        const CommunicationTimestamps& remoteTimestamps)
-        : m_identityKey(identityKey)
-        , m_localTimestamps(localTimestamps)
-        , m_remoteTimestamps(remoteTimestamps)
-    {
-    }
+	TimeSynchronizationSample::TimeSynchronizationSample(
+		const Key& identityKey,
+		const CommunicationTimestamps& localTimestamps,
+		const CommunicationTimestamps& remoteTimestamps)
+		: m_identityKey(identityKey)
+		, m_localTimestamps(localTimestamps)
+		, m_remoteTimestamps(remoteTimestamps) {
+	}
 
-    const Key& TimeSynchronizationSample::identityKey() const
-    {
-        return m_identityKey;
-    }
+	const Key& TimeSynchronizationSample::identityKey() const {
+		return m_identityKey;
+	}
 
-    const CommunicationTimestamps& TimeSynchronizationSample::localTimestamps() const
-    {
-        return m_localTimestamps;
-    }
+	const CommunicationTimestamps& TimeSynchronizationSample::localTimestamps() const {
+		return m_localTimestamps;
+	}
 
-    const CommunicationTimestamps& TimeSynchronizationSample::remoteTimestamps() const
-    {
-        return m_remoteTimestamps;
-    }
+	const CommunicationTimestamps& TimeSynchronizationSample::remoteTimestamps() const {
+		return m_remoteTimestamps;
+	}
 
-    utils::TimeSpan TimeSynchronizationSample::duration() const
-    {
-        return utils::TimeSpan::FromDifference(m_localTimestamps.ReceiveTimestamp, m_localTimestamps.SendTimestamp);
-    }
+	utils::TimeSpan TimeSynchronizationSample::duration() const {
+		return utils::TimeSpan::FromDifference(m_localTimestamps.ReceiveTimestamp, m_localTimestamps.SendTimestamp);
+	}
 
-    int64_t TimeSynchronizationSample::localDuration() const
-    {
-        return ToSigned(m_localTimestamps.ReceiveTimestamp) - ToSigned(m_localTimestamps.SendTimestamp);
-    }
+	int64_t TimeSynchronizationSample::localDuration() const {
+		return ToSigned(m_localTimestamps.ReceiveTimestamp) - ToSigned(m_localTimestamps.SendTimestamp);
+	}
 
-    int64_t TimeSynchronizationSample::remoteDuration() const
-    {
-        return ToSigned(m_remoteTimestamps.SendTimestamp) - ToSigned(m_remoteTimestamps.ReceiveTimestamp);
-    }
+	int64_t TimeSynchronizationSample::remoteDuration() const {
+		return ToSigned(m_remoteTimestamps.SendTimestamp) - ToSigned(m_remoteTimestamps.ReceiveTimestamp);
+	}
 
-    // S=Send, R=Receive
-    // remote node   ---------R-------S------->
-    //                       o         \    network
-    //                      /           \    time
-    //                     /             o
-    // local node    -----S---------------R--->
-    int64_t TimeSynchronizationSample::timeOffsetToRemote() const
-    {
-        auto roundtripTime = localDuration() - remoteDuration();
-        return ToSigned(m_remoteTimestamps.ReceiveTimestamp) - ToSigned(m_localTimestamps.SendTimestamp) - roundtripTime / 2;
-    }
+	// S=Send, R=Receive
+	// remote node   ---------R-------S------->
+	//                       o         \    network
+	//                      /           \    time
+	//                     /             o
+	// local node    -----S---------------R--->
+	int64_t TimeSynchronizationSample::timeOffsetToRemote() const {
+		auto roundtripTime = localDuration() - remoteDuration();
+		return ToSigned(m_remoteTimestamps.ReceiveTimestamp) - ToSigned(m_localTimestamps.SendTimestamp) - roundtripTime / 2;
+	}
 
-    bool TimeSynchronizationSample::operator<(const TimeSynchronizationSample& rhs) const
-    {
-        auto lhsTimeOffsetToRemote = timeOffsetToRemote();
-        auto rhsTimeOffsetToRemote = rhs.timeOffsetToRemote();
+	bool TimeSynchronizationSample::operator<(const TimeSynchronizationSample& rhs) const {
+		auto lhsTimeOffsetToRemote = timeOffsetToRemote();
+		auto rhsTimeOffsetToRemote = rhs.timeOffsetToRemote();
 
-        // since different remotes can report the same time offset and we are collecting the samples in a set,
-        // we need to distinguish between nodes using the public key
-        if (lhsTimeOffsetToRemote == rhsTimeOffsetToRemote)
-            return m_identityKey < rhs.m_identityKey;
+		// since different remotes can report the same time offset and we are collecting the samples in a set,
+		// we need to distinguish between nodes using the public key
+		if (lhsTimeOffsetToRemote == rhsTimeOffsetToRemote)
+			return m_identityKey < rhs.m_identityKey;
 
-        return lhsTimeOffsetToRemote < rhsTimeOffsetToRemote;
-    }
+		return lhsTimeOffsetToRemote < rhsTimeOffsetToRemote;
+	}
 
-    bool TimeSynchronizationSample::operator==(const TimeSynchronizationSample& rhs) const
-    {
-        return m_identityKey == rhs.m_identityKey && m_localTimestamps == rhs.m_localTimestamps
-            && m_remoteTimestamps == rhs.m_remoteTimestamps;
-    }
+	bool TimeSynchronizationSample::operator==(const TimeSynchronizationSample& rhs) const {
+		return m_identityKey == rhs.m_identityKey && m_localTimestamps == rhs.m_localTimestamps
+			&& m_remoteTimestamps == rhs.m_remoteTimestamps;
+	}
 
-    bool TimeSynchronizationSample::operator!=(const TimeSynchronizationSample& rhs) const
-    {
-        return !(*this == rhs);
-    }
+	bool TimeSynchronizationSample::operator!=(const TimeSynchronizationSample& rhs) const {
+		return !(*this == rhs);
+	}
 }
 }

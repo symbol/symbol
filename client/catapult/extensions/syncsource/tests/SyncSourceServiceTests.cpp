@@ -31,101 +31,94 @@ namespace syncsource {
 
 #define TEST_CLASS SyncSourceServiceTests
 
-    namespace {
-        struct SyncSourceServiceTraits {
-            static constexpr auto CreateRegistrar = CreateSyncSourceServiceRegistrar;
-        };
+	namespace {
+		struct SyncSourceServiceTraits {
+			static constexpr auto CreateRegistrar = CreateSyncSourceServiceRegistrar;
+		};
 
-        class TestContext : public test::ServiceLocatorTestContext<SyncSourceServiceTraits> {
-        public:
-            explicit TestContext(bool isChainSynced = true)
-                : m_numPushedBlockElements(0)
-            {
-                // set up hooks (only increment the counters if the input source is correct)
-                auto& hooks = testState().state().hooks();
-                hooks.setChainSyncedPredicate([isChainSynced]() { return isChainSynced; });
-                hooks.setBlockRangeConsumerFactory([&counter = m_numPushedBlockElements](auto source) {
-                    return [&counter, source](auto&&) { counter += disruptor::InputSource::Remote_Push == source ? 1 : 0; };
-                });
+		class TestContext : public test::ServiceLocatorTestContext<SyncSourceServiceTraits> {
+		public:
+			explicit TestContext(bool isChainSynced = true)
+				: m_numPushedBlockElements(0) {
+				// set up hooks (only increment the counters if the input source is correct)
+				auto& hooks = testState().state().hooks();
+				hooks.setChainSyncedPredicate([isChainSynced]() { return isChainSynced; });
+				hooks.setBlockRangeConsumerFactory([&counter = m_numPushedBlockElements](auto source) {
+					return [&counter, source](auto&&) { counter += disruptor::InputSource::Remote_Push == source ? 1 : 0; };
+				});
 
-                hooks.setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair { Height(1), Hash256() }; });
+				hooks.setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair { Height(1), Hash256() }; });
 
-                // the service needs to be able to parse the mock transactions sent to it
-                testState().pluginManager().addTransactionSupport(mocks::CreateMockTransactionPlugin());
-            }
+				// the service needs to be able to parse the mock transactions sent to it
+				testState().pluginManager().addTransactionSupport(mocks::CreateMockTransactionPlugin());
+			}
 
-        public:
-            size_t numPushedBlockElements()
-            {
-                return m_numPushedBlockElements;
-            }
+		public:
+			size_t numPushedBlockElements() {
+				return m_numPushedBlockElements;
+			}
 
-        private:
-            size_t m_numPushedBlockElements;
-        };
-    }
+		private:
+			size_t m_numPushedBlockElements;
+		};
+	}
 
-    // region basic
+	// region basic
 
-    ADD_SERVICE_REGISTRAR_INFO_TEST(SyncSource, Post_Range_Consumers)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(SyncSource, Post_Range_Consumers)
 
-    TEST(TEST_CLASS, NoServicesOrCountersAreRegistered)
-    {
-        test::AssertNoServicesOrCountersAreRegistered<TestContext>();
-    }
+	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
+		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
+	}
 
-    TEST(TEST_CLASS, PacketHandlersAreRegistered)
-    {
-        // Arrange:
-        TestContext context;
+	TEST(TEST_CLASS, PacketHandlersAreRegistered) {
+		// Arrange:
+		TestContext context;
 
-        // Act:
-        context.boot();
-        const auto& handlers = context.testState().state().packetHandlers();
+		// Act:
+		context.boot();
+		const auto& handlers = context.testState().state().packetHandlers();
 
-        // Assert:
-        EXPECT_EQ(6u, handlers.size());
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Push_Block));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Block));
+		// Assert:
+		EXPECT_EQ(6u, handlers.size());
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Push_Block));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Block));
 
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Chain_Statistics));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Block_Hashes));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Blocks));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Chain_Statistics));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Block_Hashes));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Blocks));
 
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Transactions));
-    }
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Transactions));
+	}
 
-    // endregion
+	// endregion
 
-    // region hook wiring
+	// region hook wiring
 
-    namespace {
-        void AssertBlockPush(bool isChainSynced, size_t numExpectedPushes)
-        {
-            // Arrange:
-            TestContext context(isChainSynced);
-            context.boot();
+	namespace {
+		void AssertBlockPush(bool isChainSynced, size_t numExpectedPushes) {
+			// Arrange:
+			TestContext context(isChainSynced);
+			context.boot();
 
-            // Act:
-            ionet::ServerPacketHandlerContext handlerContext;
-            const auto& handlers = context.testState().state().packetHandlers();
-            handlers.process(*test::GenerateRandomBlockPacket(), handlerContext);
+			// Act:
+			ionet::ServerPacketHandlerContext handlerContext;
+			const auto& handlers = context.testState().state().packetHandlers();
+			handlers.process(*test::GenerateRandomBlockPacket(), handlerContext);
 
-            // Assert:
-            EXPECT_EQ(numExpectedPushes, context.numPushedBlockElements());
-        }
-    }
+			// Assert:
+			EXPECT_EQ(numExpectedPushes, context.numPushedBlockElements());
+		}
+	}
 
-    TEST(TEST_CLASS, CanPushBlockWhenSynced)
-    {
-        AssertBlockPush(true, 1);
-    }
+	TEST(TEST_CLASS, CanPushBlockWhenSynced) {
+		AssertBlockPush(true, 1);
+	}
 
-    TEST(TEST_CLASS, CannotPushBlockWhenNotSynced)
-    {
-        AssertBlockPush(false, 0);
-    }
+	TEST(TEST_CLASS, CannotPushBlockWhenNotSynced) {
+		AssertBlockPush(false, 0);
+	}
 
-    // endregion
+	// endregion
 }
 }

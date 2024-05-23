@@ -24,41 +24,37 @@
 namespace catapult {
 namespace test {
 
-    model::ResolverContext CreateResolverContextWithCustomDoublingMosaicResolver()
-    {
-        // use custom mosaic resolver but default address resolver
-        return model::ResolverContext(
-            [](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
-            [](const auto& unresolved) { return model::ResolverContext().resolve(unresolved); });
-    }
+	model::ResolverContext CreateResolverContextWithCustomDoublingMosaicResolver() {
+		// use custom mosaic resolver but default address resolver
+		return model::ResolverContext(
+			[](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
+			[](const auto& unresolved) { return model::ResolverContext().resolve(unresolved); });
+	}
 
-    model::ResolverContext CreateResolverContextXor()
-    {
-        return model::ResolverContext(
-            [](const auto& unresolved) { return MosaicId(unresolved.unwrap() ^ 0xFFFFFFFFFFFFFFFF); },
-            [](const auto& unresolved) {
-                auto i = 0u;
-                Address resolved;
-                for (const auto& byte : unresolved)
-                    resolved[i++] = byte ^ 0xFF;
+	model::ResolverContext CreateResolverContextXor() {
+		return model::ResolverContext(
+			[](const auto& unresolved) { return MosaicId(unresolved.unwrap() ^ 0xFFFFFFFFFFFFFFFF); },
+			[](const auto& unresolved) {
+				auto i = 0u;
+				Address resolved;
+				for (const auto& byte : unresolved)
+					resolved[i++] = byte ^ 0xFF;
 
-                return resolved;
-            });
-    }
+				return resolved;
+			});
+	}
 
-    UnresolvedMosaicId UnresolveXor(MosaicId mosaicId)
-    {
-        return UnresolvedMosaicId(mosaicId.unwrap() ^ 0xFFFFFFFFFFFFFFFF);
-    }
+	UnresolvedMosaicId UnresolveXor(MosaicId mosaicId) {
+		return UnresolvedMosaicId(mosaicId.unwrap() ^ 0xFFFFFFFFFFFFFFFF);
+	}
 
-    UnresolvedAddress UnresolveXor(const Address& address)
-    {
-        auto i = 0u;
-        UnresolvedAddress unresolved;
-        for (auto byte : address)
-            unresolved[i++] = byte ^ 0xFF;
+	UnresolvedAddress UnresolveXor(const Address& address) {
+		auto i = 0u;
+		UnresolvedAddress unresolved;
+		for (auto byte : address)
+			unresolved[i++] = byte ^ 0xFF;
 
-        return unresolved;
-    }
+		return unresolved;
+	}
 }
 }

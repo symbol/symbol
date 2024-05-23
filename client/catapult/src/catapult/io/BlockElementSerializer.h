@@ -25,19 +25,19 @@
 
 namespace catapult {
 namespace io {
-    class InputStream;
-    class OutputStream;
+	class InputStream;
+	class OutputStream;
 }
 }
 
 namespace catapult {
 namespace io {
 
-    /// Writes \a blockElement into \a outputStream.
-    void WriteBlockElement(const model::BlockElement& blockElement, OutputStream& outputStream);
+	/// Writes \a blockElement into \a outputStream.
+	void WriteBlockElement(const model::BlockElement& blockElement, OutputStream& outputStream);
 
-    /// Reads block element from \a inputStream into an allocated block element.
-    /// \note Shared pointer is returned for memory management reasons.
-    std::shared_ptr<model::BlockElement> ReadBlockElement(InputStream& inputStream);
+	/// Reads block element from \a inputStream into an allocated block element.
+	/// \note Shared pointer is returned for memory management reasons.
+	std::shared_ptr<model::BlockElement> ReadBlockElement(InputStream& inputStream);
 }
 }

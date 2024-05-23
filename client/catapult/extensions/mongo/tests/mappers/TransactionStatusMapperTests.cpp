@@ -27,29 +27,28 @@
 
 namespace catapult {
 namespace mongo {
-    namespace mappers {
+	namespace mappers {
 
 #define TEST_CLASS TransactionStatusMapperTests
 
-        TEST(TEST_CLASS, CanMapTransactionStatus)
-        {
-            // Arrange:
-            auto hash = test::GenerateRandomByteArray<Hash256>();
+		TEST(TEST_CLASS, CanMapTransactionStatus) {
+			// Arrange:
+			auto hash = test::GenerateRandomByteArray<Hash256>();
 
-            // Act:
-            auto document = ToDbModel(model::TransactionStatus(hash, Timestamp(321), 123456));
-            auto documentView = document.view();
+			// Act:
+			auto document = ToDbModel(model::TransactionStatus(hash, Timestamp(321), 123456));
+			auto documentView = document.view();
 
-            // Assert:
-            EXPECT_EQ(1u, test::GetFieldCount(documentView));
+			// Assert:
+			EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
-            auto statusView = documentView["status"].get_document().view();
-            EXPECT_EQ(3u, test::GetFieldCount(statusView));
+			auto statusView = documentView["status"].get_document().view();
+			EXPECT_EQ(3u, test::GetFieldCount(statusView));
 
-            EXPECT_EQ(hash, test::GetHashValue(statusView, "hash"));
-            EXPECT_EQ(123456u, test::GetUint32(statusView, "code"));
-            EXPECT_EQ(321u, test::GetUint64(statusView, "deadline"));
-        }
-    }
+			EXPECT_EQ(hash, test::GetHashValue(statusView, "hash"));
+			EXPECT_EQ(123456u, test::GetUint32(statusView, "code"));
+			EXPECT_EQ(321u, test::GetUint64(statusView, "deadline"));
+		}
+	}
 }
 }

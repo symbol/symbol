@@ -27,80 +27,71 @@
 namespace catapult {
 namespace state {
 
-    /// Facade around a mosaic address restriction notification used by observers and validators.
-    template <model::NotificationType Notification_Type>
-    class MosaicAddressRestrictionNotificationFacade {
-    public:
-        using NotificationType = model::MosaicAddressRestrictionModificationNotification<Notification_Type>;
-        using RuleType = uint64_t;
+	/// Facade around a mosaic address restriction notification used by observers and validators.
+	template <model::NotificationType Notification_Type>
+	class MosaicAddressRestrictionNotificationFacade {
+	public:
+		using NotificationType = model::MosaicAddressRestrictionModificationNotification<Notification_Type>;
+		using RuleType = uint64_t;
 
-    public:
-        /// Creates a facade around \a notification and \a resolvers.
-        MosaicAddressRestrictionNotificationFacade(const NotificationType& notification, const model::ResolverContext& resolvers)
-            : m_notification(notification)
-            , m_resolvers(resolvers)
-        {
-        }
+	public:
+		/// Creates a facade around \a notification and \a resolvers.
+		MosaicAddressRestrictionNotificationFacade(const NotificationType& notification, const model::ResolverContext& resolvers)
+			: m_notification(notification)
+			, m_resolvers(resolvers) {
+		}
 
-    public:
-        /// Gets the unique key referenced by the notification.
-        Hash256 uniqueKey() const
-        {
-            return CreateMosaicRestrictionEntryKey(
-                m_resolvers.resolve(m_notification.MosaicId),
-                m_resolvers.resolve(m_notification.TargetAddress));
-        }
+	public:
+		/// Gets the unique key referenced by the notification.
+		Hash256 uniqueKey() const {
+			return CreateMosaicRestrictionEntryKey(
+				m_resolvers.resolve(m_notification.MosaicId),
+				m_resolvers.resolve(m_notification.TargetAddress));
+		}
 
-        /// Returns \c true if the notification represents a delete action.
-        bool isDeleteAction() const
-        {
-            return MosaicAddressRestriction::Sentinel_Removal_Value == m_notification.RestrictionValue;
-        }
+		/// Returns \c true if the notification represents a delete action.
+		bool isDeleteAction() const {
+			return MosaicAddressRestriction::Sentinel_Removal_Value == m_notification.RestrictionValue;
+		}
 
-        /// Tries to get the \a rule referenced by the notification from \a entry.
-        bool tryGet(const MosaicRestrictionEntry& entry, RuleType& rule) const
-        {
-            rule = entry.asAddressRestriction().get(m_notification.RestrictionKey);
-            return MosaicAddressRestriction::Sentinel_Removal_Value != rule;
-        }
+		/// Tries to get the \a rule referenced by the notification from \a entry.
+		bool tryGet(const MosaicRestrictionEntry& entry, RuleType& rule) const {
+			rule = entry.asAddressRestriction().get(m_notification.RestrictionKey);
+			return MosaicAddressRestriction::Sentinel_Removal_Value != rule;
+		}
 
-        /// Updates \a entry with the rule referenced by the notification.
-        size_t update(MosaicRestrictionEntry& entry) const
-        {
-            auto& restriction = entry.asAddressRestriction();
-            restriction.set(m_notification.RestrictionKey, toRule());
-            return restriction.size();
-        }
+		/// Updates \a entry with the rule referenced by the notification.
+		size_t update(MosaicRestrictionEntry& entry) const {
+			auto& restriction = entry.asAddressRestriction();
+			restriction.set(m_notification.RestrictionKey, toRule());
+			return restriction.size();
+		}
 
-        /// Returns \c true if the notification indicates an unset value, which is required when adding a new value.
-        bool isUnset() const
-        {
-            return isDeleteAction();
-        }
+		/// Returns \c true if the notification indicates an unset value, which is required when adding a new value.
+		bool isUnset() const {
+			return isDeleteAction();
+		}
 
-        /// Returns \c true if the notification and \a rule match.
-        bool isMatch(const RuleType& rule) const
-        {
-            return rule == m_notification.RestrictionValue;
-        }
+		/// Returns \c true if the notification and \a rule match.
+		bool isMatch(const RuleType& rule) const {
+			return rule == m_notification.RestrictionValue;
+		}
 
-        /// Gets the rule described by the notification.
-        RuleType toRule() const
-        {
-            return m_notification.RestrictionValue;
-        }
+		/// Gets the rule described by the notification.
+		RuleType toRule() const {
+			return m_notification.RestrictionValue;
+		}
 
-        /// Gets the restriction described by the notification.
-        MosaicAddressRestriction toRestriction() const
-        {
-            return MosaicAddressRestriction(
-                m_resolvers.resolve(m_notification.MosaicId),
-                m_resolvers.resolve(m_notification.TargetAddress));
-        }
+		/// Gets the restriction described by the notification.
+		MosaicAddressRestriction toRestriction() const {
+			return MosaicAddressRestriction(
+				m_resolvers.resolve(m_notification.MosaicId),
+				m_resolvers.resolve(m_notification.TargetAddress));
+		}
 
-    private:
-        const NotificationType& m_notification;
-        const model::ResolverContext& m_resolvers;
-    };
+	private:
+		const NotificationType& m_notification;
+		const model::ResolverContext& m_resolvers;
+	};
 }
 }

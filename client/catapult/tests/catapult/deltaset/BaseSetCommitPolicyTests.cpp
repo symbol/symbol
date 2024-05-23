@@ -29,43 +29,40 @@ namespace deltaset {
 
 #define TEST_CLASS BaseSetCommitPolicyTests
 
-    namespace {
-        using Types = test::DeltaElementsTestUtils::Types;
+	namespace {
+		using Types = test::DeltaElementsTestUtils::Types;
 
-        struct MemoryStorageTraits {
-        public:
-            struct TestContext : public test::DeltaElementsTestUtils::Wrapper<Types::MemoryMapType> {
-            public:
-                Types::StorageMapType Set;
+		struct MemoryStorageTraits {
+		public:
+			struct TestContext : public test::DeltaElementsTestUtils::Wrapper<Types::MemoryMapType> {
+			public:
+				Types::StorageMapType Set;
 
-            public:
-                TestContext()
-                {
-                    // seed the set with a few elements
-                    AddElement(Set, "aaa", 1);
-                    AddElement(Set, "ccc", 3);
-                    AddElement(Set, "ddd", 2);
-                }
-            };
+			public:
+				TestContext() {
+					// seed the set with a few elements
+					AddElement(Set, "aaa", 1);
+					AddElement(Set, "ccc", 3);
+					AddElement(Set, "ddd", 2);
+				}
+			};
 
-        public:
-            using CommitPolicy = BaseSetCommitPolicy<Types::StorageTraits>;
+		public:
+			using CommitPolicy = BaseSetCommitPolicy<Types::StorageTraits>;
 
-            template <typename TMap>
-            static void AddElement(TMap& map, const std::string& name, unsigned int value, size_t dummy = 0)
-            {
-                map.emplace(std::make_pair(name, value), test::MutableTestElement(name, value)).first->second.Dummy = dummy;
-            }
+			template <typename TMap>
+			static void AddElement(TMap& map, const std::string& name, unsigned int value, size_t dummy = 0) {
+				map.emplace(std::make_pair(name, value), test::MutableTestElement(name, value)).first->second.Dummy = dummy;
+			}
 
-            static bool Contains(const Types::StorageMapType& map, const std::string& name, unsigned int value, size_t dummy = 0)
-            {
-                auto iter = map.find(std::make_pair(name, value));
-                return map.cend() != iter && dummy == iter->second.Dummy;
-            }
-        };
-    }
+			static bool Contains(const Types::StorageMapType& map, const std::string& name, unsigned int value, size_t dummy = 0) {
+				auto iter = map.find(std::make_pair(name, value));
+				return map.cend() != iter && dummy == iter->second.Dummy;
+			}
+		};
+	}
 
-    DEFINE_UPDATE_SET_TESTS(MemoryStorageTraits)
-    DEFINE_MEMORY_ONLY_UPDATE_SET_TESTS(MemoryStorageTraits)
+	DEFINE_UPDATE_SET_TESTS(MemoryStorageTraits)
+	DEFINE_MEMORY_ONLY_UPDATE_SET_TESTS(MemoryStorageTraits)
 }
 }

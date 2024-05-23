@@ -27,65 +27,63 @@
 namespace catapult {
 namespace validators {
 
-    namespace {
-        struct ModificationsInfo {
-            bool HasRedundantModification = false;
-            bool HasDeleteModification = false;
-        };
+	namespace {
+		struct ModificationsInfo {
+			bool HasRedundantModification = false;
+			bool HasDeleteModification = false;
+		};
 
-        template <typename TRestrictionValue, typename THasher, typename TNotification>
-        ModificationsInfo ExtractModificationsInfo(const TNotification& notification)
-        {
-            auto numModifications = static_cast<size_t>(notification.RestrictionAdditionsCount + notification.RestrictionDeletionsCount);
+		template <typename TRestrictionValue, typename THasher, typename TNotification>
+		ModificationsInfo ExtractModificationsInfo(const TNotification& notification) {
+			auto numModifications = static_cast<size_t>(notification.RestrictionAdditionsCount + notification.RestrictionDeletionsCount);
 
-            std::unordered_set<TRestrictionValue, THasher> set;
-            for (auto i = 0u; i < notification.RestrictionAdditionsCount; ++i)
-                set.insert(notification.RestrictionAdditionsPtr[i]);
+			std::unordered_set<TRestrictionValue, THasher> set;
+			for (auto i = 0u; i < notification.RestrictionAdditionsCount; ++i)
+				set.insert(notification.RestrictionAdditionsPtr[i]);
 
-            for (auto i = 0u; i < notification.RestrictionDeletionsCount; ++i)
-                set.insert(notification.RestrictionDeletionsPtr[i]);
+			for (auto i = 0u; i < notification.RestrictionDeletionsCount; ++i)
+				set.insert(notification.RestrictionDeletionsPtr[i]);
 
-            ModificationsInfo modificationsInfo;
-            modificationsInfo.HasDeleteModification = 0 != notification.RestrictionDeletionsCount;
-            modificationsInfo.HasRedundantModification = set.size() != numModifications;
-            return modificationsInfo;
-        }
+			ModificationsInfo modificationsInfo;
+			modificationsInfo.HasDeleteModification = 0 != notification.RestrictionDeletionsCount;
+			modificationsInfo.HasRedundantModification = set.size() != numModifications;
+			return modificationsInfo;
+		}
 
-        template <typename TRestrictionValue, typename TNotification, typename THasher>
-        ValidationResult Validate(const TNotification& notification, const ValidatorContext& context)
-        {
-            auto modificationsInfo = ExtractModificationsInfo<TRestrictionValue, THasher>(notification);
-            if (modificationsInfo.HasRedundantModification)
-                return Failure_RestrictionAccount_Redundant_Modification;
+		template <typename TRestrictionValue, typename TNotification, typename THasher>
+		ValidationResult Validate(const TNotification& notification, const ValidatorContext& context) {
+			auto modificationsInfo = ExtractModificationsInfo<TRestrictionValue, THasher>(notification);
+			if (modificationsInfo.HasRedundantModification)
+				return Failure_RestrictionAccount_Redundant_Modification;
 
-            const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
-            return modificationsInfo.HasDeleteModification && !cache.contains(notification.Address)
-                ? Failure_RestrictionAccount_Invalid_Modification
-                : ValidationResult::Success;
-        }
-    }
+			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
+			return modificationsInfo.HasDeleteModification && !cache.contains(notification.Address)
+				? Failure_RestrictionAccount_Invalid_Modification
+				: ValidationResult::Success;
+		}
+	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(RESTRICTION_NAME, RESTRICTION_VALUE_TYPE, HASHER_TYPE) \
-    DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(                                                                                   \
-        RESTRICTION_NAME##RedundantModification,                                                                           \
-        model::Modify##RESTRICTION_NAME##sNotification,                                                                    \
-        ([](const model::Modify##RESTRICTION_NAME##sNotification& notification, const ValidatorContext& context) {         \
-            return Validate<RESTRICTION_VALUE_TYPE, model::Modify##RESTRICTION_NAME##sNotification, HASHER_TYPE>(          \
-                notification,                                                                                              \
-                context);                                                                                                  \
-        }))
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(                                                                                   \
+		RESTRICTION_NAME##RedundantModification,                                                                           \
+		model::Modify##RESTRICTION_NAME##sNotification,                                                                    \
+		([](const model::Modify##RESTRICTION_NAME##sNotification& notification, const ValidatorContext& context) {         \
+			return Validate<RESTRICTION_VALUE_TYPE, model::Modify##RESTRICTION_NAME##sNotification, HASHER_TYPE>(          \
+				notification,                                                                                              \
+				context);                                                                                                  \
+		}))
 
-    DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(
-        AccountAddressRestriction,
-        UnresolvedAddress,
-        utils::ArrayHasher<UnresolvedAddress>)
-    DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(
-        AccountMosaicRestriction,
-        UnresolvedMosaicId,
-        utils::BaseValueHasher<UnresolvedMosaicId>)
-    DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(
-        AccountOperationRestriction,
-        model::EntityType,
-        std::hash<model::EntityType>)
+	DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(
+		AccountAddressRestriction,
+		UnresolvedAddress,
+		utils::ArrayHasher<UnresolvedAddress>)
+	DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(
+		AccountMosaicRestriction,
+		UnresolvedMosaicId,
+		utils::BaseValueHasher<UnresolvedMosaicId>)
+	DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(
+		AccountOperationRestriction,
+		model::EntityType,
+		std::hash<model::EntityType>)
 }
 }

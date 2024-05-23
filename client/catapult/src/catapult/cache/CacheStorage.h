@@ -26,32 +26,32 @@
 
 namespace catapult {
 namespace cache {
-    class CatapultCacheDelta;
-    class CatapultCacheView;
+	class CatapultCacheDelta;
+	class CatapultCacheView;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// Interface for loading and saving cache data.
-    class PLUGIN_API_DEPENDENCY CacheStorage {
-    public:
-        virtual ~CacheStorage() = default;
+	/// Interface for loading and saving cache data.
+	class PLUGIN_API_DEPENDENCY CacheStorage {
+	public:
+		virtual ~CacheStorage() = default;
 
-    public:
-        /// Gets the cache name.
-        virtual const std::string& name() const = 0;
+	public:
+		/// Gets the cache name.
+		virtual const std::string& name() const = 0;
 
-    public:
-        /// Saves cache data from \a cacheView to \a output.
-        virtual void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const = 0;
+	public:
+		/// Saves cache data from \a cacheView to \a output.
+		virtual void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const = 0;
 
-        /// Saves cache (summary) data from \a cacheDelta to \a output.
-        virtual void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const = 0;
+		/// Saves cache (summary) data from \a cacheDelta to \a output.
+		virtual void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const = 0;
 
-        /// Loads cache data from \a input in batches of \a batchSize.
-        virtual void loadAll(io::InputStream& input, size_t batchSize) = 0;
-    };
+		/// Loads cache data from \a input in batches of \a batchSize.
+		virtual void loadAll(io::InputStream& input, size_t batchSize) = 0;
+	};
 }
 }

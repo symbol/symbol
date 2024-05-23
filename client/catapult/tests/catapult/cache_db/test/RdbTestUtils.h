@@ -29,56 +29,56 @@
 namespace catapult {
 namespace test {
 
-    /// Names of columns.
-    using ColumnNames = std::vector<std::string>;
+	/// Names of columns.
+	using ColumnNames = std::vector<std::string>;
 
-    /// Db column handles.
-    using ColumnHandles = std::vector<rocksdb::ColumnFamilyHandle*>;
+	/// Db column handles.
+	using ColumnHandles = std::vector<rocksdb::ColumnFamilyHandle*>;
 
-    /// Seed callback that fills db with data.
-    using DbSeeder = consumer<rocksdb::DB&, const ColumnHandles&>;
+	/// Seed callback that fills db with data.
+	using DbSeeder = consumer<rocksdb::DB&, const ColumnHandles&>;
 
-    /// Converts even \a key used in even db seeder to db value.
-    std::string EvenKeyToValue(size_t key);
+	/// Converts even \a key used in even db seeder to db value.
+	std::string EvenKeyToValue(size_t key);
 
-    /// Creates seeder that creates \a numKeys with even keys.
-    DbSeeder CreateEvenDbSeeder(size_t numKeys);
+	/// Creates seeder that creates \a numKeys with even keys.
+	DbSeeder CreateEvenDbSeeder(size_t numKeys);
 
-    /// Db initialization helper that destroys and seeds db.
-    class DbInitializer {
-    public:
-        /// Creates db in default directory with \a columns and seeds using \a seeder.
-        DbInitializer(const ColumnNames& columns, const DbSeeder& seeder);
+	/// Db initialization helper that destroys and seeds db.
+	class DbInitializer {
+	public:
+		/// Creates db in default directory with \a columns and seeds using \a seeder.
+		DbInitializer(const ColumnNames& columns, const DbSeeder& seeder);
 
-        /// Creates db with \a compactionFilter in default directory with \a columns and seeds using \a seeder.
-        DbInitializer(const ColumnNames& columns, const DbSeeder& seeder, const rocksdb::CompactionFilter* compactionFilter);
+		/// Creates db with \a compactionFilter in default directory with \a columns and seeds using \a seeder.
+		DbInitializer(const ColumnNames& columns, const DbSeeder& seeder, const rocksdb::CompactionFilter* compactionFilter);
 
-    private:
-        bool seedDb(
-            const std::string& dbDir,
-            const std::vector<std::string>& columns,
-            const DbSeeder& seeder,
-            const rocksdb::CompactionFilter* compactionFilter);
+	private:
+		bool seedDb(
+			const std::string& dbDir,
+			const std::vector<std::string>& columns,
+			const DbSeeder& seeder,
+			const rocksdb::CompactionFilter* compactionFilter);
 
-    private:
-        test::TempDirectoryGuard m_dbDirGuard;
-    };
+	private:
+		test::TempDirectoryGuard m_dbDirGuard;
+	};
 
-    /// Db test context.
-    class RdbTestContext : public DbInitializer {
-    public:
-        /// Creates context around \a settings with optional \a seeder.
-        explicit RdbTestContext(const cache::RocksDatabaseSettings& settings, const DbSeeder& seeder = DbSeeder());
+	/// Db test context.
+	class RdbTestContext : public DbInitializer {
+	public:
+		/// Creates context around \a settings with optional \a seeder.
+		explicit RdbTestContext(const cache::RocksDatabaseSettings& settings, const DbSeeder& seeder = DbSeeder());
 
-    public:
-        /// Gets a reference to the database.
-        cache::RocksDatabase& database();
+	public:
+		/// Gets a reference to the database.
+		cache::RocksDatabase& database();
 
-    private:
-        cache::RocksDatabase m_database;
-    };
+	private:
+		cache::RocksDatabase m_database;
+	};
 
-    /// Asserts that value stored in iterator (\a iter) matches \a value.
-    void AssertIteratorValue(const std::string& value, const cache::RdbDataIterator& iter);
+	/// Asserts that value stored in iterator (\a iter) matches \a value.
+	void AssertIteratorValue(const std::string& value, const cache::RdbDataIterator& iter);
 }
 }

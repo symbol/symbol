@@ -30,309 +30,283 @@ namespace model {
 
 #define TEST_CLASS SizePrefixedEntityContainerTests
 
-    namespace {
-        constexpr uint32_t Expanded_Header_Size = 16;
+	namespace {
+		constexpr uint32_t Expanded_Header_Size = 16;
 
-        // region Block (implicit size) emulation
-
-#pragma pack(push, 1)
-
-        // emulates BlockHeader
-        struct ContainerHeader : public SizePrefixedEntity {
-            uint32_t Tag;
-        };
-
-        // emulates Transaction (intentionally has different size than ContainerHeader)
-        struct ContainerComponent : public SizePrefixedEntity {
-            uint16_t Id;
-        };
-
-#pragma pack(pop)
-
-        struct ExpandedHeaderProperties {
-            template <typename TContainer>
-            static size_t HeaderSize(const TContainer&)
-            {
-                return Expanded_Header_Size;
-            }
-        };
-
-        // emulates Block
-        struct Container : public TransactionContainer<ContainerHeader, ContainerComponent> { };
-        struct ExpandedHeaderContainer : public TransactionContainer<ContainerHeader, ContainerComponent, ExpandedHeaderProperties> { };
-
-        size_t GetTransactionPayloadSize(const ContainerHeader& header)
-        {
-            return header.Size - (header.Tag ? Expanded_Header_Size : sizeof(ContainerHeader));
-        }
-
-        // endregion
-
-        // region AggregateTransaction (explicit size) emulation
+		// region Block (implicit size) emulation
 
 #pragma pack(push, 1)
 
-        // emulates AggregateTransactionHeader
-        struct ContainerWithPayloadSizeHeader : public SizePrefixedEntity {
-            uint32_t Tag;
-            uint32_t PayloadSize;
-        };
+		// emulates BlockHeader
+		struct ContainerHeader : public SizePrefixedEntity {
+			uint32_t Tag;
+		};
+
+		// emulates Transaction (intentionally has different size than ContainerHeader)
+		struct ContainerComponent : public SizePrefixedEntity {
+			uint16_t Id;
+		};
 
 #pragma pack(pop)
 
-        // emulates AggregateTransaction
-        struct ContainerWithPayloadSize : public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent> { };
-        struct ExpandedHeaderContainerWithPayloadSize
-            : public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent, ExpandedHeaderProperties> { };
+		struct ExpandedHeaderProperties {
+			template <typename TContainer>
+			static size_t HeaderSize(const TContainer&) {
+				return Expanded_Header_Size;
+			}
+		};
 
-        size_t GetTransactionPayloadSize(const ContainerWithPayloadSizeHeader& header)
-        {
-            return header.PayloadSize;
-        }
+		// emulates Block
+		struct Container : public TransactionContainer<ContainerHeader, ContainerComponent> { };
+		struct ExpandedHeaderContainer : public TransactionContainer<ContainerHeader, ContainerComponent, ExpandedHeaderProperties> { };
 
-        // endregion
+		size_t GetTransactionPayloadSize(const ContainerHeader& header) {
+			return header.Size - (header.Tag ? Expanded_Header_Size : sizeof(ContainerHeader));
+		}
 
-        // region HasExpandedHeader / CalculateHeaderSize
+		// endregion
 
-        template <typename TContainer>
-        bool HasExpandedHeader()
-        {
-            return true;
-        }
+		// region AggregateTransaction (explicit size) emulation
 
-        template <>
-        bool HasExpandedHeader<Container>()
-        {
-            return false;
-        }
+#pragma pack(push, 1)
 
-        template <typename TContainer>
-        uint32_t CalculateHeaderSize()
-        {
-            return Expanded_Header_Size;
-        }
+		// emulates AggregateTransactionHeader
+		struct ContainerWithPayloadSizeHeader : public SizePrefixedEntity {
+			uint32_t Tag;
+			uint32_t PayloadSize;
+		};
 
-        template <>
-        uint32_t CalculateHeaderSize<Container>()
-        {
-            return sizeof(Container);
-        }
+#pragma pack(pop)
 
-        template <>
-        uint32_t CalculateHeaderSize<ContainerWithPayloadSize>()
-        {
-            return sizeof(ContainerWithPayloadSize);
-        }
+		// emulates AggregateTransaction
+		struct ContainerWithPayloadSize : public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent> { };
+		struct ExpandedHeaderContainerWithPayloadSize
+			: public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent, ExpandedHeaderProperties> { };
 
-        // endregion
+		size_t GetTransactionPayloadSize(const ContainerWithPayloadSizeHeader& header) {
+			return header.PayloadSize;
+		}
 
-        // region CreateContainer
+		// endregion
 
-        uint32_t CalculateContainerSize(uint32_t headerSize, std::initializer_list<uint32_t> attachmentExtraSizes)
-        {
-            uint32_t size = headerSize;
-            uint32_t lastPaddingSize = 0;
-            for (auto attachmentExtraSize : attachmentExtraSizes) {
-                uint32_t attachmentSize = SizeOf32<ContainerComponent>() + attachmentExtraSize;
-                lastPaddingSize = utils::GetPaddingSize(attachmentSize, 8);
+		// region HasExpandedHeader / CalculateHeaderSize
 
-                size += attachmentSize + lastPaddingSize;
-            }
+		template <typename TContainer>
+		bool HasExpandedHeader() {
+			return true;
+		}
 
-            return size - lastPaddingSize; // last element shouldn't be padded
-        }
+		template <>
+		bool HasExpandedHeader<Container>() {
+			return false;
+		}
 
-        template <typename TContainer>
-        std::unique_ptr<TContainer> CreateContainer(std::initializer_list<uint32_t> attachmentExtraSizes)
-        {
-            auto headerSize = CalculateHeaderSize<TContainer>();
-            auto size = CalculateContainerSize(headerSize, attachmentExtraSizes);
-            auto pContainer = utils::MakeUniqueWithSize<TContainer>(size);
-            pContainer->Size = size;
-            pContainer->Tag = HasExpandedHeader<TContainer>() ? 1 : 0;
+		template <typename TContainer>
+		uint32_t CalculateHeaderSize() {
+			return Expanded_Header_Size;
+		}
 
-            auto* pData = reinterpret_cast<uint8_t*>(pContainer.get()) + headerSize;
-            for (auto attachmentExtraSize : attachmentExtraSizes) {
-                uint32_t attachmentSize = SizeOf32<ContainerComponent>() + attachmentExtraSize;
-                reinterpret_cast<ContainerComponent*>(pData)->Size = attachmentSize;
-                pData += attachmentSize + utils::GetPaddingSize(attachmentSize, 8);
-            }
+		template <>
+		uint32_t CalculateHeaderSize<Container>() {
+			return sizeof(Container);
+		}
 
-            return pContainer;
-        }
+		template <>
+		uint32_t CalculateHeaderSize<ContainerWithPayloadSize>() {
+			return sizeof(ContainerWithPayloadSize);
+		}
 
-        // endregion
-    }
+		// endregion
 
-    // region traits
+		// region CreateContainer
+
+		uint32_t CalculateContainerSize(uint32_t headerSize, std::initializer_list<uint32_t> attachmentExtraSizes) {
+			uint32_t size = headerSize;
+			uint32_t lastPaddingSize = 0;
+			for (auto attachmentExtraSize : attachmentExtraSizes) {
+				uint32_t attachmentSize = SizeOf32<ContainerComponent>() + attachmentExtraSize;
+				lastPaddingSize = utils::GetPaddingSize(attachmentSize, 8);
+
+				size += attachmentSize + lastPaddingSize;
+			}
+
+			return size - lastPaddingSize; // last element shouldn't be padded
+		}
+
+		template <typename TContainer>
+		std::unique_ptr<TContainer> CreateContainer(std::initializer_list<uint32_t> attachmentExtraSizes) {
+			auto headerSize = CalculateHeaderSize<TContainer>();
+			auto size = CalculateContainerSize(headerSize, attachmentExtraSizes);
+			auto pContainer = utils::MakeUniqueWithSize<TContainer>(size);
+			pContainer->Size = size;
+			pContainer->Tag = HasExpandedHeader<TContainer>() ? 1 : 0;
+
+			auto* pData = reinterpret_cast<uint8_t*>(pContainer.get()) + headerSize;
+			for (auto attachmentExtraSize : attachmentExtraSizes) {
+				uint32_t attachmentSize = SizeOf32<ContainerComponent>() + attachmentExtraSize;
+				reinterpret_cast<ContainerComponent*>(pData)->Size = attachmentSize;
+				pData += attachmentSize + utils::GetPaddingSize(attachmentSize, 8);
+			}
+
+			return pContainer;
+		}
+
+		// endregion
+	}
+
+	// region traits
 
 #define IMPLICIT_DATA_POINTER_TEST(TEST_NAME)                                                      \
-    template <typename TTraits>                                                                    \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                                \
-    TEST(TEST_CLASS, TEST_NAME##_Const)                                                            \
-    {                                                                                              \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<Container>>();                  \
-    }                                                                                              \
-    TEST(TEST_CLASS, TEST_NAME##_NonConst)                                                         \
-    {                                                                                              \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<Container>>();               \
-    }                                                                                              \
-    TEST(TEST_CLASS, TEST_NAME##_Const_ExpandedHeader)                                             \
-    {                                                                                              \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ExpandedHeaderContainer>>();    \
-    }                                                                                              \
-    TEST(TEST_CLASS, TEST_NAME##_NonConst_ExpandedHeader)                                          \
-    {                                                                                              \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ExpandedHeaderContainer>>(); \
-    }                                                                                              \
-    template <typename TTraits>                                                                    \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template <typename TTraits>                                                                    \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                                \
+	TEST(TEST_CLASS, TEST_NAME##_Const) {                                                          \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<Container>>();                  \
+	}                                                                                              \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) {                                                       \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<Container>>();               \
+	}                                                                                              \
+	TEST(TEST_CLASS, TEST_NAME##_Const_ExpandedHeader) {                                           \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ExpandedHeaderContainer>>();    \
+	}                                                                                              \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst_ExpandedHeader) {                                        \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ExpandedHeaderContainer>>(); \
+	}                                                                                              \
+	template <typename TTraits>                                                                    \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define EXPLICIT_DATA_POINTER_TEST(TEST_NAME)                                                                     \
-    template <typename TTraits>                                                                                   \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                                               \
-    TEST(TEST_CLASS, TEST_NAME##_Const)                                                                           \
-    {                                                                                                             \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ContainerWithPayloadSize>>();                  \
-    }                                                                                                             \
-    TEST(TEST_CLASS, TEST_NAME##_NonConst)                                                                        \
-    {                                                                                                             \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ContainerWithPayloadSize>>();               \
-    }                                                                                                             \
-    TEST(TEST_CLASS, TEST_NAME##_Const_ExpandedHeader)                                                            \
-    {                                                                                                             \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ExpandedHeaderContainerWithPayloadSize>>();    \
-    }                                                                                                             \
-    TEST(TEST_CLASS, TEST_NAME##_NonConst_ExpandedHeader)                                                         \
-    {                                                                                                             \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ExpandedHeaderContainerWithPayloadSize>>(); \
-    }                                                                                                             \
-    template <typename TTraits>                                                                                   \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template <typename TTraits>                                                                                   \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                                                               \
+	TEST(TEST_CLASS, TEST_NAME##_Const) {                                                                         \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ContainerWithPayloadSize>>();                  \
+	}                                                                                                             \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) {                                                                      \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ContainerWithPayloadSize>>();               \
+	}                                                                                                             \
+	TEST(TEST_CLASS, TEST_NAME##_Const_ExpandedHeader) {                                                          \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ExpandedHeaderContainerWithPayloadSize>>();    \
+	}                                                                                                             \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst_ExpandedHeader) {                                                       \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ExpandedHeaderContainerWithPayloadSize>>(); \
+	}                                                                                                             \
+	template <typename TTraits>                                                                                   \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-    // endregion
+	// endregion
 
-    // region implicit size
+	// region implicit size
 
-    IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ImplicitSize)
-    {
-        // Arrange:
-        using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-        auto pContainer = CreateContainer<ContainerType>({});
-        auto& accessor = TTraits::GetAccessor(*pContainer);
+	IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ImplicitSize) {
+		// Arrange:
+		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
+		auto pContainer = CreateContainer<ContainerType>({});
+		auto& accessor = TTraits::GetAccessor(*pContainer);
 
-        // Act + Assert:
-        EXPECT_FALSE(!!accessor.TransactionsPtr());
-        EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
-    }
+		// Act + Assert:
+		EXPECT_FALSE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
+	}
 
-    IMPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ImplicitSize)
-    {
-        // Arrange:
-        using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-        auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
-        auto& accessor = TTraits::GetAccessor(*pContainer);
+	IMPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ImplicitSize) {
+		// Arrange:
+		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
+		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		auto& accessor = TTraits::GetAccessor(*pContainer);
 
-        auto headerSize = CalculateHeaderSize<ContainerType>();
-        const auto* pContainerEnd = test::AsVoidPointer(reinterpret_cast<const uint8_t*>(pContainer.get()) + headerSize);
+		auto headerSize = CalculateHeaderSize<ContainerType>();
+		const auto* pContainerEnd = test::AsVoidPointer(reinterpret_cast<const uint8_t*>(pContainer.get()) + headerSize);
 
-        // Act + Assert:
-        EXPECT_EQ(pContainerEnd, accessor.TransactionsPtr());
-        EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
-    }
+		// Act + Assert:
+		EXPECT_EQ(pContainerEnd, accessor.TransactionsPtr());
+		EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
+	}
 
-    IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ImplicitSize)
-    {
-        // Arrange:
-        using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-        auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
-        pContainer->Size = CalculateHeaderSize<ContainerType>() - 1;
-        auto& accessor = TTraits::GetAccessor(*pContainer);
+	IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ImplicitSize) {
+		// Arrange:
+		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
+		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		pContainer->Size = CalculateHeaderSize<ContainerType>() - 1;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
 
-        // Act + Assert:
-        EXPECT_FALSE(!!accessor.TransactionsPtr());
-        EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
-    }
+		// Act + Assert:
+		EXPECT_FALSE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
+	}
 
-    IMPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ImplicitSize)
-    {
-        // Arrange:
-        using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-        auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
-        --pContainer->Size;
-        auto& accessor = TTraits::GetAccessor(*pContainer);
+	IMPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ImplicitSize) {
+		// Arrange:
+		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
+		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		--pContainer->Size;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
 
-        // Act + Assert:
-        EXPECT_TRUE(!!accessor.TransactionsPtr());
-        EXPECT_EQ(2u, test::CountContainerEntities(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
-        EXPECT_THROW(test::CountContainerEntities(accessor.Transactions()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_TRUE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(2u, test::CountContainerEntities(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
+		EXPECT_THROW(test::CountContainerEntities(accessor.Transactions()), catapult_runtime_error);
+	}
 
-    // endregion
+	// endregion
 
-    // region explicit size
+	// region explicit size
 
-    EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ExplicitSize)
-    {
-        // Arrange:
-        using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-        auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
-        pContainer->PayloadSize = 0;
-        auto& accessor = TTraits::GetAccessor(*pContainer);
+	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ExplicitSize) {
+		// Arrange:
+		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
+		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		pContainer->PayloadSize = 0;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
 
-        // Sanity:
-        EXPECT_LT(CalculateHeaderSize<ContainerType>(), pContainer->Size);
+		// Sanity:
+		EXPECT_LT(CalculateHeaderSize<ContainerType>(), pContainer->Size);
 
-        // Act + Assert:
-        EXPECT_FALSE(!!accessor.TransactionsPtr());
-        EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
-    }
+		// Act + Assert:
+		EXPECT_FALSE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
+	}
 
-    EXPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ExplicitSize)
-    {
-        // Arrange: padding is applied to 2-byte header and data size
-        using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-        auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
-        pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
-        auto& accessor = TTraits::GetAccessor(*pContainer);
+	EXPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ExplicitSize) {
+		// Arrange: padding is applied to 2-byte header and data size
+		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
+		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
 
-        auto headerSize = CalculateHeaderSize<ContainerType>();
-        const auto* pContainerEnd = test::AsVoidPointer(reinterpret_cast<const uint8_t*>(pContainer.get()) + headerSize);
+		auto headerSize = CalculateHeaderSize<ContainerType>();
+		const auto* pContainerEnd = test::AsVoidPointer(reinterpret_cast<const uint8_t*>(pContainer.get()) + headerSize);
 
-        // Act + Assert:
-        EXPECT_EQ(pContainerEnd, accessor.TransactionsPtr());
-        EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
-    }
+		// Act + Assert:
+		EXPECT_EQ(pContainerEnd, accessor.TransactionsPtr());
+		EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
+	}
 
-    EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ExplicitSize)
-    {
-        // Arrange: padding is applied to 2-byte header and data size
-        using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-        auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
-        pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
-        pContainer->Size = CalculateHeaderSize<ContainerType>() - 1;
-        auto& accessor = TTraits::GetAccessor(*pContainer);
+	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ExplicitSize) {
+		// Arrange: padding is applied to 2-byte header and data size
+		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
+		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
+		pContainer->Size = CalculateHeaderSize<ContainerType>() - 1;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
 
-        // Act + Assert:
-        EXPECT_FALSE(!!accessor.TransactionsPtr());
-        EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
-    }
+		// Act + Assert:
+		EXPECT_FALSE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
+	}
 
-    EXPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ExplicitSize)
-    {
-        // Arrange: padding is applied to 2-byte header and data size
-        using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-        auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
-        pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
-        --pContainer->PayloadSize;
-        auto& accessor = TTraits::GetAccessor(*pContainer);
+	EXPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ExplicitSize) {
+		// Arrange: padding is applied to 2-byte header and data size
+		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
+		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
+		--pContainer->PayloadSize;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
 
-        // Act + Assert:
-        EXPECT_TRUE(!!accessor.TransactionsPtr());
-        EXPECT_EQ(2u, test::CountContainerEntities(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
-        EXPECT_THROW(test::CountContainerEntities(accessor.Transactions()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_TRUE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(2u, test::CountContainerEntities(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
+		EXPECT_THROW(test::CountContainerEntities(accessor.Transactions()), catapult_runtime_error);
+	}
 
-    // endregion
+	// endregion
 }
 }

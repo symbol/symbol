@@ -25,55 +25,51 @@
 namespace catapult {
 namespace observers {
 
-    namespace {
-        class AccountStateCacheVisitor {
-        public:
-            explicit AccountStateCacheVisitor(const ObserverContext& context)
-                : m_context(context)
-            {
-            }
+	namespace {
+		class AccountStateCacheVisitor {
+		public:
+			explicit AccountStateCacheVisitor(const ObserverContext& context)
+				: m_context(context) {
+			}
 
-        public:
-            void visit(const model::ResolvableAddress& address)
-            {
-                notify(address.resolved(m_context.Resolvers));
-            }
+		public:
+			void visit(const model::ResolvableAddress& address) {
+				notify(address.resolved(m_context.Resolvers));
+			}
 
-            void visit(const Key& publicKey)
-            {
-                notify(publicKey);
-            }
+			void visit(const Key& publicKey) {
+				notify(publicKey);
+			}
 
-        private:
-            template <typename TAccountIdentifier>
-            void notify(const TAccountIdentifier& accountIdentifier)
-            {
-                auto& accountStateCache = m_context.Cache.sub<cache::AccountStateCache>();
-                if (NotifyMode::Commit == m_context.Mode)
-                    accountStateCache.addAccount(accountIdentifier, m_context.Height);
-                else
-                    accountStateCache.queueRemove(accountIdentifier, m_context.Height);
-            }
+		private:
+			template <typename TAccountIdentifier>
+			void notify(const TAccountIdentifier& accountIdentifier) {
+				auto& accountStateCache = m_context.Cache.sub<cache::AccountStateCache>();
+				if (NotifyMode::Commit == m_context.Mode)
+					accountStateCache.addAccount(accountIdentifier, m_context.Height);
+				else
+					accountStateCache.queueRemove(accountIdentifier, m_context.Height);
+			}
 
-        private:
-            const ObserverContext& m_context;
-        };
-    }
+		private:
+			const ObserverContext& m_context;
+		};
+	}
 
-    DEFINE_OBSERVER(
-        AccountAddress,
-        model::AccountAddressNotification,
-        [](const model::AccountAddressNotification& notification, const ObserverContext& context) {
-            AccountStateCacheVisitor visitor(context);
-            visitor.visit(notification.Address);
-        })
+	DEFINE_OBSERVER(
+		AccountAddress,
+		model::AccountAddressNotification,
+		[](const model::AccountAddressNotification& notification, const ObserverContext& context) {
+			AccountStateCacheVisitor visitor(context);
+			visitor.visit(notification.Address);
+		})
 
-    DEFINE_OBSERVER(
-        AccountPublicKey,
-        model::AccountPublicKeyNotification,
-        [](const model::AccountPublicKeyNotification& notification, const ObserverContext& context) {
-            AccountStateCacheVisitor visitor(context);
-            visitor.visit(notification.PublicKey);
-        })
+	DEFINE_OBSERVER(
+		AccountPublicKey,
+		model::AccountPublicKeyNotification,
+		[](const model::AccountPublicKeyNotification& notification, const ObserverContext& context) {
+			AccountStateCacheVisitor visitor(context);
+			visitor.visit(notification.PublicKey);
+		})
 }
 }

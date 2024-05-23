@@ -29,54 +29,54 @@
 
 namespace catapult {
 namespace state {
-    class RootNamespaceHistory;
+	class RootNamespaceHistory;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    using ChildNamespaces = state::RootNamespace::Children;
+	using ChildNamespaces = state::RootNamespace::Children;
 
-    /// Default root namespace id used in tests.
-    constexpr NamespaceId::ValueType Default_Root_Id(246);
+	/// Default root namespace id used in tests.
+	constexpr NamespaceId::ValueType Default_Root_Id(246);
 
-    /// Creates a random namespace owner.
-    Address CreateRandomOwner();
+	/// Creates a random namespace owner.
+	Address CreateRandomOwner();
 
-    /// Generates valid namespace name of length \a size.
-    std::string GenerateValidName(size_t size);
+	/// Generates valid namespace name of length \a size.
+	std::string GenerateValidName(size_t size);
 
-    /// Creates a namespace path from \a ids.
-    state::Namespace::Path CreatePath(const std::vector<NamespaceId::ValueType>& ids);
+	/// Creates a namespace path from \a ids.
+	state::Namespace::Path CreatePath(const std::vector<NamespaceId::ValueType>& ids);
 
-    /// Creates a namespace lifetime around \a start and \a end.
-    state::NamespaceLifetime CreateLifetime(Height::ValueType start, Height::ValueType end);
+	/// Creates a namespace lifetime around \a start and \a end.
+	state::NamespaceLifetime CreateLifetime(Height::ValueType start, Height::ValueType end);
 
-    /// Creates a namespace lifetime around \a start, \a end and \a gracePeriodDuration.
-    state::NamespaceLifetime CreateLifetime(Height::ValueType start, Height::ValueType end, BlockDuration::ValueType gracePeriodDuration);
+	/// Creates a namespace lifetime around \a start, \a end and \a gracePeriodDuration.
+	state::NamespaceLifetime CreateLifetime(Height::ValueType start, Height::ValueType end, BlockDuration::ValueType gracePeriodDuration);
 
-    /// Adds all \a children to \a root in the specified order (\a orderedIds).
-    void AddAll(state::RootNamespace& root, const ChildNamespaces& children, std::initializer_list<NamespaceId::ValueType> orderedIds);
+	/// Adds all \a children to \a root in the specified order (\a orderedIds).
+	void AddAll(state::RootNamespace& root, const ChildNamespaces& children, std::initializer_list<NamespaceId::ValueType> orderedIds);
 
-    /// Creates children from the given \a paths.
-    ChildNamespaces CreateChildren(const std::vector<state::Namespace::Path>& paths);
+	/// Creates children from the given \a paths.
+	ChildNamespaces CreateChildren(const std::vector<state::Namespace::Path>& paths);
 
-    /// Asserts that the expected children (\a expectedChildren) are equal to the actual children (\a actualChildren).
-    void AssertChildren(const ChildNamespaces& expectedChildren, const ChildNamespaces& actualChildren);
+	/// Asserts that the expected children (\a expectedChildren) are equal to the actual children (\a actualChildren).
+	void AssertChildren(const ChildNamespaces& expectedChildren, const ChildNamespaces& actualChildren);
 
-    /// Asserts that \a expectedAlias and \a actualAlias are equal with optional \a message.
-    void AssertEqualAlias(
-        const state::NamespaceAlias& expectedAlias,
-        const state::NamespaceAlias& actualAlias,
-        const std::string& message = "");
+	/// Asserts that \a expectedAlias and \a actualAlias are equal with optional \a message.
+	void AssertEqualAlias(
+		const state::NamespaceAlias& expectedAlias,
+		const state::NamespaceAlias& actualAlias,
+		const std::string& message = "");
 
-    /// Asserts that root namespace \a actual is shallow equal to \a expected.
-    /// \note This only compares the most recent root namespace in the history.
-    void AssertNonHistoricalEqual(const state::RootNamespaceHistory& expected, const state::RootNamespaceHistory& actual);
+	/// Asserts that root namespace \a actual is shallow equal to \a expected.
+	/// \note This only compares the most recent root namespace in the history.
+	void AssertNonHistoricalEqual(const state::RootNamespaceHistory& expected, const state::RootNamespaceHistory& actual);
 
-    /// Asserts that root namespace \a actual is deep equal to \a expected.
-    /// \note This compares all root namespaces in the history.
-    void AssertHistoricalEqual(const state::RootNamespaceHistory& expected, const state::RootNamespaceHistory& actual);
+	/// Asserts that root namespace \a actual is deep equal to \a expected.
+	/// \note This compares all root namespaces in the history.
+	void AssertHistoricalEqual(const state::RootNamespaceHistory& expected, const state::RootNamespaceHistory& actual);
 }
 }

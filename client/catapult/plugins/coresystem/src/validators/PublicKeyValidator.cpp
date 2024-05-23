@@ -27,19 +27,19 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::AccountPublicKeyNotification;
+	using Notification = model::AccountPublicKeyNotification;
 
-    DEFINE_STATEFUL_VALIDATOR(PublicKey, [](const Notification& notification, const ValidatorContext& context) {
-        auto address = model::PublicKeyToAddress(notification.PublicKey, context.Network.Identifier);
-        auto accountStateIter = context.Cache.sub<cache::AccountStateCache>().find(address);
+	DEFINE_STATEFUL_VALIDATOR(PublicKey, [](const Notification& notification, const ValidatorContext& context) {
+		auto address = model::PublicKeyToAddress(notification.PublicKey, context.Network.Identifier);
+		auto accountStateIter = context.Cache.sub<cache::AccountStateCache>().find(address);
 
-        if (accountStateIter.tryGet()) {
-            const auto& accountState = accountStateIter.get();
-            if (Height() != accountState.PublicKeyHeight && notification.PublicKey != accountState.PublicKey)
-                return Failure_Core_Address_Collision;
-        }
+		if (accountStateIter.tryGet()) {
+			const auto& accountState = accountStateIter.get();
+			if (Height() != accountState.PublicKeyHeight && notification.PublicKey != accountState.PublicKey)
+				return Failure_Core_Address_Collision;
+		}
 
-        return ValidationResult::Success;
-    })
+		return ValidationResult::Success;
+	})
 }
 }

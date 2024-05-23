@@ -26,75 +26,75 @@
 
 namespace catapult {
 namespace chain {
-    class MultiRoundMessageAggregator;
+	class MultiRoundMessageAggregator;
 }
 namespace io {
-    class ProofStorageCache;
+	class ProofStorageCache;
 }
 namespace subscribers {
-    class FinalizationSubscriber;
+	class FinalizationSubscriber;
 }
 }
 
 namespace catapult {
 namespace chain {
 
-    /// Voting status information.
-    struct VotingStatus {
-        /// Current finalization round.
-        model::FinalizationRound Round;
+	/// Voting status information.
+	struct VotingStatus {
+		/// Current finalization round.
+		model::FinalizationRound Round;
 
-        /// \c true if prevote has been sent for current round.
-        bool HasSentPrevote = false;
+		/// \c true if prevote has been sent for current round.
+		bool HasSentPrevote = false;
 
-        /// \c true if precommit has been sent for current round.
-        bool HasSentPrecommit = false;
-    };
+		/// \c true if precommit has been sent for current round.
+		bool HasSentPrecommit = false;
+	};
 
-    /// Orchestrates finalization progress.
-    class FinalizationOrchestrator {
-    private:
-        using FinalizationStageAdvancerPointer = std::unique_ptr<FinalizationStageAdvancer>;
-        using StageAdvancerFactory = std::function<FinalizationStageAdvancerPointer(const model::FinalizationRound&, Timestamp)>;
-        using MessagePredicate = predicate<const model::FinalizationMessage&>;
-        using MessageSink = consumer<std::unique_ptr<model::FinalizationMessage>&&>;
+	/// Orchestrates finalization progress.
+	class FinalizationOrchestrator {
+	private:
+		using FinalizationStageAdvancerPointer = std::unique_ptr<FinalizationStageAdvancer>;
+		using StageAdvancerFactory = std::function<FinalizationStageAdvancerPointer(const model::FinalizationRound&, Timestamp)>;
+		using MessagePredicate = predicate<const model::FinalizationMessage&>;
+		using MessageSink = consumer<std::unique_ptr<model::FinalizationMessage>&&>;
 
-    public:
-        /// Creates an orchestrator around \a votingStatus, \a stageAdvancerFactory, \a messagePredicate, \a messageSink
-        /// and \a pMessageFactory.
-        FinalizationOrchestrator(
-            const VotingStatus& votingStatus,
-            const StageAdvancerFactory& stageAdvancerFactory,
-            const MessagePredicate& messagePredicate,
-            const MessageSink& messageSink,
-            std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory);
+	public:
+		/// Creates an orchestrator around \a votingStatus, \a stageAdvancerFactory, \a messagePredicate, \a messageSink
+		/// and \a pMessageFactory.
+		FinalizationOrchestrator(
+			const VotingStatus& votingStatus,
+			const StageAdvancerFactory& stageAdvancerFactory,
+			const MessagePredicate& messagePredicate,
+			const MessageSink& messageSink,
+			std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory);
 
-    public:
-        /// Gets the current voting status.
-        VotingStatus votingStatus() const;
+	public:
+		/// Gets the current voting status.
+		VotingStatus votingStatus() const;
 
-    public:
-        /// Sets the \a epoch.
-        void setEpoch(FinalizationEpoch epoch);
+	public:
+		/// Sets the \a epoch.
+		void setEpoch(FinalizationEpoch epoch);
 
-        /// Checks progress given the current \a time.
-        void poll(Timestamp time);
+		/// Checks progress given the current \a time.
+		void poll(Timestamp time);
 
-    private:
-        void startRound(Timestamp time);
-        void process(std::unique_ptr<model::FinalizationMessage>&& pMessage, const char* description);
+	private:
+		void startRound(Timestamp time);
+		void process(std::unique_ptr<model::FinalizationMessage>&& pMessage, const char* description);
 
-    private:
-        VotingStatus m_votingStatus;
-        StageAdvancerFactory m_stageAdvancerFactory;
-        MessagePredicate m_messagePredicate;
-        MessageSink m_messageSink;
-        std::unique_ptr<FinalizationMessageFactory> m_pMessageFactory;
+	private:
+		VotingStatus m_votingStatus;
+		StageAdvancerFactory m_stageAdvancerFactory;
+		MessagePredicate m_messagePredicate;
+		MessageSink m_messageSink;
+		std::unique_ptr<FinalizationMessageFactory> m_pMessageFactory;
 
-        std::unique_ptr<FinalizationStageAdvancer> m_pStageAdvancer;
-    };
+		std::unique_ptr<FinalizationStageAdvancer> m_pStageAdvancer;
+	};
 
-    /// Creates a finalizer that finalizes as many blocks as possible given \a messageAggregator and \a proofStorage.
-    action CreateFinalizer(MultiRoundMessageAggregator& messageAggregator, io::ProofStorageCache& proofStorage);
+	/// Creates a finalizer that finalizes as many blocks as possible given \a messageAggregator and \a proofStorage.
+	action CreateFinalizer(MultiRoundMessageAggregator& messageAggregator, io::ProofStorageCache& proofStorage);
 }
 }

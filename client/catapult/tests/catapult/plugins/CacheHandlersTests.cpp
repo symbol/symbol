@@ -29,64 +29,60 @@ namespace plugins {
 
 #define TEST_CLASS CacheHandlersTests
 
-    namespace {
-        struct CacheDescriptor {
-            using CacheType = test::SimpleCacheT<2>;
-            using CacheViewType = CacheType::CacheViewType;
-            using KeyType = size_t;
-            using ValueType = size_t;
+	namespace {
+		struct CacheDescriptor {
+			using CacheType = test::SimpleCacheT<2>;
+			using CacheViewType = CacheType::CacheViewType;
+			using KeyType = size_t;
+			using ValueType = size_t;
 
-            struct PatriciaTree {
-                struct Serializer {
-                    static std::string SerializeValue(const ValueType&)
-                    {
-                        // stubbed out placeholder, which is adequate because only handler registration is tested below
-                        return std::string();
-                    }
-                };
-            };
-        };
+			struct PatriciaTree {
+				struct Serializer {
+					static std::string SerializeValue(const ValueType&) {
+						// stubbed out placeholder, which is adequate because only handler registration is tested below
+						return std::string();
+					}
+				};
+			};
+		};
 
-        template <typename TAction>
-        void RunHandlerRegistrationTest(TAction action)
-        {
-            // Arrange:
-            auto manager = test::CreatePluginManager();
-            manager.addCacheSupport<test::SimpleCacheStorageTraits>(std::make_unique<CacheDescriptor::CacheType>());
-            auto cache = manager.createCache();
+		template <typename TAction>
+		void RunHandlerRegistrationTest(TAction action) {
+			// Arrange:
+			auto manager = test::CreatePluginManager();
+			manager.addCacheSupport<test::SimpleCacheStorageTraits>(std::make_unique<CacheDescriptor::CacheType>());
+			auto cache = manager.createCache();
 
-            // Act:
-            CacheHandlers<CacheDescriptor>::Register<static_cast<model::FacilityCode>(123)>(manager);
+			// Act:
+			CacheHandlers<CacheDescriptor>::Register<static_cast<model::FacilityCode>(123)>(manager);
 
-            // Assert:
-            action(manager, cache);
-        }
-    }
+			// Assert:
+			action(manager, cache);
+		}
+	}
 
-    TEST(TEST_CLASS, CacheNonDiagnosticHandlersAreRegistered)
-    {
-        // Act:
-        RunHandlerRegistrationTest([](auto& pluginManager, const auto& cache) {
-            ionet::ServerPacketHandlers packetHandlers;
-            pluginManager.addHandlers(packetHandlers, cache);
+	TEST(TEST_CLASS, CacheNonDiagnosticHandlersAreRegistered) {
+		// Act:
+		RunHandlerRegistrationTest([](auto& pluginManager, const auto& cache) {
+			ionet::ServerPacketHandlers packetHandlers;
+			pluginManager.addHandlers(packetHandlers, cache);
 
-            // Assert:
-            EXPECT_EQ(1u, packetHandlers.size());
-            EXPECT_TRUE(packetHandlers.canProcess(static_cast<ionet::PacketType>(0x200 + 123)));
-        });
-    }
+			// Assert:
+			EXPECT_EQ(1u, packetHandlers.size());
+			EXPECT_TRUE(packetHandlers.canProcess(static_cast<ionet::PacketType>(0x200 + 123)));
+		});
+	}
 
-    TEST(TEST_CLASS, CacheDiagnosticHandlersAreRegistered)
-    {
-        // Act:
-        RunHandlerRegistrationTest([](auto& pluginManager, const auto& cache) {
-            ionet::ServerPacketHandlers packetHandlers;
-            pluginManager.addDiagnosticHandlers(packetHandlers, cache);
+	TEST(TEST_CLASS, CacheDiagnosticHandlersAreRegistered) {
+		// Act:
+		RunHandlerRegistrationTest([](auto& pluginManager, const auto& cache) {
+			ionet::ServerPacketHandlers packetHandlers;
+			pluginManager.addDiagnosticHandlers(packetHandlers, cache);
 
-            // Assert:
-            EXPECT_EQ(1u, packetHandlers.size());
-            EXPECT_TRUE(packetHandlers.canProcess(static_cast<ionet::PacketType>(0x400 + 123)));
-        });
-    }
+			// Assert:
+			EXPECT_EQ(1u, packetHandlers.size());
+			EXPECT_TRUE(packetHandlers.canProcess(static_cast<ionet::PacketType>(0x400 + 123)));
+		});
+	}
 }
 }

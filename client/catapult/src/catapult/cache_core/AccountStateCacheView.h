@@ -31,96 +31,95 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the account state cache view.
-    struct AccountStateCacheViewMixins {
-    public:
-        using KeyLookupAdapter = AccountStateCacheTypes::ComposedLookupAdapter<AccountStateCacheTypes::ComposableBaseSets>;
+	/// Mixins used by the account state cache view.
+	struct AccountStateCacheViewMixins {
+	public:
+		using KeyLookupAdapter = AccountStateCacheTypes::ComposedLookupAdapter<AccountStateCacheTypes::ComposableBaseSets>;
 
-    private:
-        using AddressMixins = PatriciaTreeCacheMixins<AccountStateCacheTypes::PrimaryTypes::BaseSetType, AccountStateCacheDescriptor>;
-        using KeyMixins = BasicCacheMixins<KeyLookupAdapter, KeyLookupAdapter>;
+	private:
+		using AddressMixins = PatriciaTreeCacheMixins<AccountStateCacheTypes::PrimaryTypes::BaseSetType, AccountStateCacheDescriptor>;
+		using KeyMixins = BasicCacheMixins<KeyLookupAdapter, KeyLookupAdapter>;
 
-    public:
-        using Size = AddressMixins::Size;
-        using ContainsAddress = AddressMixins::Contains;
-        using ContainsKey = ContainsMixin<AccountStateCacheTypes::KeyLookupMapTypes::BaseSetType, AccountStateCacheTypes::KeyLookupMapTypesDescriptor>;
-        using Iteration = AddressMixins::Iteration;
-        using ConstAccessorAddress = AddressMixins::ConstAccessor;
-        using ConstAccessorKey = KeyMixins::ConstAccessor;
-        using PatriciaTreeView = AddressMixins::PatriciaTreeView;
-    };
+	public:
+		using Size = AddressMixins::Size;
+		using ContainsAddress = AddressMixins::Contains;
+		using ContainsKey = ContainsMixin<AccountStateCacheTypes::KeyLookupMapTypes::BaseSetType, AccountStateCacheTypes::KeyLookupMapTypesDescriptor>;
+		using Iteration = AddressMixins::Iteration;
+		using ConstAccessorAddress = AddressMixins::ConstAccessor;
+		using ConstAccessorKey = KeyMixins::ConstAccessor;
+		using PatriciaTreeView = AddressMixins::PatriciaTreeView;
+	};
 
-    /// Basic view on top of the account state cache.
-    class BasicAccountStateCacheView
-        : public utils::MoveOnly,
-          public AccountStateCacheViewMixins::Size,
-          public AccountStateCacheViewMixins::ContainsAddress,
-          public AccountStateCacheViewMixins::ContainsKey,
-          public AccountStateCacheViewMixins::Iteration,
-          public AccountStateCacheViewMixins::ConstAccessorAddress,
-          public AccountStateCacheViewMixins::ConstAccessorKey,
-          public AccountStateCacheViewMixins::PatriciaTreeView {
-    public:
-        using ReadOnlyView = ReadOnlyAccountStateCache;
+	/// Basic view on top of the account state cache.
+	class BasicAccountStateCacheView
+		: public utils::MoveOnly,
+		  public AccountStateCacheViewMixins::Size,
+		  public AccountStateCacheViewMixins::ContainsAddress,
+		  public AccountStateCacheViewMixins::ContainsKey,
+		  public AccountStateCacheViewMixins::Iteration,
+		  public AccountStateCacheViewMixins::ConstAccessorAddress,
+		  public AccountStateCacheViewMixins::ConstAccessorKey,
+		  public AccountStateCacheViewMixins::PatriciaTreeView {
+	public:
+		using ReadOnlyView = ReadOnlyAccountStateCache;
 
-    public:
-        /// Creates a view around \a accountStateSets, \a options and \a highValueAccounts.
-        BasicAccountStateCacheView(
-            const AccountStateCacheTypes::BaseSets& accountStateSets,
-            const AccountStateCacheTypes::Options& options,
-            const HighValueAccounts& highValueAccounts);
+	public:
+		/// Creates a view around \a accountStateSets, \a options and \a highValueAccounts.
+		BasicAccountStateCacheView(
+			const AccountStateCacheTypes::BaseSets& accountStateSets,
+			const AccountStateCacheTypes::Options& options,
+			const HighValueAccounts& highValueAccounts);
 
-    private:
-        BasicAccountStateCacheView(
-            const AccountStateCacheTypes::BaseSets& accountStateSets,
-            const AccountStateCacheTypes::Options& options,
-            const HighValueAccounts& highValueAccounts,
-            std::unique_ptr<AccountStateCacheViewMixins::KeyLookupAdapter>&& pKeyLookupAdapter);
+	private:
+		BasicAccountStateCacheView(
+			const AccountStateCacheTypes::BaseSets& accountStateSets,
+			const AccountStateCacheTypes::Options& options,
+			const HighValueAccounts& highValueAccounts,
+			std::unique_ptr<AccountStateCacheViewMixins::KeyLookupAdapter>&& pKeyLookupAdapter);
 
-    public:
-        using AccountStateCacheViewMixins::ContainsAddress::contains;
-        using AccountStateCacheViewMixins::ContainsKey::contains;
+	public:
+		using AccountStateCacheViewMixins::ContainsAddress::contains;
+		using AccountStateCacheViewMixins::ContainsKey::contains;
 
-        using AccountStateCacheViewMixins::ConstAccessorAddress::find;
-        using AccountStateCacheViewMixins::ConstAccessorKey::find;
+		using AccountStateCacheViewMixins::ConstAccessorAddress::find;
+		using AccountStateCacheViewMixins::ConstAccessorKey::find;
 
-    public:
-        /// Gets the network identifier.
-        model::NetworkIdentifier networkIdentifier() const;
+	public:
+		/// Gets the network identifier.
+		model::NetworkIdentifier networkIdentifier() const;
 
-        /// Gets the network importance grouping.
-        uint64_t importanceGrouping() const;
+		/// Gets the network importance grouping.
+		uint64_t importanceGrouping() const;
 
-        /// Gets the minimum harvester balance.
-        Amount minHarvesterBalance() const;
+		/// Gets the minimum harvester balance.
+		Amount minHarvesterBalance() const;
 
-        /// Gets the maximum harvester balance.
-        Amount maxHarvesterBalance() const;
+		/// Gets the maximum harvester balance.
+		Amount maxHarvesterBalance() const;
 
-        /// Gets the harvesting mosaic id.
-        MosaicId harvestingMosaicId() const;
+		/// Gets the harvesting mosaic id.
+		MosaicId harvestingMosaicId() const;
 
-    public:
-        /// Gets all high value accounts.
-        const HighValueAccounts& highValueAccounts() const;
+	public:
+		/// Gets all high value accounts.
+		const HighValueAccounts& highValueAccounts() const;
 
-    private:
-        const AccountStateCacheTypes::Options& m_options;
-        const HighValueAccounts& m_highValueAccounts;
-        std::unique_ptr<AccountStateCacheViewMixins::KeyLookupAdapter> m_pKeyLookupAdapter;
-    };
+	private:
+		const AccountStateCacheTypes::Options& m_options;
+		const HighValueAccounts& m_highValueAccounts;
+		std::unique_ptr<AccountStateCacheViewMixins::KeyLookupAdapter> m_pKeyLookupAdapter;
+	};
 
-    /// View on top of the account state cache.
-    class AccountStateCacheView : public ReadOnlyViewSupplier<BasicAccountStateCacheView> {
-    public:
-        /// Creates a view around \a accountStateSets, \a options and \a highValueAccounts.
-        AccountStateCacheView(
-            const AccountStateCacheTypes::BaseSets& accountStateSets,
-            const AccountStateCacheTypes::Options& options,
-            const HighValueAccounts& highValueAccounts)
-            : ReadOnlyViewSupplier(accountStateSets, options, highValueAccounts)
-        {
-        }
-    };
+	/// View on top of the account state cache.
+	class AccountStateCacheView : public ReadOnlyViewSupplier<BasicAccountStateCacheView> {
+	public:
+		/// Creates a view around \a accountStateSets, \a options and \a highValueAccounts.
+		AccountStateCacheView(
+			const AccountStateCacheTypes::BaseSets& accountStateSets,
+			const AccountStateCacheTypes::Options& options,
+			const HighValueAccounts& highValueAccounts)
+			: ReadOnlyViewSupplier(accountStateSets, options, highValueAccounts) {
+		}
+	};
 }
 }

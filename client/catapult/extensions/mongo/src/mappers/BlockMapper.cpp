@@ -29,92 +29,88 @@
 
 namespace catapult {
 namespace mongo {
-    namespace mappers {
+	namespace mappers {
 
-        // region ToDbModel (block)
+		// region ToDbModel (block)
 
-        namespace {
-            void StreamHashArray(bson_stream::document& builder, const std::string& name, const std::vector<Hash256>& hashes)
-            {
-                auto hashArray = builder << name << bson_stream::open_array;
-                for (const auto& hash : hashes)
-                    hashArray << ToBinary(hash);
+		namespace {
+			void StreamHashArray(bson_stream::document& builder, const std::string& name, const std::vector<Hash256>& hashes) {
+				auto hashArray = builder << name << bson_stream::open_array;
+				for (const auto& hash : hashes)
+					hashArray << ToBinary(hash);
 
-                hashArray << bson_stream::close_array;
-            }
+				hashArray << bson_stream::close_array;
+			}
 
-            void StreamBlockMerkleTree(
-                bson_stream::document& builder,
-                const std::string& countLabel,
-                uint32_t count,
-                const std::string& merkleTreeLabel,
-                const std::vector<Hash256>& merkleTree)
-            {
-                builder << countLabel << static_cast<int32_t>(count);
-                StreamHashArray(builder, merkleTreeLabel, merkleTree);
-            }
-        }
+			void StreamBlockMerkleTree(
+				bson_stream::document& builder,
+				const std::string& countLabel,
+				uint32_t count,
+				const std::string& merkleTreeLabel,
+				const std::vector<Hash256>& merkleTree) {
+				builder << countLabel << static_cast<int32_t>(count);
+				StreamHashArray(builder, merkleTreeLabel, merkleTree);
+			}
+		}
 
-        bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement, uint32_t totalTransactionsCount)
-        {
-            const auto& block = blockElement.Block;
-            auto blockTransactionsInfo = model::CalculateBlockTransactionsInfo(block);
-            auto transactionMerkleTree = model::CalculateMerkleTree(blockElement.Transactions);
+		bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement, uint32_t totalTransactionsCount) {
+			const auto& block = blockElement.Block;
+			auto blockTransactionsInfo = model::CalculateBlockTransactionsInfo(block);
+			auto transactionMerkleTree = model::CalculateMerkleTree(blockElement.Transactions);
 
-            // block metadata
-            bson_stream::document builder;
+			// block metadata
+			bson_stream::document builder;
 
-            builder << "meta" << bson_stream::open_document << "hash" << ToBinary(blockElement.EntityHash) << "generationHash"
-                    << ToBinary(blockElement.GenerationHash) << "totalFee" << ToInt64(blockTransactionsInfo.TotalFee)
-                    << "totalTransactionsCount" << static_cast<int32_t>(totalTransactionsCount);
-            StreamHashArray(builder, "stateHashSubCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
-            StreamBlockMerkleTree(builder, "transactionsCount", blockTransactionsInfo.Count, "transactionMerkleTree", transactionMerkleTree);
+			builder << "meta" << bson_stream::open_document << "hash" << ToBinary(blockElement.EntityHash) << "generationHash"
+					<< ToBinary(blockElement.GenerationHash) << "totalFee" << ToInt64(blockTransactionsInfo.TotalFee)
+					<< "totalTransactionsCount" << static_cast<int32_t>(totalTransactionsCount);
+			StreamHashArray(builder, "stateHashSubCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
+			StreamBlockMerkleTree(builder, "transactionsCount", blockTransactionsInfo.Count, "transactionMerkleTree", transactionMerkleTree);
 
-            if (blockElement.OptionalStatement) {
-                const auto& blockStatement = *blockElement.OptionalStatement;
-                auto statementsCount = static_cast<uint32_t>(model::CountTotalStatements(blockStatement));
-                auto statementMerkleTree = model::CalculateMerkleTree(blockStatement);
-                StreamBlockMerkleTree(builder, "statementsCount", statementsCount, "statementMerkleTree", statementMerkleTree);
-            }
+			if (blockElement.OptionalStatement) {
+				const auto& blockStatement = *blockElement.OptionalStatement;
+				auto statementsCount = static_cast<uint32_t>(model::CountTotalStatements(blockStatement));
+				auto statementMerkleTree = model::CalculateMerkleTree(blockStatement);
+				StreamBlockMerkleTree(builder, "statementsCount", statementsCount, "statementMerkleTree", statementMerkleTree);
+			}
 
-            builder << bson_stream::close_document;
+			builder << bson_stream::close_document;
 
-            // block data
-            builder << "block" << bson_stream::open_document;
-            auto blockDocument = StreamVerifiableEntity(builder, block)
-                << "height" << ToInt64(block.Height) << "timestamp" << ToInt64(block.Timestamp) << "difficulty"
-                << ToInt64(block.Difficulty) << "proofGamma" << ToBinary(block.GenerationHashProof.Gamma)
-                << "proofVerificationHash" << ToBinary(block.GenerationHashProof.VerificationHash) << "proofScalar"
-                << ToBinary(block.GenerationHashProof.Scalar) << "previousBlockHash" << ToBinary(block.PreviousBlockHash)
-                << "transactionsHash" << ToBinary(block.TransactionsHash) << "receiptsHash" << ToBinary(block.ReceiptsHash)
-                << "stateHash" << ToBinary(block.StateHash) << "beneficiaryAddress" << ToBinary(block.BeneficiaryAddress)
-                << "feeMultiplier" << ToInt32(block.FeeMultiplier);
+			// block data
+			builder << "block" << bson_stream::open_document;
+			auto blockDocument = StreamVerifiableEntity(builder, block)
+				<< "height" << ToInt64(block.Height) << "timestamp" << ToInt64(block.Timestamp) << "difficulty"
+				<< ToInt64(block.Difficulty) << "proofGamma" << ToBinary(block.GenerationHashProof.Gamma)
+				<< "proofVerificationHash" << ToBinary(block.GenerationHashProof.VerificationHash) << "proofScalar"
+				<< ToBinary(block.GenerationHashProof.Scalar) << "previousBlockHash" << ToBinary(block.PreviousBlockHash)
+				<< "transactionsHash" << ToBinary(block.TransactionsHash) << "receiptsHash" << ToBinary(block.ReceiptsHash)
+				<< "stateHash" << ToBinary(block.StateHash) << "beneficiaryAddress" << ToBinary(block.BeneficiaryAddress)
+				<< "feeMultiplier" << ToInt32(block.FeeMultiplier);
 
-            if (model::IsImportanceBlock(block.Type)) {
-                const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(block);
-                blockDocument << "votingEligibleAccountsCount" << static_cast<int32_t>(blockFooter.VotingEligibleAccountsCount)
-                              << "harvestingEligibleAccountsCount" << static_cast<int64_t>(blockFooter.HarvestingEligibleAccountsCount)
-                              << "totalVotingBalance" << ToInt64(blockFooter.TotalVotingBalance) << "previousImportanceBlockHash"
-                              << ToBinary(blockFooter.PreviousImportanceBlockHash);
-            }
+			if (model::IsImportanceBlock(block.Type)) {
+				const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(block);
+				blockDocument << "votingEligibleAccountsCount" << static_cast<int32_t>(blockFooter.VotingEligibleAccountsCount)
+							  << "harvestingEligibleAccountsCount" << static_cast<int64_t>(blockFooter.HarvestingEligibleAccountsCount)
+							  << "totalVotingBalance" << ToInt64(blockFooter.TotalVotingBalance) << "previousImportanceBlockHash"
+							  << ToBinary(blockFooter.PreviousImportanceBlockHash);
+			}
 
-            builder << bson_stream::close_document;
-            return builder << bson_stream::finalize;
-        }
+			builder << bson_stream::close_document;
+			return builder << bson_stream::finalize;
+		}
 
-        // endregion
+		// endregion
 
-        // region ToDbModel (finalized block)
+		// region ToDbModel (finalized block)
 
-        bsoncxx::document::value ToDbModel(const model::FinalizationRound& round, Height height, const Hash256& hash)
-        {
-            bson_stream::document builder;
-            return builder << "block" << bson_stream::open_document << "finalizationEpoch" << ToInt32(round.Epoch) << "finalizationPoint"
-                           << ToInt32(round.Point) << "height" << ToInt64(height) << "hash" << ToBinary(hash) << bson_stream::close_document
-                           << bson_stream::finalize;
-        }
+		bsoncxx::document::value ToDbModel(const model::FinalizationRound& round, Height height, const Hash256& hash) {
+			bson_stream::document builder;
+			return builder << "block" << bson_stream::open_document << "finalizationEpoch" << ToInt32(round.Epoch) << "finalizationPoint"
+						   << ToInt32(round.Point) << "height" << ToInt64(height) << "hash" << ToBinary(hash) << bson_stream::close_document
+						   << bson_stream::finalize;
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

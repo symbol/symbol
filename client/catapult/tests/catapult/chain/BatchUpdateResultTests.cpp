@@ -28,77 +28,70 @@ namespace chain {
 
 #define TEST_CLASS BatchUpdateResultTests
 
-    // region creation
+	// region creation
 
-    TEST(TEST_CLASS, CanCreateDefaultResult)
-    {
-        // Act:
-        auto result = BatchUpdateResult();
+	TEST(TEST_CLASS, CanCreateDefaultResult) {
+		// Act:
+		auto result = BatchUpdateResult();
 
-        // Assert:
-        EXPECT_EQ(0u, result.SuccessCount);
-        EXPECT_EQ(0u, result.NeutralCount);
-        EXPECT_EQ(0u, result.FailureCount);
-    }
+		// Assert:
+		EXPECT_EQ(0u, result.SuccessCount);
+		EXPECT_EQ(0u, result.NeutralCount);
+		EXPECT_EQ(0u, result.FailureCount);
+	}
 
-    TEST(TEST_CLASS, CanCreateResultWithInitialValues)
-    {
-        // Act:
-        auto result = BatchUpdateResult(77, 12, 98);
+	TEST(TEST_CLASS, CanCreateResultWithInitialValues) {
+		// Act:
+		auto result = BatchUpdateResult(77, 12, 98);
 
-        // Assert:
-        EXPECT_EQ(77u, result.SuccessCount);
-        EXPECT_EQ(12u, result.NeutralCount);
-        EXPECT_EQ(98u, result.FailureCount);
-    }
+		// Assert:
+		EXPECT_EQ(77u, result.SuccessCount);
+		EXPECT_EQ(12u, result.NeutralCount);
+		EXPECT_EQ(98u, result.FailureCount);
+	}
 
-    // endregion
+	// endregion
 
-    // region equality operators
+	// region equality operators
 
-    namespace {
-        std::unordered_set<std::string> GetEqualTags()
-        {
-            return { "default", "copy" };
-        }
+	namespace {
+		std::unordered_set<std::string> GetEqualTags() {
+			return { "default", "copy" };
+		}
 
-        std::unordered_map<std::string, BatchUpdateResult> GenerateEqualityInstanceMap()
-        {
-            return { { "default", { 77, 12, 98 } },
-                { "copy", { 77, 12, 98 } },
+		std::unordered_map<std::string, BatchUpdateResult> GenerateEqualityInstanceMap() {
+			return { { "default", { 77, 12, 98 } },
+				{ "copy", { 77, 12, 98 } },
 
-                { "diff success", { 78, 12, 98 } },
-                { "diff neutral", { 77, 11, 98 } },
-                { "diff failure", { 77, 12, 90 } } };
-        }
-    }
+				{ "diff success", { 78, 12, 98 } },
+				{ "diff neutral", { 77, 11, 98 } },
+				{ "diff failure", { 77, 12, 90 } } };
+		}
+	}
 
-    TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues)
-    {
-        test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
-    }
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
+		test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
+	}
 
-    TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues)
-    {
-        test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
-    }
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
+	}
 
-    // endregion
+	// endregion
 
-    // region to string
+	// region to string
 
-    TEST(TEST_CLASS, CanOutputResult)
-    {
-        // Arrange:
-        auto result = BatchUpdateResult(77, 12, 98);
+	TEST(TEST_CLASS, CanOutputResult) {
+		// Arrange:
+		auto result = BatchUpdateResult(77, 12, 98);
 
-        // Act:
-        auto str = test::ToString(result);
+		// Act:
+		auto str = test::ToString(result);
 
-        // Assert:
-        EXPECT_EQ("(success = 77, neutral = 12, failure = 98)", str);
-    }
+		// Assert:
+		EXPECT_EQ("(success = 77, neutral = 12, failure = 98)", str);
+	}
 
-    // endregion
+	// endregion
 }
 }

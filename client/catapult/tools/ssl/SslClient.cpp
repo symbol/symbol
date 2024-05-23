@@ -26,59 +26,57 @@
 
 namespace catapult {
 namespace tools {
-    namespace ssl {
+	namespace ssl {
 
-        SslClient::SslClient(
-            thread::IoThreadPool& pool,
-            crypto::KeyPair&& caKeyPair,
-            const std::string& certificateDirectory,
-            ScenarioId scenarioId)
-            : m_pool(pool)
-            , m_pSslContext(std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13))
-        {
-            GenerateCertificateDirectory(std::move(caKeyPair), certificateDirectory, scenarioId);
+		SslClient::SslClient(
+			thread::IoThreadPool& pool,
+			crypto::KeyPair&& caKeyPair,
+			const std::string& certificateDirectory,
+			ScenarioId scenarioId)
+			: m_pool(pool)
+			, m_pSslContext(std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13)) {
+			GenerateCertificateDirectory(std::move(caKeyPair), certificateDirectory, scenarioId);
 
-            m_pSslContext->set_options(
-                boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3 | boost::asio::ssl::context::no_tlsv1
-                | boost::asio::ssl::context::no_tlsv1_1 | boost::asio::ssl::context::no_tlsv1_2);
+			m_pSslContext->set_options(
+				boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3 | boost::asio::ssl::context::no_tlsv1
+				| boost::asio::ssl::context::no_tlsv1_1 | boost::asio::ssl::context::no_tlsv1_2);
 
-            if (ScenarioId::No_Peer_Certificate != scenarioId) {
-                m_pSslContext->use_certificate_chain_file(certificateDirectory + "/node.full.crt.pem");
-                m_pSslContext->use_private_key_file(certificateDirectory + "/node.key.pem", boost::asio::ssl::context::pem);
-            }
+			if (ScenarioId::No_Peer_Certificate != scenarioId) {
+				m_pSslContext->use_certificate_chain_file(certificateDirectory + "/node.full.crt.pem");
+				m_pSslContext->use_private_key_file(certificateDirectory + "/node.key.pem", boost::asio::ssl::context::pem);
+			}
 
-            // pick curve supported by server
-            std::array<int, 1> curves { NID_X25519 };
-            SSL_CTX_set1_groups(m_pSslContext->native_handle(), curves.data(), static_cast<long>(curves.size()));
-        }
+			// pick curve supported by server
+			std::array<int, 1> curves { NID_X25519 };
+			SSL_CTX_set1_groups(m_pSslContext->native_handle(), curves.data(), static_cast<long>(curves.size()));
+		}
 
-        api::ChainStatistics SslClient::connect(const ionet::NodeEndpoint& nodeEndpoint)
-        {
-            auto connectionSettings = net::ConnectionSettings();
-            connectionSettings.AllowOutgoingSelfConnections = true;
-            connectionSettings.SslOptions.ContextSupplier = [pSslContext = m_pSslContext]() -> boost::asio::ssl::context& {
-                return *pSslContext;
-            };
-            connectionSettings.SslOptions.VerifyCallbackSupplier = []() { return [](const auto&) { return true; }; };
+		api::ChainStatistics SslClient::connect(const ionet::NodeEndpoint& nodeEndpoint) {
+			auto connectionSettings = net::ConnectionSettings();
+			connectionSettings.AllowOutgoingSelfConnections = true;
+			connectionSettings.SslOptions.ContextSupplier = [pSslContext = m_pSslContext]() -> boost::asio::ssl::context& {
+				return *pSslContext;
+			};
+			connectionSettings.SslOptions.VerifyCallbackSupplier = []() { return [](const auto&) { return true; }; };
 
-            model::NodeIdentity nodeIdentity;
-            ionet::NodeMetadata nodeMetadata;
-            ionet::Node node(nodeIdentity, nodeEndpoint, nodeMetadata);
-            auto connectFuture = ConnectToNode(connectionSettings, node, m_pool);
-            auto chainStatisticsFuture = thread::compose(std::move(connectFuture), [node](auto&& ioFuture) {
-                try {
-                    auto pIo = ioFuture.get();
-                    auto pApi = api::CreateRemoteChainApiWithoutRegistry(*pIo);
-                    return pApi->chainStatistics();
-                } catch (...) {
-                    // suppress
-                    CATAPULT_LOG(error) << node << " appears to be offline";
-                    return thread::make_ready_future(api::ChainStatistics());
-                }
-            });
+			model::NodeIdentity nodeIdentity;
+			ionet::NodeMetadata nodeMetadata;
+			ionet::Node node(nodeIdentity, nodeEndpoint, nodeMetadata);
+			auto connectFuture = ConnectToNode(connectionSettings, node, m_pool);
+			auto chainStatisticsFuture = thread::compose(std::move(connectFuture), [node](auto&& ioFuture) {
+				try {
+					auto pIo = ioFuture.get();
+					auto pApi = api::CreateRemoteChainApiWithoutRegistry(*pIo);
+					return pApi->chainStatistics();
+				} catch (...) {
+					// suppress
+					CATAPULT_LOG(error) << node << " appears to be offline";
+					return thread::make_ready_future(api::ChainStatistics());
+				}
+			});
 
-            return chainStatisticsFuture.get();
-        }
-    }
+			return chainStatisticsFuture.get();
+		}
+	}
 }
 }

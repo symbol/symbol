@@ -24,59 +24,53 @@
 namespace catapult {
 namespace io {
 
-    namespace {
-        class AggregateProofStorage : public ProofStorage {
-        public:
-            AggregateProofStorage(
-                std::unique_ptr<ProofStorage>&& pStorage,
-                std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber)
-                : m_pStorage(std::move(pStorage))
-                , m_pSubscriber(std::move(pSubscriber))
-            {
-            }
+	namespace {
+		class AggregateProofStorage : public ProofStorage {
+		public:
+			AggregateProofStorage(
+				std::unique_ptr<ProofStorage>&& pStorage,
+				std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber)
+				: m_pStorage(std::move(pStorage))
+				, m_pSubscriber(std::move(pSubscriber)) {
+			}
 
-        public:
-            model::FinalizationStatistics statistics() const override
-            {
-                return m_pStorage->statistics();
-            }
+		public:
+			model::FinalizationStatistics statistics() const override {
+				return m_pStorage->statistics();
+			}
 
-            std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const override
-            {
-                return m_pStorage->loadProof(epoch);
-            }
+			std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const override {
+				return m_pStorage->loadProof(epoch);
+			}
 
-            std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override
-            {
-                return m_pStorage->loadProof(height);
-            }
+			std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override {
+				return m_pStorage->loadProof(height);
+			}
 
-            void saveProof(const model::FinalizationProof& proof) override
-            {
-                auto currentStatistics = statistics();
-                if (currentStatistics.Round > proof.Round) {
-                    CATAPULT_LOG(debug) << "skipping save of older proof with round " << proof.Round << " when last saved proof is "
-                                        << currentStatistics.Round;
-                    return;
-                }
+			void saveProof(const model::FinalizationProof& proof) override {
+				auto currentStatistics = statistics();
+				if (currentStatistics.Round > proof.Round) {
+					CATAPULT_LOG(debug) << "skipping save of older proof with round " << proof.Round << " when last saved proof is "
+										<< currentStatistics.Round;
+					return;
+				}
 
-                CATAPULT_LOG(info) << "saving proof for round " << proof.Round << " at height " << proof.Height << " with hash "
-                                   << proof.Hash;
-                m_pStorage->saveProof(proof);
-                m_pSubscriber->notifyFinalizedBlock(proof.Round, proof.Height, proof.Hash);
-            }
+				CATAPULT_LOG(info) << "saving proof for round " << proof.Round << " at height " << proof.Height << " with hash "
+								   << proof.Hash;
+				m_pStorage->saveProof(proof);
+				m_pSubscriber->notifyFinalizedBlock(proof.Round, proof.Height, proof.Hash);
+			}
 
-        private:
-            std::unique_ptr<ProofStorage> m_pStorage;
-            std::unique_ptr<subscribers::FinalizationSubscriber> m_pSubscriber;
-        };
-    }
+		private:
+			std::unique_ptr<ProofStorage> m_pStorage;
+			std::unique_ptr<subscribers::FinalizationSubscriber> m_pSubscriber;
+		};
+	}
 
-    std::unique_ptr<ProofStorage> CreateAggregateProofStorage(
-        std::unique_ptr<ProofStorage>&& pStorage,
-        std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber)
-    {
-        return std::make_unique<AggregateProofStorage>(std::move(pStorage), std::move(pSubscriber));
-    }
+	std::unique_ptr<ProofStorage> CreateAggregateProofStorage(
+		std::unique_ptr<ProofStorage>&& pStorage,
+		std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber) {
+		return std::make_unique<AggregateProofStorage>(std::move(pStorage), std::move(pSubscriber));
+	}
 }
 }

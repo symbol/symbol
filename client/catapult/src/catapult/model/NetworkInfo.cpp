@@ -25,38 +25,34 @@
 namespace catapult {
 namespace model {
 
-    NetworkInfo::NetworkInfo()
-        : NetworkInfo(
-              NetworkIdentifier::Zero,
-              NodeIdentityEqualityStrategy::Key,
-              Key(),
-              catapult::GenerationHashSeed(),
-              utils::TimeSpan())
-    {
-    }
+	NetworkInfo::NetworkInfo()
+		: NetworkInfo(
+			  NetworkIdentifier::Zero,
+			  NodeIdentityEqualityStrategy::Key,
+			  Key(),
+			  catapult::GenerationHashSeed(),
+			  utils::TimeSpan()) {
+	}
 
-    NetworkInfo::NetworkInfo(
-        NetworkIdentifier identifier,
-        NodeIdentityEqualityStrategy nodeEqualityStrategy,
-        const Key& nemesisSignerPublicKey,
-        const catapult::GenerationHashSeed& generationHashSeed,
-        const utils::TimeSpan& epochAdjustment)
-        : Identifier(identifier)
-        , NodeEqualityStrategy(nodeEqualityStrategy)
-        , NemesisSignerPublicKey(nemesisSignerPublicKey)
-        , GenerationHashSeed(generationHashSeed)
-        , EpochAdjustment(epochAdjustment)
-    {
-    }
+	NetworkInfo::NetworkInfo(
+		NetworkIdentifier identifier,
+		NodeIdentityEqualityStrategy nodeEqualityStrategy,
+		const Key& nemesisSignerPublicKey,
+		const catapult::GenerationHashSeed& generationHashSeed,
+		const utils::TimeSpan& epochAdjustment)
+		: Identifier(identifier)
+		, NodeEqualityStrategy(nodeEqualityStrategy)
+		, NemesisSignerPublicKey(nemesisSignerPublicKey)
+		, GenerationHashSeed(generationHashSeed)
+		, EpochAdjustment(epochAdjustment) {
+	}
 
-    Address GetNemesisSignerAddress(const NetworkInfo& networkInfo)
-    {
-        return PublicKeyToAddress(networkInfo.NemesisSignerPublicKey, networkInfo.Identifier);
-    }
+	Address GetNemesisSignerAddress(const NetworkInfo& networkInfo) {
+		return PublicKeyToAddress(networkInfo.NemesisSignerPublicKey, networkInfo.Identifier);
+	}
 
-    UniqueNetworkFingerprint GetUniqueNetworkFingerprint(const NetworkInfo& networkInfo)
-    {
-        return UniqueNetworkFingerprint(networkInfo.Identifier, networkInfo.GenerationHashSeed);
-    }
+	UniqueNetworkFingerprint GetUniqueNetworkFingerprint(const NetworkInfo& networkInfo) {
+		return UniqueNetworkFingerprint(networkInfo.Identifier, networkInfo.GenerationHashSeed);
+	}
 }
 }

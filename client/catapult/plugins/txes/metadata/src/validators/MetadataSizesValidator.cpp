@@ -24,22 +24,21 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MetadataSizesNotification;
+	using Notification = model::MetadataSizesNotification;
 
-    DECLARE_STATELESS_VALIDATOR(MetadataSizes, Notification)
-    (uint16_t maxValueSize)
-    {
-        return MAKE_STATELESS_VALIDATOR(MetadataSizes, [maxValueSize](const Notification& notification) {
-            // ValueSize cannot be zero because that implies cache entry value size is zero, which is not allowed
-            if (0 == notification.ValueSize)
-                return Failure_Metadata_Value_Too_Small;
+	DECLARE_STATELESS_VALIDATOR(MetadataSizes, Notification)
+	(uint16_t maxValueSize) {
+		return MAKE_STATELESS_VALIDATOR(MetadataSizes, [maxValueSize](const Notification& notification) {
+			// ValueSize cannot be zero because that implies cache entry value size is zero, which is not allowed
+			if (0 == notification.ValueSize)
+				return Failure_Metadata_Value_Too_Small;
 
-            // following comparison works because it is comparing int32_t and uint16_t
-            if (std::abs(static_cast<int32_t>(notification.ValueSizeDelta)) > notification.ValueSize)
-                return Failure_Metadata_Value_Size_Delta_Too_Large;
+			// following comparison works because it is comparing int32_t and uint16_t
+			if (std::abs(static_cast<int32_t>(notification.ValueSizeDelta)) > notification.ValueSize)
+				return Failure_Metadata_Value_Size_Delta_Too_Large;
 
-            return notification.ValueSize > maxValueSize ? Failure_Metadata_Value_Too_Large : ValidationResult::Success;
-        });
-    }
+			return notification.ValueSize > maxValueSize ? Failure_Metadata_Value_Too_Large : ValidationResult::Success;
+		});
+	}
 }
 }

@@ -35,86 +35,80 @@ namespace catapult {
 #define TEST_CLASS NemesisBlockGeneratorIntegrityTests
 
 namespace {
-    constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
-    constexpr Amount Nemesis_Amount(9000000000ull / CountOf(test::Test_Network_Private_Keys) * 1000000ull);
+	constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
+	constexpr Amount Nemesis_Amount(9000000000ull / CountOf(test::Test_Network_Private_Keys) * 1000000ull);
 
-    bool VerifyNemesisNetworkTransactionSignature(const model::Transaction& transaction)
-    {
-        return extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).verify(transaction);
-    }
+	bool VerifyNemesisNetworkTransactionSignature(const model::Transaction& transaction) {
+		return extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).verify(transaction);
+	}
 }
 
-TEST(TEST_CLASS, CreateTransaction)
-{
-    // Arrange:
-    auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
-    auto recipient = crypto::KeyPair::FromString(test::Test_Network_Private_Keys[0]);
+TEST(TEST_CLASS, CreateTransaction) {
+	// Arrange:
+	auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
+	auto recipient = crypto::KeyPair::FromString(test::Test_Network_Private_Keys[0]);
 
-    // Act:
-    auto pTransaction = test::CreateTransferTransaction(signer, recipient.publicKey(), Amount(1234));
-    test::EntityDump(*pTransaction);
+	// Act:
+	auto pTransaction = test::CreateTransferTransaction(signer, recipient.publicKey(), Amount(1234));
+	test::EntityDump(*pTransaction);
 
-    // Assert:
-    EXPECT_TRUE(VerifyNemesisNetworkTransactionSignature(*pTransaction));
+	// Assert:
+	EXPECT_TRUE(VerifyNemesisNetworkTransactionSignature(*pTransaction));
 }
 
-TEST(TEST_CLASS, CreateNemesisBlockTransactions)
-{
-    // Arrange:
-    auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
+TEST(TEST_CLASS, CreateNemesisBlockTransactions) {
+	// Arrange:
+	auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
 
-    for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys) {
-        auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
+	for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys) {
+		auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
 
-        // Act:
-        auto pTransaction = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
+		// Act:
+		auto pTransaction = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
 #ifdef _DEBUG
-        test::EntityDump(*pTransaction);
+		test::EntityDump(*pTransaction);
 #endif
 
-        // Assert:
-        EXPECT_TRUE(VerifyNemesisNetworkTransactionSignature(*pTransaction));
-    }
+		// Assert:
+		EXPECT_TRUE(VerifyNemesisNetworkTransactionSignature(*pTransaction));
+	}
 }
 
 namespace {
-    auto CreateNemesisBlock()
-    {
-        auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
-        auto generationHashSeed = test::GetNemesisGenerationHashSeed();
+	auto CreateNemesisBlock() {
+		auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
+		auto generationHashSeed = test::GetNemesisGenerationHashSeed();
 
-        model::Transactions transactions;
-        for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys) {
-            auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
-            auto pTransfer = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
-            pTransfer->MaxFee = Amount(0);
-            extensions::TransactionExtensions(generationHashSeed).sign(signer, *pTransfer);
-            transactions.push_back(std::move(pTransfer));
-        }
+		model::Transactions transactions;
+		for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys) {
+			auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
+			auto pTransfer = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
+			pTransfer->MaxFee = Amount(0);
+			extensions::TransactionExtensions(generationHashSeed).sign(signer, *pTransfer);
+			transactions.push_back(std::move(pTransfer));
+		}
 
-        auto entityType = model::Entity_Type_Block_Normal;
-        model::PreviousBlockContext context;
-        context.GenerationHash = generationHashSeed.copyTo<GenerationHash>();
-        auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signer.publicKey(), transactions);
-        extensions::BlockExtensions(generationHashSeed).signFullBlock(signer, *pBlock);
-        return pBlock;
-    }
+		auto entityType = model::Entity_Type_Block_Normal;
+		model::PreviousBlockContext context;
+		context.GenerationHash = generationHashSeed.copyTo<GenerationHash>();
+		auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signer.publicKey(), transactions);
+		extensions::BlockExtensions(generationHashSeed).signFullBlock(signer, *pBlock);
+		return pBlock;
+	}
 
-    void VerifyNemesisBlock(const model::Block& block)
-    {
-        auto blockExtensions = extensions::BlockExtensions(test::GetNemesisGenerationHashSeed());
-        auto verifyResult = blockExtensions.verifyFullBlock(block);
-        EXPECT_EQ(extensions::VerifyFullBlockResult::Success, verifyResult);
-    }
+	void VerifyNemesisBlock(const model::Block& block) {
+		auto blockExtensions = extensions::BlockExtensions(test::GetNemesisGenerationHashSeed());
+		auto verifyResult = blockExtensions.verifyFullBlock(block);
+		EXPECT_EQ(extensions::VerifyFullBlockResult::Success, verifyResult);
+	}
 }
 
-TEST(TEST_CLASS, CreateNemesisBlock)
-{
-    // Act:
-    auto pBlock = CreateNemesisBlock();
-    test::EntityDump(*pBlock);
+TEST(TEST_CLASS, CreateNemesisBlock) {
+	// Act:
+	auto pBlock = CreateNemesisBlock();
+	test::EntityDump(*pBlock);
 
-    // Assert:
-    VerifyNemesisBlock(*pBlock);
+	// Assert:
+	VerifyNemesisBlock(*pBlock);
 }
 }

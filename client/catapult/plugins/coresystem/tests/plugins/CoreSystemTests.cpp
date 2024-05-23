@@ -27,109 +27,99 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        struct CoreSystemTraits {
-        public:
-            template <typename TAction>
-            static void RunTestAfterRegistration(TAction action)
-            {
-                // Arrange:
-                auto manager = test::CreatePluginManager();
-                RegisterCoreSystem(manager);
+	namespace {
+		struct CoreSystemTraits {
+		public:
+			template <typename TAction>
+			static void RunTestAfterRegistration(TAction action) {
+				// Arrange:
+				auto manager = test::CreatePluginManager();
+				RegisterCoreSystem(manager);
 
-                // Act:
-                action(manager);
-            }
+				// Act:
+				action(manager);
+			}
 
-        public:
-            static std::vector<model::EntityType> GetTransactionTypes()
-            {
-                return { model::Entity_Type_Voting_Key_Link, model::Entity_Type_Vrf_Key_Link };
-            }
+		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return { model::Entity_Type_Voting_Key_Link, model::Entity_Type_Vrf_Key_Link };
+			}
 
-            static std::vector<std::string> GetCacheNames()
-            {
-                return { "AccountStateCache", "BlockStatisticCache" };
-            }
+			static std::vector<std::string> GetCacheNames() {
+				return { "AccountStateCache", "BlockStatisticCache" };
+			}
 
-            static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes()
-            {
-                return { ionet::PacketType::Account_State_Path };
-            }
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Account_State_Path };
+			}
 
-            static std::vector<ionet::PacketType> GetDiagnosticPacketTypes()
-            {
-                return { ionet::PacketType::Account_Infos };
-            }
+			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
+				return { ionet::PacketType::Account_Infos };
+			}
 
-            static std::vector<std::string> GetDiagnosticCounterNames()
-            {
-                return { "ACNTST C", "ACNTST C HVA", "BLKDIF C" };
-            }
+			static std::vector<std::string> GetDiagnosticCounterNames() {
+				return { "ACNTST C", "ACNTST C HVA", "BLKDIF C" };
+			}
 
-            static std::vector<std::string> GetStatelessValidatorNames()
-            {
-                return { "ZeroAddressValidator",
-                    "ZeroPublicKeyValidator",
-                    "MaxTransactionsValidator",
-                    "NetworkValidator",
-                    "EntityVersionValidator",
-                    "TransactionFeeValidator",
-                    "KeyLinkActionValidator",
-                    "ZeroInternalPaddingValidator",
-                    "BlockTypeValidator",
+			static std::vector<std::string> GetStatelessValidatorNames() {
+				return { "ZeroAddressValidator",
+					"ZeroPublicKeyValidator",
+					"MaxTransactionsValidator",
+					"NetworkValidator",
+					"EntityVersionValidator",
+					"TransactionFeeValidator",
+					"KeyLinkActionValidator",
+					"ZeroInternalPaddingValidator",
+					"BlockTypeValidator",
 
-                    // key link transactions
-                    "VotingKeyLinkRangeValidator" };
-            }
+					// key link transactions
+					"VotingKeyLinkRangeValidator" };
+			}
 
-            static std::vector<std::string> GetStatefulValidatorNames()
-            {
-                return { "AddressValidator",
-                    "PublicKeyValidator",
-                    "DeadlineValidator",
-                    "NemesisSinkValidator",
-                    "EligibleHarvesterValidator",
-                    "BalanceDebitValidator",
-                    "BalanceTransferValidator",
-                    "ImportanceBlockValidator",
+			static std::vector<std::string> GetStatefulValidatorNames() {
+				return { "AddressValidator",
+					"PublicKeyValidator",
+					"DeadlineValidator",
+					"NemesisSinkValidator",
+					"EligibleHarvesterValidator",
+					"BalanceDebitValidator",
+					"BalanceTransferValidator",
+					"ImportanceBlockValidator",
 
-                    // key link transactions
-                    "VrfKeyLinkValidator",
-                    "VotingMultiKeyLinkValidator" };
-            }
+					// key link transactions
+					"VrfKeyLinkValidator",
+					"VotingMultiKeyLinkValidator" };
+			}
 
-            static std::vector<std::string> GetObserverNames()
-            {
-                auto names = GetPermanentObserverNames();
+			static std::vector<std::string> GetObserverNames() {
+				auto names = GetPermanentObserverNames();
 
-                // transient observers
-                names.push_back("HighValueAccountCommitObserver");
-                names.push_back("RecalculateImportancesObserver");
-                names.push_back("HighValueAccountRollbackObserver");
-                names.push_back("BlockStatisticObserver");
-                return names;
-            }
+				// transient observers
+				names.push_back("HighValueAccountCommitObserver");
+				names.push_back("RecalculateImportancesObserver");
+				names.push_back("HighValueAccountRollbackObserver");
+				names.push_back("BlockStatisticObserver");
+				return names;
+			}
 
-            static std::vector<std::string> GetPermanentObserverNames()
-            {
-                return { "SourceChangeObserver",
-                    "AccountAddressObserver",
-                    "AccountPublicKeyObserver",
-                    "BalanceDebitObserver",
-                    "BalanceTransferObserver",
-                    "BeneficiaryObserver",
-                    "TransactionFeeActivityObserver",
-                    "HarvestFeeObserver",
-                    "TotalTransactionsObserver",
+			static std::vector<std::string> GetPermanentObserverNames() {
+				return { "SourceChangeObserver",
+					"AccountAddressObserver",
+					"AccountPublicKeyObserver",
+					"BalanceDebitObserver",
+					"BalanceTransferObserver",
+					"BeneficiaryObserver",
+					"TransactionFeeActivityObserver",
+					"HarvestFeeObserver",
+					"TotalTransactionsObserver",
 
-                    // key link transactions
-                    "VrfKeyLinkObserver",
-                    "VotingMultiKeyLinkObserver" };
-            }
-        };
-    }
+					// key link transactions
+					"VrfKeyLinkObserver",
+					"VotingMultiKeyLinkObserver" };
+			}
+		};
+	}
 
-    DEFINE_PLUGIN_TESTS(CoreSystemTests, CoreSystemTraits)
+	DEFINE_PLUGIN_TESTS(CoreSystemTests, CoreSystemTraits)
 }
 }

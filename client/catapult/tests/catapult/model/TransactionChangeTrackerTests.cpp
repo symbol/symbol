@@ -29,233 +29,218 @@ namespace model {
 
 #define TEST_CLASS TransactionChangeTrackerTests
 
-    namespace {
-        // unlike test::ExtractHashes, this function extracts hashes into a HashSet
-        template <typename TTransactionInfos>
-        utils::HashSet ExtractHashes(const TTransactionInfos& transactionInfos)
-        {
-            utils::HashSet hashes;
-            for (const auto& transactionInfo : transactionInfos)
-                hashes.emplace(transactionInfo.EntityHash);
+	namespace {
+		// unlike test::ExtractHashes, this function extracts hashes into a HashSet
+		template <typename TTransactionInfos>
+		utils::HashSet ExtractHashes(const TTransactionInfos& transactionInfos) {
+			utils::HashSet hashes;
+			for (const auto& transactionInfo : transactionInfos)
+				hashes.emplace(transactionInfo.EntityHash);
 
-            return hashes;
-        }
-    }
+			return hashes;
+		}
+	}
 
-    TEST(TEST_CLASS, TrackerInitiallyHasNoChanges)
-    {
-        // Act:
-        TransactionChangeTracker tracker;
+	TEST(TEST_CLASS, TrackerInitiallyHasNoChanges) {
+		// Act:
+		TransactionChangeTracker tracker;
 
-        // Assert:
-        EXPECT_TRUE(tracker.addedTransactionInfos().empty());
-        EXPECT_TRUE(tracker.removedTransactionInfos().empty());
-    }
+		// Assert:
+		EXPECT_TRUE(tracker.addedTransactionInfos().empty());
+		EXPECT_TRUE(tracker.removedTransactionInfos().empty());
+	}
 
-    // region add
+	// region add
 
-    namespace {
-        void AssertCanAddTransactionInfos(size_t count)
-        {
-            // Arrange:
-            TransactionChangeTracker tracker;
-            auto transactionInfos = test::CreateTransactionInfos(count);
+	namespace {
+		void AssertCanAddTransactionInfos(size_t count) {
+			// Arrange:
+			TransactionChangeTracker tracker;
+			auto transactionInfos = test::CreateTransactionInfos(count);
 
-            // Act:
-            for (const auto& transactionInfo : transactionInfos)
-                tracker.add(transactionInfo);
+			// Act:
+			for (const auto& transactionInfo : transactionInfos)
+				tracker.add(transactionInfo);
 
-            // Assert:
-            EXPECT_EQ(count, tracker.addedTransactionInfos().size());
-            EXPECT_EQ(ExtractHashes(transactionInfos), ExtractHashes(tracker.addedTransactionInfos()));
+			// Assert:
+			EXPECT_EQ(count, tracker.addedTransactionInfos().size());
+			EXPECT_EQ(ExtractHashes(transactionInfos), ExtractHashes(tracker.addedTransactionInfos()));
 
-            EXPECT_TRUE(tracker.removedTransactionInfos().empty());
-        }
-    }
+			EXPECT_TRUE(tracker.removedTransactionInfos().empty());
+		}
+	}
 
-    TEST(TEST_CLASS, CanAddSingleTransaction)
-    {
-        AssertCanAddTransactionInfos(1);
-    }
+	TEST(TEST_CLASS, CanAddSingleTransaction) {
+		AssertCanAddTransactionInfos(1);
+	}
 
-    TEST(TEST_CLASS, CanAddMultipleTransactions)
-    {
-        AssertCanAddTransactionInfos(3);
-    }
+	TEST(TEST_CLASS, CanAddMultipleTransactions) {
+		AssertCanAddTransactionInfos(3);
+	}
 
-    TEST(TEST_CLASS, RedundantAddsAreCollapsed)
-    {
-        // Arrange:
-        TransactionChangeTracker tracker;
-        auto transactionInfos = test::CreateTransactionInfos(3);
+	TEST(TEST_CLASS, RedundantAddsAreCollapsed) {
+		// Arrange:
+		TransactionChangeTracker tracker;
+		auto transactionInfos = test::CreateTransactionInfos(3);
 
-        // Act: add all infos twice
-        for (const auto& transactionInfo : transactionInfos)
-            tracker.add(transactionInfo);
+		// Act: add all infos twice
+		for (const auto& transactionInfo : transactionInfos)
+			tracker.add(transactionInfo);
 
-        for (const auto& transactionInfo : transactionInfos)
-            tracker.add(transactionInfo);
+		for (const auto& transactionInfo : transactionInfos)
+			tracker.add(transactionInfo);
 
-        // Assert: each info is only reported once
-        EXPECT_EQ(3u, tracker.addedTransactionInfos().size());
-        EXPECT_EQ(ExtractHashes(transactionInfos), ExtractHashes(tracker.addedTransactionInfos()));
+		// Assert: each info is only reported once
+		EXPECT_EQ(3u, tracker.addedTransactionInfos().size());
+		EXPECT_EQ(ExtractHashes(transactionInfos), ExtractHashes(tracker.addedTransactionInfos()));
 
-        EXPECT_TRUE(tracker.removedTransactionInfos().empty());
-    }
+		EXPECT_TRUE(tracker.removedTransactionInfos().empty());
+	}
 
-    // endregion
+	// endregion
 
-    // region remove
+	// region remove
 
-    namespace {
-        void AssertCanRemoveTransactionInfos(size_t count)
-        {
-            // Arrange:
-            TransactionChangeTracker tracker;
-            auto transactionInfos = test::CreateTransactionInfos(count);
+	namespace {
+		void AssertCanRemoveTransactionInfos(size_t count) {
+			// Arrange:
+			TransactionChangeTracker tracker;
+			auto transactionInfos = test::CreateTransactionInfos(count);
 
-            // Act:
-            for (const auto& transactionInfo : transactionInfos)
-                tracker.remove(transactionInfo);
+			// Act:
+			for (const auto& transactionInfo : transactionInfos)
+				tracker.remove(transactionInfo);
 
-            // Assert:
-            EXPECT_TRUE(tracker.addedTransactionInfos().empty());
+			// Assert:
+			EXPECT_TRUE(tracker.addedTransactionInfos().empty());
 
-            EXPECT_EQ(count, tracker.removedTransactionInfos().size());
-            EXPECT_EQ(ExtractHashes(transactionInfos), ExtractHashes(tracker.removedTransactionInfos()));
-        }
-    }
+			EXPECT_EQ(count, tracker.removedTransactionInfos().size());
+			EXPECT_EQ(ExtractHashes(transactionInfos), ExtractHashes(tracker.removedTransactionInfos()));
+		}
+	}
 
-    TEST(TEST_CLASS, CanRemoveSingleTransaction)
-    {
-        AssertCanRemoveTransactionInfos(1);
-    }
+	TEST(TEST_CLASS, CanRemoveSingleTransaction) {
+		AssertCanRemoveTransactionInfos(1);
+	}
 
-    TEST(TEST_CLASS, CanRemoveMultipleTransactions)
-    {
-        AssertCanRemoveTransactionInfos(3);
-    }
+	TEST(TEST_CLASS, CanRemoveMultipleTransactions) {
+		AssertCanRemoveTransactionInfos(3);
+	}
 
-    TEST(TEST_CLASS, RedundantRemovesAreCollapsed)
-    {
-        // Arrange:
-        TransactionChangeTracker tracker;
-        auto transactionInfos = test::CreateTransactionInfos(3);
+	TEST(TEST_CLASS, RedundantRemovesAreCollapsed) {
+		// Arrange:
+		TransactionChangeTracker tracker;
+		auto transactionInfos = test::CreateTransactionInfos(3);
 
-        // Act: remove all infos twice
-        for (const auto& transactionInfo : transactionInfos)
-            tracker.remove(transactionInfo);
+		// Act: remove all infos twice
+		for (const auto& transactionInfo : transactionInfos)
+			tracker.remove(transactionInfo);
 
-        for (const auto& transactionInfo : transactionInfos)
-            tracker.remove(transactionInfo);
+		for (const auto& transactionInfo : transactionInfos)
+			tracker.remove(transactionInfo);
 
-        // Assert: each info is only reported once
-        EXPECT_TRUE(tracker.addedTransactionInfos().empty());
+		// Assert: each info is only reported once
+		EXPECT_TRUE(tracker.addedTransactionInfos().empty());
 
-        EXPECT_EQ(3u, tracker.removedTransactionInfos().size());
-        EXPECT_EQ(ExtractHashes(transactionInfos), ExtractHashes(tracker.removedTransactionInfos()));
-    }
+		EXPECT_EQ(3u, tracker.removedTransactionInfos().size());
+		EXPECT_EQ(ExtractHashes(transactionInfos), ExtractHashes(tracker.removedTransactionInfos()));
+	}
 
-    // endregion
+	// endregion
 
-    // region add + remove
+	// region add + remove
 
-    namespace {
-        void SeedTracker(
-            TransactionChangeTracker& tracker,
-            const std::vector<TransactionInfo>& addedInfos,
-            const std::vector<TransactionInfo>& removedInfos)
-        {
-            for (const auto& info : addedInfos)
-                tracker.add(info);
+	namespace {
+		void SeedTracker(
+			TransactionChangeTracker& tracker,
+			const std::vector<TransactionInfo>& addedInfos,
+			const std::vector<TransactionInfo>& removedInfos) {
+			for (const auto& info : addedInfos)
+				tracker.add(info);
 
-            for (const auto& info : removedInfos)
-                tracker.remove(info);
-        }
-    }
+			for (const auto& info : removedInfos)
+				tracker.remove(info);
+		}
+	}
 
-    TEST(TEST_CLASS, CanAddAndRemoveMultipleTransactions)
-    {
-        // Arrange:
-        TransactionChangeTracker tracker;
-        auto addedInfos = test::CreateTransactionInfos(4);
-        auto removedInfos = test::CreateTransactionInfos(3);
+	TEST(TEST_CLASS, CanAddAndRemoveMultipleTransactions) {
+		// Arrange:
+		TransactionChangeTracker tracker;
+		auto addedInfos = test::CreateTransactionInfos(4);
+		auto removedInfos = test::CreateTransactionInfos(3);
 
-        // Act:
-        SeedTracker(tracker, addedInfos, removedInfos);
+		// Act:
+		SeedTracker(tracker, addedInfos, removedInfos);
 
-        // Assert:
-        EXPECT_EQ(4u, tracker.addedTransactionInfos().size());
-        EXPECT_EQ(ExtractHashes(addedInfos), ExtractHashes(tracker.addedTransactionInfos()));
+		// Assert:
+		EXPECT_EQ(4u, tracker.addedTransactionInfos().size());
+		EXPECT_EQ(ExtractHashes(addedInfos), ExtractHashes(tracker.addedTransactionInfos()));
 
-        EXPECT_EQ(3u, tracker.removedTransactionInfos().size());
-        EXPECT_EQ(ExtractHashes(removedInfos), ExtractHashes(tracker.removedTransactionInfos()));
-    }
+		EXPECT_EQ(3u, tracker.removedTransactionInfos().size());
+		EXPECT_EQ(ExtractHashes(removedInfos), ExtractHashes(tracker.removedTransactionInfos()));
+	}
 
-    TEST(TEST_CLASS, CanAddRemovedTransaction)
-    {
-        // Arrange:
-        TransactionChangeTracker tracker;
-        auto addedInfos = test::CreateTransactionInfos(4);
-        auto removedInfos = test::CreateTransactionInfos(3);
-        SeedTracker(tracker, addedInfos, removedInfos);
+	TEST(TEST_CLASS, CanAddRemovedTransaction) {
+		// Arrange:
+		TransactionChangeTracker tracker;
+		auto addedInfos = test::CreateTransactionInfos(4);
+		auto removedInfos = test::CreateTransactionInfos(3);
+		SeedTracker(tracker, addedInfos, removedInfos);
 
-        // Act: add a transaction that was removed
-        tracker.add(removedInfos[1]);
+		// Act: add a transaction that was removed
+		tracker.add(removedInfos[1]);
 
-        // Assert:
-        EXPECT_EQ(4u, tracker.addedTransactionInfos().size());
-        EXPECT_EQ(ExtractHashes(addedInfos), ExtractHashes(tracker.addedTransactionInfos()));
+		// Assert:
+		EXPECT_EQ(4u, tracker.addedTransactionInfos().size());
+		EXPECT_EQ(ExtractHashes(addedInfos), ExtractHashes(tracker.addedTransactionInfos()));
 
-        EXPECT_EQ(2u, tracker.removedTransactionInfos().size());
-        removedInfos.erase(removedInfos.begin() + 1); // remove from the original before extracting hashes
-        EXPECT_EQ(ExtractHashes(removedInfos), ExtractHashes(tracker.removedTransactionInfos()));
-    }
+		EXPECT_EQ(2u, tracker.removedTransactionInfos().size());
+		removedInfos.erase(removedInfos.begin() + 1); // remove from the original before extracting hashes
+		EXPECT_EQ(ExtractHashes(removedInfos), ExtractHashes(tracker.removedTransactionInfos()));
+	}
 
-    TEST(TEST_CLASS, CanRemoveAddedTransaction)
-    {
-        // Arrange:
-        TransactionChangeTracker tracker;
-        auto addedInfos = test::CreateTransactionInfos(4);
-        auto removedInfos = test::CreateTransactionInfos(3);
-        SeedTracker(tracker, addedInfos, removedInfos);
+	TEST(TEST_CLASS, CanRemoveAddedTransaction) {
+		// Arrange:
+		TransactionChangeTracker tracker;
+		auto addedInfos = test::CreateTransactionInfos(4);
+		auto removedInfos = test::CreateTransactionInfos(3);
+		SeedTracker(tracker, addedInfos, removedInfos);
 
-        // Act: remove a transaction that was added
-        tracker.remove(addedInfos[2]);
+		// Act: remove a transaction that was added
+		tracker.remove(addedInfos[2]);
 
-        // Assert:
-        EXPECT_EQ(3u, tracker.addedTransactionInfos().size());
-        addedInfos.erase(addedInfos.begin() + 2); // remove from the original before extracting hashes
-        EXPECT_EQ(ExtractHashes(addedInfos), ExtractHashes(tracker.addedTransactionInfos()));
+		// Assert:
+		EXPECT_EQ(3u, tracker.addedTransactionInfos().size());
+		addedInfos.erase(addedInfos.begin() + 2); // remove from the original before extracting hashes
+		EXPECT_EQ(ExtractHashes(addedInfos), ExtractHashes(tracker.addedTransactionInfos()));
 
-        EXPECT_EQ(3u, tracker.removedTransactionInfos().size());
-        EXPECT_EQ(ExtractHashes(removedInfos), ExtractHashes(tracker.removedTransactionInfos()));
-    }
+		EXPECT_EQ(3u, tracker.removedTransactionInfos().size());
+		EXPECT_EQ(ExtractHashes(removedInfos), ExtractHashes(tracker.removedTransactionInfos()));
+	}
 
-    // endregion
+	// endregion
 
-    // region reset
+	// region reset
 
-    TEST(TEST_CLASS, ResetClearsTrackedChanges)
-    {
-        // Arrange:
-        TransactionChangeTracker tracker;
-        auto addedInfos = test::CreateTransactionInfos(4);
-        auto removedInfos = test::CreateTransactionInfos(3);
-        SeedTracker(tracker, addedInfos, removedInfos);
+	TEST(TEST_CLASS, ResetClearsTrackedChanges) {
+		// Arrange:
+		TransactionChangeTracker tracker;
+		auto addedInfos = test::CreateTransactionInfos(4);
+		auto removedInfos = test::CreateTransactionInfos(3);
+		SeedTracker(tracker, addedInfos, removedInfos);
 
-        // Sanity:
-        EXPECT_EQ(4u, tracker.addedTransactionInfos().size());
-        EXPECT_EQ(3u, tracker.removedTransactionInfos().size());
+		// Sanity:
+		EXPECT_EQ(4u, tracker.addedTransactionInfos().size());
+		EXPECT_EQ(3u, tracker.removedTransactionInfos().size());
 
-        // Act:
-        tracker.reset();
+		// Act:
+		tracker.reset();
 
-        // Assert:
-        EXPECT_TRUE(tracker.addedTransactionInfos().empty());
-        EXPECT_TRUE(tracker.removedTransactionInfos().empty());
-    }
+		// Assert:
+		EXPECT_TRUE(tracker.addedTransactionInfos().empty());
+		EXPECT_TRUE(tracker.removedTransactionInfos().empty());
+	}
 
-    // endregion
+	// endregion
 }
 }

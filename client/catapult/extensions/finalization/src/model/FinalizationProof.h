@@ -29,37 +29,37 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Binary layout for a finalization proof header.
-    struct FinalizationProofHeader : public SizePrefixedEntity {
-    public:
-        /// Proof format version.
-        static constexpr uint8_t Current_Version = 1;
+	/// Binary layout for a finalization proof header.
+	struct FinalizationProofHeader : public SizePrefixedEntity {
+	public:
+		/// Proof format version.
+		static constexpr uint8_t Current_Version = 1;
 
-    public:
-        /// Proof version.
-        uint32_t Version;
+	public:
+		/// Proof version.
+		uint32_t Version;
 
-        /// Finalization round.
-        model::FinalizationRound Round;
+		/// Finalization round.
+		model::FinalizationRound Round;
 
-        /// Finalization height.
-        catapult::Height Height;
+		/// Finalization height.
+		catapult::Height Height;
 
-        /// Finalization hash.
-        Hash256 Hash;
-    };
+		/// Finalization hash.
+		Hash256 Hash;
+	};
 
-    DEFINE_SIZE_PREFIXED_ENTITY_CONTAINER(MessageGroup, MessageGroups)
+	DEFINE_SIZE_PREFIXED_ENTITY_CONTAINER(MessageGroup, MessageGroups)
 
-    /// Binary layout for a finalization proof.
-    struct FinalizationProof : public MessageGroupContainer<FinalizationProofHeader, FinalizationMessageGroup> { };
+	/// Binary layout for a finalization proof.
+	struct FinalizationProof : public MessageGroupContainer<FinalizationProofHeader, FinalizationMessageGroup> { };
 
 #pragma pack(pop)
 
-    /// Gets the number of bytes containing message group data according to \a header.
-    size_t GetMessageGroupPayloadSize(const FinalizationProofHeader& header);
+	/// Gets the number of bytes containing message group data according to \a header.
+	size_t GetMessageGroupPayloadSize(const FinalizationProofHeader& header);
 
-    /// Checks the real size of \a proof against its reported size and returns \c true if the sizes match.
-    bool IsSizeValid(const FinalizationProof& proof);
+	/// Checks the real size of \a proof against its reported size and returns \c true if the sizes match.
+	bool IsSizeValid(const FinalizationProof& proof);
 }
 }

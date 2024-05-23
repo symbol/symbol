@@ -28,20 +28,19 @@
 namespace catapult {
 namespace cache {
 
-    /// Cache composed of account restriction information.
-    using BasicAccountRestrictionCache = BasicCache<AccountRestrictionCacheDescriptor, AccountRestrictionCacheTypes::BaseSets, model::NetworkIdentifier>;
+	/// Cache composed of account restriction information.
+	using BasicAccountRestrictionCache = BasicCache<AccountRestrictionCacheDescriptor, AccountRestrictionCacheTypes::BaseSets, model::NetworkIdentifier>;
 
-    /// Synchronized cache composed of account restriction information.
-    class AccountRestrictionCache : public SynchronizedCache<BasicAccountRestrictionCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(AccountRestriction)
+	/// Synchronized cache composed of account restriction information.
+	class AccountRestrictionCache : public SynchronizedCache<BasicAccountRestrictionCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(AccountRestriction)
 
-    public:
-        /// Creates a cache around \a config and \a networkIdentifier.
-        AccountRestrictionCache(const CacheConfiguration& config, model::NetworkIdentifier networkIdentifier)
-            : SynchronizedCache<BasicAccountRestrictionCache>(BasicAccountRestrictionCache(config, std::move(networkIdentifier)))
-        {
-        }
-    };
+	public:
+		/// Creates a cache around \a config and \a networkIdentifier.
+		AccountRestrictionCache(const CacheConfiguration& config, model::NetworkIdentifier networkIdentifier)
+			: SynchronizedCache<BasicAccountRestrictionCache>(BasicAccountRestrictionCache(config, std::move(networkIdentifier))) {
+		}
+	};
 }
 }

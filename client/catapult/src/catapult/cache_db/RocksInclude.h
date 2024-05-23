@@ -28,8 +28,8 @@
 namespace catapult {
 namespace cache {
 
-    /// Maximum length of special keys that should not be pruned.
-    /// \note Value should be <= sizeof(uint64_t)
-    constexpr size_t Special_Key_Max_Length = 8;
+	/// Maximum length of special keys that should not be pruned.
+	/// \note Value should be <= sizeof(uint64_t)
+	constexpr size_t Special_Key_Max_Length = 8;
 }
 }

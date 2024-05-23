@@ -29,243 +29,222 @@ namespace importance {
 
 #define TEST_CLASS ActivityObserverUtilsTests
 
-    namespace {
-        constexpr auto Harvesting_Mosaic_Id = MosaicId(987);
-        constexpr auto Notification_Height = Height(100);
-        constexpr auto Importance_Height = model::ImportanceHeight(98);
+	namespace {
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(987);
+		constexpr auto Notification_Height = Height(100);
+		constexpr auto Importance_Height = model::ImportanceHeight(98);
 
-        // region test context
+		// region test context
 
-        class TestContext : public test::AccountObserverTestContext {
-        public:
-            TestContext(observers::NotifyMode notifyMode, Amount minHarvesterBalance)
-                : test::AccountObserverTestContext(
-                      notifyMode,
-                      Notification_Height,
-                      CreateBlockchainConfiguration(minHarvesterBalance))
-            {
-            }
+		class TestContext : public test::AccountObserverTestContext {
+		public:
+			TestContext(observers::NotifyMode notifyMode, Amount minHarvesterBalance)
+				: test::AccountObserverTestContext(
+					  notifyMode,
+					  Notification_Height,
+					  CreateBlockchainConfiguration(minHarvesterBalance)) {
+			}
 
-        public:
-            auto addAccount(const Address& address, Amount harvestingBalance)
-            {
-                auto& accountStateCache = cache().sub<cache::AccountStateCache>();
-                accountStateCache.addAccount(address, Height(123));
+		public:
+			auto addAccount(const Address& address, Amount harvestingBalance) {
+				auto& accountStateCache = cache().sub<cache::AccountStateCache>();
+				accountStateCache.addAccount(address, Height(123));
 
-                auto accountStateIter = accountStateCache.find(address);
-                accountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, harvestingBalance);
-                return accountStateIter;
-            }
+				auto accountStateIter = accountStateCache.find(address);
+				accountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, harvestingBalance);
+				return accountStateIter;
+			}
 
-        public:
-            void update(const Address& address)
-            {
-                auto commitAction = [](auto& bucket) { bucket.BeneficiaryCount += 2; };
-                auto rollbackAction = [](auto& bucket) { bucket.BeneficiaryCount -= 2; };
+		public:
+			void update(const Address& address) {
+				auto commitAction = [](auto& bucket) { bucket.BeneficiaryCount += 2; };
+				auto rollbackAction = [](auto& bucket) { bucket.BeneficiaryCount -= 2; };
 
-                UpdateActivity(address, observerContext(), commitAction, rollbackAction);
-            }
+				UpdateActivity(address, observerContext(), commitAction, rollbackAction);
+			}
 
-        private:
-            static model::BlockchainConfiguration CreateBlockchainConfiguration(Amount minHarvesterBalance)
-            {
-                auto config = model::BlockchainConfiguration::Uninitialized();
-                config.HarvestingMosaicId = Harvesting_Mosaic_Id;
-                config.ImportanceGrouping = 2;
-                config.MinHarvesterBalance = minHarvesterBalance;
-                return config;
-            }
-        };
+		private:
+			static model::BlockchainConfiguration CreateBlockchainConfiguration(Amount minHarvesterBalance) {
+				auto config = model::BlockchainConfiguration::Uninitialized();
+				config.HarvestingMosaicId = Harvesting_Mosaic_Id;
+				config.ImportanceGrouping = 2;
+				config.MinHarvesterBalance = minHarvesterBalance;
+				return config;
+			}
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    // region eligibility check
+	// region eligibility check
 
-    namespace {
-        void AssertUpdateActivityBypassesUpdateOfAccountThatCannotHarvest(observers::NotifyMode notifyMode)
-        {
-            // Arrange:
-            TestContext context(notifyMode, Amount(1000));
-            auto sender = test::GenerateRandomByteArray<Address>();
-            auto senderAccountStateIter = context.addAccount(sender, Amount(999));
+	namespace {
+		void AssertUpdateActivityBypassesUpdateOfAccountThatCannotHarvest(observers::NotifyMode notifyMode) {
+			// Arrange:
+			TestContext context(notifyMode, Amount(1000));
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(999));
 
-            // Act:
-            context.update(sender);
+			// Act:
+			context.update(sender);
 
-            // Assert: no bucket was created
-            const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
-            EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
-        }
-    }
+			// Assert: no bucket was created
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
+		}
+	}
 
-    TEST(TEST_CLASS, UpdateActivityBypassesUpdateOfAccountThatCannotHarvest_Commit)
-    {
-        AssertUpdateActivityBypassesUpdateOfAccountThatCannotHarvest(observers::NotifyMode::Commit);
-    }
+	TEST(TEST_CLASS, UpdateActivityBypassesUpdateOfAccountThatCannotHarvest_Commit) {
+		AssertUpdateActivityBypassesUpdateOfAccountThatCannotHarvest(observers::NotifyMode::Commit);
+	}
 
-    TEST(TEST_CLASS, UpdateActivityBypassesUpdateOfAccountThatCannotHarvest_Rollback)
-    {
-        AssertUpdateActivityBypassesUpdateOfAccountThatCannotHarvest(observers::NotifyMode::Rollback);
-    }
+	TEST(TEST_CLASS, UpdateActivityBypassesUpdateOfAccountThatCannotHarvest_Rollback) {
+		AssertUpdateActivityBypassesUpdateOfAccountThatCannotHarvest(observers::NotifyMode::Rollback);
+	}
 
-    // endregion
+	// endregion
 
-    // region basic update
+	// region basic update
 
-    namespace {
-        void AssertUpdateActivityUpdatesExistingBucket(observers::NotifyMode notifyMode, uint32_t expectedBeneficiaryCount)
-        {
-            // Arrange:
-            TestContext context(notifyMode, Amount(1000));
-            auto sender = test::GenerateRandomByteArray<Address>();
-            auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
-            senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [](auto& bucket) { bucket.BeneficiaryCount = 100; });
+	namespace {
+		void AssertUpdateActivityUpdatesExistingBucket(observers::NotifyMode notifyMode, uint32_t expectedBeneficiaryCount) {
+			// Arrange:
+			TestContext context(notifyMode, Amount(1000));
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
+			senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [](auto& bucket) { bucket.BeneficiaryCount = 100; });
 
-            // Act:
-            context.update(sender);
+			// Act:
+			context.update(sender);
 
-            // Assert: bucket was updated
-            const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
-            EXPECT_EQ(Importance_Height, activityBucket.StartHeight);
-            EXPECT_EQ(expectedBeneficiaryCount, activityBucket.BeneficiaryCount);
-        }
-    }
+			// Assert: bucket was updated
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			EXPECT_EQ(Importance_Height, activityBucket.StartHeight);
+			EXPECT_EQ(expectedBeneficiaryCount, activityBucket.BeneficiaryCount);
+		}
+	}
 
-    TEST(TEST_CLASS, UpdateActivityUpdatesExistingBucket_Commit)
-    {
-        AssertUpdateActivityUpdatesExistingBucket(observers::NotifyMode::Commit, 102);
-    }
+	TEST(TEST_CLASS, UpdateActivityUpdatesExistingBucket_Commit) {
+		AssertUpdateActivityUpdatesExistingBucket(observers::NotifyMode::Commit, 102);
+	}
 
-    TEST(TEST_CLASS, UpdateActivityUpdatesExistingBucket_Rollback)
-    {
-        AssertUpdateActivityUpdatesExistingBucket(observers::NotifyMode::Rollback, 98);
-    }
+	TEST(TEST_CLASS, UpdateActivityUpdatesExistingBucket_Rollback) {
+		AssertUpdateActivityUpdatesExistingBucket(observers::NotifyMode::Rollback, 98);
+	}
 
-    // endregion
+	// endregion
 
-    // region bucket creation
+	// region bucket creation
 
-    namespace {
-        void AssertUpdateActivityDoesNotCreateNewBucket(observers::NotifyMode notifyMode)
-        {
-            // Arrange:
-            TestContext context(notifyMode, Amount(1000));
-            auto sender = test::GenerateRandomByteArray<Address>();
-            auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
+	namespace {
+		void AssertUpdateActivityDoesNotCreateNewBucket(observers::NotifyMode notifyMode) {
+			// Arrange:
+			TestContext context(notifyMode, Amount(1000));
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
 
-            // Act:
-            context.update(sender);
+			// Act:
+			context.update(sender);
 
-            // Assert: bucket was not created
-            const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
-            EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
-        }
-    }
+			// Assert: bucket was not created
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
+		}
+	}
 
-    TEST(TEST_CLASS, UpdateActivityCommitDoesNotCreateNewBucket)
-    {
-        AssertUpdateActivityDoesNotCreateNewBucket(observers::NotifyMode::Commit);
-    }
+	TEST(TEST_CLASS, UpdateActivityCommitDoesNotCreateNewBucket) {
+		AssertUpdateActivityDoesNotCreateNewBucket(observers::NotifyMode::Commit);
+	}
 
-    TEST(TEST_CLASS, UpdateActivityRollbackDoesNotCreateNewBucket)
-    {
-        AssertUpdateActivityDoesNotCreateNewBucket(observers::NotifyMode::Rollback);
-    }
+	TEST(TEST_CLASS, UpdateActivityRollbackDoesNotCreateNewBucket) {
+		AssertUpdateActivityDoesNotCreateNewBucket(observers::NotifyMode::Rollback);
+	}
 
-    // endregion
+	// endregion
 
-    // region bucket removal
+	// region bucket removal
 
-    namespace {
-        size_t CountNonzeroFields(const state::AccountActivityBuckets::ActivityBucket& activityBucket)
-        {
-            return (Amount() != activityBucket.TotalFeesPaid ? 1 : 0) + (0u != activityBucket.BeneficiaryCount ? 1 : 0)
-                + (0u != activityBucket.RawScore ? 1 : 0);
-        }
+	namespace {
+		size_t CountNonzeroFields(const state::AccountActivityBuckets::ActivityBucket& activityBucket) {
+			return (Amount() != activityBucket.TotalFeesPaid ? 1 : 0) + (0u != activityBucket.BeneficiaryCount ? 1 : 0)
+				+ (0u != activityBucket.RawScore ? 1 : 0);
+		}
 
-        void AssertUpdateActivityDoesNotRemoveZeroBucket(observers::NotifyMode notifyMode, uint32_t initialBeneficiaryCount)
-        {
-            // Arrange:
-            TestContext context(notifyMode, Amount(1000));
-            auto sender = test::GenerateRandomByteArray<Address>();
-            auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
-            senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [initialBeneficiaryCount](auto& bucket) {
-                bucket.BeneficiaryCount = initialBeneficiaryCount;
-            });
+		void AssertUpdateActivityDoesNotRemoveZeroBucket(observers::NotifyMode notifyMode, uint32_t initialBeneficiaryCount) {
+			// Arrange:
+			TestContext context(notifyMode, Amount(1000));
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
+			senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [initialBeneficiaryCount](auto& bucket) {
+				bucket.BeneficiaryCount = initialBeneficiaryCount;
+			});
 
-            // Act:
-            context.update(sender);
+			// Act:
+			context.update(sender);
 
-            // Assert: bucket was updated
-            const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
-            EXPECT_EQ(Importance_Height, activityBucket.StartHeight);
-            EXPECT_EQ(0u, activityBucket.BeneficiaryCount);
-            EXPECT_EQ(0u, CountNonzeroFields(activityBucket));
-        }
-    }
+			// Assert: bucket was updated
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			EXPECT_EQ(Importance_Height, activityBucket.StartHeight);
+			EXPECT_EQ(0u, activityBucket.BeneficiaryCount);
+			EXPECT_EQ(0u, CountNonzeroFields(activityBucket));
+		}
+	}
 
-    TEST(TEST_CLASS, UpdateActivityCommitDoesNotRemoveZeroBucket)
-    {
-        auto initialBeneficiaryCount = std::numeric_limits<uint32_t>::max() - 1; // max - 1 + 2 == 0
-        AssertUpdateActivityDoesNotRemoveZeroBucket(observers::NotifyMode::Commit, initialBeneficiaryCount);
-    }
+	TEST(TEST_CLASS, UpdateActivityCommitDoesNotRemoveZeroBucket) {
+		auto initialBeneficiaryCount = std::numeric_limits<uint32_t>::max() - 1; // max - 1 + 2 == 0
+		AssertUpdateActivityDoesNotRemoveZeroBucket(observers::NotifyMode::Commit, initialBeneficiaryCount);
+	}
 
-    TEST(TEST_CLASS, UpdateActivityRollbackDoesNotRemoveZeroBucket)
-    {
-        AssertUpdateActivityDoesNotRemoveZeroBucket(observers::NotifyMode::Rollback, 2);
-    }
+	TEST(TEST_CLASS, UpdateActivityRollbackDoesNotRemoveZeroBucket) {
+		AssertUpdateActivityDoesNotRemoveZeroBucket(observers::NotifyMode::Rollback, 2);
+	}
 
-    namespace {
-        void AssertUpdateActivityDoesNotRemoveNonzeroBucket(
-            observers::NotifyMode notifyMode,
-            uint32_t initialBeneficiaryCount,
-            const char* message,
-            const ActivityBucketConsumer& updateBucket)
-        {
-            // Arrange:
-            TestContext context(notifyMode, Amount(1000));
-            auto sender = test::GenerateRandomByteArray<Address>();
-            auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
-            senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [initialBeneficiaryCount, updateBucket](auto& bucket) {
-                bucket.BeneficiaryCount = initialBeneficiaryCount;
-                updateBucket(bucket);
-            });
+	namespace {
+		void AssertUpdateActivityDoesNotRemoveNonzeroBucket(
+			observers::NotifyMode notifyMode,
+			uint32_t initialBeneficiaryCount,
+			const char* message,
+			const ActivityBucketConsumer& updateBucket) {
+			// Arrange:
+			TestContext context(notifyMode, Amount(1000));
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
+			senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [initialBeneficiaryCount, updateBucket](auto& bucket) {
+				bucket.BeneficiaryCount = initialBeneficiaryCount;
+				updateBucket(bucket);
+			});
 
-            // Act:
-            context.update(sender);
+			// Act:
+			context.update(sender);
 
-            // Assert: bucket was updated
-            const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
-            EXPECT_EQ(Importance_Height, activityBucket.StartHeight) << message;
-            EXPECT_EQ(1u, CountNonzeroFields(activityBucket)) << message;
-        }
+			// Assert: bucket was updated
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			EXPECT_EQ(Importance_Height, activityBucket.StartHeight) << message;
+			EXPECT_EQ(1u, CountNonzeroFields(activityBucket)) << message;
+		}
 
-        void AssertUpdateActivityDoesNotRemoveNonzeroBucketAll(observers::NotifyMode notifyMode, uint32_t initialBeneficiaryCount)
-        {
-            AssertUpdateActivityDoesNotRemoveNonzeroBucket(notifyMode, initialBeneficiaryCount, "TotalFeesPaid", [](auto& bucket) {
-                bucket.TotalFeesPaid = bucket.TotalFeesPaid + Amount(1);
-            });
-            AssertUpdateActivityDoesNotRemoveNonzeroBucket(notifyMode, initialBeneficiaryCount, "BeneficiaryCount", [](auto& bucket) {
-                ++bucket.BeneficiaryCount;
-            });
-            AssertUpdateActivityDoesNotRemoveNonzeroBucket(notifyMode, initialBeneficiaryCount, "RawScore", [](auto& bucket) {
-                ++bucket.RawScore;
-            });
-        }
-    }
+		void AssertUpdateActivityDoesNotRemoveNonzeroBucketAll(observers::NotifyMode notifyMode, uint32_t initialBeneficiaryCount) {
+			AssertUpdateActivityDoesNotRemoveNonzeroBucket(notifyMode, initialBeneficiaryCount, "TotalFeesPaid", [](auto& bucket) {
+				bucket.TotalFeesPaid = bucket.TotalFeesPaid + Amount(1);
+			});
+			AssertUpdateActivityDoesNotRemoveNonzeroBucket(notifyMode, initialBeneficiaryCount, "BeneficiaryCount", [](auto& bucket) {
+				++bucket.BeneficiaryCount;
+			});
+			AssertUpdateActivityDoesNotRemoveNonzeroBucket(notifyMode, initialBeneficiaryCount, "RawScore", [](auto& bucket) {
+				++bucket.RawScore;
+			});
+		}
+	}
 
-    TEST(TEST_CLASS, UpdateActivityCommitDoesNotRemoveNonzeroBucket)
-    {
-        auto initialBeneficiaryCount = std::numeric_limits<uint32_t>::max() - 1; // max - 1 + 2 == 0
-        AssertUpdateActivityDoesNotRemoveNonzeroBucketAll(observers::NotifyMode::Commit, initialBeneficiaryCount);
-    }
+	TEST(TEST_CLASS, UpdateActivityCommitDoesNotRemoveNonzeroBucket) {
+		auto initialBeneficiaryCount = std::numeric_limits<uint32_t>::max() - 1; // max - 1 + 2 == 0
+		AssertUpdateActivityDoesNotRemoveNonzeroBucketAll(observers::NotifyMode::Commit, initialBeneficiaryCount);
+	}
 
-    TEST(TEST_CLASS, UpdateActivityRollbackDoesNotRemoveNonzeroBucket)
-    {
-        AssertUpdateActivityDoesNotRemoveNonzeroBucketAll(observers::NotifyMode::Rollback, 2);
-    }
+	TEST(TEST_CLASS, UpdateActivityRollbackDoesNotRemoveNonzeroBucket) {
+		AssertUpdateActivityDoesNotRemoveNonzeroBucketAll(observers::NotifyMode::Rollback, 2);
+	}
 
-    // endregion
+	// endregion
 }
 }

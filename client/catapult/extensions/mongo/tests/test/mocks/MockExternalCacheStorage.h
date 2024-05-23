@@ -26,38 +26,34 @@
 namespace catapult {
 namespace mocks {
 
-    /// Simple mock external cache storage implementation.
-    template <size_t CacheId>
-    class MockExternalCacheStorage final : public mongo::ExternalCacheStorageT<test::SimpleCacheT<CacheId>> {
-    public:
-        /// Creates a mock external cache storage.
-        MockExternalCacheStorage()
-            : m_numSaveDeltaCalls(0)
-        {
-        }
+	/// Simple mock external cache storage implementation.
+	template <size_t CacheId>
+	class MockExternalCacheStorage final : public mongo::ExternalCacheStorageT<test::SimpleCacheT<CacheId>> {
+	public:
+		/// Creates a mock external cache storage.
+		MockExternalCacheStorage()
+			: m_numSaveDeltaCalls(0) {
+		}
 
-    private:
-        void saveDelta(const cache::SingleCacheChangesT<test::SimpleCacheDelta, uint64_t>&) override
-        {
-            ++m_numSaveDeltaCalls;
-        }
+	private:
+		void saveDelta(const cache::SingleCacheChangesT<test::SimpleCacheDelta, uint64_t>&) override {
+			++m_numSaveDeltaCalls;
+		}
 
-    public:
-        /// Gets the number of save delta calls.
-        size_t numSaveDeltaCalls() const
-        {
-            return m_numSaveDeltaCalls;
-        }
+	public:
+		/// Gets the number of save delta calls.
+		size_t numSaveDeltaCalls() const {
+			return m_numSaveDeltaCalls;
+		}
 
-        /// Gets the last chain height seen in load all.
-        Height chainHeight() const
-        {
-            return m_chainHeight;
-        }
+		/// Gets the last chain height seen in load all.
+		Height chainHeight() const {
+			return m_chainHeight;
+		}
 
-    private:
-        size_t m_numSaveDeltaCalls;
-        mutable Height m_chainHeight;
-    };
+	private:
+		size_t m_numSaveDeltaCalls;
+		mutable Height m_chainHeight;
+	};
 }
 }

@@ -26,23 +26,23 @@
 namespace catapult {
 namespace crypto {
 
-    /// Builder for calculating an insecure, incomplete merkle-like hash.
-    /// This replicates an insecure merkle hash algorithm used in the original TS SDK.
-    /// It is only for backwards compatability and should not be used in any new code.
-    class InvalidMerkleHashBuilder {
-    public:
-        /// Creates a new merkle hash builder with the specified initial \a capacity.
-        explicit InvalidMerkleHashBuilder(size_t capacity = 0);
+	/// Builder for calculating an insecure, incomplete merkle-like hash.
+	/// This replicates an insecure merkle hash algorithm used in the original TS SDK.
+	/// It is only for backwards compatability and should not be used in any new code.
+	class InvalidMerkleHashBuilder {
+	public:
+		/// Creates a new merkle hash builder with the specified initial \a capacity.
+		explicit InvalidMerkleHashBuilder(size_t capacity = 0);
 
-    public:
-        /// Adds \a hash to the merkle hash.
-        void update(const Hash256& hash);
+	public:
+		/// Adds \a hash to the merkle hash.
+		void update(const Hash256& hash);
 
-        /// Finalizes the merkle hash into \a hash.
-        void final(Hash256& hash);
+		/// Finalizes the merkle hash into \a hash.
+		void final(Hash256& hash);
 
-    private:
-        std::vector<Hash256> m_hashes;
-    };
+	private:
+		std::vector<Hash256> m_hashes;
+	};
 }
 }

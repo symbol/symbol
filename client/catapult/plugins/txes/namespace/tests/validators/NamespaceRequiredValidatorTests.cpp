@@ -32,116 +32,108 @@ namespace validators {
 
 #define TEST_CLASS RequiredNamespaceValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(RequiredNamespace, )
+	DEFINE_COMMON_VALIDATOR_TESTS(RequiredNamespace, )
 
-    namespace {
-        constexpr auto Default_Namespace_Id = NamespaceId(123);
-        constexpr auto Grace_Period_Duration = BlockDuration(100);
+	namespace {
+		constexpr auto Default_Namespace_Id = NamespaceId(123);
+		constexpr auto Grace_Period_Duration = BlockDuration(100);
 
-        template <typename TSeedCacheFunc>
-        auto CreateAndSeedCache(TSeedCacheFunc seedCache)
-        {
-            auto cache = test::NamespaceCacheFactory::Create(Grace_Period_Duration);
-            auto cacheDelta = cache.createDelta();
-            auto& namespaceCacheDelta = cacheDelta.sub<cache::NamespaceCache>();
-            seedCache(namespaceCacheDelta);
-            cache.commit(Height());
-            return cache;
-        }
+		template <typename TSeedCacheFunc>
+		auto CreateAndSeedCache(TSeedCacheFunc seedCache) {
+			auto cache = test::NamespaceCacheFactory::Create(Grace_Period_Duration);
+			auto cacheDelta = cache.createDelta();
+			auto& namespaceCacheDelta = cacheDelta.sub<cache::NamespaceCache>();
+			seedCache(namespaceCacheDelta);
+			cache.commit(Height());
+			return cache;
+		}
 
-        template <typename TSeedCacheFunc>
-        void RunAvailabilityTest(
-            ValidationResult expectedResult,
-            const NamespaceRequiredNotification& notification,
-            TSeedCacheFunc seedCache)
-        {
-            // Arrange:
-            auto cache = CreateAndSeedCache(seedCache);
-            auto pValidator = CreateRequiredNamespaceValidator();
+		template <typename TSeedCacheFunc>
+		void RunAvailabilityTest(
+			ValidationResult expectedResult,
+			const NamespaceRequiredNotification& notification,
+			TSeedCacheFunc seedCache) {
+			// Arrange:
+			auto cache = CreateAndSeedCache(seedCache);
+			auto pValidator = CreateRequiredNamespaceValidator();
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache, Height(200));
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache, Height(200));
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenNamespaceIsUnknown)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
+	TEST(TEST_CLASS, FailureWhenNamespaceIsUnknown) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
-        // Assert:
-        RunAvailabilityTest(Failure_Namespace_Unknown, notification, [](const auto&) {});
-    }
+		// Assert:
+		RunAvailabilityTest(Failure_Namespace_Unknown, notification, [](const auto&) {});
+	}
 
-    TEST(TEST_CLASS, FailureWhenOwnerDoesNotMatch)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
+	TEST(TEST_CLASS, FailureWhenOwnerDoesNotMatch) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
-        // Assert:
-        RunAvailabilityTest(Failure_Namespace_Owner_Conflict, notification, [&owner](auto& cache) {
-            auto namespaceOwner = owner;
-            namespaceOwner[0] ^= 0xFF;
-            auto lifetime = test::CreateLifetime(100, 300 + Grace_Period_Duration.unwrap());
-            cache.insert(state::RootNamespace(Default_Namespace_Id, namespaceOwner, lifetime));
-        });
-    }
+		// Assert:
+		RunAvailabilityTest(Failure_Namespace_Owner_Conflict, notification, [&owner](auto& cache) {
+			auto namespaceOwner = owner;
+			namespaceOwner[0] ^= 0xFF;
+			auto lifetime = test::CreateLifetime(100, 300 + Grace_Period_Duration.unwrap());
+			cache.insert(state::RootNamespace(Default_Namespace_Id, namespaceOwner, lifetime));
+		});
+	}
 
-    TEST(TEST_CLASS, FailureWhenNamespaceExpired)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
+	TEST(TEST_CLASS, FailureWhenNamespaceExpired) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
-        // Assert: notification is at height 200, so limit lifetime to 175 (including grace period)
-        RunAvailabilityTest(Failure_Namespace_Expired, notification, [&owner](auto& cache) {
-            auto lifetime = test::CreateLifetime(50, 75 + Grace_Period_Duration.unwrap());
-            cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
-        });
-    }
+		// Assert: notification is at height 200, so limit lifetime to 175 (including grace period)
+		RunAvailabilityTest(Failure_Namespace_Expired, notification, [&owner](auto& cache) {
+			auto lifetime = test::CreateLifetime(50, 75 + Grace_Period_Duration.unwrap());
+			cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
+		});
+	}
 
-    TEST(TEST_CLASS, FailureWhenNamespaceInGracePeriod)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
+	TEST(TEST_CLASS, FailureWhenNamespaceInGracePeriod) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
-        // Assert: notification is at height 200, so limit lifetime to 250 (including grace period)
-        RunAvailabilityTest(Failure_Namespace_Expired, notification, [&owner](auto& cache) {
-            auto lifetime = test::CreateLifetime(100, 150 + Grace_Period_Duration.unwrap());
-            cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
-        });
-    }
+		// Assert: notification is at height 200, so limit lifetime to 250 (including grace period)
+		RunAvailabilityTest(Failure_Namespace_Expired, notification, [&owner](auto& cache) {
+			auto lifetime = test::CreateLifetime(100, 150 + Grace_Period_Duration.unwrap());
+			cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
+		});
+	}
 
-    TEST(TEST_CLASS, SuccessWhenNamespaceActiveAndOwnerMatches)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
+	TEST(TEST_CLASS, SuccessWhenNamespaceActiveAndOwnerMatches) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
-        // Assert:
-        RunAvailabilityTest(ValidationResult::Success, notification, [&owner](auto& cache) {
-            auto lifetime = test::CreateLifetime(100, 300 + Grace_Period_Duration.unwrap());
-            cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
-        });
-    }
+		// Assert:
+		RunAvailabilityTest(ValidationResult::Success, notification, [&owner](auto& cache) {
+			auto lifetime = test::CreateLifetime(100, 300 + Grace_Period_Duration.unwrap());
+			cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
+		});
+	}
 
-    TEST(TEST_CLASS, SuccessWhenNamespaceActiveAndOwnerMatches_UnresolvedAddress)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        NamespaceRequiredNotification notification(test::UnresolveXor(owner), Default_Namespace_Id);
+	TEST(TEST_CLASS, SuccessWhenNamespaceActiveAndOwnerMatches_UnresolvedAddress) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceRequiredNotification notification(test::UnresolveXor(owner), Default_Namespace_Id);
 
-        // Assert:
-        RunAvailabilityTest(ValidationResult::Success, notification, [&owner](auto& cache) {
-            auto lifetime = test::CreateLifetime(100, 300 + Grace_Period_Duration.unwrap());
-            cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
-        });
-    }
+		// Assert:
+		RunAvailabilityTest(ValidationResult::Success, notification, [&owner](auto& cache) {
+			auto lifetime = test::CreateLifetime(100, 300 + Grace_Period_Duration.unwrap());
+			cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
+		});
+	}
 }
 }

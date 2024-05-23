@@ -26,30 +26,30 @@
 namespace catapult {
 namespace model {
 
-    /// Calculator for calculating the inflation at a given height and the total inflation up to a given height.
-    class InflationCalculator {
-    public:
-        /// Gets the number of inflation entries.
-        size_t size() const;
+	/// Calculator for calculating the inflation at a given height and the total inflation up to a given height.
+	class InflationCalculator {
+	public:
+		/// Gets the number of inflation entries.
+		size_t size() const;
 
-        /// Returns \c true if the inflation map contains entry with \a height and \a amount.
-        bool contains(Height height, Amount amount) const;
+		/// Returns \c true if the inflation map contains entry with \a height and \a amount.
+		bool contains(Height height, Amount amount) const;
 
-        /// Gets the inflation amount at \a height.
-        Amount getSpotAmount(Height height) const;
+		/// Gets the inflation amount at \a height.
+		Amount getSpotAmount(Height height) const;
 
-        /// Gets the total inflation amount up to (but not including) \a height.
-        Amount getCumulativeAmount(Height height) const;
+		/// Gets the total inflation amount up to (but not including) \a height.
+		Amount getCumulativeAmount(Height height) const;
 
-        /// Calculates the total inflation.
-        std::pair<Amount, bool> sumAll() const;
+		/// Calculates the total inflation.
+		std::pair<Amount, bool> sumAll() const;
 
-    public:
-        /// Adds inflation of \a amount starting at \a height.
-        void add(Height height, Amount amount);
+	public:
+		/// Adds inflation of \a amount starting at \a height.
+		void add(Height height, Amount amount);
 
-    private:
-        std::map<Height, Amount> m_inflationMap;
-    };
+	private:
+		std::map<Height, Amount> m_inflationMap;
+	};
 }
 }

@@ -28,126 +28,121 @@
 
 namespace catapult {
 namespace cache {
-    class ReadOnlyCatapultCache;
+	class ReadOnlyCatapultCache;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    // region CoreSystemCacheFactory
+	// region CoreSystemCacheFactory
 
-    /// Cache factory for creating a catapult cache composed of all core sub caches.
-    struct CoreSystemCacheFactory {
-        /// Creates an empty catapult cache around \a config.
-        static cache::CatapultCache Create(const model::BlockchainConfiguration& config);
+	/// Cache factory for creating a catapult cache composed of all core sub caches.
+	struct CoreSystemCacheFactory {
+		/// Creates an empty catapult cache around \a config.
+		static cache::CatapultCache Create(const model::BlockchainConfiguration& config);
 
-        /// Adds all core sub caches initialized with \a config to \a subCaches.
-        static void CreateSubCaches(
-            const model::BlockchainConfiguration& config,
-            std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
+		/// Adds all core sub caches initialized with \a config to \a subCaches.
+		static void CreateSubCaches(
+			const model::BlockchainConfiguration& config,
+			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
 
-        /// Adds all core sub caches initialized with \a config and \a cacheConfig to \a subCaches.
-        static void CreateSubCaches(
-            const model::BlockchainConfiguration& config,
-            const cache::CacheConfiguration& cacheConfig,
-            std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
-    };
+		/// Adds all core sub caches initialized with \a config and \a cacheConfig to \a subCaches.
+		static void CreateSubCaches(
+			const model::BlockchainConfiguration& config,
+			const cache::CacheConfiguration& cacheConfig,
+			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
+	};
 
-    // endregion
+	// endregion
 
-    // region SubCachePlugin factories
+	// region SubCachePlugin factories
 
-    /// Creates a sub cache plugin given \a args for a plugin that doesn't require configuration.
-    template <typename TCache, typename TStorageTraits, typename... TArgs>
-    std::unique_ptr<cache::SubCachePlugin> MakeConfigurationFreeSubCachePlugin(TArgs&&... args)
-    {
-        auto pCache = std::make_unique<TCache>(std::forward<TArgs>(args)...);
-        return std::make_unique<cache::SubCachePluginAdapter<TCache, TStorageTraits>>(std::move(pCache));
-    }
+	/// Creates a sub cache plugin given \a args for a plugin that doesn't require configuration.
+	template <typename TCache, typename TStorageTraits, typename... TArgs>
+	std::unique_ptr<cache::SubCachePlugin> MakeConfigurationFreeSubCachePlugin(TArgs&&... args) {
+		auto pCache = std::make_unique<TCache>(std::forward<TArgs>(args)...);
+		return std::make_unique<cache::SubCachePluginAdapter<TCache, TStorageTraits>>(std::move(pCache));
+	}
 
-    /// Creates a sub cache plugin around \a cacheConfig given \a args.
-    template <typename TCache, typename TStorageTraits, typename... TArgs>
-    std::unique_ptr<cache::SubCachePlugin> MakeSubCachePluginWithCacheConfiguration(
-        const cache::CacheConfiguration& cacheConfig,
-        TArgs&&... args)
-    {
-        return MakeConfigurationFreeSubCachePlugin<TCache, TStorageTraits>(cacheConfig, std::forward<TArgs>(args)...);
-    }
+	/// Creates a sub cache plugin around \a cacheConfig given \a args.
+	template <typename TCache, typename TStorageTraits, typename... TArgs>
+	std::unique_ptr<cache::SubCachePlugin> MakeSubCachePluginWithCacheConfiguration(
+		const cache::CacheConfiguration& cacheConfig,
+		TArgs&&... args) {
+		return MakeConfigurationFreeSubCachePlugin<TCache, TStorageTraits>(cacheConfig, std::forward<TArgs>(args)...);
+	}
 
-    /// Creates a sub cache plugin given \a args.
-    template <typename TCache, typename TStorageTraits, typename... TArgs>
-    std::unique_ptr<cache::SubCachePlugin> MakeSubCachePlugin(TArgs&&... args)
-    {
-        return MakeSubCachePluginWithCacheConfiguration<TCache, TStorageTraits>(cache::CacheConfiguration(), std::forward<TArgs>(args)...);
-    }
+	/// Creates a sub cache plugin given \a args.
+	template <typename TCache, typename TStorageTraits, typename... TArgs>
+	std::unique_ptr<cache::SubCachePlugin> MakeSubCachePlugin(TArgs&&... args) {
+		return MakeSubCachePluginWithCacheConfiguration<TCache, TStorageTraits>(cache::CacheConfiguration(), std::forward<TArgs>(args)...);
+	}
 
-    // endregion
+	// endregion
 
-    // region CreateEmptyCatapultCache
+	// region CreateEmptyCatapultCache
 
-    /// Creates an empty catapult cache.
-    cache::CatapultCache CreateEmptyCatapultCache();
+	/// Creates an empty catapult cache.
+	cache::CatapultCache CreateEmptyCatapultCache();
 
-    /// Creates an empty catapult cache around \a config.
-    cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config);
+	/// Creates an empty catapult cache around \a config.
+	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config);
 
-    /// Creates an empty catapult cache around \a config and \a cacheConfig.
-    cache::CatapultCache CreateEmptyCatapultCache(
-        const model::BlockchainConfiguration& config,
-        const cache::CacheConfiguration& cacheConfig);
+	/// Creates an empty catapult cache around \a config and \a cacheConfig.
+	cache::CatapultCache CreateEmptyCatapultCache(
+		const model::BlockchainConfiguration& config,
+		const cache::CacheConfiguration& cacheConfig);
 
-    /// Creates an empty catapult cache around \a config.
-    template <typename TCacheFactory>
-    cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config)
-    {
-        return TCacheFactory::Create(config);
-    }
+	/// Creates an empty catapult cache around \a config.
+	template <typename TCacheFactory>
+	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config) {
+		return TCacheFactory::Create(config);
+	}
 
-    // endregion
+	// endregion
 
-    // region cache marker utils
+	// region cache marker utils
 
-    /// Creates a catapult cache with a marker account.
-    cache::CatapultCache CreateCatapultCacheWithMarkerAccount();
+	/// Creates a catapult cache with a marker account.
+	cache::CatapultCache CreateCatapultCacheWithMarkerAccount();
 
-    /// Creates a catapult cache with a marker account and a specified \a height.
-    cache::CatapultCache CreateCatapultCacheWithMarkerAccount(Height height);
+	/// Creates a catapult cache with a marker account and a specified \a height.
+	cache::CatapultCache CreateCatapultCacheWithMarkerAccount(Height height);
 
-    /// Adds a marker account to \a cache.
-    void AddMarkerAccount(cache::CatapultCache& cache);
+	/// Adds a marker account to \a cache.
+	void AddMarkerAccount(cache::CatapultCache& cache);
 
-    /// Modes for checking a marked cache.
-    enum class IsMarkedCacheMode {
-        /// Require the cache to exclusively contain a marked account.
-        Exclusive,
+	/// Modes for checking a marked cache.
+	enum class IsMarkedCacheMode {
+		/// Require the cache to exclusively contain a marked account.
+		Exclusive,
 
-        /// Require the cache to contain a marked account but allow other accounts.
-        Any
-    };
+		/// Require the cache to contain a marked account but allow other accounts.
+		Any
+	};
 
-    /// Returns \c true if \a cache contains the marker account and satisfies all \a mode constraints.
-    bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache, IsMarkedCacheMode mode = IsMarkedCacheMode::Exclusive);
+	/// Returns \c true if \a cache contains the marker account and satisfies all \a mode constraints.
+	bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache, IsMarkedCacheMode mode = IsMarkedCacheMode::Exclusive);
 
-    /// Returns \c true if \a cache contains the marker account and satisfies all \a mode constraints.
-    bool IsMarkedCache(const cache::CatapultCacheDelta& cache, IsMarkedCacheMode mode = IsMarkedCacheMode::Exclusive);
+	/// Returns \c true if \a cache contains the marker account and satisfies all \a mode constraints.
+	bool IsMarkedCache(const cache::CatapultCacheDelta& cache, IsMarkedCacheMode mode = IsMarkedCacheMode::Exclusive);
 
-    // endregion
+	// endregion
 
-    // region ExtractValuesFromCache
+	// region ExtractValuesFromCache
 
-    /// Extract all values from \a cache.
-    template <typename TCache, typename TValue>
-    std::vector<TValue> ExtractValuesFromCache(const TCache& cache)
-    {
-        std::vector<TValue> values;
-        auto view = cache.createView();
-        for (const auto& pair : *view)
-            values.push_back(pair.second);
+	/// Extract all values from \a cache.
+	template <typename TCache, typename TValue>
+	std::vector<TValue> ExtractValuesFromCache(const TCache& cache) {
+		std::vector<TValue> values;
+		auto view = cache.createView();
+		for (const auto& pair : *view)
+			values.push_back(pair.second);
 
-        return values;
-    }
+		return values;
+	}
 
-    // endregion
+	// endregion
 }
 }

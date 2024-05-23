@@ -27,24 +27,24 @@ namespace catapult {
 namespace ionet {
 
 #define NODE_INTERACTION_RESULT_CODE_LIST \
-    /* No experience. */                  \
-    ENUM_VALUE(None)                      \
+	/* No experience. */                  \
+	ENUM_VALUE(None)                      \
                                           \
-    /* Experience was neutral. */         \
-    ENUM_VALUE(Neutral)                   \
+	/* Experience was neutral. */         \
+	ENUM_VALUE(Neutral)                   \
                                           \
-    /* Experience was good. */            \
-    ENUM_VALUE(Success)                   \
+	/* Experience was good. */            \
+	ENUM_VALUE(Success)                   \
                                           \
-    /* Experience was bad. */             \
-    ENUM_VALUE(Failure)
+	/* Experience was bad. */             \
+	ENUM_VALUE(Failure)
 
 #define ENUM_VALUE(LABEL) LABEL,
-    /// Possible node interaction result codes.
-    enum class NodeInteractionResultCode { NODE_INTERACTION_RESULT_CODE_LIST };
+	/// Possible node interaction result codes.
+	enum class NodeInteractionResultCode { NODE_INTERACTION_RESULT_CODE_LIST };
 #undef ENUM_VALUE
 
-    /// Insertion operator for outputting \a value to \a out.
-    std::ostream& operator<<(std::ostream& out, NodeInteractionResultCode value);
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, NodeInteractionResultCode value);
 }
 }

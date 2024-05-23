@@ -31,20 +31,19 @@
 #define CATAPULT_ZEROMEM(PTR, SIZE) memset_s(PTR, SIZE, 0, SIZE)
 #else
 #define CATAPULT_ZEROMEM(PTR, SIZE) \
-    do {                            \
-        volatile uint8_t* p = PTR;  \
-        size_t n = SIZE;            \
-        while (n--)                 \
-            *p++ = 0;               \
-    } while (false)
+	do {                            \
+		volatile uint8_t* p = PTR;  \
+		size_t n = SIZE;            \
+		while (n--)                 \
+			*p++ = 0;               \
+	} while (false)
 #endif
 
 namespace catapult {
 namespace crypto {
 
-    void SecureZero(uint8_t* pData, size_t dataSize)
-    {
-        CATAPULT_ZEROMEM(pData, dataSize);
-    }
+	void SecureZero(uint8_t* pData, size_t dataSize) {
+		CATAPULT_ZEROMEM(pData, dataSize);
+	}
 }
 }

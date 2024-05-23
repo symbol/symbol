@@ -26,46 +26,43 @@
 namespace catapult {
 namespace ionet {
 
-    PacketExtractor::PacketExtractor(ByteBuffer& data, size_t maxPacketDataSize)
-        : m_data(data)
-        , m_maxPacketDataSize(maxPacketDataSize)
-        , m_consumedBytes(0)
-    {
-    }
+	PacketExtractor::PacketExtractor(ByteBuffer& data, size_t maxPacketDataSize)
+		: m_data(data)
+		, m_maxPacketDataSize(maxPacketDataSize)
+		, m_consumedBytes(0) {
+	}
 
-    PacketExtractResult PacketExtractor::tryExtractNextPacket(const Packet*& pExtractedPacket)
-    {
-        pExtractedPacket = nullptr;
-        auto remainingDataSize = m_data.size() - m_consumedBytes;
-        if (remainingDataSize < sizeof(PacketHeader))
-            return PacketExtractResult::Insufficient_Data;
+	PacketExtractResult PacketExtractor::tryExtractNextPacket(const Packet*& pExtractedPacket) {
+		pExtractedPacket = nullptr;
+		auto remainingDataSize = m_data.size() - m_consumedBytes;
+		if (remainingDataSize < sizeof(PacketHeader))
+			return PacketExtractResult::Insufficient_Data;
 
-        const auto& packet = reinterpret_cast<const Packet&>(m_data[m_consumedBytes]);
-        if (!IsPacketDataSizeValid(packet, m_maxPacketDataSize)) {
-            CATAPULT_LOG(warning) << "unable to extract " << packet << " (" << m_data.size() << " bytes, " << remainingDataSize
-                                  << " remaining, " << m_consumedBytes << " consumed)";
-            return PacketExtractResult::Packet_Error;
-        }
+		const auto& packet = reinterpret_cast<const Packet&>(m_data[m_consumedBytes]);
+		if (!IsPacketDataSizeValid(packet, m_maxPacketDataSize)) {
+			CATAPULT_LOG(warning) << "unable to extract " << packet << " (" << m_data.size() << " bytes, " << remainingDataSize
+								  << " remaining, " << m_consumedBytes << " consumed)";
+			return PacketExtractResult::Packet_Error;
+		}
 
-        if (packet.Size > remainingDataSize)
-            return PacketExtractResult::Insufficient_Data;
+		if (packet.Size > remainingDataSize)
+			return PacketExtractResult::Insufficient_Data;
 
-        pExtractedPacket = &packet;
-        m_consumedBytes += packet.Size;
-        return PacketExtractResult::Success;
-    }
+		pExtractedPacket = &packet;
+		m_consumedBytes += packet.Size;
+		return PacketExtractResult::Success;
+	}
 
-    void PacketExtractor::consume()
-    {
-        if (0 == m_consumedBytes)
-            return;
+	void PacketExtractor::consume() {
+		if (0 == m_consumedBytes)
+			return;
 
-        auto remainingDataSize = m_data.size() - m_consumedBytes;
-        if (0 != remainingDataSize)
-            std::memmove(m_data.data(), &m_data[m_consumedBytes], remainingDataSize);
+		auto remainingDataSize = m_data.size() - m_consumedBytes;
+		if (0 != remainingDataSize)
+			std::memmove(m_data.data(), &m_data[m_consumedBytes], remainingDataSize);
 
-        m_data.resize(remainingDataSize);
-        m_consumedBytes = 0;
-    }
+		m_data.resize(remainingDataSize);
+		m_consumedBytes = 0;
+	}
 }
 }

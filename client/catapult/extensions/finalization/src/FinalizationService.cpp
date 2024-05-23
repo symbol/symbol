@@ -40,154 +40,144 @@
 namespace catapult {
 namespace finalization {
 
-    namespace {
-        constexpr auto Service_Name = "fin.writers";
-        constexpr auto Service_Id = ionet::ServiceIdentifier(0x46494E4C);
+	namespace {
+		constexpr auto Service_Name = "fin.writers";
+		constexpr auto Service_Id = ionet::ServiceIdentifier(0x46494E4C);
 
-        // region shims for CreateChainSyncAwareSynchronizerTaskCallback
+		// region shims for CreateChainSyncAwareSynchronizerTaskCallback
 
-        std::unique_ptr<api::RemoteFinalizationApi> CreateRemoteFinalizationApi(
-            ionet::PacketIo& io,
-            const model::NodeIdentity& remoteIdentity,
-            const model::TransactionRegistry&)
-        {
-            return api::CreateRemoteFinalizationApi(io, remoteIdentity);
-        }
+		std::unique_ptr<api::RemoteFinalizationApi> CreateRemoteFinalizationApi(
+			ionet::PacketIo& io,
+			const model::NodeIdentity& remoteIdentity,
+			const model::TransactionRegistry&) {
+			return api::CreateRemoteFinalizationApi(io, remoteIdentity);
+		}
 
-        std::unique_ptr<api::RemoteProofApi> CreateRemoteProofApi(
-            ionet::PacketIo& io,
-            const model::NodeIdentity& remoteIdentity,
-            const model::TransactionRegistry&)
-        {
-            return api::CreateRemoteProofApi(io, remoteIdentity);
-        }
+		std::unique_ptr<api::RemoteProofApi> CreateRemoteProofApi(
+			ionet::PacketIo& io,
+			const model::NodeIdentity& remoteIdentity,
+			const model::TransactionRegistry&) {
+			return api::CreateRemoteProofApi(io, remoteIdentity);
+		}
 
-        // endregion
+		// endregion
 
-        // region tasks
+		// region tasks
 
-        thread::Task CreateConnectPeersTask(extensions::ServiceState& state, net::PacketWriters& packetWriters)
-        {
-            auto settings = extensions::CreateOutgoingSelectorSettings(state, Service_Id, ionet::NodeRoles::Voting);
-            auto task = extensions::CreateConnectPeersTask(settings, packetWriters);
-            task.Name += " for service Finalization";
-            return task;
-        }
+		thread::Task CreateConnectPeersTask(extensions::ServiceState& state, net::PacketWriters& packetWriters) {
+			auto settings = extensions::CreateOutgoingSelectorSettings(state, Service_Id, ionet::NodeRoles::Voting);
+			auto task = extensions::CreateConnectPeersTask(settings, packetWriters);
+			task.Name += " for service Finalization";
+			return task;
+		}
 
-        thread::Task CreatePullMessagesTask(
-            extensions::ServiceLocator& locator,
-            const extensions::ServiceState& state,
-            net::PacketWriters& packetWriters)
-        {
-            const auto& messageAggregator = GetMultiRoundMessageAggregator(locator);
-            const auto& serverHooks = GetFinalizationServerHooks(locator);
-            auto finalizationMessageSynchronizer = chain::CreateFinalizationMessageSynchronizer(
-                [&messageAggregator]() {
-                    auto messageAggregatorView = messageAggregator.view();
-                    auto roundRange = model::FinalizationRoundRange(
-                        messageAggregatorView.minFinalizationRound(),
-                        messageAggregatorView.maxFinalizationRound());
-                    CATAPULT_LOG(trace) << "requesting finalization messages within range " << roundRange;
-                    return std::make_pair(roundRange, messageAggregatorView.shortHashes());
-                },
-                serverHooks.messageRangeConsumer());
+		thread::Task CreatePullMessagesTask(
+			extensions::ServiceLocator& locator,
+			const extensions::ServiceState& state,
+			net::PacketWriters& packetWriters) {
+			const auto& messageAggregator = GetMultiRoundMessageAggregator(locator);
+			const auto& serverHooks = GetFinalizationServerHooks(locator);
+			auto finalizationMessageSynchronizer = chain::CreateFinalizationMessageSynchronizer(
+				[&messageAggregator]() {
+					auto messageAggregatorView = messageAggregator.view();
+					auto roundRange = model::FinalizationRoundRange(
+						messageAggregatorView.minFinalizationRound(),
+						messageAggregatorView.maxFinalizationRound());
+					CATAPULT_LOG(trace) << "requesting finalization messages within range " << roundRange;
+					return std::make_pair(roundRange, messageAggregatorView.shortHashes());
+				},
+				serverHooks.messageRangeConsumer());
 
-            thread::Task task;
-            task.Name = "pull finalization messages task";
-            task.Callback = CreateChainSyncAwareSynchronizerTaskCallback(
-                std::move(finalizationMessageSynchronizer),
-                CreateRemoteFinalizationApi,
-                packetWriters,
-                state,
-                task.Name);
-            return task;
-        }
+			thread::Task task;
+			task.Name = "pull finalization messages task";
+			task.Callback = CreateChainSyncAwareSynchronizerTaskCallback(
+				std::move(finalizationMessageSynchronizer),
+				CreateRemoteFinalizationApi,
+				packetWriters,
+				state,
+				task.Name);
+			return task;
+		}
 
-        thread::Task CreatePullProofTask(
-            const FinalizationConfiguration& config,
-            extensions::ServiceLocator& locator,
-            const extensions::ServiceState& state,
-            net::PacketWriters& packetWriters)
-        {
-            FinalizationContextFactory finalizationContextFactory(config, state);
-            auto finalizationProofSynchronizer = chain::CreateFinalizationProofSynchronizer(
-                state.config().Blockchain.VotingSetGrouping,
-                config.UnfinalizedBlocksDuration.blocks(state.config().Blockchain.BlockGenerationTargetTime),
-                state.storage(),
-                GetProofStorageCache(locator),
-                [finalizationContextFactory](const auto& proof) {
-                    auto result = chain::VerifyFinalizationProof(proof, finalizationContextFactory.create(proof.Round.Epoch));
-                    if (chain::VerifyFinalizationProofResult::Success != result) {
-                        CATAPULT_LOG(warning) << "proof for round " << proof.Round << " at height " << proof.Height
-                                              << " failed verification with " << result;
-                        return false;
-                    }
+		thread::Task CreatePullProofTask(
+			const FinalizationConfiguration& config,
+			extensions::ServiceLocator& locator,
+			const extensions::ServiceState& state,
+			net::PacketWriters& packetWriters) {
+			FinalizationContextFactory finalizationContextFactory(config, state);
+			auto finalizationProofSynchronizer = chain::CreateFinalizationProofSynchronizer(
+				state.config().Blockchain.VotingSetGrouping,
+				config.UnfinalizedBlocksDuration.blocks(state.config().Blockchain.BlockGenerationTargetTime),
+				state.storage(),
+				GetProofStorageCache(locator),
+				[finalizationContextFactory](const auto& proof) {
+					auto result = chain::VerifyFinalizationProof(proof, finalizationContextFactory.create(proof.Round.Epoch));
+					if (chain::VerifyFinalizationProofResult::Success != result) {
+						CATAPULT_LOG(warning) << "proof for round " << proof.Round << " at height " << proof.Height
+											  << " failed verification with " << result;
+						return false;
+					}
 
-                    return true;
-                });
+					return true;
+				});
 
-            thread::Task task;
-            task.Name = "pull finalization proof task";
-            task.Callback = CreateChainSyncAwareSynchronizerTaskCallback(
-                std::move(finalizationProofSynchronizer),
-                CreateRemoteProofApi,
-                packetWriters,
-                state,
-                task.Name);
-            return task;
-        }
+			thread::Task task;
+			task.Name = "pull finalization proof task";
+			task.Callback = CreateChainSyncAwareSynchronizerTaskCallback(
+				std::move(finalizationProofSynchronizer),
+				CreateRemoteProofApi,
+				packetWriters,
+				state,
+				task.Name);
+			return task;
+		}
 
-        // endregion
+		// endregion
 
-        class FinalizationServiceRegistrar : public extensions::ServiceRegistrar {
-        public:
-            explicit FinalizationServiceRegistrar(const FinalizationConfiguration& config)
-                : m_config(config)
-            {
-            }
+		class FinalizationServiceRegistrar : public extensions::ServiceRegistrar {
+		public:
+			explicit FinalizationServiceRegistrar(const FinalizationConfiguration& config)
+				: m_config(config) {
+			}
 
-        public:
-            extensions::ServiceRegistrarInfo info() const override
-            {
-                return { "Finalization", extensions::ServiceRegistrarPhase::Post_Extended_Range_Consumers };
-            }
+		public:
+			extensions::ServiceRegistrarInfo info() const override {
+				return { "Finalization", extensions::ServiceRegistrarPhase::Post_Extended_Range_Consumers };
+			}
 
-            void registerServiceCounters(extensions::ServiceLocator& locator) override
-            {
-                locator.registerServiceCounter<net::PacketWriters>(Service_Name, "FIN WRITERS", [](const auto& writers) {
-                    return writers.numActiveWriters();
-                });
-            }
+			void registerServiceCounters(extensions::ServiceLocator& locator) override {
+				locator.registerServiceCounter<net::PacketWriters>(Service_Name, "FIN WRITERS", [](const auto& writers) {
+					return writers.numActiveWriters();
+				});
+			}
 
-            void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override
-            {
-                auto connectionSettings = extensions::GetConnectionSettings(state.config());
-                auto pServiceGroup = state.pool().pushServiceGroup("finalization");
-                auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keys().caPublicKey(), connectionSettings);
+			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				auto connectionSettings = extensions::GetConnectionSettings(state.config());
+				auto pServiceGroup = state.pool().pushServiceGroup("finalization");
+				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keys().caPublicKey(), connectionSettings);
 
-                locator.registerService(Service_Name, pWriters);
-                state.packetIoPickers().insert(*pWriters, ionet::NodeRoles::Voting);
+				locator.registerService(Service_Name, pWriters);
+				state.packetIoPickers().insert(*pWriters, ionet::NodeRoles::Voting);
 
-                // add sinks
-                state.hooks().addBannedNodeIdentitySink(extensions::CreateCloseConnectionSink(*pWriters));
+				// add sinks
+				state.hooks().addBannedNodeIdentitySink(extensions::CreateCloseConnectionSink(*pWriters));
 
-                // add tasks
-                state.tasks().push_back(CreateConnectPeersTask(state, *pWriters));
-                state.tasks().push_back(CreatePullProofTask(m_config, locator, state, *pWriters));
+				// add tasks
+				state.tasks().push_back(CreateConnectPeersTask(state, *pWriters));
+				state.tasks().push_back(CreatePullProofTask(m_config, locator, state, *pWriters));
 
-                if (m_config.EnableVoting)
-                    state.tasks().push_back(CreatePullMessagesTask(locator, state, *pWriters));
-            }
+				if (m_config.EnableVoting)
+					state.tasks().push_back(CreatePullMessagesTask(locator, state, *pWriters));
+			}
 
-        private:
-            FinalizationConfiguration m_config;
-        };
-    }
+		private:
+			FinalizationConfiguration m_config;
+		};
+	}
 
-    DECLARE_SERVICE_REGISTRAR(Finalization)
-    (const FinalizationConfiguration& config)
-    {
-        return std::make_unique<FinalizationServiceRegistrar>(config);
-    }
+	DECLARE_SERVICE_REGISTRAR(Finalization)
+	(const FinalizationConfiguration& config) {
+		return std::make_unique<FinalizationServiceRegistrar>(config);
+	}
 }
 }

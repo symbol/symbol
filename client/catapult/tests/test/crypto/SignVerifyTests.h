@@ -26,302 +26,286 @@
 namespace catapult {
 namespace test {
 
-    /// Container of tests for sign and verify.
-    template <typename TTraits>
-    class SignVerifyTests {
-    private:
-        using KeyPair = typename TTraits::KeyPair;
-        using Signature = typename TTraits::Signature;
+	/// Container of tests for sign and verify.
+	template <typename TTraits>
+	class SignVerifyTests {
+	private:
+		using KeyPair = typename TTraits::KeyPair;
+		using Signature = typename TTraits::Signature;
 
-    private:
-        // region test utils
+	private:
+		// region test utils
 
-        template <typename TArray>
-        static Signature SignPayload(const KeyPair& keyPair, const TArray& payload)
-        {
-            Signature signature;
-            EXPECT_NO_THROW(Sign(keyPair, payload, signature));
-            return signature;
-        }
+		template <typename TArray>
+		static Signature SignPayload(const KeyPair& keyPair, const TArray& payload) {
+			Signature signature;
+			EXPECT_NO_THROW(Sign(keyPair, payload, signature));
+			return signature;
+		}
 
-        // endregion
+		// endregion
 
-    public:
-        // region Sign
+	public:
+		// region Sign
 
-        static void AssertSignFillsTheSignature()
-        {
-            // Arrange:
-            auto payload = GenerateRandomArray<100>();
+		static void AssertSignFillsTheSignature() {
+			// Arrange:
+			auto payload = GenerateRandomArray<100>();
 
-            // Act:
-            Signature signature;
-            std::iota(signature.begin(), signature.end(), static_cast<uint8_t>(0));
-            Sign(TTraits::GenerateKeyPair(), payload, signature);
+			// Act:
+			Signature signature;
+			std::iota(signature.begin(), signature.end(), static_cast<uint8_t>(0));
+			Sign(TTraits::GenerateKeyPair(), payload, signature);
 
-            // Assert: the signature got overwritten in call to Sign() above
-            Signature invalid;
-            std::iota(invalid.begin(), invalid.end(), static_cast<uint8_t>(0));
-            EXPECT_NE(invalid, signature);
-        }
+			// Assert: the signature got overwritten in call to Sign() above
+			Signature invalid;
+			std::iota(invalid.begin(), invalid.end(), static_cast<uint8_t>(0));
+			EXPECT_NE(invalid, signature);
+		}
 
-        static void AssertSignaturesGeneratedForSameDataBySameKeyPairsAreEqual()
-        {
-            // Arrange:
-            auto keyPair1 = TTraits::GenerateKeyPair();
-            auto keyPair2 = KeyPair::FromPrivate(KeyPair::PrivateKey::FromBuffer(keyPair1.privateKey()));
-            auto payload = GenerateRandomArray<100>();
+		static void AssertSignaturesGeneratedForSameDataBySameKeyPairsAreEqual() {
+			// Arrange:
+			auto keyPair1 = TTraits::GenerateKeyPair();
+			auto keyPair2 = KeyPair::FromPrivate(KeyPair::PrivateKey::FromBuffer(keyPair1.privateKey()));
+			auto payload = GenerateRandomArray<100>();
 
-            // Act:
-            auto signature1 = SignPayload(keyPair1, payload);
-            auto signature2 = SignPayload(keyPair2, payload);
+			// Act:
+			auto signature1 = SignPayload(keyPair1, payload);
+			auto signature2 = SignPayload(keyPair2, payload);
 
-            // Assert:
-            EXPECT_EQ(signature1, signature2);
-        }
+			// Assert:
+			EXPECT_EQ(signature1, signature2);
+		}
 
-        static void AssertSignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent()
-        {
-            // Arrange:
-            auto payload = GenerateRandomArray<100>();
+		static void AssertSignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent() {
+			// Arrange:
+			auto payload = GenerateRandomArray<100>();
 
-            // Act:
-            auto signature1 = SignPayload(TTraits::GenerateKeyPair(), payload);
-            auto signature2 = SignPayload(TTraits::GenerateKeyPair(), payload);
+			// Act:
+			auto signature1 = SignPayload(TTraits::GenerateKeyPair(), payload);
+			auto signature2 = SignPayload(TTraits::GenerateKeyPair(), payload);
 
-            // Assert:
-            EXPECT_NE(signature1, signature2);
-        }
+			// Assert:
+			EXPECT_NE(signature1, signature2);
+		}
 
-        // endregion
+		// endregion
 
-        // region Verify
+		// region Verify
 
-        static void AssertSignedDataCanBeVerified()
-        {
-            // Arrange:
-            auto payload = GenerateRandomArray<100>();
-            auto keyPair = TTraits::GenerateKeyPair();
-            auto signature = SignPayload(keyPair, payload);
+		static void AssertSignedDataCanBeVerified() {
+			// Arrange:
+			auto payload = GenerateRandomArray<100>();
+			auto keyPair = TTraits::GenerateKeyPair();
+			auto signature = SignPayload(keyPair, payload);
 
-            // Act:
-            bool isVerified = crypto::Verify(keyPair.publicKey(), payload, signature);
+			// Act:
+			bool isVerified = crypto::Verify(keyPair.publicKey(), payload, signature);
 
-            // Assert:
-            EXPECT_TRUE(isVerified);
-        }
+			// Assert:
+			EXPECT_TRUE(isVerified);
+		}
 
-        static void AssertSignedDataCannotBeVerifiedWithDifferentKeyPair()
-        {
-            // Arrange:
-            auto payload = GenerateRandomArray<100>();
-            auto signature = SignPayload(TTraits::GenerateKeyPair(), payload);
+		static void AssertSignedDataCannotBeVerifiedWithDifferentKeyPair() {
+			// Arrange:
+			auto payload = GenerateRandomArray<100>();
+			auto signature = SignPayload(TTraits::GenerateKeyPair(), payload);
 
-            // Act:
-            bool isVerified = crypto::Verify(TTraits::GenerateKeyPair().publicKey(), payload, signature);
+			// Act:
+			bool isVerified = crypto::Verify(TTraits::GenerateKeyPair().publicKey(), payload, signature);
 
-            // Assert:
-            EXPECT_FALSE(isVerified);
-        }
+			// Assert:
+			EXPECT_FALSE(isVerified);
+		}
 
-    private:
-        static void AssertSignatureChangeInvalidatesSignature(size_t position)
-        {
-            // Arrange:
-            auto keyPair = TTraits::GenerateKeyPair();
-            auto payload = GenerateRandomArray<100>();
+	private:
+		static void AssertSignatureChangeInvalidatesSignature(size_t position) {
+			// Arrange:
+			auto keyPair = TTraits::GenerateKeyPair();
+			auto payload = GenerateRandomArray<100>();
 
-            auto signature = SignPayload(keyPair, payload);
-            signature[position] ^= 0xFF;
+			auto signature = SignPayload(keyPair, payload);
+			signature[position] ^= 0xFF;
 
-            // Act:
-            bool isVerified = crypto::Verify(keyPair.publicKey(), payload, signature);
+			// Act:
+			bool isVerified = crypto::Verify(keyPair.publicKey(), payload, signature);
 
-            // Assert:
-            EXPECT_FALSE(isVerified);
-        }
+			// Assert:
+			EXPECT_FALSE(isVerified);
+		}
 
-    public:
-        static void AssertSignatureDoesNotVerifyWhenRPartOfSignatureIsModified()
-        {
-            for (auto i = 0u; i < Signature::Size / 2; ++i)
-                AssertSignatureChangeInvalidatesSignature(i);
-        }
+	public:
+		static void AssertSignatureDoesNotVerifyWhenRPartOfSignatureIsModified() {
+			for (auto i = 0u; i < Signature::Size / 2; ++i)
+				AssertSignatureChangeInvalidatesSignature(i);
+		}
 
-        static void AssertSignatureDoesNotVerifyWhenSPartOfSignatureIsModified()
-        {
-            for (auto i = Signature::Size / 2; i < Signature::Size; ++i)
-                AssertSignatureChangeInvalidatesSignature(i);
-        }
+		static void AssertSignatureDoesNotVerifyWhenSPartOfSignatureIsModified() {
+			for (auto i = Signature::Size / 2; i < Signature::Size; ++i)
+				AssertSignatureChangeInvalidatesSignature(i);
+		}
 
-        static void AssertSignatureDoesNotVerifyWhenPayloadIsModified()
-        {
-            // Arrange:
-            auto keyPair = TTraits::GenerateKeyPair();
-            auto payload = GenerateRandomArray<100>();
-            for (auto i = 0u; i < payload.size(); ++i) {
-                auto signature = SignPayload(keyPair, payload);
-                payload[i] ^= 0xFF;
+		static void AssertSignatureDoesNotVerifyWhenPayloadIsModified() {
+			// Arrange:
+			auto keyPair = TTraits::GenerateKeyPair();
+			auto payload = GenerateRandomArray<100>();
+			for (auto i = 0u; i < payload.size(); ++i) {
+				auto signature = SignPayload(keyPair, payload);
+				payload[i] ^= 0xFF;
 
-                // Act:
-                bool isVerified = crypto::Verify(keyPair.publicKey(), payload, signature);
+				// Act:
+				bool isVerified = crypto::Verify(keyPair.publicKey(), payload, signature);
 
-                // Assert:
-                EXPECT_FALSE(isVerified);
-            }
-        }
+				// Assert:
+				EXPECT_FALSE(isVerified);
+			}
+		}
 
-        static void AssertPublicKeyNotOnACurveCausesVerifyToFail()
-        {
-            // Arrange:
-            auto hackedKeyPair = TTraits::GenerateKeyPair();
-            auto payload = GenerateRandomArray<100>();
+		static void AssertPublicKeyNotOnACurveCausesVerifyToFail() {
+			// Arrange:
+			auto hackedKeyPair = TTraits::GenerateKeyPair();
+			auto payload = GenerateRandomArray<100>();
 
-            // hack the key, to an invalid one (not on a curve)
-            auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
-            std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
-            hackPublic[hackPublic.size() - 1] = 0x01;
+			// hack the key, to an invalid one (not on a curve)
+			auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
+			std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
+			hackPublic[hackPublic.size() - 1] = 0x01;
 
-            auto signature = SignPayload(hackedKeyPair, payload);
+			auto signature = SignPayload(hackedKeyPair, payload);
 
-            // Act:
-            bool isVerified = crypto::Verify(hackedKeyPair.publicKey(), payload, signature);
+			// Act:
+			bool isVerified = crypto::Verify(hackedKeyPair.publicKey(), payload, signature);
 
-            // Assert:
-            EXPECT_FALSE(isVerified);
-        }
+			// Assert:
+			EXPECT_FALSE(isVerified);
+		}
 
-        static void AssertVerificationFailsWhenPublicKeyDoesNotCorrespondToPrivateKey()
-        {
-            // Arrange:
-            auto hackedKeyPair = TTraits::GenerateKeyPair();
-            auto payload = GenerateRandomArray<100>();
+		static void AssertVerificationFailsWhenPublicKeyDoesNotCorrespondToPrivateKey() {
+			// Arrange:
+			auto hackedKeyPair = TTraits::GenerateKeyPair();
+			auto payload = GenerateRandomArray<100>();
 
-            // hack the key, to an invalid one
-            auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
-            std::transform(hackPublic.begin(), hackPublic.end(), hackPublic.begin(), [](uint8_t x) {
-                return static_cast<uint8_t>(x ^ 0xFF);
-            });
+			// hack the key, to an invalid one
+			auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
+			std::transform(hackPublic.begin(), hackPublic.end(), hackPublic.begin(), [](uint8_t x) {
+				return static_cast<uint8_t>(x ^ 0xFF);
+			});
 
-            auto signature = SignPayload(hackedKeyPair, payload);
+			auto signature = SignPayload(hackedKeyPair, payload);
 
-            // Act:
-            bool isVerified = crypto::Verify(hackedKeyPair.publicKey(), payload, signature);
+			// Act:
+			bool isVerified = crypto::Verify(hackedKeyPair.publicKey(), payload, signature);
 
-            // Assert:
-            EXPECT_FALSE(isVerified);
-        }
+			// Assert:
+			EXPECT_FALSE(isVerified);
+		}
 
-        static void AssertVerifyRejectsZeroPublicKey()
-        {
-            // Arrange:
-            auto hackedKeyPair = TTraits::GenerateKeyPair();
-            auto payload = GenerateRandomArray<100>();
+		static void AssertVerifyRejectsZeroPublicKey() {
+			// Arrange:
+			auto hackedKeyPair = TTraits::GenerateKeyPair();
+			auto payload = GenerateRandomArray<100>();
 
-            // hack the key, to an invalid one
-            auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
-            std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
+			// hack the key, to an invalid one
+			auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
+			std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
 
-            auto signature = SignPayload(hackedKeyPair, payload);
+			auto signature = SignPayload(hackedKeyPair, payload);
 
-            // Act:
-            // keep in mind, there's no good way to make this test, as right now, we have
-            // no way (and I don't think we need one), to check why verify failed
-            bool isVerified = crypto::Verify(hackedKeyPair.publicKey(), payload, signature);
+			// Act:
+			// keep in mind, there's no good way to make this test, as right now, we have
+			// no way (and I don't think we need one), to check why verify failed
+			bool isVerified = crypto::Verify(hackedKeyPair.publicKey(), payload, signature);
 
-            // Assert:
-            EXPECT_FALSE(isVerified);
-        }
+			// Assert:
+			EXPECT_FALSE(isVerified);
+		}
 
-        static void AssertCannotVerifyNonCanonicalSignature()
-        {
-            // Arrange:
-            auto payload = TTraits::GetPayloadForNonCanonicalSignatureTest();
+		static void AssertCannotVerifyNonCanonicalSignature() {
+			// Arrange:
+			auto payload = TTraits::GetPayloadForNonCanonicalSignatureTest();
 
-            auto keyPair = TTraits::GenerateKeyPair();
-            auto canonicalSignature = SignPayload(keyPair, payload);
-            auto nonCanonicalSignature = TTraits::MakeNonCanonical(canonicalSignature);
+			auto keyPair = TTraits::GenerateKeyPair();
+			auto canonicalSignature = SignPayload(keyPair, payload);
+			auto nonCanonicalSignature = TTraits::MakeNonCanonical(canonicalSignature);
 
-            // Act:
-            bool isCanonicalVerified = crypto::Verify(keyPair.publicKey(), payload, canonicalSignature);
-            bool isNonCanonicalVerified = crypto::Verify(keyPair.publicKey(), payload, nonCanonicalSignature);
+			// Act:
+			bool isCanonicalVerified = crypto::Verify(keyPair.publicKey(), payload, canonicalSignature);
+			bool isNonCanonicalVerified = crypto::Verify(keyPair.publicKey(), payload, nonCanonicalSignature);
 
-            // Assert:
-            EXPECT_TRUE(isCanonicalVerified);
-            EXPECT_FALSE(isNonCanonicalVerified);
-        }
+			// Assert:
+			EXPECT_TRUE(isCanonicalVerified);
+			EXPECT_FALSE(isNonCanonicalVerified);
+		}
 
-        // endregion
+		// endregion
 
-        // region sign chunked data
+		// region sign chunked data
 
-        static void AssertSignatureForConsecutiveDataMatchesSignatureForChunkedData()
-        {
-            // Arrange:
-            auto payload = GenerateRandomVector(123);
-            auto keyPair = TTraits::GenerateKeyPair();
-            auto properSignature = SignPayload(keyPair, payload);
+		static void AssertSignatureForConsecutiveDataMatchesSignatureForChunkedData() {
+			// Arrange:
+			auto payload = GenerateRandomVector(123);
+			auto keyPair = TTraits::GenerateKeyPair();
+			auto properSignature = SignPayload(keyPair, payload);
 
-            // Act:
-            {
-                Signature result;
-                auto partSize = payload.size() / 2;
-                ASSERT_NO_THROW(
-                    Sign(keyPair, { { payload.data(), partSize }, { payload.data() + partSize, payload.size() - partSize } }, result));
-                EXPECT_EQ(properSignature, result);
-            }
+			// Act:
+			{
+				Signature result;
+				auto partSize = payload.size() / 2;
+				ASSERT_NO_THROW(
+					Sign(keyPair, { { payload.data(), partSize }, { payload.data() + partSize, payload.size() - partSize } }, result));
+				EXPECT_EQ(properSignature, result);
+			}
 
-            {
-                Signature result;
-                auto partSize = payload.size() / 3;
-                ASSERT_NO_THROW(
-                    Sign(keyPair,
-                        { { payload.data(), partSize },
-                            { payload.data() + partSize, partSize },
-                            { payload.data() + 2 * partSize, payload.size() - 2 * partSize } },
-                        result));
-                EXPECT_EQ(properSignature, result);
-            }
+			{
+				Signature result;
+				auto partSize = payload.size() / 3;
+				ASSERT_NO_THROW(
+					Sign(keyPair,
+						{ { payload.data(), partSize },
+							{ payload.data() + partSize, partSize },
+							{ payload.data() + 2 * partSize, payload.size() - 2 * partSize } },
+						result));
+				EXPECT_EQ(properSignature, result);
+			}
 
-            {
-                Signature result;
-                auto partSize = payload.size() / 4;
-                ASSERT_NO_THROW(
-                    Sign(keyPair,
-                        { { payload.data(), partSize },
-                            { payload.data() + partSize, partSize },
-                            { payload.data() + 2 * partSize, partSize },
-                            { payload.data() + 3 * partSize, payload.size() - 3 * partSize } },
-                        result));
-                EXPECT_EQ(properSignature, result);
-            }
-        }
+			{
+				Signature result;
+				auto partSize = payload.size() / 4;
+				ASSERT_NO_THROW(
+					Sign(keyPair,
+						{ { payload.data(), partSize },
+							{ payload.data() + partSize, partSize },
+							{ payload.data() + 2 * partSize, partSize },
+							{ payload.data() + 3 * partSize, payload.size() - 3 * partSize } },
+						result));
+				EXPECT_EQ(properSignature, result);
+			}
+		}
 
-        // endregion
-    };
+		// endregion
+	};
 
 #define MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, TEST_NAME)            \
-    TEST(TEST_CLASS, TEST_NAME)                                  \
-    {                                                            \
-        test::SignVerifyTests<TRAITS_NAME>::Assert##TEST_NAME(); \
-    }
+	TEST(TEST_CLASS, TEST_NAME) {                                \
+		test::SignVerifyTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 /// Adds all sign and verify tests for the specified traits (\a TRAITS_NAME).
 #define DEFINE_SIGN_VERIFY_TESTS(TRAITS_NAME)                                                         \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignFillsTheSignature)                                         \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignaturesGeneratedForSameDataBySameKeyPairsAreEqual)          \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent) \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignFillsTheSignature)                                         \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignaturesGeneratedForSameDataBySameKeyPairsAreEqual)          \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent) \
                                                                                                       \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignedDataCanBeVerified)                                       \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignedDataCannotBeVerifiedWithDifferentKeyPair)                \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureDoesNotVerifyWhenRPartOfSignatureIsModified)          \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureDoesNotVerifyWhenSPartOfSignatureIsModified)          \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureDoesNotVerifyWhenPayloadIsModified)                   \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, PublicKeyNotOnACurveCausesVerifyToFail)                        \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, VerificationFailsWhenPublicKeyDoesNotCorrespondToPrivateKey)   \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, VerifyRejectsZeroPublicKey)                                    \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, CannotVerifyNonCanonicalSignature)                             \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignedDataCanBeVerified)                                       \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignedDataCannotBeVerifiedWithDifferentKeyPair)                \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureDoesNotVerifyWhenRPartOfSignatureIsModified)          \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureDoesNotVerifyWhenSPartOfSignatureIsModified)          \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureDoesNotVerifyWhenPayloadIsModified)                   \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, PublicKeyNotOnACurveCausesVerifyToFail)                        \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, VerificationFailsWhenPublicKeyDoesNotCorrespondToPrivateKey)   \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, VerifyRejectsZeroPublicKey)                                    \
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, CannotVerifyNonCanonicalSignature)                             \
                                                                                                       \
-    MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureForConsecutiveDataMatchesSignatureForChunkedData)
+	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureForConsecutiveDataMatchesSignatureForChunkedData)
 }
 }

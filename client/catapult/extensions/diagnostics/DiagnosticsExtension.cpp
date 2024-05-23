@@ -24,17 +24,15 @@
 
 namespace catapult {
 namespace diagnostics {
-    namespace {
-        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
-        {
-            // register service(s)
-            bootstrapper.extensionManager().addServiceRegistrar(CreateDiagnosticsServiceRegistrar());
-        }
-    }
+	namespace {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			// register service(s)
+			bootstrapper.extensionManager().addServiceRegistrar(CreateDiagnosticsServiceRegistrar());
+		}
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
-{
-    catapult::diagnostics::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+	catapult::diagnostics::RegisterExtension(bootstrapper);
 }

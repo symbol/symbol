@@ -26,31 +26,27 @@
 namespace catapult {
 namespace validators {
 
-    NotificationValidatorAdapter::NotificationValidatorAdapter(
-        NotificationValidatorPointer&& pValidator,
-        NotificationPublisherPointer&& pPublisher)
-        : m_pValidator(std::move(pValidator))
-        , m_pPublisher(std::move(pPublisher))
-    {
-    }
+	NotificationValidatorAdapter::NotificationValidatorAdapter(
+		NotificationValidatorPointer&& pValidator,
+		NotificationPublisherPointer&& pPublisher)
+		: m_pValidator(std::move(pValidator))
+		, m_pPublisher(std::move(pPublisher)) {
+	}
 
-    void NotificationValidatorAdapter::setExclusionFilter(const predicate<model::NotificationType>& filter)
-    {
-        m_exclusionFilter = filter;
-    }
+	void NotificationValidatorAdapter::setExclusionFilter(const predicate<model::NotificationType>& filter) {
+		m_exclusionFilter = filter;
+	}
 
-    const std::string& NotificationValidatorAdapter::name() const
-    {
-        return m_pValidator->name();
-    }
+	const std::string& NotificationValidatorAdapter::name() const {
+		return m_pValidator->name();
+	}
 
-    ValidationResult NotificationValidatorAdapter::validate(const model::WeakEntityInfo& entityInfo) const
-    {
-        ValidatingNotificationSubscriber sub(*m_pValidator);
-        sub.setExclusionFilter(m_exclusionFilter);
+	ValidationResult NotificationValidatorAdapter::validate(const model::WeakEntityInfo& entityInfo) const {
+		ValidatingNotificationSubscriber sub(*m_pValidator);
+		sub.setExclusionFilter(m_exclusionFilter);
 
-        m_pPublisher->publish(entityInfo, sub);
-        return sub.result();
-    }
+		m_pPublisher->publish(entityInfo, sub);
+		return sub.result();
+	}
 }
 }

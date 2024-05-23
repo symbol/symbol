@@ -27,130 +27,120 @@ namespace state {
 
 #define TEST_CLASS DynamicFeeMultiplierTests
 
-    namespace {
-        std::vector<BlockStatistic> CreateStatistics(std::initializer_list<uint32_t> multipliers)
-        {
-            std::vector<BlockStatistic> statistics;
-            for (auto multiplier : multipliers)
-                statistics.emplace_back(Height(), Timestamp(), Difficulty(), BlockFeeMultiplier(multiplier));
+	namespace {
+		std::vector<BlockStatistic> CreateStatistics(std::initializer_list<uint32_t> multipliers) {
+			std::vector<BlockStatistic> statistics;
+			for (auto multiplier : multipliers)
+				statistics.emplace_back(Height(), Timestamp(), Difficulty(), BlockFeeMultiplier(multiplier));
 
-            return statistics;
-        }
-    }
+			return statistics;
+		}
+	}
 
-    // region no candidates
+	// region no candidates
 
-    TEST(TEST_CLASS, DefaultFeeMultiplierIsReturnedWhenCountIsZero)
-    {
-        // Arrange:
-        auto statistics = CreateStatistics({});
+	TEST(TEST_CLASS, DefaultFeeMultiplierIsReturnedWhenCountIsZero) {
+		// Arrange:
+		auto statistics = CreateStatistics({});
 
-        // Act:
-        auto multiplier = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 0, BlockFeeMultiplier(123));
+		// Act:
+		auto multiplier = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 0, BlockFeeMultiplier(123));
 
-        // Assert:
-        EXPECT_EQ(BlockFeeMultiplier(123), multiplier);
-    }
+		// Assert:
+		EXPECT_EQ(BlockFeeMultiplier(123), multiplier);
+	}
 
-    TEST(TEST_CLASS, DefaultFeeMultiplierIsReturnedWhenRangeIsEmpty)
-    {
-        // Arrange:
-        auto statistics = CreateStatistics({});
+	TEST(TEST_CLASS, DefaultFeeMultiplierIsReturnedWhenRangeIsEmpty) {
+		// Arrange:
+		auto statistics = CreateStatistics({});
 
-        // Act:
-        auto multiplier = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
+		// Act:
+		auto multiplier = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
 
-        // Assert:
-        EXPECT_EQ(BlockFeeMultiplier(123), multiplier);
-    }
+		// Assert:
+		EXPECT_EQ(BlockFeeMultiplier(123), multiplier);
+	}
 
-    TEST(TEST_CLASS, DefaultFeeMultiplierIsReturnedWhenRangeContainsNoCandidates)
-    {
-        // Arrange:
-        auto statistics = CreateStatistics({ 0, 0, 0, 0, 0 });
+	TEST(TEST_CLASS, DefaultFeeMultiplierIsReturnedWhenRangeContainsNoCandidates) {
+		// Arrange:
+		auto statistics = CreateStatistics({ 0, 0, 0, 0, 0 });
 
-        // Act:
-        auto multiplier = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
+		// Act:
+		auto multiplier = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
 
-        // Assert:
-        EXPECT_EQ(BlockFeeMultiplier(123), multiplier);
-    }
+		// Assert:
+		EXPECT_EQ(BlockFeeMultiplier(123), multiplier);
+	}
 
-    // endregion
+	// endregion
 
-    // region candidates
+	// region candidates
 
-    namespace {
-        void AssertCanCalculateMultiplierWhenCandidatesLessThanCount(std::initializer_list<uint32_t> multipliers)
-        {
-            // Arrange:
-            auto statistics = CreateStatistics(multipliers);
+	namespace {
+		void AssertCanCalculateMultiplierWhenCandidatesLessThanCount(std::initializer_list<uint32_t> multipliers) {
+			// Arrange:
+			auto statistics = CreateStatistics(multipliers);
 
-            // Act:
-            auto multiplier4 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 4, BlockFeeMultiplier(123));
-            auto multiplier5 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
-            auto multiplier6 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 6, BlockFeeMultiplier(123));
+			// Act:
+			auto multiplier4 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 4, BlockFeeMultiplier(123));
+			auto multiplier5 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
+			auto multiplier6 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 6, BlockFeeMultiplier(123));
 
-            // Assert:
-            EXPECT_EQ(BlockFeeMultiplier(500), multiplier4) << "7, 123, <500>, 1000";
-            EXPECT_EQ(BlockFeeMultiplier(123), multiplier5) << "7, 123, <123>, 500, 1000";
-            EXPECT_EQ(BlockFeeMultiplier(123), multiplier6) << "7, 123, 123, <123>, 500, 1000";
-        }
-    }
+			// Assert:
+			EXPECT_EQ(BlockFeeMultiplier(500), multiplier4) << "7, 123, <500>, 1000";
+			EXPECT_EQ(BlockFeeMultiplier(123), multiplier5) << "7, 123, <123>, 500, 1000";
+			EXPECT_EQ(BlockFeeMultiplier(123), multiplier6) << "7, 123, 123, <123>, 500, 1000";
+		}
+	}
 
-    TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesLessThanCount)
-    {
-        AssertCanCalculateMultiplierWhenCandidatesLessThanCount({ 500, 7, 1000 });
-    }
+	TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesLessThanCount) {
+		AssertCanCalculateMultiplierWhenCandidatesLessThanCount({ 500, 7, 1000 });
+	}
 
-    TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesLessThanCountInterspersedWithNonCandidates)
-    {
-        AssertCanCalculateMultiplierWhenCandidatesLessThanCount({ 500, 0, 7, 0, 1000, 0 });
-    }
+	TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesLessThanCountInterspersedWithNonCandidates) {
+		AssertCanCalculateMultiplierWhenCandidatesLessThanCount({ 500, 0, 7, 0, 1000, 0 });
+	}
 
-    TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesEqualToCount)
-    {
-        // Arrange:
-        auto statistics5 = CreateStatistics({ 12, 7, 9, 11, 15 });
-        auto statistics6 = CreateStatistics({ 12, 7, 9, 11, 15, 17 });
+	TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesEqualToCount) {
+		// Arrange:
+		auto statistics5 = CreateStatistics({ 12, 7, 9, 11, 15 });
+		auto statistics6 = CreateStatistics({ 12, 7, 9, 11, 15, 17 });
 
-        // Act:
-        auto multiplier5 = CalculateDynamicFeeMultiplier(statistics5.cbegin(), statistics5.cend(), 5, BlockFeeMultiplier(123));
-        auto multiplier6 = CalculateDynamicFeeMultiplier(statistics6.cbegin(), statistics6.cend(), 6, BlockFeeMultiplier(123));
+		// Act:
+		auto multiplier5 = CalculateDynamicFeeMultiplier(statistics5.cbegin(), statistics5.cend(), 5, BlockFeeMultiplier(123));
+		auto multiplier6 = CalculateDynamicFeeMultiplier(statistics6.cbegin(), statistics6.cend(), 6, BlockFeeMultiplier(123));
 
-        // Assert:
-        EXPECT_EQ(BlockFeeMultiplier(11), multiplier5) << "7, 9, <11>, 12, 15";
-        EXPECT_EQ(BlockFeeMultiplier(12), multiplier6) << "7, 9, 11, <12>, 15, 17";
-    }
+		// Assert:
+		EXPECT_EQ(BlockFeeMultiplier(11), multiplier5) << "7, 9, <11>, 12, 15";
+		EXPECT_EQ(BlockFeeMultiplier(12), multiplier6) << "7, 9, 11, <12>, 15, 17";
+	}
 
-    TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesGreaterThanCount)
-    {
-        // Arrange:
-        auto statistics = CreateStatistics({ 12, 7, 9, 11, 15, 23, 73 });
+	TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesGreaterThanCount) {
+		// Arrange:
+		auto statistics = CreateStatistics({ 12, 7, 9, 11, 15, 23, 73 });
 
-        // Act:
-        auto multiplier4 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 4, BlockFeeMultiplier(123));
-        auto multiplier5 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
-        auto multiplier6 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 6, BlockFeeMultiplier(123));
+		// Act:
+		auto multiplier4 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 4, BlockFeeMultiplier(123));
+		auto multiplier5 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
+		auto multiplier6 = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 6, BlockFeeMultiplier(123));
 
-        // Assert:
-        EXPECT_EQ(BlockFeeMultiplier(11), multiplier4) << "7, 9, <11>, 12";
-        EXPECT_EQ(BlockFeeMultiplier(11), multiplier5) << "7, 9, <11>, 12, 15";
-        EXPECT_EQ(BlockFeeMultiplier(12), multiplier6) << "7, 9, 11, <12>, 15, 23";
-    }
+		// Assert:
+		EXPECT_EQ(BlockFeeMultiplier(11), multiplier4) << "7, 9, <11>, 12";
+		EXPECT_EQ(BlockFeeMultiplier(11), multiplier5) << "7, 9, <11>, 12, 15";
+		EXPECT_EQ(BlockFeeMultiplier(12), multiplier6) << "7, 9, 11, <12>, 15, 23";
+	}
 
-    TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesGreaterThanCountInterspersedWithNonCandidates)
-    {
-        // Arrange:
-        auto statistics = CreateStatistics({ 12, 0, 7, 0, 0, 9, 0, 11, 15, 23, 73 });
+	TEST(TEST_CLASS, CanCalculateMultiplierWhenCandidatesGreaterThanCountInterspersedWithNonCandidates) {
+		// Arrange:
+		auto statistics = CreateStatistics({ 12, 0, 7, 0, 0, 9, 0, 11, 15, 23, 73 });
 
-        // Act:
-        auto multiplier = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
+		// Act:
+		auto multiplier = CalculateDynamicFeeMultiplier(statistics.cbegin(), statistics.cend(), 5, BlockFeeMultiplier(123));
 
-        // Assert:
-        EXPECT_EQ(BlockFeeMultiplier(11), multiplier) << "7, 9, <11>, 12, 15";
-    }
+		// Assert:
+		EXPECT_EQ(BlockFeeMultiplier(11), multiplier) << "7, 9, <11>, 12, 15";
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -26,28 +26,28 @@
 namespace catapult {
 namespace crypto {
 
-    /// Builder for creating a merkle hash.
-    class MerkleHashBuilder {
-    public:
-        /// Creates a new merkle hash builder with the specified initial \a capacity.
-        explicit MerkleHashBuilder(size_t capacity = 0);
+	/// Builder for creating a merkle hash.
+	class MerkleHashBuilder {
+	public:
+		/// Creates a new merkle hash builder with the specified initial \a capacity.
+		explicit MerkleHashBuilder(size_t capacity = 0);
 
-    public:
-        /// Adds \a hash to the merkle hash.
-        void update(const Hash256& hash);
+	public:
+		/// Adds \a hash to the merkle hash.
+		void update(const Hash256& hash);
 
-        /// Finalizes the merkle hash into \a hash.
-        void final(Hash256& hash);
+		/// Finalizes the merkle hash into \a hash.
+		void final(Hash256& hash);
 
-        /// Finalizes the complete merkle tree into \a tree.
-        void final(std::vector<Hash256>& tree);
+		/// Finalizes the complete merkle tree into \a tree.
+		void final(std::vector<Hash256>& tree);
 
-    public:
-        /// Calculates the number of nodes in a merkle tree with \a leafCount leaves.
-        static size_t TreeSize(size_t leafCount);
+	public:
+		/// Calculates the number of nodes in a merkle tree with \a leafCount leaves.
+		static size_t TreeSize(size_t leafCount);
 
-    private:
-        std::vector<Hash256> m_hashes;
-    };
+	private:
+		std::vector<Hash256> m_hashes;
+	};
 }
 }

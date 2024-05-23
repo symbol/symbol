@@ -28,52 +28,44 @@
 namespace catapult {
 namespace test {
 
-    RemoteAcceptServer::RemoteAcceptServer()
-        : RemoteAcceptServer(GenerateKeyPair())
-    {
-    }
+	RemoteAcceptServer::RemoteAcceptServer()
+		: RemoteAcceptServer(GenerateKeyPair()) {
+	}
 
-    RemoteAcceptServer::RemoteAcceptServer(const crypto::KeyPair& caKeyPair)
-        : m_directoryGuard("cert_ras")
-        , m_pPool(CreateStartedIoThreadPool(1))
-        , m_caKeyPair(CopyKeyPair(caKeyPair))
-        , m_nodeKeyPair(GenerateKeyPair())
-    {
-        GenerateCertificateDirectory(m_directoryGuard.name(), PemCertificate(m_caKeyPair, m_nodeKeyPair));
-    }
+	RemoteAcceptServer::RemoteAcceptServer(const crypto::KeyPair& caKeyPair)
+		: m_directoryGuard("cert_ras")
+		, m_pPool(CreateStartedIoThreadPool(1))
+		, m_caKeyPair(CopyKeyPair(caKeyPair))
+		, m_nodeKeyPair(GenerateKeyPair()) {
+		GenerateCertificateDirectory(m_directoryGuard.name(), PemCertificate(m_caKeyPair, m_nodeKeyPair));
+	}
 
-    boost::asio::io_context& RemoteAcceptServer::ioContext()
-    {
-        return m_pPool->ioContext();
-    }
+	boost::asio::io_context& RemoteAcceptServer::ioContext() {
+		return m_pPool->ioContext();
+	}
 
-    const Key& RemoteAcceptServer::caPublicKey() const
-    {
-        return m_caKeyPair.publicKey();
-    }
+	const Key& RemoteAcceptServer::caPublicKey() const {
+		return m_caKeyPair.publicKey();
+	}
 
-    void RemoteAcceptServer::start()
-    {
-        start([](const auto&) {});
-    }
+	void RemoteAcceptServer::start() {
+		start([](const auto&) {});
+	}
 
-    void RemoteAcceptServer::start(const PacketSocketWork& serverWork)
-    {
-        auto options = CreatePacketSocketOptions();
-        options.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_directoryGuard.name());
-        SpawnPacketServerWork(m_pPool->ioContext(), options, serverWork);
-    }
+	void RemoteAcceptServer::start(const PacketSocketWork& serverWork) {
+		auto options = CreatePacketSocketOptions();
+		options.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_directoryGuard.name());
+		SpawnPacketServerWork(m_pPool->ioContext(), options, serverWork);
+	}
 
-    void RemoteAcceptServer::start(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork)
-    {
-        auto options = CreatePacketSocketOptions();
-        options.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_directoryGuard.name());
-        SpawnPacketServerWork(acceptor, options, serverWork);
-    }
+	void RemoteAcceptServer::start(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork) {
+		auto options = CreatePacketSocketOptions();
+		options.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_directoryGuard.name());
+		SpawnPacketServerWork(acceptor, options, serverWork);
+	}
 
-    void RemoteAcceptServer::join()
-    {
-        m_pPool->join();
-    }
+	void RemoteAcceptServer::join() {
+		m_pPool->join();
+	}
 }
 }

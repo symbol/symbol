@@ -30,71 +30,66 @@
 namespace catapult {
 namespace local {
 
-    namespace {
-        // region StateRepairer
+	namespace {
+		// region StateRepairer
 
-        class StateRepairer {
-        public:
-            StateRepairer(const config::CatapultDirectory& stateChangeDirectory, const cache::CatapultCache& catapultCache)
-                : m_stateChangeDirectory(stateChangeDirectory)
-                , m_catapultCache(catapultCache)
-                , m_isBrokerRecovery(std::filesystem::exists(m_stateChangeDirectory.file("index_broker_r.dat")))
-            {
-            }
+		class StateRepairer {
+		public:
+			StateRepairer(const config::CatapultDirectory& stateChangeDirectory, const cache::CatapultCache& catapultCache)
+				: m_stateChangeDirectory(stateChangeDirectory)
+				, m_catapultCache(catapultCache)
+				, m_isBrokerRecovery(std::filesystem::exists(m_stateChangeDirectory.file("index_broker_r.dat"))) {
+			}
 
-        public:
-            bool isBrokerRecovery() const
-            {
-                return m_isBrokerRecovery;
-            }
+		public:
+			bool isBrokerRecovery() const {
+				return m_isBrokerRecovery;
+			}
 
-        public:
-            void readAll(
-                const std::string& indexReaderFilename,
-                const std::string& indexWriterFilename,
-                subscribers::StateChangeSubscriber& stateChangeSubscriber)
-            {
-                subscribers::ReadAll(
-                    { m_stateChangeDirectory.str(), indexReaderFilename, indexWriterFilename },
-                    stateChangeSubscriber,
-                    [&catapultCache = m_catapultCache](auto& inputStream, auto& subscriber) {
-                        return subscribers::ReadNextStateChange(inputStream, catapultCache.changesStorages(), subscriber);
-                    });
-            }
+		public:
+			void readAll(
+				const std::string& indexReaderFilename,
+				const std::string& indexWriterFilename,
+				subscribers::StateChangeSubscriber& stateChangeSubscriber) {
+				subscribers::ReadAll(
+					{ m_stateChangeDirectory.str(), indexReaderFilename, indexWriterFilename },
+					stateChangeSubscriber,
+					[&catapultCache = m_catapultCache](auto& inputStream, auto& subscriber) {
+						return subscribers::ReadNextStateChange(inputStream, catapultCache.changesStorages(), subscriber);
+					});
+			}
 
-            void reindex(const std::string& destinationIndexFilename, const std::string& sourceIndexFilename)
-            {
-                io::IndexFile destinationIndexFile(m_stateChangeDirectory.file(destinationIndexFilename));
-                io::IndexFile sourceIndexFile(m_stateChangeDirectory.file(sourceIndexFilename));
-                destinationIndexFile.set(sourceIndexFile.get());
-            }
+			void reindex(const std::string& destinationIndexFilename, const std::string& sourceIndexFilename) {
+				io::IndexFile destinationIndexFile(m_stateChangeDirectory.file(destinationIndexFilename));
+				io::IndexFile sourceIndexFile(m_stateChangeDirectory.file(sourceIndexFilename));
+				destinationIndexFile.set(sourceIndexFile.get());
+			}
 
-        private:
-            config::CatapultDirectory m_stateChangeDirectory;
-            const cache::CatapultCache& m_catapultCache;
-            bool m_isBrokerRecovery;
-        };
+		private:
+			config::CatapultDirectory m_stateChangeDirectory;
+			const cache::CatapultCache& m_catapultCache;
+			bool m_isBrokerRecovery;
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    void RepairState(
-        const config::CatapultDirectory& stateChangeDirectory,
-        const cache::CatapultCache& catapultCache,
-        subscribers::StateChangeSubscriber& registeredSubscriber,
-        subscribers::StateChangeSubscriber& repairSubscriber)
-    {
-        StateRepairer repairer(stateChangeDirectory, catapultCache);
-        auto finalIndexReaderFilename = repairer.isBrokerRecovery() ? "index_broker_r.dat" : "index_server_r.dat";
+	void RepairState(
+		const config::CatapultDirectory& stateChangeDirectory,
+		const cache::CatapultCache& catapultCache,
+		subscribers::StateChangeSubscriber& registeredSubscriber,
+		subscribers::StateChangeSubscriber& repairSubscriber) {
+		StateRepairer repairer(stateChangeDirectory, catapultCache);
+		auto finalIndexReaderFilename = repairer.isBrokerRecovery() ? "index_broker_r.dat" : "index_server_r.dat";
 
-        // 1. catch up registered subscribers
-        repairer.readAll(finalIndexReaderFilename, "index.dat", registeredSubscriber);
+		// 1. catch up registered subscribers
+		repairer.readAll(finalIndexReaderFilename, "index.dat", registeredSubscriber);
 
-        // 2. repair and forward to registered subscribers
-        repairer.readAll("index.dat", "index_server.dat", repairSubscriber);
+		// 2. repair and forward to registered subscribers
+		repairer.readAll("index.dat", "index_server.dat", repairSubscriber);
 
-        // 3. fixup final reader index
-        repairer.reindex(finalIndexReaderFilename, "index.dat");
-    }
+		// 3. fixup final reader index
+		repairer.reindex(finalIndexReaderFilename, "index.dat");
+	}
 }
 }

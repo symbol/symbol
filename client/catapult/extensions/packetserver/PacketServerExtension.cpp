@@ -24,17 +24,15 @@
 
 namespace catapult {
 namespace packetserver {
-    namespace {
-        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
-        {
-            // register service(s)
-            bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkPacketReadersServiceRegistrar());
-        }
-    }
+	namespace {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			// register service(s)
+			bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkPacketReadersServiceRegistrar());
+		}
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
-{
-    catapult::packetserver::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+	catapult::packetserver::RegisterExtension(bootstrapper);
 }

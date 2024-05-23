@@ -24,31 +24,27 @@
 namespace catapult {
 namespace cache {
 
-    void NamespaceCacheSummaryCacheStorage::saveAll(const CatapultCacheView&, io::OutputStream&) const
-    {
-        CATAPULT_THROW_INVALID_ARGUMENT("NamespaceCacheSummaryCacheStorage does not support saveAll");
-    }
+	void NamespaceCacheSummaryCacheStorage::saveAll(const CatapultCacheView&, io::OutputStream&) const {
+		CATAPULT_THROW_INVALID_ARGUMENT("NamespaceCacheSummaryCacheStorage does not support saveAll");
+	}
 
-    void NamespaceCacheSummaryCacheStorage::saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const
-    {
-        const auto& delta = cacheDelta.sub<NamespaceCache>();
-        io::Write64(output, delta.activeSize());
-        io::Write64(output, delta.deepSize());
-        output.flush();
-    }
+	void NamespaceCacheSummaryCacheStorage::saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const {
+		const auto& delta = cacheDelta.sub<NamespaceCache>();
+		io::Write64(output, delta.activeSize());
+		io::Write64(output, delta.deepSize());
+		output.flush();
+	}
 
-    void NamespaceCacheSummaryCacheStorage::loadAll(io::InputStream& input, size_t)
-    {
-        auto activeSize = io::Read64(input);
-        auto deepSize = io::Read64(input);
-        cache().init(activeSize, deepSize);
-    }
+	void NamespaceCacheSummaryCacheStorage::loadAll(io::InputStream& input, size_t) {
+		auto activeSize = io::Read64(input);
+		auto deepSize = io::Read64(input);
+		cache().init(activeSize, deepSize);
+	}
 
-    NamespaceCacheSubCachePlugin::NamespaceCacheSubCachePlugin(
-        const CacheConfiguration& config,
-        const NamespaceCacheTypes::Options& options)
-        : BaseNamespaceCacheSubCachePlugin(std::make_unique<NamespaceCache>(config, options))
-    {
-    }
+	NamespaceCacheSubCachePlugin::NamespaceCacheSubCachePlugin(
+		const CacheConfiguration& config,
+		const NamespaceCacheTypes::Options& options)
+		: BaseNamespaceCacheSubCachePlugin(std::make_unique<NamespaceCache>(config, options)) {
+	}
 }
 }

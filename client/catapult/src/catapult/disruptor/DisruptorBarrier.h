@@ -29,38 +29,34 @@
 namespace catapult {
 namespace disruptor {
 
-    /// DisruptorBarrier represents a consumer barrier (possibly shared by multiple consumers)
-    /// at a given level.
-    class DisruptorBarrier {
-    public:
-        /// Creates a barrier given its \a level and position (\a barrierEndPosition).
-        DisruptorBarrier(size_t level, PositionType position)
-            : m_level(level)
-            , m_position(position)
-        {
-        }
+	/// DisruptorBarrier represents a consumer barrier (possibly shared by multiple consumers)
+	/// at a given level.
+	class DisruptorBarrier {
+	public:
+		/// Creates a barrier given its \a level and position (\a barrierEndPosition).
+		DisruptorBarrier(size_t level, PositionType position)
+			: m_level(level)
+			, m_position(position) {
+		}
 
-        /// Advances the barrier.
-        inline void advance()
-        {
-            ++m_position;
-        }
+		/// Advances the barrier.
+		inline void advance() {
+			++m_position;
+		}
 
-        /// Gets the level of the barrier.
-        inline size_t level() const
-        {
-            return m_level;
-        }
+		/// Gets the level of the barrier.
+		inline size_t level() const {
+			return m_level;
+		}
 
-        /// Gets the position of the barrier.
-        inline PositionType position() const
-        {
-            return m_position;
-        }
+		/// Gets the position of the barrier.
+		inline PositionType position() const {
+			return m_position;
+		}
 
-    private:
-        const size_t m_level;
-        std::atomic<PositionType> m_position;
-    };
+	private:
+		const size_t m_level;
+		std::atomic<PositionType> m_position;
+	};
 }
 }

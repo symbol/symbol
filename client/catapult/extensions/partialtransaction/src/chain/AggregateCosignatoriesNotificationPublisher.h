@@ -23,19 +23,19 @@
 
 namespace catapult {
 namespace model {
-    class NotificationSubscriber;
-    class WeakCosignedTransactionInfo;
+	class NotificationSubscriber;
+	class WeakCosignedTransactionInfo;
 }
 }
 
 namespace catapult {
 namespace chain {
 
-    /// Aggregate notification publisher that only publishes cosignatory-related notifications.
-    class AggregateCosignatoriesNotificationPublisher {
-    public:
-        /// Sends all notifications from an aggregate \a transactionInfo to \a sub.
-        void publish(const model::WeakCosignedTransactionInfo& transactionInfo, model::NotificationSubscriber& sub) const;
-    };
+	/// Aggregate notification publisher that only publishes cosignatory-related notifications.
+	class AggregateCosignatoriesNotificationPublisher {
+	public:
+		/// Sends all notifications from an aggregate \a transactionInfo to \a sub.
+		void publish(const model::WeakCosignedTransactionInfo& transactionInfo, model::NotificationSubscriber& sub) const;
+	};
 }
 }

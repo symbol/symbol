@@ -25,39 +25,39 @@
 
 namespace boost {
 namespace asio {
-    class io_context;
+	class io_context;
 }
 }
 
 namespace catapult {
 namespace thread {
 
-    /// Represents a thread pool that shares a single io context across multiple threads.
-    class IoThreadPool {
-    public:
-        virtual ~IoThreadPool() = default;
+	/// Represents a thread pool that shares a single io context across multiple threads.
+	class IoThreadPool {
+	public:
+		virtual ~IoThreadPool() = default;
 
-    public:
-        /// Gets the number of active worker threads.
-        virtual uint32_t numWorkerThreads() const = 0;
+	public:
+		/// Gets the number of active worker threads.
+		virtual uint32_t numWorkerThreads() const = 0;
 
-        /// Gets the friendly name of this thread pool.
-        virtual const std::string& name() const = 0;
+		/// Gets the friendly name of this thread pool.
+		virtual const std::string& name() const = 0;
 
-        /// Gets the underlying io_context.
-        virtual boost::asio::io_context& ioContext() = 0;
+		/// Gets the underlying io_context.
+		virtual boost::asio::io_context& ioContext() = 0;
 
-    public:
-        /// Starts the thread pool.
-        /// \note All worker threads will be active when this function returns.
-        virtual void start() = 0;
+	public:
+		/// Starts the thread pool.
+		/// \note All worker threads will be active when this function returns.
+		virtual void start() = 0;
 
-        /// Waits for all thread pool threads to exit.
-        virtual void join() = 0;
-    };
+		/// Waits for all thread pool threads to exit.
+		virtual void join() = 0;
+	};
 
-    /// Creates an io thread pool with the specified number of threads (\a numWorkerThreads).
-    /// Optional friendly \a name can be provided to tag logs.
-    std::unique_ptr<IoThreadPool> CreateIoThreadPool(size_t numWorkerThreads, const char* name = nullptr);
+	/// Creates an io thread pool with the specified number of threads (\a numWorkerThreads).
+	/// Optional friendly \a name can be provided to tag logs.
+	std::unique_ptr<IoThreadPool> CreateIoThreadPool(size_t numWorkerThreads, const char* name = nullptr);
 }
 }

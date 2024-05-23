@@ -25,16 +25,14 @@
 namespace catapult {
 namespace cache {
 
-    void AccountStateCacheStorage::LoadInto(const ValueType& accountState, DestinationType& cacheDelta)
-    {
-        cacheDelta.addAccount(accountState);
-    }
+	void AccountStateCacheStorage::LoadInto(const ValueType& accountState, DestinationType& cacheDelta) {
+		cacheDelta.addAccount(accountState);
+	}
 
-    void AccountStateCacheStorage::Purge(const ValueType& accountState, DestinationType& cacheDelta)
-    {
-        cacheDelta.queueRemove(accountState.PublicKey, accountState.PublicKeyHeight);
-        cacheDelta.queueRemove(accountState.Address, accountState.AddressHeight);
-        cacheDelta.commitRemovals();
-    }
+	void AccountStateCacheStorage::Purge(const ValueType& accountState, DestinationType& cacheDelta) {
+		cacheDelta.queueRemove(accountState.PublicKey, accountState.PublicKeyHeight);
+		cacheDelta.queueRemove(accountState.Address, accountState.AddressHeight);
+		cacheDelta.commitRemovals();
+	}
 }
 }

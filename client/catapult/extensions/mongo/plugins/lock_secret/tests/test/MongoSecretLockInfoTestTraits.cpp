@@ -26,15 +26,13 @@
 namespace catapult {
 namespace test {
 
-    cache::CatapultCache MongoSecretLockInfoTestTraits::CreateCatapultCache()
-    {
-        return SecretLockInfoCacheFactory::Create();
-    }
+	cache::CatapultCache MongoSecretLockInfoTestTraits::CreateCatapultCache() {
+		return SecretLockInfoCacheFactory::Create();
+	}
 
-    std::unique_ptr<mongo::ExternalCacheStorage> MongoSecretLockInfoTestTraits::CreateMongoCacheStorage(
-        mongo::MongoStorageContext& context)
-    {
-        return mongo::plugins::CreateMongoSecretLockInfoCacheStorage(context, model::NetworkIdentifier());
-    }
+	std::unique_ptr<mongo::ExternalCacheStorage> MongoSecretLockInfoTestTraits::CreateMongoCacheStorage(
+		mongo::MongoStorageContext& context) {
+		return mongo::plugins::CreateMongoSecretLockInfoCacheStorage(context, model::NetworkIdentifier());
+	}
 }
 }

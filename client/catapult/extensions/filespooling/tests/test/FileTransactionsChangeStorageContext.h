@@ -30,77 +30,70 @@
 namespace catapult {
 namespace test {
 
-    /// File transactions change subscriber storage context.
-    template <typename SubscriberTraits>
-    class FileTransactionsChangeStorageContext {
-    public:
-        using TransactionInfosReference = std::reference_wrapper<const model::TransactionInfosSet>;
-        using SubscriberType = typename SubscriberTraits::SubscriberType;
-        using OperationType = typename SubscriberTraits::OperationType;
+	/// File transactions change subscriber storage context.
+	template <typename SubscriberTraits>
+	class FileTransactionsChangeStorageContext {
+	public:
+		using TransactionInfosReference = std::reference_wrapper<const model::TransactionInfosSet>;
+		using SubscriberType = typename SubscriberTraits::SubscriberType;
+		using OperationType = typename SubscriberTraits::OperationType;
 
-    public:
-        /// Creates test context.
-        FileTransactionsChangeStorageContext()
-            : m_mockStream(m_buffer)
-            , m_pSubscriber(SubscriberTraits::Create(std::make_unique<test::NonOwningOutputStream>(m_mockStream)))
-        {
-        }
+	public:
+		/// Creates test context.
+		FileTransactionsChangeStorageContext()
+			: m_mockStream(m_buffer)
+			, m_pSubscriber(SubscriberTraits::Create(std::make_unique<test::NonOwningOutputStream>(m_mockStream))) {
+		}
 
-    public:
-        /// Gets the subscriber.
-        SubscriberType& subscriber()
-        {
-            return *m_pSubscriber;
-        }
+	public:
+		/// Gets the subscriber.
+		SubscriberType& subscriber() {
+			return *m_pSubscriber;
+		}
 
-        /// Asserts nothing was written to storage.
-        void assertEmptyBuffer()
-        {
-            EXPECT_TRUE(m_buffer.empty());
-        }
+		/// Asserts nothing was written to storage.
+		void assertEmptyBuffer() {
+			EXPECT_TRUE(m_buffer.empty());
+		}
 
-        /// Asserts content of file storage matches \a expected transaction infos.
-        void assertFileContents(const std::vector<std::pair<OperationType, TransactionInfosReference>>& expected)
-        {
-            auto inputStream = createInputStream();
+		/// Asserts content of file storage matches \a expected transaction infos.
+		void assertFileContents(const std::vector<std::pair<OperationType, TransactionInfosReference>>& expected) {
+			auto inputStream = createInputStream();
 
-            for (const auto& operationInfosPair : expected) {
-                auto operationType = static_cast<OperationType>(io::Read8(inputStream));
-                EXPECT_EQ(operationInfosPair.first, operationType);
-                assertTransactionInfos(inputStream, operationInfosPair.second.get());
-            }
+			for (const auto& operationInfosPair : expected) {
+				auto operationType = static_cast<OperationType>(io::Read8(inputStream));
+				EXPECT_EQ(operationInfosPair.first, operationType);
+				assertTransactionInfos(inputStream, operationInfosPair.second.get());
+			}
 
-            EXPECT_EQ(m_buffer.size(), inputStream.position());
-        }
+			EXPECT_EQ(m_buffer.size(), inputStream.position());
+		}
 
-        /// Asserts there have been \a numFlushes flushes.
-        void assertNumFlushes(size_t numFlushes)
-        {
-            EXPECT_EQ(numFlushes, m_mockStream.numFlushes());
-        }
+		/// Asserts there have been \a numFlushes flushes.
+		void assertNumFlushes(size_t numFlushes) {
+			EXPECT_EQ(numFlushes, m_mockStream.numFlushes());
+		}
 
-    protected:
-        /// Creates input stream around internal storage.
-        auto createInputStream()
-        {
-            return io::BufferInputStreamAdapter<std::vector<uint8_t>>(m_buffer);
-        }
+	protected:
+		/// Creates input stream around internal storage.
+		auto createInputStream() {
+			return io::BufferInputStreamAdapter<std::vector<uint8_t>>(m_buffer);
+		}
 
-    private:
-        void assertTransactionInfos(io::InputStream& inputStream, const model::TransactionInfosSet& expectedTransactionInfos)
-        {
-            // Arrange:
-            model::TransactionInfosSet transactionInfos;
-            io::ReadTransactionInfos(inputStream, transactionInfos);
+	private:
+		void assertTransactionInfos(io::InputStream& inputStream, const model::TransactionInfosSet& expectedTransactionInfos) {
+			// Arrange:
+			model::TransactionInfosSet transactionInfos;
+			io::ReadTransactionInfos(inputStream, transactionInfos);
 
-            // Assert:
-            test::AssertEquivalent(expectedTransactionInfos, transactionInfos);
-        }
+			// Assert:
+			test::AssertEquivalent(expectedTransactionInfos, transactionInfos);
+		}
 
-    private:
-        std::vector<uint8_t> m_buffer;
-        mocks::MockMemoryStream m_mockStream;
-        std::unique_ptr<SubscriberType> m_pSubscriber;
-    };
+	private:
+		std::vector<uint8_t> m_buffer;
+		mocks::MockMemoryStream m_mockStream;
+		std::unique_ptr<SubscriberType> m_pSubscriber;
+	};
 }
 }

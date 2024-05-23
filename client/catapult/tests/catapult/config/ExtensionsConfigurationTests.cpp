@@ -26,34 +26,30 @@
 namespace catapult {
 namespace config {
 
-    namespace {
-        struct ExtensionsConfigurationTraits {
-            using ConfigurationType = ExtensionsConfiguration;
+	namespace {
+		struct ExtensionsConfigurationTraits {
+			using ConfigurationType = ExtensionsConfiguration;
 
-            static utils::ConfigurationBag::ValuesContainer CreateProperties()
-            {
-                return { { "extensions", { { "Alpha", "true" }, { "BETA", "false" }, { "gamma", "true" } } } };
-            }
+			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
+				return { { "extensions", { { "Alpha", "true" }, { "BETA", "false" }, { "gamma", "true" } } } };
+			}
 
-            static bool IsSectionOptional(const std::string&)
-            {
-                return true;
-            }
+			static bool IsSectionOptional(const std::string&) {
+				return true;
+			}
 
-            static void AssertZero(const ExtensionsConfiguration& config)
-            {
-                // Assert:
-                EXPECT_TRUE(config.Names.empty());
-            }
+			static void AssertZero(const ExtensionsConfiguration& config) {
+				// Assert:
+				EXPECT_TRUE(config.Names.empty());
+			}
 
-            static void AssertCustom(const ExtensionsConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(std::vector<std::string>({ "Alpha", "gamma" }), config.Names);
-            }
-        };
-    }
+			static void AssertCustom(const ExtensionsConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(std::vector<std::string>({ "Alpha", "gamma" }), config.Names);
+			}
+		};
+	}
 
-    DEFINE_CONFIGURATION_TESTS(ExtensionsConfigurationTests, Extensions)
+	DEFINE_CONFIGURATION_TESTS(ExtensionsConfigurationTests, Extensions)
 }
 }

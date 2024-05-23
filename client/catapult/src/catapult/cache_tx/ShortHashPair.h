@@ -29,35 +29,33 @@ namespace cache {
 
 #pragma pack(push, 1)
 
-    /// Unique identifier for a partial transaction.
-    struct ShortHashPair {
-    public:
-        /// Transaction short hash.
-        utils::ShortHash TransactionShortHash;
+	/// Unique identifier for a partial transaction.
+	struct ShortHashPair {
+	public:
+		/// Transaction short hash.
+		utils::ShortHash TransactionShortHash;
 
-        /// Cosignatures short hash.
-        utils::ShortHash CosignaturesShortHash;
+		/// Cosignatures short hash.
+		utils::ShortHash CosignaturesShortHash;
 
-    public:
-        /// Returns \c true if this short hash pair is equal to \a rhs.
-        constexpr bool operator==(const ShortHashPair& rhs) const
-        {
-            return TransactionShortHash == rhs.TransactionShortHash && CosignaturesShortHash == rhs.CosignaturesShortHash;
-        }
+	public:
+		/// Returns \c true if this short hash pair is equal to \a rhs.
+		constexpr bool operator==(const ShortHashPair& rhs) const {
+			return TransactionShortHash == rhs.TransactionShortHash && CosignaturesShortHash == rhs.CosignaturesShortHash;
+		}
 
-        /// Returns \c true if this short hash pair is not equal to \a rhs.
-        constexpr bool operator!=(const ShortHashPair& rhs) const
-        {
-            return !(*this == rhs);
-        }
-    };
+		/// Returns \c true if this short hash pair is not equal to \a rhs.
+		constexpr bool operator!=(const ShortHashPair& rhs) const {
+			return !(*this == rhs);
+		}
+	};
 
 #pragma pack(pop)
 
-    /// Entity range composed of short hash pairs.
-    using ShortHashPairRange = model::EntityRange<ShortHashPair>;
+	/// Entity range composed of short hash pairs.
+	using ShortHashPairRange = model::EntityRange<ShortHashPair>;
 
-    /// Map composed of short hash pairs where the key is the transaction short hash and the value is the cosignatures short hash.
-    using ShortHashPairMap = std::unordered_map<utils::ShortHash, utils::ShortHash, utils::ShortHashHasher>;
+	/// Map composed of short hash pairs where the key is the transaction short hash and the value is the cosignatures short hash.
+	using ShortHashPairMap = std::unordered_map<utils::ShortHash, utils::ShortHash, utils::ShortHashHasher>;
 }
 }

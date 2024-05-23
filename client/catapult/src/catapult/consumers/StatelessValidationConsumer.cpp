@@ -26,22 +26,20 @@
 namespace catapult {
 namespace consumers {
 
-    disruptor::ConstBlockConsumer CreateBlockStatelessValidationConsumer(
-        const std::shared_ptr<const validators::ParallelValidationPolicy>& pValidationPolicy,
-        const RequiresValidationPredicate& requiresValidationPredicate)
-    {
-        return MakeBlockValidationConsumer(requiresValidationPredicate, [pValidationPolicy](const auto& entityInfos) {
-            return pValidationPolicy->validateShortCircuit(entityInfos).get();
-        });
-    }
+	disruptor::ConstBlockConsumer CreateBlockStatelessValidationConsumer(
+		const std::shared_ptr<const validators::ParallelValidationPolicy>& pValidationPolicy,
+		const RequiresValidationPredicate& requiresValidationPredicate) {
+		return MakeBlockValidationConsumer(requiresValidationPredicate, [pValidationPolicy](const auto& entityInfos) {
+			return pValidationPolicy->validateShortCircuit(entityInfos).get();
+		});
+	}
 
-    disruptor::TransactionConsumer CreateTransactionStatelessValidationConsumer(
-        const std::shared_ptr<const validators::ParallelValidationPolicy>& pValidationPolicy,
-        const chain::FailedTransactionSink& failedTransactionSink)
-    {
-        return MakeTransactionValidationConsumer(failedTransactionSink, [pValidationPolicy](const auto& entityInfos) {
-            return pValidationPolicy->validateAll(entityInfos).get();
-        });
-    }
+	disruptor::TransactionConsumer CreateTransactionStatelessValidationConsumer(
+		const std::shared_ptr<const validators::ParallelValidationPolicy>& pValidationPolicy,
+		const chain::FailedTransactionSink& failedTransactionSink) {
+		return MakeTransactionValidationConsumer(failedTransactionSink, [pValidationPolicy](const auto& entityInfos) {
+			return pValidationPolicy->validateAll(entityInfos).get();
+		});
+	}
 }
 }

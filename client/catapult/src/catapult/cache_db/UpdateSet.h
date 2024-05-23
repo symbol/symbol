@@ -26,35 +26,33 @@
 namespace catapult {
 namespace cache {
 
-    /// Applies all changes in \a deltas to \a elements.
-    template <typename TKeyTraits, typename TDescriptor, typename TContainer, typename TMemorySet>
-    void UpdateSet(RdbTypedColumnContainer<TDescriptor, TContainer>& elements, const deltaset::DeltaElements<TMemorySet>& deltas)
-    {
-        auto size = elements.size();
-        if (!deltas.HasChanges())
-            return;
+	/// Applies all changes in \a deltas to \a elements.
+	template <typename TKeyTraits, typename TDescriptor, typename TContainer, typename TMemorySet>
+	void UpdateSet(RdbTypedColumnContainer<TDescriptor, TContainer>& elements, const deltaset::DeltaElements<TMemorySet>& deltas) {
+		auto size = elements.size();
+		if (!deltas.HasChanges())
+			return;
 
-        for (const auto& added : deltas.Added)
-            elements.insert(added);
+		for (const auto& added : deltas.Added)
+			elements.insert(added);
 
-        for (const auto& element : deltas.Copied)
-            elements.insert(element);
+		for (const auto& element : deltas.Copied)
+			elements.insert(element);
 
-        for (const auto& element : deltas.Removed)
-            elements.remove(TKeyTraits::ToKey(element));
+		for (const auto& element : deltas.Removed)
+			elements.remove(TKeyTraits::ToKey(element));
 
-        size += deltas.Added.size();
-        size -= deltas.Removed.size();
-        elements.setSize(size);
-    }
+		size += deltas.Added.size();
+		size -= deltas.Removed.size();
+		elements.setSize(size);
+	}
 
-    /// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
-    template <typename TDescriptor, typename TContainer, typename TPruningBoundary>
-    void PruneBaseSet(RdbTypedColumnContainer<TDescriptor, TContainer>& elements, const TPruningBoundary& pruningBoundary)
-    {
-        auto size = elements.size();
-        size -= elements.prune(pruningBoundary.value());
-        elements.setSize(size);
-    }
+	/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
+	template <typename TDescriptor, typename TContainer, typename TPruningBoundary>
+	void PruneBaseSet(RdbTypedColumnContainer<TDescriptor, TContainer>& elements, const TPruningBoundary& pruningBoundary) {
+		auto size = elements.size();
+		size -= elements.prune(pruningBoundary.value());
+		elements.setSize(size);
+	}
 }
 }

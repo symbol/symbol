@@ -26,55 +26,53 @@
 namespace catapult {
 namespace chain {
 
-    /// Finalization hash tree.
-    /// \note Any node in the tree is considered to be an ancestor and descendant of itself.
-    class FinalizationHashTree {
-    public:
-        /// Gets the number of tree nodes.
-        size_t size() const;
+	/// Finalization hash tree.
+	/// \note Any node in the tree is considered to be an ancestor and descendant of itself.
+	class FinalizationHashTree {
+	public:
+		/// Gets the number of tree nodes.
+		size_t size() const;
 
-        /// Returns \c true if \a key is contained in this tree.
-        bool contains(const model::HeightHashPair& key) const;
+		/// Returns \c true if \a key is contained in this tree.
+		bool contains(const model::HeightHashPair& key) const;
 
-        /// Returns \c true if \a childKey descends from \a parentKey, inclusive.
-        bool isDescendant(const model::HeightHashPair& parentKey, const model::HeightHashPair& childKey) const;
+		/// Returns \c true if \a childKey descends from \a parentKey, inclusive.
+		bool isDescendant(const model::HeightHashPair& parentKey, const model::HeightHashPair& childKey) const;
 
-        /// Finds all ancestors of \a key, inclusive.
-        std::vector<model::HeightHashPair> findAncestors(const model::HeightHashPair& key) const;
+		/// Finds all ancestors of \a key, inclusive.
+		std::vector<model::HeightHashPair> findAncestors(const model::HeightHashPair& key) const;
 
-    public:
-        /// Adds a branch of \a count hashes (\a pHashes) starting at \a height.
-        void addBranch(Height height, const Hash256* pHashes, size_t count);
+	public:
+		/// Adds a branch of \a count hashes (\a pHashes) starting at \a height.
+		void addBranch(Height height, const Hash256* pHashes, size_t count);
 
-    private:
-        struct TreeNode {
-        public:
-            explicit TreeNode(const model::HeightHashPair& key)
-                : pParent(nullptr)
-                , Key(key)
-            {
-            }
+	private:
+		struct TreeNode {
+		public:
+			explicit TreeNode(const model::HeightHashPair& key)
+				: pParent(nullptr)
+				, Key(key) {
+			}
 
-        public:
-            constexpr bool operator==(const TreeNode& rhs) const
-            {
-                return Key == rhs.Key;
-            }
+		public:
+			constexpr bool operator==(const TreeNode& rhs) const {
+				return Key == rhs.Key;
+			}
 
-        public:
-            const TreeNode* pParent;
-            model::HeightHashPair Key;
-        };
+		public:
+			const TreeNode* pParent;
+			model::HeightHashPair Key;
+		};
 
-    private:
-        const TreeNode* tryFindNode(const model::HeightHashPair& key) const;
+	private:
+		const TreeNode* tryFindNode(const model::HeightHashPair& key) const;
 
-    private:
-        struct TreeNodeHasher {
-            size_t operator()(const TreeNode& node) const;
-        };
+	private:
+		struct TreeNodeHasher {
+			size_t operator()(const TreeNode& node) const;
+		};
 
-        std::unordered_set<TreeNode, TreeNodeHasher> m_tree;
-    };
+		std::unordered_set<TreeNode, TreeNodeHasher> m_tree;
+	};
 }
 }

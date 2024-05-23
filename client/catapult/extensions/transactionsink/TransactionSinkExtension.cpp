@@ -24,17 +24,15 @@
 
 namespace catapult {
 namespace transactionsink {
-    namespace {
-        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
-        {
-            // register service(s)
-            bootstrapper.extensionManager().addServiceRegistrar(CreateTransactionSinkServiceRegistrar());
-        }
-    }
+	namespace {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			// register service(s)
+			bootstrapper.extensionManager().addServiceRegistrar(CreateTransactionSinkServiceRegistrar());
+		}
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
-{
-    catapult::transactionsink::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+	catapult::transactionsink::RegisterExtension(bootstrapper);
 }

@@ -28,32 +28,32 @@
 namespace catapult {
 namespace observers {
 
-    // region alias
+	// region alias
 
-    /// Observes changes triggered by aliased address notifications and:
-    /// - links/unlinks address to namespace
-    DECLARE_OBSERVER(AliasedAddress, model::AliasedAddressNotification)
-    ();
+	/// Observes changes triggered by aliased address notifications and:
+	/// - links/unlinks address to namespace
+	DECLARE_OBSERVER(AliasedAddress, model::AliasedAddressNotification)
+	();
 
-    /// Observes changes triggered by aliased mosaic id notifications and:
-    /// - links/unlinks mosaic id to namespace
-    DECLARE_OBSERVER(AliasedMosaicId, model::AliasedMosaicIdNotification)
-    ();
+	/// Observes changes triggered by aliased mosaic id notifications and:
+	/// - links/unlinks mosaic id to namespace
+	DECLARE_OBSERVER(AliasedMosaicId, model::AliasedMosaicIdNotification)
+	();
 
-    // endregion
+	// endregion
 
-    // region namespace
+	// region namespace
 
-    /// Observes changes triggered by root namespace notifications and:
-    /// - creates (root) namespaces
-    DECLARE_OBSERVER(RootNamespace, model::RootNamespaceNotification)
-    ();
+	/// Observes changes triggered by root namespace notifications and:
+	/// - creates (root) namespaces
+	DECLARE_OBSERVER(RootNamespace, model::RootNamespaceNotification)
+	();
 
-    /// Observes changes triggered by child namespace notifications and:
-    /// - creates (child) namespaces
-    DECLARE_OBSERVER(ChildNamespace, model::ChildNamespaceNotification)
-    ();
+	/// Observes changes triggered by child namespace notifications and:
+	/// - creates (child) namespaces
+	DECLARE_OBSERVER(ChildNamespace, model::ChildNamespaceNotification)
+	();
 
-    // endregion
+	// endregion
 }
 }

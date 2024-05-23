@@ -26,28 +26,26 @@
 namespace catapult {
 namespace ionet {
 
-    /// Result from a node interaction.
-    struct NodeInteractionResult {
-    public:
-        /// Creates a default node interaction result.
-        NodeInteractionResult()
-            : NodeInteractionResult(model::NodeIdentity(), NodeInteractionResultCode::None)
-        {
-        }
+	/// Result from a node interaction.
+	struct NodeInteractionResult {
+	public:
+		/// Creates a default node interaction result.
+		NodeInteractionResult()
+			: NodeInteractionResult(model::NodeIdentity(), NodeInteractionResultCode::None) {
+		}
 
-        /// Creates a node interaction result around \a identity and \a code.
-        NodeInteractionResult(const model::NodeIdentity& identity, NodeInteractionResultCode code)
-            : Identity(identity)
-            , Code(code)
-        {
-        }
+		/// Creates a node interaction result around \a identity and \a code.
+		NodeInteractionResult(const model::NodeIdentity& identity, NodeInteractionResultCode code)
+			: Identity(identity)
+			, Code(code) {
+		}
 
-    public:
-        /// Identity of the remote node.
-        model::NodeIdentity Identity;
+	public:
+		/// Identity of the remote node.
+		model::NodeIdentity Identity;
 
-        /// Interaction result code.
-        NodeInteractionResultCode Code;
-    };
+		/// Interaction result code.
+		NodeInteractionResultCode Code;
+	};
 }
 }

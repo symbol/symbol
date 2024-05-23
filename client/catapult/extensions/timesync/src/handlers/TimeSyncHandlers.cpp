@@ -26,20 +26,19 @@
 namespace catapult {
 namespace handlers {
 
-    void RegisterTimeSyncNetworkTimeHandler(
-        ionet::ServerPacketHandlers& handlers,
-        const extensions::ExtensionManager::NetworkTimeSupplier& networkTimeSupplier)
-    {
-        handlers.registerHandler(ionet::PacketType::Time_Sync_Network_Time, [networkTimeSupplier](const auto& packet, auto& context) {
-            auto receiveTime = networkTimeSupplier();
-            if (!IsPacketValid(packet, ionet::PacketType::Time_Sync_Network_Time))
-                return;
+	void RegisterTimeSyncNetworkTimeHandler(
+		ionet::ServerPacketHandlers& handlers,
+		const extensions::ExtensionManager::NetworkTimeSupplier& networkTimeSupplier) {
+		handlers.registerHandler(ionet::PacketType::Time_Sync_Network_Time, [networkTimeSupplier](const auto& packet, auto& context) {
+			auto receiveTime = networkTimeSupplier();
+			if (!IsPacketValid(packet, ionet::PacketType::Time_Sync_Network_Time))
+				return;
 
-            auto pResponsePacket = ionet::CreateSharedPacket<api::NetworkTimePacket>();
-            pResponsePacket->CommunicationTimestamps.SendTimestamp = networkTimeSupplier();
-            pResponsePacket->CommunicationTimestamps.ReceiveTimestamp = receiveTime;
-            context.response(ionet::PacketPayload(pResponsePacket));
-        });
-    }
+			auto pResponsePacket = ionet::CreateSharedPacket<api::NetworkTimePacket>();
+			pResponsePacket->CommunicationTimestamps.SendTimestamp = networkTimeSupplier();
+			pResponsePacket->CommunicationTimestamps.ReceiveTimestamp = receiveTime;
+			context.response(ionet::PacketPayload(pResponsePacket));
+		});
+	}
 }
 }

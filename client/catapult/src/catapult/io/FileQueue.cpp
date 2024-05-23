@@ -29,143 +29,128 @@
 namespace catapult {
 namespace io {
 
-    namespace {
-        const std::filesystem::path& CreateDirectory(const std::filesystem::path& directory)
-        {
-            config::CatapultDirectory(directory).create();
-            return directory;
-        }
+	namespace {
+		const std::filesystem::path& CreateDirectory(const std::filesystem::path& directory) {
+			config::CatapultDirectory(directory).create();
+			return directory;
+		}
 
-        bool CreateIfNotExists(IndexFile& indexFile)
-        {
-            if (indexFile.exists())
-                return false;
+		bool CreateIfNotExists(IndexFile& indexFile) {
+			if (indexFile.exists())
+				return false;
 
-            indexFile.set(0);
-            return true;
-        }
+			indexFile.set(0);
+			return true;
+		}
 
-        std::string GetFilename(uint64_t value)
-        {
-            std::ostringstream out;
-            out << utils::HexFormat(value) << ".dat";
-            return out.str();
-        }
-    }
+		std::string GetFilename(uint64_t value) {
+			std::ostringstream out;
+			out << utils::HexFormat(value) << ".dat";
+			return out.str();
+		}
+	}
 
-    // region FileQueueWriter
+	// region FileQueueWriter
 
-    FileQueueWriter::FileQueueWriter(const std::string& directory)
-        : FileQueueWriter(directory, "index.dat")
-    {
-    }
+	FileQueueWriter::FileQueueWriter(const std::string& directory)
+		: FileQueueWriter(directory, "index.dat") {
+	}
 
-    FileQueueWriter::FileQueueWriter(const std::string& directory, const std::string& indexFilename)
-        : m_directory(CreateDirectory(directory))
-        , m_indexFile((m_directory / indexFilename).generic_string(), LockMode::None)
-        , m_indexValue(CreateIfNotExists(m_indexFile) ? 0 : m_indexFile.get())
-    {
-    }
+	FileQueueWriter::FileQueueWriter(const std::string& directory, const std::string& indexFilename)
+		: m_directory(CreateDirectory(directory))
+		, m_indexFile((m_directory / indexFilename).generic_string(), LockMode::None)
+		, m_indexValue(CreateIfNotExists(m_indexFile) ? 0 : m_indexFile.get()) {
+	}
 
-    void FileQueueWriter::write(const RawBuffer& buffer)
-    {
-        if (!m_pOutputStream) {
-            auto filename = (m_directory / GetFilename(m_indexValue)).generic_string();
-            RawFile outputFile(filename, OpenMode::Read_Write);
-            m_pOutputStream = std::make_unique<BufferedOutputFileStream>(std::move(outputFile));
-        }
+	void FileQueueWriter::write(const RawBuffer& buffer) {
+		if (!m_pOutputStream) {
+			auto filename = (m_directory / GetFilename(m_indexValue)).generic_string();
+			RawFile outputFile(filename, OpenMode::Read_Write);
+			m_pOutputStream = std::make_unique<BufferedOutputFileStream>(std::move(outputFile));
+		}
 
-        m_pOutputStream->write(buffer);
-    }
+		m_pOutputStream->write(buffer);
+	}
 
-    void FileQueueWriter::flush()
-    {
-        if (!m_pOutputStream)
-            return;
+	void FileQueueWriter::flush() {
+		if (!m_pOutputStream)
+			return;
 
-        m_pOutputStream->flush();
-        m_pOutputStream.reset();
-        m_indexValue = m_indexFile.increment();
-    }
+		m_pOutputStream->flush();
+		m_pOutputStream.reset();
+		m_indexValue = m_indexFile.increment();
+	}
 
-    // endregion
+	// endregion
 
-    // region FileQueueReader
+	// region FileQueueReader
 
-    namespace {
-        std::vector<uint8_t> ReadAllContents(const std::string& filename)
-        {
-            RawFile outputFile(filename, OpenMode::Read_Only);
-            std::vector<uint8_t> buffer(outputFile.size());
-            outputFile.read(buffer);
-            return buffer;
-        }
-    }
+	namespace {
+		std::vector<uint8_t> ReadAllContents(const std::string& filename) {
+			RawFile outputFile(filename, OpenMode::Read_Only);
+			std::vector<uint8_t> buffer(outputFile.size());
+			outputFile.read(buffer);
+			return buffer;
+		}
+	}
 
-    FileQueueReader::FileQueueReader(const std::string& directory)
-        : FileQueueReader(directory, "index_reader.dat", "index.dat")
-    {
-    }
+	FileQueueReader::FileQueueReader(const std::string& directory)
+		: FileQueueReader(directory, "index_reader.dat", "index.dat") {
+	}
 
-    FileQueueReader::FileQueueReader(
-        const std::string& directory,
-        const std::string& readerIndexFilename,
-        const std::string& writerIndexFilename)
-        : m_directory(CreateDirectory(directory))
-        , m_readerIndexFile((m_directory / readerIndexFilename).generic_string())
-        , m_writerIndexFile((m_directory / writerIndexFilename).generic_string(), LockMode::None)
-    {
-        CreateIfNotExists(m_readerIndexFile);
-    }
+	FileQueueReader::FileQueueReader(
+		const std::string& directory,
+		const std::string& readerIndexFilename,
+		const std::string& writerIndexFilename)
+		: m_directory(CreateDirectory(directory))
+		, m_readerIndexFile((m_directory / readerIndexFilename).generic_string())
+		, m_writerIndexFile((m_directory / writerIndexFilename).generic_string(), LockMode::None) {
+		CreateIfNotExists(m_readerIndexFile);
+	}
 
-    size_t FileQueueReader::pending() const
-    {
-        auto writerIndexValue = m_writerIndexFile.exists() ? m_writerIndexFile.get() : 0;
-        auto readerIndexValue = m_readerIndexFile.get();
-        return readerIndexValue > writerIndexValue ? 0 : writerIndexValue - readerIndexValue;
-    }
+	size_t FileQueueReader::pending() const {
+		auto writerIndexValue = m_writerIndexFile.exists() ? m_writerIndexFile.get() : 0;
+		auto readerIndexValue = m_readerIndexFile.get();
+		return readerIndexValue > writerIndexValue ? 0 : writerIndexValue - readerIndexValue;
+	}
 
-    bool FileQueueReader::tryReadNextMessage(const consumer<const std::vector<uint8_t>&>& consumer)
-    {
-        return tryReadNextMessageConditional([consumer](const auto& buffer) {
-            consumer(buffer);
-            return true;
-        });
-    }
+	bool FileQueueReader::tryReadNextMessage(const consumer<const std::vector<uint8_t>&>& consumer) {
+		return tryReadNextMessageConditional([consumer](const auto& buffer) {
+			consumer(buffer);
+			return true;
+		});
+	}
 
-    bool FileQueueReader::tryReadNextMessageConditional(const predicate<const std::vector<uint8_t>&>& predicate)
-    {
-        return process([predicate](const auto& nextMessageFilename) {
-            auto buffer = ReadAllContents(nextMessageFilename);
-            return predicate(buffer);
-        });
-    }
+	bool FileQueueReader::tryReadNextMessageConditional(const predicate<const std::vector<uint8_t>&>& predicate) {
+		return process([predicate](const auto& nextMessageFilename) {
+			auto buffer = ReadAllContents(nextMessageFilename);
+			return predicate(buffer);
+		});
+	}
 
-    void FileQueueReader::skip(uint32_t count)
-    {
-        for (auto i = 0u; i < count; ++i) {
-            process([](const auto&) { return true; });
-        }
-    }
+	void FileQueueReader::skip(uint32_t count) {
+		for (auto i = 0u; i < count; ++i) {
+			process([](const auto&) { return true; });
+		}
+	}
 
-    bool FileQueueReader::process(const predicate<const std::string&>& processFilename)
-    {
-        auto readerIndexValue = m_readerIndexFile.get();
-        if (!m_writerIndexFile.exists() || readerIndexValue >= m_writerIndexFile.get())
-            return false;
+	bool FileQueueReader::process(const predicate<const std::string&>& processFilename) {
+		auto readerIndexValue = m_readerIndexFile.get();
+		if (!m_writerIndexFile.exists() || readerIndexValue >= m_writerIndexFile.get())
+			return false;
 
-        auto nextMessageFilename = m_directory / GetFilename(readerIndexValue);
-        if (!std::filesystem::exists(nextMessageFilename))
-            CATAPULT_THROW_RUNTIME_ERROR_1("reading from file queue failed due to missing message file", nextMessageFilename);
+		auto nextMessageFilename = m_directory / GetFilename(readerIndexValue);
+		if (!std::filesystem::exists(nextMessageFilename))
+			CATAPULT_THROW_RUNTIME_ERROR_1("reading from file queue failed due to missing message file", nextMessageFilename);
 
-        if (!processFilename(nextMessageFilename.generic_string()))
-            return false; // file was not fully processed, so don't delete it
+		if (!processFilename(nextMessageFilename.generic_string()))
+			return false; // file was not fully processed, so don't delete it
 
-        m_readerIndexFile.increment();
-        std::filesystem::remove(nextMessageFilename);
-        return true;
-    }
+		m_readerIndexFile.increment();
+		std::filesystem::remove(nextMessageFilename);
+		return true;
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -29,73 +29,68 @@ namespace finalization {
 
 #define TEST_CLASS FinalizationSyncSourceServiceTests
 
-    namespace {
-        struct FinalizationSyncSourceServiceTraits {
-            static auto CreateRegistrar(bool enableVoting)
-            {
-                return CreateFinalizationSyncSourceServiceRegistrar(enableVoting);
-            }
+	namespace {
+		struct FinalizationSyncSourceServiceTraits {
+			static auto CreateRegistrar(bool enableVoting) {
+				return CreateFinalizationSyncSourceServiceRegistrar(enableVoting);
+			}
 
-            static auto CreateRegistrar()
-            {
-                return CreateRegistrar(true);
-            }
-        };
+			static auto CreateRegistrar() {
+				return CreateRegistrar(true);
+			}
+		};
 
-        using TestContext = test::MessageRangeConsumerDependentServiceLocatorTestContext<FinalizationSyncSourceServiceTraits>;
-    }
+		using TestContext = test::MessageRangeConsumerDependentServiceLocatorTestContext<FinalizationSyncSourceServiceTraits>;
+	}
 
-    // region basic
+	// region basic
 
-    ADD_SERVICE_REGISTRAR_INFO_TEST(FinalizationSyncSource, Post_Extended_Range_Consumers)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(FinalizationSyncSource, Post_Extended_Range_Consumers)
 
-    TEST(TEST_CLASS, NoServicesOrCountersAreRegistered)
-    {
-        // Arrange:
-        TestContext context;
+	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
+		// Arrange:
+		TestContext context;
 
-        // Act:
-        context.boot();
+		// Act:
+		context.boot();
 
-        // Assert: only dependency services are registered
-        EXPECT_EQ(test::FinalizationBootstrapperServiceTestUtils::Num_Bootstrapper_Services, context.locator().numServices());
-        EXPECT_EQ(0u, context.locator().counters().size());
-    }
+		// Assert: only dependency services are registered
+		EXPECT_EQ(test::FinalizationBootstrapperServiceTestUtils::Num_Bootstrapper_Services, context.locator().numServices());
+		EXPECT_EQ(0u, context.locator().counters().size());
+	}
 
-    TEST(TEST_CLASS, PacketHandlersAreRegistered_WithVotingEnabled)
-    {
-        // Arrange:
-        TestContext context;
+	TEST(TEST_CLASS, PacketHandlersAreRegistered_WithVotingEnabled) {
+		// Arrange:
+		TestContext context;
 
-        // Act:
-        context.boot(true);
-        const auto& handlers = context.testState().state().packetHandlers();
+		// Act:
+		context.boot(true);
+		const auto& handlers = context.testState().state().packetHandlers();
 
-        // Assert:
-        EXPECT_EQ(5u, handlers.size());
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Epoch));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Push_Finalization_Messages));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Finalization_Messages));
-    }
+		// Assert:
+		EXPECT_EQ(5u, handlers.size());
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Epoch));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Push_Finalization_Messages));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Finalization_Messages));
+	}
 
-    TEST(TEST_CLASS, PacketHandlersAreRegistered_WithVotingDisabled)
-    {
-        // Arrange:
-        TestContext context;
+	TEST(TEST_CLASS, PacketHandlersAreRegistered_WithVotingDisabled) {
+		// Arrange:
+		TestContext context;
 
-        // Act:
-        context.boot(false);
-        const auto& handlers = context.testState().state().packetHandlers();
+		// Act:
+		context.boot(false);
+		const auto& handlers = context.testState().state().packetHandlers();
 
-        // Assert:
-        EXPECT_EQ(3u, handlers.size());
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Epoch));
-        EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));
-    }
+		// Assert:
+		EXPECT_EQ(3u, handlers.size());
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Epoch));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -29,30 +29,27 @@ namespace networkheight {
 
 #define LOAD_PROPERTY(SECTION, NAME) utils::LoadIniProperty(bag, SECTION, #NAME, config.NAME)
 
-    NetworkHeightConfiguration NetworkHeightConfiguration::Uninitialized()
-    {
-        return NetworkHeightConfiguration();
-    }
+	NetworkHeightConfiguration NetworkHeightConfiguration::Uninitialized() {
+		return NetworkHeightConfiguration();
+	}
 
-    NetworkHeightConfiguration NetworkHeightConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        NetworkHeightConfiguration config;
+	NetworkHeightConfiguration NetworkHeightConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		NetworkHeightConfiguration config;
 
 #define LOAD_NETWORKHEIGHT_PROPERTY(NAME) LOAD_PROPERTY("networkheight", NAME)
 
-        LOAD_NETWORKHEIGHT_PROPERTY(MaxNodes);
+		LOAD_NETWORKHEIGHT_PROPERTY(MaxNodes);
 
 #undef LOAD_NETWORKHEIGHT_PROPERTY
 
-        utils::VerifyBagSizeExact(bag, 1);
-        return config;
-    }
+		utils::VerifyBagSizeExact(bag, 1);
+		return config;
+	}
 
 #undef LOAD_PROPERTY
 
-    NetworkHeightConfiguration NetworkHeightConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath)
-    {
-        return config::LoadIniConfiguration<NetworkHeightConfiguration>(resourcesPath / "config-networkheight.properties");
-    }
+	NetworkHeightConfiguration NetworkHeightConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
+		return config::LoadIniConfiguration<NetworkHeightConfiguration>(resourcesPath / "config-networkheight.properties");
+	}
 }
 }

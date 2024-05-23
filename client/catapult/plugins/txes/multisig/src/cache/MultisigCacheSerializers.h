@@ -27,7 +27,7 @@
 namespace catapult {
 namespace cache {
 
-    /// Primary serializer for multisig cache.
-    struct MultisigEntryPrimarySerializer : public CacheSerializerAdapter<state::MultisigEntrySerializer, MultisigCacheDescriptor> { };
+	/// Primary serializer for multisig cache.
+	struct MultisigEntryPrimarySerializer : public CacheSerializerAdapter<state::MultisigEntrySerializer, MultisigCacheDescriptor> { };
 }
 }

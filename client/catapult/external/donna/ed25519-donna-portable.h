@@ -38,7 +38,7 @@ typedef unsigned __int128 uint128_t;
 #elif defined(COMPILER_MSVC)
 #define HAVE_UINT128
 typedef struct uint128_t {
-    uint64_t lo, hi;
+	uint64_t lo, hi;
 } uint128_t;
 #define mul64x64_128(out, a, b) out.lo = _umul128(a, b, &out.hi);
 #define shr128_pair(out, hi, lo, shift) out = __shiftright128(lo, hi, shift)
@@ -46,17 +46,17 @@ typedef struct uint128_t {
 #define shr128(out, in, shift) shr128_pair(out, in.hi, in.lo, shift)
 #define shl128(out, in, shift) shl128_pair(out, in.hi, in.lo, shift)
 #define add128(a, b)               \
-    {                              \
-        uint64_t p = a.lo;         \
-        a.lo += b.lo;              \
-        a.hi += b.hi + (a.lo < p); \
-    }
+	{                              \
+		uint64_t p = a.lo;         \
+		a.lo += b.lo;              \
+		a.hi += b.hi + (a.lo < p); \
+	}
 #define add128_64(a, b)     \
-    {                       \
-        uint64_t p = a.lo;  \
-        a.lo += b;          \
-        a.hi += (a.lo < p); \
-    }
+	{                       \
+		uint64_t p = a.lo;  \
+		a.lo += b;          \
+		a.hi += (a.lo < p); \
+	}
 #define lo128(a) (a.lo)
 #define hi128(a) (a.hi)
 #elif defined(COMPILER_GCC) && !defined(HAVE_NATIVE_UINT128)
@@ -69,15 +69,15 @@ typedef unsigned uint128_t __attribute__((mode(TI)));
 #elif defined(CPU_X86_64)
 #define HAVE_UINT128
 typedef struct uint128_t {
-    uint64_t lo, hi;
+	uint64_t lo, hi;
 } uint128_t;
 #define mul64x64_128(out, a, b) __asm__("mulq %3" : "=a"(out.lo), "=d"(out.hi) : "a"(a), "rm"(b));
 #define shr128_pair(out, hi, lo, shift)                         \
-    __asm__("shrdq %2,%1,%0" : "+r"(lo) : "r"(hi), "J"(shift)); \
-    out = lo
+	__asm__("shrdq %2,%1,%0" : "+r"(lo) : "r"(hi), "J"(shift)); \
+	out = lo
 #define shl128_pair(out, hi, lo, shift)                         \
-    __asm__("shldq %2,%1,%0" : "+r"(hi) : "r"(lo), "J"(shift)); \
-    out = hi
+	__asm__("shldq %2,%1,%0" : "+r"(hi) : "r"(lo), "J"(shift)); \
+	out = hi
 #define shr128(out, in, shift) shr128_pair(out, in.hi, in.lo, shift)
 #define shl128(out, in, shift) shl128_pair(out, in.hi, in.lo, shift)
 #define add128(a, b) __asm__("addq %4,%2; adcq %5,%3" : "=r"(a.hi), "=r"(a.lo) : "1"(a.lo), "0"(a.hi), "rm"(b.lo), "rm"(b.hi) : "cc");
@@ -107,37 +107,33 @@ typedef struct uint128_t {
 
 /* endian */
 #if !defined(ED25519_OPENSSLRNG)
-static inline void U32TO8_LE(unsigned char* p, const uint32_t v)
-{
-    p[0] = (unsigned char)(v);
-    p[1] = (unsigned char)(v >> 8);
-    p[2] = (unsigned char)(v >> 16);
-    p[3] = (unsigned char)(v >> 24);
+static inline void U32TO8_LE(unsigned char* p, const uint32_t v) {
+	p[0] = (unsigned char)(v);
+	p[1] = (unsigned char)(v >> 8);
+	p[2] = (unsigned char)(v >> 16);
+	p[3] = (unsigned char)(v >> 24);
 }
 #endif
 
 #if !defined(HAVE_UINT128)
-static inline uint32_t U8TO32_LE(const unsigned char* p)
-{
-    return (((uint32_t)(p[0])) | ((uint32_t)(p[1]) << 8) | ((uint32_t)(p[2]) << 16) | ((uint32_t)(p[3]) << 24));
+static inline uint32_t U8TO32_LE(const unsigned char* p) {
+	return (((uint32_t)(p[0])) | ((uint32_t)(p[1]) << 8) | ((uint32_t)(p[2]) << 16) | ((uint32_t)(p[3]) << 24));
 }
 #else
-static inline uint64_t U8TO64_LE(const unsigned char* p)
-{
-    return (((uint64_t)(p[0])) | ((uint64_t)(p[1]) << 8) | ((uint64_t)(p[2]) << 16) | ((uint64_t)(p[3]) << 24) | ((uint64_t)(p[4]) << 32)
-        | ((uint64_t)(p[5]) << 40) | ((uint64_t)(p[6]) << 48) | ((uint64_t)(p[7]) << 56));
+static inline uint64_t U8TO64_LE(const unsigned char* p) {
+	return (((uint64_t)(p[0])) | ((uint64_t)(p[1]) << 8) | ((uint64_t)(p[2]) << 16) | ((uint64_t)(p[3]) << 24) | ((uint64_t)(p[4]) << 32)
+		| ((uint64_t)(p[5]) << 40) | ((uint64_t)(p[6]) << 48) | ((uint64_t)(p[7]) << 56));
 }
 
-static inline void U64TO8_LE(unsigned char* p, const uint64_t v)
-{
-    p[0] = (unsigned char)(v);
-    p[1] = (unsigned char)(v >> 8);
-    p[2] = (unsigned char)(v >> 16);
-    p[3] = (unsigned char)(v >> 24);
-    p[4] = (unsigned char)(v >> 32);
-    p[5] = (unsigned char)(v >> 40);
-    p[6] = (unsigned char)(v >> 48);
-    p[7] = (unsigned char)(v >> 56);
+static inline void U64TO8_LE(unsigned char* p, const uint64_t v) {
+	p[0] = (unsigned char)(v);
+	p[1] = (unsigned char)(v >> 8);
+	p[2] = (unsigned char)(v >> 16);
+	p[3] = (unsigned char)(v >> 24);
+	p[4] = (unsigned char)(v >> 32);
+	p[5] = (unsigned char)(v >> 40);
+	p[6] = (unsigned char)(v >> 48);
+	p[7] = (unsigned char)(v >> 56);
 }
 #endif
 

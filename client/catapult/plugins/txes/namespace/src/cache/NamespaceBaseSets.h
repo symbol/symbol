@@ -29,64 +29,60 @@
 namespace catapult {
 namespace cache {
 
-    using BasicNamespacePatriciaTree = tree::BasePatriciaTree<
-        SerializerHashedKeyEncoder<RootNamespaceHistoryPatriciaTreeSerializer>,
-        PatriciaTreeRdbDataSource,
-        utils::BaseValueHasher<NamespaceId>>;
+	using BasicNamespacePatriciaTree = tree::BasePatriciaTree<
+		SerializerHashedKeyEncoder<RootNamespaceHistoryPatriciaTreeSerializer>,
+		PatriciaTreeRdbDataSource,
+		utils::BaseValueHasher<NamespaceId>>;
 
-    class NamespacePatriciaTree : public BasicNamespacePatriciaTree {
-    public:
-        using BasicNamespacePatriciaTree::BasicNamespacePatriciaTree;
-        using Serializer = RootNamespaceHistoryPatriciaTreeSerializer;
-    };
+	class NamespacePatriciaTree : public BasicNamespacePatriciaTree {
+	public:
+		using BasicNamespacePatriciaTree::BasicNamespacePatriciaTree;
+		using Serializer = RootNamespaceHistoryPatriciaTreeSerializer;
+	};
 
-    struct NamespaceBaseSetDeltaPointers {
-        NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaPointerType pPrimary;
-        NamespaceCacheTypes::FlatMapTypes::BaseSetDeltaPointerType pFlatMap;
-        NamespaceCacheTypes::HeightGroupingTypes::BaseSetDeltaPointerType pHeightGrouping;
-        std::shared_ptr<NamespacePatriciaTree::DeltaType> pPatriciaTree;
-    };
+	struct NamespaceBaseSetDeltaPointers {
+		NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaPointerType pPrimary;
+		NamespaceCacheTypes::FlatMapTypes::BaseSetDeltaPointerType pFlatMap;
+		NamespaceCacheTypes::HeightGroupingTypes::BaseSetDeltaPointerType pHeightGrouping;
+		std::shared_ptr<NamespacePatriciaTree::DeltaType> pPatriciaTree;
+	};
 
-    struct NamespaceBaseSets : public CacheDatabaseMixin {
-    public:
-        /// Indicates the set is not ordered.
-        using IsOrderedSet = std::false_type;
+	struct NamespaceBaseSets : public CacheDatabaseMixin {
+	public:
+		/// Indicates the set is not ordered.
+		using IsOrderedSet = std::false_type;
 
-    public:
-        explicit NamespaceBaseSets(const CacheConfiguration& config)
-            : CacheDatabaseMixin(config, { "default", "flat_map", "height_grouping" })
-            , Primary(GetContainerMode(config), database(), 0)
-            , FlatMap(GetContainerMode(config), database(), 1)
-            , HeightGrouping(GetContainerMode(config), database(), 2)
-            , PatriciaTree(hasPatriciaTreeSupport(), database(), 3)
-        {
-        }
+	public:
+		explicit NamespaceBaseSets(const CacheConfiguration& config)
+			: CacheDatabaseMixin(config, { "default", "flat_map", "height_grouping" })
+			, Primary(GetContainerMode(config), database(), 0)
+			, FlatMap(GetContainerMode(config), database(), 1)
+			, HeightGrouping(GetContainerMode(config), database(), 2)
+			, PatriciaTree(hasPatriciaTreeSupport(), database(), 3) {
+		}
 
-    public:
-        NamespaceCacheTypes::PrimaryTypes::BaseSetType Primary;
-        NamespaceCacheTypes::FlatMapTypes::BaseSetType FlatMap;
-        NamespaceCacheTypes::HeightGroupingTypes::BaseSetType HeightGrouping;
-        CachePatriciaTree<NamespacePatriciaTree> PatriciaTree;
+	public:
+		NamespaceCacheTypes::PrimaryTypes::BaseSetType Primary;
+		NamespaceCacheTypes::FlatMapTypes::BaseSetType FlatMap;
+		NamespaceCacheTypes::HeightGroupingTypes::BaseSetType HeightGrouping;
+		CachePatriciaTree<NamespacePatriciaTree> PatriciaTree;
 
-    public:
-        NamespaceBaseSetDeltaPointers rebase()
-        {
-            return { Primary.rebase(), FlatMap.rebase(), HeightGrouping.rebase(), PatriciaTree.rebase() };
-        }
+	public:
+		NamespaceBaseSetDeltaPointers rebase() {
+			return { Primary.rebase(), FlatMap.rebase(), HeightGrouping.rebase(), PatriciaTree.rebase() };
+		}
 
-        NamespaceBaseSetDeltaPointers rebaseDetached() const
-        {
-            return { Primary.rebaseDetached(), FlatMap.rebaseDetached(), HeightGrouping.rebaseDetached(), PatriciaTree.rebaseDetached() };
-        }
+		NamespaceBaseSetDeltaPointers rebaseDetached() const {
+			return { Primary.rebaseDetached(), FlatMap.rebaseDetached(), HeightGrouping.rebaseDetached(), PatriciaTree.rebaseDetached() };
+		}
 
-        void commit()
-        {
-            Primary.commit();
-            FlatMap.commit();
-            HeightGrouping.commit();
-            PatriciaTree.commit();
-            flush();
-        }
-    };
+		void commit() {
+			Primary.commit();
+			FlatMap.commit();
+			HeightGrouping.commit();
+			PatriciaTree.commit();
+			flush();
+		}
+	};
 }
 }

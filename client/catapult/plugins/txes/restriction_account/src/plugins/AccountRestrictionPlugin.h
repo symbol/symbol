@@ -24,15 +24,15 @@
 
 namespace catapult {
 namespace plugins {
-    class PluginManager;
+	class PluginManager;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Registers account restriction support with \a manager.
-    PLUGIN_API
-    void RegisterAccountRestrictionSubsystem(PluginManager& manager);
+	/// Registers account restriction support with \a manager.
+	PLUGIN_API
+	void RegisterAccountRestrictionSubsystem(PluginManager& manager);
 }
 }

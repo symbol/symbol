@@ -26,16 +26,16 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            struct SecretLockCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::SecretLockInfoCacheDescriptor> {
-                static constexpr auto Collection_Name = "secretLocks";
-                static constexpr auto Id_Property_Name = "lock.compositeHash";
-            };
-        }
+		namespace {
+			struct SecretLockCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::SecretLockInfoCacheDescriptor> {
+				static constexpr auto Collection_Name = "secretLocks";
+				static constexpr auto Id_Property_Name = "lock.compositeHash";
+			};
+		}
 
-        DEFINE_MONGO_FLAT_CACHE_STORAGE(SecretLockInfo, MongoLockInfoCacheStorageTraits<SecretLockCacheTraits>)
-    }
+		DEFINE_MONGO_FLAT_CACHE_STORAGE(SecretLockInfo, MongoLockInfoCacheStorageTraits<SecretLockCacheTraits>)
+	}
 }
 }

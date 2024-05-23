@@ -27,43 +27,42 @@
 namespace catapult {
 namespace observers {
 
-    using Notification = model::SecretLockNotification;
+	using Notification = model::SecretLockNotification;
 
-    namespace {
-        auto CreateLockInfo(
-            const Address& owner,
-            MosaicId mosaicId,
-            Height endHeight,
-            const Notification& notification,
-            const model::ResolverContext& resolvers)
-        {
-            state::SecretLockInfo lockInfo(
-                owner,
-                mosaicId,
-                notification.Mosaic.Amount,
-                endHeight,
-                notification.HashAlgorithm,
-                notification.Secret,
-                resolvers.resolve(notification.Recipient));
-            lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
-            return lockInfo;
-        }
-    }
+	namespace {
+		auto CreateLockInfo(
+			const Address& owner,
+			MosaicId mosaicId,
+			Height endHeight,
+			const Notification& notification,
+			const model::ResolverContext& resolvers) {
+			state::SecretLockInfo lockInfo(
+				owner,
+				mosaicId,
+				notification.Mosaic.Amount,
+				endHeight,
+				notification.HashAlgorithm,
+				notification.Secret,
+				resolvers.resolve(notification.Recipient));
+			lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
+			return lockInfo;
+		}
+	}
 
-    DEFINE_OBSERVER(SecretLock, Notification, [](const Notification& notification, ObserverContext& context) {
-        auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
-        if (NotifyMode::Commit == context.Mode) {
-            auto endHeight = context.Height + Height(notification.Duration.unwrap());
-            auto mosaicId = context.Resolvers.resolve(notification.Mosaic.MosaicId);
-            auto lockInfo = CreateLockInfo(notification.Owner, mosaicId, endHeight, notification, context.Resolvers);
-            cache.insert(lockInfo);
+	DEFINE_OBSERVER(SecretLock, Notification, [](const Notification& notification, ObserverContext& context) {
+		auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
+		if (NotifyMode::Commit == context.Mode) {
+			auto endHeight = context.Height + Height(notification.Duration.unwrap());
+			auto mosaicId = context.Resolvers.resolve(notification.Mosaic.MosaicId);
+			auto lockInfo = CreateLockInfo(notification.Owner, mosaicId, endHeight, notification, context.Resolvers);
+			cache.insert(lockInfo);
 
-            auto receiptType = model::Receipt_Type_LockSecret_Created;
-            model::BalanceChangeReceipt receipt(receiptType, notification.Owner, mosaicId, notification.Mosaic.Amount);
-            context.StatementBuilder().addReceipt(receipt);
-        } else {
-            cache.remove(model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient)));
-        }
-    })
+			auto receiptType = model::Receipt_Type_LockSecret_Created;
+			model::BalanceChangeReceipt receipt(receiptType, notification.Owner, mosaicId, notification.Mosaic.Amount);
+			context.StatementBuilder().addReceipt(receipt);
+		} else {
+			cache.remove(model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient)));
+		}
+	})
 }
 }

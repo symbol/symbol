@@ -28,44 +28,40 @@
 namespace catapult {
 namespace filespooling {
 
-    namespace {
-        class FileBlockChangeStorage final : public io::BlockChangeSubscriber {
-        public:
-            explicit FileBlockChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-                : m_pOutputStream(std::move(pOutputStream))
-            {
-            }
+	namespace {
+		class FileBlockChangeStorage final : public io::BlockChangeSubscriber {
+		public:
+			explicit FileBlockChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
+				: m_pOutputStream(std::move(pOutputStream)) {
+			}
 
-        public:
-            void notifyBlock(const model::BlockElement& blockElement) override
-            {
-                io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::BlockChangeOperationType::Block));
-                io::WriteBlockElement(blockElement, *m_pOutputStream);
-                if (blockElement.OptionalStatement) {
-                    io::Write8(*m_pOutputStream, 0xFF);
-                    io::WriteBlockStatement(*blockElement.OptionalStatement, *m_pOutputStream);
-                } else {
-                    io::Write8(*m_pOutputStream, 0);
-                }
+		public:
+			void notifyBlock(const model::BlockElement& blockElement) override {
+				io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::BlockChangeOperationType::Block));
+				io::WriteBlockElement(blockElement, *m_pOutputStream);
+				if (blockElement.OptionalStatement) {
+					io::Write8(*m_pOutputStream, 0xFF);
+					io::WriteBlockStatement(*blockElement.OptionalStatement, *m_pOutputStream);
+				} else {
+					io::Write8(*m_pOutputStream, 0);
+				}
 
-                m_pOutputStream->flush();
-            }
+				m_pOutputStream->flush();
+			}
 
-            void notifyDropBlocksAfter(Height height) override
-            {
-                io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::BlockChangeOperationType::Drop_Blocks_After));
-                io::Write(*m_pOutputStream, height);
-                m_pOutputStream->flush();
-            }
+			void notifyDropBlocksAfter(Height height) override {
+				io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::BlockChangeOperationType::Drop_Blocks_After));
+				io::Write(*m_pOutputStream, height);
+				m_pOutputStream->flush();
+			}
 
-        private:
-            std::unique_ptr<io::OutputStream> m_pOutputStream;
-        };
-    }
+		private:
+			std::unique_ptr<io::OutputStream> m_pOutputStream;
+		};
+	}
 
-    std::unique_ptr<io::BlockChangeSubscriber> CreateFileBlockChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-    {
-        return std::make_unique<FileBlockChangeStorage>(std::move(pOutputStream));
-    }
+	std::unique_ptr<io::BlockChangeSubscriber> CreateFileBlockChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream) {
+		return std::make_unique<FileBlockChangeStorage>(std::move(pOutputStream));
+	}
 }
 }

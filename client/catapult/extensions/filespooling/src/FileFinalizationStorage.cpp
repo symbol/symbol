@@ -25,32 +25,29 @@
 namespace catapult {
 namespace filespooling {
 
-    namespace {
-        class FileFinalizationStorage final : public subscribers::FinalizationSubscriber {
-        public:
-            explicit FileFinalizationStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-                : m_pOutputStream(std::move(pOutputStream))
-            {
-            }
+	namespace {
+		class FileFinalizationStorage final : public subscribers::FinalizationSubscriber {
+		public:
+			explicit FileFinalizationStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
+				: m_pOutputStream(std::move(pOutputStream)) {
+			}
 
-        public:
-            void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override
-            {
-                m_pOutputStream->write(hash);
-                m_pOutputStream->write({ reinterpret_cast<const uint8_t*>(&round), sizeof(model::FinalizationRound) });
-                io::Write(*m_pOutputStream, height);
+		public:
+			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
+				m_pOutputStream->write(hash);
+				m_pOutputStream->write({ reinterpret_cast<const uint8_t*>(&round), sizeof(model::FinalizationRound) });
+				io::Write(*m_pOutputStream, height);
 
-                m_pOutputStream->flush();
-            }
+				m_pOutputStream->flush();
+			}
 
-        private:
-            std::unique_ptr<io::OutputStream> m_pOutputStream;
-        };
-    }
+		private:
+			std::unique_ptr<io::OutputStream> m_pOutputStream;
+		};
+	}
 
-    std::unique_ptr<subscribers::FinalizationSubscriber> CreateFileFinalizationStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-    {
-        return std::make_unique<FileFinalizationStorage>(std::move(pOutputStream));
-    }
+	std::unique_ptr<subscribers::FinalizationSubscriber> CreateFileFinalizationStorage(std::unique_ptr<io::OutputStream>&& pOutputStream) {
+		return std::make_unique<FileFinalizationStorage>(std::move(pOutputStream));
+	}
 }
 }

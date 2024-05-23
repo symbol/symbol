@@ -28,50 +28,45 @@ namespace subscribers {
 
 #define TEST_CLASS BasicAggregateSubscriberTests
 
-    namespace {
-        // int is used as placeholder for a 'subscriber'
-        class CapturingAggregateSubscriber : public BasicAggregateSubscriber<int> {
-        public:
-            using BasicAggregateSubscriber<int>::BasicAggregateSubscriber;
+	namespace {
+		// int is used as placeholder for a 'subscriber'
+		class CapturingAggregateSubscriber : public BasicAggregateSubscriber<int> {
+		public:
+			using BasicAggregateSubscriber<int>::BasicAggregateSubscriber;
 
-        public:
-            std::vector<int*> captureAll()
-            {
-                std::vector<int*> subscribers;
-                this->forEach([&subscribers](auto& subscriber) { subscribers.push_back(&subscriber); });
-                return subscribers;
-            }
-        };
+		public:
+			std::vector<int*> captureAll() {
+				std::vector<int*> subscribers;
+				this->forEach([&subscribers](auto& subscriber) { subscribers.push_back(&subscriber); });
+				return subscribers;
+			}
+		};
 
-        using TestContext = test::AggregateSubscriberTestContext<int, CapturingAggregateSubscriber>;
+		using TestContext = test::AggregateSubscriberTestContext<int, CapturingAggregateSubscriber>;
 
-        void RunDelegationTest(size_t numSubscribers)
-        {
-            // Arrange:
-            TestContext context(numSubscribers);
+		void RunDelegationTest(size_t numSubscribers) {
+			// Arrange:
+			TestContext context(numSubscribers);
 
-            // Act:
-            auto subscribers = context.aggregate().captureAll();
+			// Act:
+			auto subscribers = context.aggregate().captureAll();
 
-            // Assert:
-            EXPECT_EQ(numSubscribers, subscribers.size());
-            EXPECT_EQ(context.subscribers(), subscribers);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(numSubscribers, subscribers.size());
+			EXPECT_EQ(context.subscribers(), subscribers);
+		}
+	}
 
-    TEST(TEST_CLASS, CanCreateAggregateAroundZeroSubscribers)
-    {
-        RunDelegationTest(0);
-    }
+	TEST(TEST_CLASS, CanCreateAggregateAroundZeroSubscribers) {
+		RunDelegationTest(0);
+	}
 
-    TEST(TEST_CLASS, CanCreateAggregateAroundSingleSubscriber)
-    {
-        RunDelegationTest(1);
-    }
+	TEST(TEST_CLASS, CanCreateAggregateAroundSingleSubscriber) {
+		RunDelegationTest(1);
+	}
 
-    TEST(TEST_CLASS, CanCreateAggregateAroundMultipleSubscribers)
-    {
-        RunDelegationTest(3);
-    }
+	TEST(TEST_CLASS, CanCreateAggregateAroundMultipleSubscribers) {
+		RunDelegationTest(3);
+	}
 }
 }

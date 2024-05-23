@@ -26,59 +26,57 @@
 namespace catapult {
 namespace chain {
 
-    /// Aggregates \a updateResults by count.
-    template <typename TUpdateResult>
-    BatchUpdateResult AggregateUpdateResults(const std::vector<TUpdateResult>& updateResults)
-    {
-        BatchUpdateResult aggregateResult;
+	/// Aggregates \a updateResults by count.
+	template <typename TUpdateResult>
+	BatchUpdateResult AggregateUpdateResults(const std::vector<TUpdateResult>& updateResults) {
+		BatchUpdateResult aggregateResult;
 
-        for (const auto& updateResult : updateResults) {
-            switch (updateResult.Type) {
-            case TUpdateResult::UpdateType::Invalid:
-                ++aggregateResult.FailureCount;
-                break;
+		for (const auto& updateResult : updateResults) {
+			switch (updateResult.Type) {
+			case TUpdateResult::UpdateType::Invalid:
+				++aggregateResult.FailureCount;
+				break;
 
-            case TUpdateResult::UpdateType::Neutral:
-                ++aggregateResult.NeutralCount;
-                break;
+			case TUpdateResult::UpdateType::Neutral:
+				++aggregateResult.NeutralCount;
+				break;
 
-            default:
-                ++aggregateResult.SuccessCount;
-                break;
-            }
-        }
+			default:
+				++aggregateResult.SuccessCount;
+				break;
+			}
+		}
 
-        return aggregateResult;
-    }
+		return aggregateResult;
+	}
 
-    /// Filters \a transactionInfos based on \a updateResults by selecting only valid transactions.
-    template <typename TUpdateResult>
-    std::vector<model::TransactionInfo> SelectValid(
-        std::vector<model::TransactionInfo>&& transactionInfos,
-        const std::vector<TUpdateResult>& updateResults)
-    {
-        if (transactionInfos.size() != updateResults.size()) {
-            std::ostringstream out;
-            out << "number of transaction infos " << transactionInfos.size() << " must match number of update results "
-                << updateResults.size();
-            CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-        }
+	/// Filters \a transactionInfos based on \a updateResults by selecting only valid transactions.
+	template <typename TUpdateResult>
+	std::vector<model::TransactionInfo> SelectValid(
+		std::vector<model::TransactionInfo>&& transactionInfos,
+		const std::vector<TUpdateResult>& updateResults) {
+		if (transactionInfos.size() != updateResults.size()) {
+			std::ostringstream out;
+			out << "number of transaction infos " << transactionInfos.size() << " must match number of update results "
+				<< updateResults.size();
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
 
-        std::vector<model::TransactionInfo> filteredTransactionInfos;
+		std::vector<model::TransactionInfo> filteredTransactionInfos;
 
-        for (auto i = 0u; i < transactionInfos.size(); ++i) {
-            switch (updateResults[i].Type) {
-            case TUpdateResult::UpdateType::Invalid:
-            case TUpdateResult::UpdateType::Neutral:
-                break;
+		for (auto i = 0u; i < transactionInfos.size(); ++i) {
+			switch (updateResults[i].Type) {
+			case TUpdateResult::UpdateType::Invalid:
+			case TUpdateResult::UpdateType::Neutral:
+				break;
 
-            default:
-                filteredTransactionInfos.push_back(std::move(transactionInfos[i]));
-                break;
-            }
-        }
+			default:
+				filteredTransactionInfos.push_back(std::move(transactionInfos[i]));
+				break;
+			}
+		}
 
-        return filteredTransactionInfos;
-    }
+		return filteredTransactionInfos;
+	}
 }
 }

@@ -29,73 +29,68 @@ namespace io {
 
 #define TEST_CLASS BufferInputStreamAdapterTests
 
-    // region basic stream tests
+	// region basic stream tests
 
-    namespace {
-        using VectorInputStream = BufferInputStreamAdapter<std::vector<uint8_t>>;
+	namespace {
+		using VectorInputStream = BufferInputStreamAdapter<std::vector<uint8_t>>;
 
-        class BufferContext {
-        public:
-            explicit BufferContext(const char*)
-            {
-            }
+		class BufferContext {
+		public:
+			explicit BufferContext(const char*) {
+			}
 
-            auto outputStream()
-            {
-                return std::make_unique<mocks::MockMemoryStream>(m_buffer);
-            }
+			auto outputStream() {
+				return std::make_unique<mocks::MockMemoryStream>(m_buffer);
+			}
 
-            auto inputStream()
-            {
-                return std::make_unique<VectorInputStream>(m_buffer);
-            }
+			auto inputStream() {
+				return std::make_unique<VectorInputStream>(m_buffer);
+			}
 
-        private:
-            std::vector<uint8_t> m_buffer;
-        };
-    }
+		private:
+			std::vector<uint8_t> m_buffer;
+		};
+	}
 
-    DEFINE_STREAM_TESTS(BufferContext)
+	DEFINE_STREAM_TESTS(BufferContext)
 
-    // endregion
+	// endregion
 
-    // region position tests
+	// region position tests
 
-    TEST(TEST_CLASS, PositionIsInitiallyZero)
-    {
-        // Arrange:
-        auto buffer = test::GenerateRandomVector(123);
-        VectorInputStream stream(buffer);
+	TEST(TEST_CLASS, PositionIsInitiallyZero) {
+		// Arrange:
+		auto buffer = test::GenerateRandomVector(123);
+		VectorInputStream stream(buffer);
 
-        // Act + Assert:
-        EXPECT_EQ(0u, stream.position());
-        EXPECT_FALSE(stream.eof());
-    }
+		// Act + Assert:
+		EXPECT_EQ(0u, stream.position());
+		EXPECT_FALSE(stream.eof());
+	}
 
-    TEST(TEST_CLASS, ReadAdvancesPosition)
-    {
-        // Arrange:
-        auto buffer = test::GenerateRandomVector(123);
-        VectorInputStream stream(buffer);
+	TEST(TEST_CLASS, ReadAdvancesPosition) {
+		// Arrange:
+		auto buffer = test::GenerateRandomVector(123);
+		VectorInputStream stream(buffer);
 
-        // Act + Assert:
-        std::vector<uint8_t> part(20);
-        for (auto i = 1u; i <= 6; ++i) {
-            stream.read(part);
-            EXPECT_EQ(20u * i, stream.position());
-            EXPECT_FALSE(stream.eof());
-        }
+		// Act + Assert:
+		std::vector<uint8_t> part(20);
+		for (auto i = 1u; i <= 6; ++i) {
+			stream.read(part);
+			EXPECT_EQ(20u * i, stream.position());
+			EXPECT_FALSE(stream.eof());
+		}
 
-        part.resize(3);
-        stream.read(part);
-        EXPECT_EQ(123u, stream.position());
-        EXPECT_TRUE(stream.eof());
+		part.resize(3);
+		stream.read(part);
+		EXPECT_EQ(123u, stream.position());
+		EXPECT_TRUE(stream.eof());
 
-        // Sanity: end of stream is reached
-        part.resize(1);
-        EXPECT_THROW(stream.read(part), catapult_file_io_error);
-    }
+		// Sanity: end of stream is reached
+		part.resize(1);
+		EXPECT_THROW(stream.read(part), catapult_file_io_error);
+	}
 
-    // endregion
+	// endregion
 }
 }

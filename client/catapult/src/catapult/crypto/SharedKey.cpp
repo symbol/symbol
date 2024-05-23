@@ -28,47 +28,44 @@
 namespace catapult {
 namespace crypto {
 
-    SharedKey Hkdf_Hmac_Sha256_32(const Key& sharedSecret)
-    {
-        Hash256 salt;
-        Hash256 pseudoRandomKey;
-        Hmac_Sha256(salt, sharedSecret, pseudoRandomKey);
+	SharedKey Hkdf_Hmac_Sha256_32(const Key& sharedSecret) {
+		Hash256 salt;
+		Hash256 pseudoRandomKey;
+		Hmac_Sha256(salt, sharedSecret, pseudoRandomKey);
 
-        // specialized for single repetition, last byte contains counter value
-        constexpr auto Buffer_Length = 8 + 1;
-        std::array<uint8_t, Buffer_Length> buffer { { 0x63, 0x61, 0x74, 0x61, 0x70, 0x75, 0x6C, 0x74, 0x01 } };
+		// specialized for single repetition, last byte contains counter value
+		constexpr auto Buffer_Length = 8 + 1;
+		std::array<uint8_t, Buffer_Length> buffer { { 0x63, 0x61, 0x74, 0x61, 0x70, 0x75, 0x6C, 0x74, 0x01 } };
 
-        Hash256 outputKeyingMaterial;
-        Hmac_Sha256(pseudoRandomKey, buffer, outputKeyingMaterial);
+		Hash256 outputKeyingMaterial;
+		Hmac_Sha256(pseudoRandomKey, buffer, outputKeyingMaterial);
 
-        auto sharedKey = outputKeyingMaterial.copyTo<SharedKey>();
-        SecureZero(pseudoRandomKey);
-        SecureZero(outputKeyingMaterial);
-        return sharedKey;
-    }
+		auto sharedKey = outputKeyingMaterial.copyTo<SharedKey>();
+		SecureZero(pseudoRandomKey);
+		SecureZero(outputKeyingMaterial);
+		return sharedKey;
+	}
 
-    Key DeriveSharedSecret(const KeyPair& keyPair, const Key& otherPublicKey)
-    {
-        ScalarMultiplier multiplier;
-        ExtractMultiplier(keyPair.privateKey(), multiplier);
+	Key DeriveSharedSecret(const KeyPair& keyPair, const Key& otherPublicKey) {
+		ScalarMultiplier multiplier;
+		ExtractMultiplier(keyPair.privateKey(), multiplier);
 
-        Key sharedSecret;
-        if (!ScalarMult(multiplier, otherPublicKey, sharedSecret))
-            return Key();
+		Key sharedSecret;
+		if (!ScalarMult(multiplier, otherPublicKey, sharedSecret))
+			return Key();
 
-        SecureZero(multiplier);
-        return sharedSecret;
-    }
+		SecureZero(multiplier);
+		return sharedSecret;
+	}
 
-    SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey)
-    {
-        auto sharedSecret = DeriveSharedSecret(keyPair, otherPublicKey);
-        if (Key() == sharedSecret)
-            return SharedKey();
+	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey) {
+		auto sharedSecret = DeriveSharedSecret(keyPair, otherPublicKey);
+		if (Key() == sharedSecret)
+			return SharedKey();
 
-        auto sharedKey = Hkdf_Hmac_Sha256_32(sharedSecret);
-        SecureZero(sharedSecret);
-        return sharedKey;
-    }
+		auto sharedKey = Hkdf_Hmac_Sha256_32(sharedSecret);
+		SecureZero(sharedSecret);
+		return sharedKey;
+	}
 }
 }

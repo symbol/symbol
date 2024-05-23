@@ -25,15 +25,15 @@
 
 namespace catapult {
 namespace model {
-    class TransactionPlugin;
+	class TransactionPlugin;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Creates a secret lock transaction plugin.
-    PLUGIN_API
-    std::unique_ptr<model::TransactionPlugin> CreateSecretLockTransactionPlugin();
+	/// Creates a secret lock transaction plugin.
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateSecretLockTransactionPlugin();
 }
 }

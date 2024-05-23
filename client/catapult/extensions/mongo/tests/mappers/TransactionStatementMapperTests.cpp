@@ -28,54 +28,50 @@
 
 namespace catapult {
 namespace mongo {
-    namespace mappers {
+	namespace mappers {
 
 #define TEST_CLASS TransactionStatementMapperTests
 
-        namespace {
-            void AssertCanMapTransactionStatement(size_t numReceipts)
-            {
-                // Arrange:
-                model::ReceiptSource source(123, 234);
-                model::TransactionStatement statement(source);
-                for (uint8_t i = 1; i <= numReceipts; ++i) {
-                    mocks::MockReceipt receipt;
-                    receipt.Size = sizeof(mocks::MockReceipt);
-                    receipt.Version = 345;
-                    receipt.Type = mocks::MockReceipt::Receipt_Type;
-                    receipt.Payload = { { i } };
-                    statement.addReceipt(receipt);
-                }
+		namespace {
+			void AssertCanMapTransactionStatement(size_t numReceipts) {
+				// Arrange:
+				model::ReceiptSource source(123, 234);
+				model::TransactionStatement statement(source);
+				for (uint8_t i = 1; i <= numReceipts; ++i) {
+					mocks::MockReceipt receipt;
+					receipt.Size = sizeof(mocks::MockReceipt);
+					receipt.Version = 345;
+					receipt.Type = mocks::MockReceipt::Receipt_Type;
+					receipt.Payload = { { i } };
+					statement.addReceipt(receipt);
+				}
 
-                MongoReceiptRegistry registry;
-                registry.registerPlugin(mocks::CreateMockReceiptMongoPlugin(utils::to_underlying_type(mocks::MockReceipt::Receipt_Type)));
+				MongoReceiptRegistry registry;
+				registry.registerPlugin(mocks::CreateMockReceiptMongoPlugin(utils::to_underlying_type(mocks::MockReceipt::Receipt_Type)));
 
-                // Act:
-                auto document = ToDbModel(Height(567), statement, registry);
-                auto documentView = document.view();
+				// Act:
+				auto document = ToDbModel(Height(567), statement, registry);
+				auto documentView = document.view();
 
-                // Assert:
-                EXPECT_EQ(1u, test::GetFieldCount(documentView));
+				// Assert:
+				EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
-                auto statementView = documentView["statement"].get_document().view();
-                test::AssertEqualTransactionStatement(statement, Height(567), statementView, 3, 0);
-            }
-        }
+				auto statementView = documentView["statement"].get_document().view();
+				test::AssertEqualTransactionStatement(statement, Height(567), statementView, 3, 0);
+			}
+		}
 
-        TEST(TEST_CLASS, CanMapTransactionStatement_NoReceipts)
-        {
-            AssertCanMapTransactionStatement(0);
-        }
+		TEST(TEST_CLASS, CanMapTransactionStatement_NoReceipts) {
+			AssertCanMapTransactionStatement(0);
+		}
 
-        TEST(TEST_CLASS, CanMapTransactionStatement_SingleReceipt)
-        {
-            AssertCanMapTransactionStatement(1);
-        }
+		TEST(TEST_CLASS, CanMapTransactionStatement_SingleReceipt) {
+			AssertCanMapTransactionStatement(1);
+		}
 
-        TEST(TEST_CLASS, CanMapTransactionStatement_MultipleReceipts)
-        {
-            AssertCanMapTransactionStatement(5);
-        }
-    }
+		TEST(TEST_CLASS, CanMapTransactionStatement_MultipleReceipts) {
+			AssertCanMapTransactionStatement(5);
+		}
+	}
 }
 }

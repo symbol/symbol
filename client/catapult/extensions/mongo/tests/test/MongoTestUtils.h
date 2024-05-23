@@ -28,111 +28,109 @@
 
 namespace catapult {
 namespace model {
-    struct TransactionInfo;
+	struct TransactionInfo;
 }
 namespace mongo {
-    class MongoTransactionRegistry;
+	class MongoTransactionRegistry;
 }
 namespace state {
-    struct AccountState;
+	struct AccountState;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Number of default mongo test thread pool threads.
-    constexpr uint32_t Num_Default_Mongo_Test_Pool_Threads = 8;
+	/// Number of default mongo test thread pool threads.
+	constexpr uint32_t Num_Default_Mongo_Test_Pool_Threads = 8;
 
-    /// Gets the database name for tests.
-    std::string DatabaseName();
+	/// Gets the database name for tests.
+	std::string DatabaseName();
 
-    /// Gets the default db uri for tests.
-    mongocxx::uri DefaultDbUri();
+	/// Gets the default db uri for tests.
+	mongocxx::uri DefaultDbUri();
 
-    /// Creates a mongo database connection.
-    mongocxx::client CreateDbConnection();
+	/// Creates a mongo database connection.
+	mongocxx::client CreateDbConnection();
 
-    /// Resets the mongo database with name \a dbName by dropping and recreating it (in order to have empty collections).
-    void ResetDatabase(const std::string& dbName);
+	/// Resets the mongo database with name \a dbName by dropping and recreating it (in order to have empty collections).
+	void ResetDatabase(const std::string& dbName);
 
-    /// Prepares the mongo database with name \a dbName by
-    /// 1) dropping and recreating it (in order to have empty collections).
-    /// 2) adding indexes to the accounts and transactions collections.
-    void PrepareDatabase(const std::string& dbName);
+	/// Prepares the mongo database with name \a dbName by
+	/// 1) dropping and recreating it (in order to have empty collections).
+	/// 2) adding indexes to the accounts and transactions collections.
+	void PrepareDatabase(const std::string& dbName);
 
-    /// Creates a filter for the given \a pAccountState.
-    bsoncxx::document::value CreateFilter(const std::shared_ptr<state::AccountState>& pAccountState);
+	/// Creates a filter for the given \a pAccountState.
+	bsoncxx::document::value CreateFilter(const std::shared_ptr<state::AccountState>& pAccountState);
 
-    /// Creates a default mongo storage context for database \a dbName using \a pool with the specified error policy mode
-    ///(\a errorPolicyMode).
-    std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(
-        const std::string& dbName,
-        thread::IoThreadPool& pool,
-        mongo::MongoErrorPolicy::Mode errorPolicyMode = mongo::MongoErrorPolicy::Mode::Strict);
+	/// Creates a default mongo storage context for database \a dbName using \a pool with the specified error policy mode
+	///(\a errorPolicyMode).
+	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(
+		const std::string& dbName,
+		thread::IoThreadPool& pool,
+		mongo::MongoErrorPolicy::Mode errorPolicyMode = mongo::MongoErrorPolicy::Mode::Strict);
 
-    /// Creates a default mongo transaction registry that supports mock transactions.
-    mongo::MongoTransactionRegistry CreateDefaultMongoTransactionRegistry();
+	/// Creates a default mongo transaction registry that supports mock transactions.
+	mongo::MongoTransactionRegistry CreateDefaultMongoTransactionRegistry();
 
-    /// Database mixin for preparing mongo database access.
-    struct PrepareDatabaseMixin {
-        /// Creates a database mixin around the test database.
-        PrepareDatabaseMixin()
-        {
-            PrepareDatabase(DatabaseName());
-        }
-    };
+	/// Database mixin for preparing mongo database access.
+	struct PrepareDatabaseMixin {
+		/// Creates a database mixin around the test database.
+		PrepareDatabaseMixin() {
+			PrepareDatabase(DatabaseName());
+		}
+	};
 
-    /// Asserts that the mongo database collection with name \a collectionName has size \a expectedSize.
-    void AssertCollectionSize(const std::string& collectionName, uint64_t expectedSize);
+	/// Asserts that the mongo database collection with name \a collectionName has size \a expectedSize.
+	void AssertCollectionSize(const std::string& collectionName, uint64_t expectedSize);
 
-    /// Asserts that \a collection contains \a expectedNumDependentDocuments dependent documents from \a transactionSigner.
-    void AssertDependentDocuments(mongocxx::collection& collection, const Key& transactionSigner, size_t expectedNumDependentDocuments);
+	/// Asserts that \a collection contains \a expectedNumDependentDocuments dependent documents from \a transactionSigner.
+	void AssertDependentDocuments(mongocxx::collection& collection, const Key& transactionSigner, size_t expectedNumDependentDocuments);
 
-    /// Asserts that the collection with name \a collectionName contains \a expectedTransactionInfos and
-    /// \a expectedNumDependentDocuments dependent documents.
-    void AssertTransactions(
-        const std::string& collectionName,
-        const std::vector<model::TransactionInfo>& expectedTransactionInfos,
-        size_t expectedNumDependentDocuments = 0);
+	/// Asserts that the collection with name \a collectionName contains \a expectedTransactionInfos and
+	/// \a expectedNumDependentDocuments dependent documents.
+	void AssertTransactions(
+		const std::string& collectionName,
+		const std::vector<model::TransactionInfo>& expectedTransactionInfos,
+		size_t expectedNumDependentDocuments = 0);
 
-    /// Enumerates the possible database initializations types.
-    enum class DbInitializationType {
-        /// Performs no initialization action.
-        None,
+	/// Enumerates the possible database initializations types.
+	enum class DbInitializationType {
+		/// Performs no initialization action.
+		None,
 
-        /// Drops the database.
-        Reset,
+		/// Drops the database.
+		Reset,
 
-        /// Drops the database, recreates it and creates indexes for the collections.
-        Prepare
-    };
+		/// Drops the database, recreates it and creates indexes for the collections.
+		Prepare
+	};
 
-    template <typename TStorage>
-    using StorageFactory = std::function<std::unique_ptr<TStorage>(mongo::MongoStorageContext&, const mongo::MongoTransactionRegistry&)>;
+	template <typename TStorage>
+	using StorageFactory = std::function<std::unique_ptr<TStorage>(mongo::MongoStorageContext&, const mongo::MongoTransactionRegistry&)>;
 
-    /// Creates a mongo storage around \a pTransactionPlugin using \a dbInitializationType for initializing the database,
-    /// the specified error policy mode (\a errorPolicyMode) for inspecting errors and \a storageFactory to create the storage.
-    template <typename TStorage>
-    std::shared_ptr<TStorage> CreateMongoStorage(
-        std::unique_ptr<mongo::MongoTransactionPlugin>&& pTransactionPlugin,
-        DbInitializationType dbInitializationType,
-        mongo::MongoErrorPolicy::Mode errorPolicyMode,
-        const StorageFactory<TStorage>& storageFactory)
-    {
-        if (test::DbInitializationType::Reset == dbInitializationType)
-            ResetDatabase(DatabaseName());
-        else if (test::DbInitializationType::Prepare == dbInitializationType)
-            PrepareDatabase(DatabaseName());
+	/// Creates a mongo storage around \a pTransactionPlugin using \a dbInitializationType for initializing the database,
+	/// the specified error policy mode (\a errorPolicyMode) for inspecting errors and \a storageFactory to create the storage.
+	template <typename TStorage>
+	std::shared_ptr<TStorage> CreateMongoStorage(
+		std::unique_ptr<mongo::MongoTransactionPlugin>&& pTransactionPlugin,
+		DbInitializationType dbInitializationType,
+		mongo::MongoErrorPolicy::Mode errorPolicyMode,
+		const StorageFactory<TStorage>& storageFactory) {
+		if (test::DbInitializationType::Reset == dbInitializationType)
+			ResetDatabase(DatabaseName());
+		else if (test::DbInitializationType::Prepare == dbInitializationType)
+			PrepareDatabase(DatabaseName());
 
-        auto pPool = utils::UniqueToShared(CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads));
-        auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), utils::TimeSpan::FromMinutes(10), *pPool);
-        auto pMongoContext = std::make_shared<mongo::MongoStorageContext>(DefaultDbUri(), DatabaseName(), pWriter, errorPolicyMode);
+		auto pPool = utils::UniqueToShared(CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads));
+		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), utils::TimeSpan::FromMinutes(10), *pPool);
+		auto pMongoContext = std::make_shared<mongo::MongoStorageContext>(DefaultDbUri(), DatabaseName(), pWriter, errorPolicyMode);
 
-        auto pRegistry = std::make_shared<mongo::MongoTransactionRegistry>();
-        pRegistry->registerPlugin(std::move(pTransactionPlugin));
-        auto pStorage = utils::UniqueToShared(storageFactory(*pMongoContext, *pRegistry));
-        return decltype(pStorage)(pStorage.get(), [pPool, pMongoContext, pRegistry, pStorage](const auto*) {});
-    }
+		auto pRegistry = std::make_shared<mongo::MongoTransactionRegistry>();
+		pRegistry->registerPlugin(std::move(pTransactionPlugin));
+		auto pStorage = utils::UniqueToShared(storageFactory(*pMongoContext, *pRegistry));
+		return decltype(pStorage)(pStorage.get(), [pPool, pMongoContext, pRegistry, pStorage](const auto*) {});
+	}
 }
 }

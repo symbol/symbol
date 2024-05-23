@@ -28,193 +28,180 @@
 namespace catapult {
 namespace state {
 
-    // region RootNamespaceHistoryNonHistoricalSerializer
+	// region RootNamespaceHistoryNonHistoricalSerializer
 
-    namespace {
-        enum class HeaderMode { Include_History_Depth,
-            Exclude_History_Depth };
+	namespace {
+		enum class HeaderMode { Include_History_Depth,
+			Exclude_History_Depth };
 
-        void SaveHeader(io::OutputStream& output, const RootNamespaceHistory& history, HeaderMode headerMode)
-        {
-            if (HeaderMode::Include_History_Depth == headerMode)
-                io::Write64(output, history.historyDepth());
+		void SaveHeader(io::OutputStream& output, const RootNamespaceHistory& history, HeaderMode headerMode) {
+			if (HeaderMode::Include_History_Depth == headerMode)
+				io::Write64(output, history.historyDepth());
 
-            io::Write(output, history.id());
-        }
+			io::Write(output, history.id());
+		}
 
-        void SaveAlias(io::OutputStream& output, const NamespaceAlias& alias)
-        {
-            io::Write8(output, utils::to_underlying_type(alias.type()));
-            switch (alias.type()) {
-            case AliasType::Mosaic:
-                io::Write(output, alias.mosaicId());
-                break;
+		void SaveAlias(io::OutputStream& output, const NamespaceAlias& alias) {
+			io::Write8(output, utils::to_underlying_type(alias.type()));
+			switch (alias.type()) {
+			case AliasType::Mosaic:
+				io::Write(output, alias.mosaicId());
+				break;
 
-            case AliasType::Address:
-                output.write(alias.address());
-                break;
+			case AliasType::Address:
+				output.write(alias.address());
+				break;
 
-            default:
-                break;
-            }
-        }
+			default:
+				break;
+			}
+		}
 
-        void SaveChildren(io::OutputStream& output, const RootNamespace& root)
-        {
-            auto sortedChildPaths = root.sortedChildPaths();
-            io::Write64(output, sortedChildPaths.size());
-            for (const auto& path : sortedChildPaths) {
-                // don't write the first part of the path (the root id) because it is redundant
-                io::Write8(output, utils::checked_cast<size_t, uint8_t>(path.size() - 1));
+		void SaveChildren(io::OutputStream& output, const RootNamespace& root) {
+			auto sortedChildPaths = root.sortedChildPaths();
+			io::Write64(output, sortedChildPaths.size());
+			for (const auto& path : sortedChildPaths) {
+				// don't write the first part of the path (the root id) because it is redundant
+				io::Write8(output, utils::checked_cast<size_t, uint8_t>(path.size() - 1));
 
-                for (auto i = 1u; i < path.size(); ++i)
-                    io::Write(output, path[i]);
+				for (auto i = 1u; i < path.size(); ++i)
+					io::Write(output, path[i]);
 
-                SaveAlias(output, root.alias(path[path.size() - 1]));
-            }
-        }
+				SaveAlias(output, root.alias(path[path.size() - 1]));
+			}
+		}
 
-        const RootNamespace& SaveRootNamespace(io::OutputStream& output, const RootNamespace& root, const RootNamespace* pPreviousRoot)
-        {
-            output.write(root.ownerAddress());
-            io::Write(output, root.lifetime().Start);
-            io::Write(output, root.lifetime().End);
-            SaveAlias(output, root.alias(root.id()));
+		const RootNamespace& SaveRootNamespace(io::OutputStream& output, const RootNamespace& root, const RootNamespace* pPreviousRoot) {
+			output.write(root.ownerAddress());
+			io::Write(output, root.lifetime().Start);
+			io::Write(output, root.lifetime().End);
+			SaveAlias(output, root.alias(root.id()));
 
-            if (pPreviousRoot && root.canExtend(*pPreviousRoot))
-                io::Write64(output, 0); // shared owner, don't rewrite children
-            else
-                SaveChildren(output, root);
+			if (pPreviousRoot && root.canExtend(*pPreviousRoot))
+				io::Write64(output, 0); // shared owner, don't rewrite children
+			else
+				SaveChildren(output, root);
 
-            return root;
-        }
-    }
+			return root;
+		}
+	}
 
-    void RootNamespaceHistoryNonHistoricalSerializer::Save(const RootNamespaceHistory& history, io::OutputStream& output)
-    {
-        SaveHeader(output, history, HeaderMode::Exclude_History_Depth);
-        if (0 == history.historyDepth())
-            CATAPULT_THROW_RUNTIME_ERROR_1("cannot save empty namespace history", history.id());
+	void RootNamespaceHistoryNonHistoricalSerializer::Save(const RootNamespaceHistory& history, io::OutputStream& output) {
+		SaveHeader(output, history, HeaderMode::Exclude_History_Depth);
+		if (0 == history.historyDepth())
+			CATAPULT_THROW_RUNTIME_ERROR_1("cannot save empty namespace history", history.id());
 
-        SaveRootNamespace(output, history.back(), nullptr);
-    }
+		SaveRootNamespace(output, history.back(), nullptr);
+	}
 
-    namespace {
-        struct Header {
-            uint64_t HistoryDepth = 0;
-            NamespaceId Id;
-        };
+	namespace {
+		struct Header {
+			uint64_t HistoryDepth = 0;
+			NamespaceId Id;
+		};
 
-        Header ReadHeader(io::InputStream& input, HeaderMode headerMode)
-        {
-            Header header;
-            if (headerMode == HeaderMode::Include_History_Depth)
-                header.HistoryDepth = io::Read64(input);
+		Header ReadHeader(io::InputStream& input, HeaderMode headerMode) {
+			Header header;
+			if (headerMode == HeaderMode::Include_History_Depth)
+				header.HistoryDepth = io::Read64(input);
 
-            header.Id = io::Read<NamespaceId>(input);
-            return header;
-        }
+			header.Id = io::Read<NamespaceId>(input);
+			return header;
+		}
 
-        Namespace::Path LoadPath(io::InputStream& input, NamespaceId rootId)
-        {
-            Namespace::Path path;
-            path.push_back(rootId);
+		Namespace::Path LoadPath(io::InputStream& input, NamespaceId rootId) {
+			Namespace::Path path;
+			path.push_back(rootId);
 
-            auto childDepth = io::Read8(input);
-            for (auto i = 0u; i < childDepth; ++i)
-                path.push_back(io::Read<NamespaceId>(input));
+			auto childDepth = io::Read8(input);
+			for (auto i = 0u; i < childDepth; ++i)
+				path.push_back(io::Read<NamespaceId>(input));
 
-            return path;
-        }
+			return path;
+		}
 
-        NamespaceAlias LoadAlias(io::InputStream& input)
-        {
-            auto aliasType = AliasType(io::Read8(input));
-            switch (aliasType) {
-            case AliasType::Mosaic:
-                return NamespaceAlias(io::Read<MosaicId>(input));
+		NamespaceAlias LoadAlias(io::InputStream& input) {
+			auto aliasType = AliasType(io::Read8(input));
+			switch (aliasType) {
+			case AliasType::Mosaic:
+				return NamespaceAlias(io::Read<MosaicId>(input));
 
-            case AliasType::Address: {
-                Address address;
-                input.read(address);
-                return NamespaceAlias(address);
-            }
+			case AliasType::Address: {
+				Address address;
+				input.read(address);
+				return NamespaceAlias(address);
+			}
 
-            default:
-                return NamespaceAlias();
-            }
-        }
+			default:
+				return NamespaceAlias();
+			}
+		}
 
-        using ChildDataPairs = std::vector<std::pair<Namespace::Path, NamespaceAlias>>;
+		using ChildDataPairs = std::vector<std::pair<Namespace::Path, NamespaceAlias>>;
 
-        ChildDataPairs LoadChildren(io::InputStream& input, NamespaceId rootId, size_t numChildren)
-        {
-            ChildDataPairs childDataPairs;
-            for (auto i = 0u; i < numChildren; ++i) {
-                auto path = LoadPath(input, rootId);
-                auto alias = LoadAlias(input);
-                childDataPairs.emplace_back(path, alias);
-            }
+		ChildDataPairs LoadChildren(io::InputStream& input, NamespaceId rootId, size_t numChildren) {
+			ChildDataPairs childDataPairs;
+			for (auto i = 0u; i < numChildren; ++i) {
+				auto path = LoadPath(input, rootId);
+				auto alias = LoadAlias(input);
+				childDataPairs.emplace_back(path, alias);
+			}
 
-            return childDataPairs;
-        }
+			return childDataPairs;
+		}
 
-        void LoadRootNamespace(io::InputStream& input, RootNamespaceHistory& history)
-        {
-            Address owner;
-            input.read(owner);
-            auto lifetimeStart = io::Read<Height>(input);
-            auto lifetimeEnd = io::Read<Height>(input);
-            history.push_back(owner, NamespaceLifetime(lifetimeStart, lifetimeEnd));
+		void LoadRootNamespace(io::InputStream& input, RootNamespaceHistory& history) {
+			Address owner;
+			input.read(owner);
+			auto lifetimeStart = io::Read<Height>(input);
+			auto lifetimeEnd = io::Read<Height>(input);
+			history.push_back(owner, NamespaceLifetime(lifetimeStart, lifetimeEnd));
 
-            auto alias = LoadAlias(input);
-            history.back().setAlias(history.id(), alias);
+			auto alias = LoadAlias(input);
+			history.back().setAlias(history.id(), alias);
 
-            auto numChildren = io::Read64(input);
-            auto childDataPairs = LoadChildren(input, history.id(), numChildren);
+			auto numChildren = io::Read64(input);
+			auto childDataPairs = LoadChildren(input, history.id(), numChildren);
 
-            auto& currentRoot = history.back();
-            for (const auto& pair : childDataPairs) {
-                auto ns = Namespace(pair.first);
-                currentRoot.add(ns);
-                currentRoot.setAlias(ns.id(), pair.second);
-            }
-        }
-    }
+			auto& currentRoot = history.back();
+			for (const auto& pair : childDataPairs) {
+				auto ns = Namespace(pair.first);
+				currentRoot.add(ns);
+				currentRoot.setAlias(ns.id(), pair.second);
+			}
+		}
+	}
 
-    RootNamespaceHistory RootNamespaceHistoryNonHistoricalSerializer::Load(io::InputStream& input)
-    {
-        auto header = ReadHeader(input, HeaderMode::Exclude_History_Depth);
-        RootNamespaceHistory history(header.Id);
+	RootNamespaceHistory RootNamespaceHistoryNonHistoricalSerializer::Load(io::InputStream& input) {
+		auto header = ReadHeader(input, HeaderMode::Exclude_History_Depth);
+		RootNamespaceHistory history(header.Id);
 
-        LoadRootNamespace(input, history);
-        return history;
-    }
+		LoadRootNamespace(input, history);
+		return history;
+	}
 
-    // endregion
+	// endregion
 
-    // region RootNamespaceHistorySerializer
+	// region RootNamespaceHistorySerializer
 
-    void RootNamespaceHistorySerializer::Save(const RootNamespaceHistory& history, io::OutputStream& output)
-    {
-        SaveHeader(output, history, HeaderMode::Include_History_Depth);
+	void RootNamespaceHistorySerializer::Save(const RootNamespaceHistory& history, io::OutputStream& output) {
+		SaveHeader(output, history, HeaderMode::Include_History_Depth);
 
-        const RootNamespace* pPreviousRoot = nullptr;
-        for (const auto& root : history)
-            pPreviousRoot = &SaveRootNamespace(output, root, pPreviousRoot);
-    }
+		const RootNamespace* pPreviousRoot = nullptr;
+		for (const auto& root : history)
+			pPreviousRoot = &SaveRootNamespace(output, root, pPreviousRoot);
+	}
 
-    RootNamespaceHistory RootNamespaceHistorySerializer::Load(io::InputStream& input)
-    {
-        auto header = ReadHeader(input, HeaderMode::Include_History_Depth);
-        RootNamespaceHistory history(header.Id);
+	RootNamespaceHistory RootNamespaceHistorySerializer::Load(io::InputStream& input) {
+		auto header = ReadHeader(input, HeaderMode::Include_History_Depth);
+		RootNamespaceHistory history(header.Id);
 
-        for (auto i = 0u; i < header.HistoryDepth; ++i)
-            LoadRootNamespace(input, history);
+		for (auto i = 0u; i < header.HistoryDepth; ++i)
+			LoadRootNamespace(input, history);
 
-        return history;
-    }
+		return history;
+	}
 
-    // endregion
+	// endregion
 }
 }

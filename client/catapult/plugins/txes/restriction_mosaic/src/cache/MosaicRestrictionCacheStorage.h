@@ -27,9 +27,9 @@
 namespace catapult {
 namespace cache {
 
-    /// Policy for saving and loading mosaic restriction cache data.
-    struct MosaicRestrictionCacheStorage
-        : public CacheStorageForBasicInsertRemoveCache<MosaicRestrictionCacheDescriptor>,
-          public state::MosaicRestrictionEntrySerializer { };
+	/// Policy for saving and loading mosaic restriction cache data.
+	struct MosaicRestrictionCacheStorage
+		: public CacheStorageForBasicInsertRemoveCache<MosaicRestrictionCacheDescriptor>,
+		  public state::MosaicRestrictionEntrySerializer { };
 }
 }

@@ -26,52 +26,47 @@
 namespace catapult {
 namespace local {
 
-    namespace {
-        class BootstrapperPluginLoader {
-        public:
-            explicit BootstrapperPluginLoader(extensions::ProcessBootstrapper& bootstrapper)
-                : m_config(bootstrapper.config())
-                , m_extensionManager(bootstrapper.extensionManager())
-                , m_pluginManager(bootstrapper.pluginManager())
-            {
-            }
+	namespace {
+		class BootstrapperPluginLoader {
+		public:
+			explicit BootstrapperPluginLoader(extensions::ProcessBootstrapper& bootstrapper)
+				: m_config(bootstrapper.config())
+				, m_extensionManager(bootstrapper.extensionManager())
+				, m_pluginManager(bootstrapper.pluginManager()) {
+			}
 
-        public:
-            const std::vector<plugins::PluginModule>& modules()
-            {
-                return m_pluginModules;
-            }
+		public:
+			const std::vector<plugins::PluginModule>& modules() {
+				return m_pluginModules;
+			}
 
-        public:
-            void loadAll()
-            {
-                for (const auto& pluginName : m_extensionManager.systemPluginNames())
-                    loadOne(pluginName);
+		public:
+			void loadAll() {
+				for (const auto& pluginName : m_extensionManager.systemPluginNames())
+					loadOne(pluginName);
 
-                for (const auto& pair : m_config.Blockchain.Plugins)
-                    loadOne(pair.first);
-            }
+				for (const auto& pair : m_config.Blockchain.Plugins)
+					loadOne(pair.first);
+			}
 
-        private:
-            void loadOne(const std::string& pluginName)
-            {
-                LoadPluginByName(m_pluginManager, m_pluginModules, m_config.User.PluginsDirectory, pluginName);
-            }
+		private:
+			void loadOne(const std::string& pluginName) {
+				LoadPluginByName(m_pluginManager, m_pluginModules, m_config.User.PluginsDirectory, pluginName);
+			}
 
-        private:
-            const config::CatapultConfiguration& m_config;
-            const extensions::ExtensionManager& m_extensionManager;
-            plugins::PluginManager& m_pluginManager;
+		private:
+			const config::CatapultConfiguration& m_config;
+			const extensions::ExtensionManager& m_extensionManager;
+			plugins::PluginManager& m_pluginManager;
 
-            std::vector<plugins::PluginModule> m_pluginModules;
-        };
-    }
+			std::vector<plugins::PluginModule> m_pluginModules;
+		};
+	}
 
-    std::vector<plugins::PluginModule> LoadAllPlugins(extensions::ProcessBootstrapper& bootstrapper)
-    {
-        BootstrapperPluginLoader loader(bootstrapper);
-        loader.loadAll();
-        return loader.modules();
-    }
+	std::vector<plugins::PluginModule> LoadAllPlugins(extensions::ProcessBootstrapper& bootstrapper) {
+		BootstrapperPluginLoader loader(bootstrapper);
+		loader.loadAll();
+		return loader.modules();
+	}
 }
 }

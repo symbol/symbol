@@ -31,34 +31,32 @@
 
 namespace catapult {
 namespace finalization {
-    namespace {
-        void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper)
-        {
-            const auto& resourcesPath = bootstrapper.resourcesPath();
-            auto config = FinalizationConfiguration::LoadFromPath(resourcesPath);
-            config.VotingSetGrouping = bootstrapper.config().Blockchain.VotingSetGrouping;
+	namespace {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			const auto& resourcesPath = bootstrapper.resourcesPath();
+			auto config = FinalizationConfiguration::LoadFromPath(resourcesPath);
+			config.VotingSetGrouping = bootstrapper.config().Blockchain.VotingSetGrouping;
 
-            auto pProofStorage = std::make_unique<io::FileProofStorage>(
-                bootstrapper.config().User.DataDirectory,
-                bootstrapper.config().Node.FileDatabaseBatchSize);
+			auto pProofStorage = std::make_unique<io::FileProofStorage>(
+				bootstrapper.config().User.DataDirectory,
+				bootstrapper.config().Node.FileDatabaseBatchSize);
 
-            // register other services
-            auto& extensionManager = bootstrapper.extensionManager();
-            extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage)));
-            extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperPhaseTwoServiceRegistrar());
-            extensionManager.addServiceRegistrar(CreateFinalizationServiceRegistrar(config));
-            extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar(config.EnableVoting));
+			// register other services
+			auto& extensionManager = bootstrapper.extensionManager();
+			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage)));
+			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperPhaseTwoServiceRegistrar());
+			extensionManager.addServiceRegistrar(CreateFinalizationServiceRegistrar(config));
+			extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar(config.EnableVoting));
 
-            if (config.EnableVoting) {
-                extensionManager.addServiceRegistrar(CreateFinalizationMessageProcessingServiceRegistrar(config));
-                extensionManager.addServiceRegistrar(CreateFinalizationOrchestratorServiceRegistrar(config));
-            }
-        }
-    }
+			if (config.EnableVoting) {
+				extensionManager.addServiceRegistrar(CreateFinalizationMessageProcessingServiceRegistrar(config));
+				extensionManager.addServiceRegistrar(CreateFinalizationOrchestratorServiceRegistrar(config));
+			}
+		}
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper)
-{
-    catapult::finalization::RegisterExtension(bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+	catapult::finalization::RegisterExtension(bootstrapper);
 }

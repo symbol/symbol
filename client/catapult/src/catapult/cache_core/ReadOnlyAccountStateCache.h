@@ -26,75 +26,75 @@
 
 namespace catapult {
 namespace cache {
-    class BasicAccountStateCacheDelta;
-    class BasicAccountStateCacheView;
+	class BasicAccountStateCacheDelta;
+	class BasicAccountStateCacheView;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    /// High value account statistics.
-    struct HighValueAccountStatistics {
-        /// Number of voting eligible accounts.
-        uint32_t VotingEligibleAccountsCount;
+	/// High value account statistics.
+	struct HighValueAccountStatistics {
+		/// Number of voting eligible accounts.
+		uint32_t VotingEligibleAccountsCount;
 
-        /// Number of harvesting eligible accounts.
-        uint64_t HarvestingEligibleAccountsCount;
+		/// Number of harvesting eligible accounts.
+		uint64_t HarvestingEligibleAccountsCount;
 
-        /// Total balance eligible for voting.
-        Amount TotalVotingBalance;
-    };
+		/// Total balance eligible for voting.
+		Amount TotalVotingBalance;
+	};
 
-    /// Read-only overlay on top of an account cache.
-    class ReadOnlyAccountStateCache
-        : public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Address, state::AccountState>,
-          public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Key, state::AccountState> {
-    private:
-        template <typename TCacheKey, typename TCacheValue>
-        using ReadOnlySubCache = ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, TCacheKey, TCacheValue>;
+	/// Read-only overlay on top of an account cache.
+	class ReadOnlyAccountStateCache
+		: public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Address, state::AccountState>,
+		  public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Key, state::AccountState> {
+	private:
+		template <typename TCacheKey, typename TCacheValue>
+		using ReadOnlySubCache = ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, TCacheKey, TCacheValue>;
 
-        using AddressBasedCache = ReadOnlySubCache<Address, state::AccountState>;
-        using KeyBasedCache = ReadOnlySubCache<Key, state::AccountState>;
+		using AddressBasedCache = ReadOnlySubCache<Address, state::AccountState>;
+		using KeyBasedCache = ReadOnlySubCache<Key, state::AccountState>;
 
-    public:
-        /// Creates a read-only overlay on top of \a cache.
-        explicit ReadOnlyAccountStateCache(const BasicAccountStateCacheView& cache);
+	public:
+		/// Creates a read-only overlay on top of \a cache.
+		explicit ReadOnlyAccountStateCache(const BasicAccountStateCacheView& cache);
 
-        /// Creates a read-only overlay on top of \a cache.
-        explicit ReadOnlyAccountStateCache(const BasicAccountStateCacheDelta& cache);
+		/// Creates a read-only overlay on top of \a cache.
+		explicit ReadOnlyAccountStateCache(const BasicAccountStateCacheDelta& cache);
 
-    public:
-        /// Gets the network identifier.
-        model::NetworkIdentifier networkIdentifier() const;
+	public:
+		/// Gets the network identifier.
+		model::NetworkIdentifier networkIdentifier() const;
 
-        /// Gets the network importance grouping.
-        uint64_t importanceGrouping() const;
+		/// Gets the network importance grouping.
+		uint64_t importanceGrouping() const;
 
-        /// Gets the minimum harvester balance.
-        Amount minHarvesterBalance() const;
+		/// Gets the minimum harvester balance.
+		Amount minHarvesterBalance() const;
 
-        /// Gets the maximum harvester balance.
-        Amount maxHarvesterBalance() const;
+		/// Gets the maximum harvester balance.
+		Amount maxHarvesterBalance() const;
 
-        /// Gets the harvesting mosaic id.
-        MosaicId harvestingMosaicId() const;
+		/// Gets the harvesting mosaic id.
+		MosaicId harvestingMosaicId() const;
 
-        /// Gets the high value account statistics at the specified \a epoch.
-        /// \note When \a epoch is zero, statistics don't filter out accounts without registered voting public keys.
-        HighValueAccountStatistics highValueAccountStatistics(FinalizationEpoch epoch) const;
+		/// Gets the high value account statistics at the specified \a epoch.
+		/// \note When \a epoch is zero, statistics don't filter out accounts without registered voting public keys.
+		HighValueAccountStatistics highValueAccountStatistics(FinalizationEpoch epoch) const;
 
-    public:
-        using AddressBasedCache::contains;
-        using AddressBasedCache::find;
-        using AddressBasedCache::size;
+	public:
+		using AddressBasedCache::contains;
+		using AddressBasedCache::find;
+		using AddressBasedCache::size;
 
-        using KeyBasedCache::contains;
-        using KeyBasedCache::find;
+		using KeyBasedCache::contains;
+		using KeyBasedCache::find;
 
-    private:
-        const BasicAccountStateCacheView* m_pCache;
-        const BasicAccountStateCacheDelta* m_pCacheDelta;
-    };
+	private:
+		const BasicAccountStateCacheView* m_pCache;
+		const BasicAccountStateCacheDelta* m_pCacheDelta;
+	};
 }
 }

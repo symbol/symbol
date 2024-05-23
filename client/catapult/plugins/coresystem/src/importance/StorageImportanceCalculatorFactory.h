@@ -25,32 +25,32 @@
 
 namespace catatpult {
 namespace model {
-    struct BlockchainConfiguration;
+	struct BlockchainConfiguration;
 }
 }
 
 namespace catapult {
 namespace importance {
 
-    /// Factory for creating importance calculators that persist importance information to disk for long term storage.
-    class StorageImportanceCalculatorFactory {
-    public:
-        /// Creates a factory around \a config.
-        explicit StorageImportanceCalculatorFactory(const model::BlockchainConfiguration& config);
+	/// Factory for creating importance calculators that persist importance information to disk for long term storage.
+	class StorageImportanceCalculatorFactory {
+	public:
+		/// Creates a factory around \a config.
+		explicit StorageImportanceCalculatorFactory(const model::BlockchainConfiguration& config);
 
-    public:
-        /// Decorates \a pCalculator by writing its results to \a directory.
-        std::unique_ptr<ImportanceCalculator> createWriteCalculator(
-            std::unique_ptr<ImportanceCalculator>&& pCalculator,
-            const config::CatapultDirectory& directory) const;
+	public:
+		/// Decorates \a pCalculator by writing its results to \a directory.
+		std::unique_ptr<ImportanceCalculator> createWriteCalculator(
+			std::unique_ptr<ImportanceCalculator>&& pCalculator,
+			const config::CatapultDirectory& directory) const;
 
-        /// Decorates \a pCalculator by restoring older importances from \a directory.
-        std::unique_ptr<ImportanceCalculator> createReadCalculator(
-            std::unique_ptr<ImportanceCalculator>&& pCalculator,
-            const config::CatapultDirectory& directory) const;
+		/// Decorates \a pCalculator by restoring older importances from \a directory.
+		std::unique_ptr<ImportanceCalculator> createReadCalculator(
+			std::unique_ptr<ImportanceCalculator>&& pCalculator,
+			const config::CatapultDirectory& directory) const;
 
-    private:
-        const model::BlockchainConfiguration& m_config;
-    };
+	private:
+		const model::BlockchainConfiguration& m_config;
+	};
 }
 }

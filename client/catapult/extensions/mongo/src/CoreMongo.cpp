@@ -29,18 +29,17 @@
 namespace catapult {
 namespace mongo {
 
-    void RegisterCoreMongoSystem(MongoPluginManager& manager)
-    {
-        // transaction support
-        manager.addTransactionSupport(mappers::CreateVotingKeyLinkTransactionMongoPlugin());
-        manager.addTransactionSupport(mappers::CreateVrfKeyLinkTransactionMongoPlugin());
+	void RegisterCoreMongoSystem(MongoPluginManager& manager) {
+		// transaction support
+		manager.addTransactionSupport(mappers::CreateVotingKeyLinkTransactionMongoPlugin());
+		manager.addTransactionSupport(mappers::CreateVrfKeyLinkTransactionMongoPlugin());
 
-        // cache storage support
-        manager.addStorageSupport(storages::CreateMongoAccountStateCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+		// cache storage support
+		manager.addStorageSupport(storages::CreateMongoAccountStateCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 
-        // receipt support
-        manager.addReceiptSupport(CreateBalanceChangeReceiptMongoPlugin(model::Receipt_Type_Harvest_Fee));
-        manager.addReceiptSupport(CreateInflationReceiptMongoPlugin(model::Receipt_Type_Inflation));
-    }
+		// receipt support
+		manager.addReceiptSupport(CreateBalanceChangeReceiptMongoPlugin(model::Receipt_Type_Harvest_Fee));
+		manager.addReceiptSupport(CreateInflationReceiptMongoPlugin(model::Receipt_Type_Inflation));
+	}
 }
 }

@@ -31,131 +31,120 @@ namespace model {
 
 #define TEST_CLASS TransactionTests
 
-    // region size + alignment
+	// region size + alignment
 
 #define TRANSACTION_FIELDS FIELD(MaxFee) FIELD(Deadline)
 
-    TEST(TEST_CLASS, TransactionHasExpectedSize)
-    {
-        // Arrange:
-        auto expectedSize = sizeof(VerifiableEntity);
+	TEST(TEST_CLASS, TransactionHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = sizeof(VerifiableEntity);
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(Transaction::X)>();
-        TRANSACTION_FIELDS
+		TRANSACTION_FIELDS
 #undef FIELD
 
-        // Assert:
-        EXPECT_EQ(expectedSize, sizeof(Transaction));
-        EXPECT_EQ(112u + 16, sizeof(Transaction));
-    }
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(Transaction));
+		EXPECT_EQ(112u + 16, sizeof(Transaction));
+	}
 
-    TEST(TEST_CLASS, TransactionHasProperAlignment)
-    {
+	TEST(TEST_CLASS, TransactionHasProperAlignment) {
 #define FIELD(X) EXPECT_ALIGNED(Transaction, X);
-        TRANSACTION_FIELDS
+		TRANSACTION_FIELDS
 #undef FIELD
-    }
+	}
 
 #undef TRANSACTION_FIELDS
 
-    // endregion
+	// endregion
 
-    // region IsSizeValid
+	// region IsSizeValid
 
-    namespace {
-        bool IsSizeValid(const Transaction& transaction, mocks::PluginOptionFlags options = mocks::PluginOptionFlags::Default)
-        {
-            auto registry = mocks::CreateDefaultTransactionRegistry(options);
-            return IsSizeValid(transaction, registry);
-        }
+	namespace {
+		bool IsSizeValid(const Transaction& transaction, mocks::PluginOptionFlags options = mocks::PluginOptionFlags::Default) {
+			auto registry = mocks::CreateDefaultTransactionRegistry(options);
+			return IsSizeValid(transaction, registry);
+		}
 
-        std::unique_ptr<Transaction> CreateMockTransaction(uint32_t delta)
-        {
-            auto pTransaction = mocks::CreateMockTransaction(7);
-            pTransaction->Size += delta;
-            return PORTABLE_MOVE(pTransaction);
-        }
-    }
+		std::unique_ptr<Transaction> CreateMockTransaction(uint32_t delta) {
+			auto pTransaction = mocks::CreateMockTransaction(7);
+			pTransaction->Size += delta;
+			return PORTABLE_MOVE(pTransaction);
+		}
+	}
 
-    TEST(TEST_CLASS, SizeIsInvalidForTransactionWithUnknownType)
-    {
-        // Arrange:
-        Transaction transaction;
-        transaction.Type = static_cast<EntityType>(std::numeric_limits<uint16_t>::max());
-        transaction.Size = sizeof(Transaction);
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithUnknownType) {
+		// Arrange:
+		Transaction transaction;
+		transaction.Type = static_cast<EntityType>(std::numeric_limits<uint16_t>::max());
+		transaction.Size = sizeof(Transaction);
 
-        // Act + Assert:
-        EXPECT_FALSE(IsSizeValid(transaction));
-    }
+		// Act + Assert:
+		EXPECT_FALSE(IsSizeValid(transaction));
+	}
 
-    TEST(TEST_CLASS, SizeIsInvalidForTransactionWithoutTopLevelSupport)
-    {
-        // Arrange:
-        auto pTransaction = CreateMockTransaction(0);
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithoutTopLevelSupport) {
+		// Arrange:
+		auto pTransaction = CreateMockTransaction(0);
 
-        // Act + Assert:
-        EXPECT_FALSE(IsSizeValid(*pTransaction, mocks::PluginOptionFlags::Not_Top_Level));
-    }
+		// Act + Assert:
+		EXPECT_FALSE(IsSizeValid(*pTransaction, mocks::PluginOptionFlags::Not_Top_Level));
+	}
 
-    TEST(TEST_CLASS, SizeIsValidForTransactionWithEqualReportedSizeAndActualSize)
-    {
-        // Arrange:
-        auto pTransaction = CreateMockTransaction(0);
+	TEST(TEST_CLASS, SizeIsValidForTransactionWithEqualReportedSizeAndActualSize) {
+		// Arrange:
+		auto pTransaction = CreateMockTransaction(0);
 
-        // Act + Assert:
-        EXPECT_TRUE(IsSizeValid(*pTransaction));
-    }
+		// Act + Assert:
+		EXPECT_TRUE(IsSizeValid(*pTransaction));
+	}
 
-    TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeLessThanActualSize)
-    {
-        // Arrange:
-        auto pTransaction = CreateMockTransaction(static_cast<uint32_t>(-1));
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeLessThanActualSize) {
+		// Arrange:
+		auto pTransaction = CreateMockTransaction(static_cast<uint32_t>(-1));
 
-        // Act:
-        EXPECT_FALSE(IsSizeValid(*pTransaction));
-    }
+		// Act:
+		EXPECT_FALSE(IsSizeValid(*pTransaction));
+	}
 
-    TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeGreaterThanActualSize)
-    {
-        // Arrange:
-        auto pTransaction = CreateMockTransaction(1);
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeGreaterThanActualSize) {
+		// Arrange:
+		auto pTransaction = CreateMockTransaction(1);
 
-        // Act + Assert:
-        EXPECT_FALSE(IsSizeValid(*pTransaction));
-    }
+		// Act + Assert:
+		EXPECT_FALSE(IsSizeValid(*pTransaction));
+	}
 
-    TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeLessThanHeaderSize)
-    {
-        // Arrange:
-        std::vector<uint8_t> buffer(sizeof(SizePrefixedEntity));
-        auto* pTransaction = reinterpret_cast<Transaction*>(&buffer[0]);
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeLessThanHeaderSize) {
+		// Arrange:
+		std::vector<uint8_t> buffer(sizeof(SizePrefixedEntity));
+		auto* pTransaction = reinterpret_cast<Transaction*>(&buffer[0]);
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds" // Transaction[0] is partly outside array bounds
 #endif
 
-        pTransaction->Size = sizeof(SizePrefixedEntity);
+		pTransaction->Size = sizeof(SizePrefixedEntity);
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 
-        // Act:
-        EXPECT_FALSE(IsSizeValid(*pTransaction));
-    }
+		// Act:
+		EXPECT_FALSE(IsSizeValid(*pTransaction));
+	}
 
-    TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeLessThanDerivedHeaderSize)
-    {
-        // Arrange:
-        auto pTransaction = std::make_unique<Transaction>();
-        pTransaction->Type = mocks::MockTransaction::Entity_Type;
-        pTransaction->Size = sizeof(Transaction);
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeLessThanDerivedHeaderSize) {
+		// Arrange:
+		auto pTransaction = std::make_unique<Transaction>();
+		pTransaction->Type = mocks::MockTransaction::Entity_Type;
+		pTransaction->Size = sizeof(Transaction);
 
-        // Act:
-        EXPECT_FALSE(IsSizeValid(*pTransaction));
-    }
+		// Act:
+		EXPECT_FALSE(IsSizeValid(*pTransaction));
+	}
 
-    // endregion
+	// endregion
 }
 }

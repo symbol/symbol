@@ -25,73 +25,63 @@
 namespace catapult {
 namespace builders {
 
-    MosaicDefinitionBuilder::MosaicDefinitionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-        : TransactionBuilder(networkIdentifier, signer)
-        , m_id()
-        , m_duration()
-        , m_nonce()
-        , m_flags()
-        , m_divisibility()
-    {
-    }
+	MosaicDefinitionBuilder::MosaicDefinitionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+		: TransactionBuilder(networkIdentifier, signer)
+		, m_id()
+		, m_duration()
+		, m_nonce()
+		, m_flags()
+		, m_divisibility() {
+	}
 
-    void MosaicDefinitionBuilder::setDuration(BlockDuration duration)
-    {
-        m_duration = duration;
-    }
+	void MosaicDefinitionBuilder::setDuration(BlockDuration duration) {
+		m_duration = duration;
+	}
 
-    void MosaicDefinitionBuilder::setNonce(MosaicNonce nonce)
-    {
-        m_nonce = nonce;
-    }
+	void MosaicDefinitionBuilder::setNonce(MosaicNonce nonce) {
+		m_nonce = nonce;
+	}
 
-    void MosaicDefinitionBuilder::setFlags(model::MosaicFlags flags)
-    {
-        m_flags = flags;
-    }
+	void MosaicDefinitionBuilder::setFlags(model::MosaicFlags flags) {
+		m_flags = flags;
+	}
 
-    void MosaicDefinitionBuilder::setDivisibility(uint8_t divisibility)
-    {
-        m_divisibility = divisibility;
-    }
+	void MosaicDefinitionBuilder::setDivisibility(uint8_t divisibility) {
+		m_divisibility = divisibility;
+	}
 
-    size_t MosaicDefinitionBuilder::size() const
-    {
-        return sizeImpl<Transaction>();
-    }
+	size_t MosaicDefinitionBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
 
-    std::unique_ptr<MosaicDefinitionBuilder::Transaction> MosaicDefinitionBuilder::build() const
-    {
-        return buildImpl<Transaction>();
-    }
+	std::unique_ptr<MosaicDefinitionBuilder::Transaction> MosaicDefinitionBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
 
-    std::unique_ptr<MosaicDefinitionBuilder::EmbeddedTransaction> MosaicDefinitionBuilder::buildEmbedded() const
-    {
-        return buildImpl<EmbeddedTransaction>();
-    }
+	std::unique_ptr<MosaicDefinitionBuilder::EmbeddedTransaction> MosaicDefinitionBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
+	}
 
-    template <typename TransactionType>
-    size_t MosaicDefinitionBuilder::sizeImpl() const
-    {
-        // calculate transaction size
-        auto size = sizeof(TransactionType);
-        return size;
-    }
+	template <typename TransactionType>
+	size_t MosaicDefinitionBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		return size;
+	}
 
-    template <typename TransactionType>
-    std::unique_ptr<TransactionType> MosaicDefinitionBuilder::buildImpl() const
-    {
-        // 1. allocate, zero (header), set model::Transaction fields
-        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+	template <typename TransactionType>
+	std::unique_ptr<TransactionType> MosaicDefinitionBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-        // 2. set fixed transaction fields
-        pTransaction->Id = model::GenerateMosaicId(model::GetSignerAddress(*pTransaction), m_nonce);
-        pTransaction->Duration = m_duration;
-        pTransaction->Nonce = m_nonce;
-        pTransaction->Flags = m_flags;
-        pTransaction->Divisibility = m_divisibility;
+		// 2. set fixed transaction fields
+		pTransaction->Id = model::GenerateMosaicId(model::GetSignerAddress(*pTransaction), m_nonce);
+		pTransaction->Duration = m_duration;
+		pTransaction->Nonce = m_nonce;
+		pTransaction->Flags = m_flags;
+		pTransaction->Divisibility = m_divisibility;
 
-        return pTransaction;
-    }
+		return pTransaction;
+	}
 }
 }

@@ -27,78 +27,70 @@
 namespace catapult {
 namespace mongo {
 
-    namespace {
-        bool CheckExact(uint64_t numExpected, uint64_t numActual, MongoErrorPolicy::Mode mode)
-        {
-            return numExpected == numActual || (MongoErrorPolicy::Mode::Idempotent == mode && numExpected >= numActual);
-        }
-    }
+	namespace {
+		bool CheckExact(uint64_t numExpected, uint64_t numActual, MongoErrorPolicy::Mode mode) {
+			return numExpected == numActual || (MongoErrorPolicy::Mode::Idempotent == mode && numExpected >= numActual);
+		}
+	}
 
-    MongoErrorPolicy::MongoErrorPolicy(const std::string& collectionName, Mode mode)
-        : m_collectionName(collectionName)
-        , m_mode(mode)
-    {
-    }
+	MongoErrorPolicy::MongoErrorPolicy(const std::string& collectionName, Mode mode)
+		: m_collectionName(collectionName)
+		, m_mode(mode) {
+	}
 
-    MongoErrorPolicy::Mode MongoErrorPolicy::mode() const
-    {
-        return m_mode;
-    }
+	MongoErrorPolicy::Mode MongoErrorPolicy::mode() const {
+		return m_mode;
+	}
 
-    void MongoErrorPolicy::checkDeleted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const
-    {
-        auto numActual = mappers::ToUint32(result.NumDeleted);
-        if (CheckExact(numExpected, numActual, m_mode))
-            return;
+	void MongoErrorPolicy::checkDeleted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const {
+		auto numActual = mappers::ToUint32(result.NumDeleted);
+		if (CheckExact(numExpected, numActual, m_mode))
+			return;
 
-        formatMessageAndThrow("deleting", numExpected, numActual, itemsDescription);
-    }
+		formatMessageAndThrow("deleting", numExpected, numActual, itemsDescription);
+	}
 
-    void MongoErrorPolicy::checkDeletedAtLeast(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription)
-        const
-    {
-        if (Mode::Idempotent == m_mode)
-            return;
+	void MongoErrorPolicy::checkDeletedAtLeast(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription)
+		const {
+		if (Mode::Idempotent == m_mode)
+			return;
 
-        auto numActual = mappers::ToUint32(result.NumDeleted);
-        if (numExpected <= numActual)
-            return;
+		auto numActual = mappers::ToUint32(result.NumDeleted);
+		if (numExpected <= numActual)
+			return;
 
-        formatMessageAndThrow("deleting (at least)", numExpected, numActual, itemsDescription);
-    }
+		formatMessageAndThrow("deleting (at least)", numExpected, numActual, itemsDescription);
+	}
 
-    void MongoErrorPolicy::checkInserted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const
-    {
-        auto numActual = mappers::ToUint32(result.NumInserted);
-        if (CheckExact(numExpected, numActual, m_mode))
-            return;
+	void MongoErrorPolicy::checkInserted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const {
+		auto numActual = mappers::ToUint32(result.NumInserted);
+		if (CheckExact(numExpected, numActual, m_mode))
+			return;
 
-        formatMessageAndThrow("inserting", numExpected, numActual, itemsDescription);
-    }
+		formatMessageAndThrow("inserting", numExpected, numActual, itemsDescription);
+	}
 
-    void MongoErrorPolicy::checkUpserted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const
-    {
-        auto numActual = mappers::ToUint32(result.NumModified) + mappers::ToUint32(result.NumUpserted);
-        if (CheckExact(numExpected, numActual, m_mode))
-            return;
+	void MongoErrorPolicy::checkUpserted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const {
+		auto numActual = mappers::ToUint32(result.NumModified) + mappers::ToUint32(result.NumUpserted);
+		if (CheckExact(numExpected, numActual, m_mode))
+			return;
 
-        formatMessageAndThrow("upserting", numExpected, numActual, itemsDescription);
-    }
+		formatMessageAndThrow("upserting", numExpected, numActual, itemsDescription);
+	}
 
-    void MongoErrorPolicy::formatMessageAndThrow(
-        const char* operation,
-        uint64_t numExpected,
-        uint64_t numActual,
-        const std::string& itemsDescription) const
-    {
-        std::ostringstream out;
-        out << "error " << operation << " " << itemsDescription;
+	void MongoErrorPolicy::formatMessageAndThrow(
+		const char* operation,
+		uint64_t numExpected,
+		uint64_t numActual,
+		const std::string& itemsDescription) const {
+		std::ostringstream out;
+		out << "error " << operation << " " << itemsDescription;
 
-        if (!m_collectionName.empty())
-            out << " from [" << m_collectionName << "] collection";
+		if (!m_collectionName.empty())
+			out << " from [" << m_collectionName << "] collection";
 
-        out << " (" << numExpected << " expected, " << numActual << " actual)";
-        CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-    }
+		out << " (" << numExpected << " expected, " << numActual << " actual)";
+		CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
+	}
 }
 }

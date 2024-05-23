@@ -29,37 +29,35 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MosaicEntryMapperTests
 
-        // region ToDbModel
+		// region ToDbModel
 
-        namespace {
-            state::MosaicEntry CreateMosaicEntry()
-            {
-                auto owner = test::CreateRandomOwner();
-                return test::CreateMosaicEntry(MosaicId(345), Height(123), owner, Amount(456), BlockDuration(12345));
-            }
-        }
+		namespace {
+			state::MosaicEntry CreateMosaicEntry() {
+				auto owner = test::CreateRandomOwner();
+				return test::CreateMosaicEntry(MosaicId(345), Height(123), owner, Amount(456), BlockDuration(12345));
+			}
+		}
 
-        TEST(TEST_CLASS, CanMapMosaicEntry_ModelToDbModel)
-        {
-            // Arrange:
-            auto entry = CreateMosaicEntry();
+		TEST(TEST_CLASS, CanMapMosaicEntry_ModelToDbModel) {
+			// Arrange:
+			auto entry = CreateMosaicEntry();
 
-            // Act:
-            auto document = ToDbModel(entry);
-            auto documentView = document.view();
+			// Act:
+			auto document = ToDbModel(entry);
+			auto documentView = document.view();
 
-            // Assert:
-            EXPECT_EQ(1u, test::GetFieldCount(documentView));
+			// Assert:
+			EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
-            auto mosaicView = documentView["mosaic"].get_document().view();
-            test::AssertEqualMosaicData(entry, mosaicView);
-        }
+			auto mosaicView = documentView["mosaic"].get_document().view();
+			test::AssertEqualMosaicData(entry, mosaicView);
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

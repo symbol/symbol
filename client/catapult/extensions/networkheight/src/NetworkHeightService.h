@@ -24,16 +24,16 @@
 
 namespace catapult {
 namespace networkheight {
-    struct NetworkHeightConfiguration;
+	struct NetworkHeightConfiguration;
 }
 }
 
 namespace catapult {
 namespace networkheight {
 
-    /// Creates a registrar for a network height service around \a networkHeightConfig.
-    /// \note This service is responsible for calculating the network height.
-    DECLARE_SERVICE_REGISTRAR(NetworkHeight)
-    (const NetworkHeightConfiguration& networkHeightConfig);
+	/// Creates a registrar for a network height service around \a networkHeightConfig.
+	/// \note This service is responsible for calculating the network height.
+	DECLARE_SERVICE_REGISTRAR(NetworkHeight)
+	(const NetworkHeightConfiguration& networkHeightConfig);
 }
 }

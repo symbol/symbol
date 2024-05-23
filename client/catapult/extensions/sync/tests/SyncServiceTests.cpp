@@ -32,39 +32,37 @@ namespace sync {
 
 #define TEST_CLASS SyncServiceTests
 
-    namespace {
-        struct SyncServiceTraits {
-            static constexpr auto CreateRegistrar = CreateSyncServiceRegistrar;
-        };
+	namespace {
+		struct SyncServiceTraits {
+			static constexpr auto CreateRegistrar = CreateSyncServiceRegistrar;
+		};
 
-        class TestContext : public test::ServiceLocatorTestContext<SyncServiceTraits> {
-        public:
-            TestContext()
-            {
-                // register dependent service
-                locator().registerRootedService("writers", std::make_shared<mocks::MockPacketWriters>());
+		class TestContext : public test::ServiceLocatorTestContext<SyncServiceTraits> {
+		public:
+			TestContext() {
+				// register dependent service
+				locator().registerRootedService("writers", std::make_shared<mocks::MockPacketWriters>());
 
-                // set up hooks
-                auto& hooks = testState().state().hooks();
-                hooks.setCompletionAwareBlockRangeConsumerFactory(
-                    [](auto) { return [](auto&&, auto) { return disruptor::DisruptorElementId(); }; });
-                hooks.setTransactionRangeConsumerFactory([](auto) { return [](auto&&) {}; });
-                hooks.setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair { Height(1), Hash256() }; });
-            }
-        };
-    }
+				// set up hooks
+				auto& hooks = testState().state().hooks();
+				hooks.setCompletionAwareBlockRangeConsumerFactory(
+					[](auto) { return [](auto&&, auto) { return disruptor::DisruptorElementId(); }; });
+				hooks.setTransactionRangeConsumerFactory([](auto) { return [](auto&&) {}; });
+				hooks.setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair { Height(1), Hash256() }; });
+			}
+		};
+	}
 
-    ADD_SERVICE_REGISTRAR_INFO_TEST(Sync, Post_Range_Consumers)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(Sync, Post_Range_Consumers)
 
-    // region tasks
+	// region tasks
 
-    TEST(TEST_CLASS, TasksAreRegistered)
-    {
-        test::AssertRegisteredTasks(
-            TestContext(),
-            { "connect peers task for service Sync", "synchronizer task", "pull unconfirmed transactions task" });
-    }
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(
+			TestContext(),
+			{ "connect peers task for service Sync", "synchronizer task", "pull unconfirmed transactions task" });
+	}
 
-    // endregion
+	// endregion
 }
 }

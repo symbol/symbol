@@ -28,52 +28,45 @@
 namespace catapult {
 namespace filespooling {
 
-    namespace {
-        class FilePtChangeStorage final : public cache::PtChangeSubscriber {
-        public:
-            explicit FilePtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-                : m_pOutputStream(std::move(pOutputStream))
-            {
-            }
+	namespace {
+		class FilePtChangeStorage final : public cache::PtChangeSubscriber {
+		public:
+			explicit FilePtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
+				: m_pOutputStream(std::move(pOutputStream)) {
+			}
 
-        public:
-            void notifyAddPartials(const TransactionInfos& transactionInfos) override
-            {
-                saveInfos(subscribers::PtChangeOperationType::Add_Partials, transactionInfos);
-            }
+		public:
+			void notifyAddPartials(const TransactionInfos& transactionInfos) override {
+				saveInfos(subscribers::PtChangeOperationType::Add_Partials, transactionInfos);
+			}
 
-            void notifyRemovePartials(const TransactionInfos& transactionInfos) override
-            {
-                saveInfos(subscribers::PtChangeOperationType::Remove_Partials, transactionInfos);
-            }
+			void notifyRemovePartials(const TransactionInfos& transactionInfos) override {
+				saveInfos(subscribers::PtChangeOperationType::Remove_Partials, transactionInfos);
+			}
 
-            void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override
-            {
-                io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::PtChangeOperationType::Add_Cosignature));
-                m_pOutputStream->write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
-                io::WriteTransactionInfo(parentTransactionInfo, *m_pOutputStream);
-            }
+			void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override {
+				io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::PtChangeOperationType::Add_Cosignature));
+				m_pOutputStream->write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
+				io::WriteTransactionInfo(parentTransactionInfo, *m_pOutputStream);
+			}
 
-            void flush() override
-            {
-                m_pOutputStream->flush();
-            }
+			void flush() override {
+				m_pOutputStream->flush();
+			}
 
-        private:
-            void saveInfos(subscribers::PtChangeOperationType operationType, const TransactionInfos& transactionInfos)
-            {
-                io::Write8(*m_pOutputStream, utils::to_underlying_type(operationType));
-                io::WriteTransactionInfos(transactionInfos, *m_pOutputStream);
-            }
+		private:
+			void saveInfos(subscribers::PtChangeOperationType operationType, const TransactionInfos& transactionInfos) {
+				io::Write8(*m_pOutputStream, utils::to_underlying_type(operationType));
+				io::WriteTransactionInfos(transactionInfos, *m_pOutputStream);
+			}
 
-        private:
-            std::unique_ptr<io::OutputStream> m_pOutputStream;
-        };
-    }
+		private:
+			std::unique_ptr<io::OutputStream> m_pOutputStream;
+		};
+	}
 
-    std::unique_ptr<cache::PtChangeSubscriber> CreateFilePtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-    {
-        return std::make_unique<FilePtChangeStorage>(std::move(pOutputStream));
-    }
+	std::unique_ptr<cache::PtChangeSubscriber> CreateFilePtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream) {
+		return std::make_unique<FilePtChangeStorage>(std::move(pOutputStream));
+	}
 }
 }

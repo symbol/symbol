@@ -29,34 +29,33 @@ namespace subscribers {
 
 #define TEST_CLASS AggregateFinalizationSubscriberTests
 
-    namespace {
-        template <typename TFinalizationSubscriber>
-        using TestContext = test::AggregateSubscriberTestContext<TFinalizationSubscriber, AggregateFinalizationSubscriber<TFinalizationSubscriber>>;
-    }
+	namespace {
+		template <typename TFinalizationSubscriber>
+		using TestContext = test::AggregateSubscriberTestContext<TFinalizationSubscriber, AggregateFinalizationSubscriber<TFinalizationSubscriber>>;
+	}
 
-    TEST(TEST_CLASS, NotifyFinalizedBlockForwardsToAllSubscribers)
-    {
-        // Arrange:
-        TestContext<mocks::MockFinalizationSubscriber> context;
-        auto round = model::FinalizationRound { FinalizationEpoch(23), FinalizationPoint(17) };
-        auto hash = test::GenerateRandomByteArray<Hash256>();
+	TEST(TEST_CLASS, NotifyFinalizedBlockForwardsToAllSubscribers) {
+		// Arrange:
+		TestContext<mocks::MockFinalizationSubscriber> context;
+		auto round = model::FinalizationRound { FinalizationEpoch(23), FinalizationPoint(17) };
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 
-        // Sanity:
-        EXPECT_EQ(3u, context.subscribers().size());
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
 
-        // Act:
-        context.aggregate().notifyFinalizedBlock(round, Height(82), hash);
+		// Act:
+		context.aggregate().notifyFinalizedBlock(round, Height(82), hash);
 
-        // Assert:
-        auto i = 0u;
-        for (const auto* pSubscriber : context.subscribers()) {
-            auto message = "subscriber at " + std::to_string(i++);
-            const auto& capturedParams = pSubscriber->finalizedBlockParams().params();
-            ASSERT_EQ(1u, capturedParams.size()) << message;
-            EXPECT_EQ(round, capturedParams[0].Round) << message;
-            EXPECT_EQ(Height(82), capturedParams[0].Height) << message;
-            EXPECT_EQ(hash, capturedParams[0].Hash) << message;
-        }
-    }
+		// Assert:
+		auto i = 0u;
+		for (const auto* pSubscriber : context.subscribers()) {
+			auto message = "subscriber at " + std::to_string(i++);
+			const auto& capturedParams = pSubscriber->finalizedBlockParams().params();
+			ASSERT_EQ(1u, capturedParams.size()) << message;
+			EXPECT_EQ(round, capturedParams[0].Round) << message;
+			EXPECT_EQ(Height(82), capturedParams[0].Height) << message;
+			EXPECT_EQ(hash, capturedParams[0].Hash) << message;
+		}
+	}
 }
 }

@@ -31,86 +31,80 @@
 namespace catapult {
 namespace local {
 
-    namespace {
-        thread::Task CreateRefreshTask(
-            const std::vector<ionet::Node>& staticNodes,
-            const Key& bootPublicKey,
-            net::ServerConnector& connector,
-            ionet::NodeContainer& nodes)
-        {
-            return thread::CreateNamedTask("static node refresh task", [&staticNodes, &bootPublicKey, &connector, &nodes]() {
-                std::vector<thread::future<bool>> futures;
-                for (const auto& node : staticNodes) {
-                    // skip requests to self
-                    if (bootPublicKey == node.identity().PublicKey)
-                        continue;
+	namespace {
+		thread::Task CreateRefreshTask(
+			const std::vector<ionet::Node>& staticNodes,
+			const Key& bootPublicKey,
+			net::ServerConnector& connector,
+			ionet::NodeContainer& nodes) {
+			return thread::CreateNamedTask("static node refresh task", [&staticNodes, &bootPublicKey, &connector, &nodes]() {
+				std::vector<thread::future<bool>> futures;
+				for (const auto& node : staticNodes) {
+					// skip requests to self
+					if (bootPublicKey == node.identity().PublicKey)
+						continue;
 
-                    auto pPromise = std::make_shared<thread::promise<bool>>();
-                    futures.push_back(pPromise->get_future());
+					auto pPromise = std::make_shared<thread::promise<bool>>();
+					futures.push_back(pPromise->get_future());
 
-                    connector.connect(node, [pPromise, &node, &nodes](auto code, const auto& socketInfo) {
-                        if (net::PeerConnectCode::Accepted != code) {
-                            CATAPULT_LOG(warning) << "unable to resolve and connect to static node " << node;
-                            pPromise->set_value(false);
-                            return;
-                        }
+					connector.connect(node, [pPromise, &node, &nodes](auto code, const auto& socketInfo) {
+						if (net::PeerConnectCode::Accepted != code) {
+							CATAPULT_LOG(warning) << "unable to resolve and connect to static node " << node;
+							pPromise->set_value(false);
+							return;
+						}
 
-                        auto resolvedNodeIdentity = model::NodeIdentity { node.identity().PublicKey, socketInfo.host() };
-                        auto resolvedNode = ionet::Node(resolvedNodeIdentity, node.endpoint(), node.metadata());
-                        nodes.modifier().add(resolvedNode, ionet::NodeSource::Static);
-                        pPromise->set_value(true);
-                    });
-                }
+						auto resolvedNodeIdentity = model::NodeIdentity { node.identity().PublicKey, socketInfo.host() };
+						auto resolvedNode = ionet::Node(resolvedNodeIdentity, node.endpoint(), node.metadata());
+						nodes.modifier().add(resolvedNode, ionet::NodeSource::Static);
+						pPromise->set_value(true);
+					});
+				}
 
-                return futures.empty() ? thread::make_ready_future(thread::TaskResult::Continue)
-                                       : thread::when_all(std::move(futures)).then([](auto&&) { return thread::TaskResult::Continue; });
-            });
-        }
+				return futures.empty() ? thread::make_ready_future(thread::TaskResult::Continue)
+									   : thread::when_all(std::move(futures)).then([](auto&&) { return thread::TaskResult::Continue; });
+			});
+		}
 
-        class StaticNodeRefreshServiceRegistrar : public extensions::ServiceRegistrar {
-        public:
-            explicit StaticNodeRefreshServiceRegistrar(const std::vector<ionet::Node>& staticNodes)
-                : m_staticNodes(staticNodes)
-            {
-            }
+		class StaticNodeRefreshServiceRegistrar : public extensions::ServiceRegistrar {
+		public:
+			explicit StaticNodeRefreshServiceRegistrar(const std::vector<ionet::Node>& staticNodes)
+				: m_staticNodes(staticNodes) {
+			}
 
-        public:
-            extensions::ServiceRegistrarInfo info() const override
-            {
-                return { "StaticNodeRefresh", extensions::ServiceRegistrarPhase::Initial };
-            }
+		public:
+			extensions::ServiceRegistrarInfo info() const override {
+				return { "StaticNodeRefresh", extensions::ServiceRegistrarPhase::Initial };
+			}
 
-            void registerServiceCounters(extensions::ServiceLocator&) override
-            {
-                // no additional counters
-            }
+			void registerServiceCounters(extensions::ServiceLocator&) override {
+				// no additional counters
+			}
 
-            void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override
-            {
-                // register services
-                auto connectionSettings = extensions::GetConnectionSettings(state.config());
-                auto pServiceGroup = state.pool().pushServiceGroup("static_node_refresh");
+			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				// register services
+				auto connectionSettings = extensions::GetConnectionSettings(state.config());
+				auto pServiceGroup = state.pool().pushServiceGroup("static_node_refresh");
 
-                auto pServerConnector = pServiceGroup->pushService(
-                    net::CreateServerConnector,
-                    locator.keys().caPublicKey(),
-                    connectionSettings,
-                    "static node refresh");
-                locator.registerService("snr.server_connector", pServerConnector);
+				auto pServerConnector = pServiceGroup->pushService(
+					net::CreateServerConnector,
+					locator.keys().caPublicKey(),
+					connectionSettings,
+					"static node refresh");
+				locator.registerService("snr.server_connector", pServerConnector);
 
-                // add task
-                state.tasks().push_back(CreateRefreshTask(m_staticNodes, locator.keys().caPublicKey(), *pServerConnector, state.nodes()));
-            }
+				// add task
+				state.tasks().push_back(CreateRefreshTask(m_staticNodes, locator.keys().caPublicKey(), *pServerConnector, state.nodes()));
+			}
 
-        private:
-            const std::vector<ionet::Node>& m_staticNodes;
-        };
-    }
+		private:
+			const std::vector<ionet::Node>& m_staticNodes;
+		};
+	}
 
-    DECLARE_SERVICE_REGISTRAR(StaticNodeRefresh)
-    (const std::vector<ionet::Node>& staticNodes)
-    {
-        return std::make_unique<StaticNodeRefreshServiceRegistrar>(staticNodes);
-    }
+	DECLARE_SERVICE_REGISTRAR(StaticNodeRefresh)
+	(const std::vector<ionet::Node>& staticNodes) {
+		return std::make_unique<StaticNodeRefreshServiceRegistrar>(staticNodes);
+	}
 }
 }

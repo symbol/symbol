@@ -26,23 +26,23 @@
 namespace catapult {
 namespace test {
 
-    /// Adds configuration for all plugins required by the default nemesis block to \a config.
-    void AddNemesisPluginExtensions(model::BlockchainConfiguration& config);
+	/// Adds configuration for all plugins required by the default nemesis block to \a config.
+	void AddNemesisPluginExtensions(model::BlockchainConfiguration& config);
 
-    /// Adds configuration for all extensions required by api nodes to \a config.
-    void AddApiPluginExtensions(config::ExtensionsConfiguration& config);
+	/// Adds configuration for all extensions required by api nodes to \a config.
+	void AddApiPluginExtensions(config::ExtensionsConfiguration& config);
 
-    /// Adds configuration for all extensions required by p2p nodes to \a config.
-    void AddPeerPluginExtensions(config::ExtensionsConfiguration& config);
+	/// Adds configuration for all extensions required by p2p nodes to \a config.
+	void AddPeerPluginExtensions(config::ExtensionsConfiguration& config);
 
-    /// Adds configuration for all extensions required by simple partner nodes to \a config.
-    void AddSimplePartnerPluginExtensions(config::ExtensionsConfiguration& config);
+	/// Adds configuration for all extensions required by simple partner nodes to \a config.
+	void AddSimplePartnerPluginExtensions(config::ExtensionsConfiguration& config);
 
-    /// Adds configuration for all extensions required by recovery process to \a config.
-    void AddRecoveryPluginExtensions(config::ExtensionsConfiguration& config);
+	/// Adds configuration for all extensions required by recovery process to \a config.
+	void AddRecoveryPluginExtensions(config::ExtensionsConfiguration& config);
 
-    /// Creates a test catapult configuration with a storage in the specified directory (\a dataDirectory)
-    /// that includes configuration for all plugins required by the default nemesis block.
-    config::CatapultConfiguration CreateCatapultConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory);
+	/// Creates a test catapult configuration with a storage in the specified directory (\a dataDirectory)
+	/// that includes configuration for all plugins required by the default nemesis block.
+	config::CatapultConfiguration CreateCatapultConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory);
 }
 }

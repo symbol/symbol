@@ -26,186 +26,170 @@
 namespace catapult {
 namespace api {
 
-    namespace {
-        // region custom packets
+	namespace {
+		// region custom packets
 
-        static constexpr auto Generic_Request_Packet_Type = static_cast<ionet::PacketType>(11);
-        static constexpr auto Generic_Response_Packet_Type = static_cast<ionet::PacketType>(7);
+		static constexpr auto Generic_Request_Packet_Type = static_cast<ionet::PacketType>(11);
+		static constexpr auto Generic_Response_Packet_Type = static_cast<ionet::PacketType>(7);
 
 #pragma pack(push, 1)
 
-        struct GenericRequestWithParams : public ionet::Packet {
-            static constexpr auto Packet_Type = Generic_Request_Packet_Type;
+		struct GenericRequestWithParams : public ionet::Packet {
+			static constexpr auto Packet_Type = Generic_Request_Packet_Type;
 
-            uint8_t Alpha;
-            uint8_t Reserved1[7];
-            uint64_t Beta;
-            uint16_t Gamma;
-        };
+			uint8_t Alpha;
+			uint8_t Reserved1[7];
+			uint64_t Beta;
+			uint16_t Gamma;
+		};
 
-        struct GenericResponse : public ionet::Packet {
-            static constexpr auto Packet_Type = Generic_Response_Packet_Type;
+		struct GenericResponse : public ionet::Packet {
+			static constexpr auto Packet_Type = Generic_Response_Packet_Type;
 
-            uint8_t Foo;
-        };
+			uint8_t Foo;
+		};
 
 #pragma pack(pop)
 
-        // endregion
+		// endregion
 
-        // region api traits
+		// region api traits
 
-        // there are two sets of tests: one set for a request without parameters and one set for a request with parameters
-        // the traits (and test traits) only differ in request handling
+		// there are two sets of tests: one set for a request without parameters and one set for a request with parameters
+		// the traits (and test traits) only differ in request handling
 
-        struct BaseGenericApiTraits {
-        public:
-            using ResultType = uint8_t;
-            static constexpr auto Packet_Type = GenericResponse::Packet_Type;
+		struct BaseGenericApiTraits {
+		public:
+			using ResultType = uint8_t;
+			static constexpr auto Packet_Type = GenericResponse::Packet_Type;
 
-        public:
-            explicit BaseGenericApiTraits(uint8_t multiplier = 1)
-                : m_multiplier(multiplier)
-            {
-            }
+		public:
+			explicit BaseGenericApiTraits(uint8_t multiplier = 1)
+				: m_multiplier(multiplier) {
+			}
 
-            bool tryParseResult(const ionet::Packet& packet, ResultType& result) const
-            {
-                // intentionally do not use ionet::CoercePacket in order to test the type check in the dispatcher
-                if (sizeof(GenericResponse) != packet.Size)
-                    return false;
+			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
+				// intentionally do not use ionet::CoercePacket in order to test the type check in the dispatcher
+				if (sizeof(GenericResponse) != packet.Size)
+					return false;
 
-                auto pResponse = static_cast<const GenericResponse*>(&packet);
-                result = static_cast<ResultType>(pResponse->Foo * m_multiplier);
-                return 0 == result % 2; // indicate only even results are valid
-            }
+				auto pResponse = static_cast<const GenericResponse*>(&packet);
+				result = static_cast<ResultType>(pResponse->Foo * m_multiplier);
+				return 0 == result % 2; // indicate only even results are valid
+			}
 
-        private:
-            uint8_t m_multiplier;
-        };
+		private:
+			uint8_t m_multiplier;
+		};
 
-        struct GenericWithoutParametersApiTraits : public BaseGenericApiTraits {
-            static constexpr auto Friendly_Name = "generic without parameters";
+		struct GenericWithoutParametersApiTraits : public BaseGenericApiTraits {
+			static constexpr auto Friendly_Name = "generic without parameters";
 
-            using BaseGenericApiTraits::BaseGenericApiTraits;
+			using BaseGenericApiTraits::BaseGenericApiTraits;
 
-            static auto CreateRequestPacketPayload()
-            {
-                return ionet::PacketPayload(GenericRequestWithParams::Packet_Type);
-            }
-        };
+			static auto CreateRequestPacketPayload() {
+				return ionet::PacketPayload(GenericRequestWithParams::Packet_Type);
+			}
+		};
 
-        struct GenericWithParametersApiTraits : public BaseGenericApiTraits {
-            static constexpr auto Friendly_Name = "generic with parameters";
+		struct GenericWithParametersApiTraits : public BaseGenericApiTraits {
+			static constexpr auto Friendly_Name = "generic with parameters";
 
-            static auto CreateRequestPacketPayload(uint8_t alpha, uint64_t beta, uint16_t gamma)
-            {
-                auto pPacket = ionet::CreateSharedPacket<GenericRequestWithParams>();
-                pPacket->Alpha = alpha;
-                pPacket->Beta = beta;
-                pPacket->Gamma = gamma;
-                return ionet::PacketPayload(pPacket);
-            }
-        };
+			static auto CreateRequestPacketPayload(uint8_t alpha, uint64_t beta, uint16_t gamma) {
+				auto pPacket = ionet::CreateSharedPacket<GenericRequestWithParams>();
+				pPacket->Alpha = alpha;
+				pPacket->Beta = beta;
+				pPacket->Gamma = gamma;
+				return ionet::PacketPayload(pPacket);
+			}
+		};
 
-        // endregion
+		// endregion
 
-        // region test traits
+		// region test traits
 
-        struct BaseGenericTestTraits {
-            static auto CreateValidResponsePacket()
-            {
-                auto pResponsePacket = ionet::CreateSharedPacket<GenericResponse>();
-                pResponsePacket->Foo = 2; // even is valid
-                return pResponsePacket;
-            }
+		struct BaseGenericTestTraits {
+			static auto CreateValidResponsePacket() {
+				auto pResponsePacket = ionet::CreateSharedPacket<GenericResponse>();
+				pResponsePacket->Foo = 2; // even is valid
+				return pResponsePacket;
+			}
 
-            static auto CreateMalformedResponsePacket()
-            {
-                auto pResponsePacket = ionet::CreateSharedPacket<GenericResponse>();
-                pResponsePacket->Foo = 1; // odd is invalid
-                return pResponsePacket;
-            }
-        };
+			static auto CreateMalformedResponsePacket() {
+				auto pResponsePacket = ionet::CreateSharedPacket<GenericResponse>();
+				pResponsePacket->Foo = 1; // odd is invalid
+				return pResponsePacket;
+			}
+		};
 
-        struct GenericWithoutParametersTestTraits : public BaseGenericTestTraits {
-            static auto Invoke(RemoteRequestDispatcher& api)
-            {
-                return api.dispatch(GenericWithoutParametersApiTraits());
-            }
+		struct GenericWithoutParametersTestTraits : public BaseGenericTestTraits {
+			static auto Invoke(RemoteRequestDispatcher& api) {
+				return api.dispatch(GenericWithoutParametersApiTraits());
+			}
 
-            static void ValidateResponse(const ionet::Packet&, const uint8_t& result)
-            {
-                EXPECT_EQ(2u, result);
-            }
+			static void ValidateResponse(const ionet::Packet&, const uint8_t& result) {
+				EXPECT_EQ(2u, result);
+			}
 
-            static void ValidateRequest(const ionet::Packet& packet)
-            {
-                EXPECT_TRUE(ionet::IsPacketValid(packet, Generic_Request_Packet_Type));
-            }
-        };
+			static void ValidateRequest(const ionet::Packet& packet) {
+				EXPECT_TRUE(ionet::IsPacketValid(packet, Generic_Request_Packet_Type));
+			}
+		};
 
-        struct GenericWithStatefulParsingTestTraits : public BaseGenericTestTraits {
-            static auto Invoke(RemoteRequestDispatcher& api)
-            {
-                // Arrange: set a custom multiplier in the traits
-                return api.dispatch(GenericWithoutParametersApiTraits(7));
-            }
+		struct GenericWithStatefulParsingTestTraits : public BaseGenericTestTraits {
+			static auto Invoke(RemoteRequestDispatcher& api) {
+				// Arrange: set a custom multiplier in the traits
+				return api.dispatch(GenericWithoutParametersApiTraits(7));
+			}
 
-            static void ValidateResponse(const ionet::Packet&, const uint8_t& result)
-            {
-                // Assert: the result was multiplied by 7, which was set in the traits constructor
-                EXPECT_EQ(14u, result);
-            }
+			static void ValidateResponse(const ionet::Packet&, const uint8_t& result) {
+				// Assert: the result was multiplied by 7, which was set in the traits constructor
+				EXPECT_EQ(14u, result);
+			}
 
-            static void ValidateRequest(const ionet::Packet& packet)
-            {
-                EXPECT_TRUE(ionet::IsPacketValid(packet, Generic_Request_Packet_Type));
-            }
-        };
+			static void ValidateRequest(const ionet::Packet& packet) {
+				EXPECT_TRUE(ionet::IsPacketValid(packet, Generic_Request_Packet_Type));
+			}
+		};
 
-        struct GenericWithParametersTestTraits : public BaseGenericTestTraits {
-            static auto Invoke(RemoteRequestDispatcher& api)
-            {
-                return api.dispatch(
-                    GenericWithParametersApiTraits(),
-                    static_cast<uint8_t>(6),
-                    static_cast<uint64_t>(2),
-                    static_cast<uint16_t>(5));
-            }
+		struct GenericWithParametersTestTraits : public BaseGenericTestTraits {
+			static auto Invoke(RemoteRequestDispatcher& api) {
+				return api.dispatch(
+					GenericWithParametersApiTraits(),
+					static_cast<uint8_t>(6),
+					static_cast<uint64_t>(2),
+					static_cast<uint16_t>(5));
+			}
 
-            static void ValidateResponse(const ionet::Packet&, const uint8_t& result)
-            {
-                EXPECT_EQ(2u, result);
-            }
+			static void ValidateResponse(const ionet::Packet&, const uint8_t& result) {
+				EXPECT_EQ(2u, result);
+			}
 
-            static void ValidateRequest(const ionet::Packet& packet)
-            {
-                const auto* pRequest = ionet::CoercePacket<GenericRequestWithParams>(&packet);
-                ASSERT_TRUE(!!pRequest);
-                EXPECT_EQ(6u, pRequest->Alpha);
-                EXPECT_EQ(2u, pRequest->Beta);
-                EXPECT_EQ(5u, pRequest->Gamma);
-            }
-        };
+			static void ValidateRequest(const ionet::Packet& packet) {
+				const auto* pRequest = ionet::CoercePacket<GenericRequestWithParams>(&packet);
+				ASSERT_TRUE(!!pRequest);
+				EXPECT_EQ(6u, pRequest->Alpha);
+				EXPECT_EQ(2u, pRequest->Beta);
+				EXPECT_EQ(5u, pRequest->Gamma);
+			}
+		};
 
-        // endregion
+		// endregion
 
-        struct RemoteRequestDispatcherTraits {
-            static auto Create(ionet::PacketIo& packetIo)
-            {
-                return std::make_unique<RemoteRequestDispatcher>(packetIo);
-            }
-        };
-    }
+		struct RemoteRequestDispatcherTraits {
+			static auto Create(ionet::PacketIo& packetIo) {
+				return std::make_unique<RemoteRequestDispatcher>(packetIo);
+			}
+		};
+	}
 
-    // - zero parameter requests
-    DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteRequestDispatcher, GenericWithoutParametersTest)
+	// - zero parameter requests
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteRequestDispatcher, GenericWithoutParametersTest)
 
-    // - state-dependent response parsing
-    DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteRequestDispatcher, GenericWithStatefulParsingTest)
+	// - state-dependent response parsing
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteRequestDispatcher, GenericWithStatefulParsingTest)
 
-    // - multi parameter requests
-    DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteRequestDispatcher, GenericWithParametersTest)
+	// - multi parameter requests
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteRequestDispatcher, GenericWithParametersTest)
 }
 }

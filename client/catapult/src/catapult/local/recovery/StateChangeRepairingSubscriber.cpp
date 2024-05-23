@@ -28,43 +28,39 @@
 namespace catapult {
 namespace local {
 
-    namespace {
-        class StateChangeRepairingSubscriber : public subscribers::StateChangeSubscriber {
-        public:
-            StateChangeRepairingSubscriber(cache::CatapultCache& cache, extensions::LocalNodeChainScore& localNodeScore)
-                : m_cache(cache)
-                , m_localNodeScore(localNodeScore)
-            {
-            }
+	namespace {
+		class StateChangeRepairingSubscriber : public subscribers::StateChangeSubscriber {
+		public:
+			StateChangeRepairingSubscriber(cache::CatapultCache& cache, extensions::LocalNodeChainScore& localNodeScore)
+				: m_cache(cache)
+				, m_localNodeScore(localNodeScore) {
+			}
 
-        public:
-            void notifyScoreChange(const model::ChainScore& chainScore) override
-            {
-                m_localNodeScore.set(chainScore);
-            }
+		public:
+			void notifyScoreChange(const model::ChainScore& chainScore) override {
+				m_localNodeScore.set(chainScore);
+			}
 
-            void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override
-            {
-                const auto& cacheChanges = stateChangeInfo.CacheChanges;
-                auto changesStorages = m_cache.changesStorages();
-                for (const auto& pStorage : changesStorages)
-                    pStorage->apply(cacheChanges);
+			void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override {
+				const auto& cacheChanges = stateChangeInfo.CacheChanges;
+				auto changesStorages = m_cache.changesStorages();
+				for (const auto& pStorage : changesStorages)
+					pStorage->apply(cacheChanges);
 
-                auto delta = m_cache.createDelta();
-                m_cache.commit(stateChangeInfo.Height);
-            }
+				auto delta = m_cache.createDelta();
+				m_cache.commit(stateChangeInfo.Height);
+			}
 
-        private:
-            cache::CatapultCache& m_cache;
-            extensions::LocalNodeChainScore& m_localNodeScore;
-        };
-    }
+		private:
+			cache::CatapultCache& m_cache;
+			extensions::LocalNodeChainScore& m_localNodeScore;
+		};
+	}
 
-    std::unique_ptr<subscribers::StateChangeSubscriber> CreateStateChangeRepairingSubscriber(
-        cache::CatapultCache& cache,
-        extensions::LocalNodeChainScore& localNodeScore)
-    {
-        return std::make_unique<StateChangeRepairingSubscriber>(cache, localNodeScore);
-    }
+	std::unique_ptr<subscribers::StateChangeSubscriber> CreateStateChangeRepairingSubscriber(
+		cache::CatapultCache& cache,
+		extensions::LocalNodeChainScore& localNodeScore) {
+		return std::make_unique<StateChangeRepairingSubscriber>(cache, localNodeScore);
+	}
 }
 }

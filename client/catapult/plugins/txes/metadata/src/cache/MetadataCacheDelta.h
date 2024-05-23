@@ -29,52 +29,50 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the metadata cache delta.
-    using MetadataCacheDeltaMixins = PatriciaTreeCacheMixins<MetadataCacheTypes::PrimaryTypes::BaseSetDeltaType, MetadataCacheDescriptor>;
+	/// Mixins used by the metadata cache delta.
+	using MetadataCacheDeltaMixins = PatriciaTreeCacheMixins<MetadataCacheTypes::PrimaryTypes::BaseSetDeltaType, MetadataCacheDescriptor>;
 
-    /// Basic delta on top of the metadata cache.
-    class BasicMetadataCacheDelta
-        : public utils::MoveOnly,
-          public MetadataCacheDeltaMixins::Size,
-          public MetadataCacheDeltaMixins::Contains,
-          public MetadataCacheDeltaMixins::ConstAccessor,
-          public MetadataCacheDeltaMixins::MutableAccessor,
-          public MetadataCacheDeltaMixins::PatriciaTreeDelta,
-          public MetadataCacheDeltaMixins::BasicInsertRemove,
-          public MetadataCacheDeltaMixins::DeltaElements {
-    public:
-        using ReadOnlyView = MetadataCacheTypes::CacheReadOnlyType;
+	/// Basic delta on top of the metadata cache.
+	class BasicMetadataCacheDelta
+		: public utils::MoveOnly,
+		  public MetadataCacheDeltaMixins::Size,
+		  public MetadataCacheDeltaMixins::Contains,
+		  public MetadataCacheDeltaMixins::ConstAccessor,
+		  public MetadataCacheDeltaMixins::MutableAccessor,
+		  public MetadataCacheDeltaMixins::PatriciaTreeDelta,
+		  public MetadataCacheDeltaMixins::BasicInsertRemove,
+		  public MetadataCacheDeltaMixins::DeltaElements {
+	public:
+		using ReadOnlyView = MetadataCacheTypes::CacheReadOnlyType;
 
-    public:
-        /// Creates a delta around \a metadataSets.
-        explicit BasicMetadataCacheDelta(const MetadataCacheTypes::BaseSetDeltaPointers& metadataSets)
-            : MetadataCacheDeltaMixins::Size(*metadataSets.pPrimary)
-            , MetadataCacheDeltaMixins::Contains(*metadataSets.pPrimary)
-            , MetadataCacheDeltaMixins::ConstAccessor(*metadataSets.pPrimary)
-            , MetadataCacheDeltaMixins::MutableAccessor(*metadataSets.pPrimary)
-            , MetadataCacheDeltaMixins::PatriciaTreeDelta(*metadataSets.pPrimary, metadataSets.pPatriciaTree)
-            , MetadataCacheDeltaMixins::BasicInsertRemove(*metadataSets.pPrimary)
-            , MetadataCacheDeltaMixins::DeltaElements(*metadataSets.pPrimary)
-            , m_pMetadataEntries(metadataSets.pPrimary)
-        {
-        }
+	public:
+		/// Creates a delta around \a metadataSets.
+		explicit BasicMetadataCacheDelta(const MetadataCacheTypes::BaseSetDeltaPointers& metadataSets)
+			: MetadataCacheDeltaMixins::Size(*metadataSets.pPrimary)
+			, MetadataCacheDeltaMixins::Contains(*metadataSets.pPrimary)
+			, MetadataCacheDeltaMixins::ConstAccessor(*metadataSets.pPrimary)
+			, MetadataCacheDeltaMixins::MutableAccessor(*metadataSets.pPrimary)
+			, MetadataCacheDeltaMixins::PatriciaTreeDelta(*metadataSets.pPrimary, metadataSets.pPatriciaTree)
+			, MetadataCacheDeltaMixins::BasicInsertRemove(*metadataSets.pPrimary)
+			, MetadataCacheDeltaMixins::DeltaElements(*metadataSets.pPrimary)
+			, m_pMetadataEntries(metadataSets.pPrimary) {
+		}
 
-    public:
-        using MetadataCacheDeltaMixins::ConstAccessor::find;
-        using MetadataCacheDeltaMixins::MutableAccessor::find;
+	public:
+		using MetadataCacheDeltaMixins::ConstAccessor::find;
+		using MetadataCacheDeltaMixins::MutableAccessor::find;
 
-    private:
-        MetadataCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pMetadataEntries;
-    };
+	private:
+		MetadataCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pMetadataEntries;
+	};
 
-    /// Delta on top of the metadata cache.
-    class MetadataCacheDelta : public ReadOnlyViewSupplier<BasicMetadataCacheDelta> {
-    public:
-        /// Creates a delta around \a metadataSets.
-        explicit MetadataCacheDelta(const MetadataCacheTypes::BaseSetDeltaPointers& metadataSets)
-            : ReadOnlyViewSupplier(metadataSets)
-        {
-        }
-    };
+	/// Delta on top of the metadata cache.
+	class MetadataCacheDelta : public ReadOnlyViewSupplier<BasicMetadataCacheDelta> {
+	public:
+		/// Creates a delta around \a metadataSets.
+		explicit MetadataCacheDelta(const MetadataCacheTypes::BaseSetDeltaPointers& metadataSets)
+			: ReadOnlyViewSupplier(metadataSets) {
+		}
+	};
 }
 }

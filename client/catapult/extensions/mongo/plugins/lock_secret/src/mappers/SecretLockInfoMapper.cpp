@@ -26,26 +26,24 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
-        namespace {
-            class SecretLockInfoMapperTraits {
-            public:
-                using LockInfoType = state::SecretLockInfo;
+		namespace {
+			class SecretLockInfoMapperTraits {
+			public:
+				using LockInfoType = state::SecretLockInfo;
 
-            public:
-                static void StreamLockInfo(bson_stream::document& builder, const state::SecretLockInfo& lockInfo)
-                {
-                    builder << "hashAlgorithm" << utils::to_underlying_type(lockInfo.HashAlgorithm) << "secret" << ToBinary(lockInfo.Secret)
-                            << "recipientAddress" << ToBinary(lockInfo.RecipientAddress) << "compositeHash" << ToBinary(lockInfo.CompositeHash);
-                }
-            };
-        }
+			public:
+				static void StreamLockInfo(bson_stream::document& builder, const state::SecretLockInfo& lockInfo) {
+					builder << "hashAlgorithm" << utils::to_underlying_type(lockInfo.HashAlgorithm) << "secret" << ToBinary(lockInfo.Secret)
+							<< "recipientAddress" << ToBinary(lockInfo.RecipientAddress) << "compositeHash" << ToBinary(lockInfo.CompositeHash);
+				}
+			};
+		}
 
-        bsoncxx::document::value ToDbModel(const state::SecretLockInfoHistory& history)
-        {
-            return LockInfoMapper<SecretLockInfoMapperTraits>::ToDbModel(history.back());
-        }
-    }
+		bsoncxx::document::value ToDbModel(const state::SecretLockInfoHistory& history) {
+			return LockInfoMapper<SecretLockInfoMapperTraits>::ToDbModel(history.back());
+		}
+	}
 }
 }

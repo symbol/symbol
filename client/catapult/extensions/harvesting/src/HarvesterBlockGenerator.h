@@ -25,25 +25,25 @@
 
 namespace catapult {
 namespace cache {
-    class ReadWriteUtCache;
+	class ReadWriteUtCache;
 }
 namespace harvesting {
-    class HarvestingUtFacadeFactory;
+	class HarvestingUtFacadeFactory;
 }
 }
 
 namespace catapult {
 namespace harvesting {
 
-    /// Generates a block from a seed block header given a maximum number of transactions.
-    using BlockGenerator = std::function<std::unique_ptr<model::Block>(const model::BlockHeader&, uint32_t)>;
+	/// Generates a block from a seed block header given a maximum number of transactions.
+	using BlockGenerator = std::function<std::unique_ptr<model::Block>(const model::BlockHeader&, uint32_t)>;
 
-    /// Creates a default block generator around \a transactionRegistry, \a utFacadeFactory and \a utCache
-    /// for specified transaction \a strategy.
-    BlockGenerator CreateHarvesterBlockGenerator(
-        model::TransactionSelectionStrategy strategy,
-        const model::TransactionRegistry& transactionRegistry,
-        const HarvestingUtFacadeFactory& utFacadeFactory,
-        const cache::ReadWriteUtCache& utCache);
+	/// Creates a default block generator around \a transactionRegistry, \a utFacadeFactory and \a utCache
+	/// for specified transaction \a strategy.
+	BlockGenerator CreateHarvesterBlockGenerator(
+		model::TransactionSelectionStrategy strategy,
+		const model::TransactionRegistry& transactionRegistry,
+		const HarvestingUtFacadeFactory& utFacadeFactory,
+		const cache::ReadWriteUtCache& utCache);
 }
 }

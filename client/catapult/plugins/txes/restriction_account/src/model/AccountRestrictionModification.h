@@ -26,22 +26,22 @@
 namespace catapult {
 namespace model {
 
-    /// Account restriction modification action.
-    enum class AccountRestrictionModificationAction : uint8_t {
-        /// Remove restriction value.
-        Del,
+	/// Account restriction modification action.
+	enum class AccountRestrictionModificationAction : uint8_t {
+		/// Remove restriction value.
+		Del,
 
-        /// Add restriction value.
-        Add
-    };
+		/// Add restriction value.
+		Add
+	};
 
-    /// Account restriction modification.
-    struct AccountRestrictionModification {
-        /// Modification action.
-        AccountRestrictionModificationAction ModificationAction;
+	/// Account restriction modification.
+	struct AccountRestrictionModification {
+		/// Modification action.
+		AccountRestrictionModificationAction ModificationAction;
 
-        /// Restriction value.
-        std::vector<uint8_t> Value;
-    };
+		/// Restriction value.
+		std::vector<uint8_t> Value;
+	};
 }
 }

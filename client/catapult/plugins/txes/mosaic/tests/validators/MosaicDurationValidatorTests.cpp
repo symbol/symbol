@@ -32,175 +32,163 @@ namespace validators {
 
 #define TEST_CLASS MosaicDurationValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(MosaicDuration, BlockDuration(123))
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicDuration, BlockDuration(123))
 
-    namespace {
-        constexpr MosaicId Default_Mosaic_Id = MosaicId(0x1234);
+	namespace {
+		constexpr MosaicId Default_Mosaic_Id = MosaicId(0x1234);
 
-        model::MosaicDefinitionNotification CreateNotification(const Address& owner, const model::MosaicProperties& properties)
-        {
-            return model::MosaicDefinitionNotification(owner, Default_Mosaic_Id, properties);
-        }
+		model::MosaicDefinitionNotification CreateNotification(const Address& owner, const model::MosaicProperties& properties) {
+			return model::MosaicDefinitionNotification(owner, Default_Mosaic_Id, properties);
+		}
 
-        void AddMosaic(cache::CatapultCache& cache, const Address& owner, BlockDuration duration)
-        {
-            auto delta = cache.createDelta();
-            test::AddMosaic(delta, Default_Mosaic_Id, Height(50), duration, owner);
-            cache.commit(Height());
-        }
+		void AddMosaic(cache::CatapultCache& cache, const Address& owner, BlockDuration duration) {
+			auto delta = cache.createDelta();
+			test::AddMosaic(delta, Default_Mosaic_Id, Height(50), duration, owner);
+			cache.commit(Height());
+		}
 
-        void AddEternalMosaic(cache::CatapultCache& cache, const Address& owner)
-        {
-            auto delta = cache.createDelta();
-            test::AddEternalMosaic(delta, Default_Mosaic_Id, Height(50), owner);
-            cache.commit(Height());
-        }
+		void AddEternalMosaic(cache::CatapultCache& cache, const Address& owner) {
+			auto delta = cache.createDelta();
+			test::AddEternalMosaic(delta, Default_Mosaic_Id, Height(50), owner);
+			cache.commit(Height());
+		}
 
-        void AssertValidationResult(
-            ValidationResult expectedResult,
-            const cache::CatapultCache& cache,
-            const model::MosaicDefinitionNotification& notification,
-            Height height = Height(50))
-        {
-            // Arrange:
-            auto pValidator = CreateMosaicDurationValidator(BlockDuration(123));
+		void AssertValidationResult(
+			ValidationResult expectedResult,
+			const cache::CatapultCache& cache,
+			const model::MosaicDefinitionNotification& notification,
+			Height height = Height(50)) {
+			// Arrange:
+			auto pValidator = CreateMosaicDurationValidator(BlockDuration(123));
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache, height);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result) << "id " << notification.MosaicId;
-        }
-    }
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "id " << notification.MosaicId;
+		}
+	}
 
-    // region no duration change
+	// region no duration change
 
-    TEST(TEST_CLASS, SuccessWhenNonEternalMosaicIsKnownAndDeltaIsZero)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 0);
-        auto notification = CreateNotification(owner, properties);
+	TEST(TEST_CLASS, SuccessWhenNonEternalMosaicIsKnownAndDeltaIsZero) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 0);
+		auto notification = CreateNotification(owner, properties);
 
-        // - seed the cache
-        auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-        AddMosaic(cache, owner, BlockDuration(123));
+		// - seed the cache
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+		AddMosaic(cache, owner, BlockDuration(123));
 
-        // Assert:
-        AssertValidationResult(ValidationResult::Success, cache, notification);
-    }
+		// Assert:
+		AssertValidationResult(ValidationResult::Success, cache, notification);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenEternalMosaicIsKnownAndDeltaIsZero)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 0);
-        auto notification = CreateNotification(owner, properties);
+	TEST(TEST_CLASS, SuccessWhenEternalMosaicIsKnownAndDeltaIsZero) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 0);
+		auto notification = CreateNotification(owner, properties);
 
-        // - seed the cache
-        auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-        AddEternalMosaic(cache, owner);
+		// - seed the cache
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+		AddEternalMosaic(cache, owner);
 
-        // Assert:
-        AssertValidationResult(ValidationResult::Success, cache, notification);
-    }
+		// Assert:
+		AssertValidationResult(ValidationResult::Success, cache, notification);
+	}
 
-    // endregion
+	// endregion
 
-    // region (new) unknown mosaic
+	// region (new) unknown mosaic
 
-    TEST(TEST_CLASS, SuccessWhenMosaicIsUnknownAndNotificationDurationDoesNotExceedMaxDuration)
-    {
-        // Arrange: create an empty cache
-        auto owner = test::CreateRandomOwner();
-        auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+	TEST(TEST_CLASS, SuccessWhenMosaicIsUnknownAndNotificationDurationDoesNotExceedMaxDuration) {
+		// Arrange: create an empty cache
+		auto owner = test::CreateRandomOwner();
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 
-        // Assert: max duration is 123
-        for (auto duration : { 1u, 70u, 123u }) {
-            auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
-            AssertValidationResult(ValidationResult::Success, cache, CreateNotification(owner, properties));
-        }
-    }
+		// Assert: max duration is 123
+		for (auto duration : { 1u, 70u, 123u }) {
+			auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
+			AssertValidationResult(ValidationResult::Success, cache, CreateNotification(owner, properties));
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenMosaicIsUnknownAndNotificationDurationExceedsMaxDuration)
-    {
-        // Arrange: create an empty cache
-        auto owner = test::CreateRandomOwner();
-        auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+	TEST(TEST_CLASS, FailureWhenMosaicIsUnknownAndNotificationDurationExceedsMaxDuration) {
+		// Arrange: create an empty cache
+		auto owner = test::CreateRandomOwner();
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 
-        // Assert: max duration is 123
-        for (auto duration : { 124u, 999u }) {
-            auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
-            AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(owner, properties));
-        }
-    }
+		// Assert: max duration is 123
+		for (auto duration : { 124u, 999u }) {
+			auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
+			AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(owner, properties));
+		}
+	}
 
-    // endregion
+	// endregion
 
-    // region known mosaic
+	// region known mosaic
 
-    TEST(TEST_CLASS, FailureWhenChangingDurationFromEternalToNonEternal)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 123);
-        auto notification = CreateNotification(owner, properties);
+	TEST(TEST_CLASS, FailureWhenChangingDurationFromEternalToNonEternal) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 123);
+		auto notification = CreateNotification(owner, properties);
 
-        // - seed the cache
-        auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-        AddEternalMosaic(cache, owner);
+		// - seed the cache
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+		AddEternalMosaic(cache, owner);
 
-        // Assert:
-        AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, notification);
-    }
+		// Assert:
+		AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, notification);
+	}
 
-    TEST(TEST_CLASS, FailureWhenResultingDurationExceedsMaxDuration)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
+	TEST(TEST_CLASS, FailureWhenResultingDurationExceedsMaxDuration) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
 
-        // - seed the cache
-        auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-        AddMosaic(cache, owner, BlockDuration(100));
+		// - seed the cache
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+		AddMosaic(cache, owner, BlockDuration(100));
 
-        // Assert: max duration is 123
-        for (auto duration : { 24u, 25u, 999u }) {
-            auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
-            AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(owner, properties));
-        }
-    }
+		// Assert: max duration is 123
+		for (auto duration : { 24u, 25u, 999u }) {
+			auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
+			AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(owner, properties));
+		}
+	}
 
-    TEST(TEST_CLASS, FailureWhenDurationOverflowHappens)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto properties = test::CreateMosaicPropertiesFromValues(0, 0, std::numeric_limits<uint64_t>::max() - 90);
-        auto notification = CreateNotification(owner, properties);
+	TEST(TEST_CLASS, FailureWhenDurationOverflowHappens) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, std::numeric_limits<uint64_t>::max() - 90);
+		auto notification = CreateNotification(owner, properties);
 
-        // - seed the cache
-        auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-        AddMosaic(cache, owner, BlockDuration(100));
+		// - seed the cache
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+		AddMosaic(cache, owner, BlockDuration(100));
 
-        // Assert:
-        AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, notification);
-    }
+		// Assert:
+		AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, notification);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenMosaicIsKnownAndNewDurationIsAcceptable_NonEternal)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
+	TEST(TEST_CLASS, SuccessWhenMosaicIsKnownAndNewDurationIsAcceptable_NonEternal) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
 
-        // - seed the cache
-        auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
-        AddMosaic(cache, owner, BlockDuration(100));
+		// - seed the cache
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
+		AddMosaic(cache, owner, BlockDuration(100));
 
-        // Assert:
-        for (auto duration : { 1u, 22u, 23u }) {
-            auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
-            AssertValidationResult(ValidationResult::Success, cache, CreateNotification(owner, properties));
-        }
-    }
+		// Assert:
+		for (auto duration : { 1u, 22u, 23u }) {
+			auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
+			AssertValidationResult(ValidationResult::Success, cache, CreateNotification(owner, properties));
+		}
+	}
 
-    // endregion
+	// endregion
 }
 }

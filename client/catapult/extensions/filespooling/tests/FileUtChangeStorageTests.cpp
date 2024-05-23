@@ -30,77 +30,73 @@ namespace filespooling {
 
 #define TEST_CLASS FileUtChangeStorageTests
 
-    namespace {
-        // region test context
+	namespace {
+		// region test context
 
-        struct SubscriberTraits {
-            using SubscriberType = cache::UtChangeSubscriber;
-            using OperationType = subscribers::UtChangeOperationType;
+		struct SubscriberTraits {
+			using SubscriberType = cache::UtChangeSubscriber;
+			using OperationType = subscribers::UtChangeOperationType;
 
-            static constexpr auto Create = CreateFileUtChangeStorage;
-        };
+			static constexpr auto Create = CreateFileUtChangeStorage;
+		};
 
-        class FileUtChangeStorageContext : public test::FileTransactionsChangeStorageContext<SubscriberTraits> { };
+		class FileUtChangeStorageContext : public test::FileTransactionsChangeStorageContext<SubscriberTraits> { };
 
-        // endregion
-    }
+		// endregion
+	}
 
-    TEST(TEST_CLASS, NotifyAddsSavesNotifications)
-    {
-        // Arrange:
-        FileUtChangeStorageContext context;
-        auto transactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
+	TEST(TEST_CLASS, NotifyAddsSavesNotifications) {
+		// Arrange:
+		FileUtChangeStorageContext context;
+		auto transactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
 
-        // Act:
-        context.subscriber().notifyAdds(transactionInfos);
+		// Act:
+		context.subscriber().notifyAdds(transactionInfos);
 
-        // Assert:
-        context.assertFileContents({ { subscribers::UtChangeOperationType::Add, std::cref(transactionInfos) } });
-        context.assertNumFlushes(0);
-    }
+		// Assert:
+		context.assertFileContents({ { subscribers::UtChangeOperationType::Add, std::cref(transactionInfos) } });
+		context.assertNumFlushes(0);
+	}
 
-    TEST(TEST_CLASS, NotifyRemovesSavesNotifications)
-    {
-        // Arrange:
-        FileUtChangeStorageContext context;
-        auto transactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
+	TEST(TEST_CLASS, NotifyRemovesSavesNotifications) {
+		// Arrange:
+		FileUtChangeStorageContext context;
+		auto transactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
 
-        // Act:
-        context.subscriber().notifyRemoves(transactionInfos);
+		// Act:
+		context.subscriber().notifyRemoves(transactionInfos);
 
-        // Assert:
-        context.assertFileContents({ { subscribers::UtChangeOperationType::Remove, std::cref(transactionInfos) } });
-        context.assertNumFlushes(0);
-    }
+		// Assert:
+		context.assertFileContents({ { subscribers::UtChangeOperationType::Remove, std::cref(transactionInfos) } });
+		context.assertNumFlushes(0);
+	}
 
-    TEST(TEST_CLASS, BothNotifyAddsAndNotifyRemovesSaveNotifications)
-    {
-        // Arrange:
-        FileUtChangeStorageContext context;
-        auto addedTransactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
-        auto removedTransactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(4);
+	TEST(TEST_CLASS, BothNotifyAddsAndNotifyRemovesSaveNotifications) {
+		// Arrange:
+		FileUtChangeStorageContext context;
+		auto addedTransactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(3);
+		auto removedTransactionInfos = test::CreateTransactionInfosSetWithOptionalAddresses(4);
 
-        // Act:
-        context.subscriber().notifyAdds(addedTransactionInfos);
-        context.subscriber().notifyRemoves(removedTransactionInfos);
+		// Act:
+		context.subscriber().notifyAdds(addedTransactionInfos);
+		context.subscriber().notifyRemoves(removedTransactionInfos);
 
-        // Assert:
-        context.assertFileContents({ { subscribers::UtChangeOperationType::Add, std::cref(addedTransactionInfos) },
-            { subscribers::UtChangeOperationType::Remove, std::cref(removedTransactionInfos) } });
-        context.assertNumFlushes(0);
-    }
+		// Assert:
+		context.assertFileContents({ { subscribers::UtChangeOperationType::Add, std::cref(addedTransactionInfos) },
+			{ subscribers::UtChangeOperationType::Remove, std::cref(removedTransactionInfos) } });
+		context.assertNumFlushes(0);
+	}
 
-    TEST(TEST_CLASS, FlushFlushesUnderlyingStream)
-    {
-        // Arrange:
-        FileUtChangeStorageContext context;
+	TEST(TEST_CLASS, FlushFlushesUnderlyingStream) {
+		// Arrange:
+		FileUtChangeStorageContext context;
 
-        // Act:
-        context.subscriber().flush();
+		// Act:
+		context.subscriber().flush();
 
-        // Assert:
-        context.assertEmptyBuffer();
-        context.assertNumFlushes(1);
-    }
+		// Assert:
+		context.assertEmptyBuffer();
+		context.assertNumFlushes(1);
+	}
 }
 }

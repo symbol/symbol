@@ -26,7 +26,7 @@
 namespace catapult {
 namespace mocks {
 
-    /// Creates a mock mongo receipt plugin with the specified \a type.
-    std::unique_ptr<mongo::MongoReceiptPlugin> CreateMockReceiptMongoPlugin(int type);
+	/// Creates a mock mongo receipt plugin with the specified \a type.
+	std::unique_ptr<mongo::MongoReceiptPlugin> CreateMockReceiptMongoPlugin(int type);
 }
 }

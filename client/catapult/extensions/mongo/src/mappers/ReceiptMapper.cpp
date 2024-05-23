@@ -24,20 +24,19 @@
 
 namespace catapult {
 namespace mongo {
-    namespace mappers {
+	namespace mappers {
 
-        void StreamReceipt(bson_stream::document& builder, const model::Receipt& receipt, const MongoReceiptRegistry& receiptRegistry)
-        {
-            StreamReceipt(builder, receipt);
+		void StreamReceipt(bson_stream::document& builder, const model::Receipt& receipt, const MongoReceiptRegistry& receiptRegistry) {
+			StreamReceipt(builder, receipt);
 
-            const auto* pPlugin = receiptRegistry.findPlugin(receipt.Type);
-            if (pPlugin) {
-                pPlugin->streamReceipt(builder, receipt);
-            } else {
-                const auto* pReceiptData = reinterpret_cast<const uint8_t*>(&receipt + 1);
-                builder << "bin" << ToBinary(pReceiptData, receipt.Size - sizeof(model::Receipt));
-            }
-        }
-    }
+			const auto* pPlugin = receiptRegistry.findPlugin(receipt.Type);
+			if (pPlugin) {
+				pPlugin->streamReceipt(builder, receipt);
+			} else {
+				const auto* pReceiptData = reinterpret_cast<const uint8_t*>(&receipt + 1);
+				builder << "bin" << ToBinary(pReceiptData, receipt.Size - sizeof(model::Receipt));
+			}
+		}
+	}
 }
 }

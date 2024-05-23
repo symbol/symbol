@@ -26,15 +26,15 @@
 namespace catapult {
 namespace observers {
 
-    /// Observes changes triggered by multisig cosignatories notifications and:
-    /// - adds / deletes multisig account to / from cache
-    /// - adds / deletes cosignatories
-    DECLARE_OBSERVER(MultisigCosignatories, model::MultisigCosignatoriesNotification)
-    ();
+	/// Observes changes triggered by multisig cosignatories notifications and:
+	/// - adds / deletes multisig account to / from cache
+	/// - adds / deletes cosignatories
+	DECLARE_OBSERVER(MultisigCosignatories, model::MultisigCosignatoriesNotification)
+	();
 
-    /// Observes changes triggered by multisig settings notifications and:
-    /// - sets new values of min removal and min approval
-    DECLARE_OBSERVER(MultisigSettings, model::MultisigSettingsNotification)
-    ();
+	/// Observes changes triggered by multisig settings notifications and:
+	/// - sets new values of min removal and min approval
+	DECLARE_OBSERVER(MultisigSettings, model::MultisigSettingsNotification)
+	();
 }
 }

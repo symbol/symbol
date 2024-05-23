@@ -29,108 +29,98 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
-    }
+	namespace {
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
+	}
 
-    // region ctor
+	// region ctor
 
-    BasicTransactionsBuilder::BasicTransactionsBuilder(const Accounts& accounts)
-        : m_accounts(accounts)
-    {
-    }
+	BasicTransactionsBuilder::BasicTransactionsBuilder(const Accounts& accounts)
+		: m_accounts(accounts) {
+	}
 
-    // endregion
+	// endregion
 
-    // region TransactionsGenerator
+	// region TransactionsGenerator
 
-    size_t BasicTransactionsBuilder::size() const
-    {
-        return m_transactionDescriptorPairs.size();
-    }
+	size_t BasicTransactionsBuilder::size() const {
+		return m_transactionDescriptorPairs.size();
+	}
 
-    std::unique_ptr<model::Transaction> BasicTransactionsBuilder::generateAt(size_t index, Timestamp deadline) const
-    {
-        const auto& pair = m_transactionDescriptorPairs[index];
-        auto pTransaction = generate(pair.first, pair.second, deadline);
-        if (pTransaction)
-            return pTransaction;
+	std::unique_ptr<model::Transaction> BasicTransactionsBuilder::generateAt(size_t index, Timestamp deadline) const {
+		const auto& pair = m_transactionDescriptorPairs[index];
+		auto pTransaction = generate(pair.first, pair.second, deadline);
+		if (pTransaction)
+			return pTransaction;
 
-        if (DescriptorType::Transfer == static_cast<DescriptorType>(pair.first))
-            return createTransfer(CastToDescriptor<TransferDescriptor>(pair.second), deadline);
+		if (DescriptorType::Transfer == static_cast<DescriptorType>(pair.first))
+			return createTransfer(CastToDescriptor<TransferDescriptor>(pair.second), deadline);
 
-        CATAPULT_THROW_INVALID_ARGUMENT_1("cannot generate unknown transaction type", pair.first);
-    }
+		CATAPULT_THROW_INVALID_ARGUMENT_1("cannot generate unknown transaction type", pair.first);
+	}
 
-    // endregion
+	// endregion
 
-    // region add
+	// region add
 
-    void BasicTransactionsBuilder::addTransfer(size_t senderId, size_t recipientId, Amount transferAmount)
-    {
-        auto descriptor = TransferDescriptor { senderId, recipientId, transferAmount, "" };
-        add(DescriptorType::Transfer, descriptor);
-    }
+	void BasicTransactionsBuilder::addTransfer(size_t senderId, size_t recipientId, Amount transferAmount) {
+		auto descriptor = TransferDescriptor { senderId, recipientId, transferAmount, "" };
+		add(DescriptorType::Transfer, descriptor);
+	}
 
-    void BasicTransactionsBuilder::addTransfer(size_t senderId, const std::string& recipientAlias, Amount transferAmount)
-    {
-        auto descriptor = TransferDescriptor { senderId, 0, transferAmount, recipientAlias };
-        add(DescriptorType::Transfer, descriptor);
-    }
+	void BasicTransactionsBuilder::addTransfer(size_t senderId, const std::string& recipientAlias, Amount transferAmount) {
+		auto descriptor = TransferDescriptor { senderId, 0, transferAmount, recipientAlias };
+		add(DescriptorType::Transfer, descriptor);
+	}
 
-    // endregion
+	// endregion
 
-    // region protected
+	// region protected
 
-    const Accounts& BasicTransactionsBuilder::accounts() const
-    {
-        return m_accounts;
-    }
+	const Accounts& BasicTransactionsBuilder::accounts() const {
+		return m_accounts;
+	}
 
-    const std::pair<uint32_t, std::shared_ptr<const void>>& BasicTransactionsBuilder::getAt(size_t index) const
-    {
-        return m_transactionDescriptorPairs[index];
-    }
+	const std::pair<uint32_t, std::shared_ptr<const void>>& BasicTransactionsBuilder::getAt(size_t index) const {
+		return m_transactionDescriptorPairs[index];
+	}
 
-    // endregion
+	// endregion
 
-    // region create
+	// region create
 
-    namespace {
-        UnresolvedAddress RootAliasToAddress(const std::string& namespaceName)
-        {
-            auto namespaceId = model::GenerateNamespaceId(NamespaceId(), namespaceName);
+	namespace {
+		UnresolvedAddress RootAliasToAddress(const std::string& namespaceName) {
+			auto namespaceId = model::GenerateNamespaceId(NamespaceId(), namespaceName);
 
-            UnresolvedAddress address {}; // force zero initialization
-            address[0] = utils::to_underlying_type(Network_Identifier) | 0x01;
-            std::memcpy(address.data() + 1, &namespaceId, sizeof(NamespaceId));
-            return address;
-        }
-    }
+			UnresolvedAddress address {}; // force zero initialization
+			address[0] = utils::to_underlying_type(Network_Identifier) | 0x01;
+			std::memcpy(address.data() + 1, &namespaceId, sizeof(NamespaceId));
+			return address;
+		}
+	}
 
-    std::unique_ptr<model::Transaction> BasicTransactionsBuilder::createTransfer(const TransferDescriptor& descriptor, Timestamp deadline)
-        const
-    {
-        const auto& senderKeyPair = m_accounts.getKeyPair(descriptor.SenderId);
-        auto recipientAddress = descriptor.RecipientAlias.empty()
-            ? extensions::CopyToUnresolvedAddress(m_accounts.getAddress(descriptor.RecipientId))
-            : RootAliasToAddress(descriptor.RecipientAlias);
+	std::unique_ptr<model::Transaction> BasicTransactionsBuilder::createTransfer(const TransferDescriptor& descriptor, Timestamp deadline)
+		const {
+		const auto& senderKeyPair = m_accounts.getKeyPair(descriptor.SenderId);
+		auto recipientAddress = descriptor.RecipientAlias.empty()
+			? extensions::CopyToUnresolvedAddress(m_accounts.getAddress(descriptor.RecipientId))
+			: RootAliasToAddress(descriptor.RecipientAlias);
 
-        auto pTransaction = CreateTransferTransaction(senderKeyPair, recipientAddress, descriptor.Amount);
-        return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
-    }
+		auto pTransaction = CreateTransferTransaction(senderKeyPair, recipientAddress, descriptor.Amount);
+		return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
+	}
 
-    // endregion
+	// endregion
 
-    std::unique_ptr<model::Transaction> BasicTransactionsBuilder::SignWithDeadline(
-        std::unique_ptr<model::Transaction>&& pTransaction,
-        const crypto::KeyPair& signerKeyPair,
-        Timestamp deadline)
-    {
-        pTransaction->Deadline = deadline;
-        pTransaction->MaxFee = Amount(pTransaction->Size);
-        extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signerKeyPair, *pTransaction);
-        return std::move(pTransaction);
-    }
+	std::unique_ptr<model::Transaction> BasicTransactionsBuilder::SignWithDeadline(
+		std::unique_ptr<model::Transaction>&& pTransaction,
+		const crypto::KeyPair& signerKeyPair,
+		Timestamp deadline) {
+		pTransaction->Deadline = deadline;
+		pTransaction->MaxFee = Amount(pTransaction->Size);
+		extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signerKeyPair, *pTransaction);
+		return std::move(pTransaction);
+	}
 }
 }

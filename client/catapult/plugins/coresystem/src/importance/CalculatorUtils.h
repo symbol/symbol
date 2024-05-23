@@ -24,83 +24,82 @@
 
 namespace catapult {
 namespace model {
-    struct BlockchainConfiguration;
+	struct BlockchainConfiguration;
 }
 namespace state {
-    class AccountActivityBuckets;
-    struct AccountState;
+	class AccountActivityBuckets;
+	struct AccountState;
 }
 }
 
 namespace catapult {
 namespace importance {
 
-    /// Summarized account activity information.
-    struct AccountActivitySummary {
-        /// Total fees paid by account.
-        Amount TotalFeesPaid;
+	/// Summarized account activity information.
+	struct AccountActivitySummary {
+		/// Total fees paid by account.
+		Amount TotalFeesPaid;
 
-        /// Number of times account has been used as a beneficiary.
-        uint32_t BeneficiaryCount = 0;
+		/// Number of times account has been used as a beneficiary.
+		uint32_t BeneficiaryCount = 0;
 
-        /// Previous account importance.
-        Importance PreviousImportance;
-    };
+		/// Previous account importance.
+		Importance PreviousImportance;
+	};
 
-    /// Summarized account information.
-    struct AccountSummary {
-    public:
-        /// Creates an account summary around \a activitySummary and \a accountState.
-        AccountSummary(const AccountActivitySummary& activitySummary, state::AccountState& accountState)
-            : ActivitySummary(activitySummary)
-            , pAccountState(&accountState)
-        {
-        }
+	/// Summarized account information.
+	struct AccountSummary {
+	public:
+		/// Creates an account summary around \a activitySummary and \a accountState.
+		AccountSummary(const AccountActivitySummary& activitySummary, state::AccountState& accountState)
+			: ActivitySummary(activitySummary)
+			, pAccountState(&accountState) {
+		}
 
-    public:
-        /// Account activity summary.
-        AccountActivitySummary ActivitySummary;
+	public:
+		/// Account activity summary.
+		AccountActivitySummary ActivitySummary;
 
-        /// Account state.
-        state::AccountState* pAccountState;
+		/// Account state.
+		state::AccountState* pAccountState;
 
-        /// Importance due to account stake.
-        Importance StakeImportance;
+		/// Importance due to account stake.
+		Importance StakeImportance;
 
-        /// Importance due to account activity.
-        Importance ActivityImportance;
-    };
+		/// Importance due to account activity.
+		Importance ActivityImportance;
+	};
 
-    /// Context for importance calculation.
-    struct ImportanceCalculationContext {
-    public:
-        /// Total active harvesting mosaics.
-        Amount ActiveHarvestingMosaics;
+	/// Context for importance calculation.
+	struct ImportanceCalculationContext {
+	public:
+		/// Total active harvesting mosaics.
+		Amount ActiveHarvestingMosaics;
 
-        /// Total beneficiary count.
-        uint64_t TotalBeneficiaryCount = 0;
+		/// Total beneficiary count.
+		uint64_t TotalBeneficiaryCount = 0;
 
-        /// Total fees paid.
-        Amount TotalFeesPaid;
+		/// Total fees paid.
+		Amount TotalFeesPaid;
 
-        /// Total importance due to account activity.
-        Importance TotalActivityImportance;
-    };
+		/// Total importance due to account activity.
+		Importance TotalActivityImportance;
+	};
 
-    /// Summarizes account activity information contained in \a buckets starting at \a height given specified
-    /// importance grouping (\a importanceGrouping).
-    AccountActivitySummary SummarizeAccountActivity(
-        model::ImportanceHeight height,
-        Height::ValueType importanceGrouping,
-        const state::AccountActivityBuckets& buckets);
+	/// Summarizes account activity information contained in \a buckets starting at \a height given specified
+	/// importance grouping (\a importanceGrouping).
+	AccountActivitySummary SummarizeAccountActivity(
+		model::ImportanceHeight height,
+		Height::ValueType importanceGrouping,
+		const state::AccountActivityBuckets& buckets);
 
-    /// Finalizes account activity information contained in \a buckets at \a height with specified \a importance.
-    void FinalizeAccountActivity(model::ImportanceHeight height, Importance importance, state::AccountActivityBuckets& buckets);
+	/// Finalizes account activity information contained in \a buckets at \a height with specified \a importance.
+	void FinalizeAccountActivity(model::ImportanceHeight height, Importance importance, state::AccountActivityBuckets& buckets);
 
-    /// Calculates stake and activity importances using \a context and \a config and stores resulting importances in \a accountSummary.
-    void CalculateImportances(
-        AccountSummary& accountSummary,
-        const ImportanceCalculationContext& context,
-        const model::BlockchainConfiguration& config);
+	/// Calculates stake and activity importances using \a context and \a config and stores resulting importances in \a accountSummary.
+	void CalculateImportances(
+		AccountSummary& accountSummary,
+		const ImportanceCalculationContext& context,
+		const model::BlockchainConfiguration& config);
 }
 }

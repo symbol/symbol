@@ -28,20 +28,20 @@
 
 namespace catapult {
 namespace api {
-    class RemoteFinalizationApi;
+	class RemoteFinalizationApi;
 }
 }
 
 namespace catapult {
 namespace chain {
 
-    /// Function signature for supplying a finalization round range and short hashes pair.
-    using FinalizationMessageSynchronizerFilterSupplier = supplier<std::pair<model::FinalizationRoundRange, model::ShortHashRange>>;
+	/// Function signature for supplying a finalization round range and short hashes pair.
+	using FinalizationMessageSynchronizerFilterSupplier = supplier<std::pair<model::FinalizationRoundRange, model::ShortHashRange>>;
 
-    /// Creates a finalization message synchronizer around a message filter supplier (\a messageFilterSupplier)
-    /// and message range consumer (\a messageRangeConsumer).
-    RemoteNodeSynchronizer<api::RemoteFinalizationApi> CreateFinalizationMessageSynchronizer(
-        const FinalizationMessageSynchronizerFilterSupplier& messageFilterSupplier,
-        const handlers::MessageRangeHandler& messageRangeConsumer);
+	/// Creates a finalization message synchronizer around a message filter supplier (\a messageFilterSupplier)
+	/// and message range consumer (\a messageRangeConsumer).
+	RemoteNodeSynchronizer<api::RemoteFinalizationApi> CreateFinalizationMessageSynchronizer(
+		const FinalizationMessageSynchronizerFilterSupplier& messageFilterSupplier,
+		const handlers::MessageRangeHandler& messageRangeConsumer);
 }
 }

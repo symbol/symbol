@@ -24,14 +24,14 @@
 
 namespace catapult {
 namespace config {
-    class CatapultDataDirectory;
+	class CatapultDataDirectory;
 }
 }
 
 namespace catapult {
 namespace local {
 
-    /// Repairs catapult importance files inside \a dataDirectory given last server commit operation step that succeeded (\a commitStep).
-    void RepairImportance(const config::CatapultDataDirectory& dataDirectory, consumers::CommitOperationStep commitStep);
+	/// Repairs catapult importance files inside \a dataDirectory given last server commit operation step that succeeded (\a commitStep).
+	void RepairImportance(const config::CatapultDataDirectory& dataDirectory, consumers::CommitOperationStep commitStep);
 }
 }

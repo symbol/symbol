@@ -32,76 +32,71 @@ namespace extensions {
 
 #define TEST_CLASS PluginUtilsTests
 
-    TEST(TEST_CLASS, CanCreateStorageConfiguration)
-    {
-        // Arrange:
-        test::MutableCatapultConfiguration config;
-        config.Node.EnableCacheDatabaseStorage = true;
-        config.Node.CacheDatabase.MaxWriteBatchSize = utils::FileSize::FromKilobytes(123);
-        config.User.DataDirectory = "foo_bar";
+	TEST(TEST_CLASS, CanCreateStorageConfiguration) {
+		// Arrange:
+		test::MutableCatapultConfiguration config;
+		config.Node.EnableCacheDatabaseStorage = true;
+		config.Node.CacheDatabase.MaxWriteBatchSize = utils::FileSize::FromKilobytes(123);
+		config.User.DataDirectory = "foo_bar";
 
-        // Act:
-        auto storageConfig = CreateStorageConfiguration(config.ToConst());
+		// Act:
+		auto storageConfig = CreateStorageConfiguration(config.ToConst());
 
-        // Assert:
-        EXPECT_TRUE(storageConfig.PreferCacheDatabase);
-        EXPECT_EQ("foo_bar/statedb", storageConfig.CacheDatabaseDirectory);
-        EXPECT_EQ(utils::FileSize::FromKilobytes(123), storageConfig.CacheDatabaseConfig.MaxWriteBatchSize);
-    }
+		// Assert:
+		EXPECT_TRUE(storageConfig.PreferCacheDatabase);
+		EXPECT_EQ("foo_bar/statedb", storageConfig.CacheDatabaseDirectory);
+		EXPECT_EQ(utils::FileSize::FromKilobytes(123), storageConfig.CacheDatabaseConfig.MaxWriteBatchSize);
+	}
 
-    namespace {
-        template <typename TFactory>
-        void AssertCanCreateStatelessEntityValidator(validators::ValidationResult expectedValidationResult, TFactory factory)
-        {
-            // Arrange:
-            auto config = model::BlockchainConfiguration::Uninitialized();
-            config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
-            auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
+	namespace {
+		template <typename TFactory>
+		void AssertCanCreateStatelessEntityValidator(validators::ValidationResult expectedValidationResult, TFactory factory) {
+			// Arrange:
+			auto config = model::BlockchainConfiguration::Uninitialized();
+			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
+			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 
-            // Act:
-            auto pEntityValidator = factory(*pPluginManager);
+			// Act:
+			auto pEntityValidator = factory(*pPluginManager);
 
-            // Assert:
-            ASSERT_TRUE(!!pEntityValidator);
-            EXPECT_EQ(pPluginManager->createStatelessValidator()->name(), pEntityValidator->name());
+			// Assert:
+			ASSERT_TRUE(!!pEntityValidator);
+			EXPECT_EQ(pPluginManager->createStatelessValidator()->name(), pEntityValidator->name());
 
-            // - validate a real transaction as a proxy for testing notification type filtering
-            auto pTransaction = test::CreateUnsignedTransferTransaction(
-                test::GenerateRandomByteArray<Key>(),
-                test::GenerateRandomByteArray<UnresolvedAddress>(),
-                Amount(0));
-            Hash256 transactionHash;
-            auto result = pEntityValidator->validate({ *pTransaction, transactionHash });
-            EXPECT_EQ(expectedValidationResult, result);
-        }
-    }
+			// - validate a real transaction as a proxy for testing notification type filtering
+			auto pTransaction = test::CreateUnsignedTransferTransaction(
+				test::GenerateRandomByteArray<Key>(),
+				test::GenerateRandomByteArray<UnresolvedAddress>(),
+				Amount(0));
+			Hash256 transactionHash;
+			auto result = pEntityValidator->validate({ *pTransaction, transactionHash });
+			EXPECT_EQ(expectedValidationResult, result);
+		}
+	}
 
-    TEST(TEST_CLASS, CanCreateStatelessEntityValidator)
-    {
-        AssertCanCreateStatelessEntityValidator(validators::Failure_Core_Wrong_Network, [](const auto& pluginManager) {
-            return CreateStatelessEntityValidator(pluginManager);
-        });
-    }
+	TEST(TEST_CLASS, CanCreateStatelessEntityValidator) {
+		AssertCanCreateStatelessEntityValidator(validators::Failure_Core_Wrong_Network, [](const auto& pluginManager) {
+			return CreateStatelessEntityValidator(pluginManager);
+		});
+	}
 
-    TEST(TEST_CLASS, CanCreateStatelessEntityValidatorWithNotificationTypeFilter)
-    {
-        AssertCanCreateStatelessEntityValidator(validators::Failure_Core_Invalid_Transaction_Fee, [](const auto& pluginManager) {
-            // Act: suppress EntityNotification, which raises Failure_Core_Wrong_Network
-            return CreateStatelessEntityValidator(pluginManager, model::EntityNotification::Notification_Type);
-        });
-    }
+	TEST(TEST_CLASS, CanCreateStatelessEntityValidatorWithNotificationTypeFilter) {
+		AssertCanCreateStatelessEntityValidator(validators::Failure_Core_Invalid_Transaction_Fee, [](const auto& pluginManager) {
+			// Act: suppress EntityNotification, which raises Failure_Core_Wrong_Network
+			return CreateStatelessEntityValidator(pluginManager, model::EntityNotification::Notification_Type);
+		});
+	}
 
-    TEST(TEST_CLASS, CanCreateUndoEntityObserver)
-    {
-        // Arrange:
-        auto pPluginManager = test::CreateDefaultPluginManagerWithRealPlugins();
+	TEST(TEST_CLASS, CanCreateUndoEntityObserver) {
+		// Arrange:
+		auto pPluginManager = test::CreateDefaultPluginManagerWithRealPlugins();
 
-        // Act:
-        auto pEntityObserver = CreateUndoEntityObserver(*pPluginManager);
+		// Act:
+		auto pEntityObserver = CreateUndoEntityObserver(*pPluginManager);
 
-        // Assert:
-        ASSERT_TRUE(!!pEntityObserver);
-        EXPECT_EQ(pPluginManager->createObserver()->name(), pEntityObserver->name());
-    }
+		// Assert:
+		ASSERT_TRUE(!!pEntityObserver);
+		EXPECT_EQ(pPluginManager->createObserver()->name(), pEntityObserver->name());
+	}
 }
 }

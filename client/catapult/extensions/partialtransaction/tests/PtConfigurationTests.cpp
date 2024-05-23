@@ -28,56 +28,50 @@ namespace partialtransaction {
 
 #define TEST_CLASS PtConfigurationTests
 
-    namespace {
-        struct PtConfigurationTraits {
-            using ConfigurationType = PtConfiguration;
+	namespace {
+		struct PtConfigurationTraits {
+			using ConfigurationType = PtConfiguration;
 
-            static utils::ConfigurationBag::ValuesContainer CreateProperties()
-            {
-                return { { "partialtransactions", { { "cacheMaxResponseSize", "234KB" }, { "cacheMaxSize", "98MB" } } } };
-            }
+			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
+				return { { "partialtransactions", { { "cacheMaxResponseSize", "234KB" }, { "cacheMaxSize", "98MB" } } } };
+			}
 
-            static bool IsSectionOptional(const std::string&)
-            {
-                return false;
-            }
+			static bool IsSectionOptional(const std::string&) {
+				return false;
+			}
 
-            static void AssertZero(const PtConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheMaxResponseSize);
-                EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheMaxSize);
-            }
+			static void AssertZero(const PtConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheMaxResponseSize);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheMaxSize);
+			}
 
-            static void AssertCustom(const PtConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(utils::FileSize::FromKilobytes(234), config.CacheMaxResponseSize);
-                EXPECT_EQ(utils::FileSize::FromMegabytes(98), config.CacheMaxSize);
-            }
-        };
-    }
+			static void AssertCustom(const PtConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(utils::FileSize::FromKilobytes(234), config.CacheMaxResponseSize);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(98), config.CacheMaxSize);
+			}
+		};
+	}
 
-    DEFINE_CONFIGURATION_TESTS(TEST_CLASS, Pt)
+	DEFINE_CONFIGURATION_TESTS(TEST_CLASS, Pt)
 
-    // region file io
+	// region file io
 
-    TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist)
-    {
-        // Act + Assert: attempt to load the config
-        EXPECT_THROW(PtConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
-    }
+	TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist) {
+		// Act + Assert: attempt to load the config
+		EXPECT_THROW(PtConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, CanLoadConfigFromResourcesDirectory)
-    {
-        // Act: attempt to load from the "real" resources directory
-        auto config = PtConfiguration::LoadFromPath("../resources");
+	TEST(TEST_CLASS, CanLoadConfigFromResourcesDirectory) {
+		// Act: attempt to load from the "real" resources directory
+		auto config = PtConfiguration::LoadFromPath("../resources");
 
-        // Assert:
-        EXPECT_EQ(utils::FileSize::FromMegabytes(20), config.CacheMaxResponseSize);
-        EXPECT_EQ(utils::FileSize::FromMegabytes(60), config.CacheMaxSize);
-    }
+		// Assert:
+		EXPECT_EQ(utils::FileSize::FromMegabytes(20), config.CacheMaxResponseSize);
+		EXPECT_EQ(utils::FileSize::FromMegabytes(60), config.CacheMaxSize);
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -28,70 +28,61 @@
 namespace catapult {
 namespace ionet {
 
-    namespace {
-        constexpr bool IsBucketTooOld(Timestamp currentTime, Timestamp creationTime)
-        {
-            return currentTime > creationTime
-                && NodeInteractionsContainer::InteractionDuration() <= utils::TimeSpan::FromDifference(currentTime, creationTime);
-        }
-    }
+	namespace {
+		constexpr bool IsBucketTooOld(Timestamp currentTime, Timestamp creationTime) {
+			return currentTime > creationTime
+				&& NodeInteractionsContainer::InteractionDuration() <= utils::TimeSpan::FromDifference(currentTime, creationTime);
+		}
+	}
 
-    utils::TimeSpan NodeInteractionsContainer::BucketDuration()
-    {
-        return utils::TimeSpan::FromHours(24);
-    }
+	utils::TimeSpan NodeInteractionsContainer::BucketDuration() {
+		return utils::TimeSpan::FromHours(24);
+	}
 
-    utils::TimeSpan NodeInteractionsContainer::InteractionDuration()
-    {
-        return utils::TimeSpan::FromHours(7 * 24);
-    }
+	utils::TimeSpan NodeInteractionsContainer::InteractionDuration() {
+		return utils::TimeSpan::FromHours(7 * 24);
+	}
 
-    NodeInteractions NodeInteractionsContainer::interactions(Timestamp timestamp) const
-    {
-        NodeInteractions results;
-        for (const auto& bucket : m_buckets) {
-            if (!IsBucketTooOld(timestamp, bucket.CreationTime)) {
-                results.NumSuccesses += bucket.NumSuccesses;
-                results.NumFailures += bucket.NumFailures;
-            }
-        }
+	NodeInteractions NodeInteractionsContainer::interactions(Timestamp timestamp) const {
+		NodeInteractions results;
+		for (const auto& bucket : m_buckets) {
+			if (!IsBucketTooOld(timestamp, bucket.CreationTime)) {
+				results.NumSuccesses += bucket.NumSuccesses;
+				results.NumFailures += bucket.NumFailures;
+			}
+		}
 
-        return results;
-    }
+		return results;
+	}
 
-    void NodeInteractionsContainer::incrementSuccesses(Timestamp timestamp)
-    {
-        addInteraction(timestamp, [](auto& bucket) { ++bucket.NumSuccesses; });
-    }
+	void NodeInteractionsContainer::incrementSuccesses(Timestamp timestamp) {
+		addInteraction(timestamp, [](auto& bucket) { ++bucket.NumSuccesses; });
+	}
 
-    void NodeInteractionsContainer::incrementFailures(Timestamp timestamp)
-    {
-        addInteraction(timestamp, [](auto& bucket) { ++bucket.NumFailures; });
-    }
+	void NodeInteractionsContainer::incrementFailures(Timestamp timestamp) {
+		addInteraction(timestamp, [](auto& bucket) { ++bucket.NumFailures; });
+	}
 
-    void NodeInteractionsContainer::pruneBuckets(Timestamp timestamp)
-    {
-        auto endIter = std::remove_if(m_buckets.begin(), m_buckets.end(), [timestamp](const auto& bucket) {
-            return IsBucketTooOld(timestamp, bucket.CreationTime);
-        });
-        m_buckets.erase(endIter, m_buckets.cend());
-    }
+	void NodeInteractionsContainer::pruneBuckets(Timestamp timestamp) {
+		auto endIter = std::remove_if(m_buckets.begin(), m_buckets.end(), [timestamp](const auto& bucket) {
+			return IsBucketTooOld(timestamp, bucket.CreationTime);
+		});
+		m_buckets.erase(endIter, m_buckets.cend());
+	}
 
-    bool NodeInteractionsContainer::shouldCreateNewBucket(Timestamp timestamp) const
-    {
-        if (m_buckets.empty())
-            return true;
+	bool NodeInteractionsContainer::shouldCreateNewBucket(Timestamp timestamp) const {
+		if (m_buckets.empty())
+			return true;
 
-        auto bucketAge = utils::TimeSpan::FromDifference(timestamp, m_buckets.back().CreationTime);
-        return BucketDuration() <= bucketAge;
-    }
+		auto bucketAge = utils::TimeSpan::FromDifference(timestamp, m_buckets.back().CreationTime);
+		return BucketDuration() <= bucketAge;
+	}
 
-    void NodeInteractionsContainer::addInteraction(Timestamp timestamp, const consumer<NodeInteractionsBucket&>& consumer)
-    {
-        if (shouldCreateNewBucket(timestamp))
-            m_buckets.push_back(NodeInteractionsBucket(timestamp));
+	void NodeInteractionsContainer::addInteraction(Timestamp timestamp, const consumer<NodeInteractionsBucket&>& consumer) {
+		if (shouldCreateNewBucket(timestamp))
+			m_buckets.push_back(NodeInteractionsBucket(timestamp));
 
-        consumer(m_buckets.back());
-    }
+		consumer(m_buckets.back());
+	}
 }
 }

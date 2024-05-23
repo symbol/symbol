@@ -26,79 +26,70 @@
 namespace catapult {
 namespace cache {
 
-    ReadOnlyAccountStateCache::ReadOnlyAccountStateCache(const BasicAccountStateCacheView& cache)
-        : AddressBasedCache(cache)
-        , KeyBasedCache(cache)
-        , m_pCache(&cache)
-        , m_pCacheDelta(nullptr)
-    {
-    }
+	ReadOnlyAccountStateCache::ReadOnlyAccountStateCache(const BasicAccountStateCacheView& cache)
+		: AddressBasedCache(cache)
+		, KeyBasedCache(cache)
+		, m_pCache(&cache)
+		, m_pCacheDelta(nullptr) {
+	}
 
-    ReadOnlyAccountStateCache::ReadOnlyAccountStateCache(const BasicAccountStateCacheDelta& cache)
-        : AddressBasedCache(cache)
-        , KeyBasedCache(cache)
-        , m_pCache(nullptr)
-        , m_pCacheDelta(&cache)
-    {
-    }
+	ReadOnlyAccountStateCache::ReadOnlyAccountStateCache(const BasicAccountStateCacheDelta& cache)
+		: AddressBasedCache(cache)
+		, KeyBasedCache(cache)
+		, m_pCache(nullptr)
+		, m_pCacheDelta(&cache) {
+	}
 
-    model::NetworkIdentifier ReadOnlyAccountStateCache::networkIdentifier() const
-    {
-        return m_pCache ? m_pCache->networkIdentifier() : m_pCacheDelta->networkIdentifier();
-    }
+	model::NetworkIdentifier ReadOnlyAccountStateCache::networkIdentifier() const {
+		return m_pCache ? m_pCache->networkIdentifier() : m_pCacheDelta->networkIdentifier();
+	}
 
-    uint64_t ReadOnlyAccountStateCache::importanceGrouping() const
-    {
-        return m_pCache ? m_pCache->importanceGrouping() : m_pCacheDelta->importanceGrouping();
-    }
+	uint64_t ReadOnlyAccountStateCache::importanceGrouping() const {
+		return m_pCache ? m_pCache->importanceGrouping() : m_pCacheDelta->importanceGrouping();
+	}
 
-    Amount ReadOnlyAccountStateCache::minHarvesterBalance() const
-    {
-        return m_pCache ? m_pCache->minHarvesterBalance() : m_pCacheDelta->minHarvesterBalance();
-    }
+	Amount ReadOnlyAccountStateCache::minHarvesterBalance() const {
+		return m_pCache ? m_pCache->minHarvesterBalance() : m_pCacheDelta->minHarvesterBalance();
+	}
 
-    Amount ReadOnlyAccountStateCache::maxHarvesterBalance() const
-    {
-        return m_pCache ? m_pCache->maxHarvesterBalance() : m_pCacheDelta->maxHarvesterBalance();
-    }
+	Amount ReadOnlyAccountStateCache::maxHarvesterBalance() const {
+		return m_pCache ? m_pCache->maxHarvesterBalance() : m_pCacheDelta->maxHarvesterBalance();
+	}
 
-    MosaicId ReadOnlyAccountStateCache::harvestingMosaicId() const
-    {
-        return m_pCache ? m_pCache->harvestingMosaicId() : m_pCacheDelta->harvestingMosaicId();
-    }
+	MosaicId ReadOnlyAccountStateCache::harvestingMosaicId() const {
+		return m_pCache ? m_pCache->harvestingMosaicId() : m_pCacheDelta->harvestingMosaicId();
+	}
 
-    namespace {
-        template <typename TSource>
-        HighValueAccountStatistics ComputeHighValueAccountStatistics(const TSource& source, FinalizationEpoch epoch)
-        {
-            HighValueAccountStatistics statistics;
-            statistics.HarvestingEligibleAccountsCount = source.addresses().size();
+	namespace {
+		template <typename TSource>
+		HighValueAccountStatistics ComputeHighValueAccountStatistics(const TSource& source, FinalizationEpoch epoch) {
+			HighValueAccountStatistics statistics;
+			statistics.HarvestingEligibleAccountsCount = source.addresses().size();
 
-            statistics.VotingEligibleAccountsCount = 0;
-            for (const auto& accountHistoryPair : source.accountHistories()) {
-                // call get overload without height because this function always calculates *current* statistics
-                // epoch is only used (optionally) for filtering
-                const auto& balanceHistory = accountHistoryPair.second.balance();
-                if (Amount() == balanceHistory.get())
-                    continue;
+			statistics.VotingEligibleAccountsCount = 0;
+			for (const auto& accountHistoryPair : source.accountHistories()) {
+				// call get overload without height because this function always calculates *current* statistics
+				// epoch is only used (optionally) for filtering
+				const auto& balanceHistory = accountHistoryPair.second.balance();
+				if (Amount() == balanceHistory.get())
+					continue;
 
-                const auto& votingPublicKeys = accountHistoryPair.second.votingPublicKeys().get();
-                auto effectiveVotingPublicKey = model::FindVotingPublicKeyForEpoch(votingPublicKeys, epoch);
-                if (FinalizationEpoch() != epoch && VotingKey() == effectiveVotingPublicKey)
-                    continue;
+				const auto& votingPublicKeys = accountHistoryPair.second.votingPublicKeys().get();
+				auto effectiveVotingPublicKey = model::FindVotingPublicKeyForEpoch(votingPublicKeys, epoch);
+				if (FinalizationEpoch() != epoch && VotingKey() == effectiveVotingPublicKey)
+					continue;
 
-                ++statistics.VotingEligibleAccountsCount;
-                statistics.TotalVotingBalance = statistics.TotalVotingBalance + balanceHistory.get();
-            }
+				++statistics.VotingEligibleAccountsCount;
+				statistics.TotalVotingBalance = statistics.TotalVotingBalance + balanceHistory.get();
+			}
 
-            return statistics;
-        }
-    }
+			return statistics;
+		}
+	}
 
-    HighValueAccountStatistics ReadOnlyAccountStateCache::highValueAccountStatistics(FinalizationEpoch epoch) const
-    {
-        return m_pCache ? ComputeHighValueAccountStatistics(m_pCache->highValueAccounts(), epoch)
-                        : ComputeHighValueAccountStatistics(m_pCacheDelta->highValueAccounts(), epoch);
-    }
+	HighValueAccountStatistics ReadOnlyAccountStateCache::highValueAccountStatistics(FinalizationEpoch epoch) const {
+		return m_pCache ? ComputeHighValueAccountStatistics(m_pCache->highValueAccounts(), epoch)
+						: ComputeHighValueAccountStatistics(m_pCacheDelta->highValueAccounts(), epoch);
+	}
 }
 }

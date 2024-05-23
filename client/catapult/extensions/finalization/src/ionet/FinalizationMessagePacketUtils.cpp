@@ -25,9 +25,8 @@
 namespace catapult {
 namespace ionet {
 
-    PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages)
-    {
-        return PacketPayloadFactory::FromEntities(PacketType::Push_Finalization_Messages, messages);
-    }
+	PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages) {
+		return PacketPayloadFactory::FromEntities(PacketType::Push_Finalization_Messages, messages);
+	}
 }
 }

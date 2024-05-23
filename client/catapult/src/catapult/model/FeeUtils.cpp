@@ -25,17 +25,15 @@
 namespace catapult {
 namespace model {
 
-    Amount CalculateTransactionFee(BlockFeeMultiplier feeMultiplier, const Transaction& transaction)
-    {
-        return Amount(static_cast<uint64_t>(feeMultiplier.unwrap()) * transaction.Size);
-    }
+	Amount CalculateTransactionFee(BlockFeeMultiplier feeMultiplier, const Transaction& transaction) {
+		return Amount(static_cast<uint64_t>(feeMultiplier.unwrap()) * transaction.Size);
+	}
 
-    BlockFeeMultiplier CalculateTransactionMaxFeeMultiplier(const Transaction& transaction)
-    {
-        auto rawMultiplier = transaction.MaxFee.unwrap() / transaction.Size;
-        auto maxRawMultiplier = std::numeric_limits<BlockFeeMultiplier::ValueType>::max();
-        return BlockFeeMultiplier(
-            rawMultiplier < maxRawMultiplier ? static_cast<BlockFeeMultiplier::ValueType>(rawMultiplier) : maxRawMultiplier);
-    }
+	BlockFeeMultiplier CalculateTransactionMaxFeeMultiplier(const Transaction& transaction) {
+		auto rawMultiplier = transaction.MaxFee.unwrap() / transaction.Size;
+		auto maxRawMultiplier = std::numeric_limits<BlockFeeMultiplier::ValueType>::max();
+		return BlockFeeMultiplier(
+			rawMultiplier < maxRawMultiplier ? static_cast<BlockFeeMultiplier::ValueType>(rawMultiplier) : maxRawMultiplier);
+	}
 }
 }

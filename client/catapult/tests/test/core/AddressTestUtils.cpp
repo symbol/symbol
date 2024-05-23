@@ -27,38 +27,33 @@
 namespace catapult {
 namespace test {
 
-    Address GenerateRandomAddress()
-    {
-        return GenerateRandomAddress(model::NetworkIdentifier::Testnet);
-    }
+	Address GenerateRandomAddress() {
+		return GenerateRandomAddress(model::NetworkIdentifier::Testnet);
+	}
 
-    Address GenerateRandomAddress(model::NetworkIdentifier networkIdentifier)
-    {
-        auto publicKey = GenerateRandomByteArray<Key>();
-        return model::PublicKeyToAddress(publicKey, networkIdentifier);
-    }
+	Address GenerateRandomAddress(model::NetworkIdentifier networkIdentifier) {
+		auto publicKey = GenerateRandomByteArray<Key>();
+		return model::PublicKeyToAddress(publicKey, networkIdentifier);
+	}
 
-    UnresolvedAddress GenerateRandomUnresolvedAddress()
-    {
-        return extensions::CopyToUnresolvedAddress(GenerateRandomAddress());
-    }
+	UnresolvedAddress GenerateRandomUnresolvedAddress() {
+		return extensions::CopyToUnresolvedAddress(GenerateRandomAddress());
+	}
 
-    std::vector<Address> GenerateRandomAddresses(size_t count)
-    {
-        std::vector<Address> addresses;
-        for (auto i = 0u; i < count; ++i)
-            addresses.push_back(test::GenerateRandomAddress());
+	std::vector<Address> GenerateRandomAddresses(size_t count) {
+		std::vector<Address> addresses;
+		for (auto i = 0u; i < count; ++i)
+			addresses.push_back(test::GenerateRandomAddress());
 
-        return addresses;
-    }
+		return addresses;
+	}
 
-    std::shared_ptr<model::UnresolvedAddressSet> GenerateRandomUnresolvedAddressSetPointer(size_t count)
-    {
-        auto pAddresses = std::make_shared<model::UnresolvedAddressSet>();
-        for (auto i = 0u; i < count; ++i)
-            pAddresses->emplace(GenerateRandomUnresolvedAddress());
+	std::shared_ptr<model::UnresolvedAddressSet> GenerateRandomUnresolvedAddressSetPointer(size_t count) {
+		auto pAddresses = std::make_shared<model::UnresolvedAddressSet>();
+		for (auto i = 0u; i < count; ++i)
+			pAddresses->emplace(GenerateRandomUnresolvedAddress());
 
-        return pAddresses;
-    }
+		return pAddresses;
+	}
 }
 }

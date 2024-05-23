@@ -24,16 +24,16 @@
 
 namespace catapult {
 namespace finalization {
-    struct FinalizationConfiguration;
+	struct FinalizationConfiguration;
 }
 }
 
 namespace catapult {
 namespace finalization {
 
-    /// Creates a registrar for a finalization service around \a config.
-    /// \note This service is responsible for sending messages between voting nodes.
-    DECLARE_SERVICE_REGISTRAR(Finalization)
-    (const FinalizationConfiguration& config);
+	/// Creates a registrar for a finalization service around \a config.
+	/// \note This service is responsible for sending messages between voting nodes.
+	DECLARE_SERVICE_REGISTRAR(Finalization)
+	(const FinalizationConfiguration& config);
 }
 }

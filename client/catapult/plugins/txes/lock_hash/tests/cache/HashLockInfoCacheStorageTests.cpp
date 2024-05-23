@@ -29,12 +29,12 @@ namespace cache {
 
 #define TEST_CLASS HashLockInfoCacheStorageTests
 
-    namespace {
-        struct HashLockInfoStorageTraits : public test::BasicHashLockInfoTestTraits {
-            using StorageType = test::HashLockInfoCacheFactory::LockInfoCacheStorage;
-        };
-    }
+	namespace {
+		struct HashLockInfoStorageTraits : public test::BasicHashLockInfoTestTraits {
+			using StorageType = test::HashLockInfoCacheFactory::LockInfoCacheStorage;
+		};
+	}
 
-    DEFINE_LOCK_INFO_CACHE_STORAGE_TESTS(HashLockInfoStorageTraits)
+	DEFINE_LOCK_INFO_CACHE_STORAGE_TESTS(HashLockInfoStorageTraits)
 }
 }

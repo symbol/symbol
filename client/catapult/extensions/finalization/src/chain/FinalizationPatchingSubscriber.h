@@ -26,31 +26,31 @@
 
 namespace catapult {
 namespace io {
-    class BlockStorageCache;
-    class PrevoteChainStorage;
+	class BlockStorageCache;
+	class PrevoteChainStorage;
 }
 }
 
 namespace catapult {
 namespace chain {
 
-    /// Finalization subscriber that patches the local chain with a prevoted chain when the prevoted chain but not the local chain
-    /// contains the finalized block.
-    class FinalizationPatchingSubscriber : public subscribers::FinalizationSubscriber {
-    public:
-        /// Creates a subscriber around \a prevoteChainStorage, \a blockStorage and \a blockRangeConsumer.
-        FinalizationPatchingSubscriber(
-            io::PrevoteChainStorage& prevoteChainStorage,
-            const io::BlockStorageCache& blockStorage,
-            const consumer<model::BlockRange&&>& blockRangeConsumer);
+	/// Finalization subscriber that patches the local chain with a prevoted chain when the prevoted chain but not the local chain
+	/// contains the finalized block.
+	class FinalizationPatchingSubscriber : public subscribers::FinalizationSubscriber {
+	public:
+		/// Creates a subscriber around \a prevoteChainStorage, \a blockStorage and \a blockRangeConsumer.
+		FinalizationPatchingSubscriber(
+			io::PrevoteChainStorage& prevoteChainStorage,
+			const io::BlockStorageCache& blockStorage,
+			const consumer<model::BlockRange&&>& blockRangeConsumer);
 
-    public:
-        void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override;
+	public:
+		void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override;
 
-    private:
-        io::PrevoteChainStorage& m_prevoteChainStorage;
-        const io::BlockStorageCache& m_blockStorage;
-        consumer<model::BlockRange&&> m_blockRangeConsumer;
-    };
+	private:
+		io::PrevoteChainStorage& m_prevoteChainStorage;
+		const io::BlockStorageCache& m_blockStorage;
+		consumer<model::BlockRange&&> m_blockRangeConsumer;
+	};
 }
 }

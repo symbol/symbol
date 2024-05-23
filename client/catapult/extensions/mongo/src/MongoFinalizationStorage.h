@@ -27,7 +27,7 @@
 namespace catapult {
 namespace mongo {
 
-    /// Creates a mongodb finalization storage around \a context.
-    std::unique_ptr<subscribers::FinalizationSubscriber> CreateMongoFinalizationStorage(MongoStorageContext& context);
+	/// Creates a mongodb finalization storage around \a context.
+	std::unique_ptr<subscribers::FinalizationSubscriber> CreateMongoFinalizationStorage(MongoStorageContext& context);
 }
 }

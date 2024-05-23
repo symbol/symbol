@@ -29,86 +29,83 @@ namespace local {
 
 #define TEST_CLASS LocalNodeSyncBlockIntegrityTests
 
-    namespace {
-        using BlockchainBuilder = test::BlockchainBuilder;
-    }
+	namespace {
+		using BlockchainBuilder = test::BlockchainBuilder;
+	}
 
-    // region signature
+	// region signature
 
-    namespace {
-        template <typename TTestContext>
-        std::vector<Hash256> RunInvalidSignatureTest(TTestContext& context)
-        {
-            // Arrange:
-            std::vector<Hash256> stateHashes;
-            test::Accounts accounts(3);
+	namespace {
+		template <typename TTestContext>
+		std::vector<Hash256> RunInvalidSignatureTest(TTestContext& context) {
+			// Arrange:
+			std::vector<Hash256> stateHashes;
+			test::Accounts accounts(3);
 
-            // - prepare a better (unsigned) block
-            std::shared_ptr<model::Block> pUnsignedBlock;
-            {
-                test::TransactionsBuilder transactionsBuilder(accounts);
-                transactionsBuilder.addTransfer(0, 1, Amount(1'000'000));
+			// - prepare a better (unsigned) block
+			std::shared_ptr<model::Block> pUnsignedBlock;
+			{
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(0, 1, Amount(1'000'000));
 
-                auto stateHashCalculator = context.createStateHashCalculator();
-                BlockchainBuilder builder(accounts, stateHashCalculator);
-                builder.setBlockTimeInterval(utils::TimeSpan::FromSeconds(58)); // better block time will yield better chain
-                pUnsignedBlock = builder.asSingleBlock(transactionsBuilder);
-                test::FillWithRandomData(pUnsignedBlock->Signature);
-            }
+				auto stateHashCalculator = context.createStateHashCalculator();
+				BlockchainBuilder builder(accounts, stateHashCalculator);
+				builder.setBlockTimeInterval(utils::TimeSpan::FromSeconds(58)); // better block time will yield better chain
+				pUnsignedBlock = builder.asSingleBlock(transactionsBuilder);
+				test::FillWithRandomData(pUnsignedBlock->Signature);
+			}
 
-            // - prepare a worse (signed) block
-            std::shared_ptr<model::Block> pSignedBlock;
-            {
-                test::TransactionsBuilder transactionsBuilder(accounts);
-                transactionsBuilder.addTransfer(0, 2, Amount(550'000));
+			// - prepare a worse (signed) block
+			std::shared_ptr<model::Block> pSignedBlock;
+			{
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(0, 2, Amount(550'000));
 
-                auto stateHashCalculator = context.createStateHashCalculator();
-                BlockchainBuilder builder(accounts, stateHashCalculator);
-                pSignedBlock = builder.asSingleBlock(transactionsBuilder);
-            }
+				auto stateHashCalculator = context.createStateHashCalculator();
+				BlockchainBuilder builder(accounts, stateHashCalculator);
+				pSignedBlock = builder.asSingleBlock(transactionsBuilder);
+			}
 
-            // Act: two different connections, each having its own identity, are needed because first identity will be banned
-            test::ExternalSourceConnection connection1(context.publicKey());
-            test::ExternalSourceConnection connection2(context.publicKey());
-            auto pIo1 = test::PushEntity(connection1, ionet::PacketType::Push_Block, pUnsignedBlock);
-            auto pIo2 = test::PushEntity(connection2, ionet::PacketType::Push_Block, pSignedBlock);
+			// Act: two different connections, each having its own identity, are needed because first identity will be banned
+			test::ExternalSourceConnection connection1(context.publicKey());
+			test::ExternalSourceConnection connection2(context.publicKey());
+			auto pIo1 = test::PushEntity(connection1, ionet::PacketType::Push_Block, pUnsignedBlock);
+			auto pIo2 = test::PushEntity(connection2, ionet::PacketType::Push_Block, pSignedBlock);
 
-            // - wait for the chain height to change and for all height readers to disconnect
-            //   (notice that the reader pushing the invalid entity will be forcibly disconnected)
-            test::WaitForHeightAndElements(context, Height(2), 2, 1);
-            stateHashes.emplace_back(GetStateHash(context));
+			// - wait for the chain height to change and for all height readers to disconnect
+			//   (notice that the reader pushing the invalid entity will be forcibly disconnected)
+			test::WaitForHeightAndElements(context, Height(2), 2, 1);
+			stateHashes.emplace_back(GetStateHash(context));
 
-            // Assert: the cache has expected balances (from the signed block)
-            test::AssertCurrencyBalances(accounts, context.localNode().cache(), { { 2, Amount(550'000) } });
+			// Assert: the cache has expected balances (from the signed block)
+			test::AssertCurrencyBalances(accounts, context.localNode().cache(), { { 2, Amount(550'000) } });
 
-            return stateHashes;
-        }
-    }
+			return stateHashes;
+		}
+	}
 
-    NO_STRESS_TEST(TEST_CLASS, BlockWithoutProperSignatureIsRejected)
-    {
-        // Arrange:
-        test::StateHashDisabledTestContext context;
+	NO_STRESS_TEST(TEST_CLASS, BlockWithoutProperSignatureIsRejected) {
+		// Arrange:
+		test::StateHashDisabledTestContext context;
 
-        // Act + Assert:
-        auto stateHashes = RunInvalidSignatureTest(context);
+		// Act + Assert:
+		auto stateHashes = RunInvalidSignatureTest(context);
 
-        // Assert: all state hashes are zero
-        test::AssertAllZero(stateHashes, 1);
-    }
+		// Assert: all state hashes are zero
+		test::AssertAllZero(stateHashes, 1);
+	}
 
-    NO_STRESS_TEST(TEST_CLASS, BlockWithoutProperSignatureIsRejectedWithStateHashEnabled)
-    {
-        // Arrange:
-        test::StateHashEnabledTestContext context;
+	NO_STRESS_TEST(TEST_CLASS, BlockWithoutProperSignatureIsRejectedWithStateHashEnabled) {
+		// Arrange:
+		test::StateHashEnabledTestContext context;
 
-        // Act + Assert:
-        auto stateHashes = RunInvalidSignatureTest(context);
+		// Act + Assert:
+		auto stateHashes = RunInvalidSignatureTest(context);
 
-        // Assert: all state hashes are nonzero
-        test::AssertAllNonzero(stateHashes, 1);
-    }
+		// Assert: all state hashes are nonzero
+		test::AssertAllNonzero(stateHashes, 1);
+	}
 
-    // endregion
+	// endregion
 }
 }

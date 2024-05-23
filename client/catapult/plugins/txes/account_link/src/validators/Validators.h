@@ -27,26 +27,26 @@
 namespace catapult {
 namespace validators {
 
-    /// Validator that applies to remote account key link notifications and validates that:
-    /// - link action is consistent with current state
-    /// - only main account can unlink
-    /// - unlink data matches current state
-    DECLARE_STATEFUL_VALIDATOR(AccountKeyLink, model::RemoteAccountKeyLinkNotification)
-    ();
+	/// Validator that applies to remote account key link notifications and validates that:
+	/// - link action is consistent with current state
+	/// - only main account can unlink
+	/// - unlink data matches current state
+	DECLARE_STATEFUL_VALIDATOR(AccountKeyLink, model::RemoteAccountKeyLinkNotification)
+	();
 
-    /// Validator that applies to new remote account notifications and validates that:
-    /// - remote account does not exist
-    DECLARE_STATEFUL_VALIDATOR(NewRemoteAccountAvailability, model::NewRemoteAccountNotification)
-    ();
+	/// Validator that applies to new remote account notifications and validates that:
+	/// - remote account does not exist
+	DECLARE_STATEFUL_VALIDATOR(NewRemoteAccountAvailability, model::NewRemoteAccountNotification)
+	();
 
-    /// Validator that applies to transaction notifications and validates that:
-    /// - remote account is not the transaction signer
-    DECLARE_STATEFUL_VALIDATOR(RemoteSender, model::TransactionNotification)
-    ();
+	/// Validator that applies to transaction notifications and validates that:
+	/// - remote account is not the transaction signer
+	DECLARE_STATEFUL_VALIDATOR(RemoteSender, model::TransactionNotification)
+	();
 
-    /// Validator that applies to address interaction notifications and validates that:
-    /// - remote account is allowed to participate in the interaction
-    DECLARE_STATEFUL_VALIDATOR(RemoteInteraction, model::AddressInteractionNotification)
-    ();
+	/// Validator that applies to address interaction notifications and validates that:
+	/// - remote account is allowed to participate in the interaction
+	DECLARE_STATEFUL_VALIDATOR(RemoteInteraction, model::AddressInteractionNotification)
+	();
 }
 }

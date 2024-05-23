@@ -26,23 +26,21 @@
 namespace catapult {
 namespace config {
 
-    MultisigConfiguration MultisigConfiguration::Uninitialized()
-    {
-        return MultisigConfiguration();
-    }
+	MultisigConfiguration MultisigConfiguration::Uninitialized() {
+		return MultisigConfiguration();
+	}
 
-    MultisigConfiguration MultisigConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        MultisigConfiguration config;
+	MultisigConfiguration MultisigConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		MultisigConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
-        LOAD_PROPERTY(MaxMultisigDepth);
-        LOAD_PROPERTY(MaxCosignatoriesPerAccount);
-        LOAD_PROPERTY(MaxCosignedAccountsPerAccount);
+		LOAD_PROPERTY(MaxMultisigDepth);
+		LOAD_PROPERTY(MaxCosignatoriesPerAccount);
+		LOAD_PROPERTY(MaxCosignedAccountsPerAccount);
 #undef LOAD_PROPERTY
 
-        utils::VerifyBagSizeExact(bag, 3);
-        return config;
-    }
+		utils::VerifyBagSizeExact(bag, 3);
+		return config;
+	}
 }
 }

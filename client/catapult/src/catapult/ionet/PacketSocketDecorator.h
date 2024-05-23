@@ -25,67 +25,58 @@
 namespace catapult {
 namespace ionet {
 
-    /// Packet socket decorator.
-    /// \note This class is tested indirectly through its concrete usages.
-    template <typename TWrapFactory>
-    class PacketSocketDecorator : public PacketSocket {
-    public:
-        /// Creates a decorator around \a pSocket and \a wrapFactory.
-        PacketSocketDecorator(const std::shared_ptr<PacketSocket>& pSocket, const TWrapFactory& wrapFactory)
-            : m_pSocket(pSocket)
-            , m_wrapFactory(wrapFactory)
-            , m_pIo(m_wrapFactory.wrapIo(m_pSocket))
-            , m_pReader(m_wrapFactory.wrapReader(m_pSocket))
-        {
-        }
+	/// Packet socket decorator.
+	/// \note This class is tested indirectly through its concrete usages.
+	template <typename TWrapFactory>
+	class PacketSocketDecorator : public PacketSocket {
+	public:
+		/// Creates a decorator around \a pSocket and \a wrapFactory.
+		PacketSocketDecorator(const std::shared_ptr<PacketSocket>& pSocket, const TWrapFactory& wrapFactory)
+			: m_pSocket(pSocket)
+			, m_wrapFactory(wrapFactory)
+			, m_pIo(m_wrapFactory.wrapIo(m_pSocket))
+			, m_pReader(m_wrapFactory.wrapReader(m_pSocket)) {
+		}
 
-    public:
-        void write(const PacketPayload& payload, const WriteCallback& callback) override
-        {
-            m_pIo->write(payload, callback);
-        }
+	public:
+		void write(const PacketPayload& payload, const WriteCallback& callback) override {
+			m_pIo->write(payload, callback);
+		}
 
-        void read(const ReadCallback& callback) override
-        {
-            m_pIo->read(callback);
-        }
+		void read(const ReadCallback& callback) override {
+			m_pIo->read(callback);
+		}
 
-        void readMultiple(const ReadCallback& callback) override
-        {
-            m_pReader->readMultiple(callback);
-        }
+		void readMultiple(const ReadCallback& callback) override {
+			m_pReader->readMultiple(callback);
+		}
 
-    public:
-        void stats(const StatsCallback& callback) override
-        {
-            m_pSocket->stats(callback);
-        }
+	public:
+		void stats(const StatsCallback& callback) override {
+			m_pSocket->stats(callback);
+		}
 
-        void waitForData(const WaitForDataCallback& callback) override
-        {
-            m_pSocket->waitForData(callback);
-        }
+		void waitForData(const WaitForDataCallback& callback) override {
+			m_pSocket->waitForData(callback);
+		}
 
-        void close() override
-        {
-            m_pSocket->close();
-        }
+		void close() override {
+			m_pSocket->close();
+		}
 
-        void abort() override
-        {
-            m_pSocket->abort();
-        }
+		void abort() override {
+			m_pSocket->abort();
+		}
 
-        std::shared_ptr<PacketIo> buffered() override
-        {
-            return m_wrapFactory.wrapIo(m_pSocket->buffered());
-        }
+		std::shared_ptr<PacketIo> buffered() override {
+			return m_wrapFactory.wrapIo(m_pSocket->buffered());
+		}
 
-    private:
-        std::shared_ptr<PacketSocket> m_pSocket;
-        TWrapFactory m_wrapFactory;
-        std::shared_ptr<PacketIo> m_pIo;
-        std::shared_ptr<BatchPacketReader> m_pReader;
-    };
+	private:
+		std::shared_ptr<PacketSocket> m_pSocket;
+		TWrapFactory m_wrapFactory;
+		std::shared_ptr<PacketIo> m_pIo;
+		std::shared_ptr<BatchPacketReader> m_pReader;
+	};
 }
 }

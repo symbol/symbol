@@ -24,15 +24,15 @@
 
 namespace catapult {
 namespace plugins {
-    class PluginManager;
+	class PluginManager;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Registers hash lock support with \a manager.
-    PLUGIN_API
-    void RegisterHashLockSubsystem(PluginManager& manager);
+	/// Registers hash lock support with \a manager.
+	PLUGIN_API
+	void RegisterHashLockSubsystem(PluginManager& manager);
 }
 }

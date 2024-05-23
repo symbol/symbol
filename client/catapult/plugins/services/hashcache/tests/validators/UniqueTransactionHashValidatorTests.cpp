@@ -40,95 +40,88 @@ namespace validators {
 
 #define TEST_CLASS UniqueTransactionHashValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(UniqueTransactionHash, )
+	DEFINE_COMMON_VALIDATOR_TESTS(UniqueTransactionHash, )
 
-    namespace {
-        constexpr auto Success_Result = ValidationResult::Success;
+	namespace {
+		constexpr auto Success_Result = ValidationResult::Success;
 
-        void AssertValidationResult(
-            ValidationResult expectedResult,
-            const CatapultCache& cache,
-            const state::TimestampedHash& timestampedHash)
-        {
-            // Arrange: need to copy timestampedHash.Hash because it is an std::array, not a Hash256
-            auto pValidator = CreateUniqueTransactionHashValidator();
-            auto transactionHash = Hash256(timestampedHash.Hash);
-            auto notification = model::TransactionNotification(Address(), transactionHash, model::EntityType(), timestampedHash.Time);
+		void AssertValidationResult(
+			ValidationResult expectedResult,
+			const CatapultCache& cache,
+			const state::TimestampedHash& timestampedHash) {
+			// Arrange: need to copy timestampedHash.Hash because it is an std::array, not a Hash256
+			auto pValidator = CreateUniqueTransactionHashValidator();
+			auto transactionHash = Hash256(timestampedHash.Hash);
+			auto notification = model::TransactionNotification(Address(), transactionHash, model::EntityType(), timestampedHash.Time);
 
-            // Act:
-            auto result = test::ValidateNotification(*pValidator, notification, cache);
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
-            // Assert:
-            EXPECT_EQ(expectedResult, result);
-        }
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
 
-        using TimestampedHashes = std::vector<state::TimestampedHash>;
+		using TimestampedHashes = std::vector<state::TimestampedHash>;
 
-        TimestampedHashes CreateTimestampedHashes(size_t count)
-        {
-            TimestampedHashes timestampedHashes;
-            timestampedHashes.reserve(count);
-            for (auto i = 0u; i < count; ++i)
-                timestampedHashes.push_back(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
+		TimestampedHashes CreateTimestampedHashes(size_t count) {
+			TimestampedHashes timestampedHashes;
+			timestampedHashes.reserve(count);
+			for (auto i = 0u; i < count; ++i)
+				timestampedHashes.push_back(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 
-            return timestampedHashes;
-        }
+			return timestampedHashes;
+		}
 
-        CatapultCache CreateCache(const TimestampedHashes& timestampedHashes)
-        {
-            auto cache = test::CreateEmptyCatapultCache<test::HashCacheFactory>(model::BlockchainConfiguration::Uninitialized());
-            auto delta = cache.createDelta();
-            auto& hashCache = delta.sub<cache::HashCache>();
-            for (const auto& timestampedHash : timestampedHashes)
-                hashCache.insert(timestampedHash);
+		CatapultCache CreateCache(const TimestampedHashes& timestampedHashes) {
+			auto cache = test::CreateEmptyCatapultCache<test::HashCacheFactory>(model::BlockchainConfiguration::Uninitialized());
+			auto delta = cache.createDelta();
+			auto& hashCache = delta.sub<cache::HashCache>();
+			for (const auto& timestampedHash : timestampedHashes)
+				hashCache.insert(timestampedHash);
 
-            cache.commit(Height());
-            return cache;
-        }
-    }
+			cache.commit(Height());
+			return cache;
+		}
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingEntityWithNeitherMatchingTimestampNorHash)
-    {
-        // Arrange:
-        auto timestampedHashes = CreateTimestampedHashes(10);
-        auto cache = CreateCache(timestampedHashes);
-        auto notificationTimestampedHash = state::TimestampedHash(Timestamp(100), test::GenerateRandomByteArray<Hash256>());
+	TEST(TEST_CLASS, SuccessWhenValidatingEntityWithNeitherMatchingTimestampNorHash) {
+		// Arrange:
+		auto timestampedHashes = CreateTimestampedHashes(10);
+		auto cache = CreateCache(timestampedHashes);
+		auto notificationTimestampedHash = state::TimestampedHash(Timestamp(100), test::GenerateRandomByteArray<Hash256>());
 
-        // Assert:
-        AssertValidationResult(Success_Result, cache, notificationTimestampedHash);
-    }
+		// Assert:
+		AssertValidationResult(Success_Result, cache, notificationTimestampedHash);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingEntityWithMatchingTimestampButNotHash)
-    {
-        // Arrange:
-        auto timestampedHashes = CreateTimestampedHashes(10);
-        auto cache = CreateCache(timestampedHashes);
-        auto notificationTimestampedHash = state::TimestampedHash(Timestamp(5), test::GenerateRandomByteArray<Hash256>());
+	TEST(TEST_CLASS, SuccessWhenValidatingEntityWithMatchingTimestampButNotHash) {
+		// Arrange:
+		auto timestampedHashes = CreateTimestampedHashes(10);
+		auto cache = CreateCache(timestampedHashes);
+		auto notificationTimestampedHash = state::TimestampedHash(Timestamp(5), test::GenerateRandomByteArray<Hash256>());
 
-        // Assert:
-        AssertValidationResult(Success_Result, cache, notificationTimestampedHash);
-    }
+		// Assert:
+		AssertValidationResult(Success_Result, cache, notificationTimestampedHash);
+	}
 
-    TEST(TEST_CLASS, SuccessWhenValidatingEntityWithMatchingHashButNotTimestamp)
-    {
-        // Arrange:
-        auto timestampedHashes = CreateTimestampedHashes(10);
-        auto cache = CreateCache(timestampedHashes);
-        auto notificationTimestampedHash = state::TimestampedHash(Timestamp(25), timestampedHashes[5].Hash);
+	TEST(TEST_CLASS, SuccessWhenValidatingEntityWithMatchingHashButNotTimestamp) {
+		// Arrange:
+		auto timestampedHashes = CreateTimestampedHashes(10);
+		auto cache = CreateCache(timestampedHashes);
+		auto notificationTimestampedHash = state::TimestampedHash(Timestamp(25), timestampedHashes[5].Hash);
 
-        // Assert:
-        AssertValidationResult(Success_Result, cache, notificationTimestampedHash);
-    }
+		// Assert:
+		AssertValidationResult(Success_Result, cache, notificationTimestampedHash);
+	}
 
-    TEST(TEST_CLASS, FailureWhenValidatingEntityWithMatchingTimestampAndHash)
-    {
-        // Arrange:
-        auto timestampedHashes = CreateTimestampedHashes(10);
-        auto cache = CreateCache(timestampedHashes);
+	TEST(TEST_CLASS, FailureWhenValidatingEntityWithMatchingTimestampAndHash) {
+		// Arrange:
+		auto timestampedHashes = CreateTimestampedHashes(10);
+		auto cache = CreateCache(timestampedHashes);
 
-        // Assert:
-        for (const auto& notificationTimestampedHash : timestampedHashes)
-            AssertValidationResult(Failure_Hash_Already_Exists, cache, notificationTimestampedHash);
-    }
+		// Assert:
+		for (const auto& notificationTimestampedHash : timestampedHashes)
+			AssertValidationResult(Failure_Hash_Already_Exists, cache, notificationTimestampedHash);
+	}
 }
 }

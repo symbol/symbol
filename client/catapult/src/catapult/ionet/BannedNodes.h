@@ -28,67 +28,67 @@
 namespace catapult {
 namespace ionet {
 
-    /// Ban settings.
-    struct BanSettings {
-        /// Default duration for banning.
-        utils::TimeSpan DefaultBanDuration;
+	/// Ban settings.
+	struct BanSettings {
+		/// Default duration for banning.
+		utils::TimeSpan DefaultBanDuration;
 
-        /// Maximum duration for banning.
-        utils::TimeSpan MaxBanDuration;
+		/// Maximum duration for banning.
+		utils::TimeSpan MaxBanDuration;
 
-        /// Duration to keep account in container after the ban expired.
-        utils::TimeSpan KeepAliveDuration;
+		/// Duration to keep account in container after the ban expired.
+		utils::TimeSpan KeepAliveDuration;
 
-        /// Maximum number of banned nodes.
-        uint32_t MaxBannedNodes;
-    };
+		/// Maximum number of banned nodes.
+		uint32_t MaxBannedNodes;
+	};
 
-    /// Container for banned nodes.
-    class BannedNodes {
-    private:
-        struct BannedNode {
-            model::NodeIdentity BannedNodeIdentity;
-            Timestamp BanStart;
-            utils::TimeSpan BanDuration;
-            uint32_t Reason;
-        };
+	/// Container for banned nodes.
+	class BannedNodes {
+	private:
+		struct BannedNode {
+			model::NodeIdentity BannedNodeIdentity;
+			Timestamp BanStart;
+			utils::TimeSpan BanDuration;
+			uint32_t Reason;
+		};
 
-        using BannedNodesContainer = model::NodeIdentityMap<BannedNode>;
+		using BannedNodesContainer = model::NodeIdentityMap<BannedNode>;
 
-    public:
-        /// Creates banned nodes container around \a banSettings, \a timeSupplier and \a equalityStrategy.
-        BannedNodes(
-            const BanSettings& banSettings,
-            const supplier<Timestamp>& timeSupplier,
-            model::NodeIdentityEqualityStrategy equalityStrategy);
+	public:
+		/// Creates banned nodes container around \a banSettings, \a timeSupplier and \a equalityStrategy.
+		BannedNodes(
+			const BanSettings& banSettings,
+			const supplier<Timestamp>& timeSupplier,
+			model::NodeIdentityEqualityStrategy equalityStrategy);
 
-    public:
-        /// Gets the number of entries excluding expired bans.
-        size_t size() const;
+	public:
+		/// Gets the number of entries excluding expired bans.
+		size_t size() const;
 
-        /// Gets the number of entries including expired bans.
-        size_t deepSize() const;
+		/// Gets the number of entries including expired bans.
+		size_t deepSize() const;
 
-        /// Returns \c true if \a nodeIdentity is banned.
-        bool isBanned(const model::NodeIdentity& nodeIdentity) const;
+		/// Returns \c true if \a nodeIdentity is banned.
+		bool isBanned(const model::NodeIdentity& nodeIdentity) const;
 
-    public:
-        /// Adds \a nodeIdentity to the container due to \a reason.
-        void add(const model::NodeIdentity& nodeIdentity, uint32_t reason);
+	public:
+		/// Adds \a nodeIdentity to the container due to \a reason.
+		void add(const model::NodeIdentity& nodeIdentity, uint32_t reason);
 
-        /// Removes banned nodes whose ban has expired.
-        void prune();
+		/// Removes banned nodes whose ban has expired.
+		void prune();
 
-    private:
-        void removeEntryThatExpiresNext();
+	private:
+		void removeEntryThatExpiresNext();
 
-    private:
-        static bool IsBanned(const BannedNode& bannedNode, Timestamp timestamp);
+	private:
+		static bool IsBanned(const BannedNode& bannedNode, Timestamp timestamp);
 
-    private:
-        BanSettings m_banSettings;
-        supplier<Timestamp> m_timeSupplier;
-        BannedNodesContainer m_bannedNodes;
-    };
+	private:
+		BanSettings m_banSettings;
+		supplier<Timestamp> m_timeSupplier;
+		BannedNodesContainer m_bannedNodes;
+	};
 }
 }

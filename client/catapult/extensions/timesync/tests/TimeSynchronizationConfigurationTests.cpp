@@ -28,56 +28,50 @@ namespace timesync {
 
 #define TEST_CLASS TimeSynchronizationConfigurationTests
 
-    namespace {
-        struct TimeSynchronizationConfigurationTraits {
-            using ConfigurationType = TimeSynchronizationConfiguration;
+	namespace {
+		struct TimeSynchronizationConfigurationTraits {
+			using ConfigurationType = TimeSynchronizationConfiguration;
 
-            static utils::ConfigurationBag::ValuesContainer CreateProperties()
-            {
-                return { { "timesynchronization", { { "maxNodes", "123" }, { "minImportance", "987" } } } };
-            }
+			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
+				return { { "timesynchronization", { { "maxNodes", "123" }, { "minImportance", "987" } } } };
+			}
 
-            static bool IsSectionOptional(const std::string&)
-            {
-                return false;
-            }
+			static bool IsSectionOptional(const std::string&) {
+				return false;
+			}
 
-            static void AssertZero(const TimeSynchronizationConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(0u, config.MaxNodes);
-                EXPECT_EQ(Importance(0), config.MinImportance);
-            }
+			static void AssertZero(const TimeSynchronizationConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(0u, config.MaxNodes);
+				EXPECT_EQ(Importance(0), config.MinImportance);
+			}
 
-            static void AssertCustom(const TimeSynchronizationConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(123u, config.MaxNodes);
-                EXPECT_EQ(Importance(987), config.MinImportance);
-            }
-        };
-    }
+			static void AssertCustom(const TimeSynchronizationConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(123u, config.MaxNodes);
+				EXPECT_EQ(Importance(987), config.MinImportance);
+			}
+		};
+	}
 
-    DEFINE_CONFIGURATION_TESTS(TimeSynchronizationConfigurationTests, TimeSynchronization)
+	DEFINE_CONFIGURATION_TESTS(TimeSynchronizationConfigurationTests, TimeSynchronization)
 
-    // region file io
+	// region file io
 
-    TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist)
-    {
-        // Act + Assert: attempt to load the config
-        EXPECT_THROW(TimeSynchronizationConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
-    }
+	TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist) {
+		// Act + Assert: attempt to load the config
+		EXPECT_THROW(TimeSynchronizationConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, CanLoadConfigFromResourcesDirectory)
-    {
-        // Act: attempt to load from the "real" resources directory
-        auto config = TimeSynchronizationConfiguration::LoadFromPath("../resources");
+	TEST(TEST_CLASS, CanLoadConfigFromResourcesDirectory) {
+		// Act: attempt to load from the "real" resources directory
+		auto config = TimeSynchronizationConfiguration::LoadFromPath("../resources");
 
-        // Assert:
-        EXPECT_EQ(20u, config.MaxNodes);
-        EXPECT_EQ(Importance(3'750), config.MinImportance);
-    }
+		// Assert:
+		EXPECT_EQ(20u, config.MaxNodes);
+		EXPECT_EQ(Importance(3'750), config.MinImportance);
+	}
 
-    // endregion
+	// endregion
 }
 }

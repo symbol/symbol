@@ -25,23 +25,23 @@
 
 namespace boost {
 namespace asio {
-    class io_context;
+	class io_context;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Predicate that returns \c true if a function should continue waiting.
-    using ShouldWaitPredicate = predicate<>;
+	/// Predicate that returns \c true if a function should continue waiting.
+	using ShouldWaitPredicate = predicate<>;
 
-    /// Wait function.
-    using WaitFunction = consumer<boost::asio::io_context&, const ShouldWaitPredicate&>;
+	/// Wait function.
+	using WaitFunction = consumer<boost::asio::io_context&, const ShouldWaitPredicate&>;
 
-    /// Creates a synchronous wait function that waits for intervals of \a waitMillis ms.
-    WaitFunction CreateSyncWaitFunction(uint32_t waitMillis);
+	/// Creates a synchronous wait function that waits for intervals of \a waitMillis ms.
+	WaitFunction CreateSyncWaitFunction(uint32_t waitMillis);
 
-    /// Creates an asynchronous wait function that waits for intervals of \a waitMillis ms.
-    WaitFunction CreateAsyncWaitFunction(uint32_t waitMillis);
+	/// Creates an asynchronous wait function that waits for intervals of \a waitMillis ms.
+	WaitFunction CreateAsyncWaitFunction(uint32_t waitMillis);
 }
 }

@@ -25,58 +25,55 @@
 namespace catapult {
 namespace observers {
 
-    namespace {
-        model::MosaicFlags Xor(model::MosaicFlags lhs, model::MosaicFlags rhs)
-        {
-            return static_cast<model::MosaicFlags>(utils::to_underlying_type(lhs) ^ utils::to_underlying_type(rhs));
-        }
+	namespace {
+		model::MosaicFlags Xor(model::MosaicFlags lhs, model::MosaicFlags rhs) {
+			return static_cast<model::MosaicFlags>(utils::to_underlying_type(lhs) ^ utils::to_underlying_type(rhs));
+		}
 
-        model::MosaicProperties MergeProperties(
-            const model::MosaicProperties& currentProperties,
-            const model::MosaicProperties& notificationProperties,
-            NotifyMode mode)
-        {
-            auto flags = Xor(currentProperties.flags(), notificationProperties.flags());
-            auto divisibility = static_cast<uint8_t>(currentProperties.divisibility() ^ notificationProperties.divisibility());
-            auto duration = NotifyMode::Commit == mode ? currentProperties.duration() + notificationProperties.duration()
-                                                       : currentProperties.duration() - notificationProperties.duration();
-            return model::MosaicProperties(flags, divisibility, duration);
-        }
+		model::MosaicProperties MergeProperties(
+			const model::MosaicProperties& currentProperties,
+			const model::MosaicProperties& notificationProperties,
+			NotifyMode mode) {
+			auto flags = Xor(currentProperties.flags(), notificationProperties.flags());
+			auto divisibility = static_cast<uint8_t>(currentProperties.divisibility() ^ notificationProperties.divisibility());
+			auto duration = NotifyMode::Commit == mode ? currentProperties.duration() + notificationProperties.duration()
+													   : currentProperties.duration() - notificationProperties.duration();
+			return model::MosaicProperties(flags, divisibility, duration);
+		}
 
-        auto ApplyNotification(
-            state::MosaicEntry& currentMosaicEntry,
-            const model::MosaicDefinitionNotification& notification,
-            NotifyMode mode)
-        {
-            const auto& currentDefinition = currentMosaicEntry.definition();
-            auto newProperties = MergeProperties(currentDefinition.properties(), notification.Properties, mode);
-            auto revision = NotifyMode::Commit == mode ? currentDefinition.revision() + 1 : currentDefinition.revision() - 1;
-            auto definition = state::MosaicDefinition(currentDefinition.startHeight(), notification.Owner, revision, newProperties);
-            return state::MosaicEntry(notification.MosaicId, definition);
-        }
-    }
+		auto ApplyNotification(
+			state::MosaicEntry& currentMosaicEntry,
+			const model::MosaicDefinitionNotification& notification,
+			NotifyMode mode) {
+			const auto& currentDefinition = currentMosaicEntry.definition();
+			auto newProperties = MergeProperties(currentDefinition.properties(), notification.Properties, mode);
+			auto revision = NotifyMode::Commit == mode ? currentDefinition.revision() + 1 : currentDefinition.revision() - 1;
+			auto definition = state::MosaicDefinition(currentDefinition.startHeight(), notification.Owner, revision, newProperties);
+			return state::MosaicEntry(notification.MosaicId, definition);
+		}
+	}
 
-    DEFINE_OBSERVER(
-        MosaicDefinition,
-        model::MosaicDefinitionNotification,
-        [](const model::MosaicDefinitionNotification& notification, const ObserverContext& context) {
-            auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
+	DEFINE_OBSERVER(
+		MosaicDefinition,
+		model::MosaicDefinitionNotification,
+		[](const model::MosaicDefinitionNotification& notification, const ObserverContext& context) {
+			auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
 
-            // mosaic supply will always be zero when a mosaic definition is observed
-            auto mosaicIter = mosaicCache.find(notification.MosaicId);
-            if (mosaicIter.tryGet()) {
-                // copy existing mosaic entry before removing
-                auto mosaicEntry = mosaicIter.get();
-                mosaicCache.remove(notification.MosaicId);
+			// mosaic supply will always be zero when a mosaic definition is observed
+			auto mosaicIter = mosaicCache.find(notification.MosaicId);
+			if (mosaicIter.tryGet()) {
+				// copy existing mosaic entry before removing
+				auto mosaicEntry = mosaicIter.get();
+				mosaicCache.remove(notification.MosaicId);
 
-                if (NotifyMode::Rollback == context.Mode && 1 == mosaicEntry.definition().revision())
-                    return;
+				if (NotifyMode::Rollback == context.Mode && 1 == mosaicEntry.definition().revision())
+					return;
 
-                mosaicCache.insert(ApplyNotification(mosaicEntry, notification, context.Mode));
-            } else {
-                auto definition = state::MosaicDefinition(context.Height, notification.Owner, 1, notification.Properties);
-                mosaicCache.insert(state::MosaicEntry(notification.MosaicId, definition));
-            }
-        })
+				mosaicCache.insert(ApplyNotification(mosaicEntry, notification, context.Mode));
+			} else {
+				auto definition = state::MosaicDefinition(context.Height, notification.Owner, 1, notification.Properties);
+				mosaicCache.insert(state::MosaicEntry(notification.MosaicId, definition));
+			}
+		})
 }
 }

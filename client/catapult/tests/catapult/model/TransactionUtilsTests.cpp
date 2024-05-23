@@ -31,83 +31,77 @@ namespace model {
 
 #define TEST_CLASS TransactionUtilsTests
 
-    namespace {
-        class MockNotificationPublisher : public NotificationPublisher {
-        public:
-            enum class Mode { Address,
-                Public_Key,
-                Other };
+	namespace {
+		class MockNotificationPublisher : public NotificationPublisher {
+		public:
+			enum class Mode { Address,
+				Public_Key,
+				Other };
 
-        public:
-            explicit MockNotificationPublisher(Mode mode)
-                : m_mode(mode)
-            {
-            }
+		public:
+			explicit MockNotificationPublisher(Mode mode)
+				: m_mode(mode) {
+			}
 
-        public:
-            void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const override
-            {
-                const auto& transaction = entityInfo.cast<mocks::MockTransaction>().entity();
+		public:
+			void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const override {
+				const auto& transaction = entityInfo.cast<mocks::MockTransaction>().entity();
 
-                if (Mode::Address == m_mode) {
-                    sub.notify(AccountAddressNotification(GetSignerAddress(transaction)));
-                    sub.notify(AccountAddressNotification(mocks::GetRecipientAddress(transaction)));
-                } else if (Mode::Public_Key == m_mode) {
-                    sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
-                    sub.notify(AccountPublicKeyNotification(transaction.RecipientPublicKey));
-                } else {
-                    sub.notify(EntityNotification(transaction.Network, transaction.Type, transaction.Version, 0, 0));
-                }
-            }
+				if (Mode::Address == m_mode) {
+					sub.notify(AccountAddressNotification(GetSignerAddress(transaction)));
+					sub.notify(AccountAddressNotification(mocks::GetRecipientAddress(transaction)));
+				} else if (Mode::Public_Key == m_mode) {
+					sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
+					sub.notify(AccountPublicKeyNotification(transaction.RecipientPublicKey));
+				} else {
+					sub.notify(EntityNotification(transaction.Network, transaction.Type, transaction.Version, 0, 0));
+				}
+			}
 
-        private:
-            Mode m_mode;
-        };
+		private:
+			Mode m_mode;
+		};
 
-        void RunExtractAddressesTest(MockNotificationPublisher::Mode mode)
-        {
-            // Arrange:
-            auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
-                test::GenerateRandomByteArray<Key>(),
-                test::GenerateRandomByteArray<Key>());
-            auto senderAddress = extensions::CopyToUnresolvedAddress(GetSignerAddress(*pTransaction));
-            auto recipientAddress = extensions::CopyToUnresolvedAddress(mocks::GetRecipientAddress(*pTransaction));
-            MockNotificationPublisher notificationPublisher(mode);
+		void RunExtractAddressesTest(MockNotificationPublisher::Mode mode) {
+			// Arrange:
+			auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
+				test::GenerateRandomByteArray<Key>(),
+				test::GenerateRandomByteArray<Key>());
+			auto senderAddress = extensions::CopyToUnresolvedAddress(GetSignerAddress(*pTransaction));
+			auto recipientAddress = extensions::CopyToUnresolvedAddress(mocks::GetRecipientAddress(*pTransaction));
+			MockNotificationPublisher notificationPublisher(mode);
 
-            // Act:
-            auto addresses = ExtractAddresses(*pTransaction, notificationPublisher);
+			// Act:
+			auto addresses = ExtractAddresses(*pTransaction, notificationPublisher);
 
-            // Assert:
-            EXPECT_EQ(2u, addresses.size());
-            EXPECT_CONTAINS(addresses, senderAddress);
-            EXPECT_CONTAINS(addresses, recipientAddress);
-        }
-    }
+			// Assert:
+			EXPECT_EQ(2u, addresses.size());
+			EXPECT_CONTAINS(addresses, senderAddress);
+			EXPECT_CONTAINS(addresses, recipientAddress);
+		}
+	}
 
-    TEST(TEST_CLASS, ExtractAddressesExtractsAddressesFromAddressNotifications)
-    {
-        RunExtractAddressesTest(MockNotificationPublisher::Mode::Address);
-    }
+	TEST(TEST_CLASS, ExtractAddressesExtractsAddressesFromAddressNotifications) {
+		RunExtractAddressesTest(MockNotificationPublisher::Mode::Address);
+	}
 
-    TEST(TEST_CLASS, ExtractAddressesExtractsAddressesFromPublicKeyNotifications)
-    {
-        RunExtractAddressesTest(MockNotificationPublisher::Mode::Public_Key);
-    }
+	TEST(TEST_CLASS, ExtractAddressesExtractsAddressesFromPublicKeyNotifications) {
+		RunExtractAddressesTest(MockNotificationPublisher::Mode::Public_Key);
+	}
 
-    TEST(TEST_CLASS, ExtractAddressesDoesNotExtractAddressesFromOtherNotifications)
-    {
-        // Arrange:
-        auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
-            test::GenerateRandomByteArray<Key>(),
-            test::GenerateRandomByteArray<Key>());
+	TEST(TEST_CLASS, ExtractAddressesDoesNotExtractAddressesFromOtherNotifications) {
+		// Arrange:
+		auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
+			test::GenerateRandomByteArray<Key>(),
+			test::GenerateRandomByteArray<Key>());
 
-        MockNotificationPublisher notificationPublisher(MockNotificationPublisher::Mode::Other);
+		MockNotificationPublisher notificationPublisher(MockNotificationPublisher::Mode::Other);
 
-        // Act:
-        auto addresses = ExtractAddresses(*pTransaction, notificationPublisher);
+		// Act:
+		auto addresses = ExtractAddresses(*pTransaction, notificationPublisher);
 
-        // Assert:
-        EXPECT_TRUE(addresses.empty());
-    }
+		// Assert:
+		EXPECT_TRUE(addresses.empty());
+	}
 }
 }

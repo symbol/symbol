@@ -29,34 +29,34 @@
 
 namespace catapult {
 namespace net {
-    class AcceptedConnectionContainer;
+	class AcceptedConnectionContainer;
 }
 namespace subscribers {
-    class NodeSubscriber;
+	class NodeSubscriber;
 }
 }
 
 namespace catapult {
 namespace extensions {
 
-    /// Gets the rate monitor settings from \a banConfig.
-    ionet::RateMonitorSettings GetRateMonitorSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig);
+	/// Gets the rate monitor settings from \a banConfig.
+	ionet::RateMonitorSettings GetRateMonitorSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig);
 
-    /// Extracts connection settings from \a config.
-    net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config);
+	/// Extracts connection settings from \a config.
+	net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config);
 
-    /// Updates \a settings with values in \a config.
-    void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::CatapultConfiguration& config);
+	/// Updates \a settings with values in \a config.
+	void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::CatapultConfiguration& config);
 
-    /// Boots a tcp server with \a serviceGroup on localhost \a port with connection \a config and \a acceptor given \a timeSupplier.
-    /// Incoming connections are assumed to be associated with \a serviceId and are added to \a nodeSubscriber.
-    std::shared_ptr<net::AsyncTcpServer> BootServer(
-        thread::MultiServicePool::ServiceGroup& serviceGroup,
-        unsigned short port,
-        ionet::ServiceIdentifier serviceId,
-        const config::CatapultConfiguration& config,
-        const supplier<Timestamp>& timeSupplier,
-        subscribers::NodeSubscriber& nodeSubscriber,
-        net::AcceptedConnectionContainer& acceptor);
+	/// Boots a tcp server with \a serviceGroup on localhost \a port with connection \a config and \a acceptor given \a timeSupplier.
+	/// Incoming connections are assumed to be associated with \a serviceId and are added to \a nodeSubscriber.
+	std::shared_ptr<net::AsyncTcpServer> BootServer(
+		thread::MultiServicePool::ServiceGroup& serviceGroup,
+		unsigned short port,
+		ionet::ServiceIdentifier serviceId,
+		const config::CatapultConfiguration& config,
+		const supplier<Timestamp>& timeSupplier,
+		subscribers::NodeSubscriber& nodeSubscriber,
+		net::AcceptedConnectionContainer& acceptor);
 }
 }

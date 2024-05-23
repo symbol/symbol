@@ -26,23 +26,22 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MosaicDefinitionNotification;
+	using Notification = model::MosaicDefinitionNotification;
 
-    DECLARE_STATEFUL_VALIDATOR(MosaicDivisibility, Notification)
-    (uint8_t maxDivisibility)
-    {
-        return MAKE_STATEFUL_VALIDATOR(
-            MosaicDivisibility,
-            [maxDivisibility](const Notification& notification, const ValidatorContext& context) {
-                auto newDivisibility = notification.Properties.divisibility();
+	DECLARE_STATEFUL_VALIDATOR(MosaicDivisibility, Notification)
+	(uint8_t maxDivisibility) {
+		return MAKE_STATEFUL_VALIDATOR(
+			MosaicDivisibility,
+			[maxDivisibility](const Notification& notification, const ValidatorContext& context) {
+				auto newDivisibility = notification.Properties.divisibility();
 
-                const auto& cache = context.Cache.sub<cache::MosaicCache>();
-                auto mosaicIter = cache.find(notification.MosaicId);
-                if (mosaicIter.tryGet())
-                    newDivisibility = static_cast<uint8_t>(newDivisibility ^ mosaicIter.get().definition().properties().divisibility());
+				const auto& cache = context.Cache.sub<cache::MosaicCache>();
+				auto mosaicIter = cache.find(notification.MosaicId);
+				if (mosaicIter.tryGet())
+					newDivisibility = static_cast<uint8_t>(newDivisibility ^ mosaicIter.get().definition().properties().divisibility());
 
-                return newDivisibility > maxDivisibility ? Failure_Mosaic_Invalid_Divisibility : ValidationResult::Success;
-            });
-    }
+				return newDivisibility > maxDivisibility ? Failure_Mosaic_Invalid_Divisibility : ValidationResult::Success;
+			});
+	}
 }
 }

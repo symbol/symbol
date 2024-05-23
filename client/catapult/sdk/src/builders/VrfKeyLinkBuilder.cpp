@@ -24,57 +24,49 @@
 namespace catapult {
 namespace builders {
 
-    VrfKeyLinkBuilder::VrfKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-        : TransactionBuilder(networkIdentifier, signer)
-        , m_linkedPublicKey()
-        , m_linkAction()
-    {
-    }
+	VrfKeyLinkBuilder::VrfKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+		: TransactionBuilder(networkIdentifier, signer)
+		, m_linkedPublicKey()
+		, m_linkAction() {
+	}
 
-    void VrfKeyLinkBuilder::setLinkedPublicKey(const Key& linkedPublicKey)
-    {
-        m_linkedPublicKey = linkedPublicKey;
-    }
+	void VrfKeyLinkBuilder::setLinkedPublicKey(const Key& linkedPublicKey) {
+		m_linkedPublicKey = linkedPublicKey;
+	}
 
-    void VrfKeyLinkBuilder::setLinkAction(model::LinkAction linkAction)
-    {
-        m_linkAction = linkAction;
-    }
+	void VrfKeyLinkBuilder::setLinkAction(model::LinkAction linkAction) {
+		m_linkAction = linkAction;
+	}
 
-    size_t VrfKeyLinkBuilder::size() const
-    {
-        return sizeImpl<Transaction>();
-    }
+	size_t VrfKeyLinkBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
 
-    std::unique_ptr<VrfKeyLinkBuilder::Transaction> VrfKeyLinkBuilder::build() const
-    {
-        return buildImpl<Transaction>();
-    }
+	std::unique_ptr<VrfKeyLinkBuilder::Transaction> VrfKeyLinkBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
 
-    std::unique_ptr<VrfKeyLinkBuilder::EmbeddedTransaction> VrfKeyLinkBuilder::buildEmbedded() const
-    {
-        return buildImpl<EmbeddedTransaction>();
-    }
+	std::unique_ptr<VrfKeyLinkBuilder::EmbeddedTransaction> VrfKeyLinkBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
+	}
 
-    template <typename TransactionType>
-    size_t VrfKeyLinkBuilder::sizeImpl() const
-    {
-        // calculate transaction size
-        auto size = sizeof(TransactionType);
-        return size;
-    }
+	template <typename TransactionType>
+	size_t VrfKeyLinkBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		return size;
+	}
 
-    template <typename TransactionType>
-    std::unique_ptr<TransactionType> VrfKeyLinkBuilder::buildImpl() const
-    {
-        // 1. allocate, zero (header), set model::Transaction fields
-        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+	template <typename TransactionType>
+	std::unique_ptr<TransactionType> VrfKeyLinkBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-        // 2. set fixed transaction fields
-        pTransaction->LinkedPublicKey = m_linkedPublicKey;
-        pTransaction->LinkAction = m_linkAction;
+		// 2. set fixed transaction fields
+		pTransaction->LinkedPublicKey = m_linkedPublicKey;
+		pTransaction->LinkAction = m_linkAction;
 
-        return pTransaction;
-    }
+		return pTransaction;
+	}
 }
 }

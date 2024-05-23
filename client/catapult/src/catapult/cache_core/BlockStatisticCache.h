@@ -27,31 +27,29 @@
 namespace catapult {
 namespace cache {
 
-    using BlockStatisticBasicCache = BasicCache<BlockStatisticCacheDescriptor, BlockStatisticCacheTypes::BaseSets, BlockStatisticCacheTypes::Options>;
+	using BlockStatisticBasicCache = BasicCache<BlockStatisticCacheDescriptor, BlockStatisticCacheTypes::BaseSets, BlockStatisticCacheTypes::Options>;
 
-    /// Cache composed of block statistic information.
-    /// \note The ordering of the elements is solely done by comparing the block height contained in the element.
-    class BasicBlockStatisticCache : public BlockStatisticBasicCache {
-    public:
-        /// Creates a cache with the specified history size (\a historySize).
-        explicit BasicBlockStatisticCache(uint64_t historySize)
-            // block statistic cache must always be an in-memory cache
-            : BlockStatisticBasicCache(CacheConfiguration(), BlockStatisticCacheTypes::Options { historySize })
-        {
-        }
-    };
+	/// Cache composed of block statistic information.
+	/// \note The ordering of the elements is solely done by comparing the block height contained in the element.
+	class BasicBlockStatisticCache : public BlockStatisticBasicCache {
+	public:
+		/// Creates a cache with the specified history size (\a historySize).
+		explicit BasicBlockStatisticCache(uint64_t historySize)
+			// block statistic cache must always be an in-memory cache
+			: BlockStatisticBasicCache(CacheConfiguration(), BlockStatisticCacheTypes::Options { historySize }) {
+		}
+	};
 
-    /// Synchronized cache composed of block statistic information.
-    class BlockStatisticCache : public SynchronizedCache<BasicBlockStatisticCache> {
-    public:
-        DEFINE_CACHE_CONSTANTS(BlockStatistic)
+	/// Synchronized cache composed of block statistic information.
+	class BlockStatisticCache : public SynchronizedCache<BasicBlockStatisticCache> {
+	public:
+		DEFINE_CACHE_CONSTANTS(BlockStatistic)
 
-    public:
-        /// Creates a cache with the specified history size (\a historySize).
-        explicit BlockStatisticCache(uint64_t historySize)
-            : SynchronizedCache<BasicBlockStatisticCache>(BasicBlockStatisticCache(historySize))
-        {
-        }
-    };
+	public:
+		/// Creates a cache with the specified history size (\a historySize).
+		explicit BlockStatisticCache(uint64_t historySize)
+			: SynchronizedCache<BasicBlockStatisticCache>(BasicBlockStatisticCache(historySize)) {
+		}
+	};
 }
 }

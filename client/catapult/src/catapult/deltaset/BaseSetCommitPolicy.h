@@ -26,34 +26,32 @@
 namespace catapult {
 namespace deltaset {
 
-    /// Applies all changes in \a deltas to \a elements.
-    template <typename TKeyTraits, typename TStorageSet, typename TMemorySet>
-    void UpdateSet(TStorageSet& elements, const DeltaElements<TMemorySet>& deltas)
-    {
-        if (!deltas.Added.empty())
-            elements.insert(deltas.Added.cbegin(), deltas.Added.cend());
+	/// Applies all changes in \a deltas to \a elements.
+	template <typename TKeyTraits, typename TStorageSet, typename TMemorySet>
+	void UpdateSet(TStorageSet& elements, const DeltaElements<TMemorySet>& deltas) {
+		if (!deltas.Added.empty())
+			elements.insert(deltas.Added.cbegin(), deltas.Added.cend());
 
-        for (const auto& element : deltas.Copied) {
-            auto iter = elements.find(TKeyTraits::ToKey(element));
-            if (elements.cend() == iter)
-                CATAPULT_THROW_INVALID_ARGUMENT("element not found, cannot update");
+		for (const auto& element : deltas.Copied) {
+			auto iter = elements.find(TKeyTraits::ToKey(element));
+			if (elements.cend() == iter)
+				CATAPULT_THROW_INVALID_ARGUMENT("element not found, cannot update");
 
-            iter = elements.erase(iter);
-            elements.insert(iter, element);
-        }
+			iter = elements.erase(iter);
+			elements.insert(iter, element);
+		}
 
-        for (const auto& element : deltas.Removed)
-            elements.erase(TKeyTraits::ToKey(element));
-    }
+		for (const auto& element : deltas.Removed)
+			elements.erase(TKeyTraits::ToKey(element));
+	}
 
-    /// Default policy for committing changes to a base set.
-    template <typename TSetTraits>
-    struct BaseSetCommitPolicy {
-        /// Applies all changes in \a deltas to \a elements.
-        static void Update(typename TSetTraits::SetType& elements, const DeltaElements<typename TSetTraits::MemorySetType>& deltas)
-        {
-            UpdateSet<typename TSetTraits::KeyTraits>(elements, deltas);
-        }
-    };
+	/// Default policy for committing changes to a base set.
+	template <typename TSetTraits>
+	struct BaseSetCommitPolicy {
+		/// Applies all changes in \a deltas to \a elements.
+		static void Update(typename TSetTraits::SetType& elements, const DeltaElements<typename TSetTraits::MemorySetType>& deltas) {
+			UpdateSet<typename TSetTraits::KeyTraits>(elements, deltas);
+		}
+	};
 }
 }

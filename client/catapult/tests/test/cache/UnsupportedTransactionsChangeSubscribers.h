@@ -26,80 +26,71 @@
 namespace catapult {
 namespace test {
 
-    // region UnsupportedFlushBehavior / FlushInvoker
+	// region UnsupportedFlushBehavior / FlushInvoker
 
-    /// Enumeration indicating behavior of unsupported flush operation.
-    enum class UnsupportedFlushBehavior {
-        /// Operation is ignored.
-        Ignore,
+	/// Enumeration indicating behavior of unsupported flush operation.
+	enum class UnsupportedFlushBehavior {
+		/// Operation is ignored.
+		Ignore,
 
-        /// Operation throws an exception.
-        Throw
-    };
+		/// Operation throws an exception.
+		Throw
+	};
 
-    /// Performs specified flush behavior.
-    template <UnsupportedFlushBehavior FlushBehavior>
-    struct FlushInvoker {
-        static void Flush()
-        {
-            // do nothing;
-        }
-    };
+	/// Performs specified flush behavior.
+	template <UnsupportedFlushBehavior FlushBehavior>
+	struct FlushInvoker {
+		static void Flush() {
+			// do nothing;
+		}
+	};
 
-    template <>
-    struct FlushInvoker<UnsupportedFlushBehavior::Throw> {
-        [[noreturn]]
-        static void Flush()
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("flush - not supported in mock");
-        }
-    };
+	template <>
+	struct FlushInvoker<UnsupportedFlushBehavior::Throw> {
+		[[noreturn]]
+		static void Flush() {
+			CATAPULT_THROW_RUNTIME_ERROR("flush - not supported in mock");
+		}
+	};
 
-    // endregion
+	// endregion
 
-    /// Unsupported pt change subscriber.
-    template <UnsupportedFlushBehavior FlushBehavior>
-    class UnsupportedPtChangeSubscriber : public cache::PtChangeSubscriber {
-    public:
-        void notifyAddPartials(const TransactionInfos&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyAddPartials - not supported in mock");
-        }
+	/// Unsupported pt change subscriber.
+	template <UnsupportedFlushBehavior FlushBehavior>
+	class UnsupportedPtChangeSubscriber : public cache::PtChangeSubscriber {
+	public:
+		void notifyAddPartials(const TransactionInfos&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyAddPartials - not supported in mock");
+		}
 
-        void notifyAddCosignature(const model::TransactionInfo&, const model::Cosignature&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyAddCosignature - not supported in mock");
-        }
+		void notifyAddCosignature(const model::TransactionInfo&, const model::Cosignature&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyAddCosignature - not supported in mock");
+		}
 
-        void notifyRemovePartials(const TransactionInfos&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyRemovePartials - not supported in mock");
-        }
+		void notifyRemovePartials(const TransactionInfos&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyRemovePartials - not supported in mock");
+		}
 
-        void flush() override
-        {
-            FlushInvoker<FlushBehavior>::Flush();
-        }
-    };
+		void flush() override {
+			FlushInvoker<FlushBehavior>::Flush();
+		}
+	};
 
-    /// Unsupported ut change subscriber
-    template <UnsupportedFlushBehavior FlushBehavior>
-    class UnsupportedUtChangeSubscriber : public cache::UtChangeSubscriber {
-    public:
-        void notifyAdds(const TransactionInfos&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyAdds - not supported in mock");
-        }
+	/// Unsupported ut change subscriber
+	template <UnsupportedFlushBehavior FlushBehavior>
+	class UnsupportedUtChangeSubscriber : public cache::UtChangeSubscriber {
+	public:
+		void notifyAdds(const TransactionInfos&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyAdds - not supported in mock");
+		}
 
-        void notifyRemoves(const TransactionInfos&) override
-        {
-            CATAPULT_THROW_RUNTIME_ERROR("notifyRemoves - not supported in mock");
-        }
+		void notifyRemoves(const TransactionInfos&) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyRemoves - not supported in mock");
+		}
 
-        void flush() override
-        {
-            FlushInvoker<FlushBehavior>::Flush();
-        }
-    };
+		void flush() override {
+			FlushInvoker<FlushBehavior>::Flush();
+		}
+	};
 }
 }

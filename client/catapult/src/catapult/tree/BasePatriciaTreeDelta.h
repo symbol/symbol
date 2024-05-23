@@ -30,95 +30,86 @@
 namespace catapult {
 namespace tree {
 
-    /// Delta on top of a base patricia tree that offers methods to set/unset nodes.
-    template <typename TEncoder, typename TDataSource, typename THasher>
-    class BasePatriciaTreeDelta {
-    private:
-        using KeyType = typename TEncoder::KeyType;
-        using ValueType = typename TEncoder::ValueType;
+	/// Delta on top of a base patricia tree that offers methods to set/unset nodes.
+	template <typename TEncoder, typename TDataSource, typename THasher>
+	class BasePatriciaTreeDelta {
+	private:
+		using KeyType = typename TEncoder::KeyType;
+		using ValueType = typename TEncoder::ValueType;
 
-    public:
-        /// Creates a tree around \a dataSource with root \a rootHash.
-        BasePatriciaTreeDelta(const TDataSource& dataSource, const Hash256& rootHash)
-            : m_dataSource(dataSource)
-            , m_baseRootHash(rootHash)
-            , m_tree(m_dataSource)
-        {
-            m_tree.tryLoad(rootHash);
-        }
+	public:
+		/// Creates a tree around \a dataSource with root \a rootHash.
+		BasePatriciaTreeDelta(const TDataSource& dataSource, const Hash256& rootHash)
+			: m_dataSource(dataSource)
+			, m_baseRootHash(rootHash)
+			, m_tree(m_dataSource) {
+			m_tree.tryLoad(rootHash);
+		}
 
-    public:
-        /// Gets the root hash that uniquely identifies this tree.
-        Hash256 root() const
-        {
-            return m_tree.root();
-        }
+	public:
+		/// Gets the root hash that uniquely identifies this tree.
+		Hash256 root() const {
+			return m_tree.root();
+		}
 
-        /// Gets the base root hash that identifies this tree before any changes are applied.
-        Hash256 baseRoot() const
-        {
-            return m_baseRootHash;
-        }
+		/// Gets the base root hash that identifies this tree before any changes are applied.
+		Hash256 baseRoot() const {
+			return m_baseRootHash;
+		}
 
-    public:
-        /// Sets the root hash (\a rootHash).
-        void reset(const Hash256& rootHash)
-        {
-            if (Hash256() == rootHash)
-                m_tree.clear();
-            else if (!m_tree.tryLoad(rootHash))
-                CATAPULT_THROW_RUNTIME_ERROR_1("unable to load root hash", rootHash);
+	public:
+		/// Sets the root hash (\a rootHash).
+		void reset(const Hash256& rootHash) {
+			if (Hash256() == rootHash)
+				m_tree.clear();
+			else if (!m_tree.tryLoad(rootHash))
+				CATAPULT_THROW_RUNTIME_ERROR_1("unable to load root hash", rootHash);
 
-            m_baseRootHash = rootHash;
-        }
+			m_baseRootHash = rootHash;
+		}
 
-        /// Sets the \a value associated with \a key in the tree.
-        void set(const KeyType& key, const ValueType& value)
-        {
-            return m_tree.set(key, value);
-        }
+		/// Sets the \a value associated with \a key in the tree.
+		void set(const KeyType& key, const ValueType& value) {
+			return m_tree.set(key, value);
+		}
 
-        /// Removes the value associated with \a key from the tree.
-        bool unset(const KeyType& key)
-        {
-            return m_tree.unset(key);
-        }
+		/// Removes the value associated with \a key from the tree.
+		bool unset(const KeyType& key) {
+			return m_tree.unset(key);
+		}
 
-    public:
-        /// Marks all nodes reachable at this point.
-        void setCheckpoint()
-        {
-            m_tree.saveAll();
-        }
+	public:
+		/// Marks all nodes reachable at this point.
+		void setCheckpoint() {
+			m_tree.saveAll();
+		}
 
-    public:
-        /// Copies all pending changes to \a dataSource.
-        template <typename TDestinationDataSource>
-        void copyPendingChangesTo(TDestinationDataSource& dataSource) const
-        {
-            m_dataSource.forEach([&dataSource](const auto& node) {
-                if (node.isLeaf())
-                    dataSource.set(node.asLeafNode());
-                else
-                    dataSource.set(node.asBranchNode());
-            });
-        }
+	public:
+		/// Copies all pending changes to \a dataSource.
+		template <typename TDestinationDataSource>
+		void copyPendingChangesTo(TDestinationDataSource& dataSource) const {
+			m_dataSource.forEach([&dataSource](const auto& node) {
+				if (node.isLeaf())
+					dataSource.set(node.asLeafNode());
+				else
+					dataSource.set(node.asBranchNode());
+			});
+		}
 
-        /// Sets the root of \a tree to the root of this delta tree.
-        template <typename TTree>
-        void copyRootTo(TTree& tree) const
-        {
-            auto rootHash = root();
-            if (Hash256() == rootHash)
-                tree.clear();
-            else
-                tree.setRoot(m_dataSource.get(rootHash));
-        }
+		/// Sets the root of \a tree to the root of this delta tree.
+		template <typename TTree>
+		void copyRootTo(TTree& tree) const {
+			auto rootHash = root();
+			if (Hash256() == rootHash)
+				tree.clear();
+			else
+				tree.setRoot(m_dataSource.get(rootHash));
+		}
 
-    private:
-        ReadThroughMemoryDataSource<TDataSource> m_dataSource;
-        Hash256 m_baseRootHash;
-        PatriciaTree<TEncoder, ReadThroughMemoryDataSource<TDataSource>> m_tree;
-    };
+	private:
+		ReadThroughMemoryDataSource<TDataSource> m_dataSource;
+		Hash256 m_baseRootHash;
+		PatriciaTree<TEncoder, ReadThroughMemoryDataSource<TDataSource>> m_tree;
+	};
 }
 }

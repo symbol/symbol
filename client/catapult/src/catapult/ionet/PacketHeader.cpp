@@ -25,10 +25,9 @@
 namespace catapult {
 namespace ionet {
 
-    std::ostream& operator<<(std::ostream& out, const PacketHeader& header)
-    {
-        out << "packet " << header.Type << " with size " << header.Size;
-        return out;
-    }
+	std::ostream& operator<<(std::ostream& out, const PacketHeader& header) {
+		out << "packet " << header.Type << " with size " << header.Size;
+		return out;
+	}
 }
 }

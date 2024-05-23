@@ -27,48 +27,45 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Cache entry info.
-    template <typename TIdentifier>
-    struct CacheEntryInfo : public TrailingVariableDataLayout<CacheEntryInfo<TIdentifier>, uint8_t> {
-    private:
-        using BaseType = TrailingVariableDataLayout<CacheEntryInfo<TIdentifier>, uint8_t>;
-        using BaseType::PayloadStart;
-        using BaseType::ToTypedPointer;
+	/// Cache entry info.
+	template <typename TIdentifier>
+	struct CacheEntryInfo : public TrailingVariableDataLayout<CacheEntryInfo<TIdentifier>, uint8_t> {
+	private:
+		using BaseType = TrailingVariableDataLayout<CacheEntryInfo<TIdentifier>, uint8_t>;
+		using BaseType::PayloadStart;
+		using BaseType::ToTypedPointer;
 
-    public:
-        //// Max data size for serialized cache entries.
-        static constexpr uint32_t Max_Data_Size = 0x00FFFFFF;
+	public:
+		//// Max data size for serialized cache entries.
+		static constexpr uint32_t Max_Data_Size = 0x00FFFFFF;
 
-    public:
-        /// Size of the entry data.
-        uint32_t DataSize;
+	public:
+		/// Size of the entry data.
+		uint32_t DataSize;
 
-        /// Cache entry's id.
-        TIdentifier Id;
+		/// Cache entry's id.
+		TIdentifier Id;
 
-        // followed by data if DataSize > 0
-        DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(Data, Size)
+		// followed by data if DataSize > 0
+		DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(Data, Size)
 
-    public:
-        /// Returns \c true if data is available.
-        bool HasData() const
-        {
-            return DataSize > 0;
-        }
+	public:
+		/// Returns \c true if data is available.
+		bool HasData() const {
+			return DataSize > 0;
+		}
 
-        /// Returns \c true if the serialized cache entry is too large.
-        bool IsTooLarge() const
-        {
-            return DataSize >= Max_Data_Size;
-        }
+		/// Returns \c true if the serialized cache entry is too large.
+		bool IsTooLarge() const {
+			return DataSize >= Max_Data_Size;
+		}
 
-    public:
-        /// Calculates the real size of \a cacheEntryInfo.
-        static constexpr uint64_t CalculateRealSize(const CacheEntryInfo& cacheEntryInfo) noexcept
-        {
-            return sizeof(CacheEntryInfo<TIdentifier>) + cacheEntryInfo.DataSize;
-        }
-    };
+	public:
+		/// Calculates the real size of \a cacheEntryInfo.
+		static constexpr uint64_t CalculateRealSize(const CacheEntryInfo& cacheEntryInfo) noexcept {
+			return sizeof(CacheEntryInfo<TIdentifier>) + cacheEntryInfo.DataSize;
+		}
+	};
 
 #pragma pack(pop)
 }

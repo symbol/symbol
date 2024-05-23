@@ -25,28 +25,28 @@
 namespace catapult {
 namespace model {
 
-    /// Mosaic restriction types.
-    enum class MosaicRestrictionType : uint8_t {
-        /// Uninitialized value indicating no restriction.
-        NONE,
+	/// Mosaic restriction types.
+	enum class MosaicRestrictionType : uint8_t {
+		/// Uninitialized value indicating no restriction.
+		NONE,
 
-        /// Allow if equal.
-        EQ,
+		/// Allow if equal.
+		EQ,
 
-        /// Allow if not equal.
-        NE,
+		/// Allow if not equal.
+		NE,
 
-        /// Allow if less than.
-        LT,
+		/// Allow if less than.
+		LT,
 
-        /// Allow if less than or equal.
-        LE,
+		/// Allow if less than or equal.
+		LE,
 
-        /// Allow if greater than.
-        GT,
+		/// Allow if greater than.
+		GT,
 
-        /// Allow if greater than or equal.
-        GE
-    };
+		/// Allow if greater than or equal.
+		GE
+	};
 }
 }

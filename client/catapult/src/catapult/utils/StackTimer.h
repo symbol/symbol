@@ -25,28 +25,26 @@
 namespace catapult {
 namespace utils {
 
-    /// Stack based timer.
-    class StackTimer {
-    private:
-        using Clock = std::chrono::steady_clock;
+	/// Stack based timer.
+	class StackTimer {
+	private:
+		using Clock = std::chrono::steady_clock;
 
-    public:
-        /// Constructs a stack timer.
-        StackTimer()
-            : m_start(Clock::now())
-        {
-        }
+	public:
+		/// Constructs a stack timer.
+		StackTimer()
+			: m_start(Clock::now()) {
+		}
 
-    public:
-        /// Gets the number of elapsed milliseconds since this logger was created.
-        uint64_t millis() const
-        {
-            auto elapsedDuration = Clock::now() - m_start;
-            return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(elapsedDuration).count());
-        }
+	public:
+		/// Gets the number of elapsed milliseconds since this logger was created.
+		uint64_t millis() const {
+			auto elapsedDuration = Clock::now() - m_start;
+			return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(elapsedDuration).count());
+		}
 
-    private:
-        Clock::time_point m_start;
-    };
+	private:
+		Clock::time_point m_start;
+	};
 }
 }

@@ -28,20 +28,19 @@
 #include "plugins/txes/namespace/src/model/NamespaceReceiptType.h"
 #include "storages/MongoNamespaceCacheStorage.h"
 
-extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager)
-{
-    using namespace catapult;
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
+	using namespace catapult;
 
-    // transaction support
-    manager.addTransactionSupport(mongo::plugins::CreateAddressAliasTransactionMongoPlugin());
-    manager.addTransactionSupport(mongo::plugins::CreateMosaicAliasTransactionMongoPlugin());
-    manager.addTransactionSupport(mongo::plugins::CreateNamespaceRegistrationTransactionMongoPlugin());
+	// transaction support
+	manager.addTransactionSupport(mongo::plugins::CreateAddressAliasTransactionMongoPlugin());
+	manager.addTransactionSupport(mongo::plugins::CreateMosaicAliasTransactionMongoPlugin());
+	manager.addTransactionSupport(mongo::plugins::CreateNamespaceRegistrationTransactionMongoPlugin());
 
-    // cache storage support
-    manager.addStorageSupport(mongo::plugins::CreateMongoNamespaceCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+	// cache storage support
+	manager.addStorageSupport(mongo::plugins::CreateMongoNamespaceCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 
-    // receipt support
-    manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<NamespaceId>(model::Receipt_Type_Namespace_Expired));
-    manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<NamespaceId>(model::Receipt_Type_Namespace_Deleted));
-    manager.addReceiptSupport(mongo::CreateBalanceTransferReceiptMongoPlugin(model::Receipt_Type_Namespace_Rental_Fee));
+	// receipt support
+	manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<NamespaceId>(model::Receipt_Type_Namespace_Expired));
+	manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<NamespaceId>(model::Receipt_Type_Namespace_Deleted));
+	manager.addReceiptSupport(mongo::CreateBalanceTransferReceiptMongoPlugin(model::Receipt_Type_Namespace_Rental_Fee));
 }

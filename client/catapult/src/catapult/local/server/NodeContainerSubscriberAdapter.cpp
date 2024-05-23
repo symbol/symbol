@@ -26,68 +26,62 @@
 namespace catapult {
 namespace local {
 
-    namespace {
-        class NodeContainerSubscriberAdapter : public subscribers::NodeSubscriber {
-        public:
-            NodeContainerSubscriberAdapter(
-                ionet::NodeContainer& nodes,
-                const std::unordered_set<std::string>& localNetworks,
-                const extensions::BannedNodeIdentitySink* pBannedNodeIdentitySink)
-                : m_nodes(nodes)
-                , m_localNetworks(localNetworks)
-                , m_pBannedNodeIdentitySink(pBannedNodeIdentitySink)
-            {
-            }
+	namespace {
+		class NodeContainerSubscriberAdapter : public subscribers::NodeSubscriber {
+		public:
+			NodeContainerSubscriberAdapter(
+				ionet::NodeContainer& nodes,
+				const std::unordered_set<std::string>& localNetworks,
+				const extensions::BannedNodeIdentitySink* pBannedNodeIdentitySink)
+				: m_nodes(nodes)
+				, m_localNetworks(localNetworks)
+				, m_pBannedNodeIdentitySink(pBannedNodeIdentitySink) {
+			}
 
-        public:
-            void notifyNode(const ionet::Node& node) override
-            {
-                m_nodes.modifier().add(node, ionet::NodeSource::Dynamic);
-            }
+		public:
+			void notifyNode(const ionet::Node& node) override {
+				m_nodes.modifier().add(node, ionet::NodeSource::Dynamic);
+			}
 
-            bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) override
-            {
-                auto adjustedHost = config::IsLocalHost(identity.Host, m_localNetworks) ? "_local_" : identity.Host;
-                ionet::Node node({ identity.PublicKey, adjustedHost }, { adjustedHost, 0 }, ionet::NodeMetadata());
+			bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) override {
+				auto adjustedHost = config::IsLocalHost(identity.Host, m_localNetworks) ? "_local_" : identity.Host;
+				ionet::Node node({ identity.PublicKey, adjustedHost }, { adjustedHost, 0 }, ionet::NodeMetadata());
 
-                auto modifier = m_nodes.modifier();
-                if (modifier.add(node, ionet::NodeSource::Dynamic_Incoming)) {
-                    ++modifier.provisionConnectionState(serviceId, node.identity()).Age;
-                    return true;
-                }
+				auto modifier = m_nodes.modifier();
+				if (modifier.add(node, ionet::NodeSource::Dynamic_Incoming)) {
+					++modifier.provisionConnectionState(serviceId, node.identity()).Age;
+					return true;
+				}
 
-                CATAPULT_LOG(warning) << "could not add incoming node (" << identity << ") to node container";
-                return false;
-            }
+				CATAPULT_LOG(warning) << "could not add incoming node (" << identity << ") to node container";
+				return false;
+			}
 
-            void notifyBan(const model::NodeIdentity& identity, uint32_t reason) override
-            {
-                m_nodes.modifier().ban(identity, reason);
+			void notifyBan(const model::NodeIdentity& identity, uint32_t reason) override {
+				m_nodes.modifier().ban(identity, reason);
 
-                if (m_pBannedNodeIdentitySink)
-                    (*m_pBannedNodeIdentitySink)(identity);
-            }
+				if (m_pBannedNodeIdentitySink)
+					(*m_pBannedNodeIdentitySink)(identity);
+			}
 
-        private:
-            ionet::NodeContainer& m_nodes;
-            std::unordered_set<std::string> m_localNetworks;
-            const extensions::BannedNodeIdentitySink* m_pBannedNodeIdentitySink;
-        };
-    }
+		private:
+			ionet::NodeContainer& m_nodes;
+			std::unordered_set<std::string> m_localNetworks;
+			const extensions::BannedNodeIdentitySink* m_pBannedNodeIdentitySink;
+		};
+	}
 
-    std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
-        ionet::NodeContainer& nodes,
-        const std::unordered_set<std::string>& localNetworks)
-    {
-        return std::make_unique<NodeContainerSubscriberAdapter>(nodes, localNetworks, nullptr);
-    }
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
+		ionet::NodeContainer& nodes,
+		const std::unordered_set<std::string>& localNetworks) {
+		return std::make_unique<NodeContainerSubscriberAdapter>(nodes, localNetworks, nullptr);
+	}
 
-    std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
-        ionet::NodeContainer& nodes,
-        const std::unordered_set<std::string>& localNetworks,
-        const extensions::BannedNodeIdentitySink& bannedNodeIdentitySink)
-    {
-        return std::make_unique<NodeContainerSubscriberAdapter>(nodes, localNetworks, &bannedNodeIdentitySink);
-    }
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
+		ionet::NodeContainer& nodes,
+		const std::unordered_set<std::string>& localNetworks,
+		const extensions::BannedNodeIdentitySink& bannedNodeIdentitySink) {
+		return std::make_unique<NodeContainerSubscriberAdapter>(nodes, localNetworks, &bannedNodeIdentitySink);
+	}
 }
 }

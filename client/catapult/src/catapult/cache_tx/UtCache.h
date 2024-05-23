@@ -27,65 +27,62 @@
 namespace catapult {
 namespace cache {
 
-    /// Interface for modifying an unconfirmed transactions cache.
-    class PLUGIN_API_DEPENDENCY UtCacheModifier {
-    public:
-        virtual ~UtCacheModifier() noexcept(false)
-        {
-        }
+	/// Interface for modifying an unconfirmed transactions cache.
+	class PLUGIN_API_DEPENDENCY UtCacheModifier {
+	public:
+		virtual ~UtCacheModifier() noexcept(false) {
+		}
 
-    public:
-        /// Gets the number of transactions in the cache.
-        virtual size_t size() const = 0;
+	public:
+		/// Gets the number of transactions in the cache.
+		virtual size_t size() const = 0;
 
-        /// Gets the memory size of all unconfirmed transactions in the cache.
-        virtual utils::FileSize memorySize() const = 0;
+		/// Gets the memory size of all unconfirmed transactions in the cache.
+		virtual utils::FileSize memorySize() const = 0;
 
-        /// Adds the transaction info (\a transactionInfo) to the cache.
-        /// Returns \c true if the transaction info was successfully added.
-        virtual bool add(const model::TransactionInfo& transactionInfo) = 0;
+		/// Adds the transaction info (\a transactionInfo) to the cache.
+		/// Returns \c true if the transaction info was successfully added.
+		virtual bool add(const model::TransactionInfo& transactionInfo) = 0;
 
-        /// Removes the transaction identified by \a hash from the cache.
-        virtual model::TransactionInfo remove(const Hash256& hash) = 0;
+		/// Removes the transaction identified by \a hash from the cache.
+		virtual model::TransactionInfo remove(const Hash256& hash) = 0;
 
-        /// Gets the memory size of transactions an account with public \a key has placed into the cache.
-        virtual utils::FileSize memorySizeForAccount(const Key& key) const = 0;
+		/// Gets the memory size of transactions an account with public \a key has placed into the cache.
+		virtual utils::FileSize memorySizeForAccount(const Key& key) const = 0;
 
-        /// Removes all transactions from the cache.
-        virtual std::vector<model::TransactionInfo> removeAll() = 0;
-    };
+		/// Removes all transactions from the cache.
+		virtual std::vector<model::TransactionInfo> removeAll() = 0;
+	};
 
-    /// Delegating proxy around a UtCacheModifier.
-    /// \note This is returned by value by UtCache::modifier in order to allow it to be consistent with other modifier functions.
-    class UtCacheModifierProxy final : public BasicTransactionsCacheModifierProxy<model::TransactionInfo, UtCacheModifier> {
-    private:
-        using BasicTransactionsCacheModifierProxy<model::TransactionInfo, UtCacheModifier>::BasicTransactionsCacheModifierProxy;
+	/// Delegating proxy around a UtCacheModifier.
+	/// \note This is returned by value by UtCache::modifier in order to allow it to be consistent with other modifier functions.
+	class UtCacheModifierProxy final : public BasicTransactionsCacheModifierProxy<model::TransactionInfo, UtCacheModifier> {
+	private:
+		using BasicTransactionsCacheModifierProxy<model::TransactionInfo, UtCacheModifier>::BasicTransactionsCacheModifierProxy;
 
-    public:
-        /// Gets the memory size of transactions an account with public \a key has placed into the cache.
-        utils::FileSize memorySizeForAccount(const Key& key) const
-        {
-            return modifier().memorySizeForAccount(key);
-        }
+	public:
+		/// Gets the memory size of transactions an account with public \a key has placed into the cache.
+		utils::FileSize memorySizeForAccount(const Key& key) const {
+			return modifier().memorySizeForAccount(key);
+		}
 
-        /// Removes all transactions from the cache.
-        std::vector<model::TransactionInfo> removeAll()
-        {
-            return modifier().removeAll();
-        }
-    };
+		/// Removes all transactions from the cache.
+		std::vector<model::TransactionInfo> removeAll() {
+			return modifier().removeAll();
+		}
+	};
 
-    /// Interface (write only) for caching unconfirmed transactions.
-    class PLUGIN_API_DEPENDENCY UtCache {
-    public:
-        using CacheModifierProxy = UtCacheModifierProxy;
+	/// Interface (write only) for caching unconfirmed transactions.
+	class PLUGIN_API_DEPENDENCY UtCache {
+	public:
+		using CacheModifierProxy = UtCacheModifierProxy;
 
-    public:
-        virtual ~UtCache() = default;
+	public:
+		virtual ~UtCache() = default;
 
-    public:
-        /// Gets a write only view of the cache.
-        virtual UtCacheModifierProxy modifier() = 0;
-    };
+	public:
+		/// Gets a write only view of the cache.
+		virtual UtCacheModifierProxy modifier() = 0;
+	};
 }
 }

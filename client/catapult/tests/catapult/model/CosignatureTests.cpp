@@ -28,73 +28,67 @@ namespace model {
 
 #define TEST_CLASS CosignatureTests
 
-    TEST(TEST_CLASS, CosignatureHasExpectedSize)
-    {
-        EXPECT_EQ(104u, sizeof(Cosignature));
-    }
+	TEST(TEST_CLASS, CosignatureHasExpectedSize) {
+		EXPECT_EQ(104u, sizeof(Cosignature));
+	}
 
-    TEST(TEST_CLASS, CanCreateEmptyCosignature)
-    {
-        // Act:
-        auto cosignature = Cosignature();
+	TEST(TEST_CLASS, CanCreateEmptyCosignature) {
+		// Act:
+		auto cosignature = Cosignature();
 
-        // Assert:
-        EXPECT_EQ(0u, cosignature.Version);
-        EXPECT_EQ(Key(), cosignature.SignerPublicKey);
-        EXPECT_EQ(Signature(), cosignature.Signature);
-    }
+		// Assert:
+		EXPECT_EQ(0u, cosignature.Version);
+		EXPECT_EQ(Key(), cosignature.SignerPublicKey);
+		EXPECT_EQ(Signature(), cosignature.Signature);
+	}
 
-    TEST(TEST_CLASS, CanCreateCosignatureFromParameters)
-    {
-        // Arrange:
-        auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-        auto signature = test::GenerateRandomByteArray<Signature>();
+	TEST(TEST_CLASS, CanCreateCosignatureFromParameters) {
+		// Arrange:
+		auto signerPublicKey = test::GenerateRandomByteArray<Key>();
+		auto signature = test::GenerateRandomByteArray<Signature>();
 
-        // Act:
-        auto cosignature = Cosignature(signerPublicKey, signature);
+		// Act:
+		auto cosignature = Cosignature(signerPublicKey, signature);
 
-        // Assert:
-        EXPECT_EQ(0u, cosignature.Version);
-        EXPECT_EQ(signerPublicKey, cosignature.SignerPublicKey);
-        EXPECT_EQ(signature, cosignature.Signature);
-    }
+		// Assert:
+		EXPECT_EQ(0u, cosignature.Version);
+		EXPECT_EQ(signerPublicKey, cosignature.SignerPublicKey);
+		EXPECT_EQ(signature, cosignature.Signature);
+	}
 
-    TEST(TEST_CLASS, DetachedCosignatureHasExpectedSize)
-    {
-        EXPECT_EQ(sizeof(Cosignature) + 32u, sizeof(DetachedCosignature));
-    }
+	TEST(TEST_CLASS, DetachedCosignatureHasExpectedSize) {
+		EXPECT_EQ(sizeof(Cosignature) + 32u, sizeof(DetachedCosignature));
+	}
 
-    TEST(TEST_CLASS, CanCreateDetachedCosignatureFromParameters)
-    {
-        // Arrange:
-        auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-        auto signature = test::GenerateRandomByteArray<Signature>();
-        auto parentHash = test::GenerateRandomByteArray<Hash256>();
+	TEST(TEST_CLASS, CanCreateDetachedCosignatureFromParameters) {
+		// Arrange:
+		auto signerPublicKey = test::GenerateRandomByteArray<Key>();
+		auto signature = test::GenerateRandomByteArray<Signature>();
+		auto parentHash = test::GenerateRandomByteArray<Hash256>();
 
-        // Act:
-        auto cosignature = DetachedCosignature(signerPublicKey, signature, parentHash);
+		// Act:
+		auto cosignature = DetachedCosignature(signerPublicKey, signature, parentHash);
 
-        // Assert:
-        EXPECT_EQ(0u, cosignature.Version);
-        EXPECT_EQ(signerPublicKey, cosignature.SignerPublicKey);
-        EXPECT_EQ(signature, cosignature.Signature);
-        EXPECT_EQ(parentHash, cosignature.ParentHash);
-    }
+		// Assert:
+		EXPECT_EQ(0u, cosignature.Version);
+		EXPECT_EQ(signerPublicKey, cosignature.SignerPublicKey);
+		EXPECT_EQ(signature, cosignature.Signature);
+		EXPECT_EQ(parentHash, cosignature.ParentHash);
+	}
 
-    TEST(TEST_CLASS, CanCreateDetachedCosignatureFromCosignature)
-    {
-        // Arrange:
-        auto cosignatureSeed = test::CreateRandomDetachedCosignature();
-        auto parentHash = test::GenerateRandomByteArray<Hash256>();
+	TEST(TEST_CLASS, CanCreateDetachedCosignatureFromCosignature) {
+		// Arrange:
+		auto cosignatureSeed = test::CreateRandomDetachedCosignature();
+		auto parentHash = test::GenerateRandomByteArray<Hash256>();
 
-        // Act:
-        auto cosignature = DetachedCosignature(cosignatureSeed, parentHash);
+		// Act:
+		auto cosignature = DetachedCosignature(cosignatureSeed, parentHash);
 
-        // Assert:
-        EXPECT_EQ(cosignatureSeed.Version, cosignature.Version);
-        EXPECT_EQ(cosignatureSeed.SignerPublicKey, cosignature.SignerPublicKey);
-        EXPECT_EQ(cosignatureSeed.Signature, cosignature.Signature);
-        EXPECT_EQ(parentHash, cosignature.ParentHash);
-    }
+		// Assert:
+		EXPECT_EQ(cosignatureSeed.Version, cosignature.Version);
+		EXPECT_EQ(cosignatureSeed.SignerPublicKey, cosignature.SignerPublicKey);
+		EXPECT_EQ(cosignatureSeed.Signature, cosignature.Signature);
+		EXPECT_EQ(parentHash, cosignature.ParentHash);
+	}
 }
 }

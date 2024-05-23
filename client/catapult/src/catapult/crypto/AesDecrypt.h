@@ -25,28 +25,28 @@
 namespace catapult {
 namespace crypto {
 
-    /// AES 256 GCM decryptor.
-    class AesGcm256 {
-    public:
-        struct IV_tag {
-            static constexpr size_t Size = 12;
-        };
-        using IV = utils::ByteArray<IV_tag>;
+	/// AES 256 GCM decryptor.
+	class AesGcm256 {
+	public:
+		struct IV_tag {
+			static constexpr size_t Size = 12;
+		};
+		using IV = utils::ByteArray<IV_tag>;
 
-        struct Tag_tag {
-            static constexpr size_t Size = 16;
-        };
-        using Tag = utils::ByteArray<Tag_tag>;
+		struct Tag_tag {
+			static constexpr size_t Size = 16;
+		};
+		using Tag = utils::ByteArray<Tag_tag>;
 
-    public:
-        /// Decrypts \a input to \a output with \a key.
-        static bool TryDecrypt(const SharedKey& key, const RawBuffer& input, std::vector<uint8_t>& output);
-    };
+	public:
+		/// Decrypts \a input to \a output with \a key.
+		static bool TryDecrypt(const SharedKey& key, const RawBuffer& input, std::vector<uint8_t>& output);
+	};
 
-    /// Extracts ephemeral public key from \a publicKeyPrefixedEncryptedPayload and decrypts rest to \a decrypted using \a keyPair.
-    bool TryDecryptEd25199BlockCipher(
-        const RawBuffer& publicKeyPrefixedEncryptedPayload,
-        const KeyPair& keyPair,
-        std::vector<uint8_t>& decrypted);
+	/// Extracts ephemeral public key from \a publicKeyPrefixedEncryptedPayload and decrypts rest to \a decrypted using \a keyPair.
+	bool TryDecryptEd25199BlockCipher(
+		const RawBuffer& publicKeyPrefixedEncryptedPayload,
+		const KeyPair& keyPair,
+		std::vector<uint8_t>& decrypted);
 }
 }

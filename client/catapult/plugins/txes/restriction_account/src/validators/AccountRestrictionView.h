@@ -27,53 +27,51 @@
 
 namespace catapult {
 namespace cache {
-    class ReadOnlyCatapultCache;
+	class ReadOnlyCatapultCache;
 }
 }
 
 namespace catapult {
 namespace validators {
 
-    /// View on top of a catapult cache cache for retrieving a typed account restriction.
-    class AccountRestrictionView {
-    public:
-        /// Creates a view around \a cache.
-        explicit AccountRestrictionView(const cache::ReadOnlyCatapultCache& cache);
+	/// View on top of a catapult cache cache for retrieving a typed account restriction.
+	class AccountRestrictionView {
+	public:
+		/// Creates a view around \a cache.
+		explicit AccountRestrictionView(const cache::ReadOnlyCatapultCache& cache);
 
-    public:
-        /// Tries to initialize the internal iterator for account restriction with \a address.
-        bool initialize(const Address& address);
+	public:
+		/// Tries to initialize the internal iterator for account restriction with \a address.
+		bool initialize(const Address& address);
 
-        /// Gets the typed account restriction specified by \a restrictionFlags.
-        /// \throws catapult_invalid_argument if the view does not point to a value.
-        const state::AccountRestriction& get(model::AccountRestrictionFlags restrictionFlags) const
-        {
-            const auto& restrictions = m_iter.get();
-            return restrictions.restriction(restrictionFlags);
-        }
+		/// Gets the typed account restriction specified by \a restrictionFlags.
+		/// \throws catapult_invalid_argument if the view does not point to a value.
+		const state::AccountRestriction& get(model::AccountRestrictionFlags restrictionFlags) const {
+			const auto& restrictions = m_iter.get();
+			return restrictions.restriction(restrictionFlags);
+		}
 
-        /// Returns \c true if \a value is allowed.
-        template <typename TRestrictionValue>
-        bool isAllowed(model::AccountRestrictionFlags restrictionFlags, const TRestrictionValue& value)
-        {
-            const auto& restriction = get(restrictionFlags);
-            if (0 == restriction.values().size())
-                return true;
+		/// Returns \c true if \a value is allowed.
+		template <typename TRestrictionValue>
+		bool isAllowed(model::AccountRestrictionFlags restrictionFlags, const TRestrictionValue& value) {
+			const auto& restriction = get(restrictionFlags);
+			if (0 == restriction.values().size())
+				return true;
 
-            const auto& descriptor = restriction.descriptor();
-            if (state::AccountRestrictionOperationType::Allow == descriptor.operationType())
-                return restriction.contains(state::ToVector(value));
-            else
-                return !restriction.contains(state::ToVector(value));
-        }
+			const auto& descriptor = restriction.descriptor();
+			if (state::AccountRestrictionOperationType::Allow == descriptor.operationType())
+				return restriction.contains(state::ToVector(value));
+			else
+				return !restriction.contains(state::ToVector(value));
+		}
 
-    private:
-        using FindIterator = cache::AccountRestrictionCacheTypes::CacheReadOnlyType::ReadOnlyFindIterator<
-            cache::AccountRestrictionCacheView::const_iterator,
-            cache::AccountRestrictionCacheDelta::const_iterator>;
+	private:
+		using FindIterator = cache::AccountRestrictionCacheTypes::CacheReadOnlyType::ReadOnlyFindIterator<
+			cache::AccountRestrictionCacheView::const_iterator,
+			cache::AccountRestrictionCacheDelta::const_iterator>;
 
-        const cache::ReadOnlyCatapultCache& m_cache;
-        FindIterator m_iter;
-    };
+		const cache::ReadOnlyCatapultCache& m_cache;
+		FindIterator m_iter;
+	};
 }
 }

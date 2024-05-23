@@ -27,22 +27,20 @@
 namespace catapult {
 namespace cache {
 
-    /// State version serialization helpers.
-    template <typename TSerializerTraits>
-    struct StateVersion {
-        /// Writes state version to \a output.
-        static void Write(io::OutputStream& output)
-        {
-            io::Write16(output, TSerializerTraits::State_Version);
-        }
+	/// State version serialization helpers.
+	template <typename TSerializerTraits>
+	struct StateVersion {
+		/// Writes state version to \a output.
+		static void Write(io::OutputStream& output) {
+			io::Write16(output, TSerializerTraits::State_Version);
+		}
 
-        /// Reads state version from \a input and verifies it.
-        static void ReadAndCheck(io::InputStream& input)
-        {
-            auto version = io::Read16(input);
-            if (TSerializerTraits::State_Version != version)
-                CATAPULT_THROW_RUNTIME_ERROR_1("serialized state has invalid version", version);
-        }
-    };
+		/// Reads state version from \a input and verifies it.
+		static void ReadAndCheck(io::InputStream& input) {
+			auto version = io::Read16(input);
+			if (TSerializerTraits::State_Version != version)
+				CATAPULT_THROW_RUNTIME_ERROR_1("serialized state has invalid version", version);
+		}
+	};
 }
 }

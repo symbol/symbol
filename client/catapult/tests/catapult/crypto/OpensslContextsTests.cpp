@@ -39,90 +39,84 @@ namespace crypto {
 
 #define TEST_CLASS OpensslContextsTests
 
-    // region OpensslDigestContext
+	// region OpensslDigestContext
 
-    TEST(TEST_CLASS, Digest_CanDispatchSuccess)
-    {
-        // Arrange:
-        OpensslDigestContext context;
+	TEST(TEST_CLASS, Digest_CanDispatchSuccess) {
+		// Arrange:
+		OpensslDigestContext context;
 
-        // Act + Assert:
-        EXPECT_NO_THROW(context.dispatch(EVP_DigestInit_ex, EVP_sha256(), nullptr));
-    }
+		// Act + Assert:
+		EXPECT_NO_THROW(context.dispatch(EVP_DigestInit_ex, EVP_sha256(), nullptr));
+	}
 
-    TEST(TEST_CLASS, Digest_CanDispatchFailure)
-    {
-        // Arrange:
-        OpensslDigestContext context;
+	TEST(TEST_CLASS, Digest_CanDispatchFailure) {
+		// Arrange:
+		OpensslDigestContext context;
 
-        // Act + Assert:
-        EXPECT_THROW(context.dispatch(EVP_DigestInit_ex, nullptr, nullptr), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(context.dispatch(EVP_DigestInit_ex, nullptr, nullptr), catapult_runtime_error);
+	}
 
-    // endregion
+	// endregion
 
-    // region OpensslCipherContext
+	// region OpensslCipherContext
 
-    namespace {
-        class AesCbc256 {
-        public:
-            struct IV_tag {
-                static constexpr size_t Size = 16;
-            };
-            using IV = utils::ByteArray<IV_tag>;
-        };
-    }
+	namespace {
+		class AesCbc256 {
+		public:
+			struct IV_tag {
+				static constexpr size_t Size = 16;
+			};
+			using IV = utils::ByteArray<IV_tag>;
+		};
+	}
 
-    TEST(TEST_CLASS, Cipher_CanDispatchSuccess)
-    {
-        // Arrange:
-        OpensslCipherContext context;
-        SharedKey key;
-        AesCbc256::IV iv;
+	TEST(TEST_CLASS, Cipher_CanDispatchSuccess) {
+		// Arrange:
+		OpensslCipherContext context;
+		SharedKey key;
+		AesCbc256::IV iv;
 
-        // Act + Assert:
-        EXPECT_NO_THROW(context.dispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), iv.data()));
-    }
+		// Act + Assert:
+		EXPECT_NO_THROW(context.dispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), iv.data()));
+	}
 
-    TEST(TEST_CLASS, Cipher_CanDispatchFailure)
-    {
-        // Arrange:
-        OpensslCipherContext context;
-        SharedKey key;
-        AesCbc256::IV iv;
+	TEST(TEST_CLASS, Cipher_CanDispatchFailure) {
+		// Arrange:
+		OpensslCipherContext context;
+		SharedKey key;
+		AesCbc256::IV iv;
 
-        // Act + Assert:
-        EXPECT_THROW(context.dispatch(EVP_DecryptInit_ex, nullptr, nullptr, key.data(), iv.data()), catapult_runtime_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(context.dispatch(EVP_DecryptInit_ex, nullptr, nullptr, key.data(), iv.data()), catapult_runtime_error);
+	}
 
-    TEST(TEST_CLASS, Cipher_CanTryDispatchSuccess)
-    {
-        // Arrange:
-        OpensslCipherContext context;
-        SharedKey key;
-        AesCbc256::IV iv;
+	TEST(TEST_CLASS, Cipher_CanTryDispatchSuccess) {
+		// Arrange:
+		OpensslCipherContext context;
+		SharedKey key;
+		AesCbc256::IV iv;
 
-        // Act:
-        auto result = context.tryDispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), iv.data());
+		// Act:
+		auto result = context.tryDispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), iv.data());
 
-        // Assert:
-        EXPECT_TRUE(result);
-    }
+		// Assert:
+		EXPECT_TRUE(result);
+	}
 
-    TEST(TEST_CLASS, Cipher_CanTryDispatchFailure)
-    {
-        // Arrange:
-        OpensslCipherContext context;
-        SharedKey key;
-        AesCbc256::IV iv;
+	TEST(TEST_CLASS, Cipher_CanTryDispatchFailure) {
+		// Arrange:
+		OpensslCipherContext context;
+		SharedKey key;
+		AesCbc256::IV iv;
 
-        // Act:
-        auto result = context.tryDispatch(EVP_DecryptInit_ex, nullptr, nullptr, key.data(), iv.data());
+		// Act:
+		auto result = context.tryDispatch(EVP_DecryptInit_ex, nullptr, nullptr, key.data(), iv.data());
 
-        // Assert:
-        EXPECT_FALSE(result);
-    }
+		// Assert:
+		EXPECT_FALSE(result);
+	}
 
-    // endregion
+	// endregion
 }
 }

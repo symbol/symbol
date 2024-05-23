@@ -32,96 +32,85 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
+	namespace {
 #ifdef _WIN32
-        constexpr auto Plugin_Extension = ".dll";
-        constexpr auto Name_Prefix = "";
-        constexpr auto Directory_Separator = "\\";
+		constexpr auto Plugin_Extension = ".dll";
+		constexpr auto Name_Prefix = "";
+		constexpr auto Directory_Separator = "\\";
 
-        void* CatapultLoad(const std::string& pluginPath, PluginModule::Scope)
-        {
-            return ::LoadLibraryA(pluginPath.c_str());
-        }
+		void* CatapultLoad(const std::string& pluginPath, PluginModule::Scope) {
+			return ::LoadLibraryA(pluginPath.c_str());
+		}
 
-        void CatapultUnload(void* pModule)
-        {
-            ::FreeLibrary(reinterpret_cast<HMODULE>(pModule));
-        }
+		void CatapultUnload(void* pModule) {
+			::FreeLibrary(reinterpret_cast<HMODULE>(pModule));
+		}
 
-        void* CatapultGetSymbol(void* pModule, const char* symbolName)
-        {
-            return ::GetProcAddress(reinterpret_cast<HMODULE>(pModule), symbolName);
-        }
+		void* CatapultGetSymbol(void* pModule, const char* symbolName) {
+			return ::GetProcAddress(reinterpret_cast<HMODULE>(pModule), symbolName);
+		}
 #else
 #if defined(__APPLE__)
-        constexpr auto Plugin_Extension = ".dylib";
+		constexpr auto Plugin_Extension = ".dylib";
 #else
-        constexpr auto Plugin_Extension = ".so";
+		constexpr auto Plugin_Extension = ".so";
 #endif
-        constexpr auto Name_Prefix = "lib";
-        constexpr auto Directory_Separator = "/";
+		constexpr auto Name_Prefix = "lib";
+		constexpr auto Directory_Separator = "/";
 
-        void* CatapultLoad(const std::string& pluginPath, PluginModule::Scope scope)
-        {
-            return ::dlopen(pluginPath.c_str(), RTLD_NOW | (PluginModule::Scope::Global == scope ? RTLD_GLOBAL : RTLD_LOCAL));
-        }
+		void* CatapultLoad(const std::string& pluginPath, PluginModule::Scope scope) {
+			return ::dlopen(pluginPath.c_str(), RTLD_NOW | (PluginModule::Scope::Global == scope ? RTLD_GLOBAL : RTLD_LOCAL));
+		}
 
-        void CatapultUnload(void* pModule)
-        {
-            ::dlclose(pModule);
-        }
+		void CatapultUnload(void* pModule) {
+			::dlclose(pModule);
+		}
 
-        void* CatapultGetSymbol(void* pModule, const char* symbolName)
-        {
-            return ::dlsym(pModule, symbolName);
-        }
+		void* CatapultGetSymbol(void* pModule, const char* symbolName) {
+			return ::dlsym(pModule, symbolName);
+		}
 #endif
 
-        std::string GetPluginPath(const std::string& directory, const std::string& name)
-        {
-            return (directory.empty() ? "" : directory + Directory_Separator) + Name_Prefix + name + Plugin_Extension;
-        }
-    }
+		std::string GetPluginPath(const std::string& directory, const std::string& name) {
+			return (directory.empty() ? "" : directory + Directory_Separator) + Name_Prefix + name + Plugin_Extension;
+		}
+	}
 
-    PluginModule::PluginModule(const std::string& directory, const std::string& name)
-        : PluginModule(directory, name, Scope::Local)
-    {
-    }
+	PluginModule::PluginModule(const std::string& directory, const std::string& name)
+		: PluginModule(directory, name, Scope::Local) {
+	}
 
-    PluginModule::PluginModule(const std::string& directory, const std::string& name, Scope scope)
-    {
-        auto pluginPath = GetPluginPath(directory, name);
-        CATAPULT_LOG(info) << "loading plugin from " << pluginPath;
+	PluginModule::PluginModule(const std::string& directory, const std::string& name, Scope scope) {
+		auto pluginPath = GetPluginPath(directory, name);
+		CATAPULT_LOG(info) << "loading plugin from " << pluginPath;
 
-        m_pModule = std::shared_ptr<void>(CatapultLoad(pluginPath, scope), [pluginPath](auto* pModule) {
-            if (!pModule)
-                return;
+		m_pModule = std::shared_ptr<void>(CatapultLoad(pluginPath, scope), [pluginPath](auto* pModule) {
+			if (!pModule)
+				return;
 
-            CATAPULT_LOG(debug) << "unloading module " << pModule << " (" << pluginPath << ")";
-            CatapultUnload(pModule);
-        });
+			CATAPULT_LOG(debug) << "unloading module " << pModule << " (" << pluginPath << ")";
+			CatapultUnload(pModule);
+		});
 
-        if (!m_pModule)
-            CATAPULT_THROW_INVALID_ARGUMENT_1("unable to find plugin", pluginPath);
+		if (!m_pModule)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("unable to find plugin", pluginPath);
 
-        CATAPULT_LOG(debug) << "plugin " << pluginPath << " loaded as " << m_pModule.get();
-    }
+		CATAPULT_LOG(debug) << "plugin " << pluginPath << " loaded as " << m_pModule.get();
+	}
 
-    void* PluginModule::symbolVoid(const char* symbolName) const
-    {
-        if (!m_pModule)
-            CATAPULT_THROW_RUNTIME_ERROR("cannot access symbol from unloaded module");
+	void* PluginModule::symbolVoid(const char* symbolName) const {
+		if (!m_pModule)
+			CATAPULT_THROW_RUNTIME_ERROR("cannot access symbol from unloaded module");
 
-        auto pSymbol = CatapultGetSymbol(m_pModule.get(), symbolName);
-        if (!pSymbol)
-            CATAPULT_THROW_RUNTIME_ERROR_1("unable to find symbol", std::string(symbolName));
+		auto pSymbol = CatapultGetSymbol(m_pModule.get(), symbolName);
+		if (!pSymbol)
+			CATAPULT_THROW_RUNTIME_ERROR_1("unable to find symbol", std::string(symbolName));
 
-        return pSymbol;
-    }
+		return pSymbol;
+	}
 
-    void PluginModule::release()
-    {
-        m_pModule.reset();
-    }
+	void PluginModule::release() {
+		m_pModule.reset();
+	}
 }
 }

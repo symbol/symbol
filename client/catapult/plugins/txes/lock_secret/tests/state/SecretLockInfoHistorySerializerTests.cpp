@@ -29,74 +29,71 @@ namespace state {
 
 #define TEST_CLASS SecretLockInfoHistorySerializerTests
 
-    namespace {
-        // region PackedSecretLockInfo
+	namespace {
+		// region PackedSecretLockInfo
 
 #pragma pack(push, 1)
 
-        struct PackedSecretLockInfo : public PackedLockInfo {
-        public:
-            explicit PackedSecretLockInfo(const SecretLockInfo& secretLockInfo)
-                : PackedLockInfo(secretLockInfo)
-                , HashAlgorithm(secretLockInfo.HashAlgorithm)
-                , Secret(secretLockInfo.Secret)
-                , RecipientAddress(secretLockInfo.RecipientAddress)
-            {
-            }
+		struct PackedSecretLockInfo : public PackedLockInfo {
+		public:
+			explicit PackedSecretLockInfo(const SecretLockInfo& secretLockInfo)
+				: PackedLockInfo(secretLockInfo)
+				, HashAlgorithm(secretLockInfo.HashAlgorithm)
+				, Secret(secretLockInfo.Secret)
+				, RecipientAddress(secretLockInfo.RecipientAddress) {
+			}
 
-        public:
-            model::LockHashAlgorithm HashAlgorithm;
-            Hash256 Secret;
-            Address RecipientAddress;
-        };
+		public:
+			model::LockHashAlgorithm HashAlgorithm;
+			Hash256 Secret;
+			Address RecipientAddress;
+		};
 
 #pragma pack(pop)
 
-        // endregion
+		// endregion
 
-        struct SecretLockInfoTraits : public test::BasicSecretLockInfoTestTraits {
-        public:
-            using HistoryType = SecretLockInfoHistory;
-            using PackedValueType = PackedSecretLockInfo;
+		struct SecretLockInfoTraits : public test::BasicSecretLockInfoTestTraits {
+		public:
+			using HistoryType = SecretLockInfoHistory;
+			using PackedValueType = PackedSecretLockInfo;
 
-            using SerializerType = SecretLockInfoHistorySerializer;
-            using NonHistoricalSerializerType = SecretLockInfoHistoryNonHistoricalSerializer;
+			using SerializerType = SecretLockInfoHistorySerializer;
+			using NonHistoricalSerializerType = SecretLockInfoHistoryNonHistoricalSerializer;
 
-        public:
-            static Hash256 SetEqualIdentifier(std::vector<SecretLockInfo>& lockInfos)
-            {
-                auto secret = test::GenerateRandomByteArray<Hash256>();
-                auto recipientAddress = test::GenerateRandomByteArray<Address>();
-                auto compositeHash = model::CalculateSecretLockInfoHash(secret, recipientAddress);
-                for (auto& lockInfo : lockInfos) {
-                    lockInfo.Secret = secret;
-                    lockInfo.RecipientAddress = recipientAddress;
-                    lockInfo.CompositeHash = compositeHash;
-                }
+		public:
+			static Hash256 SetEqualIdentifier(std::vector<SecretLockInfo>& lockInfos) {
+				auto secret = test::GenerateRandomByteArray<Hash256>();
+				auto recipientAddress = test::GenerateRandomByteArray<Address>();
+				auto compositeHash = model::CalculateSecretLockInfoHash(secret, recipientAddress);
+				for (auto& lockInfo : lockInfos) {
+					lockInfo.Secret = secret;
+					lockInfo.RecipientAddress = recipientAddress;
+					lockInfo.CompositeHash = compositeHash;
+				}
 
-                return compositeHash;
-            }
-        };
-    }
+				return compositeHash;
+			}
+		};
+	}
 
-    DEFINE_LOCK_INFO_HISTORY_SERIALIZER_TESTS(SecretLockInfoTraits)
+	DEFINE_LOCK_INFO_HISTORY_SERIALIZER_TESTS(SecretLockInfoTraits)
 
-    TEST(TEST_CLASS, LoadCalculatesCompositeHash)
-    {
-        // Arrange:
-        auto originalLockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
-        test::FillWithRandomData(originalLockInfo.CompositeHash);
-        std::vector<uint8_t> buffer;
-        mocks::MockMemoryStream outputStream(buffer);
+	TEST(TEST_CLASS, LoadCalculatesCompositeHash) {
+		// Arrange:
+		auto originalLockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
+		test::FillWithRandomData(originalLockInfo.CompositeHash);
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream outputStream(buffer);
 
-        // Act:
-        SecretLockInfoSerializer::Save(originalLockInfo, outputStream);
-        mocks::MockMemoryStream inputStream(buffer);
-        auto lockInfo = SecretLockInfoSerializer::Load(inputStream);
+		// Act:
+		SecretLockInfoSerializer::Save(originalLockInfo, outputStream);
+		mocks::MockMemoryStream inputStream(buffer);
+		auto lockInfo = SecretLockInfoSerializer::Load(inputStream);
 
-        // Assert: the random composite hash was not saved but recalculated during load
-        auto expectedCompositeHash = model::CalculateSecretLockInfoHash(originalLockInfo.Secret, originalLockInfo.RecipientAddress);
-        EXPECT_EQ(expectedCompositeHash, lockInfo.CompositeHash);
-    }
+		// Assert: the random composite hash was not saved but recalculated during load
+		auto expectedCompositeHash = model::CalculateSecretLockInfoHash(originalLockInfo.Secret, originalLockInfo.RecipientAddress);
+		EXPECT_EQ(expectedCompositeHash, lockInfo.CompositeHash);
+	}
 }
 }

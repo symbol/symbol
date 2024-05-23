@@ -28,102 +28,92 @@ namespace config {
 
 #define TEST_CLASS InflationConfigurationTests
 
-    // region basic tests
+	// region basic tests
 
-    namespace {
-        struct InflationConfigurationTraits {
-            using ConfigurationType = InflationConfiguration;
+	namespace {
+		struct InflationConfigurationTraits {
+			using ConfigurationType = InflationConfiguration;
 
-            static utils::ConfigurationBag::ValuesContainer CreateProperties()
-            {
-                return {
-                    { "inflation",
-                        { { "starting-at-height-12", "567" }, { "starting-at-height-35", "678" }, { "starting-at-height-159", "789" } } }
-                };
-            }
+			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
+				return {
+					{ "inflation",
+						{ { "starting-at-height-12", "567" }, { "starting-at-height-35", "678" }, { "starting-at-height-159", "789" } } }
+				};
+			}
 
-            static bool IsSectionOptional(const std::string&)
-            {
-                return true;
-            }
+			static bool IsSectionOptional(const std::string&) {
+				return true;
+			}
 
-            static void AssertZero(const InflationConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(0u, config.InflationCalculator.size());
-            }
+			static void AssertZero(const InflationConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(0u, config.InflationCalculator.size());
+			}
 
-            static void AssertCustom(const InflationConfiguration& config)
-            {
-                // Assert:
-                EXPECT_EQ(3u, config.InflationCalculator.size());
-                EXPECT_TRUE(config.InflationCalculator.contains(Height(12), Amount(567)));
-                EXPECT_TRUE(config.InflationCalculator.contains(Height(35), Amount(678)));
-                EXPECT_TRUE(config.InflationCalculator.contains(Height(159), Amount(789)));
-            }
-        };
-    }
+			static void AssertCustom(const InflationConfiguration& config) {
+				// Assert:
+				EXPECT_EQ(3u, config.InflationCalculator.size());
+				EXPECT_TRUE(config.InflationCalculator.contains(Height(12), Amount(567)));
+				EXPECT_TRUE(config.InflationCalculator.contains(Height(35), Amount(678)));
+				EXPECT_TRUE(config.InflationCalculator.contains(Height(159), Amount(789)));
+			}
+		};
+	}
 
-    DEFINE_CONFIGURATION_TESTS(TEST_CLASS, Inflation)
+	DEFINE_CONFIGURATION_TESTS(TEST_CLASS, Inflation)
 
-    // endregion
+	// endregion
 
-    // region custom tests
+	// region custom tests
 
-    namespace {
-        utils::ConfigurationBag::ValuesContainer CreateProperties(const std::vector<std::pair<std::string, std::string>>& keyValuePairs)
-        {
-            utils::ConfigurationBag::ValuesContainer properties;
-            properties.emplace("inflation", keyValuePairs);
-            return properties;
-        }
-    }
+	namespace {
+		utils::ConfigurationBag::ValuesContainer CreateProperties(const std::vector<std::pair<std::string, std::string>>& keyValuePairs) {
+			utils::ConfigurationBag::ValuesContainer properties;
+			properties.emplace("inflation", keyValuePairs);
+			return properties;
+		}
+	}
 
-    TEST(TEST_CLASS, PropertyKeyMustHaveExpectedPrefix)
-    {
-        // Arrange: "with" instead of "at"
-        auto properties = CreateProperties({ { "starting-with-height-12", "567" } });
+	TEST(TEST_CLASS, PropertyKeyMustHaveExpectedPrefix) {
+		// Arrange: "with" instead of "at"
+		auto properties = CreateProperties({ { "starting-with-height-12", "567" } });
 
-        // Act + Assert:
-        EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), utils::property_malformed_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), utils::property_malformed_error);
+	}
 
-    TEST(TEST_CLASS, PropertyKeyMustHaveParsableUintAfterPrefix)
-    {
-        // Arrange:
-        auto properties = CreateProperties({ { "starting-at-height-1x2", "567" } });
+	TEST(TEST_CLASS, PropertyKeyMustHaveParsableUintAfterPrefix) {
+		// Arrange:
+		auto properties = CreateProperties({ { "starting-at-height-1x2", "567" } });
 
-        // Act + Assert:
-        EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), utils::property_malformed_error);
-    }
+		// Act + Assert:
+		EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), utils::property_malformed_error);
+	}
 
-    TEST(TEST_CLASS, PropertyKeyCannotBeZero)
-    {
-        // Arrange:
-        auto properties = CreateProperties({ { "starting-at-height-0", "567" }, { "starting-at-height-12", "432" } });
+	TEST(TEST_CLASS, PropertyKeyCannotBeZero) {
+		// Arrange:
+		auto properties = CreateProperties({ { "starting-at-height-0", "567" }, { "starting-at-height-12", "432" } });
 
-        // Act + Assert:
-        EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), catapult_invalid_argument);
+	}
 
-    TEST(TEST_CLASS, PropertyKeyMustBeUnique)
-    {
-        // Arrange:
-        auto properties = CreateProperties({ { "starting-at-height-12", "567" }, { "starting-at-height-12", "432" } });
+	TEST(TEST_CLASS, PropertyKeyMustBeUnique) {
+		// Arrange:
+		auto properties = CreateProperties({ { "starting-at-height-12", "567" }, { "starting-at-height-12", "432" } });
 
-        // Act + Assert:
-        EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), catapult_invalid_argument);
+	}
 
-    TEST(TEST_CLASS, PropertyKeysMustBeOrderedByHeight)
-    {
-        // Arrange:
-        auto properties = CreateProperties({ { "starting-at-height-15", "567" }, { "starting-at-height-12", "432" } });
+	TEST(TEST_CLASS, PropertyKeysMustBeOrderedByHeight) {
+		// Arrange:
+		auto properties = CreateProperties({ { "starting-at-height-15", "567" }, { "starting-at-height-12", "432" } });
 
-        // Act + Assert:
-        EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), catapult_invalid_argument);
-    }
+		// Act + Assert:
+		EXPECT_THROW(InflationConfiguration::LoadFromBag(std::move(properties)), catapult_invalid_argument);
+	}
 
-    // endregion
+	// endregion
 }
 }

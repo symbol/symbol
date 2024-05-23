@@ -25,24 +25,24 @@
 
 namespace catapult {
 namespace io {
-    class InputStream;
-    class OutputStream;
+	class InputStream;
+	class OutputStream;
 }
 }
 
 namespace catapult {
 namespace io {
 
-    /// Writes \a transactionInfo into \a outputStream.
-    void WriteTransactionInfo(const model::TransactionInfo& transactionInfo, OutputStream& outputStream);
+	/// Writes \a transactionInfo into \a outputStream.
+	void WriteTransactionInfo(const model::TransactionInfo& transactionInfo, OutputStream& outputStream);
 
-    /// Reads transaction info from \a inputStream into \a transactionInfo.
-    void ReadTransactionInfo(InputStream& inputStream, model::TransactionInfo& transactionInfo);
+	/// Reads transaction info from \a inputStream into \a transactionInfo.
+	void ReadTransactionInfo(InputStream& inputStream, model::TransactionInfo& transactionInfo);
 
-    /// Writes \a transactionInfos into \a outputStream.
-    void WriteTransactionInfos(const model::TransactionInfosSet& transactionInfos, OutputStream& outputStream);
+	/// Writes \a transactionInfos into \a outputStream.
+	void WriteTransactionInfos(const model::TransactionInfosSet& transactionInfos, OutputStream& outputStream);
 
-    /// Reads transaction infos from \a inputStream into \a transactionInfos.
-    void ReadTransactionInfos(InputStream& inputStream, model::TransactionInfosSet& transactionInfos);
+	/// Reads transaction infos from \a inputStream into \a transactionInfos.
+	void ReadTransactionInfos(InputStream& inputStream, model::TransactionInfosSet& transactionInfos);
 }
 }

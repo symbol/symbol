@@ -25,28 +25,26 @@
 namespace catapult {
 namespace observers {
 
-    namespace {
-        using Notification = model::BlockNotification;
+	namespace {
+		using Notification = model::BlockNotification;
 
-        std::string GetObserverName(NotifyMode mode)
-        {
-            std::string name("HighValueAccount");
-            name += NotifyMode::Commit == mode ? "Commit" : "Rollback";
-            name += "Observer";
-            return name;
-        }
-    }
+		std::string GetObserverName(NotifyMode mode) {
+			std::string name("HighValueAccount");
+			name += NotifyMode::Commit == mode ? "Commit" : "Rollback";
+			name += "Observer";
+			return name;
+		}
+	}
 
-    DECLARE_OBSERVER(HighValueAccount, Notification)
-    (NotifyMode mode)
-    {
-        using ObserverType = observers::FunctionalNotificationObserverT<Notification>;
-        return std::make_unique<ObserverType>(GetObserverName(mode), [mode](const Notification&, ObserverContext& context) {
-            if (context.Mode != mode)
-                return;
+	DECLARE_OBSERVER(HighValueAccount, Notification)
+	(NotifyMode mode) {
+		using ObserverType = observers::FunctionalNotificationObserverT<Notification>;
+		return std::make_unique<ObserverType>(GetObserverName(mode), [mode](const Notification&, ObserverContext& context) {
+			if (context.Mode != mode)
+				return;
 
-            context.Cache.sub<cache::AccountStateCache>().updateHighValueAccounts(context.Height);
-        });
-    }
+			context.Cache.sub<cache::AccountStateCache>().updateHighValueAccounts(context.Height);
+		});
+	}
 }
 }

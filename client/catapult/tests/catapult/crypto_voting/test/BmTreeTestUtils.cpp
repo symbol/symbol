@@ -24,28 +24,26 @@
 namespace catapult {
 namespace test {
 
-    void AssertOptions(const crypto::BmOptions& expected, const crypto::BmOptions& actual)
-    {
-        EXPECT_EQ(expected.StartKeyIdentifier, actual.StartKeyIdentifier);
-        EXPECT_EQ(expected.EndKeyIdentifier, actual.EndKeyIdentifier);
-    }
+	void AssertOptions(const crypto::BmOptions& expected, const crypto::BmOptions& actual) {
+		EXPECT_EQ(expected.StartKeyIdentifier, actual.StartKeyIdentifier);
+		EXPECT_EQ(expected.EndKeyIdentifier, actual.EndKeyIdentifier);
+	}
 
-    void AssertZeroedKeys(
-        const std::vector<uint8_t>& buffer,
-        size_t offset,
-        size_t keysCount,
-        const std::unordered_set<size_t>& expectedZeroedIndexes,
-        const std::string& message)
-    {
-        for (auto i = 0u; i < keysCount; ++i) {
-            Key key;
-            std::memcpy(key.data(), &buffer[offset + i * BmTreeSizes::Level_Entry_Size], Key::Size);
+	void AssertZeroedKeys(
+		const std::vector<uint8_t>& buffer,
+		size_t offset,
+		size_t keysCount,
+		const std::unordered_set<size_t>& expectedZeroedIndexes,
+		const std::string& message) {
+		for (auto i = 0u; i < keysCount; ++i) {
+			Key key;
+			std::memcpy(key.data(), &buffer[offset + i * BmTreeSizes::Level_Entry_Size], Key::Size);
 
-            if (expectedZeroedIndexes.cend() == expectedZeroedIndexes.find(i))
-                EXPECT_NE(Key(), key) << message << " key should not be zeroed at " << i;
-            else
-                EXPECT_EQ(Key(), key) << message << " key should be zeroed at " << i;
-        }
-    }
+			if (expectedZeroedIndexes.cend() == expectedZeroedIndexes.find(i))
+				EXPECT_NE(Key(), key) << message << " key should not be zeroed at " << i;
+			else
+				EXPECT_EQ(Key(), key) << message << " key should be zeroed at " << i;
+		}
+	}
 }
 }

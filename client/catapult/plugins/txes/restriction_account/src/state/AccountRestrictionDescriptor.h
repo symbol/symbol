@@ -26,58 +26,52 @@
 namespace catapult {
 namespace state {
 
-    /// Operation type.
-    enum class AccountRestrictionOperationType {
-        /// Account restriction contains allowed values.
-        Allow,
+	/// Operation type.
+	enum class AccountRestrictionOperationType {
+		/// Account restriction contains allowed values.
+		Allow,
 
-        /// Account restriction contains blocked value.
-        Block
-    };
+		/// Account restriction contains blocked value.
+		Block
+	};
 
-    /// Account restriction descriptor.
-    class AccountRestrictionDescriptor {
-    public:
-        /// Creates an account restriction descriptor around \a restrictionFlags.
-        constexpr explicit AccountRestrictionDescriptor(model::AccountRestrictionFlags restrictionFlags)
-            : m_restrictionFlags(restrictionFlags)
-        {
-        }
+	/// Account restriction descriptor.
+	class AccountRestrictionDescriptor {
+	public:
+		/// Creates an account restriction descriptor around \a restrictionFlags.
+		constexpr explicit AccountRestrictionDescriptor(model::AccountRestrictionFlags restrictionFlags)
+			: m_restrictionFlags(restrictionFlags) {
+		}
 
-    public:
-        /// Gets the value specific part of the restriction flags including the direction.
-        constexpr model::AccountRestrictionFlags directionalRestrictionFlags() const
-        {
-            return StripFlag(m_restrictionFlags, model::AccountRestrictionFlags::Block);
-        }
+	public:
+		/// Gets the value specific part of the restriction flags including the direction.
+		constexpr model::AccountRestrictionFlags directionalRestrictionFlags() const {
+			return StripFlag(m_restrictionFlags, model::AccountRestrictionFlags::Block);
+		}
 
-        /// Gets the value specific part of the restriction flags excluding the direction.
-        constexpr model::AccountRestrictionFlags restrictionFlags() const
-        {
-            return StripFlag(m_restrictionFlags, model::AccountRestrictionFlags::Outgoing | model::AccountRestrictionFlags::Block);
-        }
+		/// Gets the value specific part of the restriction flags excluding the direction.
+		constexpr model::AccountRestrictionFlags restrictionFlags() const {
+			return StripFlag(m_restrictionFlags, model::AccountRestrictionFlags::Outgoing | model::AccountRestrictionFlags::Block);
+		}
 
-        /// Gets the operation type.
-        constexpr AccountRestrictionOperationType operationType() const
-        {
-            return model::HasFlag(model::AccountRestrictionFlags::Block, m_restrictionFlags) ? AccountRestrictionOperationType::Block
-                                                                                             : AccountRestrictionOperationType::Allow;
-        }
+		/// Gets the operation type.
+		constexpr AccountRestrictionOperationType operationType() const {
+			return model::HasFlag(model::AccountRestrictionFlags::Block, m_restrictionFlags) ? AccountRestrictionOperationType::Block
+																							 : AccountRestrictionOperationType::Allow;
+		}
 
-        /// Gets the raw restriction flags.
-        constexpr model::AccountRestrictionFlags raw() const
-        {
-            return m_restrictionFlags;
-        }
+		/// Gets the raw restriction flags.
+		constexpr model::AccountRestrictionFlags raw() const {
+			return m_restrictionFlags;
+		}
 
-    private:
-        static constexpr model::AccountRestrictionFlags StripFlag(model::AccountRestrictionFlags lhs, model::AccountRestrictionFlags flag)
-        {
-            return static_cast<model::AccountRestrictionFlags>(utils::to_underlying_type(lhs) & ~utils::to_underlying_type(flag));
-        }
+	private:
+		static constexpr model::AccountRestrictionFlags StripFlag(model::AccountRestrictionFlags lhs, model::AccountRestrictionFlags flag) {
+			return static_cast<model::AccountRestrictionFlags>(utils::to_underlying_type(lhs) & ~utils::to_underlying_type(flag));
+		}
 
-    private:
-        model::AccountRestrictionFlags m_restrictionFlags;
-    };
+	private:
+		model::AccountRestrictionFlags m_restrictionFlags;
+	};
 }
 }

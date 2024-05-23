@@ -25,15 +25,15 @@
 
 namespace catapult {
 namespace config {
-    class CatapultDirectory;
+	class CatapultDirectory;
 }
 }
 
 namespace catapult {
 namespace observers {
 
-    /// Observes transfer messages starting with \a marker and sent to \a recipient and writes them to \a directory.
-    DECLARE_OBSERVER(TransferMessage, model::TransferMessageNotification)
-    (uint64_t marker, const Address& recipient, const config::CatapultDirectory& directory);
+	/// Observes transfer messages starting with \a marker and sent to \a recipient and writes them to \a directory.
+	DECLARE_OBSERVER(TransferMessage, model::TransferMessageNotification)
+	(uint64_t marker, const Address& recipient, const config::CatapultDirectory& directory);
 }
 }

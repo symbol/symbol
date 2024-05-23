@@ -30,79 +30,74 @@ namespace mongo {
 
 #define TEST_CLASS MongoTransactionMetadataTests
 
-    namespace {
-        model::TransactionElement CreateTransactionElement(const model::Transaction& transaction)
-        {
-            model::TransactionElement transactionElement(transaction);
-            transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
-            transactionElement.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
-            transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
-            return transactionElement;
-        }
-    }
+	namespace {
+		model::TransactionElement CreateTransactionElement(const model::Transaction& transaction) {
+			model::TransactionElement transactionElement(transaction);
+			transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
+			transactionElement.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
+			transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
+			return transactionElement;
+		}
+	}
 
-    TEST(TEST_CLASS, CanCreateMetadataAroundTransactionElement)
-    {
-        // Arrange:
-        auto pTransaction = test::GenerateRandomTransaction();
-        auto element = CreateTransactionElement(*pTransaction);
+	TEST(TEST_CLASS, CanCreateMetadataAroundTransactionElement) {
+		// Arrange:
+		auto pTransaction = test::GenerateRandomTransaction();
+		auto element = CreateTransactionElement(*pTransaction);
 
-        // Act:
-        auto metadata = MongoTransactionMetadata(element);
+		// Act:
+		auto metadata = MongoTransactionMetadata(element);
 
-        // Assert:
-        EXPECT_EQ(element.EntityHash, metadata.EntityHash);
-        EXPECT_EQ(element.MerkleComponentHash, metadata.MerkleComponentHash);
-        EXPECT_EQ(element.OptionalExtractedAddresses.get(), &metadata.Addresses);
-        EXPECT_EQ(Height(), metadata.Height);
-        EXPECT_EQ(0u, metadata.Index);
-    }
+		// Assert:
+		EXPECT_EQ(element.EntityHash, metadata.EntityHash);
+		EXPECT_EQ(element.MerkleComponentHash, metadata.MerkleComponentHash);
+		EXPECT_EQ(element.OptionalExtractedAddresses.get(), &metadata.Addresses);
+		EXPECT_EQ(Height(), metadata.Height);
+		EXPECT_EQ(0u, metadata.Index);
+	}
 
-    TEST(TEST_CLASS, CanCreateMetadataAroundTransactionInfo)
-    {
-        // Arrange:
-        auto transactionInfo = test::CreateRandomTransactionInfo();
+	TEST(TEST_CLASS, CanCreateMetadataAroundTransactionInfo) {
+		// Arrange:
+		auto transactionInfo = test::CreateRandomTransactionInfo();
 
-        // Act:
-        auto metadata = MongoTransactionMetadata(transactionInfo);
+		// Act:
+		auto metadata = MongoTransactionMetadata(transactionInfo);
 
-        // Assert:
-        EXPECT_EQ(transactionInfo.EntityHash, metadata.EntityHash);
-        EXPECT_EQ(transactionInfo.MerkleComponentHash, metadata.MerkleComponentHash);
-        EXPECT_EQ(transactionInfo.OptionalExtractedAddresses.get(), &metadata.Addresses);
-        EXPECT_EQ(Height(), metadata.Height);
-        EXPECT_EQ(0u, metadata.Index);
-    }
+		// Assert:
+		EXPECT_EQ(transactionInfo.EntityHash, metadata.EntityHash);
+		EXPECT_EQ(transactionInfo.MerkleComponentHash, metadata.MerkleComponentHash);
+		EXPECT_EQ(transactionInfo.OptionalExtractedAddresses.get(), &metadata.Addresses);
+		EXPECT_EQ(Height(), metadata.Height);
+		EXPECT_EQ(0u, metadata.Index);
+	}
 
-    TEST(TEST_CLASS, CanCreateMetadataAroundTransactionElementAndContainingBlockInformation)
-    {
-        // Arrange:
-        auto pTransaction = test::GenerateRandomTransaction();
-        auto element = CreateTransactionElement(*pTransaction);
+	TEST(TEST_CLASS, CanCreateMetadataAroundTransactionElementAndContainingBlockInformation) {
+		// Arrange:
+		auto pTransaction = test::GenerateRandomTransaction();
+		auto element = CreateTransactionElement(*pTransaction);
 
-        // Act:
-        auto metadata = MongoTransactionMetadata(element, Height(17), 12);
+		// Act:
+		auto metadata = MongoTransactionMetadata(element, Height(17), 12);
 
-        // Assert:
-        EXPECT_EQ(element.EntityHash, metadata.EntityHash);
-        EXPECT_EQ(element.MerkleComponentHash, metadata.MerkleComponentHash);
-        EXPECT_EQ(element.OptionalExtractedAddresses.get(), &metadata.Addresses);
-        EXPECT_EQ(Height(17), metadata.Height);
-        EXPECT_EQ(12u, metadata.Index);
-    }
+		// Assert:
+		EXPECT_EQ(element.EntityHash, metadata.EntityHash);
+		EXPECT_EQ(element.MerkleComponentHash, metadata.MerkleComponentHash);
+		EXPECT_EQ(element.OptionalExtractedAddresses.get(), &metadata.Addresses);
+		EXPECT_EQ(Height(17), metadata.Height);
+		EXPECT_EQ(12u, metadata.Index);
+	}
 
-    TEST(TEST_CLASS, ObjectIdIsUniqueAcrossInstances)
-    {
-        // Arrange:
-        auto pTransaction = test::GenerateRandomTransaction();
-        auto element = CreateTransactionElement(*pTransaction);
+	TEST(TEST_CLASS, ObjectIdIsUniqueAcrossInstances) {
+		// Arrange:
+		auto pTransaction = test::GenerateRandomTransaction();
+		auto element = CreateTransactionElement(*pTransaction);
 
-        // Act:
-        auto metadata1 = MongoTransactionMetadata(element);
-        auto metadata2 = MongoTransactionMetadata(element);
+		// Act:
+		auto metadata1 = MongoTransactionMetadata(element);
+		auto metadata2 = MongoTransactionMetadata(element);
 
-        // Assert:
-        EXPECT_NE(metadata1.ObjectId, metadata2.ObjectId);
-    }
+		// Assert:
+		EXPECT_NE(metadata1.ObjectId, metadata2.ObjectId);
+	}
 }
 }

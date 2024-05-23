@@ -29,122 +29,108 @@
 namespace catapult {
 namespace api {
 
-    namespace {
-        struct FinalizationStatisticsTraits {
-            static auto Invoke(const RemoteProofApi& api)
-            {
-                return api.finalizationStatistics();
-            }
+	namespace {
+		struct FinalizationStatisticsTraits {
+			static auto Invoke(const RemoteProofApi& api) {
+				return api.finalizationStatistics();
+			}
 
-            static auto CreateValidResponsePacket()
-            {
-                auto pResponsePacket = ionet::CreateSharedPacket<FinalizationStatisticsResponse>();
-                pResponsePacket->Round = test::CreateFinalizationRound(123, 222);
-                pResponsePacket->Height = Height(625);
-                pResponsePacket->Hash = { { 32 } };
-                return pResponsePacket;
-            }
+			static auto CreateValidResponsePacket() {
+				auto pResponsePacket = ionet::CreateSharedPacket<FinalizationStatisticsResponse>();
+				pResponsePacket->Round = test::CreateFinalizationRound(123, 222);
+				pResponsePacket->Height = Height(625);
+				pResponsePacket->Hash = { { 32 } };
+				return pResponsePacket;
+			}
 
-            static auto CreateMalformedResponsePacket()
-            {
-                // just change the size because no responses are intrinsically invalid
-                auto pResponsePacket = CreateValidResponsePacket();
-                --pResponsePacket->Size;
-                return pResponsePacket;
-            }
+			static auto CreateMalformedResponsePacket() {
+				// just change the size because no responses are intrinsically invalid
+				auto pResponsePacket = CreateValidResponsePacket();
+				--pResponsePacket->Size;
+				return pResponsePacket;
+			}
 
-            static void ValidateRequest(const ionet::Packet& packet)
-            {
-                EXPECT_TRUE(ionet::IsPacketValid(packet, FinalizationStatisticsResponse::Packet_Type));
-            }
+			static void ValidateRequest(const ionet::Packet& packet) {
+				EXPECT_TRUE(ionet::IsPacketValid(packet, FinalizationStatisticsResponse::Packet_Type));
+			}
 
-            static void ValidateResponse(const ionet::Packet&, const model::FinalizationStatistics& finalizationStatistics)
-            {
-                EXPECT_EQ(test::CreateFinalizationRound(123, 222), finalizationStatistics.Round);
-                EXPECT_EQ(Height(625), finalizationStatistics.Height);
-                EXPECT_EQ(Hash256 { { 32 } }, finalizationStatistics.Hash);
-            }
-        };
+			static void ValidateResponse(const ionet::Packet&, const model::FinalizationStatistics& finalizationStatistics) {
+				EXPECT_EQ(test::CreateFinalizationRound(123, 222), finalizationStatistics.Round);
+				EXPECT_EQ(Height(625), finalizationStatistics.Height);
+				EXPECT_EQ(Hash256 { { 32 } }, finalizationStatistics.Hash);
+			}
+		};
 
-        struct ProofAtEpochInvoker {
-            static auto Invoke(const RemoteProofApi& api)
-            {
-                return api.proofAt(FinalizationEpoch(123));
-            }
+		struct ProofAtEpochInvoker {
+			static auto Invoke(const RemoteProofApi& api) {
+				return api.proofAt(FinalizationEpoch(123));
+			}
 
-            static void ValidateRequest(const ionet::Packet& packet)
-            {
-                const auto* pRequest = ionet::CoercePacket<ProofAtEpochRequest>(&packet);
-                ASSERT_TRUE(!!pRequest);
-                EXPECT_EQ(FinalizationEpoch(123), pRequest->Epoch);
-            }
-        };
+			static void ValidateRequest(const ionet::Packet& packet) {
+				const auto* pRequest = ionet::CoercePacket<ProofAtEpochRequest>(&packet);
+				ASSERT_TRUE(!!pRequest);
+				EXPECT_EQ(FinalizationEpoch(123), pRequest->Epoch);
+			}
+		};
 
-        struct ProofAtHeightInvoker {
-            static auto Invoke(const RemoteProofApi& api)
-            {
-                return api.proofAt(Height(728));
-            }
+		struct ProofAtHeightInvoker {
+			static auto Invoke(const RemoteProofApi& api) {
+				return api.proofAt(Height(728));
+			}
 
-            static void ValidateRequest(const ionet::Packet& packet)
-            {
-                const auto* pRequest = ionet::CoercePacket<ProofAtHeightRequest>(&packet);
-                ASSERT_TRUE(!!pRequest);
-                EXPECT_EQ(Height(728), pRequest->Height);
-            }
-        };
+			static void ValidateRequest(const ionet::Packet& packet) {
+				const auto* pRequest = ionet::CoercePacket<ProofAtHeightRequest>(&packet);
+				ASSERT_TRUE(!!pRequest);
+				EXPECT_EQ(Height(728), pRequest->Height);
+			}
+		};
 
-        template <typename TInvoker>
-        struct ProofAtTraitsT : public TInvoker {
-            static auto CreateValidResponsePacket()
-            {
-                uint32_t payloadSize = SizeOf32<model::FinalizationProof>();
-                auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
-                pResponsePacket->Type = ionet::PacketType::Pull_Finalization_Proof;
-                test::FillWithRandomData({ pResponsePacket->Data(), payloadSize });
+		template <typename TInvoker>
+		struct ProofAtTraitsT : public TInvoker {
+			static auto CreateValidResponsePacket() {
+				uint32_t payloadSize = SizeOf32<model::FinalizationProof>();
+				auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
+				pResponsePacket->Type = ionet::PacketType::Pull_Finalization_Proof;
+				test::FillWithRandomData({ pResponsePacket->Data(), payloadSize });
 
-                auto& proof = reinterpret_cast<model::FinalizationProof&>(*pResponsePacket->Data());
-                proof.Size = payloadSize;
-                proof.Height = Height(777);
-                return pResponsePacket;
-            }
+				auto& proof = reinterpret_cast<model::FinalizationProof&>(*pResponsePacket->Data());
+				proof.Size = payloadSize;
+				proof.Height = Height(777);
+				return pResponsePacket;
+			}
 
-            static auto CreateMalformedResponsePacket()
-            {
-                // the packet is malformed because it contains a partial proof
-                auto pResponsePacket = CreateValidResponsePacket();
-                --pResponsePacket->Size;
-                return pResponsePacket;
-            }
+			static auto CreateMalformedResponsePacket() {
+				// the packet is malformed because it contains a partial proof
+				auto pResponsePacket = CreateValidResponsePacket();
+				--pResponsePacket->Size;
+				return pResponsePacket;
+			}
 
-            static void ValidateResponse(const ionet::Packet& response, const std::shared_ptr<const model::FinalizationProof>& pProof)
-            {
-                ASSERT_EQ(response.Size - sizeof(ionet::Packet), pProof->Size);
-                ASSERT_EQ(sizeof(model::FinalizationProof), pProof->Size);
-                EXPECT_EQ(Height(777), pProof->Height);
-                EXPECT_EQ_MEMORY(response.Data(), pProof.get(), pProof->Size);
-            }
-        };
+			static void ValidateResponse(const ionet::Packet& response, const std::shared_ptr<const model::FinalizationProof>& pProof) {
+				ASSERT_EQ(response.Size - sizeof(ionet::Packet), pProof->Size);
+				ASSERT_EQ(sizeof(model::FinalizationProof), pProof->Size);
+				EXPECT_EQ(Height(777), pProof->Height);
+				EXPECT_EQ_MEMORY(response.Data(), pProof.get(), pProof->Size);
+			}
+		};
 
-        using ProofAtEpochTraits = ProofAtTraitsT<ProofAtEpochInvoker>;
-        using ProofAtHeightTraits = ProofAtTraitsT<ProofAtHeightInvoker>;
+		using ProofAtEpochTraits = ProofAtTraitsT<ProofAtEpochInvoker>;
+		using ProofAtHeightTraits = ProofAtTraitsT<ProofAtHeightInvoker>;
 
-        struct RemoteProofApiTraits {
-            static auto Create(ionet::PacketIo& packetIo, const model::NodeIdentity& remoteIdentity)
-            {
-                return CreateRemoteProofApi(packetIo, remoteIdentity);
-            }
+		struct RemoteProofApiTraits {
+			static auto Create(ionet::PacketIo& packetIo, const model::NodeIdentity& remoteIdentity) {
+				return CreateRemoteProofApi(packetIo, remoteIdentity);
+			}
 
-            static auto Create(ionet::PacketIo& packetIo)
-            {
-                return Create(packetIo, model::NodeIdentity());
-            }
-        };
-    }
+			static auto Create(ionet::PacketIo& packetIo) {
+				return Create(packetIo, model::NodeIdentity());
+			}
+		};
+	}
 
-    DEFINE_REMOTE_API_TESTS(RemoteProofApi)
-    DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteProofApi, FinalizationStatistics)
-    DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteProofApi, ProofAtEpoch)
-    DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteProofApi, ProofAtHeight)
+	DEFINE_REMOTE_API_TESTS(RemoteProofApi)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteProofApi, FinalizationStatistics)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteProofApi, ProofAtEpoch)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteProofApi, ProofAtHeight)
 }
 }

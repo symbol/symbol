@@ -27,26 +27,26 @@
 namespace catapult {
 namespace cache {
 
-    /// Primary serializer for account state cache.
-    struct AccountStatePrimarySerializer : public CacheSerializerAdapter<state::AccountStateSerializer, AccountStateCacheDescriptor> { };
+	/// Primary serializer for account state cache.
+	struct AccountStatePrimarySerializer : public CacheSerializerAdapter<state::AccountStateSerializer, AccountStateCacheDescriptor> { };
 
-    /// Primary serializer for account state cache for patricia tree hashes.
-    /// \note This serializer excludes historical importances.
-    struct AccountStatePatriciaTreeSerializer
-        : public CacheSerializerAdapter<state::AccountStateNonHistoricalSerializer, AccountStateCacheDescriptor> { };
+	/// Primary serializer for account state cache for patricia tree hashes.
+	/// \note This serializer excludes historical importances.
+	struct AccountStatePatriciaTreeSerializer
+		: public CacheSerializerAdapter<state::AccountStateNonHistoricalSerializer, AccountStateCacheDescriptor> { };
 
-    /// Serializer for key address lookup sub cache.
-    struct KeyAddressPairSerializer {
-    private:
-        using KeyType = Key;
-        using ValueType = std::pair<Key, Address>;
+	/// Serializer for key address lookup sub cache.
+	struct KeyAddressPairSerializer {
+	private:
+		using KeyType = Key;
+		using ValueType = std::pair<Key, Address>;
 
-    public:
-        /// Serializes \a value to string.
-        static std::string SerializeValue(const ValueType& value);
+	public:
+		/// Serializes \a value to string.
+		static std::string SerializeValue(const ValueType& value);
 
-        /// Deserializes value from \a buffer.
-        static ValueType DeserializeValue(const RawBuffer& buffer);
-    };
+		/// Deserializes value from \a buffer.
+		static ValueType DeserializeValue(const RawBuffer& buffer);
+	};
 }
 }

@@ -25,28 +25,26 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MosaicPropertiesNotification;
+	using Notification = model::MosaicPropertiesNotification;
 
-    namespace {
-        model::MosaicFlags Unset(model::MosaicFlags originalFlags, model::MosaicFlags flag)
-        {
-            return static_cast<model::MosaicFlags>(utils::to_underlying_type(originalFlags) & ~utils::to_underlying_type(flag));
-        }
-    }
+	namespace {
+		model::MosaicFlags Unset(model::MosaicFlags originalFlags, model::MosaicFlags flag) {
+			return static_cast<model::MosaicFlags>(utils::to_underlying_type(originalFlags) & ~utils::to_underlying_type(flag));
+		}
+	}
 
-    DECLARE_STATEFUL_VALIDATOR(MosaicFlags, Notification)
-    (Height revokableForkHeight)
-    {
-        return MAKE_STATEFUL_VALIDATOR(
-            MosaicFlags,
-            [revokableForkHeight](const Notification& notification, const ValidatorContext& context) {
-                auto allFlags = model::MosaicFlags::All;
+	DECLARE_STATEFUL_VALIDATOR(MosaicFlags, Notification)
+	(Height revokableForkHeight) {
+		return MAKE_STATEFUL_VALIDATOR(
+			MosaicFlags,
+			[revokableForkHeight](const Notification& notification, const ValidatorContext& context) {
+				auto allFlags = model::MosaicFlags::All;
 
-                if (context.Height < revokableForkHeight)
-                    allFlags = Unset(allFlags, model::MosaicFlags::Revokable);
+				if (context.Height < revokableForkHeight)
+					allFlags = Unset(allFlags, model::MosaicFlags::Revokable);
 
-                return ValidateLessThanOrEqual(notification.Properties.flags(), allFlags, Failure_Mosaic_Invalid_Flags);
-            });
-    }
+				return ValidateLessThanOrEqual(notification.Properties.flags(), allFlags, Failure_Mosaic_Invalid_Flags);
+			});
+	}
 }
 }

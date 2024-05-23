@@ -27,59 +27,58 @@
 namespace catapult {
 namespace model {
 
-    // region account link notification types
+	// region account link notification types
 
 /// Defines an account link notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
 #define DEFINE_ACCOUNT_LINK_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, AccountLink, DESCRIPTION, CODE)
 
-    /// Remote account was un/linked.
-    DEFINE_ACCOUNT_LINK_NOTIFICATION(Remote, 0x0001, All);
+	/// Remote account was un/linked.
+	DEFINE_ACCOUNT_LINK_NOTIFICATION(Remote, 0x0001, All);
 
-    /// New remote account was created.
-    DEFINE_ACCOUNT_LINK_NOTIFICATION(New_Remote_Account, 0x0002, Validator);
+	/// New remote account was created.
+	DEFINE_ACCOUNT_LINK_NOTIFICATION(New_Remote_Account, 0x0002, Validator);
 
-    /// Account was un/linked to a node.
-    DEFINE_ACCOUNT_LINK_NOTIFICATION(Node, 0x0003, All);
+	/// Account was un/linked to a node.
+	DEFINE_ACCOUNT_LINK_NOTIFICATION(Node, 0x0003, All);
 
 #undef DEFINE_ACCOUNTLINK_NOTIFICATION
 
-    // endregion
+	// endregion
 
-    // region RemoteAccountKeyLinkNotification
+	// region RemoteAccountKeyLinkNotification
 
-    /// Notification of a remote account key link.
-    using RemoteAccountKeyLinkNotification = BasicKeyLinkNotification<Key, AccountLink_Remote_Notification>;
+	/// Notification of a remote account key link.
+	using RemoteAccountKeyLinkNotification = BasicKeyLinkNotification<Key, AccountLink_Remote_Notification>;
 
-    // endregion
+	// endregion
 
-    // region NewRemoteAccountNotification
+	// region NewRemoteAccountNotification
 
-    /// Notification of a new remote account.
-    struct NewRemoteAccountNotification : public Notification {
-    public:
-        /// Matching notification type.
-        static constexpr auto Notification_Type = AccountLink_New_Remote_Account_Notification;
+	/// Notification of a new remote account.
+	struct NewRemoteAccountNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = AccountLink_New_Remote_Account_Notification;
 
-    public:
-        /// Creates a notification around \a linkedPublicKey.
-        explicit NewRemoteAccountNotification(const Key& linkedPublicKey)
-            : Notification(Notification_Type, sizeof(NewRemoteAccountNotification))
-            , LinkedPublicKey(linkedPublicKey)
-        {
-        }
+	public:
+		/// Creates a notification around \a linkedPublicKey.
+		explicit NewRemoteAccountNotification(const Key& linkedPublicKey)
+			: Notification(Notification_Type, sizeof(NewRemoteAccountNotification))
+			, LinkedPublicKey(linkedPublicKey) {
+		}
 
-    public:
-        /// Linked public key.
-        const Key& LinkedPublicKey;
-    };
+	public:
+		/// Linked public key.
+		const Key& LinkedPublicKey;
+	};
 
-    // endregion
+	// endregion
 
-    // region NodeKeyLinkNotification
+	// region NodeKeyLinkNotification
 
-    /// Notification of a node key link.
-    using NodeKeyLinkNotification = BasicKeyLinkNotification<Key, AccountLink_Node_Notification>;
+	/// Notification of a node key link.
+	using NodeKeyLinkNotification = BasicKeyLinkNotification<Key, AccountLink_Node_Notification>;
 
-    // endregion
+	// endregion
 }
 }

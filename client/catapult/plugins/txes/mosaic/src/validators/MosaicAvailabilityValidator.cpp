@@ -28,41 +28,40 @@
 namespace catapult {
 namespace validators {
 
-    using Notification = model::MosaicDefinitionNotification;
+	using Notification = model::MosaicDefinitionNotification;
 
-    namespace {
-        bool ContainsAnyPropertyChange(const state::MosaicDefinition& definition, const model::MosaicProperties& properties)
-        {
-            // if any property modified by XOR is nonzero, there is a property change
-            auto xorPropertyChanged = model::MosaicFlags::None != properties.flags() || 0 != properties.divisibility();
-            if (xorPropertyChanged)
-                return true;
+	namespace {
+		bool ContainsAnyPropertyChange(const state::MosaicDefinition& definition, const model::MosaicProperties& properties) {
+			// if any property modified by XOR is nonzero, there is a property change
+			auto xorPropertyChanged = model::MosaicFlags::None != properties.flags() || 0 != properties.divisibility();
+			if (xorPropertyChanged)
+				return true;
 
-            // duration deltas only affect mosaics that are not eternal
-            // (if any change is made to an eternal duration, it will get rejected by the MosaicDurationValidator)
-            return !definition.isEternal() && BlockDuration() != properties.duration();
-        }
-    }
+			// duration deltas only affect mosaics that are not eternal
+			// (if any change is made to an eternal duration, it will get rejected by the MosaicDurationValidator)
+			return !definition.isEternal() && BlockDuration() != properties.duration();
+		}
+	}
 
-    DEFINE_STATEFUL_VALIDATOR(MosaicAvailability, [](const Notification& notification, const ValidatorContext& context) {
-        auto view = ActiveMosaicView(context.Cache);
+	DEFINE_STATEFUL_VALIDATOR(MosaicAvailability, [](const Notification& notification, const ValidatorContext& context) {
+		auto view = ActiveMosaicView(context.Cache);
 
-        // mosaic has to be active
-        ActiveMosaicView::FindIterator mosaicIter;
-        auto result = view.tryGet(notification.MosaicId, context.Height, notification.Owner, mosaicIter);
+		// mosaic has to be active
+		ActiveMosaicView::FindIterator mosaicIter;
+		auto result = view.tryGet(notification.MosaicId, context.Height, notification.Owner, mosaicIter);
 
-        // always allow a new mosaic
-        if (IsValidationResultFailure(result))
-            return mosaicIter.tryGet() ? result : ValidationResult::Success;
+		// always allow a new mosaic
+		if (IsValidationResultFailure(result))
+			return mosaicIter.tryGet() ? result : ValidationResult::Success;
 
-        // disallow a noop modification
-        const auto& mosaicEntry = mosaicIter.get();
-        if (!ContainsAnyPropertyChange(mosaicEntry.definition(), notification.Properties))
-            return Failure_Mosaic_Modification_No_Changes;
+		// disallow a noop modification
+		const auto& mosaicEntry = mosaicIter.get();
+		if (!ContainsAnyPropertyChange(mosaicEntry.definition(), notification.Properties))
+			return Failure_Mosaic_Modification_No_Changes;
 
-        // require mosaic supply to be zero because else, when rolling back, the definition observer does not know
-        // what the supply was before
-        return Amount() != mosaicEntry.supply() ? Failure_Mosaic_Modification_Disallowed : ValidationResult::Success;
-    })
+		// require mosaic supply to be zero because else, when rolling back, the definition observer does not know
+		// what the supply was before
+		return Amount() != mosaicEntry.supply() ? Failure_Mosaic_Modification_Disallowed : ValidationResult::Success;
+	})
 }
 }

@@ -26,47 +26,43 @@
 namespace catapult {
 namespace model {
 
-    NemesisNotificationPublisherOptions ExtractNemesisNotificationPublisherOptions(const BlockchainConfiguration& config)
-    {
-        NemesisNotificationPublisherOptions options;
+	NemesisNotificationPublisherOptions ExtractNemesisNotificationPublisherOptions(const BlockchainConfiguration& config) {
+		NemesisNotificationPublisherOptions options;
 
-        if (0 < config.HarvestNetworkPercentage)
-            options.SpecialAccountAddresses.insert(GetHarvestNetworkFeeSinkAddress(config).get(Height(1)));
+		if (0 < config.HarvestNetworkPercentage)
+			options.SpecialAccountAddresses.insert(GetHarvestNetworkFeeSinkAddress(config).get(Height(1)));
 
-        return options;
-    }
+		return options;
+	}
 
-    namespace {
-        class NemesisNotificationPublisherDecorator : public NotificationPublisher {
-        public:
-            NemesisNotificationPublisherDecorator(
-                std::unique_ptr<const NotificationPublisher>&& pPublisher,
-                const NemesisNotificationPublisherOptions& options)
-                : m_pPublisher(std::move(pPublisher))
-                , m_options(options)
-            {
-            }
+	namespace {
+		class NemesisNotificationPublisherDecorator : public NotificationPublisher {
+		public:
+			NemesisNotificationPublisherDecorator(
+				std::unique_ptr<const NotificationPublisher>&& pPublisher,
+				const NemesisNotificationPublisherOptions& options)
+				: m_pPublisher(std::move(pPublisher))
+				, m_options(options) {
+			}
 
-        public:
-            void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const override
-            {
-                for (const auto& address : m_options.SpecialAccountAddresses)
-                    sub.notify(AccountAddressNotification(address));
+		public:
+			void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const override {
+				for (const auto& address : m_options.SpecialAccountAddresses)
+					sub.notify(AccountAddressNotification(address));
 
-                m_pPublisher->publish(entityInfo, sub);
-            }
+				m_pPublisher->publish(entityInfo, sub);
+			}
 
-        private:
-            std::unique_ptr<const NotificationPublisher> m_pPublisher;
-            const NemesisNotificationPublisherOptions& m_options;
-        };
-    }
+		private:
+			std::unique_ptr<const NotificationPublisher> m_pPublisher;
+			const NemesisNotificationPublisherOptions& m_options;
+		};
+	}
 
-    std::unique_ptr<const NotificationPublisher> CreateNemesisNotificationPublisher(
-        std::unique_ptr<const NotificationPublisher>&& pPublisher,
-        const NemesisNotificationPublisherOptions& options)
-    {
-        return std::make_unique<NemesisNotificationPublisherDecorator>(std::move(pPublisher), options);
-    }
+	std::unique_ptr<const NotificationPublisher> CreateNemesisNotificationPublisher(
+		std::unique_ptr<const NotificationPublisher>&& pPublisher,
+		const NemesisNotificationPublisherOptions& options) {
+		return std::make_unique<NemesisNotificationPublisherDecorator>(std::move(pPublisher), options);
+	}
 }
 }

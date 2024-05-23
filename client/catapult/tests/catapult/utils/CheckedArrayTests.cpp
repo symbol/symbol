@@ -31,221 +31,205 @@ namespace utils {
 
 #define TEST_CLASS CheckedArrayTests
 
-    namespace {
-        constexpr size_t Default_Size = 10;
+	namespace {
+		constexpr size_t Default_Size = 10;
 
-        using UintCheckedArray = CheckedArray<size_t, Default_Size>;
-    }
+		using UintCheckedArray = CheckedArray<size_t, Default_Size>;
+	}
 
-    // region ctor
+	// region ctor
 
-    TEST(TEST_CLASS, CanCreateArray)
-    {
-        // Act:
-        UintCheckedArray array;
+	TEST(TEST_CLASS, CanCreateArray) {
+		// Act:
+		UintCheckedArray array;
 
-        // Assert:
-        EXPECT_EQ(Default_Size, array.capacity());
-        EXPECT_TRUE(array.empty());
-        EXPECT_EQ(0u, array.size());
-    }
+		// Assert:
+		EXPECT_EQ(Default_Size, array.capacity());
+		EXPECT_TRUE(array.empty());
+		EXPECT_EQ(0u, array.size());
+	}
 
-    // endregion
+	// endregion
 
-    // region push_back
+	// region push_back
 
-    TEST(TEST_CLASS, CanAddSingleElement)
-    {
-        // Arrange:
-        UintCheckedArray array;
+	TEST(TEST_CLASS, CanAddSingleElement) {
+		// Arrange:
+		UintCheckedArray array;
 
-        // Act:
-        array.push_back(3);
+		// Act:
+		array.push_back(3);
 
-        // Assert:
-        EXPECT_EQ(Default_Size, array.capacity());
-        EXPECT_FALSE(array.empty());
-        EXPECT_EQ(1u, array.size());
-        EXPECT_EQ(3u, array[0]);
-    }
+		// Assert:
+		EXPECT_EQ(Default_Size, array.capacity());
+		EXPECT_FALSE(array.empty());
+		EXPECT_EQ(1u, array.size());
+		EXPECT_EQ(3u, array[0]);
+	}
 
-    TEST(TEST_CLASS, CanAddMultipleElements)
-    {
-        // Arrange:
-        UintCheckedArray array;
+	TEST(TEST_CLASS, CanAddMultipleElements) {
+		// Arrange:
+		UintCheckedArray array;
 
-        // Act:
-        array.push_back(3);
-        array.push_back(13);
-        array.push_back(2357);
+		// Act:
+		array.push_back(3);
+		array.push_back(13);
+		array.push_back(2357);
 
-        // Assert:
-        EXPECT_EQ(Default_Size, array.capacity());
-        EXPECT_FALSE(array.empty());
-        EXPECT_EQ(3u, array.size());
-        EXPECT_EQ(3u, array[0]);
-        EXPECT_EQ(13u, array[1]);
-        EXPECT_EQ(2357u, array[2]);
-    }
+		// Assert:
+		EXPECT_EQ(Default_Size, array.capacity());
+		EXPECT_FALSE(array.empty());
+		EXPECT_EQ(3u, array.size());
+		EXPECT_EQ(3u, array[0]);
+		EXPECT_EQ(13u, array[1]);
+		EXPECT_EQ(2357u, array[2]);
+	}
 
-    TEST(TEST_CLASS, AddingElementThrowsWhenCapacityIsExceeded)
-    {
-        // Arrange:
-        UintCheckedArray array;
-        for (auto i = 0u; i < Default_Size; ++i)
-            array.push_back(i);
+	TEST(TEST_CLASS, AddingElementThrowsWhenCapacityIsExceeded) {
+		// Arrange:
+		UintCheckedArray array;
+		for (auto i = 0u; i < Default_Size; ++i)
+			array.push_back(i);
 
-        // Sanity:
-        EXPECT_EQ(array.capacity(), array.size());
+		// Sanity:
+		EXPECT_EQ(array.capacity(), array.size());
 
-        // Act + Assert:
-        EXPECT_THROW(array.push_back(123), catapult_out_of_range);
-    }
+		// Act + Assert:
+		EXPECT_THROW(array.push_back(123), catapult_out_of_range);
+	}
 
-    // endregion
+	// endregion
 
-    // region operator[]
+	// region operator[]
 
-    TEST(TEST_CLASS, SubscriptOperatorReturnsExpectedElement)
-    {
-        // Arrange:
-        UintCheckedArray array;
-        for (auto i = 0u; i < Default_Size; ++i)
-            array.push_back(i * i);
+	TEST(TEST_CLASS, SubscriptOperatorReturnsExpectedElement) {
+		// Arrange:
+		UintCheckedArray array;
+		for (auto i = 0u; i < Default_Size; ++i)
+			array.push_back(i * i);
 
-        // Sanity:
-        EXPECT_EQ(array.capacity(), array.size());
+		// Sanity:
+		EXPECT_EQ(array.capacity(), array.size());
 
-        // Assert:
-        for (auto i = 0u; i < Default_Size; ++i)
-            EXPECT_EQ(i * i, array[i]) << "element at " << i;
-    }
+		// Assert:
+		for (auto i = 0u; i < Default_Size; ++i)
+			EXPECT_EQ(i * i, array[i]) << "element at " << i;
+	}
 
-    TEST(TEST_CLASS, SubscriptOperatorThrowsWhenIndexIsOutOfRange)
-    {
-        // Arrange:
-        UintCheckedArray array;
-        for (auto i = 0u; i < Default_Size / 2; ++i)
-            array.push_back(i * i);
+	TEST(TEST_CLASS, SubscriptOperatorThrowsWhenIndexIsOutOfRange) {
+		// Arrange:
+		UintCheckedArray array;
+		for (auto i = 0u; i < Default_Size / 2; ++i)
+			array.push_back(i * i);
 
-        // Sanity:
-        EXPECT_EQ(Default_Size / 2, array.size());
+		// Sanity:
+		EXPECT_EQ(Default_Size / 2, array.size());
 
-        // Act + Assert:
-        EXPECT_THROW(array[Default_Size / 2], catapult_out_of_range);
-        EXPECT_THROW(array[Default_Size / 2 + 1], catapult_out_of_range);
-        EXPECT_THROW(array[Default_Size], catapult_out_of_range);
-        EXPECT_THROW(array[12345], catapult_out_of_range);
-    }
+		// Act + Assert:
+		EXPECT_THROW(array[Default_Size / 2], catapult_out_of_range);
+		EXPECT_THROW(array[Default_Size / 2 + 1], catapult_out_of_range);
+		EXPECT_THROW(array[Default_Size], catapult_out_of_range);
+		EXPECT_THROW(array[12345], catapult_out_of_range);
+	}
 
-    // endregion
+	// endregion
 
-    // region iterators
+	// region iterators
 
-    namespace {
-        template <typename TTraits>
-        void AssertIteratorsReturnProperRepresentation(size_t numElements)
-        {
-            // Arrange:
-            UintCheckedArray array;
-            for (auto i = 0u; i < numElements; ++i)
-                array.push_back(i * i);
+	namespace {
+		template <typename TTraits>
+		void AssertIteratorsReturnProperRepresentation(size_t numElements) {
+			// Arrange:
+			UintCheckedArray array;
+			for (auto i = 0u; i < numElements; ++i)
+				array.push_back(i * i);
 
-            // Sanity:
-            EXPECT_GE(array.capacity(), array.size()) << " size: " << numElements;
+			// Sanity:
+			EXPECT_GE(array.capacity(), array.size()) << " size: " << numElements;
 
-            // Act:
-            auto count = static_cast<size_t>(std::distance(TTraits::begin(array), TTraits::end(array)));
+			// Act:
+			auto count = static_cast<size_t>(std::distance(TTraits::begin(array), TTraits::end(array)));
 
-            // Assert: end points past last element, check all elements
-            EXPECT_EQ(numElements, count);
-            EXPECT_EQ(&array[array.size() - 1] + 1, TTraits::end(array)) << " size: " << numElements;
+			// Assert: end points past last element, check all elements
+			EXPECT_EQ(numElements, count);
+			EXPECT_EQ(&array[array.size() - 1] + 1, TTraits::end(array)) << " size: " << numElements;
 
-            size_t i = 0;
-            for (auto iter = TTraits::begin(array); TTraits::end(array) != iter; ++iter, ++i)
-                EXPECT_EQ(&array[i], iter) << " size: " << numElements << ", element at " << i;
-        }
+			size_t i = 0;
+			for (auto iter = TTraits::begin(array); TTraits::end(array) != iter; ++iter, ++i)
+				EXPECT_EQ(&array[i], iter) << " size: " << numElements << ", element at " << i;
+		}
 
 #define ITERATOR_BASED_TEST(TEST_NAME)                                        \
-    template <typename TTraits>                                               \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                           \
-    TEST(TEST_CLASS, TEST_NAME##_BeginEnd)                                    \
-    {                                                                         \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); \
-    }                                                                         \
-    TEST(TEST_CLASS, TEST_NAME##_CBeginCEnd)                                  \
-    {                                                                         \
-        TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits>();    \
-    }                                                                         \
-    template <typename TTraits>                                               \
-    void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-    }
+	template <typename TTraits>                                               \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)();                           \
+	TEST(TEST_CLASS, TEST_NAME##_BeginEnd) {                                  \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); \
+	}                                                                         \
+	TEST(TEST_CLASS, TEST_NAME##_CBeginCEnd) {                                \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits>();    \
+	}                                                                         \
+	template <typename TTraits>                                               \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	}
 
-    ITERATOR_BASED_TEST(IteratorsReturnProperRepresentation_EmptyArray)
-    {
-        // Arrange:
-        UintCheckedArray array;
+	ITERATOR_BASED_TEST(IteratorsReturnProperRepresentation_EmptyArray) {
+		// Arrange:
+		UintCheckedArray array;
 
-        // Act:
-        auto count = std::distance(TTraits::begin(array), TTraits::end(array));
+		// Act:
+		auto count = std::distance(TTraits::begin(array), TTraits::end(array));
 
-        // Assert:
-        EXPECT_EQ(0u, count);
-        EXPECT_EQ(TTraits::begin(array), TTraits::end(array));
-    }
+		// Assert:
+		EXPECT_EQ(0u, count);
+		EXPECT_EQ(TTraits::begin(array), TTraits::end(array));
+	}
 
-    ITERATOR_BASED_TEST(IteratorsReturnProperRepresentation_ArrayWithValues)
-    {
-        for (auto i = 1u; i <= Default_Size; ++i)
-            AssertIteratorsReturnProperRepresentation<TTraits>(i);
-    }
+	ITERATOR_BASED_TEST(IteratorsReturnProperRepresentation_ArrayWithValues) {
+		for (auto i = 1u; i <= Default_Size; ++i)
+			AssertIteratorsReturnProperRepresentation<TTraits>(i);
+	}
 
-    // endregion
+	// endregion
 
-    // region equality
+	// region equality
 
-    namespace {
-        const char* Default_Key = "default";
+	namespace {
+		const char* Default_Key = "default";
 
-        auto CreateUintCheckedArray(
-            size_t numElements,
-            const std::function<size_t(size_t value)>& createElement = [](auto value) { return value * value; })
-        {
-            UintCheckedArray array;
-            for (auto i = 0u; i < numElements; ++i)
-                array.push_back(createElement(i));
+		auto CreateUintCheckedArray(
+			size_t numElements,
+			const std::function<size_t(size_t value)>& createElement = [](auto value) { return value * value; }) {
+			UintCheckedArray array;
+			for (auto i = 0u; i < numElements; ++i)
+				array.push_back(createElement(i));
 
-            return array;
-        }
+			return array;
+		}
 
-        auto GenerateEqualityInstanceMap()
-        {
-            std::unordered_map<std::string, UintCheckedArray> map;
+		auto GenerateEqualityInstanceMap() {
+			std::unordered_map<std::string, UintCheckedArray> map;
 
-            map.emplace(Default_Key, CreateUintCheckedArray(Default_Size / 2));
-            map.emplace("copy", CreateUintCheckedArray(Default_Size / 2));
-            map.emplace("diff-more-elements", CreateUintCheckedArray(Default_Size / 2 + 1));
-            map.emplace("diff-less-elements", CreateUintCheckedArray(Default_Size / 2 - 1));
-            map.emplace("diff-unequal-elements", CreateUintCheckedArray(Default_Size / 2, [](auto value) { return value; }));
-            return map;
-        }
+			map.emplace(Default_Key, CreateUintCheckedArray(Default_Size / 2));
+			map.emplace("copy", CreateUintCheckedArray(Default_Size / 2));
+			map.emplace("diff-more-elements", CreateUintCheckedArray(Default_Size / 2 + 1));
+			map.emplace("diff-less-elements", CreateUintCheckedArray(Default_Size / 2 - 1));
+			map.emplace("diff-unequal-elements", CreateUintCheckedArray(Default_Size / 2, [](auto value) { return value; }));
+			return map;
+		}
 
-        std::unordered_set<std::string> GetEqualTags()
-        {
-            return { Default_Key, "copy" };
-        }
-    }
+		std::unordered_set<std::string> GetEqualTags() {
+			return { Default_Key, "copy" };
+		}
+	}
 
-    TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects)
-    {
-        test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
-    }
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
+		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
+	}
 
-    TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects)
-    {
-        test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
-    }
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
+		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
+	}
 
-    // endregion
+	// endregion
 }
 }

@@ -26,20 +26,18 @@
 namespace catapult {
 namespace test {
 
-    /// Aliases \a namespaceId to \a alias inside \a cacheDelta.
-    template <typename TAliasType>
-    void SetAlias(cache::NamespaceCacheDelta& cacheDelta, NamespaceId namespaceId, const TAliasType& alias)
-    {
-        cacheDelta.setAlias(namespaceId, state::NamespaceAlias(alias));
-    }
+	/// Aliases \a namespaceId to \a alias inside \a cacheDelta.
+	template <typename TAliasType>
+	void SetAlias(cache::NamespaceCacheDelta& cacheDelta, NamespaceId namespaceId, const TAliasType& alias) {
+		cacheDelta.setAlias(namespaceId, state::NamespaceAlias(alias));
+	}
 
-    /// Aliases \a namespaceId to random alias inside \a cacheDelta.
-    template <typename TAliasType>
-    void SetRandomAlias(cache::NamespaceCacheDelta& cacheDelta, NamespaceId namespaceId)
-    {
-        TAliasType alias;
-        test::FillWithRandomData(alias);
-        SetAlias(cacheDelta, namespaceId, alias);
-    }
+	/// Aliases \a namespaceId to random alias inside \a cacheDelta.
+	template <typename TAliasType>
+	void SetRandomAlias(cache::NamespaceCacheDelta& cacheDelta, NamespaceId namespaceId) {
+		TAliasType alias;
+		test::FillWithRandomData(alias);
+		SetAlias(cacheDelta, namespaceId, alias);
+	}
 }
 }

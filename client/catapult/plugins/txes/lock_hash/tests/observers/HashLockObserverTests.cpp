@@ -30,35 +30,32 @@ namespace observers {
 
 #define TEST_CLASS HashLockObserverTests
 
-    DEFINE_COMMON_OBSERVER_TESTS(HashLock, )
+	DEFINE_COMMON_OBSERVER_TESTS(HashLock, )
 
-    namespace {
-        struct HashObserverTraits : public test::BasicHashLockInfoTestTraits {
-        public:
-            using CacheType = cache::HashLockInfoCache;
-            using NotificationType = model::HashLockNotification;
-            using NotificationBuilder = test::HashLockNotificationBuilder;
-            using ObserverTestContext = test::ObserverTestContextT<test::HashLockInfoCacheFactory>;
+	namespace {
+		struct HashObserverTraits : public test::BasicHashLockInfoTestTraits {
+		public:
+			using CacheType = cache::HashLockInfoCache;
+			using NotificationType = model::HashLockNotification;
+			using NotificationBuilder = test::HashLockNotificationBuilder;
+			using ObserverTestContext = test::ObserverTestContextT<test::HashLockInfoCacheFactory>;
 
-            static constexpr auto Debit_Receipt_Type = model::Receipt_Type_LockHash_Created;
+			static constexpr auto Debit_Receipt_Type = model::Receipt_Type_LockHash_Created;
 
-            static auto CreateObserver()
-            {
-                return CreateHashLockObserver();
-            }
+			static auto CreateObserver() {
+				return CreateHashLockObserver();
+			}
 
-            static const auto& ToKey(const NotificationType& notification)
-            {
-                return notification.Hash;
-            }
+			static const auto& ToKey(const NotificationType& notification) {
+				return notification.Hash;
+			}
 
-            static void AssertAddedLockInfo(const state::HashLockInfo& lockInfo, const NotificationType& notification)
-            {
-                EXPECT_EQ(notification.Hash, lockInfo.Hash);
-            }
-        };
-    }
+			static void AssertAddedLockInfo(const state::HashLockInfo& lockInfo, const NotificationType& notification) {
+				EXPECT_EQ(notification.Hash, lockInfo.Hash);
+			}
+		};
+	}
 
-    DEFINE_LOCK_OBSERVER_TESTS(HashObserverTraits)
+	DEFINE_LOCK_OBSERVER_TESTS(HashObserverTraits)
 }
 }

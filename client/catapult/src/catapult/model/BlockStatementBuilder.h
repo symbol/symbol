@@ -25,39 +25,39 @@
 namespace catapult {
 namespace model {
 
-    /// Collection of receipts scoped to a block.
-    class BlockStatementBuilder {
-    public:
-        /// Creates a builder.
-        BlockStatementBuilder();
+	/// Collection of receipts scoped to a block.
+	class BlockStatementBuilder {
+	public:
+		/// Creates a builder.
+		BlockStatementBuilder();
 
-    public:
-        /// Gets the active source.
-        const ReceiptSource& source() const;
+	public:
+		/// Gets the active source.
+		const ReceiptSource& source() const;
 
-        /// Sets the active \a source.
-        void setSource(const ReceiptSource& source);
+		/// Sets the active \a source.
+		void setSource(const ReceiptSource& source);
 
-        /// Decrements the current primary source and removes all receipts associated with it.
-        void popSource();
+		/// Decrements the current primary source and removes all receipts associated with it.
+		void popSource();
 
-    public:
-        /// Adds \a receipt to this builder.
-        void addReceipt(const Receipt& receipt);
+	public:
+		/// Adds \a receipt to this builder.
+		void addReceipt(const Receipt& receipt);
 
-        /// Adds a resolution entry for resolving \a unresolved value to \a resolved value.
-        void addResolution(const UnresolvedAddress& unresolved, const Address& resolved);
+		/// Adds a resolution entry for resolving \a unresolved value to \a resolved value.
+		void addResolution(const UnresolvedAddress& unresolved, const Address& resolved);
 
-        /// Adds a resolution entry for resolving \a unresolved value to \a resolved value.
-        void addResolution(UnresolvedMosaicId unresolved, MosaicId resolved);
+		/// Adds a resolution entry for resolving \a unresolved value to \a resolved value.
+		void addResolution(UnresolvedMosaicId unresolved, MosaicId resolved);
 
-    public:
-        /// Builds a block statement.
-        std::unique_ptr<BlockStatement> build();
+	public:
+		/// Builds a block statement.
+		std::unique_ptr<BlockStatement> build();
 
-    private:
-        ReceiptSource m_activeSource;
-        std::unique_ptr<BlockStatement> m_pStatement;
-    };
+	private:
+		ReceiptSource m_activeSource;
+		std::unique_ptr<BlockStatement> m_pStatement;
+	};
 }
 }

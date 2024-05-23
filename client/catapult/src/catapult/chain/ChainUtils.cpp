@@ -29,79 +29,74 @@
 namespace catapult {
 namespace chain {
 
-    bool IsChainLink(const model::Block& parent, const Hash256& parentHash, const model::Block& child)
-    {
-        if (parent.Height + Height(1) != child.Height || parentHash != child.PreviousBlockHash)
-            return false;
+	bool IsChainLink(const model::Block& parent, const Hash256& parentHash, const model::Block& child) {
+		if (parent.Height + Height(1) != child.Height || parentHash != child.PreviousBlockHash)
+			return false;
 
-        return parent.Timestamp < child.Timestamp;
-    }
+		return parent.Timestamp < child.Timestamp;
+	}
 
-    namespace {
-        using StatisticSet = cache::BlockStatisticCacheTypes::PrimaryTypes::BaseSetType::SetType::MemorySetType;
+	namespace {
+		using StatisticSet = cache::BlockStatisticCacheTypes::PrimaryTypes::BaseSetType::SetType::MemorySetType;
 
-        StatisticSet LoadDifficulties(
-            const cache::BlockStatisticCache& cache,
-            Height height,
-            const model::BlockchainConfiguration& config)
-        {
-            auto view = cache.createView();
-            auto range = view->statistics(height, config.MaxDifficultyBlocks);
+		StatisticSet LoadDifficulties(
+			const cache::BlockStatisticCache& cache,
+			Height height,
+			const model::BlockchainConfiguration& config) {
+			auto view = cache.createView();
+			auto range = view->statistics(height, config.MaxDifficultyBlocks);
 
-            StatisticSet set;
-            set.insert(range.begin(), range.end());
-            return set;
-        }
+			StatisticSet set;
+			set.insert(range.begin(), range.end());
+			return set;
+		}
 
-        Difficulty CalculateDifficulty(const StatisticSet& statistics, const model::BlockchainConfiguration& config)
-        {
-            return chain::CalculateDifficulty(cache::BlockStatisticRange(statistics.cbegin(), statistics.cend()), config);
-        }
-    }
+		Difficulty CalculateDifficulty(const StatisticSet& statistics, const model::BlockchainConfiguration& config) {
+			return chain::CalculateDifficulty(cache::BlockStatisticRange(statistics.cbegin(), statistics.cend()), config);
+		}
+	}
 
-    size_t CheckDifficulties(
-        const cache::BlockStatisticCache& cache,
-        const std::vector<const model::Block*>& blocks,
-        const model::BlockchainConfiguration& config)
-    {
-        if (blocks.empty())
-            return 0;
+	size_t CheckDifficulties(
+		const cache::BlockStatisticCache& cache,
+		const std::vector<const model::Block*>& blocks,
+		const model::BlockchainConfiguration& config) {
+		if (blocks.empty())
+			return 0;
 
-        auto difficulties = LoadDifficulties(cache, blocks[0]->Height - Height(1), config);
-        auto difficulty = CalculateDifficulty(difficulties, config);
+		auto difficulties = LoadDifficulties(cache, blocks[0]->Height - Height(1), config);
+		auto difficulty = CalculateDifficulty(difficulties, config);
 
-        size_t i = 0;
-        for (const auto* pBlock : blocks) {
-            if (difficulty != pBlock->Difficulty)
-                break;
+		size_t i = 0;
+		for (const auto* pBlock : blocks) {
+			if (difficulty != pBlock->Difficulty)
+				break;
 
-            difficulties.insert(state::BlockStatistic(*pBlock));
+			difficulties.insert(state::BlockStatistic(*pBlock));
 
-            if (difficulties.size() > config.MaxDifficultyBlocks)
-                difficulties.erase(difficulties.cbegin());
+			if (difficulties.size() > config.MaxDifficultyBlocks)
+				difficulties.erase(difficulties.cbegin());
 
-            difficulty = CalculateDifficulty(difficulties, config);
-            ++i;
-        }
+			difficulty = CalculateDifficulty(difficulties, config);
+			++i;
+		}
 
-        if (i != blocks.size()) {
-            CATAPULT_LOG(warning) << "difficulties diverge at " << i << " of " << blocks.size() << " (height "
-                                  << (blocks.front()->Height + Height(i)) << ")";
-        }
+		if (i != blocks.size()) {
+			CATAPULT_LOG(warning) << "difficulties diverge at " << i << " of " << blocks.size() << " (height "
+								  << (blocks.front()->Height + Height(i)) << ")";
+		}
 
-        return i;
-    }
+		return i;
+	}
 
-    model::ChainScore CalculatePartialChainScore(const model::Block& parent, const std::vector<const model::Block*>& blocks)
-    {
-        model::ChainScore score;
-        auto pPreviousBlock = &parent;
-        for (const auto* pBlock : blocks) {
-            score += model::ChainScore(CalculateScore(*pPreviousBlock, *pBlock));
-            pPreviousBlock = pBlock;
-        }
+	model::ChainScore CalculatePartialChainScore(const model::Block& parent, const std::vector<const model::Block*>& blocks) {
+		model::ChainScore score;
+		auto pPreviousBlock = &parent;
+		for (const auto* pBlock : blocks) {
+			score += model::ChainScore(CalculateScore(*pPreviousBlock, *pBlock));
+			pPreviousBlock = pBlock;
+		}
 
-        return score;
-    }
+		return score;
+	}
 }
 }

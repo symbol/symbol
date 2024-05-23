@@ -27,36 +27,33 @@
 namespace catapult {
 namespace model {
 
-    /// Registry of plugins.
-    template <typename TPlugin, typename TPluginKey>
-    class PluginRegistry {
-    public:
-        /// Gets the number of registered plugins.
-        size_t size() const
-        {
-            return m_plugins.size();
-        }
+	/// Registry of plugins.
+	template <typename TPlugin, typename TPluginKey>
+	class PluginRegistry {
+	public:
+		/// Gets the number of registered plugins.
+		size_t size() const {
+			return m_plugins.size();
+		}
 
-        /// Finds the plugin corresponding to \a type or \c nullptr if none is registered.
-        const TPlugin* findPlugin(TPluginKey type) const
-        {
-            auto iter = std::find_if(m_plugins.cbegin(), m_plugins.cend(), [type](const auto& pPlugin) { return pPlugin->type() == type; });
+		/// Finds the plugin corresponding to \a type or \c nullptr if none is registered.
+		const TPlugin* findPlugin(TPluginKey type) const {
+			auto iter = std::find_if(m_plugins.cbegin(), m_plugins.cend(), [type](const auto& pPlugin) { return pPlugin->type() == type; });
 
-            return m_plugins.cend() == iter ? nullptr : iter->get();
-        }
+			return m_plugins.cend() == iter ? nullptr : iter->get();
+		}
 
-    public:
-        /// Registers \a pPlugin with the registry.
-        void registerPlugin(std::unique_ptr<const TPlugin>&& pPlugin)
-        {
-            if (findPlugin(pPlugin->type()))
-                CATAPULT_THROW_INVALID_ARGUMENT_1("plugin has already been registered with type", pPlugin->type());
+	public:
+		/// Registers \a pPlugin with the registry.
+		void registerPlugin(std::unique_ptr<const TPlugin>&& pPlugin) {
+			if (findPlugin(pPlugin->type()))
+				CATAPULT_THROW_INVALID_ARGUMENT_1("plugin has already been registered with type", pPlugin->type());
 
-            m_plugins.push_back(std::move(pPlugin));
-        }
+			m_plugins.push_back(std::move(pPlugin));
+		}
 
-    private:
-        std::vector<std::unique_ptr<const TPlugin>> m_plugins;
-    };
+	private:
+		std::vector<std::unique_ptr<const TPlugin>> m_plugins;
+	};
 }
 }

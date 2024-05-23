@@ -26,7 +26,7 @@
 namespace catapult {
 namespace mongo {
 
-    /// Creates a mongodb chain score provider around \a context.
-    std::unique_ptr<ChainScoreProvider> CreateMongoChainScoreProvider(MongoStorageContext& context);
+	/// Creates a mongodb chain score provider around \a context.
+	std::unique_ptr<ChainScoreProvider> CreateMongoChainScoreProvider(MongoStorageContext& context);
 }
 }

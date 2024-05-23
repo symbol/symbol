@@ -31,20 +31,19 @@ using namespace catapult::model;
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        template <typename TTransaction>
-        void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
-        {
-            sub.notify(NamespaceRequiredNotification(context.SignerAddress, transaction.NamespaceId));
-            sub.notify(AliasLinkNotification(transaction.NamespaceId, transaction.AliasAction));
-            sub.notify(AliasedMosaicIdNotification(transaction.NamespaceId, transaction.AliasAction, transaction.MosaicId));
+	namespace {
+		template <typename TTransaction>
+		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
+			sub.notify(NamespaceRequiredNotification(context.SignerAddress, transaction.NamespaceId));
+			sub.notify(AliasLinkNotification(transaction.NamespaceId, transaction.AliasAction));
+			sub.notify(AliasedMosaicIdNotification(transaction.NamespaceId, transaction.AliasAction, transaction.MosaicId));
 
-            // in case of unlink, the existence of the (possibly expired) mosaic is guaranteed
-            if (AliasAction::Link == transaction.AliasAction)
-                sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.MosaicId));
-        }
-    }
+			// in case of unlink, the existence of the (possibly expired) mosaic is guaranteed
+			if (AliasAction::Link == transaction.AliasAction)
+				sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.MosaicId));
+		}
+	}
 
-    DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicAlias, Default, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicAlias, Default, Publish)
 }
 }

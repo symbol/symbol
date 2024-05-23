@@ -30,76 +30,75 @@
 namespace catapult {
 namespace cache {
 
-    /// Mixins used by the block statistic cache delta.
-    struct BlockStatisticCacheDeltaMixins
-        : public BasicCacheMixins<BlockStatisticCacheTypes::PrimaryTypes::BaseSetDeltaType, BlockStatisticCacheDescriptor> {
-        using BlockStatisticRange = BlockStatisticRangeMixin<BlockStatisticCacheTypes::PrimaryTypes::BaseSetDeltaType>;
-    };
+	/// Mixins used by the block statistic cache delta.
+	struct BlockStatisticCacheDeltaMixins
+		: public BasicCacheMixins<BlockStatisticCacheTypes::PrimaryTypes::BaseSetDeltaType, BlockStatisticCacheDescriptor> {
+		using BlockStatisticRange = BlockStatisticRangeMixin<BlockStatisticCacheTypes::PrimaryTypes::BaseSetDeltaType>;
+	};
 
-    /// Basic delta on top of the block statistic cache.
-    class BasicBlockStatisticCacheDelta
-        : public utils::MoveOnly,
-          public BlockStatisticCacheDeltaMixins::Size,
-          public BlockStatisticCacheDeltaMixins::Contains,
-          public BlockStatisticCacheDeltaMixins::DeltaElements,
-          public BlockStatisticCacheDeltaMixins::BlockStatisticRange {
-    public:
-        using ReadOnlyView = BlockStatisticCacheTypes::CacheReadOnlyType;
-        using ValueType = BlockStatisticCacheDescriptor::ValueType;
-        using IterableView = IterationMixin<BlockStatisticCacheTypes::PrimaryTypes::BaseSetDeltaType>::IterableView;
+	/// Basic delta on top of the block statistic cache.
+	class BasicBlockStatisticCacheDelta
+		: public utils::MoveOnly,
+		  public BlockStatisticCacheDeltaMixins::Size,
+		  public BlockStatisticCacheDeltaMixins::Contains,
+		  public BlockStatisticCacheDeltaMixins::DeltaElements,
+		  public BlockStatisticCacheDeltaMixins::BlockStatisticRange {
+	public:
+		using ReadOnlyView = BlockStatisticCacheTypes::CacheReadOnlyType;
+		using ValueType = BlockStatisticCacheDescriptor::ValueType;
+		using IterableView = IterationMixin<BlockStatisticCacheTypes::PrimaryTypes::BaseSetDeltaType>::IterableView;
 
-    public:
-        /// Creates a delta around \a statisticSets and \a options.
-        BasicBlockStatisticCacheDelta(
-            const BlockStatisticCacheTypes::BaseSetDeltaPointers& statisticSets,
-            const BlockStatisticCacheTypes::Options& options);
+	public:
+		/// Creates a delta around \a statisticSets and \a options.
+		BasicBlockStatisticCacheDelta(
+			const BlockStatisticCacheTypes::BaseSetDeltaPointers& statisticSets,
+			const BlockStatisticCacheTypes::Options& options);
 
-    public:
-        /// Gets the pruning boundary that is used during commit.
-        deltaset::PruningBoundary<ValueType> pruningBoundary() const;
+	public:
+		/// Gets the pruning boundary that is used during commit.
+		deltaset::PruningBoundary<ValueType> pruningBoundary() const;
 
-    public:
-        /// Creates an iterable view of the cache.
-        /// \note Match BlockStatisticCacheDeltaMixins::Iteration signature but don't derive because
-        ///       IsBaseSetIterable is not (and should not be) implemented for base set deltas.
-        std::unique_ptr<IterableView> tryMakeIterableView() const;
+	public:
+		/// Creates an iterable view of the cache.
+		/// \note Match BlockStatisticCacheDeltaMixins::Iteration signature but don't derive because
+		///       IsBaseSetIterable is not (and should not be) implemented for base set deltas.
+		std::unique_ptr<IterableView> tryMakeIterableView() const;
 
-    public:
-        /// Inserts a block \a statistic into the set.
-        void insert(const ValueType& statistic);
+	public:
+		/// Inserts a block \a statistic into the set.
+		void insert(const ValueType& statistic);
 
-        /// Removes a block \a statistic from the set.
-        void remove(const ValueType& statistic);
+		/// Removes a block \a statistic from the set.
+		void remove(const ValueType& statistic);
 
-        /// Removes a block statistic from the set at \a height.
-        void remove(Height height);
+		/// Removes a block statistic from the set at \a height.
+		void remove(Height height);
 
-    public:
-        /// Prunes the cache at \a height.
-        void prune(Height height);
+	public:
+		/// Prunes the cache at \a height.
+		void prune(Height height);
 
-    private:
-        void checkInsert(Height height);
-        void checkRemove(Height height) const;
-        Height nextHeight() const;
+	private:
+		void checkInsert(Height height);
+		void checkRemove(Height height) const;
+		Height nextHeight() const;
 
-    private:
-        BlockStatisticCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pOrderedDelta;
-        uint64_t m_historySize;
-        Height m_startHeight;
-        deltaset::PruningBoundary<ValueType> m_pruningBoundary;
-    };
+	private:
+		BlockStatisticCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pOrderedDelta;
+		uint64_t m_historySize;
+		Height m_startHeight;
+		deltaset::PruningBoundary<ValueType> m_pruningBoundary;
+	};
 
-    /// Delta on top of the block statistic cache.
-    class BlockStatisticCacheDelta : public ReadOnlyViewSupplier<BasicBlockStatisticCacheDelta> {
-    public:
-        /// Creates a delta around \a statisticSets and \a options.
-        BlockStatisticCacheDelta(
-            const BlockStatisticCacheTypes::BaseSetDeltaPointers& statisticSets,
-            const BlockStatisticCacheTypes::Options& options)
-            : ReadOnlyViewSupplier(statisticSets, options)
-        {
-        }
-    };
+	/// Delta on top of the block statistic cache.
+	class BlockStatisticCacheDelta : public ReadOnlyViewSupplier<BasicBlockStatisticCacheDelta> {
+	public:
+		/// Creates a delta around \a statisticSets and \a options.
+		BlockStatisticCacheDelta(
+			const BlockStatisticCacheTypes::BaseSetDeltaPointers& statisticSets,
+			const BlockStatisticCacheTypes::Options& options)
+			: ReadOnlyViewSupplier(statisticSets, options) {
+		}
+	};
 }
 }

@@ -26,18 +26,18 @@
 namespace catapult {
 namespace net {
 
-    /// Collection of packet io pickers.
-    class PacketIoPickerContainer {
-    public:
-        /// Inserts \a picker, which is compatible with the specified \a roles, into this container.
-        void insert(PacketIoPicker& picker, ionet::NodeRoles roles);
+	/// Collection of packet io pickers.
+	class PacketIoPickerContainer {
+	public:
+		/// Inserts \a picker, which is compatible with the specified \a roles, into this container.
+		void insert(PacketIoPicker& picker, ionet::NodeRoles roles);
 
-        /// Retrieves a packet io pair around an active connection from each picker with compatible \a roles.
-        /// After \a ioDuration elapses, the connections will timeout.
-        std::vector<ionet::NodePacketIoPair> pickMatching(const utils::TimeSpan& ioDuration, ionet::NodeRoles roles) const;
+		/// Retrieves a packet io pair around an active connection from each picker with compatible \a roles.
+		/// After \a ioDuration elapses, the connections will timeout.
+		std::vector<ionet::NodePacketIoPair> pickMatching(const utils::TimeSpan& ioDuration, ionet::NodeRoles roles) const;
 
-    private:
-        std::vector<std::pair<ionet::NodeRoles, PacketIoPicker*>> m_pickers;
-    };
+	private:
+		std::vector<std::pair<ionet::NodeRoles, PacketIoPicker*>> m_pickers;
+	};
 }
 }

@@ -30,163 +30,148 @@ namespace state {
 
 #define TEST_CLASS MosaicDefinitionTests
 
-    namespace {
-        constexpr Height Default_Height(345);
+	namespace {
+		constexpr Height Default_Height(345);
 
-        void AssertDefaultRequiredProperties(const model::MosaicProperties& properties)
-        {
-            EXPECT_FALSE(properties.is(model::MosaicFlags::Supply_Mutable));
-            EXPECT_FALSE(properties.is(model::MosaicFlags::Transferable));
-            EXPECT_FALSE(properties.is(model::MosaicFlags::Restrictable));
-            EXPECT_EQ(0u, properties.divisibility());
-        }
+		void AssertDefaultRequiredProperties(const model::MosaicProperties& properties) {
+			EXPECT_FALSE(properties.is(model::MosaicFlags::Supply_Mutable));
+			EXPECT_FALSE(properties.is(model::MosaicFlags::Transferable));
+			EXPECT_FALSE(properties.is(model::MosaicFlags::Restrictable));
+			EXPECT_EQ(0u, properties.divisibility());
+		}
 
-        void AssertCustomOptionalProperties(const model::MosaicProperties& expectedProperties, const model::MosaicProperties& properties)
-        {
-            EXPECT_EQ(expectedProperties.duration(), properties.duration());
-        }
+		void AssertCustomOptionalProperties(const model::MosaicProperties& expectedProperties, const model::MosaicProperties& properties) {
+			EXPECT_EQ(expectedProperties.duration(), properties.duration());
+		}
 
-        MosaicDefinition CreateMosaicDefinition(uint64_t duration)
-        {
-            auto owner = test::CreateRandomOwner();
-            return MosaicDefinition(Default_Height, owner, 3, test::CreateMosaicPropertiesWithDuration(BlockDuration(duration)));
-        }
-    }
+		MosaicDefinition CreateMosaicDefinition(uint64_t duration) {
+			auto owner = test::CreateRandomOwner();
+			return MosaicDefinition(Default_Height, owner, 3, test::CreateMosaicPropertiesWithDuration(BlockDuration(duration)));
+		}
+	}
 
-    // region ctor
+	// region ctor
 
-    TEST(TEST_CLASS, CanCreateMosaicDefinition_DefaultProperties)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto properties = model::MosaicProperties();
+	TEST(TEST_CLASS, CanCreateMosaicDefinition_DefaultProperties) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto properties = model::MosaicProperties();
 
-        // Act:
-        MosaicDefinition definition(Height(877), owner, 3, properties);
+		// Act:
+		MosaicDefinition definition(Height(877), owner, 3, properties);
 
-        // Assert:
-        EXPECT_EQ(Height(877), definition.startHeight());
-        EXPECT_EQ(owner, definition.ownerAddress());
-        EXPECT_EQ(3u, definition.revision());
-        AssertDefaultRequiredProperties(definition.properties());
-        AssertCustomOptionalProperties(properties, definition.properties());
-    }
+		// Assert:
+		EXPECT_EQ(Height(877), definition.startHeight());
+		EXPECT_EQ(owner, definition.ownerAddress());
+		EXPECT_EQ(3u, definition.revision());
+		AssertDefaultRequiredProperties(definition.properties());
+		AssertCustomOptionalProperties(properties, definition.properties());
+	}
 
-    TEST(TEST_CLASS, CanCreateMosaicDefinition_CustomProperties)
-    {
-        // Arrange:
-        auto owner = test::CreateRandomOwner();
-        auto properties = test::CreateMosaicPropertiesWithDuration(BlockDuration(3));
+	TEST(TEST_CLASS, CanCreateMosaicDefinition_CustomProperties) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto properties = test::CreateMosaicPropertiesWithDuration(BlockDuration(3));
 
-        // Act:
-        MosaicDefinition definition(Height(877), owner, 3, properties);
+		// Act:
+		MosaicDefinition definition(Height(877), owner, 3, properties);
 
-        // Assert:
-        EXPECT_EQ(Height(877), definition.startHeight());
-        EXPECT_EQ(owner, definition.ownerAddress());
-        EXPECT_EQ(3u, definition.revision());
-        AssertDefaultRequiredProperties(definition.properties());
-        AssertCustomOptionalProperties(properties, definition.properties());
-    }
+		// Assert:
+		EXPECT_EQ(Height(877), definition.startHeight());
+		EXPECT_EQ(owner, definition.ownerAddress());
+		EXPECT_EQ(3u, definition.revision());
+		AssertDefaultRequiredProperties(definition.properties());
+		AssertCustomOptionalProperties(properties, definition.properties());
+	}
 
-    // endregion
+	// endregion
 
-    // region isEternal
+	// region isEternal
 
-    TEST(TEST_CLASS, IsEternalReturnsTrueWhenMosaicDefinitionHasEternalDuration)
-    {
-        // Arrange:
-        auto definition = CreateMosaicDefinition(Eternal_Artifact_Duration.unwrap());
+	TEST(TEST_CLASS, IsEternalReturnsTrueWhenMosaicDefinitionHasEternalDuration) {
+		// Arrange:
+		auto definition = CreateMosaicDefinition(Eternal_Artifact_Duration.unwrap());
 
-        // Assert:
-        EXPECT_TRUE(definition.isEternal());
-    }
+		// Assert:
+		EXPECT_TRUE(definition.isEternal());
+	}
 
-    TEST(TEST_CLASS, IsEternalReturnsFalseWhenMosaicDefinitionDoesNotHaveEternalDuration)
-    {
-        // Arrange:
-        for (auto duration : { 1u, 2u, 1000u, 10000u, 1'000'000'000u }) {
-            auto definition = CreateMosaicDefinition(duration);
+	TEST(TEST_CLASS, IsEternalReturnsFalseWhenMosaicDefinitionDoesNotHaveEternalDuration) {
+		// Arrange:
+		for (auto duration : { 1u, 2u, 1000u, 10000u, 1'000'000'000u }) {
+			auto definition = CreateMosaicDefinition(duration);
 
-            // Assert:
-            EXPECT_FALSE(definition.isEternal()) << "duration " << duration;
-        }
-    }
+			// Assert:
+			EXPECT_FALSE(definition.isEternal()) << "duration " << duration;
+		}
+	}
 
-    // endregion
+	// endregion
 
-    // region isActive
+	// region isActive
 
-    namespace {
-        void AssertActiveOrNot(BlockDuration::ValueType duration, const std::vector<Height::ValueType>& heights, bool expectedResult)
-        {
-            // Arrange: creation height is 345
-            auto definition = CreateMosaicDefinition(duration);
+	namespace {
+		void AssertActiveOrNot(BlockDuration::ValueType duration, const std::vector<Height::ValueType>& heights, bool expectedResult) {
+			// Arrange: creation height is 345
+			auto definition = CreateMosaicDefinition(duration);
 
-            // Assert:
-            for (auto height : heights)
-                EXPECT_EQ(expectedResult, definition.isActive(Height(height))) << "at height " << height;
-        }
-    }
+			// Assert:
+			for (auto height : heights)
+				EXPECT_EQ(expectedResult, definition.isActive(Height(height))) << "at height " << height;
+		}
+	}
 
-    TEST(TEST_CLASS, IsActiveReturnsTrueWhenMosaicDefinitionIsActive)
-    {
-        auto duration = 57u;
-        auto height = Default_Height.unwrap();
-        AssertActiveOrNot(duration, { height, height + 1, height + 22, height + duration - 2, height + duration - 1 }, true);
-    }
+	TEST(TEST_CLASS, IsActiveReturnsTrueWhenMosaicDefinitionIsActive) {
+		auto duration = 57u;
+		auto height = Default_Height.unwrap();
+		AssertActiveOrNot(duration, { height, height + 1, height + 22, height + duration - 2, height + duration - 1 }, true);
+	}
 
-    TEST(TEST_CLASS, IsActiveReturnsTrueWhenMosaicDefinitionIsEternal)
-    {
-        auto duration = Eternal_Artifact_Duration.unwrap();
-        auto height = Default_Height.unwrap();
-        AssertActiveOrNot(duration, { height - 1, height, height + 1, 500u, 5000u, std::numeric_limits<Height::ValueType>::max() }, true);
-    }
+	TEST(TEST_CLASS, IsActiveReturnsTrueWhenMosaicDefinitionIsEternal) {
+		auto duration = Eternal_Artifact_Duration.unwrap();
+		auto height = Default_Height.unwrap();
+		AssertActiveOrNot(duration, { height - 1, height, height + 1, 500u, 5000u, std::numeric_limits<Height::ValueType>::max() }, true);
+	}
 
-    TEST(TEST_CLASS, IsActiveReturnsFalseWhenMosaicDefinitionIsNotActive)
-    {
-        auto duration = 57u;
-        auto height = Default_Height.unwrap();
-        AssertActiveOrNot(duration, { 1u, height - 2, height - 1, height + duration, height + duration + 1, height + 10'000 }, false);
-    }
+	TEST(TEST_CLASS, IsActiveReturnsFalseWhenMosaicDefinitionIsNotActive) {
+		auto duration = 57u;
+		auto height = Default_Height.unwrap();
+		AssertActiveOrNot(duration, { 1u, height - 2, height - 1, height + duration, height + duration + 1, height + 10'000 }, false);
+	}
 
-    // endregion
+	// endregion
 
-    // region isExpired
+	// region isExpired
 
-    namespace {
-        void AssertExpiredOrNot(BlockDuration::ValueType duration, const std::vector<Height::ValueType>& heights, bool expectedResult)
-        {
-            // Arrange: creation height is 345
-            auto definition = CreateMosaicDefinition(duration);
+	namespace {
+		void AssertExpiredOrNot(BlockDuration::ValueType duration, const std::vector<Height::ValueType>& heights, bool expectedResult) {
+			// Arrange: creation height is 345
+			auto definition = CreateMosaicDefinition(duration);
 
-            // Assert:
-            for (auto height : heights)
-                EXPECT_EQ(expectedResult, definition.isExpired(Height(height))) << "at height " << height;
-        }
-    }
+			// Assert:
+			for (auto height : heights)
+				EXPECT_EQ(expectedResult, definition.isExpired(Height(height))) << "at height " << height;
+		}
+	}
 
-    TEST(TEST_CLASS, IsExpiredReturnsTrueWhenMosaicDefinitionIsExpired)
-    {
-        auto duration = 57u;
-        auto height = Default_Height.unwrap();
-        AssertExpiredOrNot(duration, { height + duration, height + duration + 1, height + 10'000 }, true);
-    }
+	TEST(TEST_CLASS, IsExpiredReturnsTrueWhenMosaicDefinitionIsExpired) {
+		auto duration = 57u;
+		auto height = Default_Height.unwrap();
+		AssertExpiredOrNot(duration, { height + duration, height + duration + 1, height + 10'000 }, true);
+	}
 
-    TEST(TEST_CLASS, IsExpiredReturnsFalseWhenMosaicDefinitionIsEternal)
-    {
-        auto duration = Eternal_Artifact_Duration.unwrap();
-        auto height = Default_Height.unwrap();
-        AssertExpiredOrNot(duration, { 1, height - 1, height, height + 1, 5000u, std::numeric_limits<Height::ValueType>::max() }, false);
-    }
+	TEST(TEST_CLASS, IsExpiredReturnsFalseWhenMosaicDefinitionIsEternal) {
+		auto duration = Eternal_Artifact_Duration.unwrap();
+		auto height = Default_Height.unwrap();
+		AssertExpiredOrNot(duration, { 1, height - 1, height, height + 1, 5000u, std::numeric_limits<Height::ValueType>::max() }, false);
+	}
 
-    TEST(TEST_CLASS, IsExpiredReturnsFalseWhenMosaicDefinitionIsNotExpired)
-    {
-        auto duration = 57u;
-        auto height = Default_Height.unwrap();
-        AssertExpiredOrNot(duration, { 1, height - 1, height, height + 1, height + duration - 2, height + duration - 1 }, false);
-    }
+	TEST(TEST_CLASS, IsExpiredReturnsFalseWhenMosaicDefinitionIsNotExpired) {
+		auto duration = 57u;
+		auto height = Default_Height.unwrap();
+		AssertExpiredOrNot(duration, { 1, height - 1, height, height + 1, height + duration - 2, height + duration - 1 }, false);
+	}
 
-    // endregion
+	// endregion
 }
 }

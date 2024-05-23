@@ -26,22 +26,22 @@
 
 namespace catapult {
 namespace ionet {
-    class BatchPacketReader;
-    class PacketIo;
+	class BatchPacketReader;
+	class PacketIo;
 }
 }
 
 namespace catapult {
 namespace ionet {
 
-    /// Adds read rate monitoring to all packets read from \a pIo by passing sizes of all read packets to \a readSizeConsumer.
-    std::shared_ptr<PacketIo> CreateReadRateMonitorPacketIo(
-        const std::shared_ptr<PacketIo>& pIo,
-        const consumer<uint32_t>& readSizeConsumer);
+	/// Adds read rate monitoring to all packets read from \a pIo by passing sizes of all read packets to \a readSizeConsumer.
+	std::shared_ptr<PacketIo> CreateReadRateMonitorPacketIo(
+		const std::shared_ptr<PacketIo>& pIo,
+		const consumer<uint32_t>& readSizeConsumer);
 
-    /// Adds read rate monitoring to all packets read from \a pReader by passing sizes of all read packets to \a readSizeConsumer.
-    std::shared_ptr<BatchPacketReader> CreateReadRateMonitorBatchPacketReader(
-        const std::shared_ptr<BatchPacketReader>& pReader,
-        const consumer<uint32_t>& readSizeConsumer);
+	/// Adds read rate monitoring to all packets read from \a pReader by passing sizes of all read packets to \a readSizeConsumer.
+	std::shared_ptr<BatchPacketReader> CreateReadRateMonitorBatchPacketReader(
+		const std::shared_ptr<BatchPacketReader>& pReader,
+		const consumer<uint32_t>& readSizeConsumer);
 }
 }

@@ -25,43 +25,43 @@
 namespace catapult {
 namespace subscribers {
 
-    /// Block change operation type.
-    enum class BlockChangeOperationType : uint8_t {
-        /// Block saved.
-        Block,
+	/// Block change operation type.
+	enum class BlockChangeOperationType : uint8_t {
+		/// Block saved.
+		Block,
 
-        /// Blocks dropped.
-        Drop_Blocks_After
-    };
+		/// Blocks dropped.
+		Drop_Blocks_After
+	};
 
-    /// Partial transactions change operation type.
-    enum class PtChangeOperationType : uint8_t {
-        /// Add partial transaction infos.
-        Add_Partials,
+	/// Partial transactions change operation type.
+	enum class PtChangeOperationType : uint8_t {
+		/// Add partial transaction infos.
+		Add_Partials,
 
-        /// Remove partial transaction infos.
-        Remove_Partials,
+		/// Remove partial transaction infos.
+		Remove_Partials,
 
-        /// Add cosignature.
-        Add_Cosignature
-    };
+		/// Add cosignature.
+		Add_Cosignature
+	};
 
-    /// State change operation type.
-    enum class StateChangeOperationType : uint8_t {
-        /// Score change.
-        Score_Change,
+	/// State change operation type.
+	enum class StateChangeOperationType : uint8_t {
+		/// Score change.
+		Score_Change,
 
-        /// State change.
-        State_Change
-    };
+		/// State change.
+		State_Change
+	};
 
-    /// Unconfirmed transactions change operation type.
-    enum class UtChangeOperationType : uint8_t {
-        /// Add transaction infos.
-        Add,
+	/// Unconfirmed transactions change operation type.
+	enum class UtChangeOperationType : uint8_t {
+		/// Add transaction infos.
+		Add,
 
-        /// Remove transaction infos.
-        Remove
-    };
+		/// Remove transaction infos.
+		Remove
+	};
 }
 }

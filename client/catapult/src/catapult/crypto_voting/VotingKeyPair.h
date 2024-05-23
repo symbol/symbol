@@ -26,29 +26,29 @@
 namespace catapult {
 namespace crypto {
 
-    struct VotingPrivateKey_tag {
-        static constexpr size_t Size = 32;
-    };
-    using VotingPrivateKey = SecureByteArray<VotingPrivateKey_tag>;
+	struct VotingPrivateKey_tag {
+		static constexpr size_t Size = 32;
+	};
+	using VotingPrivateKey = SecureByteArray<VotingPrivateKey_tag>;
 
-    struct VotingSignature_tag {
-        static constexpr size_t Size = 64;
-    };
-    using VotingSignature = utils::ByteArray<VotingSignature_tag>;
+	struct VotingSignature_tag {
+		static constexpr size_t Size = 64;
+	};
+	using VotingSignature = utils::ByteArray<VotingSignature_tag>;
 
-    /// BLS 381-12 key pair traits.
-    struct VotingKeyPairTraits {
-    public:
-        using PublicKey = VotingKey;
-        using PrivateKey = VotingPrivateKey;
+	/// BLS 381-12 key pair traits.
+	struct VotingKeyPairTraits {
+	public:
+		using PublicKey = VotingKey;
+		using PrivateKey = VotingPrivateKey;
 
-    public:
-        /// Extracts a public key (\a publicKey) from a private key (\a privateKey).
-        static void ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey);
-    };
+	public:
+		/// Extracts a public key (\a publicKey) from a private key (\a privateKey).
+		static void ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey);
+	};
 
-    /// BLS 381-12 key pair.
-    /// \note This key pair is used for voting messages.
-    using VotingKeyPair = BasicKeyPair<VotingKeyPairTraits>;
+	/// BLS 381-12 key pair.
+	/// \note This key pair is used for voting messages.
+	using VotingKeyPair = BasicKeyPair<VotingKeyPairTraits>;
 }
 }

@@ -25,6 +25,6 @@
 namespace catapult {
 namespace validators {
 
-    DEFINE_LOCK_DURATION_VALIDATOR(HashLockDuration, model::HashLockDurationNotification, Failure_LockHash_Invalid_Duration)
+	DEFINE_LOCK_DURATION_VALIDATOR(HashLockDuration, model::HashLockDurationNotification, Failure_LockHash_Invalid_Duration)
 }
 }

@@ -28,32 +28,29 @@ namespace validators {
 
 #define TEST_CLASS SecretLockHashAlgorithmValidatorTests
 
-    DEFINE_COMMON_VALIDATOR_TESTS(SecretLockHashAlgorithm, )
+	DEFINE_COMMON_VALIDATOR_TESTS(SecretLockHashAlgorithm, )
 
-    namespace {
-        struct LockHashAlgorithmTraits {
-            using EnumType = model::LockHashAlgorithm;
+	namespace {
+		struct LockHashAlgorithmTraits {
+			using EnumType = model::LockHashAlgorithm;
 
-            static constexpr auto Failure_Result = Failure_LockSecret_Invalid_Hash_Algorithm;
-            static constexpr auto CreateValidator = CreateSecretLockHashAlgorithmValidator;
+			static constexpr auto Failure_Result = Failure_LockSecret_Invalid_Hash_Algorithm;
+			static constexpr auto CreateValidator = CreateSecretLockHashAlgorithmValidator;
 
-            static std::vector<uint8_t> ValidValues()
-            {
-                return { 0, 1, 2 };
-            }
+			static std::vector<uint8_t> ValidValues() {
+				return { 0, 1, 2 };
+			}
 
-            static std::vector<uint8_t> InvalidValues()
-            {
-                return { 3, 4, 0xFF };
-            }
+			static std::vector<uint8_t> InvalidValues() {
+				return { 3, 4, 0xFF };
+			}
 
-            static auto CreateNotification(EnumType value)
-            {
-                return model::SecretLockHashAlgorithmNotification(value);
-            }
-        };
-    }
+			static auto CreateNotification(EnumType value) {
+				return model::SecretLockHashAlgorithmNotification(value);
+			}
+		};
+	}
 
-    DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, LockHashAlgorithmTraits)
+	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, LockHashAlgorithmTraits)
 }
 }

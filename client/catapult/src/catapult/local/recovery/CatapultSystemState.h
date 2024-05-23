@@ -26,31 +26,31 @@
 namespace catapult {
 namespace local {
 
-    /// Catapult system state.
-    class CatapultSystemState {
-    public:
-        /// Creates state around \a dataDirectory.
-        explicit CatapultSystemState(const config::CatapultDataDirectory& dataDirectory);
+	/// Catapult system state.
+	class CatapultSystemState {
+	public:
+		/// Creates state around \a dataDirectory.
+		explicit CatapultSystemState(const config::CatapultDataDirectory& dataDirectory);
 
-    public:
-        /// \c true if broker should be recovered.
-        bool shouldRecoverBroker() const;
+	public:
+		/// \c true if broker should be recovered.
+		bool shouldRecoverBroker() const;
 
-        /// \c true if server should be recovered.
-        bool shouldRecoverServer() const;
+		/// \c true if server should be recovered.
+		bool shouldRecoverServer() const;
 
-        /// Last server commit operation step that succeeded.
-        consumers::CommitOperationStep commitStep() const;
+		/// Last server commit operation step that succeeded.
+		consumers::CommitOperationStep commitStep() const;
 
-    public:
-        /// Resets system state to indicate no crash.
-        void reset();
+	public:
+		/// Resets system state to indicate no crash.
+		void reset();
 
-    private:
-        std::string qualifyRootFile(const std::string& filename) const;
+	private:
+		std::string qualifyRootFile(const std::string& filename) const;
 
-    private:
-        config::CatapultDataDirectory m_dataDirectory;
-    };
+	private:
+		config::CatapultDataDirectory m_dataDirectory;
+	};
 }
 }

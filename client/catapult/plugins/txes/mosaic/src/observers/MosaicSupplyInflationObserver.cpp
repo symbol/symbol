@@ -26,28 +26,27 @@
 namespace catapult {
 namespace observers {
 
-    using Notification = model::BlockNotification;
+	using Notification = model::BlockNotification;
 
-    DECLARE_OBSERVER(MosaicSupplyInflation, Notification)
-    (MosaicId currencyMosaicId, const model::InflationCalculator& calculator)
-    {
-        return MAKE_OBSERVER(
-            MosaicSupplyInflation,
-            Notification,
-            ([currencyMosaicId, calculator](const Notification&, ObserverContext& context) {
-                auto inflationAmount = calculator.getSpotAmount(context.Height);
-                if (Amount(0) == inflationAmount)
-                    return;
+	DECLARE_OBSERVER(MosaicSupplyInflation, Notification)
+	(MosaicId currencyMosaicId, const model::InflationCalculator& calculator) {
+		return MAKE_OBSERVER(
+			MosaicSupplyInflation,
+			Notification,
+			([currencyMosaicId, calculator](const Notification&, ObserverContext& context) {
+				auto inflationAmount = calculator.getSpotAmount(context.Height);
+				if (Amount(0) == inflationAmount)
+					return;
 
-                // only supply needs to be updated here because HarvestFeeObserver credits/debits harvester
-                auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
-                auto mosaicIter = mosaicCache.find(currencyMosaicId);
-                auto& mosaicEntry = mosaicIter.get();
-                if (NotifyMode::Commit == context.Mode)
-                    mosaicEntry.increaseSupply(inflationAmount);
-                else
-                    mosaicEntry.decreaseSupply(inflationAmount);
-            }));
-    }
+				// only supply needs to be updated here because HarvestFeeObserver credits/debits harvester
+				auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
+				auto mosaicIter = mosaicCache.find(currencyMosaicId);
+				auto& mosaicEntry = mosaicIter.get();
+				if (NotifyMode::Commit == context.Mode)
+					mosaicEntry.increaseSupply(inflationAmount);
+				else
+					mosaicEntry.decreaseSupply(inflationAmount);
+			}));
+	}
 }
 }

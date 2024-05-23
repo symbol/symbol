@@ -28,53 +28,53 @@
 namespace catapult {
 namespace validators {
 
-    /// Validator that applies to multisig cosignatories notifications and validates that:
-    /// - same account does not occur in removed and added cosignatories
-    /// - there is at most one cosignatory removed
-    DECLARE_STATELESS_VALIDATOR(MultisigCosignatories, model::MultisigCosignatoriesNotification)
-    ();
+	/// Validator that applies to multisig cosignatories notifications and validates that:
+	/// - same account does not occur in removed and added cosignatories
+	/// - there is at most one cosignatory removed
+	DECLARE_STATELESS_VALIDATOR(MultisigCosignatories, model::MultisigCosignatoriesNotification)
+	();
 
-    /// Validator that applies to transaction notifications and validates that:
-    /// - multisig accounts cannot initiate transactions
-    DECLARE_STATEFUL_VALIDATOR(MultisigPermittedOperation, model::TransactionNotification)
-    ();
+	/// Validator that applies to transaction notifications and validates that:
+	/// - multisig accounts cannot initiate transactions
+	DECLARE_STATEFUL_VALIDATOR(MultisigPermittedOperation, model::TransactionNotification)
+	();
 
-    /// Validator that applies to multisig cosignatories notifications and validates that:
-    /// - added account isn't already a cosignatory
-    /// - removed account is already a cosignatory
-    DECLARE_STATEFUL_VALIDATOR(MultisigInvalidCosignatories, model::MultisigCosignatoriesNotification)
-    ();
+	/// Validator that applies to multisig cosignatories notifications and validates that:
+	/// - added account isn't already a cosignatory
+	/// - removed account is already a cosignatory
+	DECLARE_STATEFUL_VALIDATOR(MultisigInvalidCosignatories, model::MultisigCosignatoriesNotification)
+	();
 
-    /// Validator that applies to multisig new osignatory notifications and validates that:
-    /// - the cosignatory is cosigning at most \a maxCosignedAccountsPerAccount
-    DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, model::MultisigNewCosignatoryNotification)
-    (uint32_t maxCosignedAccountsPerAccount);
+	/// Validator that applies to multisig new osignatory notifications and validates that:
+	/// - the cosignatory is cosigning at most \a maxCosignedAccountsPerAccount
+	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, model::MultisigNewCosignatoryNotification)
+	(uint32_t maxCosignedAccountsPerAccount);
 
-    /// Validator that applies to multisig cosignatories notifications and validates that:
-    /// - the multisig account has at most \a maxCosignatoriesPerAccount cosignatories
-    DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignatories, model::MultisigCosignatoriesNotification)
-    (uint32_t maxCosignatoriesPerAccount);
+	/// Validator that applies to multisig cosignatories notifications and validates that:
+	/// - the multisig account has at most \a maxCosignatoriesPerAccount cosignatories
+	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignatories, model::MultisigCosignatoriesNotification)
+	(uint32_t maxCosignatoriesPerAccount);
 
-    /// Validator that applies to multisig new cosignatory notifications and validates that:
-    /// - the multisig depth is at most \a maxMultisigDepth
-    /// - no multisig loops are created
-    DECLARE_STATEFUL_VALIDATOR(MultisigLoopAndLevel, model::MultisigNewCosignatoryNotification)
-    (uint8_t maxMultisigDepth);
+	/// Validator that applies to multisig new cosignatory notifications and validates that:
+	/// - the multisig depth is at most \a maxMultisigDepth
+	/// - no multisig loops are created
+	DECLARE_STATEFUL_VALIDATOR(MultisigLoopAndLevel, model::MultisigNewCosignatoryNotification)
+	(uint8_t maxMultisigDepth);
 
-    /// Validator that applies to multisig settings notifications and validates that:
-    /// - new min removal and min approval are greater than 0
-    /// - new min removal and min approval settings are not greater than total number of cosignatories
-    DECLARE_STATEFUL_VALIDATOR(MultisigInvalidSettings, model::MultisigSettingsNotification)
-    ();
+	/// Validator that applies to multisig settings notifications and validates that:
+	/// - new min removal and min approval are greater than 0
+	/// - new min removal and min approval settings are not greater than total number of cosignatories
+	DECLARE_STATEFUL_VALIDATOR(MultisigInvalidSettings, model::MultisigSettingsNotification)
+	();
 
-    /// Validator that applies to aggregate cosignatures notifications and validates that:
-    ///  - all cosignatories are eligible counterparties (using \a transactionRegistry to retrieve custom approval requirements)
-    DECLARE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosignatories, model::AggregateCosignaturesNotification)
-    (const model::TransactionRegistry& transactionRegistry);
+	/// Validator that applies to aggregate cosignatures notifications and validates that:
+	///  - all cosignatories are eligible counterparties (using \a transactionRegistry to retrieve custom approval requirements)
+	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosignatories, model::AggregateCosignaturesNotification)
+	(const model::TransactionRegistry& transactionRegistry);
 
-    /// Validator that applies to aggregate embeded transaction notifications and validates that:
-    ///  - present cosignatories are sufficient (using \a transactionRegistry to retrieve custom approval requirements)
-    DECLARE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosignatories, model::AggregateEmbeddedTransactionNotification)
-    (const model::TransactionRegistry& transactionRegistry);
+	/// Validator that applies to aggregate embeded transaction notifications and validates that:
+	///  - present cosignatories are sufficient (using \a transactionRegistry to retrieve custom approval requirements)
+	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosignatories, model::AggregateEmbeddedTransactionNotification)
+	(const model::TransactionRegistry& transactionRegistry);
 }
 }

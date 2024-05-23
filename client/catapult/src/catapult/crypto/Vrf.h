@@ -27,47 +27,47 @@
 namespace catapult {
 namespace crypto {
 
-    /// VRF proof gamma.
-    struct ProofGamma_tag {
-        static constexpr size_t Size = 32;
-    };
-    using ProofGamma = utils::ByteArray<ProofGamma_tag>;
+	/// VRF proof gamma.
+	struct ProofGamma_tag {
+		static constexpr size_t Size = 32;
+	};
+	using ProofGamma = utils::ByteArray<ProofGamma_tag>;
 
-    /// VRF proof verification hash.
-    struct ProofVerificationHash_tag {
-        static constexpr size_t Size = 16;
-    };
-    using ProofVerificationHash = utils::ByteArray<ProofVerificationHash_tag>;
+	/// VRF proof verification hash.
+	struct ProofVerificationHash_tag {
+		static constexpr size_t Size = 16;
+	};
+	using ProofVerificationHash = utils::ByteArray<ProofVerificationHash_tag>;
 
-    /// VRF proof scalar.
-    struct ProofScalar_tag {
-        static constexpr size_t Size = 32;
-    };
-    using ProofScalar = utils::ByteArray<ProofScalar_tag>;
+	/// VRF proof scalar.
+	struct ProofScalar_tag {
+		static constexpr size_t Size = 32;
+	};
+	using ProofScalar = utils::ByteArray<ProofScalar_tag>;
 
 #pragma pack(push, 1)
 
-    /// VRF proof for the verifiable random function.
-    struct VrfProof {
-        /// Gamma.
-        ProofGamma Gamma;
+	/// VRF proof for the verifiable random function.
+	struct VrfProof {
+		/// Gamma.
+		ProofGamma Gamma;
 
-        /// Verification hash.
-        ProofVerificationHash VerificationHash;
+		/// Verification hash.
+		ProofVerificationHash VerificationHash;
 
-        /// Scalar.
-        ProofScalar Scalar;
-    };
+		/// Scalar.
+		ProofScalar Scalar;
+	};
 
 #pragma pack(pop)
 
-    /// Generates a verifiable random function proof from \a alpha and \a keyPair.
-    VrfProof GenerateVrfProof(const RawBuffer& alpha, const KeyPair& keyPair);
+	/// Generates a verifiable random function proof from \a alpha and \a keyPair.
+	VrfProof GenerateVrfProof(const RawBuffer& alpha, const KeyPair& keyPair);
 
-    /// Verifies verifiable random function proof (\a vrfProof) using \a alpha and \a publicKey.
-    Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey);
+	/// Verifies verifiable random function proof (\a vrfProof) using \a alpha and \a publicKey.
+	Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey);
 
-    /// Generates a verifiable random function proof hash from \a gamma.
-    Hash512 GenerateVrfProofHash(const ProofGamma& gamma);
+	/// Generates a verifiable random function proof hash from \a gamma.
+	Hash512 GenerateVrfProofHash(const ProofGamma& gamma);
 }
 }

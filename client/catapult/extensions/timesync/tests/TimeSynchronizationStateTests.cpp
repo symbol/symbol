@@ -29,139 +29,130 @@ namespace timesync {
 
 #define TEST_CLASS TimeSynchronizationStateTests
 
-    namespace {
-        constexpr auto Default_Epoch_Adjustment = utils::TimeSpan::FromMilliseconds(11223344556677);
-        constexpr uint64_t Default_Threshold(123);
-    }
+	namespace {
+		constexpr auto Default_Epoch_Adjustment = utils::TimeSpan::FromMilliseconds(11223344556677);
+		constexpr uint64_t Default_Threshold(123);
+	}
 
-    // region ctor
+	// region ctor
 
-    TEST(TEST_CLASS, CanDefaultConstructState)
-    {
-        // Act:
-        TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
+	TEST(TEST_CLASS, CanDefaultConstructState) {
+		// Act:
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
-        // Assert:
-        EXPECT_EQ(TimeOffset(), state.offset());
-        EXPECT_EQ(0u, state.absoluteOffset());
-        EXPECT_EQ(TimeOffsetDirection::Positive, state.offsetDirection());
-        EXPECT_EQ(NodeAge(), state.nodeAge());
-    }
+		// Assert:
+		EXPECT_EQ(TimeOffset(), state.offset());
+		EXPECT_EQ(0u, state.absoluteOffset());
+		EXPECT_EQ(TimeOffsetDirection::Positive, state.offsetDirection());
+		EXPECT_EQ(NodeAge(), state.nodeAge());
+	}
 
-    // endregion
+	// endregion
 
-    // region update
+	// region update
 
-    namespace {
-        void AssertUpdateDoesNotChangeState(uint64_t threshold, int64_t offset)
-        {
-            // Arrange:
-            TimeSynchronizationState state(Default_Epoch_Adjustment, threshold);
+	namespace {
+		void AssertUpdateDoesNotChangeState(uint64_t threshold, int64_t offset) {
+			// Arrange:
+			TimeSynchronizationState state(Default_Epoch_Adjustment, threshold);
 
-            // Act:
-            state.update(TimeOffset(offset));
+			// Act:
+			state.update(TimeOffset(offset));
 
-            // Assert:
-            EXPECT_EQ(TimeOffset(), state.offset());
-            EXPECT_EQ(0u, state.absoluteOffset());
-            EXPECT_EQ(TimeOffsetDirection::Positive, state.offsetDirection());
-            EXPECT_EQ(NodeAge(1), state.nodeAge());
-        }
-    }
+			// Assert:
+			EXPECT_EQ(TimeOffset(), state.offset());
+			EXPECT_EQ(0u, state.absoluteOffset());
+			EXPECT_EQ(TimeOffsetDirection::Positive, state.offsetDirection());
+			EXPECT_EQ(NodeAge(1), state.nodeAge());
+		}
+	}
 
-    TEST(TEST_CLASS, UpdateIncreasesNodeAge)
-    {
-        // Arrange:
-        TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
+	TEST(TEST_CLASS, UpdateIncreasesNodeAge) {
+		// Arrange:
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
-        // Act:
-        state.update(TimeOffset());
+		// Act:
+		state.update(TimeOffset());
 
-        // Assert:
-        EXPECT_EQ(TimeOffset(), state.offset());
-        EXPECT_EQ(0u, state.absoluteOffset());
-        EXPECT_EQ(TimeOffsetDirection::Positive, state.offsetDirection());
-        EXPECT_EQ(NodeAge(1), state.nodeAge());
-    }
+		// Assert:
+		EXPECT_EQ(TimeOffset(), state.offset());
+		EXPECT_EQ(0u, state.absoluteOffset());
+		EXPECT_EQ(TimeOffsetDirection::Positive, state.offsetDirection());
+		EXPECT_EQ(NodeAge(1), state.nodeAge());
+	}
 
-    TEST(TEST_CLASS, UpdateDoesNotChangeOffsetWhenSuppliedOffsetIsSmallerThanThreshold_Positive)
-    {
-        AssertUpdateDoesNotChangeState(Default_Threshold, 50);
-    }
+	TEST(TEST_CLASS, UpdateDoesNotChangeOffsetWhenSuppliedOffsetIsSmallerThanThreshold_Positive) {
+		AssertUpdateDoesNotChangeState(Default_Threshold, 50);
+	}
 
-    TEST(TEST_CLASS, UpdateDoesNotChangeOffsetWhenSuppliedOffsetIsSmallerThanThreshold_Negative)
-    {
-        AssertUpdateDoesNotChangeState(Default_Threshold, -50);
-    }
+	TEST(TEST_CLASS, UpdateDoesNotChangeOffsetWhenSuppliedOffsetIsSmallerThanThreshold_Negative) {
+		AssertUpdateDoesNotChangeState(Default_Threshold, -50);
+	}
 
-    TEST(TEST_CLASS, UpdateCanChangeOffsetInPositiveDirection)
-    {
-        // Arrange:
-        TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
+	TEST(TEST_CLASS, UpdateCanChangeOffsetInPositiveDirection) {
+		// Arrange:
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
-        // Act:
-        state.update(TimeOffset(150));
+		// Act:
+		state.update(TimeOffset(150));
 
-        // Assert:
-        EXPECT_EQ(TimeOffset(150), state.offset());
-        EXPECT_EQ(150u, state.absoluteOffset());
-        EXPECT_EQ(TimeOffsetDirection::Positive, state.offsetDirection());
-        EXPECT_EQ(NodeAge(1), state.nodeAge());
-    }
+		// Assert:
+		EXPECT_EQ(TimeOffset(150), state.offset());
+		EXPECT_EQ(150u, state.absoluteOffset());
+		EXPECT_EQ(TimeOffsetDirection::Positive, state.offsetDirection());
+		EXPECT_EQ(NodeAge(1), state.nodeAge());
+	}
 
-    TEST(TEST_CLASS, UpdateCanChangeOffsetInNegativeDirection)
-    {
-        // Arrange:
-        TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
+	TEST(TEST_CLASS, UpdateCanChangeOffsetInNegativeDirection) {
+		// Arrange:
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
-        // Act:
-        state.update(TimeOffset(-150));
+		// Act:
+		state.update(TimeOffset(-150));
 
-        // Assert:
-        EXPECT_EQ(TimeOffset(-150), state.offset());
-        EXPECT_EQ(150u, state.absoluteOffset());
-        EXPECT_EQ(TimeOffsetDirection::Negative, state.offsetDirection());
-        EXPECT_EQ(NodeAge(1), state.nodeAge());
-    }
+		// Assert:
+		EXPECT_EQ(TimeOffset(-150), state.offset());
+		EXPECT_EQ(150u, state.absoluteOffset());
+		EXPECT_EQ(TimeOffsetDirection::Negative, state.offsetDirection());
+		EXPECT_EQ(NodeAge(1), state.nodeAge());
+	}
 
-    TEST(TEST_CLASS, UpdateRespectsExistingState)
-    {
-        // Arrange:
-        TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
+	TEST(TEST_CLASS, UpdateRespectsExistingState) {
+		// Arrange:
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
-        // Act: threshold is 125, -150 + 350 - 250 = -50
-        for (auto rawOffset : { -150, -50, 100, 350, -250 })
-            state.update(TimeOffset(rawOffset));
+		// Act: threshold is 125, -150 + 350 - 250 = -50
+		for (auto rawOffset : { -150, -50, 100, 350, -250 })
+			state.update(TimeOffset(rawOffset));
 
-        // Assert:
-        EXPECT_EQ(TimeOffset(-50), state.offset());
-        EXPECT_EQ(50u, state.absoluteOffset());
-        EXPECT_EQ(TimeOffsetDirection::Negative, state.offsetDirection());
-        EXPECT_EQ(NodeAge(5), state.nodeAge());
-    }
+		// Assert:
+		EXPECT_EQ(TimeOffset(-50), state.offset());
+		EXPECT_EQ(50u, state.absoluteOffset());
+		EXPECT_EQ(TimeOffsetDirection::Negative, state.offsetDirection());
+		EXPECT_EQ(NodeAge(5), state.nodeAge());
+	}
 
-    // endregion
+	// endregion
 
-    // region networkTime
+	// region networkTime
 
-    TEST(TEST_CLASS, NetworkTimeUsesOffset)
-    {
-        // Arrange:
-        TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
-        state.update(TimeOffset(234));
-        Timestamp timestamp;
-        Timestamp networkTime;
+	TEST(TEST_CLASS, NetworkTimeUsesOffset) {
+		// Arrange:
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
+		state.update(TimeOffset(234));
+		Timestamp timestamp;
+		Timestamp networkTime;
 
-        // Act:
-        test::RunDeterministicOperation([&state, &timestamp, &networkTime]() {
-            timestamp = utils::NetworkTime(Default_Epoch_Adjustment).now();
-            networkTime = state.networkTime();
-        });
+		// Act:
+		test::RunDeterministicOperation([&state, &timestamp, &networkTime]() {
+			timestamp = utils::NetworkTime(Default_Epoch_Adjustment).now();
+			networkTime = state.networkTime();
+		});
 
-        // Assert:
-        EXPECT_EQ(timestamp + Timestamp(234), networkTime);
-    }
+		// Assert:
+		EXPECT_EQ(timestamp + Timestamp(234), networkTime);
+	}
 
-    // endregion
+	// endregion
 }
 }

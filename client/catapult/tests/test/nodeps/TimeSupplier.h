@@ -27,11 +27,11 @@
 namespace catapult {
 namespace test {
 
-    /// Creates a time supplier that returns all values specified in \a rawTimestamps multiplied by \a multiplier
-    /// and terminally repeats the last value.
-    supplier<Timestamp> CreateTimeSupplierFromMilliseconds(const std::vector<uint32_t>& rawTimestamps, uint32_t multiplier = 1);
+	/// Creates a time supplier that returns all values specified in \a rawTimestamps multiplied by \a multiplier
+	/// and terminally repeats the last value.
+	supplier<Timestamp> CreateTimeSupplierFromMilliseconds(const std::vector<uint32_t>& rawTimestamps, uint32_t multiplier = 1);
 
-    /// Creates a time supplier that returns all values specified in \a rawTimestampsInSeconds and terminally repeats the last value.
-    supplier<Timestamp> CreateTimeSupplierFromSeconds(const std::vector<uint32_t>& rawTimestampsInSeconds);
+	/// Creates a time supplier that returns all values specified in \a rawTimestampsInSeconds and terminally repeats the last value.
+	supplier<Timestamp> CreateTimeSupplierFromSeconds(const std::vector<uint32_t>& rawTimestampsInSeconds);
 }
 }

@@ -26,250 +26,225 @@
 namespace catapult {
 namespace tools {
 
-    namespace {
-        [[noreturn]]
-        void ThrowInvalidArgument(const char* key, const std::string& value)
-        {
-            std::ostringstream out;
-            out << "'" << value << "' is not a valid " << key;
-            CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-        }
-    }
+	namespace {
+		[[noreturn]]
+		void ThrowInvalidArgument(const char* key, const std::string& value) {
+			std::ostringstream out;
+			out << "'" << value << "' is not a valid " << key;
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
+	}
 
-    AccountPrinterFormat ParseAccountPrinterFormat(const std::string& str)
-    {
-        static const std::array<std::pair<const char*, AccountPrinterFormat>, 2> String_To_Account_Printer_Format_Pairs {
-            { { "pretty", AccountPrinterFormat::Pretty }, { "csv", AccountPrinterFormat::Csv } }
-        };
+	AccountPrinterFormat ParseAccountPrinterFormat(const std::string& str) {
+		static const std::array<std::pair<const char*, AccountPrinterFormat>, 2> String_To_Account_Printer_Format_Pairs {
+			{ { "pretty", AccountPrinterFormat::Pretty }, { "csv", AccountPrinterFormat::Csv } }
+		};
 
-        AccountPrinterFormat format;
-        if (!utils::TryParseEnumValue(String_To_Account_Printer_Format_Pairs, str, format))
-            ThrowInvalidArgument("format", str);
+		AccountPrinterFormat format;
+		if (!utils::TryParseEnumValue(String_To_Account_Printer_Format_Pairs, str, format))
+			ThrowInvalidArgument("format", str);
 
-        return format;
-    }
+		return format;
+	}
 
-    namespace {
-        model::NetworkIdentifier ParseNetworkIdentifier(const std::string& str)
-        {
-            model::NetworkIdentifier networkIdentifier;
-            if (!model::TryParseValue(str, networkIdentifier))
-                ThrowInvalidArgument("network", str);
+	namespace {
+		model::NetworkIdentifier ParseNetworkIdentifier(const std::string& str) {
+			model::NetworkIdentifier networkIdentifier;
+			if (!model::TryParseValue(str, networkIdentifier))
+				ThrowInvalidArgument("network", str);
 
-            return networkIdentifier;
-        }
+			return networkIdentifier;
+		}
 
-        // region AutoLineEnding
+		// region AutoLineEnding
 
-        class AutoLineEnding {
-        public:
-            AutoLineEnding(std::ostream& out, size_t& counter)
-                : m_out(out)
-                , m_counter(++counter)
-            {
-            }
+		class AutoLineEnding {
+		public:
+			AutoLineEnding(std::ostream& out, size_t& counter)
+				: m_out(out)
+				, m_counter(++counter) {
+			}
 
-            ~AutoLineEnding()
-            {
-                if (0 == --m_counter)
-                    m_out << std::endl;
-            }
+			~AutoLineEnding() {
+				if (0 == --m_counter)
+					m_out << std::endl;
+			}
 
-        private:
-            std::ostream& m_out;
-            size_t& m_counter;
-        };
+		private:
+			std::ostream& m_out;
+			size_t& m_counter;
+		};
 
-        // endregion
+		// endregion
 
-        // region CsvAccountPrinter
+		// region CsvAccountPrinter
 
-        class CsvAccountPrinter : public AccountPrinter {
-        public:
-            explicit CsvAccountPrinter(std::ostream& out)
-                : m_out(out)
-                , m_counter(0)
-            {
-            }
+		class CsvAccountPrinter : public AccountPrinter {
+		public:
+			explicit CsvAccountPrinter(std::ostream& out)
+				: m_out(out)
+				, m_counter(0) {
+			}
 
-        public:
-            void setNetwork(const std::string& networkName) override
-            {
-                m_networkIdentifier = ParseNetworkIdentifier(networkName);
-            }
+		public:
+			void setNetwork(const std::string& networkName) override {
+				m_networkIdentifier = ParseNetworkIdentifier(networkName);
+			}
 
-        public:
-            void print(const Address& address) override
-            {
-                AutoLineEnding guard(m_out, m_counter);
+		public:
+			void print(const Address& address) override {
+				AutoLineEnding guard(m_out, m_counter);
 
-                m_out << (!model::IsValidAddress(address, m_networkIdentifier) ? "INVALID" : "") << "," << model::AddressToString(address)
-                      << "," << address;
-            }
+				m_out << (!model::IsValidAddress(address, m_networkIdentifier) ? "INVALID" : "") << "," << model::AddressToString(address)
+					  << "," << address;
+			}
 
-            void print(const Key& publicKey) override
-            {
-                AutoLineEnding guard(m_out, m_counter);
+			void print(const Key& publicKey) override {
+				AutoLineEnding guard(m_out, m_counter);
 
-                print(model::PublicKeyToAddress(publicKey, m_networkIdentifier));
-                m_out << "," << publicKey;
-            }
+				print(model::PublicKeyToAddress(publicKey, m_networkIdentifier));
+				m_out << "," << publicKey;
+			}
 
-            void print(const crypto::KeyPair& keyPair) override
-            {
-                AutoLineEnding guard(m_out, m_counter);
+			void print(const crypto::KeyPair& keyPair) override {
+				AutoLineEnding guard(m_out, m_counter);
 
-                print(keyPair.publicKey());
-                m_out << "," << crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey());
-            }
+				print(keyPair.publicKey());
+				m_out << "," << crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey());
+			}
 
-            void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override
-            {
-                AutoLineEnding guard(m_out, m_counter);
+			void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override {
+				AutoLineEnding guard(m_out, m_counter);
 
-                print(keyPair);
-                m_out << "," << mnemonic;
-            }
+				print(keyPair);
+				m_out << "," << mnemonic;
+			}
 
-        private:
-            std::ostream& m_out;
-            size_t m_counter;
+		private:
+			std::ostream& m_out;
+			size_t m_counter;
 
-            model::NetworkIdentifier m_networkIdentifier;
-        };
+			model::NetworkIdentifier m_networkIdentifier;
+		};
 
-        // endregion
+		// endregion
 
-        // region PrettyAccountPrinter
+		// region PrettyAccountPrinter
 
-        class PrettyAccountPrinter : public AccountPrinter {
-        public:
-            explicit PrettyAccountPrinter(std::ostream& out)
-                : m_out(out)
-                , m_counter(0)
-            {
-            }
+		class PrettyAccountPrinter : public AccountPrinter {
+		public:
+			explicit PrettyAccountPrinter(std::ostream& out)
+				: m_out(out)
+				, m_counter(0) {
+			}
 
-        public:
-            void setNetwork(const std::string& networkName) override
-            {
-                m_networkName = networkName;
-                m_networkIdentifier = ParseNetworkIdentifier(m_networkName);
-            }
+		public:
+			void setNetwork(const std::string& networkName) override {
+				m_networkName = networkName;
+				m_networkIdentifier = ParseNetworkIdentifier(m_networkName);
+			}
 
-        public:
-            void print(const Address& address) override
-            {
-                AutoLineEnding guard(m_out, m_counter);
+		public:
+			void print(const Address& address) override {
+				AutoLineEnding guard(m_out, m_counter);
 
-                std::string qualifier;
-                if (!model::IsValidAddress(address, m_networkIdentifier))
-                    qualifier = "[INVALID] ";
+				std::string qualifier;
+				if (!model::IsValidAddress(address, m_networkIdentifier))
+					qualifier = "[INVALID] ";
 
-                m_out << std::setw(Label_Width - static_cast<int>(m_networkName.size()) - 3) << "address (" << m_networkName
-                      << "): " << qualifier << model::AddressToString(address) << std::endl
-                      << std::setw(Label_Width) << "address decoded: " << address << std::endl;
-            }
+				m_out << std::setw(Label_Width - static_cast<int>(m_networkName.size()) - 3) << "address (" << m_networkName
+					  << "): " << qualifier << model::AddressToString(address) << std::endl
+					  << std::setw(Label_Width) << "address decoded: " << address << std::endl;
+			}
 
-            void print(const Key& publicKey) override
-            {
-                AutoLineEnding guard(m_out, m_counter);
+			void print(const Key& publicKey) override {
+				AutoLineEnding guard(m_out, m_counter);
 
-                print(model::PublicKeyToAddress(publicKey, m_networkIdentifier));
-                m_out << std::setw(Label_Width) << "public key: " << publicKey << std::endl;
-            }
+				print(model::PublicKeyToAddress(publicKey, m_networkIdentifier));
+				m_out << std::setw(Label_Width) << "public key: " << publicKey << std::endl;
+			}
 
-            void print(const crypto::KeyPair& keyPair) override
-            {
-                AutoLineEnding guard(m_out, m_counter);
+			void print(const crypto::KeyPair& keyPair) override {
+				AutoLineEnding guard(m_out, m_counter);
 
-                print(keyPair.publicKey());
-                m_out << std::setw(Label_Width) << "private key: " << crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey())
-                      << std::endl;
-            }
+				print(keyPair.publicKey());
+				m_out << std::setw(Label_Width) << "private key: " << crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey())
+					  << std::endl;
+			}
 
-            void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override
-            {
-                AutoLineEnding guard(m_out, m_counter);
+			void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override {
+				AutoLineEnding guard(m_out, m_counter);
 
-                print(keyPair);
-                m_out << std::setw(Label_Width) << "mnemonic: " << mnemonic << std::endl;
-            }
+				print(keyPair);
+				m_out << std::setw(Label_Width) << "mnemonic: " << mnemonic << std::endl;
+			}
 
-        private:
-            static constexpr int Label_Width = 24;
+		private:
+			static constexpr int Label_Width = 24;
 
-        private:
-            std::ostream& m_out;
-            size_t m_counter;
+		private:
+			std::ostream& m_out;
+			size_t m_counter;
 
-            std::string m_networkName;
-            model::NetworkIdentifier m_networkIdentifier;
-        };
+			std::string m_networkName;
+			model::NetworkIdentifier m_networkIdentifier;
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    std::unique_ptr<AccountPrinter> CreateAccountPrinter(std::ostream& out, AccountPrinterFormat format)
-    {
-        if (AccountPrinterFormat::Csv == format)
-            return std::make_unique<CsvAccountPrinter>(out);
+	std::unique_ptr<AccountPrinter> CreateAccountPrinter(std::ostream& out, AccountPrinterFormat format) {
+		if (AccountPrinterFormat::Csv == format)
+			return std::make_unique<CsvAccountPrinter>(out);
 
-        return std::make_unique<PrettyAccountPrinter>(out);
-    }
+		return std::make_unique<PrettyAccountPrinter>(out);
+	}
 
-    namespace {
-        // region AggregateAccountPrinter
+	namespace {
+		// region AggregateAccountPrinter
 
-        class AggregateAccountPrinter : public AccountPrinter {
-        public:
-            explicit AggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers)
-                : m_printers(std::move(printers))
-            {
-            }
+		class AggregateAccountPrinter : public AccountPrinter {
+		public:
+			explicit AggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers)
+				: m_printers(std::move(printers)) {
+			}
 
-        public:
-            void setNetwork(const std::string& networkName) override
-            {
-                for (auto& pPrinter : m_printers)
-                    pPrinter->setNetwork(networkName);
-            }
+		public:
+			void setNetwork(const std::string& networkName) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->setNetwork(networkName);
+			}
 
-        public:
-            void print(const Address& address) override
-            {
-                for (auto& pPrinter : m_printers)
-                    pPrinter->print(address);
-            }
+		public:
+			void print(const Address& address) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->print(address);
+			}
 
-            void print(const Key& publicKey) override
-            {
-                for (auto& pPrinter : m_printers)
-                    pPrinter->print(publicKey);
-            }
+			void print(const Key& publicKey) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->print(publicKey);
+			}
 
-            void print(const crypto::KeyPair& keyPair) override
-            {
-                for (auto& pPrinter : m_printers)
-                    pPrinter->print(keyPair);
-            }
+			void print(const crypto::KeyPair& keyPair) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->print(keyPair);
+			}
 
-            void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override
-            {
-                for (auto& pPrinter : m_printers)
-                    pPrinter->print(mnemonic, keyPair);
-            }
+			void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->print(mnemonic, keyPair);
+			}
 
-        private:
-            std::vector<std::unique_ptr<AccountPrinter>> m_printers;
-        };
+		private:
+			std::vector<std::unique_ptr<AccountPrinter>> m_printers;
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    std::unique_ptr<AccountPrinter> CreateAggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers)
-    {
-        return std::make_unique<AggregateAccountPrinter>(std::move(printers));
-    }
+	std::unique_ptr<AccountPrinter> CreateAggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers) {
+		return std::make_unique<AggregateAccountPrinter>(std::move(printers));
+	}
 }
 }

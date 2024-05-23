@@ -27,27 +27,27 @@ struct x509_store_ctx_st;
 namespace catapult {
 namespace crypto {
 
-    /// Catapult-specific certificate processor.
-    /// \note This is specific to processing catapult certificates and is not general purpose.
-    class CatapultCertificateProcessor {
-    public:
-        /// Gets the number of certificates in the chain.
-        size_t size() const;
+	/// Catapult-specific certificate processor.
+	/// \note This is specific to processing catapult certificates and is not general purpose.
+	class CatapultCertificateProcessor {
+	public:
+		/// Gets the number of certificates in the chain.
+		size_t size() const;
 
-        /// Gets the parsed certificate information at \a depth.
-        /// \note Depth is 0-based starting with the root certificate.
-        const CertificateInfo& certificate(size_t depth) const;
+		/// Gets the parsed certificate information at \a depth.
+		/// \note Depth is 0-based starting with the root certificate.
+		const CertificateInfo& certificate(size_t depth) const;
 
-    public:
-        /// Verifies the current certificate in \a certificateStoreContext given \a preverified result.
-        bool verify(bool preverified, x509_store_ctx_st& certificateStoreContext);
+	public:
+		/// Verifies the current certificate in \a certificateStoreContext given \a preverified result.
+		bool verify(bool preverified, x509_store_ctx_st& certificateStoreContext);
 
-    private:
-        bool verifyUnverifiedRoot(x509_st& certificate, int errorCode);
-        bool push(x509_st& certificate);
+	private:
+		bool verifyUnverifiedRoot(x509_st& certificate, int errorCode);
+		bool push(x509_st& certificate);
 
-    public:
-        std::vector<CertificateInfo> m_certificateInfos;
-    };
+	public:
+		std::vector<CertificateInfo> m_certificateInfos;
+	};
 }
 }

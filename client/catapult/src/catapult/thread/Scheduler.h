@@ -25,34 +25,34 @@
 
 namespace catapult {
 namespace thread {
-    class IoThreadPool;
+	class IoThreadPool;
 }
 }
 
 namespace catapult {
 namespace thread {
 
-    /// Task scheduler.
-    class Scheduler {
-    public:
-        virtual ~Scheduler() = default;
+	/// Task scheduler.
+	class Scheduler {
+	public:
+		virtual ~Scheduler() = default;
 
-    public:
-        /// Gets the number of tasks that are currently either scheduled or executing.
-        virtual uint32_t numScheduledTasks() const = 0;
+	public:
+		/// Gets the number of tasks that are currently either scheduled or executing.
+		virtual uint32_t numScheduledTasks() const = 0;
 
-        /// Gets the number of currently executing task callbacks.
-        virtual uint32_t numExecutingTaskCallbacks() const = 0;
+		/// Gets the number of currently executing task callbacks.
+		virtual uint32_t numExecutingTaskCallbacks() const = 0;
 
-    public:
-        /// Adds a scheduled task to the scheduler.
-        virtual void addTask(const Task& task) = 0;
+	public:
+		/// Adds a scheduled task to the scheduler.
+		virtual void addTask(const Task& task) = 0;
 
-        /// Shuts down the scheduler.
-        virtual void shutdown() = 0;
-    };
+		/// Shuts down the scheduler.
+		virtual void shutdown() = 0;
+	};
 
-    /// Creates a scheduler around the specified thread \a pool.
-    std::shared_ptr<Scheduler> CreateScheduler(IoThreadPool& pool);
+	/// Creates a scheduler around the specified thread \a pool.
+	std::shared_ptr<Scheduler> CreateScheduler(IoThreadPool& pool);
 }
 }

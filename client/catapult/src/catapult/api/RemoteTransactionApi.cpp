@@ -28,76 +28,71 @@
 namespace catapult {
 namespace api {
 
-    namespace {
-        // region traits
+	namespace {
+		// region traits
 
-        struct UtTraits : public RegistryDependentTraits<model::Transaction> {
-        public:
-            using ResultType = model::TransactionRange;
-            static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
-            static constexpr auto Friendly_Name = "pull unconfirmed transactions";
+		struct UtTraits : public RegistryDependentTraits<model::Transaction> {
+		public:
+			using ResultType = model::TransactionRange;
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
+			static constexpr auto Friendly_Name = "pull unconfirmed transactions";
 
-            static auto CreateRequestPacketPayload(
-                Timestamp minDeadline,
-                BlockFeeMultiplier minFeeMultiplier,
-                model::ShortHashRange&& knownShortHashes)
-            {
-                ionet::PacketPayloadBuilder builder(Packet_Type);
-                builder.appendValue(minDeadline);
-                builder.appendValue(minFeeMultiplier);
-                builder.appendRange(std::move(knownShortHashes));
-                return builder.build();
-            }
+			static auto CreateRequestPacketPayload(
+				Timestamp minDeadline,
+				BlockFeeMultiplier minFeeMultiplier,
+				model::ShortHashRange&& knownShortHashes) {
+				ionet::PacketPayloadBuilder builder(Packet_Type);
+				builder.appendValue(minDeadline);
+				builder.appendValue(minFeeMultiplier);
+				builder.appendRange(std::move(knownShortHashes));
+				return builder.build();
+			}
 
-        public:
-            using RegistryDependentTraits::RegistryDependentTraits;
+		public:
+			using RegistryDependentTraits::RegistryDependentTraits;
 
-            bool tryParseResult(const ionet::Packet& packet, ResultType& result) const
-            {
-                result = ionet::ExtractEntitiesFromPacket<model::Transaction>(packet, *this);
-                return !result.empty() || sizeof(ionet::PacketHeader) == packet.Size;
-            }
-        };
+			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
+				result = ionet::ExtractEntitiesFromPacket<model::Transaction>(packet, *this);
+				return !result.empty() || sizeof(ionet::PacketHeader) == packet.Size;
+			}
+		};
 
-        // endregion
+		// endregion
 
-        class DefaultRemoteTransactionApi : public RemoteTransactionApi {
-        private:
-            template <typename TTraits>
-            using FutureType = thread::future<typename TTraits::ResultType>;
+		class DefaultRemoteTransactionApi : public RemoteTransactionApi {
+		private:
+			template <typename TTraits>
+			using FutureType = thread::future<typename TTraits::ResultType>;
 
-        public:
-            DefaultRemoteTransactionApi(
-                ionet::PacketIo& io,
-                const model::NodeIdentity& remoteIdentity,
-                const model::TransactionRegistry& registry)
-                : RemoteTransactionApi(remoteIdentity)
-                , m_registry(registry)
-                , m_impl(io)
-            {
-            }
+		public:
+			DefaultRemoteTransactionApi(
+				ionet::PacketIo& io,
+				const model::NodeIdentity& remoteIdentity,
+				const model::TransactionRegistry& registry)
+				: RemoteTransactionApi(remoteIdentity)
+				, m_registry(registry)
+				, m_impl(io) {
+			}
 
-        public:
-            FutureType<UtTraits> unconfirmedTransactions(
-                Timestamp minDeadline,
-                BlockFeeMultiplier minFeeMultiplier,
-                model::ShortHashRange&& knownShortHashes) const override
-            {
-                return m_impl.dispatch(UtTraits(m_registry), minDeadline, minFeeMultiplier, std::move(knownShortHashes));
-            }
+		public:
+			FutureType<UtTraits> unconfirmedTransactions(
+				Timestamp minDeadline,
+				BlockFeeMultiplier minFeeMultiplier,
+				model::ShortHashRange&& knownShortHashes) const override {
+				return m_impl.dispatch(UtTraits(m_registry), minDeadline, minFeeMultiplier, std::move(knownShortHashes));
+			}
 
-        private:
-            const model::TransactionRegistry& m_registry;
-            mutable RemoteRequestDispatcher m_impl;
-        };
-    }
+		private:
+			const model::TransactionRegistry& m_registry;
+			mutable RemoteRequestDispatcher m_impl;
+		};
+	}
 
-    std::unique_ptr<RemoteTransactionApi> CreateRemoteTransactionApi(
-        ionet::PacketIo& io,
-        const model::NodeIdentity& remoteIdentity,
-        const model::TransactionRegistry& registry)
-    {
-        return std::make_unique<DefaultRemoteTransactionApi>(io, remoteIdentity, registry);
-    }
+	std::unique_ptr<RemoteTransactionApi> CreateRemoteTransactionApi(
+		ionet::PacketIo& io,
+		const model::NodeIdentity& remoteIdentity,
+		const model::TransactionRegistry& registry) {
+		return std::make_unique<DefaultRemoteTransactionApi>(io, remoteIdentity, registry);
+	}
 }
 }

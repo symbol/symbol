@@ -30,109 +30,109 @@ struct x509_store_ctx_st;
 namespace catapult {
 namespace test {
 
-    // region key utils
+	// region key utils
 
-    /// Generates a random certificate key.
-    std::shared_ptr<evp_pkey_st> GenerateRandomCertificateKey();
+	/// Generates a random certificate key.
+	std::shared_ptr<evp_pkey_st> GenerateRandomCertificateKey();
 
-    /// Generates a certificate key from \a keyPair.
-    std::shared_ptr<evp_pkey_st> GenerateCertificateKey(const crypto::KeyPair& keyPair);
+	/// Generates a certificate key from \a keyPair.
+	std::shared_ptr<evp_pkey_st> GenerateCertificateKey(const crypto::KeyPair& keyPair);
 
-    // endregion
+	// endregion
 
-    // region certificate store context utils
+	// region certificate store context utils
 
-    /// Custom deleter for X509 structures.
-    struct CertificateDeleter {
-        /// Deletes \a pCertificate.
-        void operator()(x509_st* pCertificate) const;
-    };
+	/// Custom deleter for X509 structures.
+	struct CertificateDeleter {
+		/// Deletes \a pCertificate.
+		void operator()(x509_st* pCertificate) const;
+	};
 
-    /// Unique pointer for X509 structures.
-    using CertificatePointer = std::unique_ptr<x509_st, CertificateDeleter>;
+	/// Unique pointer for X509 structures.
+	using CertificatePointer = std::unique_ptr<x509_st, CertificateDeleter>;
 
-    /// Holds a certificate store context and certificates.
-    struct CertificateStoreContextHolder {
-        /// Certificates.
-        std::vector<x509_st*> Certificates;
+	/// Holds a certificate store context and certificates.
+	struct CertificateStoreContextHolder {
+		/// Certificates.
+		std::vector<x509_st*> Certificates;
 
-        /// Certificate store context.
-        std::shared_ptr<x509_store_ctx_st> pCertificateStoreContext;
-    };
+		/// Certificate store context.
+		std::shared_ptr<x509_store_ctx_st> pCertificateStoreContext;
+	};
 
-    /// Sets the active certificate in \a holder to the certificate at \a index.
-    void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index);
+	/// Sets the active certificate in \a holder to the certificate at \a index.
+	void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index);
 
-    /// Creates a certificate store context around \a certificates.
-    CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(std::vector<CertificatePointer>&& certificates);
+	/// Creates a certificate store context around \a certificates.
+	CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(std::vector<CertificatePointer>&& certificates);
 
-    // endregion
+	// endregion
 
-    // region CertificateBuilder
+	// region CertificateBuilder
 
-    /// Builder for x509 certificates.
-    class CertificateBuilder {
-    public:
-        /// Creates a builder.
-        CertificateBuilder();
+	/// Builder for x509 certificates.
+	class CertificateBuilder {
+	public:
+		/// Creates a builder.
+		CertificateBuilder();
 
-    public:
-        /// Adds the specified \a country, \a organization and \a commonName fields to the subject.
-        void setSubject(const std::string& country, const std::string& organization, const std::string& commonName);
+	public:
+		/// Adds the specified \a country, \a organization and \a commonName fields to the subject.
+		void setSubject(const std::string& country, const std::string& organization, const std::string& commonName);
 
-        /// Adds the specified \a country, \a organization and \a commonName fields to the issuer.
-        void setIssuer(const std::string& country, const std::string& organization, const std::string& commonName);
+		/// Adds the specified \a country, \a organization and \a commonName fields to the issuer.
+		void setIssuer(const std::string& country, const std::string& organization, const std::string& commonName);
 
-        /// Sets the public key to \a key.
-        void setPublicKey(evp_pkey_st& key);
+		/// Sets the public key to \a key.
+		void setPublicKey(evp_pkey_st& key);
 
-    public:
-        /// Builds the certificate.
-        CertificatePointer build();
+	public:
+		/// Builds the certificate.
+		CertificatePointer build();
 
-        /// Builds and signs the certificate with previously specified key.
-        CertificatePointer buildAndSign();
+		/// Builds and signs the certificate with previously specified key.
+		CertificatePointer buildAndSign();
 
-        /// Builds and signs the certificate with \a key.
-        CertificatePointer buildAndSign(evp_pkey_st& key);
+		/// Builds and signs the certificate with \a key.
+		CertificatePointer buildAndSign(evp_pkey_st& key);
 
-    private:
-        x509_st* get();
+	private:
+		x509_st* get();
 
-    private:
-        evp_pkey_st* m_pKey;
-        CertificatePointer m_pCertificate;
-    };
+	private:
+		evp_pkey_st* m_pKey;
+		CertificatePointer m_pCertificate;
+	};
 
-    // endregion
+	// endregion
 
-    // region PemCertificate
+	// region PemCertificate
 
-    /// Pem certificate generator.
-    class PemCertificate {
-    public:
-        /// Creates pem certificate with random node key pair.
-        PemCertificate();
+	/// Pem certificate generator.
+	class PemCertificate {
+	public:
+		/// Creates pem certificate with random node key pair.
+		PemCertificate();
 
-        /// Creates pem certificate around \a caKeyPair and \a nodeKeyPair.
-        PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair);
+		/// Creates pem certificate around \a caKeyPair and \a nodeKeyPair.
+		PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair);
 
-    public:
-        /// Gets the CA public key in pem format.
-        const std::string& caPublicKeyString() const;
+	public:
+		/// Gets the CA public key in pem format.
+		const std::string& caPublicKeyString() const;
 
-        /// Gets the node private key in pem format.
-        const std::string& nodePrivateKeyString() const;
+		/// Gets the node private key in pem format.
+		const std::string& nodePrivateKeyString() const;
 
-        /// Gets the certificate chain in pem format.
-        const std::string& certificateChainString() const;
+		/// Gets the certificate chain in pem format.
+		const std::string& certificateChainString() const;
 
-    private:
-        std::string m_caPublicKey;
-        std::string m_nodePrivateKey;
-        std::string m_pemCertificateChain;
-    };
+	private:
+		std::string m_caPublicKey;
+		std::string m_nodePrivateKey;
+		std::string m_pemCertificateChain;
+	};
 
-    // endregion
+	// endregion
 }
 }

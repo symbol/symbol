@@ -27,45 +27,45 @@ namespace model {
 
 #pragma pack(push, 1)
 
-    /// Finalization round composed of an epoch and point.
-    struct FinalizationRound {
-    public:
-        /// Finalization epoch.
-        FinalizationEpoch Epoch;
+	/// Finalization round composed of an epoch and point.
+	struct FinalizationRound {
+	public:
+		/// Finalization epoch.
+		FinalizationEpoch Epoch;
 
-        /// Finalization point.
-        FinalizationPoint Point;
+		/// Finalization point.
+		FinalizationPoint Point;
 
-    public:
-        /// Returns \c true if this round is equal to \a rhs.
-        bool operator==(const FinalizationRound& rhs) const;
+	public:
+		/// Returns \c true if this round is equal to \a rhs.
+		bool operator==(const FinalizationRound& rhs) const;
 
-        /// Returns \c true if this round is not equal to \a rhs.
-        bool operator!=(const FinalizationRound& rhs) const;
+		/// Returns \c true if this round is not equal to \a rhs.
+		bool operator!=(const FinalizationRound& rhs) const;
 
-        /// Returns \c true if this round is less than \a rhs.
-        bool operator<(const FinalizationRound& rhs) const;
+		/// Returns \c true if this round is less than \a rhs.
+		bool operator<(const FinalizationRound& rhs) const;
 
-        /// Returns \c true if this round is less than or equal to \a rhs.
-        bool operator<=(const FinalizationRound& rhs) const;
+		/// Returns \c true if this round is less than or equal to \a rhs.
+		bool operator<=(const FinalizationRound& rhs) const;
 
-        /// Returns \c true if this round is greater than \a rhs.
-        bool operator>(const FinalizationRound& rhs) const;
+		/// Returns \c true if this round is greater than \a rhs.
+		bool operator>(const FinalizationRound& rhs) const;
 
-        /// Returns \c true if this round is greater than or equal to \a rhs.
-        bool operator>=(const FinalizationRound& rhs) const;
+		/// Returns \c true if this round is greater than or equal to \a rhs.
+		bool operator>=(const FinalizationRound& rhs) const;
 
-    public:
-        /// Adds \a point to this round and returns the result.
-        FinalizationRound operator+(FinalizationPoint point) const;
+	public:
+		/// Adds \a point to this round and returns the result.
+		FinalizationRound operator+(FinalizationPoint point) const;
 
-        /// Subtracts \a point from this round and returns the result.
-        FinalizationRound operator-(FinalizationPoint point) const;
-    };
+		/// Subtracts \a point from this round and returns the result.
+		FinalizationRound operator-(FinalizationPoint point) const;
+	};
 
 #pragma pack(pop)
 
-    /// Insertion operator for outputting \a round to \a out.
-    std::ostream& operator<<(std::ostream& out, const FinalizationRound& round);
+	/// Insertion operator for outputting \a round to \a out.
+	std::ostream& operator<<(std::ostream& out, const FinalizationRound& round);
 }
 }

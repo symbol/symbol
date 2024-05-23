@@ -26,17 +26,17 @@
 
 namespace catapult {
 namespace ionet {
-    struct Packet;
+	struct Packet;
 }
 }
 
 namespace catapult {
 namespace parsers {
 
-    /// Tries to parse transaction elements out of \a packet and into \a elements with a validity check (\a isValid).
-    bool TryParseTransactionElements(
-        const ionet::Packet& packet,
-        const predicate<const model::Transaction&>& isValid,
-        std::vector<model::TransactionElement>& elements);
+	/// Tries to parse transaction elements out of \a packet and into \a elements with a validity check (\a isValid).
+	bool TryParseTransactionElements(
+		const ionet::Packet& packet,
+		const predicate<const model::Transaction&>& isValid,
+		std::vector<model::TransactionElement>& elements);
 }
 }

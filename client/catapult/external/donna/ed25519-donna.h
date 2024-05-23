@@ -1,11 +1,11 @@
 /*
-        Public domain by Andrew M. <liquidsun@gmail.com>
-        Modified from the amd64-51-30k implementation by
-                Daniel J. Bernstein
-                Niels Duif
-                Tanja Lange
-                Peter Schwabe
-                Bo-Yin Yang
+		Public domain by Andrew M. <liquidsun@gmail.com>
+		Modified from the amd64-51-30k implementation by
+				Daniel J. Bernstein
+				Niels Duif
+				Tanja Lange
+				Peter Schwabe
+				Bo-Yin Yang
 */
 
 #ifndef ED25519_DONNA_PORTABLE_H
@@ -63,14 +63,13 @@
 typedef unsigned char hash_512bits[64];
 
 /*
-        Timing safe memory compare
+		Timing safe memory compare
 */
-static int ed25519_verify(const unsigned char* x, const unsigned char* y, size_t len)
-{
-    size_t differentbits = 0;
-    while (len--)
-        differentbits |= (*x++ ^ *y++);
-    return (int)(1 & ((differentbits - 1) >> 8));
+static int ed25519_verify(const unsigned char* x, const unsigned char* y, size_t len) {
+	size_t differentbits = 0;
+	while (len--)
+		differentbits |= (*x++ ^ *y++);
+	return (int)(1 & ((differentbits - 1) >> 8));
 }
 
 /*
@@ -81,19 +80,19 @@ static int ed25519_verify(const unsigned char* x, const unsigned char* y, size_t
  */
 
 typedef struct ge25519_t {
-    bignum25519 x, y, z, t;
+	bignum25519 x, y, z, t;
 } ge25519;
 
 typedef struct ge25519_p1p1_t {
-    bignum25519 x, y, z, t;
+	bignum25519 x, y, z, t;
 } ge25519_p1p1;
 
 typedef struct ge25519_niels_t {
-    bignum25519 ysubx, xaddy, t2d;
+	bignum25519 ysubx, xaddy, t2d;
 } ge25519_niels;
 
 typedef struct ge25519_pniels_t {
-    bignum25519 ysubx, xaddy, z, t2d;
+	bignum25519 ysubx, xaddy, z, t2d;
 } ge25519_pniels;
 
 #include "ed25519-donna-basepoint-table.h"

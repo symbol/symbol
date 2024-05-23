@@ -24,13 +24,13 @@
 
 namespace catapult {
 namespace mongo {
-    namespace mappers {
+	namespace mappers {
 
-        /// Creates a mongo voting key link transaction plugin.
-        std::unique_ptr<MongoTransactionPlugin> CreateVotingKeyLinkTransactionMongoPlugin();
+		/// Creates a mongo voting key link transaction plugin.
+		std::unique_ptr<MongoTransactionPlugin> CreateVotingKeyLinkTransactionMongoPlugin();
 
-        /// Creates a mongo vrf key link transaction plugin.
-        std::unique_ptr<MongoTransactionPlugin> CreateVrfKeyLinkTransactionMongoPlugin();
-    }
+		/// Creates a mongo vrf key link transaction plugin.
+		std::unique_ptr<MongoTransactionPlugin> CreateVrfKeyLinkTransactionMongoPlugin();
+	}
 }
 }

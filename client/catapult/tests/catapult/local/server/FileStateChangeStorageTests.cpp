@@ -32,120 +32,113 @@ namespace local {
 
 #define TEST_CLASS FileStateChangeStorageTests
 
-    namespace {
-        // region MockCacheChangesStorageWriter
+	namespace {
+		// region MockCacheChangesStorageWriter
 
-        // simulate CacheChangesStorage by writing uint32_t value and CacheChanges pointer in saveAll
-        class MockCacheChangesStorageWriter : public cache::CacheChangesStorage {
-        public:
-            explicit MockCacheChangesStorageWriter(uint32_t value)
-                : m_value(value)
-            {
-            }
+		// simulate CacheChangesStorage by writing uint32_t value and CacheChanges pointer in saveAll
+		class MockCacheChangesStorageWriter : public cache::CacheChangesStorage {
+		public:
+			explicit MockCacheChangesStorageWriter(uint32_t value)
+				: m_value(value) {
+			}
 
-        public:
-            size_t id() const override
-            {
-                CATAPULT_THROW_INVALID_ARGUMENT("id - not supported in mock");
-            }
+		public:
+			size_t id() const override {
+				CATAPULT_THROW_INVALID_ARGUMENT("id - not supported in mock");
+			}
 
-        public:
-            void saveAll(const cache::CacheChanges& changes, io::OutputStream& output) const override
-            {
-                io::Write32(output, m_value);
-                io::Write64(output, reinterpret_cast<uintptr_t>(&changes));
-            }
+		public:
+			void saveAll(const cache::CacheChanges& changes, io::OutputStream& output) const override {
+				io::Write32(output, m_value);
+				io::Write64(output, reinterpret_cast<uintptr_t>(&changes));
+			}
 
-            std::unique_ptr<const cache::MemoryCacheChanges> loadAll(io::InputStream&) const override
-            {
-                CATAPULT_THROW_INVALID_ARGUMENT("loadAll - not supported in mock");
-            }
+			std::unique_ptr<const cache::MemoryCacheChanges> loadAll(io::InputStream&) const override {
+				CATAPULT_THROW_INVALID_ARGUMENT("loadAll - not supported in mock");
+			}
 
-            void apply(const cache::CacheChanges&) const override
-            {
-                CATAPULT_THROW_INVALID_ARGUMENT("apply - not supported in mock");
-            }
+			void apply(const cache::CacheChanges&) const override {
+				CATAPULT_THROW_INVALID_ARGUMENT("apply - not supported in mock");
+			}
 
-        private:
-            uint32_t m_value;
-        };
+		private:
+			uint32_t m_value;
+		};
 
-        // endregion
-    }
+		// endregion
+	}
 
-    TEST(TEST_CLASS, NotifyScoreChangeWritesToUnderlyingStream)
-    {
-        // Arrange: create output stream
-        std::vector<uint8_t> buffer;
-        auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
-        const auto& stream = *pStream;
+	TEST(TEST_CLASS, NotifyScoreChangeWritesToUnderlyingStream) {
+		// Arrange: create output stream
+		std::vector<uint8_t> buffer;
+		auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
+		const auto& stream = *pStream;
 
-        // - create data
-        auto chainScore = model::ChainScore(test::Random(), test::Random());
+		// - create data
+		auto chainScore = model::ChainScore(test::Random(), test::Random());
 
-        // - create storage
-        auto pStorage = CreateFileStateChangeStorage(std::move(pStream), {});
+		// - create storage
+		auto pStorage = CreateFileStateChangeStorage(std::move(pStream), {});
 
-        // Act:
-        pStorage->notifyScoreChange(chainScore);
+		// Act:
+		pStorage->notifyScoreChange(chainScore);
 
-        // Assert:
-        EXPECT_EQ(1u, stream.numFlushes());
-        ASSERT_EQ(1u + 2 * sizeof(uint64_t), buffer.size());
+		// Assert:
+		EXPECT_EQ(1u, stream.numFlushes());
+		ASSERT_EQ(1u + 2 * sizeof(uint64_t), buffer.size());
 
-        test::BufferReader reader(buffer);
-        EXPECT_EQ(subscribers::StateChangeOperationType::Score_Change, reader.read<subscribers::StateChangeOperationType>());
+		test::BufferReader reader(buffer);
+		EXPECT_EQ(subscribers::StateChangeOperationType::Score_Change, reader.read<subscribers::StateChangeOperationType>());
 
-        EXPECT_EQ(chainScore.toArray()[0], reader.read<uint64_t>());
-        EXPECT_EQ(chainScore.toArray()[1], reader.read<uint64_t>());
-    }
+		EXPECT_EQ(chainScore.toArray()[0], reader.read<uint64_t>());
+		EXPECT_EQ(chainScore.toArray()[1], reader.read<uint64_t>());
+	}
 
-    TEST(TEST_CLASS, NotifyStateChangeWritesToUnderlyingStream)
-    {
-        // Arrange: create output stream
-        std::vector<uint8_t> buffer;
-        auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
-        const auto& stream = *pStream;
+	TEST(TEST_CLASS, NotifyStateChangeWritesToUnderlyingStream) {
+		// Arrange: create output stream
+		std::vector<uint8_t> buffer;
+		auto pStream = std::make_unique<mocks::MockMemoryStream>(buffer);
+		const auto& stream = *pStream;
 
-        // - create data
-        auto chainScoreDelta = model::ChainScore::Delta(static_cast<int64_t>(test::Random()));
-        auto height = test::GenerateRandomValue<Height>();
-        auto stateChangeInfo = subscribers::StateChangeInfo(cache::CacheChanges({}), chainScoreDelta, height);
+		// - create data
+		auto chainScoreDelta = model::ChainScore::Delta(static_cast<int64_t>(test::Random()));
+		auto height = test::GenerateRandomValue<Height>();
+		auto stateChangeInfo = subscribers::StateChangeInfo(cache::CacheChanges({}), chainScoreDelta, height);
 
-        // - simulate two cache changes storages
-        auto storageSentinel1 = static_cast<uint32_t>(test::Random());
-        auto storageSentinel2 = static_cast<uint32_t>(test::Random());
+		// - simulate two cache changes storages
+		auto storageSentinel1 = static_cast<uint32_t>(test::Random());
+		auto storageSentinel2 = static_cast<uint32_t>(test::Random());
 
-        // - create storage
-        auto pStorage = CreateFileStateChangeStorage(std::move(pStream), [storageSentinel1, storageSentinel2]() {
-            CacheChangesStorages cacheChangesStorages;
-            cacheChangesStorages.emplace_back(std::make_unique<MockCacheChangesStorageWriter>(storageSentinel1));
-            cacheChangesStorages.emplace_back(std::make_unique<MockCacheChangesStorageWriter>(storageSentinel2));
-            return cacheChangesStorages;
-        });
+		// - create storage
+		auto pStorage = CreateFileStateChangeStorage(std::move(pStream), [storageSentinel1, storageSentinel2]() {
+			CacheChangesStorages cacheChangesStorages;
+			cacheChangesStorages.emplace_back(std::make_unique<MockCacheChangesStorageWriter>(storageSentinel1));
+			cacheChangesStorages.emplace_back(std::make_unique<MockCacheChangesStorageWriter>(storageSentinel2));
+			return cacheChangesStorages;
+		});
 
-        // Sanity:
-        auto expectedCacheChangesPointerValue = reinterpret_cast<uintptr_t>(&stateChangeInfo.CacheChanges);
-        EXPECT_NE(0u, expectedCacheChangesPointerValue);
+		// Sanity:
+		auto expectedCacheChangesPointerValue = reinterpret_cast<uintptr_t>(&stateChangeInfo.CacheChanges);
+		EXPECT_NE(0u, expectedCacheChangesPointerValue);
 
-        // Act:
-        pStorage->notifyStateChange(stateChangeInfo);
+		// Act:
+		pStorage->notifyStateChange(stateChangeInfo);
 
-        // Assert:
-        EXPECT_EQ(1u, stream.numFlushes());
-        ASSERT_EQ(1u + 2 * sizeof(uint64_t) + 2 * (sizeof(uint32_t) + sizeof(uintptr_t)), buffer.size());
+		// Assert:
+		EXPECT_EQ(1u, stream.numFlushes());
+		ASSERT_EQ(1u + 2 * sizeof(uint64_t) + 2 * (sizeof(uint32_t) + sizeof(uintptr_t)), buffer.size());
 
-        test::BufferReader reader(buffer);
-        EXPECT_EQ(subscribers::StateChangeOperationType::State_Change, reader.read<subscribers::StateChangeOperationType>());
+		test::BufferReader reader(buffer);
+		EXPECT_EQ(subscribers::StateChangeOperationType::State_Change, reader.read<subscribers::StateChangeOperationType>());
 
-        EXPECT_EQ(chainScoreDelta, model::ChainScore::Delta(reader.read<int64_t>()));
-        EXPECT_EQ(height, reader.read<Height>());
+		EXPECT_EQ(chainScoreDelta, model::ChainScore::Delta(reader.read<int64_t>()));
+		EXPECT_EQ(height, reader.read<Height>());
 
-        // - check that both uint32_t value and CacheChanges pointer were written for each storage
-        for (auto storageSentinel : { storageSentinel1, storageSentinel2 }) {
-            EXPECT_EQ(storageSentinel, reader.read<uint32_t>()) << reader.position();
-            EXPECT_EQ(expectedCacheChangesPointerValue, reader.read<uintptr_t>()) << reader.position();
-        }
-    }
+		// - check that both uint32_t value and CacheChanges pointer were written for each storage
+		for (auto storageSentinel : { storageSentinel1, storageSentinel2 }) {
+			EXPECT_EQ(storageSentinel, reader.read<uint32_t>()) << reader.position();
+			EXPECT_EQ(expectedCacheChangesPointerValue, reader.read<uintptr_t>()) << reader.position();
+		}
+	}
 }
 }

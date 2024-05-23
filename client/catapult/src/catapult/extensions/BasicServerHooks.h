@@ -26,34 +26,31 @@
 namespace catapult {
 namespace extensions {
 
-    /// Sets the function \a dest to \a source if and only if \a dest is unset.
-    template <typename TFunc>
-    void SetOnce(TFunc& dest, const TFunc& source)
-    {
-        if (dest)
-            CATAPULT_THROW_INVALID_ARGUMENT("server hook cannot be set more than once");
+	/// Sets the function \a dest to \a source if and only if \a dest is unset.
+	template <typename TFunc>
+	void SetOnce(TFunc& dest, const TFunc& source) {
+		if (dest)
+			CATAPULT_THROW_INVALID_ARGUMENT("server hook cannot be set more than once");
 
-        dest = source;
-    }
+		dest = source;
+	}
 
-    /// Gets the function \a func if and only if it is set.
-    template <typename TFunc>
-    const TFunc& Require(const TFunc& func)
-    {
-        if (!func)
-            CATAPULT_THROW_INVALID_ARGUMENT("server hook has not been set");
+	/// Gets the function \a func if and only if it is set.
+	template <typename TFunc>
+	const TFunc& Require(const TFunc& func) {
+		if (!func)
+			CATAPULT_THROW_INVALID_ARGUMENT("server hook has not been set");
 
-        return func;
-    }
+		return func;
+	}
 
-    /// Aggregates multiple \a consumers into a single consumer.
-    template <typename TConsumer>
-    TConsumer AggregateConsumers(const std::vector<TConsumer>& consumers)
-    {
-        return [consumers](const auto& data) {
-            for (const auto& consumer : consumers)
-                consumer(data);
-        };
-    }
+	/// Aggregates multiple \a consumers into a single consumer.
+	template <typename TConsumer>
+	TConsumer AggregateConsumers(const std::vector<TConsumer>& consumers) {
+		return [consumers](const auto& data) {
+			for (const auto& consumer : consumers)
+				consumer(data);
+		};
+	}
 }
 }

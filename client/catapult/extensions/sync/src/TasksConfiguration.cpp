@@ -29,80 +29,73 @@ namespace sync {
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
 
-    // region UniformTaskConfiguration
+	// region UniformTaskConfiguration
 
-    UniformTaskConfiguration UniformTaskConfiguration::Uninitialized()
-    {
-        return UniformTaskConfiguration();
-    }
+	UniformTaskConfiguration UniformTaskConfiguration::Uninitialized() {
+		return UniformTaskConfiguration();
+	}
 
-    UniformTaskConfiguration UniformTaskConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        UniformTaskConfiguration config;
+	UniformTaskConfiguration UniformTaskConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		UniformTaskConfiguration config;
 
-        LOAD_PROPERTY(StartDelay);
-        LOAD_PROPERTY(RepeatDelay);
+		LOAD_PROPERTY(StartDelay);
+		LOAD_PROPERTY(RepeatDelay);
 
-        utils::VerifyBagSizeExact(bag, 2);
-        return config;
-    }
+		utils::VerifyBagSizeExact(bag, 2);
+		return config;
+	}
 
-    // endregion
+	// endregion
 
-    // region DeceleratingTaskConfiguration
+	// region DeceleratingTaskConfiguration
 
-    DeceleratingTaskConfiguration DeceleratingTaskConfiguration::Uninitialized()
-    {
-        return DeceleratingTaskConfiguration();
-    }
+	DeceleratingTaskConfiguration DeceleratingTaskConfiguration::Uninitialized() {
+		return DeceleratingTaskConfiguration();
+	}
 
-    DeceleratingTaskConfiguration DeceleratingTaskConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        DeceleratingTaskConfiguration config;
+	DeceleratingTaskConfiguration DeceleratingTaskConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		DeceleratingTaskConfiguration config;
 
-        LOAD_PROPERTY(StartDelay);
-        LOAD_PROPERTY(MinDelay);
-        LOAD_PROPERTY(MaxDelay);
-        LOAD_PROPERTY(NumPhaseOneRounds);
-        LOAD_PROPERTY(NumTransitionRounds);
+		LOAD_PROPERTY(StartDelay);
+		LOAD_PROPERTY(MinDelay);
+		LOAD_PROPERTY(MaxDelay);
+		LOAD_PROPERTY(NumPhaseOneRounds);
+		LOAD_PROPERTY(NumTransitionRounds);
 
-        utils::VerifyBagSizeExact(bag, 5);
-        return config;
-    }
+		utils::VerifyBagSizeExact(bag, 5);
+		return config;
+	}
 
-    // endregion
+	// endregion
 
 #undef LOAD_PROPERTY
 
-    TasksConfiguration TasksConfiguration::Uninitialized()
-    {
-        return TasksConfiguration();
-    }
+	TasksConfiguration TasksConfiguration::Uninitialized() {
+		return TasksConfiguration();
+	}
 
-    TasksConfiguration TasksConfiguration::LoadFromBag(const utils::ConfigurationBag& bag)
-    {
-        TasksConfiguration config;
-        for (const auto& section : bag.sections()) {
-            auto taskSectionBag = utils::ExtractSectionAsBag(bag, section.c_str());
+	TasksConfiguration TasksConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		TasksConfiguration config;
+		for (const auto& section : bag.sections()) {
+			auto taskSectionBag = utils::ExtractSectionAsBag(bag, section.c_str());
 
-            TaskConfiguration taskConfig;
-            if (taskSectionBag.contains({ "", "repeatDelay" })) {
-                taskConfig.TaskType = TasksConfiguration::TaskType::Uniform;
-                taskConfig.Uniform = UniformTaskConfiguration::LoadFromBag(taskSectionBag);
-            } else {
-                taskConfig.TaskType = TasksConfiguration::TaskType::Decelerating;
-                taskConfig.Decelerating = DeceleratingTaskConfiguration::LoadFromBag(taskSectionBag);
-            }
+			TaskConfiguration taskConfig;
+			if (taskSectionBag.contains({ "", "repeatDelay" })) {
+				taskConfig.TaskType = TasksConfiguration::TaskType::Uniform;
+				taskConfig.Uniform = UniformTaskConfiguration::LoadFromBag(taskSectionBag);
+			} else {
+				taskConfig.TaskType = TasksConfiguration::TaskType::Decelerating;
+				taskConfig.Decelerating = DeceleratingTaskConfiguration::LoadFromBag(taskSectionBag);
+			}
 
-            config.Tasks.emplace(section, taskConfig);
-        }
+			config.Tasks.emplace(section, taskConfig);
+		}
 
-        return config;
-    }
+		return config;
+	}
 
-    TasksConfiguration TasksConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath)
-    {
-        return config::LoadIniConfiguration<TasksConfiguration>(resourcesPath / "config-task.properties");
-    }
+	TasksConfiguration TasksConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
+		return config::LoadIniConfiguration<TasksConfiguration>(resourcesPath / "config-task.properties");
+	}
 }
 }

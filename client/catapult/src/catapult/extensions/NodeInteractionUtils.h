@@ -23,15 +23,15 @@
 
 namespace catapult {
 namespace ionet {
-    class NodeContainer;
-    struct NodeInteractionResult;
+	class NodeContainer;
+	struct NodeInteractionResult;
 }
 }
 
 namespace catapult {
 namespace extensions {
 
-    /// Increments the interaction counter indicated by \a result in the node container (\a nodes).
-    void IncrementNodeInteraction(ionet::NodeContainer& nodes, const ionet::NodeInteractionResult& result);
+	/// Increments the interaction counter indicated by \a result in the node container (\a nodes).
+	void IncrementNodeInteraction(ionet::NodeContainer& nodes, const ionet::NodeInteractionResult& result);
 }
 }

@@ -26,55 +26,55 @@
 
 namespace catapult {
 namespace mongo {
-    struct BulkWriteResult;
+	struct BulkWriteResult;
 }
 }
 
 namespace catapult {
 namespace mongo {
 
-    /// Error policy for checking mongo operation results.
-    class MongoErrorPolicy : utils::MoveOnly {
-    public:
-        /// Error policy modes.
-        enum class Mode {
-            /// Strictest mode that requires exact matching.
-            Strict,
+	/// Error policy for checking mongo operation results.
+	class MongoErrorPolicy : utils::MoveOnly {
+	public:
+		/// Error policy modes.
+		enum class Mode {
+			/// Strictest mode that requires exact matching.
+			Strict,
 
-            /// More forgiving mode that enables idempotent operations.
-            /// \note This is recommended for recovery.
-            Idempotent
-        };
+			/// More forgiving mode that enables idempotent operations.
+			/// \note This is recommended for recovery.
+			Idempotent
+		};
 
-    public:
-        /// Creates an error policy around \a collectionName using error policy \a mode.
-        MongoErrorPolicy(const std::string& collectionName, Mode mode);
+	public:
+		/// Creates an error policy around \a collectionName using error policy \a mode.
+		MongoErrorPolicy(const std::string& collectionName, Mode mode);
 
-    public:
-        /// Gets the error policy mode.
-        Mode mode() const;
+	public:
+		/// Gets the error policy mode.
+		Mode mode() const;
 
-    public:
-        /// Checks that \a result indicates exactly \a numExpected deletions occurred given \a itemsDescription.
-        void checkDeleted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const;
+	public:
+		/// Checks that \a result indicates exactly \a numExpected deletions occurred given \a itemsDescription.
+		void checkDeleted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const;
 
-        /// Checks that \a result indicates at least \a numExpected deletions occurred given \a itemsDescription.
-        void checkDeletedAtLeast(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const;
+		/// Checks that \a result indicates at least \a numExpected deletions occurred given \a itemsDescription.
+		void checkDeletedAtLeast(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const;
 
-        /// Checks that \a result indicates exactly \a numExpected insertions occurred given \a itemsDescription.
-        void checkInserted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const;
+		/// Checks that \a result indicates exactly \a numExpected insertions occurred given \a itemsDescription.
+		void checkInserted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const;
 
-        /// Checks that \a result indicates exactly \a numExpected upsertions occurred given \a itemsDescription.
-        void checkUpserted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const;
+		/// Checks that \a result indicates exactly \a numExpected upsertions occurred given \a itemsDescription.
+		void checkUpserted(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription) const;
 
-    private:
-        [[noreturn]]
-        void formatMessageAndThrow(const char* operation, uint64_t numExpected, uint64_t numActual, const std::string& itemsDescription)
-            const;
+	private:
+		[[noreturn]]
+		void formatMessageAndThrow(const char* operation, uint64_t numExpected, uint64_t numActual, const std::string& itemsDescription)
+			const;
 
-    private:
-        std::string m_collectionName;
-        Mode m_mode;
-    };
+	private:
+		std::string m_collectionName;
+		Mode m_mode;
+	};
 }
 }

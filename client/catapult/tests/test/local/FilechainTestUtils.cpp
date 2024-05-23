@@ -28,55 +28,53 @@
 namespace catapult {
 namespace test {
 
-    std::vector<crypto::KeyPair> GetNemesisKeyPairs()
-    {
-        std::vector<crypto::KeyPair> nemesisKeyPairs;
-        for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys)
-            nemesisKeyPairs.push_back(crypto::KeyPair::FromString(pRecipientPrivateKeyString));
+	std::vector<crypto::KeyPair> GetNemesisKeyPairs() {
+		std::vector<crypto::KeyPair> nemesisKeyPairs;
+		for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys)
+			nemesisKeyPairs.push_back(crypto::KeyPair::FromString(pRecipientPrivateKeyString));
 
-        return nemesisKeyPairs;
-    }
+		return nemesisKeyPairs;
+	}
 
-    BlockWithAttributes CreateBlock(
-        const std::vector<crypto::KeyPair>& nemesisKeyPairs,
-        const Address& recipientAddress,
-        std::mt19937_64& rnd,
-        uint64_t height,
-        const utils::TimeSpan& timeSpacing)
-    {
-        auto numNemesisAccounts = nemesisKeyPairs.size();
+	BlockWithAttributes CreateBlock(
+		const std::vector<crypto::KeyPair>& nemesisKeyPairs,
+		const Address& recipientAddress,
+		std::mt19937_64& rnd,
+		uint64_t height,
+		const utils::TimeSpan& timeSpacing) {
+		auto numNemesisAccounts = nemesisKeyPairs.size();
 
-        std::uniform_int_distribution<size_t> numTransactionsDistribution(5, 20);
-        auto numTransactions = numTransactionsDistribution(rnd);
+		std::uniform_int_distribution<size_t> numTransactionsDistribution(5, 20);
+		auto numTransactions = numTransactionsDistribution(rnd);
 
-        BlockWithAttributes blockWithAttributes;
-        test::ConstTransactions transactions;
-        std::uniform_int_distribution<size_t> accountIndexDistribution(0, numNemesisAccounts - 1);
-        for (auto i = 0u; i < numTransactions; ++i) {
-            auto senderIndex = accountIndexDistribution(rnd);
-            const auto& sender = nemesisKeyPairs[senderIndex];
+		BlockWithAttributes blockWithAttributes;
+		test::ConstTransactions transactions;
+		std::uniform_int_distribution<size_t> accountIndexDistribution(0, numNemesisAccounts - 1);
+		for (auto i = 0u; i < numTransactions; ++i) {
+			auto senderIndex = accountIndexDistribution(rnd);
+			const auto& sender = nemesisKeyPairs[senderIndex];
 
-            std::uniform_int_distribution<Amount::ValueType> amountDistribution(1000, 10 * 1000);
-            Amount amount(amountDistribution(rnd) * 1'000'000);
-            auto pTransaction = test::CreateUnsignedTransferTransaction(
-                sender.publicKey(),
-                extensions::CopyToUnresolvedAddress(recipientAddress),
-                amount);
-            pTransaction->MaxFee = Amount(0);
-            transactions.push_back(std::move(pTransaction));
+			std::uniform_int_distribution<Amount::ValueType> amountDistribution(1000, 10 * 1000);
+			Amount amount(amountDistribution(rnd) * 1'000'000);
+			auto pTransaction = test::CreateUnsignedTransferTransaction(
+				sender.publicKey(),
+				extensions::CopyToUnresolvedAddress(recipientAddress),
+				amount);
+			pTransaction->MaxFee = Amount(0);
+			transactions.push_back(std::move(pTransaction));
 
-            blockWithAttributes.SenderIds.push_back(senderIndex);
-            blockWithAttributes.Amounts.push_back(amount);
-        }
+			blockWithAttributes.SenderIds.push_back(senderIndex);
+			blockWithAttributes.Amounts.push_back(amount);
+		}
 
-        auto harvesterIndex = accountIndexDistribution(rnd);
-        auto pBlock = test::GenerateBlockWithTransactions(nemesisKeyPairs[harvesterIndex], transactions);
-        pBlock->Height = Height(height);
-        pBlock->Difficulty = Difficulty(Difficulty().unwrap() + height);
-        pBlock->Timestamp = Timestamp(height * timeSpacing.millis());
+		auto harvesterIndex = accountIndexDistribution(rnd);
+		auto pBlock = test::GenerateBlockWithTransactions(nemesisKeyPairs[harvesterIndex], transactions);
+		pBlock->Height = Height(height);
+		pBlock->Difficulty = Difficulty(Difficulty().unwrap() + height);
+		pBlock->Timestamp = Timestamp(height * timeSpacing.millis());
 
-        blockWithAttributes.pBlock = std::move(pBlock);
-        return blockWithAttributes;
-    }
+		blockWithAttributes.pBlock = std::move(pBlock);
+		return blockWithAttributes;
+	}
 }
 }

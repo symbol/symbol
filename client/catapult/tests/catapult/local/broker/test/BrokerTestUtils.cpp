@@ -32,54 +32,48 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        void WriteTransactionInfos(io::OutputStream& outputStream, uint8_t operationType)
-        {
-            auto transactionInfos = CopyTransactionInfosToSet(CreateTransactionInfosWithOptionalAddresses(3));
-            io::Write8(outputStream, operationType);
-            io::WriteTransactionInfos(transactionInfos, outputStream);
-        }
+	namespace {
+		void WriteTransactionInfos(io::OutputStream& outputStream, uint8_t operationType) {
+			auto transactionInfos = CopyTransactionInfosToSet(CreateTransactionInfosWithOptionalAddresses(3));
+			io::Write8(outputStream, operationType);
+			io::WriteTransactionInfos(transactionInfos, outputStream);
+		}
 
-        void WriteCosignature(io::OutputStream& outputStream)
-        {
-            auto cosignature = CreateRandomDetachedCosignature();
-            auto transactionInfo = CreateRandomTransactionInfo();
-            transactionInfo.OptionalExtractedAddresses = GenerateRandomUnresolvedAddressSetPointer(Random() % 2 + 1);
+		void WriteCosignature(io::OutputStream& outputStream) {
+			auto cosignature = CreateRandomDetachedCosignature();
+			auto transactionInfo = CreateRandomTransactionInfo();
+			transactionInfo.OptionalExtractedAddresses = GenerateRandomUnresolvedAddressSetPointer(Random() % 2 + 1);
 
-            io::Write8(outputStream, utils::to_underlying_type(subscribers::PtChangeOperationType::Add_Cosignature));
-            outputStream.write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
-            io::WriteTransactionInfo(transactionInfo, outputStream);
-        }
-    }
+			io::Write8(outputStream, utils::to_underlying_type(subscribers::PtChangeOperationType::Add_Cosignature));
+			outputStream.write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
+			io::WriteTransactionInfo(transactionInfo, outputStream);
+		}
+	}
 
-    void WriteRandomUtChange(io::OutputStream& outputStream)
-    {
-        auto operationType = 0 == RandomByte() % 2 ? subscribers::UtChangeOperationType::Add : subscribers::UtChangeOperationType::Remove;
-        WriteTransactionInfos(outputStream, utils::to_underlying_type(operationType));
-    }
+	void WriteRandomUtChange(io::OutputStream& outputStream) {
+		auto operationType = 0 == RandomByte() % 2 ? subscribers::UtChangeOperationType::Add : subscribers::UtChangeOperationType::Remove;
+		WriteTransactionInfos(outputStream, utils::to_underlying_type(operationType));
+	}
 
-    void WriteRandomPtChange(io::OutputStream& outputStream)
-    {
-        auto value = RandomByte();
-        if (value > 127) {
-            WriteCosignature(outputStream);
-            return;
-        }
+	void WriteRandomPtChange(io::OutputStream& outputStream) {
+		auto value = RandomByte();
+		if (value > 127) {
+			WriteCosignature(outputStream);
+			return;
+		}
 
-        auto operationType = 0 == value % 2 ? subscribers::PtChangeOperationType::Add_Partials : subscribers::PtChangeOperationType::Remove_Partials;
-        WriteTransactionInfos(outputStream, utils::to_underlying_type(operationType));
-    }
+		auto operationType = 0 == value % 2 ? subscribers::PtChangeOperationType::Add_Partials : subscribers::PtChangeOperationType::Remove_Partials;
+		WriteTransactionInfos(outputStream, utils::to_underlying_type(operationType));
+	}
 
-    void WriteRandomFinalization(io::OutputStream& outputStream)
-    {
-        auto notification = GenerateRandomFinalizationNotification();
-        WriteFinalizationNotification(outputStream, notification);
-    }
+	void WriteRandomFinalization(io::OutputStream& outputStream) {
+		auto notification = GenerateRandomFinalizationNotification();
+		WriteFinalizationNotification(outputStream, notification);
+	}
 
-    void WriteRandomTransactionStatus(io::OutputStream& outputStream)
-    {
-        auto notification = GenerateRandomTransactionStatusNotification(141);
-        WriteTransactionStatusNotification(outputStream, notification);
-    }
+	void WriteRandomTransactionStatus(io::OutputStream& outputStream) {
+		auto notification = GenerateRandomTransactionStatusNotification(141);
+		WriteTransactionStatusNotification(outputStream, notification);
+	}
 }
 }

@@ -27,64 +27,58 @@
 namespace catapult {
 namespace mocks {
 
-    // region MockMemoryBlockStorage
+	// region MockMemoryBlockStorage
 
-    namespace {
-        model::BlockElement CreateNemesisBlockElement()
-        {
-            return test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHashSeed());
-        }
-    }
+	namespace {
+		model::BlockElement CreateNemesisBlockElement() {
+			return test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHashSeed());
+		}
+	}
 
-    MockMemoryBlockStorage::MockMemoryBlockStorage()
-        : MemoryBlockStorage(CreateNemesisBlockElement())
-    {
-    }
+	MockMemoryBlockStorage::MockMemoryBlockStorage()
+		: MemoryBlockStorage(CreateNemesisBlockElement()) {
+	}
 
-    // endregion
+	// endregion
 
-    // region factories
+	// region factories
 
-    namespace {
-        template <typename TStorage>
-        void SaveBlocks(TStorage& storage, uint32_t numBlocks)
-        {
-            // storage already contains nemesis block (height 1)
-            for (auto i = 2u; i <= numBlocks; ++i) {
-                model::Block block;
-                test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&block), sizeof(model::BlockHeader) });
+	namespace {
+		template <typename TStorage>
+		void SaveBlocks(TStorage& storage, uint32_t numBlocks) {
+			// storage already contains nemesis block (height 1)
+			for (auto i = 2u; i <= numBlocks; ++i) {
+				model::Block block;
+				test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&block), sizeof(model::BlockHeader) });
 
-                block.Size = sizeof(model::BlockHeader);
-                block.Type = model::Entity_Type_Block_Normal;
-                block.Height = Height(i);
-                storage.saveBlock(test::BlockToBlockElement(block));
-            }
-        }
-    }
+				block.Size = sizeof(model::BlockHeader);
+				block.Type = model::Entity_Type_Block_Normal;
+				block.Height = Height(i);
+				storage.saveBlock(test::BlockToBlockElement(block));
+			}
+		}
+	}
 
-    std::unique_ptr<io::PrunableBlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks)
-    {
-        auto pStorage = std::make_unique<MockMemoryBlockStorage>();
-        SaveBlocks(*pStorage, numBlocks);
-        return PORTABLE_MOVE(pStorage);
-    }
+	std::unique_ptr<io::PrunableBlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks) {
+		auto pStorage = std::make_unique<MockMemoryBlockStorage>();
+		SaveBlocks(*pStorage, numBlocks);
+		return PORTABLE_MOVE(pStorage);
+	}
 
-    std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks)
-    {
-        return std::make_unique<io::BlockStorageCache>(CreateMemoryBlockStorage(numBlocks), CreateMemoryBlockStorage(0));
-    }
+	std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks) {
+		return std::make_unique<io::BlockStorageCache>(CreateMemoryBlockStorage(numBlocks), CreateMemoryBlockStorage(0));
+	}
 
-    // endregion
+	// endregion
 
-    // region utils
+	// region utils
 
-    void SeedStorageWithFixedSizeBlocks(io::BlockStorageCache& storage, uint32_t numBlocks)
-    {
-        auto modifier = storage.modifier();
-        SaveBlocks(modifier, numBlocks);
-        modifier.commit();
-    }
+	void SeedStorageWithFixedSizeBlocks(io::BlockStorageCache& storage, uint32_t numBlocks) {
+		auto modifier = storage.modifier();
+		SaveBlocks(modifier, numBlocks);
+		modifier.commit();
+	}
 
-    // endregion
+	// endregion
 }
 }

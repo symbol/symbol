@@ -25,41 +25,37 @@
 namespace catapult {
 namespace test {
 
-    namespace {
-        auto GenerateBlockWithTransactions(size_t count)
-        {
-            auto transactions = GenerateRandomTransactions(count);
-            size_t i = 0;
-            for (const auto& pTransaction : transactions)
-                pTransaction->Deadline = Timestamp(i++); // use deadline as a unique entity id
+	namespace {
+		auto GenerateBlockWithTransactions(size_t count) {
+			auto transactions = GenerateRandomTransactions(count);
+			size_t i = 0;
+			for (const auto& pTransaction : transactions)
+				pTransaction->Deadline = Timestamp(i++); // use deadline as a unique entity id
 
-            return test::GenerateBlockWithTransactions(transactions);
-        }
-    }
+			return test::GenerateBlockWithTransactions(transactions);
+		}
+	}
 
-    EntityInfoContainerWrapper::EntityInfoContainerWrapper(size_t count)
-        : m_pBlock(GenerateBlockWithTransactions(count))
-        , m_container(m_pBlock->Transactions())
-        , m_hashes(count)
-    {
-        for (auto i = 0u; i < count; ++i)
-            m_hashes[i] = Hash256 { { static_cast<uint8_t>(i) } };
-    }
+	EntityInfoContainerWrapper::EntityInfoContainerWrapper(size_t count)
+		: m_pBlock(GenerateBlockWithTransactions(count))
+		, m_container(m_pBlock->Transactions())
+		, m_hashes(count) {
+		for (auto i = 0u; i < count; ++i)
+			m_hashes[i] = Hash256 { { static_cast<uint8_t>(i) } };
+	}
 
-    model::WeakEntityInfos EntityInfoContainerWrapper::toVector() const
-    {
-        model::WeakEntityInfos entities;
+	model::WeakEntityInfos EntityInfoContainerWrapper::toVector() const {
+		model::WeakEntityInfos entities;
 
-        auto i = 0u;
-        for (const auto& entity : m_container)
-            entities.push_back(model::WeakEntityInfo(entity, m_hashes[i++]));
+		auto i = 0u;
+		for (const auto& entity : m_container)
+			entities.push_back(model::WeakEntityInfo(entity, m_hashes[i++]));
 
-        return entities;
-    }
+		return entities;
+	}
 
-    EntityInfoContainerWrapper CreateEntityInfos(size_t count)
-    {
-        return EntityInfoContainerWrapper(count);
-    }
+	EntityInfoContainerWrapper CreateEntityInfos(size_t count) {
+		return EntityInfoContainerWrapper(count);
+	}
 }
 }

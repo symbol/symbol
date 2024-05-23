@@ -26,36 +26,36 @@
 
 namespace catapult {
 namespace cache {
-    class BasicMosaicRestrictionCacheDelta;
-    class BasicMosaicRestrictionCacheView;
+	class BasicMosaicRestrictionCacheDelta;
+	class BasicMosaicRestrictionCacheView;
 }
 }
 
 namespace catapult {
 namespace cache {
 
-    using ReadOnlyMosaicRestrictionArtifactCache = ReadOnlyArtifactCache<
-        BasicMosaicRestrictionCacheView,
-        BasicMosaicRestrictionCacheDelta,
-        Hash256,
-        state::MosaicRestrictionEntry>;
+	using ReadOnlyMosaicRestrictionArtifactCache = ReadOnlyArtifactCache<
+		BasicMosaicRestrictionCacheView,
+		BasicMosaicRestrictionCacheDelta,
+		Hash256,
+		state::MosaicRestrictionEntry>;
 
-    /// Read-only overlay on top of a mosaic restriction cache.
-    class ReadOnlyMosaicRestrictionCache : public ReadOnlyMosaicRestrictionArtifactCache {
-    public:
-        /// Creates a read-only overlay on top of \a cache.
-        explicit ReadOnlyMosaicRestrictionCache(const BasicMosaicRestrictionCacheView& cache);
+	/// Read-only overlay on top of a mosaic restriction cache.
+	class ReadOnlyMosaicRestrictionCache : public ReadOnlyMosaicRestrictionArtifactCache {
+	public:
+		/// Creates a read-only overlay on top of \a cache.
+		explicit ReadOnlyMosaicRestrictionCache(const BasicMosaicRestrictionCacheView& cache);
 
-        /// Creates a read-only overlay on top of \a cache.
-        explicit ReadOnlyMosaicRestrictionCache(const BasicMosaicRestrictionCacheDelta& cache);
+		/// Creates a read-only overlay on top of \a cache.
+		explicit ReadOnlyMosaicRestrictionCache(const BasicMosaicRestrictionCacheDelta& cache);
 
-    public:
-        /// Gets the network identifier.
-        model::NetworkIdentifier networkIdentifier() const;
+	public:
+		/// Gets the network identifier.
+		model::NetworkIdentifier networkIdentifier() const;
 
-    private:
-        const BasicMosaicRestrictionCacheView* m_pCache;
-        const BasicMosaicRestrictionCacheDelta* m_pCacheDelta;
-    };
+	private:
+		const BasicMosaicRestrictionCacheView* m_pCache;
+		const BasicMosaicRestrictionCacheDelta* m_pCacheDelta;
+	};
 }
 }

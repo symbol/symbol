@@ -24,20 +24,20 @@
 
 namespace catapult {
 namespace test {
-    class PemCertificate;
+	class PemCertificate;
 }
 }
 
 namespace catapult {
 namespace test {
 
-    /// Gets the default directory for certificates used in tests.
-    std::string GetDefaultCertificateDirectory();
+	/// Gets the default directory for certificates used in tests.
+	std::string GetDefaultCertificateDirectory();
 
-    /// Generates all certificate files in \a certificateDirectory.
-    void GenerateCertificateDirectory(const std::string& certificateDirectory);
+	/// Generates all certificate files in \a certificateDirectory.
+	void GenerateCertificateDirectory(const std::string& certificateDirectory);
 
-    /// Generates all certificate files in \a certificateDirectory with seed \a pemCertificate.
-    void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate);
+	/// Generates all certificate files in \a certificateDirectory with seed \a pemCertificate.
+	void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate);
 }
 }

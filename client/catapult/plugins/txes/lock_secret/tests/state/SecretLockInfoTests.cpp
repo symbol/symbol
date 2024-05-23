@@ -28,37 +28,35 @@ namespace state {
 
 #define TEST_CLASS SecretLockInfoTests
 
-    namespace {
-        struct SecretLockInfoTraits {
-            static void SetLockIdentifier(SecretLockInfo& lockInfo, const Hash256& hash)
-            {
-                lockInfo.CompositeHash = hash;
-            }
-        };
-    }
+	namespace {
+		struct SecretLockInfoTraits {
+			static void SetLockIdentifier(SecretLockInfo& lockInfo, const Hash256& hash) {
+				lockInfo.CompositeHash = hash;
+			}
+		};
+	}
 
-    DEFINE_LOCK_INFO_TESTS(SecretLockInfo)
+	DEFINE_LOCK_INFO_TESTS(SecretLockInfo)
 
-    TEST(TEST_CLASS, SecretLockInfoConstructorSetsAllFields)
-    {
-        // Arrange:
-        auto owner = test::GenerateRandomByteArray<Address>();
-        auto algorithm = model::LockHashAlgorithm::Op_Hash_160;
-        auto secret = test::GenerateRandomByteArray<Hash256>();
-        auto recipient = test::GenerateRandomByteArray<Address>();
+	TEST(TEST_CLASS, SecretLockInfoConstructorSetsAllFields) {
+		// Arrange:
+		auto owner = test::GenerateRandomByteArray<Address>();
+		auto algorithm = model::LockHashAlgorithm::Op_Hash_160;
+		auto secret = test::GenerateRandomByteArray<Hash256>();
+		auto recipient = test::GenerateRandomByteArray<Address>();
 
-        // Act:
-        SecretLockInfo lockInfo(owner, MosaicId(123), Amount(234), Height(345), algorithm, secret, recipient);
+		// Act:
+		SecretLockInfo lockInfo(owner, MosaicId(123), Amount(234), Height(345), algorithm, secret, recipient);
 
-        // Assert:
-        EXPECT_EQ(owner, lockInfo.OwnerAddress);
-        EXPECT_EQ(MosaicId(123), lockInfo.MosaicId);
-        EXPECT_EQ(Amount(234), lockInfo.Amount);
-        EXPECT_EQ(Height(345), lockInfo.EndHeight);
-        EXPECT_EQ(model::LockHashAlgorithm::Op_Hash_160, lockInfo.HashAlgorithm);
-        EXPECT_EQ(secret, lockInfo.Secret);
-        EXPECT_EQ(recipient, lockInfo.RecipientAddress);
-        EXPECT_EQ(Hash256(), lockInfo.CompositeHash);
-    }
+		// Assert:
+		EXPECT_EQ(owner, lockInfo.OwnerAddress);
+		EXPECT_EQ(MosaicId(123), lockInfo.MosaicId);
+		EXPECT_EQ(Amount(234), lockInfo.Amount);
+		EXPECT_EQ(Height(345), lockInfo.EndHeight);
+		EXPECT_EQ(model::LockHashAlgorithm::Op_Hash_160, lockInfo.HashAlgorithm);
+		EXPECT_EQ(secret, lockInfo.Secret);
+		EXPECT_EQ(recipient, lockInfo.RecipientAddress);
+		EXPECT_EQ(Hash256(), lockInfo.CompositeHash);
+	}
 }
 }

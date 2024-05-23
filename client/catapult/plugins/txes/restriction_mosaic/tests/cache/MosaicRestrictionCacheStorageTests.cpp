@@ -29,39 +29,35 @@
 namespace catapult {
 namespace cache {
 
-    namespace {
-        struct MosaicRestrictionCacheStorageTraits {
-            using StorageType = MosaicRestrictionCacheStorage;
-            class CacheType : public MosaicRestrictionCache {
-            public:
-                CacheType()
-                    : MosaicRestrictionCache(CacheConfiguration(), static_cast<model::NetworkIdentifier>(12))
-                {
-                }
-            };
+	namespace {
+		struct MosaicRestrictionCacheStorageTraits {
+			using StorageType = MosaicRestrictionCacheStorage;
+			class CacheType : public MosaicRestrictionCache {
+			public:
+				CacheType()
+					: MosaicRestrictionCache(CacheConfiguration(), static_cast<model::NetworkIdentifier>(12)) {
+				}
+			};
 
-            static auto CreateId(uint8_t id)
-            {
-                return state::CreateMosaicRestrictionEntryKey(MosaicId(id * id), Address { { id } });
-            }
+			static auto CreateId(uint8_t id) {
+				return state::CreateMosaicRestrictionEntryKey(MosaicId(id * id), Address { { id } });
+			}
 
-            static auto CreateValue(const Hash256& hash)
-            {
-                state::MosaicRestrictionEntry entry(test::GenerateMosaicRestrictionEntry(hash));
-                auto& restriction = entry.asAddressRestriction();
-                for (auto i = 0u; i < 3; ++i)
-                    restriction.set(i, i * i);
+			static auto CreateValue(const Hash256& hash) {
+				state::MosaicRestrictionEntry entry(test::GenerateMosaicRestrictionEntry(hash));
+				auto& restriction = entry.asAddressRestriction();
+				for (auto i = 0u; i < 3; ++i)
+					restriction.set(i, i * i);
 
-                return entry;
-            }
+				return entry;
+			}
 
-            static void AssertEqual(const state::MosaicRestrictionEntry& lhs, const state::MosaicRestrictionEntry& rhs)
-            {
-                test::AssertEqual(lhs, rhs);
-            }
-        };
-    }
+			static void AssertEqual(const state::MosaicRestrictionEntry& lhs, const state::MosaicRestrictionEntry& rhs) {
+				test::AssertEqual(lhs, rhs);
+			}
+		};
+	}
 
-    DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MosaicRestrictionCacheStorageTests, MosaicRestrictionCacheStorageTraits)
+	DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MosaicRestrictionCacheStorageTests, MosaicRestrictionCacheStorageTraits)
 }
 }

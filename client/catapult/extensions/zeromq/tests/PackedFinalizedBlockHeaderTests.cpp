@@ -30,28 +30,26 @@ namespace zeromq {
 
 #define HEADER_FIELDS FIELD(Round) FIELD(Height) FIELD(Hash)
 
-    TEST(TEST_CLASS, HeaderHasExpectedSize)
-    {
-        // Arrange:
-        auto expectedSize = 0u;
+	TEST(TEST_CLASS, HeaderHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(PackedFinalizedBlockHeader::X)>();
-        HEADER_FIELDS
+		HEADER_FIELDS
 #undef FIELD
 
-        // Assert:
-        EXPECT_EQ(expectedSize, sizeof(PackedFinalizedBlockHeader));
-        EXPECT_EQ(48u, sizeof(PackedFinalizedBlockHeader));
-    }
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(PackedFinalizedBlockHeader));
+		EXPECT_EQ(48u, sizeof(PackedFinalizedBlockHeader));
+	}
 
-    TEST(TEST_CLASS, HeaderHasProperAlignment)
-    {
+	TEST(TEST_CLASS, HeaderHasProperAlignment) {
 #define FIELD(X) EXPECT_ALIGNED(PackedFinalizedBlockHeader, X);
-        HEADER_FIELDS
+		HEADER_FIELDS
 #undef FIELD
 
-        EXPECT_EQ(0u, sizeof(PackedFinalizedBlockHeader) % 8);
-    }
+		EXPECT_EQ(0u, sizeof(PackedFinalizedBlockHeader) % 8);
+	}
 
 #undef HEADER_FIELDS
 }

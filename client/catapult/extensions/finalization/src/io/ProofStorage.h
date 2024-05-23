@@ -28,23 +28,23 @@
 namespace catapult {
 namespace io {
 
-    /// Interface for saving and loading finalization proofs.
-    class ProofStorage {
-    public:
-        virtual ~ProofStorage() = default;
+	/// Interface for saving and loading finalization proofs.
+	class ProofStorage {
+	public:
+		virtual ~ProofStorage() = default;
 
-    public:
-        /// Gets the statistics of the last finalized block.
-        virtual model::FinalizationStatistics statistics() const = 0;
+	public:
+		/// Gets the statistics of the last finalized block.
+		virtual model::FinalizationStatistics statistics() const = 0;
 
-        /// Gets the finalization proof at \a epoch.
-        virtual std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const = 0;
+		/// Gets the finalization proof at \a epoch.
+		virtual std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const = 0;
 
-        /// Gets the first finalization proof at \a height.
-        virtual std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const = 0;
+		/// Gets the first finalization proof at \a height.
+		virtual std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const = 0;
 
-        /// Saves finalization \a proof.
-        virtual void saveProof(const model::FinalizationProof& proof) = 0;
-    };
+		/// Saves finalization \a proof.
+		virtual void saveProof(const model::FinalizationProof& proof) = 0;
+	};
 }
 }

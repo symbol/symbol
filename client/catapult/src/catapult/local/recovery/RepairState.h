@@ -23,25 +23,25 @@
 
 namespace catapult {
 namespace cache {
-    class CatapultCache;
+	class CatapultCache;
 }
 namespace config {
-    class CatapultDirectory;
+	class CatapultDirectory;
 }
 namespace subscribers {
-    class StateChangeSubscriber;
+	class StateChangeSubscriber;
 }
 }
 
 namespace catapult {
 namespace local {
 
-    /// Repairs state in \a stateChangeDirectory using \a catapultCache given registered subscriber (\a registeredSubscriber)
-    /// and repair subscriber (\a repairSubscriber).
-    void RepairState(
-        const config::CatapultDirectory& stateChangeDirectory,
-        const cache::CatapultCache& catapultCache,
-        subscribers::StateChangeSubscriber& registeredSubscriber,
-        subscribers::StateChangeSubscriber& repairSubscriber);
+	/// Repairs state in \a stateChangeDirectory using \a catapultCache given registered subscriber (\a registeredSubscriber)
+	/// and repair subscriber (\a repairSubscriber).
+	void RepairState(
+		const config::CatapultDirectory& stateChangeDirectory,
+		const cache::CatapultCache& catapultCache,
+		subscribers::StateChangeSubscriber& registeredSubscriber,
+		subscribers::StateChangeSubscriber& repairSubscriber);
 }
 }

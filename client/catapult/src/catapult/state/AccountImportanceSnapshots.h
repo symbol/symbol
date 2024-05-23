@@ -26,56 +26,56 @@
 namespace catapult {
 namespace state {
 
-    /// Stack of account importance snapshots.
-    class AccountImportanceSnapshots {
-    public:
-        /// Temporal importance information.
-        struct ImportanceSnapshot {
-            /// Account importance.
-            catapult::Importance Importance;
+	/// Stack of account importance snapshots.
+	class AccountImportanceSnapshots {
+	public:
+		/// Temporal importance information.
+		struct ImportanceSnapshot {
+			/// Account importance.
+			catapult::Importance Importance;
 
-            /// Importance height.
-            model::ImportanceHeight Height;
-        };
+			/// Importance height.
+			model::ImportanceHeight Height;
+		};
 
-    private:
-        using SnapshotStack = CompactArrayStack<ImportanceSnapshot, Importance_History_Size>;
+	private:
+		using SnapshotStack = CompactArrayStack<ImportanceSnapshot, Importance_History_Size>;
 
-    public:
-        /// Returns \c true when no snapshots are present.
-        bool empty() const;
+	public:
+		/// Returns \c true when no snapshots are present.
+		bool empty() const;
 
-        /// Returns \c true when top-level snapshot is nonzero.
-        bool active() const;
+		/// Returns \c true when top-level snapshot is nonzero.
+		bool active() const;
 
-        /// Gets the current importance of the account.
-        Importance current() const;
+		/// Gets the current importance of the account.
+		Importance current() const;
 
-        /// Gets the height at which the current importance was calculated.
-        model::ImportanceHeight height() const;
+		/// Gets the height at which the current importance was calculated.
+		model::ImportanceHeight height() const;
 
-        /// Gets the importance of the account at \a height.
-        Importance get(model::ImportanceHeight height) const;
+		/// Gets the importance of the account at \a height.
+		Importance get(model::ImportanceHeight height) const;
 
-    public:
-        /// Sets the current account importance to \a importance at \a height.
-        void set(Importance importance, model::ImportanceHeight height);
+	public:
+		/// Sets the current account importance to \a importance at \a height.
+		void set(Importance importance, model::ImportanceHeight height);
 
-        /// Pushes an empty importance.
-        void push();
+		/// Pushes an empty importance.
+		void push();
 
-        /// Pops the current importance.
-        void pop();
+		/// Pops the current importance.
+		void pop();
 
-    public:
-        /// Gets a const iterator to the first element of the underlying container.
-        SnapshotStack::const_iterator begin() const;
+	public:
+		/// Gets a const iterator to the first element of the underlying container.
+		SnapshotStack::const_iterator begin() const;
 
-        /// Gets a const iterator to the element following the last element of the underlying container.
-        SnapshotStack::const_iterator end() const;
+		/// Gets a const iterator to the element following the last element of the underlying container.
+		SnapshotStack::const_iterator end() const;
 
-    private:
-        SnapshotStack m_snapshots;
-    };
+	private:
+		SnapshotStack m_snapshots;
+	};
 }
 }

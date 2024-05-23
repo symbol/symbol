@@ -25,85 +25,76 @@
 namespace catapult {
 namespace builders {
 
-    NamespaceRegistrationBuilder::NamespaceRegistrationBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-        : TransactionBuilder(networkIdentifier, signer)
-        , m_duration()
-        , m_parentId()
-        , m_id()
-        , m_registrationType()
-        , m_name()
-    {
-    }
+	NamespaceRegistrationBuilder::NamespaceRegistrationBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+		: TransactionBuilder(networkIdentifier, signer)
+		, m_duration()
+		, m_parentId()
+		, m_id()
+		, m_registrationType()
+		, m_name() {
+	}
 
-    void NamespaceRegistrationBuilder::setDuration(BlockDuration duration)
-    {
-        m_duration = duration;
-        m_registrationType = model::NamespaceRegistrationType::Root;
-    }
+	void NamespaceRegistrationBuilder::setDuration(BlockDuration duration) {
+		m_duration = duration;
+		m_registrationType = model::NamespaceRegistrationType::Root;
+	}
 
-    void NamespaceRegistrationBuilder::setParentId(NamespaceId parentId)
-    {
-        m_parentId = parentId;
-        m_registrationType = model::NamespaceRegistrationType::Child;
-    }
+	void NamespaceRegistrationBuilder::setParentId(NamespaceId parentId) {
+		m_parentId = parentId;
+		m_registrationType = model::NamespaceRegistrationType::Child;
+	}
 
-    void NamespaceRegistrationBuilder::setName(const RawBuffer& name)
-    {
-        if (0 == name.Size)
-            CATAPULT_THROW_INVALID_ARGUMENT("argument `name` cannot be empty");
+	void NamespaceRegistrationBuilder::setName(const RawBuffer& name) {
+		if (0 == name.Size)
+			CATAPULT_THROW_INVALID_ARGUMENT("argument `name` cannot be empty");
 
-        if (!m_name.empty())
-            CATAPULT_THROW_RUNTIME_ERROR("`name` field already set");
+		if (!m_name.empty())
+			CATAPULT_THROW_RUNTIME_ERROR("`name` field already set");
 
-        m_name.resize(name.Size);
-        m_name.assign(name.pData, name.pData + name.Size);
-    }
+		m_name.resize(name.Size);
+		m_name.assign(name.pData, name.pData + name.Size);
+	}
 
-    size_t NamespaceRegistrationBuilder::size() const
-    {
-        return sizeImpl<Transaction>();
-    }
+	size_t NamespaceRegistrationBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
 
-    std::unique_ptr<NamespaceRegistrationBuilder::Transaction> NamespaceRegistrationBuilder::build() const
-    {
-        return buildImpl<Transaction>();
-    }
+	std::unique_ptr<NamespaceRegistrationBuilder::Transaction> NamespaceRegistrationBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
 
-    std::unique_ptr<NamespaceRegistrationBuilder::EmbeddedTransaction> NamespaceRegistrationBuilder::buildEmbedded() const
-    {
-        return buildImpl<EmbeddedTransaction>();
-    }
+	std::unique_ptr<NamespaceRegistrationBuilder::EmbeddedTransaction> NamespaceRegistrationBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
+	}
 
-    template <typename TransactionType>
-    size_t NamespaceRegistrationBuilder::sizeImpl() const
-    {
-        // calculate transaction size
-        auto size = sizeof(TransactionType);
-        size += m_name.size();
-        return size;
-    }
+	template <typename TransactionType>
+	size_t NamespaceRegistrationBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		size += m_name.size();
+		return size;
+	}
 
-    template <typename TransactionType>
-    std::unique_ptr<TransactionType> NamespaceRegistrationBuilder::buildImpl() const
-    {
-        // 1. allocate, zero (header), set model::Transaction fields
-        auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
+	template <typename TransactionType>
+	std::unique_ptr<TransactionType> NamespaceRegistrationBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
-        // 2. set fixed transaction fields
-        if (model::NamespaceRegistrationType::Root == m_registrationType)
-            pTransaction->Duration = m_duration;
+		// 2. set fixed transaction fields
+		if (model::NamespaceRegistrationType::Root == m_registrationType)
+			pTransaction->Duration = m_duration;
 
-        if (model::NamespaceRegistrationType::Child == m_registrationType)
-            pTransaction->ParentId = m_parentId;
+		if (model::NamespaceRegistrationType::Child == m_registrationType)
+			pTransaction->ParentId = m_parentId;
 
-        pTransaction->Id = model::GenerateNamespaceId(m_parentId, { reinterpret_cast<const char*>(m_name.data()), m_name.size() });
-        pTransaction->RegistrationType = m_registrationType;
-        pTransaction->NameSize = utils::checked_cast<size_t, uint8_t>(m_name.size());
+		pTransaction->Id = model::GenerateNamespaceId(m_parentId, { reinterpret_cast<const char*>(m_name.data()), m_name.size() });
+		pTransaction->RegistrationType = m_registrationType;
+		pTransaction->NameSize = utils::checked_cast<size_t, uint8_t>(m_name.size());
 
-        // 3. set transaction attachments
-        std::copy(m_name.cbegin(), m_name.cend(), pTransaction->NamePtr());
+		// 3. set transaction attachments
+		std::copy(m_name.cbegin(), m_name.cend(), pTransaction->NamePtr());
 
-        return pTransaction;
-    }
+		return pTransaction;
+	}
 }
 }

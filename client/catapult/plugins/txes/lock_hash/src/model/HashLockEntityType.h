@@ -28,8 +28,8 @@ namespace model {
 
 #endif
 
-    /// Hash lock transaction.
-    DEFINE_TRANSACTION_TYPE(LockHash, Hash_Lock, 0x1);
+	/// Hash lock transaction.
+	DEFINE_TRANSACTION_TYPE(LockHash, Hash_Lock, 0x1);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }

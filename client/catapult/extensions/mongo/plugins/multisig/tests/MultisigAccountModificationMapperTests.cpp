@@ -29,113 +29,105 @@
 
 namespace catapult {
 namespace mongo {
-    namespace plugins {
+	namespace plugins {
 
 #define TEST_CLASS MultisigAccountModificationMapperTests
 
-        namespace {
-            DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(MultisigAccountModification)
+		namespace {
+			DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(MultisigAccountModification)
 
-            auto CreateMultisigAccountModificationTransactionBuilder(
-                const Key& signer,
-                int8_t minRemovalDelta,
-                int8_t minApprovalDelta,
-                uint8_t numAddressAdditions,
-                uint8_t numAddressDeletions)
-            {
-                builders::MultisigAccountModificationBuilder builder(model::NetworkIdentifier::Testnet, signer);
-                builder.setMinRemovalDelta(minRemovalDelta);
-                builder.setMinApprovalDelta(minApprovalDelta);
+			auto CreateMultisigAccountModificationTransactionBuilder(
+				const Key& signer,
+				int8_t minRemovalDelta,
+				int8_t minApprovalDelta,
+				uint8_t numAddressAdditions,
+				uint8_t numAddressDeletions) {
+				builders::MultisigAccountModificationBuilder builder(model::NetworkIdentifier::Testnet, signer);
+				builder.setMinRemovalDelta(minRemovalDelta);
+				builder.setMinApprovalDelta(minApprovalDelta);
 
-                for (auto i = 0u; i < numAddressAdditions; ++i)
-                    builder.addAddressAddition(test::GenerateRandomByteArray<UnresolvedAddress>());
+				for (auto i = 0u; i < numAddressAdditions; ++i)
+					builder.addAddressAddition(test::GenerateRandomByteArray<UnresolvedAddress>());
 
-                for (auto i = 0u; i < numAddressDeletions; ++i)
-                    builder.addAddressDeletion(test::GenerateRandomByteArray<UnresolvedAddress>());
+				for (auto i = 0u; i < numAddressDeletions; ++i)
+					builder.addAddressDeletion(test::GenerateRandomByteArray<UnresolvedAddress>());
 
-                return builder;
-            }
+				return builder;
+			}
 
-            void AssertEqualAddresses(
-                const bsoncxx::document::view& dbTransaction,
-                const std::string& name,
-                const UnresolvedAddress* pAddresses,
-                uint8_t count)
-            {
-                auto dbAddresses = dbTransaction[name].get_array().value;
-                ASSERT_EQ(count, test::GetFieldCount(dbAddresses));
+			void AssertEqualAddresses(
+				const bsoncxx::document::view& dbTransaction,
+				const std::string& name,
+				const UnresolvedAddress* pAddresses,
+				uint8_t count) {
+				auto dbAddresses = dbTransaction[name].get_array().value;
+				ASSERT_EQ(count, test::GetFieldCount(dbAddresses));
 
-                auto dbAddressesIter = dbAddresses.cbegin();
-                for (auto i = 0u; i < count; ++i, ++dbAddressesIter) {
-                    auto address = test::GetByteArrayFromMongoSource<UnresolvedAddress>(*dbAddressesIter);
-                    EXPECT_EQ(pAddresses[i], address) << name << " at " << i;
-                }
-            }
+				auto dbAddressesIter = dbAddresses.cbegin();
+				for (auto i = 0u; i < count; ++i, ++dbAddressesIter) {
+					auto address = test::GetByteArrayFromMongoSource<UnresolvedAddress>(*dbAddressesIter);
+					EXPECT_EQ(pAddresses[i], address) << name << " at " << i;
+				}
+			}
 
-            template <typename TTransaction>
-            void AssertEqualNonInheritedTransferData(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction)
-            {
-                EXPECT_EQ(transaction.MinRemovalDelta, test::GetInt32(dbTransaction, "minRemovalDelta"));
-                EXPECT_EQ(transaction.MinApprovalDelta, test::GetInt32(dbTransaction, "minApprovalDelta"));
+			template <typename TTransaction>
+			void AssertEqualNonInheritedTransferData(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
+				EXPECT_EQ(transaction.MinRemovalDelta, test::GetInt32(dbTransaction, "minRemovalDelta"));
+				EXPECT_EQ(transaction.MinApprovalDelta, test::GetInt32(dbTransaction, "minApprovalDelta"));
 
-                AssertEqualAddresses(dbTransaction, "addressAdditions", transaction.AddressAdditionsPtr(), transaction.AddressAdditionsCount);
-                AssertEqualAddresses(dbTransaction, "addressDeletions", transaction.AddressDeletionsPtr(), transaction.AddressDeletionsCount);
-            }
+				AssertEqualAddresses(dbTransaction, "addressAdditions", transaction.AddressAdditionsPtr(), transaction.AddressAdditionsCount);
+				AssertEqualAddresses(dbTransaction, "addressDeletions", transaction.AddressDeletionsPtr(), transaction.AddressDeletionsCount);
+			}
 
-            template <typename TTraits>
-            void AssertCanMapMultisigAccountModificationTransaction(
-                int8_t minRemovalDelta,
-                int8_t minApprovalDelta,
-                uint8_t numAddressAdditions,
-                uint8_t numAddressDeletions)
-            {
-                // Arrange:
-                auto signer = test::GenerateRandomByteArray<Key>();
-                auto pBuilder = CreateMultisigAccountModificationTransactionBuilder(
-                    signer,
-                    minRemovalDelta,
-                    minApprovalDelta,
-                    numAddressAdditions,
-                    numAddressDeletions);
-                auto pTransaction = TTraits::Adapt(pBuilder);
-                auto pPlugin = TTraits::CreatePlugin();
+			template <typename TTraits>
+			void AssertCanMapMultisigAccountModificationTransaction(
+				int8_t minRemovalDelta,
+				int8_t minApprovalDelta,
+				uint8_t numAddressAdditions,
+				uint8_t numAddressDeletions) {
+				// Arrange:
+				auto signer = test::GenerateRandomByteArray<Key>();
+				auto pBuilder = CreateMultisigAccountModificationTransactionBuilder(
+					signer,
+					minRemovalDelta,
+					minApprovalDelta,
+					numAddressAdditions,
+					numAddressDeletions);
+				auto pTransaction = TTraits::Adapt(pBuilder);
+				auto pPlugin = TTraits::CreatePlugin();
 
-                // Act:
-                mappers::bson_stream::document builder;
-                pPlugin->streamTransaction(builder, *pTransaction);
-                auto view = builder.view();
+				// Act:
+				mappers::bson_stream::document builder;
+				pPlugin->streamTransaction(builder, *pTransaction);
+				auto view = builder.view();
 
-                // Assert:
-                EXPECT_EQ(4u, test::GetFieldCount(view));
-                AssertEqualNonInheritedTransferData(*pTransaction, view);
-            }
-        }
+				// Assert:
+				EXPECT_EQ(4u, test::GetFieldCount(view));
+				AssertEqualNonInheritedTransferData(*pTransaction, view);
+			}
+		}
 
-        DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Multisig_Account_Modification)
+		DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Multisig_Account_Modification)
 
-        // region streamTransaction
+		// region streamTransaction
 
-        PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithoutModification)
-        {
-            AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 0, 0);
-        }
+		PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithoutModification) {
+			AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 0, 0);
+		}
 
-        PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleAddition)
-        {
-            AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 1, 0);
-        }
+		PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleAddition) {
+			AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 1, 0);
+		}
 
-        PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleDeletion)
-        {
-            AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 0, 1);
-        }
+		PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleDeletion) {
+			AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 0, 1);
+		}
 
-        PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithMultipleAdditionsAndDeletions)
-        {
-            AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 4, 2);
-        }
+		PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithMultipleAdditionsAndDeletions) {
+			AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 4, 2);
+		}
 
-        // endregion
-    }
+		// endregion
+	}
 }
 }

@@ -28,6 +28,6 @@ namespace crypto {
 
 #define TEST_CLASS SecureRandomGeneratorTests
 
-    DEFINE_RANDOMNESS_UINT64_TESTS(SecureRandomGenerator)
+	DEFINE_RANDOMNESS_UINT64_TESTS(SecureRandomGenerator)
 }
 }

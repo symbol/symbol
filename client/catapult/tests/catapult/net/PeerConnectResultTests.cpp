@@ -28,110 +28,102 @@ namespace net {
 
 #define TEST_CLASS PeerConnectResultTests
 
-    // region PeerConnectResult
+	// region PeerConnectResult
 
-    TEST(TEST_CLASS, CanCreateDefaultResult)
-    {
-        // Act:
-        auto result = PeerConnectResult();
+	TEST(TEST_CLASS, CanCreateDefaultResult) {
+		// Act:
+		auto result = PeerConnectResult();
 
-        // Assert:
-        EXPECT_EQ(static_cast<PeerConnectCode>(-1), result.Code);
-        EXPECT_EQ(Key(), result.Identity.PublicKey);
-        EXPECT_EQ("", result.Identity.Host);
-    }
+		// Assert:
+		EXPECT_EQ(static_cast<PeerConnectCode>(-1), result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+	}
 
-    TEST(TEST_CLASS, CanCreateDefaultResultFromCode)
-    {
-        // Act:
-        auto result = PeerConnectResult(PeerConnectCode::Accepted);
+	TEST(TEST_CLASS, CanCreateDefaultResultFromCode) {
+		// Act:
+		auto result = PeerConnectResult(PeerConnectCode::Accepted);
 
-        // Assert:
-        EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
-        EXPECT_EQ(Key(), result.Identity.PublicKey);
-        EXPECT_EQ("", result.Identity.Host);
-    }
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+	}
 
-    TEST(TEST_CLASS, CanCreateDefaultResultFromCodeAndKey_Success)
-    {
-        // Act:
-        auto key = test::GenerateRandomByteArray<Key>();
-        auto result = PeerConnectResult(PeerConnectCode::Accepted, { key, "11.22.33.44" });
+	TEST(TEST_CLASS, CanCreateDefaultResultFromCodeAndKey_Success) {
+		// Act:
+		auto key = test::GenerateRandomByteArray<Key>();
+		auto result = PeerConnectResult(PeerConnectCode::Accepted, { key, "11.22.33.44" });
 
-        // Assert:
-        EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
-        EXPECT_EQ(key, result.Identity.PublicKey);
-        EXPECT_EQ("11.22.33.44", result.Identity.Host);
-    }
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
+		EXPECT_EQ(key, result.Identity.PublicKey);
+		EXPECT_EQ("11.22.33.44", result.Identity.Host);
+	}
 
-    TEST(TEST_CLASS, CanCreateDefaultResultFromCodeAndKey_Error)
-    {
-        // Act:
-        auto key = test::GenerateRandomByteArray<Key>();
-        auto result = PeerConnectResult(PeerConnectCode::Already_Connected, { key, "11.22.33.44" });
+	TEST(TEST_CLASS, CanCreateDefaultResultFromCodeAndKey_Error) {
+		// Act:
+		auto key = test::GenerateRandomByteArray<Key>();
+		auto result = PeerConnectResult(PeerConnectCode::Already_Connected, { key, "11.22.33.44" });
 
-        // Assert:
-        EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
-        EXPECT_EQ(Key(), result.Identity.PublicKey);
-        EXPECT_EQ("", result.Identity.Host);
-    }
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+	}
 
-    // endregion
+	// endregion
 
-    // region PeerConnectResultEx
+	// region PeerConnectResultEx
 
-    TEST(TEST_CLASS, Ex_CanCreateDefaultResult)
-    {
-        // Act:
-        auto result = PeerConnectResultEx();
+	TEST(TEST_CLASS, Ex_CanCreateDefaultResult) {
+		// Act:
+		auto result = PeerConnectResultEx();
 
-        // Assert:
-        EXPECT_EQ(static_cast<PeerConnectCode>(-1), result.Code);
-        EXPECT_EQ(Key(), result.Identity.PublicKey);
-        EXPECT_EQ("", result.Identity.Host);
-        EXPECT_FALSE(!!result.pPeerSocket);
-    }
+		// Assert:
+		EXPECT_EQ(static_cast<PeerConnectCode>(-1), result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+		EXPECT_FALSE(!!result.pPeerSocket);
+	}
 
-    TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCode)
-    {
-        // Act:
-        auto result = PeerConnectResultEx(PeerConnectCode::Accepted);
+	TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCode) {
+		// Act:
+		auto result = PeerConnectResultEx(PeerConnectCode::Accepted);
 
-        // Assert:
-        EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
-        EXPECT_EQ(Key(), result.Identity.PublicKey);
-        EXPECT_EQ("", result.Identity.Host);
-        EXPECT_FALSE(!!result.pPeerSocket);
-    }
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+		EXPECT_FALSE(!!result.pPeerSocket);
+	}
 
-    TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCodeAndKeyAndSocket_Success)
-    {
-        // Act:
-        auto key = test::GenerateRandomByteArray<Key>();
-        auto pSocket = std::make_shared<mocks::MockPacketSocket>();
-        auto result = PeerConnectResultEx(PeerConnectCode::Accepted, { key, "11.22.33.44" }, pSocket);
+	TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCodeAndKeyAndSocket_Success) {
+		// Act:
+		auto key = test::GenerateRandomByteArray<Key>();
+		auto pSocket = std::make_shared<mocks::MockPacketSocket>();
+		auto result = PeerConnectResultEx(PeerConnectCode::Accepted, { key, "11.22.33.44" }, pSocket);
 
-        // Assert:
-        EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
-        EXPECT_EQ(key, result.Identity.PublicKey);
-        EXPECT_EQ("11.22.33.44", result.Identity.Host);
-        EXPECT_EQ(pSocket, result.pPeerSocket);
-    }
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
+		EXPECT_EQ(key, result.Identity.PublicKey);
+		EXPECT_EQ("11.22.33.44", result.Identity.Host);
+		EXPECT_EQ(pSocket, result.pPeerSocket);
+	}
 
-    TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCodeAndKeyAndSocket_Error)
-    {
-        // Act:
-        auto key = test::GenerateRandomByteArray<Key>();
-        auto pSocket = std::make_shared<mocks::MockPacketSocket>();
-        auto result = PeerConnectResultEx(PeerConnectCode::Already_Connected, { key, "11.22.33.44" }, pSocket);
+	TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCodeAndKeyAndSocket_Error) {
+		// Act:
+		auto key = test::GenerateRandomByteArray<Key>();
+		auto pSocket = std::make_shared<mocks::MockPacketSocket>();
+		auto result = PeerConnectResultEx(PeerConnectCode::Already_Connected, { key, "11.22.33.44" }, pSocket);
 
-        // Assert:
-        EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
-        EXPECT_EQ(Key(), result.Identity.PublicKey);
-        EXPECT_EQ("", result.Identity.Host);
-        EXPECT_FALSE(!!result.pPeerSocket);
-    }
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+		EXPECT_FALSE(!!result.pPeerSocket);
+	}
 
-    // endregion
+	// endregion
 }
 }

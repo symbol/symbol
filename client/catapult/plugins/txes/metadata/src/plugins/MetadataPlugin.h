@@ -24,15 +24,15 @@
 
 namespace catapult {
 namespace plugins {
-    class PluginManager;
+	class PluginManager;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Registers metadata support with \a manager.
-    PLUGIN_API
-    void RegisterMetadataSubsystem(PluginManager& manager);
+	/// Registers metadata support with \a manager.
+	PLUGIN_API
+	void RegisterMetadataSubsystem(PluginManager& manager);
 }
 }

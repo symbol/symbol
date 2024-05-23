@@ -28,79 +28,69 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        struct MosaicRestrictionPluginTraits {
-        public:
-            template <typename TAction>
-            static void RunTestAfterRegistration(TAction action)
-            {
-                // Arrange:
-                auto config = model::BlockchainConfiguration::Uninitialized();
-                config.Plugins.emplace(
-                    "catapult.plugins.restrictionmosaic",
-                    utils::ConfigurationBag({ { "", { { "maxMosaicRestrictionValues", "10" } } } }));
+	namespace {
+		struct MosaicRestrictionPluginTraits {
+		public:
+			template <typename TAction>
+			static void RunTestAfterRegistration(TAction action) {
+				// Arrange:
+				auto config = model::BlockchainConfiguration::Uninitialized();
+				config.Plugins.emplace(
+					"catapult.plugins.restrictionmosaic",
+					utils::ConfigurationBag({ { "", { { "maxMosaicRestrictionValues", "10" } } } }));
 
-                auto manager = test::CreatePluginManager(config);
-                RegisterMosaicRestrictionSubsystem(manager);
+				auto manager = test::CreatePluginManager(config);
+				RegisterMosaicRestrictionSubsystem(manager);
 
-                // Act:
-                action(manager);
-            }
+				// Act:
+				action(manager);
+			}
 
-        public:
-            static std::vector<model::EntityType> GetTransactionTypes()
-            {
-                return { model::Entity_Type_Mosaic_Address_Restriction, model::Entity_Type_Mosaic_Global_Restriction };
-            }
+		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return { model::Entity_Type_Mosaic_Address_Restriction, model::Entity_Type_Mosaic_Global_Restriction };
+			}
 
-            static std::vector<std::string> GetCacheNames()
-            {
-                return { "MosaicRestrictionCache" };
-            }
+			static std::vector<std::string> GetCacheNames() {
+				return { "MosaicRestrictionCache" };
+			}
 
-            static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes()
-            {
-                return { ionet::PacketType::Mosaic_Restrictions_State_Path };
-            }
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Mosaic_Restrictions_State_Path };
+			}
 
-            static std::vector<ionet::PacketType> GetDiagnosticPacketTypes()
-            {
-                return { ionet::PacketType::Mosaic_Restrictions_Infos };
-            }
+			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
+				return { ionet::PacketType::Mosaic_Restrictions_Infos };
+			}
 
-            static std::vector<std::string> GetDiagnosticCounterNames()
-            {
-                return { "MOSAICREST C" };
-            }
+			static std::vector<std::string> GetDiagnosticCounterNames() {
+				return { "MOSAICREST C" };
+			}
 
-            static std::vector<std::string> GetStatelessValidatorNames()
-            {
-                return { "MosaicRestrictionTypeValidator" };
-            }
+			static std::vector<std::string> GetStatelessValidatorNames() {
+				return { "MosaicRestrictionTypeValidator" };
+			}
 
-            static std::vector<std::string> GetStatefulValidatorNames()
-            {
-                return { "MosaicRestrictionBalanceDebitValidator", "MosaicRestrictionBalanceTransferValidator",
-                    "MosaicRestrictionRequiredValidator", "MosaicGlobalRestrictionMaxValuesValidator",
-                    "MosaicGlobalRestrictionModificationValidator", "MosaicAddressRestrictionMaxValuesValidator",
-                    "MosaicAddressRestrictionModificationValidator" };
-            }
+			static std::vector<std::string> GetStatefulValidatorNames() {
+				return { "MosaicRestrictionBalanceDebitValidator", "MosaicRestrictionBalanceTransferValidator",
+					"MosaicRestrictionRequiredValidator", "MosaicGlobalRestrictionMaxValuesValidator",
+					"MosaicGlobalRestrictionModificationValidator", "MosaicAddressRestrictionMaxValuesValidator",
+					"MosaicAddressRestrictionModificationValidator" };
+			}
 
-            static std::vector<std::string> GetObserverNames()
-            {
-                return { "MosaicGlobalRestrictionCommitModificationObserver",
-                    "MosaicGlobalRestrictionRollbackModificationObserver",
-                    "MosaicAddressRestrictionCommitModificationObserver",
-                    "MosaicAddressRestrictionRollbackModificationObserver" };
-            }
+			static std::vector<std::string> GetObserverNames() {
+				return { "MosaicGlobalRestrictionCommitModificationObserver",
+					"MosaicGlobalRestrictionRollbackModificationObserver",
+					"MosaicAddressRestrictionCommitModificationObserver",
+					"MosaicAddressRestrictionRollbackModificationObserver" };
+			}
 
-            static std::vector<std::string> GetPermanentObserverNames()
-            {
-                return GetObserverNames();
-            }
-        };
-    }
+			static std::vector<std::string> GetPermanentObserverNames() {
+				return GetObserverNames();
+			}
+		};
+	}
 
-    DEFINE_PLUGIN_TESTS(MosaicRestrictionPluginTests, MosaicRestrictionPluginTraits)
+	DEFINE_PLUGIN_TESTS(MosaicRestrictionPluginTests, MosaicRestrictionPluginTraits)
 }
 }

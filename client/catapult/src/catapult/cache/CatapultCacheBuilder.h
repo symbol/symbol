@@ -27,37 +27,34 @@
 namespace catapult {
 namespace cache {
 
-    /// Builder for creating a catapult cache around sub caches.
-    class CatapultCacheBuilder {
-    public:
-        /// Adds \a pSubCache to the builder with the specified storage traits.
-        template <typename TStorageTraits, typename TCache>
-        void add(std::unique_ptr<TCache>&& pSubCache)
-        {
-            add(std::make_unique<SubCachePluginAdapter<TCache, TStorageTraits>>(std::move(pSubCache)));
-        }
+	/// Builder for creating a catapult cache around sub caches.
+	class CatapultCacheBuilder {
+	public:
+		/// Adds \a pSubCache to the builder with the specified storage traits.
+		template <typename TStorageTraits, typename TCache>
+		void add(std::unique_ptr<TCache>&& pSubCache) {
+			add(std::make_unique<SubCachePluginAdapter<TCache, TStorageTraits>>(std::move(pSubCache)));
+		}
 
-        /// Adds \a pSubCachePlugin to the builder.
-        void add(std::unique_ptr<SubCachePlugin>&& pSubCachePlugin)
-        {
-            auto id = pSubCachePlugin->id();
-            m_subCaches.resize(std::max(m_subCaches.size(), id + 1));
-            if (m_subCaches[id])
-                CATAPULT_THROW_INVALID_ARGUMENT_1("sub cache has already been registered with id", id);
+		/// Adds \a pSubCachePlugin to the builder.
+		void add(std::unique_ptr<SubCachePlugin>&& pSubCachePlugin) {
+			auto id = pSubCachePlugin->id();
+			m_subCaches.resize(std::max(m_subCaches.size(), id + 1));
+			if (m_subCaches[id])
+				CATAPULT_THROW_INVALID_ARGUMENT_1("sub cache has already been registered with id", id);
 
-            m_subCaches[id] = std::move(pSubCachePlugin);
-        }
+			m_subCaches[id] = std::move(pSubCachePlugin);
+		}
 
-    public:
-        /// Builds a catapult cache.
-        CatapultCache build()
-        {
-            CATAPULT_LOG(debug) << "creating CatapultCache with " << m_subCaches.size() << " sub caches";
-            return CatapultCache(std::move(m_subCaches));
-        }
+	public:
+		/// Builds a catapult cache.
+		CatapultCache build() {
+			CATAPULT_LOG(debug) << "creating CatapultCache with " << m_subCaches.size() << " sub caches";
+			return CatapultCache(std::move(m_subCaches));
+		}
 
-    private:
-        std::vector<std::unique_ptr<SubCachePlugin>> m_subCaches;
-    };
+	private:
+		std::vector<std::unique_ptr<SubCachePlugin>> m_subCaches;
+	};
 }
 }

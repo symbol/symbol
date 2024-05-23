@@ -30,38 +30,35 @@ namespace observers {
 
 #define TEST_CLASS SecretLockObserverTests
 
-    DEFINE_COMMON_OBSERVER_TESTS(SecretLock, )
+	DEFINE_COMMON_OBSERVER_TESTS(SecretLock, )
 
-    namespace {
-        struct SecretObserverTraits : public test::BasicSecretLockInfoTestTraits {
-        public:
-            using CacheType = cache::SecretLockInfoCache;
-            using NotificationType = model::SecretLockNotification;
-            using NotificationBuilder = test::SecretLockNotificationBuilder;
-            using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
+	namespace {
+		struct SecretObserverTraits : public test::BasicSecretLockInfoTestTraits {
+		public:
+			using CacheType = cache::SecretLockInfoCache;
+			using NotificationType = model::SecretLockNotification;
+			using NotificationBuilder = test::SecretLockNotificationBuilder;
+			using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
 
-            static constexpr auto Debit_Receipt_Type = model::Receipt_Type_LockSecret_Created;
+			static constexpr auto Debit_Receipt_Type = model::Receipt_Type_LockSecret_Created;
 
-            static auto CreateObserver()
-            {
-                return CreateSecretLockObserver();
-            }
+			static auto CreateObserver() {
+				return CreateSecretLockObserver();
+			}
 
-            static auto ToKey(const NotificationType& notification)
-            {
-                auto resolver = test::CreateResolverContextXor();
-                return model::CalculateSecretLockInfoHash(notification.Secret, resolver.resolve(notification.Recipient));
-            }
+			static auto ToKey(const NotificationType& notification) {
+				auto resolver = test::CreateResolverContextXor();
+				return model::CalculateSecretLockInfoHash(notification.Secret, resolver.resolve(notification.Recipient));
+			}
 
-            static void AssertAddedLockInfo(const state::SecretLockInfo& lockInfo, const NotificationType& notification)
-            {
-                EXPECT_EQ(notification.HashAlgorithm, lockInfo.HashAlgorithm);
-                EXPECT_EQ(notification.Secret, lockInfo.Secret);
-                EXPECT_EQ(notification.Recipient, test::UnresolveXor(lockInfo.RecipientAddress));
-            }
-        };
-    }
+			static void AssertAddedLockInfo(const state::SecretLockInfo& lockInfo, const NotificationType& notification) {
+				EXPECT_EQ(notification.HashAlgorithm, lockInfo.HashAlgorithm);
+				EXPECT_EQ(notification.Secret, lockInfo.Secret);
+				EXPECT_EQ(notification.Recipient, test::UnresolveXor(lockInfo.RecipientAddress));
+			}
+		};
+	}
 
-    DEFINE_LOCK_OBSERVER_TESTS(SecretObserverTraits)
+	DEFINE_LOCK_OBSERVER_TESTS(SecretObserverTraits)
 }
 }

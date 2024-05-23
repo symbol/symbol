@@ -26,84 +26,78 @@
 namespace catapult {
 namespace crypto {
 
-    namespace {
-        Hash256 Final(std::vector<Hash256>& hashes, const consumer<const Hash256*, size_t>& hashConsumer)
-        {
-            if (hashes.empty()) {
-                Hash256 hash {};
-                hashConsumer(&hash, 1);
-                return hash;
-            }
+	namespace {
+		Hash256 Final(std::vector<Hash256>& hashes, const consumer<const Hash256*, size_t>& hashConsumer) {
+			if (hashes.empty()) {
+				Hash256 hash {};
+				hashConsumer(&hash, 1);
+				return hash;
+			}
 
-            // build the merkle tree
-            auto numRemainingHashes = hashes.size();
-            hashConsumer(hashes.data(), hashes.size());
-            while (numRemainingHashes > 1) {
-                // merkle tree needs padding in case of an odd number of hashes, need to do before the next round of hashes is
-                // pushed into the vector because nodes with same depth should be consecutive entries in the vector
-                if (1 == numRemainingHashes % 2)
-                    hashConsumer(&hashes[numRemainingHashes - 1], 1);
+			// build the merkle tree
+			auto numRemainingHashes = hashes.size();
+			hashConsumer(hashes.data(), hashes.size());
+			while (numRemainingHashes > 1) {
+				// merkle tree needs padding in case of an odd number of hashes, need to do before the next round of hashes is
+				// pushed into the vector because nodes with same depth should be consecutive entries in the vector
+				if (1 == numRemainingHashes % 2)
+					hashConsumer(&hashes[numRemainingHashes - 1], 1);
 
-                auto i = 0u;
-                for (; i < numRemainingHashes; i += 2) {
-                    if (i + 1 < numRemainingHashes) {
-                        Sha3_256({ hashes[i].data(), 2 * Hash256::Size }, hashes[i / 2]);
-                        hashConsumer(&hashes[i / 2], 1);
-                        continue;
-                    }
+				auto i = 0u;
+				for (; i < numRemainingHashes; i += 2) {
+					if (i + 1 < numRemainingHashes) {
+						Sha3_256({ hashes[i].data(), 2 * Hash256::Size }, hashes[i / 2]);
+						hashConsumer(&hashes[i / 2], 1);
+						continue;
+					}
 
-                    // if there is an odd number of hashes, duplicate the last one
-                    Sha3_256_Builder builder;
-                    builder.update(hashes[i]);
-                    builder.update(hashes[i]);
-                    builder.final(hashes[i / 2]);
-                    hashConsumer(&hashes[i / 2], 1);
-                    ++numRemainingHashes;
-                }
+					// if there is an odd number of hashes, duplicate the last one
+					Sha3_256_Builder builder;
+					builder.update(hashes[i]);
+					builder.update(hashes[i]);
+					builder.final(hashes[i / 2]);
+					hashConsumer(&hashes[i / 2], 1);
+					++numRemainingHashes;
+				}
 
-                numRemainingHashes /= 2;
-            }
+				numRemainingHashes /= 2;
+			}
 
-            return hashes[0];
-        }
-    }
+			return hashes[0];
+		}
+	}
 
-    MerkleHashBuilder::MerkleHashBuilder(size_t capacity)
-    {
-        m_hashes.reserve(capacity);
-    }
+	MerkleHashBuilder::MerkleHashBuilder(size_t capacity) {
+		m_hashes.reserve(capacity);
+	}
 
-    void MerkleHashBuilder::update(const Hash256& hash)
-    {
-        m_hashes.push_back(hash);
-    }
+	void MerkleHashBuilder::update(const Hash256& hash) {
+		m_hashes.push_back(hash);
+	}
 
-    void MerkleHashBuilder::final(Hash256& hash)
-    {
-        // build the merkle root
-        hash = Final(m_hashes, [](const auto*, auto) {});
-    }
+	void MerkleHashBuilder::final(Hash256& hash) {
+		// build the merkle root
+		hash = Final(m_hashes, [](const auto*, auto) {});
+	}
 
-    void MerkleHashBuilder::final(std::vector<Hash256>& tree)
-    {
-        // build the complete merkle tree
-        tree.reserve(TreeSize(m_hashes.size()));
-        Final(m_hashes, [&tree](const Hash256* pHash, size_t count) {
-            for (auto i = 0u; i < count; ++i)
-                tree.push_back(*pHash++);
-        });
-    }
+	void MerkleHashBuilder::final(std::vector<Hash256>& tree) {
+		// build the complete merkle tree
+		tree.reserve(TreeSize(m_hashes.size()));
+		Final(m_hashes, [&tree](const Hash256* pHash, size_t count) {
+			for (auto i = 0u; i < count; ++i)
+				tree.push_back(*pHash++);
+		});
+	}
 
-    size_t MerkleHashBuilder::TreeSize(size_t leafCount)
-    {
-        // the tree is not required to be fully balanced, padding is only done in case of an odd number of nodes to make it even
-        size_t size = 0;
-        auto adjustedLeafCount = 1 == leafCount ? 1 : 0 == leafCount % 2 ? leafCount
-                                                                         : leafCount + 1;
-        for (auto i = adjustedLeafCount; i > 1; i = (i + 1) >> 1)
-            size += i;
+	size_t MerkleHashBuilder::TreeSize(size_t leafCount) {
+		// the tree is not required to be fully balanced, padding is only done in case of an odd number of nodes to make it even
+		size_t size = 0;
+		auto adjustedLeafCount = 1 == leafCount ? 1 : 0 == leafCount % 2 ? leafCount
+																		 : leafCount + 1;
+		for (auto i = adjustedLeafCount; i > 1; i = (i + 1) >> 1)
+			size += i;
 
-        return size >= 2 ? ++size : 1;
-    }
+		return size >= 2 ? ++size : 1;
+	}
 }
 }

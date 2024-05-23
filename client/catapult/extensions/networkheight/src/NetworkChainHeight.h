@@ -26,7 +26,7 @@
 namespace catapult {
 namespace networkheight {
 
-    /// Atomic network chain height.
-    using NetworkChainHeight = std::atomic<Height::ValueType>;
+	/// Atomic network chain height.
+	using NetworkChainHeight = std::atomic<Height::ValueType>;
 }
 }

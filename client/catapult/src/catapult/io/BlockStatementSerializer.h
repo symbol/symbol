@@ -24,18 +24,18 @@
 
 namespace catapult {
 namespace io {
-    class InputStream;
-    class OutputStream;
+	class InputStream;
+	class OutputStream;
 }
 }
 
 namespace catapult {
 namespace io {
 
-    /// Writes \a blockStatement into \a outputStream.
-    void WriteBlockStatement(const model::BlockStatement& blockStatement, OutputStream& outputStream);
+	/// Writes \a blockStatement into \a outputStream.
+	void WriteBlockStatement(const model::BlockStatement& blockStatement, OutputStream& outputStream);
 
-    /// Reads block statement from \a inputStream into \a blockStatement.
-    void ReadBlockStatement(InputStream& inputStream, model::BlockStatement& blockStatement);
+	/// Reads block statement from \a inputStream into \a blockStatement.
+	void ReadBlockStatement(InputStream& inputStream, model::BlockStatement& blockStatement);
 }
 }

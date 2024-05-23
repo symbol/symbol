@@ -25,23 +25,23 @@
 
 namespace catapult {
 namespace model {
-    class TransactionPlugin;
+	class TransactionPlugin;
 }
 }
 
 namespace catapult {
 namespace plugins {
 
-    /// Creates an account address restriction transaction plugin.
-    PLUGIN_API
-    std::unique_ptr<model::TransactionPlugin> CreateAccountAddressRestrictionTransactionPlugin();
+	/// Creates an account address restriction transaction plugin.
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateAccountAddressRestrictionTransactionPlugin();
 
-    /// Creates an account mosaic restriction transaction plugin.
-    PLUGIN_API
-    std::unique_ptr<model::TransactionPlugin> CreateAccountMosaicRestrictionTransactionPlugin();
+	/// Creates an account mosaic restriction transaction plugin.
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateAccountMosaicRestrictionTransactionPlugin();
 
-    /// Creates an account operation restriction transaction plugin.
-    PLUGIN_API
-    std::unique_ptr<model::TransactionPlugin> CreateAccountOperationRestrictionTransactionPlugin();
+	/// Creates an account operation restriction transaction plugin.
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateAccountOperationRestrictionTransactionPlugin();
 }
 }

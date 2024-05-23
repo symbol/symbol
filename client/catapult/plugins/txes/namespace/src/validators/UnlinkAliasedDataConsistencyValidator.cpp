@@ -26,61 +26,58 @@
 namespace catapult {
 namespace validators {
 
-    namespace {
-        template <typename TValidatorTraits>
-        ValidationResult UnlinkAliasedDataConsistencyValidator(
-            const typename TValidatorTraits::NotificationType& notification,
-            const ValidatorContext& context)
-        {
-            if (model::AliasAction::Unlink != notification.AliasAction)
-                return ValidationResult::Success;
+	namespace {
+		template <typename TValidatorTraits>
+		ValidationResult UnlinkAliasedDataConsistencyValidator(
+			const typename TValidatorTraits::NotificationType& notification,
+			const ValidatorContext& context) {
+			if (model::AliasAction::Unlink != notification.AliasAction)
+				return ValidationResult::Success;
 
-            const auto& cache = context.Cache.sub<cache::NamespaceCache>();
-            auto namespaceIter = cache.find(notification.NamespaceId);
-            if (!namespaceIter.tryGet())
-                return Failure_Namespace_Unknown;
+			const auto& cache = context.Cache.sub<cache::NamespaceCache>();
+			auto namespaceIter = cache.find(notification.NamespaceId);
+			if (!namespaceIter.tryGet())
+				return Failure_Namespace_Unknown;
 
-            const auto& entry = namespaceIter.get();
-            auto aliasType = entry.root().alias(notification.NamespaceId).type();
-            if (TValidatorTraits::AliasedType != aliasType)
-                return Failure_Namespace_Alias_Inconsistent_Unlink_Type;
+			const auto& entry = namespaceIter.get();
+			auto aliasType = entry.root().alias(notification.NamespaceId).type();
+			if (TValidatorTraits::AliasedType != aliasType)
+				return Failure_Namespace_Alias_Inconsistent_Unlink_Type;
 
-            return TValidatorTraits::GetAliased(entry.root().alias(notification.NamespaceId)) != notification.AliasedData
-                ? Failure_Namespace_Alias_Inconsistent_Unlink_Data
-                : ValidationResult::Success;
-        }
-    }
+			return TValidatorTraits::GetAliased(entry.root().alias(notification.NamespaceId)) != notification.AliasedData
+				? Failure_Namespace_Alias_Inconsistent_Unlink_Data
+				: ValidationResult::Success;
+		}
+	}
 
 #define DEFINE_UNLINK_ALIASED_DATA_VALIDATOR(VALIDATOR_NAME, TRAITS_NAME) \
-    DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, TRAITS_NAME::NotificationType, &UnlinkAliasedDataConsistencyValidator<TRAITS_NAME>)
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, TRAITS_NAME::NotificationType, &UnlinkAliasedDataConsistencyValidator<TRAITS_NAME>)
 
-    namespace {
-        struct AddressTraits {
-        public:
-            using NotificationType = model::AliasedAddressNotification;
-            static constexpr auto AliasedType = state::AliasType::Address;
+	namespace {
+		struct AddressTraits {
+		public:
+			using NotificationType = model::AliasedAddressNotification;
+			static constexpr auto AliasedType = state::AliasType::Address;
 
-        public:
-            static const auto& GetAliased(const state::NamespaceAlias& namespaceAlias)
-            {
-                return namespaceAlias.address();
-            }
-        };
+		public:
+			static const auto& GetAliased(const state::NamespaceAlias& namespaceAlias) {
+				return namespaceAlias.address();
+			}
+		};
 
-        struct MosaicIdTraits {
-        public:
-            using NotificationType = model::AliasedMosaicIdNotification;
-            static constexpr auto AliasedType = state::AliasType::Mosaic;
+		struct MosaicIdTraits {
+		public:
+			using NotificationType = model::AliasedMosaicIdNotification;
+			static constexpr auto AliasedType = state::AliasType::Mosaic;
 
-        public:
-            static auto GetAliased(const state::NamespaceAlias& namespaceAlias)
-            {
-                return namespaceAlias.mosaicId();
-            }
-        };
-    }
+		public:
+			static auto GetAliased(const state::NamespaceAlias& namespaceAlias) {
+				return namespaceAlias.mosaicId();
+			}
+		};
+	}
 
-    DEFINE_UNLINK_ALIASED_DATA_VALIDATOR(UnlinkAliasedAddressConsistency, AddressTraits)
-    DEFINE_UNLINK_ALIASED_DATA_VALIDATOR(UnlinkAliasedMosaicIdConsistency, MosaicIdTraits)
+	DEFINE_UNLINK_ALIASED_DATA_VALIDATOR(UnlinkAliasedAddressConsistency, AddressTraits)
+	DEFINE_UNLINK_ALIASED_DATA_VALIDATOR(UnlinkAliasedMosaicIdConsistency, MosaicIdTraits)
 }
 }

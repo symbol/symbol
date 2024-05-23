@@ -27,6 +27,6 @@
 namespace catapult {
 namespace cache {
 
-    DEFINE_LOCK_INFO_BASE_SETS(HashLockInfo)
+	DEFINE_LOCK_INFO_BASE_SETS(HashLockInfo)
 }
 }

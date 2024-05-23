@@ -29,57 +29,52 @@
 namespace catapult {
 namespace plugins {
 
-    namespace {
-        template <bool EnableAutoDetection>
-        struct TransferPluginTraits : public test::EmptyPluginTraits {
-        public:
-            template <typename TAction>
-            static void RunTestAfterRegistration(TAction action)
-            {
-                // Arrange:
-                auto config = model::BlockchainConfiguration::Uninitialized();
-                config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
+	namespace {
+		template <bool EnableAutoDetection>
+		struct TransferPluginTraits : public test::EmptyPluginTraits {
+		public:
+			template <typename TAction>
+			static void RunTestAfterRegistration(TAction action) {
+				// Arrange:
+				auto config = model::BlockchainConfiguration::Uninitialized();
+				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
 
-                auto userConfig = config::UserConfiguration::Uninitialized();
-                userConfig.CertificateDirectory = test::GetDefaultCertificateDirectory();
-                userConfig.EnableDelegatedHarvestersAutoDetection = EnableAutoDetection;
+				auto userConfig = config::UserConfiguration::Uninitialized();
+				userConfig.CertificateDirectory = test::GetDefaultCertificateDirectory();
+				userConfig.EnableDelegatedHarvestersAutoDetection = EnableAutoDetection;
 
-                auto manager = test::CreatePluginManager(config, userConfig);
-                RegisterTransferSubsystem(manager);
+				auto manager = test::CreatePluginManager(config, userConfig);
+				RegisterTransferSubsystem(manager);
 
-                // Act:
-                action(manager);
-            }
+				// Act:
+				action(manager);
+			}
 
-        public:
-            static std::vector<model::EntityType> GetTransactionTypes()
-            {
-                return { model::Entity_Type_Transfer };
-            }
+		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return { model::Entity_Type_Transfer };
+			}
 
-            static std::vector<std::string> GetStatelessValidatorNames()
-            {
-                return { "TransferMessageValidator", "TransferMosaicsValidator" };
-            }
-        };
+			static std::vector<std::string> GetStatelessValidatorNames() {
+				return { "TransferMessageValidator", "TransferMosaicsValidator" };
+			}
+		};
 
-        struct TransferPluginWithoutMessageProcessingTraits : public TransferPluginTraits<false> { };
+		struct TransferPluginWithoutMessageProcessingTraits : public TransferPluginTraits<false> { };
 
-        struct TransferPluginWithMessageProcessingTraits : public TransferPluginTraits<true> {
-        public:
-            static std::vector<std::string> GetObserverNames()
-            {
-                return { "TransferMessageObserver" };
-            }
+		struct TransferPluginWithMessageProcessingTraits : public TransferPluginTraits<true> {
+		public:
+			static std::vector<std::string> GetObserverNames() {
+				return { "TransferMessageObserver" };
+			}
 
-            static std::vector<std::string> GetPermanentObserverNames()
-            {
-                return GetObserverNames();
-            }
-        };
-    }
+			static std::vector<std::string> GetPermanentObserverNames() {
+				return GetObserverNames();
+			}
+		};
+	}
 
-    DEFINE_PLUGIN_TESTS(TransferPluginWithoutMessageProcessingTests, TransferPluginWithoutMessageProcessingTraits)
-    DEFINE_PLUGIN_TESTS(TransferPluginWithMessageProcessingTests, TransferPluginWithMessageProcessingTraits)
+	DEFINE_PLUGIN_TESTS(TransferPluginWithoutMessageProcessingTests, TransferPluginWithoutMessageProcessingTraits)
+	DEFINE_PLUGIN_TESTS(TransferPluginWithMessageProcessingTests, TransferPluginWithMessageProcessingTraits)
 }
 }

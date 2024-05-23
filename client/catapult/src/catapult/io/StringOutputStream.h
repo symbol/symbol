@@ -25,34 +25,30 @@
 namespace catapult {
 namespace io {
 
-    /// String output stream.
-    class StringOutputStream : public OutputStream {
-    public:
-        /// Creates string output stream with reserved \a capacity.
-        explicit StringOutputStream(size_t capacity)
-        {
-            m_output.reserve(capacity);
-        }
+	/// String output stream.
+	class StringOutputStream : public OutputStream {
+	public:
+		/// Creates string output stream with reserved \a capacity.
+		explicit StringOutputStream(size_t capacity) {
+			m_output.reserve(capacity);
+		}
 
-    public:
-        void write(const RawBuffer& buffer) override
-        {
-            m_output.append(reinterpret_cast<const char*>(buffer.pData), buffer.Size);
-        }
+	public:
+		void write(const RawBuffer& buffer) override {
+			m_output.append(reinterpret_cast<const char*>(buffer.pData), buffer.Size);
+		}
 
-        void flush() override
-        {
-        }
+		void flush() override {
+		}
 
-    public:
-        /// Gets the underlying string.
-        const std::string& str() const
-        {
-            return m_output;
-        }
+	public:
+		/// Gets the underlying string.
+		const std::string& str() const {
+			return m_output;
+		}
 
-    private:
-        std::string m_output;
-    };
+	private:
+		std::string m_output;
+	};
 }
 }

@@ -27,80 +27,80 @@
 
 namespace catapult {
 namespace cache {
-    class CatapultCacheDelta;
+	class CatapultCacheDelta;
 }
 namespace extensions {
-    struct LocalNodeStateRef;
+	struct LocalNodeStateRef;
 }
 namespace model {
-    struct BlockchainConfiguration;
-    struct BlockElement;
+	struct BlockchainConfiguration;
+	struct BlockElement;
 }
 namespace plugins {
-    class PluginManager;
+	class PluginManager;
 }
 }
 
 namespace catapult {
 namespace extensions {
 
-    /// State hash verification.
-    enum class StateHashVerification {
-        /// State hash verification disabled.
-        Disabled,
+	/// State hash verification.
+	enum class StateHashVerification {
+		/// State hash verification disabled.
+		Disabled,
 
-        /// State hash verification enabled.
-        Enabled
-    };
+		/// State hash verification enabled.
+		Enabled
+	};
 
-    /// Loads and executes a nemesis block.
-    class NemesisBlockLoader {
-    public:
-        /// Creates a loader around \a cacheDelta, \a pluginManager and \a pObserver.
-        NemesisBlockLoader(
-            cache::CatapultCacheDelta& cacheDelta,
-            const plugins::PluginManager& pluginManager,
-            std::unique_ptr<const observers::NotificationObserver>&& pObserver);
+	/// Loads and executes a nemesis block.
+	class NemesisBlockLoader {
+	public:
+		/// Creates a loader around \a cacheDelta, \a pluginManager and \a pObserver.
+		NemesisBlockLoader(
+			cache::CatapultCacheDelta& cacheDelta,
+			const plugins::PluginManager& pluginManager,
+			std::unique_ptr<const observers::NotificationObserver>&& pObserver);
 
-    public:
-        /// Loads the nemesis block from storage, updates state in \a stateRef and verifies state hash (\a stateHashVerification).
-        void execute(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification);
+	public:
+		/// Loads the nemesis block from storage, updates state in \a stateRef and verifies state hash (\a stateHashVerification).
+		void execute(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification);
 
-        /// Loads the nemesis block from storage, updates state in \a stateRef optionally verifying state hash (\a stateHashVerification)
-        /// and commits all changes to cache.
-        void executeAndCommit(
-            const LocalNodeStateRef& stateRef,
-            StateHashVerification stateHashVerification = StateHashVerification::Enabled);
+		/// Loads the nemesis block from storage, updates state in \a stateRef optionally verifying state hash (\a stateHashVerification)
+		/// and commits all changes to cache.
+		void executeAndCommit(
+			const LocalNodeStateRef& stateRef,
+			StateHashVerification stateHashVerification = StateHashVerification::Enabled);
 
-        /// Executes the nemesis block (\a nemesisBlockElement), applies all changes to cache delta and checks consistency
-        /// against \a config.
-        /// \note Execution uses a default catapult state.
-        void execute(const model::BlockchainConfiguration& config, const model::BlockElement& nemesisBlockElement);
+		/// Executes the nemesis block (\a nemesisBlockElement), applies all changes to cache delta and checks consistency
+		/// against \a config.
+		/// \note Execution uses a default catapult state.
+		void execute(const model::BlockchainConfiguration& config, const model::BlockElement& nemesisBlockElement);
 
-    private:
-        enum class Verbosity { Off,
-            On };
+	private:
+		enum class Verbosity { Off,
+			On };
 
-        void validateStateless(const model::WeakEntityInfos& entityInfos) const;
+		void validateStateless(const model::WeakEntityInfos& entityInfos) const;
 
-        void validateStatefulAndObserve(
-            Timestamp timestamp,
-            const model::WeakEntityInfos& entityInfos,
-            observers::ObserverState& observerState) const;
+		void validateStatefulAndObserve(
+			Timestamp timestamp,
+			const model::WeakEntityInfos& entityInfos,
+			observers::ObserverState& observerState) const;
 
-        void execute(
-            const model::BlockchainConfiguration& config,
-            const model::BlockElement& nemesisBlockElement,
-            StateHashVerification stateHashVerification,
-            Verbosity verbosity);
+		void execute(
+			const model::BlockchainConfiguration& config,
+			const model::BlockElement& nemesisBlockElement,
+			StateHashVerification stateHashVerification,
+			Verbosity verbosity);
 
-    private:
-        cache::CatapultCacheDelta& m_cacheDelta;
-        const plugins::PluginManager& m_pluginManager;
-        Address m_nemesisAddress;
-        NemesisFundingState m_nemesisFundingState;
-        std::shared_ptr<const observers::AggregateNotificationObserver> m_pNotificationObserver;
-        model::NemesisNotificationPublisherOptions m_publisherOptions;
-    };
+	private:
+		cache::CatapultCacheDelta& m_cacheDelta;
+		const plugins::PluginManager& m_pluginManager;
+		Address m_nemesisAddress;
+		NemesisFundingState m_nemesisFundingState;
+		std::shared_ptr<const observers::AggregateNotificationObserver> m_pNotificationObserver;
+		model::NemesisNotificationPublisherOptions m_publisherOptions;
+	};
 }
 }

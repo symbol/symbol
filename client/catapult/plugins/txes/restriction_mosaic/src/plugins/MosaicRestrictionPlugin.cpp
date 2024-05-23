@@ -33,51 +33,49 @@
 namespace catapult {
 namespace plugins {
 
-    void RegisterMosaicRestrictionSubsystem(PluginManager& manager)
-    {
-        manager.addTransactionSupport(CreateMosaicAddressRestrictionTransactionPlugin());
-        manager.addTransactionSupport(CreateMosaicGlobalRestrictionTransactionPlugin());
+	void RegisterMosaicRestrictionSubsystem(PluginManager& manager) {
+		manager.addTransactionSupport(CreateMosaicAddressRestrictionTransactionPlugin());
+		manager.addTransactionSupport(CreateMosaicGlobalRestrictionTransactionPlugin());
 
-        auto networkIdentifier = manager.config().Network.Identifier;
-        manager.addCacheSupport<cache::MosaicRestrictionCacheStorage>(std::make_unique<cache::MosaicRestrictionCache>(
-            manager.cacheConfig(cache::MosaicRestrictionCache::Name),
-            networkIdentifier));
+		auto networkIdentifier = manager.config().Network.Identifier;
+		manager.addCacheSupport<cache::MosaicRestrictionCacheStorage>(std::make_unique<cache::MosaicRestrictionCache>(
+			manager.cacheConfig(cache::MosaicRestrictionCache::Name),
+			networkIdentifier));
 
-        using CacheHandlers = CacheHandlers<cache::MosaicRestrictionCacheDescriptor>;
-        CacheHandlers::Register<model::FacilityCode::RestrictionMosaic>(manager);
+		using CacheHandlers = CacheHandlers<cache::MosaicRestrictionCacheDescriptor>;
+		CacheHandlers::Register<model::FacilityCode::RestrictionMosaic>(manager);
 
-        manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
-            counters.emplace_back(utils::DiagnosticCounterId("MOSAICREST C"), [&cache]() {
-                return cache.sub<cache::MosaicRestrictionCache>().createView()->size();
-            });
-        });
+		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
+			counters.emplace_back(utils::DiagnosticCounterId("MOSAICREST C"), [&cache]() {
+				return cache.sub<cache::MosaicRestrictionCache>().createView()->size();
+			});
+		});
 
-        manager.addStatelessValidatorHook([](auto& builder) { builder.add(validators::CreateMosaicRestrictionTypeValidator()); });
+		manager.addStatelessValidatorHook([](auto& builder) { builder.add(validators::CreateMosaicRestrictionTypeValidator()); });
 
-        auto config = model::LoadPluginConfiguration<config::MosaicRestrictionConfiguration>(
-            manager.config(),
-            "catapult.plugins.restrictionmosaic");
-        manager.addStatefulValidatorHook([maxMosaicRestrictionValues = config.MaxMosaicRestrictionValues](auto& builder) {
-            builder.add(validators::CreateMosaicRestrictionBalanceDebitValidator())
-                .add(validators::CreateMosaicRestrictionBalanceTransferValidator())
-                .add(validators::CreateMosaicRestrictionRequiredValidator())
-                .add(validators::CreateMosaicGlobalRestrictionMaxValuesValidator(maxMosaicRestrictionValues))
-                .add(validators::CreateMosaicGlobalRestrictionModificationValidator())
-                .add(validators::CreateMosaicAddressRestrictionMaxValuesValidator(maxMosaicRestrictionValues))
-                .add(validators::CreateMosaicAddressRestrictionModificationValidator());
-        });
+		auto config = model::LoadPluginConfiguration<config::MosaicRestrictionConfiguration>(
+			manager.config(),
+			"catapult.plugins.restrictionmosaic");
+		manager.addStatefulValidatorHook([maxMosaicRestrictionValues = config.MaxMosaicRestrictionValues](auto& builder) {
+			builder.add(validators::CreateMosaicRestrictionBalanceDebitValidator())
+				.add(validators::CreateMosaicRestrictionBalanceTransferValidator())
+				.add(validators::CreateMosaicRestrictionRequiredValidator())
+				.add(validators::CreateMosaicGlobalRestrictionMaxValuesValidator(maxMosaicRestrictionValues))
+				.add(validators::CreateMosaicGlobalRestrictionModificationValidator())
+				.add(validators::CreateMosaicAddressRestrictionMaxValuesValidator(maxMosaicRestrictionValues))
+				.add(validators::CreateMosaicAddressRestrictionModificationValidator());
+		});
 
-        manager.addObserverHook([](auto& builder) {
-            builder.add(observers::CreateMosaicGlobalRestrictionCommitModificationObserver())
-                .add(observers::CreateMosaicGlobalRestrictionRollbackModificationObserver())
-                .add(observers::CreateMosaicAddressRestrictionCommitModificationObserver())
-                .add(observers::CreateMosaicAddressRestrictionRollbackModificationObserver());
-        });
-    }
+		manager.addObserverHook([](auto& builder) {
+			builder.add(observers::CreateMosaicGlobalRestrictionCommitModificationObserver())
+				.add(observers::CreateMosaicGlobalRestrictionRollbackModificationObserver())
+				.add(observers::CreateMosaicAddressRestrictionCommitModificationObserver())
+				.add(observers::CreateMosaicAddressRestrictionRollbackModificationObserver());
+		});
+	}
 }
 }
 
-extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager)
-{
-    catapult::plugins::RegisterMosaicRestrictionSubsystem(manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+	catapult::plugins::RegisterMosaicRestrictionSubsystem(manager);
 }

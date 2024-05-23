@@ -29,77 +29,77 @@
 namespace catapult {
 namespace disruptor {
 
-    /// Consumer input composed of a range of entities augmented with metadata.
-    class ConsumerInput {
-    public:
-        /// Creates a default consumer input.
-        ConsumerInput();
+	/// Consumer input composed of a range of entities augmented with metadata.
+	class ConsumerInput {
+	public:
+		/// Creates a default consumer input.
+		ConsumerInput();
 
-        /// Creates a consumer input around a block \a range with an optional input source (\a inputSource).
-        explicit ConsumerInput(model::AnnotatedBlockRange&& range, InputSource source = InputSource::Unknown);
+		/// Creates a consumer input around a block \a range with an optional input source (\a inputSource).
+		explicit ConsumerInput(model::AnnotatedBlockRange&& range, InputSource source = InputSource::Unknown);
 
-        /// Creates a consumer input around a transaction \a range with an optional input source (\a inputSource).
-        explicit ConsumerInput(model::AnnotatedTransactionRange&& range, InputSource source = InputSource::Unknown);
+		/// Creates a consumer input around a transaction \a range with an optional input source (\a inputSource).
+		explicit ConsumerInput(model::AnnotatedTransactionRange&& range, InputSource source = InputSource::Unknown);
 
-    public:
-        /// Returns \c true if this input is empty and has no elements.
-        bool empty() const;
+	public:
+		/// Returns \c true if this input is empty and has no elements.
+		bool empty() const;
 
-        /// Returns \c true if this input is not empty and has blocks.
-        bool hasBlocks() const;
+		/// Returns \c true if this input is not empty and has blocks.
+		bool hasBlocks() const;
 
-        /// Returns \c true if this input is not empty and has transactions.
-        bool hasTransactions() const;
+		/// Returns \c true if this input is not empty and has transactions.
+		bool hasTransactions() const;
 
-    public:
-        /// Gets the block elements associated with this input.
-        BlockElements& blocks();
+	public:
+		/// Gets the block elements associated with this input.
+		BlockElements& blocks();
 
-        /// Gets the const block elements associated with this input.
-        const BlockElements& blocks() const;
+		/// Gets the const block elements associated with this input.
+		const BlockElements& blocks() const;
 
-        /// Gets the (free) transaction elements associated with this input.
-        TransactionElements& transactions();
+		/// Gets the (free) transaction elements associated with this input.
+		TransactionElements& transactions();
 
-        /// Gets the const (free) transaction elements associated with this input.
-        const TransactionElements& transactions() const;
+		/// Gets the const (free) transaction elements associated with this input.
+		const TransactionElements& transactions() const;
 
-        /// Gets the source of this input.
-        InputSource source() const;
+		/// Gets the source of this input.
+		InputSource source() const;
 
-        /// Gets the (optional) source identity.
-        const model::NodeIdentity& sourceIdentity() const;
+		/// Gets the (optional) source identity.
+		const model::NodeIdentity& sourceIdentity() const;
 
-        /// Gets the memory size of all elements associated with this input.
-        utils::FileSize memorySize() const;
+		/// Gets the memory size of all elements associated with this input.
+		utils::FileSize memorySize() const;
 
-    public:
-        /// Detaches the block range associated with this input.
-        model::BlockRange detachBlockRange();
+	public:
+		/// Detaches the block range associated with this input.
+		model::BlockRange detachBlockRange();
 
-        /// Detaches the transaction range associated with this input.
-        model::TransactionRange detachTransactionRange();
+		/// Detaches the transaction range associated with this input.
+		model::TransactionRange detachTransactionRange();
 
-    public:
-        /// Insertion operator for outputting \a input to \a out.
-        friend std::ostream& operator<<(std::ostream& out, const ConsumerInput& input);
+	public:
+		/// Insertion operator for outputting \a input to \a out.
+		friend std::ostream& operator<<(std::ostream& out, const ConsumerInput& input);
 
-    private:
-        // backing memory
-        model::BlockRange m_blockRange;
-        model::TransactionRange m_transactionRange;
+	private:
+		// backing memory
+		model::BlockRange m_blockRange;
+		model::TransactionRange m_transactionRange;
 
-        // used by consumers
-        BlockElements m_blockElements;
-        TransactionElements m_transactionElements;
+		// used by consumers
+		BlockElements m_blockElements;
+		TransactionElements m_transactionElements;
 
-        InputSource m_source;
-        model::NodeIdentity m_sourceIdentity;
-        utils::FileSize m_memorySize;
+		InputSource m_source;
+		model::NodeIdentity m_sourceIdentity;
+		utils::FileSize m_memorySize;
 
-        // used by formatting
-        Height m_startHeight;
-        Height m_endHeight;
-    };
+		// used by formatting
+		Height m_startHeight;
+		Height m_endHeight;
+	};
 }
 }
