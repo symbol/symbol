@@ -113,7 +113,11 @@ String resolveGitHubCredentialsId() {
 }
 
 void withTempDir(Closure body) {
-	dir(pwd(tmp: true)) {
+	// if Jenkinsfile is in the root of the repository, Jenkins will use a tmp directory
+	// which is not mounted to docker and fail the command.
+	// use the workspace tmp folder which is mounted in docker
+	String tmp = Paths.get("${WORKSPACE_TMP}").resolve("${System.currentTimeMillis()}")
+	dir(tmp) {
 		try {
 			body()
 		} finally {
