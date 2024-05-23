@@ -19,7 +19,7 @@ String getCurlCommand(String token, String url, String data = null, Boolean post
 		post ? '-X POST' : '',
 		'-H "Accept: application/vnd.github+json"',
 		"-H \"Authorization: Bearer ${token}\"",
-		'-H "X-GitHub-Api-Version: 2022-11-28"'
+		'-H "X-GitHub-Api-Version: 2022-11-28"',
 		url,
 		data ? "-d '${data}'" : ''
 	].join(' ')
