@@ -18,11 +18,11 @@ String buildCurlCommand(String token, String url, String data = null, Boolean po
 		'curl -L',
 		'--fail',
 		post ? '-X POST' : '',
-		'-H "Accept: application/vnd.github+json"',
+		'-H \"Accept: application/vnd.github+json\"',
 		"-H \"Authorization: Bearer ${token}\"",
-		'-H "X-GitHub-Api-Version: 2022-11-28"',
+		'-H \"X-GitHub-Api-Version: 2022-11-28\"',
 		url,
-		data ? "-d '${data}'" : ''
+		data ? "-d \'${data}\'" : ''
 	].join(' ')
 }
 
@@ -57,7 +57,7 @@ Object createPullRequest(
 	final String pullRequestCommand = buildCurlCommand(
 		token,
 		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls",
-		"{\"title\":\"${title}\",\"body\":\"${jsonBody}\",\"head\":\"${prBranchName}\",\"base\":\"${baseBranchName}\"}",
+		"{\"title\":\"${title}\",\"body\":${jsonBody},\"head\":\"${prBranchName}\",\"base\":\"${baseBranchName}\"}",
 		true
 	)
 	final String pullRequestResponse = executeGithubApiRequest(pullRequestCommand)
