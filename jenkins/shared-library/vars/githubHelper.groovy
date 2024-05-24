@@ -12,6 +12,7 @@ boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	}
 }
 
+// groovylint-disable-next-line FactoryMethodName
 String buildCurlCommand(String token, String url, String data = null, Boolean post = false) {
 	return [
 		'curl -L',
