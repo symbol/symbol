@@ -12,7 +12,7 @@ boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	}
 }
 
-String getCurlCommand(String token, String url, String data = null, Boolean post = false) {
+String buildCurlCommand(String token, String url, String data = null, Boolean post = false) {
 	return [
 		'curl -L',
 		'--fail',
@@ -26,7 +26,7 @@ String getCurlCommand(String token, String url, String data = null, Boolean post
 }
 
 Object getRepositoryInfo(String token, String ownerName, String repositoryName) {
-	final String getRepoCommand = getCurlCommand(token, "https://api.github.com/repos/${ownerName}/${repositoryName}")
+	final String getRepoCommand = buildCurlCommand(token, "https://api.github.com/repos/${ownerName}/${repositoryName}")
 	final String getRepoResponse = executeGithubApiRequest(getRepoCommand)
 	return yamlHelper.readYamlFromText(getRepoResponse)
 }
@@ -53,7 +53,7 @@ Object createPullRequest(
 	String body
 ) {
 	final String jsonBody = JsonOutput.toJson(body)
-	final String pullRequestCommand = getCurlCommand(
+	final String pullRequestCommand = buildCurlCommand(
 		token,
 		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls",
 		"{'title':'${title}','body':${jsonBody},'head':'${prBranchName}','base':'${baseBranchName}'}",
@@ -66,7 +66,7 @@ Object createPullRequest(
 }
 
 Object requestReviewersForPullRequest(String token, String ownerName, String repositoryName, int pullRequestNumber, List reviewers) {
-	final String reviewersCommand = getCurlCommand(
+	final String reviewersCommand = buildCurlCommand(
 		token,
 		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls/${pullRequestNumber}/requested_reviewers",
 		"{'reviewers': ['${reviewers.join('\', \'')}']}",
