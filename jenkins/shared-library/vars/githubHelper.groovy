@@ -57,7 +57,7 @@ Object createPullRequest(
 	final String pullRequestCommand = buildCurlCommand(
 		token,
 		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls",
-		"{'title':'${title}','body':${jsonBody},'head':'${prBranchName}','base':'${baseBranchName}'}",
+		"{\"title\":\"${title}\",\"body\":\"${jsonBody}\",\"head\":\"${prBranchName}\",\"base\":\"${baseBranchName}\"}",
 		true
 	)
 	final String pullRequestResponse = executeGithubApiRequest(pullRequestCommand)
@@ -70,7 +70,7 @@ Object requestReviewersForPullRequest(String token, String ownerName, String rep
 	final String reviewersCommand = buildCurlCommand(
 		token,
 		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls/${pullRequestNumber}/requested_reviewers",
-		"{'reviewers': ['${reviewers.join('\', \'')}']}",
+		"{\"reviewers\": [\"${reviewers.join('\", \"')}\"]}",
 		true
 	)
 	String response = executeGithubApiRequest(reviewersCommand)
