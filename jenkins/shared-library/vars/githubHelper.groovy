@@ -12,15 +12,22 @@ boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	}
 }
 
-Object getRepositoryInfo(String token, String ownerName, String repositoryName) {
-	final String getRepoCommand = """
-		curl -L \\
-		  -H "Accept: application/vnd.github+json" \\
-		  -H "Authorization: Bearer ${token}" \\
-		  -H "X-GitHub-Api-Version: 2022-11-28" \\
-		  https://api.github.com/repos/${ownerName}/${repositoryName} \\
-	"""
+// groovylint-disable-next-line FactoryMethodName
+String buildCurlCommand(String token, String url, String data = null, Boolean post = false) {
+	return [
+		'curl -L',
+		'--fail',
+		post ? '-X POST' : '',
+		'-H \"Accept: application/vnd.github+json\"',
+		"-H \"Authorization: Bearer ${token}\"",
+		'-H \"X-GitHub-Api-Version: 2022-11-28\"',
+		url,
+		data ? "-d \'${data}\'" : ''
+	].join(' ')
+}
 
+Object getRepositoryInfo(String token, String ownerName, String repositoryName) {
+	final String getRepoCommand = buildCurlCommand(token, "https://api.github.com/repos/${ownerName}/${repositoryName}")
 	final String getRepoResponse = executeGithubApiRequest(getRepoCommand)
 	return yamlHelper.readYamlFromText(getRepoResponse)
 }
@@ -29,12 +36,8 @@ String executeGithubApiRequest(String command) {
 	String results = ''
 	helper.withTempDir {
 		String file = "./${System.currentTimeMillis()}"
-		final String response = runScript("${command} -s -w '%{http_code}\\n' -o ${file}", true).trim()
+		runScript("${command} -s -o ${file}")
 		results = readFile(file).trim()
-		if ('200' != response) {
-			String error = "GitHub API request failed: ${response}\n ${results}"
-			throw new IllegalArgumentException(error)
-		}
 	}
 
 	return results
@@ -51,16 +54,12 @@ Object createPullRequest(
 	String body
 ) {
 	final String jsonBody = JsonOutput.toJson(body)
-	final String pullRequestCommand = """
-		curl -L \\
-			-X POST \\
-			-H "Accept: application/vnd.github+json" \\
-			-H "Authorization: Bearer ${token}" \\
-			-H "X-GitHub-Api-Version: 2022-11-28" \\
-			https://api.github.com/repos/${ownerName}/${repositoryName}/pulls \\
-			-d '{"title":"${title}","body":${jsonBody},"head":"${prBranchName}","base":"${baseBranchName}"}'
-	"""
-
+	final String pullRequestCommand = buildCurlCommand(
+		token,
+		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls",
+		"{\"title\":\"${title}\",\"body\":${jsonBody},\"head\":\"${prBranchName}\",\"base\":\"${baseBranchName}\"}",
+		true
+	)
 	final String pullRequestResponse = executeGithubApiRequest(pullRequestCommand)
 	final Object pullRequest = yamlHelper.readYamlFromText(pullRequestResponse)
 	println "Pull request created: ${pullRequest.number}"
@@ -68,16 +67,12 @@ Object createPullRequest(
 }
 
 Object requestReviewersForPullRequest(String token, String ownerName, String repositoryName, int pullRequestNumber, List reviewers) {
-	final String reviewersCommand = """
-		curl -L \\
-			-X POST \\
-			-H "Accept: application/vnd.github+json" \\
-			-H "Authorization: Bearer ${token}" \\
-			-H "X-GitHub-Api-Version: 2022-11-28" \\
-			https://api.github.com/repos/${ownerName}/${repositoryName}/pulls/${pullRequestNumber}/requested_reviewers \\
-			-d '{"reviewers": ["${reviewers.join('", "')}"]}'
-	"""
-
+	final String reviewersCommand = buildCurlCommand(
+		token,
+		"https://api.github.com/repos/${ownerName}/${repositoryName}/pulls/${pullRequestNumber}/requested_reviewers",
+		"{\"reviewers\": [\"${reviewers.join('\", \"')}\"]}",
+		true
+	)
 	String response = executeGithubApiRequest(reviewersCommand)
 	println "Reviewers requested: ${response}"
 	return yamlHelper.readYamlFromText(response)
@@ -115,7 +110,7 @@ void executeGitAuthenticatedCommand(Closure command) {
 		final String replaceUrl = "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/.insteadOf https://github.com/"
 
 		configureGitHub()
-		sh("git config url.${replaceUrl}")
+		runScript("git config url.${replaceUrl}")
 		command()
 	}
 }
