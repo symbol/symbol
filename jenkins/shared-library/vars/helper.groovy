@@ -140,3 +140,19 @@ void runStepRelativeToPackageRoot(String rootPath, Closure body) {
 		throw exception
 	}
 }
+
+void runStepInsideContainer(String imageName, Closure closure) {
+	docker.image(imageName).inside {
+		closure()
+	}
+}
+
+void runStepLocalOrInsideContainer(String imageName, Boolean withContainer, Closure closure) {
+	// run in container by default
+	if (null == withContainer || withContainer?.toBoolean()) {
+		runStepInsideContainer(imageName, closure)
+	}
+	else {
+		closure()
+	}
+}

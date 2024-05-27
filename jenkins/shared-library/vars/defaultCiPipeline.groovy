@@ -69,6 +69,7 @@ void call(Closure body) {
 
 			TEST_EXAMPLES_SCRIPT_FILEPATH = 'scripts/ci/test_examples.sh'
 			TEST_VECTORS_SCRIPT_FILEPATH = 'scripts/ci/test_vectors.sh'
+			TEST_INTEGRATION_SCRIPT_FILEPATH = 'scripts/ci/test_integration.sh'
 
 			GITHUB_PAGES_PUBLISH_SCRIPT_FILEPATH = 'scripts/ci/gh_pages_publish.sh'
 		}
@@ -79,13 +80,14 @@ void call(Closure body) {
 					script {
 						runScript('git submodule update --remote')
 						author = sh(script: 'git log -1 --pretty=format:\'%an\'', returnStdout: true).trim()
+						ciImageName = jobHelper.resolveBuildImageName(params.CI_ENVIRONMENT ?: resolveCiEnvironment(jenkinsfileParams)[0])
 					}
 				}
 			}
 			stage('CI pipeline') {
 				agent {
 					docker {
-						image jobHelper.resolveBuildImageName(params.CI_ENVIRONMENT ?: resolveCiEnvironment(jenkinsfileParams)[0])
+						image "${ciImageName}"
 						args jenkinsfileParams.dockerArgs ?: ''
 
 						// using the same node and the same workspace mounted to the container
@@ -223,13 +225,8 @@ void call(Closure body) {
 					}
 					stage('run tests (examples)') {
 						when {
-							allOf {
-								expression {
-									return params.SHOULD_RUN_ALL_TEST?.toBoolean()
-								}
-								expression {
-									return fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH))
-								}
+							expression {
+								return fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH))
 							}
 						}
 						steps {
@@ -250,29 +247,46 @@ void call(Closure body) {
 							}
 						}
 					}
-					stage('code coverage') {
-						when {
-							allOf {
-								expression {
-									// The branch indexing build TEST_MODE = null
-									return null == params.TEST_MODE || 'code-coverage' == params.TEST_MODE
-								}
-								expression {
-									return  null != jenkinsfileParams.codeCoverageTool
-								}
-								expression {
-									// If all the tests are not run then code coverage will fail to meet the required minimum
-									// Nightly builds will run all tests.
-									return (params.SHOULD_RUN_ALL_TEST?.toBoolean()
-										|| !fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH)))
-								}
+				}
+			}
+			stage('run tests (integration)') {
+				when {
+					allOf {
+						expression {
+							return params.SHOULD_RUN_ALL_TEST?.toBoolean()
+						}
+						expression {
+							return fileExists(resolvePath(packageRootPath, env.TEST_INTEGRATION_SCRIPT_FILEPATH))
+						}
+					}
+				}
+				steps {
+					script {
+						helper.runStepLocalOrInsideContainer  ciImageName, jenkinsfileParams.runIntegrationTestInContainer, {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${jenkinsfileParams.packageId}".toString(), 'integration', {
+								runTests(env.TEST_INTEGRATION_SCRIPT_FILEPATH)
 							}
 						}
-						steps {
-							script {
-								helper.runStepRelativeToPackageRoot packageRootPath, {
-									codeCoverage(jenkinsfileParams)
-								}
+					}
+				}
+			}
+			stage('code coverage') {
+				when {
+					allOf {
+						expression {
+							// The branch indexing build TEST_MODE = null
+							return null == params.TEST_MODE || 'code-coverage' == params.TEST_MODE
+						}
+						expression {
+							return  null != jenkinsfileParams.codeCoverageTool
+						}
+					}
+				}
+				steps {
+					script {
+						helper.runStepInsideContainer ciImageName, {
+							helper.runStepRelativeToPackageRoot packageRootPath, {
+								codeCoverage(jenkinsfileParams)
 							}
 						}
 					}
@@ -296,8 +310,10 @@ void call(Closure body) {
 						}
 						steps {
 							script {
-								helper.runStepRelativeToPackageRoot packageRootPath, {
-									publish(jenkinsfileParams, 'alpha')
+								helper.runStepLocalOrInsideContainer ciImageName, runInContainer(jenkinsfileParams), {
+									helper.runStepRelativeToPackageRoot packageRootPath, {
+										publish(jenkinsfileParams, 'alpha')
+									}
 								}
 							}
 						}
@@ -317,8 +333,10 @@ void call(Closure body) {
 						}
 						steps {
 							script {
-								helper.runStepRelativeToPackageRoot packageRootPath, {
-									publish(jenkinsfileParams, 'release')
+								helper.runStepLocalOrInsideContainer ciImageName, runInContainer(jenkinsfileParams), {
+									helper.runStepRelativeToPackageRoot packageRootPath, {
+										publish(jenkinsfileParams, 'release')
+									}
 								}
 							}
 						}
@@ -384,4 +402,8 @@ List<String> resolveCiEnvironment(Map params) {
 	// default environment is LTS
 	environmentTags.add(0, "${environmentName}-${params.operatingSystem[0]}-lts")
 	return environmentTags
+}
+
+Boolean runInContainer(Map params) {
+	return params.publisher != 'docker'
 }

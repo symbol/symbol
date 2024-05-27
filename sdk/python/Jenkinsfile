@@ -10,6 +10,8 @@ defaultCiPipeline {
 
 	publisher = 'pypi'
 
+    runIntegrationTestInContainer = true
+
 	codeCoverageTool = 'coverage'
 	minimumCodeCoverage = 90
 }
