@@ -5,6 +5,36 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.2.2] - 28-May-2024
+
+### Added
+- generate basic TS-style documentation using typedoc to provide class-level documentation for SDK
+- add useful functions from the SDK V2
+  - create address alias from namespace id
+  - extract namespaceID from address alias
+  - create address from decoded address hex string (REST format)
+- add metadataGenerateKey() since there is no built-in way to convert a string to a metadata key.
+- Added SymbolAccount class
+  - add signTransaction() to the SymbolAccount to match facade functionality
+  - add cosignTransaction() to the SymbolAccount to match facade functionality 
+  - to improve discoverability, add a helper function to SymbolAccount, which creates a MessageEncoder used to encrypt/encode messages
+- add SymbolPublicAccount class
+  - add properties address and publicKey for better discoverability
+- Added NemAccount class
+  - add signTransaction() to the NemAccount to match facade functionality
+  - to improve discoverability, add a helper function to NemAccount, which creates a MessageEncoder used to encrypt/encode messages
+- Add NemPublicAccount class
+  - add properties address and publicKey for better discoverability
+- add a createPublicAccount() and createAccount() to the facade for both NEM and Symbol
+- add deserialize() function to TransactionFactory in SDK for better discoverability
+
+### Changed
+- improve typescript support by generating type-annotated descriptors that accept strongly typed arguments
+- calculating fee for aggregate transaction is not easy to configure via createTransactionFromTypedDescriptor.  Add cosignatureCount optional parameter to SymbolFacade createTransactionFromTypedDescriptor
+
+### Fixed
+- NetworkTimestamp.timestamp is BigInt but models.Timestamp (NEM) is a Number that leads to a mismatch during creation.  Add logic to BaseValue to automatically coerce input of Number|BigInt to the desired underlying type when possible.
+
 ## [3.2.1] - 22-Apr-2024
 
 ### Fixed
@@ -86,6 +116,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.2.2]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.1...sdk%2Fjavascript%2Fv3.2.2
 [3.2.1]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.0...sdk%2Fjavascript%2Fv3.2.1
 [3.2.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.1.0...sdk%2Fjavascript%2Fv3.2.0
 [3.1.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.0.11...sdk%2Fjavascript%2Fv3.1.0
