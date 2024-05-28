@@ -1,5 +1,5 @@
 cloneGitHubBranchesPipeline {
-	sourceRepoUrl = 'https://github.com/symbol/symbol'
-	destRepoUrl = 'https://github.com/symbol/symbol-internal'
+	sourceRepoUrl = 'https://github.com/Symbol/symbol'
+	destRepoUrl = 'https://github.com/Symbol/symbol-internal'
 	branches = ['dev', 'main']
 }

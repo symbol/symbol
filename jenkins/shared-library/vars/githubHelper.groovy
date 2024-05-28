@@ -115,7 +115,7 @@ void executeGitAuthenticatedCommand(Closure command) {
 	withGitHubToken {
 		final String ownerName = helper.resolveOrganizationName()
 		final String replaceUrl = 'https://$GITHUB_USER:$GITHUB_TOKEN@github.com/' +
-			"${ownerName}.insteadOf https://github.com/${ownerName}"
+			"${ownerName}/.insteadOf https://github.com/${ownerName}/"
 
 		configureGitHub()
 		runScript("git config url.${replaceUrl}")
