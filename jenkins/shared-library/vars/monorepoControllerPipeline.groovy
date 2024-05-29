@@ -171,7 +171,7 @@ Map<String, String> findDependencyMultibranchPipelinesToRun(Map<String, String> 
 	return dependencyJobMap
 }
 
-Map <String, String> findRequiredMultibranchPipelinesToRun(Object buildConfiguration) {
+Map<String, String> findRequiredMultibranchPipelinesToRun(Object buildConfiguration) {
 	Map<String, String> requiredJobMap = [:]
 
 	buildConfiguration.builds.each { build -> build.required?.toBoolean() && requiredJobMap.put(build.name, build.path) }
