@@ -111,8 +111,9 @@ void triggerJobs(String branchName) {
 	final Map<String, String> allJenkinsfiles = jobHelper.loadJenkinsfileMap(buildConfiguration)
 	final Map<String, String> triggeredJenkinsfile = changedSetHelper.findMultibranchPipelinesToRun(allJenkinsfiles)
 	final Map<String, String> dependencyJenkinsfile = findDependencyMultibranchPipelinesToRun(triggeredJenkinsfile, buildConfiguration)
+	final Map<String, String> requiredJenkinsfile = findRequiredMultibranchPipelinesToRun(buildConfiguration)
 	final String currentJobName = Paths.get(currentBuild.fullProjectName).parent
-	final Map<String, String> jenkinsfilesJobToRun = triggeredJenkinsfile + dependencyJenkinsfile
+	final Map<String, String> jenkinsfilesJobToRun = triggeredJenkinsfile + dependencyJenkinsfile + requiredJenkinsfile
 	Map<String, String> siblingNameMap = jobHelper.siblingJobNames(jenkinsfilesJobToRun, currentJobName)
 
 	if (siblingNameMap.size() == 0) {
@@ -168,4 +169,12 @@ Map<String, String> findDependencyMultibranchPipelinesToRun(Map<String, String> 
 	Map<String, String> dependencyJobMap = [:]
 	dependencyBuilds.each { build -> dependencyJobMap.put(build.name, build.path) }
 	return dependencyJobMap
+}
+
+Map<String, String> findRequiredMultibranchPipelinesToRun(Object buildConfiguration) {
+	Map<String, String> requiredJobMap = [:]
+
+	buildConfiguration.builds.each { build -> build.required?.toBoolean() && requiredJobMap.put(build.name, build.path) }
+	println "required builds: ${requiredJobMap}"
+	return requiredJobMap
 }

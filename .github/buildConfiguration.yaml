@@ -33,6 +33,7 @@ builds:
 
   - name: Linters
     path: linters
+    required: true
 
 customBuilds:
   - name: Nightly Job
