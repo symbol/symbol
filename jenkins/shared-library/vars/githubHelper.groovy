@@ -2,7 +2,7 @@ import groovy.json.JsonOutput
 
 boolean isGitHubRepositoryPublic(String orgName, String repoName) {
 	try {
-		executeGitAuthenticatedCommand {
+		withGitHubToken {
 			final Object repo = getRepositoryInfo("${GITHUB_TOKEN}", orgName, repoName)
 			return repo.name == repoName && repo.visibility == 'public'
 		}
@@ -103,11 +103,19 @@ void configureGitHub() {
 	runScript('git config user.email "jenkins@symbol.dev"')
 }
 
-void executeGitAuthenticatedCommand(Closure command) {
+void withGitHubToken(Closure closure) {
 	withCredentials([usernamePassword(credentialsId: helper.resolveGitHubCredentialsId(),
 			usernameVariable: 'GITHUB_USER',
 			passwordVariable: 'GITHUB_TOKEN')]) {
-		final String replaceUrl = "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/.insteadOf https://github.com/"
+		closure()
+	}
+}
+
+void executeGitAuthenticatedCommand(Closure command) {
+	withGitHubToken {
+		final String ownerName = helper.resolveOrganizationName()
+		final String replaceUrl = 'https://$GITHUB_USER:$GITHUB_TOKEN@github.com/' +
+			"${ownerName}/.insteadOf https://github.com/${ownerName}/"
 
 		configureGitHub()
 		runScript("git config url.${replaceUrl}")
