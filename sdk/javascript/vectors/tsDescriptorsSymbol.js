@@ -173,6 +173,12 @@ const createTypedTransactionDescriptor = descriptor => {
 			models.MosaicSupplyChangeAction[descriptor.action.toUpperCase()]
 		);
 	}
+	if ('mosaic_supply_revocation_transaction_v1' === descriptor.type) {
+		return new descriptors.MosaicSupplyRevocationTransactionV1Descriptor(
+			new Address(descriptor.sourceAddress),
+			mapUnresolvedMosaic(descriptor.mosaic)
+		);
+	}
 
 	// multisig
 	if ('multisig_account_modification_transaction_v1' === descriptor.type) {
