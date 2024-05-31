@@ -176,7 +176,7 @@ class SymbolHelper:
 	@staticmethod
 	def create_manually(test_name, original_descriptor):
 		del test_name
-		return original_descriptor['object'], None
+		return original_descriptor['object'], str(original_descriptor['object'])
 
 	@staticmethod
 	def create_receipt(test_name, original_descriptor):
