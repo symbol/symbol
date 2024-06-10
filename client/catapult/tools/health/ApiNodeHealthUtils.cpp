@@ -116,16 +116,9 @@ namespace catapult { namespace tools { namespace health {
 
 		public:
 			void start() {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4459) /* declaration of 'query' hides global declaration */
-#endif
 				m_resolver.async_resolve(m_query, [this](const auto& ec, auto iterator) {
 					this->handleResolve(ec, iterator);
 				});
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 			}
 
 		private:
