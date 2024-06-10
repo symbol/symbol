@@ -20,11 +20,11 @@
  */
 
 /** @module sockets/nodeInfoCodec */
-const catapult = require('../catapult-sdk/index');
+import catapult from '../catapult-sdk/index.js';
 
 const { sizes } = catapult.constants;
 
-const nodeInfoCodec = {
+export default {
 	/**
 	 * Parses a node info.
 	 * @param {object} parser Parser.
@@ -46,5 +46,3 @@ const nodeInfoCodec = {
 		return nodeInfo;
 	}
 };
-
-module.exports = nodeInfoCodec;

@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const arrayUtils = require('../utils/arrayUtils');
-const base32 = require('../utils/base32');
-const convert = require('../utils/convert');
-const { sha3_256 } = require('@noble/hashes/sha3');
-const Ripemd160 = require('ripemd160');
+import arrayUtils from '../utils/arrayUtils.js';
+import base32 from '../utils/base32.js';
+import convert from '../utils/convert.js';
+import { sha3_256 } from '@noble/hashes/sha3';
+import Ripemd160 from 'ripemd160';
 
 const constants = {
 	sizes: {
@@ -131,4 +131,4 @@ const address = {
 	}
 };
 
-module.exports = address;
+export default address;

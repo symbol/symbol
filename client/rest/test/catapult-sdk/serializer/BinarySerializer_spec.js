@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const BinarySerializer = require('../../../src/catapult-sdk/serializer/BinarySerializer');
-const { expect } = require('chai');
+import BinarySerializer from '../../../src/catapult-sdk/serializer/BinarySerializer.js';
+import { expect } from 'chai';
 
 describe('BinarySerializer', () => {
 	// region constructor

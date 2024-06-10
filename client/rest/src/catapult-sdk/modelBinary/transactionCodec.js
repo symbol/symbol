@@ -21,7 +21,7 @@
 
 /** @module modelBinary/transactionCodec */
 
-const transactionCodec = {
+export default {
 	/**
 	 * Parses a transaction.
 	 * @param {object} parser Parser.
@@ -44,5 +44,3 @@ const transactionCodec = {
 		serializer.writeUint64(transaction.deadline);
 	}
 };
-
-module.exports = transactionCodec;

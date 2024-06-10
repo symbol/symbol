@@ -190,7 +190,7 @@ const toStringInternal = code => {
 	}
 };
 
-const status = {
+export default {
 	/**
 	 * Converts a status code to a string.
 	 * @param {number} code Status code.
@@ -208,5 +208,3 @@ const status = {
 		return `unknown status 0x${hexString}`;
 	}
 };
-
-module.exports = status;

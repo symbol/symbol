@@ -20,9 +20,9 @@
  */
 
 /** @module model/idReducer */
-const uint64 = require('../utils/uint64');
+import uint64 from '../utils/uint64.js';
 
-const idReducer = {
+export default {
 	/**
 	 * Creates an id to name lookup object around namespace name tuples.
 	 * @param {Array<object>} nameTuples Namespace name tuples.
@@ -87,5 +87,3 @@ const idReducer = {
 		};
 	}
 };
-
-module.exports = idReducer;

@@ -20,10 +20,10 @@
  */
 
 /** @module plugins/metadata */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
-const convert = require('../utils/convert');
+import EntityType from '../model/EntityType.js';
+import ModelType from '../model/ModelType.js';
+import sizes from '../modelBinary/sizes.js';
+import convert from '../utils/convert.js';
 
 const constants = { sizes };
 
@@ -31,7 +31,7 @@ const constants = { sizes };
  * Creates a metadata plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const metadataPlugin = {
+export default {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.accountMetadata, {
 			targetAddress: ModelType.encodedAddress,
@@ -149,5 +149,3 @@ const metadataPlugin = {
 		});
 	}
 };
-
-module.exports = metadataPlugin;

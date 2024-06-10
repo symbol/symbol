@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { metal } = require('./metal');
-const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
+import { metal } from './metal.js';
+import { buildOffsetCondition, convertToLong, longToUint64 } from '../../db/dbUtils.js';
 
-class MetadataDb {
+export default class MetadataDb {
 	/**
 	 * Creates MetadataDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -115,5 +115,3 @@ class MetadataDb {
 		return metal.decode(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}
 }
-
-module.exports = MetadataDb;

@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const convert = require('../../../src/catapult-sdk/utils/convert');
-const uint64 = require('../../../src/catapult-sdk/utils/uint64');
-const { expect } = require('chai');
+import convert from '../../../src/catapult-sdk/utils/convert.js';
+import uint64 from '../../../src/catapult-sdk/utils/uint64.js';
+import { expect } from 'chai';
 
 describe('uint64', () => {
 	describe('compact', () => {

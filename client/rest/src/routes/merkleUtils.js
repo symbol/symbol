@@ -19,15 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 /* eslint-disable */
-const errors = require('../server/errors');
-const catapult = require('../catapult-sdk/index');
-const MerkleTree = require('./MerkelTree');
+import errors from '../server/errors.js';
+import catapult from '../catapult-sdk/index.js';
+import MerkleTree from './MerkelTree.js';
 
 const packetHeader = catapult.packet.header;
 const { StatePathPacketTypes } = catapult.packet;
 const { convert } = catapult.utils;
 
-const merkleUtils = {
+export default {
 	/**
 	 * It sends a merkle tree request to api server for the give state path and key.
 	 *
@@ -59,5 +59,3 @@ const merkleUtils = {
 			.then(packet => buildResponse(packet));
 	},
 };
-
-module.exports = merkleUtils;

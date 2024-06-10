@@ -19,13 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { test } = require('./utils/routeTestUtils');
-const catapult = require('../../src/catapult-sdk/index');
-const { convertToLong } = require('../../src/db/dbUtils');
-const routeUtils = require('../../src/routes/routeUtils');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import test from './utils/routeTestUtils.js';
+import catapult from '../../src/catapult-sdk/index.js';
+import { convertToLong } from '../../src/db/dbUtils.js';
+import routeUtils from '../../src/routes/routeUtils.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
 
 const { Binary, ObjectId } = MongoDb;
 const { convert } = catapult.utils;

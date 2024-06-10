@@ -19,13 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const namespace = require('../../../src/catapult-sdk/plugins/namespace');
-const schemaFormatter = require('../../../src/catapult-sdk/utils/schemaFormatter');
-const test = require('../binaryTestUtils');
-const { expect } = require('chai');
+import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import namespace from '../../../src/catapult-sdk/plugins/namespace.js';
+import schemaFormatter from '../../../src/catapult-sdk/utils/schemaFormatter.js';
+import test from '../binaryTestUtils.js';
+import { expect } from 'chai';
 
 const constants = {
 	sizes: {

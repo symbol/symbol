@@ -68,7 +68,7 @@ class BufferContainer {
 /**
  * Provides an interface for writing to a fixed size buffer.
  */
-class BinarySerializer {
+export default class BinarySerializer {
 	/**
 	 * Creates a binary serializer.
 	 * @param {number} size Size of the underlying fixed size buffer.
@@ -136,5 +136,3 @@ class BinarySerializer {
 		this.container.writeBuffer(buffer);
 	}
 }
-
-module.exports = BinarySerializer;

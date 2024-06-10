@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
-const winston = require('winston');
-const WebSocket = require('ws');
-const crypto = require('crypto');
+import catapult from '../catapult-sdk/index.js';
+import winston from 'winston';
+import WebSocket from 'ws';
+import crypto from 'crypto';
 
 const { base32 } = catapult.utils;
 
-module.exports = {
+export default {
 	/**
 	 * Creates an aggregate subscriber composed of all websocket subscribers to a single topic.
 	 * @param {string} topic Subscribed topic from which the data was received.

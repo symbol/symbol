@@ -23,7 +23,7 @@
  * Catapult model restriction.
  * @enum {number}
  */
-const restriction = {
+export default {
 	mosaicRestriction: {
 		/** Mosaic restriction type. */
 		restrictionType: {
@@ -35,5 +35,3 @@ const restriction = {
 		}
 	}
 };
-
-module.exports = restriction;

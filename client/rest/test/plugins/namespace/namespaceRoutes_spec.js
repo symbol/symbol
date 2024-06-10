@@ -19,20 +19,20 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const namespaceRoutes = require('../../../src/plugins/namespace/namespaceRoutes');
-const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
-const routeUtils = require('../../../src/routes/routeUtils');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { test } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import catapult from '../../../src/catapult-sdk/index.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import namespaceRoutes from '../../../src/plugins/namespace/namespaceRoutes.js';
+import namespaceUtils from '../../../src/plugins/namespace/namespaceUtils.js';
+import routeUtils from '../../../src/routes/routeUtils.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
 
 const { Binary } = MongoDb;
 const { uint64 } = catapult.utils;
 const { address } = catapult.model;
+const { MockServer } = test;
 
 describe('namespace routes', () => {
 	describe('namespaces', () => {

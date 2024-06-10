@@ -21,11 +21,11 @@
 
 /** @module db/CatapultDb */
 
-const connector = require('./connector');
-const { convertToLong, buildOffsetCondition, uniqueLongList } = require('./dbUtils');
-const catapult = require('../catapult-sdk/index');
-const MultisigDb = require('../plugins/multisig/MultisigDb');
-const MongoDb = require('mongodb');
+import connector from './connector.js';
+import { buildOffsetCondition, convertToLong, uniqueLongList } from './dbUtils.js';
+import catapult from '../catapult-sdk/index.js';
+import MultisigDb from '../plugins/multisig/MultisigDb.js';
+import MongoDb from 'mongodb';
 
 const { EntityType } = catapult.model;
 const { ObjectId } = MongoDb;
@@ -97,7 +97,7 @@ const TransactionGroup = Object.freeze({
 	partial: 'partialTransactions'
 });
 
-class CatapultDb {
+export default class CatapultDb {
 	// region construction / connect / disconnect
 
 	constructor(options) {
@@ -655,5 +655,3 @@ class CatapultDb {
 
 	// endregion
 }
-
-module.exports = CatapultDb;

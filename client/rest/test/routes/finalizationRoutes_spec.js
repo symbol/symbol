@@ -19,10 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockServer } = require('./utils/routeTestUtils');
-const finalizationRoutes = require('../../src/routes/finalizationRoutes');
-const routeResultTypes = require('../../src/routes/routeResultTypes');
-const { expect } = require('chai');
+import test from './utils/routeTestUtils.js';
+import finalizationRoutes from '../../src/routes/finalizationRoutes.js';
+import routeResultTypes from '../../src/routes/routeResultTypes.js';
+import { expect } from 'chai';
+
+const { MockServer } = test;
 
 describe('finalization routes', () => {
 	describe('get', () => {

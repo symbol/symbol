@@ -20,7 +20,7 @@
  */
 
 /** @module model/ModelFormatterBuilder */
-const schemaFormatter = require('../utils/schemaFormatter');
+import schemaFormatter from '../utils/schemaFormatter.js';
 
 const createFormatter = (type, modelSchema, formattingRules) => ({
 	format: entity => schemaFormatter.format(entity, modelSchema[type], modelSchema, formattingRules)
@@ -29,7 +29,7 @@ const createFormatter = (type, modelSchema, formattingRules) => ({
 /**
  * Builder for creating a model formatter.
  */
-class ModelFormatterBuilder {
+export default class ModelFormatterBuilder {
 	/**
 	 * Creates a model formatter builder.
 	 */
@@ -79,5 +79,3 @@ class ModelFormatterBuilder {
 		return formatter;
 	}
 }
-
-module.exports = ModelFormatterBuilder;

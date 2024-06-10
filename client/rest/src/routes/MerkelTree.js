@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
-const { sha3_256 } = require('@noble/hashes/sha3');
+import catapult from '../catapult-sdk/index.js';
+import { sha3_256 } from '@noble/hashes/sha3';
 
 const { convert } = catapult.utils;
 
-class MerkleTree {
+export default class MerkleTree {
 	/**
 	 * Creates merkle tree.
 	 */
@@ -214,5 +214,3 @@ class MerkleTree {
 		return catapult.utils.convert.uint8ToHex(sha3_256(catapult.utils.convert.hexToUint8(encodedPath + leafValue)));
 	}
 }
-
-module.exports = MerkleTree;

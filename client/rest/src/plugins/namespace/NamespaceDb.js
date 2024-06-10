@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../catapult-sdk/index');
-const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
+import catapult from '../../catapult-sdk/index.js';
+import { buildOffsetCondition, convertToLong, longToUint64 } from '../../db/dbUtils.js';
 
 const { uint64 } = catapult.utils;
 
@@ -48,7 +48,7 @@ const addActiveFlag = (namespace, height) => {
 	return namespace;
 };
 
-class NamespaceDb {
+export default class NamespaceDb {
 	/**
 	 * Creates NamespaceDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -160,5 +160,3 @@ class NamespaceDb {
 		return this.catapultDb.queryDocuments('transactions', conditions);
 	}
 }
-
-module.exports = NamespaceDb;

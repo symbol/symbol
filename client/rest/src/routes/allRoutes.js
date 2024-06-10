@@ -19,17 +19,17 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const accountRoutes = require('./accountRoutes');
-const blockRoutes = require('./blockRoutes');
-const chainRoutes = require('./chainRoutes');
-const finalizationRoutes = require('./finalizationRoutes');
-const networkRoutes = require('./networkRoutes');
-const nodeRoutes = require('./nodeRoutes');
-const transactionRoutes = require('./transactionRoutes');
-const transactionStatusRoutes = require('./transactionStatusRoutes');
-const wsRoutes = require('./wsRoutes');
+import accountRoutes from './accountRoutes.js';
+import blockRoutes from './blockRoutes.js';
+import chainRoutes from './chainRoutes.js';
+import finalizationRoutes from './finalizationRoutes.js';
+import networkRoutes from './networkRoutes.js';
+import nodeRoutes from './nodeRoutes.js';
+import transactionRoutes from './transactionRoutes.js';
+import transactionStatusRoutes from './transactionStatusRoutes.js';
+import wsRoutes from './wsRoutes.js';
 
-module.exports = {
+export default {
 	register: (...args) => {
 		const allRoutes = [
 			accountRoutes,

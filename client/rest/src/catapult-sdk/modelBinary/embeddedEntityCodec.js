@@ -20,11 +20,11 @@
  */
 
 /** @module modelBinary/embeddedEntityCodec */
-const sizes = require('./sizes');
+import sizes from './sizes.js';
 
 const constants = { sizes };
 
-const embeddedEntityCodec = {
+export default {
 	/**
 	 * Parses an embedded entity.
 	 * @param {object} parser Parser.
@@ -55,5 +55,3 @@ const embeddedEntityCodec = {
 		serializer.writeUint16(entity.type);
 	}
 };
-
-module.exports = embeddedEntityCodec;

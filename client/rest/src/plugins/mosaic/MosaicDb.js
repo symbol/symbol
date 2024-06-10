@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { buildOffsetCondition } = require('../../db/dbUtils');
-const MongoDb = require('mongodb');
+import { buildOffsetCondition } from '../../db/dbUtils.js';
+import MongoDb from 'mongodb';
 
 const { Long } = MongoDb;
 
-class MosaicDb {
+export default class MosaicDb {
 	/**
 	 * Creates MosaicDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -71,5 +71,3 @@ class MosaicDb {
 			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
 	}
 }
-
-module.exports = MosaicDb;

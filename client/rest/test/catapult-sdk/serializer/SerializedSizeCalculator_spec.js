@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const SerializedSizeCalculator = require('../../../src/catapult-sdk/serializer/SerializedSizeCalculator');
-const { expect } = require('chai');
+import SerializedSizeCalculator from '../../../src/catapult-sdk/serializer/SerializedSizeCalculator.js';
+import { expect } from 'chai';
 
 describe('EntitySizeCalculator', () => {
 	const addTypeSerializerTests = (name, validData, expectedSize) => {

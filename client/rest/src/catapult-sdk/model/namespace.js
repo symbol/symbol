@@ -19,12 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const convert = require('../utils/convert');
+import convert from '../utils/convert.js';
+
 /**
  * Catapult model namespace.
  * @enum {number}
  */
-const namespace = {
+export default {
 	/** Namespace alias type. */
 	aliasType: {
 		/** Mosaic alias. */
@@ -48,5 +49,3 @@ const namespace = {
 		return padded;
 	}
 };
-
-module.exports = namespace;

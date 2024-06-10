@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const SchemaType = require('../../../src/catapult-sdk/utils/SchemaType');
-const schemaFormatter = require('../../../src/catapult-sdk/utils/schemaFormatter');
-const { expect } = require('chai');
+import SchemaType from '../../../src/catapult-sdk/utils/SchemaType.js';
+import schemaFormatter from '../../../src/catapult-sdk/utils/schemaFormatter.js';
+import { expect } from 'chai';
 
 describe('schema formatter', () => {
 	describe('basic triggering', () => {

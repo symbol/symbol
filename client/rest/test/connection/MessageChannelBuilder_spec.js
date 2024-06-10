@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
-const { ServerMessageHandler } = require('../../src/connection/serverMessageHandlers');
-const test = require('../testUtils');
-const { expect } = require('chai');
+import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
+import ServerMessageHandler from '../../src/connection/serverMessageHandlers.js';
+import test from '../testUtils.js';
+import { expect } from 'chai';
 
 describe('message channel builder', () => {
 	const networkIdentifier = 152;

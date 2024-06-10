@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const dbFacade = require('./dbFacade');
-const routeResultTypes = require('./routeResultTypes');
-const catapult = require('../catapult-sdk/index');
-const errors = require('../server/errors');
+import dbFacade from './dbFacade.js';
+import routeResultTypes from './routeResultTypes.js';
+import catapult from '../catapult-sdk/index.js';
+import errors from '../server/errors.js';
 
 const { address } = catapult.model;
 const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
@@ -415,4 +415,4 @@ const routeUtils = {
 		})
 };
 
-module.exports = routeUtils;
+export default routeUtils;

@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const winston = require('winston');
+import winston from 'winston';
 
 /**
  * Manages client subscriptions.
  */
-class SubscriptionManager {
+export default class SubscriptionManager {
 	/**
 	 * Creates a subscription manager.
 	 * @param {object} subscriptionCallbacks Callbacks to invoke in response to subscription changes.
@@ -94,5 +94,3 @@ class SubscriptionManager {
 		});
 	}
 }
-
-module.exports = SubscriptionManager;

@@ -20,14 +20,14 @@
  */
 
 /** @module plugins/lockHash */
-const LockHashDb = require('./LockHashDb');
-const lockHashRoutes = require('./lockHashRoutes');
+import LockHashDb from './LockHashDb.js';
+import lockHashRoutes from './lockHashRoutes.js';
 
 /**
  * Creates a lock hash plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: db => new LockHashDb(db),
 
 	registerTransactionStates: () => {},

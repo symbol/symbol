@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const { expect } = require('chai');
+import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
+import { expect } from 'chai';
 
 describe('entity type enumeration', () => {
 	it('exposes expected types', () => {

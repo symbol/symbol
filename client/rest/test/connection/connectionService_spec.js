@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockSocket } = require('./MockSocket');
-const { createConnectionService } = require('../../src/connection/connectionService');
-const { expect } = require('chai');
-const sinon = require('sinon');
-const tls = require('tls');
+import MockSocket from './MockSocket.js';
+import createConnectionService from '../../src/connection/connectionService.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import tls from 'tls';
 
 describe('connection service', () => {
 	const sockets = [];

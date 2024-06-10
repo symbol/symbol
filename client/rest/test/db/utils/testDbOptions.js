@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const parseArgs = require('minimist');
+import catapult from '../../../src/catapult-sdk/index.js';
+import parseArgs from 'minimist';
 
-module.exports = {
+export default {
 	url: (() => {
 		const args = parseArgs(process.argv.slice(2));
 		const mongoHost = args.mongoHost || '127.0.0.1';

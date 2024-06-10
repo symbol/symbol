@@ -20,14 +20,14 @@
  */
 
 /** @module plugins/metadata */
-const MetadataDb = require('./MetadataDb');
-const metadataRoutes = require('./metadataRoutes');
+import MetadataDb from './MetadataDb.js';
+import metadataRoutes from './metadataRoutes.js';
 
 /**
  * Creates a metadata plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: db => new MetadataDb(db),
 
 	registerTransactionStates: () => {},

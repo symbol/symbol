@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const charMapping = require('./charMapping');
+import charMapping from './charMapping.js';
 
 const Char_To_Nibble_Map = (() => {
 	const builder = charMapping.createBuilder();
@@ -221,4 +221,4 @@ const convert = {
 	}
 };
 
-module.exports = convert;
+export default convert;

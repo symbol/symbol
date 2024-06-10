@@ -19,16 +19,17 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockServer } = require('./utils/routeTestUtils');
-const catapult = require('../../src/catapult-sdk/index');
-const dbFacade = require('../../src/routes/dbFacade');
-const routeResultTypes = require('../../src/routes/routeResultTypes');
-const routeUtils = require('../../src/routes/routeUtils');
-const transactionStatusRoutes = require('../../src/routes/transactionStatusRoutes');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import test from './utils/routeTestUtils.js';
+import catapult from '../../src/catapult-sdk/index.js';
+import dbFacade from '../../src/routes/dbFacade.js';
+import routeResultTypes from '../../src/routes/routeResultTypes.js';
+import routeUtils from '../../src/routes/routeUtils.js';
+import transactionStatusRoutes from '../../src/routes/transactionStatusRoutes.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 const { convert } = catapult.utils;
+const { MockServer } = test;
 
 describe('transaction status routes', () => {
 	describe('calls addGetPostDocumentRoutes once with correct params', () => {

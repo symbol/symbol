@@ -1,6 +1,7 @@
 {
   "name": "symbol-api-rest",
   "version": "2.4.4",
+  "type": "module",
   "description": "Symbol API REST",
   "main": "src/index.js",
   "scripts": {
@@ -8,7 +9,7 @@
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
     "lint:jenkins": "eslint -o lint.client.rest.xml -f junit . || exit 0",
-    "test:jenkins": "nyc --require mocha --reporter=lcov npm run test",
+    "test:jenkins": "c8 --require mocha --no-clean --reporter=lcov npm run test",
     "version": "echo $npm_package_version"
   },
   "keywords": [],
@@ -16,6 +17,7 @@
   "license": "ISC",
   "devDependencies": {
     "axios": "^1.5.1",
+    "c8": "^10.0.0",
     "chai": "^4.3.10",
     "eslint": "^8.50.0",
     "eslint-config-airbnb": "^19.0.4",
@@ -23,7 +25,6 @@
     "minimist": "^1.2.8",
     "mocha": "^10.2.0",
     "mocha-jenkins-reporter": "^0.4.8",
-    "nyc": "^15.1.0",
     "sinon": "^18.0.0",
     "tmp": "^0.2.1"
   },

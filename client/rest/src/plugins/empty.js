@@ -25,7 +25,7 @@
  * Creates an empty plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: () => undefined,
 
 	registerTransactionStates: () => {},

@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const stateTreesCodec = require('../../src/sockets/stateTreesCodec');
-const { expect } = require('chai');
+import catapult from '../../src/catapult-sdk/index.js';
+import stateTreesCodec from '../../src/sockets/stateTreesCodec.js';
+import { expect } from 'chai';
 
 const { BinaryParser } = catapult.parser;
 const { convert } = catapult.utils;

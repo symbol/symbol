@@ -20,14 +20,14 @@
  */
 
 /** @module plugins/restrictions */
-const RestrictionsDb = require('./RestrictionsDb');
-const restrictionsRoutes = require('./restrictionsRoutes');
+import RestrictionsDb from './RestrictionsDb.js';
+import restrictionsRoutes from './restrictionsRoutes.js';
 
 /**
  * Creates a restrictions plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: db => new RestrictionsDb(db),
 
 	registerTransactionStates: () => {},

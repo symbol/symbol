@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const { expect } = require('chai');
+import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import { expect } from 'chai';
 
 describe('model schema builder', () => {
 	describe('allowed transaction types', () => {

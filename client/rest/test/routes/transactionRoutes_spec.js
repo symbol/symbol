@@ -19,16 +19,17 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockServer, test } = require('./utils/routeTestUtils');
-const catapult = require('../../src/catapult-sdk/index');
-const routeResultTypes = require('../../src/routes/routeResultTypes');
-const routeUtils = require('../../src/routes/routeUtils');
-const transactionRoutes = require('../../src/routes/transactionRoutes');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import test from './utils/routeTestUtils.js';
+import catapult from '../../src/catapult-sdk/index.js';
+import routeResultTypes from '../../src/routes/routeResultTypes.js';
+import routeUtils from '../../src/routes/routeUtils.js';
+import transactionRoutes from '../../src/routes/transactionRoutes.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 const { address } = catapult.model;
 const { convert } = catapult.utils;
+const { MockServer } = test;
 
 const TransactionGroups = {
 	confirmed: 'confirmed',

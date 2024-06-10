@@ -19,13 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../catapult-sdk/index');
-const routeUtils = require('../../routes/routeUtils');
+import catapult from '../../catapult-sdk/index.js';
+import routeUtils from '../../routes/routeUtils.js';
 
 const { convert, uint64 } = catapult.utils;
 const { PacketType } = catapult.packet;
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const parseUint64StringToUint8Buffer = numericString => convert.hexToUint8(uint64.toHex(uint64.fromString(numericString)));
 		const parseHexParam = (params, key) => routeUtils.parseArgument(params, key, convert.hexToUint8);

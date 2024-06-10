@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./testUtils');
-const BinaryParser = require('../../src/catapult-sdk/parser/BinaryParser');
-const BinarySerializer = require('../../src/catapult-sdk/serializer/BinarySerializer');
-const { expect } = require('chai');
+import test from './testUtils.js';
+import BinaryParser from '../../src/catapult-sdk/parser/BinaryParser.js';
+import BinarySerializer from '../../src/catapult-sdk/serializer/BinarySerializer.js';
+import { expect } from 'chai';
 
 const binaryTestUtils = {
 	binary: {
@@ -97,4 +97,4 @@ const binaryTestUtils = {
 
 Object.assign(binaryTestUtils, test);
 
-module.exports = binaryTestUtils;
+export default binaryTestUtils;

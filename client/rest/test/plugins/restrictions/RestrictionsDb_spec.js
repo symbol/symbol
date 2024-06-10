@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./restrictionsDbTestUtils');
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const RestrictionsDb = require('../../../src/plugins/restrictions/RestrictionsDb');
-const dbTestUtils = require('../../db/utils/dbTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import test from './restrictionsDbTestUtils.js';
+import catapult from '../../../src/catapult-sdk/index.js';
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import RestrictionsDb from '../../../src/plugins/restrictions/RestrictionsDb.js';
+import dbTestUtils from '../../db/utils/dbTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 describe('restrictions db', () => {
 	describe('account restrictions', () => {

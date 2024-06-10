@@ -21,7 +21,7 @@
 
 /** @module sockets/nodeTimeCodec */
 
-const nodeTimeCodec = {
+export default {
 	/**
 	 * Parses node communication timestamps.
 	 * @param {object} parser Parser.
@@ -34,5 +34,3 @@ const nodeTimeCodec = {
 		}
 	})
 };
-
-module.exports = nodeTimeCodec;

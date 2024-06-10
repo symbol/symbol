@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const fs = require('fs');
-const util = require('util');
+import fs from 'fs';
+import util from 'util';
 
 const readFile = util.promisify(fs.readFile);
 const stat = util.promisify(fs.stat);
@@ -28,7 +28,7 @@ const stat = util.promisify(fs.stat);
 /**
  * Loads and caches files.
  */
-class CachedFileLoader {
+export default class CachedFileLoader {
 	/**
 	 * Creates a cached file loader.
 	 */
@@ -90,5 +90,3 @@ class CachedFileLoader {
 			});
 	}
 }
-
-module.exports = CachedFileLoader;

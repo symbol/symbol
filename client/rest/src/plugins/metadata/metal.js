@@ -1,11 +1,11 @@
-const catapult = require('../../catapult-sdk');
-const { sha3_256 } = require('@noble/hashes/sha3');
-const bs58 = require('bs58');
+import catapult from '../../catapult-sdk/index.js';
+import { sha3_256 } from '@noble/hashes/sha3';
+import bs58 from 'bs58';
 
 const METAL_ID_HEADER_SIGNATURE = [0x0B, 0x2A];
 const METAL_ID_LENGTH = 34;
 
-const metal = {
+export const metal = {
 	/**
 	 * Convert a metal id (e.g. 'FeF65JftVPEGwaua35LnbU9jK46uG3W8karGDDuDwVEh8Z') into its associated composite hash.
 	 * @param {string} metalId Metal id to convert.
@@ -129,7 +129,7 @@ const metal = {
  * MetalSeal is a simple JSON schema for writing file informations
  * filellength, mimetype, filename and comment in text sections.
  */
-class MetalSeal {
+export class MetalSeal {
 	static SCHEMA = 'seal1';
 
 	static COMPAT = [MetalSeal.SCHEMA];
@@ -223,8 +223,3 @@ class MetalSeal {
 		};
 	}
 }
-
-module.exports = {
-	metal,
-	MetalSeal
-};

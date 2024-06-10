@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const embeddedEntityCodec = require('../../../src/catapult-sdk/modelBinary/embeddedEntityCodec');
-const test = require('../binaryTestUtils');
+import embeddedEntityCodec from '../../../src/catapult-sdk/modelBinary/embeddedEntityCodec.js';
+import test from '../binaryTestUtils.js';
 
 describe('embedded entity codec', () => {
 	const generateEmbeddedEntity = () => {

@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const ModelCodecBuilder = require('../../../src/catapult-sdk/modelBinary/ModelCodecBuilder');
-const BinaryParser = require('../../../src/catapult-sdk/parser/BinaryParser');
-const test = require('../binaryTestUtils');
-const { expect } = require('chai');
+import ModelCodecBuilder from '../../../src/catapult-sdk/modelBinary/ModelCodecBuilder.js';
+import BinaryParser from '../../../src/catapult-sdk/parser/BinaryParser.js';
+import test from '../binaryTestUtils.js';
+import { expect } from 'chai';
 
 const constants = {
 	knownTxType: 0x4123,

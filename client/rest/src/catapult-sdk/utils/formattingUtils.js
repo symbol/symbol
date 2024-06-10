@@ -21,7 +21,7 @@
 
 /** @module utils/formattingUtils */
 
-const formattingUtils = {
+export default {
 	/**
 	 * Formats all the entities in an array.
 	 * @param {module:utils/schemaFormatter~EntityFormatter} formatter Formatter.
@@ -49,5 +49,3 @@ const formattingUtils = {
 		};
 	}
 };
-
-module.exports = formattingUtils;

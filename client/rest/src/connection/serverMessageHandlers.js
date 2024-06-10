@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
+import catapult from '../catapult-sdk/index.js';
 
 const { uint64 } = catapult.utils;
 
@@ -29,7 +29,7 @@ const parserFromData = binaryData => {
 	return parser;
 };
 
-const ServerMessageHandler = Object.freeze({
+export default Object.freeze({
 	block: (codec, emit) => (topic, binaryBlock, hash, generationHash) => {
 		const block = codec.deserialize(parserFromData(binaryBlock));
 		emit({ type: 'blockHeaderWithMetadata', payload: { block, meta: { hash, generationHash } } });
@@ -69,7 +69,3 @@ const ServerMessageHandler = Object.freeze({
 		emit({ type: 'transactionStatus', payload: { hash, code, deadline } });
 	}
 });
-
-module.exports = {
-	ServerMessageHandler
-};

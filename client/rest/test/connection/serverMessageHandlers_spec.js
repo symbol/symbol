@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { ServerMessageHandler } = require('../../src/connection/serverMessageHandlers');
-const test = require('../testUtils');
-const { expect } = require('chai');
+import ServerMessageHandler from '../../src/connection/serverMessageHandlers.js';
+import test from '../testUtils.js';
+import { expect } from 'chai';
 
 describe('server message handlers', () => {
 	const createMockCodec = value => {

@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+import { buildOffsetCondition, convertToLong } from '../../db/dbUtils.js';
 
-class RestrictionsDb {
+export default class RestrictionsDb {
 	/**
 	 * Creates RestrictionsDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -105,5 +105,3 @@ class RestrictionsDb {
 			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
 	}
 }
-
-module.exports = RestrictionsDb;

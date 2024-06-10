@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const { test } = require('../../routes/utils/routeTestUtils');
+import catapult from '../../../src/catapult-sdk/index.js';
+import test from '../../routes/utils/routeTestUtils.js';
 
 const Valid_Address = test.sets.addresses.valid[0];
 
@@ -62,4 +62,4 @@ const routeAddressGetTestUtils = {
 	}
 };
 
-module.exports = routeAddressGetTestUtils;
+export default routeAddressGetTestUtils;

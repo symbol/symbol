@@ -19,15 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { testData } = require('./metalUtils');
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const MetadataDb = require('../../../src/plugins/metadata/MetadataDb');
-const { MetalSeal } = require('../../../src/plugins/metadata/metal');
-const test = require('../../db/utils/dbTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import { testData } from './metalUtils.js';
+import catapult from '../../../src/catapult-sdk/index.js';
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import MetadataDb from '../../../src/plugins/metadata/MetadataDb.js';
+import { MetalSeal } from '../../../src/plugins/metadata/metal.js';
+import test from '../../db/utils/dbTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 const { address } = catapult.model;
 

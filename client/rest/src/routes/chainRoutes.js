@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeResultTypes = require('./routeResultTypes');
+import routeResultTypes from './routeResultTypes.js';
 
-module.exports = {
+export default {
 	register: (server, db) => {
 		server.get('/chain/info', (req, res, next) =>
 			Promise.all([

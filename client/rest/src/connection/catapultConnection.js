@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
-const errors = require('../server/errors');
+import catapult from '../catapult-sdk/index.js';
+import errors from '../server/errors.js';
 
 const { PacketParser } = catapult.parser;
 
@@ -30,7 +30,7 @@ const rejectOnClose = reject => () => reject(errors.createServiceUnavailableErro
  * A catapult connection for interacting with api nodes.
  * @class CatapultConnection
  */
-module.exports = {
+export default {
 	/**
 	 * Wraps a catapult connection around a socket connection.
 	 * @param {object} connection Socket connection to wrap.

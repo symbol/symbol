@@ -20,11 +20,11 @@
  */
 
 /** @module modelBinary/importanceBlockHeaderCodec */
-const sizes = require('./sizes');
+import sizes from './sizes.js';
 
 const constants = { sizes };
 
-const importanceBlockHeaderCodec = {
+export default {
 	/**
 	 * Parses a block header.
 	 * @param {object} parser Parser.
@@ -51,5 +51,3 @@ const importanceBlockHeaderCodec = {
 		serializer.writeBuffer(importanceBlockHeader.previousImportanceBlockHash);
 	}
 };
-
-module.exports = importanceBlockHeaderCodec;

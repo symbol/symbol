@@ -19,17 +19,17 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../catapult-sdk/index');
-const { longToUint64 } = require('../../db/dbUtils');
-const routeUtils = require('../../routes/routeUtils');
-const AccountType = require('../AccountType');
-const ini = require('ini');
+import catapult from '../../catapult-sdk/index.js';
+import { longToUint64 } from '../../db/dbUtils.js';
+import routeUtils from '../../routes/routeUtils.js';
+import AccountType from '../AccountType.js';
+import ini from 'ini';
 
 const { convert, uint64 } = catapult.utils;
 
 const fileLoader = new catapult.utils.CachedFileLoader();
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const sender = routeUtils.createSender('supply');
 

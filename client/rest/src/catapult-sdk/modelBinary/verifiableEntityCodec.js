@@ -20,11 +20,11 @@
  */
 
 /** @module modelBinary/verifiableEntityCodec */
-const sizes = require('./sizes');
+import sizes from './sizes.js';
 
 const constants = { sizes };
 
-const verifiableEntityCodec = {
+export default {
 	/**
 	 * Parses a verifiable entity.
 	 * @param {object} parser Parser.
@@ -57,5 +57,3 @@ const verifiableEntityCodec = {
 		serializer.writeUint16(entity.type);
 	}
 };
-
-module.exports = verifiableEntityCodec;

@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const importanceBlockHeaderCodec = require('../../../src/catapult-sdk/modelBinary/importanceBlockHeaderCodec');
-const test = require('../binaryTestUtils');
+import importanceBlockHeaderCodec from '../../../src/catapult-sdk/modelBinary/importanceBlockHeaderCodec.js';
+import test from '../binaryTestUtils.js';
 
 describe('importance block header codec', () => {
 	const generateBlockHeader = () => {

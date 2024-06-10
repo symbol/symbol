@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class MultisigDb {
+export default class MultisigDb {
 	/**
 	 * Creates MultisigDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -42,5 +42,3 @@ class MultisigDb {
 
 	// endregion
 }
-
-module.exports = MultisigDb;

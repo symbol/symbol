@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('../../testUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import test from '../../testUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 const makeTestName = (base, desc) => (desc ? `${base} ${desc}` : base);
 
@@ -645,7 +645,6 @@ const routeTestUtils = {
 };
 Object.assign(routeTestUtils, test);
 
-module.exports = {
-	MockServer,
-	test: routeTestUtils
-};
+routeTestUtils.MockServer = MockServer;
+
+export default routeTestUtils;

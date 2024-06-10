@@ -27,7 +27,7 @@
  * @property {object} map Character map.
  */
 
-const charMapping = {
+export default {
 	/**
 	 * Creates a builder for building a character map.
 	 * @returns {module:utils/charMapping~CharacterMapBuilder} A character map builder.
@@ -55,5 +55,3 @@ const charMapping = {
 		};
 	}
 };
-
-module.exports = charMapping;

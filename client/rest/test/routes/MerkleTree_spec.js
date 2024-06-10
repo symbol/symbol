@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
-const catapult = require('../../src/catapult-sdk/index');
-const MerkleTree = require('../../src/routes/MerkelTree');
-const { expect } = require('chai');
-const fs = require('fs');
-const fsPath = require('path');
+import catapult from '../../src/catapult-sdk/index.js';
+import MerkleTree from '../../src/routes/MerkelTree.js';
+import { expect } from 'chai';
+import fs from 'fs';
+import fsPath from 'path';
 
 describe('MerkleTree', () => {
 	describe('merkle tree parse', () => {
@@ -298,7 +298,7 @@ describe('MerkleTree', () => {
 		});
 
 		describe('merkle tree parse from testnet examples', () => {
-			const treePath = fsPath.resolve(__dirname, '../merkle/trees.json');
+			const treePath = fsPath.resolve(import.meta.dirname, '../merkle/trees.json');
 			const trees = JSON.parse(fs.readFileSync(treePath, 'UTF-8').trim());
 			trees.forEach(tree => {
 				const fieldName = Object.keys(tree).filter(n => 'raw' !== n)[0];

@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const CachedFileLoader = require('../../../src/catapult-sdk/utils/CachedFileLoader');
-const { expect } = require('chai');
-const tmp = require('tmp');
-const fs = require('fs');
+import CachedFileLoader from '../../../src/catapult-sdk/utils/CachedFileLoader.js';
+import { expect } from 'chai';
+import tmp from 'tmp';
+import fs from 'fs';
 
 describe('CachedFileLoader', () => {
 	const createSplitProcessor = () => {

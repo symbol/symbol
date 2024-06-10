@@ -19,36 +19,36 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const merkle = require('./crypto/merkleAuditProof');
-const EntityType = require('./model/EntityType');
-const ModelType = require('./model/ModelType');
-const address = require('./model/address');
-const idReducer = require('./model/idReducer');
-const namespace = require('./model/namespace');
-const networkInfo = require('./model/networkInfo');
-const restriction = require('./model/restriction');
-const status = require('./model/status');
-const serialize = require('./modelBinary/serialize');
-const sizes = require('./modelBinary/sizes');
-const { PacketType, StatePathPacketTypes } = require('./packet/PacketType');
-const packetHeader = require('./packet/header');
-const BinaryParser = require('./parser/BinaryParser');
-const PacketParser = require('./parser/PacketParser');
-const catapultModelSystem = require('./plugins/catapultModelSystem');
-const BinarySerializer = require('./serializer/BinarySerializer');
-const SerializedSizeCalculator = require('./serializer/SerializedSizeCalculator');
-const CachedFileLoader = require('./utils/CachedFileLoader');
-const SchemaType = require('./utils/SchemaType');
-const arrayUtils = require('./utils/arrayUtils');
-const base32 = require('./utils/base32');
-const convert = require('./utils/convert');
-const formattingUtils = require('./utils/formattingUtils');
-const future = require('./utils/future');
-const objects = require('./utils/objects');
-const schemaFormatter = require('./utils/schemaFormatter');
-const uint64 = require('./utils/uint64');
+import * as merkle from './crypto/merkleAuditProof.js';
+import EntityType from './model/EntityType.js';
+import ModelType from './model/ModelType.js';
+import address from './model/address.js';
+import idReducer from './model/idReducer.js';
+import namespace from './model/namespace.js';
+import networkInfo from './model/networkInfo.js';
+import restriction from './model/restriction.js';
+import status from './model/status.js';
+import serialize from './modelBinary/serialize.js';
+import sizes from './modelBinary/sizes.js';
+import { PacketType, StatePathPacketTypes } from './packet/PacketType.js';
+import packetHeader from './packet/header.js';
+import BinaryParser from './parser/BinaryParser.js';
+import PacketParser from './parser/PacketParser.js';
+import catapultModelSystem from './plugins/catapultModelSystem.js';
+import BinarySerializer from './serializer/BinarySerializer.js';
+import SerializedSizeCalculator from './serializer/SerializedSizeCalculator.js';
+import CachedFileLoader from './utils/CachedFileLoader.js';
+import SchemaType from './utils/SchemaType.js';
+import arrayUtils from './utils/arrayUtils.js';
+import base32 from './utils/base32.js';
+import convert from './utils/convert.js';
+import formattingUtils from './utils/formattingUtils.js';
+import future from './utils/future.js';
+import objects from './utils/objects.js';
+import schemaFormatter from './utils/schemaFormatter.js';
+import uint64 from './utils/uint64.js';
 
-const catapultSdk = {
+export default {
 	constants: {
 		sizes
 	},
@@ -97,5 +97,3 @@ const catapultSdk = {
 		uint64
 	}
 };
-
-module.exports = catapultSdk;

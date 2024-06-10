@@ -19,17 +19,17 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const arrayUtils = require('../utils/arrayUtils');
+import arrayUtils from '../utils/arrayUtils.js';
 
-const NodePosition = Object.freeze({
+export const NodePosition = Object.freeze({
 	left: 'left',
 	right: 'right'
 });
 
-class HashNotFoundError extends Error {}
-class InvalidTree extends Error {}
+export class HashNotFoundError extends Error {}
+export class InvalidTree extends Error {}
 
-const evenify = number => (number % 2 ? number + 1 : number);
+export const evenify = number => (number % 2 ? number + 1 : number);
 
 /**
  * Returns the index of a hash in a Merkle tree.
@@ -37,11 +37,11 @@ const evenify = number => (number % 2 ? number + 1 : number);
  * @param {object} tree Merkle tree object containing the number of hashed elements and the tree of hashes.
  * @returns {number} Index of the first element in the tree matching the given hash, otherwise -1 is returned.
  */
-const indexOfLeafWithHash = (hash, tree) => tree.nodes
+export const indexOfLeafWithHash = (hash, tree) => tree.nodes
 	.slice(0, evenify(tree.count))
 	.findIndex(element => arrayUtils.deepEqual(element, hash));
 
-const siblingOf = nodeIndex => {
+export const siblingOf = nodeIndex => {
 	if (nodeIndex % 2) {
 		return {
 			position: NodePosition.left,
@@ -60,7 +60,7 @@ const siblingOf = nodeIndex => {
  * @param {object} tree Merkle tree object containing the number of elements and the tree of hashes.
  * @returns {Array<object>} Array of objects containing the Merkle tree hash, and its relative position (left or right).
  */
-const buildAuditPath = (hash, tree) => {
+export const buildAuditPath = (hash, tree) => {
 	if (0 === tree.count)
 		throw new InvalidTree();
 
@@ -84,14 +84,4 @@ const buildAuditPath = (hash, tree) => {
 		layerSubindexOfHash = Math.floor(layerSubindexOfHash / 2);
 	}
 	return auditPath;
-};
-
-module.exports = {
-	buildAuditPath,
-	evenify,
-	indexOfLeafWithHash,
-	siblingOf,
-	NodePosition,
-	HashNotFoundError,
-	InvalidTree
 };

@@ -27,7 +27,7 @@ const statePathBaseType = 0x200;
  * Packet types.
  * @enum {number}
  */
-const PacketType = {
+export const PacketType = {
 	/** A challenge from a server to a client. */
 	serverChallenge: 1,
 
@@ -74,17 +74,14 @@ const PacketType = {
 	mosaicRestrictionsStatePath: statePathBaseType + 0x51
 };
 
-module.exports = {
-	PacketType,
-	StatePathPacketTypes: [
-		PacketType.accountStatePath,
-		PacketType.hashLockStatePath,
-		PacketType.secretLockStatePath,
-		PacketType.metadataStatePath,
-		PacketType.mosaicStatePath,
-		PacketType.multisigStatePath,
-		PacketType.namespaceStatePath,
-		PacketType.accountRestrictionsStatePath,
-		PacketType.mosaicRestrictionsStatePath
-	]
-};
+export const StatePathPacketTypes = [
+	PacketType.accountStatePath,
+	PacketType.hashLockStatePath,
+	PacketType.secretLockStatePath,
+	PacketType.metadataStatePath,
+	PacketType.mosaicStatePath,
+	PacketType.multisigStatePath,
+	PacketType.namespaceStatePath,
+	PacketType.accountRestrictionsStatePath,
+	PacketType.mosaicRestrictionsStatePath
+];

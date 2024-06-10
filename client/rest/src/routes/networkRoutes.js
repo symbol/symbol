@@ -19,15 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
-const errors = require('../server/errors');
-const ini = require('ini');
+import catapult from '../catapult-sdk/index.js';
+import errors from '../server/errors.js';
+import ini from 'ini';
 
 const { uint64 } = catapult.utils;
 
 const fileLoader = new catapult.utils.CachedFileLoader();
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const average = array => array.reduce((p, c) => p + c, 0) / array.length;
 		const median = array => {

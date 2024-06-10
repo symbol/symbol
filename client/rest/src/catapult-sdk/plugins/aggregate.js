@@ -20,11 +20,11 @@
  */
 
 /** @module plugins/aggregate */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const embeddedEntityCodec = require('../modelBinary/embeddedEntityCodec');
-const sizes = require('../modelBinary/sizes');
-const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
+import EntityType from '../model/EntityType.js';
+import ModelType from '../model/ModelType.js';
+import embeddedEntityCodec from '../modelBinary/embeddedEntityCodec.js';
+import sizes from '../modelBinary/sizes.js';
+import SerializedSizeCalculator from '../serializer/SerializedSizeCalculator.js';
 
 const constants = { sizes: {} };
 Object.assign(constants.sizes, sizes, {
@@ -93,7 +93,7 @@ const innerAggregateTxPaddingSize = innerTransactionSize => {
  * Creates an aggregate plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const aggregatePlugin = {
+export default {
 	registerSchema: builder => {
 		const aggregateSchema = {
 			transactionsHash: ModelType.binary,
@@ -219,5 +219,3 @@ const aggregatePlugin = {
 		codecBuilder.addTransactionSupport(EntityType.aggregateBonded, aggregateBuilder);
 	}
 };
-
-module.exports = aggregatePlugin;

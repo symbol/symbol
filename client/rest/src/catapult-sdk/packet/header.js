@@ -39,4 +39,4 @@ const packetHeader = {
 	}
 };
 
-module.exports = packetHeader;
+export default packetHeader;

@@ -19,15 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const BinaryParser = require('../../../src/catapult-sdk/parser/BinaryParser');
-const aggregate = require('../../../src/catapult-sdk/plugins/aggregate');
-const BinarySerializer = require('../../../src/catapult-sdk/serializer/BinarySerializer');
-const uint64 = require('../../../src/catapult-sdk/utils/uint64');
-const test = require('../binaryTestUtils');
-const { expect } = require('chai');
+import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import BinaryParser from '../../../src/catapult-sdk/parser/BinaryParser.js';
+import aggregate from '../../../src/catapult-sdk/plugins/aggregate.js';
+import BinarySerializer from '../../../src/catapult-sdk/serializer/BinarySerializer.js';
+import uint64 from '../../../src/catapult-sdk/utils/uint64.js';
+import test from '../binaryTestUtils.js';
+import { expect } from 'chai';
 
 const constants = {
 	knownTxType: 0x0022,

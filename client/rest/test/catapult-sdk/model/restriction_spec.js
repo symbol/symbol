@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const restriction = require('../../../src/catapult-sdk/model/restriction');
-const { expect } = require('chai');
+import restriction from '../../../src/catapult-sdk/model/restriction.js';
+import { expect } from 'chai';
 
 describe('restriction', () => {
 	describe('mosaic restriction', () => {

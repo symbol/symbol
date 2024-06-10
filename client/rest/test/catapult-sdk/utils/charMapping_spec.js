@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const charMapping = require('../../../src/catapult-sdk/utils/charMapping');
-const { expect } = require('chai');
+import charMapping from '../../../src/catapult-sdk/utils/charMapping.js';
+import { expect } from 'chai';
 
 describe('char mapping', () => {
 	describe('builder', () => {

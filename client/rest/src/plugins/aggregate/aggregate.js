@@ -20,9 +20,9 @@
  */
 
 /** @module plugins/aggregate */
-const aggregateRoutes = require('./aggregateRoutes');
-const catapult = require('../../catapult-sdk/index');
-const { ServerMessageHandler } = require('../../connection/serverMessageHandlers');
+import aggregateRoutes from './aggregateRoutes.js';
+import catapult from '../../catapult-sdk/index.js';
+import ServerMessageHandler from '../../connection/serverMessageHandlers.js';
 
 const { BinaryParser } = catapult.parser;
 
@@ -30,7 +30,7 @@ const { BinaryParser } = catapult.parser;
  * Creates an aggregate plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: () => {},
 
 	registerTransactionStates: states => {

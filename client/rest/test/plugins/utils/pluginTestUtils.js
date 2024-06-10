@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
+import { expect } from 'chai';
 
 const wrapCreateDbTest = (resultName, action) => {
 	describe('create db', () => {
@@ -27,7 +27,7 @@ const wrapCreateDbTest = (resultName, action) => {
 	});
 };
 
-module.exports = {
+export default {
 	assertThat: {
 		pluginDoesNotCreateDb: plugin => {
 			wrapCreateDbTest('undefined', () => {

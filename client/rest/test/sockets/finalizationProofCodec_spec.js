@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const finalizationProofCodec = require('../../src/sockets/finalizationProofCodec');
-const { expect } = require('chai');
+import catapult from '../../src/catapult-sdk/index.js';
+import finalizationProofCodec from '../../src/sockets/finalizationProofCodec.js';
+import { expect } from 'chai';
 
 const { BinaryParser } = catapult.parser;
 

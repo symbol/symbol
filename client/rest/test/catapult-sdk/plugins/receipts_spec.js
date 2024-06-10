@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const receiptsPlugin = require('../../../src/catapult-sdk/plugins/receipts');
-const schemaFormatter = require('../../../src/catapult-sdk/utils/schemaFormatter');
-const { expect } = require('chai');
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import receiptsPlugin from '../../../src/catapult-sdk/plugins/receipts.js';
+import schemaFormatter from '../../../src/catapult-sdk/utils/schemaFormatter.js';
+import { expect } from 'chai';
 
 describe('receipts plugin', () => {
 	describe('register schema', () => {

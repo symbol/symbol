@@ -29,7 +29,7 @@
  * Codec for serializing and deserializing a model.
  * @interface
  */
-const ModelCodec = {
+export default {
 	/**
 	 * Deserializes a model.
 	 * @instance
@@ -49,4 +49,3 @@ const ModelCodec = {
 };
 
 /* eslint-enable */
-module.exports = ModelCodec;

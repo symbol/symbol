@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const pluginTest = require('./utils/pluginTestUtils');
-const empty = require('../../src/plugins/empty');
-const { test } = require('../routes/utils/routeTestUtils');
+import pluginTest from './utils/pluginTestUtils.js';
+import empty from '../../src/plugins/empty.js';
+import test from '../routes/utils/routeTestUtils.js';
 
 describe('transfer plugin', () => {
 	pluginTest.assertThat.pluginDoesNotCreateDb(empty);

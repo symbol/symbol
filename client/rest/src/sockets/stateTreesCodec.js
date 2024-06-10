@@ -21,11 +21,11 @@
 
 /** @module sockets/stateTreesCodec */
 
-const catapult = require('../catapult-sdk/index');
+import catapult from '../catapult-sdk/index.js';
 
 const { sizes } = catapult.constants;
 
-const stateTreesCodec = {
+export default {
 	/**
 	 * Parses state trees.
 	 * @param {object} parser Parser.
@@ -38,5 +38,3 @@ const stateTreesCodec = {
 		return { tree };
 	}
 };
-
-module.exports = stateTreesCodec;

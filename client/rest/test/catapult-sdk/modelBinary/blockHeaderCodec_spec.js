@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const blockHeaderCodec = require('../../../src/catapult-sdk/modelBinary/blockHeaderCodec');
-const test = require('../binaryTestUtils');
+import blockHeaderCodec from '../../../src/catapult-sdk/modelBinary/blockHeaderCodec.js';
+import test from '../binaryTestUtils.js';
 
 describe('block header codec', () => {
 	const generateBlockHeader = () => {

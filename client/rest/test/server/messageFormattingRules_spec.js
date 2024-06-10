@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const formattingRules = require('../../src/server/messageFormattingRules');
-const test = require('../testUtils');
-const { expect } = require('chai');
+import catapult from '../../src/catapult-sdk/index.js';
+import formattingRules from '../../src/server/messageFormattingRules.js';
+import test from '../testUtils.js';
+import { expect } from 'chai';
 
 const { ModelType } = catapult.model;
 

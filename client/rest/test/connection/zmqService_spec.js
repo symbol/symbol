@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
-const { createZmqConnectionService } = require('../../src/connection/zmqService');
-const test = require('../testUtils');
-const { expect } = require('chai');
-const zmq = require('zeromq');
+import catapult from '../../src/catapult-sdk/index.js';
+import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
+import createZmqConnectionService from '../../src/connection/zmqService.js';
+import test from '../testUtils.js';
+import { expect } from 'chai';
+import zmq from 'zeromq';
 
 describe('zmq service', () => {
 	const cleanupActions = [];

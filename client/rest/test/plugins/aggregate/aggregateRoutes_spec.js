@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const aggregateRoutes = require('../../../src/plugins/aggregate/aggregateRoutes');
-const { test } = require('../../routes/utils/routeTestUtils');
+import catapult from '../../../src/catapult-sdk/index.js';
+import aggregateRoutes from '../../../src/plugins/aggregate/aggregateRoutes.js';
+import test from '../../routes/utils/routeTestUtils.js';
 
 const { PacketType } = catapult.packet;
 

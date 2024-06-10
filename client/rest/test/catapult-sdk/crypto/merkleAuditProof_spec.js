@@ -19,12 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const {
-	indexOfLeafWithHash, buildAuditPath, NodePosition, siblingOf, HashNotFoundError,
-	InvalidTree, evenify
-} = require('../../../src/catapult-sdk/crypto/merkleAuditProof');
-const convert = require('../../../src/catapult-sdk/utils/convert');
-const { expect } = require('chai');
+import {
+	HashNotFoundError, InvalidTree, NodePosition, buildAuditPath, evenify, indexOfLeafWithHash, siblingOf
+} from '../../../src/catapult-sdk/crypto/merkleAuditProof.js';
+import convert from '../../../src/catapult-sdk/utils/convert.js';
+import { expect } from 'chai';
 
 const hexStringToBuffer = input => Buffer.from(convert.hexToUint8(input), 'hex');
 

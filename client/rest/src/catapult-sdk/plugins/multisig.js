@@ -20,10 +20,10 @@
  */
 
 /** @module plugins/multisig */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
-const convert = require('../utils/convert');
+import EntityType from '../model/EntityType.js';
+import ModelType from '../model/ModelType.js';
+import sizes from '../modelBinary/sizes.js';
+import convert from '../utils/convert.js';
 
 const constants = { sizes };
 
@@ -31,7 +31,7 @@ const constants = { sizes };
  * Creates a multisig plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const multisigPlugin = {
+export default {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.modifyMultisigAccount, {
 			minRemovalDelta: ModelType.int,
@@ -96,5 +96,3 @@ const multisigPlugin = {
 		});
 	}
 };
-
-module.exports = multisigPlugin;

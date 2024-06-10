@@ -20,13 +20,13 @@
  */
 
 /** @module sockets/finalizationProofCodec */
-const catapult = require('../catapult-sdk/index');
+import catapult from '../catapult-sdk/index.js';
 
 const { sizes } = catapult.constants;
 
 const headerSize = 56;
 
-const finalizationProofCodec = {
+export default {
 	/**
 	 * Parses finalization proof.
 	 * @param {object} parser Parser.
@@ -83,5 +83,3 @@ const finalizationProofCodec = {
 		return proof;
 	}
 };
-
-module.exports = finalizationProofCodec;

@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const verifiableEntityCodec = require('../../../src/catapult-sdk/modelBinary/verifiableEntityCodec');
-const test = require('../binaryTestUtils');
+import verifiableEntityCodec from '../../../src/catapult-sdk/modelBinary/verifiableEntityCodec.js';
+import test from '../binaryTestUtils.js';
 
 describe('verifiable entity codec', () => {
 	const generateVerifiableEntity = () => {

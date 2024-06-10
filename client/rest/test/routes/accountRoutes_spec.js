@@ -19,20 +19,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockServer } = require('./utils/routeTestUtils');
-const { test } = require('./utils/routeTestUtils');
-const catapult = require('../../src/catapult-sdk/index');
-const MerkleTree = require('../../src/routes/MerkelTree');
-const accountRoutes = require('../../src/routes/accountRoutes');
-const routeResultTypes = require('../../src/routes/routeResultTypes');
-const routeUtils = require('../../src/routes/routeUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import test from './utils/routeTestUtils.js';
+import catapult from '../../src/catapult-sdk/index.js';
+import MerkleTree from '../../src/routes/MerkelTree.js';
+import accountRoutes from '../../src/routes/accountRoutes.js';
+import routeResultTypes from '../../src/routes/routeResultTypes.js';
+import routeUtils from '../../src/routes/routeUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 const { PacketType } = catapult.packet;
-
 const { address } = catapult.model;
 const { convert } = catapult.utils;
+const { MockServer } = test;
 
 describe('account routes', () => {
 	const testAddress = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';

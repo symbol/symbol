@@ -20,13 +20,13 @@
  */
 
 /** @module model/ModelSchemaBuilder */
-const EntityType = require('./EntityType');
-const ModelType = require('./ModelType');
+import EntityType from './EntityType.js';
+import ModelType from './ModelType.js';
 
 /**
  * Builder for creating a model schema.
  */
-class ModelSchemaBuilder {
+export default class ModelSchemaBuilder {
 	/**
 	 * Creates a model schema builder.
 	 */
@@ -354,5 +354,3 @@ class ModelSchemaBuilder {
 		return this.schema;
 	}
 }
-
-module.exports = ModelSchemaBuilder;

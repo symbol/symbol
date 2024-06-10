@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { ServerMessageHandler } = require('./serverMessageHandlers');
-const catapult = require('../catapult-sdk/index');
+import ServerMessageHandler from './serverMessageHandlers.js';
+import catapult from '../catapult-sdk/index.js';
 
 const createBlockDescriptor = (marker, handler) => ({
 	filter: topicParam => {
@@ -53,7 +53,7 @@ const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler, network
 /**
  * Builder for creating message channel information.
  */
-class MessageChannelBuilder {
+export default class MessageChannelBuilder {
 	/**
 	 * Creates a builder.
 	 * @param {object} config Message queue configuration.
@@ -116,5 +116,3 @@ class MessageChannelBuilder {
 		return this.descriptors;
 	}
 }
-
-module.exports = MessageChannelBuilder;

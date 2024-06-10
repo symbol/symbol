@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const address = require('../../../src/catapult-sdk/model/address');
-const convert = require('../../../src/catapult-sdk/utils/convert');
-const test = require('../testUtils');
-const { expect } = require('chai');
+import address from '../../../src/catapult-sdk/model/address.js';
+import convert from '../../../src/catapult-sdk/utils/convert.js';
+import test from '../testUtils.js';
+import { expect } from 'chai';
 
 const Address_Decoded_Size = 24;
 const Network_Mainnet_Identifier = 0x68;

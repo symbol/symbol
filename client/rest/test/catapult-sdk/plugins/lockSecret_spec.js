@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const lockSecret = require('../../../src/catapult-sdk/plugins/lockSecret');
-const test = require('../binaryTestUtils');
-const { expect } = require('chai');
+import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import lockSecret from '../../../src/catapult-sdk/plugins/lockSecret.js';
+import test from '../binaryTestUtils.js';
+import { expect } from 'chai';
 
 describe('lock secret plugin', () => {
 	describe('register schema', () => {

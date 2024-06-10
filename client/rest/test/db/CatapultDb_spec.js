@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./utils/dbTestUtils');
-const testDbOptions = require('./utils/testDbOptions');
-const catapult = require('../../src/catapult-sdk/index');
-const CatapultDb = require('../../src/db/CatapultDb');
-const { uniqueLongList } = require('../../src/db/dbUtils');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import test from './utils/dbTestUtils.js';
+import testDbOptions from './utils/testDbOptions.js';
+import catapult from '../../src/catapult-sdk/index.js';
+import CatapultDb from '../../src/db/CatapultDb.js';
+import { uniqueLongList } from '../../src/db/dbUtils.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
 
 const { address, EntityType } = catapult.model;
 

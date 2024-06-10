@@ -21,7 +21,7 @@
 
 /** @module utils/array */
 
-const arrayUtils = {
+export default {
 	/**
 	 * Creates a Uint8Array view on top of input.
 	 * @param {ArrayBuffer|Uint8Array} input Input array.
@@ -84,5 +84,3 @@ const arrayUtils = {
 		return true;
 	}
 };
-
-module.exports = arrayUtils;

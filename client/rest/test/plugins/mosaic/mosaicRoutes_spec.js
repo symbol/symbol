@@ -19,15 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const mosaicRoutes = require('../../../src/plugins/mosaic/mosaicRoutes');
-const routeUtils = require('../../../src/routes/routeUtils');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { test } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import catapult from '../../../src/catapult-sdk/index.js';
+import mosaicRoutes from '../../../src/plugins/mosaic/mosaicRoutes.js';
+import routeUtils from '../../../src/routes/routeUtils.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 const { address } = catapult.model;
+const { MockServer } = test;
 
 describe('mosaic routes', () => {
 	describe('mosaics', () => {

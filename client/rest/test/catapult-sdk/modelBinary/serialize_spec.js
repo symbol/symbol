@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const serialize = require('../../../src/catapult-sdk/modelBinary/serialize');
-const convert = require('../../../src/catapult-sdk/utils/convert');
-const { expect } = require('chai');
+import serialize from '../../../src/catapult-sdk/modelBinary/serialize.js';
+import convert from '../../../src/catapult-sdk/utils/convert.js';
+import { expect } from 'chai';
 
 describe('serialize', () => {
 	const getCodec = () => ({

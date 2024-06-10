@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const arrayUtils = require('../../../src/catapult-sdk/utils/arrayUtils');
-const convert = require('../../../src/catapult-sdk/utils/convert');
-const { expect } = require('chai');
+import arrayUtils from '../../../src/catapult-sdk/utils/arrayUtils.js';
+import convert from '../../../src/catapult-sdk/utils/convert.js';
+import { expect } from 'chai';
 
 describe('array', () => {
 	describe('uint8View', () => {

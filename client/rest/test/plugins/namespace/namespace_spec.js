@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
-const namespace = require('../../../src/plugins/namespace/namespace');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
+import NamespaceDb from '../../../src/plugins/namespace/NamespaceDb.js';
+import namespace from '../../../src/plugins/namespace/namespace.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
 describe('namespace plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(namespace, NamespaceDb);

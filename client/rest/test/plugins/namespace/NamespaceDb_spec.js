@@ -19,20 +19,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./namespaceDbTestUtils');
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const dbUtils = require('../../../src/db/dbUtils');
-const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
-const dbTestUtils = require('../../db/utils/dbTestUtils');
-const testDbOptions = require('../../db/utils/testDbOptions');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import test from './namespaceDbTestUtils.js';
+import catapult from '../../../src/catapult-sdk/index.js';
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import NamespaceDb from '../../../src/plugins/namespace/NamespaceDb.js';
+import dbTestUtils from '../../db/utils/dbTestUtils.js';
+import testDbOptions from '../../db/utils/testDbOptions.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
 
 const { address } = catapult.model;
 const { uint64 } = catapult.utils;
-const { convertToLong } = dbUtils;
 const { Binary } = MongoDb;
 
 describe('namespace db', () => {

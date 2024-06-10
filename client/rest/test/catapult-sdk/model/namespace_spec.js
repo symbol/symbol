@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const namespace = require('../../../src/catapult-sdk/model/namespace');
-const convert = require('../../../src/catapult-sdk/utils/convert');
-const { expect } = require('chai');
+import namespace from '../../../src/catapult-sdk/model/namespace.js';
+import convert from '../../../src/catapult-sdk/utils/convert.js';
+import { expect } from 'chai';
 
 describe('namespace', () => {
 	describe('alias type', () => {

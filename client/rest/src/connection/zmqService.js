@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const zmqUtils = require('./zmqUtils');
-const zmq = require('zeromq');
+import zmqUtils from './zmqUtils.js';
+import zmq from 'zeromq';
 
 const createZmqSocket = (key, zmqConfig, logger, currentSocketCount) => {
 	const zsocket = zmq.socket('sub');
@@ -51,7 +51,7 @@ const findSubscriptionInfo = (key, emitter, codec, channelDescriptors) => {
  * @param {object} logger Level-based logger object.
  * @returns {object} Newly created zmq connection service that is a stripped down EventEmitter.
  */
-module.exports.createZmqConnectionService = (zmqConfig, codec, channelDescriptors, logger) =>
+export default (zmqConfig, codec, channelDescriptors, logger) =>
 	zmqUtils.createMultisocketEmitter((key, emitter, currentSocketCount) => {
 		if (currentSocketCount === (!zmqConfig.maxSubscriptions ? 500 : zmqConfig.maxSubscriptions))
 			throw new Error('Max subscriptions reached.');

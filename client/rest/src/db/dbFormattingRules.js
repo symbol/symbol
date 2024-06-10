@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { longToUint64, bufferToUnresolvedAddress } = require('./dbUtils');
-const catapult = require('../catapult-sdk/index');
-const { Binary } = require('mongodb');
+import { bufferToUnresolvedAddress, longToUint64 } from './dbUtils.js';
+import catapult from '../catapult-sdk/index.js';
+import { Binary } from 'mongodb';
 
 const { ModelType, status } = catapult.model;
 const { convert, uint64 } = catapult.utils;
@@ -35,7 +35,7 @@ const { convert, uint64 } = catapult.utils;
  * this has not been decoupled yet.
  */
 
-module.exports = {
+export default {
 	[ModelType.none]: value => value,
 	[ModelType.binary]: value => (convert.uint8ToHex(value.buffer instanceof ArrayBuffer ? value : value.buffer)),
 	[ModelType.objectId]: value => (undefined === value ? '' : value.toHexString().toUpperCase()),

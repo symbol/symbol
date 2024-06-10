@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { buildOffsetCondition } = require('../../db/dbUtils');
+import { buildOffsetCondition } from '../../db/dbUtils.js';
 
-class LockSecretDb {
+export default class LockSecretDb {
 	/**
 	 * Creates LockSecretDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -71,5 +71,3 @@ class LockSecretDb {
 
 	// endregion
 }
-
-module.exports = LockSecretDb;

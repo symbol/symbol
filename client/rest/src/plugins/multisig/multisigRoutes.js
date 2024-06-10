@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const multisigUtils = require('./multisigUtils');
-const catapult = require('../../catapult-sdk/index');
-const merkleUtils = require('../../routes/merkleUtils');
-const routeUtils = require('../../routes/routeUtils');
+import multisigUtils from './multisigUtils.js';
+import catapult from '../../catapult-sdk/index.js';
+import merkleUtils from '../../routes/merkleUtils.js';
+import routeUtils from '../../routes/routeUtils.js';
 
 const { PacketType } = catapult.packet;
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		server.get('/account/:address/multisig', (req, res, next) => {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');

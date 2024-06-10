@@ -20,9 +20,9 @@
  */
 
 /** @module plugins/namespace */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
+import EntityType from '../model/EntityType.js';
+import ModelType from '../model/ModelType.js';
+import sizes from '../modelBinary/sizes.js';
 
 const constants = { sizes };
 
@@ -43,7 +43,7 @@ const getAliasBasicType = type => AliasType[type] || 'namespaceDescriptor.alias.
  * Creates a namespace plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const namespacePlugin = {
+export default {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.aliasAddress, {
 			namespaceId: ModelType.uint64HexIdentifier,
@@ -187,5 +187,3 @@ const namespacePlugin = {
 		});
 	}
 };
-
-module.exports = namespacePlugin;

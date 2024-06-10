@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import catapult from '../../../src/catapult-sdk/index.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import namespaceUtils from '../../../src/plugins/namespace/namespaceUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 const { aliasNamesRoutesProcessor } = namespaceUtils;
 

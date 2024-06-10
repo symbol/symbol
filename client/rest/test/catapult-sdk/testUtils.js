@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const sizes = require('../../src/catapult-sdk/modelBinary/sizes');
-const crypto = require('crypto');
+import sizes from '../../src/catapult-sdk/modelBinary/sizes.js';
+import crypto from 'crypto';
 
-module.exports = {
+export default {
 	constants: { sizes },
 
 	random: {

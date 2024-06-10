@@ -21,8 +21,8 @@
 
 /** @module utils/uint64 */
 
-const convert = require('./convert');
-const Long = require('long');
+import convert from './convert.js';
+import Long from 'long';
 
 const readUint32At = (bytes, i) => (bytes[i] + (bytes[i + 1] << 8) + (bytes[i + 2] << 16) + (bytes[i + 3] << 24)) >>> 0;
 
@@ -32,7 +32,7 @@ const readUint32At = (bytes, i) => (bytes[i] + (bytes[i + 1] << 8) + (bytes[i + 
  * @property {number} 0 Low 32bit value.
  * @property {number} 1 High 32bit value.
  */
-const uint64Module = {
+export default {
 	/**
 	 * Tries to compact a uint64 into a simple numeric.
 	 * @param {module:utils/uint64~uint64} uint64 A uint64 value.
@@ -171,5 +171,3 @@ const uint64Module = {
 		return ([result.getLowBitsUnsigned(), result.getHighBitsUnsigned()]);
 	}
 };
-
-module.exports = uint64Module;

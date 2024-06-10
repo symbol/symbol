@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapultConnection = require('../../src/connection/catapultConnection');
-const { expect } = require('chai');
+import catapultConnection from '../../src/connection/catapultConnection.js';
+import { expect } from 'chai';
 
 describe('catapult connection', () => {
 	const createTestContext = () => {

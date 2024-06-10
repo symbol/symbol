@@ -19,15 +19,17 @@
  * along with Catapult.	If not, see <http://www.gnu.org/licenses/>.
  */
 
-const {
+import {
 	combinePayloadWithText,
 	generateChecksum,
 	getMetadata,
 	testData
-} = require('./metalUtils');
-const { hexToUint8 } = require('../../../src/catapult-sdk/utils/convert');
-const { metal, MetalSeal } = require('../../../src/plugins/metadata/metal');
-const { expect } = require('chai');
+} from './metalUtils.js';
+import convert from '../../../src/catapult-sdk/utils/convert.js';
+import { MetalSeal, metal } from '../../../src/plugins/metadata/metal.js';
+import { expect } from 'chai';
+
+const { hexToUint8 } = convert;
 
 describe('metal', () => {
 	describe('extractCompositeHashFromMetalId', () => {

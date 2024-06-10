@@ -23,7 +23,7 @@
  * Catapult model entity types.
  * @enum {number}
  */
-const EntityType = {
+export default {
 	/** Transfer transaction. */
 	transfer: 0x4154,
 
@@ -99,5 +99,3 @@ const EntityType = {
 	/** Namespace metadata transaction */
 	namespaceMetadata: 0x4344
 };
-
-module.exports = EntityType;

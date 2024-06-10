@@ -20,11 +20,11 @@
  */
 
 /** @module modelBinary/ModelCodecBuilder */
-const blockHeaderCodec = require('./blockHeaderCodec');
-const importanceBlockHeaderCodec = require('./importanceBlockHeaderCodec');
-const transactionCodec = require('./transactionCodec');
-const verifiableEntityCodec = require('./verifiableEntityCodec');
-const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
+import blockHeaderCodec from './blockHeaderCodec.js';
+import importanceBlockHeaderCodec from './importanceBlockHeaderCodec.js';
+import transactionCodec from './transactionCodec.js';
+import verifiableEntityCodec from './verifiableEntityCodec.js';
+import SerializedSizeCalculator from '../serializer/SerializedSizeCalculator.js';
 
 const isBlockType = entityType => 0 !== (0x8000 & entityType);
 
@@ -45,7 +45,7 @@ const findCodecs = (entityType, codecs) => {
 /**
  * Builder for creating an aggregate model codec.
  */
-class ModelCodecBuilder {
+export default class ModelCodecBuilder {
 	/**
 	 * Creates a model codec builder.
 	 */
@@ -106,5 +106,3 @@ class ModelCodecBuilder {
 		};
 	}
 }
-
-module.exports = ModelCodecBuilder;

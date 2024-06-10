@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const networkInfo = require('../../../src/catapult-sdk/model/networkInfo');
-const { expect } = require('chai');
+import networkInfo from '../../../src/catapult-sdk/model/networkInfo.js';
+import { expect } from 'chai';
 
 describe('network info', () => {
 	describe('networks', () => {

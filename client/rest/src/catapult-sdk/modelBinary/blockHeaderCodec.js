@@ -20,11 +20,11 @@
  */
 
 /** @module modelBinary/blockHeaderCodec */
-const sizes = require('./sizes');
+import sizes from './sizes.js';
 
 const constants = { sizes };
 
-const blockHeaderCodec = {
+export default {
 	/**
 	 * Parses a block header.
 	 * @param {object} parser Parser.
@@ -67,5 +67,3 @@ const blockHeaderCodec = {
 		serializer.writeUint32(blockHeader.feeMultiplier);
 	}
 };
-
-module.exports = blockHeaderCodec;

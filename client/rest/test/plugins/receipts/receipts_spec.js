@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const ReceiptsDb = require('../../../src/plugins/receipts/ReceiptsDb');
-const receipts = require('../../../src/plugins/receipts/receipts');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
+import ReceiptsDb from '../../../src/plugins/receipts/ReceiptsDb.js';
+import receipts from '../../../src/plugins/receipts/receipts.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
 describe('receipts plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(receipts, ReceiptsDb);

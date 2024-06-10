@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
-const dbTestUtils = require('../../db/utils/dbTestUtils');
-const test = require('../../testUtils');
-const MongoDb = require('mongodb');
+import NamespaceDb from '../../../src/plugins/namespace/NamespaceDb.js';
+import dbTestUtils from '../../db/utils/dbTestUtils.js';
+import test from '../../testUtils.js';
+import MongoDb from 'mongodb';
 
 const { Binary, Long } = MongoDb;
 
@@ -103,4 +103,4 @@ const namespaceDbTestUtils = {
 };
 Object.assign(namespaceDbTestUtils, test);
 
-module.exports = namespaceDbTestUtils;
+export default namespaceDbTestUtils;

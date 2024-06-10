@@ -19,17 +19,17 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const restrictionsRoutes = require('../../../src/plugins/restrictions/restrictionsRoutes');
-const routeResultTypes = require('../../../src/routes/routeResultTypes');
-const routeUtils = require('../../../src/routes/routeUtils');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { test } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import catapult from '../../../src/catapult-sdk/index.js';
+import restrictionsRoutes from '../../../src/plugins/restrictions/restrictionsRoutes.js';
+import routeResultTypes from '../../../src/routes/routeResultTypes.js';
+import routeUtils from '../../../src/routes/routeUtils.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 const { address } = catapult.model;
 const { addresses } = test.sets;
+const { MockServer } = test;
 
 describe('restrictions routes', () => {
 	describe('account restrictions', () => {

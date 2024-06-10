@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const idReducer = require('../../../src/catapult-sdk/model/idReducer');
-const { expect } = require('chai');
+import idReducer from '../../../src/catapult-sdk/model/idReducer.js';
+import { expect } from 'chai';
 
 describe('id reducer', () => {
 	describe('id to name lookup', () => {

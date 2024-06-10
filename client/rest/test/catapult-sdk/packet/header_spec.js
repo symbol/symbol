@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const packetHeader = require('../../../src/catapult-sdk/packet/header');
-const { expect } = require('chai');
+import packetHeader from '../../../src/catapult-sdk/packet/header.js';
+import { expect } from 'chai';
 
 describe('packet header', () => {
 	describe('constants', () => {

@@ -19,15 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const dbFacade = require('./dbFacade');
-const routeResultTypes = require('./routeResultTypes');
-const routeUtils = require('./routeUtils');
-const catapult = require('../catapult-sdk/index');
+import dbFacade from './dbFacade.js';
+import routeResultTypes from './routeResultTypes.js';
+import routeUtils from './routeUtils.js';
+import catapult from '../catapult-sdk/index.js';
 
 const { convert } = catapult.utils;
 const { constants } = catapult;
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		routeUtils.addGetPostDocumentRoutes(
 			server,

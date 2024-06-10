@@ -19,19 +19,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('./catapult-sdk/index');
-const { createConnectionService } = require('./connection/connectionService');
-const { createZmqConnectionService } = require('./connection/zmqService');
-const CatapultDb = require('./db/CatapultDb');
-const dbFormattingRules = require('./db/dbFormattingRules');
-const routeSystem = require('./plugins/routeSystem');
-const allRoutes = require('./routes/allRoutes');
-const bootstrapper = require('./server/bootstrapper');
-const formatters = require('./server/formatters');
-const messageFormattingRules = require('./server/messageFormattingRules');
-const sshpk = require('sshpk');
-const winston = require('winston');
-const fs = require('fs');
+import catapult from './catapult-sdk/index.js';
+import createConnectionService from './connection/connectionService.js';
+import createZmqConnectionService from './connection/zmqService.js';
+import CatapultDb from './db/CatapultDb.js';
+import dbFormattingRules from './db/dbFormattingRules.js';
+import routeSystem from './plugins/routeSystem.js';
+import allRoutes from './routes/allRoutes.js';
+import bootstrapper from './server/bootstrapper.js';
+import formatters from './server/formatters.js';
+import messageFormattingRules from './server/messageFormattingRules.js';
+import sshpk from 'sshpk';
+import winston from 'winston';
+import fs from 'fs';
 
 const createLoggingTransportConfiguration = loggingConfig => {
 	const transportConfig = Object.assign({}, loggingConfig);

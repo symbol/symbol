@@ -110,7 +110,7 @@ class BufferContainer {
 /**
  * Accepts and buffers binary data and provides an interface for reading from it.
  */
-class BinaryParser {
+export default class BinaryParser {
 	/**
 	 * Creates a binary parser.
 	 */
@@ -176,5 +176,3 @@ class BinaryParser {
 		return this.buffers.size();
 	}
 }
-
-module.exports = BinaryParser;

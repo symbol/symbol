@@ -21,7 +21,7 @@
 
 /** @module modelBinary/sizes */
 
-const sizes = {
+export default {
 	/**
 	 * @property {number} Size of a signature.
 	 */
@@ -61,5 +61,3 @@ const sizes = {
 		scalar: 32
 	}
 };
-
-module.exports = sizes;

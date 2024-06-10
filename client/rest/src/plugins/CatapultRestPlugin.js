@@ -37,7 +37,7 @@
  * Adds rest support for a particular subsystem.
  * @interface
  */
-module.exports = {
+export default {
 	/**
 	 * Creates a plugin specific database.
 	 * @instance

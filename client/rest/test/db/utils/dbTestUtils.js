@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const testDbOptions = require('./testDbOptions');
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const test = require('../../testUtils');
-const MongoDb = require('mongodb');
+import testDbOptions from './testDbOptions.js';
+import catapult from '../../../src/catapult-sdk/index.js';
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import test from '../../testUtils.js';
+import MongoDb from 'mongodb';
 
 const { address } = catapult.model;
 
@@ -302,4 +302,4 @@ const dbTestUtils = {
 };
 Object.assign(dbTestUtils, test);
 
-module.exports = dbTestUtils;
+export default dbTestUtils;

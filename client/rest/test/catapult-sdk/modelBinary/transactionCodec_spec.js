@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const transactionCodec = require('../../../src/catapult-sdk/modelBinary/transactionCodec');
-const test = require('../binaryTestUtils');
+import transactionCodec from '../../../src/catapult-sdk/modelBinary/transactionCodec.js';
+import test from '../binaryTestUtils.js';
 
 describe('transaction codec', () => {
 	const generateTransaction = () => ({

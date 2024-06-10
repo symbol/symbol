@@ -20,9 +20,9 @@
  */
 
 /** @module plugins/transfer */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
+import EntityType from '../model/EntityType.js';
+import ModelType from '../model/ModelType.js';
+import sizes from '../modelBinary/sizes.js';
 
 const constants = { sizes };
 
@@ -30,7 +30,7 @@ const constants = { sizes };
  * Creates a transfer plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const transferPlugin = {
+export default {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.transfer, {
 			recipientAddress: ModelType.encodedAddress,
@@ -90,5 +90,3 @@ const transferPlugin = {
 		});
 	}
 };
-
-module.exports = transferPlugin;

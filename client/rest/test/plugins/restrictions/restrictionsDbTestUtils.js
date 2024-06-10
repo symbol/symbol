@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const RestrictionsDb = require('../../../src/plugins/restrictions/RestrictionsDb');
-const dbTestUtils = require('../../db/utils/dbTestUtils');
-const test = require('../../testUtils');
-const MongoDb = require('mongodb');
+import catapult from '../../../src/catapult-sdk/index.js';
+import RestrictionsDb from '../../../src/plugins/restrictions/RestrictionsDb.js';
+import dbTestUtils from '../../db/utils/dbTestUtils.js';
+import test from '../../testUtils.js';
+import MongoDb from 'mongodb';
 
 const { EntityType, restriction } = catapult.model;
 const { Binary, ObjectId, Long } = MongoDb;
@@ -120,4 +120,4 @@ const restrictionsDbTestUtils = {
 
 Object.assign(restrictionsDbTestUtils, test);
 
-module.exports = restrictionsDbTestUtils;
+export default restrictionsDbTestUtils;

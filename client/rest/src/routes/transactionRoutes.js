@@ -19,14 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeResultTypes = require('./routeResultTypes');
-const routeUtils = require('./routeUtils');
-const catapult = require('../catapult-sdk/index');
-const errors = require('../server/errors');
-const { NotFoundError, InvalidArgumentError } = require('restify-errors');
+import routeResultTypes from './routeResultTypes.js';
+import routeUtils from './routeUtils.js';
+import catapult from '../catapult-sdk/index.js';
+import errors from '../server/errors.js';
+import restifyErrors from 'restify-errors';
 
 const { convert } = catapult.utils;
 const { PacketType } = catapult.packet;
+const { InvalidArgumentError, NotFoundError } = restifyErrors;
 
 const constants = {
 	sizes: {
@@ -37,7 +38,7 @@ const constants = {
 
 const isValidTransactionGroup = group => ['confirmed', 'unconfirmed', 'partial'].includes(group);
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const sender = routeUtils.createSender(routeResultTypes.transaction);
 

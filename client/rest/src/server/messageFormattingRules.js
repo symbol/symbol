@@ -19,13 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
-const { bufferToUnresolvedAddress } = require('../db/dbUtils');
+import catapult from '../catapult-sdk/index.js';
+import { bufferToUnresolvedAddress } from '../db/dbUtils.js';
 
 const { ModelType, status } = catapult.model;
 const { convert, uint64 } = catapult.utils;
 
-module.exports = {
+export default {
 	[ModelType.none]: value => value,
 	[ModelType.binary]: value => convert.uint8ToHex(value),
 	[ModelType.statusCode]: status.toString,

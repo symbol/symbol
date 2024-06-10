@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const objects = require('../../../src/catapult-sdk/utils/objects');
-const { expect } = require('chai');
+import objects from '../../../src/catapult-sdk/utils/objects.js';
+import { expect } from 'chai';
 
 describe('objects', () => {
 	const propertyTypeDescriptors = [

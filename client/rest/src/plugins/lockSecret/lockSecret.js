@@ -20,14 +20,14 @@
  */
 
 /** @module plugins/lockSecret */
-const LockSecretDb = require('./LockSecretDb');
-const lockSecretRoutes = require('./lockSecretRoutes');
+import LockSecretDb from './LockSecretDb.js';
+import lockSecretRoutes from './lockSecretRoutes.js';
 
 /**
  * Creates a lock secret plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: db => new LockSecretDb(db),
 
 	registerTransactionStates: () => {},

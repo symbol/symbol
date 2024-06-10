@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const LockHashDb = require('../../../src/plugins/lockHash/LockHashDb');
-const lockHash = require('../../../src/plugins/lockHash/lockHash');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
+import LockHashDb from '../../../src/plugins/lockHash/LockHashDb.js';
+import lockHash from '../../../src/plugins/lockHash/lockHash.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
 describe('lock hash plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(lockHash, LockHashDb);

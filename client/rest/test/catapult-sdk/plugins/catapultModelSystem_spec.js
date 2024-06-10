@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const catapultModelSystem = require('../../../src/catapult-sdk/plugins/catapultModelSystem');
-const { expect } = require('chai');
+import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import catapultModelSystem from '../../../src/catapult-sdk/plugins/catapultModelSystem.js';
+import { expect } from 'chai';
 
 const formattingRules = {
 	[ModelType.none]: () => 'none',

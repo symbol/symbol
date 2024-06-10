@@ -19,14 +19,16 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const supplyRoutes = require('../../../src/plugins/mosaic/supplyRoutes');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
-const tmp = require('tmp');
-const fs = require('fs');
+import catapult from '../../../src/catapult-sdk/index.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import supplyRoutes from '../../../src/plugins/mosaic/supplyRoutes.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import tmp from 'tmp';
+import fs from 'fs';
+
+const { MockServer } = test;
 
 describe('supply routes', () => {
 	describe('network currency supply', () => {

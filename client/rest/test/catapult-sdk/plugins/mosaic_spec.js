@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const mosaic = require('../../../src/catapult-sdk/plugins/mosaic');
-const test = require('../binaryTestUtils');
-const { expect } = require('chai');
+import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import mosaic from '../../../src/catapult-sdk/plugins/mosaic.js';
+import test from '../binaryTestUtils.js';
+import { expect } from 'chai';
 
 const constants = {
 	sizes: {

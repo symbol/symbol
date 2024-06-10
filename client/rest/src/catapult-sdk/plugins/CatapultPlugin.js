@@ -29,7 +29,7 @@
  * Adds support for a particular subsystem.
  * @interface
  */
-const CatapultPlugin = {
+export default {
 	/**
 	 * Registers schema extensions.
 	 * @instance
@@ -46,4 +46,3 @@ const CatapultPlugin = {
 };
 
 /* eslint-enable */
-module.exports = CatapultPlugin;

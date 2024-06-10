@@ -19,21 +19,21 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
-const { createZmqConnectionService } = require('../../src/connection/zmqService');
-const bootstrapper = require('../../src/server/bootstrapper');
-const errors = require('../../src/server/errors');
-const formatters = require('../../src/server/formatters');
-const test = require('../testUtils');
-const axios = require('axios');
-const { AssertionError, expect } = require('chai');
-const restify = require('restify');
-const sinon = require('sinon');
-const winston = require('winston');
-const WebSocket = require('ws');
-const zmq = require('zeromq');
-const EventEmitter = require('events');
+import catapult from '../../src/catapult-sdk/index.js';
+import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
+import createZmqConnectionService from '../../src/connection/zmqService.js';
+import bootstrapper from '../../src/server/bootstrapper.js';
+import errors from '../../src/server/errors.js';
+import formatters from '../../src/server/formatters.js';
+import test from '../testUtils.js';
+import axios from 'axios';
+import { AssertionError, expect } from 'chai';
+import restify from 'restify';
+import sinon from 'sinon';
+import winston from 'winston';
+import WebSocket from 'ws';
+import zmq from 'zeromq';
+import EventEmitter from 'events';
 
 const supportedHttpMethods = ['get', 'post', 'put'];
 
@@ -723,17 +723,17 @@ describe('server (bootstrapper)', () => {
 		it('creates https server with certificate and key given', () => createServer({
 			port: 3001,
 			protocol: 'HTTPS',
-			sslKeyPath: `${__dirname}/certs/restSSL.key`,
-			sslCertificatePath: `${__dirname}/certs/restSSL.crt`
+			sslKeyPath: `${import.meta.dirname}/certs/restSSL.key`,
+			sslCertificatePath: `${import.meta.dirname}/certs/restSSL.crt`
 		}));
 
 		it('throws error when the key path is missing', () => {
-			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslCertificatePath: `${__dirname}/certs/restSSL.crt` }))
+			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslCertificatePath: `${import.meta.dirname}/certs/restSSL.crt` }))
 				.to.throw('No SSL Key found, \'sslKeyPath\' property in the configuration must be provided.');
 		});
 
 		it('throws error when the certificate path is missing', () => {
-			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslKeyPath: `${__dirname}/certs/restSSL.key` }))
+			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslKeyPath: `${import.meta.dirname}/certs/restSSL.key` }))
 				.to.throw('No SSL Certificate found, '
 				+ '\'sslCertificatePath\' property in the configuration must be provided.');
 		});
@@ -754,8 +754,8 @@ describe('server (bootstrapper)', () => {
 			const server = createServer({
 				port: httpsPort,
 				protocol: 'HTTPS',
-				sslKeyPath: `${__dirname}/certs/restSSL.key`,
-				sslCertificatePath: `${__dirname}/certs/restSSL.crt`
+				sslKeyPath: `${import.meta.dirname}/certs/restSSL.key`,
+				sslCertificatePath: `${import.meta.dirname}/certs/restSSL.crt`
 			});
 
 			addRestRoutes(server);

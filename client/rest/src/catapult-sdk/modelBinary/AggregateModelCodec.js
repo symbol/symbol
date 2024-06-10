@@ -30,7 +30,7 @@
  * @interface
  * @augments {module:modelBinary/ModelCodec}
  */
-const AggregateModelCodec = {
+export default {
 	/**
 	 * Determines whether or not an entity type is supported.
 	 * @instance
@@ -41,4 +41,3 @@ const AggregateModelCodec = {
 };
 
 /* eslint-enable */
-module.exports = AggregateModelCodec;

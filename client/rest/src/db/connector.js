@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MongoDb = require('mongodb');
-const winston = require('winston');
+import MongoDb from 'mongodb';
+import winston from 'winston';
 
-const connector = {
+export default {
 	connectToDatabase(url, dbName, connectionPoolSize, timeout) {
 		const connectionString = `${url}${dbName}`;
 		return MongoDb.MongoClient.connect(connectionString, {
@@ -37,5 +37,3 @@ const connector = {
 			});
 	}
 };
-
-module.exports = connector;

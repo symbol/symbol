@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../src/catapult-sdk/index');
-const MongoDb = require('mongodb');
-const winston = require('winston');
-const crypto = require('crypto');
+import catapult from '../src/catapult-sdk/index.js';
+import MongoDb from 'mongodb';
+import winston from 'winston';
+import crypto from 'crypto';
 
 const { sizes } = catapult.constants;
 const random = {
@@ -38,7 +38,7 @@ const random = {
 	})
 };
 
-module.exports = {
+export default {
 	constants: { sizes },
 	random,
 	factory: {

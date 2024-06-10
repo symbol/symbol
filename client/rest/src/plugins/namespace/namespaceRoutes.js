@@ -19,19 +19,18 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const namespaceUtils = require('./namespaceUtils');
-const catapult = require('../../catapult-sdk/index');
-const dbUtils = require('../../db/dbUtils');
-const merkleUtils = require('../../routes/merkleUtils');
-const routeUtils = require('../../routes/routeUtils');
-const MongoDb = require('mongodb');
+import namespaceUtils from './namespaceUtils.js';
+import catapult from '../../catapult-sdk/index.js';
+import { convertToLong } from '../../db/dbUtils.js';
+import merkleUtils from '../../routes/merkleUtils.js';
+import routeUtils from '../../routes/routeUtils.js';
+import MongoDb from 'mongodb';
 
 const { PacketType } = catapult.packet;
 const { Binary } = MongoDb;
-const { convertToLong } = dbUtils;
 const { uint64 } = catapult.utils;
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const namespaceSender = routeUtils.createSender('namespaceDescriptor');
 

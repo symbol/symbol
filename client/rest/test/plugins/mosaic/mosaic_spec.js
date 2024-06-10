@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MosaicDb = require('../../../src/plugins/mosaic/MosaicDb');
-const mosaic = require('../../../src/plugins/mosaic/mosaic');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
+import MosaicDb from '../../../src/plugins/mosaic/MosaicDb.js';
+import mosaic from '../../../src/plugins/mosaic/mosaic.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
 describe('mosaic plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(mosaic, MosaicDb);

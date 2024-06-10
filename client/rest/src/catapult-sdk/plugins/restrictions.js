@@ -20,9 +20,9 @@
  */
 
 /** @module plugins/restrictions */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
+import EntityType from '../model/EntityType.js';
+import ModelType from '../model/ModelType.js';
+import sizes from '../modelBinary/sizes.js';
 
 const constants = { sizes };
 
@@ -91,7 +91,7 @@ const accountRestrictionTypeDescriptors = [
  * Creates a restrictions plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const restrictionsPlugin = {
+export default {
 	AccountRestrictionType: Object.freeze({
 		addressAllow: AccountRestrictionTypeFlags.address,
 		addressBlock: AccountRestrictionTypeFlags.address + accountRestrictionTypeBlockOffset,
@@ -264,5 +264,3 @@ const restrictionsPlugin = {
 		});
 	}
 };
-
-module.exports = restrictionsPlugin;

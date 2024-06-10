@@ -20,7 +20,7 @@
  */
 
 /** @module utils/base32 */
-const charMapping = require('./charMapping');
+import charMapping from './charMapping.js';
 
 const Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 const Decoded_Block_Size = 5;
@@ -72,7 +72,7 @@ const decodeBlock = (input, inputOffset, output, outputOffset) => {
 
 // endregion
 
-const base32 = {
+export default {
 	/**
 	 * Base32 encodes a binary buffer.
 	 * @param {Uint8Array} data Binary data to encode.
@@ -105,5 +105,3 @@ const base32 = {
 		return output;
 	}
 };
-
-module.exports = base32;

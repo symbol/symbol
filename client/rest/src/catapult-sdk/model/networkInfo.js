@@ -20,8 +20,8 @@
  */
 
 /** @module model/networkInfo */
-const base32 = require('../utils/base32');
-const convert = require('../utils/convert');
+import base32 from '../utils/base32.js';
+import convert from '../utils/convert.js';
 
 /**
  * Information about a catapult network.
@@ -53,7 +53,7 @@ const findNetwork = (key, value) => {
 	return undefined === matchNetworkName ? undefined : networks[matchNetworkName];
 };
 
-const networkInfo = {
+export default {
 	/** @property {module:model/networkInfo~WellKnownNetworks} networks Information about well known networks. */
 	networks,
 
@@ -72,5 +72,3 @@ const networkInfo = {
 	 */
 	findByCharPrefix: charPrefix => findNetwork('charPrefix', charPrefix)
 };
-
-module.exports = networkInfo;

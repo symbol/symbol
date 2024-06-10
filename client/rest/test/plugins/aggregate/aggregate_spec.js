@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { ServerMessageHandler } = require('../../../src/connection/serverMessageHandlers');
-const aggregate = require('../../../src/plugins/aggregate/aggregate');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
-const { expect } = require('chai');
+import ServerMessageHandler from '../../../src/connection/serverMessageHandlers.js';
+import aggregate from '../../../src/plugins/aggregate/aggregate.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
+import { expect } from 'chai';
 
 describe('aggregate plugin', () => {
 	pluginTest.assertThat.pluginDoesNotCreateDb(aggregate);

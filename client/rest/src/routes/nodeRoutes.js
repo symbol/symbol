@@ -19,19 +19,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeResultTypes = require('./routeResultTypes');
-const catapult = require('../catapult-sdk/index');
-const nodeInfoCodec = require('../sockets/nodeInfoCodec');
-const nodePeersCodec = require('../sockets/nodePeersCodec');
-const nodeTimeCodec = require('../sockets/nodeTimeCodec');
-const fs = require('fs');
-const path = require('path');
+import routeResultTypes from './routeResultTypes.js';
+import catapult from '../catapult-sdk/index.js';
+import nodeInfoCodec from '../sockets/nodeInfoCodec.js';
+import nodePeersCodec from '../sockets/nodePeersCodec.js';
+import nodeTimeCodec from '../sockets/nodeTimeCodec.js';
+import fs from 'fs';
+import path from 'path';
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;
 const { BinaryParser } = catapult.parser;
 
-const restVersion = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'UTF-8')).version;
+const restVersion = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../../package.json'), 'UTF-8')).version;
 
 const buildResponse = (packet, codec, resultType) => {
 	const binaryParser = new BinaryParser();
@@ -43,7 +43,7 @@ const buildResponse = (packet, codec, resultType) => {
 	};
 };
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const { connections } = services;
 		const { timeout } = services.config.apiNode;

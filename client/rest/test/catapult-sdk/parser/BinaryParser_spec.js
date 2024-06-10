@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const BinaryParser = require('../../../src/catapult-sdk/parser/BinaryParser');
-const { expect } = require('chai');
+import BinaryParser from '../../../src/catapult-sdk/parser/BinaryParser.js';
+import { expect } from 'chai';
 
 describe('BinaryParser', () => {
 	// region push
