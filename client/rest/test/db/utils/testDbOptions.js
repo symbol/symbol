@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import parseArgs from 'minimist';
+import { Network } from 'symbol-sdk/symbol';
 
 export default {
 	url: (() => {
@@ -28,6 +28,6 @@ export default {
 		const mongoHost = args.mongoHost || '127.0.0.1';
 		return `mongodb://${mongoHost}:27017/`;
 	})(),
-	networkId: catapult.model.networkInfo.networks.testnet.id,
+	networkId: Network.TESTNET.identifier,
 	connectionPoolSize: 5
 };

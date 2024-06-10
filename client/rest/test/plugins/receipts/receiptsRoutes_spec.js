@@ -19,14 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import receiptsRoutes from '../../../src/plugins/receipts/receiptsRoutes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { MockServer } = test;
 
 describe('receipts routes', () => {
@@ -274,7 +273,7 @@ describe('receipts routes', () => {
 					// Assert:
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
 					expect(dbTransactionStatementsFake.firstCall.args[0].recipientAddress)
-						.to.deep.equal(address.stringToAddress(testAddress));
+						.to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -288,7 +287,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
-					expect(dbTransactionStatementsFake.firstCall.args[0].senderAddress).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbTransactionStatementsFake.firstCall.args[0].senderAddress).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -302,7 +301,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
-					expect(dbTransactionStatementsFake.firstCall.args[0].targetAddress).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbTransactionStatementsFake.firstCall.args[0].targetAddress).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

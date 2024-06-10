@@ -20,7 +20,6 @@
  */
 
 import { testData } from './metalUtils.js';
-import catapult from '../../../src/catapult-sdk/index.js';
 import CatapultDb from '../../../src/db/CatapultDb.js';
 import { convertToLong } from '../../../src/db/dbUtils.js';
 import MetadataDb from '../../../src/plugins/metadata/MetadataDb.js';
@@ -28,8 +27,7 @@ import { MetalSeal } from '../../../src/plugins/metadata/metal.js';
 import test from '../../db/utils/dbTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
-
-const { address } = catapult.model;
+import { Address } from 'symbol-sdk/symbol';
 
 describe('metadata db', () => {
 	const { createObjectId } = test.db;
@@ -38,8 +36,8 @@ describe('metadata db', () => {
 		test.db.runDbTest(dbEntities, 'metadata', db => new MetadataDb(db), issueDbCommand, assertDbCommandResult);
 
 	describe('metadata', () => {
-		const testAddress1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-		const testAddress2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+		const testAddress1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+		const testAddress2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 		const paginationOptions = {
 			pageSize: 10,

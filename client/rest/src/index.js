@@ -30,6 +30,8 @@ import bootstrapper from './server/bootstrapper.js';
 import formatters from './server/formatters.js';
 import messageFormattingRules from './server/messageFormattingRules.js';
 import sshpk from 'sshpk';
+import { NetworkLocator } from 'symbol-sdk';
+import { Network } from 'symbol-sdk/symbol';
 import winston from 'winston';
 import fs from 'fs';
 
@@ -168,15 +170,10 @@ const registerRoutes = (server, db, services) => {
 	const nodeCertKey = sshpk.parsePrivateKey(config.apiNode.key);
 	config.apiNode.nodePublicKey = nodeCertKey.toPublic().part.A.data;
 
-	const network = catapult.model.networkInfo.networks[config.network.name];
-	if (!network) {
-		winston.error(`no network found with name: '${config.network.name}'`);
-		return;
-	}
-
+	const network = NetworkLocator.findByName(Network.NETWORKS, config.network.name);
 	const serviceManager = createServiceManager();
 	const db = new CatapultDb({
-		networkId: network.id,
+		networkId: network.identifier,
 
 		// to be removed when old pagination is not used anymore
 		// json settings should also be moved from config.db to config.api or similar

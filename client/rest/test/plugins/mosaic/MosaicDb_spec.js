@@ -19,16 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import CatapultDb from '../../../src/db/CatapultDb.js';
 import MosaicDb from '../../../src/plugins/mosaic/MosaicDb.js';
 import test from '../../db/utils/dbTestUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 const { Binary, Long } = MongoDb;
-const { address } = catapult.model;
 
 describe('mosaic db', () => {
 	const { createObjectId } = test.db;
@@ -37,8 +36,8 @@ describe('mosaic db', () => {
 		test.db.runDbTest(dbEntities, 'mosaics', db => new MosaicDb(db), issueDbCommand, assertDbCommandResult);
 
 	describe('mosaics', () => {
-		const ownerAddressTest1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-		const ownerAddressTest2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+		const ownerAddressTest1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+		const ownerAddressTest2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 		const paginationOptions = {
 			pageSize: 10,

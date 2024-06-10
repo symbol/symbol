@@ -28,10 +28,10 @@ import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 const { Binary } = MongoDb;
 const { uint64 } = catapult.utils;
-const { address } = catapult.model;
 const { MockServer } = test;
 
 describe('namespace routes', () => {
@@ -229,7 +229,7 @@ describe('namespace routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesFake.calledOnce).to.equal(true);
-					expect(dbNamespacesFake.firstCall.args[2]).to.deep.equal(address.stringToAddress(ownerAddress));
+					expect(dbNamespacesFake.firstCall.args[2]).to.deep.equal(new Address(ownerAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -555,8 +555,8 @@ describe('namespace routes', () => {
 
 					// Act + Assert:
 					expect(getParams(req)).to.deep.equal([
-						address.stringToAddress(testAddress.one),
-						address.stringToAddress(testAddress.two)
+						new Address(testAddress.one).bytes,
+						new Address(testAddress.two).bytes
 					]);
 				});
 
@@ -592,7 +592,7 @@ describe('namespace routes', () => {
 
 				it('filters namespaces aliasing addresses correctly', () => {
 					// Arrange:
-					const id = address.stringToAddress(testAddress.one);
+					const id = new Address(testAddress.one).bytes;
 					const namespace1 = {
 						namespace: { alias: { address: new Binary(Buffer.from(id)) } }
 					};
@@ -601,8 +601,8 @@ describe('namespace routes', () => {
 					};
 
 					// Act + Assert:
-					expect(namespaceFilter(namespace1, address.stringToAddress(testAddress.one))).to.equal(true);
-					expect(namespaceFilter(namespace2, address.stringToAddress(testAddress.two))).to.equal(false);
+					expect(namespaceFilter(namespace1, new Address(testAddress.one).bytes)).to.equal(true);
+					expect(namespaceFilter(namespace2, new Address(testAddress.two).bytes)).to.equal(false);
 				});
 			});
 		});

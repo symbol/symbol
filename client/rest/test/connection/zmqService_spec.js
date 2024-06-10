@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../src/catapult-sdk/index.js';
 import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
 import createZmqConnectionService from '../../src/connection/zmqService.js';
 import test from '../testUtils.js';
 import { expect } from 'chai';
+import { Address } from 'symbol-sdk/symbol';
 import zmq from 'zeromq';
 
 describe('zmq service', () => {
@@ -46,7 +46,7 @@ describe('zmq service', () => {
 		return service;
 	};
 
-	const createRandomAddressString = () => catapult.model.address.addressToString(test.random.address());
+	const createRandomAddressString = () => new Address(test.random.address()).toString();
 
 	describe('invalid subscription', () => {
 		const assertInvalidSubscription = (channel, error) => {

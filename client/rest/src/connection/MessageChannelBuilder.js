@@ -21,6 +21,7 @@
 
 import ServerMessageHandler from './serverMessageHandlers.js';
 import catapult from '../catapult-sdk/index.js';
+import { Address } from 'symbol-sdk/symbol';
 
 const createBlockDescriptor = (marker, handler) => ({
 	filter: topicParam => {
@@ -33,7 +34,7 @@ const createBlockDescriptor = (marker, handler) => ({
 });
 
 const { convert } = catapult.utils;
-const { namespace, address } = catapult.model;
+const { namespace } = catapult.model;
 
 const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler, networkIdentifier) => topicParam => {
 	if (!topicParam)
@@ -44,10 +45,13 @@ const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler, network
 		const addressByteArray = namespace.encodeNamespace(convert.hexToUint8(topicParam), networkIdentifier);
 		return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
 	}
-	// When it's a encoded address.
-	// TAHNZXQBC57AA7KJTMGS3PJPZBXN7DV5JHJU42A
-	const addressByteArray = address.stringToAddress(topicParam);
-	return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
+	// When it's a encoded address, e.g. TAHNZXQBC57AA7KJTMGS3PJPZBXN7DV5JHJU42A
+	try {
+		const addressByteArray = new Address(topicParam).bytes;
+		return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
+	} catch (err) {
+		throw Error(`${topicParam} does not represent a valid encoded address`);
+	}
 };
 
 /**

@@ -22,9 +22,9 @@
 import catapult from '../catapult-sdk/index.js';
 import errors from '../server/errors.js';
 import MongoDb from 'mongodb';
+import { Address } from 'symbol-sdk/symbol';
 
 const { Long, ObjectId } = MongoDb;
-const { address } = catapult.model;
 
 /**
  * Converts number to long.
@@ -97,7 +97,7 @@ export const bufferToUnresolvedAddress = (binary, formatAddressUsingBase32) => {
 
 		throw new Error(`Cannot convert binary address, unknown ${binary.constructor.name} type`);
 	};
-	return formatAddressUsingBase32 ? address.addressToString(getBuffer()) : catapult.utils.convert.uint8ToHex(getBuffer());
+	return formatAddressUsingBase32 ? new Address(getBuffer()).toString() : catapult.utils.convert.uint8ToHex(getBuffer());
 };
 
 /**

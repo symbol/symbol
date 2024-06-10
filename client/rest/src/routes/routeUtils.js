@@ -23,8 +23,8 @@ import dbFacade from './dbFacade.js';
 import routeResultTypes from './routeResultTypes.js';
 import catapult from '../catapult-sdk/index.js';
 import errors from '../server/errors.js';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
 const { convert, uint64 } = catapult.utils;
 const packetHeader = catapult.packet.header;
@@ -58,7 +58,7 @@ const namedParserMap = {
 	uint64hex: str => uint64.fromHex(str),
 	address: str => {
 		if (constants.sizes.addressEncoded === str.length)
-			return address.stringToAddress(str);
+			return new Address(str).bytes;
 		// if (constants.sizes.addressDecoded * 2 === str.length)
 		// 	return convert.hexToUint8(str);
 		throw Error(`invalid length of address '${str.length}'`);
@@ -73,7 +73,7 @@ const namedParserMap = {
 		if (constants.sizes.hexPublicKey === str.length)
 			return ['publicKey', convert.hexToUint8(str)];
 		if (constants.sizes.addressEncoded === str.length)
-			return ['address', address.stringToAddress(str)];
+			return ['address', new Address(str).bytes];
 		// if (constants.sizes.addressDecoded * 2 === str.length)
 		// 	return ['address', convert.hexToUint8(str)];
 

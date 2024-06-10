@@ -20,13 +20,13 @@
  */
 
 import test from './restrictionsDbTestUtils.js';
-import catapult from '../../../src/catapult-sdk/index.js';
 import CatapultDb from '../../../src/db/CatapultDb.js';
 import { convertToLong } from '../../../src/db/dbUtils.js';
 import RestrictionsDb from '../../../src/plugins/restrictions/RestrictionsDb.js';
 import dbTestUtils from '../../db/utils/dbTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 describe('restrictions db', () => {
 	describe('account restrictions', () => {
@@ -129,10 +129,9 @@ describe('restrictions db', () => {
 	});
 
 	describe('mosaic restrictions', () => {
-		const { address } = catapult.model;
 		const { createObjectId } = dbTestUtils.db;
-		const testAddress1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-		const testAddress2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+		const testAddress1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+		const testAddress2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 		const paginationOptions = {
 			pageSize: 10,

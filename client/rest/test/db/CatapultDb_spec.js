@@ -27,8 +27,10 @@ import { uniqueLongList } from '../../src/db/dbUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
+import { PublicKey } from 'symbol-sdk';
+import { Address, Network } from 'symbol-sdk/symbol';
 
-const { address, EntityType } = catapult.model;
+const { EntityType } = catapult.model;
 
 const { Long, Binary } = MongoDb;
 const Testnet_Network = testDbOptions.networkId;
@@ -63,7 +65,8 @@ describe('catapult db', () => {
 		return dbObject;
 	};
 
-	const keyToAddress = key => Buffer.from(address.publicKeyToAddress(key, Testnet_Network));
+	const network = new Network(Testnet_Network);
+	const keyToAddress = key => network.publicKeyToAddress(new PublicKey(key)).bytes;
 
 	const runDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
 		// Arrange:
@@ -1991,10 +1994,10 @@ describe('catapult db', () => {
 	});
 
 	describe('accounts', () => {
-		const addressTest1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-		const addressTest2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
-		const addressTest3 = address.stringToAddress('SAAM2O7SSJ2A7AU3DZJMSTTRFZT5TFDPQ3ZIIJX');
-		const addressTest4 = address.stringToAddress('SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLX');
+		const addressTest1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+		const addressTest2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
+		const addressTest3 = new Address('SAAM2O7SSJ2A7AU3DZJMSTTRFZT5TFDPQ3ZIIJX').bytes;
+		const addressTest4 = new Address('SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLX').bytes;
 		const mosaicIdTest1 = Long.fromNumber(12345678);
 		const mosaicIdTest2 = Long.fromNumber(87654321);
 

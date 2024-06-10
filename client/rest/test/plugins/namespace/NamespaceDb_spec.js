@@ -29,8 +29,8 @@ import testDbOptions from '../../db/utils/testDbOptions.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { uint64 } = catapult.utils;
 const { Binary } = MongoDb;
 
@@ -43,8 +43,8 @@ describe('namespace db', () => {
 
 		const level0Test1 = uint64.fromHex('85BBEA6CC462B244');
 		const level0Test2 = uint64.fromHex('3C2437767AF232DC');
-		const ownerAddressTest1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-		const ownerAddressTest2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+		const ownerAddressTest1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+		const ownerAddressTest2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 		const paginationOptions = {
 			pageSize: 10,
@@ -411,7 +411,7 @@ describe('namespace db', () => {
 					type: aliasType,
 					mosaicId: aliasType === catapult.model.namespace.aliasType.mosaic ? convertToLong(aliasTarget) : null,
 					address: aliasType === catapult.model.namespace.aliasType.address
-						? new Binary(Buffer.from(address.stringToAddress(aliasTarget)))
+						? new Binary(Buffer.from(new Address(aliasTarget).bytes))
 						: null
 				},
 				startHeight: convertToLong(expirationHeight.start),
@@ -461,8 +461,8 @@ describe('namespace db', () => {
 				.then(() => dbFacade.activeNamespacesWithAlias(
 					aliasTypeAddress,
 					[
-						address.stringToAddress(testAddress.one),
-						address.stringToAddress(testAddress.two)
+						new Address(testAddress.one).bytes,
+						new Address(testAddress.two).bytes
 					]
 				))
 				.then(entities => {
@@ -506,7 +506,7 @@ describe('namespace db', () => {
 				.then(() => dbFacade.activeNamespacesWithAlias(
 					aliasTypeAddress,
 					[
-						address.stringToAddress(testAddress.three)
+						new Address(testAddress.three).bytes
 					]
 				))
 				.then(entities => { expect(entities).to.deep.equal([]); })
@@ -547,9 +547,9 @@ describe('namespace db', () => {
 				.then(() => dbFacade.activeNamespacesWithAlias(
 					aliasTypeAddress,
 					[
-						address.stringToAddress(testAddress.one),
-						address.stringToAddress(testAddress.two),
-						address.stringToAddress(testAddress.three)
+						new Address(testAddress.one).bytes,
+						new Address(testAddress.two).bytes,
+						new Address(testAddress.three).bytes
 					]
 				))
 				.then(entities => { expect(entities).to.deep.equal([{ ...namespace3, meta: { active: true, latest: true } }]); })

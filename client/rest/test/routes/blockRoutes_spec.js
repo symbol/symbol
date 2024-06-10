@@ -27,8 +27,8 @@ import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { convert } = catapult.utils;
 const { MockServer } = test;
 
@@ -42,7 +42,7 @@ describe('block routes', () => {
 			const testPublickey = convert.hexToUint8(testPublickeyString);
 
 			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
-			const testAddress = address.stringToAddress(testAddressString);
+			const testAddress = new Address(testAddressString).bytes;
 
 			const fakeBlock = { id: 0, meta: { transactionsCount: 0 }, block: { type: 33091 } };
 			const fakePaginatedBlock = {

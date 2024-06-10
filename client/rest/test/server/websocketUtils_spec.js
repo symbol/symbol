@@ -147,8 +147,8 @@ describe('websocketUtils', () => {
 			websocketUtils.handshake(client2);
 
 			// Assert:
-			expect(client1.uid.length).to.equal(32);
-			expect(client2.uid.length).to.equal(32);
+			expect(client1.uid.length).to.equal(28);
+			expect(client2.uid.length).to.equal(28);
 			expect(client1.uid).to.not.deep.equal(client2.uid);
 		});
 
