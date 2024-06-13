@@ -19,15 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import lockSecretRoutes from '../../../src/plugins/lockSecret/lockSecretRoutes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
-const { convert } = catapult.utils;
 const { MockServer } = test;
 
 describe('lock secret routes', () => {
@@ -164,7 +163,7 @@ describe('lock secret routes', () => {
 						return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 							expect(dbSecretLocksFake.calledOnce).to.equal(true);
-							expect(dbSecretLocksFake.firstCall.args[1]).to.deep.equal(convert.hexToUint8(testSecret));
+							expect(dbSecretLocksFake.firstCall.args[1]).to.deep.equal(utils.hexToUint8(testSecret));
 
 							expect(mockServer.next.calledOnce).to.equal(true);
 						});

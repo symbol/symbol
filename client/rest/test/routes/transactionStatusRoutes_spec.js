@@ -20,15 +20,14 @@
  */
 
 import test from './utils/routeTestUtils.js';
-import catapult from '../../src/catapult-sdk/index.js';
 import dbFacade from '../../src/routes/dbFacade.js';
 import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
 import transactionStatusRoutes from '../../src/routes/transactionStatusRoutes.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
 
-const { convert } = catapult.utils;
 const { MockServer } = test;
 
 describe('transaction status routes', () => {
@@ -100,7 +99,7 @@ describe('transaction status routes', () => {
 
 			// - valid length of hash
 			const hexValue = '6BAD46BDBEF2B84D03BA9668E635EF14FA66099258FE669DADCF8C23324C5DF1';
-			const parsedValue = convert.hexToUint8(hexValue);
+			const parsedValue = utils.hexToUint8(hexValue);
 			expect(calledParser(hexValue)).to.deep.equal(parsedValue);
 		});
 

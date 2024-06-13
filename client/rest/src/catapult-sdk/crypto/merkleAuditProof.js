@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import arrayUtils from '../utils/arrayUtils.js';
+import { utils } from 'symbol-sdk';
 
 export const NodePosition = Object.freeze({
 	left: 'left',
@@ -39,7 +39,7 @@ export const evenify = number => (number % 2 ? number + 1 : number);
  */
 export const indexOfLeafWithHash = (hash, tree) => tree.nodes
 	.slice(0, evenify(tree.count))
-	.findIndex(element => arrayUtils.deepEqual(element, hash));
+	.findIndex(element => 0 === utils.deepCompare(element, hash));
 
 export const siblingOf = nodeIndex => {
 	if (nodeIndex % 2) {

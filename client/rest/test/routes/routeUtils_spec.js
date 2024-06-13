@@ -26,10 +26,10 @@ import routeUtils from '../../src/routes/routeUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
 const { Binary, ObjectId } = MongoDb;
-const { convert } = catapult.utils;
 
 const invalidObjectIdStrings = [
 	'112233445566778899AABB', // too short
@@ -103,7 +103,7 @@ describe('route utils', () => {
 
 		describe('publicKey', () => addParserTests({
 			parser: 'publicKey',
-			valid: publicKeys.valid.map(id => ({ id, parsed: catapult.utils.convert.hexToUint8(id) })),
+			valid: publicKeys.valid.map(id => ({ id, parsed: utils.hexToUint8(id) })),
 			invalid: [
 				{ id: publicKeys.invalid, error: 'unrecognized hex char \'1G\'' },
 				{ id: '12345', error: 'invalid length of publicKey \'5\'' }
@@ -121,7 +121,7 @@ describe('route utils', () => {
 
 			describe('publicKey', () => addParserTests({
 				parser: 'accountId',
-				valid: publicKeys.valid.map(id => ({ id, parsed: ['publicKey', catapult.utils.convert.hexToUint8(id)] })),
+				valid: publicKeys.valid.map(id => ({ id, parsed: ['publicKey', utils.hexToUint8(id)] })),
 				invalid: [
 					{ id: publicKeys.invalid, error: 'unrecognized hex char \'1G\'' }
 				]
@@ -147,13 +147,13 @@ describe('route utils', () => {
 
 		describe('hash256', () => addParserTests({
 			parser: 'hash256',
-			valid: hashes256.valid.map(hash => ({ id: hash, parsed: catapult.utils.convert.hexToUint8(hash) })),
+			valid: hashes256.valid.map(hash => ({ id: hash, parsed: utils.hexToUint8(hash) })),
 			invalid: hashes256.invalid.map(hash => ({ id: hash, error: `invalid length of hash256 '${hash.length}` }))
 		}));
 
 		describe('hash512', () => addParserTests({
 			parser: 'hash512',
-			valid: hashes512.valid.map(hash => ({ id: hash, parsed: catapult.utils.convert.hexToUint8(hash) })),
+			valid: hashes512.valid.map(hash => ({ id: hash, parsed: utils.hexToUint8(hash) })),
 			invalid: hashes512.invalid.map(hash => ({ id: hash, error: `invalid length of hash512 '${hash.length}` }))
 		}));
 
@@ -432,7 +432,7 @@ describe('route utils', () => {
 				pageNumber: 5,
 				sortField: 'signerPublicKey',
 				sortDirection: -1,
-				offset: convert.hexToUint8(offset),
+				offset: utils.hexToUint8(offset),
 				offsetType: 'publicKey'
 			});
 		});
@@ -733,7 +733,7 @@ describe('route utils', () => {
 
 	describe('addPutPacketRoute', () => {
 		const registrar = (server, db, services) => {
-			const parseHexParam = (params, key) => routeUtils.parseArgument(params, key, catapult.utils.convert.hexToUint8);
+			const parseHexParam = (params, key) => routeUtils.parseArgument(params, key, utils.hexToUint8);
 			routeUtils.addPutPacketRoute(
 				server,
 				services.connections,
@@ -769,8 +769,8 @@ describe('route utils', () => {
 		const sendFake = sinon.fake();
 		const nextFake = sinon.fake();
 
-		const formatHashAsBinary = hash => test.factory.createBinary(Buffer.from(convert.hexToUint8(hash), 'hex'));
-		const formatBinaryAsHash = binary => convert.uint8ToHex(binary.buffer);
+		const formatHashAsBinary = hash => test.factory.createBinary(Buffer.from(utils.hexToUint8(hash), 'hex'));
+		const formatBinaryAsHash = binary => utils.uint8ToHex(binary.buffer);
 		const merkleTree = [
 			formatHashAsBinary('9922093F19F7160BDCBCA8AA48499DA8DF532D4102745670B85AA4BDF63B8D59'),
 			formatHashAsBinary('E8FCFD95CA220D442BE748F5494001A682DC8015A152EBC433222136E99A96B8'),
@@ -900,7 +900,7 @@ describe('route utils', () => {
 	describe('addressToPublicKey', () => {
 		const { addresses, publicKeys } = test.sets;
 		const accountAddress = new Address(addresses.valid[0]).bytes;
-		const accountPublicKey = convert.hexToUint8(publicKeys.valid[0]);
+		const accountPublicKey = utils.hexToUint8(publicKeys.valid[0]);
 
 		it('return correct public key from account address ', () => {
 			// Arrange:

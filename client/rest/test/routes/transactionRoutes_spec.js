@@ -20,15 +20,14 @@
  */
 
 import test from './utils/routeTestUtils.js';
-import catapult from '../../src/catapult-sdk/index.js';
 import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
 import transactionRoutes from '../../src/routes/transactionRoutes.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
-const { convert } = catapult.utils;
 const { MockServer } = test;
 
 const TransactionGroups = {
@@ -161,7 +160,7 @@ describe('transaction routes', () => {
 						return mockServer.callRoute(route, req).then(() => {
 							// Assert:
 							expect(dbTransactionsByHashesFake.calledOnce).to.equal(true);
-							expect(dbTransactionsByHashesFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(validHash)]);
+							expect(dbTransactionsByHashesFake.firstCall.args[1]).to.deep.equal([utils.hexToUint8(validHash)]);
 
 							expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 								payload: fakeTransaction,
@@ -178,7 +177,7 @@ describe('transaction routes', () => {
 				const testAddress = new Address(testAddressString).bytes;
 
 				const testPublickeyString = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
-				const testPublickey = convert.hexToUint8(testPublickeyString);
+				const testPublickey = utils.hexToUint8(testPublickeyString);
 
 				const fakeTransaction = { meta: { addresses: [] }, transaction: { type: 12345 } };
 				const fakePaginatedTransaction = {
@@ -593,7 +592,7 @@ describe('transaction routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbTransactionsByHashesFake.calledOnce).to.equal(true);
-						expect(dbTransactionsByHashesFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(validHash)]);
+						expect(dbTransactionsByHashesFake.firstCall.args[1]).to.deep.equal([utils.hexToUint8(validHash)]);
 
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							payload: fakeTransactions,
@@ -611,7 +610,7 @@ describe('transaction routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbTransactionsByHashesFake.calledOnce).to.equal(true);
-						expect(dbTransactionsByHashesFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(validHash)]);
+						expect(dbTransactionsByHashesFake.firstCall.args[1]).to.deep.equal([utils.hexToUint8(validHash)]);
 
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							payload: fakeTransactions,

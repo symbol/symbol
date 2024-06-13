@@ -23,13 +23,12 @@ import catapult from '../../catapult-sdk/index.js';
 import routeUtils from '../../routes/routeUtils.js';
 import { utils } from 'symbol-sdk';
 
-const { convert } = catapult.utils;
 const { PacketType } = catapult.packet;
 
 export default {
 	register: (server, db, services) => {
 		const parseUint64StringToUint8Buffer = numericString => utils.intToBytes(BigInt(numericString), 8);
-		const parseHexParam = (params, key) => routeUtils.parseArgument(params, key, convert.hexToUint8);
+		const parseHexParam = (params, key) => routeUtils.parseArgument(params, key, utils.hexToUint8);
 
 		routeUtils.addPutPacketRoute(
 			server,

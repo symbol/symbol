@@ -20,8 +20,8 @@
  */
 
 import namespace from '../../../src/catapult-sdk/model/namespace.js';
-import convert from '../../../src/catapult-sdk/utils/convert.js';
 import { expect } from 'chai';
+import { utils } from 'symbol-sdk';
 
 describe('namespace', () => {
 	describe('alias type', () => {
@@ -48,11 +48,11 @@ describe('namespace', () => {
 	describe('encodeNamespace', () => {
 		it('Testnet valid', () => {
 			// Assert:
-			const encoded = namespace.encodeNamespace(convert.hexToUint8('C0FB8AA409916260'), 152);
-			const encodedHex = convert.uint8ToHex(encoded);
+			const encoded = namespace.encodeNamespace(utils.hexToUint8('C0FB8AA409916260'), 152);
+			const encodedHex = utils.uint8ToHex(encoded);
 			const expectedEncodedHex = '9960629109A48AFBC0000000000000000000000000000000';
 			expect(encodedHex).to.be.equal(expectedEncodedHex);
-			expect(encoded).to.be.deep.equal(convert.hexToUint8(expectedEncodedHex));
+			expect(encoded).to.be.deep.equal(utils.hexToUint8(expectedEncodedHex));
 		});
 	});
 });

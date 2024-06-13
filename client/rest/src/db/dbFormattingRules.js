@@ -25,7 +25,6 @@ import { Binary } from 'mongodb';
 import { utils } from 'symbol-sdk';
 
 const { ModelType, status } = catapult.model;
-const { convert } = catapult.utils;
 
 /**
  * Some of the formatters here may be branched depending on whether the received data comes from MongoDb or simple JavaScript. This happens
@@ -40,14 +39,15 @@ const formatBigInt = value => value.toString(16).padStart(16, '0').toUpperCase()
 
 export default {
 	[ModelType.none]: value => value,
-	[ModelType.binary]: value => (convert.uint8ToHex(value.buffer instanceof ArrayBuffer ? value : value.buffer)),
+	[ModelType.binary]: value => (utils.uint8ToHex(value.buffer instanceof ArrayBuffer ? value : value.buffer)),
 	[ModelType.objectId]: value => (undefined === value ? '' : value.toHexString().toUpperCase()),
 	[ModelType.statusCode]: value => status.toString(value >>> 0),
 	[ModelType.string]: value => value.toString(),
 	[ModelType.uint8]: value => value,
 	// `uint16` required solely because accountRestrictions->restrictionAdditions array has uint16 provided as binary
 	[ModelType.uint16]: value => (value instanceof Binary ? Buffer.from(value.buffer).readInt16LE(0) : value),
-	[ModelType.uint32]: value => convert.int32ToUint32(value),
+	// `uint32` might be returned by mongo as signed, so always reinterpret the underlying bytes as unsigned
+	[ModelType.uint32]: value => (value & 0xFFFFFFFF) >>> 0,
 	[ModelType.uint64]: value => longToUint64(value).toString(),
 	// `uint64HexIdentifier` requires branching because accountRestrictions.restrictionAdditions provides bigint as binary
 	[ModelType.uint64HexIdentifier]: value => {

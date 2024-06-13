@@ -27,7 +27,7 @@ import { uniqueLongList } from '../../src/db/dbUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
-import { PublicKey } from 'symbol-sdk';
+import { PublicKey, utils } from 'symbol-sdk';
 import { Address, Network } from 'symbol-sdk/symbol';
 
 const { EntityType } = catapult.model;
@@ -745,7 +745,7 @@ describe('catapult db', () => {
 		});
 	});
 
-	const createTransactionHash = id => catapult.utils.convert.hexToUint8(`${'00'.repeat(16)}${id.toString(16)}`.slice(-32));
+	const createTransactionHash = id => utils.hexToUint8(`${'00'.repeat(16)}${id.toString(16)}`.slice(-32));
 
 	const createSeedTransactions = (numTransactionsPerHeight, heights, options) => {
 		// notice that generated transactions only contain what was used by transactionsAtHeight for filtering (meta.height)

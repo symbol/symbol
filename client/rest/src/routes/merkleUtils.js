@@ -22,10 +22,10 @@
 import errors from '../server/errors.js';
 import catapult from '../catapult-sdk/index.js';
 import MerkleTree from './MerkelTree.js';
+import { utils } from 'symbol-sdk';
 
 const packetHeader = catapult.packet.header;
 const { StatePathPacketTypes } = catapult.packet;
-const { convert } = catapult.utils;
 
 export default {
 	/**
@@ -42,7 +42,7 @@ export default {
 
 		const buildResponse = packet => 
 			{ 
-				const raw = convert.uint8ToHex(packet.payload);
+				const raw = utils.uint8ToHex(packet.payload);
 				return { raw, tree: new MerkleTree().parseMerkleTreeFromRaw(packet.payload)}
 			};
 		const { connections } = services;

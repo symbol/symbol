@@ -54,12 +54,8 @@ const fixupTransactionJson = transactionJson => {
 export default Object.freeze({
 	block: emit => (topic, binaryBlock, hash, generationHash) => {
 		// rewrite block size to block header size, which is necessary for parser to work
-		const uint32Array = new Uint32Array(1);
-		uint32Array[0] = binaryBlock.length;
-		const uint8Size = catapult.utils.convert.uint32ToUint8(uint32Array);
-
 		const block = models.BlockFactory.deserialize(new Uint8Array([
-			...uint8Size,
+			...utils.intToBytes(binaryBlock.length, 4),
 			...binaryBlock.subarray(4)
 		]));
 		emit({ type: 'blockHeaderWithMetadata', payload: { block: block.toJson(), meta: { hash, generationHash } } });

@@ -22,10 +22,10 @@
 import {
 	HashNotFoundError, InvalidTree, NodePosition, buildAuditPath, evenify, indexOfLeafWithHash, siblingOf
 } from '../../../src/catapult-sdk/crypto/merkleAuditProof.js';
-import convert from '../../../src/catapult-sdk/utils/convert.js';
 import { expect } from 'chai';
+import { utils } from 'symbol-sdk';
 
-const hexStringToBuffer = input => Buffer.from(convert.hexToUint8(input), 'hex');
+const hexStringToBuffer = input => Buffer.from(utils.hexToUint8(input), 'hex');
 
 const merkleTree = {
 	count: 4,
