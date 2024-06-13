@@ -1,4 +1,5 @@
 import { sha3_256 } from '@noble/hashes/sha3';
+import { utils } from 'symbol-sdk';
 import fs from 'fs';
 
 const FILE_PATH = `${import.meta.dirname}/resources/metadata.json`;
@@ -36,10 +37,8 @@ export const generateChecksum = input => {
 	if (0 === input.length)
 		throw new Error('Input must not be empty');
 
-	const { buffer } = sha3_256(input);
-	const uint32Array = new Uint32Array(buffer);
-
-	return [uint32Array[0], uint32Array[1]];
+	const hash = sha3_256(input);
+	return utils.bytesToBigInt(hash, 8);
 };
 
 const loadAndFormatMetadata = filePath => {

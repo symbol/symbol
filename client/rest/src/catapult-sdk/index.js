@@ -39,7 +39,6 @@ import formattingUtils from './utils/formattingUtils.js';
 import future from './utils/future.js';
 import objects from './utils/objects.js';
 import schemaFormatter from './utils/schemaFormatter.js';
-import uint64 from './utils/uint64.js';
 
 export default {
 	crypto: {
@@ -73,7 +72,6 @@ export default {
 		formattingUtils,
 		future,
 		objects,
-		schemaFormatter,
-		uint64
+		schemaFormatter
 	}
 };

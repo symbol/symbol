@@ -117,28 +117,28 @@ describe('metadata db', () => {
 		it('returns filtered metadata by scopedMetadataKey', () => {
 			// Arrange:
 			const dbMetadata = [
-				createMetadata(10, undefined, undefined, [0x1CAD29E3, 0x0DC67FBE]),
-				createMetadata(20, undefined, undefined, [0xAAAD29AA, 0xAAC67FAA])
+				createMetadata(10, undefined, undefined, 0x0DC67FBE1CAD29E3n),
+				createMetadata(20, undefined, undefined, 0xAAC67FAAAAAD29AAn)
 			];
 
 			// Act + Assert:
 			return runTestAndVerifyIds(
 				dbMetadata,
-				db => db.metadata(undefined, undefined, [0x1CAD29E3, 0x0DC67FBE], undefined, undefined, paginationOptions), [10]
+				db => db.metadata(undefined, undefined, 0x0DC67FBE1CAD29E3n, undefined, undefined, paginationOptions), [10]
 			);
 		});
 
 		it('returns filtered metadata by targetId', () => {
 			// Arrange:
 			const dbMetadata = [
-				createMetadata(10, undefined, undefined, undefined, [0xAAAD29AA, 0xAAC67FAA]),
-				createMetadata(20, undefined, undefined, undefined, [0x1CAD29E3, 0x0DC67FBE])
+				createMetadata(10, undefined, undefined, undefined, 0xAAC67FAAAAAD29AAn),
+				createMetadata(20, undefined, undefined, undefined, 0x0DC67FBE1CAD29E3n)
 			];
 
 			// Act + Assert:
 			return runTestAndVerifyIds(
 				dbMetadata,
-				db => db.metadata(undefined, undefined, undefined, [0xAAAD29AA, 0xAAC67FAA], undefined, paginationOptions), [10]
+				db => db.metadata(undefined, undefined, undefined, 0xAAC67FAAAAAD29AAn, undefined, paginationOptions), [10]
 			);
 		});
 
@@ -281,13 +281,17 @@ describe('metadata db', () => {
 
 	describe('binDataByMetalId', () => {
 		const textSection = new MetalSeal(testData.imageBytes.length, 'image/png', 'image.png', 'test').stringify();
+
+		// adapt values stored in json files, which use [low, high] uint64 representation
+		const jsonUint64ToLong = uint64 => (uint64 ? convertToLong(BigInt(uint64[0]) + (BigInt(uint64[1]) * (2n ** 32n))) : undefined);
+
 		const createMetadata = metadata => ({
 			_id: createObjectId(metadata.id),
 			metadataEntry: {
 				sourceAddress: metadata.sourceAddress ? Buffer.from(metadata.sourceAddress) : undefined,
 				targetAddress: metadata.targetAddress ? Buffer.from(metadata.targetAddress) : undefined,
-				scopedMetadataKey: metadata.scopedMetadataKey ? convertToLong(metadata.scopedMetadataKey) : undefined,
-				targetId: metadata.targetId ? convertToLong(metadata.targetId) : undefined,
+				scopedMetadataKey: jsonUint64ToLong(metadata.scopedMetadataKey),
+				targetId: jsonUint64ToLong(metadata.targetId),
 				metadataType: metadata.metadataType,
 				value: metadata.value ? Buffer.from(metadata.value) : undefined,
 				compositeHash: metadata.compositeHash ? Buffer.from(metadata.compositeHash) : undefined

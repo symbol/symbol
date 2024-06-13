@@ -31,7 +31,6 @@ import MongoDb from 'mongodb';
 import sinon from 'sinon';
 import { Address } from 'symbol-sdk/symbol';
 
-const { uint64 } = catapult.utils;
 const { Binary } = MongoDb;
 
 describe('namespace db', () => {
@@ -41,8 +40,8 @@ describe('namespace db', () => {
 		const runNamespacesDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) =>
 			dbTestUtils.db.runDbTest(dbEntities, 'namespaces', db => new NamespaceDb(db), issueDbCommand, assertDbCommandResult);
 
-		const level0Test1 = uint64.fromHex('85BBEA6CC462B244');
-		const level0Test2 = uint64.fromHex('3C2437767AF232DC');
+		const level0Test1 = 0x85BBEA6CC462B244n;
+		const level0Test2 = 0x3C2437767AF232DCn;
 		const ownerAddressTest1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
 		const ownerAddressTest2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
@@ -324,7 +323,7 @@ describe('namespace db', () => {
 			// Assert:
 			return test.db.runDbTest(
 				namespaces,
-				db => db.namespaceById([123, 456]),
+				db => db.namespaceById(123n),
 				entity => { expect(entity).to.equal(undefined); }
 			);
 		});
@@ -337,7 +336,7 @@ describe('namespace db', () => {
 			// Assert:
 			return test.db.runDbTest(
 				namespaces,
-				db => db.namespaceById([12303, 0]),
+				db => db.namespaceById(12303n),
 				entity => {
 					expect(entity.id).to.deep.equal(createObjectId(3));
 					expect(entity.meta.active).to.equal(true);
@@ -354,7 +353,7 @@ describe('namespace db', () => {
 			// Assert:
 			return test.db.runDbTest(
 				namespaces,
-				db => db.namespaceById([12301, 0]),
+				db => db.namespaceById(12301n),
 				entity => {
 					expect(entity.id).to.deep.equal(createObjectId(1));
 					expect(entity.meta.active).to.equal(true);
@@ -371,7 +370,7 @@ describe('namespace db', () => {
 			// Assert:
 			return test.db.runDbTest(
 				namespaces,
-				db => db.namespaceById([12302, 0]),
+				db => db.namespaceById(12302n),
 				entity => {
 					expect(entity.id).to.deep.equal(createObjectId(2));
 					expect(entity.meta.active).to.equal(true);

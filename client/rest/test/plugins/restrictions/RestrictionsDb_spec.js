@@ -186,14 +186,14 @@ describe('restrictions db', () => {
 		it('returns filtered mosaic restrictions by mosaicId', () => {
 			// Arrange:
 			const dbMosaicRestrictions = [
-				createMosaicRestriction(10, [0xAAAD29AA, 0xAAC67FAA]),
-				createMosaicRestriction(20, [0x1CAD29E3, 0x0DC67FBE])
+				createMosaicRestriction(10, 0xAAC67FAAAAAD29AAn),
+				createMosaicRestriction(20, 0x0DC67FBE1CAD29E3n)
 			];
 
 			// Act + Assert:
 			return runTestAndVerifyIds(
 				dbMosaicRestrictions,
-				db => db.mosaicRestrictions([0xAAAD29AA, 0xAAC67FAA], undefined, undefined, paginationOptions), [10]
+				db => db.mosaicRestrictions(0xAAC67FAAAAAD29AAn, undefined, undefined, paginationOptions), [10]
 			);
 		});
 

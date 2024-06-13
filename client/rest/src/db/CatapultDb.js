@@ -206,9 +206,9 @@ export default class CatapultDb {
 	 * Retrieves filtered and paginated blocks.
 	 * @param {Uint8Array} signerPublicKey Filters by signer public key
 	 * @param {Uint8Array} beneficiaryAddress Filters by beneficiary address
-	 * @param {module:utils/uint64~uint64} fromTimestamp
+	 * @param {bigint} fromTimestamp
 	 *        Filters blocks by only including blocks with a timestamp greater than or equal to provided value
-	 * @param {module:utils/uint64~uint64} toTimestamp
+	 * @param {bigint} toTimestamp
 	 *        Filters blocks by only including blocks with a timestamp less than or equal to provided value
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
@@ -555,7 +555,7 @@ export default class CatapultDb {
 	/**
 	 * Retrieves filtered and paginated accounts
 	 * @param {Uint8Array} address Filters by address
-	 * @param {module:utils/uint64~uint64} mosaicId
+	 * @param {bigint} mosaicId
 	 *        Filters by accounts with some mosaicId balance. Required if provided `sortField` is `balance`
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.

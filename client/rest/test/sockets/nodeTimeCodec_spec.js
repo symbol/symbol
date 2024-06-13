@@ -25,7 +25,7 @@ import { expect } from 'chai';
 
 const { BinaryParser } = catapult.parser;
 
-describe('deserialize', () => {
+describe('node time codec deserialize', () => {
 	it('returns a deserialized node time object', () => {
 		// Arrange:
 		const binaryParser = new BinaryParser();
@@ -35,8 +35,8 @@ describe('deserialize', () => {
 		// Assert:
 		expect(nodeTimeCodec.deserialize(binaryParser)).to.deep.equal({
 			communicationTimestamps: {
-				receiveTimestamp: [107870352, 16],
-				sendTimestamp: [107870864, 1]
+				receiveTimestamp: 0x00000010066DF890n,
+				sendTimestamp: 0x00000001066DFA90n
 			}
 		});
 	});

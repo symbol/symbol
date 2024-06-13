@@ -25,7 +25,7 @@ import routeUtils from '../../routes/routeUtils.js';
 import AccountType from '../AccountType.js';
 import ini from 'ini';
 
-const { convert, uint64 } = catapult.utils;
+const { convert } = catapult.utils;
 
 const fileLoader = new catapult.utils.CachedFileLoader();
 
@@ -35,7 +35,7 @@ export default {
 
 		const convertToFractionalWholeUnits = (value, divisibility) => (Number(value) / (10 ** divisibility)).toFixed(divisibility);
 
-		const propertyValueToMosaicId = value => uint64.fromHex(value.replace(/'/g, '').replace('0x', ''));
+		const propertyValueToMosaicId = value => BigInt(value.replace(/'/g, ''));
 
 		const readAndParseNetworkPropertiesFile = () => fileLoader.readOnce(
 			services.config.apiNode.networkPropertyFilePath,
@@ -57,8 +57,8 @@ export default {
 
 		const lookupMosaicAmount = (mosaics, currencyMosaicId) => {
 			const matchingMosaic = mosaics.find(mosaic => {
-				const mosaicId = longToUint64(mosaic.id); // convert Long to uint64
-				return 0 === uint64.compare(currencyMosaicId, mosaicId);
+				const mosaicId = longToUint64(mosaic.id); // convert Long to bigint
+				return currencyMosaicId === mosaicId;
 			});
 
 			return undefined === matchingMosaic ? 0 : matchingMosaic.amount.toNumber();

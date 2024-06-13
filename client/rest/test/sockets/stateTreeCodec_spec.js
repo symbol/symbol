@@ -26,7 +26,7 @@ import { expect } from 'chai';
 const { BinaryParser } = catapult.parser;
 const { convert } = catapult.utils;
 
-describe('deserialize', () => {
+describe('state tree codec deserialize', () => {
 	it('returns a deserialized state tree object', () => {
 		// Arrange:
 		const tree = [

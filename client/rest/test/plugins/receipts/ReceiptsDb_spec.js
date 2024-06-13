@@ -19,7 +19,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import CatapultDb from '../../../src/db/CatapultDb.js';
 import { convertToLong, uniqueLongList } from '../../../src/db/dbUtils.js';
 import ReceiptsDb from '../../../src/plugins/receipts/ReceiptsDb.js';
@@ -30,7 +29,6 @@ import sinon from 'sinon';
 import { Address } from 'symbol-sdk/symbol';
 
 const { Binary, Long } = MongoDb;
-const { uint64 } = catapult.utils;
 
 describe('receipts db', () => {
 	const { createObjectId } = test.db;
@@ -250,10 +248,10 @@ describe('receipts db', () => {
 				// NamespaceIds examples: 941299B2B7E1291C, 85BBEA6CC462B244, CB9F84B545BA480C
 				// MosaicIds examples: 1D9CDC7E218CA88D, 24F426B8D5493D4B, 49F6C0F0163730A9
 
-				const namespaceId1 = uint64.fromHex('941299B2B7E1291C');
-				const namespaceId2 = uint64.fromHex('85BBEA6CC462B244');
-				const mosaicId1 = uint64.fromHex('1D9CDC7E218CA88D');
-				const mosaicId2 = uint64.fromHex('24F426B8D5493D4B');
+				const namespaceId1 = 0x941299B2B7E1291Cn;
+				const namespaceId2 = 0x85BBEA6CC462B244n;
+				const mosaicId1 = 0x1D9CDC7E218CA88Dn;
+				const mosaicId2 = 0x24F426B8D5493D4Bn;
 
 				it('namespaceId', () => {
 					// Arrange:

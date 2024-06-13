@@ -114,7 +114,7 @@ describe('receipts routes', () => {
 		};
 
 		const dbTransactionStatementsFake = sinon.fake(filters => {
-			if (filters.height && 666 === filters.height[0])
+			if (654n === filters.height)
 				return Promise.resolve(emptyPageSample);
 
 			return Promise.resolve(pageSample);
@@ -176,7 +176,7 @@ describe('receipts routes', () => {
 
 			it('returns empty page if no statements found', () => {
 				// Arrange:
-				const req = { params: { height: '666' } };
+				const req = { params: { height: '654' } };
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -200,7 +200,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
-					expect(dbTransactionStatementsFake.firstCall.args[0].height).to.deep.equal([123, 0]);
+					expect(dbTransactionStatementsFake.firstCall.args[0].height).to.deep.equal(123n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -214,7 +214,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
-					expect(dbTransactionStatementsFake.firstCall.args[0].fromHeight).to.deep.equal([123, 0]);
+					expect(dbTransactionStatementsFake.firstCall.args[0].fromHeight).to.deep.equal(123n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -228,7 +228,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
-					expect(dbTransactionStatementsFake.firstCall.args[0].toHeight).to.deep.equal([123, 0]);
+					expect(dbTransactionStatementsFake.firstCall.args[0].toHeight).to.deep.equal(123n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -315,7 +315,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
-					expect(dbTransactionStatementsFake.firstCall.args[0].artifactId).to.deep.equal([0x1CAD29E3, 0x0DC67FBE]);
+					expect(dbTransactionStatementsFake.firstCall.args[0].artifactId).to.deep.equal(0x0DC67FBE1CAD29E3n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -392,7 +392,7 @@ describe('receipts routes', () => {
 		};
 
 		const dbArtifactStatementsFake = sinon.fake(height => {
-			if (height && 666 === height[0])
+			if (654n === height)
 				return Promise.resolve(emptyPageSample);
 
 			return Promise.resolve(pageSample);
@@ -454,7 +454,7 @@ describe('receipts routes', () => {
 
 			it('returns empty address statements page if no statements found', () => {
 				// Arrange:
-				const req = { params: { artifact: 'address', height: '666' } };
+				const req = { params: { artifact: 'address', height: '654' } };
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -472,7 +472,7 @@ describe('receipts routes', () => {
 
 			it('returns empty mosaic statements page if no statements found', () => {
 				// Arrange:
-				const req = { params: { artifact: 'mosaic', height: '666' } };
+				const req = { params: { artifact: 'mosaic', height: '654' } };
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -496,7 +496,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
-					expect(dbArtifactStatementsFake.firstCall.args[0]).to.deep.equal([123, 0]);
+					expect(dbArtifactStatementsFake.firstCall.args[0]).to.deep.equal(123n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

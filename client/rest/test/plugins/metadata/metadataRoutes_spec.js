@@ -186,7 +186,7 @@ describe('metadata routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMetadataFake.calledOnce).to.equal(true);
-					expect(dbMetadataFake.firstCall.args[2]).to.deep.equal([0x1CAD29E3, 0x0DC67FBE]);
+					expect(dbMetadataFake.firstCall.args[2]).to.deep.equal(0x0DC67FBE1CAD29E3n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -200,7 +200,7 @@ describe('metadata routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMetadataFake.calledOnce).to.equal(true);
-					expect(dbMetadataFake.firstCall.args[3]).to.deep.equal([0x1CAD29E3, 0x0DC67FBE]);
+					expect(dbMetadataFake.firstCall.args[3]).to.deep.equal(0x0DC67FBE1CAD29E3n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

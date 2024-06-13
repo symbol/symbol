@@ -26,7 +26,7 @@ import errors from '../server/errors.js';
 import { Address } from 'symbol-sdk/symbol';
 
 const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
-const { convert, uint64 } = catapult.utils;
+const { convert } = catapult.utils;
 const packetHeader = catapult.packet.header;
 const constants = {
 	sizes: {
@@ -54,8 +54,19 @@ const namedParserMap = {
 
 		return result;
 	},
-	uint64: str => uint64.fromString(str),
-	uint64hex: str => uint64.fromHex(str),
+	uint64: str => {
+		const value = BigInt(str);
+		if (0n > value)
+			throw Error('must be non-negative');
+
+		return value;
+	},
+	uint64hex: str => {
+		if (16 !== str.length)
+			throw Error('must be 8 hex digits in length');
+
+		return BigInt(`0x${str}`);
+	},
 	address: str => {
 		if (constants.sizes.addressEncoded === str.length)
 			return new Address(str).bytes;
@@ -368,12 +379,12 @@ const routeUtils = {
 		return dbFacade.runHeightDependentOperation(db, height, () => db.blockWithMerkleTreeAtHeight(height, blockMetaTreeField))
 			.then(result => {
 				if (!result.isRequestValid) {
-					res.send(errors.createNotFoundError(uint64.toString(height)));
+					res.send(errors.createNotFoundError(height));
 					return next();
 				}
 
 				const block = result.payload;
-				const errorMessage = `hash '${req.params.hash}' not included in block height '${uint64.toString(height)}'`;
+				const errorMessage = `hash '${req.params.hash}' not included in block height '${height}'`;
 				if (!block.meta[blockMetaCountField]) {
 					res.send(errors.createInvalidArgumentError(errorMessage));
 					return next();

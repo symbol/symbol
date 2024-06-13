@@ -1,6 +1,6 @@
-import catapult from '../../catapult-sdk/index.js';
 import { sha3_256 } from '@noble/hashes/sha3';
 import bs58 from 'bs58';
+import { utils } from 'symbol-sdk';
 
 const METAL_ID_HEADER_SIGNATURE = [0x0B, 0x2A];
 const METAL_ID_LENGTH = 34;
@@ -27,14 +27,14 @@ export const metal = {
 	/**
 	 * Generates a metadata key to check if the metadata is broken or not.
 	 * @param {Uint8Array} input Chunk value to generate the key from.
-	 * @returns {module:utils/uint64} Metadata key as a uint64, represented as an array of two numbers.
+	 * @returns {bigint} Metadata key as a bigint.
 	 */
 	generateMetadataKey(input) {
 		if (!input.length)
 			throw new Error('input must not be empty');
 		const hashedBytes = sha3_256(input);
-		const uint64 = catapult.utils.uint64.fromBytes(hashedBytes.subarray(0, 8));
-		return [uint64[0], uint64[1] & 0x7FFFFFFF];
+		const uint64 = utils.bytesToBigInt(hashedBytes.subarray(0, 8), 8);
+		return uint64 & 0x7FFFFFFFFFFFFFFFn;
 	},
 
 	/**
@@ -43,7 +43,7 @@ export const metal = {
 	 * @returns {object} Object containing values in line with the METAL protocol.
 	 * - magic: number - 0x00 is chunk, 0x80 is end of chunk.
 	 * - text: boolean - True if text is present, false otherwise.
-	 * - scopedMetadataKey: uint64 - ScopedMetadataKey of the next chunk.
+	 * - scopedMetadataKey: bigint - ScopedMetadataKey of the next chunk.
 	 * - chunkPayload: Buffer - Payload of the chunk.
 	 */
 	extractChunk(buffer) {
@@ -51,7 +51,7 @@ export const metal = {
 		const magic = header[0] & 0x80;
 		const text = Boolean(header[0] & 0x40);
 
-		const scopedMetadataKey = catapult.utils.uint64.fromBytes(new Uint8Array(buffer.subarray(4, 12)).reverse());
+		const scopedMetadataKey = utils.bytesToBigInt(new Uint8Array(buffer.subarray(4, 12)).reverse(), 8);
 		const chunkPayload = buffer.subarray(12);
 
 		return {
@@ -88,7 +88,7 @@ export const metal = {
 
 	/**
 	 * Decode binary data from chunks.
-	 * @param {module:utils/uint64~uint64} firstKey ScopedMetadataKey of the beginning chunk.
+	 * @param {bigint} firstKey ScopedMetadataKey of the beginning chunk.
 	 * @param {Array} chunks Chunk containing data to be decoded.
 	 * @returns {Buffer} Decoded binary data.
 	 */
@@ -97,7 +97,7 @@ export const metal = {
 		let magic;
 		const decodedPayloads = [];
 		const decodedTexts = [];
-		const findChunk = chunk => 0 === catapult.utils.uint64.compare(chunk.key, scopedMetadataKey);
+		const findChunk = chunk => chunk.key === scopedMetadataKey;
 
 		do {
 			const chunk = chunks.find(findChunk);
@@ -105,7 +105,7 @@ export const metal = {
 				throw new Error(`the chunk ${scopedMetadataKey} is missing`);
 
 			const metadataKey = this.generateMetadataKey(chunk.value);
-			const isValidMetadataKey = 0 === catapult.utils.uint64.compare(metadataKey, scopedMetadataKey);
+			const isValidMetadataKey = metadataKey === scopedMetadataKey;
 			if (!isValidMetadataKey)
 				throw new Error(`the chunk ${scopedMetadataKey} is broken (calculated=${metadataKey})`);
 

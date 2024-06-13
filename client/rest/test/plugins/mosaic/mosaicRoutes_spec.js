@@ -209,7 +209,7 @@ describe('mosaic routes', () => {
 
 	describe('mosaics by id', () => {
 		const mosaicIds = ['1234567890ABCDEF', 'ABCDEF0123456789'];
-		const uint64MosaicIds = [[0x90ABCDEF, 0x12345678], [0x23456789, 0xABCDEF01]];
+		const uint64MosaicIds = [0x1234567890ABCDEFn, 0xABCDEF0123456789n];
 		const errorMessage = 'has an invalid format';
 		test.route.document.addGetPostDocumentRouteTests(mosaicRoutes.register, {
 			routes: { singular: '/mosaics/:mosaicId', plural: '/mosaics' },

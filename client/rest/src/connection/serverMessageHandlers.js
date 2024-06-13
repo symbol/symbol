@@ -20,10 +20,8 @@
  */
 
 import catapult from '../catapult-sdk/index.js';
-import { Hash256 } from 'symbol-sdk';
+import { Hash256, utils } from 'symbol-sdk';
 import { models } from 'symbol-sdk/symbol';
-
-const { uint64 } = catapult.utils;
 
 const parserFromData = binaryData => {
 	const parser = new catapult.parser.BinaryParser();
@@ -84,7 +82,7 @@ export default Object.freeze({
 
 	transaction: emit => (topic, binaryTransaction, hash, merkleComponentHash, height) => {
 		const transaction = models.TransactionFactory.deserialize(binaryTransaction);
-		const meta = { hash, merkleComponentHash, height: uint64.fromBytes(height) };
+		const meta = { hash, merkleComponentHash, height: utils.bytesToBigInt(height, 8) };
 
 		const transactionJson = fixupTransactionJson(transaction.toJson());
 		emit({ type: 'transactionWithMetadata', payload: { transaction: transactionJson, meta } });

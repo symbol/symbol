@@ -119,7 +119,7 @@ describe('finalization routes', () => {
 								version: 100,
 								finalizationEpoch: 2,
 								finalizationPoint: 1,
-								height: [10, 0],
+								height: 10n,
 								hash,
 								messageGroups: []
 							},
@@ -207,7 +207,7 @@ describe('finalization routes', () => {
 								version: 100,
 								finalizationEpoch: 2,
 								finalizationPoint: 1,
-								height: [10, 0],
+								height: 10n,
 								hash,
 								messageGroups: []
 							},

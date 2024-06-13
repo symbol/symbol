@@ -152,11 +152,13 @@ export default class BinaryParser {
 
 	/**
 	 * Reads a uint64 from the working buffer.
-	 * @returns {module:utils/uint64~uint64} Read uint64.
+	 * @returns {bigint} Read uint64.
 	 */
 	uint64() {
 		this.buffers.requireUnprocessed(8);
-		return [this.uint32(), this.uint32()];
+		const low = this.uint32();
+		const high = this.uint32();
+		return (BigInt(high) * (2n ** 32n)) + BigInt(low);
 	}
 
 	/**

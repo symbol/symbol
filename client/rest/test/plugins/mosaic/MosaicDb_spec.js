@@ -248,7 +248,7 @@ describe('mosaic db', () => {
 			// Assert:
 			return runMosaicsDbTest(
 				mosaics,
-				db => db.mosaicsByIds([[123, 456]]),
+				db => db.mosaicsByIds([123n]),
 				entities => { expect(entities).to.deep.equal([]); }
 			);
 		});
@@ -260,7 +260,7 @@ describe('mosaic db', () => {
 			// Assert:
 			return runMosaicsDbTest(
 				mosaics,
-				db => db.mosaicsByIds([[10010, 0]]),
+				db => db.mosaicsByIds([10010n]),
 				entities => {
 					expect(entities).to.deep.equal([{ id: createObjectId(10), ...mosaics[10] }]);
 				}
@@ -274,7 +274,7 @@ describe('mosaic db', () => {
 			// Assert:
 			return runMosaicsDbTest(
 				mosaics,
-				db => db.mosaicsByIds([[10010, 0], [10007, 0], [10003, 0]]),
+				db => db.mosaicsByIds([10010n, 10007n, 10003n]),
 				entities => {
 					expect(entities).to.deep.equal([
 						{ id: createObjectId(10), ...mosaics[10] },
@@ -292,7 +292,7 @@ describe('mosaic db', () => {
 			// Assert:
 			return runMosaicsDbTest(
 				mosaics,
-				db => db.mosaicsByIds([[10010, 0], [10021, 0], [10003, 0]]),
+				db => db.mosaicsByIds([10010n, 10021n, 10003n]),
 				entities => expect(entities).to.deep.equal([
 					{ id: createObjectId(10), ...mosaics[10] },
 					{ id: createObjectId(3), ...mosaics[3] }

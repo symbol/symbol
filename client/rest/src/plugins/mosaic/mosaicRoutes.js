@@ -22,10 +22,9 @@
 import catapult from '../../catapult-sdk/index.js';
 import merkleUtils from '../../routes/merkleUtils.js';
 import routeUtils from '../../routes/routeUtils.js';
+import { utils } from 'symbol-sdk';
 
 const { PacketType } = catapult.packet;
-
-const { uint64 } = catapult.utils;
 
 export default {
 	register: (server, db, services) => {
@@ -45,7 +44,7 @@ export default {
 			mosaicSender,
 			{ base: '/mosaics', singular: 'mosaicId', plural: 'mosaicIds' },
 			params => db.mosaicsByIds(params),
-			uint64.fromHex
+			routeUtils.namedParserMap.uint64hex
 		);
 
 		// this endpoint is here because it is expected to support requests by block other than <current block>
@@ -53,7 +52,7 @@ export default {
 			const mosaicId = routeUtils.parseArgument(req.params, 'mosaicId', 'uint64hex');
 			const state = PacketType.mosaicStatePath;
 
-			return merkleUtils.requestTree(services, state, uint64.toBytes(mosaicId)).then(response => {
+			return merkleUtils.requestTree(services, state, utils.intToBytes(mosaicId, 8)).then(response => {
 				res.send(response);
 				next();
 			});

@@ -213,7 +213,7 @@ describe('account routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbAccountsFake.calledOnce).to.equal(true);
-					expect(dbAccountsFake.firstCall.args[1]).to.deep.equal([0x23456789, 0xABCDEF01]);
+					expect(dbAccountsFake.firstCall.args[1]).to.deep.equal(0xABCDEF0123456789n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

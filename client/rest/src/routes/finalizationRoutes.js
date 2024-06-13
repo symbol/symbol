@@ -24,11 +24,11 @@ import routeUtils from './routeUtils.js';
 import catapult from '../catapult-sdk/index.js';
 import finalizationProofCodec from '../sockets/finalizationProofCodec.js';
 import restifyErrors from 'restify-errors';
+import { utils } from 'symbol-sdk';
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;
 const { BinaryParser } = catapult.parser;
-const { uint64 } = catapult.utils;
 const { NotFoundError } = restifyErrors;
 
 export default {
@@ -66,7 +66,7 @@ export default {
 
 			const uint64Size = 8;
 			const headerBuffer = packetHeader.createBuffer(PacketType.finalizationProofAtHeight, packetHeader.size + uint64Size);
-			const heightBuffer = Buffer.from(uint64.toBytes(height));
+			const heightBuffer = Buffer.from(utils.intToBytes(height, 8));
 			const packetBuffer = Buffer.concat([headerBuffer, heightBuffer]);
 
 			return sendRequestAndResponse(packetBuffer, res, next);

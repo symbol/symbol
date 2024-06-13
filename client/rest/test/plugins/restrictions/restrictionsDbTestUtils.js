@@ -92,7 +92,7 @@ const restrictionsDbTestUtils = {
 			mosaicRestrictionEntry: {
 				compositeHash: '',
 				entryType: restriction.mosaicRestriction.restrictionType.global,
-				mosaicId: new Long(mosaicId[0], mosaicId[1]),
+				mosaicId: Long.fromBigInt(mosaicId),
 				restrictions: [{ key: '', restriction: { referenceMosaicId: '', restrictionValue: '', restrictionType: 0 } }]
 			}
 		}),
@@ -102,7 +102,7 @@ const restrictionsDbTestUtils = {
 			mosaicRestrictionEntry: {
 				compositeHash: '',
 				entryType: restriction.mosaicRestriction.restrictionType.address,
-				mosaicId: new Long(mosaicId[0], mosaicId[1]),
+				mosaicId: Long.fromBigInt(mosaicId),
 				targetAddress: new Binary(Buffer.from(targetAddress)),
 				restrictions: [{ key: '', value: '' }]
 			}

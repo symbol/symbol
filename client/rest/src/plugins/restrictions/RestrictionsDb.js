@@ -66,7 +66,7 @@ export default class RestrictionsDb {
 
 	/**
 	 * Retrieves filtered and paginated mosaic restrictions.
-	 * @param {module:utils/uint64~uint64} mosaicId Mosaic id
+	 * @param {bigint} mosaicId Mosaic id
 	 * @param {number} entryType Mosaic restriction type
 	 * @param {Uint8Array} targetAddress Mosaic restriction target address
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,

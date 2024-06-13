@@ -25,8 +25,6 @@ import routeUtils from '../../routes/routeUtils.js';
 
 const { PacketType } = catapult.packet;
 
-const { uint64 } = catapult.utils;
-
 export default {
 	register: (server, db, services) => {
 		const accountRestrictionsSender = routeUtils.createSender('accountRestrictions');
@@ -63,7 +61,7 @@ export default {
 		const mosaicRestrictionSender = routeUtils.createSender(routeResultTypes.mosaicRestrictions);
 		server.get('/restrictions/mosaic', (req, res, next) => {
 			const { params } = req;
-			const mosaicId = params.mosaicId ? routeUtils.parseArgument(params, 'mosaicId', uint64.fromHex) : undefined;
+			const mosaicId = params.mosaicId ? routeUtils.parseArgument(params, 'mosaicId', 'uint64hex') : undefined;
 			const entryType = params.entryType ? routeUtils.parseArgument(params, 'entryType', 'uint') : undefined;
 			const targetAddress = params.targetAddress ? routeUtils.parseArgument(params, 'targetAddress', 'address') : undefined;
 

@@ -22,9 +22,10 @@
 import { bufferToUnresolvedAddress, longToUint64 } from './dbUtils.js';
 import catapult from '../catapult-sdk/index.js';
 import { Binary } from 'mongodb';
+import { utils } from 'symbol-sdk';
 
 const { ModelType, status } = catapult.model;
-const { convert, uint64 } = catapult.utils;
+const { convert } = catapult.utils;
 
 /**
  * Some of the formatters here may be branched depending on whether the received data comes from MongoDb or simple JavaScript. This happens
@@ -34,6 +35,8 @@ const { convert, uint64 } = catapult.utils;
  * internal objects parsing). However, since the vast majority of times data is streamed directly untouched from the database to the API,
  * this has not been decoupled yet.
  */
+
+const formatBigInt = value => value.toString(16).padStart(16, '0').toUpperCase();
 
 export default {
 	[ModelType.none]: value => value,
@@ -45,9 +48,17 @@ export default {
 	// `uint16` required solely because accountRestrictions->restrictionAdditions array has uint16 provided as binary
 	[ModelType.uint16]: value => (value instanceof Binary ? Buffer.from(value.buffer).readInt16LE(0) : value),
 	[ModelType.uint32]: value => convert.int32ToUint32(value),
-	[ModelType.uint64]: value => uint64.toString(longToUint64(value)),
-	// `uint64HexIdentifier` requires branching accountRestrictions->restrictionAdditions provides uint64 as binary
-	[ModelType.uint64HexIdentifier]: value => uint64.toHex(value instanceof Binary ? uint64.fromBytes(value.buffer) : longToUint64(value)),
+	[ModelType.uint64]: value => longToUint64(value).toString(),
+	// `uint64HexIdentifier` requires branching because accountRestrictions.restrictionAdditions provides bigint as binary
+	[ModelType.uint64HexIdentifier]: value => {
+		if (value instanceof Binary) {
+			// make a copy of the Binary's buffer to ensure compatability with BigUint64Array
+			const copy = Uint8Array.from(value.value());
+			return formatBigInt(utils.bytesToBigInt(copy, 8));
+		}
+
+		return formatBigInt(longToUint64(value));
+	},
 	[ModelType.int]: value => value.valueOf(),
 	[ModelType.boolean]: value => value,
 	[ModelType.encodedAddress]: value => bufferToUnresolvedAddress(value)

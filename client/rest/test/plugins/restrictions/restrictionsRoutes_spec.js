@@ -54,7 +54,7 @@ describe('restrictions routes', () => {
 
 	describe('mosaic restrictions', () => {
 		const testMosaicId = '0DC67FBE1CAD29E3';
-		const testMosaicIdParsed = [0x1CAD29E3, 0x0DC67FBE];
+		const testMosaicIdParsed = 0x0DC67FBE1CAD29E3n;
 		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 
 		const emptyPageSample = {

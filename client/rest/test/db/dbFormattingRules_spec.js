@@ -167,24 +167,24 @@ describe('db formatting rules', () => {
 	describe('can format uint64 type', () => {
 		it('can format uint64 type from Long', () => {
 			// Arrange:
-			const object = convertToLong([1, 2]);
+			const object = convertToLong(8589934602n);
 
 			// Act:
 			const result = formattingRules[ModelType.uint64](object);
 
 			// Assert:
-			expect(result).to.equal('8589934593');
+			expect(result).to.equal('8589934602');
 		});
 
 		it('can format uint64HexIdentifier type from Long', () => {
 			// Arrange:
-			const object = convertToLong([1, 2]);
+			const object = convertToLong(8589934602n);
 
 			// Act:
 			const result = formattingRules[ModelType.uint64HexIdentifier](object);
 
 			// Assert:
-			expect(result).to.equal('0000000200000001');
+			expect(result).to.equal('000000020000000A');
 		});
 
 		it('can format uint64HexIdentifier type from Binary', () => {
