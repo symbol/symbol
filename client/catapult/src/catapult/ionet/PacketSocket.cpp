@@ -392,7 +392,7 @@ namespace catapult { namespace ionet {
 
 		public:
 			void stats(const PacketSocket::StatsCallback& callback) {
-				PacketSocket::Stats stats;
+				PacketSocket::Stats stats{};
 				stats.IsOpen = m_socket.lowest_layer().is_open();
 				stats.NumUnprocessedBytes = m_buffer.size();
 				callback(stats);
