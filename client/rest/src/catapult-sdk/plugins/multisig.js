@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/multisig */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a multisig plugin.
@@ -29,7 +29,7 @@ import ModelType from '../model/ModelType.js';
  */
 export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.modifyMultisigAccount, {
+		builder.addTransactionSupport(models.TransactionType.MULTISIG_ACCOUNT_MODIFICATION, {
 			minRemovalDelta: ModelType.int,
 			minApprovalDelta: ModelType.int,
 			addressAdditions: { type: ModelType.array, schemaName: ModelType.encodedAddress },

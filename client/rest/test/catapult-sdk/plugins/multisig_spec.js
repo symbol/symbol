@@ -37,15 +37,16 @@ describe('multisig plugin', () => {
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 4);
 			expect(modelSchema).to.contain.all.keys([
-				'modifyMultisigAccount',
+				'TransactionType.MULTISIG_ACCOUNT_MODIFICATION',
 				'multisigEntry',
 				'multisigEntry.multisig',
 				'multisigGraph'
 			]);
 
-			// - modify multisig account
-			expect(Object.keys(modelSchema.modifyMultisigAccount).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
-			expect(modelSchema.modifyMultisigAccount).to.contain.all.keys([
+			// - TransactionType.MULTISIG_ACCOUNT_MODIFICATION
+			const multisigAccountModificationSchema = modelSchema['TransactionType.MULTISIG_ACCOUNT_MODIFICATION'];
+			expect(Object.keys(multisigAccountModificationSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
+			expect(multisigAccountModificationSchema).to.contain.all.keys([
 				'minRemovalDelta', 'minApprovalDelta', 'addressAdditions', 'addressDeletions'
 			]);
 

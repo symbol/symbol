@@ -39,8 +39,9 @@ describe('namespace plugin', () => {
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 15);
 			expect(modelSchema).to.contain.all.keys(
-				'aliasAddress',
-				'aliasMosaic',
+				'TransactionType.ADDRESS_ALIAS',
+				'TransactionType.MOSAIC_ALIAS',
+				'TransactionType.NAMESPACE_REGISTRATION',
 				'namespaces',
 				'namespaceDescriptor',
 				'namespaceDescriptor.meta',
@@ -49,20 +50,26 @@ describe('namespace plugin', () => {
 				'namespaceDescriptor.alias.address',
 				'namespaceDescriptor.alias.empty',
 				'namespaceNameTuple',
-				'registerNamespace',
 				'mosaicNames',
 				'mosaicNamesTuple',
 				'accountNames',
 				'accountNamesTuple'
 			);
 
-			// - alias address
-			expect(Object.keys(modelSchema.aliasAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.aliasAddress).to.contain.all.keys(['namespaceId', 'address', 'aliasAction']);
+			// - TransactionType.ADDRESS_ALIAS
+			const addressAliasSchema = modelSchema['TransactionType.ADDRESS_ALIAS'];
+			expect(Object.keys(addressAliasSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(addressAliasSchema).to.contain.all.keys(['namespaceId', 'address', 'aliasAction']);
 
-			// - alias mosaic
-			expect(Object.keys(modelSchema.aliasMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.aliasMosaic).to.contain.all.keys(['namespaceId', 'mosaicId', 'aliasAction']);
+			// - TransactionType.MOSAIC_ALIAS
+			const mosaicAliasSchema = modelSchema['TransactionType.MOSAIC_ALIAS'];
+			expect(Object.keys(mosaicAliasSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(mosaicAliasSchema).to.contain.all.keys(['namespaceId', 'mosaicId', 'aliasAction']);
+
+			// - TransactionType.NAMESPACE_REGISTRATION
+			const namespaceRegistrationSchema = modelSchema['TransactionType.NAMESPACE_REGISTRATION'];
+			expect(Object.keys(namespaceRegistrationSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
+			expect(namespaceRegistrationSchema).to.contain.all.keys(['id', 'registrationType', 'parentId', 'duration', 'name']);
 
 			// - namespaces
 			expect(Object.keys(modelSchema.namespaces).length).to.equal(1);
@@ -98,10 +105,6 @@ describe('namespace plugin', () => {
 			// - namespaceNameTuple
 			expect(Object.keys(modelSchema.namespaceNameTuple).length).to.equal(3);
 			expect(modelSchema.namespaceNameTuple).to.contain.all.keys(['id', 'name', 'parentId']);
-
-			// - register namespace
-			expect(Object.keys(modelSchema.registerNamespace).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
-			expect(modelSchema.registerNamespace).to.contain.all.keys(['id', 'registrationType', 'parentId', 'duration', 'name']);
 
 			// - mosaic names
 			expect(Object.keys(modelSchema.mosaicNames).length).to.equal(1);

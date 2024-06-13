@@ -36,11 +36,12 @@ describe('transfer plugin', () => {
 
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 1);
-			expect(modelSchema).to.contain.all.keys(['transfer']);
+			expect(modelSchema).to.contain.all.keys(['TransactionType.TRANSFER']);
 
-			// - transfer
-			expect(Object.keys(modelSchema.transfer).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.transfer).to.contain.all.keys(['recipientAddress', 'message', 'mosaics']);
+			// - TransactionType.TRANSFER
+			const transferSchema = modelSchema['TransactionType.TRANSFER'];
+			expect(Object.keys(transferSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(transferSchema).to.contain.all.keys(['recipientAddress', 'message', 'mosaics']);
 		});
 	});
 });

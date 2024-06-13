@@ -40,10 +40,15 @@ describe('lock hash plugin', () => {
 
 			// Assert:
 			assertSchema(modelSchema, numDefaultKeys + 3, [
+				'TransactionType.HASH_LOCK',
 				'hashLockInfo',
-				'hashLockInfo.lock',
-				'hashLock'
+				'hashLockInfo.lock'
 			]);
+
+			// - TransactionType.HASH_LOCK
+			const hashLockSchema = modelSchema['TransactionType.HASH_LOCK'];
+			const transactionSchemaSize = Object.keys(modelSchema.transaction).length;
+			assertSchema(hashLockSchema, transactionSchemaSize + 4, 'duration', 'hash', 'mosaicId', 'amount');
 
 			// - hash lock infos
 			assertSchema(modelSchema.hashLockInfo, 2, 'id', 'lock');
@@ -51,10 +56,6 @@ describe('lock hash plugin', () => {
 				modelSchema['hashLockInfo.lock'], 7,
 				'version', 'ownerAddress', 'mosaicId', 'amount', 'endHeight', 'status', 'hash'
 			);
-
-			// - hash lock transaction
-			const transactionSchemaSize = Object.keys(modelSchema.transaction).length;
-			assertSchema(modelSchema.hashLock, transactionSchemaSize + 4, 'duration', 'hash', 'mosaicId', 'amount');
 		});
 	});
 });

@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/aggregate */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates an aggregate plugin.
@@ -35,8 +35,8 @@ export default {
 			cosignatures: { type: ModelType.array, schemaName: 'aggregate.cosignature' }
 		};
 
-		builder.addTransactionSupport(EntityType.aggregateComplete, aggregateSchema);
-		builder.addTransactionSupport(EntityType.aggregateBonded, aggregateSchema);
+		builder.addTransactionSupport(models.TransactionType.AGGREGATE_COMPLETE, aggregateSchema);
+		builder.addTransactionSupport(models.TransactionType.AGGREGATE_BONDED, aggregateSchema);
 
 		builder.addSchema('aggregate.cosignature', {
 			version: ModelType.uint64,

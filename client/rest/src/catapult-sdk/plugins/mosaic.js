@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/mosaic */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a mosaic plugin.
@@ -29,7 +29,7 @@ import ModelType from '../model/ModelType.js';
  */
 export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.mosaicDefinition, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_DEFINITION, {
 			id: ModelType.uint64HexIdentifier,
 			duration: ModelType.uint64,
 			nonce: ModelType.uint32,
@@ -37,13 +37,13 @@ export default {
 			divisibility: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.mosaicSupplyChange, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_SUPPLY_CHANGE, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			delta: ModelType.uint64,
 			action: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.mosaicSupplyRevocation, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_SUPPLY_REVOCATION, {
 			sourceAddress: ModelType.encodedAddress,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64

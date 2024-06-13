@@ -23,17 +23,15 @@
 
 import connector from './connector.js';
 import { buildOffsetCondition, convertToLong, uniqueLongList } from './dbUtils.js';
-import catapult from '../catapult-sdk/index.js';
 import MultisigDb from '../plugins/multisig/MultisigDb.js';
 import MongoDb from 'mongodb';
 import { PublicKey } from 'symbol-sdk';
-import { Network } from 'symbol-sdk/symbol';
+import { Network, models } from 'symbol-sdk/symbol';
 
-const { EntityType } = catapult.model;
 const { ObjectId } = MongoDb;
 
-const isAggregateType = document => EntityType.aggregateComplete === document.transaction.type
-	|| EntityType.aggregateBonded === document.transaction.type;
+const isAggregateType = document => models.TransactionType.AGGREGATE_COMPLETE.value === document.transaction.type
+	|| models.TransactionType.AGGREGATE_BONDED.value === document.transaction.type;
 
 const createSanitizer = () => ({
 	copyAndDeleteId: dbObject => {
@@ -521,7 +519,7 @@ export default class CatapultDb {
 	/**
 	 * Return (id, name, parent) tuples for transactions with type and with id in set of ids.
 	 * @param {*} ids Set of transaction ids.
-	 * @param {*} transactionType Transaction type.
+	 * @param {models.TransactionType} transactionType Transaction type.
 	 * @param {object} fieldNames Descriptor for fields used in query.
 	 * @returns {Promise<Array<object>>} Promise that is resolved when tuples are ready.
 	 */
@@ -529,7 +527,7 @@ export default class CatapultDb {
 		const queriedIds = ids.map(convertToLong);
 		const conditions = {
 			$match: {
-				'transaction.type': transactionType,
+				'transaction.type': transactionType.value,
 				[`transaction.${fieldNames.id}`]: { $in: queriedIds }
 			}
 		};

@@ -20,7 +20,6 @@
  */
 
 import * as merkle from './crypto/merkleAuditProof.js';
-import EntityType from './model/EntityType.js';
 import ModelType from './model/ModelType.js';
 import idReducer from './model/idReducer.js';
 import namespace from './model/namespace.js';
@@ -43,7 +42,6 @@ export default {
 		merkle
 	},
 	model: {
-		EntityType,
 		idReducer,
 		ModelType,
 		restriction,

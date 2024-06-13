@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/transfer */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a transfer plugin.
@@ -29,7 +29,7 @@ import ModelType from '../model/ModelType.js';
  */
 export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.transfer, {
+		builder.addTransactionSupport(models.TransactionType.TRANSFER, {
 			recipientAddress: ModelType.encodedAddress,
 			message: ModelType.binary,
 			mosaics: { type: ModelType.array, schemaName: 'mosaic' }

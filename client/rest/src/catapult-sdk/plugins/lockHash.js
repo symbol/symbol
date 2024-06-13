@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/lockHash */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a lock hash plugin.
@@ -43,7 +43,7 @@ export default {
 			hash: ModelType.binary
 		});
 
-		builder.addTransactionSupport(EntityType.hashLock, {
+		builder.addTransactionSupport(models.TransactionType.HASH_LOCK, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			duration: ModelType.uint64,

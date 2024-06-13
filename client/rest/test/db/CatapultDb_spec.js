@@ -21,17 +21,15 @@
 
 import test from './utils/dbTestUtils.js';
 import testDbOptions from './utils/testDbOptions.js';
-import catapult from '../../src/catapult-sdk/index.js';
 import CatapultDb from '../../src/db/CatapultDb.js';
 import { uniqueLongList } from '../../src/db/dbUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
 import { PublicKey, utils } from 'symbol-sdk';
-import { Address, Network } from 'symbol-sdk/symbol';
+import { Address, Network, models } from 'symbol-sdk/symbol';
 
-const { EntityType } = catapult.model;
-
+const { TransactionType } = models;
 const { Long, Binary } = MongoDb;
 const Testnet_Network = testDbOptions.networkId;
 const Default_Height = 34567;
@@ -755,7 +753,7 @@ describe('catapult db', () => {
 			const aggregateId = test.db.createObjectId(id);
 			const hash = new Binary(Buffer.from(createTransactionHash(id++)));
 			const meta = { height: Long.fromNumber(height), hash, addresses: [] };
-			transactions.push({ _id: aggregateId, meta, transaction: { type } });
+			transactions.push({ _id: aggregateId, meta, transaction: { type: type.value } });
 
 			const numDependentDocuments = (options || {}).numDependentDocuments || 0;
 			for (let j = 0; j < numDependentDocuments; ++j) {
@@ -769,7 +767,7 @@ describe('catapult db', () => {
 
 		for (let i = 0; i < numTransactionsPerHeight; ++i) {
 			// transactionsAtHeight only worked for both aggregates, so pick each type alternatively
-			const type = 0 === i % 2 ? EntityType.aggregateComplete : EntityType.aggregateBonded;
+			const type = 0 === i % 2 ? TransactionType.AGGREGATE_COMPLETE : TransactionType.AGGREGATE_BONDED;
 			heights.forEach(height => { addTransactionAtHeight(height, type); });
 		}
 
@@ -1039,7 +1037,7 @@ describe('catapult db', () => {
 		const assertTransactions = (expectedTransactions, ids) => runDbTest(
 			// Arrange: seed with transactions with markerIds: 20000 - 20011
 			createDbEntities(),
-			db => db.findNamesByIds(ids, 0x12345, { id: 'markerId', name: 'markerName', parentId: 'parentMarkerId' }),
+			db => db.findNamesByIds(ids, new TransactionType(0x12345), { id: 'markerId', name: 'markerName', parentId: 'parentMarkerId' }),
 			transactions => {
 				// Assert:
 				expect(transactions.length).to.equal(expectedTransactions.length);
@@ -1091,7 +1089,7 @@ describe('catapult db', () => {
 			};
 			return runDbTest(
 				dbEntity,
-				db => db.findNamesByIds([23], 0x12345, { id: 'id', name: 'name', parentId: 'parentId' }),
+				db => db.findNamesByIds([23], new TransactionType(0x12345), { id: 'id', name: 'name', parentId: 'parentId' }),
 				tuples => {
 					expect(tuples[0].parentId instanceof Long).to.be.equal(true);
 				}
@@ -1502,7 +1500,7 @@ describe('catapult db', () => {
 		it('returns expected structure', () => {
 			// Arrange:
 			const dbTransactions = [
-				createTransaction(10, [account1.address], 123, account1.publicKey, account2.address, EntityType.transfer)
+				createTransaction(10, [account1.address], 123, account1.publicKey, account2.address, TransactionType.TRANSFER)
 			];
 			const blocks = createBlocks(dbTransactions);
 
@@ -1559,20 +1557,20 @@ describe('catapult db', () => {
 			// Arrange:
 			const dbTransactions = [
 				// Aggregate
-				createTransaction(10, [], 1, 0, 0, EntityType.aggregateComplete),
-				createInnerTransaction(100, 30, 0, 0, EntityType.mosaicDefinition),
-				createInnerTransaction(200, 30, 0, 0, EntityType.mosaicSupplyChange),
+				createTransaction(10, [], 1, 0, 0, TransactionType.AGGREGATE_COMPLETE),
+				createInnerTransaction(100, 30, 0, 0, TransactionType.MOSAIC_DEFINITION),
+				createInnerTransaction(200, 30, 0, 0, TransactionType.MOSAIC_SUPPLY_CHANGE),
 
-				createTransaction(20, [], 1, 0, 0, EntityType.aggregateBonded),
-				createInnerTransaction(300, 30, 0, 0, EntityType.transfer),
-				createInnerTransaction(400, 30, 0, 0, EntityType.mosaicDefinition),
+				createTransaction(20, [], 1, 0, 0, TransactionType.AGGREGATE_BONDED),
+				createInnerTransaction(300, 30, 0, 0, TransactionType.TRANSFER),
+				createInnerTransaction(400, 30, 0, 0, TransactionType.MOSAIC_DEFINITION),
 
-				createTransaction(30, [], 1, 0, 0, EntityType.aggregateComplete),
-				createInnerTransaction(500, 30, 0, 0, EntityType.registerNamespace)
+				createTransaction(30, [], 1, 0, 0, TransactionType.AGGREGATE_COMPLETE),
+				createInnerTransaction(500, 30, 0, 0, TransactionType.NAMESPACE_REGISTRATION)
 			];
 
 			const filters = {
-				transactionTypes: [EntityType.transfer, EntityType.mosaicDefinition, EntityType.aggregateComplete]
+				transactionTypes: [TransactionType.TRANSFER, TransactionType.MOSAIC_DEFINITION, TransactionType.AGGREGATE_COMPLETE]
 			};
 
 			// Act + Assert:
@@ -1585,7 +1583,7 @@ describe('catapult db', () => {
 				createTransaction(10, [account1.address], 1),
 				createTransaction(20, [account1.address], 1, account1.publicKey),
 				createTransaction(30, [account1.address], 1, account1.publicKey, account1.address),
-				createTransaction(40, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer)
+				createTransaction(40, [account1.address], 1, account1.publicKey, account1.address, TransactionType.TRANSFER)
 			];
 
 			// Act + Assert:
@@ -1599,14 +1597,14 @@ describe('catapult db', () => {
 				createTransaction(20, [account1.address], 1),
 				createTransaction(30, [account1.address], 1, account1.publicKey),
 				createTransaction(40, [account1.address], 1, account1.publicKey, account1.address),
-				createTransaction(50, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer),
-				createTransaction(60, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [
+				createTransaction(50, [account1.address], 1, account1.publicKey, account1.address, TransactionType.TRANSFER),
+				createTransaction(60, [account1.address], 1, account1.publicKey, account1.address, TransactionType.TRANSFER, [
 					{ id: 10, amount: 100 }
 				]),
-				createTransaction(70, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [
+				createTransaction(70, [account1.address], 1, account1.publicKey, account1.address, TransactionType.TRANSFER, [
 					{ id: 10, amount: 200 }
 				]),
-				createTransaction(80, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [
+				createTransaction(80, [account1.address], 1, account1.publicKey, account1.address, TransactionType.TRANSFER, [
 					{ id: 10, amount: 300 }
 				])
 			];
@@ -1615,7 +1613,7 @@ describe('catapult db', () => {
 				height: 1,
 				signerPublicKey: account1.publicKey,
 				recipientAddress: account1.address,
-				transactionTypes: [EntityType.transfer],
+				transactionTypes: [TransactionType.TRANSFER],
 				transferMosaicId: 10,
 				fromTransferAmount: 101,
 				toTransferAmount: 299
@@ -1856,25 +1854,25 @@ describe('catapult db', () => {
 				// Arrange:
 				const dbTransactions = [
 					// Non aggregate
-					createTransaction(10, [], 1, 0, 0, EntityType.transfer),
-					createTransaction(20, [], 1, 0, 0, EntityType.accountLink),
+					createTransaction(10, [], 1, 0, 0, TransactionType.TRANSFER),
+					createTransaction(20, [], 1, 0, 0, TransactionType.ACCOUNT_KEY_LINK),
 
 					// Aggregate
-					createTransaction(30, [], 1, 0, 0, EntityType.aggregateBonded),
-					createInnerTransaction(100, 30, 0, 0, EntityType.mosaicDefinition),
-					createInnerTransaction(200, 30, 0, 0, EntityType.mosaicSupplyChange),
+					createTransaction(30, [], 1, 0, 0, TransactionType.AGGREGATE_BONDED),
+					createInnerTransaction(100, 30, 0, 0, TransactionType.MOSAIC_DEFINITION),
+					createInnerTransaction(200, 30, 0, 0, TransactionType.MOSAIC_SUPPLY_CHANGE),
 
-					createTransaction(40, [], 1, 0, 0, EntityType.aggregateComplete),
-					createInnerTransaction(300, 40, 0, 0, EntityType.transfer),
-					createInnerTransaction(400, 40, 0, 0, EntityType.transfer),
+					createTransaction(40, [], 1, 0, 0, TransactionType.AGGREGATE_COMPLETE),
+					createInnerTransaction(300, 40, 0, 0, TransactionType.TRANSFER),
+					createInnerTransaction(400, 40, 0, 0, TransactionType.TRANSFER),
 
-					createTransaction(50, [], 1, 0, 0, EntityType.aggregateBonded),
-					createInnerTransaction(500, 50, 0, 0, EntityType.registerNamespace),
-					createInnerTransaction(600, 50, 0, 0, EntityType.aliasAddress)
+					createTransaction(50, [], 1, 0, 0, TransactionType.AGGREGATE_BONDED),
+					createInnerTransaction(500, 50, 0, 0, TransactionType.NAMESPACE_REGISTRATION),
+					createInnerTransaction(600, 50, 0, 0, TransactionType.ADDRESS_ALIAS)
 				];
 
 				const filters = {
-					transactionTypes: [EntityType.mosaicDefinition, EntityType.aggregateComplete, EntityType.transfer]
+					transactionTypes: [TransactionType.MOSAIC_DEFINITION, TransactionType.AGGREGATE_COMPLETE, TransactionType.TRANSFER]
 				};
 
 				// Act + Assert:
@@ -1885,9 +1883,12 @@ describe('catapult db', () => {
 				// Arrange:
 				const dbTransactions = [
 					// Non aggregate
-					createTransaction(10, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 1 }]),
-					createTransaction(20, [], 1, 0, 0, EntityType.transfer, [{ id: 20, amount: 1 }]),
-					createTransaction(30, [], 1, 0, 0, EntityType.accountMetadata, [{ id: 10, amount: 1 }, { id: 20, amount: 1 }])
+					createTransaction(10, [], 1, 0, 0, TransactionType.TRANSFER, [{ id: 10, amount: 1 }]),
+					createTransaction(20, [], 1, 0, 0, TransactionType.TRANSFER, [{ id: 20, amount: 1 }]),
+					createTransaction(30, [], 1, 0, 0, TransactionType.ACCOUNT_ADDRESS_METADATA, [
+						{ id: 10, amount: 1 },
+						{ id: 20, amount: 1 }
+					])
 				];
 
 				const filters = { transferMosaicId: 20 };
@@ -1900,9 +1901,9 @@ describe('catapult db', () => {
 				// Arrange:
 				const dbTransactions = [
 					// Non aggregate
-					createTransaction(10, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 5 }]),
-					createTransaction(20, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 6 }]),
-					createTransaction(30, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 7 }])
+					createTransaction(10, [], 1, 0, 0, TransactionType.TRANSFER, [{ id: 10, amount: 5 }]),
+					createTransaction(20, [], 1, 0, 0, TransactionType.TRANSFER, [{ id: 10, amount: 6 }]),
+					createTransaction(30, [], 1, 0, 0, TransactionType.TRANSFER, [{ id: 10, amount: 7 }])
 				];
 
 				const filters = { transferMosaicId: 10, fromTransferAmount: 6 };
@@ -1915,9 +1916,9 @@ describe('catapult db', () => {
 				// Arrange:
 				const dbTransactions = [
 					// Non aggregate
-					createTransaction(10, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 5 }]),
-					createTransaction(20, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 6 }]),
-					createTransaction(30, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 7 }])
+					createTransaction(10, [], 1, 0, 0, TransactionType.TRANSFER, [{ id: 10, amount: 5 }]),
+					createTransaction(20, [], 1, 0, 0, TransactionType.TRANSFER, [{ id: 10, amount: 6 }]),
+					createTransaction(30, [], 1, 0, 0, TransactionType.TRANSFER, [{ id: 10, amount: 7 }])
 				];
 
 				const filters = { transferMosaicId: 10, toTransferAmount: 6 };

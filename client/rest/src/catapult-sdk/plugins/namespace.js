@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/namespace */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 const AliasType = {
 	1: 'namespaceDescriptor.alias.mosaic',
@@ -36,19 +36,19 @@ const getAliasBasicType = type => AliasType[type] || 'namespaceDescriptor.alias.
  */
 export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.aliasAddress, {
+		builder.addTransactionSupport(models.TransactionType.ADDRESS_ALIAS, {
 			namespaceId: ModelType.uint64HexIdentifier,
 			address: ModelType.encodedAddress,
 			aliasAction: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.aliasMosaic, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_ALIAS, {
 			namespaceId: ModelType.uint64HexIdentifier,
 			mosaicId: ModelType.uint64HexIdentifier,
 			aliasAction: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.registerNamespace, {
+		builder.addTransactionSupport(models.TransactionType.NAMESPACE_REGISTRATION, {
 			id: ModelType.uint64HexIdentifier,
 			registrationType: ModelType.uint8,
 			parentId: ModelType.uint64HexIdentifier,

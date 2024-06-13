@@ -26,6 +26,7 @@ import merkleUtils from '../../routes/merkleUtils.js';
 import routeUtils from '../../routes/routeUtils.js';
 import MongoDb from 'mongodb';
 import { utils } from 'symbol-sdk';
+import { models } from 'symbol-sdk/symbol';
 
 const { PacketType } = catapult.packet;
 const { Binary } = MongoDb;
@@ -55,7 +56,7 @@ export default {
 		});
 
 		const collectNames = (namespaceNameTuples, namespaceIds) => {
-			const type = catapult.model.EntityType.registerNamespace;
+			const type = models.TransactionType.NAMESPACE_REGISTRATION;
 			return db.catapultDb.findNamesByIds(namespaceIds, type, { id: 'id', name: 'name', parentId: 'parentId' })
 				.then(nameTuples => {
 					nameTuples.forEach(nameTuple => {

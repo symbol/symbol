@@ -36,23 +36,32 @@ describe('account link plugin', () => {
 
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 4);
-			expect(modelSchema).to.contain.all.keys(['accountLink', 'nodeKeyLink', 'votingKeyLink', 'vrfKeyLink']);
+			expect(modelSchema).to.contain.all.keys([
+				'TransactionType.ACCOUNT_KEY_LINK',
+				'TransactionType.NODE_KEY_LINK',
+				'TransactionType.VOTING_KEY_LINK',
+				'TransactionType.VRF_KEY_LINK'
+			]);
 
-			// - accountLink
-			expect(Object.keys(modelSchema.accountLink).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.accountLink).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
+			// - TransactionType.ACCOUNT_KEY_LINK
+			const accountKeyLinkSchema = modelSchema['TransactionType.ACCOUNT_KEY_LINK'];
+			expect(Object.keys(accountKeyLinkSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(accountKeyLinkSchema).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
 
-			// - nodeKeyLink
-			expect(Object.keys(modelSchema.nodeKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.nodeKeyLink).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
+			// - TransactionType.NODE_KEY_LINK
+			const nodeKeyLinkSchema = modelSchema['TransactionType.NODE_KEY_LINK'];
+			expect(Object.keys(nodeKeyLinkSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(nodeKeyLinkSchema).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
 
-			// - votingKeyLink
-			expect(Object.keys(modelSchema.votingKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
-			expect(modelSchema.votingKeyLink).to.contain.all.keys(['linkedPublicKey', 'startEpoch', 'endEpoch', 'linkAction']);
+			// - TransactionType.VOTING_KEY_LINK
+			const votingKeyLinkSchema = modelSchema['TransactionType.VOTING_KEY_LINK'];
+			expect(Object.keys(votingKeyLinkSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
+			expect(votingKeyLinkSchema).to.contain.all.keys(['linkedPublicKey', 'startEpoch', 'endEpoch', 'linkAction']);
 
-			// - vrfKeyLink
-			expect(Object.keys(modelSchema.vrfKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.vrfKeyLink).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
+			// - TransactionType.VRF_KEY_LINK
+			const vrfKeyLinkSchema = modelSchema['TransactionType.VRF_KEY_LINK'];
+			expect(Object.keys(vrfKeyLinkSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(vrfKeyLinkSchema).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
 		});
 	});
 });

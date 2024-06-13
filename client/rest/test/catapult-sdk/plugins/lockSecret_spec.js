@@ -40,11 +40,23 @@ describe('lock secret plugin', () => {
 
 			// Assert:
 			assertSchema(modelSchema, numDefaultKeys + 4, [
+				'TransactionType.SECRET_LOCK',
+				'TransactionType.SECRET_PROOF',
 				'secretLockInfo',
-				'secretLockInfo.lock',
-				'secretLock',
-				'secretProof'
+				'secretLockInfo.lock'
 			]);
+
+			// - TransactionType.SECRET_LOCK
+			const transactionSchemaSize = Object.keys(modelSchema.transaction).length;
+			const secretLockSchema = modelSchema['TransactionType.SECRET_LOCK'];
+			assertSchema(
+				secretLockSchema, transactionSchemaSize + 6,
+				'secret', 'mosaicId', 'amount', 'duration', 'recipientAddress', 'hashAlgorithm'
+			);
+
+			// - TransactionType.SECRET_PROOF
+			const secretProofSchema = modelSchema['TransactionType.SECRET_PROOF'];
+			assertSchema(secretProofSchema, transactionSchemaSize + 4, 'secret', 'recipientAddress', 'proof', 'hashAlgorithm');
 
 			// - secret lock
 			assertSchema(modelSchema.secretLockInfo, 2, 'id', 'lock');
@@ -55,14 +67,6 @@ describe('lock secret plugin', () => {
 				'version', 'ownerAddress', 'mosaicId', 'amount', 'endHeight', 'secret',
 				'status', 'hashAlgorithm', 'recipientAddress', 'compositeHash'
 			);
-
-			// - secret lock transactions
-			const transactionSchemaSize = Object.keys(modelSchema.transaction).length;
-			assertSchema(
-				modelSchema.secretLock, transactionSchemaSize + 6,
-				'secret', 'mosaicId', 'amount', 'duration', 'recipientAddress', 'hashAlgorithm'
-			);
-			assertSchema(modelSchema.secretProof, transactionSchemaSize + 4, 'secret', 'recipientAddress', 'proof', 'hashAlgorithm');
 		});
 	});
 });

@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/restrictions */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 // const accountRestrictionTypeOutgoingOffset = 0x4000;
 const accountRestrictionTypeBlockOffset = 0x8000;
@@ -33,19 +33,19 @@ const AccountRestrictionTypeFlags = Object.freeze({
 
 const accountRestrictionTypeDescriptors = [
 	{
-		entityType: EntityType.accountRestrictionAddress,
+		entityType: models.TransactionType.ACCOUNT_ADDRESS_RESTRICTION,
 		schemaPrefix: 'address',
 		valueType: ModelType.binary,
 		flag: AccountRestrictionTypeFlags.address
 	},
 	{
-		entityType: EntityType.accountRestrictionMosaic,
+		entityType: models.TransactionType.ACCOUNT_MOSAIC_RESTRICTION,
 		schemaPrefix: 'mosaic',
 		valueType: ModelType.uint64HexIdentifier,
 		flag: AccountRestrictionTypeFlags.mosaic
 	},
 	{
-		entityType: EntityType.accountRestrictionOperation,
+		entityType: models.TransactionType.ACCOUNT_OPERATION_RESTRICTION,
 		schemaPrefix: 'operation',
 		valueType: ModelType.uint16,
 		flag: AccountRestrictionTypeFlags.operation
@@ -110,7 +110,7 @@ export default {
 		 * Mosaic restrictions scope
 		 */
 		// MosaicAddressRestrictionTransaction transaction schema
-		builder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_ADDRESS_RESTRICTION, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			restrictionKey: ModelType.uint64HexIdentifier,
 			targetAddress: ModelType.encodedAddress,
@@ -119,7 +119,7 @@ export default {
 		});
 
 		// MosaicGlobalRestrictionTransaction transaction schema
-		builder.addTransactionSupport(EntityType.mosaicRestrictionGlobal, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_GLOBAL_RESTRICTION, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			referenceMosaicId: ModelType.uint64HexIdentifier,
 			restrictionKey: ModelType.uint64HexIdentifier,

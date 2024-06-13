@@ -21,6 +21,7 @@
 
 import catapult from '../../catapult-sdk/index.js';
 import { buildOffsetCondition, convertToLong, longToUint64 } from '../../db/dbUtils.js';
+import { models } from 'symbol-sdk/symbol';
 
 const createLatestConditions = (catapultDb, height) => {
 	if (height) {
@@ -151,10 +152,9 @@ export default class NamespaceDb {
 	 * @returns {Promise<Array<object>>} Register namespace transactions.
 	 */
 	registerNamespaceTransactionsByNamespaceIds(namespaceIds) {
-		const type = catapult.model.EntityType.registerNamespace;
 		const conditions = { $and: [] };
 		conditions.$and.push({ 'transaction.id': { $in: namespaceIds } });
-		conditions.$and.push({ 'transaction.type': type });
+		conditions.$and.push({ 'transaction.type': models.TransactionType.NAMESPACE_REGISTRATION.value });
 		return this.catapultDb.queryDocuments('transactions', conditions);
 	}
 }

@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/lockSecret */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a lock secret plugin.
@@ -46,7 +46,7 @@ export default {
 			compositeHash: ModelType.binary
 		});
 
-		builder.addTransactionSupport(EntityType.secretLock, {
+		builder.addTransactionSupport(models.TransactionType.SECRET_LOCK, {
 			recipientAddress: ModelType.encodedAddress,
 			secret: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
@@ -54,7 +54,7 @@ export default {
 			duration: ModelType.uint64,
 			hashAlgorithm: ModelType.uint8
 		});
-		builder.addTransactionSupport(EntityType.secretProof, {
+		builder.addTransactionSupport(models.TransactionType.SECRET_PROOF, {
 			secret: ModelType.binary,
 			recipientAddress: ModelType.encodedAddress,
 			proof: ModelType.binary,

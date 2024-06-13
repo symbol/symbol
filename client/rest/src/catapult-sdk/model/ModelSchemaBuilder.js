@@ -20,8 +20,8 @@
  */
 
 /** @module model/ModelSchemaBuilder */
-import EntityType from './EntityType.js';
 import ModelType from './ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Builder for creating a model schema.
@@ -282,41 +282,15 @@ export default class ModelSchemaBuilder {
 
 		Object.assign(this.schema.blockHeader, this.schema.verifiableEntity);
 		Object.assign(this.schema.transaction, this.schema.verifiableEntity);
-
-		this.setAllowedTransactions(EntityType);
-	}
-
-	/**
-	 * Sets transactions allowed by addTransactionSupport.
-	 * @param {object} allowedTransactions Allowed transactions.
-	 */
-	setAllowedTransactions(allowedTransactions) {
-		// prepare reverse mapping id => string
-		this.entityTypeToString = Object.keys(allowedTransactions).reduce((state, name) => {
-			state[allowedTransactions[name]] = name;
-			return state;
-		}, {});
-	}
-
-	/**
-	 * Returns name for allowed transaction.
-	 * @param {module:model/EntityType} transactionType Transaction type.
-	 * @returns {string} Transaction name corresponding to type.
-	 */
-	typeToName(transactionType) {
-		if (!(transactionType in this.entityTypeToString))
-			throw Error(`transactionType is not in the list of allowed transactions '${transactionType}'`);
-
-		return this.entityTypeToString[transactionType];
 	}
 
 	/**
 	 * Adds support for a transaction type.
-	 * @param {module:model/EntityType} transactionType Transaction type.
+	 * @param {models.TransactionType} transactionType Transaction type.
 	 * @param {object} schema Transaction schema.
 	 */
 	addTransactionSupport(transactionType, schema) {
-		const name = this.typeToName(transactionType);
+		const name = transactionType.toString();
 		this.addSchema(name, schema);
 		Object.assign(this.schema[name], this.schema.transaction);
 	}
@@ -338,10 +312,17 @@ export default class ModelSchemaBuilder {
 	 * @returns {Function} Transaction schema lookup function.
 	 */
 	transactionSchemaNameSupplier() {
-		// default to transaction
 		return transaction => {
-			const transactionName = this.entityTypeToString[transaction.type];
-			return transactionName && this.schema[transactionName] ? transactionName : 'transaction';
+			try {
+				const transactionName = new models.TransactionType(transaction.type).toString();
+				if (this.schema[transactionName])
+					return transactionName;
+			} catch (RuntimeError) {
+				// ignore, unknown transaction type
+			}
+
+			// default to untyped transaction
+			return 'transaction';
 		};
 	}
 

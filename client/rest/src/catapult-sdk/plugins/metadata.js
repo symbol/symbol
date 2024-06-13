@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/metadata */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a metadata plugin.
@@ -29,7 +29,7 @@ import ModelType from '../model/ModelType.js';
  */
 export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.accountMetadata, {
+		builder.addTransactionSupport(models.TransactionType.ACCOUNT_METADATA, {
 			targetAddress: ModelType.encodedAddress,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			valueSizeDelta: ModelType.int,
@@ -37,7 +37,7 @@ export default {
 			value: ModelType.binary
 		});
 
-		builder.addTransactionSupport(EntityType.mosaicMetadata, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_METADATA, {
 			targetAddress: ModelType.encodedAddress,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetMosaicId: ModelType.uint64HexIdentifier,
@@ -46,7 +46,7 @@ export default {
 			value: ModelType.binary
 		});
 
-		builder.addTransactionSupport(EntityType.namespaceMetadata, {
+		builder.addTransactionSupport(models.TransactionType.NAMESPACE_METADATA, {
 			targetAddress: ModelType.encodedAddress,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetNamespaceId: ModelType.uint64HexIdentifier,

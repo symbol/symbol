@@ -37,28 +37,31 @@ describe('metadata plugin', () => {
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 5);
 			expect(modelSchema).to.contain.all.keys([
-				'accountMetadata',
-				'mosaicMetadata',
-				'namespaceMetadata',
+				'TransactionType.ACCOUNT_METADATA',
+				'TransactionType.MOSAIC_METADATA',
+				'TransactionType.NAMESPACE_METADATA',
 				'metadata',
 				'metadataEntry'
 			]);
 
-			// - accountMetadata
-			expect(Object.keys(modelSchema.accountMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
-			expect(modelSchema.accountMetadata).to.contain.all.keys([
+			// - TransactionType.ACCOUNT_METADATA
+			const accountMetadataSchema = modelSchema['TransactionType.ACCOUNT_METADATA'];
+			expect(Object.keys(accountMetadataSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
+			expect(accountMetadataSchema).to.contain.all.keys([
 				'targetAddress', 'scopedMetadataKey', 'valueSizeDelta', 'valueSize', 'value'
 			]);
 
-			// - mosaicMetadata
-			expect(Object.keys(modelSchema.mosaicMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 6);
-			expect(modelSchema.mosaicMetadata).to.contain.all.keys([
+			// - TransactionType.MOSAIC_METADATA
+			const mosaicMetadataSchema = modelSchema['TransactionType.MOSAIC_METADATA'];
+			expect(Object.keys(mosaicMetadataSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 6);
+			expect(mosaicMetadataSchema).to.contain.all.keys([
 				'targetAddress', 'scopedMetadataKey', 'targetMosaicId', 'valueSizeDelta', 'valueSize', 'value'
 			]);
 
-			// - namespaceMetadata
-			expect(Object.keys(modelSchema.namespaceMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 6);
-			expect(modelSchema.namespaceMetadata).to.contain.all.keys([
+			// - TransactionType.NAMESPACE_METADATA
+			const namespaceMetadataSchema = modelSchema['TransactionType.NAMESPACE_METADATA'];
+			expect(Object.keys(namespaceMetadataSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 6);
+			expect(namespaceMetadataSchema).to.contain.all.keys([
 				'targetAddress',
 				'scopedMetadataKey',
 				'targetNamespaceId',

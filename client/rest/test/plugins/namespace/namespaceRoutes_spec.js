@@ -28,7 +28,7 @@ import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
-import { Address } from 'symbol-sdk/symbol';
+import { Address, models } from 'symbol-sdk/symbol';
 
 const { Binary } = MongoDb;
 const { MockServer } = test;
@@ -357,7 +357,7 @@ describe('namespace routes', () => {
 					expect(dbParamTuples.length).to.equal(options.expectedNumDbQueries);
 					dbParamTuples.forEach(dbParamTuple => {
 						expect(dbParamTuple.ids).to.deep.equal(options.queryIdsGroupedByLevel[level++]);
-						expect(dbParamTuple.transactionType).to.deep.equal(catapult.model.EntityType.registerNamespace);
+						expect(dbParamTuple.transactionType).to.deep.equal(models.TransactionType.NAMESPACE_REGISTRATION);
 						expect(dbParamTuple.fieldsDescriptor).to.deep.equal({ id: 'id', name: 'name', parentId: 'parentId' });
 					});
 

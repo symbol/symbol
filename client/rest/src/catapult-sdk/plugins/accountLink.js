@@ -20,8 +20,8 @@
  */
 
 /** @module plugins/accountLink */
-import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates an accountLink plugin.
@@ -29,24 +29,24 @@ import ModelType from '../model/ModelType.js';
  */
 export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.accountLink, {
+		builder.addTransactionSupport(models.TransactionType.ACCOUNT_KEY_LINK, {
 			linkedPublicKey: ModelType.binary,
 			linkAction: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.nodeKeyLink, {
+		builder.addTransactionSupport(models.TransactionType.NODE_KEY_LINK, {
 			linkedPublicKey: ModelType.binary,
 			linkAction: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.votingKeyLink, {
+		builder.addTransactionSupport(models.TransactionType.VOTING_KEY_LINK, {
 			linkedPublicKey: ModelType.binary,
 			startEpoch: ModelType.uint32,
 			endEpoch: ModelType.uint32,
 			linkAction: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.vrfKeyLink, {
+		builder.addTransactionSupport(models.TransactionType.VRF_KEY_LINK, {
 			linkedPublicKey: ModelType.binary,
 			linkAction: ModelType.uint8
 		});

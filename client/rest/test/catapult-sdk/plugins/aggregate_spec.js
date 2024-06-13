@@ -37,11 +37,16 @@ describe('aggregate plugin', () => {
 
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 3);
-			expect(modelSchema).to.contain.all.keys(['aggregateComplete', 'aggregateBonded', 'aggregate.cosignature']);
+			expect(modelSchema).to.contain.all.keys([
+				'TransactionType.AGGREGATE_COMPLETE',
+				'TransactionType.AGGREGATE_BONDED',
+				'aggregate.cosignature'
+			]);
 
 			// - aggregate
-			expect(Object.keys(modelSchema[schemaName]).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema[schemaName]).to.contain.all.keys(['transactionsHash', 'transactions', 'cosignatures']);
+			const aggregateSchema = modelSchema[schemaName];
+			expect(Object.keys(aggregateSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(aggregateSchema).to.contain.all.keys(['transactionsHash', 'transactions', 'cosignatures']);
 
 			// - cosignature
 			expect(modelSchema['aggregate.cosignature']).to.deep.equal({
@@ -52,7 +57,7 @@ describe('aggregate plugin', () => {
 			});
 		};
 
-		it('adds aggregateComplete system schema', () => assertAddsSchema('aggregateComplete'));
-		it('adds aggregateBonded system schema', () => assertAddsSchema('aggregateBonded'));
+		it('adds aggregateComplete system schema', () => assertAddsSchema('TransactionType.AGGREGATE_COMPLETE'));
+		it('adds aggregateBonded system schema', () => assertAddsSchema('TransactionType.AGGREGATE_BONDED'));
 	});
 });

@@ -24,8 +24,9 @@ import RestrictionsDb from '../../../src/plugins/restrictions/RestrictionsDb.js'
 import dbTestUtils from '../../db/utils/dbTestUtils.js';
 import test from '../../testUtils.js';
 import MongoDb from 'mongodb';
+import { models } from 'symbol-sdk/symbol';
 
-const { EntityType, restriction } = catapult.model;
+const { restriction } = catapult.model;
 const { Binary, ObjectId, Long } = MongoDb;
 
 const createRestrictions = restrictions => {
@@ -51,8 +52,8 @@ const createRestrictions = restrictions => {
 
 	values = [];
 	for (let i = 0; i < restrictions.numOperations; ++i) {
-		const operationTypes = Object.keys(EntityType);
-		values.push(EntityType[operationTypes[Math.floor(operationTypes.length * Math.random())]]);
+		const operationTypes = Object.keys(models.TransactionType);
+		values.push(models.TransactionType[operationTypes[Math.floor(operationTypes.length * Math.random())]]);
 	}
 
 	restrictionsObject.push({

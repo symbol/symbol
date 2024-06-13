@@ -37,20 +37,27 @@ describe('mosaic plugin', () => {
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 5);
 			expect(modelSchema).to.contain.all.keys(
-				'mosaicDefinition',
-				'mosaicSupplyChange',
-				'mosaicSupplyRevocation',
+				'TransactionType.MOSAIC_DEFINITION',
+				'TransactionType.MOSAIC_SUPPLY_CHANGE',
+				'TransactionType.MOSAIC_SUPPLY_REVOCATION',
 				'mosaicDescriptor',
 				'mosaicDescriptor.mosaic'
 			);
 
-			// - mosaic definition
-			expect(Object.keys(modelSchema.mosaicDefinition).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
-			expect(modelSchema.mosaicDefinition).to.contain.all.keys(['id', 'duration', 'nonce', 'flags', 'divisibility']);
+			// - TransactionType.MOSAIC_DEFINITION
+			const mosaicDefinitionSchema = modelSchema['TransactionType.MOSAIC_DEFINITION'];
+			expect(Object.keys(mosaicDefinitionSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
+			expect(mosaicDefinitionSchema).to.contain.all.keys(['id', 'duration', 'nonce', 'flags', 'divisibility']);
 
-			// - mosaic supply change
-			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta', 'action']);
+			// - TransactionType.MOSAIC_SUPPLY_CHANGE
+			const mosaicSupplyChange = modelSchema['TransactionType.MOSAIC_SUPPLY_CHANGE'];
+			expect(Object.keys(mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta', 'action']);
+
+			// - TransactionType.MOSAIC_SUPPLY_REVOCATION
+			const mosaicSupplyRevocation = modelSchema['TransactionType.MOSAIC_SUPPLY_REVOCATION'];
+			expect(Object.keys(mosaicSupplyRevocation).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(mosaicSupplyRevocation).to.contain.all.keys(['sourceAddress', 'mosaicId', 'amount']);
 
 			// - mosaic descriptor
 			expect(Object.keys(modelSchema.mosaicDescriptor).length).to.equal(2);

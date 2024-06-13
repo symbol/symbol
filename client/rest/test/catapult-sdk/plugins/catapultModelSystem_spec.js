@@ -67,8 +67,8 @@ describe('catapult model system', () => {
 
 			// Assert:
 			expect(system.schema).to.contain.key('blockHeader');
-			expect(system.schema).to.not.contain.key('transfer');
-			expect(system.schema).to.not.contain.key('registerNamespace');
+			expect(system.schema).to.not.contain.key('TransactionType.TRANSFER');
+			expect(system.schema).to.not.contain.key('TransactionType.NAMESPACE_REGISTRATION');
 		});
 
 		it('can register single extension', () => {
@@ -77,8 +77,8 @@ describe('catapult model system', () => {
 
 			// Assert:
 			expect(system.schema).to.contain.key('blockHeader');
-			expect(system.schema).to.contain.key('transfer');
-			expect(system.schema).to.not.contain.key('registerNamespace');
+			expect(system.schema).to.contain.key('TransactionType.TRANSFER');
+			expect(system.schema).to.not.contain.key('TransactionType.NAMESPACE_REGISTRATION');
 		});
 
 		it('can register multiple extensions', () => {
@@ -87,9 +87,9 @@ describe('catapult model system', () => {
 
 			// Assert:
 			expect(system.schema).to.contain.key('blockHeader');
-			expect(system.schema).to.contain.key('transfer');
-			expect(system.schema).to.contain.key('registerNamespace');
-			expect(system.schema).to.contain.key('aggregateComplete');
+			expect(system.schema).to.contain.key('TransactionType.TRANSFER');
+			expect(system.schema).to.contain.key('TransactionType.NAMESPACE_REGISTRATION');
+			expect(system.schema).to.contain.key('TransactionType.AGGREGATE_COMPLETE');
 		});
 	});
 
@@ -103,8 +103,8 @@ describe('catapult model system', () => {
 
 			const formatter = system.formatters.default;
 			expect(formatter).to.contain.key('blockHeaderWithMetadata');
-			expect(formatter).to.not.contain.key('transfer');
-			expect(formatter).to.not.contain.key('registerNamespace');
+			expect(formatter).to.not.contain.key('TransactionType.TRANSFER');
+			expect(formatter).to.not.contain.key('TransactionType.NAMESPACE_REGISTRATION');
 		});
 
 		it('can register single extension', () => {
@@ -116,8 +116,8 @@ describe('catapult model system', () => {
 
 			const formatter = system.formatters.default;
 			expect(formatter).to.contain.key('blockHeaderWithMetadata');
-			expect(formatter).to.contain.key('transfer');
-			expect(formatter).to.not.contain.key('registerNamespace');
+			expect(formatter).to.contain.key('TransactionType.TRANSFER');
+			expect(formatter).to.not.contain.key('TransactionType.NAMESPACE_REGISTRATION');
 		});
 
 		it('can register multiple extensions', () => {
@@ -129,8 +129,8 @@ describe('catapult model system', () => {
 
 			const formatter = system.formatters.default;
 			expect(formatter).to.contain.key('blockHeaderWithMetadata');
-			expect(formatter).to.contain.key('transfer');
-			expect(formatter).to.contain.key('registerNamespace');
+			expect(formatter).to.contain.key('TransactionType.TRANSFER');
+			expect(formatter).to.contain.key('TransactionType.NAMESPACE_REGISTRATION');
 		});
 
 		it('cannot create formatter when no rules are specified', () => {
@@ -156,8 +156,8 @@ describe('catapult model system', () => {
 				const formatter = system.formatters[key];
 				const message = `formatter ${key}`;
 				expect(formatter, message).to.contain.key('blockHeaderWithMetadata');
-				expect(formatter, message).to.contain.key('transfer');
-				expect(formatter, message).to.not.contain.key('registerNamespace');
+				expect(formatter, message).to.contain.key('TransactionType.TRANSFER');
+				expect(formatter, message).to.not.contain.key('TransactionType.NAMESPACE_REGISTRATION');
 			});
 
 			// - formatting rules are dependent on formatter

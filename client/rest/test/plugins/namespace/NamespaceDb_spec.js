@@ -29,7 +29,7 @@ import testDbOptions from '../../db/utils/testDbOptions.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
-import { Address } from 'symbol-sdk/symbol';
+import { Address, models } from 'symbol-sdk/symbol';
 
 const { Binary } = MongoDb;
 
@@ -557,9 +557,9 @@ describe('namespace db', () => {
 	});
 
 	describe('register namespace transactions by namespace ids', () => {
-		const transactionType = catapult.model.EntityType.registerNamespace;
+		const transactionType = models.TransactionType.NAMESPACE_REGISTRATION;
 		const createRegisterNamespaceTransaction = (namespaceId, type, name) => ({
-			transaction: { type, id: convertToLong(namespaceId), name }
+			transaction: { type: type.value, id: convertToLong(namespaceId), name }
 		});
 
 		it('returns register namespace transactions by namespace ids', () => {

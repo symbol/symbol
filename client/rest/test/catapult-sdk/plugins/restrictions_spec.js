@@ -58,9 +58,11 @@ describe('restrictions plugin', () => {
 		it('adds restrictions system schema', () => {
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 15);
 			expect(modelSchema).to.contain.all.keys([
-				'accountRestrictionAddress',
-				'accountRestrictionMosaic',
-				'accountRestrictionOperation',
+				'TransactionType.ACCOUNT_ADDRESS_RESTRICTION',
+				'TransactionType.ACCOUNT_MOSAIC_RESTRICTION',
+				'TransactionType.ACCOUNT_OPERATION_RESTRICTION',
+				'TransactionType.MOSAIC_ADDRESS_RESTRICTION',
+				'TransactionType.MOSAIC_GLOBAL_RESTRICTION',
 				'accountRestrictions',
 				'accountRestriction.restrictions',
 				'accountRestriction.fallback',
@@ -72,21 +74,24 @@ describe('restrictions plugin', () => {
 		});
 
 		it('adds account restrictions schemas', () => {
-			// - accountRestrictionAddress
-			expect(Object.keys(modelSchema.accountRestrictionAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.accountRestrictionAddress).to.contain.all.keys([
+			// - TransactionType.ACCOUNT_ADDRESS_RESTRICTION
+			const accountAddressRestrictionSchema = modelSchema['TransactionType.ACCOUNT_ADDRESS_RESTRICTION'];
+			expect(Object.keys(accountAddressRestrictionSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(accountAddressRestrictionSchema).to.contain.all.keys([
 				'version', 'restrictionFlags', 'restrictionAdditions', 'restrictionDeletions'
 			]);
 
-			// - accountRestrictionMosaic
-			expect(Object.keys(modelSchema.accountRestrictionMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.accountRestrictionMosaic).to.contain.all.keys([
+			// - TransactionType.ACCOUNT_MOSAIC_RESTRICTION
+			const accountMosaicRestrictionSchema = modelSchema['TransactionType.ACCOUNT_MOSAIC_RESTRICTION'];
+			expect(Object.keys(accountMosaicRestrictionSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(accountMosaicRestrictionSchema).to.contain.all.keys([
 				'restrictionFlags', 'restrictionAdditions', 'restrictionDeletions'
 			]);
 
-			// - accountRestrictionOperation
-			expect(Object.keys(modelSchema.accountRestrictionOperation).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.accountRestrictionOperation).to.contain.all.keys([
+			// - TransactionType.ACCOUNT_OPERATION_RESTRICTION
+			const accountOperationRestrictionSchema = modelSchema['TransactionType.ACCOUNT_OPERATION_RESTRICTION'];
+			expect(Object.keys(accountOperationRestrictionSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(accountOperationRestrictionSchema).to.contain.all.keys([
 				'restrictionFlags', 'restrictionAdditions', 'restrictionDeletions'
 			]);
 
@@ -127,9 +132,10 @@ describe('restrictions plugin', () => {
 		});
 
 		it('adds mosaic restrictions system schemas', () => {
-			// - mosaic restriction address transaction
-			expect(Object.keys(modelSchema.mosaicRestrictionAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
-			expect(modelSchema.mosaicRestrictionAddress).to.contain.all.keys([
+			// - TransactionType.MOSAIC_ADDRESS_RESTRICTION
+			const mosaicAddressRestrictionSchema = modelSchema['TransactionType.MOSAIC_ADDRESS_RESTRICTION'];
+			expect(Object.keys(mosaicAddressRestrictionSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
+			expect(mosaicAddressRestrictionSchema).to.contain.all.keys([
 				'mosaicId',
 				'restrictionKey',
 				'targetAddress',
@@ -137,9 +143,10 @@ describe('restrictions plugin', () => {
 				'newRestrictionValue'
 			]);
 
-			// - mosaic restriction global transaction
-			expect(Object.keys(modelSchema.mosaicRestrictionGlobal).length).to.equal(Object.keys(modelSchema.transaction).length + 7);
-			expect(modelSchema.mosaicRestrictionGlobal).to.contain.all.keys([
+			// - TransactionType.MOSAIC_GLOBAL_RESTRICTION
+			const mosaicGlobalRestrictionSchema = modelSchema['TransactionType.MOSAIC_GLOBAL_RESTRICTION'];
+			expect(Object.keys(mosaicGlobalRestrictionSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 7);
+			expect(mosaicGlobalRestrictionSchema).to.contain.all.keys([
 				'mosaicId',
 				'referenceMosaicId',
 				'restrictionKey',

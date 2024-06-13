@@ -77,7 +77,7 @@ export default {
 			plugin.registerSchema({
 				addTransactionSupport: (transactionType, schema) => {
 					schemaBuilder.addTransactionSupport(transactionType, schema);
-					formatterBuilder.addFormatter(schemaBuilder.typeToName(transactionType));
+					formatterBuilder.addFormatter(transactionType.toString());
 				},
 				addSchema: (name, schema) => {
 					schemaBuilder.addSchema(name, schema);
