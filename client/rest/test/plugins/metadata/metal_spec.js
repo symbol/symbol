@@ -25,11 +25,9 @@ import {
 	getMetadata,
 	testData
 } from './metalUtils.js';
-import convert from '../../../src/catapult-sdk/utils/convert.js';
 import { MetalSeal, metal } from '../../../src/plugins/metadata/metal.js';
 import { expect } from 'chai';
-
-const { hexToUint8 } = convert;
+import { utils } from 'symbol-sdk';
 
 describe('metal', () => {
 	// adapt values stored in json files, which use [low, high] uint64 representation
@@ -40,9 +38,11 @@ describe('metal', () => {
 			// Arrange:
 			const metalId = 'FeDr2dAx9GnK8j4w6VDwtBLBbvnvxx7rea4eHrpQvG6hhX';
 
-			// Act + Assert:
-			expect(metal.extractCompositeHashFromMetalId(metalId))
-				.to.deep.equal(hexToUint8('BBFB2A837D3A9CF993195C2CA417645518A2ED2C30E8B760D3E224EC75F601E6'));
+			// Act:
+			const compositeHash = metal.extractCompositeHashFromMetalId(metalId);
+
+			// Assert:
+			expect(compositeHash).to.deep.equal(utils.hexToUint8('BBFB2A837D3A9CF993195C2CA417645518A2ED2C30E8B760D3E224EC75F601E6'));
 		});
 
 		it('cannot convert MetalID to CompositeHash not starting with metal id header', () => {

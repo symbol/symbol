@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import { convertToLong } from '../../../src/db/dbUtils.js';
 import supplyRoutes from '../../../src/plugins/mosaic/supplyRoutes.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
 import tmp from 'tmp';
 import fs from 'fs';
 
@@ -58,7 +58,7 @@ describe('supply routes', () => {
 		const createAccountSample = (publicKey, currencyAmount, otherAmount) => ({
 			address: '',
 			addressHeight: '',
-			publicKey: catapult.utils.convert.hexToUint8(publicKey),
+			publicKey: utils.hexToUint8(publicKey),
 			publicKeyHeight: '',
 			supplementalPublicKeys: {},
 			importance: '',
@@ -82,7 +82,7 @@ describe('supply routes', () => {
 			catapultDb: {
 				accountsByIds: sinon.fake(accountIds => {
 					const filteredAccountsSample = accountsSample.filter(accountSample =>
-						accountIds.some(accountId => catapult.utils.array.deepEqual(accountId.publicKey, accountSample.account.publicKey)));
+						accountIds.some(accountId => 0 === utils.deepCompare(accountId.publicKey, accountSample.account.publicKey)));
 					return Promise.resolve(filteredAccountsSample);
 				})
 			}

@@ -20,16 +20,15 @@
  */
 
 import test from './utils/routeTestUtils.js';
-import catapult from '../../src/catapult-sdk/index.js';
 import { convertToLong } from '../../src/db/dbUtils.js';
 import blockRoutes from '../../src/routes/blockRoutes.js';
 import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
-const { convert } = catapult.utils;
 const { MockServer } = test;
 
 describe('block routes', () => {
@@ -39,7 +38,7 @@ describe('block routes', () => {
 	describe('blocks', () => {
 		describe('get', () => {
 			const testPublickeyString = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
-			const testPublickey = convert.hexToUint8(testPublickeyString);
+			const testPublickey = utils.hexToUint8(testPublickeyString);
 
 			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 			const testAddress = new Address(testAddressString).bytes;

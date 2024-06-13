@@ -24,8 +24,8 @@ import routeUtils from './routeUtils.js';
 import catapult from '../catapult-sdk/index.js';
 import errors from '../server/errors.js';
 import restifyErrors from 'restify-errors';
+import { utils } from 'symbol-sdk';
 
-const { convert } = catapult.utils;
 const { PacketType } = catapult.packet;
 const { InvalidArgumentError, NotFoundError } = restifyErrors;
 
@@ -46,7 +46,7 @@ export default {
 			server,
 			services.connections,
 			{ routeName: '/transactions', packetType: PacketType.pushTransactions },
-			params => routeUtils.parseArgument(params, 'payload', convert.hexToUint8)
+			params => routeUtils.parseArgument(params, 'payload', utils.hexToUint8)
 		);
 
 		server.get('/transactions/:group', (req, res, next) => {

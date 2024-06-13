@@ -19,7 +19,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../catapult-sdk/index.js';
 import errors from '../server/errors.js';
 import MongoDb from 'mongodb';
 import { utils } from 'symbol-sdk';
@@ -99,7 +98,7 @@ export const bufferToUnresolvedAddress = (binary, formatAddressUsingBase32) => {
 
 		throw new Error(`Cannot convert binary address, unknown ${binary.constructor.name} type`);
 	};
-	return formatAddressUsingBase32 ? new Address(getBuffer()).toString() : catapult.utils.convert.uint8ToHex(getBuffer());
+	return formatAddressUsingBase32 ? new Address(getBuffer()).toString() : utils.uint8ToHex(getBuffer());
 };
 
 /**

@@ -21,15 +21,15 @@
 
 import catapult from '../catapult-sdk/index.js';
 import { bufferToUnresolvedAddress } from '../db/dbUtils.js';
+import { utils } from 'symbol-sdk';
 
 const { ModelType, status } = catapult.model;
-const { convert } = catapult.utils;
 
 const stringOrFormat = (value, formatter) => ('string' === typeof value ? value : formatter(value));
 
 export default {
 	[ModelType.none]: value => value,
-	[ModelType.binary]: value => stringOrFormat(value, convert.uint8ToHex),
+	[ModelType.binary]: value => stringOrFormat(value, utils.uint8ToHex),
 	[ModelType.statusCode]: status.toString,
 	[ModelType.string]: value => value.toString(),
 	[ModelType.uint8]: value => value,

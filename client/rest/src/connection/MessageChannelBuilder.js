@@ -21,6 +21,7 @@
 
 import ServerMessageHandler from './serverMessageHandlers.js';
 import catapult from '../catapult-sdk/index.js';
+import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
 const createBlockDescriptor = (marker, handler) => ({
@@ -33,7 +34,6 @@ const createBlockDescriptor = (marker, handler) => ({
 	handler
 });
 
-const { convert } = catapult.utils;
 const { namespace } = catapult.model;
 
 const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler, networkIdentifier) => topicParam => {
@@ -41,8 +41,8 @@ const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler, network
 		return emptyAddressHandler(markerByte);
 
 	// If the sent param is an namespace id hex like C0FB8AA409916260
-	if (convert.isHexString(topicParam) && 16 === topicParam.length) {
-		const addressByteArray = namespace.encodeNamespace(convert.hexToUint8(topicParam), networkIdentifier);
+	if (utils.isHexString(topicParam) && 16 === topicParam.length) {
+		const addressByteArray = namespace.encodeNamespace(utils.hexToUint8(topicParam), networkIdentifier);
 		return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
 	}
 	// When it's a encoded address, e.g. TAHNZXQBC57AA7KJTMGS3PJPZBXN7DV5JHJU42A

@@ -22,10 +22,7 @@
 import dbFacade from './dbFacade.js';
 import routeResultTypes from './routeResultTypes.js';
 import routeUtils from './routeUtils.js';
-import catapult from '../catapult-sdk/index.js';
-import { Hash256 } from 'symbol-sdk';
-
-const { convert } = catapult.utils;
+import { Hash256, utils } from 'symbol-sdk';
 
 export default {
 	register: (server, db, services) => {
@@ -36,7 +33,7 @@ export default {
 			params => dbFacade.transactionStatusesByHashes(db, params, services.config.transactionStates),
 			hash => {
 				if (2 * Hash256.SIZE === hash.length)
-					return convert.hexToUint8(hash);
+					return utils.hexToUint8(hash);
 
 				throw Error(`invalid length of hash '${hash.length}'`);
 			}

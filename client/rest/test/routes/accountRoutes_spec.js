@@ -27,10 +27,10 @@ import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
 const { PacketType } = catapult.packet;
-const { convert } = catapult.utils;
 const { MockServer } = test;
 
 describe('account routes', () => {
@@ -290,7 +290,7 @@ describe('account routes', () => {
 					inputs: {
 						valid: {
 							object: { accountId: testPublicKey },
-							parsed: [[{ publicKey: convert.hexToUint8(testPublicKey) }]],
+							parsed: [[{ publicKey: utils.hexToUint8(testPublicKey) }]],
 							printable: testPublicKey
 						},
 						invalid: {
@@ -378,7 +378,7 @@ describe('account routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbAccountsByIds.calledOnce).to.equal(true);
-						expect(dbAccountsByIds.firstCall.args[0]).to.deep.equal([{ publicKey: convert.hexToUint8(testPublicKey) }]);
+						expect(dbAccountsByIds.firstCall.args[0]).to.deep.equal([{ publicKey: utils.hexToUint8(testPublicKey) }]);
 
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							payload: fakeAccounts,
@@ -413,7 +413,7 @@ describe('account routes', () => {
 				+ '04A7F2A487B42EA89323C4408F82415223ACFEC7DFA7924'
 				+ 'EFC31A70778AB17A00C3EAFF635F01BB3B474F0AF1BE99F'
 				+ 'BDA85EEFB209CC7BD158D3540DE3A3F2D1';
-			const stateTreeBytes = convert.hexToUint8(stateTree);
+			const stateTreeBytes = utils.hexToUint8(stateTree);
 
 			const packetType = PacketType.accountStatePath;
 			const packet = {

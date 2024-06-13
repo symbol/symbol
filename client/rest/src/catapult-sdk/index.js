@@ -33,8 +33,6 @@ import PacketParser from './parser/PacketParser.js';
 import catapultModelSystem from './plugins/catapultModelSystem.js';
 import CachedFileLoader from './utils/CachedFileLoader.js';
 import SchemaType from './utils/SchemaType.js';
-import arrayUtils from './utils/arrayUtils.js';
-import convert from './utils/convert.js';
 import formattingUtils from './utils/formattingUtils.js';
 import future from './utils/future.js';
 import objects from './utils/objects.js';
@@ -67,8 +65,6 @@ export default {
 	utils: {
 		CachedFileLoader,
 		SchemaType,
-		array: arrayUtils,
-		convert,
 		formattingUtils,
 		future,
 		objects,

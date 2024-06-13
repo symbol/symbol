@@ -23,10 +23,10 @@ import dbFacade from './dbFacade.js';
 import routeResultTypes from './routeResultTypes.js';
 import catapult from '../catapult-sdk/index.js';
 import errors from '../server/errors.js';
+import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
 const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
-const { convert } = catapult.utils;
 const packetHeader = catapult.packet.header;
 const constants = {
 	sizes: {
@@ -38,7 +38,7 @@ const constants = {
 	}
 };
 
-const isObjectId = str => 24 === str.length && convert.isHexString(str);
+const isObjectId = str => 24 === str.length && utils.isHexString(str);
 
 const namedParserMap = {
 	objectId: str => {
@@ -48,7 +48,7 @@ const namedParserMap = {
 		return str;
 	},
 	uint: str => {
-		const result = convert.tryParseUint(str);
+		const result = utils.tryParseUint(str);
 		if (undefined === result)
 			throw Error('must be non-negative number');
 
@@ -70,35 +70,32 @@ const namedParserMap = {
 	address: str => {
 		if (constants.sizes.addressEncoded === str.length)
 			return new Address(str).bytes;
-		// if (constants.sizes.addressDecoded * 2 === str.length)
-		// 	return convert.hexToUint8(str);
+
 		throw Error(`invalid length of address '${str.length}'`);
 	},
 	publicKey: str => {
 		if (constants.sizes.hexPublicKey === str.length)
-			return convert.hexToUint8(str);
+			return utils.hexToUint8(str);
 
 		throw Error(`invalid length of publicKey '${str.length}'`);
 	},
 	accountId: str => {
 		if (constants.sizes.hexPublicKey === str.length)
-			return ['publicKey', convert.hexToUint8(str)];
+			return ['publicKey', utils.hexToUint8(str)];
 		if (constants.sizes.addressEncoded === str.length)
 			return ['address', new Address(str).bytes];
-		// if (constants.sizes.addressDecoded * 2 === str.length)
-		// 	return ['address', convert.hexToUint8(str)];
 
 		throw Error(`invalid length of account id '${str.length}'`);
 	},
 	hash256: str => {
 		if (2 * constants.sizes.hash256 === str.length)
-			return convert.hexToUint8(str);
+			return utils.hexToUint8(str);
 
 		throw Error(`invalid length of hash256 '${str.length}'`);
 	},
 	hash512: str => {
 		if (2 * constants.sizes.hash512 === str.length)
-			return convert.hexToUint8(str);
+			return utils.hexToUint8(str);
 
 		throw Error(`invalid length of hash512 '${str.length}'`);
 	},
@@ -175,7 +172,7 @@ const routeUtils = {
 		};
 
 		if (args.pageSize) {
-			const numericPageSize = convert.tryParseUint(args.pageSize);
+			const numericPageSize = utils.tryParseUint(args.pageSize);
 			if (undefined === numericPageSize)
 				throw errors.createInvalidArgumentError('pageSize is not a valid unsigned integer');
 
@@ -185,7 +182,7 @@ const routeUtils = {
 		}
 
 		if (args.pageNumber) {
-			const numericPageNumber = convert.tryParseUint(args.pageNumber);
+			const numericPageNumber = utils.tryParseUint(args.pageNumber);
 			if (undefined === numericPageNumber)
 				throw errors.createInvalidArgumentError('pageNumber is not a valid unsigned integer');
 

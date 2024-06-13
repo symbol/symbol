@@ -24,8 +24,7 @@ import { longToUint64 } from '../../db/dbUtils.js';
 import routeUtils from '../../routes/routeUtils.js';
 import AccountType from '../AccountType.js';
 import ini from 'ini';
-
-const { convert } = catapult.utils;
+import { utils } from 'symbol-sdk';
 
 const fileLoader = new catapult.utils.CachedFileLoader();
 
@@ -52,7 +51,7 @@ export default {
 
 		const getUncirculatingAccountIds = propertiesObject => {
 			const publicKeys = [propertiesObject.network.nemesisSignerPublicKey].concat(services.config.uncirculatingAccountPublicKeys);
-			return publicKeys.map(publicKey => ({ [AccountType.publicKey]: convert.hexToUint8(publicKey) }));
+			return publicKeys.map(publicKey => ({ [AccountType.publicKey]: utils.hexToUint8(publicKey) }));
 		};
 
 		const lookupMosaicAmount = (mosaics, currencyMosaicId) => {

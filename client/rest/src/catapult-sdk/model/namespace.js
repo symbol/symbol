@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import convert from '../utils/convert.js';
+import { utils } from 'symbol-sdk';
 
 /**
  * Catapult model namespace.
@@ -45,7 +45,7 @@ export default {
 		const padded = new Uint8Array(1 + 8 + 15);
 		padded.set([networkIdentifier | 0x01], 0);
 		padded.set(namespaceId.reverse(), 1);
-		padded.set(convert.hexToUint8('00'.repeat(15)), 9);
+		padded.set(utils.hexToUint8('00'.repeat(15)), 9);
 		return padded;
 	}
 };

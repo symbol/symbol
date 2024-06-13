@@ -24,6 +24,7 @@ import catapult from '../catapult-sdk/index.js';
 import nodeInfoCodec from '../sockets/nodeInfoCodec.js';
 import nodePeersCodec from '../sockets/nodePeersCodec.js';
 import nodeTimeCodec from '../sockets/nodeTimeCodec.js';
+import { utils } from 'symbol-sdk';
 import fs from 'fs';
 import path from 'path';
 
@@ -162,7 +163,6 @@ export default {
 		});
 
 		server.get('/node/unlockedaccount', (req, res, next) => {
-			const { convert } = catapult.utils;
 			const headerBuffer = packetHeader.createBuffer(
 				PacketType.unlockedAccount,
 				packetHeader.size
@@ -172,8 +172,7 @@ export default {
 				.singleUse()
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
-					const unlockedKeys = convert
-						.uint8ToHex(packet.payload)
+					const unlockedKeys = utils.uint8ToHex(packet.payload)
 						.match(/.{1,64}/g);
 					res.send({ unlockedAccount: !unlockedKeys ? [] : unlockedKeys });
 					next();
