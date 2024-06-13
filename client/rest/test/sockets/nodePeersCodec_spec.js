@@ -25,7 +25,7 @@ import { expect } from 'chai';
 
 const { BinaryParser } = catapult.parser;
 
-describe('deserialize', () => {
+describe('node peers codec deserialize', () => {
 	it('returns multiple deserialized objects without friendlyName or host', () => {
 		// Arrange:
 		const binaryParser = new BinaryParser();

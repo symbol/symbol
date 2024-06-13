@@ -89,7 +89,7 @@ describe('server message handlers', () => {
 			payload: {
 				finalizationEpoch: 44,
 				finalizationPoint: 55,
-				height: [66, 0],
+				height: 66n,
 				hash: Buffer.alloc(Hash256.SIZE, 41)
 			}
 		});
@@ -125,7 +125,7 @@ describe('server message handlers', () => {
 						meta: {
 							hash: 44,
 							merkleComponentHash: 55,
-							height: [66, 0]
+							height: 66n
 						}
 					}
 				});
@@ -255,7 +255,7 @@ describe('server message handlers', () => {
 			payload: {
 				hash: Buffer.alloc(Hash256.SIZE, 41),
 				code: 55,
-				deadline: [66, 0]
+				deadline: 66n
 			}
 		});
 	});

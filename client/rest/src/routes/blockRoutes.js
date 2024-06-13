@@ -22,9 +22,6 @@
 import dbFacade from './dbFacade.js';
 import routeResultTypes from './routeResultTypes.js';
 import routeUtils from './routeUtils.js';
-import catapult from '../catapult-sdk/index.js';
-
-const { uint64 } = catapult.utils;
 
 export default {
 	register: (server, db, services) => {
@@ -54,7 +51,7 @@ export default {
 
 			return dbFacade.runHeightDependentOperation(db, height, () => db.blockAtHeight(height))
 				.then(result => result.payload)
-				.then(routeUtils.createSender(routeResultTypes.block).sendOne(uint64.toString(height), res, next));
+				.then(routeUtils.createSender(routeResultTypes.block).sendOne(height, res, next));
 		});
 
 		server.get(

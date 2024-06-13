@@ -58,11 +58,11 @@ export default class MosaicDb {
 
 	/**
 	 * Retrieves mosaics given their ids.
-	 * @param {Array<module:utils/uint64~uint64>} ids Mosaic ids.
+	 * @param {Array<bigint>} ids Mosaic ids.
 	 * @returns {Promise<Array<object>>} Mosaics.
 	 */
 	mosaicsByIds(ids) {
-		const mosaicIds = ids.map(id => new Long(id[0], id[1]));
+		const mosaicIds = ids.map(id => Long.fromBigInt(id));
 		const conditions = { 'mosaic.id': { $in: mosaicIds } };
 		const collection = this.catapultDb.database.collection('mosaics');
 		return collection.find(conditions)

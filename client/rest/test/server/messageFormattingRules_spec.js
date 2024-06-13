@@ -73,7 +73,7 @@ describe('message formatting rules', () => {
 	});
 
 	it('can format uint64 type', () => {
-		assertFormatting(ModelType.uint64, [10, 2], '8589934602');
+		assertFormatting(ModelType.uint64, 8589934602n, '8589934602');
 	});
 
 	it('can format uint64 type (string)', () => {
@@ -81,7 +81,7 @@ describe('message formatting rules', () => {
 	});
 
 	it('can format uint64HexIdentifier type', () => {
-		assertFormatting(ModelType.uint64HexIdentifier, [10, 2], '000000020000000A');
+		assertFormatting(ModelType.uint64HexIdentifier, 8589934602n, '000000020000000A');
 	});
 
 	it('can format uint64HexIdentifier type (string)', () => {

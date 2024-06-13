@@ -477,7 +477,7 @@ describe('catapult db', () => {
 				block => expect(block).to.equal(undefined)
 			));
 
-		// use blockAtHeight tests as a proxy for testing support of different numeric types (Number, uint64, Long)
+		// use blockAtHeight tests as a proxy for testing support of different numeric types (Number, bigint, Long)
 
 		const assertCanRetrieveSimpleBlock = height => {
 			// Arrange:
@@ -492,7 +492,7 @@ describe('catapult db', () => {
 		};
 
 		it('can retrieve block without transactions at height (Number)', () => assertCanRetrieveSimpleBlock(Default_Height));
-		it('can retrieve block without transactions at height (uint64)', () => assertCanRetrieveSimpleBlock([Default_Height, 0]));
+		it('can retrieve block without transactions at height (bigint)', () => assertCanRetrieveSimpleBlock(BigInt(Default_Height)));
 		it('can retrieve block without transactions at height (Long)', () => assertCanRetrieveSimpleBlock(Long.fromNumber(Default_Height)));
 
 		it('can retrieve block with transactions at height', () => {
@@ -576,7 +576,7 @@ describe('catapult db', () => {
 				block => expect(block).to.equal(undefined)
 			));
 
-		// use blockAtHeight tests as a proxy for testing support of different numeric types (Number, uint64, Long)
+		// use blockAtHeight tests as a proxy for testing support of different numeric types (Number, bigint, Long)
 
 		const assertCanRetrieveSimpleBlock = height => {
 			// Arrange:
@@ -591,7 +591,7 @@ describe('catapult db', () => {
 		};
 
 		it('can retrieve block with statement merkle tree at height (Number)', () => assertCanRetrieveSimpleBlock(Default_Height));
-		it('can retrieve block with statement merkle tree at height (uint64)', () => assertCanRetrieveSimpleBlock([Default_Height, 0]));
+		it('can retrieve block with statement merkle tree at height (bigint)', () => assertCanRetrieveSimpleBlock(BigInt(Default_Height)));
 		it('can retrieve block with statement merkle tree at height (Long)', () =>
 			assertCanRetrieveSimpleBlock(Long.fromNumber(Default_Height)));
 
@@ -618,7 +618,7 @@ describe('catapult db', () => {
 				block => expect(block).to.equal(undefined)
 			));
 
-		// use blockAtHeight tests as a proxy for testing support of different numeric types (Number, uint64, Long)
+		// use blockAtHeight tests as a proxy for testing support of different numeric types (Number, bigint, Long)
 
 		const assertCanRetrieveSimpleBlock = height => {
 			// Arrange:
@@ -633,7 +633,8 @@ describe('catapult db', () => {
 		};
 
 		it('can retrieve block with transaction merkle tree at height (Number)', () => assertCanRetrieveSimpleBlock(Default_Height));
-		it('can retrieve block with transaction merkle tree at height (uint64)', () => assertCanRetrieveSimpleBlock([Default_Height, 0]));
+		it('can retrieve block with transaction merkle tree at height (bigint)', () =>
+			assertCanRetrieveSimpleBlock(BigInt(Default_Height)));
 		it('can retrieve block with transaction merkle tree at height (Long)', () =>
 			assertCanRetrieveSimpleBlock(Long.fromNumber(Default_Height)));
 
@@ -1054,14 +1055,14 @@ describe('catapult db', () => {
 
 		it('returns empty array for unknown ids', () =>
 			// Act + Assert: query for markerId outside seed range
-			assertTransactions([], [[123, 456]]));
+			assertTransactions([], [123n]));
 
 		it('returns single matching entry', () => {
 			// Act + Assert: query for markerId in seed range (20000-20011)
 			// note: there are multiple transactions with same markerId, so this also checks that only non-duplicates are returned
 			const expected = [createExpected(15010, 20010)];
 
-			return assertTransactions(expected, [[20010, 0]]);
+			return assertTransactions(expected, [20010n]);
 		});
 
 		it('returns multiple matching entries', () => {
@@ -1069,7 +1070,7 @@ describe('catapult db', () => {
 			// note: there are multiple transactions with same markerId, so this also checks that only non-duplicates are returned
 			const expected = [createExpected(15008, 20008), createExpected(15005, 20005), createExpected(15003, 20003)];
 
-			return assertTransactions(expected, [[20003, 0], [20005, 0], [20008, 0]]);
+			return assertTransactions(expected, [20003n, 20005n, 20008n]);
 		});
 
 		it('returns only matching entries', () => {
@@ -1077,7 +1078,7 @@ describe('catapult db', () => {
 			// note: there are multiple transactions with same markerId, so this also checks that only non-duplicates are returned
 			const expected = [createExpected(15008, 20008), createExpected(15003, 20003)];
 
-			return assertTransactions(expected, [[20003, 0], [123, 456], [20008, 0]]);
+			return assertTransactions(expected, [20003n, 123n, 20008n]);
 		});
 
 		it('does not promote MongoDb.Long to regular `number` for small enough numbers and ends up returning Long always', () => {

@@ -19,12 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../catapult-sdk/index.js';
 import { buildOffsetCondition, convertToLong } from '../../db/dbUtils.js';
 
-const { convert, uint64 } = catapult.utils;
-
-const isNamespaceId = id => 0 !== (0x80 & convert.hexToUint8(uint64.toHex(id))[0]);
+const isNamespaceId = id => (1n << 63n) & id;
 
 export default class ReceiptsDb {
 	/**

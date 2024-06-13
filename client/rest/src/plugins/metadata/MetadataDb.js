@@ -35,8 +35,8 @@ export default class MetadataDb {
 	 * Retrieves filtered and paginated metadata.
 	 * @param {Uint8Array} sourceAddress Metadata source address
 	 * @param {Uint8Array} targetAddress Metadata target address
-	 * @param {module:utils/uint64~uint64} scopedMetadataKey Metadata scoped key
-	 * @param {module:utils/uint64~uint64} targetId Metadata target id
+	 * @param {bigint} scopedMetadataKey Metadata scoped key
+	 * @param {bigint} targetId Metadata target id
 	 * @param {number} metadataType Metadata type
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
@@ -84,6 +84,7 @@ export default class MetadataDb {
 		const metadatasByCompositeHash = await this.metadatasByCompositeHash([metal.extractCompositeHashFromMetalId(metalId)]);
 		if (0 === metadatasByCompositeHash.length)
 			throw Error(`could not get first chunk, it may mistake the metal ID: ${metalId}`);
+
 		const { metadataEntry } = metadatasByCompositeHash[0];
 		const chunks = [];
 		let counter = 1;
@@ -93,6 +94,7 @@ export default class MetadataDb {
 			const options = {
 				sortField: 'id', sortDirection: 1, pageSize: 100, pageNumber: counter
 			};
+
 			// eslint-disable-next-line no-await-in-loop
 			const metadatas = await this.metadata(
 				metadataEntry.sourceAddress.buffer,
@@ -102,6 +104,7 @@ export default class MetadataDb {
 				metadataEntry.metadataType,
 				options
 			);
+
 			metadatas.data.forEach(e => {
 				chunks.push({
 					key: longToUint64(e.metadataEntry.scopedMetadataKey),
@@ -112,6 +115,7 @@ export default class MetadataDb {
 			hasMoreData = 0 < metadatas.data.length;
 			counter++;
 		}
+
 		return metal.decode(longToUint64(metadataEntry.scopedMetadataKey), chunks);
 	}
 }

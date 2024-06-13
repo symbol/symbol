@@ -416,8 +416,8 @@ describe('node routes', () => {
 							formatter: 'ws',
 							payload: {
 								communicationTimestamps: {
-									receiveTimestamp: [107870352, 16],
-									sendTimestamp: [107870352, 1]
+									receiveTimestamp: 0x10066DF890n,
+									sendTimestamp: 0x1066DF890n
 								}
 							},
 							type: 'nodeTime'

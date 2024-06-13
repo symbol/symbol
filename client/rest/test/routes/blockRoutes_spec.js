@@ -109,7 +109,7 @@ describe('block routes', () => {
 				mockServer.callRoute(route, { params: { fromTimestamp: '123456' } }).then(() => {
 					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(undefined);
 					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(undefined);
-					expect(dbBlocksFake.firstCall.args[2]).to.deep.equal([123456, 0]);
+					expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(123456n);
 					expect(dbBlocksFake.firstCall.args[3]).to.deep.equal(undefined);
 				}));
 
@@ -118,7 +118,7 @@ describe('block routes', () => {
 					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(undefined);
 					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(undefined);
 					expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(undefined);
-					expect(dbBlocksFake.firstCall.args[3]).to.deep.equal([123456, 0]);
+					expect(dbBlocksFake.firstCall.args[3]).to.deep.equal(123456n);
 				}));
 
 			describe('parses paging', () => {
@@ -169,10 +169,10 @@ describe('block routes', () => {
 			config: routeConfig
 		});
 		builder.addDefault({
-			valid: { object: { height: '3' }, parsed: [[3, 0]], printable: '3' },
+			valid: { object: { height: '3' }, parsed: [3n], printable: '3' },
 			invalid: { object: { height: '10A' }, error: 'height has an invalid format' }
 		});
-		builder.addNotFoundInputTest({ object: { height: '11' }, parsed: [[11, 0]], printable: '11' }, 'chain height is too small');
+		builder.addNotFoundInputTest({ object: { height: '11' }, parsed: [11n], printable: '11' }, 'chain height is too small');
 	});
 
 	describe('block with merkle tree', () => {

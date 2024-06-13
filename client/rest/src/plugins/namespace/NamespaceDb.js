@@ -22,8 +22,6 @@
 import catapult from '../../catapult-sdk/index.js';
 import { buildOffsetCondition, convertToLong, longToUint64 } from '../../db/dbUtils.js';
 
-const { uint64 } = catapult.utils;
-
 const createLatestConditions = (catapultDb, height) => {
 	if (height) {
 		return ({
@@ -44,7 +42,7 @@ const addActiveFlag = (namespace, height) => {
 	// What about calculated fields in mongo?
 	const endHeightUint64 = longToUint64(namespace.namespace.endHeight);
 	const heightUint64 = longToUint64(convertToLong(height));
-	namespace.meta.active = 1 === uint64.compare(endHeightUint64, heightUint64);
+	namespace.meta.active = endHeightUint64 > heightUint64;
 	return namespace;
 };
 
@@ -62,7 +60,7 @@ export default class NamespaceDb {
 	/**
 	 * Retrieves filtered and paginated namespaces.
 	 * @param {number} aliasType Namespace alias type
-	 * @param {module:utils/uint64~uint64} level0 Namespace level0
+	 * @param {bigint} level0 Namespace level0
 	 * @param {Uint8Array} ownerAddress Namespace owner address
 	 * @param {number} registrationType Namespace registration type
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
@@ -103,7 +101,7 @@ export default class NamespaceDb {
 
 	/**
 	 * Retrieves a namespace.
-	 * @param {module:utils/uint64~uint64} id Namespace id.
+	 * @param {bigint} id Namespace id.
 	 * @returns {Promise<object>} Namespace.
 	 */
 	async namespaceById(id) {
@@ -149,7 +147,7 @@ export default class NamespaceDb {
 
 	/**
 	 * Retrieves transactions that registered the specified namespaces.
-	 * @param {Array<module:utils/uint64~uint64>} namespaceIds Namespace ids.
+	 * @param {Array<bigint>} namespaceIds Namespace ids.
 	 * @returns {Promise<Array<object>>} Register namespace transactions.
 	 */
 	registerNamespaceTransactionsByNamespaceIds(namespaceIds) {

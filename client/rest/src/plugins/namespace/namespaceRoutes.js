@@ -25,10 +25,10 @@ import { convertToLong } from '../../db/dbUtils.js';
 import merkleUtils from '../../routes/merkleUtils.js';
 import routeUtils from '../../routes/routeUtils.js';
 import MongoDb from 'mongodb';
+import { utils } from 'symbol-sdk';
 
 const { PacketType } = catapult.packet;
 const { Binary } = MongoDb;
-const { uint64 } = catapult.utils;
 
 export default {
 	register: (server, db, services) => {
@@ -39,7 +39,7 @@ export default {
 
 			const ownerAddress = params.ownerAddress ? routeUtils.parseArgument(params, 'ownerAddress', 'address') : undefined;
 			const registrationType = params.registrationType ? routeUtils.parseArgument(params, 'registrationType', 'uint') : undefined;
-			const level0 = params.level0 ? routeUtils.parseArgument(req.params, 'level0', uint64.fromHex) : undefined;
+			const level0 = params.level0 ? routeUtils.parseArgument(req.params, 'level0', routeUtils.namedParserMap.uint64hex) : undefined;
 			const aliasType = params.aliasType ? routeUtils.parseArgument(params, 'aliasType', 'uint') : undefined;
 
 			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
@@ -49,7 +49,7 @@ export default {
 		});
 
 		server.get('/namespaces/:namespaceId', (req, res, next) => {
-			const namespaceId = routeUtils.parseArgument(req.params, 'namespaceId', uint64.fromHex);
+			const namespaceId = routeUtils.parseArgument(req.params, 'namespaceId', routeUtils.namedParserMap.uint64hex);
 			return db.namespaceById(namespaceId)
 				.then(namespaceSender.sendOne(req.params.namespaceId, res, next));
 		});
@@ -74,7 +74,7 @@ export default {
 		};
 
 		server.post('/namespaces/names', (req, res, next) => {
-			const namespaceIds = routeUtils.parseArgumentAsArray(req.params, 'namespaceIds', uint64.fromHex);
+			const namespaceIds = routeUtils.parseArgumentAsArray(req.params, 'namespaceIds', routeUtils.namedParserMap.uint64hex);
 			const nameTuplesFuture = new Promise(resolve => {
 				const namespaceNameTuples = [];
 				const chain = nextIds => {
@@ -93,7 +93,7 @@ export default {
 		server.post('/namespaces/mosaic/names', namespaceUtils.aliasNamesRoutesProcessor(
 			db,
 			catapult.model.namespace.aliasType.mosaic,
-			req => routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', uint64.fromHex).map(convertToLong),
+			req => routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', routeUtils.namedParserMap.uint64hex).map(convertToLong),
 			(namespace, id) => namespace.namespace.alias.mosaicId.equals(id),
 			'mosaicId',
 			'mosaicNames'
@@ -113,7 +113,7 @@ export default {
 		server.get('/namespaces/:namespaceId/merkle', (req, res, next) => {
 			const namespaceId = routeUtils.parseArgument(req.params, 'namespaceId', 'uint64hex');
 			const state = PacketType.namespaceStatePath;
-			return merkleUtils.requestTree(services, state, uint64.toBytes(namespaceId)).then(response => {
+			return merkleUtils.requestTree(services, state, utils.intToBytes(namespaceId, 8)).then(response => {
 				res.send(response);
 				next();
 			});

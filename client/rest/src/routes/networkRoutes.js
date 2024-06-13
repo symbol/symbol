@@ -23,8 +23,6 @@ import catapult from '../catapult-sdk/index.js';
 import errors from '../server/errors.js';
 import ini from 'ini';
 
-const { uint64 } = catapult.utils;
-
 const fileLoader = new catapult.utils.CachedFileLoader();
 
 export default {
@@ -185,31 +183,28 @@ export default {
 			// defaultDynamicFeeMultiplier -> uint32
 			const defaultDynamicFeeMultiplier = parseInt(sanitizeInput(propertiesObject.chain.defaultDynamicFeeMultiplier), 10);
 
-			// rootNamespaceRentalFeePerBlock -> uint64
+			// rootNamespaceRentalFeePerBlock -> bigint
 			const lookupPluginPropertyUint64 = (pluginName, propertyName) => {
 				const rawPropertyValue = propertiesObject['plugin:catapult'].plugins[pluginName][propertyName];
-				return uint64.fromString(sanitizeInput(rawPropertyValue));
+				return BigInt(sanitizeInput(rawPropertyValue));
 			};
 			const rootNamespaceRentalFeePerBlock = lookupPluginPropertyUint64('namespace', 'rootNamespaceRentalFeePerBlock');
 
-			// childNamespaceRentalFee -> uint64
+			// childNamespaceRentalFee -> bigint
 			const childNamespaceRentalFee = lookupPluginPropertyUint64('namespace', 'childNamespaceRentalFee');
 
-			// mosaicRentalFee -> uint64
+			// mosaicRentalFee -> bigint
 			const mosaicRentalFee = lookupPluginPropertyUint64('mosaic', 'mosaicRentalFee');
 
 			return db.latestBlocksFeeMultiplier(maxDifficultyBlocks || 1).then(feeMultipliers => {
 				const defaultedFeeMultipliers = feeMultipliers.map(f => (0 === f ? defaultDynamicFeeMultiplier : f));
 				const medianNetworkMultiplier = Math.floor(median(defaultedFeeMultipliers));
-				const uint64MedianNetworkMultiplier = uint64.fromUint(medianNetworkMultiplier);
+				const uint64MedianNetworkMultiplier = BigInt(medianNetworkMultiplier);
 
 				res.send({
-					effectiveRootNamespaceRentalFeePerBlock:
-						uint64.toString(uint64.multiply(rootNamespaceRentalFeePerBlock, uint64MedianNetworkMultiplier)),
-					effectiveChildNamespaceRentalFee:
-						uint64.toString(uint64.multiply(childNamespaceRentalFee, uint64MedianNetworkMultiplier)),
-					effectiveMosaicRentalFee:
-						uint64.toString(uint64.multiply(mosaicRentalFee, uint64MedianNetworkMultiplier))
+					effectiveRootNamespaceRentalFeePerBlock: (rootNamespaceRentalFeePerBlock * uint64MedianNetworkMultiplier).toString(),
+					effectiveChildNamespaceRentalFee: (childNamespaceRentalFee * uint64MedianNetworkMultiplier).toString(),
+					effectiveMosaicRentalFee: (mosaicRentalFee * uint64MedianNetworkMultiplier).toString()
 				});
 				next();
 			});

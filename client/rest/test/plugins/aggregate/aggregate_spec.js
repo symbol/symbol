@@ -105,7 +105,7 @@ describe('aggregate plugin', () => {
 			expect(emitted[0]).to.deep.equal({
 				type: 'aggregate.cosignature',
 				payload: {
-					version: [4283782196, 3083603706],
+					version: 0xB7CC0EFAFF555434n,
 					signerPublicKey: Buffer.alloc(PublicKey.SIZE, 33),
 					signature: Buffer.alloc(Signature.SIZE, 44),
 					parentHash: Buffer.alloc(Hash256.SIZE, 55)

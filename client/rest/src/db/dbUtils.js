@@ -22,6 +22,7 @@
 import catapult from '../catapult-sdk/index.js';
 import errors from '../server/errors.js';
 import MongoDb from 'mongodb';
+import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
 const { Long, ObjectId } = MongoDb;
@@ -32,29 +33,30 @@ const { Long, ObjectId } = MongoDb;
  * @returns {MongoDb.Long} Converted value.
  */
 export const convertToLong = value => {
+	if ('bigint' === typeof value)
+		return Long.fromBigInt(value);
+
 	if (Number.isInteger(value))
 		return Long.fromNumber(value);
-
-	// if value is an array, assume it is a uint64
-	if (Array.isArray(value))
-		return new Long(value[0], value[1]);
 
 	if (value instanceof Long)
 		return value;
 
-	throw errors.createInvalidArgumentError(`${value} has an invalid format: not integer or uint64`);
+	throw errors.createInvalidArgumentError(`${value} has an invalid format: not integer or bigint`);
 };
 
 /**
- * Converts long to uint64.
+ * Converts long to bigint.
  * @param {Long} value Value to convert.
- * @returns {module:utils/uint64~uint64} Converted value.
+ * @returns {bigint} Converted value.
  */
 export const longToUint64 = value => {
-	if (value instanceof Long)
-		return [value.getLowBitsUnsigned(), value.getHighBits() >>> 0];
+	if (!(value instanceof Long))
+		throw errors.createInvalidArgumentError(`${value} has an invalid format: not long`);
 
-	throw errors.createInvalidArgumentError(`${value} has an invalid format: not long`);
+	// mongo stores signed 64-bit integers, so always reinterpret the bytes as unsigned
+	const bytes = new Uint8Array(value.toBytesLE());
+	return utils.bytesToBigInt(bytes, 8);
 };
 
 /**

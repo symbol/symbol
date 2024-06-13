@@ -258,14 +258,14 @@ describe('transaction routes', () => {
 					};
 
 					const testCases = [
-						{ filter: 'height', param: '15', value: [15, 0] },
-						{ filter: 'fromHeight', param: '10', value: [10, 0] },
-						{ filter: 'toHeight', param: '20', value: [20, 0] },
+						{ filter: 'height', param: '15', value: 15n },
+						{ filter: 'fromHeight', param: '10', value: 10n },
+						{ filter: 'toHeight', param: '20', value: 20n },
 						{ filter: 'address', param: testAddressString, value: testAddress },
 						{ filter: 'signerPublicKey', param: testPublickeyString, value: testPublickey },
 						{ filter: 'recipientAddress', param: testAddressString, value: testAddress },
 						{ filter: 'embedded', param: 'true', value: true },
-						{ filter: 'transferMosaicId', param: '0000000000001000', value: [4096, 0] }
+						{ filter: 'transferMosaicId', param: '0000000000001000', value: 4096n }
 					];
 
 					testCases.forEach(testCase => {
@@ -292,8 +292,8 @@ describe('transaction routes', () => {
 
 						// Act + Assert
 						return mockServer.callRoute(route, req).then(() => {
-							expect(dbTransactionsFake.firstCall.args[1].fromTransferAmount).to.deep.equal([12345, 0]);
-							expect(dbTransactionsFake.firstCall.args[1].transferMosaicId).to.deep.equal([4096, 0]);
+							expect(dbTransactionsFake.firstCall.args[1].fromTransferAmount).to.deep.equal(12345n);
+							expect(dbTransactionsFake.firstCall.args[1].transferMosaicId).to.deep.equal(4096n);
 						});
 					});
 
@@ -308,8 +308,8 @@ describe('transaction routes', () => {
 
 						// Act + Assert
 						return mockServer.callRoute(route, req).then(() => {
-							expect(dbTransactionsFake.firstCall.args[1].toTransferAmount).to.deep.equal([12345, 0]);
-							expect(dbTransactionsFake.firstCall.args[1].transferMosaicId).to.deep.equal([4096, 0]);
+							expect(dbTransactionsFake.firstCall.args[1].toTransferAmount).to.deep.equal(12345n);
+							expect(dbTransactionsFake.firstCall.args[1].transferMosaicId).to.deep.equal(4096n);
 						});
 					});
 				});
@@ -421,9 +421,9 @@ describe('transaction routes', () => {
 
 						// Act + Assert
 						return mockServer.callRoute(route, req).then(() => {
-							expect(dbTransactionsFake.firstCall.args[1].fromTransferAmount).to.deep.equal([0, 0]);
-							expect(dbTransactionsFake.firstCall.args[1].toTransferAmount).to.deep.equal([0, 0]);
-							expect(dbTransactionsFake.firstCall.args[1].transferMosaicId).to.deep.equal([4096, 0]);
+							expect(dbTransactionsFake.firstCall.args[1].fromTransferAmount).to.deep.equal(0n);
+							expect(dbTransactionsFake.firstCall.args[1].toTransferAmount).to.deep.equal(0n);
+							expect(dbTransactionsFake.firstCall.args[1].transferMosaicId).to.deep.equal(4096n);
 						});
 					});
 				});

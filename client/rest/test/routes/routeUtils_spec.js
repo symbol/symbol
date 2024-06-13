@@ -166,7 +166,7 @@ describe('route utils', () => {
 		describe('uint64', () => addParserTests({
 			parser: 'uint64',
 			valid: [
-				{ id: '4468410971573743', parsed: [0x00ABCDEF, 0x000FDFFF] }
+				{ id: '4468410971573743', parsed: 0x000FDFFF00ABCDEFn }
 			],
 			invalid: ['-43534534', '0DC67FBE1CAD29E'].map(id => ({ id }))
 		}));
@@ -174,7 +174,7 @@ describe('route utils', () => {
 		describe('uint64hex', () => addParserTests({
 			parser: 'uint64hex',
 			valid: [
-				{ id: '0DC67FBE1CAD29E3', parsed: [481110499, 231112638] }
+				{ id: '0DC67FBE1CAD29E3', parsed: 0x0DC67FBE1CAD29E3n }
 			],
 			invalid: ['0DC67FBE', '0DC67FBE1CAD29E3245', '0DC67FBE1CAD29ER'].map(id => ({ id }))
 		}));

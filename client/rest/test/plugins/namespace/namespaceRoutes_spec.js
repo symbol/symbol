@@ -31,7 +31,6 @@ import sinon from 'sinon';
 import { Address } from 'symbol-sdk/symbol';
 
 const { Binary } = MongoDb;
-const { uint64 } = catapult.utils;
 const { MockServer } = test;
 
 describe('namespace routes', () => {
@@ -214,7 +213,7 @@ describe('namespace routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesFake.calledOnce).to.equal(true);
-					expect(dbNamespacesFake.firstCall.args[1]).to.deep.equal(uint64.fromHex(level0));
+					expect(dbNamespacesFake.firstCall.args[1]).to.deep.equal(BigInt(`0x${level0}`));
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -305,7 +304,7 @@ describe('namespace routes', () => {
 		test.route.document.addGetDocumentRouteTests(namespaceRoutes.register, {
 			route: '/namespaces/:namespaceId',
 			inputs: {
-				valid: { object: { namespaceId }, parsed: [[0x90ABCDEF, 0x12345678]], printable: namespaceId },
+				valid: { object: { namespaceId }, parsed: [0x1234567890ABCDEFn], printable: namespaceId },
 				invalid: {
 					object: { namespaceId: '12345' },
 					error: 'namespaceId has an invalid format'
@@ -323,11 +322,11 @@ describe('namespace routes', () => {
 			// 1. in db, parentId is only stored for child namespaces
 			// 2. db returns null instead of undefined when a document property is not present
 			parentId: undefined === parentId ? null : createParentId(parentId),
-			id: [0, namespaceId]
+			id: namespaceId
 		});
 
 		const Valid_Hex_String_Namespace_Ids = ['1234567890ABCDEF', 'ABCDEF0123456789'];
-		const Valid_Uint64_Namespace_Ids = [[0x90ABCDEF, 0x12345678], [0x23456789, 0xABCDEF01]];
+		const Valid_Uint64_Namespace_Ids = [0x1234567890ABCDEFn, 0xABCDEF0123456789n];
 
 		const runTest = options => {
 			// Arrange:
@@ -458,7 +457,7 @@ describe('namespace routes', () => {
 				it('parses mosaic ids correctly', () => {
 					// Arrange:
 					const req = { params: { mosaicIds: ['78A4895CB6653DE4', '56AB67FF45468988'] } };
-					const parsedValues = [[0xB6653DE4, 0x78A4895C], [0x45468988, 0x56AB67FF]].map(convertToLong);
+					const parsedValues = [0x78A4895CB6653DE4n, 0x56AB67FF45468988n].map(convertToLong);
 
 					// Act + Assert:
 					expect(getParams(req)).to.deep.equal(parsedValues);

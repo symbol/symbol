@@ -44,7 +44,7 @@ describe('supply routes', () => {
 		const mosaicsSample = [{
 			id: '',
 			mosaic: {
-				id: convertToLong([0xABCDEF01, 0x12345678]),
+				id: convertToLong(0x12345678ABCDEF01n),
 				supply: convertToLong(xymSupply),
 				startHeight: '',
 				ownerAddress: '',
@@ -65,8 +65,8 @@ describe('supply routes', () => {
 			importanceHeight: '',
 			activityBuckets: [],
 			mosaics: [
-				{ id: convertToLong([0xABCDEF01, 0x22222222]), amount: convertToLong(otherAmount) },
-				{ id: convertToLong([0xABCDEF01, 0x12345678]), amount: convertToLong(currencyAmount) }
+				{ id: convertToLong(0x22222222ABCDEF01n), amount: convertToLong(otherAmount) },
+				{ id: convertToLong(0x12345678ABCDEF01n), amount: convertToLong(currencyAmount) }
 			]
 		});
 
