@@ -201,7 +201,7 @@ namespace catapult { namespace ionet {
 			public:
 				auto headerBuffer() const {
 					const auto& header = m_payload.header();
-					return boost::asio::buffer(reinterpret_cast<const uint8_t*>(&header), sizeof(header));
+					return boost::asio::buffer(static_cast<const void*>(&header), sizeof(header));
 				}
 
 				auto nextDataBuffer() {
