@@ -205,8 +205,8 @@ namespace catapult { namespace ionet {
 				}
 
 				auto nextDataBuffer() {
-					auto rawBuffer = m_payload.buffers()[m_nextBufferIndex++];
-					return boost::asio::buffer(rawBuffer.pData, rawBuffer.Size);
+					const auto& rawBuffer = m_payload.buffers()[m_nextBufferIndex++];
+					return boost::asio::buffer(static_cast<const void*>(rawBuffer.pData), rawBuffer.Size);
 				}
 
 				bool tryComplete(const boost::system::error_code& ec) {
