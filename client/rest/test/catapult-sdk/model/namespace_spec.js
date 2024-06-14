@@ -21,7 +21,6 @@
 
 import namespace from '../../../src/catapult-sdk/model/namespace.js';
 import { expect } from 'chai';
-import { utils } from 'symbol-sdk';
 
 describe('namespace', () => {
 	describe('alias type', () => {
@@ -42,17 +41,6 @@ describe('namespace', () => {
 
 			// Assert:
 			expect(Object.keys(namespace.aliasType).length).to.equal(Object.keys(reverseMapping).length);
-		});
-	});
-
-	describe('encodeNamespace', () => {
-		it('Testnet valid', () => {
-			// Assert:
-			const encoded = namespace.encodeNamespace(utils.hexToUint8('C0FB8AA409916260'), 152);
-			const encodedHex = utils.uint8ToHex(encoded);
-			const expectedEncodedHex = '9960629109A48AFBC0000000000000000000000000000000';
-			expect(encodedHex).to.be.equal(expectedEncodedHex);
-			expect(encoded).to.be.deep.equal(utils.hexToUint8(expectedEncodedHex));
 		});
 	});
 });

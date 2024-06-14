@@ -19,8 +19,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { utils } from 'symbol-sdk';
-
 /**
  * Catapult model namespace.
  * @enum {number}
@@ -33,19 +31,5 @@ export default {
 
 		/** Address alias. */
 		address: 2
-	},
-	/**
-	 * Format a namespaceId *alias* into a valid recipient field value.
-	 * @param {Uint8Array} namespaceId The namespaceId
-	 * @param {number} networkIdentifier network identifier serialized in the output.
-	 * @returns {Uint8Array} The padded notation of the alias
-	 */
-	encodeNamespace(namespaceId, networkIdentifier) {
-		// 0x91 | namespaceId on 8 bytes | 15 bytes 0-pad = 24 bytes
-		const padded = new Uint8Array(1 + 8 + 15);
-		padded.set([networkIdentifier | 0x01], 0);
-		padded.set(namespaceId.reverse(), 1);
-		padded.set(utils.hexToUint8('00'.repeat(15)), 9);
-		return padded;
 	}
 };
