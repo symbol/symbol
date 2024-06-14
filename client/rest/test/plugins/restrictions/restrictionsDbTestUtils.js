@@ -19,15 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import RestrictionsDb from '../../../src/plugins/restrictions/RestrictionsDb.js';
 import dbTestUtils from '../../db/utils/dbTestUtils.js';
 import test from '../../testUtils.js';
 import MongoDb from 'mongodb';
 import { models } from 'symbol-sdk/symbol';
 
-const { restriction } = catapult.model;
-const { Binary, ObjectId, Long } = MongoDb;
+const { Binary } = MongoDb;
 
 const createRestrictions = restrictions => {
 	const restrictionsObject = [];
@@ -64,8 +62,6 @@ const createRestrictions = restrictions => {
 	return restrictionsObject;
 };
 
-const createObjectId = id => new ObjectId(`${'00'.repeat(12)}${id}`.slice(-24));
-
 const restrictionsDbTestUtils = {
 	accountDb: {
 		createAccountRestrictions: (address, restrictionsDescriptor) => {
@@ -79,39 +75,6 @@ const restrictionsDbTestUtils = {
 		runDbTest: (dbEntities, issueDbCommand, assertDbCommandResult) => dbTestUtils.db.runDbTest(
 			dbEntities,
 			'accountRestrictions',
-			db => new RestrictionsDb(db),
-			issueDbCommand,
-			assertDbCommandResult
-		)
-	},
-
-	mosaicDb: {
-		sanitizeId: entity => { delete entity._id; return entity; },
-
-		createGlobalMosaicRestriction: mosaicId => ({
-			_id: createObjectId(Math.floor(Math.random() * 100000)),
-			mosaicRestrictionEntry: {
-				compositeHash: '',
-				entryType: restriction.mosaicRestriction.restrictionType.global,
-				mosaicId: Long.fromBigInt(mosaicId),
-				restrictions: [{ key: '', restriction: { referenceMosaicId: '', restrictionValue: '', restrictionType: 0 } }]
-			}
-		}),
-
-		createAddressMosaicRestriction: (mosaicId, targetAddress) => ({
-			_id: createObjectId(Math.floor(Math.random() * 100000)),
-			mosaicRestrictionEntry: {
-				compositeHash: '',
-				entryType: restriction.mosaicRestriction.restrictionType.address,
-				mosaicId: Long.fromBigInt(mosaicId),
-				targetAddress: new Binary(Buffer.from(targetAddress)),
-				restrictions: [{ key: '', value: '' }]
-			}
-		}),
-
-		runDbTest: (dbEntities, issueDbCommand, assertDbCommandResult) => dbTestUtils.db.runDbTest(
-			dbEntities,
-			'mosaicRestrictions',
 			db => new RestrictionsDb(db),
 			issueDbCommand,
 			assertDbCommandResult

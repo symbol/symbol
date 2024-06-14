@@ -23,7 +23,6 @@ import * as merkle from './crypto/merkleAuditProof.js';
 import ModelType from './model/ModelType.js';
 import idReducer from './model/idReducer.js';
 import namespace from './model/namespace.js';
-import restriction from './model/restriction.js';
 import status from './model/status.js';
 import { PacketType, StatePathPacketTypes } from './packet/PacketType.js';
 import packetHeader from './packet/header.js';
@@ -44,7 +43,6 @@ export default {
 	model: {
 		idReducer,
 		ModelType,
-		restriction,
 		namespace,
 		status
 	},
