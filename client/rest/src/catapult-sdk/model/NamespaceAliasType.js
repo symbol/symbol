@@ -20,16 +20,24 @@
  */
 
 /**
- * Catapult model namespace.
- * @enum {number}
+ * Namespace alias type.
  */
-export default {
-	/** Namespace alias type. */
-	aliasType: {
-		/** Mosaic alias. */
-		mosaic: 1,
+export default class NamespaceAliasType {
+	/**
+	 * Mosaic id alias.
+	 */
+	static MOSAIC_ID = new NamespaceAliasType(1);
 
-		/** Address alias. */
-		address: 2
+	/**
+	 * Address alias.
+	 */
+	static ADDRESS = new NamespaceAliasType(2);
+
+	/**
+	 * Creates a namespace alias type.
+	 * @param {number} value Raw value.
+	 */
+	constructor(value) {
+		this.value = value;
 	}
-};
+}

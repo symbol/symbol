@@ -21,8 +21,8 @@
 
 import * as merkle from './crypto/merkleAuditProof.js';
 import ModelType from './model/ModelType.js';
+import NamespaceAliasType from './model/NamespaceAliasType.js';
 import idReducer from './model/idReducer.js';
-import namespace from './model/namespace.js';
 import status from './model/status.js';
 import { PacketType, StatePathPacketTypes } from './packet/PacketType.js';
 import packetHeader from './packet/header.js';
@@ -43,7 +43,7 @@ export default {
 	model: {
 		idReducer,
 		ModelType,
-		namespace,
+		NamespaceAliasType,
 		status
 	},
 	packet: {

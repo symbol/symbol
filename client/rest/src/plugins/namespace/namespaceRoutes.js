@@ -93,7 +93,7 @@ export default {
 
 		server.post('/namespaces/mosaic/names', namespaceUtils.aliasNamesRoutesProcessor(
 			db,
-			catapult.model.namespace.aliasType.mosaic,
+			catapult.model.NamespaceAliasType.MOSAIC_ID,
 			req => routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', routeUtils.namedParserMap.uint64hex).map(convertToLong),
 			(namespace, id) => namespace.namespace.alias.mosaicId.equals(id),
 			'mosaicId',
@@ -102,7 +102,7 @@ export default {
 
 		server.post('/namespaces/account/names', namespaceUtils.aliasNamesRoutesProcessor(
 			db,
-			catapult.model.namespace.aliasType.address,
+			catapult.model.NamespaceAliasType.ADDRESS,
 			req => routeUtils.parseArgumentAsArray(req.params, 'addresses', 'address'),
 			(namespace, id) => Buffer.from(namespace.namespace.alias.address.value())
 				.equals(Buffer.from(new Binary(Buffer.from(id)).value())),

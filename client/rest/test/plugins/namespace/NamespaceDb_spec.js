@@ -389,8 +389,8 @@ describe('namespace db', () => {
 			.then(() => db.database.collection(collectionName)[Array.isArray(entities) ? 'insertMany' : 'insertOne'](entities));
 
 	describe('activeNamespacesWithAlias', () => {
-		const aliasTypeMosaic = catapult.model.namespace.aliasType.mosaic;
-		const aliasTypeAddress = catapult.model.namespace.aliasType.address;
+		const aliasTypeMosaic = catapult.model.NamespaceAliasType.MOSAIC_ID;
+		const aliasTypeAddress = catapult.model.NamespaceAliasType.ADDRESS;
 		const testAddress = {
 			one: 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ',
 			two: 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA',
@@ -407,9 +407,9 @@ describe('namespace db', () => {
 				level1: 2 === depth ? convertToLong(namespaceId) : '',
 				level2: 3 === depth ? convertToLong(namespaceId) : '',
 				alias: {
-					type: aliasType,
-					mosaicId: aliasType === catapult.model.namespace.aliasType.mosaic ? convertToLong(aliasTarget) : null,
-					address: aliasType === catapult.model.namespace.aliasType.address
+					type: aliasType.value,
+					mosaicId: aliasType === catapult.model.NamespaceAliasType.MOSAIC_ID ? convertToLong(aliasTarget) : null,
+					address: aliasType === catapult.model.NamespaceAliasType.ADDRESS
 						? new Binary(Buffer.from(new Address(aliasTarget).bytes))
 						: null
 				},

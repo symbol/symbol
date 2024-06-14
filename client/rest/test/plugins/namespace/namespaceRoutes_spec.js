@@ -435,7 +435,7 @@ describe('namespace routes', () => {
 
 				// Assert:
 				expect(aliasNamesRoutesProcessorSpy.calledTwice).to.equal(true);
-				expect(aliasNamesRoutesProcessorSpy.firstCall.args[1]).to.equal(catapult.model.namespace.aliasType.mosaic);
+				expect(aliasNamesRoutesProcessorSpy.firstCall.args[1]).to.equal(catapult.model.NamespaceAliasType.MOSAIC_ID);
 				expect(aliasNamesRoutesProcessorSpy.firstCall.args[4]).to.equal('mosaicId');
 				expect(aliasNamesRoutesProcessorSpy.firstCall.args[5]).to.equal('mosaicNames');
 
@@ -529,7 +529,7 @@ describe('namespace routes', () => {
 
 				// Assert:
 				expect(aliasNamesRoutesProcessorSpy.calledTwice).to.equal(true);
-				expect(aliasNamesRoutesProcessorSpy.secondCall.args[1]).to.equal(catapult.model.namespace.aliasType.address);
+				expect(aliasNamesRoutesProcessorSpy.secondCall.args[1]).to.equal(catapult.model.NamespaceAliasType.ADDRESS);
 				expect(aliasNamesRoutesProcessorSpy.secondCall.args[4]).to.equal('address');
 				expect(aliasNamesRoutesProcessorSpy.secondCall.args[5]).to.equal('accountNames');
 

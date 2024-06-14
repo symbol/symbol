@@ -124,21 +124,23 @@ export default class NamespaceDb {
 
 	/**
 	 * Retrieves non expired namespaces aliasing mosaics or addresses.
-	 * @param {Array<module:catapult.model.namespace.aliasType>} aliasType Alias type.
+	 * @param {Array<module:catapult.model.NamespaceAliasType>} aliasType Alias type.
 	 * @param {*} ids Set of mosaic or address ids.
 	 * @returns {Promise<Array<object>>} Active namespaces aliasing ids.
 	 */
 	async activeNamespacesWithAlias(aliasType, ids) {
 		const aliasFilterCondition = {
-			[catapult.model.namespace.aliasType.mosaic]: () => ({ 'namespace.alias.mosaicId': { $in: ids.map(convertToLong) } }),
-			[catapult.model.namespace.aliasType.address]: () => ({ 'namespace.alias.address': { $in: ids.map(id => Buffer.from(id)) } })
+			[catapult.model.NamespaceAliasType.MOSAIC_ID.value]: () => ({ 'namespace.alias.mosaicId': { $in: ids.map(convertToLong) } }),
+			[catapult.model.NamespaceAliasType.ADDRESS.value]: () => ({
+				'namespace.alias.address': { $in: ids.map(id => Buffer.from(id)) }
+			})
 		};
 		const { height } = await this.catapultDb.chainStatisticCurrent();
 		const activeConditions = await createLatestConditions(this.catapultDb, height);
 
 		const conditions = { $and: [] };
-		conditions.$and.push(aliasFilterCondition[aliasType]());
-		conditions.$and.push({ 'namespace.alias.type': aliasType });
+		conditions.$and.push(aliasFilterCondition[aliasType.value]());
+		conditions.$and.push({ 'namespace.alias.type': aliasType.value });
 		conditions.$and.push(activeConditions);
 
 		return this.catapultDb.queryDocuments('namespaces', conditions).then(ns => ns.map(n => addActiveFlag(n, height)));

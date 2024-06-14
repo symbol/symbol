@@ -19,28 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import namespace from '../../../src/catapult-sdk/model/namespace.js';
+import NamespaceAliasType from '../../../src/catapult-sdk/model/NamespaceAliasType.js';
 import { expect } from 'chai';
 
-describe('namespace', () => {
-	describe('alias type', () => {
-		it('exposes alias type types', () => {
-			// Assert:
-			expect(namespace.aliasType).to.deep.equal({
-				mosaic: 1,
-				address: 2
-			});
-		});
-
-		it('exposed values are unique', () => {
-			// Act:
-			const reverseMapping = Object.keys(namespace.aliasType).reduce((state, name) => {
-				state[namespace.aliasType[name]] = name;
-				return state;
-			}, {});
-
-			// Assert:
-			expect(Object.keys(namespace.aliasType).length).to.equal(Object.keys(reverseMapping).length);
-		});
+describe('NamespaceAliasType', () => {
+	it('defines constant values', () => {
+		expect(NamespaceAliasType.MOSAIC_ID.value).to.equal(1);
+		expect(NamespaceAliasType.ADDRESS.value).to.equal(2);
 	});
 });
