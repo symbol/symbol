@@ -916,28 +916,27 @@ describe('server (bootstrapper)', () => {
 							expect(socket.readyState).to.equal(WebSocket.CLOSED);
 						});
 						resolve();
-						done();
 					}, 200);
-				});
+				}).finally(done);
 			}
 		});
 
-		const runSingleRouteTest = (numClients, done) => {
+		const runSingleRouteTest = numClients => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
 			server.listen(ports.server);
 
 			// Act + Assert: create a client websocket and run the test
-			createClientSockets('/ws/block', emitter, numClients, createHandlers(server, done));
-		};
+			createClientSockets('/ws/block', emitter, numClients, createHandlers(server, resolve));
+		});
 
 		// region subscribe
 
-		it('handles single subscription', done => runSingleRouteTest(1, done));
-		it('handles multiple subscriptions to same route', done => runSingleRouteTest(3, done));
+		it('handles single subscription', () => runSingleRouteTest(1));
+		it('handles multiple subscriptions to same route', () => runSingleRouteTest(3));
 
-		it('handles multiple subscriptions to different routes', done => {
+		it('handles multiple subscriptions to different routes', () => new Promise(resolve => {
 			// Arrange: set up the server with two ws routes
 			const server = createWebSocketServer();
 			const emitter1 = registerRoute(server, '/ws/block1');
@@ -952,12 +951,12 @@ describe('server (bootstrapper)', () => {
 				onAllConnected: zsocket => {
 					// - push to the mq only when both websockets are connected
 					if (2 === ++counts.numAllConnectedHandlers)
-						createHandlers(server, done).onAllConnected(zsocket);
+						createHandlers(server, resolve).onAllConnected(zsocket);
 				},
 				onAllMessages: (zsocket, sockets) => {
 					// - close the server only when messages from both websockets are received and processed
 					if (2 === ++counts.numAllMessagesHandlers)
-						createHandlers(server, done).onAllMessages(zsocket, sockets);
+						createHandlers(server, resolve).onAllMessages(zsocket, sockets);
 				}
 			};
 
@@ -968,22 +967,22 @@ describe('server (bootstrapper)', () => {
 			// (the routes themselves are meaningless and both will get the same data; the single push above pushes to both routes)
 			// (the only difference is that the set of connections and ids are per-route, which is why both connections will have id 1)
 			const createOptions = () => ({ numClients: 1, messageIds: new Set([1]), zsocket });
-			createClientSockets('/ws/block1', emitter1, createOptions(), Object.assign(createHandlers(server, done), customHandlers));
-			createClientSockets('/ws/block2', emitter2, createOptions(), Object.assign(createHandlers(server, done), customHandlers));
-		});
+			createClientSockets('/ws/block1', emitter1, createOptions(), Object.assign(createHandlers(server, resolve), customHandlers));
+			createClientSockets('/ws/block2', emitter2, createOptions(), Object.assign(createHandlers(server, resolve), customHandlers));
+		}));
 
 		// endregion
 
 		// region unsubscribe
 
-		it('handles unsubscription of client from subscribed channel', done => {
+		it('handles unsubscription of client from subscribed channel', () => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
 			server.listen(ports.server);
 
 			// - create three client websockets
-			const defaultHandlers = createHandlers(server, done);
+			const defaultHandlers = createHandlers(server, resolve);
 			const defaultOnAllConnected = defaultHandlers.onAllConnected;
 			const defaultOnAllMessages = defaultHandlers.onAllMessages;
 			createClientSockets(
@@ -1007,16 +1006,16 @@ describe('server (bootstrapper)', () => {
 					}
 				})
 			);
-		});
+		}));
 
-		it('handles unsubscription of client from unknown channel', done => {
+		it('handles unsubscription of client from unknown channel', () => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
 			server.listen(ports.server);
 
 			// - create three client websockets
-			const defaultHandlers = createHandlers(server, done);
+			const defaultHandlers = createHandlers(server, resolve);
 			const defaultOnAllConnected = defaultHandlers.onAllConnected;
 			createClientSockets(
 				'/ws/block',
@@ -1031,20 +1030,20 @@ describe('server (bootstrapper)', () => {
 					}
 				})
 			);
-		});
+		}));
 
 		// endregion
 
 		// region disconnect (client)
 
-		it('handles disconnecting client sockets', done => {
+		it('handles disconnecting client sockets', () => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
 			server.listen(ports.server);
 
 			// - create three client websockets
-			const defaultHandlers = createHandlers(server, done);
+			const defaultHandlers = createHandlers(server, resolve);
 			const defaultOnAllConnected = defaultHandlers.onAllConnected;
 			createClientSockets(
 				'/ws/block',
@@ -1059,13 +1058,13 @@ describe('server (bootstrapper)', () => {
 					}
 				})
 			);
-		});
+		}));
 
 		// endregion
 
 		// region invalid subscription requests
 
-		const runInvalidClientTest = (done, messageCallback) => {
+		const runInvalidClientTest = messageCallback => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			registerRoute(server, '/ws/block');
@@ -1082,7 +1081,7 @@ describe('server (bootstrapper)', () => {
 					if (numConnections === ++numCloses) {
 						// close server, otherwise subsequent tests would fail
 						server.close();
-						done();
+						resolve();
 					}
 				});
 			};
@@ -1091,39 +1090,33 @@ describe('server (bootstrapper)', () => {
 				const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block`);
 				addHandlers(ws, i);
 			}
-		};
-
-		it('invalid data disconnects client', done => {
-			runInvalidClientTest(done, ws => {
-				// Act: non-json data
-				ws.send('hello');
-			});
 		});
 
-		it('malformed request disconnects client', done => {
-			runInvalidClientTest(done, (ws, messageJson) => {
-				// Arrange:
-				const message = JSON.parse(messageJson);
-				Object.assign(message, { subscribe: 7 });
+		it('invalid data disconnects client', () => runInvalidClientTest(ws => {
+			// Act: non-json data
+			ws.send('hello');
+		}));
 
-				// Act: subscribe must be a string
-				ws.send(JSON.stringify(message));
-			});
-		});
+		it('malformed request disconnects client', () => runInvalidClientTest((ws, messageJson) => {
+			// Arrange:
+			const message = JSON.parse(messageJson);
+			Object.assign(message, { subscribe: 7 });
 
-		it('unsupported topic subscribe request disconnects client', done => {
-			runInvalidClientTest(done, (ws, messageJson) => {
-				// Act: try to subscribe to an unsupported topic
-				const responseJson = JSON.stringify(Object.assign(JSON.parse(messageJson), { subscribe: 'chainStatistic' }));
-				ws.send(responseJson);
-			});
-		});
+			// Act: subscribe must be a string
+			ws.send(JSON.stringify(message));
+		}));
+
+		it('unsupported topic subscribe request disconnects client', () => runInvalidClientTest((ws, messageJson) => {
+			// Act: try to subscribe to an unsupported topic
+			const responseJson = JSON.stringify(Object.assign(JSON.parse(messageJson), { subscribe: 'chainStatistic' }));
+			ws.send(responseJson);
+		}));
 
 		// endregion
 
 		// region close (server)
 
-		it('closing server closes all clients', done => {
+		it('closing server closes all clients', () => new Promise(resolve => {
 			// Arrange: set up the server with two ws routes
 			const server = createWebSocketServer();
 			registerRoute(server, '/ws/block1');
@@ -1147,7 +1140,7 @@ describe('server (bootstrapper)', () => {
 					// Assert: all clients have been closed
 					test.log(`client ${id} was closed`);
 					if (numConnections === ++numCloses)
-						done();
+						resolve();
 				});
 			};
 
@@ -1156,7 +1149,7 @@ describe('server (bootstrapper)', () => {
 				const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block${routePostfix}`);
 				addHandlers(ws, i);
 			}
-		});
+		}));
 
 		// endregion
 	});
