@@ -25,17 +25,20 @@ import { bufferToUnresolvedAddress } from '../db/dbUtils.js';
 const { ModelType, status } = catapult.model;
 const { convert, uint64 } = catapult.utils;
 
+const stringOrFormat = (value, formatter) => ('string' === typeof value ? value : formatter(value));
+const decimalStringToHexString = value => BigInt(value).toString(16).padStart(16, '0').toUpperCase();
+
 export default {
 	[ModelType.none]: value => value,
-	[ModelType.binary]: value => convert.uint8ToHex(value),
+	[ModelType.binary]: value => stringOrFormat(value, convert.uint8ToHex),
 	[ModelType.statusCode]: status.toString,
 	[ModelType.string]: value => value.toString(),
 	[ModelType.uint8]: value => value,
 	[ModelType.uint16]: value => value,
 	[ModelType.uint32]: value => value,
-	[ModelType.uint64]: value => uint64.toString(value),
-	[ModelType.uint64HexIdentifier]: value => uint64.toHex(value),
+	[ModelType.uint64]: value => stringOrFormat(value, uint64.toString),
+	[ModelType.uint64HexIdentifier]: value => ('string' === typeof value ? decimalStringToHexString(value) : uint64.toHex(value)),
 	[ModelType.int]: value => value,
 	[ModelType.boolean]: value => value,
-	[ModelType.encodedAddress]: value => bufferToUnresolvedAddress(value)
+	[ModelType.encodedAddress]: value => stringOrFormat(value, bufferToUnresolvedAddress)
 };

@@ -33,7 +33,6 @@ import restrictions from './restrictions.js';
 import transfer from './transfer.js';
 import ModelFormatterBuilder from '../model/ModelFormatterBuilder.js';
 import ModelSchemaBuilder from '../model/ModelSchemaBuilder.js';
-import ModelCodecBuilder from '../modelBinary/ModelCodecBuilder.js';
 
 const plugins = {
 	accountLink,
@@ -69,7 +68,6 @@ export default {
 	 */
 	configure: (pluginNames, namedFormattingRules) => {
 		const schemaBuilder = new ModelSchemaBuilder();
-		const codecBuilder = new ModelCodecBuilder();
 		const formatterBuilder = new ModelFormatterBuilder();
 		pluginNames.forEach(pluginName => {
 			if (!plugins[pluginName])
@@ -86,7 +84,6 @@ export default {
 					formatterBuilder.addFormatter(name);
 				}
 			});
-			plugin.registerCodecs(codecBuilder);
 		});
 
 		const modelSchema = schemaBuilder.build();
@@ -97,7 +94,6 @@ export default {
 
 		return {
 			schema: modelSchema,
-			codec: codecBuilder.build(),
 			formatters
 		};
 	}

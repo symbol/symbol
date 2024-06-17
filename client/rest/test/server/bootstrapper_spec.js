@@ -19,7 +19,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../src/catapult-sdk/index.js';
 import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
 import createZmqConnectionService from '../../src/connection/zmqService.js';
 import bootstrapper from '../../src/server/bootstrapper.js';
@@ -139,7 +138,7 @@ const createFormatters = options => formatters.create({
 				const { block } = blockHeaderWithMetadata;
 				return {
 					height: block.height,
-					signerPublicKey: catapult.utils.convert.uint8ToHex(block.signerPublicKey)
+					signerPublicKey: block.signerPublicKey
 				};
 			}
 		}
@@ -780,47 +779,25 @@ describe('server (bootstrapper)', () => {
 		const ports = { server: 1234, mq: 7912 };
 		const delays = { publish: 50 };
 
-		const createBlockBuffer = tag => Buffer.concat([
-			Buffer.of(0x30, 0x01, 0x00, 0x00), // size 4b
-			Buffer.of(0x00, 0x00, 0x00, 0x00), // verifiable entity header reserved 1 4b
-			Buffer.from(test.random.bytes(test.constants.sizes.signature)), // signature 64b
-			Buffer.from('A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F', 'hex'), // signerPublicKey 32b
-			Buffer.of(0x00, 0x00, 0x00, 0x00), // entity body reserved 1 4b
-			Buffer.of(0x03), // version 1b
-			Buffer.of(0x90), // network 1b
-			Buffer.of(0x00, 0x80), // type 2b
-			Buffer.of(0x97, 0x87, 0x45, 0x0E, tag || 0xE1, 0x6C, 0xB6, 0x62), // height 8b
-			Buffer.from(test.random.bytes(8)), // timestamp 8b
-			Buffer.from(test.random.bytes(8)), // difficulty 8b
-			Buffer.from(test.random.bytes(32)), // proofGamma 32b
-			Buffer.from(test.random.bytes(16)), // proofVerificationHash 16b
-			Buffer.from(test.random.bytes(32)), // proofScalar 32b
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // previous block hash 32b
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // transactionsHashBuffer 32b
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // receiptsHashBuffer 32b
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // stateHashBuffer 32b
-			test.random.bytes(test.constants.sizes.addressDecoded), // beneficiaryAddress 24b
-			Buffer.of(0x0A, 0x00, 0x00, 0x00), // fee feeMultiplierBuffer 4b
-			Buffer.of(0x00, 0x00, 0x00, 0x00) // reserved padding 4b
-		]);
-
 		// notice that the formatter only returns height and signerPublicKey
-		const createFormattedBlock = tag => ({
-			topic: 'block',
-			data: {
-				height: [0x0E458797, 0x62B66C00 | (tag || 0xE1)],
-				signerPublicKey: 'A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F'
-			}
-		});
+		const createFormattedBlock = () => {
+			const block = test.createSampleBlock().model;
+			return {
+				topic: 'block',
+				data: {
+					height: block.height,
+					signerPublicKey: block.signerPublicKey
+				}
+			};
+		};
 
 		const registerRoute = (server, route) => {
 			// create a zmq service that supports only basic (non-transaction) models
-			const modelSystem = catapult.plugins.catapultModelSystem.configure([], {});
 			const config = {
 				host: '127.0.0.1', port: ports.mq, connectTimeout: 1000, monitorInterval: 50
 			};
 			const channelDescriptors = new MessageChannelBuilder().build();
-			const zmqService = createZmqConnectionService(config, modelSystem.codec, channelDescriptors, test.createMockLogger());
+			const zmqService = createZmqConnectionService(config, channelDescriptors, test.createMockLogger());
 
 			// create a custom emitter for raising client connected events
 			const emitter = new EventEmitter();
@@ -916,14 +893,14 @@ describe('server (bootstrapper)', () => {
 			});
 		};
 
-		const createHandlers = (server, done, blockTag = undefined) => ({
+		const createHandlers = (server, done) => ({
 			onAllConnected: zsocket => {
 				// Act: publish a block
-				publishBlock(zsocket, createBlockBuffer(blockTag));
+				publishBlock(zsocket, test.createSampleBlock().buffer);
 			},
 			onMessage: payload => {
 				// Assert: notice that payload is already formatted
-				expect(payload, `blockTag: ${blockTag}`).to.deep.equal(createFormattedBlock(blockTag));
+				expect(payload, 'block').to.deep.equal(createFormattedBlock());
 			},
 			onAllMessages: (zsocket, sockets) => {
 				// close mq socket and server, otherwise subsequent tests would fail

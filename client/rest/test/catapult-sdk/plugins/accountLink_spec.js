@@ -19,10 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
 import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
 import accountLinkPlugin from '../../../src/catapult-sdk/plugins/accountLink.js';
-import test from '../binaryTestUtils.js';
 import { expect } from 'chai';
 
 describe('account link plugin', () => {
@@ -55,106 +53,6 @@ describe('account link plugin', () => {
 			// - vrfKeyLink
 			expect(Object.keys(modelSchema.vrfKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
 			expect(modelSchema.vrfKeyLink).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
-		});
-	});
-
-	describe('register codecs', () => {
-		const getCodecs = () => {
-			const codecs = {};
-			accountLinkPlugin.registerCodecs({
-				addTransactionSupport: (type, codec) => {
-					codecs[type] = codec;
-				}
-			});
-
-			return codecs;
-		};
-
-		it('adds account link codec', () => {
-			// Act:
-			const codecs = getCodecs();
-
-			// Assert: codec was registered
-			expect(Object.keys(codecs).length).to.equal(4);
-			expect(codecs).to.contain.all.keys([EntityType.accountLink.toString()]);
-			expect(codecs).to.contain.all.keys([EntityType.nodeKeyLink.toString()]);
-			expect(codecs).to.contain.all.keys([EntityType.votingKeyLink.toString()]);
-			expect(codecs).to.contain.all.keys([EntityType.vrfKeyLink.toString()]);
-		});
-
-		describe('supports account link transaction', () => {
-			const linkedPublicKey = Buffer.of(
-				0x77, 0xBE, 0xE1, 0xCA, 0xD0, 0x8E, 0x6E, 0x48, 0x95, 0xE8, 0x18, 0xB2, 0x7B, 0xD8, 0xFA, 0xC9,
-				0x47, 0x0D, 0xB8, 0xFD, 0x2D, 0x81, 0x47, 0x6A, 0xC5, 0x61, 0xA4, 0xCE, 0xE1, 0x81, 0x40, 0x83
-			);
-			test.binary.test.addAll(getCodecs()[EntityType.accountLink], 32 + 1, () => ({
-				buffer: Buffer.concat([
-					linkedPublicKey,
-					Buffer.of(0x01)
-				]),
-				object: {
-					linkedPublicKey,
-					linkAction: 0x01
-				}
-			}));
-		});
-
-		describe('supports node key link transaction', () => {
-			const linkedPublicKey = Buffer.of(
-				0x77, 0xBE, 0xE1, 0xCA, 0xD0, 0x8E, 0x6E, 0x48, 0x95, 0xE8, 0x18, 0xB2, 0x7B, 0xD8, 0xFA, 0xC9,
-				0x47, 0x0D, 0xB8, 0xFD, 0x2D, 0x81, 0x47, 0x6A, 0xC5, 0x61, 0xA4, 0xCE, 0xE1, 0x81, 0x40, 0x83
-			);
-			test.binary.test.addAll(getCodecs()[EntityType.nodeKeyLink], 32 + 1, () => ({
-				buffer: Buffer.concat([
-					linkedPublicKey,
-					Buffer.of(0x01)
-				]),
-				object: {
-					linkedPublicKey,
-					linkAction: 0x01
-				}
-			}));
-		});
-
-		describe('supports voting key link transaction', () => {
-			const linkedPublicKey = Buffer.of(
-				0x77, 0xBE, 0xE1, 0xCA, 0xD0, 0x8E, 0x6E, 0x48, 0x95, 0xE8, 0x18, 0xB2, 0x7B, 0xD8, 0xFA, 0xC9,
-				0x77, 0xBE, 0xE1, 0xCA, 0xD0, 0x8E, 0x6E, 0x48, 0x95, 0xE8, 0x18, 0xB2, 0x7B, 0xD8, 0xFA, 0xC9
-			);
-			const startEpoch = Buffer.of(0x47, 0x12, 0xC3, 0x00);
-			const endEpoch = Buffer.of(0x73, 0xBE, 0xD2, 0x11);
-
-			test.binary.test.addAll(getCodecs()[EntityType.votingKeyLink], 32 + 4 + 4 + 1, () => ({
-				buffer: Buffer.concat([
-					linkedPublicKey, // 32
-					startEpoch, // 4b
-					endEpoch, // 4b
-					Buffer.of(0x01) // 1b
-				]),
-				object: {
-					linkedPublicKey,
-					startEpoch: 0x00C31247,
-					endEpoch: 0x11D2BE73,
-					linkAction: 0x01
-				}
-			}));
-		});
-
-		describe('supports vrf key link transaction', () => {
-			const linkedPublicKey = Buffer.of(
-				0x77, 0xBE, 0xE1, 0xCA, 0xD0, 0x8E, 0x6E, 0x48, 0x95, 0xE8, 0x18, 0xB2, 0x7B, 0xD8, 0xFA, 0xC9,
-				0x47, 0x0D, 0xB8, 0xFD, 0x2D, 0x81, 0x47, 0x6A, 0xC5, 0x61, 0xA4, 0xCE, 0xE1, 0x81, 0x40, 0x83
-			);
-			test.binary.test.addAll(getCodecs()[EntityType.vrfKeyLink], 32 + 1, () => ({
-				buffer: Buffer.concat([
-					linkedPublicKey,
-					Buffer.of(0x01)
-				]),
-				object: {
-					linkedPublicKey,
-					linkAction: 0x01
-				}
-			}));
 		});
 	});
 });

@@ -22,9 +22,6 @@
 /** @module plugins/accountLink */
 import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
-import sizes from '../modelBinary/sizes.js';
-
-const constants = { sizes };
 
 /**
  * Creates an accountLink plugin.
@@ -52,68 +49,6 @@ export default {
 		builder.addTransactionSupport(EntityType.vrfKeyLink, {
 			linkedPublicKey: ModelType.binary,
 			linkAction: ModelType.uint8
-		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.accountLink, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.linkedPublicKey = parser.buffer(constants.sizes.signerPublicKey);
-				transaction.linkAction = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.linkedPublicKey);
-				serializer.writeUint8(transaction.linkAction);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.nodeKeyLink, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.linkedPublicKey = parser.buffer(constants.sizes.signerPublicKey);
-				transaction.linkAction = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.linkedPublicKey);
-				serializer.writeUint8(transaction.linkAction);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.votingKeyLink, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.linkedPublicKey = parser.buffer(constants.sizes.signerPublicKey);
-				transaction.startEpoch = parser.uint32();
-				transaction.endEpoch = parser.uint32();
-				transaction.linkAction = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.linkedPublicKey);
-				serializer.writeUint32(transaction.startEpoch);
-				serializer.writeUint32(transaction.endEpoch);
-				serializer.writeUint8(transaction.linkAction);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.vrfKeyLink, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.linkedPublicKey = parser.buffer(constants.sizes.signerPublicKey);
-				transaction.linkAction = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.linkedPublicKey);
-				serializer.writeUint8(transaction.linkAction);
-			}
 		});
 	}
 };

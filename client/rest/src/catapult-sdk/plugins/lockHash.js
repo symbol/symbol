@@ -22,9 +22,6 @@
 /** @module plugins/lockHash */
 import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
-import sizes from '../modelBinary/sizes.js';
-
-const constants = { sizes };
 
 /**
  * Creates a lock hash plugin.
@@ -51,26 +48,6 @@ export default {
 			amount: ModelType.uint64,
 			duration: ModelType.uint64,
 			hash: ModelType.binary
-		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.hashLock, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.mosaicId = parser.uint64();
-				transaction.amount = parser.uint64();
-				transaction.duration = parser.uint64();
-				transaction.hash = parser.buffer(constants.sizes.hash256);
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.amount);
-				serializer.writeUint64(transaction.duration);
-				serializer.writeBuffer(transaction.hash);
-			}
 		});
 	}
 };

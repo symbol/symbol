@@ -22,10 +22,6 @@
 /** @module plugins/multisig */
 import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
-import sizes from '../modelBinary/sizes.js';
-import convert from '../utils/convert.js';
-
-const constants = { sizes };
 
 /**
  * Creates a multisig plugin.
@@ -54,45 +50,6 @@ export default {
 		builder.addSchema('multisigGraph', {
 			level: ModelType.none,
 			multisigEntries: { type: ModelType.array, schemaName: 'multisigEntry' }
-		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.modifyMultisigAccount, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.minRemovalDelta = convert.uint8ToInt8(parser.uint8());
-				transaction.minApprovalDelta = convert.uint8ToInt8(parser.uint8());
-
-				const addressAdditionsCount = parser.uint8();
-				const addressDeletionsCount = parser.uint8();
-
-				transaction.multisigAccountModificationTransactionBody_Reserved1 = parser.uint32();
-
-				transaction.addressAdditions = [];
-				for (let i = 0; i < addressAdditionsCount; ++i)
-					transaction.addressAdditions.push(parser.buffer(constants.sizes.addressDecoded));
-
-				transaction.addressDeletions = [];
-				for (let i = 0; i < addressDeletionsCount; ++i)
-					transaction.addressDeletions.push(parser.buffer(constants.sizes.addressDecoded));
-
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint8(convert.int8ToUint8(transaction.minRemovalDelta));
-				serializer.writeUint8(convert.int8ToUint8(transaction.minApprovalDelta));
-				serializer.writeUint8(transaction.addressAdditions.length);
-				serializer.writeUint8(transaction.addressDeletions.length);
-				serializer.writeUint32(transaction.multisigAccountModificationTransactionBody_Reserved1);
-				transaction.addressAdditions.forEach(key => {
-					serializer.writeBuffer(key);
-				});
-				transaction.addressDeletions.forEach(key => {
-					serializer.writeBuffer(key);
-				});
-			}
 		});
 	}
 };

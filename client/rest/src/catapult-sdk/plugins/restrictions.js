@@ -22,9 +22,6 @@
 /** @module plugins/restrictions */
 import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
-import sizes from '../modelBinary/sizes.js';
-
-const constants = { sizes };
 
 // const accountRestrictionTypeOutgoingOffset = 0x4000;
 const accountRestrictionTypeBlockOffset = 0x8000;
@@ -32,38 +29,6 @@ const AccountRestrictionTypeFlags = Object.freeze({
 	address: 0x0001,
 	mosaic: 0x0002,
 	operation: 0x0004
-});
-
-const accountRestrictionsCreateBaseCodec = valueCodec => ({
-	deserialize: parser => {
-		const transaction = {};
-		transaction.restrictionFlags = parser.uint16();
-		const restrictionAdditionsCount = parser.uint8();
-		const restrictionDeletionsCount = parser.uint8();
-		transaction.accountRestrictionTransactionBody_Reserved1 = parser.uint32();
-
-		transaction.restrictionAdditions = [];
-		for (let i = 0; i < restrictionAdditionsCount; ++i)
-			transaction.restrictionAdditions.push(valueCodec.deserializeValue(parser));
-
-		transaction.restrictionDeletions = [];
-		for (let i = 0; i < restrictionDeletionsCount; ++i)
-			transaction.restrictionDeletions.push(valueCodec.deserializeValue(parser));
-
-		return transaction;
-	},
-	serialize: (transaction, serializer) => {
-		serializer.writeUint16(transaction.restrictionFlags);
-		serializer.writeUint8(transaction.restrictionAdditions.length);
-		serializer.writeUint8(transaction.restrictionDeletions.length);
-		serializer.writeUint32(transaction.accountRestrictionTransactionBody_Reserved1);
-		transaction.restrictionAdditions.forEach(key => {
-			valueCodec.serializeValue(serializer, key);
-		});
-		transaction.restrictionDeletions.forEach(key => {
-			valueCodec.serializeValue(serializer, key);
-		});
-	}
 });
 
 const accountRestrictionTypeDescriptors = [
@@ -186,81 +151,6 @@ export default {
 			referenceMosaicId: ModelType.uint64HexIdentifier,
 			restrictionValue: ModelType.uint64,
 			restrictionType: ModelType.uint8
-		});
-	},
-
-	registerCodecs: codecBuilder => {
-		// account restrictions address
-		codecBuilder.addTransactionSupport(
-			EntityType.accountRestrictionAddress,
-			accountRestrictionsCreateBaseCodec({
-				deserializeValue: parser => parser.buffer(constants.sizes.addressDecoded),
-				serializeValue: (serializer, value) => serializer.writeBuffer(value)
-			})
-		);
-
-		// account restrictions mosaic
-		codecBuilder.addTransactionSupport(
-			EntityType.accountRestrictionMosaic,
-			accountRestrictionsCreateBaseCodec({
-				deserializeValue: parser => parser.uint64(),
-				serializeValue: (serializer, value) => serializer.writeUint64(value)
-			})
-		);
-
-		// account restrictions operation
-		codecBuilder.addTransactionSupport(
-			EntityType.accountRestrictionOperation,
-			accountRestrictionsCreateBaseCodec({
-				deserializeValue: parser => parser.uint16(),
-				serializeValue: (serializer, value) => serializer.writeUint16(value)
-			})
-		);
-
-		// mosaic restrictions address
-		codecBuilder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.mosaicId = parser.uint64();
-				transaction.restrictionKey = parser.uint64();
-				transaction.previousRestrictionValue = parser.uint64();
-				transaction.newRestrictionValue = parser.uint64();
-				transaction.targetAddress = parser.buffer(constants.sizes.addressDecoded);
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.restrictionKey);
-				serializer.writeUint64(transaction.previousRestrictionValue);
-				serializer.writeUint64(transaction.newRestrictionValue);
-				serializer.writeBuffer(transaction.targetAddress);
-			}
-		});
-
-		// mosaic restrictions global
-		codecBuilder.addTransactionSupport(EntityType.mosaicRestrictionGlobal, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.mosaicId = parser.uint64();
-				transaction.referenceMosaicId = parser.uint64();
-				transaction.restrictionKey = parser.uint64();
-				transaction.previousRestrictionValue = parser.uint64();
-				transaction.newRestrictionValue = parser.uint64();
-				transaction.previousRestrictionType = parser.uint8();
-				transaction.newRestrictionType = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.referenceMosaicId);
-				serializer.writeUint64(transaction.restrictionKey);
-				serializer.writeUint64(transaction.previousRestrictionValue);
-				serializer.writeUint64(transaction.newRestrictionValue);
-				serializer.writeUint8(transaction.previousRestrictionType);
-				serializer.writeUint8(transaction.newRestrictionType);
-			}
 		});
 	}
 };

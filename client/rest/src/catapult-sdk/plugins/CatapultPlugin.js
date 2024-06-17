@@ -35,14 +35,7 @@ export default {
 	 * @instance
 	 * @param {module:model/ModelSchemaBuilder} schemaBuilder Schema builder to augment.
 	 */
-	registerSchema: schemaBuilder => {},
-
-	/**
-	 * Registers codecs for serializing and deserializing transactions.
-	 * @instance
-	 * @param {module:modelBinary/ModelCodecBuilder} codecBuilder Codec builder to augment.
-	 */
-	registerCodecs: codecBuilder => {}
+	registerSchema: schemaBuilder => {}
 };
 
 /* eslint-enable */

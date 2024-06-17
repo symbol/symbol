@@ -19,15 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import sizes from '../../src/catapult-sdk/modelBinary/sizes.js';
+import { PublicKey } from 'symbol-sdk';
 import crypto from 'crypto';
 
 export default {
-	constants: { sizes },
-
 	random: {
 		bytes: size => crypto.randomBytes(size),
-		publicKey: () => crypto.randomBytes(sizes.signerPublicKey)
+		publicKey: () => crypto.randomBytes(PublicKey.SIZE)
 	},
 
 	buffer: {
