@@ -99,3 +99,7 @@ const positions = values.map(flag => (this.value & flag)).filter(n => n).map(n =
 return positions.map(n => `{self.typename}.${{keys[n]}}`).join('|');
 '''
 		return MethodDescriptor(body=body)
+
+	def get_json_descriptor(self):
+		body = f'return {self.int_printer.to_json("this.value")};'
+		return MethodDescriptor(body=body)

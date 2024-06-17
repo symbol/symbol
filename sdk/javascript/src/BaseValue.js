@@ -84,4 +84,12 @@ export default class BaseValue {
 
 		return `0x${unsignedValue.toString(16).toUpperCase().padStart(this.size * 2, '0')}`;
 	}
+
+	/**
+	 * Returns representation of this object that can be stored in JSON.
+	 * @returns {string|number} JSON-safe representation of this object.
+	 */
+	toJson() {
+		return 'bigint' === typeof this.value ? this.value.toString(10) : this.value;
+	}
 }
