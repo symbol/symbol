@@ -177,4 +177,49 @@ describe('BaseValue', () => {
 	});
 
 	// endregion
+
+	// region toJson
+
+	const assertJsonFormatting = (size, isSigned, testCases) => {
+		testCases.forEach(testCase => {
+			// Arrange:
+			const value = new BaseValue(size, testCase[0], isSigned);
+
+			// Act:
+			const actual = value.toJson();
+
+			// Assert:
+			expect(actual).to.equal(testCase[1]);
+		});
+	};
+
+	it('toJson of unsigned base values outputs number or string', () => {
+		assertJsonFormatting(1, false, [[0, 0], [0x24, 0x24], [0xFF, 0xFF]]);
+		assertJsonFormatting(2, false, [[0, 0], [0x24, 0x24], [0x1234, 0x1234], [0xFFFF, 0xFFFF]]);
+		assertJsonFormatting(4, false, [
+			[0, 0], [0x24, 0x24], [0x1234, 0x1234], [0x12345678, 0x12345678], [0xFFFFFFFF, 0xFFFFFFFF]
+		]);
+		assertJsonFormatting(8, false, [
+			[0n, '0'], [0x24n, '36'], [0x1234n, '4660'], [0x12345678n, '305419896'],
+			[0x1234567890ABCDEFn, '1311768467294899695'], [0xFFFFFFFFFFFFFFFFn, '18446744073709551615']
+		]);
+	});
+
+	it('toJson of signed base values outputs number or string', () => {
+		assertJsonFormatting(1, true, [[0, 0], [5, 5], [127, 0x7F], [-128, -128], [-5, -5], [-1, -1]]);
+		assertJsonFormatting(2, true, [
+			[0, 0], [0x24, 0x24], [0x1234, 0x1234], [0x7FFF, 0x7FFF], [-0x8000, -0x8000], [-5, -5], [-1, -1]
+		]);
+		assertJsonFormatting(4, true, [
+			[0, 0], [0x24, 0x24], [0x1234, 0x1234], [0x12345678, 0x12345678], [0x7FFFFFFF, 0x7FFFFFFF],
+			[-0x80000000, -0x80000000], [-5, -5], [-1, -1]
+		]);
+		assertJsonFormatting(8, true, [
+			[0n, '0'], [0x24n, '36'], [0x1234n, '4660'], [0x12345678n, '305419896'],
+			[0x1234567890ABCDEFn, '1311768467294899695'], [0x7FFFFFFFFFFFFFFFn, '9223372036854775807'],
+			[-0x8000000000000000n, '-9223372036854775808'], [-5n, '-5'], [-1n, '-1']
+		]);
+	});
+
+	// endregion
 });

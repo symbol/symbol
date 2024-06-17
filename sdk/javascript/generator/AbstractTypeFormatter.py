@@ -25,6 +25,10 @@ class AbstractTypeFormatter(ABC):
 		# pylint: disable=no-self-use
 		return ''
 
+	@staticmethod
+	def get_class_documentation():
+		return None
+
 	@abstractmethod
 	def get_ctor_descriptor(self) -> MethodDescriptor:
 		pass
@@ -56,6 +60,10 @@ class AbstractTypeFormatter(ABC):
 		return []
 
 	def get_str_descriptor(self) -> MethodDescriptor:
+		# pylint: disable=no-self-use
+		return None
+
+	def get_json_descriptor(self) -> MethodDescriptor:
 		# pylint: disable=no-self-use
 		return None
 
