@@ -20,9 +20,7 @@
  */
 
 /** @module sockets/finalizationProofCodec */
-import catapult from '../catapult-sdk/index.js';
-
-const { sizes } = catapult.constants;
+import { Hash256, PublicKey, Signature } from 'symbol-sdk';
 
 const headerSize = 56;
 
@@ -44,7 +42,7 @@ export default {
 		proof.finalizationEpoch = parser.uint32();
 		proof.finalizationPoint = parser.uint32();
 		proof.height = parser.uint64();
-		proof.hash = parser.buffer(sizes.hash256);
+		proof.hash = parser.buffer(Hash256.SIZE);
 
 		// parse message groups
 		proof.messageGroups = [];
@@ -61,21 +59,23 @@ export default {
 			};
 
 			for (let i = 0; i < hashCount; i++)
-				messageGroup.hashes.push(parser.buffer(sizes.hash256));
+				messageGroup.hashes.push(parser.buffer(Hash256.SIZE));
+
 			for (let i = 0; i < signatureCount; i++) {
 				const signature = {
 					root: {
-						parentPublicKey: parser.buffer(sizes.signerPublicKey),
-						signature: parser.buffer(sizes.signature)
+						parentPublicKey: parser.buffer(PublicKey.SIZE),
+						signature: parser.buffer(Signature.SIZE)
 					},
 					bottom: {
-						parentPublicKey: parser.buffer(sizes.signerPublicKey),
-						signature: parser.buffer(sizes.signature)
+						parentPublicKey: parser.buffer(PublicKey.SIZE),
+						signature: parser.buffer(Signature.SIZE)
 					}
 				};
 
 				messageGroup.signatures.push(signature);
 			}
+
 			proof.messageGroups.push(messageGroup);
 			sizeLeft -= messageGroupSize;
 		}

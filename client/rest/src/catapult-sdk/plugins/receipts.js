@@ -122,7 +122,5 @@ export default {
 			primaryId: ModelType.int,
 			secondaryId: ModelType.int
 		});
-	},
-
-	registerCodecs: () => {}
+	}
 };

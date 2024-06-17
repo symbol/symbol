@@ -19,22 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
 import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
 import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
 import namespace from '../../../src/catapult-sdk/plugins/namespace.js';
 import schemaFormatter from '../../../src/catapult-sdk/utils/schemaFormatter.js';
-import test from '../binaryTestUtils.js';
 import { expect } from 'chai';
-
-const constants = {
-	sizes: {
-		aliasAddress: 33,
-		aliasMosaic: 17,
-		namespaceName: 6,
-		registerNamespace: 18
-	}
-};
 
 describe('namespace plugin', () => {
 	describe('register schema', () => {
@@ -232,98 +221,6 @@ describe('namespace plugin', () => {
 				expect(formattedAlias).deep.equal({
 					type: 'uint8'
 				});
-			});
-		});
-	});
-
-	describe('register codecs', () => {
-		const getCodecs = () => {
-			const codecs = {};
-			namespace.registerCodecs({
-				addTransactionSupport: (type, codec) => { codecs[type] = codec; }
-			});
-
-			return codecs;
-		};
-
-		it('adds namespace codecs', () => {
-			// Act:
-			const codecs = getCodecs();
-
-			// Assert: codecs were registered
-			expect(Object.keys(codecs).length).to.equal(3);
-			expect(codecs).to.contain.all.keys([
-				EntityType.aliasAddress.toString(),
-				EntityType.aliasMosaic.toString(),
-				EntityType.registerNamespace.toString()
-			]);
-		});
-
-		const getCodec = entityType => getCodecs()[entityType];
-
-		describe('supports alias address', () => {
-			const address = test.random.bytes(test.constants.sizes.addressDecoded);
-
-			test.binary.test.addAll(getCodec(EntityType.aliasAddress), constants.sizes.aliasAddress, () => ({
-				buffer: Buffer.concat([
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
-					Buffer.from(address), // address
-					Buffer.of(0xCA) // alias action
-				]),
-
-				object: {
-					namespaceId: [0x066C26F2, 0x92B28340],
-					address,
-					aliasAction: 0xCA
-				}
-			}));
-		});
-
-		describe('supports alias mosaic', () => {
-			test.binary.test.addAll(getCodec(EntityType.aliasMosaic), constants.sizes.aliasMosaic, () => ({
-				buffer: Buffer.concat([
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
-					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // mosaic id
-					Buffer.of(0xCA) // alias action
-				]),
-
-				object: {
-					namespaceId: [0x066C26F2, 0x92B28340],
-					mosaicId: [0x6E8ED0CA, 0x492F21FF],
-					aliasAction: 0xCA
-				}
-			}));
-		});
-
-		describe('supports register namespace', () => {
-			const generateTransaction = registrationType => ({
-				buffer: Buffer.concat([
-					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // duration or parent id
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
-					Buffer.of(registrationType), // namespace type
-					Buffer.of(0x06), // namespace name size
-					Buffer.of(0x6A, 0x61, 0x62, 0x6F, 0x33, 0x38) // namespace name
-				]),
-
-				object: {
-					[registrationType ? 'parentId' : 'duration']: [0x6E8ED0CA, 0x492F21FF],
-					id: [0x066C26F2, 0x92B28340],
-					registrationType,
-					name: 'jabo38'
-				}
-			});
-
-			const addAll = registrationType => {
-				const size = constants.sizes.registerNamespace + constants.sizes.namespaceName;
-				test.binary.test.addAll(getCodec(EntityType.registerNamespace), size, () => generateTransaction(registrationType));
-			};
-
-			describe('with root type', () => {
-				addAll(0x00);
-			});
-
-			describe('with child type', () => {
-				addAll(0x01);
 			});
 		});
 	});

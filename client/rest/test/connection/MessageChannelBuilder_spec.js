@@ -21,8 +21,8 @@
 
 import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
 import ServerMessageHandler from '../../src/connection/serverMessageHandlers.js';
-import test from '../testUtils.js';
 import { expect } from 'chai';
+import { Address } from 'symbol-sdk/symbol';
 
 describe('message channel builder', () => {
 	const networkIdentifier = 152;
@@ -64,7 +64,7 @@ describe('message channel builder', () => {
 			const topic = filter(addressTemplate.encoded);
 
 			// Assert:
-			expect(topic.length).to.equal(test.constants.sizes.addressDecoded + 1);
+			expect(topic.length).to.equal(Address.SIZE + 1);
 			expect(topic[0]).to.equal(markerByte);
 			expect(topic.slice(1)).to.deep.equal(addressTemplate.decoded);
 		});
@@ -77,7 +77,7 @@ describe('message channel builder', () => {
 			const topic = filter(addressTemplate.aliasEncodedHex);
 
 			// Assert:
-			expect(topic.length).to.equal(test.constants.sizes.addressDecoded + 1);
+			expect(topic.length).to.equal(Address.SIZE + 1);
 			expect(topic[0]).to.equal(markerByte);
 			expect(topic.slice(1)).to.deep.equal(addressTemplate.aliasDecoded);
 		});

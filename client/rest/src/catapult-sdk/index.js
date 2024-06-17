@@ -26,15 +26,11 @@ import idReducer from './model/idReducer.js';
 import namespace from './model/namespace.js';
 import restriction from './model/restriction.js';
 import status from './model/status.js';
-import serialize from './modelBinary/serialize.js';
-import sizes from './modelBinary/sizes.js';
 import { PacketType, StatePathPacketTypes } from './packet/PacketType.js';
 import packetHeader from './packet/header.js';
 import BinaryParser from './parser/BinaryParser.js';
 import PacketParser from './parser/PacketParser.js';
 import catapultModelSystem from './plugins/catapultModelSystem.js';
-import BinarySerializer from './serializer/BinarySerializer.js';
-import SerializedSizeCalculator from './serializer/SerializedSizeCalculator.js';
 import CachedFileLoader from './utils/CachedFileLoader.js';
 import SchemaType from './utils/SchemaType.js';
 import arrayUtils from './utils/arrayUtils.js';
@@ -46,9 +42,6 @@ import schemaFormatter from './utils/schemaFormatter.js';
 import uint64 from './utils/uint64.js';
 
 export default {
-	constants: {
-		sizes
-	},
 	crypto: {
 		merkle
 	},
@@ -59,9 +52,6 @@ export default {
 		restriction,
 		namespace,
 		status
-	},
-	modelBinary: {
-		serialize
 	},
 	packet: {
 		header: packetHeader,
@@ -74,10 +64,6 @@ export default {
 	},
 	plugins: {
 		catapultModelSystem
-	},
-	serializer: {
-		BinarySerializer,
-		SerializedSizeCalculator
 	},
 	utils: {
 		CachedFileLoader,

@@ -19,7 +19,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import EntityType from '../../../src/catapult-sdk/model/EntityType.js';
 import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
 import catapultModelSystem from '../../../src/catapult-sdk/plugins/catapultModelSystem.js';
 import { expect } from 'chai';
@@ -91,38 +90,6 @@ describe('catapult model system', () => {
 			expect(system.schema).to.contain.key('transfer');
 			expect(system.schema).to.contain.key('registerNamespace');
 			expect(system.schema).to.contain.key('aggregateComplete');
-		});
-	});
-
-	describe('codec', () => {
-		it('can create default codec', () => {
-			// Act:
-			const system = catapultModelSystem.configure([], {});
-
-			// Assert:
-			expect(system.codec.supports(0x8000)).to.equal(true);
-			expect(system.codec.supports(EntityType.transfer)).to.equal(false);
-			expect(system.codec.supports(EntityType.registerNamespace)).to.equal(false);
-		});
-
-		it('can register single extension', () => {
-			// Act:
-			const system = catapultModelSystem.configure(['transfer'], {});
-
-			// Assert:
-			expect(system.codec.supports(0x8000)).to.equal(true);
-			expect(system.codec.supports(EntityType.transfer)).to.equal(true);
-			expect(system.codec.supports(EntityType.registerNamespace)).to.equal(false);
-		});
-
-		it('can register multiple extensions', () => {
-			// Act:
-			const system = catapultModelSystem.configure(['transfer', 'namespace'], {});
-
-			// Assert:
-			expect(system.codec.supports(0x8000)).to.equal(true);
-			expect(system.codec.supports(EntityType.transfer)).to.equal(true);
-			expect(system.codec.supports(EntityType.registerNamespace)).to.equal(true);
 		});
 	});
 

@@ -114,10 +114,7 @@ const createServer = config => {
 		json: dbFormattingRules,
 		ws: messageFormattingRules
 	});
-	return {
-		server: bootstrapper.createServer(config, formatters.create(modelSystem.formatters), config.throttling),
-		codec: modelSystem.codec
-	};
+	return bootstrapper.createServer(config, formatters.create(modelSystem.formatters), config.throttling);
 };
 
 const registerRoutes = (server, db, services) => {
@@ -148,7 +145,7 @@ const registerRoutes = (server, db, services) => {
 
 	// 3. augment services with extension-dependent config and services
 	servicesView.config.transactionStates = transactionStates;
-	servicesView.zmqService = createZmqConnectionService(services.config.websocket.mq, services.codec, messageChannelDescriptors, winston);
+	servicesView.zmqService = createZmqConnectionService(services.config.websocket.mq, messageChannelDescriptors, winston);
 
 	// 4. configure basic routes
 	allRoutes.register(server, db, servicesView);
@@ -187,15 +184,14 @@ const registerRoutes = (server, db, services) => {
 	connectToDbWithRetry(db, config.db)
 		.then(() => {
 			winston.info('registering routes');
-			const serverAndCodec = createServer(config);
-			const { server } = serverAndCodec;
+			const server = createServer(config);
 			serviceManager.pushService(server, 'close');
 
 			const connectionConfig = {
 				apiNode: config.apiNode
 			};
 			const connectionService = createConnectionService(connectionConfig, winston.verbose);
-			registerRoutes(server, db, { codec: serverAndCodec.codec, config, connectionService });
+			registerRoutes(server, db, { config, connectionService });
 
 			winston.info(`listening on port ${config.port}`);
 			server.listen(config.port);

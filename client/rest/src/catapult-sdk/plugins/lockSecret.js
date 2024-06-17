@@ -22,9 +22,6 @@
 /** @module plugins/lockSecret */
 import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
-import sizes from '../modelBinary/sizes.js';
-
-const constants = { sizes };
 
 /**
  * Creates a lock secret plugin.
@@ -62,50 +59,6 @@ export default {
 			recipientAddress: ModelType.encodedAddress,
 			proof: ModelType.binary,
 			hashAlgorithm: ModelType.uint8
-		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.secretLock, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
-				transaction.secret = parser.buffer(constants.sizes.hash256);
-				transaction.mosaicId = parser.uint64();
-				transaction.amount = parser.uint64();
-				transaction.duration = parser.uint64();
-				transaction.hashAlgorithm = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.recipientAddress);
-				serializer.writeBuffer(transaction.secret);
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.amount);
-				serializer.writeUint64(transaction.duration);
-				serializer.writeUint8(transaction.hashAlgorithm);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.secretProof, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
-				transaction.secret = parser.buffer(constants.sizes.hash256);
-				const proofSize = parser.uint16();
-				transaction.hashAlgorithm = parser.uint8();
-				transaction.proof = parser.buffer(proofSize);
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.recipientAddress);
-				serializer.writeBuffer(transaction.secret);
-				serializer.writeUint16(transaction.proof.length);
-				serializer.writeUint8(transaction.hashAlgorithm);
-				serializer.writeBuffer(transaction.proof);
-			}
 		});
 	}
 };

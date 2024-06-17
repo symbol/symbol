@@ -22,15 +22,6 @@
 /** @module plugins/namespace */
 import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
-import sizes from '../modelBinary/sizes.js';
-
-const constants = { sizes };
-
-const isNamespaceTypeRoot = namespaceType => 0 === namespaceType;
-
-const parseString = (parser, size) => parser.buffer(size).toString('ascii');
-
-const writeString = (serializer, str) => { serializer.writeBuffer(Buffer.from(str, 'ascii')); };
 
 const AliasType = {
 	1: 'namespaceDescriptor.alias.mosaic',
@@ -133,57 +124,6 @@ export default {
 		builder.addSchema('accountNamesTuple', {
 			address: ModelType.encodedAddress,
 			names: { type: ModelType.array, schemaName: ModelType.string }
-		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.aliasAddress, {
-			deserialize: parser => ({
-				namespaceId: parser.uint64(),
-				address: parser.buffer(constants.sizes.addressDecoded),
-				aliasAction: parser.uint8()
-			}),
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.namespaceId);
-				serializer.writeBuffer(transaction.address);
-				serializer.writeUint8(transaction.aliasAction);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.aliasMosaic, {
-			deserialize: parser => ({
-				namespaceId: parser.uint64(),
-				mosaicId: parser.uint64(),
-				aliasAction: parser.uint8()
-			}),
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.namespaceId);
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint8(transaction.aliasAction);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.registerNamespace, {
-			deserialize: parser => {
-				const transaction = {};
-				const parentIdOrDuration = parser.uint64();
-				transaction.id = parser.uint64();
-				transaction.registrationType = parser.uint8();
-				transaction[isNamespaceTypeRoot(transaction.registrationType) ? 'duration' : 'parentId'] = parentIdOrDuration;
-				const nameSize = parser.uint8();
-				transaction.name = parseString(parser, nameSize);
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(isNamespaceTypeRoot(transaction.registrationType) ? transaction.duration : transaction.parentId);
-				serializer.writeUint64(transaction.id);
-				serializer.writeUint8(transaction.registrationType);
-				serializer.writeUint8(transaction.name.length);
-				writeString(serializer, transaction.name);
-			}
 		});
 	}
 };

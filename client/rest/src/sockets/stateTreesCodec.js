@@ -20,10 +20,7 @@
  */
 
 /** @module sockets/stateTreesCodec */
-
-import catapult from '../catapult-sdk/index.js';
-
-const { sizes } = catapult.constants;
+import { Hash256 } from 'symbol-sdk';
 
 export default {
 	/**
@@ -34,7 +31,8 @@ export default {
 	deserialize: parser => {
 		const tree = [];
 		while (parser.numUnprocessedBytes())
-			tree.push(parser.buffer(sizes.hash256));
+			tree.push(parser.buffer(Hash256.SIZE));
+
 		return { tree };
 	}
 };

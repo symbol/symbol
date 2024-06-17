@@ -22,9 +22,7 @@
 /** @module plugins/mosaic */
 import EntityType from '../model/EntityType.js';
 import ModelType from '../model/ModelType.js';
-import sizes from '../modelBinary/sizes.js';
 
-const constants = { sizes };
 /**
  * Creates a mosaic plugin.
  * @type {module:plugins/CatapultPlugin}
@@ -66,60 +64,6 @@ export default {
 			flags: ModelType.uint8,
 			divisibility: ModelType.uint8,
 			duration: ModelType.uint64
-		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.mosaicDefinition, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.id = parser.uint64();
-				transaction.duration = parser.uint64();
-				transaction.nonce = parser.uint32();
-				transaction.flags = parser.uint8();
-				transaction.divisibility = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.id);
-				serializer.writeUint64(transaction.duration);
-				serializer.writeUint32(transaction.nonce);
-				serializer.writeUint8(transaction.flags);
-				serializer.writeUint8(transaction.divisibility);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.mosaicSupplyChange, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.mosaicId = parser.uint64();
-				transaction.delta = parser.uint64();
-				transaction.action = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.delta);
-				serializer.writeUint8(transaction.action);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.mosaicSupplyRevocation, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.sourceAddress = parser.buffer(constants.sizes.addressDecoded);
-				transaction.mosaicId = parser.uint64();
-				transaction.amount = parser.uint64();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.sourceAddress);
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.amount);
-			}
 		});
 	}
 };
