@@ -27,9 +27,9 @@ import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 const { PacketType } = catapult.packet;
-const { address } = catapult.model;
 const { convert } = catapult.utils;
 const { MockServer } = test;
 
@@ -199,7 +199,7 @@ describe('account routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbAccountsFake.calledOnce).to.equal(true);
-					expect(dbAccountsFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbAccountsFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -271,7 +271,7 @@ describe('account routes', () => {
 					inputs: {
 						valid: {
 							object: { accountId: testAddress },
-							parsed: [[{ address: address.stringToAddress(testAddress) }]],
+							parsed: [[{ address: new Address(testAddress).bytes }]],
 							printable: testAddress
 						},
 						invalid: {
@@ -360,7 +360,7 @@ describe('account routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbAccountsByIds.calledOnce).to.equal(true);
-						expect(dbAccountsByIds.firstCall.args[0]).to.deep.equal([{ address: address.stringToAddress(testAddress) }]);
+						expect(dbAccountsByIds.firstCall.args[0]).to.deep.equal([{ address: new Address(testAddress).bytes }]);
 
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							payload: fakeAccounts,

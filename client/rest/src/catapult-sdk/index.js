@@ -22,10 +22,8 @@
 import * as merkle from './crypto/merkleAuditProof.js';
 import EntityType from './model/EntityType.js';
 import ModelType from './model/ModelType.js';
-import address from './model/address.js';
 import idReducer from './model/idReducer.js';
 import namespace from './model/namespace.js';
-import networkInfo from './model/networkInfo.js';
 import restriction from './model/restriction.js';
 import status from './model/status.js';
 import serialize from './modelBinary/serialize.js';
@@ -40,7 +38,6 @@ import SerializedSizeCalculator from './serializer/SerializedSizeCalculator.js';
 import CachedFileLoader from './utils/CachedFileLoader.js';
 import SchemaType from './utils/SchemaType.js';
 import arrayUtils from './utils/arrayUtils.js';
-import base32 from './utils/base32.js';
 import convert from './utils/convert.js';
 import formattingUtils from './utils/formattingUtils.js';
 import future from './utils/future.js';
@@ -56,13 +53,11 @@ export default {
 		merkle
 	},
 	model: {
-		address,
 		EntityType,
 		idReducer,
 		ModelType,
 		restriction,
 		namespace,
-		networkInfo,
 		status
 	},
 	modelBinary: {
@@ -88,7 +83,6 @@ export default {
 		CachedFileLoader,
 		SchemaType,
 		array: arrayUtils,
-		base32,
 		convert,
 		formattingUtils,
 		future,

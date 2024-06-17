@@ -19,14 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import mosaicRoutes from '../../../src/plugins/mosaic/mosaicRoutes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { MockServer } = test;
 
 describe('mosaic routes', () => {
@@ -173,7 +172,7 @@ describe('mosaic routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsFake.calledOnce).to.equal(true);
-					expect(dbMosaicsFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbMosaicsFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

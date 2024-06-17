@@ -19,14 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import metadataRoutes from '../../../src/plugins/metadata/metadataRoutes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { MockServer } = test;
 
 describe('metadata routes', () => {
@@ -159,7 +158,7 @@ describe('metadata routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMetadataFake.calledOnce).to.equal(true);
-					expect(dbMetadataFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbMetadataFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -173,7 +172,7 @@ describe('metadata routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMetadataFake.calledOnce).to.equal(true);
-					expect(dbMetadataFake.firstCall.args[1]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbMetadataFake.firstCall.args[1]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

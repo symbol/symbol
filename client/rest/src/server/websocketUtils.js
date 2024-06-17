@@ -19,12 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../catapult-sdk/index.js';
 import winston from 'winston';
 import WebSocket from 'ws';
 import crypto from 'crypto';
-
-const { base32 } = catapult.utils;
 
 export default {
 	/**
@@ -73,7 +70,7 @@ export default {
 	 * @param {Function} messageHandler Custom message handler.
 	 */
 	handshake(client, messageHandler) {
-		client.uid = base32.encode(crypto.randomBytes(20));
+		client.uid = crypto.randomBytes(20).toString('base64');
 
 		const closeWithError = (message, err) => {
 			winston.error(`websocket ${client.uid}: ${message}`, err);

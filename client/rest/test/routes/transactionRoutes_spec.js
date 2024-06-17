@@ -26,8 +26,8 @@ import routeUtils from '../../src/routes/routeUtils.js';
 import transactionRoutes from '../../src/routes/transactionRoutes.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { convert } = catapult.utils;
 const { MockServer } = test;
 
@@ -175,7 +175,7 @@ describe('transaction routes', () => {
 
 			describe('paginated', () => {
 				const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
-				const testAddress = address.stringToAddress(testAddressString);
+				const testAddress = new Address(testAddressString).bytes;
 
 				const testPublickeyString = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
 				const testPublickey = convert.hexToUint8(testPublickeyString);

@@ -29,8 +29,9 @@ import multisig from './multisig/multisig.js';
 import namespace from './namespace/namespace.js';
 import receipts from './receipts/receipts.js';
 import restrictions from './restrictions/restrictions.js';
-import catapult from '../catapult-sdk/index.js';
 import MessageChannelBuilder from '../connection/MessageChannelBuilder.js';
+import { NetworkLocator } from 'symbol-sdk';
+import { Network } from 'symbol-sdk/symbol';
 
 const plugins = {
 	accountLink: empty,
@@ -63,7 +64,7 @@ export default {
 	 */
 	configure: (pluginNames, server, db, services) => {
 		const transactionStates = [];
-		const networkIdentifier = catapult.model.networkInfo.networks[services.config.network.name].id;
+		const networkIdentifier = NetworkLocator.findByName(Network.NETWORKS, services.config.network.name).identifier;
 		const messageChannelBuilder = new MessageChannelBuilder(services.config.websocket, networkIdentifier);
 		(pluginNames || []).forEach(pluginName => {
 			if (!plugins[pluginName])

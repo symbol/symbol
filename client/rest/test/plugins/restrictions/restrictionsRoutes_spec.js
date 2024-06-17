@@ -19,22 +19,21 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import catapult from '../../../src/catapult-sdk/index.js';
 import restrictionsRoutes from '../../../src/plugins/restrictions/restrictionsRoutes.js';
 import routeResultTypes from '../../../src/routes/routeResultTypes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { addresses } = test.sets;
 const { MockServer } = test;
 
 describe('restrictions routes', () => {
 	describe('account restrictions', () => {
 		describe('by address', () => {
-			const parsedAddresses = addresses.valid.map(address.stringToAddress);
+			const parsedAddresses = addresses.valid.map(str => new Address(str).bytes);
 			test.route.document.addGetPostDocumentRouteTests(restrictionsRoutes.register, {
 				routes: { singular: '/restrictions/account/:address', plural: '/restrictions/account' },
 				inputs: {
@@ -205,7 +204,7 @@ describe('restrictions routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicRestrictionsFake.calledOnce).to.equal(true);
-					expect(dbMosaicRestrictionsFake.firstCall.args[2]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbMosaicRestrictionsFake.firstCall.args[2]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

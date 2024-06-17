@@ -26,6 +26,7 @@ import routeUtils from '../../src/routes/routeUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 const { Binary, ObjectId } = MongoDb;
 const { convert } = catapult.utils;
@@ -93,7 +94,7 @@ describe('route utils', () => {
 
 		describe('address', () => addParserTests({
 			parser: 'address',
-			valid: addresses.valid.map(id => ({ id, parsed: catapult.model.address.stringToAddress(id) })),
+			valid: addresses.valid.map(id => ({ id, parsed: new Address(id).bytes })),
 			invalid: [
 				{ id: addresses.invalid, error: 'illegal base32 character 1' },
 				{ id: '12345', error: 'invalid length of address \'5\'' }
@@ -112,7 +113,7 @@ describe('route utils', () => {
 		describe('accountId', () => {
 			describe('address', () => addParserTests({
 				parser: 'accountId',
-				valid: addresses.valid.map(id => ({ id, parsed: ['address', catapult.model.address.stringToAddress(id)] })),
+				valid: addresses.valid.map(id => ({ id, parsed: ['address', new Address(id).bytes] })),
 				invalid: [
 					{ id: addresses.invalid, error: 'illegal base32 character 1' }
 				]
@@ -898,7 +899,7 @@ describe('route utils', () => {
 
 	describe('addressToPublicKey', () => {
 		const { addresses, publicKeys } = test.sets;
-		const accountAddress = catapult.model.address.stringToAddress(addresses.valid[0]);
+		const accountAddress = new Address(addresses.valid[0]).bytes;
 		const accountPublicKey = convert.hexToUint8(publicKeys.valid[0]);
 
 		it('return correct public key from account address ', () => {

@@ -25,8 +25,8 @@ import routeUtils from '../../../src/routes/routeUtils.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { convert } = catapult.utils;
 const { MockServer } = test;
 
@@ -82,7 +82,7 @@ describe('lock secret routes', () => {
 		};
 
 		const dbSecretLocksFake = sinon.fake(addresses =>
-			(Buffer.from(addresses[0]).equals(Buffer.from(address.stringToAddress(testAddress)))
+			(Buffer.from(addresses[0]).equals(Buffer.from(new Address(testAddress).bytes))
 				? Promise.resolve(pageSample)
 				: Promise.resolve(emptyPageSample)));
 
@@ -150,7 +150,7 @@ describe('lock secret routes', () => {
 						return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 							expect(dbSecretLocksFake.calledOnce).to.equal(true);
-							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
+							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([new Address(testAddress).bytes]);
 
 							expect(mockServer.next.calledOnce).to.equal(true);
 						});
@@ -178,7 +178,7 @@ describe('lock secret routes', () => {
 						return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 							expect(dbSecretLocksFake.calledOnce).to.equal(true);
-							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddressNoLocks)]);
+							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([new Address(testAddressNoLocks).bytes]);
 
 							expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 								payload: emptyPageSample,
@@ -197,7 +197,7 @@ describe('lock secret routes', () => {
 						return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 							expect(dbSecretLocksFake.calledOnce).to.equal(true);
-							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
+							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([new Address(testAddress).bytes]);
 
 							expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 								payload: pageSample,

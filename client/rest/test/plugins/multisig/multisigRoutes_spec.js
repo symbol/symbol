@@ -20,10 +20,10 @@
  */
 
 import routeAddressGetTestUtils from './routeAddressGetTestUtils.js';
-import catapult from '../../../src/catapult-sdk/index.js';
 import multisigRoutes from '../../../src/plugins/multisig/multisigRoutes.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
+import { Address } from 'symbol-sdk/symbol';
 
 describe('multisig routes', () => {
 	describe('get by account', () => {
@@ -118,7 +118,7 @@ describe('multisig routes', () => {
 				multisigRoutes.register,
 				'/account/:address/multisig/graph',
 				'get',
-				{ address: catapult.model.address.addressToString(accountAddress) },
+				{ address: new Address(accountAddress).toString() },
 
 				db,
 				undefined,

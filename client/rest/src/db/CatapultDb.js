@@ -26,6 +26,8 @@ import { buildOffsetCondition, convertToLong, uniqueLongList } from './dbUtils.j
 import catapult from '../catapult-sdk/index.js';
 import MultisigDb from '../plugins/multisig/MultisigDb.js';
 import MongoDb from 'mongodb';
+import { PublicKey } from 'symbol-sdk';
+import { Network } from 'symbol-sdk/symbol';
 
 const { EntityType } = catapult.model;
 const { ObjectId } = MongoDb;
@@ -105,6 +107,7 @@ export default class CatapultDb {
 		if (!this.networkId)
 			throw Error('network id is required');
 
+		this.network = new Network(this.networkId);
 		this.pagingOptions = {
 			pageSizeMin: options.pageSizeMin,
 			pageSizeMax: options.pageSizeMax,
@@ -616,7 +619,9 @@ export default class CatapultDb {
 	accountsByIds(ids) {
 		// id will either have address property or publicKey property set; in the case of publicKey, convert it to address
 		const buffers = ids.map(id => Buffer.from((id.publicKey
-			? catapult.model.address.publicKeyToAddress(id.publicKey, this.networkId) : id.address)));
+			? this.network.publicKeyToAddress(new PublicKey(id.publicKey)).bytes
+			: id.address
+		)));
 		return this.database.collection('accounts')
 			.find({ 'account.address': { $in: buffers } })
 			.toArray()

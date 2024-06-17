@@ -27,16 +27,16 @@ import test from '../../db/utils/dbTestUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
 import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 const { Binary, Long } = MongoDb;
-const { address } = catapult.model;
 const { uint64 } = catapult.utils;
 
 describe('receipts db', () => {
 	const { createObjectId } = test.db;
 
-	const testAddress1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-	const testAddress2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+	const testAddress1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+	const testAddress2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 	const paginationOptions = {
 		pageSize: 10,
