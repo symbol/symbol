@@ -9,9 +9,13 @@ import {
 	Signature
 } from './CryptoTypes.js';
 import { NetworkLocator } from './Network.js';
-import { hexToUint8, uint8ToHex } from './utils/converter.js';
+import {
+	bytesToBigInt, hexToUint8, intToBytes, uint8ToHex
+} from './utils/converter.js';
 
-const utils = { hexToUint8, uint8ToHex };
+const utils = {
+	bytesToBigInt, hexToUint8, intToBytes, uint8ToHex
+};
 
 export {
 	/**
