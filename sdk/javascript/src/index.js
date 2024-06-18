@@ -9,12 +9,13 @@ import {
 	Signature
 } from './CryptoTypes.js';
 import { NetworkLocator } from './Network.js';
+import { deepCompare } from './utils/arrayHelpers.js';
 import {
-	bytesToBigInt, hexToUint8, intToBytes, uint8ToHex
+	bytesToBigInt, hexToUint8, intToBytes, isHexString, tryParseUint, uint8ToHex
 } from './utils/converter.js';
 
 const utils = {
-	bytesToBigInt, hexToUint8, intToBytes, uint8ToHex
+	bytesToBigInt, deepCompare, hexToUint8, intToBytes, isHexString, tryParseUint, uint8ToHex
 };
 
 export {
