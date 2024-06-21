@@ -159,6 +159,9 @@ class NetworkType(Enum):
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
 
+	def to_json(self):
+		return self.value
+
 
 class TransactionType(Enum):
 	TRANSFER = 257
@@ -183,6 +186,9 @@ class TransactionType(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class Transaction:
@@ -352,7 +358,7 @@ class Transaction:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
+		result += f'type: {self._type_.__str__()}, '
 		result += f'version: 0x{self._version:X}, '
 		result += f'network: {self._network.__str__()}, '
 		result += f'timestamp: {self._timestamp.__str__()}, '
@@ -361,6 +367,18 @@ class Transaction:
 		result += f'fee: {self._fee.__str__()}, '
 		result += f'deadline: {self._deadline.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['type'] = self._type_.to_json()
+		result['version'] = self._version
+		result['network'] = self._network.to_json()
+		result['timestamp'] = self._timestamp.to_json()
+		result['signer_public_key'] = self._signer_public_key.to_json()
+		result['signature'] = self._signature.to_json()
+		result['fee'] = self._fee.to_json()
+		result['deadline'] = self._deadline.to_json()
 		return result
 
 
@@ -510,7 +528,7 @@ class NonVerifiableTransaction:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'type_: {self._type_.__str__()}, '
+		result += f'type: {self._type_.__str__()}, '
 		result += f'version: 0x{self._version:X}, '
 		result += f'network: {self._network.__str__()}, '
 		result += f'timestamp: {self._timestamp.__str__()}, '
@@ -518,6 +536,17 @@ class NonVerifiableTransaction:
 		result += f'fee: {self._fee.__str__()}, '
 		result += f'deadline: {self._deadline.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['type'] = self._type_.to_json()
+		result['version'] = self._version
+		result['network'] = self._network.to_json()
+		result['timestamp'] = self._timestamp.to_json()
+		result['signer_public_key'] = self._signer_public_key.to_json()
+		result['fee'] = self._fee.to_json()
+		result['deadline'] = self._deadline.to_json()
 		return result
 
 
@@ -538,6 +567,9 @@ class LinkAction(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class AccountKeyLinkTransactionV1(Transaction):
@@ -618,6 +650,12 @@ class AccountKeyLinkTransactionV1(Transaction):
 		result += f'link_action: {self._link_action.__str__()}, '
 		result += f'remote_public_key: {self._remote_public_key.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['link_action'] = self._link_action.to_json()
+		result['remote_public_key'] = self._remote_public_key.to_json()
 		return result
 
 
@@ -701,6 +739,12 @@ class NonVerifiableAccountKeyLinkTransactionV1(NonVerifiableTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['link_action'] = self._link_action.to_json()
+		result['remote_public_key'] = self._remote_public_key.to_json()
+		return result
+
 
 class NamespaceId:
 	TYPE_HINTS = {
@@ -751,6 +795,11 @@ class NamespaceId:
 		result = '('
 		result += f'name: {hexlify(self._name).decode("utf8")}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['name'] = hexlify(self._name).decode('utf8')
 		return result
 
 
@@ -819,6 +868,12 @@ class MosaicId:
 		result += f'namespace_id: {self._namespace_id.__str__()}, '
 		result += f'name: {hexlify(self._name).decode("utf8")}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['namespace_id'] = self._namespace_id.to_json()
+		result['name'] = hexlify(self._name).decode('utf8')
 		return result
 
 
@@ -890,6 +945,12 @@ class Mosaic:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['amount'] = self._amount.to_json()
+		return result
+
 
 class SizePrefixedMosaic:
 	TYPE_HINTS = {
@@ -943,6 +1004,11 @@ class SizePrefixedMosaic:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['mosaic'] = self._mosaic.to_json()
+		return result
+
 
 class MosaicTransferFeeType(Enum):
 	ABSOLUTE = 1
@@ -961,6 +1027,9 @@ class MosaicTransferFeeType(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class MosaicLevy:
@@ -1069,6 +1138,14 @@ class MosaicLevy:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['transfer_fee_type'] = self._transfer_fee_type.to_json()
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['fee'] = self._fee.to_json()
+		return result
+
 
 class MosaicProperty:
 	TYPE_HINTS = {
@@ -1141,6 +1218,12 @@ class MosaicProperty:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['name'] = hexlify(self._name).decode('utf8')
+		result['value'] = hexlify(self._value).decode('utf8')
+		return result
+
 
 class SizePrefixedMosaicProperty:
 	TYPE_HINTS = {
@@ -1190,8 +1273,13 @@ class SizePrefixedMosaicProperty:
 
 	def __str__(self) -> str:
 		result = '('
-		result += f'property_: {self._property_.__str__()}, '
+		result += f'property: {self._property_.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['property'] = self._property_.to_json()
 		return result
 
 
@@ -1340,6 +1428,16 @@ class MosaicDefinition:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['owner_public_key'] = self._owner_public_key.to_json()
+		result['id'] = self._id.to_json()
+		result['description'] = hexlify(self._description).decode('utf8')
+		result['properties'] = [e.to_json() for e in self._properties]
+		if 0 != self.levy_size_computed:
+			result['levy'] = self._levy.to_json()
+		return result
+
 
 class MosaicDefinitionTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -1440,6 +1538,13 @@ class MosaicDefinitionTransactionV1(Transaction):
 		result += f'rental_fee_sink: {self._rental_fee_sink.__str__()}, '
 		result += f'rental_fee: {self._rental_fee.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_definition'] = self._mosaic_definition.to_json()
+		result['rental_fee_sink'] = self._rental_fee_sink.to_json()
+		result['rental_fee'] = self._rental_fee.to_json()
 		return result
 
 
@@ -1544,6 +1649,13 @@ class NonVerifiableMosaicDefinitionTransactionV1(NonVerifiableTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_definition'] = self._mosaic_definition.to_json()
+		result['rental_fee_sink'] = self._rental_fee_sink.to_json()
+		result['rental_fee'] = self._rental_fee.to_json()
+		return result
+
 
 class MosaicSupplyChangeAction(Enum):
 	INCREASE = 1
@@ -1562,6 +1674,9 @@ class MosaicSupplyChangeAction(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class MosaicSupplyChangeTransactionV1(Transaction):
@@ -1657,6 +1772,13 @@ class MosaicSupplyChangeTransactionV1(Transaction):
 		result += f'action: {self._action.__str__()}, '
 		result += f'delta: {self._delta.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['action'] = self._action.to_json()
+		result['delta'] = self._delta.to_json()
 		return result
 
 
@@ -1755,6 +1877,13 @@ class NonVerifiableMosaicSupplyChangeTransactionV1(NonVerifiableTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['action'] = self._action.to_json()
+		result['delta'] = self._delta.to_json()
+		return result
+
 
 class MultisigAccountModificationType(Enum):
 	ADD_COSIGNATORY = 1
@@ -1773,6 +1902,9 @@ class MultisigAccountModificationType(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class MultisigAccountModification:
@@ -1852,6 +1984,12 @@ class MultisigAccountModification:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['modification_type'] = self._modification_type.to_json()
+		result['cosignatory_public_key'] = self._cosignatory_public_key.to_json()
+		return result
+
 
 class SizePrefixedMultisigAccountModification:
 	TYPE_HINTS = {
@@ -1903,6 +2041,11 @@ class SizePrefixedMultisigAccountModification:
 		result = '('
 		result += f'modification: {self._modification.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['modification'] = self._modification.to_json()
 		return result
 
 
@@ -1968,6 +2111,11 @@ class MultisigAccountModificationTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['modifications'] = [e.to_json() for e in self._modifications]
+		return result
+
 
 class NonVerifiableMultisigAccountModificationTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -2029,6 +2177,11 @@ class NonVerifiableMultisigAccountModificationTransactionV1(NonVerifiableTransac
 		result += super().__str__()
 		result += f'modifications: {list(map(str, self._modifications))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['modifications'] = [e.to_json() for e in self._modifications]
 		return result
 
 
@@ -2115,6 +2268,12 @@ class MultisigAccountModificationTransactionV2(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['modifications'] = [e.to_json() for e in self._modifications]
+		result['min_approval_delta'] = self._min_approval_delta
+		return result
+
 
 class NonVerifiableMultisigAccountModificationTransactionV2(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 2
@@ -2197,6 +2356,12 @@ class NonVerifiableMultisigAccountModificationTransactionV2(NonVerifiableTransac
 		result += f'modifications: {list(map(str, self._modifications))}, '
 		result += f'min_approval_delta: 0x{self._min_approval_delta:X}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['modifications'] = [e.to_json() for e in self._modifications]
+		result['min_approval_delta'] = self._min_approval_delta
 		return result
 
 
@@ -2292,6 +2457,12 @@ class CosignatureV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['multisig_transaction_hash'] = self._multisig_transaction_hash.to_json()
+		result['multisig_account_address'] = self._multisig_account_address.to_json()
+		return result
+
 
 class SizePrefixedCosignatureV1:
 	TYPE_HINTS = {
@@ -2343,6 +2514,11 @@ class SizePrefixedCosignatureV1:
 		result = '('
 		result += f'cosignature: {self._cosignature.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['cosignature'] = self._cosignature.to_json()
 		return result
 
 
@@ -2429,6 +2605,12 @@ class MultisigTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['inner_transaction'] = self._inner_transaction.to_json()
+		result['cosignatures'] = [e.to_json() for e in self._cosignatures]
+		return result
+
 
 class NonVerifiableMultisigTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -2491,6 +2673,11 @@ class NonVerifiableMultisigTransactionV1(NonVerifiableTransaction):
 		result += super().__str__()
 		result += f'inner_transaction: {self._inner_transaction.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['inner_transaction'] = self._inner_transaction.to_json()
 		return result
 
 
@@ -2619,6 +2806,15 @@ class NamespaceRegistrationTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['rental_fee_sink'] = self._rental_fee_sink.to_json()
+		result['rental_fee'] = self._rental_fee.to_json()
+		result['name'] = hexlify(self._name).decode('utf8')
+		if self.parent_name:
+			result['parent_name'] = hexlify(self._parent_name).decode('utf8')
+		return result
+
 
 class NonVerifiableNamespaceRegistrationTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -2745,6 +2941,15 @@ class NonVerifiableNamespaceRegistrationTransactionV1(NonVerifiableTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['rental_fee_sink'] = self._rental_fee_sink.to_json()
+		result['rental_fee'] = self._rental_fee.to_json()
+		result['name'] = hexlify(self._name).decode('utf8')
+		if self.parent_name:
+			result['parent_name'] = hexlify(self._parent_name).decode('utf8')
+		return result
+
 
 class MessageType(Enum):
 	PLAIN = 1
@@ -2763,6 +2968,9 @@ class MessageType(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(4, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class Message:
@@ -2830,6 +3038,12 @@ class Message:
 		result += f'message_type: {self._message_type.__str__()}, '
 		result += f'message: {hexlify(self._message).decode("utf8")}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['message_type'] = self._message_type.to_json()
+		result['message'] = hexlify(self._message).decode('utf8')
 		return result
 
 
@@ -2943,6 +3157,14 @@ class TransferTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['amount'] = self._amount.to_json()
+		if 0 != self.message_envelope_size_computed:
+			result['message'] = self._message.to_json()
+		return result
+
 
 class NonVerifiableTransferTransactionV1(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -3052,6 +3274,14 @@ class NonVerifiableTransferTransactionV1(NonVerifiableTransaction):
 		if 0 != self.message_envelope_size_computed:
 			result += f'message: {self._message.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['amount'] = self._amount.to_json()
+		if 0 != self.message_envelope_size_computed:
+			result['message'] = self._message.to_json()
 		return result
 
 
@@ -3185,6 +3415,15 @@ class TransferTransactionV2(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['amount'] = self._amount.to_json()
+		if 0 != self.message_envelope_size_computed:
+			result['message'] = self._message.to_json()
+		result['mosaics'] = [e.to_json() for e in self._mosaics]
+		return result
+
 
 class NonVerifiableTransferTransactionV2(NonVerifiableTransaction):
 	TRANSACTION_VERSION: int = 2
@@ -3314,6 +3553,15 @@ class NonVerifiableTransferTransactionV2(NonVerifiableTransaction):
 			result += f'message: {self._message.__str__()}, '
 		result += f'mosaics: {list(map(str, self._mosaics))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['amount'] = self._amount.to_json()
+		if 0 != self.message_envelope_size_computed:
+			result['message'] = self._message.to_json()
+		result['mosaics'] = [e.to_json() for e in self._mosaics]
 		return result
 
 

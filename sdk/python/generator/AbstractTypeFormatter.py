@@ -62,6 +62,10 @@ class AbstractTypeFormatter(ABC):
 		# pylint: disable=no-self-use
 		return None
 
+	def get_json_descriptor(self) -> MethodDescriptor:
+		# pylint: disable=no-self-use
+		return None
+
 	def get_fields(self):
 		# pylint: disable=no-self-use
 		return []

@@ -43,3 +43,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 	def get_size_descriptor(self):
 		body = f'return {self.enum_type.size}\n'
 		return MethodDescriptor(body=body)
+
+	def get_json_descriptor(self):
+		body = f'return {self.int_printer.to_json("self.value")}'
+		return MethodDescriptor(body=body)

@@ -146,6 +146,14 @@ class TypeFormatter(ClassFormatter):
 		method_descriptor.result = 'str'
 		return self.generate_method(method_descriptor)
 
+	def generate_json(self):
+		method_descriptor = self.provider.get_json_descriptor()
+		if not method_descriptor:
+			return None
+
+		method_descriptor.method_name = 'to_json'
+		return self.generate_method(method_descriptor)
+
 	def generate_methods(self):
 		methods = []
 
@@ -165,6 +173,7 @@ class TypeFormatter(ClassFormatter):
 		_append_if_not_none(methods, self.generate_serializer_protected())
 
 		_append_if_not_none(methods, self.generate_representation())
+		_append_if_not_none(methods, self.generate_json())
 
 		return methods
 

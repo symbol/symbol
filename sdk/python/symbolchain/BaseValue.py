@@ -49,3 +49,7 @@ class BaseValue(Ordered):
 			unsigned_value = self.value + upper_bound_plus_one
 
 		return f'0x{unsigned_value:0{self.size * 2}X}'
+
+	def to_json(self):
+		"""Returns representation of this object that can be stored in JSON."""
+		return str(self.value) if 8 <= self.size else self.value

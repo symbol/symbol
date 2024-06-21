@@ -246,3 +246,44 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 		])
 
 	# endregion
+
+	# region to_json
+
+	def _assert_json_formatting(self, size, is_signed, test_cases):
+		for test_case in test_cases:
+			# Arrange:
+			value = BaseValue(size, test_case[0], signed=is_signed)
+
+			# Act:
+			actual = value.to_json()
+
+			# Assert:
+			self.assertEqual(test_case[1], actual)
+
+	def test_to_json_of_unsigned_base_values_outputs_number_or_string(self):
+		self._assert_json_formatting(1, False, [(0, 0), (0x24, 0x24), (0xFF, 0xFF)])
+		self._assert_json_formatting(2, False, [(0, 0), (0x24, 0x24), (0x1234, 0x1234), (0xFFFF, 0xFFFF)])
+		self._assert_json_formatting(4, False, [
+			(0, 0), (0x24, 0x24), (0x1234, 0x1234), (0x12345678, 0x12345678), (0xFFFFFFFF, 0xFFFFFFFF)
+		])
+		self._assert_json_formatting(8, False, [
+			(0, '0'), (0x24, '36'), (0x1234, '4660'), (0x12345678, '305419896'),
+			(0x1234567890ABCDEF, '1311768467294899695'), (0xFFFFFFFFFFFFFFFF, '18446744073709551615')
+		])
+
+	def test_to_json_of_signed_base_values_outputs_number_or_string(self):
+		self._assert_json_formatting(1, True, [(0, 0), (5, 5), (127, 0x7F), (-128, -128), (-5, -5), (-1, -1)])
+		self._assert_json_formatting(2, True, [
+			(0, 0), (0x24, 0x24), (0x1234, 0x1234), (0x7FFF, 0x7FFF), (-0x8000, -0x8000), (-5, -5), (-1, -1)
+		])
+		self._assert_json_formatting(4, True, [
+			(0, 0), (0x24, 0x24), (0x1234, 0x1234), (0x12345678, 0x12345678), (0x7FFFFFFF, 0x7FFFFFFF),
+			(-0x80000000, -0x80000000), (-5, -5), (-1, -1)
+		])
+		self._assert_json_formatting(8, True, [
+			(0, '0'), (0x24, '36'), (0x1234, '4660'), (0x12345678, '305419896'),
+			(0x1234567890ABCDEF, '1311768467294899695'), (0x7FFFFFFFFFFFFFFF, '9223372036854775807'),
+			(-0x8000000000000000, '-9223372036854775808'), (-5, '-5'), (-1, '-1')
+		])
+
+	# endregion

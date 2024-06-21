@@ -41,6 +41,11 @@ def filter_size_if_first(fields_iter):
 	yield from fields_iter
 
 
+def printable_field_name(field):
+	# drop trailing underscore when printing in human readable string; for example, type_ => type
+	return field.extensions.printer.name.rstrip('_')
+
+
 class StructFormatter(AbstractTypeFormatter):
 	# pylint: disable=too-many-public-methods
 
@@ -470,7 +475,7 @@ class StructFormatter(AbstractTypeFormatter):
 		condition = self.generate_condition(field, True)
 		field_to_string = field.extensions.printer.to_string(self.field_name(field))
 		field_to_string = field_to_string if '{' in field_to_string else f'{{{field_to_string}}}'
-		return indent_if_conditional(condition, f'result += f\'{field.extensions.printer.name}: {field_to_string}, \'\n')
+		return indent_if_conditional(condition, f'result += f\'{printable_field_name(field)}: {field_to_string}, \'\n')
 
 	def get_str_descriptor(self):
 		body = 'result = \'(\'\n'
@@ -481,5 +486,21 @@ class StructFormatter(AbstractTypeFormatter):
 		body += ''.join(map(self.generate_str_field, self.non_reserved_fields(include_inherited=False)))
 
 		body += 'result += \')\'\n'
+		body += 'return result'
+		return MethodDescriptor(body=body)
+
+	def generate_json_field(self, field):
+		condition = self.generate_condition(field, True)
+		field_json_value = field.extensions.printer.to_json(self.field_name(field))
+		return indent_if_conditional(condition, f'result[\'{printable_field_name(field)}\'] = {field_json_value}\n')
+
+	def get_json_descriptor(self):
+		if self.base_struct:
+			body = 'result = {**super().to_json()}\n'
+		else:
+			body = 'result = {}\n'
+
+		body += ''.join(map(self.generate_json_field, self.non_reserved_fields(include_inherited=False)))
+
 		body += 'return result'
 		return MethodDescriptor(body=body)
