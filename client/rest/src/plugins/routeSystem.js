@@ -29,6 +29,7 @@ import multisig from './multisig/multisig.js';
 import namespace from './namespace/namespace.js';
 import receipts from './receipts/receipts.js';
 import restrictions from './restrictions/restrictions.js';
+import rosetta from './rosetta/rosetta.js';
 import MessageChannelBuilder from '../connection/MessageChannelBuilder.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
@@ -48,7 +49,7 @@ const plugins = {
 	transfer: empty,
 
 	// other
-	rosetta: empty
+	rosetta
 };
 
 export default {

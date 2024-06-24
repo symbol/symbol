@@ -110,5 +110,8 @@
   "metal": {
     "cacheTtl": 300,
     "sizeLimit": 10000000
+  },
+  "rosetta": {
+    "mode": "online"
   }
 }
