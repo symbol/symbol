@@ -11,10 +11,10 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import PublicKey from './PublicKey';
-import SignatureType from './SignatureType';
-import SigningPayload from './SigningPayload';
+import ApiClient from '../ApiClient.js';
+import PublicKey from './PublicKey.js';
+import SignatureType from './SignatureType.js';
+import SigningPayload from './SigningPayload.js';
 
 /**
  * The Signature model module.

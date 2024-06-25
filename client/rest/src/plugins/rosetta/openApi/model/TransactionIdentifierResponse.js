@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import TransactionIdentifier from './TransactionIdentifier';
+import ApiClient from '../ApiClient.js';
+import TransactionIdentifier from './TransactionIdentifier.js';
 
 /**
  * The TransactionIdentifierResponse model module.
