@@ -11,10 +11,10 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import BlockIdentifier from './BlockIdentifier';
-import Peer from './Peer';
-import SyncStatus from './SyncStatus';
+import ApiClient from '../ApiClient.js';
+import BlockIdentifier from './BlockIdentifier.js';
+import Peer from './Peer.js';
+import SyncStatus from './SyncStatus.js';
 
 /**
  * The NetworkStatusResponse model module.
