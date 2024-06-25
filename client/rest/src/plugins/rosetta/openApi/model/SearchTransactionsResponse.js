@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import BlockTransaction from './BlockTransaction';
+import ApiClient from '../ApiClient.js';
+import BlockTransaction from './BlockTransaction.js';
 
 /**
  * The SearchTransactionsResponse model module.

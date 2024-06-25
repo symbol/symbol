@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Transaction from './Transaction';
+import ApiClient from '../ApiClient.js';
+import Transaction from './Transaction.js';
 
 /**
  * The MempoolTransactionResponse model module.

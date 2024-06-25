@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import SubAccountIdentifier from './SubAccountIdentifier';
+import ApiClient from '../ApiClient.js';
+import SubAccountIdentifier from './SubAccountIdentifier.js';
 
 /**
  * The AccountIdentifier model module.

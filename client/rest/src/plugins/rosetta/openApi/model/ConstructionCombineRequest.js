@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import NetworkIdentifier from './NetworkIdentifier';
-import Signature from './Signature';
+import ApiClient from '../ApiClient.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import Signature from './Signature.js';
 
 /**
  * The ConstructionCombineRequest model module.
