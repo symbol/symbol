@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Currency from './Currency';
-import ExemptionType from './ExemptionType';
+import ApiClient from '../ApiClient.js';
+import Currency from './Currency.js';
+import ExemptionType from './ExemptionType.js';
 
 /**
  * The BalanceExemption model module.
