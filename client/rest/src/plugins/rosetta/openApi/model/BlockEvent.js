@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import BlockEventType from './BlockEventType';
-import BlockIdentifier from './BlockIdentifier';
+import ApiClient from '../ApiClient.js';
+import BlockEventType from './BlockEventType.js';
+import BlockIdentifier from './BlockIdentifier.js';
 
 /**
  * The BlockEvent model module.
