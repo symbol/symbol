@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Amount from './Amount';
+import ApiClient from '../ApiClient.js';
+import Amount from './Amount.js';
 
 /**
  * The ConstructionMetadataResponse model module.
