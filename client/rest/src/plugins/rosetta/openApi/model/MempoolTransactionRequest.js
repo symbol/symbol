@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import NetworkIdentifier from './NetworkIdentifier';
-import TransactionIdentifier from './TransactionIdentifier';
+import ApiClient from '../ApiClient.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import TransactionIdentifier from './TransactionIdentifier.js';
 
 /**
  * The MempoolTransactionRequest model module.
