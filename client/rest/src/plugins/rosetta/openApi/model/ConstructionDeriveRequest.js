@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import NetworkIdentifier from './NetworkIdentifier';
-import PublicKey from './PublicKey';
+import ApiClient from '../ApiClient.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import PublicKey from './PublicKey.js';
 
 /**
  * The ConstructionDeriveRequest model module.
