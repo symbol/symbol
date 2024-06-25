@@ -11,10 +11,10 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import NetworkIdentifier from './NetworkIdentifier';
-import Operation from './Operation';
-import PublicKey from './PublicKey';
+import ApiClient from '../ApiClient.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import Operation from './Operation.js';
+import PublicKey from './PublicKey.js';
 
 /**
  * The ConstructionPayloadsRequest model module.

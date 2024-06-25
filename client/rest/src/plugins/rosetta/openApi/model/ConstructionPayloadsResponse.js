@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import SigningPayload from './SigningPayload';
+import ApiClient from '../ApiClient.js';
+import SigningPayload from './SigningPayload.js';
 
 /**
  * The ConstructionPayloadsResponse model module.

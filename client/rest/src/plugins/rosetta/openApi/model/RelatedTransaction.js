@@ -11,10 +11,10 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Direction from './Direction';
-import NetworkIdentifier from './NetworkIdentifier';
-import TransactionIdentifier from './TransactionIdentifier';
+import ApiClient from '../ApiClient.js';
+import Direction from './Direction.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import TransactionIdentifier from './TransactionIdentifier.js';
 
 /**
  * The RelatedTransaction model module.
