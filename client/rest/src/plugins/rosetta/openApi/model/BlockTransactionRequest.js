@@ -11,10 +11,10 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import BlockIdentifier from './BlockIdentifier';
-import NetworkIdentifier from './NetworkIdentifier';
-import TransactionIdentifier from './TransactionIdentifier';
+import ApiClient from '../ApiClient.js';
+import BlockIdentifier from './BlockIdentifier.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import TransactionIdentifier from './TransactionIdentifier.js';
 
 /**
  * The BlockTransactionRequest model module.

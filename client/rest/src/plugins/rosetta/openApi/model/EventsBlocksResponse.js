@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import BlockEvent from './BlockEvent';
+import ApiClient from '../ApiClient.js';
+import BlockEvent from './BlockEvent.js';
 
 /**
  * The EventsBlocksResponse model module.

@@ -11,11 +11,11 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import BalanceExemption from './BalanceExemption';
-import Case from './Case';
-import Error from './Error';
-import OperationStatus from './OperationStatus';
+import ApiClient from '../ApiClient.js';
+import BalanceExemption from './BalanceExemption.js';
+import Case from './Case.js';
+import Error from './Error.js';
+import OperationStatus from './OperationStatus.js';
 
 /**
  * The Allow model module.

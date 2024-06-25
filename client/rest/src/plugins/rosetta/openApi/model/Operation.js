@@ -11,11 +11,11 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import AccountIdentifier from './AccountIdentifier';
-import Amount from './Amount';
-import CoinChange from './CoinChange';
-import OperationIdentifier from './OperationIdentifier';
+import ApiClient from '../ApiClient.js';
+import AccountIdentifier from './AccountIdentifier.js';
+import Amount from './Amount.js';
+import CoinChange from './CoinChange.js';
+import OperationIdentifier from './OperationIdentifier.js';
 
 /**
  * The Operation model module.

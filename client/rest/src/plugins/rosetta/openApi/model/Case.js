@@ -11,7 +11,7 @@
  *
  */
 
-import ApiClient from '../ApiClient';
+import ApiClient from '../ApiClient.js';
 /**
 * Enum class Case.
 * @enum {}

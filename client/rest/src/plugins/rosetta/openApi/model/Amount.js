@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Currency from './Currency';
+import ApiClient from '../ApiClient.js';
+import Currency from './Currency.js';
 
 /**
  * The Amount model module.

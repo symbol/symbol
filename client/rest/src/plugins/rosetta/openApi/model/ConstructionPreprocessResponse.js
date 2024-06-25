@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import AccountIdentifier from './AccountIdentifier';
+import ApiClient from '../ApiClient.js';
+import AccountIdentifier from './AccountIdentifier.js';
 
 /**
  * The ConstructionPreprocessResponse model module.

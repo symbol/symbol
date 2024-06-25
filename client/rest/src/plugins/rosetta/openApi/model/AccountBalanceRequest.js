@@ -11,11 +11,11 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import AccountIdentifier from './AccountIdentifier';
-import Currency from './Currency';
-import NetworkIdentifier from './NetworkIdentifier';
-import PartialBlockIdentifier from './PartialBlockIdentifier';
+import ApiClient from '../ApiClient.js';
+import AccountIdentifier from './AccountIdentifier.js';
+import Currency from './Currency.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import PartialBlockIdentifier from './PartialBlockIdentifier.js';
 
 /**
  * The AccountBalanceRequest model module.

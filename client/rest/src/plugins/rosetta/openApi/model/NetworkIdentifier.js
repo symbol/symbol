@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import SubNetworkIdentifier from './SubNetworkIdentifier';
+import ApiClient from '../ApiClient.js';
+import SubNetworkIdentifier from './SubNetworkIdentifier.js';
 
 /**
  * The NetworkIdentifier model module.

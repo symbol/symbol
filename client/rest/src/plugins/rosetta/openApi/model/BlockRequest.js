@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import NetworkIdentifier from './NetworkIdentifier';
-import PartialBlockIdentifier from './PartialBlockIdentifier';
+import ApiClient from '../ApiClient.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import PartialBlockIdentifier from './PartialBlockIdentifier.js';
 
 /**
  * The BlockRequest model module.

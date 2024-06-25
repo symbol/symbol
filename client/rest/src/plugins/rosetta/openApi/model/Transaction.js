@@ -11,10 +11,10 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Operation from './Operation';
-import RelatedTransaction from './RelatedTransaction';
-import TransactionIdentifier from './TransactionIdentifier';
+import ApiClient from '../ApiClient.js';
+import Operation from './Operation.js';
+import RelatedTransaction from './RelatedTransaction.js';
+import TransactionIdentifier from './TransactionIdentifier.js';
 
 /**
  * The Transaction model module.

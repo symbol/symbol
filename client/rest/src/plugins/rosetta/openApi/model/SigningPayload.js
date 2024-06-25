@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import AccountIdentifier from './AccountIdentifier';
-import SignatureType from './SignatureType';
+import ApiClient from '../ApiClient.js';
+import AccountIdentifier from './AccountIdentifier.js';
+import SignatureType from './SignatureType.js';
 
 /**
  * The SigningPayload model module.

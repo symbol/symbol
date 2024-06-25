@@ -11,13 +11,13 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import AccountIdentifier from './AccountIdentifier';
-import CoinIdentifier from './CoinIdentifier';
-import Currency from './Currency';
-import NetworkIdentifier from './NetworkIdentifier';
-import Operator from './Operator';
-import TransactionIdentifier from './TransactionIdentifier';
+import ApiClient from '../ApiClient.js';
+import AccountIdentifier from './AccountIdentifier.js';
+import CoinIdentifier from './CoinIdentifier.js';
+import Currency from './Currency.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import Operator from './Operator.js';
+import TransactionIdentifier from './TransactionIdentifier.js';
 
 /**
  * The SearchTransactionsRequest model module.

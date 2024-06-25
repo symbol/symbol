@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Allow from './Allow';
-import Version from './Version';
+import ApiClient from '../ApiClient.js';
+import Allow from './Allow.js';
+import Version from './Version.js';
 
 /**
  * The NetworkOptionsResponse model module.

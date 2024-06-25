@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import AccountIdentifier from './AccountIdentifier';
-import Operation from './Operation';
+import ApiClient from '../ApiClient.js';
+import AccountIdentifier from './AccountIdentifier.js';
+import Operation from './Operation.js';
 
 /**
  * The ConstructionParseResponse model module.

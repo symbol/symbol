@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import BlockIdentifier from './BlockIdentifier';
-import Coin from './Coin';
+import ApiClient from '../ApiClient.js';
+import BlockIdentifier from './BlockIdentifier.js';
+import Coin from './Coin.js';
 
 /**
  * The AccountCoinsResponse model module.

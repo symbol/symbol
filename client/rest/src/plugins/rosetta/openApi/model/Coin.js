@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Amount from './Amount';
-import CoinIdentifier from './CoinIdentifier';
+import ApiClient from '../ApiClient.js';
+import Amount from './Amount.js';
+import CoinIdentifier from './CoinIdentifier.js';
 
 /**
  * The Coin model module.

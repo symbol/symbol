@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import NetworkIdentifier from './NetworkIdentifier';
+import ApiClient from '../ApiClient.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
 
 /**
  * The NetworkListResponse model module.

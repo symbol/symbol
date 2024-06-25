@@ -11,8 +11,8 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import CurveType from './CurveType';
+import ApiClient from '../ApiClient.js';
+import CurveType from './CurveType.js';
 
 /**
  * The PublicKey model module.
