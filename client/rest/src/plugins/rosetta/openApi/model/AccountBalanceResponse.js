@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import Amount from './Amount';
-import BlockIdentifier from './BlockIdentifier';
+import ApiClient from '../ApiClient.js';
+import Amount from './Amount.js';
+import BlockIdentifier from './BlockIdentifier.js';
 
 /**
  * The AccountBalanceResponse model module.

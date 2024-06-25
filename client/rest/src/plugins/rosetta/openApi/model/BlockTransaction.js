@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import BlockIdentifier from './BlockIdentifier';
-import Transaction from './Transaction';
+import ApiClient from '../ApiClient.js';
+import BlockIdentifier from './BlockIdentifier.js';
+import Transaction from './Transaction.js';
 
 /**
  * The BlockTransaction model module.

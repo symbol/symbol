@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import NetworkIdentifier from './NetworkIdentifier';
-import Operation from './Operation';
+import ApiClient from '../ApiClient.js';
+import NetworkIdentifier from './NetworkIdentifier.js';
+import Operation from './Operation.js';
 
 /**
  * The ConstructionPreprocessRequest model module.
