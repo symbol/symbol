@@ -11,9 +11,9 @@
  *
  */
 
-import ApiClient from '../ApiClient';
-import CoinAction from './CoinAction';
-import CoinIdentifier from './CoinIdentifier';
+import ApiClient from '../ApiClient.js';
+import CoinAction from './CoinAction.js';
+import CoinIdentifier from './CoinIdentifier.js';
 
 /**
  * The CoinChange model module.
