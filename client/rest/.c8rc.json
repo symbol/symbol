@@ -1,4 +1,5 @@
 {
   "all": "true",
-  "include": ["src/**"]
+  "include": ["src/**"],
+  "exclude": ["src/plugins/rosetta/openApi/**"]
 }
