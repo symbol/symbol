@@ -112,6 +112,17 @@ const getBoundedPageSize = (pageSize, optionsPageSize) =>
 
 const isPage = page => undefined !== page.data && undefined !== page.pagination.pageNumber && undefined !== page.pagination.pageSize;
 
+const sendUnformatted = (res, next, contentType, description) => data => {
+	if (!data) {
+		res.send(errors.createInternalError(`error retrieving ${description}`));
+	} else {
+		res.setHeader('content-type', contentType);
+		res.send(data);
+	}
+
+	next();
+};
+
 const routeUtils = {
 
 	/**
@@ -269,20 +280,23 @@ const routeUtils = {
 		},
 
 		/**
-		 * Creates a text handler that forwards a plain text result.
+		 * Creates a data handler that forwards a plain text result.
 		 * @param {object} res Restify response object.
 		 * @param {Function} next Restify next callback handler.
 		 * @returns {Function} An appropriate object handler.
 		 */
 		sendPlainText(res, next) {
-			return data => {
-				if (!data)
-					res.send(errors.createInternalError('error retrieving plain text'));
-				else
-					res.setHeader('content-type', 'text/plain');
-				res.send(data);
-				next();
-			};
+			return sendUnformatted(res, next, 'text/plain', 'plain text');
+		},
+
+		/**
+		 * Creates a data handler that forwards a JSON object that bypasses the formatting subsystem.
+		 * @param {object} res Restify response object.
+		 * @param {Function} next Restify next callback handler.
+		 * @returns {Function} An appropriate object handler.
+		 */
+		sendJson(res, next) {
+			return sendUnformatted(res, next, 'application/json', 'JSON object');
 		},
 
 		/**

@@ -608,6 +608,56 @@ describe('route utils', () => {
 			});
 		});
 
+		const addSendUnformattedTests = (senderFunctionName, validData, expectedContentType, expectedDescription) => {
+			const runTest = (data, assertResponse) => {
+				// Arrange: set up the route params
+				const routeContext = { numNextCalls: 0 };
+				const next = () => { ++routeContext.numNextCalls; };
+
+				routeContext.responses = [];
+				routeContext.headers = [];
+				const res = {
+					send: response => { routeContext.responses.push(response); },
+					setHeader: (name, value) => { routeContext.headers.push({ name, value }); }
+				};
+
+				// Act: send data
+				const sender = routeUtils.createSender()[senderFunctionName](res, next);
+				sender(data);
+
+				// Assert: exactly one response was sent
+				expect(routeContext.numNextCalls).to.equal(1);
+				expect(routeContext.responses.length).to.equal(1);
+				assertResponse(routeContext.responses[0], routeContext.headers);
+			};
+
+			it('fails when there is no data', () => {
+				// Act: send no data
+				runTest(undefined, (response, headers) => {
+					// Assert:
+					expect(response.body).to.deep.equal({ code: 'Internal', message: `error retrieving ${expectedDescription}` });
+					expect(headers).to.deep.equal([]);
+				});
+			});
+
+			it('succeeds when there is data', () => {
+				// Act: send valid data
+				runTest(validData, (response, headers) => {
+					// Assert:
+					expect(response).to.deep.equal(validData);
+					expect(headers).to.deep.equal([{ name: 'content-type', value: expectedContentType }]);
+				});
+			});
+		};
+
+		describe('send plain text', () => {
+			addSendUnformattedTests('sendPlainText', 'HELLO world!', 'text/plain', 'plain text');
+		});
+
+		describe('send JSON object', () => {
+			addSendUnformattedTests('sendJson', { foo: 'abc', bar: 'xyz' }, 'application/json', 'JSON object');
+		});
+
 		describe('send data', () => {
 			const sendDataTest = (sender, assertResponse) => {
 				// Arrange
