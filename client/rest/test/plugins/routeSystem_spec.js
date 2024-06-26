@@ -39,6 +39,7 @@ describe('route system', () => {
 
 		// Assert:
 		expect(supportedPluginNames).to.deep.equal([
+			// - transactions
 			'accountLink',
 			'aggregate',
 			'lockHash',
@@ -49,7 +50,10 @@ describe('route system', () => {
 			'namespace',
 			'receipts',
 			'restrictions',
-			'transfer'
+			'transfer',
+
+			// - other
+			'rosetta'
 		]);
 	});
 

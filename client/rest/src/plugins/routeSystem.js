@@ -34,6 +34,7 @@ import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 
 const plugins = {
+	// transactions
 	accountLink: empty,
 	aggregate,
 	lockHash,
@@ -44,7 +45,10 @@ const plugins = {
 	namespace,
 	receipts,
 	restrictions,
-	transfer: empty
+	transfer: empty,
+
+	// other
+	rosetta: empty
 };
 
 export default {

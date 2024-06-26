@@ -31,7 +31,9 @@
     "restrictions",
     "transfer"
   ],
-
+  "routeExtensions": [
+    "rosetta"
+  ],
   "db": {
     "url": "mongodb://localhost:27017/",
     "name": "catapult",
