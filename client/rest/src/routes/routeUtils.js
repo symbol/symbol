@@ -112,17 +112,6 @@ const getBoundedPageSize = (pageSize, optionsPageSize) =>
 
 const isPage = page => undefined !== page.data && undefined !== page.pagination.pageNumber && undefined !== page.pagination.pageSize;
 
-const sendUnformatted = (res, next, contentType, description) => data => {
-	if (!data) {
-		res.send(errors.createInternalError(`error retrieving ${description}`));
-	} else {
-		res.setHeader('content-type', contentType);
-		res.send(data);
-	}
-
-	next();
-};
-
 const routeUtils = {
 
 	/**
@@ -275,47 +264,6 @@ const routeUtils = {
 					res.send(errors.createInternalError('error retrieving data'));
 				else
 					res.send({ payload: page, type, structure: 'page' });
-				next();
-			};
-		},
-
-		/**
-		 * Creates a data handler that forwards a plain text result.
-		 * @param {object} res Restify response object.
-		 * @param {Function} next Restify next callback handler.
-		 * @returns {Function} An appropriate object handler.
-		 */
-		sendPlainText(res, next) {
-			return sendUnformatted(res, next, 'text/plain', 'plain text');
-		},
-
-		/**
-		 * Creates a data handler that forwards a JSON object that bypasses the formatting subsystem.
-		 * @param {object} res Restify response object.
-		 * @param {Function} next Restify next callback handler.
-		 * @returns {Function} An appropriate object handler.
-		 */
-		sendJson(res, next) {
-			return sendUnformatted(res, next, 'application/json', 'JSON object');
-		},
-
-		/**
-		 * Creates a data handler that forwards binary data result.
-		 * @param {object} res Restify response object.
-		 * @param {Function} next Restify next callback handler.
-		 * @returns {Function} An appropriate object handler.
-		 */
-		sendData(res, next) {
-			const isAttachment = (download, mimeType) => 'true' === download || 'application/octet-stream' === mimeType;
-			return (data, mimeType, fileName, text, download) => {
-				res.setHeader('content-type', mimeType);
-				let disposition = isAttachment(download, mimeType) ? 'attachment;' : 'inline;';
-				disposition += fileName ? ` filename="${fileName}"` : '';
-				res.setHeader('Content-Disposition', disposition);
-				if (text)
-					res.setHeader('Content-MetalText', text);
-				res.write(data);
-				res.end();
 				next();
 			};
 		}

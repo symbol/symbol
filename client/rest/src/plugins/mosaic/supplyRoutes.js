@@ -21,7 +21,7 @@
 
 import catapult from '../../catapult-sdk/index.js';
 import { longToUint64 } from '../../db/dbUtils.js';
-import routeUtils from '../../routes/routeUtils.js';
+import { sendPlainText } from '../../routes/simpleSend.js';
 import AccountType from '../AccountType.js';
 import ini from 'ini';
 import { utils } from 'symbol-sdk';
@@ -30,8 +30,6 @@ const fileLoader = new catapult.utils.CachedFileLoader();
 
 export default {
 	register: (server, db, services) => {
-		const sender = routeUtils.createSender('supply');
-
 		const convertToFractionalWholeUnits = (value, divisibility) => (Number(value) / (10 ** divisibility)).toFixed(divisibility);
 
 		const propertyValueToMosaicId = value => BigInt(value.replace(/'/g, ''));
@@ -74,7 +72,7 @@ export default {
 					0
 				);
 
-				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(
+				sendPlainText(res, next)(convertToFractionalWholeUnits(
 					currencyMosaicProperties.totalSupply - burnedSupply,
 					currencyMosaicProperties.divisibility
 				));
@@ -84,7 +82,7 @@ export default {
 			.then(async propertiesObject => {
 				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
 				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
-				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(
+				sendPlainText(res, next)(convertToFractionalWholeUnits(
 					currencyMosaicProperties.totalSupply,
 					currencyMosaicProperties.divisibility
 				));
@@ -96,7 +94,7 @@ export default {
 				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
 
 				const maxSupply = parseInt(propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, ''), 10);
-				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(maxSupply, currencyMosaicProperties.divisibility));
+				sendPlainText(res, next)(convertToFractionalWholeUnits(maxSupply, currencyMosaicProperties.divisibility));
 			}));
 	}
 };

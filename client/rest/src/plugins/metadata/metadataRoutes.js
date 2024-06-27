@@ -24,6 +24,7 @@ import catapult from '../../catapult-sdk/index.js';
 import merkleUtils from '../../routes/merkleUtils.js';
 import routeResultTypes from '../../routes/routeResultTypes.js';
 import routeUtils from '../../routes/routeUtils.js';
+import { sendMetalData } from '../../routes/simpleSend.js';
 import NodeCache from 'node-cache';
 
 const cache = new NodeCache();
@@ -69,7 +70,7 @@ export default {
 
 		server.get('/metadata/metal/:metalId', async (req, res, next) => {
 			const { cacheTtl, sizeLimit } = services.config.metal;
-			const sendData = (data, mimeType, fileName, text, download) => routeUtils.createSender('content').sendData(res, next)(
+			const sendData = (data, mimeType, fileName, text, download) => sendMetalData(res, next)(
 				data,
 				mimeType,
 				fileName,
