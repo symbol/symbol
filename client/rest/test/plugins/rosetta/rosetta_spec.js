@@ -19,23 +19,28 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/rosetta */
-import constructionRoutes from './constructionRoutes.js';
+import rosetta from '../../../src/plugins/rosetta/rosetta.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
-/**
- * Creates a rosetta plugin.
- * @type {module:plugins/CatapultRestPlugin}
- */
-export default {
-	createDb: db => db,
+describe('rosetta plugin', () => {
+	pluginTest.assertThat.pluginDoesNotCreateDb(rosetta, { shouldForwardDb: true });
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(rosetta);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(rosetta);
 
-	registerTransactionStates: () => {},
+	describe('register routes', () => {
+		it('registers POST routes', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('post', routes);
 
-	registerMessageChannels: () => {},
+			// Act:
+			rosetta.registerRoutes(server, undefined, { config: { network: { name: 'testnet' } } });
 
-	registerRoutes: (...args) => {
-		[
-			constructionRoutes
-		].forEach(routes => routes.register(...args));
-	}
-};
+			// Assert:
+			test.assert.assertRoutes(routes, [
+				'/construction/derive'
+			]);
+		});
+	});
+});
