@@ -19,64 +19,64 @@ import ApiClient from '../ApiClient.js';
  * @version 1.4.13
  */
 class SyncStatus {
-    /**
-     * Constructs a new <code>SyncStatus</code>.
-     * SyncStatus is used to provide additional context about an implementation&#39;s sync status. This object is often used by implementations to indicate healthiness when block data cannot be queried until some sync phase completes or cannot be determined by comparing the timestamp of the most recent block with the current time.
-     * @alias module:model/SyncStatus
-     */
-    constructor() { 
-        
-        SyncStatus.initialize(this);
-    }
+	/**
+	 * Constructs a new <code>SyncStatus</code>.
+	 * SyncStatus is used to provide additional context about an implementation&#39;s sync status. This object is often used by implementations to indicate healthiness when block data cannot be queried until some sync phase completes or cannot be determined by comparing the timestamp of the most recent block with the current time.
+	 * @alias module:model/SyncStatus
+	 */
+	constructor() {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj) { 
-    }
+		SyncStatus.initialize(this);
+	}
 
-    /**
-     * Constructs a <code>SyncStatus</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/SyncStatus} obj Optional instance to populate.
-     * @return {module:model/SyncStatus} The populated <code>SyncStatus</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new SyncStatus();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj) {
+	}
 
-            if (data.hasOwnProperty('current_index')) {
-                obj['current_index'] = ApiClient.convertToType(data['current_index'], 'Number');
-            }
-            if (data.hasOwnProperty('target_index')) {
-                obj['target_index'] = ApiClient.convertToType(data['target_index'], 'Number');
-            }
-            if (data.hasOwnProperty('stage')) {
-                obj['stage'] = ApiClient.convertToType(data['stage'], 'String');
-            }
-            if (data.hasOwnProperty('synced')) {
-                obj['synced'] = ApiClient.convertToType(data['synced'], 'Boolean');
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>SyncStatus</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/SyncStatus} obj Optional instance to populate.
+	 * @return {module:model/SyncStatus} The populated <code>SyncStatus</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new SyncStatus();
 
-    /**
-     * Validates the JSON data with respect to <code>SyncStatus</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>SyncStatus</code>.
-     */
-    static validateJSON(data) {
-        // ensure the json data is a string
-        if (data['stage'] && !(typeof data['stage'] === 'string' || data['stage'] instanceof String)) {
-            throw new Error("Expected the field `stage` to be a primitive type in the JSON string but got " + data['stage']);
-        }
+			if (data.hasOwnProperty('current_index')) {
+				obj['current_index'] = ApiClient.convertToType(data['current_index'], 'Number');
+			}
+			if (data.hasOwnProperty('target_index')) {
+				obj['target_index'] = ApiClient.convertToType(data['target_index'], 'Number');
+			}
+			if (data.hasOwnProperty('stage')) {
+				obj['stage'] = ApiClient.convertToType(data['stage'], 'String');
+			}
+			if (data.hasOwnProperty('synced')) {
+				obj['synced'] = ApiClient.convertToType(data['synced'], 'Boolean');
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>SyncStatus</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>SyncStatus</code>.
+	 */
+	static validateJSON(data) {
+		// ensure the json data is a string
+		if (data['stage'] && !(typeof data['stage'] === 'string' || data['stage'] instanceof String)) {
+			throw new Error("Expected the field `stage` to be a primitive type in the JSON string but got " + data['stage']);
+		}
+
+		return true;
+	}
 
 
 }
