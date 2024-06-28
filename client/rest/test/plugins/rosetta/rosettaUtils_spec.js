@@ -77,7 +77,7 @@ describe('rosetta utils', () => {
 			expect(() => RosettaError.validateJSON(response)).to.not.throw();
 		};
 
-		it('fails when request is invalid', () => {
+		it('fails when request is invalid', async () => {
 			// Arrange: corrupt the request by removing a required subfield
 			const { routeContext, next, res } = createRosettaRouteTestSetup();
 			const request = createValidRequest();
@@ -85,41 +85,47 @@ describe('rosetta utils', () => {
 
 			// Act:
 			const postHandler = rosettaPostRouteWithNetwork('testnet', ConstructionDeriveRequest, () => {});
-			postHandler({ body: request }, res, next);
+			await postHandler({ body: request }, res, next);
 
 			// Assert:
 			assertRosettaErrorRaised(routeContext, res, errors.INVALID_REQUEST_DATA);
 		});
 
-		it('fails when network is invalid', () => {
+		it('fails when network is invalid', async () => {
 			// Arrange:
 			const { routeContext, next, res } = createRosettaRouteTestSetup();
 			const request = createValidRequest();
 
 			// Act:
 			const postHandler = rosettaPostRouteWithNetwork('mainnet', ConstructionDeriveRequest, () => {});
-			postHandler({ body: request }, res, next);
+			await postHandler({ body: request }, res, next);
 
 			// Assert:
 			assertRosettaErrorRaised(routeContext, res, errors.UNSUPPORTED_NETWORK);
 		});
 
-		it('succeeds when network is valid', () => {
+		const assertSuccessWhenValid = async handler => {
 			// Arrange:
 			const { routeContext, next, res } = createRosettaRouteTestSetup();
 			const request = createValidRequest();
 
 			// Act:
-			const postHandler = rosettaPostRouteWithNetwork('testnet', ConstructionDeriveRequest, typedRequest => ({
-				foo: typedRequest.network_identifier.network
-			}));
-			postHandler({ body: request }, res, next);
+			const postHandler = rosettaPostRouteWithNetwork('testnet', ConstructionDeriveRequest, handler);
+			await postHandler({ body: request }, res, next);
 
 			// Assert:
 			expect(routeContext.numNextCalls).to.equal(1);
 			expect(routeContext.responses.length).to.equal(1);
 			expect(res.statusCode).to.equal(200);
 			expect(routeContext.responses[0]).to.deep.equal({ foo: 'testnet' });
-		});
+		};
+
+		it('succeeds when network is valid', () => assertSuccessWhenValid(typedRequest => ({
+			foo: typedRequest.network_identifier.network
+		})));
+
+		it('succeeds when network is valid (async)', () => assertSuccessWhenValid(typedRequest => (Promise.resolve({
+			foo: typedRequest.network_identifier.network
+		}))));
 	});
 });
