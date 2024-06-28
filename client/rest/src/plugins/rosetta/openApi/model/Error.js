@@ -19,83 +19,83 @@ import ApiClient from '../ApiClient.js';
  * @version 1.4.13
  */
 class Error {
-    /**
-     * Constructs a new <code>Error</code>.
-     * Instead of utilizing HTTP status codes to describe node errors (which often do not have a good analog), rich errors are returned using this object. Both the code and message fields can be individually used to correctly identify an error. Implementations MUST use unique values for both fields.
-     * @alias module:model/Error
-     * @param code {Number} Code is a network-specific error code. If desired, this code can be equivalent to an HTTP status code.
-     * @param message {String} Message is a network-specific error message. The message MUST NOT change for a given code. In particular, this means that any contextual information should be included in the details field.
-     * @param retriable {Boolean} An error is retriable if the same request may succeed if submitted again.
-     */
-    constructor(code, message, retriable) { 
-        
-        Error.initialize(this, code, message, retriable);
-    }
+	/**
+	 * Constructs a new <code>Error</code>.
+	 * Instead of utilizing HTTP status codes to describe node errors (which often do not have a good analog), rich errors are returned using this object. Both the code and message fields can be individually used to correctly identify an error. Implementations MUST use unique values for both fields.
+	 * @alias module:model/Error
+	 * @param code {Number} Code is a network-specific error code. If desired, this code can be equivalent to an HTTP status code.
+	 * @param message {String} Message is a network-specific error message. The message MUST NOT change for a given code. In particular, this means that any contextual information should be included in the details field.
+	 * @param retriable {Boolean} An error is retriable if the same request may succeed if submitted again.
+	 */
+	constructor(code, message, retriable) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, code, message, retriable) { 
-        obj['code'] = code;
-        obj['message'] = message;
-        obj['retriable'] = retriable;
-    }
+		Error.initialize(this, code, message, retriable);
+	}
 
-    /**
-     * Constructs a <code>Error</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/Error} obj Optional instance to populate.
-     * @return {module:model/Error} The populated <code>Error</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new Error();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, code, message, retriable) {
+		obj['code'] = code;
+		obj['message'] = message;
+		obj['retriable'] = retriable;
+	}
 
-            if (data.hasOwnProperty('code')) {
-                obj['code'] = ApiClient.convertToType(data['code'], 'Number');
-            }
-            if (data.hasOwnProperty('message')) {
-                obj['message'] = ApiClient.convertToType(data['message'], 'String');
-            }
-            if (data.hasOwnProperty('description')) {
-                obj['description'] = ApiClient.convertToType(data['description'], 'String');
-            }
-            if (data.hasOwnProperty('retriable')) {
-                obj['retriable'] = ApiClient.convertToType(data['retriable'], 'Boolean');
-            }
-            if (data.hasOwnProperty('details')) {
-                obj['details'] = ApiClient.convertToType(data['details'], Object);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>Error</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/Error} obj Optional instance to populate.
+	 * @return {module:model/Error} The populated <code>Error</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new Error();
 
-    /**
-     * Validates the JSON data with respect to <code>Error</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>Error</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of Error.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // ensure the json data is a string
-        if (data['message'] && !(typeof data['message'] === 'string' || data['message'] instanceof String)) {
-            throw new Error("Expected the field `message` to be a primitive type in the JSON string but got " + data['message']);
-        }
-        // ensure the json data is a string
-        if (data['description'] && !(typeof data['description'] === 'string' || data['description'] instanceof String)) {
-            throw new Error("Expected the field `description` to be a primitive type in the JSON string but got " + data['description']);
-        }
+			if (data.hasOwnProperty('code')) {
+				obj['code'] = ApiClient.convertToType(data['code'], 'Number');
+			}
+			if (data.hasOwnProperty('message')) {
+				obj['message'] = ApiClient.convertToType(data['message'], 'String');
+			}
+			if (data.hasOwnProperty('description')) {
+				obj['description'] = ApiClient.convertToType(data['description'], 'String');
+			}
+			if (data.hasOwnProperty('retriable')) {
+				obj['retriable'] = ApiClient.convertToType(data['retriable'], 'Boolean');
+			}
+			if (data.hasOwnProperty('details')) {
+				obj['details'] = ApiClient.convertToType(data['details'], Object);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>Error</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>Error</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of Error.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// ensure the json data is a string
+		if (data['message'] && !(typeof data['message'] === 'string' || data['message'] instanceof String)) {
+			throw new Error("Expected the field `message` to be a primitive type in the JSON string but got " + data['message']);
+		}
+		// ensure the json data is a string
+		if (data['description'] && !(typeof data['description'] === 'string' || data['description'] instanceof String)) {
+			throw new Error("Expected the field `description` to be a primitive type in the JSON string but got " + data['description']);
+		}
+
+		return true;
+	}
 
 
 }
