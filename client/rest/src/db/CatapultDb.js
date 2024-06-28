@@ -643,17 +643,17 @@ export default class CatapultDb {
 
 	// endregion
 
-	// region utils
+	// region lookup public keys
 
 	/**
-	 * Retrieves account publickey projection for the given address.
-	 * @param {Uint8Array} accountAddress Account address.
-	 * @returns {Promise<Buffer>} Promise that resolves to the account public key.
+	 * Retrieves account public keys projection for the given addresses.
+	 * @param {Array<Uint8Array>} accountAddresses Account addresses.
+	 * @returns {Promise<Buffer>} Promise that resolves to the account public keys.
 	 */
-	addressToPublicKey(accountAddress) {
-		const conditions = { 'account.address': Buffer.from(accountAddress) };
-		const projection = { 'account.publicKey': 1 };
-		return this.queryDocument('accounts', conditions, projection);
+	lookupPublicKeys(accountAddresses) {
+		const conditions = { 'account.address': { $in: accountAddresses.map(accountAddress => Buffer.from(accountAddress)) } };
+		const projection = { 'account.address': 1, 'account.publicKey': 1 };
+		return this.queryDocuments('accounts', conditions, projection);
 	}
 
 	// endregion
