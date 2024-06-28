@@ -35,11 +35,18 @@ describe('rosetta plugin', () => {
 			const server = test.setup.createCapturingMockServer('post', routes);
 
 			// Act:
-			rosetta.registerRoutes(server, undefined, { config: { network: { name: 'testnet' } } });
+			rosetta.registerRoutes(server, undefined, {
+				config: {
+					network: { name: 'testnet' },
+					rest: { protocol: 'http', port: '3456' }
+				}
+			});
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/construction/derive'
+				'/construction/derive',
+				'/construction/preprocess',
+				'/construction/metadata'
 			]);
 		});
 	});
