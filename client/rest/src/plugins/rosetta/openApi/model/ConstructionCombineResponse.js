@@ -19,63 +19,63 @@ import ApiClient from '../ApiClient.js';
  * @version 1.4.13
  */
 class ConstructionCombineResponse {
-    /**
-     * Constructs a new <code>ConstructionCombineResponse</code>.
-     * ConstructionCombineResponse is returned by &#x60;/construction/combine&#x60;. The network payload will be sent directly to the &#x60;construction/submit&#x60; endpoint.
-     * @alias module:model/ConstructionCombineResponse
-     * @param signedTransaction {String} 
-     */
-    constructor(signedTransaction) { 
-        
-        ConstructionCombineResponse.initialize(this, signedTransaction);
-    }
+	/**
+	 * Constructs a new <code>ConstructionCombineResponse</code>.
+	 * ConstructionCombineResponse is returned by &#x60;/construction/combine&#x60;. The network payload will be sent directly to the &#x60;construction/submit&#x60; endpoint.
+	 * @alias module:model/ConstructionCombineResponse
+	 * @param signedTransaction {String}
+	 */
+	constructor(signedTransaction) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, signedTransaction) { 
-        obj['signed_transaction'] = signedTransaction;
-    }
+		ConstructionCombineResponse.initialize(this, signedTransaction);
+	}
 
-    /**
-     * Constructs a <code>ConstructionCombineResponse</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/ConstructionCombineResponse} obj Optional instance to populate.
-     * @return {module:model/ConstructionCombineResponse} The populated <code>ConstructionCombineResponse</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new ConstructionCombineResponse();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, signedTransaction) {
+		obj['signed_transaction'] = signedTransaction;
+	}
 
-            if (data.hasOwnProperty('signed_transaction')) {
-                obj['signed_transaction'] = ApiClient.convertToType(data['signed_transaction'], 'String');
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>ConstructionCombineResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/ConstructionCombineResponse} obj Optional instance to populate.
+	 * @return {module:model/ConstructionCombineResponse} The populated <code>ConstructionCombineResponse</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new ConstructionCombineResponse();
 
-    /**
-     * Validates the JSON data with respect to <code>ConstructionCombineResponse</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>ConstructionCombineResponse</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of ConstructionCombineResponse.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // ensure the json data is a string
-        if (data['signed_transaction'] && !(typeof data['signed_transaction'] === 'string' || data['signed_transaction'] instanceof String)) {
-            throw new Error("Expected the field `signed_transaction` to be a primitive type in the JSON string but got " + data['signed_transaction']);
-        }
+			if (data.hasOwnProperty('signed_transaction')) {
+				obj['signed_transaction'] = ApiClient.convertToType(data['signed_transaction'], 'String');
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>ConstructionCombineResponse</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>ConstructionCombineResponse</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of ConstructionCombineResponse.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// ensure the json data is a string
+		if (data['signed_transaction'] && !(typeof data['signed_transaction'] === 'string' || data['signed_transaction'] instanceof String)) {
+			throw new Error("Expected the field `signed_transaction` to be a primitive type in the JSON string but got " + data['signed_transaction']);
+		}
+
+		return true;
+	}
 
 
 }

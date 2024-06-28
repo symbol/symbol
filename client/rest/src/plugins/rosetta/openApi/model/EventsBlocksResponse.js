@@ -20,74 +20,74 @@ import BlockEvent from './BlockEvent.js';
  * @version 1.4.13
  */
 class EventsBlocksResponse {
-    /**
-     * Constructs a new <code>EventsBlocksResponse</code>.
-     * EventsBlocksResponse contains an ordered collection of BlockEvents and the max retrievable sequence.
-     * @alias module:model/EventsBlocksResponse
-     * @param maxSequence {Number} max_sequence is the maximum available sequence number to fetch.
-     * @param events {Array.<module:model/BlockEvent>} events is an array of BlockEvents indicating the order to add and remove blocks to maintain a canonical view of blockchain state. Lightweight clients can use this event stream to update state without implementing their own block syncing logic.
-     */
-    constructor(maxSequence, events) { 
-        
-        EventsBlocksResponse.initialize(this, maxSequence, events);
-    }
+	/**
+	 * Constructs a new <code>EventsBlocksResponse</code>.
+	 * EventsBlocksResponse contains an ordered collection of BlockEvents and the max retrievable sequence.
+	 * @alias module:model/EventsBlocksResponse
+	 * @param maxSequence {Number} max_sequence is the maximum available sequence number to fetch.
+	 * @param events {Array.<module:model/BlockEvent>} events is an array of BlockEvents indicating the order to add and remove blocks to maintain a canonical view of blockchain state. Lightweight clients can use this event stream to update state without implementing their own block syncing logic.
+	 */
+	constructor(maxSequence, events) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, maxSequence, events) { 
-        obj['max_sequence'] = maxSequence;
-        obj['events'] = events;
-    }
+		EventsBlocksResponse.initialize(this, maxSequence, events);
+	}
 
-    /**
-     * Constructs a <code>EventsBlocksResponse</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/EventsBlocksResponse} obj Optional instance to populate.
-     * @return {module:model/EventsBlocksResponse} The populated <code>EventsBlocksResponse</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new EventsBlocksResponse();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, maxSequence, events) {
+		obj['max_sequence'] = maxSequence;
+		obj['events'] = events;
+	}
 
-            if (data.hasOwnProperty('max_sequence')) {
-                obj['max_sequence'] = ApiClient.convertToType(data['max_sequence'], 'Number');
-            }
-            if (data.hasOwnProperty('events')) {
-                obj['events'] = ApiClient.convertToType(data['events'], [BlockEvent]);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>EventsBlocksResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EventsBlocksResponse} obj Optional instance to populate.
+	 * @return {module:model/EventsBlocksResponse} The populated <code>EventsBlocksResponse</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new EventsBlocksResponse();
 
-    /**
-     * Validates the JSON data with respect to <code>EventsBlocksResponse</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>EventsBlocksResponse</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of EventsBlocksResponse.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        if (data['events']) { // data not null
-            // ensure the json data is an array
-            if (!Array.isArray(data['events'])) {
-                throw new Error("Expected the field `events` to be an array in the JSON data but got " + data['events']);
-            }
-            // validate the optional field `events` (array)
-            for (const item of data['events']) {
-                BlockEvent.validateJSON(item);
-            };
-        }
+			if (data.hasOwnProperty('max_sequence')) {
+				obj['max_sequence'] = ApiClient.convertToType(data['max_sequence'], 'Number');
+			}
+			if (data.hasOwnProperty('events')) {
+				obj['events'] = ApiClient.convertToType(data['events'], [BlockEvent]);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>EventsBlocksResponse</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>EventsBlocksResponse</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of EventsBlocksResponse.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		if (data['events']) { // data not null
+			// ensure the json data is an array
+			if (!Array.isArray(data['events'])) {
+				throw new Error("Expected the field `events` to be an array in the JSON data but got " + data['events']);
+			}
+			// validate the optional field `events` (array)
+			for (const item of data['events']) {
+				BlockEvent.validateJSON(item);
+			};
+		}
+
+		return true;
+	}
 
 
 }
