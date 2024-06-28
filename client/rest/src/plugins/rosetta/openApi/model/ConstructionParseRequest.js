@@ -20,77 +20,77 @@ import NetworkIdentifier from './NetworkIdentifier.js';
  * @version 1.4.13
  */
 class ConstructionParseRequest {
-    /**
-     * Constructs a new <code>ConstructionParseRequest</code>.
-     * ConstructionParseRequest is the input to the &#x60;/construction/parse&#x60; endpoint. It allows the caller to parse either an unsigned or signed transaction.
-     * @alias module:model/ConstructionParseRequest
-     * @param networkIdentifier {module:model/NetworkIdentifier} 
-     * @param signed {Boolean} Signed is a boolean indicating whether the transaction is signed.
-     * @param transaction {String} This must be either the unsigned transaction blob returned by `/construction/payloads` or the signed transaction blob returned by `/construction/combine`.
-     */
-    constructor(networkIdentifier, signed, transaction) { 
-        
-        ConstructionParseRequest.initialize(this, networkIdentifier, signed, transaction);
-    }
+	/**
+	 * Constructs a new <code>ConstructionParseRequest</code>.
+	 * ConstructionParseRequest is the input to the &#x60;/construction/parse&#x60; endpoint. It allows the caller to parse either an unsigned or signed transaction.
+	 * @alias module:model/ConstructionParseRequest
+	 * @param networkIdentifier {module:model/NetworkIdentifier}
+	 * @param signed {Boolean} Signed is a boolean indicating whether the transaction is signed.
+	 * @param transaction {String} This must be either the unsigned transaction blob returned by `/construction/payloads` or the signed transaction blob returned by `/construction/combine`.
+	 */
+	constructor(networkIdentifier, signed, transaction) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, networkIdentifier, signed, transaction) { 
-        obj['network_identifier'] = networkIdentifier;
-        obj['signed'] = signed;
-        obj['transaction'] = transaction;
-    }
+		ConstructionParseRequest.initialize(this, networkIdentifier, signed, transaction);
+	}
 
-    /**
-     * Constructs a <code>ConstructionParseRequest</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/ConstructionParseRequest} obj Optional instance to populate.
-     * @return {module:model/ConstructionParseRequest} The populated <code>ConstructionParseRequest</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new ConstructionParseRequest();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, networkIdentifier, signed, transaction) {
+		obj['network_identifier'] = networkIdentifier;
+		obj['signed'] = signed;
+		obj['transaction'] = transaction;
+	}
 
-            if (data.hasOwnProperty('network_identifier')) {
-                obj['network_identifier'] = NetworkIdentifier.constructFromObject(data['network_identifier']);
-            }
-            if (data.hasOwnProperty('signed')) {
-                obj['signed'] = ApiClient.convertToType(data['signed'], 'Boolean');
-            }
-            if (data.hasOwnProperty('transaction')) {
-                obj['transaction'] = ApiClient.convertToType(data['transaction'], 'String');
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>ConstructionParseRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/ConstructionParseRequest} obj Optional instance to populate.
+	 * @return {module:model/ConstructionParseRequest} The populated <code>ConstructionParseRequest</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new ConstructionParseRequest();
 
-    /**
-     * Validates the JSON data with respect to <code>ConstructionParseRequest</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>ConstructionParseRequest</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of ConstructionParseRequest.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // validate the optional field `network_identifier`
-        if (data['network_identifier']) { // data not null
-          NetworkIdentifier.validateJSON(data['network_identifier']);
-        }
-        // ensure the json data is a string
-        if (data['transaction'] && !(typeof data['transaction'] === 'string' || data['transaction'] instanceof String)) {
-            throw new Error("Expected the field `transaction` to be a primitive type in the JSON string but got " + data['transaction']);
-        }
+			if (data.hasOwnProperty('network_identifier')) {
+				obj['network_identifier'] = NetworkIdentifier.constructFromObject(data['network_identifier']);
+			}
+			if (data.hasOwnProperty('signed')) {
+				obj['signed'] = ApiClient.convertToType(data['signed'], 'Boolean');
+			}
+			if (data.hasOwnProperty('transaction')) {
+				obj['transaction'] = ApiClient.convertToType(data['transaction'], 'String');
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>ConstructionParseRequest</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>ConstructionParseRequest</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of ConstructionParseRequest.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// validate the optional field `network_identifier`
+		if (data['network_identifier']) { // data not null
+		  NetworkIdentifier.validateJSON(data['network_identifier']);
+		}
+		// ensure the json data is a string
+		if (data['transaction'] && !(typeof data['transaction'] === 'string' || data['transaction'] instanceof String)) {
+			throw new Error("Expected the field `transaction` to be a primitive type in the JSON string but got " + data['transaction']);
+		}
+
+		return true;
+	}
 
 
 }

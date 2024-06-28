@@ -19,51 +19,51 @@ import ApiClient from '../ApiClient.js';
  * @version 1.4.13
  */
 class MetadataRequest {
-    /**
-     * Constructs a new <code>MetadataRequest</code>.
-     * A MetadataRequest is utilized in any request where the only argument is optional metadata.
-     * @alias module:model/MetadataRequest
-     */
-    constructor() { 
-        
-        MetadataRequest.initialize(this);
-    }
+	/**
+	 * Constructs a new <code>MetadataRequest</code>.
+	 * A MetadataRequest is utilized in any request where the only argument is optional metadata.
+	 * @alias module:model/MetadataRequest
+	 */
+	constructor() {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj) { 
-    }
+		MetadataRequest.initialize(this);
+	}
 
-    /**
-     * Constructs a <code>MetadataRequest</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/MetadataRequest} obj Optional instance to populate.
-     * @return {module:model/MetadataRequest} The populated <code>MetadataRequest</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new MetadataRequest();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj) {
+	}
 
-            if (data.hasOwnProperty('metadata')) {
-                obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>MetadataRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/MetadataRequest} obj Optional instance to populate.
+	 * @return {module:model/MetadataRequest} The populated <code>MetadataRequest</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new MetadataRequest();
 
-    /**
-     * Validates the JSON data with respect to <code>MetadataRequest</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>MetadataRequest</code>.
-     */
-    static validateJSON(data) {
+			if (data.hasOwnProperty('metadata')) {
+				obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>MetadataRequest</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>MetadataRequest</code>.
+	 */
+	static validateJSON(data) {
+
+		return true;
+	}
 
 
 }
