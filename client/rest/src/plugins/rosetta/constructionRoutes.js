@@ -22,6 +22,10 @@
 import AccountIdentifier from './openApi/model/AccountIdentifier.js';
 import ConstructionDeriveRequest from './openApi/model/ConstructionDeriveRequest.js';
 import ConstructionDeriveResponse from './openApi/model/ConstructionDeriveResponse.js';
+import ConstructionMetadataRequest from './openApi/model/ConstructionMetadataRequest.js';
+import ConstructionMetadataResponse from './openApi/model/ConstructionMetadataResponse.js';
+import ConstructionPreprocessRequest from './openApi/model/ConstructionPreprocessRequest.js';
+import ConstructionPreprocessResponse from './openApi/model/ConstructionPreprocessResponse.js';
 import { errors, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
 import { NetworkLocator, PublicKey } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
@@ -30,6 +34,8 @@ export default {
 	register: (server, db, services) => {
 		const networkName = services.config.network.name;
 		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
+
+		const restUrl = `${services.config.rest.protocol}://localhost:${services.config.rest.port}`;
 
 		server.post('/construction/derive', rosettaPostRouteWithNetwork(networkName, ConstructionDeriveRequest, typedRequest => {
 			if ('edwards25519' !== typedRequest.public_key.curve_type)
@@ -45,6 +51,48 @@ export default {
 			} catch (err) {
 				return errors.INVALID_PUBLIC_KEY;
 			}
+		}));
+
+		server.post('/construction/preprocess', rosettaPostRouteWithNetwork(networkName, ConstructionPreprocessRequest, typedRequest => {
+			const response = new ConstructionPreprocessResponse();
+			response.options = {};
+			response.required_public_keys = [];
+
+			typedRequest.operations.forEach(operation => {
+				if ('transfer' === operation.type) {
+					if (0n > BigInt(operation.amount.value))
+						response.required_public_keys.push(operation.account);
+				} else if (['multisig', 'cosign'].includes(operation.type)) {
+					response.required_public_keys.push(operation.account);
+				}
+			});
+
+			return response;
+		}));
+
+		const getNetworkTime = async () => {
+			try {
+				const response = await fetch(`${restUrl}/node/time`);
+				if (!response.ok)
+					return undefined;
+
+				const timestamps = await response.json();
+				return timestamps.communicationTimestamps.receiveTimestamp;
+			} catch (err) {
+				return undefined;
+			}
+		};
+
+		server.post('/construction/metadata', rosettaPostRouteWithNetwork(networkName, ConstructionMetadataRequest, async () => {
+			// ignore request object because only global metadata is needed for transaction construction
+
+			const networkTime = await getNetworkTime();
+			if (undefined === networkTime)
+				return errors.CONNECTION_ERROR;
+
+			const response = new ConstructionMetadataResponse();
+			response.metadata = { networkTime };
+			return response;
 		}));
 	}
 };
