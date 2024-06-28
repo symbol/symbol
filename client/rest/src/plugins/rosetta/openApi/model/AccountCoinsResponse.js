@@ -21,81 +21,81 @@ import Coin from './Coin.js';
  * @version 1.4.13
  */
 class AccountCoinsResponse {
-    /**
-     * Constructs a new <code>AccountCoinsResponse</code>.
-     * AccountCoinsResponse is returned on the /account/coins endpoint and includes all unspent Coins owned by an AccountIdentifier.
-     * @alias module:model/AccountCoinsResponse
-     * @param blockIdentifier {module:model/BlockIdentifier} 
-     * @param coins {Array.<module:model/Coin>} If a blockchain is UTXO-based, all unspent Coins owned by an account_identifier should be returned alongside the balance. It is highly recommended to populate this field so that users of the Rosetta API implementation don't need to maintain their own indexer to track their UTXOs.
-     */
-    constructor(blockIdentifier, coins) { 
-        
-        AccountCoinsResponse.initialize(this, blockIdentifier, coins);
-    }
+	/**
+	 * Constructs a new <code>AccountCoinsResponse</code>.
+	 * AccountCoinsResponse is returned on the /account/coins endpoint and includes all unspent Coins owned by an AccountIdentifier.
+	 * @alias module:model/AccountCoinsResponse
+	 * @param blockIdentifier {module:model/BlockIdentifier}
+	 * @param coins {Array.<module:model/Coin>} If a blockchain is UTXO-based, all unspent Coins owned by an account_identifier should be returned alongside the balance. It is highly recommended to populate this field so that users of the Rosetta API implementation don't need to maintain their own indexer to track their UTXOs.
+	 */
+	constructor(blockIdentifier, coins) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, blockIdentifier, coins) { 
-        obj['block_identifier'] = blockIdentifier;
-        obj['coins'] = coins;
-    }
+		AccountCoinsResponse.initialize(this, blockIdentifier, coins);
+	}
 
-    /**
-     * Constructs a <code>AccountCoinsResponse</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/AccountCoinsResponse} obj Optional instance to populate.
-     * @return {module:model/AccountCoinsResponse} The populated <code>AccountCoinsResponse</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new AccountCoinsResponse();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, blockIdentifier, coins) {
+		obj['block_identifier'] = blockIdentifier;
+		obj['coins'] = coins;
+	}
 
-            if (data.hasOwnProperty('block_identifier')) {
-                obj['block_identifier'] = BlockIdentifier.constructFromObject(data['block_identifier']);
-            }
-            if (data.hasOwnProperty('coins')) {
-                obj['coins'] = ApiClient.convertToType(data['coins'], [Coin]);
-            }
-            if (data.hasOwnProperty('metadata')) {
-                obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>AccountCoinsResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/AccountCoinsResponse} obj Optional instance to populate.
+	 * @return {module:model/AccountCoinsResponse} The populated <code>AccountCoinsResponse</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new AccountCoinsResponse();
 
-    /**
-     * Validates the JSON data with respect to <code>AccountCoinsResponse</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>AccountCoinsResponse</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of AccountCoinsResponse.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // validate the optional field `block_identifier`
-        if (data['block_identifier']) { // data not null
-          BlockIdentifier.validateJSON(data['block_identifier']);
-        }
-        if (data['coins']) { // data not null
-            // ensure the json data is an array
-            if (!Array.isArray(data['coins'])) {
-                throw new Error("Expected the field `coins` to be an array in the JSON data but got " + data['coins']);
-            }
-            // validate the optional field `coins` (array)
-            for (const item of data['coins']) {
-                Coin.validateJSON(item);
-            };
-        }
+			if (data.hasOwnProperty('block_identifier')) {
+				obj['block_identifier'] = BlockIdentifier.constructFromObject(data['block_identifier']);
+			}
+			if (data.hasOwnProperty('coins')) {
+				obj['coins'] = ApiClient.convertToType(data['coins'], [Coin]);
+			}
+			if (data.hasOwnProperty('metadata')) {
+				obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>AccountCoinsResponse</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>AccountCoinsResponse</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of AccountCoinsResponse.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// validate the optional field `block_identifier`
+		if (data['block_identifier']) { // data not null
+		  BlockIdentifier.validateJSON(data['block_identifier']);
+		}
+		if (data['coins']) { // data not null
+			// ensure the json data is an array
+			if (!Array.isArray(data['coins'])) {
+				throw new Error("Expected the field `coins` to be an array in the JSON data but got " + data['coins']);
+			}
+			// validate the optional field `coins` (array)
+			for (const item of data['coins']) {
+				Coin.validateJSON(item);
+			};
+		}
+
+		return true;
+	}
 
 
 }

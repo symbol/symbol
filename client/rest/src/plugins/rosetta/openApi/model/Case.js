@@ -18,43 +18,43 @@ import ApiClient from '../ApiClient.js';
 * @readonly
 */
 export default class Case {
-    
-        /**
-         * value: "upper_case"
-         * @const
-         */
-        "upper_case" = "upper_case";
 
-    
-        /**
-         * value: "lower_case"
-         * @const
-         */
-        "lower_case" = "lower_case";
+		/**
+		 * value: "upper_case"
+		 * @const
+		 */
+		"upper_case" = "upper_case";
 
-    
-        /**
-         * value: "case_sensitive"
-         * @const
-         */
-        "case_sensitive" = "case_sensitive";
 
-    
-        /**
-         * value: "null"
-         * @const
-         */
-        "null" = "null";
+		/**
+		 * value: "lower_case"
+		 * @const
+		 */
+		"lower_case" = "lower_case";
 
-    
 
-    /**
-    * Returns a <code>Case</code> enum value from a Javascript object name.
-    * @param {Object} data The plain JavaScript object containing the name of the enum value.
-    * @return {module:model/Case} The enum <code>Case</code> value.
-    */
-    static constructFromObject(object) {
-        return object;
-    }
+		/**
+		 * value: "case_sensitive"
+		 * @const
+		 */
+		"case_sensitive" = "case_sensitive";
+
+
+		/**
+		 * value: "null"
+		 * @const
+		 */
+		"null" = "null";
+
+
+
+	/**
+	* Returns a <code>Case</code> enum value from a Javascript object name.
+	* @param {Object} data The plain JavaScript object containing the name of the enum value.
+	* @return {module:model/Case} The enum <code>Case</code> value.
+	*/
+	static constructFromObject(object) {
+		return object;
+	}
 }
 

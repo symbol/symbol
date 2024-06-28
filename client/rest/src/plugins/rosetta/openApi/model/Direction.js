@@ -18,29 +18,29 @@ import ApiClient from '../ApiClient.js';
 * @readonly
 */
 export default class Direction {
-    
-        /**
-         * value: "forward"
-         * @const
-         */
-        "forward" = "forward";
 
-    
-        /**
-         * value: "backward"
-         * @const
-         */
-        "backward" = "backward";
+		/**
+		 * value: "forward"
+		 * @const
+		 */
+		"forward" = "forward";
 
-    
 
-    /**
-    * Returns a <code>Direction</code> enum value from a Javascript object name.
-    * @param {Object} data The plain JavaScript object containing the name of the enum value.
-    * @return {module:model/Direction} The enum <code>Direction</code> value.
-    */
-    static constructFromObject(object) {
-        return object;
-    }
+		/**
+		 * value: "backward"
+		 * @const
+		 */
+		"backward" = "backward";
+
+
+
+	/**
+	* Returns a <code>Direction</code> enum value from a Javascript object name.
+	* @param {Object} data The plain JavaScript object containing the name of the enum value.
+	* @return {module:model/Direction} The enum <code>Direction</code> value.
+	*/
+	static constructFromObject(object) {
+		return object;
+	}
 }
 
