@@ -122,6 +122,10 @@ const registerRoutes = (server, db, services) => {
 	const servicesView = {
 		config: {
 			network: services.config.network,
+			rest: {
+				protocol: services.config.protocol,
+				port: services.config.port
+			},
 			pageSize: {
 				min: services.config.db.pageSizeMin || 10,
 				max: services.config.db.pageSizeMax || 100,

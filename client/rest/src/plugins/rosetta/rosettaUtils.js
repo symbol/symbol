@@ -27,10 +27,12 @@ export const errors = {
 	UNSUPPORTED_CURVE: new RosettaError(2, 'unsupported curve', false),
 
 	INVALID_PUBLIC_KEY: new RosettaError(3, 'invalid public key', false),
-	INVALID_REQUEST_DATA: new RosettaError(4, 'invalid request data', false)
+	INVALID_REQUEST_DATA: new RosettaError(4, 'invalid request data', false),
+
+	CONNECTION_ERROR: new RosettaError(5, 'unable to connect to network', true)
 };
 
-export const rosettaPostRouteWithNetwork = (networkName, Request, handler) => (req, res, next) => {
+export const rosettaPostRouteWithNetwork = (networkName, Request, handler) => async (req, res, next) => {
 	const send = data => {
 		const statusCode = data instanceof RosettaError ? 500 : undefined;
 		return sendJson(res, next)(data, statusCode);
@@ -47,6 +49,6 @@ export const rosettaPostRouteWithNetwork = (networkName, Request, handler) => (r
 	if (!checkNetwork(typedRequest.network_identifier))
 		return send(errors.UNSUPPORTED_NETWORK);
 
-	const response = handler(typedRequest);
+	const response = await handler(typedRequest);
 	return send(response);
 };
