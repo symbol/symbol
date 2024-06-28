@@ -25,102 +25,102 @@
 */
 class ApiClient {
 
-    /**
-    * Returns a boolean indicating if the parameter could be JSON.stringified
-    * @param param The actual parameter
-    * @returns {Boolean} Flag indicating if <code>param</code> can be JSON.stringified
-    */
-    static canBeJsonified(str) {
-        if (typeof str !== 'string' && typeof str !== 'object') return false;
-        try {
-            const type = str.toString();
-            return type === '[object Object]'
-                || type === '[object Array]';
-        } catch (err) {
-            return false;
-        }
-    };
+	/**
+	* Returns a boolean indicating if the parameter could be JSON.stringified
+	* @param param The actual parameter
+	* @returns {Boolean} Flag indicating if <code>param</code> can be JSON.stringified
+	*/
+	static canBeJsonified(str) {
+		if (typeof str !== 'string' && typeof str !== 'object') return false;
+		try {
+			const type = str.toString();
+			return type === '[object Object]'
+				|| type === '[object Array]';
+		} catch (err) {
+			return false;
+		}
+	};
 
 
-    /**
-    * Parses an ISO-8601 string representation or epoch representation of a date value.
-    * @param {String} str The date value as a string.
-    * @returns {Date} The parsed date object.
-    */
-    static parseDate(str) {
-        if (isNaN(str)) {
-            return new Date(str.replace(/(\d)(T)(\d)/i, '$1 $3'));
-        }
-        return new Date(+str);
-    }
+	/**
+	* Parses an ISO-8601 string representation or epoch representation of a date value.
+	* @param {String} str The date value as a string.
+	* @returns {Date} The parsed date object.
+	*/
+	static parseDate(str) {
+		if (isNaN(str)) {
+			return new Date(str.replace(/(\d)(T)(\d)/i, '$1 $3'));
+		}
+		return new Date(+str);
+	}
 
-    /**
-    * Converts a value to the specified type.
-    * @param {(String|Object)} data The data to convert, as a string or object.
-    * @param {(String|Array.<String>|Object.<String, Object>|Function)} type The type to return. Pass a string for simple types
-    * or the constructor function for a complex type. Pass an array containing the type name to return an array of that type. To
-    * return an object, pass an object with one property whose name is the key type and whose value is the corresponding value type:
-    * all properties on <code>data<code> will be converted to this type.
-    * @returns An instance of the specified type or null or undefined if data is null or undefined.
-    */
-    static convertToType(data, type) {
-        if (data === null || data === undefined)
-            return data
+	/**
+	* Converts a value to the specified type.
+	* @param {(String|Object)} data The data to convert, as a string or object.
+	* @param {(String|Array.<String>|Object.<String, Object>|Function)} type The type to return. Pass a string for simple types
+	* or the constructor function for a complex type. Pass an array containing the type name to return an array of that type. To
+	* return an object, pass an object with one property whose name is the key type and whose value is the corresponding value type:
+	* all properties on <code>data<code> will be converted to this type.
+	* @returns An instance of the specified type or null or undefined if data is null or undefined.
+	*/
+	static convertToType(data, type) {
+		if (data === null || data === undefined)
+			return data
 
-        switch (type) {
-            case 'Boolean':
-                return Boolean(data);
-            case 'Integer':
-                return parseInt(data, 10);
-            case 'Number':
-                return parseFloat(data);
-            case 'String':
-                return String(data);
-            case 'Date':
-                return ApiClient.parseDate(String(data));
-            case 'Blob':
-                return data;
-            default:
-                if (type === Object) {
-                    // generic object, return directly
-                    return data;
-                } else if (typeof type.constructFromObject === 'function') {
-                    // for model type like User and enum class
-                    return type.constructFromObject(data);
-                } else if (Array.isArray(type)) {
-                    // for array type like: ['String']
-                    var itemType = type[0];
+		switch (type) {
+			case 'Boolean':
+				return Boolean(data);
+			case 'Integer':
+				return parseInt(data, 10);
+			case 'Number':
+				return parseFloat(data);
+			case 'String':
+				return String(data);
+			case 'Date':
+				return ApiClient.parseDate(String(data));
+			case 'Blob':
+				return data;
+			default:
+				if (type === Object) {
+					// generic object, return directly
+					return data;
+				} else if (typeof type.constructFromObject === 'function') {
+					// for model type like User and enum class
+					return type.constructFromObject(data);
+				} else if (Array.isArray(type)) {
+					// for array type like: ['String']
+					var itemType = type[0];
 
-                    return data.map((item) => {
-                        return ApiClient.convertToType(item, itemType);
-                    });
-                } else if (typeof type === 'object') {
-                    // for plain object type like: {'String': 'Integer'}
-                    var keyType, valueType;
-                    for (var k in type) {
-                        if (type.hasOwnProperty(k)) {
-                            keyType = k;
-                            valueType = type[k];
-                            break;
-                        }
-                    }
+					return data.map((item) => {
+						return ApiClient.convertToType(item, itemType);
+					});
+				} else if (typeof type === 'object') {
+					// for plain object type like: {'String': 'Integer'}
+					var keyType, valueType;
+					for (var k in type) {
+						if (type.hasOwnProperty(k)) {
+							keyType = k;
+							valueType = type[k];
+							break;
+						}
+					}
 
-                    var result = {};
-                    for (var k in data) {
-                        if (data.hasOwnProperty(k)) {
-                            var key = ApiClient.convertToType(k, keyType);
-                            var value = ApiClient.convertToType(data[k], valueType);
-                            result[key] = value;
-                        }
-                    }
+					var result = {};
+					for (var k in data) {
+						if (data.hasOwnProperty(k)) {
+							var key = ApiClient.convertToType(k, keyType);
+							var value = ApiClient.convertToType(data[k], valueType);
+							result[key] = value;
+						}
+					}
 
-                    return result;
-                } else {
-                    // for unknown type, return the data directly
-                    return data;
-                }
-        }
-    }
+					return result;
+				} else {
+					// for unknown type, return the data directly
+					return data;
+				}
+		}
+	}
 }
 
 /**
