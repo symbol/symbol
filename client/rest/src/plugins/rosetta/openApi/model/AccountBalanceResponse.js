@@ -21,81 +21,81 @@ import BlockIdentifier from './BlockIdentifier.js';
  * @version 1.4.13
  */
 class AccountBalanceResponse {
-    /**
-     * Constructs a new <code>AccountBalanceResponse</code>.
-     * An AccountBalanceResponse is returned on the /account/balance endpoint. If an account has a balance for each AccountIdentifier describing it (ex: an ERC-20 token balance on a few smart contracts), an account balance request must be made with each AccountIdentifier. The &#x60;coins&#x60; field was removed and replaced by by &#x60;/account/coins&#x60; in &#x60;v1.4.7&#x60;.
-     * @alias module:model/AccountBalanceResponse
-     * @param blockIdentifier {module:model/BlockIdentifier} 
-     * @param balances {Array.<module:model/Amount>} A single account may have a balance in multiple currencies.
-     */
-    constructor(blockIdentifier, balances) { 
-        
-        AccountBalanceResponse.initialize(this, blockIdentifier, balances);
-    }
+	/**
+	 * Constructs a new <code>AccountBalanceResponse</code>.
+	 * An AccountBalanceResponse is returned on the /account/balance endpoint. If an account has a balance for each AccountIdentifier describing it (ex: an ERC-20 token balance on a few smart contracts), an account balance request must be made with each AccountIdentifier. The &#x60;coins&#x60; field was removed and replaced by by &#x60;/account/coins&#x60; in &#x60;v1.4.7&#x60;.
+	 * @alias module:model/AccountBalanceResponse
+	 * @param blockIdentifier {module:model/BlockIdentifier}
+	 * @param balances {Array.<module:model/Amount>} A single account may have a balance in multiple currencies.
+	 */
+	constructor(blockIdentifier, balances) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, blockIdentifier, balances) { 
-        obj['block_identifier'] = blockIdentifier;
-        obj['balances'] = balances;
-    }
+		AccountBalanceResponse.initialize(this, blockIdentifier, balances);
+	}
 
-    /**
-     * Constructs a <code>AccountBalanceResponse</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/AccountBalanceResponse} obj Optional instance to populate.
-     * @return {module:model/AccountBalanceResponse} The populated <code>AccountBalanceResponse</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new AccountBalanceResponse();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, blockIdentifier, balances) {
+		obj['block_identifier'] = blockIdentifier;
+		obj['balances'] = balances;
+	}
 
-            if (data.hasOwnProperty('block_identifier')) {
-                obj['block_identifier'] = BlockIdentifier.constructFromObject(data['block_identifier']);
-            }
-            if (data.hasOwnProperty('balances')) {
-                obj['balances'] = ApiClient.convertToType(data['balances'], [Amount]);
-            }
-            if (data.hasOwnProperty('metadata')) {
-                obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>AccountBalanceResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/AccountBalanceResponse} obj Optional instance to populate.
+	 * @return {module:model/AccountBalanceResponse} The populated <code>AccountBalanceResponse</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new AccountBalanceResponse();
 
-    /**
-     * Validates the JSON data with respect to <code>AccountBalanceResponse</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>AccountBalanceResponse</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of AccountBalanceResponse.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // validate the optional field `block_identifier`
-        if (data['block_identifier']) { // data not null
-          BlockIdentifier.validateJSON(data['block_identifier']);
-        }
-        if (data['balances']) { // data not null
-            // ensure the json data is an array
-            if (!Array.isArray(data['balances'])) {
-                throw new Error("Expected the field `balances` to be an array in the JSON data but got " + data['balances']);
-            }
-            // validate the optional field `balances` (array)
-            for (const item of data['balances']) {
-                Amount.validateJSON(item);
-            };
-        }
+			if (data.hasOwnProperty('block_identifier')) {
+				obj['block_identifier'] = BlockIdentifier.constructFromObject(data['block_identifier']);
+			}
+			if (data.hasOwnProperty('balances')) {
+				obj['balances'] = ApiClient.convertToType(data['balances'], [Amount]);
+			}
+			if (data.hasOwnProperty('metadata')) {
+				obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>AccountBalanceResponse</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>AccountBalanceResponse</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of AccountBalanceResponse.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// validate the optional field `block_identifier`
+		if (data['block_identifier']) { // data not null
+		  BlockIdentifier.validateJSON(data['block_identifier']);
+		}
+		if (data['balances']) { // data not null
+			// ensure the json data is an array
+			if (!Array.isArray(data['balances'])) {
+				throw new Error("Expected the field `balances` to be an array in the JSON data but got " + data['balances']);
+			}
+			// validate the optional field `balances` (array)
+			for (const item of data['balances']) {
+				Amount.validateJSON(item);
+			};
+		}
+
+		return true;
+	}
 
 
 }
