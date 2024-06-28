@@ -20,68 +20,68 @@ import CurveType from './CurveType.js';
  * @version 1.4.13
  */
 class PublicKey {
-    /**
-     * Constructs a new <code>PublicKey</code>.
-     * PublicKey contains a public key byte array for a particular CurveType encoded in hex. Note that there is no PrivateKey struct as this is NEVER the concern of an implementation.
-     * @alias module:model/PublicKey
-     * @param hexBytes {String} Hex-encoded public key bytes in the format specified by the CurveType.
-     * @param curveType {module:model/CurveType} 
-     */
-    constructor(hexBytes, curveType) { 
-        
-        PublicKey.initialize(this, hexBytes, curveType);
-    }
+	/**
+	 * Constructs a new <code>PublicKey</code>.
+	 * PublicKey contains a public key byte array for a particular CurveType encoded in hex. Note that there is no PrivateKey struct as this is NEVER the concern of an implementation.
+	 * @alias module:model/PublicKey
+	 * @param hexBytes {String} Hex-encoded public key bytes in the format specified by the CurveType.
+	 * @param curveType {module:model/CurveType}
+	 */
+	constructor(hexBytes, curveType) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, hexBytes, curveType) { 
-        obj['hex_bytes'] = hexBytes;
-        obj['curve_type'] = curveType;
-    }
+		PublicKey.initialize(this, hexBytes, curveType);
+	}
 
-    /**
-     * Constructs a <code>PublicKey</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/PublicKey} obj Optional instance to populate.
-     * @return {module:model/PublicKey} The populated <code>PublicKey</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new PublicKey();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, hexBytes, curveType) {
+		obj['hex_bytes'] = hexBytes;
+		obj['curve_type'] = curveType;
+	}
 
-            if (data.hasOwnProperty('hex_bytes')) {
-                obj['hex_bytes'] = ApiClient.convertToType(data['hex_bytes'], 'String');
-            }
-            if (data.hasOwnProperty('curve_type')) {
-                obj['curve_type'] = CurveType.constructFromObject(data['curve_type']);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>PublicKey</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/PublicKey} obj Optional instance to populate.
+	 * @return {module:model/PublicKey} The populated <code>PublicKey</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new PublicKey();
 
-    /**
-     * Validates the JSON data with respect to <code>PublicKey</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>PublicKey</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of PublicKey.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // ensure the json data is a string
-        if (data['hex_bytes'] && !(typeof data['hex_bytes'] === 'string' || data['hex_bytes'] instanceof String)) {
-            throw new Error("Expected the field `hex_bytes` to be a primitive type in the JSON string but got " + data['hex_bytes']);
-        }
+			if (data.hasOwnProperty('hex_bytes')) {
+				obj['hex_bytes'] = ApiClient.convertToType(data['hex_bytes'], 'String');
+			}
+			if (data.hasOwnProperty('curve_type')) {
+				obj['curve_type'] = CurveType.constructFromObject(data['curve_type']);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>PublicKey</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>PublicKey</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of PublicKey.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// ensure the json data is a string
+		if (data['hex_bytes'] && !(typeof data['hex_bytes'] === 'string' || data['hex_bytes'] instanceof String)) {
+			throw new Error("Expected the field `hex_bytes` to be a primitive type in the JSON string but got " + data['hex_bytes']);
+		}
+
+		return true;
+	}
 
 
 }

@@ -20,73 +20,73 @@ import SubAccountIdentifier from './SubAccountIdentifier.js';
  * @version 1.4.13
  */
 class AccountIdentifier {
-    /**
-     * Constructs a new <code>AccountIdentifier</code>.
-     * The account_identifier uniquely identifies an account within a network. All fields in the account_identifier are utilized to determine this uniqueness (including the metadata field, if populated).
-     * @alias module:model/AccountIdentifier
-     * @param address {String} The address may be a cryptographic public key (or some encoding of it) or a provided username.
-     */
-    constructor(address) { 
-        
-        AccountIdentifier.initialize(this, address);
-    }
+	/**
+	 * Constructs a new <code>AccountIdentifier</code>.
+	 * The account_identifier uniquely identifies an account within a network. All fields in the account_identifier are utilized to determine this uniqueness (including the metadata field, if populated).
+	 * @alias module:model/AccountIdentifier
+	 * @param address {String} The address may be a cryptographic public key (or some encoding of it) or a provided username.
+	 */
+	constructor(address) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, address) { 
-        obj['address'] = address;
-    }
+		AccountIdentifier.initialize(this, address);
+	}
 
-    /**
-     * Constructs a <code>AccountIdentifier</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/AccountIdentifier} obj Optional instance to populate.
-     * @return {module:model/AccountIdentifier} The populated <code>AccountIdentifier</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new AccountIdentifier();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, address) {
+		obj['address'] = address;
+	}
 
-            if (data.hasOwnProperty('address')) {
-                obj['address'] = ApiClient.convertToType(data['address'], 'String');
-            }
-            if (data.hasOwnProperty('sub_account')) {
-                obj['sub_account'] = SubAccountIdentifier.constructFromObject(data['sub_account']);
-            }
-            if (data.hasOwnProperty('metadata')) {
-                obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>AccountIdentifier</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/AccountIdentifier} obj Optional instance to populate.
+	 * @return {module:model/AccountIdentifier} The populated <code>AccountIdentifier</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new AccountIdentifier();
 
-    /**
-     * Validates the JSON data with respect to <code>AccountIdentifier</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>AccountIdentifier</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of AccountIdentifier.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // ensure the json data is a string
-        if (data['address'] && !(typeof data['address'] === 'string' || data['address'] instanceof String)) {
-            throw new Error("Expected the field `address` to be a primitive type in the JSON string but got " + data['address']);
-        }
-        // validate the optional field `sub_account`
-        if (data['sub_account']) { // data not null
-          SubAccountIdentifier.validateJSON(data['sub_account']);
-        }
+			if (data.hasOwnProperty('address')) {
+				obj['address'] = ApiClient.convertToType(data['address'], 'String');
+			}
+			if (data.hasOwnProperty('sub_account')) {
+				obj['sub_account'] = SubAccountIdentifier.constructFromObject(data['sub_account']);
+			}
+			if (data.hasOwnProperty('metadata')) {
+				obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>AccountIdentifier</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>AccountIdentifier</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of AccountIdentifier.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// ensure the json data is a string
+		if (data['address'] && !(typeof data['address'] === 'string' || data['address'] instanceof String)) {
+			throw new Error("Expected the field `address` to be a primitive type in the JSON string but got " + data['address']);
+		}
+		// validate the optional field `sub_account`
+		if (data['sub_account']) { // data not null
+		  SubAccountIdentifier.validateJSON(data['sub_account']);
+		}
+
+		return true;
+	}
 
 
 }

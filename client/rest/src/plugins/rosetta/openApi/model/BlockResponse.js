@@ -21,68 +21,68 @@ import TransactionIdentifier from './TransactionIdentifier.js';
  * @version 1.4.13
  */
 class BlockResponse {
-    /**
-     * Constructs a new <code>BlockResponse</code>.
-     * A BlockResponse includes a fully-populated block or a partially-populated block with a list of other transactions to fetch (other_transactions). As a result of the consensus algorithm of some blockchains, blocks can be omitted (i.e. certain block indices can be skipped). If a query for one of these omitted indices is made, the response should not include a &#x60;Block&#x60; object. It is VERY important to note that blocks MUST still form a canonical, connected chain of blocks where each block has a unique index. In other words, the &#x60;PartialBlockIdentifier&#x60; of a block after an omitted block should reference the last non-omitted block.
-     * @alias module:model/BlockResponse
-     */
-    constructor() { 
-        
-        BlockResponse.initialize(this);
-    }
+	/**
+	 * Constructs a new <code>BlockResponse</code>.
+	 * A BlockResponse includes a fully-populated block or a partially-populated block with a list of other transactions to fetch (other_transactions). As a result of the consensus algorithm of some blockchains, blocks can be omitted (i.e. certain block indices can be skipped). If a query for one of these omitted indices is made, the response should not include a &#x60;Block&#x60; object. It is VERY important to note that blocks MUST still form a canonical, connected chain of blocks where each block has a unique index. In other words, the &#x60;PartialBlockIdentifier&#x60; of a block after an omitted block should reference the last non-omitted block.
+	 * @alias module:model/BlockResponse
+	 */
+	constructor() {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj) { 
-    }
+		BlockResponse.initialize(this);
+	}
 
-    /**
-     * Constructs a <code>BlockResponse</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/BlockResponse} obj Optional instance to populate.
-     * @return {module:model/BlockResponse} The populated <code>BlockResponse</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new BlockResponse();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj) {
+	}
 
-            if (data.hasOwnProperty('block')) {
-                obj['block'] = Block.constructFromObject(data['block']);
-            }
-            if (data.hasOwnProperty('other_transactions')) {
-                obj['other_transactions'] = ApiClient.convertToType(data['other_transactions'], [TransactionIdentifier]);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>BlockResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/BlockResponse} obj Optional instance to populate.
+	 * @return {module:model/BlockResponse} The populated <code>BlockResponse</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new BlockResponse();
 
-    /**
-     * Validates the JSON data with respect to <code>BlockResponse</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>BlockResponse</code>.
-     */
-    static validateJSON(data) {
-        // validate the optional field `block`
-        if (data['block']) { // data not null
-          Block.validateJSON(data['block']);
-        }
-        if (data['other_transactions']) { // data not null
-            // ensure the json data is an array
-            if (!Array.isArray(data['other_transactions'])) {
-                throw new Error("Expected the field `other_transactions` to be an array in the JSON data but got " + data['other_transactions']);
-            }
-            // validate the optional field `other_transactions` (array)
-            for (const item of data['other_transactions']) {
-                TransactionIdentifier.validateJSON(item);
-            };
-        }
+			if (data.hasOwnProperty('block')) {
+				obj['block'] = Block.constructFromObject(data['block']);
+			}
+			if (data.hasOwnProperty('other_transactions')) {
+				obj['other_transactions'] = ApiClient.convertToType(data['other_transactions'], [TransactionIdentifier]);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>BlockResponse</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>BlockResponse</code>.
+	 */
+	static validateJSON(data) {
+		// validate the optional field `block`
+		if (data['block']) { // data not null
+		  Block.validateJSON(data['block']);
+		}
+		if (data['other_transactions']) { // data not null
+			// ensure the json data is an array
+			if (!Array.isArray(data['other_transactions'])) {
+				throw new Error("Expected the field `other_transactions` to be an array in the JSON data but got " + data['other_transactions']);
+			}
+			// validate the optional field `other_transactions` (array)
+			for (const item of data['other_transactions']) {
+				TransactionIdentifier.validateJSON(item);
+			};
+		}
+
+		return true;
+	}
 
 
 }

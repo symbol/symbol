@@ -25,127 +25,127 @@ import TransactionIdentifier from './TransactionIdentifier.js';
  * @version 1.4.13
  */
 class SearchTransactionsRequest {
-    /**
-     * Constructs a new <code>SearchTransactionsRequest</code>.
-     * SearchTransactionsRequest is used to search for transactions matching a set of provided conditions in canonical blocks.
-     * @alias module:model/SearchTransactionsRequest
-     * @param networkIdentifier {module:model/NetworkIdentifier} 
-     */
-    constructor(networkIdentifier) { 
-        
-        SearchTransactionsRequest.initialize(this, networkIdentifier);
-    }
+	/**
+	 * Constructs a new <code>SearchTransactionsRequest</code>.
+	 * SearchTransactionsRequest is used to search for transactions matching a set of provided conditions in canonical blocks.
+	 * @alias module:model/SearchTransactionsRequest
+	 * @param networkIdentifier {module:model/NetworkIdentifier}
+	 */
+	constructor(networkIdentifier) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, networkIdentifier) { 
-        obj['network_identifier'] = networkIdentifier;
-    }
+		SearchTransactionsRequest.initialize(this, networkIdentifier);
+	}
 
-    /**
-     * Constructs a <code>SearchTransactionsRequest</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/SearchTransactionsRequest} obj Optional instance to populate.
-     * @return {module:model/SearchTransactionsRequest} The populated <code>SearchTransactionsRequest</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new SearchTransactionsRequest();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, networkIdentifier) {
+		obj['network_identifier'] = networkIdentifier;
+	}
 
-            if (data.hasOwnProperty('network_identifier')) {
-                obj['network_identifier'] = NetworkIdentifier.constructFromObject(data['network_identifier']);
-            }
-            if (data.hasOwnProperty('operator')) {
-                obj['operator'] = Operator.constructFromObject(data['operator']);
-            }
-            if (data.hasOwnProperty('max_block')) {
-                obj['max_block'] = ApiClient.convertToType(data['max_block'], 'Number');
-            }
-            if (data.hasOwnProperty('offset')) {
-                obj['offset'] = ApiClient.convertToType(data['offset'], 'Number');
-            }
-            if (data.hasOwnProperty('limit')) {
-                obj['limit'] = ApiClient.convertToType(data['limit'], 'Number');
-            }
-            if (data.hasOwnProperty('transaction_identifier')) {
-                obj['transaction_identifier'] = TransactionIdentifier.constructFromObject(data['transaction_identifier']);
-            }
-            if (data.hasOwnProperty('account_identifier')) {
-                obj['account_identifier'] = AccountIdentifier.constructFromObject(data['account_identifier']);
-            }
-            if (data.hasOwnProperty('coin_identifier')) {
-                obj['coin_identifier'] = CoinIdentifier.constructFromObject(data['coin_identifier']);
-            }
-            if (data.hasOwnProperty('currency')) {
-                obj['currency'] = Currency.constructFromObject(data['currency']);
-            }
-            if (data.hasOwnProperty('status')) {
-                obj['status'] = ApiClient.convertToType(data['status'], 'String');
-            }
-            if (data.hasOwnProperty('type')) {
-                obj['type'] = ApiClient.convertToType(data['type'], 'String');
-            }
-            if (data.hasOwnProperty('address')) {
-                obj['address'] = ApiClient.convertToType(data['address'], 'String');
-            }
-            if (data.hasOwnProperty('success')) {
-                obj['success'] = ApiClient.convertToType(data['success'], 'Boolean');
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>SearchTransactionsRequest</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/SearchTransactionsRequest} obj Optional instance to populate.
+	 * @return {module:model/SearchTransactionsRequest} The populated <code>SearchTransactionsRequest</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new SearchTransactionsRequest();
 
-    /**
-     * Validates the JSON data with respect to <code>SearchTransactionsRequest</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>SearchTransactionsRequest</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of SearchTransactionsRequest.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // validate the optional field `network_identifier`
-        if (data['network_identifier']) { // data not null
-          NetworkIdentifier.validateJSON(data['network_identifier']);
-        }
-        // validate the optional field `transaction_identifier`
-        if (data['transaction_identifier']) { // data not null
-          TransactionIdentifier.validateJSON(data['transaction_identifier']);
-        }
-        // validate the optional field `account_identifier`
-        if (data['account_identifier']) { // data not null
-          AccountIdentifier.validateJSON(data['account_identifier']);
-        }
-        // validate the optional field `coin_identifier`
-        if (data['coin_identifier']) { // data not null
-          CoinIdentifier.validateJSON(data['coin_identifier']);
-        }
-        // validate the optional field `currency`
-        if (data['currency']) { // data not null
-          Currency.validateJSON(data['currency']);
-        }
-        // ensure the json data is a string
-        if (data['status'] && !(typeof data['status'] === 'string' || data['status'] instanceof String)) {
-            throw new Error("Expected the field `status` to be a primitive type in the JSON string but got " + data['status']);
-        }
-        // ensure the json data is a string
-        if (data['type'] && !(typeof data['type'] === 'string' || data['type'] instanceof String)) {
-            throw new Error("Expected the field `type` to be a primitive type in the JSON string but got " + data['type']);
-        }
-        // ensure the json data is a string
-        if (data['address'] && !(typeof data['address'] === 'string' || data['address'] instanceof String)) {
-            throw new Error("Expected the field `address` to be a primitive type in the JSON string but got " + data['address']);
-        }
+			if (data.hasOwnProperty('network_identifier')) {
+				obj['network_identifier'] = NetworkIdentifier.constructFromObject(data['network_identifier']);
+			}
+			if (data.hasOwnProperty('operator')) {
+				obj['operator'] = Operator.constructFromObject(data['operator']);
+			}
+			if (data.hasOwnProperty('max_block')) {
+				obj['max_block'] = ApiClient.convertToType(data['max_block'], 'Number');
+			}
+			if (data.hasOwnProperty('offset')) {
+				obj['offset'] = ApiClient.convertToType(data['offset'], 'Number');
+			}
+			if (data.hasOwnProperty('limit')) {
+				obj['limit'] = ApiClient.convertToType(data['limit'], 'Number');
+			}
+			if (data.hasOwnProperty('transaction_identifier')) {
+				obj['transaction_identifier'] = TransactionIdentifier.constructFromObject(data['transaction_identifier']);
+			}
+			if (data.hasOwnProperty('account_identifier')) {
+				obj['account_identifier'] = AccountIdentifier.constructFromObject(data['account_identifier']);
+			}
+			if (data.hasOwnProperty('coin_identifier')) {
+				obj['coin_identifier'] = CoinIdentifier.constructFromObject(data['coin_identifier']);
+			}
+			if (data.hasOwnProperty('currency')) {
+				obj['currency'] = Currency.constructFromObject(data['currency']);
+			}
+			if (data.hasOwnProperty('status')) {
+				obj['status'] = ApiClient.convertToType(data['status'], 'String');
+			}
+			if (data.hasOwnProperty('type')) {
+				obj['type'] = ApiClient.convertToType(data['type'], 'String');
+			}
+			if (data.hasOwnProperty('address')) {
+				obj['address'] = ApiClient.convertToType(data['address'], 'String');
+			}
+			if (data.hasOwnProperty('success')) {
+				obj['success'] = ApiClient.convertToType(data['success'], 'Boolean');
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>SearchTransactionsRequest</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>SearchTransactionsRequest</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of SearchTransactionsRequest.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// validate the optional field `network_identifier`
+		if (data['network_identifier']) { // data not null
+		  NetworkIdentifier.validateJSON(data['network_identifier']);
+		}
+		// validate the optional field `transaction_identifier`
+		if (data['transaction_identifier']) { // data not null
+		  TransactionIdentifier.validateJSON(data['transaction_identifier']);
+		}
+		// validate the optional field `account_identifier`
+		if (data['account_identifier']) { // data not null
+		  AccountIdentifier.validateJSON(data['account_identifier']);
+		}
+		// validate the optional field `coin_identifier`
+		if (data['coin_identifier']) { // data not null
+		  CoinIdentifier.validateJSON(data['coin_identifier']);
+		}
+		// validate the optional field `currency`
+		if (data['currency']) { // data not null
+		  Currency.validateJSON(data['currency']);
+		}
+		// ensure the json data is a string
+		if (data['status'] && !(typeof data['status'] === 'string' || data['status'] instanceof String)) {
+			throw new Error("Expected the field `status` to be a primitive type in the JSON string but got " + data['status']);
+		}
+		// ensure the json data is a string
+		if (data['type'] && !(typeof data['type'] === 'string' || data['type'] instanceof String)) {
+			throw new Error("Expected the field `type` to be a primitive type in the JSON string but got " + data['type']);
+		}
+		// ensure the json data is a string
+		if (data['address'] && !(typeof data['address'] === 'string' || data['address'] instanceof String)) {
+			throw new Error("Expected the field `address` to be a primitive type in the JSON string but got " + data['address']);
+		}
+
+		return true;
+	}
 
 
 }

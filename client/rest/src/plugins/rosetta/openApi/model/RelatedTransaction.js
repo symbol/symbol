@@ -22,75 +22,75 @@ import TransactionIdentifier from './TransactionIdentifier.js';
  * @version 1.4.13
  */
 class RelatedTransaction {
-    /**
-     * Constructs a new <code>RelatedTransaction</code>.
-     * The related_transaction allows implementations to link together multiple transactions. An unpopulated network identifier indicates that the related transaction is on the same network.
-     * @alias module:model/RelatedTransaction
-     * @param transactionIdentifier {module:model/TransactionIdentifier} 
-     * @param direction {module:model/Direction} 
-     */
-    constructor(transactionIdentifier, direction) { 
-        
-        RelatedTransaction.initialize(this, transactionIdentifier, direction);
-    }
+	/**
+	 * Constructs a new <code>RelatedTransaction</code>.
+	 * The related_transaction allows implementations to link together multiple transactions. An unpopulated network identifier indicates that the related transaction is on the same network.
+	 * @alias module:model/RelatedTransaction
+	 * @param transactionIdentifier {module:model/TransactionIdentifier}
+	 * @param direction {module:model/Direction}
+	 */
+	constructor(transactionIdentifier, direction) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, transactionIdentifier, direction) { 
-        obj['transaction_identifier'] = transactionIdentifier;
-        obj['direction'] = direction;
-    }
+		RelatedTransaction.initialize(this, transactionIdentifier, direction);
+	}
 
-    /**
-     * Constructs a <code>RelatedTransaction</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/RelatedTransaction} obj Optional instance to populate.
-     * @return {module:model/RelatedTransaction} The populated <code>RelatedTransaction</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new RelatedTransaction();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, transactionIdentifier, direction) {
+		obj['transaction_identifier'] = transactionIdentifier;
+		obj['direction'] = direction;
+	}
 
-            if (data.hasOwnProperty('network_identifier')) {
-                obj['network_identifier'] = NetworkIdentifier.constructFromObject(data['network_identifier']);
-            }
-            if (data.hasOwnProperty('transaction_identifier')) {
-                obj['transaction_identifier'] = TransactionIdentifier.constructFromObject(data['transaction_identifier']);
-            }
-            if (data.hasOwnProperty('direction')) {
-                obj['direction'] = Direction.constructFromObject(data['direction']);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>RelatedTransaction</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/RelatedTransaction} obj Optional instance to populate.
+	 * @return {module:model/RelatedTransaction} The populated <code>RelatedTransaction</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new RelatedTransaction();
 
-    /**
-     * Validates the JSON data with respect to <code>RelatedTransaction</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>RelatedTransaction</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of RelatedTransaction.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // validate the optional field `network_identifier`
-        if (data['network_identifier']) { // data not null
-          NetworkIdentifier.validateJSON(data['network_identifier']);
-        }
-        // validate the optional field `transaction_identifier`
-        if (data['transaction_identifier']) { // data not null
-          TransactionIdentifier.validateJSON(data['transaction_identifier']);
-        }
+			if (data.hasOwnProperty('network_identifier')) {
+				obj['network_identifier'] = NetworkIdentifier.constructFromObject(data['network_identifier']);
+			}
+			if (data.hasOwnProperty('transaction_identifier')) {
+				obj['transaction_identifier'] = TransactionIdentifier.constructFromObject(data['transaction_identifier']);
+			}
+			if (data.hasOwnProperty('direction')) {
+				obj['direction'] = Direction.constructFromObject(data['direction']);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>RelatedTransaction</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>RelatedTransaction</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of RelatedTransaction.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// validate the optional field `network_identifier`
+		if (data['network_identifier']) { // data not null
+		  NetworkIdentifier.validateJSON(data['network_identifier']);
+		}
+		// validate the optional field `transaction_identifier`
+		if (data['transaction_identifier']) { // data not null
+		  TransactionIdentifier.validateJSON(data['transaction_identifier']);
+		}
+
+		return true;
+	}
 
 
 }

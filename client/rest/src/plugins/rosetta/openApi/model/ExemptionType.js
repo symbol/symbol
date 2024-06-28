@@ -18,36 +18,36 @@ import ApiClient from '../ApiClient.js';
 * @readonly
 */
 export default class ExemptionType {
-    
-        /**
-         * value: "greater_or_equal"
-         * @const
-         */
-        "greater_or_equal" = "greater_or_equal";
 
-    
-        /**
-         * value: "less_or_equal"
-         * @const
-         */
-        "less_or_equal" = "less_or_equal";
+		/**
+		 * value: "greater_or_equal"
+		 * @const
+		 */
+		"greater_or_equal" = "greater_or_equal";
 
-    
-        /**
-         * value: "dynamic"
-         * @const
-         */
-        "dynamic" = "dynamic";
 
-    
+		/**
+		 * value: "less_or_equal"
+		 * @const
+		 */
+		"less_or_equal" = "less_or_equal";
 
-    /**
-    * Returns a <code>ExemptionType</code> enum value from a Javascript object name.
-    * @param {Object} data The plain JavaScript object containing the name of the enum value.
-    * @return {module:model/ExemptionType} The enum <code>ExemptionType</code> value.
-    */
-    static constructFromObject(object) {
-        return object;
-    }
+
+		/**
+		 * value: "dynamic"
+		 * @const
+		 */
+		"dynamic" = "dynamic";
+
+
+
+	/**
+	* Returns a <code>ExemptionType</code> enum value from a Javascript object name.
+	* @param {Object} data The plain JavaScript object containing the name of the enum value.
+	* @return {module:model/ExemptionType} The enum <code>ExemptionType</code> value.
+	*/
+	static constructFromObject(object) {
+		return object;
+	}
 }
 

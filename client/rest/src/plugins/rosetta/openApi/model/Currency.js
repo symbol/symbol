@@ -19,71 +19,71 @@ import ApiClient from '../ApiClient.js';
  * @version 1.4.13
  */
 class Currency {
-    /**
-     * Constructs a new <code>Currency</code>.
-     * Currency is composed of a canonical Symbol and Decimals. This Decimals value is used to convert an Amount.Value from atomic units (Satoshis) to standard units (Bitcoins).
-     * @alias module:model/Currency
-     * @param symbol {String} Canonical symbol associated with a currency.
-     * @param decimals {Number} Number of decimal places in the standard unit representation of the amount. For example, BTC has 8 decimals. Note that it is not possible to represent the value of some currency in atomic units that is not base 10.
-     */
-    constructor(symbol, decimals) { 
-        
-        Currency.initialize(this, symbol, decimals);
-    }
+	/**
+	 * Constructs a new <code>Currency</code>.
+	 * Currency is composed of a canonical Symbol and Decimals. This Decimals value is used to convert an Amount.Value from atomic units (Satoshis) to standard units (Bitcoins).
+	 * @alias module:model/Currency
+	 * @param symbol {String} Canonical symbol associated with a currency.
+	 * @param decimals {Number} Number of decimal places in the standard unit representation of the amount. For example, BTC has 8 decimals. Note that it is not possible to represent the value of some currency in atomic units that is not base 10.
+	 */
+	constructor(symbol, decimals) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, symbol, decimals) { 
-        obj['symbol'] = symbol;
-        obj['decimals'] = decimals;
-    }
+		Currency.initialize(this, symbol, decimals);
+	}
 
-    /**
-     * Constructs a <code>Currency</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/Currency} obj Optional instance to populate.
-     * @return {module:model/Currency} The populated <code>Currency</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new Currency();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, symbol, decimals) {
+		obj['symbol'] = symbol;
+		obj['decimals'] = decimals;
+	}
 
-            if (data.hasOwnProperty('symbol')) {
-                obj['symbol'] = ApiClient.convertToType(data['symbol'], 'String');
-            }
-            if (data.hasOwnProperty('decimals')) {
-                obj['decimals'] = ApiClient.convertToType(data['decimals'], 'Number');
-            }
-            if (data.hasOwnProperty('metadata')) {
-                obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>Currency</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/Currency} obj Optional instance to populate.
+	 * @return {module:model/Currency} The populated <code>Currency</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new Currency();
 
-    /**
-     * Validates the JSON data with respect to <code>Currency</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>Currency</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of Currency.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // ensure the json data is a string
-        if (data['symbol'] && !(typeof data['symbol'] === 'string' || data['symbol'] instanceof String)) {
-            throw new Error("Expected the field `symbol` to be a primitive type in the JSON string but got " + data['symbol']);
-        }
+			if (data.hasOwnProperty('symbol')) {
+				obj['symbol'] = ApiClient.convertToType(data['symbol'], 'String');
+			}
+			if (data.hasOwnProperty('decimals')) {
+				obj['decimals'] = ApiClient.convertToType(data['decimals'], 'Number');
+			}
+			if (data.hasOwnProperty('metadata')) {
+				obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>Currency</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>Currency</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of Currency.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// ensure the json data is a string
+		if (data['symbol'] && !(typeof data['symbol'] === 'string' || data['symbol'] instanceof String)) {
+			throw new Error("Expected the field `symbol` to be a primitive type in the JSON string but got " + data['symbol']);
+		}
+
+		return true;
+	}
 
 
 }

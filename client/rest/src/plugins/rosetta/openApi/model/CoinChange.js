@@ -21,68 +21,68 @@ import CoinIdentifier from './CoinIdentifier.js';
  * @version 1.4.13
  */
 class CoinChange {
-    /**
-     * Constructs a new <code>CoinChange</code>.
-     * CoinChange is used to represent a change in state of a some coin identified by a coin_identifier. This object is part of the Operation model and must be populated for UTXO-based blockchains. Coincidentally, this abstraction of UTXOs allows for supporting both account-based transfers and UTXO-based transfers on the same blockchain (when a transfer is account-based, don&#39;t populate this model).
-     * @alias module:model/CoinChange
-     * @param coinIdentifier {module:model/CoinIdentifier} 
-     * @param coinAction {module:model/CoinAction} 
-     */
-    constructor(coinIdentifier, coinAction) { 
-        
-        CoinChange.initialize(this, coinIdentifier, coinAction);
-    }
+	/**
+	 * Constructs a new <code>CoinChange</code>.
+	 * CoinChange is used to represent a change in state of a some coin identified by a coin_identifier. This object is part of the Operation model and must be populated for UTXO-based blockchains. Coincidentally, this abstraction of UTXOs allows for supporting both account-based transfers and UTXO-based transfers on the same blockchain (when a transfer is account-based, don&#39;t populate this model).
+	 * @alias module:model/CoinChange
+	 * @param coinIdentifier {module:model/CoinIdentifier}
+	 * @param coinAction {module:model/CoinAction}
+	 */
+	constructor(coinIdentifier, coinAction) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, coinIdentifier, coinAction) { 
-        obj['coin_identifier'] = coinIdentifier;
-        obj['coin_action'] = coinAction;
-    }
+		CoinChange.initialize(this, coinIdentifier, coinAction);
+	}
 
-    /**
-     * Constructs a <code>CoinChange</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/CoinChange} obj Optional instance to populate.
-     * @return {module:model/CoinChange} The populated <code>CoinChange</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new CoinChange();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, coinIdentifier, coinAction) {
+		obj['coin_identifier'] = coinIdentifier;
+		obj['coin_action'] = coinAction;
+	}
 
-            if (data.hasOwnProperty('coin_identifier')) {
-                obj['coin_identifier'] = CoinIdentifier.constructFromObject(data['coin_identifier']);
-            }
-            if (data.hasOwnProperty('coin_action')) {
-                obj['coin_action'] = CoinAction.constructFromObject(data['coin_action']);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>CoinChange</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/CoinChange} obj Optional instance to populate.
+	 * @return {module:model/CoinChange} The populated <code>CoinChange</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new CoinChange();
 
-    /**
-     * Validates the JSON data with respect to <code>CoinChange</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>CoinChange</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of CoinChange.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // validate the optional field `coin_identifier`
-        if (data['coin_identifier']) { // data not null
-          CoinIdentifier.validateJSON(data['coin_identifier']);
-        }
+			if (data.hasOwnProperty('coin_identifier')) {
+				obj['coin_identifier'] = CoinIdentifier.constructFromObject(data['coin_identifier']);
+			}
+			if (data.hasOwnProperty('coin_action')) {
+				obj['coin_action'] = CoinAction.constructFromObject(data['coin_action']);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>CoinChange</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>CoinChange</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of CoinChange.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// validate the optional field `coin_identifier`
+		if (data['coin_identifier']) { // data not null
+		  CoinIdentifier.validateJSON(data['coin_identifier']);
+		}
+
+		return true;
+	}
 
 
 }

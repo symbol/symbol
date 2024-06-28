@@ -23,116 +23,116 @@ import OperationIdentifier from './OperationIdentifier.js';
  * @version 1.4.13
  */
 class Operation {
-    /**
-     * Constructs a new <code>Operation</code>.
-     * Operations contain all balance-changing information within a transaction. They are always one-sided (only affect 1 AccountIdentifier) and can succeed or fail independently from a Transaction. Operations are used both to represent on-chain data (Data API) and to construct new transactions (Construction API), creating a standard interface for reading and writing to blockchains.
-     * @alias module:model/Operation
-     * @param operationIdentifier {module:model/OperationIdentifier} 
-     * @param type {String} Type is the network-specific type of the operation. Ensure that any type that can be returned here is also specified in the NetworkOptionsResponse. This can be very useful to downstream consumers that parse all block data.
-     */
-    constructor(operationIdentifier, type) { 
-        
-        Operation.initialize(this, operationIdentifier, type);
-    }
+	/**
+	 * Constructs a new <code>Operation</code>.
+	 * Operations contain all balance-changing information within a transaction. They are always one-sided (only affect 1 AccountIdentifier) and can succeed or fail independently from a Transaction. Operations are used both to represent on-chain data (Data API) and to construct new transactions (Construction API), creating a standard interface for reading and writing to blockchains.
+	 * @alias module:model/Operation
+	 * @param operationIdentifier {module:model/OperationIdentifier}
+	 * @param type {String} Type is the network-specific type of the operation. Ensure that any type that can be returned here is also specified in the NetworkOptionsResponse. This can be very useful to downstream consumers that parse all block data.
+	 */
+	constructor(operationIdentifier, type) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, operationIdentifier, type) { 
-        obj['operation_identifier'] = operationIdentifier;
-        obj['type'] = type;
-    }
+		Operation.initialize(this, operationIdentifier, type);
+	}
 
-    /**
-     * Constructs a <code>Operation</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/Operation} obj Optional instance to populate.
-     * @return {module:model/Operation} The populated <code>Operation</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new Operation();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, operationIdentifier, type) {
+		obj['operation_identifier'] = operationIdentifier;
+		obj['type'] = type;
+	}
 
-            if (data.hasOwnProperty('operation_identifier')) {
-                obj['operation_identifier'] = OperationIdentifier.constructFromObject(data['operation_identifier']);
-            }
-            if (data.hasOwnProperty('related_operations')) {
-                obj['related_operations'] = ApiClient.convertToType(data['related_operations'], [OperationIdentifier]);
-            }
-            if (data.hasOwnProperty('type')) {
-                obj['type'] = ApiClient.convertToType(data['type'], 'String');
-            }
-            if (data.hasOwnProperty('status')) {
-                obj['status'] = ApiClient.convertToType(data['status'], 'String');
-            }
-            if (data.hasOwnProperty('account')) {
-                obj['account'] = AccountIdentifier.constructFromObject(data['account']);
-            }
-            if (data.hasOwnProperty('amount')) {
-                obj['amount'] = Amount.constructFromObject(data['amount']);
-            }
-            if (data.hasOwnProperty('coin_change')) {
-                obj['coin_change'] = CoinChange.constructFromObject(data['coin_change']);
-            }
-            if (data.hasOwnProperty('metadata')) {
-                obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>Operation</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/Operation} obj Optional instance to populate.
+	 * @return {module:model/Operation} The populated <code>Operation</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new Operation();
 
-    /**
-     * Validates the JSON data with respect to <code>Operation</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>Operation</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of Operation.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // validate the optional field `operation_identifier`
-        if (data['operation_identifier']) { // data not null
-          OperationIdentifier.validateJSON(data['operation_identifier']);
-        }
-        if (data['related_operations']) { // data not null
-            // ensure the json data is an array
-            if (!Array.isArray(data['related_operations'])) {
-                throw new Error("Expected the field `related_operations` to be an array in the JSON data but got " + data['related_operations']);
-            }
-            // validate the optional field `related_operations` (array)
-            for (const item of data['related_operations']) {
-                OperationIdentifier.validateJSON(item);
-            };
-        }
-        // ensure the json data is a string
-        if (data['type'] && !(typeof data['type'] === 'string' || data['type'] instanceof String)) {
-            throw new Error("Expected the field `type` to be a primitive type in the JSON string but got " + data['type']);
-        }
-        // ensure the json data is a string
-        if (data['status'] && !(typeof data['status'] === 'string' || data['status'] instanceof String)) {
-            throw new Error("Expected the field `status` to be a primitive type in the JSON string but got " + data['status']);
-        }
-        // validate the optional field `account`
-        if (data['account']) { // data not null
-          AccountIdentifier.validateJSON(data['account']);
-        }
-        // validate the optional field `amount`
-        if (data['amount']) { // data not null
-          Amount.validateJSON(data['amount']);
-        }
-        // validate the optional field `coin_change`
-        if (data['coin_change']) { // data not null
-          CoinChange.validateJSON(data['coin_change']);
-        }
+			if (data.hasOwnProperty('operation_identifier')) {
+				obj['operation_identifier'] = OperationIdentifier.constructFromObject(data['operation_identifier']);
+			}
+			if (data.hasOwnProperty('related_operations')) {
+				obj['related_operations'] = ApiClient.convertToType(data['related_operations'], [OperationIdentifier]);
+			}
+			if (data.hasOwnProperty('type')) {
+				obj['type'] = ApiClient.convertToType(data['type'], 'String');
+			}
+			if (data.hasOwnProperty('status')) {
+				obj['status'] = ApiClient.convertToType(data['status'], 'String');
+			}
+			if (data.hasOwnProperty('account')) {
+				obj['account'] = AccountIdentifier.constructFromObject(data['account']);
+			}
+			if (data.hasOwnProperty('amount')) {
+				obj['amount'] = Amount.constructFromObject(data['amount']);
+			}
+			if (data.hasOwnProperty('coin_change')) {
+				obj['coin_change'] = CoinChange.constructFromObject(data['coin_change']);
+			}
+			if (data.hasOwnProperty('metadata')) {
+				obj['metadata'] = ApiClient.convertToType(data['metadata'], Object);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>Operation</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>Operation</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of Operation.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// validate the optional field `operation_identifier`
+		if (data['operation_identifier']) { // data not null
+		  OperationIdentifier.validateJSON(data['operation_identifier']);
+		}
+		if (data['related_operations']) { // data not null
+			// ensure the json data is an array
+			if (!Array.isArray(data['related_operations'])) {
+				throw new Error("Expected the field `related_operations` to be an array in the JSON data but got " + data['related_operations']);
+			}
+			// validate the optional field `related_operations` (array)
+			for (const item of data['related_operations']) {
+				OperationIdentifier.validateJSON(item);
+			};
+		}
+		// ensure the json data is a string
+		if (data['type'] && !(typeof data['type'] === 'string' || data['type'] instanceof String)) {
+			throw new Error("Expected the field `type` to be a primitive type in the JSON string but got " + data['type']);
+		}
+		// ensure the json data is a string
+		if (data['status'] && !(typeof data['status'] === 'string' || data['status'] instanceof String)) {
+			throw new Error("Expected the field `status` to be a primitive type in the JSON string but got " + data['status']);
+		}
+		// validate the optional field `account`
+		if (data['account']) { // data not null
+		  AccountIdentifier.validateJSON(data['account']);
+		}
+		// validate the optional field `amount`
+		if (data['amount']) { // data not null
+		  Amount.validateJSON(data['amount']);
+		}
+		// validate the optional field `coin_change`
+		if (data['coin_change']) { // data not null
+		  CoinChange.validateJSON(data['coin_change']);
+		}
+
+		return true;
+	}
 
 
 }

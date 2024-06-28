@@ -20,77 +20,77 @@ import BlockTransaction from './BlockTransaction.js';
  * @version 1.4.13
  */
 class SearchTransactionsResponse {
-    /**
-     * Constructs a new <code>SearchTransactionsResponse</code>.
-     * SearchTransactionsResponse contains an ordered collection of BlockTransactions that match the query in SearchTransactionsRequest. These BlockTransactions are sorted from most recent block to oldest block.
-     * @alias module:model/SearchTransactionsResponse
-     * @param transactions {Array.<module:model/BlockTransaction>} transactions is an array of BlockTransactions sorted by most recent BlockIdentifier (meaning that transactions in recent blocks appear first). If there are many transactions for a particular search, transactions may not contain all matching transactions. It is up to the caller to paginate these transactions using the max_block field.
-     * @param totalCount {Number} total_count is the number of results for a given search. Callers typically use this value to concurrently fetch results by offset or to display a virtual page number associated with results.
-     */
-    constructor(transactions, totalCount) { 
-        
-        SearchTransactionsResponse.initialize(this, transactions, totalCount);
-    }
+	/**
+	 * Constructs a new <code>SearchTransactionsResponse</code>.
+	 * SearchTransactionsResponse contains an ordered collection of BlockTransactions that match the query in SearchTransactionsRequest. These BlockTransactions are sorted from most recent block to oldest block.
+	 * @alias module:model/SearchTransactionsResponse
+	 * @param transactions {Array.<module:model/BlockTransaction>} transactions is an array of BlockTransactions sorted by most recent BlockIdentifier (meaning that transactions in recent blocks appear first). If there are many transactions for a particular search, transactions may not contain all matching transactions. It is up to the caller to paginate these transactions using the max_block field.
+	 * @param totalCount {Number} total_count is the number of results for a given search. Callers typically use this value to concurrently fetch results by offset or to display a virtual page number associated with results.
+	 */
+	constructor(transactions, totalCount) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, transactions, totalCount) { 
-        obj['transactions'] = transactions;
-        obj['total_count'] = totalCount;
-    }
+		SearchTransactionsResponse.initialize(this, transactions, totalCount);
+	}
 
-    /**
-     * Constructs a <code>SearchTransactionsResponse</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/SearchTransactionsResponse} obj Optional instance to populate.
-     * @return {module:model/SearchTransactionsResponse} The populated <code>SearchTransactionsResponse</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new SearchTransactionsResponse();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, transactions, totalCount) {
+		obj['transactions'] = transactions;
+		obj['total_count'] = totalCount;
+	}
 
-            if (data.hasOwnProperty('transactions')) {
-                obj['transactions'] = ApiClient.convertToType(data['transactions'], [BlockTransaction]);
-            }
-            if (data.hasOwnProperty('total_count')) {
-                obj['total_count'] = ApiClient.convertToType(data['total_count'], 'Number');
-            }
-            if (data.hasOwnProperty('next_offset')) {
-                obj['next_offset'] = ApiClient.convertToType(data['next_offset'], 'Number');
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>SearchTransactionsResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/SearchTransactionsResponse} obj Optional instance to populate.
+	 * @return {module:model/SearchTransactionsResponse} The populated <code>SearchTransactionsResponse</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new SearchTransactionsResponse();
 
-    /**
-     * Validates the JSON data with respect to <code>SearchTransactionsResponse</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>SearchTransactionsResponse</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of SearchTransactionsResponse.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        if (data['transactions']) { // data not null
-            // ensure the json data is an array
-            if (!Array.isArray(data['transactions'])) {
-                throw new Error("Expected the field `transactions` to be an array in the JSON data but got " + data['transactions']);
-            }
-            // validate the optional field `transactions` (array)
-            for (const item of data['transactions']) {
-                BlockTransaction.validateJSON(item);
-            };
-        }
+			if (data.hasOwnProperty('transactions')) {
+				obj['transactions'] = ApiClient.convertToType(data['transactions'], [BlockTransaction]);
+			}
+			if (data.hasOwnProperty('total_count')) {
+				obj['total_count'] = ApiClient.convertToType(data['total_count'], 'Number');
+			}
+			if (data.hasOwnProperty('next_offset')) {
+				obj['next_offset'] = ApiClient.convertToType(data['next_offset'], 'Number');
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>SearchTransactionsResponse</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>SearchTransactionsResponse</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of SearchTransactionsResponse.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		if (data['transactions']) { // data not null
+			// ensure the json data is an array
+			if (!Array.isArray(data['transactions'])) {
+				throw new Error("Expected the field `transactions` to be an array in the JSON data but got " + data['transactions']);
+			}
+			// validate the optional field `transactions` (array)
+			for (const item of data['transactions']) {
+				BlockTransaction.validateJSON(item);
+			};
+		}
+
+		return true;
+	}
 
 
 }

@@ -20,63 +20,63 @@ import Transaction from './Transaction.js';
  * @version 1.4.13
  */
 class BlockTransactionResponse {
-    /**
-     * Constructs a new <code>BlockTransactionResponse</code>.
-     * A BlockTransactionResponse contains information about a block transaction.
-     * @alias module:model/BlockTransactionResponse
-     * @param transaction {module:model/Transaction} 
-     */
-    constructor(transaction) { 
-        
-        BlockTransactionResponse.initialize(this, transaction);
-    }
+	/**
+	 * Constructs a new <code>BlockTransactionResponse</code>.
+	 * A BlockTransactionResponse contains information about a block transaction.
+	 * @alias module:model/BlockTransactionResponse
+	 * @param transaction {module:model/Transaction}
+	 */
+	constructor(transaction) {
 
-    /**
-     * Initializes the fields of this object.
-     * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
-     * Only for internal use.
-     */
-    static initialize(obj, transaction) { 
-        obj['transaction'] = transaction;
-    }
+		BlockTransactionResponse.initialize(this, transaction);
+	}
 
-    /**
-     * Constructs a <code>BlockTransactionResponse</code> from a plain JavaScript object, optionally creating a new instance.
-     * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @param {module:model/BlockTransactionResponse} obj Optional instance to populate.
-     * @return {module:model/BlockTransactionResponse} The populated <code>BlockTransactionResponse</code> instance.
-     */
-    static constructFromObject(data, obj) {
-        if (data) {
-            obj = obj || new BlockTransactionResponse();
+	/**
+	 * Initializes the fields of this object.
+	 * This method is used by the constructors of any subclasses, in order to implement multiple inheritance (mix-ins).
+	 * Only for internal use.
+	 */
+	static initialize(obj, transaction) {
+		obj['transaction'] = transaction;
+	}
 
-            if (data.hasOwnProperty('transaction')) {
-                obj['transaction'] = Transaction.constructFromObject(data['transaction']);
-            }
-        }
-        return obj;
-    }
+	/**
+	 * Constructs a <code>BlockTransactionResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/BlockTransactionResponse} obj Optional instance to populate.
+	 * @return {module:model/BlockTransactionResponse} The populated <code>BlockTransactionResponse</code> instance.
+	 */
+	static constructFromObject(data, obj) {
+		if (data) {
+			obj = obj || new BlockTransactionResponse();
 
-    /**
-     * Validates the JSON data with respect to <code>BlockTransactionResponse</code>.
-     * @param {Object} data The plain JavaScript object bearing properties of interest.
-     * @return {boolean} to indicate whether the JSON data is valid with respect to <code>BlockTransactionResponse</code>.
-     */
-    static validateJSON(data) {
-        // check to make sure all required properties are present in the JSON string
-        for (const property of BlockTransactionResponse.RequiredProperties) {
-            if (!data.hasOwnProperty(property)) {
-                throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
-            }
-        }
-        // validate the optional field `transaction`
-        if (data['transaction']) { // data not null
-          Transaction.validateJSON(data['transaction']);
-        }
+			if (data.hasOwnProperty('transaction')) {
+				obj['transaction'] = Transaction.constructFromObject(data['transaction']);
+			}
+		}
+		return obj;
+	}
 
-        return true;
-    }
+	/**
+	 * Validates the JSON data with respect to <code>BlockTransactionResponse</code>.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @return {boolean} to indicate whether the JSON data is valid with respect to <code>BlockTransactionResponse</code>.
+	 */
+	static validateJSON(data) {
+		// check to make sure all required properties are present in the JSON string
+		for (const property of BlockTransactionResponse.RequiredProperties) {
+			if (!data.hasOwnProperty(property)) {
+				throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
+			}
+		}
+		// validate the optional field `transaction`
+		if (data['transaction']) { // data not null
+		  Transaction.validateJSON(data['transaction']);
+		}
+
+		return true;
+	}
 
 
 }

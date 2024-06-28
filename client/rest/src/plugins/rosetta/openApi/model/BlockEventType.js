@@ -18,29 +18,29 @@ import ApiClient from '../ApiClient.js';
 * @readonly
 */
 export default class BlockEventType {
-    
-        /**
-         * value: "block_added"
-         * @const
-         */
-        "added" = "block_added";
 
-    
-        /**
-         * value: "block_removed"
-         * @const
-         */
-        "removed" = "block_removed";
+		/**
+		 * value: "block_added"
+		 * @const
+		 */
+		"added" = "block_added";
 
-    
 
-    /**
-    * Returns a <code>BlockEventType</code> enum value from a Javascript object name.
-    * @param {Object} data The plain JavaScript object containing the name of the enum value.
-    * @return {module:model/BlockEventType} The enum <code>BlockEventType</code> value.
-    */
-    static constructFromObject(object) {
-        return object;
-    }
+		/**
+		 * value: "block_removed"
+		 * @const
+		 */
+		"removed" = "block_removed";
+
+
+
+	/**
+	* Returns a <code>BlockEventType</code> enum value from a Javascript object name.
+	* @param {Object} data The plain JavaScript object containing the name of the enum value.
+	* @return {module:model/BlockEventType} The enum <code>BlockEventType</code> value.
+	*/
+	static constructFromObject(object) {
+		return object;
+	}
 }
 

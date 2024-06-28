@@ -18,29 +18,29 @@ import ApiClient from '../ApiClient.js';
 * @readonly
 */
 export default class Operator {
-    
-        /**
-         * value: "or"
-         * @const
-         */
-        "or" = "or";
 
-    
-        /**
-         * value: "and"
-         * @const
-         */
-        "and" = "and";
+		/**
+		 * value: "or"
+		 * @const
+		 */
+		"or" = "or";
 
-    
 
-    /**
-    * Returns a <code>Operator</code> enum value from a Javascript object name.
-    * @param {Object} data The plain JavaScript object containing the name of the enum value.
-    * @return {module:model/Operator} The enum <code>Operator</code> value.
-    */
-    static constructFromObject(object) {
-        return object;
-    }
+		/**
+		 * value: "and"
+		 * @const
+		 */
+		"and" = "and";
+
+
+
+	/**
+	* Returns a <code>Operator</code> enum value from a Javascript object name.
+	* @param {Object} data The plain JavaScript object containing the name of the enum value.
+	* @return {module:model/Operator} The enum <code>Operator</code> value.
+	*/
+	static constructFromObject(object) {
+		return object;
+	}
 }
 
