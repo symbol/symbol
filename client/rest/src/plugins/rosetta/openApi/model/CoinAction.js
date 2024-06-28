@@ -18,29 +18,29 @@ import ApiClient from '../ApiClient.js';
 * @readonly
 */
 export default class CoinAction {
-    
-        /**
-         * value: "coin_created"
-         * @const
-         */
-        "created" = "coin_created";
 
-    
-        /**
-         * value: "coin_spent"
-         * @const
-         */
-        "spent" = "coin_spent";
+		/**
+		 * value: "coin_created"
+		 * @const
+		 */
+		"created" = "coin_created";
 
-    
 
-    /**
-    * Returns a <code>CoinAction</code> enum value from a Javascript object name.
-    * @param {Object} data The plain JavaScript object containing the name of the enum value.
-    * @return {module:model/CoinAction} The enum <code>CoinAction</code> value.
-    */
-    static constructFromObject(object) {
-        return object;
-    }
+		/**
+		 * value: "coin_spent"
+		 * @const
+		 */
+		"spent" = "coin_spent";
+
+
+
+	/**
+	* Returns a <code>CoinAction</code> enum value from a Javascript object name.
+	* @param {Object} data The plain JavaScript object containing the name of the enum value.
+	* @return {module:model/CoinAction} The enum <code>CoinAction</code> value.
+	*/
+	static constructFromObject(object) {
+		return object;
+	}
 }
 
