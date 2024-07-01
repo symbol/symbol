@@ -21,13 +21,12 @@
 
 import lockSecretRoutes from '../../../src/plugins/lockSecret/lockSecretRoutes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
-
-const { MockServer } = test;
 
 describe('lock secret routes', () => {
 	describe('secret locks', () => {

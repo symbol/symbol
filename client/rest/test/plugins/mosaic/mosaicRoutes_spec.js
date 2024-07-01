@@ -21,12 +21,11 @@
 
 import mosaicRoutes from '../../../src/plugins/mosaic/mosaicRoutes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { Address } from 'symbol-sdk/symbol';
-
-const { MockServer } = test;
 
 describe('mosaic routes', () => {
 	describe('mosaics', () => {

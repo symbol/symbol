@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import MockServer from './utils/MockServer.js';
 import test from './utils/routeTestUtils.js';
 import { convertToLong } from '../../src/db/dbUtils.js';
 import blockRoutes from '../../src/routes/blockRoutes.js';
@@ -28,8 +29,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
-
-const { MockServer } = test;
 
 describe('block routes', () => {
 	const addChainStatisticToDb = db => { db.chainStatisticCurrent = () => Promise.resolve({ height: convertToLong(10) }); };

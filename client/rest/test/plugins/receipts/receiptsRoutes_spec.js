@@ -21,12 +21,10 @@
 
 import receiptsRoutes from '../../../src/plugins/receipts/receiptsRoutes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
-import test from '../../routes/utils/routeTestUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { Address } from 'symbol-sdk/symbol';
-
-const { MockServer } = test;
 
 describe('receipts routes', () => {
 	describe('transaction statements', () => {

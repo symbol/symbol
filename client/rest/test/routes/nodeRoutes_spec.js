@@ -19,12 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import MockServer from './utils/MockServer.js';
 import test from './utils/routeTestUtils.js';
 import nodeRoutes from '../../src/routes/nodeRoutes.js';
 import errors from '../../src/server/errors.js';
 import { expect } from 'chai';
-
-const { MockServer } = test;
 
 const restVersion = '2.4.4';
 

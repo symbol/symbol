@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import MockServer from './utils/MockServer.js';
 import test from './utils/routeTestUtils.js';
 import catapult from '../../src/catapult-sdk/index.js';
 import MerkleTree from '../../src/routes/MerkelTree.js';
@@ -31,7 +32,6 @@ import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
 
 const { PacketType } = catapult.packet;
-const { MockServer } = test;
 
 describe('account routes', () => {
 	const testAddress = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';

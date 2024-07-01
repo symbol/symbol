@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import MockServer from './utils/MockServer.js';
 import test from './utils/routeTestUtils.js';
 import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
@@ -27,8 +28,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { Address } from 'symbol-sdk/symbol';
-
-const { MockServer } = test;
 
 const TransactionGroups = {
 	confirmed: 'confirmed',

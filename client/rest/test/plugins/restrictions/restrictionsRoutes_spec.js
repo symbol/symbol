@@ -22,13 +22,13 @@
 import restrictionsRoutes from '../../../src/plugins/restrictions/restrictionsRoutes.js';
 import routeResultTypes from '../../../src/routes/routeResultTypes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { Address } from 'symbol-sdk/symbol';
 
 const { addresses } = test.sets;
-const { MockServer } = test;
 
 describe('restrictions routes', () => {
 	describe('account restrictions', () => {

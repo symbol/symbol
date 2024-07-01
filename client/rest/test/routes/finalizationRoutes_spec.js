@@ -19,12 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import test from './utils/routeTestUtils.js';
+import MockServer from './utils/MockServer.js';
 import finalizationRoutes from '../../src/routes/finalizationRoutes.js';
 import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import { expect } from 'chai';
-
-const { MockServer } = test;
 
 describe('finalization routes', () => {
 	describe('get', () => {

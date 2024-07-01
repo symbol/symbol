@@ -24,6 +24,7 @@ import { convertToLong } from '../../../src/db/dbUtils.js';
 import namespaceRoutes from '../../../src/plugins/namespace/namespaceRoutes.js';
 import namespaceUtils from '../../../src/plugins/namespace/namespaceUtils.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
 import test from '../../routes/utils/routeTestUtils.js';
 import { expect } from 'chai';
 import MongoDb from 'mongodb';
@@ -31,7 +32,6 @@ import sinon from 'sinon';
 import { Address, models } from 'symbol-sdk/symbol';
 
 const { Binary } = MongoDb;
-const { MockServer } = test;
 
 describe('namespace routes', () => {
 	describe('namespaces', () => {

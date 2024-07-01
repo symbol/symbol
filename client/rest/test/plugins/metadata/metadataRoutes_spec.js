@@ -21,12 +21,10 @@
 
 import metadataRoutes from '../../../src/plugins/metadata/metadataRoutes.js';
 import routeUtils from '../../../src/routes/routeUtils.js';
-import test from '../../routes/utils/routeTestUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { Address } from 'symbol-sdk/symbol';
-
-const { MockServer } = test;
 
 describe('metadata routes', () => {
 	describe('metadata', () => {

@@ -19,14 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import MockServer from './utils/MockServer.js';
 import test from './utils/routeTestUtils.js';
 import networkRoutes from '../../src/routes/networkRoutes.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import tmp from 'tmp';
 import fs from 'fs';
-
-const { MockServer } = test;
 
 describe('network routes', () => {
 	describe('get', () => {

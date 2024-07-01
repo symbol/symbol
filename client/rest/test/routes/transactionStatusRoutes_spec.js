@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import test from './utils/routeTestUtils.js';
+import MockServer from './utils/MockServer.js';
 import dbFacade from '../../src/routes/dbFacade.js';
 import routeResultTypes from '../../src/routes/routeResultTypes.js';
 import routeUtils from '../../src/routes/routeUtils.js';
@@ -27,8 +27,6 @@ import transactionStatusRoutes from '../../src/routes/transactionStatusRoutes.js
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
-
-const { MockServer } = test;
 
 describe('transaction status routes', () => {
 	describe('calls addGetPostDocumentRoutes once with correct params', () => {

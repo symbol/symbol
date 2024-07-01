@@ -21,14 +21,12 @@
 
 import { convertToLong } from '../../../src/db/dbUtils.js';
 import supplyRoutes from '../../../src/plugins/mosaic/supplyRoutes.js';
-import test from '../../routes/utils/routeTestUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import tmp from 'tmp';
 import fs from 'fs';
-
-const { MockServer } = test;
 
 describe('supply routes', () => {
 	describe('network currency supply', () => {

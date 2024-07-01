@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import MockServer from './utils/MockServer.js';
 import test from './utils/routeTestUtils.js';
 import chainRoutes from '../../src/routes/chainRoutes.js';
 import { expect } from 'chai';
@@ -26,7 +27,6 @@ import MongoDb from 'mongodb';
 import sinon from 'sinon';
 
 const { Binary, Long } = MongoDb;
-const { MockServer } = test;
 
 describe('chain routes', () => {
 	describe('get', () => {
