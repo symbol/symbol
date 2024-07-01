@@ -2720,40 +2720,59 @@ describe('catapult db', () => {
 
 	// endregion
 
-	// region utils
+	// region lookup public keys
 
-	describe('utils', () => {
-		it('can retrieve account public key from account address', () => {
-			// Arrange:
-			const accountPublicKeyOne = test.random.publicKey();
-			const accountAddressOne = keyToAddress(accountPublicKeyOne);
-			const accountPublicKeyTwo = test.random.publicKey();
-			const accountAddressTwo = keyToAddress(accountPublicKeyTwo);
+	describe('lookup public keys', () => {
+		const accountPublicKeys = [
+			test.random.publicKey(), test.random.publicKey(), test.random.publicKey(), test.random.publicKey()
+		];
+		const accountAddresses = accountPublicKeys.map(keyToAddress);
 
-			const accountDbEntities = [
-				{
-					meta: {},
-					account: {
-						address: new Binary(accountAddressOne),
-						publicKey: new Binary(accountPublicKeyOne)
-					}
-				},
-				{
-					meta: {},
-					account: {
-						address: new Binary(accountAddressTwo),
-						publicKey: new Binary(accountPublicKeyTwo)
-					}
-				}
-			];
-
-			// Act + Assert:
-			return runDbTest(
-				{ accounts: accountDbEntities },
-				db => db.addressToPublicKey(accountAddressOne),
-				accountDbEntity => { expect(accountDbEntity.account.publicKey.buffer.equals(accountPublicKeyOne)).to.be.equal(true); }
-			);
+		const makeDbEntity = index => ({
+			meta: {},
+			account: {
+				address: new Binary(accountAddresses[index]),
+				publicKey: new Binary(accountPublicKeys[index])
+			}
 		});
+
+		it('returns empty array when no addresses are known', () => runDbTest(
+			// Arrange: four accounts in database, three random accounts queried
+			{ accounts: [0, 1, 2, 3].map(makeDbEntity) },
+			// Act:
+			db => db.lookupPublicKeys([0, 1, 2].map(() => keyToAddress(test.random.publicKey()))),
+			// Assert:
+			accountDbEntities => {
+				expect(accountDbEntities.length).to.equal(0);
+			}
+		));
+
+		it('returns all public key mappings when all are known', () => runDbTest(
+			// Arrange: four accounts in database, three known accounts queried
+			{ accounts: [0, 1, 2, 3].map(makeDbEntity) },
+			// Act:
+			db => db.lookupPublicKeys([0, 1, 3].map(index => accountAddresses[index])),
+			// Assert:
+			accountDbEntities => {
+				expect(accountDbEntities.length).to.equal(3);
+				expect(accountDbEntities[0].account).to.deep.equal(makeDbEntity(0).account);
+				expect(accountDbEntities[1].account).to.deep.equal(makeDbEntity(1).account);
+				expect(accountDbEntities[2].account).to.deep.equal(makeDbEntity(3).account);
+			}
+		));
+
+		it('returns only known public key mappings when some are known', () => runDbTest(
+			// Arrange: three accounts in database, two known queried, one unknown queried
+			{ accounts: [0, 1, 3].map(makeDbEntity) },
+			// Act:
+			db => db.lookupPublicKeys([0, 2, 3].map(index => accountAddresses[index])),
+			// Assert:
+			accountDbEntities => {
+				expect(accountDbEntities.length).to.equal(2);
+				expect(accountDbEntities[0].account).to.deep.equal(makeDbEntity(0).account);
+				expect(accountDbEntities[1].account).to.deep.equal(makeDbEntity(3).account);
+			}
+		));
 	});
 
 	// endregion
