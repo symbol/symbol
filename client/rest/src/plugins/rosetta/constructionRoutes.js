@@ -70,25 +70,35 @@ export default {
 			return response;
 		}));
 
-		const getNetworkTime = async () => {
+		const fetchWrapper = async (urlPath, jsonProjection) => {
 			try {
-				const response = await fetch(`${restUrl}/node/time`);
+				const response = await fetch(`${restUrl}/${urlPath}`);
 				if (!response.ok)
 					throw RosettaErrorFactory.CONNECTION_ERROR;
 
-				const timestamps = await response.json();
-				return timestamps.communicationTimestamps.receiveTimestamp;
+				const jsonObject = await response.json();
+				return jsonProjection(jsonObject);
 			} catch (err) {
 				throw RosettaErrorFactory.CONNECTION_ERROR;
 			}
 		};
 
+		const getNetworkTime = () => fetchWrapper('node/time', jsonObject => jsonObject.communicationTimestamps.receiveTimestamp);
+		const getSuggestedTransactionMultiplier = () => fetchWrapper(
+			'network/fees/transaction',
+			jsonObject => jsonObject.averageFeeMultiplier
+		);
+
 		server.post('/construction/metadata', rosettaPostRouteWithNetwork(networkName, ConstructionMetadataRequest, async () => {
 			// ignore request object because only global metadata is needed for transaction construction
 
-			const networkTime = await getNetworkTime();
+			const results = await Promise.all([getNetworkTime(), getSuggestedTransactionMultiplier()]);
+
 			const response = new ConstructionMetadataResponse();
-			response.metadata = { networkTime };
+			response.metadata = {
+				networkTime: results[0],
+				feeMultiplier: results[1]
+			};
 			return response;
 		}));
 	}
