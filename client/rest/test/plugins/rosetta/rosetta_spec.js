@@ -46,7 +46,12 @@ describe('rosetta plugin', () => {
 			test.assert.assertRoutes(routes, [
 				'/construction/derive',
 				'/construction/preprocess',
-				'/construction/metadata'
+				'/construction/metadata',
+				'/construction/payloads',
+				'/construction/combine',
+				'/construction/parse',
+				'/construction/hash',
+				'/construction/submit'
 			]);
 		});
 	});
