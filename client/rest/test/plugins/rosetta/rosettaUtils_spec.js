@@ -20,18 +20,20 @@
  */
 
 import ConstructionDeriveRequest from '../../../src/plugins/rosetta/openApi/model/ConstructionDeriveRequest.js';
-import RosettaError from '../../../src/plugins/rosetta/openApi/model/Error.js';
-import { errors, rosettaPostRouteWithNetwork } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import RosettaApiError from '../../../src/plugins/rosetta/openApi/model/Error.js';
+import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../../../src/plugins/rosetta/rosettaUtils.js';
 import { expect } from 'chai';
 
 describe('rosetta utils', () => {
-	describe('errors', () => {
+	describe('RosettaErrorFactory', () => {
 		it('all have unique codes', () => {
-			// Arrange:
-			const errorNames = Object.getOwnPropertyNames(errors);
+			// Arrange: filter out properties added to every class
+			const defaultClassPropertyNames = Object.getOwnPropertyNames(class C {});
+			const errorNames = Object.getOwnPropertyNames(RosettaErrorFactory)
+				.filter(name => !defaultClassPropertyNames.includes(name));
 
 			// Act:
-			const errorCodeSet = new Set(errorNames.map(name => errors[name].code));
+			const errorCodeSet = new Set(errorNames.map(name => RosettaErrorFactory[name].apiError.code));
 
 			// Assert:
 			expect(errorCodeSet.size).to.equal(errorNames.length);
@@ -73,8 +75,8 @@ describe('rosetta utils', () => {
 			expect(res.statusCode).to.equal(500);
 
 			const response = routeContext.responses[0];
-			expect(response).to.deep.equal(expectedError);
-			expect(() => RosettaError.validateJSON(response)).to.not.throw();
+			expect(response).to.deep.equal(expectedError.apiError);
+			expect(() => RosettaApiError.validateJSON(response)).to.not.throw();
 		};
 
 		it('fails when request is invalid', async () => {
@@ -88,7 +90,7 @@ describe('rosetta utils', () => {
 			await postHandler({ body: request }, res, next);
 
 			// Assert:
-			assertRosettaErrorRaised(routeContext, res, errors.INVALID_REQUEST_DATA);
+			assertRosettaErrorRaised(routeContext, res, RosettaErrorFactory.INVALID_REQUEST_DATA);
 		});
 
 		it('fails when network is invalid', async () => {
@@ -101,8 +103,31 @@ describe('rosetta utils', () => {
 			await postHandler({ body: request }, res, next);
 
 			// Assert:
-			assertRosettaErrorRaised(routeContext, res, errors.UNSUPPORTED_NETWORK);
+			assertRosettaErrorRaised(routeContext, res, RosettaErrorFactory.UNSUPPORTED_NETWORK);
 		});
+
+		const assertFailsWhenHandlerRaisesError = async (raisedError, expectedError) => {
+			// Arrange:
+			const { routeContext, next, res } = createRosettaRouteTestSetup();
+			const request = createValidRequest();
+
+			// Act:
+			const postHandler = rosettaPostRouteWithNetwork('testnet', ConstructionDeriveRequest, () => Promise.reject(raisedError));
+			await postHandler({ body: request }, res, next);
+
+			// Assert:
+			assertRosettaErrorRaised(routeContext, res, expectedError);
+		};
+
+		it('fails when handler raises error (rosetta)', () => assertFailsWhenHandlerRaisesError(
+			RosettaErrorFactory.INVALID_PUBLIC_KEY,
+			RosettaErrorFactory.INVALID_PUBLIC_KEY
+		));
+
+		it('fails when handler raises error (unknown)', () => assertFailsWhenHandlerRaisesError(
+			Error('unknown error'),
+			RosettaErrorFactory.INTERNAL_SERVER_ERROR
+		));
 
 		const assertSuccessWhenValid = async handler => {
 			// Arrange:
