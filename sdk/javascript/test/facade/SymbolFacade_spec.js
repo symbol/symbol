@@ -504,7 +504,7 @@ describe('Symbol Facade', () => {
 		].join('')));
 	});
 
-	const assertCanVerifyTransaction = transactionFactory => {
+	const assertCanVerifyTransaction = (transactionFactory, sign) => {
 		// Arrange:
 		const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
 		const facade = new SymbolFacade('testnet');
@@ -515,19 +515,38 @@ describe('Symbol Facade', () => {
 		expect(transaction.signature).to.deep.equal(Signature.zero());
 
 		// Act:
-		const signature = facade.signTransaction(new SymbolFacade.KeyPair(privateKey), transaction);
+		const signature = sign(facade, new SymbolFacade.KeyPair(privateKey), transaction);
 		const isVerified = facade.verifyTransaction(transaction, signature);
 
 		// Assert:
 		expect(isVerified).to.equal(true);
 	};
 
-	it('can verify transaction', () => {
-		assertCanVerifyTransaction(createRealTransfer);
+	const assertCanVerifySignedTransaction = transactionFactory => {
+		assertCanVerifyTransaction(transactionFactory, (facade, keyPair, transaction) => facade.signTransaction(keyPair, transaction));
+	};
+
+	it('can verify signed transaction', () => {
+		assertCanVerifySignedTransaction(createRealTransfer);
 	});
 
-	it('can verify aggregate transaction', () => {
-		assertCanVerifyTransaction(createRealAggregate);
+	it('can verify signed aggregate transaction', () => {
+		assertCanVerifySignedTransaction(createRealAggregate);
+	});
+
+	const assertCanVerifySignedTransactionSigningPayload = transactionFactory => {
+		assertCanVerifyTransaction(transactionFactory, (facade, keyPair, transaction) => {
+			const signingPayload = facade.extractSigningPayload(transaction);
+			return keyPair.sign(signingPayload);
+		});
+	};
+
+	it('can verify signed transaction signing payload', () => {
+		assertCanVerifySignedTransactionSigningPayload(createRealTransfer);
+	});
+
+	it('can verify signed aggregate transaction signing payload', () => {
+		assertCanVerifySignedTransactionSigningPayload(createRealAggregate);
 	});
 
 	// endregion

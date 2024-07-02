@@ -300,7 +300,7 @@ describe('NEM Facade', () => {
 			expect(signature).to.deep.equal(descriptor.transactionSignature);
 		});
 
-		it(`can verify ${descriptor.name} transaction`, () => {
+		const assertCanVerifyTransaction = sign => {
 			// Arrange:
 			const privateKey = new PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC');
 			const facade = new NemFacade('testnet');
@@ -311,11 +311,22 @@ describe('NEM Facade', () => {
 			expect(transaction.signature).to.deep.equal(Signature.zero());
 
 			// Act:
-			const signature = facade.signTransaction(new NemFacade.KeyPair(privateKey), transaction);
+			const signature = sign(facade, new NemFacade.KeyPair(privateKey), transaction);
 			const isVerified = facade.verifyTransaction(transaction, signature);
 
 			// Assert:
 			expect(isVerified).to.equal(true);
+		};
+
+		it(`can verify signed ${descriptor.name} transaction`, () => {
+			assertCanVerifyTransaction((facade, keyPair, transaction) => facade.signTransaction(keyPair, transaction));
+		});
+
+		it(`can verify signed ${descriptor.name} transaction signing payload`, () => {
+			assertCanVerifyTransaction((facade, keyPair, transaction) => {
+				const signingPayload = facade.extractSigningPayload(transaction);
+				return keyPair.sign(signingPayload);
+			});
 		});
 	};
 
