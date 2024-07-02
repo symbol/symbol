@@ -51,6 +51,10 @@ export class RosettaErrorFactory {
 		return new RosettaError(5, 'unable to connect to network', true);
 	}
 
+	static get NOT_SUPPORTED_ERROR() {
+		return new RosettaError(99, 'operation is not supported in rosetta', false);
+	}
+
 	static get INTERNAL_SERVER_ERROR() {
 		return new RosettaError(100, 'internal server error', false);
 	}
