@@ -229,12 +229,30 @@ describe('construction routes', () => {
 		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
 			assertRosettaErrorRaisedBasic('/construction/metadata', createValidRequest(), expectedError, malformRequest);
 
-		const stubFetchResult = (ok, jsonResult) => {
-			sinon.stub(global, 'fetch').returns(Promise.resolve({
+		const stubFetchResult = (urlPath, ok, jsonResult) => {
+			if (!global.fetch.restore)
+				sinon.stub(global, 'fetch');
+
+			global.fetch.withArgs(`http://localhost:3456/${urlPath}`).returns(Promise.resolve({
 				ok,
 				json: () => jsonResult
 			}));
 		};
+
+		const createNodeTimeResult = () => ({
+			communicationTimestamps: {
+				sendTimestamp: 1000,
+				receiveTimestamp: 1001
+			}
+		});
+
+		const createNetworkFeesTransactionResult = () => ({
+			averageFeeMultiplier: 102,
+			medianFeeMultiplier: 100,
+			highestFeeMultiplier: 543,
+			lowestFeeMultiplier: 0,
+			minFeeMultiplier: 10
+		});
 
 		afterEach(() => {
 			if (global.fetch.restore)
@@ -245,22 +263,37 @@ describe('construction routes', () => {
 			delete request.network_identifier.network;
 		}));
 
-		it('fails when fetch fails (headers)', async () => {
+		it('fails when fetch fails (headers - node/time)', async () => {
 			// Arrange:
-			stubFetchResult(false, {
-				communicationTimestamps: {
-					sendTimestamp: 1000,
-					receiveTimestamp: 1001
-				}
-			});
+			stubFetchResult('node/time', false, createNodeTimeResult());
+			stubFetchResult('network/fees/transaction', true, createNetworkFeesTransactionResult());
 
 			// Act + Assert:
 			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
 		});
 
-		it('fails when fetch fails (body)', async () => {
+		it('fails when fetch fails (headers - network/fees/transaction)', async () => {
 			// Arrange:
-			stubFetchResult(true, Promise.reject(Error('fetch failed')));
+			stubFetchResult('node/time', true, createNodeTimeResult());
+			stubFetchResult('network/fees/transaction', false, createNetworkFeesTransactionResult());
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
+		});
+
+		it('fails when fetch fails (body - node/time)', async () => {
+			// Arrange:
+			stubFetchResult('node/time', true, Promise.reject(Error('fetch failed')));
+			stubFetchResult('network/fees/transaction', true, createNetworkFeesTransactionResult());
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
+		});
+
+		it('fails when fetch fails (body - network/fees/transaction)', async () => {
+			// Arrange:
+			stubFetchResult('node/time', true, createNodeTimeResult());
+			stubFetchResult('network/fees/transaction', true, Promise.reject(Error('fetch failed')));
 
 			// Act + Assert:
 			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
@@ -268,16 +301,13 @@ describe('construction routes', () => {
 
 		it('returns valid response on success', async () => {
 			// Arrange:
-			stubFetchResult(true, {
-				communicationTimestamps: {
-					sendTimestamp: 1000,
-					receiveTimestamp: 1001
-				}
-			});
+			stubFetchResult('node/time', true, createNodeTimeResult());
+			stubFetchResult('network/fees/transaction', true, createNetworkFeesTransactionResult());
 
 			const expectedResponse = new ConstructionMetadataResponse();
 			expectedResponse.metadata = {
-				networkTime: 1001
+				networkTime: 1001,
+				feeMultiplier: 102
 			};
 
 			// Act + Assert:
