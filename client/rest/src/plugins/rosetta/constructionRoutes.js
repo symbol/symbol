@@ -26,7 +26,7 @@ import ConstructionMetadataRequest from './openApi/model/ConstructionMetadataReq
 import ConstructionMetadataResponse from './openApi/model/ConstructionMetadataResponse.js';
 import ConstructionPreprocessRequest from './openApi/model/ConstructionPreprocessRequest.js';
 import ConstructionPreprocessResponse from './openApi/model/ConstructionPreprocessResponse.js';
-import { errors, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
+import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
 import { NetworkLocator, PublicKey } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 
@@ -39,7 +39,7 @@ export default {
 
 		server.post('/construction/derive', rosettaPostRouteWithNetwork(networkName, ConstructionDeriveRequest, typedRequest => {
 			if ('edwards25519' !== typedRequest.public_key.curve_type)
-				return errors.UNSUPPORTED_CURVE;
+				throw RosettaErrorFactory.UNSUPPORTED_CURVE;
 
 			try {
 				const publicKey = new PublicKey(typedRequest.public_key.hex_bytes);
@@ -49,7 +49,7 @@ export default {
 				response.account_identifier = new AccountIdentifier(address.toString());
 				return response;
 			} catch (err) {
-				return errors.INVALID_PUBLIC_KEY;
+				throw RosettaErrorFactory.INVALID_PUBLIC_KEY;
 			}
 		}));
 
@@ -74,12 +74,12 @@ export default {
 			try {
 				const response = await fetch(`${restUrl}/node/time`);
 				if (!response.ok)
-					return undefined;
+					throw RosettaErrorFactory.CONNECTION_ERROR;
 
 				const timestamps = await response.json();
 				return timestamps.communicationTimestamps.receiveTimestamp;
 			} catch (err) {
-				return undefined;
+				throw RosettaErrorFactory.CONNECTION_ERROR;
 			}
 		};
 
@@ -87,9 +87,6 @@ export default {
 			// ignore request object because only global metadata is needed for transaction construction
 
 			const networkTime = await getNetworkTime();
-			if (undefined === networkTime)
-				return errors.CONNECTION_ERROR;
-
 			const response = new ConstructionMetadataResponse();
 			response.metadata = { networkTime };
 			return response;

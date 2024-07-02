@@ -24,8 +24,8 @@ import AccountIdentifier from '../../../src/plugins/rosetta/openApi/model/Accoun
 import ConstructionDeriveResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionDeriveResponse.js';
 import ConstructionMetadataResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionMetadataResponse.js';
 import ConstructionPreprocessResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionPreprocessResponse.js';
-import RosettaError from '../../../src/plugins/rosetta/openApi/model/Error.js';
-import { errors } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import RosettaApiError from '../../../src/plugins/rosetta/openApi/model/Error.js';
+import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
 import MockServer from '../../routes/utils/MockServer.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -60,8 +60,8 @@ describe('construction routes', () => {
 		expect(mockServer.res.statusCode).to.equal(500);
 
 		const response = mockServer.send.firstCall.args[0];
-		expect(response).to.deep.equal(expectedError);
-		expect(() => RosettaError.validateJSON(response)).to.not.throw();
+		expect(response).to.deep.equal(expectedError.apiError);
+		expect(() => RosettaApiError.validateJSON(response)).to.not.throw();
 	};
 
 	const assertRosettaSuccessBasic = async (routeName, request, expectedResponse) => {
@@ -132,19 +132,18 @@ describe('construction routes', () => {
 			}
 		});
 
-		const assertRosettaErrorRaised = (expectedError, malformRequest) => {
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
 			assertRosettaErrorRaisedBasic('/construction/derive', createValidRequest(), expectedError, malformRequest);
-		};
 
-		it('fails when request is invalid', () => assertRosettaErrorRaised(errors.INVALID_REQUEST_DATA, request => {
+		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
 			delete request.network_identifier.network;
 		}));
 
-		it('fails when curve type is unsupported', () => assertRosettaErrorRaised(errors.UNSUPPORTED_CURVE, request => {
+		it('fails when curve type is unsupported', () => assertRosettaErrorRaised(RosettaErrorFactory.UNSUPPORTED_CURVE, request => {
 			request.public_key.curve_type = 'secp256k1';
 		}));
 
-		it('fails when public key is invalid', () => assertRosettaErrorRaised(errors.INVALID_PUBLIC_KEY, request => {
+		it('fails when public key is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_PUBLIC_KEY, request => {
 			request.public_key.hex_bytes += '0';
 		}));
 
@@ -184,11 +183,10 @@ describe('construction routes', () => {
 			]
 		});
 
-		const assertRosettaErrorRaised = (expectedError, malformRequest) => {
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
 			assertRosettaErrorRaisedBasic('/construction/preprocess', createValidTransferRequest(), expectedError, malformRequest);
-		};
 
-		it('fails when request is invalid', () => assertRosettaErrorRaised(errors.INVALID_REQUEST_DATA, request => {
+		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
 			delete request.network_identifier.network;
 		}));
 
@@ -228,9 +226,8 @@ describe('construction routes', () => {
 			network_identifier: createRosettaNetworkIdentifier()
 		});
 
-		const assertRosettaErrorRaised = (expectedError, malformRequest) => {
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
 			assertRosettaErrorRaisedBasic('/construction/metadata', createValidRequest(), expectedError, malformRequest);
-		};
 
 		const stubFetchResult = (ok, jsonResult) => {
 			sinon.stub(global, 'fetch').returns(Promise.resolve({
@@ -244,7 +241,7 @@ describe('construction routes', () => {
 				global.fetch.restore();
 		});
 
-		it('fails when request is invalid', () => assertRosettaErrorRaised(errors.INVALID_REQUEST_DATA, request => {
+		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
 			delete request.network_identifier.network;
 		}));
 
@@ -258,7 +255,7 @@ describe('construction routes', () => {
 			});
 
 			// Act + Assert:
-			await assertRosettaErrorRaised(errors.CONNECTION_ERROR, () => {});
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
 		});
 
 		it('fails when fetch fails (body)', async () => {
@@ -266,7 +263,7 @@ describe('construction routes', () => {
 			stubFetchResult(true, Promise.reject(Error('fetch failed')));
 
 			// Act + Assert:
-			await assertRosettaErrorRaised(errors.CONNECTION_ERROR, () => {});
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
 		});
 
 		it('returns valid response on success', async () => {

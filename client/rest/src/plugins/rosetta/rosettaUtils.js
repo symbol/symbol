@@ -19,36 +19,64 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import RosettaError from './openApi/model/Error.js';
+import RosettaApiError from './openApi/model/Error.js';
 import { sendJson } from '../../routes/simpleSend.js';
 
-export const errors = {
-	UNSUPPORTED_NETWORK: new RosettaError(1, 'unsupported network', false),
-	UNSUPPORTED_CURVE: new RosettaError(2, 'unsupported curve', false),
+class RosettaError extends Error {
+	constructor(code, message, retriable) {
+		super(message);
 
-	INVALID_PUBLIC_KEY: new RosettaError(3, 'invalid public key', false),
-	INVALID_REQUEST_DATA: new RosettaError(4, 'invalid request data', false),
+		this.apiError = new RosettaApiError(code, message, retriable);
+	}
+}
 
-	CONNECTION_ERROR: new RosettaError(5, 'unable to connect to network', true)
-};
+export class RosettaErrorFactory {
+	static get UNSUPPORTED_NETWORK() {
+		return new RosettaError(1, 'unsupported network', false);
+	}
+
+	static get UNSUPPORTED_CURVE() {
+		return new RosettaError(2, 'unsupported curve', false);
+	}
+
+	static get INVALID_PUBLIC_KEY() {
+		return new RosettaError(3, 'invalid public key', false);
+	}
+
+	static get INVALID_REQUEST_DATA() {
+		return new RosettaError(4, 'invalid request data', false);
+	}
+
+	static get CONNECTION_ERROR() {
+		return new RosettaError(5, 'unable to connect to network', true);
+	}
+
+	static get INTERNAL_SERVER_ERROR() {
+		return new RosettaError(100, 'internal server error', false);
+	}
+}
 
 export const rosettaPostRouteWithNetwork = (networkName, Request, handler) => async (req, res, next) => {
 	const send = data => {
-		const statusCode = data instanceof RosettaError ? 500 : undefined;
-		return sendJson(res, next)(data, statusCode);
+		const sender = sendJson(res, next);
+		return data instanceof RosettaError ? sender(data.apiError, 500) : sender(data, undefined);
 	};
 
 	try {
 		Request.validateJSON(req.body);
 	} catch (err) {
-		return send(errors.INVALID_REQUEST_DATA);
+		return send(RosettaErrorFactory.INVALID_REQUEST_DATA);
 	}
 
 	const typedRequest = Request.constructFromObject(req.body);
 	const checkNetwork = networkIdentifier => ('Symbol' === networkIdentifier.blockchain && networkName === networkIdentifier.network);
 	if (!checkNetwork(typedRequest.network_identifier))
-		return send(errors.UNSUPPORTED_NETWORK);
+		return send(RosettaErrorFactory.UNSUPPORTED_NETWORK);
 
-	const response = await handler(typedRequest);
-	return send(response);
+	try {
+		const response = await handler(typedRequest);
+		return send(response);
+	} catch (err) {
+		return send(err instanceof RosettaError ? err : RosettaErrorFactory.INTERNAL_SERVER_ERROR);
+	}
 };
