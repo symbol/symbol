@@ -402,7 +402,16 @@ class SymbolFacadeTest(unittest.TestCase):
 			'3F1F75C688CBD2D34263DA166537A90B4F371C1B38DDF00414AB0F5D78C3CD0F'
 		])))
 
-	def _assert_can_verify_transaction(self, transaction_factory):
+	@staticmethod
+	def _sign_transaction(facade, key_pair, transaction):
+		return facade.sign_transaction(key_pair, transaction)
+
+	@staticmethod
+	def _sign_transaction_signing_payload(facade, key_pair, transaction):
+		signing_payload = facade.extract_signing_payload(transaction)
+		return key_pair.sign(signing_payload)
+
+	def _assert_can_verify_transaction(self, transaction_factory, sign):
 		# Arrange:
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
 		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
@@ -413,17 +422,23 @@ class SymbolFacadeTest(unittest.TestCase):
 		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
 		# Act:
-		signature = facade.sign_transaction(SymbolFacade.KeyPair(private_key), transaction)
+		signature = sign(facade, SymbolFacade.KeyPair(private_key), transaction)
 		is_verified = facade.verify_transaction(transaction, signature)
 
 		# Assert:
 		self.assertTrue(is_verified)
 
-	def test_can_verify_transaction(self):
-		self._assert_can_verify_transaction(self._create_real_transfer)
+	def test_can_verify_signed_transaction(self):
+		self._assert_can_verify_transaction(self._create_real_transfer, self._sign_transaction)
 
-	def test_can_verify_aggregate_transaction(self):
-		self._assert_can_verify_transaction(self._create_real_aggregate)
+	def test_can_verify_signed_aggregate_transaction(self):
+		self._assert_can_verify_transaction(self._create_real_aggregate, self._sign_transaction)
+
+	def test_can_verify_signed_transaction_signing_payload(self):
+		self._assert_can_verify_transaction(self._create_real_transfer, self._sign_transaction_signing_payload)
+
+	def test_can_verify_signed_aggregate_transaction_signing_payload(self):
+		self._assert_can_verify_transaction(self._create_real_aggregate, self._sign_transaction_signing_payload)
 
 	# endregion
 

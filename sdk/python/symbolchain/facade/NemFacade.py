@@ -93,16 +93,18 @@ class NemFacade:
 		return Hash256(sha3.keccak_256(non_verifiable_transaction.serialize()).digest())
 
 	@staticmethod
-	def sign_transaction(key_pair, transaction):
-		"""Signs a NEM transaction."""
+	def extract_signing_payload(transaction):
+		"""Gets the payload to sign given a NEM transaction."""
 		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
-		return key_pair.sign(non_verifiable_transaction.serialize())
+		return non_verifiable_transaction.serialize()
 
-	@staticmethod
-	def verify_transaction(transaction, signature):
+	def sign_transaction(self, key_pair, transaction):
+		"""Signs a NEM transaction."""
+		return key_pair.sign(self.extract_signing_payload(transaction))
+
+	def verify_transaction(self, transaction, signature):
 		"""Verifies a NEM transaction."""
-		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
-		return Verifier(transaction.signer_public_key).verify(non_verifiable_transaction.serialize(), signature)
+		return Verifier(transaction.signer_public_key).verify(self.extract_signing_payload(transaction), signature)
 
 	def bip32_path(self, account_id):
 		"""Creates a network compatible BIP32 path for the specified account."""

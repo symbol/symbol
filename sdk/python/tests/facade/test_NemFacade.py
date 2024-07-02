@@ -250,13 +250,15 @@ class NemFacadeTest(unittest.TestCase):
 	def test_can_sign_transaction(self):
 		# Arrange:
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+		facade = NemFacade('testnet')
+
 		transaction = self._create_real_transfer()
 
 		# Sanity:
 		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
 		# Act:
-		signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
+		signature = facade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
 
 		# Assert:
 		expected_signature = Signature(''.join([
@@ -265,20 +267,35 @@ class NemFacadeTest(unittest.TestCase):
 		]))
 		self.assertEqual(expected_signature, signature)
 
-	def test_can_verify_transaction(self):
+	@staticmethod
+	def _sign_transaction(facade, key_pair, transaction):
+		return facade.sign_transaction(key_pair, transaction)
+
+	@staticmethod
+	def _sign_transaction_signing_payload(facade, key_pair, transaction):
+		signing_payload = facade.extract_signing_payload(transaction)
+		return key_pair.sign(signing_payload)
+
+	def _assert_can_verify_transaction(self, transaction, sign):
 		# Arrange:
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-		transaction = self._create_real_transfer()
+		facade = NemFacade('testnet')
 
 		# Sanity:
 		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
 		# Act:
-		signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
-		is_verified = NemFacade.verify_transaction(transaction, signature)
+		signature = sign(facade, NemFacade.KeyPair(private_key), transaction)
+		is_verified = facade.verify_transaction(transaction, signature)
 
 		# Assert:
 		self.assertTrue(is_verified)
+
+	def test_can_verify_signed_transaction(self):
+		self._assert_can_verify_transaction(self._create_real_transfer(), self._sign_transaction)
+
+	def test_can_verify_signed_transaction_signing_payload(self):
+		self._assert_can_verify_transaction(self._create_real_transfer(), self._sign_transaction_signing_payload)
 
 	# endregion
 
@@ -297,36 +314,28 @@ class NemFacadeTest(unittest.TestCase):
 	def test_can_sign_multisig_transaction(self):
 		# Arrange:
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+		facade = NemFacade('testnet')
+
 		transaction = self._create_real_multisig_transaction()
 
 		# Sanity:
 		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
 		# Act:
-		signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
+		signature = facade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
 
 		# Assert:
-		print(signature)
 		expected_signature = Signature(''.join([
 			'E324CCA57275D9752A684E6A089733803423647B8DDF5C1627FC23218CC84287'
 			'EB7037AD4C6CB8CB37BBC9F5423FA73F431814A008400A756CFFE35F4533EB00'
 		]))
 		self.assertEqual(expected_signature, signature)
 
-	def test_can_verify_multisig_transaction(self):
-		# Arrange:
-		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-		transaction = self._create_real_multisig_transaction()
+	def test_can_verify_signed_multisig_transaction(self):
+		self._assert_can_verify_transaction(self._create_real_multisig_transaction(), self._sign_transaction)
 
-		# Sanity:
-		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
-
-		# Act:
-		signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
-		is_verified = NemFacade.verify_transaction(transaction, signature)
-
-		# Assert:
-		self.assertTrue(is_verified)
+	def test_can_verify_signed_multisig_transaction_signing_payload(self):
+		self._assert_can_verify_transaction(self._create_real_multisig_transaction(), self._sign_transaction_signing_payload)
 
 	# endregion
 

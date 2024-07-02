@@ -116,17 +116,19 @@ class SymbolFacade:
 		hasher.update(self._transaction_data_buffer(transaction.serialize()))
 		return Hash256(hasher.digest())
 
-	def sign_transaction(self, key_pair, transaction):
-		"""Signs a Symbol transaction."""
+	def extract_signing_payload(self, transaction):
+		"""Gets the payload to sign given a Symbol transaction."""
 		sign_buffer = self.network.generation_hash_seed.bytes
 		sign_buffer += self._transaction_data_buffer(transaction.serialize())
-		return key_pair.sign(sign_buffer)
+		return sign_buffer
+
+	def sign_transaction(self, key_pair, transaction):
+		"""Signs a Symbol transaction."""
+		return key_pair.sign(self.extract_signing_payload(transaction))
 
 	def verify_transaction(self, transaction, signature):
 		"""Verifies a Symbol transaction."""
-		verify_buffer = self.network.generation_hash_seed.bytes
-		verify_buffer += self._transaction_data_buffer(transaction.serialize())
-		return Verifier(transaction.signer_public_key).verify(verify_buffer, signature)
+		return Verifier(transaction.signer_public_key).verify(self.extract_signing_payload(transaction), signature)
 
 	def cosign_transaction(self, key_pair, transaction, detached=False):
 		"""Cosigns a Symbol transaction."""
