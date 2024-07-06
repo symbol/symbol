@@ -19,22 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const namespace = require('../../../src/catapult-sdk/plugins/namespace');
-const schemaFormatter = require('../../../src/catapult-sdk/utils/schemaFormatter');
-const test = require('../binaryTestUtils');
-const { expect } = require('chai');
-
-const constants = {
-	sizes: {
-		aliasAddress: 33,
-		aliasMosaic: 17,
-		namespaceName: 6,
-		registerNamespace: 18
-	}
-};
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import namespace from '../../../src/catapult-sdk/plugins/namespace.js';
+import schemaFormatter from '../../../src/catapult-sdk/utils/schemaFormatter.js';
+import { expect } from 'chai';
 
 describe('namespace plugin', () => {
 	describe('register schema', () => {
@@ -50,8 +39,9 @@ describe('namespace plugin', () => {
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 15);
 			expect(modelSchema).to.contain.all.keys(
-				'aliasAddress',
-				'aliasMosaic',
+				'TransactionType.ADDRESS_ALIAS',
+				'TransactionType.MOSAIC_ALIAS',
+				'TransactionType.NAMESPACE_REGISTRATION',
 				'namespaces',
 				'namespaceDescriptor',
 				'namespaceDescriptor.meta',
@@ -60,20 +50,26 @@ describe('namespace plugin', () => {
 				'namespaceDescriptor.alias.address',
 				'namespaceDescriptor.alias.empty',
 				'namespaceNameTuple',
-				'registerNamespace',
 				'mosaicNames',
 				'mosaicNamesTuple',
 				'accountNames',
 				'accountNamesTuple'
 			);
 
-			// - alias address
-			expect(Object.keys(modelSchema.aliasAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.aliasAddress).to.contain.all.keys(['namespaceId', 'address', 'aliasAction']);
+			// - TransactionType.ADDRESS_ALIAS
+			const addressAliasSchema = modelSchema['TransactionType.ADDRESS_ALIAS'];
+			expect(Object.keys(addressAliasSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(addressAliasSchema).to.contain.all.keys(['namespaceId', 'address', 'aliasAction']);
 
-			// - alias mosaic
-			expect(Object.keys(modelSchema.aliasMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.aliasMosaic).to.contain.all.keys(['namespaceId', 'mosaicId', 'aliasAction']);
+			// - TransactionType.MOSAIC_ALIAS
+			const mosaicAliasSchema = modelSchema['TransactionType.MOSAIC_ALIAS'];
+			expect(Object.keys(mosaicAliasSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(mosaicAliasSchema).to.contain.all.keys(['namespaceId', 'mosaicId', 'aliasAction']);
+
+			// - TransactionType.NAMESPACE_REGISTRATION
+			const namespaceRegistrationSchema = modelSchema['TransactionType.NAMESPACE_REGISTRATION'];
+			expect(Object.keys(namespaceRegistrationSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
+			expect(namespaceRegistrationSchema).to.contain.all.keys(['id', 'registrationType', 'parentId', 'duration', 'name']);
 
 			// - namespaces
 			expect(Object.keys(modelSchema.namespaces).length).to.equal(1);
@@ -109,10 +105,6 @@ describe('namespace plugin', () => {
 			// - namespaceNameTuple
 			expect(Object.keys(modelSchema.namespaceNameTuple).length).to.equal(3);
 			expect(modelSchema.namespaceNameTuple).to.contain.all.keys(['id', 'name', 'parentId']);
-
-			// - register namespace
-			expect(Object.keys(modelSchema.registerNamespace).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
-			expect(modelSchema.registerNamespace).to.contain.all.keys(['id', 'registrationType', 'parentId', 'duration', 'name']);
 
 			// - mosaic names
 			expect(Object.keys(modelSchema.mosaicNames).length).to.equal(1);
@@ -232,98 +224,6 @@ describe('namespace plugin', () => {
 				expect(formattedAlias).deep.equal({
 					type: 'uint8'
 				});
-			});
-		});
-	});
-
-	describe('register codecs', () => {
-		const getCodecs = () => {
-			const codecs = {};
-			namespace.registerCodecs({
-				addTransactionSupport: (type, codec) => { codecs[type] = codec; }
-			});
-
-			return codecs;
-		};
-
-		it('adds namespace codecs', () => {
-			// Act:
-			const codecs = getCodecs();
-
-			// Assert: codecs were registered
-			expect(Object.keys(codecs).length).to.equal(3);
-			expect(codecs).to.contain.all.keys([
-				EntityType.aliasAddress.toString(),
-				EntityType.aliasMosaic.toString(),
-				EntityType.registerNamespace.toString()
-			]);
-		});
-
-		const getCodec = entityType => getCodecs()[entityType];
-
-		describe('supports alias address', () => {
-			const address = test.random.bytes(test.constants.sizes.addressDecoded);
-
-			test.binary.test.addAll(getCodec(EntityType.aliasAddress), constants.sizes.aliasAddress, () => ({
-				buffer: Buffer.concat([
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
-					Buffer.from(address), // address
-					Buffer.of(0xCA) // alias action
-				]),
-
-				object: {
-					namespaceId: [0x066C26F2, 0x92B28340],
-					address,
-					aliasAction: 0xCA
-				}
-			}));
-		});
-
-		describe('supports alias mosaic', () => {
-			test.binary.test.addAll(getCodec(EntityType.aliasMosaic), constants.sizes.aliasMosaic, () => ({
-				buffer: Buffer.concat([
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
-					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // mosaic id
-					Buffer.of(0xCA) // alias action
-				]),
-
-				object: {
-					namespaceId: [0x066C26F2, 0x92B28340],
-					mosaicId: [0x6E8ED0CA, 0x492F21FF],
-					aliasAction: 0xCA
-				}
-			}));
-		});
-
-		describe('supports register namespace', () => {
-			const generateTransaction = registrationType => ({
-				buffer: Buffer.concat([
-					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // duration or parent id
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
-					Buffer.of(registrationType), // namespace type
-					Buffer.of(0x06), // namespace name size
-					Buffer.of(0x6A, 0x61, 0x62, 0x6F, 0x33, 0x38) // namespace name
-				]),
-
-				object: {
-					[registrationType ? 'parentId' : 'duration']: [0x6E8ED0CA, 0x492F21FF],
-					id: [0x066C26F2, 0x92B28340],
-					registrationType,
-					name: 'jabo38'
-				}
-			});
-
-			const addAll = registrationType => {
-				const size = constants.sizes.registerNamespace + constants.sizes.namespaceName;
-				test.binary.test.addAll(getCodec(EntityType.registerNamespace), size, () => generateTransaction(registrationType));
-			};
-
-			describe('with root type', () => {
-				addAll(0x00);
-			});
-
-			describe('with child type', () => {
-				addAll(0x01);
 			});
 		});
 	});

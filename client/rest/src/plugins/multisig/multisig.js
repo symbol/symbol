@@ -20,14 +20,14 @@
  */
 
 /** @module plugins/multisig */
-const MultisigDb = require('./MultisigDb');
-const multisigRoutes = require('./multisigRoutes');
+import MultisigDb from './MultisigDb.js';
+import multisigRoutes from './multisigRoutes.js';
 
 /**
  * Creates a multisig plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: db => new MultisigDb(db),
 
 	registerTransactionStates: () => {},

@@ -37,3 +37,7 @@ class ByteArray(Ordered):
 
 	def __str__(self):
 		return hexlify(self.bytes).decode('utf8').upper()
+
+	def to_json(self):
+		"""Returns representation of this object that can be stored in JSON."""
+		return str(self)

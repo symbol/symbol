@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const testDbOptions = require('./utils/testDbOptions');
-const connector = require('../../src/db/connector');
-const { expect } = require('chai');
+import testDbOptions from './utils/testDbOptions.js';
+import connector from '../../src/db/connector.js';
+import { expect } from 'chai';
 
 describe('connector', () => {
 	const connections = [];

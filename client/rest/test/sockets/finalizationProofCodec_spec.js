@@ -19,13 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const finalizationProofCodec = require('../../src/sockets/finalizationProofCodec');
-const { expect } = require('chai');
+import catapult from '../../src/catapult-sdk/index.js';
+import finalizationProofCodec from '../../src/sockets/finalizationProofCodec.js';
+import { expect } from 'chai';
 
 const { BinaryParser } = catapult.parser;
 
-describe('deserialize', () => {
+describe('finalization proof codec deserialize', () => {
 	const size = Buffer.from([0x38, 0x00, 0x00, 0x00]); // 4b
 	const version = Buffer.from([0x64, 0x00, 0x00, 0x00]); // 4b
 	const finalizationEpoch = Buffer.from([0x02, 0x00, 0x00, 0x00]); // 4b
@@ -116,7 +116,7 @@ describe('deserialize', () => {
 				finalizationProof.push(createMessageGroup(hashCount, signatureCount));
 				expectedMessageGroups.push({
 					stage: 1,
-					height: [215501, 0],
+					height: 215501n,
 					hashes: expectedHashes,
 					signatures: expectedSignatures
 				});
@@ -133,7 +133,7 @@ describe('deserialize', () => {
 				version: 100,
 				finalizationEpoch: 2,
 				finalizationPoint: 1,
-				height: [215501, 0],
+				height: 215501n,
 				hash,
 				messageGroups: expectedMessageGroups
 			});

@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const { expect } = require('chai');
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import { expect } from 'chai';
 
 describe('model type enumeration', () => {
 	it('exposes expected types', () => {

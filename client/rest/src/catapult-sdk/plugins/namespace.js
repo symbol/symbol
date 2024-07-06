@@ -20,17 +20,8 @@
  */
 
 /** @module plugins/namespace */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
-
-const constants = { sizes };
-
-const isNamespaceTypeRoot = namespaceType => 0 === namespaceType;
-
-const parseString = (parser, size) => parser.buffer(size).toString('ascii');
-
-const writeString = (serializer, str) => { serializer.writeBuffer(Buffer.from(str, 'ascii')); };
+import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 const AliasType = {
 	1: 'namespaceDescriptor.alias.mosaic',
@@ -43,21 +34,21 @@ const getAliasBasicType = type => AliasType[type] || 'namespaceDescriptor.alias.
  * Creates a namespace plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const namespacePlugin = {
+export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.aliasAddress, {
+		builder.addTransactionSupport(models.TransactionType.ADDRESS_ALIAS, {
 			namespaceId: ModelType.uint64HexIdentifier,
 			address: ModelType.encodedAddress,
 			aliasAction: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.aliasMosaic, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_ALIAS, {
 			namespaceId: ModelType.uint64HexIdentifier,
 			mosaicId: ModelType.uint64HexIdentifier,
 			aliasAction: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.registerNamespace, {
+		builder.addTransactionSupport(models.TransactionType.NAMESPACE_REGISTRATION, {
 			id: ModelType.uint64HexIdentifier,
 			registrationType: ModelType.uint8,
 			parentId: ModelType.uint64HexIdentifier,
@@ -134,58 +125,5 @@ const namespacePlugin = {
 			address: ModelType.encodedAddress,
 			names: { type: ModelType.array, schemaName: ModelType.string }
 		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.aliasAddress, {
-			deserialize: parser => ({
-				namespaceId: parser.uint64(),
-				address: parser.buffer(constants.sizes.addressDecoded),
-				aliasAction: parser.uint8()
-			}),
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.namespaceId);
-				serializer.writeBuffer(transaction.address);
-				serializer.writeUint8(transaction.aliasAction);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.aliasMosaic, {
-			deserialize: parser => ({
-				namespaceId: parser.uint64(),
-				mosaicId: parser.uint64(),
-				aliasAction: parser.uint8()
-			}),
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.namespaceId);
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint8(transaction.aliasAction);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.registerNamespace, {
-			deserialize: parser => {
-				const transaction = {};
-				const parentIdOrDuration = parser.uint64();
-				transaction.id = parser.uint64();
-				transaction.registrationType = parser.uint8();
-				transaction[isNamespaceTypeRoot(transaction.registrationType) ? 'duration' : 'parentId'] = parentIdOrDuration;
-				const nameSize = parser.uint8();
-				transaction.name = parseString(parser, nameSize);
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(isNamespaceTypeRoot(transaction.registrationType) ? transaction.duration : transaction.parentId);
-				serializer.writeUint64(transaction.id);
-				serializer.writeUint8(transaction.registrationType);
-				serializer.writeUint8(transaction.name.length);
-				writeString(serializer, transaction.name);
-			}
-		});
 	}
 };
-
-module.exports = namespacePlugin;

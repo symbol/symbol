@@ -19,15 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const SubscriptionManager = require('./SubscriptionManager');
-const errors = require('./errors');
-const websocketMessageHandler = require('./websocketMessageHandler');
-const websocketUtils = require('./websocketUtils');
-const restify = require('restify');
-const restifyErrors = require('restify-errors');
-const winston = require('winston');
-const WebSocket = require('ws');
-const fs = require('fs');
+import SubscriptionManager from './SubscriptionManager.js';
+import errors from './errors.js';
+import websocketMessageHandler from './websocketMessageHandler.js';
+import websocketUtils from './websocketUtils.js';
+import restify from 'restify';
+import restifyErrors from 'restify-errors';
+import winston from 'winston';
+import { WebSocketServer } from 'ws';
+import fs from 'fs';
 
 const isPromise = object => object && object.catch;
 
@@ -103,7 +103,7 @@ const readSSLFileSync = (path, fileType, pathProperty) => {
 	}
 };
 
-module.exports = {
+export default {
 	createCrossDomainHeaderAdder,
 
 	/**
@@ -221,7 +221,7 @@ module.exports = {
 		});
 
 		// handle upgrade events (for websocket support)
-		const wss = new WebSocket.Server({ noServer: true, clientTracking: false });
+		const wss = new WebSocketServer({ noServer: true, clientTracking: false });
 
 		server.on('upgrade', (req, socket, head) => {
 			wss.handleUpgrade(req, socket, head, client => {

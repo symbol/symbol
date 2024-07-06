@@ -19,19 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const mosaic = require('../../../src/catapult-sdk/plugins/mosaic');
-const test = require('../binaryTestUtils');
-const { expect } = require('chai');
-
-const constants = {
-	sizes: {
-		mosaicDefinition: 22,
-		mosaicSupplyChange: 17,
-		mosaicSupplyRevocation: 40
-	}
-};
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import mosaic from '../../../src/catapult-sdk/plugins/mosaic.js';
+import { expect } from 'chai';
 
 describe('mosaic plugin', () => {
 	describe('register schema', () => {
@@ -47,20 +37,27 @@ describe('mosaic plugin', () => {
 			// Assert:
 			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 5);
 			expect(modelSchema).to.contain.all.keys(
-				'mosaicDefinition',
-				'mosaicSupplyChange',
-				'mosaicSupplyRevocation',
+				'TransactionType.MOSAIC_DEFINITION',
+				'TransactionType.MOSAIC_SUPPLY_CHANGE',
+				'TransactionType.MOSAIC_SUPPLY_REVOCATION',
 				'mosaicDescriptor',
 				'mosaicDescriptor.mosaic'
 			);
 
-			// - mosaic definition
-			expect(Object.keys(modelSchema.mosaicDefinition).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
-			expect(modelSchema.mosaicDefinition).to.contain.all.keys(['id', 'duration', 'nonce', 'flags', 'divisibility']);
+			// - TransactionType.MOSAIC_DEFINITION
+			const mosaicDefinitionSchema = modelSchema['TransactionType.MOSAIC_DEFINITION'];
+			expect(Object.keys(mosaicDefinitionSchema).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
+			expect(mosaicDefinitionSchema).to.contain.all.keys(['id', 'duration', 'nonce', 'flags', 'divisibility']);
 
-			// - mosaic supply change
-			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta', 'action']);
+			// - TransactionType.MOSAIC_SUPPLY_CHANGE
+			const mosaicSupplyChange = modelSchema['TransactionType.MOSAIC_SUPPLY_CHANGE'];
+			expect(Object.keys(mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta', 'action']);
+
+			// - TransactionType.MOSAIC_SUPPLY_REVOCATION
+			const mosaicSupplyRevocation = modelSchema['TransactionType.MOSAIC_SUPPLY_REVOCATION'];
+			expect(Object.keys(mosaicSupplyRevocation).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(mosaicSupplyRevocation).to.contain.all.keys(['sourceAddress', 'mosaicId', 'amount']);
 
 			// - mosaic descriptor
 			expect(Object.keys(modelSchema.mosaicDescriptor).length).to.equal(2);
@@ -71,94 +68,6 @@ describe('mosaic plugin', () => {
 			expect(modelSchema['mosaicDescriptor.mosaic']).to.contain.all.keys([
 				'version', 'id', 'supply', 'startHeight', 'ownerAddress', 'revision', 'flags', 'divisibility', 'duration'
 			]);
-		});
-	});
-
-	describe('register codecs', () => {
-		const getCodecs = () => {
-			const codecs = {};
-			mosaic.registerCodecs({
-				addTransactionSupport: (type, codec) => { codecs[type] = codec; }
-			});
-
-			return codecs;
-		};
-
-		it('adds mosaic codecs', () => {
-			// Act:
-			const codecs = getCodecs();
-
-			// Assert: codecs were registered
-			expect(Object.keys(codecs).length).to.equal(3);
-			expect(codecs).to.contain.all.keys([
-				EntityType.mosaicDefinition.toString(),
-				EntityType.mosaicSupplyChange.toString(),
-				EntityType.mosaicSupplyRevocation.toString()
-			]);
-		});
-
-		const getCodec = entityType => getCodecs()[entityType];
-
-		describe('supports mosaic definition', () => {
-			const generateTransaction = () => ({
-				buffer: Buffer.concat([
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // mosaic id
-					Buffer.of(0xFA, 0x62, 0xCC, 0x56, 0x42, 0x37, 0xBB, 0xD2), // duration
-					Buffer.of(0x06, 0xFF, 0xCA, 0xB8), // mosaic nonce
-					Buffer.of(0x11), // flags
-					Buffer.of(0x66) // divisibility
-				]),
-
-				object: {
-					id: [0x066C26F2, 0x92B28340],
-					duration: [0x56CC62FA, 0xD2BB3742],
-					nonce: 3100311302,
-					flags: 0x11,
-					divisibility: 0x66
-				}
-			});
-
-			test.binary.test.addAll(getCodec(EntityType.mosaicDefinition), constants.sizes.mosaicDefinition, generateTransaction);
-		});
-
-		describe('supports mosaic supply change', () => {
-			const generateTransaction = () => ({
-				buffer: Buffer.concat([
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // mosaic id
-					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // delta
-					Buffer.of(0x01) // action
-				]),
-
-				object: {
-					mosaicId: [0x066C26F2, 0x92B28340],
-					delta: [0x6E8ED0CA, 0x492F21FF],
-					action: 0x01
-				}
-			});
-
-			test.binary.test.addAll(getCodec(EntityType.mosaicSupplyChange), constants.sizes.mosaicSupplyChange, generateTransaction);
-		});
-
-		describe('supports mosaic supply revokation', () => {
-			const sourceAddressBuffer = test.random.bytes(test.constants.sizes.addressDecoded);
-			const generateTransaction = () => ({
-				buffer: Buffer.concat([
-					sourceAddressBuffer, // source address
-					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // mosaic id
-					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49) // amount
-				]),
-
-				object: {
-					sourceAddress: sourceAddressBuffer,
-					mosaicId: [0x066C26F2, 0x92B28340],
-					amount: [0x6E8ED0CA, 0x492F21FF]
-				}
-			});
-
-			test.binary.test.addAll(
-				getCodec(EntityType.mosaicSupplyRevocation),
-				constants.sizes.mosaicSupplyRevocation, generateTransaction
-			);
 		});
 	});
 });

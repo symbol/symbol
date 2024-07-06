@@ -21,7 +21,7 @@
 
 /** @module utils/future */
 
-const future = {
+export default {
 	/**
 	 * Makes a future retryable.
 	 * @param {Function} futureSupplier Function that returns a new instance of the wrapped future.
@@ -53,5 +53,3 @@ const future = {
 		});
 	}
 };
-
-module.exports = future;

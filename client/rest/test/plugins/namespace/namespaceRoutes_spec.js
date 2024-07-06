@@ -19,20 +19,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const namespaceRoutes = require('../../../src/plugins/namespace/namespaceRoutes');
-const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
-const routeUtils = require('../../../src/routes/routeUtils');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { test } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import catapult from '../../../src/catapult-sdk/index.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import namespaceRoutes from '../../../src/plugins/namespace/namespaceRoutes.js';
+import namespaceUtils from '../../../src/plugins/namespace/namespaceUtils.js';
+import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
+import { Address, models } from 'symbol-sdk/symbol';
 
 const { Binary } = MongoDb;
-const { uint64 } = catapult.utils;
-const { address } = catapult.model;
 
 describe('namespace routes', () => {
 	describe('namespaces', () => {
@@ -214,7 +213,7 @@ describe('namespace routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesFake.calledOnce).to.equal(true);
-					expect(dbNamespacesFake.firstCall.args[1]).to.deep.equal(uint64.fromHex(level0));
+					expect(dbNamespacesFake.firstCall.args[1]).to.deep.equal(BigInt(`0x${level0}`));
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -229,7 +228,7 @@ describe('namespace routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesFake.calledOnce).to.equal(true);
-					expect(dbNamespacesFake.firstCall.args[2]).to.deep.equal(address.stringToAddress(ownerAddress));
+					expect(dbNamespacesFake.firstCall.args[2]).to.deep.equal(new Address(ownerAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -305,7 +304,7 @@ describe('namespace routes', () => {
 		test.route.document.addGetDocumentRouteTests(namespaceRoutes.register, {
 			route: '/namespaces/:namespaceId',
 			inputs: {
-				valid: { object: { namespaceId }, parsed: [[0x90ABCDEF, 0x12345678]], printable: namespaceId },
+				valid: { object: { namespaceId }, parsed: [0x1234567890ABCDEFn], printable: namespaceId },
 				invalid: {
 					object: { namespaceId: '12345' },
 					error: 'namespaceId has an invalid format'
@@ -323,11 +322,11 @@ describe('namespace routes', () => {
 			// 1. in db, parentId is only stored for child namespaces
 			// 2. db returns null instead of undefined when a document property is not present
 			parentId: undefined === parentId ? null : createParentId(parentId),
-			id: [0, namespaceId]
+			id: namespaceId
 		});
 
 		const Valid_Hex_String_Namespace_Ids = ['1234567890ABCDEF', 'ABCDEF0123456789'];
-		const Valid_Uint64_Namespace_Ids = [[0x90ABCDEF, 0x12345678], [0x23456789, 0xABCDEF01]];
+		const Valid_Uint64_Namespace_Ids = [0x1234567890ABCDEFn, 0xABCDEF0123456789n];
 
 		const runTest = options => {
 			// Arrange:
@@ -358,7 +357,7 @@ describe('namespace routes', () => {
 					expect(dbParamTuples.length).to.equal(options.expectedNumDbQueries);
 					dbParamTuples.forEach(dbParamTuple => {
 						expect(dbParamTuple.ids).to.deep.equal(options.queryIdsGroupedByLevel[level++]);
-						expect(dbParamTuple.transactionType).to.deep.equal(catapult.model.EntityType.registerNamespace);
+						expect(dbParamTuple.transactionType).to.deep.equal(models.TransactionType.NAMESPACE_REGISTRATION);
 						expect(dbParamTuple.fieldsDescriptor).to.deep.equal({ id: 'id', name: 'name', parentId: 'parentId' });
 					});
 
@@ -436,7 +435,7 @@ describe('namespace routes', () => {
 
 				// Assert:
 				expect(aliasNamesRoutesProcessorSpy.calledTwice).to.equal(true);
-				expect(aliasNamesRoutesProcessorSpy.firstCall.args[1]).to.equal(catapult.model.namespace.aliasType.mosaic);
+				expect(aliasNamesRoutesProcessorSpy.firstCall.args[1]).to.equal(catapult.model.NamespaceAliasType.MOSAIC_ID);
 				expect(aliasNamesRoutesProcessorSpy.firstCall.args[4]).to.equal('mosaicId');
 				expect(aliasNamesRoutesProcessorSpy.firstCall.args[5]).to.equal('mosaicNames');
 
@@ -458,7 +457,7 @@ describe('namespace routes', () => {
 				it('parses mosaic ids correctly', () => {
 					// Arrange:
 					const req = { params: { mosaicIds: ['78A4895CB6653DE4', '56AB67FF45468988'] } };
-					const parsedValues = [[0xB6653DE4, 0x78A4895C], [0x45468988, 0x56AB67FF]].map(convertToLong);
+					const parsedValues = [0x78A4895CB6653DE4n, 0x56AB67FF45468988n].map(convertToLong);
 
 					// Act + Assert:
 					expect(getParams(req)).to.deep.equal(parsedValues);
@@ -530,7 +529,7 @@ describe('namespace routes', () => {
 
 				// Assert:
 				expect(aliasNamesRoutesProcessorSpy.calledTwice).to.equal(true);
-				expect(aliasNamesRoutesProcessorSpy.secondCall.args[1]).to.equal(catapult.model.namespace.aliasType.address);
+				expect(aliasNamesRoutesProcessorSpy.secondCall.args[1]).to.equal(catapult.model.NamespaceAliasType.ADDRESS);
 				expect(aliasNamesRoutesProcessorSpy.secondCall.args[4]).to.equal('address');
 				expect(aliasNamesRoutesProcessorSpy.secondCall.args[5]).to.equal('accountNames');
 
@@ -555,8 +554,8 @@ describe('namespace routes', () => {
 
 					// Act + Assert:
 					expect(getParams(req)).to.deep.equal([
-						address.stringToAddress(testAddress.one),
-						address.stringToAddress(testAddress.two)
+						new Address(testAddress.one).bytes,
+						new Address(testAddress.two).bytes
 					]);
 				});
 
@@ -592,7 +591,7 @@ describe('namespace routes', () => {
 
 				it('filters namespaces aliasing addresses correctly', () => {
 					// Arrange:
-					const id = address.stringToAddress(testAddress.one);
+					const id = new Address(testAddress.one).bytes;
 					const namespace1 = {
 						namespace: { alias: { address: new Binary(Buffer.from(id)) } }
 					};
@@ -601,8 +600,8 @@ describe('namespace routes', () => {
 					};
 
 					// Act + Assert:
-					expect(namespaceFilter(namespace1, address.stringToAddress(testAddress.one))).to.equal(true);
-					expect(namespaceFilter(namespace2, address.stringToAddress(testAddress.two))).to.equal(false);
+					expect(namespaceFilter(namespace1, new Address(testAddress.one).bytes)).to.equal(true);
+					expect(namespaceFilter(namespace2, new Address(testAddress.two).bytes)).to.equal(false);
 				});
 			});
 		});

@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-module.exports = {
+export default {
 	// with meta data
 	account: 'accountWithMetadata',
 	block: 'blockHeaderWithMetadata',

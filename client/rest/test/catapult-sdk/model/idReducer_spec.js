@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const idReducer = require('../../../src/catapult-sdk/model/idReducer');
-const { expect } = require('chai');
+import idReducer from '../../../src/catapult-sdk/model/idReducer.js';
+import { expect } from 'chai';
 
 describe('id reducer', () => {
 	describe('id to name lookup', () => {
@@ -29,7 +29,7 @@ describe('id reducer', () => {
 		it('can be built around empty tuples', () => {
 			// Act:
 			const lookup = idReducer.createIdToNameLookup([]);
-			const name = lookup.findName([0, 2]);
+			const name = lookup.findName(2n);
 
 			// Assert:
 			expect(lookup.length).to.equal(0);
@@ -39,14 +39,14 @@ describe('id reducer', () => {
 		it('can be built arround 1-level tuples', () => {
 			// Act:
 			const lookup = idReducer.createIdToNameLookup([
-				{ name: 'alice', namespaceId: [1, 1], parentId: [0, 0] },
-				{ name: 'bob', namespaceId: [2, 5], parentId: [0, 0] },
-				{ name: 'carol', namespaceId: [3, 7], parentId: [0, 0] }
+				{ name: 'alice', namespaceId: 11n, parentId: 0n },
+				{ name: 'bob', namespaceId: 25n, parentId: 0n },
+				{ name: 'carol', namespaceId: 37n, parentId: 0n }
 			]);
 			const names = {
-				alice: lookup.findName([1, 1]),
-				bob: lookup.findName([2, 5]),
-				carol: lookup.findName([3, 7])
+				alice: lookup.findName(11n),
+				bob: lookup.findName(25n),
+				carol: lookup.findName(37n)
 			};
 
 			// Assert:
@@ -61,18 +61,18 @@ describe('id reducer', () => {
 		it('can be built arround 2-level tuples', () => {
 			// Act:
 			const lookup = idReducer.createIdToNameLookup([
-				{ name: 'alice', namespaceId: [1, 1], parentId: [0, 0] },
-				{ name: 'apple', namespaceId: [0, 2], parentId: [1, 1] },
-				{ name: 'banana', namespaceId: [0, 4], parentId: [1, 1] },
-				{ name: 'bob', namespaceId: [2, 5], parentId: [0, 0] },
-				{ name: 'carrot', namespaceId: [0, 6], parentId: [2, 5] }
+				{ name: 'alice', namespaceId: 11n, parentId: 0n },
+				{ name: 'apple', namespaceId: 2n, parentId: 11n },
+				{ name: 'banana', namespaceId: 4n, parentId: 11n },
+				{ name: 'bob', namespaceId: 25n, parentId: 0n },
+				{ name: 'carrot', namespaceId: 6n, parentId: 25n }
 			]);
 			const names = {
-				alice: lookup.findName([1, 1]),
-				apple: lookup.findName([0, 2]),
-				banana: lookup.findName([0, 4]),
-				bob: lookup.findName([2, 5]),
-				carrot: lookup.findName([0, 6])
+				alice: lookup.findName(11n),
+				apple: lookup.findName(2n),
+				banana: lookup.findName(4n),
+				bob: lookup.findName(25n),
+				carrot: lookup.findName(6n)
 			};
 
 			// Assert:
@@ -89,18 +89,18 @@ describe('id reducer', () => {
 		it('can be built arround multilevel tuples', () => {
 			// Act:
 			const lookup = idReducer.createIdToNameLookup([
-				{ name: 'alice', namespaceId: [1, 1], parentId: [0, 0] },
-				{ name: 'apple', namespaceId: [0, 2], parentId: [1, 1] },
-				{ name: 'mac', namespaceId: [0, 3], parentId: [0, 2] },
-				{ name: 'red', namespaceId: [2, 3], parentId: [0, 3] },
-				{ name: 'banana', namespaceId: [0, 4], parentId: [1, 1] }
+				{ name: 'alice', namespaceId: 11n, parentId: 0n },
+				{ name: 'apple', namespaceId: 2n, parentId: 11n },
+				{ name: 'mac', namespaceId: 3n, parentId: 2n },
+				{ name: 'red', namespaceId: 23n, parentId: 3n },
+				{ name: 'banana', namespaceId: 4n, parentId: 11n }
 			]);
 			const names = {
-				alice: lookup.findName([1, 1]),
-				apple: lookup.findName([0, 2]),
-				mac: lookup.findName([0, 3]),
-				red: lookup.findName([2, 3]),
-				banana: lookup.findName([0, 4])
+				alice: lookup.findName(11n),
+				apple: lookup.findName(2n),
+				mac: lookup.findName(3n),
+				red: lookup.findName(23n),
+				banana: lookup.findName(4n)
 			};
 
 			// Assert:
@@ -121,11 +121,11 @@ describe('id reducer', () => {
 		it('returns undefined when id is unknown', () => {
 			// Arrange:
 			const lookup = idReducer.createIdToNameLookup([
-				{ name: 'alice', namespaceId: [1, 1], parentId: [0, 0] }
+				{ name: 'alice', namespaceId: 11n, parentId: 0n }
 			]);
 
 			// Act:
-			const name = lookup.findName([0, 2]);
+			const name = lookup.findName(2n);
 
 			// Assert:
 			expect(name).to.equal(undefined);
@@ -134,14 +134,14 @@ describe('id reducer', () => {
 		it('gives first conflicting tuple preference', () => {
 			// Arrange: apple has two conflicting parents
 			const lookup = idReducer.createIdToNameLookup([
-				{ name: 'alice', namespaceId: [1, 1], parentId: [0, 0] },
-				{ name: 'apple', namespaceId: [0, 2], parentId: [1, 1] },
-				{ name: 'bob', namespaceId: [2, 5], parentId: [0, 0] },
-				{ name: 'apple', namespaceId: [0, 2], parentId: [2, 5] }
+				{ name: 'alice', namespaceId: 11n, parentId: 0n },
+				{ name: 'apple', namespaceId: 2n, parentId: 11n },
+				{ name: 'bob', namespaceId: 25n, parentId: 0n },
+				{ name: 'apple', namespaceId: 2n, parentId: 25n }
 			]);
 
 			// Act:
-			const name = lookup.findName([0, 2]);
+			const name = lookup.findName(2n);
 
 			// Assert: the first definition wins
 			expect(name).to.equal('alice.apple');
@@ -150,11 +150,11 @@ describe('id reducer', () => {
 		it('returns undefined when any parent id is unknown', () => {
 			// Arrange:
 			const lookup = idReducer.createIdToNameLookup([
-				{ name: 'alice', namespaceId: [1, 1], parentId: [2, 0] }
+				{ name: 'alice', namespaceId: 11n, parentId: 20n }
 			]);
 
 			// Act:
-			const name = lookup.findName([1, 1]);
+			const name = lookup.findName(11n);
 
 			// Assert:
 			expect(name).to.equal(undefined);

@@ -19,11 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeResultTypes = require('../../routes/routeResultTypes');
-const routeUtils = require('../../routes/routeUtils');
-const { NotFoundError } = require('restify-errors');
+import routeResultTypes from '../../routes/routeResultTypes.js';
+import routeUtils from '../../routes/routeUtils.js';
+import restifyErrors from 'restify-errors';
 
-module.exports = {
+const { NotFoundError } = restifyErrors;
+
+export default {
 	register: (server, db, services) => {
 		server.get('/statements/transaction', (req, res, next) => {
 			const { params } = req;

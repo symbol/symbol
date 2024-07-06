@@ -19,14 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const RestrictionsDb = require('../../../src/plugins/restrictions/RestrictionsDb');
-const dbTestUtils = require('../../db/utils/dbTestUtils');
-const test = require('../../testUtils');
-const MongoDb = require('mongodb');
+import RestrictionsDb from '../../../src/plugins/restrictions/RestrictionsDb.js';
+import dbTestUtils from '../../db/utils/dbTestUtils.js';
+import test from '../../testUtils.js';
+import MongoDb from 'mongodb';
+import { models } from 'symbol-sdk/symbol';
 
-const { EntityType, restriction } = catapult.model;
-const { Binary, ObjectId, Long } = MongoDb;
+const { Binary } = MongoDb;
 
 const createRestrictions = restrictions => {
 	const restrictionsObject = [];
@@ -51,8 +50,8 @@ const createRestrictions = restrictions => {
 
 	values = [];
 	for (let i = 0; i < restrictions.numOperations; ++i) {
-		const operationTypes = Object.keys(EntityType);
-		values.push(EntityType[operationTypes[Math.floor(operationTypes.length * Math.random())]]);
+		const operationTypes = Object.keys(models.TransactionType);
+		values.push(models.TransactionType[operationTypes[Math.floor(operationTypes.length * Math.random())]]);
 	}
 
 	restrictionsObject.push({
@@ -62,8 +61,6 @@ const createRestrictions = restrictions => {
 
 	return restrictionsObject;
 };
-
-const createObjectId = id => new ObjectId(`${'00'.repeat(12)}${id}`.slice(-24));
 
 const restrictionsDbTestUtils = {
 	accountDb: {
@@ -82,42 +79,9 @@ const restrictionsDbTestUtils = {
 			issueDbCommand,
 			assertDbCommandResult
 		)
-	},
-
-	mosaicDb: {
-		sanitizeId: entity => { delete entity._id; return entity; },
-
-		createGlobalMosaicRestriction: mosaicId => ({
-			_id: createObjectId(Math.floor(Math.random() * 100000)),
-			mosaicRestrictionEntry: {
-				compositeHash: '',
-				entryType: restriction.mosaicRestriction.restrictionType.global,
-				mosaicId: new Long(mosaicId[0], mosaicId[1]),
-				restrictions: [{ key: '', restriction: { referenceMosaicId: '', restrictionValue: '', restrictionType: 0 } }]
-			}
-		}),
-
-		createAddressMosaicRestriction: (mosaicId, targetAddress) => ({
-			_id: createObjectId(Math.floor(Math.random() * 100000)),
-			mosaicRestrictionEntry: {
-				compositeHash: '',
-				entryType: restriction.mosaicRestriction.restrictionType.address,
-				mosaicId: new Long(mosaicId[0], mosaicId[1]),
-				targetAddress: new Binary(Buffer.from(targetAddress)),
-				restrictions: [{ key: '', value: '' }]
-			}
-		}),
-
-		runDbTest: (dbEntities, issueDbCommand, assertDbCommandResult) => dbTestUtils.db.runDbTest(
-			dbEntities,
-			'mosaicRestrictions',
-			db => new RestrictionsDb(db),
-			issueDbCommand,
-			assertDbCommandResult
-		)
 	}
 };
 
 Object.assign(restrictionsDbTestUtils, test);
 
-module.exports = restrictionsDbTestUtils;
+export default restrictionsDbTestUtils;

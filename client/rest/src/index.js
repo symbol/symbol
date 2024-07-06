@@ -19,19 +19,21 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('./catapult-sdk/index');
-const { createConnectionService } = require('./connection/connectionService');
-const { createZmqConnectionService } = require('./connection/zmqService');
-const CatapultDb = require('./db/CatapultDb');
-const dbFormattingRules = require('./db/dbFormattingRules');
-const routeSystem = require('./plugins/routeSystem');
-const allRoutes = require('./routes/allRoutes');
-const bootstrapper = require('./server/bootstrapper');
-const formatters = require('./server/formatters');
-const messageFormattingRules = require('./server/messageFormattingRules');
-const sshpk = require('sshpk');
-const winston = require('winston');
-const fs = require('fs');
+import catapult from './catapult-sdk/index.js';
+import createConnectionService from './connection/connectionService.js';
+import createZmqConnectionService from './connection/zmqService.js';
+import CatapultDb from './db/CatapultDb.js';
+import dbFormattingRules from './db/dbFormattingRules.js';
+import routeSystem from './plugins/routeSystem.js';
+import allRoutes from './routes/allRoutes.js';
+import bootstrapper from './server/bootstrapper.js';
+import formatters from './server/formatters.js';
+import messageFormattingRules from './server/messageFormattingRules.js';
+import sshpk from 'sshpk';
+import { NetworkLocator } from 'symbol-sdk';
+import { Network } from 'symbol-sdk/symbol';
+import winston from 'winston';
+import fs from 'fs';
 
 const createLoggingTransportConfiguration = loggingConfig => {
 	const transportConfig = Object.assign({}, loggingConfig);
@@ -112,10 +114,7 @@ const createServer = config => {
 		json: dbFormattingRules,
 		ws: messageFormattingRules
 	});
-	return {
-		server: bootstrapper.createServer(config, formatters.create(modelSystem.formatters), config.throttling),
-		codec: modelSystem.codec
-	};
+	return bootstrapper.createServer(config, formatters.create(modelSystem.formatters), config.throttling);
 };
 
 const registerRoutes = (server, db, services) => {
@@ -142,11 +141,16 @@ const registerRoutes = (server, db, services) => {
 	};
 
 	// 2. configure extension routes
-	const { transactionStates, messageChannelDescriptors } = routeSystem.configure(services.config.extensions, server, db, servicesView);
+	const { transactionStates, messageChannelDescriptors } = routeSystem.configure(
+		[].concat(services.config.extensions, services.config.routeExtensions),
+		server,
+		db,
+		servicesView
+	);
 
 	// 3. augment services with extension-dependent config and services
 	servicesView.config.transactionStates = transactionStates;
-	servicesView.zmqService = createZmqConnectionService(services.config.websocket.mq, services.codec, messageChannelDescriptors, winston);
+	servicesView.zmqService = createZmqConnectionService(services.config.websocket.mq, messageChannelDescriptors, winston);
 
 	// 4. configure basic routes
 	allRoutes.register(server, db, servicesView);
@@ -168,15 +172,10 @@ const registerRoutes = (server, db, services) => {
 	const nodeCertKey = sshpk.parsePrivateKey(config.apiNode.key);
 	config.apiNode.nodePublicKey = nodeCertKey.toPublic().part.A.data;
 
-	const network = catapult.model.networkInfo.networks[config.network.name];
-	if (!network) {
-		winston.error(`no network found with name: '${config.network.name}'`);
-		return;
-	}
-
+	const network = NetworkLocator.findByName(Network.NETWORKS, config.network.name);
 	const serviceManager = createServiceManager();
 	const db = new CatapultDb({
-		networkId: network.id,
+		networkId: network.identifier,
 
 		// to be removed when old pagination is not used anymore
 		// json settings should also be moved from config.db to config.api or similar
@@ -190,15 +189,14 @@ const registerRoutes = (server, db, services) => {
 	connectToDbWithRetry(db, config.db)
 		.then(() => {
 			winston.info('registering routes');
-			const serverAndCodec = createServer(config);
-			const { server } = serverAndCodec;
+			const server = createServer(config);
 			serviceManager.pushService(server, 'close');
 
 			const connectionConfig = {
 				apiNode: config.apiNode
 			};
 			const connectionService = createConnectionService(connectionConfig, winston.verbose);
-			registerRoutes(server, db, { codec: serverAndCodec.codec, config, connectionService });
+			registerRoutes(server, db, { config, connectionService });
 
 			winston.info(`listening on port ${config.port}`);
 			server.listen(config.port);

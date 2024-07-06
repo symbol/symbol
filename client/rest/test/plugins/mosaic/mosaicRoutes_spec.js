@@ -19,15 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const mosaicRoutes = require('../../../src/plugins/mosaic/mosaicRoutes');
-const routeUtils = require('../../../src/routes/routeUtils');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { test } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
-
-const { address } = catapult.model;
+import mosaicRoutes from '../../../src/plugins/mosaic/mosaicRoutes.js';
+import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 describe('mosaic routes', () => {
 	describe('mosaics', () => {
@@ -173,7 +171,7 @@ describe('mosaic routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsFake.calledOnce).to.equal(true);
-					expect(dbMosaicsFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbMosaicsFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -210,7 +208,7 @@ describe('mosaic routes', () => {
 
 	describe('mosaics by id', () => {
 		const mosaicIds = ['1234567890ABCDEF', 'ABCDEF0123456789'];
-		const uint64MosaicIds = [[0x90ABCDEF, 0x12345678], [0x23456789, 0xABCDEF01]];
+		const uint64MosaicIds = [0x1234567890ABCDEFn, 0xABCDEF0123456789n];
 		const errorMessage = 'has an invalid format';
 		test.route.document.addGetPostDocumentRouteTests(mosaicRoutes.register, {
 			routes: { singular: '/mosaics/:mosaicId', plural: '/mosaics' },

@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const dbFacade = require('./dbFacade');
-const routeResultTypes = require('./routeResultTypes');
-const catapult = require('../catapult-sdk/index');
-const errors = require('../server/errors');
+import dbFacade from './dbFacade.js';
+import routeResultTypes from './routeResultTypes.js';
+import catapult from '../catapult-sdk/index.js';
+import errors from '../server/errors.js';
+import { utils } from 'symbol-sdk';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
-const { convert, uint64 } = catapult.utils;
 const packetHeader = catapult.packet.header;
 const constants = {
 	sizes: {
@@ -38,7 +38,7 @@ const constants = {
 	}
 };
 
-const isObjectId = str => 24 === str.length && convert.isHexString(str);
+const isObjectId = str => 24 === str.length && utils.isHexString(str);
 
 const namedParserMap = {
 	objectId: str => {
@@ -48,46 +48,54 @@ const namedParserMap = {
 		return str;
 	},
 	uint: str => {
-		const result = convert.tryParseUint(str);
+		const result = utils.tryParseUint(str);
 		if (undefined === result)
 			throw Error('must be non-negative number');
 
 		return result;
 	},
-	uint64: str => uint64.fromString(str),
-	uint64hex: str => uint64.fromHex(str),
+	uint64: str => {
+		const value = BigInt(str);
+		if (0n > value)
+			throw Error('must be non-negative');
+
+		return value;
+	},
+	uint64hex: str => {
+		if (16 !== str.length)
+			throw Error('must be 8 hex digits in length');
+
+		return BigInt(`0x${str}`);
+	},
 	address: str => {
 		if (constants.sizes.addressEncoded === str.length)
-			return address.stringToAddress(str);
-		// if (constants.sizes.addressDecoded * 2 === str.length)
-		// 	return convert.hexToUint8(str);
+			return new Address(str).bytes;
+
 		throw Error(`invalid length of address '${str.length}'`);
 	},
 	publicKey: str => {
 		if (constants.sizes.hexPublicKey === str.length)
-			return convert.hexToUint8(str);
+			return utils.hexToUint8(str);
 
 		throw Error(`invalid length of publicKey '${str.length}'`);
 	},
 	accountId: str => {
 		if (constants.sizes.hexPublicKey === str.length)
-			return ['publicKey', convert.hexToUint8(str)];
+			return ['publicKey', utils.hexToUint8(str)];
 		if (constants.sizes.addressEncoded === str.length)
-			return ['address', address.stringToAddress(str)];
-		// if (constants.sizes.addressDecoded * 2 === str.length)
-		// 	return ['address', convert.hexToUint8(str)];
+			return ['address', new Address(str).bytes];
 
 		throw Error(`invalid length of account id '${str.length}'`);
 	},
 	hash256: str => {
 		if (2 * constants.sizes.hash256 === str.length)
-			return convert.hexToUint8(str);
+			return utils.hexToUint8(str);
 
 		throw Error(`invalid length of hash256 '${str.length}'`);
 	},
 	hash512: str => {
 		if (2 * constants.sizes.hash512 === str.length)
-			return convert.hexToUint8(str);
+			return utils.hexToUint8(str);
 
 		throw Error(`invalid length of hash512 '${str.length}'`);
 	},
@@ -164,7 +172,7 @@ const routeUtils = {
 		};
 
 		if (args.pageSize) {
-			const numericPageSize = convert.tryParseUint(args.pageSize);
+			const numericPageSize = utils.tryParseUint(args.pageSize);
 			if (undefined === numericPageSize)
 				throw errors.createInvalidArgumentError('pageSize is not a valid unsigned integer');
 
@@ -174,7 +182,7 @@ const routeUtils = {
 		}
 
 		if (args.pageNumber) {
-			const numericPageNumber = convert.tryParseUint(args.pageNumber);
+			const numericPageNumber = utils.tryParseUint(args.pageNumber);
 			if (undefined === numericPageNumber)
 				throw errors.createInvalidArgumentError('pageNumber is not a valid unsigned integer');
 
@@ -258,44 +266,6 @@ const routeUtils = {
 					res.send({ payload: page, type, structure: 'page' });
 				next();
 			};
-		},
-
-		/**
-		 * Creates a text handler that forwards a plain text result.
-		 * @param {object} res Restify response object.
-		 * @param {Function} next Restify next callback handler.
-		 * @returns {Function} An appropriate object handler.
-		 */
-		sendPlainText(res, next) {
-			return data => {
-				if (!data)
-					res.send(errors.createInternalError('error retrieving plain text'));
-				else
-					res.setHeader('content-type', 'text/plain');
-				res.send(data);
-				next();
-			};
-		},
-
-		/**
-		 * Creates a data handler that forwards binary data result.
-		 * @param {object} res Restify response object.
-		 * @param {Function} next Restify next callback handler.
-		 * @returns {Function} An appropriate object handler.
-		 */
-		sendData(res, next) {
-			const isAttachment = (download, mimeType) => 'true' === download || 'application/octet-stream' === mimeType;
-			return (data, mimeType, fileName, text, download) => {
-				res.setHeader('content-type', mimeType);
-				let disposition = isAttachment(download, mimeType) ? 'attachment;' : 'inline;';
-				disposition += fileName ? ` filename="${fileName}"` : '';
-				res.setHeader('Content-Disposition', disposition);
-				if (text)
-					res.setHeader('Content-MetalText', text);
-				res.write(data);
-				res.end();
-				next();
-			};
 		}
 	}),
 
@@ -368,12 +338,12 @@ const routeUtils = {
 		return dbFacade.runHeightDependentOperation(db, height, () => db.blockWithMerkleTreeAtHeight(height, blockMetaTreeField))
 			.then(result => {
 				if (!result.isRequestValid) {
-					res.send(errors.createNotFoundError(uint64.toString(height)));
+					res.send(errors.createNotFoundError(height));
 					return next();
 				}
 
 				const block = result.payload;
-				const errorMessage = `hash '${req.params.hash}' not included in block height '${uint64.toString(height)}'`;
+				const errorMessage = `hash '${req.params.hash}' not included in block height '${height}'`;
 				if (!block.meta[blockMetaCountField]) {
 					res.send(errors.createInvalidArgumentError(errorMessage));
 					return next();
@@ -398,21 +368,7 @@ const routeUtils = {
 
 				return next();
 			});
-	},
-
-	/**
-	 * Returns account public key from account address .
-	 * @param {module:db/CatapultDb} db Catapult database.
-	 * @param {Uint8Array} accountAddress Account address.
-	 * @returns {Promise<Uint8Array>} Account public key.
-	 */
-	addressToPublicKey: (db, accountAddress) => db.addressToPublicKey(accountAddress)
-		.then(result => {
-			if (!result)
-				return Promise.reject(Error('account not found'));
-
-			return result.account.publicKey.buffer;
-		})
+	}
 };
 
-module.exports = routeUtils;
+export default routeUtils;

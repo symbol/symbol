@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		server.ws('/ws', {
 			newChannel: (channel, sender) => {

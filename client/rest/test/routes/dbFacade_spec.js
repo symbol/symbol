@@ -19,13 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const CatapultDb = require('../../src/db/CatapultDb');
-const { convertToLong } = require('../../src/db/dbUtils');
-const dbFacade = require('../../src/routes/dbFacade');
-const testDbOptions = require('../db/utils/testDbOptions');
-const { expect } = require('chai');
-const { Binary } = require('mongodb');
-const sinon = require('sinon');
+import CatapultDb from '../../src/db/CatapultDb.js';
+import { convertToLong } from '../../src/db/dbUtils.js';
+import dbFacade from '../../src/routes/dbFacade.js';
+import testDbOptions from '../db/utils/testDbOptions.js';
+import { expect } from 'chai';
+import { Binary } from 'mongodb';
+import sinon from 'sinon';
 
 const Testnet_Network = testDbOptions.networkId;
 

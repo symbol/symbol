@@ -20,20 +20,16 @@
  */
 
 /** @module plugins/multisig */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
-const convert = require('../utils/convert');
-
-const constants = { sizes };
+import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a multisig plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const multisigPlugin = {
+export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.modifyMultisigAccount, {
+		builder.addTransactionSupport(models.TransactionType.MULTISIG_ACCOUNT_MODIFICATION, {
 			minRemovalDelta: ModelType.int,
 			minApprovalDelta: ModelType.int,
 			addressAdditions: { type: ModelType.array, schemaName: ModelType.encodedAddress },
@@ -55,46 +51,5 @@ const multisigPlugin = {
 			level: ModelType.none,
 			multisigEntries: { type: ModelType.array, schemaName: 'multisigEntry' }
 		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.modifyMultisigAccount, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.minRemovalDelta = convert.uint8ToInt8(parser.uint8());
-				transaction.minApprovalDelta = convert.uint8ToInt8(parser.uint8());
-
-				const addressAdditionsCount = parser.uint8();
-				const addressDeletionsCount = parser.uint8();
-
-				transaction.multisigAccountModificationTransactionBody_Reserved1 = parser.uint32();
-
-				transaction.addressAdditions = [];
-				for (let i = 0; i < addressAdditionsCount; ++i)
-					transaction.addressAdditions.push(parser.buffer(constants.sizes.addressDecoded));
-
-				transaction.addressDeletions = [];
-				for (let i = 0; i < addressDeletionsCount; ++i)
-					transaction.addressDeletions.push(parser.buffer(constants.sizes.addressDecoded));
-
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint8(convert.int8ToUint8(transaction.minRemovalDelta));
-				serializer.writeUint8(convert.int8ToUint8(transaction.minApprovalDelta));
-				serializer.writeUint8(transaction.addressAdditions.length);
-				serializer.writeUint8(transaction.addressDeletions.length);
-				serializer.writeUint32(transaction.multisigAccountModificationTransactionBody_Reserved1);
-				transaction.addressAdditions.forEach(key => {
-					serializer.writeBuffer(key);
-				});
-				transaction.addressDeletions.forEach(key => {
-					serializer.writeBuffer(key);
-				});
-			}
-		});
 	}
 };
-
-module.exports = multisigPlugin;

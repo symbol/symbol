@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const supplyRoutes = require('../../../src/plugins/mosaic/supplyRoutes');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
-const tmp = require('tmp');
-const fs = require('fs');
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import supplyRoutes from '../../../src/plugins/mosaic/supplyRoutes.js';
+import MockServer from '../../routes/utils/MockServer.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
+import tmp from 'tmp';
+import fs from 'fs';
 
 describe('supply routes', () => {
 	describe('network currency supply', () => {
@@ -42,7 +42,7 @@ describe('supply routes', () => {
 		const mosaicsSample = [{
 			id: '',
 			mosaic: {
-				id: convertToLong([0xABCDEF01, 0x12345678]),
+				id: convertToLong(0x12345678ABCDEF01n),
 				supply: convertToLong(xymSupply),
 				startHeight: '',
 				ownerAddress: '',
@@ -56,15 +56,15 @@ describe('supply routes', () => {
 		const createAccountSample = (publicKey, currencyAmount, otherAmount) => ({
 			address: '',
 			addressHeight: '',
-			publicKey: catapult.utils.convert.hexToUint8(publicKey),
+			publicKey: utils.hexToUint8(publicKey),
 			publicKeyHeight: '',
 			supplementalPublicKeys: {},
 			importance: '',
 			importanceHeight: '',
 			activityBuckets: [],
 			mosaics: [
-				{ id: convertToLong([0xABCDEF01, 0x22222222]), amount: convertToLong(otherAmount) },
-				{ id: convertToLong([0xABCDEF01, 0x12345678]), amount: convertToLong(currencyAmount) }
+				{ id: convertToLong(0x22222222ABCDEF01n), amount: convertToLong(otherAmount) },
+				{ id: convertToLong(0x12345678ABCDEF01n), amount: convertToLong(currencyAmount) }
 			]
 		});
 
@@ -80,7 +80,7 @@ describe('supply routes', () => {
 			catapultDb: {
 				accountsByIds: sinon.fake(accountIds => {
 					const filteredAccountsSample = accountsSample.filter(accountSample =>
-						accountIds.some(accountId => catapult.utils.array.deepEqual(accountId.publicKey, accountSample.account.publicKey)));
+						accountIds.some(accountId => 0 === utils.deepCompare(accountId.publicKey, accountSample.account.publicKey)));
 					return Promise.resolve(filteredAccountsSample);
 				})
 			}

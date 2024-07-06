@@ -19,8 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { ServerMessageHandler } = require('./serverMessageHandlers');
-const catapult = require('../catapult-sdk/index');
+import ServerMessageHandler from './serverMessageHandlers.js';
+import { utils } from 'symbol-sdk';
+import { Address, models } from 'symbol-sdk/symbol';
 
 const createBlockDescriptor = (marker, handler) => ({
 	filter: topicParam => {
@@ -32,28 +33,29 @@ const createBlockDescriptor = (marker, handler) => ({
 	handler
 });
 
-const { convert } = catapult.utils;
-const { namespace, address } = catapult.model;
-
 const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler, networkIdentifier) => topicParam => {
 	if (!topicParam)
 		return emptyAddressHandler(markerByte);
 
 	// If the sent param is an namespace id hex like C0FB8AA409916260
-	if (convert.isHexString(topicParam) && 16 === topicParam.length) {
-		const addressByteArray = namespace.encodeNamespace(convert.hexToUint8(topicParam), networkIdentifier);
-		return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
+	if (utils.isHexString(topicParam) && 16 === topicParam.length) {
+		const namespaceId = new models.NamespaceId(BigInt(`0x${topicParam}`));
+		const address = Address.fromNamespaceId(namespaceId, networkIdentifier);
+		return Buffer.concat([Buffer.of(markerByte), Buffer.from(address.bytes)]);
 	}
-	// When it's a encoded address.
-	// TAHNZXQBC57AA7KJTMGS3PJPZBXN7DV5JHJU42A
-	const addressByteArray = address.stringToAddress(topicParam);
-	return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
+	// When it's a encoded address, e.g. TAHNZXQBC57AA7KJTMGS3PJPZBXN7DV5JHJU42A
+	try {
+		const addressByteArray = new Address(topicParam).bytes;
+		return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
+	} catch (err) {
+		throw Error(`${topicParam} does not represent a valid encoded address`);
+	}
 };
 
 /**
  * Builder for creating message channel information.
  */
-class MessageChannelBuilder {
+export default class MessageChannelBuilder {
 	/**
 	 * Creates a builder.
 	 * @param {object} config Message queue configuration.
@@ -116,5 +118,3 @@ class MessageChannelBuilder {
 		return this.descriptors;
 	}
 }
-
-module.exports = MessageChannelBuilder;

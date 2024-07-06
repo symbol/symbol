@@ -19,18 +19,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeResultTypes = require('./routeResultTypes');
-const routeUtils = require('./routeUtils');
-const catapult = require('../catapult-sdk/index');
-const finalizationProofCodec = require('../sockets/finalizationProofCodec');
-const { NotFoundError } = require('restify-errors');
+import routeResultTypes from './routeResultTypes.js';
+import routeUtils from './routeUtils.js';
+import catapult from '../catapult-sdk/index.js';
+import finalizationProofCodec from '../sockets/finalizationProofCodec.js';
+import restifyErrors from 'restify-errors';
+import { utils } from 'symbol-sdk';
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;
 const { BinaryParser } = catapult.parser;
-const { uint64 } = catapult.utils;
+const { NotFoundError } = restifyErrors;
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const { connections } = services;
 		const { timeout } = services.config.apiNode;
@@ -65,7 +66,7 @@ module.exports = {
 
 			const uint64Size = 8;
 			const headerBuffer = packetHeader.createBuffer(PacketType.finalizationProofAtHeight, packetHeader.size + uint64Size);
-			const heightBuffer = Buffer.from(uint64.toBytes(height));
+			const heightBuffer = Buffer.from(utils.intToBytes(height, 8));
 			const packetBuffer = Buffer.concat([headerBuffer, heightBuffer]);
 
 			return sendRequestAndResponse(packetBuffer, res, next);

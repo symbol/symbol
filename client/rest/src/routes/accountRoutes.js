@@ -19,16 +19,16 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const merkleUtils = require('./merkleUtils');
-const routeResultTypes = require('./routeResultTypes');
-const routeUtils = require('./routeUtils');
-const catapult = require('../catapult-sdk/index');
-const AccountType = require('../plugins/AccountType');
-const errors = require('../server/errors');
+import merkleUtils from './merkleUtils.js';
+import routeResultTypes from './routeResultTypes.js';
+import routeUtils from './routeUtils.js';
+import catapult from '../catapult-sdk/index.js';
+import AccountType from '../plugins/AccountType.js';
+import errors from '../server/errors.js';
 
 const { PacketType } = catapult.packet;
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const sender = routeUtils.createSender(routeResultTypes.account);
 

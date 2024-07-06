@@ -19,10 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const dbUtils = require('../../src/db/dbUtils');
-const { convertToLong } = require('../../src/db/dbUtils');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
+import {
+	bufferToUnresolvedAddress, buildOffsetCondition, convertToLong, longToUint64, uniqueLongList
+} from '../../src/db/dbUtils.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
 
 const { ObjectId } = MongoDb;
 
@@ -30,29 +31,29 @@ describe('db utils', () => {
 	describe('convertToLong', () => {
 		it('can convert from integer to long', () => {
 			// Act + Assert:
-			expect(dbUtils.convertToLong(123)).to.deep.equal(new MongoDb.Long(123, 0));
+			expect(convertToLong(123)).to.deep.equal(new MongoDb.Long(123, 0));
 		});
 
-		it('can convert from uint64 array to long', () => {
+		it('can convert from bigint to long', () => {
 			// Act + Assert:
-			expect(dbUtils.convertToLong([123, 456])).to.deep.equal(new MongoDb.Long(123, 456));
+			expect(convertToLong(0x1234567890ABCDEFn)).to.deep.equal(new MongoDb.Long(0x90ABCDEF, 0x12345678));
 		});
 
 		it('can convert from negative one to long', () => {
 			// Act + Assert:
-			expect(dbUtils.convertToLong(-1)).to.deep.equal(MongoDb.Long.NEG_ONE);
+			expect(convertToLong(-1)).to.deep.equal(MongoDb.Long.NEG_ONE);
 		});
 
 		it('can convert from one to long', () => {
 			// Act + Assert:
-			expect(dbUtils.convertToLong(1)).to.deep.equal(MongoDb.Long.ONE);
-			expect(dbUtils.convertToLong([1, 0])).to.deep.equal(MongoDb.Long.ONE);
+			expect(convertToLong(1)).to.deep.equal(MongoDb.Long.ONE);
+			expect(convertToLong(1n)).to.deep.equal(MongoDb.Long.ONE);
 		});
 
 		it('can convert from zero to long', () => {
 			// Act + Assert:
-			expect(dbUtils.convertToLong(0)).to.deep.equal(MongoDb.Long.ZERO);
-			expect(dbUtils.convertToLong([0, 0])).to.deep.equal(MongoDb.Long.ZERO);
+			expect(convertToLong(0)).to.deep.equal(MongoDb.Long.ZERO);
+			expect(convertToLong(0n)).to.deep.equal(MongoDb.Long.ZERO);
 		});
 
 		it('returns same value if value is already long', () => {
@@ -60,51 +61,58 @@ describe('db utils', () => {
 			const longValue = MongoDb.Long.fromNumber(12345);
 
 			// Act + Assert:
-			expect(dbUtils.convertToLong(longValue)).to.deep.equal(longValue);
+			expect(convertToLong(longValue)).to.deep.equal(longValue);
 		});
 
 		it('throws error if value not integer and not array', () => {
 			// Act + Assert:
-			expect(() => dbUtils.convertToLong('abc')).to.throw('abc has an invalid format: not integer or uint64');
+			expect(() => convertToLong('abc')).to.throw('abc has an invalid format: not integer or bigint');
+			expect(() => convertToLong([123, 456])).to.throw('123,456 has an invalid format: not integer or bigint');
 		});
 	});
 
 	describe('longToUint64', () => {
-		it('can convert from long to uint64', () => {
+		it('can convert from long to bigint', () => {
 			// Act + Assert:
-			expect(dbUtils.longToUint64(new MongoDb.Long(123, 456))).to.deep.equal([123, 456]);
+			expect(longToUint64(new MongoDb.Long(0x90ABCDEF, 0x12345678))).to.equal(0x1234567890ABCDEFn);
+		});
+
+		it('can convert from long (negative) to bigint', () => {
+			// Act + Assert:
+			expect(longToUint64(new MongoDb.Long(0xF1193A4A, 0xCE011F45))).to.equal(0xCE011F45F1193A4An);
 		});
 
 		it('can convert from one, long value, to uint64', () => {
 			// Act + Assert:
-			expect(dbUtils.longToUint64(MongoDb.Long.ONE)).to.deep.equal([1, 0]);
+			expect(longToUint64(MongoDb.Long.ONE)).to.equal(1n);
 		});
 
 		it('can convert from zero, long value, to uint64', () => {
 			// Act + Assert:
-			expect(dbUtils.longToUint64(MongoDb.Long.ZERO)).to.deep.equal([0, 0]);
+			expect(longToUint64(MongoDb.Long.ZERO)).to.equal(0n);
 		});
 
 		it('throws error if value not long', () => {
 			// Act + Assert:
-			expect(() => dbUtils.longToUint64('abc')).to.throw('abc has an invalid format: not long');
+			expect(() => longToUint64('abc')).to.throw('abc has an invalid format: not long');
 		});
 	});
+
 	describe('uniqueLongList', () => {
 		it('unique list empty', () => {
 			// Act + Assert
-			expect(dbUtils.uniqueLongList([])).to.deep.equal([]);
+			expect(uniqueLongList([])).to.deep.equal([]);
 		});
 
 		it('unique list not duplicated', () => {
 			// Act + Assert
-			expect(dbUtils.uniqueLongList([convertToLong(1), convertToLong(2), convertToLong(3)]))
+			expect(uniqueLongList([convertToLong(1), convertToLong(2), convertToLong(3)]))
 				.to.deep.equal([convertToLong(1), convertToLong(2), convertToLong(3)]);
 		});
 
 		it('unique list duplicated', () => {
 			// Act + Assert
-			expect(dbUtils.uniqueLongList([convertToLong(3), convertToLong(1), convertToLong(3)]))
+			expect(uniqueLongList([convertToLong(3), convertToLong(1), convertToLong(3)]))
 				.to.deep.equal([convertToLong(3), convertToLong(1)]);
 		});
 	});
@@ -116,7 +124,7 @@ describe('db utils', () => {
 			const sortFieldDbRelation = { id: '_id' };
 
 			// Act + Assert
-			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.equal(undefined);
+			expect(buildOffsetCondition(options, sortFieldDbRelation)).to.equal(undefined);
 		});
 
 		it('can create object id offset condition', () => {
@@ -130,7 +138,7 @@ describe('db utils', () => {
 			const sortFieldDbRelation = { id: '_id' };
 
 			// Act + Assert
-			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
+			expect(buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
 				_id: { $lt: new ObjectId('112233445566778899AABBCC') }
 			});
 		});
@@ -138,7 +146,7 @@ describe('db utils', () => {
 		it('can create uint64 offset condition', () => {
 			// Arrange
 			const options = {
-				offset: [1234, 5678],
+				offset: 0xAABBCCDDn,
 				offsetType: 'uint64',
 				sortField: 'height',
 				sortDirection: 'desc'
@@ -146,15 +154,15 @@ describe('db utils', () => {
 			const sortFieldDbRelation = { height: 'height' };
 
 			// Act + Assert
-			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
-				height: { $lt: convertToLong([1234, 5678]) }
+			expect(buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
+				height: { $lt: convertToLong(0xAABBCCDDn) }
 			});
 		});
 
 		it('can create uint64Hex offset condition', () => {
 			// Arrange
 			const options = {
-				offset: [1234, 5678],
+				offset: 0xAABBCCDDn,
 				offsetType: 'uint64Hex',
 				sortField: 'id',
 				sortDirection: 'desc'
@@ -162,8 +170,8 @@ describe('db utils', () => {
 			const sortFieldDbRelation = { id: '_id' };
 
 			// Act + Assert
-			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
-				_id: { $lt: convertToLong([1234, 5678]) }
+			expect(buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
+				_id: { $lt: convertToLong(0xAABBCCDDn) }
 			});
 		});
 	});
@@ -174,7 +182,7 @@ describe('db utils', () => {
 			const object = Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex');
 
 			// Act:
-			const result = dbUtils.bufferToUnresolvedAddress(object, true);
+			const result = bufferToUnresolvedAddress(object, true);
 
 			// Assert:
 			expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
@@ -185,7 +193,7 @@ describe('db utils', () => {
 			const object = Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex');
 
 			// Act:
-			const result = dbUtils.bufferToUnresolvedAddress(object);
+			const result = bufferToUnresolvedAddress(object);
 
 			// Assert:
 			expect(result).to.equal('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56');
@@ -196,7 +204,7 @@ describe('db utils', () => {
 			const object = undefined;
 
 			// Act:
-			const result = dbUtils.bufferToUnresolvedAddress(object);
+			const result = bufferToUnresolvedAddress(object);
 
 			// Assert:
 			expect(result).to.equal(undefined);
@@ -207,7 +215,7 @@ describe('db utils', () => {
 			const object = '99CAAB0FD01CCF25BA000000000000000000000000000000';
 
 			// act + Assert:
-			expect(() => dbUtils.bufferToUnresolvedAddress(object)).to.throw('Cannot convert binary address, unknown String type');
+			expect(() => bufferToUnresolvedAddress(object)).to.throw('Cannot convert binary address, unknown String type');
 		});
 	});
 });

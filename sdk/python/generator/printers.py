@@ -47,6 +47,9 @@ class IntPrinter(Printer):
 	def to_string(field_name):
 		return f'0x{{{field_name}:X}}'
 
+	def to_json(self, field_name):
+		return f'str({field_name})' if 8 == self.descriptor.size else field_name
+
 
 class TypedArrayPrinter(Printer):
 	def __init__(self, descriptor, name=None):
@@ -152,6 +155,10 @@ class TypedArrayPrinter(Printer):
 	def to_string(field_name):
 		return f'list(map(str, {field_name}))'
 
+	@staticmethod
+	def to_json(field_name):
+		return f'[e.to_json() for e in {field_name}]'
+
 
 class ArrayPrinter(Printer):
 	def __init__(self, descriptor, name=None):
@@ -190,6 +197,10 @@ class ArrayPrinter(Printer):
 	@staticmethod
 	def to_string(field_name):
 		return f'hexlify({field_name}).decode("utf8")'
+
+	@staticmethod
+	def to_json(field_name):
+		return f'hexlify({field_name}).decode(\'utf8\')'
 
 
 class BuiltinPrinter(Printer):
@@ -243,6 +254,10 @@ class BuiltinPrinter(Printer):
 	@staticmethod
 	def to_string(field_name):
 		return f'{field_name}.__str__()'
+
+	@staticmethod
+	def to_json(field_name):
+		return f'{field_name}.to_json()'
 
 
 def create_pod_printer(descriptor, name=None):

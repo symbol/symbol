@@ -37,4 +37,12 @@ export default class ByteArray {
 	toString() {
 		return uint8ToHex(this.bytes);
 	}
+
+	/**
+	 * Returns representation of this object that can be stored in JSON.
+	 * @returns {string} JSON-safe representation of this object.
+	 */
+	toJson() {
+		return this.toString();
+	}
 }

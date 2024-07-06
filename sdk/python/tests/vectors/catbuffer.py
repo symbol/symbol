@@ -125,11 +125,27 @@ def fixup_block_descriptor_symbol(descriptor, module, facade):
 	descriptor['transactions'] = block_transactions
 
 
-def is_key_in_formatted_string(transaction, key):
-	if key in str(transaction):
+def is_key_in_formatted_string(model, key):
+	if key in str(model):
 		return True
 
-	return 'parent_name' == key and getattr(transaction, key) is None
+	return 'parent_name' == key and getattr(model, key) is None
+
+
+def is_key_in_json_object(model, key):
+	json_object = model.to_json()
+	if key in json_object:
+		return True
+
+	return 'parent_name' == key and getattr(model, key) is None
+
+
+def _assert_conversions(descriptor, model):
+	assert all(is_key_in_formatted_string(model, key) for key in descriptor.keys())
+	assert all(is_key_in_json_object(model, key) for key in descriptor.keys())
+
+	# assert no exception
+	json.dumps(model.to_json())
 
 
 def assert_create_from_descriptor(item, module, facade_name, fixup_descriptor):
@@ -149,7 +165,7 @@ def assert_create_from_descriptor(item, module, facade_name, fixup_descriptor):
 
 	# Assert:
 	assert payload_hex == to_hex_string(transaction_buffer)
-	assert all(is_key_in_formatted_string(transaction, key) for key in descriptor.keys())
+	_assert_conversions(descriptor, transaction)
 
 
 def create_symbol_descriptor(original_descriptor, fixup_descriptor):
@@ -170,7 +186,7 @@ def assert_create_symbol_block_from_descriptor(item, fixup_descriptor):  # pylin
 
 	# Assert:
 	assert item['payload'] == to_hex_string(block_buffer)
-	assert all(is_key_in_formatted_string(block, key) for key in descriptor.keys())
+	_assert_conversions(descriptor, block)
 
 
 def assert_create_symbol_receipt_from_descriptor(item, fixup_descriptor):  # pylint: disable=invalid-name
@@ -183,7 +199,7 @@ def assert_create_symbol_receipt_from_descriptor(item, fixup_descriptor):  # pyl
 
 	# Assert:
 	assert item['payload'] == to_hex_string(receipt_buffer)
-	assert all(is_key_in_formatted_string(receipt, key) for key in descriptor.keys())
+	_assert_conversions(descriptor, receipt)
 
 
 @pytest.mark.parametrize('item', prepare_test_cases('nem'), ids=generate_pretty_id)

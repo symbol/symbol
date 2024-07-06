@@ -9,6 +9,6 @@ defaultCiPipeline {
 	publisher = 'docker'
 	dockerImageName = 'symbolplatform/symbol-rest'
 
-	codeCoverageTool = 'nyc'
+	codeCoverageTool = 'c8'
 	minimumCodeCoverage = 90
 }

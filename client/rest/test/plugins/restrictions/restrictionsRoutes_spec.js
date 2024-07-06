@@ -19,22 +19,21 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const restrictionsRoutes = require('../../../src/plugins/restrictions/restrictionsRoutes');
-const routeResultTypes = require('../../../src/routes/routeResultTypes');
-const routeUtils = require('../../../src/routes/routeUtils');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { test } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import restrictionsRoutes from '../../../src/plugins/restrictions/restrictionsRoutes.js';
+import routeResultTypes from '../../../src/routes/routeResultTypes.js';
+import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
 const { addresses } = test.sets;
 
 describe('restrictions routes', () => {
 	describe('account restrictions', () => {
 		describe('by address', () => {
-			const parsedAddresses = addresses.valid.map(address.stringToAddress);
+			const parsedAddresses = addresses.valid.map(str => new Address(str).bytes);
 			test.route.document.addGetPostDocumentRouteTests(restrictionsRoutes.register, {
 				routes: { singular: '/restrictions/account/:address', plural: '/restrictions/account' },
 				inputs: {
@@ -55,7 +54,7 @@ describe('restrictions routes', () => {
 
 	describe('mosaic restrictions', () => {
 		const testMosaicId = '0DC67FBE1CAD29E3';
-		const testMosaicIdParsed = [0x1CAD29E3, 0x0DC67FBE];
+		const testMosaicIdParsed = 0x0DC67FBE1CAD29E3n;
 		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 
 		const emptyPageSample = {
@@ -205,7 +204,7 @@ describe('restrictions routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicRestrictionsFake.calledOnce).to.equal(true);
-					expect(dbMosaicRestrictionsFake.firstCall.args[2]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbMosaicRestrictionsFake.firstCall.args[2]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

@@ -19,21 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Catapult model restriction.
- * @enum {number}
- */
-const restriction = {
-	mosaicRestriction: {
-		/** Mosaic restriction type. */
-		restrictionType: {
-			/** Address restriction. */
-			address: 0,
+import NamespaceAliasType from '../../../src/catapult-sdk/model/NamespaceAliasType.js';
+import { expect } from 'chai';
 
-			/** Global restriction. */
-			global: 1
-		}
-	}
-};
-
-module.exports = restriction;
+describe('NamespaceAliasType', () => {
+	it('defines constant values', () => {
+		expect(NamespaceAliasType.MOSAIC_ID.value).to.equal(1);
+		expect(NamespaceAliasType.ADDRESS.value).to.equal(2);
+	});
+});

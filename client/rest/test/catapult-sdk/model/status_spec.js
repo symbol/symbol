@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const status = require('../../../src/catapult-sdk/model/status');
-const { expect } = require('chai');
+import status from '../../../src/catapult-sdk/model/status.js';
+import { expect } from 'chai';
 
 describe('status', () => {
 	describe('toString', () => {

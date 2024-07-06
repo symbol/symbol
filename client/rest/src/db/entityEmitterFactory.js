@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const winston = require('winston');
-const EventEmitter = require('events');
+import winston from 'winston';
+import EventEmitter from 'events';
 
-module.exports = {
+export default {
 	createEntityEmitter: createOpEmitter => {
 		const entityEmitter = new EventEmitter();
 		return createOpEmitter({ ns: 'catapult.blocks', op: 'i' })

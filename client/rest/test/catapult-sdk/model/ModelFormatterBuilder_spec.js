@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const ModelFormatterBuilder = require('../../../src/catapult-sdk/model/ModelFormatterBuilder');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const { expect } = require('chai');
+import ModelFormatterBuilder from '../../../src/catapult-sdk/model/ModelFormatterBuilder.js';
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import { expect } from 'chai';
 
 const modelSchema = new ModelSchemaBuilder().build();
 const formattingRules = {

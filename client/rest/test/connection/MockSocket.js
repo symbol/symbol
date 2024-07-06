@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class MockSocket {
+export default class MockSocket {
 	constructor() {
 		this.authorized = false;
 		this.numWrites = 0;
@@ -51,7 +51,3 @@ class MockSocket {
 		}
 	}
 }
-
-module.exports = {
-	MockSocket
-};

@@ -19,16 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const MosaicDb = require('../../../src/plugins/mosaic/MosaicDb');
-const test = require('../../db/utils/dbTestUtils');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import MosaicDb from '../../../src/plugins/mosaic/MosaicDb.js';
+import test from '../../db/utils/dbTestUtils.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 const { Binary, Long } = MongoDb;
-const { address } = catapult.model;
 
 describe('mosaic db', () => {
 	const { createObjectId } = test.db;
@@ -37,8 +36,8 @@ describe('mosaic db', () => {
 		test.db.runDbTest(dbEntities, 'mosaics', db => new MosaicDb(db), issueDbCommand, assertDbCommandResult);
 
 	describe('mosaics', () => {
-		const ownerAddressTest1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-		const ownerAddressTest2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+		const ownerAddressTest1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+		const ownerAddressTest2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 		const paginationOptions = {
 			pageSize: 10,
@@ -249,7 +248,7 @@ describe('mosaic db', () => {
 			// Assert:
 			return runMosaicsDbTest(
 				mosaics,
-				db => db.mosaicsByIds([[123, 456]]),
+				db => db.mosaicsByIds([123n]),
 				entities => { expect(entities).to.deep.equal([]); }
 			);
 		});
@@ -261,7 +260,7 @@ describe('mosaic db', () => {
 			// Assert:
 			return runMosaicsDbTest(
 				mosaics,
-				db => db.mosaicsByIds([[10010, 0]]),
+				db => db.mosaicsByIds([10010n]),
 				entities => {
 					expect(entities).to.deep.equal([{ id: createObjectId(10), ...mosaics[10] }]);
 				}
@@ -275,7 +274,7 @@ describe('mosaic db', () => {
 			// Assert:
 			return runMosaicsDbTest(
 				mosaics,
-				db => db.mosaicsByIds([[10010, 0], [10007, 0], [10003, 0]]),
+				db => db.mosaicsByIds([10010n, 10007n, 10003n]),
 				entities => {
 					expect(entities).to.deep.equal([
 						{ id: createObjectId(10), ...mosaics[10] },
@@ -293,7 +292,7 @@ describe('mosaic db', () => {
 			// Assert:
 			return runMosaicsDbTest(
 				mosaics,
-				db => db.mosaicsByIds([[10010, 0], [10021, 0], [10003, 0]]),
+				db => db.mosaicsByIds([10010n, 10021n, 10003n]),
 				entities => expect(entities).to.deep.equal([
 					{ id: createObjectId(10), ...mosaics[10] },
 					{ id: createObjectId(3), ...mosaics[3] }

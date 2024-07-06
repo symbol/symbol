@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong } = require('../db/dbUtils');
+import { convertToLong } from '../db/dbUtils.js';
 
 const extractFromMetadata = (group, transaction) => ({
 	group,
@@ -29,8 +29,7 @@ const extractFromMetadata = (group, transaction) => ({
 	height: transaction.meta.height
 });
 
-const dbFacade = {
-
+export default {
 	/**
 	 * Runs a database operation that is dependent on current chain height.
 	 * @param {module:db/CatapultDb} db Catapult database.
@@ -92,5 +91,3 @@ const dbFacade = {
 		});
 	}
 };
-
-module.exports = dbFacade;

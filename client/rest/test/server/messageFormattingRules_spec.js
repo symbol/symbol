@@ -19,34 +19,32 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const formattingRules = require('../../src/server/messageFormattingRules');
-const test = require('../testUtils');
-const { expect } = require('chai');
+import catapult from '../../src/catapult-sdk/index.js';
+import formattingRules from '../../src/server/messageFormattingRules.js';
+import test from '../testUtils.js';
+import { expect } from 'chai';
 
 const { ModelType } = catapult.model;
 
 describe('message formatting rules', () => {
-	it('can format none type', () => {
-		// Arrange:
-		const object = { foo: 8 };
-
+	const assertFormatting = (modelType, input, expectedResult) => {
 		// Act:
-		const result = formattingRules[ModelType.none](object);
+		const result = formattingRules[modelType](input);
 
 		// Assert:
-		expect(result).to.deep.equal({ foo: 8 });
+		expect(result).to.deep.equal(expectedResult);
+	};
+
+	it('can format none type', () => {
+		assertFormatting(ModelType.none, { foo: 8 }, { foo: 8 });
 	});
 
 	it('can format binary type', () => {
-		// Arrange:
-		const object = Buffer.from('FEDCBA9876543210', 'hex');
+		assertFormatting(ModelType.binary, Buffer.from('FEDCBA9876543210', 'hex'), 'FEDCBA9876543210');
+	});
 
-		// Act:
-		const result = formattingRules[ModelType.binary](object);
-
-		// Assert:
-		expect(result).to.equal('FEDCBA9876543210');
+	it('can format binary type (string)', () => {
+		assertFormatting(ModelType.binary, 'FEDCBA9876543210', 'FEDCBA9876543210');
 	});
 
 	it('cannot format object id type', () => {
@@ -55,112 +53,62 @@ describe('message formatting rules', () => {
 	});
 
 	it('can format status code type', () => {
-		// Arrange:
-		const code = 0x80530001;
-
-		// Act:
-		const result = formattingRules[ModelType.statusCode](code);
-
-		// Assert:
-		expect(result).to.equal('Failure_Signature_Not_Verifiable');
+		assertFormatting(ModelType.statusCode, 0x80530001, 'Failure_Signature_Not_Verifiable');
 	});
 
 	it('can format string type', () => {
-		// Arrange:
-		const object = test.factory.createBinary(Buffer.from('6361746170756C74', 'hex'));
-
-		// Act:
-		const result = formattingRules[ModelType.string](object);
-
-		// Assert:
-		expect(result).to.equal('catapult');
+		assertFormatting(ModelType.string, test.factory.createBinary(Buffer.from('6361746170756C74', 'hex')), 'catapult');
 	});
 
 	it('can format uint8 type', () => {
-		// Arrange:
-		const object = 12345678;
-
-		// Act:
-		const result = formattingRules[ModelType.uint8](object);
-
-		// Assert:
-		expect(result).to.deep.equal(12345678);
+		assertFormatting(ModelType.uint8, 56, 56);
 	});
 
 	it('can format uint16 type', () => {
-		// Arrange:
-		const object = 56;
-
-		// Act:
-		const result = formattingRules[ModelType.uint16](object);
-
-		// Assert:
-		expect(result).to.deep.equal(56);
+		assertFormatting(ModelType.uint16, 1234, 1234);
 	});
 
 	it('can format uint32 type', () => {
-		// Arrange:
-		const object = 12345678;
-
-		// Act:
-		const result = formattingRules[ModelType.uint32](object);
-
-		// Assert:
-		expect(result).to.deep.equal(12345678);
+		assertFormatting(ModelType.uint32, 12345678, 12345678);
 	});
 
 	it('can format uint64 type', () => {
-		// Arrange:
-		const object = [1, 2];
-
-		// Act:
-		const result = formattingRules[ModelType.uint64](object);
-
-		// Assert:
-		expect(result).to.equal('8589934593');
+		assertFormatting(ModelType.uint64, 8589934602n, '8589934602');
 	});
 
-	it('can format int type', () => {
-		// Arrange:
-		const object = 12345678;
-
-		// Act:
-		const result = formattingRules[ModelType.int](object);
-
-		// Assert:
-		expect(result).to.deep.equal(12345678);
+	it('can format uint64 type (string)', () => {
+		assertFormatting(ModelType.uint64, '8589934602', '8589934602');
 	});
 
 	it('can format uint64HexIdentifier type', () => {
-		// Arrange:
-		const object = [1, 2];
+		assertFormatting(ModelType.uint64HexIdentifier, 8589934602n, '000000020000000A');
+	});
 
-		// Act:
-		const result = formattingRules[ModelType.uint64HexIdentifier](object);
+	it('can format uint64HexIdentifier type (string)', () => {
+		assertFormatting(ModelType.uint64HexIdentifier, '8589934602', '000000020000000A');
+	});
 
-		// Assert:
-		expect(result).to.equal('0000000200000001');
+	it('can format int type', () => {
+		assertFormatting(ModelType.int, 12345678, 12345678);
 	});
 
 	it('can format boolean type', () => {
-		// Arrange:
-		const object = true;
-
-		// Act:
-		const result = formattingRules[ModelType.boolean](object);
-
-		// Assert:
-		expect(result).to.deep.equal(true);
+		assertFormatting(ModelType.boolean, true, true);
 	});
 
-	it('can format decodedAddress type', () => {
-		// Arrange:
-		const object = test.factory.createBinary(Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex'));
+	it('can format encodedAddress type', () => {
+		assertFormatting(
+			ModelType.encodedAddress,
+			test.factory.createBinary(Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex')),
+			'98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56'
+		);
+	});
 
-		// Act:
-		const result = formattingRules[ModelType.encodedAddress](object);
-
-		// Assert:
-		expect(result).to.deep.equal('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56');
+	it('can format encodedAddress type (string)', () => {
+		assertFormatting(
+			ModelType.encodedAddress,
+			'98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56',
+			'98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56'
+		);
 	});
 });

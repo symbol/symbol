@@ -20,75 +20,19 @@
  */
 
 /** @module plugins/transfer */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
-
-const constants = { sizes };
+import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a transfer plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const transferPlugin = {
+export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.transfer, {
+		builder.addTransactionSupport(models.TransactionType.TRANSFER, {
 			recipientAddress: ModelType.encodedAddress,
 			message: ModelType.binary,
 			mosaics: { type: ModelType.array, schemaName: 'mosaic' }
 		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.transfer, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
-
-				const messageSize = parser.uint16();
-				const numMosaics = parser.uint8();
-
-				transaction.transferTransactionBody_Reserved1 = parser.uint32();
-				transaction.transferTransactionBody_Reserved2 = parser.uint8();
-
-				if (0 < numMosaics) {
-					transaction.mosaics = [];
-					while (transaction.mosaics.length < numMosaics) {
-						const id = parser.uint64();
-						const amount = parser.uint64();
-						transaction.mosaics.push({ id, amount });
-					}
-				}
-
-				if (0 < messageSize)
-					transaction.message = parser.buffer(messageSize);
-
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.recipientAddress);
-
-				serializer.writeUint16(transaction.message ? transaction.message.length : 0);
-
-				const numMosaics = transaction.mosaics ? transaction.mosaics.length : 0;
-				serializer.writeUint8(numMosaics);
-
-				serializer.writeUint32(transaction.transferTransactionBody_Reserved1);
-				serializer.writeUint8(transaction.transferTransactionBody_Reserved2);
-
-				if (0 < numMosaics) {
-					transaction.mosaics.forEach(mosaic => {
-						serializer.writeUint64(mosaic.id);
-						serializer.writeUint64(mosaic.amount);
-					});
-				}
-
-				if (transaction.message)
-					serializer.writeBuffer(transaction.message);
-			}
-		});
 	}
 };
-
-module.exports = transferPlugin;

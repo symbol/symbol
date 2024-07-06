@@ -20,14 +20,14 @@
  */
 
 /** @module plugins/namespace */
-const NamespaceDb = require('./NamespaceDb');
-const namespaceRoutes = require('./namespaceRoutes');
+import NamespaceDb from './NamespaceDb.js';
+import namespaceRoutes from './namespaceRoutes.js';
 
 /**
  * Creates a namespace plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: db => new NamespaceDb(db),
 
 	registerTransactionStates: () => {},

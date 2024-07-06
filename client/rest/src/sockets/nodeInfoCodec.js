@@ -20,11 +20,9 @@
  */
 
 /** @module sockets/nodeInfoCodec */
-const catapult = require('../catapult-sdk/index');
+import { Hash256, PublicKey } from 'symbol-sdk';
 
-const { sizes } = catapult.constants;
-
-const nodeInfoCodec = {
+export default {
 	/**
 	 * Parses a node info.
 	 * @param {object} parser Parser.
@@ -34,8 +32,8 @@ const nodeInfoCodec = {
 		const nodeInfo = {};
 		parser.uint32(); // Node size
 		nodeInfo.version = parser.uint32();
-		nodeInfo.publicKey = parser.buffer(sizes.signerPublicKey);
-		nodeInfo.networkGenerationHashSeed = parser.buffer(sizes.hash256);
+		nodeInfo.publicKey = parser.buffer(PublicKey.SIZE);
+		nodeInfo.networkGenerationHashSeed = parser.buffer(Hash256.SIZE);
 		nodeInfo.roles = parser.uint32();
 		nodeInfo.port = parser.uint16();
 		nodeInfo.networkIdentifier = parser.uint8();
@@ -46,5 +44,3 @@ const nodeInfoCodec = {
 		return nodeInfo;
 	}
 };
-
-module.exports = nodeInfoCodec;

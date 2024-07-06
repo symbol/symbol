@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const entitiesByAccounts = require('./entriesByAccountsTestUtils');
-const test = require('./multisigDbTestUtils');
+import entitiesByAccounts from './entriesByAccountsTestUtils.js';
+import test from './multisigDbTestUtils.js';
 
 describe('multisig db', () => {
 	describe('multisigs by addresses', () =>

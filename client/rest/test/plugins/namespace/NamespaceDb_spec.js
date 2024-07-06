@@ -19,20 +19,18 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./namespaceDbTestUtils');
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const dbUtils = require('../../../src/db/dbUtils');
-const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
-const dbTestUtils = require('../../db/utils/dbTestUtils');
-const testDbOptions = require('../../db/utils/testDbOptions');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import test from './namespaceDbTestUtils.js';
+import catapult from '../../../src/catapult-sdk/index.js';
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import NamespaceDb from '../../../src/plugins/namespace/NamespaceDb.js';
+import dbTestUtils from '../../db/utils/dbTestUtils.js';
+import testDbOptions from '../../db/utils/testDbOptions.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
+import { Address, models } from 'symbol-sdk/symbol';
 
-const { address } = catapult.model;
-const { uint64 } = catapult.utils;
-const { convertToLong } = dbUtils;
 const { Binary } = MongoDb;
 
 describe('namespace db', () => {
@@ -42,10 +40,10 @@ describe('namespace db', () => {
 		const runNamespacesDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) =>
 			dbTestUtils.db.runDbTest(dbEntities, 'namespaces', db => new NamespaceDb(db), issueDbCommand, assertDbCommandResult);
 
-		const level0Test1 = uint64.fromHex('85BBEA6CC462B244');
-		const level0Test2 = uint64.fromHex('3C2437767AF232DC');
-		const ownerAddressTest1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-		const ownerAddressTest2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+		const level0Test1 = 0x85BBEA6CC462B244n;
+		const level0Test2 = 0x3C2437767AF232DCn;
+		const ownerAddressTest1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+		const ownerAddressTest2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 		const paginationOptions = {
 			pageSize: 10,
@@ -325,7 +323,7 @@ describe('namespace db', () => {
 			// Assert:
 			return test.db.runDbTest(
 				namespaces,
-				db => db.namespaceById([123, 456]),
+				db => db.namespaceById(123n),
 				entity => { expect(entity).to.equal(undefined); }
 			);
 		});
@@ -338,7 +336,7 @@ describe('namespace db', () => {
 			// Assert:
 			return test.db.runDbTest(
 				namespaces,
-				db => db.namespaceById([12303, 0]),
+				db => db.namespaceById(12303n),
 				entity => {
 					expect(entity.id).to.deep.equal(createObjectId(3));
 					expect(entity.meta.active).to.equal(true);
@@ -355,7 +353,7 @@ describe('namespace db', () => {
 			// Assert:
 			return test.db.runDbTest(
 				namespaces,
-				db => db.namespaceById([12301, 0]),
+				db => db.namespaceById(12301n),
 				entity => {
 					expect(entity.id).to.deep.equal(createObjectId(1));
 					expect(entity.meta.active).to.equal(true);
@@ -372,7 +370,7 @@ describe('namespace db', () => {
 			// Assert:
 			return test.db.runDbTest(
 				namespaces,
-				db => db.namespaceById([12302, 0]),
+				db => db.namespaceById(12302n),
 				entity => {
 					expect(entity.id).to.deep.equal(createObjectId(2));
 					expect(entity.meta.active).to.equal(true);
@@ -391,8 +389,8 @@ describe('namespace db', () => {
 			.then(() => db.database.collection(collectionName)[Array.isArray(entities) ? 'insertMany' : 'insertOne'](entities));
 
 	describe('activeNamespacesWithAlias', () => {
-		const aliasTypeMosaic = catapult.model.namespace.aliasType.mosaic;
-		const aliasTypeAddress = catapult.model.namespace.aliasType.address;
+		const aliasTypeMosaic = catapult.model.NamespaceAliasType.MOSAIC_ID;
+		const aliasTypeAddress = catapult.model.NamespaceAliasType.ADDRESS;
 		const testAddress = {
 			one: 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ',
 			two: 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA',
@@ -409,10 +407,10 @@ describe('namespace db', () => {
 				level1: 2 === depth ? convertToLong(namespaceId) : '',
 				level2: 3 === depth ? convertToLong(namespaceId) : '',
 				alias: {
-					type: aliasType,
-					mosaicId: aliasType === catapult.model.namespace.aliasType.mosaic ? convertToLong(aliasTarget) : null,
-					address: aliasType === catapult.model.namespace.aliasType.address
-						? new Binary(Buffer.from(address.stringToAddress(aliasTarget)))
+					type: aliasType.value,
+					mosaicId: aliasType === catapult.model.NamespaceAliasType.MOSAIC_ID ? convertToLong(aliasTarget) : null,
+					address: aliasType === catapult.model.NamespaceAliasType.ADDRESS
+						? new Binary(Buffer.from(new Address(aliasTarget).bytes))
 						: null
 				},
 				startHeight: convertToLong(expirationHeight.start),
@@ -462,8 +460,8 @@ describe('namespace db', () => {
 				.then(() => dbFacade.activeNamespacesWithAlias(
 					aliasTypeAddress,
 					[
-						address.stringToAddress(testAddress.one),
-						address.stringToAddress(testAddress.two)
+						new Address(testAddress.one).bytes,
+						new Address(testAddress.two).bytes
 					]
 				))
 				.then(entities => {
@@ -507,7 +505,7 @@ describe('namespace db', () => {
 				.then(() => dbFacade.activeNamespacesWithAlias(
 					aliasTypeAddress,
 					[
-						address.stringToAddress(testAddress.three)
+						new Address(testAddress.three).bytes
 					]
 				))
 				.then(entities => { expect(entities).to.deep.equal([]); })
@@ -548,9 +546,9 @@ describe('namespace db', () => {
 				.then(() => dbFacade.activeNamespacesWithAlias(
 					aliasTypeAddress,
 					[
-						address.stringToAddress(testAddress.one),
-						address.stringToAddress(testAddress.two),
-						address.stringToAddress(testAddress.three)
+						new Address(testAddress.one).bytes,
+						new Address(testAddress.two).bytes,
+						new Address(testAddress.three).bytes
 					]
 				))
 				.then(entities => { expect(entities).to.deep.equal([{ ...namespace3, meta: { active: true, latest: true } }]); })
@@ -559,9 +557,9 @@ describe('namespace db', () => {
 	});
 
 	describe('register namespace transactions by namespace ids', () => {
-		const transactionType = catapult.model.EntityType.registerNamespace;
+		const transactionType = models.TransactionType.NAMESPACE_REGISTRATION;
 		const createRegisterNamespaceTransaction = (namespaceId, type, name) => ({
-			transaction: { type, id: convertToLong(namespaceId), name }
+			transaction: { type: type.value, id: convertToLong(namespaceId), name }
 		});
 
 		it('returns register namespace transactions by namespace ids', () => {

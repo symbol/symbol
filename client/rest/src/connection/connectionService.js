@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapultConnection = require('./catapultConnection');
-const errors = require('../server/errors');
-const tls = require('tls');
+import catapultConnection from './catapultConnection.js';
+import errors from '../server/errors.js';
+import tls from 'tls';
 
 /**
  * Creates a catapult connection service for connecting to catapult servers.
@@ -31,7 +31,7 @@ const tls = require('tls');
  * @param {Function} logger A logging function.
  * @returns {object} Catapult connection service.
  */
-module.exports.createConnectionService = (config, logger = () => {}) => {
+export default (config, logger = () => {}) => {
 	const node = config.apiNode;
 	const aliveConnections = {};
 	// the connection is not persisted until authentication is done, and this may take a while,

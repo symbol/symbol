@@ -19,13 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const nodeInfoCodec = require('../../src/sockets/nodeInfoCodec');
-const { expect } = require('chai');
+import catapult from '../../src/catapult-sdk/index.js';
+import nodeInfoCodec from '../../src/sockets/nodeInfoCodec.js';
+import { expect } from 'chai';
 
 const { BinaryParser } = catapult.parser;
 
-describe('deserialize', () => {
+describe('node info codec deserialize', () => {
 	it('returns a deserialized object without friendlyName or host', () => {
 		// Arrange:
 		const binaryParser = new BinaryParser();

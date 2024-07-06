@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const formattingRules = require('../../src/db/dbFormattingRules');
-const { convertToLong } = require('../../src/db/dbUtils');
-const test = require('../testUtils');
-const { expect } = require('chai');
-const { Binary } = require('mongodb');
+import catapult from '../../src/catapult-sdk/index.js';
+import formattingRules from '../../src/db/dbFormattingRules.js';
+import { convertToLong } from '../../src/db/dbUtils.js';
+import test from '../testUtils.js';
+import { expect } from 'chai';
+import { Binary } from 'mongodb';
 
 const { ModelType } = catapult.model;
 
@@ -167,24 +167,24 @@ describe('db formatting rules', () => {
 	describe('can format uint64 type', () => {
 		it('can format uint64 type from Long', () => {
 			// Arrange:
-			const object = convertToLong([1, 2]);
+			const object = convertToLong(8589934602n);
 
 			// Act:
 			const result = formattingRules[ModelType.uint64](object);
 
 			// Assert:
-			expect(result).to.equal('8589934593');
+			expect(result).to.equal('8589934602');
 		});
 
 		it('can format uint64HexIdentifier type from Long', () => {
 			// Arrange:
-			const object = convertToLong([1, 2]);
+			const object = convertToLong(8589934602n);
 
 			// Act:
 			const result = formattingRules[ModelType.uint64HexIdentifier](object);
 
 			// Assert:
-			expect(result).to.equal('0000000200000001');
+			expect(result).to.equal('000000020000000A');
 		});
 
 		it('can format uint64HexIdentifier type from Binary', () => {

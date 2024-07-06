@@ -19,44 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EntityType = require('../../../src/catapult-sdk/model/EntityType');
-const ModelSchemaBuilder = require('../../../src/catapult-sdk/model/ModelSchemaBuilder');
-const ModelType = require('../../../src/catapult-sdk/model/ModelType');
-const { expect } = require('chai');
+import ModelSchemaBuilder from '../../../src/catapult-sdk/model/ModelSchemaBuilder.js';
+import ModelType from '../../../src/catapult-sdk/model/ModelType.js';
+import { expect } from 'chai';
+import { models } from 'symbol-sdk/symbol';
+
+const { TransactionType } = models;
 
 describe('model schema builder', () => {
-	describe('allowed transaction types', () => {
-		it('has entityTypes on list of allowed transactions by default', () => {
-			// Arrange:
-			const builder = new ModelSchemaBuilder();
-
-			// Act + Assert:
-			const typeName = builder.typeToName(EntityType.transfer);
-			expect(typeName).to.equal('transfer');
-		});
-
-		it('can be altered with setAllowedTransactions', () => {
-			// Arrange:
-			const builder = new ModelSchemaBuilder();
-			builder.setAllowedTransactions({});
-
-			// Act + Assert:
-			expect(() => builder.typeToName(EntityType.transfer)).to.throw('transactionType is not in the list of allowed transactions');
-		});
-
-		it('can be set to use custom types', () => {
-			// Arrange:
-			const builder = new ModelSchemaBuilder();
-			builder.setAllowedTransactions({ foo: 12345 });
-
-			// Act:
-			const typeName = builder.typeToName(12345);
-
-			// Assert:
-			expect(typeName).to.equal('foo');
-		});
-	});
-
 	describe('with no extensions', () => {
 		it('exposes expected types', () => {
 			// Arrange:
@@ -117,7 +87,7 @@ describe('model schema builder', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(modelSchema).to.not.contain.any.keys(Object.keys(EntityType));
+			expect(modelSchema).to.not.contain.any.keys(Object.keys(TransactionType));
 		});
 
 		const extractPropertiesWithType = (object, matches, propertyType, key = '') => {
@@ -435,25 +405,26 @@ describe('model schema builder', () => {
 		// endregion
 	});
 
-	const TestEntityType = { foo: 1234, bar: 2345 };
-
 	describe('with extensions', () => {
 		it('can add transaction extension', () => {
 			// Act:
 			const builder = new ModelSchemaBuilder();
-			builder.setAllowedTransactions(TestEntityType);
-			builder.addTransactionSupport(TestEntityType.foo, { alpha: ModelType.array, beta: ModelType.binary, gamma: ModelType.uint64 });
+			builder.addTransactionSupport(TransactionType.TRANSFER, {
+				alpha: ModelType.array, beta: ModelType.binary, gamma: ModelType.uint64
+			});
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(modelSchema).to.contain.key('foo');
-			expect(modelSchema.foo.alpha).to.equal(ModelType.array);
-			expect(modelSchema.foo.beta).to.equal(ModelType.binary);
-			expect(modelSchema.foo.gamma).to.equal(ModelType.uint64);
+			expect(modelSchema).to.contain.key('TransactionType.TRANSFER');
+
+			const transferSchema = modelSchema['TransactionType.TRANSFER'];
+			expect(transferSchema.alpha).to.equal(ModelType.array);
+			expect(transferSchema.beta).to.equal(ModelType.binary);
+			expect(transferSchema.gamma).to.equal(ModelType.uint64);
 
 			// - transaction extensions should inherit transaction types
-			expect(modelSchema.foo.signature).to.equal(ModelType.binary);
-			expect(modelSchema.foo.maxFee).to.equal(ModelType.uint64);
+			expect(transferSchema.signature).to.equal(ModelType.binary);
+			expect(transferSchema.maxFee).to.equal(ModelType.uint64);
 		});
 
 		it('can add other extension', () => {
@@ -464,50 +435,55 @@ describe('model schema builder', () => {
 
 			// Assert:
 			expect(modelSchema).to.contain.key('foo');
-			expect(modelSchema.foo.alpha).to.equal(ModelType.array);
-			expect(modelSchema.foo.beta).to.equal(ModelType.binary);
-			expect(modelSchema.foo.gamma).to.equal(ModelType.uint64);
+
+			const fooSchema = modelSchema.foo;
+			expect(fooSchema.alpha).to.equal(ModelType.array);
+			expect(fooSchema.beta).to.equal(ModelType.binary);
+			expect(fooSchema.gamma).to.equal(ModelType.uint64);
 
 			// - non-transaction extensions should not inherit transaction types
-			expect(modelSchema.foo.signature).to.equal(undefined);
-			expect(modelSchema.foo.maxFee).to.equal(undefined);
+			expect(fooSchema.signature).to.equal(undefined);
+			expect(fooSchema.maxFee).to.equal(undefined);
 		});
 
 		it('can add transaction extension for known entity type', () => {
 			// Act:
 			const builder = new ModelSchemaBuilder();
-			builder.addTransactionSupport(EntityType.transfer, { alpha: ModelType.array });
+			builder.addTransactionSupport(TransactionType.TRANSFER, { alpha: ModelType.array });
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(modelSchema).to.contain.key('transfer');
-			expect(modelSchema.transfer.alpha).to.equal(ModelType.array);
+			expect(modelSchema).to.contain.key('TransactionType.TRANSFER');
+
+			const transferSchema = modelSchema['TransactionType.TRANSFER'];
+			expect(transferSchema.alpha).to.equal(ModelType.array);
 
 			// - transaction extensions should inherit transaction types
-			expect(modelSchema.transfer.signature).to.equal(ModelType.binary);
-			expect(modelSchema.transfer.maxFee).to.equal(ModelType.uint64);
+			expect(transferSchema.signature).to.equal(ModelType.binary);
+			expect(transferSchema.maxFee).to.equal(ModelType.uint64);
 		});
 
 		it('cannot add transaction extension for unknown entity type', () => {
 			// Act + Assert:
 			const builder = new ModelSchemaBuilder();
-			expect(() => builder.addTransactionSupport(TestEntityType.foo, { alpha: ModelType.array })).to
-				.throw(`transactionType is not in the list of allowed transactions '${TestEntityType.foo}'`);
+			expect(() => builder.addTransactionSupport(new TransactionType(1), { alpha: ModelType.array })).to
+				.throw('invalid enum value');
 		});
 
 		it('cannot add conflicting extensions', () => {
 			// Act:
 			const builder = new ModelSchemaBuilder();
-			builder.setAllowedTransactions(TestEntityType);
-			builder.addTransactionSupport(TestEntityType.foo, { alpha: ModelType.array, beta: ModelType.binary, gamma: ModelType.uint64 });
+			builder.addTransactionSupport(TransactionType.TRANSFER, {
+				alpha: ModelType.array, beta: ModelType.binary, gamma: ModelType.uint64
+			});
 			builder.addSchema('bar', { alpha: ModelType.array, beta: ModelType.binary, gamma: ModelType.uint64 });
 
 			// Assert:
-			['foo', 'bar'].forEach(key => {
+			['TransactionType.TRANSFER', 'bar'].forEach(key => {
 				expect(() => builder.addSchema(key, {}), key).to.throw('already registered');
 			});
-			Object.keys(TestEntityType).forEach(key => {
-				expect(() => builder.addTransactionSupport(TestEntityType[key], {}), key).to.throw('already registered');
+			[TransactionType.TRANSFER].forEach(type => {
+				expect(() => builder.addTransactionSupport(type, {}), type).to.throw('already registered');
 			});
 		});
 
@@ -521,31 +497,18 @@ describe('model schema builder', () => {
 			});
 		});
 
-		it('cannot override default extensions with transactions', () => {
-			// Act:
-			const builder = new ModelSchemaBuilder();
-			const allowedTransactions = { blockHeader: 123, mosaic: 456 };
-			builder.setAllowedTransactions(allowedTransactions);
-
-			// Assert:
-			Object.keys(allowedTransactions).forEach(key => {
-				expect(() => builder.addTransactionSupport(allowedTransactions[key], {}), key).to.throw('already registered');
-			});
-		});
-
 		it('picks transaction sub schema based on whitelist and availability', () => {
 			// Arrange:
 			const builder = new ModelSchemaBuilder();
-			builder.setAllowedTransactions(Object.assign({}, TestEntityType, EntityType));
-			builder.addTransactionSupport(TestEntityType.foo, { alpha: ModelType.array });
-			builder.addTransactionSupport(EntityType.registerNamespace, { beta: ModelType.binary });
+			builder.addTransactionSupport(TransactionType.NAMESPACE_REGISTRATION, { beta: ModelType.binary });
 			const modelSchema = builder.build();
 			const schemaLookup = modelSchema.transactionWithMetadata.transaction.schemaName;
 
 			// Act + Assert:
 			expect(schemaLookup({ type: 0x8888 })).to.equal('transaction'); // not in whitelist
-			expect(schemaLookup({ type: EntityType.transfer })).to.equal('transaction'); // in whitelist, not available
-			expect(schemaLookup({ type: EntityType.registerNamespace })).to.equal('registerNamespace'); // in whitelist, available
+			expect(schemaLookup({ type: TransactionType.TRANSFER.value })).to.equal('transaction'); // in whitelist, not available
+			expect(schemaLookup({ type: TransactionType.NAMESPACE_REGISTRATION.value }))
+				.to.equal('TransactionType.NAMESPACE_REGISTRATION'); // in whitelist, available
 		});
 	});
 
@@ -554,15 +517,14 @@ describe('model schema builder', () => {
 			// Arrange: notice that schema lookup is created BEFORE additional transactions are registered
 			const builder = new ModelSchemaBuilder();
 			const schemaLookup = builder.transactionSchemaNameSupplier();
-			builder.setAllowedTransactions(Object.assign({}, TestEntityType, EntityType));
-			builder.addTransactionSupport(TestEntityType.foo, { alpha: ModelType.array });
-			builder.addTransactionSupport(EntityType.registerNamespace, { beta: ModelType.binary });
+			builder.addTransactionSupport(TransactionType.NAMESPACE_REGISTRATION, { beta: ModelType.binary });
 			builder.build();
 
 			// Act + Assert:
 			expect(schemaLookup({ type: 0x8888 })).to.equal('transaction'); // not in whitelist
-			expect(schemaLookup({ type: EntityType.transfer })).to.equal('transaction'); // in whitelist, not available
-			expect(schemaLookup({ type: EntityType.registerNamespace })).to.equal('registerNamespace'); // in whitelist, available
+			expect(schemaLookup({ type: TransactionType.TRANSFER.value })).to.equal('transaction'); // in whitelist, not available
+			expect(schemaLookup({ type: TransactionType.NAMESPACE_REGISTRATION.value }))
+				.to.equal('TransactionType.NAMESPACE_REGISTRATION'); // in whitelist, available
 		});
 	});
 });

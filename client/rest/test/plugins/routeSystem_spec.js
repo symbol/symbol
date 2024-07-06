@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeSystem = require('../../src/plugins/routeSystem');
-const { test } = require('../routes/utils/routeTestUtils');
-const { expect } = require('chai');
+import routeSystem from '../../src/plugins/routeSystem.js';
+import test from '../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
 
 describe('route system', () => {
 	const servicesTemplate = { config: { websocket: {}, network: { name: 'testnet' } }, connections: {} };
@@ -39,6 +39,7 @@ describe('route system', () => {
 
 		// Assert:
 		expect(supportedPluginNames).to.deep.equal([
+			// - transactions
 			'accountLink',
 			'aggregate',
 			'lockHash',
@@ -49,7 +50,10 @@ describe('route system', () => {
 			'namespace',
 			'receipts',
 			'restrictions',
-			'transfer'
+			'transfer',
+
+			// - other
+			'rosetta'
 		]);
 	});
 

@@ -19,62 +19,25 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module serializer/SerializedSizeCalculator */
-
 /**
- * Calculates serialized size using builder pattern.
+ * Namespace alias type.
  */
-class SerializedSizeCalculator {
+export default class NamespaceAliasType {
 	/**
-	 * Creates a serialized size calculator.
+	 * Mosaic id alias.
 	 */
-	constructor() {
-		this.totalSize = 0;
-	}
+	static MOSAIC_ID = new NamespaceAliasType(1);
 
 	/**
-	 * Gets the calculated size.
-	 * @returns {number} Calculated size.
+	 * Address alias.
 	 */
-	size() {
-		return this.totalSize;
-	}
+	static ADDRESS = new NamespaceAliasType(2);
 
 	/**
-	 * Writes a uint8 to the working buffer.
+	 * Creates a namespace alias type.
+	 * @param {number} value Raw value.
 	 */
-	writeUint8() {
-		++this.totalSize;
-	}
-
-	/**
-	 * Writes a uint16 to the working buffer.
-	 */
-	writeUint16() {
-		this.totalSize += 2;
-	}
-
-	/**
-	 * Writes a uint32 to the working buffer.
-	 */
-	writeUint32() {
-		this.totalSize += 4;
-	}
-
-	/**
-	 * Writes a uint64 to the working buffer.
-	 */
-	writeUint64() {
-		this.totalSize += 8;
-	}
-
-	/**
-	 * Writes a buffer of bytes to the working buffer.
-	 * @param {Buffer} buffer Buffer to write.
-	 */
-	writeBuffer(buffer) {
-		this.totalSize += buffer.length;
+	constructor(value) {
+		this.value = value;
 	}
 }
-
-module.exports = SerializedSizeCalculator;

@@ -552,3 +552,23 @@ class StructFormatter(AbstractTypeFormatter):
 		body += 'result += \')\';\n'
 		body += 'return result;'
 		return MethodDescriptor(body=body)
+
+	def generate_json_field(self, field):
+		condition = self.generate_condition(field, True)
+		field_json_value = field.extensions.printer.to_json(self.field_name(field))
+		return indent_if_conditional(condition, f'result.{field.extensions.printer.name} = {field_json_value};\n')
+
+	def get_json_descriptor(self):
+		body = 'const result = {};\n'
+
+		if self.base_struct:
+			body += 'Object.assign(result, super.toJson());\n'
+
+		body += ''.join(map(self.generate_json_field, self.non_reserved_fields(include_inherited=False)))
+
+		body += 'return result;'
+		descriptor = MethodDescriptor(body=body)
+		descriptor.documentation += [
+			'@returns {object} JSON-safe representation of this object.'
+		]
+		return descriptor

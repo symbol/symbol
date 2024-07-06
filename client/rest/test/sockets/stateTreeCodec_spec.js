@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const stateTreesCodec = require('../../src/sockets/stateTreesCodec');
-const { expect } = require('chai');
+import catapult from '../../src/catapult-sdk/index.js';
+import stateTreesCodec from '../../src/sockets/stateTreesCodec.js';
+import { expect } from 'chai';
+import { utils } from 'symbol-sdk';
 
 const { BinaryParser } = catapult.parser;
-const { convert } = catapult.utils;
 
-describe('deserialize', () => {
+describe('state tree codec deserialize', () => {
 	it('returns a deserialized state tree object', () => {
 		// Arrange:
 		const tree = [
@@ -37,7 +37,7 @@ describe('deserialize', () => {
 			'2D3418274BBC250616223C162534B460216AED82C4FA9A87B53083B7BA7A9391',
 			'AEAF30ED55BBE4805C53E5232D88242F0CF719F99A8E6D339BCBF5D5DE85E1FB',
 			'AFE6C917BABA60ADC1512040CC35033B563DAFD1718FA486AB1F3D9B84866B27'
-		].map((treeNode => Buffer.from(convert.hexToUint8(treeNode))));
+		].map((treeNode => Buffer.from(utils.hexToUint8(treeNode))));
 
 		const binaryParser = new BinaryParser();
 		binaryParser.push(Buffer.concat(tree));

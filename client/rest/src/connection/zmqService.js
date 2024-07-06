@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const zmqUtils = require('./zmqUtils');
-const zmq = require('zeromq');
+import zmqUtils from './zmqUtils.js';
+import zmq from 'zeromq';
 
 const createZmqSocket = (key, zmqConfig, logger, currentSocketCount) => {
 	const zsocket = zmq.socket('sub');
@@ -32,13 +32,13 @@ const createZmqSocket = (key, zmqConfig, logger, currentSocketCount) => {
 	return zsocket;
 };
 
-const findSubscriptionInfo = (key, emitter, codec, channelDescriptors) => {
+const findSubscriptionInfo = (key, emitter, channelDescriptors) => {
 	const [topicCategory, topicParam] = key.split('/');
 	if (!(topicCategory in channelDescriptors))
 		throw new Error(`unknown topic category ${topicCategory}`);
 
 	const descriptor = channelDescriptors[topicCategory];
-	const handler = descriptor.handler(codec, data => { emitter.emit(key, data); });
+	const handler = descriptor.handler(data => { emitter.emit(key, data); });
 	const filter = descriptor.filter(topicParam);
 	return { filter, handler };
 };
@@ -46,18 +46,17 @@ const findSubscriptionInfo = (key, emitter, codec, channelDescriptors) => {
 /**
  * Service for creating channel-specific zmq sockets.
  * @param {object} zmqConfig Configuration for configuring sockets.
- * @param {object} codec Codec used to deserialize zmq messages.
  * @param {object} channelDescriptors Registered message channel descriptors.
  * @param {object} logger Level-based logger object.
  * @returns {object} Newly created zmq connection service that is a stripped down EventEmitter.
  */
-module.exports.createZmqConnectionService = (zmqConfig, codec, channelDescriptors, logger) =>
+export default (zmqConfig, channelDescriptors, logger) =>
 	zmqUtils.createMultisocketEmitter((key, emitter, currentSocketCount) => {
 		if (currentSocketCount === (!zmqConfig.maxSubscriptions ? 500 : zmqConfig.maxSubscriptions))
 			throw new Error('Max subscriptions reached.');
 
 		logger.info(`subscribing to ${key}`);
-		const subscriptionInfo = findSubscriptionInfo(key, emitter, codec, channelDescriptors);
+		const subscriptionInfo = findSubscriptionInfo(key, emitter, channelDescriptors);
 
 		const zsocket = createZmqSocket(key, zmqConfig, logger, currentSocketCount);
 		// the second param (handler) gets called with the provided args in the message, which vary depending on the defined handler type

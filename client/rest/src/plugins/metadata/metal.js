@@ -1,11 +1,11 @@
-const catapult = require('../../catapult-sdk');
-const { sha3_256 } = require('@noble/hashes/sha3');
-const bs58 = require('bs58');
+import { sha3_256 } from '@noble/hashes/sha3';
+import bs58 from 'bs58';
+import { utils } from 'symbol-sdk';
 
 const METAL_ID_HEADER_SIGNATURE = [0x0B, 0x2A];
 const METAL_ID_LENGTH = 34;
 
-const metal = {
+export const metal = {
 	/**
 	 * Convert a metal id (e.g. 'FeF65JftVPEGwaua35LnbU9jK46uG3W8karGDDuDwVEh8Z') into its associated composite hash.
 	 * @param {string} metalId Metal id to convert.
@@ -27,14 +27,14 @@ const metal = {
 	/**
 	 * Generates a metadata key to check if the metadata is broken or not.
 	 * @param {Uint8Array} input Chunk value to generate the key from.
-	 * @returns {module:utils/uint64} Metadata key as a uint64, represented as an array of two numbers.
+	 * @returns {bigint} Metadata key as a bigint.
 	 */
 	generateMetadataKey(input) {
 		if (!input.length)
 			throw new Error('input must not be empty');
 		const hashedBytes = sha3_256(input);
-		const uint64 = catapult.utils.uint64.fromBytes(hashedBytes.subarray(0, 8));
-		return [uint64[0], uint64[1] & 0x7FFFFFFF];
+		const uint64 = utils.bytesToBigInt(hashedBytes.subarray(0, 8), 8);
+		return uint64 & 0x7FFFFFFFFFFFFFFFn;
 	},
 
 	/**
@@ -43,7 +43,7 @@ const metal = {
 	 * @returns {object} Object containing values in line with the METAL protocol.
 	 * - magic: number - 0x00 is chunk, 0x80 is end of chunk.
 	 * - text: boolean - True if text is present, false otherwise.
-	 * - scopedMetadataKey: uint64 - ScopedMetadataKey of the next chunk.
+	 * - scopedMetadataKey: bigint - ScopedMetadataKey of the next chunk.
 	 * - chunkPayload: Buffer - Payload of the chunk.
 	 */
 	extractChunk(buffer) {
@@ -51,7 +51,7 @@ const metal = {
 		const magic = header[0] & 0x80;
 		const text = Boolean(header[0] & 0x40);
 
-		const scopedMetadataKey = catapult.utils.uint64.fromBytes(new Uint8Array(buffer.subarray(4, 12)).reverse());
+		const scopedMetadataKey = utils.bytesToBigInt(new Uint8Array(buffer.subarray(4, 12)).reverse(), 8);
 		const chunkPayload = buffer.subarray(12);
 
 		return {
@@ -88,7 +88,7 @@ const metal = {
 
 	/**
 	 * Decode binary data from chunks.
-	 * @param {module:utils/uint64~uint64} firstKey ScopedMetadataKey of the beginning chunk.
+	 * @param {bigint} firstKey ScopedMetadataKey of the beginning chunk.
 	 * @param {Array} chunks Chunk containing data to be decoded.
 	 * @returns {Buffer} Decoded binary data.
 	 */
@@ -97,7 +97,7 @@ const metal = {
 		let magic;
 		const decodedPayloads = [];
 		const decodedTexts = [];
-		const findChunk = chunk => 0 === catapult.utils.uint64.compare(chunk.key, scopedMetadataKey);
+		const findChunk = chunk => chunk.key === scopedMetadataKey;
 
 		do {
 			const chunk = chunks.find(findChunk);
@@ -105,7 +105,7 @@ const metal = {
 				throw new Error(`the chunk ${scopedMetadataKey} is missing`);
 
 			const metadataKey = this.generateMetadataKey(chunk.value);
-			const isValidMetadataKey = 0 === catapult.utils.uint64.compare(metadataKey, scopedMetadataKey);
+			const isValidMetadataKey = metadataKey === scopedMetadataKey;
 			if (!isValidMetadataKey)
 				throw new Error(`the chunk ${scopedMetadataKey} is broken (calculated=${metadataKey})`);
 
@@ -129,7 +129,7 @@ const metal = {
  * MetalSeal is a simple JSON schema for writing file informations
  * filellength, mimetype, filename and comment in text sections.
  */
-class MetalSeal {
+export class MetalSeal {
 	static SCHEMA = 'seal1';
 
 	static COMPAT = [MetalSeal.SCHEMA];
@@ -223,8 +223,3 @@ class MetalSeal {
 		};
 	}
 }
-
-module.exports = {
-	metal,
-	MetalSeal
-};

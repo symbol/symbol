@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const future = require('../../../src/catapult-sdk/utils/future');
-const { expect } = require('chai');
+import future from '../../../src/catapult-sdk/utils/future.js';
+import { expect } from 'chai';
 
 describe('future', () => {
 	describe('makeRetryable', () => {

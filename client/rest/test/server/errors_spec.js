@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const errors = require('../../src/server/errors');
-const { expect } = require('chai');
-const restifyErrors = require('restify-errors');
+import errors from '../../src/server/errors.js';
+import { expect } from 'chai';
+import restifyErrors from 'restify-errors';
 
 describe('errors', () => {
 	describe('toRestError', () => {

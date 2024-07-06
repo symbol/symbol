@@ -19,24 +19,22 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const { convertToLong, uniqueLongList } = require('../../../src/db/dbUtils');
-const ReceiptsDb = require('../../../src/plugins/receipts/ReceiptsDb');
-const test = require('../../db/utils/dbTestUtils');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import { convertToLong, uniqueLongList } from '../../../src/db/dbUtils.js';
+import ReceiptsDb from '../../../src/plugins/receipts/ReceiptsDb.js';
+import test from '../../db/utils/dbTestUtils.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 const { Binary, Long } = MongoDb;
-const { address } = catapult.model;
-const { uint64 } = catapult.utils;
 
 describe('receipts db', () => {
 	const { createObjectId } = test.db;
 
-	const testAddress1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-	const testAddress2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+	const testAddress1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+	const testAddress2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 	const paginationOptions = {
 		pageSize: 10,
@@ -250,10 +248,10 @@ describe('receipts db', () => {
 				// NamespaceIds examples: 941299B2B7E1291C, 85BBEA6CC462B244, CB9F84B545BA480C
 				// MosaicIds examples: 1D9CDC7E218CA88D, 24F426B8D5493D4B, 49F6C0F0163730A9
 
-				const namespaceId1 = uint64.fromHex('941299B2B7E1291C');
-				const namespaceId2 = uint64.fromHex('85BBEA6CC462B244');
-				const mosaicId1 = uint64.fromHex('1D9CDC7E218CA88D');
-				const mosaicId2 = uint64.fromHex('24F426B8D5493D4B');
+				const namespaceId1 = 0x941299B2B7E1291Cn;
+				const namespaceId2 = 0x85BBEA6CC462B244n;
+				const mosaicId1 = 0x1D9CDC7E218CA88Dn;
+				const mosaicId2 = 0x24F426B8D5493D4Bn;
 
 				it('namespaceId', () => {
 					// Arrange:

@@ -20,18 +20,16 @@
  */
 
 /** @module plugins/mosaic */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
+import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
-const constants = { sizes };
 /**
  * Creates a mosaic plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const mosaicPlugin = {
+export default {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.mosaicDefinition, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_DEFINITION, {
 			id: ModelType.uint64HexIdentifier,
 			duration: ModelType.uint64,
 			nonce: ModelType.uint32,
@@ -39,13 +37,13 @@ const mosaicPlugin = {
 			divisibility: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.mosaicSupplyChange, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_SUPPLY_CHANGE, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			delta: ModelType.uint64,
 			action: ModelType.uint8
 		});
 
-		builder.addTransactionSupport(EntityType.mosaicSupplyRevocation, {
+		builder.addTransactionSupport(models.TransactionType.MOSAIC_SUPPLY_REVOCATION, {
 			sourceAddress: ModelType.encodedAddress,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64
@@ -67,61 +65,5 @@ const mosaicPlugin = {
 			divisibility: ModelType.uint8,
 			duration: ModelType.uint64
 		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.mosaicDefinition, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.id = parser.uint64();
-				transaction.duration = parser.uint64();
-				transaction.nonce = parser.uint32();
-				transaction.flags = parser.uint8();
-				transaction.divisibility = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.id);
-				serializer.writeUint64(transaction.duration);
-				serializer.writeUint32(transaction.nonce);
-				serializer.writeUint8(transaction.flags);
-				serializer.writeUint8(transaction.divisibility);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.mosaicSupplyChange, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.mosaicId = parser.uint64();
-				transaction.delta = parser.uint64();
-				transaction.action = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.delta);
-				serializer.writeUint8(transaction.action);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.mosaicSupplyRevocation, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.sourceAddress = parser.buffer(constants.sizes.addressDecoded);
-				transaction.mosaicId = parser.uint64();
-				transaction.amount = parser.uint64();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.sourceAddress);
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.amount);
-			}
-		});
 	}
 };
-
-module.exports = mosaicPlugin;

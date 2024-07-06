@@ -18,16 +18,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
-const catapult = require('../../catapult-sdk/index');
-const merkleUtils = require('../../routes/merkleUtils');
-const routeResultTypes = require('../../routes/routeResultTypes');
-const routeUtils = require('../../routes/routeUtils');
+import catapult from '../../catapult-sdk/index.js';
+import merkleUtils from '../../routes/merkleUtils.js';
+import routeResultTypes from '../../routes/routeResultTypes.js';
+import routeUtils from '../../routes/routeUtils.js';
 
 const { PacketType } = catapult.packet;
 
-const { uint64 } = catapult.utils;
-
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const accountRestrictionsSender = routeUtils.createSender('accountRestrictions');
 
@@ -63,7 +61,7 @@ module.exports = {
 		const mosaicRestrictionSender = routeUtils.createSender(routeResultTypes.mosaicRestrictions);
 		server.get('/restrictions/mosaic', (req, res, next) => {
 			const { params } = req;
-			const mosaicId = params.mosaicId ? routeUtils.parseArgument(params, 'mosaicId', uint64.fromHex) : undefined;
+			const mosaicId = params.mosaicId ? routeUtils.parseArgument(params, 'mosaicId', 'uint64hex') : undefined;
 			const entryType = params.entryType ? routeUtils.parseArgument(params, 'entryType', 'uint') : undefined;
 			const targetAddress = params.targetAddress ? routeUtils.parseArgument(params, 'targetAddress', 'address') : undefined;
 

@@ -19,23 +19,25 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
-const { bufferToUnresolvedAddress } = require('../db/dbUtils');
+import catapult from '../catapult-sdk/index.js';
+import { bufferToUnresolvedAddress } from '../db/dbUtils.js';
+import { utils } from 'symbol-sdk';
 
 const { ModelType, status } = catapult.model;
-const { convert, uint64 } = catapult.utils;
 
-module.exports = {
+const stringOrFormat = (value, formatter) => ('string' === typeof value ? value : formatter(value));
+
+export default {
 	[ModelType.none]: value => value,
-	[ModelType.binary]: value => convert.uint8ToHex(value),
+	[ModelType.binary]: value => stringOrFormat(value, utils.uint8ToHex),
 	[ModelType.statusCode]: status.toString,
 	[ModelType.string]: value => value.toString(),
 	[ModelType.uint8]: value => value,
 	[ModelType.uint16]: value => value,
 	[ModelType.uint32]: value => value,
-	[ModelType.uint64]: value => uint64.toString(value),
-	[ModelType.uint64HexIdentifier]: value => uint64.toHex(value),
+	[ModelType.uint64]: value => value.toString(),
+	[ModelType.uint64HexIdentifier]: value => BigInt(value).toString(16).padStart(16, '0').toUpperCase(),
 	[ModelType.int]: value => value,
 	[ModelType.boolean]: value => value,
-	[ModelType.encodedAddress]: value => bufferToUnresolvedAddress(value)
+	[ModelType.encodedAddress]: value => stringOrFormat(value, bufferToUnresolvedAddress)
 };

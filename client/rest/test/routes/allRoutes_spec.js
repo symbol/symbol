@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { test } = require('./utils/routeTestUtils');
-const allRoutes = require('../../src/routes/allRoutes');
+import test from './utils/routeTestUtils.js';
+import allRoutes from '../../src/routes/allRoutes.js';
 
 describe('all routes', () => {
 	const registerAll = server => {

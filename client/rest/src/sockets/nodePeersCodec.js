@@ -20,9 +20,9 @@
  */
 
 /** @module sockets/nodePeersCodec */
-const nodeInfoCodec = require('./nodeInfoCodec');
+import nodeInfoCodec from './nodeInfoCodec.js';
 
-const nodePeersCodec = {
+export default {
 	/**
 	 * Parses node peers, composed of multiple nodes info
 	 * @param {object} parser Parser.
@@ -36,5 +36,3 @@ const nodePeersCodec = {
 		return nodePeers;
 	}
 };
-
-module.exports = nodePeersCodec;

@@ -1,12 +1,13 @@
-const { sha3_256 } = require('@noble/hashes/sha3');
-const fs = require('fs');
+import { sha3_256 } from '@noble/hashes/sha3';
+import { utils } from 'symbol-sdk';
+import fs from 'fs';
 
-const FILE_PATH = `${__dirname}/resources/metadata.json`;
-const MOSAIC_FILE_PATH = `${__dirname}/resources/metadata_mosaic.json`;
-const IMAGE_PATH = `${__dirname}/resources/image.png`;
+const FILE_PATH = `${import.meta.dirname}/resources/metadata.json`;
+const MOSAIC_FILE_PATH = `${import.meta.dirname}/resources/metadata_mosaic.json`;
+const IMAGE_PATH = `${import.meta.dirname}/resources/image.png`;
 const CHUNK_PAYLOAD_MAX_SIZE = 1012;
 
-const combinePayloadWithText = (payload, text) => {
+export const combinePayloadWithText = (payload, text) => {
 	const textBytes = text ? Buffer.from(text, 'utf8') : Buffer.alloc(0);
 	const isEndAtMidChunk = textBytes.length % CHUNK_PAYLOAD_MAX_SIZE;
 	const textSize = isEndAtMidChunk ? textBytes.length + 1 : textBytes.length;
@@ -32,14 +33,12 @@ const combinePayloadWithText = (payload, text) => {
 	};
 };
 
-const generateChecksum = input => {
+export const generateChecksum = input => {
 	if (0 === input.length)
 		throw new Error('Input must not be empty');
 
-	const { buffer } = sha3_256(input);
-	const uint32Array = new Uint32Array(buffer);
-
-	return [uint32Array[0], uint32Array[1]];
+	const hash = sha3_256(input);
+	return utils.bytesToBigInt(hash, 8);
 };
 
 const loadAndFormatMetadata = filePath => {
@@ -56,24 +55,17 @@ const loadAndFormatMetadata = filePath => {
 const { metadatas, chunks } = loadAndFormatMetadata(FILE_PATH);
 const { metadatas: mosaicMetadatas, chunks: mosaicChunks } = loadAndFormatMetadata(MOSAIC_FILE_PATH);
 
-const getMetadata = (id, isMosaic = false) => {
+export const getMetadata = (id, isMosaic = false) => {
 	const targetArray = isMosaic ? mosaicMetadatas : metadatas;
 	return targetArray.find(obj => obj.id === id);
 };
 
 const imageBytes = fs.readFileSync(IMAGE_PATH);
 
-const testData = {
+export const testData = {
 	metadatas,
 	mosaicMetadatas,
 	chunks,
 	mosaicChunks,
 	imageBytes
-};
-
-module.exports = {
-	combinePayloadWithText,
-	generateChecksum,
-	getMetadata,
-	testData
 };

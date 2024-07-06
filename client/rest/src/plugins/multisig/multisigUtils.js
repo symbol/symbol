@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const multisigUtils = {
+export default {
 	getMultisigGraph: (db, address) => {
 		const getMultisigEntries = (multisigEntries, fieldName) => {
 			const addresses = new Set();
@@ -71,7 +71,4 @@ const multisigUtils = {
 					.then(() => multisigLevels);
 			});
 	}
-
 };
-
-module.exports = multisigUtils;

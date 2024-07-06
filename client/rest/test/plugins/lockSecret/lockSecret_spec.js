@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const LockSecretDb = require('../../../src/plugins/lockSecret/LockSecretDb');
-const lockSecret = require('../../../src/plugins/lockSecret/lockSecret');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
+import LockSecretDb from '../../../src/plugins/lockSecret/LockSecretDb.js';
+import lockSecret from '../../../src/plugins/lockSecret/lockSecret.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
 describe('lock secret plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(lockSecret, LockSecretDb);

@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import namespaceUtils from '../../../src/plugins/namespace/namespaceUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { models } from 'symbol-sdk/symbol';
 
 const { aliasNamesRoutesProcessor } = namespaceUtils;
 
@@ -53,7 +53,7 @@ describe('namespace utils', () => {
 				index
 			},
 			transaction: {
-				type: catapult.model.EntityType.registerNamespace,
+				type: models.TransactionType.NAMESPACE_REGISTRATION,
 				id: convertToLong(namespaceId),
 				name: { value: () => name }
 			}

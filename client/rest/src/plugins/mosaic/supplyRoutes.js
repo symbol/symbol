@@ -19,23 +19,20 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../catapult-sdk/index');
-const { longToUint64 } = require('../../db/dbUtils');
-const routeUtils = require('../../routes/routeUtils');
-const AccountType = require('../AccountType');
-const ini = require('ini');
-
-const { convert, uint64 } = catapult.utils;
+import catapult from '../../catapult-sdk/index.js';
+import { longToUint64 } from '../../db/dbUtils.js';
+import { sendPlainText } from '../../routes/simpleSend.js';
+import AccountType from '../AccountType.js';
+import ini from 'ini';
+import { utils } from 'symbol-sdk';
 
 const fileLoader = new catapult.utils.CachedFileLoader();
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
-		const sender = routeUtils.createSender('supply');
-
 		const convertToFractionalWholeUnits = (value, divisibility) => (Number(value) / (10 ** divisibility)).toFixed(divisibility);
 
-		const propertyValueToMosaicId = value => uint64.fromHex(value.replace(/'/g, '').replace('0x', ''));
+		const propertyValueToMosaicId = value => BigInt(value.replace(/'/g, ''));
 
 		const readAndParseNetworkPropertiesFile = () => fileLoader.readOnce(
 			services.config.apiNode.networkPropertyFilePath,
@@ -52,13 +49,13 @@ module.exports = {
 
 		const getUncirculatingAccountIds = propertiesObject => {
 			const publicKeys = [propertiesObject.network.nemesisSignerPublicKey].concat(services.config.uncirculatingAccountPublicKeys);
-			return publicKeys.map(publicKey => ({ [AccountType.publicKey]: convert.hexToUint8(publicKey) }));
+			return publicKeys.map(publicKey => ({ [AccountType.publicKey]: utils.hexToUint8(publicKey) }));
 		};
 
 		const lookupMosaicAmount = (mosaics, currencyMosaicId) => {
 			const matchingMosaic = mosaics.find(mosaic => {
-				const mosaicId = longToUint64(mosaic.id); // convert Long to uint64
-				return 0 === uint64.compare(currencyMosaicId, mosaicId);
+				const mosaicId = longToUint64(mosaic.id); // convert Long to bigint
+				return currencyMosaicId === mosaicId;
 			});
 
 			return undefined === matchingMosaic ? 0 : matchingMosaic.amount.toNumber();
@@ -75,7 +72,7 @@ module.exports = {
 					0
 				);
 
-				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(
+				sendPlainText(res, next)(convertToFractionalWholeUnits(
 					currencyMosaicProperties.totalSupply - burnedSupply,
 					currencyMosaicProperties.divisibility
 				));
@@ -85,7 +82,7 @@ module.exports = {
 			.then(async propertiesObject => {
 				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
 				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
-				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(
+				sendPlainText(res, next)(convertToFractionalWholeUnits(
 					currencyMosaicProperties.totalSupply,
 					currencyMosaicProperties.divisibility
 				));
@@ -97,7 +94,7 @@ module.exports = {
 				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
 
 				const maxSupply = parseInt(propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, ''), 10);
-				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(maxSupply, currencyMosaicProperties.divisibility));
+				sendPlainText(res, next)(convertToFractionalWholeUnits(maxSupply, currencyMosaicProperties.divisibility));
 			}));
 	}
 };

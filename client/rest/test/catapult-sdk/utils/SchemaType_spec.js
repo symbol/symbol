@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const SchemaType = require('../../../src/catapult-sdk/utils/SchemaType');
-const { expect } = require('chai');
+import SchemaType from '../../../src/catapult-sdk/utils/SchemaType.js';
+import { expect } from 'chai';
 
 describe('schema type enumeration', () => {
 	it('exposes expected types', () => {

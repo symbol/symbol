@@ -396,6 +396,12 @@ class Mosaic:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['amount'] = self._amount.to_json()
+		return result
+
 
 class UnresolvedMosaic:
 	TYPE_HINTS = {
@@ -460,6 +466,12 @@ class UnresolvedMosaic:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['amount'] = self._amount.to_json()
+		return result
+
 
 class LinkAction(Enum):
 	UNLINK = 0
@@ -479,6 +491,9 @@ class LinkAction(Enum):
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
 
+	def to_json(self):
+		return self.value
+
 
 class NetworkType(Enum):
 	MAINNET = 104
@@ -497,6 +512,9 @@ class NetworkType(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class TransactionType(Enum):
@@ -539,6 +557,9 @@ class TransactionType(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(2, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class Transaction:
@@ -694,10 +715,21 @@ class Transaction:
 		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
 		result += f'version: 0x{self._version:X}, '
 		result += f'network: {self._network.__str__()}, '
-		result += f'type_: {self._type_.__str__()}, '
+		result += f'type: {self._type_.__str__()}, '
 		result += f'fee: {self._fee.__str__()}, '
 		result += f'deadline: {self._deadline.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['signature'] = self._signature.to_json()
+		result['signer_public_key'] = self._signer_public_key.to_json()
+		result['version'] = self._version
+		result['network'] = self._network.to_json()
+		result['type'] = self._type_.to_json()
+		result['fee'] = self._fee.to_json()
+		result['deadline'] = self._deadline.to_json()
 		return result
 
 
@@ -808,8 +840,16 @@ class EmbeddedTransaction:
 		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
 		result += f'version: 0x{self._version:X}, '
 		result += f'network: {self._network.__str__()}, '
-		result += f'type_: {self._type_.__str__()}, '
+		result += f'type: {self._type_.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['signer_public_key'] = self._signer_public_key.to_json()
+		result['version'] = self._version
+		result['network'] = self._network.to_json()
+		result['type'] = self._type_.to_json()
 		return result
 
 
@@ -889,6 +929,9 @@ class BlockType(Enum):
 		buffer += self.value.to_bytes(2, byteorder='little', signed=False)
 		return buffer
 
+	def to_json(self):
+		return self.value
+
 
 class VrfProof:
 	TYPE_HINTS = {
@@ -967,6 +1010,13 @@ class VrfProof:
 		result += f'verification_hash: {self._verification_hash.__str__()}, '
 		result += f'scalar: {self._scalar.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['gamma'] = self._gamma.to_json()
+		result['verification_hash'] = self._verification_hash.to_json()
+		result['scalar'] = self._scalar.to_json()
 		return result
 
 
@@ -1243,7 +1293,7 @@ class Block:
 		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
 		result += f'version: 0x{self._version:X}, '
 		result += f'network: {self._network.__str__()}, '
-		result += f'type_: {self._type_.__str__()}, '
+		result += f'type: {self._type_.__str__()}, '
 		result += f'height: {self._height.__str__()}, '
 		result += f'timestamp: {self._timestamp.__str__()}, '
 		result += f'difficulty: {self._difficulty.__str__()}, '
@@ -1255,6 +1305,25 @@ class Block:
 		result += f'beneficiary_address: {self._beneficiary_address.__str__()}, '
 		result += f'fee_multiplier: {self._fee_multiplier.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['signature'] = self._signature.to_json()
+		result['signer_public_key'] = self._signer_public_key.to_json()
+		result['version'] = self._version
+		result['network'] = self._network.to_json()
+		result['type'] = self._type_.to_json()
+		result['height'] = self._height.to_json()
+		result['timestamp'] = self._timestamp.to_json()
+		result['difficulty'] = self._difficulty.to_json()
+		result['generation_hash_proof'] = self._generation_hash_proof.to_json()
+		result['previous_block_hash'] = self._previous_block_hash.to_json()
+		result['transactions_hash'] = self._transactions_hash.to_json()
+		result['receipts_hash'] = self._receipts_hash.to_json()
+		result['state_hash'] = self._state_hash.to_json()
+		result['beneficiary_address'] = self._beneficiary_address.to_json()
+		result['fee_multiplier'] = self._fee_multiplier.to_json()
 		return result
 
 
@@ -1378,6 +1447,15 @@ class NemesisBlockV1(Block):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['voting_eligible_accounts_count'] = self._voting_eligible_accounts_count
+		result['harvesting_eligible_accounts_count'] = str(self._harvesting_eligible_accounts_count)
+		result['total_voting_balance'] = self._total_voting_balance.to_json()
+		result['previous_importance_block_hash'] = self._previous_importance_block_hash.to_json()
+		result['transactions'] = [e.to_json() for e in self._transactions]
+		return result
+
 
 class NormalBlockV1(Block):
 	BLOCK_VERSION: int = 1
@@ -1441,6 +1519,11 @@ class NormalBlockV1(Block):
 		result += super().__str__()
 		result += f'transactions: {list(map(str, self._transactions))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['transactions'] = [e.to_json() for e in self._transactions]
 		return result
 
 
@@ -1564,6 +1647,15 @@ class ImportanceBlockV1(Block):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['voting_eligible_accounts_count'] = self._voting_eligible_accounts_count
+		result['harvesting_eligible_accounts_count'] = str(self._harvesting_eligible_accounts_count)
+		result['total_voting_balance'] = self._total_voting_balance.to_json()
+		result['previous_importance_block_hash'] = self._previous_importance_block_hash.to_json()
+		result['transactions'] = [e.to_json() for e in self._transactions]
+		return result
+
 
 class FinalizationRound:
 	TYPE_HINTS = {
@@ -1626,6 +1718,12 @@ class FinalizationRound:
 		result += f'epoch: {self._epoch.__str__()}, '
 		result += f'point: {self._point.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['epoch'] = self._epoch.to_json()
+		result['point'] = self._point.to_json()
 		return result
 
 
@@ -1708,6 +1806,13 @@ class FinalizedBlockHeader:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['round'] = self._round.to_json()
+		result['height'] = self._height.to_json()
+		result['hash'] = self._hash.to_json()
+		return result
+
 
 class ReceiptType(Enum):
 	MOSAIC_RENTAL_FEE = 4685
@@ -1740,6 +1845,9 @@ class ReceiptType(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(2, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class Receipt:
@@ -1805,8 +1913,14 @@ class Receipt:
 	def __str__(self) -> str:
 		result = '('
 		result += f'version: 0x{self._version:X}, '
-		result += f'type_: {self._type_.__str__()}, '
+		result += f'type: {self._type_.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['version'] = self._version
+		result['type'] = self._type_.to_json()
 		return result
 
 
@@ -1882,6 +1996,12 @@ class HarvestFeeReceipt(Receipt):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['target_address'] = self._target_address.to_json()
+		return result
+
 
 class InflationReceipt(Receipt):
 	RECEIPT_TYPE: ReceiptType = ReceiptType.INFLATION
@@ -1937,6 +2057,11 @@ class InflationReceipt(Receipt):
 		result += super().__str__()
 		result += f'mosaic: {self._mosaic.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
 		return result
 
 
@@ -2012,6 +2137,12 @@ class LockHashCreatedFeeReceipt(Receipt):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['target_address'] = self._target_address.to_json()
+		return result
+
 
 class LockHashCompletedFeeReceipt(Receipt):
 	RECEIPT_TYPE: ReceiptType = ReceiptType.LOCK_HASH_COMPLETED
@@ -2083,6 +2214,12 @@ class LockHashCompletedFeeReceipt(Receipt):
 		result += f'mosaic: {self._mosaic.__str__()}, '
 		result += f'target_address: {self._target_address.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['target_address'] = self._target_address.to_json()
 		return result
 
 
@@ -2158,6 +2295,12 @@ class LockHashExpiredFeeReceipt(Receipt):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['target_address'] = self._target_address.to_json()
+		return result
+
 
 class LockSecretCreatedFeeReceipt(Receipt):
 	RECEIPT_TYPE: ReceiptType = ReceiptType.LOCK_SECRET_CREATED
@@ -2229,6 +2372,12 @@ class LockSecretCreatedFeeReceipt(Receipt):
 		result += f'mosaic: {self._mosaic.__str__()}, '
 		result += f'target_address: {self._target_address.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['target_address'] = self._target_address.to_json()
 		return result
 
 
@@ -2304,6 +2453,12 @@ class LockSecretCompletedFeeReceipt(Receipt):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['target_address'] = self._target_address.to_json()
+		return result
+
 
 class LockSecretExpiredFeeReceipt(Receipt):
 	RECEIPT_TYPE: ReceiptType = ReceiptType.LOCK_SECRET_EXPIRED
@@ -2377,6 +2532,12 @@ class LockSecretExpiredFeeReceipt(Receipt):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['target_address'] = self._target_address.to_json()
+		return result
+
 
 class MosaicExpiredReceipt(Receipt):
 	RECEIPT_TYPE: ReceiptType = ReceiptType.MOSAIC_EXPIRED
@@ -2432,6 +2593,11 @@ class MosaicExpiredReceipt(Receipt):
 		result += super().__str__()
 		result += f'artifact_id: {self._artifact_id.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['artifact_id'] = self._artifact_id.to_json()
 		return result
 
 
@@ -2523,6 +2689,13 @@ class MosaicRentalFeeReceipt(Receipt):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['sender_address'] = self._sender_address.to_json()
+		result['recipient_address'] = self._recipient_address.to_json()
+		return result
+
 
 class NamespaceId(BaseValue):
 	SIZE = 8
@@ -2557,6 +2730,9 @@ class NamespaceRegistrationType(Enum):
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
 
+	def to_json(self):
+		return self.value
+
 
 class AliasAction(Enum):
 	UNLINK = 0
@@ -2575,6 +2751,9 @@ class AliasAction(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class NamespaceExpiredReceipt(Receipt):
@@ -2633,6 +2812,11 @@ class NamespaceExpiredReceipt(Receipt):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['artifact_id'] = self._artifact_id.to_json()
+		return result
+
 
 class NamespaceDeletedReceipt(Receipt):
 	RECEIPT_TYPE: ReceiptType = ReceiptType.NAMESPACE_DELETED
@@ -2688,6 +2872,11 @@ class NamespaceDeletedReceipt(Receipt):
 		result += super().__str__()
 		result += f'artifact_id: {self._artifact_id.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['artifact_id'] = self._artifact_id.to_json()
 		return result
 
 
@@ -2779,6 +2968,13 @@ class NamespaceRentalFeeReceipt(Receipt):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['sender_address'] = self._sender_address.to_json()
+		result['recipient_address'] = self._recipient_address.to_json()
+		return result
+
 
 class ReceiptSource:
 	TYPE_HINTS = {
@@ -2839,6 +3035,12 @@ class ReceiptSource:
 		result += f'primary_id: 0x{self._primary_id:X}, '
 		result += f'secondary_id: 0x{self._secondary_id:X}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['primary_id'] = self._primary_id
+		result['secondary_id'] = self._secondary_id
 		return result
 
 
@@ -2903,6 +3105,12 @@ class AddressResolutionEntry:
 		result += f'source: {self._source.__str__()}, '
 		result += f'resolved_value: {self._resolved_value.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['source'] = self._source.to_json()
+		result['resolved_value'] = self._resolved_value.to_json()
 		return result
 
 
@@ -2973,6 +3181,12 @@ class AddressResolutionStatement:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['unresolved'] = self._unresolved.to_json()
+		result['resolution_entries'] = [e.to_json() for e in self._resolution_entries]
+		return result
+
 
 class MosaicResolutionEntry:
 	TYPE_HINTS = {
@@ -3035,6 +3249,12 @@ class MosaicResolutionEntry:
 		result += f'source: {self._source.__str__()}, '
 		result += f'resolved_value: {self._resolved_value.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['source'] = self._source.to_json()
+		result['resolved_value'] = self._resolved_value.to_json()
 		return result
 
 
@@ -3103,6 +3323,12 @@ class MosaicResolutionStatement:
 		result += f'unresolved: {self._unresolved.__str__()}, '
 		result += f'resolution_entries: {list(map(str, self._resolution_entries))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['unresolved'] = self._unresolved.to_json()
+		result['resolution_entries'] = [e.to_json() for e in self._resolution_entries]
 		return result
 
 
@@ -3185,6 +3411,13 @@ class TransactionStatement:
 		result += f'secondary_id: 0x{self._secondary_id:X}, '
 		result += f'receipts: {list(map(str, self._receipts))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['primary_id'] = self._primary_id
+		result['secondary_id'] = self._secondary_id
+		result['receipts'] = [e.to_json() for e in self._receipts]
 		return result
 
 
@@ -3279,6 +3512,13 @@ class BlockStatement:
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {}
+		result['transaction_statements'] = [e.to_json() for e in self._transaction_statements]
+		result['address_resolution_statements'] = [e.to_json() for e in self._address_resolution_statements]
+		result['mosaic_resolution_statements'] = [e.to_json() for e in self._mosaic_resolution_statements]
+		return result
+
 
 class AccountKeyLinkTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -3352,6 +3592,12 @@ class AccountKeyLinkTransactionV1(Transaction):
 		result += f'linked_public_key: {self._linked_public_key.__str__()}, '
 		result += f'link_action: {self._link_action.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['linked_public_key'] = self._linked_public_key.to_json()
+		result['link_action'] = self._link_action.to_json()
 		return result
 
 
@@ -3429,6 +3675,12 @@ class EmbeddedAccountKeyLinkTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['linked_public_key'] = self._linked_public_key.to_json()
+		result['link_action'] = self._link_action.to_json()
+		return result
+
 
 class NodeKeyLinkTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -3504,6 +3756,12 @@ class NodeKeyLinkTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['linked_public_key'] = self._linked_public_key.to_json()
+		result['link_action'] = self._link_action.to_json()
+		return result
+
 
 class EmbeddedNodeKeyLinkTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -3577,6 +3835,12 @@ class EmbeddedNodeKeyLinkTransactionV1(EmbeddedTransaction):
 		result += f'linked_public_key: {self._linked_public_key.__str__()}, '
 		result += f'link_action: {self._link_action.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['linked_public_key'] = self._linked_public_key.to_json()
+		result['link_action'] = self._link_action.to_json()
 		return result
 
 
@@ -3656,6 +3920,13 @@ class Cosignature:
 		result += f'signer_public_key: {self._signer_public_key.__str__()}, '
 		result += f'signature: {self._signature.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['version'] = str(self._version)
+		result['signer_public_key'] = self._signer_public_key.to_json()
+		result['signature'] = self._signature.to_json()
 		return result
 
 
@@ -3751,6 +4022,14 @@ class DetachedCosignature:
 		result += f'signature: {self._signature.__str__()}, '
 		result += f'parent_hash: {self._parent_hash.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['version'] = str(self._version)
+		result['signer_public_key'] = self._signer_public_key.to_json()
+		result['signature'] = self._signature.to_json()
+		result['parent_hash'] = self._parent_hash.to_json()
 		return result
 
 
@@ -3854,6 +4133,13 @@ class AggregateCompleteTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['transactions_hash'] = self._transactions_hash.to_json()
+		result['transactions'] = [e.to_json() for e in self._transactions]
+		result['cosignatures'] = [e.to_json() for e in self._cosignatures]
+		return result
+
 
 class AggregateCompleteTransactionV2(Transaction):
 	TRANSACTION_VERSION: int = 2
@@ -3953,6 +4239,13 @@ class AggregateCompleteTransactionV2(Transaction):
 		result += f'transactions: {list(map(str, self._transactions))}, '
 		result += f'cosignatures: {list(map(str, self._cosignatures))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['transactions_hash'] = self._transactions_hash.to_json()
+		result['transactions'] = [e.to_json() for e in self._transactions]
+		result['cosignatures'] = [e.to_json() for e in self._cosignatures]
 		return result
 
 
@@ -4056,6 +4349,13 @@ class AggregateBondedTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['transactions_hash'] = self._transactions_hash.to_json()
+		result['transactions'] = [e.to_json() for e in self._transactions]
+		result['cosignatures'] = [e.to_json() for e in self._cosignatures]
+		return result
+
 
 class AggregateBondedTransactionV2(Transaction):
 	TRANSACTION_VERSION: int = 2
@@ -4155,6 +4455,13 @@ class AggregateBondedTransactionV2(Transaction):
 		result += f'transactions: {list(map(str, self._transactions))}, '
 		result += f'cosignatures: {list(map(str, self._cosignatures))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['transactions_hash'] = self._transactions_hash.to_json()
+		result['transactions'] = [e.to_json() for e in self._transactions]
+		result['cosignatures'] = [e.to_json() for e in self._cosignatures]
 		return result
 
 
@@ -4264,6 +4571,14 @@ class VotingKeyLinkTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['linked_public_key'] = self._linked_public_key.to_json()
+		result['start_epoch'] = self._start_epoch.to_json()
+		result['end_epoch'] = self._end_epoch.to_json()
+		result['link_action'] = self._link_action.to_json()
+		return result
+
 
 class EmbeddedVotingKeyLinkTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -4371,6 +4686,14 @@ class EmbeddedVotingKeyLinkTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['linked_public_key'] = self._linked_public_key.to_json()
+		result['start_epoch'] = self._start_epoch.to_json()
+		result['end_epoch'] = self._end_epoch.to_json()
+		result['link_action'] = self._link_action.to_json()
+		return result
+
 
 class VrfKeyLinkTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -4446,6 +4769,12 @@ class VrfKeyLinkTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['linked_public_key'] = self._linked_public_key.to_json()
+		result['link_action'] = self._link_action.to_json()
+		return result
+
 
 class EmbeddedVrfKeyLinkTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -4519,6 +4848,12 @@ class EmbeddedVrfKeyLinkTransactionV1(EmbeddedTransaction):
 		result += f'linked_public_key: {self._linked_public_key.__str__()}, '
 		result += f'link_action: {self._link_action.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['linked_public_key'] = self._linked_public_key.to_json()
+		result['link_action'] = self._link_action.to_json()
 		return result
 
 
@@ -4612,6 +4947,13 @@ class HashLockTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['duration'] = self._duration.to_json()
+		result['hash'] = self._hash.to_json()
+		return result
+
 
 class EmbeddedHashLockTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -4703,6 +5045,13 @@ class EmbeddedHashLockTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic'] = self._mosaic.to_json()
+		result['duration'] = self._duration.to_json()
+		result['hash'] = self._hash.to_json()
+		return result
+
 
 class LockHashAlgorithm(Enum):
 	SHA3_256 = 0
@@ -4722,6 +5071,9 @@ class LockHashAlgorithm(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class SecretLockTransactionV1(Transaction):
@@ -4844,6 +5196,15 @@ class SecretLockTransactionV1(Transaction):
 		result += f'duration: {self._duration.__str__()}, '
 		result += f'hash_algorithm: {self._hash_algorithm.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['secret'] = self._secret.to_json()
+		result['mosaic'] = self._mosaic.to_json()
+		result['duration'] = self._duration.to_json()
+		result['hash_algorithm'] = self._hash_algorithm.to_json()
 		return result
 
 
@@ -4969,6 +5330,15 @@ class EmbeddedSecretLockTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['secret'] = self._secret.to_json()
+		result['mosaic'] = self._mosaic.to_json()
+		result['duration'] = self._duration.to_json()
+		result['hash_algorithm'] = self._hash_algorithm.to_json()
+		return result
+
 
 class SecretProofTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -5078,6 +5448,14 @@ class SecretProofTransactionV1(Transaction):
 		result += f'hash_algorithm: {self._hash_algorithm.__str__()}, '
 		result += f'proof: {hexlify(self._proof).decode("utf8")}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['secret'] = self._secret.to_json()
+		result['hash_algorithm'] = self._hash_algorithm.to_json()
+		result['proof'] = hexlify(self._proof).decode('utf8')
 		return result
 
 
@@ -5191,6 +5569,14 @@ class EmbeddedSecretProofTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['secret'] = self._secret.to_json()
+		result['hash_algorithm'] = self._hash_algorithm.to_json()
+		result['proof'] = hexlify(self._proof).decode('utf8')
+		return result
+
 
 class AccountMetadataTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -5300,6 +5686,14 @@ class AccountMetadataTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['target_address'] = self._target_address.to_json()
+		result['scoped_metadata_key'] = str(self._scoped_metadata_key)
+		result['value_size_delta'] = self._value_size_delta
+		result['value'] = hexlify(self._value).decode('utf8')
+		return result
+
 
 class EmbeddedAccountMetadataTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -5407,6 +5801,14 @@ class EmbeddedAccountMetadataTransactionV1(EmbeddedTransaction):
 		result += f'value_size_delta: 0x{self._value_size_delta:X}, '
 		result += f'value: {hexlify(self._value).decode("utf8")}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['target_address'] = self._target_address.to_json()
+		result['scoped_metadata_key'] = str(self._scoped_metadata_key)
+		result['value_size_delta'] = self._value_size_delta
+		result['value'] = hexlify(self._value).decode('utf8')
 		return result
 
 
@@ -5534,6 +5936,15 @@ class MosaicMetadataTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['target_address'] = self._target_address.to_json()
+		result['scoped_metadata_key'] = str(self._scoped_metadata_key)
+		result['target_mosaic_id'] = self._target_mosaic_id.to_json()
+		result['value_size_delta'] = self._value_size_delta
+		result['value'] = hexlify(self._value).decode('utf8')
+		return result
+
 
 class EmbeddedMosaicMetadataTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -5657,6 +6068,15 @@ class EmbeddedMosaicMetadataTransactionV1(EmbeddedTransaction):
 		result += f'value_size_delta: 0x{self._value_size_delta:X}, '
 		result += f'value: {hexlify(self._value).decode("utf8")}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['target_address'] = self._target_address.to_json()
+		result['scoped_metadata_key'] = str(self._scoped_metadata_key)
+		result['target_mosaic_id'] = self._target_mosaic_id.to_json()
+		result['value_size_delta'] = self._value_size_delta
+		result['value'] = hexlify(self._value).decode('utf8')
 		return result
 
 
@@ -5784,6 +6204,15 @@ class NamespaceMetadataTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['target_address'] = self._target_address.to_json()
+		result['scoped_metadata_key'] = str(self._scoped_metadata_key)
+		result['target_namespace_id'] = self._target_namespace_id.to_json()
+		result['value_size_delta'] = self._value_size_delta
+		result['value'] = hexlify(self._value).decode('utf8')
+		return result
+
 
 class EmbeddedNamespaceMetadataTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -5909,6 +6338,15 @@ class EmbeddedNamespaceMetadataTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['target_address'] = self._target_address.to_json()
+		result['scoped_metadata_key'] = str(self._scoped_metadata_key)
+		result['target_namespace_id'] = self._target_namespace_id.to_json()
+		result['value_size_delta'] = self._value_size_delta
+		result['value'] = hexlify(self._value).decode('utf8')
+		return result
+
 
 class MosaicNonce(BaseValue):
 	SIZE = 4
@@ -5946,6 +6384,9 @@ class MosaicFlags(Flag):
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
 
+	def to_json(self):
+		return self.value
+
 
 class MosaicSupplyChangeAction(Enum):
 	DECREASE = 0
@@ -5964,6 +6405,9 @@ class MosaicSupplyChangeAction(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class MosaicDefinitionTransactionV1(Transaction):
@@ -6085,6 +6529,15 @@ class MosaicDefinitionTransactionV1(Transaction):
 		result += f'flags: {self._flags.__str__()}, '
 		result += f'divisibility: 0x{self._divisibility:X}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['id'] = self._id.to_json()
+		result['duration'] = self._duration.to_json()
+		result['nonce'] = self._nonce.to_json()
+		result['flags'] = self._flags.to_json()
+		result['divisibility'] = self._divisibility
 		return result
 
 
@@ -6209,6 +6662,15 @@ class EmbeddedMosaicDefinitionTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['id'] = self._id.to_json()
+		result['duration'] = self._duration.to_json()
+		result['nonce'] = self._nonce.to_json()
+		result['flags'] = self._flags.to_json()
+		result['divisibility'] = self._divisibility
+		return result
+
 
 class MosaicSupplyChangeTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -6298,6 +6760,13 @@ class MosaicSupplyChangeTransactionV1(Transaction):
 		result += f'delta: {self._delta.__str__()}, '
 		result += f'action: {self._action.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['delta'] = self._delta.to_json()
+		result['action'] = self._action.to_json()
 		return result
 
 
@@ -6391,6 +6860,13 @@ class EmbeddedMosaicSupplyChangeTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['delta'] = self._delta.to_json()
+		result['action'] = self._action.to_json()
+		return result
+
 
 class MosaicSupplyRevocationTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -6466,6 +6942,12 @@ class MosaicSupplyRevocationTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['source_address'] = self._source_address.to_json()
+		result['mosaic'] = self._mosaic.to_json()
+		return result
+
 
 class EmbeddedMosaicSupplyRevocationTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -6539,6 +7021,12 @@ class EmbeddedMosaicSupplyRevocationTransactionV1(EmbeddedTransaction):
 		result += f'source_address: {self._source_address.__str__()}, '
 		result += f'mosaic: {self._mosaic.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['source_address'] = self._source_address.to_json()
+		result['mosaic'] = self._mosaic.to_json()
 		return result
 
 
@@ -6660,6 +7148,14 @@ class MultisigAccountModificationTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['min_removal_delta'] = self._min_removal_delta
+		result['min_approval_delta'] = self._min_approval_delta
+		result['address_additions'] = [e.to_json() for e in self._address_additions]
+		result['address_deletions'] = [e.to_json() for e in self._address_deletions]
+		return result
+
 
 class EmbeddedMultisigAccountModificationTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -6779,6 +7275,14 @@ class EmbeddedMultisigAccountModificationTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['min_removal_delta'] = self._min_removal_delta
+		result['min_approval_delta'] = self._min_approval_delta
+		result['address_additions'] = [e.to_json() for e in self._address_additions]
+		result['address_deletions'] = [e.to_json() for e in self._address_deletions]
+		return result
+
 
 class AddressAliasTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -6868,6 +7372,13 @@ class AddressAliasTransactionV1(Transaction):
 		result += f'address: {self._address.__str__()}, '
 		result += f'alias_action: {self._alias_action.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['namespace_id'] = self._namespace_id.to_json()
+		result['address'] = self._address.to_json()
+		result['alias_action'] = self._alias_action.to_json()
 		return result
 
 
@@ -6961,6 +7472,13 @@ class EmbeddedAddressAliasTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['namespace_id'] = self._namespace_id.to_json()
+		result['address'] = self._address.to_json()
+		result['alias_action'] = self._alias_action.to_json()
+		return result
+
 
 class MosaicAliasTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -7052,6 +7570,13 @@ class MosaicAliasTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['namespace_id'] = self._namespace_id.to_json()
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['alias_action'] = self._alias_action.to_json()
+		return result
+
 
 class EmbeddedMosaicAliasTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -7141,6 +7666,13 @@ class EmbeddedMosaicAliasTransactionV1(EmbeddedTransaction):
 		result += f'mosaic_id: {self._mosaic_id.__str__()}, '
 		result += f'alias_action: {self._alias_action.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['namespace_id'] = self._namespace_id.to_json()
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['alias_action'] = self._alias_action.to_json()
 		return result
 
 
@@ -7285,6 +7817,17 @@ class NamespaceRegistrationTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		if NamespaceRegistrationType.ROOT == self.registration_type:
+			result['duration'] = self._duration.to_json()
+		if NamespaceRegistrationType.CHILD == self.registration_type:
+			result['parent_id'] = self._parent_id.to_json()
+		result['id'] = self._id.to_json()
+		result['registration_type'] = self._registration_type.to_json()
+		result['name'] = hexlify(self._name).decode('utf8')
+		return result
+
 
 class EmbeddedNamespaceRegistrationTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -7427,6 +7970,17 @@ class EmbeddedNamespaceRegistrationTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		if NamespaceRegistrationType.ROOT == self.registration_type:
+			result['duration'] = self._duration.to_json()
+		if NamespaceRegistrationType.CHILD == self.registration_type:
+			result['parent_id'] = self._parent_id.to_json()
+		result['id'] = self._id.to_json()
+		result['registration_type'] = self._registration_type.to_json()
+		result['name'] = hexlify(self._name).decode('utf8')
+		return result
+
 
 class AccountRestrictionFlags(Flag):
 	ADDRESS = 1
@@ -7448,6 +8002,9 @@ class AccountRestrictionFlags(Flag):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(2, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class AccountAddressRestrictionTransactionV1(Transaction):
@@ -7552,6 +8109,13 @@ class AccountAddressRestrictionTransactionV1(Transaction):
 		result += f'restriction_additions: {list(map(str, self._restriction_additions))}, '
 		result += f'restriction_deletions: {list(map(str, self._restriction_deletions))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['restriction_flags'] = self._restriction_flags.to_json()
+		result['restriction_additions'] = [e.to_json() for e in self._restriction_additions]
+		result['restriction_deletions'] = [e.to_json() for e in self._restriction_deletions]
 		return result
 
 
@@ -7659,6 +8223,13 @@ class EmbeddedAccountAddressRestrictionTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['restriction_flags'] = self._restriction_flags.to_json()
+		result['restriction_additions'] = [e.to_json() for e in self._restriction_additions]
+		result['restriction_deletions'] = [e.to_json() for e in self._restriction_deletions]
+		return result
+
 
 class AccountMosaicRestrictionTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -7762,6 +8333,13 @@ class AccountMosaicRestrictionTransactionV1(Transaction):
 		result += f'restriction_additions: {list(map(str, self._restriction_additions))}, '
 		result += f'restriction_deletions: {list(map(str, self._restriction_deletions))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['restriction_flags'] = self._restriction_flags.to_json()
+		result['restriction_additions'] = [e.to_json() for e in self._restriction_additions]
+		result['restriction_deletions'] = [e.to_json() for e in self._restriction_deletions]
 		return result
 
 
@@ -7869,6 +8447,13 @@ class EmbeddedAccountMosaicRestrictionTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['restriction_flags'] = self._restriction_flags.to_json()
+		result['restriction_additions'] = [e.to_json() for e in self._restriction_additions]
+		result['restriction_deletions'] = [e.to_json() for e in self._restriction_deletions]
+		return result
+
 
 class AccountOperationRestrictionTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -7974,6 +8559,13 @@ class AccountOperationRestrictionTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['restriction_flags'] = self._restriction_flags.to_json()
+		result['restriction_additions'] = [e.to_json() for e in self._restriction_additions]
+		result['restriction_deletions'] = [e.to_json() for e in self._restriction_deletions]
+		return result
+
 
 class EmbeddedAccountOperationRestrictionTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -8077,6 +8669,13 @@ class EmbeddedAccountOperationRestrictionTransactionV1(EmbeddedTransaction):
 		result += f'restriction_additions: {list(map(str, self._restriction_additions))}, '
 		result += f'restriction_deletions: {list(map(str, self._restriction_deletions))}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['restriction_flags'] = self._restriction_flags.to_json()
+		result['restriction_additions'] = [e.to_json() for e in self._restriction_additions]
+		result['restriction_deletions'] = [e.to_json() for e in self._restriction_deletions]
 		return result
 
 
@@ -8199,6 +8798,15 @@ class MosaicAddressRestrictionTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['restriction_key'] = str(self._restriction_key)
+		result['previous_restriction_value'] = str(self._previous_restriction_value)
+		result['new_restriction_value'] = str(self._new_restriction_value)
+		result['target_address'] = self._target_address.to_json()
+		return result
+
 
 class EmbeddedMosaicAddressRestrictionTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -8319,6 +8927,15 @@ class EmbeddedMosaicAddressRestrictionTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['restriction_key'] = str(self._restriction_key)
+		result['previous_restriction_value'] = str(self._previous_restriction_value)
+		result['new_restriction_value'] = str(self._new_restriction_value)
+		result['target_address'] = self._target_address.to_json()
+		return result
+
 
 class MosaicRestrictionKey(BaseValue):
 	SIZE = 8
@@ -8357,6 +8974,9 @@ class MosaicRestrictionType(Enum):
 		buffer = bytearray()
 		buffer += self.value.to_bytes(1, byteorder='little', signed=False)
 		return buffer
+
+	def to_json(self):
+		return self.value
 
 
 class MosaicGlobalRestrictionTransactionV1(Transaction):
@@ -8508,6 +9128,17 @@ class MosaicGlobalRestrictionTransactionV1(Transaction):
 		result += f'previous_restriction_type: {self._previous_restriction_type.__str__()}, '
 		result += f'new_restriction_type: {self._new_restriction_type.__str__()}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['reference_mosaic_id'] = self._reference_mosaic_id.to_json()
+		result['restriction_key'] = str(self._restriction_key)
+		result['previous_restriction_value'] = str(self._previous_restriction_value)
+		result['new_restriction_value'] = str(self._new_restriction_value)
+		result['previous_restriction_type'] = self._previous_restriction_type.to_json()
+		result['new_restriction_type'] = self._new_restriction_type.to_json()
 		return result
 
 
@@ -8662,6 +9293,17 @@ class EmbeddedMosaicGlobalRestrictionTransactionV1(EmbeddedTransaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['mosaic_id'] = self._mosaic_id.to_json()
+		result['reference_mosaic_id'] = self._reference_mosaic_id.to_json()
+		result['restriction_key'] = str(self._restriction_key)
+		result['previous_restriction_value'] = str(self._previous_restriction_value)
+		result['new_restriction_value'] = str(self._new_restriction_value)
+		result['previous_restriction_type'] = self._previous_restriction_type.to_json()
+		result['new_restriction_type'] = self._new_restriction_type.to_json()
+		return result
+
 
 class TransferTransactionV1(Transaction):
 	TRANSACTION_VERSION: int = 1
@@ -8773,6 +9415,13 @@ class TransferTransactionV1(Transaction):
 		result += ')'
 		return result
 
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['mosaics'] = [e.to_json() for e in self._mosaics]
+		result['message'] = hexlify(self._message).decode('utf8')
+		return result
+
 
 class EmbeddedTransferTransactionV1(EmbeddedTransaction):
 	TRANSACTION_VERSION: int = 1
@@ -8882,6 +9531,13 @@ class EmbeddedTransferTransactionV1(EmbeddedTransaction):
 		result += f'mosaics: {list(map(str, self._mosaics))}, '
 		result += f'message: {hexlify(self._message).decode("utf8")}, '
 		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['recipient_address'] = self._recipient_address.to_json()
+		result['mosaics'] = [e.to_json() for e in self._mosaics]
+		result['message'] = hexlify(self._message).decode('utf8')
 		return result
 
 

@@ -106,3 +106,6 @@ class ByteArrayTest(ComparisonTestUtils, unittest.TestCase):
 
 	def test_string_is_supported(self):
 		self.assertEqual(TEST_HEX, str(ByteArray(FIXED_SIZE, TEST_BYTES)))
+
+	def test_to_json_is_supported(self):
+		self.assertEqual(TEST_HEX, ByteArray(FIXED_SIZE, TEST_BYTES).to_json())

@@ -19,20 +19,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockServer } = require('./utils/routeTestUtils');
-const { test } = require('./utils/routeTestUtils');
-const catapult = require('../../src/catapult-sdk/index');
-const MerkleTree = require('../../src/routes/MerkelTree');
-const accountRoutes = require('../../src/routes/accountRoutes');
-const routeResultTypes = require('../../src/routes/routeResultTypes');
-const routeUtils = require('../../src/routes/routeUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import MockServer from './utils/MockServer.js';
+import test from './utils/routeTestUtils.js';
+import catapult from '../../src/catapult-sdk/index.js';
+import MerkleTree from '../../src/routes/MerkelTree.js';
+import accountRoutes from '../../src/routes/accountRoutes.js';
+import routeResultTypes from '../../src/routes/routeResultTypes.js';
+import routeUtils from '../../src/routes/routeUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
+import { Address } from 'symbol-sdk/symbol';
 
 const { PacketType } = catapult.packet;
-
-const { address } = catapult.model;
-const { convert } = catapult.utils;
 
 describe('account routes', () => {
 	const testAddress = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
@@ -200,7 +199,7 @@ describe('account routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbAccountsFake.calledOnce).to.equal(true);
-					expect(dbAccountsFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbAccountsFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -214,7 +213,7 @@ describe('account routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbAccountsFake.calledOnce).to.equal(true);
-					expect(dbAccountsFake.firstCall.args[1]).to.deep.equal([0x23456789, 0xABCDEF01]);
+					expect(dbAccountsFake.firstCall.args[1]).to.deep.equal(0xABCDEF0123456789n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -272,7 +271,7 @@ describe('account routes', () => {
 					inputs: {
 						valid: {
 							object: { accountId: testAddress },
-							parsed: [[{ address: address.stringToAddress(testAddress) }]],
+							parsed: [[{ address: new Address(testAddress).bytes }]],
 							printable: testAddress
 						},
 						invalid: {
@@ -291,7 +290,7 @@ describe('account routes', () => {
 					inputs: {
 						valid: {
 							object: { accountId: testPublicKey },
-							parsed: [[{ publicKey: convert.hexToUint8(testPublicKey) }]],
+							parsed: [[{ publicKey: utils.hexToUint8(testPublicKey) }]],
 							printable: testPublicKey
 						},
 						invalid: {
@@ -361,7 +360,7 @@ describe('account routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbAccountsByIds.calledOnce).to.equal(true);
-						expect(dbAccountsByIds.firstCall.args[0]).to.deep.equal([{ address: address.stringToAddress(testAddress) }]);
+						expect(dbAccountsByIds.firstCall.args[0]).to.deep.equal([{ address: new Address(testAddress).bytes }]);
 
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							payload: fakeAccounts,
@@ -379,7 +378,7 @@ describe('account routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbAccountsByIds.calledOnce).to.equal(true);
-						expect(dbAccountsByIds.firstCall.args[0]).to.deep.equal([{ publicKey: convert.hexToUint8(testPublicKey) }]);
+						expect(dbAccountsByIds.firstCall.args[0]).to.deep.equal([{ publicKey: utils.hexToUint8(testPublicKey) }]);
 
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							payload: fakeAccounts,
@@ -414,7 +413,7 @@ describe('account routes', () => {
 				+ '04A7F2A487B42EA89323C4408F82415223ACFEC7DFA7924'
 				+ 'EFC31A70778AB17A00C3EAFF635F01BB3B474F0AF1BE99F'
 				+ 'BDA85EEFB209CC7BD158D3540DE3A3F2D1';
-			const stateTreeBytes = convert.hexToUint8(stateTree);
+			const stateTreeBytes = utils.hexToUint8(stateTree);
 
 			const packetType = PacketType.accountStatePath;
 			const packet = {

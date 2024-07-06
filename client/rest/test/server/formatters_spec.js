@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const formatters = require('../../src/server/formatters');
-const { expect } = require('chai');
+import formatters from '../../src/server/formatters.js';
+import { expect } from 'chai';
 
 describe('formatters', () => {
 	const createFormatters = name => formatters.create({

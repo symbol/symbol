@@ -20,12 +20,9 @@
  */
 
 /** @module sockets/stateTreesCodec */
+import { Hash256 } from 'symbol-sdk';
 
-const catapult = require('../catapult-sdk/index');
-
-const { sizes } = catapult.constants;
-
-const stateTreesCodec = {
+export default {
 	/**
 	 * Parses state trees.
 	 * @param {object} parser Parser.
@@ -34,9 +31,8 @@ const stateTreesCodec = {
 	deserialize: parser => {
 		const tree = [];
 		while (parser.numUnprocessedBytes())
-			tree.push(parser.buffer(sizes.hash256));
+			tree.push(parser.buffer(Hash256.SIZE));
+
 		return { tree };
 	}
 };
-
-module.exports = stateTreesCodec;

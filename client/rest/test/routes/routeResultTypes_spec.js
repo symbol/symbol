@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeResultTypes = require('../../src/routes/routeResultTypes');
-const { expect } = require('chai');
+import routeResultTypes from '../../src/routes/routeResultTypes.js';
+import { expect } from 'chai';
 
 describe('routeResultTypes', () => {
 	it('has correct links to schema', () => {

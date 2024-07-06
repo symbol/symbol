@@ -37,7 +37,7 @@ const parseSubscriptionRequest = request => {
 	return { channel: requireString(request, 'subscribe'), action: 'add' };
 };
 
-module.exports = {
+export default {
 	/**
 	 * Handles a websocket message.
 	 * @param {object} client Client that sent the message.

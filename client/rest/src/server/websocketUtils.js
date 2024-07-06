@@ -19,14 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
-const winston = require('winston');
-const WebSocket = require('ws');
-const crypto = require('crypto');
+import winston from 'winston';
+import WebSocket from 'ws';
+import crypto from 'crypto';
 
-const { base32 } = catapult.utils;
-
-module.exports = {
+export default {
 	/**
 	 * Creates an aggregate subscriber composed of all websocket subscribers to a single topic.
 	 * @param {string} topic Subscribed topic from which the data was received.
@@ -73,7 +70,7 @@ module.exports = {
 	 * @param {Function} messageHandler Custom message handler.
 	 */
 	handshake(client, messageHandler) {
-		client.uid = base32.encode(crypto.randomBytes(20));
+		client.uid = crypto.randomBytes(20).toString('base64');
 
 		const closeWithError = (message, err) => {
 			winston.error(`websocket ${client.uid}: ${message}`, err);

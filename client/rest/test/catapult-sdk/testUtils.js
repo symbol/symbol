@@ -19,15 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const sizes = require('../../src/catapult-sdk/modelBinary/sizes');
-const crypto = require('crypto');
+import { PublicKey } from 'symbol-sdk';
+import crypto from 'crypto';
 
-module.exports = {
-	constants: { sizes },
-
+export default {
 	random: {
 		bytes: size => crypto.randomBytes(size),
-		publicKey: () => crypto.randomBytes(sizes.signerPublicKey)
+		publicKey: () => crypto.randomBytes(PublicKey.SIZE)
 	},
 
 	buffer: {

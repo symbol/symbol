@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+import { buildOffsetCondition, convertToLong } from '../../db/dbUtils.js';
 
-class RestrictionsDb {
+export default class RestrictionsDb {
 	/**
 	 * Creates RestrictionsDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -66,7 +66,7 @@ class RestrictionsDb {
 
 	/**
 	 * Retrieves filtered and paginated mosaic restrictions.
-	 * @param {module:utils/uint64~uint64} mosaicId Mosaic id
+	 * @param {bigint} mosaicId Mosaic id
 	 * @param {number} entryType Mosaic restriction type
 	 * @param {Uint8Array} targetAddress Mosaic restriction target address
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
@@ -105,5 +105,3 @@ class RestrictionsDb {
 			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
 	}
 }
-
-module.exports = RestrictionsDb;

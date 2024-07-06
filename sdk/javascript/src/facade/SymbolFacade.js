@@ -287,16 +287,25 @@ export class SymbolFacade {
 	}
 
 	/**
+	 * Gets the payload to sign given a Symbol transaction.
+	 * @param {sc.Transaction} transaction Transaction object.
+	 * @returns {Uint8Array} Verifiable data to sign.
+	 */
+	extractSigningPayload(transaction) {
+		return new Uint8Array([
+			...this.network.generationHashSeed.bytes,
+			...transactionDataBuffer(transaction.serialize())
+		]);
+	}
+
+	/**
 	 * Signs a Symbol transaction.
 	 * @param {KeyPair} keyPair Key pair.
 	 * @param {sc.Transaction} transaction Transaction object.
 	 * @returns {Signature} Transaction signature.
 	 */
 	signTransaction(keyPair, transaction) {
-		return keyPair.sign(new Uint8Array([
-			...this.network.generationHashSeed.bytes,
-			...transactionDataBuffer(transaction.serialize())
-		]));
+		return keyPair.sign(this.extractSigningPayload(transaction));
 	}
 
 	/**
@@ -306,10 +315,7 @@ export class SymbolFacade {
 	 * @returns {boolean} \c true if transaction signature is verified.
 	 */
 	verifyTransaction(transaction, signature) {
-		const verifyBuffer = new Uint8Array([
-			...this.network.generationHashSeed.bytes,
-			...transactionDataBuffer(transaction.serialize())
-		]);
+		const verifyBuffer = new Uint8Array(this.extractSigningPayload(transaction));
 		return new Verifier(transaction.signerPublicKey).verify(verifyBuffer, signature);
 	}
 

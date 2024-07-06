@@ -21,17 +21,17 @@
 
 /** @module db/CatapultDb */
 
-const connector = require('./connector');
-const { convertToLong, buildOffsetCondition, uniqueLongList } = require('./dbUtils');
-const catapult = require('../catapult-sdk/index');
-const MultisigDb = require('../plugins/multisig/MultisigDb');
-const MongoDb = require('mongodb');
+import connector from './connector.js';
+import { buildOffsetCondition, convertToLong, uniqueLongList } from './dbUtils.js';
+import MultisigDb from '../plugins/multisig/MultisigDb.js';
+import MongoDb from 'mongodb';
+import { PublicKey } from 'symbol-sdk';
+import { Network, models } from 'symbol-sdk/symbol';
 
-const { EntityType } = catapult.model;
 const { ObjectId } = MongoDb;
 
-const isAggregateType = document => EntityType.aggregateComplete === document.transaction.type
-	|| EntityType.aggregateBonded === document.transaction.type;
+const isAggregateType = document => models.TransactionType.AGGREGATE_COMPLETE.value === document.transaction.type
+	|| models.TransactionType.AGGREGATE_BONDED.value === document.transaction.type;
 
 const createSanitizer = () => ({
 	copyAndDeleteId: dbObject => {
@@ -97,7 +97,7 @@ const TransactionGroup = Object.freeze({
 	partial: 'partialTransactions'
 });
 
-class CatapultDb {
+export default class CatapultDb {
 	// region construction / connect / disconnect
 
 	constructor(options) {
@@ -105,6 +105,7 @@ class CatapultDb {
 		if (!this.networkId)
 			throw Error('network id is required');
 
+		this.network = new Network(this.networkId);
 		this.pagingOptions = {
 			pageSizeMin: options.pageSizeMin,
 			pageSizeMax: options.pageSizeMax,
@@ -203,9 +204,9 @@ class CatapultDb {
 	 * Retrieves filtered and paginated blocks.
 	 * @param {Uint8Array} signerPublicKey Filters by signer public key
 	 * @param {Uint8Array} beneficiaryAddress Filters by beneficiary address
-	 * @param {module:utils/uint64~uint64} fromTimestamp
+	 * @param {bigint} fromTimestamp
 	 *        Filters blocks by only including blocks with a timestamp greater than or equal to provided value
-	 * @param {module:utils/uint64~uint64} toTimestamp
+	 * @param {bigint} toTimestamp
 	 *        Filters blocks by only including blocks with a timestamp less than or equal to provided value
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
@@ -518,7 +519,7 @@ class CatapultDb {
 	/**
 	 * Return (id, name, parent) tuples for transactions with type and with id in set of ids.
 	 * @param {*} ids Set of transaction ids.
-	 * @param {*} transactionType Transaction type.
+	 * @param {models.TransactionType} transactionType Transaction type.
 	 * @param {object} fieldNames Descriptor for fields used in query.
 	 * @returns {Promise<Array<object>>} Promise that is resolved when tuples are ready.
 	 */
@@ -526,7 +527,7 @@ class CatapultDb {
 		const queriedIds = ids.map(convertToLong);
 		const conditions = {
 			$match: {
-				'transaction.type': transactionType,
+				'transaction.type': transactionType.value,
 				[`transaction.${fieldNames.id}`]: { $in: queriedIds }
 			}
 		};
@@ -552,7 +553,7 @@ class CatapultDb {
 	/**
 	 * Retrieves filtered and paginated accounts
 	 * @param {Uint8Array} address Filters by address
-	 * @param {module:utils/uint64~uint64} mosaicId
+	 * @param {bigint} mosaicId
 	 *        Filters by accounts with some mosaicId balance. Required if provided `sortField` is `balance`
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
@@ -616,7 +617,9 @@ class CatapultDb {
 	accountsByIds(ids) {
 		// id will either have address property or publicKey property set; in the case of publicKey, convert it to address
 		const buffers = ids.map(id => Buffer.from((id.publicKey
-			? catapult.model.address.publicKeyToAddress(id.publicKey, this.networkId) : id.address)));
+			? this.network.publicKeyToAddress(new PublicKey(id.publicKey)).bytes
+			: id.address
+		)));
 		return this.database.collection('accounts')
 			.find({ 'account.address': { $in: buffers } })
 			.toArray()
@@ -640,20 +643,18 @@ class CatapultDb {
 
 	// endregion
 
-	// region utils
+	// region lookup public keys
 
 	/**
-	 * Retrieves account publickey projection for the given address.
-	 * @param {Uint8Array} accountAddress Account address.
-	 * @returns {Promise<Buffer>} Promise that resolves to the account public key.
+	 * Retrieves account public keys projection for the given addresses.
+	 * @param {Array<Uint8Array>} accountAddresses Account addresses.
+	 * @returns {Promise<Buffer>} Promise that resolves to the account public keys.
 	 */
-	addressToPublicKey(accountAddress) {
-		const conditions = { 'account.address': Buffer.from(accountAddress) };
-		const projection = { 'account.publicKey': 1 };
-		return this.queryDocument('accounts', conditions, projection);
+	lookupPublicKeys(accountAddresses) {
+		const conditions = { 'account.address': { $in: accountAddresses.map(accountAddress => Buffer.from(accountAddress)) } };
+		const projection = { 'account.address': 1, 'account.publicKey': 1 };
+		return this.queryDocuments('accounts', conditions, projection);
 	}
 
 	// endregion
 }
-
-module.exports = CatapultDb;

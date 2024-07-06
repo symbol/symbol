@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const { test } = require('../../routes/utils/routeTestUtils');
+import test from '../../routes/utils/routeTestUtils.js';
+import { Address } from 'symbol-sdk/symbol';
 
 const Valid_Address = test.sets.addresses.valid[0];
 
@@ -43,7 +43,9 @@ const routeAddressGetTestUtils = {
 	addGetDocumentTests: addTests => {
 		const Valid_Address_Traits = {
 			valid: Valid_Address,
-			expected: [[catapult.model.address.stringToAddress(Valid_Address)]]
+			expected: [
+				[new Address(Valid_Address).bytes]
+			]
 		};
 
 		describe('by address', () => addTests(Valid_Address_Traits));
@@ -62,4 +64,4 @@ const routeAddressGetTestUtils = {
 	}
 };
 
-module.exports = routeAddressGetTestUtils;
+export default routeAddressGetTestUtils;

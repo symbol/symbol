@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./restrictionsDbTestUtils');
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const RestrictionsDb = require('../../../src/plugins/restrictions/RestrictionsDb');
-const dbTestUtils = require('../../db/utils/dbTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import test from './restrictionsDbTestUtils.js';
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import RestrictionsDb from '../../../src/plugins/restrictions/RestrictionsDb.js';
+import dbTestUtils from '../../db/utils/dbTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 describe('restrictions db', () => {
 	describe('account restrictions', () => {
@@ -129,10 +129,9 @@ describe('restrictions db', () => {
 	});
 
 	describe('mosaic restrictions', () => {
-		const { address } = catapult.model;
 		const { createObjectId } = dbTestUtils.db;
-		const testAddress1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
-		const testAddress2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+		const testAddress1 = new Address('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ').bytes;
+		const testAddress2 = new Address('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA').bytes;
 
 		const paginationOptions = {
 			pageSize: 10,
@@ -187,14 +186,14 @@ describe('restrictions db', () => {
 		it('returns filtered mosaic restrictions by mosaicId', () => {
 			// Arrange:
 			const dbMosaicRestrictions = [
-				createMosaicRestriction(10, [0xAAAD29AA, 0xAAC67FAA]),
-				createMosaicRestriction(20, [0x1CAD29E3, 0x0DC67FBE])
+				createMosaicRestriction(10, 0xAAC67FAAAAAD29AAn),
+				createMosaicRestriction(20, 0x0DC67FBE1CAD29E3n)
 			];
 
 			// Act + Assert:
 			return runTestAndVerifyIds(
 				dbMosaicRestrictions,
-				db => db.mosaicRestrictions([0xAAAD29AA, 0xAAC67FAA], undefined, undefined, paginationOptions), [10]
+				db => db.mosaicRestrictions(0xAAC67FAAAAAD29AAn, undefined, undefined, paginationOptions), [10]
 			);
 		});
 

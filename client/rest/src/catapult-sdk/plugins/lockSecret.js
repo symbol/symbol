@@ -20,17 +20,14 @@
  */
 
 /** @module plugins/lockSecret */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
-
-const constants = { sizes };
+import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a lock secret plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const lockSecretPlugin = {
+export default {
 	registerSchema: builder => {
 		builder.addSchema('secretLockInfo', {
 			id: ModelType.objectId,
@@ -49,7 +46,7 @@ const lockSecretPlugin = {
 			compositeHash: ModelType.binary
 		});
 
-		builder.addTransactionSupport(EntityType.secretLock, {
+		builder.addTransactionSupport(models.TransactionType.SECRET_LOCK, {
 			recipientAddress: ModelType.encodedAddress,
 			secret: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
@@ -57,57 +54,11 @@ const lockSecretPlugin = {
 			duration: ModelType.uint64,
 			hashAlgorithm: ModelType.uint8
 		});
-		builder.addTransactionSupport(EntityType.secretProof, {
+		builder.addTransactionSupport(models.TransactionType.SECRET_PROOF, {
 			secret: ModelType.binary,
 			recipientAddress: ModelType.encodedAddress,
 			proof: ModelType.binary,
 			hashAlgorithm: ModelType.uint8
 		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.secretLock, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
-				transaction.secret = parser.buffer(constants.sizes.hash256);
-				transaction.mosaicId = parser.uint64();
-				transaction.amount = parser.uint64();
-				transaction.duration = parser.uint64();
-				transaction.hashAlgorithm = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.recipientAddress);
-				serializer.writeBuffer(transaction.secret);
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.amount);
-				serializer.writeUint64(transaction.duration);
-				serializer.writeUint8(transaction.hashAlgorithm);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.secretProof, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
-				transaction.secret = parser.buffer(constants.sizes.hash256);
-				const proofSize = parser.uint16();
-				transaction.hashAlgorithm = parser.uint8();
-				transaction.proof = parser.buffer(proofSize);
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.recipientAddress);
-				serializer.writeBuffer(transaction.secret);
-				serializer.writeUint16(transaction.proof.length);
-				serializer.writeUint8(transaction.hashAlgorithm);
-				serializer.writeBuffer(transaction.proof);
-			}
-		});
 	}
 };
-
-module.exports = lockSecretPlugin;

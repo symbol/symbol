@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const CatapultDb = require('../../../src/db/CatapultDb');
-const SecretLocksDb = require('../../../src/plugins/lockSecret/LockSecretDb');
-const test = require('../../db/utils/dbTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import SecretLocksDb from '../../../src/plugins/lockSecret/LockSecretDb.js';
+import test from '../../db/utils/dbTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 describe('secret locks db', () => {
 	const ownerAddressTest1 = test.random.address();

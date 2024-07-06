@@ -19,15 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const lockHashRoutes = require('../../../src/plugins/lockHash/lockHashRoutes');
-const routeUtils = require('../../../src/routes/routeUtils');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { test } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
-
-const { address } = catapult.model;
+import lockHashRoutes from '../../../src/plugins/lockHash/lockHashRoutes.js';
+import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 describe('lock hash routes', () => {
 	describe('hash locks', () => {
@@ -74,7 +72,7 @@ describe('lock hash routes', () => {
 		};
 
 		const dbHashLocksFake = sinon.fake(addresses =>
-			(Buffer.from(addresses[0]).equals(Buffer.from(address.stringToAddress(testAddress)))
+			(Buffer.from(addresses[0]).equals(new Address(testAddress).bytes)
 				? Promise.resolve(pageSample)
 				: Promise.resolve(emptyPageSample)));
 
@@ -140,7 +138,7 @@ describe('lock hash routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbHashLocksFake.calledOnce).to.equal(true);
-						expect(dbHashLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
+						expect(dbHashLocksFake.firstCall.args[0]).to.deep.equal([new Address(testAddress).bytes]);
 
 						expect(mockServer.next.calledOnce).to.equal(true);
 					});
@@ -154,7 +152,7 @@ describe('lock hash routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbHashLocksFake.calledOnce).to.equal(true);
-						expect(dbHashLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddressNoLocks)]);
+						expect(dbHashLocksFake.firstCall.args[0]).to.deep.equal([new Address(testAddressNoLocks).bytes]);
 
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							payload: emptyPageSample,
@@ -173,7 +171,7 @@ describe('lock hash routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbHashLocksFake.calledOnce).to.equal(true);
-						expect(dbHashLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
+						expect(dbHashLocksFake.firstCall.args[0]).to.deep.equal([new Address(testAddress).bytes]);
 
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							payload: pageSample,

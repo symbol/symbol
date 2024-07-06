@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
-const { createZmqConnectionService } = require('../../src/connection/zmqService');
-const test = require('../testUtils');
-const { expect } = require('chai');
-const zmq = require('zeromq');
+import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
+import createZmqConnectionService from '../../src/connection/zmqService.js';
+import test from '../testUtils.js';
+import { expect } from 'chai';
+import { Address } from 'symbol-sdk/symbol';
+import zmq from 'zeromq';
 
 describe('zmq service', () => {
 	const cleanupActions = [];
@@ -41,12 +41,12 @@ describe('zmq service', () => {
 			host: '127.0.0.1', port: '3333', connectTimeout: 10, monitorInterval: 50
 		};
 		const channelDescriptors = new MessageChannelBuilder().build();
-		const service = createZmqConnectionService(zmqConfig, {}, channelDescriptors, test.createMockLogger());
+		const service = createZmqConnectionService(zmqConfig, channelDescriptors, test.createMockLogger());
 		cleanupActions.push(() => service.close());
 		return service;
 	};
 
-	const createRandomAddressString = () => catapult.model.address.addressToString(test.random.address());
+	const createRandomAddressString = () => new Address(test.random.address()).toString();
 
 	describe('invalid subscription', () => {
 		const assertInvalidSubscription = (channel, error) => {
@@ -138,19 +138,7 @@ describe('zmq service', () => {
 
 	describe('subscription messages', () => {
 		const generateBlockBuffers = () => ({
-			block: Buffer.concat([
-				Buffer.of(0x97, 0x87, 0x45, 0x0E, 0xE1, 0x6C, 0xB6, 0x62), // height 8b
-				Buffer.of(0x30, 0x3A, 0x46, 0x8B, 0x15, 0x2D, 0x60, 0x54), // timestamp 8b
-				Buffer.of(0x86, 0x02, 0x75, 0x30, 0xE8, 0x50, 0x78, 0xE8), // difficulty 8b
-				Buffer.from(test.random.hash()), // previous block hash 32b
-				Buffer.from(test.random.hash()), // block transactions hash 32b
-				Buffer.from(test.random.hash()), // receiptsHashBuffer 32b
-				Buffer.from(test.random.hash()), // stateHashBuffer 32b
-				test.random.bytes(test.constants.sizes.addressDecoded), // beneficiaryAddress 24b
-				Buffer.of(0x0A, 0x00, 0x00, 0x00), // fee multiplier 4b
-				Buffer.of(0x00, 0x00, 0x00, 0x00) // reserved padding 4b
-			]),
-
+			block: test.createSampleBlock().buffer,
 			entityHash: Buffer.from(test.random.hash()),
 			generationHash: Buffer.from(test.random.hash())
 		});
@@ -160,12 +148,8 @@ describe('zmq service', () => {
 			const zmqConfig = {
 				host: '127.0.0.1', port: '3333', connectTimeout: 1000, monitorInterval: 50
 			};
-			const codec = {
-				// - parsing is not being tested so just extract the entire parser contents into a buffer
-				deserialize: parser => parser.buffer(parser.numUnprocessedBytes())
-			};
 			const channelDescriptors = new MessageChannelBuilder().build();
-			const service = createZmqConnectionService(zmqConfig, codec, channelDescriptors, test.createLogger());
+			const service = createZmqConnectionService(zmqConfig, channelDescriptors, test.createLogger());
 			cleanupActions.push(() => service.close());
 
 			const blockBuffers = generateBlockBuffers();
@@ -187,10 +171,11 @@ describe('zmq service', () => {
 					// Arrange: subscribe to block events (this needs to be done after bind in order to avoid potential races)
 					service.on('block', message => {
 						// Assert: the parsed message is consistent with the published block message
+						//         since formatting is not configured, meta properties are raw values
 						expect(message).to.deep.equal({
 							type: 'blockHeaderWithMetadata',
 							payload: {
-								block: blockBuffers.block,
+								block: test.createSampleBlock().model,
 								meta: { hash: blockBuffers.entityHash, generationHash: blockBuffers.generationHash }
 							}
 						});

@@ -19,18 +19,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MetalSeal } = require('./metal');
-const catapult = require('../../catapult-sdk/index');
-const merkleUtils = require('../../routes/merkleUtils');
-const routeResultTypes = require('../../routes/routeResultTypes');
-const routeUtils = require('../../routes/routeUtils');
-const NodeCache = require('node-cache');
+import { MetalSeal } from './metal.js';
+import catapult from '../../catapult-sdk/index.js';
+import merkleUtils from '../../routes/merkleUtils.js';
+import routeResultTypes from '../../routes/routeResultTypes.js';
+import routeUtils from '../../routes/routeUtils.js';
+import { sendMetalData } from '../../routes/simpleSend.js';
+import NodeCache from 'node-cache';
 
 const cache = new NodeCache();
 
 const { PacketType } = catapult.packet;
 
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		const metadataSender = routeUtils.createSender(routeResultTypes.metadata);
 
@@ -69,7 +70,7 @@ module.exports = {
 
 		server.get('/metadata/metal/:metalId', async (req, res, next) => {
 			const { cacheTtl, sizeLimit } = services.config.metal;
-			const sendData = (data, mimeType, fileName, text, download) => routeUtils.createSender('content').sendData(res, next)(
+			const sendData = (data, mimeType, fileName, text, download) => sendMetalData(res, next)(
 				data,
 				mimeType,
 				fileName,

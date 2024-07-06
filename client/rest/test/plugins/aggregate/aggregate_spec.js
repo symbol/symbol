@@ -19,11 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { ServerMessageHandler } = require('../../../src/connection/serverMessageHandlers');
-const aggregate = require('../../../src/plugins/aggregate/aggregate');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
-const { expect } = require('chai');
+import ServerMessageHandler from '../../../src/connection/serverMessageHandlers.js';
+import aggregate from '../../../src/plugins/aggregate/aggregate.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
+import { expect } from 'chai';
+import { Hash256, PublicKey, Signature } from 'symbol-sdk';
 
 describe('aggregate plugin', () => {
 	pluginTest.assertThat.pluginDoesNotCreateDb(aggregate);
@@ -91,11 +92,11 @@ describe('aggregate plugin', () => {
 			// Act:
 			const buffer = Buffer.concat([
 				Buffer.of(0x34, 0x54, 0x55, 0xFF, 0xFA, 0x0E, 0xCC, 0xB7),
-				Buffer.alloc(test.constants.sizes.signerPublicKey, 33),
-				Buffer.alloc(test.constants.sizes.signature, 44),
-				Buffer.alloc(test.constants.sizes.hash256, 55)
+				Buffer.alloc(PublicKey.SIZE, 33),
+				Buffer.alloc(Signature.SIZE, 44),
+				Buffer.alloc(Hash256.SIZE, 55)
 			]);
-			handler({}, eventData => emitted.push(eventData))(22, buffer, 99);
+			handler(eventData => emitted.push(eventData))(22, buffer, 99);
 
 			// Assert:
 			// - 22 is a "topic" so it's not forwarded
@@ -104,10 +105,10 @@ describe('aggregate plugin', () => {
 			expect(emitted[0]).to.deep.equal({
 				type: 'aggregate.cosignature',
 				payload: {
-					version: [4283782196, 3083603706],
-					signerPublicKey: Buffer.alloc(test.constants.sizes.signerPublicKey, 33),
-					signature: Buffer.alloc(test.constants.sizes.signature, 44),
-					parentHash: Buffer.alloc(test.constants.sizes.hash256, 55)
+					version: 0xB7CC0EFAFF555434n,
+					signerPublicKey: Buffer.alloc(PublicKey.SIZE, 33),
+					signature: Buffer.alloc(Signature.SIZE, 44),
+					parentHash: Buffer.alloc(Hash256.SIZE, 55)
 				}
 			});
 		});

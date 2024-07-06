@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { test } = require('./utils/routeTestUtils');
-const wsRoutes = require('../../src/routes/wsRoutes');
-const { expect } = require('chai');
+import test from './utils/routeTestUtils.js';
+import wsRoutes from '../../src/routes/wsRoutes.js';
+import { expect } from 'chai';
 
 describe('web socket routes', () => {
 	const setupWebsocketTest = (action, assertCaptures) => {

@@ -19,15 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const dbFacade = require('./dbFacade');
-const routeResultTypes = require('./routeResultTypes');
-const routeUtils = require('./routeUtils');
-const catapult = require('../catapult-sdk/index');
+import dbFacade from './dbFacade.js';
+import routeResultTypes from './routeResultTypes.js';
+import routeUtils from './routeUtils.js';
+import { Hash256, utils } from 'symbol-sdk';
 
-const { convert } = catapult.utils;
-const { constants } = catapult;
-
-module.exports = {
+export default {
 	register: (server, db, services) => {
 		routeUtils.addGetPostDocumentRoutes(
 			server,
@@ -35,8 +32,8 @@ module.exports = {
 			{ base: '/transactionStatus', singular: 'hash', plural: 'hashes' },
 			params => dbFacade.transactionStatusesByHashes(db, params, services.config.transactionStates),
 			hash => {
-				if (2 * constants.sizes.hash256 === hash.length)
-					return convert.hexToUint8(hash);
+				if (2 * Hash256.SIZE === hash.length)
+					return utils.hexToUint8(hash);
 
 				throw Error(`invalid length of hash '${hash.length}'`);
 			}

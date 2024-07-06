@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const PacketParser = require('../../../src/catapult-sdk/parser/PacketParser');
-const { expect } = require('chai');
+import PacketParser from '../../../src/catapult-sdk/parser/PacketParser.js';
+import { expect } from 'chai';
 
 describe('PacketParser', () => {
 	const Test_Buffer_64 = Buffer.of(

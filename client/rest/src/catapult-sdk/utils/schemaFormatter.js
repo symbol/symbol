@@ -20,7 +20,7 @@
  */
 
 /** @module utils/schemaFormatter */
-const SchemaType = require('./SchemaType');
+import SchemaType from './SchemaType.js';
 
 // if 'definition' is a number, it is the type
 // otherwise, it is an object with an optional type property (default type is undefined)
@@ -102,4 +102,4 @@ const schemaFormatter = {
 	}
 };
 
-module.exports = schemaFormatter;
+export default schemaFormatter;

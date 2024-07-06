@@ -20,14 +20,14 @@
  */
 
 /** @module plugins/receipts */
-const ReceiptsDb = require('./ReceiptsDb');
-const receiptsRoutes = require('./receiptsRoutes');
+import ReceiptsDb from './ReceiptsDb.js';
+import receiptsRoutes from './receiptsRoutes.js';
 
 /**
  * Creates a receipts plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: db => new ReceiptsDb(db),
 
 	registerTransactionStates: () => {},

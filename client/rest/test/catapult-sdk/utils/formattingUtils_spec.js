@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const formattingUtils = require('../../../src/catapult-sdk/utils/formattingUtils');
-const { expect } = require('chai');
+import formattingUtils from '../../../src/catapult-sdk/utils/formattingUtils.js';
+import { expect } from 'chai';
 
 const createEntity = seed => ({ foo: seed, bar: seed + 1, bazz: seed + 2 });
 

@@ -23,12 +23,10 @@
  * Account id types.
  * @enum {string}
  */
-const AccountType = {
+export default {
 	/** Account id is a public key */
 	publicKey: 'publicKey',
 
 	/** Account id is an address */
 	address: 'address'
 };
-
-module.exports = AccountType;

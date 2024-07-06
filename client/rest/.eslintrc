@@ -5,6 +5,10 @@ extends:
   - ../../linters/javascript/default.eslintrc
 
 rules:
+  import/extensions:
+  - error
+  - ignorePackages
+
   no-underscore-dangle:
   - error
   - allow:

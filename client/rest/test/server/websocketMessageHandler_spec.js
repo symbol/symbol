@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const websocketMessageHandler = require('../../src/server/websocketMessageHandler');
-const { expect } = require('chai');
+import websocketMessageHandler from '../../src/server/websocketMessageHandler.js';
+import { expect } from 'chai';
 
 describe('websocketMessageHandler', () => {
 	// region invalid

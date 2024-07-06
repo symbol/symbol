@@ -19,26 +19,43 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module modelBinary/AggregateModelCodec */
+import sinon from 'sinon';
 
-// this file only contains an interface for prettier documentation, so ignore no-unused-vars warnings
+export default class MockServer {
+	constructor() {
+		this.routes = {};
+		this.server = {};
+		['get', 'put', 'post'].forEach(method => {
+			this.server[method] = (path, handler) => {
+				this.routes[path] = this.routes[path] || {};
+				this.routes[path][method] = () => handler;
+			};
+		});
 
-/* eslint-disable no-unused-vars */
+		this.next = sinon.fake();
+		this.send = sinon.fake();
+		this.redirect = sinon.fake();
+		this.status = sinon.fake();
+		this.setHeader = sinon.fake();
+		this.res = {
+			send: this.send,
+			redirect: this.redirect,
+			status: this.status,
+			setHeader: this.setHeader
+		};
+	}
 
-/**
- * Aggregate codec for serializing and deserializing a model supporting multiple entity types.
- * @interface
- * @augments {module:modelBinary/ModelCodec}
- */
-const AggregateModelCodec = {
-	/**
-	 * Determines whether or not an entity type is supported.
-	 * @instance
-	 * @param {module:model/EntityType} type Entity type.
-	 * @returns {boolean} true if the type is supported.
-	 */
-	supports: type => false
-};
+	resetStats() {
+		this.next.resetHistory();
+		this.send.resetHistory();
+		this.redirect.resetHistory();
+	}
 
-/* eslint-enable */
-module.exports = AggregateModelCodec;
+	getRoute(path) {
+		return this.routes[path];
+	}
+
+	callRoute(route, req) {
+		return route(req, this.res, this.next);
+	}
+}

@@ -25,7 +25,7 @@
  * Basic schema property types.
  * @enum {number}
  */
-const SchemaType = {
+export default {
 	/** Default schema property type. */
 	none: 0,
 
@@ -41,5 +41,3 @@ const SchemaType = {
 	/** Maximum value in this enumeration. */
 	max: 3
 };
-
-module.exports = SchemaType;

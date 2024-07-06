@@ -19,14 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const metadataRoutes = require('../../../src/plugins/metadata/metadataRoutes');
-const routeUtils = require('../../../src/routes/routeUtils');
-const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { expect } = require('chai');
-const sinon = require('sinon');
-
-const { address } = catapult.model;
+import metadataRoutes from '../../../src/plugins/metadata/metadataRoutes.js';
+import routeUtils from '../../../src/routes/routeUtils.js';
+import MockServer from '../../routes/utils/MockServer.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { Address } from 'symbol-sdk/symbol';
 
 describe('metadata routes', () => {
 	describe('metadata', () => {
@@ -158,7 +156,7 @@ describe('metadata routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMetadataFake.calledOnce).to.equal(true);
-					expect(dbMetadataFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbMetadataFake.firstCall.args[0]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -172,7 +170,7 @@ describe('metadata routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMetadataFake.calledOnce).to.equal(true);
-					expect(dbMetadataFake.firstCall.args[1]).to.deep.equal(address.stringToAddress(testAddress));
+					expect(dbMetadataFake.firstCall.args[1]).to.deep.equal(new Address(testAddress).bytes);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -186,7 +184,7 @@ describe('metadata routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMetadataFake.calledOnce).to.equal(true);
-					expect(dbMetadataFake.firstCall.args[2]).to.deep.equal([0x1CAD29E3, 0x0DC67FBE]);
+					expect(dbMetadataFake.firstCall.args[2]).to.deep.equal(0x0DC67FBE1CAD29E3n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -200,7 +198,7 @@ describe('metadata routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMetadataFake.calledOnce).to.equal(true);
-					expect(dbMetadataFake.firstCall.args[3]).to.deep.equal([0x1CAD29E3, 0x0DC67FBE]);
+					expect(dbMetadataFake.firstCall.args[3]).to.deep.equal(0x0DC67FBE1CAD29E3n);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

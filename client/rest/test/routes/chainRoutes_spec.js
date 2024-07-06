@@ -19,11 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockServer, test } = require('./utils/routeTestUtils');
-const chainRoutes = require('../../src/routes/chainRoutes');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import MockServer from './utils/MockServer.js';
+import test from './utils/routeTestUtils.js';
+import chainRoutes from '../../src/routes/chainRoutes.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
 
 const { Binary, Long } = MongoDb;
 

@@ -19,21 +19,20 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../src/catapult-sdk/index');
-const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
-const { createZmqConnectionService } = require('../../src/connection/zmqService');
-const bootstrapper = require('../../src/server/bootstrapper');
-const errors = require('../../src/server/errors');
-const formatters = require('../../src/server/formatters');
-const test = require('../testUtils');
-const axios = require('axios');
-const { AssertionError, expect } = require('chai');
-const restify = require('restify');
-const sinon = require('sinon');
-const winston = require('winston');
-const WebSocket = require('ws');
-const zmq = require('zeromq');
-const EventEmitter = require('events');
+import MessageChannelBuilder from '../../src/connection/MessageChannelBuilder.js';
+import createZmqConnectionService from '../../src/connection/zmqService.js';
+import bootstrapper from '../../src/server/bootstrapper.js';
+import errors from '../../src/server/errors.js';
+import formatters from '../../src/server/formatters.js';
+import test from '../testUtils.js';
+import axios from 'axios';
+import { AssertionError, expect } from 'chai';
+import restify from 'restify';
+import sinon from 'sinon';
+import winston from 'winston';
+import WebSocket from 'ws';
+import zmq from 'zeromq';
+import EventEmitter from 'events';
 
 const supportedHttpMethods = ['get', 'post', 'put'];
 
@@ -139,7 +138,7 @@ const createFormatters = options => formatters.create({
 				const { block } = blockHeaderWithMetadata;
 				return {
 					height: block.height,
-					signerPublicKey: catapult.utils.convert.uint8ToHex(block.signerPublicKey)
+					signerPublicKey: block.signerPublicKey
 				};
 			}
 		}
@@ -723,17 +722,17 @@ describe('server (bootstrapper)', () => {
 		it('creates https server with certificate and key given', () => createServer({
 			port: 3001,
 			protocol: 'HTTPS',
-			sslKeyPath: `${__dirname}/certs/restSSL.key`,
-			sslCertificatePath: `${__dirname}/certs/restSSL.crt`
+			sslKeyPath: `${import.meta.dirname}/certs/restSSL.key`,
+			sslCertificatePath: `${import.meta.dirname}/certs/restSSL.crt`
 		}));
 
 		it('throws error when the key path is missing', () => {
-			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslCertificatePath: `${__dirname}/certs/restSSL.crt` }))
+			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslCertificatePath: `${import.meta.dirname}/certs/restSSL.crt` }))
 				.to.throw('No SSL Key found, \'sslKeyPath\' property in the configuration must be provided.');
 		});
 
 		it('throws error when the certificate path is missing', () => {
-			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslKeyPath: `${__dirname}/certs/restSSL.key` }))
+			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslKeyPath: `${import.meta.dirname}/certs/restSSL.key` }))
 				.to.throw('No SSL Certificate found, '
 				+ '\'sslCertificatePath\' property in the configuration must be provided.');
 		});
@@ -754,8 +753,8 @@ describe('server (bootstrapper)', () => {
 			const server = createServer({
 				port: httpsPort,
 				protocol: 'HTTPS',
-				sslKeyPath: `${__dirname}/certs/restSSL.key`,
-				sslCertificatePath: `${__dirname}/certs/restSSL.crt`
+				sslKeyPath: `${import.meta.dirname}/certs/restSSL.key`,
+				sslCertificatePath: `${import.meta.dirname}/certs/restSSL.crt`
 			});
 
 			addRestRoutes(server);
@@ -780,47 +779,25 @@ describe('server (bootstrapper)', () => {
 		const ports = { server: 1234, mq: 7912 };
 		const delays = { publish: 50 };
 
-		const createBlockBuffer = tag => Buffer.concat([
-			Buffer.of(0x30, 0x01, 0x00, 0x00), // size 4b
-			Buffer.of(0x00, 0x00, 0x00, 0x00), // verifiable entity header reserved 1 4b
-			Buffer.from(test.random.bytes(test.constants.sizes.signature)), // signature 64b
-			Buffer.from('A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F', 'hex'), // signerPublicKey 32b
-			Buffer.of(0x00, 0x00, 0x00, 0x00), // entity body reserved 1 4b
-			Buffer.of(0x03), // version 1b
-			Buffer.of(0x90), // network 1b
-			Buffer.of(0x00, 0x80), // type 2b
-			Buffer.of(0x97, 0x87, 0x45, 0x0E, tag || 0xE1, 0x6C, 0xB6, 0x62), // height 8b
-			Buffer.from(test.random.bytes(8)), // timestamp 8b
-			Buffer.from(test.random.bytes(8)), // difficulty 8b
-			Buffer.from(test.random.bytes(32)), // proofGamma 32b
-			Buffer.from(test.random.bytes(16)), // proofVerificationHash 16b
-			Buffer.from(test.random.bytes(32)), // proofScalar 32b
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // previous block hash 32b
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // transactionsHashBuffer 32b
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // receiptsHashBuffer 32b
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // stateHashBuffer 32b
-			test.random.bytes(test.constants.sizes.addressDecoded), // beneficiaryAddress 24b
-			Buffer.of(0x0A, 0x00, 0x00, 0x00), // fee feeMultiplierBuffer 4b
-			Buffer.of(0x00, 0x00, 0x00, 0x00) // reserved padding 4b
-		]);
-
 		// notice that the formatter only returns height and signerPublicKey
-		const createFormattedBlock = tag => ({
-			topic: 'block',
-			data: {
-				height: [0x0E458797, 0x62B66C00 | (tag || 0xE1)],
-				signerPublicKey: 'A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F'
-			}
-		});
+		const createFormattedBlock = () => {
+			const block = test.createSampleBlock().model;
+			return {
+				topic: 'block',
+				data: {
+					height: block.height,
+					signerPublicKey: block.signerPublicKey
+				}
+			};
+		};
 
 		const registerRoute = (server, route) => {
 			// create a zmq service that supports only basic (non-transaction) models
-			const modelSystem = catapult.plugins.catapultModelSystem.configure([], {});
 			const config = {
 				host: '127.0.0.1', port: ports.mq, connectTimeout: 1000, monitorInterval: 50
 			};
 			const channelDescriptors = new MessageChannelBuilder().build();
-			const zmqService = createZmqConnectionService(config, modelSystem.codec, channelDescriptors, test.createMockLogger());
+			const zmqService = createZmqConnectionService(config, channelDescriptors, test.createMockLogger());
 
 			// create a custom emitter for raising client connected events
 			const emitter = new EventEmitter();
@@ -916,14 +893,14 @@ describe('server (bootstrapper)', () => {
 			});
 		};
 
-		const createHandlers = (server, done, blockTag = undefined) => ({
+		const createHandlers = (server, done) => ({
 			onAllConnected: zsocket => {
 				// Act: publish a block
-				publishBlock(zsocket, createBlockBuffer(blockTag));
+				publishBlock(zsocket, test.createSampleBlock().buffer);
 			},
 			onMessage: payload => {
 				// Assert: notice that payload is already formatted
-				expect(payload, `blockTag: ${blockTag}`).to.deep.equal(createFormattedBlock(blockTag));
+				expect(payload, 'block').to.deep.equal(createFormattedBlock());
 			},
 			onAllMessages: (zsocket, sockets) => {
 				// close mq socket and server, otherwise subsequent tests would fail
@@ -939,28 +916,27 @@ describe('server (bootstrapper)', () => {
 							expect(socket.readyState).to.equal(WebSocket.CLOSED);
 						});
 						resolve();
-						done();
 					}, 200);
-				});
+				}).finally(done);
 			}
 		});
 
-		const runSingleRouteTest = (numClients, done) => {
+		const runSingleRouteTest = numClients => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
 			server.listen(ports.server);
 
 			// Act + Assert: create a client websocket and run the test
-			createClientSockets('/ws/block', emitter, numClients, createHandlers(server, done));
-		};
+			createClientSockets('/ws/block', emitter, numClients, createHandlers(server, resolve));
+		});
 
 		// region subscribe
 
-		it('handles single subscription', done => runSingleRouteTest(1, done));
-		it('handles multiple subscriptions to same route', done => runSingleRouteTest(3, done));
+		it('handles single subscription', () => runSingleRouteTest(1));
+		it('handles multiple subscriptions to same route', () => runSingleRouteTest(3));
 
-		it('handles multiple subscriptions to different routes', done => {
+		it('handles multiple subscriptions to different routes', () => new Promise(resolve => {
 			// Arrange: set up the server with two ws routes
 			const server = createWebSocketServer();
 			const emitter1 = registerRoute(server, '/ws/block1');
@@ -975,12 +951,12 @@ describe('server (bootstrapper)', () => {
 				onAllConnected: zsocket => {
 					// - push to the mq only when both websockets are connected
 					if (2 === ++counts.numAllConnectedHandlers)
-						createHandlers(server, done).onAllConnected(zsocket);
+						createHandlers(server, resolve).onAllConnected(zsocket);
 				},
 				onAllMessages: (zsocket, sockets) => {
 					// - close the server only when messages from both websockets are received and processed
 					if (2 === ++counts.numAllMessagesHandlers)
-						createHandlers(server, done).onAllMessages(zsocket, sockets);
+						createHandlers(server, resolve).onAllMessages(zsocket, sockets);
 				}
 			};
 
@@ -991,22 +967,22 @@ describe('server (bootstrapper)', () => {
 			// (the routes themselves are meaningless and both will get the same data; the single push above pushes to both routes)
 			// (the only difference is that the set of connections and ids are per-route, which is why both connections will have id 1)
 			const createOptions = () => ({ numClients: 1, messageIds: new Set([1]), zsocket });
-			createClientSockets('/ws/block1', emitter1, createOptions(), Object.assign(createHandlers(server, done), customHandlers));
-			createClientSockets('/ws/block2', emitter2, createOptions(), Object.assign(createHandlers(server, done), customHandlers));
-		});
+			createClientSockets('/ws/block1', emitter1, createOptions(), Object.assign(createHandlers(server, resolve), customHandlers));
+			createClientSockets('/ws/block2', emitter2, createOptions(), Object.assign(createHandlers(server, resolve), customHandlers));
+		}));
 
 		// endregion
 
 		// region unsubscribe
 
-		it('handles unsubscription of client from subscribed channel', done => {
+		it('handles unsubscription of client from subscribed channel', () => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
 			server.listen(ports.server);
 
 			// - create three client websockets
-			const defaultHandlers = createHandlers(server, done);
+			const defaultHandlers = createHandlers(server, resolve);
 			const defaultOnAllConnected = defaultHandlers.onAllConnected;
 			const defaultOnAllMessages = defaultHandlers.onAllMessages;
 			createClientSockets(
@@ -1030,16 +1006,16 @@ describe('server (bootstrapper)', () => {
 					}
 				})
 			);
-		});
+		}));
 
-		it('handles unsubscription of client from unknown channel', done => {
+		it('handles unsubscription of client from unknown channel', () => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
 			server.listen(ports.server);
 
 			// - create three client websockets
-			const defaultHandlers = createHandlers(server, done);
+			const defaultHandlers = createHandlers(server, resolve);
 			const defaultOnAllConnected = defaultHandlers.onAllConnected;
 			createClientSockets(
 				'/ws/block',
@@ -1054,20 +1030,20 @@ describe('server (bootstrapper)', () => {
 					}
 				})
 			);
-		});
+		}));
 
 		// endregion
 
 		// region disconnect (client)
 
-		it('handles disconnecting client sockets', done => {
+		it('handles disconnecting client sockets', () => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			const emitter = registerRoute(server, '/ws/block');
 			server.listen(ports.server);
 
 			// - create three client websockets
-			const defaultHandlers = createHandlers(server, done);
+			const defaultHandlers = createHandlers(server, resolve);
 			const defaultOnAllConnected = defaultHandlers.onAllConnected;
 			createClientSockets(
 				'/ws/block',
@@ -1082,13 +1058,13 @@ describe('server (bootstrapper)', () => {
 					}
 				})
 			);
-		});
+		}));
 
 		// endregion
 
 		// region invalid subscription requests
 
-		const runInvalidClientTest = (done, messageCallback) => {
+		const runInvalidClientTest = messageCallback => new Promise(resolve => {
 			// Arrange: set up the server with a single ws route
 			const server = createWebSocketServer();
 			registerRoute(server, '/ws/block');
@@ -1105,7 +1081,7 @@ describe('server (bootstrapper)', () => {
 					if (numConnections === ++numCloses) {
 						// close server, otherwise subsequent tests would fail
 						server.close();
-						done();
+						resolve();
 					}
 				});
 			};
@@ -1114,39 +1090,33 @@ describe('server (bootstrapper)', () => {
 				const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block`);
 				addHandlers(ws, i);
 			}
-		};
-
-		it('invalid data disconnects client', done => {
-			runInvalidClientTest(done, ws => {
-				// Act: non-json data
-				ws.send('hello');
-			});
 		});
 
-		it('malformed request disconnects client', done => {
-			runInvalidClientTest(done, (ws, messageJson) => {
-				// Arrange:
-				const message = JSON.parse(messageJson);
-				Object.assign(message, { subscribe: 7 });
+		it('invalid data disconnects client', () => runInvalidClientTest(ws => {
+			// Act: non-json data
+			ws.send('hello');
+		}));
 
-				// Act: subscribe must be a string
-				ws.send(JSON.stringify(message));
-			});
-		});
+		it('malformed request disconnects client', () => runInvalidClientTest((ws, messageJson) => {
+			// Arrange:
+			const message = JSON.parse(messageJson);
+			Object.assign(message, { subscribe: 7 });
 
-		it('unsupported topic subscribe request disconnects client', done => {
-			runInvalidClientTest(done, (ws, messageJson) => {
-				// Act: try to subscribe to an unsupported topic
-				const responseJson = JSON.stringify(Object.assign(JSON.parse(messageJson), { subscribe: 'chainStatistic' }));
-				ws.send(responseJson);
-			});
-		});
+			// Act: subscribe must be a string
+			ws.send(JSON.stringify(message));
+		}));
+
+		it('unsupported topic subscribe request disconnects client', () => runInvalidClientTest((ws, messageJson) => {
+			// Act: try to subscribe to an unsupported topic
+			const responseJson = JSON.stringify(Object.assign(JSON.parse(messageJson), { subscribe: 'chainStatistic' }));
+			ws.send(responseJson);
+		}));
 
 		// endregion
 
 		// region close (server)
 
-		it('closing server closes all clients', done => {
+		it('closing server closes all clients', () => new Promise(resolve => {
 			// Arrange: set up the server with two ws routes
 			const server = createWebSocketServer();
 			registerRoute(server, '/ws/block1');
@@ -1170,7 +1140,7 @@ describe('server (bootstrapper)', () => {
 					// Assert: all clients have been closed
 					test.log(`client ${id} was closed`);
 					if (numConnections === ++numCloses)
-						done();
+						resolve();
 				});
 			};
 
@@ -1179,7 +1149,7 @@ describe('server (bootstrapper)', () => {
 				const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block${routePostfix}`);
 				addHandlers(ws, i);
 			}
-		});
+		}));
 
 		// endregion
 	});

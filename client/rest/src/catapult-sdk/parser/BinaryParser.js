@@ -110,7 +110,7 @@ class BufferContainer {
 /**
  * Accepts and buffers binary data and provides an interface for reading from it.
  */
-class BinaryParser {
+export default class BinaryParser {
 	/**
 	 * Creates a binary parser.
 	 */
@@ -152,11 +152,13 @@ class BinaryParser {
 
 	/**
 	 * Reads a uint64 from the working buffer.
-	 * @returns {module:utils/uint64~uint64} Read uint64.
+	 * @returns {bigint} Read uint64.
 	 */
 	uint64() {
 		this.buffers.requireUnprocessed(8);
-		return [this.uint32(), this.uint32()];
+		const low = this.uint32();
+		const high = this.uint32();
+		return (BigInt(high) * (2n ** 32n)) + BigInt(low);
 	}
 
 	/**
@@ -176,5 +178,3 @@ class BinaryParser {
 		return this.buffers.size();
 	}
 }
-
-module.exports = BinaryParser;

@@ -20,9 +20,8 @@
  */
 
 /** @module model/idReducer */
-const uint64 = require('../utils/uint64');
 
-const idReducer = {
+export default {
 	/**
 	 * Creates an id to name lookup object around namespace name tuples.
 	 * @param {Array<object>} nameTuples Namespace name tuples.
@@ -32,15 +31,15 @@ const idReducer = {
 		let nextRoundKeys = [];
 
 		// copy all tuples into an id -> value dictionary
-		const lookupMap = {};
+		const lookupMap = new Map();
 		nameTuples.forEach(nameTuple => {
-			const key = uint64.toHex(nameTuple.namespaceId);
+			const key = nameTuple.namespaceId;
 
 			// give preference to first of conflicts
-			if (!lookupMap[key]) {
-				lookupMap[key] = Object.assign({ fqn: nameTuple.name }, nameTuple);
-				if (!uint64.isZero(nameTuple.parentId)) {
-					lookupMap[key].nextId = nameTuple.parentId;
+			if (!lookupMap.get(key)) {
+				lookupMap.set(key, Object.assign({ fqn: nameTuple.name }, nameTuple));
+				if (0n !== nameTuple.parentId) {
+					lookupMap.get(key).nextId = nameTuple.parentId;
 					nextRoundKeys.push(key);
 				}
 			}
@@ -50,11 +49,11 @@ const idReducer = {
 		const processRoundKeys = roundKeys => {
 			const additionalProcessingKeys = [];
 			roundKeys.forEach(key => {
-				const nameTuple = lookupMap[key];
-				const parentEntry = lookupMap[uint64.toHex(nameTuple.nextId)];
+				const nameTuple = lookupMap.get(key);
+				const parentEntry = lookupMap.get(nameTuple.nextId);
 				nameTuple.fqn = parentEntry ? `${parentEntry.name}.${nameTuple.fqn}` : undefined;
 
-				if (!parentEntry || uint64.isZero(parentEntry.parentId)) {
+				if (!parentEntry || 0n === parentEntry.parentId) {
 					delete nameTuple.nextId;
 				} else {
 					// if the nextId is nonzero, additional processing is required
@@ -80,12 +79,10 @@ const idReducer = {
 
 			/**
 			 * Returns the name for an id or undefined if no mapping exists
-			 * @param {module:utils/uint64~uint64} id A uint64 value representing a namespace id.
+			 * @param {bigint} id A bigint value representing a namespace id.
 			 * @returns {string} Fully qualified namespace name corresponding to the id.
 			 */
-			findName: id => (lookupMap[uint64.toHex(id)] || {}).fqn
+			findName: id => (lookupMap.get(id) || {}).fqn
 		};
 	}
 };
-
-module.exports = idReducer;

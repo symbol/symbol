@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MultisigDb = require('../../../src/plugins/multisig/MultisigDb');
-const dbTestUtils = require('../../db/utils/dbTestUtils');
-const test = require('../../testUtils');
-const MongoDb = require('mongodb');
+import MultisigDb from '../../../src/plugins/multisig/MultisigDb.js';
+import dbTestUtils from '../../db/utils/dbTestUtils.js';
+import test from '../../testUtils.js';
+import MongoDb from 'mongodb';
 
 const { Binary } = MongoDb;
 
@@ -45,4 +45,4 @@ const multisigDbTestUtils = {
 };
 Object.assign(multisigDbTestUtils, test);
 
-module.exports = multisigDbTestUtils;
+export default multisigDbTestUtils;

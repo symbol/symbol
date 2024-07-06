@@ -19,12 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../catapult-sdk/index');
-const { sha3_256 } = require('@noble/hashes/sha3');
+import { sha3_256 } from '@noble/hashes/sha3';
+import { utils } from 'symbol-sdk';
 
-const { convert } = catapult.utils;
-
-class MerkleTree {
+export default class MerkleTree {
 	/**
 	 * Creates merkle tree.
 	 */
@@ -38,7 +36,7 @@ class MerkleTree {
 	 * @returns {string[]} array of the indices of bits
 	 */
 	static getBitsFromMask(mask) {
-		const intValue = parseInt(`0x${convert.uint8ToHex(mask.reverse())}`, 16);
+		const intValue = parseInt(`0x${utils.uint8ToHex(mask.reverse())}`, 16);
 		let index = 0;
 		const bits = [];
 		for (let i = 1; i <= intValue; i *= 2) {
@@ -101,7 +99,7 @@ class MerkleTree {
 			const lessLeaf = this.parseLeaf(raw.slice(2 + pathLength), path, nibbleCount);
 			return this.parseMerkleTreeFromRaw(lessLeaf);
 		}
-		throw new Error(`${convert.uint8ToHex(raw)} is not a branch or a leaf!`);
+		throw new Error(`${utils.uint8ToHex(raw)} is not a branch or a leaf!`);
 	}
 
 	/**
@@ -119,16 +117,16 @@ class MerkleTree {
 		for (let i = 0; i < bits.length; i++) {
 			links.push({
 				bit: bits[i],
-				link: convert.uint8ToHex(linksRaw.slice(i * 32, (i * 32) + 32))
+				link: utils.uint8ToHex(linksRaw.slice(i * 32, (i * 32) + 32))
 			});
 		}
-		const encodedPath = convert.uint8ToHex(MerkleTree.encodePath(path, nibbleCount, false));
+		const encodedPath = utils.uint8ToHex(MerkleTree.encodePath(path, nibbleCount, false));
 		this.tree.push({
 			type: 0,
-			path: convert.uint8ToHex(path),
+			path: utils.uint8ToHex(path),
 			encodedPath,
 			nibbleCount,
-			linkMask: convert.uint8ToHex(linkMask),
+			linkMask: utils.uint8ToHex(linkMask),
 			links,
 			branchHash: MerkleTree.getBranchHash(encodedPath, links)
 		});
@@ -143,11 +141,11 @@ class MerkleTree {
 	 * @returns {Uint8Array} unprocess raw buffer
 	 */
 	parseLeaf(offsetRaw, path, nibbleCount) {
-		const value = convert.uint8ToHex(offsetRaw.slice(0, 32));
-		const encodedPath = convert.uint8ToHex(MerkleTree.encodePath(path, nibbleCount, true));
+		const value = utils.uint8ToHex(offsetRaw.slice(0, 32));
+		const encodedPath = utils.uint8ToHex(MerkleTree.encodePath(path, nibbleCount, true));
 		this.tree.push({
 			type: 255,
-			path: convert.uint8ToHex(path),
+			path: utils.uint8ToHex(path),
 			encodedPath,
 			nibbleCount,
 			value,
@@ -197,11 +195,11 @@ class MerkleTree {
 	 * @returns {string} branch hash (Hash(encodedPath + links))
 	 */
 	static getBranchHash(encodedPath, links) {
-		const branchLinks = Array(16).fill(catapult.utils.convert.uint8ToHex(new Uint8Array(32)));
+		const branchLinks = Array(16).fill(utils.uint8ToHex(new Uint8Array(32)));
 		links.forEach(link => {
 			branchLinks[parseInt(`0x${link.bit}`, 16)] = link.link;
 		});
-		return catapult.utils.convert.uint8ToHex(sha3_256(catapult.utils.convert.hexToUint8(encodedPath + branchLinks.join(''))));
+		return utils.uint8ToHex(sha3_256(utils.hexToUint8(encodedPath + branchLinks.join(''))));
 	}
 
 	/**
@@ -211,8 +209,6 @@ class MerkleTree {
 	 * @returns {string} leaf hash (Hash(encodedPath + leaf value))
 	 */
 	static getLeafHash(encodedPath, leafValue) {
-		return catapult.utils.convert.uint8ToHex(sha3_256(catapult.utils.convert.hexToUint8(encodedPath + leafValue)));
+		return utils.uint8ToHex(sha3_256(utils.hexToUint8(encodedPath + leafValue)));
 	}
 }
-
-module.exports = MerkleTree;

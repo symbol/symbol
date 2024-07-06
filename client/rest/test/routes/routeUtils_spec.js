@@ -19,16 +19,17 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { test } = require('./utils/routeTestUtils');
-const catapult = require('../../src/catapult-sdk/index');
-const { convertToLong } = require('../../src/db/dbUtils');
-const routeUtils = require('../../src/routes/routeUtils');
-const { expect } = require('chai');
-const MongoDb = require('mongodb');
-const sinon = require('sinon');
+import test from './utils/routeTestUtils.js';
+import catapult from '../../src/catapult-sdk/index.js';
+import { convertToLong } from '../../src/db/dbUtils.js';
+import routeUtils from '../../src/routes/routeUtils.js';
+import { expect } from 'chai';
+import MongoDb from 'mongodb';
+import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
+import { Address } from 'symbol-sdk/symbol';
 
-const { Binary, ObjectId } = MongoDb;
-const { convert } = catapult.utils;
+const { ObjectId } = MongoDb;
 
 const invalidObjectIdStrings = [
 	'112233445566778899AABB', // too short
@@ -93,7 +94,7 @@ describe('route utils', () => {
 
 		describe('address', () => addParserTests({
 			parser: 'address',
-			valid: addresses.valid.map(id => ({ id, parsed: catapult.model.address.stringToAddress(id) })),
+			valid: addresses.valid.map(id => ({ id, parsed: new Address(id).bytes })),
 			invalid: [
 				{ id: addresses.invalid, error: 'illegal base32 character 1' },
 				{ id: '12345', error: 'invalid length of address \'5\'' }
@@ -102,7 +103,7 @@ describe('route utils', () => {
 
 		describe('publicKey', () => addParserTests({
 			parser: 'publicKey',
-			valid: publicKeys.valid.map(id => ({ id, parsed: catapult.utils.convert.hexToUint8(id) })),
+			valid: publicKeys.valid.map(id => ({ id, parsed: utils.hexToUint8(id) })),
 			invalid: [
 				{ id: publicKeys.invalid, error: 'unrecognized hex char \'1G\'' },
 				{ id: '12345', error: 'invalid length of publicKey \'5\'' }
@@ -112,7 +113,7 @@ describe('route utils', () => {
 		describe('accountId', () => {
 			describe('address', () => addParserTests({
 				parser: 'accountId',
-				valid: addresses.valid.map(id => ({ id, parsed: ['address', catapult.model.address.stringToAddress(id)] })),
+				valid: addresses.valid.map(id => ({ id, parsed: ['address', new Address(id).bytes] })),
 				invalid: [
 					{ id: addresses.invalid, error: 'illegal base32 character 1' }
 				]
@@ -120,7 +121,7 @@ describe('route utils', () => {
 
 			describe('publicKey', () => addParserTests({
 				parser: 'accountId',
-				valid: publicKeys.valid.map(id => ({ id, parsed: ['publicKey', catapult.utils.convert.hexToUint8(id)] })),
+				valid: publicKeys.valid.map(id => ({ id, parsed: ['publicKey', utils.hexToUint8(id)] })),
 				invalid: [
 					{ id: publicKeys.invalid, error: 'unrecognized hex char \'1G\'' }
 				]
@@ -146,13 +147,13 @@ describe('route utils', () => {
 
 		describe('hash256', () => addParserTests({
 			parser: 'hash256',
-			valid: hashes256.valid.map(hash => ({ id: hash, parsed: catapult.utils.convert.hexToUint8(hash) })),
+			valid: hashes256.valid.map(hash => ({ id: hash, parsed: utils.hexToUint8(hash) })),
 			invalid: hashes256.invalid.map(hash => ({ id: hash, error: `invalid length of hash256 '${hash.length}` }))
 		}));
 
 		describe('hash512', () => addParserTests({
 			parser: 'hash512',
-			valid: hashes512.valid.map(hash => ({ id: hash, parsed: catapult.utils.convert.hexToUint8(hash) })),
+			valid: hashes512.valid.map(hash => ({ id: hash, parsed: utils.hexToUint8(hash) })),
 			invalid: hashes512.invalid.map(hash => ({ id: hash, error: `invalid length of hash512 '${hash.length}` }))
 		}));
 
@@ -165,7 +166,7 @@ describe('route utils', () => {
 		describe('uint64', () => addParserTests({
 			parser: 'uint64',
 			valid: [
-				{ id: '4468410971573743', parsed: [0x00ABCDEF, 0x000FDFFF] }
+				{ id: '4468410971573743', parsed: 0x000FDFFF00ABCDEFn }
 			],
 			invalid: ['-43534534', '0DC67FBE1CAD29E'].map(id => ({ id }))
 		}));
@@ -173,7 +174,7 @@ describe('route utils', () => {
 		describe('uint64hex', () => addParserTests({
 			parser: 'uint64hex',
 			valid: [
-				{ id: '0DC67FBE1CAD29E3', parsed: [481110499, 231112638] }
+				{ id: '0DC67FBE1CAD29E3', parsed: 0x0DC67FBE1CAD29E3n }
 			],
 			invalid: ['0DC67FBE', '0DC67FBE1CAD29E3245', '0DC67FBE1CAD29ER'].map(id => ({ id }))
 		}));
@@ -431,7 +432,7 @@ describe('route utils', () => {
 				pageNumber: 5,
 				sortField: 'signerPublicKey',
 				sortDirection: -1,
-				offset: convert.hexToUint8(offset),
+				offset: utils.hexToUint8(offset),
 				offsetType: 'publicKey'
 			});
 		});
@@ -606,92 +607,6 @@ describe('route utils', () => {
 				});
 			});
 		});
-
-		describe('send data', () => {
-			const sendDataTest = (sender, assertResponse) => {
-				// Arrange
-				const routeContext = { numNextCalls: 0 };
-				const next = () => { ++routeContext.numNextCalls; };
-				const data = [];
-				const headers = [];
-
-				const res = {
-					setHeader: (name, value) => {
-						headers.push({ name, value });
-					},
-					write: writeData => {
-						data.push(writeData);
-					},
-					end: () => {}
-				};
-				routeContext.responses = { headers, data };
-
-				// Act: send the entity
-				sender(res, next);
-
-				expect(routeContext.numNextCalls).to.equal(1);
-				assertResponse(routeContext.responses);
-			};
-			const send = ({
-				data, mimeType, fileName, text, download
-			}, type, assertResponse) => {
-				sendDataTest((res, next) =>
-					routeUtils.createSender(type).sendData(res, next)(data, mimeType, fileName, text, download), assertResponse);
-			};
-
-			const assertHeader = (response, dataBuffer, disposition, mimeType, text) => {
-				// Arrange:
-				const contentTypeValue = response.headers.find(header => 'content-type' === header.name)?.value;
-				const contentDispositionValue = response.headers.find(header => 'Content-Disposition' === header.name)?.value;
-				const contentTextHeader = response.headers.find(header => 'Content-MetalText' === header.name);
-				// Assert:
-				expect(response.data.length).to.equal(1);
-				expect(response.data[0]).to.deep.equal(dataBuffer);
-				expect(contentDispositionValue).to.equal(disposition);
-				expect(contentTypeValue).to.equal(mimeType);
-				if (text)
-					expect(contentTextHeader.value).to.equal(text);
-				else
-					expect(contentTextHeader).to.equal(undefined);
-			};
-
-			it('no params', () => {
-				// Act:
-				send({ data: Buffer.from([0, 1, 2]), mimeType: 'image/png' }, 'foo', response => {
-					assertHeader(response, Buffer.from([0, 1, 2]), 'inline;', 'image/png');
-				});
-			});
-			it('with fileName', () => {
-				// Act:
-				send({ data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png' }, 'foo', response => {
-					assertHeader(response, Buffer.from([0, 1, 2]), 'inline; filename="image.png"', 'image/png', undefined);
-				});
-			});
-			it('with fileName and text', () => {
-				// Act:
-				send({
-					data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png', text: 'test'
-				}, 'foo', response => {
-					assertHeader(response, Buffer.from([0, 1, 2]), 'inline; filename="image.png"', 'image/png', 'test');
-				});
-			});
-			it('with fileName and text as attachment', () => {
-				// Act:
-				send({
-					data: Buffer.from([0, 1, 2]), mimeType: 'image/png', fileName: 'image.png', text: 'test', download: 'true'
-				}, 'foo', response => {
-					assertHeader(response, Buffer.from([0, 1, 2]), 'attachment; filename="image.png"', 'image/png', 'test');
-				});
-			});
-			it('mimeType is application/octet-stream as attachment', () => {
-				// Act:
-				send({
-					data: Buffer.from([0, 1, 2]), mimeType: 'application/octet-stream'
-				}, 'foo', response => {
-					assertHeader(response, Buffer.from([0, 1, 2]), 'attachment;', 'application/octet-stream');
-				});
-			});
-		});
 	});
 
 	describe('addGetPostDocumentRoutes', () => {
@@ -732,7 +647,7 @@ describe('route utils', () => {
 
 	describe('addPutPacketRoute', () => {
 		const registrar = (server, db, services) => {
-			const parseHexParam = (params, key) => routeUtils.parseArgument(params, key, catapult.utils.convert.hexToUint8);
+			const parseHexParam = (params, key) => routeUtils.parseArgument(params, key, utils.hexToUint8);
 			routeUtils.addPutPacketRoute(
 				server,
 				services.connections,
@@ -768,8 +683,8 @@ describe('route utils', () => {
 		const sendFake = sinon.fake();
 		const nextFake = sinon.fake();
 
-		const formatHashAsBinary = hash => test.factory.createBinary(Buffer.from(convert.hexToUint8(hash), 'hex'));
-		const formatBinaryAsHash = binary => convert.uint8ToHex(binary.buffer);
+		const formatHashAsBinary = hash => test.factory.createBinary(Buffer.from(utils.hexToUint8(hash), 'hex'));
+		const formatBinaryAsHash = binary => utils.uint8ToHex(binary.buffer);
 		const merkleTree = [
 			formatHashAsBinary('9922093F19F7160BDCBCA8AA48499DA8DF532D4102745670B85AA4BDF63B8D59'),
 			formatHashAsBinary('E8FCFD95CA220D442BE748F5494001A682DC8015A152EBC433222136E99A96B8'),
@@ -893,40 +808,6 @@ describe('route utils', () => {
 				});
 				expect(nextFake.calledOnce).to.equal(true);
 			});
-		});
-	});
-
-	describe('addressToPublicKey', () => {
-		const { addresses, publicKeys } = test.sets;
-		const accountAddress = catapult.model.address.stringToAddress(addresses.valid[0]);
-		const accountPublicKey = convert.hexToUint8(publicKeys.valid[0]);
-
-		it('return correct public key from account address ', () => {
-			// Arrange:
-			const dbAddressToPublicKeyFake = sinon.fake.resolves({
-				_id: undefined,
-				account: { publicKey: new Binary(Buffer.from(accountPublicKey)) }
-			});
-			const db = { addressToPublicKey: dbAddressToPublicKeyFake };
-			// Act:
-			return routeUtils.addressToPublicKey(db, accountAddress).then(result => {
-				// Assert:
-				expect(dbAddressToPublicKeyFake.calledOnceWith(accountAddress)).to.equal(true);
-				expect(result.equals(accountPublicKey)).to.be.equal(true);
-			});
-		});
-
-		it('rejects with error when account id is not found', () => {
-			// Arrange:
-			const dbAddressToPublicKeyFake = sinon.fake.resolves(undefined);
-			const db = { addressToPublicKey: dbAddressToPublicKeyFake };
-			// Act:
-			return routeUtils.addressToPublicKey(db, accountAddress)
-				// Assert:
-				.then(() => expect.fail())
-				.catch(err => {
-					expect(err.toString()).to.include('account not found');
-				});
 		});
 	});
 });

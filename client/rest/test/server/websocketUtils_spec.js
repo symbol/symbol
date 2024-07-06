@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const websocketUtils = require('../../src/server/websocketUtils');
-const { expect } = require('chai');
+import websocketUtils from '../../src/server/websocketUtils.js';
+import { expect } from 'chai';
 
 describe('websocketUtils', () => {
 	const createMockSender = (options = {}) => {
@@ -42,39 +42,42 @@ describe('websocketUtils', () => {
 
 	describe('createMultisender', () => {
 		describe('send', () => {
+			const createMultisender = senders =>
+				websocketUtils.createMultisender('topicName', senders, value => ({ str: value.id.toString(), value }));
+
 			it('does nothing when there are no subscribers', () => {
 				// Arrange:
-				const multisender = websocketUtils.createMultisender('topicName', [], value => ({ str: value.toString(), value }));
+				const multisender = createMultisender([]);
 
 				// Act + Assert: no exceptions
-				multisender.send(123);
+				multisender.send({ id: 123 });
 			});
 
 			it('forwards formatted data to single subscriber', () => {
 				// Arrange:
 				const sender = createMockSender();
-				const multisender = websocketUtils.createMultisender('topicName', [sender], value => ({ str: value.toString(), value }));
+				const multisender = createMultisender([sender]);
 
 				// Act:
-				multisender.send(123);
+				multisender.send({ id: 123 });
 
 				// Assert:
-				expect(sender.payloads).to.deep.equal([{ str: '123', value: 123 }]);
+				expect(sender.payloads).to.deep.equal([{ str: '123', value: { id: 123, topic: 'topicName' } }]);
 				expect(sender.numCloseCalls).to.equal(0);
 			});
 
 			it('forwards formatted data to multiple subscribers', () => {
 				// Arrange:
 				const senders = [createMockSender(), createMockSender(), createMockSender()];
-				const multisender = websocketUtils.createMultisender('topicName', senders, value => ({ str: value.toString(), value }));
+				const multisender = createMultisender(senders);
 
 				// Act:
-				multisender.send(123);
+				multisender.send({ id: 123 });
 
 				// Assert:
 				senders.forEach((sender, index) => {
 					const message = `sender ${index}`;
-					expect(sender.payloads, message).to.deep.equal([{ str: '123', value: 123 }]);
+					expect(sender.payloads, message).to.deep.equal([{ str: '123', value: { id: 123, topic: 'topicName' } }]);
 					expect(sender.numCloseCalls).to.equal(0);
 				});
 			});
@@ -82,15 +85,15 @@ describe('websocketUtils', () => {
 			it('closes subscriber on send error', () => {
 				// Arrange:
 				const senders = [createMockSender(), createMockSender({ raiseSendError: true }), createMockSender()];
-				const multisender = websocketUtils.createMultisender('topicName', senders, value => ({ str: value.toString(), value }));
+				const multisender = createMultisender(senders);
 
 				// Act:
-				multisender.send(123);
+				multisender.send({ id: 123 });
 
 				// Assert: only the second sender should have been closed
 				senders.forEach((sender, index) => {
 					const message = `sender ${index}`;
-					expect(sender.payloads, message).to.deep.equal([{ str: '123', value: 123 }]);
+					expect(sender.payloads, message).to.deep.equal([{ str: '123', value: { id: 123, topic: 'topicName' } }]);
 					expect(sender.numCloseCalls, message).to.equal(1 === index ? 1 : 0);
 				});
 			});
@@ -144,8 +147,8 @@ describe('websocketUtils', () => {
 			websocketUtils.handshake(client2);
 
 			// Assert:
-			expect(client1.uid.length).to.equal(32);
-			expect(client2.uid.length).to.equal(32);
+			expect(client1.uid.length).to.equal(28);
+			expect(client2.uid.length).to.equal(28);
 			expect(client1.uid).to.not.deep.equal(client2.uid);
 		});
 

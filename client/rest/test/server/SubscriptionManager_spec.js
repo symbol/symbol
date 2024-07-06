@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const SubscriptionManager = require('../../src/server/SubscriptionManager');
-const { expect } = require('chai');
+import SubscriptionManager from '../../src/server/SubscriptionManager.js';
+import { expect } from 'chai';
 
 describe('subscription manager', () => {
 	const createSubscription = (channel, client) => ({ channel, client });

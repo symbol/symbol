@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MultisigDb = require('../../../src/plugins/multisig/MultisigDb');
-const multisig = require('../../../src/plugins/multisig/multisig');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
+import MultisigDb from '../../../src/plugins/multisig/MultisigDb.js';
+import multisig from '../../../src/plugins/multisig/multisig.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
 describe('multisig plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(multisig, MultisigDb);

@@ -19,14 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../catapult-sdk/index');
-const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+import { buildOffsetCondition, convertToLong } from '../../db/dbUtils.js';
 
-const { convert, uint64 } = catapult.utils;
+const isNamespaceId = id => (1n << 63n) & id;
 
-const isNamespaceId = id => 0 !== (0x80 & convert.hexToUint8(uint64.toHex(id))[0]);
-
-class ReceiptsDb {
+export default class ReceiptsDb {
 	/**
 	 * Creates ReceiptsDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -126,5 +123,3 @@ class ReceiptsDb {
 		return { data, pagination: page.pagination };
 	}
 }
-
-module.exports = ReceiptsDb;

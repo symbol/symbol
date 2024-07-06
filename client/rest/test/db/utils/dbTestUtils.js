@@ -19,14 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const testDbOptions = require('./testDbOptions');
-const catapult = require('../../../src/catapult-sdk/index');
-const CatapultDb = require('../../../src/db/CatapultDb');
-const { convertToLong } = require('../../../src/db/dbUtils');
-const test = require('../../testUtils');
-const MongoDb = require('mongodb');
-
-const { address } = catapult.model;
+import testDbOptions from './testDbOptions.js';
+import CatapultDb from '../../../src/db/CatapultDb.js';
+import { convertToLong } from '../../../src/db/dbUtils.js';
+import test from '../../testUtils.js';
+import MongoDb from 'mongodb';
+import { PublicKey } from 'symbol-sdk';
+import { Network } from 'symbol-sdk/symbol';
 
 const { Binary, Long, ObjectId } = MongoDb;
 
@@ -64,7 +63,8 @@ const createImportances = count => {
 };
 
 const createAccount = (objectId, publicKey, savePublicKey, mosaics, importances) => {
-	const decoded = Buffer.from(address.publicKeyToAddress(publicKey, testDbOptions.networkId));
+	const network = new Network(testDbOptions.networkId);
+	const decoded = network.publicKeyToAddress(new PublicKey(publicKey)).bytes;
 	const account = {
 		address: new Binary(decoded),
 		addressHeight: Long.fromNumber(123),
@@ -302,4 +302,4 @@ const dbTestUtils = {
 };
 Object.assign(dbTestUtils, test);
 
-module.exports = dbTestUtils;
+export default dbTestUtils;

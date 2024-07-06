@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const BinaryParser = require('../../../src/catapult-sdk/parser/BinaryParser');
-const { expect } = require('chai');
+import BinaryParser from '../../../src/catapult-sdk/parser/BinaryParser.js';
+import { expect } from 'chai';
 
 describe('BinaryParser', () => {
 	// region push
@@ -127,7 +127,7 @@ describe('BinaryParser', () => {
 	addTypeParserTests('uint8', [0xFC], 0xFC);
 	addTypeParserTests('uint16', [0x11, 0xC2], 0xC211);
 	addTypeParserTests('uint32', [0x11, 0x22, 0x33, 0xAA], 0xAA332211);
-	addTypeParserTests('uint64', [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88], [0x44332211, 0x88776655]);
+	addTypeParserTests('uint64', [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88], 0x8877665544332211n);
 	addTypeParserTests('buffer', [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77], Buffer.from([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77]));
 
 	// endregion

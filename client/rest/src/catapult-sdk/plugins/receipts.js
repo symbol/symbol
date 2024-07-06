@@ -20,7 +20,7 @@
  */
 
 /** @module plugins/receipts */
-const ModelType = require('../model/ModelType');
+import ModelType from '../model/ModelType.js';
 
 // types 2 (balanceCredit), and 3 (balanceDebit) share the schema `receipts.balanceChange`
 const ReceiptType = {
@@ -37,7 +37,7 @@ const getBasicReceiptType = type => ReceiptType[(type & 0xF000) >> 12] || 'recei
  * Creates a receipts plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const receiptsPlugin = {
+export default {
 	registerSchema: builder => {
 		const addStatementSchema = (statementType, schema) => {
 			const schemaName = `${statementType}Statement`;
@@ -122,9 +122,5 @@ const receiptsPlugin = {
 			primaryId: ModelType.int,
 			secondaryId: ModelType.int
 		});
-	},
-
-	registerCodecs: () => {}
+	}
 };
-
-module.exports = receiptsPlugin;

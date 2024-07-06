@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('../../testUtils');
-const { expect } = require('chai');
+import test from '../../testUtils.js';
+import { expect } from 'chai';
 
 const createOwner = test.random.account;
 
@@ -99,4 +99,4 @@ const addTests = traits => {
 	});
 };
 
-module.exports = { addTests };
+export default { addTests };

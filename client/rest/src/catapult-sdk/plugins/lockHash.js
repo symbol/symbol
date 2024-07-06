@@ -20,17 +20,14 @@
  */
 
 /** @module plugins/lockHash */
-const EntityType = require('../model/EntityType');
-const ModelType = require('../model/ModelType');
-const sizes = require('../modelBinary/sizes');
-
-const constants = { sizes };
+import ModelType from '../model/ModelType.js';
+import { models } from 'symbol-sdk/symbol';
 
 /**
  * Creates a lock hash plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const lockHashPlugin = {
+export default {
 	registerSchema: builder => {
 		builder.addSchema('hashLockInfo', {
 			id: ModelType.objectId,
@@ -46,33 +43,11 @@ const lockHashPlugin = {
 			hash: ModelType.binary
 		});
 
-		builder.addTransactionSupport(EntityType.hashLock, {
+		builder.addTransactionSupport(models.TransactionType.HASH_LOCK, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			duration: ModelType.uint64,
 			hash: ModelType.binary
 		});
-	},
-
-	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.hashLock, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.mosaicId = parser.uint64();
-				transaction.amount = parser.uint64();
-				transaction.duration = parser.uint64();
-				transaction.hash = parser.buffer(constants.sizes.hash256);
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint64(transaction.amount);
-				serializer.writeUint64(transaction.duration);
-				serializer.writeBuffer(transaction.hash);
-			}
-		});
 	}
 };
-
-module.exports = lockHashPlugin;

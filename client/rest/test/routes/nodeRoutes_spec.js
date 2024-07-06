@@ -19,10 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockServer, test } = require('./utils/routeTestUtils');
-const nodeRoutes = require('../../src/routes/nodeRoutes');
-const errors = require('../../src/server/errors');
-const { expect } = require('chai');
+import MockServer from './utils/MockServer.js';
+import test from './utils/routeTestUtils.js';
+import nodeRoutes from '../../src/routes/nodeRoutes.js';
+import errors from '../../src/server/errors.js';
+import { expect } from 'chai';
 
 const restVersion = '2.4.4';
 
@@ -414,8 +415,8 @@ describe('node routes', () => {
 							formatter: 'ws',
 							payload: {
 								communicationTimestamps: {
-									receiveTimestamp: [107870352, 16],
-									sendTimestamp: [107870352, 1]
+									receiveTimestamp: 0x10066DF890n,
+									sendTimestamp: 0x1066DF890n
 								}
 							},
 							type: 'nodeTime'

@@ -20,20 +20,19 @@
  */
 
 /** @module plugins/catapultModelSystem */
-const accountLink = require('./accountLink');
-const aggregate = require('./aggregate');
-const lockHash = require('./lockHash');
-const lockSecret = require('./lockSecret');
-const metadata = require('./metadata');
-const mosaic = require('./mosaic');
-const multisig = require('./multisig');
-const namespace = require('./namespace');
-const receipts = require('./receipts');
-const restrictions = require('./restrictions');
-const transfer = require('./transfer');
-const ModelFormatterBuilder = require('../model/ModelFormatterBuilder');
-const ModelSchemaBuilder = require('../model/ModelSchemaBuilder');
-const ModelCodecBuilder = require('../modelBinary/ModelCodecBuilder');
+import accountLink from './accountLink.js';
+import aggregate from './aggregate.js';
+import lockHash from './lockHash.js';
+import lockSecret from './lockSecret.js';
+import metadata from './metadata.js';
+import mosaic from './mosaic.js';
+import multisig from './multisig.js';
+import namespace from './namespace.js';
+import receipts from './receipts.js';
+import restrictions from './restrictions.js';
+import transfer from './transfer.js';
+import ModelFormatterBuilder from '../model/ModelFormatterBuilder.js';
+import ModelSchemaBuilder from '../model/ModelSchemaBuilder.js';
 
 const plugins = {
 	accountLink,
@@ -54,7 +53,7 @@ const plugins = {
  * @class CatapultModelSystem
  * @property {object} schema Complete schema information.
  */
-const catapultModelSystem = {
+export default {
 	/**
 	 * Gets the names of all supported plugins.
 	 * @returns {Array<string>} Names of all supported plugins.
@@ -69,7 +68,6 @@ const catapultModelSystem = {
 	 */
 	configure: (pluginNames, namedFormattingRules) => {
 		const schemaBuilder = new ModelSchemaBuilder();
-		const codecBuilder = new ModelCodecBuilder();
 		const formatterBuilder = new ModelFormatterBuilder();
 		pluginNames.forEach(pluginName => {
 			if (!plugins[pluginName])
@@ -79,14 +77,13 @@ const catapultModelSystem = {
 			plugin.registerSchema({
 				addTransactionSupport: (transactionType, schema) => {
 					schemaBuilder.addTransactionSupport(transactionType, schema);
-					formatterBuilder.addFormatter(schemaBuilder.typeToName(transactionType));
+					formatterBuilder.addFormatter(transactionType.toString());
 				},
 				addSchema: (name, schema) => {
 					schemaBuilder.addSchema(name, schema);
 					formatterBuilder.addFormatter(name);
 				}
 			});
-			plugin.registerCodecs(codecBuilder);
 		});
 
 		const modelSchema = schemaBuilder.build();
@@ -97,10 +94,7 @@ const catapultModelSystem = {
 
 		return {
 			schema: modelSchema,
-			codec: codecBuilder.build(),
 			formatters
 		};
 	}
 };
-
-module.exports = catapultModelSystem;

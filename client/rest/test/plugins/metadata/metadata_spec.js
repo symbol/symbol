@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MetadataDb = require('../../../src/plugins/metadata/MetadataDb');
-const metadata = require('../../../src/plugins/metadata/metadata');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
+import MetadataDb from '../../../src/plugins/metadata/MetadataDb.js';
+import metadata from '../../../src/plugins/metadata/metadata.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
 describe('metadata plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(metadata, MetadataDb);

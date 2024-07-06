@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const RestrictionsDb = require('../../../src/plugins/restrictions/RestrictionsDb');
-const restrictions = require('../../../src/plugins/restrictions/restrictions');
-const { test } = require('../../routes/utils/routeTestUtils');
-const pluginTest = require('../utils/pluginTestUtils');
+import RestrictionsDb from '../../../src/plugins/restrictions/RestrictionsDb.js';
+import restrictions from '../../../src/plugins/restrictions/restrictions.js';
+import test from '../../routes/utils/routeTestUtils.js';
+import pluginTest from '../utils/pluginTestUtils.js';
 
 describe('restrictions plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(restrictions, RestrictionsDb);

@@ -207,11 +207,26 @@ describe('catbuffer vectors', () => {
 			}
 		};
 
-		const isKeyInFormattedString = (transaction, key) => {
-			if (transaction.toString().includes(key))
+		const isKeyInFormattedString = (model, key) => {
+			if (model.toString().includes(key))
 				return true;
 
-			return 'parentName' === key && null === transaction[key];
+			return 'parentName' === key && null === model[key];
+		};
+
+		const isKeyInJsonObject = (model, key) => {
+			const jsonObject = model.toJson();
+			if (Object.prototype.hasOwnProperty.call(jsonObject, key))
+				return true;
+
+			return 'parentName' === key && null === model[key];
+		};
+
+		const assertConversions = (descriptor, model) => {
+			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(model, key))).to.equal(true);
+			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInJsonObject(model, key))).to.equal(true);
+
+			expect(() => JSON.stringify(model.toJson())).to.not.throw();
 		};
 
 		const assertCreateFromDescriptor = (item, module, FacadeClass, fixupDescriptor, jsify) => {
@@ -227,8 +242,7 @@ describe('catbuffer vectors', () => {
 
 			// Assert:
 			expect(converter.uint8ToHex(transactionBuffer)).to.equal(item.payload);
-			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(transaction, key)))
-				.to.equal(true);
+			assertConversions(descriptor, transaction);
 		};
 
 		const createSymbolDescriptor = (originalDescriptor, fixupDescriptor) => {
@@ -252,8 +266,7 @@ describe('catbuffer vectors', () => {
 
 			// Assert:
 			expect(converter.uint8ToHex(blockBuffer)).to.equal(item.payload);
-			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(block, key)))
-				.to.equal(true);
+			assertConversions(descriptor, block);
 		};
 
 		const assertCreateSymbolReceiptFromDescriptor = (item, fixupDescriptor) => {
@@ -267,8 +280,7 @@ describe('catbuffer vectors', () => {
 
 			// Assert:
 			expect(converter.uint8ToHex(receiptBuffer)).to.equal(item.payload);
-			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(receipt, key)))
-				.to.equal(true);
+			assertConversions(descriptor, receipt);
 		};
 
 		describe('NEM', () => {

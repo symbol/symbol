@@ -19,16 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { MockServer } = require('./utils/routeTestUtils');
-const catapult = require('../../src/catapult-sdk/index');
-const dbFacade = require('../../src/routes/dbFacade');
-const routeResultTypes = require('../../src/routes/routeResultTypes');
-const routeUtils = require('../../src/routes/routeUtils');
-const transactionStatusRoutes = require('../../src/routes/transactionStatusRoutes');
-const { expect } = require('chai');
-const sinon = require('sinon');
-
-const { convert } = catapult.utils;
+import MockServer from './utils/MockServer.js';
+import dbFacade from '../../src/routes/dbFacade.js';
+import routeResultTypes from '../../src/routes/routeResultTypes.js';
+import routeUtils from '../../src/routes/routeUtils.js';
+import transactionStatusRoutes from '../../src/routes/transactionStatusRoutes.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
 
 describe('transaction status routes', () => {
 	describe('calls addGetPostDocumentRoutes once with correct params', () => {
@@ -99,7 +97,7 @@ describe('transaction status routes', () => {
 
 			// - valid length of hash
 			const hexValue = '6BAD46BDBEF2B84D03BA9668E635EF14FA66099258FE669DADCF8C23324C5DF1';
-			const parsedValue = convert.hexToUint8(hexValue);
+			const parsedValue = utils.hexToUint8(hexValue);
 			expect(calledParser(hexValue)).to.deep.equal(parsedValue);
 		});
 

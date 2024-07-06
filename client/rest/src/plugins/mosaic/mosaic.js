@@ -20,15 +20,15 @@
  */
 
 /** @module plugins/mosaic */
-const MosaicDb = require('./MosaicDb');
-const mosaicRoutes = require('./mosaicRoutes');
-const supplyRoutes = require('./supplyRoutes');
+import MosaicDb from './MosaicDb.js';
+import mosaicRoutes from './mosaicRoutes.js';
+import supplyRoutes from './supplyRoutes.js';
 
 /**
  * Creates a mosaic plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: db => new MosaicDb(db),
 
 	registerTransactionStates: () => {},

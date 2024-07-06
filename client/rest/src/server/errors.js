@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const restifyErrors = require('restify-errors');
+import restifyErrors from 'restify-errors';
 
-module.exports = {
+export default {
 	/**
 	 * Converts an arbitrary error to a REST error.
 	 * @param {Error} err Source error.

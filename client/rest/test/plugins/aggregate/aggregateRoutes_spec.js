@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('../../../src/catapult-sdk/index');
-const aggregateRoutes = require('../../../src/plugins/aggregate/aggregateRoutes');
-const { test } = require('../../routes/utils/routeTestUtils');
+import catapult from '../../../src/catapult-sdk/index.js';
+import aggregateRoutes from '../../../src/plugins/aggregate/aggregateRoutes.js';
+import test from '../../routes/utils/routeTestUtils.js';
 
 const { PacketType } = catapult.packet;
 
@@ -71,7 +71,7 @@ describe('aggregate routes', () => {
 						...packetTypeBuffer, // type
 
 						// payload
-						0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // version
+						0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, // version
 						0x12, 0x34, 0x56, // signerPublicKey
 						0x99, 0x88, 0x11, // signature
 						0xAB, 0xEF // parentHash

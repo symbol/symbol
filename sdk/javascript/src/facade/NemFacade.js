@@ -219,14 +219,23 @@ export class NemFacade {
 	}
 
 	/**
+	 * Gets the payload to sign given a NEM transaction.
+	 * @param {nc.Transaction} transaction Transaction object.
+	 * @returns {Uint8Array} Verifiable data to sign.
+	 */
+	extractSigningPayload(transaction) { // eslint-disable-line class-methods-use-this
+		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
+		return nonVerifiableTransaction.serialize();
+	}
+
+	/**
 	 * Signs a NEM transaction.
 	 * @param {KeyPair} keyPair Key pair.
 	 * @param {nc.Transaction} transaction Transaction object.
 	 * @returns {Signature} Transaction signature.
 	 */
-	signTransaction(keyPair, transaction) { // eslint-disable-line class-methods-use-this
-		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
-		return keyPair.sign(nonVerifiableTransaction.serialize());
+	signTransaction(keyPair, transaction) {
+		return keyPair.sign(this.extractSigningPayload(transaction));
 	}
 
 	/**
@@ -235,9 +244,8 @@ export class NemFacade {
 	 * @param {Signature} signature Signature to verify.
 	 * @returns {boolean} \c true if transaction signature is verified.
 	 */
-	verifyTransaction(transaction, signature) { // eslint-disable-line class-methods-use-this
-		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
-		return new Verifier(transaction.signerPublicKey).verify(nonVerifiableTransaction.serialize(), signature);
+	verifyTransaction(transaction, signature) {
+		return new Verifier(transaction.signerPublicKey).verify(this.extractSigningPayload(transaction), signature);
 	}
 
 	/**

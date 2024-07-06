@@ -20,9 +20,10 @@
  */
 
 /** @module plugins/aggregate */
-const aggregateRoutes = require('./aggregateRoutes');
-const catapult = require('../../catapult-sdk/index');
-const { ServerMessageHandler } = require('../../connection/serverMessageHandlers');
+import aggregateRoutes from './aggregateRoutes.js';
+import catapult from '../../catapult-sdk/index.js';
+import ServerMessageHandler from '../../connection/serverMessageHandlers.js';
+import { Hash256, PublicKey, Signature } from 'symbol-sdk';
 
 const { BinaryParser } = catapult.parser;
 
@@ -30,7 +31,7 @@ const { BinaryParser } = catapult.parser;
  * Creates an aggregate plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-module.exports = {
+export default {
 	createDb: () => {},
 
 	registerTransactionStates: states => {
@@ -40,14 +41,14 @@ module.exports = {
 	registerMessageChannels: builder => {
 		builder.add('partialAdded', 'p', ServerMessageHandler.transaction);
 		builder.add('partialRemoved', 'q', ServerMessageHandler.transactionHash);
-		builder.add('cosignature', 'c', (codec, emit) => (topic, buffer) => {
+		builder.add('cosignature', 'c', emit => (topic, buffer) => {
 			const parser = new BinaryParser();
 			parser.push(buffer);
 
 			const version = parser.uint64();
-			const signerPublicKey = parser.buffer(catapult.constants.sizes.signerPublicKey);
-			const signature = parser.buffer(catapult.constants.sizes.signature);
-			const parentHash = parser.buffer(catapult.constants.sizes.hash256);
+			const signerPublicKey = parser.buffer(PublicKey.SIZE);
+			const signature = parser.buffer(Signature.SIZE);
+			const parentHash = parser.buffer(Hash256.SIZE);
 			emit({
 				type: 'aggregate.cosignature',
 				payload: {
