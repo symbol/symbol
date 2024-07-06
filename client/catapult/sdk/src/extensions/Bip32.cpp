@@ -59,7 +59,7 @@ namespace catapult { namespace extensions {
 		static constexpr size_t Hmac_Data_Size = 1 + crypto::PrivateKey::Size + sizeof(uint32_t);
 		static constexpr size_t Id_Offset = 1 + crypto::PrivateKey::Size;
 
-		std::array<uint8_t, Hmac_Data_Size> hmacData;
+		std::array<uint8_t, Hmac_Data_Size> hmacData{};
 		hmacData[0] = 0;
 		std::memcpy(&hmacData[1], m_keyPair.privateKey().data(), m_keyPair.privateKey().size());
 
