@@ -59,7 +59,7 @@
     "eslint-plugin-jsdoc": "^48.2.1",
     "json-bigint": "~1.0.0",
     "mkdirp": "~3.0.1",
-    "mocha": "~10.5.2",
+    "mocha": "~10.6.0",
     "mocha-jenkins-reporter": "~0.4.8",
     "process": "~0.11.10",
     "rimraf": "~5.0.5",
@@ -73,7 +73,7 @@
   },
   "dependencies": {
     "@noble/hashes": "~1.4.0",
-    "bitcore-mnemonic": "~10.0.11",
+    "bitcore-mnemonic": "~10.1.0",
     "ripemd160": "~2.0.2"
   },
   "files": [
