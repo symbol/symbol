@@ -76,7 +76,7 @@ namespace catapult { namespace tools { namespace addressgen {
 				utils::SpinLock acceptLock;
 				auto pPool = CreateStartedThreadPool(m_numThreads);
 				for (auto i = 0u; i < pPool->numWorkerThreads(); ++i) {
-					pPool->ioContext().dispatch([acceptKeyPair, coinId, &acceptLock]() {
+					boost::asio::dispatch(pPool->ioContext(), [acceptKeyPair, coinId, &acceptLock]() {
 						auto randomGenerator = crypto::SecureRandomGenerator();
 
 						for (;;) {

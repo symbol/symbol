@@ -41,7 +41,7 @@ namespace catapult { namespace ionet {
 		std::array<uint8_t, N> AppendRandomBuffer(WorkingBuffer& buffer) {
 			auto appendBuffer = test::GenerateRandomArray<N>();
 			auto context = buffer.prepareAppend();
-			std::memcpy(boost::asio::buffer_cast<uint8_t*>(context.buffer()), appendBuffer.data(), appendBuffer.size());
+			std::memcpy(context.buffer().data(), appendBuffer.data(), appendBuffer.size());
 			context.commit(N);
 			return appendBuffer;
 		}
@@ -148,7 +148,7 @@ namespace catapult { namespace ionet {
 		{
 			auto appendBuffer = test::GenerateRandomArray<100>();
 			auto context = buffer.prepareAppend();
-			std::memcpy(boost::asio::buffer_cast<uint8_t*>(context.buffer()), &appendBuffer, appendBuffer.size());
+			std::memcpy(context.buffer().data(), &appendBuffer, appendBuffer.size());
 		}
 
 		// Assert:
