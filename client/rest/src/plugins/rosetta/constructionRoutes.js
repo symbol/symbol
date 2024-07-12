@@ -55,8 +55,6 @@ export default {
 		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
 		const facade = new SymbolFacade(network);
 
-		const restUrl = `${services.config.rest.protocol}://localhost:${services.config.rest.port}`;
-
 		const parsePublicKey = rosettaPublicKey => {
 			if (new CurveType().edwards25519 !== rosettaPublicKey.curve_type)
 				throw RosettaErrorFactory.UNSUPPORTED_CURVE;
@@ -94,21 +92,8 @@ export default {
 			return response;
 		}));
 
-		const fetchWrapper = async (urlPath, jsonProjection, requestOptions = {}) => {
-			try {
-				const response = await fetch(`${restUrl}/${urlPath}`, requestOptions);
-				if (!response.ok)
-					throw RosettaErrorFactory.CONNECTION_ERROR;
-
-				const jsonObject = await response.json();
-				return jsonProjection(jsonObject);
-			} catch (err) {
-				throw RosettaErrorFactory.CONNECTION_ERROR;
-			}
-		};
-
-		const getNetworkTime = () => fetchWrapper('node/time', jsonObject => jsonObject.communicationTimestamps.receiveTimestamp);
-		const getSuggestedTransactionMultiplier = () => fetchWrapper(
+		const getNetworkTime = () => services.proxy.fetch('node/time', jsonObject => jsonObject.communicationTimestamps.receiveTimestamp);
+		const getSuggestedTransactionMultiplier = () => services.proxy.fetch(
 			'network/fees/transaction',
 			jsonObject => jsonObject.averageFeeMultiplier
 		);
@@ -343,7 +328,7 @@ export default {
 			processTransactionHashRequest(typedRequest)));
 
 		server.post('/construction/submit', rosettaPostRouteWithNetwork(networkName, ConstructionSubmitRequest, async typedRequest => {
-			await fetchWrapper('transactions', jsonObject => jsonObject.message, {
+			await services.proxy.fetch('transactions', jsonObject => jsonObject.message, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ payload: typedRequest.signed_transaction })

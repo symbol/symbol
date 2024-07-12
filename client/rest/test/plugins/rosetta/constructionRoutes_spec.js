@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import CatapultProxy from '../../../src/plugins/rosetta/CatapultProxy.js';
 import constructionRoutes from '../../../src/plugins/rosetta/constructionRoutes.js';
 import AccountIdentifier from '../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
 import ConstructionCombineResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionCombineResponse.js';
@@ -43,9 +44,9 @@ describe('construction routes', () => {
 		const mockServer = new MockServer();
 		constructionRoutes.register(mockServer.server, {}, {
 			config: {
-				network: { name: 'testnet' },
-				rest: { protocol: 'http', port: '3456' }
-			}
+				network: { name: 'testnet' }
+			},
+			proxy: new CatapultProxy('http://localhost:3456')
 		});
 		return mockServer;
 	};
@@ -538,7 +539,7 @@ describe('construction routes', () => {
 			delete request.network_identifier.network;
 		}));
 
-		it('fails when fetch fails (headers - node/time)', async () => {
+		it('fails when fetch fails (node/time)', async () => {
 			// Arrange:
 			stubFetchResult('node/time', false, createNodeTimeResult());
 			stubFetchResult('network/fees/transaction', true, createNetworkFeesTransactionResult());
@@ -547,28 +548,10 @@ describe('construction routes', () => {
 			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
 		});
 
-		it('fails when fetch fails (headers - network/fees/transaction)', async () => {
+		it('fails when fetch fails (network/fees/transaction)', async () => {
 			// Arrange:
 			stubFetchResult('node/time', true, createNodeTimeResult());
 			stubFetchResult('network/fees/transaction', false, createNetworkFeesTransactionResult());
-
-			// Act + Assert:
-			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
-		});
-
-		it('fails when fetch fails (body - node/time)', async () => {
-			// Arrange:
-			stubFetchResult('node/time', true, Promise.reject(Error('fetch failed')));
-			stubFetchResult('network/fees/transaction', true, createNetworkFeesTransactionResult());
-
-			// Act + Assert:
-			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
-		});
-
-		it('fails when fetch fails (body - network/fees/transaction)', async () => {
-			// Arrange:
-			stubFetchResult('node/time', true, createNodeTimeResult());
-			stubFetchResult('network/fees/transaction', true, Promise.reject(Error('fetch failed')));
 
 			// Act + Assert:
 			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
@@ -1014,23 +997,12 @@ describe('construction routes', () => {
 			delete request.network_identifier.network;
 		}));
 
-		it('fails when fetch fails (headers)', async () => {
+		it('fails when fetch fails', async () => {
 			// Arrange:
 			const { aggregateTransaction } = createBasicSignedTransaction();
 			const signedTransactionHex = utils.uint8ToHex(aggregateTransaction.serialize());
 
 			stubFetchResult(signedTransactionHex, false, { message: 'success' });
-
-			// Act + Assert:
-			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
-		});
-
-		it('fails when fetch fails (body)', async () => {
-			// Arrange:
-			const { aggregateTransaction } = createBasicSignedTransaction();
-			const signedTransactionHex = utils.uint8ToHex(aggregateTransaction.serialize());
-
-			stubFetchResult(signedTransactionHex, true, Promise.reject(Error('fetch failed')));
 
 			// Act + Assert:
 			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});

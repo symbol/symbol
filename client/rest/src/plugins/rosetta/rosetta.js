@@ -20,6 +20,7 @@
  */
 
 /** @module plugins/rosetta */
+import CatapultProxy from './CatapultProxy.js';
 import constructionRoutes from './constructionRoutes.js';
 
 /**
@@ -33,9 +34,12 @@ export default {
 
 	registerMessageChannels: () => {},
 
-	registerRoutes: (...args) => {
+	registerRoutes: (server, db, services) => {
+		const restUrl = `${services.config.rest.protocol}://localhost:${services.config.rest.port}`;
+		const proxy = new CatapultProxy(restUrl);
+
 		[
 			constructionRoutes
-		].forEach(routes => routes.register(...args));
+		].forEach(routes => routes.register(server, db, { ...services, proxy }));
 	}
 };

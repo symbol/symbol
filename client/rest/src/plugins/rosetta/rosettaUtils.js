@@ -22,6 +22,9 @@
 import RosettaApiError from './openApi/model/Error.js';
 import { sendJson } from '../../routes/simpleSend.js';
 
+/**
+ * Error thrown when a rosetta endpoint encounters an error.
+ */
 class RosettaError extends Error {
 	constructor(code, message, retriable) {
 		super(message);
@@ -30,6 +33,9 @@ class RosettaError extends Error {
 	}
 }
 
+/**
+ * Factory for creating rosetta errors.
+ */
 export class RosettaErrorFactory {
 	static get UNSUPPORTED_NETWORK() {
 		return new RosettaError(1, 'unsupported network', false);
@@ -60,6 +66,13 @@ export class RosettaErrorFactory {
 	}
 }
 
+/**
+ * Orchestrates a rosetta POST route by validating request data, including network, before calling user handler.
+ * @param {string} networkName Network name.
+ * @param {object} Request Type of request object.
+ * @param {Function} handler User callback that is called with request data after validating request.
+ * @returns {Function} Restify POST handler.
+ */
 export const rosettaPostRouteWithNetwork = (networkName, Request, handler) => async (req, res, next) => {
 	const send = data => {
 		const sender = sendJson(res, next);
