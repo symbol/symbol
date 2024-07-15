@@ -60,6 +60,31 @@ export default class CatapultProxy {
 	}
 
 	/**
+	 * Performs an (uncached) chain of fetch requests on the endpoint.
+	 * @param {string} urlPath Request path.
+	 * @param {number} pageSize Page size.
+	 * @param {Function} jsonProjection Processes result.
+	 * @param {object} requestOptions Additional fetch request options.
+	 * @returns {object} Result of fetch and projection.
+	 */
+	async fetchAll(urlPath, pageSize, jsonProjection = undefined, requestOptions = {}) {
+		const jsonObjects = [];
+		let pageNumber = 1;
+		let response;
+		do {
+			const delimiter = -1 !== urlPath.indexOf('?') ? '&' : '?';
+			const nextUrlPath = `${urlPath}${delimiter}pageNumber=${pageNumber}&pageSize=${pageSize}`;
+			pageNumber++;
+
+			// eslint-disable-next-line no-await-in-loop
+			response = await this.fetch(nextUrlPath, undefined, requestOptions);
+			jsonObjects.push(...response);
+		} while (response.length === pageSize);
+
+		return jsonProjection ? jsonObjects.map(jsonProjection) : jsonObjects;
+	}
+
+	/**
 	 * @private
 	 */
 	async load() {
