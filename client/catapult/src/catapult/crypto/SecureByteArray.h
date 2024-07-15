@@ -46,13 +46,13 @@ namespace catapult { namespace crypto {
 
 	public:
 		/// Move constructor.
-		SecureByteArray(SecureByteArray&& rhs) {
+		SecureByteArray(SecureByteArray&& rhs) noexcept {
 			SecureZeroGuard guard(rhs.m_array);
 			m_array = std::move(rhs.m_array);
 		}
 
 		/// Move assignment operator.
-		SecureByteArray& operator=(SecureByteArray&& rhs) {
+		SecureByteArray& operator=(SecureByteArray&& rhs) noexcept {
 			SecureZeroGuard guard(rhs.m_array);
 			m_array = std::move(rhs.m_array);
 			return *this;

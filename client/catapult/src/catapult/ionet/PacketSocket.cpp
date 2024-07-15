@@ -201,12 +201,12 @@ namespace catapult { namespace ionet {
 			public:
 				auto headerBuffer() const {
 					const auto& header = m_payload.header();
-					return boost::asio::buffer(reinterpret_cast<const uint8_t*>(&header), sizeof(header));
+					return boost::asio::buffer(static_cast<const void*>(&header), sizeof(header));
 				}
 
 				auto nextDataBuffer() {
-					auto rawBuffer = m_payload.buffers()[m_nextBufferIndex++];
-					return boost::asio::buffer(rawBuffer.pData, rawBuffer.Size);
+					const auto& rawBuffer = m_payload.buffers()[m_nextBufferIndex++];
+					return boost::asio::buffer(static_cast<const void*>(rawBuffer.pData), rawBuffer.Size);
 				}
 
 				bool tryComplete(const boost::system::error_code& ec) {
@@ -392,7 +392,7 @@ namespace catapult { namespace ionet {
 
 		public:
 			void stats(const PacketSocket::StatsCallback& callback) {
-				PacketSocket::Stats stats;
+				PacketSocket::Stats stats{};
 				stats.IsOpen = m_socket.lowest_layer().is_open();
 				stats.NumUnprocessedBytes = m_buffer.size();
 				callback(stats);
@@ -782,16 +782,9 @@ namespace catapult { namespace ionet {
 
 		public:
 			void start() {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4459) /* declaration of 'query' hides global declaration */
-#endif
 				m_resolver.async_resolve(m_query, m_wrapper.wrap([this](const auto& ec, auto iter) {
 					this->handleResolve(ec, std::move(iter));
 				}));
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 			}
 
 			void cancel() {

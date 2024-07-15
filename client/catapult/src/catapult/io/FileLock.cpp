@@ -40,7 +40,7 @@ namespace catapult { namespace io {
 		const FdType Invalid_Descriptor = INVALID_HANDLE_VALUE;
 		constexpr auto NemClose = ::CloseHandle;
 
-		auto NemOpen(const std::string& lockFilePath) {
+		HANDLE NemOpen(const std::string& lockFilePath) {
 			return CreateFile(lockFilePath.c_str(), DELETE, FILE_SHARE_DELETE, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
 		}
 
