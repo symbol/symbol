@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import PayloadResultVerifier from './utils/PayloadResultVerifier.js';
 import CatapultProxy from '../../../src/plugins/rosetta/CatapultProxy.js';
 import constructionRoutes from '../../../src/plugins/rosetta/constructionRoutes.js';
 import AccountIdentifier from '../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
@@ -29,7 +30,6 @@ import ConstructionParseResponse from '../../../src/plugins/rosetta/openApi/mode
 import ConstructionPayloadsResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionPayloadsResponse.js';
 import ConstructionPreprocessResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionPreprocessResponse.js';
 import RosettaApiError from '../../../src/plugins/rosetta/openApi/model/Error.js';
-import SigningPayload from '../../../src/plugins/rosetta/openApi/model/SigningPayload.js';
 import TransactionIdentifier from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
 import TransactionIdentifierResponse from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifierResponse.js';
 import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
@@ -37,7 +37,7 @@ import MockServer from '../../routes/utils/MockServer.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
-import { SymbolFacade, generateMosaicAliasId, models } from 'symbol-sdk/symbol';
+import { models } from 'symbol-sdk/symbol';
 
 describe('construction routes', () => {
 	const createMockServer = () => {
@@ -121,7 +121,8 @@ describe('construction routes', () => {
 		amount: {
 			value: amount,
 			currency: createRosettaCurrency()
-		}
+		},
+		status: 'success'
 	});
 
 	const createRosettaMultisig = (index, address, metadata) => ({
@@ -132,97 +133,16 @@ describe('construction routes', () => {
 			addressAdditions: [],
 			addressDeletions: [],
 			...metadata
-		}
+		},
+		status: 'success'
 	});
 
 	const createRosettaCosignatory = (index, address) => ({
 		operation_identifier: { index },
 		type: 'cosign',
-		account: { address }
+		account: { address },
+		status: 'success'
 	});
-
-	// endregion
-
-	// region utils - PayloadResultVerifier
-
-	class PayloadResultVerifier {
-		constructor() {
-			this.facade = new SymbolFacade('testnet');
-			this.embeddedTransactions = [];
-			this.aggregateTransaction = undefined;
-		}
-
-		addTransfer(signerPublicKey, recipientAddress, amount) {
-			this.embeddedTransactions.push(this.facade.transactionFactory.createEmbedded({
-				type: 'transfer_transaction_v1',
-				signerPublicKey,
-				recipientAddress,
-				mosaics: [
-					{ mosaicId: generateMosaicAliasId('symbol.xym'), amount }
-				]
-			}));
-		}
-
-		addMultisigModification(signerPublicKey, metadata) {
-			this.embeddedTransactions.push(this.facade.transactionFactory.createEmbedded({
-				type: 'multisig_account_modification_transaction_v1',
-				signerPublicKey,
-				...metadata
-			}));
-		}
-
-		addUnsupported(signerPublicKey) {
-			this.embeddedTransactions.push(this.facade.transactionFactory.createEmbedded({
-				type: 'mosaic_definition_transaction_v1',
-				signerPublicKey,
-				duration: 1n,
-				nonce: 123,
-				flags: 'transferable restrictable',
-				divisibility: 2
-			}));
-		}
-
-		buildAggregate(signerPublicKey, deadline, cosignatureCount = 0) {
-			const merkleHash = this.facade.static.hashEmbeddedTransactions(this.embeddedTransactions);
-			this.aggregateTransaction = this.facade.transactionFactory.create({
-				type: 'aggregate_complete_transaction_v2',
-				signerPublicKey,
-				deadline,
-				transactionsHash: merkleHash,
-				transactions: this.embeddedTransactions
-			});
-
-			const transactionSize = this.aggregateTransaction.size + (104 * cosignatureCount);
-			this.aggregateTransaction.fee = new models.Amount(transactionSize * 102);
-		}
-
-		addCosignature(cosignerPublicKey) {
-			const cosignature = new models.Cosignature();
-			cosignature.version = 0n;
-			cosignature.signerPublicKey = new models.PublicKey(cosignerPublicKey);
-			cosignature.signature = new models.Signature(new Uint8Array(64));
-			this.aggregateTransaction.cosignatures.push(cosignature);
-		}
-
-		makeSigningPayload(address) {
-			const signingPayload = new SigningPayload(utils.uint8ToHex(this.facade.extractSigningPayload(this.aggregateTransaction)));
-			signingPayload.account_identifier = new AccountIdentifier(address);
-			signingPayload.signature_type = 'ed25519';
-			return signingPayload;
-		}
-
-		makeCosigningPayload(address) {
-			const aggregateTransactionHash = this.facade.hashTransaction(this.aggregateTransaction);
-			const signingPayload = new SigningPayload(utils.uint8ToHex(aggregateTransactionHash.bytes));
-			signingPayload.account_identifier = new AccountIdentifier(address);
-			signingPayload.signature_type = 'ed25519';
-			return signingPayload;
-		}
-
-		toHexString() {
-			return utils.uint8ToHex(this.aggregateTransaction.serialize());
-		}
-	}
 
 	// endregion
 
@@ -845,6 +765,29 @@ describe('construction routes', () => {
 				'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
 				'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
 				33n
+			);
+
+			verifier.buildAggregate(
+				'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+				1001n + (60n * 60n * 1000n),
+				1
+			);
+
+			request.transaction = verifier.toHexString();
+		}));
+
+		it('fails when mosaic is unsupported', () => assertRosettaErrorRaised(RosettaErrorFactory.NOT_SUPPORTED_ERROR, request => {
+			const verifier = new PayloadResultVerifier();
+			verifier.addTransfer(
+				'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+				'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
+				100n
+			);
+			verifier.addTransfer(
+				'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+				'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
+				33n,
+				'foo.bar'
 			);
 
 			verifier.buildAggregate(
