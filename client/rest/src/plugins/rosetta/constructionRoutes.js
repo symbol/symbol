@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import OperationParser from './OperationParser.js';
 import AccountIdentifier from './openApi/model/AccountIdentifier.js';
-import Amount from './openApi/model/Amount.js';
 import ConstructionCombineRequest from './openApi/model/ConstructionCombineRequest.js';
 import ConstructionCombineResponse from './openApi/model/ConstructionCombineResponse.js';
 import ConstructionDeriveRequest from './openApi/model/ConstructionDeriveRequest.js';
@@ -37,8 +37,6 @@ import ConstructionPreprocessResponse from './openApi/model/ConstructionPreproce
 import ConstructionSubmitRequest from './openApi/model/ConstructionSubmitRequest.js';
 import Currency from './openApi/model/Currency.js';
 import CurveType from './openApi/model/CurveType.js';
-import Operation from './openApi/model/Operation.js';
-import OperationIdentifier from './openApi/model/OperationIdentifier.js';
 import SignatureType from './openApi/model/SignatureType.js';
 import SigningPayload from './openApi/model/SigningPayload.js';
 import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
@@ -46,7 +44,7 @@ import TransactionIdentifierResponse from './openApi/model/TransactionIdentifier
 import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
 import { NetworkLocator, PublicKey, utils } from 'symbol-sdk';
 import {
-	Address, Network, NetworkTimestamp, SymbolFacade, generateMosaicAliasId, models
+	Network, NetworkTimestamp, SymbolFacade, generateMosaicAliasId, models
 } from 'symbol-sdk/symbol';
 
 export default {
@@ -251,56 +249,26 @@ export default {
 		}));
 
 		server.post('/construction/parse', rosettaPostRouteWithNetwork(networkName, ConstructionParseRequest, async typedRequest => {
-			const xymCurrency = new Currency('symbol.xym', 6);
-
-			const modelAddressToString = address => new Address(address.bytes).toString();
-			const publicKeyToAccountIdentifier = publicKey =>
-				new AccountIdentifier(facade.network.publicKeyToAddress(publicKey).toString());
-
-			let id = 0;
-			const operations = [];
-			const allSignerPublicKeyStringSet = new Set();
+			const currencyMosaicId = generateMosaicAliasId('symbol.xym');
 			const aggregateTransaction = facade.transactionFactory.static.deserialize(utils.hexToUint8(typedRequest.transaction));
-			aggregateTransaction.transactions.forEach(transaction => {
-				allSignerPublicKeyStringSet.add(transaction.signerPublicKey.toString());
 
-				if (models.TransactionType.TRANSFER.value === transaction.type.value) {
-					const amount = transaction.mosaics[0].amount.value;
+			const supportedTransactionTypes = [
+				models.TransactionType.MULTISIG_ACCOUNT_MODIFICATION.value,
+				models.TransactionType.TRANSFER.value
+			];
+			if (!aggregateTransaction.transactions.every(transaction => supportedTransactionTypes.includes(transaction.type.value)))
+				throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
 
-					const sendOperation = new Operation(new OperationIdentifier(id++), 'transfer');
-					sendOperation.account = publicKeyToAccountIdentifier(transaction.signerPublicKey);
-					sendOperation.amount = new Amount((-amount).toString(), xymCurrency);
-					operations.push(sendOperation);
+			const xymCurrency = new Currency('symbol.xym', 6);
+			const parser = new OperationParser(facade.network, {
+				lookupCurrency: mosaicId => {
+					if (currencyMosaicId !== mosaicId)
+						throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
 
-					const receiveOperation = new Operation(new OperationIdentifier(id++), 'transfer');
-					receiveOperation.account = new AccountIdentifier(modelAddressToString(transaction.recipientAddress));
-					receiveOperation.amount = new Amount(amount.toString(), xymCurrency);
-					operations.push(receiveOperation);
-				} else if (models.TransactionType.MULTISIG_ACCOUNT_MODIFICATION.value === transaction.type.value) {
-					const operation = new Operation(new OperationIdentifier(id++), 'multisig');
-					operation.account = publicKeyToAccountIdentifier(transaction.signerPublicKey);
-					operation.metadata = {
-						minApprovalDelta: transaction.minApprovalDelta,
-						minRemovalDelta: transaction.minRemovalDelta,
-						addressAdditions: transaction.addressAdditions.map(modelAddressToString),
-						addressDeletions: transaction.addressDeletions.map(modelAddressToString)
-					};
-					operations.push(operation);
-				} else {
-					throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
+					return xymCurrency;
 				}
 			});
-
-			aggregateTransaction.cosignatures.forEach(cosignature => {
-				if (allSignerPublicKeyStringSet.has(cosignature.signerPublicKey.toString()))
-					return;
-
-				allSignerPublicKeyStringSet.add(cosignature.signerPublicKey.toString());
-
-				const operation = new Operation(new OperationIdentifier(id++), 'cosign');
-				operation.account = publicKeyToAccountIdentifier(cosignature.signerPublicKey);
-				operations.push(operation);
-			});
+			const { operations, signerAddresses } = await parser.parseTransaction(aggregateTransaction.toJson());
 
 			const response = new ConstructionParseResponse();
 			response.operations = operations;
@@ -308,8 +276,9 @@ export default {
 			response.signers = [];
 
 			if (typedRequest.signed) {
-				const cosignerPublicKeys = extractCosignerPublicKeys([...allSignerPublicKeyStringSet], '');
-				response.account_identifier_signers = cosignerPublicKeys.map(publicKeyToAccountIdentifier);
+				response.account_identifier_signers = signerAddresses
+					.sort((lhs, rhs) => lhs.toString().localeCompare(rhs.toString()))
+					.map(address => new AccountIdentifier(address.toString()));
 			}
 
 			return response;
