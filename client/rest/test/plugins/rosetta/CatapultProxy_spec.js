@@ -225,67 +225,66 @@ describe('CatapultProxy', () => {
 		});
 	});
 
-	const runGlobalCacheQueryTest = async (action, expectedResult) => {
-		// Arrange:
-		const proxy = new CatapultProxy(TEST_ENDPOINT);
-		stubFetchResult('node/info', true, { node: 'alpha' });
-		stubFetchResult('network/properties', true, { network: 'beta' });
+	describe('cache', () => {
+		const setCacheFetchResults = (failureUrlPath = undefined) => {
+			stubFetchResult('node/info', 'node/info' !== failureUrlPath, { node: 'alpha' });
+			stubFetchResult('network/properties', 'network/properties' !== failureUrlPath, { network: 'beta' });
+			stubFetchResult('blocks/1', 'blocks/1' !== failureUrlPath, { height: 'gamma' });
+		};
 
-		// Act:
-		const result = await action(proxy);
+		const runGlobalCacheQueryTest = async (action, expectedResult) => {
+			// Arrange:
+			const proxy = new CatapultProxy(TEST_ENDPOINT);
+			setCacheFetchResults();
 
-		// Assert: only initial calls were made
-		expect(global.fetch.callCount).to.equal(2);
-		expect(result).to.deep.equal(expectedResult);
-	};
+			// Act:
+			const result = await action(proxy);
 
-	const runGlobalCacheErrorRetryTest = async (failureUrlPath, action, expectedResult) => {
-		// Arrange:
-		const proxy = new CatapultProxy(TEST_ENDPOINT);
-		stubFetchResult('node/info', 'node/info' !== failureUrlPath, { node: 'alpha' });
-		stubFetchResult('network/properties', 'network/properties' !== failureUrlPath, { network: 'beta' });
+			// Assert: only initial calls were made
+			expect(global.fetch.callCount).to.equal(3);
+			expect(result).to.deep.equal(expectedResult);
+		};
 
-		// Sanity:
-		assertAsyncErrorThrown(() => action(proxy), RosettaErrorFactory.CONNECTION_ERROR);
+		const runGlobalCacheErrorRetryTest = async (failureUrlPath, action, expectedResult) => {
+			// Arrange:
+			const proxy = new CatapultProxy(TEST_ENDPOINT);
+			setCacheFetchResults(failureUrlPath);
 
-		// Arrange:
-		stubFetchResult('node/info', true, { node: 'alpha' });
-		stubFetchResult('network/properties', true, { network: 'beta' });
+			// Sanity:
+			assertAsyncErrorThrown(() => action(proxy), RosettaErrorFactory.CONNECTION_ERROR);
 
-		// Act:
-		const result = await action(proxy);
+			// Arrange:
+			setCacheFetchResults();
 
-		// Assert: first (failure) and second (success) calls were made
-		expect(global.fetch.callCount).to.equal(4);
-		expect(result).to.deep.equal(expectedResult);
-	};
+			// Act:
+			const result = await action(proxy);
 
-	describe('nodeInfo', () => {
-		it('can retrieve', () => runGlobalCacheQueryTest(proxy => proxy.nodeInfo(), { node: 'alpha' }));
+			// Assert: first (failure) and second (success) calls were made
+			expect(global.fetch.callCount).to.equal(6);
+			expect(result).to.deep.equal(expectedResult);
+		};
 
-		it('can retrieve (cached)', () => runGlobalCacheQueryTest(async proxy => {
-			await proxy.nodeInfo();
-			await proxy.nodeInfo();
-			return proxy.nodeInfo();
-		}, { node: 'alpha' }));
+		const addCachePropertyTests = (propertyName, urlPath, expectedResult) => {
+			describe(propertyName, () => {
+				it('can retrieve', () => runGlobalCacheQueryTest(proxy => proxy[propertyName](), expectedResult));
 
-		it('can retrieve after failure', () => runGlobalCacheErrorRetryTest('node/info', proxy => proxy.nodeInfo(), { node: 'alpha' }));
-	});
+				it('can retrieve (cached)', () => runGlobalCacheQueryTest(async proxy => {
+					await proxy[propertyName]();
+					await proxy[propertyName]();
+					return proxy[propertyName]();
+				}, expectedResult));
 
-	describe('networkProperties', () => {
-		it('can retrieve', () => runGlobalCacheQueryTest(proxy => proxy.networkProperties(), { network: 'beta' }));
+				it('can retrieve after failure', () => runGlobalCacheErrorRetryTest(
+					urlPath,
+					proxy => proxy[propertyName](),
+					expectedResult
+				));
+			});
+		};
 
-		it('can retrieve (cached)', () => runGlobalCacheQueryTest(async proxy => {
-			await proxy.networkProperties();
-			await proxy.networkProperties();
-			return proxy.networkProperties();
-		}, { network: 'beta' }));
-
-		it('can retrieve after failure', () => runGlobalCacheErrorRetryTest(
-			'network/properties',
-			proxy => proxy.networkProperties(),
-			{ network: 'beta' }
-		));
+		addCachePropertyTests('nodeInfo', 'node/info', { node: 'alpha' });
+		addCachePropertyTests('networkProperties', 'network/properties', { network: 'beta' });
+		addCachePropertyTests('nemesisBlock', 'blocks/1', { height: 'gamma' });
 	});
 
 	describe('resolveMosaicId', () => {
