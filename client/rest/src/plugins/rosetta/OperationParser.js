@@ -68,9 +68,13 @@ export default class OperationParser {
 	 * @returns {Operation} Credit operation.
 	 * @private
 	 */
-	createCreditOperation(options) { // eslint-disable-line class-methods-use-this
+	createCreditOperation(options) {
 		const operation = createOperation(options.id, 'transfer');
-		operation.account = new AccountIdentifier(encodeDecodedAddress(options.targetAddress));
+		if (options.targetAddress)
+			operation.account = new AccountIdentifier(encodeDecodedAddress(options.targetAddress));
+		else
+			operation.account = this.publicKeyStringToAccountIdentifier(options.targetPublicKey);
+
 		operation.amount = new Amount(options.amount.toString(), options.currency);
 		return operation;
 	}
@@ -196,6 +200,32 @@ export default class OperationParser {
 				addressDeletions: transaction.addressDeletions.map(encodeDecodedAddress)
 			};
 			operations.push(operation);
+		} else if (models.TransactionType.MOSAIC_SUPPLY_REVOCATION.value === transactionType) {
+			const amount = BigInt(transaction.amount);
+			const currency = await this.options.lookupCurrency(BigInt(transaction.mosaicId));
+
+			operations.push(this.createDebitOperation({
+				id: id++,
+				sourceAddress: transaction.sourceAddress,
+				amount,
+				currency
+			}));
+			operations.push(this.createCreditOperation({
+				id: id++,
+				targetPublicKey: transaction.signerPublicKey,
+				amount,
+				currency
+			}));
+		} else if (models.TransactionType.MOSAIC_SUPPLY_CHANGE.value === transactionType) {
+			const amount = BigInt(transaction.delta);
+			const currency = await this.options.lookupCurrency(BigInt(transaction.mosaicId));
+
+			operations.push(this.createCreditOperation({
+				id: id++,
+				targetPublicKey: transaction.signerPublicKey,
+				amount: models.MosaicSupplyChangeAction.INCREASE.value === transaction.action ? amount : -amount,
+				currency
+			}));
 		}
 
 		return operations;

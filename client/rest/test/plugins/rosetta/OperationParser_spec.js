@@ -27,7 +27,7 @@ import Currency from '../../../src/plugins/rosetta/openApi/model/Currency.js';
 import Operation from '../../../src/plugins/rosetta/openApi/model/Operation.js';
 import OperationIdentifier from '../../../src/plugins/rosetta/openApi/model/OperationIdentifier.js';
 import { expect } from 'chai';
-import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
+import { SymbolFacade, generateMosaicAliasId, models } from 'symbol-sdk/symbol';
 
 describe('OperationParser', () => {
 	// region utils
@@ -171,6 +171,78 @@ describe('OperationParser', () => {
 			it('can parse additions', () => assertCanParse('addressAdditions'));
 
 			it('can parse deletions', () => assertCanParse('addressDeletions'));
+		});
+
+		// endregion
+
+		// region supply change
+
+		describe('supply change', () => {
+			const assertCanParse = async (action, expectedAmount) => {
+				// Arrange:
+				const facade = new SymbolFacade('testnet');
+				const transaction = facade.transactionFactory.create({
+					type: 'mosaic_supply_change_transaction_v1',
+					signerPublicKey: '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9',
+					mosaicId: generateMosaicAliasId('foo.bar'),
+					action,
+					delta: 24680n
+				});
+
+				const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
+
+				// Act:
+				const { operations, signerAddresses } = await parser.parseTransaction(transaction.toJson());
+
+				// Assert:
+				expect(operations).to.deep.equal([
+					createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', expectedAmount, 'foo.bar', 3)
+				]);
+				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI']);
+			};
+
+			it('can parse increase', () => assertCanParse(models.MosaicSupplyChangeAction.INCREASE, '24680'));
+
+			it('can parse decrease', () => assertCanParse(models.MosaicSupplyChangeAction.DECREASE, '-24680'));
+		});
+
+		// endregion
+
+		// region supply revocation
+
+		describe('supply revocation', () => {
+			const fixupTransactionJson = transactionJson => {
+				// inline mosaic to match REST format
+				Object.assign(transactionJson, transactionJson.mosaic);
+				delete transactionJson.mosaic;
+				return transactionJson;
+			};
+
+			it('can parse', async () => {
+				// Arrange:
+				const facade = new SymbolFacade('testnet');
+				const transaction = facade.transactionFactory.create({
+					type: 'mosaic_supply_revocation_transaction_v1',
+					signerPublicKey: '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9',
+					sourceAddress: 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
+					mosaic: {
+						mosaicId: generateMosaicAliasId('foo.bar'),
+						amount: 24680n
+					}
+				});
+
+				const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
+
+				// Act:
+				const { operations, signerAddresses } = await parser.parseTransaction(fixupTransactionJson(transaction.toJson()));
+
+				// Assert:
+				expect(operations).to.deep.equal([
+					createTransferOperation(0, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '-24680', 'foo.bar', 3),
+					createTransferOperation(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '24680', 'foo.bar', 3)
+				]);
+				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI']);
+			});
 		});
 
 		// endregion
