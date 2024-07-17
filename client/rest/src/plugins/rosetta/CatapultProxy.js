@@ -34,8 +34,7 @@ export default class CatapultProxy {
 	constructor(endpoint) {
 		this.endpoint = endpoint;
 
-		this.node = undefined;
-		this.network = undefined;
+		this.cache = undefined;
 		this.mosaicPropertiesMap = new Map();
 	}
 
@@ -85,38 +84,51 @@ export default class CatapultProxy {
 	}
 
 	/**
+	 * Reads property from cache.
+	 * @param {string} propertyName Property name.
+	 * @returns {object} Property value.
 	 * @private
 	 */
-	async load() {
-		const results = await Promise.all([
-			this.fetch('node/info'),
-			this.fetch('network/properties')
-		]);
+	async readCacheProperty(propertyName) {
+		if (!this.cache) {
+			const results = await Promise.all([
+				this.fetch('node/info'),
+				this.fetch('network/properties'),
+				this.fetch('blocks/1')
+			]);
 
-		this.node = results[0];
-		this.network = results[1];
+			this.cache = {
+				nodeInfo: results[0],
+				networkProperties: results[1],
+				nemesisBlock: results[2]
+			};
+		}
+
+		return this.cache[propertyName];
 	}
 
 	/**
 	 * Gets (potentially cached) catapult node information.
 	 * @returns {object} Catapult node information.
 	 */
-	async nodeInfo() {
-		if (!this.node)
-			await this.load();
-
-		return this.node;
+	nodeInfo() {
+		return this.readCacheProperty('nodeInfo');
 	}
 
 	/**
 	 * Gets (potentially cached) catapult network information.
 	 * @returns {object} Catapult network information.
 	 */
-	async networkProperties() {
-		if (!this.network)
-			await this.load();
+	networkProperties() {
+		return this.readCacheProperty('networkProperties');
+	}
 
-		return this.network;
+	/**
+	 * Gets (potentially cached) catapult nemesis block.
+	 * @returns {object} Catapult nemesis block.
+	 */
+	nemesisBlock() {
+		return this.readCacheProperty('nemesisBlock');
 	}
 
 	/**
