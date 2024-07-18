@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import OperationParser from './OperationParser.js';
+import { OperationParser, convertTransactionSdkJsonToRestJson } from './OperationParser.js';
 import AccountIdentifier from './openApi/model/AccountIdentifier.js';
 import ConstructionCombineRequest from './openApi/model/ConstructionCombineRequest.js';
 import ConstructionCombineResponse from './openApi/model/ConstructionCombineResponse.js';
@@ -268,7 +268,9 @@ export default {
 					return xymCurrency;
 				}
 			});
-			const { operations, signerAddresses } = await parser.parseTransaction(aggregateTransaction.toJson());
+
+			const aggregateTransactionJson = convertTransactionSdkJsonToRestJson(aggregateTransaction.toJson());
+			const { operations, signerAddresses } = await parser.parseTransaction(aggregateTransactionJson);
 
 			const response = new ConstructionParseResponse();
 			response.operations = operations;

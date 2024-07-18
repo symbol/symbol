@@ -20,7 +20,7 @@
  */
 
 import PayloadResultVerifier from './utils/PayloadResultVerifier.js';
-import OperationParser from '../../../src/plugins/rosetta/OperationParser.js';
+import { OperationParser, convertTransactionSdkJsonToRestJson } from '../../../src/plugins/rosetta/OperationParser.js';
 import AccountIdentifier from '../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
 import Amount from '../../../src/plugins/rosetta/openApi/model/Amount.js';
 import Currency from '../../../src/plugins/rosetta/openApi/model/Currency.js';
@@ -72,6 +72,8 @@ describe('OperationParser', () => {
 		return new Currency('symbol.xym', 6);
 	};
 
+	const parseTransaction = (parser, transaction) => parser.parseTransaction(convertTransactionSdkJsonToRestJson(transaction.toJson()));
+
 	// endregion
 
 	describe('transaction', () => {
@@ -93,7 +95,7 @@ describe('OperationParser', () => {
 				const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
 
 				// Act:
-				const { operations, signerAddresses } = await parser.parseTransaction(transaction.toJson());
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction);
 
 				// Assert:
 				expect(operations).to.deep.equal([
@@ -114,14 +116,13 @@ describe('OperationParser', () => {
 						{ mosaicId: generateMosaicAliasId('baz.bar'), amount: 22222 },
 						{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 12345_000000n },
 						{ mosaicId: generateMosaicAliasId('foo.bar'), amount: 1000 }
-
 					]
 				});
 
 				const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
 
 				// Act:
-				const { operations, signerAddresses } = await parser.parseTransaction(transaction.toJson());
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction);
 
 				// Assert:
 				expect(operations).to.deep.equal([
@@ -159,7 +160,7 @@ describe('OperationParser', () => {
 				const parser = new OperationParser(facade.network);
 
 				// Act:
-				const { operations, signerAddresses } = await parser.parseTransaction(transaction.toJson());
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction);
 
 				// Assert:
 				expect(operations).to.deep.equal([
@@ -192,7 +193,7 @@ describe('OperationParser', () => {
 				const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
 
 				// Act:
-				const { operations, signerAddresses } = await parser.parseTransaction(transaction.toJson());
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction);
 
 				// Assert:
 				expect(operations).to.deep.equal([
@@ -211,13 +212,6 @@ describe('OperationParser', () => {
 		// region supply revocation
 
 		describe('supply revocation', () => {
-			const fixupTransactionJson = transactionJson => {
-				// inline mosaic to match REST format
-				Object.assign(transactionJson, transactionJson.mosaic);
-				delete transactionJson.mosaic;
-				return transactionJson;
-			};
-
 			it('can parse', async () => {
 				// Arrange:
 				const facade = new SymbolFacade('testnet');
@@ -234,7 +228,7 @@ describe('OperationParser', () => {
 				const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
 
 				// Act:
-				const { operations, signerAddresses } = await parser.parseTransaction(fixupTransactionJson(transaction.toJson()));
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction);
 
 				// Assert:
 				expect(operations).to.deep.equal([
@@ -269,7 +263,7 @@ describe('OperationParser', () => {
 
 				// Act: add size and maxFee to JSON to emulate REST JSON
 				const { operations, signerAddresses } = await parser.parseTransaction(
-					{ ...transaction.toJson(), size: 100, maxFee: 123456 },
+					{ ...convertTransactionSdkJsonToRestJson(transaction.toJson()), size: 100, maxFee: 123456 },
 					metadata
 				);
 
@@ -349,7 +343,7 @@ describe('OperationParser', () => {
 				const parser = new OperationParser(verifier.facade.network, { lookupCurrency: lookupCurrencyDefault });
 
 				// Act:
-				const { operations, signerAddresses } = await parser.parseTransaction(verifier.aggregateTransaction.toJson());
+				const { operations, signerAddresses } = await parseTransaction(parser, verifier.aggregateTransaction);
 
 				// Assert:
 				expect(operations).to.deep.equal(createDefaultVerifierOperations());
@@ -370,7 +364,7 @@ describe('OperationParser', () => {
 				const parser = new OperationParser(verifier.facade.network, { lookupCurrency: lookupCurrencyDefault });
 
 				// Act:
-				const { operations, signerAddresses } = await parser.parseTransaction(verifier.aggregateTransaction.toJson());
+				const { operations, signerAddresses } = await parseTransaction(parser, verifier.aggregateTransaction);
 
 				// Assert:
 				expect(operations).to.deep.equal([
@@ -399,7 +393,7 @@ describe('OperationParser', () => {
 
 				// Act: add size and maxFee to JSON to emulate REST JSON
 				const { operations, signerAddresses } = await parser.parseTransaction({
-					...verifier.aggregateTransaction.toJson(),
+					...convertTransactionSdkJsonToRestJson(verifier.aggregateTransaction.toJson()),
 					size: 100,
 					maxFee: 123456
 				}, metadata);
@@ -428,9 +422,9 @@ describe('OperationParser', () => {
 		// endregion
 	});
 
-	describe('receipt', () => {
-		// region receipt
+	// region receipt
 
+	describe('receipt', () => {
 		const runReceiptTest = async (receiptJson, expectedOperations) => {
 			// Arrange:
 			const facade = new SymbolFacade('testnet');
@@ -438,7 +432,7 @@ describe('OperationParser', () => {
 			const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
 
 			// Act:
-			const { operations } = await parser.parseReceipt(receiptJson);
+			const { operations } = await parser.parseReceipt(convertTransactionSdkJsonToRestJson(receiptJson));
 
 			// Assert:
 			expect(operations).to.deep.equal(expectedOperations);
@@ -488,7 +482,100 @@ describe('OperationParser', () => {
 			}, [
 			]));
 		});
-
-		// endregion
 	});
+
+	// endregion
+
+	// region convertTransactionSdkJsonToRestJson
+
+	describe('convertTransactionSdkJsonToRestJson', () => {
+		it('can fixup mosaics array', () => {
+			// Act:
+			const restJson = convertTransactionSdkJsonToRestJson({
+				mosaics: [
+					{ mosaicId: generateMosaicAliasId('baz.bar').toString(), amount: '22222' },
+					{ mosaicId: generateMosaicAliasId('symbol.xym').toString(), amount: '12345000000' },
+					{ mosaicId: generateMosaicAliasId('foo.bar').toString(), amount: '1000' }
+				]
+			});
+
+			// Assert:
+			expect(restJson).to.deep.equal({
+				mosaics: [
+					{ id: 'AC5B81883DD40E08', amount: '22222' },
+					{ id: 'E74B99BA41F4AFEE', amount: '12345000000' },
+					{ id: 'EC673E105521B12F', amount: '1000' }
+				]
+			});
+		});
+
+		it('can fixup mosaic object', () => {
+			// Act:
+			const restJson = convertTransactionSdkJsonToRestJson({
+				mosaic: { mosaicId: generateMosaicAliasId('baz.bar').toString(), amount: '22222' }
+			});
+
+			// Assert:
+			expect(restJson).to.deep.equal({
+				mosaicId: 'AC5B81883DD40E08',
+				amount: '22222'
+			});
+		});
+
+		it('can fixup mosaicId property', () => {
+			// Act:
+			const restJson = convertTransactionSdkJsonToRestJson({
+				mosaicId: generateMosaicAliasId('baz.bar').toString(),
+				amount: '22222'
+			});
+
+			// Assert:
+			expect(restJson).to.deep.equal({
+				mosaicId: 'AC5B81883DD40E08',
+				amount: '22222'
+			});
+		});
+
+		it('can fixup transactions array', () => {
+			// Act:
+			const restJson = convertTransactionSdkJsonToRestJson({
+				transactions: [
+					{
+						mosaics: [
+							{ mosaicId: generateMosaicAliasId('baz.bar').toString(), amount: '22222' },
+							{ mosaicId: generateMosaicAliasId('symbol.xym').toString(), amount: '12345000000' },
+							{ mosaicId: generateMosaicAliasId('foo.bar').toString(), amount: '1000' }
+						]
+					},
+					{
+						mosaicId: generateMosaicAliasId('baz.bar').toString(),
+						amount: '33333'
+					}
+				]
+			});
+
+			// Assert:
+			expect(restJson).to.deep.equal({
+				transactions: [
+					{
+						transaction: {
+							mosaics: [
+								{ id: 'AC5B81883DD40E08', amount: '22222' },
+								{ id: 'E74B99BA41F4AFEE', amount: '12345000000' },
+								{ id: 'EC673E105521B12F', amount: '1000' }
+							]
+						}
+					},
+					{
+						transaction: {
+							mosaicId: 'AC5B81883DD40E08',
+							amount: '33333'
+						}
+					}
+				]
+			});
+		});
+	});
+
+	// endregion
 });
