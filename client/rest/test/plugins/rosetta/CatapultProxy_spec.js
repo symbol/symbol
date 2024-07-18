@@ -405,25 +405,44 @@ describe('CatapultProxy', () => {
 			);
 		});
 
-		it('can resolve unresolved mosaic id with location when matching resolution entries exist', async () => {
+		const assertCanResolveWhenMatchingResolutionEntriesExist = async data => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('statements/resolutions/mosaic?height=1234', true, {
-				data: [
-					makeResolutionStatement('9234567890ABCDEF', [
-						makeResolutionEntry('0234567890ABCDEF', 1, 3),
-						makeResolutionEntry('0034567890ABCDEF', 2, 2),
-						makeResolutionEntry('2234567890ABCDEF', 3, 0)
-					])
-				]
-			});
+			stubFetchResult('statements/resolutions/mosaic?height=1234', true, { data });
 
 			// Act:
 			const mosaicId = await proxy.resolveMosaicId(0x9234567890ABCDEFn, { height: 1234n, primaryId: 2, secondaryId: 3 });
 
 			// Assert:
 			expect(mosaicId).to.equal(0x0034567890ABCDEFn);
-		});
+		};
+
+		it('can resolve unresolved mosaic id with location when matching resolution entries exist (primary GT secondary LT)', async () =>
+			assertCanResolveWhenMatchingResolutionEntriesExist([
+				makeResolutionStatement('9234567890ABCDEF', [
+					makeResolutionEntry('0234567890ABCDEF', 1, 4),
+					makeResolutionEntry('0034567890ABCDEF', 1, 5),
+					makeResolutionEntry('2234567890ABCDEF', 4, 0)
+				])
+			]));
+
+		it('can resolve unresolved mosaic id with location when matching resolution entries exist (primary EQ secondary GT)', async () =>
+			assertCanResolveWhenMatchingResolutionEntriesExist([
+				makeResolutionStatement('9234567890ABCDEF', [
+					makeResolutionEntry('0234567890ABCDEF', 2, 1),
+					makeResolutionEntry('0034567890ABCDEF', 2, 2),
+					makeResolutionEntry('2234567890ABCDEF', 2, 6)
+				])
+			]));
+
+		it('can resolve unresolved mosaic id with location when matching resolution entries exist (primary EQ secondary EQ)', async () =>
+			assertCanResolveWhenMatchingResolutionEntriesExist([
+				makeResolutionStatement('9234567890ABCDEF', [
+					makeResolutionEntry('0234567890ABCDEF', 2, 2),
+					makeResolutionEntry('0034567890ABCDEF', 2, 3),
+					makeResolutionEntry('2234567890ABCDEF', 2, 4)
+				])
+			]));
 
 		it('fails when fetch fails (statements)', async () => {
 			// Arrange:
