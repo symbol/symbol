@@ -26,6 +26,7 @@ import OperationIdentifier from './openApi/model/OperationIdentifier.js';
 import { PublicKey, utils } from 'symbol-sdk';
 import { Address, Network, models } from 'symbol-sdk/symbol';
 
+const idStringToBigInt = str => BigInt(`0x${str}`);
 const encodeDecodedAddress = address => new Address(utils.hexToUint8(address)).toString();
 
 const createOperation = (id, type) => {
@@ -35,9 +36,41 @@ const createOperation = (id, type) => {
 };
 
 /**
+ * Converts a transaction SDK JSON model into a transaction REST JSON model.
+ * @param {object} transactionJson Transaction SDK JSON model.
+ * @returns {object} Transaction REST JSON model.
+ */
+export const convertTransactionSdkJsonToRestJson = transactionJson => {
+	const decStringToHexString = value => BigInt(value).toString(16).padStart(16, '0').toUpperCase();
+
+	if (transactionJson.mosaics) {
+		transactionJson.mosaics = transactionJson.mosaics.map(mosaic => ({
+			id: decStringToHexString(mosaic.mosaicId),
+			amount: mosaic.amount
+		}));
+	}
+
+	if (transactionJson.mosaic) {
+		Object.assign(transactionJson, transactionJson.mosaic);
+		delete transactionJson.mosaic;
+	}
+
+	if (transactionJson.mosaicId)
+		transactionJson.mosaicId = decStringToHexString(transactionJson.mosaicId);
+
+	if (transactionJson.transactions) {
+		transactionJson.transactions = transactionJson.transactions.map(subTransaction => ({
+			transaction: convertTransactionSdkJsonToRestJson(subTransaction)
+		}));
+	}
+
+	return transactionJson;
+};
+
+/**
  * Parses a catapult models into rosetta operations.
  */
-export default class OperationParser {
+export class OperationParser {
 	/**
 	 * Creates a parser.
 	 * @param {Network} network Symbol network.
@@ -110,12 +143,12 @@ export default class OperationParser {
 		if (transaction.transactions) {
 			const operationGroups = Array(transaction.transactions.length);
 			await Promise.all(transaction.transactions.map(async (subTransaction, i) => {
-				allSignerPublicKeyStringSet.add(subTransaction.signerPublicKey);
+				allSignerPublicKeyStringSet.add(subTransaction.transaction.signerPublicKey);
 
 				// due to async nature, operations from previous transaction might not be added yet
 				// so simply using operations.length would yield wrong result
 				// instead, renumber the operations below
-				const subOperations = await this.parseTransactionInternal(0, subTransaction);
+				const subOperations = await this.parseTransactionInternal(0, subTransaction.transaction);
 				operationGroups[i] = subOperations;
 			}));
 
@@ -175,7 +208,7 @@ export default class OperationParser {
 		if (models.TransactionType.TRANSFER.value === transactionType) {
 			await Promise.all(transaction.mosaics.map(async mosaic => {
 				const amount = BigInt(mosaic.amount);
-				const currency = await this.options.lookupCurrency(BigInt(mosaic.mosaicId));
+				const currency = await this.options.lookupCurrency(idStringToBigInt(mosaic.id));
 
 				operations.push(this.createDebitOperation({
 					id: id++,
@@ -202,7 +235,7 @@ export default class OperationParser {
 			operations.push(operation);
 		} else if (models.TransactionType.MOSAIC_SUPPLY_REVOCATION.value === transactionType) {
 			const amount = BigInt(transaction.amount);
-			const currency = await this.options.lookupCurrency(BigInt(transaction.mosaicId));
+			const currency = await this.options.lookupCurrency(idStringToBigInt(transaction.mosaicId));
 
 			operations.push(this.createDebitOperation({
 				id: id++,
@@ -218,7 +251,7 @@ export default class OperationParser {
 			}));
 		} else if (models.TransactionType.MOSAIC_SUPPLY_CHANGE.value === transactionType) {
 			const amount = BigInt(transaction.delta);
-			const currency = await this.options.lookupCurrency(BigInt(transaction.mosaicId));
+			const currency = await this.options.lookupCurrency(idStringToBigInt(transaction.mosaicId));
 
 			operations.push(this.createCreditOperation({
 				id: id++,
@@ -240,7 +273,7 @@ export default class OperationParser {
 		const operations = [];
 
 		const amount = BigInt(receipt.amount);
-		const currency = await this.options.lookupCurrency(BigInt(receipt.mosaicId));
+		const currency = await this.options.lookupCurrency(idStringToBigInt(receipt.mosaicId));
 
 		const makeOptions = options => ({
 			id: operations.length,
