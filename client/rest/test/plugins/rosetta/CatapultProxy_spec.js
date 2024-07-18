@@ -138,9 +138,9 @@ describe('CatapultProxy', () => {
 		it('fails when fetch fails (headers)', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('custom/route?pageNumber=1&pageSize=5', true, TEST_DATA.slice(0, 5));
-			stubFetchResult('custom/route?pageNumber=2&pageSize=5', false, TEST_DATA.slice(5, 10));
-			stubFetchResult('custom/route?pageNumber=3&pageSize=5', true, TEST_DATA.slice(10));
+			stubFetchResult('custom/route?pageNumber=1&pageSize=5', true, { data: TEST_DATA.slice(0, 5) });
+			stubFetchResult('custom/route?pageNumber=2&pageSize=5', false, { data: TEST_DATA.slice(5, 10) });
+			stubFetchResult('custom/route?pageNumber=3&pageSize=5', true, { data: TEST_DATA.slice(10) });
 
 			// Act + Assert:
 			await assertAsyncErrorThrown(() => proxy.fetchAll('custom/route', 5), RosettaErrorFactory.CONNECTION_ERROR);
@@ -151,9 +151,9 @@ describe('CatapultProxy', () => {
 		it('fails when fetch fails (body)', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('custom/route?pageNumber=1&pageSize=5', true, TEST_DATA.slice(0, 5));
+			stubFetchResult('custom/route?pageNumber=1&pageSize=5', true, { data: TEST_DATA.slice(0, 5) });
 			stubFetchResult('custom/route?pageNumber=2&pageSize=5', true, Promise.reject(Error('fetch failed')));
-			stubFetchResult('custom/route?pageNumber=3&pageSize=5', true, TEST_DATA.slice(10));
+			stubFetchResult('custom/route?pageNumber=3&pageSize=5', true, { data: TEST_DATA.slice(10) });
 
 			// Act + Assert:
 			await assertAsyncErrorThrown(() => proxy.fetchAll('custom/route', 5), RosettaErrorFactory.CONNECTION_ERROR);
@@ -162,6 +162,12 @@ describe('CatapultProxy', () => {
 		});
 
 		const addBasicFetchAllSuccessTests = (urlPath, expectedUrlPathPrefix) => {
+			const stubSuccessFetchResults = () => {
+				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=1&pageSize=5`, true, { data: TEST_DATA.slice(0, 5) });
+				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=2&pageSize=5`, true, { data: TEST_DATA.slice(5, 10) });
+				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=3&pageSize=5`, true, { data: TEST_DATA.slice(10) });
+			};
+
 			const assertFetchCalls = expectedResponseOptions => {
 				const makeUrlForPage = pageNumber => `${TEST_ENDPOINT}/${expectedUrlPathPrefix}pageNumber=${pageNumber}&pageSize=5`;
 				expect(global.fetch.callCount).to.equal(3);
@@ -173,9 +179,7 @@ describe('CatapultProxy', () => {
 			it('returns valid response on success (without projection)', async () => {
 				// Arrange:
 				const proxy = new CatapultProxy(TEST_ENDPOINT);
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=1&pageSize=5`, true, TEST_DATA.slice(0, 5));
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=2&pageSize=5`, true, TEST_DATA.slice(5, 10));
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=3&pageSize=5`, true, TEST_DATA.slice(10));
+				stubSuccessFetchResults();
 
 				// Act:
 				const result = await proxy.fetchAll(urlPath, 5);
@@ -188,9 +192,7 @@ describe('CatapultProxy', () => {
 			it('returns valid response on success (with projection)', async () => {
 				// Arrange:
 				const proxy = new CatapultProxy(TEST_ENDPOINT);
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=1&pageSize=5`, true, TEST_DATA.slice(0, 5));
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=2&pageSize=5`, true, TEST_DATA.slice(5, 10));
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=3&pageSize=5`, true, TEST_DATA.slice(10));
+				stubSuccessFetchResults();
 
 				// Act:
 				const result = await proxy.fetchAll(urlPath, 5, jsonObject => jsonObject.bar);
@@ -203,9 +205,7 @@ describe('CatapultProxy', () => {
 			it('forwards request options to underlying fetch', async () => {
 				// Arrange:
 				const proxy = new CatapultProxy(TEST_ENDPOINT);
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=1&pageSize=5`, true, TEST_DATA.slice(0, 5));
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=2&pageSize=5`, true, TEST_DATA.slice(5, 10));
-				stubFetchResult(`${expectedUrlPathPrefix}pageNumber=3&pageSize=5`, true, TEST_DATA.slice(10));
+				stubSuccessFetchResults();
 
 				// Act:
 				const result = await proxy.fetchAll(urlPath, 5, undefined, { method: 'POST' });
@@ -293,28 +293,28 @@ describe('CatapultProxy', () => {
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
 
 			// Act:
-			const mosaicId = await proxy.resolveMosaicId(0x1234567890ABCDEFn);
+			const mosaicId = await proxy.resolveMosaicId(0x0034567890ABCDEFn);
 
 			// Assert:
-			expect(mosaicId).to.equal(0x1234567890ABCDEFn);
+			expect(mosaicId).to.equal(0x0034567890ABCDEFn);
 		});
 
 		it('can resolve unresolved mosaic id without location', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('namespaces/9234567890ABCDEF', true, { namespace: { alias: { mosaicId: '1234567890ABCDEF' } } });
+			stubFetchResult('namespaces/9234567890ABCDEF', true, { namespace: { alias: { mosaicId: '0034567890ABCDEF' } } });
 
 			// Act:
 			const mosaicId = await proxy.resolveMosaicId(0x9234567890ABCDEFn);
 
 			// Assert:
-			expect(mosaicId).to.equal(0x1234567890ABCDEFn);
+			expect(mosaicId).to.equal(0x0034567890ABCDEFn);
 		});
 
 		it('fails when fetch fails (namespaces)', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('namespaces/9234567890ABCDEF', false, { namespace: { alias: { mosaicId: '1234567890ABCDEF' } } });
+			stubFetchResult('namespaces/9234567890ABCDEF', false, { namespace: { alias: { mosaicId: '0034567890ABCDEF' } } });
 
 			// Act + Assert:
 			await assertAsyncErrorThrown(() => proxy.resolveMosaicId(0x9234567890ABCDEFn), RosettaErrorFactory.CONNECTION_ERROR);
@@ -347,7 +347,7 @@ describe('CatapultProxy', () => {
 			stubFetchResult('statements/resolutions/mosaic?height=1234', true, {
 				data: [
 					makeResolutionStatement('9234567890ABCDEF', [
-						makeResolutionEntry('1234567890ABCDEF', 2, 4),
+						makeResolutionEntry('0034567890ABCDEF', 2, 4),
 						makeResolutionEntry('2234567890ABCDEF', 3, 0)
 					])
 				]
@@ -367,7 +367,7 @@ describe('CatapultProxy', () => {
 				data: [
 					makeResolutionStatement('9234567890ABCDEF', [
 						makeResolutionEntry('0234567890ABCDEF', 1, 3),
-						makeResolutionEntry('1234567890ABCDEF', 2, 2),
+						makeResolutionEntry('0034567890ABCDEF', 2, 2),
 						makeResolutionEntry('2234567890ABCDEF', 3, 0)
 					])
 				]
@@ -377,7 +377,7 @@ describe('CatapultProxy', () => {
 			const mosaicId = await proxy.resolveMosaicId(0x9234567890ABCDEFn, { height: 1234n, primaryId: 2, secondaryId: 3 });
 
 			// Assert:
-			expect(mosaicId).to.equal(0x1234567890ABCDEFn);
+			expect(mosaicId).to.equal(0x0034567890ABCDEFn);
 		});
 
 		it('fails when fetch fails (statements)', async () => {
@@ -387,7 +387,7 @@ describe('CatapultProxy', () => {
 				data: [
 					makeResolutionStatement('9234567890ABCDEF', [
 						makeResolutionEntry('0234567890ABCDEF', 1, 3),
-						makeResolutionEntry('1234567890ABCDEF', 2, 2),
+						makeResolutionEntry('0034567890ABCDEF', 2, 2),
 						makeResolutionEntry('2234567890ABCDEF', 3, 0)
 					])
 				]
@@ -405,11 +405,11 @@ describe('CatapultProxy', () => {
 		it('can retrieve properties for mosaic with name', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('mosaics/1234567890ABCDEF', true, { mosaic: { divisibility: 3 } });
+			stubFetchResult('mosaics/0034567890ABCDEF', true, { mosaic: { divisibility: 3 } });
 			stubFetchResult('namespaces/mosaic/names', true, { mosaicNames: [{ names: ['alpha', 'beta'] }] });
 
 			// Act:
-			const mosaicProperties = await proxy.mosaicProperties(0x1234567890ABCDEFn);
+			const mosaicProperties = await proxy.mosaicProperties(0x0034567890ABCDEFn);
 
 			// Assert:
 			expect(mosaicProperties).to.deep.equal({
@@ -421,15 +421,15 @@ describe('CatapultProxy', () => {
 		it('can retrieve properties for mosaic without name', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('mosaics/1234567890ABCDEF', true, { mosaic: { divisibility: 3 } });
+			stubFetchResult('mosaics/0034567890ABCDEF', true, { mosaic: { divisibility: 3 } });
 			stubFetchResult('namespaces/mosaic/names', true, { mosaicNames: [{ names: [] }] });
 
 			// Act:
-			const mosaicProperties = await proxy.mosaicProperties(0x1234567890ABCDEFn);
+			const mosaicProperties = await proxy.mosaicProperties(0x0034567890ABCDEFn);
 
 			// Assert:
 			expect(mosaicProperties).to.deep.equal({
-				name: '1234567890ABCDEF',
+				name: '0034567890ABCDEF',
 				divisibility: 3
 			});
 		});
@@ -437,13 +437,13 @@ describe('CatapultProxy', () => {
 		it('can retrieve properties for mosaic with name (cached)', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('mosaics/1234567890ABCDEF', true, { mosaic: { divisibility: 3 } });
+			stubFetchResult('mosaics/0034567890ABCDEF', true, { mosaic: { divisibility: 3 } });
 			stubFetchResult('namespaces/mosaic/names', true, { mosaicNames: [{ names: ['alpha', 'beta'] }] });
 
 			// Act:
-			await proxy.mosaicProperties(0x1234567890ABCDEFn);
-			await proxy.mosaicProperties(0x1234567890ABCDEFn);
-			const mosaicProperties = await proxy.mosaicProperties(0x1234567890ABCDEFn);
+			await proxy.mosaicProperties(0x0034567890ABCDEFn);
+			await proxy.mosaicProperties(0x0034567890ABCDEFn);
+			const mosaicProperties = await proxy.mosaicProperties(0x0034567890ABCDEFn);
 
 			// Assert: only initial calls were made
 			expect(global.fetch.callCount).to.equal(2);
@@ -456,21 +456,21 @@ describe('CatapultProxy', () => {
 		it('fails when fetch fails (mosaics)', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('mosaics/1234567890ABCDEF', false, { mosaic: { divisibility: 3 } });
+			stubFetchResult('mosaics/0034567890ABCDEF', false, { mosaic: { divisibility: 3 } });
 			stubFetchResult('namespaces/mosaic/names', true, { mosaicNames: [{ names: ['alpha', 'beta'] }] });
 
 			// Act + Assert:
-			await assertAsyncErrorThrown(() => proxy.mosaicProperties(0x1234567890ABCDEFn), RosettaErrorFactory.CONNECTION_ERROR);
+			await assertAsyncErrorThrown(() => proxy.mosaicProperties(0x0034567890ABCDEFn), RosettaErrorFactory.CONNECTION_ERROR);
 		});
 
 		it('fails when fetch fails (namespaces/mosaic/names)', async () => {
 			// Arrange:
 			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('mosaics/1234567890ABCDEF', true, { mosaic: { divisibility: 3 } });
+			stubFetchResult('mosaics/0034567890ABCDEF', true, { mosaic: { divisibility: 3 } });
 			stubFetchResult('namespaces/mosaic/names', false, { mosaicNames: [{ names: ['alpha', 'beta'] }] });
 
 			// Act + Assert:
-			await assertAsyncErrorThrown(() => proxy.mosaicProperties(0x1234567890ABCDEFn), RosettaErrorFactory.CONNECTION_ERROR);
+			await assertAsyncErrorThrown(() => proxy.mosaicProperties(0x0034567890ABCDEFn), RosettaErrorFactory.CONNECTION_ERROR);
 		});
 	});
 });
