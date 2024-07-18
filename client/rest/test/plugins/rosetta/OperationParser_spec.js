@@ -26,6 +26,8 @@ import Amount from '../../../src/plugins/rosetta/openApi/model/Amount.js';
 import Currency from '../../../src/plugins/rosetta/openApi/model/Currency.js';
 import Operation from '../../../src/plugins/rosetta/openApi/model/Operation.js';
 import OperationIdentifier from '../../../src/plugins/rosetta/openApi/model/OperationIdentifier.js';
+import Transaction from '../../../src/plugins/rosetta/openApi/model/Transaction.js';
+import TransactionIdentifier from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
 import { expect } from 'chai';
 import { SymbolFacade, generateMosaicAliasId, models } from 'symbol-sdk/symbol';
 
@@ -417,6 +419,40 @@ describe('OperationParser', () => {
 
 			it('can parse multiple transactions with explicit cosigners including fee (confirmed)', () =>
 				assertCanParseWithFee({ feeMultiplier: 200 }, '-20000'));
+		});
+
+		// endregion
+
+		// region parseTransactionAsRosettaTransaction
+
+		it('can parse as rosetta transaction', async () => {
+			// Arrange:
+			const facade = new SymbolFacade('testnet');
+			const transaction = facade.transactionFactory.create({
+				type: 'transfer_transaction_v1',
+				recipientAddress: 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
+				signerPublicKey: '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9',
+				mosaics: [
+					{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 12345_000000n }
+				]
+			});
+
+			const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
+
+			// Act:
+			const rosettaTransaction = await parser.parseTransactionAsRosettaTransaction(
+				convertTransactionSdkJsonToRestJson(transaction.toJson()),
+				{ hash: '7B7A5E55E3F788C036B759B6AD46FF91A67DC956BB4B360587F366397F251C62' }
+			);
+
+			// Assert:
+			expect(rosettaTransaction).to.deep.equal(new Transaction(
+				new TransactionIdentifier('7B7A5E55E3F788C036B759B6AD46FF91A67DC956BB4B360587F366397F251C62'),
+				[
+					createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-12345000000', 'symbol.xym', 6),
+					createTransferOperation(1, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '12345000000', 'symbol.xym', 6)
+				]
+			));
 		});
 
 		// endregion

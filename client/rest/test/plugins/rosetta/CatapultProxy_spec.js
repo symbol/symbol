@@ -25,6 +25,8 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 describe('CatapultProxy', () => {
+	// region utils
+
 	const TEST_ENDPOINT = 'http://localhost:3456';
 
 	const assertAsyncErrorThrown = async (func, expectedRosettaError) => {
@@ -50,6 +52,10 @@ describe('CatapultProxy', () => {
 		if (global.fetch.restore)
 			global.fetch.restore();
 	});
+
+	// endregion
+
+	// region fetch
 
 	describe('fetch', () => {
 		it('fails when fetch fails (headers)', async () => {
@@ -118,6 +124,10 @@ describe('CatapultProxy', () => {
 			expect(result).to.deep.equal({ foo: 123, bar: 246 });
 		});
 	});
+
+	// endregion
+
+	// region fetchAll
 
 	describe('fetchAll', () => {
 		const TEST_DATA = [
@@ -225,6 +235,10 @@ describe('CatapultProxy', () => {
 		});
 	});
 
+	// endregion
+
+	// region cache
+
 	describe('cache', () => {
 		const setCacheFetchResults = (failureUrlPath = undefined) => {
 			stubFetchResult('node/info', 'node/info' !== failureUrlPath, { node: 'alpha' });
@@ -264,7 +278,7 @@ describe('CatapultProxy', () => {
 			expect(result).to.deep.equal(expectedResult);
 		};
 
-		const addCachePropertyTests = (propertyName, urlPath, expectedResult) => {
+		const addCachePropertyTests = (propertyName, urlPath, expectedResult, additionalTests = undefined) => {
 			describe(propertyName, () => {
 				it('can retrieve', () => runGlobalCacheQueryTest(proxy => proxy[propertyName](), expectedResult));
 
@@ -279,13 +293,44 @@ describe('CatapultProxy', () => {
 					proxy => proxy[propertyName](),
 					expectedResult
 				));
+
+				if (additionalTests)
+					additionalTests();
 			});
 		};
 
 		addCachePropertyTests('nodeInfo', 'node/info', { node: 'alpha' });
-		addCachePropertyTests('networkProperties', 'network/properties', { network: 'beta' });
+		addCachePropertyTests('networkProperties', 'network/properties', { network: 'beta' }, () => {
+			it('post processes currencyMosaicId', async () => {
+				// Arrange:
+				const proxy = new CatapultProxy(TEST_ENDPOINT);
+				setCacheFetchResults();
+				stubFetchResult('network/properties', true, {
+					tag: 'beta',
+					chain: {
+						currencyMosaicId: '0x664E\'D36A\'3138\'66F5'
+					}
+				});
+
+				// Act:
+				const result = await proxy.networkProperties();
+
+				// Assert: only initial calls were made
+				expect(global.fetch.callCount).to.equal(3);
+				expect(result).to.deep.equal({
+					tag: 'beta',
+					chain: {
+						currencyMosaicId: '0x664ED36A313866F5'
+					}
+				});
+			});
+		});
 		addCachePropertyTests('nemesisBlock', 'blocks/1', { height: 'gamma' });
 	});
+
+	// endregion
+
+	// region resolveMosaicId
 
 	describe('resolveMosaicId', () => {
 		it('can resolve resolved mosaic id', async () => {
@@ -401,6 +446,10 @@ describe('CatapultProxy', () => {
 		});
 	});
 
+	// endregion
+
+	// region mosaicProperties
+
 	describe('mosaicProperties', () => {
 		it('can retrieve properties for mosaic with name', async () => {
 			// Arrange:
@@ -413,6 +462,7 @@ describe('CatapultProxy', () => {
 
 			// Assert:
 			expect(mosaicProperties).to.deep.equal({
+				id: '0034567890ABCDEF',
 				name: 'alpha',
 				divisibility: 3
 			});
@@ -429,6 +479,7 @@ describe('CatapultProxy', () => {
 
 			// Assert:
 			expect(mosaicProperties).to.deep.equal({
+				id: '0034567890ABCDEF',
 				name: '0034567890ABCDEF',
 				divisibility: 3
 			});
@@ -448,6 +499,7 @@ describe('CatapultProxy', () => {
 			// Assert: only initial calls were made
 			expect(global.fetch.callCount).to.equal(2);
 			expect(mosaicProperties).to.deep.equal({
+				id: '0034567890ABCDEF',
 				name: 'alpha',
 				divisibility: 3
 			});
@@ -473,4 +525,6 @@ describe('CatapultProxy', () => {
 			await assertAsyncErrorThrown(() => proxy.mosaicProperties(0x0034567890ABCDEFn), RosettaErrorFactory.CONNECTION_ERROR);
 		});
 	});
+
+	// endregion
 });

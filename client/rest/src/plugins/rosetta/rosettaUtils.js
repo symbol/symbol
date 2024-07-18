@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Currency from './openApi/model/Currency.js';
 import RosettaApiError from './openApi/model/Error.js';
 import { sendJson } from '../../routes/simpleSend.js';
 
@@ -96,4 +97,51 @@ export const rosettaPostRouteWithNetwork = (networkName, Request, handler) => as
 	} catch (err) {
 		return send(err instanceof RosettaError ? err : RosettaErrorFactory.INTERNAL_SERVER_ERROR);
 	}
+};
+
+/**
+ * Creates the lookup currency function used by the operation parser.
+ * @param {object} proxy Catapult proxy.
+ * @returns {Function} Currency lookup function.
+ */
+export const createLookupCurrencyFunction = proxy => async unresolvedMosaicId => {
+	const resolvedMosaicId = 'currencyMosaicId' === unresolvedMosaicId
+		? BigInt((await proxy.networkProperties()).chain.currencyMosaicId)
+		: await proxy.resolveMosaicId(unresolvedMosaicId);
+	const mosaicProperties = await proxy.mosaicProperties(resolvedMosaicId);
+
+	const currency = new Currency(mosaicProperties.name, mosaicProperties.divisibility);
+	currency.metadata = { id: mosaicProperties.id };
+	return currency;
+};
+
+/**
+ * Accepts an array of REST JSON transactions composed of both top level and embedded transactions.
+ * Reduces the array by stitching embedded transactions into their containing aggregates.
+ * @param {Array<object>} transactions REST JSON transactions composed of both top level and embedded transactions.
+ * @returns {Array<object>} REST JSON transactions composed of only top level transactions.
+ */
+export const stitchBlockTransactions = transactions => {
+	// first pass - group embedded transactions
+	const aggregateHashToEmbeddedTransactionsMap = new Map();
+	transactions.forEach(transaction => {
+		if (!transaction.meta.aggregateHash)
+			return;
+
+		if (!aggregateHashToEmbeddedTransactionsMap.has(transaction.meta.aggregateHash))
+			aggregateHashToEmbeddedTransactionsMap.set(transaction.meta.aggregateHash, []);
+
+		aggregateHashToEmbeddedTransactionsMap.get(transaction.meta.aggregateHash).push(transaction);
+	});
+
+	// second pass - filter out embedded transactions and attach embedded transactions to aggregates
+	return transactions.filter(transaction => {
+		if (aggregateHashToEmbeddedTransactionsMap.has(transaction.meta.hash)) {
+			const embeddedTransactions = aggregateHashToEmbeddedTransactionsMap.get(transaction.meta.hash);
+			embeddedTransactions.sort((lhs, rhs) => lhs.meta.index - rhs.meta.index);
+			transaction.transaction.transactions = embeddedTransactions;
+		}
+
+		return transaction.meta.hash;
+	});
 };

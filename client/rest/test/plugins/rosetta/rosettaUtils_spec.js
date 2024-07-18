@@ -20,11 +20,16 @@
  */
 
 import ConstructionDeriveRequest from '../../../src/plugins/rosetta/openApi/model/ConstructionDeriveRequest.js';
+import Currency from '../../../src/plugins/rosetta/openApi/model/Currency.js';
 import RosettaApiError from '../../../src/plugins/rosetta/openApi/model/Error.js';
-import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import {
+	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork, stitchBlockTransactions
+} from '../../../src/plugins/rosetta/rosettaUtils.js';
 import { expect } from 'chai';
 
 describe('rosetta utils', () => {
+	// region RosettaErrorFactory
+
 	describe('RosettaErrorFactory', () => {
 		it('all have unique codes', () => {
 			// Arrange: filter out properties added to every class
@@ -39,6 +44,10 @@ describe('rosetta utils', () => {
 			expect(errorCodeSet.size).to.equal(errorNames.length);
 		});
 	});
+
+	// endregion
+
+	// region rosettaPostRouteWithNetwork
 
 	describe('rosettaPostRouteWithNetwork', () => {
 		// use /construction/derive types in these tests
@@ -153,4 +162,103 @@ describe('rosetta utils', () => {
 			foo: typedRequest.network_identifier.network
 		}))));
 	});
+
+	// endregion
+
+	// region createLookupCurrencyFunction
+
+	describe('createLookupCurrencyFunction', () => {
+		const mockProxy = {
+			networkProperties: () => Promise.resolve({ chain: { currencyMosaicId: '0x1234567812345678' } }),
+			resolveMosaicId: unresolvedMosaicId => unresolvedMosaicId + 1n,
+			mosaicProperties: mosaicId => Promise.resolve({
+				id: mosaicId.toString(16),
+				name: 'foo.bar',
+				divisibility: 3
+			})
+		};
+
+		it('can lookup currency mosaic id', async () => {
+			// Act:
+			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
+			const currency = await lookupCurrency('currencyMosaicId');
+
+			// Assert:
+			const expectedCurrency = new Currency('foo.bar', 3);
+			expectedCurrency.metadata = { id: '1234567812345678' };
+			expect(currency).to.deep.equal(expectedCurrency);
+		});
+
+		it('can lookup arbitrary mosaic id', async () => {
+			// Act:
+			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
+			const currency = await lookupCurrency(0x1111222233334444n);
+
+			// Assert:
+			const expectedCurrency = new Currency('foo.bar', 3);
+			expectedCurrency.metadata = { id: '1111222233334445' };
+			expect(currency).to.deep.equal(expectedCurrency);
+		});
+	});
+
+	// endregion
+
+	// region stitchBlockTransactions
+
+	describe('stitchBlockTransactions', () => {
+		it('does not modify regular transactions', () => {
+			// Act:
+			const transactions = stitchBlockTransactions([
+				{ transaction: { tag: 'alpha' }, meta: { hash: 'A' } },
+				{ transaction: { tag: 'beta' }, meta: { hash: 'B' } },
+				{ transaction: { tag: 'gamma' }, meta: { hash: 'C' } }
+			]);
+
+			// Assert:
+			expect(transactions).to.deep.equal([
+				{ transaction: { tag: 'alpha' }, meta: { hash: 'A' } },
+				{ transaction: { tag: 'beta' }, meta: { hash: 'B' } },
+				{ transaction: { tag: 'gamma' }, meta: { hash: 'C' } }
+			]);
+		});
+
+		it('stitches embedded transactions into their containing aggregate transactions', () => {
+			// Act:
+			const transactions = stitchBlockTransactions([
+				{ transaction: { tag: 'alpha' }, meta: { hash: 'A' } },
+				{ transaction: { tag: 'beta' }, meta: { hash: 'B' } },
+				{ transaction: { tag: 'gamma' }, meta: { hash: 'C' } },
+				{ transaction: { tag: 'omega' }, meta: { aggregateHash: 'A', index: 2 } },
+				{ transaction: { tag: 'sigma' }, meta: { aggregateHash: 'C', index: 1 } },
+				{ transaction: { tag: 'psi' }, meta: { aggregateHash: 'D', index: 0 } }, // dropped
+				{ transaction: { tag: 'zeta' }, meta: { aggregateHash: 'A', index: 0 } }
+			]);
+
+			// Assert:
+			expect(transactions).to.deep.equal([
+				{
+					transaction: {
+						tag: 'alpha',
+						transactions: [
+							{ transaction: { tag: 'zeta' }, meta: { aggregateHash: 'A', index: 0 } },
+							{ transaction: { tag: 'omega' }, meta: { aggregateHash: 'A', index: 2 } }
+						]
+					},
+					meta: { hash: 'A' }
+				},
+				{ transaction: { tag: 'beta' }, meta: { hash: 'B' } },
+				{
+					transaction: {
+						tag: 'gamma',
+						transactions: [
+							{ transaction: { tag: 'sigma' }, meta: { aggregateHash: 'C', index: 1 } }
+						]
+					},
+					meta: { hash: 'C' }
+				}
+			]);
+		});
+	});
+
+	// endregion
 });

@@ -23,6 +23,8 @@ import AccountIdentifier from './openApi/model/AccountIdentifier.js';
 import Amount from './openApi/model/Amount.js';
 import Operation from './openApi/model/Operation.js';
 import OperationIdentifier from './openApi/model/OperationIdentifier.js';
+import Transaction from './openApi/model/Transaction.js';
+import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
 import { PublicKey, utils } from 'symbol-sdk';
 import { Address, Network, models } from 'symbol-sdk/symbol';
 
@@ -127,6 +129,17 @@ export class OperationParser {
 
 		operation.amount = new Amount((-options.amount).toString(), options.currency);
 		return operation;
+	}
+
+	/**
+	 * Parses a transaction into a rosetta transaction.
+	 * @param {object} transaction Transaction to process (REST object model is assumed).
+	 * @param {object} metadata Transaction metadata.
+	 * @returns {Transaction} Rosetta transaction.
+	 */
+	async parseTransactionAsRosettaTransaction(transaction, metadata) {
+		const { operations } = await this.parseTransaction(transaction, metadata);
+		return new Transaction(new TransactionIdentifier(metadata.hash), operations);
 	}
 
 	/**

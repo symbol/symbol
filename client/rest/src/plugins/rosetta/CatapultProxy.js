@@ -102,6 +102,10 @@ export default class CatapultProxy {
 				networkProperties: results[1],
 				nemesisBlock: results[2]
 			};
+
+			const chainProperties = this.cache.networkProperties.chain;
+			if (chainProperties && chainProperties.currencyMosaicId)
+				chainProperties.currencyMosaicId = chainProperties.currencyMosaicId.replace(/'/g, '');
 		}
 
 		return this.cache[propertyName];
@@ -187,7 +191,8 @@ export default class CatapultProxy {
 
 		const mosaic = {
 			name: results[1].names.length ? results[1].names[0] : bigIntToHexString(resolvedMosaicId),
-			divisibility: results[0]
+			divisibility: results[0],
+			id: bigIntToHexString(resolvedMosaicId)
 		};
 		this.mosaicPropertiesMap.set(resolvedMosaicId, mosaic);
 		return mosaic;
