@@ -21,7 +21,7 @@
 
 import { RosettaErrorFactory } from './rosettaUtils.js';
 
-const bigIntToHexString = value => value.toString(16).toUpperCase();
+const bigIntToHexString = value => value.toString(16).padStart(16, '0').toUpperCase();
 
 /**
  * Proxy to a catapult node that performs caching for performance optimization, as appropriate.
@@ -76,7 +76,7 @@ export default class CatapultProxy {
 			pageNumber++;
 
 			// eslint-disable-next-line no-await-in-loop
-			response = await this.fetch(nextUrlPath, undefined, requestOptions);
+			response = await this.fetch(nextUrlPath, jsonObject => jsonObject.data, requestOptions);
 			jsonObjects.push(...response);
 		} while (response.length === pageSize);
 
