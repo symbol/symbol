@@ -22,6 +22,8 @@
 import { RosettaErrorFactory } from './rosettaUtils.js';
 
 const bigIntToHexString = value => value.toString(16).padStart(16, '0').toUpperCase();
+const isReceiptSourceLessThanEqual = (lhs, rhs) =>
+	lhs.primaryId < rhs.primaryId || (lhs.primaryId === rhs.primaryId && lhs.secondaryId <= rhs.secondaryId);
 
 /**
  * Proxy to a catapult node that performs caching for performance optimization, as appropriate.
@@ -164,7 +166,7 @@ export default class CatapultProxy {
 		for (let i = resolutionStatement.statement.resolutionEntries.length - 1; 0 <= i; --i) {
 			const resolutionEntry = resolutionStatement.statement.resolutionEntries[i];
 			const { source } = resolutionEntry;
-			if (source.primaryId <= transactionLocation.primaryId && source.secondaryId <= transactionLocation.secondaryId)
+			if (isReceiptSourceLessThanEqual(source, transactionLocation))
 				return BigInt(`0x${resolutionEntry.resolved}`);
 		}
 
