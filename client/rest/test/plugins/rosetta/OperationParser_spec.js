@@ -145,6 +145,35 @@ describe('OperationParser', () => {
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI']);
 			});
+
+			it('can parse with multiple mosaic and filter out zero transfers', async () => {
+				// Arrange:
+				const facade = new SymbolFacade('testnet');
+				const transaction = facade.transactionFactory.create({
+					type: 'transfer_transaction_v1',
+					recipientAddress: 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
+					signerPublicKey: '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9',
+					mosaics: [
+						{ mosaicId: generateMosaicAliasId('baz.bar'), amount: 22222 },
+						{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 0 },
+						{ mosaicId: generateMosaicAliasId('foo.bar'), amount: 1000 }
+					]
+				});
+
+				const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
+
+				// Act:
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction);
+
+				// Assert:
+				expect(operations).to.deep.equal([
+					createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-22222', 'baz.bar', 1),
+					createTransferOperation(1, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '22222', 'baz.bar', 1),
+					createTransferOperation(2, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-1000', 'foo.bar', 3),
+					createTransferOperation(3, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '1000', 'foo.bar', 3)
+				]);
+				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI']);
+			});
 		});
 
 		// endregion
@@ -619,38 +648,50 @@ describe('OperationParser', () => {
 		};
 
 		describe('debit', () => {
-			it('can parse', () => runReceiptTest({
+			const createReceiptJson = amount => ({
 				type: 12626,
 				targetAddress: '982390440A195B82D4A06810038B1400CE7CDA7AB3F48F99',
 				mosaicId: generateMosaicAliasId('foo.bar'),
-				amount: '4741734'
-			}, [
+				amount
+			});
+
+			it('can parse', () => runReceiptTest(createReceiptJson('4741734'), [
 				createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-4741734', 'foo.bar', 3)
 			]));
+
+			it('filters out zero amount', () => runReceiptTest(createReceiptJson('0'), []));
 		});
 
 		describe('credit', () => {
-			it('can parse', () => runReceiptTest({
+			const createReceiptJson = amount => ({
 				type: 8515,
 				targetAddress: '982390440A195B82D4A06810038B1400CE7CDA7AB3F48F99',
 				mosaicId: generateMosaicAliasId('foo.bar'),
-				amount: '4741734'
-			}, [
+				amount
+			});
+
+			it('can parse', () => runReceiptTest(createReceiptJson('4741734'), [
 				createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '4741734', 'foo.bar', 3)
 			]));
+
+			it('filters out zero amount', () => runReceiptTest(createReceiptJson('0'), []));
 		});
 
 		describe('transfer', () => {
-			it('can parse', () => runReceiptTest({
+			const createReceiptJson = amount => ({
 				type: 4942,
 				senderAddress: '985F73D67009A33962EFE43BD21288AFF7428B43FE942B5E',
 				recipientAddress: '982390440A195B82D4A06810038B1400CE7CDA7AB3F48F99',
 				mosaicId: generateMosaicAliasId('foo.bar'),
-				amount: '4741734'
-			}, [
+				amount
+			});
+
+			it('can parse', () => runReceiptTest(createReceiptJson('4741734'), [
 				createTransferOperation(0, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '-4741734', 'foo.bar', 3),
 				createTransferOperation(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '4741734', 'foo.bar', 3)
 			]));
+
+			it('filters out zero amount', () => runReceiptTest(createReceiptJson('0'), []));
 		});
 
 		describe('other', () => {
