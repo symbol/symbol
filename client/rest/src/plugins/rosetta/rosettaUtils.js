@@ -104,10 +104,10 @@ export const rosettaPostRouteWithNetwork = (networkName, Request, handler) => as
  * @param {object} proxy Catapult proxy.
  * @returns {Function} Currency lookup function.
  */
-export const createLookupCurrencyFunction = proxy => async unresolvedMosaicId => {
+export const createLookupCurrencyFunction = proxy => async (unresolvedMosaicId, transactionLocation) => {
 	const resolvedMosaicId = 'currencyMosaicId' === unresolvedMosaicId
 		? BigInt((await proxy.networkProperties()).chain.currencyMosaicId)
-		: await proxy.resolveMosaicId(unresolvedMosaicId);
+		: await proxy.resolveMosaicId(unresolvedMosaicId, transactionLocation);
 	const mosaicProperties = await proxy.mosaicProperties(resolvedMosaicId);
 
 	const currency = new Currency(mosaicProperties.name, mosaicProperties.divisibility);

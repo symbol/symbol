@@ -152,6 +152,17 @@ export class OperationParser {
 		const allSignerPublicKeyStringSet = new Set();
 		allSignerPublicKeyStringSet.add(transaction.signerPublicKey);
 
+		const makeTransactionLocation = (secondaryId = undefined) => {
+			if (undefined === metadata.height || '0' === metadata.height)
+				return undefined;
+
+			return {
+				height: BigInt(metadata.height),
+				primaryId: metadata.index + 1,
+				secondaryId: undefined === secondaryId ? 0 : secondaryId + 1
+			};
+		};
+
 		const operations = [];
 		if (transaction.transactions) {
 			const operationGroups = Array(transaction.transactions.length);
@@ -161,7 +172,13 @@ export class OperationParser {
 				// due to async nature, operations from previous transaction might not be added yet
 				// so simply using operations.length would yield wrong result
 				// instead, renumber the operations below
-				const subOperations = await this.parseTransactionInternal(0, subTransaction.transaction);
+				const subOperations = await this.parseTransactionInternal(
+					0,
+					subTransaction.transaction,
+					subTransaction.meta && undefined !== subTransaction.meta.index
+						? makeTransactionLocation(subTransaction.meta.index)
+						: undefined
+				);
 				operationGroups[i] = subOperations;
 			}));
 
@@ -183,7 +200,7 @@ export class OperationParser {
 				operations.push(cosignOperation);
 			});
 		} else {
-			const subOperations = await this.parseTransactionInternal(operations.length, transaction);
+			const subOperations = await this.parseTransactionInternal(operations.length, transaction, makeTransactionLocation());
 			operations.push(...subOperations);
 		}
 
@@ -210,18 +227,21 @@ export class OperationParser {
 	 * Parses a transaction into operations.
 	 * @param {number} startOperationId First operation id to use.
 	 * @param {object} transaction Transaction to process (REST object model is assumed).
+	 * @param {object} transactionLocation Location of transaction for which to perform the resolution.
 	 * @returns {Array<Operation>} Transaction operations.
 	 * @private
 	 */
-	async parseTransactionInternal(startOperationId, transaction) {
+	async parseTransactionInternal(startOperationId, transaction, transactionLocation = undefined) {
 		let id = startOperationId;
 		const operations = [];
+
+		const lookupCurrency = mosaicIdString => this.options.lookupCurrency(idStringToBigInt(mosaicIdString), transactionLocation);
 
 		const transactionType = transaction.type;
 		if (models.TransactionType.TRANSFER.value === transactionType) {
 			await Promise.all(transaction.mosaics.map(async mosaic => {
 				const amount = BigInt(mosaic.amount);
-				const currency = await this.options.lookupCurrency(idStringToBigInt(mosaic.id));
+				const currency = await lookupCurrency(mosaic.id);
 
 				operations.push(this.createDebitOperation({
 					id: id++,
@@ -248,7 +268,7 @@ export class OperationParser {
 			operations.push(operation);
 		} else if (models.TransactionType.MOSAIC_SUPPLY_REVOCATION.value === transactionType) {
 			const amount = BigInt(transaction.amount);
-			const currency = await this.options.lookupCurrency(idStringToBigInt(transaction.mosaicId));
+			const currency = await lookupCurrency(transaction.mosaicId);
 
 			operations.push(this.createDebitOperation({
 				id: id++,
@@ -264,7 +284,7 @@ export class OperationParser {
 			}));
 		} else if (models.TransactionType.MOSAIC_SUPPLY_CHANGE.value === transactionType) {
 			const amount = BigInt(transaction.delta);
-			const currency = await this.options.lookupCurrency(idStringToBigInt(transaction.mosaicId));
+			const currency = await lookupCurrency(transaction.mosaicId);
 
 			operations.push(this.createCreditOperation({
 				id: id++,

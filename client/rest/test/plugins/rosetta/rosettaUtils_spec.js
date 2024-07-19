@@ -170,9 +170,10 @@ describe('rosetta utils', () => {
 	describe('createLookupCurrencyFunction', () => {
 		const mockProxy = {
 			networkProperties: () => Promise.resolve({ chain: { currencyMosaicId: '0x1234567812345678' } }),
-			resolveMosaicId: unresolvedMosaicId => unresolvedMosaicId + 1n,
+			resolveMosaicId: (unresolvedMosaicId, transactionLocation) =>
+				unresolvedMosaicId + BigInt(transactionLocation.primaryId + (transactionLocation.secondaryId * 0x100)),
 			mosaicProperties: mosaicId => Promise.resolve({
-				id: mosaicId.toString(16),
+				id: mosaicId.toString(16).toUpperCase(),
 				name: 'foo.bar',
 				divisibility: 3
 			})
@@ -181,7 +182,7 @@ describe('rosetta utils', () => {
 		it('can lookup currency mosaic id', async () => {
 			// Act:
 			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
-			const currency = await lookupCurrency('currencyMosaicId');
+			const currency = await lookupCurrency('currencyMosaicId', { primaryId: 0x11, secondaryId: 0x246 });
 
 			// Assert:
 			const expectedCurrency = new Currency('foo.bar', 3);
@@ -192,11 +193,11 @@ describe('rosetta utils', () => {
 		it('can lookup arbitrary mosaic id', async () => {
 			// Act:
 			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
-			const currency = await lookupCurrency(0x1111222233334444n);
+			const currency = await lookupCurrency(0x1111222233334444n, { primaryId: 0x11, secondaryId: 0x246 });
 
 			// Assert:
 			const expectedCurrency = new Currency('foo.bar', 3);
-			expectedCurrency.metadata = { id: '1111222233334445' };
+			expectedCurrency.metadata = { id: '1111222233358A55' };
 			expect(currency).to.deep.equal(expectedCurrency);
 		});
 	});
