@@ -21,6 +21,7 @@
 
 import Currency from './openApi/model/Currency.js';
 import RosettaApiError from './openApi/model/Error.js';
+import OperationStatus from './openApi/model/OperationStatus.js';
 import { sendJson } from '../../routes/simpleSend.js';
 
 /**
@@ -66,6 +67,17 @@ export class RosettaErrorFactory {
 		return new RosettaError(100, 'internal server error', false);
 	}
 }
+
+export const operationStatus = {
+	SUCCESS: new OperationStatus('success', true)
+};
+
+export const operationTypes = {
+	COSIGN: 'cosign',
+	FEE: 'fee',
+	MULTISIG: 'multisig',
+	TRANSFER: 'transfer'
+};
 
 /**
  * Orchestrates a rosetta POST route by validating request data, including network, before calling user handler.
