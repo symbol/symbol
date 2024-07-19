@@ -55,15 +55,14 @@ export default {
 			]);
 
 			const blockEventsToRosettaTransaction = async (blockHash, blockStatements) => {
-				const result = await Promise.all(blockStatements.map(async statement => {
-					return Promise.all(statement.statement.receipts.map(async receipt => {
+				const result = await Promise.all(blockStatements.map(async statement =>
+					Promise.all(statement.statement.receipts.map(async receipt => {
 						const receiptOperation = await parser.parseReceipt(receipt, {
 							...statement.statement.source,
 							height
 						});
 						return receiptOperation.operations;
-					}));
-				}));
+					}))));
 
 				const operations = await Promise.all(result.flat(Infinity));
 				let id = 0;

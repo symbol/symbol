@@ -68,8 +68,11 @@ export default {
 			const results = await accountInfoRequest(typedRequest);
 			let amounts = await toRosettaAmounts(results[1]);
 
-			if (typedRequest.currencies)
-				amounts = amounts.filter(a => typedRequest.currencies.find(c => a.currency.symbol === c.symbol && a.currency.decimals === c.decimals));
+			if (typedRequest.currencies) {
+				amounts = amounts.filter(a =>
+					typedRequest.currencies.find(c =>
+						a.currency.symbol === c.symbol && a.currency.decimals === c.decimals));
+			}
 
 			const response = new AccountBalanceResponse();
 			response.block_identifier = results[0];
