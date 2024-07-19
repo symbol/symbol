@@ -298,7 +298,6 @@ export class OperationParser {
 				currency
 			}));
 			operations.push(this.createCreditOperation({
-				id: id++,
 				targetPublicKey: transaction.signerPublicKey,
 				amount,
 				currency
