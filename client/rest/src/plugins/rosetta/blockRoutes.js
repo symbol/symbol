@@ -41,7 +41,8 @@ export default {
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 		const parser = new OperationParser(network, {
 			includeFeeOperation: true,
-			lookupCurrency
+			lookupCurrency,
+			resolveAddress: services.proxy.resolveAddress
 		});
 
 		server.post('/block', rosettaPostRouteWithNetwork(networkName, BlockRequest, async typedRequest => {
@@ -54,13 +55,10 @@ export default {
 				services.proxy.fetchAll(`statements/transaction?height=${height}`, pageSize)
 			]);
 
-			const blockEventsToRosettaTransaction = async (blockHash, blockStatements) => {
+			const blockEventsAsRosettaTransaction = async (blockHash, blockStatements) => {
 				const result = await Promise.all(blockStatements.map(async statement =>
 					Promise.all(statement.statement.receipts.map(async receipt => {
-						const receiptOperation = await parser.parseReceipt(receipt, {
-							...statement.statement.source,
-							height
-						});
+						const receiptOperation = await parser.parseReceipt(receipt);
 						return receiptOperation.operations;
 					}))));
 
@@ -79,7 +77,7 @@ export default {
 
 			const networkProperties = await services.proxy.networkProperties();
 			const epochAdjustment = Number(networkProperties.network.epochAdjustment.slice(0, -1));
-			const blockTransaction = await blockEventsToRosettaTransaction(blockInfo.meta.hash, blockStatements);
+			const blockTransaction = await blockEventsAsRosettaTransaction(blockInfo.meta.hash, blockStatements);
 			const rosettaTransactions = await Promise.all(stitchBlockTransactions(transactions)
 				.map(transaction => parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)));
 

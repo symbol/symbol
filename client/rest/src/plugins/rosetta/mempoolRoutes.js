@@ -51,7 +51,8 @@ export default {
 			const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
 			const parser = new OperationParser(network, {
 				includeFeeOperation: true,
-				lookupCurrency
+				lookupCurrency,
+				resolveAddress: services.proxy.resolveAddress
 			});
 			const response = new MempoolTransactionResponse();
 			response.transaction = await parser.parseTransactionAsRosettaTransaction(transaction);
