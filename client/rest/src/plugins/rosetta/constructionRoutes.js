@@ -266,7 +266,8 @@ export default {
 						throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
 
 					return xymCurrency;
-				}
+				},
+				resolveAddress: address => Promise.resolve(address)
 			});
 
 			const aggregateTransactionJson = convertTransactionSdkJsonToRestJson(aggregateTransaction.toJson());

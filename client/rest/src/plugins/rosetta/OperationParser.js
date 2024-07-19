@@ -239,12 +239,15 @@ export class OperationParser {
 		const operations = [];
 
 		const lookupCurrency = mosaicIdString => this.options.lookupCurrency(idStringToBigInt(mosaicIdString), transactionLocation);
+		const resolveAddress = address => this.options.resolveAddress(address, transactionLocation);
+		const resolveAllAddresses = addresses => Promise.all(addresses.map(address => resolveAddress(address).then(encodeDecodedAddress)));
 
 		const transactionType = transaction.type;
 		if (models.TransactionType.TRANSFER.value === transactionType) {
 			await Promise.all(transaction.mosaics.map(async mosaic => {
 				const amount = BigInt(mosaic.amount);
 				const currency = await lookupCurrency(mosaic.id);
+				const targetAddress = await resolveAddress(transaction.recipientAddress);
 
 				operations.push(this.createDebitOperation({
 					sourcePublicKey: transaction.signerPublicKey,
@@ -252,7 +255,7 @@ export class OperationParser {
 					currency
 				}));
 				operations.push(this.createCreditOperation({
-					targetAddress: transaction.recipientAddress,
+					targetAddress,
 					amount,
 					currency
 				}));
@@ -260,27 +263,16 @@ export class OperationParser {
 		} else if (models.TransactionType.MULTISIG_ACCOUNT_MODIFICATION.value === transactionType) {
 			const operation = createOperation(undefined, 'multisig');
 			operation.account = this.publicKeyStringToAccountIdentifier(transaction.signerPublicKey);
+			const addressAdditions = await resolveAllAddresses(transaction.addressAdditions);
+			const addressDeletions = await resolveAllAddresses(transaction.addressDeletions);
+
 			operation.metadata = {
 				minApprovalDelta: transaction.minApprovalDelta,
 				minRemovalDelta: transaction.minRemovalDelta,
-				addressAdditions: transaction.addressAdditions.map(encodeDecodedAddress),
-				addressDeletions: transaction.addressDeletions.map(encodeDecodedAddress)
+				addressAdditions,
+				addressDeletions
 			};
 			operations.push(operation);
-		} else if (models.TransactionType.MOSAIC_SUPPLY_REVOCATION.value === transactionType) {
-			const amount = BigInt(transaction.amount);
-			const currency = await lookupCurrency(transaction.mosaicId);
-
-			operations.push(this.createDebitOperation({
-				sourceAddress: transaction.sourceAddress,
-				amount,
-				currency
-			}));
-			operations.push(this.createCreditOperation({
-				targetPublicKey: transaction.signerPublicKey,
-				amount,
-				currency
-			}));
 		} else if (models.TransactionType.MOSAIC_SUPPLY_CHANGE.value === transactionType) {
 			const amount = BigInt(transaction.delta);
 			const currency = await lookupCurrency(transaction.mosaicId);
@@ -288,6 +280,21 @@ export class OperationParser {
 			operations.push(this.createCreditOperation({
 				targetPublicKey: transaction.signerPublicKey,
 				amount: models.MosaicSupplyChangeAction.INCREASE.value === transaction.action ? amount : -amount,
+				currency
+			}));
+		} else if (models.TransactionType.MOSAIC_SUPPLY_REVOCATION.value === transactionType) {
+			const amount = BigInt(transaction.amount);
+			const currency = await lookupCurrency(transaction.mosaicId);
+			const sourceAddress = await resolveAddress(transaction.sourceAddress);
+
+			operations.push(this.createDebitOperation({
+				sourceAddress,
+				amount,
+				currency
+			}));
+			operations.push(this.createCreditOperation({
+				targetPublicKey: transaction.signerPublicKey,
+				amount,
 				currency
 			}));
 		}
