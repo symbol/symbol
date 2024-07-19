@@ -138,6 +138,39 @@ export default class CatapultProxy {
 	}
 
 	/**
+	 * Resolves a resolvable value.
+	 * @param {bigint} namespaceId Namespace id.
+	 * @param {object} transactionLocation Location of transaction for which to perform the resolution.
+	 * @param {object} options Resolve options.
+	 * @returns {string} Resolved value.
+	 * @private
+	 */
+	async resolveNamespace(namespaceId, transactionLocation, options) {
+		if (!transactionLocation) {
+			return this.fetch(
+				`namespaces/${bigIntToHexString(namespaceId)}`,
+				options.projectNamespacesJson
+			);
+		}
+		const statements = await this.fetch(
+			`statements/resolutions/${options.resolutionType}?height=${transactionLocation.height}`,
+			jsonObject => jsonObject.data
+		);
+		const resolutionStatement = statements.find(options.isStatementMatch);
+		if (!resolutionStatement)
+			throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
+
+		for (let i = resolutionStatement.statement.resolutionEntries.length - 1; 0 <= i; --i) {
+			const resolutionEntry = resolutionStatement.statement.resolutionEntries[i];
+			const { source } = resolutionEntry;
+			if (isReceiptSourceLessThanEqual(source, transactionLocation))
+				return resolutionEntry.resolved;
+		}
+
+		throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
+	}
+
+	/**
 	 * Resolves a mosaic id.
 	 * @param {bigint} unresolvedMosaicId Unresolved mosaic id.
 	 * @param {object} transactionLocation Location of transaction for which to perform the resolution.
@@ -147,30 +180,31 @@ export default class CatapultProxy {
 		if (0n === (unresolvedMosaicId & (1n << 63n)))
 			return unresolvedMosaicId;
 
-		if (!transactionLocation) {
-			const mosaicIdHexString = await this.fetch(
-				`namespaces/${bigIntToHexString(unresolvedMosaicId)}`,
-				jsonObject => jsonObject.namespace.alias.mosaicId
-			);
-			return BigInt(`0x${mosaicIdHexString}`);
-		}
+		const mosaicIdHexString = await this.resolveNamespace(unresolvedMosaicId, transactionLocation, {
+			resolutionType: 'mosaic',
+			projectNamespacesJson: jsonObject => jsonObject.namespace.alias.mosaicId,
+			isStatementMatch: statement => unresolvedMosaicId === BigInt(`0x${statement.statement.unresolved}`)
+		});
 
-		const statements = await this.fetch(
-			`statements/resolutions/mosaic?height=${transactionLocation.height}`,
-			jsonObject => jsonObject.data
-		);
-		const resolutionStatement = statements.find(statement => unresolvedMosaicId === BigInt(`0x${statement.statement.unresolved}`));
-		if (!resolutionStatement)
-			throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
+		return BigInt(`0x${mosaicIdHexString}`);
+	}
 
-		for (let i = resolutionStatement.statement.resolutionEntries.length - 1; 0 <= i; --i) {
-			const resolutionEntry = resolutionStatement.statement.resolutionEntries[i];
-			const { source } = resolutionEntry;
-			if (isReceiptSourceLessThanEqual(source, transactionLocation))
-				return BigInt(`0x${resolutionEntry.resolved}`);
-		}
+	/**
+	 * Resolves an address.
+	 * @param {string} unresolvedAddress Unresolved (decoded) address.
+	 * @param {object} transactionLocation Location of transaction for which to perform the resolution.
+	 * @returns {string} Resolved (decoded) address.
+	 */
+	async resolveAddress(unresolvedAddress, transactionLocation = undefined) {
+		if (0 === (Number(unresolvedAddress[1]) & 1))
+			return unresolvedAddress;
 
-		throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
+		const namespaceId = BigInt(`0x${unresolvedAddress.substring(2, 18)}`);
+		return this.resolveNamespace(namespaceId, transactionLocation, {
+			resolutionType: 'address',
+			projectNamespacesJson: jsonObject => jsonObject.namespace.alias.address,
+			isStatementMatch: statement => unresolvedAddress === statement.statement.unresolved
+		});
 	}
 
 	/**

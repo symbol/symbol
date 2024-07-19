@@ -330,138 +330,183 @@ describe('CatapultProxy', () => {
 
 	// endregion
 
-	// region resolveMosaicId
+	// region resolveMosaicId / resolveAddress
+
+	const addResolveResolvableTests = options => {
+		describe('resolved', () => {
+			it('can resolve without network access', async () => {
+				// Arrange:
+				const proxy = new CatapultProxy(TEST_ENDPOINT);
+
+				// Act:
+				const resolvedValue = await proxy[options.resolveFunctionName](options.resolvedValue);
+
+				// Assert:
+				expect(resolvedValue).to.equal(options.resolvedValue);
+			});
+		});
+
+		describe('unresolved (current)', () => {
+			it('can resolve value', async () => {
+				// Arrange:
+				const proxy = new CatapultProxy(TEST_ENDPOINT);
+				stubFetchResult('namespaces/9234567890ABCDEF', true, { namespace: { alias: options.aliasObject } });
+
+				// Act:
+				const resolvedValue = await proxy[options.resolveFunctionName](options.unresolvedValue);
+
+				// Assert:
+				expect(resolvedValue).to.equal(options.resolvedValue);
+			});
+
+			it('fails when fetch fails (namespaces)', async () => {
+				// Arrange:
+				const proxy = new CatapultProxy(TEST_ENDPOINT);
+				stubFetchResult('namespaces/9234567890ABCDEF', false, { namespace: { alias: options.aliasObject } });
+
+				// Act + Assert:
+				await assertAsyncErrorThrown(
+					() => proxy[options.resolveFunctionName](options.unresolvedValue),
+					RosettaErrorFactory.CONNECTION_ERROR
+				);
+			});
+		});
+
+		describe('unresolved (historical)', () => {
+			const makeResolutionStatement = (unresolved, resolutionEntries) => ({ statement: { unresolved, resolutionEntries } });
+			const makeResolutionEntry = (resolved, primaryId, secondaryId) => ({ resolved, source: { primaryId, secondaryId } });
+
+			it('cannot resolve value when no matching statements exist', async () => {
+				// Arrange:
+				const proxy = new CatapultProxy(TEST_ENDPOINT);
+				stubFetchResult(`statements/resolutions/${options.resolutionType}?height=1234`, true, {
+					data: [
+						makeResolutionStatement('AAAAAAAAAAAAAAAA', [
+							makeResolutionEntry('BBBBBBBBBBBBBBBB', 1, 0)
+						])
+					]
+				});
+
+				// Act + Assert:
+				await assertAsyncErrorThrown(
+					() => proxy[options.resolveFunctionName](options.unresolvedValue, { height: 1234n, primaryId: 2, secondaryId: 3 }),
+					RosettaErrorFactory.INTERNAL_SERVER_ERROR
+				);
+			});
+
+			it('cannot resolve value when no matching resolution entries exist', async () => {
+				// Arrange:
+				const proxy = new CatapultProxy(TEST_ENDPOINT);
+				stubFetchResult(`statements/resolutions/${options.resolutionType}?height=1234`, true, {
+					data: [
+						makeResolutionStatement(options.unresolvedValueString, [
+							makeResolutionEntry(options.resolvedValueString, 2, 4),
+							makeResolutionEntry(options.otherResolvedValueString2, 3, 0)
+						])
+					]
+				});
+
+				// Act + Assert:
+				await assertAsyncErrorThrown(
+					() => proxy[options.resolveFunctionName](options.unresolvedValue, { height: 1234n, primaryId: 2, secondaryId: 3 }),
+					RosettaErrorFactory.INTERNAL_SERVER_ERROR
+				);
+			});
+
+			const assertCanResolveWhenMatchingResolutionEntriesExist = async data => {
+				// Arrange:
+				const proxy = new CatapultProxy(TEST_ENDPOINT);
+				stubFetchResult(`statements/resolutions/${options.resolutionType}?height=1234`, true, { data });
+
+				// Act:
+				const resolvedValue = await proxy[options.resolveFunctionName](options.unresolvedValue, {
+					height: 1234n,
+					primaryId: 2,
+					secondaryId: 3
+				});
+
+				// Assert:
+				expect(resolvedValue).to.equal(options.resolvedValue);
+			};
+
+			it('can resolve value when matching resolution entries exist (primary GT secondary LT)', async () =>
+				assertCanResolveWhenMatchingResolutionEntriesExist([
+					makeResolutionStatement(options.unresolvedValueString, [
+						makeResolutionEntry(options.otherResolvedValueString1, 1, 4),
+						makeResolutionEntry(options.resolvedValueString, 1, 5),
+						makeResolutionEntry(options.otherResolvedValueString2, 4, 0)
+					])
+				]));
+
+			it('can resolve value when matching resolution entries exist (primary EQ secondary GT)', async () =>
+				assertCanResolveWhenMatchingResolutionEntriesExist([
+					makeResolutionStatement(options.unresolvedValueString, [
+						makeResolutionEntry(options.otherResolvedValueString1, 2, 1),
+						makeResolutionEntry(options.resolvedValueString, 2, 2),
+						makeResolutionEntry(options.otherResolvedValueString2, 2, 6)
+					])
+				]));
+
+			it('can resolve value when matching resolution entries exist (primary EQ secondary EQ)', async () =>
+				assertCanResolveWhenMatchingResolutionEntriesExist([
+					makeResolutionStatement(options.unresolvedValueString, [
+						makeResolutionEntry(options.otherResolvedValueString1, 2, 2),
+						makeResolutionEntry(options.resolvedValueString, 2, 3),
+						makeResolutionEntry(options.otherResolvedValueString2, 2, 4)
+					])
+				]));
+
+			it('fails when fetch fails (statements)', async () => {
+				// Arrange:
+				const proxy = new CatapultProxy(TEST_ENDPOINT);
+				stubFetchResult(`statements/resolutions/${options.resolutionType}?height=1234`, false, {
+					data: [
+						makeResolutionStatement(options.unresolvedValueString, [
+							makeResolutionEntry(options.otherResolvedValueString1, 1, 3),
+							makeResolutionEntry(options.resolvedValueString, 2, 2),
+							makeResolutionEntry(options.otherResolvedValueString2, 3, 0)
+						])
+					]
+				});
+
+				// Act + Assert:
+				await assertAsyncErrorThrown(
+					() => proxy[options.resolveFunctionName](options.unresolvedValue, { height: 1234n, primaryId: 2, secondaryId: 3 }),
+					RosettaErrorFactory.CONNECTION_ERROR
+				);
+			});
+		});
+	};
 
 	describe('resolveMosaicId', () => {
-		it('can resolve resolved mosaic id', async () => {
-			// Arrange:
-			const proxy = new CatapultProxy(TEST_ENDPOINT);
+		addResolveResolvableTests({
+			resolveFunctionName: 'resolveMosaicId',
+			resolutionType: 'mosaic',
 
-			// Act:
-			const mosaicId = await proxy.resolveMosaicId(0x0034567890ABCDEFn);
+			unresolvedValue: 0x9234567890ABCDEFn,
+			resolvedValue: 0x0034567890ABCDEFn,
+			aliasObject: { mosaicId: '0034567890ABCDEF' },
 
-			// Assert:
-			expect(mosaicId).to.equal(0x0034567890ABCDEFn);
+			unresolvedValueString: '9234567890ABCDEF',
+			resolvedValueString: '0034567890ABCDEF',
+			otherResolvedValueString1: '0234567890ABCDEF',
+			otherResolvedValueString2: '2234567890ABCDEF'
 		});
+	});
 
-		it('can resolve unresolved mosaic id without location', async () => {
-			// Arrange:
-			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('namespaces/9234567890ABCDEF', true, { namespace: { alias: { mosaicId: '0034567890ABCDEF' } } });
+	describe('resolveAddress', () => {
+		addResolveResolvableTests({
+			resolveFunctionName: 'resolveAddress',
+			resolutionType: 'address',
 
-			// Act:
-			const mosaicId = await proxy.resolveMosaicId(0x9234567890ABCDEFn);
+			unresolvedValue: '999234567890ABCDEF000000000000000000000000000000',
+			resolvedValue: '98A21C834575E3D58DD7AFB5881DD8D52BA6F787853E6CC0',
+			aliasObject: { address: '98A21C834575E3D58DD7AFB5881DD8D52BA6F787853E6CC0' },
 
-			// Assert:
-			expect(mosaicId).to.equal(0x0034567890ABCDEFn);
-		});
-
-		it('fails when fetch fails (namespaces)', async () => {
-			// Arrange:
-			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('namespaces/9234567890ABCDEF', false, { namespace: { alias: { mosaicId: '0034567890ABCDEF' } } });
-
-			// Act + Assert:
-			await assertAsyncErrorThrown(() => proxy.resolveMosaicId(0x9234567890ABCDEFn), RosettaErrorFactory.CONNECTION_ERROR);
-		});
-
-		const makeResolutionStatement = (unresolved, resolutionEntries) => ({ statement: { unresolved, resolutionEntries } });
-		const makeResolutionEntry = (resolved, primaryId, secondaryId) => ({ resolved, source: { primaryId, secondaryId } });
-
-		it('cannot resolve unresolved mosaic id with location when no matching statements exist', async () => {
-			// Arrange:
-			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('statements/resolutions/mosaic?height=1234', true, {
-				data: [
-					makeResolutionStatement('AAAAAAAAAAAAAAAA', [
-						makeResolutionEntry('BBBBBBBBBBBBBBBB', 1, 0)
-					])
-				]
-			});
-
-			// Act + Assert:
-			await assertAsyncErrorThrown(
-				() => proxy.resolveMosaicId(0x9234567890ABCDEFn, { height: 1234n, primaryId: 2, secondaryId: 3 }),
-				RosettaErrorFactory.INTERNAL_SERVER_ERROR
-			);
-		});
-
-		it('cannot resolve unresolved mosaic id with location when no matching resolution entries exist', async () => {
-			// Arrange:
-			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('statements/resolutions/mosaic?height=1234', true, {
-				data: [
-					makeResolutionStatement('9234567890ABCDEF', [
-						makeResolutionEntry('0034567890ABCDEF', 2, 4),
-						makeResolutionEntry('2234567890ABCDEF', 3, 0)
-					])
-				]
-			});
-
-			// Act + Assert:
-			await assertAsyncErrorThrown(
-				() => proxy.resolveMosaicId(0x9234567890ABCDEFn, { height: 1234n, primaryId: 2, secondaryId: 3 }),
-				RosettaErrorFactory.INTERNAL_SERVER_ERROR
-			);
-		});
-
-		const assertCanResolveWhenMatchingResolutionEntriesExist = async data => {
-			// Arrange:
-			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('statements/resolutions/mosaic?height=1234', true, { data });
-
-			// Act:
-			const mosaicId = await proxy.resolveMosaicId(0x9234567890ABCDEFn, { height: 1234n, primaryId: 2, secondaryId: 3 });
-
-			// Assert:
-			expect(mosaicId).to.equal(0x0034567890ABCDEFn);
-		};
-
-		it('can resolve unresolved mosaic id with location when matching resolution entries exist (primary GT secondary LT)', async () =>
-			assertCanResolveWhenMatchingResolutionEntriesExist([
-				makeResolutionStatement('9234567890ABCDEF', [
-					makeResolutionEntry('0234567890ABCDEF', 1, 4),
-					makeResolutionEntry('0034567890ABCDEF', 1, 5),
-					makeResolutionEntry('2234567890ABCDEF', 4, 0)
-				])
-			]));
-
-		it('can resolve unresolved mosaic id with location when matching resolution entries exist (primary EQ secondary GT)', async () =>
-			assertCanResolveWhenMatchingResolutionEntriesExist([
-				makeResolutionStatement('9234567890ABCDEF', [
-					makeResolutionEntry('0234567890ABCDEF', 2, 1),
-					makeResolutionEntry('0034567890ABCDEF', 2, 2),
-					makeResolutionEntry('2234567890ABCDEF', 2, 6)
-				])
-			]));
-
-		it('can resolve unresolved mosaic id with location when matching resolution entries exist (primary EQ secondary EQ)', async () =>
-			assertCanResolveWhenMatchingResolutionEntriesExist([
-				makeResolutionStatement('9234567890ABCDEF', [
-					makeResolutionEntry('0234567890ABCDEF', 2, 2),
-					makeResolutionEntry('0034567890ABCDEF', 2, 3),
-					makeResolutionEntry('2234567890ABCDEF', 2, 4)
-				])
-			]));
-
-		it('fails when fetch fails (statements)', async () => {
-			// Arrange:
-			const proxy = new CatapultProxy(TEST_ENDPOINT);
-			stubFetchResult('statements/resolutions/mosaic?height=1234', false, {
-				data: [
-					makeResolutionStatement('9234567890ABCDEF', [
-						makeResolutionEntry('0234567890ABCDEF', 1, 3),
-						makeResolutionEntry('0034567890ABCDEF', 2, 2),
-						makeResolutionEntry('2234567890ABCDEF', 3, 0)
-					])
-				]
-			});
-
-			// Act + Assert:
-			await assertAsyncErrorThrown(
-				() => proxy.resolveMosaicId(0x9234567890ABCDEFn, { height: 1234n, primaryId: 2, secondaryId: 3 }),
-				RosettaErrorFactory.CONNECTION_ERROR
-			);
+			unresolvedValueString: '999234567890ABCDEF000000000000000000000000000000',
+			resolvedValueString: '98A21C834575E3D58DD7AFB5881DD8D52BA6F787853E6CC0',
+			otherResolvedValueString1: '981CDCF02042C8B916C913AADBCD78142D2C37DC4075C09E',
+			otherResolvedValueString2: '98C52CCDC2E593413211E81DC90411660BDD33D64C01432D'
 		});
 	});
 
