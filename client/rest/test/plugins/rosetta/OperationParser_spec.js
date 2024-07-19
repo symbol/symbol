@@ -61,7 +61,7 @@ describe('OperationParser', () => {
 		return operation;
 	};
 
-	const lookupCurrencyDefault = mosaicId => {
+	const lookupCurrencyDefault = (mosaicId, transactionLocation) => {
 		if ('currencyMosaicId' === mosaicId)
 			return new Currency('currency.fee', 2);
 
@@ -71,10 +71,18 @@ describe('OperationParser', () => {
 		if (mosaicId === generateMosaicAliasId('baz.bar'))
 			return new Currency('baz.bar', 1);
 
+		if (mosaicId === generateMosaicAliasId('check.location')) {
+			const currencyName = undefined === transactionLocation
+				? 'undefined'
+				: `${transactionLocation.height}.${transactionLocation.primaryId}.${transactionLocation.secondaryId}`;
+			return new Currency(currencyName, 4);
+		}
+
 		return new Currency('symbol.xym', 6);
 	};
 
-	const parseTransaction = (parser, transaction) => parser.parseTransaction(convertTransactionSdkJsonToRestJson(transaction.toJson()));
+	const parseTransaction = (parser, transaction, metadata = undefined) =>
+		parser.parseTransaction(convertTransactionSdkJsonToRestJson(transaction.toJson()), metadata);
 
 	// endregion
 
@@ -419,6 +427,142 @@ describe('OperationParser', () => {
 
 			it('can parse multiple transactions with explicit cosigners including fee (confirmed)', () =>
 				assertCanParseWithFee({ feeMultiplier: 200 }, '-20000'));
+		});
+
+		// endregion
+
+		// region location
+
+		describe('location', () => {
+			const runTopLevelLocationTest = async (metadata, expectedCurrencyName) => {
+				// Arrange:
+				const facade = new SymbolFacade('testnet');
+				const transaction = facade.transactionFactory.create({
+					type: 'transfer_transaction_v1',
+					recipientAddress: 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
+					signerPublicKey: '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9',
+					mosaics: [
+						{ mosaicId: generateMosaicAliasId('check.location'), amount: 1000n }
+					]
+				});
+
+				const parser = new OperationParser(facade.network, { lookupCurrency: lookupCurrencyDefault });
+
+				// Act:
+				const { operations } = await parseTransaction(parser, transaction, metadata);
+
+				// Assert:
+				expect(operations).to.deep.equal([
+					createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-1000', expectedCurrencyName, 4),
+					createTransferOperation(1, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '1000', expectedCurrencyName, 4)
+				]);
+			};
+
+			it('can pass down for top level transaction (valid)', () => runTopLevelLocationTest(
+				{ height: '1234', index: 11 },
+				'1234.12.0'
+			));
+
+			it('can pass down for top level transaction (height - undefined)', () => runTopLevelLocationTest(
+				{ index: 11 },
+				'undefined'
+			));
+
+			it('can pass down for top level transaction (height - zero)', () => runTopLevelLocationTest(
+				{ height: '0', index: 11 },
+				'undefined'
+			));
+
+			const runEmbeddedLocationTest = async (topLevelMetadata, subTransactionMetadatas, expectedCurrencyNames) => {
+				// Arrange:
+				const verifier = new PayloadResultVerifier();
+				verifier.addTransfer(
+					'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+					'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
+					100n,
+					'check.location'
+				);
+				verifier.addTransfer(
+					'93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7',
+					'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI',
+					50n,
+					'check.location'
+				);
+				verifier.addTransfer(
+					'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+					'TCJEJJBKDI62U4ZMO4VI7YAUVJE4STVCOBDSHXQ',
+					33n,
+					'check.location'
+				);
+
+				verifier.buildAggregate(
+					'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+					1001n + (60n * 60n * 1000n),
+					1
+				);
+
+				const aggregateTransactionJson = convertTransactionSdkJsonToRestJson(verifier.aggregateTransaction.toJson());
+				aggregateTransactionJson.transactions.forEach((transaction, i) => {
+					transaction.meta = subTransactionMetadatas[i];
+				});
+
+				const parser = new OperationParser(verifier.facade.network, { lookupCurrency: lookupCurrencyDefault });
+
+				// Act:
+				const { operations } = await parser.parseTransaction(aggregateTransactionJson, topLevelMetadata);
+
+				// Assert:
+				expect(operations).to.deep.equal([
+					createTransferOperation(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100', expectedCurrencyNames[0], 4),
+					createTransferOperation(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100', expectedCurrencyNames[0], 4),
+					createTransferOperation(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '-50', expectedCurrencyNames[1], 4),
+					createTransferOperation(3, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '50', expectedCurrencyNames[1], 4),
+					createTransferOperation(4, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-33', expectedCurrencyNames[2], 4),
+					createTransferOperation(5, 'TCJEJJBKDI62U4ZMO4VI7YAUVJE4STVCOBDSHXQ', '33', expectedCurrencyNames[2], 4)
+				]);
+			};
+
+			it('can pass down for sub transaction (valid)', () => runEmbeddedLocationTest(
+				{ height: '1234', index: 11 },
+				[
+					{ index: 4 },
+					{ index: 7 },
+					{ index: 3 }
+				],
+				[
+					'1234.12.5',
+					'1234.12.8',
+					'1234.12.4'
+				]
+			));
+
+			it('can pass down for sub transaction (undefined - top level)', () => runEmbeddedLocationTest(
+				{ index: 11 },
+				[
+					{ index: 4 },
+					{ index: 7 },
+					{ index: 3 }
+				],
+				[
+					'undefined',
+					'undefined',
+					'undefined'
+				]
+			));
+
+			it('can pass down for sub transaction (undefined - sub level)', () => runEmbeddedLocationTest(
+				{ height: '1234', index: 11 },
+				[
+					undefined,
+					{ index: 7 },
+					{}
+				],
+				[
+					'undefined',
+					'1234.12.8',
+					'undefined'
+				]
+			));
 		});
 
 		// endregion
