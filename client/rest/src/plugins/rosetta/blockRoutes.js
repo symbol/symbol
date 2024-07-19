@@ -42,7 +42,7 @@ export default {
 		const parser = new OperationParser(network, {
 			includeFeeOperation: true,
 			lookupCurrency,
-			resolveAddress: services.proxy.resolveAddress
+			resolveAddress: address => services.proxy.resolveAddress(address)
 		});
 
 		server.post('/block', rosettaPostRouteWithNetwork(networkName, BlockRequest, async typedRequest => {
