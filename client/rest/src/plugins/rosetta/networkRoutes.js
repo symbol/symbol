@@ -26,11 +26,10 @@ import NetworkListResponse from './openApi/model/NetworkListResponse.js';
 import NetworkOptionsResponse from './openApi/model/NetworkOptionsResponse.js';
 import NetworkRequest from './openApi/model/NetworkRequest.js';
 import NetworkStatusResponse from './openApi/model/NetworkStatusResponse.js';
-import RosettaNodePeer from './openApi/model/Peer.js';
+import OperationStatus from './openApi/model/OperationStatus.js';
+import Peer from './openApi/model/Peer.js';
 import Version from './openApi/model/Version.js';
-import {
-	RosettaErrorFactory, operationStatus, operationTypes, rosettaPostRouteWithNetwork
-} from './rosettaUtils.js';
+import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
 import { sendJson } from '../../routes/simpleSend.js';
 
 export default {
@@ -71,8 +70,8 @@ export default {
 			allow.errors = getErrorsFromFactoryClass(RosettaErrorFactory);
 			allow.historical_balance_lookup = false;
 			allow.mempool_coins = false;
-			allow.operation_statuses = Object.values(operationStatus);
-			allow.operation_types = Object.values(operationTypes);
+			allow.operation_statuses = [new OperationStatus('success', true)];
+			allow.operation_types = ['cosign', 'fee', 'multisig', 'transfer'];
 
 			return new NetworkOptionsResponse(version, allow);
 		}));
@@ -87,7 +86,7 @@ export default {
 
 			const currentBlock = results[0];
 			const genesisBlock = await services.proxy.nemesisBlock();
-			const peers = results[1].map(nodePeer => new RosettaNodePeer(nodePeer.publicKey));
+			const peers = results[1].map(nodePeer => new Peer(nodePeer.publicKey));
 			const networkProperties = await services.proxy.networkProperties();
 			const epochAdjustment = Number(networkProperties.network.epochAdjustment.slice(0, -1));
 			const currentBlockTimestamp = (epochAdjustment * 1000) + Number(currentBlock.block.timestamp); // in milliseconds
