@@ -55,7 +55,7 @@ export default {
 				resolveAddress: address => services.proxy.resolveAddress(address)
 			});
 			const response = new MempoolTransactionResponse();
-			response.transaction = await parser.parseTransactionAsRosettaTransaction(transaction);
+			response.transaction = await parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta);
 			return response;
 		}));
 	}

@@ -93,6 +93,7 @@ describe('network routes', () => {
 			FetchStubHelper.stubCatapultProxyCacheFill();
 			stubFetchResult('node/info', true, createRosettaNodeVersion());
 
+			// - create expected response
 			const version = new Version('1.4.13', '4.5.3.8');
 			const allow = new Allow(
 				[new OperationStatus('success', true)],
