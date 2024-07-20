@@ -59,6 +59,10 @@ export class RosettaErrorFactory {
 		return new RosettaError(5, 'unable to connect to network', true);
 	}
 
+	static get SYNC_DURING_OPERATION() {
+		return new RosettaError(6, 'sync was detected during operation', true);
+	}
+
 	static get NOT_SUPPORTED_ERROR() {
 		return new RosettaError(99, 'operation is not supported in rosetta', false);
 	}

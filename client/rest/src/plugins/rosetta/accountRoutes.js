@@ -38,9 +38,9 @@ export default {
 		const networkName = services.config.network.name;
 		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
-		const getCurrentBlockIdentifier = () => services.proxy.fetch('chain/info', json => json.height)
-			.then(height => services.proxy.fetch(`blocks/${height}`, json => json)
-				.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash)));
+		const getChainHeight = services.proxy.fetch('chain/info', json => json.height);
+		const getBlockIdentifier = height => services.proxy.fetch(`blocks/${height}`, json => json)
+			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash));
 
 		const accountInfoRequest = async typedRequest => {
 			if (typedRequest.block_identifier)
@@ -50,10 +50,17 @@ export default {
 			if (!network.isValidAddressString(address))
 				throw RosettaErrorFactory.INVALID_REQUEST_DATA;
 
-			return Promise.all([
-				getCurrentBlockIdentifier(),
-				services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics)
-			]);
+			const startChainHeight = await getChainHeight();
+
+			const mosaics = services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics);
+
+			const endChainHeight = await getChainHeight();
+
+			if (startChainHeight !== endChainHeight)
+				throw RosettaErrorFactory.SYNC_DURING_OPERATION;
+
+			const blockIdentifier = await getBlockIdentifier(startChainHeight);
+			return [blockIdentifier, mosaics];
 		};
 
 		const toRosettaAmounts = async mosaics => Promise.all(mosaics.map(async mosaic => {
