@@ -25,6 +25,21 @@ const bigIntToHexString = value => value.toString(16).padStart(16, '0').toUpperC
 const isReceiptSourceLessThanEqual = (lhs, rhs) =>
 	lhs.primaryId < rhs.primaryId || (lhs.primaryId === rhs.primaryId && lhs.secondaryId <= rhs.secondaryId);
 
+const parseTimeSpan = str => {
+	const postfixMap = {
+		ms: 1,
+		s: 1000,
+		m: 60 * 1000,
+		h: 60 * 60 * 1000
+	};
+
+	const matchingPostfix = Object.keys(postfixMap).find(postfix => str.endsWith(postfix));
+	if (!matchingPostfix)
+		throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
+
+	return BigInt(str.substring(0, str.length - matchingPostfix.length)) * BigInt(postfixMap[matchingPostfix]);
+};
+
 /**
  * Proxy to a catapult node that performs caching for performance optimization, as appropriate.
  */
@@ -104,6 +119,10 @@ export default class CatapultProxy {
 				networkProperties: results[1],
 				nemesisBlock: results[2]
 			};
+
+			const networkProperties = this.cache.networkProperties.network;
+			if (networkProperties && networkProperties.epochAdjustment)
+				networkProperties.epochAdjustment = parseTimeSpan(networkProperties.epochAdjustment);
 
 			const chainProperties = this.cache.networkProperties.chain;
 			if (chainProperties && chainProperties.currencyMosaicId)
