@@ -66,6 +66,11 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 		}));
 	}
 
+	if (transactionJson.fee) {
+		transactionJson.maxFee = transactionJson.fee;
+		delete transactionJson.fee;
+	}
+
 	return transactionJson;
 };
 
