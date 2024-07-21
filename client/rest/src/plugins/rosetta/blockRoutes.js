@@ -56,19 +56,21 @@ export default {
 			]);
 
 			const blockEventsAsRosettaTransaction = async (blockHash, blockStatements) => {
-				const result = await Promise.all(blockStatements.map(async statement =>
-					Promise.all(statement.statement.receipts.map(async receipt => {
-						if (receipt.amount) {
-							const receiptOperation = await parser.parseReceipt(receipt);
-							return receiptOperation.operations;
-						}
+				// process all statements and receipts
+				const statementGroupedOperations = await Promise.all(blockStatements.map(async statement => {
+					const receiptGroupedOperations = await Promise.all(statement.statement.receipts.map(async receipt => {
+						const { operations } = await parser.parseReceipt(receipt);
+						return operations;
+					}));
 
-						return [];
-					}))));
+					return [].concat(...receiptGroupedOperations);
+				}));
 
-				const operations = await Promise.all(result.flat(Infinity));
-				let id = 0;
-				operations.forEach(operation => { operation.operation_identifier.index = id++; }); // fix operation index
+				// flatten and reorder operations
+				const operations = [].concat(...statementGroupedOperations);
+				operations.forEach((operation, i) => { operation.operation_identifier.index = i; }); // fix operation index
+
+				// construct transaction
 				const rosettaTransaction = new RosettaTransaction();
 				rosettaTransaction.transaction_identifier = new TransactionIdentifier(blockHash);
 				rosettaTransaction.operations = operations;
@@ -80,7 +82,6 @@ export default {
 			const blockStatements = results[2];
 
 			const networkProperties = await services.proxy.networkProperties();
-			const epochAdjustment = Number(networkProperties.network.epochAdjustment.slice(0, -1));
 			const blockTransaction = await blockEventsAsRosettaTransaction(blockInfo.meta.hash, blockStatements);
 			const rosettaTransactions = await Promise.all(stitchBlockTransactions(transactions)
 				.map(transaction => parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)));
@@ -90,9 +91,10 @@ export default {
 			response.block.transactions = rosettaTransactions;
 			response.block.transactions.push(blockTransaction);
 			response.block.block_identifier = new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash);
-			response.block.parent_block_identifier = genesisBlockNumber === height ? response.block.block_identifier
+			response.block.parent_block_identifier = genesisBlockNumber === height
+				? response.block.block_identifier
 				: new BlockIdentifier(Number(blockInfo.block.height) - 1, blockInfo.block.previousBlockHash);
-			response.block.timestamp = (epochAdjustment * 1000) + Number(blockInfo.block.timestamp); // in milliseconds
+			response.block.timestamp = Number(networkProperties.network.epochAdjustment + BigInt(blockInfo.block.timestamp));
 			return response;
 		}));
 

@@ -119,14 +119,12 @@ describe('mempool routes', () => {
 				signerPublicKey: '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9',
 				mosaics: [
 					{ mosaicId: generateMosaicAliasId('foo.bar'), amount: 9876 }
-				]
+				],
+				fee: 1000
 			});
 
 			return {
-				transaction: {
-					...convertTransactionSdkJsonToRestJson(transaction.toJson()),
-					maxFee: 1000
-				},
+				transaction: convertTransactionSdkJsonToRestJson(transaction.toJson()),
 				meta: { hash: 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483' }
 			};
 		};
