@@ -140,7 +140,7 @@ describe('network routes', () => {
 			'AE3C8C118ECB82333BAAFD5BE858176E3C0A497CDA405ACCBA6F737E1C443D2D',
 			'CC1287250B978C0638FD0461EB86952BAEAB4F04266A09FDB3D96D5412BD5B57'
 		];
-;
+
 		const createValidRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier()
 		});
