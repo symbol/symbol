@@ -265,7 +265,7 @@ describe('CatapultProxy', () => {
 			setCacheFetchResults(failureUrlPath);
 
 			// Sanity:
-			assertAsyncErrorThrown(() => action(proxy), RosettaErrorFactory.CONNECTION_ERROR);
+			await assertAsyncErrorThrown(() => action(proxy), RosettaErrorFactory.CONNECTION_ERROR);
 
 			// Arrange:
 			setCacheFetchResults();
