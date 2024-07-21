@@ -400,14 +400,15 @@ describe('OperationParser', () => {
 					duration: 1n,
 					nonce: 123,
 					flags: 'transferable restrictable',
-					divisibility: 2
+					divisibility: 2,
+					fee: 123456
 				});
 
 				const parser = createDefaultParser(facade.network, options);
 
-				// Act: add size and maxFee to JSON to emulate REST JSON
+				// Act: add size to emulate REST JSON
 				const { operations, signerAddresses } = await parser.parseTransaction(
-					{ ...convertTransactionSdkJsonToRestJson(transaction.toJson()), size: 100, maxFee: 123456 },
+					{ ...convertTransactionSdkJsonToRestJson(transaction.toJson()), size: 100 },
 					metadata
 				);
 
@@ -534,11 +535,10 @@ describe('OperationParser', () => {
 					includeFeeOperation: true
 				});
 
-				// Act: add size and maxFee to JSON to emulate REST JSON
+				// Act: add size to emulate REST JSON
 				const { operations, signerAddresses } = await parser.parseTransaction({
 					...convertTransactionSdkJsonToRestJson(verifier.aggregateTransaction.toJson()),
-					size: 100,
-					maxFee: 123456
+					size: 100
 				}, metadata);
 
 				// Assert:
@@ -556,7 +556,7 @@ describe('OperationParser', () => {
 			};
 
 			it('can parse multiple transactions with explicit cosigners including max fee (unconfirmed)', () =>
-				assertCanParseWithFee({}, '-123456'));
+				assertCanParseWithFee({}, '-85680')); // (max) fee calculated by PayloadResultVerifier
 
 			it('can parse multiple transactions with explicit cosigners including fee (confirmed)', () =>
 				assertCanParseWithFee({ feeMultiplier: 200 }, '-20000'));
@@ -898,6 +898,18 @@ describe('OperationParser', () => {
 						}
 					}
 				]
+			});
+		});
+
+		it('can fixup fee property', () => {
+			// Act:
+			const restJson = convertTransactionSdkJsonToRestJson({
+				fee: '12345'
+			});
+
+			// Assert:
+			expect(restJson).to.deep.equal({
+				maxFee: '12345'
 			});
 		});
 	});
