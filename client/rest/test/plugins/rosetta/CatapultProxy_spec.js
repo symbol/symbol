@@ -324,6 +324,52 @@ describe('CatapultProxy', () => {
 					}
 				});
 			});
+
+			describe('post processes epochAdjustment', () => {
+				const assertPostProcessesEpochAdjustment = async (unparsedValue, parsedValue) => {
+					// Arrange:
+					const proxy = new CatapultProxy(TEST_ENDPOINT);
+					setCacheFetchResults();
+					stubFetchResult('network/properties', true, {
+						tag: 'beta',
+						network: {
+							epochAdjustment: unparsedValue
+						}
+					});
+
+					// Act:
+					const result = await proxy.networkProperties();
+
+					// Assert: only initial calls were made
+					expect(global.fetch.callCount).to.equal(3);
+					expect(result).to.deep.equal({
+						tag: 'beta',
+						network: {
+							epochAdjustment: parsedValue
+						}
+					});
+				};
+
+				it('as hours', () => assertPostProcessesEpochAdjustment('1122h', 1122n * 60n * 60n * 1000n));
+				it('as minutes', () => assertPostProcessesEpochAdjustment('1122m', 1122n * 60n * 1000n));
+				it('as seconds', () => assertPostProcessesEpochAdjustment('1122s', 1122n * 1000n));
+				it('as milliseconds', () => assertPostProcessesEpochAdjustment('1122ms', 1122n));
+
+				it('as other fails', async () => {
+					// Arrange:
+					const proxy = new CatapultProxy(TEST_ENDPOINT);
+					setCacheFetchResults();
+					stubFetchResult('network/properties', true, {
+						tag: 'beta',
+						network: {
+							epochAdjustment: '1122d'
+						}
+					});
+
+					// Act + Assert:
+					await assertAsyncErrorThrown(() => proxy.networkProperties(), RosettaErrorFactory.INTERNAL_SERVER_ERROR);
+				});
+			});
 		});
 		addCachePropertyTests('nemesisBlock', 'blocks/1', { height: 'gamma' });
 	});
