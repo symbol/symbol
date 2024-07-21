@@ -38,7 +38,7 @@ export default {
 		const networkName = services.config.network.name;
 		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
-		const getChainHeight = services.proxy.fetch('chain/info', json => json.height);
+		const getChainHeight = async () => services.proxy.fetch('chain/info', json => json.height);
 		const getBlockIdentifier = height => services.proxy.fetch(`blocks/${height}`, json => json)
 			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash));
 
@@ -52,7 +52,7 @@ export default {
 
 			const startChainHeight = await getChainHeight();
 
-			const mosaics = services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics);
+			const mosaics = await services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics);
 
 			const endChainHeight = await getChainHeight();
 

@@ -52,7 +52,7 @@ export default {
 			const parser = new OperationParser(network, {
 				includeFeeOperation: true,
 				lookupCurrency,
-				resolveAddress: address => services.proxy.resolveAddress(address)
+				resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
 			});
 			const response = new MempoolTransactionResponse();
 			response.transaction = await parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta);

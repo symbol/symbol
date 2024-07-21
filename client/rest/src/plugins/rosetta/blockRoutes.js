@@ -42,7 +42,7 @@ export default {
 		const parser = new OperationParser(network, {
 			includeFeeOperation: true,
 			lookupCurrency,
-			resolveAddress: address => services.proxy.resolveAddress(address)
+			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
 		});
 
 		server.post('/block', rosettaPostRouteWithNetwork(networkName, BlockRequest, async typedRequest => {
@@ -58,8 +58,12 @@ export default {
 			const blockEventsAsRosettaTransaction = async (blockHash, blockStatements) => {
 				const result = await Promise.all(blockStatements.map(async statement =>
 					Promise.all(statement.statement.receipts.map(async receipt => {
-						const receiptOperation = await parser.parseReceipt(receipt);
-						return receiptOperation.operations;
+						if (receipt.amount) {
+							const receiptOperation = await parser.parseReceipt(receipt);
+							return receiptOperation.operations;
+						}
+
+						return [];
 					}))));
 
 				const operations = await Promise.all(result.flat(Infinity));
@@ -101,7 +105,7 @@ export default {
 				throw RosettaErrorFactory.INVALID_REQUEST_DATA;
 
 			const response = new BlockTransactionResponse();
-			response.transaction = await parser.parseTransactionAsRosettaTransaction(transaction);
+			response.transaction = await parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta);
 			return response;
 		}));
 	}
