@@ -20,7 +20,9 @@
  */
 
 import PayloadResultVerifier from './utils/PayloadResultVerifier.js';
-import CatapultProxy from '../../../src/plugins/rosetta/CatapultProxy.js';
+import {
+	FetchStubHelper, RosettaObjectFactory, assertRosettaErrorRaisedBasicWithRoutes, assertRosettaSuccessBasicWithRoutes
+} from './utils/rosettaTestUtils.js';
 import constructionRoutes from '../../../src/plugins/rosetta/constructionRoutes.js';
 import AccountIdentifier from '../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
 import ConstructionCombineResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionCombineResponse.js';
@@ -29,89 +31,24 @@ import ConstructionMetadataResponse from '../../../src/plugins/rosetta/openApi/m
 import ConstructionParseResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionParseResponse.js';
 import ConstructionPayloadsResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionPayloadsResponse.js';
 import ConstructionPreprocessResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionPreprocessResponse.js';
-import RosettaApiError from '../../../src/plugins/rosetta/openApi/model/Error.js';
 import TransactionIdentifier from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
 import TransactionIdentifierResponse from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifierResponse.js';
 import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
-import MockServer from '../../routes/utils/MockServer.js';
-import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { models } from 'symbol-sdk/symbol';
 
 describe('construction routes', () => {
-	const createMockServer = () => {
-		const mockServer = new MockServer();
-		constructionRoutes.register(mockServer.server, {}, {
-			config: {
-				network: { name: 'testnet' }
-			},
-			proxy: new CatapultProxy('http://localhost:3456')
-		});
-		return mockServer;
-	};
-
-	// region asserts
-
-	const assertRosettaErrorRaisedBasic = async (routeName, request, expectedError, malformRequest) => {
-		// Arrange:
-		const mockServer = createMockServer();
-		const route = mockServer.getRoute(routeName).post();
-
-		malformRequest(request);
-
-		// Act:
-		await mockServer.callRoute(route, { body: request });
-
-		// Assert:
-		expect(mockServer.send.calledOnce).to.equal(true);
-		expect(mockServer.next.calledOnce).to.equal(true);
-		expect(mockServer.res.statusCode).to.equal(500);
-
-		const response = mockServer.send.firstCall.args[0];
-		expect(response).to.deep.equal(expectedError.apiError);
-		expect(() => RosettaApiError.validateJSON(response)).to.not.throw();
-	};
-
-	const assertRosettaSuccessBasic = async (routeName, request, expectedResponse, compareOptions = {}) => {
-		// Arrange:
-		const mockServer = createMockServer();
-		const route = mockServer.getRoute(routeName).post();
-
-		// Act:
-		await mockServer.callRoute(route, { body: request });
-
-		// Assert:
-		expect(mockServer.send.calledOnce).to.equal(true);
-		expect(mockServer.next.calledOnce).to.equal(true);
-		expect(mockServer.res.statusCode).to.equal(undefined);
-
-		const response = mockServer.send.firstCall.args[0];
-		if (compareOptions.roundtripJson)
-			expect(JSON.parse(JSON.stringify(response))).to.deep.equal(JSON.parse(JSON.stringify(expectedResponse)));
-		else
-			expect(response).to.deep.equal(expectedResponse);
-
-		expect(() => expectedResponse.constructor.validateJSON(response)).to.not.throw();
-	};
-
-	// endregion
+	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(constructionRoutes, ...args);
+	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(constructionRoutes, ...args);
 
 	// region type factories
 
-	const createRosettaNetworkIdentifier = () => ({
-		blockchain: 'Symbol',
-		network: 'testnet'
-	});
+	const { createRosettaNetworkIdentifier, createRosettaPublicKey } = RosettaObjectFactory;
 
 	const createRosettaCurrency = () => ({
 		symbol: 'symbol.xym',
 		decimals: 6
-	});
-
-	const createRosettaPublicKey = hexBytes => ({
-		hex_bytes: hexBytes,
-		curve_type: 'edwards25519'
 	});
 
 	const createRosettaTransfer = (index, address, amount) => ({
@@ -418,22 +355,15 @@ describe('construction routes', () => {
 	// region metadata
 
 	describe('metadata', () => {
+		const stubFetchResult = FetchStubHelper.stubPost;
+		FetchStubHelper.registerStubCleanup();
+
 		const createValidRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier()
 		});
 
 		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
 			assertRosettaErrorRaisedBasic('/construction/metadata', createValidRequest(), expectedError, malformRequest);
-
-		const stubFetchResult = (urlPath, ok, jsonResult) => {
-			if (!global.fetch.restore)
-				sinon.stub(global, 'fetch');
-
-			global.fetch.withArgs(`http://localhost:3456/${urlPath}`).returns(Promise.resolve({
-				ok,
-				json: () => jsonResult
-			}));
-		};
 
 		const createNodeTimeResult = () => ({
 			communicationTimestamps: {
@@ -448,11 +378,6 @@ describe('construction routes', () => {
 			highestFeeMultiplier: 543,
 			lowestFeeMultiplier: 0,
 			minFeeMultiplier: 10
-		});
-
-		afterEach(() => {
-			if (global.fetch.restore)
-				global.fetch.restore();
 		});
 
 		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
@@ -913,9 +838,6 @@ describe('construction routes', () => {
 	// region submit
 
 	describe('submit', () => {
-		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
-			assertRosettaErrorRaisedBasic('/construction/submit', createValidHashRequest(), expectedError, malformRequest);
-
 		const stubFetchResult = (signedTransactionHex, ok, jsonResult) => {
 			if (!global.fetch.restore)
 				sinon.stub(global, 'fetch');
@@ -931,10 +853,10 @@ describe('construction routes', () => {
 			}));
 		};
 
-		afterEach(() => {
-			if (global.fetch.restore)
-				global.fetch.restore();
-		});
+		FetchStubHelper.registerStubCleanup();
+
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
+			assertRosettaErrorRaisedBasic('/construction/submit', createValidHashRequest(), expectedError, malformRequest);
 
 		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
 			delete request.network_identifier.network;
