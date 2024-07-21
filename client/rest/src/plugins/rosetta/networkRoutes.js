@@ -88,8 +88,8 @@ export default {
 			const genesisBlock = await services.proxy.nemesisBlock();
 			const peers = results[1].map(nodePeer => new Peer(nodePeer.publicKey));
 			const networkProperties = await services.proxy.networkProperties();
-			const epochAdjustment = Number(networkProperties.network.epochAdjustment.slice(0, -1));
-			const currentBlockTimestamp = (epochAdjustment * 1000) + Number(currentBlock.block.timestamp); // in milliseconds
+			const { epochAdjustment } = networkProperties.network;
+			const currentBlockTimestamp = Number(epochAdjustment) + Number(currentBlock.block.timestamp);
 
 			const currentBlockIdentifier = new BlockIdentifier();
 			currentBlockIdentifier.hash = currentBlock.meta.hash;
