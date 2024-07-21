@@ -24,10 +24,13 @@ import {
 } from './utils/rosettaTestUtils.js';
 import networkRoutes from '../../../src/plugins/rosetta/networkRoutes.js';
 import Allow from '../../../src/plugins/rosetta/openApi/model/Allow.js';
+import BlockIdentifier from '../../../src/plugins/rosetta/openApi/model/BlockIdentifier.js';
 import NetworkIdentifier from '../../../src/plugins/rosetta/openApi/model/NetworkIdentifier.js';
 import NetworkListResponse from '../../../src/plugins/rosetta/openApi/model/NetworkListResponse.js';
 import NetworkOptionsResponse from '../../../src/plugins/rosetta/openApi/model/NetworkOptionsResponse.js';
+import NetworkStatusResponse from '../../../src/plugins/rosetta/openApi/model/NetworkStatusResponse.js';
 import OperationStatus from '../../../src/plugins/rosetta/openApi/model/OperationStatus.js';
+import Peer from '../../../src/plugins/rosetta/openApi/model/Peer.js';
 import Version from '../../../src/plugins/rosetta/openApi/model/Version.js';
 import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
 
@@ -117,6 +120,126 @@ describe('network routes', () => {
 
 			// Act + Assert:
 			await assertRosettaSuccessBasic('/network/options', createValidRequest(), expectedResponse);
+		});
+	});
+
+	// endregion
+
+	// region status
+
+	describe('status', () => {
+		const stubFetchResult = FetchStubHelper.stubPost;
+		const genesisBlockHash = '135B9276FE14D6724F87764DD3F8E332813AE9A36D1A7953B12213EA9ACB6B97';
+		const genesisBlockNumber = 1;
+		const currentBlockHash = '92435746EFD1789E5E906E99B8E3BDC72AB1ADECDBEECB321116E59DED0A739C';
+		const currentBlockNumber = 10;
+		const currentBlockTimestamp = 31078501;
+		const epochAdjustment = '1667250467s';
+		const nodePeersPublicKey = [
+			'CE344133E42F557D6A87C2EBA8E9AB44C225A80E713A593CE39D58FB70AA83F4',
+			'AE3C8C118ECB82333BAAFD5BE858176E3C0A497CDA405ACCBA6F737E1C443D2D',
+			'CC1287250B978C0638FD0461EB86952BAEAB4F04266A09FDB3D96D5412BD5B57'
+		];
+;
+		const createValidRequest = () => ({
+			network_identifier: createRosettaNetworkIdentifier()
+		});
+
+		const createBlocksResult = (blockHeight, blockHash, blockTimestamp) => ({
+			meta: { hash: blockHash },
+			block: {
+				height: blockHeight,
+				timestamp: blockTimestamp
+			}
+		});
+
+		const createChainInfoResult = () => ({
+			height: currentBlockNumber
+		});
+
+		const createNodePeerResult = () => nodePeersPublicKey.map(pkey => ({ publicKey: pkey }));
+
+		const createNetworkPropertiesResult = () => ({
+			network: { epochAdjustment }
+		});
+
+		const setupEndPoints = success => {
+			stubFetchResult('node/info', success, createRosettaNodeVersion());
+			stubFetchResult(`blocks/${genesisBlockNumber}`, success, createBlocksResult(genesisBlockNumber, genesisBlockHash, 0));
+			stubFetchResult(
+				`blocks/${currentBlockNumber}`,
+				success,
+				createBlocksResult(currentBlockNumber, currentBlockHash, currentBlockTimestamp)
+			);
+			stubFetchResult('chain/info', success, createChainInfoResult());
+			stubFetchResult('network/properties', success, createNetworkPropertiesResult());
+			stubFetchResult('node/peers', success, createNodePeerResult());
+		};
+
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
+			assertRosettaErrorRaisedBasic('/network/status', createValidRequest(), expectedError, malformRequest);
+
+		it('returns valid response on success', async () => {
+			// Arrange:
+			const expectedResponse = new NetworkStatusResponse();
+			expectedResponse.genesis_block_identifier = new BlockIdentifier();
+			expectedResponse.genesis_block_identifier.hash = genesisBlockHash;
+			expectedResponse.genesis_block_identifier.index = genesisBlockNumber;
+
+			expectedResponse.current_block_identifier = new BlockIdentifier();
+			expectedResponse.current_block_identifier.hash = currentBlockHash;
+			expectedResponse.current_block_identifier.index = currentBlockNumber;
+			expectedResponse.current_block_timestamp = (Number(epochAdjustment.slice(0, -1)) * 1000) + currentBlockTimestamp;
+			expectedResponse.peers = nodePeersPublicKey.map(pkey => new Peer(pkey));
+
+			setupEndPoints(true);
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic('/network/status', createValidRequest(), expectedResponse);
+		});
+
+		it('fails when all fetch fails', async () => {
+			// Arrange:
+			setupEndPoints(false);
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
+		});
+
+		it('fails when multiple fetch fails', async () => {
+			// Arrange:
+			setupEndPoints(true);
+			stubFetchResult(
+				`blocks/${currentBlockNumber}`,
+				false,
+				createBlocksResult(currentBlockNumber, currentBlockHash, currentBlockTimestamp)
+			);
+			stubFetchResult('node/peers', false, createNodePeerResult());
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
+		});
+
+		it('fails when one fetch fails (node/peers)', async () => {
+			// Arrange:
+			setupEndPoints(true);
+			stubFetchResult('node/peers', false, createNodePeerResult());
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
+		});
+
+		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
+			delete request.network_identifier.network;
+		}));
+
+		it('fails when node/info fetch invalid json', async () => {
+			// Arrange:
+			setupEndPoints(true);
+			stubFetchResult('node/peers', true, undefined);
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.INTERNAL_SERVER_ERROR, () => {});
 		});
 	});
 
