@@ -20,12 +20,9 @@
  */
 
 import PayloadResultVerifier from './utils/PayloadResultVerifier.js';
+import { RosettaOperationFactory } from './utils/rosettaTestUtils.js';
 import { OperationParser, convertTransactionSdkJsonToRestJson } from '../../../src/plugins/rosetta/OperationParser.js';
-import AccountIdentifier from '../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
-import Amount from '../../../src/plugins/rosetta/openApi/model/Amount.js';
 import Currency from '../../../src/plugins/rosetta/openApi/model/Currency.js';
-import Operation from '../../../src/plugins/rosetta/openApi/model/Operation.js';
-import OperationIdentifier from '../../../src/plugins/rosetta/openApi/model/OperationIdentifier.js';
 import Transaction from '../../../src/plugins/rosetta/openApi/model/Transaction.js';
 import TransactionIdentifier from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
 import { expect } from 'chai';
@@ -37,32 +34,7 @@ import {
 describe('OperationParser', () => {
 	// region utils
 
-	const createTransferOperation = (index, address, amount, currencyName, currencyDecimals) => {
-		const operation = new Operation(new OperationIdentifier(index), 'transfer');
-		operation.account = new AccountIdentifier(address);
-		operation.amount = new Amount(amount, new Currency(currencyName, currencyDecimals));
-		operation.status = 'success';
-		return operation;
-	};
-
-	const createMultisigOperation = (index, address, metadata) => {
-		const operation = new Operation(new OperationIdentifier(index), 'multisig');
-		operation.account = new AccountIdentifier(address);
-		operation.metadata = {
-			addressAdditions: [],
-			addressDeletions: [],
-			...metadata
-		};
-		operation.status = 'success';
-		return operation;
-	};
-
-	const createCosignOperation = (index, address) => {
-		const operation = new Operation(new OperationIdentifier(index), 'cosign');
-		operation.account = new AccountIdentifier(address);
-		operation.status = 'success';
-		return operation;
-	};
+	const { createCosignOperation, createMultisigOperation, createTransferOperation } = RosettaOperationFactory;
 
 	const encodeParitalDecodedAddress = address => new Address(utils.hexToUint8(address.padEnd(48, '0'))).toString();
 
