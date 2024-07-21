@@ -155,12 +155,7 @@ describe('block routes', () => {
 				])
 			]
 		});
-		stubFetchResult('mosaics/1122334455667788', true, { mosaic: { divisibility: 3 } });
-		stubFetchResult('namespaces/mosaic/names', true, { mosaicNames: [{ names: ['foo.bar'] }] }, {
-			method: 'POST',
-			body: JSON.stringify({ mosaicIds: ['1122334455667788'] }),
-			headers: { 'Content-Type': 'application/json' }
-		});
+		FetchStubHelper.stubMosaicResolution('1122334455667788', 'foo.bar', 3);
 
 		// resolve 'currencyMosaicId'
 		FetchStubHelper.stubCatapultProxyCacheFill();
@@ -168,12 +163,7 @@ describe('block routes', () => {
 			network: { epochAdjustment: '112233s' },
 			chain: { currencyMosaicId: '0x1ABBCCDDAABBCCDD' }
 		});
-		stubFetchResult('mosaics/1ABBCCDDAABBCCDD', true, { mosaic: { divisibility: 6 } });
-		stubFetchResult('namespaces/mosaic/names', true, { mosaicNames: [{ names: ['symbol.xym'] }] }, {
-			method: 'POST',
-			body: JSON.stringify({ mosaicIds: ['1ABBCCDDAABBCCDD'] }),
-			headers: { 'Content-Type': 'application/json' }
-		});
+		FetchStubHelper.stubMosaicResolution('1ABBCCDDAABBCCDD', 'symbol.xym', 6);
 	};
 
 	// endregion
@@ -210,15 +200,8 @@ describe('block routes', () => {
 		});
 
 		const stubBlockResolutions = height => {
-			// resolve block
-			stubFetchResult(
-				`transactions/confirmed?height=${height}&embedded=true&pageNumber=1&pageSize=100`,
-				true,
-				createConfirmedTransactionsResponse(height)
-			);
+			// setup block
 			stubTransactionResolutions(height);
-
-			// - block
 			stubFetchResult(`blocks/${height}`, true, {
 				block: {
 					height: height.toString(),
@@ -228,7 +211,14 @@ describe('block routes', () => {
 				meta: { hash: 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076' }
 			});
 
-			// - statements
+			// setup block transactions
+			stubFetchResult(
+				`transactions/confirmed?height=${height}&embedded=true&pageNumber=1&pageSize=100`,
+				true,
+				createConfirmedTransactionsResponse(height)
+			);
+
+			// setup block statements
 			stubFetchResult(`statements/transaction?height=${height}&pageNumber=1&pageSize=100`, true, createStatementsJson());
 		};
 

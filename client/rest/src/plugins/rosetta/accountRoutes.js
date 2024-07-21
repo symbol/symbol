@@ -23,7 +23,7 @@ import AccountBalanceRequest from './openApi/model/AccountBalanceRequest.js';
 import AccountBalanceResponse from './openApi/model/AccountBalanceResponse.js';
 import AccountCoinsRequest from './openApi/model/AccountCoinsRequest.js';
 import AccountCoinsResponse from './openApi/model/AccountCoinsResponse.js';
-import RosettaAmount from './openApi/model/Amount.js';
+import Amount from './openApi/model/Amount.js';
 import BlockIdentifier from './openApi/model/BlockIdentifier.js';
 import Coin from './openApi/model/Coin.js';
 import CoinIdentifier from './openApi/model/CoinIdentifier.js';
@@ -42,7 +42,7 @@ export default {
 		const getBlockIdentifier = height => services.proxy.fetch(`blocks/${height}`, json => json)
 			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash));
 
-		const accountInfoRequest = async typedRequest => {
+		const getAccountInfo = async typedRequest => {
 			if (typedRequest.block_identifier)
 				throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
 
@@ -65,21 +65,17 @@ export default {
 
 		const toRosettaAmounts = async mosaics => Promise.all(mosaics.map(async mosaic => {
 			const currency = await lookupCurrency(BigInt(`0x${mosaic.id}`));
-			const rosettaAmount = new RosettaAmount();
-			rosettaAmount.value = mosaic.amount;
-			rosettaAmount.currency = currency;
-			return rosettaAmount;
+			return new Amount(mosaic.amount, currency);
 		}));
 
+		const isCurrencyEqual = (lhs, rhs) => lhs.symbol === rhs.symbol && lhs.decimals === rhs.decimals;
+
 		server.post('/account/balance', rosettaPostRouteWithNetwork(networkName, AccountBalanceRequest, async typedRequest => {
-			const results = await accountInfoRequest(typedRequest);
+			const results = await getAccountInfo(typedRequest);
 			let amounts = await toRosettaAmounts(results[1]);
 
-			if (typedRequest.currencies) {
-				amounts = amounts.filter(a =>
-					typedRequest.currencies.find(c =>
-						a.currency.symbol === c.symbol && a.currency.decimals === c.decimals));
-			}
+			if (typedRequest.currencies)
+				amounts = amounts.filter(amount => typedRequest.currencies.some(currency => isCurrencyEqual(amount.currency, currency)));
 
 			const response = new AccountBalanceResponse();
 			response.block_identifier = results[0];
@@ -88,23 +84,13 @@ export default {
 		}));
 
 		server.post('/account/coins', rosettaPostRouteWithNetwork(networkName, AccountCoinsRequest, async typedRequest => {
-			const results = await accountInfoRequest(typedRequest);
+			const results = await getAccountInfo(typedRequest);
 			const amounts = await toRosettaAmounts(results[1]);
-			const mosaicCoinMapper = async amount => {
-				const coin = new Coin();
-				coin.coin_identifier = new CoinIdentifier();
-				coin.coin_identifier.identifier = amount.currency.metadata.id;
-				coin.amount = amount;
-				return coin;
-			};
+			const mosaicCoinMapper = amount => new Coin(new CoinIdentifier(amount.currency.metadata.id), amount);
 
 			let coins = await Promise.all(amounts.map(async amount => mosaicCoinMapper(amount)));
-			if (typedRequest.currencies) {
-				const filteredCoins = coins.filter(coin =>
-					typedRequest.currencies.find(c => coin.amount.currency.symbol === c.symbol
-						&& coin.amount.currency.decimals === c.decimals));
-				coins = filteredCoins;
-			}
+			if (typedRequest.currencies)
+				coins = coins.filter(coin => typedRequest.currencies.some(currency => isCurrencyEqual(coin.amount.currency, currency)));
 
 			const response = new AccountCoinsResponse();
 			response.block_identifier = results[0];

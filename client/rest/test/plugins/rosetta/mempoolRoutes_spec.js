@@ -159,22 +159,12 @@ describe('mempool routes', () => {
 
 			// - resolve unresolved mosaic id
 			stubFetchResult('namespaces/EC673E105521B12F', true, { namespace: { alias: { mosaicId: '1122334455667788' } } });
-			stubFetchResult('mosaics/1122334455667788', true, { mosaic: { divisibility: 3 } });
-			stubFetchResult('namespaces/mosaic/names', true, { mosaicNames: [{ names: ['foo.bar'] }] }, {
-				method: 'POST',
-				body: JSON.stringify({ mosaicIds: ['1122334455667788'] }),
-				headers: { 'Content-Type': 'application/json' }
-			});
+			FetchStubHelper.stubMosaicResolution('1122334455667788', 'foo.bar', 3);
 
 			// - resolve 'currencyMosaicId'
 			FetchStubHelper.stubCatapultProxyCacheFill();
 			stubFetchResult('network/properties', true, { chain: { currencyMosaicId: '0x1ABBCCDDAABBCCDD' } });
-			stubFetchResult('mosaics/1ABBCCDDAABBCCDD', true, { mosaic: { divisibility: 6 } });
-			stubFetchResult('namespaces/mosaic/names', true, { mosaicNames: [{ names: ['symbol.xym'] }] }, {
-				method: 'POST',
-				body: JSON.stringify({ mosaicIds: ['1ABBCCDDAABBCCDD'] }),
-				headers: { 'Content-Type': 'application/json' }
-			});
+			FetchStubHelper.stubMosaicResolution('1ABBCCDDAABBCCDD', 'symbol.xym', 6);
 
 			// - create expected response
 			const transferCurrencyProperties = ['foo.bar', 3, '1122334455667788'];
