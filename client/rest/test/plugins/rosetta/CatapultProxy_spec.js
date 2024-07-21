@@ -19,10 +19,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { FetchStubHelper } from './utils/rosettaTestUtils.js';
 import CatapultProxy from '../../../src/plugins/rosetta/CatapultProxy.js';
 import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
 import { expect } from 'chai';
-import sinon from 'sinon';
 
 describe('CatapultProxy', () => {
 	// region utils
@@ -38,20 +38,8 @@ describe('CatapultProxy', () => {
 		}
 	};
 
-	const stubFetchResult = (urlPath, ok, jsonResult) => {
-		if (!global.fetch.restore)
-			sinon.stub(global, 'fetch');
-
-		global.fetch.withArgs(`${TEST_ENDPOINT}/${urlPath}`).returns(Promise.resolve({
-			ok,
-			json: () => jsonResult
-		}));
-	};
-
-	afterEach(() => {
-		if (global.fetch.restore)
-			global.fetch.restore();
-	});
+	const stubFetchResult = FetchStubHelper.stubPost;
+	FetchStubHelper.registerStubCleanup();
 
 	// endregion
 
