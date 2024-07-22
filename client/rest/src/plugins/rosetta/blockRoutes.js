@@ -59,8 +59,12 @@ export default {
 				// process all statements and receipts
 				const statementGroupedOperations = await Promise.all(blockStatements.map(async statement => {
 					const receiptGroupedOperations = await Promise.all(statement.statement.receipts.map(async receipt => {
-						const { operations } = await parser.parseReceipt(receipt);
-						return operations;
+						if (undefined !== receipt.amount) { // skip receipt without an amount
+							const { operations } = await parser.parseReceipt(receipt);
+							return operations;
+						}
+
+						return [];
 					}));
 
 					return [].concat(...receiptGroupedOperations);
