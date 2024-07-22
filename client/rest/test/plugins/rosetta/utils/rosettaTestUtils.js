@@ -107,7 +107,6 @@ export const RosettaOperationFactory = {
 		const operation = new Operation(new OperationIdentifier(index), 'transfer');
 		operation.account = new AccountIdentifier(address);
 		operation.amount = new Amount(amount, currency);
-		operation.status = 'success';
 		return operation;
 	},
 
@@ -119,13 +118,16 @@ export const RosettaOperationFactory = {
 			addressDeletions: [],
 			...metadata
 		};
-		operation.status = 'success';
 		return operation;
 	},
 
 	createCosignOperation: (index, address) => {
 		const operation = new Operation(new OperationIdentifier(index), 'cosign');
 		operation.account = new AccountIdentifier(address);
+		return operation;
+	},
+
+	setOperationStatus: operation => {
 		operation.status = 'success';
 		return operation;
 	}
