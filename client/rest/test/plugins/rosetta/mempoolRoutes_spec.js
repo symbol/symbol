@@ -108,7 +108,7 @@ describe('mempool routes', () => {
 
 		const createValidRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier(),
-			transaction_identifier: { hash: 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483' }
+			transaction_identifier: { hash: TRANSACTION_HASH }
 		});
 
 		const createTransactionJson = () => {
@@ -125,7 +125,7 @@ describe('mempool routes', () => {
 
 			return {
 				transaction: convertTransactionSdkJsonToRestJson(transaction.toJson()),
-				meta: { hash: 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483' }
+				meta: { hash: TRANSACTION_HASH }
 			};
 		};
 
@@ -170,7 +170,7 @@ describe('mempool routes', () => {
 			const transferCurrencyProperties = ['foo.bar', 3, '1122334455667788'];
 			const feeCurrencyProperties = ['symbol.xym', 6, '1ABBCCDDAABBCCDD'];
 			const transaction = new Transaction(
-				new TransactionIdentifier('C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483'),
+				new TransactionIdentifier(TRANSACTION_HASH),
 				[
 					createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-9876', ...transferCurrencyProperties),
 					createTransferOperation(1, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '9876', ...transferCurrencyProperties),

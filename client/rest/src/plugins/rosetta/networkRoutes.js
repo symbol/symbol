@@ -77,27 +77,19 @@ export default {
 		}));
 
 		server.post('/network/status', rosettaPostRouteWithNetwork(networkName, NetworkRequest, async () => {
-			const getBlockByNumber = async blockNumber => services.proxy.fetch(`blocks/${blockNumber}`);
-
-			const results = await Promise.all([
-				services.proxy.fetch('chain/info').then(result => getBlockByNumber(result.height)),
-				services.proxy.fetch('node/peers')
+			const [genesisBlock, networkProperties, currentBlock, peers] = await Promise.all([
+				services.proxy.nemesisBlock(),
+				services.proxy.networkProperties(),
+				services.proxy.fetch('chain/info').then(result => services.proxy.fetch(`blocks/${result.height}`)),
+				services.proxy.fetch('node/peers').then(nodes => nodes.map(node => new Peer(node.publicKey)))
 			]);
 
-			const currentBlock = results[0];
-			const genesisBlock = await services.proxy.nemesisBlock();
-			const peers = results[1].map(nodePeer => new Peer(nodePeer.publicKey));
-			const networkProperties = await services.proxy.networkProperties();
 			const { epochAdjustment } = networkProperties.network;
-			const currentBlockTimestamp = Number(epochAdjustment) + Number(currentBlock.block.timestamp);
+			const currentBlockTimestamp = Number(epochAdjustment + BigInt(currentBlock.block.timestamp));
 
-			const currentBlockIdentifier = new BlockIdentifier();
-			currentBlockIdentifier.hash = currentBlock.meta.hash;
-			currentBlockIdentifier.index = Number(currentBlock.block.height);
-
-			const genesisBlockIdentifier = new BlockIdentifier();
-			genesisBlockIdentifier.hash = genesisBlock.meta.hash;
-			genesisBlockIdentifier.index = Number(genesisBlock.block.height);
+			const blockToBlockIdentifier = block => new BlockIdentifier(Number(block.block.height), block.meta.hash);
+			const currentBlockIdentifier = blockToBlockIdentifier(currentBlock);
+			const genesisBlockIdentifier = blockToBlockIdentifier(genesisBlock);
 
 			const networkStatusResponse = new NetworkStatusResponse();
 			networkStatusResponse.current_block_identifier = currentBlockIdentifier;

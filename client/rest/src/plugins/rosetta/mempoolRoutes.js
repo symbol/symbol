@@ -33,11 +33,19 @@ import { Network } from 'symbol-sdk/symbol';
 
 export default {
 	register: (server, db, services) => {
+		const PAGE_SIZE = 100;
+
 		const networkName = services.config.network.name;
+		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
+		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
+		const parser = new OperationParser(network, {
+			includeFeeOperation: true,
+			lookupCurrency,
+			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
+		});
 
 		server.post('/mempool', rosettaPostRouteWithNetwork(networkName, NetworkRequest, async () => {
-			const pageSize = 100;
-			const transactions = await services.proxy.fetchAll('transactions/unconfirmed', pageSize);
+			const transactions = await services.proxy.fetchAll('transactions/unconfirmed', PAGE_SIZE);
 
 			const response = new MempoolResponse();
 			response.transaction_identifiers = transactions.map(transaction => new TransactionIdentifier(transaction.meta.hash));
@@ -46,14 +54,7 @@ export default {
 
 		server.post('/mempool/transaction', rosettaPostRouteWithNetwork(networkName, MempoolTransactionRequest, async typedRequest => {
 			const transactionHash = typedRequest.transaction_identifier.hash;
-			const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 			const transaction = await services.proxy.fetch(`transactions/unconfirmed/${transactionHash}`);
-			const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
-			const parser = new OperationParser(network, {
-				includeFeeOperation: true,
-				lookupCurrency,
-				resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
-			});
 			const response = new MempoolTransactionResponse();
 			response.transaction = await parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta);
 			return response;

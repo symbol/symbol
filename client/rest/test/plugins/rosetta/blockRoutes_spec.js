@@ -44,6 +44,7 @@ describe('block routes', () => {
 	// region utils
 
 	const TEST_BLOCK_HEIGHT = 1111;
+	const TRANSACTION_HASH = 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483';
 
 	const { createRosettaNetworkIdentifier } = RosettaObjectFactory;
 	const { createTransferOperation } = RosettaOperationFactory;
@@ -63,7 +64,7 @@ describe('block routes', () => {
 		return {
 			transaction: convertTransactionSdkJsonToRestJson(transaction.toJson()),
 			meta: {
-				hash: 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483',
+				hash: TRANSACTION_HASH,
 				height: height.toString(),
 				index: 1
 			}
@@ -74,7 +75,7 @@ describe('block routes', () => {
 		const transferCurrencyProperties = ['foo.bar', 3, '1122334455667788'];
 		const feeCurrencyProperties = ['symbol.xym', 6, '1ABBCCDDAABBCCDD'];
 		return new Transaction(
-			new TransactionIdentifier('C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483'),
+			new TransactionIdentifier(TRANSACTION_HASH),
 			[
 				createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-9876', ...transferCurrencyProperties),
 				createTransferOperation(1, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '9876', ...transferCurrencyProperties),
@@ -113,11 +114,11 @@ describe('block routes', () => {
 		]
 	});
 
-	const createMatchingReceiptsRosettaTransaction = () => {
+	const createMatchingReceiptsRosettaTransaction = transactionIdentifier => {
 		const transferCurrencyProperties = ['foo.bar', 3, '1122334455667788'];
 		const feeCurrencyProperties = ['symbol.xym', 6, '1ABBCCDDAABBCCDD'];
 		return new Transaction(
-			new TransactionIdentifier('A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
+			new TransactionIdentifier(transactionIdentifier),
 			[
 				createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-1234', ...feeCurrencyProperties),
 				createTransferOperation(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '4321', ...transferCurrencyProperties),
@@ -190,9 +191,9 @@ describe('block routes', () => {
 		it('fails when fetch fails (transactions/confirmed)', async () => {
 			// Arrange:
 			stubFetchResult(
-				'transactions/confirmed?height=1&embedded=true&pageNumber=1&pageSize=100',
+				'transactions/confirmed?height=1111&embedded=true&pageNumber=1&pageSize=100',
 				false,
-				createConfirmedTransactionsResponse()
+				createConfirmedTransactionsResponse(1111)
 			);
 
 			// Act + Assert:
@@ -231,7 +232,7 @@ describe('block routes', () => {
 
 			expectedResponse.block.transactions = [
 				createMatchingRosettaTransaction(),
-				createMatchingReceiptsRosettaTransaction()
+				createMatchingReceiptsRosettaTransaction(blockIdentifier.hash)
 			];
 
 			return expectedResponse;
@@ -248,7 +249,7 @@ describe('block routes', () => {
 			);
 
 			// Act + Assert:
-			await assertRosettaSuccessBasic('/block', createValidRequest('1'), expectedResponse);
+			await assertRosettaSuccessBasic('/block', createValidRequest(1), expectedResponse);
 		});
 
 		it('succeeds when all fetches succeed (other)', async () => {
@@ -262,7 +263,7 @@ describe('block routes', () => {
 			);
 
 			// Act + Assert:
-			await assertRosettaSuccessBasic('/block', createValidRequest('1111'), expectedResponse);
+			await assertRosettaSuccessBasic('/block', createValidRequest(1111), expectedResponse);
 		});
 	});
 
@@ -271,12 +272,10 @@ describe('block routes', () => {
 	// region block/transaction
 
 	describe('block/transaction', () => {
-		const TRANSACTION_HASH = 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483';
-
 		const createValidRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier(),
 			block_identifier: { index: '1111', hash: 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076' },
-			transaction_identifier: { hash: 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483' }
+			transaction_identifier: { hash: TRANSACTION_HASH }
 		});
 
 		const assertRosettaErrorRaised = (expectedError, malformRequest) =>

@@ -50,7 +50,7 @@ describe('account routes', () => {
 
 	const createRosettaCoin = (amount, currencyName, currencyDecimals, mosaicId) => new Coin(
 		new CoinIdentifier(mosaicId),
-		new Amount(amount, RosettaOperationFactory.createCurrency(currencyName, currencyDecimals, mosaicId))
+		createRosettaAmount(amount, currencyName, currencyDecimals, mosaicId)
 	);
 
 	const stubFetchResult = FetchStubHelper.stubPost;
@@ -81,6 +81,10 @@ describe('account routes', () => {
 		FetchStubHelper.stubMosaicResolution('1ABBCCDDAABBCCDD', 'symbol.xym', 6);
 	};
 
+	// endregion
+
+	// region common tests
+
 	const addAccountFailureTests = (route, options) => {
 		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
 			assertRosettaErrorRaisedBasic(route, options.createValidRequest(), expectedError, malformRequest);
@@ -106,10 +110,6 @@ describe('account routes', () => {
 			request.account_identifier.address = 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKX';
 		}));
 
-		it('fails when address is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
-			request.account_identifier.address = 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKX';
-		}));
-
 		it('fails when block changes during account query', () => assertRosettaErrorRaised(
 			RosettaErrorFactory.SYNC_DURING_OPERATION,
 			() => {
@@ -118,6 +118,50 @@ describe('account routes', () => {
 				stubFetchResult('accounts/TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', true, { account: { mosaics: [] } });
 			}
 		));
+	};
+
+	const addAccountSuccessTests = (route, options) => {
+		it('succeeds when all fetches succeed', async () => {
+			// Arrange:
+			stubAccountResolutions();
+
+			// - create expected response
+			const expectedResponse = new options.Response(
+				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
+				[
+					options.createRosettaAmount('123', 'foo.bar', 3, '1122334455667788'),
+					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965'),
+					options.createRosettaAmount('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				]
+			);
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic(route, options.createValidRequest(), expectedResponse);
+		});
+
+		it('succeeds when all fetches succeed and applies currency filter', async () => {
+			// Arrange:
+			stubAccountResolutions();
+
+			// - add currency filter
+			const request = options.createValidRequest();
+			request.currencies = [
+				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
+				{ symbol: 'cat.dog', decimals: 4 },
+				{ symbol: 'symbol.xym', decimals: 1 } // decimals mismatch
+			];
+
+			// - create expected response
+			const expectedResponse = new options.Response(
+				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
+				[
+					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965')
+				]
+			);
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic(route, request, expectedResponse);
+		});
 	};
 
 	// endregion
@@ -132,46 +176,10 @@ describe('account routes', () => {
 
 		addAccountFailureTests('/account/balance', { createValidRequest });
 
-		it('succeeds when all fetches succeed', async () => {
-			// Arrange:
-			stubAccountResolutions();
-
-			// - create expected response
-			const expectedResponse = new AccountBalanceResponse(
-				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
-				[
-					createRosettaAmount('123', 'foo.bar', 3, '1122334455667788'),
-					createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965'),
-					createRosettaAmount('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
-				]
-			);
-
-			// Act + Assert:
-			await assertRosettaSuccessBasic('/account/balance', createValidRequest(), expectedResponse);
-		});
-
-		it('succeeds when all fetches succeed and applies currency filter', async () => {
-			// Arrange:
-			stubAccountResolutions();
-
-			// - add currency filter
-			const request = createValidRequest();
-			request.currencies = [
-				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
-				{ symbol: 'cat.dog', decimals: 4 },
-				{ symbol: 'symbol.xym', decimals: 1 } // decimals mismatch
-			];
-
-			// - create expected response
-			const expectedResponse = new AccountBalanceResponse(
-				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
-				[
-					createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965')
-				]
-			);
-
-			// Act + Assert:
-			await assertRosettaSuccessBasic('/account/balance', request, expectedResponse);
+		addAccountSuccessTests('/account/balance', {
+			createValidRequest,
+			createRosettaAmount,
+			Response: AccountBalanceResponse
 		});
 	});
 
@@ -191,46 +199,10 @@ describe('account routes', () => {
 			skipBlockIdentifierTest: true
 		});
 
-		it('succeeds when all fetches succeed', async () => {
-			// Arrange:
-			stubAccountResolutions();
-
-			// - create expected response
-			const expectedResponse = new AccountCoinsResponse(
-				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
-				[
-					createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-					createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965'),
-					createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
-				]
-			);
-
-			// Act + Assert:
-			await assertRosettaSuccessBasic('/account/coins', createValidRequest(), expectedResponse);
-		});
-
-		it('succeeds when all fetches succeed and applies currency filter', async () => {
-			// Arrange:
-			stubAccountResolutions();
-
-			// - add currency filter
-			const request = createValidRequest();
-			request.currencies = [
-				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
-				{ symbol: 'cat.dog', decimals: 4 },
-				{ symbol: 'symbol.xym', decimals: 1 } // decimals mismatch
-			];
-
-			// - create expected response
-			const expectedResponse = new AccountCoinsResponse(
-				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
-				[
-					createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965')
-				]
-			);
-
-			// Act + Assert:
-			await assertRosettaSuccessBasic('/account/coins', request, expectedResponse);
+		addAccountSuccessTests('/account/coins', {
+			createValidRequest,
+			createRosettaAmount: createRosettaCoin,
+			Response: AccountCoinsResponse
 		});
 	});
 

@@ -26,7 +26,7 @@ import BlockRequest from './openApi/model/BlockRequest.js';
 import BlockResponse from './openApi/model/BlockResponse.js';
 import BlockTransactionRequest from './openApi/model/BlockTransactionRequest.js';
 import BlockTransactionResponse from './openApi/model/BlockTransactionResponse.js';
-import RosettaTransaction from './openApi/model/Transaction.js';
+import Transaction from './openApi/model/Transaction.js';
 import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
 import {
 	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork, stitchBlockTransactions
@@ -36,6 +36,9 @@ import { Network } from 'symbol-sdk/symbol';
 
 export default {
 	register: (server, db, services) => {
+		const GENESIS_BLOCK_NUMBER = 1;
+		const PAGE_SIZE = 100;
+
 		const networkName = services.config.network.name;
 		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
@@ -45,57 +48,44 @@ export default {
 			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
 		});
 
-		server.post('/block', rosettaPostRouteWithNetwork(networkName, BlockRequest, async typedRequest => {
-			const height = typedRequest.block_identifier.index;
-			const genesisBlockNumber = 1;
-			const pageSize = 100;
-			const results = await Promise.all([
-				genesisBlockNumber === height ? services.proxy.nemesisBlock() : services.proxy.fetch(`blocks/${height}`),
-				services.proxy.fetchAll(`transactions/confirmed?height=${height}&embedded=true`, pageSize),
-				services.proxy.fetchAll(`statements/transaction?height=${height}`, pageSize)
-			]);
-
-			const blockEventsAsRosettaTransaction = async (blockHash, blockStatements) => {
-				// process all statements and receipts
-				const statementGroupedOperations = await Promise.all(blockStatements.map(async statement => {
-					const receiptGroupedOperations = await Promise.all(statement.statement.receipts.map(async receipt => {
-						if (undefined !== receipt.amount) { // skip receipt without an amount
-							const { operations } = await parser.parseReceipt(receipt);
-							return operations;
-						}
-
-						return [];
-					}));
-
-					return [].concat(...receiptGroupedOperations);
+		const mapBlockStatementsToRosettaTransaction = async blockStatements => {
+			// process all statements and receipts
+			const statementGroupedOperations = await Promise.all(blockStatements.map(async statement => {
+				const receiptGroupedOperations = await Promise.all(statement.statement.receipts.map(async receipt => {
+					const { operations } = await parser.parseReceipt(receipt);
+					return operations;
 				}));
 
-				// flatten and reorder operations
-				const operations = [].concat(...statementGroupedOperations);
-				operations.forEach((operation, i) => { operation.operation_identifier.index = i; }); // fix operation index
+				return [].concat(...receiptGroupedOperations);
+			}));
 
-				// construct transaction
-				const rosettaTransaction = new RosettaTransaction();
-				rosettaTransaction.transaction_identifier = new TransactionIdentifier(blockHash);
-				rosettaTransaction.operations = operations;
-				return rosettaTransaction;
-			};
+			// flatten and renumber operations
+			const operations = [].concat(...statementGroupedOperations);
+			operations.forEach((operation, i) => { operation.operation_identifier.index = i; });
 
-			const blockInfo = results[0];
-			const transactions = results[1];
-			const blockStatements = results[2];
+			// construct transaction (transaction_identifier.hash is set later)
+			return new Transaction(new TransactionIdentifier(undefined), operations);
+		};
 
-			const networkProperties = await services.proxy.networkProperties();
-			const blockTransaction = await blockEventsAsRosettaTransaction(blockInfo.meta.hash, blockStatements);
-			const rosettaTransactions = await Promise.all(stitchBlockTransactions(transactions)
-				.map(transaction => parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)));
+		server.post('/block', rosettaPostRouteWithNetwork(networkName, BlockRequest, async typedRequest => {
+			const height = typedRequest.block_identifier.index;
+			const [networkProperties, blockInfo, rosettaTransactions, blockTransaction] = await Promise.all([
+				services.proxy.networkProperties(),
+				GENESIS_BLOCK_NUMBER === height ? services.proxy.nemesisBlock() : services.proxy.fetch(`blocks/${height}`),
+				services.proxy.fetchAll(`transactions/confirmed?height=${height}&embedded=true`, PAGE_SIZE).then(transactions =>
+					Promise.all(stitchBlockTransactions(transactions)
+						.map(transaction => parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)))),
+				services.proxy.fetchAll(`statements/transaction?height=${height}`, PAGE_SIZE).then(mapBlockStatementsToRosettaTransaction)
+			]);
+
+			blockTransaction.transaction_identifier.hash = blockInfo.meta.hash;
 
 			const response = new BlockResponse();
 			response.block = new Block();
 			response.block.transactions = rosettaTransactions;
 			response.block.transactions.push(blockTransaction);
 			response.block.block_identifier = new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash);
-			response.block.parent_block_identifier = genesisBlockNumber === height
+			response.block.parent_block_identifier = GENESIS_BLOCK_NUMBER === height
 				? response.block.block_identifier
 				: new BlockIdentifier(Number(blockInfo.block.height) - 1, blockInfo.block.previousBlockHash);
 			response.block.timestamp = Number(networkProperties.network.epochAdjustment + BigInt(blockInfo.block.timestamp));
@@ -104,8 +94,8 @@ export default {
 
 		server.post('/block/transaction', rosettaPostRouteWithNetwork(networkName, BlockTransactionRequest, async typedRequest => {
 			const height = typedRequest.block_identifier.index;
-			const transactionId = typedRequest.transaction_identifier.hash;
-			const transaction = await services.proxy.fetch(`transactions/confirmed/${transactionId}`);
+			const transactionHash = typedRequest.transaction_identifier.hash;
+			const transaction = await services.proxy.fetch(`transactions/confirmed/${transactionHash}`);
 
 			if (Number(transaction.meta.height) !== height)
 				throw RosettaErrorFactory.INVALID_REQUEST_DATA;
