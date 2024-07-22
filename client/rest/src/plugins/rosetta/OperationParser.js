@@ -313,6 +313,9 @@ export class OperationParser {
 	 * @returns {Array<Operation>} Receipt operations.
 	 */
 	async parseReceipt(receipt) {
+		if (undefined === receipt.amount)
+			return { operations: [] };
+
 		const amount = BigInt(receipt.amount);
 		if (0n === amount)
 			return { operations: [] };
