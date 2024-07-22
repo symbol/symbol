@@ -59,7 +59,7 @@
     "eslint-plugin-jsdoc": "^48.2.1",
     "json-bigint": "~1.0.0",
     "mkdirp": "~3.0.1",
-    "mocha": "~10.6.0",
+    "mocha": "~10.7.0",
     "mocha-jenkins-reporter": "~0.4.8",
     "process": "~0.11.10",
     "rimraf": "~6.0.1",
