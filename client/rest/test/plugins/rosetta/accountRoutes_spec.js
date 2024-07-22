@@ -178,7 +178,11 @@ describe('account routes', () => {
 
 		addAccountSuccessTests('/account/balance', {
 			createValidRequest,
-			createRosettaAmount,
+			createRosettaAmount: (...args) => {
+				const amount = createRosettaAmount(...args);
+				delete amount.currency.metadata;
+				return amount;
+			},
 			Response: AccountBalanceResponse
 		});
 	});
