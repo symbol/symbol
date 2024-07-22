@@ -771,13 +771,16 @@ describe('OperationParser', () => {
 		});
 
 		describe('other', () => {
-			it('can parse', () => runReceiptTest({
+			const createReceiptJson = amount => ({
 				type: 1111,
 				targetAddress: '982390440A195B82D4A06810038B1400CE7CDA7AB3F48F99',
 				mosaicId: generateMosaicAliasId('foo.bar'),
-				amount: '4741734'
-			}, [
-			]));
+				amount
+			});
+
+			it('can parse', () => runReceiptTest(createReceiptJson('4741734'), []));
+
+			it('can parse without amount', () => runReceiptTest(createReceiptJson(undefined), []));
 		});
 	});
 
