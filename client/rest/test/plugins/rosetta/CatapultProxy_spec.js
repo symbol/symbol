@@ -360,6 +360,29 @@ describe('CatapultProxy', () => {
 			});
 		});
 		addCachePropertyTests('nemesisBlock', 'blocks/1', { height: 'gamma' });
+
+		it('handles race condition when multiple cache fills are triggered in parallel', async () => {
+			// Arrange:
+			const proxy = new CatapultProxy(TEST_ENDPOINT);
+			stubFetchResult('node/info', true, { tag: 'alpha' });
+			stubFetchResult('network/properties', true, { tag: 'beta', network: { epochAdjustment: '1122s' } });
+			stubFetchResult('blocks/1', true, { tag: 'zeta' });
+
+			// Act:
+			const results = await Promise.all([
+				proxy.nodeInfo(),
+				proxy.networkProperties(),
+				proxy.nemesisBlock()
+			]);
+
+			// Assert: multiple calls were made
+			expect(global.fetch.callCount).to.equal(9);
+			expect(results).to.deep.equal([
+				{ tag: 'alpha' },
+				{ tag: 'beta', network: { epochAdjustment: 1122n * 1000n } },
+				{ tag: 'zeta' }
+			]);
+		});
 	});
 
 	// endregion
