@@ -114,6 +114,9 @@ export default class CatapultProxy {
 				this.fetch('blocks/1')
 			]);
 
+			if (this.cache)
+				return this.readCacheProperty(propertyName);
+
 			this.cache = {
 				nodeInfo: results[0],
 				networkProperties: results[1],
