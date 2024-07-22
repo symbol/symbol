@@ -42,7 +42,8 @@ describe('mempool routes', () => {
 	// region type factories
 
 	const { createRosettaNetworkIdentifier, createRosettaPublicKey } = RosettaObjectFactory;
-	const { createTransferOperation } = RosettaOperationFactory;
+	const createTransferOperation = (...args) =>
+		RosettaOperationFactory.setOperationStatus(RosettaOperationFactory.createTransferOperation(...args));
 
 	// endregion
 

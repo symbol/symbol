@@ -31,12 +31,6 @@ import { Address, Network, models } from 'symbol-sdk/symbol';
 const idStringToBigInt = str => BigInt(`0x${str}`);
 const encodeDecodedAddress = address => new Address(utils.hexToUint8(address)).toString();
 
-const createOperation = (id, type) => {
-	const operation = new Operation(new OperationIdentifier(id), type);
-	operation.status = 'success';
-	return operation;
-};
-
 /**
  * Converts a transaction SDK JSON model into a transaction REST JSON model.
  * @param {object} transactionJson Transaction SDK JSON model.
@@ -92,6 +86,19 @@ export class OperationParser {
 	}
 
 	/**
+	 * Creates a rosetta operation.
+	 * @param {number} id Operation id.
+	 * @param {string} type Operation type.
+	 * @returns {Operation} Rosetta operation.
+	 * @private
+	 */
+	createOperation(id, type) {
+		const operation = new Operation(new OperationIdentifier(id), type);
+		operation.status = this.options.operationStatus;
+		return operation;
+	}
+
+	/**
 	 * Converts a public key string into a rosetta account identifier.
 	 * @param {string} publicKeyString Public key string.
 	 * @returns {AccountIdentifier} Account identifier.
@@ -109,7 +116,7 @@ export class OperationParser {
 	 * @private
 	 */
 	createCreditOperation(options) {
-		const operation = createOperation(options.id, 'transfer');
+		const operation = this.createOperation(options.id, 'transfer');
 		if (options.targetAddress)
 			operation.account = new AccountIdentifier(encodeDecodedAddress(options.targetAddress));
 		else
@@ -126,7 +133,7 @@ export class OperationParser {
 	 * @private
 	 */
 	createDebitOperation(options) {
-		const operation = createOperation(options.id, 'transfer');
+		const operation = this.createOperation(options.id, 'transfer');
 		if (options.sourceAddress)
 			operation.account = new AccountIdentifier(encodeDecodedAddress(options.sourceAddress));
 		else
@@ -205,7 +212,7 @@ export class OperationParser {
 
 				allSignerPublicKeyStringSet.add(cosignature.signerPublicKey);
 
-				const cosignOperation = createOperation(operations.length, 'cosign');
+				const cosignOperation = this.createOperation(operations.length, 'cosign');
 				cosignOperation.account = this.publicKeyStringToAccountIdentifier(cosignature.signerPublicKey);
 				operations.push(cosignOperation);
 			});
@@ -266,7 +273,7 @@ export class OperationParser {
 				}));
 			}));
 		} else if (models.TransactionType.MULTISIG_ACCOUNT_MODIFICATION.value === transactionType) {
-			const operation = createOperation(undefined, 'multisig');
+			const operation = this.createOperation(undefined, 'multisig');
 			operation.account = this.publicKeyStringToAccountIdentifier(transaction.signerPublicKey);
 			const addressAdditions = await resolveAllAddresses(transaction.addressAdditions);
 			const addressDeletions = await resolveAllAddresses(transaction.addressDeletions);

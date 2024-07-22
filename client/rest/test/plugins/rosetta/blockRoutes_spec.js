@@ -47,7 +47,8 @@ describe('block routes', () => {
 	const TRANSACTION_HASH = 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483';
 
 	const { createRosettaNetworkIdentifier } = RosettaObjectFactory;
-	const { createTransferOperation } = RosettaOperationFactory;
+	const createTransferOperation = (...args) =>
+		RosettaOperationFactory.setOperationStatus(RosettaOperationFactory.createTransferOperation(...args));
 
 	const createTransactionJson = (height = TEST_BLOCK_HEIGHT) => {
 		const facade = new SymbolFacade('testnet');

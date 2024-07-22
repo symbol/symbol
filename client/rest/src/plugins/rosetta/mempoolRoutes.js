@@ -40,6 +40,7 @@ export default {
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 		const parser = new OperationParser(network, {
 			includeFeeOperation: true,
+			operationStatus: 'success',
 			lookupCurrency,
 			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
 		});

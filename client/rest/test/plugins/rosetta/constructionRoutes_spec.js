@@ -58,8 +58,7 @@ describe('construction routes', () => {
 		amount: {
 			value: amount,
 			currency: createRosettaCurrency()
-		},
-		status: 'success'
+		}
 	});
 
 	const createRosettaMultisig = (index, address, metadata) => ({
@@ -70,15 +69,13 @@ describe('construction routes', () => {
 			addressAdditions: [],
 			addressDeletions: [],
 			...metadata
-		},
-		status: 'success'
+		}
 	});
 
 	const createRosettaCosignatory = (index, address) => ({
 		operation_identifier: { index },
 		type: 'cosign',
-		account: { address },
-		status: 'success'
+		account: { address }
 	});
 
 	// endregion
