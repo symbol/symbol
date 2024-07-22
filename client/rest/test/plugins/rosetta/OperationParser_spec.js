@@ -34,7 +34,9 @@ import {
 describe('OperationParser', () => {
 	// region utils
 
-	const { createCosignOperation, createMultisigOperation, createTransferOperation } = RosettaOperationFactory;
+	const {
+		createCosignOperation, createMultisigOperation, createTransferOperation, setOperationStatus
+	} = RosettaOperationFactory;
 
 	const encodeParitalDecodedAddress = address => new Address(utils.hexToUint8(address.padEnd(48, '0'))).toString();
 
@@ -398,6 +400,14 @@ describe('OperationParser', () => {
 			it('can parse with fee (confirmed)', () => assertCanParse({ includeFeeOperation: true }, { feeMultiplier: 200 }, [
 				createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-20000', 'currency.fee', 2)
 			]));
+
+			it('can parse with fee (confirmed) and operation status', () => assertCanParse(
+				{ includeFeeOperation: true, operationStatus: 'success' },
+				{ feeMultiplier: 200 },
+				[
+					setOperationStatus(createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-20000', 'currency.fee', 2))
+				]
+			));
 		});
 
 		// endregion
