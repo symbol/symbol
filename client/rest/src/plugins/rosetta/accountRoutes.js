@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { OperationParser } from './OperationParser.js';
 import AccountBalanceRequest from './openApi/model/AccountBalanceRequest.js';
 import AccountBalanceResponse from './openApi/model/AccountBalanceResponse.js';
 import AccountCoinsRequest from './openApi/model/AccountCoinsRequest.js';
@@ -42,6 +43,13 @@ export default {
 		const getBlockIdentifier = height => services.proxy.fetch(`blocks/${height}`)
 			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash));
 
+		const isCurrencyEqual = (lhs, rhs) => lhs.symbol === rhs.symbol && lhs.decimals === rhs.decimals;
+
+		const mapMosaicsToRosettaAmounts = mosaics => Promise.all(mosaics.map(async mosaic => {
+			const currency = await lookupCurrency(BigInt(`0x${mosaic.id}`));
+			return new Amount(mosaic.amount, currency);
+		}));
+
 		const getAccountInfo = async typedRequest => {
 			if (typedRequest.block_identifier)
 				throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
@@ -52,43 +60,80 @@ export default {
 
 			const startChainHeight = await getChainHeight();
 
-			const mosaics = await services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics);
+			const pageSize = 100;
+			const results = await Promise.all([
+				services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics),
+				...(typedRequest.include_mempool ? [services.proxy.fetchAll('transactions/unconfirmed?embedded=true', pageSize)] : [])
+			]);
 
 			const endChainHeight = await getChainHeight();
 
 			if (startChainHeight !== endChainHeight)
 				throw RosettaErrorFactory.SYNC_DURING_OPERATION;
 
+			let amounts = await mapMosaicsToRosettaAmounts(results[0]);
+			if (typedRequest.include_mempool && results[1]?.length) {
+				const parser = new OperationParser(network, {
+					includeFeeOperation: true,
+					lookupCurrency,
+					resolveAddress: (unresolvedAddress, transactionLocation) =>
+						services.proxy.resolveAddress(unresolvedAddress, transactionLocation)
+				});
+
+				const mempoolTransactions = await Promise.all(results[1].map(async transaction =>
+					parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)));
+				const userOperations = [];
+				mempoolTransactions.forEach(transaction => {
+					const operationFound = transaction.operations.filter(operation =>
+						operation.account.address === address && undefined !== operation.amount);
+					userOperations.push(...operationFound);
+				});
+
+				const combineAmountsValue = (lhs, rhs) => (Number(lhs.value) + Number(rhs.value)).toString();
+
+				// combine the operations by each currency
+				const currencyAmountMap = new Map();
+				userOperations.forEach(userOperation => {
+					if (currencyAmountMap.has(userOperation.amount.currency.symbol)) {
+						const amount = currencyAmountMap.get(userOperation.amount.currency.symbol);
+						amount.value = combineAmountsValue(amount, userOperation.amount);
+						currencyAmountMap.set(userOperation.amount.currency.symbol, amount);
+					} else {
+						currencyAmountMap.set(userOperation.amount.currency.symbol, userOperation.amount);
+					}
+				});
+
+				// update the current mosaics
+				amounts.forEach(amount => {
+					if (currencyAmountMap.has(amount.currency.symbol)) {
+						amount.value = combineAmountsValue(amount, currencyAmountMap.get(amount.currency.symbol));
+						currencyAmountMap.delete(amount.currency.symbol);
+					}
+				});
+
+				amounts.push(...currencyAmountMap.values());
+			}
+
+			if (typedRequest.currencies) {
+				amounts = amounts.filter(amount =>
+					typedRequest.currencies.some(currency => isCurrencyEqual(amount.currency, currency)));
+			}
+
 			const blockIdentifier = await getBlockIdentifier(startChainHeight);
-			return { blockIdentifier, mosaics };
+			return { blockIdentifier, amounts };
 		};
 
-		const mapMosaicsToRosettaAmounts = mosaics => Promise.all(mosaics.map(async mosaic => {
-			const currency = await lookupCurrency(BigInt(`0x${mosaic.id}`));
-			return new Amount(mosaic.amount, currency);
-		}));
-
-		const isCurrencyEqual = (lhs, rhs) => lhs.symbol === rhs.symbol && lhs.decimals === rhs.decimals;
-
 		server.post('/account/balance', rosettaPostRouteWithNetwork(networkName, AccountBalanceRequest, async typedRequest => {
-			const { blockIdentifier, mosaics } = await getAccountInfo(typedRequest);
-
-			let amounts = await mapMosaicsToRosettaAmounts(mosaics);
-			if (typedRequest.currencies)
-				amounts = amounts.filter(amount => typedRequest.currencies.some(currency => isCurrencyEqual(amount.currency, currency)));
+			const { blockIdentifier, amounts } = await getAccountInfo(typedRequest);
 
 			return new AccountBalanceResponse(blockIdentifier, amounts);
 		}));
 
 		server.post('/account/coins', rosettaPostRouteWithNetwork(networkName, AccountCoinsRequest, async typedRequest => {
-			const { blockIdentifier, mosaics } = await getAccountInfo(typedRequest);
-			const amounts = await mapMosaicsToRosettaAmounts(mosaics);
+			const { blockIdentifier, amounts } = await getAccountInfo(typedRequest);
 
 			const mapRosettaAmountToCoin = amount => new Coin(new CoinIdentifier(amount.currency.metadata.id), amount);
-			let coins = await Promise.all(amounts.map(mapRosettaAmountToCoin));
-			if (typedRequest.currencies)
-				coins = coins.filter(coin => typedRequest.currencies.some(currency => isCurrencyEqual(coin.amount.currency, currency)));
-
+			const coins = await Promise.all(amounts.map(mapRosettaAmountToCoin));
 			return new AccountCoinsResponse(blockIdentifier, coins);
 		}));
 	}
