@@ -35,13 +35,12 @@ import ConstructionPayloadsResponse from './openApi/model/ConstructionPayloadsRe
 import ConstructionPreprocessRequest from './openApi/model/ConstructionPreprocessRequest.js';
 import ConstructionPreprocessResponse from './openApi/model/ConstructionPreprocessResponse.js';
 import ConstructionSubmitRequest from './openApi/model/ConstructionSubmitRequest.js';
-import Currency from './openApi/model/Currency.js';
 import CurveType from './openApi/model/CurveType.js';
 import SignatureType from './openApi/model/SignatureType.js';
 import SigningPayload from './openApi/model/SigningPayload.js';
 import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
 import TransactionIdentifierResponse from './openApi/model/TransactionIdentifierResponse.js';
-import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
+import { RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
 import { NetworkLocator, PublicKey, utils } from 'symbol-sdk';
 import {
 	Network, NetworkTimestamp, SymbolFacade, generateMosaicAliasId, models
@@ -52,6 +51,7 @@ export default {
 		const networkName = services.config.network.name;
 		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
 		const facade = new SymbolFacade(network);
+		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 
 		const parsePublicKey = rosettaPublicKey => {
 			if (new CurveType().edwards25519 !== rosettaPublicKey.curve_type)
@@ -250,6 +250,8 @@ export default {
 
 		server.post('/construction/parse', rosettaPostRouteWithNetwork(networkName, ConstructionParseRequest, async typedRequest => {
 			const currencyMosaicId = generateMosaicAliasId('symbol.xym');
+			const xymCurrency = await lookupCurrency('currencyMosaicId'); // need to store resolved id in currency metadata
+
 			const aggregateTransaction = facade.transactionFactory.static.deserialize(utils.hexToUint8(typedRequest.transaction));
 
 			const supportedTransactionTypes = [
@@ -259,7 +261,6 @@ export default {
 			if (!aggregateTransaction.transactions.every(transaction => supportedTransactionTypes.includes(transaction.type.value)))
 				throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
 
-			const xymCurrency = new Currency('symbol.xym', 6);
 			const parser = new OperationParser(facade.network, {
 				lookupCurrency: mosaicId => {
 					if (currencyMosaicId !== mosaicId)
