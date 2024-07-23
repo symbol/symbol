@@ -29,19 +29,27 @@ import BlockIdentifier from './openApi/model/BlockIdentifier.js';
 import Coin from './openApi/model/Coin.js';
 import CoinIdentifier from './openApi/model/CoinIdentifier.js';
 import {
-	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork
+	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork, stitchBlockTransactions
 } from './rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 
 export default {
 	register: (server, db, services) => {
+		const PAGE_SIZE = 100;
+
 		const networkName = services.config.network.name;
 		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 		const getChainHeight = () => services.proxy.fetch('chain/info', json => json.height);
 		const getBlockIdentifier = height => services.proxy.fetch(`blocks/${height}`)
 			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash));
+		const parser = new OperationParser(network, {
+			includeFeeOperation: true,
+			lookupCurrency,
+			resolveAddress: (unresolvedAddress, transactionLocation) =>
+				services.proxy.resolveAddress(unresolvedAddress, transactionLocation)
+		});
 
 		const isCurrencyEqual = (lhs, rhs) => lhs.symbol === rhs.symbol && lhs.decimals === rhs.decimals;
 
@@ -50,7 +58,20 @@ export default {
 			return new Amount(mosaic.amount, currency);
 		}));
 
-		const getAccountInfo = async typedRequest => {
+		const getAccountOperations = async (unconfirmedTransactions, address) => {
+			const mempoolTransactions = await Promise.all(stitchBlockTransactions(unconfirmedTransactions).map(transaction =>
+				parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)));
+			const accountOperations = [];
+			mempoolTransactions.forEach(transaction => {
+				const balanceChangeOperations = transaction.operations.filter(operation =>
+					operation.account.address === address && undefined !== operation.amount);
+				accountOperations.push(...balanceChangeOperations);
+			});
+
+			return accountOperations;
+		};
+
+		const getAccountAmounts = async typedRequest => {
 			if (typedRequest.block_identifier)
 				throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
 
@@ -60,53 +81,34 @@ export default {
 
 			const startChainHeight = await getChainHeight();
 
-			const pageSize = 100;
-			const results = await Promise.all([
-				services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics),
-				...(typedRequest.include_mempool ? [services.proxy.fetchAll('transactions/unconfirmed?embedded=true', pageSize)] : [])
-			]);
+			const promises = [services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics)];
+			if (typedRequest.include_mempool)
+				promises.push(services.proxy.fetchAll('transactions/unconfirmed?embedded=true', PAGE_SIZE));
+
+			const [mosaics, unconfirmedTransactions] = await Promise.all(promises);
 
 			const endChainHeight = await getChainHeight();
 
 			if (startChainHeight !== endChainHeight)
 				throw RosettaErrorFactory.SYNC_DURING_OPERATION;
 
-			let amounts = await mapMosaicsToRosettaAmounts(results[0]);
-			if (typedRequest.include_mempool && results[1]?.length) {
-				const parser = new OperationParser(network, {
-					includeFeeOperation: true,
-					lookupCurrency,
-					resolveAddress: (unresolvedAddress, transactionLocation) =>
-						services.proxy.resolveAddress(unresolvedAddress, transactionLocation)
-				});
-
-				const mempoolTransactions = await Promise.all(results[1].map(async transaction =>
-					parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)));
-				const userOperations = [];
-				mempoolTransactions.forEach(transaction => {
-					const operationFound = transaction.operations.filter(operation =>
-						operation.account.address === address && undefined !== operation.amount);
-					userOperations.push(...operationFound);
-				});
-
-				const combineAmountsValue = (lhs, rhs) => (Number(lhs.value) + Number(rhs.value)).toString();
+			let amounts = await mapMosaicsToRosettaAmounts(mosaics);
+			if (typedRequest.include_mempool && unconfirmedTransactions?.length) {
+				const combineAmountsValue = (lhs, rhs) => (BigInt(lhs) + BigInt(rhs)).toString();
 
 				// combine the operations by each currency
 				const currencyAmountMap = new Map();
+				const userOperations = await getAccountOperations(unconfirmedTransactions, address);
 				userOperations.forEach(userOperation => {
-					if (currencyAmountMap.has(userOperation.amount.currency.symbol)) {
-						const amount = currencyAmountMap.get(userOperation.amount.currency.symbol);
-						amount.value = combineAmountsValue(amount, userOperation.amount);
-						currencyAmountMap.set(userOperation.amount.currency.symbol, amount);
-					} else {
-						currencyAmountMap.set(userOperation.amount.currency.symbol, userOperation.amount);
-					}
+					const storedValue = currencyAmountMap.get(userOperation.amount.currency.symbol)?.value || 0;
+					userOperation.amount.value = combineAmountsValue(userOperation.amount.value, storedValue);
+					currencyAmountMap.set(userOperation.amount.currency.symbol, userOperation.amount);
 				});
 
 				// update the current mosaics
 				amounts.forEach(amount => {
 					if (currencyAmountMap.has(amount.currency.symbol)) {
-						amount.value = combineAmountsValue(amount, currencyAmountMap.get(amount.currency.symbol));
+						amount.value = combineAmountsValue(amount.value, currencyAmountMap.get(amount.currency.symbol).value);
 						currencyAmountMap.delete(amount.currency.symbol);
 					}
 				});
@@ -124,13 +126,13 @@ export default {
 		};
 
 		server.post('/account/balance', rosettaPostRouteWithNetwork(networkName, AccountBalanceRequest, async typedRequest => {
-			const { blockIdentifier, amounts } = await getAccountInfo(typedRequest);
+			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest);
 
 			return new AccountBalanceResponse(blockIdentifier, amounts);
 		}));
 
 		server.post('/account/coins', rosettaPostRouteWithNetwork(networkName, AccountCoinsRequest, async typedRequest => {
-			const { blockIdentifier, amounts } = await getAccountInfo(typedRequest);
+			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest);
 
 			const mapRosettaAmountToCoin = amount => new Coin(new CoinIdentifier(amount.currency.metadata.id), amount);
 			const coins = await Promise.all(amounts.map(mapRosettaAmountToCoin));
