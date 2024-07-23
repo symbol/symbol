@@ -74,10 +74,6 @@ export default {
 			const { blockIdentifier, mosaics } = await getAccountInfo(typedRequest);
 
 			let amounts = await mapMosaicsToRosettaAmounts(mosaics);
-			amounts.forEach(amount => {
-				delete amount.currency.metadata;
-			});
-
 			if (typedRequest.currencies)
 				amounts = amounts.filter(amount => typedRequest.currencies.some(currency => isCurrencyEqual(amount.currency, currency)));
 

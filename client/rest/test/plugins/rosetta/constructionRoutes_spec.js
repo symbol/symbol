@@ -48,7 +48,8 @@ describe('construction routes', () => {
 
 	const createRosettaCurrency = () => ({
 		symbol: 'symbol.xym',
-		decimals: 6
+		decimals: 6,
+		metadata: { id: '1ABBCCDDAABBCCDD' } // resolved mosaic id
 	});
 
 	const createRosettaTransfer = (index, address, amount) => ({
@@ -653,6 +654,14 @@ describe('construction routes', () => {
 	// region parse
 
 	describe('parse', () => {
+		FetchStubHelper.registerStubCleanup();
+
+		const stubCurrencyMosaicIdRequest = () => {
+			FetchStubHelper.stubCatapultProxyCacheFill();
+			FetchStubHelper.stubPost('network/properties', true, { chain: { currencyMosaicId: '0x1ABBCCDDAABBCCDD' } });
+			FetchStubHelper.stubMosaicResolution('1ABBCCDDAABBCCDD', 'symbol.xym', 6);
+		};
+
 		const createValidRequest = (signed = false) => {
 			const { verifier } = createSingleTransferCreditFirstTestCase();
 			const signedTransactionHex = verifier.toHexString();
@@ -672,10 +681,18 @@ describe('construction routes', () => {
 		}));
 
 		it('fails when transaction is unparseable', () => assertRosettaErrorRaised(RosettaErrorFactory.INTERNAL_SERVER_ERROR, request => {
+			// Arrange:
+			stubCurrencyMosaicIdRequest();
+
+			// - clear the transaction data
 			request.transaction = '';
 		}));
 
 		it('fails when transaction is unsupported', () => assertRosettaErrorRaised(RosettaErrorFactory.NOT_SUPPORTED_ERROR, request => {
+			// Arrange:
+			stubCurrencyMosaicIdRequest();
+
+			// - create an aggregate with an unsupported transaction
 			const verifier = new PayloadResultVerifier();
 			verifier.addTransfer(
 				'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
@@ -699,6 +716,10 @@ describe('construction routes', () => {
 		}));
 
 		it('fails when mosaic is unsupported', () => assertRosettaErrorRaised(RosettaErrorFactory.NOT_SUPPORTED_ERROR, request => {
+			// Arrange:
+			stubCurrencyMosaicIdRequest();
+
+			// - create an aggregate with an unsupported mosaic
 			const verifier = new PayloadResultVerifier();
 			verifier.addTransfer(
 				'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
@@ -723,6 +744,8 @@ describe('construction routes', () => {
 
 		const assertRosettaSuccess = async (testCase, signed, expectedSigners = []) => {
 			// Arrange:
+			stubCurrencyMosaicIdRequest();
+
 			const { verifier, orderedOperations } = testCase;
 			const request = createValidRequest(signed);
 			request.transaction = verifier.toHexString();
