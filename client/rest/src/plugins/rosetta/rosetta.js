@@ -21,7 +21,11 @@
 
 /** @module plugins/rosetta */
 import CatapultProxy from './CatapultProxy.js';
+import accountRoutes from './accountRoutes.js';
+import blockRoutes from './blockRoutes.js';
 import constructionRoutes from './constructionRoutes.js';
+import mempoolRoutes from './mempoolRoutes.js';
+import networkRoutes from './networkRoutes.js';
 
 /**
  * Creates a rosetta plugin.
@@ -39,7 +43,11 @@ export default {
 		const proxy = new CatapultProxy(restUrl);
 
 		[
-			constructionRoutes
+			accountRoutes,
+			blockRoutes,
+			constructionRoutes,
+			mempoolRoutes,
+			networkRoutes
 		].forEach(routes => routes.register(server, db, { ...services, proxy }));
 	}
 };

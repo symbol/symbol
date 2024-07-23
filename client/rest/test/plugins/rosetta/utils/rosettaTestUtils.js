@@ -33,20 +33,35 @@ import sinon from 'sinon';
 // region FetchStubHelper
 
 export const FetchStubHelper = {
-	stubPost: (urlPath, ok, jsonResult, expectedRequestOptions = sinon.match.any) => {
+	stubPost: (urlPath, ok, jsonResult, expectedRequestOptions = undefined, callNumber = undefined) => {
 		if (!global.fetch.restore)
 			sinon.stub(global, 'fetch');
 
-		global.fetch.withArgs(`http://localhost:3456/${urlPath}`, expectedRequestOptions).returns(Promise.resolve({
+		const proxy = global.fetch.withArgs(`http://localhost:3456/${urlPath}`, expectedRequestOptions || sinon.match.any);
+		const result = Promise.resolve({
 			ok,
 			json: () => jsonResult
-		}));
+		});
+
+		if (callNumber)
+			proxy[`on${callNumber}Call`]().returns(result);
+		else
+			proxy.returns(result);
 	},
 
 	stubCatapultProxyCacheFill: () => {
 		FetchStubHelper.stubPost('node/info', true, {});
 		FetchStubHelper.stubPost('network/properties', true, {});
 		FetchStubHelper.stubPost('blocks/1', true, {});
+	},
+
+	stubMosaicResolution: (mosaicIdHexString, name, divisibility) => {
+		FetchStubHelper.stubPost(`mosaics/${mosaicIdHexString}`, true, { mosaic: { divisibility } });
+		FetchStubHelper.stubPost('namespaces/mosaic/names', true, { mosaicNames: [{ names: [name] }] }, {
+			method: 'POST',
+			body: JSON.stringify({ mosaicIds: [mosaicIdHexString] }),
+			headers: { 'Content-Type': 'application/json' }
+		});
 	},
 
 	registerStubCleanup: () => {
@@ -78,10 +93,16 @@ export const RosettaObjectFactory = {
 // region RosettaOperationFactory
 
 export const RosettaOperationFactory = {
-	createTransferOperation: (index, address, amount, currencyName, currencyDecimals, mosaicId = undefined) => {
+	createCurrency: (currencyName, currencyDecimals, mosaicId) => {
 		const currency = new Currency(currencyName, currencyDecimals);
 		if (mosaicId)
 			currency.metadata = { id: mosaicId };
+
+		return currency;
+	},
+
+	createTransferOperation: (index, address, amount, currencyName, currencyDecimals, mosaicId = undefined) => {
+		const currency = RosettaOperationFactory.createCurrency(currencyName, currencyDecimals, mosaicId);
 
 		const operation = new Operation(new OperationIdentifier(index), 'transfer');
 		operation.account = new AccountIdentifier(address);
