@@ -44,6 +44,7 @@ describe('rosetta plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
+				// construction routes
 				'/construction/derive',
 				'/construction/preprocess',
 				'/construction/metadata',
@@ -51,7 +52,18 @@ describe('rosetta plugin', () => {
 				'/construction/combine',
 				'/construction/parse',
 				'/construction/hash',
-				'/construction/submit'
+				'/construction/submit',
+
+				// data routes
+				'/account/balance',
+				'/account/coins',
+				'/block',
+				'/block/transaction',
+				'/mempool',
+				'/mempool/transaction',
+				'/network/list',
+				'/network/options',
+				'/network/status'
 			]);
 		});
 	});
