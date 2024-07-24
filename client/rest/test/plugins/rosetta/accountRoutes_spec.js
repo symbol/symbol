@@ -98,26 +98,6 @@ describe('account routes', () => {
 		stubNamespaceResolution('new.coin', '2345678901ABBCCD');
 	};
 
-	const createTransactionJson = (mosaics, signerPublicKey, recipientAddress) => {
-		const facade = new SymbolFacade('testnet');
-		const transaction = facade.transactionFactory.create({
-			type: 'transfer_transaction_v1',
-			recipientAddress,
-			signerPublicKey,
-			mosaics,
-			fee: 100
-		});
-
-		return {
-			transaction: convertTransactionSdkJsonToRestJson(transaction.toJson()),
-			meta: {
-				hash: 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483',
-				height: '0',
-				index: 1
-			}
-		};
-	};
-
 	// endregion
 
 	// region common tests
@@ -229,6 +209,7 @@ describe('account routes', () => {
 		const ACCOUNT_PUBLIC_KEY = 'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6';
 		const OTHER_ACCOUNT_ADDRESS = 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI';
 		const OTHER_ACCOUNT_PUBLIC_KEY = '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9';
+		const TRANSACTION_HASH = 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483';
 
 		const createValidRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier(),
@@ -240,6 +221,51 @@ describe('account routes', () => {
 			createValidRequest,
 			skipBlockIdentifierTest: true
 		});
+
+		const createTransactionJson = (mosaics, signerPublicKey, recipientAddress, isEmbedded = false) => {
+			const facade = new SymbolFacade('testnet');
+			const transaction = facade.transactionFactory.create({
+				type: 'transfer_transaction_v1',
+				recipientAddress,
+				signerPublicKey,
+				mosaics,
+				fee: 100
+			});
+
+			const meta = {};
+			if (isEmbedded)
+				meta.aggregateHash = TRANSACTION_HASH;
+			else
+				meta.hash = TRANSACTION_HASH;
+
+			return {
+				transaction: convertTransactionSdkJsonToRestJson(transaction.toJson()),
+				meta: {
+					...meta,
+					height: '0',
+					index: 1
+				}
+			};
+		};
+
+		const createAggregateTransactionJson = signerPublicKey => {
+			const facade = new SymbolFacade('testnet');
+			const aggregateTransaction = facade.transactionFactory.create({
+				type: 'aggregate_complete_transaction_v2',
+				signerPublicKey,
+				fee: 25n,
+				deadline: 12345n
+			});
+
+			return {
+				transaction: convertTransactionSdkJsonToRestJson(aggregateTransaction.toJson()),
+				meta: {
+					hash: TRANSACTION_HASH,
+					height: '0',
+					index: 1
+				}
+			};
+		};
 
 		const assertIncludeMempoolAccountTest = async (transactions, expectedCoins, includeMempool = true) => {
 			// Arrange:
@@ -447,6 +473,26 @@ describe('account routes', () => {
 
 			// Act + Assert:
 			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins, false);
+		});
+
+		it('succeeds when aggregate include mempool transactions', async () => {
+			// Arrange:
+			const mosaicsToSend = [
+				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 3 },
+				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
+			];
+			const expectedCoins = [
+				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
+				createRosettaCoin('259', 'cat.dog', 4, '0F61E4A360897965'),
+				createRosettaCoin('85', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+			];
+			const embeddedTransaction = true;
+			const transaction = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS, embeddedTransaction);
+			const aggregateTransaction = createAggregateTransactionJson(ACCOUNT_PUBLIC_KEY);
+			const transactionJson = createUnconfirmedTransactionsResponse([aggregateTransaction, transaction]);
+
+			// Act + Assert:
+			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
 		});
 	});
 
