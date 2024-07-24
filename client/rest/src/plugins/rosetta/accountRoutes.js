@@ -47,8 +47,7 @@ export default {
 		const parser = new OperationParser(network, {
 			includeFeeOperation: true,
 			lookupCurrency,
-			resolveAddress: (unresolvedAddress, transactionLocation) =>
-				services.proxy.resolveAddress(unresolvedAddress, transactionLocation)
+			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
 		});
 
 		const isCurrencyEqual = (lhs, rhs) => lhs.symbol === rhs.symbol && lhs.decimals === rhs.decimals;
@@ -93,22 +92,23 @@ export default {
 				throw RosettaErrorFactory.SYNC_DURING_OPERATION;
 
 			let amounts = await mapMosaicsToRosettaAmounts(mosaics);
-			if (typedRequest.include_mempool && unconfirmedTransactions?.length) {
-				const combineAmountsValue = (lhs, rhs) => (BigInt(lhs) + BigInt(rhs)).toString();
+			if (typedRequest.include_mempool && unconfirmedTransactions.length) {
+				const combineAmountsValue = (lhs, rhs) => (BigInt(lhs.value) + BigInt(rhs.value)).toString();
 
 				// combine the operations by each currency
 				const currencyAmountMap = new Map();
 				const userOperations = await getAccountOperations(unconfirmedTransactions, address);
 				userOperations.forEach(userOperation => {
-					const storedValue = currencyAmountMap.get(userOperation.amount.currency.symbol)?.value || 0;
-					userOperation.amount.value = combineAmountsValue(userOperation.amount.value, storedValue);
-					currencyAmountMap.set(userOperation.amount.currency.symbol, userOperation.amount);
+					const currentSumAmount = currencyAmountMap.get(userOperation.amount.currency.symbol)
+						|| new Amount('0', userOperation.amount.currency);
+					currentSumAmount.value = combineAmountsValue(currentSumAmount, userOperation.amount);
+					currencyAmountMap.set(userOperation.amount.currency.symbol, currentSumAmount);
 				});
 
 				// update the current mosaics
 				amounts.forEach(amount => {
 					if (currencyAmountMap.has(amount.currency.symbol)) {
-						amount.value = combineAmountsValue(amount.value, currencyAmountMap.get(amount.currency.symbol).value);
+						amount.value = combineAmountsValue(amount, currencyAmountMap.get(amount.currency.symbol));
 						currencyAmountMap.delete(amount.currency.symbol);
 					}
 				});

@@ -104,7 +104,7 @@ describe('account routes', () => {
 			type: 'transfer_transaction_v1',
 			recipientAddress,
 			signerPublicKey,
-			mosaics: [...mosaics],
+			mosaics,
 			fee: 100
 		});
 
@@ -225,14 +225,14 @@ describe('account routes', () => {
 	// region coins
 
 	describe('coins', () => {
-		const OTHER_SIGNER_PUBLIC_KEY = '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9';
-		const OTHER_RECIPIENT_ADDRESS = 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI';
-		const TARGET_SIGNER_PUBLIC_KEY = 'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6';
-		const TARGET_RECIPIENT_ADDRESS = 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI';
+		const ACCOUNT_ADDRESS = 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI';
+		const ACCOUNT_PUBLIC_KEY = 'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6';
+		const OTHER_ACCOUNT_ADDRESS = 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI';
+		const OTHER_ACCOUNT_PUBLIC_KEY = '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9';
 
 		const createValidRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier(),
-			account_identifier: { address: 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI' },
+			account_identifier: { address: ACCOUNT_ADDRESS },
 			include_mempool: false
 		});
 
@@ -327,7 +327,7 @@ describe('account routes', () => {
 				createRosettaCoin('462', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
 			];
-			const transaction = createTransactionJson(mosaicsToReceive, OTHER_SIGNER_PUBLIC_KEY, OTHER_RECIPIENT_ADDRESS);
+			const transaction = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
@@ -345,7 +345,7 @@ describe('account routes', () => {
 				createRosettaCoin('312', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('262', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
 			];
-			const transaction = createTransactionJson(mosaicsToReceive, OTHER_SIGNER_PUBLIC_KEY, OTHER_RECIPIENT_ADDRESS);
+			const transaction = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
@@ -364,7 +364,7 @@ describe('account routes', () => {
 				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD'),
 				createRosettaCoin('50', 'new.coin', 5, '2345678901ABBCCD')
 			];
-			const transaction = createTransactionJson(mosaicsToReceive, OTHER_SIGNER_PUBLIC_KEY, OTHER_RECIPIENT_ADDRESS);
+			const transaction = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
@@ -381,7 +381,7 @@ describe('account routes', () => {
 				createRosettaCoin('261', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('12', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
 			];
-			const transaction = createTransactionJson(mosaicsToSend, TARGET_SIGNER_PUBLIC_KEY, TARGET_RECIPIENT_ADDRESS);
+			const transaction = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
@@ -391,16 +391,16 @@ describe('account routes', () => {
 		it('succeeds when multiple coins sent in the mempool (include fee)', async () => {
 			// Arrange:
 			const mosaicsToSend = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 100 },
+				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 200 },
 				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
 			];
 			const expectedCoins = [
 				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('162', 'cat.dog', 4, '0F61E4A360897965'),
+				createRosettaCoin('62', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('10', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
 			];
 
-			const transaction = createTransactionJson(mosaicsToSend, TARGET_SIGNER_PUBLIC_KEY, TARGET_RECIPIENT_ADDRESS);
+			const transaction = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
@@ -410,7 +410,7 @@ describe('account routes', () => {
 		it('succeeds when multiple transactions receive in the mempool', async () => {
 			// Arrange:
 			const mosaicsToSend = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 100 },
+				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 50 },
 				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
 			];
 			const mosaicsToReceive = [
@@ -420,11 +420,11 @@ describe('account routes', () => {
 			];
 			const expectedCoins = [
 				createRosettaCoin('146', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('212', 'cat.dog', 4, '0F61E4A360897965'),
+				createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('30', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
 			];
-			const outgoingTransaction = createTransactionJson(mosaicsToSend, TARGET_SIGNER_PUBLIC_KEY, TARGET_RECIPIENT_ADDRESS);
-			const incomingTransaction = createTransactionJson(mosaicsToReceive, OTHER_SIGNER_PUBLIC_KEY, OTHER_RECIPIENT_ADDRESS);
+			const outgoingTransaction = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
+			const incomingTransaction = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const transactionJson = createUnconfirmedTransactionsResponse([outgoingTransaction, incomingTransaction]);
 
 			// Act + Assert:
@@ -434,7 +434,7 @@ describe('account routes', () => {
 		it('succeeds when include mempool is false', async () => {
 			// Arrange:
 			const mosaicsToSend = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 100 },
+				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 3 },
 				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
 			];
 			const expectedCoins = [
@@ -442,7 +442,7 @@ describe('account routes', () => {
 				createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
 			];
-			const transaction = createTransactionJson(mosaicsToSend, TARGET_SIGNER_PUBLIC_KEY, TARGET_RECIPIENT_ADDRESS);
+			const transaction = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
