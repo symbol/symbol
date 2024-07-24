@@ -475,7 +475,7 @@ describe('account routes', () => {
 			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins, false);
 		});
 
-		it('succeeds when aggregate include mempool transactions', async () => {
+		it('succeeds when aggregate transaction is in mempool', async () => {
 			// Arrange:
 			const mosaicsToSend = [
 				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 3 },
