@@ -29,6 +29,15 @@ import OperationIdentifier from '../../../../src/plugins/rosetta/openApi/model/O
 import MockServer from '../../../routes/utils/MockServer.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { PrivateKey } from 'symbol-sdk';
+import { KeyPair } from 'symbol-sdk/symbol';
+
+// region constants
+
+export const createRosettaAggregateSignerKeyPair = () =>
+	new KeyPair(new PrivateKey('C7CAC863460EBB139F0B61778A285F31B8E8548B3D2354832946C880735C1F70'));
+
+// endregion
 
 // region FetchStubHelper
 
@@ -141,7 +150,8 @@ const createMockServer = routes => {
 	const mockServer = new MockServer();
 	routes.register(mockServer.server, {}, {
 		config: {
-			network: { name: 'testnet' }
+			network: { name: 'testnet' },
+			rosetta: { aggregateSignerPrivateKey: createRosettaAggregateSignerKeyPair().privateKey.toString() }
 		},
 		proxy: new CatapultProxy('http://localhost:3456')
 	});

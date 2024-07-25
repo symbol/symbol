@@ -188,8 +188,6 @@ export class OperationParser {
 		if (transaction.transactions) {
 			const operationGroups = Array(transaction.transactions.length);
 			await Promise.all(transaction.transactions.map(async (subTransaction, i) => {
-				allSignerPublicKeyStringSet.add(subTransaction.transaction.signerPublicKey);
-
 				// due to async nature, operations from previous transaction might not be added yet
 				// so simply using operations.length would yield wrong result
 				// instead, renumber the operations below
@@ -207,9 +205,6 @@ export class OperationParser {
 			});
 
 			transaction.cosignatures.forEach(cosignature => {
-				if (allSignerPublicKeyStringSet.has(cosignature.signerPublicKey))
-					return;
-
 				allSignerPublicKeyStringSet.add(cosignature.signerPublicKey);
 
 				const cosignOperation = this.createOperation(operations.length, 'cosign');

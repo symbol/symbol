@@ -475,8 +475,6 @@ describe('OperationParser', () => {
 				// Assert:
 				expect(operations).to.deep.equal(createDefaultVerifierOperations());
 				expect(signerAddresses.map(address => address.toString()).sort()).to.deep.equal([
-					'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
-					'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
 					'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'
 				]);
 			});
@@ -496,10 +494,10 @@ describe('OperationParser', () => {
 				// Assert:
 				expect(operations).to.deep.equal([
 					...createDefaultVerifierOperations(),
-					createCosignOperation(7, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ')
+					createCosignOperation(7, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ'),
+					createCosignOperation(8, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
 				]);
 				expect(signerAddresses.map(address => address.toString()).sort()).to.deep.equal([
-					'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
 					'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
 					'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
 					'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'
@@ -527,10 +525,10 @@ describe('OperationParser', () => {
 				expect(operations).to.deep.equal([
 					...createDefaultVerifierOperations(),
 					createCosignOperation(7, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ'),
-					createTransferOperation(8, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', expectedFeeAmount, 'currency.fee', 2)
+					createCosignOperation(8, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
+					createTransferOperation(9, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', expectedFeeAmount, 'currency.fee', 2)
 				]);
 				expect(signerAddresses.map(address => address.toString()).sort()).to.deep.equal([
-					'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
 					'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
 					'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
 					'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'

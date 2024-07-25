@@ -41,17 +41,19 @@ import SigningPayload from './openApi/model/SigningPayload.js';
 import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
 import TransactionIdentifierResponse from './openApi/model/TransactionIdentifierResponse.js';
 import { RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
-import { NetworkLocator, PublicKey, utils } from 'symbol-sdk';
+import { PrivateKey, PublicKey, utils } from 'symbol-sdk';
 import {
-	Network, NetworkTimestamp, SymbolFacade, generateMosaicAliasId, models
+	KeyPair, NetworkTimestamp, SymbolFacade, generateMosaicAliasId, models
 } from 'symbol-sdk/symbol';
 
 export default {
 	register: (server, db, services) => {
 		const networkName = services.config.network.name;
-		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
-		const facade = new SymbolFacade(network);
+		const facade = new SymbolFacade(networkName);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
+
+		const aggregateSignerKeyPair = new KeyPair(new PrivateKey(services.config.rosetta.aggregateSignerPrivateKey));
+		const aggregateSignerAddress = facade.network.publicKeyToAddress(aggregateSignerKeyPair.publicKey);
 
 		const parsePublicKey = rosettaPublicKey => {
 			if (new CurveType().edwards25519 !== rosettaPublicKey.curve_type)
@@ -66,7 +68,7 @@ export default {
 
 		server.post('/construction/derive', rosettaPostRouteWithNetwork(networkName, ConstructionDeriveRequest, typedRequest => {
 			const publicKey = parsePublicKey(typedRequest.public_key);
-			const address = network.publicKeyToAddress(publicKey);
+			const address = facade.network.publicKeyToAddress(publicKey);
 
 			const response = new ConstructionDeriveResponse();
 			response.account_identifier = new AccountIdentifier(address.toString());
@@ -147,15 +149,15 @@ export default {
 			return result;
 		};
 
-		const extractCosignerPublicKeys = (allSignerPublicKeys, aggregateSignerPublicKey) => {
-			const cosignerPublicKeyStringSet = new Set(allSignerPublicKeys.map(publicKey => publicKey.toString()));
-			cosignerPublicKeyStringSet.delete(aggregateSignerPublicKey.toString());
-			return [...cosignerPublicKeyStringSet].sort().map(publicKeyString => new models.PublicKey(publicKeyString));
+		const toPublicKeySet = publicKeys => {
+			const publicKeyStringSet = new Set(publicKeys.map(publicKey => publicKey.toString()));
+			return [...publicKeyStringSet].sort().map(publicKeyString => new models.PublicKey(publicKeyString));
 		};
 
 		server.post('/construction/payloads', rosettaPostRouteWithNetwork(networkName, ConstructionPayloadsRequest, async typedRequest => {
 			const addressToPublicKeyMap = buildAddressToPublicKeyMap(typedRequest.public_keys);
 
+			let hasMultisigModification = false;
 			const embeddedTransactions = [];
 			const allSignerPublicKeys = [];
 			for (let i = 0; i < typedRequest.operations.length; ++i) {
@@ -186,21 +188,49 @@ export default {
 					});
 
 					embeddedTransactions.push(embeddedTransaction);
-					allSignerPublicKeys.push(embeddedTransaction.signerPublicKey);
+					hasMultisigModification = true;
 				} else if ('cosign' === operation.type) {
 					allSignerPublicKeys.push(new models.PublicKey(addressToPublicKeyMap[operation.account.address].bytes));
 				}
 			}
 
-			const aggregateSignerPublicKey = new PublicKey(embeddedTransactions[0].signerPublicKey.bytes);
-			const cosignerPublicKeys = extractCosignerPublicKeys(allSignerPublicKeys, aggregateSignerPublicKey);
+			let cosignerPublicKeys = toPublicKeySet(allSignerPublicKeys);
+			const hasCosigners = hasMultisigModification || 1 < cosignerPublicKeys.length;
 
-			const merkleHash = facade.static.hashEmbeddedTransactions(embeddedTransactions);
+			let aggregateSignerPublicKey;
+			if (!hasCosigners) {
+				aggregateSignerPublicKey = new PublicKey(embeddedTransactions[0].signerPublicKey.bytes);
+				cosignerPublicKeys = [];
+			} else {
+				aggregateSignerPublicKey = aggregateSignerKeyPair.publicKey;
+				const firstEmbeddedTransactionPublicKey = new PublicKey(embeddedTransactions[0].signerPublicKey.bytes);
+
+				// create embedded transaction that will require signing by fee payer
+				embeddedTransactions.unshift(facade.transactionFactory.createEmbedded({
+					type: 'transfer_transaction_v1',
+					signerPublicKey: aggregateSignerKeyPair.publicKey,
+					recipientAddress: facade.network.publicKeyToAddress(firstEmbeddedTransactionPublicKey),
+					mosaics: [
+						{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 0 }
+					]
+				}));
+
+				// transfer max fee to fee payer (aggregate signer) with placeholder amount
+				embeddedTransactions.unshift(facade.transactionFactory.createEmbedded({
+					type: 'transfer_transaction_v1',
+					signerPublicKey: firstEmbeddedTransactionPublicKey,
+					recipientAddress: aggregateSignerAddress,
+					mosaics: [
+						{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 0 }
+					]
+				}));
+			}
+
 			const aggregateTransaction = facade.transactionFactory.create({
 				type: 'aggregate_complete_transaction_v2',
 				signerPublicKey: aggregateSignerPublicKey,
 				deadline: new NetworkTimestamp(typedRequest.metadata.networkTime).addHours(1).timestamp,
-				transactionsHash: merkleHash,
+				transactionsHash: facade.static.hashEmbeddedTransactions(embeddedTransactions),
 				transactions: embeddedTransactions,
 
 				cosignatures: cosignerPublicKeys.map(cosignerPublicKey => {
@@ -213,19 +243,32 @@ export default {
 			const transactionSize = aggregateTransaction.size;
 			aggregateTransaction.fee = new models.Amount(transactionSize * typedRequest.metadata.feeMultiplier);
 
+			if (hasCosigners) {
+				// transfer fee to fee payer (aggregate signer)
+				embeddedTransactions[0].mosaics[0].amount.value = aggregateTransaction.fee.value;
+
+				// update transactions hash
+				const transactionsHash = facade.static.hashEmbeddedTransactions(embeddedTransactions);
+				aggregateTransaction.transactionsHash = new models.Hash256(transactionsHash.bytes);
+
+				// sign with fee payer
+				const signature = facade.signTransaction(aggregateSignerKeyPair, aggregateTransaction);
+				facade.transactionFactory.static.attachSignature(aggregateTransaction, signature);
+			}
+
 			const transactionHash = facade.hashTransaction(aggregateTransaction);
 			const transactionPayload = aggregateTransaction.serialize();
 			const signingPayload = facade.extractSigningPayload(aggregateTransaction);
 
 			const response = new ConstructionPayloadsResponse();
 			response.unsigned_transaction = utils.uint8ToHex(transactionPayload);
-			response.payloads = [
-				createSigningPayload(signingPayload, network.publicKeyToAddress(aggregateTransaction.signerPublicKey)),
-				...cosignerPublicKeys.map(publicKey => createSigningPayload(
+
+			response.payloads = !hasCosigners
+				? [createSigningPayload(signingPayload, facade.network.publicKeyToAddress(aggregateTransaction.signerPublicKey))]
+				: cosignerPublicKeys.map(publicKey => createSigningPayload(
 					transactionHash.bytes,
-					network.publicKeyToAddress(publicKey)
-				))
-			];
+					facade.network.publicKeyToAddress(publicKey)
+				));
 
 			return response;
 		}));
@@ -235,11 +278,14 @@ export default {
 				0 === utils.deepCompare(publicKey.bytes, utils.hexToUint8(rosettaSignature.public_key.hex_bytes))).hex_bytes;
 
 			const aggregateTransaction = facade.transactionFactory.static.deserialize(utils.hexToUint8(typedRequest.unsigned_transaction));
-			aggregateTransaction.signature = new models.Signature(findSignature(aggregateTransaction.signerPublicKey));
 
-			aggregateTransaction.cosignatures.forEach(cosignature => {
-				cosignature.signature = new models.Signature(findSignature(cosignature.signerPublicKey));
-			});
+			if (!aggregateTransaction.cosignatures.length) {
+				aggregateTransaction.signature = new models.Signature(findSignature(aggregateTransaction.signerPublicKey));
+			} else {
+				aggregateTransaction.cosignatures.forEach(cosignature => {
+					cosignature.signature = new models.Signature(findSignature(cosignature.signerPublicKey));
+				});
+			}
 
 			const transactionPayload = aggregateTransaction.serialize();
 
@@ -281,8 +327,10 @@ export default {
 
 			if (typedRequest.signed) {
 				response.account_identifier_signers = signerAddresses
-					.sort((lhs, rhs) => lhs.toString().localeCompare(rhs.toString()))
-					.map(address => new AccountIdentifier(address.toString()));
+					.map(address => address.toString())
+					.filter(addressString => aggregateSignerAddress.toString() !== addressString)
+					.sort()
+					.map(addressString => new AccountIdentifier(addressString));
 			}
 
 			return response;
