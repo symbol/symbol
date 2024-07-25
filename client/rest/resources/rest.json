@@ -110,5 +110,9 @@
   "metal": {
     "cacheTtl": 300,
     "sizeLimit": 10000000
+  },
+
+  "rosetta": {
+    "aggregateSignerPrivateKey": "898E96DF44BD6EEE8289BF1FA2D1BED233541F3A33DB3879D25403096E93AA2D"
   }
 }
