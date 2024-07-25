@@ -21,7 +21,11 @@
 
 import PayloadResultVerifier from './utils/PayloadResultVerifier.js';
 import {
-	FetchStubHelper, RosettaObjectFactory, assertRosettaErrorRaisedBasicWithRoutes, assertRosettaSuccessBasicWithRoutes
+	FetchStubHelper,
+	RosettaObjectFactory,
+	assertRosettaErrorRaisedBasicWithRoutes,
+	assertRosettaSuccessBasicWithRoutes,
+	createRosettaAggregateSignerKeyPair
 } from './utils/rosettaTestUtils.js';
 import constructionRoutes from '../../../src/plugins/rosetta/constructionRoutes.js';
 import AccountIdentifier from '../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
@@ -109,7 +113,7 @@ describe('construction routes', () => {
 				createRosettaTransfer(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
 				createRosettaTransfer(1, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100')
 			],
-			orderedOperations: [
+			parsedOperations: [
 				createRosettaTransfer(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100'),
 				createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100')
 			]
@@ -130,6 +134,16 @@ describe('construction routes', () => {
 		const verifier = new PayloadResultVerifier();
 		verifier.addTransfer(
 			'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+			'TBOCOYGUXTPB6OQ4AOQXXTOW2ITP54AQ57EQRWY',
+			87312
+		);
+		verifier.addTransfer(
+			'086EA0653C38BBF4A3DD2C556C138DCDA6B5906638CF9D33E9A8B375A43F73A1',
+			'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI',
+			0
+		);
+		verifier.addTransfer(
+			'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
 			'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
 			100n
 		);
@@ -145,12 +159,15 @@ describe('construction routes', () => {
 		);
 
 		verifier.buildAggregate(
-			'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+			createRosettaAggregateSignerKeyPair().publicKey.toString(),
 			1001n + (60n * 60n * 1000n),
-			1
+			2
 		);
 
 		verifier.addCosignature('93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7');
+		verifier.addCosignature('ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6');
+
+		verifier.setAggregateFeePayerSignature();
 
 		return {
 			verifier,
@@ -162,19 +179,35 @@ describe('construction routes', () => {
 				createRosettaTransfer(4, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '33'),
 				createRosettaTransfer(5, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-33')
 			],
-			orderedOperations: [
-				createRosettaTransfer(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100'),
-				createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
-				createRosettaTransfer(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '-50'),
-				createRosettaTransfer(3, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '50'),
-				createRosettaTransfer(4, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-33'),
-				createRosettaTransfer(5, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '33')
+			parsedOperations: [
+				createRosettaTransfer(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-87312'), // transfer to fee payer
+				createRosettaTransfer(1, 'TBOCOYGUXTPB6OQ4AOQXXTOW2ITP54AQ57EQRWY', '87312'),
+
+				createRosettaTransfer(2, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100'),
+				createRosettaTransfer(3, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
+				createRosettaTransfer(4, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '-50'),
+				createRosettaTransfer(5, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '50'),
+				createRosettaTransfer(6, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-33'),
+				createRosettaTransfer(7, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '33'),
+
+				createRosettaCosignatory(8, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
+				createRosettaCosignatory(9, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI')
 			]
 		};
 	};
 
 	const createMultipleTransferExplicitCosignerTestCase = () => {
 		const verifier = new PayloadResultVerifier();
+		verifier.addTransfer(
+			'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+			'TBOCOYGUXTPB6OQ4AOQXXTOW2ITP54AQ57EQRWY',
+			97920n
+		);
+		verifier.addTransfer(
+			'086EA0653C38BBF4A3DD2C556C138DCDA6B5906638CF9D33E9A8B375A43F73A1',
+			'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI',
+			0
+		);
 		verifier.addTransfer(
 			'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
 			'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
@@ -192,13 +225,16 @@ describe('construction routes', () => {
 		);
 
 		verifier.buildAggregate(
-			'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+			createRosettaAggregateSignerKeyPair().publicKey.toString(),
 			1001n + (60n * 60n * 1000n),
-			2
+			3
 		);
 
 		verifier.addCosignature('3119DA3BFF57385BB6F051B8A454F219CE519D28E50D5653F5F457486E9E8623');
 		verifier.addCosignature('93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7');
+		verifier.addCosignature('ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6');
+
+		verifier.setAggregateFeePayerSignature();
 
 		return {
 			verifier,
@@ -213,14 +249,20 @@ describe('construction routes', () => {
 				createRosettaCosignatory(7, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'), // redundant
 				createRosettaCosignatory(8, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ') // redundant
 			],
-			orderedOperations: [
-				createRosettaTransfer(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100'),
-				createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
-				createRosettaTransfer(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '-50'),
-				createRosettaTransfer(3, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '50'),
-				createRosettaTransfer(4, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-33'),
-				createRosettaTransfer(5, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '33'),
-				createRosettaCosignatory(6, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ')
+			parsedOperations: [
+				createRosettaTransfer(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-97920'), // transfer to fee payer
+				createRosettaTransfer(1, 'TBOCOYGUXTPB6OQ4AOQXXTOW2ITP54AQ57EQRWY', '97920'),
+
+				createRosettaTransfer(2, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100'),
+				createRosettaTransfer(3, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
+				createRosettaTransfer(4, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '-50'),
+				createRosettaTransfer(5, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '50'),
+				createRosettaTransfer(6, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-33'),
+				createRosettaTransfer(7, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '33'),
+
+				createRosettaCosignatory(8, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ'),
+				createRosettaCosignatory(9, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
+				createRosettaCosignatory(10, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI')
 			]
 		};
 	};
@@ -229,24 +271,47 @@ describe('construction routes', () => {
 		const metadata = {
 			minApprovalDelta: 1,
 			minRemovalDelta: 2,
-			[propertyName]: ['TCIO5J4WTXCVC76XZPBWHHNAD2NU52U2MOOVN4Q', 'TBO3SFA2XM3HY5QPBT7C6CCY4K6VXTHIQGPG6OQ']
+			[propertyName]: ['TCIO5J4WTXCVC76XZPBWHHNAD2NU52U2MOOVN4Q', 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ']
 		};
 
 		const verifier = new PayloadResultVerifier();
+		verifier.addTransfer(
+			'3119DA3BFF57385BB6F051B8A454F219CE519D28E50D5653F5F457486E9E8623',
+			'TBOCOYGUXTPB6OQ4AOQXXTOW2ITP54AQ57EQRWY',
+			57936n
+		);
+		verifier.addTransfer(
+			'086EA0653C38BBF4A3DD2C556C138DCDA6B5906638CF9D33E9A8B375A43F73A1',
+			'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
+			0
+		);
+
 		verifier.addMultisigModification('3119DA3BFF57385BB6F051B8A454F219CE519D28E50D5653F5F457486E9E8623', { ...metadata });
 
 		verifier.buildAggregate(
-			'3119DA3BFF57385BB6F051B8A454F219CE519D28E50D5653F5F457486E9E8623',
-			1001n + (60n * 60n * 1000n)
+			createRosettaAggregateSignerKeyPair().publicKey.toString(),
+			1001n + (60n * 60n * 1000n),
+			1
 		);
+
+		verifier.addCosignature('93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7');
+
+		verifier.setAggregateFeePayerSignature();
 
 		const result = {
 			verifier,
 			operations: [
-				createRosettaMultisig(0, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', { ...metadata })
+				createRosettaMultisig(0, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', { ...metadata }),
+				createRosettaCosignatory(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
+			],
+			parsedOperations: [
+				createRosettaTransfer(0, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', '-57936'), // transfer to fee payer
+				createRosettaTransfer(1, 'TBOCOYGUXTPB6OQ4AOQXXTOW2ITP54AQ57EQRWY', '57936'),
+
+				createRosettaMultisig(2, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', { ...metadata }),
+				createRosettaCosignatory(3, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
 			]
 		};
-		result.orderedOperations = result.operations;
 		return result;
 	};
 
@@ -516,8 +581,8 @@ describe('construction routes', () => {
 			expectedResponse.unsigned_transaction = verifier.toHexString();
 
 			expectedResponse.payloads = [
-				verifier.makeSigningPayload('TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
-				verifier.makeCosigningPayload('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
+				verifier.makeCosigningPayload('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
+				verifier.makeCosigningPayload('TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI')
 			];
 
 			// Act + Assert:
@@ -535,9 +600,9 @@ describe('construction routes', () => {
 			expectedResponse.unsigned_transaction = verifier.toHexString();
 
 			expectedResponse.payloads = [
-				verifier.makeSigningPayload('TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
 				verifier.makeCosigningPayload('TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ'),
-				verifier.makeCosigningPayload('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
+				verifier.makeCosigningPayload('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
+				verifier.makeCosigningPayload('TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI')
 			];
 
 			// Act + Assert:
@@ -555,7 +620,7 @@ describe('construction routes', () => {
 			expectedResponse.unsigned_transaction = verifier.toHexString();
 
 			expectedResponse.payloads = [
-				verifier.makeSigningPayload('TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ')
+				verifier.makeCosigningPayload('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ') // only cosigner but not multisig account
 			];
 
 			// Act + Assert:
@@ -635,8 +700,6 @@ describe('construction routes', () => {
 			request.unsigned_transaction = verifier.toHexString();
 
 			// - add expected signatures
-			verifier.aggregateTransaction.signature = new models.Signature('11'.repeat(64));
-
 			verifier.aggregateTransaction.cosignatures[0].signature = new models.Signature('22'.repeat(64));
 			verifier.aggregateTransaction.cosignatures[1].signature = new models.Signature('33'.repeat(64));
 
@@ -746,17 +809,17 @@ describe('construction routes', () => {
 			// Arrange:
 			stubCurrencyMosaicIdRequest();
 
-			const { verifier, orderedOperations } = testCase;
+			const { verifier, parsedOperations } = testCase;
 			const request = createValidRequest(signed);
 			request.transaction = verifier.toHexString();
 
 			// - create expected response
 			const expectedResponse = new ConstructionParseResponse();
-			expectedResponse.operations = orderedOperations;
+			expectedResponse.operations = parsedOperations;
 			expectedResponse.account_identifier_signers = expectedSigners.map(address => new AccountIdentifier(address));
 			expectedResponse.signers = [];
 
-			// Act + Assert: `orderedOperations` is a simple JS object, but `parse` builds up typed rosetta OpenAPI objects
+			// Act + Assert: `parsedOperations` is a simple JS object, but `parse` builds up typed rosetta OpenAPI objects
 			//               they cannot be compared directly, only indirectly via JSON
 			await assertRosettaSuccessBasic('/construction/parse', request, expectedResponse, { roundtripJson: true });
 		};
@@ -798,12 +861,12 @@ describe('construction routes', () => {
 
 		it('succeeds when multisig has additions [signed]', () =>
 			assertRosettaSuccess(createSingleValidMultisigModificationTestCase('addressAdditions'), true, [
-				'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ'
+				'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'
 			]));
 
 		it('succeeds when multisig has deletions [signed]', () =>
 			assertRosettaSuccess(createSingleValidMultisigModificationTestCase('addressDeletions'), true, [
-				'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ'
+				'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'
 			]));
 	});
 

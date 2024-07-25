@@ -1,3 +1,4 @@
+import { createRosettaAggregateSignerKeyPair } from './rosettaTestUtils.js';
 import AccountIdentifier from '../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
 import SigningPayload from '../../../../src/plugins/rosetta/openApi/model/SigningPayload.js';
 import { utils } from 'symbol-sdk';
@@ -60,6 +61,11 @@ export default class PayloadResultVerifier {
 		cosignature.signerPublicKey = new models.PublicKey(cosignerPublicKey);
 		cosignature.signature = new models.Signature(new Uint8Array(64));
 		this.aggregateTransaction.cosignatures.push(cosignature);
+	}
+
+	setAggregateFeePayerSignature() {
+		const signature = this.facade.signTransaction(createRosettaAggregateSignerKeyPair(), this.aggregateTransaction);
+		this.facade.transactionFactory.static.attachSignature(this.aggregateTransaction, signature);
 	}
 
 	makeSigningPayload(address) {
