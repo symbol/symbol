@@ -31,6 +31,7 @@ import Peer from './openApi/model/Peer.js';
 import Version from './openApi/model/Version.js';
 import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
 import { sendJson } from '../../routes/simpleSend.js';
+import { generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 export default {
 	register: (server, db, services) => {
@@ -77,12 +78,17 @@ export default {
 		}));
 
 		server.post('/network/status', rosettaPostRouteWithNetwork(networkName, NetworkRequest, async () => {
-			const [genesisBlock, networkProperties, currentBlock, peers] = await Promise.all([
-				services.proxy.nemesisBlock(),
-				services.proxy.networkProperties(),
+			const [networkProperties, currentBlock, peers] = await Promise.all([
+				services.proxy.networkProperties() // this should fill the cache
+					// explicitly cache currency mosaic id and properties
+					.then(() => services.proxy.resolveMosaicId(generateMosaicAliasId('symbol.xym')))
+					.then(resolvedMosaicId => services.proxy.mosaicProperties(resolvedMosaicId))
+					.then(() => services.proxy.networkProperties()),
 				services.proxy.fetch('chain/info').then(result => services.proxy.fetch(`blocks/${result.height}`)),
 				services.proxy.fetch('node/peers').then(nodes => nodes.map(node => new Peer(node.publicKey)))
 			]);
+
+			const genesisBlock = await services.proxy.nemesisBlock(); // this should read from cache
 
 			const { epochAdjustment } = networkProperties.network;
 			const currentBlockTimestamp = Number(epochAdjustment + BigInt(currentBlock.block.timestamp));

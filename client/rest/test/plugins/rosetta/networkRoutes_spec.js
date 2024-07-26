@@ -33,6 +33,7 @@ import OperationStatus from '../../../src/plugins/rosetta/openApi/model/Operatio
 import Peer from '../../../src/plugins/rosetta/openApi/model/Peer.js';
 import Version from '../../../src/plugins/rosetta/openApi/model/Version.js';
 import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import { expect } from 'chai';
 
 describe('network routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(networkRoutes, ...args);
@@ -176,6 +177,10 @@ describe('network routes', () => {
 			stubFetchResult('chain/info', success, createChainInfoResponse());
 			stubFetchResult('network/properties', success, createNetworkPropertiesResponse());
 			stubFetchResult('node/peers', success, createNodePeersResponse());
+
+			// currencyMosaicId caching
+			stubFetchResult('namespaces/E74B99BA41F4AFEE', true, { namespace: { alias: { mosaicId: '1122334455667788' } } });
+			FetchStubHelper.stubMosaicResolution('1122334455667788', 3, 'foo.bar');
 		};
 
 		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
@@ -238,6 +243,11 @@ describe('network routes', () => {
 
 			// Act + Assert:
 			await assertRosettaSuccessBasic('/network/status', createValidRequest(), expectedResponse);
+
+			// - cache routes should only be queried once
+			expect(global.fetch.withArgs('http://localhost:3456/node/info').callCount).to.equal(1);
+			expect(global.fetch.withArgs('http://localhost:3456/namespaces/E74B99BA41F4AFEE').callCount).to.equal(1);
+			expect(global.fetch.withArgs('http://localhost:3456/mosaics/1122334455667788').callCount).to.equal(1);
 		});
 	});
 
