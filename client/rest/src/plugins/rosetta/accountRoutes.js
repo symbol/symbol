@@ -70,7 +70,7 @@ export default {
 			return accountOperations;
 		};
 
-		const getAccountAmounts = async (typedRequest, includeMempool) => {
+		const getAccountAmounts = async typedRequest => {
 			if (typedRequest.block_identifier)
 				throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
 
@@ -81,7 +81,7 @@ export default {
 			const startChainHeight = await getChainHeight();
 
 			const promises = [services.proxy.fetch(`accounts/${address}`, json => json.account.mosaics)];
-			if (includeMempool)
+			if (typedRequest.include_mempool)
 				promises.push(services.proxy.fetchAll('transactions/unconfirmed?embedded=true', PAGE_SIZE));
 
 			const [mosaics, unconfirmedTransactions] = await Promise.all(promises);
@@ -92,7 +92,7 @@ export default {
 				throw RosettaErrorFactory.SYNC_DURING_OPERATION;
 
 			let amounts = await mapMosaicsToRosettaAmounts(mosaics);
-			if (includeMempool && unconfirmedTransactions.length) {
+			if (typedRequest.include_mempool && unconfirmedTransactions.length) {
 				const addAmountsValue = (lhs, rhs) => (BigInt(lhs.value) + BigInt(rhs.value)).toString();
 
 				// combine the operations by each currency
@@ -126,14 +126,13 @@ export default {
 		};
 
 		server.post('/account/balance', rosettaPostRouteWithNetwork(networkName, AccountBalanceRequest, async typedRequest => {
-			const includeMempool = false;
-			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest, includeMempool);
+			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest);
 
 			return new AccountBalanceResponse(blockIdentifier, amounts);
 		}));
 
 		server.post('/account/coins', rosettaPostRouteWithNetwork(networkName, AccountCoinsRequest, async typedRequest => {
-			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest, typedRequest.include_mempool);
+			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest);
 
 			const mapRosettaAmountToCoin = amount => new Coin(new CoinIdentifier(amount.currency.metadata.id), amount);
 			const coins = await Promise.all(amounts.map(mapRosettaAmountToCoin));

@@ -38,6 +38,12 @@ import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.j
 import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 describe('account routes', () => {
+	const ACCOUNT_ADDRESS = 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI';
+	const ACCOUNT_PUBLIC_KEY = 'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6';
+	const OTHER_ACCOUNT_ADDRESS = 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI';
+	const OTHER_ACCOUNT_PUBLIC_KEY = '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9';
+	const TRANSACTION_HASH = 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483';
+
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(accountRoutes, ...args);
 	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(accountRoutes, ...args);
 
@@ -138,90 +144,6 @@ describe('account routes', () => {
 	};
 
 	const addAccountSuccessTests = (route, options) => {
-		it('succeeds when all fetches succeed', async () => {
-			// Arrange:
-			stubAccountResolutions();
-
-			// - create expected response
-			const expectedResponse = new options.Response(
-				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
-				[
-					options.createRosettaAmount('123', 'foo.bar', 3, '1122334455667788'),
-					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965'),
-					options.createRosettaAmount('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
-				]
-			);
-
-			// Act + Assert:
-			await assertRosettaSuccessBasic(route, options.createValidRequest(), expectedResponse);
-		});
-
-		it('succeeds when all fetches succeed and applies currency filter', async () => {
-			// Arrange:
-			stubAccountResolutions();
-
-			// - add currency filter
-			const request = options.createValidRequest();
-			request.currencies = [
-				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
-				{ symbol: 'cat.dog', decimals: 4 },
-				{ symbol: 'symbol.xym', decimals: 1 } // decimals mismatch
-			];
-
-			// - create expected response
-			const expectedResponse = new options.Response(
-				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
-				[
-					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965')
-				]
-			);
-
-			// Act + Assert:
-			await assertRosettaSuccessBasic(route, request, expectedResponse);
-		});
-	};
-
-	// endregion
-
-	// region balance
-
-	describe('balance', () => {
-		const createValidRequest = () => ({
-			network_identifier: createRosettaNetworkIdentifier(),
-			account_identifier: { address: 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI' }
-		});
-
-		addAccountFailureTests('/account/balance', { createValidRequest });
-
-		addAccountSuccessTests('/account/balance', {
-			createValidRequest,
-			createRosettaAmount,
-			Response: AccountBalanceResponse
-		});
-	});
-
-	// endregion
-
-	// region coins
-
-	describe('coins', () => {
-		const ACCOUNT_ADDRESS = 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI';
-		const ACCOUNT_PUBLIC_KEY = 'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6';
-		const OTHER_ACCOUNT_ADDRESS = 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI';
-		const OTHER_ACCOUNT_PUBLIC_KEY = '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9';
-		const TRANSACTION_HASH = 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483';
-
-		const createValidRequest = () => ({
-			network_identifier: createRosettaNetworkIdentifier(),
-			account_identifier: { address: ACCOUNT_ADDRESS },
-			include_mempool: false
-		});
-
-		addAccountFailureTests('/account/coins', {
-			createValidRequest,
-			skipBlockIdentifierTest: true
-		});
-
 		const createTransactionJson = (mosaics, signerPublicKey, recipientAddress, isEmbedded = false) => {
 			const facade = new SymbolFacade('testnet');
 			const transaction = facade.transactionFactory.create({
@@ -232,16 +154,11 @@ describe('account routes', () => {
 				fee: 100
 			});
 
-			const meta = {};
-			if (isEmbedded)
-				meta.aggregateHash = TRANSACTION_HASH;
-			else
-				meta.hash = TRANSACTION_HASH;
-
+			const hashPropertyName = isEmbedded ? 'aggregateHash' : 'hash';
 			return {
 				transaction: convertTransactionSdkJsonToRestJson(transaction.toJson()),
 				meta: {
-					...meta,
+					[hashPropertyName]: TRANSACTION_HASH,
 					height: '0',
 					index: 1
 				}
@@ -284,7 +201,7 @@ describe('account routes', () => {
 			stubFetchResult('network/properties', true, { chain: { currencyMosaicId: '0x1ABBCCDDAABBCCDD' } });
 
 			// - create request
-			const request = createValidRequest();
+			const request = options.createValidRequest();
 			request.include_mempool = includeMempool;
 
 			// - create expected response
@@ -306,17 +223,17 @@ describe('account routes', () => {
 			stubAccountResolutions();
 
 			// - create expected response
-			const expectedResponse = new AccountCoinsResponse(
+			const expectedResponse = new options.Response(
 				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
 				[
-					createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-					createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965'),
-					createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+					options.createRosettaAmount('123', 'foo.bar', 3, '1122334455667788'),
+					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965'),
+					options.createRosettaAmount('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
 				]
 			);
 
 			// Act + Assert:
-			await assertRosettaSuccessBasic('/account/coins', createValidRequest(), expectedResponse);
+			await assertRosettaSuccessBasic(route, options.createValidRequest(), expectedResponse);
 		});
 
 		it('succeeds when all fetches succeed and applies currency filter', async () => {
@@ -324,7 +241,7 @@ describe('account routes', () => {
 			stubAccountResolutions();
 
 			// - add currency filter
-			const request = createValidRequest();
+			const request = options.createValidRequest();
 			request.currencies = [
 				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
 				{ symbol: 'cat.dog', decimals: 4 },
@@ -332,15 +249,15 @@ describe('account routes', () => {
 			];
 
 			// - create expected response
-			const expectedResponse = new AccountCoinsResponse(
+			const expectedResponse = new options.Response(
 				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
 				[
-					createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965')
+					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965')
 				]
 			);
 
 			// Act + Assert:
-			await assertRosettaSuccessBasic('/account/coins', request, expectedResponse);
+			await assertRosettaSuccessBasic(route, request, expectedResponse);
 		});
 
 		it('succeeds when all fetches succeed and includes mempool', async () => {
@@ -493,6 +410,48 @@ describe('account routes', () => {
 
 			// Act + Assert:
 			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
+		});
+	};
+
+	// endregion
+
+	// region balance
+
+	describe('balance', () => {
+		const createValidRequest = () => ({
+			network_identifier: createRosettaNetworkIdentifier(),
+			account_identifier: { address: ACCOUNT_ADDRESS }
+		});
+
+		addAccountFailureTests('/account/balance', { createValidRequest });
+
+		addAccountSuccessTests('/account/balance', {
+			createValidRequest,
+			createRosettaAmount,
+			Response: AccountBalanceResponse
+		});
+	});
+
+	// endregion
+
+	// region coins
+
+	describe('coins', () => {
+		const createValidRequest = () => ({
+			network_identifier: createRosettaNetworkIdentifier(),
+			account_identifier: { address: ACCOUNT_ADDRESS },
+			include_mempool: false
+		});
+
+		addAccountFailureTests('/account/coins', {
+			createValidRequest,
+			skipBlockIdentifierTest: true
+		});
+
+		addAccountSuccessTests('/account/coins', {
+			createValidRequest,
+			createRosettaAmount: createRosettaCoin,
+			Response: AccountCoinsResponse
 		});
 	});
 
