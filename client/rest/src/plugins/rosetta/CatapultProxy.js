@@ -52,6 +52,7 @@ export default class CatapultProxy {
 		this.endpoint = endpoint;
 
 		this.cache = undefined;
+		this.permanentMosaicAliasMap = new Map();
 		this.mosaicPropertiesMap = new Map();
 	}
 
@@ -169,10 +170,15 @@ export default class CatapultProxy {
 	 */
 	async resolveNamespace(namespaceId, transactionLocation, options) {
 		if (!transactionLocation) {
-			return this.fetch(
+			const namespace = await this.fetch(
 				`namespaces/${bigIntToHexString(namespaceId)}`,
-				options.projectNamespacesJson
+				jsonObject => jsonObject.namespace
 			);
+
+			return {
+				isPermanent: namespace.endHeight && 0xFFFFFFFFFFFFFFFFn === BigInt(namespace.endHeight),
+				id: options.projectNamespacesJson(namespace)
+			};
 		}
 		const statements = await this.fetch(
 			`statements/resolutions/${options.resolutionType}?height=${transactionLocation.height}`,
@@ -186,7 +192,7 @@ export default class CatapultProxy {
 			const resolutionEntry = resolutionStatement.statement.resolutionEntries[i];
 			const { source } = resolutionEntry;
 			if (isReceiptSourceLessThanEqual(source, transactionLocation))
-				return resolutionEntry.resolved;
+				return { id: resolutionEntry.resolved };
 		}
 
 		throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
@@ -202,13 +208,21 @@ export default class CatapultProxy {
 		if (0n === (unresolvedMosaicId & (1n << 63n)))
 			return unresolvedMosaicId;
 
-		const mosaicIdHexString = await this.resolveNamespace(unresolvedMosaicId, transactionLocation, {
+		if (this.permanentMosaicAliasMap.has(unresolvedMosaicId))
+			return this.permanentMosaicAliasMap.get(unresolvedMosaicId);
+
+		const resolveNamespaceResult = await this.resolveNamespace(unresolvedMosaicId, transactionLocation, {
 			resolutionType: 'mosaic',
-			projectNamespacesJson: jsonObject => jsonObject.namespace.alias.mosaicId,
+			projectNamespacesJson: namespace => namespace.alias.mosaicId,
 			isStatementMatch: statement => unresolvedMosaicId === BigInt(`0x${statement.statement.unresolved}`)
 		});
 
-		return BigInt(`0x${mosaicIdHexString}`);
+		const resolvedMosaicId = BigInt(`0x${resolveNamespaceResult.id}`);
+
+		if (resolveNamespaceResult.isPermanent)
+			this.permanentMosaicAliasMap.set(unresolvedMosaicId, resolvedMosaicId);
+
+		return resolvedMosaicId;
 	}
 
 	/**
@@ -222,11 +236,12 @@ export default class CatapultProxy {
 			return unresolvedAddress;
 
 		const namespaceId = BigInt(`0x${unresolvedAddress.substring(2, 18)}`);
-		return this.resolveNamespace(namespaceId, transactionLocation, {
+		const resolveNamespaceResult = await this.resolveNamespace(namespaceId, transactionLocation, {
 			resolutionType: 'address',
-			projectNamespacesJson: jsonObject => jsonObject.namespace.alias.address,
+			projectNamespacesJson: namespace => namespace.alias.address,
 			isStatementMatch: statement => unresolvedAddress === statement.statement.unresolved
 		});
+		return resolveNamespaceResult.id;
 	}
 
 	/**
