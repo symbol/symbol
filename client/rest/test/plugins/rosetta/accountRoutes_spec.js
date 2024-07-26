@@ -144,6 +144,90 @@ describe('account routes', () => {
 	};
 
 	const addAccountSuccessTests = (route, options) => {
+		it('succeeds when all fetches succeed', async () => {
+			// Arrange:
+			stubAccountResolutions();
+
+			// - create expected response
+			const expectedResponse = new options.Response(
+				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
+				[
+					options.createRosettaAmount('123', 'foo.bar', 3, '1122334455667788'),
+					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965'),
+					options.createRosettaAmount('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				]
+			);
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic(route, options.createValidRequest(), expectedResponse);
+		});
+
+		it('succeeds when all fetches succeed and applies currency filter', async () => {
+			// Arrange:
+			stubAccountResolutions();
+
+			// - add currency filter
+			const request = options.createValidRequest();
+			request.currencies = [
+				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
+				{ symbol: 'cat.dog', decimals: 4 },
+				{ symbol: 'symbol.xym', decimals: 1 } // decimals mismatch
+			];
+
+			// - create expected response
+			const expectedResponse = new options.Response(
+				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
+				[
+					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965')
+				]
+			);
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic(route, request, expectedResponse);
+		});
+	};
+
+	// endregion
+
+	// region balance
+
+	describe('balance', () => {
+		const createValidRequest = () => ({
+			network_identifier: createRosettaNetworkIdentifier(),
+			account_identifier: { address: ACCOUNT_ADDRESS }
+		});
+
+		addAccountFailureTests('/account/balance', { createValidRequest });
+
+		addAccountSuccessTests('/account/balance', {
+			createValidRequest,
+			createRosettaAmount,
+			Response: AccountBalanceResponse
+		});
+	});
+
+	// endregion
+
+	// region coins
+
+	describe('coins', () => {
+		const createValidRequest = () => ({
+			network_identifier: createRosettaNetworkIdentifier(),
+			account_identifier: { address: ACCOUNT_ADDRESS },
+			include_mempool: false
+		});
+
+		addAccountFailureTests('/account/coins', {
+			createValidRequest,
+			skipBlockIdentifierTest: true
+		});
+
+		addAccountSuccessTests('/account/coins', {
+			createValidRequest,
+			createRosettaAmount: createRosettaCoin,
+			Response: AccountCoinsResponse
+		});
+
 		const createTransactionJson = (mosaics, signerPublicKey, recipientAddress, isEmbedded = false) => {
 			const facade = new SymbolFacade('testnet');
 			const transaction = facade.transactionFactory.create({
@@ -201,7 +285,7 @@ describe('account routes', () => {
 			stubFetchResult('network/properties', true, { chain: { currencyMosaicId: '0x1ABBCCDDAABBCCDD' } });
 
 			// - create request
-			const request = options.createValidRequest();
+			const request = createValidRequest();
 			request.include_mempool = includeMempool;
 
 			// - create expected response
@@ -217,55 +301,12 @@ describe('account routes', () => {
 		const createUnconfirmedTransactionsResponse = transactionJsons => ({
 			data: transactionJsons
 		});
-
-		it('succeeds when all fetches succeed', async () => {
-			// Arrange:
-			stubAccountResolutions();
-
-			// - create expected response
-			const expectedResponse = new options.Response(
-				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
-				[
-					options.createRosettaAmount('123', 'foo.bar', 3, '1122334455667788'),
-					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965'),
-					options.createRosettaAmount('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
-				]
-			);
-
-			// Act + Assert:
-			await assertRosettaSuccessBasic(route, options.createValidRequest(), expectedResponse);
-		});
-
-		it('succeeds when all fetches succeed and applies currency filter', async () => {
-			// Arrange:
-			stubAccountResolutions();
-
-			// - add currency filter
-			const request = options.createValidRequest();
-			request.currencies = [
-				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
-				{ symbol: 'cat.dog', decimals: 4 },
-				{ symbol: 'symbol.xym', decimals: 1 } // decimals mismatch
-			];
-
-			// - create expected response
-			const expectedResponse = new options.Response(
-				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
-				[
-					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965')
-				]
-			);
-
-			// Act + Assert:
-			await assertRosettaSuccessBasic(route, request, expectedResponse);
-		});
-
 		it('succeeds when all fetches succeed and includes mempool', async () => {
 			// Arrange:
 			const mosaicsToReceive = [
 				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 200 }
 			];
-			const expectedCoins = [
+			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
 				createRosettaCoin('462', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
@@ -274,7 +315,7 @@ describe('account routes', () => {
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
-			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
+			await assertIncludeMempoolAccountTest(transactionJson, expectedResponse);
 		});
 
 		it('succeeds when receive multiple coins in the mempool', async () => {
@@ -283,7 +324,7 @@ describe('account routes', () => {
 				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 50 },
 				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 150 }
 			];
-			const expectedCoins = [
+			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
 				createRosettaCoin('312', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('262', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
@@ -292,7 +333,7 @@ describe('account routes', () => {
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
-			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
+			await assertIncludeMempoolAccountTest(transactionJson, expectedResponse);
 		});
 
 		it('succeeds when receive new coin in the mempool', async () => {
@@ -301,7 +342,7 @@ describe('account routes', () => {
 				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 10 },
 				{ mosaicId: generateMosaicAliasId('new.coin'), amount: 50 }
 			];
-			const expectedCoins = [
+			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
 				createRosettaCoin('272', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD'),
@@ -311,7 +352,7 @@ describe('account routes', () => {
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
-			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
+			await assertIncludeMempoolAccountTest(transactionJson, expectedResponse);
 		});
 
 		it('succeeds when coin sent in the mempool (includes fee)', async () => {
@@ -319,7 +360,7 @@ describe('account routes', () => {
 			const mosaicsToSend = [
 				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 1 }
 			];
-			const expectedCoins = [
+			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
 				createRosettaCoin('261', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('12', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
@@ -328,7 +369,7 @@ describe('account routes', () => {
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
-			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
+			await assertIncludeMempoolAccountTest(transactionJson, expectedResponse);
 		});
 
 		it('succeeds when multiple coins sent in the mempool (include fee)', async () => {
@@ -337,7 +378,7 @@ describe('account routes', () => {
 				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 200 },
 				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
 			];
-			const expectedCoins = [
+			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
 				createRosettaCoin('62', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('10', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
@@ -347,7 +388,7 @@ describe('account routes', () => {
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
-			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
+			await assertIncludeMempoolAccountTest(transactionJson, expectedResponse);
 		});
 
 		it('succeeds when multiple transactions receive in the mempool', async () => {
@@ -361,7 +402,7 @@ describe('account routes', () => {
 				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 20 },
 				{ mosaicId: generateMosaicAliasId('foo.bar'), amount: 23 }
 			];
-			const expectedCoins = [
+			const expectedResponse = [
 				createRosettaCoin('146', 'foo.bar', 3, '1122334455667788'),
 				createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('30', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
@@ -371,7 +412,7 @@ describe('account routes', () => {
 			const transactionJson = createUnconfirmedTransactionsResponse([outgoingTransaction, incomingTransaction]);
 
 			// Act + Assert:
-			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
+			await assertIncludeMempoolAccountTest(transactionJson, expectedResponse);
 		});
 
 		it('succeeds when include mempool is false', async () => {
@@ -380,7 +421,7 @@ describe('account routes', () => {
 				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 3 },
 				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
 			];
-			const expectedCoins = [
+			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
 				createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
@@ -389,7 +430,7 @@ describe('account routes', () => {
 			const transactionJson = createUnconfirmedTransactionsResponse([transaction]);
 
 			// Act + Assert:
-			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins, false);
+			await assertIncludeMempoolAccountTest(transactionJson, expectedResponse, false);
 		});
 
 		it('succeeds when aggregate transaction is in mempool', async () => {
@@ -398,7 +439,7 @@ describe('account routes', () => {
 				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 3 },
 				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
 			];
-			const expectedCoins = [
+			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
 				createRosettaCoin('259', 'cat.dog', 4, '0F61E4A360897965'),
 				createRosettaCoin('85', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
@@ -409,49 +450,7 @@ describe('account routes', () => {
 			const transactionJson = createUnconfirmedTransactionsResponse([aggregateTransaction, transaction]);
 
 			// Act + Assert:
-			await assertIncludeMempoolAccountTest(transactionJson, expectedCoins);
-		});
-	};
-
-	// endregion
-
-	// region balance
-
-	describe('balance', () => {
-		const createValidRequest = () => ({
-			network_identifier: createRosettaNetworkIdentifier(),
-			account_identifier: { address: ACCOUNT_ADDRESS }
-		});
-
-		addAccountFailureTests('/account/balance', { createValidRequest });
-
-		addAccountSuccessTests('/account/balance', {
-			createValidRequest,
-			createRosettaAmount,
-			Response: AccountBalanceResponse
-		});
-	});
-
-	// endregion
-
-	// region coins
-
-	describe('coins', () => {
-		const createValidRequest = () => ({
-			network_identifier: createRosettaNetworkIdentifier(),
-			account_identifier: { address: ACCOUNT_ADDRESS },
-			include_mempool: false
-		});
-
-		addAccountFailureTests('/account/coins', {
-			createValidRequest,
-			skipBlockIdentifierTest: true
-		});
-
-		addAccountSuccessTests('/account/coins', {
-			createValidRequest,
-			createRosettaAmount: createRosettaCoin,
-			Response: AccountCoinsResponse
+			await assertIncludeMempoolAccountTest(transactionJson, expectedResponse);
 		});
 	});
 
