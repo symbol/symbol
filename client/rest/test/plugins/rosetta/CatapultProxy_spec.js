@@ -549,6 +549,48 @@ describe('CatapultProxy', () => {
 			otherResolvedValueString1: '0234567890ABCDEF',
 			otherResolvedValueString2: '2234567890ABCDEF'
 		});
+
+		it('can cache permanent alias', async () => {
+			// Arrange:
+			const proxy = new CatapultProxy(TEST_ENDPOINT);
+			stubFetchResult('namespaces/9234567890ABCDEF', true, {
+				namespace: {
+					alias: { mosaicId: '0034567890ABCDEF' },
+					endHeight: '18446744073709551615'
+				}
+			});
+
+			// Act:
+			const resolvedValue1 = await proxy.resolveMosaicId(0x9234567890ABCDEFn);
+			const resolvedValue2 = await proxy.resolveMosaicId(0x9234567890ABCDEFn);
+
+			// Assert: only one call was made (first result was cached)
+			expect(global.fetch.callCount).to.equal(1);
+
+			expect(resolvedValue1).to.equal(0x0034567890ABCDEFn);
+			expect(resolvedValue2).to.equal(0x0034567890ABCDEFn);
+		});
+
+		it('cannot cache temporary alias', async () => {
+			// Arrange:
+			const proxy = new CatapultProxy(TEST_ENDPOINT);
+			stubFetchResult('namespaces/9234567890ABCDEF', true, {
+				namespace: {
+					alias: { mosaicId: '0034567890ABCDEF' },
+					endHeight: '1000'
+				}
+			});
+
+			// Act:
+			const resolvedValue1 = await proxy.resolveMosaicId(0x9234567890ABCDEFn);
+			const resolvedValue2 = await proxy.resolveMosaicId(0x9234567890ABCDEFn);
+
+			// Assert: call was made each time (result was not cached)
+			expect(global.fetch.callCount).to.equal(2);
+
+			expect(resolvedValue1).to.equal(0x0034567890ABCDEFn);
+			expect(resolvedValue2).to.equal(0x0034567890ABCDEFn);
+		});
 	});
 
 	describe('resolveAddress', () => {
