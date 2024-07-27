@@ -38,7 +38,7 @@ describe('rosetta plugin', () => {
 			rosetta.registerRoutes(server, undefined, {
 				config: {
 					network: { name: 'testnet' },
-					rest: { protocol: 'http', port: '3456' },
+					restEndpoint: 'http://localhost:3000',
 					rosetta: { aggregateSignerPrivateKey: 'C7CAC863460EBB139F0B61778A285F31B8E8548B3D2354832946C880735C1F70' }
 				}
 			});
