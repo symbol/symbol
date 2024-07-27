@@ -39,8 +39,7 @@ export default {
 	registerMessageChannels: () => {},
 
 	registerRoutes: (server, db, services) => {
-		const restUrl = `${services.config.rest.protocol}://localhost:${services.config.rest.port}`;
-		const proxy = new CatapultProxy(restUrl);
+		const proxy = new CatapultProxy(services.config.restEndpoint);
 
 		[
 			accountRoutes,

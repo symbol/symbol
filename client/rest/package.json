@@ -6,6 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "start-rosetta": "node src/index.rosetta.js",
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
     "lint:jenkins": "eslint -o lint.client.rest.xml -f junit . || exit 0",
