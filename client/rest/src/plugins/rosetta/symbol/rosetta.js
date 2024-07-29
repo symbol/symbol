@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/rosetta */
+/** @module plugins/rosetta/symbol */
 import CatapultProxy from './CatapultProxy.js';
 import accountRoutes from './accountRoutes.js';
 import blockRoutes from './blockRoutes.js';
