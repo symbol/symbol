@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import AccountIdentifier from './openApi/model/AccountIdentifier.js';
-import Amount from './openApi/model/Amount.js';
-import Operation from './openApi/model/Operation.js';
-import OperationIdentifier from './openApi/model/OperationIdentifier.js';
-import Transaction from './openApi/model/Transaction.js';
-import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
+import AccountIdentifier from '../openApi/model/AccountIdentifier.js';
+import Amount from '../openApi/model/Amount.js';
+import Operation from '../openApi/model/Operation.js';
+import OperationIdentifier from '../openApi/model/OperationIdentifier.js';
+import Transaction from '../openApi/model/Transaction.js';
+import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import { PublicKey, utils } from 'symbol-sdk';
 import { Address, Network, models } from 'symbol-sdk/symbol';
 

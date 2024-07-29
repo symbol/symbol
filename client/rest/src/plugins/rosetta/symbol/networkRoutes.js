@@ -19,18 +19,18 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Allow from './openApi/model/Allow.js';
-import BlockIdentifier from './openApi/model/BlockIdentifier.js';
-import NetworkIdentifier from './openApi/model/NetworkIdentifier.js';
-import NetworkListResponse from './openApi/model/NetworkListResponse.js';
-import NetworkOptionsResponse from './openApi/model/NetworkOptionsResponse.js';
-import NetworkRequest from './openApi/model/NetworkRequest.js';
-import NetworkStatusResponse from './openApi/model/NetworkStatusResponse.js';
-import OperationStatus from './openApi/model/OperationStatus.js';
-import Peer from './openApi/model/Peer.js';
-import Version from './openApi/model/Version.js';
 import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
-import { sendJson } from '../../routes/simpleSend.js';
+import { sendJson } from '../../../routes/simpleSend.js';
+import Allow from '../openApi/model/Allow.js';
+import BlockIdentifier from '../openApi/model/BlockIdentifier.js';
+import NetworkIdentifier from '../openApi/model/NetworkIdentifier.js';
+import NetworkListResponse from '../openApi/model/NetworkListResponse.js';
+import NetworkOptionsResponse from '../openApi/model/NetworkOptionsResponse.js';
+import NetworkRequest from '../openApi/model/NetworkRequest.js';
+import NetworkStatusResponse from '../openApi/model/NetworkStatusResponse.js';
+import OperationStatus from '../openApi/model/OperationStatus.js';
+import Peer from '../openApi/model/Peer.js';
+import Version from '../openApi/model/Version.js';
 import { generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 export default {
