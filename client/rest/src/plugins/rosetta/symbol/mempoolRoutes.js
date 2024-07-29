@@ -20,14 +20,14 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import MempoolResponse from './openApi/model/MempoolResponse.js';
-import MempoolTransactionRequest from './openApi/model/MempoolTransactionRequest.js';
-import MempoolTransactionResponse from './openApi/model/MempoolTransactionResponse.js';
-import NetworkRequest from './openApi/model/NetworkRequest.js';
-import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
 import {
 	createLookupCurrencyFunction, rosettaPostRouteWithNetwork
 } from './rosettaUtils.js';
+import MempoolResponse from '../openApi/model/MempoolResponse.js';
+import MempoolTransactionRequest from '../openApi/model/MempoolTransactionRequest.js';
+import MempoolTransactionResponse from '../openApi/model/MempoolTransactionResponse.js';
+import NetworkRequest from '../openApi/model/NetworkRequest.js';
+import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 

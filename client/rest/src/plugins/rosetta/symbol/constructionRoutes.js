@@ -20,27 +20,27 @@
  */
 
 import { OperationParser, convertTransactionSdkJsonToRestJson } from './OperationParser.js';
-import AccountIdentifier from './openApi/model/AccountIdentifier.js';
-import ConstructionCombineRequest from './openApi/model/ConstructionCombineRequest.js';
-import ConstructionCombineResponse from './openApi/model/ConstructionCombineResponse.js';
-import ConstructionDeriveRequest from './openApi/model/ConstructionDeriveRequest.js';
-import ConstructionDeriveResponse from './openApi/model/ConstructionDeriveResponse.js';
-import ConstructionHashRequest from './openApi/model/ConstructionHashRequest.js';
-import ConstructionMetadataRequest from './openApi/model/ConstructionMetadataRequest.js';
-import ConstructionMetadataResponse from './openApi/model/ConstructionMetadataResponse.js';
-import ConstructionParseRequest from './openApi/model/ConstructionParseRequest.js';
-import ConstructionParseResponse from './openApi/model/ConstructionParseResponse.js';
-import ConstructionPayloadsRequest from './openApi/model/ConstructionPayloadsRequest.js';
-import ConstructionPayloadsResponse from './openApi/model/ConstructionPayloadsResponse.js';
-import ConstructionPreprocessRequest from './openApi/model/ConstructionPreprocessRequest.js';
-import ConstructionPreprocessResponse from './openApi/model/ConstructionPreprocessResponse.js';
-import ConstructionSubmitRequest from './openApi/model/ConstructionSubmitRequest.js';
-import CurveType from './openApi/model/CurveType.js';
-import SignatureType from './openApi/model/SignatureType.js';
-import SigningPayload from './openApi/model/SigningPayload.js';
-import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
-import TransactionIdentifierResponse from './openApi/model/TransactionIdentifierResponse.js';
 import { RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
+import AccountIdentifier from '../openApi/model/AccountIdentifier.js';
+import ConstructionCombineRequest from '../openApi/model/ConstructionCombineRequest.js';
+import ConstructionCombineResponse from '../openApi/model/ConstructionCombineResponse.js';
+import ConstructionDeriveRequest from '../openApi/model/ConstructionDeriveRequest.js';
+import ConstructionDeriveResponse from '../openApi/model/ConstructionDeriveResponse.js';
+import ConstructionHashRequest from '../openApi/model/ConstructionHashRequest.js';
+import ConstructionMetadataRequest from '../openApi/model/ConstructionMetadataRequest.js';
+import ConstructionMetadataResponse from '../openApi/model/ConstructionMetadataResponse.js';
+import ConstructionParseRequest from '../openApi/model/ConstructionParseRequest.js';
+import ConstructionParseResponse from '../openApi/model/ConstructionParseResponse.js';
+import ConstructionPayloadsRequest from '../openApi/model/ConstructionPayloadsRequest.js';
+import ConstructionPayloadsResponse from '../openApi/model/ConstructionPayloadsResponse.js';
+import ConstructionPreprocessRequest from '../openApi/model/ConstructionPreprocessRequest.js';
+import ConstructionPreprocessResponse from '../openApi/model/ConstructionPreprocessResponse.js';
+import ConstructionSubmitRequest from '../openApi/model/ConstructionSubmitRequest.js';
+import CurveType from '../openApi/model/CurveType.js';
+import SignatureType from '../openApi/model/SignatureType.js';
+import SigningPayload from '../openApi/model/SigningPayload.js';
+import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
+import TransactionIdentifierResponse from '../openApi/model/TransactionIdentifierResponse.js';
 import { PrivateKey, PublicKey, utils } from 'symbol-sdk';
 import {
 	KeyPair, NetworkTimestamp, SymbolFacade, generateMosaicAliasId, models

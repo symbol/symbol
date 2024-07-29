@@ -26,15 +26,15 @@ import {
 	assertRosettaErrorRaisedBasicWithRoutes,
 	assertRosettaSuccessBasicWithRoutes
 } from './utils/rosettaTestUtils.js';
-import { convertTransactionSdkJsonToRestJson } from '../../../src/plugins/rosetta/OperationParser.js';
-import blockRoutes from '../../../src/plugins/rosetta/blockRoutes.js';
-import Block from '../../../src/plugins/rosetta/openApi/model/Block.js';
-import BlockIdentifier from '../../../src/plugins/rosetta/openApi/model/BlockIdentifier.js';
-import BlockResponse from '../../../src/plugins/rosetta/openApi/model/BlockResponse.js';
-import BlockTransactionResponse from '../../../src/plugins/rosetta/openApi/model/BlockTransactionResponse.js';
-import Transaction from '../../../src/plugins/rosetta/openApi/model/Transaction.js';
-import TransactionIdentifier from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
-import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import Block from '../../../../src/plugins/rosetta/openApi/model/Block.js';
+import BlockIdentifier from '../../../../src/plugins/rosetta/openApi/model/BlockIdentifier.js';
+import BlockResponse from '../../../../src/plugins/rosetta/openApi/model/BlockResponse.js';
+import BlockTransactionResponse from '../../../../src/plugins/rosetta/openApi/model/BlockTransactionResponse.js';
+import Transaction from '../../../../src/plugins/rosetta/openApi/model/Transaction.js';
+import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
+import { convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/symbol/OperationParser.js';
+import blockRoutes from '../../../../src/plugins/rosetta/symbol/blockRoutes.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 describe('block routes', () => {

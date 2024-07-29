@@ -19,12 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import ConstructionDeriveRequest from '../../../src/plugins/rosetta/openApi/model/ConstructionDeriveRequest.js';
-import Currency from '../../../src/plugins/rosetta/openApi/model/Currency.js';
-import RosettaApiError from '../../../src/plugins/rosetta/openApi/model/Error.js';
+import ConstructionDeriveRequest from '../../../../src/plugins/rosetta/openApi/model/ConstructionDeriveRequest.js';
+import Currency from '../../../../src/plugins/rosetta/openApi/model/Currency.js';
+import RosettaApiError from '../../../../src/plugins/rosetta/openApi/model/Error.js';
 import {
 	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork, stitchBlockTransactions
-} from '../../../src/plugins/rosetta/rosettaUtils.js';
+} from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { expect } from 'chai';
 
 describe('rosetta utils', () => {
