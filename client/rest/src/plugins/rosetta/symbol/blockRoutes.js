@@ -20,17 +20,17 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import Block from './openApi/model/Block.js';
-import BlockIdentifier from './openApi/model/BlockIdentifier.js';
-import BlockRequest from './openApi/model/BlockRequest.js';
-import BlockResponse from './openApi/model/BlockResponse.js';
-import BlockTransactionRequest from './openApi/model/BlockTransactionRequest.js';
-import BlockTransactionResponse from './openApi/model/BlockTransactionResponse.js';
-import Transaction from './openApi/model/Transaction.js';
-import TransactionIdentifier from './openApi/model/TransactionIdentifier.js';
 import {
 	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork, stitchBlockTransactions
 } from './rosettaUtils.js';
+import Block from '../openApi/model/Block.js';
+import BlockIdentifier from '../openApi/model/BlockIdentifier.js';
+import BlockRequest from '../openApi/model/BlockRequest.js';
+import BlockResponse from '../openApi/model/BlockResponse.js';
+import BlockTransactionRequest from '../openApi/model/BlockTransactionRequest.js';
+import BlockTransactionResponse from '../openApi/model/BlockTransactionResponse.js';
+import Transaction from '../openApi/model/Transaction.js';
+import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 
