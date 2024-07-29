@@ -22,17 +22,17 @@
 import {
 	FetchStubHelper, RosettaObjectFactory, assertRosettaErrorRaisedBasicWithRoutes, assertRosettaSuccessBasicWithRoutes
 } from './utils/rosettaTestUtils.js';
-import networkRoutes from '../../../src/plugins/rosetta/networkRoutes.js';
-import Allow from '../../../src/plugins/rosetta/openApi/model/Allow.js';
-import BlockIdentifier from '../../../src/plugins/rosetta/openApi/model/BlockIdentifier.js';
-import NetworkIdentifier from '../../../src/plugins/rosetta/openApi/model/NetworkIdentifier.js';
-import NetworkListResponse from '../../../src/plugins/rosetta/openApi/model/NetworkListResponse.js';
-import NetworkOptionsResponse from '../../../src/plugins/rosetta/openApi/model/NetworkOptionsResponse.js';
-import NetworkStatusResponse from '../../../src/plugins/rosetta/openApi/model/NetworkStatusResponse.js';
-import OperationStatus from '../../../src/plugins/rosetta/openApi/model/OperationStatus.js';
-import Peer from '../../../src/plugins/rosetta/openApi/model/Peer.js';
-import Version from '../../../src/plugins/rosetta/openApi/model/Version.js';
-import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import Allow from '../../../../src/plugins/rosetta/openApi/model/Allow.js';
+import BlockIdentifier from '../../../../src/plugins/rosetta/openApi/model/BlockIdentifier.js';
+import NetworkIdentifier from '../../../../src/plugins/rosetta/openApi/model/NetworkIdentifier.js';
+import NetworkListResponse from '../../../../src/plugins/rosetta/openApi/model/NetworkListResponse.js';
+import NetworkOptionsResponse from '../../../../src/plugins/rosetta/openApi/model/NetworkOptionsResponse.js';
+import NetworkStatusResponse from '../../../../src/plugins/rosetta/openApi/model/NetworkStatusResponse.js';
+import OperationStatus from '../../../../src/plugins/rosetta/openApi/model/OperationStatus.js';
+import Peer from '../../../../src/plugins/rosetta/openApi/model/Peer.js';
+import Version from '../../../../src/plugins/rosetta/openApi/model/Version.js';
+import networkRoutes from '../../../../src/plugins/rosetta/symbol/networkRoutes.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { expect } from 'chai';
 
 describe('network routes', () => {

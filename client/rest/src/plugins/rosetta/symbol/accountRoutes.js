@@ -20,17 +20,17 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import AccountBalanceRequest from './openApi/model/AccountBalanceRequest.js';
-import AccountBalanceResponse from './openApi/model/AccountBalanceResponse.js';
-import AccountCoinsRequest from './openApi/model/AccountCoinsRequest.js';
-import AccountCoinsResponse from './openApi/model/AccountCoinsResponse.js';
-import Amount from './openApi/model/Amount.js';
-import BlockIdentifier from './openApi/model/BlockIdentifier.js';
-import Coin from './openApi/model/Coin.js';
-import CoinIdentifier from './openApi/model/CoinIdentifier.js';
 import {
 	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork, stitchBlockTransactions
 } from './rosettaUtils.js';
+import AccountBalanceRequest from '../openApi/model/AccountBalanceRequest.js';
+import AccountBalanceResponse from '../openApi/model/AccountBalanceResponse.js';
+import AccountCoinsRequest from '../openApi/model/AccountCoinsRequest.js';
+import AccountCoinsResponse from '../openApi/model/AccountCoinsResponse.js';
+import Amount from '../openApi/model/Amount.js';
+import BlockIdentifier from '../openApi/model/BlockIdentifier.js';
+import Coin from '../openApi/model/Coin.js';
+import CoinIdentifier from '../openApi/model/CoinIdentifier.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 

@@ -27,17 +27,17 @@ import {
 	assertRosettaSuccessBasicWithRoutes,
 	createRosettaAggregateSignerKeyPair
 } from './utils/rosettaTestUtils.js';
-import constructionRoutes from '../../../src/plugins/rosetta/constructionRoutes.js';
-import AccountIdentifier from '../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
-import ConstructionCombineResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionCombineResponse.js';
-import ConstructionDeriveResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionDeriveResponse.js';
-import ConstructionMetadataResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionMetadataResponse.js';
-import ConstructionParseResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionParseResponse.js';
-import ConstructionPayloadsResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionPayloadsResponse.js';
-import ConstructionPreprocessResponse from '../../../src/plugins/rosetta/openApi/model/ConstructionPreprocessResponse.js';
-import TransactionIdentifier from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
-import TransactionIdentifierResponse from '../../../src/plugins/rosetta/openApi/model/TransactionIdentifierResponse.js';
-import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import AccountIdentifier from '../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
+import ConstructionCombineResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionCombineResponse.js';
+import ConstructionDeriveResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionDeriveResponse.js';
+import ConstructionMetadataResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionMetadataResponse.js';
+import ConstructionParseResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionParseResponse.js';
+import ConstructionPayloadsResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionPayloadsResponse.js';
+import ConstructionPreprocessResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionPreprocessResponse.js';
+import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
+import TransactionIdentifierResponse from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifierResponse.js';
+import constructionRoutes from '../../../../src/plugins/rosetta/symbol/constructionRoutes.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { models } from 'symbol-sdk/symbol';

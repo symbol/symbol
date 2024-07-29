@@ -26,15 +26,15 @@ import {
 	assertRosettaErrorRaisedBasicWithRoutes,
 	assertRosettaSuccessBasicWithRoutes
 } from './utils/rosettaTestUtils.js';
-import { convertTransactionSdkJsonToRestJson } from '../../../src/plugins/rosetta/OperationParser.js';
-import accountRoutes from '../../../src/plugins/rosetta/accountRoutes.js';
-import AccountBalanceResponse from '../../../src/plugins/rosetta/openApi/model/AccountBalanceResponse.js';
-import AccountCoinsResponse from '../../../src/plugins/rosetta/openApi/model/AccountCoinsResponse.js';
-import Amount from '../../../src/plugins/rosetta/openApi/model/Amount.js';
-import BlockIdentifier from '../../../src/plugins/rosetta/openApi/model/BlockIdentifier.js';
-import Coin from '../../../src/plugins/rosetta/openApi/model/Coin.js';
-import CoinIdentifier from '../../../src/plugins/rosetta/openApi/model/CoinIdentifier.js';
-import { RosettaErrorFactory } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import AccountBalanceResponse from '../../../../src/plugins/rosetta/openApi/model/AccountBalanceResponse.js';
+import AccountCoinsResponse from '../../../../src/plugins/rosetta/openApi/model/AccountCoinsResponse.js';
+import Amount from '../../../../src/plugins/rosetta/openApi/model/Amount.js';
+import BlockIdentifier from '../../../../src/plugins/rosetta/openApi/model/BlockIdentifier.js';
+import Coin from '../../../../src/plugins/rosetta/openApi/model/Coin.js';
+import CoinIdentifier from '../../../../src/plugins/rosetta/openApi/model/CoinIdentifier.js';
+import { convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/symbol/OperationParser.js';
+import accountRoutes from '../../../../src/plugins/rosetta/symbol/accountRoutes.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 describe('account routes', () => {

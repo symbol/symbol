@@ -19,14 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import CatapultProxy from '../../../../src/plugins/rosetta/CatapultProxy.js';
-import AccountIdentifier from '../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
-import Amount from '../../../../src/plugins/rosetta/openApi/model/Amount.js';
-import Currency from '../../../../src/plugins/rosetta/openApi/model/Currency.js';
-import RosettaApiError from '../../../../src/plugins/rosetta/openApi/model/Error.js';
-import Operation from '../../../../src/plugins/rosetta/openApi/model/Operation.js';
-import OperationIdentifier from '../../../../src/plugins/rosetta/openApi/model/OperationIdentifier.js';
-import MockServer from '../../../routes/utils/MockServer.js';
+import AccountIdentifier from '../../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
+import Amount from '../../../../../src/plugins/rosetta/openApi/model/Amount.js';
+import Currency from '../../../../../src/plugins/rosetta/openApi/model/Currency.js';
+import RosettaApiError from '../../../../../src/plugins/rosetta/openApi/model/Error.js';
+import Operation from '../../../../../src/plugins/rosetta/openApi/model/Operation.js';
+import OperationIdentifier from '../../../../../src/plugins/rosetta/openApi/model/OperationIdentifier.js';
+import CatapultProxy from '../../../../../src/plugins/rosetta/symbol/CatapultProxy.js';
+import MockServer from '../../../../routes/utils/MockServer.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { PrivateKey } from 'symbol-sdk';
