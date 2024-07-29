@@ -19,11 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import rosetta from '../../../src/plugins/rosetta/rosetta.js';
-import test from '../../routes/utils/routeTestUtils.js';
-import pluginTest from '../utils/pluginTestUtils.js';
+import rosetta from '../../../../src/plugins/rosetta/symbol/rosetta.js';
+import test from '../../../routes/utils/routeTestUtils.js';
+import pluginTest from '../../utils/pluginTestUtils.js';
 
-describe('rosetta plugin', () => {
+describe('Symbol rosetta plugin', () => {
 	pluginTest.assertThat.pluginDoesNotCreateDb(rosetta, { shouldForwardDb: true });
 	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(rosetta);
 	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(rosetta);

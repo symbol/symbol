@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Currency from './openApi/model/Currency.js';
-import RosettaApiError from './openApi/model/Error.js';
-import { sendJson } from '../../routes/simpleSend.js';
+import { sendJson } from '../../../routes/simpleSend.js';
+import Currency from '../openApi/model/Currency.js';
+import RosettaApiError from '../openApi/model/Error.js';
 
 /**
  * Error thrown when a rosetta endpoint encounters an error.
