@@ -1,6 +1,6 @@
 import { createRosettaAggregateSignerKeyPair } from './rosettaTestUtils.js';
-import AccountIdentifier from '../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
-import SigningPayload from '../../../../src/plugins/rosetta/openApi/model/SigningPayload.js';
+import AccountIdentifier from '../../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
+import SigningPayload from '../../../../../src/plugins/rosetta/openApi/model/SigningPayload.js';
 import { utils } from 'symbol-sdk';
 import { SymbolFacade, generateMosaicAliasId, models } from 'symbol-sdk/symbol';
 
