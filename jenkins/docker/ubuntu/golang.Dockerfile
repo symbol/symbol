@@ -7,6 +7,9 @@ RUN apt-get update >/dev/null \
 	&& apt-get install -y tzdata \
 	&& apt-get install -y git curl zip unzip
 
+# cgo dependencies
+RUN apt-get install -y build-essential
+
 # install golang
 RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "amd64" || echo "arm64") \
 	&& curl -O -L "https://go.dev/dl/go1.22.5.linux-${ARCH}.tar.gz" \
