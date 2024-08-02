@@ -47,7 +47,7 @@ void verifyCodeCoverageResult(String tool, Integer minimumCodeCoverage) {
 		'golang': { Integer target ->
 			logCodeCoverageMinimum(target)
 			runScript('go tool cover -func coverage.out')
-			String coverage = runScript("go tool cover -func coverage.out | grep total | awk '{print substr(\$3, 1, length(\$3)-1)}'", true)
+			String coverage = runScript("go tool cover -func coverage.out | grep total | awk '{print substr(\$3, 1, length(\$3)-3)}'", true)
 			if (coverage.toInteger() < target) {
 				throw new RuntimeException("Code coverage is below the minimum threshold of ${target}")
 			}
