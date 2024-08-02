@@ -46,6 +46,11 @@ export default class CurveType {
 		 */
 		"edwards25519" = "edwards25519";
 
+		/**
+		 * value: "edwards25519_keccak"
+		 * @const
+		 */
+		"edwards25519_keccak" = "edwards25519_keccak";
 
 		/**
 		 * value: "tweedle"

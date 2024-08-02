@@ -44,6 +44,10 @@ describe('NEM rosetta plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
+				// construction routes
+				'/construction/derive',
+				'/construction/preprocess',
+				'/construction/metadata'
 			]);
 		});
 	});

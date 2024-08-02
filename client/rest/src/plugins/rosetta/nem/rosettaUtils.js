@@ -19,26 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/rosetta/nem */
-import NemProxy from './NemProxy.js';
-import constructionRoutes from './constructionRoutes.js';
-
 /**
- * Creates a rosetta plugin.
- * @type {module:plugins/CatapultRestPlugin}
+ * Extracts blockchain descriptor from services configuration.
+ * @param {object} config Services configuration.
+ * @returns {object} Blockchain descriptor.
  */
-export default {
-	createDb: db => db,
-
-	registerTransactionStates: () => {},
-
-	registerMessageChannels: () => {},
-
-	registerRoutes: (server, db, services) => {
-		const proxy = new NemProxy(services.config.restEndpoint);
-
-		[
-			constructionRoutes
-		].forEach(routes => routes.register(server, db, { ...services, proxy }));
-	}
-};
+export const getBlockchainDescriptor = config => ({ // eslint-disable-line import/prefer-default-export
+	blockchain: 'NEM',
+	network: config.network.name
+});
