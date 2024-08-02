@@ -20,9 +20,7 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import {
-	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork, stitchBlockTransactions
-} from './rosettaUtils.js';
+import { createLookupCurrencyFunction, getBlockchainDescriptor, stitchBlockTransactions } from './rosettaUtils.js';
 import Block from '../openApi/model/Block.js';
 import BlockIdentifier from '../openApi/model/BlockIdentifier.js';
 import BlockRequest from '../openApi/model/BlockRequest.js';
@@ -31,6 +29,7 @@ import BlockTransactionRequest from '../openApi/model/BlockTransactionRequest.js
 import BlockTransactionResponse from '../openApi/model/BlockTransactionResponse.js';
 import Transaction from '../openApi/model/Transaction.js';
 import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
+import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 
@@ -39,8 +38,8 @@ export default {
 		const GENESIS_BLOCK_NUMBER = 1;
 		const PAGE_SIZE = 100;
 
-		const networkName = services.config.network.name;
-		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
+		const blockchainDescriptor = getBlockchainDescriptor(services.config);
+		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 		const parser = new OperationParser(network, {
 			includeFeeOperation: true,
@@ -68,7 +67,7 @@ export default {
 			return new Transaction(new TransactionIdentifier(undefined), operations);
 		};
 
-		server.post('/block', rosettaPostRouteWithNetwork(networkName, BlockRequest, async typedRequest => {
+		server.post('/block', rosettaPostRouteWithNetwork(blockchainDescriptor, BlockRequest, async typedRequest => {
 			const height = typedRequest.block_identifier.index;
 			const [networkProperties, blockInfo, rosettaTransactions, blockTransaction] = await Promise.all([
 				services.proxy.networkProperties(),
@@ -93,7 +92,7 @@ export default {
 			return response;
 		}));
 
-		server.post('/block/transaction', rosettaPostRouteWithNetwork(networkName, BlockTransactionRequest, async typedRequest => {
+		server.post('/block/transaction', rosettaPostRouteWithNetwork(blockchainDescriptor, BlockTransactionRequest, async typedRequest => {
 			const height = typedRequest.block_identifier.index;
 			const transactionHash = typedRequest.transaction_identifier.hash;
 			const transaction = await services.proxy.fetch(`transactions/confirmed/${transactionHash}`);

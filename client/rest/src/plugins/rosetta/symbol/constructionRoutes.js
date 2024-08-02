@@ -20,7 +20,7 @@
  */
 
 import { OperationParser, convertTransactionSdkJsonToRestJson } from './OperationParser.js';
-import { RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
+import { createLookupCurrencyFunction, getBlockchainDescriptor } from './rosettaUtils.js';
 import AccountIdentifier from '../openApi/model/AccountIdentifier.js';
 import ConstructionCombineRequest from '../openApi/model/ConstructionCombineRequest.js';
 import ConstructionCombineResponse from '../openApi/model/ConstructionCombineResponse.js';
@@ -41,6 +41,7 @@ import SignatureType from '../openApi/model/SignatureType.js';
 import SigningPayload from '../openApi/model/SigningPayload.js';
 import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import TransactionIdentifierResponse from '../openApi/model/TransactionIdentifierResponse.js';
+import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { PrivateKey, PublicKey, utils } from 'symbol-sdk';
 import {
 	KeyPair, NetworkTimestamp, SymbolFacade, generateMosaicAliasId, models
@@ -48,8 +49,8 @@ import {
 
 export default {
 	register: (server, db, services) => {
-		const networkName = services.config.network.name;
-		const facade = new SymbolFacade(networkName);
+		const blockchainDescriptor = getBlockchainDescriptor(services.config);
+		const facade = new SymbolFacade(blockchainDescriptor.network);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 
 		const aggregateSignerKeyPair = new KeyPair(new PrivateKey(services.config.rosetta.aggregateSignerPrivateKey));
@@ -66,7 +67,9 @@ export default {
 			}
 		};
 
-		server.post('/construction/derive', rosettaPostRouteWithNetwork(networkName, ConstructionDeriveRequest, typedRequest => {
+		const constructionPostRoute = (...args) => rosettaPostRouteWithNetwork(blockchainDescriptor, ...args);
+
+		server.post('/construction/derive', constructionPostRoute(ConstructionDeriveRequest, typedRequest => {
 			const publicKey = parsePublicKey(typedRequest.public_key);
 			const address = facade.network.publicKeyToAddress(publicKey);
 
@@ -75,7 +78,7 @@ export default {
 			return response;
 		}));
 
-		server.post('/construction/preprocess', rosettaPostRouteWithNetwork(networkName, ConstructionPreprocessRequest, typedRequest => {
+		server.post('/construction/preprocess', constructionPostRoute(ConstructionPreprocessRequest, typedRequest => {
 			const response = new ConstructionPreprocessResponse();
 			response.options = {};
 			response.required_public_keys = [];
@@ -98,7 +101,7 @@ export default {
 			jsonObject => jsonObject.averageFeeMultiplier
 		);
 
-		server.post('/construction/metadata', rosettaPostRouteWithNetwork(networkName, ConstructionMetadataRequest, async () => {
+		server.post('/construction/metadata', constructionPostRoute(ConstructionMetadataRequest, async () => {
 			// ignore request object because only global metadata is needed for transaction construction
 
 			const results = await Promise.all([getNetworkTime(), getSuggestedTransactionMultiplier()]);
@@ -154,7 +157,7 @@ export default {
 			return [...publicKeyStringSet].sort().map(publicKeyString => new models.PublicKey(publicKeyString));
 		};
 
-		server.post('/construction/payloads', rosettaPostRouteWithNetwork(networkName, ConstructionPayloadsRequest, async typedRequest => {
+		server.post('/construction/payloads', constructionPostRoute(ConstructionPayloadsRequest, async typedRequest => {
 			const addressToPublicKeyMap = buildAddressToPublicKeyMap(typedRequest.public_keys);
 
 			let hasMultisigModification = false;
@@ -273,7 +276,7 @@ export default {
 			return response;
 		}));
 
-		server.post('/construction/combine', rosettaPostRouteWithNetwork(networkName, ConstructionCombineRequest, async typedRequest => {
+		server.post('/construction/combine', constructionPostRoute(ConstructionCombineRequest, async typedRequest => {
 			const findSignature = publicKey => typedRequest.signatures.find(rosettaSignature =>
 				0 === utils.deepCompare(publicKey.bytes, utils.hexToUint8(rosettaSignature.public_key.hex_bytes))).hex_bytes;
 
@@ -294,7 +297,7 @@ export default {
 			return response;
 		}));
 
-		server.post('/construction/parse', rosettaPostRouteWithNetwork(networkName, ConstructionParseRequest, async typedRequest => {
+		server.post('/construction/parse', constructionPostRoute(ConstructionParseRequest, async typedRequest => {
 			const currencyMosaicId = generateMosaicAliasId('symbol.xym');
 			const xymCurrency = await lookupCurrency('currencyMosaicId'); // need to store resolved id in currency metadata
 
@@ -345,10 +348,10 @@ export default {
 			return response;
 		};
 
-		server.post('/construction/hash', rosettaPostRouteWithNetwork(networkName, ConstructionHashRequest, async typedRequest =>
+		server.post('/construction/hash', constructionPostRoute(ConstructionHashRequest, async typedRequest =>
 			processTransactionHashRequest(typedRequest)));
 
-		server.post('/construction/submit', rosettaPostRouteWithNetwork(networkName, ConstructionSubmitRequest, async typedRequest => {
+		server.post('/construction/submit', constructionPostRoute(ConstructionSubmitRequest, async typedRequest => {
 			await services.proxy.fetch('transactions', jsonObject => jsonObject.message, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },

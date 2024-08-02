@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { RosettaErrorFactory } from './rosettaUtils.js';
+import { RosettaErrorFactory } from '../rosettaUtils.js';
 
 const bigIntToHexString = value => value.toString(16).padStart(16, '0').toUpperCase();
 const isReceiptSourceLessThanEqual = (lhs, rhs) =>

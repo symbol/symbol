@@ -20,8 +20,8 @@
  */
 
 import { FetchStubHelper } from './utils/rosettaTestUtils.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
 import CatapultProxy from '../../../../src/plugins/rosetta/symbol/CatapultProxy.js';
-import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { expect } from 'chai';
 
 describe('CatapultProxy', () => {
