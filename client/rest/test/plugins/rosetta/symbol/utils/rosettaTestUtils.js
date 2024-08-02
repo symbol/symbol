@@ -22,13 +22,14 @@
 import AccountIdentifier from '../../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
 import Amount from '../../../../../src/plugins/rosetta/openApi/model/Amount.js';
 import Currency from '../../../../../src/plugins/rosetta/openApi/model/Currency.js';
-import RosettaApiError from '../../../../../src/plugins/rosetta/openApi/model/Error.js';
 import Operation from '../../../../../src/plugins/rosetta/openApi/model/Operation.js';
 import OperationIdentifier from '../../../../../src/plugins/rosetta/openApi/model/OperationIdentifier.js';
 import CatapultProxy from '../../../../../src/plugins/rosetta/symbol/CatapultProxy.js';
-import MockServer from '../../../../routes/utils/MockServer.js';
-import { expect } from 'chai';
-import sinon from 'sinon';
+import {
+	BasicFetchStubHelper,
+	assertRosettaErrorRaisedBasicWithRegister,
+	assertRosettaSuccessBasicWithRegister
+} from '../../utils/rosettaTestUtils.js';
 import { PrivateKey } from 'symbol-sdk';
 import { KeyPair } from 'symbol-sdk/symbol';
 
@@ -42,21 +43,7 @@ export const createRosettaAggregateSignerKeyPair = () =>
 // region FetchStubHelper
 
 export const FetchStubHelper = {
-	stubPost: (urlPath, ok, jsonResult, expectedRequestOptions = undefined, callNumber = undefined) => {
-		if (!global.fetch.restore)
-			sinon.stub(global, 'fetch');
-
-		const proxy = global.fetch.withArgs(`http://localhost:3456/${urlPath}`, expectedRequestOptions || sinon.match.any);
-		const result = Promise.resolve({
-			ok,
-			json: () => jsonResult
-		});
-
-		if (callNumber)
-			proxy[`on${callNumber}Call`]().returns(result);
-		else
-			proxy.returns(result);
-	},
+	...BasicFetchStubHelper,
 
 	stubCatapultProxyCacheFill: () => {
 		FetchStubHelper.stubPost('node/info', true, {});
@@ -70,13 +57,6 @@ export const FetchStubHelper = {
 			method: 'POST',
 			body: JSON.stringify({ mosaicIds: [mosaicIdHexString] }),
 			headers: { 'Content-Type': 'application/json' }
-		});
-	},
-
-	registerStubCleanup: () => {
-		afterEach(() => {
-			if (global.fetch.restore)
-				global.fetch.restore();
 		});
 	}
 };
@@ -146,58 +126,24 @@ export const RosettaOperationFactory = {
 
 // region asserts
 
-const createMockServer = routes => {
-	const mockServer = new MockServer();
-	routes.register(mockServer.server, {}, {
+const createRegisterRoutes = routes => server => {
+	routes.register(server, {}, {
 		config: {
 			network: { name: 'testnet' },
 			rosetta: { aggregateSignerPrivateKey: createRosettaAggregateSignerKeyPair().privateKey.toString() }
 		},
 		proxy: new CatapultProxy('http://localhost:3456')
 	});
-	return mockServer;
 };
 
-export const assertRosettaErrorRaisedBasicWithRoutes = async (routes, routeName, request, expectedError, malformRequest) => {
-	// Arrange:
-	const mockServer = createMockServer(routes);
-	const route = mockServer.getRoute(routeName).post();
+export const assertRosettaErrorRaisedBasicWithRoutes = async (routes, ...args) => assertRosettaErrorRaisedBasicWithRegister(
+	createRegisterRoutes(routes),
+	...args
+);
 
-	malformRequest(request);
-
-	// Act:
-	await mockServer.callRoute(route, { body: request });
-
-	// Assert:
-	expect(mockServer.send.calledOnce).to.equal(true);
-	expect(mockServer.next.calledOnce).to.equal(true);
-	expect(mockServer.res.statusCode).to.equal(500);
-
-	const response = mockServer.send.firstCall.args[0];
-	expect(response).to.deep.equal(expectedError.apiError);
-	expect(() => RosettaApiError.validateJSON(response)).to.not.throw();
-};
-
-export const assertRosettaSuccessBasicWithRoutes = async (routes, routeName, request, expectedResponse, compareOptions = {}) => {
-	// Arrange:
-	const mockServer = createMockServer(routes);
-	const route = mockServer.getRoute(routeName).post();
-
-	// Act:
-	await mockServer.callRoute(route, { body: request });
-
-	// Assert:
-	expect(mockServer.send.calledOnce).to.equal(true);
-	expect(mockServer.next.calledOnce).to.equal(true);
-	expect(mockServer.res.statusCode).to.equal(undefined);
-
-	const response = mockServer.send.firstCall.args[0];
-	if (compareOptions.roundtripJson)
-		expect(JSON.parse(JSON.stringify(response))).to.deep.equal(JSON.parse(JSON.stringify(expectedResponse)));
-	else
-		expect(response).to.deep.equal(expectedResponse);
-
-	expect(() => expectedResponse.constructor.validateJSON(response)).to.not.throw();
-};
+export const assertRosettaSuccessBasicWithRoutes = async (routes, ...args) => assertRosettaSuccessBasicWithRegister(
+	createRegisterRoutes(routes),
+	...args
+);
 
 // endregion
