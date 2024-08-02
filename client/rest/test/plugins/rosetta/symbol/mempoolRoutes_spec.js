@@ -30,9 +30,9 @@ import MempoolResponse from '../../../../src/plugins/rosetta/openApi/model/Mempo
 import MempoolTransactionResponse from '../../../../src/plugins/rosetta/openApi/model/MempoolTransactionResponse.js';
 import Transaction from '../../../../src/plugins/rosetta/openApi/model/Transaction.js';
 import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
 import { convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/symbol/OperationParser.js';
 import mempoolRoutes from '../../../../src/plugins/rosetta/symbol/mempoolRoutes.js';
-import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 describe('mempool routes', () => {
