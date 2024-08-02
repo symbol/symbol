@@ -36,8 +36,8 @@ import ConstructionPayloadsResponse from '../../../../src/plugins/rosetta/openAp
 import ConstructionPreprocessResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionPreprocessResponse.js';
 import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
 import TransactionIdentifierResponse from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifierResponse.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
 import constructionRoutes from '../../../../src/plugins/rosetta/symbol/constructionRoutes.js';
-import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { models } from 'symbol-sdk/symbol';

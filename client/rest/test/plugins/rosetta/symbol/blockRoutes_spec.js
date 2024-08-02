@@ -32,9 +32,9 @@ import BlockResponse from '../../../../src/plugins/rosetta/openApi/model/BlockRe
 import BlockTransactionResponse from '../../../../src/plugins/rosetta/openApi/model/BlockTransactionResponse.js';
 import Transaction from '../../../../src/plugins/rosetta/openApi/model/Transaction.js';
 import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
 import { convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/symbol/OperationParser.js';
 import blockRoutes from '../../../../src/plugins/rosetta/symbol/blockRoutes.js';
-import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 describe('block routes', () => {

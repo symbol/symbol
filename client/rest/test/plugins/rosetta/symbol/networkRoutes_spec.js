@@ -31,8 +31,8 @@ import NetworkStatusResponse from '../../../../src/plugins/rosetta/openApi/model
 import OperationStatus from '../../../../src/plugins/rosetta/openApi/model/OperationStatus.js';
 import Peer from '../../../../src/plugins/rosetta/openApi/model/Peer.js';
 import Version from '../../../../src/plugins/rosetta/openApi/model/Version.js';
+import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
 import networkRoutes from '../../../../src/plugins/rosetta/symbol/networkRoutes.js';
-import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { expect } from 'chai';
 
 describe('network routes', () => {

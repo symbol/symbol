@@ -20,9 +20,7 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import {
-	RosettaErrorFactory, createLookupCurrencyFunction, rosettaPostRouteWithNetwork, stitchBlockTransactions
-} from './rosettaUtils.js';
+import { createLookupCurrencyFunction, getBlockchainDescriptor, stitchBlockTransactions } from './rosettaUtils.js';
 import AccountBalanceRequest from '../openApi/model/AccountBalanceRequest.js';
 import AccountBalanceResponse from '../openApi/model/AccountBalanceResponse.js';
 import AccountCoinsRequest from '../openApi/model/AccountCoinsRequest.js';
@@ -31,6 +29,7 @@ import Amount from '../openApi/model/Amount.js';
 import BlockIdentifier from '../openApi/model/BlockIdentifier.js';
 import Coin from '../openApi/model/Coin.js';
 import CoinIdentifier from '../openApi/model/CoinIdentifier.js';
+import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 
@@ -38,8 +37,8 @@ export default {
 	register: (server, db, services) => {
 		const PAGE_SIZE = 100;
 
-		const networkName = services.config.network.name;
-		const network = NetworkLocator.findByName(Network.NETWORKS, networkName);
+		const blockchainDescriptor = getBlockchainDescriptor(services.config);
+		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 		const getChainHeight = () => services.proxy.fetch('chain/info', json => json.height);
 		const getBlockIdentifier = height => services.proxy.fetch(`blocks/${height}`)
@@ -125,13 +124,13 @@ export default {
 			return { blockIdentifier, amounts };
 		};
 
-		server.post('/account/balance', rosettaPostRouteWithNetwork(networkName, AccountBalanceRequest, async typedRequest => {
+		server.post('/account/balance', rosettaPostRouteWithNetwork(blockchainDescriptor, AccountBalanceRequest, async typedRequest => {
 			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest);
 
 			return new AccountBalanceResponse(blockIdentifier, amounts);
 		}));
 
-		server.post('/account/coins', rosettaPostRouteWithNetwork(networkName, AccountCoinsRequest, async typedRequest => {
+		server.post('/account/coins', rosettaPostRouteWithNetwork(blockchainDescriptor, AccountCoinsRequest, async typedRequest => {
 			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest);
 
 			const mapRosettaAmountToCoin = amount => new Coin(new CoinIdentifier(amount.currency.metadata.id), amount);

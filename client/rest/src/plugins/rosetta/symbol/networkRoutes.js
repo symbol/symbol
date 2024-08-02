@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from './rosettaUtils.js';
+import { getBlockchainDescriptor } from './rosettaUtils.js';
 import { sendJson } from '../../../routes/simpleSend.js';
 import Allow from '../openApi/model/Allow.js';
 import BlockIdentifier from '../openApi/model/BlockIdentifier.js';
@@ -31,19 +31,20 @@ import NetworkStatusResponse from '../openApi/model/NetworkStatusResponse.js';
 import OperationStatus from '../openApi/model/OperationStatus.js';
 import Peer from '../openApi/model/Peer.js';
 import Version from '../openApi/model/Version.js';
+import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 export default {
 	register: (server, db, services) => {
-		const networkName = services.config.network.name;
+		const blockchainDescriptor = getBlockchainDescriptor(services.config);
 
 		server.post('/network/list', (req, res, next) => {
-			const networkIdentifier = new NetworkIdentifier('Symbol', networkName);
+			const networkIdentifier = new NetworkIdentifier(blockchainDescriptor.blockchain, blockchainDescriptor.network);
 			const networkListResponse = new NetworkListResponse([networkIdentifier]);
 			return sendJson(res, next)(networkListResponse);
 		});
 
-		server.post('/network/options', rosettaPostRouteWithNetwork(networkName, NetworkRequest, async () => {
+		server.post('/network/options', rosettaPostRouteWithNetwork(blockchainDescriptor, NetworkRequest, async () => {
 			const getErrorsFromFactoryClass = factory => {
 				const defaultClassPropertyNames = Object.getOwnPropertyNames(class C {});
 				const errorNames = Object.getOwnPropertyNames(factory)
@@ -77,7 +78,7 @@ export default {
 			return new NetworkOptionsResponse(version, allow);
 		}));
 
-		server.post('/network/status', rosettaPostRouteWithNetwork(networkName, NetworkRequest, async () => {
+		server.post('/network/status', rosettaPostRouteWithNetwork(blockchainDescriptor, NetworkRequest, async () => {
 			const [networkProperties, currentBlock, peers] = await Promise.all([
 				services.proxy.networkProperties() // this should fill the cache
 					// explicitly cache currency mosaic id and properties
