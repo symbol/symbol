@@ -5,7 +5,7 @@ pipeline {
 			choices: ['fedora', 'ubuntu', 'windows'],
 			description: 'operating system'
 		choice name: 'CI_IMAGE',
-			choices: ['cpp', 'java', 'javascript', 'linter', 'postgres', 'python'],
+			choices: ['cpp', 'golang', 'java', 'javascript', 'linter', 'postgres', 'python'],
 			description: 'continuous integration image'
 		choice name: 'ARCHITECTURE',
 			choices: ['arm64', 'amd64'],
