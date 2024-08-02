@@ -8,7 +8,10 @@ RUN apt-get update >/dev/null \
 	&& apt-get install -y git curl zip unzip
 
 # install golang
-RUN apt-get install -y golang-go
+RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "amd64" || echo "arm64") \
+	&& curl -O -L "https://go.dev/dl/go1.22.5.linux-${ARCH}.tar.gz" \
+	&& rm -rf /usr/local/go \
+	&& tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
 ENV PATH=$PATH:/usr/local/go/bin
 
 # codecov uploader
