@@ -10,6 +10,9 @@ RUN apt-get update >/dev/null \
 # cgo dependencies
 RUN apt-get install -y build-essential
 
+# install python
+RUN apt-get install -y python3 python3-pip python3-venv
+
 # install golang
 RUN ARCH=$([ "$(uname -m)" = "x86_64" ] && echo "amd64" || echo "arm64") \
 	&& curl -O -L "https://go.dev/dl/go1.22.5.linux-${ARCH}.tar.gz" \
@@ -31,6 +34,14 @@ ENV HOME=/home/ubuntu
 ENV GOPATH=$HOME/go
 ENV PATH=$PATH:$GOPATH/bin
 
+# create a virtual environment, which is required by Ubuntu 23.04
+ENV VIRTUAL_ENV=/home/ubuntu/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 # binary will be $(go env GOPATH)/bin/golangci-lint
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.1 \
 	&& golangci-lint --version
+
+# install common python packages
+RUN python3 -m pip install --upgrade gitlint
