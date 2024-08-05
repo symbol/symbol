@@ -20,11 +20,11 @@
  */
 
 import PayloadResultVerifier from './utils/PayloadResultVerifier.js';
-import { RosettaOperationFactory } from './utils/rosettaTestUtils.js';
 import Currency from '../../../../src/plugins/rosetta/openApi/model/Currency.js';
 import Transaction from '../../../../src/plugins/rosetta/openApi/model/Transaction.js';
 import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
 import { OperationParser, convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/symbol/OperationParser.js';
+import { RosettaOperationFactory } from '../utils/rosettaTestUtils.js';
 import { expect } from 'chai';
 import { utils } from 'symbol-sdk';
 import {

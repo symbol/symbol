@@ -22,7 +22,6 @@
 import {
 	FetchStubHelper,
 	RosettaObjectFactory,
-	RosettaOperationFactory,
 	assertRosettaErrorRaisedBasicWithRoutes,
 	assertRosettaSuccessBasicWithRoutes
 } from './utils/rosettaTestUtils.js';
@@ -35,6 +34,7 @@ import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model
 import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
 import { convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/symbol/OperationParser.js';
 import blockRoutes from '../../../../src/plugins/rosetta/symbol/blockRoutes.js';
+import { RosettaOperationFactory } from '../utils/rosettaTestUtils.js';
 import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
 
 describe('block routes', () => {

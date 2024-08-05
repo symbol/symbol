@@ -19,7 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import AccountIdentifier from '../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
+import Amount from '../../../../src/plugins/rosetta/openApi/model/Amount.js';
+import Currency from '../../../../src/plugins/rosetta/openApi/model/Currency.js';
 import RosettaApiError from '../../../../src/plugins/rosetta/openApi/model/Error.js';
+import Operation from '../../../../src/plugins/rosetta/openApi/model/Operation.js';
+import OperationIdentifier from '../../../../src/plugins/rosetta/openApi/model/OperationIdentifier.js';
 import MockServer from '../../../routes/utils/MockServer.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -48,6 +53,51 @@ export const BasicFetchStubHelper = {
 			if (global.fetch.restore)
 				global.fetch.restore();
 		});
+	}
+};
+
+// endregion
+
+// region RosettaOperationFactory
+
+export const RosettaOperationFactory = {
+	createCurrency: (currencyName, currencyDecimals, mosaicId) => {
+		const currency = new Currency(currencyName, currencyDecimals);
+		if (mosaicId)
+			currency.metadata = { id: mosaicId };
+
+		return currency;
+	},
+
+	createTransferOperation: (index, address, amount, currencyName, currencyDecimals, mosaicId = undefined) => {
+		const currency = RosettaOperationFactory.createCurrency(currencyName, currencyDecimals, mosaicId);
+
+		const operation = new Operation(new OperationIdentifier(index), 'transfer');
+		operation.account = new AccountIdentifier(address);
+		operation.amount = new Amount(amount, currency);
+		return operation;
+	},
+
+	createMultisigOperation: (index, address, metadata) => {
+		const operation = new Operation(new OperationIdentifier(index), 'multisig');
+		operation.account = new AccountIdentifier(address);
+		operation.metadata = {
+			addressAdditions: [],
+			addressDeletions: [],
+			...metadata
+		};
+		return operation;
+	},
+
+	createCosignOperation: (index, address) => {
+		const operation = new Operation(new OperationIdentifier(index), 'cosign');
+		operation.account = new AccountIdentifier(address);
+		return operation;
+	},
+
+	setOperationStatus: operation => {
+		operation.status = 'success';
+		return operation;
 	}
 };
 
