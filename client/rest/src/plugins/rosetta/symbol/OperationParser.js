@@ -31,6 +31,8 @@ import { Address, Network, models } from 'symbol-sdk/symbol';
 const idStringToBigInt = str => BigInt(`0x${str}`);
 const encodeDecodedAddress = address => new Address(utils.hexToUint8(address)).toString();
 
+// region convertTransactionSdkJsonToRestJson
+
 /**
  * Converts a transaction SDK JSON model into a transaction REST JSON model.
  * @param {object} transactionJson Transaction SDK JSON model.
@@ -68,8 +70,10 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 	return transactionJson;
 };
 
+// endregion
+
 /**
- * Parses a catapult models into rosetta operations.
+ * Parses catapult models into rosetta operations.
  */
 export class OperationParser {
 	/**
