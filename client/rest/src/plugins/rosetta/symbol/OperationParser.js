@@ -217,11 +217,12 @@ export class OperationParser {
 		}
 
 		if (this.options.includeFeeOperation) {
-			const amount = metadata.feeMultiplier ? BigInt(metadata.feeMultiplier) * BigInt(transaction.size) : BigInt(transaction.maxFee);
+			const amount = undefined !== metadata.feeMultiplier
+				? BigInt(metadata.feeMultiplier) * BigInt(transaction.size)
+				: BigInt(transaction.maxFee);
 			const feeCurrency = await this.options.lookupCurrency('currencyMosaicId');
 
-			operations.push(this.createDebitOperation({
-				id: operations.length,
+			appendOperation(this.createDebitOperation({
 				sourcePublicKey: transaction.signerPublicKey,
 				amount,
 				currency: feeCurrency
