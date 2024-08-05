@@ -23,6 +23,12 @@ void logCodeCoverageMinimum(Integer minimumCodeCoverage) {
 	logger.logInfo("Minimum code coverage is ${minimumCodeCoverage}")
 }
 
+int parseGolangCodeCoverageForTotalValue(String output) {
+	String lastLine = output.tokenize().last()
+	String totalPercentCoverage = lastLine.tokenize().last().tokenize('.').first()
+	return totalPercentCoverage.toInteger()
+}
+
 void verifyCodeCoverageResult(String tool, Integer minimumCodeCoverage) {
 	Map codeCoverageCommand = [
 		'coverage': { Integer target ->
@@ -43,6 +49,15 @@ void verifyCodeCoverageResult(String tool, Integer minimumCodeCoverage) {
 		'jacoco': { Integer target ->
 			logger.logInfo("Minimum code coverage set in pom is ${readJacocoCoverageLimit()}")
 			runScript('mvn jacoco:check@jacoco-check')
+		},
+		'golang': { Integer target ->
+			logCodeCoverageMinimum(target)
+			String coverageOutput = runScript('go tool cover -func coverage.out', true)
+			println(coverageOutput)
+			int coverage = parseGolangCodeCoverageForTotalValue(coverageOutput)
+			if (coverage < target) {
+				throw new IllegalStateException("Code coverage is below the minimum threshold of ${target}")
+			}
 		}]
 
 	codeCoverageCommand[tool](minimumCodeCoverage)
