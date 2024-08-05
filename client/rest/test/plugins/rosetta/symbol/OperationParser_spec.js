@@ -401,6 +401,9 @@ describe('OperationParser', () => {
 				createTransferOperation(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '-20000', 'currency.fee', 2)
 			]));
 
+			it('can parse with fee (confirmed, zero)', () => assertCanParse({ includeFeeOperation: true }, { feeMultiplier: 0 }, [
+			]));
+
 			it('can parse with fee (confirmed) and operation status', () => assertCanParse(
 				{ includeFeeOperation: true, operationStatus: 'success' },
 				{ feeMultiplier: 200 },
