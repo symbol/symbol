@@ -21,7 +21,8 @@
 
 #pragma once
 #include "catapult/types.h"
-#include <bsoncxx/builder/stream/array-fwd.hpp>
-#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/array/view-fwd.hpp>
+#include <bsoncxx/document/value-fwd.hpp>
+#include <bsoncxx/document/view-fwd.hpp>
 #include <bsoncxx/types-fwd.hpp>
 #include <mongocxx/cursor-fwd.hpp>
