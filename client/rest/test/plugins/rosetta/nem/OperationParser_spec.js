@@ -20,6 +20,7 @@
  */
 
 import { OperationParser, convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/nem/OperationParser.js';
+import { mosaicIdToString } from '../../../../src/plugins/rosetta/nem/rosettaUtils.js';
 import Currency from '../../../../src/plugins/rosetta/openApi/model/Currency.js';
 import Transaction from '../../../../src/plugins/rosetta/openApi/model/Transaction.js';
 import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
@@ -45,8 +46,6 @@ describe('OperationParser', () => {
 	const {
 		createCosignOperation, createMultisigOperation, createTransferOperation, setOperationStatus
 	} = RosettaOperationFactory;
-
-	const mosaicIdToString = mosaicId => `${mosaicId.namespaceId}.${mosaicId.name}`;
 
 	const lookupCurrencyDefault = mosaicId => {
 		if ('currencyMosaicId' === mosaicId)

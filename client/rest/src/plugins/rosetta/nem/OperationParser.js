@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { mosaicIdToString } from './rosettaUtils.js';
 import AccountIdentifier from '../openApi/model/AccountIdentifier.js';
 import Amount from '../openApi/model/Amount.js';
 import Currency from '../openApi/model/Currency.js';
@@ -342,11 +343,8 @@ export class OperationParser {
 			const initialSupplyProperty = findProperty(mosaicDefinition.properties, 'initialSupply');
 			const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');
 			if (initialSupplyProperty) {
-				const namespaceName = mosaicDefinition.id.namespaceId;
-				const mosaicName = mosaicDefinition.id.name;
-
 				const currency = new Currency(
-					`${namespaceName}.${mosaicName}`,
+					mosaicIdToString(mosaicDefinition.id),
 					undefined === divisibilityProperty ? 0 : parseInt(divisibilityProperty.value, 10)
 				);
 

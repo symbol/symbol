@@ -19,7 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { getBlockchainDescriptor } from '../../../../src/plugins/rosetta/nem/rosettaUtils.js';
+import {
+	createLookupCurrencyFunction,
+	getBlockchainDescriptor,
+	mosaicIdToString
+} from '../../../../src/plugins/rosetta/nem/rosettaUtils.js';
+import Currency from '../../../../src/plugins/rosetta/openApi/model/Currency.js';
 import { expect } from 'chai';
 
 describe('rosetta utils (NEM)', () => {
@@ -34,6 +39,85 @@ describe('rosetta utils (NEM)', () => {
 			expect(blockchainDescriptor).to.deep.equal({
 				blockchain: 'NEM',
 				network: 'alpha'
+			});
+		});
+	});
+
+	// endregion
+
+	// region mosaicIdToString
+
+	describe('mosaicIdToString', () => {
+		it('can convert mosaic id object to string', () => {
+			// Act:
+			const str = mosaicIdToString({ namespaceId: 'foo', name: 'bar' });
+
+			// Assert:
+			expect(str).to.equal('foo.bar');
+		});
+	});
+
+	// endregion
+
+	// region createLookupCurrencyFunction
+
+	describe('createLookupCurrencyFunction', () => {
+		const mockProxy = {
+			mosaicProperties: mosaicId => {
+				if ('coins' === mosaicId.name)
+					return Promise.resolve({ divisibility: 3, levy: undefined });
+
+				if ('coupons' === mosaicId.name) {
+					return Promise.resolve({
+						divisibility: 4,
+						levy: {
+							mosaicId: { namespaceId: 'some.other', name: 'tax' },
+							recipientAddress: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
+							isAbsolute: true,
+							fee: 10
+						}
+					});
+				}
+
+				return Promise.resolve({ divisibility: 2, levy: undefined });
+			}
+		};
+
+		it('can lookup currency mosaic id', async () => {
+			// Act:
+			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
+			const { currency, levy } = await lookupCurrency('currencyMosaicId');
+
+			// Assert:
+			const expectedCurrency = new Currency('nem.xem', 6);
+			expect(currency).to.deep.equal(expectedCurrency);
+			expect(levy).to.equal(undefined);
+		});
+
+		it('can lookup arbitrary mosaic id (without levy)', async () => {
+			// Act:
+			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
+			const { currency, levy } = await lookupCurrency({ namespaceId: 'foo.bar', name: 'coins' });
+
+			// Assert:
+			const expectedCurrency = new Currency('foo.bar.coins', 3);
+			expect(currency).to.deep.equal(expectedCurrency);
+			expect(levy).to.equal(undefined);
+		});
+
+		it('can lookup arbitrary mosaic id (with levy)', async () => {
+			// Act:
+			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
+			const { currency, levy } = await lookupCurrency({ namespaceId: 'foo.bar', name: 'coupons' });
+
+			// Assert:
+			const expectedCurrency = new Currency('foo.bar.coupons', 4);
+			expect(currency).to.deep.equal(expectedCurrency);
+			expect(levy).to.deep.equal({
+				currency: new Currency('some.other.tax', 2),
+				recipientAddress: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
+				isAbsolute: true,
+				fee: 10
 			});
 		});
 	});
