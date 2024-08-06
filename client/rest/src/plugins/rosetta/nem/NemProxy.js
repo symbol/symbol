@@ -19,7 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { mosaicIdToString } from './rosettaUtils.js';
 import { RosettaErrorFactory } from '../rosettaUtils.js';
+import { models } from 'symbol-sdk/nem';
 
 /**
  * Proxy to a NEM node that performs caching for performance optimization, as appropriate.
@@ -31,6 +33,8 @@ export default class NemProxy {
 	 */
 	constructor(endpoint) {
 		this.endpoint = endpoint;
+
+		this.mosaicPropertiesMap = new Map();
 	}
 
 	/**
@@ -51,5 +55,66 @@ export default class NemProxy {
 		} catch (err) {
 			throw RosettaErrorFactory.CONNECTION_ERROR;
 		}
+	}
+
+	/**
+	 * Performs an (uncached) chain of fetch requests on the endpoint.
+	 * @param {string} urlPath Request path.
+	 * @param {number} pageSize Page size.
+	 * @param {Function} jsonProjection Processes result.
+	 * @param {object} requestOptions Additional fetch request options.
+	 * @returns {object} Result of fetch and projection.
+	 */
+	async fetchAll(urlPath, pageSize, jsonProjection = undefined, requestOptions = {}) {
+		const jsonObjects = [];
+		let response;
+		do {
+			const delimiter = -1 !== urlPath.indexOf('?') ? '&' : '?';
+			const idFilter = 0 === jsonObjects.length ? '' : `id=${jsonObjects[jsonObjects.length - 1].meta.id}&`;
+			const nextUrlPath = `${urlPath}${delimiter}${idFilter}pageSize=${pageSize}`;
+
+			// eslint-disable-next-line no-await-in-loop
+			response = await this.fetch(nextUrlPath, jsonObject => jsonObject.data, requestOptions);
+			jsonObjects.push(...response);
+		} while (response.length === pageSize);
+
+		return jsonProjection ? jsonObjects.map(jsonProjection) : jsonObjects;
+	}
+
+	/**
+	 * Retrieves (potentially cached) mosaic properties.
+	 * @param {object} mosaicId NEM mosaic id object.
+	 * @returns {object} Properties about the mosaic.
+	 */
+	async mosaicProperties(mosaicId) {
+		const fullyQualifiedName = mosaicIdToString(mosaicId);
+		if (this.mosaicPropertiesMap.has(fullyQualifiedName))
+			return this.mosaicPropertiesMap.get(fullyQualifiedName);
+
+		const mosaicDefinitions = await this.fetchAll(
+			`namespace/definition/page?namespace=${mosaicId.namespaceId}`,
+			100,
+			jsonObject => jsonObject.mosaic
+		);
+
+		const mosaicDefinition = mosaicDefinitions.find(definition => definition.id.name === mosaicId.name);
+		if (!mosaicDefinition)
+			throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
+
+		const findProperty = (properties, name) => properties.find(property => name === property.name);
+		const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');
+
+		const { levy } = mosaicDefinition;
+		const properties = {
+			divisibility: undefined === divisibilityProperty ? 0 : parseInt(divisibilityProperty.value, 10),
+			levy: undefined === mosaicDefinition.levy.type ? undefined : {
+				mosaicId: levy.mosaicId,
+				recipientAddress: levy.recipient,
+				isAbsolute: models.MosaicTransferFeeType.ABSOLUTE.value === levy.type,
+				fee: levy.fee
+			}
+		};
+		this.mosaicPropertiesMap.set(fullyQualifiedName, properties);
+		return properties;
 	}
 }
