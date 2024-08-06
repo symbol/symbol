@@ -19,6 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Currency from '../openApi/model/Currency.js';
+
 /**
  * Extracts blockchain descriptor from services configuration.
  * @param {object} config Services configuration.
@@ -28,3 +30,37 @@ export const getBlockchainDescriptor = config => ({ // eslint-disable-line impor
 	blockchain: 'NEM',
 	network: config.network.name
 });
+
+/**
+ * Converts a NEM mosaic id object into a string.
+ * @param {object} mosaicId NEM mosaic id object.
+ * @returns {string} Fully qualified mosaic name.
+ */
+export const mosaicIdToString = mosaicId => `${mosaicId.namespaceId}.${mosaicId.name}`;
+
+/**
+ * Creates the lookup currency function used by the operation parser.
+ * @param {object} proxy NEM proxy.
+ * @returns {Function} Currency lookup function.
+ */
+export const createLookupCurrencyFunction = proxy => async mosaicId => {
+	if ('currencyMosaicId' === mosaicId)
+		return { currency: new Currency('nem.xem', 6) };
+
+	const mosaicProperties = await proxy.mosaicProperties(mosaicId);
+	const currency = new Currency(mosaicIdToString(mosaicId), mosaicProperties.divisibility);
+
+	if (undefined === mosaicProperties.levy)
+		return { currency };
+
+	const levyMosaicProperties = await proxy.mosaicProperties(mosaicProperties.levy.mosaicId);
+	const result = {
+		currency,
+		levy: {
+			...mosaicProperties.levy,
+			currency: new Currency(mosaicIdToString(mosaicProperties.levy.mosaicId), levyMosaicProperties.divisibility)
+		}
+	};
+	delete result.levy.mosaicId;
+	return result;
+};
