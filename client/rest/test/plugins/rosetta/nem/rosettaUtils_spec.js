@@ -20,6 +20,7 @@
  */
 
 import {
+	calculateXemTransferFee,
 	createLookupCurrencyFunction,
 	getBlockchainDescriptor,
 	mosaicIdToString
@@ -54,6 +55,21 @@ describe('rosetta utils (NEM)', () => {
 
 			// Assert:
 			expect(str).to.equal('foo.bar');
+		});
+	});
+
+	// endregion
+
+	// region calculateXemTransferFee
+
+	describe('calculateXemTransferFee', () => {
+		it('can calculate correct fees', () => {
+			expect(calculateXemTransferFee(500000n)).to.equal(50000n * 25n);
+			expect(calculateXemTransferFee(250000n)).to.equal(50000n * 25n);
+			expect(calculateXemTransferFee(200000n)).to.equal(50000n * 20n);
+			expect(calculateXemTransferFee(201111n)).to.equal(50000n * 20n);
+			expect(calculateXemTransferFee(10000n)).to.equal(50000n * 1n);
+			expect(calculateXemTransferFee(1n)).to.equal(50000n * 1n);
 		});
 	});
 

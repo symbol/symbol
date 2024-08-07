@@ -39,6 +39,11 @@ export default class SignatureType {
 		 */
 		"ed25519" = "ed25519";
 
+		/**
+		 * value: "ed25519_keccak"
+		 * @const
+		 */
+		"ed25519_keccak" = "ed25519_keccak";
 
 		/**
 		 * value: "schnorr_1"
