@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.23)
 
 # setup benchmark
 message("--- locating bench dependencies ---")
-find_package(benchmark 1.8.3 EXACT REQUIRED)
+find_package(benchmark 1.8.5 EXACT REQUIRED)
 message("bench     ver: ${benchmark_VERSION}")
 
 # used to define a catapult bench executable
