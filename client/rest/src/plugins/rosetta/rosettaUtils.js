@@ -20,6 +20,8 @@
  */
 
 import RosettaApiError from './openApi/model/Error.js';
+import Operation from './openApi/model/Operation.js';
+import RosettaPublicKey from './openApi/model/PublicKey.js';
 import { sendJson } from '../../routes/simpleSend.js';
 
 /**
@@ -71,6 +73,55 @@ export class RosettaErrorFactory {
 }
 
 /**
+ * Rosetta public key processor.
+ */
+export class RosettaPublicKeyProcessor {
+	/**
+	 * Creates a public key processor.
+	 * @param {string} requiredCurveType Required public key curve type.
+	 * @param {object} network Network using public keys.
+	 * @param {Function} PublicKeyClass Public key class.
+	 */
+	constructor(requiredCurveType, network, PublicKeyClass) {
+		this.requiredCurveType = requiredCurveType;
+		this.network = network;
+		this.PublicKeyClass = PublicKeyClass;
+	}
+
+	/**
+	 * Parses a rosetta public key.
+	 * @param {RosettaPublicKey} rosettaPublicKey Rosetta public key.
+	 * @returns {this.PublicKeyClass} Parsed public key.
+	 */
+	parsePublicKey(rosettaPublicKey) {
+		if (this.requiredCurveType !== rosettaPublicKey.curve_type)
+			throw RosettaErrorFactory.UNSUPPORTED_CURVE;
+
+		try {
+			return new this.PublicKeyClass(rosettaPublicKey.hex_bytes);
+		} catch (err) {
+			throw RosettaErrorFactory.INVALID_PUBLIC_KEY;
+		}
+	}
+
+	/**
+	 * Processes rosetta public keys into an address to public key map.
+	 * @param {Array<RosettaPublicKey>} rosettaPublicKeys Rosetta public keys.
+	 * @returns {Map<string, this.PublicKeyClass>} Address to public key map.
+	 */
+	buildAddressToPublicKeyMap(rosettaPublicKeys) {
+		const addressToPublicKeyMap = {};
+		for (let i = 0; i < rosettaPublicKeys.length; ++i) {
+			const publicKey = this.parsePublicKey(rosettaPublicKeys[i]);
+			const address = this.network.publicKeyToAddress(publicKey);
+			addressToPublicKeyMap[address.toString()] = publicKey;
+		}
+
+		return addressToPublicKeyMap;
+	}
+}
+
+/**
  * Orchestrates a rosetta POST route by validating request data, including network, before calling user handler.
  * @param {object} blockchainDescriptor Blockchain descriptor.
  * @param {object} Request Type of request object.
@@ -101,4 +152,38 @@ export const rosettaPostRouteWithNetwork = (blockchainDescriptor, Request, handl
 	} catch (err) {
 		return send(err instanceof RosettaError ? err : RosettaErrorFactory.INTERNAL_SERVER_ERROR);
 	}
+};
+
+/**
+ * Extracts a transfer descriptor from a set of rosetta operations at specified index.
+ * @param {Array<Operation>} operations Rosetta operations.
+ * @param {number} index Transfer start index.
+ * @returns {object} Transfer descriptor.
+ */
+export const extractTransferDescriptorAt = (operations, index) => {
+	if (index + 1 >= operations.length)
+		throw RosettaErrorFactory.INVALID_REQUEST_DATA;
+
+	const operation1 = operations[index];
+	const operation2 = operations[index + 1];
+	if ('transfer' !== operation1.type || 'transfer' !== operation2.type)
+		throw RosettaErrorFactory.INVALID_REQUEST_DATA;
+
+	const amount = BigInt(operation1.amount.value);
+	if (0n !== amount + BigInt(operation2.amount.value))
+		throw RosettaErrorFactory.INVALID_REQUEST_DATA;
+
+	if (0n < amount) {
+		return {
+			senderAddress: operation2.account.address,
+			recipientAddress: operation1.account.address,
+			amount
+		};
+	}
+
+	return {
+		senderAddress: operation1.account.address,
+		recipientAddress: operation2.account.address,
+		amount: -amount
+	};
 };

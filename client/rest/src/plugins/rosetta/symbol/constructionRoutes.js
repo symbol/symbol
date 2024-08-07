@@ -41,7 +41,9 @@ import SignatureType from '../openApi/model/SignatureType.js';
 import SigningPayload from '../openApi/model/SigningPayload.js';
 import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import TransactionIdentifierResponse from '../openApi/model/TransactionIdentifierResponse.js';
-import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
+import {
+	RosettaErrorFactory, RosettaPublicKeyProcessor, extractTransferDescriptorAt, rosettaPostRouteWithNetwork
+} from '../rosettaUtils.js';
 import { PrivateKey, PublicKey, utils } from 'symbol-sdk';
 import {
 	KeyPair, NetworkTimestamp, SymbolFacade, generateMosaicAliasId, models
@@ -52,25 +54,15 @@ export default {
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
 		const facade = new SymbolFacade(blockchainDescriptor.network);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
+		const publicKeyProcessor = new RosettaPublicKeyProcessor(new CurveType().edwards25519, facade.network, PublicKey);
 
 		const aggregateSignerKeyPair = new KeyPair(new PrivateKey(services.config.rosetta.aggregateSignerPrivateKey));
 		const aggregateSignerAddress = facade.network.publicKeyToAddress(aggregateSignerKeyPair.publicKey);
 
-		const parsePublicKey = rosettaPublicKey => {
-			if (new CurveType().edwards25519 !== rosettaPublicKey.curve_type)
-				throw RosettaErrorFactory.UNSUPPORTED_CURVE;
-
-			try {
-				return new PublicKey(rosettaPublicKey.hex_bytes);
-			} catch (err) {
-				throw RosettaErrorFactory.INVALID_PUBLIC_KEY;
-			}
-		};
-
 		const constructionPostRoute = (...args) => rosettaPostRouteWithNetwork(blockchainDescriptor, ...args);
 
 		server.post('/construction/derive', constructionPostRoute(ConstructionDeriveRequest, typedRequest => {
-			const publicKey = parsePublicKey(typedRequest.public_key);
+			const publicKey = publicKeyProcessor.parsePublicKey(typedRequest.public_key);
 			const address = facade.network.publicKeyToAddress(publicKey);
 
 			const response = new ConstructionDeriveResponse();
@@ -114,37 +106,6 @@ export default {
 			return response;
 		}));
 
-		const buildAddressToPublicKeyMap = rosettaPublicKeys => {
-			const addressToPublicKeyMap = {};
-			for (let i = 0; i < rosettaPublicKeys.length; ++i) {
-				const publicKey = parsePublicKey(rosettaPublicKeys[i]);
-				const address = facade.network.publicKeyToAddress(publicKey);
-				addressToPublicKeyMap[address.toString()] = publicKey;
-			}
-
-			return addressToPublicKeyMap;
-		};
-
-		const processTransfer = (addressToPublicKeyMap, subOperation1, subOperation2) => {
-			const makeDescriptor = (senderAccount, recipientAccount, amount) => ({
-				type: 'transfer_transaction_v1',
-				signerPublicKey: addressToPublicKeyMap[senderAccount.address],
-				recipientAddress: recipientAccount.address,
-				mosaics: [
-					{ mosaicId: generateMosaicAliasId('symbol.xym'), amount }
-				]
-			});
-
-			const amount = BigInt(subOperation1.amount.value);
-			if (0n !== amount + BigInt(subOperation2.amount.value))
-				throw RosettaErrorFactory.INVALID_REQUEST_DATA;
-
-			if (0n < amount)
-				return makeDescriptor(subOperation2.account, subOperation1.account, amount);
-
-			return makeDescriptor(subOperation1.account, subOperation2.account, -amount);
-		};
-
 		const createSigningPayload = (signingPayload, signerAddress) => {
 			const result = new SigningPayload(utils.uint8ToHex(signingPayload));
 			result.account_identifier = new AccountIdentifier(signerAddress.toString());
@@ -158,7 +119,7 @@ export default {
 		};
 
 		server.post('/construction/payloads', constructionPostRoute(ConstructionPayloadsRequest, async typedRequest => {
-			const addressToPublicKeyMap = buildAddressToPublicKeyMap(typedRequest.public_keys);
+			const addressToPublicKeyMap = publicKeyProcessor.buildAddressToPublicKeyMap(typedRequest.public_keys);
 
 			let hasMultisigModification = false;
 			const embeddedTransactions = [];
@@ -167,18 +128,15 @@ export default {
 				const operation = typedRequest.operations[i];
 
 				if ('transfer' === operation.type) {
-					if (i + 1 === typedRequest.operations.length)
-						throw RosettaErrorFactory.INVALID_REQUEST_DATA;
-
-					const nextOperation = typedRequest.operations[i + 1];
-					if ('transfer' !== nextOperation.type)
-						throw RosettaErrorFactory.INVALID_REQUEST_DATA;
-
-					const embeddedTransaction = facade.transactionFactory.createEmbedded(processTransfer(
-						addressToPublicKeyMap,
-						operation,
-						nextOperation
-					));
+					const transferDescriptor = extractTransferDescriptorAt(typedRequest.operations, i);
+					const embeddedTransaction = facade.transactionFactory.createEmbedded({
+						type: 'transfer_transaction_v1',
+						signerPublicKey: addressToPublicKeyMap[transferDescriptor.senderAddress],
+						recipientAddress: transferDescriptor.recipientAddress,
+						mosaics: [
+							{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: transferDescriptor.amount }
+						]
+					});
 
 					embeddedTransactions.push(embeddedTransaction);
 					allSignerPublicKeys.push(embeddedTransaction.signerPublicKey);
