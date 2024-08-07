@@ -39,6 +39,18 @@ export const getBlockchainDescriptor = config => ({ // eslint-disable-line impor
 export const mosaicIdToString = mosaicId => `${mosaicId.namespaceId}.${mosaicId.name}`;
 
 /**
+ * Calculates NEM XEM transfer fee.
+ * @param {bigint} amount XEM transfer amount.
+ * @returns {bigint} XEM transfer fee.
+ */
+export const calculateXemTransferFee = amount => {
+	// Math.min and Math.max don't work with bigint
+	const min = (lhs, rhs) => (lhs < rhs ? lhs : rhs);
+	const max = (lhs, rhs) => (lhs > rhs ? lhs : rhs);
+	return 50000n * min(25n, max(1n, amount / 10000n));
+};
+
+/**
  * Creates the lookup currency function used by the operation parser.
  * @param {object} proxy NEM proxy.
  * @returns {Function} Currency lookup function.

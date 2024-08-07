@@ -21,8 +21,12 @@
 
 import ConstructionDeriveRequest from '../../../src/plugins/rosetta/openApi/model/ConstructionDeriveRequest.js';
 import RosettaApiError from '../../../src/plugins/rosetta/openApi/model/Error.js';
-import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../../../src/plugins/rosetta/rosettaUtils.js';
+import {
+	RosettaErrorFactory, RosettaPublicKeyProcessor, extractTransferDescriptorAt, rosettaPostRouteWithNetwork
+} from '../../../src/plugins/rosetta/rosettaUtils.js';
 import { expect } from 'chai';
+import { PublicKey } from 'symbol-sdk';
+import { Network } from 'symbol-sdk/symbol';
 
 describe('rosetta utils', () => {
 	// region RosettaErrorFactory
@@ -39,6 +43,113 @@ describe('rosetta utils', () => {
 
 			// Assert:
 			expect(errorCodeSet.size).to.equal(errorNames.length);
+		});
+	});
+
+	// endregion
+
+	// region RosettaPublicKeyProcessor
+
+	describe('RosettaPublicKeyProcessor', () => {
+		// use Symbol types for testing
+		const createPublicKeyProcessor = () => new RosettaPublicKeyProcessor('desired-curve', Network.TESTNET, PublicKey);
+		const createRosettaPublicKey = (hexBytes, curveType) => ({
+			hex_bytes: hexBytes,
+			curve_type: curveType
+		});
+
+		describe('parsePublicKey', () => {
+			it('fails when public key curve type is unsupported', () => {
+				// Arrange:
+				const processor = createPublicKeyProcessor();
+				const rosettaPublicKey = createRosettaPublicKey(
+					'93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7',
+					'other-curve'
+				);
+
+				// Act + Assert:
+				expect(() => processor.parsePublicKey(rosettaPublicKey)).to.throw(RosettaErrorFactory.UNSUPPORTED_CURVE.message);
+			});
+
+			it('fails when public key is invalid', () => {
+				// Arrange:
+				const processor = createPublicKeyProcessor();
+				const rosettaPublicKey = createRosettaPublicKey(
+					'93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690',
+					'desired-curve'
+				);
+
+				// Act + Assert:
+				expect(() => processor.parsePublicKey(rosettaPublicKey)).to.throw(RosettaErrorFactory.INVALID_PUBLIC_KEY.message);
+			});
+
+			it('succeeds when public key is valid', () => {
+				// Arrange:
+				const processor = createPublicKeyProcessor();
+				const rosettaPublicKey = createRosettaPublicKey(
+					'93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7',
+					'desired-curve'
+				);
+
+				// Act + Assert:
+				const publicKey = processor.parsePublicKey(rosettaPublicKey);
+
+				// Assert:
+				expect(publicKey).to.deep.equal(new PublicKey('93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7'));
+			});
+		});
+
+		describe('buildAddressToPublicKeyMap', () => {
+			it('fails when any public key curve type is unsupported', () => {
+				// Arrange:
+				const processor = createPublicKeyProcessor();
+				const rosettaPublicKeys = [
+					createRosettaPublicKey('93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7', 'desired-curve'),
+					createRosettaPublicKey('3119DA3BFF57385BB6F051B8A454F219CE519D28E50D5653F5F457486E9E8623', 'other-curve'),
+					createRosettaPublicKey('ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6', 'desired-curve')
+				];
+
+				// Act + Assert:
+				expect(() => processor.buildAddressToPublicKeyMap(rosettaPublicKeys))
+					.to.throw(RosettaErrorFactory.UNSUPPORTED_CURVE.message);
+			});
+
+			it('fails when any public key is invalid', () => {
+				// Arrange:
+				const processor = createPublicKeyProcessor();
+				const rosettaPublicKeys = [
+					createRosettaPublicKey('93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7', 'desired-curve'),
+					createRosettaPublicKey('3119DA3BFF57385BB6F051B8A454F219CE519D28E50D5653F5F457486E9E86', 'desired-curve'),
+					createRosettaPublicKey('ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6', 'desired-curve')
+				];
+
+				// Act + Assert:
+				expect(() => processor.buildAddressToPublicKeyMap(rosettaPublicKeys))
+					.to.throw(RosettaErrorFactory.INVALID_PUBLIC_KEY.message);
+			});
+
+			it('succeeds when all public keys are valid', () => {
+				// Arrange:
+				const processor = createPublicKeyProcessor();
+				const rosettaPublicKeys = [
+					createRosettaPublicKey('93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7', 'desired-curve'),
+					createRosettaPublicKey('3119DA3BFF57385BB6F051B8A454F219CE519D28E50D5653F5F457486E9E8623', 'desired-curve'),
+					createRosettaPublicKey('ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6', 'desired-curve')
+				];
+
+				// Act + Assert:
+				const addressToPublicKeyMap = processor.buildAddressToPublicKeyMap(rosettaPublicKeys);
+
+				// Assert:
+				expect(addressToPublicKeyMap).to.deep.equal({
+					TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ:
+						new PublicKey('93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7'),
+					TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ:
+						new PublicKey('3119DA3BFF57385BB6F051B8A454F219CE519D28E50D5653F5F457486E9E8623'),
+					TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI:
+						new PublicKey('ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6')
+				});
+			});
 		});
 	});
 
@@ -165,6 +276,99 @@ describe('rosetta utils', () => {
 		it('succeeds when blockchain descriptor is valid (async)', () => assertSuccessWhenValid(typedRequest => (Promise.resolve({
 			foo: typedRequest.network_identifier.network
 		}))));
+	});
+
+	// endregion
+
+	// region extractTransferDescriptorAt
+
+	describe('extractTransferDescriptorAt', () => {
+		const createRosettaTransfer = (index, address, amount) => ({
+			operation_identifier: { index },
+			type: 'transfer',
+			account: { address },
+			amount: { value: amount }
+		});
+
+		const createRosettaCosignatory = (index, address) => ({
+			operation_identifier: { index },
+			type: 'cosign',
+			account: { address }
+		});
+
+		it('fails when transfer is hanging', () => {
+			// Arrange:
+			const operations = [
+				createRosettaCosignatory(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
+				createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100')
+			];
+
+			// Act + Assert:
+			expect(() => extractTransferDescriptorAt(operations, 1)).to.throw(RosettaErrorFactory.INVALID_REQUEST_DATA.message);
+		});
+
+		it('fails when transfer is unpaired', () => {
+			// Arrange:
+			const operations = [
+				createRosettaCosignatory(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
+				createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
+				createRosettaCosignatory(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
+			];
+
+			// Act + Assert:
+			expect(() => extractTransferDescriptorAt(operations, 0)).to.throw(RosettaErrorFactory.INVALID_REQUEST_DATA.message);
+			expect(() => extractTransferDescriptorAt(operations, 1)).to.throw(RosettaErrorFactory.INVALID_REQUEST_DATA.message);
+		});
+
+		it('fails when transfer has mismatched amounts unpaired', () => {
+			// Arrange:
+			const operations = [
+				createRosettaCosignatory(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
+				createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
+				createRosettaTransfer(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '-99')
+			];
+
+			// Act + Assert:
+			expect(() => extractTransferDescriptorAt(operations, 1)).to.throw(RosettaErrorFactory.INVALID_REQUEST_DATA.message);
+		});
+
+		it('succeeds when transfer is matched (credit first)', () => {
+			// Arrange:
+			const operations = [
+				createRosettaCosignatory(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
+				createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
+				createRosettaTransfer(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '-100')
+			];
+
+			// Act:
+			const transferDescriptor = extractTransferDescriptorAt(operations, 1);
+
+			// Assert:
+			expect(transferDescriptor).to.deep.equal({
+				senderAddress: 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
+				recipientAddress: 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
+				amount: 100n
+			});
+		});
+
+		it('succeeds when transfer is matched (debit first)', () => {
+			// Arrange:
+			const operations = [
+				createRosettaCosignatory(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', '-100'),
+				createRosettaTransfer(2, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100')
+			];
+
+			// Act:
+			const transferDescriptor = extractTransferDescriptorAt(operations, 1);
+
+			// Assert:
+			expect(transferDescriptor).to.deep.equal({
+				senderAddress: 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
+				recipientAddress: 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
+				amount: 100n
+			});
+		});
 	});
 
 	// endregion

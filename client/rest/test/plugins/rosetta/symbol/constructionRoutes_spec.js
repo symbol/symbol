@@ -87,7 +87,7 @@ describe('construction routes', () => {
 
 	// region utils - TestCases
 
-	const createSingleTransferCreditFirstTestCase = () => {
+	const createSingleTransferDebitFirstTestCase = () => {
 		const verifier = new PayloadResultVerifier();
 		verifier.addTransfer(
 			'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
@@ -100,25 +100,22 @@ describe('construction routes', () => {
 			1001n + (60n * 60n * 1000n)
 		);
 
-		return {
-			verifier,
-			operations: [
-				createRosettaTransfer(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
-				createRosettaTransfer(1, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100')
-			],
-			parsedOperations: [
-				createRosettaTransfer(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100'),
-				createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100')
-			]
-		};
+		const operations = [
+			createRosettaTransfer(0, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100'),
+			createRosettaTransfer(1, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100')
+		];
+		return { verifier, operations, parsedOperations: operations };
 	};
 
-	const createSingleTransferDebitFirstTestCase = () => {
-		const testCase = createSingleTransferCreditFirstTestCase();
+	const createSingleTransferCreditFirstTestCase = () => {
+		const testCase = createSingleTransferDebitFirstTestCase();
+
+		// make deep copy of operation_identifier to avoid modifying parsedOperations
+		testCase.operations = testCase.operations.map((operation, i) => ({
+			...operation,
+			operation_identifier: { index: testCase.operations.length - 1 - i }
+		}));
 		testCase.operations.reverse();
-		testCase.operations.forEach((operation, i) => {
-			operation.operation_identifier.index = i;
-		});
 
 		return testCase;
 	};
@@ -291,7 +288,7 @@ describe('construction routes', () => {
 
 		verifier.setAggregateFeePayerSignature();
 
-		const result = {
+		return {
 			verifier,
 			operations: [
 				createRosettaMultisig(0, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ', { ...metadata }),
@@ -305,7 +302,6 @@ describe('construction routes', () => {
 				createRosettaCosignatory(3, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
 			]
 		};
-		return result;
 	};
 
 	// endregion
@@ -324,13 +320,6 @@ describe('construction routes', () => {
 		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
 			delete request.network_identifier.network;
 		}));
-
-		it('fails when public key curve type is unsupported', () => assertRosettaErrorRaised(
-			RosettaErrorFactory.UNSUPPORTED_CURVE,
-			request => {
-				request.public_key.curve_type = 'secp256k1';
-			}
-		));
 
 		it('fails when public key is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_PUBLIC_KEY, request => {
 			request.public_key.hex_bytes += '0';
@@ -505,28 +494,8 @@ describe('construction routes', () => {
 			delete request.network_identifier.network;
 		}));
 
-		it('fails when any public key curve type is unsupported', () => assertRosettaErrorRaised(
-			RosettaErrorFactory.UNSUPPORTED_CURVE,
-			request => {
-				request.public_keys[1].curve_type = 'secp256k1';
-			}
-		));
-
 		it('fails when any public key is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_PUBLIC_KEY, request => {
 			request.public_keys[1].hex_bytes += '0';
-		}));
-
-		it('fails when any transfer is hanging', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
-			request.operations = [
-				createRosettaTransfer(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100')
-			];
-		}));
-
-		it('fails when any transfer is unpaired', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
-			request.operations = [
-				createRosettaTransfer(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
-				createRosettaCosignatory(1, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI')
-			];
 		}));
 
 		it('fails when any transfer has mismatched amounts', () => assertRosettaErrorRaised(
@@ -557,11 +526,11 @@ describe('construction routes', () => {
 			await assertRosettaSuccessBasic('/construction/payloads', request, expectedResponse);
 		};
 
-		it('succeeds when transfer has matched amounts (credit first)', () =>
-			assertSingleValidTransfer(createSingleTransferCreditFirstTestCase()));
-
 		it('succeeds when transfer has matched amounts (debit first)', () =>
 			assertSingleValidTransfer(createSingleTransferDebitFirstTestCase()));
+
+		it('succeeds when transfer has matched amounts (credit first)', () =>
+			assertSingleValidTransfer(createSingleTransferCreditFirstTestCase()));
 
 		it('succeeds when multiple transfers', async () => {
 			// Arrange:
@@ -620,9 +589,9 @@ describe('construction routes', () => {
 			await assertRosettaSuccessBasic('/construction/payloads', request, expectedResponse);
 		};
 
-		it('succeeds when multisig has additions', () => assertSingleValidMultisigModification('addressAdditions'));
+		it('succeeds when multisig modification has additions', () => assertSingleValidMultisigModification('addressAdditions'));
 
-		it('succeeds when multisig has deletions', () => assertSingleValidMultisigModification('addressDeletions'));
+		it('succeeds when multisig modification has deletions', () => assertSingleValidMultisigModification('addressDeletions'));
 	});
 
 	// endregion
@@ -817,28 +786,22 @@ describe('construction routes', () => {
 			await assertRosettaSuccessBasic('/construction/parse', request, expectedResponse, { roundtripJson: true });
 		};
 
-		it('succeeds when transfer has matched amounts (credit first) [unsigned]', () =>
+		it('succeeds when transfer has matched amounts [unsigned]', () =>
 			assertRosettaSuccess(createSingleTransferCreditFirstTestCase(), false));
-
-		it('succeeds when transfer has matched amounts (debit first) [unsigned]', () =>
-			assertRosettaSuccess(createSingleTransferDebitFirstTestCase(), false));
 
 		it('succeeds when multiple transfers [unsigned]', () => assertRosettaSuccess(createMultipleTransferTestCase(), false));
 
 		it('succeeds when multiple transfers with explicit cosigners [unsigned]', () =>
 			assertRosettaSuccess(createMultipleTransferExplicitCosignerTestCase(), false));
 
-		it('succeeds when multisig has additions [unsigned]', () =>
+		it('succeeds when multisig modification has additions [unsigned]', () =>
 			assertRosettaSuccess(createSingleValidMultisigModificationTestCase('addressAdditions'), false));
 
-		it('succeeds when multisig has deletions [unsigned]', () =>
+		it('succeeds when multisig modification has deletions [unsigned]', () =>
 			assertRosettaSuccess(createSingleValidMultisigModificationTestCase('addressDeletions'), false));
 
-		it('succeeds when transfer has matched amounts (credit first) [signed]', () =>
+		it('succeeds when transfer has matched amounts [signed]', () =>
 			assertRosettaSuccess(createSingleTransferCreditFirstTestCase(), true, ['TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI']));
-
-		it('succeeds when transfer has matched amounts (debit first) [signed]', () =>
-			assertRosettaSuccess(createSingleTransferDebitFirstTestCase(), true, ['TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI']));
 
 		it('succeeds when multiple transfers [signed]', () => assertRosettaSuccess(createMultipleTransferTestCase(), true, [
 			'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
@@ -852,12 +815,12 @@ describe('construction routes', () => {
 				'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'
 			]));
 
-		it('succeeds when multisig has additions [signed]', () =>
+		it('succeeds when multisig modification has additions [signed]', () =>
 			assertRosettaSuccess(createSingleValidMultisigModificationTestCase('addressAdditions'), true, [
 				'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'
 			]));
 
-		it('succeeds when multisig has deletions [signed]', () =>
+		it('succeeds when multisig modification has deletions [signed]', () =>
 			assertRosettaSuccess(createSingleValidMultisigModificationTestCase('addressDeletions'), true, [
 				'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'
 			]));
