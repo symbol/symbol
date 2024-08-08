@@ -192,7 +192,7 @@ export class OperationParser {
 	 */
 	async parseTransactionAsRosettaTransaction(transaction, metadata) {
 		const { operations } = await this.parseTransaction(transaction, metadata);
-		return new Transaction(new TransactionIdentifier(metadata.hash), operations);
+		return new Transaction(new TransactionIdentifier(metadata.hash.data.toUpperCase()), operations);
 	}
 
 	/**

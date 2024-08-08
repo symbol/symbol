@@ -28,7 +28,25 @@ import {
 
 // region FetchStubHelper
 
-export const FetchStubHelper = { ...BasicFetchStubHelper };
+export const FetchStubHelper = {
+	...BasicFetchStubHelper,
+
+	stubMosaicResolution: (namespaceId, name, divisibility) => {
+		FetchStubHelper.stubPost(`namespace/definition/page?namespace=${namespaceId}&pageSize=100`, true, {
+			data: [
+				{
+					mosaic: {
+						id: { namespaceId, name },
+						properties: [
+							{ name: 'divisibility', value: divisibility.toString() }
+						],
+						levy: {}
+					}
+				}
+			]
+		});
+	}
+};
 
 // endregion
 
