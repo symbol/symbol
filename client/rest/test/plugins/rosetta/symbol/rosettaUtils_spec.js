@@ -25,7 +25,7 @@ import {
 } from '../../../../src/plugins/rosetta/symbol/rosettaUtils.js';
 import { expect } from 'chai';
 
-describe('rosetta utils (Symbol)', () => {
+describe('Symbol rosetta utils', () => {
 	// region getBlockchainDescriptor
 
 	describe('getBlockchainDescriptor', () => {

@@ -31,7 +31,7 @@ import {
 	Address, SymbolFacade, generateMosaicAliasId, models
 } from 'symbol-sdk/symbol';
 
-describe('OperationParser', () => {
+describe('Symbol OperationParser', () => {
 	// region test accounts
 
 	// address => public key mapping (sorted by public key)

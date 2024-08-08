@@ -35,7 +35,7 @@ import mempoolRoutes from '../../../../src/plugins/rosetta/symbol/mempoolRoutes.
 import { RosettaOperationFactory } from '../utils/rosettaTestUtils.js';
 import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
 
-describe('mempool routes', () => {
+describe('Symbol rosetta mempool routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(mempoolRoutes, ...args);
 	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(mempoolRoutes, ...args);
 

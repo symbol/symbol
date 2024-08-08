@@ -35,7 +35,7 @@ import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtil
 import networkRoutes from '../../../../src/plugins/rosetta/symbol/networkRoutes.js';
 import { expect } from 'chai';
 
-describe('network routes', () => {
+describe('Symbol rosetta network routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(networkRoutes, ...args);
 	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(networkRoutes, ...args);
 
