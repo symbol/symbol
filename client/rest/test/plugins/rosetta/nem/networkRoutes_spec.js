@@ -34,7 +34,7 @@ import Peer from '../../../../src/plugins/rosetta/openApi/model/Peer.js';
 import Version from '../../../../src/plugins/rosetta/openApi/model/Version.js';
 import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
-import { Network } from 'symbol-sdk/symbol';
+import { Network } from 'symbol-sdk/nem';
 
 describe('NEM network routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(networkRoutes, ...args);

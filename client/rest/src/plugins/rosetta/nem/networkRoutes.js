@@ -33,7 +33,7 @@ import Peer from '../openApi/model/Peer.js';
 import Version from '../openApi/model/Version.js';
 import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
-import { Network } from 'symbol-sdk/symbol';
+import { Network } from 'symbol-sdk/nem';
 
 export default {
 	register: (server, db, services) => {
