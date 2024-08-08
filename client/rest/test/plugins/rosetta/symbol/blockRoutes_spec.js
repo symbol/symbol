@@ -37,7 +37,7 @@ import blockRoutes from '../../../../src/plugins/rosetta/symbol/blockRoutes.js';
 import { RosettaOperationFactory } from '../utils/rosettaTestUtils.js';
 import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
 
-describe('block routes', () => {
+describe('Symbol rosetta block routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(blockRoutes, ...args);
 	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(blockRoutes, ...args);
 
