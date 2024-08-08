@@ -92,9 +92,9 @@ describe('NEM network routes', () => {
 			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
 		});
 
-		const assertRosettaSuccessWithHistoricalNode = async historicalNodeEnable => {
+		const assertRosettaSuccessWithHistoricalNode = async isHistoricalNode => {
 			// Arrange:
-			stubFetchResult('node/info', true, createRosettaNodeVersion(historicalNodeEnable ? 3 : 1));
+			stubFetchResult('node/info', true, createRosettaNodeVersion(isHistoricalNode ? 3 : 1));
 
 			// - create expected response
 			const version = new Version('1.4.13', '4.5.3.8');
@@ -111,7 +111,7 @@ describe('NEM network routes', () => {
 					RosettaErrorFactory.NOT_SUPPORTED_ERROR,
 					RosettaErrorFactory.INTERNAL_SERVER_ERROR
 				].map(err => err.apiError),
-				historicalNodeEnable,
+				isHistoricalNode,
 				[],
 				[],
 				false
@@ -122,9 +122,9 @@ describe('NEM network routes', () => {
 			await assertRosettaSuccessBasic('/network/options', createValidRequest(), expectedResponse);
 		};
 
-		it('succeeds when all fetches succeed', async () => assertRosettaSuccessWithHistoricalNode(false));
+		it('succeeds when all fetches succeed', () => assertRosettaSuccessWithHistoricalNode(false));
 
-		it('succeeds when all fetches succeed on historical node', async () => assertRosettaSuccessWithHistoricalNode(true));
+		it('succeeds when all fetches succeed on historical node', () => assertRosettaSuccessWithHistoricalNode(true));
 	});
 	// endregion
 
@@ -163,7 +163,7 @@ describe('NEM network routes', () => {
 		};
 
 		const setupEndPoints = success => {
-			FetchStubHelper.stubPost('node/info', success, { metaData: { version: '4.5.3.8' } });
+			FetchStubHelper.stubPost('node/info', success, createRosettaNodeVersion());
 			FetchStubHelper.stubPost('local/block/at', success, { hash: GENESIS_BLOCK_HASH, block: { height: GENESIS_BLOCK_NUMBER } }, {
 				method: 'POST',
 				body: JSON.stringify({ height: GENESIS_BLOCK_NUMBER }),
@@ -227,13 +227,12 @@ describe('NEM network routes', () => {
 		it('succeeds when all fetches succeed', async () => {
 			// Arrange:
 			setupEndPoints(true);
-			const network = NetworkLocator.findByName(Network.NETWORKS, 'testnet');
 
 			// - create expected response
 			const expectedResponse = new NetworkStatusResponse();
 			expectedResponse.genesis_block_identifier = new BlockIdentifier(GENESIS_BLOCK_NUMBER, GENESIS_BLOCK_HASH);
 			expectedResponse.current_block_identifier = new BlockIdentifier(CURRENT_BLOCK_NUMBER, CURRENT_BLOCK_HASH);
-			expectedResponse.current_block_timestamp = Number(network.datetimeConverter.toDatetime(CURRENT_BLOCK_TIMESTAMP).getTime());
+			expectedResponse.current_block_timestamp = Number(1427587585000 + (CURRENT_BLOCK_TIMESTAMP * 1000));
 			expectedResponse.peers = NODE_PEERS_PUBLIC_KEYS.map(publicKey => new Peer(publicKey));
 
 			// Act + Assert:

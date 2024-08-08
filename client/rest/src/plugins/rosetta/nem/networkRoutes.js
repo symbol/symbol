@@ -33,7 +33,7 @@ import Peer from '../openApi/model/Peer.js';
 import Version from '../openApi/model/Version.js';
 import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
-import { Network } from 'symbol-sdk/nem';
+import { Network, NetworkTimestamp } from 'symbol-sdk/nem'
 
 export default {
 	register: (server, db, services) => {
@@ -87,8 +87,9 @@ export default {
 			]);
 
 			const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
-			const currentBlockTimestamp = Number(network.datetimeConverter.toDatetime(Number(currentBlock.block.timeStamp)).getTime());
+			const calculateUnixTime = timestamp => Number(network.toDatetime(new NetworkTimestamp(timestamp)).getTime());
 
+			const currentBlockTimestamp = calculateUnixTime(currentBlock.block.timeStamp);
 			const blockToBlockIdentifier = block => new BlockIdentifier(Number(block.block.height), block.hash);
 			const currentBlockIdentifier = blockToBlockIdentifier(currentBlock);
 			const genesisBlockIdentifier = blockToBlockIdentifier(genesisBlock);
