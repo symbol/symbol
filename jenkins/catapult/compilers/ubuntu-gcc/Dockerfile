@@ -14,7 +14,7 @@ RUN apt-get update >/dev/null && \
 	>/dev/null 
 	
 # Use the latest gcc version.
-ARG COMPILER_VERSION=13
+ARG COMPILER_VERSION=14
 RUN apt-get update >/dev/null && \
 	apt-get install -y \
 	gcc-${COMPILER_VERSION} g++-${COMPILER_VERSION} >/dev/null && \
