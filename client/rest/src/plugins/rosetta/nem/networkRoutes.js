@@ -90,7 +90,7 @@ export default {
 			const calculateUnixTime = timestamp => Number(network.toDatetime(new NetworkTimestamp(timestamp)).getTime());
 
 			const currentBlockTimestamp = calculateUnixTime(currentBlock.block.timeStamp);
-			const blockToBlockIdentifier = block => new BlockIdentifier(Number(block.block.height), block.hash);
+			const blockToBlockIdentifier = block => new BlockIdentifier(Number(block.block.height), block.hash.toUpperCase());
 			const currentBlockIdentifier = blockToBlockIdentifier(currentBlock);
 			const genesisBlockIdentifier = blockToBlockIdentifier(genesisBlock);
 
