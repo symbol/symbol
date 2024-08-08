@@ -41,7 +41,7 @@ import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { TransactionFactory, models } from 'symbol-sdk/nem';
 
-describe('construction routes', () => {
+describe('NEM rosetta construction routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(constructionRoutes, ...args);
 	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(constructionRoutes, ...args);
 

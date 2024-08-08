@@ -29,7 +29,7 @@ import { expect } from 'chai';
 import { utils } from 'symbol-sdk';
 import { NemFacade, models } from 'symbol-sdk/nem';
 
-describe('OperationParser', () => {
+describe('NEM OperationParser', () => {
 	// region test accounts
 
 	// address => public key mapping
