@@ -1,7 +1,7 @@
 import AccountIdentifier from '../../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
 import SigningPayload from '../../../../../src/plugins/rosetta/openApi/model/SigningPayload.js';
 import { utils } from 'symbol-sdk';
-import { NemFacade } from 'symbol-sdk/nem';
+import { NemFacade, models } from 'symbol-sdk/nem';
 
 export default class PayloadResultVerifier {
 	constructor(timestamp) {
@@ -26,6 +26,33 @@ export default class PayloadResultVerifier {
 		});
 	}
 
+	setTransferWithArbitraryMosaic(signerPublicKey, recipientAddress) {
+		const textEncoder = new TextEncoder();
+		this.transaction = this.facade.transactionFactory.create({
+			type: 'transfer_transaction_v2',
+			signerPublicKey,
+			...this.timestampProperties,
+			fee: 50000n * 25n,
+
+			recipientAddress,
+			amount: 2_000000,
+			mosaics: [
+				{
+					mosaic: {
+						mosaicId: { namespaceId: { name: textEncoder.encode('nem') }, name: textEncoder.encode('xem') },
+						amount: 12345_000000
+					}
+				},
+				{
+					mosaic: {
+						mosaicId: { namespaceId: { name: textEncoder.encode('foo') }, name: textEncoder.encode('bar') },
+						amount: 54321_000000
+					}
+				}
+			]
+		});
+	}
+
 	setMultisigModification(signerPublicKey, metadata) {
 		this.transaction = this.facade.transactionFactory.create({
 			type: 'multisig_account_modification_transaction_v2',
@@ -44,14 +71,18 @@ export default class PayloadResultVerifier {
 			...this.timestampProperties,
 			fee: this.transaction.fee,
 
-			innerTransaction: this.transaction,
+			innerTransaction: this.facade.transactionFactory.static.toNonVerifiableTransaction(this.transaction),
 
-			cosignatures: cosignerPublicKeys.map(cosignerPublicKey => this.facade.transactionFactory.create({
-				type: 'cosignature_v1',
-				signerPublicKey: cosignerPublicKey,
-				...this.timestampProperties,
-				fee: 50000n * 3n
-			}))
+			cosignatures: cosignerPublicKeys.map(cosignerPublicKey => {
+				const cosignature = new models.SizePrefixedCosignatureV1();
+				cosignature.cosignature = this.facade.transactionFactory.create({
+					type: 'cosignature_v1',
+					signerPublicKey: cosignerPublicKey,
+					...this.timestampProperties,
+					fee: 50000n * 3n
+				});
+				return cosignature;
+			})
 		});
 	}
 
