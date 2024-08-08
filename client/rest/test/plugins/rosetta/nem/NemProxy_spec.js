@@ -229,6 +229,36 @@ describe('NemProxy', () => {
 
 	// endregion
 
+	// region localBlockAtHeight
+
+	describe('localBlockAtHeight', () => {
+		it('fails when fetch fails', async () => {
+			// Arrange:
+			const proxy = new NemProxy(TEST_ENDPOINT);
+			FetchStubHelper.stubLocalBlockAt({ hash: 'AABBCCDD', height: 4321 }, false);
+
+			// Act + Assert:
+			await assertAsyncErrorThrown(() => proxy.localBlockAtHeight(4321), RosettaErrorFactory.CONNECTION_ERROR);
+		});
+
+		it('succeeds when fetch succeeds', async () => {
+			// Arrange:
+			const proxy = new NemProxy(TEST_ENDPOINT);
+			FetchStubHelper.stubLocalBlockAt({ hash: 'AABBCCDD', height: 4321 }, true);
+
+			// Act:
+			const blockInfo = await proxy.localBlockAtHeight(4321);
+
+			// Assert:
+			expect(blockInfo).to.deep.equal({
+				hash: 'AABBCCDD',
+				block: { height: 4321 }
+			});
+		});
+	});
+
+	// endregion
+
 	// region mosaicProperties
 
 	describe('mosaicProperties', () => {
