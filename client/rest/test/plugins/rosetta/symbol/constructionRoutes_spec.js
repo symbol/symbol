@@ -42,7 +42,7 @@ import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { models } from 'symbol-sdk/symbol';
 
-describe('construction routes', () => {
+describe('Symbol rosetta construction routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(constructionRoutes, ...args);
 	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(constructionRoutes, ...args);
 
