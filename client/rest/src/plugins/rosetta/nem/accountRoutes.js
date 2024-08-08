@@ -20,7 +20,7 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import { createLookupCurrencyFunction, getBlockchainDescriptor, stitchBlockTransactions } from './rosettaUtils.js';
+import { createLookupCurrencyFunction, getBlockchainDescriptor } from './rosettaUtils.js';
 import AccountBalanceRequest from '../openApi/model/AccountBalanceRequest.js';
 import AccountBalanceResponse from '../openApi/model/AccountBalanceResponse.js';
 import AccountCoinsRequest from '../openApi/model/AccountCoinsRequest.js';
@@ -31,34 +31,31 @@ import Coin from '../openApi/model/Coin.js';
 import CoinIdentifier from '../openApi/model/CoinIdentifier.js';
 import { RosettaErrorFactory, evaluateOperationsAndUpdateAmounts, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
-import { Network } from 'symbol-sdk/symbol';
+import { Network } from 'symbol-sdk/nem';
 
 export default {
 	register: (server, db, services) => {
-		const PAGE_SIZE = 100;
-
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
 		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
-		const getChainHeight = () => services.proxy.fetch('chain/info', json => json.height);
-		const getBlockIdentifier = height => services.proxy.fetch(`blocks/${height}`)
-			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash));
+		const getChainHeight = () => services.proxy.fetch('chain/height', json => json.height);
+		const getBlockIdentifier = height => services.proxy.localBlockAtHeight(height)
+			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.hash));
 		const parser = new OperationParser(network, {
 			includeFeeOperation: true,
-			lookupCurrency,
-			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
+			lookupCurrency
 		});
 
 		const isCurrencyEqual = (lhs, rhs) => lhs.symbol === rhs.symbol && lhs.decimals === rhs.decimals;
 
 		const mapMosaicsToRosettaAmounts = mosaics => Promise.all(mosaics.map(async mosaic => {
-			const currency = await lookupCurrency(BigInt(`0x${mosaic.id}`));
-			return new Amount(mosaic.amount, currency);
+			const { currency } = await lookupCurrency(mosaic.mosaicId);
+			return new Amount(mosaic.quantity.toString(), currency);
 		}));
 
 		const getOperations = async unconfirmedTransactions => {
-			const transactions = await Promise.all(stitchBlockTransactions(unconfirmedTransactions)
-				.map(transaction => parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)));
+			const transactions = await Promise.all(unconfirmedTransactions.map(transaction =>
+				parser.parseTransactionAsRosettaTransaction(transaction.transaction, transaction.meta)));
 			return [].concat(...transactions.map(transaction => transaction.operations));
 		};
 
@@ -72,9 +69,9 @@ export default {
 
 			const startChainHeight = await getChainHeight();
 
-			const promises = [services.proxy.fetch(`accounts/${address}`, jsonObject => jsonObject.account.mosaics)];
+			const promises = [services.proxy.fetch(`account/mosaic/owned?address=${address}`, jsonObject => jsonObject.data)];
 			if (typedRequest.include_mempool)
-				promises.push(services.proxy.fetchAll('transactions/unconfirmed?embedded=true', PAGE_SIZE));
+				promises.push(services.proxy.fetch(`account/unconfirmedTransactions?address=${address}`, jsonObject => jsonObject.data));
 
 			const [mosaics, unconfirmedTransactions] = await Promise.all(promises);
 
@@ -107,7 +104,7 @@ export default {
 		server.post('/account/coins', rosettaPostRouteWithNetwork(blockchainDescriptor, AccountCoinsRequest, async typedRequest => {
 			const { blockIdentifier, amounts } = await getAccountAmounts(typedRequest);
 
-			const mapRosettaAmountToCoin = amount => new Coin(new CoinIdentifier(amount.currency.metadata.id), amount);
+			const mapRosettaAmountToCoin = amount => new Coin(new CoinIdentifier(amount.currency.symbol), amount);
 			const coins = await Promise.all(amounts.map(mapRosettaAmountToCoin));
 			return new AccountCoinsResponse(blockIdentifier, coins);
 		}));
