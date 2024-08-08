@@ -33,8 +33,6 @@ import OperationStatus from '../../../../src/plugins/rosetta/openApi/model/Opera
 import Peer from '../../../../src/plugins/rosetta/openApi/model/Peer.js';
 import Version from '../../../../src/plugins/rosetta/openApi/model/Version.js';
 import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
-import { NetworkLocator } from 'symbol-sdk';
-import { Network } from 'symbol-sdk/nem';
 
 describe('NEM network routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(networkRoutes, ...args);
@@ -162,18 +160,19 @@ describe('NEM network routes', () => {
 			return { data: peers };
 		};
 
-		const setupEndPoints = success => {
-			FetchStubHelper.stubPost('node/info', success, createRosettaNodeVersion());
-			FetchStubHelper.stubPost('local/block/at', success, { hash: GENESIS_BLOCK_HASH, block: { height: GENESIS_BLOCK_NUMBER } }, {
+		const stubPostLocalBlockAt = (blockHeight, blockHash, blockTimestamp, ok) => {
+			FetchStubHelper.stubPost('local/block/at', ok, createBlocksResponse(blockHeight, blockHash, blockTimestamp), {
 				method: 'POST',
-				body: JSON.stringify({ height: GENESIS_BLOCK_NUMBER }),
+				body: JSON.stringify({ height: blockHeight }),
 				headers: { 'Content-Type': 'application/json' }
 			});
-			FetchStubHelper.stubPost(
-				'chain/last-block',
-				success,
-				createBlocksResponse(CURRENT_BLOCK_NUMBER, CURRENT_BLOCK_HASH, CURRENT_BLOCK_TIMESTAMP)
-			);
+		};
+
+		const setupEndPoints = success => {
+			FetchStubHelper.stubPost('node/info', success, createRosettaNodeVersion());
+			FetchStubHelper.stubPost('chain/height', success, { height: CURRENT_BLOCK_NUMBER });
+			stubPostLocalBlockAt(GENESIS_BLOCK_NUMBER, GENESIS_BLOCK_HASH, 0, success);
+			stubPostLocalBlockAt(CURRENT_BLOCK_NUMBER, CURRENT_BLOCK_HASH, CURRENT_BLOCK_TIMESTAMP, success);
 			stubFetchResult('node/peer-list/reachable', success, createNodePeersResponse());
 		};
 

@@ -33,7 +33,7 @@ import Peer from '../openApi/model/Peer.js';
 import Version from '../openApi/model/Version.js';
 import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
-import { Network, NetworkTimestamp } from 'symbol-sdk/nem'
+import { Network, NetworkTimestamp } from 'symbol-sdk/nem';
 
 export default {
 	register: (server, db, services) => {
@@ -73,17 +73,18 @@ export default {
 		}));
 
 		server.post('/network/status', rosettaPostRouteWithNetwork(blockchainDescriptor, NetworkRequest, async () => {
+			const getBlockInfoAt = height => services.proxy.fetch('local/block/at', undefined, {
+				method: 'POST',
+				body: JSON.stringify({ height }),
+				headers: { 'Content-Type': 'application/json' }
+			});
 			const [currentBlock, peers, genesisBlock] = await Promise.all([
-				services.proxy.fetch('chain/last-block'),
+				services.proxy.fetch('chain/height').then(info => getBlockInfoAt(info.height)),
 				services.proxy.fetch(
 					'node/peer-list/reachable',
 					json => json.data
 				).then(nodes => nodes.map(node => new Peer(node.identity['public-key']))),
-				services.proxy.fetch('local/block/at', undefined, {
-					method: 'POST',
-					body: JSON.stringify({ height: 1 }),
-					headers: { 'Content-Type': 'application/json' }
-				})
+				getBlockInfoAt(1)
 			]);
 
 			const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
