@@ -28,11 +28,18 @@ import {
 } from './utils/rosettaTestUtils.js';
 import constructionRoutes from '../../../../src/plugins/rosetta/nem/constructionRoutes.js';
 import AccountIdentifier from '../../../../src/plugins/rosetta/openApi/model/AccountIdentifier.js';
+import ConstructionCombineResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionCombineResponse.js';
 import ConstructionDeriveResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionDeriveResponse.js';
 import ConstructionMetadataResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionMetadataResponse.js';
+import ConstructionParseResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionParseResponse.js';
 import ConstructionPayloadsResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionPayloadsResponse.js';
 import ConstructionPreprocessResponse from '../../../../src/plugins/rosetta/openApi/model/ConstructionPreprocessResponse.js';
+import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
+import TransactionIdentifierResponse from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifierResponse.js';
 import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
+import sinon from 'sinon';
+import { utils } from 'symbol-sdk';
+import { TransactionFactory, models } from 'symbol-sdk/nem';
 
 describe('construction routes', () => {
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(constructionRoutes, ...args);
@@ -501,6 +508,298 @@ describe('construction routes', () => {
 
 			// Act + Assert:
 			await assertRosettaSuccessBasic('/construction/payloads', request, expectedResponse);
+		});
+	});
+
+	// endregion
+
+	// region combine
+
+	describe('combine', () => {
+		const createSigningPayload = (address, publicKey, signaturePattern) => ({
+			signing_payload: '',
+			account_identifier: { address },
+			public_key: createRosettaPublicKey(publicKey),
+			hex_bytes: signaturePattern.repeat(64),
+			signature_type: 'ed25519_keccak'
+		});
+
+		const createValidRequest = () => ({
+			network_identifier: createRosettaNetworkIdentifier(),
+			signatures: [
+				createSigningPayload(
+					'TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC',
+					'E5F290755F021258ACE3CB29452BF38B322D76F62CAF6E9D2A89B48ABF7DD778',
+					'11'
+				)
+			],
+			unsigned_transaction: ''
+		});
+
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
+			assertRosettaErrorRaisedBasic('/construction/combine', createValidRequest(), expectedError, malformRequest);
+
+		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
+			delete request.network_identifier.network;
+		}));
+
+		it('fails when signature type is unsupported', () => assertRosettaErrorRaised(RosettaErrorFactory.UNSUPPORTED_CURVE, request => {
+			request.signatures[0].signature_type = 'ecdsa';
+		}));
+
+		it('succeeds when no cosignatures are required', async () => {
+			// Arrange:
+			const { verifier } = createSingleTransferCreditFirstTestCase();
+
+			const request = createValidRequest();
+			request.unsigned_transaction = verifier.toHexString();
+
+			// - add expected signatures
+			verifier.transaction.signature = new models.Signature('11'.repeat(64));
+
+			// - create expected response
+			const expectedResponse = new ConstructionCombineResponse();
+			expectedResponse.signed_transaction = verifier.toHexString();
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic('/construction/combine', request, expectedResponse);
+		});
+
+		it('succeeds when cosignatures are required', async () => {
+			// Arrange:
+			const { verifier } = createMultisigSingleTransferCreditFirstTestCase();
+
+			const request = createValidRequest();
+			request.signatures.push(createSigningPayload(
+				'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+				'5D2EC9959153F54E5225EBBC6A677AF37DCB8C3968558F366B2841F9DA9CA14F',
+				'22'
+			));
+			request.signatures.push(createSigningPayload(
+				'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB',
+				'4EEE569F2E0838489EAA0D55219D5738916D33B1379EF053920AD26548A2603E',
+				'33'
+			));
+			request.signatures.push(createSigningPayload(
+				'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3',
+				'88D0C34AEA2CB96E226379E71BA6264F4460C27D29F79E24248318397AA48380',
+				'44'
+			));
+			request.unsigned_transaction = verifier.toHexString();
+
+			// - add expected signatures
+			verifier.transaction.signature = new models.Signature('22'.repeat(64));
+			verifier.transaction.cosignatures[0].cosignature.signature = new models.Signature('33'.repeat(64));
+			verifier.transaction.cosignatures[1].cosignature.signature = new models.Signature('44'.repeat(64));
+
+			// - create expected response
+			const expectedResponse = new ConstructionCombineResponse();
+			expectedResponse.signed_transaction = verifier.toHexString();
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic('/construction/combine', request, expectedResponse);
+		});
+	});
+
+	// endregion
+
+	// region parse
+
+	describe('parse', () => {
+		FetchStubHelper.registerStubCleanup();
+
+		const createValidRequest = (signed = false) => {
+			const { verifier } = createSingleTransferCreditFirstTestCase();
+			const signedTransactionHex = verifier.toHexString();
+
+			return {
+				network_identifier: createRosettaNetworkIdentifier(),
+				signed,
+				transaction: signedTransactionHex
+			};
+		};
+
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
+			assertRosettaErrorRaisedBasic('/construction/parse', createValidRequest(), expectedError, malformRequest);
+
+		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
+			delete request.network_identifier.network;
+		}));
+
+		it('fails when transaction is unparseable', () => assertRosettaErrorRaised(RosettaErrorFactory.INTERNAL_SERVER_ERROR, request => {
+			// Arrange: clear the transaction data
+			request.transaction = '';
+		}));
+
+		it('fails when mosaic is unsupported', () => assertRosettaErrorRaised(RosettaErrorFactory.NOT_SUPPORTED_ERROR, request => {
+			// Arrange: create a transfer with an unsupported mosaic
+			const verifier = new PayloadResultVerifier(1001);
+			verifier.setTransferWithArbitraryMosaic(
+				'E5F290755F021258ACE3CB29452BF38B322D76F62CAF6E9D2A89B48ABF7DD778',
+				'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW'
+			);
+
+			request.transaction = verifier.toHexString();
+		}));
+
+		const assertRosettaSuccess = async (testCase, signed, expectedSigners = []) => {
+			// Arrange:
+			const { verifier, parsedOperations } = testCase;
+			const request = createValidRequest(signed);
+			request.transaction = verifier.toHexString();
+
+			// - create expected response
+			const expectedResponse = new ConstructionParseResponse();
+			expectedResponse.operations = parsedOperations;
+			expectedResponse.account_identifier_signers = expectedSigners.map(address => new AccountIdentifier(address));
+			expectedResponse.signers = [];
+
+			// Act + Assert: `parsedOperations` is a simple JS object, but `parse` builds up typed rosetta OpenAPI objects
+			//               they cannot be compared directly, only indirectly via JSON
+			await assertRosettaSuccessBasic('/construction/parse', request, expectedResponse, { roundtripJson: true });
+		};
+
+		it('succeeds when transfer has matched amounts [unsigned]', () =>
+			assertRosettaSuccess(createSingleTransferCreditFirstTestCase(), false));
+
+		it('succeeds when multisig modification [unsigned]', () =>
+			assertRosettaSuccess(createSingleValidMultisigModificationTestCase(), false));
+
+		it('succeeds when transfer in multisig [unsigned]', () =>
+			assertRosettaSuccess(createMultisigSingleTransferCreditFirstTestCase(), false));
+
+		it('succeeds when multisig modification in multisig [unsigned]', () =>
+			assertRosettaSuccess(createMultisigSingleValidMultisigModificationTestCase(), false));
+
+		it('succeeds when transfer has matched amounts [signed]', () =>
+			assertRosettaSuccess(createSingleTransferCreditFirstTestCase(), true, ['TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC']));
+
+		it('succeeds when multisig modification [signed]', () =>
+			assertRosettaSuccess(createSingleValidMultisigModificationTestCase(), true, ['TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC']));
+
+		it('succeeds when transfer in multisig [signed]', () =>
+			assertRosettaSuccess(createMultisigSingleTransferCreditFirstTestCase(), true, [
+				'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+				'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB',
+				'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3'
+			]));
+
+		it('succeeds when multisig modification in multisig [signed]', () =>
+			assertRosettaSuccess(createMultisigSingleValidMultisigModificationTestCase(), true, [
+				'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+				'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB'
+			]));
+	});
+
+	// endregion
+
+	// region hash
+
+	const createBasicSignedTransaction = () => {
+		const { verifier } = createSingleTransferCreditFirstTestCase();
+
+		// add expected signatures
+		verifier.transaction.signature = new models.Signature('11'.repeat(64));
+		return {
+			transaction: verifier.transaction,
+			transactionHash: verifier.facade.hashTransaction(verifier.transaction)
+		};
+	};
+
+	const createValidHashRequest = () => {
+		const { transaction } = createBasicSignedTransaction();
+		const signedTransactionHex = utils.uint8ToHex(transaction.serialize());
+
+		return {
+			network_identifier: createRosettaNetworkIdentifier(),
+			signed_transaction: signedTransactionHex
+		};
+	};
+
+	describe('hash', () => {
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
+			assertRosettaErrorRaisedBasic('/construction/hash', createValidHashRequest(), expectedError, malformRequest);
+
+		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
+			delete request.network_identifier.network;
+		}));
+
+		it('succeeds when transaction is valid', async () => {
+			// Arrange:
+			const { transactionHash } = createBasicSignedTransaction();
+
+			// - create expected response
+			const expectedResponse = new TransactionIdentifierResponse();
+			expectedResponse.transaction_identifier = new TransactionIdentifier(transactionHash.toString());
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic('/construction/hash', createValidHashRequest(), expectedResponse);
+		});
+	});
+
+	// endregion
+
+	// region submit
+
+	describe('submit', () => {
+		const stubFetchResult = (transaction, ok, jsonResult) => {
+			if (!global.fetch.restore)
+				sinon.stub(global, 'fetch');
+
+			const signedTransactionHex = utils.uint8ToHex(TransactionFactory.toNonVerifiableTransaction(transaction).serialize());
+			const signatureHex = transaction.signature.toString();
+			const fetchOptions = {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: `{"data":"${signedTransactionHex}","signature":"${signatureHex}"}`
+			};
+			global.fetch.withArgs('http://localhost:3456/transaction/announce', fetchOptions).returns(Promise.resolve({
+				ok,
+				json: () => jsonResult
+			}));
+		};
+
+		FetchStubHelper.registerStubCleanup();
+
+		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
+			assertRosettaErrorRaisedBasic('/construction/submit', createValidHashRequest(), expectedError, malformRequest);
+
+		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
+			delete request.network_identifier.network;
+		}));
+
+		it('fails when fetch fails', async () => {
+			// Arrange:
+			const { transaction } = createBasicSignedTransaction();
+
+			stubFetchResult(transaction, false, { message: 'SUCCESS' });
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
+		});
+
+		it('fails when non-success message is returned', async () => {
+			// Arrange:
+			const { transaction } = createBasicSignedTransaction();
+
+			stubFetchResult(transaction, true, { message: 'OTHER' });
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.INTERNAL_SERVER_ERROR, () => {});
+		});
+
+		it('returns valid response on success', async () => {
+			// Arrange:
+			const { transaction, transactionHash } = createBasicSignedTransaction();
+
+			stubFetchResult(transaction, true, { message: 'SUCCESS' });
+
+			// - create expected response
+			const expectedResponse = new TransactionIdentifierResponse();
+			expectedResponse.transaction_identifier = new TransactionIdentifier(transactionHash.toString());
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic('/construction/submit', createValidHashRequest(), expectedResponse);
 		});
 	});
 
