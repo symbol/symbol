@@ -28,7 +28,7 @@ import {
 import Currency from '../../../../src/plugins/rosetta/openApi/model/Currency.js';
 import { expect } from 'chai';
 
-describe('rosetta utils (NEM)', () => {
+describe('NEM rosetta utils', () => {
 	// region getBlockchainDescriptor
 
 	describe('getBlockchainDescriptor', () => {
