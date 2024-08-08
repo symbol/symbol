@@ -70,8 +70,13 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 	if (transactionJson.innerTransaction)
 		renameProperty('innerTransaction', 'otherTrans', convertTransactionSdkJsonToRestJson);
 
-	if (transactionJson.cosignatures)
-		renameProperty('cosignatures', 'signatures', cosignatures => cosignatures.map(convertTransactionSdkJsonToRestJson));
+	if (transactionJson.cosignatures) {
+		renameProperty(
+			'cosignatures',
+			'signatures',
+			cosignatures => cosignatures.map(cosignature => convertTransactionSdkJsonToRestJson(cosignature.cosignature))
+		);
+	}
 
 	if (transactionJson.recipientAddress)
 		renameProperty('recipientAddress', 'recipient', hexStringToUtfString);
@@ -196,7 +201,7 @@ export class OperationParser {
 	 * @returns {Array<Operation>} Transaction operations.
 	 */
 	async parseTransaction(transaction) {
-		const allSignerPublicKeyStringSet = new Set();
+		const allSignerPublicKeyStrings = [];
 
 		const operations = [];
 		const appendOperation = operation => {
@@ -213,18 +218,25 @@ export class OperationParser {
 			subOperations.forEach(appendOperation);
 		};
 
+		const pushCosignOperation = cosignerPublicKey => {
+			const cosignOperation = this.createOperation(operations.length, 'cosign');
+			cosignOperation.account = this.publicKeyStringToAccountIdentifier(cosignerPublicKey);
+			operations.push(cosignOperation);
+		};
+
+		allSignerPublicKeyStrings.push(transaction.signer);
+
 		if (transaction.otherTrans) {
 			await processSubTransaction(transaction.otherTrans);
 
-			allSignerPublicKeyStringSet.add(transaction.otherTrans.signer);
+			pushCosignOperation(transaction.signer);
+
 			let cosignerFeeSum = 0;
 			transaction.signatures.forEach(signature => {
-				allSignerPublicKeyStringSet.add(signature.signer);
-				cosignerFeeSum += parseInt(signature.fee, 10);
+				allSignerPublicKeyStrings.push(signature.signer);
+				pushCosignOperation(signature.signer);
 
-				const cosignOperation = this.createOperation(operations.length, 'cosign');
-				cosignOperation.account = this.publicKeyStringToAccountIdentifier(signature.signer);
-				operations.push(cosignOperation);
+				cosignerFeeSum += parseInt(signature.fee, 10);
 			});
 
 			if (this.options.includeFeeOperation) {
@@ -238,8 +250,6 @@ export class OperationParser {
 		} else {
 			await processSubTransaction(transaction);
 
-			allSignerPublicKeyStringSet.add(transaction.signer);
-
 			if (this.options.includeFeeOperation) {
 				const feeCurrency = await this.lookupFeeCurrency();
 				appendOperation(this.createDebitOperation({
@@ -249,10 +259,9 @@ export class OperationParser {
 				}));
 			}
 		}
-
 		return {
 			operations,
-			signerAddresses: [...allSignerPublicKeyStringSet].map(publicKeyString =>
+			signerAddresses: allSignerPublicKeyStrings.map(publicKeyString =>
 				this.network.publicKeyToAddress(new PublicKey(publicKeyString)))
 		};
 	}
