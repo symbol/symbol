@@ -560,10 +560,14 @@ describe('OperationParser', () => {
 						fee: 700
 					}),
 
-					cosignatures: options.cosignatures.map(cosignature => facade.transactionFactory.create({
-						type: 'cosignature_v1',
-						...cosignature
-					}))
+					cosignatures: options.cosignatures.map(cosignatureDescriptor => {
+						const cosignature = new models.SizePrefixedCosignatureV1();
+						cosignature.cosignature = facade.transactionFactory.create({
+							type: 'cosignature_v1',
+							...cosignatureDescriptor
+						});
+						return cosignature;
+					})
 				});
 
 				const parser = createDefaultParser(facade.network, options.parserOptions);
@@ -575,6 +579,7 @@ describe('OperationParser', () => {
 				expect(operations).to.deep.equal([
 					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-12345000000', 'currency.fee', 2),
 					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '12345000000', 'currency.fee', 2),
+					createCosignOperation(2, 'TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC'),
 					...options.additionalOperations
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(options.expectedSignerAddresses);
@@ -583,21 +588,21 @@ describe('OperationParser', () => {
 			it('can parse', () => assertCanParse({
 				cosignatures: [],
 				additionalOperations: [],
-				expectedSignerAddresses: ['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']
+				expectedSignerAddresses: ['TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC']
 			}));
 
 			it('can parse with explicit cosigners', () => assertCanParse({
 				cosignatures: [
-					{ signerPublicKey: '727643FB1D18214334C11280DF986A0AFEE128FC1F8BE7F9118E89C417E07771', fee: 60 },
+					{ signerPublicKey: '5D2EC9959153F54E5225EBBC6A677AF37DCB8C3968558F366B2841F9DA9CA14F', fee: 60 },
 					{ signerPublicKey: '45880194FAD01FCB55887B73EEFFDC263914ED5749BF2F3ACB928C843C57BD9A', fee: 5 }
 				],
 				additionalOperations: [
-					createCosignOperation(2, 'TALICE6KJ2SRSIJFVVFFH6ICUIYZ2ZZGNFUDJGRT'),
-					createCosignOperation(3, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH')
+					createCosignOperation(3, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ'),
+					createCosignOperation(4, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH')
 				],
 				expectedSignerAddresses: [
-					'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
-					'TALICE6KJ2SRSIJFVVFFH6ICUIYZ2ZZGNFUDJGRT',
+					'TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC',
+					'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
 					'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'
 				]
 			}));
@@ -605,17 +610,17 @@ describe('OperationParser', () => {
 			it('can parse with explicit cosigners with fee', () => assertCanParse({
 				parserOptions: { includeFeeOperation: true },
 				cosignatures: [
-					{ signerPublicKey: '727643FB1D18214334C11280DF986A0AFEE128FC1F8BE7F9118E89C417E07771', fee: 60 },
+					{ signerPublicKey: '5D2EC9959153F54E5225EBBC6A677AF37DCB8C3968558F366B2841F9DA9CA14F', fee: 60 },
 					{ signerPublicKey: '45880194FAD01FCB55887B73EEFFDC263914ED5749BF2F3ACB928C843C57BD9A', fee: 5 }
 				],
 				additionalOperations: [
-					createCosignOperation(2, 'TALICE6KJ2SRSIJFVVFFH6ICUIYZ2ZZGNFUDJGRT'),
-					createCosignOperation(3, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'),
-					createTransferOperation(4, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-8065', 'currency.fee', 2)
+					createCosignOperation(3, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ'),
+					createCosignOperation(4, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'),
+					createTransferOperation(5, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-8065', 'currency.fee', 2)
 				],
 				expectedSignerAddresses: [
-					'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
-					'TALICE6KJ2SRSIJFVVFFH6ICUIYZ2ZZGNFUDJGRT',
+					'TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC',
+					'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
 					'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'
 				]
 			}));
@@ -801,8 +806,8 @@ describe('OperationParser', () => {
 			// Act:
 			const restJson = convertTransactionSdkJsonToRestJson({
 				cosignatures: [
-					{ signerPublicKey: '727643FB1D18214334C11280DF986A0AFEE128FC1F8BE7F9118E89C417E07771', fee: 60 },
-					{ signerPublicKey: '45880194FAD01FCB55887B73EEFFDC263914ED5749BF2F3ACB928C843C57BD9A', fee: 5 }
+					{ cosignature: { signerPublicKey: '727643FB1D18214334C11280DF986A0AFEE128FC1F8BE7F9118E89C417E07771', fee: 60 } },
+					{ cosignature: { signerPublicKey: '45880194FAD01FCB55887B73EEFFDC263914ED5749BF2F3ACB928C843C57BD9A', fee: 5 } }
 				]
 			});
 

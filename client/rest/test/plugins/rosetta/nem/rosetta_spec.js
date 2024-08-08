@@ -48,7 +48,11 @@ describe('NEM rosetta plugin', () => {
 				'/construction/derive',
 				'/construction/preprocess',
 				'/construction/metadata',
-				'/construction/payloads'
+				'/construction/payloads',
+				'/construction/combine',
+				'/construction/parse',
+				'/construction/hash',
+				'/construction/submit'
 			]);
 		});
 	});
