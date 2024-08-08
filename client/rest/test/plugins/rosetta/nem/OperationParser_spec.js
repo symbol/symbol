@@ -645,7 +645,7 @@ describe('NEM OperationParser', () => {
 			// Act:
 			const rosettaTransaction = await parser.parseTransactionAsRosettaTransaction(
 				convertTransactionSdkJsonToRestJson(transaction.toJson()),
-				{ hash: '7B7A5E55E3F788C036B759B6AD46FF91A67DC956BB4B360587F366397F251C62' }
+				{ hash: { data: '7b7a5e55e3f788c036b759b6ad46ff91a67dc956bb4b360587f366397f251c62' } }
 			);
 
 			// Assert:
