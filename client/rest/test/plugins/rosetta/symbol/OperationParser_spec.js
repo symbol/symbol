@@ -39,6 +39,7 @@ describe('OperationParser', () => {
 	// TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI => 527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9
 	// TCJEJJBKDI62U4ZMO4VI7YAUVJE4STVCOBDSHXQ => 8A18D72A3D90547C9A2503C8513BC2A54D52B96119F4A5DF6E65CDA813EE5D9F
 	// TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ => 93A62514605D7DE3BDF699C54AE850CA3DACDC8CCA41A69C786CE97FA5F690D7
+	// TBOLYS45WU57DODH44O4ZUFA2ZJN34WT2ZPIDXY => B6C7F7C9BC0CD2845BE60679C17CA342F8E21AEE8A0881DA639E082DE1C0EDBF
 	// TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI => ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6
 
 	// endregion
@@ -455,7 +456,7 @@ describe('OperationParser', () => {
 				);
 
 				verifier.buildAggregate(
-					'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+					'B6C7F7C9BC0CD2845BE60679C17CA342F8E21AEE8A0881DA639E082DE1C0EDBF',
 					1001n + (60n * 60n * 1000n),
 					cosignatureCount
 				);
@@ -488,8 +489,8 @@ describe('OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal(createDefaultVerifierOperations());
-				expect(signerAddresses.map(address => address.toString()).sort()).to.deep.equal([
-					'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'
+				expect(signerAddresses.map(address => address.toString())).to.deep.equal([
+					'TBOLYS45WU57DODH44O4ZUFA2ZJN34WT2ZPIDXY'
 				]);
 			});
 
@@ -511,10 +512,10 @@ describe('OperationParser', () => {
 					createCosignOperation(7, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ'),
 					createCosignOperation(8, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
 				]);
-				expect(signerAddresses.map(address => address.toString()).sort()).to.deep.equal([
+				expect(signerAddresses.map(address => address.toString())).to.deep.equal([
+					'TBOLYS45WU57DODH44O4ZUFA2ZJN34WT2ZPIDXY',
 					'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
-					'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
-					'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'
+					'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'
 				]);
 			});
 
@@ -540,12 +541,12 @@ describe('OperationParser', () => {
 					...createDefaultVerifierOperations(),
 					createCosignOperation(7, 'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ'),
 					createCosignOperation(8, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
-					createTransferOperation(9, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', expectedFeeAmount, 'currency.fee', 2)
+					createTransferOperation(9, 'TBOLYS45WU57DODH44O4ZUFA2ZJN34WT2ZPIDXY', expectedFeeAmount, 'currency.fee', 2)
 				]);
-				expect(signerAddresses.map(address => address.toString()).sort()).to.deep.equal([
+				expect(signerAddresses.map(address => address.toString())).to.deep.equal([
+					'TBOLYS45WU57DODH44O4ZUFA2ZJN34WT2ZPIDXY',
 					'TBPXHVTQBGRTSYXP4Q55EEUIV73UFC2D72KCWXQ',
-					'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ',
-					'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'
+					'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'
 				]);
 			};
 
@@ -623,7 +624,7 @@ describe('OperationParser', () => {
 				);
 
 				verifier.buildAggregate(
-					'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6',
+					'B6C7F7C9BC0CD2845BE60679C17CA342F8E21AEE8A0881DA639E082DE1C0EDBF',
 					1001n + (60n * 60n * 1000n),
 					1
 				);

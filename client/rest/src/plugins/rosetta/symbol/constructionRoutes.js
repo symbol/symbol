@@ -235,6 +235,9 @@ export default {
 		}));
 
 		server.post('/construction/combine', constructionPostRoute(ConstructionCombineRequest, async typedRequest => {
+			if (typedRequest.signatures.some(signature => new SignatureType().ed25519 !== signature.signature_type))
+				throw RosettaErrorFactory.UNSUPPORTED_CURVE;
+
 			const findSignature = publicKey => typedRequest.signatures.find(rosettaSignature =>
 				0 === utils.deepCompare(publicKey.bytes, utils.hexToUint8(rosettaSignature.public_key.hex_bytes))).hex_bytes;
 
@@ -261,13 +264,6 @@ export default {
 
 			const aggregateTransaction = facade.transactionFactory.static.deserialize(utils.hexToUint8(typedRequest.transaction));
 
-			const supportedTransactionTypes = [
-				models.TransactionType.MULTISIG_ACCOUNT_MODIFICATION.value,
-				models.TransactionType.TRANSFER.value
-			];
-			if (!aggregateTransaction.transactions.every(transaction => supportedTransactionTypes.includes(transaction.type.value)))
-				throw RosettaErrorFactory.NOT_SUPPORTED_ERROR;
-
 			const parser = new OperationParser(facade.network, {
 				lookupCurrency: mosaicId => {
 					if (currencyMosaicId !== mosaicId)
@@ -290,7 +286,6 @@ export default {
 				response.account_identifier_signers = signerAddresses
 					.map(address => address.toString())
 					.filter(addressString => aggregateSignerAddress.toString() !== addressString)
-					.sort()
 					.map(addressString => new AccountIdentifier(addressString));
 			}
 

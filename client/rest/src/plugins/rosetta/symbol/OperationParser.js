@@ -165,8 +165,8 @@ export class OperationParser {
 	 * @returns {Array<Operation>} Transaction operations.
 	 */
 	async parseTransaction(transaction, metadata = {}) {
-		const allSignerPublicKeyStringSet = new Set();
-		allSignerPublicKeyStringSet.add(transaction.signerPublicKey);
+		const allSignerPublicKeyStrings = [];
+		allSignerPublicKeyStrings.push(transaction.signerPublicKey);
 
 		const makeTransactionLocation = (secondaryId = undefined) => {
 			if (undefined === metadata.height || '0' === metadata.height)
@@ -209,7 +209,8 @@ export class OperationParser {
 			});
 
 			transaction.cosignatures.forEach(cosignature => {
-				allSignerPublicKeyStringSet.add(cosignature.signerPublicKey);
+				if (!allSignerPublicKeyStrings.includes(cosignature.signerPublicKey))
+					allSignerPublicKeyStrings.push(cosignature.signerPublicKey);
 
 				const cosignOperation = this.createOperation(operations.length, 'cosign');
 				cosignOperation.account = this.publicKeyStringToAccountIdentifier(cosignature.signerPublicKey);
@@ -235,7 +236,7 @@ export class OperationParser {
 
 		return {
 			operations,
-			signerAddresses: [...allSignerPublicKeyStringSet].map(publicKeyString =>
+			signerAddresses: allSignerPublicKeyStrings.map(publicKeyString =>
 				this.network.publicKeyToAddress(new PublicKey(publicKeyString)))
 		};
 	}
