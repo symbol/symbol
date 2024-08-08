@@ -45,6 +45,17 @@ export const FetchStubHelper = {
 				}
 			]
 		});
+	},
+
+	stubLocalBlockAt(options, ok) {
+		FetchStubHelper.stubPost('local/block/at', ok, {
+			block: { height: options.height },
+			hash: options.hash
+		}, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: `{"height":${options.height}}`
+		});
 	}
 };
 

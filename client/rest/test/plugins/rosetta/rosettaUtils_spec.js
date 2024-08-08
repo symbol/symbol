@@ -19,16 +19,39 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Amount from '../../../src/plugins/rosetta/openApi/model/Amount.js';
 import ConstructionDeriveRequest from '../../../src/plugins/rosetta/openApi/model/ConstructionDeriveRequest.js';
+import Currency from '../../../src/plugins/rosetta/openApi/model/Currency.js';
 import RosettaApiError from '../../../src/plugins/rosetta/openApi/model/Error.js';
 import {
-	RosettaErrorFactory, RosettaPublicKeyProcessor, extractTransferDescriptorAt, rosettaPostRouteWithNetwork
+	RosettaErrorFactory,
+	RosettaPublicKeyProcessor,
+	evaluateOperationsAndUpdateAmounts,
+	extractTransferDescriptorAt,
+	rosettaPostRouteWithNetwork
 } from '../../../src/plugins/rosetta/rosettaUtils.js';
 import { expect } from 'chai';
 import { PublicKey } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
 
 describe('rosetta utils', () => {
+	// region test utils
+
+	const createRosettaTransfer = (index, address, amount) => ({
+		operation_identifier: { index },
+		type: 'transfer',
+		account: { address },
+		amount: 'string' === typeof amount ? { value: amount } : amount
+	});
+
+	const createRosettaCosignatory = (index, address) => ({
+		operation_identifier: { index },
+		type: 'cosign',
+		account: { address }
+	});
+
+	// endregion
+
 	// region RosettaErrorFactory
 
 	describe('RosettaErrorFactory', () => {
@@ -283,19 +306,6 @@ describe('rosetta utils', () => {
 	// region extractTransferDescriptorAt
 
 	describe('extractTransferDescriptorAt', () => {
-		const createRosettaTransfer = (index, address, amount) => ({
-			operation_identifier: { index },
-			type: 'transfer',
-			account: { address },
-			amount: { value: amount }
-		});
-
-		const createRosettaCosignatory = (index, address) => ({
-			operation_identifier: { index },
-			type: 'cosign',
-			account: { address }
-		});
-
 		it('fails when transfer is hanging', () => {
 			// Arrange:
 			const operations = [
@@ -368,6 +378,124 @@ describe('rosetta utils', () => {
 				recipientAddress: 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI',
 				amount: 100n
 			});
+		});
+	});
+
+	// endregion
+
+	// region evaluateOperationsAndUpdateAmounts
+
+	describe('evaluateOperationsAndUpdateAmounts', () => {
+		const createRosettaAmount = (amount, currencyName) => new Amount(amount, new Currency(currencyName, 1));
+
+		it('can filter operations by address', () => {
+			// Arrange:
+			const amounts = [];
+			const operations = [
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('100', 'foo.bar')),
+				createRosettaTransfer(2, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', createRosettaAmount('-100', 'foo.bar')),
+				createRosettaTransfer(3, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', createRosettaAmount('80', 'foo.bar')),
+				createRosettaTransfer(4, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('-80', 'foo.bar'))
+			];
+
+			// Act:
+			evaluateOperationsAndUpdateAmounts('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', amounts, operations);
+
+			// Assert:
+			expect(amounts).to.deep.equal([
+				createRosettaAmount('20', 'foo.bar')
+			]);
+		});
+
+		it('can filter operations by type', () => {
+			// Arrange:
+			const amounts = [];
+			const operations = [
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('100', 'foo.bar')),
+				createRosettaCosignatory(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
+				createRosettaCosignatory(3, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
+				createRosettaTransfer(4, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('-80', 'foo.bar'))
+			];
+
+			// Act:
+			evaluateOperationsAndUpdateAmounts('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', amounts, operations);
+
+			// Assert:
+			expect(amounts).to.deep.equal([
+				createRosettaAmount('20', 'foo.bar')
+			]);
+		});
+
+		it('can add multiple new currencies', () => {
+			// Arrange:
+			const amounts = [];
+			const operations = [
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('100', 'foo.bar')),
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('10', 'cat.dog')),
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('12', 'alice.huge')),
+				createRosettaTransfer(4, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('-80', 'foo.bar'))
+			];
+
+			// Act:
+			evaluateOperationsAndUpdateAmounts('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', amounts, operations);
+
+			// Assert:
+			expect(amounts).to.deep.equal([
+				createRosettaAmount('20', 'foo.bar'),
+				createRosettaAmount('10', 'cat.dog'),
+				createRosettaAmount('12', 'alice.huge')
+			]);
+		});
+
+		it('can merge multiple existing currencies', () => {
+			// Arrange:
+			const amounts = [
+				createRosettaAmount('100', 'foo.bar'),
+				createRosettaAmount('200', 'cat.dog'),
+				createRosettaAmount('300', 'alice.huge')
+			];
+			const operations = [
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('100', 'foo.bar')),
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('10', 'cat.dog')),
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('12', 'alice.huge')),
+				createRosettaTransfer(4, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('-80', 'foo.bar'))
+			];
+
+			// Act:
+			evaluateOperationsAndUpdateAmounts('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', amounts, operations);
+
+			// Assert:
+			expect(amounts).to.deep.equal([
+				createRosettaAmount('120', 'foo.bar'),
+				createRosettaAmount('210', 'cat.dog'),
+				createRosettaAmount('312', 'alice.huge')
+			]);
+		});
+
+		it('can merge multiple new and existing currencies', () => {
+			// Arrange:
+			const amounts = [
+				createRosettaAmount('100', 'foo.bar'),
+				createRosettaAmount('300', 'alice.huge')
+			];
+			const operations = [
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('100', 'foo.bar')),
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('10', 'cat.dog')),
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('12', 'alice.huge')),
+				createRosettaTransfer(4, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('-80', 'foo.bar')),
+				createRosettaTransfer(1, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', createRosettaAmount('44', 'alice.big'))
+			];
+
+			// Act:
+			evaluateOperationsAndUpdateAmounts('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ', amounts, operations);
+
+			// Assert:
+			expect(amounts).to.deep.equal([
+				createRosettaAmount('120', 'foo.bar'),
+				createRosettaAmount('312', 'alice.huge'),
+				createRosettaAmount('10', 'cat.dog'),
+				createRosettaAmount('44', 'alice.big')
+			]);
 		});
 	});
 

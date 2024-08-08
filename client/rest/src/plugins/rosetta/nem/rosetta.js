@@ -21,6 +21,7 @@
 
 /** @module plugins/rosetta/nem */
 import NemProxy from './NemProxy.js';
+import accountRoutes from './accountRoutes.js';
 import constructionRoutes from './constructionRoutes.js';
 import mempoolRoutes from './mempoolRoutes.js';
 import networkRoutes from './networkRoutes.js';
@@ -40,6 +41,7 @@ export default {
 		const proxy = new NemProxy(services.config.restEndpoint);
 
 		[
+			accountRoutes,
 			constructionRoutes,
 			mempoolRoutes,
 			networkRoutes

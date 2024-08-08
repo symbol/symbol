@@ -25,6 +25,8 @@ import {
 	assertRosettaErrorRaisedBasicWithRoutes,
 	assertRosettaSuccessBasicWithRoutes
 } from './utils/rosettaTestUtils.js';
+import { convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/nem/OperationParser.js';
+import accountRoutes from '../../../../src/plugins/rosetta/nem/accountRoutes.js';
 import AccountBalanceResponse from '../../../../src/plugins/rosetta/openApi/model/AccountBalanceResponse.js';
 import AccountCoinsResponse from '../../../../src/plugins/rosetta/openApi/model/AccountCoinsResponse.js';
 import Amount from '../../../../src/plugins/rosetta/openApi/model/Amount.js';
@@ -32,16 +34,14 @@ import BlockIdentifier from '../../../../src/plugins/rosetta/openApi/model/Block
 import Coin from '../../../../src/plugins/rosetta/openApi/model/Coin.js';
 import CoinIdentifier from '../../../../src/plugins/rosetta/openApi/model/CoinIdentifier.js';
 import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
-import { convertTransactionSdkJsonToRestJson } from '../../../../src/plugins/rosetta/symbol/OperationParser.js';
-import accountRoutes from '../../../../src/plugins/rosetta/symbol/accountRoutes.js';
 import { RosettaOperationFactory } from '../utils/rosettaTestUtils.js';
-import { SymbolFacade, generateMosaicAliasId } from 'symbol-sdk/symbol';
+import { NemFacade } from 'symbol-sdk/nem';
 
-describe('Symbol rosetta account routes', () => {
-	const ACCOUNT_ADDRESS = 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI';
-	const ACCOUNT_PUBLIC_KEY = 'ED7FE5166BDC65D065667630B96362B3E57AFCA2B557B57E02022631C8C8F1A6';
-	const OTHER_ACCOUNT_ADDRESS = 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI';
-	const OTHER_ACCOUNT_PUBLIC_KEY = '527068DA90B142D98D27FF9BA2103A54230E3C8FAC8529E804123D986CACDCC9';
+describe('NEM rosetta account routes', () => {
+	const ACCOUNT_ADDRESS = 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW';
+	const ACCOUNT_PUBLIC_KEY = '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E';
+	const OTHER_ACCOUNT_ADDRESS = 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3';
+	const OTHER_ACCOUNT_PUBLIC_KEY = '88D0C34AEA2CB96E226379E71BA6264F4460C27D29F79E24248318397AA48380';
 	const TRANSACTION_HASH = 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483';
 
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(accountRoutes, ...args);
@@ -51,14 +51,14 @@ describe('Symbol rosetta account routes', () => {
 
 	const { createRosettaNetworkIdentifier } = RosettaObjectFactory;
 
-	const createRosettaAmount = (amount, currencyName, currencyDecimals, mosaicId) => new Amount(
+	const createRosettaAmount = (amount, currencyName, currencyDecimals) => new Amount(
 		amount,
-		RosettaOperationFactory.createCurrency(currencyName, currencyDecimals, mosaicId)
+		RosettaOperationFactory.createCurrency(currencyName, currencyDecimals)
 	);
 
-	const createRosettaCoin = (amount, currencyName, currencyDecimals, mosaicId) => new Coin(
-		new CoinIdentifier(mosaicId),
-		createRosettaAmount(amount, currencyName, currencyDecimals, mosaicId)
+	const createRosettaCoin = (amount, currencyName, currencyDecimals) => new Coin(
+		new CoinIdentifier(currencyName),
+		createRosettaAmount(amount, currencyName, currencyDecimals)
 	);
 
 	const stubFetchResult = FetchStubHelper.stubPost;
@@ -66,42 +66,23 @@ describe('Symbol rosetta account routes', () => {
 
 	const stubAccountResolutions = () => {
 		// setup chain
-		stubFetchResult('chain/info', true, { height: '12345' });
-		stubFetchResult('blocks/12345', true, {
-			block: { height: '12345' },
-			meta: { hash: 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076' }
-		});
+		stubFetchResult('chain/height', true, { height: 12345 });
+		FetchStubHelper.stubLocalBlockAt({ height: 12345, hash: 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076' }, true);
 
 		// setup account
-		stubFetchResult('accounts/TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', true, {
-			account: {
-				mosaics: [
-					{ id: '1122334455667788', amount: '123' },
-					{ id: '0F61E4A360897965', amount: '262' },
-					{ id: '1ABBCCDDAABBCCDD', amount: '112' }
-				]
-			}
+		stubFetchResult(`account/mosaic/owned?address=${ACCOUNT_ADDRESS}`, true, {
+			data: [
+				{ mosaicId: { namespaceId: 'foo', name: 'bar' }, quantity: 123 },
+				{ mosaicId: { namespaceId: 'cat', name: 'dog' }, quantity: 262 },
+				{ mosaicId: { namespaceId: 'nem', name: 'xem' }, quantity: 112 }
+			]
 		});
 
 		// resolve mosaics
-		FetchStubHelper.stubMosaicResolution('1122334455667788', 'foo.bar', 3);
-		FetchStubHelper.stubMosaicResolution('0F61E4A360897965', 'cat.dog', 4);
-		FetchStubHelper.stubMosaicResolution('1ABBCCDDAABBCCDD', 'symbol.xym', 6);
-		FetchStubHelper.stubMosaicResolution('2345678901ABBCCD', 'new.coin', 5);
-	};
-
-	const bigIntToHexString = value => value.toString(16).padStart(16, '0').toUpperCase();
-
-	const stubNamespaceResolution = (namespaceName, mosaicId) => {
-		const namespaceId = bigIntToHexString(generateMosaicAliasId(namespaceName));
-		stubFetchResult(`namespaces/${namespaceId}`, true, { namespace: { alias: { mosaicId } } });
-	};
-
-	const stubNamespaceResolutions = () => {
-		stubNamespaceResolution('symbol.xym', '1ABBCCDDAABBCCDD');
-		stubNamespaceResolution('foo.bar', '1122334455667788');
-		stubNamespaceResolution('cat.dog', '0F61E4A360897965');
-		stubNamespaceResolution('new.coin', '2345678901ABBCCD');
+		FetchStubHelper.stubMosaicResolution('foo', 'bar', 3);
+		FetchStubHelper.stubMosaicResolution('cat', 'dog', 4);
+		FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
+		FetchStubHelper.stubMosaicResolution('new', 'coin', 5);
 	};
 
 	// endregion
@@ -136,9 +117,9 @@ describe('Symbol rosetta account routes', () => {
 		it('fails when block changes during account query', () => assertRosettaErrorRaised(
 			RosettaErrorFactory.SYNC_DURING_OPERATION,
 			() => {
-				stubFetchResult('chain/info', true, { height: '12345' });
-				stubFetchResult('chain/info', true, { height: '12346' }, undefined, 'Second');
-				stubFetchResult('accounts/TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', true, { account: { mosaics: [] } });
+				stubFetchResult('chain/height', true, { height: 12345 });
+				stubFetchResult('chain/height', true, { height: 12346 }, undefined, 'Second');
+				stubFetchResult(`account/mosaic/owned?address=${ACCOUNT_ADDRESS}`, true, { account: { mosaics: [] } });
 			}
 		));
 	};
@@ -152,9 +133,9 @@ describe('Symbol rosetta account routes', () => {
 			const expectedResponse = new options.Response(
 				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
 				[
-					options.createRosettaAmount('123', 'foo.bar', 3, '1122334455667788'),
-					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965'),
-					options.createRosettaAmount('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+					options.createRosettaAmount('123', 'foo.bar', 3),
+					options.createRosettaAmount('262', 'cat.dog', 4),
+					options.createRosettaAmount('112', 'nem.xem', 6)
 				]
 			);
 
@@ -171,14 +152,14 @@ describe('Symbol rosetta account routes', () => {
 			request.currencies = [
 				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
 				{ symbol: 'cat.dog', decimals: 4 },
-				{ symbol: 'symbol.xym', decimals: 1 } // decimals mismatch
+				{ symbol: 'nem.xem', decimals: 1 } // decimals mismatch
 			];
 
 			// - create expected response
 			const expectedResponse = new options.Response(
 				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
 				[
-					options.createRosettaAmount('262', 'cat.dog', 4, '0F61E4A360897965')
+					options.createRosettaAmount('262', 'cat.dog', 4)
 				]
 			);
 
@@ -228,57 +209,59 @@ describe('Symbol rosetta account routes', () => {
 			Response: AccountCoinsResponse
 		});
 
-		const createTransactionJson = (mosaics, signerPublicKey, recipientAddress, isEmbedded = false) => {
-			const facade = new SymbolFacade('testnet');
-			const transaction = facade.transactionFactory.create({
-				type: 'transfer_transaction_v1',
-				recipientAddress,
+		const createTransferTransaction = (mosaics, signerPublicKey, recipientAddress) => {
+			const textEncoder = new TextEncoder();
+			const facade = new NemFacade('testnet');
+			return facade.transactionFactory.create({
+				type: 'transfer_transaction_v2',
 				signerPublicKey,
-				mosaics,
-				fee: 100
-			});
+				fee: 100,
 
-			const hashPropertyName = isEmbedded ? 'aggregateHash' : 'hash';
+				recipientAddress,
+				amount: 1_000000,
+				mosaics: mosaics.map(mosaicDescriptor => ({
+					mosaic: {
+						mosaicId: {
+							namespaceId: { name: textEncoder.encode(mosaicDescriptor.namespaceId) },
+							name: textEncoder.encode(mosaicDescriptor.name)
+						},
+						amount: mosaicDescriptor.amount
+					}
+				}))
+			});
+		};
+
+		const createTransactionJson = (mosaics, signerPublicKey, recipientAddress) => {
+			const transaction = createTransferTransaction(mosaics, signerPublicKey, recipientAddress);
 			return {
 				transaction: convertTransactionSdkJsonToRestJson(transaction.toJson()),
-				meta: {
-					[hashPropertyName]: TRANSACTION_HASH,
-					height: '0',
-					index: 1
-				}
+				meta: { hash: { data: TRANSACTION_HASH } }
 			};
 		};
 
-		const createAggregateTransactionJson = signerPublicKey => {
-			const facade = new SymbolFacade('testnet');
-			const aggregateTransaction = facade.transactionFactory.create({
-				type: 'aggregate_complete_transaction_v2',
+		const createAggregateTransactionJson = (mosaics, signerPublicKey, recipientAddress) => {
+			const facade = new NemFacade('testnet');
+
+			const transaction = createTransferTransaction(mosaics, signerPublicKey, recipientAddress);
+			const multisigTransaction = facade.transactionFactory.create({
+				type: 'multisig_transaction_v1',
 				signerPublicKey,
 				fee: 25n,
-				deadline: 12345n
+				deadline: 12345n,
+
+				innerTransaction: facade.transactionFactory.static.toNonVerifiableTransaction(transaction)
 			});
 
 			return {
-				transaction: convertTransactionSdkJsonToRestJson(aggregateTransaction.toJson()),
-				meta: {
-					hash: TRANSACTION_HASH,
-					height: '0',
-					index: 1
-				}
+				transaction: convertTransactionSdkJsonToRestJson(multisigTransaction.toJson()),
+				meta: { hash: { data: TRANSACTION_HASH } }
 			};
 		};
 
 		const assertIncludeMempoolAccountTest = async (transactions, expectedCoins, includeMempool = true) => {
 			// Arrange:
 			stubAccountResolutions();
-			stubFetchResult('transactions/unconfirmed?embedded=true&pageNumber=1&pageSize=100', true, transactions);
-
-			// - resolve namespace ids
-			stubNamespaceResolutions();
-
-			// - resolve 'currencyMosaicId'
-			FetchStubHelper.stubCatapultProxyCacheFill();
-			stubFetchResult('network/properties', true, { chain: { currencyMosaicId: '0x1ABBCCDDAABBCCDD' } });
+			stubFetchResult(`account/unconfirmedTransactions?address=${ACCOUNT_ADDRESS}`, true, transactions);
 
 			// - create request
 			const request = createValidRequest();
@@ -301,12 +284,12 @@ describe('Symbol rosetta account routes', () => {
 		it('succeeds when all fetches succeed and includes mempool', async () => {
 			// Arrange:
 			const mosaicsToReceive = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 200 }
+				{ namespaceId: 'cat', name: 'dog', amount: 200 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('462', 'cat.dog', 4, '0F61E4A360897965'),
-				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				createRosettaCoin('123', 'foo.bar', 3),
+				createRosettaCoin('462', 'cat.dog', 4),
+				createRosettaCoin('112', 'nem.xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -318,13 +301,13 @@ describe('Symbol rosetta account routes', () => {
 		it('succeeds when receive multiple coins in the mempool', async () => {
 			// Arrange:
 			const mosaicsToReceive = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 50 },
-				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 150 }
+				{ namespaceId: 'cat', name: 'dog', amount: 50 },
+				{ namespaceId: 'nem', name: 'xem', amount: 150 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('312', 'cat.dog', 4, '0F61E4A360897965'),
-				createRosettaCoin('262', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				createRosettaCoin('123', 'foo.bar', 3),
+				createRosettaCoin('312', 'cat.dog', 4),
+				createRosettaCoin('262', 'nem.xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -336,14 +319,14 @@ describe('Symbol rosetta account routes', () => {
 		it('succeeds when receive new coin in the mempool', async () => {
 			// Arrange:
 			const mosaicsToReceive = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 10 },
-				{ mosaicId: generateMosaicAliasId('new.coin'), amount: 50 }
+				{ namespaceId: 'cat', name: 'dog', amount: 10 },
+				{ namespaceId: 'new', name: 'coin', amount: 50 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('272', 'cat.dog', 4, '0F61E4A360897965'),
-				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD'),
-				createRosettaCoin('50', 'new.coin', 5, '2345678901ABBCCD')
+				createRosettaCoin('123', 'foo.bar', 3),
+				createRosettaCoin('272', 'cat.dog', 4),
+				createRosettaCoin('112', 'nem.xem', 6),
+				createRosettaCoin('50', 'new.coin', 5)
 			];
 			const transactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -355,12 +338,12 @@ describe('Symbol rosetta account routes', () => {
 		it('succeeds when coin sent in the mempool (includes fee)', async () => {
 			// Arrange:
 			const mosaicsToSend = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 1 }
+				{ namespaceId: 'cat', name: 'dog', amount: 1 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('261', 'cat.dog', 4, '0F61E4A360897965'),
-				createRosettaCoin('12', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				createRosettaCoin('123', 'foo.bar', 3),
+				createRosettaCoin('261', 'cat.dog', 4),
+				createRosettaCoin('12', 'nem.xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -372,13 +355,13 @@ describe('Symbol rosetta account routes', () => {
 		it('succeeds when multiple coins sent in the mempool (include fee)', async () => {
 			// Arrange:
 			const mosaicsToSend = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 200 },
-				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
+				{ namespaceId: 'cat', name: 'dog', amount: 200 },
+				{ namespaceId: 'nem', name: 'xem', amount: 2 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('62', 'cat.dog', 4, '0F61E4A360897965'),
-				createRosettaCoin('10', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				createRosettaCoin('123', 'foo.bar', 3),
+				createRosettaCoin('62', 'cat.dog', 4),
+				createRosettaCoin('10', 'nem.xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -390,18 +373,18 @@ describe('Symbol rosetta account routes', () => {
 		it('succeeds when multiple transactions receive in the mempool', async () => {
 			// Arrange:
 			const mosaicsToSend = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 50 },
-				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
+				{ namespaceId: 'cat', name: 'dog', amount: 50 },
+				{ namespaceId: 'nem', name: 'xem', amount: 2 }
 			];
 			const mosaicsToReceive = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 50 },
-				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 20 },
-				{ mosaicId: generateMosaicAliasId('foo.bar'), amount: 23 }
+				{ namespaceId: 'cat', name: 'dog', amount: 50 },
+				{ namespaceId: 'nem', name: 'xem', amount: 20 },
+				{ namespaceId: 'foo', name: 'bar', amount: 23 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('146', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965'),
-				createRosettaCoin('30', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				createRosettaCoin('146', 'foo.bar', 3),
+				createRosettaCoin('262', 'cat.dog', 4),
+				createRosettaCoin('30', 'nem.xem', 6)
 			];
 			const outgoingTransactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const incomingTransactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
@@ -414,13 +397,13 @@ describe('Symbol rosetta account routes', () => {
 		it('succeeds when include mempool is false', async () => {
 			// Arrange:
 			const mosaicsToSend = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 3 },
-				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
+				{ namespaceId: 'cat', name: 'dog', amount: 3 },
+				{ namespaceId: 'nem', name: 'xem', amount: 3 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('262', 'cat.dog', 4, '0F61E4A360897965'),
-				createRosettaCoin('112', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				createRosettaCoin('123', 'foo.bar', 3),
+				createRosettaCoin('262', 'cat.dog', 4),
+				createRosettaCoin('112', 'nem.xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -429,21 +412,19 @@ describe('Symbol rosetta account routes', () => {
 			await assertIncludeMempoolAccountTest(unconfirmedTransactionsJson, expectedResponse, false);
 		});
 
-		it('succeeds when aggregate transaction is in mempool', async () => {
+		it('succeeds when multisig transaction is in mempool', async () => {
 			// Arrange:
 			const mosaicsToSend = [
-				{ mosaicId: generateMosaicAliasId('cat.dog'), amount: 3 },
-				{ mosaicId: generateMosaicAliasId('symbol.xym'), amount: 2 }
+				{ namespaceId: 'cat', name: 'dog', amount: 200 },
+				{ namespaceId: 'nem', name: 'xem', amount: 2 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3, '1122334455667788'),
-				createRosettaCoin('259', 'cat.dog', 4, '0F61E4A360897965'),
-				createRosettaCoin('85', 'symbol.xym', 6, '1ABBCCDDAABBCCDD')
+				createRosettaCoin('123', 'foo.bar', 3),
+				createRosettaCoin('62', 'cat.dog', 4),
+				createRosettaCoin('85', 'nem.xem', 6)
 			];
-			const embeddedTransaction = true;
-			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS, embeddedTransaction);
-			const aggregateTransactionJson = createAggregateTransactionJson(ACCOUNT_PUBLIC_KEY);
-			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([aggregateTransactionJson, transactionJson]);
+			const multisigTransactionJson = createAggregateTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
+			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([multisigTransactionJson]);
 
 			// Act + Assert:
 			await assertIncludeMempoolAccountTest(unconfirmedTransactionsJson, expectedResponse);

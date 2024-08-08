@@ -82,6 +82,19 @@ export default class NemProxy {
 	}
 
 	/**
+	 * Retrieves (uncached) block at height.
+	 * @param {number} height Block height.
+	 * @returns {Promise<object>} Block data.
+	 */
+	localBlockAtHeight(height) {
+		return this.fetch('local/block/at', undefined, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ height })
+		});
+	}
+
+	/**
 	 * Retrieves (potentially cached) mosaic properties.
 	 * @param {object} mosaicId NEM mosaic id object.
 	 * @returns {object} Properties about the mosaic.
