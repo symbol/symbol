@@ -19,10 +19,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Amount from './openApi/model/Amount.js';
 import RosettaApiError from './openApi/model/Error.js';
 import Operation from './openApi/model/Operation.js';
 import RosettaPublicKey from './openApi/model/PublicKey.js';
 import { sendJson } from '../../routes/simpleSend.js';
+
+// region RosettaError / RosettaErrorFactory
 
 /**
  * Error thrown when a rosetta endpoint encounters an error.
@@ -71,6 +74,10 @@ export class RosettaErrorFactory {
 		return new RosettaError(100, 'internal server error', false);
 	}
 }
+
+// endregion
+
+// region RosettaPublicKeyProcessor
 
 /**
  * Rosetta public key processor.
@@ -121,6 +128,10 @@ export class RosettaPublicKeyProcessor {
 	}
 }
 
+// endregion
+
+// region rosettaPostRouteWithNetwork
+
 /**
  * Orchestrates a rosetta POST route by validating request data, including network, before calling user handler.
  * @param {object} blockchainDescriptor Blockchain descriptor.
@@ -153,6 +164,10 @@ export const rosettaPostRouteWithNetwork = (blockchainDescriptor, Request, handl
 		return send(err instanceof RosettaError ? err : RosettaErrorFactory.INTERNAL_SERVER_ERROR);
 	}
 };
+
+// endregion
+
+// region extractTransferDescriptorAt
 
 /**
  * Extracts a transfer descriptor from a set of rosetta operations at specified index.
@@ -187,3 +202,39 @@ export const extractTransferDescriptorAt = (operations, index) => {
 		amount: -amount
 	};
 };
+
+// endregion
+
+// evaluateOperationsAndUpdateAmounts
+
+/**
+ * Updates an array of amounts for an account by applying an array of operations.
+ * @param {string} address Account address.
+ * @param {Array<Amount>} amounts Initial amounts to update.
+ * @param {Array<Operation>} operations Rosetta operations.
+ */
+export const evaluateOperationsAndUpdateAmounts = (address, amounts, operations) => {
+	const sumAmountsValue = (lhs, rhs) => (BigInt(lhs.value) + BigInt(rhs.value)).toString();
+
+	const userOperations = operations.filter(operation => address === operation.account.address && undefined !== operation.amount);
+
+	// combine the operations by each currency
+	const currencyAmountMap = new Map();
+	userOperations.forEach(operation => {
+		const currentSumAmount = currencyAmountMap.get(operation.amount.currency.symbol) || new Amount('0', operation.amount.currency);
+		currentSumAmount.value = sumAmountsValue(currentSumAmount, operation.amount);
+		currencyAmountMap.set(operation.amount.currency.symbol, currentSumAmount);
+	});
+
+	// update the current mosaics
+	amounts.forEach(amount => {
+		if (currencyAmountMap.has(amount.currency.symbol)) {
+			amount.value = sumAmountsValue(amount, currencyAmountMap.get(amount.currency.symbol));
+			currencyAmountMap.delete(amount.currency.symbol);
+		}
+	});
+
+	amounts.push(...currencyAmountMap.values());
+};
+
+// endregion
