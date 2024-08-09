@@ -57,6 +57,8 @@ describe('NEM rosetta plugin', () => {
 				// data routes
 				'/account/balance',
 				'/account/coins',
+				'/block',
+				'/block/transaction',
 				'/mempool',
 				'/mempool/transaction',
 				'/network/list',
