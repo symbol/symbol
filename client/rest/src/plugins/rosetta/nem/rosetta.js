@@ -22,6 +22,7 @@
 /** @module plugins/rosetta/nem */
 import NemProxy from './NemProxy.js';
 import constructionRoutes from './constructionRoutes.js';
+import networkRoutes from './networkRoutes.js';
 
 /**
  * Creates a rosetta plugin.
@@ -38,7 +39,8 @@ export default {
 		const proxy = new NemProxy(services.config.restEndpoint);
 
 		[
-			constructionRoutes
+			constructionRoutes,
+			networkRoutes
 		].forEach(routes => routes.register(server, db, { ...services, proxy }));
 	}
 };
