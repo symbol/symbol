@@ -22,6 +22,7 @@
 /** @module plugins/rosetta/nem */
 import NemProxy from './NemProxy.js';
 import accountRoutes from './accountRoutes.js';
+import blockRoutes from './blockRoutes.js';
 import constructionRoutes from './constructionRoutes.js';
 import mempoolRoutes from './mempoolRoutes.js';
 import networkRoutes from './networkRoutes.js';
@@ -42,6 +43,7 @@ export default {
 
 		[
 			accountRoutes,
+			blockRoutes,
 			constructionRoutes,
 			mempoolRoutes,
 			networkRoutes
