@@ -52,7 +52,12 @@ describe('NEM rosetta plugin', () => {
 				'/construction/combine',
 				'/construction/parse',
 				'/construction/hash',
-				'/construction/submit'
+				'/construction/submit',
+
+				// data routes
+				'/network/list',
+				'/network/options',
+				'/network/status'
 			]);
 		});
 	});
