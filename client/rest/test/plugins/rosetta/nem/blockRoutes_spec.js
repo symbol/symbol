@@ -44,9 +44,9 @@ describe('NEM block routes', () => {
 	// region utils
 
 	const TEST_BLOCK_HEIGHT = 1111;
-	const TRANSACTION_HASH = 'A5DEA9FA1CB0C88EB9EC9156602C68902FB2F61E13342E552603DC55FF199D89';
+	const TRANSACTION_HASH = 'a5dea9fa1cb0c88eb9ec9156602c68902fb2f61e13342e552603dc55ff199d89';
 	const RECIPIENT_ADDRESS = 'TCYGRS7EWWHSNFUIETQIMB233NE75NVX6MJFI3JO';
-	const SIGNER_PUBLICKEY = '61127CD45073DFED58F472748900D0B90E2D8EC6E10EE4E41B03861D1D1A720D';
+	const SIGNER_PUBLIC_KEY = '61127CD45073DFED58F472748900D0B90E2D8EC6E10EE4E41B03861D1D1A720D';
 	const SIGNER_ADDRESS = 'TCATGBEBY4GVVDEBDJCCSCYNK3XWORFB3R4PPZZU';
 
 	const { createRosettaNetworkIdentifier } = RosettaObjectFactory;
@@ -60,13 +60,13 @@ describe('NEM block routes', () => {
 	const stubFetchResult = FetchStubHelper.stubPost;
 	FetchStubHelper.registerStubCleanup();
 
-	const createTransactionJson = (height = TEST_BLOCK_HEIGHT) => {
+	const createTransactionJson = (height = TEST_BLOCK_HEIGHT, includeMeta = true) => {
 		const facade = new NemFacade('testnet');
 		const textEncoder = new TextEncoder();
 		const transaction = facade.transactionFactory.create({
 			type: 'transfer_transaction_v2',
 			recipientAddress: RECIPIENT_ADDRESS,
-			signerPublicKey: SIGNER_PUBLICKEY,
+			signerPublicKey: SIGNER_PUBLIC_KEY,
 			amount: 4_000000,
 			fee: 1000,
 			mosaics: [
@@ -90,10 +90,12 @@ describe('NEM block routes', () => {
 
 		return {
 			transaction: convertTransactionSdkJsonToRestJson(transaction.toJson()),
-			meta: {
-				hash: { data: TRANSACTION_HASH },
-				height
-			}
+			...(includeMeta && {
+				meta: {
+					hash: { data: TRANSACTION_HASH },
+					height
+				}
+			})
 		};
 	};
 
@@ -101,7 +103,7 @@ describe('NEM block routes', () => {
 		const transferCurrencyProperties = ['magic.hat', 3];
 		const feeCurrencyProperties = ['nem.xem', 6];
 		return new Transaction(
-			new TransactionIdentifier(TRANSACTION_HASH),
+			new TransactionIdentifier(TRANSACTION_HASH.toUpperCase()),
 			[
 				createTransferOperation(0, SIGNER_ADDRESS, '-40000000', ...feeCurrencyProperties),
 				createTransferOperation(1, RECIPIENT_ADDRESS, '40000000', ...feeCurrencyProperties),
@@ -112,7 +114,7 @@ describe('NEM block routes', () => {
 		);
 	};
 
-	const stubFetchNamespaceResult = (name, id, divisibility) => {
+	const stubMosaicResolution = (name, id, divisibility) => {
 		stubFetchResult(`namespace/definition/page?namespace=${id}&pageSize=100`, true, {
 			data: [
 				{
@@ -133,12 +135,12 @@ describe('NEM block routes', () => {
 	// region block
 
 	describe('block', () => {
-		const NEMESIS_BLOCK_HASH = 'AD8189C97983ED1D65C22236AFCD617D70A52A97D915DB2F9A76DC200AE1DD45';
-		const OTHER_BLOCK_HASH = '6E2A9B4BE42D9DA4B9EA93C30E5E305553208D1BEA501340B2054AD0D44B9D8B';
+		const NEMESIS_BLOCK_HASH = 'ad8189c97983ed1d65c22236afcd617d70a52a97d915db2f9a76dc200ae1dd45';
+		const OTHER_BLOCK_HASH = '6e2a9b4be42d9da4b9ea93c30e5e305553208d1bea501340b2054ad0d44b9d8b';
 
-		const createValidRequest = (height = TEST_BLOCK_HEIGHT) => ({
+		const createValidRequest = (height = TEST_BLOCK_HEIGHT, blockHash = OTHER_BLOCK_HASH) => ({
 			network_identifier: createRosettaNetworkIdentifier(),
-			block_identifier: { index: height.toString(), hash: 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076' }
+			block_identifier: { index: height.toString(), hash: blockHash }
 		});
 
 		const assertRosettaErrorRaised = (expectedError, malformRequest) =>
@@ -147,14 +149,6 @@ describe('NEM block routes', () => {
 		it('fails when request is invalid', () => assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, request => {
 			delete request.network_identifier.network;
 		}));
-
-		it('fails when fetch fails (local/block/at)', async () => {
-			// Arrange:
-			stubFetchResult('local/block/at', false, {});
-
-			// Act + Assert:
-			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
-		});
 
 		const createBlocksResponse = (blockHeight, blockHash, blockTimestamp) => ({
 			hash: blockHash,
@@ -187,39 +181,49 @@ describe('NEM block routes', () => {
 			return expectedResponse;
 		};
 
+		it('fails when fetch fails (local/block/at)', async () => {
+			// Arrange:
+			stubPostLocalBlockAt(1, NEMESIS_BLOCK_HASH, 0, false);
+			stubMosaicResolution('xem', 'nem', 6);
+			stubMosaicResolution('hat', 'magic', 3);
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
+		});
+
 		it('succeeds when all fetches succeed (nemesis)', async () => {
 			// Arrange:
 			stubPostLocalBlockAt(1, NEMESIS_BLOCK_HASH, 0, true);
-			stubFetchNamespaceResult('xem', 'nem', 6);
-			stubFetchNamespaceResult('hat', 'magic', 3);
+			stubMosaicResolution('xem', 'nem', 6);
+			stubMosaicResolution('hat', 'magic', 3);
 
 			// - create expected response
 			const expectedResponse = createMatchingRosettaBlock(
-				new BlockIdentifier(1, NEMESIS_BLOCK_HASH),
-				new BlockIdentifier(1, NEMESIS_BLOCK_HASH),
+				new BlockIdentifier(1, NEMESIS_BLOCK_HASH.toUpperCase()),
+				new BlockIdentifier(1, NEMESIS_BLOCK_HASH.toUpperCase()),
 				0
 			);
 
 			// Act + Assert:
-			await assertRosettaSuccessBasic('/block', createValidRequest(1), expectedResponse);
+			await assertRosettaSuccessBasic('/block', createValidRequest(1, NEMESIS_BLOCK_HASH), expectedResponse);
 		});
 
 		it('succeeds when all fetches succeed (other block)', async () => {
 			// Arrange:
 			stubPostLocalBlockAt(1, NEMESIS_BLOCK_HASH, 0, true);
 			stubPostLocalBlockAt(2, OTHER_BLOCK_HASH, 20, true);
-			stubFetchNamespaceResult('xem', 'nem', 6);
-			stubFetchNamespaceResult('hat', 'magic', 3);
+			stubMosaicResolution('xem', 'nem', 6);
+			stubMosaicResolution('hat', 'magic', 3);
 
 			// - create expected response
 			const expectedResponse = createMatchingRosettaBlock(
-				new BlockIdentifier(2, OTHER_BLOCK_HASH),
-				new BlockIdentifier(1, NEMESIS_BLOCK_HASH),
+				new BlockIdentifier(2, OTHER_BLOCK_HASH.toUpperCase()),
+				new BlockIdentifier(1, NEMESIS_BLOCK_HASH.toUpperCase()),
 				20
 			);
 
 			// Act + Assert:
-			await assertRosettaSuccessBasic('/block', createValidRequest(2), expectedResponse);
+			await assertRosettaSuccessBasic('/block', createValidRequest(2, OTHER_BLOCK_HASH), expectedResponse);
 		});
 	});
 
@@ -243,7 +247,7 @@ describe('NEM block routes', () => {
 
 		it('fails when fetch fails (transactions/confirmed)', async () => {
 			// Arrange:
-			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, false, {});
+			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, false, createTransactionJson());
 
 			// Act + Assert:
 			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
@@ -259,11 +263,19 @@ describe('NEM block routes', () => {
 			});
 		});
 
+		it('fails when transaction is not found in cache', async () => {
+			// Arrange:
+			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, true, createTransactionJson(1111, false));
+
+			// Act + Assert:
+			await assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, () => {});
+		});
+
 		it('succeeds when all fetches succeed', async () => {
 			// Arrange:
 			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, true, createTransactionJson());
-			stubFetchNamespaceResult('xem', 'nem', 6);
-			stubFetchNamespaceResult('hat', 'magic', 3);
+			stubMosaicResolution('xem', 'nem', 6);
+			stubMosaicResolution('hat', 'magic', 3);
 
 			// - create expected response
 			const transaction = createMatchingRosettaTransaction();

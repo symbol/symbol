@@ -51,9 +51,8 @@ export default {
 				body: JSON.stringify({ height }),
 				headers: { 'Content-Type': 'application/json' }
 			});
-
-			const parseTransaction = tx => parser.parseTransactionAsRosettaTransaction(tx.tx, { hash: { data: tx.hash } });
-			const rosettaTransactions = await Promise.all(blockInfo.txes.map(transaction => parseTransaction(transaction)));
+			const rosettaTransactions = await Promise.all(blockInfo.txes.map(transaction =>
+				parser.parseTransactionAsRosettaTransaction(transaction.tx, { hash: { data: transaction.hash } })));
 
 			const calculateBlockTimestamp = timestamp => Number(network.toDatetime(new NetworkTimestamp(timestamp)).getTime());
 
