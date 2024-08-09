@@ -38,7 +38,7 @@ export default {
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
 		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
-		const getChainHeight = () => services.proxy.fetch('chain/height', json => json.height);
+		const getChainHeight = () => services.proxy.fetch('chain/height', jsonObject => jsonObject.height);
 		const getBlockIdentifier = height => services.proxy.localBlockAtHeight(height)
 			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.hash));
 		const parser = new OperationParser(network, {
