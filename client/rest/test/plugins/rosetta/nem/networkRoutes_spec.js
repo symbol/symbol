@@ -160,19 +160,13 @@ describe('NEM network routes', () => {
 			return { data: peers };
 		};
 
-		const stubPostLocalBlockAt = (blockHeight, blockHash, blockTimestamp, ok) => {
-			FetchStubHelper.stubPost('local/block/at', ok, createBlocksResponse(blockHeight, blockHash, blockTimestamp), {
-				method: 'POST',
-				body: JSON.stringify({ height: blockHeight }),
-				headers: { 'Content-Type': 'application/json' }
-			});
-		};
-
 		const setupEndPoints = success => {
 			FetchStubHelper.stubPost('node/info', success, createRosettaNodeVersion());
 			FetchStubHelper.stubPost('chain/height', success, { height: CURRENT_BLOCK_NUMBER });
-			stubPostLocalBlockAt(GENESIS_BLOCK_NUMBER, GENESIS_BLOCK_HASH, 0, success);
-			stubPostLocalBlockAt(CURRENT_BLOCK_NUMBER, CURRENT_BLOCK_HASH, CURRENT_BLOCK_TIMESTAMP, success);
+			FetchStubHelper.stubLocalBlockAt({ height: GENESIS_BLOCK_NUMBER, hash: GENESIS_BLOCK_HASH, timestamp: 0 }, success);
+			FetchStubHelper.stubLocalBlockAt({
+				height: CURRENT_BLOCK_NUMBER, hash: CURRENT_BLOCK_HASH, timestamp: CURRENT_BLOCK_TIMESTAMP
+			}, success);
 			stubFetchResult('node/peer-list/reachable', success, createNodePeersResponse());
 		};
 

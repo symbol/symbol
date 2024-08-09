@@ -73,18 +73,13 @@ export default {
 		}));
 
 		server.post('/network/status', rosettaPostRouteWithNetwork(blockchainDescriptor, NetworkRequest, async () => {
-			const getBlockInfoAt = height => services.proxy.fetch('local/block/at', undefined, {
-				method: 'POST',
-				body: JSON.stringify({ height }),
-				headers: { 'Content-Type': 'application/json' }
-			});
 			const [currentBlock, peers, genesisBlock] = await Promise.all([
-				services.proxy.fetch('chain/height').then(info => getBlockInfoAt(info.height)),
+				services.proxy.fetch('chain/height').then(info => services.proxy.localBlockAtHeight(info.height)),
 				services.proxy.fetch(
 					'node/peer-list/reachable',
-					json => json.data
+					jsonObject => jsonObject.data
 				).then(nodes => nodes.map(node => new Peer(node.identity['public-key']))),
-				getBlockInfoAt(1)
+				services.proxy.localBlockAtHeight(1)
 			]);
 
 			const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);

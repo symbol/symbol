@@ -47,14 +47,20 @@ export const FetchStubHelper = {
 		});
 	},
 
-	stubLocalBlockAt(options, ok) {
-		FetchStubHelper.stubPost('local/block/at', ok, {
-			block: { height: options.height },
-			hash: options.hash
-		}, {
+	stubLocalBlockAt(optionsOrResponse, ok) {
+		let response = optionsOrResponse;
+		if (undefined === optionsOrResponse.block) {
+			const block = { height: optionsOrResponse.height };
+			if (optionsOrResponse.timestamp)
+				block.timeStamp = optionsOrResponse.timestamp;
+
+			response = { block, hash: optionsOrResponse.hash };
+		}
+
+		FetchStubHelper.stubPost('local/block/at', ok, response, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: `{"height":${options.height}}`
+			body: `{"height":${response.block.height}}`
 		});
 	}
 };
