@@ -234,7 +234,7 @@ describe('NEM block routes', () => {
 	describe('block/transaction', () => {
 		const createValidRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier(),
-			block_identifier: { index: '1111', hash: 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076' },
+			block_identifier: { index: TEST_BLOCK_HEIGHT, hash: 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076' },
 			transaction_identifier: { hash: TRANSACTION_HASH }
 		});
 
@@ -265,7 +265,7 @@ describe('NEM block routes', () => {
 
 		it('fails when transaction is not found in cache', async () => {
 			// Arrange:
-			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, true, createTransactionJson(1111, false));
+			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, true, createTransactionJson(TEST_BLOCK_HEIGHT, false));
 
 			// Act + Assert:
 			await assertRosettaErrorRaised(RosettaErrorFactory.INVALID_REQUEST_DATA, () => {});
