@@ -163,14 +163,6 @@ describe('NEM block routes', () => {
 			}
 		});
 
-		const stubPostLocalBlockAt = (blockHeight, blockHash, blockTimestamp, ok) => {
-			FetchStubHelper.stubPost('local/block/at', ok, createBlocksResponse(blockHeight, blockHash, blockTimestamp), {
-				method: 'POST',
-				body: JSON.stringify({ height: blockHeight }),
-				headers: { 'Content-Type': 'application/json' }
-			});
-		};
-
 		const createMatchingRosettaBlock = (blockIdentifier, parentBlockIdentifier, timestamp) => {
 			const expectedResponse = new BlockResponse();
 			expectedResponse.block = new Block();
@@ -183,7 +175,7 @@ describe('NEM block routes', () => {
 
 		it('fails when fetch fails (local/block/at)', async () => {
 			// Arrange:
-			stubPostLocalBlockAt(1, NEMESIS_BLOCK_HASH, 0, false);
+			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), false);
 			stubMosaicResolution('xem', 'nem', 6);
 			stubMosaicResolution('hat', 'magic', 3);
 
@@ -193,7 +185,7 @@ describe('NEM block routes', () => {
 
 		it('succeeds when all fetches succeed (nemesis)', async () => {
 			// Arrange:
-			stubPostLocalBlockAt(1, NEMESIS_BLOCK_HASH, 0, true);
+			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
 			stubMosaicResolution('xem', 'nem', 6);
 			stubMosaicResolution('hat', 'magic', 3);
 
@@ -210,8 +202,8 @@ describe('NEM block routes', () => {
 
 		it('succeeds when all fetches succeed (other block)', async () => {
 			// Arrange:
-			stubPostLocalBlockAt(1, NEMESIS_BLOCK_HASH, 0, true);
-			stubPostLocalBlockAt(2, OTHER_BLOCK_HASH, 20, true);
+			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
+			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(2, OTHER_BLOCK_HASH, 20), true);
 			stubMosaicResolution('xem', 'nem', 6);
 			stubMosaicResolution('hat', 'magic', 3);
 
