@@ -11,11 +11,11 @@ import {
 import { NetworkLocator } from './Network.js';
 import { deepCompare } from './utils/arrayHelpers.js';
 import {
-	bytesToBigInt, hexToUint8, intToBytes, isHexString, tryParseUint, uint8ToHex
+	bytesToBigInt, bytesToInt, hexToUint8, intToBytes, isHexString, tryParseUint, uint8ToHex
 } from './utils/converter.js';
 
 const utils = {
-	bytesToBigInt, deepCompare, hexToUint8, intToBytes, isHexString, tryParseUint, uint8ToHex
+	bytesToBigInt, bytesToInt, deepCompare, hexToUint8, intToBytes, isHexString, tryParseUint, uint8ToHex
 };
 
 export {
