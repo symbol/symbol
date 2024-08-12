@@ -53,6 +53,7 @@ describe('route system', () => {
 			'transfer',
 
 			// - rosetta
+			'nemRosetta',
 			'symbolRosetta'
 		]);
 	});
