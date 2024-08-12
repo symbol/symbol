@@ -29,6 +29,7 @@ import multisig from './multisig/multisig.js';
 import namespace from './namespace/namespace.js';
 import receipts from './receipts/receipts.js';
 import restrictions from './restrictions/restrictions.js';
+import nemRosetta from './rosetta/nem/rosetta.js';
 import symbolRosetta from './rosetta/symbol/rosetta.js';
 import MessageChannelBuilder from '../connection/MessageChannelBuilder.js';
 import { NetworkLocator } from 'symbol-sdk';
@@ -49,6 +50,7 @@ const plugins = {
 	transfer: empty,
 
 	// rosetta
+	nemRosetta,
 	symbolRosetta
 };
 
