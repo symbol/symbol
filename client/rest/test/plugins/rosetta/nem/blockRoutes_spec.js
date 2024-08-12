@@ -115,7 +115,7 @@ describe('NEM block routes', () => {
 	};
 
 	const stubMosaicResolution = (name, id, divisibility) => {
-		stubFetchResult(`namespace/definition/page?namespace=${id}&pageSize=100`, true, {
+		stubFetchResult(`namespace/mosaic/definition/page?namespace=${id}&pageSize=100`, true, {
 			data: [
 				{
 					mosaic: {
