@@ -51,6 +51,11 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 		delete transactionJson[originalName];
 	};
 
+	if (transactionJson.network) {
+		transactionJson.version = utils.bytesToInt(new Uint8Array([transactionJson.version, 0, 0, transactionJson.network]), 4);
+		delete transactionJson.network;
+	}
+
 	if (transactionJson.mosaics) {
 		transactionJson.mosaics = transactionJson.mosaics.map(mosaic => mosaic.mosaic).map(mosaic => ({
 			quantity: mosaic.amount,
@@ -293,7 +298,7 @@ export class OperationParser {
 				pushDebitCreditOperations(transaction.signer, transaction.recipient, amount, currency);
 			};
 
-			if (1 === transaction.version || 0 === transaction.mosaics.length) {
+			if (1 === (transaction.version & 0xFF) || 0 === transaction.mosaics.length) {
 				const { amount } = transaction;
 				const currency = await this.lookupFeeCurrency();
 

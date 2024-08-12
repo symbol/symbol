@@ -664,6 +664,19 @@ describe('NEM OperationParser', () => {
 	// region convertTransactionSdkJsonToRestJson
 
 	describe('convertTransactionSdkJsonToRestJson', () => {
+		it('merges network and version', () => {
+			// Act:
+			const restJson = convertTransactionSdkJsonToRestJson({
+				network: 0x98,
+				version: 2
+			});
+
+			// Assert:
+			expect(restJson).to.deep.equal({
+				version: 0x98000002
+			});
+		});
+
 		it('can fixup mosaics array', () => {
 			// Arrange:
 			const textEncoder = new TextEncoder();
