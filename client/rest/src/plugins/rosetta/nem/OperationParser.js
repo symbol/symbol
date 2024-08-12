@@ -66,8 +66,12 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 	if (transactionJson.mosaicId)
 		transactionJson.mosaicId = convertMosaicIdSdkJsonToRestJson(transactionJson.mosaicId);
 
-	if (transactionJson.modifications)
-		transactionJson.modifications = transactionJson.modifications.map(modification => modification.modification);
+	if (transactionJson.modifications) {
+		transactionJson.modifications = transactionJson.modifications.map(modification => modification.modification).map(modification => ({
+			modificationType: modification.modificationType,
+			cosignatoryAccount: modification.cosignatoryPublicKey
+		}));
+	}
 
 	if (transactionJson.signerPublicKey)
 		renameProperty('signerPublicKey', 'signer');
@@ -325,7 +329,7 @@ export class OperationParser {
 			const addressDeletions = [];
 
 			transaction.modifications.forEach(modification => {
-				const cosignatoryAddress = this.publicKeyStringToAccountIdentifier(modification.cosignatoryPublicKey).address;
+				const cosignatoryAddress = this.publicKeyStringToAccountIdentifier(modification.cosignatoryAccount).address;
 				if (models.MultisigAccountModificationType.ADD_COSIGNATORY.value === modification.modificationType)
 					addressAdditions.push(cosignatoryAddress);
 				else
