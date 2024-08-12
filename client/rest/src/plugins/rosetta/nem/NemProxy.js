@@ -105,7 +105,7 @@ export default class NemProxy {
 			return this.mosaicPropertiesMap.get(fullyQualifiedName);
 
 		const mosaicDefinitions = await this.fetchAll(
-			`namespace/definition/page?namespace=${mosaicId.namespaceId}`,
+			`namespace/mosaic/definition/page?namespace=${mosaicId.namespaceId}`,
 			100,
 			jsonObject => jsonObject.mosaic
 		);
