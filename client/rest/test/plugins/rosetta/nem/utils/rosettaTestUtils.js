@@ -32,7 +32,7 @@ export const FetchStubHelper = {
 	...BasicFetchStubHelper,
 
 	stubMosaicResolution: (namespaceId, name, divisibility) => {
-		FetchStubHelper.stubPost(`namespace/definition/page?namespace=${namespaceId}&pageSize=100`, true, {
+		FetchStubHelper.stubPost(`namespace/mosaic/definition/page?namespace=${namespaceId}&pageSize=100`, true, {
 			data: [
 				{
 					mosaic: {
