@@ -110,6 +110,28 @@ describe('NEM rosetta utils', () => {
 			expect(levy).to.equal(undefined);
 		});
 
+		it('can lookup nem.xem', async () => {
+			// Act:
+			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
+			const { currency, levy } = await lookupCurrency({ namespaceId: 'nem', name: 'xem' });
+
+			// Assert: bypasses mosaicProperties
+			const expectedCurrency = new Currency('nem.xem', 6);
+			expect(currency).to.deep.equal(expectedCurrency);
+			expect(levy).to.equal(undefined);
+		});
+
+		it('can lookup nem.other', async () => {
+			// Act:
+			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
+			const { currency, levy } = await lookupCurrency({ namespaceId: 'nem', name: 'other' });
+
+			// Assert: does not bypass mosaicProperties
+			const expectedCurrency = new Currency('nem.other', 2);
+			expect(currency).to.deep.equal(expectedCurrency);
+			expect(levy).to.equal(undefined);
+		});
+
 		it('can lookup arbitrary mosaic id (without levy)', async () => {
 			// Act:
 			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
