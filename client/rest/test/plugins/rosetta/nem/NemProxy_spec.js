@@ -265,7 +265,7 @@ describe('NemProxy', () => {
 		const assertCanRetriveProperties = async options => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('namespace/definition/page?namespace=foo.bar&pageSize=100', true, {
+			stubFetchResult('namespace/mosaic/definition/page?namespace=foo.bar&pageSize=100', true, {
 				data: [
 					{ mosaic: { id: { namespaceId: 'foo.bar', name: 'tokens' } } },
 					{
@@ -360,7 +360,7 @@ describe('NemProxy', () => {
 		it('can retrieve properties for mosaic (cached)', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('namespace/definition/page?namespace=foo.bar&pageSize=100', true, {
+			stubFetchResult('namespace/mosaic/definition/page?namespace=foo.bar&pageSize=100', true, {
 				data: [
 					{
 						mosaic: {
@@ -402,7 +402,7 @@ describe('NemProxy', () => {
 		it('fails when no matching mosaic is found', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('namespace/definition/page?namespace=foo.bar&pageSize=100', true, {
+			stubFetchResult('namespace/mosaic/definition/page?namespace=foo.bar&pageSize=100', true, {
 				data: [
 					{ mosaic: { id: { namespaceId: 'foo.bar', name: 'tokens' } } },
 					{ mosaic: { id: { namespaceId: 'foo.bar', name: 'coupons' } } },
@@ -417,10 +417,10 @@ describe('NemProxy', () => {
 			);
 		});
 
-		it('fails when fetch fails (namespace/definition/page)', async () => {
+		it('fails when fetch fails (namespace/mosaic/definition/page)', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('namespace/definition/page?namespace=foo.bar&pageSize=100', false, {
+			stubFetchResult('namespace/mosaic/definition/page?namespace=foo.bar&pageSize=100', false, {
 				data: [
 					{
 						mosaic: {
