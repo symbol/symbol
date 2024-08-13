@@ -661,6 +661,42 @@ describe('NEM OperationParser', () => {
 		// endregion
 	});
 
+	// region block
+
+	describe('block', () => {
+		const runBlockTest = async (blockJson, expectedOperations) => {
+			// Arrange:
+			const facade = new NemFacade('testnet');
+
+			const parser = createDefaultParser(facade.network);
+
+			// Act:
+			const { operations } = await parser.parseReceipt(convertTransactionSdkJsonToRestJson(blockJson));
+
+			// Assert:
+			expect(operations).to.deep.equal(expectedOperations);
+		};
+
+		it('extracts fee operation when nonzero fee', () => {
+			runBlockTest({
+				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+				totalFee: 12345
+			}, [
+				createTransferOperation(0, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '12345', 'currency.fee', 2)
+			]);
+		});
+
+		it('does not extract fee operation when zero fee', () => {
+			runBlockTest({
+				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+				totalFee: 0
+			}, [
+			]);
+		});
+	});
+
+	// endregion
+
 	// region convertTransactionSdkJsonToRestJson
 
 	describe('convertTransactionSdkJsonToRestJson', () => {

@@ -48,6 +48,7 @@ describe('NEM block routes', () => {
 	const RECIPIENT_ADDRESS = 'TCYGRS7EWWHSNFUIETQIMB233NE75NVX6MJFI3JO';
 	const SIGNER_PUBLIC_KEY = '61127CD45073DFED58F472748900D0B90E2D8EC6E10EE4E41B03861D1D1A720D';
 	const SIGNER_ADDRESS = 'TCATGBEBY4GVVDEBDJCCSCYNK3XWORFB3R4PPZZU';
+	const BENEFICIARY_ADDRESS = 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW';
 
 	const { createRosettaNetworkIdentifier } = RosettaObjectFactory;
 	const createTransferOperation = (...args) =>
@@ -102,16 +103,20 @@ describe('NEM block routes', () => {
 	const createMatchingRosettaTransaction = () => {
 		const transferCurrencyProperties = ['magic.hat', 3];
 		const feeCurrencyProperties = ['nem.xem', 6];
-		return new Transaction(
-			new TransactionIdentifier(TRANSACTION_HASH.toUpperCase()),
-			[
-				createTransferOperation(0, SIGNER_ADDRESS, '-40000000', ...feeCurrencyProperties),
-				createTransferOperation(1, RECIPIENT_ADDRESS, '40000000', ...feeCurrencyProperties),
-				createTransferOperation(2, SIGNER_ADDRESS, '-2000', ...transferCurrencyProperties),
-				createTransferOperation(3, RECIPIENT_ADDRESS, '2000', ...transferCurrencyProperties),
-				createTransferOperation(4, SIGNER_ADDRESS, '-1000', ...feeCurrencyProperties)
-			]
-		);
+		return new Transaction(new TransactionIdentifier(TRANSACTION_HASH.toUpperCase()), [
+			createTransferOperation(0, SIGNER_ADDRESS, '-40000000', ...feeCurrencyProperties),
+			createTransferOperation(1, RECIPIENT_ADDRESS, '40000000', ...feeCurrencyProperties),
+			createTransferOperation(2, SIGNER_ADDRESS, '-2000', ...transferCurrencyProperties),
+			createTransferOperation(3, RECIPIENT_ADDRESS, '2000', ...transferCurrencyProperties),
+			createTransferOperation(4, SIGNER_ADDRESS, '-1000', ...feeCurrencyProperties)
+		]);
+	};
+
+	const createMatchingRosettaBlockTransaction = blockHash => {
+		const feeCurrencyProperties = ['nem.xem', 6];
+		return new Transaction(new TransactionIdentifier(blockHash), [
+			createTransferOperation(0, BENEFICIARY_ADDRESS, '112233', ...feeCurrencyProperties)
+		]);
 	};
 
 	const stubMosaicResolution = (name, id, divisibility) => {
@@ -160,7 +165,9 @@ describe('NEM block routes', () => {
 				height: blockHeight,
 				timeStamp: blockTimestamp,
 				prevBlockHash: { data: NEMESIS_BLOCK_HASH }
-			}
+			},
+			beneficiary: BENEFICIARY_ADDRESS,
+			totalFee: 112233
 		});
 
 		const createMatchingRosettaBlock = (blockIdentifier, parentBlockIdentifier, timestamp) => {
@@ -169,7 +176,10 @@ describe('NEM block routes', () => {
 			expectedResponse.block.block_identifier = blockIdentifier;
 			expectedResponse.block.parent_block_identifier = parentBlockIdentifier;
 			expectedResponse.block.timestamp = (timestamp * 1000) + 1427587585000;
-			expectedResponse.block.transactions = [createMatchingRosettaTransaction()];
+			expectedResponse.block.transactions = [
+				createMatchingRosettaTransaction(),
+				createMatchingRosettaBlockTransaction(blockIdentifier.hash)
+			];
 			return expectedResponse;
 		};
 
