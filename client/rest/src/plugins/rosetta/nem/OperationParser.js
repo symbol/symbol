@@ -376,4 +376,26 @@ export class OperationParser {
 
 		return operations;
 	}
+
+	/**
+	 * Parses a block into operations.
+	 * @param {object} block Block to process (REST object model is assumed).
+	 * @returns {Array<Operation>} Receipt operations.
+	 */
+	async parseBlock(block) {
+		if (0 === block.totalFee)
+			return { operations: [] };
+
+		const { currency } = await this.options.lookupCurrency('currencyMosaicId');
+		return {
+			operations: [
+				this.createCreditOperation({
+					id: 0,
+					amount: block.totalFee,
+					currency,
+					targetAddress: block.beneficiary
+				})
+			]
+		};
+	}
 }
