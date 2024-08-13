@@ -27,6 +27,8 @@ import BlockRequest from '../openApi/model/BlockRequest.js';
 import BlockResponse from '../openApi/model/BlockResponse.js';
 import BlockTransactionRequest from '../openApi/model/BlockTransactionRequest.js';
 import BlockTransactionResponse from '../openApi/model/BlockTransactionResponse.js';
+import Transaction from '../openApi/model/Transaction.js';
+import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network, NetworkTimestamp } from 'symbol-sdk/nem';
@@ -44,17 +46,24 @@ export default {
 			lookupCurrency
 		});
 
+		const createBlockTransaction = async blockInfo => {
+			const { operations } = await parser.parseBlock(blockInfo);
+			return new Transaction(new TransactionIdentifier(blockInfo.hash.toUpperCase()), operations);
+		};
+
 		server.post('/block', rosettaPostRouteWithNetwork(blockchainDescriptor, BlockRequest, async typedRequest => {
 			const height = typedRequest.block_identifier.index;
 			const blockInfo = await services.proxy.localBlockAtHeight(height);
 			const rosettaTransactions = await Promise.all(blockInfo.txes.map(transaction =>
 				parser.parseTransactionAsRosettaTransaction(transaction.tx, { hash: { data: transaction.hash } })));
+			const blockTransaction = await createBlockTransaction(blockInfo);
 
 			const calculateBlockTimestamp = timestamp => Number(network.toDatetime(new NetworkTimestamp(timestamp)).getTime());
 
 			const response = new BlockResponse();
 			response.block = new Block();
 			response.block.transactions = rosettaTransactions;
+			response.block.transactions.push(blockTransaction);
 			response.block.block_identifier = new BlockIdentifier(Number(blockInfo.block.height), blockInfo.hash.toUpperCase());
 			response.block.parent_block_identifier = GENESIS_BLOCK_NUMBER === height
 				? response.block.block_identifier
