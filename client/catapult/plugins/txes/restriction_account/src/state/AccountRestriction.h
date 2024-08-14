@@ -60,7 +60,7 @@ namespace catapult { namespace state {
 		/// Applies \a modification to the allowed values.
 		void allow(const model::AccountRestrictionModification& modification);
 
-		/// Applies \a modification to the the blocked values.
+		/// Applies \a modification to the blocked values.
 		void block(const model::AccountRestrictionModification& modification);
 
 	private:

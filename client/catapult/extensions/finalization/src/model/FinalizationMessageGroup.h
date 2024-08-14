@@ -54,7 +54,7 @@ namespace catapult { namespace model {
 		/// Message stage.
 		FinalizationStage Stage;
 
-		/// Block height corresponding to the the first hash.
+		/// Block height corresponding to the first hash.
 		catapult::Height Height;
 
 		// followed by hashes data if HashesCount != 0

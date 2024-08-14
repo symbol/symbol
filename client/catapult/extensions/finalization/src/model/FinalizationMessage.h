@@ -61,7 +61,7 @@ namespace catapult { namespace model {
 		/// Step identifer.
 		model::StepIdentifier StepIdentifier;
 
-		/// Block height corresponding to the the first hash.
+		/// Block height corresponding to the first hash.
 		catapult::Height Height;
 
 	public:

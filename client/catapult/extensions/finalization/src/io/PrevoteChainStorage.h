@@ -33,7 +33,7 @@ namespace catapult { namespace io {
 		/// Prevote round.
 		model::FinalizationRound Round;
 
-		/// Block height corresponding to the the first prevote hash.
+		/// Block height corresponding to the first prevote hash.
 		catapult::Height Height;
 
 		/// Number of prevote hashes.
