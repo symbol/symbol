@@ -676,7 +676,7 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, CanRecoverAfterFailedBlocksFromOperation) {
-		// Assert: two blocks-from requests were made beacuse the the chain comparison succeeded
+		// Assert: two blocks-from requests were made beacuse the chain comparison succeeded
 		AssertSyncRecoverablityAfterChainApiException(MockChainApi::EntryPoint::Blocks_From, { Default_Height, Default_Height });
 	}
 
