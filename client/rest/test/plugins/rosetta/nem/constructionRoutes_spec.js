@@ -37,6 +37,7 @@ import ConstructionPreprocessResponse from '../../../../src/plugins/rosetta/open
 import TransactionIdentifier from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifier.js';
 import TransactionIdentifierResponse from '../../../../src/plugins/rosetta/openApi/model/TransactionIdentifierResponse.js';
 import { RosettaErrorFactory } from '../../../../src/plugins/rosetta/rosettaUtils.js';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import { utils } from 'symbol-sdk';
 import { TransactionFactory, models } from 'symbol-sdk/nem';
@@ -806,6 +807,63 @@ describe('NEM rosetta construction routes', () => {
 
 			// Act + Assert:
 			await assertRosettaSuccessBasic('/construction/submit', createValidHashRequest(), expectedResponse);
+			expect(global.fetch.callCount).to.equal(1);
+		});
+
+		const createBasicMultisigTransactionWithCosignatures = () => {
+			const { verifier } = createMultisigSingleTransferCreditFirstTestCase();
+
+			// hoist cosignatures out of transaction
+			const cosignatures = verifier.transaction.cosignatures.map(cosignature => cosignature.cosignature);
+			verifier.transaction.cosignatures = [];
+			return {
+				transaction: verifier.transaction,
+				transactionHash: verifier.facade.hashTransaction(verifier.transaction),
+				cosignatures
+			};
+		};
+
+		const createValidMultisigSubmitRequest = () => {
+			const { verifier } = createMultisigSingleTransferCreditFirstTestCase();
+			const signedTransactionHex = utils.uint8ToHex(verifier.transaction.serialize());
+
+			return {
+				network_identifier: createRosettaNetworkIdentifier(),
+				signed_transaction: signedTransactionHex
+			};
+		};
+
+		it('fails when any non-success message is returned (multisig)', async () => {
+			// Arrange:
+			const { transaction, cosignatures } = createBasicMultisigTransactionWithCosignatures();
+
+			stubFetchResult(transaction, true, { message: 'SUCCESS' });
+			stubFetchResult(cosignatures[0], true, { message: 'SUCCESS' });
+			stubFetchResult(cosignatures[1], true, { message: 'OTHER' });
+
+			// Act + Assert:
+			assertRosettaErrorRaisedBasic(
+				'/construction/submit',
+				createValidMultisigSubmitRequest(),
+				RosettaErrorFactory.INTERNAL_SERVER_ERROR
+			);
+		});
+
+		it('returns valid response on success (multisig)', async () => {
+			// Arrange:
+			const { transaction, transactionHash, cosignatures } = createBasicMultisigTransactionWithCosignatures();
+
+			stubFetchResult(transaction, true, { message: 'SUCCESS' });
+			stubFetchResult(cosignatures[0], true, { message: 'SUCCESS' });
+			stubFetchResult(cosignatures[1], true, { message: 'SUCCESS' });
+
+			// - create expected response
+			const expectedResponse = new TransactionIdentifierResponse();
+			expectedResponse.transaction_identifier = new TransactionIdentifier(transactionHash.toString());
+
+			// Act + Assert:
+			await assertRosettaSuccessBasic('/construction/submit', createValidMultisigSubmitRequest(), expectedResponse);
+			expect(global.fetch.callCount).to.equal(3);
 		});
 	});
 
