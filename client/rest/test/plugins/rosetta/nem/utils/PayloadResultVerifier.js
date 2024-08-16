@@ -3,6 +3,8 @@ import SigningPayload from '../../../../../src/plugins/rosetta/openApi/model/Sig
 import { utils } from 'symbol-sdk';
 import { NemFacade, models } from 'symbol-sdk/nem';
 
+const FEE_UNIT = 50000n;
+
 export default class PayloadResultVerifier {
 	constructor(timestamp) {
 		this.timestampProperties = {
@@ -32,7 +34,7 @@ export default class PayloadResultVerifier {
 			type: 'transfer_transaction_v2',
 			signerPublicKey,
 			...this.timestampProperties,
-			fee: 50000n * 25n,
+			fee: 25n * FEE_UNIT,
 
 			recipientAddress,
 			amount: 2_000000,
@@ -58,7 +60,7 @@ export default class PayloadResultVerifier {
 			type: 'multisig_account_modification_transaction_v2',
 			signerPublicKey,
 			...this.timestampProperties,
-			fee: 50000n * 10n,
+			fee: 10n * FEE_UNIT,
 
 			...metadata
 		});
@@ -69,7 +71,7 @@ export default class PayloadResultVerifier {
 			type: 'multisig_transaction_v1',
 			signerPublicKey,
 			...this.timestampProperties,
-			fee: this.transaction.fee,
+			fee: 3n * FEE_UNIT,
 
 			innerTransaction: this.facade.transactionFactory.static.toNonVerifiableTransaction(this.transaction),
 
@@ -79,7 +81,7 @@ export default class PayloadResultVerifier {
 					type: 'cosignature_v1',
 					signerPublicKey: cosignerPublicKey,
 					...this.timestampProperties,
-					fee: 50000n * 3n
+					fee: 3n * FEE_UNIT
 				});
 				return cosignature;
 			})
