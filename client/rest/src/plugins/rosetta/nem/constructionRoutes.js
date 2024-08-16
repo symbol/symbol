@@ -77,6 +77,15 @@ export default {
 						response.required_public_keys.push(operation.account);
 				} else if (['multisig', 'cosign'].includes(operation.type)) {
 					response.required_public_keys.push(operation.account);
+
+					if ('multisig' === operation.type) {
+						operation.metadata.addressAdditions.forEach(address => {
+							response.required_public_keys.push(new AccountIdentifier(address));
+						});
+						operation.metadata.addressDeletions.forEach(address => {
+							response.required_public_keys.push(new AccountIdentifier(address));
+						});
+					}
 				}
 			});
 
