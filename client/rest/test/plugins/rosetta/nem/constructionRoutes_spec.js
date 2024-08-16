@@ -276,10 +276,11 @@ describe('NEM rosetta construction routes', () => {
 				createRosettaMultisig(0, 'TCJEJJBKDI62U4ZMO4VI7YAUVJE4STVCOBDSHXQ', {
 					minApprovalDelta: 1,
 					minRemovalDelta: 2,
-					addressAdditions: ['TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ']
+					addressAdditions: ['TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'],
+					addressDeletions: ['TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3']
 				}),
-				createRosettaCosignatory(1, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
-				createRosettaCosignatory(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
+				createRosettaCosignatory(1, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ'),
+				createRosettaCosignatory(2, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB')
 			]
 		});
 
@@ -303,13 +304,15 @@ describe('NEM rosetta construction routes', () => {
 		});
 
 		it('returns valid response on success (multisig)', async () => {
-			// Arrange: create expected response
+			// Arrange: create expected response (include address additions and explicit cosignatories)
 			const expectedResponse = new ConstructionPreprocessResponse();
 			expectedResponse.options = {};
 			expectedResponse.required_public_keys = [
 				new AccountIdentifier('TCJEJJBKDI62U4ZMO4VI7YAUVJE4STVCOBDSHXQ'),
 				new AccountIdentifier('TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
-				new AccountIdentifier('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
+				new AccountIdentifier('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ'),
+				new AccountIdentifier('TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ'),
+				new AccountIdentifier('TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB')
 			];
 
 			// Act + Assert:
