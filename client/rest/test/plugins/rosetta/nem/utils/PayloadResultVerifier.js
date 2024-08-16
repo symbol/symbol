@@ -67,6 +67,9 @@ export default class PayloadResultVerifier {
 	}
 
 	makeMultisig(signerPublicKey, cosignerPublicKeys) {
+		const otherTransactionHash = this.facade.hashTransaction(this.transaction);
+		const multisigAccountAddress = this.facade.network.publicKeyToAddress(this.transaction.signerPublicKey);
+
 		this.transaction = this.facade.transactionFactory.create({
 			type: 'multisig_transaction_v1',
 			signerPublicKey,
@@ -81,7 +84,9 @@ export default class PayloadResultVerifier {
 					type: 'cosignature_v1',
 					signerPublicKey: cosignerPublicKey,
 					...this.timestampProperties,
-					fee: 3n * FEE_UNIT
+					fee: 3n * FEE_UNIT,
+					otherTransactionHash,
+					multisigAccountAddress
 				});
 				return cosignature;
 			})
@@ -95,9 +100,14 @@ export default class PayloadResultVerifier {
 		return signingPayload;
 	}
 
+	findCosignature(address) {
+		return this.transaction.cosignatures.map(cosignature => cosignature.cosignature)
+			.find(cosignature => this.facade.network.publicKeyToAddress(cosignature.signerPublicKey).toString() === address);
+	}
+
 	makeCosigningPayload(address) {
-		const aggregateTransactionHash = this.facade.hashTransaction(this.transaction);
-		const signingPayload = new SigningPayload(utils.uint8ToHex(aggregateTransactionHash.bytes));
+		const cosignature = this.findCosignature(address);
+		const signingPayload = new SigningPayload(utils.uint8ToHex(this.facade.extractSigningPayload(cosignature)));
 		signingPayload.account_identifier = new AccountIdentifier(address);
 		signingPayload.signature_type = 'ed25519_keccak';
 		return signingPayload;
