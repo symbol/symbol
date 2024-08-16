@@ -167,6 +167,9 @@ export default {
 			}
 
 			if (0 !== cosignerPublicKeys.length) {
+				const otherTransactionHash = facade.hashTransaction(transaction);
+				const multisigAccountAddress = facade.network.publicKeyToAddress(transaction.signerPublicKey);
+
 				// wrap transaction in multisig
 				const signerPublicKey = cosignerPublicKeys.shift().bytes;
 				transaction = facade.transactionFactory.create({
@@ -183,27 +186,31 @@ export default {
 							type: 'cosignature_v1',
 							signerPublicKey: cosignerPublicKey.bytes,
 							...timestampProperties,
-							fee: 3n * FEE_UNIT
+							fee: 3n * FEE_UNIT,
+							otherTransactionHash,
+							multisigAccountAddress
 						});
 						return cosignature;
 					})
 				});
 			}
 
-			const transactionHash = facade.hashTransaction(transaction);
 			const transactionPayload = transaction.serialize();
 			const signingPayload = facade.extractSigningPayload(transaction);
 
 			const response = new ConstructionPayloadsResponse();
 			response.unsigned_transaction = utils.uint8ToHex(transactionPayload);
 
-			response.payloads = [
-				createSigningPayload(signingPayload, facade.network.publicKeyToAddress(transaction.signerPublicKey)),
-				...cosignerPublicKeys.map(publicKey => createSigningPayload(
-					transactionHash.bytes,
-					facade.network.publicKeyToAddress(publicKey)
-				))
-			];
+			response.payloads = [createSigningPayload(signingPayload, facade.network.publicKeyToAddress(transaction.signerPublicKey))];
+			if (0 !== cosignerPublicKeys.length) {
+				response.payloads = [].concat(response.payloads, transaction.cosignatures
+					.map(cosignature => cosignature.cosignature)
+					.map(cosignature => {
+						const cosignatureSigningPayload = facade.extractSigningPayload(cosignature);
+						const cosignaturePublicKey = facade.network.publicKeyToAddress(cosignature.signerPublicKey);
+						return createSigningPayload(cosignatureSigningPayload, cosignaturePublicKey);
+					}));
+			}
 
 			return response;
 		}));
