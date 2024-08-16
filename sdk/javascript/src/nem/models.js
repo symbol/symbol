@@ -2809,7 +2809,7 @@ export class CosignatureV1 extends Transaction {
 
 	static TYPE_HINTS = {
 		...Transaction.TYPE_HINTS,
-		multisigTransactionHash: 'pod:Hash256',
+		otherTransactionHash: 'pod:Hash256',
 		multisigAccountAddress: 'pod:Address'
 	};
 
@@ -2817,22 +2817,22 @@ export class CosignatureV1 extends Transaction {
 		super();
 		this._type = CosignatureV1.TRANSACTION_TYPE;
 		this._version = CosignatureV1.TRANSACTION_VERSION;
-		this._multisigTransactionHash = new Hash256();
+		this._otherTransactionHash = new Hash256();
 		this._multisigAccountAddress = new Address();
-		this._multisigTransactionHashOuterSize = 36; // reserved field
-		this._multisigTransactionHashSize = 32; // reserved field
+		this._otherTransactionHashOuterSize = 36; // reserved field
+		this._otherTransactionHashSize = 32; // reserved field
 		this._multisigAccountAddressSize = 40; // reserved field
 	}
 
 	sort() { // eslint-disable-line class-methods-use-this
 	}
 
-	get multisigTransactionHash() {
-		return this._multisigTransactionHash;
+	get otherTransactionHash() {
+		return this._otherTransactionHash;
 	}
 
-	set multisigTransactionHash(value) {
-		this._multisigTransactionHash = value;
+	set otherTransactionHash(value) {
+		this._otherTransactionHash = value;
 	}
 
 	get multisigAccountAddress() {
@@ -2848,7 +2848,7 @@ export class CosignatureV1 extends Transaction {
 		size += super.size;
 		size += 4;
 		size += 4;
-		size += this.multisigTransactionHash.size;
+		size += this.otherTransactionHash.size;
 		size += 4;
 		size += this.multisigAccountAddress.size;
 		return size;
@@ -2859,16 +2859,16 @@ export class CosignatureV1 extends Transaction {
 		const instance = new CosignatureV1();
 
 		Transaction._deserialize(view, instance);
-		const multisigTransactionHashOuterSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		const otherTransactionHashOuterSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		if (36 !== multisigTransactionHashOuterSize)
-			throw RangeError(`Invalid value of reserved field (${multisigTransactionHashOuterSize})`);
-		const multisigTransactionHashSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		if (36 !== otherTransactionHashOuterSize)
+			throw RangeError(`Invalid value of reserved field (${otherTransactionHashOuterSize})`);
+		const otherTransactionHashSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		if (32 !== multisigTransactionHashSize)
-			throw RangeError(`Invalid value of reserved field (${multisigTransactionHashSize})`);
-		const multisigTransactionHash = Hash256.deserialize(view.buffer);
-		view.shiftRight(multisigTransactionHash.size);
+		if (32 !== otherTransactionHashSize)
+			throw RangeError(`Invalid value of reserved field (${otherTransactionHashSize})`);
+		const otherTransactionHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(otherTransactionHash.size);
 		const multisigAccountAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== multisigAccountAddressSize)
@@ -2876,7 +2876,7 @@ export class CosignatureV1 extends Transaction {
 		const multisigAccountAddress = Address.deserialize(view.buffer);
 		view.shiftRight(multisigAccountAddress.size);
 
-		instance._multisigTransactionHash = multisigTransactionHash;
+		instance._otherTransactionHash = otherTransactionHash;
 		instance._multisigAccountAddress = multisigAccountAddress;
 		return instance;
 	}
@@ -2884,9 +2884,9 @@ export class CosignatureV1 extends Transaction {
 	serialize() {
 		const buffer = new Writer(this.size);
 		super._serialize(buffer);
-		buffer.write(converter.intToBytes(this._multisigTransactionHashOuterSize, 4, false));
-		buffer.write(converter.intToBytes(this._multisigTransactionHashSize, 4, false));
-		buffer.write(this._multisigTransactionHash.serialize());
+		buffer.write(converter.intToBytes(this._otherTransactionHashOuterSize, 4, false));
+		buffer.write(converter.intToBytes(this._otherTransactionHashSize, 4, false));
+		buffer.write(this._otherTransactionHash.serialize());
 		buffer.write(converter.intToBytes(this._multisigAccountAddressSize, 4, false));
 		buffer.write(this._multisigAccountAddress.serialize());
 		return buffer.storage;
@@ -2895,7 +2895,7 @@ export class CosignatureV1 extends Transaction {
 	toString() {
 		let result = '(';
 		result += super.toString();
-		result += `multisigTransactionHash: ${this._multisigTransactionHash.toString()}, `;
+		result += `otherTransactionHash: ${this._otherTransactionHash.toString()}, `;
 		result += `multisigAccountAddress: ${this._multisigAccountAddress.toString()}, `;
 		result += ')';
 		return result;
@@ -2907,7 +2907,7 @@ export class CosignatureV1 extends Transaction {
 	toJson() {
 		const result = {};
 		Object.assign(result, super.toJson());
-		result.multisigTransactionHash = this._multisigTransactionHash.toJson();
+		result.otherTransactionHash = this._otherTransactionHash.toJson();
 		result.multisigAccountAddress = this._multisigAccountAddress.toJson();
 		return result;
 	}

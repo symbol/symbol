@@ -2370,7 +2370,7 @@ class CosignatureV1(Transaction):
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_COSIGNATURE
 	TYPE_HINTS = {
 		**Transaction.TYPE_HINTS,
-		'multisig_transaction_hash': 'pod:Hash256',
+		'other_transaction_hash': 'pod:Hash256',
 		'multisig_account_address': 'pod:Address'
 	}
 
@@ -2378,26 +2378,26 @@ class CosignatureV1(Transaction):
 		super().__init__()
 		self._type_ = CosignatureV1.TRANSACTION_TYPE
 		self._version = CosignatureV1.TRANSACTION_VERSION
-		self._multisig_transaction_hash = Hash256()
+		self._other_transaction_hash = Hash256()
 		self._multisig_account_address = Address()
-		self._multisig_transaction_hash_outer_size = 36  # reserved field
-		self._multisig_transaction_hash_size = 32  # reserved field
+		self._other_transaction_hash_outer_size = 36  # reserved field
+		self._other_transaction_hash_size = 32  # reserved field
 		self._multisig_account_address_size = 40  # reserved field
 
 	def sort(self) -> None:
 		pass
 
 	@property
-	def multisig_transaction_hash(self) -> Hash256:
-		return self._multisig_transaction_hash
+	def other_transaction_hash(self) -> Hash256:
+		return self._other_transaction_hash
 
 	@property
 	def multisig_account_address(self) -> Address:
 		return self._multisig_account_address
 
-	@multisig_transaction_hash.setter
-	def multisig_transaction_hash(self, value: Hash256):
-		self._multisig_transaction_hash = value
+	@other_transaction_hash.setter
+	def other_transaction_hash(self, value: Hash256):
+		self._other_transaction_hash = value
 
 	@multisig_account_address.setter
 	def multisig_account_address(self, value: Address):
@@ -2409,7 +2409,7 @@ class CosignatureV1(Transaction):
 		size += super().size
 		size += 4
 		size += 4
-		size += self.multisig_transaction_hash.size
+		size += self.other_transaction_hash.size
 		size += 4
 		size += self.multisig_account_address.size
 		return size
@@ -2420,14 +2420,14 @@ class CosignatureV1(Transaction):
 		instance = CosignatureV1()
 		(window_start, window_end) = Transaction._deserialize(buffer, instance)
 		buffer = buffer[window_start:window_end]
-		multisig_transaction_hash_outer_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		other_transaction_hash_outer_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
-		assert multisig_transaction_hash_outer_size == 36, f'Invalid value of reserved field ({multisig_transaction_hash_outer_size})'
-		multisig_transaction_hash_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		assert other_transaction_hash_outer_size == 36, f'Invalid value of reserved field ({other_transaction_hash_outer_size})'
+		other_transaction_hash_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
-		assert multisig_transaction_hash_size == 32, f'Invalid value of reserved field ({multisig_transaction_hash_size})'
-		multisig_transaction_hash = Hash256.deserialize(buffer)
-		buffer = buffer[multisig_transaction_hash.size:]
+		assert other_transaction_hash_size == 32, f'Invalid value of reserved field ({other_transaction_hash_size})'
+		other_transaction_hash = Hash256.deserialize(buffer)
+		buffer = buffer[other_transaction_hash.size:]
 		multisig_account_address_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert multisig_account_address_size == 40, f'Invalid value of reserved field ({multisig_account_address_size})'
@@ -2435,16 +2435,16 @@ class CosignatureV1(Transaction):
 		buffer = buffer[multisig_account_address.size:]
 
 		# pylint: disable=protected-access
-		instance._multisig_transaction_hash = multisig_transaction_hash
+		instance._other_transaction_hash = other_transaction_hash
 		instance._multisig_account_address = multisig_account_address
 		return instance
 
 	def serialize(self) -> bytes:
 		buffer = bytearray()
 		super()._serialize(buffer)
-		buffer += self._multisig_transaction_hash_outer_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._multisig_transaction_hash_size.to_bytes(4, byteorder='little', signed=False)
-		buffer += self._multisig_transaction_hash.serialize()
+		buffer += self._other_transaction_hash_outer_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._other_transaction_hash_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._other_transaction_hash.serialize()
 		buffer += self._multisig_account_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._multisig_account_address.serialize()
 		return buffer
@@ -2452,14 +2452,14 @@ class CosignatureV1(Transaction):
 	def __str__(self) -> str:
 		result = '('
 		result += super().__str__()
-		result += f'multisig_transaction_hash: {self._multisig_transaction_hash.__str__()}, '
+		result += f'other_transaction_hash: {self._other_transaction_hash.__str__()}, '
 		result += f'multisig_account_address: {self._multisig_account_address.__str__()}, '
 		result += ')'
 		return result
 
 	def to_json(self):
 		result = {**super().to_json()}
-		result['multisig_transaction_hash'] = self._multisig_transaction_hash.to_json()
+		result['other_transaction_hash'] = self._other_transaction_hash.to_json()
 		result['multisig_account_address'] = self._multisig_account_address.to_json()
 		return result
 

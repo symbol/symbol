@@ -444,13 +444,13 @@ export class MultisigAccountModificationTransactionV2Descriptor {
 export class CosignatureV1Descriptor {
 	/**
 	 * Creates a descriptor for CosignatureV1.
-	 * @param {Hash256} multisigTransactionHash multisig transaction hash
+	 * @param {Hash256} otherTransactionHash other transaction hash
 	 * @param {Address} multisigAccountAddress multisig account address
 	 */
-	constructor(multisigTransactionHash, multisigAccountAddress) {
+	constructor(otherTransactionHash, multisigAccountAddress) {
 		this.rawDescriptor = {
 			type: 'cosignature_v1',
-			multisigTransactionHash,
+			otherTransactionHash,
 			multisigAccountAddress
 		};
 	}

@@ -8,13 +8,13 @@ struct CosignatureV1
 
 	inline Transaction
 
-	# multisig transaction hash outer size
-	multisig_transaction_hash_outer_size = make_reserved(uint32, 36)
+	# other transaction hash outer size
+	other_transaction_hash_outer_size = make_reserved(uint32, 36)
 
-	# [__value__] multisig transaction hash
+	# [__value__] other transaction hash
 	#
-	# [size] multisig transaction hash size
-	multisig_transaction_hash = inline SizePrefixedHash256
+	# [size] other transaction hash size
+	other_transaction_hash = inline SizePrefixedHash256
 
 	# [__value__] multisig account address
 	#

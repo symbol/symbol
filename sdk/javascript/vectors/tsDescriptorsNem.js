@@ -145,7 +145,7 @@ const createTypedTransactionDescriptor = descriptor => {
 	// aggregate
 	if ('cosignature_v1' === descriptor.type) {
 		return new descriptors.CosignatureV1Descriptor(
-			new Hash256(descriptor.multisigTransactionHash),
+			new Hash256(descriptor.otherTransactionHash),
 			new Address(descriptor.multisigAccountAddress)
 		);
 	}

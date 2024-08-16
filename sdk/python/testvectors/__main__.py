@@ -263,7 +263,7 @@ class NemHelper:
 		name = f'{test_name}_cosig_{index + 1}'
 		descriptor = {
 			# note: `type: cosignature`` is not present, it's handled by TransactionDescriptorProcessor
-			'multisig_transaction_hash': hashlib.sha3_256(test_name.encode('utf8')).hexdigest(),
+			'other_transaction_hash': hashlib.sha3_256(test_name.encode('utf8')).hexdigest(),
 			'multisig_account_address': 'TBT7GACQQLYXUFBSQCUHXXWQMSRDAJPACTNJ724W'
 		}
 		self.set_common_fields(descriptor, name)
