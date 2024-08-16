@@ -3,6 +3,7 @@
 set -ex
 
 bash scripts/run_catbuffer_generator.sh dryrun
+bash scripts/run_catbuffer_generator_ts.sh dryrun
 
 # build wasm variants
 cd wasm

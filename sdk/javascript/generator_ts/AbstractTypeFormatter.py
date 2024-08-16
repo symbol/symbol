@@ -9,6 +9,10 @@ class AbstractTypeFormatter(ABC):
 	def typename(self):
 		raise NotImplementedError('need to override method')
 
+	def get_base_class(self):
+		# pylint: disable=no-self-use
+		return ''
+
 	@abstractmethod
 	def get_ctor_descriptor(self) -> MethodDescriptor:
 		pass
