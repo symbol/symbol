@@ -42,6 +42,8 @@ import { utils } from 'symbol-sdk';
 import { TransactionFactory, models } from 'symbol-sdk/nem';
 
 describe('NEM rosetta construction routes', () => {
+	const FEE_UNIT = 50000n;
+
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(constructionRoutes, ...args);
 	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(constructionRoutes, ...args);
 
@@ -91,7 +93,7 @@ describe('NEM rosetta construction routes', () => {
 			'E5F290755F021258ACE3CB29452BF38B322D76F62CAF6E9D2A89B48ABF7DD778',
 			'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
 			100000n,
-			50000n * 10n
+			10n * FEE_UNIT
 		);
 
 		const operations = [
@@ -120,7 +122,7 @@ describe('NEM rosetta construction routes', () => {
 			'E5F290755F021258ACE3CB29452BF38B322D76F62CAF6E9D2A89B48ABF7DD778',
 			'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
 			100000n,
-			50000n * 10n
+			10n * FEE_UNIT
 		);
 
 		verifier.makeMultisig('5D2EC9959153F54E5225EBBC6A677AF37DCB8C3968558F366B2841F9DA9CA14F', [
