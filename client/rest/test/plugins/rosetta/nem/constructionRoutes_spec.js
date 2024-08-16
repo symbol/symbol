@@ -265,21 +265,22 @@ describe('NEM rosetta construction routes', () => {
 		const createValidTransferRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier(),
 			operations: [
-				createRosettaTransfer(0, 'TARZARAKDFNYFVFANAIAHCYUADHHZWT2WP2I7GI', '100'),
-				createRosettaTransfer(1, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', '-100')
+				createRosettaTransfer(0, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '100'),
+				createRosettaTransfer(1, 'TALICE6KJ2SRSIJFVVFFH6ICUIYZ2ZZGNFUDJGRT', '-100')
 			]
 		});
 
 		const createValidMultisigRequest = () => ({
 			network_identifier: createRosettaNetworkIdentifier(),
 			operations: [
-				createRosettaMultisig(0, 'TCJEJJBKDI62U4ZMO4VI7YAUVJE4STVCOBDSHXQ', {
+				createRosettaMultisig(0, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', {
 					minApprovalDelta: 1,
 					minRemovalDelta: 2,
-					addressAdditions: ['TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI', 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ']
+					addressAdditions: ['TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', 'TALICE6KJ2SRSIJFVVFFH6ICUIYZ2ZZGNFUDJGRT'],
+					addressDeletions: ['TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3']
 				}),
-				createRosettaCosignatory(1, 'TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
-				createRosettaCosignatory(2, 'TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
+				createRosettaCosignatory(1, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ'),
+				createRosettaCosignatory(2, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB')
 			]
 		});
 
@@ -295,7 +296,7 @@ describe('NEM rosetta construction routes', () => {
 			const expectedResponse = new ConstructionPreprocessResponse();
 			expectedResponse.options = {};
 			expectedResponse.required_public_keys = [
-				new AccountIdentifier('TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI')
+				new AccountIdentifier('TALICE6KJ2SRSIJFVVFFH6ICUIYZ2ZZGNFUDJGRT')
 			];
 
 			// Act + Assert:
@@ -303,13 +304,16 @@ describe('NEM rosetta construction routes', () => {
 		});
 
 		it('returns valid response on success (multisig)', async () => {
-			// Arrange: create expected response
+			// Arrange: create expected response (include address additions, address deletions and explicit cosignatories)
 			const expectedResponse = new ConstructionPreprocessResponse();
 			expectedResponse.options = {};
 			expectedResponse.required_public_keys = [
-				new AccountIdentifier('TCJEJJBKDI62U4ZMO4VI7YAUVJE4STVCOBDSHXQ'),
-				new AccountIdentifier('TDI2ZPA7U72GHU2ZDP4C4J6T5YMFSLWEW4OZQKI'),
-				new AccountIdentifier('TCULEHFGXY7E6TWBXH7CVKNKFSUH43RNWW52NWQ')
+				new AccountIdentifier('TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'),
+				new AccountIdentifier('TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV'),
+				new AccountIdentifier('TALICE6KJ2SRSIJFVVFFH6ICUIYZ2ZZGNFUDJGRT'),
+				new AccountIdentifier('TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3'),
+				new AccountIdentifier('TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ'),
+				new AccountIdentifier('TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB')
 			];
 
 			// Act + Assert:
