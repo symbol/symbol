@@ -48,6 +48,8 @@ import { NemFacade, NetworkTimestamp, models } from 'symbol-sdk/nem';
 
 export default {
 	register: (server, db, services) => {
+		const FEE_UNIT = 50000n;
+
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
 		const facade = new NemFacade(blockchainDescriptor.network);
 		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
@@ -141,7 +143,7 @@ export default {
 						type: 'multisig_account_modification_transaction_v2',
 						signerPublicKey: addressToPublicKeyMap[operation.account.address],
 						...timestampProperties,
-						fee: 50000n * 10n,
+						fee: 10n * FEE_UNIT,
 
 						minApprovalDelta: operation.metadata.minApprovalDelta,
 						modifications: [].concat(
@@ -171,7 +173,7 @@ export default {
 					type: 'multisig_transaction_v1',
 					signerPublicKey,
 					...timestampProperties,
-					fee: transaction.fee,
+					fee: 3n * FEE_UNIT,
 
 					innerTransaction: facade.transactionFactory.static.toNonVerifiableTransaction(transaction),
 
@@ -181,7 +183,7 @@ export default {
 							type: 'cosignature_v1',
 							signerPublicKey: cosignerPublicKey.bytes,
 							...timestampProperties,
-							fee: 50000n * 3n
+							fee: 3n * FEE_UNIT
 						});
 						return cosignature;
 					})
