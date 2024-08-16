@@ -289,8 +289,7 @@ export default {
 		server.post('/construction/hash', constructionPostRoute(ConstructionHashRequest, async typedRequest =>
 			processTransactionHashRequest(typedRequest)));
 
-		server.post('/construction/submit', constructionPostRoute(ConstructionSubmitRequest, async typedRequest => {
-			const transaction = facade.transactionFactory.static.deserialize(utils.hexToUint8(typedRequest.signed_transaction));
+		const submitTransaction = async transaction => {
 			const signingPayload = facade.extractSigningPayload(transaction);
 
 			const message = await services.proxy.fetch('transaction/announce', jsonObject => jsonObject.message, {
@@ -304,6 +303,21 @@ export default {
 
 			if ('SUCCESS' !== message)
 				throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
+		};
+
+		server.post('/construction/submit', constructionPostRoute(ConstructionSubmitRequest, async typedRequest => {
+			const transaction = facade.transactionFactory.static.deserialize(utils.hexToUint8(typedRequest.signed_transaction));
+
+			if (undefined === transaction.cosignatures) {
+				await submitTransaction(transaction);
+			} else {
+				// hoist cosignatures out of transaction
+				const cosignatures = transaction.cosignatures.map(cosignature => cosignature.cosignature);
+				transaction.cosignatures = [];
+
+				await submitTransaction(transaction);
+				await Promise.all(cosignatures.map(cosignature => submitTransaction(cosignature)));
+			}
 
 			return processTransactionHashRequest(typedRequest);
 		}));
