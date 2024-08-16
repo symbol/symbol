@@ -2802,6 +2802,108 @@ export class NonVerifiableMultisigAccountModificationTransactionV2 extends NonVe
 	}
 }
 
+export class CosignatureV1Body {
+	static TRANSACTION_VERSION = 1;
+
+	static TRANSACTION_TYPE = TransactionType.MULTISIG_COSIGNATURE;
+
+	static TYPE_HINTS = {
+		otherTransactionHash: 'pod:Hash256',
+		multisigAccountAddress: 'pod:Address'
+	};
+
+	constructor() {
+		this._otherTransactionHash = new Hash256();
+		this._multisigAccountAddress = new Address();
+		this._otherTransactionHashOuterSize = 36; // reserved field
+		this._otherTransactionHashSize = 32; // reserved field
+		this._multisigAccountAddressSize = 40; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get otherTransactionHash() {
+		return this._otherTransactionHash;
+	}
+
+	set otherTransactionHash(value) {
+		this._otherTransactionHash = value;
+	}
+
+	get multisigAccountAddress() {
+		return this._multisigAccountAddress;
+	}
+
+	set multisigAccountAddress(value) {
+		this._multisigAccountAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += 4;
+		size += 4;
+		size += this.otherTransactionHash.size;
+		size += 4;
+		size += this.multisigAccountAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const instance = new CosignatureV1Body();
+
+		const otherTransactionHashOuterSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (36 !== otherTransactionHashOuterSize)
+			throw RangeError(`Invalid value of reserved field (${otherTransactionHashOuterSize})`);
+		const otherTransactionHashSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (32 !== otherTransactionHashSize)
+			throw RangeError(`Invalid value of reserved field (${otherTransactionHashSize})`);
+		const otherTransactionHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(otherTransactionHash.size);
+		const multisigAccountAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (40 !== multisigAccountAddressSize)
+			throw RangeError(`Invalid value of reserved field (${multisigAccountAddressSize})`);
+		const multisigAccountAddress = Address.deserialize(view.buffer);
+		view.shiftRight(multisigAccountAddress.size);
+
+		instance._otherTransactionHash = otherTransactionHash;
+		instance._multisigAccountAddress = multisigAccountAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this._otherTransactionHashOuterSize, 4, false));
+		buffer.write(converter.intToBytes(this._otherTransactionHashSize, 4, false));
+		buffer.write(this._otherTransactionHash.serialize());
+		buffer.write(converter.intToBytes(this._multisigAccountAddressSize, 4, false));
+		buffer.write(this._multisigAccountAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += `otherTransactionHash: ${this._otherTransactionHash.toString()}, `;
+		result += `multisigAccountAddress: ${this._multisigAccountAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+
+	/**
+	 * @returns {object} JSON-safe representation of this object.
+	 */
+	toJson() {
+		const result = {};
+		result.otherTransactionHash = this._otherTransactionHash.toJson();
+		result.multisigAccountAddress = this._multisigAccountAddress.toJson();
+		return result;
+	}
+}
+
 export class CosignatureV1 extends Transaction {
 	static TRANSACTION_VERSION = 1;
 
@@ -2859,6 +2961,117 @@ export class CosignatureV1 extends Transaction {
 		const instance = new CosignatureV1();
 
 		Transaction._deserialize(view, instance);
+		const otherTransactionHashOuterSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (36 !== otherTransactionHashOuterSize)
+			throw RangeError(`Invalid value of reserved field (${otherTransactionHashOuterSize})`);
+		const otherTransactionHashSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (32 !== otherTransactionHashSize)
+			throw RangeError(`Invalid value of reserved field (${otherTransactionHashSize})`);
+		const otherTransactionHash = Hash256.deserialize(view.buffer);
+		view.shiftRight(otherTransactionHash.size);
+		const multisigAccountAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
+		view.shiftRight(4);
+		if (40 !== multisigAccountAddressSize)
+			throw RangeError(`Invalid value of reserved field (${multisigAccountAddressSize})`);
+		const multisigAccountAddress = Address.deserialize(view.buffer);
+		view.shiftRight(multisigAccountAddress.size);
+
+		instance._otherTransactionHash = otherTransactionHash;
+		instance._multisigAccountAddress = multisigAccountAddress;
+		return instance;
+	}
+
+	serialize() {
+		const buffer = new Writer(this.size);
+		super._serialize(buffer);
+		buffer.write(converter.intToBytes(this._otherTransactionHashOuterSize, 4, false));
+		buffer.write(converter.intToBytes(this._otherTransactionHashSize, 4, false));
+		buffer.write(this._otherTransactionHash.serialize());
+		buffer.write(converter.intToBytes(this._multisigAccountAddressSize, 4, false));
+		buffer.write(this._multisigAccountAddress.serialize());
+		return buffer.storage;
+	}
+
+	toString() {
+		let result = '(';
+		result += super.toString();
+		result += `otherTransactionHash: ${this._otherTransactionHash.toString()}, `;
+		result += `multisigAccountAddress: ${this._multisigAccountAddress.toString()}, `;
+		result += ')';
+		return result;
+	}
+
+	/**
+	 * @returns {object} JSON-safe representation of this object.
+	 */
+	toJson() {
+		const result = {};
+		Object.assign(result, super.toJson());
+		result.otherTransactionHash = this._otherTransactionHash.toJson();
+		result.multisigAccountAddress = this._multisigAccountAddress.toJson();
+		return result;
+	}
+}
+
+export class NonVerifiableCosignatureV1 extends NonVerifiableTransaction {
+	static TRANSACTION_VERSION = 1;
+
+	static TRANSACTION_TYPE = TransactionType.MULTISIG_COSIGNATURE;
+
+	static TYPE_HINTS = {
+		...NonVerifiableTransaction.TYPE_HINTS,
+		otherTransactionHash: 'pod:Hash256',
+		multisigAccountAddress: 'pod:Address'
+	};
+
+	constructor() {
+		super();
+		this._type = NonVerifiableCosignatureV1.TRANSACTION_TYPE;
+		this._version = NonVerifiableCosignatureV1.TRANSACTION_VERSION;
+		this._otherTransactionHash = new Hash256();
+		this._multisigAccountAddress = new Address();
+		this._otherTransactionHashOuterSize = 36; // reserved field
+		this._otherTransactionHashSize = 32; // reserved field
+		this._multisigAccountAddressSize = 40; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
+	get otherTransactionHash() {
+		return this._otherTransactionHash;
+	}
+
+	set otherTransactionHash(value) {
+		this._otherTransactionHash = value;
+	}
+
+	get multisigAccountAddress() {
+		return this._multisigAccountAddress;
+	}
+
+	set multisigAccountAddress(value) {
+		this._multisigAccountAddress = value;
+	}
+
+	get size() { // eslint-disable-line class-methods-use-this
+		let size = 0;
+		size += super.size;
+		size += 4;
+		size += 4;
+		size += this.otherTransactionHash.size;
+		size += 4;
+		size += this.multisigAccountAddress.size;
+		return size;
+	}
+
+	static deserialize(payload) {
+		const view = new BufferView(payload);
+		const instance = new NonVerifiableCosignatureV1();
+
+		NonVerifiableTransaction._deserialize(view, instance);
 		const otherTransactionHashOuterSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (36 !== otherTransactionHashOuterSize)
@@ -4247,6 +4460,7 @@ export class NonVerifiableTransactionFactory {
 		mapping.set(NonVerifiableTransactionFactory.toKey([NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE.value, NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION]), NonVerifiableMosaicSupplyChangeTransactionV1);
 		mapping.set(NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE.value, NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION]), NonVerifiableMultisigAccountModificationTransactionV1);
 		mapping.set(NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_TYPE.value, NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_VERSION]), NonVerifiableMultisigAccountModificationTransactionV2);
+		mapping.set(NonVerifiableTransactionFactory.toKey([NonVerifiableCosignatureV1.TRANSACTION_TYPE.value, NonVerifiableCosignatureV1.TRANSACTION_VERSION]), NonVerifiableCosignatureV1);
 		mapping.set(NonVerifiableTransactionFactory.toKey([NonVerifiableMultisigTransactionV1.TRANSACTION_TYPE.value, NonVerifiableMultisigTransactionV1.TRANSACTION_VERSION]), NonVerifiableMultisigTransactionV1);
 		mapping.set(NonVerifiableTransactionFactory.toKey([NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_TYPE.value, NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_VERSION]), NonVerifiableNamespaceRegistrationTransactionV1);
 		mapping.set(NonVerifiableTransactionFactory.toKey([NonVerifiableTransferTransactionV1.TRANSACTION_TYPE.value, NonVerifiableTransferTransactionV1.TRANSACTION_VERSION]), NonVerifiableTransferTransactionV1);
@@ -4263,6 +4477,7 @@ export class NonVerifiableTransactionFactory {
 			non_verifiable_mosaic_supply_change_transaction_v1: NonVerifiableMosaicSupplyChangeTransactionV1,
 			non_verifiable_multisig_account_modification_transaction_v1: NonVerifiableMultisigAccountModificationTransactionV1,
 			non_verifiable_multisig_account_modification_transaction_v2: NonVerifiableMultisigAccountModificationTransactionV2,
+			non_verifiable_cosignature_v1: NonVerifiableCosignatureV1,
 			non_verifiable_multisig_transaction_v1: NonVerifiableMultisigTransactionV1,
 			non_verifiable_namespace_registration_transaction_v1: NonVerifiableNamespaceRegistrationTransactionV1,
 			non_verifiable_transfer_transaction_v1: NonVerifiableTransferTransactionV1,

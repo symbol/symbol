@@ -2365,6 +2365,96 @@ class NonVerifiableMultisigAccountModificationTransactionV2(NonVerifiableTransac
 		return result
 
 
+class CosignatureV1Body:
+	TRANSACTION_VERSION: int = 1
+	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_COSIGNATURE
+	TYPE_HINTS = {
+		'other_transaction_hash': 'pod:Hash256',
+		'multisig_account_address': 'pod:Address'
+	}
+
+	def __init__(self):
+		self._other_transaction_hash = Hash256()
+		self._multisig_account_address = Address()
+		self._other_transaction_hash_outer_size = 36  # reserved field
+		self._other_transaction_hash_size = 32  # reserved field
+		self._multisig_account_address_size = 40  # reserved field
+
+	def sort(self) -> None:
+		pass
+
+	@property
+	def other_transaction_hash(self) -> Hash256:
+		return self._other_transaction_hash
+
+	@property
+	def multisig_account_address(self) -> Address:
+		return self._multisig_account_address
+
+	@other_transaction_hash.setter
+	def other_transaction_hash(self, value: Hash256):
+		self._other_transaction_hash = value
+
+	@multisig_account_address.setter
+	def multisig_account_address(self, value: Address):
+		self._multisig_account_address = value
+
+	@property
+	def size(self) -> int:
+		size = 0
+		size += 4
+		size += 4
+		size += self.other_transaction_hash.size
+		size += 4
+		size += self.multisig_account_address.size
+		return size
+
+	@classmethod
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> CosignatureV1Body:
+		buffer = memoryview(payload)
+		instance = CosignatureV1Body()
+		other_transaction_hash_outer_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert other_transaction_hash_outer_size == 36, f'Invalid value of reserved field ({other_transaction_hash_outer_size})'
+		other_transaction_hash_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert other_transaction_hash_size == 32, f'Invalid value of reserved field ({other_transaction_hash_size})'
+		other_transaction_hash = Hash256.deserialize(buffer)
+		buffer = buffer[other_transaction_hash.size:]
+		multisig_account_address_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert multisig_account_address_size == 40, f'Invalid value of reserved field ({multisig_account_address_size})'
+		multisig_account_address = Address.deserialize(buffer)
+		buffer = buffer[multisig_account_address.size:]
+
+		# pylint: disable=protected-access
+		instance._other_transaction_hash = other_transaction_hash
+		instance._multisig_account_address = multisig_account_address
+		return instance
+
+	def serialize(self) -> bytes:
+		buffer = bytearray()
+		buffer += self._other_transaction_hash_outer_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._other_transaction_hash_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._other_transaction_hash.serialize()
+		buffer += self._multisig_account_address_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._multisig_account_address.serialize()
+		return buffer
+
+	def __str__(self) -> str:
+		result = '('
+		result += f'other_transaction_hash: {self._other_transaction_hash.__str__()}, '
+		result += f'multisig_account_address: {self._multisig_account_address.__str__()}, '
+		result += ')'
+		return result
+
+	def to_json(self):
+		result = {}
+		result['other_transaction_hash'] = self._other_transaction_hash.to_json()
+		result['multisig_account_address'] = self._multisig_account_address.to_json()
+		return result
+
+
 class CosignatureV1(Transaction):
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_COSIGNATURE
@@ -2419,6 +2509,105 @@ class CosignatureV1(Transaction):
 		buffer = memoryview(payload)
 		instance = CosignatureV1()
 		(window_start, window_end) = Transaction._deserialize(buffer, instance)
+		buffer = buffer[window_start:window_end]
+		other_transaction_hash_outer_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert other_transaction_hash_outer_size == 36, f'Invalid value of reserved field ({other_transaction_hash_outer_size})'
+		other_transaction_hash_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert other_transaction_hash_size == 32, f'Invalid value of reserved field ({other_transaction_hash_size})'
+		other_transaction_hash = Hash256.deserialize(buffer)
+		buffer = buffer[other_transaction_hash.size:]
+		multisig_account_address_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
+		buffer = buffer[4:]
+		assert multisig_account_address_size == 40, f'Invalid value of reserved field ({multisig_account_address_size})'
+		multisig_account_address = Address.deserialize(buffer)
+		buffer = buffer[multisig_account_address.size:]
+
+		# pylint: disable=protected-access
+		instance._other_transaction_hash = other_transaction_hash
+		instance._multisig_account_address = multisig_account_address
+		return instance
+
+	def serialize(self) -> bytes:
+		buffer = bytearray()
+		super()._serialize(buffer)
+		buffer += self._other_transaction_hash_outer_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._other_transaction_hash_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._other_transaction_hash.serialize()
+		buffer += self._multisig_account_address_size.to_bytes(4, byteorder='little', signed=False)
+		buffer += self._multisig_account_address.serialize()
+		return buffer
+
+	def __str__(self) -> str:
+		result = '('
+		result += super().__str__()
+		result += f'other_transaction_hash: {self._other_transaction_hash.__str__()}, '
+		result += f'multisig_account_address: {self._multisig_account_address.__str__()}, '
+		result += ')'
+		return result
+
+	def to_json(self):
+		result = {**super().to_json()}
+		result['other_transaction_hash'] = self._other_transaction_hash.to_json()
+		result['multisig_account_address'] = self._multisig_account_address.to_json()
+		return result
+
+
+class NonVerifiableCosignatureV1(NonVerifiableTransaction):
+	TRANSACTION_VERSION: int = 1
+	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_COSIGNATURE
+	TYPE_HINTS = {
+		**NonVerifiableTransaction.TYPE_HINTS,
+		'other_transaction_hash': 'pod:Hash256',
+		'multisig_account_address': 'pod:Address'
+	}
+
+	def __init__(self):
+		super().__init__()
+		self._type_ = NonVerifiableCosignatureV1.TRANSACTION_TYPE
+		self._version = NonVerifiableCosignatureV1.TRANSACTION_VERSION
+		self._other_transaction_hash = Hash256()
+		self._multisig_account_address = Address()
+		self._other_transaction_hash_outer_size = 36  # reserved field
+		self._other_transaction_hash_size = 32  # reserved field
+		self._multisig_account_address_size = 40  # reserved field
+
+	def sort(self) -> None:
+		pass
+
+	@property
+	def other_transaction_hash(self) -> Hash256:
+		return self._other_transaction_hash
+
+	@property
+	def multisig_account_address(self) -> Address:
+		return self._multisig_account_address
+
+	@other_transaction_hash.setter
+	def other_transaction_hash(self, value: Hash256):
+		self._other_transaction_hash = value
+
+	@multisig_account_address.setter
+	def multisig_account_address(self, value: Address):
+		self._multisig_account_address = value
+
+	@property
+	def size(self) -> int:
+		size = 0
+		size += super().size
+		size += 4
+		size += 4
+		size += self.other_transaction_hash.size
+		size += 4
+		size += self.multisig_account_address.size
+		return size
+
+	@classmethod
+	def deserialize(cls, payload: bytes | bytearray | memoryview) -> NonVerifiableCosignatureV1:
+		buffer = memoryview(payload)
+		instance = NonVerifiableCosignatureV1()
+		(window_start, window_end) = NonVerifiableTransaction._deserialize(buffer, instance)
 		buffer = buffer[window_start:window_end]
 		other_transaction_hash_outer_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3622,6 +3811,7 @@ class NonVerifiableTransactionFactory:
 			(NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_TYPE, NonVerifiableMosaicSupplyChangeTransactionV1.TRANSACTION_VERSION): NonVerifiableMosaicSupplyChangeTransactionV1,
 			(NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransactionV1,
 			(NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransactionV2.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransactionV2,
+			(NonVerifiableCosignatureV1.TRANSACTION_TYPE, NonVerifiableCosignatureV1.TRANSACTION_VERSION): NonVerifiableCosignatureV1,
 			(NonVerifiableMultisigTransactionV1.TRANSACTION_TYPE, NonVerifiableMultisigTransactionV1.TRANSACTION_VERSION): NonVerifiableMultisigTransactionV1,
 			(NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_TYPE, NonVerifiableNamespaceRegistrationTransactionV1.TRANSACTION_VERSION): NonVerifiableNamespaceRegistrationTransactionV1,
 			(NonVerifiableTransferTransactionV1.TRANSACTION_TYPE, NonVerifiableTransferTransactionV1.TRANSACTION_VERSION): NonVerifiableTransferTransactionV1,
@@ -3639,6 +3829,7 @@ class NonVerifiableTransactionFactory:
 			'non_verifiable_mosaic_supply_change_transaction_v1': NonVerifiableMosaicSupplyChangeTransactionV1,
 			'non_verifiable_multisig_account_modification_transaction_v1': NonVerifiableMultisigAccountModificationTransactionV1,
 			'non_verifiable_multisig_account_modification_transaction_v2': NonVerifiableMultisigAccountModificationTransactionV2,
+			'non_verifiable_cosignature_v1': NonVerifiableCosignatureV1,
 			'non_verifiable_multisig_transaction_v1': NonVerifiableMultisigTransactionV1,
 			'non_verifiable_namespace_registration_transaction_v1': NonVerifiableNamespaceRegistrationTransactionV1,
 			'non_verifiable_transfer_transaction_v1': NonVerifiableTransferTransactionV1,

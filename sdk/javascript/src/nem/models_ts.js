@@ -437,9 +437,36 @@ export class MultisigAccountModificationTransactionV2Descriptor {
 }
 
 /**
+ * Type safe descriptor used to generate a descriptor map for CosignatureV1BodyDescriptor.
+ *
+ * shared content between V1 verifiable and non-verifiable cosignature transactions
+ */
+export class CosignatureV1BodyDescriptor {
+	/**
+	 * Creates a descriptor for CosignatureV1Body.
+	 * @param {Hash256} otherTransactionHash other transaction hash
+	 * @param {Address} multisigAccountAddress multisig account address
+	 */
+	constructor(otherTransactionHash, multisigAccountAddress) {
+		this.rawDescriptor = {
+			otherTransactionHash,
+			multisigAccountAddress
+		};
+	}
+
+	/**
+	 * Builds a representation of this descriptor that can be passed to a factory function.
+	 * @returns {object} Descriptor that can be passed to a factory function.
+	 */
+	toMap() {
+		return this.rawDescriptor;
+	}
+}
+
+/**
  * Type safe descriptor used to generate a descriptor map for CosignatureV1Descriptor.
  *
- * cosignature attached to an aggregate transaction
+ * binary layout for a cosignature transaction (V1, latest)
  */
 export class CosignatureV1Descriptor {
 	/**
@@ -467,7 +494,7 @@ export class CosignatureV1Descriptor {
 /**
  * Type safe descriptor used to generate a descriptor map for SizePrefixedCosignatureV1Descriptor.
  *
- * cosignature attached to an aggregate transaction with prefixed size
+ * cosignature attached to a multisig transaction with prefixed size
  */
 export class SizePrefixedCosignatureV1Descriptor {
 	/**
