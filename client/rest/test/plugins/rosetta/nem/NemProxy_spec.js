@@ -265,18 +265,10 @@ describe('NemProxy', () => {
 		const assertCanRetriveProperties = async options => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('namespace/mosaic/definition/page?namespace=foo.bar&pageSize=100', true, {
-				data: [
-					{ mosaic: { id: { namespaceId: 'foo.bar', name: 'tokens' } } },
-					{
-						mosaic: {
-							id: { namespaceId: 'foo.bar', name: 'coins' },
-							properties: options.properties,
-							levy: options.levy
-						}
-					},
-					{ mosaic: { id: { namespaceId: 'foo.bar', name: 'chips' } } }
-				]
+			stubFetchResult('mosaic/definition/last?mosaicId=foo.bar:coins', true, {
+				id: { namespaceId: 'foo.bar', name: 'coins' },
+				properties: options.properties,
+				levy: options.levy
 			});
 
 			// Act:
@@ -360,25 +352,19 @@ describe('NemProxy', () => {
 		it('can retrieve properties for mosaic (cached)', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('namespace/mosaic/definition/page?namespace=foo.bar&pageSize=100', true, {
-				data: [
-					{
-						mosaic: {
-							id: { namespaceId: 'foo.bar', name: 'coins' },
-							properties: [
-								{ name: 'initialSupply', value: '123000' },
-								{ name: 'divisibility', value: '4' },
-								{ name: 'supplyMutable', value: 'false' }
-							],
-							levy: {
-								type: 2,
-								recipient: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
-								mosaicId: { namespaceId: 'nem', name: 'xem' },
-								fee: 10
-							}
-						}
-					}
-				]
+			stubFetchResult('mosaic/definition/last?mosaicId=foo.bar:coins', true, {
+				id: { namespaceId: 'foo.bar', name: 'coins' },
+				properties: [
+					{ name: 'initialSupply', value: '123000' },
+					{ name: 'divisibility', value: '4' },
+					{ name: 'supplyMutable', value: 'false' }
+				],
+				levy: {
+					type: 2,
+					recipient: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
+					mosaicId: { namespaceId: 'nem', name: 'xem' },
+					fee: 10
+				}
 			});
 
 			// Act:
@@ -399,37 +385,13 @@ describe('NemProxy', () => {
 			});
 		});
 
-		it('fails when no matching mosaic is found', async () => {
+		it('fails when fetch fails (mosaic/definition/last)', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('namespace/mosaic/definition/page?namespace=foo.bar&pageSize=100', true, {
-				data: [
-					{ mosaic: { id: { namespaceId: 'foo.bar', name: 'tokens' } } },
-					{ mosaic: { id: { namespaceId: 'foo.bar', name: 'coupons' } } },
-					{ mosaic: { id: { namespaceId: 'foo.bar', name: 'chips' } } }
-				]
-			});
-
-			// Act + Assert:
-			await assertAsyncErrorThrown(
-				() => proxy.mosaicProperties({ namespaceId: 'foo.bar', name: 'coins' }),
-				RosettaErrorFactory.INTERNAL_SERVER_ERROR
-			);
-		});
-
-		it('fails when fetch fails (namespace/mosaic/definition/page)', async () => {
-			// Arrange:
-			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('namespace/mosaic/definition/page?namespace=foo.bar&pageSize=100', false, {
-				data: [
-					{
-						mosaic: {
-							id: { namespaceId: 'foo.bar', name: 'coins' },
-							properties: [],
-							levy: {}
-						}
-					}
-				]
+			stubFetchResult('mosaic/definition/last?mosaicId=foo.bar:coins', false, {
+				id: { namespaceId: 'foo.bar', name: 'coins' },
+				properties: [],
+				levy: {}
 			});
 
 			// Act + Assert:
