@@ -32,18 +32,12 @@ export const FetchStubHelper = {
 	...BasicFetchStubHelper,
 
 	stubMosaicResolution: (namespaceId, name, divisibility) => {
-		FetchStubHelper.stubPost(`namespace/mosaic/definition/page?namespace=${namespaceId}&pageSize=100`, true, {
-			data: [
-				{
-					mosaic: {
-						id: { namespaceId, name },
-						properties: [
-							{ name: 'divisibility', value: divisibility.toString() }
-						],
-						levy: {}
-					}
-				}
-			]
+		FetchStubHelper.stubPost(`mosaic/definition/last?mosaicId=${namespaceId}:${name}`, true, {
+			id: { namespaceId, name },
+			properties: [
+				{ name: 'divisibility', value: divisibility.toString() }
+			],
+			levy: {}
 		});
 	},
 
