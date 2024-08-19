@@ -22,6 +22,7 @@
 #pragma once
 #include "catapult/functions.h"
 #include "catapult/types.h"
+#include <algorithm>
 #include <map>
 
 namespace catapult { namespace state {
