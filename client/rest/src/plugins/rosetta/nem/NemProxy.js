@@ -104,15 +104,7 @@ export default class NemProxy {
 		if (this.mosaicPropertiesMap.has(fullyQualifiedName))
 			return this.mosaicPropertiesMap.get(fullyQualifiedName);
 
-		const mosaicDefinitions = await this.fetchAll(
-			`namespace/mosaic/definition/page?namespace=${mosaicId.namespaceId}`,
-			100,
-			jsonObject => jsonObject.mosaic
-		);
-
-		const mosaicDefinition = mosaicDefinitions.find(definition => definition.id.name === mosaicId.name);
-		if (!mosaicDefinition)
-			throw RosettaErrorFactory.INTERNAL_SERVER_ERROR;
+		const mosaicDefinition = await this.fetch(`mosaic/definition/last?mosaicId=${mosaicId.namespaceId}:${mosaicId.name}`);
 
 		const findProperty = (properties, name) => properties.find(property => name === property.name);
 		const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');

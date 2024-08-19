@@ -119,22 +119,6 @@ describe('NEM block routes', () => {
 		]);
 	};
 
-	const stubMosaicResolution = (name, id, divisibility) => {
-		stubFetchResult(`namespace/mosaic/definition/page?namespace=${id}&pageSize=100`, true, {
-			data: [
-				{
-					mosaic: {
-						id: { namespaceId: id, name },
-						properties: [
-							{ name: 'divisibility', value: divisibility }
-						],
-						levy: {}
-					}
-				}
-			]
-		});
-	};
-
 	// endregion
 
 	// region block
@@ -186,8 +170,8 @@ describe('NEM block routes', () => {
 		it('fails when fetch fails (local/block/at)', async () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), false);
-			stubMosaicResolution('xem', 'nem', 6);
-			stubMosaicResolution('hat', 'magic', 3);
+			FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
+			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
 
 			// Act + Assert:
 			await assertRosettaErrorRaised(RosettaErrorFactory.CONNECTION_ERROR, () => {});
@@ -196,8 +180,8 @@ describe('NEM block routes', () => {
 		it('succeeds when all fetches succeed (nemesis)', async () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
-			stubMosaicResolution('xem', 'nem', 6);
-			stubMosaicResolution('hat', 'magic', 3);
+			FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
+			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
 
 			// - create expected response
 			const expectedResponse = createMatchingRosettaBlock(
@@ -214,8 +198,8 @@ describe('NEM block routes', () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(2, OTHER_BLOCK_HASH, 20), true);
-			stubMosaicResolution('xem', 'nem', 6);
-			stubMosaicResolution('hat', 'magic', 3);
+			FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
+			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
 
 			// - create expected response
 			const expectedResponse = createMatchingRosettaBlock(
@@ -276,8 +260,8 @@ describe('NEM block routes', () => {
 		it('succeeds when all fetches succeed', async () => {
 			// Arrange:
 			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, true, createTransactionJson());
-			stubMosaicResolution('xem', 'nem', 6);
-			stubMosaicResolution('hat', 'magic', 3);
+			FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
+			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
 
 			// - create expected response
 			const transaction = createMatchingRosettaTransaction();
