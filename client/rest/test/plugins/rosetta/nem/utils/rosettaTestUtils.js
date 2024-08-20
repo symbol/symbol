@@ -48,7 +48,8 @@ export const FetchStubHelper = {
 			if (optionsOrResponse.timestamp)
 				block.timeStamp = optionsOrResponse.timestamp;
 
-			response = { block, hash: optionsOrResponse.hash };
+			// simulate NEM REST, which always returns lowercase hashes
+			response = { block, hash: optionsOrResponse.hash.toLowerCase() };
 		}
 
 		FetchStubHelper.stubPost('local/block/at', ok, response, {
