@@ -900,7 +900,7 @@ describe('NEM OperationParser', () => {
 
 			// Act:
 			const restJson = convertTransactionSdkJsonToRestJson({
-				rentalFeeSink: 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
+				rentalFeeSink: '54424D4F534149434F443446353445453543444D523233434342474F414D3258534A4252354F4C43',
 				rentalFee: 50000,
 
 				mosaicDefinition: {
@@ -929,10 +929,10 @@ describe('NEM OperationParser', () => {
 			});
 		});
 
-		it('does not fixup fee sink properties when mosaicDefinition is not present', () => {
+		it('can fixup fee sink properties when mosaicDefinition is not present', () => {
 			// Act:
 			const restJson = convertTransactionSdkJsonToRestJson({
-				rentalFeeSink: 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
+				rentalFeeSink: '54424D4F534149434F443446353445453543444D523233434342474F414D3258534A4252354F4C43',
 				rentalFee: 50000
 			});
 
