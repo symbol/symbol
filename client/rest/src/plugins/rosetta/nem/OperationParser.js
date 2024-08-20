@@ -255,7 +255,7 @@ export class OperationParser {
 				const feeCurrency = await this.lookupFeeCurrency();
 				appendOperation(this.createDebitOperation({
 					sourcePublicKey: transaction.otherTrans.signer,
-					amount: parseInt(transaction.fee, 10) + cosignerFeeSum,
+					amount: parseInt(transaction.fee, 10) + parseInt(transaction.otherTrans.fee, 10) + cosignerFeeSum,
 					currency: feeCurrency
 				}));
 			}
