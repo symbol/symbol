@@ -395,9 +395,9 @@ describe('NEM OperationParser', () => {
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			};
 
-			it('can parse increase', () => assertCanParse(models.MosaicSupplyChangeAction.INCREASE, '24680'));
+			it('can parse increase', () => assertCanParse(models.MosaicSupplyChangeAction.INCREASE, '24680000'));
 
-			it('can parse decrease', () => assertCanParse(models.MosaicSupplyChangeAction.DECREASE, '-24680'));
+			it('can parse decrease', () => assertCanParse(models.MosaicSupplyChangeAction.DECREASE, '-24680000'));
 		});
 
 		// endregion
@@ -468,7 +468,9 @@ describe('NEM OperationParser', () => {
 
 			it('can parse without initial supply', () => assertParse({
 				properties: [],
-				additionalOperations: []
+				additionalOperations: [
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1000', 'foo.bar', 0)
+				]
 			}));
 
 			it('can parse with initial supply and default divisibility', async () => {
@@ -493,7 +495,7 @@ describe('NEM OperationParser', () => {
 						{ property: { name: textEncoder.encode('supplyMutable'), value: textEncoder.encode('false') } }
 					],
 					additionalOperations: [
-						createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '123000', 'foo.bar', 4)
+						createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo.bar', 4)
 					]
 				});
 			});
