@@ -235,7 +235,7 @@ describe('NemProxy', () => {
 		it('fails when fetch fails', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			FetchStubHelper.stubLocalBlockAt({ hash: 'AABBCCDD', height: 4321 }, false);
+			FetchStubHelper.stubLocalBlockAt({ hash: 'aabbccdd', height: 4321 }, false);
 
 			// Act + Assert:
 			await assertAsyncErrorThrown(() => proxy.localBlockAtHeight(4321), RosettaErrorFactory.CONNECTION_ERROR);
@@ -244,7 +244,7 @@ describe('NemProxy', () => {
 		it('succeeds when fetch succeeds', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			FetchStubHelper.stubLocalBlockAt({ hash: 'AABBCCDD', height: 4321 }, true);
+			FetchStubHelper.stubLocalBlockAt({ hash: 'aabbccdd', height: 4321 }, true);
 
 			// Act:
 			const blockInfo = await proxy.localBlockAtHeight(4321);
