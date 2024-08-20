@@ -345,8 +345,8 @@ export class OperationParser {
 
 			operations.push(operation);
 		} else if (models.TransactionType.MOSAIC_SUPPLY_CHANGE.value === transactionType) {
-			const amount = transaction.delta;
 			const { currency } = this.options.lookupCurrency(transaction.mosaicId);
+			const amount = transaction.delta * (10 ** currency.decimals);
 
 			operations.push(this.createCreditOperation({
 				targetPublicKey: transaction.signer,
@@ -363,18 +363,18 @@ export class OperationParser {
 			const { mosaicDefinition } = transaction;
 			const initialSupplyProperty = findProperty(mosaicDefinition.properties, 'initialSupply');
 			const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');
-			if (initialSupplyProperty) {
-				const currency = new Currency(
-					mosaicIdToString(mosaicDefinition.id),
-					undefined === divisibilityProperty ? 0 : parseInt(divisibilityProperty.value, 10)
-				);
 
-				operations.push(this.createCreditOperation({
-					targetPublicKey: transaction.signer,
-					amount: parseInt(initialSupplyProperty.value, 10),
-					currency
-				}));
-			}
+			const initialSupply = undefined === initialSupplyProperty ? 1000 : parseInt(initialSupplyProperty.value, 10);
+			const currency = new Currency(
+				mosaicIdToString(mosaicDefinition.id),
+				undefined === divisibilityProperty ? 0 : parseInt(divisibilityProperty.value, 10)
+			);
+
+			operations.push(this.createCreditOperation({
+				targetPublicKey: transaction.signer,
+				amount: initialSupply * (10 ** currency.decimals),
+				currency
+			}));
 		}
 
 		return operations;
