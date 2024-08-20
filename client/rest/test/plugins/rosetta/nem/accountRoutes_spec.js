@@ -215,7 +215,7 @@ describe('NEM rosetta account routes', () => {
 			return facade.transactionFactory.create({
 				type: 'transfer_transaction_v2',
 				signerPublicKey,
-				fee: 100,
+				fee: 50,
 
 				recipientAddress,
 				amount: 1_000000,
@@ -343,7 +343,7 @@ describe('NEM rosetta account routes', () => {
 			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3),
 				createRosettaCoin('261', 'cat.dog', 4),
-				createRosettaCoin('12', 'nem.xem', 6)
+				createRosettaCoin('62', 'nem.xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -361,7 +361,7 @@ describe('NEM rosetta account routes', () => {
 			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3),
 				createRosettaCoin('62', 'cat.dog', 4),
-				createRosettaCoin('10', 'nem.xem', 6)
+				createRosettaCoin('60', 'nem.xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -384,7 +384,7 @@ describe('NEM rosetta account routes', () => {
 			const expectedResponse = [
 				createRosettaCoin('146', 'foo.bar', 3),
 				createRosettaCoin('262', 'cat.dog', 4),
-				createRosettaCoin('30', 'nem.xem', 6)
+				createRosettaCoin('80', 'nem.xem', 6)
 			];
 			const outgoingTransactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const incomingTransactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
@@ -421,7 +421,7 @@ describe('NEM rosetta account routes', () => {
 			const expectedResponse = [
 				createRosettaCoin('123', 'foo.bar', 3),
 				createRosettaCoin('62', 'cat.dog', 4),
-				createRosettaCoin('85', 'nem.xem', 6)
+				createRosettaCoin('35', 'nem.xem', 6)
 			];
 			const multisigTransactionJson = createAggregateTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([multisigTransactionJson]);
