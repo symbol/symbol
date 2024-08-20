@@ -71,7 +71,7 @@ class Builder:
 
 		b2_options = [boost_prefix_option]
 		if self.is_clang:
-			b2_options += ['toolset=clang', 'linkflags=\'-stdlib=libc++\'']
+			b2_options += ['toolset=clang', 'cxxflags=--std=c++17', 'linkflags=\'-stdlib=libc++\'']
 
 		b2_options += get_dependency_flags('boost')
 
