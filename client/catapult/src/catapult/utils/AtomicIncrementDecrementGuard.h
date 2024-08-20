@@ -40,8 +40,8 @@ namespace catapult { namespace utils {
 		std::atomic<T>& m_value;
 
 	public:
-		AtomicIncrementDecrementGuard<T>(const AtomicIncrementDecrementGuard<T>& rhs) = default;
-		AtomicIncrementDecrementGuard<T>& operator=(const AtomicIncrementDecrementGuard<T>& rhs) = default;
+		AtomicIncrementDecrementGuard(const AtomicIncrementDecrementGuard<T>& rhs) = default;
+		AtomicIncrementDecrementGuard& operator=(const AtomicIncrementDecrementGuard<T>& rhs) = default;
 	};
 
 	/// Factory function for creating AtomicIncrementDecrementGuard<T>.
