@@ -618,7 +618,7 @@ describe('NEM OperationParser', () => {
 				additionalOperations: [
 					createCosignOperation(3, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ'),
 					createCosignOperation(4, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'),
-					createTransferOperation(5, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-8065', 'currency.fee', 2)
+					createTransferOperation(5, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-8765', 'currency.fee', 2)
 				],
 				expectedSignerAddresses: [
 					'TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC',
