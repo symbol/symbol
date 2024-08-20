@@ -30,8 +30,6 @@ import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import { PublicKey, utils } from 'symbol-sdk';
 import { Network, models } from 'symbol-sdk/nem';
 
-const hexStringToUtfString = hex => new TextDecoder().decode(utils.hexToUint8(hex));
-
 // region convertTransactionSdkJsonToRestJson
 
 /**
@@ -40,6 +38,8 @@ const hexStringToUtfString = hex => new TextDecoder().decode(utils.hexToUint8(he
  * @returns {object} Transaction REST JSON model.
  */
 export const convertTransactionSdkJsonToRestJson = transactionJson => {
+	const hexStringToUtfString = hex => new TextDecoder().decode(utils.hexToUint8(hex));
+
 	const convertMosaicIdSdkJsonToRestJson = mosaicId => ({
 		namespaceId: hexStringToUtfString(mosaicId.namespaceId.name),
 		name: hexStringToUtfString(mosaicId.name)
@@ -92,6 +92,9 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 
 	if (transactionJson.minApprovalDelta)
 		renameProperty('minApprovalDelta', 'minCosignatories', minApprovalDelta => ({ relativeChange: minApprovalDelta }));
+
+	if (transactionJson.rentalFeeSink)
+		transactionJson.rentalFeeSink = hexStringToUtfString(transactionJson.rentalFeeSink);
 
 	if (transactionJson.mosaicDefinition) {
 		transactionJson.mosaicDefinition.id = convertMosaicIdSdkJsonToRestJson(transactionJson.mosaicDefinition.id);
@@ -293,7 +296,7 @@ export class OperationParser {
 			const amount = transaction[`${feeName}Fee`];
 			const currency = await this.lookupFeeCurrency();
 
-			pushDebitCreditOperations(transaction.signer, hexStringToUtfString(transaction[`${feeName}FeeSink`]), amount, currency);
+			pushDebitCreditOperations(transaction.signer, transaction[`${feeName}FeeSink`], amount, currency);
 		};
 
 		const transactionType = transaction.type;
