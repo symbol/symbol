@@ -48,7 +48,7 @@ export default {
 
 		const createBlockTransaction = async blockInfo => {
 			const { operations } = await parser.parseBlock(blockInfo);
-			return new Transaction(new TransactionIdentifier(blockInfo.hash.toUpperCase()), operations);
+			return new Transaction(new TransactionIdentifier(blockInfo.hash), operations);
 		};
 
 		server.post('/block', rosettaPostRouteWithNetwork(blockchainDescriptor, BlockRequest, async typedRequest => {
@@ -64,7 +64,7 @@ export default {
 			response.block = new Block();
 			response.block.transactions = rosettaTransactions;
 			response.block.transactions.push(blockTransaction);
-			response.block.block_identifier = new BlockIdentifier(Number(blockInfo.block.height), blockInfo.hash.toUpperCase());
+			response.block.block_identifier = new BlockIdentifier(Number(blockInfo.block.height), blockInfo.hash);
 			response.block.parent_block_identifier = GENESIS_BLOCK_NUMBER === height
 				? response.block.block_identifier
 				: new BlockIdentifier(Number(blockInfo.block.height) - 1, blockInfo.block.prevBlockHash.data.toUpperCase());

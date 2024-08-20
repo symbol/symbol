@@ -86,12 +86,14 @@ export default class NemProxy {
 	 * @param {number} height Block height.
 	 * @returns {Promise<object>} Block data.
 	 */
-	localBlockAtHeight(height) {
-		return this.fetch('local/block/at', undefined, {
+	async localBlockAtHeight(height) {
+		const block = await this.fetch('local/block/at', undefined, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ height })
 		});
+		block.hash = block.hash.toUpperCase();
+		return block;
 	}
 
 	/**

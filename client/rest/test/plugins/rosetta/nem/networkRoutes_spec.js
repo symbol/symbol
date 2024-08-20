@@ -132,7 +132,7 @@ describe('NEM network routes', () => {
 		const stubFetchResult = FetchStubHelper.stubPost;
 		FetchStubHelper.registerStubCleanup();
 
-		const GENESIS_BLOCK_HASH = '135B9276FE14D6724F87764DD3F8E332813AE9A36D1A7953B12213EA9ACB6B97';
+		const GENESIS_BLOCK_HASH = '135b9276fe14d6724f87764dd3f8e332813ae9a36d1a7953b12213ea9acb6b97';
 		const GENESIS_BLOCK_NUMBER = 1;
 		const CURRENT_BLOCK_HASH = '92435746efd1789e5e906e99b8e3bdc72ab1adecdbeecb321116e59ded0a739c';
 		const CURRENT_BLOCK_NUMBER = 10;
@@ -223,7 +223,7 @@ describe('NEM network routes', () => {
 
 			// - create expected response
 			const expectedResponse = new NetworkStatusResponse();
-			expectedResponse.genesis_block_identifier = new BlockIdentifier(GENESIS_BLOCK_NUMBER, GENESIS_BLOCK_HASH);
+			expectedResponse.genesis_block_identifier = new BlockIdentifier(GENESIS_BLOCK_NUMBER, GENESIS_BLOCK_HASH.toUpperCase());
 			expectedResponse.current_block_identifier = new BlockIdentifier(CURRENT_BLOCK_NUMBER, CURRENT_BLOCK_HASH.toUpperCase());
 			expectedResponse.current_block_timestamp = Number(1427587585000 + (CURRENT_BLOCK_TIMESTAMP * 1000));
 			expectedResponse.peers = NODE_PEERS_PUBLIC_KEYS.map(publicKey => new Peer(publicKey));

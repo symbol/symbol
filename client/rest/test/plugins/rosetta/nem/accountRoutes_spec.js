@@ -42,7 +42,7 @@ describe('NEM rosetta account routes', () => {
 	const ACCOUNT_PUBLIC_KEY = '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E';
 	const OTHER_ACCOUNT_ADDRESS = 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3';
 	const OTHER_ACCOUNT_PUBLIC_KEY = '88D0C34AEA2CB96E226379E71BA6264F4460C27D29F79E24248318397AA48380';
-	const TRANSACTION_HASH = 'C65DF0B9CB47E1D3538DC40481FC613F37DA4DEE816F72FDF63061B2707F6483';
+	const TRANSACTION_HASH = 'c65df0b9cb47e1d3538dc40481fc613f37da4dee816f72fdf63061b2707f6483';
 
 	const assertRosettaErrorRaisedBasic = (...args) => assertRosettaErrorRaisedBasicWithRoutes(accountRoutes, ...args);
 	const assertRosettaSuccessBasic = (...args) => assertRosettaSuccessBasicWithRoutes(accountRoutes, ...args);
@@ -67,7 +67,7 @@ describe('NEM rosetta account routes', () => {
 	const stubAccountResolutions = () => {
 		// setup chain
 		stubFetchResult('chain/height', true, { height: 12345 });
-		FetchStubHelper.stubLocalBlockAt({ height: 12345, hash: 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076' }, true);
+		FetchStubHelper.stubLocalBlockAt({ height: 12345, hash: 'a4950f27a23b235d5ccd1dc7ff4b0bdc48977e353ea1cf1e3e5f70b9a6b79076' }, true);
 
 		// setup account
 		stubFetchResult(`account/mosaic/owned?address=${ACCOUNT_ADDRESS}`, true, {
