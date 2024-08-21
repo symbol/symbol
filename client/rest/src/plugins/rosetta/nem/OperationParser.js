@@ -345,7 +345,7 @@ export class OperationParser {
 
 			operations.push(operation);
 		} else if (models.TransactionType.MOSAIC_SUPPLY_CHANGE.value === transactionType) {
-			const { currency } = this.options.lookupCurrency(transaction.mosaicId);
+			const { currency } = await this.options.lookupCurrency(transaction.mosaicId);
 			const amount = transaction.delta * (10 ** currency.decimals);
 
 			operations.push(this.createCreditOperation({
