@@ -110,6 +110,9 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 		renameProperty('rentalFeeSink', 'creationFeeSink');
 	}
 
+	if (transactionJson.action)
+		renameProperty('action', 'supplyType');
+
 	return transactionJson;
 };
 
@@ -350,7 +353,7 @@ export class OperationParser {
 
 			operations.push(this.createCreditOperation({
 				targetPublicKey: transaction.signer,
-				amount: models.MosaicSupplyChangeAction.INCREASE.value === transaction.action ? amount : -amount,
+				amount: models.MosaicSupplyChangeAction.INCREASE.value === transaction.supplyType ? amount : -amount,
 				currency
 			}));
 		} else if (models.TransactionType.NAMESPACE_REGISTRATION.value === transactionType) {

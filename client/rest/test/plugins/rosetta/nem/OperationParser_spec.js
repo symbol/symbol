@@ -944,6 +944,18 @@ describe('NEM OperationParser', () => {
 				rentalFee: 50000
 			});
 		});
+
+		it('can fixup action property', () => {
+			// Act:
+			const restJson = convertTransactionSdkJsonToRestJson({
+				action: 1234
+			});
+
+			// Assert:
+			expect(restJson).to.deep.equal({
+				supplyType: 1234
+			});
+		});
 	});
 
 	// endregion
