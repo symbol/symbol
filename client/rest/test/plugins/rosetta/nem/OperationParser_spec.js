@@ -155,7 +155,7 @@ describe('NEM OperationParser', () => {
 						{
 							mosaic: {
 								mosaicId: { namespaceId: { name: textEncoder.encode('levy') }, name: textEncoder.encode(levyName) },
-								amount: 12345_000000
+								amount: 12345
 							}
 						}
 					]
@@ -168,8 +168,8 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690000000', `levy.${levyName}`, 3),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690000000', `levy.${levyName}`, 3),
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690', `levy.${levyName}`, 3),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690', `levy.${levyName}`, 3),
 					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', `-${levyAmount}`, 'levy.tax', 2),
 					createTransferOperation(3, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', levyAmount, 'levy.tax', 2)
 				]);
@@ -178,7 +178,7 @@ describe('NEM OperationParser', () => {
 
 			it('can parse with single mosaic in bag with absolute levy', () => assertCanParseWithLevy('absolute', '10'));
 
-			it('can parse with single mosaic in bag with relative levy', () => assertCanParseWithLevy('relative', '24690000'));
+			it('can parse with single mosaic in bag with relative levy', () => assertCanParseWithLevy('relative', '24'));
 
 			const createMultipleMosaicDefinition = xemAmount => {
 				const textEncoder = new TextEncoder();

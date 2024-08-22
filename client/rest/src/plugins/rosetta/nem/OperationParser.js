@@ -323,7 +323,7 @@ export class OperationParser {
 					if (levy) {
 						const levyAmount = levy.isAbsolute
 							? levy.fee
-							: amount * levy.fee / 10000;
+							: Math.trunc(amount * levy.fee / 10000);
 						pushDebitCreditOperations(transaction.signer, levy.recipientAddress, levyAmount, levy.currency);
 					}
 				}));
