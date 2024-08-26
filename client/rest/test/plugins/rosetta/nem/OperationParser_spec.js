@@ -110,7 +110,7 @@ describe('NEM OperationParser', () => {
 
 			it('can parse with single mosaic (v2)', () => assertCanParseWithSingleMosaic('transfer_transaction_v2'));
 
-			it('can parse with single mosaic in bag', async () => {
+			const assertCanParseSingleMosaicInBag = async options => {
 				// Arrange:
 				const textEncoder = new TextEncoder();
 				const facade = new NemFacade('testnet');
@@ -118,12 +118,12 @@ describe('NEM OperationParser', () => {
 					type: 'transfer_transaction_v2',
 					signerPublicKey: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
 					recipientAddress: 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV',
-					amount: 2_000000,
+					amount: options.amount,
 					mosaics: [
 						{
 							mosaic: {
 								mosaicId: { namespaceId: { name: textEncoder.encode('nem') }, name: textEncoder.encode('xem') },
-								amount: 12345_000000
+								amount: options.mosaicAmount
 							}
 						}
 					]
@@ -136,11 +136,23 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690000000', 'nem.xem', 6),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690000000', 'nem.xem', 6)
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', `-${options.expectedAmount}`, 'nem.xem', 6),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', options.expectedAmount, 'nem.xem', 6)
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
-			});
+			};
+
+			it('can parse with single mosaic in bag', () => assertCanParseSingleMosaicInBag({
+				amount: 2_000000,
+				mosaicAmount: 12345_000000,
+				expectedAmount: '24690000000'
+			}));
+
+			it('can parse with single mosaic in fractional bag', () => assertCanParseSingleMosaicInBag({
+				amount: 50000,
+				mosaicAmount: 34_152375,
+				expectedAmount: '1707618'
+			}));
 
 			const assertCanParseWithLevy = async (levyName, levyAmount) => {
 				// Arrange:
