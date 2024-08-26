@@ -20,7 +20,7 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import { createLookupCurrencyFunction, getBlockchainDescriptor, stitchBlockTransactions } from './rosettaUtils.js';
+import { getBlockchainDescriptor, stitchBlockTransactions } from './rosettaUtils.js';
 import Block from '../openApi/model/Block.js';
 import BlockIdentifier from '../openApi/model/BlockIdentifier.js';
 import BlockRequest from '../openApi/model/BlockRequest.js';
@@ -30,8 +30,6 @@ import BlockTransactionResponse from '../openApi/model/BlockTransactionResponse.
 import Transaction from '../openApi/model/Transaction.js';
 import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import { RosettaErrorFactory, rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
-import { NetworkLocator } from 'symbol-sdk';
-import { Network } from 'symbol-sdk/symbol';
 
 export default {
 	register: (server, db, services) => {
@@ -39,14 +37,7 @@ export default {
 		const PAGE_SIZE = 100;
 
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
-		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
-		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
-		const parser = new OperationParser(network, {
-			includeFeeOperation: true,
-			operationStatus: 'success',
-			lookupCurrency,
-			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
-		});
+		const parser = OperationParser.createFromServices(services, { operationStatus: 'success' });
 
 		const mapBlockStatementsToRosettaTransaction = async blockStatements => {
 			// process all statements and receipts

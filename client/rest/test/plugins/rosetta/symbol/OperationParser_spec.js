@@ -98,6 +98,25 @@ describe('Symbol OperationParser', () => {
 
 	// endregion
 
+	// region createFromServices
+
+	describe('createFromServices', () => {
+		it('can create parser', () => {
+			// Act:
+			const parser = OperationParser.createFromServices({
+				config: {
+					network: { name: 'testnet' }
+				},
+				proxy: {}
+			});
+
+			// Assert:
+			expect(parser).to.not.equal(undefined);
+		});
+	});
+
+	// endregion
+
 	describe('transaction', () => {
 		// region transfer
 
