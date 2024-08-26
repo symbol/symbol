@@ -81,7 +81,6 @@ describe('NEM rosetta account routes', () => {
 		// resolve mosaics
 		FetchStubHelper.stubMosaicResolution('foo', 'bar', 3);
 		FetchStubHelper.stubMosaicResolution('cat', 'dog', 4);
-		FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
 		FetchStubHelper.stubMosaicResolution('new', 'coin', 5);
 	};
 
