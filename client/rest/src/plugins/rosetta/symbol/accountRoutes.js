@@ -43,11 +43,7 @@ export default {
 		const getChainHeight = () => services.proxy.fetch('chain/info', jsonObject => jsonObject.height);
 		const getBlockIdentifier = height => services.proxy.fetch(`blocks/${height}`)
 			.then(blockInfo => new BlockIdentifier(Number(blockInfo.block.height), blockInfo.meta.hash));
-		const parser = new OperationParser(network, {
-			includeFeeOperation: true,
-			lookupCurrency,
-			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
-		});
+		const parser = OperationParser.createFromServices(services);
 
 		const isCurrencyEqual = (lhs, rhs) => lhs.symbol === rhs.symbol && lhs.decimals === rhs.decimals;
 

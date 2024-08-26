@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { mosaicIdToString } from './rosettaUtils.js';
+import { createLookupCurrencyFunction, getBlockchainDescriptor, mosaicIdToString } from './rosettaUtils.js';
 import AccountIdentifier from '../openApi/model/AccountIdentifier.js';
 import Amount from '../openApi/model/Amount.js';
 import Currency from '../openApi/model/Currency.js';
@@ -27,7 +27,7 @@ import Operation from '../openApi/model/Operation.js';
 import OperationIdentifier from '../openApi/model/OperationIdentifier.js';
 import Transaction from '../openApi/model/Transaction.js';
 import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
-import { PublicKey, utils } from 'symbol-sdk';
+import { NetworkLocator, PublicKey, utils } from 'symbol-sdk';
 import { Network, models } from 'symbol-sdk/nem';
 
 // region convertTransactionSdkJsonToRestJson
@@ -123,8 +123,25 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
  */
 export class OperationParser {
 	/**
+	 * Creates a fully configured operation parser given REST services.
+	 * @param {object} services REST services.
+	 * @param {object} options Parser options.
+	 * @returns {OperationParser} Operation parser.
+	 */
+	static createFromServices(services, options = {}) {
+		const blockchainDescriptor = getBlockchainDescriptor(services.config);
+		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
+		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
+		return new OperationParser(network, {
+			includeFeeOperation: true,
+			lookupCurrency,
+			...options
+		});
+	}
+
+	/**
 	 * Creates a parser.
-	 * @param {Network} network Symbol network.
+	 * @param {Network} network NEM network.
 	 * @param {object} options Parser options.
 	 */
 	constructor(network, options) {

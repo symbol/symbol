@@ -20,29 +20,20 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import { createLookupCurrencyFunction, getBlockchainDescriptor } from './rosettaUtils.js';
+import { getBlockchainDescriptor } from './rosettaUtils.js';
 import MempoolResponse from '../openApi/model/MempoolResponse.js';
 import MempoolTransactionRequest from '../openApi/model/MempoolTransactionRequest.js';
 import MempoolTransactionResponse from '../openApi/model/MempoolTransactionResponse.js';
 import NetworkRequest from '../openApi/model/NetworkRequest.js';
 import TransactionIdentifier from '../openApi/model/TransactionIdentifier.js';
 import { rosettaPostRouteWithNetwork } from '../rosettaUtils.js';
-import { NetworkLocator } from 'symbol-sdk';
-import { Network } from 'symbol-sdk/symbol';
 
 export default {
 	register: (server, db, services) => {
 		const PAGE_SIZE = 100;
 
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
-		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
-		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
-		const parser = new OperationParser(network, {
-			includeFeeOperation: true,
-			operationStatus: 'success',
-			lookupCurrency,
-			resolveAddress: (address, transactionLocation) => services.proxy.resolveAddress(address, transactionLocation)
-		});
+		const parser = OperationParser.createFromServices(services, { operationStatus: 'success' });
 
 		server.post('/mempool', rosettaPostRouteWithNetwork(blockchainDescriptor, NetworkRequest, async () => {
 			const transactions = await services.proxy.fetchAll('transactions/unconfirmed', PAGE_SIZE);

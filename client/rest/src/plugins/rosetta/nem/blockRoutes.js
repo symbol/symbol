@@ -20,7 +20,7 @@
  */
 
 import { OperationParser } from './OperationParser.js';
-import { createLookupCurrencyFunction, getBlockchainDescriptor } from './rosettaUtils.js';
+import { getBlockchainDescriptor } from './rosettaUtils.js';
 import Block from '../openApi/model/Block.js';
 import BlockIdentifier from '../openApi/model/BlockIdentifier.js';
 import BlockRequest from '../openApi/model/BlockRequest.js';
@@ -39,12 +39,7 @@ export default {
 
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
 		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
-		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
-		const parser = new OperationParser(network, {
-			includeFeeOperation: true,
-			operationStatus: 'success',
-			lookupCurrency
-		});
+		const parser = OperationParser.createFromServices(services, { operationStatus: 'success' });
 
 		const createBlockTransaction = async blockInfo => {
 			const { operations } = await parser.parseBlock(blockInfo);
