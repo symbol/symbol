@@ -223,16 +223,17 @@ export class OperationParser {
 	 * @returns {Transaction} Rosetta transaction.
 	 */
 	async parseTransactionAsRosettaTransaction(transaction, metadata) {
-		const { operations } = await this.parseTransaction(transaction);
+		const { operations } = await this.parseTransaction(transaction, metadata);
 		return new Transaction(new TransactionIdentifier(metadata.hash.data.toUpperCase()), operations);
 	}
 
 	/**
 	 * Parses a transaction into operations.
 	 * @param {object} transaction Transaction to process (REST object model is assumed).
+	 * @param {object} metadata Transaction metadata.
 	 * @returns {Array<Operation>} Transaction operations.
 	 */
-	async parseTransaction(transaction) {
+	async parseTransaction(transaction, metadata) {
 		const allSignerPublicKeyStrings = [];
 
 		const operations = [];
@@ -246,7 +247,7 @@ export class OperationParser {
 		};
 
 		const processSubTransaction = async subTransaction => {
-			const subOperations = await this.parseTransactionInternal(subTransaction);
+			const subOperations = await this.parseTransactionInternal(subTransaction, metadata);
 			subOperations.forEach(appendOperation);
 		};
 
@@ -302,10 +303,12 @@ export class OperationParser {
 	 * Parses a transaction into operations.
 	 * @param {object} transaction Transaction to process (REST object model is assumed).
 	 * @returns {Array<Operation>} Transaction operations.
+	 * @param {object} transactionLocation Location of transaction for which to perform the resolution.
 	 * @private
 	 */
-	async parseTransactionInternal(transaction) {
+	async parseTransactionInternal(transaction, transactionLocation) {
 		const operations = [];
+		const lookupCurrency = mosaicId => this.options.lookupCurrency(mosaicId, transactionLocation);
 
 		const pushDebitCreditOperations = (sourcePublicKey, targetAddress, amount, currency) => {
 			operations.push(this.createDebitOperation({ sourcePublicKey, amount, currency }));
@@ -333,7 +336,7 @@ export class OperationParser {
 			} else {
 				await Promise.all(transaction.mosaics.map(async mosaic => {
 					const amount = Math.trunc((transaction.amount / 1000000) * mosaic.quantity);
-					const { currency, levy } = await this.options.lookupCurrency(mosaic.mosaicId);
+					const { currency, levy } = await lookupCurrency(mosaic.mosaicId);
 
 					pushTransferOperations(amount, currency);
 
@@ -365,7 +368,7 @@ export class OperationParser {
 
 			operations.push(operation);
 		} else if (models.TransactionType.MOSAIC_SUPPLY_CHANGE.value === transactionType) {
-			const { currency } = await this.options.lookupCurrency(transaction.mosaicId);
+			const { currency } = await lookupCurrency(transaction.mosaicId);
 			const amount = transaction.delta * (10 ** currency.decimals);
 
 			operations.push(this.createCreditOperation({
@@ -409,7 +412,7 @@ export class OperationParser {
 		if (0 === block.totalFee)
 			return { operations: [] };
 
-		const { currency } = await this.options.lookupCurrency('currencyMosaicId');
+		const currency = await this.lookupFeeCurrency();
 		return {
 			operations: [
 				this.createCreditOperation({

@@ -50,7 +50,7 @@ describe('NEM OperationParser', () => {
 		createCosignOperation, createMultisigOperation, createTransferOperation, setOperationStatus
 	} = RosettaOperationFactory;
 
-	const lookupCurrencyDefault = mosaicId => {
+	const lookupCurrencyDefault = (mosaicId, transactionLocation) => {
 		if ('currencyMosaicId' === mosaicId)
 			return { currency: new Currency('currency.fee', 2) };
 
@@ -66,6 +66,15 @@ describe('NEM OperationParser', () => {
 			};
 		}
 
+		if ('check' === mosaicId.namespaceId) {
+			return {
+				currency: new Currency(
+					mosaicIdToString(mosaicId),
+					undefined === transactionLocation.height ? -1 : transactionLocation.height
+				)
+			};
+		}
+
 		return { currency: new Currency(mosaicIdToString(mosaicId), 'nem' === mosaicId.namespaceId ? 6 : 3) };
 	};
 
@@ -74,8 +83,8 @@ describe('NEM OperationParser', () => {
 		...additionalOptions
 	});
 
-	const parseTransaction = (parser, transaction) =>
-		parser.parseTransaction(convertTransactionSdkJsonToRestJson(transaction.toJson()));
+	const parseTransaction = (parser, transaction, metadata = undefined) =>
+		parser.parseTransaction(convertTransactionSdkJsonToRestJson(transaction.toJson()), metadata);
 
 	// endregion
 
@@ -141,7 +150,10 @@ describe('NEM OperationParser', () => {
 					mosaics: [
 						{
 							mosaic: {
-								mosaicId: { namespaceId: { name: textEncoder.encode('nem') }, name: textEncoder.encode('xem') },
+								mosaicId: {
+									namespaceId: { name: textEncoder.encode(options.namespaceId) },
+									name: textEncoder.encode(options.mosaicName)
+								},
 								amount: options.mosaicAmount
 							}
 						}
@@ -151,23 +163,40 @@ describe('NEM OperationParser', () => {
 				const parser = createDefaultParser(facade.network);
 
 				// Act:
-				const { operations, signerAddresses } = await parseTransaction(parser, transaction);
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction, options.metadata);
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', `-${options.expectedAmount}`, 'nem.xem', 6),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', options.expectedAmount, 'nem.xem', 6)
+					createTransferOperation(
+						0,
+						'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
+						`-${options.expectedAmount}`,
+						...options.expectedMosaicProperties
+					),
+					createTransferOperation(
+						1,
+						'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV',
+						options.expectedAmount,
+						...options.expectedMosaicProperties
+					)
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			};
 
-			it('can parse with single mosaic in bag', () => assertCanParseSingleMosaicInBag({
+			const assertCanParseSingleMosaicInBagXem = async options => assertCanParseSingleMosaicInBag({
+				...options,
+				namespaceId: 'nem',
+				mosaicName: 'xem',
+				expectedMosaicProperties: ['nem.xem', 6]
+			});
+
+			it('can parse with single mosaic in bag', () => assertCanParseSingleMosaicInBagXem({
 				amount: 2_000000,
 				mosaicAmount: 12345_000000,
 				expectedAmount: '24690000000'
 			}));
 
-			it('can parse with single mosaic in fractional bag', () => assertCanParseSingleMosaicInBag({
+			it('can parse with single mosaic in fractional bag', () => assertCanParseSingleMosaicInBagXem({
 				amount: 50000,
 				mosaicAmount: 34_152375,
 				expectedAmount: '1707618'
@@ -262,6 +291,17 @@ describe('NEM OperationParser', () => {
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			});
+
+			it('is transaction location aware', () => assertCanParseSingleMosaicInBag({
+				amount: 2_000000,
+				mosaicAmount: 12345_000000,
+				expectedAmount: '24690000000',
+
+				metadata: { height: 22 },
+				namespaceId: 'check',
+				mosaicName: 'location',
+				expectedMosaicProperties: ['check.location', 22]
+			}));
 
 			it('filters out zero transfers', async () => {
 				// Arrange:
@@ -402,33 +442,59 @@ describe('NEM OperationParser', () => {
 		// region supply change
 
 		describe('supply change', () => {
-			const assertCanParse = async (action, expectedAmount) => {
+			const assertCanParse = async options => {
 				// Arrange:
 				const textEncoder = new TextEncoder();
 				const facade = new NemFacade('testnet');
 				const transaction = facade.transactionFactory.create({
 					type: 'mosaic_supply_change_transaction_v1',
 					signerPublicKey: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
-					mosaicId: { namespaceId: { name: textEncoder.encode('foo') }, name: textEncoder.encode('bar') },
-					action,
+					mosaicId: {
+						namespaceId: { name: textEncoder.encode(options.namespaceId) },
+						name: textEncoder.encode(options.mosaicName)
+					},
+					action: options.action,
 					delta: 24680
 				});
 
 				const parser = createDefaultParser(facade.network);
 
 				// Act:
-				const { operations, signerAddresses } = await parseTransaction(parser, transaction);
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction, options.metadata);
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', expectedAmount, 'foo.bar', 3)
+					createTransferOperation(
+						0,
+						'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
+						options.expectedAmount,
+						...options.expectedMosaicProperties
+					)
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			};
 
-			it('can parse increase', () => assertCanParse(models.MosaicSupplyChangeAction.INCREASE, '24680000'));
+			const assertCanParseSupplyChangeFooBar = async (action, expectedAmount) => assertCanParse({
+				action,
+				expectedAmount,
+				namespaceId: 'foo',
+				mosaicName: 'bar',
+				expectedMosaicProperties: ['foo.bar', 3]
+			});
 
-			it('can parse decrease', () => assertCanParse(models.MosaicSupplyChangeAction.DECREASE, '-24680000'));
+			it('can parse increase', () => assertCanParseSupplyChangeFooBar(models.MosaicSupplyChangeAction.INCREASE, '24680000'));
+
+			it('can parse decrease', () => assertCanParseSupplyChangeFooBar(models.MosaicSupplyChangeAction.DECREASE, '-24680000'));
+
+			it('is transaction location aware', () => assertCanParse({
+				action: models.MosaicSupplyChangeAction.INCREASE,
+				expectedAmount: '2468000',
+
+				metadata: { height: 2 },
+				namespaceId: 'check',
+				mosaicName: 'location',
+				expectedMosaicProperties: ['check.location', 2]
+			}));
 		});
 
 		// endregion
@@ -657,6 +723,103 @@ describe('NEM OperationParser', () => {
 					'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'
 				]
 			}));
+		});
+
+		// endregion
+
+		// region location
+
+		describe('location', () => {
+			const createTransactionJsonForLocationTest = () => {
+				const textEncoder = new TextEncoder();
+				return {
+					type: 'transfer_transaction_v2',
+					signerPublicKey: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
+					recipientAddress: 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV',
+					amount: 2_000000,
+					mosaics: [
+						{
+							mosaic: {
+								mosaicId: { namespaceId: { name: textEncoder.encode('check') }, name: textEncoder.encode('location') },
+								amount: 12345_000000
+							}
+						}
+					]
+				};
+			};
+
+			const runTopLevelLocationTest = async (metadata, expectedPrecision) => {
+				// Arrange:
+				const facade = new NemFacade('testnet');
+				const transaction = facade.transactionFactory.create(createTransactionJsonForLocationTest());
+
+				const parser = createDefaultParser(facade.network);
+
+				// Act:
+				const { operations } = await parseTransaction(parser, transaction, metadata);
+
+				// Assert: precision is derived from location
+				const mosaicProperties = ['check.location', expectedPrecision];
+				expect(operations).to.deep.equal([
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690000000', ...mosaicProperties),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690000000', ...mosaicProperties)
+				]);
+			};
+
+			it('can pass down for top level transaction (valid)', () => runTopLevelLocationTest(
+				{ height: 1234 },
+				1234
+			));
+
+			it('can pass down for top level transaction (height - undefined)', () => runTopLevelLocationTest(
+				{},
+				-1
+			));
+
+			it('can pass down for top level transaction (height - zero)', () => runTopLevelLocationTest(
+				{ height: 0 },
+				0
+			));
+
+			const runEmbeddedLocationTest = async (metadata, expectedPrecision) => {
+				// Arrange:
+				const facade = new NemFacade('testnet');
+				const transaction = facade.transactionFactory.create({
+					type: 'multisig_transaction_v1',
+					signerPublicKey: 'E5F290755F021258ACE3CB29452BF38B322D76F62CAF6E9D2A89B48ABF7DD778',
+					fee: 8000,
+
+					innerTransaction: facade.transactionFactory.create(createTransactionJsonForLocationTest())
+				});
+
+				const parser = createDefaultParser(facade.network);
+
+				// Act:
+				const { operations } = await parseTransaction(parser, transaction, metadata);
+
+				// Assert: precision is derived from location
+				const mosaicProperties = ['check.location', expectedPrecision];
+				expect(operations).to.deep.equal([
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690000000', ...mosaicProperties),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690000000', ...mosaicProperties),
+					createCosignOperation(2, 'TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC')
+				]);
+			};
+
+			it('can pass down for sub transaction (valid)', () => runEmbeddedLocationTest(
+				{ height: 1234 },
+				1234
+			));
+
+			it('can pass down for sub transaction (height - undefined)', () => runEmbeddedLocationTest(
+				{},
+				-1
+			));
+
+			it('can pass down for sub transaction (height - zero)', () => runEmbeddedLocationTest(
+				{ height: 0 },
+				0
+			));
 		});
 
 		// endregion
