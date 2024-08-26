@@ -55,17 +55,17 @@ export const calculateXemTransferFee = amount => {
  * @param {object} proxy NEM proxy.
  * @returns {Function} Currency lookup function.
  */
-export const createLookupCurrencyFunction = proxy => async mosaicId => {
+export const createLookupCurrencyFunction = proxy => async (mosaicId, transactionLocation) => {
 	if ('currencyMosaicId' === mosaicId || ('nem' === mosaicId.namespaceId && 'xem' === mosaicId.name))
 		return { currency: new Currency('nem.xem', 6) };
 
-	const mosaicProperties = await proxy.mosaicProperties(mosaicId);
+	const mosaicProperties = await proxy.mosaicProperties(mosaicId, transactionLocation);
 	const currency = new Currency(mosaicIdToString(mosaicId), mosaicProperties.divisibility);
 
 	if (undefined === mosaicProperties.levy)
 		return { currency };
 
-	const levyMosaicProperties = await proxy.mosaicProperties(mosaicProperties.levy.mosaicId);
+	const levyMosaicProperties = await proxy.mosaicProperties(mosaicProperties.levy.mosaicId, transactionLocation);
 	const result = {
 		currency,
 		levy: {

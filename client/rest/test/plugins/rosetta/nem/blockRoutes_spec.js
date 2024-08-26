@@ -170,7 +170,6 @@ describe('NEM block routes', () => {
 		it('fails when fetch fails (local/block/at)', async () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), false);
-			FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
 			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
 
 			// Act + Assert:
@@ -180,7 +179,6 @@ describe('NEM block routes', () => {
 		it('succeeds when all fetches succeed (nemesis)', async () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
-			FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
 			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
 
 			// - create expected response
@@ -198,7 +196,6 @@ describe('NEM block routes', () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(2, OTHER_BLOCK_HASH, 20), true);
-			FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
 			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
 
 			// - create expected response
@@ -260,7 +257,6 @@ describe('NEM block routes', () => {
 		it('succeeds when all fetches succeed', async () => {
 			// Arrange:
 			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, true, createTransactionJson());
-			FetchStubHelper.stubMosaicResolution('nem', 'xem', 6);
 			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
 
 			// - create expected response

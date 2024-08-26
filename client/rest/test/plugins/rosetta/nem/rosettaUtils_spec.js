@@ -79,23 +79,23 @@ describe('NEM rosetta utils', () => {
 
 	describe('createLookupCurrencyFunction', () => {
 		const mockProxy = {
-			mosaicProperties: mosaicId => {
+			mosaicProperties: (mosaicId, transactionLocation) => {
 				if ('coins' === mosaicId.name)
-					return Promise.resolve({ divisibility: 3, levy: undefined });
+					return Promise.resolve({ divisibility: transactionLocation.height, levy: undefined });
 
 				if ('coupons' === mosaicId.name) {
 					return Promise.resolve({
-						divisibility: 4,
+						divisibility: transactionLocation.height * 2,
 						levy: {
 							mosaicId: { namespaceId: 'some.other', name: 'tax' },
 							recipientAddress: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
 							isAbsolute: true,
-							fee: 10
+							fee: transactionLocation.height * 100
 						}
 					});
 				}
 
-				return Promise.resolve({ divisibility: 2, levy: undefined });
+				return Promise.resolve({ divisibility: transactionLocation.height, levy: undefined });
 			}
 		};
 
@@ -124,7 +124,7 @@ describe('NEM rosetta utils', () => {
 		it('can lookup nem.other', async () => {
 			// Act:
 			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
-			const { currency, levy } = await lookupCurrency({ namespaceId: 'nem', name: 'other' });
+			const { currency, levy } = await lookupCurrency({ namespaceId: 'nem', name: 'other' }, { height: 2 });
 
 			// Assert: does not bypass mosaicProperties
 			const expectedCurrency = new Currency('nem.other', 2);
@@ -135,7 +135,7 @@ describe('NEM rosetta utils', () => {
 		it('can lookup arbitrary mosaic id (without levy)', async () => {
 			// Act:
 			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
-			const { currency, levy } = await lookupCurrency({ namespaceId: 'foo.bar', name: 'coins' });
+			const { currency, levy } = await lookupCurrency({ namespaceId: 'foo.bar', name: 'coins' }, { height: 3 });
 
 			// Assert:
 			const expectedCurrency = new Currency('foo.bar.coins', 3);
@@ -146,7 +146,7 @@ describe('NEM rosetta utils', () => {
 		it('can lookup arbitrary mosaic id (with levy)', async () => {
 			// Act:
 			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
-			const { currency, levy } = await lookupCurrency({ namespaceId: 'foo.bar', name: 'coupons' });
+			const { currency, levy } = await lookupCurrency({ namespaceId: 'foo.bar', name: 'coupons' }, { height: 2 });
 
 			// Assert:
 			const expectedCurrency = new Currency('foo.bar.coupons', 4);
@@ -155,7 +155,7 @@ describe('NEM rosetta utils', () => {
 				currency: new Currency('some.other.tax', 2),
 				recipientAddress: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
 				isAbsolute: true,
-				fee: 10
+				fee: 200
 			});
 		});
 	});
