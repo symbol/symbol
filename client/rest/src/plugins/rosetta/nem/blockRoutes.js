@@ -49,8 +49,13 @@ export default {
 		server.post('/block', rosettaPostRouteWithNetwork(blockchainDescriptor, BlockRequest, async typedRequest => {
 			const height = typedRequest.block_identifier.index;
 			const blockInfo = await services.proxy.localBlockAtHeight(height);
-			const rosettaTransactions = await Promise.all(blockInfo.txes.map(transaction =>
-				parser.parseTransactionAsRosettaTransaction(transaction.tx, { hash: { data: transaction.hash } })));
+			const rosettaTransactions = await Promise.all(blockInfo.txes.map(transaction => parser.parseTransactionAsRosettaTransaction(
+				transaction.tx,
+				{
+					hash: { data: transaction.hash },
+					height
+				}
+			)));
 			const blockTransaction = await createBlockTransaction(blockInfo);
 
 			const calculateBlockTimestamp = timestamp => Number(network.toDatetime(new NetworkTimestamp(timestamp)).getTime());

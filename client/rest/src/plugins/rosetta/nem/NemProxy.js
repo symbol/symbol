@@ -23,6 +23,22 @@ import { mosaicIdToString } from './rosettaUtils.js';
 import { RosettaErrorFactory } from '../rosettaUtils.js';
 import { models } from 'symbol-sdk/nem';
 
+const mosaicDefinitionToMosaicProperties = mosaicDefinition => {
+	const findProperty = (properties, name) => properties.find(property => name === property.name);
+	const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');
+
+	const { levy } = mosaicDefinition;
+	return {
+		divisibility: undefined === divisibilityProperty ? 0 : parseInt(divisibilityProperty.value, 10),
+		levy: undefined === levy.type ? undefined : {
+			mosaicId: levy.mosaicId,
+			recipientAddress: levy.recipient,
+			isAbsolute: models.MosaicTransferFeeType.ABSOLUTE.value === levy.type,
+			fee: levy.fee
+		}
+	};
+};
+
 /**
  * Proxy to a NEM node that performs caching for performance optimization, as appropriate.
  */
@@ -33,8 +49,6 @@ export default class NemProxy {
 	 */
 	constructor(endpoint) {
 		this.endpoint = endpoint;
-
-		this.mosaicPropertiesMap = new Map();
 	}
 
 	/**
@@ -99,29 +113,31 @@ export default class NemProxy {
 	/**
 	 * Retrieves (potentially cached) mosaic properties.
 	 * @param {object} mosaicId NEM mosaic id object.
+	 * @param {object} transactionLocation Location of transaction for which to perform the lookup.
 	 * @returns {object} Properties about the mosaic.
 	 */
-	async mosaicProperties(mosaicId) {
+	async mosaicProperties(mosaicId, transactionLocation = undefined) {
+		const mosaicDefinitionPair = await this.mosaicDefinitionWithSupply(mosaicId, transactionLocation);
+		return mosaicDefinitionToMosaicProperties(mosaicDefinitionPair.mosaicDefinition);
+	}
+
+	/**
+	 * Retrieves mosaic definition and supply at height.
+	 * @param {object} mosaicId NEM mosaic id object.
+	 * @param {object} transactionLocation Location of transaction for which to perform the lookup.
+	 * @param {number} relativeHeight Height adjustment relative to location.
+	 * @returns {object} Pair of mosaic definition and mosaic supply.
+	 */
+	async mosaicDefinitionWithSupply(mosaicId, transactionLocation = undefined, relativeHeight = 0) {
 		const fullyQualifiedName = mosaicIdToString(mosaicId);
-		if (this.mosaicPropertiesMap.has(fullyQualifiedName))
-			return this.mosaicPropertiesMap.get(fullyQualifiedName);
+		const heightQuery = transactionLocation && undefined !== transactionLocation.height
+			? `&height=${transactionLocation.height + relativeHeight}`
+			: '';
+		const mosaicDefinitionPairs = await this.fetch(
+			`local/mosaic/definition/supply?mosaicId=${fullyQualifiedName}${heightQuery}`,
+			jsonObject => jsonObject.data
+		);
 
-		const mosaicDefinition = await this.fetch(`mosaic/definition/last?mosaicId=${fullyQualifiedName}`);
-
-		const findProperty = (properties, name) => properties.find(property => name === property.name);
-		const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');
-
-		const { levy } = mosaicDefinition;
-		const properties = {
-			divisibility: undefined === divisibilityProperty ? 0 : parseInt(divisibilityProperty.value, 10),
-			levy: undefined === mosaicDefinition.levy.type ? undefined : {
-				mosaicId: levy.mosaicId,
-				recipientAddress: levy.recipient,
-				isAbsolute: models.MosaicTransferFeeType.ABSOLUTE.value === levy.type,
-				fee: levy.fee
-			}
-		};
-		this.mosaicPropertiesMap.set(fullyQualifiedName, properties);
-		return properties;
+		return 0 === mosaicDefinitionPairs.length ? undefined : mosaicDefinitionPairs[0];
 	}
 }
