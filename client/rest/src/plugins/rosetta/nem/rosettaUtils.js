@@ -50,14 +50,26 @@ export const calculateXemTransferFee = amount => {
 	return 50000n * min(25n, max(1n, amount / 10000n));
 };
 
+const NEM_XEM_DIVISIBILITY = 6;
+
+const isNemXemMosaicId = mosaicId => 'nem' === mosaicId.namespaceId && 'xem' === mosaicId.name;
+
+const lookupDivisibility = async (mosaicId, transactionLocation, proxy) => {
+	if (isNemXemMosaicId(mosaicId))
+		return NEM_XEM_DIVISIBILITY;
+
+	const mosaicProperties = await proxy.mosaicProperties(mosaicId, transactionLocation);
+	return mosaicProperties.divisibility;
+};
+
 /**
  * Creates the lookup currency function used by the operation parser.
  * @param {object} proxy NEM proxy.
  * @returns {Function} Currency lookup function.
  */
 export const createLookupCurrencyFunction = proxy => async (mosaicId, transactionLocation) => {
-	if ('currencyMosaicId' === mosaicId || ('nem' === mosaicId.namespaceId && 'xem' === mosaicId.name))
-		return { currency: new Currency('nem:xem', 6) };
+	if ('currencyMosaicId' === mosaicId || isNemXemMosaicId(mosaicId))
+		return { currency: new Currency('nem:xem', NEM_XEM_DIVISIBILITY) };
 
 	const mosaicProperties = await proxy.mosaicProperties(mosaicId, transactionLocation);
 	const currency = new Currency(mosaicIdToString(mosaicId), mosaicProperties.divisibility);
@@ -65,14 +77,50 @@ export const createLookupCurrencyFunction = proxy => async (mosaicId, transactio
 	if (undefined === mosaicProperties.levy)
 		return { currency };
 
-	const levyMosaicProperties = await proxy.mosaicProperties(mosaicProperties.levy.mosaicId, transactionLocation);
+	const levyDivisibility = await lookupDivisibility(mosaicProperties.levy.mosaicId, transactionLocation, proxy);
 	const result = {
 		currency,
 		levy: {
 			...mosaicProperties.levy,
-			currency: new Currency(mosaicIdToString(mosaicProperties.levy.mosaicId), levyMosaicProperties.divisibility)
+			currency: new Currency(mosaicIdToString(mosaicProperties.levy.mosaicId), levyDivisibility)
 		}
 	};
 	delete result.levy.mosaicId;
 	return result;
+};
+
+/**
+ * Checks if two mosaic definitions (REST JSON model) are equal at specified height.
+ * @param {object} lhs First mosaic definition.
+ * @param {object} rhs Second mosaic definition.
+ * @param {boolean} isDescriptionSignificant \c true if description differences are significant.
+ * @returns {boolean} \c true if mosaic definitions are equal.
+ */
+export const areMosaicDefinitionsEqual = (lhs, rhs, isDescriptionSignificant) => {
+	if (isDescriptionSignificant) {
+		if (lhs.description !== rhs.description)
+			return false;
+	}
+
+	const isPropertyEqual = name => {
+		const lhsProperty = lhs.properties.find(property => name === property.name);
+		const rhsProperty = rhs.properties.find(property => name === property.name);
+		return lhsProperty.value === rhsProperty.value;
+	};
+
+	const normalizeObject = object => (undefined === object ? {} : object);
+
+	const lhsLevy = normalizeObject(lhs.levy);
+	const rhsLevy = normalizeObject(rhs.levy);
+
+	const lhsLevyMosaicId = normalizeObject(lhsLevy.mosaicId);
+	const rhsLevyMosaicId = normalizeObject(rhsLevy.mosaicId);
+
+	return lhs.creator === rhs.creator
+		&& lhs.properties.every(property => isPropertyEqual(property.name))
+		&& lhsLevy.fee === rhsLevy.fee
+		&& lhsLevy.recipient === rhsLevy.recipient
+		&& lhsLevy.type === rhsLevy.type
+		&& lhsLevyMosaicId.namespaceId === rhsLevyMosaicId.namespaceId
+		&& lhsLevyMosaicId.name === rhsLevyMosaicId.name;
 };

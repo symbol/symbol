@@ -52,7 +52,7 @@ describe('Symbol OperationParser', () => {
 
 	const encodeParitalDecodedAddress = address => new Address(utils.hexToUint8(address.padEnd(48, '0'))).toString();
 
-	const lookupCurrencyDefault = (mosaicId, transactionLocation) => {
+	const lookupCurrencySync = (mosaicId, transactionLocation) => {
 		if ('currencyMosaicId' === mosaicId)
 			return new Currency('currency.fee', 2);
 
@@ -88,7 +88,7 @@ describe('Symbol OperationParser', () => {
 	};
 
 	const createDefaultParser = (network, additionalOptions = {}) => new OperationParser(network, {
-		lookupCurrency: lookupCurrencyDefault,
+		lookupCurrency: (...args) => Promise.resolve(lookupCurrencySync(...args)),
 		resolveAddress: resolveAddressDefault,
 		...additionalOptions
 	});

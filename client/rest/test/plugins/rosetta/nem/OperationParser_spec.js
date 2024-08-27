@@ -50,7 +50,7 @@ describe('NEM OperationParser', () => {
 		createCosignOperation, createMultisigOperation, createTransferOperation, setOperationStatus
 	} = RosettaOperationFactory;
 
-	const lookupCurrencyDefault = (mosaicId, transactionLocation) => {
+	const lookupCurrencySync = (mosaicId, transactionLocation) => {
 		if ('currencyMosaicId' === mosaicId)
 			return { currency: new Currency('currency:fee', 2) };
 
@@ -78,8 +78,33 @@ describe('NEM OperationParser', () => {
 		return { currency: new Currency(mosaicIdToString(mosaicId), 'nem' === mosaicId.namespaceId ? 6 : 3) };
 	};
 
+	const lookupMosaicDefinitionWithSupplySync = (mosaicId, transactionLocation, relativeHeight) => {
+		if ('exists' === mosaicId.name) {
+			// ensure match at transactionLocation.height 124, where initialSupply === 123000 and divisibility === 4
+			const initialSupply = (transactionLocation.height + relativeHeight) * 1000;
+			const divisibility = 123 < transactionLocation.height ? 4 : 3;
+			return {
+				mosaicDefinition: {
+					creator: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
+					id: { namespaceId: 'foo', name: 'exists' },
+					description: 'some random description',
+					properties: [
+						{ name: 'divisibility', value: divisibility.toString() },
+						{ name: 'initialSupply', value: initialSupply.toString() },
+						{ name: 'supplyMutable', value: 'false' }
+					],
+					levy: {}
+				},
+				supply: 1111
+			};
+		}
+
+		return undefined;
+	};
+
 	const createDefaultParser = (network, additionalOptions = {}) => new OperationParser(network, {
-		lookupCurrency: lookupCurrencyDefault,
+		lookupCurrency: (...args) => Promise.resolve(lookupCurrencySync(...args)),
+		lookupMosaicDefinitionWithSupply: (...args) => Promise.resolve(lookupMosaicDefinitionWithSupplySync(...args)),
 		...additionalOptions
 	});
 
@@ -535,25 +560,36 @@ describe('NEM OperationParser', () => {
 
 		// endregion
 
-		// region mosaic
+		// region mosaic definition
 
-		describe('mosaic', () => {
-			const assertParse = async options => {
-				// Arrange:
+		describe('mosaic definition', () => {
+			const createMosaicDefinitionTransactionJson = options => {
 				const textEncoder = new TextEncoder();
-				const facade = new NemFacade('testnet');
-				const transaction = facade.transactionFactory.create({
+				return {
 					type: 'mosaic_definition_transaction_v1',
 					signerPublicKey: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
 					rentalFeeSink: 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
 					rentalFee: 50000,
 
 					mosaicDefinition: {
-						ownerPublicKey: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
-						id: { namespaceId: { name: textEncoder.encode('foo') }, name: textEncoder.encode('bar') },
+						ownerPublicKey: options.ownerPublicKey || '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
+						id: {
+							namespaceId: { name: textEncoder.encode(options.namespaceId) },
+							name: textEncoder.encode(options.mosaicName)
+						},
 						properties: options.properties
 					}
-				});
+				};
+			};
+
+			const assertParse = async options => {
+				// Arrange:
+				const facade = new NemFacade('testnet');
+				const transaction = facade.transactionFactory.create(createMosaicDefinitionTransactionJson({
+					namespaceId: 'foo',
+					mosaicName: 'bar',
+					properties: options.properties
+				}));
 
 				const parser = createDefaultParser(facade.network);
 
@@ -602,6 +638,70 @@ describe('NEM OperationParser', () => {
 					]
 				});
 			});
+
+			const assertParseWithExistingDefinition = async options => {
+				// Arrange:
+				const textEncoder = new TextEncoder();
+				const facade = new NemFacade('testnet');
+				const transaction = facade.transactionFactory.create(createMosaicDefinitionTransactionJson({
+					namespaceId: 'foo',
+					mosaicName: 'exists',
+					properties: [
+						{ property: { name: textEncoder.encode('divisibility'), value: textEncoder.encode('4') } },
+						{ property: { name: textEncoder.encode('initialSupply'), value: textEncoder.encode('123000') } },
+						{ property: { name: textEncoder.encode('supplyMutable'), value: textEncoder.encode('false') } }
+					],
+					ownerPublicKey: options.ownerPublicKey
+				}));
+
+				const parser = createDefaultParser(facade.network);
+
+				// Act:
+				const { operations, signerAddresses } = await parseTransaction(parser, transaction, options.metadata);
+
+				// Assert:
+				expect(operations).to.deep.equal([
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-50000', 'currency:fee', 2),
+					createTransferOperation(1, 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC', '50000', 'currency:fee', 2),
+					...options.additionalOperations
+				]);
+				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
+			};
+
+			it('can parse when existing mosaic definition matches', () => assertParseWithExistingDefinition({
+				metadata: { height: 124 },
+				additionalOperations: [
+					// mosaic definition has no significant differences with existing mosaic definition, so no supply changes
+				]
+			}));
+
+			it('can parse when existing mosaic definition does not match (=divisibility, =owner)', () => assertParseWithExistingDefinition({
+				metadata: { height: 130 },
+				additionalOperations: [
+					// simply increase supply because divisibility is unchanged
+					// new supply (123000 * 10000) - existing supply (1111 * 10000)
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1218890000', 'foo:exists', 4)
+				]
+			}));
+
+			it('can parse when existing mosaic definition does not match (!divisibility, =owner)', () => assertParseWithExistingDefinition({
+				metadata: { height: 123 },
+				additionalOperations: [
+					// remove existing supply (1111 * 1000) and add new supply (123000 * 10000)
+					// rosetta treats the two supplies as unique currencies because of divisibility difference
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-1111000', 'foo:exists', 3),
+					createTransferOperation(3, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo:exists', 4)
+				]
+			}));
+
+			it('can parse when existing mosaic definition does not match (!divisibility, !owner)', () => assertParseWithExistingDefinition({
+				ownerPublicKey: 'BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F',
+				metadata: { height: 123 },
+				additionalOperations: [
+					// simply increase supply because owner change means previous mosaic definition expired
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo:exists', 4)
+				]
+			}));
 		});
 
 		// endregion
@@ -1121,7 +1221,7 @@ describe('NEM OperationParser', () => {
 				creationFee: 50000,
 
 				mosaicDefinition: {
-					ownerPublicKey: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
+					creator: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
 					id: { namespaceId: 'foo', name: 'bar' },
 					properties: [
 						{ name: 'initialSupply', value: '123000' },

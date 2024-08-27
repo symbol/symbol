@@ -261,14 +261,43 @@ describe('NemProxy', () => {
 
 	// region mosaicProperties
 
+	const createValidMosaicDefinitionJson = () => ({
+		id: { namespaceId: 'foo.bar', name: 'coins' },
+		properties: [
+			{ name: 'initialSupply', value: '123000' },
+			{ name: 'divisibility', value: '4' },
+			{ name: 'supplyMutable', value: 'false' }
+		],
+		levy: {
+			type: 2,
+			recipient: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
+			mosaicId: { namespaceId: 'nem', name: 'xem' },
+			fee: 10
+		}
+	});
+
 	describe('mosaicProperties', () => {
+		const createValidMosaicDefinitionSupplyResponseJson = () => ({
+			data: [
+				{
+					mosaicDefinition: createValidMosaicDefinitionJson()
+				}
+			]
+		});
+
 		const assertCanRetriveProperties = async options => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('mosaic/definition/last?mosaicId=foo.bar:coins', true, {
-				id: { namespaceId: 'foo.bar', name: 'coins' },
-				properties: options.properties,
-				levy: options.levy
+			stubFetchResult('local/mosaic/definition/supply?mosaicId=foo.bar:coins', true, {
+				data: [
+					{
+						mosaicDefinition: {
+							id: { namespaceId: 'foo.bar', name: 'coins' },
+							properties: options.properties,
+							levy: options.levy
+						}
+					}
+				]
 			});
 
 			// Act:
@@ -349,31 +378,18 @@ describe('NemProxy', () => {
 			}
 		}));
 
-		it('can retrieve properties for mosaic (cached)', async () => {
+		it('can retrieve properties for mosaic (NOT cached)', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('mosaic/definition/last?mosaicId=foo.bar:coins', true, {
-				id: { namespaceId: 'foo.bar', name: 'coins' },
-				properties: [
-					{ name: 'initialSupply', value: '123000' },
-					{ name: 'divisibility', value: '4' },
-					{ name: 'supplyMutable', value: 'false' }
-				],
-				levy: {
-					type: 2,
-					recipient: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
-					mosaicId: { namespaceId: 'nem', name: 'xem' },
-					fee: 10
-				}
-			});
+			stubFetchResult('local/mosaic/definition/supply?mosaicId=foo.bar:coins', true, createValidMosaicDefinitionSupplyResponseJson());
 
 			// Act:
 			await proxy.mosaicProperties({ namespaceId: 'foo.bar', name: 'coins' });
 			await proxy.mosaicProperties({ namespaceId: 'foo.bar', name: 'coins' });
 			const mosaicProperties = await proxy.mosaicProperties({ namespaceId: 'foo.bar', name: 'coins' });
 
-			// Assert: only initial call was made
-			expect(global.fetch.callCount).to.equal(1);
+			// Assert: multiple calls were made because nothing was cached
+			expect(global.fetch.callCount).to.equal(3);
 			expect(mosaicProperties).to.deep.equal({
 				divisibility: 4,
 				levy: {
@@ -385,14 +401,41 @@ describe('NemProxy', () => {
 			});
 		});
 
-		it('fails when fetch fails (mosaic/definition/last)', async () => {
+		it('can retrieve properties for mosaic with location (NOT cached)', async () => {
 			// Arrange:
 			const proxy = new NemProxy(TEST_ENDPOINT);
-			stubFetchResult('mosaic/definition/last?mosaicId=foo.bar:coins', false, {
-				id: { namespaceId: 'foo.bar', name: 'coins' },
-				properties: [],
-				levy: {}
+			stubFetchResult(
+				'local/mosaic/definition/supply?mosaicId=foo.bar:coins&height=123',
+				true,
+				createValidMosaicDefinitionSupplyResponseJson()
+			);
+
+			// Act:
+			await proxy.mosaicProperties({ namespaceId: 'foo.bar', name: 'coins' }, { height: 123 });
+			await proxy.mosaicProperties({ namespaceId: 'foo.bar', name: 'coins' }, { height: 123 });
+			const mosaicProperties = await proxy.mosaicProperties({ namespaceId: 'foo.bar', name: 'coins' }, { height: 123 });
+
+			// Assert: multiple calls were made because nothing was cached
+			expect(global.fetch.callCount).to.equal(3);
+			expect(mosaicProperties).to.deep.equal({
+				divisibility: 4,
+				levy: {
+					mosaicId: { namespaceId: 'nem', name: 'xem' },
+					recipientAddress: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
+					isAbsolute: false,
+					fee: 10
+				}
 			});
+		});
+
+		it('fails when fetch fails (local/mosaic/definition/supply)', async () => {
+			// Arrange:
+			const proxy = new NemProxy(TEST_ENDPOINT);
+			stubFetchResult(
+				'local/mosaic/definition/supply?mosaicId=foo.bar:coins',
+				false,
+				createValidMosaicDefinitionSupplyResponseJson()
+			);
 
 			// Act + Assert:
 			await assertAsyncErrorThrown(
@@ -403,4 +446,75 @@ describe('NemProxy', () => {
 	});
 
 	// endregion
+
+	// region mosaicDefinitionWithSupply
+
+	describe('mosaicDefinitionWithSupply', () => {
+		const assertCanRetrieveKnownMosaicDefinition = async (metadata, heightAdjustment, expectedHeightQuery) => {
+			// Arrange:
+			const proxy = new NemProxy(TEST_ENDPOINT);
+			stubFetchResult(`local/mosaic/definition/supply?mosaicId=foo.bar:coins${expectedHeightQuery}`, true, {
+				data: [
+					{
+						mosaicDefinition: createValidMosaicDefinitionJson(),
+						supply: 8888
+					}
+				]
+			});
+
+			// Act:
+			const mosaicDefinitionPair = await proxy.mosaicDefinitionWithSupply(
+				{ namespaceId: 'foo.bar', name: 'coins' },
+				metadata,
+				heightAdjustment
+			);
+
+			// Assert:
+			expect(mosaicDefinitionPair).to.deep.equal({
+				mosaicDefinition: createValidMosaicDefinitionJson(),
+				supply: 8888
+			});
+		};
+
+		it('can retrieve known mosaic definition without location', () => assertCanRetrieveKnownMosaicDefinition(undefined, undefined, ''));
+
+		it('can retrieve known mosaic definition without location but with metadata', () => assertCanRetrieveKnownMosaicDefinition(
+			{},
+			undefined,
+			''
+		));
+
+		it('can retrieve known mosaic definition with location', () => assertCanRetrieveKnownMosaicDefinition(
+			{ height: 1234 },
+			undefined,
+			'&height=1234'
+		));
+
+		it('can retrieve known mosaic definition with location and height adjustment', () => assertCanRetrieveKnownMosaicDefinition(
+			{ height: 1234 },
+			-34,
+			'&height=1200'
+		));
+
+		const assertCannotRetrieveUnknownMosaicDefinition = async (metadata, expectedHeightQuery) => {
+			// Arrange:
+			const proxy = new NemProxy(TEST_ENDPOINT);
+			stubFetchResult(`local/mosaic/definition/supply?mosaicId=foo.bar:coins${expectedHeightQuery}`, true, {
+				data: []
+			});
+
+			// Act:
+			const mosaicDefinitionPair = await proxy.mosaicDefinitionWithSupply({ namespaceId: 'foo.bar', name: 'coins' }, metadata);
+
+			// Assert:
+			expect(mosaicDefinitionPair).to.equal(undefined);
+		};
+
+		it('cannot retrieve unknown mosaic definition without location', () => assertCannotRetrieveUnknownMosaicDefinition(undefined, ''));
+
+		it('cannot retrieve unknown mosaic definition with location', () => assertCannotRetrieveUnknownMosaicDefinition(
+			{ height: 1234 },
+			'&height=1234'
+		));
+	});
 });

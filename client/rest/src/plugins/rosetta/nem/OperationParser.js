@@ -19,7 +19,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { createLookupCurrencyFunction, getBlockchainDescriptor, mosaicIdToString } from './rosettaUtils.js';
+import {
+	areMosaicDefinitionsEqual,
+	createLookupCurrencyFunction,
+	getBlockchainDescriptor,
+	mosaicIdToString
+} from './rosettaUtils.js';
 import AccountIdentifier from '../openApi/model/AccountIdentifier.js';
 import Amount from '../openApi/model/Amount.js';
 import Currency from '../openApi/model/Currency.js';
@@ -98,6 +103,8 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 
 	if (transactionJson.mosaicDefinition) {
 		transactionJson.mosaicDefinition.id = convertMosaicIdSdkJsonToRestJson(transactionJson.mosaicDefinition.id);
+		transactionJson.mosaicDefinition.creator = transactionJson.mosaicDefinition.ownerPublicKey;
+		delete transactionJson.mosaicDefinition.ownerPublicKey;
 
 		transactionJson.mosaicDefinition.properties = transactionJson.mosaicDefinition.properties
 			.map(property => property.property)
@@ -118,6 +125,24 @@ export const convertTransactionSdkJsonToRestJson = transactionJson => {
 
 // endregion
 
+// region utils
+
+const extractPropertiesFromMosaicDefinition = mosaicDefinition => {
+	const findProperty = (properties, name) => properties.find(property => name === property.name);
+
+	const initialSupplyProperty = findProperty(mosaicDefinition.properties, 'initialSupply');
+	const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');
+
+	return {
+		initialSupply: undefined === initialSupplyProperty ? 1000 : parseInt(initialSupplyProperty.value, 10),
+		divisibility: undefined === divisibilityProperty ? 0 : parseInt(divisibilityProperty.value, 10)
+	};
+};
+
+const supplyToAtomicUnits = (supply, divisibility) => supply * (10 ** divisibility);
+
+// endregion
+
 /**
  * Parses NEM models into rosetta operations.
  */
@@ -131,10 +156,10 @@ export class OperationParser {
 	static createFromServices(services, options = {}) {
 		const blockchainDescriptor = getBlockchainDescriptor(services.config);
 		const network = NetworkLocator.findByName(Network.NETWORKS, blockchainDescriptor.network);
-		const lookupCurrency = createLookupCurrencyFunction(services.proxy);
 		return new OperationParser(network, {
 			includeFeeOperation: true,
-			lookupCurrency,
+			lookupCurrency: createLookupCurrencyFunction(services.proxy),
+			lookupMosaicDefinitionWithSupply: (...args) => services.proxy.mosaicDefinitionWithSupply(...args),
 			...options
 		});
 	}
@@ -369,7 +394,7 @@ export class OperationParser {
 			operations.push(operation);
 		} else if (models.TransactionType.MOSAIC_SUPPLY_CHANGE.value === transactionType) {
 			const { currency } = await lookupCurrency(transaction.mosaicId);
-			const amount = transaction.delta * (10 ** currency.decimals);
+			const amount = supplyToAtomicUnits(transaction.delta, currency.decimals);
 
 			operations.push(this.createCreditOperation({
 				targetPublicKey: transaction.signer,
@@ -381,21 +406,45 @@ export class OperationParser {
 		} else if (models.TransactionType.MOSAIC_DEFINITION.value === transactionType) {
 			await pushRegistrationFeeOperation('creation');
 
-			const findProperty = (properties, name) => properties.find(property => name === property.name);
-
 			const { mosaicDefinition } = transaction;
-			const initialSupplyProperty = findProperty(mosaicDefinition.properties, 'initialSupply');
-			const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');
+			const { initialSupply, divisibility } = extractPropertiesFromMosaicDefinition(mosaicDefinition);
 
-			const initialSupply = undefined === initialSupplyProperty ? 1000 : parseInt(initialSupplyProperty.value, 10);
-			const currency = new Currency(
-				mosaicIdToString(mosaicDefinition.id),
-				undefined === divisibilityProperty ? 0 : parseInt(divisibilityProperty.value, 10)
+			const currency = new Currency(mosaicIdToString(mosaicDefinition.id), divisibility);
+			const existingMosaicDefinitionPair = await this.options.lookupMosaicDefinitionWithSupply(
+				mosaicDefinition.id,
+				transactionLocation,
+				-1
 			);
+
+			let creditAmount = supplyToAtomicUnits(initialSupply, divisibility);
+			if (existingMosaicDefinitionPair) {
+				const existingMosaicDefinition = existingMosaicDefinitionPair.mosaicDefinition;
+				if (areMosaicDefinitionsEqual(mosaicDefinition, existingMosaicDefinition)) {
+					// change to insignificant property, ignore
+					creditAmount = 0;
+				} else {
+					const existingDivisibility = extractPropertiesFromMosaicDefinition(existingMosaicDefinition).divisibility;
+					const existingSupply = supplyToAtomicUnits(existingMosaicDefinitionPair.supply, existingDivisibility);
+
+					if (mosaicDefinition.creator === existingMosaicDefinition.creator) {
+						if (divisibility !== existingDivisibility) {
+							// rosetta treats divisibility change as unique currency,
+							// so debit entire (existing) supply and add entire new supply
+							operations.push(this.createDebitOperation({
+								sourcePublicKey: transaction.signer,
+								amount: existingSupply,
+								currency: new Currency(currency.symbol, existingDivisibility)
+							}));
+						} else {
+							creditAmount -= existingSupply;
+						}
+					}
+				}
+			}
 
 			operations.push(this.createCreditOperation({
 				targetPublicKey: transaction.signer,
-				amount: initialSupply * (10 ** currency.decimals),
+				amount: creditAmount,
 				currency
 			}));
 		}

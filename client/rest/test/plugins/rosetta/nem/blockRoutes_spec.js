@@ -179,7 +179,7 @@ describe('NEM block routes', () => {
 		it('succeeds when all fetches succeed (nemesis)', async () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
-			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
+			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3, 1);
 
 			// - create expected response
 			const expectedResponse = createMatchingRosettaBlock(
@@ -194,19 +194,18 @@ describe('NEM block routes', () => {
 
 		it('succeeds when all fetches succeed (other block)', async () => {
 			// Arrange:
-			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
-			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(2, OTHER_BLOCK_HASH, 20), true);
-			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
+			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(TEST_BLOCK_HEIGHT, OTHER_BLOCK_HASH, 20), true);
+			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3, TEST_BLOCK_HEIGHT);
 
 			// - create expected response
 			const expectedResponse = createMatchingRosettaBlock(
-				new BlockIdentifier(2, OTHER_BLOCK_HASH.toUpperCase()),
-				new BlockIdentifier(1, NEMESIS_BLOCK_HASH.toUpperCase()),
+				new BlockIdentifier(TEST_BLOCK_HEIGHT, OTHER_BLOCK_HASH.toUpperCase()),
+				new BlockIdentifier(TEST_BLOCK_HEIGHT - 1, NEMESIS_BLOCK_HASH.toUpperCase()),
 				20
 			);
 
 			// Act + Assert:
-			await assertRosettaSuccessBasic('/block', createValidRequest(2, OTHER_BLOCK_HASH), expectedResponse);
+			await assertRosettaSuccessBasic('/block', createValidRequest(TEST_BLOCK_HEIGHT, OTHER_BLOCK_HASH), expectedResponse);
 		});
 	});
 
@@ -257,7 +256,7 @@ describe('NEM block routes', () => {
 		it('succeeds when all fetches succeed', async () => {
 			// Arrange:
 			stubFetchResult(`transaction/get?hash=${TRANSACTION_HASH}`, true, createTransactionJson());
-			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3);
+			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3, TEST_BLOCK_HEIGHT);
 
 			// - create expected response
 			const transaction = createMatchingRosettaTransaction();

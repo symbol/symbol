@@ -20,6 +20,7 @@
  */
 
 import {
+	areMosaicDefinitionsEqual,
 	calculateXemTransferFee,
 	createLookupCurrencyFunction,
 	getBlockchainDescriptor,
@@ -84,10 +85,13 @@ describe('NEM rosetta utils', () => {
 					return Promise.resolve({ divisibility: transactionLocation.height, levy: undefined });
 
 				if ('coupons' === mosaicId.name) {
+					const levyMosaicId = 'real.bar' === mosaicId.namespaceId
+						? { namespaceId: 'nem', name: 'xem' }
+						: { namespaceId: 'some.other', name: 'tax' };
 					return Promise.resolve({
 						divisibility: transactionLocation.height * 2,
 						levy: {
-							mosaicId: { namespaceId: 'some.other', name: 'tax' },
+							mosaicId: levyMosaicId,
 							recipientAddress: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
 							isAbsolute: true,
 							fee: transactionLocation.height * 100
@@ -158,6 +162,117 @@ describe('NEM rosetta utils', () => {
 				fee: 200
 			});
 		});
+
+		it('can lookup arbitrary mosaic id (with nem.xem levy)', async () => {
+			// Act:
+			const lookupCurrency = createLookupCurrencyFunction(mockProxy);
+			const { currency, levy } = await lookupCurrency({ namespaceId: 'real.bar', name: 'coupons' }, { height: 2 });
+
+			// Assert:
+			const expectedCurrency = new Currency('real.bar:coupons', 4);
+			expect(currency).to.deep.equal(expectedCurrency);
+			expect(levy).to.deep.equal({
+				currency: new Currency('nem:xem', 6),
+				recipientAddress: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
+				isAbsolute: true,
+				fee: 200
+			});
+		});
+	});
+
+	// endregion
+
+	// region areMosaicDefinitionsEqual
+
+	describe('areMosaicDefinitionsEqual', () => {
+		const createMosaicDefinitionJson = () => ({
+			creator: '345E4422E20696EC7B77DDB52F7650884ADFA2FE5BCF2571A86725D4424A9F53',
+			description: 'my mosaic',
+			id: { namespaceId: 'foo', name: 'tokens' },
+			properties: [
+				{ name: 'divisibility', value: '1' },
+				{ name: 'initialSupply', value: '2' },
+				{ name: 'supplyMutable', value: 'true' },
+				{ name: 'transferable', value: 'false' }
+			],
+			levy: {
+				fee: 5000000,
+				recipient: 'TAJYBYLBMEVAJUEESLKXQJ2PGKQ7JOWSNT7VQAN7',
+				type: 1,
+				mosaicId: { namespaceId: 'foo', name: 'tax' }
+			}
+		});
+
+		const runAreEqualTest = (isDescriptionSignificant, expectedAreEqual, transform) => {
+			// Arrange:
+			const mosaicDefinition1 = createMosaicDefinitionJson();
+			const mosaicDefinition2 = createMosaicDefinitionJson();
+			transform(mosaicDefinition2);
+
+			// Act:
+			const areEqual = areMosaicDefinitionsEqual(mosaicDefinition1, mosaicDefinition2, isDescriptionSignificant);
+
+			// Assert:
+			expect(areEqual).to.equal(expectedAreEqual);
+		};
+
+		it('is true when everything matches', () => runAreEqualTest(true, true, () => {}));
+
+		it('is true when everything matches except description (insignificant)', () => runAreEqualTest(false, true, mosaicDefinition => {
+			mosaicDefinition.description = 'foo tokens';
+		}));
+
+		it('is false when everything matches except description (significant)', () => runAreEqualTest(true, false, mosaicDefinition => {
+			mosaicDefinition.description = 'foo tokens';
+		}));
+
+		it('is false when creator does not match', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.creator = '1EEE06798969312A0D0698F8A9E916E57A23278202440014C6A5DF9674E5206D';
+		}));
+
+		it('is false when property does not match (divisibility)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.properties[0].value = '3';
+		}));
+
+		it('is false when property does not match (initialSupply)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.properties[1].value = '100';
+		}));
+
+		it('is false when property does not match (supplyMutable)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.properties[2].value = 'false';
+		}));
+
+		it('is false when property does not match (transferable)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.properties[3].value = 'true';
+		}));
+
+		it('is false when levy does not match (fee)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.levy.fee += 1;
+		}));
+
+		it('is false when levy does not match (recipient)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.levy.recipient = 'TBYBXDPIUJMT4LCILS5TIDFFJXTYHP3GIMYJMGI';
+		}));
+
+		it('is false when levy does not match (type)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.levy.type += 1;
+		}));
+
+		it('is false when levy does not match (mosaicId.namespaceId)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.levy.mosaicId.namespaceId = 'bar';
+		}));
+
+		it('is false when levy does not match (mosaicId.name)', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.levy.mosaicId.name = 'tokens';
+		}));
+
+		it('is false when one levy is empty', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.levy = {};
+		}));
+
+		it('is false when one levy is undefined', () => runAreEqualTest(false, false, mosaicDefinition => {
+			mosaicDefinition.levy = undefined;
+		}));
 	});
 
 	// endregion

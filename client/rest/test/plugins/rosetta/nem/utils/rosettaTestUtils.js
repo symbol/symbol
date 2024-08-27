@@ -31,13 +31,21 @@ import {
 export const FetchStubHelper = {
 	...BasicFetchStubHelper,
 
-	stubMosaicResolution: (namespaceId, name, divisibility) => {
-		FetchStubHelper.stubPost(`mosaic/definition/last?mosaicId=${namespaceId}:${name}`, true, {
-			id: { namespaceId, name },
-			properties: [
-				{ name: 'divisibility', value: divisibility.toString() }
-			],
-			levy: {}
+	stubMosaicResolution: (namespaceId, name, divisibility, height = undefined) => {
+		const heightQuery = undefined !== height ? `&height=${height}` : '';
+		FetchStubHelper.stubPost(`local/mosaic/definition/supply?mosaicId=${namespaceId}:${name}${heightQuery}`, true, {
+			data: [
+				{
+					mosaicDefinition: {
+						id: { namespaceId, name },
+						properties: [
+							{ name: 'divisibility', value: divisibility.toString() }
+						],
+						levy: {}
+					},
+					supply: 88664422
+				}
+			]
 		});
 	},
 
