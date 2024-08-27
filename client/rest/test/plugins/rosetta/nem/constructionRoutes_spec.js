@@ -53,7 +53,7 @@ describe('NEM rosetta construction routes', () => {
 	const { createRosettaNetworkIdentifier, createRosettaPublicKey } = RosettaObjectFactory;
 
 	const createRosettaCurrency = () => ({
-		symbol: 'nem.xem',
+		symbol: 'nem:xem',
 		decimals: 6
 	});
 

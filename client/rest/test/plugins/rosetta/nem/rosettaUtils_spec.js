@@ -54,7 +54,7 @@ describe('NEM rosetta utils', () => {
 			const str = mosaicIdToString({ namespaceId: 'foo', name: 'bar' });
 
 			// Assert:
-			expect(str).to.equal('foo.bar');
+			expect(str).to.equal('foo:bar');
 		});
 	});
 
@@ -105,7 +105,7 @@ describe('NEM rosetta utils', () => {
 			const { currency, levy } = await lookupCurrency('currencyMosaicId');
 
 			// Assert:
-			const expectedCurrency = new Currency('nem.xem', 6);
+			const expectedCurrency = new Currency('nem:xem', 6);
 			expect(currency).to.deep.equal(expectedCurrency);
 			expect(levy).to.equal(undefined);
 		});
@@ -116,7 +116,7 @@ describe('NEM rosetta utils', () => {
 			const { currency, levy } = await lookupCurrency({ namespaceId: 'nem', name: 'xem' });
 
 			// Assert: bypasses mosaicProperties
-			const expectedCurrency = new Currency('nem.xem', 6);
+			const expectedCurrency = new Currency('nem:xem', 6);
 			expect(currency).to.deep.equal(expectedCurrency);
 			expect(levy).to.equal(undefined);
 		});
@@ -127,7 +127,7 @@ describe('NEM rosetta utils', () => {
 			const { currency, levy } = await lookupCurrency({ namespaceId: 'nem', name: 'other' }, { height: 2 });
 
 			// Assert: does not bypass mosaicProperties
-			const expectedCurrency = new Currency('nem.other', 2);
+			const expectedCurrency = new Currency('nem:other', 2);
 			expect(currency).to.deep.equal(expectedCurrency);
 			expect(levy).to.equal(undefined);
 		});
@@ -138,7 +138,7 @@ describe('NEM rosetta utils', () => {
 			const { currency, levy } = await lookupCurrency({ namespaceId: 'foo.bar', name: 'coins' }, { height: 3 });
 
 			// Assert:
-			const expectedCurrency = new Currency('foo.bar.coins', 3);
+			const expectedCurrency = new Currency('foo.bar:coins', 3);
 			expect(currency).to.deep.equal(expectedCurrency);
 			expect(levy).to.equal(undefined);
 		});
@@ -149,10 +149,10 @@ describe('NEM rosetta utils', () => {
 			const { currency, levy } = await lookupCurrency({ namespaceId: 'foo.bar', name: 'coupons' }, { height: 2 });
 
 			// Assert:
-			const expectedCurrency = new Currency('foo.bar.coupons', 4);
+			const expectedCurrency = new Currency('foo.bar:coupons', 4);
 			expect(currency).to.deep.equal(expectedCurrency);
 			expect(levy).to.deep.equal({
-				currency: new Currency('some.other.tax', 2),
+				currency: new Currency('some.other:tax', 2),
 				recipientAddress: 'TD3RXTHBLK6J3UD2BH2PXSOFLPWZOTR34WCG4HXH',
 				isAbsolute: true,
 				fee: 200

@@ -36,7 +36,7 @@ export const getBlockchainDescriptor = config => ({ // eslint-disable-line impor
  * @param {object} mosaicId NEM mosaic id object.
  * @returns {string} Fully qualified mosaic name.
  */
-export const mosaicIdToString = mosaicId => `${mosaicId.namespaceId}.${mosaicId.name}`;
+export const mosaicIdToString = mosaicId => `${mosaicId.namespaceId}:${mosaicId.name}`;
 
 /**
  * Calculates NEM XEM transfer fee.
@@ -57,7 +57,7 @@ export const calculateXemTransferFee = amount => {
  */
 export const createLookupCurrencyFunction = proxy => async (mosaicId, transactionLocation) => {
 	if ('currencyMosaicId' === mosaicId || ('nem' === mosaicId.namespaceId && 'xem' === mosaicId.name))
-		return { currency: new Currency('nem.xem', 6) };
+		return { currency: new Currency('nem:xem', 6) };
 
 	const mosaicProperties = await proxy.mosaicProperties(mosaicId, transactionLocation);
 	const currency = new Currency(mosaicIdToString(mosaicId), mosaicProperties.divisibility);

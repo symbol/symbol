@@ -188,8 +188,8 @@ describe('NEM rosetta mempool routes', () => {
 			FetchStubHelper.stubMosaicResolution('foo', 'bar', 3);
 
 			// - create expected response
-			const transferCurrencyProperties = ['foo.bar', 3];
-			const feeCurrencyProperties = ['nem.xem', 6];
+			const transferCurrencyProperties = ['foo:bar', 3];
+			const feeCurrencyProperties = ['nem:xem', 6];
 			const transaction = new Transaction(
 				new TransactionIdentifier(TRANSACTION_HASH),
 				[

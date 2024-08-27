@@ -101,8 +101,8 @@ describe('NEM block routes', () => {
 	};
 
 	const createMatchingRosettaTransaction = () => {
-		const transferCurrencyProperties = ['magic.hat', 3];
-		const feeCurrencyProperties = ['nem.xem', 6];
+		const transferCurrencyProperties = ['magic:hat', 3];
+		const feeCurrencyProperties = ['nem:xem', 6];
 		return new Transaction(new TransactionIdentifier(TRANSACTION_HASH.toUpperCase()), [
 			createTransferOperation(0, SIGNER_ADDRESS, '-40000000', ...feeCurrencyProperties),
 			createTransferOperation(1, RECIPIENT_ADDRESS, '40000000', ...feeCurrencyProperties),
@@ -113,7 +113,7 @@ describe('NEM block routes', () => {
 	};
 
 	const createMatchingRosettaBlockTransaction = blockHash => {
-		const feeCurrencyProperties = ['nem.xem', 6];
+		const feeCurrencyProperties = ['nem:xem', 6];
 		return new Transaction(new TransactionIdentifier(blockHash), [
 			createTransferOperation(0, BENEFICIARY_ADDRESS, '112233', ...feeCurrencyProperties)
 		]);
