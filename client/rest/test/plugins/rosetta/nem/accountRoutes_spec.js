@@ -132,9 +132,9 @@ describe('NEM rosetta account routes', () => {
 			const expectedResponse = new options.Response(
 				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
 				[
-					options.createRosettaAmount('123', 'foo.bar', 3),
-					options.createRosettaAmount('262', 'cat.dog', 4),
-					options.createRosettaAmount('112', 'nem.xem', 6)
+					options.createRosettaAmount('123', 'foo:bar', 3),
+					options.createRosettaAmount('262', 'cat:dog', 4),
+					options.createRosettaAmount('112', 'nem:xem', 6)
 				]
 			);
 
@@ -149,16 +149,16 @@ describe('NEM rosetta account routes', () => {
 			// - add currency filter
 			const request = options.createValidRequest();
 			request.currencies = [
-				{ symbol: 'foo.baz', decimals: 3 }, // name mismatch
-				{ symbol: 'cat.dog', decimals: 4 },
-				{ symbol: 'nem.xem', decimals: 1 } // decimals mismatch
+				{ symbol: 'foo:baz', decimals: 3 }, // name mismatch
+				{ symbol: 'cat:dog', decimals: 4 },
+				{ symbol: 'nem:xem', decimals: 1 } // decimals mismatch
 			];
 
 			// - create expected response
 			const expectedResponse = new options.Response(
 				new BlockIdentifier(12345, 'A4950F27A23B235D5CCD1DC7FF4B0BDC48977E353EA1CF1E3E5F70B9A6B79076'),
 				[
-					options.createRosettaAmount('262', 'cat.dog', 4)
+					options.createRosettaAmount('262', 'cat:dog', 4)
 				]
 			);
 
@@ -286,9 +286,9 @@ describe('NEM rosetta account routes', () => {
 				{ namespaceId: 'cat', name: 'dog', amount: 200 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3),
-				createRosettaCoin('462', 'cat.dog', 4),
-				createRosettaCoin('112', 'nem.xem', 6)
+				createRosettaCoin('123', 'foo:bar', 3),
+				createRosettaCoin('462', 'cat:dog', 4),
+				createRosettaCoin('112', 'nem:xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -304,9 +304,9 @@ describe('NEM rosetta account routes', () => {
 				{ namespaceId: 'nem', name: 'xem', amount: 150 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3),
-				createRosettaCoin('312', 'cat.dog', 4),
-				createRosettaCoin('262', 'nem.xem', 6)
+				createRosettaCoin('123', 'foo:bar', 3),
+				createRosettaCoin('312', 'cat:dog', 4),
+				createRosettaCoin('262', 'nem:xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -322,10 +322,10 @@ describe('NEM rosetta account routes', () => {
 				{ namespaceId: 'new', name: 'coin', amount: 50 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3),
-				createRosettaCoin('272', 'cat.dog', 4),
-				createRosettaCoin('112', 'nem.xem', 6),
-				createRosettaCoin('50', 'new.coin', 5)
+				createRosettaCoin('123', 'foo:bar', 3),
+				createRosettaCoin('272', 'cat:dog', 4),
+				createRosettaCoin('112', 'nem:xem', 6),
+				createRosettaCoin('50', 'new:coin', 5)
 			];
 			const transactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -340,9 +340,9 @@ describe('NEM rosetta account routes', () => {
 				{ namespaceId: 'cat', name: 'dog', amount: 1 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3),
-				createRosettaCoin('261', 'cat.dog', 4),
-				createRosettaCoin('62', 'nem.xem', 6)
+				createRosettaCoin('123', 'foo:bar', 3),
+				createRosettaCoin('261', 'cat:dog', 4),
+				createRosettaCoin('62', 'nem:xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -358,9 +358,9 @@ describe('NEM rosetta account routes', () => {
 				{ namespaceId: 'nem', name: 'xem', amount: 2 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3),
-				createRosettaCoin('62', 'cat.dog', 4),
-				createRosettaCoin('60', 'nem.xem', 6)
+				createRosettaCoin('123', 'foo:bar', 3),
+				createRosettaCoin('62', 'cat:dog', 4),
+				createRosettaCoin('60', 'nem:xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -381,9 +381,9 @@ describe('NEM rosetta account routes', () => {
 				{ namespaceId: 'foo', name: 'bar', amount: 23 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('146', 'foo.bar', 3),
-				createRosettaCoin('262', 'cat.dog', 4),
-				createRosettaCoin('80', 'nem.xem', 6)
+				createRosettaCoin('146', 'foo:bar', 3),
+				createRosettaCoin('262', 'cat:dog', 4),
+				createRosettaCoin('80', 'nem:xem', 6)
 			];
 			const outgoingTransactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const incomingTransactionJson = createTransactionJson(mosaicsToReceive, OTHER_ACCOUNT_PUBLIC_KEY, ACCOUNT_ADDRESS);
@@ -400,9 +400,9 @@ describe('NEM rosetta account routes', () => {
 				{ namespaceId: 'nem', name: 'xem', amount: 3 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3),
-				createRosettaCoin('262', 'cat.dog', 4),
-				createRosettaCoin('112', 'nem.xem', 6)
+				createRosettaCoin('123', 'foo:bar', 3),
+				createRosettaCoin('262', 'cat:dog', 4),
+				createRosettaCoin('112', 'nem:xem', 6)
 			];
 			const transactionJson = createTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([transactionJson]);
@@ -418,9 +418,9 @@ describe('NEM rosetta account routes', () => {
 				{ namespaceId: 'nem', name: 'xem', amount: 2 }
 			];
 			const expectedResponse = [
-				createRosettaCoin('123', 'foo.bar', 3),
-				createRosettaCoin('62', 'cat.dog', 4),
-				createRosettaCoin('35', 'nem.xem', 6)
+				createRosettaCoin('123', 'foo:bar', 3),
+				createRosettaCoin('62', 'cat:dog', 4),
+				createRosettaCoin('35', 'nem:xem', 6)
 			];
 			const multisigTransactionJson = createAggregateTransactionJson(mosaicsToSend, ACCOUNT_PUBLIC_KEY, OTHER_ACCOUNT_ADDRESS);
 			const unconfirmedTransactionsJson = createUnconfirmedTransactionsResponse([multisigTransactionJson]);

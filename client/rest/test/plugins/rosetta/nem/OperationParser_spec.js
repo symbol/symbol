@@ -52,13 +52,13 @@ describe('NEM OperationParser', () => {
 
 	const lookupCurrencyDefault = (mosaicId, transactionLocation) => {
 		if ('currencyMosaicId' === mosaicId)
-			return { currency: new Currency('currency.fee', 2) };
+			return { currency: new Currency('currency:fee', 2) };
 
 		if ('levy' === mosaicId.namespaceId) {
 			return {
 				currency: new Currency(mosaicIdToString(mosaicId), 3),
 				levy: {
-					currency: new Currency('levy.tax', 2),
+					currency: new Currency('levy:tax', 2),
 					isAbsolute: 'absolute' === mosaicId.name,
 					fee: 10,
 					recipientAddress: 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'
@@ -128,8 +128,8 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-12345000000', 'currency.fee', 2),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '12345000000', 'currency.fee', 2)
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-12345000000', 'currency:fee', 2),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '12345000000', 'currency:fee', 2)
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			};
@@ -187,7 +187,7 @@ describe('NEM OperationParser', () => {
 				...options,
 				namespaceId: 'nem',
 				mosaicName: 'xem',
-				expectedMosaicProperties: ['nem.xem', 6]
+				expectedMosaicProperties: ['nem:xem', 6]
 			});
 
 			it('can parse with single mosaic in bag', () => assertCanParseSingleMosaicInBagXem({
@@ -228,10 +228,10 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690', `levy.${levyName}`, 3),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690', `levy.${levyName}`, 3),
-					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', `-${levyAmount}`, 'levy.tax', 2),
-					createTransferOperation(3, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', levyAmount, 'levy.tax', 2)
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690', `levy:${levyName}`, 3),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690', `levy:${levyName}`, 3),
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', `-${levyAmount}`, 'levy:tax', 2),
+					createTransferOperation(3, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', levyAmount, 'levy:tax', 2)
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			};
@@ -282,12 +282,12 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-22222000000', 'baz.baz', 3),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '22222000000', 'baz.baz', 3),
-					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690000000', 'nem.xem', 6),
-					createTransferOperation(3, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690000000', 'nem.xem', 6),
-					createTransferOperation(4, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-448866000000', 'foo.bar', 3),
-					createTransferOperation(5, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '448866000000', 'foo.bar', 3)
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-22222000000', 'baz:baz', 3),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '22222000000', 'baz:baz', 3),
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690000000', 'nem:xem', 6),
+					createTransferOperation(3, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690000000', 'nem:xem', 6),
+					createTransferOperation(4, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-448866000000', 'foo:bar', 3),
+					createTransferOperation(5, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '448866000000', 'foo:bar', 3)
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			});
@@ -300,7 +300,7 @@ describe('NEM OperationParser', () => {
 				metadata: { height: 22 },
 				namespaceId: 'check',
 				mosaicName: 'location',
-				expectedMosaicProperties: ['check.location', 22]
+				expectedMosaicProperties: ['check:location', 22]
 			}));
 
 			it('filters out zero transfers', async () => {
@@ -321,10 +321,10 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-22222000000', 'baz.baz', 3),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '22222000000', 'baz.baz', 3),
-					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-448866000000', 'foo.bar', 3),
-					createTransferOperation(3, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '448866000000', 'foo.bar', 3)
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-22222000000', 'baz:baz', 3),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '22222000000', 'baz:baz', 3),
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-448866000000', 'foo:bar', 3),
+					createTransferOperation(3, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '448866000000', 'foo:bar', 3)
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			});
@@ -479,7 +479,7 @@ describe('NEM OperationParser', () => {
 				expectedAmount,
 				namespaceId: 'foo',
 				mosaicName: 'bar',
-				expectedMosaicProperties: ['foo.bar', 3]
+				expectedMosaicProperties: ['foo:bar', 3]
 			});
 
 			it('can parse increase', () => assertCanParseSupplyChangeFooBar(models.MosaicSupplyChangeAction.INCREASE, '24680000'));
@@ -493,7 +493,7 @@ describe('NEM OperationParser', () => {
 				metadata: { height: 2 },
 				namespaceId: 'check',
 				mosaicName: 'location',
-				expectedMosaicProperties: ['check.location', 2]
+				expectedMosaicProperties: ['check:location', 2]
 			}));
 		});
 
@@ -520,8 +520,8 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-50000', 'currency.fee', 2),
-					createTransferOperation(1, 'TAMESPACEWH4MKFMBCVFERDPOOP4FK7MTDJEYP35', '50000', 'currency.fee', 2)
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-50000', 'currency:fee', 2),
+					createTransferOperation(1, 'TAMESPACEWH4MKFMBCVFERDPOOP4FK7MTDJEYP35', '50000', 'currency:fee', 2)
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			});
@@ -556,8 +556,8 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-50000', 'currency.fee', 2),
-					createTransferOperation(1, 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC', '50000', 'currency.fee', 2),
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-50000', 'currency:fee', 2),
+					createTransferOperation(1, 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC', '50000', 'currency:fee', 2),
 					...options.additionalOperations
 				]);
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
@@ -566,7 +566,7 @@ describe('NEM OperationParser', () => {
 			it('can parse without initial supply', () => assertParse({
 				properties: [],
 				additionalOperations: [
-					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1000', 'foo.bar', 0)
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1000', 'foo:bar', 0)
 				]
 			}));
 
@@ -578,7 +578,7 @@ describe('NEM OperationParser', () => {
 						{ property: { name: textEncoder.encode('supplyMutable'), value: textEncoder.encode('false') } }
 					],
 					additionalOperations: [
-						createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '123000', 'foo.bar', 0)
+						createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '123000', 'foo:bar', 0)
 					]
 				});
 			});
@@ -592,7 +592,7 @@ describe('NEM OperationParser', () => {
 						{ property: { name: textEncoder.encode('supplyMutable'), value: textEncoder.encode('false') } }
 					],
 					additionalOperations: [
-						createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo.bar', 4)
+						createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo:bar', 4)
 					]
 				});
 			});
@@ -627,13 +627,13 @@ describe('NEM OperationParser', () => {
 			it('can parse', () => assertCanParse({}, []));
 
 			it('can parse with fee', () => assertCanParse({ includeFeeOperation: true }, [
-				createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-123456', 'currency.fee', 2)
+				createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-123456', 'currency:fee', 2)
 			]));
 
 			it('can parse with fee and operation status', () => assertCanParse(
 				{ includeFeeOperation: true, operationStatus: 'success' },
 				[
-					setOperationStatus(createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-123456', 'currency.fee', 2))
+					setOperationStatus(createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-123456', 'currency:fee', 2))
 				]
 			));
 		});
@@ -676,8 +676,8 @@ describe('NEM OperationParser', () => {
 
 				// Assert:
 				expect(operations).to.deep.equal([
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-12345000000', 'currency.fee', 2),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '12345000000', 'currency.fee', 2),
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-12345000000', 'currency:fee', 2),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '12345000000', 'currency:fee', 2),
 					createCosignOperation(2, 'TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC'),
 					...options.additionalOperations
 				]);
@@ -715,7 +715,7 @@ describe('NEM OperationParser', () => {
 				additionalOperations: [
 					createCosignOperation(3, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ'),
 					createCosignOperation(4, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH'),
-					createTransferOperation(5, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-8765', 'currency.fee', 2)
+					createTransferOperation(5, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-8765', 'currency:fee', 2)
 				],
 				expectedSignerAddresses: [
 					'TBALNEMNEMKIMWLF65HTUWMQVX5G55EBBIWS4WQC',
@@ -759,7 +759,7 @@ describe('NEM OperationParser', () => {
 				const { operations } = await parseTransaction(parser, transaction, metadata);
 
 				// Assert: precision is derived from location
-				const mosaicProperties = ['check.location', expectedPrecision];
+				const mosaicProperties = ['check:location', expectedPrecision];
 				expect(operations).to.deep.equal([
 					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690000000', ...mosaicProperties),
 					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690000000', ...mosaicProperties)
@@ -798,7 +798,7 @@ describe('NEM OperationParser', () => {
 				const { operations } = await parseTransaction(parser, transaction, metadata);
 
 				// Assert: precision is derived from location
-				const mosaicProperties = ['check.location', expectedPrecision];
+				const mosaicProperties = ['check:location', expectedPrecision];
 				expect(operations).to.deep.equal([
 					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-24690000000', ...mosaicProperties),
 					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '24690000000', ...mosaicProperties),
@@ -848,8 +848,8 @@ describe('NEM OperationParser', () => {
 			expect(rosettaTransaction).to.deep.equal(new Transaction(
 				new TransactionIdentifier('7B7A5E55E3F788C036B759B6AD46FF91A67DC956BB4B360587F366397F251C62'),
 				[
-					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-12345000000', 'currency.fee', 2),
-					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '12345000000', 'currency.fee', 2)
+					createTransferOperation(0, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '-12345000000', 'currency:fee', 2),
+					createTransferOperation(1, 'TALIC33LQMPC3DH73T5Y52SSVE2LRHSGRBGO4KIV', '12345000000', 'currency:fee', 2)
 				]
 			));
 		});
@@ -878,7 +878,7 @@ describe('NEM OperationParser', () => {
 				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
 				totalFee: 12345
 			}, [
-				createTransferOperation(0, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '12345', 'currency.fee', 2)
+				createTransferOperation(0, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '12345', 'currency:fee', 2)
 			]);
 		});
 

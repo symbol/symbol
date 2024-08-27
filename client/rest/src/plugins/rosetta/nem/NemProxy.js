@@ -106,7 +106,7 @@ export default class NemProxy {
 		if (this.mosaicPropertiesMap.has(fullyQualifiedName))
 			return this.mosaicPropertiesMap.get(fullyQualifiedName);
 
-		const mosaicDefinition = await this.fetch(`mosaic/definition/last?mosaicId=${mosaicId.namespaceId}:${mosaicId.name}`);
+		const mosaicDefinition = await this.fetch(`mosaic/definition/last?mosaicId=${fullyQualifiedName}`);
 
 		const findProperty = (properties, name) => properties.find(property => name === property.name);
 		const divisibilityProperty = findProperty(mosaicDefinition.properties, 'divisibility');
