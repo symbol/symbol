@@ -202,6 +202,12 @@ describe('NEM OperationParser', () => {
 				expectedAmount: '1707618'
 			}));
 
+			it('can parse with single mosaic in fractional bag [2]', () => assertCanParseSingleMosaicInBagXem({
+				amount: 32_495622,
+				mosaicAmount: 1_000000,
+				expectedAmount: '32495622'
+			}));
+
 			const assertCanParseWithLevy = async (levyName, levyAmount) => {
 				// Arrange:
 				const textEncoder = new TextEncoder();
