@@ -335,7 +335,7 @@ export class OperationParser {
 				pushTransferOperations(amount, currency);
 			} else {
 				await Promise.all(transaction.mosaics.map(async mosaic => {
-					const amount = Math.trunc((transaction.amount / 1000000) * mosaic.quantity);
+					const amount = Math.trunc((transaction.amount * mosaic.quantity) / 1000000);
 					const { currency, levy } = await lookupCurrency(mosaic.mosaicId);
 
 					pushTransferOperations(amount, currency);
