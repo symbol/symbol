@@ -180,6 +180,7 @@ describe('NEM block routes', () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(1, NEMESIS_BLOCK_HASH, 0), true);
 			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3, 1);
+			stubFetchResult('local/mosaics/expired?height=1', true, { data: [] });
 
 			// - create expected response
 			const expectedResponse = createMatchingRosettaBlock(
@@ -196,6 +197,7 @@ describe('NEM block routes', () => {
 			// Arrange:
 			FetchStubHelper.stubLocalBlockAt(createBlocksResponse(TEST_BLOCK_HEIGHT, OTHER_BLOCK_HASH, 20), true);
 			FetchStubHelper.stubMosaicResolution('magic', 'hat', 3, TEST_BLOCK_HEIGHT);
+			stubFetchResult(`local/mosaics/expired?height=${TEST_BLOCK_HEIGHT}`, true, { data: [] });
 
 			// - create expected response
 			const expectedResponse = createMatchingRosettaBlock(

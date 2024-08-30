@@ -160,6 +160,7 @@ export class OperationParser {
 			includeFeeOperation: true,
 			lookupCurrency: createLookupCurrencyFunction(services.proxy),
 			lookupMosaicDefinitionWithSupply: (...args) => services.proxy.mosaicDefinitionWithSupply(...args),
+			lookupExpiredMosaics: height => services.proxy.fetch(`local/mosaics/expired?height=${height}`, jsonObject => jsonObject.data),
 			...options
 		});
 	}
@@ -226,7 +227,11 @@ export class OperationParser {
 	 */
 	createDebitOperation(options) {
 		const operation = this.createOperation(options.id, 'transfer');
-		operation.account = this.publicKeyStringToAccountIdentifier(options.sourcePublicKey);
+		if (options.sourceAddress)
+			operation.account = new AccountIdentifier(options.sourceAddress);
+		else
+			operation.account = this.publicKeyStringToAccountIdentifier(options.sourcePublicKey);
+
 		operation.amount = new Amount((-options.amount).toString(), options.currency);
 		return operation;
 	}
@@ -458,19 +463,38 @@ export class OperationParser {
 	 * @returns {Array<Operation>} Receipt operations.
 	 */
 	async parseBlock(block) {
-		if (0 === block.totalFee)
-			return { operations: [] };
+		const operations = [];
 
-		const currency = await this.lookupFeeCurrency();
-		return {
-			operations: [
-				this.createCreditOperation({
-					id: 0,
-					amount: block.totalFee,
-					currency,
-					targetAddress: block.beneficiary
-				})
-			]
-		};
+		if (0 !== block.totalFee) {
+			const currency = await this.lookupFeeCurrency();
+			operations.push(this.createCreditOperation({
+				id: 0,
+				amount: block.totalFee,
+				currency,
+				targetAddress: block.beneficiary
+			}));
+		}
+
+		const { height } = block.block;
+		const expiredMosaics = await this.options.lookupExpiredMosaics(height);
+		if (expiredMosaics.length) {
+			const currencyBalancesPairs = await Promise.all(expiredMosaics.map(async mosaicIdBalancesPair => ({
+				currency: (await this.options.lookupCurrency(mosaicIdBalancesPair.mosaicId, { height })).currency,
+				balances: mosaicIdBalancesPair.balances
+			})));
+
+			currencyBalancesPairs.forEach(currencyBalancesPair => {
+				currencyBalancesPair.balances.forEach(balance => {
+					operations.push(this.createDebitOperation({
+						id: operations.length,
+						amount: balance.quantity,
+						currency: currencyBalancesPair.currency,
+						sourceAddress: balance.address
+					}));
+				});
+			});
+		}
+
+		return { operations };
 	}
 }
