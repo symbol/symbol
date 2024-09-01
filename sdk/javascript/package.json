@@ -72,8 +72,8 @@
     "yargs": "~17.7.2"
   },
   "dependencies": {
-    "@noble/hashes": "~1.4.0",
-    "bitcore-mnemonic": "~10.2.1",
+    "@noble/hashes": "~1.5.0",
+    "bitcore-mnemonic": "~10.3.0",
     "ripemd160": "~2.0.2"
   },
   "files": [
