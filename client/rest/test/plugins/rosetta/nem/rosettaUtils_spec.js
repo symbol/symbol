@@ -21,6 +21,7 @@
 
 import {
 	areMosaicDefinitionsEqual,
+	areMosaicIdsEqual,
 	calculateXemTransferFee,
 	createLookupCurrencyFunction,
 	getBlockchainDescriptor,
@@ -182,6 +183,37 @@ describe('NEM rosetta utils', () => {
 
 	// endregion
 
+	// region areMosaicIdsEqual
+
+	describe('areMosaicIdsEqual', () => {
+		const createMosaicIdJson = () => ({ namespaceId: 'foo', name: 'bar' });
+
+		const runAreEqualTest = (expectedAreEqual, transform) => {
+			// Arrange:
+			const mosaicId1 = createMosaicIdJson();
+			const mosaicId2 = createMosaicIdJson();
+			transform(mosaicId2);
+
+			// Act:
+			const areEqual = areMosaicIdsEqual(mosaicId1, mosaicId2);
+
+			// Assert:
+			expect(areEqual).to.equal(expectedAreEqual);
+		};
+
+		it('is true when everything matches', () => runAreEqualTest(true, () => {}));
+
+		it('is false when namespaceId does not match', () => runAreEqualTest(false, mosaicId => {
+			mosaicId.namespaceId = 'baz';
+		}));
+
+		it('is false when name does not match', () => runAreEqualTest(false, mosaicId => {
+			mosaicId.name = 'baz';
+		}));
+	});
+
+	// endregion
+
 	// region areMosaicDefinitionsEqual
 
 	describe('areMosaicDefinitionsEqual', () => {
@@ -258,12 +290,8 @@ describe('NEM rosetta utils', () => {
 			mosaicDefinition.levy.type += 1;
 		}));
 
-		it('is false when levy does not match (mosaicId.namespaceId)', () => runAreEqualTest(false, false, mosaicDefinition => {
+		it('is false when levy does not match (mosaicId)', () => runAreEqualTest(false, false, mosaicDefinition => {
 			mosaicDefinition.levy.mosaicId.namespaceId = 'bar';
-		}));
-
-		it('is false when levy does not match (mosaicId.name)', () => runAreEqualTest(false, false, mosaicDefinition => {
-			mosaicDefinition.levy.mosaicId.name = 'tokens';
 		}));
 
 		it('is false when one levy is empty', () => runAreEqualTest(false, false, mosaicDefinition => {

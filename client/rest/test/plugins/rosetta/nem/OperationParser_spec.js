@@ -1058,6 +1058,54 @@ describe('NEM OperationParser', () => {
 				createTransferOperation(5, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-800', 'alice:tokens', 3)
 			]));
 		});
+
+		describe('mosaic definitions', () => {
+			const createMosaicDefinitionTransactionJson = (namespaceId, name, initialSupply, divisibility) => ({
+				type: 16385,
+				signer: '45880194FAD01FCB55887B73EEFFDC263914ED5749BF2F3ACB928C843C57BD9A',
+				mosaicDefinition: {
+					id: { namespaceId, name },
+					properties: [
+						{ name: 'initialSupply', value: initialSupply.toString() },
+						{ name: 'divisibility', value: divisibility.toString() }
+					]
+				}
+			});
+
+			it('no adjustment when block contains distinct mosaic definitions', () => runBlockTest({
+				block: {
+					height: 1234,
+					transactions: [
+						createMosaicDefinitionTransactionJson('foo', 'bar', 100, 3),
+						createMosaicDefinitionTransactionJson('foo', 'baz', 101, 3),
+						createMosaicDefinitionTransactionJson('baz', 'bar', 102, 3)
+					]
+				},
+				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+				totalFee: 0
+			}, [
+			]));
+
+			it('adjustment when block contains duplicate mosaic definitions', () => runBlockTest({
+				block: {
+					height: 1234,
+					transactions: [
+						createMosaicDefinitionTransactionJson('foo', 'bar', 100, 3), // duplicate
+						createMosaicDefinitionTransactionJson('foo', 'baz', 101, 3), // duplicate
+						createMosaicDefinitionTransactionJson('baz', 'bar', 102, 3),
+						createMosaicDefinitionTransactionJson('foo', 'bar', 103, 4), // duplicate
+						createMosaicDefinitionTransactionJson('foo', 'baz', 104, 3),
+						createMosaicDefinitionTransactionJson('foo', 'bar', 105, 5)
+					]
+				},
+				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+				totalFee: 0
+			}, [
+				createTransferOperation(0, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', '-1030000', 'foo:bar', 4),
+				createTransferOperation(1, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', '-101000', 'foo:baz', 3),
+				createTransferOperation(2, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', '-100000', 'foo:bar', 3)
+			]));
+		});
 	});
 
 	// endregion
