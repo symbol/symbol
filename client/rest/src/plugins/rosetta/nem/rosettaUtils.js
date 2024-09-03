@@ -90,6 +90,14 @@ export const createLookupCurrencyFunction = proxy => async (mosaicId, transactio
 };
 
 /**
+ * Checks if two mosaic ids (REST JSON model) are equal.
+ * @param {object} lhs First mosaic id.
+ * @param {object} rhs Second mosaic id.
+ * @returns {boolean} \c true if mosaic ids are equal.
+ */
+export const areMosaicIdsEqual = (lhs, rhs) => lhs.namespaceId === rhs.namespaceId && lhs.name === rhs.name;
+
+/**
  * Checks if two mosaic definitions (REST JSON model) are equal at specified height.
  * @param {object} lhs First mosaic definition.
  * @param {object} rhs Second mosaic definition.
@@ -121,6 +129,5 @@ export const areMosaicDefinitionsEqual = (lhs, rhs, isDescriptionSignificant) =>
 		&& lhsLevy.fee === rhsLevy.fee
 		&& lhsLevy.recipient === rhsLevy.recipient
 		&& lhsLevy.type === rhsLevy.type
-		&& lhsLevyMosaicId.namespaceId === rhsLevyMosaicId.namespaceId
-		&& lhsLevyMosaicId.name === rhsLevyMosaicId.name;
+		&& areMosaicIdsEqual(lhsLevyMosaicId, rhsLevyMosaicId);
 };

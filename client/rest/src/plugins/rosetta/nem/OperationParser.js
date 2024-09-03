@@ -21,6 +21,7 @@
 
 import {
 	areMosaicDefinitionsEqual,
+	areMosaicIdsEqual,
 	createLookupCurrencyFunction,
 	getBlockchainDescriptor,
 	mosaicIdToString
@@ -493,6 +494,30 @@ export class OperationParser {
 					}));
 				});
 			});
+		}
+
+		// if the same mosaic is defined multiple times in a single block, only the last definition is relevant
+		// fix up balances by removing supplies created by earlier definitions
+		if (block.block.transactions) {
+			const mosaicDefinitionIds = [];
+			for (let i = block.block.transactions.length - 1; 0 <= i; --i) {
+				const transaction = block.block.transactions[i];
+				if (models.TransactionType.MOSAIC_DEFINITION.value === transaction.type) {
+					if (mosaicDefinitionIds.some(mosaicId => areMosaicIdsEqual(mosaicId, transaction.mosaicDefinition.id))) {
+						const { initialSupply, divisibility } = extractPropertiesFromMosaicDefinition(transaction.mosaicDefinition);
+						const supply = supplyToAtomicUnits(initialSupply, divisibility);
+
+						operations.push(this.createDebitOperation({
+							id: operations.length,
+							sourcePublicKey: transaction.signer,
+							amount: supply,
+							currency: new Currency(mosaicIdToString(transaction.mosaicDefinition.id), divisibility)
+						}));
+					} else {
+						mosaicDefinitionIds.push(transaction.mosaicDefinition.id);
+					}
+				}
+			}
 		}
 
 		return { operations };
