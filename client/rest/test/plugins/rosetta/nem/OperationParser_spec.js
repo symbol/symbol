@@ -248,6 +248,13 @@ describe('NEM OperationParser', () => {
 				expectedAmount: '24690000000'
 			}));
 
+			it('can parse with single mosaic in bag [large amount]', () => assertCanParseSingleMosaicInBagXem({
+				// notice that amount * mosaicAmount > Number.MAX_SAFE_INTEGER
+				amount: 14570747_490000,
+				mosaicAmount: 1_000000,
+				expectedAmount: '14570747490000'
+			}));
+
 			it('can parse with single mosaic in fractional bag', () => assertCanParseSingleMosaicInBagXem({
 				amount: 50000,
 				mosaicAmount: 34_152375,
