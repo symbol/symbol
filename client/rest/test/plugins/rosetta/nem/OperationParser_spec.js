@@ -104,24 +104,26 @@ describe('NEM OperationParser', () => {
 
 	const lookupExpiredMosaicsSync = height => {
 		const data = [];
-		if (111111 <= height) {
+		if (0 === (height % 200000)) {
 			data.push({
 				mosaicId: { namespaceId: 'foo', name: 'bar' },
 				balances: [
 					{ address: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', quantity: 1000 },
 					{ address: 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', quantity: 3000 },
 					{ address: 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', quantity: 2000 }
-				]
+				],
+				expiredMosaicType: 1 // expired
 			});
 		}
 
-		if (222222 <= height) {
+		if (0 === (height % 300000)) {
 			data.push({
 				mosaicId: { namespaceId: 'alice', name: 'tokens' },
 				balances: [
 					{ address: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', quantity: 900 },
 					{ address: 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', quantity: 800 }
-				]
+				],
+				expiredMosaicType: 2 // restored
 			});
 		}
 
@@ -1022,7 +1024,7 @@ describe('NEM OperationParser', () => {
 			]));
 
 			it('extracts expired mosaic operations for single expiring mosaic', () => runBlockTest({
-				block: { height: 111111 },
+				block: { height: 200000 },
 				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
 				totalFee: 0
 			}, [
@@ -1042,7 +1044,7 @@ describe('NEM OperationParser', () => {
 			]));
 
 			it('extracts expired mosaic operations for single expiring mosaic', () => runBlockTest({
-				block: { height: 111111 },
+				block: { height: 200000 },
 				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
 				totalFee: 12345
 			}, [
@@ -1052,8 +1054,18 @@ describe('NEM OperationParser', () => {
 				createTransferOperation(3, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-2000', 'foo:bar', 3)
 			]));
 
-			it('extracts expired mosaic operations for multiple expiring mosaics', () => runBlockTest({
-				block: { height: 222222 },
+			it('extracts expired mosaic operations for single restored mosaic', () => runBlockTest({
+				block: { height: 300000 },
+				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+				totalFee: 12345
+			}, [
+				createTransferOperation(0, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '12345', 'currency:fee', 2),
+				createTransferOperation(1, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '900', 'alice:tokens', 3),
+				createTransferOperation(2, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '800', 'alice:tokens', 3)
+			]));
+
+			it('extracts expired mosaic operations for multiple expiring and restored mosaics', () => runBlockTest({
+				block: { height: 600000 },
 				beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
 				totalFee: 12345
 			}, [
@@ -1061,8 +1073,8 @@ describe('NEM OperationParser', () => {
 				createTransferOperation(1, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '-1000', 'foo:bar', 3),
 				createTransferOperation(2, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '-3000', 'foo:bar', 3),
 				createTransferOperation(3, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-2000', 'foo:bar', 3),
-				createTransferOperation(4, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '-900', 'alice:tokens', 3),
-				createTransferOperation(5, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-800', 'alice:tokens', 3)
+				createTransferOperation(4, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '900', 'alice:tokens', 3),
+				createTransferOperation(5, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '800', 'alice:tokens', 3)
 			]));
 		});
 

@@ -479,20 +479,21 @@ export class OperationParser {
 		}
 
 		const { height } = block.block;
-		const expiredMosaics = await this.options.lookupExpiredMosaics(height);
-		if (expiredMosaics.length) {
-			const currencyBalancesPairs = await Promise.all(expiredMosaics.map(async mosaicIdBalancesPair => ({
-				currency: (await this.options.lookupCurrency(mosaicIdBalancesPair.mosaicId, { height })).currency,
-				balances: mosaicIdBalancesPair.balances
+		const rawExpiredMosaics = await this.options.lookupExpiredMosaics(height);
+		if (rawExpiredMosaics.length) {
+			const expiredMosaics = await Promise.all(rawExpiredMosaics.map(async expiredMosaic => ({
+				currency: (await this.options.lookupCurrency(expiredMosaic.mosaicId, { height })).currency,
+				balances: expiredMosaic.balances,
+				isExpiration: 1 === expiredMosaic.expiredMosaicType
 			})));
 
-			currencyBalancesPairs.forEach(currencyBalancesPair => {
-				currencyBalancesPair.balances.forEach(balance => {
-					operations.push(this.createDebitOperation({
+			expiredMosaics.forEach(expiredMosaic => {
+				expiredMosaic.balances.forEach(balance => {
+					operations.push(this.createCreditOperation({
 						id: operations.length,
-						amount: balance.quantity,
-						currency: currencyBalancesPair.currency,
-						sourceAddress: balance.address
+						amount: (expiredMosaic.isExpiration ? -1 : 1) * balance.quantity,
+						currency: expiredMosaic.currency,
+						targetAddress: balance.address
 					}));
 				});
 			});
