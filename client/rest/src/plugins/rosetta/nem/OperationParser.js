@@ -365,8 +365,10 @@ export class OperationParser {
 
 				pushTransferOperations(amount, currency);
 			} else {
+				const toAtomicUnits = (amount, quantity, divisor) => Number(BigInt(amount) * BigInt(quantity) / BigInt(divisor));
+
 				await Promise.all(transaction.mosaics.map(async mosaic => {
-					const amount = Math.trunc((transaction.amount * mosaic.quantity) / 1000000);
+					const amount = toAtomicUnits(transaction.amount, mosaic.quantity, 1000000);
 					const { currency, levy } = await lookupCurrency(mosaic.mosaicId);
 
 					pushTransferOperations(amount, currency);
@@ -374,7 +376,7 @@ export class OperationParser {
 					if (levy) {
 						const levyAmount = levy.isAbsolute
 							? levy.fee
-							: Math.trunc(amount * levy.fee / 10000);
+							: toAtomicUnits(amount, levy.fee, 10000);
 						pushDebitCreditOperations(transaction.signer, levy.recipientAddress, levyAmount, levy.currency);
 					}
 				}));
