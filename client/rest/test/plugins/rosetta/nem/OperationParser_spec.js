@@ -95,7 +95,8 @@ describe('NEM OperationParser', () => {
 					],
 					levy: {}
 				},
-				supply: 1111
+				supply: 1111,
+				expirationHeight: 1000
 			};
 		}
 
@@ -735,6 +736,14 @@ describe('NEM OperationParser', () => {
 				metadata: { height: 123 },
 				additionalOperations: [
 					// simply increase supply because owner change means previous mosaic definition expired
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo:exists', 4)
+				]
+			}));
+
+			it('can parse when existing mosaic definition has expired', () => assertParseWithExistingDefinition({
+				metadata: { height: 1001 },
+				additionalOperations: [
+					// simply increase supply because previous mosaic definition has already expired and been pruned
 					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo:exists', 4)
 				]
 			}));

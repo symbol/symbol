@@ -463,14 +463,14 @@ describe('NemProxy', () => {
 			});
 
 			// Act:
-			const mosaicDefinitionPair = await proxy.mosaicDefinitionWithSupply(
+			const mosaicDefinitionTuple = await proxy.mosaicDefinitionWithSupply(
 				{ namespaceId: 'foo.bar', name: 'coins' },
 				metadata,
 				heightAdjustment
 			);
 
 			// Assert:
-			expect(mosaicDefinitionPair).to.deep.equal({
+			expect(mosaicDefinitionTuple).to.deep.equal({
 				mosaicDefinition: createValidMosaicDefinitionJson(),
 				supply: 8888
 			});
@@ -504,10 +504,10 @@ describe('NemProxy', () => {
 			});
 
 			// Act:
-			const mosaicDefinitionPair = await proxy.mosaicDefinitionWithSupply({ namespaceId: 'foo.bar', name: 'coins' }, metadata);
+			const mosaicDefinitionTuple = await proxy.mosaicDefinitionWithSupply({ namespaceId: 'foo.bar', name: 'coins' }, metadata);
 
 			// Assert:
-			expect(mosaicDefinitionPair).to.equal(undefined);
+			expect(mosaicDefinitionTuple).to.equal(undefined);
 		};
 
 		it('cannot retrieve unknown mosaic definition without location', () => assertCannotRetrieveUnknownMosaicDefinition(undefined, ''));

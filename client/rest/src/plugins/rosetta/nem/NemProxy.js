@@ -117,8 +117,8 @@ export default class NemProxy {
 	 * @returns {object} Properties about the mosaic.
 	 */
 	async mosaicProperties(mosaicId, transactionLocation = undefined) {
-		const mosaicDefinitionPair = await this.mosaicDefinitionWithSupply(mosaicId, transactionLocation);
-		return mosaicDefinitionToMosaicProperties(mosaicDefinitionPair.mosaicDefinition);
+		const mosaicDefinitionTuple = await this.mosaicDefinitionWithSupply(mosaicId, transactionLocation);
+		return mosaicDefinitionToMosaicProperties(mosaicDefinitionTuple.mosaicDefinition);
 	}
 
 	/**
@@ -133,11 +133,11 @@ export default class NemProxy {
 		const heightQuery = transactionLocation && undefined !== transactionLocation.height
 			? `&height=${transactionLocation.height + relativeHeight}`
 			: '';
-		const mosaicDefinitionPairs = await this.fetch(
+		const mosaicDefinitionTuples = await this.fetch(
 			`local/mosaic/definition/supply?mosaicId=${fullyQualifiedName}${heightQuery}`,
 			jsonObject => jsonObject.data
 		);
 
-		return 0 === mosaicDefinitionPairs.length ? undefined : mosaicDefinitionPairs[0];
+		return 0 === mosaicDefinitionTuples.length ? undefined : mosaicDefinitionTuples[0];
 	}
 }
