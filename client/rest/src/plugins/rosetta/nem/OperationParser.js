@@ -418,33 +418,37 @@ export class OperationParser {
 			const { initialSupply, divisibility } = extractPropertiesFromMosaicDefinition(mosaicDefinition);
 
 			const currency = new Currency(mosaicIdToString(mosaicDefinition.id), divisibility);
-			const existingMosaicDefinitionPair = await this.options.lookupMosaicDefinitionWithSupply(
+			const existingMosaicDefinitionTuple = await this.options.lookupMosaicDefinitionWithSupply(
 				mosaicDefinition.id,
 				transactionLocation,
 				-1
 			);
 
 			let creditAmount = supplyToAtomicUnits(initialSupply, divisibility);
-			if (existingMosaicDefinitionPair) {
-				const existingMosaicDefinition = existingMosaicDefinitionPair.mosaicDefinition;
-				if (areMosaicDefinitionsEqual(mosaicDefinition, existingMosaicDefinition)) {
-					// change to insignificant property, ignore
-					creditAmount = 0;
-				} else {
-					const existingDivisibility = extractPropertiesFromMosaicDefinition(existingMosaicDefinition).divisibility;
-					const existingSupply = supplyToAtomicUnits(existingMosaicDefinitionPair.supply, existingDivisibility);
+			if (existingMosaicDefinitionTuple) {
+				const existingMosaicDefinition = existingMosaicDefinitionTuple.mosaicDefinition;
 
-					if (mosaicDefinition.creator === existingMosaicDefinition.creator) {
-						if (divisibility !== existingDivisibility) {
-							// rosetta treats divisibility change as unique currency,
-							// so debit entire (existing) supply and add entire new supply
-							operations.push(this.createDebitOperation({
-								sourcePublicKey: transaction.signer,
-								amount: existingSupply,
-								currency: new Currency(currency.symbol, existingDivisibility)
-							}));
-						} else {
-							creditAmount -= existingSupply;
+				const isExistingPurged = transactionLocation && transactionLocation.height > existingMosaicDefinitionTuple.expirationHeight;
+				if (!isExistingPurged) {
+					if (areMosaicDefinitionsEqual(mosaicDefinition, existingMosaicDefinition)) {
+						// change to insignificant property, ignore
+						creditAmount = 0;
+					} else {
+						const existingDivisibility = extractPropertiesFromMosaicDefinition(existingMosaicDefinition).divisibility;
+						const existingSupply = supplyToAtomicUnits(existingMosaicDefinitionTuple.supply, existingDivisibility);
+
+						if (mosaicDefinition.creator === existingMosaicDefinition.creator) {
+							if (divisibility !== existingDivisibility) {
+								// rosetta treats divisibility change as unique currency,
+								// so debit entire (existing) supply and add entire new supply
+								operations.push(this.createDebitOperation({
+									sourcePublicKey: transaction.signer,
+									amount: existingSupply,
+									currency: new Currency(currency.symbol, existingDivisibility)
+								}));
+							} else {
+								creditAmount -= existingSupply;
+							}
 						}
 					}
 				}
