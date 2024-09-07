@@ -142,6 +142,8 @@ const extractPropertiesFromMosaicDefinition = mosaicDefinition => {
 
 const supplyToAtomicUnits = (supply, divisibility) => supply * (10 ** divisibility);
 
+const isZeroTransferOperation = operation => 'transfer' === operation.type && '0' === operation.amount.value;
+
 // endregion
 
 /**
@@ -270,7 +272,7 @@ export class OperationParser {
 		const operations = [];
 		const appendOperation = operation => {
 			// filter out zero transfers
-			if ('transfer' === operation.type && '0' === operation.amount.value)
+			if (isZeroTransferOperation(operation))
 				return;
 
 			operation.operation_identifier.index = operations.length;
@@ -511,15 +513,15 @@ export class OperationParser {
 				const transaction = block.block.transactions[i];
 				if (models.TransactionType.MOSAIC_DEFINITION.value === transaction.type) {
 					if (mosaicDefinitionIds.some(mosaicId => areMosaicIdsEqual(mosaicId, transaction.mosaicDefinition.id))) {
-						const { initialSupply, divisibility } = extractPropertiesFromMosaicDefinition(transaction.mosaicDefinition);
-						const supply = supplyToAtomicUnits(initialSupply, divisibility);
+						// eslint-disable-next-line no-await-in-loop
+						const transactionOperations = await this.parseTransactionInternal(transaction, { height });
+						const supplyCreditOperation = transactionOperations[transactionOperations.length - 1];
 
-						operations.push(this.createDebitOperation({
-							id: operations.length,
-							sourcePublicKey: transaction.signer,
-							amount: supply,
-							currency: new Currency(mosaicIdToString(transaction.mosaicDefinition.id), divisibility)
-						}));
+						if (!isZeroTransferOperation(supplyCreditOperation)) {
+							supplyCreditOperation.operation_identifier.index = operations.length;
+							supplyCreditOperation.amount.value = (-BigInt(supplyCreditOperation.amount.value)).toString();
+							operations.push(supplyCreditOperation);
+						}
 					} else {
 						mosaicDefinitionIds.push(transaction.mosaicDefinition.id);
 					}
