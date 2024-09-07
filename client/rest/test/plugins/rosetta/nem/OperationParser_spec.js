@@ -1091,7 +1091,12 @@ describe('NEM OperationParser', () => {
 			const createMosaicDefinitionTransactionJson = (namespaceId, name, initialSupply, divisibility) => ({
 				type: 16385,
 				signer: '45880194FAD01FCB55887B73EEFFDC263914ED5749BF2F3ACB928C843C57BD9A',
+
+				creationFeeSink: 'TBMOSAICOD4F54EE5CDMR23CCBGOAM2XSJBR5OLC',
+				creationFee: 50000,
+
 				mosaicDefinition: {
+					creator: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
 					id: { namespaceId, name },
 					properties: [
 						{ name: 'initialSupply', value: initialSupply.toString() },
@@ -1133,6 +1138,42 @@ describe('NEM OperationParser', () => {
 				createTransferOperation(1, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', '-101000', 'foo:baz', 3),
 				createTransferOperation(2, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', '-100000', 'foo:bar', 3)
 			]));
+
+			it(
+				'no adjustment when block contains duplicate mosaic definitions with no change relative to existing network definition',
+				() => runBlockTest({
+					block: {
+						height: 111, // needs to be less than expirationHeight (1000) from supply endpoint
+						transactions: [
+							createMosaicDefinitionTransactionJson('foo', 'exists', 1111, 3), // duplicate
+							createMosaicDefinitionTransactionJson('foo', 'exists', 1111, 3)
+						]
+					},
+					beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+					totalFee: 0
+				}, [
+					// supply should not change at all
+				])
+			);
+
+			it(
+				'adjustment when block contains duplicate mosaic definitions with change relative to existing network definition',
+				() => runBlockTest({
+					block: {
+						height: 111, // needs to be less than expirationHeight (1000) from supply endpoint
+						transactions: [
+							createMosaicDefinitionTransactionJson('foo', 'exists', 2000, 3), // duplicate
+							createMosaicDefinitionTransactionJson('foo', 'exists', 2000, 3)
+						]
+					},
+					beneficiary: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ',
+					totalFee: 0
+				}, [
+					// supply should increase existing supply (1111) to new supply (2000); delta 889
+					// since last is being undone, this transfer should be negative
+					createTransferOperation(0, 'TDONALICE7O3L63AS3KNDCPT7ZA7HMQTFZGYUCAH', '-889000', 'foo:exists', 3)
+				])
+			);
 		});
 	});
 
