@@ -20,6 +20,7 @@
  */
 
 import Currency from '../openApi/model/Currency.js';
+import { Network } from 'symbol-sdk/nem';
 
 /**
  * Extracts blockchain descriptor from services configuration.
@@ -130,4 +131,21 @@ export const areMosaicDefinitionsEqual = (lhs, rhs, isDescriptionSignificant) =>
 		&& lhsLevy.recipient === rhsLevy.recipient
 		&& lhsLevy.type === rhsLevy.type
 		&& areMosaicIdsEqual(lhsLevyMosaicId, rhsLevyMosaicId);
+};
+
+/**
+ * Determines if mosaic definition description differences are significant given a network and transaction location.
+ * @param {Network} network Blockchain network.
+ * @param {object} transactionLocation Location of transaction.
+ * @returns {boolean} true if mosaic definition description differences are significant.
+ */
+export const isMosaicDefinitionDescriptionSignificant = (network, transactionLocation) => {
+	const forkHeight = (() => {
+		if ('mainnet' === network.name)
+			return 1_110_000;
+
+		return 'testnet' === network.name ? 871_500 : 1;
+	})();
+
+	return undefined !== transactionLocation && undefined !== transactionLocation.height && transactionLocation.height < forkHeight;
 };

@@ -80,9 +80,13 @@ describe('NEM OperationParser', () => {
 
 	const lookupMosaicDefinitionWithSupplySync = (mosaicId, transactionLocation, relativeHeight) => {
 		if ('exists' === mosaicId.name) {
-			// ensure match at transactionLocation.height 124, where initialSupply === 123000 and divisibility === 4
-			const initialSupply = (transactionLocation.height + relativeHeight) * 1000;
-			const divisibility = 123 < transactionLocation.height ? 4 : 3;
+			// ensure match at transactionLocation.height 124 and 2_000_124, where initialSupply === 123000 and divisibility === 4
+			// (tests when mosaic definition description differences are insignificant use heights greater than 2M)
+			const adjustment = 2_000_000 <= transactionLocation.height ? 2_000_000 : 0;
+			const adjustedHeight = transactionLocation.height - adjustment;
+
+			const initialSupply = (adjustedHeight + relativeHeight) * 1000;
+			const divisibility = 123 < adjustedHeight ? 4 : 3;
 			return {
 				mosaicDefinition: {
 					creator: '9822CF9571A5551EC19720B87A567A20797B75EC4B6711387643FC352FEF704E',
@@ -96,7 +100,7 @@ describe('NEM OperationParser', () => {
 					levy: {}
 				},
 				supply: 1111,
-				expirationHeight: 1000
+				expirationHeight: 1000 + adjustment
 			};
 		}
 
@@ -115,6 +119,13 @@ describe('NEM OperationParser', () => {
 				],
 				expiredMosaicType: 1 // expired
 			});
+			data.push({
+				mosaicId: { namespaceId: 'check', name: 'baz' },
+				balances: [
+					{ address: 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', quantity: 20 }
+				],
+				expiredMosaicType: 1 // expired
+			});
 		}
 
 		if (0 === (height % 300000)) {
@@ -123,6 +134,13 @@ describe('NEM OperationParser', () => {
 				balances: [
 					{ address: 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', quantity: 900 },
 					{ address: 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', quantity: 800 }
+				],
+				expiredMosaicType: 2 // restored
+			});
+			data.push({
+				mosaicId: { namespaceId: 'check', name: 'baz' },
+				balances: [
+					{ address: 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', quantity: 10 }
 				],
 				expiredMosaicType: 2 // restored
 			});
@@ -705,15 +723,24 @@ describe('NEM OperationParser', () => {
 				expect(signerAddresses.map(address => address.toString())).to.deep.equal(['TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW']);
 			};
 
-			it('can parse when existing mosaic definition matches', () => assertParseWithExistingDefinition({
-				metadata: { height: 124 },
+			it('can parse when existing mosaic definition matches (!desc insignificant)', () => assertParseWithExistingDefinition({
+				metadata: { height: 2_000_124 },
 				additionalOperations: [
 					// mosaic definition has no significant differences with existing mosaic definition, so no supply changes
 				]
 			}));
 
+			it('can parse when existing mosaic definition does not match (!desc significant)', () => assertParseWithExistingDefinition({
+				metadata: { height: 124 },
+				additionalOperations: [
+					// mosaic balances will be zeroed by data propagated over the NEM mosaics expired endpoint
+					// readd the new mosaic supply
+					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo:exists', 4)
+				]
+			}));
+
 			it('can parse when existing mosaic definition does not match (=divisibility, =owner)', () => assertParseWithExistingDefinition({
-				metadata: { height: 130 },
+				metadata: { height: 2_000_130 },
 				additionalOperations: [
 					// simply increase supply because divisibility is unchanged
 					// new supply (123000 * 10000) - existing supply (1111 * 10000)
@@ -722,7 +749,7 @@ describe('NEM OperationParser', () => {
 			}));
 
 			it('can parse when existing mosaic definition does not match (!divisibility, =owner)', () => assertParseWithExistingDefinition({
-				metadata: { height: 123 },
+				metadata: { height: 2_000_123 },
 				additionalOperations: [
 					// remove existing supply (1111 * 1000) and add new supply (123000 * 10000)
 					// rosetta treats the two supplies as unique currencies because of divisibility difference
@@ -733,7 +760,7 @@ describe('NEM OperationParser', () => {
 
 			it('can parse when existing mosaic definition does not match (!divisibility, !owner)', () => assertParseWithExistingDefinition({
 				ownerPublicKey: 'BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F',
-				metadata: { height: 123 },
+				metadata: { height: 2_000_123 },
 				additionalOperations: [
 					// simply increase supply because owner change means previous mosaic definition expired
 					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo:exists', 4)
@@ -741,7 +768,7 @@ describe('NEM OperationParser', () => {
 			}));
 
 			it('can parse when existing mosaic definition has expired', () => assertParseWithExistingDefinition({
-				metadata: { height: 1001 },
+				metadata: { height: 2_001_001 },
 				additionalOperations: [
 					// simply increase supply because previous mosaic definition has already expired and been pruned
 					createTransferOperation(2, 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW', '1230000000', 'foo:exists', 4)
@@ -1039,7 +1066,8 @@ describe('NEM OperationParser', () => {
 			}, [
 				createTransferOperation(0, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '-1000', 'foo:bar', 3),
 				createTransferOperation(1, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '-3000', 'foo:bar', 3),
-				createTransferOperation(2, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-2000', 'foo:bar', 3)
+				createTransferOperation(2, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-2000', 'foo:bar', 3),
+				createTransferOperation(3, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '-20', 'check:baz', 199999)
 			]));
 		});
 
@@ -1060,7 +1088,8 @@ describe('NEM OperationParser', () => {
 				createTransferOperation(0, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '12345', 'currency:fee', 2),
 				createTransferOperation(1, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '-1000', 'foo:bar', 3),
 				createTransferOperation(2, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '-3000', 'foo:bar', 3),
-				createTransferOperation(3, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-2000', 'foo:bar', 3)
+				createTransferOperation(3, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-2000', 'foo:bar', 3),
+				createTransferOperation(4, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '-20', 'check:baz', 199999)
 			]));
 
 			it('extracts expired mosaic operations for single restored mosaic', () => runBlockTest({
@@ -1070,7 +1099,8 @@ describe('NEM OperationParser', () => {
 			}, [
 				createTransferOperation(0, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '12345', 'currency:fee', 2),
 				createTransferOperation(1, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '900', 'alice:tokens', 3),
-				createTransferOperation(2, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '800', 'alice:tokens', 3)
+				createTransferOperation(2, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '800', 'alice:tokens', 3),
+				createTransferOperation(3, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '10', 'check:baz', 299999)
 			]));
 
 			it('extracts expired mosaic operations for multiple expiring and restored mosaics', () => runBlockTest({
@@ -1082,8 +1112,10 @@ describe('NEM OperationParser', () => {
 				createTransferOperation(1, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '-1000', 'foo:bar', 3),
 				createTransferOperation(2, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '-3000', 'foo:bar', 3),
 				createTransferOperation(3, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '-2000', 'foo:bar', 3),
-				createTransferOperation(4, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '900', 'alice:tokens', 3),
-				createTransferOperation(5, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '800', 'alice:tokens', 3)
+				createTransferOperation(4, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '-20', 'check:baz', 599999),
+				createTransferOperation(5, 'TBGJAGUAQY47BULYL4GRYBJLOI6XKXPJUXU25JRJ', '900', 'alice:tokens', 3),
+				createTransferOperation(6, 'TBMKRYST2J3GEZRWHS3MICWFIBSKVHH7F5FA6FH3', '800', 'alice:tokens', 3),
+				createTransferOperation(7, 'TAOPATMADWFEPME6GHOJL477SI7D3UT6NFJN4LGB', '10', 'check:baz', 599999)
 			]));
 		});
 
@@ -1103,6 +1135,13 @@ describe('NEM OperationParser', () => {
 						{ name: 'divisibility', value: divisibility.toString() }
 					]
 				}
+			});
+
+			const wrapMultisigTransactionJson = innerTransactionJson => ({
+				type: 4100,
+				signer: '45880194FAD01FCB55887B73EEFFDC263914ED5749BF2F3ACB928C843C57BD9A',
+
+				otherTrans: innerTransactionJson
 			});
 
 			it('no adjustment when block contains distinct mosaic definitions', () => runBlockTest({
@@ -1125,8 +1164,8 @@ describe('NEM OperationParser', () => {
 					transactions: [
 						createMosaicDefinitionTransactionJson('foo', 'bar', 100, 3), // duplicate
 						createMosaicDefinitionTransactionJson('foo', 'baz', 101, 3), // duplicate
-						createMosaicDefinitionTransactionJson('baz', 'bar', 102, 3),
-						createMosaicDefinitionTransactionJson('foo', 'bar', 103, 4), // duplicate
+						wrapMultisigTransactionJson(createMosaicDefinitionTransactionJson('baz', 'bar', 102, 3)),
+						wrapMultisigTransactionJson(createMosaicDefinitionTransactionJson('foo', 'bar', 103, 4)), // duplicate
 						createMosaicDefinitionTransactionJson('foo', 'baz', 104, 3),
 						createMosaicDefinitionTransactionJson('foo', 'bar', 105, 5)
 					]
@@ -1143,7 +1182,7 @@ describe('NEM OperationParser', () => {
 				'no adjustment when block contains duplicate mosaic definitions with no change relative to existing network definition',
 				() => runBlockTest({
 					block: {
-						height: 111, // needs to be less than expirationHeight (1000) from supply endpoint
+						height: 2_000_111, // needs to be less than expirationHeight (2_000_000) from supply endpoint
 						transactions: [
 							createMosaicDefinitionTransactionJson('foo', 'exists', 1111, 3), // duplicate
 							createMosaicDefinitionTransactionJson('foo', 'exists', 1111, 3)
@@ -1160,7 +1199,7 @@ describe('NEM OperationParser', () => {
 				'adjustment when block contains duplicate mosaic definitions with change relative to existing network definition',
 				() => runBlockTest({
 					block: {
-						height: 111, // needs to be less than expirationHeight (1000) from supply endpoint
+						height: 2_000_111, // needs to be less than expirationHeight (2_000_000) from supply endpoint
 						transactions: [
 							createMosaicDefinitionTransactionJson('foo', 'exists', 2000, 3), // duplicate
 							createMosaicDefinitionTransactionJson('foo', 'exists', 2000, 3)

@@ -24,6 +24,7 @@ import {
 	areMosaicIdsEqual,
 	createLookupCurrencyFunction,
 	getBlockchainDescriptor,
+	isMosaicDefinitionDescriptionSignificant,
 	mosaicIdToString
 } from './rosettaUtils.js';
 import AccountIdentifier from '../openApi/model/AccountIdentifier.js';
@@ -427,7 +428,14 @@ export class OperationParser {
 			);
 
 			let creditAmount = supplyToAtomicUnits(initialSupply, divisibility);
-			if (existingMosaicDefinitionTuple) {
+
+			// prior to the mosaic redefinition fork, mosaic description changes are significant
+			// in addition, prior to this fork, NIS reports the zeroing of all mosaic balances over the NIS mosaics/expired endpoint
+			// as a result, no special handling is needed for existing mosaics since their existing balances will be zeroed
+			// by data sent over this endpoint
+			const isDescriptionSignificant = isMosaicDefinitionDescriptionSignificant(this.network, transactionLocation);
+
+			if (!isDescriptionSignificant && existingMosaicDefinitionTuple) {
 				const existingMosaicDefinition = existingMosaicDefinitionTuple.mosaicDefinition;
 
 				const isExistingPurged = transactionLocation && transactionLocation.height > existingMosaicDefinitionTuple.expirationHeight;
@@ -488,7 +496,7 @@ export class OperationParser {
 		const rawExpiredMosaics = await this.options.lookupExpiredMosaics(height);
 		if (rawExpiredMosaics.length) {
 			const expiredMosaics = await Promise.all(rawExpiredMosaics.map(async expiredMosaic => ({
-				currency: (await this.options.lookupCurrency(expiredMosaic.mosaicId, { height })).currency,
+				currency: (await this.options.lookupCurrency(expiredMosaic.mosaicId, { height: height - 1 })).currency,
 				balances: expiredMosaic.balances,
 				isExpiration: 1 === expiredMosaic.expiredMosaicType
 			})));
@@ -508,9 +516,13 @@ export class OperationParser {
 		// if the same mosaic is defined multiple times in a single block, only the last definition is relevant
 		// fix up balances by removing supplies created by earlier definitions
 		if (block.block.transactions) {
+			const unwrapTransaction = transaction => (
+				models.TransactionType.MULTISIG.value === transaction.type ? transaction.otherTrans : transaction
+			);
+
 			const mosaicDefinitionIds = [];
 			for (let i = block.block.transactions.length - 1; 0 <= i; --i) {
-				const transaction = block.block.transactions[i];
+				const transaction = unwrapTransaction(block.block.transactions[i]);
 				if (models.TransactionType.MOSAIC_DEFINITION.value === transaction.type) {
 					if (mosaicDefinitionIds.some(mosaicId => areMosaicIdsEqual(mosaicId, transaction.mosaicDefinition.id))) {
 						// eslint-disable-next-line no-await-in-loop
