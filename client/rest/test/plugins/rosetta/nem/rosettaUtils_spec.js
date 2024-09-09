@@ -25,6 +25,7 @@ import {
 	calculateXemTransferFee,
 	createLookupCurrencyFunction,
 	getBlockchainDescriptor,
+	isMosaicDefinitionDescriptionSignificant,
 	mosaicIdToString
 } from '../../../../src/plugins/rosetta/nem/rosettaUtils.js';
 import Currency from '../../../../src/plugins/rosetta/openApi/model/Currency.js';
@@ -301,6 +302,43 @@ describe('NEM rosetta utils', () => {
 		it('is false when one levy is undefined', () => runAreEqualTest(false, false, mosaicDefinition => {
 			mosaicDefinition.levy = undefined;
 		}));
+	});
+
+	// endregion
+
+	// region isMosaicDefinitionDescriptionSignificant
+
+	describe('isMosaicDefinitionDescriptionSignificant', () => {
+		it('returns correct values for mainnet', () => {
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'mainnet' }, { height: 1 })).to.equal(true);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'mainnet' }, { height: 500_000 })).to.equal(true);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'mainnet' }, { height: 1_109_999 })).to.equal(true);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'mainnet' }, { height: 1_110_000 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'mainnet' }, { height: 1_110_001 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'mainnet' }, { height: 1_500_000 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'mainnet' }, { height: undefined })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'mainnet' }, undefined)).to.equal(false);
+		});
+
+		it('returns correct values for testnet', () => {
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'testnet' }, { height: 1 })).to.equal(true);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'testnet' }, { height: 500_000 })).to.equal(true);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'testnet' }, { height: 871_499 })).to.equal(true);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'testnet' }, { height: 871_500 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'testnet' }, { height: 871_501 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'testnet' }, { height: 1_500_000 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'testnet' }, { height: undefined })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'testnet' }, undefined)).to.equal(false);
+		});
+
+		it('returns correct values for other network', () => {
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'othernet' }, { height: 1 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'othernet' }, { height: 500_000 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'othernet' }, { height: 1_000_000 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'othernet' }, { height: 1_500_000 })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'othernet' }, { height: undefined })).to.equal(false);
+			expect(isMosaicDefinitionDescriptionSignificant({ name: 'othernet' }, undefined)).to.equal(false);
+		});
 	});
 
 	// endregion
