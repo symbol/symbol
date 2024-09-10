@@ -15,7 +15,7 @@ RUN apt-get install -y openjdk-17-jre ca-certificates curl gnupg \
 	| tee /etc/apt/sources.list.d/nodesource.list \
 	&& apt-get update \
 	&& apt-get install -y nodejs \
-	&& npm install -g npm-groovy-lint
+	&& npm install -g npm-groovy-lint@15.0.0
 
 # install python
 RUN apt-get install -y python3-pip python3-venv
