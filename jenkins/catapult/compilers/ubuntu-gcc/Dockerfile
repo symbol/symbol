@@ -1,5 +1,5 @@
-ARG FROM_IMAGE=ubuntu:24.04
-FROM ${FROM_IMAGE}
+# use Ubuntu 24.10 to get gcc 14.2 which has latest fixes.
+FROM ubuntu:24.10
 
 ARG DEBIAN_FRONTEND=noninteractive
 
