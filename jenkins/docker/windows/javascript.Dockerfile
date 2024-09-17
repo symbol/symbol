@@ -1,5 +1,5 @@
 # escape=`
-ht
+
 ARG FROM_IMAGE=symbolplatform/symbol-server-compiler:windows-msvc-17
 
 FROM ${FROM_IMAGE}
