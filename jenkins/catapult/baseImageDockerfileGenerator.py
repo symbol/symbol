@@ -310,6 +310,13 @@ class UbuntuSystem:
 		], APT_PACKAGES=' '.join(apt_packages))
 		install_pip_package(user, 'pycodestyle pylint pyyaml')
 
+	@staticmethod
+	def add_conan_packages(packages):
+		print_line([
+			'RUN apt-get -y update',
+			'apt-get install -y {APT_PACKAGES}'
+		], APT_PACKAGES=' '.join(packages))
+
 
 class FedoraSystem:
 	@staticmethod
@@ -352,6 +359,13 @@ class FedoraSystem:
 			'rm -rf /var/cache/yum'
 		], RPM_PACKAGES=' '.join(rpm_packages))
 		install_pip_package(user, 'pycodestyle pylint pyyaml')
+
+	@staticmethod
+	def add_conan_packages(packages):
+		print_line([
+			'RUN dnf update --assumeyes',
+			'dnf install --assumeyes {RPM_PACKAGES}'
+		], RPM_PACKAGES=' '.join(packages))
 
 
 class WindowsSystem:
@@ -514,12 +528,7 @@ class LinuxSystemGenerator:
 	def generate_phase_conan(self):
 		print(f'FROM {self.options.layer_image_name("os")}')
 
-		apt_packages = ['python3-pip']
-
-		print_line([
-			'RUN apt-get -y update',
-			'apt-get install -y {APT_PACKAGES}'
-		], APT_PACKAGES=' '.join(apt_packages))
+		self.system.add_conan_packages(['python3-pip'])
 		install_pip_package(self.system.user(), 'conan')
 
 
