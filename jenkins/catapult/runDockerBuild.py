@@ -49,7 +49,7 @@ class OptionsManager(BasicBuildManager):
 
 	@property
 	def ccache_path(self):
-		ccache_architecture_path = CCACHE_ROOT / self.architecture
+		ccache_architecture_path = CCACHE_ROOT / self.architecture / self.versioned_compiler
 		if self.enable_code_coverage:
 			return ccache_architecture_path / 'cc'
 
@@ -60,14 +60,7 @@ class OptionsManager(BasicBuildManager):
 
 	@property
 	def conan_path(self):
-		conan_path = CONAN_ROOT / self.architecture
-		if self.is_clang:
-			return conan_path / 'clang'
-
-		if self.is_msvc:
-			return conan_path / 'msvc'
-
-		return conan_path / 'gcc'
+		return CONAN_ROOT / self.architecture / self.versioned_compiler
 
 	def docker_run_settings(self):
 		settings = [
