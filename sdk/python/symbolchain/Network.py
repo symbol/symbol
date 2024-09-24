@@ -9,7 +9,7 @@ class Network:
 	"""Represents a network."""
 
 	def __init__(self, name, identifier, datetime_converter, address_class, network_timestamp_class):
-		# pylint: disable=too-many-arguments
+		# pylint: disable=too-many-arguments,too-many-positional-arguments
 
 		"""Creates a new network with the specified properties."""
 		self.name = name
