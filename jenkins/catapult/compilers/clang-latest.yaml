@@ -12,4 +12,4 @@ deps:
   - /usr/lib/llvm-19/lib/libunwind.*
 
   - /usr/lib/llvm-19/bin/llvm-symbolizer
-  - /usr/lib/x86_64-linux-gnu/libLLVM-19.*
+  - /usr/lib/x86_64-linux-gnu/libLLVM*
