@@ -1,7 +1,7 @@
 import argparse
 import sys
-from pathlib import Path
 from os import sep
+from pathlib import Path
 
 from configuration import load_compiler_configuration
 from environment import EnvironmentManager
@@ -177,6 +177,7 @@ def main():
 	failed_test_suites = []
 	test_filter = 'test*' if not EnvironmentManager.is_windows_platform() else 'test*.exe'
 	for test_exe_filepath in environment_manager.find_glob(args.exe_path, test_filter):
+		base_output_filepath = logs_path / test_exe_filepath.name
 
 		test_args = [
 			test_exe_filepath,
