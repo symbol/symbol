@@ -1,6 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
+from os import sep
 
 from configuration import load_compiler_configuration
 from environment import EnvironmentManager
@@ -168,14 +169,17 @@ def main():
 		environment_manager.set_env_var('LD_LIBRARY_PATH', f'{output_path}/lib:{output_path}/deps')
 	logs_path = Path(args.out_dir) / 'logs'
 
+	# There seems to be a bug in gtest where specifying the `--gtest_output=` parameter causes
+	# llvm-symbolizer not to resolves its libraries.
+	# setting the test_output using environment variable works.
+	environment_manager.set_env_var('GTEST_OUTPUT', f'xml:{logs_path}{sep}')
+
 	failed_test_suites = []
 	test_filter = 'test*' if not EnvironmentManager.is_windows_platform() else 'test*.exe'
 	for test_exe_filepath in environment_manager.find_glob(args.exe_path, test_filter):
-		base_output_filepath = logs_path / test_exe_filepath.name
 
 		test_args = [
 			test_exe_filepath,
-			f'--gtest_output=xml:{base_output_filepath}.xml',
 			Path(args.exe_path) if EnvironmentManager.is_windows_platform() else Path(args.exe_path) / '..' / 'lib'
 		]
 
