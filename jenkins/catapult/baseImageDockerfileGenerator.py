@@ -167,6 +167,9 @@ class OptionsManager:
 			# https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-__cplusplus/
 			descriptor.cxxflags += ['/Zc:__cplusplus']
 
+			# https://www.mongodb.com/docs/languages/cpp/cpp-driver/upcoming/api-abi-versioning/#shared-libraries--msvc-only-
+			descriptor.options += ['-DENABLE_ABI_TAG_IN_LIBRARY_FILENAMES=OFF']
+
 		return self._cmake(descriptor)
 
 	def libzmq(self):
