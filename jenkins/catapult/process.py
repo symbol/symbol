@@ -18,7 +18,11 @@ class ProcessManager:
 		with Popen(command_line, stdout=PIPE, stderr=STDOUT) as process:
 			process_lines = []
 			for line_bin in iter(process.stdout.readline, b''):
-				line = line_bin.decode('utf-8')
+				try:
+					line = line_bin.decode('utf-8')
+				except UnicodeDecodeError:
+					print(f'failed to decode: {line_bin}')
+					continue
 
 				if show_output:
 					sys.stdout.write(line)
