@@ -18,6 +18,7 @@ print(transaction)
 private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
 signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
 
+# pylint: disable=invalid-name
 json_payload = facade.transaction_factory.attach_signature(transaction, signature)
 
 print('prepared NEM JSON payload:')
