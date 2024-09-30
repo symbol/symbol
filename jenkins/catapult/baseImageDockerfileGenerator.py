@@ -200,7 +200,7 @@ class OptionsManager:
 		# Disable warning as error due to a bug in gcc which should be fix in 12.2
 		# https://github.com/facebook/rocksdb/issues/9925
 		if self.compiler.c.startswith('gcc') and 12 == self.compiler.version:
-			descriptor.cxxflags += ['-Wno-error=maybe-uninitialized']
+			descriptor.cxxflags += ['-Wno-error=maybe-uninitialized', '-Wno-error=array-bounds']
 
 		if self.compiler.c.startswith('clang') and 15 == self.compiler.version:
 			descriptor.cxxflags += ['-Wno-error=unused-but-set-variable']
