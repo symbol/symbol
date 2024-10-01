@@ -96,6 +96,10 @@ class Builder:
 			# https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-__cplusplus/
 			cmake_options += ['-DCMAKE_CXX_FLAGS="/Zc:__cplusplus"', f'-DCMAKE_PREFIX_PATH={self.target_directory / organization}']
 
+			version = self.versions[f'{organization}_{project}']
+			if 'r3.10.0' <= version:
+				cmake_options += ['-DENABLE_ABI_TAG_IN_LIBRARY_FILENAMES=OFF']
+
 		if 'mongodb' == organization:
 			cmake_options += [f'-DOPENSSL_ROOT_DIR={self.target_directory / "openssl"}']
 
