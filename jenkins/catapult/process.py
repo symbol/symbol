@@ -21,6 +21,9 @@ class ProcessManager:
 				try:
 					line = line_bin.decode('utf-8')
 				except UnicodeDecodeError:
+					if handle_error:
+						raise
+
 					print(f'failed to decode: {line_bin}')
 					continue
 
