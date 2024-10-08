@@ -143,7 +143,7 @@ namespace catapult { namespace io {
 			mocks::MockMemoryStream stream(buffer);
 
 			// Act:
-			WriteTraits::template Write(stream, source);
+			WriteTraits::template Write<mocks::MockMemoryStream, T>(stream, source);
 			stream.seek(0);
 			return TReadTraits::template Read<T>(stream);
 		}
