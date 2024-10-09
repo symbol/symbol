@@ -52,12 +52,15 @@ class BuildEnvironment:
 		for key, value in settings.items():
 			setting_overrides += ['-s', f'compiler.{key}={value}']
 		self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
-		self.dispatch_subprocess([
+		conan_install_rc = self.dispatch_subprocess([
 			'conan', 'install', source_path,
 			'--build', 'missing',
 			'--output-folder', build_path,
-			'-s', f'build_type={build_type}',
-		] + setting_overrides)
+			'-s', f'build_type={build_type}'
+		] + setting_overrides,
+			handle_error=not self.environment_manager.is_windows_platform())
+		if 0 != conan_install_rc:
+			raise RuntimeError(f'conan install failed: {conan_install_rc}')
 
 
 class BuildManager(BasicBuildManager):
