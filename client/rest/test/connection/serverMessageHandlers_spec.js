@@ -26,6 +26,8 @@ import { Hash256, utils } from 'symbol-sdk';
 import { models } from 'symbol-sdk/symbol';
 
 describe('server message handlers', () => {
+	// region block handler
+
 	describe('block handler', () => {
 		const runBlockHandlerTest = (blockBuffer, expectedBlock) => {
 			// Arrange:
@@ -67,6 +69,10 @@ describe('server message handlers', () => {
 		});
 	});
 
+	// endregion
+
+	// region finalized block handler
+
 	it('finalized block handler', () => {
 		// Arrange:
 		const emitted = [];
@@ -94,6 +100,10 @@ describe('server message handlers', () => {
 			}
 		});
 	});
+
+	// endregion
+
+	// region transaction handler
 
 	describe('transaction handler', () => {
 		const runTransactionHandlerTest = (transactionBuffer, assertEmitted) => {
@@ -220,6 +230,10 @@ describe('server message handlers', () => {
 		});
 	});
 
+	// endregion
+
+	// region transaction hash handler
+
 	it('transaction hash handler', () => {
 		// Arrange:
 		const emitted = [];
@@ -233,6 +247,10 @@ describe('server message handlers', () => {
 		expect(emitted.length).to.equal(1);
 		expect(emitted[0]).to.deep.equal({ type: 'transactionWithMetadata', payload: { meta: { hash: 44 } } });
 	});
+
+	// endregion
+
+	// region transaction status handler
 
 	it('transaction status handler', () => {
 		// Arrange:
@@ -259,4 +277,6 @@ describe('server message handlers', () => {
 			}
 		});
 	});
+
+	// endregion
 });

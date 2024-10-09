@@ -29,6 +29,17 @@ const parserFromData = binaryData => {
 	return parser;
 };
 
+const fixupBlockJson = blockJson => {
+	if (blockJson.generationHashProof) {
+		blockJson.proofGamma = blockJson.generationHashProof.gamma;
+		blockJson.proofVerificationHash = blockJson.generationHashProof.verificationHash;
+		blockJson.proofScalar = blockJson.generationHashProof.scalar;
+		delete blockJson.generationHashProof;
+	}
+
+	return blockJson;
+};
+
 const fixupTransactionJson = transactionJson => {
 	if (transactionJson.mosaics) {
 		transactionJson.mosaics = transactionJson.mosaics.map(mosaic => ({
@@ -58,7 +69,9 @@ export default Object.freeze({
 			...utils.intToBytes(binaryBlock.length, 4),
 			...binaryBlock.subarray(4)
 		]));
-		emit({ type: 'blockHeaderWithMetadata', payload: { block: block.toJson(), meta: { hash, generationHash } } });
+
+		const blockJson = fixupBlockJson(block.toJson());
+		emit({ type: 'blockHeaderWithMetadata', payload: { block: blockJson, meta: { hash, generationHash } } });
 	},
 
 	finalizedBlock: emit => (topic, binaryBlock) => {
