@@ -52,8 +52,9 @@ describe('route system', () => {
 			'restrictions',
 			'transfer',
 
-			// - other
-			'rosetta'
+			// - rosetta
+			'nemRosetta',
+			'symbolRosetta'
 		]);
 	});
 

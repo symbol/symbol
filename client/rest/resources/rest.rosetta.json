@@ -1,0 +1,48 @@
+{
+  "network": {
+    "name": "testnet",
+    "description": "catapult public test network"
+  },
+
+  "port": 4000,
+  "protocol": "HTTPS",
+  "sslKeyPath": "",
+  "sslCertificatePath": "",
+  "crossDomain": {
+    "allowedHosts": ["*"],
+    "allowedMethods": ["GET", "POST", "PUT", "OPTIONS"]
+  },
+
+  "restEndpoint": "http://localhost:3000",
+  "routeExtensions": [
+    "symbolRosetta"
+  ],
+
+  "throttling": {
+    "burst": 20,
+    "rate": 5
+  },
+
+  "logging": {
+    "console": {
+      "formats": ["colorize", "simple"],
+
+      "level": "verbose",
+      "handleExceptions": true
+    },
+    "file": {
+      "formats": ["prettyPrint"],
+
+      "level": "verbose",
+      "handleExceptions": true,
+
+      "filename": "catapult-rest-rosetta.log",
+      "maxsize": 20971520,
+      "maxFiles": 100
+    }
+  },
+
+  "rosetta": {
+    "aggregateSignerPrivateKey": "898E96DF44BD6EEE8289BF1FA2D1BED233541F3A33DB3879D25403096E93AA2D"
+  }
+}
