@@ -12,6 +12,7 @@ CONAN_ROOT = CACHE_ROOT / 'conan'
 
 OUTPUT_DIR = Path.cwd() / 'output'
 BINARIES_DIR = OUTPUT_DIR / 'binaries'
+USER_HOME = Path(EnvironmentManager.root_directory('usr/catapult')).resolve()
 
 
 class OptionsManager(BasicBuildManager):
@@ -152,14 +153,21 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 		f'--volume={OUTPUT_DIR}:{EnvironmentManager.root_directory("data")}',
 		f'registry.hub.docker.com/{prepare_replacements["base_image_name"]}',
 		'python3', '/scripts/runDockerBuildInnerPrepare.py',
-		f'--disposition={build_disposition}'
+		f'--disposition={build_disposition}',
+		f'--user-home={USER_HOME}'
 	])
 
 	if not container_id:
 		with open(cid_filepath, 'rt', encoding='utf8') as cid_infile:
 			container_id = cid_infile.read()
 
-	process_manager.dispatch_subprocess(['docker', 'commit', container_id, destination_image_name])
+	process_manager.dispatch_subprocess([
+		'docker', 'commit',
+		'--change', f'WORKDIR {USER_HOME}',
+		'--change', f'ENV LD_LIBRARY_PATH="{USER_HOME}/lib:{USER_HOME}/deps"',
+		container_id,
+		destination_image_name
+	])
 
 
 def get_script_path():
