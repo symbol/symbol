@@ -29,7 +29,10 @@ class BuildEnvironment:
 	def _prepare_environment_variables(self):
 		if self.use_conan:
 			# conan cache directory
-			self.environment_manager.set_env_var('CONAN_HOME', '/conan')
+			self.environment_manager.set_env_var(
+				'CONAN_HOME',
+				'c:\\conan' if self.environment_manager.is_windows_platform() else '/conan'
+			)
 		else:
 			if self.environment_manager.is_windows_platform():
 				self.environment_manager.set_env_var('BOOST_ROOT', 'c:/usr/catapult/deps/boost')
