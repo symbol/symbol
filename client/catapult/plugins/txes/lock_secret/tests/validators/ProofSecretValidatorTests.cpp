@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/model/LockHashUtils.h"
+#include "src/validators/Validators.h"
 #include "catapult/crypto/Hashes.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
