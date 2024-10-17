@@ -1,0 +1,15 @@
+defaultCiPipeline {
+	// First OS is the default for CI
+	operatingSystem = ['ubuntu', 'fedora', 'windows']
+	instanceSize = 'medium'
+
+	environment = 'python'
+	otherEnvironments = ['python-fedora-lts', 'python-ubuntu-base', 'python-ubuntu-latest', 'python-windows-lts']
+
+	packageId = 'sdk-python'
+
+	publisher = 'pypi'
+
+	codeCoverageTool = 'coverage'
+	minimumCodeCoverage = 90
+}
