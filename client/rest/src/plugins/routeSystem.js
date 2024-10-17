@@ -34,6 +34,7 @@ import symbolRosetta from './rosetta/symbol/rosetta.js';
 import MessageChannelBuilder from '../connection/MessageChannelBuilder.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
+import light from './light/light.js';
 
 const plugins = {
 	// transactions
@@ -51,7 +52,10 @@ const plugins = {
 
 	// rosetta
 	nemRosetta,
-	symbolRosetta
+	symbolRosetta,
+
+	// light
+	light
 };
 
 export default {
