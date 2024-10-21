@@ -32,21 +32,21 @@ import winston from 'winston';
 import fs from 'fs';
 
 const createServer = config => {
-    const modelSystem = catapult.plugins.catapultModelSystem.configure([], {
+	const modelSystem = catapult.plugins.catapultModelSystem.configure([], {
 		json: dbFormattingRules,
 		ws: messageFormattingRules
 	});
 
-    return bootstrapper.createServer(config, formatters.create(modelSystem.formatters), config.throttling)
+	return bootstrapper.createServer(config, formatters.create(modelSystem.formatters), config.throttling);
 };
 
 const registerRoutes = (server, db, services) => {
 	// 1. create a services view for extension routes
 	const servicesView = {
 		config: {
-            network: services.config.network,
+			network: services.config.network,
 			apiNode: services.config.apiNode,
-			deployment: services.config.deployment,
+			deployment: services.config.deployment
 		},
 		connections: services.connectionService
 	};
@@ -63,8 +63,7 @@ const registerRoutes = (server, db, services) => {
 (() => {
 	let configFiles = process.argv.slice(2);
 	if (0 === configFiles.length)
-		configFiles = [process.cwd() + '/resources/rest.light.json'];
-
+		configFiles = ['../resources/rest.rosetta.json'];
 
 	runProcess(configFiles, (config, serviceManager) => {
 		// Loading and caching certificates.
@@ -77,17 +76,17 @@ const registerRoutes = (server, db, services) => {
 		const nodeCertKey = sshpk.parsePrivateKey(config.apiNode.key);
 		config.apiNode.nodePublicKey = nodeCertKey.toPublic().part.A.data;
 
-        winston.info('registering routes');
-        const server = createServer(config);
-        serviceManager.pushService(server, 'close');
+		winston.info('registering routes');
+		const server = createServer(config);
+		serviceManager.pushService(server, 'close');
 
-        const connectionConfig = {
-            apiNode: config.apiNode
-        };
-        const connectionService = createConnectionService(connectionConfig, winston.verbose);
-        registerRoutes(server, undefined, { config, connectionService });
+		const connectionConfig = {
+			apiNode: config.apiNode
+		};
+		const connectionService = createConnectionService(connectionConfig, winston.verbose);
+		registerRoutes(server, undefined, { config, connectionService });
 
-        winston.info(`listening on port ${config.port}`);
-        server.listen(config.port);
+		winston.info(`listening on port ${config.port}`);
+		server.listen(config.port);
 	});
 })();
