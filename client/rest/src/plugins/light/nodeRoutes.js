@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import routeResultTypes from '../../routes/routeResultTypes.js';
 import catapult from '../../catapult-sdk/index.js';
+import routeResultTypes from '../../routes/routeResultTypes.js';
 import nodeInfoCodec from '../../sockets/nodeInfoCodec.js';
 import { utils } from 'symbol-sdk';
 import fs from 'fs';

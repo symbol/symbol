@@ -21,6 +21,7 @@
 
 import aggregate from './aggregate/aggregate.js';
 import empty from './empty.js';
+import light from './light/light.js';
 import lockHash from './lockHash/lockHash.js';
 import lockSecret from './lockSecret/lockSecret.js';
 import metadata from './metadata/metadata.js';
@@ -34,7 +35,6 @@ import symbolRosetta from './rosetta/symbol/rosetta.js';
 import MessageChannelBuilder from '../connection/MessageChannelBuilder.js';
 import { NetworkLocator } from 'symbol-sdk';
 import { Network } from 'symbol-sdk/symbol';
-import light from './light/light.js';
 
 const plugins = {
 	// transactions
