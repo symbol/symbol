@@ -35,7 +35,7 @@ export default {
 
 	registerRoutes: (server, db, services) => {
 		[
-            nodeRoutes
+			nodeRoutes
 		].forEach(routes => routes.register(server, db, { ...services }));
 	}
 };
