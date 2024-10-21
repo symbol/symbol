@@ -57,10 +57,9 @@ export default {
 				.singleUse()
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
-					console.log('packet :>> ', packet);
-					// const response = buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo);
-					// response.payload.nodePublicKey = services.config.apiNode.nodePublicKey;
-					// res.send(response);
+					const response = buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo);
+					response.payload.nodePublicKey = services.config.apiNode.nodePublicKey;
+					res.send(response);
 					next();
 				});
 		});
@@ -83,6 +82,23 @@ export default {
 				type: routeResultTypes.serverInfo
 			});
 			return next();
+		});
+
+		server.get('/node/unlockedaccount', (req, res, next) => {
+			const headerBuffer = packetHeader.createBuffer(
+				PacketType.unlockedAccount,
+				packetHeader.size
+			);
+			const packetBuffer = headerBuffer;
+			return connections
+				.singleUse()
+				.then(connection => connection.pushPull(packetBuffer, timeout))
+				.then(packet => {
+					const unlockedKeys = utils.uint8ToHex(packet.payload)
+						.match(/.{1,64}/g);
+					res.send({ unlockedAccount: !unlockedKeys ? [] : unlockedKeys });
+					next();
+				});
 		});
 	}
 };
