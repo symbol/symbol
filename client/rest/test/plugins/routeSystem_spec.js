@@ -54,7 +54,10 @@ describe('route system', () => {
 
 			// - rosetta
 			'nemRosetta',
-			'symbolRosetta'
+			'symbolRosetta',
+
+			// - light
+			'light'
 		]);
 	});
 
