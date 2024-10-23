@@ -50,9 +50,13 @@ describe('Light REST plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
+				// node route
 				'/node/info',
 				'/node/server',
-				'/node/unlockedaccount'
+				'/node/unlockedaccount',
+
+				// chain route
+				'/chain/info'
 			]);
 		});
 	});
