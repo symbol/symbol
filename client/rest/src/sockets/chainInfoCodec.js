@@ -31,9 +31,9 @@ export default {
 		const chainInfo = {};
 
 		chainInfo.height = parser.uint64();
-        parser.uint64(); // finalizedHeight
-        chainInfo.scoreHigh = parser.uint64();
-        chainInfo.scoreLow = parser.uint64();
+		parser.uint64(); // finalizedHeight
+		chainInfo.scoreHigh = parser.uint64();
+		chainInfo.scoreLow = parser.uint64();
 
 		return chainInfo;
 	}
