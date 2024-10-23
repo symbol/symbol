@@ -31,9 +31,9 @@ export default {
 		const finalizedBlock = {};
 
 		finalizedBlock.finalizationEpoch = parser.uint32();
-        finalizedBlock.finalizationPoint = parser.uint32();
-        finalizedBlock.height = parser.uint64();
-        finalizedBlock.hash = parser.buffer(32);
+		finalizedBlock.finalizationPoint = parser.uint32();
+		finalizedBlock.height = parser.uint64();
+		finalizedBlock.hash = parser.buffer(32);
 
 		return finalizedBlock;
 	}

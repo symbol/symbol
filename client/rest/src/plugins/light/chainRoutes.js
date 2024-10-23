@@ -33,18 +33,16 @@ export default {
 		const { connections } = services;
 		const { timeout } = services.config.apiNode;
 
-		const fetchData = async (packetBuffer, timeout) => {
+		const fetchData = async packetBuffer => {
 			const connection = await connections.singleUse();
 			return connection.pushPull(packetBuffer, timeout);
 		};
 
-		const createPacketBuffer = (packetType) => {
-			return packetHeader.createBuffer(packetType, packetHeader.size);
-		};
+		const createPacketBuffer = packetType => packetHeader.createBuffer(packetType, packetHeader.size);
 
 		server.get('/chain/info', async (req, res, next) => {
 			const packetBufferChainStatistics = createPacketBuffer(PacketType.chainStatistics);
-            const packetBufferFinalizationStatistics = createPacketBuffer(PacketType.finalizationStatistics);
+			const packetBufferFinalizationStatistics = createPacketBuffer(PacketType.finalizationStatistics);
 
 			const [chainInfoPacket, finalizedBlockInfoPacket] = await Promise.all([
 				fetchData(packetBufferChainStatistics, timeout),
