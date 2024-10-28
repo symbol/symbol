@@ -79,7 +79,8 @@ export default {
 						}
 					}
 				},
-				type: routeResultTypes.serverInfo
+				type: routeResultTypes.serverInfo,
+				formatter: 'ws'
 			});
 			return next();
 		});

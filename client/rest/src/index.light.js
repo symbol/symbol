@@ -21,7 +21,6 @@
 
 import catapult from './catapult-sdk/index.js';
 import createConnectionService from './connection/connectionService.js';
-import dbFormattingRules from './db/dbFormattingRules.js';
 import routeSystem from './plugins/routeSystem.js';
 import bootstrapper from './server/bootstrapper.js';
 import formatters from './server/formatters.js';
@@ -33,7 +32,6 @@ import fs from 'fs';
 
 const createServer = config => {
 	const modelSystem = catapult.plugins.catapultModelSystem.configure([], {
-		json: dbFormattingRules,
 		ws: messageFormattingRules
 	});
 
