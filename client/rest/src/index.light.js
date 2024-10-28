@@ -52,12 +52,7 @@ const registerRoutes = (server, db, services) => {
 	};
 
 	// 2. configure extension routes
-	routeSystem.configure(
-		services.config.routeExtensions,
-		server,
-		db,
-		servicesView
-	);
+	routeSystem.configure(services.config.routeExtensions, server, db, servicesView);
 };
 
 (() => {

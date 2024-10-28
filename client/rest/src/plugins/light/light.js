@@ -27,7 +27,7 @@ import nodeRoutes from './nodeRoutes.js';
  * @type {module:plugins/CatapultRestPlugin}
  */
 export default {
-	createDb: db => db,
+	createDb: () => {},
 
 	registerTransactionStates: () => {},
 
