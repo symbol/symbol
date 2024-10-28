@@ -19,15 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import light from '../../../src/plugins/light/light.js';
-import test from '../../routes/utils/routeTestUtils.js';
-import pluginTest from '../utils/pluginTestUtils.js';
+import light from '../../../src/routes/light/light.js';
+import test from '../utils/routeTestUtils.js';
+import { expect } from 'chai';
 
-describe('Light REST plugin', () => {
-	pluginTest.assertThat.pluginDoesNotCreateDb(light, { shouldForwardDb: true });
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(light);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(light);
-
+describe('Light REST Route', () => {
 	describe('register routes', () => {
 		it('registers GET routes', () => {
 			// Arrange:
@@ -50,10 +46,51 @@ describe('Light REST plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
+				// node route
 				'/node/info',
 				'/node/server',
 				'/node/unlockedaccount'
 			]);
+		});
+	});
+
+	describe('create db', () => {
+		it('undefined', () => {
+			// Arrange:
+			const catapultDb = {};
+
+			// Act:
+			const db = light.createDb(catapultDb);
+
+			// Assert:
+			expect(db).to.equal(undefined);
+		});
+	});
+
+	describe('register transaction states', () => {
+		it('does not register states', () => {
+			// Arrange:
+			const states = [];
+
+			// Act:
+			light.registerTransactionStates(states);
+
+			// Assert:
+			expect(states.length).to.equal(0);
+		});
+	});
+
+	describe('register message channels', () => {
+		it('does not register channels', () => {
+			// Arrange:
+			let numAddCalls = 0;
+			const builder = { add: () => { ++numAddCalls; } };
+
+			// Act:
+			light.registerMessageChannels(builder);
+
+			// Assert:
+			expect(numAddCalls).to.equal(0);
 		});
 	});
 });

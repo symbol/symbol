@@ -13,10 +13,6 @@
         "allowedMethods": ["GET", "POST", "PUT", "OPTIONS"]
     },
 
-    "routeExtensions": [
-        "light"
-    ],
-
     "apiNode": {
         "host": "127.0.0.1",
         "port": 7900,

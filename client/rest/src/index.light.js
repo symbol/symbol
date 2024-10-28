@@ -21,7 +21,7 @@
 
 import catapult from './catapult-sdk/index.js';
 import createConnectionService from './connection/connectionService.js';
-import routeSystem from './plugins/routeSystem.js';
+import lightRoutes from './routes/light/light.js';
 import bootstrapper from './server/bootstrapper.js';
 import formatters from './server/formatters.js';
 import messageFormattingRules from './server/messageFormattingRules.js';
@@ -49,8 +49,8 @@ const registerRoutes = (server, db, services) => {
 		connections: services.connectionService
 	};
 
-	// 2. configure extension routes
-	routeSystem.configure(services.config.routeExtensions, server, db, servicesView);
+	// 2. configure basic routes
+	lightRoutes.registerRoutes(server, db, servicesView);
 };
 
 (() => {

@@ -21,7 +21,6 @@
 
 import aggregate from './aggregate/aggregate.js';
 import empty from './empty.js';
-import light from './light/light.js';
 import lockHash from './lockHash/lockHash.js';
 import lockSecret from './lockSecret/lockSecret.js';
 import metadata from './metadata/metadata.js';
@@ -52,10 +51,7 @@ const plugins = {
 
 	// rosetta
 	nemRosetta,
-	symbolRosetta,
-
-	// light
-	light
+	symbolRosetta
 };
 
 export default {

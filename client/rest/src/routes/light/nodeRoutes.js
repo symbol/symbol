@@ -20,8 +20,8 @@
  */
 
 import catapult from '../../catapult-sdk/index.js';
-import routeResultTypes from '../../routes/routeResultTypes.js';
 import nodeInfoCodec from '../../sockets/nodeInfoCodec.js';
+import routeResultTypes from '../routeResultTypes.js';
 import { utils } from 'symbol-sdk';
 import fs from 'fs';
 import path from 'path';

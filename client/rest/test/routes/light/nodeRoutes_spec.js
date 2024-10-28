@@ -19,9 +19,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import nodeRoutes from '../../../src/plugins/light/nodeRoutes.js';
-import MockServer from '../../routes/utils/MockServer.js';
-import test from '../../routes/utils/routeTestUtils.js';
+import nodeRoutes from '../../../src/routes/light/nodeRoutes.js';
+import MockServer from '../utils/MockServer.js';
+import test from '../utils/routeTestUtils.js';
 import { expect } from 'chai';
 
 const restVersion = '2.4.4';
@@ -130,7 +130,8 @@ describe('Light REST node routes', () => {
 							}
 						}
 					},
-					type: 'serverInfo'
+					type: 'serverInfo',
+					formatter: 'ws'
 				});
 			});
 		});
