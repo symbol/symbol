@@ -33,9 +33,14 @@ export default {
 		const { connections } = services;
 		const { timeout } = services.config.apiNode;
 
-		const fetchData = async packetBuffer => {
+		const fetchAndParse = async (packetBuffer, codec) => {
 			const connection = await connections.singleUse();
-			return connection.pushPull(packetBuffer, timeout);
+			const packet = await connection.pushPull(packetBuffer, timeout);
+
+			const binaryParserInfo = new BinaryParser();
+			binaryParserInfo.push(packet.payload);
+
+			return codec.deserialize(binaryParserInfo);
 		};
 
 		const createPacketBuffer = packetType => packetHeader.createBuffer(packetType, packetHeader.size);
@@ -44,19 +49,10 @@ export default {
 			const packetBufferChainStatistics = createPacketBuffer(PacketType.chainStatistics);
 			const packetBufferFinalizationStatistics = createPacketBuffer(PacketType.finalizationStatistics);
 
-			const [chainInfoPacket, finalizedBlockInfoPacket] = await Promise.all([
-				fetchData(packetBufferChainStatistics, timeout),
-				fetchData(packetBufferFinalizationStatistics, timeout)
+			const [chainInfo, latestFinalizedBlock] = await Promise.all([
+				fetchAndParse(packetBufferChainStatistics, chainInfoCodec),
+				fetchAndParse(packetBufferFinalizationStatistics, finalizedBlockCodec)
 			]);
-
-			const binaryParserChainInfo = new BinaryParser();
-			binaryParserChainInfo.push(chainInfoPacket.payload);
-
-			const binaryParserFinalizedBlockInfo = new BinaryParser();
-			binaryParserFinalizedBlockInfo.push(finalizedBlockInfoPacket.payload);
-
-			const chainInfo = chainInfoCodec.deserialize(binaryParserChainInfo);
-			const latestFinalizedBlock = finalizedBlockCodec.deserialize(binaryParserFinalizedBlockInfo);
 
 			const response = {
 				payload: {
