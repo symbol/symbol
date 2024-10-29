@@ -21,6 +21,7 @@
 
 import catapult from '../../catapult-sdk/index.js';
 import nodeInfoCodec from '../../sockets/nodeInfoCodec.js';
+import nodePeersCodec from '../../sockets/nodePeersCodec.js';
 import routeResultTypes from '../routeResultTypes.js';
 import { utils } from 'symbol-sdk';
 import fs from 'fs';
@@ -60,6 +61,20 @@ export default {
 					const response = buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo);
 					response.payload.nodePublicKey = services.config.apiNode.nodePublicKey;
 					res.send(response);
+					next();
+				});
+		});
+
+		server.get('/node/peers', (req, res, next) => {
+			const packetBuffer = packetHeader.createBuffer(
+				PacketType.nodeDiscoveryPullPeers,
+				packetHeader.size
+			);
+			return connections
+				.singleUse()
+				.then(connection => connection.pushPull(packetBuffer, timeout))
+				.then(packet => {
+					res.send(buildResponse(packet, nodePeersCodec, routeResultTypes.nodeInfo));
 					next();
 				});
 		});

@@ -48,6 +48,7 @@ describe('Light REST Route', () => {
 			test.assert.assertRoutes(routes, [
 				// node route
 				'/node/info',
+				'/node/peers',
 				'/node/server',
 				'/node/unlockedaccount'
 			]);
