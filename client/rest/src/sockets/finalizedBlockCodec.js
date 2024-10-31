@@ -19,25 +19,22 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/light */
-import chainRoutes from './chainRoutes.js';
-import nodeRoutes from './nodeRoutes.js';
+/** @module sockets/finalizedBlockCodec */
 
-/**
- * Creates a light plugin.
- * @type {module:plugins/CatapultRestPlugin}
- */
 export default {
-	createDb: () => {},
+	/**
+	 * Parses a finalized block info.
+	 * @param {object} parser Parser.
+	 * @returns {object} Parsed finalized block info.
+	 */
+	deserialize: parser => {
+		const finalizedBlock = {};
 
-	registerTransactionStates: () => {},
+		finalizedBlock.finalizationEpoch = parser.uint32();
+		finalizedBlock.finalizationPoint = parser.uint32();
+		finalizedBlock.height = parser.uint64();
+		finalizedBlock.hash = parser.buffer(32);
 
-	registerMessageChannels: () => {},
-
-	registerRoutes: (server, db, services) => {
-		[
-			chainRoutes,
-			nodeRoutes
-		].forEach(routes => routes.register(server, db, { ...services }));
+		return finalizedBlock;
 	}
 };

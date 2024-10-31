@@ -50,7 +50,10 @@ describe('Light REST Route', () => {
 				'/node/info',
 				'/node/peers',
 				'/node/server',
-				'/node/unlockedaccount'
+				'/node/unlockedaccount',
+
+				// chain route
+				'/chain/info'
 			]);
 		});
 	});
