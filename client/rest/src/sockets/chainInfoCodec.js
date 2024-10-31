@@ -19,25 +19,22 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/light */
-import chainRoutes from './chainRoutes.js';
-import nodeRoutes from './nodeRoutes.js';
+/** @module sockets/chainInfoCodec */
 
-/**
- * Creates a light plugin.
- * @type {module:plugins/CatapultRestPlugin}
- */
 export default {
-	createDb: () => {},
+	/**
+	 * Parses a chain info.
+	 * @param {object} parser Parser.
+	 * @returns {object} Parsed chain info.
+	 */
+	deserialize: parser => {
+		const chainInfo = {};
 
-	registerTransactionStates: () => {},
+		chainInfo.height = parser.uint64();
+		parser.uint64(); // finalizedHeight
+		chainInfo.scoreHigh = parser.uint64();
+		chainInfo.scoreLow = parser.uint64();
 
-	registerMessageChannels: () => {},
-
-	registerRoutes: (server, db, services) => {
-		[
-			chainRoutes,
-			nodeRoutes
-		].forEach(routes => routes.register(server, db, { ...services }));
+		return chainInfo;
 	}
 };

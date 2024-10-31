@@ -37,6 +37,9 @@ export const PacketType = {
 	/** Blocks have been pushed by a peer. */
 	pushBlock: 3,
 
+	/** Chain statistics has been requested by a peer. */
+	chainStatistics: 5,
+
 	/** Transactions have been pushed by an api-node or a peer. */
 	pushTransactions: 9,
 
@@ -54,6 +57,9 @@ export const PacketType = {
 
 	/** Node time information has been requested by a peer. */
 	timeSyncNodeTime: 0x120,
+
+	/** Finalization statistics has been requested by a peer. */
+	finalizationStatistics: 0x132,
 
 	/** Finalization proof has been requested by a peer */
 	finalizationProofAtEpoch: 0x133,
