@@ -1,0 +1,58 @@
+{
+    "network": {
+        "name": "testnet",
+        "description": "catapult public test network"
+    },
+
+    "port": 3000,
+    "protocol": "HTTPS",
+    "sslKeyPath": "",
+    "sslCertificatePath": "",
+    "crossDomain": {
+        "allowedHosts": ["*"],
+        "allowedMethods": ["GET", "POST", "PUT", "OPTIONS"]
+    },
+
+    "apiNode": {
+        "host": "127.0.0.1",
+        "port": 7900,
+        "timeout": 1000,
+        "tlsClientCertificatePath": "/",
+        "tlsClientKeyPath": "/",
+        "tlsCaCertificatePath": "/",
+
+        "inflationPropertyFilePath": "/",
+        "networkPropertyFilePath": "/",
+        "nodePropertyFilePath": "/"
+    },
+
+    "throttling": {
+        "burst": 20,
+        "rate": 5
+    },
+
+    "logging": {
+        "console": {
+            "formats": ["colorize", "simple"],
+
+            "level": "verbose",
+            "handleExceptions": true
+        },
+        "file": {
+            "formats": ["prettyPrint"],
+
+            "level": "verbose",
+            "handleExceptions": true,
+
+            "filename": "catapult-rest.log",
+            "maxsize": 20971520,
+            "maxFiles": 100
+        }
+    },
+
+    "deployment": {
+        "deploymentTool": "",
+        "deploymentToolVersion": "",
+        "lastUpdatedDate": ""
+    }
+}
