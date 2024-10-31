@@ -20,9 +20,9 @@
  */
 
 import catapult from '../../catapult-sdk/index.js';
-import routeResultTypes from '../../routes/routeResultTypes.js';
 import chainInfoCodec from '../../sockets/chainInfoCodec.js';
 import finalizedBlockCodec from '../../sockets/finalizedBlockCodec.js';
+import routeResultTypes from '../routeResultTypes.js';
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;

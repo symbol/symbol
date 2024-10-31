@@ -20,6 +20,7 @@
  */
 
 /** @module plugins/light */
+import chainRoutes from './chainRoutes.js';
 import nodeRoutes from './nodeRoutes.js';
 
 /**
@@ -35,6 +36,7 @@ export default {
 
 	registerRoutes: (server, db, services) => {
 		[
+			chainRoutes,
 			nodeRoutes
 		].forEach(routes => routes.register(server, db, { ...services }));
 	}

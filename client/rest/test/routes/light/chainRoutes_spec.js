@@ -19,8 +19,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import chainRoutes from '../../../src/plugins/light/chainRoutes.js';
-import test from '../../routes/utils/routeTestUtils.js';
+import chainRoutes from '../../../src/routes/light/chainRoutes.js';
+import test from '../utils/routeTestUtils.js';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
