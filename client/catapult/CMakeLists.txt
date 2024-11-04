@@ -88,7 +88,7 @@ endfunction()
 
 ### setup rocksdb
 message("--- locating rocksdb dependencies ---")
-find_package(RocksDB 9.6.1 EXACT REQUIRED)
+find_package(RocksDB 9.7.3 EXACT REQUIRED)
 
 if(WIN32)
 	set(RocksDB_LIBRARY RocksDB::rocksdb)
