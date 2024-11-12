@@ -217,7 +217,7 @@ def main():
 
 	process_manager = ProcessManager(args.dry_run)
 
-	return_code = process_manager.dispatch_subprocess(docker_run)
+	return_code = process_manager.dispatch_subprocess(docker_run, handle_error=not environment_manager.is_windows_platform())
 	if return_code:
 		sys.exit(return_code)
 
