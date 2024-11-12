@@ -12,8 +12,7 @@ RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; `
 	$command='c:\scoop.ps1 -RunAsAdmin'; `
 	iex $command; `
 	del c:\scoop.ps1; `
-	scoop install git shellcheck nodejs-lts cygwin rustup python; `
-	python3 -m pip install --upgrade pip
+	scoop install git shellcheck nodejs-lts cygwin rustup python
 
 # Set VS tools first in the path so the correct link.exe is used.
 RUN Set-Content -Path c:\Users\ContainerAdministrator\.bash_profile  -Value 'export PATH=${VCToolsInstallDir}bin/Hostx64/x64:${PATH}'
