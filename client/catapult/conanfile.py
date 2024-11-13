@@ -13,7 +13,7 @@ class CatapultConan(ConanFile):
 		self.requires("openssl/3.3.2", run=True)
 		self.requires("cppzmq/4.10.0@nemtech/stable", run=True)
 		self.requires("mongo-cxx-driver/3.11.0@nemtech/stable", run=True)
-		self.requires("rocksdb/9.7.3@nemtech/stable", run=True)
+		self.requires("rocksdb/9.7.4@nemtech/stable", run=True)
 
 	def build_requirements(self):
 		# pylint: disable=not-callable
