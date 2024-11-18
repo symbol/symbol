@@ -1,7 +1,7 @@
-aiohttp==3.10.10
+aiohttp==3.11.2
 jinja2-cli==0.8.2
 pytest>=6.2.5
 coverage>=6.3
 Sphinx>=6.2.1
 sphinx-rtd-theme>=1.2.0
-websockets==14.0
+websockets==14.1
