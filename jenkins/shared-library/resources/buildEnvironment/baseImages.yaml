@@ -1,5 +1,5 @@
 fedora-lts:
-  image: fedora:40
+  image: fedora:41
 ubuntu-lts:
   image: ubuntu:22.04
   python: 3.11
@@ -9,8 +9,8 @@ ubuntu-base:
   python: 3.9
   nodejs: 18
 ubuntu-latest:
-  image: ubuntu:24.04
-  python: 3.12
+  image: ubuntu:24.10
+  python: 3.13
   nodejs: 21
 windows-lts:
   image: symbolplatform/symbol-server-compiler:windows-msvc-17
