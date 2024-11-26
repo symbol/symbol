@@ -2,10 +2,10 @@
 
 ## Introduction
 
-This is a lightweight version of the REST server. It provides a limited set of endpoints compared to the full API node. The main differences between the light rest and the full API node are:
+The light version of the REST server provides limited endpoints compared to the full API node. The main differences between the two are:
 
 - The light rest does not use MongoDB or broker services.
-- it communicates with the peer node using a socket connection.
+- Light REST only communicates with the server using a socket connection.
 
 ## Purpose
 
