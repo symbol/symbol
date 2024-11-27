@@ -5,6 +5,19 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## next
 
+## [3.2.3] - 02-Dec-2024
+
+### Added
+- add toJson() to the generated model classes to get a JSON-safe representation of the model.
+- add extractSigningPayload() to facade to get signing payload which allows signing by hardware keys.
+
+### Changed
+- export bytesToBigInt(), bytesToInt(), deepCompare(), intToBytes(), isHexString() and tryParseUint() from sdk via utils
+- (BREAKING NEM) NEM cosignature transaction multisig_transaction_hash field renamed to other_transaction_hash
+
+### Fixed
+- (NEM) add non-verifiable cosignature transaction to allow signing of the cosignature transaction.
+
 ## [3.2.2] - 28-May-2024
 
 ### Added
