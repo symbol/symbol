@@ -8,8 +8,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [3.2.3] - 02-Dec-2024
 
 ### Added
-- add toJson() to the generated model classes to get a JSON-safe representation of the model.
-- add extractSigningPayload() to facade to get signing payload which allows signing by hardware keys.
+- add to_json() to the generated model classes to get a JSON-safe representation of the model.
+- add extract_signing_payload() to facade to get signing payload which allows signing by hardware keys.
 
 ### Changed
 - (BREAKING NEM) NEM cosignature transaction multisig_transaction_hash field renamed to other_transaction_hash
@@ -146,6 +146,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
+[3.2.3]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.2.2...sdk%2Fpython%2Fv3.2.3
 [3.2.2]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.2.0...sdk%2Fpython%2Fv3.2.2
 [3.2.0]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.1.0...sdk%2Fpython%2Fv3.2.0
 [3.1.0]: https://github.com/symbol/symbol/compare/sdk%2Fpython%2Fv3.0.11...sdk%2Fpython%2Fv3.1.0

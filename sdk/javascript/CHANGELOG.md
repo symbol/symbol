@@ -129,6 +129,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - complete SDK rewrite, see details in [readme](README.md)
 
+[3.2.3]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.2...sdk%2Fjavascript%2Fv3.2.3
 [3.2.2]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.1...sdk%2Fjavascript%2Fv3.2.2
 [3.2.1]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.2.0...sdk%2Fjavascript%2Fv3.2.1
 [3.2.0]: https://github.com/symbol/symbol/compare/sdk%2Fjavascript%2Fv3.1.0...sdk%2Fjavascript%2Fv3.2.0
