@@ -10,6 +10,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - add to_json() to the generated model classes to get a JSON-safe representation of the model.
 - add extract_signing_payload() to facade to get signing payload which allows signing by hardware keys.
+- add cosign_transaction_hash() to facade and account to allow cosigning of transaction hash.
 
 ### Changed
 - (BREAKING NEM) NEM cosignature transaction multisig_transaction_hash field renamed to other_transaction_hash

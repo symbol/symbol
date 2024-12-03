@@ -10,6 +10,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - add toJson() to the generated model classes to get a JSON-safe representation of the model.
 - add extractSigningPayload() to facade to get signing payload which allows signing by hardware keys.
+- add cosignTransactionHash() to facade and account to allow cosigning of transaction hash.
 
 ### Changed
 - export bytesToBigInt(), bytesToInt(), deepCompare(), intToBytes(), isHexString() and tryParseUint() from sdk via utils
