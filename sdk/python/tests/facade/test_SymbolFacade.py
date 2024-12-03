@@ -345,6 +345,23 @@ class SymbolFacadeTest(unittest.TestCase):
 	def test_can_cosign_transaction_detached_with_account_wrappers(self):
 		self._run_test_can_cosign_transaction_detached(self._get_cosign_transaction_test_descriptor_for_account_wrappers())
 
+	@staticmethod
+	def _get_cosign_transaction_hash_test_descriptor_for_account_wrappers():
+		def _cosign_transaction_hash_for_account_wrappers(facade, private_key, transaction, detached):
+			transaction_hash = facade.hash_transaction(transaction)
+			return facade.create_account(private_key).cosign_transaction_hash(transaction_hash, detached)
+
+		return CosignTransactionTestDescriptor(
+			lambda facade, private_key, transaction: facade.create_account(private_key).sign_transaction(transaction),
+			_cosign_transaction_hash_for_account_wrappers
+		)
+
+	def test_can_cosign_transaction_hash_with_account_wrappers(self):
+		self._run_test_can_cosign_transaction(self._get_cosign_transaction_hash_test_descriptor_for_account_wrappers())
+
+	def test_can_cosign_transaction_hash_detached_with_account_wrappers(self):
+		self._run_test_can_cosign_transaction_detached(self._get_cosign_transaction_hash_test_descriptor_for_account_wrappers())
+
 	# endregion
 
 	# region hash_transaction / sign_transaction
@@ -456,6 +473,23 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	def test_can_cosign_transaction_detached(self):
 		self._run_test_can_cosign_transaction_detached(self._get_cosign_transaction_test_descriptor_for_facade())
+
+	@staticmethod
+	def _get_cosign_transaction_hash_test_descriptor_for_facade():
+		def _cosign_transaction_hash_for_facade(facade, private_key, transaction, detached):
+			transaction_hash = facade.hash_transaction(transaction)
+			return facade.cosign_transaction_hash(facade.KeyPair(private_key), transaction_hash, detached)
+
+		return CosignTransactionTestDescriptor(
+			lambda facade, private_key, transaction: facade.sign_transaction(facade.KeyPair(private_key), transaction),
+			_cosign_transaction_hash_for_facade
+		)
+
+	def test_can_cosign_transaction_hash(self):
+		self._run_test_can_cosign_transaction(self._get_cosign_transaction_hash_test_descriptor_for_facade())
+
+	def test_can_cosign_transaction_hash_detached(self):
+		self._run_test_can_cosign_transaction_detached(self._get_cosign_transaction_hash_test_descriptor_for_facade())
 
 	# endregion
 

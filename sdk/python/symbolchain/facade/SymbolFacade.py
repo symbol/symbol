@@ -59,6 +59,10 @@ class SymbolAccount(SymbolPublicAccount):
 		"""Cosigns a Symbol transaction."""
 		return self._facade.cosign_transaction(self.key_pair, transaction, detached)
 
+	def cosign_transaction_hash(self, transaction_hash, detached=False):
+		"""Cosigns a Symbol transaction hash."""
+		return self._facade.cosign_transaction_hash(self.key_pair, transaction_hash, detached)
+
 # endregion
 
 
@@ -130,10 +134,9 @@ class SymbolFacade:
 		"""Verifies a Symbol transaction."""
 		return Verifier(transaction.signer_public_key).verify(self.extract_signing_payload(transaction), signature)
 
-	def cosign_transaction(self, key_pair, transaction, detached=False):
-		"""Cosigns a Symbol transaction."""
-		transaction_hash = self.hash_transaction(transaction)
-
+	@staticmethod
+	def cosign_transaction_hash(key_pair, transaction_hash, detached=False):
+		"""Cosigns a Symbol transaction hash."""
 		cosignature = sc.DetachedCosignature() if detached else sc.Cosignature()
 		if detached:
 			cosignature.parent_hash = sc.Hash256(transaction_hash.bytes)
@@ -142,6 +145,11 @@ class SymbolFacade:
 		cosignature.signer_public_key = sc.PublicKey(key_pair.public_key.bytes)
 		cosignature.signature = sc.Signature(key_pair.sign(transaction_hash.bytes).bytes)
 		return cosignature
+
+	def cosign_transaction(self, key_pair, transaction, detached=False):
+		"""Cosigns a Symbol transaction."""
+		transaction_hash = self.hash_transaction(transaction)
+		return self.cosign_transaction_hash(key_pair, transaction_hash, detached)
 
 	@staticmethod
 	def hash_embedded_transactions(embedded_transactions):
